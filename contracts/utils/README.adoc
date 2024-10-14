@@ -31,6 +31,7 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {Address}: Collection of functions for overloading Solidity's https://docs.soliditylang.org/en/latest/types.html#address[`address`] type.
  * {Arrays}: Collection of functions that operate on https://docs.soliditylang.org/en/latest/types.html#arrays[`arrays`].
  * {Base64}: On-chain base64 and base64URL encoding according to https://datatracker.ietf.org/doc/html/rfc4648[RFC-4648].
+ * {Bytes}: Common operations on bytes objects.
  * {Strings}: Common operations for strings formatting.
  * {ShortString}: Library to encode (and decode) short strings into (or from) a single bytes32 slot for optimizing costs. Short strings are limited to 31 characters.
  * {SlotDerivation}: Methods for deriving storage slot from ERC-7201 namespaces as well as from constructions such as mapping and arrays.
@@ -41,6 +42,7 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {Packing}: A library for packing and unpacking multiple values into bytes32
  * {Panic}: A library to revert with https://docs.soliditylang.org/en/v0.8.20/control-structures.html#panic-via-assert-and-error-via-require[Solidity panic codes].
  * {Comparators}: A library that contains comparator functions to use with with the {Heap} library.
+ * {CAIP2}, {CAIP10}: Libraries for formatting and parsing CAIP-2 and CAIP-10 identifiers.
 
 [NOTE]
 ====
