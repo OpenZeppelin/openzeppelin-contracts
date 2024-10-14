@@ -6,7 +6,10 @@ import {VotesAdditionalCheckpoints, Votes} from "../../governance/utils/VotesAdd
 import {SafeCast} from "../../utils/math/SafeCast.sol";
 
 abstract contract ERC20VotesAdditionalCheckpointsMock is ERC20Votes, VotesAdditionalCheckpoints {
-    function _delegate(address account, address delegatee) internal virtual override(Votes, VotesAdditionalCheckpoints) {
+    function _delegate(
+        address account,
+        address delegatee
+    ) internal virtual override(Votes, VotesAdditionalCheckpoints) {
         return super._delegate(account, delegatee);
     }
 

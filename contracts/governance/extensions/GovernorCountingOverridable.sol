@@ -135,7 +135,10 @@ abstract contract GovernorCountingOverridable is GovernorVotes {
         }
 
         uint256 proposalSnapshot = proposalSnapshot(proposalId);
-        uint256 overridenWeight = VotesAdditionalCheckpoints(address(token())).getPastBalanceOf(account, proposalSnapshot);
+        uint256 overridenWeight = VotesAdditionalCheckpoints(address(token())).getPastBalanceOf(
+            account,
+            proposalSnapshot
+        );
         address delegate = VotesAdditionalCheckpoints(address(token())).getPastDelegate(account, proposalSnapshot);
         uint8 delegateCasted = proposalVote.voteReceipt[delegate].casted;
 
