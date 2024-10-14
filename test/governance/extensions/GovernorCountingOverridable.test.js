@@ -6,7 +6,7 @@ const { GovernorHelper } = require('../../helpers/governance');
 const { VoteType } = require('../../helpers/enums');
 
 const TOKENS = [
-  { Token: '$ERC20VotesOverridableMock', mode: 'blocknumber' },
+  { Token: '$ERC20VotesAdditionalCheckpointsMock', mode: 'blocknumber' },
   // { Token: '$ERC20VotesOverridableTimestampMock', mode: 'timestamp' },
 ];
 
