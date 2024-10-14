@@ -13,7 +13,7 @@ library Bytes {
      * * If `s` is present in the buffer, returns the index of the first instance
      * * If `s` is not present in the buffer, returns type(uint256).max
      *
-     * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf
+     * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf[Javascript's `Array.indexOf`]
      */
     function indexOf(bytes memory buffer, bytes1 s) internal pure returns (uint256) {
         return indexOf(buffer, s, 0);
@@ -22,9 +22,9 @@ library Bytes {
     /**
      * @dev Forward search for `s` in `buffer` starting at position `pos`
      * * If `s` is present in the buffer (at or after `pos`), returns the index of the next instance
-     * * If `s` is not present in the buffer (at or after `pos`), returns the length of the buffer
+     * * If `s` is not present in the buffer (at or after `pos`), returns type(uint256).max
      *
-     * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf
+     * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf[Javascript's `Array.indexOf`]
      */
     function indexOf(bytes memory buffer, bytes1 s, uint256 pos) internal pure returns (uint256) {
         unchecked {
@@ -43,7 +43,7 @@ library Bytes {
      * * If `s` is present in the buffer, returns the index of the last instance
      * * If `s` is not present in the buffer, returns type(uint256).max
      *
-     * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/lastIndexOf
+     * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/lastIndexOf[Javascript's `Array.lastIndexOf`]
      */
     function lastIndexOf(bytes memory buffer, bytes1 s) internal pure returns (uint256) {
         return lastIndexOf(buffer, s, type(uint256).max);
@@ -52,9 +52,9 @@ library Bytes {
     /**
      * @dev Backward search for `s` in `buffer` starting at position `pos`
      * * If `s` is present in the buffer (at or before `pos`), returns the index of the previous instance
-     * * If `s` is not present in the buffer (at or before `pos`), returns the length of the buffer
+     * * If `s` is not present in the buffer (at or before `pos`), returns type(uint256).max
      *
-     * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/lastIndexOf
+     * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/lastIndexOf[Javascript's `Array.lastIndexOf`]
      */
     function lastIndexOf(bytes memory buffer, bytes1 s, uint256 pos) internal pure returns (uint256) {
         unchecked {
@@ -73,7 +73,7 @@ library Bytes {
      * @dev Copies the content of `buffer`, from `start` (included) to the end of `buffer` into a new bytes object in
      * memory.
      *
-     * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice
+     * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice[Javascript's `Array.slice`]
      */
     function slice(bytes memory buffer, uint256 start) internal pure returns (bytes memory) {
         return slice(buffer, start, buffer.length);
@@ -83,7 +83,7 @@ library Bytes {
      * @dev Copies the content of `buffer`, from `start` (included) to `end` (excluded) into a new bytes object in
      * memory.
      *
-     * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice
+     * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice[Javascript's `Array.slice`]
      */
     function slice(bytes memory buffer, uint256 start, uint256 end) internal pure returns (bytes memory) {
         // sanitize
