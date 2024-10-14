@@ -2,9 +2,7 @@
 // The following listing does not pretend to be exhaustive or even accurate. It SHOULD NOT be used in production.
 
 const { ethers } = require('hardhat');
-
-const mapValues = (obj, fn) => Object.fromEntries(Object.entries(obj).map(([k, v]) => [k, fn(v)]));
-const format = (...args) => args.join(':');
+const { mapValues } = require('./iterate');
 
 // EVM (https://axelarscan.io/resources/chains?type=evm)
 const ethereum = {
@@ -81,6 +79,15 @@ const cosmos = {
   terra: 'columbus-5',
 };
 
+const makeCAIP = ({ namespace, reference, account }) => ({
+  namespace,
+  reference,
+  account,
+  caip2: `${namespace}:${reference}`,
+  caip10: `${namespace}:${reference}:${account}`,
+  toCaip10: other => `${namespace}:${reference}:${ethers.getAddress(other.target ?? other.address ?? other)}`,
+});
+
 module.exports = {
   CHAINS: mapValues(
     Object.assign(
@@ -95,11 +102,8 @@ module.exports = {
         account: ethers.encodeBase58(ethers.randomBytes(32)),
       })),
     ),
-    entry =>
-      Object.assign(entry, {
-        caip2: format(entry.namespace, entry.reference),
-        caip10: format(entry.namespace, entry.reference, entry.account),
-      }),
+    makeCAIP,
   ),
-  format,
+  getLocalCAIP: account =>
+    ethers.provider.getNetwork().then(({ chainId }) => makeCAIP({ namespace: 'eip155', reference: chainId, account })),
 };

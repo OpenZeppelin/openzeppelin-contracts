@@ -2,13 +2,12 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { CHAINS, format } = require('../helpers/chains');
+const { CHAINS, getLocalCAIP } = require('../helpers/chains');
 
 async function fixture() {
   const caip2 = await ethers.deployContract('$CAIP2');
   const caip10 = await ethers.deployContract('$CAIP10');
-  const { chainId } = await ethers.provider.getNetwork();
-  return { caip2, caip10, chainId };
+  return { caip2, caip10 };
 }
 
 describe('CAIP utilities', function () {
@@ -18,7 +17,8 @@ describe('CAIP utilities', function () {
 
   describe('CAIP-2', function () {
     it('local()', async function () {
-      expect(await this.caip2.$local()).to.equal(format('eip155', this.chainId));
+      const { caip2 } = await getLocalCAIP();
+      expect(await this.caip2.$local()).to.equal(caip2);
     });
 
     for (const { namespace, reference, caip2 } of Object.values(CHAINS))
@@ -36,8 +36,8 @@ describe('CAIP utilities', function () {
     const { address: account } = ethers.Wallet.createRandom();
 
     it(`local(${account})`, async function () {
-      // lowercase encoding for now
-      expect(await this.caip10.$local(ethers.Typed.address(account))).to.equal(format('eip155', this.chainId, account));
+      const { caip10 } = await getLocalCAIP(account);
+      expect(await this.caip10.$local(ethers.Typed.address(account))).to.equal(caip10);
     });
 
     for (const { account, caip2, caip10 } of Object.values(CHAINS))
