@@ -17,6 +17,14 @@ struct ForwardRequest {
     bytes data;
 }
 
+enum TamperType {
+    FROM,
+    TO,
+    VALUE,
+    DATA,
+    SIGNATURE
+}
+
 contract ERC2771ForwarderMock is ERC2771Forwarder {
     constructor(string memory name) ERC2771Forwarder(name) {}
 
@@ -97,23 +105,23 @@ contract ERC2771ForwarderTest is Test {
     }
 
     function _tamperedValues(
-        uint8 tamper,
+        TamperType tamper,
         ERC2771Forwarder.ForwardRequestData memory request
     ) private returns (ERC2771Forwarder.ForwardRequestData memory) {
         return
             ERC2771Forwarder.ForwardRequestData({
-                from: tamper == 0 ? vm.randomAddress() : request.from,
-                to: tamper == 1 ? vm.randomAddress() : request.to,
-                value: tamper == 2 ? vm.randomUint() : request.value,
+                from: tamper == TamperType.FROM ? vm.randomAddress() : request.from,
+                to: tamper == TamperType.TO ? vm.randomAddress() : request.to,
+                value: tamper == TamperType.VALUE ? vm.randomUint() : request.value,
                 gas: request.gas,
                 deadline: request.deadline,
-                data: tamper == 3 ? vm.randomBytes(4) : request.data,
-                signature: tamper == 4 ? vm.randomBytes(65) : request.signature
+                data: tamper == TamperType.DATA ? vm.randomBytes(4) : request.data,
+                signature: tamper == TamperType.SIGNATURE ? vm.randomBytes(65) : request.signature
             });
     }
 
     function _tamperedExecute(
-        uint8 tamper,
+        TamperType tamper,
         uint256 nonce
     ) private returns (ERC2771Forwarder.ForwardRequestData memory request) {
         request = _tamperedValues(
@@ -126,8 +134,7 @@ contract ERC2771ForwarderTest is Test {
             })
         );
 
-        // tamper == 1: the key being tampered is `to`
-        if (tamper != 1) {
+        if (tamper != TamperType.TO) {
             (address recovered, , ) = _erc2771Forwarder
                 .structHash(
                     ForwardRequest({
@@ -135,7 +142,7 @@ contract ERC2771ForwarderTest is Test {
                         to: request.to,
                         value: request.value,
                         gas: request.gas,
-                        nonce: tamper == 0 ? _erc2771Forwarder.nonces(request.from) : nonce,
+                        nonce: tamper == TamperType.FROM ? _erc2771Forwarder.nonces(request.from) : nonce,
                         deadline: request.deadline,
                         data: request.data
                     })
@@ -228,8 +235,8 @@ contract ERC2771ForwarderTest is Test {
         assertEq(refundReceiver.balance, expectedRefund);
     }
 
-    function testVerifyTamperedValues(uint8 tamper) public {
-        tamper = uint8(bound(tamper, 0, 4));
+    function testVerifyTamperedValues(uint8 _tamper) public {
+        TamperType tamper = TamperType(bound(_tamper, 0, 4));
 
         assertFalse(
             _erc2771Forwarder.verify(
@@ -246,16 +253,14 @@ contract ERC2771ForwarderTest is Test {
         );
     }
 
-    function testExecuteTamperedValues(uint8 tamper) public {
-        tamper = uint8(bound(tamper, 0, 4));
-
+    function testExecuteTamperedValues(uint8 _tamper) public {
+        TamperType tamper = TamperType(bound(_tamper, 0, 4));
         ERC2771Forwarder.ForwardRequestData memory request = _tamperedExecute(tamper, 0);
-
         _erc2771Forwarder.execute{value: request.value}(request);
     }
 
-    function testExecuteBatchTamperedValuesZeroReceiver(uint8 tamper) public {
-        tamper = uint8(bound(tamper, 0, 4));
+    function testExecuteBatchTamperedValuesZeroReceiver(uint8 _tamper) public {
+        TamperType tamper = TamperType(bound(_tamper, 0, 4));
         uint256 batchSize = 3;
 
         ERC2771Forwarder.ForwardRequestData[] memory batchRequestDatas = new ERC2771Forwarder.ForwardRequestData[](
@@ -275,8 +280,8 @@ contract ERC2771ForwarderTest is Test {
         _erc2771Forwarder.executeBatch{value: batchRequestDatas[1].value}(batchRequestDatas, payable(address(0)));
     }
 
-    function testExecuteBatchTamperedValues(uint8 tamper) public {
-        tamper = uint8(bound(tamper, 0, 4));
+    function testExecuteBatchTamperedValues(uint8 _tamper) public {
+        TamperType tamper = TamperType(bound(_tamper, 0, 4));
         uint256 batchSize = 3;
 
         ERC2771Forwarder.ForwardRequestData[] memory batchRequestDatas = new ERC2771Forwarder.ForwardRequestData[](
@@ -295,11 +300,7 @@ contract ERC2771ForwarderTest is Test {
 
         vm.deal(address(this), batchRequestDatas[1].value);
 
-        vm.recordLogs();
+        vm.expectCall(address(_receiver), abi.encodeCall(CallReceiverMock.mockFunction, ()), 1);
         _erc2771Forwarder.executeBatch{value: batchRequestDatas[1].value}(batchRequestDatas, payable(address(0xebe)));
-
-        Vm.Log[] memory entries = vm.getRecordedLogs();
-        assertEq(entries.length, 2);
-        assertEq(entries[1].topics[0], keccak256("ExecutedForwardRequest(address,uint256,bool)"));
     }
 }
