@@ -2,11 +2,11 @@
 
 pragma solidity ^0.8.20;
 
-import {RSA} from "../utils/cryptography/RSA.sol";
 import {ERC7739Signer} from "../utils/cryptography/draft-ERC7739Signer.sol";
 import {EIP712} from "../utils/cryptography/EIP712.sol";
+import {RSA} from "../utils/cryptography/RSA.sol";
 
-contract ERC7739SignerRSA is ERC7739Signer {
+contract ERC7739SignerRSAMock is ERC7739Signer {
     bytes private _e;
     bytes private _n;
 

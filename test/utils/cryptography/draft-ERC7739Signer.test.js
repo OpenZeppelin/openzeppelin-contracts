@@ -1,17 +1,17 @@
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { ethers } = require('hardhat');
-const { shouldBehaveLikeERC7739Signer } = require('./ERC7739Signer.behavior');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+const { shouldBehaveLikeERC7739Signer } = require('./draft-ERC7739Signer.behavior');
 const { ECDSASigner, P256Signer, RSASigner } = require('../../helpers/signers');
 
 async function fixture() {
   const ECDSA = new ECDSASigner();
-  const ECDSAMock = await ethers.deployContract('ERC7739SignerECDSA', [ECDSA.EOA.address]);
+  const ECDSAMock = await ethers.deployContract('$ERC7739SignerECDSAMock', [ECDSA.EOA.address]);
 
   const P256 = new P256Signer();
-  const P256Mock = await ethers.deployContract('ERC7739SignerP256', [P256.publicKey.qx, P256.publicKey.qy]);
+  const P256Mock = await ethers.deployContract('$ERC7739SignerP256Mock', [P256.publicKey.qx, P256.publicKey.qy]);
 
   const RSA = new RSASigner();
-  const RSAMock = await ethers.deployContract('ERC7739SignerRSA', [RSA.publicKey.e, RSA.publicKey.n]);
+  const RSAMock = await ethers.deployContract('$ERC7739SignerRSAMock', [RSA.publicKey.e, RSA.publicKey.n]);
 
   return {
     ECDSA,
