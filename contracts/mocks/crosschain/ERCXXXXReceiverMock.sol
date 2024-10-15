@@ -4,7 +4,19 @@ pragma solidity ^0.8.0;
 
 import {ERCXXXXReceiver} from "../../crosschain/draft-ERCXXXXReceiver.sol";
 
-abstract contract ERCXXXXReceiverMock is ERCXXXXReceiver {
+contract ERCXXXXReceiverMock is ERCXXXXReceiver {
+    address private immutable _gateway;
+
+    event MessageReceived(address gateway, string source, string sender, bytes payload, bytes[] attributes);
+
+    constructor(address gateway_) {
+        _gateway = gateway_;
+    }
+
+    function _isKnownGateway(address instance) internal view virtual override returns (bool) {
+        return instance == _gateway;
+    }
+
     function _processMessage(
         address gateway,
         string calldata source,
@@ -12,6 +24,6 @@ abstract contract ERCXXXXReceiverMock is ERCXXXXReceiver {
         bytes calldata payload,
         bytes[] calldata attributes
     ) internal virtual override {
-        // do nothing
+        emit MessageReceived(gateway, source, sender, payload, attributes);
     }
 }

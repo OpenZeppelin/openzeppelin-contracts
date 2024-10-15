@@ -32,7 +32,7 @@ describe('ERCXXXXReceiver', function () {
         .to.emit(this.gateway, 'MessageCreated')
         .withArgs(ethers.ZeroHash, this.toCaip10(this.sender), this.toCaip10(this.receiver), payload, attributes)
         .to.emit(this.receiver, 'MessageReceived')
-        .withArgs('0x', this.caip2, this.sender.address, payload, attributes);
+        .withArgs(this.gateway, this.caip2, this.sender.address, payload, attributes);
     });
   });
 
@@ -51,7 +51,7 @@ describe('ERCXXXXReceiver', function () {
         this.receiver.receiveMessage(this.gateway, '0x', this.caip2, this.sender.address, payload, attributes),
       )
         .to.emit(this.receiver, 'MessageReceived')
-        .withArgs('0x', this.caip2, this.sender.address, payload, attributes);
+        .withArgs(this.gateway, this.caip2, this.sender.address, payload, attributes);
     });
 
     it('invalid message', async function () {
