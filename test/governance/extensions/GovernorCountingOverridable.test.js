@@ -268,21 +268,75 @@ describe('GovernorCountingOverridable', function () {
             .withArgs(this.voter1.address);
         });
 
-        it('override vote with EOA sig', async function () {
-          const nonce = await this.mock.nonces(this.voter1);
+        it('can not vote twice', async function () {
+          await expect(this.mock.connect(this.voter1).castVote(this.helper.id, VoteType.Against));
+          await expect(this.mock.connect(this.voter1).castVote(this.helper.id, VoteType.Abstain))
+            .to.be.revertedWithCustomError(this.mock, 'GovernorAlreadyCastVote')
+            .withArgs(this.voter1.address);
+        });
 
-          await expect(
-            this.helper.overrideVote({
+        describe('invalid vote type', function () {
+          it('override vote', async function () {
+            await expect(
+              this.mock.connect(this.voter1).castOverrideVote(this.helper.id, 3, ''),
+            ).to.be.revertedWithCustomError(this.mock, 'GovernorInvalidVoteType');
+          });
+
+          it('traditional vote', async function () {
+            await expect(this.mock.connect(this.voter1).castVote(this.helper.id, 3)).to.be.revertedWithCustomError(
+              this.mock,
+              'GovernorInvalidVoteType',
+            );
+          });
+        });
+
+        describe('by signature', function () {
+          it('EOA signature', async function () {
+            const nonce = await this.mock.nonces(this.voter1);
+
+            await expect(
+              this.helper.overrideVote({
+                support: VoteType.For,
+                voter: this.voter1.address,
+                nonce,
+                signature: signBallot(this.voter1),
+              }),
+            )
+              .to.emit(this.mock, 'OverrideVoteCast')
+              .withArgs(this.voter1, this.helper.id, VoteType.For, ethers.parseEther('10'), '');
+
+            expect(await this.mock.hasVotedOverride(this.proposal.id, this.voter1)).to.be.true;
+          });
+
+          it('revert if signature does not match signer', async function () {
+            const nonce = await this.mock.nonces(this.voter1);
+
+            const voteParams = {
               support: VoteType.For,
-              voter: this.voter1.address,
+              voter: this.voter2.address,
               nonce,
               signature: signBallot(this.voter1),
-            }),
-          )
-            .to.emit(this.mock, 'OverrideVoteCast')
-            .withArgs(this.voter1, this.helper.id, VoteType.For, ethers.parseEther('10'), '');
+            };
 
-          expect(await this.mock.hasVotedOverride(this.proposal.id, this.voter1)).to.be.true;
+            await expect(this.helper.overrideVote(voteParams))
+              .to.be.revertedWithCustomError(this.mock, 'GovernorInvalidSignature')
+              .withArgs(voteParams.voter);
+          });
+
+          it('revert if vote nonce is incorrect', async function () {
+            const nonce = await this.mock.nonces(this.voter1);
+
+            const voteParams = {
+              support: VoteType.For,
+              voter: this.voter1.address,
+              nonce: nonce + 1n,
+              signature: signBallot(this.voter1),
+            };
+
+            await expect(this.helper.overrideVote(voteParams))
+              .to.be.revertedWithCustomError(this.mock, 'GovernorInvalidSignature')
+              .withArgs(voteParams.voter);
+          });
         });
       });
     });
