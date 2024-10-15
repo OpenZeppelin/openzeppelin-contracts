@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 
 import {IERC5267} from "../../interfaces/IERC5267.sol";
 import {MessageHashUtils} from "./MessageHashUtils.sol";
+import {Bytes} from "../Bytes.sol";
 
 /**
  * @dev Utilities to process https://eips.ethereum.org/EIPS/eip-7739[ERC-7739] typed data signatures
@@ -24,6 +25,8 @@ import {MessageHashUtils} from "./MessageHashUtils.sol";
  * of an {ECDSA} signature, as is for example specified for {EIP712}.
  */
 library ERC7739Utils {
+    using Bytes for bytes;
+
     /**
      * @dev An EIP-712 typed to represent "personal" signatures
      * (i.e. mimic of `eth_personalSign` for smart contracts).
@@ -225,7 +228,7 @@ library ERC7739Utils {
         if ((high >= 0x61 && high <= 0x7a) || high == 0x28) return (false, contentsType[0:0]); // a-z or (
 
         // Find the start of the arguments
-        uint256 argsStart = _indexOf(contentsType, bytes1("("));
+        uint256 argsStart = contentsType.indexOf(bytes1("("));
         if (argsStart == contentsTypeLength) return (false, contentsType[0:0]);
 
         contentsType = contentsType[0:argsStart];
@@ -243,6 +246,8 @@ library ERC7739Utils {
 
     /**
      * @dev Computes the hash of the nested struct for the given contents.
+     *
+     * NOTE: This function does not validate the contents type. See {tryValidateContentsType}.
      */
     function typedDataNestedStructHash(
         bytes calldata contentsType,
@@ -252,27 +257,20 @@ library ERC7739Utils {
         address verifyingContract,
         bytes32 salt,
         uint256[] memory extensions
-    ) internal view returns (bytes32 result) {
+    ) internal view returns (bytes32) {
         (, bytes calldata contentsTypeName) = tryValidateContentsType(contentsType);
-        result = keccak256(
-            abi.encode(
-                NESTED_TYPED_DATA_TYPEHASH(contentsType, contentsTypeName),
-                contents,
-                keccak256(bytes(name)),
-                keccak256(bytes(version)),
-                block.chainid,
-                verifyingContract,
-                salt,
-                keccak256(abi.encodePacked(extensions))
-            )
-        );
-    }
-
-    function _indexOf(bytes calldata buffer, bytes1 lookup) private pure returns (uint256) {
-        uint256 length = buffer.length;
-        for (uint256 i = 0; i < length; i++) {
-            if (buffer[i] == lookup) return i;
-        }
-        return length;
+        return
+            keccak256(
+                abi.encode(
+                    NESTED_TYPED_DATA_TYPEHASH(contentsType, contentsTypeName),
+                    contents,
+                    keccak256(bytes(name)),
+                    keccak256(bytes(version)),
+                    block.chainid,
+                    verifyingContract,
+                    salt,
+                    keccak256(abi.encodePacked(extensions))
+                )
+            );
     }
 }
