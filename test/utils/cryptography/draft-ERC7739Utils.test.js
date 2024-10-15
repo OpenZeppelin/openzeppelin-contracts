@@ -128,38 +128,40 @@ describe('ERC7739Utils', function () {
   });
 
   describe('tryValidateContentsType', function () {
-    it('should return true for a valid type', async function () {
-      const contentsType = ethers.toUtf8Bytes('SomeType(address foo,uint256 bar)');
-      const [valid, type] = await this.mock.getFunction('$tryValidateContentsType')(contentsType);
-      expect(valid).to.be.true;
-      expect(type).to.equal(ethers.hexlify(ethers.toUtf8Bytes('SomeType')));
-    });
+    const invalidInitialCharacters = 'abcdefghijklmnopqrstuvwxyz(';
+    const forbidenChars = ', )\x00';
 
-    it('should return false for an empty type', async function () {
-      const [valid, type] = await this.mock.getFunction('$tryValidateContentsType')('0x');
-      expect(valid).to.be.false;
-      expect(type).to.equal('0x');
-    });
-
-    const invalidInitialCharacters = Array.from('abcdefghijklmnopqrstuvwxyz(');
-    for (const char of invalidInitialCharacters) {
-      it(`should return false if starting with [${char}]`, async function () {
-        const [valid, type] = await this.mock.getFunction('$tryValidateContentsType')(
-          ethers.toUtf8Bytes(`${char}SomeType()`),
+    for (const { descr, contentsType, contentsTypeName } of [].concat(
+      {
+        descr: 'should return true for a valid type',
+        contentsType: 'SomeType(address foo,uint256 bar)',
+        contentsTypeName: 'SomeType',
+      },
+      {
+        descr: 'should return false for an empty type',
+        contentsType: '',
+        contentsTypeName: null,
+      },
+      {
+        descr: 'should return false if no [(] is present',
+        contentsType: 'SomeType',
+        contentsTypeName: null,
+      },
+      invalidInitialCharacters.split('').map(char => ({
+        descr: `should return false if starting with [${char}]`,
+        contentsType: `${char}SomeType()`,
+        contentsTypeName: null,
+      })),
+      forbidenChars.split('').map(char => ({
+        descr: `should return false if contains [${char}]`,
+        contentsType: `SomeType${char}(address foo,uint256 bar)`,
+        contentsTypeName: null,
+      })),
+    )) {
+      it(descr, async function () {
+        expect(await this.mock.getFunction('$tryValidateContentsType')(ethers.toUtf8Bytes(contentsType))).to.deep.equal(
+          [!!contentsTypeName, ethers.hexlify(ethers.toUtf8Bytes(contentsTypeName ?? ''))],
         );
-        expect(valid).to.be.false;
-        expect(type).to.equal('0x');
-      });
-    }
-
-    const forbidenChars = [',', ' ', ')', '\x00'];
-    for (const char of forbidenChars) {
-      it(`should return false if it has [${char}] char`, async function () {
-        const [valid, type] = await this.mock.getFunction('$tryValidateContentsType')(
-          ethers.toUtf8Bytes(`SomeType${char}(address foo,uint256 bar)`),
-        );
-        expect(valid).to.be.false;
-        expect(type).to.equal('0x');
       });
     }
   });
