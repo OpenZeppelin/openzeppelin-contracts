@@ -113,24 +113,51 @@ contract MyAccountCustom is ERC7739Signer, AccountBase, /* Initializable */ {
 }
 ```
 
-NOTE: We strongly suggest using initializable for a seamless integration with the xref:api:account.adoc#FactoryBase[`FactoryBase`]
+NOTE: We strongly suggest using initializable for a seamless integration with a factory.
 
 == Account Factory
 
 The first time a user sends an user operation, the account will be created deterministically (i.e. its code and address can be predicted) using the the `initCode` field in the UserOperation. This field contains both the address of a smart contract (the factory) and the data required to call it and deploy the smart account.
 
-For this purpose, the xref:api:account.adoc#FactoryBase[`FactoryBase`] can be used to create a factory for any initializable account:
+For this purpose, developers can create an account factory
 
 ```solidity
 // contracts/MyFactoryAccountECDSA.sol
 // SPDX-License-Identifier: MIT
+
 pragma solidity ^0.8.20;
 
-import {FactoryBase} from "@openzeppelin/contracts/account/draft-FactoryBase.sol";
+import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
+import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {MyAccountECDSAClonable} from "./MyAccountECDSAClonable.sol"
 
-contract MyFactoryAccountECDSA is FactoryBase { 
-    constructor() FactoryBase(address(new MyAccountECDSAClonable())) {}
+/**
+ * @dev An abstract factory contract to create {Initializable} contract ECDSA accounts on demand.
+ */
+contract MyFactoryAccountECDSA {
+    using Clones for address;
+
+    address private immutable _impl = address(new MyAccountECDSAClonable());
+
+    /// @dev Predict the address of the account
+    function predictAddress(bytes32 salt) public view returns (address) {
+        return _impl.predictDeterministicAddress(salt, address(this));
+    }
+
+    /// @dev Create clone accounts on demand
+    function cloneAndInitialize(bytes32 salt, bytes calldata data) public returns (address) {
+        return _cloneAndInitialize(salt, data);
+    }
+
+    /// @dev Create clone accounts on demand and return the address. Uses `data` to initialize the clone.
+    function _cloneAndInitialize(bytes32 salt, bytes calldata data) internal returns (address) {
+        address predicted = predictAddress(salt);
+        if (predicted.code.length == 0) {
+            _impl.cloneDeterministic(salt);
+            Address.functionCall(predicted, data);
+        }
+        return predicted;
+    }
 }
 ```
 

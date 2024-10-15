@@ -17,8 +17,6 @@ This directory includes contracts to build accounts for ERC-4337.
 
 {{AccountRSA}}
 
-{{FactoryBase}}
-
 == Utilities
 
 {{ERC4337Utils}}
