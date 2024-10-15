@@ -128,17 +128,17 @@ describe('ERC4337Utils', function () {
 
   describe('hash', function () {
     it('returns the user operation hash', async function () {
-      const userOp = new UserOperation({ sender: this.sender.address, nonce: 1 });
+      const userOp = new UserOperation({ sender: this.sender, nonce: 1 });
       const chainId = await ethers.provider.getNetwork().then(({ chainId }) => chainId);
       const hash = await this.utils.$hash(userOp.packed);
-      expect(hash).to.equal(userOp.hash(this.utils.target, chainId));
+      expect(hash).to.equal(userOp.toHash(this.utils.target, chainId));
     });
 
     it('returns the operation hash with specified entrypoint and chainId', async function () {
-      const userOp = new UserOperation({ sender: this.sender.address, nonce: 1 });
+      const userOp = new UserOperation({ sender: this.sender, nonce: 1 });
       const chainId = 0xdeadbeef;
       const hash = await this.utils.$hash(userOp.packed, this.entrypoint.address, chainId);
-      expect(hash).to.equal(userOp.hash(this.entrypoint.address, chainId));
+      expect(hash).to.equal(userOp.toHash(this.entrypoint.address, chainId));
     });
   });
 
