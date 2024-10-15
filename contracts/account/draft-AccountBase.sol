@@ -105,8 +105,9 @@ abstract contract AccountBase is IAccount, IAccountExecute {
      * @dev Ensures the caller is the {entrypoint}.
      */
     function _checkEntryPoint() internal view virtual {
-        if (msg.sender != address(entryPoint())) {
-            revert AccountUnauthorized(msg.sender);
+        address sender = msg.sender;
+        if (sender != address(entryPoint())) {
+            revert AccountUnauthorized(sender);
         }
     }
 
@@ -114,8 +115,9 @@ abstract contract AccountBase is IAccount, IAccountExecute {
      * @dev Ensures the caller is the {entrypoint} or the account itself.
      */
     function _checkEntryPointOrSelf() internal view virtual {
-        if (msg.sender != address(this) && msg.sender != address(entryPoint())) {
-            revert AccountUnauthorized(msg.sender);
+        address sender = msg.sender;
+        if (sender != address(this) && sender != address(entryPoint())) {
+            revert AccountUnauthorized(sender);
         }
     }
 

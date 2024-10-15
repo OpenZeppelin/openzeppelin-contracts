@@ -195,7 +195,7 @@ function shouldBehaveLikeAccountHolder() {
   });
 }
 
-function shouldBehaveLikeAnAccountBaseExecutor() {
+function shouldBehaveLikeAnAccountBaseExecutor({ deployable = true } = {}) {
   describe('executeUserOp', function () {
     beforeEach(async function () {
       await setBalance(this.smartAccount.target, ethers.parseEther('1'));
@@ -203,50 +203,73 @@ function shouldBehaveLikeAnAccountBaseExecutor() {
       this.entrypointAsSigner = await impersonate(this.entrypoint.target);
     });
 
-    describe('when not deployed', function () {
-      it('should be created with handleOps and increase nonce', async function () {
-        const selector = this.smartAccount.interface.getFunction('executeUserOp').selector;
-        const operation = await this.smartAccount
-          .createOp({
-            callData: ethers.concat([
-              selector,
-              ethers.AbiCoder.defaultAbiCoder().encode(
-                ['address', 'uint256', 'bytes'],
-                [this.target.target, 17, this.target.interface.encodeFunctionData('mockFunctionExtra')],
-              ),
-            ]),
-          })
-          .then(op => op.addInitCode())
-          .then(op => op.sign(this.domain, this.signer));
+    it('should revert if the caller is not the canonical entrypoint or the account itself', async function () {
+      await this.smartAccount.deploy();
 
-        await expect(this.entrypoint.connect(this.entrypointAsSigner).handleOps([operation.packed], this.beneficiary))
-          .to.emit(this.entrypoint, 'AccountDeployed')
-          .withArgs(operation.hash, this.smartAccount, this.factory, ethers.ZeroAddress)
-          .to.emit(this.target, 'MockFunctionCalledExtra')
-          .withArgs(this.smartAccount, 17);
-        expect(await this.smartAccount.getNonce()).to.equal(1);
-      });
+      const selector = this.smartAccount.interface.getFunction('executeUserOp').selector;
+      const operation = await this.smartAccount
+        .createOp({
+          callData: ethers.concat([
+            selector,
+            ethers.AbiCoder.defaultAbiCoder().encode(
+              ['address', 'uint256', 'bytes'],
+              [this.target.target, 0, this.target.interface.encodeFunctionData('mockFunctionExtra')],
+            ),
+          ]),
+        })
+        .then(op => op.sign(this.domain, this.signer));
 
-      it('should revert if the signature is invalid', async function () {
-        const selector = this.smartAccount.interface.getFunction('executeUserOp').selector;
-        const operation = await this.smartAccount
-          .createOp({
-            callData: ethers.concat([
-              selector,
-              ethers.AbiCoder.defaultAbiCoder().encode(
-                ['address', 'uint256', 'bytes'],
-                [this.target.target, 17, this.target.interface.encodeFunctionData('mockFunctionExtra')],
-              ),
-            ]),
-          })
-          .then(op => op.addInitCode());
-
-        operation.signature = '0x00';
-
-        await expect(this.entrypoint.connect(this.entrypointAsSigner).handleOps([operation.packed], this.beneficiary))
-          .to.be.reverted;
-      });
+      await expect(this.smartAccount.connect(this.other).executeUserOp(operation.packed, operation.hash))
+        .to.be.revertedWithCustomError(this.smartAccount, 'AccountUnauthorized')
+        .withArgs(this.other);
     });
+
+    if (deployable) {
+      describe('when not deployed', function () {
+        it('should be created with handleOps and increase nonce', async function () {
+          const selector = this.smartAccount.interface.getFunction('executeUserOp').selector;
+          const operation = await this.smartAccount
+            .createOp({
+              callData: ethers.concat([
+                selector,
+                ethers.AbiCoder.defaultAbiCoder().encode(
+                  ['address', 'uint256', 'bytes'],
+                  [this.target.target, 17, this.target.interface.encodeFunctionData('mockFunctionExtra')],
+                ),
+              ]),
+            })
+            .then(op => op.addInitCode())
+            .then(op => op.sign(this.domain, this.signer));
+
+          await expect(this.entrypoint.connect(this.entrypointAsSigner).handleOps([operation.packed], this.beneficiary))
+            .to.emit(this.entrypoint, 'AccountDeployed')
+            .withArgs(operation.hash, this.smartAccount, this.factory, ethers.ZeroAddress)
+            .to.emit(this.target, 'MockFunctionCalledExtra')
+            .withArgs(this.smartAccount, 17);
+          expect(await this.smartAccount.getNonce()).to.equal(1);
+        });
+
+        it('should revert if the signature is invalid', async function () {
+          const selector = this.smartAccount.interface.getFunction('executeUserOp').selector;
+          const operation = await this.smartAccount
+            .createOp({
+              callData: ethers.concat([
+                selector,
+                ethers.AbiCoder.defaultAbiCoder().encode(
+                  ['address', 'uint256', 'bytes'],
+                  [this.target.target, 17, this.target.interface.encodeFunctionData('mockFunctionExtra')],
+                ),
+              ]),
+            })
+            .then(op => op.addInitCode());
+
+          operation.signature = '0x00';
+
+          await expect(this.entrypoint.connect(this.entrypointAsSigner).handleOps([operation.packed], this.beneficiary))
+            .to.be.reverted;
+        });
+      });
+    }
 
     describe('when deployed', function () {
       beforeEach(async function () {

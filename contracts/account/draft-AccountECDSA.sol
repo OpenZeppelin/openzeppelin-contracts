@@ -46,7 +46,7 @@ abstract contract AccountECDSA is ERC165, ERC7739Signer, ERC721Holder, ERC1155Ho
     }
 
     /**
-     * @dev Validates the signature using the account's signer.S
+     * @dev Validates the signature using the account's signer.
      */
     function _validateSignature(bytes32 hash, bytes calldata signature) internal view virtual override returns (bool) {
         (address recovered, ECDSA.RecoverError err, ) = ECDSA.tryRecover(hash, signature);
