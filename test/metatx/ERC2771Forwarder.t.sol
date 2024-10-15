@@ -244,7 +244,6 @@ contract ERC2771ForwarderTest is Test {
 
         vm.deal(address(this), request.value);
 
-        // tamper == 2: the key being tampered is `value`
         _erc2771Forwarder.execute{value: request.value}(request);
     }
 
