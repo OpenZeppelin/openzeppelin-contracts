@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.20;
 
-import {Test} from "forge-std/Test.sol";
+import {Test, Vm} from "forge-std/Test.sol";
 import {ERC2771Forwarder} from "@openzeppelin/contracts/metatx/ERC2771Forwarder.sol";
 import {CallReceiverMockTrustingForwarder, CallReceiverMock} from "@openzeppelin/contracts/mocks/CallReceiverMock.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
@@ -112,6 +112,52 @@ contract ERC2771ForwarderTest is Test {
             });
     }
 
+    function _tamperedExecute(
+        uint8 tamper,
+        uint256 nonce
+    ) private returns (ERC2771Forwarder.ForwardRequestData memory request) {
+        request = _tamperedValues(
+            tamper,
+            _forgeRequestData({
+                value: 0,
+                nonce: 0,
+                deadline: uint48(block.timestamp + 1),
+                data: abi.encodeCall(CallReceiverMock.mockFunction, ())
+            })
+        );
+
+        // tamper == 1: the key being tampered is `to`
+        if (tamper != 1) {
+            (address recovered, , ) = _erc2771Forwarder
+                .structHash(
+                    ForwardRequest({
+                        from: request.from,
+                        to: request.to,
+                        value: request.value,
+                        gas: request.gas,
+                        nonce: tamper == 0 ? _erc2771Forwarder.nonces(request.from) : nonce,
+                        deadline: request.deadline,
+                        data: request.data
+                    })
+                )
+                .tryRecover(request.signature);
+
+            vm.expectRevert(
+                abi.encodeWithSelector(ERC2771Forwarder.ERC2771ForwarderInvalidSigner.selector, recovered, request.from)
+            );
+        } else {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    ERC2771Forwarder.ERC2771UntrustfulTarget.selector,
+                    request.to,
+                    address(_erc2771Forwarder)
+                )
+            );
+        }
+
+        vm.deal(address(this), request.value);
+    }
+
     function testExecuteAvoidsETHStuck(uint256 initialBalance, uint256 value, bool targetReverts) public {
         initialBalance = bound(initialBalance, 0, _MAX_ETHER);
         value = bound(value, 0, _MAX_ETHER);
@@ -203,46 +249,7 @@ contract ERC2771ForwarderTest is Test {
     function testExecuteTamperedValues(uint8 tamper) public {
         tamper = uint8(bound(tamper, 0, 4));
 
-        ERC2771Forwarder.ForwardRequestData memory request = _tamperedValues(
-            tamper,
-            _forgeRequestData({
-                value: 0,
-                nonce: 0,
-                deadline: uint48(block.timestamp + 1),
-                data: abi.encodeCall(CallReceiverMock.mockFunction, ())
-            })
-        );
-
-        // tamper == 1: the key being tampered is `to`
-        if (tamper != 1) {
-            (address recovered, , ) = _erc2771Forwarder
-                .structHash(
-                    ForwardRequest({
-                        from: request.from,
-                        to: request.to,
-                        value: request.value,
-                        gas: request.gas,
-                        nonce: 0,
-                        deadline: request.deadline,
-                        data: request.data
-                    })
-                )
-                .tryRecover(request.signature);
-
-            vm.expectRevert(
-                abi.encodeWithSelector(ERC2771Forwarder.ERC2771ForwarderInvalidSigner.selector, recovered, request.from)
-            );
-        } else {
-            vm.expectRevert(
-                abi.encodeWithSelector(
-                    ERC2771Forwarder.ERC2771UntrustfulTarget.selector,
-                    request.to,
-                    address(_erc2771Forwarder)
-                )
-            );
-        }
-
-        vm.deal(address(this), request.value);
+        ERC2771Forwarder.ForwardRequestData memory request = _tamperedExecute(tamper, 0);
 
         _erc2771Forwarder.execute{value: request.value}(request);
     }
@@ -263,42 +270,7 @@ contract ERC2771ForwarderTest is Test {
             });
         }
 
-        batchRequestDatas[1] = _tamperedValues(tamper, batchRequestDatas[1]);
-
-        // tamper == 1: the key being tampered is `to`
-        if (tamper != 1) {
-            (address recovered, , ) = _erc2771Forwarder
-                .structHash(
-                    ForwardRequest({
-                        from: batchRequestDatas[1].from,
-                        to: batchRequestDatas[1].to,
-                        value: batchRequestDatas[1].value,
-                        gas: batchRequestDatas[1].gas,
-                        nonce: tamper == 0 ? _erc2771Forwarder.nonces(batchRequestDatas[1].from) : 1,
-                        deadline: batchRequestDatas[1].deadline,
-                        data: batchRequestDatas[1].data
-                    })
-                )
-                .tryRecover(batchRequestDatas[1].signature);
-
-            vm.expectRevert(
-                abi.encodeWithSelector(
-                    ERC2771Forwarder.ERC2771ForwarderInvalidSigner.selector,
-                    recovered,
-                    batchRequestDatas[1].from
-                )
-            );
-        } else {
-            vm.expectRevert(
-                abi.encodeWithSelector(
-                    ERC2771Forwarder.ERC2771UntrustfulTarget.selector,
-                    batchRequestDatas[1].to,
-                    address(_erc2771Forwarder)
-                )
-            );
-        }
-
-        vm.deal(address(this), batchRequestDatas[1].value);
+        batchRequestDatas[1] = _tamperedExecute(tamper, 1);
 
         _erc2771Forwarder.executeBatch{value: batchRequestDatas[1].value}(batchRequestDatas, payable(address(0)));
     }
