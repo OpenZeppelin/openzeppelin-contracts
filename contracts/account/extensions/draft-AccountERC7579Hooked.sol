@@ -10,17 +10,14 @@ abstract contract AccountERC7579Hooked is AccountERC7579 {
     address private _hook;
 
     modifier withHook() {
+        bytes memory hookData;
         address hook_ = hook();
-        if (hook_ == address(0)) {
-            _;
-        } else {
-            bytes memory hookData = IERC7579Hook(hook_).preCheck(msg.sender, msg.value, msg.data);
-            _;
-            IERC7579Hook(hook_).postCheck(hookData);
-        }
+        if (hook_ != address(0)) hookData = IERC7579Hook(hook_).preCheck(msg.sender, msg.value, msg.data);
+        _;
+        if (hook_ != address(0)) IERC7579Hook(hook_).postCheck(hookData);
     }
 
-    function hook() public view returns (address) {
+    function hook() public view virtual returns (address) {
         return _hook;
     }
 
