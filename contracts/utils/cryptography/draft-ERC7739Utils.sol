@@ -51,29 +51,34 @@ library ERC7739Utils {
      * - `contentsType` is the EIP-712 type of the nested signature (e.g. {NESTED_TYPED_DATA_TYPEHASH} or {_NESTED_PERSONAL_SIGN_TYPEHASH})
      */
     function unwrapTypedDataSig(
-        bytes calldata signature
+        bytes calldata wrappedSignature
     )
         internal
         pure
-        returns (bytes calldata originalSig, bytes32 appSeparator, bytes32 contents, bytes calldata contentsType)
+        returns (bytes calldata signature, bytes32 separator, bytes32 contents, bytes calldata contentsType)
     {
-        uint256 sigLength = signature.length;
-        if (sigLength < 66) return (signature[0:0], 0, 0, signature[0:0]);
+        unchecked {
+            uint256 sigLength = wrappedSignature.length;
 
-        uint256 contentsTypeEnd = sigLength - 2; // Last 2 bytes
-        uint256 contentsTypeLength = uint16(bytes2(signature[contentsTypeEnd:sigLength]));
-        if (contentsTypeLength > contentsTypeEnd) return (signature[0:0], 0, 0, signature[0:0]);
+            if (sigLength < 66) return (_emptyCalldataBytes(), 0, 0, _emptyCalldataBytes());
 
-        uint256 contentsEnd = contentsTypeEnd - contentsTypeLength;
-        if (contentsEnd < 64) return (signature[0:0], 0, 0, signature[0:0]);
+            uint256 contentsTypeEnd = sigLength - 2; // Last 2 bytes
+            uint256 contentsTypeLength = uint16(bytes2(wrappedSignature[contentsTypeEnd:]));
 
-        uint256 appSeparatorEnd = contentsEnd - 32;
-        uint256 originalSigEnd = appSeparatorEnd - 32;
+            if (contentsTypeLength > contentsTypeEnd) return (_emptyCalldataBytes(), 0, 0, _emptyCalldataBytes());
 
-        originalSig = signature[0:originalSigEnd];
-        appSeparator = bytes32(signature[originalSigEnd:appSeparatorEnd]);
-        contents = bytes32(signature[appSeparatorEnd:contentsEnd]);
-        contentsType = signature[contentsEnd:contentsTypeEnd];
+            uint256 contentsEnd = contentsTypeEnd - contentsTypeLength;
+
+            if (contentsEnd < 64) return (_emptyCalldataBytes(), 0, 0, _emptyCalldataBytes());
+
+            uint256 separatorEnd = contentsEnd - 32;
+            uint256 signatureEnd = separatorEnd - 32;
+
+            signature = wrappedSignature[:signatureEnd];
+            separator = bytes32(wrappedSignature[signatureEnd:separatorEnd]);
+            contents = bytes32(wrappedSignature[separatorEnd:contentsEnd]);
+            contentsType = wrappedSignature[contentsEnd:contentsTypeEnd];
+        }
     }
 
     /**
@@ -221,24 +226,24 @@ library ERC7739Utils {
         bytes calldata contentsType
     ) internal pure returns (bool valid, bytes calldata contentsTypeName) {
         uint256 contentsTypeLength = contentsType.length;
-        if (contentsTypeLength == 0) return (false, contentsType[0:0]); // Empty
+        if (contentsTypeLength == 0) return (false, _emptyCalldataBytes());
 
         // Does not start with a-z or (
         bytes1 high = contentsType[0];
-        if ((high >= 0x61 && high <= 0x7a) || high == 0x28) return (false, contentsType[0:0]); // a-z or (
+        if ((high > 0x60 && high < 0x7b) || high == 0x28) return (false, _emptyCalldataBytes()); // a-z or (
 
         // Find the start of the arguments
         uint256 argsStart = contentsType.indexOf(bytes1("("));
-        if (argsStart == contentsTypeLength) return (false, contentsType[0:0]);
+        if (argsStart == type(uint256).max) return (false, _emptyCalldataBytes());
 
-        contentsType = contentsType[0:argsStart];
+        contentsType = contentsType[:argsStart];
 
         // Forbidden characters
-        for (uint256 i = 0; i < argsStart; i++) {
+        for (uint256 i = 0; i < argsStart; ++i) {
             // Look for any of the following bytes: , )\x00
             bytes1 current = contentsType[i];
             if (current == 0x2c || current == 0x20 || current == 0x29 || current == 0x00)
-                return (false, contentsType[0:0]);
+                return (false, _emptyCalldataBytes());
         }
 
         return (true, contentsType);
@@ -272,5 +277,12 @@ library ERC7739Utils {
                     keccak256(abi.encodePacked(extensions))
                 )
             );
+    }
+
+    function _emptyCalldataBytes() private pure returns (bytes calldata result) {
+        assembly ("memory-safe") {
+            result.offset := 0
+            result.length := 0
+        }
     }
 }
