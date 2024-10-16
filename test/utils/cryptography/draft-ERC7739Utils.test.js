@@ -132,7 +132,11 @@ describe('ERC7739Utils', function () {
   });
 
   describe('tryValidateContentsType', function () {
-    const invalidInitialCharacters = 'abcdefghijklmnopqrstuvwxyz(';
+    // Note: the implementation is a looser interpretaion of the ERC (as documented in the code) that allows lowercase
+    // first letters.
+    //
+    // const forbidenFirstChars = 'abcdefghijklmnopqrstuvwxyz(';
+    const forbidenFirstChars = '(';
     const forbidenChars = ', )\x00';
 
     for (const { descr, contentsType, contentsTypeName } of [].concat(
@@ -151,7 +155,7 @@ describe('ERC7739Utils', function () {
         contentsType: 'SomeType',
         contentsTypeName: null,
       },
-      invalidInitialCharacters.split('').map(char => ({
+      forbidenFirstChars.split('').map(char => ({
         descr: `should return false if starting with [${char}]`,
         contentsType: `${char}SomeType()`,
         contentsTypeName: null,

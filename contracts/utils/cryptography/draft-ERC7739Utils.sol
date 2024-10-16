@@ -214,27 +214,26 @@ library ERC7739Utils {
     /**
      * @dev Try to validate the contents type is a valid EIP-712 type.
      *
-     * A valid `contentsType` is considered invalid if it's empty or it:
+     * A valid `contentsType` is considered invalid if it's empty or if:
+     * - it starts with a '('.
+     * - it contains any of the following bytes: , )\x00
      *
-     * - Starts with a-z or (
-     * - Contains any of the following bytes: , )\x00
+     * NOTE: This is a looser take on the ERC  very strict restrictions. This part appears to be under discussion, and
+     * therefore the restrictions implemented here may change in a future release.
      */
     function tryValidateContentsType(
         bytes calldata contentsType
     ) internal pure returns (bool valid, bytes calldata contentsTypeName) {
-        // Does not start with a-z or (
-        if (contentsType.length > 0) {
-            bytes1 first = contentsType[0];
-            if ((first > 0x60 && first < 0x7b) || first == 0x28) {
-                return (false, _emptyCalldataBytes());
-            }
-        }
         // Loop over the contentsType, looking for the end of the contntsTypeName and validating the input as we go.
         for (uint256 i = 0; i < contentsType.length; ++i) {
             bytes1 current = contentsType[i];
             if (current == bytes1("(")) {
                 // we found the end of the contentsTypeName
-                return (true, contentsType[:i]);
+                if (i == 0) {
+                    return (false, _emptyCalldataBytes());
+                } else {
+                    return (true, contentsType[:i]);
+                }
             } else if (current == 0x00 || current == bytes1(" ") || current == bytes1(",") || current == bytes1(")")) {
                 // we found an invalid character (forbiden)
                 return (false, _emptyCalldataBytes());
