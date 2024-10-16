@@ -14,7 +14,7 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {Hashes}: Commonly used hash functions.
  * {MerkleProof}: Functions for verifying https://en.wikipedia.org/wiki/Merkle_tree[Merkle Tree] proofs.
  * {EIP712}: Contract with functions to allow processing signed typed structure data according to https://eips.ethereum.org/EIPS/eip-712[EIP-712].
- * {ERC7739Utils}: An defensive rehashing scheme that prevents replayability of smart contract signatures leveraging EIP-712 typing.
+ * {ERC7739Utils}: Utilities to support ERC-7739, a defensive rehashing scheme that prevents replayability of smart contract signatures.
  * {ERC7739Signer}: A base contract to validate signatures using {ERC7739Utils}.
  * {ReentrancyGuard}: A modifier that can prevent reentrancy during certain functions.
  * {ReentrancyGuardTransient}: Variant of {ReentrancyGuard} that uses transient storage (https://eips.ethereum.org/EIPS/eip-1153[EIP-1153]).
