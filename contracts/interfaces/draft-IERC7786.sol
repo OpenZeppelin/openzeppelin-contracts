@@ -28,9 +28,9 @@ interface IERC7786GatewaySource {
     event MessageSent(bytes32 indexed outboxId);
 
     /// @dev This error is thrown when a message creation fails because of an unsupported attribute being specified.
-    error UnsuportedAttribute(bytes4 selector);
+    error UnsupportedAttribute(bytes4 selector);
 
-    /// @dev Getter to check weither an attribute is supported.
+    /// @dev Getter to check whether an attribute is supported or not.
     function supportsAttribute(bytes4 selector) external view returns (bool);
 
     /**
@@ -41,7 +41,7 @@ interface IERC7786GatewaySource {
      * * MUST emit a {MessageCreated} event.
      * * SHOULD NOT emit a {MessageSent} event.
      *
-     * If any of the `attributes` is not supported, this function SHOULD revert with an {UnsuportedAttribute} error.
+     * If any of the `attributes` is not supported, this function SHOULD revert with an {UnsupportedAttribute} error.
      * Other errors SHOULD revert with errors not specified in ERC-7786.
      */
     function sendMessage(

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.25;
+pragma solidity ^0.8.24;
 
 import {IERC7786GatewaySource, IERC7786GatewayDestinationPassive, IERC7786Receiver} from "../../interfaces/draft-IERC7786.sol";
 import {BitMaps} from "../../utils/structs/BitMaps.sol";
@@ -35,7 +35,7 @@ contract ERC7786GatewayMock is IERC7786GatewaySource, IERC7786GatewayDestination
         require(destination.equal(source), "This mock only supports local messages");
         for (uint256 i = 0; i < attributes.length; ++i) {
             bytes4 selector = bytes4(attributes[i][0:4]);
-            if (!supportsAttribute(selector)) revert UnsuportedAttribute(selector);
+            if (!supportsAttribute(selector)) revert UnsupportedAttribute(selector);
         }
 
         if (_activeMode) {

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.25;
+pragma solidity ^0.8.24;
 
 import {SafeCast} from "./math/SafeCast.sol";
 import {Bytes} from "./Bytes.sol";

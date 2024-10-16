@@ -1,5 +1,5 @@
 /// ENVVAR
-// - COMPILER:      compiler version (default: 0.8.25)
+// - COMPILER:      compiler version (default: 0.8.24)
 // - SRC:           contracts folder to compile (default: contracts)
 // - RUNS:          number of optimization runs (default: 200)
 // - IR:            enable IR compilation (default: false)
@@ -18,7 +18,7 @@ const { argv } = require('yargs/yargs')()
     compiler: {
       alias: 'compileVersion',
       type: 'string',
-      default: '0.8.25',
+      default: '0.8.24',
     },
     src: {
       alias: 'source',
