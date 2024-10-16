@@ -40,7 +40,18 @@ abstract contract ERC7739Signer is EIP712, IERC1271 {
      * @dev Internal version of {isValidSignature} that returns a boolean.
      */
     function _isValidSignature(bytes32 hash, bytes calldata signature) internal view virtual returns (bool) {
-        return _isValidNestedPersonalSigSignature(hash, signature) || _isValidNestedTypedDataSignature(hash, signature);
+        return
+            _isValidNestedPersonalSignSignature(hash, signature) || _isValidNestedTypedDataSignature(hash, signature);
+    }
+
+    /**
+     * @dev Nested personal signature verification.
+     */
+    function _isValidNestedPersonalSignSignature(
+        bytes32 hash,
+        bytes calldata signature
+    ) internal view virtual returns (bool) {
+        return _validateSignature(_domainSeparatorV4().toNestedPersonalSignHash(hash), signature);
     }
 
     /**
@@ -50,33 +61,11 @@ abstract contract ERC7739Signer is EIP712, IERC1271 {
         bytes32 hash,
         bytes calldata signature
     ) internal view virtual returns (bool) {
-        (bytes calldata originalSignature, bytes32 nestedHash) = _nestedTypedDataHash(signature);
-        return hash == nestedHash && _validateSignature(nestedHash, originalSignature);
-    }
+        // decode signature
+        (bytes calldata nestedSignature, bytes32 separator, bytes32 contents, bytes calldata contentsType) = signature
+            .decodeSignature();
 
-    /**
-     * @dev Nested personal signature verification.
-     */
-    function _isValidNestedPersonalSigSignature(
-        bytes32 hash,
-        bytes calldata signature
-    ) internal view virtual returns (bool) {
-        return _validateSignature(_nestedPersonalSigHash(hash), signature);
-    }
-
-    /**
-     * @dev Nested EIP-712 typed data verification.
-     *
-     * See {ERC7739Utils-toNestedTypedDataHash} for the nested structure.
-     */
-    function _nestedTypedDataHash(
-        bytes calldata signature
-    ) internal view virtual returns (bytes calldata originalSignature, bytes32 result) {
-        bytes32 appSeparator;
-        bytes32 contents;
-        bytes calldata contentsType;
-        (originalSignature, appSeparator, contents, contentsType) = signature.unwrapTypedDataSig();
-
+        // fetch domain details
         (
             ,
             string memory name,
@@ -87,25 +76,22 @@ abstract contract ERC7739Signer is EIP712, IERC1271 {
             uint256[] memory extensions
         ) = eip712Domain();
 
-        result = ERC7739Utils.toNestedTypedDataHash(
-            appSeparator,
-            ERC7739Utils.typedDataNestedStructHash(
-                contentsType,
-                contents,
-                name,
-                version,
-                verifyingContract,
-                salt,
-                extensions
-            )
-        );
-    }
-
-    /**
-     * @dev See {ERC7739Utils-toNestedPersonalSignHash}.
-     */
-    function _nestedPersonalSigHash(bytes32 hash) internal view virtual returns (bytes32) {
-        return _domainSeparatorV4().toNestedPersonalSignHash(hash);
+        // Check that hash is the correct nested typed data hash, and that the nested signature is valid.
+        return
+            hash ==
+            ERC7739Utils.toNestedTypedDataHash(
+                separator,
+                ERC7739Utils.typedDataNestedStructHash(
+                    contentsType,
+                    contents,
+                    name,
+                    version,
+                    verifyingContract,
+                    salt,
+                    extensions
+                )
+            ) &&
+            _validateSignature(hash, nestedSignature);
     }
 
     /**
