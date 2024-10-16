@@ -39,7 +39,7 @@ library ERC7739Utils {
     error InvalidContentsType();
 
     /**
-     * @dev Parses a nested signature into its components. See {nest}.
+     * @dev Parses a nested signature into its components.
      *
      * Constructed as follows:
      *
