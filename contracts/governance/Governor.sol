@@ -263,7 +263,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
     /**
      * @dev Hook that should be called every time the tally for a proposal is updated.
      *
-     * Note: This function must run successfully--reverts will result in the bricking of governance
+     * Note: This function must run successfully. Reverts will result in the bricking of governance
      */
     function _tallyUpdated(uint256 proposalId) internal virtual {}
 
