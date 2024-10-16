@@ -218,7 +218,7 @@ library ERC7739Utils {
      * - it starts with a '('.
      * - it contains any of the following bytes: , )\x00
      *
-     * NOTE: This is a looser take on the ERC  very strict restrictions. This part appears to be under discussion, and
+     * NOTE: This is a looser take on the ERC very strict restrictions. This part appears to be under discussion, and
      * therefore the restrictions implemented here may change in a future release.
      */
     function tryValidateContentsType(
@@ -235,7 +235,7 @@ library ERC7739Utils {
                     return (true, contentsType[:i]);
                 }
             } else if (current == 0x00 || current == bytes1(" ") || current == bytes1(",") || current == bytes1(")")) {
-                // we found an invalid character (forbiden)
+                // we found an invalid character (forbidden)
                 return (false, _emptyCalldataBytes());
             }
         }
