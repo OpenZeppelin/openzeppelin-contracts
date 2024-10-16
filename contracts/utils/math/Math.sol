@@ -587,16 +587,16 @@ library Math {
             // into an unique index between 0~31 by computing `n % 11`, as demonstrated below.
 
             //                   log2(n) Lookup Table
-            // | n = x % 255 | index = n % 11 | table[index] = log2(n) |
-            // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-            // |       1     |   1 % 11 == 1  |   table[1] = log2(1)   |
-            // |       2     |   2 % 11 == 2  |   table[2] = log2(2)   |
-            // |       4     |   4 % 11 == 4  |   table[4] = log2(4)   |
-            // |       8     |   8 % 11 == 8  |   table[8] = log2(8)   |
-            // |      16     |  16 % 11 == 5  |   table[5] = log2(16)  |
-            // |      32     |  32 % 11 == 10 |  table[10] = log2(32)  |
-            // |      64     |  64 % 11 == 9  |   table[9] = log2(64)  |
-            // |     128     | 128 % 11 == 7  |   table[7] = log2(128) |
+            // | n = x % 255 | index = n % 11 |  table[index] = log2(n)   |
+            // |-------------|----------------|---------------------------|
+            // |       1     |   1 % 11 ==  1 | table[ 1] = log2(  1) = 0 |
+            // |       2     |   2 % 11 ==  2 | table[ 2] = log2(  2) = 1 |
+            // |       4     |   4 % 11 ==  4 | table[ 4] = log2(  4) = 2 |
+            // |       8     |   8 % 11 ==  8 | table[ 8] = log2(  8) = 3 |
+            // |      16     |  16 % 11 ==  5 | table[ 5] = log2( 16) = 4 |
+            // |      32     |  32 % 11 == 10 | table[10] = log2( 32) = 5 |
+            // |      64     |  64 % 11 ==  9 | table[ 9] = log2( 64) = 6 |
+            // |     128     | 128 % 11 ==  7 | table[ 7] = log2(128) = 7 |
             // Below we perform the table lookup, the table stores the result of `log2(n)`
             // in the corresponding byte at `index`.
             uint256 prod0;
@@ -608,16 +608,16 @@ library Math {
             // fact to build a very efficient lookup table using a single 32-byte word, described below:
 
             //                        log2(x/n) Lookup Table
-            // |         x        | x / n | prod1 = log2(x/n) | index = log2(x/n) / 8 |
-            // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-
-            // |  1   =< x < 2⁸   |  1    |    log2(1) == 0   |      0 / 8 == 0       |
-            // |  2⁸  =< x < 2¹⁶  |  2⁸   |   log2(2⁸) == 8   |      8 / 8 == 1       |
-            // |  2¹⁶ =< x < 2²⁴  |  2¹⁶  |  log2(2¹⁶) == 16  |     16 / 8 == 2       |
-            // |  2²⁴ =< x < 2³²  |  2²⁴  |  log2(2²⁴) == 24  |     24 / 8 == 3       |
-            // |        ...       |  ...  |        ...        |          ...          |
-            // | 2²³² =< x < 2²⁴⁰ |  2²³² | log2(2²³²) == 232 |    232 / 8 == 29      |
-            // | 2²⁴⁰ =< x < 2²⁴⁸ |  2²⁴⁰ | log2(2²⁴⁰) == 240 |    240 / 8 == 30      |
-            // | 2²⁴⁸ =< x < 2²⁵⁶ |  2²⁴⁸ | log2(2²⁴⁸) == 248 |    248 / 8 == 31      |
+            // |        x        | x / n | prod1 = log2(x/n) | index = log2(x/n) / 8 |
+            // |-----------------|-------|-------------------|-----------------------|
+            // | 1    ≤ x < 2⁸   |  1    | log2(1   ) == 0   |       0 / 8 == 0      |
+            // | 2⁸   ≤ x < 2¹⁶  |  2⁸   | log2(2⁸  ) == 8   |       8 / 8 == 1      |
+            // | 2¹⁶  ≤ x < 2²⁴  |  2¹⁶  | log2(2¹⁶ ) == 16  |      16 / 8 == 2      |
+            // | 2²⁴  ≤ x < 2³²  |  2²⁴  | log2(2²⁴ ) == 24  |      24 / 8 == 3      |
+            // |       ...       |  ...  |        ...        |          ...          |
+            // | 2²³² ≤ x < 2²⁴⁰ |  2²³² | log2(2²³²) == 232 |     232 / 8 == 29     |
+            // | 2²⁴⁰ ≤ x < 2²⁴⁸ |  2²⁴⁰ | log2(2²⁴⁰) == 240 |     240 / 8 == 30     |
+            // | 2²⁴⁸ ≤ x < 2²⁵⁶ |  2²⁴⁸ | log2(2²⁴⁸) == 248 |     248 / 8 == 31     |
             //
             // Notice compute `(x / n) * value` is equivalent to compute `value << (index * 8)`, we use this fact
             // to build a single 32-byte word using `table[index] = log2(x/n)`, then multiply the table by `x/n`
