@@ -4,7 +4,6 @@ pragma solidity ^0.8.20;
 
 import {IERC5267} from "../../interfaces/IERC5267.sol";
 import {MessageHashUtils} from "./MessageHashUtils.sol";
-import {Bytes} from "../Bytes.sol";
 
 /**
  * @dev Utilities to process https://ercs.ethereum.org/ERCS/erc-7739[ERC-7739] typed data signatures
@@ -25,8 +24,6 @@ import {Bytes} from "../Bytes.sol";
  * of an {ECDSA} signature, as is for example specified for {EIP712}.
  */
 library ERC7739Utils {
-    using Bytes for bytes;
-
     /**
      * @dev An EIP-712 typed to represent "personal" signatures
      * (i.e. mimic of `eth_personalSign` for smart contracts).
@@ -225,28 +222,26 @@ library ERC7739Utils {
     function tryValidateContentsType(
         bytes calldata contentsType
     ) internal pure returns (bool valid, bytes calldata contentsTypeName) {
-        uint256 contentsTypeLength = contentsType.length;
-        if (contentsTypeLength == 0) return (false, _emptyCalldataBytes());
-
         // Does not start with a-z or (
-        bytes1 high = contentsType[0];
-        if ((high > 0x60 && high < 0x7b) || high == 0x28) return (false, _emptyCalldataBytes()); // a-z or (
-
-        // Find the start of the arguments
-        uint256 argsStart = contentsType.indexOf(bytes1("("));
-        if (argsStart == type(uint256).max) return (false, _emptyCalldataBytes());
-
-        contentsType = contentsType[:argsStart];
-
-        // Forbidden characters
-        for (uint256 i = 0; i < argsStart; ++i) {
-            // Look for any of the following bytes: , )\x00
-            bytes1 current = contentsType[i];
-            if (current == 0x2c || current == 0x20 || current == 0x29 || current == 0x00)
+        if (contentsType.length > 0) {
+            bytes1 first = contentsType[0];
+            if ((first > 0x60 && first < 0x7b) || first == 0x28) {
                 return (false, _emptyCalldataBytes());
+            }
         }
-
-        return (true, contentsType);
+        // Loop over the contentsType, looking for the end of the contntsTypeName and validating the input as we go.
+        for (uint256 i = 0; i < contentsType.length; ++i) {
+            bytes1 current = contentsType[i];
+            if (current == bytes1("(")) {
+                // we found the end of the contentsTypeName
+                return (true, contentsType[:i]);
+            } else if (current == 0x00 || current == bytes1(" ") || current == bytes1(",") || current == bytes1(")")) {
+                // we found an invalid character (forbiden)
+                return (false, _emptyCalldataBytes());
+            }
+        }
+        // We exited the loop without finding of the contentsTypeName
+        return (false, _emptyCalldataBytes());
     }
 
     /**
