@@ -92,7 +92,7 @@ NOTE: Functions of the `Governor` contract do not include access control. If you
 
 {{Votes}}
 
-{{VotesAdditionalCheckpoints}}
+{{VotesExtended}}
 
 == Timelock
 

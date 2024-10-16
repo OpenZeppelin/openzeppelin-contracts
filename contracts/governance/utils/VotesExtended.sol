@@ -8,7 +8,7 @@ import {SafeCast} from "../../utils/math/SafeCast.sol";
 /**
  * @dev Extension of {Votes} that adds exposes checkpoints for delegations and balances.
  */
-abstract contract VotesAdditionalCheckpoints is Votes {
+abstract contract VotesExtended is Votes {
     using SafeCast for uint256;
     using Checkpoints for Checkpoints.Trace160;
     using Checkpoints for Checkpoints.Trace208;

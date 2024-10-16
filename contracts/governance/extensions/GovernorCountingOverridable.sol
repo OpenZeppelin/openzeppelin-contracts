@@ -4,12 +4,12 @@ pragma solidity ^0.8.20;
 
 import {SignatureChecker} from "../../utils/cryptography/SignatureChecker.sol";
 import {SafeCast} from "../../utils/math/SafeCast.sol";
-import {VotesAdditionalCheckpoints} from "../utils/VotesAdditionalCheckpoints.sol";
+import {VotesExtended} from "../utils/VotesExtended.sol";
 import {GovernorVotes} from "./GovernorVotes.sol";
 
 /**
  * @dev Extension of {Governor} which enables delegatees to override the vote of their delegates. This module requires a
- * token token that inherits `VotesAdditionalCheckpoints`.
+ * token token that inherits `VotesExtended`.
  */
 abstract contract GovernorCountingOverridable is GovernorVotes {
     bytes32 public constant OVERRIDE_BALLOT_TYPEHASH =
@@ -133,11 +133,8 @@ abstract contract GovernorCountingOverridable is GovernorVotes {
         }
 
         uint256 proposalSnapshot = proposalSnapshot(proposalId);
-        uint256 overridenWeight = VotesAdditionalCheckpoints(address(token())).getPastBalanceOf(
-            account,
-            proposalSnapshot
-        );
-        address delegate = VotesAdditionalCheckpoints(address(token())).getPastDelegate(account, proposalSnapshot);
+        uint256 overridenWeight = VotesExtended(address(token())).getPastBalanceOf(account, proposalSnapshot);
+        address delegate = VotesExtended(address(token())).getPastDelegate(account, proposalSnapshot);
         uint8 delegateCasted = proposalVote.voteReceipt[delegate].casted;
 
         proposalVote.voteReceipt[account].hasOverriden = true;

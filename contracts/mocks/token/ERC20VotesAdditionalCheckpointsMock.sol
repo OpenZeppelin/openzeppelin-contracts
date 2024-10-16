@@ -2,14 +2,11 @@
 pragma solidity ^0.8.20;
 
 import {ERC20Votes} from "../../token/ERC20/extensions/ERC20Votes.sol";
-import {VotesAdditionalCheckpoints, Votes} from "../../governance/utils/VotesAdditionalCheckpoints.sol";
+import {VotesExtended, Votes} from "../../governance/utils/VotesExtended.sol";
 import {SafeCast} from "../../utils/math/SafeCast.sol";
 
-abstract contract ERC20VotesAdditionalCheckpointsMock is ERC20Votes, VotesAdditionalCheckpoints {
-    function _delegate(
-        address account,
-        address delegatee
-    ) internal virtual override(Votes, VotesAdditionalCheckpoints) {
+abstract contract ERC20VotesExtendedMock is ERC20Votes, VotesExtended {
+    function _delegate(address account, address delegatee) internal virtual override(Votes, VotesExtended) {
         return super._delegate(account, delegatee);
     }
 
@@ -17,12 +14,12 @@ abstract contract ERC20VotesAdditionalCheckpointsMock is ERC20Votes, VotesAdditi
         address from,
         address to,
         uint256 amount
-    ) internal virtual override(Votes, VotesAdditionalCheckpoints) {
+    ) internal virtual override(Votes, VotesExtended) {
         return super._transferVotingUnits(from, to, amount);
     }
 }
 
-abstract contract ERC20VotesAdditionalCheckpointsTimestampMock is ERC20VotesAdditionalCheckpointsMock {
+abstract contract ERC20VotesExtendedTimestampMock is ERC20VotesExtendedMock {
     function clock() public view virtual override returns (uint48) {
         return SafeCast.toUint48(block.timestamp);
     }

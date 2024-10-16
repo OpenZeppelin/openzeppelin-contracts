@@ -9,13 +9,13 @@ const time = require('../../helpers/time');
 const { shouldBehaveLikeVotes } = require('./Votes.behavior');
 
 const MODES = {
-  blocknumber: '$VotesAdditionalCheckpointsMock',
-  timestamp: '$VotesAdditionalCheckpointsTimestampMock',
+  blocknumber: '$VotesExtendedMock',
+  timestamp: '$VotesExtendedTimestampMock',
 };
 
 const AMOUNTS = [ethers.parseEther('10000000'), 10n, 20n];
 
-describe('VotesAdditionalCheckpoints', function () {
+describe('VotesExtended', function () {
   for (const [mode, artifact] of Object.entries(MODES)) {
     const fixture = async () => {
       const accounts = await ethers.getSigners();
