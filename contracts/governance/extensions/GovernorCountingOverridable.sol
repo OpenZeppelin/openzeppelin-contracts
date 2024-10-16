@@ -38,7 +38,7 @@ abstract contract GovernorCountingOverridable is GovernorVotes {
     event VoteReduced(address indexed voter, uint256 proposalId, uint8 support, uint256 weight);
     event OverrideVoteCast(address indexed voter, uint256 proposalId, uint8 support, uint256 weight, string reason);
 
-    error GovernorAlreadyCastVoteOverride(address account);
+    error GovernorAlreadyOverridenVote(address account);
 
     mapping(uint256 proposalId => ProposalVote) private _proposalVotes;
 
@@ -129,7 +129,7 @@ abstract contract GovernorCountingOverridable is GovernorVotes {
         }
 
         if (proposalVote.voteReceipt[account].hasOverriden) {
-            revert GovernorAlreadyCastVoteOverride(account);
+            revert GovernorAlreadyOverridenVote(account);
         }
 
         uint256 proposalSnapshot = proposalSnapshot(proposalId);
