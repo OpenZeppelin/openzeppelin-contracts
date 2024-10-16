@@ -2,4 +2,4 @@
 'openzeppelin-solidity': patch
 ---
 
-`GovernorCountingOverridable`: Add a governor counting module that enables delegatees to override the vote of their delegate.
+`GovernorCountingOverridable`: Add a governor counting module that enables token holders to override the vote of their delegate.
