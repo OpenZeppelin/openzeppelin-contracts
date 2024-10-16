@@ -50,20 +50,20 @@ library ERC7739Utils {
      * - `contents` is the hash of the underlying data structure or message
      * - `contentsType` is the EIP-712 type of the nested signature (e.g. {NESTED_TYPED_DATA_TYPEHASH} or {_NESTED_PERSONAL_SIGN_TYPEHASH})
      */
-    function unwrapTypedDataSig(
-        bytes calldata wrappedSignature
+    function decodeSignature(
+        bytes calldata encodedSignature
     )
         internal
         pure
         returns (bytes calldata signature, bytes32 separator, bytes32 contents, bytes calldata contentsType)
     {
         unchecked {
-            uint256 sigLength = wrappedSignature.length;
+            uint256 sigLength = encodedSignature.length;
 
             if (sigLength < 66) return (_emptyCalldataBytes(), 0, 0, _emptyCalldataBytes());
 
             uint256 contentsTypeEnd = sigLength - 2; // Last 2 bytes
-            uint256 contentsTypeLength = uint16(bytes2(wrappedSignature[contentsTypeEnd:]));
+            uint256 contentsTypeLength = uint16(bytes2(encodedSignature[contentsTypeEnd:]));
 
             if (contentsTypeLength > contentsTypeEnd) return (_emptyCalldataBytes(), 0, 0, _emptyCalldataBytes());
 
@@ -74,19 +74,19 @@ library ERC7739Utils {
             uint256 separatorEnd = contentsEnd - 32;
             uint256 signatureEnd = separatorEnd - 32;
 
-            signature = wrappedSignature[:signatureEnd];
-            separator = bytes32(wrappedSignature[signatureEnd:separatorEnd]);
-            contents = bytes32(wrappedSignature[separatorEnd:contentsEnd]);
-            contentsType = wrappedSignature[contentsEnd:contentsTypeEnd];
+            signature = encodedSignature[:signatureEnd];
+            separator = bytes32(encodedSignature[signatureEnd:separatorEnd]);
+            contents = bytes32(encodedSignature[separatorEnd:contentsEnd]);
+            contentsType = encodedSignature[contentsEnd:contentsTypeEnd];
         }
     }
 
     /**
      * @dev Nest a signature for a given EIP-712 type into a nested signature for the domain `separator`.
      *
-     * Counterpart of {unwrapTypedDataSig} to extract the original signature and the nested components.
+     * Counterpart of {decodeSignature} to extract the original signature and the nested components.
      */
-    function wrapTypedDataSig(
+    function encodeSignature(
         bytes memory signature,
         bytes32 separator,
         bytes32 contents,
