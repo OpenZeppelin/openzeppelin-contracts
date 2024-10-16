@@ -619,9 +619,9 @@ library Math {
             // | 2²⁴⁰ ≤ x < 2²⁴⁸ |  2²⁴⁰ |  log2(2²⁴⁰) == 240  |     240 / 8 == 30     |
             // | 2²⁴⁸ ≤ x < 2²⁵⁶ |  2²⁴⁸ |  log2(2²⁴⁸) == 248  |     248 / 8 == 31     |
             //
-            // Notice compute `(x / n) * value` is equivalent to compute `value << (index * 8)`, we use this fact
-            // to build a single 32-byte word using `table[index] = log2(x/n)`, then multiply the table by `x/n`
-            // moves the result to the most significant byte, finally extract `log2(x/n) by shift right the table.
+            // It is important to note that `value * (x / n)` is equal to `value << (8 * index)`. We use this fact
+            // to build a single 32-byte word where `table[index] = log2(x/n)`. Multiply the table by `x/n` moves the 
+            // result to the most significant byte, which we can then extract `log2(x/n) by shifting right.
             //
             // log2x_n = log2(x / n) = (x / n * table) >> 248
             uint256 log2x_n = x >> log2n;
