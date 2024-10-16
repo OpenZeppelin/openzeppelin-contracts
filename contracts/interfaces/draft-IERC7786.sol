@@ -10,7 +10,7 @@ pragma solidity ^0.8.0;
 interface IERC7786GatewaySource {
     /**
      * @dev Event emitted when a message is created. If `outboxId` is zero, no further processing is necessary, and
-     * not {MessageSent} event SHOULD be expected. If `outboxId` is not zero, then further (gateway specific, and non
+     * no {MessageSent} event SHOULD be expected. If `outboxId` is not zero, then further (gateway specific, and non
      * standardized) action is required.
      */
     event MessageCreated(
