@@ -8,11 +8,11 @@ import {IERC7786GatewayDestinationPassive, IERC7786Receiver} from "../interfaces
  * @dev Base implementation of an ERC-7786 compliant cross-chain message receiver.
  *
  * This abstract contract exposes the `receiveMessage` function that is used in both active and passive mode for
- * communication with (on or multiple) destination gateways. This contract leaves two function unimplemented:
+ * communication with (one or multiple) destination gateways. This contract leaves two function unimplemented:
  *
- * {_isKnownGateway}, an internal getter used to verify weither an address is recognised by the contract as a valid
+ * {_isKnownGateway}, an internal getter used to verify whether an address is recognised by the contract as a valid
  * ERC-7786 destination gateway. One or multiple gateway can be supported. Note that any malicious address for which
- * this function returns true would be able to impersonnate any account on any other chain sending any message.
+ * this function returns true would be able to impersonate any account on any other chain sending any message.
  *
  * {_processMessage}, the internal function that will be called with any message that has been validated.
  */
