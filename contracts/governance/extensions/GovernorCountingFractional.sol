@@ -190,8 +190,6 @@ abstract contract GovernorCountingFractional is Governor {
         if (abstainVotes > 0) details.abstainVotes += abstainVotes;
         details.usedVotes[account] += usedWeight;
 
-        _tallyUpdated(proposalId);
-
         return usedWeight;
     }
 }

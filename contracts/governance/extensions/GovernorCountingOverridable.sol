@@ -117,8 +117,6 @@ abstract contract GovernorCountingOverridable is GovernorVotes {
         proposalVote.votes[support] += totalWeight;
         proposalVote.voteReceipt[account].casted = support + 1;
 
-        _tallyUpdated(proposalId);
-
         return totalWeight;
     }
 
@@ -152,8 +150,6 @@ abstract contract GovernorCountingOverridable is GovernorVotes {
             emit VoteReduced(delegate, proposalId, delegateSupport, overridenWeight);
         }
 
-        _tallyUpdated(proposalId);
-
         return overridenWeight;
     }
 
@@ -169,6 +165,8 @@ abstract contract GovernorCountingOverridable is GovernorVotes {
         uint256 overridenWeight = _countOverride(proposalId, account, support);
 
         emit OverrideVoteCast(account, proposalId, support, overridenWeight, reason);
+
+        _tallyUpdated(proposalId);
 
         return overridenWeight;
     }
