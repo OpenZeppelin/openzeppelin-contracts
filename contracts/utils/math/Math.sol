@@ -550,16 +550,16 @@ library Math {
         //    this `n` guarantees that `x / n` is a power of two multiple of 256, we use this fact to build a lookup table
         //    that calculates `log2(x / n)` and `log2(n)` very efficiently.
         //
-        // 3. Compute `prod0 = log2(n)`, given `x % 255` is a power of two, there are only 8 possible values for `n`, so
+        // 3. Compute `log2n = log2(n)`, given `x % 255` is a power of two, there are only 8 possible values for `n`, so
         //    `log2(n)` can be easily computed using a lookup table, here we use the opcode `BYTE` to lookup a 32-byte word.
         //
-        // 4. Compute `prod1 = log2(x / n)`, we use the fact that `x / n` is a power of two multiple of 256, so there's exactly
-        //    32 possible distinct values for `prod1`, respectively: 0, 8, 16, .. 240, 248. This allow an efficient lookup
+        // 4. Compute `log2x_n = log2(x / n)`, we use the fact that `x / n` is a power of two multiple of 256, so there's exactly
+        //    32 possible distinct values for `log2x_n`, respectively: 0, 8, 16, .. 240, 248. This allow an efficient lookup
         //    table to be created using a single 32-byte word, we extract `log2(x/n)` from the table by compute:
-        //    prod1 = log2(x / n) = (x / n * table) >> 248
+        //    log2x_n = log2(x / n) = (x / n * table) >> 248
         //
-        // 5. The final result is simply the sum of `prod0` and `prod1` calculated previously:
-        //    log2(x) = log2(x / n) + log2(n) = prod0 + prod1
+        // 5. The final result is simply the sum of `log2n` and `log2x_n` calculated previously:
+        //    log2(x) = log2(x / n) + log2(n) = log2x_n + log2n
         //
         // @author Lohann Ferreira <developer@lohann.dev>
         unchecked {
@@ -582,7 +582,7 @@ library Math {
             // following values: 1, 2, 4, 8, 16, 32, 64 or 128.
             uint256 n = x % 255;
 
-            // 2. Compute `prod0 = log2(n)` using the OPCODE BYTE to lookup a 32-byte word, which we use as table.
+            // 2. Compute `log2n = log2(n)` using the OPCODE BYTE to lookup a 32-byte word, which we use as table.
             // Notice the last index in our table is 31, but `n` can be greater than 31, so first we map `n`
             // into an unique index between 0~31 by computing `n % 11`, as demonstrated below.
 
@@ -599,38 +599,38 @@ library Math {
             // |     128     | 128 % 11 ==  7 | table[ 7] = log2(128) = 7 |
             // Below we perform the table lookup, the table stores the result of `log2(n)`
             // in the corresponding byte at `index`.
-            uint256 prod0;
+            uint256 log2n;
             assembly ("memory-safe") {
-                prod0 := byte(mod(n, 11), 0x0000010002040007030605000000000000000000000000000000000000000000)
+                log2n := byte(mod(n, 11), 0x0000010002040007030605000000000000000000000000000000000000000000)
             }
 
-            // 4. Compute `prod1 = log2(x / n)`, notice `x / n` is a power of two multiple of 256, we use this
+            // 4. Compute `log2x_n = log2(x / n)`, notice `x / n` is a power of two multiple of 256, we use this
             // fact to build a very efficient lookup table using a single 32-byte word, described below:
 
             //                        log2(x/n) Lookup Table
-            // |        x        | x / n | prod1 = log2(x/n) | index = log2(x/n) / 8 |
-            // |-----------------|-------|-------------------|-----------------------|
-            // | 1    ≤ x < 2⁸   |  1    | log2(1   ) == 0   |       0 / 8 == 0      |
-            // | 2⁸   ≤ x < 2¹⁶  |  2⁸   | log2(2⁸  ) == 8   |       8 / 8 == 1      |
-            // | 2¹⁶  ≤ x < 2²⁴  |  2¹⁶  | log2(2¹⁶ ) == 16  |      16 / 8 == 2      |
-            // | 2²⁴  ≤ x < 2³²  |  2²⁴  | log2(2²⁴ ) == 24  |      24 / 8 == 3      |
-            // |       ...       |  ...  |        ...        |          ...          |
-            // | 2²³² ≤ x < 2²⁴⁰ |  2²³² | log2(2²³²) == 232 |     232 / 8 == 29     |
-            // | 2²⁴⁰ ≤ x < 2²⁴⁸ |  2²⁴⁰ | log2(2²⁴⁰) == 240 |     240 / 8 == 30     |
-            // | 2²⁴⁸ ≤ x < 2²⁵⁶ |  2²⁴⁸ | log2(2²⁴⁸) == 248 |     248 / 8 == 31     |
+            // |        x        | x / n | log2x_n = log2(x/n) | index = log2(x/n) / 8 |
+            // |-----------------|-------|---------------------|-----------------------|
+            // | 1    ≤ x < 2⁸   |  1    |  log2(1   ) == 0    |       0 / 8 == 0      |
+            // | 2⁸   ≤ x < 2¹⁶  |  2⁸   |  log2(2⁸  ) == 8    |       8 / 8 == 1      |
+            // | 2¹⁶  ≤ x < 2²⁴  |  2¹⁶  |  log2(2¹⁶ ) == 16   |      16 / 8 == 2      |
+            // | 2²⁴  ≤ x < 2³²  |  2²⁴  |  log2(2²⁴ ) == 24   |      24 / 8 == 3      |
+            // |       ...       |  ...  |         ...         |          ...          |
+            // | 2²³² ≤ x < 2²⁴⁰ |  2²³² |  log2(2²³²) == 232  |     232 / 8 == 29     |
+            // | 2²⁴⁰ ≤ x < 2²⁴⁸ |  2²⁴⁰ |  log2(2²⁴⁰) == 240  |     240 / 8 == 30     |
+            // | 2²⁴⁸ ≤ x < 2²⁵⁶ |  2²⁴⁸ |  log2(2²⁴⁸) == 248  |     248 / 8 == 31     |
             //
             // Notice compute `(x / n) * value` is equivalent to compute `value << (index * 8)`, we use this fact
             // to build a single 32-byte word using `table[index] = log2(x/n)`, then multiply the table by `x/n`
             // moves the result to the most significant byte, finally extract `log2(x/n) by shift right the table.
             //
-            // prod1 = log2(x / n) = (x / n * table) >> 248
-            uint256 prod1 = x >> prod0;
-            prod1 *= 0x0008101820283038404850586068707880889098a0a8b0b8c0c8d0d8e0e8f0f8;
-            prod1 >>= 248;
+            // log2x_n = log2(x / n) = (x / n * table) >> 248
+            uint256 log2x_n = x >> log2n;
+            log2x_n *= 0x0008101820283038404850586068707880889098a0a8b0b8c0c8d0d8e0e8f0f8;
+            log2x_n >>= 248;
 
             // 5. Sum both values to get the final result:
-            // log2(x) = log2(x / n) + log2(n) = prod0 + prod1
-            return prod0 + prod1;
+            // log2(x) = log2(x / n) + log2(n) = log2x_n + log2n
+            return log2x_n + log2n;
         }
     }
 
