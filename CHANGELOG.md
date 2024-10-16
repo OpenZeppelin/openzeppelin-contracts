@@ -71,7 +71,7 @@ This version comes with changes to the custom error identifiers. Contracts previ
 - `ReentrancyGuardTransient`: Added a variant of `ReentrancyGuard` that uses transient storage. ([#4988](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4988))
 - `Strings`: Added a utility function for converting an address to checksummed string. ([#5067](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5067))
 - `SlotDerivation`: Add a library of methods for derivating common storage slots. ([#4975](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4975))
-- `StorageSlot`: Add primitives for operating on the transient storage space using a typed-slot representation. ([#4980](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4980))
+- `TransientSlot`: Add primitives for operating on the transient storage space using a typed-slot representation. ([#4980](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4980))
 
 ##### Cryptography
 
