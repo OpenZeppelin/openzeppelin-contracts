@@ -18,6 +18,7 @@ import {IERC7786GatewayDestinationPassive, IERC7786Receiver} from "../interfaces
  */
 abstract contract ERC7786Receiver is IERC7786Receiver {
     error ERC7786ReceiverInvalidGateway(address gateway);
+    error ERC7786ReceivePassiveModeValue();
 
     /// @inheritdoc IERC7786Receiver
     function receiveMessage(
@@ -33,6 +34,7 @@ abstract contract ERC7786Receiver is IERC7786Receiver {
             // no extra check
         } else if (_isKnownGateway(gateway)) {
             // Passive mode
+            if (msg.value != 0) revert ERC7786ReceivePassiveModeValue();
             IERC7786GatewayDestinationPassive(gateway).validateReceivedMessage(
                 gatewayMessageKey,
                 source,

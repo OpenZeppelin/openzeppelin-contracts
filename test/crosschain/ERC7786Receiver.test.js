@@ -71,5 +71,13 @@ describe('ERC7786Receiver', function () {
         .to.be.revertedWithCustomError(this.receiver, 'ERC7786ReceiverInvalidGateway')
         .withArgs(this.notAGateway);
     });
+
+    it('with value', async function () {
+      await expect(
+        this.receiver.receiveMessage(this.gateway, '0x', this.caip2, this.sender.address, payload, attributes, {
+          value: 1n,
+        }),
+      ).to.be.revertedWithCustomError(this.receiver, 'ERC7786ReceivePassiveModeValue');
+    });
   });
 });
