@@ -35,7 +35,7 @@ interface IERC7786GatewaySource {
 
     /**
      * @dev Endpoint for creating a new message. If the message requires further (gateway specific) processing before
-     * it can be sent to the destination chain, then a non-zero `outboxId` must be returned. Otherwise, this the
+     * it can be sent to the destination chain, then a non-zero `outboxId` must be returned. Otherwise, the
      * message MUST be sent and this function must return 0.
      *
      * * MUST emit a {MessageCreated} event.
@@ -62,7 +62,7 @@ interface IERC7786GatewayDestinationPassive {
 
     /**
      * @dev Endpoint for checking the validity of a message that is being relayed in passive mode. The message
-     * receiver is implicitelly the caller of this method, which guarantees that no-one but the receiver can
+     * receiver is implicitly the caller of this method, which guarantees that no-one but the receiver can
      * "consume" the message. This function MUST implement replay protection, meaning that if called multiple time
      * for same message, all but the first calls MUST revert.
      *
