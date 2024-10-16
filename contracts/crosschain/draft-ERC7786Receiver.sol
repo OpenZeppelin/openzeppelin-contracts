@@ -51,7 +51,7 @@ abstract contract ERC7786Receiver is IERC7786Receiver {
     /// @dev Virtual getter that returns whether an address in a valid ERC-7786 gateway.
     function _isKnownGateway(address instance) internal view virtual returns (bool);
 
-    /// @dev Virtual function that should contain the logic to execute when a crosschain message is received.
+    /// @dev Virtual function that should contain the logic to execute when a cross-chain message is received.
     function _processMessage(
         address gateway,
         string calldata source,
