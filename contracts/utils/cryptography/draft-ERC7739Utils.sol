@@ -7,7 +7,7 @@ import {MessageHashUtils} from "./MessageHashUtils.sol";
 import {Bytes} from "../Bytes.sol";
 
 /**
- * @dev Utilities to process https://eips.ethereum.org/EIPS/eip-7739[ERC-7739] typed data signatures
+ * @dev Utilities to process https://ercs.ethereum.org/ERCS/erc-7739[ERC-7739] typed data signatures
  * that are specific to an {EIP712} domain.
  *
  * This library provides methods to wrap, unwrap and operate over typed data signatures with a defensive
