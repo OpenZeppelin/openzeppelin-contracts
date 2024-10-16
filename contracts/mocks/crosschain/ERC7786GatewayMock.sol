@@ -2,13 +2,13 @@
 
 pragma solidity ^0.8.25;
 
-import {IERCXXXXGatewaySource, IERCXXXXGatewayDestinationPassive, IERCXXXXReceiver} from "../../interfaces/draft-IERCXXXX.sol";
+import {IERC7786GatewaySource, IERC7786GatewayDestinationPassive, IERC7786Receiver} from "../../interfaces/draft-IERC7786.sol";
 import {BitMaps} from "../../utils/structs/BitMaps.sol";
 import {Strings} from "../../utils/Strings.sol";
 import {CAIP2} from "../../utils/CAIP2.sol";
 import {CAIP10} from "../../utils/CAIP10.sol";
 
-contract ERCXXXXGatewayMock is IERCXXXXGatewaySource, IERCXXXXGatewayDestinationPassive {
+contract ERC7786GatewayMock is IERC7786GatewaySource, IERC7786GatewayDestinationPassive {
     using BitMaps for BitMaps.BitMap;
     using Strings for *;
 
@@ -40,7 +40,7 @@ contract ERCXXXXGatewayMock is IERCXXXXGatewaySource, IERCXXXXGatewayDestination
 
         if (_activeMode) {
             address target = Strings.parseAddress(receiver);
-            IERCXXXXReceiver(target).receiveMessage(address(this), new bytes(0), source, sender, payload, attributes);
+            IERC7786Receiver(target).receiveMessage(address(this), new bytes(0), source, sender, payload, attributes);
         } else {
             _outbox.set(uint256(keccak256(abi.encode(source, sender, receiver, payload, attributes))));
         }

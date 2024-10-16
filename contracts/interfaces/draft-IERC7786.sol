@@ -3,11 +3,11 @@
 pragma solidity ^0.8.0;
 
 /**
- * @dev Interface for ERC-XXXX source gateways.
+ * @dev Interface for ERC-7786 source gateways.
  *
- * See ERC-XXXX for more details
+ * See ERC-7786 for more details
  */
-interface IERCXXXXGatewaySource {
+interface IERC7786GatewaySource {
     /**
      * @dev Event emitted when a message is created. If `outboxId` is zero, no further processing is necessary, and
      * not {MessageSent} event SHOULD be expected. If `outboxId` is not zero, then further (gateway specific, and non
@@ -42,7 +42,7 @@ interface IERCXXXXGatewaySource {
      * * SHOULD NOT emit a {MessageSent} event.
      *
      * If any of the `attributes` is not supported, this function SHOULD revert with an {UnsuportedAttribute} error.
-     * Other errors SHOULD revert with errors not specified in ERC-XXXX.
+     * Other errors SHOULD revert with errors not specified in ERC-7786.
      */
     function sendMessage(
         string calldata destination, // CAIP-2 chain ID
@@ -53,11 +53,11 @@ interface IERCXXXXGatewaySource {
 }
 
 /**
- * @dev Interface for ERC-XXXX destination gateways operating in passive mode.
+ * @dev Interface for ERC-7786 destination gateways operating in passive mode.
  *
- * See ERC-XXXX for more details
+ * See ERC-7786 for more details
  */
-interface IERCXXXXGatewayDestinationPassive {
+interface IERC7786GatewayDestinationPassive {
     error InvalidMessageKey(bytes messageKey);
 
     /**
@@ -78,11 +78,11 @@ interface IERCXXXXGatewayDestinationPassive {
 }
 
 /**
- * @dev Interface for the ERC-XXXX client contracts (receiver).
+ * @dev Interface for the ERC-7786 client contracts (receiver).
  *
- * See ERC-XXXX for more details
+ * See ERC-7786 for more details
  */
-interface IERCXXXXReceiver {
+interface IERC7786Receiver {
     /**
      * @dev Endpoint for receiving cross-chain message.
      *

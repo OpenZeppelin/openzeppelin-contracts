@@ -10,14 +10,14 @@ async function fixture() {
   const [sender, notAGateway] = await ethers.getSigners();
   const { caip2, toCaip10 } = await getLocalCAIP();
 
-  const gateway = await ethers.deployContract('$ERCXXXXGatewayMock');
-  const receiver = await ethers.deployContract('$ERCXXXXReceiverMock', [gateway]);
+  const gateway = await ethers.deployContract('$ERC7786GatewayMock');
+  const receiver = await ethers.deployContract('$ERC7786ReceiverMock', [gateway]);
 
   return { sender, notAGateway, gateway, receiver, caip2, toCaip10 };
 }
 
 // NOTE: here we are only testing the receiver. Failures of the gateway itself (invalid attributes, ...) are out of scope.
-describe('ERCXXXXReceiver', function () {
+describe('ERC7786Receiver', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });
@@ -68,7 +68,7 @@ describe('ERCXXXXReceiver', function () {
       await expect(
         this.receiver.receiveMessage(this.notAGateway, '0x', this.caip2, this.sender.address, payload, attributes),
       )
-        .to.be.revertedWithCustomError(this.receiver, 'ERCXXXXReceiverInvalidGateway')
+        .to.be.revertedWithCustomError(this.receiver, 'ERC7786ReceiverInvalidGateway')
         .withArgs(this.notAGateway);
     });
   });
