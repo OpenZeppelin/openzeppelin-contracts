@@ -80,7 +80,7 @@ abstract contract ERC7739Signer is EIP712, IERC1271 {
             ) = eip712Domain();
 
             // Rebuild nested hash
-            nestedHash = ERC7739Utils.toNestedTypedDataHash(
+            nestedHash = MessageHashUtils.toTypedDataHash(
                 separator,
                 ERC7739Utils.typedDataNestedStructHash(
                     contentsType,

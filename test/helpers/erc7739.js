@@ -4,18 +4,22 @@ const { domainSeparator, formatType } = require('./eip712');
 class PersonalSignHelper {
   static types = { PersonalSign: formatType({ prefixed: 'bytes' }) };
 
-  static hash(message) {
-    return ethers.hashMessage(message);
-  }
-
-  static sign(signer, message, signerDomain) {
-    return signer.signTypedData(signerDomain, this.types, {
+  static prepare(message) {
+    return {
       prefixed: ethers.concat([
         ethers.toUtf8Bytes(ethers.MessagePrefix),
         ethers.toUtf8Bytes(String(message.length)),
         typeof message === 'string' ? ethers.toUtf8Bytes(message) : message,
       ]),
-    });
+    };
+  }
+
+  static hash(message) {
+    return message.prefixed ? ethers.keccak256(message.prefixed) : ethers.hashMessage(message);
+  }
+
+  static sign(signer, data, signerDomain) {
+    return signer.signTypedData(signerDomain, this.types, data);
   }
 }
 
@@ -42,7 +46,7 @@ class TypedDataSignHelper {
     return new TypedDataSignHelper(contentsTypeName, contentsTypeValues);
   }
 
-  static prepareMessage(contents, signerDomain) {
+  static prepare(contents, signerDomain) {
     return Object.assign(
       {
         contents,
@@ -54,16 +58,16 @@ class TypedDataSignHelper {
     );
   }
 
-  hash(message, appDomain) {
-    return ethers.TypedDataEncoder.hash(appDomain, this.types, message);
+  hash(data, appDomain) {
+    return ethers.TypedDataEncoder.hash(appDomain, this.types, data);
   }
 
-  sign(signer, message, appDomain) {
-    return Promise.resolve(signer.signTypedData(appDomain, this.types, message)).then(signature =>
+  sign(signer, data, appDomain) {
+    return Promise.resolve(signer.signTypedData(appDomain, this.types, data)).then(signature =>
       ethers.concat([
         signature,
         domainSeparator(appDomain),
-        ethers.TypedDataEncoder.hashStruct(this.contentsName, this.types, message.contents),
+        ethers.TypedDataEncoder.hashStruct(this.contentsName, this.types, data.contents),
         ethers.toUtf8Bytes(this.contentsType),
         ethers.toBeHex(this.contentsType.length, 2),
       ]),

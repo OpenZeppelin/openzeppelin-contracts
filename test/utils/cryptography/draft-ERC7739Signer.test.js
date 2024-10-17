@@ -24,7 +24,8 @@ describe('ERC7739Signer', function () {
 
   describe('isValidSignature', function () {
     it('returns true for a valid personal signature', async function () {
-      const message = 'Hello, world!';
+      const message = PersonalSignHelper.prepare('Hello, world!');
+
       const hash = PersonalSignHelper.hash(message);
       const signature = await PersonalSignHelper.sign(this.eoa, message, this.domain);
 
@@ -40,7 +41,7 @@ describe('ERC7739Signer', function () {
         verifyingContract: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
       };
 
-      const message = TypedDataSignHelper.prepareMessage({ something: ethers.randomBytes(32) }, this.domain);
+      const message = TypedDataSignHelper.prepare({ something: ethers.randomBytes(32) }, this.domain);
 
       const helper = new TypedDataSignHelper('SomeType', { something: 'bytes32' });
       const hash = helper.hash(message, appDomain);
@@ -50,8 +51,10 @@ describe('ERC7739Signer', function () {
     });
 
     it('returns false for an invalid signature', async function () {
-      const hash = PersonalSignHelper.hash('Message the app expects');
-      const signature = await PersonalSignHelper.sign(this.eoa, 'Message signed is different', this.domain);
+      const message = PersonalSignHelper.prepare('Message signed is different');
+
+      const hash = PersonalSignHelper.hash('Message the app expects'); // different text
+      const signature = await PersonalSignHelper.sign(this.eoa, message, this.domain);
 
       expect(await this.mock.isValidSignature(hash, signature)).to.not.equal(MAGIC_VALUE);
     });

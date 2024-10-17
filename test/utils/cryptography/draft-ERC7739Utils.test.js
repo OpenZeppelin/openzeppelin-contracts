@@ -1,7 +1,8 @@
 const { expect } = require('chai');
 const { ethers } = require('hardhat');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { /*PersonalSignHelper,*/ TypedDataSignHelper } = require('../../helpers/erc7739');
+const { domainSeparator } = require('../../helpers/eip712');
+const { PersonalSignHelper, TypedDataSignHelper } = require('../../helpers/erc7739');
 
 const fixture = async () => {
   const mock = await ethers.deployContract('$ERC7739Utils');
@@ -11,7 +12,13 @@ const fixture = async () => {
     chainId: await ethers.provider.getNetwork().then(({ chainId }) => chainId),
     verifyingContract: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
   };
-  return { mock, domain };
+  const otherDomain = {
+    name: 'SomeOtherDomain',
+    version: '2',
+    chainId: await ethers.provider.getNetwork().then(({ chainId }) => chainId),
+    verifyingContract: '0x92C32cadBc39A15212505B5530aA765c441F306f',
+  };
+  return { mock, domain, otherDomain };
 };
 
 describe('ERC7739Utils', function () {
@@ -24,15 +31,20 @@ describe('ERC7739Utils', function () {
       const signature = ethers.randomBytes(65);
       const separator = ethers.id('SomeApp');
       const contents = ethers.id('SomeData');
-      const contentsType = ethers.toUtf8Bytes('SomeType()');
-      const contentsTypeLength = ethers.toBeHex(ethers.dataLength(contentsType), 2);
-      const encoded = ethers.concat([signature, separator, contents, contentsType, contentsTypeLength]);
+      const contentsType = 'SomeType()';
+      const encoded = ethers.concat([
+        signature,
+        separator,
+        contents,
+        ethers.toUtf8Bytes(contentsType),
+        ethers.toBeHex(contentsType.length, 2),
+      ]);
 
       expect(await this.mock.getFunction('$decodeTypedDataSig')(encoded)).to.deep.equal([
         ethers.hexlify(signature),
         separator,
         contents,
-        ethers.hexlify(contentsType),
+        contentsType,
       ]);
     });
 
@@ -42,7 +54,7 @@ describe('ERC7739Utils', function () {
         '0x',
         ethers.ZeroHash,
         ethers.ZeroHash,
-        '0x',
+        '',
       ]);
     });
 
@@ -52,7 +64,7 @@ describe('ERC7739Utils', function () {
         '0x',
         ethers.ZeroHash,
         ethers.ZeroHash,
-        '0x',
+        '',
       ]);
     });
   });
@@ -62,10 +74,15 @@ describe('ERC7739Utils', function () {
       const signature = ethers.randomBytes(65);
       const separator = ethers.id('SomeApp');
       const contents = ethers.id('SomeData');
-      const contentsType = ethers.toUtf8Bytes('SomeType()');
-      const contentsTypeLength = ethers.toBeHex(ethers.dataLength(contentsType), 2);
+      const contentsType = 'SomeType()';
+      const encoded = ethers.concat([
+        signature,
+        separator,
+        contents,
+        ethers.toUtf8Bytes(contentsType),
+        ethers.toBeHex(contentsType.length, 2),
+      ]);
 
-      const encoded = ethers.concat([signature, separator, contents, contentsType, contentsTypeLength]);
       expect(await this.mock.getFunction('$encodeTypedDataSig')(signature, separator, contents, contentsType)).to.equal(
         encoded,
       );
@@ -73,31 +90,12 @@ describe('ERC7739Utils', function () {
   });
 
   describe('toNestedPersonalSignHash', function () {
-    it('should produce a personal signature EIP712 nested type', async function () {
-      // const contents = ethers.randomBytes(32);
-      // const personalSignStructHash = ethers.solidityPackedKeccak256(
-      //   ['bytes32', 'bytes32'],
-      //   [
-      //     ethers.solidityPackedKeccak256(['string'], ['PersonalSign(bytes prefixed)']),
-      //     ethers.solidityPackedKeccak256(['string', 'bytes32'], ['\x19Ethereum Signed Message:\n32', contents]),
-      //   ],
-      // );
-      // expect(await this.mock.getFunction('$toNestedPersonalSignHash')(domainSeparator(this.domain), contents)).to.equal(
-      //   hashTypedData(this.domain, personalSignStructHash),
-      // );
-    });
-  });
+    it('should produce a personal signature EIP-712 nested type', async function () {
+      const text = 'Hello, world!';
 
-  describe('toNestedTypedDataHash', function () {
-    it('should produce a typed data EIP712 nested type', async function () {
-      // const contents = ethers.randomBytes(32);
-      // const contentsTypeName = 'SomeType';
-      // const contentsType = `${contentsTypeName}()`;
-      // const typedDataNestedStructHash = hashNestedTypedDataStruct(this.domain, contents, contentsType);
-      // const expected = hashTypedData(this.domain, typedDataNestedStructHash);
-      // expect(
-      //   await this.mock.getFunction('$toNestedTypedDataHash')(domainSeparator(this.domain), typedDataNestedStructHash),
-      // ).to.equal(expected);
+      expect(
+        await this.mock.$toNestedPersonalSignHash(domainSeparator(this.domain), ethers.hashMessage(text)),
+      ).to.equal(ethers.TypedDataEncoder.hash(this.domain, PersonalSignHelper.types, PersonalSignHelper.prepare(text)));
     });
   });
 
@@ -168,7 +166,7 @@ describe('ERC7739Utils', function () {
 
   describe('typedDataNestedStructHash', function () {
     it('should match the typed data nested struct hash', async function () {
-      const message = TypedDataSignHelper.prepareMessage({ something: ethers.randomBytes(32) }, this.domain);
+      const message = TypedDataSignHelper.prepare({ something: ethers.randomBytes(32) }, this.domain);
 
       const { types, contentsType } = TypedDataSignHelper.from('SomeType', { something: 'bytes32' });
       const contentsHash = ethers.TypedDataEncoder.hashStruct('SomeType', types, message.contents);

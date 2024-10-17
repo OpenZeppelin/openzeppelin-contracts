@@ -123,48 +123,6 @@ library ERC7739Utils {
     }
 
     /**
-     * @dev Nests an {EIP712} typed data `contents` digest into an {EIP712} that simulates
-     * `eth_signTypedData` RPC method for another domain (application).
-     *
-     * This type uses the {NESTED_TYPED_DATA_TYPEHASH} type to nest the `contents` hash
-     * for the current domain with the application's domain separator.
-     *
-     * To produce a signature for this nested type, the signer must sign the following type hash:
-     *
-     * ```solidity
-     * bytes32 hash = keccak256(
-     *  abi.encodePacked(
-     *      \x19\x01,
-     *      separator, // The domain separator of the application contract
-     *      keccak256(
-     *          abi.encode(
-     *              NESTED_TYPED_DATA_TYPEHASH(contentsType), // See {NESTED_TYPED_DATA_TYPEHASH}
-     *              contents,
-     *              // See {IERC5267-eip712Domain} for the following arguments from the verifying contract's domain
-     *              fields,
-     *              keccak256(bytes(name)),
-     *              keccak256(bytes(version)),
-     *              chainId,
-     *              verifyingContract,
-     *              salt,
-     *              keccak256(abi.encodePacked(extensions))
-     *          )
-     *      )
-     *  )
-     *);
-     *
-     * NOTE: The arguments should be those of the verifying application. See {EIP712-_domainSeparatorV4}
-     * and {IERC5267-eip712Domain} for more details of how to obtain these values. Respectively, they
-     * must be obtained from the verifying contract (e.g. an Account) and the application domain.
-     */
-    function toNestedTypedDataHash(
-        bytes32 separator,
-        bytes32 hashedTypedDataNestedStruct
-    ) internal pure returns (bytes32) {
-        return MessageHashUtils.toTypedDataHash(separator, hashedTypedDataNestedStruct);
-    }
-
-    /**
      * @dev Computes the nested EIP-712 type hash for the given contents type.
      *
      * The `contentsTypeName` is the string name in the app's domain before the parentheses
