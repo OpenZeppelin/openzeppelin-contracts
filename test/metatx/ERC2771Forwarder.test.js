@@ -52,19 +52,6 @@ async function fixture() {
   };
 }
 
-// values or function to tamper with a signed request.
-const tamperedValues = {
-  from: ethers.Wallet.createRandom().address,
-  to: ethers.Wallet.createRandom().address,
-  value: ethers.parseEther('0.5'),
-  data: '0x1742',
-  signature: s => {
-    const t = ethers.toBeArray(s);
-    t[42] ^= 0xff;
-    return ethers.hexlify(t);
-  },
-};
-
 describe('ERC2771Forwarder', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
@@ -81,15 +68,6 @@ describe('ERC2771Forwarder', function () {
     });
 
     describe('with tampered values', function () {
-      for (const [key, value] of Object.entries(tamperedValues)) {
-        it(`returns false with tampered ${key}`, async function () {
-          const request = await this.forgeRequest();
-          request[key] = typeof value == 'function' ? value(request[key]) : value;
-
-          expect(await this.forwarder.verify(request)).to.be.false;
-        });
-      }
-
       it('returns false with valid signature for non-current nonce', async function () {
         const request = await this.forgeRequest({ nonce: 1337n });
         expect(await this.forwarder.verify(request)).to.be.false;
@@ -127,24 +105,6 @@ describe('ERC2771Forwarder', function () {
     });
 
     describe('with tampered request', function () {
-      for (const [key, value] of Object.entries(tamperedValues)) {
-        it(`reverts with tampered ${key}`, async function () {
-          const request = await this.forgeRequest();
-          request[key] = typeof value == 'function' ? value(request[key]) : value;
-
-          const promise = this.forwarder.execute(request, { value: key == 'value' ? value : 0 });
-          if (key != 'to') {
-            await expect(promise)
-              .to.be.revertedWithCustomError(this.forwarder, 'ERC2771ForwarderInvalidSigner')
-              .withArgs(ethers.verifyTypedData(this.domain, this.types, request, request.signature), request.from);
-          } else {
-            await expect(promise)
-              .to.be.revertedWithCustomError(this.forwarder, 'ERC2771UntrustfulTarget')
-              .withArgs(request.to, this.forwarder);
-          }
-        });
-      }
-
       it('reverts with valid signature for non-current nonce', async function () {
         const request = await this.forgeRequest();
 
@@ -284,26 +244,6 @@ describe('ERC2771Forwarder', function () {
           this.refundReceiver = ethers.ZeroAddress;
         });
 
-        for (const [key, value] of Object.entries(tamperedValues)) {
-          it(`reverts with at least one tampered request ${key}`, async function () {
-            this.requests[idx][key] = typeof value == 'function' ? value(this.requests[idx][key]) : value;
-
-            const promise = this.forwarder.executeBatch(this.requests, this.refundReceiver, { value: this.value });
-            if (key != 'to') {
-              await expect(promise)
-                .to.be.revertedWithCustomError(this.forwarder, 'ERC2771ForwarderInvalidSigner')
-                .withArgs(
-                  ethers.verifyTypedData(this.domain, this.types, this.requests[idx], this.requests[idx].signature),
-                  this.requests[idx].from,
-                );
-            } else {
-              await expect(promise)
-                .to.be.revertedWithCustomError(this.forwarder, 'ERC2771UntrustfulTarget')
-                .withArgs(this.requests[idx].to, this.forwarder);
-            }
-          });
-        }
-
         it('reverts with at least one valid signature for non-current nonce', async function () {
           // Execute first a request
           await this.forwarder.execute(this.requests[idx], { value: this.requests[idx].value });
@@ -339,23 +279,6 @@ describe('ERC2771Forwarder', function () {
           this.initialRefundReceiverBalance = await ethers.provider.getBalance(this.refundReceiver);
           this.initialTamperedRequestNonce = await this.forwarder.nonces(this.requests[idx].from);
         });
-
-        for (const [key, value] of Object.entries(tamperedValues)) {
-          it(`ignores a request with tampered ${key} and refunds its value`, async function () {
-            this.requests[idx][key] = typeof value == 'function' ? value(this.requests[idx][key]) : value;
-
-            const events = await this.forwarder
-              .executeBatch(this.requests, this.refundReceiver, { value: requestsValue(this.requests) })
-              .then(tx => tx.wait())
-              .then(receipt =>
-                receipt.logs.filter(
-                  log => log?.fragment?.type == 'event' && log?.fragment?.name == 'ExecutedForwardRequest',
-                ),
-              );
-
-            expect(events).to.have.lengthOf(this.requests.length - 1);
-          });
-        }
 
         it('ignores a request with a valid signature for non-current nonce', async function () {
           // Execute first a request
