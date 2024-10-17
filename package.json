@@ -65,7 +65,7 @@
     "eslint": "^8.30.0",
     "eslint-config-prettier": "^9.0.0",
     "ethers": "^6.7.1",
-    "glob": "^10.3.5",
+    "glob": "^11.0.0",
     "graphlib": "^2.1.8",
     "hardhat": "^2.22.2",
     "hardhat-exposed": "^0.3.15",
