@@ -14,7 +14,7 @@ interface IERC7786GatewaySource {
      * standardized) action is required.
      */
     event MessageCreated(
-        bytes32 outboxId,
+        bytes32 indexed outboxId,
         string sender, // CAIP-10 account ID
         string receiver, // CAIP-10 account ID
         bytes payload,
