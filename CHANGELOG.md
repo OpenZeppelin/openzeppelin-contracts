@@ -1,6 +1,10 @@
 # Changelog
 
 
+## 5.1.0-rc.1 (2024-10-17)
+
+- `SafeERC20`: Document risks of `safeIncreaseAllowance` and `safeDecreaseAllowance` when associated with ERC-7674.
+
 ## 5.1.0-rc.0 (2024-10-03)
 
 ### Breaking changes
