@@ -63,7 +63,7 @@ abstract contract ERC7739Signer is EIP712, IERC1271 {
         bytes calldata signature
     ) internal view virtual returns (bool) {
         // decode signature
-        (bytes calldata nestedSignature, bytes32 separator, bytes32 contents, string calldata contentsType) = signature
+        (bytes calldata nestedSignature, bytes32 separator, bytes32 contentsHash, string calldata contentsType) = signature
             .decodeTypedDataSig();
 
         bytes32 nestedHash;
@@ -84,7 +84,7 @@ abstract contract ERC7739Signer is EIP712, IERC1271 {
             nestedHash = separator.toTypedDataHash(
                 ERC7739Utils.typedDataSignStructHash(
                     contentsType,
-                    contents,
+                    contentsHash,
                     fields,
                     name,
                     version,
