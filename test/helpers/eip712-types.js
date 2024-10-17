@@ -32,6 +32,13 @@ module.exports = mapValues(
       reason: 'string',
       params: 'bytes',
     },
+    OverrideBallot: {
+      proposalId: 'uint256',
+      support: 'uint8',
+      voter: 'address',
+      nonce: 'uint256',
+      reason: 'string',
+    },
     Delegation: {
       delegatee: 'address',
       nonce: 'uint256',
