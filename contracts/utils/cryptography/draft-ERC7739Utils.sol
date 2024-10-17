@@ -52,21 +52,21 @@ library ERC7739Utils {
     )
         internal
         pure
-        returns (bytes calldata signature, bytes32 separator, bytes32 contents, bytes calldata contentsType)
+        returns (bytes calldata signature, bytes32 separator, bytes32 contents, string calldata contentsType)
     {
         unchecked {
             uint256 sigLength = encodedSignature.length;
 
-            if (sigLength < 66) return (_emptyCalldataBytes(), 0, 0, _emptyCalldataBytes());
+            if (sigLength < 66) return (_emptyCalldataBytes(), 0, 0, _emptyCalldataString());
 
             uint256 contentsTypeEnd = sigLength - 2; // Last 2 bytes
             uint256 contentsTypeLength = uint16(bytes2(encodedSignature[contentsTypeEnd:]));
 
-            if (contentsTypeLength > contentsTypeEnd) return (_emptyCalldataBytes(), 0, 0, _emptyCalldataBytes());
+            if (contentsTypeLength > contentsTypeEnd) return (_emptyCalldataBytes(), 0, 0, _emptyCalldataString());
 
             uint256 contentsEnd = contentsTypeEnd - contentsTypeLength;
 
-            if (contentsEnd < 64) return (_emptyCalldataBytes(), 0, 0, _emptyCalldataBytes());
+            if (contentsEnd < 64) return (_emptyCalldataBytes(), 0, 0, _emptyCalldataString());
 
             uint256 separatorEnd = contentsEnd - 32;
             uint256 signatureEnd = separatorEnd - 32;
@@ -74,7 +74,7 @@ library ERC7739Utils {
             signature = encodedSignature[:signatureEnd];
             separator = bytes32(encodedSignature[signatureEnd:separatorEnd]);
             contents = bytes32(encodedSignature[separatorEnd:contentsEnd]);
-            contentsType = encodedSignature[contentsEnd:contentsTypeEnd];
+            contentsType = string(encodedSignature[contentsEnd:contentsTypeEnd]);
         }
     }
 
@@ -87,9 +87,9 @@ library ERC7739Utils {
         bytes memory signature,
         bytes32 separator,
         bytes32 contents,
-        bytes memory contentsType
+        string memory contentsType
     ) internal pure returns (bytes memory) {
-        return abi.encodePacked(signature, separator, contents, contentsType, uint16(contentsType.length));
+        return abi.encodePacked(signature, separator, contents, contentsType, uint16(bytes(contentsType).length));
     }
 
     /**
@@ -178,8 +178,8 @@ library ERC7739Utils {
      *  - `contentsType` must be a valid EIP-712 type (see {tryValidateContentsType})
      */
     // solhint-disable-next-line func-name-mixedcase
-    function NESTED_TYPED_DATA_TYPEHASH(bytes calldata contentsType) internal pure returns (bytes32) {
-        (bool valid, bytes calldata contentsTypeName) = tryValidateContentsType(contentsType);
+    function NESTED_TYPED_DATA_TYPEHASH(string calldata contentsType) internal pure returns (bytes32) {
+        (bool valid, string calldata contentsTypeName) = tryValidateContentsType(contentsType);
         if (!valid) revert InvalidContentsType();
         return NESTED_TYPED_DATA_TYPEHASH(contentsType, contentsTypeName);
     }
@@ -191,8 +191,8 @@ library ERC7739Utils {
      */
     // solhint-disable-next-line func-name-mixedcase
     function NESTED_TYPED_DATA_TYPEHASH(
-        bytes calldata contentsType,
-        bytes calldata contentsTypeName
+        string calldata contentsType,
+        string calldata contentsTypeName
     ) internal pure returns (bytes32) {
         return
             keccak256(
@@ -216,25 +216,26 @@ library ERC7739Utils {
      * therefore the restrictions implemented here may change in a future release.
      */
     function tryValidateContentsType(
-        bytes calldata contentsType
-    ) internal pure returns (bool valid, bytes calldata contentsTypeName) {
+        string calldata contentsType
+    ) internal pure returns (bool valid, string calldata contentsTypeName) {
+        bytes calldata buffer = bytes(contentsType);
         // Loop over the contentsType, looking for the end of the contntsTypeName and validating the input as we go.
-        for (uint256 i = 0; i < contentsType.length; ++i) {
-            bytes1 current = contentsType[i];
+        for (uint256 i = 0; i < buffer.length; ++i) {
+            bytes1 current = buffer[i];
             if (current == bytes1("(")) {
                 // we found the end of the contentsTypeName
                 if (i == 0) {
-                    return (false, _emptyCalldataBytes());
+                    return (false, _emptyCalldataString());
                 } else {
-                    return (true, contentsType[:i]);
+                    return (true, string(buffer[:i]));
                 }
             } else if (current == 0x00 || current == bytes1(" ") || current == bytes1(",") || current == bytes1(")")) {
                 // we found an invalid character (forbidden)
-                return (false, _emptyCalldataBytes());
+                return (false, _emptyCalldataString());
             }
         }
         // We exited the loop without finding of the contentsTypeName
-        return (false, _emptyCalldataBytes());
+        return (false, _emptyCalldataString());
     }
 
     /**
@@ -243,7 +244,7 @@ library ERC7739Utils {
      * NOTE: This function does not validate the contents type. See {tryValidateContentsType}.
      */
     function typedDataNestedStructHash(
-        bytes calldata contentsType,
+        string calldata contentsType,
         bytes32 contents,
         bytes1 fields,
         string memory name,
@@ -252,7 +253,7 @@ library ERC7739Utils {
         bytes32 salt,
         uint256[] memory extensions
     ) internal view returns (bytes32) {
-        (, bytes calldata contentsTypeName) = tryValidateContentsType(contentsType);
+        (, string calldata contentsTypeName) = tryValidateContentsType(contentsType);
         return
             keccak256(
                 abi.encode(
@@ -270,6 +271,13 @@ library ERC7739Utils {
     }
 
     function _emptyCalldataBytes() private pure returns (bytes calldata result) {
+        assembly ("memory-safe") {
+            result.offset := 0
+            result.length := 0
+        }
+    }
+
+    function _emptyCalldataString() private pure returns (string calldata result) {
         assembly ("memory-safe") {
             result.offset := 0
             result.length := 0

@@ -62,7 +62,7 @@ abstract contract ERC7739Signer is EIP712, IERC1271 {
         bytes calldata signature
     ) internal view virtual returns (bool) {
         // decode signature
-        (bytes calldata nestedSignature, bytes32 separator, bytes32 contents, bytes calldata contentsType) = signature
+        (bytes calldata nestedSignature, bytes32 separator, bytes32 contents, string calldata contentsType) = signature
             .decodeTypedDataSig();
 
         bytes32 nestedHash;
