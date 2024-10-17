@@ -141,6 +141,7 @@ library ERC7739Utils {
      *              NESTED_TYPED_DATA_TYPEHASH(contentsType), // See {NESTED_TYPED_DATA_TYPEHASH}
      *              contents,
      *              // See {IERC5267-eip712Domain} for the following arguments from the verifying contract's domain
+     *              fields,
      *              keccak256(bytes(name)),
      *              keccak256(bytes(version)),
      *              chainId,
