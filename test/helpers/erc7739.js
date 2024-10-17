@@ -38,6 +38,10 @@ class TypedDataSignHelper {
     this.contentsType = ethers.TypedDataEncoder.from(this.types).encodeType(contentsTypeName);
   }
 
+  static from(contentsTypeName, contentsTypeValues) {
+    return new TypedDataSignHelper(contentsTypeName, contentsTypeValues);
+  }
+
   static prepareMessage(contents, signerDomain) {
     return Object.assign(
       {

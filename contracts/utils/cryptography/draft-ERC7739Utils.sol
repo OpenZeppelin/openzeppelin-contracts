@@ -208,27 +208,30 @@ library ERC7739Utils {
     /**
      * @dev Try to validate the contents type is a valid EIP-712 type.
      *
-     * A valid `contentsType` is considered invalid if it's empty or if:
-     * - it starts with a '('.
-     * - it contains any of the following bytes: , )\x00
+     * A valid `contentsType` is considered invalid if it's empty or it:
      *
-     * NOTE: This is a looser take on the ERC very strict restrictions. This part appears to be under discussion, and
-     * therefore the restrictions implemented here may change in a future release.
+     * - Starts with a-z or (
+     * - Contains any of the following bytes: , )\x00
      */
     function tryValidateContentsType(
         string calldata contentsType
     ) internal pure returns (bool valid, string calldata contentsTypeName) {
         bytes calldata buffer = bytes(contentsType);
+
+        // Check the first character if it exists
+        if (buffer.length != 0) {
+            bytes1 first = buffer[0];
+            if ((first > 0x60 && first < 0x7b) || first == bytes1("(")) {
+                return (false, _emptyCalldataString());
+            }
+        }
+
         // Loop over the contentsType, looking for the end of the contntsTypeName and validating the input as we go.
         for (uint256 i = 0; i < buffer.length; ++i) {
             bytes1 current = buffer[i];
             if (current == bytes1("(")) {
                 // we found the end of the contentsTypeName
-                if (i == 0) {
-                    return (false, _emptyCalldataString());
-                } else {
-                    return (true, string(buffer[:i]));
-                }
+                return (true, string(buffer[:i]));
             } else if (current == 0x00 || current == bytes1(" ") || current == bytes1(",") || current == bytes1(")")) {
                 // we found an invalid character (forbidden)
                 return (false, _emptyCalldataString());
@@ -252,22 +255,29 @@ library ERC7739Utils {
         address verifyingContract,
         bytes32 salt,
         uint256[] memory extensions
-    ) internal view returns (bytes32) {
-        (, string calldata contentsTypeName) = tryValidateContentsType(contentsType);
-        return
-            keccak256(
-                abi.encode(
-                    NESTED_TYPED_DATA_TYPEHASH(contentsType, contentsTypeName),
-                    contents,
-                    fields,
-                    keccak256(bytes(name)),
-                    keccak256(bytes(version)),
-                    block.chainid,
-                    verifyingContract,
-                    salt,
-                    keccak256(abi.encodePacked(extensions))
-                )
-            );
+    ) internal view returns (bytes32 result) {
+        (bool valid, string calldata contentsTypeName) = tryValidateContentsType(contentsType);
+
+        if (valid) {
+            bytes32 typehash = NESTED_TYPED_DATA_TYPEHASH(contentsType, contentsTypeName);
+            bytes32 extensionsHash = keccak256(abi.encodePacked(extensions));
+
+            assembly ("memory-safe") {
+                let ptr := mload(0x40)
+                mstore(ptr, typehash)
+                mstore(add(ptr, 0x020), contents)
+                mstore(add(ptr, 0x040), fields)
+                mstore(add(ptr, 0x060), keccak256(add(name, 0x20), mload(name)))
+                mstore(add(ptr, 0x080), keccak256(add(version, 0x20), mload(version)))
+                mstore(add(ptr, 0x0a0), chainid())
+                mstore(add(ptr, 0x0c0), verifyingContract)
+                mstore(add(ptr, 0x0e0), salt)
+                mstore(add(ptr, 0x100), extensionsHash)
+                result := keccak256(ptr, 0x120)
+            }
+        } else {
+            result = bytes32(0);
+        }
     }
 
     function _emptyCalldataBytes() private pure returns (bytes calldata result) {
