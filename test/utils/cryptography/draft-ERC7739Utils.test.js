@@ -26,39 +26,6 @@ describe('ERC7739Utils', function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
-  describe('personalSignStructhash', function () {
-    it('should produce a personal signature EIP-712 nested type', async function () {
-      const text = 'Hello, world!';
-
-      expect(await this.mock.$personalSignStructhash(ethers.hashMessage(text))).to.equal(
-        ethers.TypedDataEncoder.hashStruct('PersonalSign', PersonalSignHelper.types, PersonalSignHelper.prepare(text)),
-      );
-    });
-  });
-
-  describe('typedDataSignStructHash', function () {
-    it('should match the typed data nested struct hash', async function () {
-      const message = TypedDataSignHelper.prepare({ something: ethers.randomBytes(32) }, this.domain);
-
-      const { types, contentsType } = TypedDataSignHelper.from('SomeType', { something: 'bytes32' });
-      const contentsHash = ethers.TypedDataEncoder.hashStruct('SomeType', types, message.contents);
-      const hash = ethers.TypedDataEncoder.hashStruct('TypedDataSign', types, message);
-
-      expect(
-        await this.mock.$typedDataSignStructHash(
-          contentsType,
-          contentsHash,
-          message.fields,
-          message.name,
-          message.version,
-          message.verifyingContract,
-          message.salt,
-          message.extensions,
-        ),
-      ).to.equal(hash);
-    });
-  });
-
   describe('encodeTypedDataSig', function () {
     it('wraps a typed data signature', async function () {
       const signature = ethers.randomBytes(65);
@@ -107,6 +74,39 @@ describe('ERC7739Utils', function () {
     it('returns default empty values if the length is invalid', async function () {
       const encoded = ethers.concat([ethers.randomBytes(64), '0x3f']); // Can't be less than 64 bytes
       expect(await this.mock.$decodeTypedDataSig(encoded)).to.deep.equal(['0x', ethers.ZeroHash, ethers.ZeroHash, '']);
+    });
+  });
+
+  describe('personalSignStructhash', function () {
+    it('should produce a personal signature EIP-712 nested type', async function () {
+      const text = 'Hello, world!';
+
+      expect(await this.mock.$personalSignStructHash(ethers.hashMessage(text))).to.equal(
+        ethers.TypedDataEncoder.hashStruct('PersonalSign', PersonalSignHelper.types, PersonalSignHelper.prepare(text)),
+      );
+    });
+  });
+
+  describe('typedDataSignStructHash', function () {
+    it('should match the typed data nested struct hash', async function () {
+      const message = TypedDataSignHelper.prepare({ something: ethers.randomBytes(32) }, this.domain);
+
+      const { types, contentsType } = TypedDataSignHelper.from('SomeType', { something: 'bytes32' });
+      const contentsHash = ethers.TypedDataEncoder.hashStruct('SomeType', types, message.contents);
+      const hash = ethers.TypedDataEncoder.hashStruct('TypedDataSign', types, message);
+
+      expect(
+        await this.mock.$typedDataSignStructHash(
+          contentsType,
+          contentsHash,
+          message.fields,
+          message.name,
+          message.version,
+          message.verifyingContract,
+          message.salt,
+          message.extensions,
+        ),
+      ).to.equal(hash);
     });
   });
 

@@ -52,7 +52,7 @@ abstract contract ERC7739Signer is EIP712, IERC1271 {
         bytes32 hash,
         bytes calldata signature
     ) internal view virtual returns (bool) {
-        return _validateSignature(_domainSeparatorV4().toTypedDataHash(hash.personalSignStructhash()), signature);
+        return _validateSignature(_domainSeparatorV4().toTypedDataHash(hash.personalSignStructHash()), signature);
     }
 
     /**

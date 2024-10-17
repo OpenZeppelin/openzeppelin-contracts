@@ -2,12 +2,9 @@
 
 pragma solidity ^0.8.20;
 
-import {IERC5267} from "../../interfaces/IERC5267.sol";
-import {MessageHashUtils} from "./MessageHashUtils.sol";
-
 /**
  * @dev Utilities to process https://ercs.ethereum.org/ERCS/erc-7739[ERC-7739] typed data signatures
- * that are specific to an {EIP712} domain.
+ * that are specific to an EIP-712 domain.
  *
  * This library provides methods to wrap, unwrap and operate over typed data signatures with a defensive
  * rehashing mechanism that includes the application's {EIP712-_domainSeparatorV4} and preserves
@@ -26,7 +23,7 @@ import {MessageHashUtils} from "./MessageHashUtils.sol";
 library ERC7739Utils {
     /**
      * @dev An EIP-712 typed to represent "personal" signatures
-     * (i.e. mimic of `eth_personalSign` for smart contracts).
+     * (i.e. mimic of `personal_sign` for smart contracts).
      */
     bytes32 private constant PERSONAL_SIGN_TYPEHASH = keccak256("PersonalSign(bytes prefixed)");
 
@@ -34,71 +31,6 @@ library ERC7739Utils {
      * @dev Error when the contents type is invalid. See {tryValidateContentsType}.
      */
     error InvalidContentsType();
-
-    /**
-     * @dev Nests a `contents` digest into an {EIP712} type that simulates the `eth_personalSign` RPC
-     * method in the context of smart contracts.
-     *
-     * This typed uses the {PERSONAL_SIGN_TYPEHASH} type to nest the `contents` hash for the
-     * current domain `separator`.
-     *
-     * To produce a signature for this nested type, the signer must sign the following type hash:
-     *
-     * ```solidity
-     * bytes32 hash = keccak256(abi.encodePacked(
-     *      \x19\x01,
-     *      CURRENT_DOMAIN_SEPARATOR,
-     *      keccak256(
-     *          abi.encode(
-     *              keccak256("PersonalSign(bytes prefixed)"),
-     *              keccak256(abi.encode("\x19Ethereum Signed Message:\n32",contents))
-     *          )
-     *      )
-     * ));
-     * ```
-     */
-    function personalSignStructhash(bytes32 contents) internal pure returns (bytes32) {
-        return keccak256(abi.encode(PERSONAL_SIGN_TYPEHASH, contents));
-    }
-
-    /**
-     * @dev Computes the hash of the nested struct for the given contents.
-     *
-     * NOTE: This function does not validate the contents type. See {tryValidateContentsType}.
-     */
-    function typedDataSignStructHash(
-        string calldata contentsType,
-        bytes32 contents,
-        bytes1 fields,
-        string memory name,
-        string memory version,
-        address verifyingContract,
-        bytes32 salt,
-        uint256[] memory extensions
-    ) internal view returns (bytes32 result) {
-        (bool valid, string calldata contentsTypeName) = tryValidateContentsType(contentsType);
-
-        if (valid) {
-            bytes32 typehash = typedDataSignTypehash(contentsType, contentsTypeName);
-            bytes32 extensionsHash = keccak256(abi.encodePacked(extensions));
-
-            assembly ("memory-safe") {
-                let ptr := mload(0x40)
-                mstore(ptr, typehash)
-                mstore(add(ptr, 0x020), contents)
-                mstore(add(ptr, 0x040), fields)
-                mstore(add(ptr, 0x060), keccak256(add(name, 0x20), mload(name)))
-                mstore(add(ptr, 0x080), keccak256(add(version, 0x20), mload(version)))
-                mstore(add(ptr, 0x0a0), chainid())
-                mstore(add(ptr, 0x0c0), verifyingContract)
-                mstore(add(ptr, 0x0e0), salt)
-                mstore(add(ptr, 0x100), extensionsHash)
-                result := keccak256(ptr, 0x120)
-            }
-        } else {
-            result = bytes32(0);
-        }
-    }
 
     /**
      * @dev Nest a signature for a given EIP-712 type into a nested signature for the domain `separator`.
@@ -158,28 +90,57 @@ library ERC7739Utils {
     }
 
     /**
-     * @dev Computes the nested EIP-712 type hash for the given contents type.
+     * @dev Nests an `ERC-191` digest into a `PersonalSign` EIP-712 struct, and return the corresponding struct hash.
+     * This struct hash must be combined with a domain separator, using {MessageHashUtils-toTypedDataHash} before
+     * being verified/recovered.
      *
-     * The `contentsTypeName` is the string name in the app's domain before the parentheses
-     * (e.g. Transfer in `Transfer(address to,uint256 amount)`).
-     *
-     * ```solidity
-     * TypedDataSign({contentsTypeName},bytes1 fields,string name,string version,uint256 chainId,address verifyingContract,bytes32 salt,uint256[] extensions){contentsType}
-     * ```
-     *
-     * Requirements:
-     *  - `contentsType` must be a valid EIP-712 type (see {tryValidateContentsType})
+     * This is used to simulates the `personal_sign` RPC method in the context of smart contracts.
      */
-    function typedDataSignTypehash(string calldata contentsType) internal pure returns (bytes32) {
-        (bool valid, string calldata contentsTypeName) = tryValidateContentsType(contentsType);
-        if (!valid) revert InvalidContentsType();
-        return typedDataSignTypehash(contentsType, contentsTypeName);
+    function personalSignStructHash(bytes32 contents) internal pure returns (bytes32) {
+        return keccak256(abi.encode(PERSONAL_SIGN_TYPEHASH, contents));
     }
 
     /**
-     * @dev Same as {typedDataSignTypehash} but with the `contentsTypeName` already validated.
-     *
-     * See {tryValidateContentsType}.
+     * @dev Nest an `EIP-712` hash (`contents`) into a `TypedDataSign` EIP-712 struct, and return the corresponding
+     * struct hash. This struct hash must be combined with a domain separator, using {MessageHashUtils-toTypedDataHash}
+     * before being verified/recovered.
+     */
+    function typedDataSignStructHash(
+        string calldata contentsType,
+        bytes32 contents,
+        bytes1 fields,
+        string memory name,
+        string memory version,
+        address verifyingContract,
+        bytes32 salt,
+        uint256[] memory extensions
+    ) internal view returns (bytes32 result) {
+        (bool valid, string calldata contentsTypeName) = tryValidateContentsType(contentsType);
+
+        if (valid) {
+            bytes32 typehash = typedDataSignTypehash(contentsType, contentsTypeName);
+            bytes32 extensionsHash = keccak256(abi.encodePacked(extensions));
+
+            assembly ("memory-safe") {
+                let ptr := mload(0x40)
+                mstore(ptr, typehash)
+                mstore(add(ptr, 0x020), contents)
+                mstore(add(ptr, 0x040), fields)
+                mstore(add(ptr, 0x060), keccak256(add(name, 0x20), mload(name)))
+                mstore(add(ptr, 0x080), keccak256(add(version, 0x20), mload(version)))
+                mstore(add(ptr, 0x0a0), chainid())
+                mstore(add(ptr, 0x0c0), verifyingContract)
+                mstore(add(ptr, 0x0e0), salt)
+                mstore(add(ptr, 0x100), extensionsHash)
+                result := keccak256(ptr, 0x120)
+            }
+        } else {
+            result = bytes32(0);
+        }
+    }
+
+    /**
+     * @dev Compute the EIP-712 typehash of the `TypedDataSign` structure for a given type (and typename).
      */
     function typedDataSignTypehash(
         string calldata contentsType,
@@ -197,10 +158,22 @@ library ERC7739Utils {
     }
 
     /**
-     * @dev Try to validate the contents type is a valid EIP-712 type.
+     * @dev Variant of {typedDataSignTypehash-string-string} that automatically parses the contents typename from the
+     * contents type definition.
      *
-     * A valid `contentsType` is considered invalid if it's empty or it:
+     * Requirements:
+     *  - `contentsType` must be a valid EIP-712 type (see {tryValidateContentsType})
+     */
+    function typedDataSignTypehash(string calldata contentsType) internal pure returns (bytes32) {
+        (bool valid, string calldata contentsTypeName) = tryValidateContentsType(contentsType);
+        if (!valid) revert InvalidContentsType();
+        return typedDataSignTypehash(contentsType, contentsTypeName);
+    }
+
+    /**
+     * @dev Parse the type name out of the EIP-712 type definition.
      *
+     * Following ERC-7739 specifications, a `contentsType` is considered invalid if it's empty or it:
      * - Starts with a-z or (
      * - Contains any of the following bytes: , )\x00
      */
