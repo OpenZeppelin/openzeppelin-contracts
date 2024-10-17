@@ -24,7 +24,7 @@ describe('ERC7739Utils', function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
-  describe('decodeSignature', function () {
+  describe('decodeTypedDataSig', function () {
     it('unwraps a typed data signature', async function () {
       const signature = ethers.randomBytes(65);
       const separator = ethers.id('SomeApp');
@@ -33,7 +33,7 @@ describe('ERC7739Utils', function () {
       const contentsTypeLength = ethers.toBeHex(ethers.dataLength(contentsType), 2);
 
       const encoded = ethers.concat([signature, separator, contents, contentsType, contentsTypeLength]);
-      expect(await this.mock.getFunction('$decodeSignature')(encoded)).to.deep.equal([
+      expect(await this.mock.getFunction('$decodeTypedDataSig')(encoded)).to.deep.equal([
         ethers.hexlify(signature),
         separator,
         contents,
@@ -43,7 +43,7 @@ describe('ERC7739Utils', function () {
 
     it('returns default empty values if the signature is too short', async function () {
       const encoded = ethers.randomBytes(65); // DOMAIN_SEPARATOR (32 bytes) + CONTENTS (32 bytes) + CONTENTS_TYPE_LENGTH (2 bytes) - 1
-      expect(await this.mock.getFunction('$decodeSignature')(encoded)).to.deep.equal([
+      expect(await this.mock.getFunction('$decodeTypedDataSig')(encoded)).to.deep.equal([
         '0x',
         ethers.ZeroHash,
         ethers.ZeroHash,
@@ -53,7 +53,7 @@ describe('ERC7739Utils', function () {
 
     it('returns default empty values if the length is invalid', async function () {
       const encoded = ethers.concat([ethers.randomBytes(64), '0x3f']); // Can't be less than 64 bytes
-      expect(await this.mock.getFunction('$decodeSignature')(encoded)).to.deep.equal([
+      expect(await this.mock.getFunction('$decodeTypedDataSig')(encoded)).to.deep.equal([
         '0x',
         ethers.ZeroHash,
         ethers.ZeroHash,
@@ -62,7 +62,7 @@ describe('ERC7739Utils', function () {
     });
   });
 
-  describe('encodeSignature', function () {
+  describe('encodeTypedDataSig', function () {
     it('wraps a typed data signature', async function () {
       const signature = ethers.randomBytes(65);
       const separator = ethers.id('SomeApp');
@@ -71,7 +71,7 @@ describe('ERC7739Utils', function () {
       const contentsTypeLength = ethers.toBeHex(ethers.dataLength(contentsType), 2);
 
       const encoded = ethers.concat([signature, separator, contents, contentsType, contentsTypeLength]);
-      expect(await this.mock.getFunction('$encodeSignature')(signature, separator, contents, contentsType)).to.equal(
+      expect(await this.mock.getFunction('$encodeTypedDataSig')(signature, separator, contents, contentsType)).to.equal(
         encoded,
       );
     });

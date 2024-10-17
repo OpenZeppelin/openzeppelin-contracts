@@ -63,35 +63,40 @@ abstract contract ERC7739Signer is EIP712, IERC1271 {
     ) internal view virtual returns (bool) {
         // decode signature
         (bytes calldata nestedSignature, bytes32 separator, bytes32 contents, bytes calldata contentsType) = signature
-            .decodeSignature();
+            .decodeTypedDataSig();
 
-        // fetch domain details
-        (
-            ,
-            string memory name,
-            string memory version,
-            ,
-            address verifyingContract,
-            bytes32 salt,
-            uint256[] memory extensions
-        ) = eip712Domain();
+        bytes32 nestedHash;
+        // Limit variables lifetime to avoid stack too-deep errors.
+        {
+            // fetch domain details
+            (
+                bytes1 fields,
+                string memory name,
+                string memory version,
+                ,
+                address verifyingContract,
+                bytes32 salt,
+                uint256[] memory extensions
+            ) = eip712Domain();
 
-        // Check that hash is the correct nested typed data hash, and that the nested signature is valid.
-        return
-            hash ==
-            ERC7739Utils.toNestedTypedDataHash(
+            // Rebuild nested hash
+            nestedHash = ERC7739Utils.toNestedTypedDataHash(
                 separator,
                 ERC7739Utils.typedDataNestedStructHash(
                     contentsType,
                     contents,
+                    fields,
                     name,
                     version,
                     verifyingContract,
                     salt,
                     extensions
                 )
-            ) &&
-            _validateSignature(hash, nestedSignature);
+            );
+        }
+
+        // Check that hash is the correct nested hash, and that the nested signature is valid.
+        return hash == nestedHash && _validateSignature(hash, nestedSignature);
     }
 
     /**

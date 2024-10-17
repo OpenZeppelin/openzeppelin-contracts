@@ -47,7 +47,7 @@ library ERC7739Utils {
      * - `contents` is the hash of the underlying data structure or message
      * - `contentsType` is the EIP-712 type of the nested signature (e.g. {NESTED_TYPED_DATA_TYPEHASH} or {_NESTED_PERSONAL_SIGN_TYPEHASH})
      */
-    function decodeSignature(
+    function decodeTypedDataSig(
         bytes calldata encodedSignature
     )
         internal
@@ -81,9 +81,9 @@ library ERC7739Utils {
     /**
      * @dev Nest a signature for a given EIP-712 type into a nested signature for the domain `separator`.
      *
-     * Counterpart of {decodeSignature} to extract the original signature and the nested components.
+     * Counterpart of {decodeTypedDataSig} to extract the original signature and the nested components.
      */
-    function encodeSignature(
+    function encodeTypedDataSig(
         bytes memory signature,
         bytes32 separator,
         bytes32 contents,
@@ -118,7 +118,7 @@ library ERC7739Utils {
         return
             MessageHashUtils.toTypedDataHash(
                 separator,
-                keccak256(abi.encode(_NESTED_PERSONAL_SIGN_TYPEHASH, MessageHashUtils.toEthSignedMessageHash(contents)))
+                keccak256(abi.encode(_NESTED_PERSONAL_SIGN_TYPEHASH, contents))
             );
     }
 
@@ -198,14 +198,7 @@ library ERC7739Utils {
                 abi.encodePacked(
                     "TypedDataSign(",
                     contentsTypeName,
-                    "bytes1 fields,",
-                    "string name,",
-                    "string version,",
-                    "uint256 chainId,",
-                    "address verifyingContract,",
-                    "bytes32 salt,",
-                    "uint256[] extensions",
-                    ")",
+                    " contents,bytes1 fields,string name,string version,uint256 chainId,address verifyingContract,bytes32 salt,uint256[] extensions)",
                     contentsType
                 )
             );
@@ -251,6 +244,7 @@ library ERC7739Utils {
     function typedDataNestedStructHash(
         bytes calldata contentsType,
         bytes32 contents,
+        bytes1 fields,
         string memory name,
         string memory version,
         address verifyingContract,
@@ -263,6 +257,7 @@ library ERC7739Utils {
                 abi.encode(
                     NESTED_TYPED_DATA_TYPEHASH(contentsType, contentsTypeName),
                     contents,
+                    fields,
                     keccak256(bytes(name)),
                     keccak256(bytes(version)),
                     block.chainid,
