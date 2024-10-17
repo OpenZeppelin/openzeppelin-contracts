@@ -14,7 +14,16 @@ async function fixture() {
   const eoa = await ethers.Wallet.createRandom();
   const mock = await ethers.deployContract('$ERC7739SignerMock', [eoa]);
   const domain = await getDomain(mock);
-  return { eoa, mock, domain };
+
+  // Dummy app domain, different from the ERC7739Signer's domain
+  const appDomain = {
+    name: 'SomeApp',
+    version: '1',
+    chainId: domain.chainId,
+    verifyingContract: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
+  };
+
+  return { eoa, mock, domain, appDomain };
 }
 
 describe('ERC7739Signer', function () {
@@ -32,27 +41,33 @@ describe('ERC7739Signer', function () {
       expect(await this.mock.isValidSignature(hash, signature)).to.equal(MAGIC_VALUE);
     });
 
+    it('returns false for an invalid personal signature', async function () {
+      const hash = PersonalSignHelper.hash('Message the app expects');
+      const signature = await PersonalSignHelper.sign(this.eoa, 'Message signed is different', this.domain);
+
+      expect(await this.mock.isValidSignature(hash, signature)).to.not.equal(MAGIC_VALUE);
+    });
+
     it('returns true for a valid typed data signature', async function () {
-      // Dummy app domain, different from the ERC7739Signer's domain
-      const appDomain = {
-        name: 'SomeApp',
-        version: '1',
-        chainId: this.domain.chainId,
-        verifyingContract: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
-      };
+      const helper = TypedDataSignHelper.from('SomeType', { something: 'bytes32' });
 
-      const message = TypedDataSignHelper.prepare({ something: ethers.randomBytes(32) }, this.domain);
+      const appMessage = { something: ethers.randomBytes(32) };
+      const message = TypedDataSignHelper.prepare(appMessage, this.domain);
 
-      const helper = new TypedDataSignHelper('SomeType', { something: 'bytes32' });
-      const hash = helper.hash(message, appDomain);
-      const signature = await helper.sign(this.eoa, message, appDomain);
+      const hash = helper.hash(appMessage, this.appDomain);
+      const signature = await helper.sign(this.eoa, message, this.appDomain);
 
       expect(await this.mock.isValidSignature(hash, signature)).to.equal(MAGIC_VALUE);
     });
 
-    it('returns false for an invalid signature', async function () {
-      const hash = PersonalSignHelper.hash('Message the app expects');
-      const signature = await PersonalSignHelper.sign(this.eoa, 'Message signed is different', this.domain);
+    it('returns false for an invalid typed data signature', async function () {
+      const helper = TypedDataSignHelper.from('SomeType', { something: 'bytes32' });
+
+      const appMessage = { something: ethers.randomBytes(32) };
+      const signedMessage = TypedDataSignHelper.prepare({ something: ethers.randomBytes(32) }, this.domain);
+
+      const hash = helper.hash(appMessage, this.appDomain);
+      const signature = await helper.sign(this.eoa, signedMessage, this.appDomain);
 
       expect(await this.mock.isValidSignature(hash, signature)).to.not.equal(MAGIC_VALUE);
     });

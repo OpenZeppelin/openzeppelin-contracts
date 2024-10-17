@@ -60,15 +60,18 @@ abstract contract ERC7739Signer is EIP712, IERC1271 {
      */
     function _isValidNestedTypedDataSignature(
         bytes32 hash,
-        bytes calldata signature
+        bytes calldata encodedSignature
     ) internal view virtual returns (bool) {
         // decode signature
-        (bytes calldata nestedSignature, bytes32 separator, bytes32 contentsHash, string calldata contentsType) = signature
-            .decodeTypedDataSig();
+        (
+            bytes calldata signature,
+            bytes32 separator,
+            bytes32 contentsHash,
+            string calldata contentsType
+        ) = encodedSignature.decodeTypedDataSig();
 
-        bytes32 nestedHash;
-        // Limit variables lifetime to avoid stack too-deep errors.
-        {
+        // Check that contentHash and separator are correct
+        if (hash == separator.toTypedDataHash(contentsHash)) {
             // fetch domain details
             (
                 bytes1 fields,
@@ -81,22 +84,25 @@ abstract contract ERC7739Signer is EIP712, IERC1271 {
             ) = eip712Domain();
 
             // Rebuild nested hash
-            nestedHash = separator.toTypedDataHash(
-                ERC7739Utils.typedDataSignStructHash(
-                    contentsType,
-                    contentsHash,
-                    fields,
-                    name,
-                    version,
-                    verifyingContract,
-                    salt,
-                    extensions
-                )
-            );
+            return
+                _validateSignature(
+                    separator.toTypedDataHash(
+                        ERC7739Utils.typedDataSignStructHash(
+                            contentsType,
+                            contentsHash,
+                            fields,
+                            name,
+                            version,
+                            verifyingContract,
+                            salt,
+                            extensions
+                        )
+                    ),
+                    signature
+                );
+        } else {
+            return false;
         }
-
-        // Check that hash is the correct nested hash, and that the nested signature is valid.
-        return hash == nestedHash && _validateSignature(hash, nestedSignature);
     }
 
     /**

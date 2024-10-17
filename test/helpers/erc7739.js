@@ -38,7 +38,7 @@ class TypedDataSignHelper {
       }),
       [contentsTypeName]: formatType(contentsTypeValues),
     };
-    this.contentsName = contentsTypeName;
+    this.contentsTypeName = contentsTypeName;
     this.contentsType = ethers.TypedDataEncoder.from(this.types).encodeType(contentsTypeName);
   }
 
@@ -59,7 +59,15 @@ class TypedDataSignHelper {
   }
 
   hash(data, appDomain) {
-    return ethers.TypedDataEncoder.hash(appDomain, this.types, data);
+    try {
+      return ethers.TypedDataEncoder.hash(appDomain, this.types, data);
+    } catch {
+      return ethers.TypedDataEncoder.hash(
+        appDomain,
+        { [this.contentsTypeName]: this.types[this.contentsTypeName] },
+        data,
+      );
+    }
   }
 
   sign(signer, data, appDomain) {
@@ -67,7 +75,7 @@ class TypedDataSignHelper {
       ethers.concat([
         signature,
         domainSeparator(appDomain),
-        ethers.TypedDataEncoder.hashStruct(this.contentsName, this.types, data.contents),
+        ethers.TypedDataEncoder.hashStruct(this.contentsTypeName, this.types, data.contents),
         ethers.toUtf8Bytes(this.contentsType),
         ethers.toBeHex(this.contentsType.length, 2),
       ]),
