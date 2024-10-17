@@ -23,6 +23,7 @@ import {ShortStrings} from "../ShortStrings.sol";
  */
 abstract contract ERC7739Signer is EIP712, IERC1271 {
     using ERC7739Utils for *;
+    using MessageHashUtils for bytes32;
 
     /**
      * @dev Attempts validating the signature in a nested EIP-712 type.
@@ -51,7 +52,7 @@ abstract contract ERC7739Signer is EIP712, IERC1271 {
         bytes32 hash,
         bytes calldata signature
     ) internal view virtual returns (bool) {
-        return _validateSignature(_domainSeparatorV4().toNestedPersonalSignHash(hash), signature);
+        return _validateSignature(_domainSeparatorV4().toTypedDataHash(hash.personalSignStructhash()), signature);
     }
 
     /**
@@ -80,9 +81,8 @@ abstract contract ERC7739Signer is EIP712, IERC1271 {
             ) = eip712Domain();
 
             // Rebuild nested hash
-            nestedHash = MessageHashUtils.toTypedDataHash(
-                separator,
-                ERC7739Utils.typedDataNestedStructHash(
+            nestedHash = separator.toTypedDataHash(
+                ERC7739Utils.typedDataSignStructHash(
                     contentsType,
                     contents,
                     fields,

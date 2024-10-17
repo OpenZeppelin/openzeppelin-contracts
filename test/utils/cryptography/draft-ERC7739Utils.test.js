@@ -2,7 +2,6 @@ const { expect } = require('chai');
 const { ethers } = require('hardhat');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { domainSeparator } = require('../../helpers/eip712');
 const { PersonalSignHelper, TypedDataSignHelper } = require('../../helpers/erc7739');
 
 const fixture = async () => {
@@ -27,46 +26,36 @@ describe('ERC7739Utils', function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
-  describe('decodeTypedDataSig', function () {
-    it('unwraps a typed data signature', async function () {
-      const signature = ethers.randomBytes(65);
-      const separator = ethers.id('SomeApp');
-      const contents = ethers.id('SomeData');
-      const contentsType = 'SomeType()';
-      const encoded = ethers.concat([
-        signature,
-        separator,
-        contents,
-        ethers.toUtf8Bytes(contentsType),
-        ethers.toBeHex(contentsType.length, 2),
-      ]);
+  describe('personalSignStructhash', function () {
+    it('should produce a personal signature EIP-712 nested type', async function () {
+      const text = 'Hello, world!';
 
-      expect(await this.mock.getFunction('$decodeTypedDataSig')(encoded)).to.deep.equal([
-        ethers.hexlify(signature),
-        separator,
-        contents,
-        contentsType,
-      ]);
+      expect(await this.mock.$personalSignStructhash(ethers.hashMessage(text))).to.equal(
+        ethers.TypedDataEncoder.hashStruct('PersonalSign', PersonalSignHelper.types, PersonalSignHelper.prepare(text)),
+      );
     });
+  });
 
-    it('returns default empty values if the signature is too short', async function () {
-      const encoded = ethers.randomBytes(65); // DOMAIN_SEPARATOR (32 bytes) + CONTENTS (32 bytes) + CONTENTS_TYPE_LENGTH (2 bytes) - 1
-      expect(await this.mock.getFunction('$decodeTypedDataSig')(encoded)).to.deep.equal([
-        '0x',
-        ethers.ZeroHash,
-        ethers.ZeroHash,
-        '',
-      ]);
-    });
+  describe('typedDataSignStructHash', function () {
+    it('should match the typed data nested struct hash', async function () {
+      const message = TypedDataSignHelper.prepare({ something: ethers.randomBytes(32) }, this.domain);
 
-    it('returns default empty values if the length is invalid', async function () {
-      const encoded = ethers.concat([ethers.randomBytes(64), '0x3f']); // Can't be less than 64 bytes
-      expect(await this.mock.getFunction('$decodeTypedDataSig')(encoded)).to.deep.equal([
-        '0x',
-        ethers.ZeroHash,
-        ethers.ZeroHash,
-        '',
-      ]);
+      const { types, contentsType } = TypedDataSignHelper.from('SomeType', { something: 'bytes32' });
+      const contentsHash = ethers.TypedDataEncoder.hashStruct('SomeType', types, message.contents);
+      const hash = ethers.TypedDataEncoder.hashStruct('TypedDataSign', types, message);
+
+      expect(
+        await this.mock.$typedDataSignStructHash(
+          contentsType,
+          contentsHash,
+          message.fields,
+          message.name,
+          message.version,
+          message.verifyingContract,
+          message.salt,
+          message.extensions,
+        ),
+      ).to.equal(hash);
     });
   });
 
@@ -84,23 +73,44 @@ describe('ERC7739Utils', function () {
         ethers.toBeHex(contentsType.length, 2),
       ]);
 
-      expect(await this.mock.getFunction('$encodeTypedDataSig')(signature, separator, contents, contentsType)).to.equal(
-        encoded,
-      );
+      expect(await this.mock.$encodeTypedDataSig(signature, separator, contents, contentsType)).to.equal(encoded);
     });
   });
 
-  describe('toNestedPersonalSignHash', function () {
-    it('should produce a personal signature EIP-712 nested type', async function () {
-      const text = 'Hello, world!';
+  describe('decodeTypedDataSig', function () {
+    it('unwraps a typed data signature', async function () {
+      const signature = ethers.randomBytes(65);
+      const separator = ethers.id('SomeApp');
+      const contents = ethers.id('SomeData');
+      const contentsType = 'SomeType()';
+      const encoded = ethers.concat([
+        signature,
+        separator,
+        contents,
+        ethers.toUtf8Bytes(contentsType),
+        ethers.toBeHex(contentsType.length, 2),
+      ]);
 
-      expect(
-        await this.mock.$toNestedPersonalSignHash(domainSeparator(this.domain), ethers.hashMessage(text)),
-      ).to.equal(ethers.TypedDataEncoder.hash(this.domain, PersonalSignHelper.types, PersonalSignHelper.prepare(text)));
+      expect(await this.mock.$decodeTypedDataSig(encoded)).to.deep.equal([
+        ethers.hexlify(signature),
+        separator,
+        contents,
+        contentsType,
+      ]);
+    });
+
+    it('returns default empty values if the signature is too short', async function () {
+      const encoded = ethers.randomBytes(65); // DOMAIN_SEPARATOR (32 bytes) + CONTENTS (32 bytes) + CONTENTS_TYPE_LENGTH (2 bytes) - 1
+      expect(await this.mock.$decodeTypedDataSig(encoded)).to.deep.equal(['0x', ethers.ZeroHash, ethers.ZeroHash, '']);
+    });
+
+    it('returns default empty values if the length is invalid', async function () {
+      const encoded = ethers.concat([ethers.randomBytes(64), '0x3f']); // Can't be less than 64 bytes
+      expect(await this.mock.$decodeTypedDataSig(encoded)).to.deep.equal(['0x', ethers.ZeroHash, ethers.ZeroHash, '']);
     });
   });
 
-  describe('NESTED_TYPED_DATA_TYPEHASH', function () {
+  describe('typedDataSignTypehash', function () {
     it('should match', async function () {
       const { types, contentsType, contentsName } = TypedDataSignHelper.from('FooType', {
         foo: 'address',
@@ -108,17 +118,17 @@ describe('ERC7739Utils', function () {
       });
       const typedDataSigType = ethers.TypedDataEncoder.from(types).encodeType('TypedDataSign');
 
-      expect(await this.mock.getFunction('$NESTED_TYPED_DATA_TYPEHASH(string)')(contentsType)).to.equal(
+      expect(await this.mock.$typedDataSignTypehash(contentsType)).to.equal(
         ethers.keccak256(ethers.toUtf8Bytes(typedDataSigType)),
       );
 
-      expect(
-        await this.mock.getFunction('$NESTED_TYPED_DATA_TYPEHASH(string,string)')(contentsType, contentsName),
-      ).to.equal(ethers.keccak256(ethers.toUtf8Bytes(typedDataSigType)));
+      expect(await this.mock.$typedDataSignTypehash(contentsType, ethers.Typed.string(contentsName))).to.equal(
+        ethers.keccak256(ethers.toUtf8Bytes(typedDataSigType)),
+      );
     });
 
     it('should revert with InvalidContentsType if the type is invalid', async function () {
-      await expect(this.mock.getFunction('$NESTED_TYPED_DATA_TYPEHASH')('')).to.be.revertedWithCustomError(
+      await expect(this.mock.$typedDataSignTypehash('')).to.be.revertedWithCustomError(
         this.mock,
         'InvalidContentsType',
       );
@@ -157,34 +167,11 @@ describe('ERC7739Utils', function () {
       })),
     )) {
       it(descr, async function () {
-        expect(await this.mock.getFunction('$tryValidateContentsType')(contentsType)).to.deep.equal([
+        expect(await this.mock.$tryValidateContentsType(contentsType)).to.deep.equal([
           !!contentsTypeName,
           contentsTypeName ?? '',
         ]);
       });
     }
-  });
-
-  describe('typedDataNestedStructHash', function () {
-    it('should match the typed data nested struct hash', async function () {
-      const message = TypedDataSignHelper.prepare({ something: ethers.randomBytes(32) }, this.domain);
-
-      const { types, contentsType } = TypedDataSignHelper.from('SomeType', { something: 'bytes32' });
-      const contentsHash = ethers.TypedDataEncoder.hashStruct('SomeType', types, message.contents);
-      const hash = ethers.TypedDataEncoder.hashStruct('TypedDataSign', types, message);
-
-      expect(
-        await this.mock.getFunction('$typedDataNestedStructHash')(
-          contentsType,
-          contentsHash,
-          message.fields,
-          message.name,
-          message.version,
-          message.verifyingContract,
-          message.salt,
-          message.extensions,
-        ),
-      ).to.equal(hash);
-    });
   });
 });
