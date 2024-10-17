@@ -167,10 +167,7 @@ describe('ERC7739Utils', function () {
       })),
     )) {
       it(descr, async function () {
-        expect(await this.mock.$tryValidateContentsType(contentsType)).to.deep.equal([
-          !!contentsTypeName,
-          contentsTypeName ?? '',
-        ]);
+        expect(await this.mock.$tryValidateContentsType(contentsType)).to.equal(contentsTypeName ?? '');
       });
     }
   });

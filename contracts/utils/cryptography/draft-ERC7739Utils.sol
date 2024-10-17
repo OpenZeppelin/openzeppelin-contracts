@@ -40,10 +40,10 @@ library ERC7739Utils {
     function encodeTypedDataSig(
         bytes memory signature,
         bytes32 separator,
-        bytes32 contents,
+        bytes32 contentsHash,
         string memory contentsType
     ) internal pure returns (bytes memory) {
-        return abi.encodePacked(signature, separator, contents, contentsType, uint16(bytes(contentsType).length));
+        return abi.encodePacked(signature, separator, contentsHash, contentsType, uint16(bytes(contentsType).length));
     }
 
     /**
@@ -51,11 +51,11 @@ library ERC7739Utils {
      *
      * Constructed as follows:
      *
-     * `signature ‖ DOMAIN_SEPARATOR ‖ contents ‖ contentsType ‖ uint16(contentsType.length)`
+     * `signature ‖ DOMAIN_SEPARATOR ‖ contentsHash ‖ contentsType ‖ uint16(contentsType.length)`
      *
      * - `signature` is the original signature for the nested struct hash that includes the `contents` hash
      * - `DOMAIN_SEPARATOR` is the EIP-712 {EIP712-_domainSeparatorV4} of the smart contract verifying the signature
-     * - `contents` is the hash of the underlying data structure or message
+     * - `contentsHash` is the hash of the underlying data structure or message
      * - `contentsType` is the EIP-712 type of the nested signature (e.g. {typedDataSignTypehash} or {PERSONAL_SIGN_TYPEHASH})
      */
     function decodeTypedDataSig(
@@ -63,7 +63,7 @@ library ERC7739Utils {
     )
         internal
         pure
-        returns (bytes calldata signature, bytes32 separator, bytes32 contents, string calldata contentsType)
+        returns (bytes calldata signature, bytes32 separator, bytes32 contentsHash, string calldata contentsType)
     {
         unchecked {
             uint256 sigLength = encodedSignature.length;
@@ -84,7 +84,7 @@ library ERC7739Utils {
 
             signature = encodedSignature[:signatureEnd];
             separator = bytes32(encodedSignature[signatureEnd:separatorEnd]);
-            contents = bytes32(encodedSignature[separatorEnd:contentsEnd]);
+            contentsHash = bytes32(encodedSignature[separatorEnd:contentsEnd]);
             contentsType = string(encodedSignature[contentsEnd:contentsTypeEnd]);
         }
     }
@@ -107,7 +107,7 @@ library ERC7739Utils {
      */
     function typedDataSignStructHash(
         string calldata contentsType,
-        bytes32 contents,
+        bytes32 contentsHash,
         bytes1 fields,
         string memory name,
         string memory version,
@@ -115,16 +115,18 @@ library ERC7739Utils {
         bytes32 salt,
         uint256[] memory extensions
     ) internal view returns (bytes32 result) {
-        (bool valid, string calldata contentsTypeName) = tryValidateContentsType(contentsType);
+        string calldata contentsTypeName = tryValidateContentsType(contentsType);
 
-        if (valid) {
+        if (bytes(contentsTypeName).length == 0) {
+            result = bytes32(0);
+        } else {
             bytes32 typehash = typedDataSignTypehash(contentsType, contentsTypeName);
             bytes32 extensionsHash = keccak256(abi.encodePacked(extensions));
 
             assembly ("memory-safe") {
                 let ptr := mload(0x40)
                 mstore(ptr, typehash)
-                mstore(add(ptr, 0x020), contents)
+                mstore(add(ptr, 0x020), contentsHash)
                 mstore(add(ptr, 0x040), fields)
                 mstore(add(ptr, 0x060), keccak256(add(name, 0x20), mload(name)))
                 mstore(add(ptr, 0x080), keccak256(add(version, 0x20), mload(version)))
@@ -134,8 +136,6 @@ library ERC7739Utils {
                 mstore(add(ptr, 0x100), extensionsHash)
                 result := keccak256(ptr, 0x120)
             }
-        } else {
-            result = bytes32(0);
         }
     }
 
@@ -165,8 +165,8 @@ library ERC7739Utils {
      *  - `contentsType` must be a valid EIP-712 type (see {tryValidateContentsType})
      */
     function typedDataSignTypehash(string calldata contentsType) internal pure returns (bytes32) {
-        (bool valid, string calldata contentsTypeName) = tryValidateContentsType(contentsType);
-        if (!valid) revert InvalidContentsType();
+        string calldata contentsTypeName = tryValidateContentsType(contentsType);
+        if (bytes(contentsTypeName).length == 0) revert InvalidContentsType();
         return typedDataSignTypehash(contentsType, contentsTypeName);
     }
 
@@ -176,17 +176,20 @@ library ERC7739Utils {
      * Following ERC-7739 specifications, a `contentsType` is considered invalid if it's empty or it:
      * - Starts with a-z or (
      * - Contains any of the following bytes: , )\x00
+     *
+     * If the `contentsType` is invalid, this returns an empty string. Otherwize, the return string has non-zero
+     * length.
      */
     function tryValidateContentsType(
         string calldata contentsType
-    ) internal pure returns (bool valid, string calldata contentsTypeName) {
+    ) internal pure returns (string calldata contentsTypeName) {
         bytes calldata buffer = bytes(contentsType);
 
         // Check the first character if it exists
         if (buffer.length != 0) {
             bytes1 first = buffer[0];
             if ((first > 0x60 && first < 0x7b) || first == bytes1("(")) {
-                return (false, _emptyCalldataString());
+                return _emptyCalldataString();
             }
         }
 
@@ -195,14 +198,14 @@ library ERC7739Utils {
             bytes1 current = buffer[i];
             if (current == bytes1("(")) {
                 // we found the end of the contentsTypeName
-                return (true, string(buffer[:i]));
+                return string(buffer[:i]);
             } else if (current == 0x00 || current == bytes1(" ") || current == bytes1(",") || current == bytes1(")")) {
                 // we found an invalid character (forbidden)
-                return (false, _emptyCalldataString());
+                return _emptyCalldataString();
             }
         }
         // We exited the loop without finding of the contentsTypeName
-        return (false, _emptyCalldataString());
+        return _emptyCalldataString();
     }
 
     function _emptyCalldataBytes() private pure returns (bytes calldata result) {
