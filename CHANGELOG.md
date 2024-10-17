@@ -52,7 +52,7 @@ This version comes with changes to the custom error identifiers. Contracts previ
 - `ERC1363`: Add implementation of the token payable standard allowing execution of contract code after transfers and approvals. ([#4631](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4631))
 - `ERC20TemporaryApproval`: Add an ERC-20 extension that implements temporary approval using transient storage, based on ERC7674 (draft). ([#5071](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5071))
 - `SafeERC20`: Add "relaxed" function for interacting with ERC-1363 functions in a way that is compatible with EOAs. ([#4631](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4631))
-- `SafeERC20`: Document risks of `safeIncreaseAllowance` and `safeDecreaseAllowance` when associated with ERC-7674.
+- `SafeERC20`: Document risks of `safeIncreaseAllowance` and `safeDecreaseAllowance` when associated with ERC-7674. ([#5262](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5262))
 - `ERC721Utils` and `ERC1155Utils`: Add reusable libraries with functions to perform acceptance checks on `IERC721Receiver` and `IERC1155Receiver` implementers. ([#4845](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4845))
 - `ERC1363Utils`: Add helper similar to the existing ERC721Utils and ERC1155Utils. ([#5133](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5133))
 
