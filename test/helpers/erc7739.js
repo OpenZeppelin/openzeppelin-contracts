@@ -19,7 +19,7 @@ class PersonalSignHelper {
   }
 
   static sign(signer, data, signerDomain) {
-    return signer.signTypedData(signerDomain, this.types, data);
+    return signer.signTypedData(signerDomain, this.types, data.prefixed ? data : this.prepare(data));
   }
 }
 

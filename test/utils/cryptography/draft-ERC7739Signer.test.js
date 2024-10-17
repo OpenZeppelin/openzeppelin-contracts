@@ -24,10 +24,10 @@ describe('ERC7739Signer', function () {
 
   describe('isValidSignature', function () {
     it('returns true for a valid personal signature', async function () {
-      const message = PersonalSignHelper.prepare('Hello, world!');
+      const text = 'Hello, world!';
 
-      const hash = PersonalSignHelper.hash(message);
-      const signature = await PersonalSignHelper.sign(this.eoa, message, this.domain);
+      const hash = PersonalSignHelper.hash(text);
+      const signature = await PersonalSignHelper.sign(this.eoa, text, this.domain);
 
       expect(await this.mock.isValidSignature(hash, signature)).to.equal(MAGIC_VALUE);
     });
@@ -51,10 +51,8 @@ describe('ERC7739Signer', function () {
     });
 
     it('returns false for an invalid signature', async function () {
-      const message = PersonalSignHelper.prepare('Message signed is different');
-
-      const hash = PersonalSignHelper.hash('Message the app expects'); // different text
-      const signature = await PersonalSignHelper.sign(this.eoa, message, this.domain);
+      const hash = PersonalSignHelper.hash('Message the app expects');
+      const signature = await PersonalSignHelper.sign(this.eoa, 'Message signed is different', this.domain);
 
       expect(await this.mock.isValidSignature(hash, signature)).to.not.equal(MAGIC_VALUE);
     });
