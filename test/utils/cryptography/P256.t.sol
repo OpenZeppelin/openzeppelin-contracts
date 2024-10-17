@@ -35,10 +35,6 @@ contract P256Test is Test {
         return bound(seed, 1, P256.N - 1);
     }
 
-    function _asPrivateKey(uint256 seed) private pure returns (uint256) {
-        return bound(seed, 1, P256.N - 1);
-    }
-
     function _ensureLowerS(bytes32 s) private pure returns (bytes32) {
         uint256 _s = uint256(s);
         unchecked {
