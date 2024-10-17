@@ -65,13 +65,13 @@ abstract contract ERC7739Signer is EIP712, IERC1271 {
         // decode signature
         (
             bytes calldata signature,
-            bytes32 separator,
+            bytes32 appSeparator,
             bytes32 contentsHash,
             string calldata contentsType
         ) = encodedSignature.decodeTypedDataSig();
 
         // Check that contentHash and separator are correct
-        if (hash == separator.toTypedDataHash(contentsHash)) {
+        if (hash == appSeparator.toTypedDataHash(contentsHash)) {
             // fetch domain details
             (
                 bytes1 fields,
@@ -86,7 +86,7 @@ abstract contract ERC7739Signer is EIP712, IERC1271 {
             // Rebuild nested hash
             return
                 _validateSignature(
-                    separator.toTypedDataHash(
+                    appSeparator.toTypedDataHash(
                         ERC7739Utils.typedDataSignStructHash(
                             contentsType,
                             contentsHash,

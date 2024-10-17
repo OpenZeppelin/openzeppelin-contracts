@@ -33,17 +33,18 @@ library ERC7739Utils {
     error InvalidContentsType();
 
     /**
-     * @dev Nest a signature for a given EIP-712 type into a nested signature for the domain `separator`.
+     * @dev Nest a signature for a given EIP-712 type into a nested signature for the domain of the app.
      *
      * Counterpart of {decodeTypedDataSig} to extract the original signature and the nested components.
      */
     function encodeTypedDataSig(
         bytes memory signature,
-        bytes32 separator,
+        bytes32 appSeparator,
         bytes32 contentsHash,
         string memory contentsType
     ) internal pure returns (bytes memory) {
-        return abi.encodePacked(signature, separator, contentsHash, contentsType, uint16(bytes(contentsType).length));
+        return
+            abi.encodePacked(signature, appSeparator, contentsHash, contentsType, uint16(bytes(contentsType).length));
     }
 
     /**
@@ -63,7 +64,7 @@ library ERC7739Utils {
     )
         internal
         pure
-        returns (bytes calldata signature, bytes32 separator, bytes32 contentsHash, string calldata contentsType)
+        returns (bytes calldata signature, bytes32 appSeparator, bytes32 contentsHash, string calldata contentsType)
     {
         unchecked {
             uint256 sigLength = encodedSignature.length;
@@ -83,7 +84,7 @@ library ERC7739Utils {
             uint256 signatureEnd = separatorEnd - 32;
 
             signature = encodedSignature[:signatureEnd];
-            separator = bytes32(encodedSignature[signatureEnd:separatorEnd]);
+            appSeparator = bytes32(encodedSignature[signatureEnd:separatorEnd]);
             contentsHash = bytes32(encodedSignature[separatorEnd:contentsEnd]);
             contentsType = string(encodedSignature[contentsEnd:contentsTypeEnd]);
         }

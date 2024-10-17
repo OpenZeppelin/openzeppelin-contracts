@@ -29,30 +29,32 @@ describe('ERC7739Utils', function () {
   describe('encodeTypedDataSig', function () {
     it('wraps a typed data signature', async function () {
       const signature = ethers.randomBytes(65);
-      const separator = ethers.id('SomeApp');
+      const appSeparator = ethers.id('SomeApp');
       const contentsHash = ethers.id('SomeData');
       const contentsType = 'SomeType()';
       const encoded = ethers.concat([
         signature,
-        separator,
+        appSeparator,
         contentsHash,
         ethers.toUtf8Bytes(contentsType),
         ethers.toBeHex(contentsType.length, 2),
       ]);
 
-      expect(await this.mock.$encodeTypedDataSig(signature, separator, contentsHash, contentsType)).to.equal(encoded);
+      expect(await this.mock.$encodeTypedDataSig(signature, appSeparator, contentsHash, contentsType)).to.equal(
+        encoded,
+      );
     });
   });
 
   describe('decodeTypedDataSig', function () {
     it('unwraps a typed data signature', async function () {
       const signature = ethers.randomBytes(65);
-      const separator = ethers.id('SomeApp');
+      const appSeparator = ethers.id('SomeApp');
       const contentsHash = ethers.id('SomeData');
       const contentsType = 'SomeType()';
       const encoded = ethers.concat([
         signature,
-        separator,
+        appSeparator,
         contentsHash,
         ethers.toUtf8Bytes(contentsType),
         ethers.toBeHex(contentsType.length, 2),
@@ -60,7 +62,7 @@ describe('ERC7739Utils', function () {
 
       expect(await this.mock.$decodeTypedDataSig(encoded)).to.deep.equal([
         ethers.hexlify(signature),
-        separator,
+        appSeparator,
         contentsHash,
         contentsType,
       ]);
