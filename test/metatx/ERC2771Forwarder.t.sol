@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.20;
 
-import {Test, Vm} from "forge-std/Test.sol";
+import {Test} from "forge-std/Test.sol";
 import {ERC2771Forwarder} from "@openzeppelin/contracts/metatx/ERC2771Forwarder.sol";
 import {CallReceiverMockTrustingForwarder, CallReceiverMock} from "@openzeppelin/contracts/mocks/CallReceiverMock.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
@@ -48,9 +48,7 @@ contract ERC2771ForwarderTest is Test {
     CallReceiverMockTrustingForwarder internal _receiver;
 
     uint256 internal _signerPrivateKey = 0xA11CE;
-    uint256 internal _relayerPrivateKey = 0xB0B;
     address internal _signer = vm.addr(_signerPrivateKey);
-    address internal _relayer = vm.addr(_relayerPrivateKey);
 
     uint256 internal constant _MAX_ETHER = 10_000_000; // To avoid overflow
 
