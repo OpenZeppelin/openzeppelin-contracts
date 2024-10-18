@@ -5,8 +5,7 @@
   "files": [
     "**/*.sol",
     "/build/contracts/*.json",
-    "!/mocks/**/*",
-    "!/vendor/erc4337-entrypoint/**/*"
+    "!/mocks/**/*"
   ],
   "scripts": {
     "prepack": "bash ../scripts/prepack.sh",
