@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (governance/Governor.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (governance/Governor.sol)
 
 pragma solidity ^0.8.20;
 
@@ -259,6 +259,13 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         uint256 totalWeight,
         bytes memory params
     ) internal virtual returns (uint256);
+
+    /**
+     * @dev Hook that should be called every time the tally for a proposal is updated.
+     *
+     * Note: This function must run successfully. Reverts will result in the bricking of governance
+     */
+    function _tallyUpdated(uint256 proposalId) internal virtual {}
 
     /**
      * @dev Default additional encoded parameters used by castVote methods that don't include them
@@ -649,6 +656,8 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
             emit VoteCastWithParams(account, proposalId, support, votedWeight, reason, params);
         }
 
+        _tallyUpdated(proposalId);
+
         return votedWeight;
     }
 
@@ -732,7 +741,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
      *
      * If requirements are not met, reverts with a {GovernorUnexpectedProposalState} error.
      */
-    function _validateStateBitmap(uint256 proposalId, bytes32 allowedStates) private view returns (ProposalState) {
+    function _validateStateBitmap(uint256 proposalId, bytes32 allowedStates) internal view returns (ProposalState) {
         ProposalState currentState = state(proposalId);
         if (_encodeStateBitmap(currentState) & allowedStates == bytes32(0)) {
             revert GovernorUnexpectedProposalState(proposalId, currentState, allowedStates);
