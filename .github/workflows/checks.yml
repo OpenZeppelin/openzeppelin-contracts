@@ -43,6 +43,8 @@ jobs:
         run: npm run test:inheritance
       - name: Check proceduraly generated contracts are up-to-date
         run: npm run test:generation
+      - name: Check custom errors have unique names
+        run: npm run test:errors-uniqueness
       - name: Compare gas costs
         uses: ./.github/actions/gas-compare
         with:
