@@ -24,8 +24,8 @@ class PersonalSignHelper {
 }
 
 class TypedDataSignHelper {
-  constructor(contentsTypeName, contentsTypeValues) {
-    this.types = {
+  constructor(contentsTypes, contentsTypeName = Object.keys(contentsTypes).at(0)) {
+    this.allTypes = {
       TypedDataSign: formatType({
         contents: contentsTypeName,
         fields: 'bytes1',
@@ -36,14 +36,15 @@ class TypedDataSignHelper {
         salt: 'bytes32',
         extensions: 'uint256[]',
       }),
-      [contentsTypeName]: formatType(contentsTypeValues),
+      ...contentsTypes,
     };
+    this.types = contentsTypes;
     this.contentsTypeName = contentsTypeName;
     this.contentsType = ethers.TypedDataEncoder.from(this.types).encodeType(contentsTypeName);
   }
 
-  static from(contentsTypeName, contentsTypeValues) {
-    return new TypedDataSignHelper(contentsTypeName, contentsTypeValues);
+  static from(contentsTypes, contentsTypeName = Object.keys(contentsTypes).at(0)) {
+    return new TypedDataSignHelper(contentsTypes, contentsTypeName);
   }
 
   static prepare(contents, signerDomain) {
@@ -60,18 +61,14 @@ class TypedDataSignHelper {
 
   hash(data, appDomain) {
     try {
-      return ethers.TypedDataEncoder.hash(appDomain, this.types, data);
+      return ethers.TypedDataEncoder.hash(appDomain, this.allTypes, data);
     } catch {
-      return ethers.TypedDataEncoder.hash(
-        appDomain,
-        { [this.contentsTypeName]: this.types[this.contentsTypeName] },
-        data,
-      );
+      return ethers.TypedDataEncoder.hash(appDomain, this.types, data);
     }
   }
 
   sign(signer, data, appDomain) {
-    return Promise.resolve(signer.signTypedData(appDomain, this.types, data)).then(signature =>
+    return Promise.resolve(signer.signTypedData(appDomain, this.allTypes, data)).then(signature =>
       ethers.concat([
         signature,
         domainSeparator(appDomain),

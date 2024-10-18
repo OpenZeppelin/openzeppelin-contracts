@@ -2,7 +2,11 @@ const { expect } = require('chai');
 const { ethers } = require('hardhat');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
+const { Permit } = require('../../helpers/eip712');
 const { PersonalSignHelper, TypedDataSignHelper } = require('../../helpers/erc7739');
+
+// Helper for ERC20Permit applications
+const helper = TypedDataSignHelper.from({ Permit });
 
 const fixture = async () => {
   const mock = await ethers.deployContract('$ERC7739Utils');
@@ -18,7 +22,14 @@ const fixture = async () => {
     chainId: await ethers.provider.getNetwork().then(({ chainId }) => chainId),
     verifyingContract: '0x92C32cadBc39A15212505B5530aA765c441F306f',
   };
-  return { mock, domain, otherDomain };
+  const permit = {
+    owner: '0x1ab5E417d9AF00f1ca9d159007e12c401337a4bb',
+    spender: '0xD68E96620804446c4B1faB3103A08C98d4A8F55f',
+    value: 1_000_000n,
+    nonce: 0n,
+    deadline: ethers.MaxUint256,
+  };
+  return { mock, domain, otherDomain, permit };
 };
 
 describe('ERC7739Utils', function () {
@@ -91,15 +102,14 @@ describe('ERC7739Utils', function () {
 
   describe('typedDataSignStructHash', function () {
     it('should match the typed data nested struct hash', async function () {
-      const message = TypedDataSignHelper.prepare({ something: ethers.randomBytes(32) }, this.domain);
+      const message = TypedDataSignHelper.prepare(this.permit, this.domain);
 
-      const { types, contentsType } = TypedDataSignHelper.from('SomeType', { something: 'bytes32' });
-      const contentsHash = ethers.TypedDataEncoder.hashStruct('SomeType', types, message.contents);
-      const hash = ethers.TypedDataEncoder.hashStruct('TypedDataSign', types, message);
+      const contentsHash = ethers.TypedDataEncoder.hashStruct('Permit', helper.types, message.contents);
+      const hash = ethers.TypedDataEncoder.hashStruct('TypedDataSign', helper.allTypes, message);
 
       expect(
         await this.mock.$typedDataSignStructHash(
-          contentsType,
+          helper.contentsType,
           contentsHash,
           message.fields,
           message.name,
@@ -114,19 +124,14 @@ describe('ERC7739Utils', function () {
 
   describe('typedDataSignTypehash', function () {
     it('should match', async function () {
-      const { types, contentsType, contentsName } = TypedDataSignHelper.from('FooType', {
-        foo: 'address',
-        bar: 'uint256',
-      });
-      const typedDataSigType = ethers.TypedDataEncoder.from(types).encodeType('TypedDataSign');
+      const typedDataSigType = ethers.TypedDataEncoder.from(helper.allTypes).encodeType('TypedDataSign');
+      const typedDataSigTypeHash = ethers.keccak256(ethers.toUtf8Bytes(typedDataSigType));
 
-      expect(await this.mock.$typedDataSignTypehash(contentsType)).to.equal(
-        ethers.keccak256(ethers.toUtf8Bytes(typedDataSigType)),
-      );
+      expect(await this.mock.$typedDataSignTypehash(helper.contentsType)).to.equal(typedDataSigTypeHash);
 
-      expect(await this.mock.$typedDataSignTypehash(contentsType, ethers.Typed.string(contentsName))).to.equal(
-        ethers.keccak256(ethers.toUtf8Bytes(typedDataSigType)),
-      );
+      expect(
+        await this.mock.$typedDataSignTypehash(helper.contentsType, ethers.Typed.string(helper.contentsTypeName)),
+      ).to.equal(typedDataSigTypeHash);
     });
 
     it('should revert with InvalidContentsType if the type is invalid', async function () {
