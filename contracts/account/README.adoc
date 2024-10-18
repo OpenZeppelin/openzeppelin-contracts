@@ -5,6 +5,44 @@ NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/
 
 This directory includes contracts to build accounts for ERC-4337.
 
+== Core
+
+{{AccountBase}}
+
+{{AccountECDSA}}
+
+{{AccountEIP7702}}
+
+{{AccountP256}}
+
+{{AccountRSA}}
+
+{{AccountERC7579}}
+
+{{FactoryBase}}
+
+== Extensions
+
+{{AccountERC7579Hooked}}
+
+== Modules
+
+=== Validators
+
+{{ECDSAValidator}}
+
+{{P256Validator}}
+
+{{RSAValidator}}
+
+{{MultiERC1271Validator}}
+
+{{SignatureValidator}}
+
+=== Executors
+
+{{TypedERC1271Executor}}
+
 == Utilities
 
 {{ERC4337Utils}}
