@@ -8,7 +8,7 @@ const { VoteType } = require('../../helpers/enums');
 
 const TOKENS = [
   { Token: '$ERC20VotesExtendedMock', mode: 'blocknumber' },
-  // { Token: '$ERC20VotesExtendedTimestampMock', mode: 'timestamp' },
+  { Token: '$ERC20VotesExtendedTimestampMock', mode: 'timestamp' },
 ];
 
 const name = 'Override Governor';
