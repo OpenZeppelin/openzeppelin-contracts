@@ -56,13 +56,13 @@ describe('SafeERC20', function () {
 
     it('reverts on transfer', async function () {
       await expect(this.mock.$safeTransfer(this.token, this.receiver, 0n))
-        .to.be.revertedWithCustomError(this.mock, 'AddressEmptyCode')
+        .to.be.revertedWithCustomError(this.mock, 'SafeERC20FailedOperation')
         .withArgs(this.token);
     });
 
     it('reverts on transferFrom', async function () {
       await expect(this.mock.$safeTransferFrom(this.token, this.mock, this.receiver, 0n))
-        .to.be.revertedWithCustomError(this.mock, 'AddressEmptyCode')
+        .to.be.revertedWithCustomError(this.mock, 'SafeERC20FailedOperation')
         .withArgs(this.token);
     });
 
@@ -78,7 +78,7 @@ describe('SafeERC20', function () {
 
     it('reverts on forceApprove', async function () {
       await expect(this.mock.$forceApprove(this.token, this.spender, 0n))
-        .to.be.revertedWithCustomError(this.mock, 'AddressEmptyCode')
+        .to.be.revertedWithCustomError(this.mock, 'SafeERC20FailedOperation')
         .withArgs(this.token);
     });
   });

@@ -40,6 +40,7 @@ are useful to interact with third party contracts that implement them.
 - {IERC5313}
 - {IERC5805}
 - {IERC6372}
+- {IERC7674}
 
 == Detailed ABI
 
@@ -80,3 +81,5 @@ are useful to interact with third party contracts that implement them.
 {{IERC5805}}
 
 {{IERC6372}}
+
+{{IERC7674}}

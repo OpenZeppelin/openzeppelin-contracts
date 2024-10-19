@@ -8,6 +8,9 @@ import {IERC6372} from "../interfaces/IERC6372.sol";
 
 /**
  * @dev Interface of the {Governor} core.
+ *
+ * NOTE: Event parameters lack the `indexed` keyword for compatibility with GovernorBravo events.
+ * Making event parameters `indexed` affects how events are decoded, potentially breaking existing indexers.
  */
 interface IGovernor is IERC165, IERC6372 {
     enum ProposalState {
@@ -82,6 +85,11 @@ interface IGovernor is IERC165, IERC6372 {
      * @dev The vote type used is not valid for the corresponding counting module.
      */
     error GovernorInvalidVoteType();
+
+    /**
+     * @dev The provided params buffer is not supported by the counting module.
+     */
+    error GovernorInvalidVoteParams();
 
     /**
      * @dev Queue operation is not implemented for this governor. Execute should be called directly.
