@@ -25,6 +25,7 @@
 :xref-Ownable-OwnershipTransferred-address-address-: xref:access.adoc#Ownable-OwnershipTransferred-address-address-
 :xref-Ownable-OwnableUnauthorizedAccount-address-: xref:access.adoc#Ownable-OwnableUnauthorizedAccount-address-
 :xref-Ownable-OwnableInvalidOwner-address-: xref:access.adoc#Ownable-OwnableInvalidOwner-address-
+:IERC20: pass:normal[xref:token/ERC20.adoc#IERC20[`IERC20`]]
 = Finance
 
 [.readme-notice]
@@ -32,7 +33,7 @@ NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/
 
 This directory includes primitives for financial systems:
 
-- {VestingWallet} handles the vesting of Ether and ERC20 tokens for a given beneficiary. Custody of multiple tokens can
+- {VestingWallet} handles the vesting of Ether and ERC-20 tokens for a given beneficiary. Custody of multiple tokens can
   be given to this contract, which will release the token to the beneficiary following a given, customizable, vesting
   schedule.
 
@@ -57,14 +58,14 @@ This directory includes primitives for financial systems:
 
 [.contract]
 [[VestingWallet]]
-=== `++VestingWallet++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.1/contracts/finance/VestingWallet.sol[{github-icon},role=heading-link]
+=== `++VestingWallet++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/finance/VestingWallet.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
 import "@openzeppelin/contracts/finance/VestingWallet.sol";
 ```
 
-A vesting wallet is an ownable contract that can receive native currency and ERC20 tokens, and release these
+A vesting wallet is an ownable contract that can receive native currency and ERC-20 tokens, and release these
 assets to the wallet owner, also referred to as "beneficiary", according to a vesting schedule.
 
 Any assets transferred to this contract will follow the vesting schedule as if they were locked from the beginning.
@@ -137,8 +138,8 @@ sure to account the supply/balance adjustment in the vesting schedule to ensure 
 [[VestingWallet-constructor-address-uint64-uint64-]]
 ==== `[.contract-item-name]#++constructor++#++(address beneficiary, uint64 startTimestamp, uint64 durationSeconds)++` [.item-kind]#public#
 
-Sets the sender as the initial owner, the beneficiary as the pending owner, the start timestamp and the
-vesting duration of the vesting wallet.
+Sets the beneficiary (owner), the start timestamp and the vesting duration (in seconds) of the vesting
+wallet.
 
 [.contract-item]
 [[VestingWallet-receive--]]
@@ -187,7 +188,7 @@ Getter for the amount of releasable eth.
 ==== `[.contract-item-name]#++releasable++#++(address token) → uint256++` [.item-kind]#public#
 
 Getter for the amount of releasable `token` tokens. `token` should be the address of an
-IERC20 contract.
+{IERC20} contract.
 
 [.contract-item]
 [[VestingWallet-release--]]

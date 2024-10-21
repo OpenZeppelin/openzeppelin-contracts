@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (governance/utils/Votes.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (governance/utils/Votes.sol)
 pragma solidity ^0.8.20;
 
 import {IERC5805} from "../../interfaces/IERC5805.sol";
@@ -60,7 +60,7 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
     }
 
     /**
-     * @dev Machine-readable description of the clock as specified in EIP-6372.
+     * @dev Machine-readable description of the clock as specified in ERC-6372.
      */
     // solhint-disable-next-line func-name-mixedcase
     function CLOCK_MODE() public view virtual returns (string memory) {
@@ -190,7 +190,7 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
     /**
      * @dev Moves delegated votes from one delegate to another.
      */
-    function _moveDelegateVotes(address from, address to, uint256 amount) private {
+    function _moveDelegateVotes(address from, address to, uint256 amount) internal virtual {
         if (from != to && amount > 0) {
             if (from != address(0)) {
                 (uint256 oldValue, uint256 newValue) = _push(
@@ -232,7 +232,7 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
         Checkpoints.Trace208 storage store,
         function(uint208, uint208) view returns (uint208) op,
         uint208 delta
-    ) private returns (uint208, uint208) {
+    ) private returns (uint208 oldValue, uint208 newValue) {
         return store.push(clock(), op(store.latest(), delta));
     }
 

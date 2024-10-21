@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (interfaces/IERC777Sender.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (interfaces/IERC777Sender.sol)
 
 pragma solidity ^0.8.20;
 
 /**
- * @dev Interface of the ERC777TokensSender standard as defined in the EIP.
+ * @dev Interface of the ERC-777 Tokens Sender standard as defined in the ERC.
  *
  * {IERC777} Token holders can be notified of operations performed on their
  * tokens by having a contract implement this interface (contract holders can be
  * their own implementer) and registering it on the
- * https://eips.ethereum.org/EIPS/eip-1820[ERC1820 global registry].
+ * https://eips.ethereum.org/EIPS/eip-1820[ERC-1820 global registry].
  *
  * See {IERC1820Registry} and {IERC1820Implementer}.
  */

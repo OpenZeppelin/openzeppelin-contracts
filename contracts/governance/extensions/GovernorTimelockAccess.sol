@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (governance/extensions/GovernorTimelockAccess.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (governance/extensions/GovernorTimelockAccess.sol)
 
 pragma solidity ^0.8.20;
 
@@ -35,6 +35,9 @@ import {Time} from "../../utils/types/Time.sol";
  * mitigate this attack vector, the governor is able to ignore the restrictions claimed by the `AccessManager` using
  * {setAccessManagerIgnored}. While permanent denial of service is mitigated, temporary DoS may still be technically
  * possible. All of the governor's own functions (e.g., {setBaseDelaySeconds}) ignore the `AccessManager` by default.
+ *
+ * NOTE: `AccessManager` does not support scheduling more than one operation with the same target and calldata at
+ * the same time. See {AccessManager-schedule} for a workaround.
  */
 abstract contract GovernorTimelockAccess is Governor {
     // An execution plan is produced at the moment a proposal is created, in order to fix at that point the exact

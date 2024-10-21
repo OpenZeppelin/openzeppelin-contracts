@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (token/common/ERC2981.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (token/common/ERC2981.sol)
 
 pragma solidity ^0.8.20;
 
@@ -16,7 +16,7 @@ import {IERC165, ERC165} from "../../utils/introspection/ERC165.sol";
  * fee is specified in basis points by default.
  *
  * IMPORTANT: ERC-2981 only specifies a way to signal royalty information and does not enforce its payment. See
- * https://eips.ethereum.org/EIPS/eip-2981#optional-royalty-payments[Rationale] in the EIP. Marketplaces are expected to
+ * https://eips.ethereum.org/EIPS/eip-2981#optional-royalty-payments[Rationale] in the ERC. Marketplaces are expected to
  * voluntarily pay royalties together with sales, but note that this standard is not yet widely supported.
  */
 abstract contract ERC2981 is IERC2981, ERC165 {
@@ -58,16 +58,22 @@ abstract contract ERC2981 is IERC2981, ERC165 {
     /**
      * @inheritdoc IERC2981
      */
-    function royaltyInfo(uint256 tokenId, uint256 salePrice) public view virtual returns (address, uint256) {
-        RoyaltyInfo memory royalty = _tokenRoyaltyInfo[tokenId];
+    function royaltyInfo(
+        uint256 tokenId,
+        uint256 salePrice
+    ) public view virtual returns (address receiver, uint256 amount) {
+        RoyaltyInfo storage _royaltyInfo = _tokenRoyaltyInfo[tokenId];
+        address royaltyReceiver = _royaltyInfo.receiver;
+        uint96 royaltyFraction = _royaltyInfo.royaltyFraction;
 
-        if (royalty.receiver == address(0)) {
-            royalty = _defaultRoyaltyInfo;
+        if (royaltyReceiver == address(0)) {
+            royaltyReceiver = _defaultRoyaltyInfo.receiver;
+            royaltyFraction = _defaultRoyaltyInfo.royaltyFraction;
         }
 
-        uint256 royaltyAmount = (salePrice * royalty.royaltyFraction) / _feeDenominator();
+        uint256 royaltyAmount = (salePrice * royaltyFraction) / _feeDenominator();
 
-        return (royalty.receiver, royaltyAmount);
+        return (royaltyReceiver, royaltyAmount);
     }
 
     /**

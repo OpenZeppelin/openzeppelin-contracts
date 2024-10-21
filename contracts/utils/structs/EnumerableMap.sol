@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (utils/structs/EnumerableMap.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (utils/structs/EnumerableMap.sol)
 // This file was procedurally generated from scripts/generate/templates/EnumerableMap.js.
 
 pragma solidity ^0.8.20;
@@ -34,6 +34,10 @@ import {EnumerableSet} from "./EnumerableSet.sol";
  * - `bytes32 -> bytes32` (`Bytes32ToBytes32Map`) since v4.6.0
  * - `uint256 -> uint256` (`UintToUintMap`) since v4.7.0
  * - `bytes32 -> uint256` (`Bytes32ToUintMap`) since v4.7.0
+ * - `uint256 -> bytes32` (`UintToBytes32Map`) since v5.1.0
+ * - `address -> address` (`AddressToAddressMap`) since v5.1.0
+ * - `address -> bytes32` (`AddressToBytes32Map`) since v5.1.0
+ * - `bytes32 -> address` (`Bytes32ToAddressMap`) since v5.1.0
  *
  * [WARNING]
  * ====
@@ -110,21 +114,21 @@ library EnumerableMap {
      *
      * - `index` must be strictly less than {length}.
      */
-    function at(Bytes32ToBytes32Map storage map, uint256 index) internal view returns (bytes32, bytes32) {
-        bytes32 key = map._keys.at(index);
-        return (key, map._values[key]);
+    function at(Bytes32ToBytes32Map storage map, uint256 index) internal view returns (bytes32 key, bytes32 value) {
+        bytes32 atKey = map._keys.at(index);
+        return (atKey, map._values[atKey]);
     }
 
     /**
      * @dev Tries to returns the value associated with `key`. O(1).
      * Does not revert if `key` is not in the map.
      */
-    function tryGet(Bytes32ToBytes32Map storage map, bytes32 key) internal view returns (bool, bytes32) {
-        bytes32 value = map._values[key];
-        if (value == bytes32(0)) {
+    function tryGet(Bytes32ToBytes32Map storage map, bytes32 key) internal view returns (bool exists, bytes32 value) {
+        bytes32 val = map._values[key];
+        if (val == bytes32(0)) {
             return (contains(map, key), bytes32(0));
         } else {
-            return (true, value);
+            return (true, val);
         }
     }
 
@@ -204,18 +208,18 @@ library EnumerableMap {
      *
      * - `index` must be strictly less than {length}.
      */
-    function at(UintToUintMap storage map, uint256 index) internal view returns (uint256, uint256) {
-        (bytes32 key, bytes32 value) = at(map._inner, index);
-        return (uint256(key), uint256(value));
+    function at(UintToUintMap storage map, uint256 index) internal view returns (uint256 key, uint256 value) {
+        (bytes32 atKey, bytes32 val) = at(map._inner, index);
+        return (uint256(atKey), uint256(val));
     }
 
     /**
      * @dev Tries to returns the value associated with `key`. O(1).
      * Does not revert if `key` is not in the map.
      */
-    function tryGet(UintToUintMap storage map, uint256 key) internal view returns (bool, uint256) {
-        (bool success, bytes32 value) = tryGet(map._inner, bytes32(key));
-        return (success, uint256(value));
+    function tryGet(UintToUintMap storage map, uint256 key) internal view returns (bool exists, uint256 value) {
+        (bool success, bytes32 val) = tryGet(map._inner, bytes32(key));
+        return (success, uint256(val));
     }
 
     /**
@@ -241,8 +245,7 @@ library EnumerableMap {
         bytes32[] memory store = keys(map._inner);
         uint256[] memory result;
 
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             result := store
         }
 
@@ -298,18 +301,18 @@ library EnumerableMap {
      *
      * - `index` must be strictly less than {length}.
      */
-    function at(UintToAddressMap storage map, uint256 index) internal view returns (uint256, address) {
-        (bytes32 key, bytes32 value) = at(map._inner, index);
-        return (uint256(key), address(uint160(uint256(value))));
+    function at(UintToAddressMap storage map, uint256 index) internal view returns (uint256 key, address value) {
+        (bytes32 atKey, bytes32 val) = at(map._inner, index);
+        return (uint256(atKey), address(uint160(uint256(val))));
     }
 
     /**
      * @dev Tries to returns the value associated with `key`. O(1).
      * Does not revert if `key` is not in the map.
      */
-    function tryGet(UintToAddressMap storage map, uint256 key) internal view returns (bool, address) {
-        (bool success, bytes32 value) = tryGet(map._inner, bytes32(key));
-        return (success, address(uint160(uint256(value))));
+    function tryGet(UintToAddressMap storage map, uint256 key) internal view returns (bool exists, address value) {
+        (bool success, bytes32 val) = tryGet(map._inner, bytes32(key));
+        return (success, address(uint160(uint256(val))));
     }
 
     /**
@@ -335,8 +338,100 @@ library EnumerableMap {
         bytes32[] memory store = keys(map._inner);
         uint256[] memory result;
 
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
+            result := store
+        }
+
+        return result;
+    }
+
+    // UintToBytes32Map
+
+    struct UintToBytes32Map {
+        Bytes32ToBytes32Map _inner;
+    }
+
+    /**
+     * @dev Adds a key-value pair to a map, or updates the value for an existing
+     * key. O(1).
+     *
+     * Returns true if the key was added to the map, that is if it was not
+     * already present.
+     */
+    function set(UintToBytes32Map storage map, uint256 key, bytes32 value) internal returns (bool) {
+        return set(map._inner, bytes32(key), value);
+    }
+
+    /**
+     * @dev Removes a value from a map. O(1).
+     *
+     * Returns true if the key was removed from the map, that is if it was present.
+     */
+    function remove(UintToBytes32Map storage map, uint256 key) internal returns (bool) {
+        return remove(map._inner, bytes32(key));
+    }
+
+    /**
+     * @dev Returns true if the key is in the map. O(1).
+     */
+    function contains(UintToBytes32Map storage map, uint256 key) internal view returns (bool) {
+        return contains(map._inner, bytes32(key));
+    }
+
+    /**
+     * @dev Returns the number of elements in the map. O(1).
+     */
+    function length(UintToBytes32Map storage map) internal view returns (uint256) {
+        return length(map._inner);
+    }
+
+    /**
+     * @dev Returns the element stored at position `index` in the map. O(1).
+     * Note that there are no guarantees on the ordering of values inside the
+     * array, and it may change when more values are added or removed.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     */
+    function at(UintToBytes32Map storage map, uint256 index) internal view returns (uint256 key, bytes32 value) {
+        (bytes32 atKey, bytes32 val) = at(map._inner, index);
+        return (uint256(atKey), val);
+    }
+
+    /**
+     * @dev Tries to returns the value associated with `key`. O(1).
+     * Does not revert if `key` is not in the map.
+     */
+    function tryGet(UintToBytes32Map storage map, uint256 key) internal view returns (bool exists, bytes32 value) {
+        (bool success, bytes32 val) = tryGet(map._inner, bytes32(key));
+        return (success, val);
+    }
+
+    /**
+     * @dev Returns the value associated with `key`. O(1).
+     *
+     * Requirements:
+     *
+     * - `key` must be in the map.
+     */
+    function get(UintToBytes32Map storage map, uint256 key) internal view returns (bytes32) {
+        return get(map._inner, bytes32(key));
+    }
+
+    /**
+     * @dev Return the an array containing all the keys
+     *
+     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+     * this function has an unbounded cost, and using it as part of a state-changing function may render the function
+     * uncallable if the map grows to a point where copying to memory consumes too much gas to fit in a block.
+     */
+    function keys(UintToBytes32Map storage map) internal view returns (uint256[] memory) {
+        bytes32[] memory store = keys(map._inner);
+        uint256[] memory result;
+
+        assembly ("memory-safe") {
             result := store
         }
 
@@ -392,18 +487,18 @@ library EnumerableMap {
      *
      * - `index` must be strictly less than {length}.
      */
-    function at(AddressToUintMap storage map, uint256 index) internal view returns (address, uint256) {
-        (bytes32 key, bytes32 value) = at(map._inner, index);
-        return (address(uint160(uint256(key))), uint256(value));
+    function at(AddressToUintMap storage map, uint256 index) internal view returns (address key, uint256 value) {
+        (bytes32 atKey, bytes32 val) = at(map._inner, index);
+        return (address(uint160(uint256(atKey))), uint256(val));
     }
 
     /**
      * @dev Tries to returns the value associated with `key`. O(1).
      * Does not revert if `key` is not in the map.
      */
-    function tryGet(AddressToUintMap storage map, address key) internal view returns (bool, uint256) {
-        (bool success, bytes32 value) = tryGet(map._inner, bytes32(uint256(uint160(key))));
-        return (success, uint256(value));
+    function tryGet(AddressToUintMap storage map, address key) internal view returns (bool exists, uint256 value) {
+        (bool success, bytes32 val) = tryGet(map._inner, bytes32(uint256(uint160(key))));
+        return (success, uint256(val));
     }
 
     /**
@@ -429,8 +524,193 @@ library EnumerableMap {
         bytes32[] memory store = keys(map._inner);
         address[] memory result;
 
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
+            result := store
+        }
+
+        return result;
+    }
+
+    // AddressToAddressMap
+
+    struct AddressToAddressMap {
+        Bytes32ToBytes32Map _inner;
+    }
+
+    /**
+     * @dev Adds a key-value pair to a map, or updates the value for an existing
+     * key. O(1).
+     *
+     * Returns true if the key was added to the map, that is if it was not
+     * already present.
+     */
+    function set(AddressToAddressMap storage map, address key, address value) internal returns (bool) {
+        return set(map._inner, bytes32(uint256(uint160(key))), bytes32(uint256(uint160(value))));
+    }
+
+    /**
+     * @dev Removes a value from a map. O(1).
+     *
+     * Returns true if the key was removed from the map, that is if it was present.
+     */
+    function remove(AddressToAddressMap storage map, address key) internal returns (bool) {
+        return remove(map._inner, bytes32(uint256(uint160(key))));
+    }
+
+    /**
+     * @dev Returns true if the key is in the map. O(1).
+     */
+    function contains(AddressToAddressMap storage map, address key) internal view returns (bool) {
+        return contains(map._inner, bytes32(uint256(uint160(key))));
+    }
+
+    /**
+     * @dev Returns the number of elements in the map. O(1).
+     */
+    function length(AddressToAddressMap storage map) internal view returns (uint256) {
+        return length(map._inner);
+    }
+
+    /**
+     * @dev Returns the element stored at position `index` in the map. O(1).
+     * Note that there are no guarantees on the ordering of values inside the
+     * array, and it may change when more values are added or removed.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     */
+    function at(AddressToAddressMap storage map, uint256 index) internal view returns (address key, address value) {
+        (bytes32 atKey, bytes32 val) = at(map._inner, index);
+        return (address(uint160(uint256(atKey))), address(uint160(uint256(val))));
+    }
+
+    /**
+     * @dev Tries to returns the value associated with `key`. O(1).
+     * Does not revert if `key` is not in the map.
+     */
+    function tryGet(AddressToAddressMap storage map, address key) internal view returns (bool exists, address value) {
+        (bool success, bytes32 val) = tryGet(map._inner, bytes32(uint256(uint160(key))));
+        return (success, address(uint160(uint256(val))));
+    }
+
+    /**
+     * @dev Returns the value associated with `key`. O(1).
+     *
+     * Requirements:
+     *
+     * - `key` must be in the map.
+     */
+    function get(AddressToAddressMap storage map, address key) internal view returns (address) {
+        return address(uint160(uint256(get(map._inner, bytes32(uint256(uint160(key)))))));
+    }
+
+    /**
+     * @dev Return the an array containing all the keys
+     *
+     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+     * this function has an unbounded cost, and using it as part of a state-changing function may render the function
+     * uncallable if the map grows to a point where copying to memory consumes too much gas to fit in a block.
+     */
+    function keys(AddressToAddressMap storage map) internal view returns (address[] memory) {
+        bytes32[] memory store = keys(map._inner);
+        address[] memory result;
+
+        assembly ("memory-safe") {
+            result := store
+        }
+
+        return result;
+    }
+
+    // AddressToBytes32Map
+
+    struct AddressToBytes32Map {
+        Bytes32ToBytes32Map _inner;
+    }
+
+    /**
+     * @dev Adds a key-value pair to a map, or updates the value for an existing
+     * key. O(1).
+     *
+     * Returns true if the key was added to the map, that is if it was not
+     * already present.
+     */
+    function set(AddressToBytes32Map storage map, address key, bytes32 value) internal returns (bool) {
+        return set(map._inner, bytes32(uint256(uint160(key))), value);
+    }
+
+    /**
+     * @dev Removes a value from a map. O(1).
+     *
+     * Returns true if the key was removed from the map, that is if it was present.
+     */
+    function remove(AddressToBytes32Map storage map, address key) internal returns (bool) {
+        return remove(map._inner, bytes32(uint256(uint160(key))));
+    }
+
+    /**
+     * @dev Returns true if the key is in the map. O(1).
+     */
+    function contains(AddressToBytes32Map storage map, address key) internal view returns (bool) {
+        return contains(map._inner, bytes32(uint256(uint160(key))));
+    }
+
+    /**
+     * @dev Returns the number of elements in the map. O(1).
+     */
+    function length(AddressToBytes32Map storage map) internal view returns (uint256) {
+        return length(map._inner);
+    }
+
+    /**
+     * @dev Returns the element stored at position `index` in the map. O(1).
+     * Note that there are no guarantees on the ordering of values inside the
+     * array, and it may change when more values are added or removed.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     */
+    function at(AddressToBytes32Map storage map, uint256 index) internal view returns (address key, bytes32 value) {
+        (bytes32 atKey, bytes32 val) = at(map._inner, index);
+        return (address(uint160(uint256(atKey))), val);
+    }
+
+    /**
+     * @dev Tries to returns the value associated with `key`. O(1).
+     * Does not revert if `key` is not in the map.
+     */
+    function tryGet(AddressToBytes32Map storage map, address key) internal view returns (bool exists, bytes32 value) {
+        (bool success, bytes32 val) = tryGet(map._inner, bytes32(uint256(uint160(key))));
+        return (success, val);
+    }
+
+    /**
+     * @dev Returns the value associated with `key`. O(1).
+     *
+     * Requirements:
+     *
+     * - `key` must be in the map.
+     */
+    function get(AddressToBytes32Map storage map, address key) internal view returns (bytes32) {
+        return get(map._inner, bytes32(uint256(uint160(key))));
+    }
+
+    /**
+     * @dev Return the an array containing all the keys
+     *
+     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+     * this function has an unbounded cost, and using it as part of a state-changing function may render the function
+     * uncallable if the map grows to a point where copying to memory consumes too much gas to fit in a block.
+     */
+    function keys(AddressToBytes32Map storage map) internal view returns (address[] memory) {
+        bytes32[] memory store = keys(map._inner);
+        address[] memory result;
+
+        assembly ("memory-safe") {
             result := store
         }
 
@@ -486,18 +766,18 @@ library EnumerableMap {
      *
      * - `index` must be strictly less than {length}.
      */
-    function at(Bytes32ToUintMap storage map, uint256 index) internal view returns (bytes32, uint256) {
-        (bytes32 key, bytes32 value) = at(map._inner, index);
-        return (key, uint256(value));
+    function at(Bytes32ToUintMap storage map, uint256 index) internal view returns (bytes32 key, uint256 value) {
+        (bytes32 atKey, bytes32 val) = at(map._inner, index);
+        return (atKey, uint256(val));
     }
 
     /**
      * @dev Tries to returns the value associated with `key`. O(1).
      * Does not revert if `key` is not in the map.
      */
-    function tryGet(Bytes32ToUintMap storage map, bytes32 key) internal view returns (bool, uint256) {
-        (bool success, bytes32 value) = tryGet(map._inner, key);
-        return (success, uint256(value));
+    function tryGet(Bytes32ToUintMap storage map, bytes32 key) internal view returns (bool exists, uint256 value) {
+        (bool success, bytes32 val) = tryGet(map._inner, key);
+        return (success, uint256(val));
     }
 
     /**
@@ -523,8 +803,100 @@ library EnumerableMap {
         bytes32[] memory store = keys(map._inner);
         bytes32[] memory result;
 
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
+            result := store
+        }
+
+        return result;
+    }
+
+    // Bytes32ToAddressMap
+
+    struct Bytes32ToAddressMap {
+        Bytes32ToBytes32Map _inner;
+    }
+
+    /**
+     * @dev Adds a key-value pair to a map, or updates the value for an existing
+     * key. O(1).
+     *
+     * Returns true if the key was added to the map, that is if it was not
+     * already present.
+     */
+    function set(Bytes32ToAddressMap storage map, bytes32 key, address value) internal returns (bool) {
+        return set(map._inner, key, bytes32(uint256(uint160(value))));
+    }
+
+    /**
+     * @dev Removes a value from a map. O(1).
+     *
+     * Returns true if the key was removed from the map, that is if it was present.
+     */
+    function remove(Bytes32ToAddressMap storage map, bytes32 key) internal returns (bool) {
+        return remove(map._inner, key);
+    }
+
+    /**
+     * @dev Returns true if the key is in the map. O(1).
+     */
+    function contains(Bytes32ToAddressMap storage map, bytes32 key) internal view returns (bool) {
+        return contains(map._inner, key);
+    }
+
+    /**
+     * @dev Returns the number of elements in the map. O(1).
+     */
+    function length(Bytes32ToAddressMap storage map) internal view returns (uint256) {
+        return length(map._inner);
+    }
+
+    /**
+     * @dev Returns the element stored at position `index` in the map. O(1).
+     * Note that there are no guarantees on the ordering of values inside the
+     * array, and it may change when more values are added or removed.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     */
+    function at(Bytes32ToAddressMap storage map, uint256 index) internal view returns (bytes32 key, address value) {
+        (bytes32 atKey, bytes32 val) = at(map._inner, index);
+        return (atKey, address(uint160(uint256(val))));
+    }
+
+    /**
+     * @dev Tries to returns the value associated with `key`. O(1).
+     * Does not revert if `key` is not in the map.
+     */
+    function tryGet(Bytes32ToAddressMap storage map, bytes32 key) internal view returns (bool exists, address value) {
+        (bool success, bytes32 val) = tryGet(map._inner, key);
+        return (success, address(uint160(uint256(val))));
+    }
+
+    /**
+     * @dev Returns the value associated with `key`. O(1).
+     *
+     * Requirements:
+     *
+     * - `key` must be in the map.
+     */
+    function get(Bytes32ToAddressMap storage map, bytes32 key) internal view returns (address) {
+        return address(uint160(uint256(get(map._inner, key))));
+    }
+
+    /**
+     * @dev Return the an array containing all the keys
+     *
+     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+     * this function has an unbounded cost, and using it as part of a state-changing function may render the function
+     * uncallable if the map grows to a point where copying to memory consumes too much gas to fit in a block.
+     */
+    function keys(Bytes32ToAddressMap storage map) internal view returns (bytes32[] memory) {
+        bytes32[] memory store = keys(map._inner);
+        bytes32[] memory result;
+
+        assembly ("memory-safe") {
             result := store
         }
 

@@ -13,6 +13,7 @@
 :xref-Ownable-OwnershipTransferred-address-address-: xref:access.adoc#Ownable-OwnershipTransferred-address-address-
 :xref-Ownable-OwnableUnauthorizedAccount-address-: xref:access.adoc#Ownable-OwnableUnauthorizedAccount-address-
 :xref-Ownable-OwnableInvalidOwner-address-: xref:access.adoc#Ownable-OwnableInvalidOwner-address-
+:Ownable: pass:normal[xref:access.adoc#Ownable[`Ownable`]]
 :xref-Ownable2Step-pendingOwner--: xref:access.adoc#Ownable2Step-pendingOwner--
 :xref-Ownable2Step-transferOwnership-address-: xref:access.adoc#Ownable2Step-transferOwnership-address-
 :xref-Ownable2Step-_transferOwnership-address-: xref:access.adoc#Ownable2Step-_transferOwnership-address-
@@ -35,6 +36,7 @@
 :xref-IAccessControl-AccessControlUnauthorizedAccount-address-bytes32-: xref:access.adoc#IAccessControl-AccessControlUnauthorizedAccount-address-bytes32-
 :xref-IAccessControl-AccessControlBadConfirmation--: xref:access.adoc#IAccessControl-AccessControlBadConfirmation--
 :AccessControl-_setRoleAdmin: pass:normal[xref:access.adoc#AccessControl-_setRoleAdmin-bytes32-bytes32-[`AccessControl._setRoleAdmin`]]
+:AccessControl-_grantRole: pass:normal[xref:access.adoc#AccessControl-_grantRole-bytes32-address-[`AccessControl._grantRole`]]
 :AccessControlEnumerable: pass:normal[xref:access.adoc#AccessControlEnumerable[`AccessControlEnumerable`]]
 :AccessControlDefaultAdminRules: pass:normal[xref:access.adoc#AccessControlDefaultAdminRules[`AccessControlDefaultAdminRules`]]
 :xref-AccessControl-onlyRole-bytes32-: xref:access.adoc#AccessControl-onlyRole-bytes32-
@@ -72,6 +74,7 @@
 :xref-AccessControlEnumerable-supportsInterface-bytes4-: xref:access.adoc#AccessControlEnumerable-supportsInterface-bytes4-
 :xref-AccessControlEnumerable-getRoleMember-bytes32-uint256-: xref:access.adoc#AccessControlEnumerable-getRoleMember-bytes32-uint256-
 :xref-AccessControlEnumerable-getRoleMemberCount-bytes32-: xref:access.adoc#AccessControlEnumerable-getRoleMemberCount-bytes32-
+:xref-AccessControlEnumerable-getRoleMembers-bytes32-: xref:access.adoc#AccessControlEnumerable-getRoleMembers-bytes32-
 :xref-AccessControlEnumerable-_grantRole-bytes32-address-: xref:access.adoc#AccessControlEnumerable-_grantRole-bytes32-address-
 :xref-AccessControlEnumerable-_revokeRole-bytes32-address-: xref:access.adoc#AccessControlEnumerable-_revokeRole-bytes32-address-
 :xref-AccessControl-hasRole-bytes32-address-: xref:access.adoc#AccessControl-hasRole-bytes32-address-
@@ -216,7 +219,6 @@
 :xref-IAccessManager-AccessManagerNotScheduled-bytes32-: xref:access.adoc#IAccessManager-AccessManagerNotScheduled-bytes32-
 :xref-IAccessManager-AccessManagerNotReady-bytes32-: xref:access.adoc#IAccessManager-AccessManagerNotReady-bytes32-
 :xref-IAccessManager-AccessManagerExpired-bytes32-: xref:access.adoc#IAccessManager-AccessManagerExpired-bytes32-
-:xref-IAccessManager-AccessManagerLockedAccount-address-: xref:access.adoc#IAccessManager-AccessManagerLockedAccount-address-
 :xref-IAccessManager-AccessManagerLockedRole-uint64-: xref:access.adoc#IAccessManager-AccessManagerLockedRole-uint64-
 :xref-IAccessManager-AccessManagerBadConfirmation--: xref:access.adoc#IAccessManager-AccessManagerBadConfirmation--
 :xref-IAccessManager-AccessManagerUnauthorizedAccount-address-uint64-: xref:access.adoc#IAccessManager-AccessManagerUnauthorizedAccount-address-uint64-
@@ -224,6 +226,7 @@
 :xref-IAccessManager-AccessManagerUnauthorizedConsume-address-: xref:access.adoc#IAccessManager-AccessManagerUnauthorizedConsume-address-
 :xref-IAccessManager-AccessManagerUnauthorizedCancel-address-address-address-bytes4-: xref:access.adoc#IAccessManager-AccessManagerUnauthorizedCancel-address-address-address-bytes4-
 :xref-IAccessManager-AccessManagerInvalidInitialAdmin-address-: xref:access.adoc#IAccessManager-AccessManagerInvalidInitialAdmin-address-
+:AccessManager: pass:normal[xref:access.adoc#AccessManager[`AccessManager`]]
 :AccessManaged: pass:normal[xref:access.adoc#AccessManaged[`AccessManaged`]]
 :AccessManaged-restricted: pass:normal[xref:access.adoc#AccessManaged-restricted--[`AccessManaged.restricted`]]
 :AccessManaged-authority: pass:normal[xref:access.adoc#AccessManaged-authority--[`AccessManaged.authority`]]
@@ -298,7 +301,6 @@
 :xref-IAccessManager-AccessManagerNotScheduled-bytes32-: xref:access.adoc#IAccessManager-AccessManagerNotScheduled-bytes32-
 :xref-IAccessManager-AccessManagerNotReady-bytes32-: xref:access.adoc#IAccessManager-AccessManagerNotReady-bytes32-
 :xref-IAccessManager-AccessManagerExpired-bytes32-: xref:access.adoc#IAccessManager-AccessManagerExpired-bytes32-
-:xref-IAccessManager-AccessManagerLockedAccount-address-: xref:access.adoc#IAccessManager-AccessManagerLockedAccount-address-
 :xref-IAccessManager-AccessManagerLockedRole-uint64-: xref:access.adoc#IAccessManager-AccessManagerLockedRole-uint64-
 :xref-IAccessManager-AccessManagerBadConfirmation--: xref:access.adoc#IAccessManager-AccessManagerBadConfirmation--
 :xref-IAccessManager-AccessManagerUnauthorizedAccount-address-uint64-: xref:access.adoc#IAccessManager-AccessManagerUnauthorizedAccount-address-uint64-
@@ -306,6 +308,8 @@
 :xref-IAccessManager-AccessManagerUnauthorizedConsume-address-: xref:access.adoc#IAccessManager-AccessManagerUnauthorizedConsume-address-
 :xref-IAccessManager-AccessManagerUnauthorizedCancel-address-address-address-bytes4-: xref:access.adoc#IAccessManager-AccessManagerUnauthorizedCancel-address-address-address-bytes4-
 :xref-IAccessManager-AccessManagerInvalidInitialAdmin-address-: xref:access.adoc#IAccessManager-AccessManagerInvalidInitialAdmin-address-
+:AccessManager: pass:normal[xref:access.adoc#AccessManager[`AccessManager`]]
+:AccessManager: pass:normal[xref:access.adoc#AccessManager[`AccessManager`]]
 :xref-IAccessManaged-authority--: xref:access.adoc#IAccessManaged-authority--
 :xref-IAccessManaged-setAuthority-address-: xref:access.adoc#IAccessManaged-setAuthority-address-
 :xref-IAccessManaged-isConsumingScheduledOp--: xref:access.adoc#IAccessManaged-isConsumingScheduledOp--
@@ -354,7 +358,7 @@ This directory provides ways to restrict who can access the functions of a contr
 
 [.contract]
 [[Ownable]]
-=== `++Ownable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.1/contracts/access/Ownable.sol[{github-icon},role=heading-link]
+=== `++Ownable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/access/Ownable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -477,7 +481,7 @@ The owner is not a valid owner account. (eg. `address(0)`)
 
 [.contract]
 [[Ownable2Step]]
-=== `++Ownable2Step++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.1/contracts/access/Ownable2Step.sol[{github-icon},role=heading-link]
+=== `++Ownable2Step++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/access/Ownable2Step.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -487,6 +491,12 @@ import "@openzeppelin/contracts/access/Ownable2Step.sol";
 Contract module which provides access control mechanism, where
 there is an account (an owner) that can be granted exclusive access to
 specific functions.
+
+This extension of the {Ownable} contract includes a two-step mechanism to transfer
+ownership, where the new owner must call {acceptOwnership} in order to replace the
+old one. This can help prevent common mistakes, such as transfers of ownership to
+incorrect accounts, or to contracts that are unable to interact with the
+permission system.
 
 The initial owner is specified at deployment time in the constructor for `Ownable`. This
 can later be changed with {transferOwnership} and {acceptOwnership}.
@@ -545,6 +555,8 @@ Returns the address of the pending owner.
 Starts the ownership transfer of the contract to a new account. Replaces the pending transfer if there is one.
 Can only be called by the current owner.
 
+Setting `newOwner` to the zero address is allowed; this can be used to cancel an initiated ownership transfer.
+
 [.contract-item]
 [[Ownable2Step-_transferOwnership-address-]]
 ==== `[.contract-item-name]#++_transferOwnership++#++(address newOwner)++` [.item-kind]#internal#
@@ -575,14 +587,14 @@ The new owner accepts the ownership transfer.
 
 [.contract]
 [[IAccessControl]]
-=== `++IAccessControl++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.1/contracts/access/IAccessControl.sol[{github-icon},role=heading-link]
+=== `++IAccessControl++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/access/IAccessControl.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
 import "@openzeppelin/contracts/access/IAccessControl.sol";
 ```
 
-External interface of AccessControl declared to support ERC165 detection.
+External interface of AccessControl declared to support ERC-165 detection.
 
 [.contract-index]
 .Functions
@@ -684,8 +696,8 @@ Emitted when `newAdminRole` is set as ``role``'s admin role, replacing `previous
 
 Emitted when `account` is granted `role`.
 
-`sender` is the account that originated the contract call, an admin role
-bearer except when using {AccessControl-_setupRole}.
+`sender` is the account that originated the contract call. This account bears the admin role (for the granted role).
+Expected in cases where the role was granted using the internal {AccessControl-_grantRole}.
 
 [.contract-item]
 [[IAccessControl-RoleRevoked-bytes32-address-address-]]
@@ -728,7 +740,7 @@ NOTE: Don't confuse with {AccessControlUnauthorizedAccount}.
 
 [.contract]
 [[AccessControl]]
-=== `++AccessControl++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.1/contracts/access/AccessControl.sol[{github-icon},role=heading-link]
+=== `++AccessControl++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/access/AccessControl.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -970,14 +982,14 @@ May emit a {RoleRevoked} event.
 
 [.contract]
 [[IAccessControlEnumerable]]
-=== `++IAccessControlEnumerable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.1/contracts/access/extensions/IAccessControlEnumerable.sol[{github-icon},role=heading-link]
+=== `++IAccessControlEnumerable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/access/extensions/IAccessControlEnumerable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
 import "@openzeppelin/contracts/access/extensions/IAccessControlEnumerable.sol";
 ```
 
-External interface of AccessControlEnumerable declared to support ERC165 detection.
+External interface of AccessControlEnumerable declared to support ERC-165 detection.
 
 [.contract-index]
 .Functions
@@ -1043,12 +1055,13 @@ together with {getRoleMember} to enumerate all bearers of a role.
 :supportsInterface: pass:normal[xref:#AccessControlEnumerable-supportsInterface-bytes4-[`++supportsInterface++`]]
 :getRoleMember: pass:normal[xref:#AccessControlEnumerable-getRoleMember-bytes32-uint256-[`++getRoleMember++`]]
 :getRoleMemberCount: pass:normal[xref:#AccessControlEnumerable-getRoleMemberCount-bytes32-[`++getRoleMemberCount++`]]
+:getRoleMembers: pass:normal[xref:#AccessControlEnumerable-getRoleMembers-bytes32-[`++getRoleMembers++`]]
 :_grantRole: pass:normal[xref:#AccessControlEnumerable-_grantRole-bytes32-address-[`++_grantRole++`]]
 :_revokeRole: pass:normal[xref:#AccessControlEnumerable-_revokeRole-bytes32-address-[`++_revokeRole++`]]
 
 [.contract]
 [[AccessControlEnumerable]]
-=== `++AccessControlEnumerable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.1/contracts/access/extensions/AccessControlEnumerable.sol[{github-icon},role=heading-link]
+=== `++AccessControlEnumerable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/access/extensions/AccessControlEnumerable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1063,6 +1076,7 @@ Extension of {AccessControl} that allows enumerating the members of each role.
 * {xref-AccessControlEnumerable-supportsInterface-bytes4-}[`++supportsInterface(interfaceId)++`]
 * {xref-AccessControlEnumerable-getRoleMember-bytes32-uint256-}[`++getRoleMember(role, index)++`]
 * {xref-AccessControlEnumerable-getRoleMemberCount-bytes32-}[`++getRoleMemberCount(role)++`]
+* {xref-AccessControlEnumerable-getRoleMembers-bytes32-}[`++getRoleMembers(role)++`]
 * {xref-AccessControlEnumerable-_grantRole-bytes32-address-}[`++_grantRole(role, account)++`]
 * {xref-AccessControlEnumerable-_revokeRole-bytes32-address-}[`++_revokeRole(role, account)++`]
 
@@ -1168,6 +1182,17 @@ Returns the number of accounts that have `role`. Can be used
 together with {getRoleMember} to enumerate all bearers of a role.
 
 [.contract-item]
+[[AccessControlEnumerable-getRoleMembers-bytes32-]]
+==== `[.contract-item-name]#++getRoleMembers++#++(bytes32 role) → address[]++` [.item-kind]#public#
+
+Return all accounts that have `role`
+
+WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+this function has an unbounded cost, and using it as part of a state-changing function may render the function
+uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
+
+[.contract-item]
 [[AccessControlEnumerable-_grantRole-bytes32-address-]]
 ==== `[.contract-item-name]#++_grantRole++#++(bytes32 role, address account) → bool++` [.item-kind]#internal#
 
@@ -1199,14 +1224,14 @@ Overload {AccessControl-_revokeRole} to track enumerable memberships
 
 [.contract]
 [[IAccessControlDefaultAdminRules]]
-=== `++IAccessControlDefaultAdminRules++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.1/contracts/access/extensions/IAccessControlDefaultAdminRules.sol[{github-icon},role=heading-link]
+=== `++IAccessControlDefaultAdminRules++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/access/extensions/IAccessControlDefaultAdminRules.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
 import "@openzeppelin/contracts/access/extensions/IAccessControlDefaultAdminRules.sol";
 ```
 
-External interface of AccessControlDefaultAdminRules declared to support ERC165 detection.
+External interface of AccessControlDefaultAdminRules declared to support ERC-165 detection.
 
 [.contract-index]
 .Functions
@@ -1488,7 +1513,7 @@ NOTE: `schedule` can be 0 indicating there's no transfer scheduled.
 
 [.contract]
 [[AccessControlDefaultAdminRules]]
-=== `++AccessControlDefaultAdminRules++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.1/contracts/access/extensions/AccessControlDefaultAdminRules.sol[{github-icon},role=heading-link]
+=== `++AccessControlDefaultAdminRules++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/access/extensions/AccessControlDefaultAdminRules.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1909,7 +1934,7 @@ See {defaultAdminDelayIncreaseWait}.
 
 [.contract]
 [[IAuthority]]
-=== `++IAuthority++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.1/contracts/access/manager/IAuthority.sol[{github-icon},role=heading-link]
+=== `++IAuthority++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/access/manager/IAuthority.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1947,7 +1972,6 @@ Returns true if the caller can invoke on a target the function identified by a f
 :AccessManagerNotScheduled: pass:normal[xref:#IAccessManager-AccessManagerNotScheduled-bytes32-[`++AccessManagerNotScheduled++`]]
 :AccessManagerNotReady: pass:normal[xref:#IAccessManager-AccessManagerNotReady-bytes32-[`++AccessManagerNotReady++`]]
 :AccessManagerExpired: pass:normal[xref:#IAccessManager-AccessManagerExpired-bytes32-[`++AccessManagerExpired++`]]
-:AccessManagerLockedAccount: pass:normal[xref:#IAccessManager-AccessManagerLockedAccount-address-[`++AccessManagerLockedAccount++`]]
 :AccessManagerLockedRole: pass:normal[xref:#IAccessManager-AccessManagerLockedRole-uint64-[`++AccessManagerLockedRole++`]]
 :AccessManagerBadConfirmation: pass:normal[xref:#IAccessManager-AccessManagerBadConfirmation--[`++AccessManagerBadConfirmation++`]]
 :AccessManagerUnauthorizedAccount: pass:normal[xref:#IAccessManager-AccessManagerUnauthorizedAccount-address-uint64-[`++AccessManagerUnauthorizedAccount++`]]
@@ -1987,7 +2011,7 @@ Returns true if the caller can invoke on a target the function identified by a f
 
 [.contract]
 [[IAccessManager]]
-=== `++IAccessManager++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.1/contracts/access/manager/IAccessManager.sol[{github-icon},role=heading-link]
+=== `++IAccessManager++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/access/manager/IAccessManager.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2054,7 +2078,6 @@ import "@openzeppelin/contracts/access/manager/IAccessManager.sol";
 * {xref-IAccessManager-AccessManagerNotScheduled-bytes32-}[`++AccessManagerNotScheduled(operationId)++`]
 * {xref-IAccessManager-AccessManagerNotReady-bytes32-}[`++AccessManagerNotReady(operationId)++`]
 * {xref-IAccessManager-AccessManagerExpired-bytes32-}[`++AccessManagerExpired(operationId)++`]
-* {xref-IAccessManager-AccessManagerLockedAccount-address-}[`++AccessManagerLockedAccount(account)++`]
 * {xref-IAccessManager-AccessManagerLockedRole-uint64-}[`++AccessManagerLockedRole(roleId)++`]
 * {xref-IAccessManager-AccessManagerBadConfirmation--}[`++AccessManagerBadConfirmation()++`]
 * {xref-IAccessManager-AccessManagerUnauthorizedAccount-address-uint64-}[`++AccessManagerUnauthorizedAccount(msgsender, roleId)++`]
@@ -2085,8 +2108,8 @@ NOTE: The IAuthority interface does not include the `uint32` delay. This is an e
 is backward compatible. Some contracts may thus ignore the second return argument. In that case they will fail
 to identify the indirect workflow, and will consider calls that require a delay to be forbidden.
 
-NOTE: This function does not report the permissions of this manager itself. These are defined by the
-{_canCallSelf} function instead.
+NOTE: This function does not report the permissions of the admin functions in the manager itself. These are defined by the
+{AccessManager} documentation.
 
 [.contract-item]
 [[IAccessManager-expiration--]]
@@ -2110,6 +2133,8 @@ accidental increase). Defaults to 5 days.
 ==== `[.contract-item-name]#++isTargetClosed++#++(address target) → bool++` [.item-kind]#external#
 
 Get whether the contract is closed disabling any access. Otherwise role permissions are applied.
+
+NOTE: When the manager itself is closed, admin functions are still accessible to avoid locking the contract.
 
 [.contract-item]
 [[IAccessManager-getTargetFunctionRole-address-bytes4-]]
@@ -2151,7 +2176,7 @@ Changes to this value, including effect timepoint are notified in advance by the
 
 [.contract-item]
 [[IAccessManager-getAccess-uint64-address-]]
-==== `[.contract-item-name]#++getAccess++#++(uint64 roleId, address account) → uint48, uint32, uint32, uint48++` [.item-kind]#external#
+==== `[.contract-item-name]#++getAccess++#++(uint64 roleId, address account) → uint48 since, uint32 currentDelay, uint32 pendingDelay, uint48 effect++` [.item-kind]#external#
 
 Get the access details for a given account for a given role. These details include the timepoint at which
 membership becomes active, and the delay applied to all operation by this user that requires this permission
@@ -2165,7 +2190,7 @@ Returns:
 
 [.contract-item]
 [[IAccessManager-hasRole-uint64-address-]]
-==== `[.contract-item-name]#++hasRole++#++(uint64 roleId, address account) → bool, uint32++` [.item-kind]#external#
+==== `[.contract-item-name]#++hasRole++#++(uint64 roleId, address account) → bool isMember, uint32 executionDelay++` [.item-kind]#external#
 
 Check if a given account currently has the permission level corresponding to a given role. Note that this
 permission might be associated with an execution delay. {getAccess} can provide more details.
@@ -2298,6 +2323,8 @@ Emits a {TargetAdminDelayUpdated} event.
 
 Set the closed flag for a contract.
 
+Closing the manager itself won't disable access to admin methods to avoid locking the contract.
+
 Requirements:
 
 - the caller must be a global admin
@@ -2320,7 +2347,7 @@ been scheduled.
 
 [.contract-item]
 [[IAccessManager-schedule-address-bytes-uint48-]]
-==== `[.contract-item-name]#++schedule++#++(address target, bytes data, uint48 when) → bytes32, uint32++` [.item-kind]#external#
+==== `[.contract-item-name]#++schedule++#++(address target, bytes data, uint48 when) → bytes32 operationId, uint32 nonce++` [.item-kind]#external#
 
 Schedule a delayed operation for future execution, and return the operation identifier. It is possible to
 choose the timestamp at which the operation becomes executable as long as it satisfies the execution delays
@@ -2482,10 +2509,6 @@ Admin delay for a given `target` will be updated to `delay` when `since` is reac
 ==== `[.contract-item-name]#++AccessManagerExpired++#++(bytes32 operationId)++` [.item-kind]#error#
 
 [.contract-item]
-[[IAccessManager-AccessManagerLockedAccount-address-]]
-==== `[.contract-item-name]#++AccessManagerLockedAccount++#++(address account)++` [.item-kind]#error#
-
-[.contract-item]
 [[IAccessManager-AccessManagerLockedRole-uint64-]]
 ==== `[.contract-item-name]#++AccessManagerLockedRole++#++(uint64 roleId)++` [.item-kind]#error#
 
@@ -2562,7 +2585,7 @@ Admin delay for a given `target` will be updated to `delay` when `since` is reac
 
 [.contract]
 [[AccessManager]]
-=== `++AccessManager++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.1/contracts/access/manager/AccessManager.sol[{github-icon},role=heading-link]
+=== `++AccessManager++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/access/manager/AccessManager.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2612,8 +2635,8 @@ registered in the {AccessManager}. Keep in mind that in that context, the msg.se
 will be {AccessManager} itself.
 
 WARNING: When granting permissions over an {Ownable} or {AccessControl} contract to an {AccessManager}, be very
-mindful of the danger associated with functions such as {{Ownable-renounceOwnership}} or
-{{AccessControl-renounceRole}}.
+mindful of the danger associated with functions such as {Ownable-renounceOwnership} or
+{AccessControl-renounceRole}.
 
 [.contract-index]
 .Modifiers
@@ -2709,7 +2732,6 @@ mindful of the danger associated with functions such as {{Ownable-renounceOwners
 * {xref-IAccessManager-AccessManagerNotScheduled-bytes32-}[`++AccessManagerNotScheduled(operationId)++`]
 * {xref-IAccessManager-AccessManagerNotReady-bytes32-}[`++AccessManagerNotReady(operationId)++`]
 * {xref-IAccessManager-AccessManagerExpired-bytes32-}[`++AccessManagerExpired(operationId)++`]
-* {xref-IAccessManager-AccessManagerLockedAccount-address-}[`++AccessManagerLockedAccount(account)++`]
 * {xref-IAccessManager-AccessManagerLockedRole-uint64-}[`++AccessManagerLockedRole(roleId)++`]
 * {xref-IAccessManager-AccessManagerBadConfirmation--}[`++AccessManagerBadConfirmation()++`]
 * {xref-IAccessManager-AccessManagerUnauthorizedAccount-address-uint64-}[`++AccessManagerUnauthorizedAccount(msgsender, roleId)++`]
@@ -2727,8 +2749,8 @@ mindful of the danger associated with functions such as {{Ownable-renounceOwners
 [[AccessManager-onlyAuthorized--]]
 ==== `[.contract-item-name]#++onlyAuthorized++#++()++` [.item-kind]#modifier#
 
-Check that the caller is authorized to perform the operation, following the restrictions encoded in
-{_getAdminRestrictions}.
+Check that the caller is authorized to perform the operation.
+See {AccessManager} description for a detailed breakdown of the authorization logic.
 
 [.contract-item]
 [[AccessManager-constructor-address-]]
@@ -2754,8 +2776,8 @@ NOTE: The IAuthority interface does not include the `uint32` delay. This is an e
 is backward compatible. Some contracts may thus ignore the second return argument. In that case they will fail
 to identify the indirect workflow, and will consider calls that require a delay to be forbidden.
 
-NOTE: This function does not report the permissions of this manager itself. These are defined by the
-{_canCallSelf} function instead.
+NOTE: This function does not report the permissions of the admin functions in the manager itself. These are defined by the
+{AccessManager} documentation.
 
 [.contract-item]
 [[AccessManager-expiration--]]
@@ -2779,6 +2801,8 @@ accidental increase). Defaults to 5 days.
 ==== `[.contract-item-name]#++isTargetClosed++#++(address target) → bool++` [.item-kind]#public#
 
 Get whether the contract is closed disabling any access. Otherwise role permissions are applied.
+
+NOTE: When the manager itself is closed, admin functions are still accessible to avoid locking the contract.
 
 [.contract-item]
 [[AccessManager-getTargetFunctionRole-address-bytes4-]]
@@ -3030,6 +3054,8 @@ Emits a {TargetAdminDelayUpdated} event.
 
 Set the closed flag for a contract.
 
+Closing the manager itself won't disable access to admin methods to avoid locking the contract.
+
 Requirements:
 
 - the caller must be a global admin
@@ -3141,9 +3167,14 @@ Requirements:
 [[AccessManager-ADMIN_ROLE-uint64]]
 ==== `[.contract-item-name]#++ADMIN_ROLE++#++() → uint64++` [.item-kind]#public#
 
+The identifier of the admin role. Required to perform most configuration operations including
+other roles' management and target restrictions.
+
 [.contract-item]
 [[AccessManager-PUBLIC_ROLE-uint64]]
 ==== `[.contract-item-name]#++PUBLIC_ROLE++#++() → uint64++` [.item-kind]#public#
+
+The identifier of the public role. Automatically granted to all addresses with no delay.
 
 :AuthorityUpdated: pass:normal[xref:#IAccessManaged-AuthorityUpdated-address-[`++AuthorityUpdated++`]]
 :AccessManagedUnauthorized: pass:normal[xref:#IAccessManaged-AccessManagedUnauthorized-address-[`++AccessManagedUnauthorized++`]]
@@ -3155,7 +3186,7 @@ Requirements:
 
 [.contract]
 [[IAccessManaged]]
-=== `++IAccessManaged++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.1/contracts/access/manager/IAccessManaged.sol[{github-icon},role=heading-link]
+=== `++IAccessManaged++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/access/manager/IAccessManaged.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3235,7 +3266,7 @@ Authority that manages this contract was updated.
 
 [.contract]
 [[AccessManaged]]
-=== `++AccessManaged++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.1/contracts/access/manager/AccessManaged.sol[{github-icon},role=heading-link]
+=== `++AccessManaged++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/access/manager/AccessManaged.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3312,7 +3343,7 @@ function at the bottom of the call stack, and not the function where the modifie
 ====
 Avoid adding this modifier to the https://docs.soliditylang.org/en/v0.8.20/contracts.html#receive-ether-function[`receive()`]
 function or the https://docs.soliditylang.org/en/v0.8.20/contracts.html#fallback-function[`fallback()`]. These
-functions are the only execution paths where a function selector cannot be unambiguosly determined from the calldata
+functions are the only execution paths where a function selector cannot be unambiguously determined from the calldata
 since the selector defaults to `0x00000000` in the `receive()` function and similarly in the `fallback()` function
 if no calldata is provided. (See {_checkCanCall}).
 
@@ -3363,7 +3394,7 @@ is less than 4 bytes long.
 
 [.contract]
 [[AuthorityUtils]]
-=== `++AuthorityUtils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.1/contracts/access/manager/AuthorityUtils.sol[{github-icon},role=heading-link]
+=== `++AuthorityUtils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/access/manager/AuthorityUtils.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity

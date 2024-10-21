@@ -1,4 +1,5 @@
 name: Compare storage layouts
+description: Compare storage layouts between branches
 inputs:
   token:
     description: github token

@@ -18,18 +18,7 @@ Inheritance is often used to add the parent contract's functionality to your own
 For example, imagine you want to change xref:api:access.adoc#AccessControl[`AccessControl`] so that xref:api:access.adoc#AccessControl-revokeRole-bytes32-address-[`revokeRole`] can no longer be called. This can be achieved using overrides:
 
 ```solidity
-// contracts/ModifiedAccessControl.sol
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
-
-import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
-
-contract ModifiedAccessControl is AccessControl {
-    // Override the revokeRole function
-    function revokeRole(bytes32, address) public override {
-        revert("ModifiedAccessControl: cannot revoke roles");
-    }
-}
+include::api:example$access-control/AccessControlModified.sol[]
 ```
 
 The old `revokeRole` is then replaced by our override, and any calls to it will immediately revert. We cannot _remove_ the function from the contract, but reverting on all calls is good enough.
@@ -46,22 +35,7 @@ Here is a modified version of xref:api:access.adoc#AccessControl[`AccessControl`
 
 
 ```solidity
-// contracts/ModifiedAccessControl.sol
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
-
-import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
-
-contract ModifiedAccessControl is AccessControl {
-    function revokeRole(bytes32 role, address account) public override {
-        require(
-            role != DEFAULT_ADMIN_ROLE,
-            "ModifiedAccessControl: cannot revoke default admin role"
-        );
-
-        super.revokeRole(role, account);
-    }
-}
+include::api:example$access-control/AccessControlNonRevokableAdmin.sol[]
 ```
 
 The `super.revokeRole` statement at the end will invoke ``AccessControl``'s original version of `revokeRole`, the same code that would've run if there were no overrides in place.

@@ -13,7 +13,7 @@ IMPORTANT: OpenZeppelin Contracts uses semantic versioning to communicate backwa
 [[install]]
 === Installation
 
-==== Hardhat, Truffle (npm)
+==== Hardhat (npm)
 
 ```console
 $ npm install @openzeppelin/contracts
@@ -38,16 +38,7 @@ Once installed, you can use the contracts in the library by importing them:
 
 [source,solidity]
 ----
-// contracts/MyNFT.sol
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
-
-import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-
-contract MyNFT is ERC721 {
-    constructor() ERC721("MyNFT", "MNFT") {
-    }
-}
+include::api:example$MyNFT.sol[]
 ----
 
 TIP: If you're new to smart contract development, head to xref:learn::developing-smart-contracts.adoc[Developing Smart Contracts] to learn about creating a new project and compiling your contracts.

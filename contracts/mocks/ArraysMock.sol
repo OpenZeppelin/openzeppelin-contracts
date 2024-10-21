@@ -13,12 +13,48 @@ contract Uint256ArraysMock {
         _array = array;
     }
 
-    function findUpperBound(uint256 element) external view returns (uint256) {
-        return _array.findUpperBound(element);
+    function findUpperBound(uint256 value) external view returns (uint256) {
+        return _array.findUpperBound(value);
+    }
+
+    function lowerBound(uint256 value) external view returns (uint256) {
+        return _array.lowerBound(value);
+    }
+
+    function upperBound(uint256 value) external view returns (uint256) {
+        return _array.upperBound(value);
+    }
+
+    function lowerBoundMemory(uint256[] memory array, uint256 value) external pure returns (uint256) {
+        return array.lowerBoundMemory(value);
+    }
+
+    function upperBoundMemory(uint256[] memory array, uint256 value) external pure returns (uint256) {
+        return array.upperBoundMemory(value);
     }
 
     function unsafeAccess(uint256 pos) external view returns (uint256) {
         return _array.unsafeAccess(pos).value;
+    }
+
+    function sort(uint256[] memory array) external pure returns (uint256[] memory) {
+        return array.sort();
+    }
+
+    function sortReverse(uint256[] memory array) external pure returns (uint256[] memory) {
+        return array.sort(_reverse);
+    }
+
+    function _reverse(uint256 a, uint256 b) private pure returns (bool) {
+        return a > b;
+    }
+
+    function unsafeSetLength(uint256 newLength) external {
+        _array.unsafeSetLength(newLength);
+    }
+
+    function length() external view returns (uint256) {
+        return _array.length;
     }
 }
 
@@ -34,6 +70,26 @@ contract AddressArraysMock {
     function unsafeAccess(uint256 pos) external view returns (address) {
         return _array.unsafeAccess(pos).value;
     }
+
+    function sort(address[] memory array) external pure returns (address[] memory) {
+        return array.sort();
+    }
+
+    function sortReverse(address[] memory array) external pure returns (address[] memory) {
+        return array.sort(_reverse);
+    }
+
+    function _reverse(address a, address b) private pure returns (bool) {
+        return uint160(a) > uint160(b);
+    }
+
+    function unsafeSetLength(uint256 newLength) external {
+        _array.unsafeSetLength(newLength);
+    }
+
+    function length() external view returns (uint256) {
+        return _array.length;
+    }
 }
 
 contract Bytes32ArraysMock {
@@ -47,5 +103,25 @@ contract Bytes32ArraysMock {
 
     function unsafeAccess(uint256 pos) external view returns (bytes32) {
         return _array.unsafeAccess(pos).value;
+    }
+
+    function sort(bytes32[] memory array) external pure returns (bytes32[] memory) {
+        return array.sort();
+    }
+
+    function sortReverse(bytes32[] memory array) external pure returns (bytes32[] memory) {
+        return array.sort(_reverse);
+    }
+
+    function _reverse(bytes32 a, bytes32 b) private pure returns (bool) {
+        return uint256(a) > uint256(b);
+    }
+
+    function unsafeSetLength(uint256 newLength) external {
+        _array.unsafeSetLength(newLength);
+    }
+
+    function length() external view returns (uint256) {
+        return _array.length;
     }
 }

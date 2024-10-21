@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (finance/VestingWallet.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (finance/VestingWallet.sol)
 pragma solidity ^0.8.20;
 
 import {IERC20} from "../token/ERC20/IERC20.sol";
@@ -9,7 +9,7 @@ import {Context} from "../utils/Context.sol";
 import {Ownable} from "../access/Ownable.sol";
 
 /**
- * @dev A vesting wallet is an ownable contract that can receive native currency and ERC20 tokens, and release these
+ * @dev A vesting wallet is an ownable contract that can receive native currency and ERC-20 tokens, and release these
  * assets to the wallet owner, also referred to as "beneficiary", according to a vesting schedule.
  *
  * Any assets transferred to this contract will follow the vesting schedule as if they were locked from the beginning.
@@ -37,8 +37,8 @@ contract VestingWallet is Context, Ownable {
     uint64 private immutable _duration;
 
     /**
-     * @dev Sets the sender as the initial owner, the beneficiary as the pending owner, the start timestamp and the
-     * vesting duration of the vesting wallet.
+     * @dev Sets the beneficiary (owner), the start timestamp and the vesting duration (in seconds) of the vesting
+     * wallet.
      */
     constructor(address beneficiary, uint64 startTimestamp, uint64 durationSeconds) payable Ownable(beneficiary) {
         _start = startTimestamp;
@@ -94,7 +94,7 @@ contract VestingWallet is Context, Ownable {
 
     /**
      * @dev Getter for the amount of releasable `token` tokens. `token` should be the address of an
-     * IERC20 contract.
+     * {IERC20} contract.
      */
     function releasable(address token) public view virtual returns (uint256) {
         return vestedAmount(token, uint64(block.timestamp)) - released(token);

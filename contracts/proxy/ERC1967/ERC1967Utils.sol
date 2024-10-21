@@ -1,34 +1,18 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (proxy/ERC1967/ERC1967Utils.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (proxy/ERC1967/ERC1967Utils.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.21;
 
 import {IBeacon} from "../beacon/IBeacon.sol";
+import {IERC1967} from "../../interfaces/IERC1967.sol";
 import {Address} from "../../utils/Address.sol";
 import {StorageSlot} from "../../utils/StorageSlot.sol";
 
 /**
- * @dev This abstract contract provides getters and event emitting update functions for
- * https://eips.ethereum.org/EIPS/eip-1967[EIP1967] slots.
+ * @dev This library provides getters and event emitting update functions for
+ * https://eips.ethereum.org/EIPS/eip-1967[ERC-1967] slots.
  */
 library ERC1967Utils {
-    // We re-declare ERC-1967 events here because they can't be used directly from IERC1967.
-    // This will be fixed in Solidity 0.8.21. At that point we should remove these events.
-    /**
-     * @dev Emitted when the implementation is upgraded.
-     */
-    event Upgraded(address indexed implementation);
-
-    /**
-     * @dev Emitted when the admin account has changed.
-     */
-    event AdminChanged(address previousAdmin, address newAdmin);
-
-    /**
-     * @dev Emitted when the beacon is changed.
-     */
-    event BeaconUpgraded(address indexed beacon);
-
     /**
      * @dev Storage slot with the address of the current implementation.
      * This is the keccak-256 hash of "eip1967.proxy.implementation" subtracted by 1.
@@ -64,7 +48,7 @@ library ERC1967Utils {
     }
 
     /**
-     * @dev Stores a new address in the EIP1967 implementation slot.
+     * @dev Stores a new address in the ERC-1967 implementation slot.
      */
     function _setImplementation(address newImplementation) private {
         if (newImplementation.code.length == 0) {
@@ -82,7 +66,7 @@ library ERC1967Utils {
      */
     function upgradeToAndCall(address newImplementation, bytes memory data) internal {
         _setImplementation(newImplementation);
-        emit Upgraded(newImplementation);
+        emit IERC1967.Upgraded(newImplementation);
 
         if (data.length > 0) {
             Address.functionDelegateCall(newImplementation, data);
@@ -101,7 +85,7 @@ library ERC1967Utils {
     /**
      * @dev Returns the current admin.
      *
-     * TIP: To get this value clients can read directly from the storage slot shown below (specified by EIP1967) using
+     * TIP: To get this value clients can read directly from the storage slot shown below (specified by ERC-1967) using
      * the https://eth.wiki/json-rpc/API#eth_getstorageat[`eth_getStorageAt`] RPC call.
      * `0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103`
      */
@@ -110,7 +94,7 @@ library ERC1967Utils {
     }
 
     /**
-     * @dev Stores a new address in the EIP1967 admin slot.
+     * @dev Stores a new address in the ERC-1967 admin slot.
      */
     function _setAdmin(address newAdmin) private {
         if (newAdmin == address(0)) {
@@ -125,7 +109,7 @@ library ERC1967Utils {
      * Emits an {IERC1967-AdminChanged} event.
      */
     function changeAdmin(address newAdmin) internal {
-        emit AdminChanged(getAdmin(), newAdmin);
+        emit IERC1967.AdminChanged(getAdmin(), newAdmin);
         _setAdmin(newAdmin);
     }
 
@@ -144,7 +128,7 @@ library ERC1967Utils {
     }
 
     /**
-     * @dev Stores a new beacon in the EIP1967 beacon slot.
+     * @dev Stores a new beacon in the ERC-1967 beacon slot.
      */
     function _setBeacon(address newBeacon) private {
         if (newBeacon.code.length == 0) {
@@ -172,7 +156,7 @@ library ERC1967Utils {
      */
     function upgradeBeaconToAndCall(address newBeacon, bytes memory data) internal {
         _setBeacon(newBeacon);
-        emit BeaconUpgraded(newBeacon);
+        emit IERC1967.BeaconUpgraded(newBeacon);
 
         if (data.length > 0) {
             Address.functionDelegateCall(IBeacon(newBeacon).implementation(), data);

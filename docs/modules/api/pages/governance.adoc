@@ -5,6 +5,7 @@
 :ERC721Votes: pass:normal[xref:token/ERC721.adoc#ERC721Votes[`ERC721Votes`]]
 :GovernorVotesQuorumFraction: pass:normal[xref:governance.adoc#GovernorVotesQuorumFraction[`GovernorVotesQuorumFraction`]]
 :GovernorCountingSimple: pass:normal[xref:governance.adoc#GovernorCountingSimple[`GovernorCountingSimple`]]
+:GovernorCountingFractional: pass:normal[xref:governance.adoc#GovernorCountingFractional[`GovernorCountingFractional`]]
 :GovernorTimelockAccess: pass:normal[xref:governance.adoc#GovernorTimelockAccess[`GovernorTimelockAccess`]]
 :AccessManager: pass:normal[xref:access.adoc#AccessManager[`AccessManager`]]
 :GovernorTimelockControl: pass:normal[xref:governance.adoc#GovernorTimelockControl[`GovernorTimelockControl`]]
@@ -61,6 +62,7 @@
 :xref-IGovernor-GovernorInsufficientProposerVotes-address-uint256-uint256-: xref:governance.adoc#IGovernor-GovernorInsufficientProposerVotes-address-uint256-uint256-
 :xref-IGovernor-GovernorRestrictedProposer-address-: xref:governance.adoc#IGovernor-GovernorRestrictedProposer-address-
 :xref-IGovernor-GovernorInvalidVoteType--: xref:governance.adoc#IGovernor-GovernorInvalidVoteType--
+:xref-IGovernor-GovernorInvalidVoteParams--: xref:governance.adoc#IGovernor-GovernorInvalidVoteParams--
 :xref-IGovernor-GovernorQueueNotImplemented--: xref:governance.adoc#IGovernor-GovernorQueueNotImplemented--
 :xref-IGovernor-GovernorNotQueuedProposal-uint256-: xref:governance.adoc#IGovernor-GovernorNotQueuedProposal-uint256-
 :xref-IGovernor-GovernorAlreadyQueuedProposal-uint256-: xref:governance.adoc#IGovernor-GovernorAlreadyQueuedProposal-uint256-
@@ -151,6 +153,7 @@
 :xref-IGovernor-GovernorInsufficientProposerVotes-address-uint256-uint256-: xref:governance.adoc#IGovernor-GovernorInsufficientProposerVotes-address-uint256-uint256-
 :xref-IGovernor-GovernorRestrictedProposer-address-: xref:governance.adoc#IGovernor-GovernorRestrictedProposer-address-
 :xref-IGovernor-GovernorInvalidVoteType--: xref:governance.adoc#IGovernor-GovernorInvalidVoteType--
+:xref-IGovernor-GovernorInvalidVoteParams--: xref:governance.adoc#IGovernor-GovernorInvalidVoteParams--
 :xref-IGovernor-GovernorQueueNotImplemented--: xref:governance.adoc#IGovernor-GovernorQueueNotImplemented--
 :xref-IGovernor-GovernorNotQueuedProposal-uint256-: xref:governance.adoc#IGovernor-GovernorNotQueuedProposal-uint256-
 :xref-IGovernor-GovernorAlreadyQueuedProposal-uint256-: xref:governance.adoc#IGovernor-GovernorAlreadyQueuedProposal-uint256-
@@ -269,6 +272,7 @@
 :xref-IGovernor-GovernorInsufficientProposerVotes-address-uint256-uint256-: xref:governance.adoc#IGovernor-GovernorInsufficientProposerVotes-address-uint256-uint256-
 :xref-IGovernor-GovernorRestrictedProposer-address-: xref:governance.adoc#IGovernor-GovernorRestrictedProposer-address-
 :xref-IGovernor-GovernorInvalidVoteType--: xref:governance.adoc#IGovernor-GovernorInvalidVoteType--
+:xref-IGovernor-GovernorInvalidVoteParams--: xref:governance.adoc#IGovernor-GovernorInvalidVoteParams--
 :xref-IGovernor-GovernorQueueNotImplemented--: xref:governance.adoc#IGovernor-GovernorQueueNotImplemented--
 :xref-IGovernor-GovernorNotQueuedProposal-uint256-: xref:governance.adoc#IGovernor-GovernorNotQueuedProposal-uint256-
 :xref-IGovernor-GovernorAlreadyQueuedProposal-uint256-: xref:governance.adoc#IGovernor-GovernorAlreadyQueuedProposal-uint256-
@@ -279,6 +283,102 @@
 :Governor-_quorumReached: pass:normal[xref:governance.adoc#Governor-_quorumReached-uint256-[`Governor._quorumReached`]]
 :Governor-_voteSucceeded: pass:normal[xref:governance.adoc#Governor-_voteSucceeded-uint256-[`Governor._voteSucceeded`]]
 :Governor-_countVote: pass:normal[xref:governance.adoc#Governor-_countVote-uint256-address-uint8-uint256-bytes-[`Governor._countVote`]]
+:Governor: pass:normal[xref:governance.adoc#Governor[`Governor`]]
+:GovernorCountingSimple: pass:normal[xref:governance.adoc#GovernorCountingSimple[`GovernorCountingSimple`]]
+:Governor: pass:normal[xref:governance.adoc#Governor[`Governor`]]
+:xref-GovernorCountingFractional-COUNTING_MODE--: xref:governance.adoc#GovernorCountingFractional-COUNTING_MODE--
+:xref-GovernorCountingFractional-hasVoted-uint256-address-: xref:governance.adoc#GovernorCountingFractional-hasVoted-uint256-address-
+:xref-GovernorCountingFractional-usedVotes-uint256-address-: xref:governance.adoc#GovernorCountingFractional-usedVotes-uint256-address-
+:xref-GovernorCountingFractional-proposalVotes-uint256-: xref:governance.adoc#GovernorCountingFractional-proposalVotes-uint256-
+:xref-GovernorCountingFractional-_quorumReached-uint256-: xref:governance.adoc#GovernorCountingFractional-_quorumReached-uint256-
+:xref-GovernorCountingFractional-_voteSucceeded-uint256-: xref:governance.adoc#GovernorCountingFractional-_voteSucceeded-uint256-
+:xref-GovernorCountingFractional-_countVote-uint256-address-uint8-uint256-bytes-: xref:governance.adoc#GovernorCountingFractional-_countVote-uint256-address-uint8-uint256-bytes-
+:xref-Governor-receive--: xref:governance.adoc#Governor-receive--
+:xref-Governor-supportsInterface-bytes4-: xref:governance.adoc#Governor-supportsInterface-bytes4-
+:xref-Governor-name--: xref:governance.adoc#Governor-name--
+:xref-Governor-version--: xref:governance.adoc#Governor-version--
+:xref-Governor-hashProposal-address---uint256---bytes---bytes32-: xref:governance.adoc#Governor-hashProposal-address---uint256---bytes---bytes32-
+:xref-Governor-state-uint256-: xref:governance.adoc#Governor-state-uint256-
+:xref-Governor-proposalThreshold--: xref:governance.adoc#Governor-proposalThreshold--
+:xref-Governor-proposalSnapshot-uint256-: xref:governance.adoc#Governor-proposalSnapshot-uint256-
+:xref-Governor-proposalDeadline-uint256-: xref:governance.adoc#Governor-proposalDeadline-uint256-
+:xref-Governor-proposalProposer-uint256-: xref:governance.adoc#Governor-proposalProposer-uint256-
+:xref-Governor-proposalEta-uint256-: xref:governance.adoc#Governor-proposalEta-uint256-
+:xref-Governor-proposalNeedsQueuing-uint256-: xref:governance.adoc#Governor-proposalNeedsQueuing-uint256-
+:xref-Governor-_checkGovernance--: xref:governance.adoc#Governor-_checkGovernance--
+:xref-Governor-_getVotes-address-uint256-bytes-: xref:governance.adoc#Governor-_getVotes-address-uint256-bytes-
+:xref-Governor-_defaultParams--: xref:governance.adoc#Governor-_defaultParams--
+:xref-Governor-propose-address---uint256---bytes---string-: xref:governance.adoc#Governor-propose-address---uint256---bytes---string-
+:xref-Governor-_propose-address---uint256---bytes---string-address-: xref:governance.adoc#Governor-_propose-address---uint256---bytes---string-address-
+:xref-Governor-queue-address---uint256---bytes---bytes32-: xref:governance.adoc#Governor-queue-address---uint256---bytes---bytes32-
+:xref-Governor-_queueOperations-uint256-address---uint256---bytes---bytes32-: xref:governance.adoc#Governor-_queueOperations-uint256-address---uint256---bytes---bytes32-
+:xref-Governor-execute-address---uint256---bytes---bytes32-: xref:governance.adoc#Governor-execute-address---uint256---bytes---bytes32-
+:xref-Governor-_executeOperations-uint256-address---uint256---bytes---bytes32-: xref:governance.adoc#Governor-_executeOperations-uint256-address---uint256---bytes---bytes32-
+:xref-Governor-cancel-address---uint256---bytes---bytes32-: xref:governance.adoc#Governor-cancel-address---uint256---bytes---bytes32-
+:xref-Governor-_cancel-address---uint256---bytes---bytes32-: xref:governance.adoc#Governor-_cancel-address---uint256---bytes---bytes32-
+:xref-Governor-getVotes-address-uint256-: xref:governance.adoc#Governor-getVotes-address-uint256-
+:xref-Governor-getVotesWithParams-address-uint256-bytes-: xref:governance.adoc#Governor-getVotesWithParams-address-uint256-bytes-
+:xref-Governor-castVote-uint256-uint8-: xref:governance.adoc#Governor-castVote-uint256-uint8-
+:xref-Governor-castVoteWithReason-uint256-uint8-string-: xref:governance.adoc#Governor-castVoteWithReason-uint256-uint8-string-
+:xref-Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-: xref:governance.adoc#Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-
+:xref-Governor-castVoteBySig-uint256-uint8-address-bytes-: xref:governance.adoc#Governor-castVoteBySig-uint256-uint8-address-bytes-
+:xref-Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-: xref:governance.adoc#Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-
+:xref-Governor-_castVote-uint256-address-uint8-string-: xref:governance.adoc#Governor-_castVote-uint256-address-uint8-string-
+:xref-Governor-_castVote-uint256-address-uint8-string-bytes-: xref:governance.adoc#Governor-_castVote-uint256-address-uint8-string-bytes-
+:xref-Governor-relay-address-uint256-bytes-: xref:governance.adoc#Governor-relay-address-uint256-bytes-
+:xref-Governor-_executor--: xref:governance.adoc#Governor-_executor--
+:xref-Governor-onERC721Received-address-address-uint256-bytes-: xref:governance.adoc#Governor-onERC721Received-address-address-uint256-bytes-
+:xref-Governor-onERC1155Received-address-address-uint256-uint256-bytes-: xref:governance.adoc#Governor-onERC1155Received-address-address-uint256-uint256-bytes-
+:xref-Governor-onERC1155BatchReceived-address-address-uint256---uint256---bytes-: xref:governance.adoc#Governor-onERC1155BatchReceived-address-address-uint256---uint256---bytes-
+:xref-Governor-_encodeStateBitmap-enum-IGovernor-ProposalState-: xref:governance.adoc#Governor-_encodeStateBitmap-enum-IGovernor-ProposalState-
+:xref-Governor-_isValidDescriptionForProposer-address-string-: xref:governance.adoc#Governor-_isValidDescriptionForProposer-address-string-
+:xref-Governor-clock--: xref:governance.adoc#Governor-clock--
+:xref-Governor-CLOCK_MODE--: xref:governance.adoc#Governor-CLOCK_MODE--
+:xref-Governor-votingDelay--: xref:governance.adoc#Governor-votingDelay--
+:xref-Governor-votingPeriod--: xref:governance.adoc#Governor-votingPeriod--
+:xref-Governor-quorum-uint256-: xref:governance.adoc#Governor-quorum-uint256-
+:xref-Governor-BALLOT_TYPEHASH-bytes32: xref:governance.adoc#Governor-BALLOT_TYPEHASH-bytes32
+:xref-Governor-EXTENDED_BALLOT_TYPEHASH-bytes32: xref:governance.adoc#Governor-EXTENDED_BALLOT_TYPEHASH-bytes32
+:xref-Nonces-nonces-address-: xref:utils.adoc#Nonces-nonces-address-
+:xref-Nonces-_useNonce-address-: xref:utils.adoc#Nonces-_useNonce-address-
+:xref-Nonces-_useCheckedNonce-address-uint256-: xref:utils.adoc#Nonces-_useCheckedNonce-address-uint256-
+:xref-EIP712-_domainSeparatorV4--: xref:utils.adoc#EIP712-_domainSeparatorV4--
+:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils.adoc#EIP712-_hashTypedDataV4-bytes32-
+:xref-EIP712-eip712Domain--: xref:utils.adoc#EIP712-eip712Domain--
+:xref-EIP712-_EIP712Name--: xref:utils.adoc#EIP712-_EIP712Name--
+:xref-EIP712-_EIP712Version--: xref:utils.adoc#EIP712-_EIP712Version--
+:xref-IGovernor-ProposalCreated-uint256-address-address---uint256---string---bytes---uint256-uint256-string-: xref:governance.adoc#IGovernor-ProposalCreated-uint256-address-address---uint256---string---bytes---uint256-uint256-string-
+:xref-IGovernor-ProposalQueued-uint256-uint256-: xref:governance.adoc#IGovernor-ProposalQueued-uint256-uint256-
+:xref-IGovernor-ProposalExecuted-uint256-: xref:governance.adoc#IGovernor-ProposalExecuted-uint256-
+:xref-IGovernor-ProposalCanceled-uint256-: xref:governance.adoc#IGovernor-ProposalCanceled-uint256-
+:xref-IGovernor-VoteCast-address-uint256-uint8-uint256-string-: xref:governance.adoc#IGovernor-VoteCast-address-uint256-uint8-uint256-string-
+:xref-IGovernor-VoteCastWithParams-address-uint256-uint8-uint256-string-bytes-: xref:governance.adoc#IGovernor-VoteCastWithParams-address-uint256-uint8-uint256-string-bytes-
+:xref-IERC5267-EIP712DomainChanged--: xref:interfaces.adoc#IERC5267-EIP712DomainChanged--
+:xref-GovernorCountingFractional-GovernorExceedRemainingWeight-address-uint256-uint256-: xref:governance.adoc#GovernorCountingFractional-GovernorExceedRemainingWeight-address-uint256-uint256-
+:xref-IGovernor-GovernorInvalidProposalLength-uint256-uint256-uint256-: xref:governance.adoc#IGovernor-GovernorInvalidProposalLength-uint256-uint256-uint256-
+:xref-IGovernor-GovernorAlreadyCastVote-address-: xref:governance.adoc#IGovernor-GovernorAlreadyCastVote-address-
+:xref-IGovernor-GovernorDisabledDeposit--: xref:governance.adoc#IGovernor-GovernorDisabledDeposit--
+:xref-IGovernor-GovernorOnlyProposer-address-: xref:governance.adoc#IGovernor-GovernorOnlyProposer-address-
+:xref-IGovernor-GovernorOnlyExecutor-address-: xref:governance.adoc#IGovernor-GovernorOnlyExecutor-address-
+:xref-IGovernor-GovernorNonexistentProposal-uint256-: xref:governance.adoc#IGovernor-GovernorNonexistentProposal-uint256-
+:xref-IGovernor-GovernorUnexpectedProposalState-uint256-enum-IGovernor-ProposalState-bytes32-: xref:governance.adoc#IGovernor-GovernorUnexpectedProposalState-uint256-enum-IGovernor-ProposalState-bytes32-
+:xref-IGovernor-GovernorInvalidVotingPeriod-uint256-: xref:governance.adoc#IGovernor-GovernorInvalidVotingPeriod-uint256-
+:xref-IGovernor-GovernorInsufficientProposerVotes-address-uint256-uint256-: xref:governance.adoc#IGovernor-GovernorInsufficientProposerVotes-address-uint256-uint256-
+:xref-IGovernor-GovernorRestrictedProposer-address-: xref:governance.adoc#IGovernor-GovernorRestrictedProposer-address-
+:xref-IGovernor-GovernorInvalidVoteType--: xref:governance.adoc#IGovernor-GovernorInvalidVoteType--
+:xref-IGovernor-GovernorInvalidVoteParams--: xref:governance.adoc#IGovernor-GovernorInvalidVoteParams--
+:xref-IGovernor-GovernorQueueNotImplemented--: xref:governance.adoc#IGovernor-GovernorQueueNotImplemented--
+:xref-IGovernor-GovernorNotQueuedProposal-uint256-: xref:governance.adoc#IGovernor-GovernorNotQueuedProposal-uint256-
+:xref-IGovernor-GovernorAlreadyQueuedProposal-uint256-: xref:governance.adoc#IGovernor-GovernorAlreadyQueuedProposal-uint256-
+:xref-IGovernor-GovernorInvalidSignature-address-: xref:governance.adoc#IGovernor-GovernorInvalidSignature-address-
+:xref-Nonces-InvalidAccountNonce-address-uint256-: xref:utils.adoc#Nonces-InvalidAccountNonce-address-uint256-
+:xref-GovernorCountingFractional-VOTE_TYPE_FRACTIONAL-uint8: xref:governance.adoc#GovernorCountingFractional-VOTE_TYPE_FRACTIONAL-uint8
+:IGovernor-COUNTING_MODE: pass:normal[xref:governance.adoc#IGovernor-COUNTING_MODE--[`IGovernor.COUNTING_MODE`]]
+:IGovernor-hasVoted: pass:normal[xref:governance.adoc#IGovernor-hasVoted-uint256-address-[`IGovernor.hasVoted`]]
+:Governor-_quorumReached: pass:normal[xref:governance.adoc#Governor-_quorumReached-uint256-[`Governor._quorumReached`]]
+:Governor-_voteSucceeded: pass:normal[xref:governance.adoc#Governor-_voteSucceeded-uint256-[`Governor._voteSucceeded`]]
+:Governor-_countVote: pass:normal[xref:governance.adoc#Governor-_countVote-uint256-address-uint8-uint256-bytes-[`Governor._countVote`]]
+:GovernorCountingSimple: pass:normal[xref:governance.adoc#GovernorCountingSimple[`GovernorCountingSimple`]]
 :Governor: pass:normal[xref:governance.adoc#Governor[`Governor`]]
 :ERC20Votes: pass:normal[xref:token/ERC20.adoc#ERC20Votes[`ERC20Votes`]]
 :ERC721Votes: pass:normal[xref:token/ERC721.adoc#ERC721Votes[`ERC721Votes`]]
@@ -361,6 +461,7 @@
 :xref-IGovernor-GovernorInsufficientProposerVotes-address-uint256-uint256-: xref:governance.adoc#IGovernor-GovernorInsufficientProposerVotes-address-uint256-uint256-
 :xref-IGovernor-GovernorRestrictedProposer-address-: xref:governance.adoc#IGovernor-GovernorRestrictedProposer-address-
 :xref-IGovernor-GovernorInvalidVoteType--: xref:governance.adoc#IGovernor-GovernorInvalidVoteType--
+:xref-IGovernor-GovernorInvalidVoteParams--: xref:governance.adoc#IGovernor-GovernorInvalidVoteParams--
 :xref-IGovernor-GovernorQueueNotImplemented--: xref:governance.adoc#IGovernor-GovernorQueueNotImplemented--
 :xref-IGovernor-GovernorNotQueuedProposal-uint256-: xref:governance.adoc#IGovernor-GovernorNotQueuedProposal-uint256-
 :xref-IGovernor-GovernorAlreadyQueuedProposal-uint256-: xref:governance.adoc#IGovernor-GovernorAlreadyQueuedProposal-uint256-
@@ -454,6 +555,7 @@
 :xref-IGovernor-GovernorInsufficientProposerVotes-address-uint256-uint256-: xref:governance.adoc#IGovernor-GovernorInsufficientProposerVotes-address-uint256-uint256-
 :xref-IGovernor-GovernorRestrictedProposer-address-: xref:governance.adoc#IGovernor-GovernorRestrictedProposer-address-
 :xref-IGovernor-GovernorInvalidVoteType--: xref:governance.adoc#IGovernor-GovernorInvalidVoteType--
+:xref-IGovernor-GovernorInvalidVoteParams--: xref:governance.adoc#IGovernor-GovernorInvalidVoteParams--
 :xref-IGovernor-GovernorQueueNotImplemented--: xref:governance.adoc#IGovernor-GovernorQueueNotImplemented--
 :xref-IGovernor-GovernorNotQueuedProposal-uint256-: xref:governance.adoc#IGovernor-GovernorNotQueuedProposal-uint256-
 :xref-IGovernor-GovernorAlreadyQueuedProposal-uint256-: xref:governance.adoc#IGovernor-GovernorAlreadyQueuedProposal-uint256-
@@ -464,6 +566,7 @@
 :GovernorTimelockControl: pass:normal[xref:governance.adoc#GovernorTimelockControl[`GovernorTimelockControl`]]
 :GovernorTimelockCompound: pass:normal[xref:governance.adoc#GovernorTimelockCompound[`GovernorTimelockCompound`]]
 :AccessManager-execute: pass:normal[xref:access.adoc#AccessManager-execute-address-bytes-[`AccessManager.execute`]]
+:AccessManager-schedule: pass:normal[xref:access.adoc#AccessManager-schedule-address-bytes-uint48-[`AccessManager.schedule`]]
 :xref-GovernorTimelockAccess-constructor-address-uint32-: xref:governance.adoc#GovernorTimelockAccess-constructor-address-uint32-
 :xref-GovernorTimelockAccess-accessManager--: xref:governance.adoc#GovernorTimelockAccess-accessManager--
 :xref-GovernorTimelockAccess-baseDelaySeconds--: xref:governance.adoc#GovernorTimelockAccess-baseDelaySeconds--
@@ -555,6 +658,7 @@
 :xref-IGovernor-GovernorInsufficientProposerVotes-address-uint256-uint256-: xref:governance.adoc#IGovernor-GovernorInsufficientProposerVotes-address-uint256-uint256-
 :xref-IGovernor-GovernorRestrictedProposer-address-: xref:governance.adoc#IGovernor-GovernorRestrictedProposer-address-
 :xref-IGovernor-GovernorInvalidVoteType--: xref:governance.adoc#IGovernor-GovernorInvalidVoteType--
+:xref-IGovernor-GovernorInvalidVoteParams--: xref:governance.adoc#IGovernor-GovernorInvalidVoteParams--
 :xref-IGovernor-GovernorQueueNotImplemented--: xref:governance.adoc#IGovernor-GovernorQueueNotImplemented--
 :xref-IGovernor-GovernorNotQueuedProposal-uint256-: xref:governance.adoc#IGovernor-GovernorNotQueuedProposal-uint256-
 :xref-IGovernor-GovernorAlreadyQueuedProposal-uint256-: xref:governance.adoc#IGovernor-GovernorAlreadyQueuedProposal-uint256-
@@ -578,7 +682,6 @@
 :TimelockController: pass:normal[xref:governance.adoc#TimelockController[`TimelockController`]]
 :Governor: pass:normal[xref:governance.adoc#Governor[`Governor`]]
 :Governor-relay: pass:normal[xref:governance.adoc#Governor-relay-address-uint256-bytes-[`Governor.relay`]]
-:AccessManager-schedule: pass:normal[xref:access.adoc#AccessManager-schedule-address-bytes-uint48-[`AccessManager.schedule`]]
 :xref-GovernorTimelockControl-constructor-contract-TimelockController-: xref:governance.adoc#GovernorTimelockControl-constructor-contract-TimelockController-
 :xref-GovernorTimelockControl-state-uint256-: xref:governance.adoc#GovernorTimelockControl-state-uint256-
 :xref-GovernorTimelockControl-timelock--: xref:governance.adoc#GovernorTimelockControl-timelock--
@@ -660,6 +763,7 @@
 :xref-IGovernor-GovernorInsufficientProposerVotes-address-uint256-uint256-: xref:governance.adoc#IGovernor-GovernorInsufficientProposerVotes-address-uint256-uint256-
 :xref-IGovernor-GovernorRestrictedProposer-address-: xref:governance.adoc#IGovernor-GovernorRestrictedProposer-address-
 :xref-IGovernor-GovernorInvalidVoteType--: xref:governance.adoc#IGovernor-GovernorInvalidVoteType--
+:xref-IGovernor-GovernorInvalidVoteParams--: xref:governance.adoc#IGovernor-GovernorInvalidVoteParams--
 :xref-IGovernor-GovernorQueueNotImplemented--: xref:governance.adoc#IGovernor-GovernorQueueNotImplemented--
 :xref-IGovernor-GovernorNotQueuedProposal-uint256-: xref:governance.adoc#IGovernor-GovernorNotQueuedProposal-uint256-
 :xref-IGovernor-GovernorAlreadyQueuedProposal-uint256-: xref:governance.adoc#IGovernor-GovernorAlreadyQueuedProposal-uint256-
@@ -676,6 +780,7 @@
 :Governor: pass:normal[xref:governance.adoc#Governor[`Governor`]]
 :TimelockController: pass:normal[xref:governance.adoc#TimelockController[`TimelockController`]]
 :Governor: pass:normal[xref:governance.adoc#Governor[`Governor`]]
+:Governor-relay: pass:normal[xref:governance.adoc#Governor-relay-address-uint256-bytes-[`Governor.relay`]]
 :xref-GovernorTimelockCompound-constructor-contract-ICompoundTimelock-: xref:governance.adoc#GovernorTimelockCompound-constructor-contract-ICompoundTimelock-
 :xref-GovernorTimelockCompound-state-uint256-: xref:governance.adoc#GovernorTimelockCompound-state-uint256-
 :xref-GovernorTimelockCompound-timelock--: xref:governance.adoc#GovernorTimelockCompound-timelock--
@@ -758,6 +863,7 @@
 :xref-IGovernor-GovernorInsufficientProposerVotes-address-uint256-uint256-: xref:governance.adoc#IGovernor-GovernorInsufficientProposerVotes-address-uint256-uint256-
 :xref-IGovernor-GovernorRestrictedProposer-address-: xref:governance.adoc#IGovernor-GovernorRestrictedProposer-address-
 :xref-IGovernor-GovernorInvalidVoteType--: xref:governance.adoc#IGovernor-GovernorInvalidVoteType--
+:xref-IGovernor-GovernorInvalidVoteParams--: xref:governance.adoc#IGovernor-GovernorInvalidVoteParams--
 :xref-IGovernor-GovernorQueueNotImplemented--: xref:governance.adoc#IGovernor-GovernorQueueNotImplemented--
 :xref-IGovernor-GovernorNotQueuedProposal-uint256-: xref:governance.adoc#IGovernor-GovernorNotQueuedProposal-uint256-
 :xref-IGovernor-GovernorAlreadyQueuedProposal-uint256-: xref:governance.adoc#IGovernor-GovernorAlreadyQueuedProposal-uint256-
@@ -855,6 +961,7 @@
 :xref-IGovernor-GovernorInsufficientProposerVotes-address-uint256-uint256-: xref:governance.adoc#IGovernor-GovernorInsufficientProposerVotes-address-uint256-uint256-
 :xref-IGovernor-GovernorRestrictedProposer-address-: xref:governance.adoc#IGovernor-GovernorRestrictedProposer-address-
 :xref-IGovernor-GovernorInvalidVoteType--: xref:governance.adoc#IGovernor-GovernorInvalidVoteType--
+:xref-IGovernor-GovernorInvalidVoteParams--: xref:governance.adoc#IGovernor-GovernorInvalidVoteParams--
 :xref-IGovernor-GovernorQueueNotImplemented--: xref:governance.adoc#IGovernor-GovernorQueueNotImplemented--
 :xref-IGovernor-GovernorNotQueuedProposal-uint256-: xref:governance.adoc#IGovernor-GovernorNotQueuedProposal-uint256-
 :xref-IGovernor-GovernorAlreadyQueuedProposal-uint256-: xref:governance.adoc#IGovernor-GovernorAlreadyQueuedProposal-uint256-
@@ -946,6 +1053,7 @@
 :xref-IGovernor-GovernorInsufficientProposerVotes-address-uint256-uint256-: xref:governance.adoc#IGovernor-GovernorInsufficientProposerVotes-address-uint256-uint256-
 :xref-IGovernor-GovernorRestrictedProposer-address-: xref:governance.adoc#IGovernor-GovernorRestrictedProposer-address-
 :xref-IGovernor-GovernorInvalidVoteType--: xref:governance.adoc#IGovernor-GovernorInvalidVoteType--
+:xref-IGovernor-GovernorInvalidVoteParams--: xref:governance.adoc#IGovernor-GovernorInvalidVoteParams--
 :xref-IGovernor-GovernorQueueNotImplemented--: xref:governance.adoc#IGovernor-GovernorQueueNotImplemented--
 :xref-IGovernor-GovernorNotQueuedProposal-uint256-: xref:governance.adoc#IGovernor-GovernorNotQueuedProposal-uint256-
 :xref-IGovernor-GovernorAlreadyQueuedProposal-uint256-: xref:governance.adoc#IGovernor-GovernorAlreadyQueuedProposal-uint256-
@@ -1039,6 +1147,7 @@
 :xref-IGovernor-GovernorInsufficientProposerVotes-address-uint256-uint256-: xref:governance.adoc#IGovernor-GovernorInsufficientProposerVotes-address-uint256-uint256-
 :xref-IGovernor-GovernorRestrictedProposer-address-: xref:governance.adoc#IGovernor-GovernorRestrictedProposer-address-
 :xref-IGovernor-GovernorInvalidVoteType--: xref:governance.adoc#IGovernor-GovernorInvalidVoteType--
+:xref-IGovernor-GovernorInvalidVoteParams--: xref:governance.adoc#IGovernor-GovernorInvalidVoteParams--
 :xref-IGovernor-GovernorQueueNotImplemented--: xref:governance.adoc#IGovernor-GovernorQueueNotImplemented--
 :xref-IGovernor-GovernorNotQueuedProposal-uint256-: xref:governance.adoc#IGovernor-GovernorNotQueuedProposal-uint256-
 :xref-IGovernor-GovernorAlreadyQueuedProposal-uint256-: xref:governance.adoc#IGovernor-GovernorAlreadyQueuedProposal-uint256-
@@ -1060,6 +1169,7 @@
 :xref-Votes-delegateBySig-address-uint256-uint256-uint8-bytes32-bytes32-: xref:governance.adoc#Votes-delegateBySig-address-uint256-uint256-uint8-bytes32-bytes32-
 :xref-Votes-_delegate-address-address-: xref:governance.adoc#Votes-_delegate-address-address-
 :xref-Votes-_transferVotingUnits-address-address-uint256-: xref:governance.adoc#Votes-_transferVotingUnits-address-address-uint256-
+:xref-Votes-_moveDelegateVotes-address-address-uint256-: xref:governance.adoc#Votes-_moveDelegateVotes-address-address-uint256-
 :xref-Votes-_numCheckpoints-address-: xref:governance.adoc#Votes-_numCheckpoints-address-
 :xref-Votes-_checkpoints-address-uint32-: xref:governance.adoc#Votes-_checkpoints-address-uint32-
 :xref-Votes-_getVotingUnits-address-: xref:governance.adoc#Votes-_getVotingUnits-address-
@@ -1136,6 +1246,7 @@
 :xref-TimelockController-TimelockUnauthorizedCaller-address-: xref:governance.adoc#TimelockController-TimelockUnauthorizedCaller-address-
 :xref-IAccessControl-AccessControlUnauthorizedAccount-address-bytes32-: xref:access.adoc#IAccessControl-AccessControlUnauthorizedAccount-address-bytes32-
 :xref-IAccessControl-AccessControlBadConfirmation--: xref:access.adoc#IAccessControl-AccessControlBadConfirmation--
+:xref-TimelockController-_DONE_TIMESTAMP-uint256: xref:governance.adoc#TimelockController-_DONE_TIMESTAMP-uint256
 :IERC165-supportsInterface: pass:normal[xref:utils.adoc#IERC165-supportsInterface-bytes4-[`IERC165.supportsInterface`]]
 :AccessControl: pass:normal[xref:access.adoc#AccessControl[`AccessControl`]]
 = Governance
@@ -1168,6 +1279,8 @@ Counting modules determine valid voting options.
 
 * {GovernorCountingSimple}: Simple voting mechanism with 3 voting options: Against, For and Abstain.
 
+* {GovernorCountingFractional}: A more modular voting system that allows a user to vote with only part of its voting power, and to split that weight arbitrarily between the 3 different options (Against, For and Abstain).
+
 Timelock extensions add a delay for governance decisions to be executed. The workflow is extended to require a `queue` step before execution. With these modules, proposals are executed by the external timelock contract, thus it is the timelock that has to hold the assets that are being governed.
 
 * {GovernorTimelockAccess}: Connects with an instance of an {AccessManager}. This allows restrictions (and delays) enforced by the manager to be considered by the Governor and integrated into the AccessManager's "schedule + execute" workflow.
@@ -1186,9 +1299,9 @@ Other extensions can customize the behavior or interface in multiple ways.
 
 In addition to modules and extensions, the core contract requires a few virtual functions to be implemented to your particular specifications:
 
-* <<Governor-votingDelay-,`votingDelay()`>>: Delay (in EIP-6372 clock) since the proposal is submitted until voting power is fixed and voting starts. This can be used to enforce a delay after a proposal is published for users to buy tokens, or delegate their votes.
-* <<Governor-votingPeriod-,`votingPeriod()`>>: Delay (in EIP-6372 clock) since the proposal starts until voting ends.
-* <<Governor-quorum-uint256-,`quorum(uint256 timepoint)`>>: Quorum required for a proposal to be successful. This function includes a `timepoint` argument (see EIP-6372) so the quorum can adapt through time, for example, to follow a token's `totalSupply`.
+* <<Governor-votingDelay-,`votingDelay()`>>: Delay (in ERC-6372 clock) since the proposal is submitted until voting power is fixed and voting starts. This can be used to enforce a delay after a proposal is published for users to buy tokens, or delegate their votes.
+* <<Governor-votingPeriod-,`votingPeriod()`>>: Delay (in ERC-6372 clock) since the proposal starts until voting ends.
+* <<Governor-quorum-uint256-,`quorum(uint256 timepoint)`>>: Quorum required for a proposal to be successful. This function includes a `timepoint` argument (see ERC-6372) so the quorum can adapt through time, for example, to follow a token's `totalSupply`.
 
 NOTE: Functions of the `Governor` contract do not include access control. If you want to restrict access, you should add these checks by overloading the particular functions. Among these, {Governor-_cancel} is internal by default, and you will have to expose it (with the right access control mechanism) yourself if this function is needed.
 
@@ -1206,6 +1319,7 @@ NOTE: Functions of the `Governor` contract do not include access control. If you
 :GovernorInsufficientProposerVotes: pass:normal[xref:#IGovernor-GovernorInsufficientProposerVotes-address-uint256-uint256-[`++GovernorInsufficientProposerVotes++`]]
 :GovernorRestrictedProposer: pass:normal[xref:#IGovernor-GovernorRestrictedProposer-address-[`++GovernorRestrictedProposer++`]]
 :GovernorInvalidVoteType: pass:normal[xref:#IGovernor-GovernorInvalidVoteType--[`++GovernorInvalidVoteType++`]]
+:GovernorInvalidVoteParams: pass:normal[xref:#IGovernor-GovernorInvalidVoteParams--[`++GovernorInvalidVoteParams++`]]
 :GovernorQueueNotImplemented: pass:normal[xref:#IGovernor-GovernorQueueNotImplemented--[`++GovernorQueueNotImplemented++`]]
 :GovernorNotQueuedProposal: pass:normal[xref:#IGovernor-GovernorNotQueuedProposal-uint256-[`++GovernorNotQueuedProposal++`]]
 :GovernorAlreadyQueuedProposal: pass:normal[xref:#IGovernor-GovernorAlreadyQueuedProposal-uint256-[`++GovernorAlreadyQueuedProposal++`]]
@@ -1245,7 +1359,7 @@ NOTE: Functions of the `Governor` contract do not include access control. If you
 
 [.contract]
 [[IGovernor]]
-=== `++IGovernor++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.1/contracts/governance/IGovernor.sol[{github-icon},role=heading-link]
+=== `++IGovernor++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/governance/IGovernor.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1253,6 +1367,9 @@ import "@openzeppelin/contracts/governance/IGovernor.sol";
 ```
 
 Interface of the {Governor} core.
+
+NOTE: Event parameters lack the `indexed` keyword for compatibility with GovernorBravo events.
+Making event parameters `indexed` affects how events are decoded, potentially breaking existing indexers.
 
 [.contract-index]
 .Functions
@@ -1327,6 +1444,7 @@ Interface of the {Governor} core.
 * {xref-IGovernor-GovernorInsufficientProposerVotes-address-uint256-uint256-}[`++GovernorInsufficientProposerVotes(proposer, votes, threshold)++`]
 * {xref-IGovernor-GovernorRestrictedProposer-address-}[`++GovernorRestrictedProposer(proposer)++`]
 * {xref-IGovernor-GovernorInvalidVoteType--}[`++GovernorInvalidVoteType()++`]
+* {xref-IGovernor-GovernorInvalidVoteParams--}[`++GovernorInvalidVoteParams()++`]
 * {xref-IGovernor-GovernorQueueNotImplemented--}[`++GovernorQueueNotImplemented()++`]
 * {xref-IGovernor-GovernorNotQueuedProposal-uint256-}[`++GovernorNotQueuedProposal(proposalId)++`]
 * {xref-IGovernor-GovernorAlreadyQueuedProposal-uint256-}[`++GovernorAlreadyQueuedProposal(proposalId)++`]
@@ -1344,13 +1462,13 @@ Interface of the {Governor} core.
 [[IGovernor-name--]]
 ==== `[.contract-item-name]#++name++#++() → string++` [.item-kind]#external#
 
-Name of the governor instance (used in building the ERC712 domain separator).
+Name of the governor instance (used in building the EIP-712 domain separator).
 
 [.contract-item]
 [[IGovernor-version--]]
 ==== `[.contract-item-name]#++version++#++() → string++` [.item-kind]#external#
 
-Version of the governor instance (used in building the ERC712 domain separator). Default: "1"
+Version of the governor instance (used in building the EIP-712 domain separator). Default: "1"
 
 [.contract-item]
 [[IGovernor-COUNTING_MODE--]]
@@ -1434,7 +1552,7 @@ Whether a proposal needs to be queued before execution.
 ==== `[.contract-item-name]#++votingDelay++#++() → uint256++` [.item-kind]#external#
 
 Delay, between the proposal is created and the vote starts. The unit this duration is expressed in depends
-on the clock (see EIP-6372) this contract uses.
+on the clock (see ERC-6372) this contract uses.
 
 This can be increased to leave time for users to buy voting power, or delegate it, before the voting of a
 proposal starts.
@@ -1447,7 +1565,7 @@ Consequently this value must fit in a uint48 (when added to the current clock). 
 ==== `[.contract-item-name]#++votingPeriod++#++() → uint256++` [.item-kind]#external#
 
 Delay between the vote start and vote end. The unit this duration is expressed in depends on the clock
-(see EIP-6372) this contract uses.
+(see ERC-6372) this contract uses.
 
 NOTE: The {votingDelay} can delay the start of the vote. This must be considered when setting the voting
 duration compared to the voting delay.
@@ -1494,6 +1612,12 @@ Create a new proposal. Vote start after a delay specified by {IGovernor-votingDe
 duration specified by {IGovernor-votingPeriod}.
 
 Emits a {ProposalCreated} event.
+
+NOTE: The state of the Governor and `targets` may change between the proposal creation and its execution.
+This may be the result of third party actions on the targeted contracts, or other governor proposals.
+For example, the balance of this contract could be updated or its access control permissions may be modified,
+possibly compromising the proposal's ability to execute successfully (e.g. the governor doesn't have enough
+value to cover a proposal with multiple transfers).
 
 [.contract-item]
 [[IGovernor-queue-address---uint256---bytes---bytes32-]]
@@ -1606,7 +1730,7 @@ Note: `support` values should be seen as buckets. Their interpretation depends o
 Emitted when a vote is cast with params.
 
 Note: `support` values should be seen as buckets. Their interpretation depends on the voting module used.
-`params` are additional encoded parameters. Their interpepretation also depends on the voting module used.
+`params` are additional encoded parameters. Their interpretation  also depends on the voting module used.
 
 [.contract-item]
 [[IGovernor-GovernorInvalidProposalLength-uint256-uint256-uint256-]]
@@ -1680,6 +1804,12 @@ The `proposer` is not allowed to create a proposal.
 ==== `[.contract-item-name]#++GovernorInvalidVoteType++#++()++` [.item-kind]#error#
 
 The vote type used is not valid for the corresponding counting module.
+
+[.contract-item]
+[[IGovernor-GovernorInvalidVoteParams--]]
+==== `[.contract-item-name]#++GovernorInvalidVoteParams++#++()++` [.item-kind]#error#
+
+The provided params buffer is not supported by the counting module.
 
 [.contract-item]
 [[IGovernor-GovernorQueueNotImplemented--]]
@@ -1761,7 +1891,7 @@ If the `voter` is a contract, the signature is not valid using {IERC1271-isValid
 
 [.contract]
 [[Governor]]
-=== `++Governor++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.1/contracts/governance/Governor.sol[{github-icon},role=heading-link]
+=== `++Governor++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/governance/Governor.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1802,7 +1932,7 @@ This contract is abstract and requires several functions to be implemented in va
 * {xref-Governor-_quorumReached-uint256-}[`++_quorumReached(proposalId)++`]
 * {xref-Governor-_voteSucceeded-uint256-}[`++_voteSucceeded(proposalId)++`]
 * {xref-Governor-_getVotes-address-uint256-bytes-}[`++_getVotes(account, timepoint, params)++`]
-* {xref-Governor-_countVote-uint256-address-uint8-uint256-bytes-}[`++_countVote(proposalId, account, support, weight, params)++`]
+* {xref-Governor-_countVote-uint256-address-uint8-uint256-bytes-}[`++_countVote(proposalId, account, support, totalWeight, params)++`]
 * {xref-Governor-_defaultParams--}[`++_defaultParams()++`]
 * {xref-Governor-propose-address---uint256---bytes---string-}[`++propose(targets, values, calldatas, description)++`]
 * {xref-Governor-_propose-address---uint256---bytes---string-address-}[`++_propose(targets, values, calldatas, description, proposer)++`]
@@ -1938,6 +2068,7 @@ This contract is abstract and requires several functions to be implemented in va
 * {xref-IGovernor-GovernorInsufficientProposerVotes-address-uint256-uint256-}[`++GovernorInsufficientProposerVotes(proposer, votes, threshold)++`]
 * {xref-IGovernor-GovernorRestrictedProposer-address-}[`++GovernorRestrictedProposer(proposer)++`]
 * {xref-IGovernor-GovernorInvalidVoteType--}[`++GovernorInvalidVoteType()++`]
+* {xref-IGovernor-GovernorInvalidVoteParams--}[`++GovernorInvalidVoteParams()++`]
 * {xref-IGovernor-GovernorQueueNotImplemented--}[`++GovernorQueueNotImplemented()++`]
 * {xref-IGovernor-GovernorNotQueuedProposal-uint256-}[`++GovernorNotQueuedProposal(proposalId)++`]
 * {xref-IGovernor-GovernorAlreadyQueuedProposal-uint256-}[`++GovernorAlreadyQueuedProposal(proposalId)++`]
@@ -2093,7 +2224,7 @@ Get the voting weight of `account` at a specific `timepoint`, for a vote as desc
 
 [.contract-item]
 [[Governor-_countVote-uint256-address-uint8-uint256-bytes-]]
-==== `[.contract-item-name]#++_countVote++#++(uint256 proposalId, address account, uint8 support, uint256 weight, bytes params)++` [.item-kind]#internal#
+==== `[.contract-item-name]#++_countVote++#++(uint256 proposalId, address account, uint8 support, uint256 totalWeight, bytes params) → uint256++` [.item-kind]#internal#
 
 Register a vote for `proposalId` by `account` with a given `support`, voting `weight` and voting `params`.
 
@@ -2308,7 +2439,7 @@ Description of the clock
 ==== `[.contract-item-name]#++votingDelay++#++() → uint256++` [.item-kind]#public#
 
 Delay, between the proposal is created and the vote starts. The unit this duration is expressed in depends
-on the clock (see EIP-6372) this contract uses.
+on the clock (see ERC-6372) this contract uses.
 
 This can be increased to leave time for users to buy voting power, or delegate it, before the voting of a
 proposal starts.
@@ -2321,7 +2452,7 @@ Consequently this value must fit in a uint48 (when added to the current clock). 
 ==== `[.contract-item-name]#++votingPeriod++#++() → uint256++` [.item-kind]#public#
 
 Delay between the vote start and vote end. The unit this duration is expressed in depends on the clock
-(see EIP-6372) this contract uses.
+(see ERC-6372) this contract uses.
 
 NOTE: The {votingDelay} can delay the start of the vote. This must be considered when setting the voting
 duration compared to the voting delay.
@@ -2360,7 +2491,7 @@ quorum depending on values such as the totalSupply of a token at this timepoint 
 
 [.contract]
 [[GovernorCountingSimple]]
-=== `++GovernorCountingSimple++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.1/contracts/governance/extensions/GovernorCountingSimple.sol[{github-icon},role=heading-link]
+=== `++GovernorCountingSimple++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/governance/extensions/GovernorCountingSimple.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2377,7 +2508,7 @@ Extension of {Governor} for simple, 3 options, vote counting.
 * {xref-GovernorCountingSimple-proposalVotes-uint256-}[`++proposalVotes(proposalId)++`]
 * {xref-GovernorCountingSimple-_quorumReached-uint256-}[`++_quorumReached(proposalId)++`]
 * {xref-GovernorCountingSimple-_voteSucceeded-uint256-}[`++_voteSucceeded(proposalId)++`]
-* {xref-GovernorCountingSimple-_countVote-uint256-address-uint8-uint256-bytes-}[`++_countVote(proposalId, account, support, weight, )++`]
+* {xref-GovernorCountingSimple-_countVote-uint256-address-uint8-uint256-bytes-}[`++_countVote(proposalId, account, support, totalWeight, )++`]
 
 [.contract-subindex-inherited]
 .Governor
@@ -2534,6 +2665,7 @@ Extension of {Governor} for simple, 3 options, vote counting.
 * {xref-IGovernor-GovernorInsufficientProposerVotes-address-uint256-uint256-}[`++GovernorInsufficientProposerVotes(proposer, votes, threshold)++`]
 * {xref-IGovernor-GovernorRestrictedProposer-address-}[`++GovernorRestrictedProposer(proposer)++`]
 * {xref-IGovernor-GovernorInvalidVoteType--}[`++GovernorInvalidVoteType()++`]
+* {xref-IGovernor-GovernorInvalidVoteParams--}[`++GovernorInvalidVoteParams()++`]
 * {xref-IGovernor-GovernorQueueNotImplemented--}[`++GovernorQueueNotImplemented()++`]
 * {xref-IGovernor-GovernorNotQueuedProposal-uint256-}[`++GovernorNotQueuedProposal(proposalId)++`]
 * {xref-IGovernor-GovernorAlreadyQueuedProposal-uint256-}[`++GovernorAlreadyQueuedProposal(proposalId)++`]
@@ -2592,9 +2724,362 @@ See {Governor-_voteSucceeded}. In this module, the forVotes must be strictly ove
 
 [.contract-item]
 [[GovernorCountingSimple-_countVote-uint256-address-uint8-uint256-bytes-]]
-==== `[.contract-item-name]#++_countVote++#++(uint256 proposalId, address account, uint8 support, uint256 weight, bytes)++` [.item-kind]#internal#
+==== `[.contract-item-name]#++_countVote++#++(uint256 proposalId, address account, uint8 support, uint256 totalWeight, bytes) → uint256++` [.item-kind]#internal#
 
 See {Governor-_countVote}. In this module, the support follows the `VoteType` enum (from Governor Bravo).
+
+:VOTE_TYPE_FRACTIONAL: pass:normal[xref:#GovernorCountingFractional-VOTE_TYPE_FRACTIONAL-uint8[`++VOTE_TYPE_FRACTIONAL++`]]
+:ProposalVote: pass:normal[xref:#GovernorCountingFractional-ProposalVote[`++ProposalVote++`]]
+:GovernorExceedRemainingWeight: pass:normal[xref:#GovernorCountingFractional-GovernorExceedRemainingWeight-address-uint256-uint256-[`++GovernorExceedRemainingWeight++`]]
+:COUNTING_MODE: pass:normal[xref:#GovernorCountingFractional-COUNTING_MODE--[`++COUNTING_MODE++`]]
+:hasVoted: pass:normal[xref:#GovernorCountingFractional-hasVoted-uint256-address-[`++hasVoted++`]]
+:usedVotes: pass:normal[xref:#GovernorCountingFractional-usedVotes-uint256-address-[`++usedVotes++`]]
+:proposalVotes: pass:normal[xref:#GovernorCountingFractional-proposalVotes-uint256-[`++proposalVotes++`]]
+:_quorumReached: pass:normal[xref:#GovernorCountingFractional-_quorumReached-uint256-[`++_quorumReached++`]]
+:_voteSucceeded: pass:normal[xref:#GovernorCountingFractional-_voteSucceeded-uint256-[`++_voteSucceeded++`]]
+:_countVote: pass:normal[xref:#GovernorCountingFractional-_countVote-uint256-address-uint8-uint256-bytes-[`++_countVote++`]]
+
+[.contract]
+[[GovernorCountingFractional]]
+=== `++GovernorCountingFractional++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/governance/extensions/GovernorCountingFractional.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/governance/extensions/GovernorCountingFractional.sol";
+```
+
+Extension of {Governor} for fractional voting.
+
+Similar to {GovernorCountingSimple}, this contract is a votes counting module for {Governor} that supports 3 options:
+Against, For, Abstain. Additionally, it includes a fourth option: Fractional, which allows voters to split their voting
+power amongst the other 3 options.
+
+Votes cast with the Fractional support must be accompanied by a `params` argument that is three packed `uint128` values
+representing the weight the delegate assigns to Against, For, and Abstain respectively. For those votes cast for the other
+3 options, the `params` argument must be empty.
+
+This is mostly useful when the delegate is a contract that implements its own rules for voting. These delegate-contracts
+can cast fractional votes according to the preferences of multiple entities delegating their voting power.
+
+Some example use cases include:
+
+* Voting from tokens that are held by a DeFi pool
+* Voting from an L2 with tokens held by a bridge
+* Voting privately from a shielded pool using zero knowledge proofs.
+
+Based on ScopeLift's GovernorCountingFractional[https://github.com/ScopeLift/flexible-voting/blob/e5de2efd1368387b840931f19f3c184c85842761/src/GovernorCountingFractional.sol]
+
+_Available since v5.1._
+
+[.contract-index]
+.Functions
+--
+* {xref-GovernorCountingFractional-COUNTING_MODE--}[`++COUNTING_MODE()++`]
+* {xref-GovernorCountingFractional-hasVoted-uint256-address-}[`++hasVoted(proposalId, account)++`]
+* {xref-GovernorCountingFractional-usedVotes-uint256-address-}[`++usedVotes(proposalId, account)++`]
+* {xref-GovernorCountingFractional-proposalVotes-uint256-}[`++proposalVotes(proposalId)++`]
+* {xref-GovernorCountingFractional-_quorumReached-uint256-}[`++_quorumReached(proposalId)++`]
+* {xref-GovernorCountingFractional-_voteSucceeded-uint256-}[`++_voteSucceeded(proposalId)++`]
+* {xref-GovernorCountingFractional-_countVote-uint256-address-uint8-uint256-bytes-}[`++_countVote(proposalId, account, support, totalWeight, params)++`]
+
+[.contract-subindex-inherited]
+.Governor
+* {xref-Governor-receive--}[`++receive()++`]
+* {xref-Governor-supportsInterface-bytes4-}[`++supportsInterface(interfaceId)++`]
+* {xref-Governor-name--}[`++name()++`]
+* {xref-Governor-version--}[`++version()++`]
+* {xref-Governor-hashProposal-address---uint256---bytes---bytes32-}[`++hashProposal(targets, values, calldatas, descriptionHash)++`]
+* {xref-Governor-state-uint256-}[`++state(proposalId)++`]
+* {xref-Governor-proposalThreshold--}[`++proposalThreshold()++`]
+* {xref-Governor-proposalSnapshot-uint256-}[`++proposalSnapshot(proposalId)++`]
+* {xref-Governor-proposalDeadline-uint256-}[`++proposalDeadline(proposalId)++`]
+* {xref-Governor-proposalProposer-uint256-}[`++proposalProposer(proposalId)++`]
+* {xref-Governor-proposalEta-uint256-}[`++proposalEta(proposalId)++`]
+* {xref-Governor-proposalNeedsQueuing-uint256-}[`++proposalNeedsQueuing()++`]
+* {xref-Governor-_checkGovernance--}[`++_checkGovernance()++`]
+* {xref-Governor-_getVotes-address-uint256-bytes-}[`++_getVotes(account, timepoint, params)++`]
+* {xref-Governor-_defaultParams--}[`++_defaultParams()++`]
+* {xref-Governor-propose-address---uint256---bytes---string-}[`++propose(targets, values, calldatas, description)++`]
+* {xref-Governor-_propose-address---uint256---bytes---string-address-}[`++_propose(targets, values, calldatas, description, proposer)++`]
+* {xref-Governor-queue-address---uint256---bytes---bytes32-}[`++queue(targets, values, calldatas, descriptionHash)++`]
+* {xref-Governor-_queueOperations-uint256-address---uint256---bytes---bytes32-}[`++_queueOperations(, , , , )++`]
+* {xref-Governor-execute-address---uint256---bytes---bytes32-}[`++execute(targets, values, calldatas, descriptionHash)++`]
+* {xref-Governor-_executeOperations-uint256-address---uint256---bytes---bytes32-}[`++_executeOperations(, targets, values, calldatas, )++`]
+* {xref-Governor-cancel-address---uint256---bytes---bytes32-}[`++cancel(targets, values, calldatas, descriptionHash)++`]
+* {xref-Governor-_cancel-address---uint256---bytes---bytes32-}[`++_cancel(targets, values, calldatas, descriptionHash)++`]
+* {xref-Governor-getVotes-address-uint256-}[`++getVotes(account, timepoint)++`]
+* {xref-Governor-getVotesWithParams-address-uint256-bytes-}[`++getVotesWithParams(account, timepoint, params)++`]
+* {xref-Governor-castVote-uint256-uint8-}[`++castVote(proposalId, support)++`]
+* {xref-Governor-castVoteWithReason-uint256-uint8-string-}[`++castVoteWithReason(proposalId, support, reason)++`]
+* {xref-Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-}[`++castVoteWithReasonAndParams(proposalId, support, reason, params)++`]
+* {xref-Governor-castVoteBySig-uint256-uint8-address-bytes-}[`++castVoteBySig(proposalId, support, voter, signature)++`]
+* {xref-Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-}[`++castVoteWithReasonAndParamsBySig(proposalId, support, voter, reason, params, signature)++`]
+* {xref-Governor-_castVote-uint256-address-uint8-string-}[`++_castVote(proposalId, account, support, reason)++`]
+* {xref-Governor-_castVote-uint256-address-uint8-string-bytes-}[`++_castVote(proposalId, account, support, reason, params)++`]
+* {xref-Governor-relay-address-uint256-bytes-}[`++relay(target, value, data)++`]
+* {xref-Governor-_executor--}[`++_executor()++`]
+* {xref-Governor-onERC721Received-address-address-uint256-bytes-}[`++onERC721Received(, , , )++`]
+* {xref-Governor-onERC1155Received-address-address-uint256-uint256-bytes-}[`++onERC1155Received(, , , , )++`]
+* {xref-Governor-onERC1155BatchReceived-address-address-uint256---uint256---bytes-}[`++onERC1155BatchReceived(, , , , )++`]
+* {xref-Governor-_encodeStateBitmap-enum-IGovernor-ProposalState-}[`++_encodeStateBitmap(proposalState)++`]
+* {xref-Governor-_isValidDescriptionForProposer-address-string-}[`++_isValidDescriptionForProposer(proposer, description)++`]
+* {xref-Governor-clock--}[`++clock()++`]
+* {xref-Governor-CLOCK_MODE--}[`++CLOCK_MODE()++`]
+* {xref-Governor-votingDelay--}[`++votingDelay()++`]
+* {xref-Governor-votingPeriod--}[`++votingPeriod()++`]
+* {xref-Governor-quorum-uint256-}[`++quorum(timepoint)++`]
+* {xref-Governor-BALLOT_TYPEHASH-bytes32}[`++BALLOT_TYPEHASH()++`]
+* {xref-Governor-EXTENDED_BALLOT_TYPEHASH-bytes32}[`++EXTENDED_BALLOT_TYPEHASH()++`]
+
+[.contract-subindex-inherited]
+.IERC1155Receiver
+
+[.contract-subindex-inherited]
+.IERC721Receiver
+
+[.contract-subindex-inherited]
+.IGovernor
+
+[.contract-subindex-inherited]
+.IERC6372
+
+[.contract-subindex-inherited]
+.Nonces
+* {xref-Nonces-nonces-address-}[`++nonces(owner)++`]
+* {xref-Nonces-_useNonce-address-}[`++_useNonce(owner)++`]
+* {xref-Nonces-_useCheckedNonce-address-uint256-}[`++_useCheckedNonce(owner, nonce)++`]
+
+[.contract-subindex-inherited]
+.EIP712
+* {xref-EIP712-_domainSeparatorV4--}[`++_domainSeparatorV4()++`]
+* {xref-EIP712-_hashTypedDataV4-bytes32-}[`++_hashTypedDataV4(structHash)++`]
+* {xref-EIP712-eip712Domain--}[`++eip712Domain()++`]
+* {xref-EIP712-_EIP712Name--}[`++_EIP712Name()++`]
+* {xref-EIP712-_EIP712Version--}[`++_EIP712Version()++`]
+
+[.contract-subindex-inherited]
+.IERC5267
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-index]
+.Events
+--
+
+[.contract-subindex-inherited]
+.Governor
+
+[.contract-subindex-inherited]
+.IERC1155Receiver
+
+[.contract-subindex-inherited]
+.IERC721Receiver
+
+[.contract-subindex-inherited]
+.IGovernor
+* {xref-IGovernor-ProposalCreated-uint256-address-address---uint256---string---bytes---uint256-uint256-string-}[`++ProposalCreated(proposalId, proposer, targets, values, signatures, calldatas, voteStart, voteEnd, description)++`]
+* {xref-IGovernor-ProposalQueued-uint256-uint256-}[`++ProposalQueued(proposalId, etaSeconds)++`]
+* {xref-IGovernor-ProposalExecuted-uint256-}[`++ProposalExecuted(proposalId)++`]
+* {xref-IGovernor-ProposalCanceled-uint256-}[`++ProposalCanceled(proposalId)++`]
+* {xref-IGovernor-VoteCast-address-uint256-uint8-uint256-string-}[`++VoteCast(voter, proposalId, support, weight, reason)++`]
+* {xref-IGovernor-VoteCastWithParams-address-uint256-uint8-uint256-string-bytes-}[`++VoteCastWithParams(voter, proposalId, support, weight, reason, params)++`]
+
+[.contract-subindex-inherited]
+.IERC6372
+
+[.contract-subindex-inherited]
+.Nonces
+
+[.contract-subindex-inherited]
+.EIP712
+
+[.contract-subindex-inherited]
+.IERC5267
+* {xref-IERC5267-EIP712DomainChanged--}[`++EIP712DomainChanged()++`]
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-index]
+.Errors
+--
+* {xref-GovernorCountingFractional-GovernorExceedRemainingWeight-address-uint256-uint256-}[`++GovernorExceedRemainingWeight(voter, usedVotes, remainingWeight)++`]
+
+[.contract-subindex-inherited]
+.Governor
+
+[.contract-subindex-inherited]
+.IERC1155Receiver
+
+[.contract-subindex-inherited]
+.IERC721Receiver
+
+[.contract-subindex-inherited]
+.IGovernor
+* {xref-IGovernor-GovernorInvalidProposalLength-uint256-uint256-uint256-}[`++GovernorInvalidProposalLength(targets, calldatas, values)++`]
+* {xref-IGovernor-GovernorAlreadyCastVote-address-}[`++GovernorAlreadyCastVote(voter)++`]
+* {xref-IGovernor-GovernorDisabledDeposit--}[`++GovernorDisabledDeposit()++`]
+* {xref-IGovernor-GovernorOnlyProposer-address-}[`++GovernorOnlyProposer(account)++`]
+* {xref-IGovernor-GovernorOnlyExecutor-address-}[`++GovernorOnlyExecutor(account)++`]
+* {xref-IGovernor-GovernorNonexistentProposal-uint256-}[`++GovernorNonexistentProposal(proposalId)++`]
+* {xref-IGovernor-GovernorUnexpectedProposalState-uint256-enum-IGovernor-ProposalState-bytes32-}[`++GovernorUnexpectedProposalState(proposalId, current, expectedStates)++`]
+* {xref-IGovernor-GovernorInvalidVotingPeriod-uint256-}[`++GovernorInvalidVotingPeriod(votingPeriod)++`]
+* {xref-IGovernor-GovernorInsufficientProposerVotes-address-uint256-uint256-}[`++GovernorInsufficientProposerVotes(proposer, votes, threshold)++`]
+* {xref-IGovernor-GovernorRestrictedProposer-address-}[`++GovernorRestrictedProposer(proposer)++`]
+* {xref-IGovernor-GovernorInvalidVoteType--}[`++GovernorInvalidVoteType()++`]
+* {xref-IGovernor-GovernorInvalidVoteParams--}[`++GovernorInvalidVoteParams()++`]
+* {xref-IGovernor-GovernorQueueNotImplemented--}[`++GovernorQueueNotImplemented()++`]
+* {xref-IGovernor-GovernorNotQueuedProposal-uint256-}[`++GovernorNotQueuedProposal(proposalId)++`]
+* {xref-IGovernor-GovernorAlreadyQueuedProposal-uint256-}[`++GovernorAlreadyQueuedProposal(proposalId)++`]
+* {xref-IGovernor-GovernorInvalidSignature-address-}[`++GovernorInvalidSignature(voter)++`]
+
+[.contract-subindex-inherited]
+.IERC6372
+
+[.contract-subindex-inherited]
+.Nonces
+* {xref-Nonces-InvalidAccountNonce-address-uint256-}[`++InvalidAccountNonce(account, currentNonce)++`]
+
+[.contract-subindex-inherited]
+.EIP712
+
+[.contract-subindex-inherited]
+.IERC5267
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-index]
+.Internal Variables
+--
+* {xref-GovernorCountingFractional-VOTE_TYPE_FRACTIONAL-uint8}[`++uint8 constant VOTE_TYPE_FRACTIONAL++`]
+
+[.contract-subindex-inherited]
+.Governor
+
+[.contract-subindex-inherited]
+.IERC1155Receiver
+
+[.contract-subindex-inherited]
+.IERC721Receiver
+
+[.contract-subindex-inherited]
+.IGovernor
+
+[.contract-subindex-inherited]
+.IERC6372
+
+[.contract-subindex-inherited]
+.Nonces
+
+[.contract-subindex-inherited]
+.EIP712
+
+[.contract-subindex-inherited]
+.IERC5267
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-item]
+[[GovernorCountingFractional-COUNTING_MODE--]]
+==== `[.contract-item-name]#++COUNTING_MODE++#++() → string++` [.item-kind]#public#
+
+See {IGovernor-COUNTING_MODE}.
+
+[.contract-item]
+[[GovernorCountingFractional-hasVoted-uint256-address-]]
+==== `[.contract-item-name]#++hasVoted++#++(uint256 proposalId, address account) → bool++` [.item-kind]#public#
+
+See {IGovernor-hasVoted}.
+
+[.contract-item]
+[[GovernorCountingFractional-usedVotes-uint256-address-]]
+==== `[.contract-item-name]#++usedVotes++#++(uint256 proposalId, address account) → uint256++` [.item-kind]#public#
+
+Get the number of votes already cast by `account` for a proposal with `proposalId`. Useful for
+integrations that allow delegates to cast rolling, partial votes.
+
+[.contract-item]
+[[GovernorCountingFractional-proposalVotes-uint256-]]
+==== `[.contract-item-name]#++proposalVotes++#++(uint256 proposalId) → uint256 againstVotes, uint256 forVotes, uint256 abstainVotes++` [.item-kind]#public#
+
+Get current distribution of votes for a given proposal.
+
+[.contract-item]
+[[GovernorCountingFractional-_quorumReached-uint256-]]
+==== `[.contract-item-name]#++_quorumReached++#++(uint256 proposalId) → bool++` [.item-kind]#internal#
+
+See {Governor-_quorumReached}.
+
+[.contract-item]
+[[GovernorCountingFractional-_voteSucceeded-uint256-]]
+==== `[.contract-item-name]#++_voteSucceeded++#++(uint256 proposalId) → bool++` [.item-kind]#internal#
+
+See {Governor-_voteSucceeded}. In this module, forVotes must be > againstVotes.
+
+[.contract-item]
+[[GovernorCountingFractional-_countVote-uint256-address-uint8-uint256-bytes-]]
+==== `[.contract-item-name]#++_countVote++#++(uint256 proposalId, address account, uint8 support, uint256 totalWeight, bytes params) → uint256++` [.item-kind]#internal#
+
+See {Governor-_countVote}. Function that records the delegate's votes.
+
+Executing this function consumes (part of) the delegate's weight on the proposal. This weight can be
+distributed amongst the 3 options (Against, For, Abstain) by specifying a fractional `support`.
+
+This counting module supports two vote casting modes: nominal and fractional.
+
+- Nominal: A nominal vote is cast by setting `support` to one of the 3 bravo options (Against, For, Abstain).
+- Fractional: A fractional vote is cast by setting `support` to `type(uint8).max` (255).
+
+Casting a nominal vote requires `params` to be empty and consumes the delegate's full remaining weight on the
+proposal for the specified `support` option. This is similar to the {GovernorCountingSimple} module and follows
+the `VoteType` enum from Governor Bravo. As a consequence, no vote weight remains unspent so no further voting
+is possible (for this `proposalId` and this `account`).
+
+Casting a fractional vote consumes a fraction of the delegate's remaining weight on the proposal according to the
+weights the delegate assigns to each support option (Against, For, Abstain respectively). The sum total of the
+three decoded vote weights _must_ be less than or equal to the delegate's remaining weight on the proposal (i.e.
+their checkpointed total weight minus votes already cast on the proposal). This format can be produced using:
+
+`abi.encodePacked(uint128(againstVotes), uint128(forVotes), uint128(abstainVotes))`
+
+NOTE: Consider that fractional voting restricts the number of casted vote (in each category) to 128 bits.
+Depending on how many decimals the underlying token has, a single voter may require to split their vote into
+multiple vote operations. For precision higher than ~30 decimals, large token holders may require an
+potentially large number of calls to cast all their votes. The voter has the possibility to cast all the
+remaining votes in a single operation using the traditional "bravo" vote.
+
+[.contract-item]
+[[GovernorCountingFractional-GovernorExceedRemainingWeight-address-uint256-uint256-]]
+==== `[.contract-item-name]#++GovernorExceedRemainingWeight++#++(address voter, uint256 usedVotes, uint256 remainingWeight)++` [.item-kind]#error#
+
+A fractional vote params uses more votes than are available for that user.
+
+[.contract-item]
+[[GovernorCountingFractional-VOTE_TYPE_FRACTIONAL-uint8]]
+==== `uint8 [.contract-item-name]#++VOTE_TYPE_FRACTIONAL++#` [.item-kind]#internal constant#
 
 :constructor: pass:normal[xref:#GovernorVotes-constructor-contract-IVotes-[`++constructor++`]]
 :token: pass:normal[xref:#GovernorVotes-token--[`++token++`]]
@@ -2604,7 +3089,7 @@ See {Governor-_countVote}. In this module, the support follows the `VoteType` en
 
 [.contract]
 [[GovernorVotes]]
-=== `++GovernorVotes++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.1/contracts/governance/extensions/GovernorVotes.sol[{github-icon},role=heading-link]
+=== `++GovernorVotes++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/governance/extensions/GovernorVotes.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2640,7 +3125,7 @@ token.
 * {xref-Governor-_checkGovernance--}[`++_checkGovernance()++`]
 * {xref-Governor-_quorumReached-uint256-}[`++_quorumReached(proposalId)++`]
 * {xref-Governor-_voteSucceeded-uint256-}[`++_voteSucceeded(proposalId)++`]
-* {xref-Governor-_countVote-uint256-address-uint8-uint256-bytes-}[`++_countVote(proposalId, account, support, weight, params)++`]
+* {xref-Governor-_countVote-uint256-address-uint8-uint256-bytes-}[`++_countVote(proposalId, account, support, totalWeight, params)++`]
 * {xref-Governor-_defaultParams--}[`++_defaultParams()++`]
 * {xref-Governor-propose-address---uint256---bytes---string-}[`++propose(targets, values, calldatas, description)++`]
 * {xref-Governor-_propose-address---uint256---bytes---string-address-}[`++_propose(targets, values, calldatas, description, proposer)++`]
@@ -2780,6 +3265,7 @@ token.
 * {xref-IGovernor-GovernorInsufficientProposerVotes-address-uint256-uint256-}[`++GovernorInsufficientProposerVotes(proposer, votes, threshold)++`]
 * {xref-IGovernor-GovernorRestrictedProposer-address-}[`++GovernorRestrictedProposer(proposer)++`]
 * {xref-IGovernor-GovernorInvalidVoteType--}[`++GovernorInvalidVoteType()++`]
+* {xref-IGovernor-GovernorInvalidVoteParams--}[`++GovernorInvalidVoteParams()++`]
 * {xref-IGovernor-GovernorQueueNotImplemented--}[`++GovernorQueueNotImplemented()++`]
 * {xref-IGovernor-GovernorNotQueuedProposal-uint256-}[`++GovernorNotQueuedProposal(proposalId)++`]
 * {xref-IGovernor-GovernorAlreadyQueuedProposal-uint256-}[`++GovernorAlreadyQueuedProposal(proposalId)++`]
@@ -2820,14 +3306,14 @@ The token that voting power is sourced from.
 [[GovernorVotes-clock--]]
 ==== `[.contract-item-name]#++clock++#++() → uint48++` [.item-kind]#public#
 
-Clock (as specified in EIP-6372) is set to match the token's clock. Fallback to block numbers if the token
-does not implement EIP-6372.
+Clock (as specified in ERC-6372) is set to match the token's clock. Fallback to block numbers if the token
+does not implement ERC-6372.
 
 [.contract-item]
 [[GovernorVotes-CLOCK_MODE--]]
 ==== `[.contract-item-name]#++CLOCK_MODE++#++() → string++` [.item-kind]#public#
 
-Machine-readable description of the clock as specified in EIP-6372.
+Machine-readable description of the clock as specified in ERC-6372.
 
 [.contract-item]
 [[GovernorVotes-_getVotes-address-uint256-bytes-]]
@@ -2845,7 +3331,7 @@ Machine-readable description of the clock as specified in EIP-6372.
 
 [.contract]
 [[GovernorVotesQuorumFraction]]
-=== `++GovernorVotesQuorumFraction++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.1/contracts/governance/extensions/GovernorVotesQuorumFraction.sol[{github-icon},role=heading-link]
+=== `++GovernorVotesQuorumFraction++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/governance/extensions/GovernorVotesQuorumFraction.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2890,7 +3376,7 @@ fraction of the total supply.
 * {xref-Governor-_checkGovernance--}[`++_checkGovernance()++`]
 * {xref-Governor-_quorumReached-uint256-}[`++_quorumReached(proposalId)++`]
 * {xref-Governor-_voteSucceeded-uint256-}[`++_voteSucceeded(proposalId)++`]
-* {xref-Governor-_countVote-uint256-address-uint8-uint256-bytes-}[`++_countVote(proposalId, account, support, weight, params)++`]
+* {xref-Governor-_countVote-uint256-address-uint8-uint256-bytes-}[`++_countVote(proposalId, account, support, totalWeight, params)++`]
 * {xref-Governor-_defaultParams--}[`++_defaultParams()++`]
 * {xref-Governor-propose-address---uint256---bytes---string-}[`++propose(targets, values, calldatas, description)++`]
 * {xref-Governor-_propose-address---uint256---bytes---string-address-}[`++_propose(targets, values, calldatas, description, proposer)++`]
@@ -3037,6 +3523,7 @@ fraction of the total supply.
 * {xref-IGovernor-GovernorInsufficientProposerVotes-address-uint256-uint256-}[`++GovernorInsufficientProposerVotes(proposer, votes, threshold)++`]
 * {xref-IGovernor-GovernorRestrictedProposer-address-}[`++GovernorRestrictedProposer(proposer)++`]
 * {xref-IGovernor-GovernorInvalidVoteType--}[`++GovernorInvalidVoteType()++`]
+* {xref-IGovernor-GovernorInvalidVoteParams--}[`++GovernorInvalidVoteParams()++`]
 * {xref-IGovernor-GovernorQueueNotImplemented--}[`++GovernorQueueNotImplemented()++`]
 * {xref-IGovernor-GovernorNotQueuedProposal-uint256-}[`++GovernorNotQueuedProposal(proposalId)++`]
 * {xref-IGovernor-GovernorAlreadyQueuedProposal-uint256-}[`++GovernorAlreadyQueuedProposal(proposalId)++`]
@@ -3157,7 +3644,7 @@ The quorum set is not a valid fraction.
 
 [.contract]
 [[GovernorTimelockAccess]]
-=== `++GovernorTimelockAccess++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.1/contracts/governance/extensions/GovernorTimelockAccess.sol[{github-icon},role=heading-link]
+=== `++GovernorTimelockAccess++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/governance/extensions/GovernorTimelockAccess.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3187,6 +3674,9 @@ governor would want to call directly (e.g., token transfers) in an attempt to de
 mitigate this attack vector, the governor is able to ignore the restrictions claimed by the `AccessManager` using
 {setAccessManagerIgnored}. While permanent denial of service is mitigated, temporary DoS may still be technically
 possible. All of the governor's own functions (e.g., {setBaseDelaySeconds}) ignore the `AccessManager` by default.
+
+NOTE: `AccessManager` does not support scheduling more than one operation with the same target and calldata at
+the same time. See {AccessManager-schedule} for a workaround.
 
 [.contract-index]
 .Functions
@@ -3223,7 +3713,7 @@ possible. All of the governor's own functions (e.g., {setBaseDelaySeconds}) igno
 * {xref-Governor-_quorumReached-uint256-}[`++_quorumReached(proposalId)++`]
 * {xref-Governor-_voteSucceeded-uint256-}[`++_voteSucceeded(proposalId)++`]
 * {xref-Governor-_getVotes-address-uint256-bytes-}[`++_getVotes(account, timepoint, params)++`]
-* {xref-Governor-_countVote-uint256-address-uint8-uint256-bytes-}[`++_countVote(proposalId, account, support, weight, params)++`]
+* {xref-Governor-_countVote-uint256-address-uint8-uint256-bytes-}[`++_countVote(proposalId, account, support, totalWeight, params)++`]
 * {xref-Governor-_defaultParams--}[`++_defaultParams()++`]
 * {xref-Governor-_propose-address---uint256---bytes---string-address-}[`++_propose(targets, values, calldatas, description, proposer)++`]
 * {xref-Governor-queue-address---uint256---bytes---bytes32-}[`++queue(targets, values, calldatas, descriptionHash)++`]
@@ -3366,6 +3856,7 @@ possible. All of the governor's own functions (e.g., {setBaseDelaySeconds}) igno
 * {xref-IGovernor-GovernorInsufficientProposerVotes-address-uint256-uint256-}[`++GovernorInsufficientProposerVotes(proposer, votes, threshold)++`]
 * {xref-IGovernor-GovernorRestrictedProposer-address-}[`++GovernorRestrictedProposer(proposer)++`]
 * {xref-IGovernor-GovernorInvalidVoteType--}[`++GovernorInvalidVoteType()++`]
+* {xref-IGovernor-GovernorInvalidVoteParams--}[`++GovernorInvalidVoteParams()++`]
 * {xref-IGovernor-GovernorQueueNotImplemented--}[`++GovernorQueueNotImplemented()++`]
 * {xref-IGovernor-GovernorNotQueuedProposal-uint256-}[`++GovernorNotQueuedProposal(proposalId)++`]
 * {xref-IGovernor-GovernorAlreadyQueuedProposal-uint256-}[`++GovernorAlreadyQueuedProposal(proposalId)++`]
@@ -3523,7 +4014,7 @@ See {IGovernor-_cancel}
 
 [.contract]
 [[GovernorTimelockControl]]
-=== `++GovernorTimelockControl++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.1/contracts/governance/extensions/GovernorTimelockControl.sol[{github-icon},role=heading-link]
+=== `++GovernorTimelockControl++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/governance/extensions/GovernorTimelockControl.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3532,7 +4023,7 @@ import "@openzeppelin/contracts/governance/extensions/GovernorTimelockControl.so
 
 Extension of {Governor} that binds the execution process to an instance of {TimelockController}. This adds a
 delay, enforced by the {TimelockController} to all successful proposal (in addition to the voting duration). The
-{Governor} needs the proposer (and ideally the executor) roles for the {Governor} to work properly.
+{Governor} needs the proposer (and ideally the executor and canceller) roles for the {Governor} to work properly.
 
 Using this model means the proposal will be operated by the {TimelockController} and not by the {Governor}. Thus,
 the assets and permissions must be attached to the {TimelockController}. Any asset sent to the {Governor} will be
@@ -3542,9 +4033,6 @@ WARNING: Setting up the TimelockController to have additional proposers or cance
 risky, as it grants them the ability to: 1) execute operations as the timelock, and thus possibly performing
 operations or accessing funds that are expected to only be accessible through a vote, and 2) block governance
 proposals that have been approved by the voters, effectively executing a Denial of Service attack.
-
-NOTE: `AccessManager` does not support scheduling more than one operation with the same target and calldata at
-the same time. See {AccessManager-schedule} for a workaround.
 
 [.contract-index]
 .Functions
@@ -3575,7 +4063,7 @@ the same time. See {AccessManager-schedule} for a workaround.
 * {xref-Governor-_quorumReached-uint256-}[`++_quorumReached(proposalId)++`]
 * {xref-Governor-_voteSucceeded-uint256-}[`++_voteSucceeded(proposalId)++`]
 * {xref-Governor-_getVotes-address-uint256-bytes-}[`++_getVotes(account, timepoint, params)++`]
-* {xref-Governor-_countVote-uint256-address-uint8-uint256-bytes-}[`++_countVote(proposalId, account, support, weight, params)++`]
+* {xref-Governor-_countVote-uint256-address-uint8-uint256-bytes-}[`++_countVote(proposalId, account, support, totalWeight, params)++`]
 * {xref-Governor-_defaultParams--}[`++_defaultParams()++`]
 * {xref-Governor-propose-address---uint256---bytes---string-}[`++propose(targets, values, calldatas, description)++`]
 * {xref-Governor-_propose-address---uint256---bytes---string-address-}[`++_propose(targets, values, calldatas, description, proposer)++`]
@@ -3714,6 +4202,7 @@ the same time. See {AccessManager-schedule} for a workaround.
 * {xref-IGovernor-GovernorInsufficientProposerVotes-address-uint256-uint256-}[`++GovernorInsufficientProposerVotes(proposer, votes, threshold)++`]
 * {xref-IGovernor-GovernorRestrictedProposer-address-}[`++GovernorRestrictedProposer(proposer)++`]
 * {xref-IGovernor-GovernorInvalidVoteType--}[`++GovernorInvalidVoteType()++`]
+* {xref-IGovernor-GovernorInvalidVoteParams--}[`++GovernorInvalidVoteParams()++`]
 * {xref-IGovernor-GovernorQueueNotImplemented--}[`++GovernorQueueNotImplemented()++`]
 * {xref-IGovernor-GovernorNotQueuedProposal-uint256-}[`++GovernorNotQueuedProposal(proposalId)++`]
 * {xref-IGovernor-GovernorAlreadyQueuedProposal-uint256-}[`++GovernorAlreadyQueuedProposal(proposalId)++`]
@@ -3819,7 +4308,7 @@ Emitted when the timelock controller used for proposal execution is modified.
 
 [.contract]
 [[GovernorTimelockCompound]]
-=== `++GovernorTimelockCompound++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.1/contracts/governance/extensions/GovernorTimelockCompound.sol[{github-icon},role=heading-link]
+=== `++GovernorTimelockCompound++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/governance/extensions/GovernorTimelockCompound.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3833,7 +4322,7 @@ the admin of the timelock for any operation to be performed. A public, unrestric
 
 Using this model means the proposal will be operated by the {TimelockController} and not by the {Governor}. Thus,
 the assets and permissions must be attached to the {TimelockController}. Any asset sent to the {Governor} will be
-inaccessible.
+inaccessible from a proposal, unless executed via {Governor-relay}.
 
 [.contract-index]
 .Functions
@@ -3865,7 +4354,7 @@ inaccessible.
 * {xref-Governor-_quorumReached-uint256-}[`++_quorumReached(proposalId)++`]
 * {xref-Governor-_voteSucceeded-uint256-}[`++_voteSucceeded(proposalId)++`]
 * {xref-Governor-_getVotes-address-uint256-bytes-}[`++_getVotes(account, timepoint, params)++`]
-* {xref-Governor-_countVote-uint256-address-uint8-uint256-bytes-}[`++_countVote(proposalId, account, support, weight, params)++`]
+* {xref-Governor-_countVote-uint256-address-uint8-uint256-bytes-}[`++_countVote(proposalId, account, support, totalWeight, params)++`]
 * {xref-Governor-_defaultParams--}[`++_defaultParams()++`]
 * {xref-Governor-propose-address---uint256---bytes---string-}[`++propose(targets, values, calldatas, description)++`]
 * {xref-Governor-_propose-address---uint256---bytes---string-address-}[`++_propose(targets, values, calldatas, description, proposer)++`]
@@ -4004,6 +4493,7 @@ inaccessible.
 * {xref-IGovernor-GovernorInsufficientProposerVotes-address-uint256-uint256-}[`++GovernorInsufficientProposerVotes(proposer, votes, threshold)++`]
 * {xref-IGovernor-GovernorRestrictedProposer-address-}[`++GovernorRestrictedProposer(proposer)++`]
 * {xref-IGovernor-GovernorInvalidVoteType--}[`++GovernorInvalidVoteType()++`]
+* {xref-IGovernor-GovernorInvalidVoteParams--}[`++GovernorInvalidVoteParams()++`]
 * {xref-IGovernor-GovernorQueueNotImplemented--}[`++GovernorQueueNotImplemented()++`]
 * {xref-IGovernor-GovernorNotQueuedProposal-uint256-}[`++GovernorNotQueuedProposal(proposalId)++`]
 * {xref-IGovernor-GovernorAlreadyQueuedProposal-uint256-}[`++GovernorAlreadyQueuedProposal(proposalId)++`]
@@ -4124,7 +4614,7 @@ Emitted when the timelock controller used for proposal execution is modified.
 
 [.contract]
 [[GovernorSettings]]
-=== `++GovernorSettings++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.1/contracts/governance/extensions/GovernorSettings.sol[{github-icon},role=heading-link]
+=== `++GovernorSettings++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/governance/extensions/GovernorSettings.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -4164,7 +4654,7 @@ Extension of {Governor} for settings updatable through governance.
 * {xref-Governor-_quorumReached-uint256-}[`++_quorumReached(proposalId)++`]
 * {xref-Governor-_voteSucceeded-uint256-}[`++_voteSucceeded(proposalId)++`]
 * {xref-Governor-_getVotes-address-uint256-bytes-}[`++_getVotes(account, timepoint, params)++`]
-* {xref-Governor-_countVote-uint256-address-uint8-uint256-bytes-}[`++_countVote(proposalId, account, support, weight, params)++`]
+* {xref-Governor-_countVote-uint256-address-uint8-uint256-bytes-}[`++_countVote(proposalId, account, support, totalWeight, params)++`]
 * {xref-Governor-_defaultParams--}[`++_defaultParams()++`]
 * {xref-Governor-propose-address---uint256---bytes---string-}[`++propose(targets, values, calldatas, description)++`]
 * {xref-Governor-_propose-address---uint256---bytes---string-address-}[`++_propose(targets, values, calldatas, description, proposer)++`]
@@ -4307,6 +4797,7 @@ Extension of {Governor} for settings updatable through governance.
 * {xref-IGovernor-GovernorInsufficientProposerVotes-address-uint256-uint256-}[`++GovernorInsufficientProposerVotes(proposer, votes, threshold)++`]
 * {xref-IGovernor-GovernorRestrictedProposer-address-}[`++GovernorRestrictedProposer(proposer)++`]
 * {xref-IGovernor-GovernorInvalidVoteType--}[`++GovernorInvalidVoteType()++`]
+* {xref-IGovernor-GovernorInvalidVoteParams--}[`++GovernorInvalidVoteParams()++`]
 * {xref-IGovernor-GovernorQueueNotImplemented--}[`++GovernorQueueNotImplemented()++`]
 * {xref-IGovernor-GovernorNotQueuedProposal-uint256-}[`++GovernorNotQueuedProposal(proposalId)++`]
 * {xref-IGovernor-GovernorAlreadyQueuedProposal-uint256-}[`++GovernorAlreadyQueuedProposal(proposalId)++`]
@@ -4428,7 +4919,7 @@ Emits a {ProposalThresholdSet} event.
 
 [.contract]
 [[GovernorPreventLateQuorum]]
-=== `++GovernorPreventLateQuorum++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.1/contracts/governance/extensions/GovernorPreventLateQuorum.sol[{github-icon},role=heading-link]
+=== `++GovernorPreventLateQuorum++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/governance/extensions/GovernorPreventLateQuorum.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -4470,7 +4961,7 @@ proposal.
 * {xref-Governor-_quorumReached-uint256-}[`++_quorumReached(proposalId)++`]
 * {xref-Governor-_voteSucceeded-uint256-}[`++_voteSucceeded(proposalId)++`]
 * {xref-Governor-_getVotes-address-uint256-bytes-}[`++_getVotes(account, timepoint, params)++`]
-* {xref-Governor-_countVote-uint256-address-uint8-uint256-bytes-}[`++_countVote(proposalId, account, support, weight, params)++`]
+* {xref-Governor-_countVote-uint256-address-uint8-uint256-bytes-}[`++_countVote(proposalId, account, support, totalWeight, params)++`]
 * {xref-Governor-_defaultParams--}[`++_defaultParams()++`]
 * {xref-Governor-propose-address---uint256---bytes---string-}[`++propose(targets, values, calldatas, description)++`]
 * {xref-Governor-_propose-address---uint256---bytes---string-address-}[`++_propose(targets, values, calldatas, description, proposer)++`]
@@ -4613,6 +5104,7 @@ proposal.
 * {xref-IGovernor-GovernorInsufficientProposerVotes-address-uint256-uint256-}[`++GovernorInsufficientProposerVotes(proposer, votes, threshold)++`]
 * {xref-IGovernor-GovernorRestrictedProposer-address-}[`++GovernorRestrictedProposer(proposer)++`]
 * {xref-IGovernor-GovernorInvalidVoteType--}[`++GovernorInvalidVoteType()++`]
+* {xref-IGovernor-GovernorInvalidVoteParams--}[`++GovernorInvalidVoteParams()++`]
 * {xref-IGovernor-GovernorQueueNotImplemented--}[`++GovernorQueueNotImplemented()++`]
 * {xref-IGovernor-GovernorNotQueuedProposal-uint256-}[`++GovernorNotQueuedProposal(proposalId)++`]
 * {xref-IGovernor-GovernorAlreadyQueuedProposal-uint256-}[`++GovernorAlreadyQueuedProposal(proposalId)++`]
@@ -4711,7 +5203,7 @@ Emitted when the {lateQuorumVoteExtension} parameter is changed.
 
 [.contract]
 [[GovernorStorage]]
-=== `++GovernorStorage++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.1/contracts/governance/extensions/GovernorStorage.sol[{github-icon},role=heading-link]
+=== `++GovernorStorage++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/governance/extensions/GovernorStorage.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -4755,7 +5247,7 @@ Use cases for this module include:
 * {xref-Governor-_quorumReached-uint256-}[`++_quorumReached(proposalId)++`]
 * {xref-Governor-_voteSucceeded-uint256-}[`++_voteSucceeded(proposalId)++`]
 * {xref-Governor-_getVotes-address-uint256-bytes-}[`++_getVotes(account, timepoint, params)++`]
-* {xref-Governor-_countVote-uint256-address-uint8-uint256-bytes-}[`++_countVote(proposalId, account, support, weight, params)++`]
+* {xref-Governor-_countVote-uint256-address-uint8-uint256-bytes-}[`++_countVote(proposalId, account, support, totalWeight, params)++`]
 * {xref-Governor-_defaultParams--}[`++_defaultParams()++`]
 * {xref-Governor-propose-address---uint256---bytes---string-}[`++propose(targets, values, calldatas, description)++`]
 * {xref-Governor-queue-address---uint256---bytes---bytes32-}[`++queue(targets, values, calldatas, descriptionHash)++`]
@@ -4896,6 +5388,7 @@ Use cases for this module include:
 * {xref-IGovernor-GovernorInsufficientProposerVotes-address-uint256-uint256-}[`++GovernorInsufficientProposerVotes(proposer, votes, threshold)++`]
 * {xref-IGovernor-GovernorRestrictedProposer-address-}[`++GovernorRestrictedProposer(proposer)++`]
 * {xref-IGovernor-GovernorInvalidVoteType--}[`++GovernorInvalidVoteType()++`]
+* {xref-IGovernor-GovernorInvalidVoteParams--}[`++GovernorInvalidVoteParams()++`]
 * {xref-IGovernor-GovernorQueueNotImplemented--}[`++GovernorQueueNotImplemented()++`]
 * {xref-IGovernor-GovernorNotQueuedProposal-uint256-}[`++GovernorNotQueuedProposal(proposalId)++`]
 * {xref-IGovernor-GovernorAlreadyQueuedProposal-uint256-}[`++GovernorAlreadyQueuedProposal(proposalId)++`]
@@ -4954,13 +5447,13 @@ Returns the number of stored proposals.
 
 [.contract-item]
 [[GovernorStorage-proposalDetails-uint256-]]
-==== `[.contract-item-name]#++proposalDetails++#++(uint256 proposalId) → address[], uint256[], bytes[], bytes32++` [.item-kind]#public#
+==== `[.contract-item-name]#++proposalDetails++#++(uint256 proposalId) → address[] targets, uint256[] values, bytes[] calldatas, bytes32 descriptionHash++` [.item-kind]#public#
 
 Returns the details of a proposalId. Reverts if `proposalId` is not a known proposal.
 
 [.contract-item]
 [[GovernorStorage-proposalDetailsAt-uint256-]]
-==== `[.contract-item-name]#++proposalDetailsAt++#++(uint256 index) → uint256, address[], uint256[], bytes[], bytes32++` [.item-kind]#public#
+==== `[.contract-item-name]#++proposalDetailsAt++#++(uint256 index) → uint256 proposalId, address[] targets, uint256[] values, bytes[] calldatas, bytes32 descriptionHash++` [.item-kind]#public#
 
 Returns the details (including the proposalId) of a proposal given its sequential index.
 
@@ -4979,13 +5472,14 @@ Returns the details (including the proposalId) of a proposal given its sequentia
 :delegateBySig: pass:normal[xref:#Votes-delegateBySig-address-uint256-uint256-uint8-bytes32-bytes32-[`++delegateBySig++`]]
 :_delegate: pass:normal[xref:#Votes-_delegate-address-address-[`++_delegate++`]]
 :_transferVotingUnits: pass:normal[xref:#Votes-_transferVotingUnits-address-address-uint256-[`++_transferVotingUnits++`]]
+:_moveDelegateVotes: pass:normal[xref:#Votes-_moveDelegateVotes-address-address-uint256-[`++_moveDelegateVotes++`]]
 :_numCheckpoints: pass:normal[xref:#Votes-_numCheckpoints-address-[`++_numCheckpoints++`]]
 :_checkpoints: pass:normal[xref:#Votes-_checkpoints-address-uint32-[`++_checkpoints++`]]
 :_getVotingUnits: pass:normal[xref:#Votes-_getVotingUnits-address-[`++_getVotingUnits++`]]
 
 [.contract]
 [[Votes]]
-=== `++Votes++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.1/contracts/governance/utils/Votes.sol[{github-icon},role=heading-link]
+=== `++Votes++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/governance/utils/Votes.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -5023,6 +5517,7 @@ previous example, it would be included in {ERC721-_update}).
 * {xref-Votes-delegateBySig-address-uint256-uint256-uint8-bytes32-bytes32-}[`++delegateBySig(delegatee, nonce, expiry, v, r, s)++`]
 * {xref-Votes-_delegate-address-address-}[`++_delegate(account, delegatee)++`]
 * {xref-Votes-_transferVotingUnits-address-address-uint256-}[`++_transferVotingUnits(from, to, amount)++`]
+* {xref-Votes-_moveDelegateVotes-address-address-uint256-}[`++_moveDelegateVotes(from, to, amount)++`]
 * {xref-Votes-_numCheckpoints-address-}[`++_numCheckpoints(account)++`]
 * {xref-Votes-_checkpoints-address-uint32-}[`++_checkpoints(account, pos)++`]
 * {xref-Votes-_getVotingUnits-address-}[`++_getVotingUnits()++`]
@@ -5121,7 +5616,7 @@ checkpoints (and voting), in which case {CLOCK_MODE} should be overridden as wel
 [[Votes-CLOCK_MODE--]]
 ==== `[.contract-item-name]#++CLOCK_MODE++#++() → string++` [.item-kind]#public#
 
-Machine-readable description of the clock as specified in EIP-6372.
+Machine-readable description of the clock as specified in ERC-6372.
 
 [.contract-item]
 [[Votes-getVotes-address-]]
@@ -5193,6 +5688,12 @@ Emits events {IVotes-DelegateChanged} and {IVotes-DelegateVotesChanged}.
 
 Transfers, mints, or burns voting units. To register a mint, `from` should be zero. To register a burn, `to`
 should be zero. Total supply of voting units will be adjusted with mints and burns.
+
+[.contract-item]
+[[Votes-_moveDelegateVotes-address-address-uint256-]]
+==== `[.contract-item-name]#++_moveDelegateVotes++#++(address from, address to, uint256 amount)++` [.item-kind]#internal#
+
+Moves delegated votes from one delegate to another.
 
 [.contract-item]
 [[Votes-_numCheckpoints-address-]]
@@ -5267,7 +5768,7 @@ In a governance system, the {TimelockController} contract is in charge of introd
 
 [.contract]
 [[TimelockController]]
-=== `++TimelockController++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.1/contracts/governance/TimelockController.sol[{github-icon},role=heading-link]
+=== `++TimelockController++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/governance/TimelockController.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -5431,6 +5932,37 @@ a multisig or a DAO as the sole proposer.
 .IAccessControl
 * {xref-IAccessControl-AccessControlUnauthorizedAccount-address-bytes32-}[`++AccessControlUnauthorizedAccount(account, neededRole)++`]
 * {xref-IAccessControl-AccessControlBadConfirmation--}[`++AccessControlBadConfirmation()++`]
+
+--
+
+[.contract-index]
+.Internal Variables
+--
+* {xref-TimelockController-_DONE_TIMESTAMP-uint256}[`++uint256 constant _DONE_TIMESTAMP++`]
+
+[.contract-subindex-inherited]
+.ERC1155Holder
+
+[.contract-subindex-inherited]
+.IERC1155Receiver
+
+[.contract-subindex-inherited]
+.ERC721Holder
+
+[.contract-subindex-inherited]
+.IERC721Receiver
+
+[.contract-subindex-inherited]
+.AccessControl
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+[.contract-subindex-inherited]
+.IAccessControl
 
 --
 
@@ -5698,6 +6230,10 @@ The predecessor to an operation not yet done.
 
 The caller account is not authorized.
 
+[.contract-item]
+[[TimelockController-_DONE_TIMESTAMP-uint256]]
+==== `uint256 [.contract-item-name]#++_DONE_TIMESTAMP++#` [.item-kind]#internal constant#
+
 [[timelock-terminology]]
 ==== Terminology
 
@@ -5744,7 +6280,7 @@ Timelocked operations are identified by a unique id (their hash) and follow a sp
 * By calling xref:api:governance.adoc#TimelockController-schedule-address-uint256-bytes-bytes32-bytes32-uint256-[`schedule`] (or xref:api:governance.adoc#TimelockController-scheduleBatch-address---uint256---bytes---bytes32-bytes32-uint256-[`scheduleBatch`]), a proposer moves the operation from the `Unset` to the `Pending` state. This starts a timer that must be longer than the minimum delay. The timer expires at a timestamp accessible through the xref:api:governance.adoc#TimelockController-getTimestamp-bytes32-[`getTimestamp`] method.
 * Once the timer expires, the operation automatically gets the `Ready` state. At this point, it can be executed.
 * By calling xref:api:governance.adoc#TimelockController-TimelockController-execute-address-uint256-bytes-bytes32-bytes32-[`execute`] (or xref:api:governance.adoc#TimelockController-executeBatch-address---uint256---bytes---bytes32-bytes32-[`executeBatch`]), an executor triggers the operation's underlying transactions and moves it to the `Done` state. If the operation has a predecessor, it has to be in the `Done` state for this transition to succeed.
-* xref:api:governance.adoc#TimelockController-TimelockController-cancel-bytes32-[`cancel`] allows proposers to cancel any `Pending` operation. This resets the operation to the `Unset` state. It is thus possible for a proposer to re-schedule an operation that has been cancelled. In this case, the timer restarts when the operation is re-scheduled.
+* xref:api:governance.adoc#TimelockController-TimelockController-cancel-bytes32-[`cancel`] allows proposers to cancel any `Pending` operation. This resets the operation to the `Unset` state. It is thus possible for a proposer to re-schedule an operation that has been cancelled. In this case, the timer restarts when the operation is rescheduled.
 
 Operations status can be queried using the functions:
 

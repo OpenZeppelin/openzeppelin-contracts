@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (token/ERC20/extensions/ERC20Permit.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (token/ERC20/extensions/ERC20Permit.sol)
 
 pragma solidity ^0.8.20;
 
@@ -10,10 +10,10 @@ import {EIP712} from "../../../utils/cryptography/EIP712.sol";
 import {Nonces} from "../../../utils/Nonces.sol";
 
 /**
- * @dev Implementation of the ERC20 Permit extension allowing approvals to be made via signatures, as defined in
- * https://eips.ethereum.org/EIPS/eip-2612[EIP-2612].
+ * @dev Implementation of the ERC-20 Permit extension allowing approvals to be made via signatures, as defined in
+ * https://eips.ethereum.org/EIPS/eip-2612[ERC-2612].
  *
- * Adds the {permit} method, which can be used to change an account's ERC20 allowance (see {IERC20-allowance}) by
+ * Adds the {permit} method, which can be used to change an account's ERC-20 allowance (see {IERC20-allowance}) by
  * presenting a message signed by the account. By not relying on `{IERC20-approve}`, the token holder account doesn't
  * need to send a transaction, and thus is not required to hold Ether at all.
  */
@@ -34,7 +34,7 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712, Nonces {
     /**
      * @dev Initializes the {EIP712} domain separator using the `name` parameter, and setting `version` to `"1"`.
      *
-     * It's a good idea to use the same `name` that is defined as the ERC20 token name.
+     * It's a good idea to use the same `name` that is defined as the ERC-20 token name.
      */
     constructor(string memory name) EIP712(name, "1") {}
 

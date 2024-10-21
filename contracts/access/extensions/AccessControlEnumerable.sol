@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (access/extensions/AccessControlEnumerable.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (access/extensions/AccessControlEnumerable.sol)
 
 pragma solidity ^0.8.20;
 
@@ -44,6 +44,18 @@ abstract contract AccessControlEnumerable is IAccessControlEnumerable, AccessCon
      */
     function getRoleMemberCount(bytes32 role) public view virtual returns (uint256) {
         return _roleMembers[role].length();
+    }
+
+    /**
+     * @dev Return all accounts that have `role`
+     *
+     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+     * this function has an unbounded cost, and using it as part of a state-changing function may render the function
+     * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
+     */
+    function getRoleMembers(bytes32 role) public view virtual returns (address[] memory) {
+        return _roleMembers[role].values();
     }
 
     /**

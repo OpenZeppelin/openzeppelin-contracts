@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (utils/introspection/ERC165.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (utils/introspection/ERC165.sol)
 
 pragma solidity ^0.8.20;
 
@@ -8,7 +8,7 @@ import {IERC165} from "./IERC165.sol";
 /**
  * @dev Implementation of the {IERC165} interface.
  *
- * Contracts that want to implement ERC165 should inherit from this contract and override {supportsInterface} to check
+ * Contracts that want to implement ERC-165 should inherit from this contract and override {supportsInterface} to check
  * for the additional interface id that will be supported. For example:
  *
  * ```solidity

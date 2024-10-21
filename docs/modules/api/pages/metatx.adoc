@@ -30,6 +30,7 @@
 :xref-ERC2771Forwarder-ERC2771ForwarderExpiredRequest-uint48-: xref:metatx.adoc#ERC2771Forwarder-ERC2771ForwarderExpiredRequest-uint48-
 :xref-ERC2771Forwarder-ERC2771UntrustfulTarget-address-address-: xref:metatx.adoc#ERC2771Forwarder-ERC2771UntrustfulTarget-address-address-
 :xref-Nonces-InvalidAccountNonce-address-uint256-: xref:utils.adoc#Nonces-InvalidAccountNonce-address-uint256-
+:xref-ERC2771Forwarder-_FORWARD_REQUEST_TYPEHASH-bytes32: xref:metatx.adoc#ERC2771Forwarder-_FORWARD_REQUEST_TYPEHASH-bytes32
 :EIP712-constructor: pass:normal[xref:utils.adoc#EIP712-constructor-string-string-[`EIP712.constructor`]]
 :ECDSA-tryRecover: pass:normal[xref:utils.adoc#ECDSA-tryRecover-bytes32-uint8-bytes32-bytes32-[`ECDSA.tryRecover`]]
 = Meta Transactions
@@ -53,17 +54,17 @@ This directory includes contracts for adding meta-transaction capabilities (i.e.
 
 [.contract]
 [[ERC2771Context]]
-=== `++ERC2771Context++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.1/contracts/metatx/ERC2771Context.sol[{github-icon},role=heading-link]
+=== `++ERC2771Context++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/metatx/ERC2771Context.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
 import "@openzeppelin/contracts/metatx/ERC2771Context.sol";
 ```
 
-Context variant with ERC2771 support.
+Context variant with ERC-2771 support.
 
 WARNING: Avoid using this pattern in contracts that rely in a specific calldata length as they'll
-be affected by any forwarder whose `msg.data` is suffixed with the `from` address according to the ERC2771
+be affected by any forwarder whose `msg.data` is suffixed with the `from` address according to the ERC-2771
 specification adding the address size in bytes (20) to the calldata size. An example of an unexpected
 behavior could be an unintended fallback (or another function) invocation while trying to invoke the `receive`
 function only accessible if `msg.data.length == 0`.
@@ -141,14 +142,14 @@ ERC-2771 specifies the context as being a single address (20 bytes).
 
 [.contract]
 [[ERC2771Forwarder]]
-=== `++ERC2771Forwarder++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.1/contracts/metatx/ERC2771Forwarder.sol[{github-icon},role=heading-link]
+=== `++ERC2771Forwarder++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/metatx/ERC2771Forwarder.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
 import "@openzeppelin/contracts/metatx/ERC2771Forwarder.sol";
 ```
 
-A forwarder compatible with ERC2771 contracts. See {ERC2771Context}.
+A forwarder compatible with ERC-2771 contracts. See {ERC2771Context}.
 
 This forwarder operates on forward requests that include:
 
@@ -252,6 +253,22 @@ used to execute arbitrary code.
 
 --
 
+[.contract-index]
+.Internal Variables
+--
+* {xref-ERC2771Forwarder-_FORWARD_REQUEST_TYPEHASH-bytes32}[`++bytes32 constant _FORWARD_REQUEST_TYPEHASH++`]
+
+[.contract-subindex-inherited]
+.Nonces
+
+[.contract-subindex-inherited]
+.EIP712
+
+[.contract-subindex-inherited]
+.IERC5267
+
+--
+
 [.contract-item]
 [[ERC2771Forwarder-constructor-string-]]
 ==== `[.contract-item-name]#++constructor++#++(string name)++` [.item-kind]#public#
@@ -318,7 +335,7 @@ the given `request.signature` on behalf of `request.signer`.
 
 [.contract-item]
 [[ERC2771Forwarder-_recoverForwardRequestSigner-struct-ERC2771Forwarder-ForwardRequestData-]]
-==== `[.contract-item-name]#++_recoverForwardRequestSigner++#++(struct ERC2771Forwarder.ForwardRequestData request) → bool, address++` [.item-kind]#internal#
+==== `[.contract-item-name]#++_recoverForwardRequestSigner++#++(struct ERC2771Forwarder.ForwardRequestData request) → bool isValid, address signer++` [.item-kind]#internal#
 
 Returns a tuple with the recovered the signer of an EIP712 forward request message hash
 and a boolean indicating if the signature is valid.
@@ -376,4 +393,8 @@ The request `deadline` has expired.
 ==== `[.contract-item-name]#++ERC2771UntrustfulTarget++#++(address target, address forwarder)++` [.item-kind]#error#
 
 The request target doesn't trust the `forwarder`.
+
+[.contract-item]
+[[ERC2771Forwarder-_FORWARD_REQUEST_TYPEHASH-bytes32]]
+==== `bytes32 [.contract-item-name]#++_FORWARD_REQUEST_TYPEHASH++#` [.item-kind]#internal constant#
 

@@ -29,14 +29,8 @@ npm-debug.log
 # local env variables
 .env
 
-# truffle build directory
-build/
-
 # macOS
 .DS_Store
-
-# truffle
-.node-xmlhttprequest-*
 
 # IntelliJ IDE
 .idea

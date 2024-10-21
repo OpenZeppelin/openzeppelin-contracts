@@ -1,11 +1,6 @@
 const format = require('../format-lines');
 const { fromBytes32, toBytes32 } = require('./conversion');
-
-const TYPES = [
-  { name: 'Bytes32Set', type: 'bytes32' },
-  { name: 'AddressSet', type: 'address' },
-  { name: 'UintSet', type: 'uint256' },
-];
+const { TYPES } = require('./EnumerableSet.opts');
 
 /* eslint-disable max-len */
 const header = `\
@@ -48,7 +43,7 @@ pragma solidity ^0.8.20;
 `;
 /* eslint-enable max-len */
 
-const defaultSet = () => `\
+const defaultSet = `\
 // To implement this library for multiple types with as little code
 // repetition as possible, we write it in terms of a generic Set type with
 // bytes32 values.
@@ -232,8 +227,7 @@ function values(${name} storage set) internal view returns (${type}[] memory) {
     bytes32[] memory store = _values(set._inner);
     ${type}[] memory result;
 
-    /// @solidity memory-safe-assembly
-    assembly {
+    assembly ("memory-safe") {
         result := store
     }
 
@@ -245,6 +239,11 @@ function values(${name} storage set) internal view returns (${type}[] memory) {
 module.exports = format(
   header.trimEnd(),
   'library EnumerableSet {',
-  [defaultSet(), TYPES.map(details => customSet(details).trimEnd()).join('\n\n')],
+  format(
+    [].concat(
+      defaultSet,
+      TYPES.map(details => customSet(details)),
+    ),
+  ).trimEnd(),
   '}',
 );

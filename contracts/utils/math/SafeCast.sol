@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (utils/math/SafeCast.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (utils/math/SafeCast.sol)
 // This file was procedurally generated from scripts/generate/templates/SafeCast.js.
 
 pragma solidity ^0.8.20;
 
 /**
- * @dev Wrappers over Solidity's uintXX/intXX casting operators with added overflow
+ * @dev Wrappers over Solidity's uintXX/intXX/bool casting operators with added overflow
  * checks.
  *
  * Downcasting from uint256/int256 in Solidity does not revert on overflow. This can
@@ -1149,5 +1149,14 @@ library SafeCast {
             revert SafeCastOverflowedUintToInt(value);
         }
         return int256(value);
+    }
+
+    /**
+     * @dev Cast a boolean (false or true) to a uint256 (0 or 1) with no jump.
+     */
+    function toUint(bool b) internal pure returns (uint256 u) {
+        assembly ("memory-safe") {
+            u := iszero(iszero(b))
+        }
     }
 }

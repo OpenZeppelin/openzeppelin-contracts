@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (governance/IGovernor.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (governance/IGovernor.sol)
 
 pragma solidity ^0.8.20;
 
@@ -8,6 +8,9 @@ import {IERC6372} from "../interfaces/IERC6372.sol";
 
 /**
  * @dev Interface of the {Governor} core.
+ *
+ * NOTE: Event parameters lack the `indexed` keyword for compatibility with GovernorBravo events.
+ * Making event parameters `indexed` affects how events are decoded, potentially breaking existing indexers.
  */
 interface IGovernor is IERC165, IERC6372 {
     enum ProposalState {
@@ -84,6 +87,11 @@ interface IGovernor is IERC165, IERC6372 {
     error GovernorInvalidVoteType();
 
     /**
+     * @dev The provided params buffer is not supported by the counting module.
+     */
+    error GovernorInvalidVoteParams();
+
+    /**
      * @dev Queue operation is not implemented for this governor. Execute should be called directly.
      */
     error GovernorQueueNotImplemented();
@@ -145,7 +153,7 @@ interface IGovernor is IERC165, IERC6372 {
      * @dev Emitted when a vote is cast with params.
      *
      * Note: `support` values should be seen as buckets. Their interpretation depends on the voting module used.
-     * `params` are additional encoded parameters. Their interpepretation also depends on the voting module used.
+     * `params` are additional encoded parameters. Their interpretation  also depends on the voting module used.
      */
     event VoteCastWithParams(
         address indexed voter,
@@ -158,13 +166,13 @@ interface IGovernor is IERC165, IERC6372 {
 
     /**
      * @notice module:core
-     * @dev Name of the governor instance (used in building the ERC712 domain separator).
+     * @dev Name of the governor instance (used in building the EIP-712 domain separator).
      */
     function name() external view returns (string memory);
 
     /**
      * @notice module:core
-     * @dev Version of the governor instance (used in building the ERC712 domain separator). Default: "1"
+     * @dev Version of the governor instance (used in building the EIP-712 domain separator). Default: "1"
      */
     function version() external view returns (string memory);
 
@@ -254,7 +262,7 @@ interface IGovernor is IERC165, IERC6372 {
     /**
      * @notice module:user-config
      * @dev Delay, between the proposal is created and the vote starts. The unit this duration is expressed in depends
-     * on the clock (see EIP-6372) this contract uses.
+     * on the clock (see ERC-6372) this contract uses.
      *
      * This can be increased to leave time for users to buy voting power, or delegate it, before the voting of a
      * proposal starts.
@@ -267,7 +275,7 @@ interface IGovernor is IERC165, IERC6372 {
     /**
      * @notice module:user-config
      * @dev Delay between the vote start and vote end. The unit this duration is expressed in depends on the clock
-     * (see EIP-6372) this contract uses.
+     * (see ERC-6372) this contract uses.
      *
      * NOTE: The {votingDelay} can delay the start of the vote. This must be considered when setting the voting
      * duration compared to the voting delay.
@@ -317,6 +325,12 @@ interface IGovernor is IERC165, IERC6372 {
      * duration specified by {IGovernor-votingPeriod}.
      *
      * Emits a {ProposalCreated} event.
+     *
+     * NOTE: The state of the Governor and `targets` may change between the proposal creation and its execution.
+     * This may be the result of third party actions on the targeted contracts, or other governor proposals.
+     * For example, the balance of this contract could be updated or its access control permissions may be modified,
+     * possibly compromising the proposal's ability to execute successfully (e.g. the governor doesn't have enough
+     * value to cover a proposal with multiple transfers).
      */
     function propose(
         address[] memory targets,

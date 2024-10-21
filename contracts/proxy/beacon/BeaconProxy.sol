@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (proxy/beacon/BeaconProxy.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (proxy/beacon/BeaconProxy.sol)
 
 pragma solidity ^0.8.20;
 
@@ -12,7 +12,7 @@ import {ERC1967Utils} from "../ERC1967/ERC1967Utils.sol";
  *
  * The beacon address can only be set once during construction, and cannot be changed afterwards. It is stored in an
  * immutable variable to avoid unnecessary storage reads, and also in the beacon storage slot specified by
- * https://eips.ethereum.org/EIPS/eip-1967[EIP1967] so that it can be accessed externally.
+ * https://eips.ethereum.org/EIPS/eip-1967[ERC-1967] so that it can be accessed externally.
  *
  * CAUTION: Since the beacon address can never be changed, you must ensure that you either control the beacon, or trust
  * the beacon to not upgrade the implementation maliciously.

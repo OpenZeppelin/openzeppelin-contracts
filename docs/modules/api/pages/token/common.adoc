@@ -17,8 +17,8 @@
 
 Functionality that is common to multiple token standards.
 
-* {ERC2981}: NFT Royalties compatible with both ERC721 and ERC1155.
-** For ERC721 consider {ERC721Royalty} which clears the royalty information from storage on burn.
+* {ERC2981}: NFT Royalties compatible with both ERC-721 and ERC-1155.
+** For ERC-721 consider {ERC721Royalty} which clears the royalty information from storage on burn.
 
 == Contracts
 
@@ -37,7 +37,7 @@ Functionality that is common to multiple token standards.
 
 [.contract]
 [[ERC2981]]
-=== `++ERC2981++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.1/contracts/token/common/ERC2981.sol[{github-icon},role=heading-link]
+=== `++ERC2981++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/token/common/ERC2981.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -53,7 +53,7 @@ Royalty is specified as a fraction of sale price. {_feeDenominator} is overridab
 fee is specified in basis points by default.
 
 IMPORTANT: ERC-2981 only specifies a way to signal royalty information and does not enforce its payment. See
-https://eips.ethereum.org/EIPS/eip-2981#optional-royalty-payments[Rationale] in the EIP. Marketplaces are expected to
+https://eips.ethereum.org/EIPS/eip-2981#optional-royalty-payments[Rationale] in the ERC. Marketplaces are expected to
 voluntarily pay royalties together with sales, but note that this standard is not yet widely supported.
 
 [.contract-index]
@@ -105,10 +105,13 @@ See {IERC165-supportsInterface}.
 
 [.contract-item]
 [[ERC2981-royaltyInfo-uint256-uint256-]]
-==== `[.contract-item-name]#++royaltyInfo++#++(uint256 tokenId, uint256 salePrice) → address, uint256++` [.item-kind]#public#
+==== `[.contract-item-name]#++royaltyInfo++#++(uint256 tokenId, uint256 salePrice) → address receiver, uint256 amount++` [.item-kind]#public#
 
 Returns how much royalty is owed and to whom, based on a sale price that may be denominated in any unit of
 exchange. The royalty amount is denominated and should be paid in that same unit of exchange.
+
+NOTE: ERC-2981 allows setting the royalty to 100% of the price. In that case all the price would be sent to the
+royalty receiver and 0 tokens to the seller. Contracts dealing with royalty should consider empty transfers.
 
 [.contract-item]
 [[ERC2981-_feeDenominator--]]

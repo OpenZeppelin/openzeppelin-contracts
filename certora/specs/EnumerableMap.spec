@@ -13,7 +13,7 @@ methods {
     function get(bytes32)             external returns (bytes32) envfree;
 
     // FV
-    function _indexOf(bytes32) external returns (uint256) envfree;
+    function _positionOf(bytes32) external returns (uint256) envfree;
 }
 
 /*
@@ -69,13 +69,13 @@ invariant atUniqueness(uint256 index1, uint256 index2)
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Invariant: index <> value relationship is consistent                                                                │
 │                                                                                                                     │
-│ Note that the two consistencyXxx invariants, put together, prove that at_ and _indexOf are inverse of one another.  │
-│ This proves that we have a bijection between indices (the enumerability part) and keys (the entries that are set    │
-│ and removed from the EnumerableMap).                                                                                │
+│ Note that the two consistencyXxx invariants, put together, prove that at_ and _positionOf are inverse of one        │
+│ another. This proves that we have a bijection between indices (the enumerability part) and keys (the entries that   │
+│ are set and removed from the EnumerableMap).                                                                        │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant consistencyIndex(uint256 index)
-    index < length() => to_mathint(_indexOf(key_at(index))) == index + 1
+    index < length() => to_mathint(_positionOf(key_at(index))) == index + 1
     {
         preserved remove(bytes32 key) {
             requireInvariant consistencyIndex(require_uint256(length() - 1));
@@ -84,16 +84,16 @@ invariant consistencyIndex(uint256 index)
 
 invariant consistencyKey(bytes32 key)
     contains(key) => (
-        _indexOf(key) > 0 &&
-        _indexOf(key) <= length() &&
-        key_at(require_uint256(_indexOf(key) - 1)) == key
+        _positionOf(key) > 0 &&
+        _positionOf(key) <= length() &&
+        key_at(require_uint256(_positionOf(key) - 1)) == key
     )
     {
         preserved remove(bytes32 otherKey) {
             requireInvariant consistencyKey(otherKey);
             requireInvariant atUniqueness(
-                require_uint256(_indexOf(key) - 1),
-                require_uint256(_indexOf(otherKey) - 1)
+                require_uint256(_positionOf(key) - 1),
+                require_uint256(_positionOf(otherKey) - 1)
             );
         }
     }

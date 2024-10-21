@@ -2,11 +2,21 @@
 
 pragma solidity ^0.8.20;
 
-import {Test} from "forge-std/Test.sol";
+import {Test, stdError} from "forge-std/Test.sol";
 
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 
 contract MathTest is Test {
+    function testSymbolicTernary(bool f, uint256 a, uint256 b) public {
+        assertEq(Math.ternary(f, a, b), f ? a : b);
+    }
+
+    // MIN & MAX
+    function testSymbolicMinMax(uint256 a, uint256 b) public {
+        assertEq(Math.min(a, b), a < b ? a : b);
+        assertEq(Math.max(a, b), a > b ? a : b);
+    }
+
     // CEILDIV
     function testCeilDiv(uint256 a, uint256 b) public {
         vm.assume(b > 0);
@@ -16,10 +26,11 @@ contract MathTest is Test {
         if (result == 0) {
             assertEq(a, 0);
         } else {
-            uint256 maxdiv = UINT256_MAX / b;
-            bool overflow = maxdiv * b < a;
-            assertTrue(a > b * (result - 1));
-            assertTrue(overflow ? result == maxdiv + 1 : a <= b * result);
+            uint256 expect = a / b;
+            if (expect * b < a) {
+                expect += 1;
+            }
+            assertEq(result, expect);
         }
     }
 
@@ -52,6 +63,41 @@ contract MathTest is Test {
 
     function _squareSmaller(uint256 value, uint256 ref) private pure returns (bool) {
         return value * value < ref;
+    }
+
+    // INV
+    function testInvMod(uint256 value, uint256 p) public {
+        _testInvMod(value, p, true);
+    }
+
+    function testInvMod2(uint256 seed) public {
+        uint256 p = 2; // prime
+        _testInvMod(bound(seed, 1, p - 1), p, false);
+    }
+
+    function testInvMod17(uint256 seed) public {
+        uint256 p = 17; // prime
+        _testInvMod(bound(seed, 1, p - 1), p, false);
+    }
+
+    function testInvMod65537(uint256 seed) public {
+        uint256 p = 65537; // prime
+        _testInvMod(bound(seed, 1, p - 1), p, false);
+    }
+
+    function testInvModP256(uint256 seed) public {
+        uint256 p = 0xffffffff00000001000000000000000000000000ffffffffffffffffffffffff; // prime
+        _testInvMod(bound(seed, 1, p - 1), p, false);
+    }
+
+    function _testInvMod(uint256 value, uint256 p, bool allowZero) private {
+        uint256 inverse = Math.invMod(value, p);
+        if (inverse != 0) {
+            assertEq(mulmod(value, inverse, p), 1);
+            assertLt(inverse, p);
+        } else {
+            assertTrue(allowZero);
+        }
     }
 
     // LOG2
@@ -150,7 +196,7 @@ contract MathTest is Test {
         // Full precision for q * d
         (uint256 qdHi, uint256 qdLo) = _mulHighLow(q, d);
         // Add remainder of x * y / d (computed as rem = (x * y % d))
-        (uint256 qdRemLo, uint256 c) = _addCarry(qdLo, _mulmod(x, y, d));
+        (uint256 qdRemLo, uint256 c) = _addCarry(qdLo, mulmod(x, y, d));
         uint256 qdRemHi = qdHi + c;
 
         // Full precision check that x * y = q * d + rem
@@ -165,26 +211,75 @@ contract MathTest is Test {
         vm.assume(xyHi >= d);
 
         // we are outside the scope of {testMulDiv}, we expect muldiv to revert
-        try this.muldiv(x, y, d) returns (uint256) {
-            fail();
-        } catch {}
+        vm.expectRevert(d == 0 ? stdError.divisionError : stdError.arithmeticError);
+        Math.mulDiv(x, y, d);
     }
 
-    // External call
-    function muldiv(uint256 x, uint256 y, uint256 d) external pure returns (uint256) {
-        return Math.mulDiv(x, y, d);
+    // MOD EXP
+    function testModExp(uint256 b, uint256 e, uint256 m) public {
+        if (m == 0) {
+            vm.expectRevert(stdError.divisionError);
+        }
+        uint256 result = Math.modExp(b, e, m);
+        assertLt(result, m);
+        assertEq(result, _nativeModExp(b, e, m));
+    }
+
+    function testTryModExp(uint256 b, uint256 e, uint256 m) public {
+        (bool success, uint256 result) = Math.tryModExp(b, e, m);
+        assertEq(success, m != 0);
+        if (success) {
+            assertLt(result, m);
+            assertEq(result, _nativeModExp(b, e, m));
+        } else {
+            assertEq(result, 0);
+        }
+    }
+
+    function testModExpMemory(uint256 b, uint256 e, uint256 m) public {
+        if (m == 0) {
+            vm.expectRevert(stdError.divisionError);
+        }
+        bytes memory result = Math.modExp(abi.encodePacked(b), abi.encodePacked(e), abi.encodePacked(m));
+        assertEq(result.length, 0x20);
+        uint256 res = abi.decode(result, (uint256));
+        assertLt(res, m);
+        assertEq(res, _nativeModExp(b, e, m));
+    }
+
+    function testTryModExpMemory(uint256 b, uint256 e, uint256 m) public {
+        (bool success, bytes memory result) = Math.tryModExp(
+            abi.encodePacked(b),
+            abi.encodePacked(e),
+            abi.encodePacked(m)
+        );
+        if (success) {
+            assertEq(result.length, 0x20); // m is a uint256, so abi.encodePacked(m).length is 0x20
+            uint256 res = abi.decode(result, (uint256));
+            assertLt(res, m);
+            assertEq(res, _nativeModExp(b, e, m));
+        } else {
+            assertEq(result.length, 0);
+        }
+    }
+
+    function _nativeModExp(uint256 b, uint256 e, uint256 m) private pure returns (uint256) {
+        if (m == 1) return 0;
+        uint256 r = 1;
+        while (e > 0) {
+            if (e % 2 > 0) {
+                r = mulmod(r, b, m);
+            }
+            b = mulmod(b, b, m);
+            e >>= 1;
+        }
+        return r;
     }
 
     // Helpers
     function _asRounding(uint8 r) private pure returns (Math.Rounding) {
         vm.assume(r < uint8(type(Math.Rounding).max));
         return Math.Rounding(r);
-    }
-
-    function _mulmod(uint256 x, uint256 y, uint256 z) private pure returns (uint256 r) {
-        assembly {
-            r := mulmod(x, y, z)
-        }
     }
 
     function _mulHighLow(uint256 x, uint256 y) private pure returns (uint256 high, uint256 low) {

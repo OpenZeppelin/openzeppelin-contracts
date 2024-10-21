@@ -1,44 +1,50 @@
-const { expectRevert } = require('@openzeppelin/test-helpers');
+const { ethers } = require('hardhat');
 const { expect } = require('chai');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { expectRevertCustomError } = require('../helpers/customError');
+for (const variant of ['', 'Transient']) {
+  describe(`Reentrancy${variant}Guard`, function () {
+    async function fixture() {
+      const name = `Reentrancy${variant}Mock`;
+      const mock = await ethers.deployContract(name);
+      return { name, mock };
+    }
 
-const ReentrancyMock = artifacts.require('ReentrancyMock');
-const ReentrancyAttack = artifacts.require('ReentrancyAttack');
+    beforeEach(async function () {
+      Object.assign(this, await loadFixture(fixture));
+    });
 
-contract('ReentrancyGuard', function () {
-  beforeEach(async function () {
-    this.reentrancyMock = await ReentrancyMock.new();
-    expect(await this.reentrancyMock.counter()).to.be.bignumber.equal('0');
+    it('nonReentrant function can be called', async function () {
+      expect(await this.mock.counter()).to.equal(0n);
+      await this.mock.callback();
+      expect(await this.mock.counter()).to.equal(1n);
+    });
+
+    it('does not allow remote callback', async function () {
+      const attacker = await ethers.deployContract('ReentrancyAttack');
+      await expect(this.mock.countAndCall(attacker)).to.be.revertedWith('ReentrancyAttack: failed call');
+    });
+
+    it('_reentrancyGuardEntered should be true when guarded', async function () {
+      await this.mock.guardedCheckEntered();
+    });
+
+    it('_reentrancyGuardEntered should be false when unguarded', async function () {
+      await this.mock.unguardedCheckNotEntered();
+    });
+
+    // The following are more side-effects than intended behavior:
+    // I put them here as documentation, and to monitor any changes
+    // in the side-effects.
+    it('does not allow local recursion', async function () {
+      await expect(this.mock.countLocalRecursive(10n)).to.be.revertedWithCustomError(
+        this.mock,
+        'ReentrancyGuardReentrantCall',
+      );
+    });
+
+    it('does not allow indirect local recursion', async function () {
+      await expect(this.mock.countThisRecursive(10n)).to.be.revertedWith(`${this.name}: failed call`);
+    });
   });
-
-  it('nonReentrant function can be called', async function () {
-    expect(await this.reentrancyMock.counter()).to.be.bignumber.equal('0');
-    await this.reentrancyMock.callback();
-    expect(await this.reentrancyMock.counter()).to.be.bignumber.equal('1');
-  });
-
-  it('does not allow remote callback', async function () {
-    const attacker = await ReentrancyAttack.new();
-    await expectRevert(this.reentrancyMock.countAndCall(attacker.address), 'ReentrancyAttack: failed call', []);
-  });
-
-  it('_reentrancyGuardEntered should be true when guarded', async function () {
-    await this.reentrancyMock.guardedCheckEntered();
-  });
-
-  it('_reentrancyGuardEntered should be false when unguarded', async function () {
-    await this.reentrancyMock.unguardedCheckNotEntered();
-  });
-
-  // The following are more side-effects than intended behavior:
-  // I put them here as documentation, and to monitor any changes
-  // in the side-effects.
-  it('does not allow local recursion', async function () {
-    await expectRevertCustomError(this.reentrancyMock.countLocalRecursive(10), 'ReentrancyGuardReentrantCall', []);
-  });
-
-  it('does not allow indirect local recursion', async function () {
-    await expectRevert(this.reentrancyMock.countThisRecursive(10), 'ReentrancyMock: failed call', []);
-  });
-});
+}

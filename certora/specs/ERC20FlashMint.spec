@@ -4,7 +4,7 @@ import "methods/IERC3156FlashLender.spec";
 import "methods/IERC3156FlashBorrower.spec";
 
 methods {
-    // non standard ERC3156 functions
+    // non standard ERC-3156 functions
     function flashFeeReceiver() external returns (address) envfree;
 
     // function summaries below

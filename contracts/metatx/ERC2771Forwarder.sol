@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (metatx/ERC2771Forwarder.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (metatx/ERC2771Forwarder.sol)
 
 pragma solidity ^0.8.20;
 
@@ -8,9 +8,10 @@ import {ECDSA} from "../utils/cryptography/ECDSA.sol";
 import {EIP712} from "../utils/cryptography/EIP712.sol";
 import {Nonces} from "../utils/Nonces.sol";
 import {Address} from "../utils/Address.sol";
+import {Errors} from "../utils/Errors.sol";
 
 /**
- * @dev A forwarder compatible with ERC2771 contracts. See {ERC2771Context}.
+ * @dev A forwarder compatible with ERC-2771 contracts. See {ERC2771Context}.
  *
  * This forwarder operates on forward requests that include:
  *
@@ -132,7 +133,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
         }
 
         if (!_execute(request, true)) {
-            revert Address.FailedInnerCall();
+            revert Errors.FailedCall();
         }
     }
 
@@ -217,7 +218,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
      */
     function _recoverForwardRequestSigner(
         ForwardRequestData calldata request
-    ) internal view virtual returns (bool, address) {
+    ) internal view virtual returns (bool isValid, address signer) {
         (address recovered, ECDSA.RecoverError err, ) = _hashTypedDataV4(
             keccak256(
                 abi.encode(
@@ -285,7 +286,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
 
             uint256 gasLeft;
 
-            assembly {
+            assembly ("memory-safe") {
                 success := call(reqGas, to, value, add(data, 0x20), mload(data), 0, 0)
                 gasLeft := gas()
             }
@@ -308,9 +309,8 @@ contract ERC2771Forwarder is EIP712, Nonces {
         bool success;
         uint256 returnSize;
         uint256 returnValue;
-        /// @solidity memory-safe-assembly
-        assembly {
-            // Perform the staticcal and save the result in the scratch space.
+        assembly ("memory-safe") {
+            // Perform the staticcall and save the result in the scratch space.
             // | Location  | Content  | Content (Hex)                                                      |
             // |-----------|----------|--------------------------------------------------------------------|
             // |           |          |                                                           result ↓ |
@@ -346,7 +346,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
         // We can't know X after CALL dynamic costs, but we want it to be such that X * 63 / 64 >= req.gas.
         // Let Y be the gas used in the subcall. gasleft() measured immediately after the subcall will be gasleft() = X - Y.
         // If the subcall ran out of gas, then Y = X * 63 / 64 and gasleft() = X - Y = X / 64.
-        // Under this assumption req.gas / 63 > gasleft() is true is true if and only if
+        // Under this assumption req.gas / 63 > gasleft() is true if and only if
         // req.gas / 63 > X / 64, or equivalently req.gas > X * 63 / 64.
         // This means that if the subcall runs out of gas we are able to detect that insufficient gas was passed.
         //
@@ -361,8 +361,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
             // We explicitly trigger invalid opcode to consume all gas and bubble-up the effects, since
             // neither revert or assert consume all gas since Solidity 0.8.20
             // https://docs.soliditylang.org/en/v0.8.20/control-structures.html#panic-via-assert-and-error-via-require
-            /// @solidity memory-safe-assembly
-            assembly {
+            assembly ("memory-safe") {
                 invalid()
             }
         }

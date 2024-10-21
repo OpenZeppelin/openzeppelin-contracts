@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (access/IAccessControl.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (access/IAccessControl.sol)
 
 pragma solidity ^0.8.20;
 
 /**
- * @dev External interface of AccessControl declared to support ERC165 detection.
+ * @dev External interface of AccessControl declared to support ERC-165 detection.
  */
 interface IAccessControl {
     /**
@@ -30,8 +30,8 @@ interface IAccessControl {
     /**
      * @dev Emitted when `account` is granted `role`.
      *
-     * `sender` is the account that originated the contract call, an admin role
-     * bearer except when using {AccessControl-_setupRole}.
+     * `sender` is the account that originated the contract call. This account bears the admin role (for the granted role).
+     * Expected in cases where the role was granted using the internal {AccessControl-_grantRole}.
      */
     event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender);
 

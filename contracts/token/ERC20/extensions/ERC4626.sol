@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (token/ERC20/extensions/ERC4626.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (token/ERC20/extensions/ERC4626.sol)
 
 pragma solidity ^0.8.20;
 
@@ -9,12 +9,12 @@ import {IERC4626} from "../../../interfaces/IERC4626.sol";
 import {Math} from "../../../utils/math/Math.sol";
 
 /**
- * @dev Implementation of the ERC4626 "Tokenized Vault Standard" as defined in
- * https://eips.ethereum.org/EIPS/eip-4626[EIP-4626].
+ * @dev Implementation of the ERC-4626 "Tokenized Vault Standard" as defined in
+ * https://eips.ethereum.org/EIPS/eip-4626[ERC-4626].
  *
- * This extension allows the minting and burning of "shares" (represented using the ERC20 inheritance) in exchange for
+ * This extension allows the minting and burning of "shares" (represented using the ERC-20 inheritance) in exchange for
  * underlying "assets" through standardized {deposit}, {mint}, {redeem} and {burn} workflows. This contract extends
- * the ERC20 standard. Any additional extensions included along it would affect the "shares" token represented by this
+ * the ERC-20 standard. Any additional extensions included along it would affect the "shares" token represented by this
  * contract and not the "assets" token which is an independent contract.
  *
  * [CAUTION]
@@ -27,14 +27,14 @@ import {Math} from "../../../utils/math/Math.sol";
  * verifying the amount received is as expected, using a wrapper that performs these checks such as
  * https://github.com/fei-protocol/ERC4626#erc4626router-and-base[ERC4626Router].
  *
- * Since v4.9, this implementation uses virtual assets and shares to mitigate that risk. The `_decimalsOffset()`
- * corresponds to an offset in the decimal representation between the underlying asset's decimals and the vault
- * decimals. This offset also determines the rate of virtual shares to virtual assets in the vault, which itself
- * determines the initial exchange rate. While not fully preventing the attack, analysis shows that the default offset
- * (0) makes it non-profitable, as a result of the value being captured by the virtual shares (out of the attacker's
- * donation) matching the attacker's expected gains. With a larger offset, the attack becomes orders of magnitude more
- * expensive than it is profitable. More details about the underlying math can be found
- * xref:erc4626.adoc#inflation-attack[here].
+ * Since v4.9, this implementation introduces configurable virtual assets and shares to help developers mitigate that risk.
+ * The `_decimalsOffset()` corresponds to an offset in the decimal representation between the underlying asset's decimals
+ * and the vault decimals. This offset also determines the rate of virtual shares to virtual assets in the vault, which
+ * itself determines the initial exchange rate. While not fully preventing the attack, analysis shows that the default
+ * offset (0) makes it non-profitable even if an attacker is able to capture value from multiple user deposits, as a result
+ * of the value being captured by the virtual shares (out of the attacker's donation) matching the attacker's expected gains.
+ * With a larger offset, the attack becomes orders of magnitude more expensive than it is profitable. More details about the
+ * underlying math can be found xref:erc4626.adoc#inflation-attack[here].
  *
  * The drawback of this approach is that the virtual shares do capture (a very small) part of the value being accrued
  * to the vault. Also, if the vault experiences losses, the users try to exit the vault, the virtual shares and assets
@@ -72,7 +72,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
     error ERC4626ExceededMaxRedeem(address owner, uint256 shares, uint256 max);
 
     /**
-     * @dev Set the underlying asset contract. This must be an ERC20-compatible contract (ERC20 or ERC777).
+     * @dev Set the underlying asset contract. This must be an ERC20-compatible contract (ERC-20 or ERC-777).
      */
     constructor(IERC20 asset_) {
         (bool success, uint8 assetDecimals) = _tryGetAssetDecimals(asset_);
@@ -83,7 +83,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
     /**
      * @dev Attempts to fetch the asset decimals. A return value of false indicates that the attempt failed in some way.
      */
-    function _tryGetAssetDecimals(IERC20 asset_) private view returns (bool, uint8) {
+    function _tryGetAssetDecimals(IERC20 asset_) private view returns (bool ok, uint8 assetDecimals) {
         (bool success, bytes memory encodedDecimals) = address(asset_).staticcall(
             abi.encodeCall(IERC20Metadata.decimals, ())
         );
@@ -180,11 +180,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         return shares;
     }
 
-    /** @dev See {IERC4626-mint}.
-     *
-     * As opposed to {deposit}, minting is allowed even if the vault is in a state where the price of a share is zero.
-     * In this case, the shares will be minted without requiring any assets to be deposited.
-     */
+    /** @dev See {IERC4626-mint}. */
     function mint(uint256 shares, address receiver) public virtual returns (uint256) {
         uint256 maxShares = maxMint(receiver);
         if (shares > maxShares) {
@@ -241,7 +237,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
      * @dev Deposit/mint common workflow.
      */
     function _deposit(address caller, address receiver, uint256 assets, uint256 shares) internal virtual {
-        // If _asset is ERC777, `transferFrom` can trigger a reentrancy BEFORE the transfer happens through the
+        // If _asset is ERC-777, `transferFrom` can trigger a reentrancy BEFORE the transfer happens through the
         // `tokensToSend` hook. On the other hand, the `tokenReceived` hook, that is triggered after the transfer,
         // calls the vault, which is assumed not malicious.
         //
@@ -268,7 +264,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
             _spendAllowance(owner, caller, shares);
         }
 
-        // If _asset is ERC777, `transfer` can trigger a reentrancy AFTER the transfer happens through the
+        // If _asset is ERC-777, `transfer` can trigger a reentrancy AFTER the transfer happens through the
         // `tokensReceived` hook. On the other hand, the `tokensToSend` hook, that is triggered before the transfer,
         // calls the vault, which is assumed not malicious.
         //

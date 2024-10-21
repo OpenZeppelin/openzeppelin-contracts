@@ -1,18 +1,18 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (token/ERC721/ERC721.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (token/ERC721/ERC721.sol)
 
 pragma solidity ^0.8.20;
 
 import {IERC721} from "./IERC721.sol";
-import {IERC721Receiver} from "./IERC721Receiver.sol";
 import {IERC721Metadata} from "./extensions/IERC721Metadata.sol";
+import {ERC721Utils} from "./utils/ERC721Utils.sol";
 import {Context} from "../../utils/Context.sol";
 import {Strings} from "../../utils/Strings.sol";
 import {IERC165, ERC165} from "../../utils/introspection/ERC165.sol";
 import {IERC721Errors} from "../../interfaces/draft-IERC6093.sol";
 
 /**
- * @dev Implementation of https://eips.ethereum.org/EIPS/eip-721[ERC721] Non-Fungible Token Standard, including
+ * @dev Implementation of https://eips.ethereum.org/EIPS/eip-721[ERC-721] Non-Fungible Token Standard, including
  * the Metadata extension, but not including the Enumerable extension, which is available separately as
  * {ERC721Enumerable}.
  */
@@ -158,14 +158,14 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      */
     function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory data) public virtual {
         transferFrom(from, to, tokenId);
-        _checkOnERC721Received(from, to, tokenId, data);
+        ERC721Utils.checkOnERC721Received(_msgSender(), from, to, tokenId, data);
     }
 
     /**
      * @dev Returns the owner of the `tokenId`. Does NOT revert if token doesn't exist
      *
      * IMPORTANT: Any overrides to this function that add ownership of tokens not tracked by the
-     * core ERC721 logic MUST be matched with the use of {_increaseBalance} to keep balances
+     * core ERC-721 logic MUST be matched with the use of {_increaseBalance} to keep balances
      * consistent with ownership. The invariant to preserve is that for any address `a` the value returned by
      * `balanceOf(a)` must be equal to the number of tokens such that `_ownerOf(tokenId)` is `a`.
      */
@@ -195,8 +195,9 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
 
     /**
      * @dev Checks if `spender` can operate on `tokenId`, assuming the provided `owner` is the actual owner.
-     * Reverts if `spender` does not have approval from the provided `owner` for the given token or for all its assets
-     * the `spender` for the specific `tokenId`.
+     * Reverts if:
+     * - `spender` does not have approval from `owner` for `tokenId`.
+     * - `spender` does not have approval to manage all of `owner`'s assets.
      *
      * WARNING: This function assumes that `owner` is the actual owner of `tokenId` and does not verify this
      * assumption.
@@ -311,7 +312,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      */
     function _safeMint(address to, uint256 tokenId, bytes memory data) internal virtual {
         _mint(to, tokenId);
-        _checkOnERC721Received(address(0), to, tokenId, data);
+        ERC721Utils.checkOnERC721Received(_msgSender(), address(0), to, tokenId, data);
     }
 
     /**
@@ -357,7 +358,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
 
     /**
      * @dev Safely transfers `tokenId` token from `from` to `to`, checking that contract recipients
-     * are aware of the ERC721 standard to prevent tokens from being forever locked.
+     * are aware of the ERC-721 standard to prevent tokens from being forever locked.
      *
      * `data` is additional data, it has no specified format and it is sent in call to `to`.
      *
@@ -384,7 +385,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      */
     function _safeTransfer(address from, address to, uint256 tokenId, bytes memory data) internal virtual {
         _transfer(from, to, tokenId);
-        _checkOnERC721Received(from, to, tokenId, data);
+        ERC721Utils.checkOnERC721Received(_msgSender(), from, to, tokenId, data);
     }
 
     /**
@@ -451,33 +452,5 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
             revert ERC721NonexistentToken(tokenId);
         }
         return owner;
-    }
-
-    /**
-     * @dev Private function to invoke {IERC721Receiver-onERC721Received} on a target address. This will revert if the
-     * recipient doesn't accept the token transfer. The call is not executed if the target address is not a contract.
-     *
-     * @param from address representing the previous owner of the given token ID
-     * @param to target address that will receive the tokens
-     * @param tokenId uint256 ID of the token to be transferred
-     * @param data bytes optional data to send along with the call
-     */
-    function _checkOnERC721Received(address from, address to, uint256 tokenId, bytes memory data) private {
-        if (to.code.length > 0) {
-            try IERC721Receiver(to).onERC721Received(_msgSender(), from, tokenId, data) returns (bytes4 retval) {
-                if (retval != IERC721Receiver.onERC721Received.selector) {
-                    revert ERC721InvalidReceiver(to);
-                }
-            } catch (bytes memory reason) {
-                if (reason.length == 0) {
-                    revert ERC721InvalidReceiver(to);
-                } else {
-                    /// @solidity memory-safe-assembly
-                    assembly {
-                        revert(add(32, reason), mload(reason))
-                    }
-                }
-            }
-        }
     }
 }

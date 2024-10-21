@@ -52,7 +52,7 @@ contract AuthorityNoResponse {
     function canCall(address /* caller */, address /* target */, bytes4 /* selector */) external view {}
 }
 
-contract AuthoritiyObserveIsConsuming {
+contract AuthorityObserveIsConsuming {
     event ConsumeScheduledOpCalled(address caller, bytes data, bytes4 isConsuming);
 
     function canCall(

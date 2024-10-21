@@ -1,69 +1,65 @@
-const { constants, expectEvent, time } = require('@openzeppelin/test-helpers');
-const { web3 } = require('@openzeppelin/test-helpers/src/setup');
+const { ethers } = require('hardhat');
 const { expect } = require('chai');
-const { BNmin } = require('../helpers/math');
-const { expectRevertCustomError } = require('../helpers/customError');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const VestingWallet = artifacts.require('VestingWallet');
-const ERC20 = artifacts.require('$ERC20');
+const { min } = require('../helpers/math');
+const time = require('../helpers/time');
 
-const { shouldBehaveLikeVesting } = require('./VestingWallet.behavior');
+const { envSetup, shouldBehaveLikeVesting } = require('./VestingWallet.behavior');
 
-contract('VestingWallet', function (accounts) {
-  const [sender, beneficiary] = accounts;
+async function fixture() {
+  const amount = ethers.parseEther('100');
+  const duration = time.duration.years(4);
+  const start = (await time.clock.timestamp()) + time.duration.hours(1);
 
-  const amount = web3.utils.toBN(web3.utils.toWei('100'));
-  const duration = web3.utils.toBN(4 * 365 * 86400); // 4 years
+  const [sender, beneficiary] = await ethers.getSigners();
+  const mock = await ethers.deployContract('VestingWallet', [beneficiary, start, duration]);
 
+  const token = await ethers.deployContract('$ERC20', ['Name', 'Symbol']);
+  await token.$_mint(mock, amount);
+  await sender.sendTransaction({ to: mock, value: amount });
+
+  const env = await envSetup(mock, beneficiary, token);
+
+  const schedule = Array.from({ length: 64 }, (_, i) => (BigInt(i) * duration) / 60n + start);
+  const vestingFn = timestamp => min(amount, (amount * (timestamp - start)) / duration);
+
+  return { mock, duration, start, beneficiary, schedule, vestingFn, env };
+}
+
+describe('VestingWallet', function () {
   beforeEach(async function () {
-    this.start = (await time.latest()).addn(3600); // in 1 hour
-    this.mock = await VestingWallet.new(beneficiary, this.start, duration);
+    Object.assign(this, await loadFixture(fixture));
   });
 
   it('rejects zero address for beneficiary', async function () {
-    await expectRevertCustomError(
-      VestingWallet.new(constants.ZERO_ADDRESS, this.start, duration),
-      'OwnableInvalidOwner',
-      [constants.ZERO_ADDRESS],
-    );
+    await expect(ethers.deployContract('VestingWallet', [ethers.ZeroAddress, this.start, this.duration]))
+      .revertedWithCustomError(this.mock, 'OwnableInvalidOwner')
+      .withArgs(ethers.ZeroAddress);
   });
 
   it('check vesting contract', async function () {
-    expect(await this.mock.owner()).to.be.equal(beneficiary);
-    expect(await this.mock.start()).to.be.bignumber.equal(this.start);
-    expect(await this.mock.duration()).to.be.bignumber.equal(duration);
-    expect(await this.mock.end()).to.be.bignumber.equal(this.start.add(duration));
+    expect(await this.mock.owner()).to.equal(this.beneficiary);
+    expect(await this.mock.start()).to.equal(this.start);
+    expect(await this.mock.duration()).to.equal(this.duration);
+    expect(await this.mock.end()).to.equal(this.start + this.duration);
   });
 
   describe('vesting schedule', function () {
-    beforeEach(async function () {
-      this.schedule = Array(64)
-        .fill()
-        .map((_, i) => web3.utils.toBN(i).mul(duration).divn(60).add(this.start));
-      this.vestingFn = timestamp => BNmin(amount, amount.mul(timestamp.sub(this.start)).div(duration));
-    });
-
     describe('Eth vesting', function () {
       beforeEach(async function () {
-        await web3.eth.sendTransaction({ from: sender, to: this.mock.address, value: amount });
-        this.getBalance = account => web3.eth.getBalance(account).then(web3.utils.toBN);
-        this.checkRelease = () => {};
+        Object.assign(this, this.env.eth);
       });
 
-      shouldBehaveLikeVesting(beneficiary);
+      shouldBehaveLikeVesting();
     });
 
     describe('ERC20 vesting', function () {
       beforeEach(async function () {
-        this.token = await ERC20.new('Name', 'Symbol');
-        this.getBalance = account => this.token.balanceOf(account);
-        this.checkRelease = (receipt, to, value) =>
-          expectEvent.inTransaction(receipt.tx, this.token, 'Transfer', { from: this.mock.address, to, value });
-
-        await this.token.$_mint(this.mock.address, amount);
+        Object.assign(this, this.env.token);
       });
 
-      shouldBehaveLikeVesting(beneficiary);
+      shouldBehaveLikeVesting();
     });
   });
 });

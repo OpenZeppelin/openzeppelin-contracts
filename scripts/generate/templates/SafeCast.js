@@ -7,7 +7,7 @@ const header = `\
 pragma solidity ^0.8.20;
 
 /**
- * @dev Wrappers over Solidity's uintXX/intXX casting operators with added overflow
+ * @dev Wrappers over Solidity's uintXX/intXX/bool casting operators with added overflow
  * checks.
  *
  * Downcasting from uint256/int256 in Solidity does not revert on overflow. This can
@@ -21,25 +21,25 @@ pragma solidity ^0.8.20;
 `;
 
 const errors = `\
-  /**
-   * @dev Value doesn't fit in an uint of \`bits\` size.
-   */
-  error SafeCastOverflowedUintDowncast(uint8 bits, uint256 value);
-  
-  /**
-   * @dev An int value doesn't fit in an uint of \`bits\` size.
-   */
-  error SafeCastOverflowedIntToUint(int256 value);
-  
-  /**
-   * @dev Value doesn't fit in an int of \`bits\` size.
-   */
-  error SafeCastOverflowedIntDowncast(uint8 bits, int256 value);
-  
-  /**
-   * @dev An uint value doesn't fit in an int of \`bits\` size.
-   */
-  error SafeCastOverflowedUintToInt(uint256 value);
+/**
+ * @dev Value doesn't fit in an uint of \`bits\` size.
+ */
+error SafeCastOverflowedUintDowncast(uint8 bits, uint256 value);
+
+/**
+ * @dev An int value doesn't fit in an uint of \`bits\` size.
+ */
+error SafeCastOverflowedIntToUint(int256 value);
+
+/**
+ * @dev Value doesn't fit in an int of \`bits\` size.
+ */
+error SafeCastOverflowedIntDowncast(uint8 bits, int256 value);
+
+/**
+ * @dev An uint value doesn't fit in an int of \`bits\` size.
+ */
+error SafeCastOverflowedUintToInt(uint256 value);
 `;
 
 const toUintDownCast = length => `\
@@ -55,7 +55,7 @@ const toUintDownCast = length => `\
  */
 function toUint${length}(uint256 value) internal pure returns (uint${length}) {
     if (value > type(uint${length}).max) {
-      revert SafeCastOverflowedUintDowncast(${length}, value);
+        revert SafeCastOverflowedUintDowncast(${length}, value);
     }
     return uint${length}(value);
 }
@@ -77,7 +77,7 @@ const toIntDownCast = length => `\
 function toInt${length}(int256 value) internal pure returns (int${length} downcasted) {
     downcasted = int${length}(value);
     if (downcasted != value) {
-      revert SafeCastOverflowedIntDowncast(${length}, value);
+        revert SafeCastOverflowedIntDowncast(${length}, value);
     }
 }
 `;
@@ -94,7 +94,7 @@ const toInt = length => `\
 function toInt${length}(uint${length} value) internal pure returns (int${length}) {
     // Note: Unsafe cast below is okay because \`type(int${length}).max\` is guaranteed to be positive
     if (value > uint${length}(type(int${length}).max)) {
-      revert SafeCastOverflowedUintToInt(value);
+        revert SafeCastOverflowedUintToInt(value);
     }
     return int${length}(value);
 }
@@ -110,9 +110,20 @@ const toUint = length => `\
  */
 function toUint${length}(int${length} value) internal pure returns (uint${length}) {
     if (value < 0) {
-      revert SafeCastOverflowedIntToUint(value);
+        revert SafeCastOverflowedIntToUint(value);
     }
     return uint${length}(value);
+}
+`;
+
+const boolToUint = `\
+/**
+ * @dev Cast a boolean (false or true) to a uint256 (0 or 1) with no jump.
+ */
+function toUint(bool b) internal pure returns (uint256 u) {
+    assembly ("memory-safe") {
+        u := iszero(iszero(b))
+    }
 }
 `;
 
@@ -120,7 +131,8 @@ function toUint${length}(int${length} value) internal pure returns (uint${length
 module.exports = format(
   header.trimEnd(),
   'library SafeCast {',
-  errors,
-  [...LENGTHS.map(toUintDownCast), toUint(256), ...LENGTHS.map(toIntDownCast), toInt(256)],
+  format(
+    [].concat(errors, LENGTHS.map(toUintDownCast), toUint(256), LENGTHS.map(toIntDownCast), toInt(256), boolToUint),
+  ).trimEnd(),
   '}',
 );

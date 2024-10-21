@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (token/ERC1155/extensions/IERC1155MetadataURI.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (token/ERC1155/extensions/IERC1155MetadataURI.sol)
 
 pragma solidity ^0.8.20;
 
@@ -7,7 +7,7 @@ import {IERC1155} from "../IERC1155.sol";
 
 /**
  * @dev Interface of the optional ERC1155MetadataExtension interface, as defined
- * in the https://eips.ethereum.org/EIPS/eip-1155#metadata-extensions[EIP].
+ * in the https://eips.ethereum.org/EIPS/eip-1155#metadata-extensions[ERC].
  */
 interface IERC1155MetadataURI is IERC1155 {
     /**

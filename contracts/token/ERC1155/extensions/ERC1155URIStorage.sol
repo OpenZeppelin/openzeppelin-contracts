@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (token/ERC1155/extensions/ERC1155URIStorage.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (token/ERC1155/extensions/ERC1155URIStorage.sol)
 
 pragma solidity ^0.8.20;
 
@@ -7,8 +7,8 @@ import {Strings} from "../../../utils/Strings.sol";
 import {ERC1155} from "../ERC1155.sol";
 
 /**
- * @dev ERC1155 token with storage based token URI management.
- * Inspired by the ERC721URIStorage extension
+ * @dev ERC-1155 token with storage based token URI management.
+ * Inspired by the {ERC721URIStorage} extension
  */
 abstract contract ERC1155URIStorage is ERC1155 {
     using Strings for uint256;

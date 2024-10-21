@@ -115,7 +115,7 @@ In addition to the official Solidity Style Guide we have a number of other conve
   }
   ```
 
-  Some standards (e.g. ERC20) use present tense, and in those cases the
+  Some standards (e.g. ERC-20) use present tense, and in those cases the
   standard specification is used.
   
 * Interface names should have a capital I prefix.

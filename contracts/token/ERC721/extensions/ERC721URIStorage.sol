@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (token/ERC721/extensions/ERC721URIStorage.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (token/ERC721/extensions/ERC721URIStorage.sol)
 
 pragma solidity ^0.8.20;
 
@@ -9,7 +9,7 @@ import {IERC4906} from "../../../interfaces/IERC4906.sol";
 import {IERC165} from "../../../interfaces/IERC165.sol";
 
 /**
- * @dev ERC721 token with storage based token URI management.
+ * @dev ERC-721 token with storage based token URI management.
  */
 abstract contract ERC721URIStorage is IERC4906, ERC721 {
     using Strings for uint256;

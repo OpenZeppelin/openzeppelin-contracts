@@ -29,13 +29,13 @@
 :xref-ERC1967Utils-changeAdmin-address-: xref:proxy.adoc#ERC1967Utils-changeAdmin-address-
 :xref-ERC1967Utils-getBeacon--: xref:proxy.adoc#ERC1967Utils-getBeacon--
 :xref-ERC1967Utils-upgradeBeaconToAndCall-address-bytes-: xref:proxy.adoc#ERC1967Utils-upgradeBeaconToAndCall-address-bytes-
-:xref-ERC1967Utils-Upgraded-address-: xref:proxy.adoc#ERC1967Utils-Upgraded-address-
-:xref-ERC1967Utils-AdminChanged-address-address-: xref:proxy.adoc#ERC1967Utils-AdminChanged-address-address-
-:xref-ERC1967Utils-BeaconUpgraded-address-: xref:proxy.adoc#ERC1967Utils-BeaconUpgraded-address-
 :xref-ERC1967Utils-ERC1967InvalidImplementation-address-: xref:proxy.adoc#ERC1967Utils-ERC1967InvalidImplementation-address-
 :xref-ERC1967Utils-ERC1967InvalidAdmin-address-: xref:proxy.adoc#ERC1967Utils-ERC1967InvalidAdmin-address-
 :xref-ERC1967Utils-ERC1967InvalidBeacon-address-: xref:proxy.adoc#ERC1967Utils-ERC1967InvalidBeacon-address-
 :xref-ERC1967Utils-ERC1967NonPayable--: xref:proxy.adoc#ERC1967Utils-ERC1967NonPayable--
+:xref-ERC1967Utils-IMPLEMENTATION_SLOT-bytes32: xref:proxy.adoc#ERC1967Utils-IMPLEMENTATION_SLOT-bytes32
+:xref-ERC1967Utils-ADMIN_SLOT-bytes32: xref:proxy.adoc#ERC1967Utils-ADMIN_SLOT-bytes32
+:xref-ERC1967Utils-BEACON_SLOT-bytes32: xref:proxy.adoc#ERC1967Utils-BEACON_SLOT-bytes32
 :IERC1967-Upgraded: pass:normal[xref:interfaces.adoc#IERC1967-Upgraded-address-[`IERC1967.Upgraded`]]
 :IERC1967-AdminChanged: pass:normal[xref:interfaces.adoc#IERC1967-AdminChanged-address-address-[`IERC1967.AdminChanged`]]
 :IERC1967-BeaconUpgraded: pass:normal[xref:interfaces.adoc#IERC1967-BeaconUpgraded-address-[`IERC1967.BeaconUpgraded`]]
@@ -95,12 +95,15 @@
 :xref-Ownable-OwnableUnauthorizedAccount-address-: xref:access.adoc#Ownable-OwnableUnauthorizedAccount-address-
 :xref-Ownable-OwnableInvalidOwner-address-: xref:access.adoc#Ownable-OwnableInvalidOwner-address-
 :xref-Clones-clone-address-: xref:proxy.adoc#Clones-clone-address-
+:xref-Clones-clone-address-uint256-: xref:proxy.adoc#Clones-clone-address-uint256-
 :xref-Clones-cloneDeterministic-address-bytes32-: xref:proxy.adoc#Clones-cloneDeterministic-address-bytes32-
+:xref-Clones-cloneDeterministic-address-bytes32-uint256-: xref:proxy.adoc#Clones-cloneDeterministic-address-bytes32-uint256-
 :xref-Clones-predictDeterministicAddress-address-bytes32-address-: xref:proxy.adoc#Clones-predictDeterministicAddress-address-bytes32-address-
 :xref-Clones-predictDeterministicAddress-address-bytes32-: xref:proxy.adoc#Clones-predictDeterministicAddress-address-bytes32-
-:xref-Clones-ERC1167FailedCreateClone--: xref:proxy.adoc#Clones-ERC1167FailedCreateClone--
-:Clones-cloneDeterministic: pass:normal[xref:proxy.adoc#Clones-cloneDeterministic-address-bytes32-[`Clones.cloneDeterministic`]]
-:Clones-cloneDeterministic: pass:normal[xref:proxy.adoc#Clones-cloneDeterministic-address-bytes32-[`Clones.cloneDeterministic`]]
+:xref-Clones-clone-address-: xref:proxy.adoc#Clones-clone-address-
+:xref-Clones-cloneDeterministic-address-bytes32-: xref:proxy.adoc#Clones-cloneDeterministic-address-bytes32-
+:Clones-cloneDeterministic: pass:normal[xref:proxy.adoc#Clones-cloneDeterministic-address-bytes32-uint256-[`Clones.cloneDeterministic`]]
+:Clones-cloneDeterministic: pass:normal[xref:proxy.adoc#Clones-cloneDeterministic-address-bytes32-uint256-[`Clones.cloneDeterministic`]]
 :ERC1967Proxy-constructor: pass:normal[xref:proxy.adoc#ERC1967Proxy-constructor-address-bytes-[`ERC1967Proxy.constructor`]]
 :xref-Initializable-initializer--: xref:proxy.adoc#Initializable-initializer--
 :xref-Initializable-reinitializer-uint64-: xref:proxy.adoc#Initializable-reinitializer-uint64-
@@ -135,24 +138,24 @@ Most of the proxies below are built on an abstract base contract.
 
 - {Proxy}: Abstract contract implementing the core delegation functionality.
 
-In order to avoid clashes with the storage variables of the implementation contract behind a proxy, we use https://eips.ethereum.org/EIPS/eip-1967[EIP1967] storage slots.
+In order to avoid clashes with the storage variables of the implementation contract behind a proxy, we use https://eips.ethereum.org/EIPS/eip-1967[ERC-1967] storage slots.
 
-- {ERC1967Utils}: Internal functions to get and set the storage slots defined in EIP1967.
-- {ERC1967Proxy}: A proxy using EIP1967 storage slots. Not upgradeable by default.
+- {ERC1967Utils}: Internal functions to get and set the storage slots defined in ERC-1967.
+- {ERC1967Proxy}: A proxy using ERC-1967 storage slots. Not upgradeable by default.
 
-There are two alternative ways to add upgradeability to an ERC1967 proxy. Their differences are explained below in <<transparent-vs-uups>>.
+There are two alternative ways to add upgradeability to an ERC-1967 proxy. Their differences are explained below in <<transparent-vs-uups>>.
 
 - {TransparentUpgradeableProxy}: A proxy with a built-in immutable admin and upgrade interface.
 - {UUPSUpgradeable}: An upgradeability mechanism to be included in the implementation contract.
 
-CAUTION: Using upgradeable proxies correctly and securely is a difficult task that requires deep knowledge of the proxy pattern, Solidity, and the EVM. Unless you want a lot of low level control, we recommend using the xref:upgrades-plugins::index.adoc[OpenZeppelin Upgrades Plugins] for Truffle and Hardhat.
+CAUTION: Using upgradeable proxies correctly and securely is a difficult task that requires deep knowledge of the proxy pattern, Solidity, and the EVM. Unless you want a lot of low level control, we recommend using the xref:upgrades-plugins::index.adoc[OpenZeppelin Upgrades Plugins] for Hardhat and Foundry.
 
 A different family of proxies are beacon proxies. This pattern, popularized by Dharma, allows multiple proxies to be upgraded to a different implementation in a single transaction.
 
 - {BeaconProxy}: A proxy that retrieves its implementation from a beacon contract.
 - {UpgradeableBeacon}: A beacon contract with a built in admin that can upgrade the {BeaconProxy} pointing to it.
 
-In this pattern, the proxy contract doesn't hold the implementation address in storage like an ERC1967 proxy. Instead, the address is stored in a separate beacon contract. The `upgrade` operations are sent to the beacon instead of to the proxy contract, and all proxies that follow that beacon are automatically upgraded.
+In this pattern, the proxy contract doesn't hold the implementation address in storage like an ERC-1967 proxy. Instead, the address is stored in a separate beacon contract. The `upgrade` operations are sent to the beacon instead of to the proxy contract, and all proxies that follow that beacon are automatically upgraded.
 
 Outside the realm of upgradeability, proxies can also be useful to make cheap contract clones, such as those created by an on-chain factory contract that creates many instances of the same contract. These instances are designed to be both cheap to deploy, and cheap to call.
 
@@ -161,7 +164,7 @@ Outside the realm of upgradeability, proxies can also be useful to make cheap co
 [[transparent-vs-uups]]
 == Transparent vs UUPS Proxies
 
-The original proxies included in OpenZeppelin followed the https://blog.openzeppelin.com/the-transparent-proxy-pattern/[Transparent Proxy Pattern]. While this pattern is still provided, our recommendation is now shifting towards UUPS proxies, which are both lightweight and versatile. The name UUPS comes from https://eips.ethereum.org/EIPS/eip-1822[EIP1822], which first documented the pattern.
+The original proxies included in OpenZeppelin followed the https://blog.openzeppelin.com/the-transparent-proxy-pattern/[Transparent Proxy Pattern]. While this pattern is still provided, our recommendation is now shifting towards UUPS proxies, which are both lightweight and versatile. The name UUPS comes from https://eips.ethereum.org/EIPS/eip-1822[ERC-1822], which first documented the pattern.
 
 While both of these share the same interface for upgrades, in UUPS proxies the upgrade is handled by the implementation, and can eventually be removed. Transparent proxies, on the other hand, include the upgrade and admin logic in the proxy itself. This means {TransparentUpgradeableProxy} is more expensive to deploy than what is possible with UUPS proxies.
 
@@ -174,7 +177,7 @@ By default, the upgrade functionality included in {UUPSUpgradeable} contains a s
 - Adding a flag mechanism in the implementation that will disable the upgrade function when triggered.
 - Upgrading to an implementation that features an upgrade mechanism without the additional security check, and then upgrading again to another implementation without the upgrade mechanism.
 
-The current implementation of this security mechanism uses https://eips.ethereum.org/EIPS/eip-1822[EIP1822] to detect the storage slot used by the implementation. A previous implementation, now deprecated, relied on a rollback check. It is possible to upgrade from a contract using the old mechanism to a new one. The inverse is however not possible, as old implementations (before version 4.5) did not include the `ERC1822` interface.
+The current implementation of this security mechanism uses https://eips.ethereum.org/EIPS/eip-1822[ERC-1822] to detect the storage slot used by the implementation. A previous implementation, now deprecated, relied on a rollback check. It is possible to upgrade from a contract using the old mechanism to a new one. The inverse is however not possible, as old implementations (before version 4.5) did not include the ERC-1822 interface.
 
 == Core
 
@@ -185,7 +188,7 @@ The current implementation of this security mechanism uses https://eips.ethereum
 
 [.contract]
 [[Proxy]]
-=== `++Proxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.1/contracts/proxy/Proxy.sol[{github-icon},role=heading-link]
+=== `++Proxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/proxy/Proxy.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -241,14 +244,14 @@ This function does not return to its internal call site, it will return directly
 Fallback function that delegates calls to the address returned by `_implementation()`. Will run if no other
 function in the contract matches the call data.
 
-== ERC1967
+== ERC-1967
 
 :constructor: pass:normal[xref:#ERC1967Proxy-constructor-address-bytes-[`++constructor++`]]
 :_implementation: pass:normal[xref:#ERC1967Proxy-_implementation--[`++_implementation++`]]
 
 [.contract]
 [[ERC1967Proxy]]
-=== `++ERC1967Proxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.1/contracts/proxy/ERC1967/ERC1967Proxy.sol[{github-icon},role=heading-link]
+=== `++ERC1967Proxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/proxy/ERC1967/ERC1967Proxy.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -257,7 +260,7 @@ import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
 This contract implements an upgradeable proxy. It is upgradeable because calls are delegated to an
 implementation address that can be changed. This address is stored in storage in the location specified by
-https://eips.ethereum.org/EIPS/eip-1967[EIP1967], so that it doesn't conflict with the storage layout of the
+https://eips.ethereum.org/EIPS/eip-1967[ERC-1967], so that it doesn't conflict with the storage layout of the
 implementation behind the proxy.
 
 [.contract-index]
@@ -293,13 +296,10 @@ Requirements:
 
 Returns the current implementation address.
 
-TIP: To get this value clients can read directly from the storage slot shown below (specified by EIP1967) using
+TIP: To get this value clients can read directly from the storage slot shown below (specified by ERC-1967) using
 the https://eth.wiki/json-rpc/API#eth_getstorageat[`eth_getStorageAt`] RPC call.
 `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
 
-:Upgraded: pass:normal[xref:#ERC1967Utils-Upgraded-address-[`++Upgraded++`]]
-:AdminChanged: pass:normal[xref:#ERC1967Utils-AdminChanged-address-address-[`++AdminChanged++`]]
-:BeaconUpgraded: pass:normal[xref:#ERC1967Utils-BeaconUpgraded-address-[`++BeaconUpgraded++`]]
 :IMPLEMENTATION_SLOT: pass:normal[xref:#ERC1967Utils-IMPLEMENTATION_SLOT-bytes32[`++IMPLEMENTATION_SLOT++`]]
 :ERC1967InvalidImplementation: pass:normal[xref:#ERC1967Utils-ERC1967InvalidImplementation-address-[`++ERC1967InvalidImplementation++`]]
 :ERC1967InvalidAdmin: pass:normal[xref:#ERC1967Utils-ERC1967InvalidAdmin-address-[`++ERC1967InvalidAdmin++`]]
@@ -316,15 +316,15 @@ the https://eth.wiki/json-rpc/API#eth_getstorageat[`eth_getStorageAt`] RPC call.
 
 [.contract]
 [[ERC1967Utils]]
-=== `++ERC1967Utils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.1/contracts/proxy/ERC1967/ERC1967Utils.sol[{github-icon},role=heading-link]
+=== `++ERC1967Utils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/proxy/ERC1967/ERC1967Utils.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
 import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Utils.sol";
 ```
 
-This abstract contract provides getters and event emitting update functions for
-https://eips.ethereum.org/EIPS/eip-1967[EIP1967] slots.
+This library provides getters and event emitting update functions for
+https://eips.ethereum.org/EIPS/eip-1967[ERC-1967] slots.
 
 [.contract-index]
 .Functions
@@ -339,21 +339,21 @@ https://eips.ethereum.org/EIPS/eip-1967[EIP1967] slots.
 --
 
 [.contract-index]
-.Events
---
-* {xref-ERC1967Utils-Upgraded-address-}[`++Upgraded(implementation)++`]
-* {xref-ERC1967Utils-AdminChanged-address-address-}[`++AdminChanged(previousAdmin, newAdmin)++`]
-* {xref-ERC1967Utils-BeaconUpgraded-address-}[`++BeaconUpgraded(beacon)++`]
-
---
-
-[.contract-index]
 .Errors
 --
 * {xref-ERC1967Utils-ERC1967InvalidImplementation-address-}[`++ERC1967InvalidImplementation(implementation)++`]
 * {xref-ERC1967Utils-ERC1967InvalidAdmin-address-}[`++ERC1967InvalidAdmin(admin)++`]
 * {xref-ERC1967Utils-ERC1967InvalidBeacon-address-}[`++ERC1967InvalidBeacon(beacon)++`]
 * {xref-ERC1967Utils-ERC1967NonPayable--}[`++ERC1967NonPayable()++`]
+
+--
+
+[.contract-index]
+.Internal Variables
+--
+* {xref-ERC1967Utils-IMPLEMENTATION_SLOT-bytes32}[`++bytes32 constant IMPLEMENTATION_SLOT++`]
+* {xref-ERC1967Utils-ADMIN_SLOT-bytes32}[`++bytes32 constant ADMIN_SLOT++`]
+* {xref-ERC1967Utils-BEACON_SLOT-bytes32}[`++bytes32 constant BEACON_SLOT++`]
 
 --
 
@@ -379,7 +379,7 @@ Emits an {IERC1967-Upgraded} event.
 
 Returns the current admin.
 
-TIP: To get this value clients can read directly from the storage slot shown below (specified by EIP1967) using
+TIP: To get this value clients can read directly from the storage slot shown below (specified by ERC-1967) using
 the https://eth.wiki/json-rpc/API#eth_getstorageat[`eth_getStorageAt`] RPC call.
 `0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103`
 
@@ -412,24 +412,6 @@ it uses an immutable beacon without looking at the value of the ERC-1967 beacon 
 efficiency.
 
 [.contract-item]
-[[ERC1967Utils-Upgraded-address-]]
-==== `[.contract-item-name]#++Upgraded++#++(address indexed implementation)++` [.item-kind]#event#
-
-Emitted when the implementation is upgraded.
-
-[.contract-item]
-[[ERC1967Utils-AdminChanged-address-address-]]
-==== `[.contract-item-name]#++AdminChanged++#++(address previousAdmin, address newAdmin)++` [.item-kind]#event#
-
-Emitted when the admin account has changed.
-
-[.contract-item]
-[[ERC1967Utils-BeaconUpgraded-address-]]
-==== `[.contract-item-name]#++BeaconUpgraded++#++(address indexed beacon)++` [.item-kind]#event#
-
-Emitted when the beacon is changed.
-
-[.contract-item]
 [[ERC1967Utils-ERC1967InvalidImplementation-address-]]
 ==== `[.contract-item-name]#++ERC1967InvalidImplementation++#++(address implementation)++` [.item-kind]#error#
 
@@ -453,6 +435,27 @@ The `beacon` of the proxy is invalid.
 
 An upgrade function sees `msg.value > 0` that may be lost.
 
+[.contract-item]
+[[ERC1967Utils-IMPLEMENTATION_SLOT-bytes32]]
+==== `bytes32 [.contract-item-name]#++IMPLEMENTATION_SLOT++#` [.item-kind]#internal constant#
+
+Storage slot with the address of the current implementation.
+This is the keccak-256 hash of "eip1967.proxy.implementation" subtracted by 1.
+
+[.contract-item]
+[[ERC1967Utils-ADMIN_SLOT-bytes32]]
+==== `bytes32 [.contract-item-name]#++ADMIN_SLOT++#` [.item-kind]#internal constant#
+
+Storage slot with the admin of the contract.
+This is the keccak-256 hash of "eip1967.proxy.admin" subtracted by 1.
+
+[.contract-item]
+[[ERC1967Utils-BEACON_SLOT-bytes32]]
+==== `bytes32 [.contract-item-name]#++BEACON_SLOT++#` [.item-kind]#internal constant#
+
+The storage slot of the UpgradeableBeacon contract which defines the implementation for this proxy.
+This is the keccak-256 hash of "eip1967.proxy.beacon" subtracted by 1.
+
 == Transparent Proxy
 
 :ProxyDeniedAdminAccess: pass:normal[xref:#TransparentUpgradeableProxy-ProxyDeniedAdminAccess--[`++ProxyDeniedAdminAccess++`]]
@@ -462,7 +465,7 @@ An upgrade function sees `msg.value > 0` that may be lost.
 
 [.contract]
 [[TransparentUpgradeableProxy]]
-=== `++TransparentUpgradeableProxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.1/contracts/proxy/transparent/TransparentUpgradeableProxy.sol[{github-icon},role=heading-link]
+=== `++TransparentUpgradeableProxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/proxy/transparent/TransparentUpgradeableProxy.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -500,7 +503,8 @@ meta-transaction in any way, and any other meta-transaction setup should be made
 IMPORTANT: This contract avoids unnecessary storage reads by setting the admin only during construction as an
 immutable variable, preventing any changes thereafter. However, the admin slot defined in ERC-1967 can still be
 overwritten by the implementation logic pointed to by this proxy. In such cases, the contract may end up in an
-undesirable state where the admin slot is different from the actual admin.
+undesirable state where the admin slot is different from the actual admin. Relying on the value of the admin slot
+is generally fine if the implementation is trusted.
 
 WARNING: It is not recommended to extend this contract to add additional external functions. If you do so, the
 compiler will not check that there are no selector conflicts, due to the note above. A selector clash between any new
@@ -570,7 +574,7 @@ The proxy caller is the current admin, and can't fallback to the proxy target.
 
 [.contract]
 [[ProxyAdmin]]
-=== `++ProxyAdmin++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.1/contracts/proxy/transparent/ProxyAdmin.sol[{github-icon},role=heading-link]
+=== `++ProxyAdmin++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/proxy/transparent/ProxyAdmin.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -640,10 +644,10 @@ Requirements:
 [[ProxyAdmin-UPGRADE_INTERFACE_VERSION-string]]
 ==== `[.contract-item-name]#++UPGRADE_INTERFACE_VERSION++#++() → string++` [.item-kind]#public#
 
-The version of the upgrade interface of the contract. If this getter is missing, both `upgrade(address)`
-and `upgradeAndCall(address,bytes)` are present, and `upgradeTo` must be used if no function should be called,
-while `upgradeAndCall` will invoke the `receive` function if the second argument is the empty byte string.
-If the getter returns `"5.0.0"`, only `upgradeAndCall(address,bytes)` is present, and the second argument must
+The version of the upgrade interface of the contract. If this getter is missing, both `upgrade(address,address)`
+and `upgradeAndCall(address,address,bytes)` are present, and `upgrade` must be used if no function should be called,
+while `upgradeAndCall` will invoke the `receive` function if the third argument is the empty byte string.
+If the getter returns `"5.0.0"`, only `upgradeAndCall(address,address,bytes)` is present, and the third argument must
 be the empty byte string if no function should be called, making it impossible to invoke the `receive` function
 during an upgrade.
 
@@ -655,7 +659,7 @@ during an upgrade.
 
 [.contract]
 [[BeaconProxy]]
-=== `++BeaconProxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.1/contracts/proxy/beacon/BeaconProxy.sol[{github-icon},role=heading-link]
+=== `++BeaconProxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/proxy/beacon/BeaconProxy.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -666,7 +670,7 @@ This contract implements a proxy that gets the implementation address for each c
 
 The beacon address can only be set once during construction, and cannot be changed afterwards. It is stored in an
 immutable variable to avoid unnecessary storage reads, and also in the beacon storage slot specified by
-https://eips.ethereum.org/EIPS/eip-1967[EIP1967] so that it can be accessed externally.
+https://eips.ethereum.org/EIPS/eip-1967[ERC-1967] so that it can be accessed externally.
 
 CAUTION: Since the beacon address can never be changed, you must ensure that you either control the beacon, or trust
 the beacon to not upgrade the implementation maliciously.
@@ -720,7 +724,7 @@ Returns the beacon.
 
 [.contract]
 [[IBeacon]]
-=== `++IBeacon++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.1/contracts/proxy/beacon/IBeacon.sol[{github-icon},role=heading-link]
+=== `++IBeacon++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/proxy/beacon/IBeacon.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -752,7 +756,7 @@ Must return an address that can be used as a delegate call target.
 
 [.contract]
 [[UpgradeableBeacon]]
-=== `++UpgradeableBeacon++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.1/contracts/proxy/beacon/UpgradeableBeacon.sol[{github-icon},role=heading-link]
+=== `++UpgradeableBeacon++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/proxy/beacon/UpgradeableBeacon.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -852,22 +856,23 @@ The `implementation` of the beacon is invalid.
 
 == Minimal Clones
 
-:ERC1167FailedCreateClone: pass:normal[xref:#Clones-ERC1167FailedCreateClone--[`++ERC1167FailedCreateClone++`]]
 :clone: pass:normal[xref:#Clones-clone-address-[`++clone++`]]
+:clone: pass:normal[xref:#Clones-clone-address-uint256-[`++clone++`]]
 :cloneDeterministic: pass:normal[xref:#Clones-cloneDeterministic-address-bytes32-[`++cloneDeterministic++`]]
+:cloneDeterministic: pass:normal[xref:#Clones-cloneDeterministic-address-bytes32-uint256-[`++cloneDeterministic++`]]
 :predictDeterministicAddress: pass:normal[xref:#Clones-predictDeterministicAddress-address-bytes32-address-[`++predictDeterministicAddress++`]]
 :predictDeterministicAddress: pass:normal[xref:#Clones-predictDeterministicAddress-address-bytes32-[`++predictDeterministicAddress++`]]
 
 [.contract]
 [[Clones]]
-=== `++Clones++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.1/contracts/proxy/Clones.sol[{github-icon},role=heading-link]
+=== `++Clones++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/proxy/Clones.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
 import "@openzeppelin/contracts/proxy/Clones.sol";
 ```
 
-https://eips.ethereum.org/EIPS/eip-1167[EIP 1167] is a standard for
+https://eips.ethereum.org/EIPS/eip-1167[ERC-1167] is a standard for
 deploying minimal proxy contracts, also known as "clones".
 
 > To simply and cheaply clone contract functionality in an immutable way, this standard specifies
@@ -881,16 +886,11 @@ deterministic method.
 .Functions
 --
 * {xref-Clones-clone-address-}[`++clone(implementation)++`]
+* {xref-Clones-clone-address-uint256-}[`++clone(implementation, value)++`]
 * {xref-Clones-cloneDeterministic-address-bytes32-}[`++cloneDeterministic(implementation, salt)++`]
+* {xref-Clones-cloneDeterministic-address-bytes32-uint256-}[`++cloneDeterministic(implementation, salt, value)++`]
 * {xref-Clones-predictDeterministicAddress-address-bytes32-address-}[`++predictDeterministicAddress(implementation, salt, deployer)++`]
 * {xref-Clones-predictDeterministicAddress-address-bytes32-}[`++predictDeterministicAddress(implementation, salt)++`]
-
---
-
-[.contract-index]
-.Errors
---
-* {xref-Clones-ERC1167FailedCreateClone--}[`++ERC1167FailedCreateClone()++`]
 
 --
 
@@ -903,6 +903,16 @@ Deploys and returns the address of a clone that mimics the behaviour of `impleme
 This function uses the create opcode, which should never revert.
 
 [.contract-item]
+[[Clones-clone-address-uint256-]]
+==== `[.contract-item-name]#++clone++#++(address implementation, uint256 value) → address instance++` [.item-kind]#internal#
+
+Same as {xref-Clones-clone-address-}[clone], but with a `value` parameter to send native currency
+to the new contract.
+
+NOTE: Using a non-zero value at creation will require the contract using this function (e.g. a factory)
+to always have enough balance for new deployments. Consider exposing this function under a payable method.
+
+[.contract-item]
 [[Clones-cloneDeterministic-address-bytes32-]]
 ==== `[.contract-item-name]#++cloneDeterministic++#++(address implementation, bytes32 salt) → address instance++` [.item-kind]#internal#
 
@@ -911,6 +921,16 @@ Deploys and returns the address of a clone that mimics the behaviour of `impleme
 This function uses the create2 opcode and a `salt` to deterministically deploy
 the clone. Using the same `implementation` and `salt` multiple time will revert, since
 the clones cannot be deployed twice at the same address.
+
+[.contract-item]
+[[Clones-cloneDeterministic-address-bytes32-uint256-]]
+==== `[.contract-item-name]#++cloneDeterministic++#++(address implementation, bytes32 salt, uint256 value) → address instance++` [.item-kind]#internal#
+
+Same as {xref-Clones-cloneDeterministic-address-bytes32-}[cloneDeterministic], but with
+a `value` parameter to send native currency to the new contract.
+
+NOTE: Using a non-zero value at creation will require the contract using this function (e.g. a factory)
+to always have enough balance for new deployments. Consider exposing this function under a payable method.
 
 [.contract-item]
 [[Clones-predictDeterministicAddress-address-bytes32-address-]]
@@ -923,12 +943,6 @@ Computes the address of a clone deployed using {Clones-cloneDeterministic}.
 ==== `[.contract-item-name]#++predictDeterministicAddress++#++(address implementation, bytes32 salt) → address predicted++` [.item-kind]#internal#
 
 Computes the address of a clone deployed using {Clones-cloneDeterministic}.
-
-[.contract-item]
-[[Clones-ERC1167FailedCreateClone--]]
-==== `[.contract-item-name]#++ERC1167FailedCreateClone++#++()++` [.item-kind]#error#
-
-A clone instance deployment failed.
 
 == Utils
 
@@ -946,7 +960,7 @@ A clone instance deployment failed.
 
 [.contract]
 [[Initializable]]
-=== `++Initializable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.1/contracts/proxy/utils/Initializable.sol[{github-icon},role=heading-link]
+=== `++Initializable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/proxy/utils/Initializable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1136,7 +1150,7 @@ The contract is not initializing.
 
 [.contract]
 [[UUPSUpgradeable]]
-=== `++UUPSUpgradeable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.1/contracts/proxy/utils/UUPSUpgradeable.sol[{github-icon},role=heading-link]
+=== `++UUPSUpgradeable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/proxy/utils/UUPSUpgradeable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1190,9 +1204,9 @@ The {_authorizeUpgrade} function must be overridden to include access restrictio
 ==== `[.contract-item-name]#++onlyProxy++#++()++` [.item-kind]#modifier#
 
 Check that the execution is being performed through a delegatecall call and that the execution context is
-a proxy contract with an implementation (as defined in ERC1967) pointing to self. This should only be the case
+a proxy contract with an implementation (as defined in ERC-1967) pointing to self. This should only be the case
 for UUPS and transparent proxies that are using the current contract as their implementation. Execution of a
-function through ERC1167 minimal proxies (clones) would not normally pass this test, but is not guaranteed to
+function through ERC-1167 minimal proxies (clones) would not normally pass this test, but is not guaranteed to
 fail.
 
 [.contract-item]
@@ -1206,7 +1220,7 @@ callable on the implementing contract but not through proxies.
 [[UUPSUpgradeable-proxiableUUID--]]
 ==== `[.contract-item-name]#++proxiableUUID++#++() → bytes32++` [.item-kind]#external#
 
-Implementation of the ERC1822 {proxiableUUID} function. This returns the storage slot used by the
+Implementation of the ERC-1822 {proxiableUUID} function. This returns the storage slot used by the
 implementation. It is used to validate the implementation's compatibility when performing an upgrade.
 
 IMPORTANT: A proxy pointing at a proxiable contract should not be considered proxiable itself, because this risks
@@ -1229,7 +1243,7 @@ Emits an {Upgraded} event.
 ==== `[.contract-item-name]#++_checkProxy++#++()++` [.item-kind]#internal#
 
 Reverts if the execution is not performed via delegatecall or the execution
-context is not of a proxy with an ERC1967-compliant implementation pointing to self.
+context is not of a proxy with an ERC-1967 compliant implementation pointing to self.
 See {_onlyProxy}.
 
 [.contract-item]

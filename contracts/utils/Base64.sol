@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (utils/Base64.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (utils/Base64.sol)
 
 pragma solidity ^0.8.20;
 
@@ -9,42 +9,71 @@ pragma solidity ^0.8.20;
 library Base64 {
     /**
      * @dev Base64 Encoding/Decoding Table
+     * See sections 4 and 5 of https://datatracker.ietf.org/doc/html/rfc4648
      */
     string internal constant _TABLE = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    string internal constant _TABLE_URL = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 
     /**
      * @dev Converts a `bytes` to its Bytes64 `string` representation.
      */
     function encode(bytes memory data) internal pure returns (string memory) {
+        return _encode(data, _TABLE, true);
+    }
+
+    /**
+     * @dev Converts a `bytes` to its Bytes64Url `string` representation.
+     * Output is not padded with `=` as specified in https://www.rfc-editor.org/rfc/rfc4648[rfc4648].
+     */
+    function encodeURL(bytes memory data) internal pure returns (string memory) {
+        return _encode(data, _TABLE_URL, false);
+    }
+
+    /**
+     * @dev Internal table-agnostic conversion
+     */
+    function _encode(bytes memory data, string memory table, bool withPadding) private pure returns (string memory) {
         /**
          * Inspired by Brecht Devos (Brechtpd) implementation - MIT licence
          * https://github.com/Brechtpd/base64/blob/e78d9fd951e7b0977ddca77d92dc85183770daf4/base64.sol
          */
         if (data.length == 0) return "";
 
-        // Loads the table into memory
-        string memory table = _TABLE;
-
-        // Encoding takes 3 bytes chunks of binary data from `bytes` data parameter
-        // and split into 4 numbers of 6 bits.
-        // The final Base64 length should be `bytes` data length multiplied by 4/3 rounded up
-        // - `data.length + 2`  -> Round up
-        // - `/ 3`              -> Number of 3-bytes chunks
+        // If padding is enabled, the final length should be `bytes` data length divided by 3 rounded up and then
+        // multiplied by 4 so that it leaves room for padding the last chunk
+        // - `data.length + 2`  -> Prepare for division rounding up
+        // - `/ 3`              -> Number of 3-bytes chunks (rounded up)
         // - `4 *`              -> 4 characters for each chunk
-        string memory result = new string(4 * ((data.length + 2) / 3));
+        // This is equivalent to: 4 * Math.ceil(data.length / 3)
+        //
+        // If padding is disabled, the final length should be `bytes` data length multiplied by 4/3 rounded up as
+        // opposed to when padding is required to fill the last chunk.
+        // - `4 * data.length`  -> 4 characters for each chunk
+        // - ` + 2`             -> Prepare for division rounding up
+        // - `/ 3`              -> Number of 3-bytes chunks (rounded up)
+        // This is equivalent to: Math.ceil((4 * data.length) / 3)
+        uint256 resultLength = withPadding ? 4 * ((data.length + 2) / 3) : (4 * data.length + 2) / 3;
 
-        /// @solidity memory-safe-assembly
-        assembly {
+        string memory result = new string(resultLength);
+
+        assembly ("memory-safe") {
             // Prepare the lookup table (skip the first "length" byte)
             let tablePtr := add(table, 1)
 
             // Prepare result pointer, jump over length
-            let resultPtr := add(result, 32)
+            let resultPtr := add(result, 0x20)
+            let dataPtr := data
+            let endPtr := add(data, mload(data))
+
+            // In some cases, the last iteration will read bytes after the end of the data. We cache the value, and
+            // set it to zero to make sure no dirty bytes are read in that section.
+            let afterPtr := add(endPtr, 0x20)
+            let afterCache := mload(afterPtr)
+            mstore(afterPtr, 0x00)
 
             // Run over the input, 3 bytes at a time
             for {
-                let dataPtr := data
-                let endPtr := add(data, mload(data))
+
             } lt(dataPtr, endPtr) {
 
             } {
@@ -52,13 +81,12 @@ library Base64 {
                 dataPtr := add(dataPtr, 3)
                 let input := mload(dataPtr)
 
-                // To write each character, shift the 3 bytes (18 bits) chunk
+                // To write each character, shift the 3 byte (24 bits) chunk
                 // 4 times in blocks of 6 bits for each character (18, 12, 6, 0)
-                // and apply logical AND with 0x3F which is the number of
-                // the previous character in the ASCII table prior to the Base64 Table
-                // The result is then added to the table to get the character to write,
-                // and finally write it in the result pointer but with a left shift
-                // of 256 (1 byte) - 8 (1 ASCII char) = 248 bits
+                // and apply logical AND with 0x3F to bitmask the least significant 6 bits.
+                // Use this as an index into the lookup table, mload an entire word
+                // so the desired character is in the least significant byte, and
+                // mstore8 this least significant byte into the result and continue.
 
                 mstore8(resultPtr, mload(add(tablePtr, and(shr(18, input), 0x3F))))
                 resultPtr := add(resultPtr, 1) // Advance
@@ -73,15 +101,20 @@ library Base64 {
                 resultPtr := add(resultPtr, 1) // Advance
             }
 
-            // When data `bytes` is not exactly 3 bytes long
-            // it is padded with `=` characters at the end
-            switch mod(mload(data), 3)
-            case 1 {
-                mstore8(sub(resultPtr, 1), 0x3d)
-                mstore8(sub(resultPtr, 2), 0x3d)
-            }
-            case 2 {
-                mstore8(sub(resultPtr, 1), 0x3d)
+            // Reset the value that was cached
+            mstore(afterPtr, afterCache)
+
+            if withPadding {
+                // When data `bytes` is not exactly 3 bytes long
+                // it is padded with `=` characters at the end
+                switch mod(mload(data), 3)
+                case 1 {
+                    mstore8(sub(resultPtr, 1), 0x3d)
+                    mstore8(sub(resultPtr, 2), 0x3d)
+                }
+                case 2 {
+                    mstore8(sub(resultPtr, 1), 0x3d)
+                }
             }
         }
 

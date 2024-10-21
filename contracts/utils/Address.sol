@@ -1,26 +1,18 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (utils/Address.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (utils/Address.sol)
 
 pragma solidity ^0.8.20;
+
+import {Errors} from "./Errors.sol";
 
 /**
  * @dev Collection of functions related to the address type
  */
 library Address {
     /**
-     * @dev The ETH balance of the account is not enough to perform the operation.
-     */
-    error AddressInsufficientBalance(address account);
-
-    /**
      * @dev There's no code at `target` (it is not a contract).
      */
     error AddressEmptyCode(address target);
-
-    /**
-     * @dev A call to an address target failed. The target may have reverted.
-     */
-    error FailedInnerCall();
 
     /**
      * @dev Replacement for Solidity's `transfer`: sends `amount` wei to
@@ -40,12 +32,12 @@ library Address {
      */
     function sendValue(address payable recipient, uint256 amount) internal {
         if (address(this).balance < amount) {
-            revert AddressInsufficientBalance(address(this));
+            revert Errors.InsufficientBalance(address(this).balance, amount);
         }
 
         (bool success, ) = recipient.call{value: amount}("");
         if (!success) {
-            revert FailedInnerCall();
+            revert Errors.FailedCall();
         }
     }
 
@@ -57,7 +49,7 @@ library Address {
      * If `target` reverts with a revert reason or custom error, it is bubbled
      * up by this function (like regular Solidity function calls). However, if
      * the call reverted with no returned reason, this function reverts with a
-     * {FailedInnerCall} error.
+     * {Errors.FailedCall} error.
      *
      * Returns the raw returned data. To convert to the expected return value,
      * use https://solidity.readthedocs.io/en/latest/units-and-global-variables.html?highlight=abi.decode#abi-encoding-and-decoding-functions[`abi.decode`].
@@ -82,7 +74,7 @@ library Address {
      */
     function functionCallWithValue(address target, bytes memory data, uint256 value) internal returns (bytes memory) {
         if (address(this).balance < value) {
-            revert AddressInsufficientBalance(address(this));
+            revert Errors.InsufficientBalance(address(this).balance, value);
         }
         (bool success, bytes memory returndata) = target.call{value: value}(data);
         return verifyCallResultFromTarget(target, success, returndata);
@@ -108,8 +100,8 @@ library Address {
 
     /**
      * @dev Tool to verify that a low level call to smart-contract was successful, and reverts if the target
-     * was not a contract or bubbling up the revert reason (falling back to {FailedInnerCall}) in case of an
-     * unsuccessful call.
+     * was not a contract or bubbling up the revert reason (falling back to {Errors.FailedCall}) in case
+     * of an unsuccessful call.
      */
     function verifyCallResultFromTarget(
         address target,
@@ -130,7 +122,7 @@ library Address {
 
     /**
      * @dev Tool to verify that a low level call was successful, and reverts if it wasn't, either by bubbling the
-     * revert reason or with a default {FailedInnerCall} error.
+     * revert reason or with a default {Errors.FailedCall} error.
      */
     function verifyCallResult(bool success, bytes memory returndata) internal pure returns (bytes memory) {
         if (!success) {
@@ -141,19 +133,18 @@ library Address {
     }
 
     /**
-     * @dev Reverts with returndata if present. Otherwise reverts with {FailedInnerCall}.
+     * @dev Reverts with returndata if present. Otherwise reverts with {Errors.FailedCall}.
      */
     function _revert(bytes memory returndata) private pure {
         // Look for revert reason and bubble it up if present
         if (returndata.length > 0) {
             // The easiest way to bubble the revert reason is using memory via assembly
-            /// @solidity memory-safe-assembly
-            assembly {
+            assembly ("memory-safe") {
                 let returndata_size := mload(returndata)
                 revert(add(32, returndata), returndata_size)
             }
         } else {
-            revert FailedInnerCall();
+            revert Errors.FailedCall();
         }
     }
 }

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (utils/ReentrancyGuard.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (utils/ReentrancyGuard.sol)
 
 pragma solidity ^0.8.20;
 
@@ -14,6 +14,9 @@ pragma solidity ^0.8.20;
  * `nonReentrant` may not call one another. This can be worked around by making
  * those functions `private`, and then adding `external` `nonReentrant` entry
  * points to them.
+ *
+ * TIP: If EIP-1153 (transient storage) is available on the chain you're deploying at,
+ * consider using {ReentrancyGuardTransient} instead.
  *
  * TIP: If you would like to learn more about reentrancy and alternative ways
  * to protect against it, check out our blog post

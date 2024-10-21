@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (utils/Strings.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (utils/Strings.sol)
 
 pragma solidity ^0.8.20;
 
@@ -26,14 +26,12 @@ library Strings {
             uint256 length = Math.log10(value) + 1;
             string memory buffer = new string(length);
             uint256 ptr;
-            /// @solidity memory-safe-assembly
-            assembly {
+            assembly ("memory-safe") {
                 ptr := add(buffer, add(32, length))
             }
             while (true) {
                 ptr--;
-                /// @solidity memory-safe-assembly
-                assembly {
+                assembly ("memory-safe") {
                     mstore8(ptr, byte(mod(value, 10), HEX_DIGITS))
                 }
                 value /= 10;
@@ -83,6 +81,30 @@ library Strings {
      */
     function toHexString(address addr) internal pure returns (string memory) {
         return toHexString(uint256(uint160(addr)), ADDRESS_LENGTH);
+    }
+
+    /**
+     * @dev Converts an `address` with fixed length of 20 bytes to its checksummed ASCII `string` hexadecimal
+     * representation, according to EIP-55.
+     */
+    function toChecksumHexString(address addr) internal pure returns (string memory) {
+        bytes memory buffer = bytes(toHexString(addr));
+
+        // hash the hex part of buffer (skip length + 2 bytes, length 40)
+        uint256 hashValue;
+        assembly ("memory-safe") {
+            hashValue := shr(96, keccak256(add(buffer, 0x22), 40))
+        }
+
+        for (uint256 i = 41; i > 1; --i) {
+            // possible values for buffer[i] are 48 (0) to 57 (9) and 97 (a) to 102 (f)
+            if (hashValue & 0xf > 7 && uint8(buffer[i]) > 96) {
+                // case shift by xoring with 0x20
+                buffer[i] ^= 0x20;
+            }
+            hashValue >>= 4;
+        }
+        return string(buffer);
     }
 
     /**
