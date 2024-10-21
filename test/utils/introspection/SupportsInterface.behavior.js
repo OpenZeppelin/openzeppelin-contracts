@@ -97,7 +97,7 @@ function shouldSupportInterfaces(interfaces = []) {
 
   describe('ERC165', function () {
     beforeEach(function () {
-      this.contractUnderTest = this.mock || this.token;
+      this.contractUnderTest = this.mock || this.token || this.smartAccount;
     });
 
     describe('when the interfaceId is supported', function () {
