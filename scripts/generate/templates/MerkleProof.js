@@ -43,7 +43,6 @@ const errors = `\
 error MerkleProofInvalidMultiproof();
 `;
 
-/* eslint-disable max-len */
 const templateProof = ({ suffix, location, visibility, hash }) => `\
 /**
  * @dev Returns true if a \`leaf\` can be proved to be a part of a Merkle tree
@@ -172,7 +171,6 @@ function processMultiProof${suffix}(${formatArgsMultiline(
     }
 }
 `;
-/* eslint-enable max-len */
 
 // GENERATE
 module.exports = format(

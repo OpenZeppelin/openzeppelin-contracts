@@ -227,7 +227,6 @@ function _unsafeAccess(
     }
 }
 `;
-/* eslint-enable max-len */
 
 // GENERATE
 module.exports = format(
