@@ -13,3 +13,4 @@ coverage:
 ignore:
   - "test"
   - "contracts/mocks"
+  - "contracts/vendor"
