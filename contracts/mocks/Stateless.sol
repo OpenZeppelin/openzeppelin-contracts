@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.22;
 
 // We keep these imports and a dummy contract just to we can run the test suite after transpilation.
 
