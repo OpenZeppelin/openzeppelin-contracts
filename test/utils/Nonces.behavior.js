@@ -66,8 +66,8 @@ function shouldBehaveLikeNonces() {
   });
 }
 
-function shouldBehaveLikeNoncesSemiAbstracted() {
-  describe("should implement ERC-4337's semi-abstracted nonces", function () {
+function shouldBehaveLikeNoncesKeyed() {
+  describe('should support nonces with keys', function () {
     const sender = ethers.Wallet.createRandom();
 
     const keyOffset = key => key << 64n;
@@ -148,5 +148,5 @@ function shouldBehaveLikeNoncesSemiAbstracted() {
 
 module.exports = {
   shouldBehaveLikeNonces,
-  shouldBehaveLikeNoncesSemiAbstracted,
+  shouldBehaveLikeNoncesKeyed,
 };
