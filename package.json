@@ -26,8 +26,9 @@
     "generate": "scripts/generate/run.js",
     "version": "scripts/release/version.sh",
     "test": "hardhat test",
-    "test:inheritance": "scripts/checks/inheritance-ordering.js artifacts/build-info/*",
     "test:generation": "scripts/checks/generation.sh",
+    "test:inheritance": "scripts/checks/inheritance-ordering.js artifacts/build-info/*",
+    "test:pragma": "scripts/checks/pragma-consistency.js artifacts/build-info/*",
     "gas-report": "env ENABLE_GAS_REPORT=true npm run test",
     "slither": "npm run clean && slither ."
   },
