@@ -6,7 +6,7 @@ const { findAll } = require('solidity-ast/utils');
 const { _: artifacts } = require('yargs').argv;
 
 // files to skip
-const skipPatterns = ['contracts-exposed/'];
+const skipPatterns = ['contracts-exposed/', 'contracts/mocks/WithInit.sol'];
 const skip = source => skipPatterns.some(pattern => source.startsWith(pattern));
 
 for (const artifact of artifacts) {
