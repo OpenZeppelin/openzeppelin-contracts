@@ -7,56 +7,52 @@ function shouldBehaveLikeNonces() {
     const other = ethers.Wallet.createRandom();
 
     it('gets a nonce', async function () {
-      expect(await this.mock.nonces(sender)).to.equal(0n);
+      expect(this.mock.nonces(sender)).to.eventually.equal(0n);
     });
 
     describe('_useNonce', function () {
       it('increments a nonce', async function () {
-        expect(await this.mock.nonces(sender)).to.equal(0n);
+        expect(this.mock.nonces(sender)).to.eventually.equal(0n);
 
         const eventName = ['return$_useNonce', 'return$_useNonce_address'].find(name =>
           this.mock.interface.getEvent(name),
         );
 
-        await expect(await this.mock.$_useNonce(sender))
-          .to.emit(this.mock, eventName)
-          .withArgs(0n);
+        await expect(this.mock.$_useNonce(sender)).to.emit(this.mock, eventName).withArgs(0n);
 
-        expect(await this.mock.nonces(sender)).to.equal(1n);
+        expect(this.mock.nonces(sender)).to.eventually.equal(1n);
       });
 
       it("increments only sender's nonce", async function () {
-        expect(await this.mock.nonces(sender)).to.equal(0n);
-        expect(await this.mock.nonces(other)).to.equal(0n);
+        expect(this.mock.nonces(sender)).to.eventually.equal(0n);
+        expect(this.mock.nonces(other)).to.eventually.equal(0n);
 
         await this.mock.$_useNonce(sender);
 
-        expect(await this.mock.nonces(sender)).to.equal(1n);
-        expect(await this.mock.nonces(other)).to.equal(0n);
+        expect(this.mock.nonces(sender)).to.eventually.equal(1n);
+        expect(this.mock.nonces(other)).to.eventually.equal(0n);
       });
     });
 
     describe('_useCheckedNonce', function () {
       it('increments a nonce', async function () {
-        const currentNonce = await this.mock.nonces(sender);
+        // current nonce is 0n
+        expect(this.mock.nonces(sender)).to.eventually.equal(0n);
 
-        expect(currentNonce).to.equal(0n);
+        await this.mock.$_useCheckedNonce(sender, 0n);
 
-        await this.mock.$_useCheckedNonce(sender, currentNonce);
-
-        expect(await this.mock.nonces(sender)).to.equal(1n);
+        expect(this.mock.nonces(sender)).to.eventually.equal(1n);
       });
 
       it("increments only sender's nonce", async function () {
-        const currentNonce = await this.mock.nonces(sender);
+        // current nonce is 0n
+        expect(this.mock.nonces(sender)).to.eventually.equal(0n);
+        expect(this.mock.nonces(other)).to.eventually.equal(0n);
 
-        expect(currentNonce).to.equal(0n);
-        expect(await this.mock.nonces(other)).to.equal(0n);
+        await this.mock.$_useCheckedNonce(sender, 0n);
 
-        await this.mock.$_useCheckedNonce(sender, currentNonce);
-
-        expect(await this.mock.nonces(sender)).to.equal(1n);
-        expect(await this.mock.nonces(other)).to.equal(0n);
+        expect(this.mock.nonces(sender)).to.eventually.equal(1n);
+        expect(this.mock.nonces(other)).to.eventually.equal(0n);
       });
 
       it('reverts when nonce is not the expected', async function () {
@@ -77,41 +73,39 @@ function shouldBehaveLikeNoncesSemiAbstracted() {
     const keyOffset = key => key << 64n;
 
     it('gets a nonce', async function () {
-      expect(await this.mock.nonces(sender, ethers.Typed.uint192(0n))).to.equal(keyOffset(0n) + 0n);
-      expect(await this.mock.nonces(sender, ethers.Typed.uint192(17n))).to.equal(keyOffset(17n) + 0n);
+      expect(this.mock.nonces(sender, ethers.Typed.uint192(0n))).to.eventually.equal(keyOffset(0n) + 0n);
+      expect(this.mock.nonces(sender, ethers.Typed.uint192(17n))).to.eventually.equal(keyOffset(17n) + 0n);
     });
 
     describe('_useNonce', function () {
       it('default variant uses key 0', async function () {
-        expect(await this.mock.nonces(sender, ethers.Typed.uint192(0n))).to.equal(keyOffset(0n) + 0n);
-        expect(await this.mock.nonces(sender, ethers.Typed.uint192(17n))).to.equal(keyOffset(17n) + 0n);
+        expect(this.mock.nonces(sender, ethers.Typed.uint192(0n))).to.eventually.equal(keyOffset(0n) + 0n);
+        expect(this.mock.nonces(sender, ethers.Typed.uint192(17n))).to.eventually.equal(keyOffset(17n) + 0n);
 
-        await expect(await this.mock.$_useNonce(sender))
-          .to.emit(this.mock, 'return$_useNonce_address')
-          .withArgs(0n);
+        await expect(this.mock.$_useNonce(sender)).to.emit(this.mock, 'return$_useNonce_address').withArgs(0n);
 
-        await expect(await this.mock.$_useNonce(sender, ethers.Typed.uint192(0n)))
+        await expect(this.mock.$_useNonce(sender, ethers.Typed.uint192(0n)))
           .to.emit(this.mock, 'return$_useNonce_address_uint192')
           .withArgs(1n);
 
-        expect(await this.mock.nonces(sender, ethers.Typed.uint192(0n))).to.equal(keyOffset(0n) + 2n);
-        expect(await this.mock.nonces(sender, ethers.Typed.uint192(17n))).to.equal(keyOffset(17n) + 0n);
+        expect(this.mock.nonces(sender, ethers.Typed.uint192(0n))).to.eventually.equal(keyOffset(0n) + 2n);
+        expect(this.mock.nonces(sender, ethers.Typed.uint192(17n))).to.eventually.equal(keyOffset(17n) + 0n);
       });
 
       it('use nonce at another key', async function () {
-        expect(await this.mock.nonces(sender, ethers.Typed.uint192(0n))).to.equal(keyOffset(0n) + 0n);
-        expect(await this.mock.nonces(sender, ethers.Typed.uint192(17n))).to.equal(keyOffset(17n) + 0n);
+        expect(this.mock.nonces(sender, ethers.Typed.uint192(0n))).to.eventually.equal(keyOffset(0n) + 0n);
+        expect(this.mock.nonces(sender, ethers.Typed.uint192(17n))).to.eventually.equal(keyOffset(17n) + 0n);
 
-        await expect(await this.mock.$_useNonce(sender, ethers.Typed.uint192(17n)))
+        await expect(this.mock.$_useNonce(sender, ethers.Typed.uint192(17n)))
           .to.emit(this.mock, 'return$_useNonce_address_uint192')
           .withArgs(0n);
 
-        await expect(await this.mock.$_useNonce(sender, ethers.Typed.uint192(17n)))
+        await expect(this.mock.$_useNonce(sender, ethers.Typed.uint192(17n)))
           .to.emit(this.mock, 'return$_useNonce_address_uint192')
           .withArgs(1n);
 
-        expect(await this.mock.nonces(sender, ethers.Typed.uint192(0n))).to.equal(keyOffset(0n) + 0n);
-        expect(await this.mock.nonces(sender, ethers.Typed.uint192(17n))).to.equal(keyOffset(17n) + 2n);
+        expect(this.mock.nonces(sender, ethers.Typed.uint192(0n))).to.eventually.equal(keyOffset(0n) + 0n);
+        expect(this.mock.nonces(sender, ethers.Typed.uint192(17n))).to.eventually.equal(keyOffset(17n) + 2n);
       });
     });
 
@@ -121,7 +115,7 @@ function shouldBehaveLikeNoncesSemiAbstracted() {
 
         await this.mock.$_useCheckedNonce(sender, currentNonce);
 
-        expect(await this.mock.nonces(sender, ethers.Typed.uint192(0n))).to.equal(currentNonce + 1n);
+        expect(this.mock.nonces(sender, ethers.Typed.uint192(0n))).to.eventually.equal(currentNonce + 1n);
       });
 
       it('use nonce at another key', async function () {
@@ -129,7 +123,7 @@ function shouldBehaveLikeNoncesSemiAbstracted() {
 
         await this.mock.$_useCheckedNonce(sender, currentNonce);
 
-        expect(await this.mock.nonces(sender, ethers.Typed.uint192(17n))).to.equal(currentNonce + 1n);
+        expect(this.mock.nonces(sender, ethers.Typed.uint192(17n))).to.eventually.equal(currentNonce + 1n);
       });
 
       it('reverts when nonce is not the expected', async function () {
