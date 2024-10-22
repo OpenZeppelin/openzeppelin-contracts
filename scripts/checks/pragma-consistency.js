@@ -19,7 +19,8 @@ for (const artifact of artifacts) {
     if (skip(source)) continue;
     for (const { literals } of findAll('PragmaDirective', solcOutput.sources[source].ast)) {
       // There should only be one.
-      pragma[source] = literals.slice(1).join('');
+      const [first, ...rest] = literals;
+      if (first === 'solidity') pragma[source] = rest.join('');
     }
   }
 
