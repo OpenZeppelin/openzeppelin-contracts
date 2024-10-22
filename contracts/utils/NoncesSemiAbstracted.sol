@@ -9,7 +9,7 @@ import {Nonces} from "./Nonces.sol";
  * Follows the https://eips.ethereum.org/EIPS/eip-4337#semi-abstracted-nonce-support[ERC-4337's semi-abstracted nonce system].
  */
 abstract contract NoncesSemiAbstracted is Nonces {
-    mapping(address owner => mapping(uint192 key => uint64)) private _nounces;
+    mapping(address owner => mapping(uint192 key => uint64)) private _nonces;
 
     /**
      * @dev Returns the next unused nonce for an address.
@@ -22,7 +22,7 @@ abstract contract NoncesSemiAbstracted is Nonces {
      * @dev Returns the next unused nonce for an address and key. Result contains the key prefix.
      */
     function nonces(address owner, uint192 key) public view virtual returns (uint256) {
-        return (uint256(key) << 64) | _nounces[owner][key];
+        return (uint256(key) << 64) | _nonces[owner][key];
     }
 
     /**
@@ -40,8 +40,12 @@ abstract contract NoncesSemiAbstracted is Nonces {
      * Returns the current value and increments nonce.
      */
     function _useNonce(address owner, uint192 key) internal virtual returns (uint256) {
-        // TODO: use unchecked here? Do we expect 2**64 nonce ever be used for a single owner?
-        return _nounces[owner][key]++;
+        // For each account, the nonce has an initial value of 0, can only be incremented by one, and cannot be
+        // decremented or reset. This guarantees that the nonce never overflows.
+        unchecked {
+            // It is important to do x++ and not ++x here.
+            return _nonces[owner][key]++;
+        }
     }
 
     /**
