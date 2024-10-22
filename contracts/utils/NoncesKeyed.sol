@@ -17,7 +17,7 @@ abstract contract NoncesKeyed is Nonces {
     }
 
     /**
-     * @dev Consumes the next unsused nonce for an address and key.
+     * @dev Consumes the next unused nonce for an address and key.
      *
      * Returns the current value without the key prefix. Consumed nonce is increased, so calling this functions twice
      * with the same arguments will return different (sequential) results.
