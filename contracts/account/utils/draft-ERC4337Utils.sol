@@ -71,7 +71,7 @@ library ERC4337Utils {
             return (address(0), false);
         } else {
             (address aggregator_, uint48 validAfter, uint48 validUntil) = parseValidationData(validationData);
-            return (aggregator_, block.timestamp > validUntil || block.timestamp < validAfter);
+            return (aggregator_, block.timestamp < validAfter || validUntil < block.timestamp);
         }
     }
 
