@@ -13,7 +13,7 @@ abstract contract NoncesKeyed is Nonces {
 
     /// @dev Returns the next unused nonce for an address and key. Result contains the key prefix.
     function nonces(address owner, uint192 key) public view virtual returns (uint256) {
-        return key == 0 ? nonces(owner) : (uint256(key) << 64) | _nonces[owner][key];
+        return key == 0 ? nonces(owner) : ((uint256(key) << 64) | _nonces[owner][key]);
     }
 
     /**
