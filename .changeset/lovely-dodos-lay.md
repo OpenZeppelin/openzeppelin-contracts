@@ -2,4 +2,4 @@
 'openzeppelin-solidity': minor
 ---
 
-`NoncesSemiAbstracted`: Add a variant of `Nonces` that implements ERC-4337 semi-abstracted nonce system.
+`NoncesKeyed`: Add a variant of `Nonces` that implements the ERC-4337 entrypoint nonce system.
