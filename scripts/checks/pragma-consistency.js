@@ -2,12 +2,12 @@
 
 const path = require('path');
 const semver = require('semver');
+const match = require('micromatch');
 const { findAll } = require('solidity-ast/utils');
 const { _: artifacts } = require('yargs').argv;
 
 // files to skip
-const skipPatterns = ['contracts-exposed/', 'contracts/mocks/WithInit.sol'];
-const skip = source => skipPatterns.some(pattern => source.startsWith(pattern));
+const skipPatterns = ['contracts-exposed/**', 'contracts/mocks/WithInit.sol'];
 
 for (const artifact of artifacts) {
   const { output: solcOutput } = require(path.resolve(__dirname, '../..', artifact));
@@ -16,7 +16,7 @@ for (const artifact of artifacts) {
 
   // Extract pragma directive for all files
   for (const source in solcOutput.contracts) {
-    if (skip(source)) continue;
+    if (match.any(source, skipPatterns)) continue;
     for (const { literals } of findAll('PragmaDirective', solcOutput.sources[source].ast)) {
       // There should only be one.
       const [first, ...rest] = literals;
@@ -26,7 +26,7 @@ for (const artifact of artifacts) {
 
   // Compare the pragma directive of the file, to that of the files it imports
   for (const source in solcOutput.contracts) {
-    if (skip(source)) continue;
+    if (match.any(source, skipPatterns)) continue;
     // minimum version of the compiler that matches source's pragma
     const minVersion = semver.minVersion(pragma[source]);
     // loop over all imports in source
