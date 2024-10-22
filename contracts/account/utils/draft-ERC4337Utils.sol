@@ -67,12 +67,8 @@ library ERC4337Utils {
 
     /// @dev Returns the aggregator of the `validationData` and whether it is out of time range.
     function getValidationData(uint256 validationData) internal view returns (address aggregator, bool outOfTimeRange) {
-        if (validationData == 0) {
-            return (address(0), false);
-        } else {
-            (address aggregator_, uint48 validAfter, uint48 validUntil) = parseValidationData(validationData);
-            return (aggregator_, block.timestamp < validAfter || validUntil < block.timestamp);
-        }
+        (address aggregator_, uint48 validAfter, uint48 validUntil) = parseValidationData(validationData);
+        return (aggregator_, block.timestamp < validAfter || validUntil < block.timestamp);
     }
 
     /// @dev Computes the hash of a user operation with the current entrypoint and chainid.

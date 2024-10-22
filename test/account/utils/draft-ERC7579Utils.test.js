@@ -34,8 +34,10 @@ describe('ERC7579Utils', function () {
     it('calls the target with value', async function () {
       const value = 0x012;
       const data = encodeSingle(this.target, value, this.target.interface.encodeFunctionData('mockFunction'));
+
       await expect(this.utils.$execSingle(EXEC_TYPE_DEFAULT, data)).to.emit(this.target, 'MockFunctionCalled');
-      expect(await ethers.provider.getBalance(this.target)).to.equal(value);
+
+      expect(ethers.provider.getBalance(this.target)).to.eventually.equal(value);
     });
 
     it('calls the target with value and args', async function () {
@@ -45,10 +47,12 @@ describe('ERC7579Utils', function () {
         value,
         this.target.interface.encodeFunctionData('mockFunctionWithArgs', [42, '0x1234']),
       );
+
       await expect(this.utils.$execSingle(EXEC_TYPE_DEFAULT, data))
         .to.emit(this.target, 'MockFunctionCalledWithArgs')
         .withArgs(42, '0x1234');
-      expect(await ethers.provider.getBalance(this.target)).to.equal(value);
+
+      expect(ethers.provider.getBalance(this.target)).to.eventually.equal(value);
     });
 
     it('reverts when target reverts in default ExecType', async function () {
@@ -58,6 +62,7 @@ describe('ERC7579Utils', function () {
         value,
         this.target.interface.encodeFunctionData('mockFunctionRevertsReason'),
       );
+
       await expect(this.utils.$execSingle(EXEC_TYPE_DEFAULT, data)).to.be.revertedWith('CallReceiverMock: reverting');
     });
 
@@ -83,6 +88,7 @@ describe('ERC7579Utils', function () {
     it('reverts with an invalid exec type', async function () {
       const value = 0x012;
       const data = encodeSingle(this.target, value, this.target.interface.encodeFunctionData('mockFunction'));
+
       await expect(this.utils.$execSingle('0x03', data))
         .to.be.revertedWithCustomError(this.utils, 'ERC7579UnsupportedExecType')
         .withArgs('0x03');
@@ -97,11 +103,13 @@ describe('ERC7579Utils', function () {
         [this.target, value1, this.target.interface.encodeFunctionData('mockFunction')],
         [this.anotherTarget, value2, this.anotherTarget.interface.encodeFunctionData('mockFunction')],
       );
+
       await expect(this.utils.$execBatch(EXEC_TYPE_DEFAULT, data))
         .to.emit(this.target, 'MockFunctionCalled')
         .to.emit(this.anotherTarget, 'MockFunctionCalled');
-      expect(await ethers.provider.getBalance(this.target)).to.equal(value1);
-      expect(await ethers.provider.getBalance(this.anotherTarget)).to.equal(value2);
+
+      expect(ethers.provider.getBalance(this.target)).to.eventually.equal(value1);
+      expect(ethers.provider.getBalance(this.anotherTarget)).to.eventually.equal(value2);
     });
 
     it('calls the targets with value and args', async function () {
@@ -115,11 +123,13 @@ describe('ERC7579Utils', function () {
           this.anotherTarget.interface.encodeFunctionData('mockFunctionWithArgs', [42, '0x1234']),
         ],
       );
+
       await expect(this.utils.$execBatch(EXEC_TYPE_DEFAULT, data))
         .to.emit(this.target, 'MockFunctionCalledWithArgs')
         .to.emit(this.anotherTarget, 'MockFunctionCalledWithArgs');
-      expect(await ethers.provider.getBalance(this.target)).to.equal(value1);
-      expect(await ethers.provider.getBalance(this.anotherTarget)).to.equal(value2);
+
+      expect(ethers.provider.getBalance(this.target)).to.eventually.equal(value1);
+      expect(ethers.provider.getBalance(this.anotherTarget)).to.eventually.equal(value2);
     });
 
     it('reverts when any target reverts in default ExecType', async function () {
@@ -129,6 +139,7 @@ describe('ERC7579Utils', function () {
         [this.target, value1, this.target.interface.encodeFunctionData('mockFunction')],
         [this.anotherTarget, value2, this.anotherTarget.interface.encodeFunctionData('mockFunctionRevertsReason')],
       );
+
       await expect(this.utils.$execBatch(EXEC_TYPE_DEFAULT, data)).to.be.revertedWith('CallReceiverMock: reverting');
     });
 
@@ -151,8 +162,8 @@ describe('ERC7579Utils', function () {
         );
 
       // Check balances
-      expect(await ethers.provider.getBalance(this.target)).to.equal(value1);
-      expect(await ethers.provider.getBalance(this.anotherTarget)).to.equal(0);
+      expect(ethers.provider.getBalance(this.target)).to.eventually.equal(value1);
+      expect(ethers.provider.getBalance(this.anotherTarget)).to.eventually.equal(0);
     });
 
     it('reverts with an invalid exec type', async function () {
@@ -162,6 +173,7 @@ describe('ERC7579Utils', function () {
         [this.target, value1, this.target.interface.encodeFunctionData('mockFunction')],
         [this.anotherTarget, value2, this.anotherTarget.interface.encodeFunctionData('mockFunction')],
       );
+
       await expect(this.utils.$execBatch('0x03', data))
         .to.be.revertedWithCustomError(this.utils, 'ERC7579UnsupportedExecType')
         .withArgs('0x03');
@@ -172,15 +184,14 @@ describe('ERC7579Utils', function () {
     it('delegate calls the target', async function () {
       const slot = ethers.hexlify(ethers.randomBytes(32));
       const value = ethers.hexlify(ethers.randomBytes(32));
-
       const data = encodeDelegate(
         this.target,
         this.target.interface.encodeFunctionData('mockFunctionWritesStorage', [slot, value]),
       );
 
-      expect(await ethers.provider.getStorage(this.utils.target, slot)).to.equal(ethers.ZeroHash);
+      expect(ethers.provider.getStorage(this.utils.target, slot)).to.eventually.equal(ethers.ZeroHash);
       await this.utils.$execDelegateCall(EXEC_TYPE_DEFAULT, data);
-      expect(await ethers.provider.getStorage(this.utils.target, slot)).to.equal(value);
+      expect(ethers.provider.getStorage(this.utils.target, slot)).to.eventually.equal(value);
     });
 
     it('reverts when target reverts in default ExecType', async function () {
@@ -217,8 +228,7 @@ describe('ERC7579Utils', function () {
     const selector = '0x12345678';
     const payload = ethers.toBeHex(0, 22);
 
-    const mode = await this.utils.$encodeMode(callType, execType, selector, payload);
-    expect(mode).to.equal(
+    expect(this.utils.$encodeMode(callType, execType, selector, payload)).to.eventually.equal(
       encodeMode({
         callType,
         execType,
@@ -229,19 +239,21 @@ describe('ERC7579Utils', function () {
   });
 
   it('decodes Mode', async function () {
-    const mode = encodeMode({
-      callType: CALL_TYPE_BATCH,
-      execType: EXEC_TYPE_TRY,
-      selector: '0x12345678',
-      payload: ethers.toBeHex(0, 22),
-    });
+    const callType = CALL_TYPE_BATCH;
+    const execType = EXEC_TYPE_TRY;
+    const selector = '0x12345678';
+    const payload = ethers.toBeHex(0, 22);
 
-    expect(await this.utils.$decodeMode(mode)).to.deep.eq([
-      CALL_TYPE_BATCH,
-      EXEC_TYPE_TRY,
-      '0x12345678',
-      ethers.toBeHex(0, 22),
-    ]);
+    expect(
+      this.utils.$decodeMode(
+        encodeMode({
+          callType,
+          execType,
+          selector,
+          payload,
+        }),
+      ),
+    ).to.eventually.deep.equal([callType, execType, selector, payload]);
   });
 
   it('encodes single', async function () {
@@ -249,8 +261,7 @@ describe('ERC7579Utils', function () {
     const value = 0x123;
     const data = '0x12345678';
 
-    const encoded = await this.utils.$encodeSingle(target, value, data);
-    expect(encoded).to.equal(encodeSingle(target, value, data));
+    expect(this.utils.$encodeSingle(target, value, data)).to.eventually.equal(encodeSingle(target, value, data));
   });
 
   it('decodes single', async function () {
@@ -258,8 +269,11 @@ describe('ERC7579Utils', function () {
     const value = 0x123;
     const data = '0x12345678';
 
-    const encoded = encodeSingle(target, value, data);
-    expect(await this.utils.$decodeSingle(encoded)).to.deep.eq([target.target, value, data]);
+    expect(this.utils.$decodeSingle(encodeSingle(target, value, data))).to.eventually.deep.equal([
+      target.target,
+      value,
+      data,
+    ]);
   });
 
   it('encodes batch', async function () {
@@ -268,8 +282,7 @@ describe('ERC7579Utils', function () {
       [this.anotherTarget, 0x456, '0x12345678'],
     ];
 
-    const encoded = await this.utils.$encodeBatch(entries);
-    expect(encoded).to.equal(encodeBatch(...entries));
+    expect(this.utils.$encodeBatch(entries)).to.eventually.equal(encodeBatch(...entries));
   });
 
   it('decodes batch', async function () {
@@ -278,68 +291,63 @@ describe('ERC7579Utils', function () {
       [this.anotherTarget.target, 0x456, '0x12345678'],
     ];
 
-    const encoded = encodeBatch(...entries);
-    expect(await this.utils.$decodeBatch(encoded)).to.deep.eq(entries);
+    expect(this.utils.$decodeBatch(encodeBatch(...entries))).to.eventually.deep.equal(entries);
   });
 
   it('encodes delegate', async function () {
     const target = this.target;
     const data = '0x12345678';
 
-    const encoded = await this.utils.$encodeDelegate(target, data);
-    expect(encoded).to.equal(encodeDelegate(target, data));
+    expect(this.utils.$encodeDelegate(target, data)).to.eventually.equal(encodeDelegate(target, data));
   });
 
   it('decodes delegate', async function () {
     const target = this.target;
     const data = '0x12345678';
 
-    const encoded = encodeDelegate(target, data);
-    expect(await this.utils.$decodeDelegate(encoded)).to.deep.eq([target.target, data]);
+    expect(this.utils.$decodeDelegate(encodeDelegate(target, data))).to.eventually.deep.equal([target.target, data]);
   });
 
   describe('global', function () {
     describe('eqCallTypeGlobal', function () {
       it('returns true if both call types are equal', async function () {
-        const callType = CALL_TYPE_BATCH;
-        expect(await this.utilsGlobal.$eqCallTypeGlobal(callType, callType)).to.be.true;
+        expect(this.utilsGlobal.$eqCallTypeGlobal(CALL_TYPE_BATCH, CALL_TYPE_BATCH)).to.eventually.be.true;
       });
 
       it('returns false if both call types are different', async function () {
-        expect(await this.utilsGlobal.$eqCallTypeGlobal(CALL_TYPE_CALL, CALL_TYPE_BATCH)).to.be.false;
+        expect(this.utilsGlobal.$eqCallTypeGlobal(CALL_TYPE_CALL, CALL_TYPE_BATCH)).to.eventually.be.false;
       });
     });
 
     describe('eqExecTypeGlobal', function () {
       it('returns true if both exec types are equal', async function () {
-        const execType = EXEC_TYPE_TRY;
-        expect(await this.utilsGlobal.$eqExecTypeGlobal(execType, execType)).to.be.true;
+        expect(this.utilsGlobal.$eqExecTypeGlobal(EXEC_TYPE_TRY, EXEC_TYPE_TRY)).to.eventually.be.true;
       });
 
       it('returns false if both exec types are different', async function () {
-        expect(await this.utilsGlobal.$eqExecTypeGlobal(EXEC_TYPE_DEFAULT, EXEC_TYPE_TRY)).to.be.false;
+        expect(this.utilsGlobal.$eqExecTypeGlobal(EXEC_TYPE_DEFAULT, EXEC_TYPE_TRY)).to.eventually.be.false;
       });
     });
 
     describe('eqModeSelectorGlobal', function () {
       it('returns true if both selectors are equal', async function () {
-        const selector = '0x12345678';
-        expect(await this.utilsGlobal.$eqModeSelectorGlobal(selector, selector)).to.be.true;
+        expect(this.utilsGlobal.$eqModeSelectorGlobal('0x12345678', '0x12345678')).to.eventually.be.true;
       });
 
       it('returns false if both selectors are different', async function () {
-        expect(await this.utilsGlobal.$eqModeSelectorGlobal('0x12345678', '0x87654321')).to.be.false;
+        expect(this.utilsGlobal.$eqModeSelectorGlobal('0x12345678', '0x87654321')).to.eventually.be.false;
       });
     });
 
     describe('eqModePayloadGlobal', function () {
       it('returns true if both payloads are equal', async function () {
-        const payload = ethers.toBeHex(0, 22);
-        expect(await this.utilsGlobal.$eqModePayloadGlobal(payload, payload)).to.be.true;
+        expect(this.utilsGlobal.$eqModePayloadGlobal(ethers.toBeHex(0, 22), ethers.toBeHex(0, 22))).to.eventually.be
+          .true;
       });
 
       it('returns false if both payloads are different', async function () {
-        expect(await this.utilsGlobal.$eqModePayloadGlobal(ethers.toBeHex(0, 22), ethers.toBeHex(1, 22))).to.be.false;
+        expect(this.utilsGlobal.$eqModePayloadGlobal(ethers.toBeHex(0, 22), ethers.toBeHex(1, 22))).to.eventually.be
+          .false;
       });
     });
   });
