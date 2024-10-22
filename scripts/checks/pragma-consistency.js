@@ -12,14 +12,14 @@ const skip = source => skipPatterns.some(pattern => source.startsWith(pattern));
 for (const artifact of artifacts) {
   const { output: solcOutput } = require(path.resolve(__dirname, '../..', artifact));
 
-  const pragma = {}
+  const pragma = {};
 
   // Extract pragma directive for all files
   for (const source in solcOutput.contracts) {
     if (skip(source)) continue;
-    for (const {literals} of findAll('PragmaDirective', solcOutput.sources[source].ast)) {
+    for (const { literals } of findAll('PragmaDirective', solcOutput.sources[source].ast)) {
       // There should only be one.
-      pragma[source] = literals.slice(1).join('')
+      pragma[source] = literals.slice(1).join('');
     }
   }
 
@@ -29,12 +29,14 @@ for (const artifact of artifacts) {
     // minimum version of the compiler that matches source's pragma
     const minVersion = semver.minVersion(pragma[source]);
     // loop over all imports in source
-    for (const {absolutePath} of findAll('ImportDirective', solcOutput.sources[source].ast)) {
+    for (const { absolutePath } of findAll('ImportDirective', solcOutput.sources[source].ast)) {
       // So files that only import without declaring anything cause issues, because they don't shop in in "pragma"
       if (!pragma[absolutePath]) continue;
       // Check that the minVersion for source satisfies the requirements of the imported files
       if (!semver.satisfies(minVersion, pragma[absolutePath])) {
-        console.log(`- ${source} uses ${pragma[source]} but depends on ${absolutePath} that requires ${pragma[absolutePath]}`);
+        console.log(
+          `- ${source} uses ${pragma[source]} but depends on ${absolutePath} that requires ${pragma[absolutePath]}`,
+        );
         process.exitCode = 1;
       }
     }
