@@ -78,7 +78,7 @@ describe('ERC4337Utils', function () {
       const validationData2 = packValidationData(validAfter2, validUntil2, ethers.ZeroAddress);
       const expected = packValidationData(validAfter2, validUntil1, true);
 
-      // check symetry
+      // check symmetry
       expect(this.utils.$combineValidationData(validationData1, validationData2)).to.eventually.equal(expected);
       expect(this.utils.$combineValidationData(validationData2, validationData1)).to.eventually.equal(expected);
     });
@@ -92,7 +92,7 @@ describe('ERC4337Utils', function () {
         const validationData2 = packValidationData(validAfter2, validUntil2, authorizer2);
         const expected = packValidationData(validAfter2, validUntil1, false);
 
-        // check symetry
+        // check symmetry
         expect(this.utils.$combineValidationData(validationData1, validationData2)).to.eventually.equal(expected);
         expect(this.utils.$combineValidationData(validationData2, validationData1)).to.eventually.equal(expected);
       });
