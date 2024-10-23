@@ -51,7 +51,7 @@ function match(entry, request) {
   return entry.spec == reqSpec && (!reqContract || entry.contract == reqContract);
 }
 
-const specs = JSON.parse(await fs.readFile(argv.spec, 'utf8')).filter(s => argv.all || argv._.some(r => match(s, r)));
+const specs = JSON.parse(fs.readFileSync(argv.spec, 'utf8')).filter(s => argv.all || argv._.some(r => match(s, r)));
 
 const limit = pLimit(argv.parallel);
 
