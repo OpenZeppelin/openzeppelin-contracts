@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (finance/VestingWallet.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (finance/VestingWallet.sol)
 pragma solidity ^0.8.20;
 
 import {IERC20} from "../token/ERC20/IERC20.sol";
@@ -37,8 +37,8 @@ contract VestingWallet is Context, Ownable {
     uint64 private immutable _duration;
 
     /**
-     * @dev Sets the sender as the initial owner, the beneficiary as the pending owner, the start timestamp and the
-     * vesting duration of the vesting wallet.
+     * @dev Sets the beneficiary (owner), the start timestamp and the vesting duration (in seconds) of the vesting
+     * wallet.
      */
     constructor(address beneficiary, uint64 startTimestamp, uint64 durationSeconds) payable Ownable(beneficiary) {
         _start = startTimestamp;

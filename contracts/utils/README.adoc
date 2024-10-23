@@ -18,26 +18,32 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {ReentrancyGuardTransient}: Variant of {ReentrancyGuard} that uses transient storage (https://eips.ethereum.org/EIPS/eip-1153[EIP-1153]).
  * {Pausable}: A common emergency response mechanism that can pause functionality while a remediation is pending.
  * {Nonces}: Utility for tracking and verifying address nonces that only increment.
+ * {NoncesKeyed}: Alternative to {Nonces}, that support key-ed nonces following https://eips.ethereum.org/EIPS/eip-4337#semi-abstracted-nonce-support[ERC-4337 speciciations].
  * {ERC165}, {ERC165Checker}: Utilities for inspecting interfaces supported by contracts.
  * {BitMaps}: A simple library to manage boolean value mapped to a numerical index in an efficient way.
  * {EnumerableMap}: A type like Solidity's https://solidity.readthedocs.io/en/latest/types.html#mapping-types[`mapping`], but with key-value _enumeration_: this will let you know how many entries a mapping has, and iterate over them (which is not possible with `mapping`).
  * {EnumerableSet}: Like {EnumerableMap}, but for https://en.wikipedia.org/wiki/Set_(abstract_data_type)[sets]. Can be used to store privileged accounts, issued IDs, etc.
  * {DoubleEndedQueue}: An implementation of a https://en.wikipedia.org/wiki/Double-ended_queue[double ended queue] whose values can be removed added or remove from both sides. Useful for FIFO and LIFO structures.
  * {CircularBuffer}: A data structure to store the last N values pushed to it.
- * {Checkpoints}: A data structure to store values mapped to an strictly increasing key. Can be used for storing and accessing values over time.
+ * {Checkpoints}: A data structure to store values mapped to a strictly increasing key. Can be used for storing and accessing values over time.
+ * {Heap}: A library that implements a https://en.wikipedia.org/wiki/Binary_heap[binary heap] in storage.
  * {MerkleTree}: A library with https://wikipedia.org/wiki/Merkle_Tree[Merkle Tree] data structures and helper functions.
  * {Create2}: Wrapper around the https://blog.openzeppelin.com/getting-the-most-out-of-create2/[`CREATE2` EVM opcode] for safe use without having to deal with low-level assembly.
  * {Address}: Collection of functions for overloading Solidity's https://docs.soliditylang.org/en/latest/types.html#address[`address`] type.
  * {Arrays}: Collection of functions that operate on https://docs.soliditylang.org/en/latest/types.html#arrays[`arrays`].
  * {Base64}: On-chain base64 and base64URL encoding according to https://datatracker.ietf.org/doc/html/rfc4648[RFC-4648].
+ * {Bytes}: Common operations on bytes objects.
  * {Strings}: Common operations for strings formatting.
  * {ShortString}: Library to encode (and decode) short strings into (or from) a single bytes32 slot for optimizing costs. Short strings are limited to 31 characters.
  * {SlotDerivation}: Methods for deriving storage slot from ERC-7201 namespaces as well as from constructions such as mapping and arrays.
- * {StorageSlot}: Methods for accessing specific storage slots formatted as common primitive types. Also include primitives for reading from and writing to transient storage (only value types are currently supported).
- * {Multicall}: Abstract contract with an utility to allow batching together multiple calls in a single transaction. Useful for allowing EOAs to perform multiple operations at once.
- * {Context}: An utility for abstracting the sender and calldata in the current execution context.
+ * {StorageSlot}: Methods for accessing specific storage slots formatted as common primitive types.
+ * {TransientSlot}: Primitives for reading from and writing to transient storage (only value types are currently supported).
+ * {Multicall}: Abstract contract with a utility to allow batching together multiple calls in a single transaction. Useful for allowing EOAs to perform multiple operations at once.
+ * {Context}: A utility for abstracting the sender and calldata in the current execution context.
  * {Packing}: A library for packing and unpacking multiple values into bytes32
  * {Panic}: A library to revert with https://docs.soliditylang.org/en/v0.8.20/control-structures.html#panic-via-assert-and-error-via-require[Solidity panic codes].
+ * {Comparators}: A library that contains comparator functions to use with with the {Heap} library.
+ * {CAIP2}, {CAIP10}: Libraries for formatting and parsing CAIP-2 and CAIP-10 identifiers.
 
 [NOTE]
 ====
@@ -55,6 +61,10 @@ Because Solidity does not support generic types, {EnumerableMap} and {Enumerable
 == Cryptography
 
 {{ECDSA}}
+
+{{P256}}
+
+{{RSA}}
 
 {{EIP712}}
 
@@ -75,6 +85,8 @@ Because Solidity does not support generic types, {EnumerableMap} and {Enumerable
 {{Pausable}}
 
 {{Nonces}}
+
+{{NoncesKeyed}}
 
 == Introspection
 
@@ -102,6 +114,8 @@ Ethereum contracts have no native concept of an interface, so applications must 
 
 {{Checkpoints}}
 
+{{Heap}}
+
 {{MerkleTree}}
 
 == Libraries
@@ -122,6 +136,8 @@ Ethereum contracts have no native concept of an interface, so applications must 
 
 {{StorageSlot}}
 
+{{TransientSlot}}
+
 {{Multicall}}
 
 {{Context}}
@@ -129,3 +145,5 @@ Ethereum contracts have no native concept of an interface, so applications must 
 {{Packing}}
 
 {{Panic}}
+
+{{Comparators}}

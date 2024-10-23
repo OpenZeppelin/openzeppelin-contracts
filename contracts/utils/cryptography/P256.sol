@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.1.0) (utils/cryptography/P256.sol)
 pragma solidity ^0.8.20;
 
 import {Math} from "../math/Math.sol";
@@ -11,9 +12,11 @@ import {Errors} from "../Errors.sol";
  * and cryptographic standards. Some notable examples include Apple's Secure Enclave and Android's Keystore
  * as well as authentication protocols like FIDO2.
  *
- * Based on the original https://github.com/itsobvioustech/aa-passkeys-wallet/blob/main/src/Secp256r1.sol[implementation of itsobvioustech].
- * Heavily inspired in https://github.com/maxrobot/elliptic-solidity/blob/master/contracts/Secp256r1.sol[maxrobot] and
- * https://github.com/tdrerup/elliptic-curve-solidity/blob/master/contracts/curves/EllipticCurve.sol[tdrerup] implementations.
+ * Based on the original https://github.com/itsobvioustech/aa-passkeys-wallet/blob/d3d423f28a4d8dfcb203c7fa0c47f42592a7378e/src/Secp256r1.sol[implementation of itsobvioustech] (GNU General Public License v3.0).
+ * Heavily inspired in https://github.com/maxrobot/elliptic-solidity/blob/c4bb1b6e8ae89534d8db3a6b3a6b52219100520f/contracts/Secp256r1.sol[maxrobot] and
+ * https://github.com/tdrerup/elliptic-curve-solidity/blob/59a9c25957d4d190eff53b6610731d81a077a15e/contracts/curves/EllipticCurve.sol[tdrerup] implementations.
+ *
+ * _Available since v5.1._
  */
 library P256 {
     struct JPoint {
@@ -120,28 +123,29 @@ library P256 {
      * IMPORTANT: This function disallows signatures where the `s` value is above `N/2` to prevent malleability.
      * To flip the `s` value, compute `s = N - s` and `v = 1 - v` if (`v = 0 | 1`).
      */
-    function recovery(bytes32 h, uint8 v, bytes32 r, bytes32 s) internal view returns (bytes32, bytes32) {
+    function recovery(bytes32 h, uint8 v, bytes32 r, bytes32 s) internal view returns (bytes32 x, bytes32 y) {
         if (!_isProperSignature(r, s) || v > 1) {
             return (0, 0);
         }
 
+        uint256 p = P; // cache P on the stack
         uint256 rx = uint256(r);
-        uint256 ry2 = addmod(mulmod(addmod(mulmod(rx, rx, P), A, P), rx, P), B, P); // weierstrass equation y² = x³ + a.x + b
-        uint256 ry = Math.modExp(ry2, P1DIV4, P); // This formula for sqrt work because P ≡ 3 (mod 4)
-        if (mulmod(ry, ry, P) != ry2) return (0, 0); // Sanity check
-        if (ry % 2 != v % 2) ry = P - ry;
+        uint256 ry2 = addmod(mulmod(addmod(mulmod(rx, rx, p), A, p), rx, p), B, p); // weierstrass equation y² = x³ + a.x + b
+        uint256 ry = Math.modExp(ry2, P1DIV4, p); // This formula for sqrt work because P ≡ 3 (mod 4)
+        if (mulmod(ry, ry, p) != ry2) return (0, 0); // Sanity check
+        if (ry % 2 != v) ry = p - ry;
 
         JPoint[16] memory points = _preComputeJacobianPoints(rx, ry);
         uint256 w = Math.invModPrime(uint256(r), N);
         uint256 u1 = mulmod(N - (uint256(h) % N), w, N);
         uint256 u2 = mulmod(uint256(s), w, N);
-        (uint256 x, uint256 y) = _jMultShamir(points, u1, u2);
-        return (bytes32(x), bytes32(y));
+        (uint256 xU, uint256 yU) = _jMultShamir(points, u1, u2);
+        return (bytes32(xU), bytes32(yU));
     }
 
     /**
      * @dev Checks if (x, y) are valid coordinates of a point on the curve.
-     * In particular this function checks that x <= P and y <= P.
+     * In particular this function checks that x < P and y < P.
      */
     function isValidPublicKey(bytes32 x, bytes32 y) internal pure returns (bool result) {
         assembly ("memory-safe") {
@@ -170,16 +174,25 @@ library P256 {
      */
     function _affineFromJacobian(uint256 jx, uint256 jy, uint256 jz) private view returns (uint256 ax, uint256 ay) {
         if (jz == 0) return (0, 0);
-        uint256 zinv = Math.invModPrime(jz, P);
-        uint256 zzinv = mulmod(zinv, zinv, P);
-        uint256 zzzinv = mulmod(zzinv, zinv, P);
-        ax = mulmod(jx, zzinv, P);
-        ay = mulmod(jy, zzzinv, P);
+        uint256 p = P; // cache P on the stack
+        uint256 zinv = Math.invModPrime(jz, p);
+        assembly ("memory-safe") {
+            let zzinv := mulmod(zinv, zinv, p)
+            ax := mulmod(jx, zzinv, p)
+            ay := mulmod(jy, mulmod(zzinv, zinv, p), p)
+        }
     }
 
     /**
      * @dev Point addition on the jacobian coordinates
      * Reference: https://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian.html#addition-add-1998-cmo-2
+     *
+     * Note that:
+     *
+     * - `addition-add-1998-cmo-2` doesn't support identical input points. This version is modified to use
+     * the `h` and `r` values computed by `addition-add-1998-cmo-2` to detect identical inputs, and fallback to
+     * `doubling-dbl-1998-cmo-2` if needed.
+     * - if one of the points is at infinity (i.e. `z=0`), the result is undefined.
      */
     function _jAdd(
         JPoint memory p1,
@@ -190,28 +203,55 @@ library P256 {
         assembly ("memory-safe") {
             let p := P
             let z1 := mload(add(p1, 0x40))
+            let zz1 := mulmod(z1, z1, p) // zz1 = z1²
             let s1 := mulmod(mload(add(p1, 0x20)), mulmod(mulmod(z2, z2, p), z2, p), p) // s1 = y1*z2³
-            let s2 := mulmod(y2, mulmod(mulmod(z1, z1, p), z1, p), p) // s2 = y2*z1³
-            let r := addmod(s2, sub(p, s1), p) // r = s2-s1
+            let r := addmod(mulmod(y2, mulmod(zz1, z1, p), p), sub(p, s1), p) // r = s2-s1 = y2*z1³-s1 = y2*z1³-y1*z2³
             let u1 := mulmod(mload(p1), mulmod(z2, z2, p), p) // u1 = x1*z2²
-            let u2 := mulmod(x2, mulmod(z1, z1, p), p) // u2 = x2*z1²
-            let h := addmod(u2, sub(p, u1), p) // h = u2-u1
-            let hh := mulmod(h, h, p) // h²
+            let h := addmod(mulmod(x2, zz1, p), sub(p, u1), p) // h = u2-u1 = x2*z1²-u1 = x2*z1²-x1*z2²
 
-            // x' = r²-h³-2*u1*h²
-            rx := addmod(
-                addmod(mulmod(r, r, p), sub(p, mulmod(h, hh, p)), p),
-                sub(p, mulmod(2, mulmod(u1, hh, p), p)),
-                p
-            )
-            // y' = r*(u1*h²-x')-s1*h³
-            ry := addmod(
-                mulmod(r, addmod(mulmod(u1, hh, p), sub(p, rx), p), p),
-                sub(p, mulmod(s1, mulmod(h, hh, p), p)),
-                p
-            )
-            // z' = h*z1*z2
-            rz := mulmod(h, mulmod(z1, z2, p), p)
+            // detect edge cases where inputs are identical
+            switch and(iszero(r), iszero(h))
+            // case 0: points are different
+            case 0 {
+                let hh := mulmod(h, h, p) // h²
+
+                // x' = r²-h³-2*u1*h²
+                rx := addmod(
+                    addmod(mulmod(r, r, p), sub(p, mulmod(h, hh, p)), p),
+                    sub(p, mulmod(2, mulmod(u1, hh, p), p)),
+                    p
+                )
+                // y' = r*(u1*h²-x')-s1*h³
+                ry := addmod(
+                    mulmod(r, addmod(mulmod(u1, hh, p), sub(p, rx), p), p),
+                    sub(p, mulmod(s1, mulmod(h, hh, p), p)),
+                    p
+                )
+                // z' = h*z1*z2
+                rz := mulmod(h, mulmod(z1, z2, p), p)
+            }
+            // case 1: points are equal
+            case 1 {
+                let x := x2
+                let y := y2
+                let z := z2
+                let yy := mulmod(y, y, p)
+                let zz := mulmod(z, z, p)
+                let m := addmod(mulmod(3, mulmod(x, x, p), p), mulmod(A, mulmod(zz, zz, p), p), p) // m = 3*x²+a*z⁴
+                let s := mulmod(4, mulmod(x, yy, p), p) // s = 4*x*y²
+
+                // x' = t = m²-2*s
+                rx := addmod(mulmod(m, m, p), sub(p, mulmod(2, s, p)), p)
+
+                // y' = m*(s-t)-8*y⁴ = m*(s-x')-8*y⁴
+                // cut the computation to avoid stack too deep
+                let rytmp1 := sub(p, mulmod(8, mulmod(yy, yy, p), p)) // -8*y⁴
+                let rytmp2 := addmod(s, sub(p, rx), p) // s-x'
+                ry := addmod(mulmod(m, rytmp2, p), rytmp1, p) // m*(s-x')-8*y⁴
+
+                // z' = 2*y*z
+                rz := mulmod(2, mulmod(y, z, p), p)
+            }
         }
     }
 
@@ -224,29 +264,33 @@ library P256 {
             let p := P
             let yy := mulmod(y, y, p)
             let zz := mulmod(z, z, p)
-            let s := mulmod(4, mulmod(x, yy, p), p) // s = 4*x*y²
             let m := addmod(mulmod(3, mulmod(x, x, p), p), mulmod(A, mulmod(zz, zz, p), p), p) // m = 3*x²+a*z⁴
-            let t := addmod(mulmod(m, m, p), sub(p, mulmod(2, s, p)), p) // t = m²-2*s
+            let s := mulmod(4, mulmod(x, yy, p), p) // s = 4*x*y²
 
-            // x' = t
-            rx := t
-            // y' = m*(s-t)-8*y⁴
-            ry := addmod(mulmod(m, addmod(s, sub(p, t), p), p), sub(p, mulmod(8, mulmod(yy, yy, p), p)), p)
+            // x' = t = m²-2*s
+            rx := addmod(mulmod(m, m, p), sub(p, mulmod(2, s, p)), p)
+            // y' = m*(s-t)-8*y⁴ = m*(s-x')-8*y⁴
+            ry := addmod(mulmod(m, addmod(s, sub(p, rx), p), p), sub(p, mulmod(8, mulmod(yy, yy, p), p)), p)
             // z' = 2*y*z
             rz := mulmod(2, mulmod(y, z, p), p)
         }
     }
 
     /**
-     * @dev Compute P·u1 + Q·u2 using the precomputed points for P and Q (see {_preComputeJacobianPoints}).
+     * @dev Compute G·u1 + P·u2 using the precomputed points for G and P (see {_preComputeJacobianPoints}).
      *
      * Uses Strauss Shamir trick for EC multiplication
      * https://stackoverflow.com/questions/50993471/ec-scalar-multiplication-with-strauss-shamir-method
-     * we optimise on this a bit to do with 2 bits at a time rather than a single bit
-     * the individual points for a single pass are precomputed
-     * overall this reduces the number of additions while keeping the same number of doublings
+     *
+     * We optimize this for 2 bits at a time rather than a single bit. The individual points for a single pass are
+     * precomputed. Overall this reduces the number of additions while keeping the same number of
+     * doublings
      */
-    function _jMultShamir(JPoint[16] memory points, uint256 u1, uint256 u2) private view returns (uint256, uint256) {
+    function _jMultShamir(
+        JPoint[16] memory points,
+        uint256 u1,
+        uint256 u2
+    ) private view returns (uint256 rx, uint256 ry) {
         uint256 x = 0;
         uint256 y = 0;
         uint256 z = 0;
@@ -256,9 +300,14 @@ library P256 {
                     (x, y, z) = _jDouble(x, y, z);
                     (x, y, z) = _jDouble(x, y, z);
                 }
-                // Read 2 bits of u1, and 2 bits of u2. Combining the two give a lookup index in the table.
+                // Read 2 bits of u1, and 2 bits of u2. Combining the two gives the lookup index in the table.
                 uint256 pos = ((u1 >> 252) & 0xc) | ((u2 >> 254) & 0x3);
-                if (pos > 0) {
+                // Points that have z = 0 are points at infinity. They are the additive 0 of the group
+                // - if the lookup point is a 0, we can skip it
+                // - otherwise:
+                //   - if the current point (x, y, z) is 0, we use the lookup point as our new value (0+P=P)
+                //   - if the current point (x, y, z) is not 0, both points are valid and we can use `_jAdd`
+                if (points[pos].z != 0) {
                     if (z == 0) {
                         (x, y, z) = (points[pos].x, points[pos].y, points[pos].z);
                     } else {
@@ -284,6 +333,11 @@ library P256 {
      * │  8 │ 2g 2g+p 2g+2p 2g+3p │
      * │ 12 │ 3g 3g+p 3g+2p 3g+3p │
      * └────┴─────────────────────┘
+     *
+     * Note that `_jAdd` (and thus `_jAddPoint`) does not handle the case where one of the inputs is a point at
+     * infinity (z = 0). However, we know that since `N ≡ 1 mod 2` and `N ≡ 1 mod 3`, there is no point P such that
+     * 2P = 0 or 3P = 0. This guarantees that g, 2g, 3g, p, 2p, 3p are all non-zero, and that all `_jAddPoint` calls
+     * have valid inputs.
      */
     function _preComputeJacobianPoints(uint256 px, uint256 py) private pure returns (JPoint[16] memory points) {
         points[0x00] = JPoint(0, 0, 0); // 0,0
@@ -291,17 +345,17 @@ library P256 {
         points[0x04] = JPoint(GX, GY, 1); // 0,1 (g)
         points[0x02] = _jDoublePoint(points[0x01]); // 2,0 (2p)
         points[0x08] = _jDoublePoint(points[0x04]); // 0,2 (2g)
-        points[0x03] = _jAddPoint(points[0x01], points[0x02]); // 3,0 (3p)
+        points[0x03] = _jAddPoint(points[0x01], points[0x02]); // 3,0 (p+2p = 3p)
         points[0x05] = _jAddPoint(points[0x01], points[0x04]); // 1,1 (p+g)
         points[0x06] = _jAddPoint(points[0x02], points[0x04]); // 2,1 (2p+g)
         points[0x07] = _jAddPoint(points[0x03], points[0x04]); // 3,1 (3p+g)
         points[0x09] = _jAddPoint(points[0x01], points[0x08]); // 1,2 (p+2g)
         points[0x0a] = _jAddPoint(points[0x02], points[0x08]); // 2,2 (2p+2g)
         points[0x0b] = _jAddPoint(points[0x03], points[0x08]); // 3,2 (3p+2g)
-        points[0x0c] = _jAddPoint(points[0x04], points[0x08]); // 0,3 (g+2g)
+        points[0x0c] = _jAddPoint(points[0x04], points[0x08]); // 0,3 (g+2g = 3g)
         points[0x0d] = _jAddPoint(points[0x01], points[0x0c]); // 1,3 (p+3g)
         points[0x0e] = _jAddPoint(points[0x02], points[0x0c]); // 2,3 (2p+3g)
-        points[0x0f] = _jAddPoint(points[0x03], points[0x0C]); // 3,3 (3p+3g)
+        points[0x0f] = _jAddPoint(points[0x03], points[0x0c]); // 3,3 (3p+3g)
     }
 
     function _jAddPoint(JPoint memory p1, JPoint memory p2) private pure returns (JPoint memory) {

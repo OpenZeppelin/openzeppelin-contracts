@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (utils/cryptography/MessageHashUtils.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (utils/cryptography/MessageHashUtils.sol)
 
 pragma solidity ^0.8.20;
 
@@ -28,8 +28,7 @@ library MessageHashUtils {
      * See {ECDSA-recover}.
      */
     function toEthSignedMessageHash(bytes32 messageHash) internal pure returns (bytes32 digest) {
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             mstore(0x00, "\x19Ethereum Signed Message:\n32") // 32 is the bytes-length of messageHash
             mstore(0x1c, messageHash) // 0x1c (28) is the length of the prefix
             digest := keccak256(0x00, 0x3c) // 0x3c is the length of the prefix (0x1c) + messageHash (0x20)
@@ -74,8 +73,7 @@ library MessageHashUtils {
      * See {ECDSA-recover}.
      */
     function toTypedDataHash(bytes32 domainSeparator, bytes32 structHash) internal pure returns (bytes32 digest) {
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             let ptr := mload(0x40)
             mstore(ptr, hex"19_01")
             mstore(add(ptr, 0x02), domainSeparator)

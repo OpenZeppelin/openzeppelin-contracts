@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (governance/IGovernor.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (governance/IGovernor.sol)
 
 pragma solidity ^0.8.20;
 
@@ -8,6 +8,9 @@ import {IERC6372} from "../interfaces/IERC6372.sol";
 
 /**
  * @dev Interface of the {Governor} core.
+ *
+ * NOTE: Event parameters lack the `indexed` keyword for compatibility with GovernorBravo events.
+ * Making event parameters `indexed` affects how events are decoded, potentially breaking existing indexers.
  */
 interface IGovernor is IERC165, IERC6372 {
     enum ProposalState {

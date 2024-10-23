@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.1.0) (utils/structs/MerkleTree.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
 import {Hashes} from "../cryptography/Hashes.sol";
 import {Arrays} from "../Arrays.sol";
@@ -18,6 +19,10 @@ import {Panic} from "../Panic.sol";
  * * Depth: The number of levels in the tree, it also defines the maximum number of leaves as 2**depth.
  * * Zero value: The value that represents an empty leaf. Used to avoid regular zero values to be part of the tree.
  * * Hashing function: A cryptographic hash function used to produce internal nodes. Defaults to {Hashes-commutativeKeccak256}.
+ *
+ * NOTE: Building trees using non-commutative hashing functions (i.e. `H(a, b) != H(b, a)`) is supported. However,
+ * proving the inclusion of a leaf in such trees is not possible with the {MerkleProof} library since it only supports
+ * _commutative_ hashing functions.
  *
  * _Available since v5.1._
  */
@@ -45,7 +50,7 @@ library MerkleTree {
 
     /**
      * @dev Initialize a {Bytes32PushTree} using {Hashes-commutativeKeccak256} to hash internal nodes.
-     * The capacity of the tree (i.e. number of leaves) is set to `2**levels`.
+     * The capacity of the tree (i.e. number of leaves) is set to `2**treeDepth`.
      *
      * Calling this function on MerkleTree that was already setup and used will reset it to a blank state.
      *
@@ -55,8 +60,8 @@ library MerkleTree {
      * IMPORTANT: The zero value should be carefully chosen since it will be stored in the tree representing
      * empty leaves. It should be a value that is not expected to be part of the tree.
      */
-    function setup(Bytes32PushTree storage self, uint8 levels, bytes32 zero) internal returns (bytes32 initialRoot) {
-        return setup(self, levels, zero, Hashes.commutativeKeccak256);
+    function setup(Bytes32PushTree storage self, uint8 treeDepth, bytes32 zero) internal returns (bytes32 initialRoot) {
+        return setup(self, treeDepth, zero, Hashes.commutativeKeccak256);
     }
 
     /**
@@ -66,21 +71,24 @@ library MerkleTree {
      * should be pushed to it using the custom push function, which should be the same one as used during the setup.
      *
      * IMPORTANT: Providing a custom hashing function is a security-sensitive operation since it may
-     * compromise the soundness of the tree. Consider using functions from {Hashes}.
+     * compromise the soundness of the tree.
+     *
+     * NOTE: Consider verifying that the hashing function does not manipulate the memory state directly and that it
+     * follows the Solidity memory safety rules. Otherwise, it may lead to unexpected behavior.
      */
     function setup(
         Bytes32PushTree storage self,
-        uint8 levels,
+        uint8 treeDepth,
         bytes32 zero,
         function(bytes32, bytes32) view returns (bytes32) fnHash
     ) internal returns (bytes32 initialRoot) {
         // Store depth in the dynamic array
-        Arrays.unsafeSetLength(self._sides, levels);
-        Arrays.unsafeSetLength(self._zeros, levels);
+        Arrays.unsafeSetLength(self._sides, treeDepth);
+        Arrays.unsafeSetLength(self._zeros, treeDepth);
 
         // Build each root of zero-filled subtrees
         bytes32 currentZero = zero;
-        for (uint32 i = 0; i < levels; ++i) {
+        for (uint32 i = 0; i < treeDepth; ++i) {
             Arrays.unsafeAccess(self._zeros, i).value = currentZero;
             currentZero = fnHash(currentZero, currentZero);
         }
@@ -122,20 +130,20 @@ library MerkleTree {
         function(bytes32, bytes32) view returns (bytes32) fnHash
     ) internal returns (uint256 index, bytes32 newRoot) {
         // Cache read
-        uint256 levels = self._zeros.length;
+        uint256 treeDepth = depth(self);
 
         // Get leaf index
         index = self._nextLeafIndex++;
 
         // Check if tree is full.
-        if (index >= 1 << levels) {
+        if (index >= 1 << treeDepth) {
             Panic.panic(Panic.RESOURCE_ERROR);
         }
 
         // Rebuild branch from leaf to root
         uint256 currentIndex = index;
         bytes32 currentLevelHash = leaf;
-        for (uint32 i = 0; i < levels; i++) {
+        for (uint32 i = 0; i < treeDepth; i++) {
             // Reaching the parent node, is currentLevelHash the left child?
             bool isLeft = currentIndex % 2 == 0;
 

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (proxy/transparent/TransparentUpgradeableProxy.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (proxy/transparent/TransparentUpgradeableProxy.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.22;
 
 import {ERC1967Utils} from "../ERC1967/ERC1967Utils.sol";
 import {ERC1967Proxy} from "../ERC1967/ERC1967Proxy.sol";
@@ -15,7 +15,8 @@ import {ProxyAdmin} from "./ProxyAdmin.sol";
  * include them in the ABI so this interface must be used to interact with it.
  */
 interface ITransparentUpgradeableProxy is IERC1967 {
-    function upgradeToAndCall(address, bytes calldata) external payable;
+    /// @dev See {UUPSUpgradeable-upgradeToAndCall}
+    function upgradeToAndCall(address newImplementation, bytes calldata data) external payable;
 }
 
 /**

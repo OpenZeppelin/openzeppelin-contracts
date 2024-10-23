@@ -61,6 +61,18 @@ function testSymbolicDeriveMapping${name}(${type} key) public {
 }
 `;
 
+const mappingDirty = ({ type, name }) => `\
+function testSymbolicDeriveMapping${name}Dirty(bytes32 dirtyKey) public {
+    ${type} key;
+    assembly {
+        key := dirtyKey
+    }
+
+    // run the "normal" test using a potentially dirty value
+    testSymbolicDeriveMapping${name}(key);
+}
+`;
+
 const boundedMapping = ({ type, name }) => `\
 mapping(${type} => bytes) private _${type}Mapping;
 
@@ -107,6 +119,8 @@ module.exports = format(
           })),
         ),
       ).map(type => (type.isValueType ? mapping(type) : boundedMapping(type))),
+      mappingDirty(TYPES.bool),
+      mappingDirty(TYPES.address),
     ),
   ).trimEnd(),
   '}',

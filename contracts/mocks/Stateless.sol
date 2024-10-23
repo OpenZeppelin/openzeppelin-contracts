@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
 // We keep these imports and a dummy contract just to we can run the test suite after transpilation.
 
@@ -9,6 +9,9 @@ import {Arrays} from "../utils/Arrays.sol";
 import {AuthorityUtils} from "../access/manager/AuthorityUtils.sol";
 import {Base64} from "../utils/Base64.sol";
 import {BitMaps} from "../utils/structs/BitMaps.sol";
+import {Bytes} from "../utils/Bytes.sol";
+import {CAIP2} from "../utils/CAIP2.sol";
+import {CAIP10} from "../utils/CAIP10.sol";
 import {Checkpoints} from "../utils/structs/Checkpoints.sol";
 import {CircularBuffer} from "../utils/structs/CircularBuffer.sol";
 import {Clones} from "../proxy/Clones.sol";
@@ -22,9 +25,14 @@ import {ERC165} from "../utils/introspection/ERC165.sol";
 import {ERC165Checker} from "../utils/introspection/ERC165Checker.sol";
 import {ERC1967Utils} from "../proxy/ERC1967/ERC1967Utils.sol";
 import {ERC721Holder} from "../token/ERC721/utils/ERC721Holder.sol";
+import {ERC4337Utils} from "../account/utils/draft-ERC4337Utils.sol";
+import {ERC7579Utils} from "../account/utils/draft-ERC7579Utils.sol";
+import {Heap} from "../utils/structs/Heap.sol";
 import {Math} from "../utils/math/Math.sol";
 import {MerkleProof} from "../utils/cryptography/MerkleProof.sol";
 import {MessageHashUtils} from "../utils/cryptography/MessageHashUtils.sol";
+import {Nonces} from "../utils/Nonces.sol";
+import {NoncesKeyed} from "../utils/NoncesKeyed.sol";
 import {P256} from "../utils/cryptography/P256.sol";
 import {Panic} from "../utils/Panic.sol";
 import {Packing} from "../utils/Packing.sol";

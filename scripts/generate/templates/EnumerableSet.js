@@ -2,7 +2,6 @@ const format = require('../format-lines');
 const { fromBytes32, toBytes32 } = require('./conversion');
 const { TYPES } = require('./EnumerableSet.opts');
 
-/* eslint-disable max-len */
 const header = `\
 pragma solidity ^0.8.20;
 
@@ -41,7 +40,6 @@ pragma solidity ^0.8.20;
  * ====
  */
 `;
-/* eslint-enable max-len */
 
 const defaultSet = `\
 // To implement this library for multiple types with as little code
@@ -227,8 +225,7 @@ function values(${name} storage set) internal view returns (${type}[] memory) {
     bytes32[] memory store = _values(set._inner);
     ${type}[] memory result;
 
-    /// @solidity memory-safe-assembly
-    assembly {
+    assembly ("memory-safe") {
         result := store
     }
 

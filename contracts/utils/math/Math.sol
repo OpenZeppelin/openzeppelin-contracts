@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (utils/math/Math.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (utils/math/Math.sol)
 
 pragma solidity ^0.8.20;
 
@@ -144,7 +144,7 @@ library Math {
     function mulDiv(uint256 x, uint256 y, uint256 denominator) internal pure returns (uint256 result) {
         unchecked {
             // 512-bit multiply [prod1 prod0] = x * y. Compute the product mod 2²⁵⁶ and mod 2²⁵⁶ - 1, then use
-            // use the Chinese Remainder Theorem to reconstruct the 512 bit result. The result is stored in two 256
+            // the Chinese Remainder Theorem to reconstruct the 512 bit result. The result is stored in two 256
             // variables such that product = prod1 * 2²⁵⁶ + prod0.
             uint256 prod0 = x * y; // Least significant 256 bits of the product
             uint256 prod1; // Most significant 256 bits of the product
@@ -232,7 +232,7 @@ library Math {
     /**
      * @dev Calculate the modular multiplicative inverse of a number in Z/nZ.
      *
-     * If n is a prime, then Z/nZ is a field. In that case all elements are inversible, expect 0.
+     * If n is a prime, then Z/nZ is a field. In that case all elements are inversible, except 0.
      * If n is not a prime, then Z/nZ is not a field, and some elements might not be inversible.
      *
      * If the input value is not inversible, 0 is returned.
@@ -336,8 +336,7 @@ library Math {
      */
     function tryModExp(uint256 b, uint256 e, uint256 m) internal view returns (bool success, uint256 result) {
         if (m == 0) return (false, 0);
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             let ptr := mload(0x40)
             // | Offset    | Content    | Content (Hex)                                                      |
             // |-----------|------------|--------------------------------------------------------------------|
@@ -387,8 +386,7 @@ library Math {
         // Encode call args in result and move the free memory pointer
         result = abi.encodePacked(b.length, e.length, mLen, b, e, m);
 
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             let dataPtr := add(result, 0x20)
             // Write result on top of args to avoid allocating extra memory.
             success := staticcall(gas(), 0x05, dataPtr, mload(result), dataPtr, mLen)

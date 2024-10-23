@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (governance/utils/Votes.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (governance/utils/Votes.sol)
 pragma solidity ^0.8.20;
 
 import {IERC5805} from "../../interfaces/IERC5805.sol";
@@ -232,7 +232,7 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
         Checkpoints.Trace208 storage store,
         function(uint208, uint208) view returns (uint208) op,
         uint208 delta
-    ) private returns (uint208, uint208) {
+    ) private returns (uint208 oldValue, uint208 newValue) {
         return store.push(clock(), op(store.latest(), delta));
     }
 

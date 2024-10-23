@@ -8,7 +8,7 @@ const format = require('./format-lines');
 function getVersion(path) {
   try {
     return fs.readFileSync(path, 'utf8').match(/\/\/ OpenZeppelin Contracts \(last updated v[^)]+\)/)[0];
-  } catch (err) {
+  } catch {
     return null;
   }
 }
@@ -32,15 +32,18 @@ function generateFromTemplate(file, template, outputPrefix = '') {
 
 // Contracts
 for (const [file, template] of Object.entries({
+  'utils/cryptography/MerkleProof.sol': './templates/MerkleProof.js',
   'utils/math/SafeCast.sol': './templates/SafeCast.js',
+  'utils/structs/Checkpoints.sol': './templates/Checkpoints.js',
   'utils/structs/EnumerableSet.sol': './templates/EnumerableSet.js',
   'utils/structs/EnumerableMap.sol': './templates/EnumerableMap.js',
-  'utils/structs/Checkpoints.sol': './templates/Checkpoints.js',
   'utils/SlotDerivation.sol': './templates/SlotDerivation.js',
   'utils/StorageSlot.sol': './templates/StorageSlot.js',
+  'utils/TransientSlot.sol': './templates/TransientSlot.js',
   'utils/Arrays.sol': './templates/Arrays.js',
   'utils/Packing.sol': './templates/Packing.js',
   'mocks/StorageSlotMock.sol': './templates/StorageSlotMock.js',
+  'mocks/TransientSlotMock.sol': './templates/TransientSlotMock.js',
 })) {
   generateFromTemplate(file, template, './contracts/');
 }
