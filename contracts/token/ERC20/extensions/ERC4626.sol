@@ -31,10 +31,10 @@ import {Math} from "../../../utils/math/Math.sol";
  * The `_decimalsOffset()` corresponds to an offset in the decimal representation between the underlying asset's decimals
  * and the vault decimals. This offset also determines the rate of virtual shares to virtual assets in the vault, which
  * itself determines the initial exchange rate. While not fully preventing the attack, analysis shows that the default
- * offset (0) makes it non-profitable even if an attacker is able to capture value from multiple user deposits, as a result
- * of the value being captured by the virtual shares (out of the attacker's donation) matching the attacker's expected gains.
- * With a larger offset, the attack becomes orders of magnitude more expensive than it is profitable. More details about the
- * underlying math can be found xref:erc4626.adoc#inflation-attack[here].
+ * offset (0) makes it non-profitable in most (but not all) practical scenarios, including when capturing value from
+ * multiple user deposits, as a result of the value being captured by the virtual shares (out of the attacker's donation)
+ * matching the attacker's expected gains. With a larger offset, the attack becomes orders of magnitude more expensive
+ * than it is profitable. More details about the underlying math can be found xref:erc4626.adoc#inflation-attack[here].
  *
  * The drawback of this approach is that the virtual shares do capture (a very small) part of the value being accrued
  * to the vault. Also, if the vault experiences losses, the users try to exit the vault, the virtual shares and assets
