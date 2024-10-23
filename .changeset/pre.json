@@ -4,5 +4,18 @@
   "initialVersions": {
     "openzeppelin-solidity": "5.1.0"
   },
-  "changesets": []
+  "changesets": [
+    "eighty-hounds-promise",
+    "four-chairs-help",
+    "great-lions-hear",
+    "healthy-books-shout",
+    "hot-shrimps-wait",
+    "lovely-dodos-lay",
+    "pink-wasps-hammer",
+    "proud-planes-arrive",
+    "seven-donkeys-tap",
+    "small-seahorses-bathe",
+    "tricky-bats-pretend",
+    "weak-roses-bathe"
+  ]
 }
