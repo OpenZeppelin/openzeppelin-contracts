@@ -133,4 +133,4 @@ jobs:
         with:
           check_hidden: true
           check_filenames: true
-          skip: package-lock.json,*.pdf
+          skip: package-lock.json,*.pdf,vendor
