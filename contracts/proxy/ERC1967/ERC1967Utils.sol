@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (proxy/ERC1967/ERC1967Utils.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (proxy/ERC1967/ERC1967Utils.sol)
 
-pragma solidity ^0.8.21;
+pragma solidity ^0.8.22;
 
 import {IBeacon} from "../beacon/IBeacon.sol";
 import {IERC1967} from "../../interfaces/IERC1967.sol";
@@ -9,7 +9,7 @@ import {Address} from "../../utils/Address.sol";
 import {StorageSlot} from "../../utils/StorageSlot.sol";
 
 /**
- * @dev This abstract contract provides getters and event emitting update functions for
+ * @dev This library provides getters and event emitting update functions for
  * https://eips.ethereum.org/EIPS/eip-1967[ERC-1967] slots.
  */
 library ERC1967Utils {

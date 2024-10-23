@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (access/manager/AccessManager.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (access/manager/AccessManager.sol)
 
 pragma solidity ^0.8.20;
 
@@ -97,7 +97,15 @@ contract AccessManager is Context, Multicall, IAccessManager {
         uint32 nonce;
     }
 
+    /**
+     * @dev The identifier of the admin role. Required to perform most configuration operations including
+     * other roles' management and target restrictions.
+     */
     uint64 public constant ADMIN_ROLE = type(uint64).min; // 0
+
+    /**
+     * @dev The identifier of the public role. Automatically granted to all addresses with no delay.
+     */
     uint64 public constant PUBLIC_ROLE = type(uint64).max; // 2**64-1
 
     mapping(address target => TargetConfig mode) private _targets;
@@ -687,7 +695,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
         (bool adminRestricted, uint64 roleId, uint32 operationDelay) = _getAdminRestrictions(data);
 
-        // isTragetClosed apply to non-admin-restricted function
+        // isTargetClosed apply to non-admin-restricted function
         if (!adminRestricted && isTargetClosed(address(this))) {
             return (false, 0);
         }

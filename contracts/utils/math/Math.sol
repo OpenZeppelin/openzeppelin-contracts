@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (utils/math/Math.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (utils/math/Math.sol)
 
 pragma solidity ^0.8.20;
 
@@ -144,7 +144,7 @@ library Math {
     function mulDiv(uint256 x, uint256 y, uint256 denominator) internal pure returns (uint256 result) {
         unchecked {
             // 512-bit multiply [prod1 prod0] = x * y. Compute the product mod 2²⁵⁶ and mod 2²⁵⁶ - 1, then use
-            // use the Chinese Remainder Theorem to reconstruct the 512 bit result. The result is stored in two 256
+            // the Chinese Remainder Theorem to reconstruct the 512 bit result. The result is stored in two 256
             // variables such that product = prod1 * 2²⁵⁶ + prod0.
             uint256 prod0 = x * y; // Least significant 256 bits of the product
             uint256 prod1; // Most significant 256 bits of the product
@@ -232,13 +232,13 @@ library Math {
     /**
      * @dev Calculate the modular multiplicative inverse of a number in Z/nZ.
      *
-     * If n is a prime, then Z/nZ is a field. In that case all elements are inversible, expect 0.
+     * If n is a prime, then Z/nZ is a field. In that case all elements are inversible, except 0.
      * If n is not a prime, then Z/nZ is not a field, and some elements might not be inversible.
      *
      * If the input value is not inversible, 0 is returned.
      *
-     * NOTE: If you know for sure that n is (big) a prime, it may be cheaper to use Ferma's little theorem and get the
-     * inverse using `Math.modExp(a, n - 2, n)`.
+     * NOTE: If you know for sure that n is (big) a prime, it may be cheaper to use Fermat's little theorem and get the
+     * inverse using `Math.modExp(a, n - 2, n)`. See {invModPrime}.
      */
     function invMod(uint256 a, uint256 n) internal pure returns (uint256) {
         unchecked {
@@ -289,6 +289,21 @@ library Math {
     }
 
     /**
+     * @dev Variant of {invMod}. More efficient, but only works if `p` is known to be a prime greater than `2`.
+     *
+     * From https://en.wikipedia.org/wiki/Fermat%27s_little_theorem[Fermat's little theorem], we know that if p is
+     * prime, then `a**(p-1) ≡ 1 mod p`. As a consequence, we have `a * a**(p-2) ≡ 1 mod p`, which means that
+     * `a**(p-2)` is the modular multiplicative inverse of a in Fp.
+     *
+     * NOTE: this function does NOT check that `p` is a prime greater than `2`.
+     */
+    function invModPrime(uint256 a, uint256 p) internal view returns (uint256) {
+        unchecked {
+            return Math.modExp(a, p - 2, p);
+        }
+    }
+
+    /**
      * @dev Returns the modular exponentiation of the specified base, exponent and modulus (b ** e % m)
      *
      * Requirements:
@@ -321,8 +336,7 @@ library Math {
      */
     function tryModExp(uint256 b, uint256 e, uint256 m) internal view returns (bool success, uint256 result) {
         if (m == 0) return (false, 0);
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             let ptr := mload(0x40)
             // | Offset    | Content    | Content (Hex)                                                      |
             // |-----------|------------|--------------------------------------------------------------------|
@@ -372,8 +386,7 @@ library Math {
         // Encode call args in result and move the free memory pointer
         result = abi.encodePacked(b.length, e.length, mLen, b, e, m);
 
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             let dataPtr := add(result, 0x20)
             // Write result on top of args to avoid allocating extra memory.
             success := staticcall(gas(), 0x05, dataPtr, mload(result), dataPtr, mLen)

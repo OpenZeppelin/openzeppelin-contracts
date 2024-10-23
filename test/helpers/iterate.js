@@ -13,11 +13,11 @@ module.exports = {
   // Range from start to end in increment
   // Example: range(17,42,7) → [17,24,31,38]
   range: (start, stop = undefined, step = 1) => {
-    if (!stop) {
+    if (stop == undefined) {
       stop = start;
       start = 0;
     }
-    return start < stop ? Array.from({ length: Math.ceil((stop - start) / step) }, (_, i) => start + i * step) : [];
+    return start < stop ? Array.from({ length: (stop - start + step - 1) / step }, (_, i) => start + i * step) : [];
   },
 
   // Unique elements, with an optional getter function

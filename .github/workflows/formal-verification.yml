@@ -10,7 +10,7 @@ on:
   workflow_dispatch: {}
 
 env:
-  PIP_VERSION: '3.10'
+  PIP_VERSION: '3.11'
   JAVA_VERSION: '11'
   SOLC_VERSION: '0.8.20'
 

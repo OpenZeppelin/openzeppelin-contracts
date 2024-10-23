@@ -30,6 +30,8 @@ Counting modules determine valid voting options.
 
 * {GovernorCountingFractional}: A more modular voting system that allows a user to vote with only part of its voting power, and to split that weight arbitrarily between the 3 different options (Against, For and Abstain).
 
+* {GovernorCountingOverridable}: An extended version of `GovernorCountingSimple` which allows delegatees to override their delegates while the vote is live.
+
 Timelock extensions add a delay for governance decisions to be executed. The workflow is extended to require a `queue` step before execution. With these modules, proposals are executed by the external timelock contract, thus it is the timelock that has to hold the assets that are being governed.
 
 * {GovernorTimelockAccess}: Connects with an instance of an {AccessManager}. This allows restrictions (and delays) enforced by the manager to be considered by the Governor and integrated into the AccessManager's "schedule + execute" workflow.
@@ -66,6 +68,8 @@ NOTE: Functions of the `Governor` contract do not include access control. If you
 
 {{GovernorCountingFractional}}
 
+{{GovernorCountingOverride}}
+
 {{GovernorVotes}}
 
 {{GovernorVotesQuorumFraction}}
@@ -87,6 +91,8 @@ NOTE: Functions of the `Governor` contract do not include access control. If you
 == Utils
 
 {{Votes}}
+
+{{VotesExtended}}
 
 == Timelock
 
@@ -140,7 +146,7 @@ Timelocked operations are identified by a unique id (their hash) and follow a sp
 * By calling xref:api:governance.adoc#TimelockController-schedule-address-uint256-bytes-bytes32-bytes32-uint256-[`schedule`] (or xref:api:governance.adoc#TimelockController-scheduleBatch-address---uint256---bytes---bytes32-bytes32-uint256-[`scheduleBatch`]), a proposer moves the operation from the `Unset` to the `Pending` state. This starts a timer that must be longer than the minimum delay. The timer expires at a timestamp accessible through the xref:api:governance.adoc#TimelockController-getTimestamp-bytes32-[`getTimestamp`] method.
 * Once the timer expires, the operation automatically gets the `Ready` state. At this point, it can be executed.
 * By calling xref:api:governance.adoc#TimelockController-TimelockController-execute-address-uint256-bytes-bytes32-bytes32-[`execute`] (or xref:api:governance.adoc#TimelockController-executeBatch-address---uint256---bytes---bytes32-bytes32-[`executeBatch`]), an executor triggers the operation's underlying transactions and moves it to the `Done` state. If the operation has a predecessor, it has to be in the `Done` state for this transition to succeed.
-* xref:api:governance.adoc#TimelockController-TimelockController-cancel-bytes32-[`cancel`] allows proposers to cancel any `Pending` operation. This resets the operation to the `Unset` state. It is thus possible for a proposer to re-schedule an operation that has been cancelled. In this case, the timer restarts when the operation is re-scheduled.
+* xref:api:governance.adoc#TimelockController-TimelockController-cancel-bytes32-[`cancel`] allows proposers to cancel any `Pending` operation. This resets the operation to the `Unset` state. It is thus possible for a proposer to re-schedule an operation that has been cancelled. In this case, the timer restarts when the operation is rescheduled.
 
 Operations status can be queried using the functions:
 

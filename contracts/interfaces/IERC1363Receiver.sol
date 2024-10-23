@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (interfaces/IERC1363Receiver.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (interfaces/IERC1363Receiver.sol)
 
 pragma solidity ^0.8.20;
 
@@ -18,7 +18,7 @@ interface IERC1363Receiver {
      * (i.e. 0x88a7ca5c, or its own function selector).
      *
      * @param operator The address which called `transferAndCall` or `transferFromAndCall` function.
-     * @param from The address which are tokens transferred from.
+     * @param from The address which the tokens are transferred from.
      * @param value The amount of tokens transferred.
      * @param data Additional data with no specified format.
      * @return `bytes4(keccak256("onTransferReceived(address,address,uint256,bytes)"))` if transfer is allowed unless throwing.
