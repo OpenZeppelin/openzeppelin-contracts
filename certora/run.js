@@ -10,15 +10,11 @@
 import { spawn } from 'child_process';
 import { PassThrough } from 'stream';
 import { once } from 'events';
-import { fileURLToPath } from 'url';
 import path from 'path';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import pLimit from 'p-limit';
 import fs from 'fs/promises';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const argv = yargs(hideBin(process.argv))
   .env('')
@@ -30,7 +26,7 @@ const argv = yargs(hideBin(process.argv))
     spec: {
       alias: 's',
       type: 'string',
-      default: path.join(__dirname, 'specs.json'),
+      default: path.resolve(import.meta.dirname, 'specs.json'),
     },
     parallel: {
       alias: 'p',
