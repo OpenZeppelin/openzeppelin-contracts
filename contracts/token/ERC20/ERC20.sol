@@ -1,4 +1,19 @@
 // SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract PolskiToken is ERC20, Ownable {
+    constructor(uint256 initialSupply) ERC20("PolskiToken", "PLT") {
+        _mint(msg.sender, initialSupply);
+    }
+
+    // Funkcja, którą może wywołać tylko właściciel kontraktu (właściciel może stworzyć nowe tokeny)
+    function mint(address to, uint256 amount) public onlyOwner {
+        _mint(to, amount);
+    }
+}// SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.1.0) (token/ERC20/ERC20.sol)
 
 pragma solidity ^0.8.20;
