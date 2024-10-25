@@ -551,10 +551,7 @@ library Math {
         // If upper 4 bits of 8-bit half set, add 4 to result
         r |= SafeCast.toUint((x >> r) > 0xf) << 2;
 
-        // Shifts value right by the current result, isolating the last significant bits.
-        x >>= r;
-
-        // Uses the shifted value as an index into this lookup table:
+        // Shifts value right by the current result and use it as an index into this lookup table:
         //
         // | x (4 bits) |  index  | table[index] = MSB position |
         // |------------|---------|-----------------------------|
@@ -576,10 +573,9 @@ library Math {
         // |    1111    |   15    |        table[15] = 3        |
         //
         // The lookup table is represented as a 32-byte value with the MSB positions for 0-15 in the last 16 bytes.
-        assembly {
-            x := byte(x, 0x0000010102020202030303030303030300000000000000000000000000000000)
+        assembly ("memory-safe") {
+            r := or(r, byte(shr(r, x), 0x0000010102020202030303030303030300000000000000000000000000000000))
         }
-        r |= x;
     }
 
     /**
