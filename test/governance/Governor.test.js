@@ -632,13 +632,8 @@ describe('Governor', function () {
             await this.helper.propose();
             await this.helper.waitForSnapshot(1n); // snapshot + 1 block
 
-            await expect(this.helper.cancel('external'))
-              .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
-              .withArgs(
-                this.proposal.id,
-                ProposalState.Active,
-                GovernorHelper.proposalStatesToBitMap([ProposalState.Pending]),
-              );
+            await this.helper.cancel('external');
+            expect(await this.mock.state(this.proposal.id)).to.equal(ProposalState.Canceled);
           });
 
           it('after vote', async function () {
@@ -646,13 +641,8 @@ describe('Governor', function () {
             await this.helper.waitForSnapshot();
             await this.helper.connect(this.voter1).vote({ support: VoteType.For });
 
-            await expect(this.helper.cancel('external'))
-              .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
-              .withArgs(
-                this.proposal.id,
-                ProposalState.Active,
-                GovernorHelper.proposalStatesToBitMap([ProposalState.Pending]),
-              );
+            await this.helper.connect(this.owner).cancel('external');
+            expect(await this.mock.state(this.proposal.id)).to.equal(ProposalState.Canceled);
           });
 
           it('after deadline', async function () {
@@ -661,13 +651,8 @@ describe('Governor', function () {
             await this.helper.connect(this.voter1).vote({ support: VoteType.For });
             await this.helper.waitForDeadline();
 
-            await expect(this.helper.cancel('external'))
-              .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
-              .withArgs(
-                this.proposal.id,
-                ProposalState.Succeeded,
-                GovernorHelper.proposalStatesToBitMap([ProposalState.Pending]),
-              );
+            await this.helper.connect(this.owner).cancel('external');
+            expect(await this.mock.state(this.proposal.id)).to.equal(ProposalState.Canceled);
           });
 
           it('after execution', async function () {
@@ -677,12 +662,15 @@ describe('Governor', function () {
             await this.helper.waitForDeadline();
             await this.helper.execute();
 
-            await expect(this.helper.cancel('external'))
+            await expect(this.helper.connect(this.owner).cancel('external'))
               .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
               .withArgs(
                 this.proposal.id,
                 ProposalState.Executed,
-                GovernorHelper.proposalStatesToBitMap([ProposalState.Pending]),
+                GovernorHelper.proposalStatesToBitMap(
+                  [ProposalState.Canceled, ProposalState.Expired, ProposalState.Executed],
+                  { inverted: true },
+                ),
               );
           });
         });

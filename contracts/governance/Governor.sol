@@ -471,9 +471,12 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         // changes it. The `hashProposal` duplication has a cost that is limited, and that we accept.
         uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
 
-        // public cancel restrictions (on top of existing _cancel restrictions).
-        _validateStateBitmap(proposalId, _encodeStateBitmap(ProposalState.Pending));
-        if (_msgSender() != proposalProposer(proposalId)) {
+        address proposer = proposalProposer(proposalId);
+        if (proposer == address(0)) {
+            revert GovernorNonexistentProposal(proposalId);
+        }
+
+        if (_msgSender() != proposer) {
             revert GovernorOnlyProposer(_msgSender());
         }
 
