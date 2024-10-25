@@ -6,7 +6,7 @@ import {Governor} from "../Governor.sol";
 
 abstract contract GovernorSequentialProposalId is Governor {
     uint256 public numProposals;
-    mapping(bytes32 proposalHash => uint256 proposalId) private _proposalIds;
+    mapping(uint256 proposalHash => uint256 proposalId) private _proposalIds;
 
     function hashProposal(
         address[] memory targets,
@@ -14,7 +14,7 @@ abstract contract GovernorSequentialProposalId is Governor {
         bytes[] memory calldatas,
         bytes32 descriptionHash
     ) public virtual override returns (uint256) {
-        bytes32 proposalHash = keccak256(abi.encode(targets, values, calldatas, descriptionHash));
+        uint256 proposalHash = super.hashProposal(targets, values, calldatas, descriptionHash);
 
         uint256 storedProposalId = _proposalIds[proposalHash];
         if (storedProposalId == 0) {
