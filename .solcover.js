@@ -10,12 +10,4 @@ module.exports = {
     fgrep: '[skip-on-coverage]',
     invert: true,
   },
-  // Work around stack too deep for coverage
-  configureYulOptimizer: true,
-  solcOptimizerDetails: {
-    yul: true,
-    yulDetails: {
-      optimizerSteps: '',
-    },
-  },
 };

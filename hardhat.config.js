@@ -80,7 +80,7 @@ module.exports = {
         runs: argv.runs,
       },
       evmVersion: argv.evm,
-      viaIR: argv.ir,
+      viaIR: argv.ir || !!argv.coverage,
       outputSelection: { '*': { '*': ['storageLayout'] } },
     },
   },
@@ -94,6 +94,7 @@ module.exports = {
       'unused-param': !argv.coverage, // coverage causes unused-param warnings
       'transient-storage': false,
       default: 'error',
+      6133: argv.coverage ? 'off' : 'error',
     },
   },
   networks: {
