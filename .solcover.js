@@ -7,6 +7,7 @@ module.exports = {
     default_balance_ether: '10000000000000000000000000',
   },
   mocha: {
+    enableTimeouts: false,
     fgrep: '[skip-on-coverage]',
     invert: true,
   },
