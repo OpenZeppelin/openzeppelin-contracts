@@ -23,7 +23,7 @@ contract ClonesTest is Test {
         address implementation,
         bytes32 salt,
         bytes memory args
-    ) public {
+    ) public view {
         vm.assume(args.length < 0xbfd3);
 
         address predicted = Clones.predictDeterministicAddressWithImmutableArgs(implementation, args, salt);
