@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.1.0) (utils/cryptography/RSA.sol)
 pragma solidity ^0.8.20;
 
 import {Math} from "../math/Math.sol";
@@ -11,6 +12,8 @@ import {Math} from "../math/Math.sol";
  * RSA semantically secure for signing messages.
  *
  * Inspired by https://github.com/adria0/SolRsaVerify/blob/79c6182cabb9102ea69d4a2e996816091d5f1cd1[Adrià Massanet's work] (GNU General Public License v3.0).
+ *
+ * _Available since v5.1._
  */
 library RSA {
     /**
@@ -27,14 +30,19 @@ library RSA {
 
     /**
      * @dev Verifies a PKCSv1.5 signature given a digest according to the verification
-     * method described in https://datatracker.ietf.org/doc/html/rfc8017#section-8.2.2[section 8.2.2 of RFC8017] with support
-     * for explicit or implicit NULL parameters in the DigestInfo (no other optional parameters are supported).
+     * method described in https://datatracker.ietf.org/doc/html/rfc8017#section-8.2.2[section 8.2.2 of RFC8017] with
+     * support for explicit or implicit NULL parameters in the DigestInfo (no other optional parameters are supported).
      *
-     * IMPORTANT: For security reason, this function requires the signature and modulus to have a length of at least 2048 bits.
-     * If you use a smaller key, consider replacing it with a larger, more secure, one.
+     * IMPORTANT: For security reason, this function requires the signature and modulus to have a length of at least
+     * 2048 bits. If you use a smaller key, consider replacing it with a larger, more secure, one.
      *
-     * WARNING: PKCS#1 v1.5 allows for replayability given the message may contain arbitrary optional parameters in the
-     * DigestInfo. Consider using an onchain nonce or unique identifier to include in the message to prevent replay attacks.
+     * WARNING: This verification algorithm doesn't prevent replayability. If called multiple times with the same
+     * digest, public key and (valid signature), it will return true every time. Consider including an onchain nonce
+     * or unique identifier in the message to prevent replay attacks.
+     *
+     * WARNING: This verification algorithm supports any exponent. NIST recommends using `65537` (or higher).
+     * That is the default value many libraries use, such as OpenSSL. Developers may choose to reject public keys
+     * using a low exponent out of security concerns.
      *
      * @param digest the digest to verify
      * @param s is a buffer containing the signature
@@ -79,7 +87,7 @@ library RSA {
             // - PS is padding filled with 0xFF
             // - DigestInfo ::= SEQUENCE {
             //    digestAlgorithm AlgorithmIdentifier,
-            //      [optional algorithm parameters]
+            //      [optional algorithm parameters] -- not currently supported
             //    digest OCTET STRING
             // }
 

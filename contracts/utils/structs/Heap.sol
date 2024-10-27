@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.1.0) (utils/structs/Heap.sol)
 
 pragma solidity ^0.8.20;
 
@@ -33,6 +34,8 @@ import {StorageSlot} from "../StorageSlot.sol";
  * IMPORTANT: This library allows for the use of custom comparator functions. Given that manipulating
  * memory can lead to unexpected behavior. Consider verifying that the comparator does not manipulate
  * the Heap's state directly and that it follows the Solidity memory safety rules.
+ *
+ * _Available since v5.1._
  */
 library Heap {
     using Arrays for *;

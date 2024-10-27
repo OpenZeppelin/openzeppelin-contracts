@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.1.0) (utils/structs/CircularBuffer.sol)
 pragma solidity ^0.8.20;
 
 import {Math} from "../math/Math.sol";
@@ -34,6 +35,8 @@ import {Panic} from "../Panic.sol";
  *     CircularBuffer.Bytes32CircularBuffer private myBuffer;
  * }
  * ```
+ *
+ * _Available since v5.1._
  */
 library CircularBuffer {
     /**

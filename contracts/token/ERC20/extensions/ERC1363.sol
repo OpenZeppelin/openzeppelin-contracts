@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.1.0) (token/ERC20/extensions/ERC1363.sol)
 
 pragma solidity ^0.8.20;
 
@@ -12,6 +13,8 @@ import {ERC1363Utils} from "../utils/ERC1363Utils.sol";
  * @dev Extension of {ERC20} tokens that adds support for code execution after transfers and approvals
  * on recipient contracts. Calls after transfers are enabled through the {ERC1363-transferAndCall} and
  * {ERC1363-transferFromAndCall} methods while calls after approvals can be made with {ERC1363-approveAndCall}
+ *
+ * _Available since v5.1._
  */
 abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
     /**
