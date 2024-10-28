@@ -12,7 +12,7 @@ contract Uint256HeapTest is Test {
 
     Heap.Uint256Heap internal heap;
 
-    function _validateHeap(function(uint256, uint256) view returns (bool) comp) internal {
+    function _validateHeap(function(uint256, uint256) view returns (bool) comp) internal view {
         for (uint32 i = 1; i < heap.length(); ++i) {
             assertFalse(comp(heap.tree[i], heap.tree[(i - 1) / 2]));
         }
