@@ -540,7 +540,7 @@ library Math {
     function log2(uint256 x) internal pure returns (uint256 r) {
         // log2 implementation based on De Bruijn Multiplication.
         // ref: https://www.chessprogramming.org/BitScan#De_Bruijn_Multiplication_2
-        
+
         // If value has upper 128 bits set, log2 result is at least 128
         r = SafeCast.toUint(x > 0xffffffffffffffffffffffffffffffff) << 7;
         // If upper 64 bits of 128-bit half set, add 64 to result

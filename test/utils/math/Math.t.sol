@@ -7,18 +7,18 @@ import {Test, stdError} from "forge-std/Test.sol";
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 
 contract MathTest is Test {
-    function testSymbolicTernary(bool f, uint256 a, uint256 b) public {
+    function testSymbolicTernary(bool f, uint256 a, uint256 b) public pure {
         assertEq(Math.ternary(f, a, b), f ? a : b);
     }
 
     // MIN & MAX
-    function testSymbolicMinMax(uint256 a, uint256 b) public {
+    function testSymbolicMinMax(uint256 a, uint256 b) public pure {
         assertEq(Math.min(a, b), a < b ? a : b);
         assertEq(Math.max(a, b), a > b ? a : b);
     }
 
     // CEILDIV
-    function testCeilDiv(uint256 a, uint256 b) public {
+    function testCeilDiv(uint256 a, uint256 b) public pure {
         vm.assume(b > 0);
 
         uint256 result = Math.ceilDiv(a, b);
@@ -35,7 +35,7 @@ contract MathTest is Test {
     }
 
     // SQRT
-    function testSqrt(uint256 input, uint8 r) public {
+    function testSqrt(uint256 input, uint8 r) public pure {
         Math.Rounding rounding = _asRounding(r);
 
         uint256 result = Math.sqrt(input, rounding);
@@ -66,31 +66,31 @@ contract MathTest is Test {
     }
 
     // INV
-    function testInvMod(uint256 value, uint256 p) public {
+    function testInvMod(uint256 value, uint256 p) public pure {
         _testInvMod(value, p, true);
     }
 
-    function testInvMod2(uint256 seed) public {
+    function testInvMod2(uint256 seed) public pure {
         uint256 p = 2; // prime
         _testInvMod(bound(seed, 1, p - 1), p, false);
     }
 
-    function testInvMod17(uint256 seed) public {
+    function testInvMod17(uint256 seed) public pure {
         uint256 p = 17; // prime
         _testInvMod(bound(seed, 1, p - 1), p, false);
     }
 
-    function testInvMod65537(uint256 seed) public {
+    function testInvMod65537(uint256 seed) public pure {
         uint256 p = 65537; // prime
         _testInvMod(bound(seed, 1, p - 1), p, false);
     }
 
-    function testInvModP256(uint256 seed) public {
+    function testInvModP256(uint256 seed) public pure {
         uint256 p = 0xffffffff00000001000000000000000000000000ffffffffffffffffffffffff; // prime
         _testInvMod(bound(seed, 1, p - 1), p, false);
     }
 
-    function _testInvMod(uint256 value, uint256 p, bool allowZero) private {
+    function _testInvMod(uint256 value, uint256 p, bool allowZero) private pure {
         uint256 inverse = Math.invMod(value, p);
         if (inverse != 0) {
             assertEq(mulmod(value, inverse, p), 1);
@@ -101,7 +101,7 @@ contract MathTest is Test {
     }
 
     // LOG2
-    function testLog2(uint256 input, uint8 r) public {
+    function testLog2(uint256 input, uint8 r) public pure {
         Math.Rounding rounding = _asRounding(r);
 
         uint256 result = Math.log2(input, rounding);
@@ -128,7 +128,7 @@ contract MathTest is Test {
     }
 
     // LOG10
-    function testLog10(uint256 input, uint8 r) public {
+    function testLog10(uint256 input, uint8 r) public pure {
         Math.Rounding rounding = _asRounding(r);
 
         uint256 result = Math.log10(input, rounding);
@@ -155,7 +155,7 @@ contract MathTest is Test {
     }
 
     // LOG256
-    function testLog256(uint256 input, uint8 r) public {
+    function testLog256(uint256 input, uint8 r) public pure {
         Math.Rounding rounding = _asRounding(r);
 
         uint256 result = Math.log256(input, rounding);
@@ -182,7 +182,7 @@ contract MathTest is Test {
     }
 
     // MULDIV
-    function testMulDiv(uint256 x, uint256 y, uint256 d) public {
+    function testMulDiv(uint256 x, uint256 y, uint256 d) public pure {
         // Full precision for x * y
         (uint256 xyHi, uint256 xyLo) = _mulHighLow(x, y);
 
@@ -225,7 +225,7 @@ contract MathTest is Test {
         assertEq(result, _nativeModExp(b, e, m));
     }
 
-    function testTryModExp(uint256 b, uint256 e, uint256 m) public {
+    function testTryModExp(uint256 b, uint256 e, uint256 m) public view {
         (bool success, uint256 result) = Math.tryModExp(b, e, m);
         assertEq(success, m != 0);
         if (success) {
@@ -247,7 +247,7 @@ contract MathTest is Test {
         assertEq(res, _nativeModExp(b, e, m));
     }
 
-    function testTryModExpMemory(uint256 b, uint256 e, uint256 m) public {
+    function testTryModExpMemory(uint256 b, uint256 e, uint256 m) public view {
         (bool success, bytes memory result) = Math.tryModExp(
             abi.encodePacked(b),
             abi.encodePacked(e),

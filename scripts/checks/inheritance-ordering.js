@@ -2,8 +2,12 @@
 
 const path = require('path');
 const graphlib = require('graphlib');
+const match = require('micromatch');
 const { findAll } = require('solidity-ast/utils');
 const { _: artifacts } = require('yargs').argv;
+
+// files to skip
+const skipPatterns = ['contracts-exposed/**', 'contracts/mocks/**'];
 
 for (const artifact of artifacts) {
   const { output: solcOutput } = require(path.resolve(__dirname, '../..', artifact));
@@ -13,10 +17,7 @@ for (const artifact of artifacts) {
   const linearized = [];
 
   for (const source in solcOutput.contracts) {
-    if (['contracts-exposed/', 'contracts/mocks/'].some(pattern => source.startsWith(pattern))) {
-      continue;
-    }
-
+    if (match.any(source, skipPatterns)) continue;
     for (const contractDef of findAll('ContractDefinition', solcOutput.sources[source].ast)) {
       names[contractDef.id] = contractDef.name;
       linearized.push(contractDef.linearizedBaseContracts);
