@@ -45,7 +45,7 @@ function _assertDeriveArray(uint256 length, uint256 offset) public {
 const mapping = ({ type, name }) => `\
 mapping(${type} => bytes) private _${type}Mapping;
 
-function testSymbolicDeriveMapping${name}(${type} key) public {
+function testSymbolicDeriveMapping${name}(${type} key) public view {
     bytes32 baseSlot;
     assembly {
         baseSlot := _${type}Mapping.slot
@@ -61,18 +61,30 @@ function testSymbolicDeriveMapping${name}(${type} key) public {
 }
 `;
 
+const mappingDirty = ({ type, name }) => `\
+function testSymbolicDeriveMapping${name}Dirty(bytes32 dirtyKey) public {
+    ${type} key;
+    assembly {
+        key := dirtyKey
+    }
+
+    // run the "normal" test using a potentially dirty value
+    testSymbolicDeriveMapping${name}(key);
+}
+`;
+
 const boundedMapping = ({ type, name }) => `\
 mapping(${type} => bytes) private _${type}Mapping;
 
-function testDeriveMapping${name}(${type} memory key) public {
+function testDeriveMapping${name}(${type} memory key) public view {
     _assertDeriveMapping${name}(key);
 }
 
-function symbolicDeriveMapping${name}() public {
+function symbolicDeriveMapping${name}() public view {
     _assertDeriveMapping${name}(svm.create${name}(256, "DeriveMapping${name}Input"));
 }
 
-function _assertDeriveMapping${name}(${type} memory key) internal {
+function _assertDeriveMapping${name}(${type} memory key) internal view {
     bytes32 baseSlot;
     assembly {
         baseSlot := _${type}Mapping.slot
@@ -107,6 +119,8 @@ module.exports = format(
           })),
         ),
       ).map(type => (type.isValueType ? mapping(type) : boundedMapping(type))),
+      mappingDirty(TYPES.bool),
+      mappingDirty(TYPES.address),
     ),
   ).trimEnd(),
   '}',

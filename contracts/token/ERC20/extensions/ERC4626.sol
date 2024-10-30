@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (token/ERC20/extensions/ERC4626.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (token/ERC20/extensions/ERC4626.sol)
 
 pragma solidity ^0.8.20;
 
@@ -83,7 +83,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
     /**
      * @dev Attempts to fetch the asset decimals. A return value of false indicates that the attempt failed in some way.
      */
-    function _tryGetAssetDecimals(IERC20 asset_) private view returns (bool, uint8) {
+    function _tryGetAssetDecimals(IERC20 asset_) private view returns (bool ok, uint8 assetDecimals) {
         (bool success, bytes memory encodedDecimals) = address(asset_).staticcall(
             abi.encodeCall(IERC20Metadata.decimals, ())
         );

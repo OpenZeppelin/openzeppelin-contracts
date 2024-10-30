@@ -1,16 +1,19 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.1.0) (utils/ReentrancyGuardTransient.sol)
 
 pragma solidity ^0.8.24;
 
-import {StorageSlot} from "./StorageSlot.sol";
+import {TransientSlot} from "./TransientSlot.sol";
 
 /**
  * @dev Variant of {ReentrancyGuard} that uses transient storage.
  *
  * NOTE: This variant only works on networks where EIP-1153 is available.
+ *
+ * _Available since v5.1._
  */
 abstract contract ReentrancyGuardTransient {
-    using StorageSlot for *;
+    using TransientSlot for *;
 
     // keccak256(abi.encode(uint256(keccak256("openzeppelin.storage.ReentrancyGuard")) - 1)) & ~bytes32(uint256(0xff))
     bytes32 private constant REENTRANCY_GUARD_STORAGE =
