@@ -17,11 +17,8 @@ abstract contract GovernorSequentialProposalId is Governor {
         uint256 proposalHash = super.hashProposal(targets, values, calldatas, descriptionHash);
 
         uint256 storedProposalId = _proposalIds[proposalHash];
-        if (storedProposalId == 0) {
-            _proposalIds[proposalHash] = ++_numberOfProposals;
-            return _numberOfProposals;
-        }
-
-        return storedProposalId;
+        return storedProposalId == 0
+            ? (_proposalIds[proposalHash] = ++_numberOfProposals)
+            : storedProposalId;
     }
 }
