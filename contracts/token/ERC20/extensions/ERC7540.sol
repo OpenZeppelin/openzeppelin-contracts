@@ -19,11 +19,6 @@ abstract contract BaseERC7540 is ERC4626, IERC7540Operator {
     uint256 internal constant REQUEST_ID = 0;
 
     /**
-     * @dev See {IERC7575-share}.
-     */
-    address public share = address(this);
-
-    /**
      * @dev See {IERC7540-isOperator}.
      */
     mapping(address => mapping(address => bool)) public isOperator;

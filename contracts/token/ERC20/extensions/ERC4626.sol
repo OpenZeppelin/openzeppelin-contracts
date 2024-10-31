@@ -52,6 +52,11 @@ abstract contract ERC4626 is ERC20, IERC4626 {
     uint8 private immutable _underlyingDecimals;
 
     /**
+     * @dev See {IERC7575-share}.
+     */
+    address public share = address(this);
+
+    /**
      * @dev Attempted to deposit more assets than the max amount for `receiver`.
      */
     error ERC4626ExceededMaxDeposit(address receiver, uint256 assets, uint256 max);
