@@ -18,12 +18,12 @@ abstract contract GovernorSequentialProposalIdMock is
         return super.proposalThreshold();
     }
 
-    function hashProposal(
+    function _getProposalId(
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) public virtual override(Governor, GovernorSequentialProposalId) returns (uint256) {
-        return super.hashProposal(targets, values, calldatas, descriptionHash);
+    ) internal virtual override(Governor, GovernorSequentialProposalId) returns (uint256) {
+        return super._getProposalId(targets, values, calldatas, descriptionHash);
     }
 }

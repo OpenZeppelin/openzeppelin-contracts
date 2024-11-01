@@ -210,7 +210,7 @@ interface IGovernor is IERC165, IERC6372 {
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) external returns (uint256);
+    ) external pure returns (uint256);
 
     /**
      * @notice module:core

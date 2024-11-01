@@ -137,7 +137,7 @@ describe('GovernorSequentialProposalId', function () {
       it('nominal workflow', async function () {
         await this.helper.connect(this.proposer).propose();
         let timepoint = await this.mock.proposalSnapshot(1);
-        time.increaseTo[mode](timepoint);
+        await time.increaseTo[mode](timepoint);
 
         await expect(this.mock.connect(this.voter1).castVote(1, VoteType.For))
           .to.emit(this.mock, 'VoteCast')
@@ -156,7 +156,7 @@ describe('GovernorSequentialProposalId', function () {
           .withArgs(this.voter4, 1, VoteType.Abstain, ethers.parseEther('2'), '');
 
         timepoint = await this.mock.proposalDeadline(1);
-        time.increaseTo[mode](timepoint);
+        await time.increaseTo[mode](timepoint);
 
         expect(this.helper.execute())
           .to.eventually.emit(this.mock, 'ProposalExecuted')
