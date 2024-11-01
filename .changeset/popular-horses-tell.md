@@ -3,5 +3,3 @@
 ---
 
 `Governor`: Change `hashProposal()` visibility to view.
-
----
