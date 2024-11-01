@@ -110,15 +110,6 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         return "1";
     }
 
-    function _getProposalId(
-        address[] memory targets,
-        uint256[] memory values,
-        bytes[] memory calldatas,
-        bytes32 descriptionHash
-    ) internal virtual returns (uint256) {
-        return hashProposal(targets, values, calldatas, descriptionHash);
-    }
-
     /**
      * @dev See {IGovernor-hashProposal}.
      *
@@ -137,7 +128,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) public pure virtual returns (uint256) {
+    ) public view virtual returns (uint256) {
         return uint256(keccak256(abi.encode(targets, values, calldatas, descriptionHash)));
     }
 
@@ -326,7 +317,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         string memory description,
         address proposer
     ) internal virtual returns (uint256 proposalId) {
-        proposalId = _getProposalId(targets, values, calldatas, keccak256(bytes(description)));
+        proposalId = hashProposal(targets, values, calldatas, keccak256(bytes(description)));
 
         if (targets.length != values.length || targets.length != calldatas.length || targets.length == 0) {
             revert GovernorInvalidProposalLength(targets.length, calldatas.length, values.length);
@@ -367,7 +358,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         bytes[] memory calldatas,
         bytes32 descriptionHash
     ) public virtual returns (uint256) {
-        uint256 proposalId = _getProposalId(targets, values, calldatas, descriptionHash);
+        uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
 
         _validateStateBitmap(proposalId, _encodeStateBitmap(ProposalState.Succeeded));
 
@@ -415,7 +406,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         bytes[] memory calldatas,
         bytes32 descriptionHash
     ) public payable virtual returns (uint256) {
-        uint256 proposalId = _getProposalId(targets, values, calldatas, descriptionHash);
+        uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
 
         _validateStateBitmap(
             proposalId,
@@ -478,7 +469,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         // The proposalId will be recomputed in the `_cancel` call further down. However we need the value before we
         // do the internal call, because we need to check the proposal state BEFORE the internal `_cancel` call
         // changes it. The `hashProposal` duplication has a cost that is limited, and that we accept.
-        uint256 proposalId = _getProposalId(targets, values, calldatas, descriptionHash);
+        uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
 
         // public cancel restrictions (on top of existing _cancel restrictions).
         _validateStateBitmap(proposalId, _encodeStateBitmap(ProposalState.Pending));
@@ -501,7 +492,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         bytes[] memory calldatas,
         bytes32 descriptionHash
     ) internal virtual returns (uint256) {
-        uint256 proposalId = _getProposalId(targets, values, calldatas, descriptionHash);
+        uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
 
         _validateStateBitmap(
             proposalId,
