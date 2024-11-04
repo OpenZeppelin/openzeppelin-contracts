@@ -32,4 +32,11 @@ abstract contract GovernorSequentialProposalId is Governor {
 
         return super._propose(targets, values, calldatas, description, proposer);
     }
+
+    /**
+     * @dev Internal function to set the sequential proposal ID for the next proposal. This is helpful for transitioning from another governing system.
+     */
+    function _setNextProposalId(uint256 nextProposalId) internal virtual {
+        _numberOfProposals = nextProposalId - 1;
+    }
 }
