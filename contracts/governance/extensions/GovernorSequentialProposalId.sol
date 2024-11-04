@@ -42,4 +42,8 @@ abstract contract GovernorSequentialProposalId is Governor {
         if (_numberOfProposals != 0) revert NextProposalIdCanOnlyBeSetOnce();
         _numberOfProposals = nextProposalId - 1;
     }
+
+    function getNextProposalId() public view virtual returns (uint256) {
+        return _numberOfProposals + 1;
+    }
 }
