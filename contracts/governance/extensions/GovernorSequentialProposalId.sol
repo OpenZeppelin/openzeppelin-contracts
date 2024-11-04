@@ -8,6 +8,8 @@ abstract contract GovernorSequentialProposalId is Governor {
     uint256 private _numberOfProposals;
     mapping(uint256 proposalHash => uint256 proposalId) private _proposalIds;
 
+    error NextProposalIdCanOnlyBeSetOnce();
+
     function hashProposal(
         address[] memory targets,
         uint256[] memory values,
@@ -37,6 +39,7 @@ abstract contract GovernorSequentialProposalId is Governor {
      * @dev Internal function to set the sequential proposal ID for the next proposal. This is helpful for transitioning from another governing system.
      */
     function _setNextProposalId(uint256 nextProposalId) internal virtual {
+        if (_numberOfProposals != 0) revert NextProposalIdCanOnlyBeSetOnce();
         _numberOfProposals = nextProposalId - 1;
     }
 }
