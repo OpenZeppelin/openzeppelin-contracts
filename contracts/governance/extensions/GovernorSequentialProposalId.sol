@@ -5,6 +5,8 @@ pragma solidity ^0.8.20;
 import {Governor} from "../Governor.sol";
 
 abstract contract GovernorSequentialProposalId is Governor {
+    error NextProposalIdCanOnlyBeSetOnce();
+
     uint256 private _numberOfProposals;
     mapping(uint256 proposalHash => uint256 proposalId) private _proposalIds;
 
@@ -18,5 +20,13 @@ abstract contract GovernorSequentialProposalId is Governor {
 
         uint256 storedProposalId = _proposalIds[proposalHash];
         return storedProposalId == 0 ? (_proposalIds[proposalHash] = ++_numberOfProposals) : storedProposalId;
+    }
+
+    /**
+     * @dev Internal function to set the sequential proposal ID for the next proposal. This is helpful for transitioning from another governing system.
+     */
+    function _setNextProposalId(uint256 nextProposalId) internal virtual {
+        if (_numberOfProposals != 0) revert NextProposalIdCanOnlyBeSetOnce();
+        _numberOfProposals = nextProposalId - 1;
     }
 }
