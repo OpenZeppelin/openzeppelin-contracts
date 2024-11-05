@@ -45,7 +45,7 @@ library MessageHashUtils {
      *
      * See {ECDSA-recover}.
      */
-    function toEthSignedMessageHash(bytes memory message) internal pure returns (bytes32) {
+    function toEthSignedMessageHash(bytes calldata message) internal pure returns (bytes32) {
         return
             keccak256(bytes.concat("\x19Ethereum Signed Message:\n", bytes(Strings.toString(message.length)), message));
     }
@@ -59,7 +59,7 @@ library MessageHashUtils {
      *
      * See {ECDSA-recover}.
      */
-    function toDataWithIntendedValidatorHash(address validator, bytes memory data) internal pure returns (bytes32) {
+    function toDataWithIntendedValidatorHash(address validator, bytes calldata data) internal pure returns (bytes32) {
         return keccak256(abi.encodePacked(hex"19_00", validator, data));
     }
 

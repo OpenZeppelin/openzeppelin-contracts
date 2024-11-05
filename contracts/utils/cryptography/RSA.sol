@@ -20,10 +20,10 @@ library RSA {
      * @dev Same as {pkcs1Sha256} but using SHA256 to calculate the digest of `data`.
      */
     function pkcs1Sha256(
-        bytes memory data,
-        bytes memory s,
-        bytes memory e,
-        bytes memory n
+        bytes calldata data,
+        bytes calldata s,
+        bytes calldata e,
+        bytes calldata n
     ) internal view returns (bool) {
         return pkcs1Sha256(sha256(data), s, e, n);
     }

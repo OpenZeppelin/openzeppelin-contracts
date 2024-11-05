@@ -88,7 +88,7 @@ library ECDSA {
      * this is by receiving a hash of the original message (which may otherwise
      * be too long), and then calling {MessageHashUtils-toEthSignedMessageHash} on it.
      */
-    function recover(bytes32 hash, bytes memory signature) internal pure returns (address) {
+    function recover(bytes32 hash, bytes calldata signature) internal pure returns (address) {
         (address recovered, RecoverError error, bytes32 errorArg) = tryRecover(hash, signature);
         _throwError(error, errorArg);
         return recovered;
