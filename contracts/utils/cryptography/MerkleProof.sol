@@ -42,7 +42,7 @@ library MerkleProof {
      *
      * This version handles proofs in memory with the default hashing function.
      */
-    function verify(bytes32[] calldata proof, bytes32 root, bytes32 leaf) internal pure returns (bool) {
+    function verify(bytes32[] memory proof, bytes32 root, bytes32 leaf) internal pure returns (bool) {
         return processProof(proof, leaf) == root;
     }
 
@@ -54,7 +54,7 @@ library MerkleProof {
      *
      * This version handles proofs in memory with the default hashing function.
      */
-    function processProof(bytes32[] calldata proof, bytes32 leaf) internal pure returns (bytes32) {
+    function processProof(bytes32[] memory proof, bytes32 leaf) internal pure returns (bytes32) {
         bytes32 computedHash = leaf;
         for (uint256 i = 0; i < proof.length; i++) {
             computedHash = Hashes.commutativeKeccak256(computedHash, proof[i]);
@@ -71,7 +71,7 @@ library MerkleProof {
      * This version handles proofs in memory with a custom hashing function.
      */
     function verify(
-        bytes32[] calldata proof,
+        bytes32[] memory proof,
         bytes32 root,
         bytes32 leaf,
         function(bytes32, bytes32) view returns (bytes32) hasher
@@ -88,7 +88,7 @@ library MerkleProof {
      * This version handles proofs in memory with a custom hashing function.
      */
     function processProof(
-        bytes32[] calldata proof,
+        bytes32[] memory proof,
         bytes32 leaf,
         function(bytes32, bytes32) view returns (bytes32) hasher
     ) internal view returns (bytes32) {
@@ -176,10 +176,10 @@ library MerkleProof {
      * The `leaves` must be validated independently. See {processMultiProof}.
      */
     function multiProofVerify(
-        bytes32[] calldata proof,
-        bool[] calldata proofFlags,
+        bytes32[] memory proof,
+        bool[] memory proofFlags,
         bytes32 root,
-        bytes32[] calldata leaves
+        bytes32[] memory leaves
     ) internal pure returns (bool) {
         return processMultiProof(proof, proofFlags, leaves) == root;
     }
@@ -201,9 +201,9 @@ library MerkleProof {
      * validating the leaves elsewhere.
      */
     function processMultiProof(
-        bytes32[] calldata proof,
-        bool[] calldata proofFlags,
-        bytes32[] calldata leaves
+        bytes32[] memory proof,
+        bool[] memory proofFlags,
+        bytes32[] memory leaves
     ) internal pure returns (bytes32 merkleRoot) {
         // This function rebuilds the root hash by traversing the tree up from the leaves. The root is rebuilt by
         // consuming and producing values on a queue. The queue starts with the `leaves` array, then goes onto the
@@ -262,10 +262,10 @@ library MerkleProof {
      * The `leaves` must be validated independently. See {processMultiProof}.
      */
     function multiProofVerify(
-        bytes32[] calldata proof,
-        bool[] calldata proofFlags,
+        bytes32[] memory proof,
+        bool[] memory proofFlags,
         bytes32 root,
-        bytes32[] calldata leaves,
+        bytes32[] memory leaves,
         function(bytes32, bytes32) view returns (bytes32) hasher
     ) internal view returns (bool) {
         return processMultiProof(proof, proofFlags, leaves, hasher) == root;
@@ -288,9 +288,9 @@ library MerkleProof {
      * validating the leaves elsewhere.
      */
     function processMultiProof(
-        bytes32[] calldata proof,
-        bool[] calldata proofFlags,
-        bytes32[] calldata leaves,
+        bytes32[] memory proof,
+        bool[] memory proofFlags,
+        bytes32[] memory leaves,
         function(bytes32, bytes32) view returns (bytes32) hasher
     ) internal view returns (bytes32 merkleRoot) {
         // This function rebuilds the root hash by traversing the tree up from the leaves. The root is rebuilt by
@@ -353,7 +353,7 @@ library MerkleProof {
         bytes32[] calldata proof,
         bool[] calldata proofFlags,
         bytes32 root,
-        bytes32[] calldata leaves
+        bytes32[] memory leaves
     ) internal pure returns (bool) {
         return processMultiProofCalldata(proof, proofFlags, leaves) == root;
     }
@@ -377,7 +377,7 @@ library MerkleProof {
     function processMultiProofCalldata(
         bytes32[] calldata proof,
         bool[] calldata proofFlags,
-        bytes32[] calldata leaves
+        bytes32[] memory leaves
     ) internal pure returns (bytes32 merkleRoot) {
         // This function rebuilds the root hash by traversing the tree up from the leaves. The root is rebuilt by
         // consuming and producing values on a queue. The queue starts with the `leaves` array, then goes onto the
@@ -439,7 +439,7 @@ library MerkleProof {
         bytes32[] calldata proof,
         bool[] calldata proofFlags,
         bytes32 root,
-        bytes32[] calldata leaves,
+        bytes32[] memory leaves,
         function(bytes32, bytes32) view returns (bytes32) hasher
     ) internal view returns (bool) {
         return processMultiProofCalldata(proof, proofFlags, leaves, hasher) == root;
@@ -464,7 +464,7 @@ library MerkleProof {
     function processMultiProofCalldata(
         bytes32[] calldata proof,
         bool[] calldata proofFlags,
-        bytes32[] calldata leaves,
+        bytes32[] memory leaves,
         function(bytes32, bytes32) view returns (bytes32) hasher
     ) internal view returns (bytes32 merkleRoot) {
         // This function rebuilds the root hash by traversing the tree up from the leaves. The root is rebuilt by
