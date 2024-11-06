@@ -566,7 +566,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         uint256 proposalId,
         uint8 support,
         address voter,
-        bytes memory signature
+        bytes calldata signature
     ) public virtual returns (uint256) {
         bool valid = SignatureChecker.isValidSignatureNow(
             voter,
@@ -589,8 +589,8 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         uint8 support,
         address voter,
         string calldata reason,
-        bytes memory params,
-        bytes memory signature
+        bytes calldata params,
+        bytes calldata signature
     ) public virtual returns (uint256) {
         bool valid = SignatureChecker.isValidSignatureNow(
             voter,
