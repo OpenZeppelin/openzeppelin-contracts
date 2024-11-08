@@ -5,6 +5,7 @@ pragma solidity ^0.8.20;
 
 import {ERC20, IERC20} from "../ERC20.sol";
 import {ERC4626} from "./ERC4626.sol";
+import {IERC165} from "../../../interfaces/IERC165.sol";
 import {IERC7540Operator} from "../../../interfaces/IERC7540.sol";
 import {IERC7575} from "../../../interfaces/IERC7575.sol";
 
