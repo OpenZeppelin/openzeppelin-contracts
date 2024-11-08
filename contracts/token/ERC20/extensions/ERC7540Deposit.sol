@@ -84,8 +84,6 @@ abstract contract BaseERC7540Deposit is BaseERC7540, IERC7540Deposit {
 
     /**
      * @dev TODO
-     *
-     * NOTE: This function is not virtual, {_update} should be overridden instead.
      */
     function _fulfillDeposit(address controller, uint256 assets) internal returns (uint256 shares) {
         PendingDeposit storage request = _pendingDeposit[controller];
@@ -200,5 +198,5 @@ abstract contract BaseERC7540Deposit is BaseERC7540, IERC7540Deposit {
 }
 
 contract ERC7540Deposit is BaseERC7540Deposit {
-    constructor(ERC20 _asset) BaseERC7540(_asset) {}
+    constructor(ERC20 _asset, string memory _name, string memory _symbol) BaseERC7540(_asset) ERC20(_name, _symbol) {}
 }
