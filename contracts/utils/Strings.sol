@@ -175,6 +175,7 @@ library Strings {
         bytes memory buffer = bytes(input);
 
         uint256 result = 0;
+        if (begin >= end) return (false, 0);
         for (uint256 i = begin; i < end; ++i) {
             uint8 chr = _tryParseChr(bytes1(_unsafeReadBytesOffset(buffer, i)));
             if (chr > 9) return (false, 0);
@@ -358,7 +359,7 @@ library Strings {
         bool hasPrefix = bytes2(_unsafeReadBytesOffset(bytes(input), begin)) == bytes2("0x");
         uint256 expectedLength = 40 + hasPrefix.toUint() * 2;
 
-        if (end - begin == expectedLength) {
+        if (end - begin == expectedLength && end < bytes(input).length) {
             // length guarantees that this does not overflow, and value is at most type(uint160).max
             (bool s, uint256 v) = tryParseHexUint(input, begin, end);
             return (s, address(uint160(v)));
