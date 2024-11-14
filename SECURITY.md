@@ -12,7 +12,7 @@ There is a bonus reward for issues introduced in release candidates that are rep
 
 ## Security Patches
 
-Security vulnerabilities will be patched as soon as responsibly possible, and published as an advisory on this repository (see [advisories]) and on the affected npm packages.
+Security vulnerabilities will be patched as soon as reasonably possible, and published as an advisory on this repository (see [advisories]) and on the affected npm packages.
 
 [advisories]: https://github.com/OpenZeppelin/openzeppelin-contracts/security/advisories
 
