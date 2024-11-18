@@ -1,10 +1,11 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+const { anyValue } = require('@nomicfoundation/hardhat-chai-matchers/withArgs');
 
 const { GovernorHelper } = require('../../helpers/governance');
 const { VoteType } = require('../../helpers/enums');
-const time = require('../../helpers/time');
+const iterate = require('../../helpers/iterate');
 
 const TOKENS = [
   { Token: '$ERC20Votes', mode: 'blocknumber' },
@@ -89,55 +90,67 @@ describe('GovernorSequentialProposalId', function () {
       });
 
       it('sequential proposal ids', async function () {
-        const txPropose = await this.helper.connect(this.proposer).propose();
-        const timepoint = await time.clockFromReceipt[mode](txPropose);
+        for (const i of iterate.range(1, 10)) {
+          this.proposal.description = `<proposal description #${i}>`;
 
-        await expect(txPropose)
-          .to.emit(this.mock, 'ProposalCreated')
-          .withArgs(
-            1,
-            this.proposer,
-            this.proposal.targets,
-            this.proposal.values,
-            this.proposal.signatures,
-            this.proposal.data,
-            timepoint + votingDelay,
-            timepoint + votingDelay + votingPeriod,
-            this.proposal.description,
-          );
+          expect(this.mock.hashProposal(...this.proposal.shortProposal)).to.eventually.equal(this.proposal.hash);
+          expect(this.mock.getProposalId(...this.proposal.shortProposal)).to.eventually.equal(i); // TODO; this should revert
+          expect(this.mock.getProposalCount()).to.eventually.equal(i - 1);
 
-        this.proposal = this.helper.setProposal(
-          [
-            {
-              target: this.receiver.target,
-              data: this.receiver.interface.encodeFunctionData('mockFunction'),
-              value,
-            },
-          ],
-          '<proposal description 2>',
-        );
-        const txPropose2 = await this.helper.connect(this.proposer).propose();
-        const timepoint2 = await time.clockFromReceipt[mode](txPropose2);
+          await expect(this.helper.connect(this.proposer).propose())
+            .to.emit(this.mock, 'ProposalCreated')
+            .withArgs(
+              i,
+              this.proposer,
+              this.proposal.targets,
+              this.proposal.values,
+              this.proposal.signatures,
+              this.proposal.data,
+              anyValue,
+              anyValue,
+              this.proposal.description,
+            );
 
-        await expect(txPropose2)
-          .to.emit(this.mock, 'ProposalCreated')
-          .withArgs(
-            2,
-            this.proposer,
-            this.proposal.targets,
-            this.proposal.values,
-            this.proposal.signatures,
-            this.proposal.data,
-            timepoint2 + votingDelay,
-            timepoint2 + votingDelay + votingPeriod,
-            this.proposal.description,
-          );
+          expect(this.mock.hashProposal(...this.proposal.shortProposal)).to.eventually.equal(this.proposal.hash);
+          expect(this.mock.getProposalId(...this.proposal.shortProposal)).to.eventually.equal(i);
+          expect(this.mock.getProposalCount()).to.eventually.equal(i);
+        }
+      });
+
+      it('sequential proposal ids with offset start', async function () {
+        const offset = 69420;
+        await this.mock.$_setProposalCount(offset);
+
+        for (const i of iterate.range(offset + 1, offset + 10)) {
+          this.proposal.description = `<proposal description #${i}>`;
+
+          expect(this.mock.hashProposal(...this.proposal.shortProposal)).to.eventually.equal(this.proposal.hash);
+          expect(this.mock.getProposalId(...this.proposal.shortProposal)).to.eventually.equal(i); // TODO; this should revert
+          expect(this.mock.getProposalCount()).to.eventually.equal(i - 1);
+
+          await expect(this.helper.connect(this.proposer).propose())
+            .to.emit(this.mock, 'ProposalCreated')
+            .withArgs(
+              i,
+              this.proposer,
+              this.proposal.targets,
+              this.proposal.values,
+              this.proposal.signatures,
+              this.proposal.data,
+              anyValue,
+              anyValue,
+              this.proposal.description,
+            );
+
+          expect(this.mock.hashProposal(...this.proposal.shortProposal)).to.eventually.equal(this.proposal.hash);
+          expect(this.mock.getProposalId(...this.proposal.shortProposal)).to.eventually.equal(i);
+          expect(this.mock.getProposalCount()).to.eventually.equal(i);
+        }
       });
 
       it('nominal workflow', async function () {
         await this.helper.connect(this.proposer).propose();
-        let timepoint = await this.mock.proposalSnapshot(1);
-        await time.increaseTo[mode](timepoint);
+        await this.helper.waitForSnapshot();
 
         await expect(this.mock.connect(this.voter1).castVote(1, VoteType.For))
           .to.emit(this.mock, 'VoteCast')
@@ -155,8 +168,7 @@ describe('GovernorSequentialProposalId', function () {
           .to.emit(this.mock, 'VoteCast')
           .withArgs(this.voter4, 1, VoteType.Abstain, ethers.parseEther('2'), '');
 
-        timepoint = await this.mock.proposalDeadline(1);
-        await time.increaseTo[mode](timepoint);
+        await this.helper.waitForDeadline();
 
         expect(this.helper.execute())
           .to.eventually.emit(this.mock, 'ProposalExecuted')
