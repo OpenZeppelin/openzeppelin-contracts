@@ -5,10 +5,8 @@ pragma solidity ^0.8.20;
 import {Governor} from "../Governor.sol";
 
 abstract contract GovernorSequentialProposalId is Governor {
-    uint256 private _numberOfProposals;
+    uint256 private _proposalCount;
     mapping(uint256 proposalHash => uint256 proposalId) private _proposalIds;
-
-    error NextProposalIdCanOnlyBeSetOnce();
 
     function getProposalId(
         address[] memory targets,
@@ -19,7 +17,7 @@ abstract contract GovernorSequentialProposalId is Governor {
         uint256 proposalHash = hashProposal(targets, values, calldatas, descriptionHash);
 
         uint256 storedProposalId = _proposalIds[proposalHash];
-        return storedProposalId == 0 ? (_numberOfProposals + 1) : storedProposalId;
+        return storedProposalId == 0 ? (_proposalCount + 1) : storedProposalId;
     }
 
     function _propose(
@@ -30,7 +28,7 @@ abstract contract GovernorSequentialProposalId is Governor {
         address proposer
     ) internal virtual override returns (uint256) {
         uint256 proposalHash = hashProposal(targets, values, calldatas, keccak256(bytes(description)));
-        _proposalIds[proposalHash] = ++_numberOfProposals;
+        _proposalIds[proposalHash] = ++_proposalCount;
 
         return super._propose(targets, values, calldatas, description, proposer);
     }
@@ -38,12 +36,11 @@ abstract contract GovernorSequentialProposalId is Governor {
     /**
      * @dev Internal function to set the sequential proposal ID for the next proposal. This is helpful for transitioning from another governing system.
      */
-    function _setNextProposalId(uint256 nextProposalId) internal virtual {
-        if (_numberOfProposals != 0) revert NextProposalIdCanOnlyBeSetOnce();
-        _numberOfProposals = nextProposalId - 1;
+    function _setProposalCount(uint256 proposalCount) internal virtual {
+        _proposalCount = proposalCount;
     }
 
-    function getNextProposalId() public view virtual returns (uint256) {
-        return _numberOfProposals + 1;
+    function getProposalCount() public view virtual returns (uint256) {
+        return _proposalCount;
     }
 }
