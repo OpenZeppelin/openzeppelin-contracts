@@ -15,9 +15,9 @@ abstract contract GovernorSequentialProposalId is Governor {
         bytes32 descriptionHash
     ) public view virtual override returns (uint256) {
         uint256 proposalHash = hashProposal(targets, values, calldatas, descriptionHash);
-
         uint256 storedProposalId = _proposalIds[proposalHash];
-        return storedProposalId == 0 ? (_proposalCount + 1) : storedProposalId;
+        if (storedProposalId == 0) revert GovernorNonexistentProposal(0);
+        return storedProposalId;
     }
 
     function _propose(

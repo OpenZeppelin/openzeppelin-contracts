@@ -94,7 +94,10 @@ describe('GovernorSequentialProposalId', function () {
           this.proposal.description = `<proposal description #${i}>`;
 
           expect(this.mock.hashProposal(...this.proposal.shortProposal)).to.eventually.equal(this.proposal.hash);
-          expect(this.mock.getProposalId(...this.proposal.shortProposal)).to.eventually.equal(i); // TODO; this should revert
+          await expect(this.mock.getProposalId(...this.proposal.shortProposal)).revertedWithCustomError(
+            this.mock,
+            'GovernorNonexistentProposal',
+          );
           expect(this.mock.getProposalCount()).to.eventually.equal(i - 1);
 
           await expect(this.helper.connect(this.proposer).propose())
@@ -125,7 +128,10 @@ describe('GovernorSequentialProposalId', function () {
           this.proposal.description = `<proposal description #${i}>`;
 
           expect(this.mock.hashProposal(...this.proposal.shortProposal)).to.eventually.equal(this.proposal.hash);
-          expect(this.mock.getProposalId(...this.proposal.shortProposal)).to.eventually.equal(i); // TODO; this should revert
+          await expect(this.mock.getProposalId(...this.proposal.shortProposal)).revertedWithCustomError(
+            this.mock,
+            'GovernorNonexistentProposal',
+          );
           expect(this.mock.getProposalCount()).to.eventually.equal(i - 1);
 
           await expect(this.helper.connect(this.proposer).propose())
