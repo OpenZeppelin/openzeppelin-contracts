@@ -10,13 +10,13 @@ abstract contract GovernorSequentialProposalId is Governor {
 
     error NextProposalIdCanOnlyBeSetOnce();
 
-    function hashProposal(
+    function getProposalId(
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
     ) public view virtual override returns (uint256) {
-        uint256 proposalHash = super.hashProposal(targets, values, calldatas, descriptionHash);
+        uint256 proposalHash = hashProposal(targets, values, calldatas, descriptionHash);
 
         uint256 storedProposalId = _proposalIds[proposalHash];
         return storedProposalId == 0 ? (_numberOfProposals + 1) : storedProposalId;
@@ -29,7 +29,7 @@ abstract contract GovernorSequentialProposalId is Governor {
         string memory description,
         address proposer
     ) internal virtual override returns (uint256) {
-        uint256 proposalHash = super.hashProposal(targets, values, calldatas, keccak256(bytes(description)));
+        uint256 proposalHash = hashProposal(targets, values, calldatas, keccak256(bytes(description)));
         _proposalIds[proposalHash] = ++_numberOfProposals;
 
         return super._propose(targets, values, calldatas, description, proposer);
