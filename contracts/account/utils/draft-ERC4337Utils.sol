@@ -71,7 +71,7 @@ library ERC4337Utils {
         return (aggregator_, block.timestamp < validAfter || validUntil < block.timestamp);
     }
 
-    /// @dev Sames as {hash}, but with a custom entrypoint and chainid.
+    /// @dev Same as {hash}, but with a custom entrypoint and chainid.
     function hash(
         PackedUserOperation calldata self,
         address entrypoint,
