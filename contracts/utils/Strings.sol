@@ -3,6 +3,7 @@
 
 pragma solidity ^0.8.20;
 
+import {console} from "forge-std/console.sol";
 import {Math} from "./math/Math.sol";
 import {SafeCast} from "./math/SafeCast.sol";
 import {SignedMath} from "./math/SignedMath.sol";
@@ -294,6 +295,7 @@ library Strings {
         uint256 begin,
         uint256 end
     ) internal pure returns (bool success, uint256 value) {
+        if (end >= bytes(input).length) return (false, 0);
         bytes memory buffer = bytes(input);
 
         // skip 0x prefix if present
