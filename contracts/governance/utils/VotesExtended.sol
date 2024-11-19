@@ -9,11 +9,11 @@ import {SafeCast} from "../../utils/math/SafeCast.sol";
  * @dev Extension of {Votes} that adds exposes checkpoints for delegations and balances.
  *
  * WARNING: While this contract extends {Votes}, it makes additional assumptions. Valid uses of {Votes} may not be
- * compatbile with {VotesExtended} without additional considerations. The implementation of {_transferVotingUnits}
+ * compatible with {VotesExtended} without additional considerations. The implementation of {_transferVotingUnits}
  * expects to run AFTER the voting weight movement is registered in a way that would reflect on {_getVotingUnits}.
  *
  * Said differently, {VotesExtended} MUST be integrated in a way such that calls {_transferVotingUnits} AFTER the 
- * asset transfer is registered adn balances are updated:
+ * asset transfer is registered and balances are updated:
  *
  * ```solidity
  * contract VotingToken is Token, VotesExtended {
