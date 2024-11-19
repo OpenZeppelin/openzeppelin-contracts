@@ -36,11 +36,11 @@ abstract contract GovernorSequentialProposalId is Governor {
     /**
      * @dev Internal function to set the sequential proposal ID for the next proposal. This is helpful for transitioning from another governing system.
      */
-    function _setProposalCount(uint256 proposalCount) internal virtual {
-        _proposalCount = proposalCount;
+    function _setProposalCount(uint256 newProposalCount) internal virtual {
+        _proposalCount = newProposalCount;
     }
 
-    function getProposalCount() public view virtual returns (uint256) {
+    function proposalCount() public view virtual returns (uint256) {
         return _proposalCount;
     }
 }
