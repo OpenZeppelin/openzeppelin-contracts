@@ -397,7 +397,7 @@ library Strings {
         if (end - begin == expectedLength) {
             // length guarantees that this does not overflow, and value is at most type(uint160).max
             (bool s, uint256 v) = _tryParseHexUintUncheckedBounds(input, begin, end);
-            return (s, address(uint160(v)));
+            return (s && end <= bytes(input).length, address(uint160(v)));
         } else {
             return (false, address(0));
         }
