@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.20;
 
-import {IEntryPoint, PackedUserOperation} from "../../interfaces/draft-IERC4337.sol";
+import {PackedUserOperation} from "../../interfaces/draft-IERC4337.sol";
 import {Math} from "../../utils/math/Math.sol";
 import {Packing} from "../../utils/Packing.sol";
 
