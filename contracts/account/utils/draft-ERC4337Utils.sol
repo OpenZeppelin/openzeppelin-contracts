@@ -71,11 +71,6 @@ library ERC4337Utils {
         return (aggregator_, block.timestamp < validAfter || validUntil < block.timestamp);
     }
 
-    /// @dev Computes the hash of a user operation with the current entrypoint and chainid.
-    function hash(PackedUserOperation calldata self) internal view returns (bytes32) {
-        return hash(self, address(this), block.chainid);
-    }
-
     /// @dev Sames as {hash}, but with a custom entrypoint and chainid.
     function hash(
         PackedUserOperation calldata self,
