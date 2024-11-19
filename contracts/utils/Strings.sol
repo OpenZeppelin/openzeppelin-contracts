@@ -295,7 +295,7 @@ library Strings {
         uint256 begin,
         uint256 end
     ) internal pure returns (bool success, uint256 value) {
-        if (end >= bytes(input).length) return (false, 0);
+        if (end > bytes(input).length) return (false, 0);
         bytes memory buffer = bytes(input);
 
         // skip 0x prefix if present

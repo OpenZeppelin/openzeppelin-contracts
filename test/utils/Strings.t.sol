@@ -31,7 +31,7 @@ contract StringsTest is Test {
             mstore(add(add(random, 0x20), length), 0x3030303030303030303030303030303030303030303030303030303030303030)
         }
 
-        (bool success, ) = random.tryParseHexUint(1, length);
+        (bool success, ) = random.tryParseHexUint(1, length + 1);
         assertFalse(success);
     }
 
