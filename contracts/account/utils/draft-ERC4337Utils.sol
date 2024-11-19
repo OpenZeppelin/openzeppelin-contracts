@@ -129,7 +129,7 @@ library ERC4337Utils {
             // Following values are "per gas"
             uint256 maxPriorityFee = maxPriorityFeePerGas(self);
             uint256 maxFee = maxFeePerGas(self);
-            return Math.ternary(maxFee == maxPriorityFee, maxFee, Math.min(maxFee, maxPriorityFee + block.basefee));
+            return Math.min(maxFee, maxPriorityFee + block.basefee);
         }
     }
 
