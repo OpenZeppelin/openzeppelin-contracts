@@ -3,7 +3,6 @@
 
 pragma solidity ^0.8.20;
 
-import {console} from "forge-std/console.sol";
 import {Math} from "./math/Math.sol";
 import {SafeCast} from "./math/SafeCast.sol";
 import {SignedMath} from "./math/SignedMath.sol";
