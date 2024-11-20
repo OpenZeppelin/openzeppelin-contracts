@@ -6,7 +6,7 @@ import {Votes} from "./Votes.sol";
 import {SafeCast} from "../../utils/math/SafeCast.sol";
 
 /**
- * @dev Extension of {Votes} that adds exposes checkpoints for delegations and balances.
+ * @dev Extension of {Votes} that adds checkpoints for delegations and balances.
  */
 abstract contract VotesExtended is Votes {
     using SafeCast for uint256;

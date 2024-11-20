@@ -8,8 +8,8 @@ import {VotesExtended} from "../utils/VotesExtended.sol";
 import {GovernorVotes} from "./GovernorVotes.sol";
 
 /**
- * @dev Extension of {Governor} which enables delegators to override the vote of their delegates. This module requires a
- * token token that inherits `VotesExtended`.
+ * @dev Extension of {Governor} which enables delegatees to override the vote of their delegates. This module requires a
+ * token that inherits {VotesExtended}.
  */
 abstract contract GovernorCountingOverridable is GovernorVotes {
     bytes32 public constant OVERRIDE_BALLOT_TYPEHASH =
