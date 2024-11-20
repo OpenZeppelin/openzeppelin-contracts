@@ -34,7 +34,7 @@ function shouldBehaveLikeNonces() {
       });
     });
 
-    describe('_useCheckedNonce', function () {
+    describe('_useCheckedNonce(address, uint256)', function () {
       it('increments a nonce', async function () {
         // current nonce is 0n
         expect(this.mock.nonces(sender)).to.eventually.equal(0n);
@@ -109,7 +109,7 @@ function shouldBehaveLikeNoncesKeyed() {
       });
     });
 
-    describe('_useCheckedNonce', function () {
+    describe('_useCheckedNonce(address, uint256)', function () {
       it('default variant uses key 0', async function () {
         const currentNonce = await this.mock.nonces(sender, ethers.Typed.uint192(0n));
 
@@ -139,6 +139,43 @@ function shouldBehaveLikeNoncesKeyed() {
 
         // use "future" nonce too early
         await expect(this.mock.$_useCheckedNonce(sender, currentNonce + 10n))
+          .to.be.revertedWithCustomError(this.mock, 'InvalidAccountNonce')
+          .withArgs(sender, currentNonce + 1n);
+      });
+    });
+
+    describe('_useCheckedNonce(address, uint192, uint64)', function () {
+      const MASK = 0xffffffffffffffffn;
+
+      it('default variant uses key 0', async function () {
+        const currentNonce = await this.mock.nonces(sender, ethers.Typed.uint192(0n));
+
+        await this.mock.$_useCheckedNonce(sender, ethers.Typed.uint192(0n), currentNonce);
+
+        expect(this.mock.nonces(sender, ethers.Typed.uint192(0n))).to.eventually.equal(currentNonce + 1n);
+      });
+
+      it('use nonce at another key', async function () {
+        const currentNonce = await this.mock.nonces(sender, ethers.Typed.uint192(17n));
+
+        await this.mock.$_useCheckedNonce(sender, ethers.Typed.uint192(17n), currentNonce & MASK);
+
+        expect(this.mock.nonces(sender, ethers.Typed.uint192(17n))).to.eventually.equal(currentNonce + 1n);
+      });
+
+      it('reverts when nonce is not the expected', async function () {
+        const currentNonce = await this.mock.nonces(sender, ethers.Typed.uint192(42n));
+
+        // use and increment
+        await this.mock.$_useCheckedNonce(sender, ethers.Typed.uint192(42n), currentNonce & MASK);
+
+        // reuse same nonce
+        await expect(this.mock.$_useCheckedNonce(sender, ethers.Typed.uint192(42n), currentNonce & MASK))
+          .to.be.revertedWithCustomError(this.mock, 'InvalidAccountNonce')
+          .withArgs(sender, currentNonce + 1n);
+
+        // use "future" nonce too early
+        await expect(this.mock.$_useCheckedNonce(sender, ethers.Typed.uint192(42n), (currentNonce & MASK) + 10n))
           .to.be.revertedWithCustomError(this.mock, 'InvalidAccountNonce')
           .withArgs(sender, currentNonce + 1n);
       });
