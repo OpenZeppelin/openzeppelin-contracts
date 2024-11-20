@@ -10,9 +10,6 @@ import {GovernorVotes} from "./GovernorVotes.sol";
 /**
  * @dev Extension of {Governor} which enables delegatees to override the vote of their delegates. This module requires a
  * token that inherits `VotesExtended`.
- *
- * NOTE: Overriding a vote doesn't force the vote to be casted. Consider that an overridden vote won't be counted towards
- * the result and quorum until the delegate really casts the vote.
  */
 abstract contract GovernorCountingOverridable is GovernorVotes {
     bytes32 public constant OVERRIDE_BALLOT_TYPEHASH =
@@ -56,7 +53,10 @@ abstract contract GovernorCountingOverridable is GovernorVotes {
     /**
      * @dev See {IGovernor-hasVoted}.
      *
-     * NOTE: Overridden votes are not considered casted until vote is really casted through {castVote} or similar.
+     * NOTE: Casting a vote through {castVote} (or similar) uses the power the account has delegated to. On the
+     * opposite, casting an override with {castOverrideVote} (or similar) uses the power of the account itself as a
+     * single voter. Consequently, overriding a vote does not count as voting and won't be reflected by this getter.
+     * Consider using {hasVotedOverride} to check if an account has overridden a vote instead.
      */
     function hasVoted(uint256 proposalId, address account) public view virtual override returns (bool) {
         return _proposalVotes[proposalId].voteReceipt[account].casted != 0;
@@ -128,8 +128,9 @@ abstract contract GovernorCountingOverridable is GovernorVotes {
     /**
      * @dev Variant of {Governor-_countVote} that deals with vote overrides.
      *
-     * NOTE: Overridden votes are not considered casted until the vote is really casted through {castVote} or similar. Consider
-     * that overriding a vote won't count towards quorum nor the vote result until casted.
+     * NOTE: Casting a vote through {castVote} (or similar) uses the power the account has delegated to. On the
+     * opposite, casting an override with {castOverrideVote} (or similar) uses the power of the account itself as a
+     * single voter. Consequently, overriding a vote does not count as voting until the account casts a vote.
      */
     function _countOverride(uint256 proposalId, address account, uint8 support) internal virtual returns (uint256) {
         ProposalVote storage proposalVote = _proposalVotes[proposalId];
