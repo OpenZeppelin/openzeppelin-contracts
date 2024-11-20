@@ -35,8 +35,8 @@ abstract contract NoncesKeyed is Nonces {
      * @dev Same as {_useNonce} but checking that `nonce` is the next valid for `owner`.
      *
      * This version takes the key and the nonce in a single uint256 parameter:
-     * - use the first 8 bytes for the key
-     * - use the last 24 bytes for the nonce
+     * - use the first 24 bytes for the key
+     * - use the last 8 bytes for the nonce
      */
     function _useCheckedNonce(address owner, uint256 keyNonce) internal virtual override {
         _useCheckedNonce(owner, uint192(keyNonce >> 64), uint64(keyNonce));

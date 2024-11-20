@@ -13,7 +13,7 @@ abstract contract VotesExtended is Votes {
     using Checkpoints for Checkpoints.Trace160;
     using Checkpoints for Checkpoints.Trace208;
 
-    mapping(address delegatee => Checkpoints.Trace160) private _delegateCheckpoints;
+    mapping(address delegator => Checkpoints.Trace160) private _delegateCheckpoints;
     mapping(address account => Checkpoints.Trace208) private _balanceOfCheckpoints;
 
     /**

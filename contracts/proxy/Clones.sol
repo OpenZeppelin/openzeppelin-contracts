@@ -163,8 +163,8 @@ library Clones {
      * access the arguments within the implementation, use {fetchCloneArgs}.
      *
      * This function uses the create2 opcode and a `salt` to deterministically deploy the clone. Using the same
-     * `implementation` and `salt` multiple time will revert, since the clones cannot be deployed twice at the same
-     * address.
+     * `implementation`, `args` and `salt` multiple time will revert, since the clones cannot be deployed twice
+     * at the same address.
      */
     function cloneDeterministicWithImmutableArgs(
         address implementation,
