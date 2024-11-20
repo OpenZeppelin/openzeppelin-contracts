@@ -394,10 +394,10 @@ library Strings {
         bool hasPrefix = bytes2(_unsafeReadBytesOffset(bytes(input), begin)) == bytes2("0x");
         uint256 expectedLength = 40 + hasPrefix.toUint() * 2;
 
-        if (end - begin == expectedLength) {
+        if (end - begin == expectedLength && end <= bytes(input).length) {
             // length guarantees that this does not overflow, and value is at most type(uint160).max
             (bool s, uint256 v) = _tryParseHexUintUncheckedBounds(input, begin, end);
-            return (s && end <= bytes(input).length, address(uint160(v)));
+            return (s, address(uint160(v)));
         } else {
             return (false, address(0));
         }
