@@ -34,7 +34,7 @@ function shouldBehaveLikeNonces() {
       });
     });
 
-    describe('_useCheckedNonce(address, uint256)', function () {
+    describe('_useCheckedNonce', function () {
       it('increments a nonce', async function () {
         // current nonce is 0n
         expect(this.mock.nonces(sender)).to.eventually.equal(0n);
