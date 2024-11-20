@@ -86,7 +86,7 @@ function shouldBehaveLikeNoncesKeyed() {
 
         await expect(this.mock.$_useNonce(sender, ethers.Typed.uint192(0n)))
           .to.emit(this.mock, 'return$_useNonce_address_uint192')
-          .withArgs(1n);
+          .withArgs(keyOffset(0n) + 1n);
 
         expect(this.mock.nonces(sender, ethers.Typed.uint192(0n))).to.eventually.equal(keyOffset(0n) + 2n);
         expect(this.mock.nonces(sender, ethers.Typed.uint192(17n))).to.eventually.equal(keyOffset(17n) + 0n);
@@ -98,11 +98,11 @@ function shouldBehaveLikeNoncesKeyed() {
 
         await expect(this.mock.$_useNonce(sender, ethers.Typed.uint192(17n)))
           .to.emit(this.mock, 'return$_useNonce_address_uint192')
-          .withArgs(0n);
+          .withArgs(keyOffset(17n) + 0n);
 
         await expect(this.mock.$_useNonce(sender, ethers.Typed.uint192(17n)))
           .to.emit(this.mock, 'return$_useNonce_address_uint192')
-          .withArgs(1n);
+          .withArgs(keyOffset(17n) + 1n);
 
         expect(this.mock.nonces(sender, ethers.Typed.uint192(0n))).to.eventually.equal(keyOffset(0n) + 0n);
         expect(this.mock.nonces(sender, ethers.Typed.uint192(17n))).to.eventually.equal(keyOffset(17n) + 2n);
@@ -135,12 +135,12 @@ function shouldBehaveLikeNoncesKeyed() {
         // reuse same nonce
         await expect(this.mock.$_useCheckedNonce(sender, currentNonce))
           .to.be.revertedWithCustomError(this.mock, 'InvalidAccountNonce')
-          .withArgs(sender, 1);
+          .withArgs(sender, currentNonce + 1n);
 
         // use "future" nonce too early
         await expect(this.mock.$_useCheckedNonce(sender, currentNonce + 10n))
           .to.be.revertedWithCustomError(this.mock, 'InvalidAccountNonce')
-          .withArgs(sender, 1);
+          .withArgs(sender, currentNonce + 1n);
       });
     });
   });
