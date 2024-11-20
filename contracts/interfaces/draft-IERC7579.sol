@@ -10,6 +10,7 @@ uint256 constant MODULE_TYPE_EXECUTOR = 2;
 uint256 constant MODULE_TYPE_FALLBACK = 3;
 uint256 constant MODULE_TYPE_HOOK = 4;
 
+/// @dev Minimal configuration interface for ERC7579 modules
 interface IERC7579Module {
     /**
      * @dev This function is called by the smart account during installation of the module
@@ -36,6 +37,11 @@ interface IERC7579Module {
     function isModuleType(uint256 moduleTypeId) external view returns (bool);
 }
 
+/**
+ * @dev ERC-7579 Validator.
+ *
+ * A module that implements logic to validate user operations and signatures.
+ */
 interface IERC7579Validator is IERC7579Module {
     /**
      * @dev Validates a UserOperation
@@ -63,6 +69,12 @@ interface IERC7579Validator is IERC7579Module {
     ) external view returns (bytes4);
 }
 
+/**
+ * @dev ERC-7579 Executor.
+ *
+ * A module that implements logic to execute before and after the account executes an user operation,
+ * either individually or batched.
+ */
 interface IERC7579Hook is IERC7579Module {
     /**
      * @dev Called by the smart account before execution
@@ -93,6 +105,11 @@ struct Execution {
     bytes callData;
 }
 
+/**
+ * @dev Smart Account execution according to ERC-7579.
+ *
+ * To implement ERC-7579 modules, smart accounts must implement this interface.
+ */
 interface IERC7579Execution {
     /**
      * @dev Executes a transaction on behalf of the account.
@@ -119,6 +136,11 @@ interface IERC7579Execution {
     ) external returns (bytes[] memory returnData);
 }
 
+/**
+ * @dev ERC-7579 Account Config.
+ *
+ * Exposes information that identifies the account, supported modules and capabilities.
+ */
 interface IERC7579AccountConfig {
     /**
      * @dev Returns the account id of the smart account
@@ -148,6 +170,11 @@ interface IERC7579AccountConfig {
     function supportsModule(uint256 moduleTypeId) external view returns (bool);
 }
 
+/**
+ * @dev ERC-7579 Module Config.
+ *
+ * Allows an account to enable and configure modules installed on the account.
+ */
 interface IERC7579ModuleConfig {
     event ModuleInstalled(uint256 moduleTypeId, address module);
     event ModuleUninstalled(uint256 moduleTypeId, address module);
