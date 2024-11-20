@@ -9,7 +9,7 @@ import {GovernorVotes} from "./GovernorVotes.sol";
 
 /**
  * @dev Extension of {Governor} which enables delegatees to override the vote of their delegates. This module requires a
- * token token that inherits `VotesExtended`.
+ * token that inherits `VotesExtended`.
  *
  * NOTE: Overriding a vote doesn't force the vote to be casted. Consider that an overridden vote won't be counted towards
  * the result and quorum until the delegate really casts the vote.

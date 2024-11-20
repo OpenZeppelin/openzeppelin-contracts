@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 import {Nonces} from "./Nonces.sol";
 
 /**
- * @dev Alternative to {Nonces}, that support key-ed nonces.
+ * @dev Alternative to {Nonces}, that supports key-ed nonces.
  *
  * Follows the https://eips.ethereum.org/EIPS/eip-4337#semi-abstracted-nonce-support[ERC-4337's semi-abstracted nonce system].
  */
@@ -19,7 +19,7 @@ abstract contract NoncesKeyed is Nonces {
     /**
      * @dev Consumes the next unused nonce for an address and key.
      *
-     * Returns the current value without the key prefix. Consumed nonce is increased, so calling this functions twice
+     * Returns the current value without the key prefix. Consumed nonce is increased, so calling this function twice
      * with the same arguments will return different (sequential) results.
      */
     function _useNonce(address owner, uint192 key) internal virtual returns (uint256) {

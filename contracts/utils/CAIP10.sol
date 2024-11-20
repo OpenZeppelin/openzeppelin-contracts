@@ -2,10 +2,9 @@
 
 pragma solidity ^0.8.24;
 
-import {SafeCast} from "./math/SafeCast.sol";
 import {Bytes} from "./Bytes.sol";
-import {CAIP2} from "./CAIP2.sol";
 import {Strings} from "./Strings.sol";
+import {CAIP2} from "./CAIP2.sol";
 
 /**
  * @dev Helper library to format and parse CAIP-10 identifiers
@@ -16,7 +15,6 @@ import {Strings} from "./Strings.sol";
  * account_address:   [-.%a-zA-Z0-9]{1,128}
  */
 library CAIP10 {
-    using SafeCast for uint256;
     using Strings for address;
     using Bytes for bytes;
 
