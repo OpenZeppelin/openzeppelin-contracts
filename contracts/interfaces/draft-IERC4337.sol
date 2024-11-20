@@ -11,7 +11,7 @@ pragma solidity ^0.8.20;
  * - `callData` (`bytes`): The data to pass to the sender during the main execution call
  * - `callGasLimit` (`uint256`): The amount of gas to allocate the main execution call
  * - `verificationGasLimit` (`uint256`): The amount of gas to allocate for the verification step
- * - `preVerificationGas` (`uint256`): Extra gas to pay the bunder
+ * - `preVerificationGas` (`uint256`): Extra gas to pay the bundler
  * - `maxFeePerGas` (`uint256`): Maximum fee per gas (similar to EIP-1559 max_fee_per_gas)
  * - `maxPriorityFeePerGas` (`uint256`): Maximum priority fee per gas (similar to EIP-1559 max_priority_fee_per_gas)
  * - `paymaster` (`address`): Address of paymaster contract, (or empty, if account pays for itself)
