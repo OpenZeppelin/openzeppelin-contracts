@@ -38,7 +38,7 @@ abstract contract GovernorCountingOverridable is GovernorVotes {
     /// @dev The vote was reduced by `weight` after an override over the `delegate` by the original token holder
     event VoteReduced(address indexed delegate, uint256 proposalId, uint8 support, uint256 weight);
 
-    /// @dev A delegated vote on `proposalId` was overriden by `weight`
+    /// @dev A delegated vote on `proposalId` was overridden by `weight`
     event OverrideVoteCast(address indexed voter, uint256 proposalId, uint8 support, uint256 weight, string reason);
 
     error GovernorAlreadyOverridenVote(address account);
