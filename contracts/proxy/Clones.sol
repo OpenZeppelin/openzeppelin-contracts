@@ -57,7 +57,7 @@ library Clones {
      * @dev Deploys and returns the address of a clone that mimics the behaviour of `implementation`.
      *
      * This function uses the create2 opcode and a `salt` to deterministically deploy
-     * the clone. Using the same `implementation` and `salt` multiple time will revert, since
+     * the clone. Using the same `implementation` and `salt` multiple times will revert, since
      * the clones cannot be deployed twice at the same address.
      */
     function cloneDeterministic(address implementation, bytes32 salt) internal returns (address instance) {
@@ -163,7 +163,7 @@ library Clones {
      * access the arguments within the implementation, use {fetchCloneArgs}.
      *
      * This function uses the create2 opcode and a `salt` to deterministically deploy the clone. Using the same
-     * `implementation` and `salt` multiple time will revert, since the clones cannot be deployed twice at the same
+     * `implementation` and `salt` multiple times will revert, since the clones cannot be deployed twice at the same
      * address.
      */
     function cloneDeterministicWithImmutableArgs(

@@ -2,7 +2,6 @@
 
 pragma solidity ^0.8.24;
 
-import {SafeCast} from "./math/SafeCast.sol";
 import {Bytes} from "./Bytes.sol";
 import {Strings} from "./Strings.sol";
 
@@ -15,7 +14,6 @@ import {Strings} from "./Strings.sol";
  * reference:   [-_a-zA-Z0-9]{1,32}
  */
 library CAIP2 {
-    using SafeCast for uint256;
     using Strings for uint256;
     using Bytes for bytes;
 

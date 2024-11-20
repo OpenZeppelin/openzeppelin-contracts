@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.20;
 
-import {IEntryPoint, PackedUserOperation} from "../../interfaces/draft-IERC4337.sol";
+import {PackedUserOperation} from "../../interfaces/draft-IERC4337.sol";
 import {Math} from "../../utils/math/Math.sol";
 import {Packing} from "../../utils/Packing.sol";
 
@@ -71,12 +71,7 @@ library ERC4337Utils {
         return (aggregator_, block.timestamp < validAfter || validUntil < block.timestamp);
     }
 
-    /// @dev Computes the hash of a user operation with the current entrypoint and chainid.
-    function hash(PackedUserOperation calldata self) internal view returns (bytes32) {
-        return hash(self, address(this), block.chainid);
-    }
-
-    /// @dev Sames as {hash}, but with a custom entrypoint and chainid.
+    /// @dev Computes the hash of a user operation for a given entrypoint and chainid.
     function hash(
         PackedUserOperation calldata self,
         address entrypoint,
@@ -129,7 +124,7 @@ library ERC4337Utils {
             // Following values are "per gas"
             uint256 maxPriorityFee = maxPriorityFeePerGas(self);
             uint256 maxFee = maxFeePerGas(self);
-            return Math.ternary(maxFee == maxPriorityFee, maxFee, Math.min(maxFee, maxPriorityFee + block.basefee));
+            return Math.min(maxFee, maxPriorityFee + block.basefee);
         }
     }
 
