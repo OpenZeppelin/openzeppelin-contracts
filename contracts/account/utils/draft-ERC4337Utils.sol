@@ -98,6 +98,16 @@ library ERC4337Utils {
         return result;
     }
 
+    /// @dev Returns `factory` from the {PackedUserOperation}, or address(0) if the initCode is empty or not properly formatted.
+    function factory(PackedUserOperation calldata self) internal pure returns (address) {
+        return self.initCode.length < 20 ? address(0) : address(bytes20(self.initCode[0:20]));
+    }
+
+    /// @dev Returns `factoryData` from the {PackedUserOperation}, or empty bytes if the initCode is empty or not properly formatted.
+    function factoryData(PackedUserOperation calldata self) internal pure returns (bytes calldata) {
+        return self.initCode.length < 20 ? _emptyCalldataBytes() : self.initCode[20:];
+    }
+
     /// @dev Returns `verificationGasLimit` from the {PackedUserOperation}.
     function verificationGasLimit(PackedUserOperation calldata self) internal pure returns (uint256) {
         return uint128(self.accountGasLimits.extract_32_16(0x00));
@@ -141,5 +151,13 @@ library ERC4337Utils {
     /// @dev Returns the third section of `paymasterAndData` from the {PackedUserOperation}.
     function paymasterPostOpGasLimit(PackedUserOperation calldata self) internal pure returns (uint256) {
         return uint128(bytes16(self.paymasterAndData[36:52]));
+    }
+
+    // slither-disable-next-line write-after-write
+    function _emptyCalldataBytes() private pure returns (bytes calldata result) {
+        assembly ("memory-safe") {
+            result.offset := 0
+            result.length := 0
+        }
     }
 }

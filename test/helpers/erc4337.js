@@ -38,7 +38,8 @@ class UserOperation {
   constructor(params) {
     this.sender = getAddress(params.sender);
     this.nonce = params.nonce;
-    this.initCode = params.initCode ?? '0x';
+    this.factory = params.factory?.target ?? params.factory?.address ?? params.factory ?? null;
+    this.factoryData = params.factoryData ?? '0x';
     this.callData = params.callData ?? '0x';
     this.verificationGas = params.verificationGas ?? 10_000_000n;
     this.callGas = params.callGas ?? 100_000n;
@@ -53,7 +54,7 @@ class UserOperation {
     return {
       sender: this.sender,
       nonce: this.nonce,
-      initCode: this.initCode,
+      initCode: ethers.concat([this.factory ?? '0x', this.factoryData]),
       callData: this.callData,
       accountGasLimits: pack(this.verificationGas, this.callGas),
       preVerificationGas: this.preVerificationGas,

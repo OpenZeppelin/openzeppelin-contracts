@@ -6,9 +6,9 @@ const { packValidationData, packPaymasterData, UserOperation } = require('../../
 const { MAX_UINT48 } = require('../../helpers/constants');
 
 const fixture = async () => {
-  const [authorizer, sender, entrypoint, paymaster] = await ethers.getSigners();
+  const [authorizer, sender, entrypoint, factory, paymaster] = await ethers.getSigners();
   const utils = await ethers.deployContract('$ERC4337Utils');
-  return { utils, authorizer, sender, entrypoint, paymaster };
+  return { utils, authorizer, sender, entrypoint, factory, paymaster };
 };
 
 describe('ERC4337Utils', function () {
@@ -144,6 +144,38 @@ describe('ERC4337Utils', function () {
   });
 
   describe('userOp values', function () {
+    it('returns factory', async function () {
+      const userOp = new UserOperation({
+        sender: this.sender,
+        nonce: 1,
+        verificationGas: 0x12345678n,
+        factory: this.factory,
+        factoryData: '0x123456',
+      });
+      expect(this.utils.$factory(userOp.packed)).to.eventually.equal(this.factory);
+    });
+
+    it('returns factoryData', async function () {
+      const userOp = new UserOperation({
+        sender: this.sender,
+        nonce: 1,
+        verificationGas: 0x12345678n,
+        factory: this.factory,
+        factoryData: '0x123456',
+      });
+      expect(this.utils.$factoryData(userOp.packed)).to.eventually.equal('0x123456');
+    });
+
+    it("returns factory when UserOperation doesn't include no initcode", async function () {
+      const userOp = new UserOperation({ sender: this.sender, nonce: 1, verificationGas: 0x12345678n });
+      expect(this.utils.$factory(userOp.packed)).to.eventually.equal(ethers.ZeroAddress);
+    });
+
+    it("returns factoryData when UserOperation doesn't include no initcode", async function () {
+      const userOp = new UserOperation({ sender: this.sender, nonce: 1, verificationGas: 0x12345678n });
+      expect(this.utils.$factoryData(userOp.packed)).to.eventually.equal('0x');
+    });
+
     it('returns verificationGasLimit', async function () {
       const userOp = new UserOperation({ sender: this.sender, nonce: 1, verificationGas: 0x12345678n });
       expect(this.utils.$verificationGasLimit(userOp.packed)).to.eventually.equal(userOp.verificationGas);
