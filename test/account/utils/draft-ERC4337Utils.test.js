@@ -239,7 +239,7 @@ describe('ERC4337Utils', function () {
 
       it('returns paymasterData', async function () {
         expect(this.utils.$paymasterData(this.userOp.packed)).to.eventually.equal(this.userOp.paymasterData);
-        expect(this.utils.$paymasterData(this.emptyUserOp.packed)).to.eventually.equal(0n);
+        expect(this.utils.$paymasterData(this.emptyUserOp.packed)).to.eventually.equal('0x');
       });
     });
   });
