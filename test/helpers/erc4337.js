@@ -26,10 +26,14 @@ function packValidationData(validAfter, validUntil, authorizer) {
   );
 }
 
-function packPaymasterData(paymaster, verificationGasLimit, postOpGasLimit) {
+function packInitCode(factory, factoryData) {
+  return ethers.solidityPacked(['address', 'bytes'], [getAddress(factory), factoryData]);
+}
+
+function packPaymasterAndData(paymaster, paymasterVerificationGasLimit, paymasterPostOpGasLimit, paymasterData) {
   return ethers.solidityPacked(
-    ['address', 'uint128', 'uint128'],
-    [getAddress(paymaster), verificationGasLimit, postOpGasLimit],
+    ['address', 'uint128', 'uint128', 'bytes'],
+    [getAddress(paymaster), paymasterVerificationGasLimit, paymasterPostOpGasLimit, paymasterData],
   );
 }
 
@@ -38,7 +42,7 @@ class UserOperation {
   constructor(params) {
     this.sender = getAddress(params.sender);
     this.nonce = params.nonce;
-    this.factory = params.factory?.target ?? params.factory?.address ?? params.factory ?? null;
+    this.factory = params.factory ?? undefined;
     this.factoryData = params.factoryData ?? '0x';
     this.callData = params.callData ?? '0x';
     this.verificationGas = params.verificationGas ?? 10_000_000n;
@@ -46,7 +50,10 @@ class UserOperation {
     this.preVerificationGas = params.preVerificationGas ?? 100_000n;
     this.maxPriorityFee = params.maxPriorityFee ?? 100_000n;
     this.maxFeePerGas = params.maxFeePerGas ?? 100_000n;
-    this.paymasterAndData = params.paymasterAndData ?? '0x';
+    this.paymaster = params.paymaster ?? undefined;
+    this.paymasterVerificationGasLimit = params.paymasterVerificationGasLimit ?? 0n;
+    this.paymasterPostOpGasLimit = params.paymasterPostOpGasLimit ?? 0n;
+    this.paymasterData = params.paymasterData ?? '0x';
     this.signature = params.signature ?? '0x';
   }
 
@@ -54,12 +61,19 @@ class UserOperation {
     return {
       sender: this.sender,
       nonce: this.nonce,
-      initCode: ethers.concat([this.factory ?? '0x', this.factoryData]),
+      initCode: this.factory ? packInitCode(this.factory, this.factoryData) : '0x',
       callData: this.callData,
       accountGasLimits: pack(this.verificationGas, this.callGas),
       preVerificationGas: this.preVerificationGas,
       gasFees: pack(this.maxPriorityFee, this.maxFeePerGas),
-      paymasterAndData: this.paymasterAndData,
+      paymasterAndData: this.paymaster
+        ? packPaymasterAndData(
+            this.paymaster,
+            this.paymasterVerificationGasLimit,
+            this.paymasterPostOpGasLimit,
+            this.paymasterData,
+          )
+        : '0x',
       signature: this.signature,
     };
   }
@@ -91,6 +105,7 @@ module.exports = {
   SIG_VALIDATION_SUCCESS,
   SIG_VALIDATION_FAILURE,
   packValidationData,
-  packPaymasterData,
+  packInitCode,
+  packPaymasterAndData,
   UserOperation,
 };

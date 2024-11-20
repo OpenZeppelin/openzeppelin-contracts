@@ -2,7 +2,7 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { packValidationData, packPaymasterData, UserOperation } = require('../../helpers/erc4337');
+const { packValidationData, UserOperation } = require('../../helpers/erc4337');
 const { MAX_UINT48 } = require('../../helpers/constants');
 
 const fixture = async () => {
@@ -144,36 +144,31 @@ describe('ERC4337Utils', function () {
   });
 
   describe('userOp values', function () {
-    it('returns factory', async function () {
-      const userOp = new UserOperation({
-        sender: this.sender,
-        nonce: 1,
-        verificationGas: 0x12345678n,
-        factory: this.factory,
-        factoryData: '0x123456',
+    describe('intiCode', function () {
+      beforeEach(async function () {
+        this.userOp = new UserOperation({
+          sender: this.sender,
+          nonce: 1,
+          verificationGas: 0x12345678n,
+          factory: this.factory,
+          factoryData: '0x123456',
+        });
+
+        this.emptyUserOp = new UserOperation({
+          sender: this.sender,
+          nonce: 1,
+        });
       });
-      expect(this.utils.$factory(userOp.packed)).to.eventually.equal(this.factory);
-    });
 
-    it('returns factoryData', async function () {
-      const userOp = new UserOperation({
-        sender: this.sender,
-        nonce: 1,
-        verificationGas: 0x12345678n,
-        factory: this.factory,
-        factoryData: '0x123456',
+      it('returns factory', async function () {
+        expect(this.utils.$factory(this.userOp.packed)).to.eventually.equal(this.factory);
+        expect(this.utils.$factory(this.emptyUserOp.packed)).to.eventually.equal(ethers.ZeroAddress);
       });
-      expect(this.utils.$factoryData(userOp.packed)).to.eventually.equal('0x123456');
-    });
 
-    it("returns factory when UserOperation doesn't include no initcode", async function () {
-      const userOp = new UserOperation({ sender: this.sender, nonce: 1, verificationGas: 0x12345678n });
-      expect(this.utils.$factory(userOp.packed)).to.eventually.equal(ethers.ZeroAddress);
-    });
-
-    it("returns factoryData when UserOperation doesn't include no initcode", async function () {
-      const userOp = new UserOperation({ sender: this.sender, nonce: 1, verificationGas: 0x12345678n });
-      expect(this.utils.$factoryData(userOp.packed)).to.eventually.equal('0x');
+      it('returns factoryData', async function () {
+        expect(this.utils.$factoryData(this.userOp.packed)).to.eventually.equal('0x123456');
+        expect(this.utils.$factoryData(this.emptyUserOp.packed)).to.eventually.equal('0x');
+      });
     });
 
     it('returns verificationGasLimit', async function () {
@@ -208,28 +203,43 @@ describe('ERC4337Utils', function () {
 
     describe('paymasterAndData', function () {
       beforeEach(async function () {
-        this.verificationGasLimit = 0x12345678n;
-        this.postOpGasLimit = 0x87654321n;
-        this.paymasterAndData = packPaymasterData(this.paymaster, this.verificationGasLimit, this.postOpGasLimit);
         this.userOp = new UserOperation({
           sender: this.sender,
           nonce: 1,
-          paymasterAndData: this.paymasterAndData,
+          paymaster: this.paymaster,
+          paymasterVerificationGasLimit: 0x12345678n,
+          paymasterPostOpGasLimit: 0x87654321n,
+          paymasterData: '0xbeefcafe',
+        });
+
+        this.emptyUserOp = new UserOperation({
+          sender: this.sender,
+          nonce: 1,
         });
       });
 
       it('returns paymaster', async function () {
-        expect(this.utils.$paymaster(this.userOp.packed)).to.eventually.equal(this.paymaster);
+        expect(this.utils.$paymaster(this.userOp.packed)).to.eventually.equal(this.userOp.paymaster);
+        expect(this.utils.$paymaster(this.emptyUserOp.packed)).to.eventually.equal(ethers.ZeroAddress);
       });
 
       it('returns verificationGasLimit', async function () {
         expect(this.utils.$paymasterVerificationGasLimit(this.userOp.packed)).to.eventually.equal(
-          this.verificationGasLimit,
+          this.userOp.paymasterVerificationGasLimit,
         );
+        expect(this.utils.$paymasterVerificationGasLimit(this.emptyUserOp.packed)).to.eventually.equal(0n);
       });
 
       it('returns postOpGasLimit', async function () {
-        expect(this.utils.$paymasterPostOpGasLimit(this.userOp.packed)).to.eventually.equal(this.postOpGasLimit);
+        expect(this.utils.$paymasterPostOpGasLimit(this.userOp.packed)).to.eventually.equal(
+          this.userOp.paymasterPostOpGasLimit,
+        );
+        expect(this.utils.$paymasterPostOpGasLimit(this.emptyUserOp.packed)).to.eventually.equal(0n);
+      });
+
+      it('returns paymasterData', async function () {
+        expect(this.utils.$paymasterData(this.userOp.packed)).to.eventually.equal(this.userOp.paymasterData);
+        expect(this.utils.$paymasterData(this.emptyUserOp.packed)).to.eventually.equal(0n);
       });
     });
   });

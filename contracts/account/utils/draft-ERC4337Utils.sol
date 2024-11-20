@@ -140,17 +140,22 @@ library ERC4337Utils {
 
     /// @dev Returns the first section of `paymasterAndData` from the {PackedUserOperation}.
     function paymaster(PackedUserOperation calldata self) internal pure returns (address) {
-        return address(bytes20(self.paymasterAndData[0:20]));
+        return self.paymasterAndData.length < 52 ? address(0) : address(bytes20(self.paymasterAndData[0:20]));
     }
 
     /// @dev Returns the second section of `paymasterAndData` from the {PackedUserOperation}.
     function paymasterVerificationGasLimit(PackedUserOperation calldata self) internal pure returns (uint256) {
-        return uint128(bytes16(self.paymasterAndData[20:36]));
+        return self.paymasterAndData.length < 52 ? 0 : uint128(bytes16(self.paymasterAndData[20:36]));
     }
 
     /// @dev Returns the third section of `paymasterAndData` from the {PackedUserOperation}.
     function paymasterPostOpGasLimit(PackedUserOperation calldata self) internal pure returns (uint256) {
-        return uint128(bytes16(self.paymasterAndData[36:52]));
+        return self.paymasterAndData.length < 52 ? 0 : uint128(bytes16(self.paymasterAndData[36:52]));
+    }
+
+    /// @dev Returns the forth section of `paymasterAndData` from the {PackedUserOperation}.
+    function paymasterData(PackedUserOperation calldata self) internal pure returns (bytes calldata) {
+        return self.paymasterAndData.length < 52 ? _emptyCalldataBytes() : self.paymasterAndData[52:];
     }
 
     // slither-disable-next-line write-after-write
