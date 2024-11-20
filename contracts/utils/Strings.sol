@@ -259,7 +259,7 @@ library Strings {
         bytes memory buffer = bytes(input);
 
         // Check presence of a negative sign.
-        bytes1 sign = bytes1(_unsafeReadBytesOffset(buffer, begin));
+        bytes1 sign = begin == end ? bytes1(0) : bytes1(_unsafeReadBytesOffset(buffer, begin)); // don't do out-of-bound (possibly unsafe) read if sub-string is empty
         bool positiveSign = sign == bytes1("+");
         bool negativeSign = sign == bytes1("-");
         uint256 offset = (positiveSign || negativeSign).toUint();
@@ -333,7 +333,7 @@ library Strings {
         bytes memory buffer = bytes(input);
 
         // skip 0x prefix if present
-        bool hasPrefix = bytes2(_unsafeReadBytesOffset(buffer, begin)) == bytes2("0x");
+        bool hasPrefix = being < end && bytes2(_unsafeReadBytesOffset(buffer, begin)) == bytes2("0x"); // don't do out-of-bound (possibly unsafe) read if sub-string is empty
         uint256 offset = hasPrefix.toUint() * 2;
 
         uint256 result = 0;
@@ -391,7 +391,8 @@ library Strings {
         uint256 end
     ) internal pure returns (bool success, address value) {
         // check that input is the correct length
-        bool hasPrefix = bytes2(_unsafeReadBytesOffset(bytes(input), begin)) == bytes2("0x");
+        bool hasPrefix = being < end && bytes2(_unsafeReadBytesOffset(bytes(input), begin)) == bytes2("0x"); // don't do out-of-bound (possibly unsafe) read if sub-string is empty
+
         uint256 expectedLength = 40 + hasPrefix.toUint() * 2;
 
         if (end - begin == expectedLength && end <= bytes(input).length) {
