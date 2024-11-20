@@ -10,6 +10,9 @@ import {GovernorVotes} from "./GovernorVotes.sol";
 /**
  * @dev Extension of {Governor} which enables delegatees to override the vote of their delegates. This module requires a
  * token token that inherits `VotesExtended`.
+ *
+ * NOTE: Overriding a vote doesn't force the vote to be casted. Consider that an overridden vote won't be counted towards
+ * the result and quorum until the delegate really casts the vote.
  */
 abstract contract GovernorCountingOverridable is GovernorVotes {
     bytes32 public constant OVERRIDE_BALLOT_TYPEHASH =
@@ -52,6 +55,8 @@ abstract contract GovernorCountingOverridable is GovernorVotes {
 
     /**
      * @dev See {IGovernor-hasVoted}.
+     *
+     * NOTE: Overridden votes are not considered casted until vote is really casted through {castVote} or similar.
      */
     function hasVoted(uint256 proposalId, address account) public view virtual override returns (bool) {
         return _proposalVotes[proposalId].voteReceipt[account].casted != 0;
@@ -120,7 +125,12 @@ abstract contract GovernorCountingOverridable is GovernorVotes {
         return totalWeight;
     }
 
-    /// @dev Variant of {Governor-_countVote} that deals with vote overrides.
+    /**
+     * @dev Variant of {Governor-_countVote} that deals with vote overrides.
+     *
+     * NOTE: Overridden votes are not considered casted until the vote is really casted through {castVote} or similar. Consider
+     * that overriding a vote won't count towards quorum nor the vote result until casted.
+     */
     function _countOverride(uint256 proposalId, address account, uint8 support) internal virtual returns (uint256) {
         ProposalVote storage proposalVote = _proposalVotes[proposalId];
 
@@ -150,7 +160,7 @@ abstract contract GovernorCountingOverridable is GovernorVotes {
         return overridenWeight;
     }
 
-    /// @dev variant of {Governor-_castVote} that deals with vote overrides.
+    /// @dev Variant of {Governor-_castVote} that deals with vote overrides.
     function _castOverride(
         uint256 proposalId,
         address account,
