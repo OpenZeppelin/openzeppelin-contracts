@@ -39,7 +39,6 @@ library ERC7579Utils {
     /**
      * @dev Emits when an {EXECTYPE_TRY} execution fails.
      * @param batchExecutionIndex The index of the failed transaction in the execution batch.
-     * @param result Data returned when the execution failed.
      */
     event ERC7579TryExecuteFail(uint256 batchExecutionIndex, bytes result);
 

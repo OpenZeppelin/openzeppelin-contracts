@@ -66,10 +66,6 @@ abstract contract GovernorCountingOverridable is GovernorVotes {
 
     /**
      * @dev Accessor to the internal vote counts.
-     * @param proposalId The proposal Id to get the vote count for.
-     * @return againstVotes The sum of against votes cast for the given proposal.
-     * @return forVotes The sum of for votes cast for the given proposal.
-     * @return abstainVotes The sum of abstain votes cast for the given proposal.
      */
     function proposalVotes(
         uint256 proposalId
@@ -172,13 +168,7 @@ abstract contract GovernorCountingOverridable is GovernorVotes {
         return overridenWeight;
     }
 
-    /**
-     * @dev Public function for casting an override vote
-     * @param proposalId Proposal Id for the proposal to cast an override vote for.
-     * @param support The chosen support for the vote.
-     * @param reason A string reason given for the override vote which is emitted with the `OverrideVoteCast` event.
-     * @return The number of votes overriden.
-     */
+    /// @dev Public function for casting an override vote
     function castOverrideVote(
         uint256 proposalId,
         uint8 support,
