@@ -72,7 +72,7 @@ interface IERC7579Validator is IERC7579Module {
 /**
  * @dev ERC-7579 Executor.
  *
- * A module that implements logic to execute before and after the account executes an user operation,
+ * A module that implements logic to execute before and after the account executes a user operation,
  * either individually or batched.
  */
 interface IERC7579Hook is IERC7579Module {
