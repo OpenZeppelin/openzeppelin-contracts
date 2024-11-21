@@ -10,7 +10,7 @@ uint256 constant MODULE_TYPE_EXECUTOR = 2;
 uint256 constant MODULE_TYPE_FALLBACK = 3;
 uint256 constant MODULE_TYPE_HOOK = 4;
 
-/// @dev Minimal configuration interface for ERC7579 modules
+/// @dev Minimal configuration interface for ERC-7579 modules
 interface IERC7579Module {
     /**
      * @dev This function is called by the smart account during installation of the module
