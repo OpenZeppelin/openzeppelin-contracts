@@ -53,10 +53,10 @@ abstract contract GovernorCountingOverridable is GovernorVotes {
     /**
      * @dev See {IGovernor-hasVoted}.
      *
-     * NOTE: Casting a vote through {castVote} (or similar) uses the power the account has delegated to. On the
-     * opposite, casting an override with {castOverrideVote} (or similar) uses the power of the account itself as a
-     * single voter. Consequently, overriding a vote does not count as voting and won't be reflected by this getter.
-     * Consider using {hasVotedOverride} to check if an account has overridden a vote instead.
+     * NOTE: Calling {castVote} (or similar) casts a vote using the voting power that is delegated to the voter.
+     * Conversely, calling {castOverrideVote} (or similar) uses the voting power of the account itself, from its asset 
+     * balances. Casting an "override vote" does not count as voting and won't be reflected by this getter. Consider 
+     * using {hasVotedOverride} to check if an account has casted an "override vote" for a given proposal id.
      */
     function hasVoted(uint256 proposalId, address account) public view virtual override returns (bool) {
         return _proposalVotes[proposalId].voteReceipt[account].casted != 0;
