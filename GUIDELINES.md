@@ -55,7 +55,7 @@ External contributions must be reviewed separately by multiple maintainers.
 
 Automation should be used as much as possible to reduce the possibility of human error and forgetfulness.
 
-Automations that make use of sensitive credentials must use secure secret management, and must be strengthened against attacks such as [those on GitHub Actions worklows](https://github.com/nikitastupin/pwnhub).
+Automations that make use of sensitive credentials must use secure secret management, and must be strengthened against attacks such as [those on GitHub Actions workflows](https://github.com/nikitastupin/pwnhub).
 
 Some other examples of automation are:
 
