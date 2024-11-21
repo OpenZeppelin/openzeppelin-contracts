@@ -128,9 +128,7 @@ abstract contract GovernorCountingOverridable is GovernorVotes {
     /**
      * @dev Variant of {Governor-_countVote} that deals with vote overrides.
      *
-     * NOTE: Casting a vote through {castVote} (or similar) uses the power the account has delegated to. On the
-     * opposite, casting an override with {castOverrideVote} (or similar) uses the power of the account itself as a
-     * single voter. Consequently, overriding a vote does not count as voting. See {hasVoted}.
+     * NOTE: See {hasVoted} for more details about the difference between {castVote} and {castOverrideVote}.
      */
     function _countOverride(uint256 proposalId, address account, uint8 support) internal virtual returns (uint256) {
         ProposalVote storage proposalVote = _proposalVotes[proposalId];
