@@ -49,6 +49,7 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
     /**
      * @dev Moves a `value` amount of tokens from the caller's account to `to`
      * and then calls {IERC1363Receiver-onTransferReceived} on `to`.
+     * @return True on success. Failures will always revert.
      *
      * Requirements:
      *
@@ -64,6 +65,7 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
     /**
      * @dev Variant of {transferAndCall} that accepts an additional `data` parameter with
      * no specified format.
+     * @return True on success. Failures will always revert.
      */
     function transferAndCall(address to, uint256 value, bytes memory data) public virtual returns (bool) {
         if (!transfer(to, value)) {
@@ -76,6 +78,7 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
     /**
      * @dev Moves a `value` amount of tokens from `from` to `to` using the allowance mechanism
      * and then calls {IERC1363Receiver-onTransferReceived} on `to`.
+     * @return True on success. Failures will always revert.
      *
      * Requirements:
      *
@@ -91,6 +94,7 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
     /**
      * @dev Variant of {transferFromAndCall} that accepts an additional `data` parameter with
      * no specified format.
+     * @return True on success. Failures will always revert.
      */
     function transferFromAndCall(
         address from,
@@ -108,6 +112,7 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
     /**
      * @dev Sets a `value` amount of tokens as the allowance of `spender` over the
      * caller's tokens and then calls {IERC1363Spender-onApprovalReceived} on `spender`.
+     * @return True on success. Failures will always revert.
      *
      * Requirements:
      *
@@ -123,6 +128,7 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
     /**
      * @dev Variant of {approveAndCall} that accepts an additional `data` parameter with
      * no specified format.
+     * @return True on success. Failures will always revert.
      */
     function approveAndCall(address spender, uint256 value, bytes memory data) public virtual returns (bool) {
         if (!approve(spender, value)) {

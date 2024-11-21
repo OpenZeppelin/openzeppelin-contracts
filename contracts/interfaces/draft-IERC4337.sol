@@ -143,11 +143,13 @@ interface IEntryPoint is IEntryPointNonces, IEntryPointStake {
 
     /**
      * @dev Executes a batch of user operations.
+     * @param beneficiary Address to which gas is refunded up completing the execution.
      */
     function handleOps(PackedUserOperation[] calldata ops, address payable beneficiary) external;
 
     /**
      * @dev Executes a batch of aggregated user operations per aggregator.
+     * @param beneficiary Address to which gas is refunded up completing the execution.
      */
     function handleAggregatedOps(
         UserOpsPerAggregator[] calldata opsPerAggregator,
