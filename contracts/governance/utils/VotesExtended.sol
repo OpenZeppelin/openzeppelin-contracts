@@ -9,7 +9,6 @@ import {SafeCast} from "../../utils/math/SafeCast.sol";
  * @dev Extension of {Votes} that adds checkpoints for delegations and balances.
  */
 abstract contract VotesExtended is Votes {
-    using SafeCast for uint256;
     using Checkpoints for Checkpoints.Trace160;
     using Checkpoints for Checkpoints.Trace208;
 
@@ -25,11 +24,7 @@ abstract contract VotesExtended is Votes {
      * - `timepoint` must be in the past. If operating using block numbers, the block must be already mined.
      */
     function getPastDelegate(address account, uint256 timepoint) public view virtual returns (address) {
-        uint48 currentTimepoint = clock();
-        if (timepoint >= currentTimepoint) {
-            revert ERC5805FutureLookup(timepoint, currentTimepoint);
-        }
-        return address(_delegateCheckpoints[account].upperLookupRecent(timepoint.toUint48()));
+        return address(_delegateCheckpoints[account].upperLookupRecent(_validateTimepoint(timepoint)));
     }
 
     /**
@@ -41,11 +36,7 @@ abstract contract VotesExtended is Votes {
      * - `timepoint` must be in the past. If operating using block numbers, the block must be already mined.
      */
     function getPastBalanceOf(address account, uint256 timepoint) public view virtual returns (uint256) {
-        uint48 currentTimepoint = clock();
-        if (timepoint >= currentTimepoint) {
-            revert ERC5805FutureLookup(timepoint, currentTimepoint);
-        }
-        return _balanceOfCheckpoints[account].upperLookupRecent(timepoint.toUint48());
+        return _balanceOfCheckpoints[account].upperLookupRecent(_validateTimepoint(timepoint));
     }
 
     /// @inheritdoc Votes
@@ -60,10 +51,10 @@ abstract contract VotesExtended is Votes {
         super._transferVotingUnits(from, to, amount);
         if (from != to) {
             if (from != address(0)) {
-                _balanceOfCheckpoints[from].push(clock(), _getVotingUnits(from).toUint208());
+                _balanceOfCheckpoints[from].push(clock(), SafeCast.toUint208(_getVotingUnits(from)));
             }
             if (to != address(0)) {
-                _balanceOfCheckpoints[to].push(clock(), _getVotingUnits(to).toUint208());
+                _balanceOfCheckpoints[to].push(clock(), SafeCast.toUint208(_getVotingUnits(to)));
             }
         }
     }
