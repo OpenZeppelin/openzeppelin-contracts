@@ -173,7 +173,7 @@ interface IERC7579AccountConfig {
 /**
  * @dev ERC-7579 Module Config.
  *
- * Allows an account to enable and configure modules installed on the account.
+ * Allows an account to install and uninstall modules.
  */
 interface IERC7579ModuleConfig {
     event ModuleInstalled(uint256 moduleTypeId, address module);
