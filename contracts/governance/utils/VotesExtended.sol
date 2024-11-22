@@ -12,7 +12,7 @@ import {SafeCast} from "../../utils/math/SafeCast.sol";
  * {VotesExtended} without additional considerations. This implementation of {_transferVotingUnits} must
  * run AFTER the voting weight movement is registered, such that it is reflected on {_getVotingUnits}.
  *
- * Said differently, {VotesExtended} MUST be integrated in a way such that calls {_transferVotingUnits} AFTER the
+ * Said differently, {VotesExtended} MUST be integrated in a way that calls {_transferVotingUnits} AFTER the
  * asset transfer is registered and balances are updated:
  *
  * ```solidity
