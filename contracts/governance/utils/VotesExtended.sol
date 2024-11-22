@@ -6,11 +6,11 @@ import {Votes} from "./Votes.sol";
 import {SafeCast} from "../../utils/math/SafeCast.sol";
 
 /**
- * @dev Extension of {Votes} that adds exposes checkpoints for delegations and balances.
+ * @dev Extension of {Votes} that adds checkpoints for delegations and balances.
  *
-* WARNING: While this contract extends {Votes}, valid uses of {Votes} may not be compatible with 
-* {VotesExtended} without additional considerations. This implementation of {_transferVotingUnits} must
-* run AFTER the voting weight movement is registered, such that it is reflected on {_getVotingUnits}.
+ * WARNING: While this contract extends {Votes}, valid uses of {Votes} may not be compatible with 
+ * {VotesExtended} without additional considerations. This implementation of {_transferVotingUnits} must
+ * run AFTER the voting weight movement is registered, such that it is reflected on {_getVotingUnits}.
  *
  * Said differently, {VotesExtended} MUST be integrated in a way such that calls {_transferVotingUnits} AFTER the
  * asset transfer is registered and balances are updated:
@@ -35,7 +35,7 @@ abstract contract VotesExtended is Votes {
     using Checkpoints for Checkpoints.Trace160;
     using Checkpoints for Checkpoints.Trace208;
 
-    mapping(address delegatee => Checkpoints.Trace160) private _delegateCheckpoints;
+    mapping(address delegator => Checkpoints.Trace160) private _delegateCheckpoints;
     mapping(address account => Checkpoints.Trace208) private _balanceOfCheckpoints;
 
     /**

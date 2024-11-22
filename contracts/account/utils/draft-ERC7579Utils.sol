@@ -22,19 +22,19 @@ library ERC7579Utils {
     using Packing for *;
 
     /// @dev A single `call` execution.
-    CallType constant CALLTYPE_SINGLE = CallType.wrap(0x00);
+    CallType internal constant CALLTYPE_SINGLE = CallType.wrap(0x00);
 
     /// @dev A batch of `call` executions.
-    CallType constant CALLTYPE_BATCH = CallType.wrap(0x01);
+    CallType internal constant CALLTYPE_BATCH = CallType.wrap(0x01);
 
     /// @dev A `delegatecall` execution.
-    CallType constant CALLTYPE_DELEGATECALL = CallType.wrap(0xFF);
+    CallType internal constant CALLTYPE_DELEGATECALL = CallType.wrap(0xFF);
 
     /// @dev Default execution type that reverts on failure.
-    ExecType constant EXECTYPE_DEFAULT = ExecType.wrap(0x00);
+    ExecType internal constant EXECTYPE_DEFAULT = ExecType.wrap(0x00);
 
     /// @dev Execution type that does not revert on failure.
-    ExecType constant EXECTYPE_TRY = ExecType.wrap(0x01);
+    ExecType internal constant EXECTYPE_TRY = ExecType.wrap(0x01);
 
     /// @dev Emits when an {EXECTYPE_TRY} execution fails.
     event ERC7579TryExecuteFail(uint256 batchExecutionIndex, bytes result);
