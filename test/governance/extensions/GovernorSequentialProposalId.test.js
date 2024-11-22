@@ -154,6 +154,13 @@ describe('GovernorSequentialProposalId', function () {
         }
       });
 
+      it('cannot repropose same proposal', async function () {
+        await this.helper.connect(this.proposer).propose();
+        await expect(this.helper.connect(this.proposer).propose())
+          .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
+          .withArgs(await this.proposal.id, 0, ethers.ZeroHash);
+      });
+
       it('nominal workflow', async function () {
         await this.helper.connect(this.proposer).propose();
         await this.helper.waitForSnapshot();
