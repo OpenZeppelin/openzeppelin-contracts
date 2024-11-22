@@ -2,4 +2,4 @@
 'openzeppelin-solidity': minor
 ---
 
-`Bytes`: Add a library of common operation that operate on `bytes` objects.
+`Bytes`: Add a library of common operations that operate on `bytes` objects.
