@@ -12,7 +12,11 @@ if [ "${CI:-"false"}" == "true" ]; then
   # Foundry coverage
   forge coverage --report lcov --ir-minimum
   # Remove zero hits
-  sed -i '/,0/d' lcov.info
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    sed -i '' '/,0/d' lcov.info
+  else
+    sed -i '/,0/d' lcov.info
+  fi
 fi
 
 # Reports are then uploaded to Codecov automatically by workflow, and merged.
