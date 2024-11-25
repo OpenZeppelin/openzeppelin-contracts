@@ -91,6 +91,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
      */
     function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, ERC165) returns (bool) {
         return
+            interfaceId == type(IGovernor).interfaceId ||
             interfaceId == type(IGovernor).interfaceId ^ IGovernor.getProposalId.selector ||
             interfaceId == type(IERC1155Receiver).interfaceId ||
             super.supportsInterface(interfaceId);
