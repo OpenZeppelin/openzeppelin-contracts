@@ -16,7 +16,9 @@ abstract contract GovernorSequentialProposalId is Governor {
     ) public view virtual override returns (uint256) {
         uint256 proposalHash = hashProposal(targets, values, calldatas, descriptionHash);
         uint256 storedProposalId = _proposalIds[proposalHash];
-        if (storedProposalId == 0) revert GovernorNonexistentProposal(0);
+        if (storedProposalId == 0) {
+            revert GovernorNonexistentProposal(0);
+        }
         return storedProposalId;
     }
 
@@ -28,8 +30,10 @@ abstract contract GovernorSequentialProposalId is Governor {
         address proposer
     ) internal virtual override returns (uint256) {
         uint256 proposalHash = hashProposal(targets, values, calldatas, keccak256(bytes(description)));
-        if (_proposalIds[proposalHash] == 0) _proposalIds[proposalHash] = ++_proposalCount;
-
+        uint256 storedProposalId = _proposalIds[proposalHash];
+        if (storedProposalId == 0) {
+            _proposalIds[proposalHash] = ++_proposalCount;
+        }
         return super._propose(targets, values, calldatas, description, proposer);
     }
 
