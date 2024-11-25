@@ -1,6 +1,6 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
-const { loadFixture, setBalance } = require('@nomicfoundation/hardhat-network-helpers');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const {
   EXEC_TYPE_DEFAULT,
   EXEC_TYPE_TRY,
@@ -17,11 +17,10 @@ const coder = ethers.AbiCoder.defaultAbiCoder();
 
 const fixture = async () => {
   const [sender] = await ethers.getSigners();
-  const utils = await ethers.deployContract('$ERC7579Utils');
+  const utils = await ethers.deployContract('$ERC7579Utils', { value: ethers.parseEther('1') });
   const utilsGlobal = await ethers.deployContract('$ERC7579UtilsGlobalMock');
   const target = await ethers.deployContract('CallReceiverMock');
   const anotherTarget = await ethers.deployContract('CallReceiverMock');
-  await setBalance(utils.target, ethers.parseEther('1'));
   return { utils, utilsGlobal, target, anotherTarget, sender };
 };
 
