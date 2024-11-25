@@ -7,6 +7,28 @@ import {SafeCast} from "../../utils/math/SafeCast.sol";
 
 /**
  * @dev Extension of {Votes} that adds checkpoints for delegations and balances.
+ *
+ * WARNING: While this contract extends {Votes}, valid uses of {Votes} may not be compatible with
+ * {VotesExtended} without additional considerations. This implementation of {_transferVotingUnits} must
+ * run AFTER the voting weight movement is registered, such that it is reflected on {_getVotingUnits}.
+ *
+ * Said differently, {VotesExtended} MUST be integrated in a way that calls {_transferVotingUnits} AFTER the
+ * asset transfer is registered and balances are updated:
+ *
+ * ```solidity
+ * contract VotingToken is Token, VotesExtended {
+ *   function transfer(address from, address to, uint256 tokenId) public override {
+ *     super.transfer(from, to, tokenId); // <- Perform the transfer first ...
+ *     _transferVotingUnits(from, to, 1); // <- ... then call _transferVotingUnits.
+ *   }
+ *
+ *   function _getVotingUnits(address account) internal view override returns (uint256) {
+ *      return balanceOf(account);
+ *   }
+ * }
+ * ```
+ *
+ * {ERC20Votes} and {ERC721Votes} follow this pattern and are thus safe to use with {VotesExtended}.
  */
 abstract contract VotesExtended is Votes {
     using SafeCast for uint256;
