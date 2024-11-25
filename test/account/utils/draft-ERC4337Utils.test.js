@@ -237,7 +237,7 @@ describe('ERC4337Utils', function () {
         expect(this.utils.$paymasterPostOpGasLimit(this.emptyUserOp.packed)).to.eventually.equal(0n);
       });
 
-      it('returns paymasterData', async function () {
+      it('returns data', async function () {
         expect(this.utils.$paymasterData(this.userOp.packed)).to.eventually.equal(this.userOp.paymasterData);
         expect(this.utils.$paymasterData(this.emptyUserOp.packed)).to.eventually.equal('0x');
       });
