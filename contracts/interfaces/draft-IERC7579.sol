@@ -38,7 +38,7 @@ interface IERC7579Module {
 }
 
 /**
- * @dev ERC-7579 Validator.
+ * @dev ERC-7579 Validation module (type 1).
  *
  * A module that implements logic to validate user operations and signatures.
  */
@@ -70,7 +70,7 @@ interface IERC7579Validator is IERC7579Module {
 }
 
 /**
- * @dev ERC-7579 Executor.
+ * @dev ERC-7579 Hooks module (type 4).
  *
  * A module that implements logic to execute before and after the account executes a user operation,
  * either individually or batched.
@@ -106,9 +106,9 @@ struct Execution {
 }
 
 /**
- * @dev Smart Account execution according to ERC-7579.
+ * @dev ERC-7579 Execution.
  *
- * To implement ERC-7579 modules, smart accounts must implement this interface.
+ * Accounts should implement this interface so that the Entrypoint and ERC-7579 modules can execute operations.
  */
 interface IERC7579Execution {
     /**
@@ -139,7 +139,7 @@ interface IERC7579Execution {
 /**
  * @dev ERC-7579 Account Config.
  *
- * Exposes information that identifies the account, supported modules and capabilities.
+ * Accounts should implement this interface to exposes information that identifies the account, supported modules and capabilities.
  */
 interface IERC7579AccountConfig {
     /**
@@ -173,7 +173,7 @@ interface IERC7579AccountConfig {
 /**
  * @dev ERC-7579 Module Config.
  *
- * Allows an account to install and uninstall modules.
+ * Accounts should implement this interface to allows installing and uninstalling modules.
  */
 interface IERC7579ModuleConfig {
     event ModuleInstalled(uint256 moduleTypeId, address module);
