@@ -8,7 +8,7 @@ import {SafeCast} from "../../utils/math/SafeCast.sol";
 /**
  * @dev Extension of {Votes} that adds checkpoints for delegations and balances.
  *
- * WARNING: While this contract extends {Votes}, valid uses of {Votes} may not be compatible with 
+ * WARNING: While this contract extends {Votes}, valid uses of {Votes} may not be compatible with
  * {VotesExtended} without additional considerations. This implementation of {_transferVotingUnits} must
  * run AFTER the voting weight movement is registered, such that it is reflected on {_getVotingUnits}.
  *
