@@ -44,6 +44,7 @@ interface IERC7579Validator is IERC7579Module {
      *
      * MUST validate that the signature is a valid signature of the userOpHash
      * SHOULD return ERC-4337's SIG_VALIDATION_FAILED (and not revert) on signature mismatch
+     * See ERC-4337 for additional information on the return value
      */
     function validateUserOp(PackedUserOperation calldata userOp, bytes32 userOpHash) external returns (uint256);
 
