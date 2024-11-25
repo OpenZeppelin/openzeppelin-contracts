@@ -12,6 +12,11 @@ import {Strings} from "./Strings.sol";
  * chain_id:    namespace + ":" + reference
  * namespace:   [-a-z0-9]{3,8}
  * reference:   [-_a-zA-Z0-9]{1,32}
+ *
+ * WARNING: The CAIP-2 identifier does not require a canonical representation. In the EVM context, it is
+ * recommended to use EIP-155 chain ids as the reference. However, there could be more than one valid
+ * representation of a given chain. Consider this ambiguity when using CAIP-2 identifiers in the
+ * context of hashes.
  */
 library CAIP2 {
     using Strings for uint256;
