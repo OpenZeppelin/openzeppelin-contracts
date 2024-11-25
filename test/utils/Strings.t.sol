@@ -24,4 +24,27 @@ contract StringsTest is Test {
     function testParseChecksumHex(address value) external pure {
         assertEq(value, value.toChecksumHexString().parseAddress());
     }
+
+    function testTryParseHexUintExtendedEnd(string memory random) external pure {
+        uint256 length = bytes(random).length;
+        assembly ("memory-safe") {
+            mstore(add(add(random, 0x20), length), 0x3030303030303030303030303030303030303030303030303030303030303030)
+        }
+
+        (bool success, ) = random.tryParseHexUint(1, length + 1);
+        assertFalse(success);
+    }
+
+    function testTryParseAddressExtendedEnd(address random, uint256 begin) external pure {
+        begin = bound(begin, 3, 43);
+        string memory input = random.toHexString();
+        uint256 length = bytes(input).length;
+
+        assembly ("memory-safe") {
+            mstore(add(add(input, 0x20), length), 0x3030303030303030303030303030303030303030303030303030303030303030)
+        }
+
+        (bool success, ) = input.tryParseAddress(begin, begin + 40);
+        assertFalse(success);
+    }
 }
