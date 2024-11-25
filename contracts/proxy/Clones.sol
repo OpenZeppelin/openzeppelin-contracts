@@ -227,9 +227,9 @@ library Clones {
      *   function should only be used to check addresses that are known to be clones.
      */
     function fetchCloneArgs(address instance) internal view returns (bytes memory) {
-        bytes memory result = new bytes(instance.code.length - 0x2d); // revert if length is too short
+        bytes memory result = new bytes(instance.code.length - 45); // revert if length is too short
         assembly ("memory-safe") {
-            extcodecopy(instance, add(result, 0x20), 0x2d, mload(result))
+            extcodecopy(instance, add(result, 0x20), 45, mload(result))
         }
         return result;
     }
@@ -248,11 +248,11 @@ library Clones {
         address implementation,
         bytes memory args
     ) private pure returns (bytes memory) {
-        if (args.length > 0x5fd3) revert CloneArgumentsTooLong();
+        if (args.length > 24531) revert CloneArgumentsTooLong();
         return
             abi.encodePacked(
                 hex"61",
-                uint16(args.length + 0x2d),
+                uint16(args.length + 45),
                 hex"3d81600a3d39f3363d3d373d3d3d363d73",
                 implementation,
                 hex"5af43d82803e903d91602b57fd5bf3",

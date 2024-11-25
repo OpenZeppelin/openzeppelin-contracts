@@ -7,6 +7,10 @@ import {Nonces} from "./Nonces.sol";
  * @dev Alternative to {Nonces}, that supports key-ed nonces.
  *
  * Follows the https://eips.ethereum.org/EIPS/eip-4337#semi-abstracted-nonce-support[ERC-4337's semi-abstracted nonce system].
+ *
+ * Note: This contract extends {Nonces}, and reuses {Nonces}'s storage for key #0. This makes upgrading from {Nonces}
+ * to {NoncesKeyed} safe, as such an upgrade will NOT reset the current state of nonces. Doing otherwise would enable
+ * replay attacks where operation that used nonces before the upgrade would be replayable after the upgrade.
  */
 abstract contract NoncesKeyed is Nonces {
     mapping(address owner => mapping(uint192 key => uint64)) private _nonces;

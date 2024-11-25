@@ -13,8 +13,8 @@ abstract contract VotesExtended is Votes {
     using Checkpoints for Checkpoints.Trace160;
     using Checkpoints for Checkpoints.Trace208;
 
-    mapping(address delegator => Checkpoints.Trace160) private _delegateCheckpoints;
-    mapping(address account => Checkpoints.Trace208) private _balanceOfCheckpoints;
+    mapping(address delegator => Checkpoints.Trace160) private _userDelegationCheckpoints;
+    mapping(address account => Checkpoints.Trace208) private _userVotingWeightCheckpoints;
 
     /**
      * @dev Returns the delegate of an `account` at a specific moment in the past. If the `clock()` is
@@ -29,7 +29,7 @@ abstract contract VotesExtended is Votes {
         if (timepoint >= currentTimepoint) {
             revert ERC5805FutureLookup(timepoint, currentTimepoint);
         }
-        return address(_delegateCheckpoints[account].upperLookupRecent(timepoint.toUint48()));
+        return address(_userDelegationCheckpoints[account].upperLookupRecent(timepoint.toUint48()));
     }
 
     /**
@@ -45,14 +45,14 @@ abstract contract VotesExtended is Votes {
         if (timepoint >= currentTimepoint) {
             revert ERC5805FutureLookup(timepoint, currentTimepoint);
         }
-        return _balanceOfCheckpoints[account].upperLookupRecent(timepoint.toUint48());
+        return _userVotingWeightCheckpoints[account].upperLookupRecent(timepoint.toUint48());
     }
 
     /// @inheritdoc Votes
     function _delegate(address account, address delegatee) internal virtual override {
         super._delegate(account, delegatee);
 
-        _delegateCheckpoints[account].push(clock(), uint160(delegatee));
+        _userDelegationCheckpoints[account].push(clock(), uint160(delegatee));
     }
 
     /// @inheritdoc Votes
@@ -60,10 +60,10 @@ abstract contract VotesExtended is Votes {
         super._transferVotingUnits(from, to, amount);
         if (from != to) {
             if (from != address(0)) {
-                _balanceOfCheckpoints[from].push(clock(), _getVotingUnits(from).toUint208());
+                _userVotingWeightCheckpoints[from].push(clock(), _getVotingUnits(from).toUint208());
             }
             if (to != address(0)) {
-                _balanceOfCheckpoints[to].push(clock(), _getVotingUnits(to).toUint208());
+                _userVotingWeightCheckpoints[to].push(clock(), _getVotingUnits(to).toUint208());
             }
         }
     }
