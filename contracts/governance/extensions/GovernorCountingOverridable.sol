@@ -141,9 +141,9 @@ abstract contract GovernorCountingOverridable is GovernorVotes {
             revert GovernorAlreadyOverridenVote(account);
         }
 
-        uint256 proposalSnapshot = proposalSnapshot(proposalId);
-        uint256 overridenWeight = VotesExtended(address(token())).getPastBalanceOf(account, proposalSnapshot);
-        address delegate = VotesExtended(address(token())).getPastDelegate(account, proposalSnapshot);
+        uint256 snapshot = proposalSnapshot(proposalId);
+        uint256 overridenWeight = VotesExtended(address(token())).getPastBalanceOf(account, snapshot);
+        address delegate = VotesExtended(address(token())).getPastDelegate(account, snapshot);
         uint8 delegateCasted = proposalVote.voteReceipt[delegate].casted;
 
         proposalVote.voteReceipt[account].hasOverriden = true;
