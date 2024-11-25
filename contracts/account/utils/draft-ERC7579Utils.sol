@@ -36,7 +36,10 @@ library ERC7579Utils {
     /// @dev Execution type that does not revert on failure.
     ExecType internal constant EXECTYPE_TRY = ExecType.wrap(0x01);
 
-    /// @dev Emits when an {EXECTYPE_TRY} execution fails.
+    /**
+     * @dev Emits when an {EXECTYPE_TRY} execution fails.
+     * @param batchExecutionIndex The index of the failed transaction in the execution batch.
+     */
     event ERC7579TryExecuteFail(uint256 batchExecutionIndex, bytes result);
 
     /// @dev The provided {CallType} is not supported.

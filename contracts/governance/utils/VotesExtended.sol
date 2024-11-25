@@ -7,9 +7,30 @@ import {SafeCast} from "../../utils/math/SafeCast.sol";
 
 /**
  * @dev Extension of {Votes} that adds checkpoints for delegations and balances.
+ *
+ * WARNING: While this contract extends {Votes}, valid uses of {Votes} may not be compatible with
+ * {VotesExtended} without additional considerations. This implementation of {_transferVotingUnits} must
+ * run AFTER the voting weight movement is registered, such that it is reflected on {_getVotingUnits}.
+ *
+ * Said differently, {VotesExtended} MUST be integrated in a way that calls {_transferVotingUnits} AFTER the
+ * asset transfer is registered and balances are updated:
+ *
+ * ```solidity
+ * contract VotingToken is Token, VotesExtended {
+ *   function transfer(address from, address to, uint256 tokenId) public override {
+ *     super.transfer(from, to, tokenId); // <- Perform the transfer first ...
+ *     _transferVotingUnits(from, to, 1); // <- ... then call _transferVotingUnits.
+ *   }
+ *
+ *   function _getVotingUnits(address account) internal view override returns (uint256) {
+ *      return balanceOf(account);
+ *   }
+ * }
+ * ```
+ *
+ * {ERC20Votes} and {ERC721Votes} follow this pattern and are thus safe to use with {VotesExtended}.
  */
 abstract contract VotesExtended is Votes {
-    using SafeCast for uint256;
     using Checkpoints for Checkpoints.Trace160;
     using Checkpoints for Checkpoints.Trace208;
 
@@ -25,11 +46,7 @@ abstract contract VotesExtended is Votes {
      * - `timepoint` must be in the past. If operating using block numbers, the block must be already mined.
      */
     function getPastDelegate(address account, uint256 timepoint) public view virtual returns (address) {
-        uint48 currentTimepoint = clock();
-        if (timepoint >= currentTimepoint) {
-            revert ERC5805FutureLookup(timepoint, currentTimepoint);
-        }
-        return address(_userDelegationCheckpoints[account].upperLookupRecent(timepoint.toUint48()));
+        return address(_userDelegationCheckpoints[account].upperLookupRecent(_validateTimepoint(timepoint)));
     }
 
     /**
@@ -41,11 +58,7 @@ abstract contract VotesExtended is Votes {
      * - `timepoint` must be in the past. If operating using block numbers, the block must be already mined.
      */
     function getPastBalanceOf(address account, uint256 timepoint) public view virtual returns (uint256) {
-        uint48 currentTimepoint = clock();
-        if (timepoint >= currentTimepoint) {
-            revert ERC5805FutureLookup(timepoint, currentTimepoint);
-        }
-        return _userVotingWeightCheckpoints[account].upperLookupRecent(timepoint.toUint48());
+        return _userVotingWeightCheckpoints[account].upperLookupRecent(_validateTimepoint(timepoint));
     }
 
     /// @inheritdoc Votes
@@ -60,10 +73,10 @@ abstract contract VotesExtended is Votes {
         super._transferVotingUnits(from, to, amount);
         if (from != to) {
             if (from != address(0)) {
-                _userVotingWeightCheckpoints[from].push(clock(), _getVotingUnits(from).toUint208());
+                _userVotingWeightCheckpoints[from].push(clock(), SafeCast.toUint208(_getVotingUnits(from)));
             }
             if (to != address(0)) {
-                _userVotingWeightCheckpoints[to].push(clock(), _getVotingUnits(to).toUint208());
+                _userVotingWeightCheckpoints[to].push(clock(), SafeCast.toUint208(_getVotingUnits(to)));
             }
         }
     }
