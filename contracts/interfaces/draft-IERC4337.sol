@@ -27,7 +27,7 @@ pragma solidity ^0.8.20;
  * - `callData` (`bytes`)
  * - `accountGasLimits` (`bytes32`): concatenation of verificationGas (16 bytes) and callGas (16 bytes)
  * - `preVerificationGas` (`uint256`)
- * - `gasFees` (`bytes32`): concatenation of maxPriorityFee (16 bytes) and maxFeePerGas (16 bytes)
+ * - `gasFees` (`bytes32`): concatenation of maxPriorityFeePerGas (16 bytes) and maxFeePerGas (16 bytes)
  * - `paymasterAndData` (`bytes`): concatenation of paymaster fields (or empty)
  * - `signature` (`bytes`)
  */
@@ -38,8 +38,8 @@ struct PackedUserOperation {
     bytes callData;
     bytes32 accountGasLimits; // `abi.encodePacked(verificationGasLimit, callGasLimit)` 16 bytes each
     uint256 preVerificationGas;
-    bytes32 gasFees; // `abi.encodePacked(maxPriorityFee, maxFeePerGas)` 16 bytes each
-    bytes paymasterAndData; // `abi.encodePacked(paymaster, paymasterVerificationGasLimit, paymasterPostOpGasLimit, paymasterData)`
+    bytes32 gasFees; // `abi.encodePacked(maxPriorityFeePerGas, maxFeePerGas)` 16 bytes each
+    bytes paymasterAndData; // `abi.encodePacked(paymaster, paymasterVerificationGasLimit, paymasterPostOpGasLimit, paymasterData)` (20 bytes, 16 bytes, 16 bytes, dynamic)
     bytes signature;
 }
 
