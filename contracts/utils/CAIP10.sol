@@ -15,7 +15,7 @@ import {CAIP2} from "./CAIP2.sol";
  * account_address:   [-.%a-zA-Z0-9]{1,128}
  *
  * WARNING: According to [CAIP-10's canonicalization section](https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-10.md#canonicalization),
- * the specificiation remains at the developer's discretion. However, case sensitivity or other transformations
+ * the specification remains at the developer's discretion. However, case sensitivity or other transformations
  * may introduce ambiguity. For example, when building hashes to identify accounts or data associated to them,
  * multiple representations of the same account would derive to different hashes. Consider using {Strings-toChecksumHexString}
  * for a consistent format.
