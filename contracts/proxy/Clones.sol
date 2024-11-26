@@ -163,7 +163,7 @@ library Clones {
      * access the arguments within the implementation, use {fetchCloneArgs}.
      *
      * This function uses the create2 opcode and a `salt` to deterministically deploy the clone. Using the same
-     * `implementation`, `args` and `salt` multiple time will revert, since the clones cannot be deployed twice
+     * `implementation`, `args` and `salt` multiple times will revert, since the clones cannot be deployed twice
      * at the same address.
      */
     function cloneDeterministicWithImmutableArgs(
@@ -229,7 +229,7 @@ library Clones {
     function fetchCloneArgs(address instance) internal view returns (bytes memory) {
         bytes memory result = new bytes(instance.code.length - 0x2d); // revert if length is too short
         assembly ("memory-safe") {
-            extcodecopy(instance, add(result, 0x20), 0x2d, mload(result))
+            extcodecopy(instance, add(result, 32), 0x2d, mload(result))
         }
         return result;
     }

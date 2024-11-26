@@ -177,7 +177,7 @@ library Strings {
     }
 
     /**
-     * @dev Variant of {tryParseUint} that does not check bounds and returns (true, 0) if they are invalid.
+     * @dev Implementation of {tryParseUint} that does not check bounds and returns (true, 0) if they are invalid.
      */
     function _tryParseUintUncheckedBounds(
         string memory input,
@@ -333,7 +333,7 @@ library Strings {
         bytes memory buffer = bytes(input);
 
         // skip 0x prefix if present
-        bool hasPrefix = (begin < end + 1) && bytes2(_unsafeReadBytesOffset(buffer, begin)) == bytes2("0x"); // don't do out-of-bound (possibly unsafe) read if sub-string is empty
+        bool hasPrefix = (end > begin + 1) && bytes2(_unsafeReadBytesOffset(buffer, begin)) == bytes2("0x"); // don't do out-of-bound (possibly unsafe) read if sub-string is empty
         uint256 offset = hasPrefix.toUint() * 2;
 
         uint256 result = 0;
@@ -391,11 +391,11 @@ library Strings {
         uint256 end
     ) internal pure returns (bool success, address value) {
         // check that input is the correct length
-        bool hasPrefix = (begin < end + 1) && bytes2(_unsafeReadBytesOffset(bytes(input), begin)) == bytes2("0x"); // don't do out-of-bound (possibly unsafe) read if sub-string is empty
+        bool hasPrefix = (end > begin + 1) && bytes2(_unsafeReadBytesOffset(bytes(input), begin)) == bytes2("0x"); // don't do out-of-bound (possibly unsafe) read if sub-string is empty
 
         uint256 expectedLength = 40 + hasPrefix.toUint() * 2;
 
-        if (end - begin == expectedLength && end <= bytes(input).length) {
+        if (begin <= end && end - begin == expectedLength && end <= bytes(input).length) {
             // length guarantees that this does not overflow, and value is at most type(uint160).max
             (bool s, uint256 v) = _tryParseHexUintUncheckedBounds(input, begin, end);
             return (s, address(uint160(v)));
