@@ -9,7 +9,7 @@ import {Nonces} from "./Nonces.sol";
  * Follows the https://eips.ethereum.org/EIPS/eip-4337#semi-abstracted-nonce-support[ERC-4337's semi-abstracted nonce system].
  *
  * NOTE: This contract inherits from {Nonces} and reuses its storage for the first nonce key (i.e. `0`). This
- * makes upgrading from {Nonces} to {NoncesKeyed} safe when using their upgradeable versions (e.g. `NoncesKeyedUpgradeable`). 
+ * makes upgrading from {Nonces} to {NoncesKeyed} safe when using their upgradeable versions (e.g. `NoncesKeyedUpgradeable`).
  * Doing so will NOT reset the current state of nonces to avoid replay attacks where a nonce is reused after the upgrade.
  */
 abstract contract NoncesKeyed is Nonces {
