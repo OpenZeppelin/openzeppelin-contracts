@@ -154,6 +154,15 @@ describe('GovernorSequentialProposalId', function () {
         }
       });
 
+      it('set proposal count increasing only', async function () {
+        await this.helper.propose();
+        expect(this.mock.proposalCount()).to.eventually.equal(1);
+        await expect(this.mock.$_setProposalCount(1)).to.be.revertedWithCustomError(
+          this.mock,
+          'GovernorProposalIdMustIncrease',
+        );
+      });
+
       it('cannot repropose same proposal', async function () {
         await this.helper.connect(this.proposer).propose();
         await expect(this.helper.connect(this.proposer).propose())
