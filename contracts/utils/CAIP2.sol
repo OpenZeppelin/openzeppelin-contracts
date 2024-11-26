@@ -15,7 +15,7 @@ import {Strings} from "./Strings.sol";
  *
  * WARNING: In some cases, multiple CAIP-2 identifiers may all be valid representation of a single chain.
  * For EVM chains, it is recommended to use `eip155:xxx` as the canonical representation (where `xxx` is
- * the EIP-155 chain id). Consider the possible ambiguity when processing CAIP-2 identifiers or when using them 
+ * the EIP-155 chain id). Consider the possible ambiguity when processing CAIP-2 identifiers or when using them
  * in the context of hashes.
  */
 library CAIP2 {
