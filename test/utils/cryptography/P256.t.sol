@@ -9,7 +9,7 @@ import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 
 contract P256Test is Test {
     /// forge-config: default.fuzz.runs = 512
-    function testVerify(bytes32 digest, uint256 seed) public {
+    function testVerify(bytes32 digest, uint256 seed) public view {
         uint256 privateKey = _asPrivateKey(seed);
 
         (uint256 x, uint256 y) = vm.publicKeyP256(privateKey);
@@ -20,7 +20,7 @@ contract P256Test is Test {
     }
 
     /// forge-config: default.fuzz.runs = 512
-    function testRecover(bytes32 digest, uint256 seed) public {
+    function testRecover(bytes32 digest, uint256 seed) public view {
         uint256 privateKey = _asPrivateKey(seed);
 
         (uint256 x, uint256 y) = vm.publicKeyP256(privateKey);

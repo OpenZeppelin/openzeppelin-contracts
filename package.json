@@ -76,7 +76,7 @@
     "hardhat-ignore-warnings": "^0.2.11",
     "lodash.startcase": "^4.4.0",
     "micromatch": "^4.0.2",
-    "p-limit": "^3.1.0",
+    "p-limit": "^6.0.0",
     "prettier": "^3.0.0",
     "prettier-plugin-solidity": "^1.1.0",
     "rimraf": "^6.0.0",
