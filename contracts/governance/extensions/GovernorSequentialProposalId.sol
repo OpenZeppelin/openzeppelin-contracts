@@ -9,7 +9,7 @@ abstract contract GovernorSequentialProposalId is Governor {
     mapping(uint256 proposalHash => uint256 proposalId) private _proposalIds;
 
     /**
-     * @dev The proposal id must increase when set via `_setProposalCount`.
+     * @dev The proposal id must increase when set via {_setProposalCount}.
      */
     error GovernorProposalIdMustIncrease();
 
