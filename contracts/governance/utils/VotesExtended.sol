@@ -58,7 +58,7 @@ abstract contract VotesExtended is Votes {
      * - `timepoint` must be in the past. If operating using block numbers, the block must be already mined.
      */
     function getPastBalanceOf(address account, uint256 timepoint) public view virtual returns (uint256) {
-        return _userVotingWeightCheckpoints[account].upperLookupRecent(_validateTimepoint(timepoint));
+        return _userVotingUnitsCheckpoints[account].upperLookupRecent(_validateTimepoint(timepoint));
     }
 
     /// @inheritdoc Votes
@@ -73,10 +73,10 @@ abstract contract VotesExtended is Votes {
         super._transferVotingUnits(from, to, amount);
         if (from != to) {
             if (from != address(0)) {
-                _userVotingWeightCheckpoints[from].push(clock(), SafeCast.toUint208(_getVotingUnits(from)));
+                _userVotingUnitsCheckpoints[from].push(clock(), SafeCast.toUint208(_getVotingUnits(from)));
             }
             if (to != address(0)) {
-                _userVotingWeightCheckpoints[to].push(clock(), SafeCast.toUint208(_getVotingUnits(to)));
+                _userVotingUnitsCheckpoints[to].push(clock(), SafeCast.toUint208(_getVotingUnits(to)));
             }
         }
     }
