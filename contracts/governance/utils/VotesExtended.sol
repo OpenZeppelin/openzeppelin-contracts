@@ -35,7 +35,7 @@ abstract contract VotesExtended is Votes {
     using Checkpoints for Checkpoints.Trace208;
 
     mapping(address delegator => Checkpoints.Trace160) private _userDelegationCheckpoints;
-    mapping(address account => Checkpoints.Trace208) private _userVotingWeightCheckpoints;
+    mapping(address account => Checkpoints.Trace208) private _userVotingUnitsCheckpoints;
 
     /**
      * @dev Returns the delegate of an `account` at a specific moment in the past. If the `clock()` is
