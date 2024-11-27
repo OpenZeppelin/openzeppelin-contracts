@@ -24,9 +24,9 @@ library ERC4337Utils {
     function parseValidationData(
         uint256 validationData
     ) internal pure returns (address aggregator, uint48 validAfter, uint48 validUntil) {
-        validAfter = uint48(bytes32(validationData).extract_32_6(0x00));
-        validUntil = uint48(bytes32(validationData).extract_32_6(0x06));
-        aggregator = address(bytes32(validationData).extract_32_20(0x0c));
+        validAfter = uint48(bytes32(validationData).extract_32_6(0));
+        validUntil = uint48(bytes32(validationData).extract_32_6(6));
+        aggregator = address(bytes32(validationData).extract_32_20(12));
         if (validUntil == 0) validUntil = type(uint48).max;
     }
 
@@ -59,7 +59,8 @@ library ERC4337Utils {
         (address aggregator1, uint48 validAfter1, uint48 validUntil1) = parseValidationData(validationData1);
         (address aggregator2, uint48 validAfter2, uint48 validUntil2) = parseValidationData(validationData2);
 
-        bool success = aggregator1 == address(0) && aggregator2 == address(0);
+        bool success = aggregator1 == address(uint160(SIG_VALIDATION_SUCCESS)) &&
+            aggregator2 == address(uint160(SIG_VALIDATION_SUCCESS));
         uint48 validAfter = uint48(Math.max(validAfter1, validAfter2));
         uint48 validUntil = uint48(Math.min(validUntil1, validUntil2));
         return packValidationData(success, validAfter, validUntil);
@@ -110,22 +111,22 @@ library ERC4337Utils {
 
     /// @dev Returns `verificationGasLimit` from the {PackedUserOperation}.
     function verificationGasLimit(PackedUserOperation calldata self) internal pure returns (uint256) {
-        return uint128(self.accountGasLimits.extract_32_16(0x00));
+        return uint128(self.accountGasLimits.extract_32_16(0));
     }
 
     /// @dev Returns `accountGasLimits` from the {PackedUserOperation}.
     function callGasLimit(PackedUserOperation calldata self) internal pure returns (uint256) {
-        return uint128(self.accountGasLimits.extract_32_16(0x10));
+        return uint128(self.accountGasLimits.extract_32_16(16));
     }
 
     /// @dev Returns the first section of `gasFees` from the {PackedUserOperation}.
     function maxPriorityFeePerGas(PackedUserOperation calldata self) internal pure returns (uint256) {
-        return uint128(self.gasFees.extract_32_16(0x00));
+        return uint128(self.gasFees.extract_32_16(0));
     }
 
     /// @dev Returns the second section of `gasFees` from the {PackedUserOperation}.
     function maxFeePerGas(PackedUserOperation calldata self) internal pure returns (uint256) {
-        return uint128(self.gasFees.extract_32_16(0x10));
+        return uint128(self.gasFees.extract_32_16(16));
     }
 
     /// @dev Returns the total gas price for the {PackedUserOperation} (ie. `maxFeePerGas` or `maxPriorityFeePerGas + basefee`).
