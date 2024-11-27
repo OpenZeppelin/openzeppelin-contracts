@@ -162,7 +162,7 @@ abstract contract GovernorCountingOverridable is GovernorVotes {
         return overridenWeight;
     }
 
-    /// @dev Variant of {Governor-_castVote} that deals with vote overrides.
+    /// @dev Variant of {Governor-_castVote} that deals with vote overrides. Returns the overriden weight.
     function _castOverride(
         uint256 proposalId,
         address account,
@@ -180,7 +180,7 @@ abstract contract GovernorCountingOverridable is GovernorVotes {
         return overridenWeight;
     }
 
-    /// @dev Public function for casting an override vote
+    /// @dev Public function for casting an override vote. Returns the overriden weight.
     function castOverrideVote(
         uint256 proposalId,
         uint8 support,
@@ -190,7 +190,7 @@ abstract contract GovernorCountingOverridable is GovernorVotes {
         return _castOverride(proposalId, voter, support, reason);
     }
 
-    /// @dev Public function for casting an override vote using a voter's signature
+    /// @dev Public function for casting an override vote using a voter's signature. Returns the overriden weight.
     function castOverrideVoteBySig(
         uint256 proposalId,
         uint8 support,

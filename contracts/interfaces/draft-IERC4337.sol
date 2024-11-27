@@ -163,6 +163,12 @@ interface IEntryPoint is IEntryPointNonces, IEntryPointStake {
 interface IAccount {
     /**
      * @dev Validates a user operation.
+     *
+     * Returns an encoded packed validation data that is composed of the following elements:
+     *
+     * - `authorizer` (`address`): 0 for success, 1 for failure, otherwise the address of an authorizer contract
+     * - `validUntil` (`uint48`): The UserOp is valid only up to this time. Zero for “infinite”.
+     * - `validAfter` (`uint48`): The UserOp is valid only after this time.
      */
     function validateUserOp(
         PackedUserOperation calldata userOp,
@@ -207,6 +213,8 @@ interface IPaymaster {
 
     /**
      * @dev Verifies the sender is the entrypoint.
+     * @param actualGasCost the actual amount paid (by account or paymaster) for this UserOperation
+     * @param actualUserOpFeePerGas total gas used by this UserOperation (including preVerification, creation, validation and execution)
      */
     function postOp(
         PostOpMode mode,

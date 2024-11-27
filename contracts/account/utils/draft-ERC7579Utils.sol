@@ -38,9 +38,10 @@ library ERC7579Utils {
 
     /**
      * @dev Emits when an {EXECTYPE_TRY} execution fails.
-     * @param batchExecutionIndex The index of the failed transaction in the execution batch.
+     * @param batchExecutionIndex The index of the failed call in the execution batch.
+     * @param returndata The returned data from the failed call.
      */
-    event ERC7579TryExecuteFail(uint256 batchExecutionIndex, bytes result);
+    event ERC7579TryExecuteFail(uint256 batchExecutionIndex, bytes returndata);
 
     /// @dev The provided {CallType} is not supported.
     error ERC7579UnsupportedCallType(CallType callType);
