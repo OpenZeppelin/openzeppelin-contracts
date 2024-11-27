@@ -154,12 +154,12 @@ describe('GovernorSequentialProposalId', function () {
         }
       });
 
-      it('set proposal count increasing only', async function () {
+      it('can only set proposal count from 0', async function () {
         await this.helper.propose();
         expect(this.mock.proposalCount()).to.eventually.equal(1);
-        await expect(this.mock.$_setProposalCount(1)).to.be.revertedWithCustomError(
+        await expect(this.mock.$_setProposalCount(2)).to.be.revertedWithCustomError(
           this.mock,
-          'GovernorProposalIdMustIncrease',
+          'GovernorCanNotSetProposalCount',
         );
       });
 
