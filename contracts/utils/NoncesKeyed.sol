@@ -10,7 +10,7 @@ import {Nonces} from "./Nonces.sol";
  *
  * NOTE: This contract inherits from {Nonces} and reuses its storage for the first nonce key (i.e. `0`). This
  * makes upgrading from {Nonces} to {NoncesKeyed} safe when using their upgradeable versions (e.g. `NoncesKeyedUpgradeable`).
- * Doing so will NOT reset the current state of nonces to avoid replay attacks where a nonce is reused after the upgrade.
+ * Doing so will NOT reset the current state of nonces, avoiding replay attacks where a nonce is reused after the upgrade.
  */
 abstract contract NoncesKeyed is Nonces {
     mapping(address owner => mapping(uint192 key => uint64)) private _nonces;
