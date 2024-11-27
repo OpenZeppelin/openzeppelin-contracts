@@ -172,7 +172,7 @@ library ERC7579Utils {
         assembly ("memory-safe") {
             let ptr := add(executionCalldata.offset, calldataload(executionCalldata.offset))
             // Extract the ERC7579 Executions
-            executionBatch.offset := add(ptr, 32)
+            executionBatch.offset := add(ptr, 0x20)
             executionBatch.length := calldataload(ptr)
         }
     }

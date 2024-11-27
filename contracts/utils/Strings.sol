@@ -40,7 +40,7 @@ library Strings {
             string memory buffer = new string(length);
             uint256 ptr;
             assembly ("memory-safe") {
-                ptr := add(buffer, add(32, length))
+                ptr := add(buffer, add(length, 0x20))
             }
             while (true) {
                 ptr--;
@@ -431,7 +431,7 @@ library Strings {
     function _unsafeReadBytesOffset(bytes memory buffer, uint256 offset) private pure returns (bytes32 value) {
         // This is not memory safe in the general case, but all calls to this private function are within bounds.
         assembly ("memory-safe") {
-            value := mload(add(buffer, add(0x20, offset)))
+            value := mload(add(buffer, add(offset, 0x20)))
         }
     }
 }
