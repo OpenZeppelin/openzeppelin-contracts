@@ -34,8 +34,8 @@ abstract contract VotesExtended is Votes {
     using Checkpoints for Checkpoints.Trace160;
     using Checkpoints for Checkpoints.Trace208;
 
-    mapping(address delegator => Checkpoints.Trace160) private _delegateCheckpoints;
-    mapping(address account => Checkpoints.Trace208) private _balanceOfCheckpoints;
+    mapping(address delegator => Checkpoints.Trace160) private _userDelegationCheckpoints;
+    mapping(address account => Checkpoints.Trace208) private _userVotingUnitsCheckpoints;
 
     /**
      * @dev Returns the delegate of an `account` at a specific moment in the past. If the `clock()` is
@@ -46,7 +46,7 @@ abstract contract VotesExtended is Votes {
      * - `timepoint` must be in the past. If operating using block numbers, the block must be already mined.
      */
     function getPastDelegate(address account, uint256 timepoint) public view virtual returns (address) {
-        return address(_delegateCheckpoints[account].upperLookupRecent(_validateTimepoint(timepoint)));
+        return address(_userDelegationCheckpoints[account].upperLookupRecent(_validateTimepoint(timepoint)));
     }
 
     /**
@@ -58,14 +58,14 @@ abstract contract VotesExtended is Votes {
      * - `timepoint` must be in the past. If operating using block numbers, the block must be already mined.
      */
     function getPastBalanceOf(address account, uint256 timepoint) public view virtual returns (uint256) {
-        return _balanceOfCheckpoints[account].upperLookupRecent(_validateTimepoint(timepoint));
+        return _userVotingUnitsCheckpoints[account].upperLookupRecent(_validateTimepoint(timepoint));
     }
 
     /// @inheritdoc Votes
     function _delegate(address account, address delegatee) internal virtual override {
         super._delegate(account, delegatee);
 
-        _delegateCheckpoints[account].push(clock(), uint160(delegatee));
+        _userDelegationCheckpoints[account].push(clock(), uint160(delegatee));
     }
 
     /// @inheritdoc Votes
@@ -73,10 +73,10 @@ abstract contract VotesExtended is Votes {
         super._transferVotingUnits(from, to, amount);
         if (from != to) {
             if (from != address(0)) {
-                _balanceOfCheckpoints[from].push(clock(), SafeCast.toUint208(_getVotingUnits(from)));
+                _userVotingUnitsCheckpoints[from].push(clock(), SafeCast.toUint208(_getVotingUnits(from)));
             }
             if (to != address(0)) {
-                _balanceOfCheckpoints[to].push(clock(), SafeCast.toUint208(_getVotingUnits(to)));
+                _userVotingUnitsCheckpoints[to].push(clock(), SafeCast.toUint208(_getVotingUnits(to)));
             }
         }
     }
