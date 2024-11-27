@@ -9,9 +9,9 @@ abstract contract GovernorSequentialProposalId is Governor {
     mapping(uint256 proposalHash => uint256 proposalId) private _proposalIds;
 
     /**
-     * @dev The proposal id must increase when set via {_setProposalCount}.
+     * @dev The proposal count may only be set if the current proposal count is 0 in {_setProposalCount}.
      */
-    error GovernorProposalIdMustIncrease();
+    error GovernorCanNotSetProposalCount();
 
     function getProposalId(
         address[] memory targets,
@@ -43,11 +43,13 @@ abstract contract GovernorSequentialProposalId is Governor {
     }
 
     /**
-     * @dev Internal function to set the sequential proposal ID for the next proposal. `newProposalCount` must be greater than the current proposal count.
+     * @dev Internal function to set the current proposal count--the next proposal id will be `newProposalCount` + 1.
+     *
+     * May only call this function if the current proposal count is 0.
      */
     function _setProposalCount(uint256 newProposalCount) internal virtual {
-        if (newProposalCount <= _proposalCount) {
-            revert GovernorProposalIdMustIncrease();
+        if (_proposalCount != 0) {
+            revert GovernorCanNotSetProposalCount();
         }
         _proposalCount = newProposalCount;
     }
