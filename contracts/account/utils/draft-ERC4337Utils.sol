@@ -59,7 +59,8 @@ library ERC4337Utils {
         (address aggregator1, uint48 validAfter1, uint48 validUntil1) = parseValidationData(validationData1);
         (address aggregator2, uint48 validAfter2, uint48 validUntil2) = parseValidationData(validationData2);
 
-        bool success = aggregator1 == address(0) && aggregator2 == address(0);
+        bool success = aggregator1 == address(uint160(SIG_VALIDATION_SUCCESS)) &&
+            aggregator2 == address(uint160(SIG_VALIDATION_SUCCESS));
         uint48 validAfter = uint48(Math.max(validAfter1, validAfter2));
         uint48 validUntil = uint48(Math.min(validUntil1, validUntil2));
         return packValidationData(success, validAfter, validUntil);
