@@ -229,7 +229,7 @@ library Clones {
     function fetchCloneArgs(address instance) internal view returns (bytes memory) {
         bytes memory result = new bytes(instance.code.length - 0x2d); // revert if length is too short
         assembly ("memory-safe") {
-            extcodecopy(instance, add(result, 32), 0x2d, mload(result))
+            extcodecopy(instance, add(result, 0x20), 0x2d, mload(result))
         }
         return result;
     }
