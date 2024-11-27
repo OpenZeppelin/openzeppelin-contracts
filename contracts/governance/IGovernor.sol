@@ -203,7 +203,7 @@ interface IGovernor is IERC165, IERC6372 {
 
     /**
      * @notice module:core
-     * @dev Hashing function used to (re)build the proposal id from the proposal details..
+     * @dev Hashing function used to (re)build the proposal id from the proposal details.
      */
     function hashProposal(
         address[] memory targets,

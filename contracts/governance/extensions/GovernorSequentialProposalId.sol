@@ -13,6 +13,9 @@ abstract contract GovernorSequentialProposalId is Governor {
      */
     error GovernorCanNotSetProposalCount();
 
+    /**
+     * @dev See {IGovernor-getProposalId}.
+     */
     function getProposalId(
         address[] memory targets,
         uint256[] memory values,

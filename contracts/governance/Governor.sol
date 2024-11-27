@@ -133,6 +133,9 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         return uint256(keccak256(abi.encode(targets, values, calldatas, descriptionHash)));
     }
 
+    /**
+     * @dev See {IGovernor-getProposalId}.
+     */
     function getProposalId(
         address[] memory targets,
         uint256[] memory values,
