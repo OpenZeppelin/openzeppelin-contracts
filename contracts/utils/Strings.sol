@@ -390,15 +390,13 @@ library Strings {
         uint256 begin,
         uint256 end
     ) internal pure returns (bool success, address value) {
-        bool inBounds = begin <= end && // Positive length
-            end <= bytes(input).length; // Don't go over the end of the string
+        if (end > bytes(input).length || begin > end) return (false, address(0));
 
-        // check that input is the correct length
         bool hasPrefix = (end > begin + 1) && bytes2(_unsafeReadBytesOffset(bytes(input), begin)) == bytes2("0x"); // don't do out-of-bound (possibly unsafe) read if sub-string is empty
-
         uint256 expectedLength = 40 + hasPrefix.toUint() * 2;
 
-        if (inBounds && end - begin == expectedLength) {
+        // check that input is the correct length
+        if (end - begin == expectedLength) {
             // length guarantees that this does not overflow, and value is at most type(uint160).max
             (bool s, uint256 v) = _tryParseHexUintUncheckedBounds(input, begin, end);
             return (s, address(uint160(v)));
