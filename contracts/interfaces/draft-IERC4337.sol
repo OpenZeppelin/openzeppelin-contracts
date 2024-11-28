@@ -45,10 +45,18 @@ struct PackedUserOperation {
 
 /**
  * @dev Aggregates and validates multiple signatures for a batch of user operations.
+ *
+ * A contract could implement this interface with custom validation schemes that allow signature aggregation,
+ * enabling significant optimizations and gas savings for execution and transaction data cost.
+ *
+ * Bundlers and clients whitelist supported aggregators.
+ *
+ * See https://eips.ethereum.org/EIPS/eip-7766[ERC-7766]
  */
 interface IAggregator {
     /**
      * @dev Validates the signature for a user operation.
+     * Returns an alternative signature that should be used during bundling.
      */
     function validateUserOpSignature(
         PackedUserOperation calldata userOp
@@ -73,6 +81,12 @@ interface IAggregator {
 
 /**
  * @dev Handle nonce management for accounts.
+ *
+ * Nonces are used in accounts as a replay protection mechanism and to ensure the order of user operations.
+ * To avoid limiting the number of operations an account can perform, the interface allows using parallel
+ * nonces by using a `key` parameter.
+ *
+ * See https://eips.ethereum.org/EIPS/eip-4337#semi-abstracted-nonce-support[ERC-4337 semi-abstracted nonce support].
  */
 interface IEntryPointNonces {
     /**
@@ -84,7 +98,11 @@ interface IEntryPointNonces {
 }
 
 /**
- * @dev Handle stake management for accounts.
+ * @dev Handle stake management for entities (i.e. accounts, paymasters, factories).
+ *
+ * The EntryPoint must implement the following API to let entities like paymasters have a stake,
+ * and thus have more flexibility in their storage access
+ * (see https://eips.ethereum.org/EIPS/eip-4337#reputation-scoring-and-throttlingbanning-for-global-entities[reputation, throttling and banning.])
  */
 interface IEntryPointStake {
     /**
@@ -120,6 +138,8 @@ interface IEntryPointStake {
 
 /**
  * @dev Entry point for user operations.
+ *
+ * User operations are validated and executed by this contract.
  */
 interface IEntryPoint is IEntryPointNonces, IEntryPointStake {
     /**
@@ -158,11 +178,17 @@ interface IEntryPoint is IEntryPointNonces, IEntryPointStake {
 }
 
 /**
- * @dev Base interface for an account.
+ * @dev Base interface for an ERC-4337 account.
  */
 interface IAccount {
     /**
      * @dev Validates a user operation.
+     *
+     * * MUST validate the caller is a trusted EntryPoint
+     * * MUST validate that the signature is a valid signature of the userOpHash, and SHOULD
+     *   return SIG_VALIDATION_FAILED (and not revert) on signature mismatch. Any other error MUST revert.
+     * * MUST pay the entryPoint (caller) at least the “missingAccountFunds” (which might
+     *   be zero, in case the current account’s deposit is high enough)
      *
      * Returns an encoded packed validation data that is composed of the following elements:
      *
