@@ -24,9 +24,9 @@ library ERC4337Utils {
     function parseValidationData(
         uint256 validationData
     ) internal pure returns (address aggregator, uint48 validAfter, uint48 validUntil) {
-        validAfter = uint48(bytes32(validationData).extract_32_6(0));
-        validUntil = uint48(bytes32(validationData).extract_32_6(6));
-        aggregator = address(bytes32(validationData).extract_32_20(12));
+        aggregator = address(bytes32(validationData).extract_32_20(0));
+        validAfter = uint48(bytes32(validationData).extract_32_6(20));
+        validUntil = uint48(bytes32(validationData).extract_32_6(26));
         if (validUntil == 0) validUntil = type(uint48).max;
     }
 
@@ -36,7 +36,8 @@ library ERC4337Utils {
         uint48 validAfter,
         uint48 validUntil
     ) internal pure returns (uint256) {
-        return uint256(bytes6(validAfter).pack_6_6(bytes6(validUntil)).pack_12_20(bytes20(aggregator)));
+        bytes12 validAfterValidUntil = bytes6(validAfter).pack_6_6(bytes6(validUntil));
+        return uint256(bytes20(aggregator).pack_20_12(validAfterValidUntil));
     }
 
     /// @dev Same as {packValidationData}, but with a boolean signature success flag.

@@ -11,17 +11,17 @@ function pack(left, right) {
   return ethers.solidityPacked(['uint128', 'uint128'], [left, right]);
 }
 
-function packValidationData(validAfter, validUntil, authorizer) {
+function packValidationData(authorizer, validAfter, validUntil) {
   return ethers.solidityPacked(
-    ['uint48', 'uint48', 'address'],
+    ['address', 'uint48', 'uint48'],
     [
-      validAfter,
-      validUntil,
       typeof authorizer == 'boolean'
         ? authorizer
           ? SIG_VALIDATION_SUCCESS
           : SIG_VALIDATION_FAILURE
         : getAddress(authorizer),
+      validAfter,
+      validUntil,
     ],
   );
 }
