@@ -177,7 +177,8 @@ library Strings {
     }
 
     /**
-     * @dev Implementation of {tryParseUint} that does not check bounds and returns (true, 0) if they are invalid.
+     * @dev Implementation of {tryParseUint} that does not check bounds. Caller should check that 
+     * `begin <= end <= input.length`. Other inputs would result in unexpected behavior.
      */
     function _tryParseUintUncheckedBounds(
         string memory input,
@@ -249,7 +250,8 @@ library Strings {
     }
 
     /**
-     * @dev Variant of {tryParseInt} that does not check bounds and returns (true, 0) if they are invalid.
+     * @dev Implementation of {tryParseInt} that does not check bounds. Caller should check that 
+     * `begin <= end <= input.length`. Other inputs would result in unexpected behavior.
      */
     function _tryParseIntUncheckedBounds(
         string memory input,
