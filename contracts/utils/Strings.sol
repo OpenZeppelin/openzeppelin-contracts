@@ -325,7 +325,8 @@ library Strings {
     }
 
     /**
-     * @dev Variant of {tryParseHexUint} that does not check bounds and returns (true, 0) if `begin <= end` excluding `0x`.
+     * @dev Implementation of {tryParseHexUint} that does not check bounds. Caller should check that 
+     * `begin <= end <= input.length`. Other inputs would result in unexpected behavior.
      */
     function _tryParseHexUintUncheckedBounds(
         string memory input,
