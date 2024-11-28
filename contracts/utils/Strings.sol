@@ -178,7 +178,7 @@ library Strings {
 
     /**
      * @dev Implementation of {tryParseUint} that does not check bounds. Caller should make sure that
-     * `begin <= end <= input.length`. Other inputs would result in unexpected behavior.
+     * `begin <= end <= input.length`. Other inputs would result in undefined behavior.
      */
     function _tryParseUintUncheckedBounds(
         string memory input,
@@ -251,7 +251,7 @@ library Strings {
 
     /**
      * @dev Implementation of {tryParseInt} that does not check bounds. Caller should make sure that
-     * `begin <= end <= input.length`. Other inputs would result in unexpected behavior.
+     * `begin <= end <= input.length`. Other inputs would result in undefined behavior.
      */
     function _tryParseIntUncheckedBounds(
         string memory input,
@@ -326,7 +326,7 @@ library Strings {
 
     /**
      * @dev Implementation of {tryParseHexUint} that does not check bounds. Caller should make sure that
-     * `begin <= end <= input.length`. Other inputs would result in unexpected behavior.
+     * `begin <= end <= input.length`. Other inputs would result in undefined behavior.
      */
     function _tryParseHexUintUncheckedBounds(
         string memory input,
