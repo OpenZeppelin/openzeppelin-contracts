@@ -227,7 +227,8 @@ interface IPaymaster {
     }
 
     /**
-     * @dev Validates whether the paymaster is willing to pay for the user operation.
+     * @dev Validates whether the paymaster is willing to pay for the user operation. See
+     * {IAccount-validateUserOp} for additional information on the return value.
      *
      * NOTE: Bundlers will reject this method if it modifies the state, unless it's whitelisted.
      */
