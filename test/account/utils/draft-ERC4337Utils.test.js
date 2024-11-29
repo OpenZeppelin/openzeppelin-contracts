@@ -4,11 +4,14 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { packValidationData, UserOperation } = require('../../helpers/erc4337');
 const { MAX_UINT48 } = require('../../helpers/constants');
+const ADDRESS_ONE = '0x0000000000000000000000000000000000000001';
 
 const fixture = async () => {
   const [authorizer, sender, entrypoint, factory, paymaster] = await ethers.getSigners();
   const utils = await ethers.deployContract('$ERC4337Utils');
-  return { utils, authorizer, sender, entrypoint, factory, paymaster };
+  const SIG_VALIDATION_SUCCESS = await utils.$SIG_VALIDATION_SUCCESS();
+  const SIG_VALIDATION_FAILED = await utils.$SIG_VALIDATION_FAILED();
+  return { utils, authorizer, sender, entrypoint, factory, paymaster, SIG_VALIDATION_SUCCESS, SIG_VALIDATION_FAILED };
 };
 
 describe('ERC4337Utils', function () {
@@ -41,6 +44,20 @@ describe('ERC4337Utils', function () {
         MAX_UINT48,
       ]);
     });
+
+    it('parse canonical values', async function () {
+      expect(this.utils.$parseValidationData(this.SIG_VALIDATION_SUCCESS)).to.eventually.deep.equal([
+        ethers.ZeroAddress,
+        0n,
+        MAX_UINT48,
+      ]);
+
+      expect(this.utils.$parseValidationData(this.SIG_VALIDATION_FAILED)).to.eventually.deep.equal([
+        ADDRESS_ONE,
+        0n,
+        MAX_UINT48,
+      ]);
+    });
   });
 
   describe('packValidationData', function () {
@@ -63,6 +80,21 @@ describe('ERC4337Utils', function () {
 
       expect(this.utils.$packValidationData(ethers.Typed.bool(success), validAfter, validUntil)).to.eventually.equal(
         validationData,
+      );
+    });
+
+    it('packing reproduced canonical values', async function () {
+      expect(this.utils.$packValidationData(ethers.Typed.address(ethers.ZeroAddress), 0n, 0n)).to.eventually.equal(
+        this.SIG_VALIDATION_SUCCESS,
+      );
+      expect(this.utils.$packValidationData(ethers.Typed.bool(true), 0n, 0n)).to.eventually.equal(
+        this.SIG_VALIDATION_SUCCESS,
+      );
+      expect(this.utils.$packValidationData(ethers.Typed.address(ADDRESS_ONE), 0n, 0n)).to.eventually.equal(
+        this.SIG_VALIDATION_FAILED,
+      );
+      expect(this.utils.$packValidationData(ethers.Typed.bool(false), 0n, 0n)).to.eventually.equal(
+        this.SIG_VALIDATION_FAILED,
       );
     });
   });
