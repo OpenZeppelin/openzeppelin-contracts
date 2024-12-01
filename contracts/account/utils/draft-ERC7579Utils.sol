@@ -141,7 +141,7 @@ library ERC7579Utils {
     /// @dev Decodes a single call execution. See {encodeSingle}.
     function decodeSingle(
         bytes calldata executionCalldata
-    ) internal pure returns (address target, uint256 value, bytes calldata callData) {
+    ) internal pure returns (address target, uint256 value, bytes memory callData) {
         target = address(bytes20(executionCalldata[0:20]));
         value = uint256(bytes32(executionCalldata[20:52]));
         callData = executionCalldata[52:];
