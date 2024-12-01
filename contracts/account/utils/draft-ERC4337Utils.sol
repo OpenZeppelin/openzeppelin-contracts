@@ -154,7 +154,7 @@ library ERC4337Utils {
         return self.paymasterAndData.length < 52 ? 0 : uint128(bytes16(self.paymasterAndData[36:52]));
     }
 
-    /// @dev Returns the forth section of `paymasterAndData` from the {PackedUserOperation}.
+    /// @dev Returns the fourth section of `paymasterAndData` from the {PackedUserOperation}.
     function paymasterData(PackedUserOperation calldata self) internal pure returns (bytes calldata) {
         return self.paymasterAndData.length < 52 ? _emptyCalldataBytes() : self.paymasterAndData[52:];
     }
