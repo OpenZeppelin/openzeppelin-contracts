@@ -213,7 +213,7 @@ interface IGovernor is IERC165, IERC6372 {
     ) external pure returns (uint256);
 
     /**
-     * @dev Function used to get the proposal id from the proposal details
+     * @dev Function used to get the proposal id from the proposal details.
      */
     function getProposalId(
         address[] memory targets,
