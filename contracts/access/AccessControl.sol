@@ -48,11 +48,11 @@ import {ERC165} from "../utils/introspection/ERC165.sol";
  */
 abstract contract AccessControl is Context, IAccessControl, ERC165 {
     struct RoleData {
-        mapping(address account => bool) hasRole;
+        mapping(address => bool) hasRole;
         bytes32 adminRole;
     }
 
-    mapping(bytes32 role => RoleData) private _roles;
+    mapping(bytes32 => RoleData) private _roles;
 
     bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
 
