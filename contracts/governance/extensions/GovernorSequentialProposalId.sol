@@ -30,6 +30,13 @@ abstract contract GovernorSequentialProposalId is Governor {
         return storedProposalId;
     }
 
+    /**
+     * @dev Returns the current proposal count.
+     */
+    function proposalCount() public view virtual returns (uint256) {
+        return _proposalCount;
+    }
+
     function _propose(
         address[] memory targets,
         uint256[] memory values,
@@ -55,9 +62,5 @@ abstract contract GovernorSequentialProposalId is Governor {
             revert GovernorCanNotSetProposalCount();
         }
         _proposalCount = newProposalCount;
-    }
-
-    function proposalCount() public view virtual returns (uint256) {
-        return _proposalCount;
     }
 }
