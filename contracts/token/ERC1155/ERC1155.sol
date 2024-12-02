@@ -20,7 +20,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
     using Arrays for uint256[];
     using Arrays for address[];
 
-    mapping(uint256 id => mapping(address account => uint256)) private _balances;
+    mapping(uint256 => mapping(address => uint256)) private _balances;
 
     mapping(address account => mapping(address operator => bool)) private _operatorApprovals;
 
