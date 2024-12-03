@@ -219,7 +219,7 @@ abstract contract Initializable {
     /**
      * @dev Pointer to storage slot. Allows to override it with a custom storage location.
      *
-     * NOTE: Consider following EIP-7201 formula to derive storage locations.
+     * NOTE: Consider following the ERC-7201 formula to derive storage locations.
      */
     function _initializableStorageSlot() internal pure virtual returns (bytes32) {
         return INITIALIZABLE_STORAGE;
