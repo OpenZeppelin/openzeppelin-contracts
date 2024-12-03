@@ -101,7 +101,7 @@ describe('GovernorStorage', function () {
           expect(await this.mock.proposalCount()).to.equal(1n);
 
           expect(await this.mock.proposalDetailsAt(0n)).to.deep.equal([
-            await this.proposal.id,
+            this.proposal.id,
             this.proposal.targets,
             this.proposal.values,
             this.proposal.data,
