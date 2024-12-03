@@ -13,7 +13,7 @@ abstract contract GovernorSequentialProposalId is Governor {
     mapping(uint256 proposalHash => uint256 proposalId) private _proposalIds;
 
     /**
-     * @dev The proposal count may only be set if the current proposal count is 0 in {_initializeProposalCount}.
+     * @dev The proposal count may only be set if the current proposal count is uninitialized.
      */
     error GovernorAlreadyInitializedProposalCount();
 
