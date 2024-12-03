@@ -122,7 +122,7 @@ describe('GovernorSequentialProposalId', function () {
 
       it('sequential proposal ids with offset start', async function () {
         const offset = 69420;
-        await this.mock.$_setProposalCount(offset);
+        await this.mock.$_initializeProposalCount(offset);
 
         for (const i of iterate.range(offset + 1, offset + 10)) {
           this.proposal.description = `<proposal description #${i}>`;
@@ -154,12 +154,12 @@ describe('GovernorSequentialProposalId', function () {
         }
       });
 
-      it('can only set proposal count from 0', async function () {
+      it('can only initialize proposal count from 0', async function () {
         await this.helper.propose();
         expect(this.mock.proposalCount()).to.eventually.equal(1);
-        await expect(this.mock.$_setProposalCount(2)).to.be.revertedWithCustomError(
+        await expect(this.mock.$_initializeProposalCount(2)).to.be.revertedWithCustomError(
           this.mock,
-          'GovernorCanNotSetProposalCount',
+          'GovernorAlreadyInitializedProposalCount',
         );
       });
 

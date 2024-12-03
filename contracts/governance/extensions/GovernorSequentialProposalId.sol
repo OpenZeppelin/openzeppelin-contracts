@@ -13,9 +13,9 @@ abstract contract GovernorSequentialProposalId is Governor {
     mapping(uint256 proposalHash => uint256 proposalId) private _proposalIds;
 
     /**
-     * @dev The proposal count may only be set if the current proposal count is 0 in {_setProposalCount}.
+     * @dev The proposal count may only be set if the current proposal count is 0 in {_initializeProposalCount}.
      */
-    error GovernorCanNotSetProposalCount();
+    error GovernorAlreadyInitializedProposalCount();
 
     /**
      * @dev See {IGovernor-getProposalId}.
@@ -65,9 +65,9 @@ abstract contract GovernorSequentialProposalId is Governor {
      *
      * May only call this function if the current proposal count is 0.
      */
-    function _setProposalCount(uint256 newProposalCount) internal virtual {
+    function _initializeProposalCount(uint256 newProposalCount) internal virtual {
         if (_proposalCount != 0) {
-            revert GovernorCanNotSetProposalCount();
+            revert GovernorAlreadyInitializedProposalCount();
         }
         _proposalCount = newProposalCount;
     }
