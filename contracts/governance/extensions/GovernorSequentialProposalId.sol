@@ -38,7 +38,8 @@ abstract contract GovernorSequentialProposalId is Governor {
     }
 
     /**
-     * @dev Hook into the proposing mechanism to increment proposal count.
+     * @dev See {IGovernor-_propose}. 
+     * Hook into the proposing mechanism to increment proposal count.
      */
     function _propose(
         address[] memory targets,
