@@ -56,7 +56,7 @@ abstract contract GovernorSequentialProposalId is Governor {
     }
 
     /**
-     * @dev Internal function to set the current proposal count--the next proposal id will be `newProposalCount` + 1.
+     * @dev Internal function to set the value of {proposalCount}--the next proposal id will be `newProposalCount` + 1.
      *
      * May only call this function if the current proposal count is 0.
      */
