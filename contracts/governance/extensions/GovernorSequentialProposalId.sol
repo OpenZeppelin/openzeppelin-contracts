@@ -4,6 +4,10 @@ pragma solidity ^0.8.20;
 
 import {Governor} from "../Governor.sol";
 
+/**
+ * @dev Extension of {Governor} that changes the numbering of proposal ids from the default hash-based approach to
+ * sequential ids.
+ */
 abstract contract GovernorSequentialProposalId is Governor {
     uint256 private _proposalCount;
     mapping(uint256 proposalHash => uint256 proposalId) private _proposalIds;
@@ -38,7 +42,7 @@ abstract contract GovernorSequentialProposalId is Governor {
     }
 
     /**
-     * @dev See {IGovernor-_propose}. 
+     * @dev See {IGovernor-_propose}.
      * Hook into the proposing mechanism to increment proposal count.
      */
     function _propose(
