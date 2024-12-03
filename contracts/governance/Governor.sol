@@ -481,7 +481,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
     ) public virtual returns (uint256) {
         // The proposalId will be recomputed in the `_cancel` call further down. However we need the value before we
         // do the internal call, because we need to check the proposal state BEFORE the internal `_cancel` call
-        // changes it. The `hashProposal` duplication has a cost that is limited, and that we accept.
+        // changes it. The `getProposalId` duplication has a cost that is limited, and that we accept.
         uint256 proposalId = getProposalId(targets, values, calldatas, descriptionHash);
 
         // public cancel restrictions (on top of existing _cancel restrictions).

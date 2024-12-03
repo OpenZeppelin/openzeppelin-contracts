@@ -204,6 +204,8 @@ interface IGovernor is IERC165, IERC6372 {
     /**
      * @notice module:core
      * @dev Hashing function used to (re)build the proposal id from the proposal details.
+     *
+     * NOTE: For all off-chain and external calls, use {getProposalId}.
      */
     function hashProposal(
         address[] memory targets,
