@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.20;
 
-import {IEntryPoint, PackedUserOperation} from "../../interfaces/draft-IERC4337.sol";
+import {PackedUserOperation} from "../../interfaces/draft-IERC4337.sol";
 import {Math} from "../../utils/math/Math.sol";
 import {Packing} from "../../utils/Packing.sol";
 
@@ -24,9 +24,9 @@ library ERC4337Utils {
     function parseValidationData(
         uint256 validationData
     ) internal pure returns (address aggregator, uint48 validAfter, uint48 validUntil) {
-        validAfter = uint48(bytes32(validationData).extract_32_6(0x00));
-        validUntil = uint48(bytes32(validationData).extract_32_6(0x06));
-        aggregator = address(bytes32(validationData).extract_32_20(0x0c));
+        validAfter = uint48(bytes32(validationData).extract_32_6(0));
+        validUntil = uint48(bytes32(validationData).extract_32_6(6));
+        aggregator = address(bytes32(validationData).extract_32_20(12));
         if (validUntil == 0) validUntil = type(uint48).max;
     }
 
@@ -59,7 +59,8 @@ library ERC4337Utils {
         (address aggregator1, uint48 validAfter1, uint48 validUntil1) = parseValidationData(validationData1);
         (address aggregator2, uint48 validAfter2, uint48 validUntil2) = parseValidationData(validationData2);
 
-        bool success = aggregator1 == address(0) && aggregator2 == address(0);
+        bool success = aggregator1 == address(uint160(SIG_VALIDATION_SUCCESS)) &&
+            aggregator2 == address(uint160(SIG_VALIDATION_SUCCESS));
         uint48 validAfter = uint48(Math.max(validAfter1, validAfter2));
         uint48 validUntil = uint48(Math.min(validUntil1, validUntil2));
         return packValidationData(success, validAfter, validUntil);
@@ -71,12 +72,7 @@ library ERC4337Utils {
         return (aggregator_, block.timestamp < validAfter || validUntil < block.timestamp);
     }
 
-    /// @dev Computes the hash of a user operation with the current entrypoint and chainid.
-    function hash(PackedUserOperation calldata self) internal view returns (bytes32) {
-        return hash(self, address(this), block.chainid);
-    }
-
-    /// @dev Sames as {hash}, but with a custom entrypoint and chainid.
+    /// @dev Computes the hash of a user operation for a given entrypoint and chainid.
     function hash(
         PackedUserOperation calldata self,
         address entrypoint,
@@ -103,24 +99,34 @@ library ERC4337Utils {
         return result;
     }
 
+    /// @dev Returns `factory` from the {PackedUserOperation}, or address(0) if the initCode is empty or not properly formatted.
+    function factory(PackedUserOperation calldata self) internal pure returns (address) {
+        return self.initCode.length < 20 ? address(0) : address(bytes20(self.initCode[0:20]));
+    }
+
+    /// @dev Returns `factoryData` from the {PackedUserOperation}, or empty bytes if the initCode is empty or not properly formatted.
+    function factoryData(PackedUserOperation calldata self) internal pure returns (bytes calldata) {
+        return self.initCode.length < 20 ? _emptyCalldataBytes() : self.initCode[20:];
+    }
+
     /// @dev Returns `verificationGasLimit` from the {PackedUserOperation}.
     function verificationGasLimit(PackedUserOperation calldata self) internal pure returns (uint256) {
-        return uint128(self.accountGasLimits.extract_32_16(0x00));
+        return uint128(self.accountGasLimits.extract_32_16(0));
     }
 
     /// @dev Returns `accountGasLimits` from the {PackedUserOperation}.
     function callGasLimit(PackedUserOperation calldata self) internal pure returns (uint256) {
-        return uint128(self.accountGasLimits.extract_32_16(0x10));
+        return uint128(self.accountGasLimits.extract_32_16(16));
     }
 
     /// @dev Returns the first section of `gasFees` from the {PackedUserOperation}.
     function maxPriorityFeePerGas(PackedUserOperation calldata self) internal pure returns (uint256) {
-        return uint128(self.gasFees.extract_32_16(0x00));
+        return uint128(self.gasFees.extract_32_16(0));
     }
 
     /// @dev Returns the second section of `gasFees` from the {PackedUserOperation}.
     function maxFeePerGas(PackedUserOperation calldata self) internal pure returns (uint256) {
-        return uint128(self.gasFees.extract_32_16(0x10));
+        return uint128(self.gasFees.extract_32_16(16));
     }
 
     /// @dev Returns the total gas price for the {PackedUserOperation} (ie. `maxFeePerGas` or `maxPriorityFeePerGas + basefee`).
@@ -129,22 +135,35 @@ library ERC4337Utils {
             // Following values are "per gas"
             uint256 maxPriorityFee = maxPriorityFeePerGas(self);
             uint256 maxFee = maxFeePerGas(self);
-            return Math.ternary(maxFee == maxPriorityFee, maxFee, Math.min(maxFee, maxPriorityFee + block.basefee));
+            return Math.min(maxFee, maxPriorityFee + block.basefee);
         }
     }
 
     /// @dev Returns the first section of `paymasterAndData` from the {PackedUserOperation}.
     function paymaster(PackedUserOperation calldata self) internal pure returns (address) {
-        return address(bytes20(self.paymasterAndData[0:20]));
+        return self.paymasterAndData.length < 52 ? address(0) : address(bytes20(self.paymasterAndData[0:20]));
     }
 
     /// @dev Returns the second section of `paymasterAndData` from the {PackedUserOperation}.
     function paymasterVerificationGasLimit(PackedUserOperation calldata self) internal pure returns (uint256) {
-        return uint128(bytes16(self.paymasterAndData[20:36]));
+        return self.paymasterAndData.length < 52 ? 0 : uint128(bytes16(self.paymasterAndData[20:36]));
     }
 
     /// @dev Returns the third section of `paymasterAndData` from the {PackedUserOperation}.
     function paymasterPostOpGasLimit(PackedUserOperation calldata self) internal pure returns (uint256) {
-        return uint128(bytes16(self.paymasterAndData[36:52]));
+        return self.paymasterAndData.length < 52 ? 0 : uint128(bytes16(self.paymasterAndData[36:52]));
+    }
+
+    /// @dev Returns the forth section of `paymasterAndData` from the {PackedUserOperation}.
+    function paymasterData(PackedUserOperation calldata self) internal pure returns (bytes calldata) {
+        return self.paymasterAndData.length < 52 ? _emptyCalldataBytes() : self.paymasterAndData[52:];
+    }
+
+    // slither-disable-next-line write-after-write
+    function _emptyCalldataBytes() private pure returns (bytes calldata result) {
+        assembly ("memory-safe") {
+            result.offset := 0
+            result.length := 0
+        }
     }
 }
