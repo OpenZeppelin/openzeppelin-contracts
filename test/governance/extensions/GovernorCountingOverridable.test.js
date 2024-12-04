@@ -269,7 +269,9 @@ describe('GovernorCountingOverridable', function () {
         });
 
         it('can not vote twice', async function () {
-          await expect(this.mock.connect(this.voter1).castVote(this.helper.id, VoteType.Against));
+          await expect(this.mock.connect(this.voter1).castVote(this.helper.id, VoteType.Against))
+            .to.emit(this.mock, 'VoteCast')
+            .withArgs(this.voter1, this.helper.id, VoteType.Against, ethers.parseEther('5'), '');
           await expect(this.mock.connect(this.voter1).castVote(this.helper.id, VoteType.Abstain))
             .to.be.revertedWithCustomError(this.mock, 'GovernorAlreadyCastVote')
             .withArgs(this.voter1.address);
