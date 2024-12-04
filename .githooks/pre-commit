@@ -4,5 +4,18 @@ set -euo pipefail
 
 if [ "${CI:-"false"}" != "true" ]; then
   npm run test:generation
-  npm run lint
+	
+	# Lint javascript and typescript
+	for file in $(git diff --cached --name-only | grep -E '\.(js|ts)$')
+	do
+		npx prettier --log-level warn --ignore-path .gitignore $file --check
+		npx eslint $file
+	done
+
+	# Lint solidity
+	for file in $(git diff --cached --name-only | grep -E '(contracts|test)/.*\.sol$')
+  do
+		npx prettier --log-level warn --ignore-path .gitignore $file --check
+		npx solhint $file
+  done
 fi
