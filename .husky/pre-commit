@@ -1,8 +1,2 @@
-#!/usr/bin/env bash
-
-set -euo pipefail
-
-if [ "${CI:-"false"}" != "true" ]; then
-  npm run test:generation
-  npx lint-staged
-fi
+npm run test:generation
+npx lint-staged
