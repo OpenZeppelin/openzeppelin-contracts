@@ -13,7 +13,7 @@
     "coverage": "scripts/checks/coverage.sh",
     "docs": "npm run prepare-docs && oz-docs",
     "docs:watch": "oz-docs watch contracts docs/templates docs/config.js",
-    "prepare": "scripts/prepare.sh",
+    "prepare": "husky",
     "prepare-docs": "scripts/prepare-docs.sh",
     "lint": "npm run lint:js && npm run lint:sol",
     "lint:fix": "npm run lint:js:fix && npm run lint:sol:fix",
@@ -67,13 +67,15 @@
     "eslint": "^9.0.0",
     "eslint-config-prettier": "^9.0.0",
     "ethers": "^6.7.1",
-    "globals": "^15.3.0",
     "glob": "^11.0.0",
+    "globals": "^15.3.0",
     "graphlib": "^2.1.8",
     "hardhat": "^2.22.2",
     "hardhat-exposed": "^0.3.15",
     "hardhat-gas-reporter": "^2.0.0",
     "hardhat-ignore-warnings": "^0.2.11",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.2.10",
     "lodash.startcase": "^4.4.0",
     "micromatch": "^4.0.2",
     "p-limit": "^6.0.0",
@@ -88,5 +90,15 @@
     "solidity-docgen": "^0.6.0-beta.29",
     "undici": "^6.11.1",
     "yargs": "^17.0.0"
+  },
+  "lint-staged": {
+    "*.{js,ts}": [
+      "prettier --log-level warn --ignore-path .gitignore --check",
+      "eslint"
+    ],
+    "*.sol": [
+      "prettier --log-level warn --ignore-path .gitignore --check",
+      "solhint"
+    ]
   }
 }
