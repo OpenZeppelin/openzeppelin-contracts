@@ -191,7 +191,7 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
     }
 
     /**
-     * @dev Attempts to revoke `role` to `account` and returns a boolean indicating if `role` was revoked.
+     * @dev Attempts to revoke `role` from `account` and returns a boolean indicating if `role` was revoked.
      *
      * Internal function without access restriction.
      *
