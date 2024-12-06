@@ -7,9 +7,10 @@ const timelockSalt = (address, descriptionHash) =>
   ethers.toBeHex((ethers.toBigInt(address) << 96n) ^ ethers.toBigInt(descriptionHash), 32);
 
 class GovernorHelper {
-  constructor(governor, mode = 'blocknumber') {
+  constructor(governor, mode = 'blocknumber', params = {}) {
     this.governor = governor;
     this.mode = mode;
+    this.forceGetProposalId = params.forceGetProposalId ?? this.governor.$_initializeProposalCount ?? false;
   }
 
   connect(account) {
@@ -35,10 +36,14 @@ class GovernorHelper {
     return this;
   }
 
-  get id() {
+  get hash() {
     return ethers.keccak256(
       ethers.AbiCoder.defaultAbiCoder().encode(['address[]', 'uint256[]', 'bytes[]', 'bytes32'], this.shortProposal),
     );
+  }
+
+  get id() {
+    return this.forceGetProposalId ? this.governor.getProposalId(...this.shortProposal) : this.hash;
   }
 
   // used for checking events
@@ -106,10 +111,10 @@ class GovernorHelper {
 
   async vote(vote = {}) {
     let method = 'castVote'; // default
-    let args = [this.id, vote.support]; // base
+    let args = [await this.id, vote.support]; // base
 
     if (vote.signature) {
-      const sign = await vote.signature(this.governor, this.forgeMessage(vote));
+      const sign = await this.forgeMessage(vote).then(msg => vote.signature(this.governor, msg));
       if (vote.params || vote.reason) {
         method = 'castVoteWithReasonAndParamsBySig';
         args.push(vote.voter, vote.reason ?? '', vote.params ?? '0x', sign);
@@ -130,14 +135,12 @@ class GovernorHelper {
 
   async overrideVote(vote = {}) {
     let method = 'castOverrideVote';
-    let args = [this.id, vote.support];
+    let args = [await this.id, vote.support];
 
     vote.reason = vote.reason ?? '';
 
     if (vote.signature) {
-      let message = this.forgeMessage(vote);
-      message.reason = message.reason ?? '';
-      const sign = await vote.signature(this.governor, message);
+      const sign = await this.forgeMessage(vote).then(msg => vote.signature(this.governor, { reason: '', ...msg }));
       method = 'castOverrideVoteBySig';
       args.push(vote.voter, vote.reason ?? '', sign);
     }
@@ -147,23 +150,23 @@ class GovernorHelper {
 
   /// Clock helpers
   async waitForSnapshot(offset = 0n) {
-    const timepoint = await this.governor.proposalSnapshot(this.id);
+    const timepoint = await this.governor.proposalSnapshot(await this.id);
     return time.increaseTo[this.mode](timepoint + offset);
   }
 
   async waitForDeadline(offset = 0n) {
-    const timepoint = await this.governor.proposalDeadline(this.id);
+    const timepoint = await this.governor.proposalDeadline(await this.id);
     return time.increaseTo[this.mode](timepoint + offset);
   }
 
   async waitForEta(offset = 0n) {
-    const timestamp = await this.governor.proposalEta(this.id);
+    const timestamp = await this.governor.proposalEta(await this.id);
     return time.increaseTo.timestamp(timestamp + offset);
   }
 
   /// Other helpers
-  forgeMessage(vote = {}) {
-    const message = { proposalId: this.id, support: vote.support, voter: vote.voter, nonce: vote.nonce };
+  async forgeMessage(vote = {}) {
+    const message = { proposalId: await this.id, support: vote.support, voter: vote.voter, nonce: vote.nonce };
 
     if (vote.params || vote.reason) {
       message.reason = vote.reason ?? '';
