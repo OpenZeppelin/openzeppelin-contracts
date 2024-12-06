@@ -1,13 +1,14 @@
 # Audits
 
-| Date         | Version | Commit    | Auditor      | Scope                | Links                                                       |
-| ------------ | ------- | --------- | ------------ | -------------------- | ----------------------------------------------------------- |
-| October 2024 | v5.1.0  | TBD       | OpenZeppelin | v5.1 Changes         | [🔗](./2024-10-v5.1.pdf)                                    |
-| October 2023 | v5.0.0  | `b5a3e69` | OpenZeppelin | v5.0 Changes         | [🔗](./2023-10-v5.0.pdf)                                    |
-| May 2023     | v4.9.0  | `91df66c` | OpenZeppelin | v4.9 Changes         | [🔗](./2023-05-v4.9.pdf)                                    |
-| October 2022 | v4.8.0  | `14f98db` | OpenZeppelin | ERC4626, Checkpoints | [🔗](./2022-10-ERC4626.pdf) [🔗](./2022-10-Checkpoints.pdf) |
-| October 2018 | v2.0.0  | `dac5bcc` | LevelK       | Everything           | [🔗](./2018-10.pdf)                                         |
-| March 2017   | v1.0.4  | `9c5975a` | New Alchemy  | Everything           | [🔗](./2017-03.md)                                          |
+| Date          | Version | Commit    | Auditor      | Scope                | Links                                                       |
+| ------------- | ------- | --------- | ------------ | -------------------- | ----------------------------------------------------------- |
+| December 2024 | v5.2.0  | `98d28f9` | OpenZeppelin | v5.2 Changes         | [🔗](./2024-12-v5.2.pdf)                                    |
+| October 2024  | v5.1.0  | `aba9ff6` | OpenZeppelin | v5.1 Changes         | [🔗](./2024-10-v5.1.pdf)                                    |
+| October 2023  | v5.0.0  | `b5a3e69` | OpenZeppelin | v5.0 Changes         | [🔗](./2023-10-v5.0.pdf)                                    |
+| May 2023      | v4.9.0  | `91df66c` | OpenZeppelin | v4.9 Changes         | [🔗](./2023-05-v4.9.pdf)                                    |
+| October 2022  | v4.8.0  | `14f98db` | OpenZeppelin | ERC4626, Checkpoints | [🔗](./2022-10-ERC4626.pdf) [🔗](./2022-10-Checkpoints.pdf) |
+| October 2018  | v2.0.0  | `dac5bcc` | LevelK       | Everything           | [🔗](./2018-10.pdf)                                         |
+| March 2017    | v1.0.4  | `9c5975a` | New Alchemy  | Everything           | [🔗](./2017-03.md)                                          |
 
 # Formal Verification
 
