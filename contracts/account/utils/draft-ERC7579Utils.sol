@@ -61,6 +61,9 @@ library ERC7579Utils {
     /// @dev The module type is not supported.
     error ERC7579UnsupportedModuleType(uint256 moduleTypeId);
 
+    /// @dev Input calldata not properly formatted and possibly malicious.
+    error ERC7579DecodingError();
+
     /// @dev Executes a single call.
     function execSingle(
         ExecType execType,
@@ -169,12 +172,43 @@ library ERC7579Utils {
     }
 
     /// @dev Decodes a batch of executions. See {encodeBatch}.
+    ///
+    /// Note: This function runs some checks and will throw a {ERC7579DecodingError} if the input is not properly formatted.
     function decodeBatch(bytes calldata executionCalldata) internal pure returns (Execution[] calldata executionBatch) {
+        uint256 maxOffset = type(uint64).max;
+
+        // Check calldata is not empty, and first value is a valid offset
+        if (executionCalldata.length < 0x20 || uint256(bytes32(executionCalldata[0x00:0x20])) > maxOffset) {
+            revert ERC7579DecodingError();
+        }
+
+        // Extract the ERC7579 Executions array
         assembly ("memory-safe") {
             let ptr := add(executionCalldata.offset, calldataload(executionCalldata.offset))
-            // Extract the ERC7579 Executions
             executionBatch.offset := add(ptr, 32)
             executionBatch.length := calldataload(ptr)
+        }
+
+        // Check that the array contains valid objects in calldata
+        uint256 endPtr;
+        assembly ("memory-safe") {
+            endPtr := sub(add(executionCalldata.offset, executionCalldata.length), 0x20)
+        }
+        for (uint256 i = 0; i < executionBatch.length; ++i) {
+            bool invalidFormat;
+            assembly ("memory-safe") {
+                let callOffset := calldataload(add(executionBatch.offset, mul(i, 0x20)))
+                let callPtr := add(executionBatch.offset, callOffset)
+                let dataOffset := calldataload(add(callPtr, 0x40))
+                let dataPtr := add(callPtr, dataOffset)
+                let dataLength := calldataload(dataPtr)
+                invalidFormat := gt(callOffset, maxOffset)
+                invalidFormat := or(invalidFormat, gt(dataOffset, maxOffset))
+                invalidFormat := or(invalidFormat, gt(dataLength, maxOffset))
+                invalidFormat := or(invalidFormat, gt(add(callPtr, 0x40), endPtr))
+                invalidFormat := or(invalidFormat, gt(add(dataPtr, dataLength), endPtr))
+            }
+            if (invalidFormat) revert ERC7579DecodingError();
         }
     }
 
