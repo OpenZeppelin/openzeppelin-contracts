@@ -1,8 +1,8 @@
 const { ethers } = require('hardhat');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { mapValues } = require('../../helpers/iterate');
-const { generators } = require('../../helpers/random');
+const { mapValues } = require('@openzeppelin/contracts-helpers/iterate');
+const { generators } = require('@openzeppelin/contracts-helpers/random');
 const { TYPES } = require('../../../scripts/generate/templates/EnumerableSet.opts');
 
 const { shouldBehaveLikeSet } = require('./EnumerableSet.behavior');

@@ -1,5 +1,5 @@
 const format = require('../format-lines');
-const { capitalize } = require('../../helpers');
+const { capitalize } = require('@openzeppelin/contracts-helpers/strings');
 const { TYPES } = require('./Arrays.opts');
 
 const header = `\

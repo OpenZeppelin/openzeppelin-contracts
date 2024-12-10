@@ -2,8 +2,8 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { packValidationData, UserOperation } = require('../../helpers/erc4337');
-const { MAX_UINT48 } = require('../../helpers/constants');
+const { packValidationData, UserOperation } = require('@openzeppelin/contracts-helpers/erc4337');
+const { MAX_UINT48 } = require('@openzeppelin/contracts-helpers/constants');
 const ADDRESS_ONE = '0x0000000000000000000000000000000000000001';
 
 const fixture = async () => {

@@ -1,4 +1,4 @@
-const { product } = require('../../helpers');
+const { product } = require('@openzeppelin/contracts-helpers/iterate');
 
 const OPTS = product(
   [

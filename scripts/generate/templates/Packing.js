@@ -1,6 +1,6 @@
 const format = require('../format-lines');
 const sanitize = require('../helpers/sanitize');
-const { product } = require('../../helpers');
+const { product } = require('@openzeppelin/contracts-helpers/iterate');
 const { SIZES } = require('./Packing.opts');
 
 // TEMPLATE

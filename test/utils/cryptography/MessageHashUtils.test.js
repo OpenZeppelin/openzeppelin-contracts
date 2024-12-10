@@ -2,7 +2,7 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { domainSeparator, hashTypedData } = require('../../helpers/eip712');
+const { domainSeparator, hashTypedData } = require('@openzeppelin/contracts-helpers/eip712');
 
 async function fixture() {
   const mock = await ethers.deployContract('$MessageHashUtils');

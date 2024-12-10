@@ -3,7 +3,7 @@ const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
 
-const { RevertType } = require('../helpers/enums');
+const { RevertType } = require('@openzeppelin/contracts-helpers/enums');
 
 async function fixture() {
   const [deployer, other] = await ethers.getSigners();

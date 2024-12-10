@@ -2,7 +2,7 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { min, max } = require('../../helpers/math');
+const { min, max } = require('@openzeppelin/contracts-helpers/math');
 
 async function testCommutative(fn, lhs, rhs, expected, ...extra) {
   expect(await fn(lhs, rhs, ...extra)).to.deep.equal(expected);

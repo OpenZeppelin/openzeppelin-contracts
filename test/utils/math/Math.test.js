@@ -3,10 +3,10 @@ const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
 
-const { Rounding } = require('../../helpers/enums');
-const { min, max, modExp } = require('../../helpers/math');
-const { generators } = require('../../helpers/random');
-const { product, range } = require('../../helpers/iterate');
+const { Rounding } = require('@openzeppelin/contracts-helpers/enums');
+const { min, max, modExp } = require('@openzeppelin/contracts-helpers/math');
+const { generators } = require('@openzeppelin/contracts-helpers/random');
+const { product, range } = require('@openzeppelin/contracts-helpers/iterate');
 
 const RoundingDown = [Rounding.Floor, Rounding.Trunc];
 const RoundingUp = [Rounding.Ceil, Rounding.Expand];

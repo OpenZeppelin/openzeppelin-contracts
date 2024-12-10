@@ -8,7 +8,7 @@ const {
   shouldBehaveLikeERC20Approve,
 } = require('../ERC20.behavior.js');
 const { shouldSupportInterfaces } = require('../../../utils/introspection/SupportsInterface.behavior');
-const { RevertType } = require('../../../helpers/enums.js');
+const { RevertType } = require('@openzeppelin/contracts-helpers/enums.js');
 
 const name = 'My Token';
 const symbol = 'MTKN';

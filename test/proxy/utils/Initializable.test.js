@@ -1,6 +1,6 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
-const { MAX_UINT64 } = require('../../helpers/constants');
+const { MAX_UINT64 } = require('@openzeppelin/contracts-helpers/constants');
 
 describe('Initializable', function () {
   describe('basic testing without inheritance', function () {

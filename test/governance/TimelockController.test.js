@@ -3,9 +3,9 @@ const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
 
-const { GovernorHelper } = require('../helpers/governance');
-const { OperationState } = require('../helpers/enums');
-const time = require('../helpers/time');
+const { GovernorHelper } = require('@openzeppelin/contracts-helpers/governance');
+const { OperationState } = require('@openzeppelin/contracts-helpers/enums');
+const time = require('@openzeppelin/contracts-helpers/time');
 
 const { shouldSupportInterfaces } = require('../utils/introspection/SupportsInterface.behavior');
 

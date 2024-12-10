@@ -2,7 +2,7 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { anyValue } = require('@nomicfoundation/hardhat-chai-matchers/withArgs');
 
-const { RevertType } = require('../../helpers/enums');
+const { RevertType } = require('@openzeppelin/contracts-helpers/enums');
 const { shouldSupportInterfaces } = require('../../utils/introspection/SupportsInterface.behavior');
 
 function shouldBehaveLikeERC1155() {

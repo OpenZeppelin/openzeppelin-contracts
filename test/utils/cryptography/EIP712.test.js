@@ -2,8 +2,8 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { getDomain, domainSeparator, hashTypedData } = require('../../helpers/eip712');
-const { formatType } = require('../../helpers/eip712-types');
+const { getDomain, domainSeparator, hashTypedData } = require('@openzeppelin/contracts-helpers/eip712');
+const { formatType } = require('@openzeppelin/contracts-helpers/eip712-types');
 
 const LENGTHS = {
   short: ['A Name', '1'],

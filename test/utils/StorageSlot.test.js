@@ -1,7 +1,7 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { generators } = require('../helpers/random');
+const { generators } = require('@openzeppelin/contracts-helpers/random');
 
 const slot = ethers.id('some.storage.slot');
 const otherSlot = ethers.id('some.other.storage.slot');

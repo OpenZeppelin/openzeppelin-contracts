@@ -2,7 +2,13 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { getAddressInSlot, setSlot, ImplementationSlot, AdminSlot, BeaconSlot } = require('../../helpers/storage');
+const {
+  getAddressInSlot,
+  setSlot,
+  ImplementationSlot,
+  AdminSlot,
+  BeaconSlot,
+} = require('@openzeppelin/contracts-helpers/storage');
 
 async function fixture() {
   const [, admin, anotherAccount] = await ethers.getSigners();

@@ -4,7 +4,7 @@ const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
 const { anyValue } = require('@nomicfoundation/hardhat-chai-matchers/withArgs');
 
 const { shouldSupportInterfaces } = require('../../utils/introspection/SupportsInterface.behavior');
-const { RevertType } = require('../../helpers/enums');
+const { RevertType } = require('@openzeppelin/contracts-helpers/enums');
 
 const firstTokenId = 5042n;
 const secondTokenId = 79217n;

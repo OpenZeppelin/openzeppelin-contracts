@@ -2,8 +2,8 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { generators } = require('../helpers/random');
-const { capitalize } = require('../../scripts/helpers');
+const { generators } = require('@openzeppelin/contracts-helpers/random');
+const { capitalize } = require('@openzeppelin/contracts-helpers/strings');
 const { TYPES } = require('../../scripts/generate/templates/Arrays.opts');
 
 // See https://en.cppreference.com/w/cpp/algorithm/lower_bound

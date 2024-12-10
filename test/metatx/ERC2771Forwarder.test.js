@@ -2,9 +2,9 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { getDomain, ForwardRequest } = require('../helpers/eip712');
-const { sum } = require('../helpers/math');
-const time = require('../helpers/time');
+const { getDomain, ForwardRequest } = require('@openzeppelin/contracts-helpers/eip712');
+const { sum } = require('@openzeppelin/contracts-helpers/math');
+const time = require('@openzeppelin/contracts-helpers/time');
 
 async function fixture() {
   const [sender, refundReceiver, another, ...accounts] = await ethers.getSigners();

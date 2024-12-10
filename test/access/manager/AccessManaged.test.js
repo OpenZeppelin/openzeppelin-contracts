@@ -2,8 +2,8 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { impersonate } = require('../../helpers/account');
-const time = require('../../helpers/time');
+const { impersonate } = require('@openzeppelin/contracts-helpers/account');
+const time = require('@openzeppelin/contracts-helpers/time');
 
 async function fixture() {
   const [admin, roleMember, other] = await ethers.getSigners();

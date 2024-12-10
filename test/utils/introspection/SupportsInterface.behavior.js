@@ -1,6 +1,6 @@
 const { expect } = require('chai');
-const { interfaceId } = require('../../helpers/methods');
-const { mapValues } = require('../../helpers/iterate');
+const { interfaceId } = require('@openzeppelin/contracts-helpers/methods');
+const { mapValues } = require('@openzeppelin/contracts-helpers/iterate');
 
 const INVALID_ID = '0xffffffff';
 const SIGNATURES = {

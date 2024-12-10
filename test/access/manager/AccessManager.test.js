@@ -2,10 +2,10 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { impersonate } = require('../../helpers/account');
-const { MAX_UINT48 } = require('../../helpers/constants');
-const { selector } = require('../../helpers/methods');
-const time = require('../../helpers/time');
+const { impersonate } = require('@openzeppelin/contracts-helpers/account');
+const { MAX_UINT48 } = require('@openzeppelin/contracts-helpers/constants');
+const { selector } = require('@openzeppelin/contracts-helpers/methods');
+const time = require('@openzeppelin/contracts-helpers/time');
 
 const {
   buildBaseRoles,
@@ -16,7 +16,7 @@ const {
   CONSUMING_SCHEDULE_STORAGE_SLOT,
   prepareOperation,
   hashOperation,
-} = require('../../helpers/access-manager');
+} = require('@openzeppelin/contracts-helpers/access-manager');
 
 const {
   shouldBehaveLikeDelayedAdminOperation,

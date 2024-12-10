@@ -2,10 +2,10 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { GovernorHelper } = require('../helpers/governance');
-const { getDomain, Ballot } = require('../helpers/eip712');
-const { ProposalState, VoteType } = require('../helpers/enums');
-const time = require('../helpers/time');
+const { GovernorHelper } = require('@openzeppelin/contracts-helpers/governance');
+const { getDomain, Ballot } = require('@openzeppelin/contracts-helpers/eip712');
+const { ProposalState, VoteType } = require('@openzeppelin/contracts-helpers/enums');
+const time = require('@openzeppelin/contracts-helpers/time');
 
 const { shouldSupportInterfaces } = require('../utils/introspection/SupportsInterface.behavior');
 const { shouldBehaveLikeERC6372 } = require('./utils/ERC6372.behavior');

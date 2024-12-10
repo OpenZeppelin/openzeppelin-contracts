@@ -2,9 +2,9 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture, mine } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { GovernorHelper } = require('../../helpers/governance');
-const { getDomain, OverrideBallot } = require('../../helpers/eip712');
-const { VoteType } = require('../../helpers/enums');
+const { GovernorHelper } = require('@openzeppelin/contracts-helpers/governance');
+const { getDomain, OverrideBallot } = require('@openzeppelin/contracts-helpers/eip712');
+const { VoteType } = require('@openzeppelin/contracts-helpers/enums');
 
 const TOKENS = [
   { Token: '$ERC20VotesExtendedMock', mode: 'blocknumber' },

@@ -2,7 +2,7 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { CHAINS, getLocalCAIP } = require('../helpers/chains');
+const { CHAINS, getLocalCAIP } = require('@openzeppelin/contracts-helpers/chains');
 
 async function fixture() {
   const caip2 = await ethers.deployContract('$CAIP2');

@@ -2,7 +2,7 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture, mine } = require('@nomicfoundation/hardhat-network-helpers');
 
-const time = require('../../../helpers/time');
+const time = require('@openzeppelin/contracts-helpers/time');
 
 const { shouldBehaveLikeVotes } = require('../../../governance/utils/Votes.behavior');
 

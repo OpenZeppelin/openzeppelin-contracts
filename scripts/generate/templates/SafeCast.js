@@ -1,5 +1,5 @@
 const format = require('../format-lines');
-const { range } = require('../../helpers');
+const { range } = require('@openzeppelin/contracts-helpers/iterate');
 
 const LENGTHS = range(8, 256, 8).reverse(); // 248 → 8 (in steps of 8)
 

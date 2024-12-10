@@ -2,8 +2,8 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { getDomain, domainSeparator, Permit } = require('../../../helpers/eip712');
-const time = require('../../../helpers/time');
+const { getDomain, domainSeparator, Permit } = require('@openzeppelin/contracts-helpers/eip712');
+const time = require('@openzeppelin/contracts-helpers/time');
 
 const name = 'My Token';
 const symbol = 'MTKN';
