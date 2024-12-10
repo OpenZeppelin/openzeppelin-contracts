@@ -2,18 +2,16 @@
 
 pragma solidity ^0.8.20;
 
+import {IERC5267} from "../interfaces/IERC5267.sol";
 import {PackedUserOperation} from "../interfaces/draft-IERC4337.sol";
 import {ERC4337Utils} from "../account/utils/draft-ERC4337Utils.sol";
 import {ERC721Holder} from "../token/ERC721/utils/ERC721Holder.sol";
-// import {ERC1155HolderLean, IERC1155Receiver} from "../token/ERC1155/utils/ERC1155HolderLean.sol";
-import {ERC1155Holder, IERC1155Receiver} from "../token/ERC1155/utils/ERC1155Holder.sol";
+import {ERC1155Holder} from "../token/ERC1155/utils/ERC1155Holder.sol";
 import {ERC165} from "../utils/introspection/ERC165.sol";
-import {IERC165} from "../utils/introspection/IERC165.sol";
 import {ECDSA} from "../utils/cryptography/ECDSA.sol";
+import {ERC7739Signer} from "../utils/cryptography/draft-ERC7739Signer.sol";
 import {MessageHashUtils} from "../utils/cryptography/MessageHashUtils.sol";
 import {AccountBase} from "./draft-AccountBase.sol";
-import {ERC7739Signer, EIP712} from "../utils/cryptography/draft-ERC7739Signer.sol";
-import {Initializable} from "../proxy/utils/Initializable.sol";
 
 /**
  * @dev Account implementation using {ECDSA} signatures and {ERC7739Signer} for replay protection.
@@ -24,7 +22,7 @@ import {Initializable} from "../proxy/utils/Initializable.sol";
  * IMPORTANT: Avoiding to call {_initializeSigner} either during construction (if used standalone)
  * or during initialization (if used as a clone) may leave the account unusable.
  */
-abstract contract AccountECDSA is ERC165, ERC721Holder, ERC1155Holder, ERC7739Signer, AccountBase {
+abstract contract AccountECDSA is ERC165, IERC5267, AccountBase, ERC7739Signer, ERC721Holder, ERC1155Holder {
     using MessageHashUtils for bytes32;
 
     /**
@@ -92,6 +90,6 @@ abstract contract AccountECDSA is ERC165, ERC721Holder, ERC1155Holder, ERC7739Si
 
     /// @inheritdoc ERC165
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, ERC1155Holder) returns (bool) {
-        return interfaceId == type(IERC1155Receiver).interfaceId || super.supportsInterface(interfaceId);
+        return super.supportsInterface(interfaceId);
     }
 }
