@@ -283,7 +283,7 @@ contract LoggingPOCTest is Test {
         if (duringValidation) {
             console.log("Batch execute contents, as read during validation: ");
         } else {
-            console.log("Batch execute contents, as read during exection: ");
+            console.log("Batch execute contents, as read during execution: ");
         }
 
         console.log("  Execution[] length: %s", calls.length);
