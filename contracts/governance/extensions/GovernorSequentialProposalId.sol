@@ -66,7 +66,8 @@ abstract contract GovernorSequentialProposalId is Governor {
     }
 
     /**
-     * @dev Internal function to set the new {nextProposalId}.
+     * @dev Internal function to set the new {nextProposalId}. This function is helpful when transitioning 
+     * from another governance system.
      *
      * May only call this function if the current value of {nextProposalId} is one.
      */
