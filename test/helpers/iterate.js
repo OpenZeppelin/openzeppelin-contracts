@@ -30,7 +30,12 @@ module.exports = {
 
   // ================================================ Object helpers =================================================
 
-  // Create a new object by mapping the values through a function, keeping the keys
+  // Create a new object by mapping the values through a function, keeping the keys. Second function can be used to pre-filter entries
   // Example: mapValues({a:1,b:2,c:3}, x => x**2) → {a:1,b:4,c:9}
-  mapValues: (obj, fn) => Object.fromEntries(Object.entries(obj).map(([k, v]) => [k, fn(v)])),
+  mapValues: (obj, fn, fn2 = () => true) =>
+    Object.fromEntries(
+      Object.entries(obj)
+        .filter(fn2)
+        .map(([k, v]) => [k, fn(v)]),
+    ),
 };
