@@ -9,13 +9,18 @@ import {Governor} from "../Governor.sol";
  * sequential ids.
  */
 abstract contract GovernorSequentialProposalId is Governor {
-    uint256 private _proposalCount;
+    uint256 private _nextProposalId = 1;
     mapping(uint256 proposalHash => uint256 proposalId) private _proposalIds;
 
     /**
      * @dev The proposal count may only be set if the current proposal count is uninitialized.
      */
-    error GovernorAlreadyInitializedProposalCount();
+    error GovernorAlreadyInitializedNextProposalId();
+
+    /**
+     * @dev The proposal count may only be set to a non-zero value.
+     */
+    error GovernorInvalidNextProposalId();
 
     /**
      * @dev See {IGovernor-getProposalId}.
@@ -35,10 +40,10 @@ abstract contract GovernorSequentialProposalId is Governor {
     }
 
     /**
-     * @dev Returns the current proposal count.
+     * @dev Returns the next proposal id.
      */
-    function proposalCount() public view virtual returns (uint256) {
-        return _proposalCount;
+    function nextProposalId() public view virtual returns (uint256) {
+        return _nextProposalId;
     }
 
     /**
@@ -55,20 +60,23 @@ abstract contract GovernorSequentialProposalId is Governor {
         uint256 proposalHash = hashProposal(targets, values, calldatas, keccak256(bytes(description)));
         uint256 storedProposalId = _proposalIds[proposalHash];
         if (storedProposalId == 0) {
-            _proposalIds[proposalHash] = ++_proposalCount;
+            _proposalIds[proposalHash] = _nextProposalId++;
         }
         return super._propose(targets, values, calldatas, description, proposer);
     }
 
     /**
-     * @dev Internal function to set the value of {proposalCount}--the next proposal id will be `newProposalCount` + 1.
+     * @dev Internal function to set the new {nextProposalId}.
      *
-     * May only call this function if the current proposal count is 0.
+     * May only call this function if the current value of {nextProposalId} is one.
      */
-    function _initializeProposalCount(uint256 newProposalCount) internal virtual {
-        if (_proposalCount != 0) {
-            revert GovernorAlreadyInitializedProposalCount();
+    function _initializeNextProposalId(uint256 newNextProposalId) internal virtual {
+        if (_nextProposalId != 1) {
+            revert GovernorAlreadyInitializedNextProposalId();
         }
-        _proposalCount = newProposalCount;
+        if (newNextProposalId == 0) {
+            revert GovernorInvalidNextProposalId();
+        }
+        _nextProposalId = newNextProposalId;
     }
 }

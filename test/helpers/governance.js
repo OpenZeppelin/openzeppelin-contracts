@@ -7,10 +7,9 @@ const timelockSalt = (address, descriptionHash) =>
   ethers.toBeHex((ethers.toBigInt(address) << 96n) ^ ethers.toBigInt(descriptionHash), 32);
 
 class GovernorHelper {
-  constructor(governor, mode = 'blocknumber', params = {}) {
+  constructor(governor, mode = 'blocknumber') {
     this.governor = governor;
     this.mode = mode;
-    this.forceGetProposalId = params.forceGetProposalId ?? this.governor.$_initializeProposalCount ?? false;
   }
 
   connect(account) {
@@ -43,7 +42,7 @@ class GovernorHelper {
   }
 
   get id() {
-    return this.forceGetProposalId ? this.governor.getProposalId(...this.shortProposal) : this.hash;
+    return this.governor.nextProposalId ? this.governor.getProposalId(...this.shortProposal) : this.hash;
   }
 
   // used for checking events

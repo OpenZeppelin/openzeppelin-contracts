@@ -98,7 +98,7 @@ describe('GovernorSequentialProposalId', function () {
             this.mock,
             'GovernorNonexistentProposal',
           );
-          expect(this.mock.proposalCount()).to.eventually.equal(i - 1);
+          expect(this.mock.nextProposalId()).to.eventually.equal(i);
 
           await expect(this.helper.connect(this.proposer).propose())
             .to.emit(this.mock, 'ProposalCreated')
@@ -116,15 +116,15 @@ describe('GovernorSequentialProposalId', function () {
 
           expect(this.mock.hashProposal(...this.proposal.shortProposal)).to.eventually.equal(this.proposal.hash);
           expect(this.mock.getProposalId(...this.proposal.shortProposal)).to.eventually.equal(i);
-          expect(this.mock.proposalCount()).to.eventually.equal(i);
+          expect(this.mock.nextProposalId()).to.eventually.equal(i + 1);
         }
       });
 
       it('sequential proposal ids with offset start', async function () {
         const offset = 69420;
-        await this.mock.$_initializeProposalCount(offset);
+        await this.mock.$_initializeNextProposalId(offset);
 
-        for (const i of iterate.range(offset + 1, offset + 10)) {
+        for (const i of iterate.range(offset, offset + 9)) {
           this.proposal.description = `<proposal description #${i}>`;
 
           expect(this.mock.hashProposal(...this.proposal.shortProposal)).to.eventually.equal(this.proposal.hash);
@@ -132,7 +132,7 @@ describe('GovernorSequentialProposalId', function () {
             this.mock,
             'GovernorNonexistentProposal',
           );
-          expect(this.mock.proposalCount()).to.eventually.equal(i - 1);
+          expect(this.mock.nextProposalId()).to.eventually.equal(i);
 
           await expect(this.helper.connect(this.proposer).propose())
             .to.emit(this.mock, 'ProposalCreated')
@@ -150,16 +150,16 @@ describe('GovernorSequentialProposalId', function () {
 
           expect(this.mock.hashProposal(...this.proposal.shortProposal)).to.eventually.equal(this.proposal.hash);
           expect(this.mock.getProposalId(...this.proposal.shortProposal)).to.eventually.equal(i);
-          expect(this.mock.proposalCount()).to.eventually.equal(i);
+          expect(this.mock.nextProposalId()).to.eventually.equal(i + 1);
         }
       });
 
       it('can only initialize proposal count from 0', async function () {
         await this.helper.propose();
-        expect(this.mock.proposalCount()).to.eventually.equal(1);
-        await expect(this.mock.$_initializeProposalCount(2)).to.be.revertedWithCustomError(
+        expect(this.mock.nextProposalId()).to.eventually.equal(2);
+        await expect(this.mock.$_initializeNextProposalId(2)).to.be.revertedWithCustomError(
           this.mock,
-          'GovernorAlreadyInitializedProposalCount',
+          'GovernorAlreadyInitializedNextProposalId',
         );
       });
 
