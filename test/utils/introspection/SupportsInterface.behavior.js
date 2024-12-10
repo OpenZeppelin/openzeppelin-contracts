@@ -95,8 +95,8 @@ const INTERFACE_IDS = mapValues(SIGNATURES, interfaceId);
 function shouldSupportInterfaces(interfaces = [], signatures = SIGNATURES) {
   // case where only signatures are provided
   if (!Array.isArray(interfaces)) {
-    interfaces = Object.keys(interfaces);
     signatures = interfaces;
+    interfaces = Object.keys(interfaces);
   }
 
   interfaces.unshift('ERC165');
