@@ -61,10 +61,13 @@ library ERC7579Utils {
     /// @dev The module type is not supported.
     error ERC7579UnsupportedModuleType(uint256 moduleTypeId);
 
+    /// @dev Input calldata not properly formatted and possibly malicious.
+    error ERC7579DecodingError();
+
     /// @dev Executes a single call.
     function execSingle(
-        ExecType execType,
-        bytes calldata executionCalldata
+        bytes calldata executionCalldata,
+        ExecType execType
     ) internal returns (bytes[] memory returnData) {
         (address target, uint256 value, bytes calldata callData) = decodeSingle(executionCalldata);
         returnData = new bytes[](1);
@@ -73,8 +76,8 @@ library ERC7579Utils {
 
     /// @dev Executes a batch of calls.
     function execBatch(
-        ExecType execType,
-        bytes calldata executionCalldata
+        bytes calldata executionCalldata,
+        ExecType execType
     ) internal returns (bytes[] memory returnData) {
         Execution[] calldata executionBatch = decodeBatch(executionCalldata);
         returnData = new bytes[](executionBatch.length);
@@ -91,8 +94,8 @@ library ERC7579Utils {
 
     /// @dev Executes a delegate call.
     function execDelegateCall(
-        ExecType execType,
-        bytes calldata executionCalldata
+        bytes calldata executionCalldata,
+        ExecType execType
     ) internal returns (bytes[] memory returnData) {
         (address target, bytes calldata callData) = decodeDelegate(executionCalldata);
         returnData = new bytes[](1);
@@ -169,12 +172,34 @@ library ERC7579Utils {
     }
 
     /// @dev Decodes a batch of executions. See {encodeBatch}.
+    ///
+    /// NOTE: This function runs some checks and will throw a {ERC7579DecodingError} if the input is not properly formatted.
     function decodeBatch(bytes calldata executionCalldata) internal pure returns (Execution[] calldata executionBatch) {
-        assembly ("memory-safe") {
-            let ptr := add(executionCalldata.offset, calldataload(executionCalldata.offset))
-            // Extract the ERC7579 Executions
-            executionBatch.offset := add(ptr, 32)
-            executionBatch.length := calldataload(ptr)
+        unchecked {
+            uint256 bufferLength = executionCalldata.length;
+
+            // Check executionCalldata is not empty
+            if (bufferLength < 32) revert ERC7579DecodingError();
+
+            // Get the offset of the array, and check its valid
+            uint256 offset = uint256(bytes32(executionCalldata[0:32]));
+
+            // Array length is between offset and offset + 32. We check that this is in the buffer
+            // Since we know executionCalldata is at least 32, we can subtract with no overflow risk.
+            if (offset > bufferLength - 32) revert ERC7579DecodingError();
+
+            // Get the array length
+            uint256 arrayLength = uint256(bytes32(executionCalldata[offset:offset + 32]));
+            if (arrayLength > type(uint64).max) revert ERC7579DecodingError();
+
+            // Get the array as a bytes slice, and check its is long enough
+            bytes calldata executionArray = executionCalldata[offset + 32:];
+            if (executionArray.length < arrayLength * 96) revert ERC7579DecodingError();
+
+            assembly ("memory-safe") {
+                executionBatch.offset := executionArray.offset
+                executionBatch.length := arrayLength
+            }
         }
     }
 

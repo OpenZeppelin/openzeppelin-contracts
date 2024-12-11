@@ -34,7 +34,7 @@ describe('ERC7579Utils', function () {
       const value = 0x012;
       const data = encodeSingle(this.target, value, this.target.interface.encodeFunctionData('mockFunction'));
 
-      await expect(this.utils.$execSingle(EXEC_TYPE_DEFAULT, data)).to.emit(this.target, 'MockFunctionCalled');
+      await expect(this.utils.$execSingle(data, EXEC_TYPE_DEFAULT)).to.emit(this.target, 'MockFunctionCalled');
 
       expect(ethers.provider.getBalance(this.target)).to.eventually.equal(value);
     });
@@ -47,7 +47,7 @@ describe('ERC7579Utils', function () {
         this.target.interface.encodeFunctionData('mockFunctionWithArgs', [42, '0x1234']),
       );
 
-      await expect(this.utils.$execSingle(EXEC_TYPE_DEFAULT, data))
+      await expect(this.utils.$execSingle(data, EXEC_TYPE_DEFAULT))
         .to.emit(this.target, 'MockFunctionCalledWithArgs')
         .withArgs(42, '0x1234');
 
@@ -62,7 +62,7 @@ describe('ERC7579Utils', function () {
         this.target.interface.encodeFunctionData('mockFunctionRevertsReason'),
       );
 
-      await expect(this.utils.$execSingle(EXEC_TYPE_DEFAULT, data)).to.be.revertedWith('CallReceiverMock: reverting');
+      await expect(this.utils.$execSingle(data, EXEC_TYPE_DEFAULT)).to.be.revertedWith('CallReceiverMock: reverting');
     });
 
     it('emits ERC7579TryExecuteFail event when target reverts in try ExecType', async function () {
@@ -73,7 +73,7 @@ describe('ERC7579Utils', function () {
         this.target.interface.encodeFunctionData('mockFunctionRevertsReason'),
       );
 
-      await expect(this.utils.$execSingle(EXEC_TYPE_TRY, data))
+      await expect(this.utils.$execSingle(data, EXEC_TYPE_TRY))
         .to.emit(this.utils, 'ERC7579TryExecuteFail')
         .withArgs(
           CALL_TYPE_CALL,
@@ -88,7 +88,7 @@ describe('ERC7579Utils', function () {
       const value = 0x012;
       const data = encodeSingle(this.target, value, this.target.interface.encodeFunctionData('mockFunction'));
 
-      await expect(this.utils.$execSingle('0x03', data))
+      await expect(this.utils.$execSingle(data, '0x03'))
         .to.be.revertedWithCustomError(this.utils, 'ERC7579UnsupportedExecType')
         .withArgs('0x03');
     });
@@ -103,7 +103,7 @@ describe('ERC7579Utils', function () {
         [this.anotherTarget, value2, this.anotherTarget.interface.encodeFunctionData('mockFunction')],
       );
 
-      await expect(this.utils.$execBatch(EXEC_TYPE_DEFAULT, data))
+      await expect(this.utils.$execBatch(data, EXEC_TYPE_DEFAULT))
         .to.emit(this.target, 'MockFunctionCalled')
         .to.emit(this.anotherTarget, 'MockFunctionCalled');
 
@@ -123,7 +123,7 @@ describe('ERC7579Utils', function () {
         ],
       );
 
-      await expect(this.utils.$execBatch(EXEC_TYPE_DEFAULT, data))
+      await expect(this.utils.$execBatch(data, EXEC_TYPE_DEFAULT))
         .to.emit(this.target, 'MockFunctionCalledWithArgs')
         .to.emit(this.anotherTarget, 'MockFunctionCalledWithArgs');
 
@@ -139,7 +139,7 @@ describe('ERC7579Utils', function () {
         [this.anotherTarget, value2, this.anotherTarget.interface.encodeFunctionData('mockFunctionRevertsReason')],
       );
 
-      await expect(this.utils.$execBatch(EXEC_TYPE_DEFAULT, data)).to.be.revertedWith('CallReceiverMock: reverting');
+      await expect(this.utils.$execBatch(data, EXEC_TYPE_DEFAULT)).to.be.revertedWith('CallReceiverMock: reverting');
     });
 
     it('emits ERC7579TryExecuteFail event when any target reverts in try ExecType', async function () {
@@ -150,7 +150,7 @@ describe('ERC7579Utils', function () {
         [this.anotherTarget, value2, this.anotherTarget.interface.encodeFunctionData('mockFunctionRevertsReason')],
       );
 
-      await expect(this.utils.$execBatch(EXEC_TYPE_TRY, data))
+      await expect(this.utils.$execBatch(data, EXEC_TYPE_TRY))
         .to.emit(this.utils, 'ERC7579TryExecuteFail')
         .withArgs(
           CALL_TYPE_BATCH,
@@ -173,7 +173,7 @@ describe('ERC7579Utils', function () {
         [this.anotherTarget, value2, this.anotherTarget.interface.encodeFunctionData('mockFunction')],
       );
 
-      await expect(this.utils.$execBatch('0x03', data))
+      await expect(this.utils.$execBatch(data, '0x03'))
         .to.be.revertedWithCustomError(this.utils, 'ERC7579UnsupportedExecType')
         .withArgs('0x03');
     });
@@ -189,20 +189,20 @@ describe('ERC7579Utils', function () {
       );
 
       expect(ethers.provider.getStorage(this.utils.target, slot)).to.eventually.equal(ethers.ZeroHash);
-      await this.utils.$execDelegateCall(EXEC_TYPE_DEFAULT, data);
+      await this.utils.$execDelegateCall(data, EXEC_TYPE_DEFAULT);
       expect(ethers.provider.getStorage(this.utils.target, slot)).to.eventually.equal(value);
     });
 
     it('reverts when target reverts in default ExecType', async function () {
       const data = encodeDelegate(this.target, this.target.interface.encodeFunctionData('mockFunctionRevertsReason'));
-      await expect(this.utils.$execDelegateCall(EXEC_TYPE_DEFAULT, data)).to.be.revertedWith(
+      await expect(this.utils.$execDelegateCall(data, EXEC_TYPE_DEFAULT)).to.be.revertedWith(
         'CallReceiverMock: reverting',
       );
     });
 
     it('emits ERC7579TryExecuteFail event when target reverts in try ExecType', async function () {
       const data = encodeDelegate(this.target, this.target.interface.encodeFunctionData('mockFunctionRevertsReason'));
-      await expect(this.utils.$execDelegateCall(EXEC_TYPE_TRY, data))
+      await expect(this.utils.$execDelegateCall(data, EXEC_TYPE_TRY))
         .to.emit(this.utils, 'ERC7579TryExecuteFail')
         .withArgs(
           CALL_TYPE_CALL,
@@ -215,7 +215,7 @@ describe('ERC7579Utils', function () {
 
     it('reverts with an invalid exec type', async function () {
       const data = encodeDelegate(this.target, this.target.interface.encodeFunctionData('mockFunction'));
-      await expect(this.utils.$execDelegateCall('0x03', data))
+      await expect(this.utils.$execDelegateCall(data, '0x03'))
         .to.be.revertedWithCustomError(this.utils, 'ERC7579UnsupportedExecType')
         .withArgs('0x03');
     });
