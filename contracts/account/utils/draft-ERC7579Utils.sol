@@ -175,41 +175,53 @@ library ERC7579Utils {
     ///
     /// Note: This function runs some checks and will throw a {ERC7579DecodingError} if the input is not properly formatted.
     function decodeBatch(bytes calldata executionCalldata) internal pure returns (Execution[] calldata executionBatch) {
-        uint256 maxOffset = type(uint64).max;
-
-        // Check calldata is not empty, and first value is a valid offset
-        if (executionCalldata.length < 0x20 || uint256(bytes32(executionCalldata[0x00:0x20])) > maxOffset) {
-            revert ERC7579DecodingError();
-        }
+        bool failure = false;
 
         // Extract the ERC7579 Executions array
+        //
+        // We need to check that the calldataload are within bounds, and that the resulting array is within the input buffer.
+        //
+        // We don't need to check that the array contains valid objects in calldata
+        // This will be done lazily when the elements of the array are accessed
         assembly ("memory-safe") {
-            let ptr := add(executionCalldata.offset, calldataload(executionCalldata.offset))
-            executionBatch.offset := add(ptr, 32)
-            executionBatch.length := calldataload(ptr)
+            // Pointer to the end of the calldata buffer
+            let end := add(executionCalldata.offset, executionCalldata.length)
+
+            // Check the buffer at least one element (the offset to the array)
+            if slt(executionCalldata.length, 32) {
+                failure := 1
+            }
+            {
+                // Fetch offset to the array
+                let offset := calldataload(executionCalldata.offset)
+
+                // Check offset is within bound
+                if gt(offset, 0xffffffffffffffff) {
+                    failure := 1
+                }
+                {
+                    // Pointer to the start of the array data
+                    let ptr := add(executionCalldata.offset, offset)
+
+                    // Check pointer is within bound
+                    if gt(add(ptr, 32), end) {
+                        failure := 1
+                    }
+                    {
+                        executionBatch.offset := add(ptr, 32)
+                        executionBatch.length := calldataload(ptr)
+
+                        // Check that the length is within bounds
+                        failure := or(
+                            gt(executionBatch.length, 0xffffffffffffffff),
+                            gt(add(executionBatch.offset, mul(executionBatch.length, 32)), end)
+                        )
+                    }
+                }
+            }
         }
 
-        // Check that the array contains valid objects in calldata
-        uint256 endPtr;
-        assembly ("memory-safe") {
-            endPtr := sub(add(executionCalldata.offset, executionCalldata.length), 0x20)
-        }
-        for (uint256 i = 0; i < executionBatch.length; ++i) {
-            bool invalidFormat;
-            assembly ("memory-safe") {
-                let callOffset := calldataload(add(executionBatch.offset, mul(i, 0x20)))
-                let callPtr := add(executionBatch.offset, callOffset)
-                let dataOffset := calldataload(add(callPtr, 0x40))
-                let dataPtr := add(callPtr, dataOffset)
-                let dataLength := calldataload(dataPtr)
-                invalidFormat := gt(callOffset, maxOffset)
-                invalidFormat := or(invalidFormat, gt(dataOffset, maxOffset))
-                invalidFormat := or(invalidFormat, gt(dataLength, maxOffset))
-                invalidFormat := or(invalidFormat, gt(add(callPtr, 0x40), endPtr))
-                invalidFormat := or(invalidFormat, gt(add(dataPtr, dataLength), endPtr))
-            }
-            if (invalidFormat) revert ERC7579DecodingError();
-        }
+        if (failure) revert ERC7579DecodingError();
     }
 
     /// @dev Executes a `call` to the target with the provided {ExecType}.
