@@ -92,7 +92,7 @@ library Bytes {
         // allocate and copy
         bytes memory result = new bytes(end - start);
         assembly ("memory-safe") {
-            mcopy(add(result, 0x20), add(buffer, add(start, 0x20)), sub(end, start))
+            mcopy(add(result, 0x20), add(add(buffer, 0x20), start), sub(end, start))
         }
 
         return result;
@@ -107,7 +107,7 @@ library Bytes {
     function _unsafeReadBytesOffset(bytes memory buffer, uint256 offset) private pure returns (bytes32 value) {
         // This is not memory safe in the general case, but all calls to this private function are within bounds.
         assembly ("memory-safe") {
-            value := mload(add(buffer, add(0x20, offset)))
+            value := mload(add(add(buffer, 0x20), offset))
         }
     }
 }
