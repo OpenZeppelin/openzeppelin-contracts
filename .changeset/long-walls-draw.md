@@ -2,4 +2,4 @@
 'openzeppelin-solidity': minor
 ---
 
-`IERC6909`: Add the interface for the ERC-6909.
+`IERC6909`: Add the interface for ERC-6909.
