@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (token/ERC6909/draft-IERC6909.sol)
+// OpenZeppelin Contracts (interfaces/draft-IERC6909.sol)
 
 pragma solidity ^0.8.20;
 
