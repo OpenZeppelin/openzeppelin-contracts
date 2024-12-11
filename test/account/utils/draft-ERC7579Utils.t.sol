@@ -320,10 +320,11 @@ contract ERC7579UtilsTest is Test {
 
         // this is invalid: the bytes field of the first element of the array points out of bounds
         // but we allow it past initial validation, because solidity will validate later when the bytes field is accessed
-        this.callDecodeBatch(abi.encode(32, 1, 0, 0, 96));
-        this.callDecodeBatchAndGetFirst(abi.encode(32, 1, 0, 0, 96));
+        bytes memory invalidDeeply = abi.encode(32, 1, 0, 0, 96);
+        this.callDecodeBatch(invalidDeeply);
+        this.callDecodeBatchAndGetFirst(invalidDeeply);
         vm.expectRevert();
-        this.callDecodeBatchAndGetFirstBytes(abi.encode(32, 1, 0, 0, 96));
+        this.callDecodeBatchAndGetFirstBytes(invalidDeeply);
     }
 
     function callDecodeBatch(bytes calldata executionCalldata) public pure {
