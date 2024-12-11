@@ -1,5 +1,5 @@
 const { expect } = require('chai');
-const time = require('../../helpers/time');
+const time = require('@openzeppelin/contracts-helpers/time');
 
 function shouldBehaveLikeERC6372(mode = 'blocknumber') {
   describe(`ERC-6372 behavior in ${mode} mode`, function () {

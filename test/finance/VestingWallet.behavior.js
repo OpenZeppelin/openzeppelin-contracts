@@ -1,6 +1,6 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
-const time = require('../helpers/time');
+const time = require('@openzeppelin/contracts-helpers/time');
 
 async function envSetup(mock, beneficiary, token) {
   return {

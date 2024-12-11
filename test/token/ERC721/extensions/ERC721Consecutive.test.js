@@ -2,7 +2,7 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { sum } = require('../../../helpers/math');
+const { sum } = require('@openzeppelin/contracts-helpers/math');
 
 const name = 'Non Fungible Token';
 const symbol = 'NFT';

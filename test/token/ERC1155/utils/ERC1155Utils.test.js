@@ -1,7 +1,7 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { RevertType } = require('../../../helpers/enums');
+const { RevertType } = require('@openzeppelin/contracts-helpers/enums');
 const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
 
 const firstTokenId = 1n;

@@ -4,9 +4,9 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { anyValue } = require('@nomicfoundation/hardhat-chai-matchers/withArgs');
 const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
 
-const { GovernorHelper, timelockSalt } = require('../../helpers/governance');
-const { OperationState, ProposalState, VoteType } = require('../../helpers/enums');
-const time = require('../../helpers/time');
+const { GovernorHelper, timelockSalt } = require('@openzeppelin/contracts-helpers/governance');
+const { OperationState, ProposalState, VoteType } = require('@openzeppelin/contracts-helpers/enums');
+const time = require('@openzeppelin/contracts-helpers/time');
 
 const TOKENS = [
   { Token: '$ERC20Votes', mode: 'blocknumber' },

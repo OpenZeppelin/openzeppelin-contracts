@@ -1,7 +1,7 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { max, min } = require('../../../helpers/math.js');
+const { max, min } = require('@openzeppelin/contracts-helpers/math.js');
 
 const { shouldBehaveLikeERC20 } = require('../ERC20.behavior.js');
 

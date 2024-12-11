@@ -2,10 +2,10 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { GovernorHelper } = require('../../helpers/governance');
-const { VoteType } = require('../../helpers/enums');
-const { zip } = require('../../helpers/iterate');
-const { sum } = require('../../helpers/math');
+const { GovernorHelper } = require('@openzeppelin/contracts-helpers/governance');
+const { VoteType } = require('@openzeppelin/contracts-helpers/enums');
+const { zip } = require('@openzeppelin/contracts-helpers/iterate');
+const { sum } = require('@openzeppelin/contracts-helpers/math');
 
 const TOKENS = [
   { Token: '$ERC20Votes', mode: 'blocknumber' },

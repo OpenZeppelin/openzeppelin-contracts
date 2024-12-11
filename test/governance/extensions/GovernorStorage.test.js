@@ -4,8 +4,8 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { anyValue } = require('@nomicfoundation/hardhat-chai-matchers/withArgs');
 const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
 
-const { GovernorHelper, timelockSalt } = require('../../helpers/governance');
-const { VoteType } = require('../../helpers/enums');
+const { GovernorHelper, timelockSalt } = require('@openzeppelin/contracts-helpers/governance');
+const { VoteType } = require('@openzeppelin/contracts-helpers/enums');
 
 const TOKENS = [
   { Token: '$ERC20Votes', mode: 'blocknumber' },

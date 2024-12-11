@@ -4,7 +4,7 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
 const { StandardMerkleTree } = require('@openzeppelin/merkle-tree');
 
-const { generators } = require('../../helpers/random');
+const { generators } = require('@openzeppelin/contracts-helpers/random');
 
 const makeTree = (leaves = [ethers.ZeroHash]) =>
   StandardMerkleTree.of(

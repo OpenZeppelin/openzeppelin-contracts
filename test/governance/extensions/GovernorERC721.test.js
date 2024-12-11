@@ -2,8 +2,8 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { GovernorHelper } = require('../../helpers/governance');
-const { VoteType } = require('../../helpers/enums');
+const { GovernorHelper } = require('@openzeppelin/contracts-helpers/governance');
+const { VoteType } = require('@openzeppelin/contracts-helpers/enums');
 
 const TOKENS = [
   { Token: '$ERC721Votes', mode: 'blocknumber' },

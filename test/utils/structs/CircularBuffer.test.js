@@ -3,7 +3,7 @@ const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
 
-const { generators } = require('../../helpers/random');
+const { generators } = require('@openzeppelin/contracts-helpers/random');
 
 const LENGTH = 4;
 

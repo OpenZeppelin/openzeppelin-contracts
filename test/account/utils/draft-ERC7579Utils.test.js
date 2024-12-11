@@ -10,8 +10,8 @@ const {
   CALL_TYPE_CALL,
   CALL_TYPE_BATCH,
   encodeMode,
-} = require('../../helpers/erc7579');
-const { selector } = require('../../helpers/methods');
+} = require('@openzeppelin/contracts-helpers/erc7579');
+const { selector } = require('@openzeppelin/contracts-helpers/methods');
 
 const coder = ethers.AbiCoder.defaultAbiCoder();
 

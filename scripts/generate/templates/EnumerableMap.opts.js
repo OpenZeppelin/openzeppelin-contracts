@@ -1,4 +1,4 @@
-const { capitalize } = require('../../helpers');
+const { capitalize } = require('@openzeppelin/contracts-helpers/strings');
 
 const mapType = str => (str == 'uint256' ? 'Uint' : capitalize(str));
 

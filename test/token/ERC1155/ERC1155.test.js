@@ -2,7 +2,7 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { zip } = require('../../helpers/iterate');
+const { zip } = require('@openzeppelin/contracts-helpers/iterate');
 const { shouldBehaveLikeERC1155 } = require('./ERC1155.behavior');
 
 const initialURI = 'https://token-cdn-domain/{id}.json';

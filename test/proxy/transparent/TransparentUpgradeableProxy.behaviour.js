@@ -1,8 +1,8 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
 
-const { impersonate } = require('../../helpers/account');
-const { getAddressInSlot, ImplementationSlot, AdminSlot } = require('../../helpers/storage');
+const { impersonate } = require('@openzeppelin/contracts-helpers/account');
+const { getAddressInSlot, ImplementationSlot, AdminSlot } = require('@openzeppelin/contracts-helpers/storage');
 
 // createProxy, initialOwner, accounts
 module.exports = function shouldBehaveLikeTransparentUpgradeableProxy() {

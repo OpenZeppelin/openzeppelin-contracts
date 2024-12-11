@@ -2,7 +2,7 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { generators } = require('../helpers/random');
+const { generators } = require('@openzeppelin/contracts-helpers/random');
 
 const shouldBehaveLikeClone = require('./Clones.behaviour');
 

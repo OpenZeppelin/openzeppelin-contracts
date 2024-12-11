@@ -59,6 +59,7 @@
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.6",
     "@nomicfoundation/hardhat-ethers": "^3.0.4",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.3",
+    "@openzeppelin/contracts-helpers": "file:test/helpers",
     "@openzeppelin/docs-utils": "^0.1.5",
     "@openzeppelin/merkle-tree": "^1.0.7",
     "@openzeppelin/upgrade-safe-transpiler": "^0.3.32",

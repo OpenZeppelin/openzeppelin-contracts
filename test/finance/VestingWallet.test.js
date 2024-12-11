@@ -2,8 +2,8 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { min } = require('../helpers/math');
-const time = require('../helpers/time');
+const { min } = require('@openzeppelin/contracts-helpers/math');
+const time = require('@openzeppelin/contracts-helpers/time');
 
 const { envSetup, shouldBehaveLikeVesting } = require('./VestingWallet.behavior');
 

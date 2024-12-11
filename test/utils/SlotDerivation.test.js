@@ -1,8 +1,8 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { erc7201Slot } = require('../helpers/storage');
-const { generators } = require('../helpers/random');
+const { erc7201Slot } = require('@openzeppelin/contracts-helpers/storage');
+const { generators } = require('@openzeppelin/contracts-helpers/random');
 
 async function fixture() {
   const [account] = await ethers.getSigners();

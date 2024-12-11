@@ -2,9 +2,9 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture, mine } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { getDomain, Delegation } = require('../../../helpers/eip712');
-const { batchInBlock } = require('../../../helpers/txpool');
-const time = require('../../../helpers/time');
+const { getDomain, Delegation } = require('@openzeppelin/contracts-helpers/eip712');
+const { batchInBlock } = require('@openzeppelin/contracts-helpers/txpool');
+const time = require('@openzeppelin/contracts-helpers/time');
 
 const { shouldBehaveLikeVotes } = require('../../../governance/utils/Votes.behavior');
 

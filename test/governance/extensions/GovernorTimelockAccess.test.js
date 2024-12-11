@@ -3,12 +3,12 @@ const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { anyValue } = require('@nomicfoundation/hardhat-chai-matchers/withArgs');
 
-const { GovernorHelper } = require('../../helpers/governance');
-const { hashOperation } = require('../../helpers/access-manager');
-const { max } = require('../../helpers/math');
-const { selector } = require('../../helpers/methods');
-const { ProposalState, VoteType } = require('../../helpers/enums');
-const time = require('../../helpers/time');
+const { GovernorHelper } = require('@openzeppelin/contracts-helpers/governance');
+const { hashOperation } = require('@openzeppelin/contracts-helpers/access-manager');
+const { max } = require('@openzeppelin/contracts-helpers/math');
+const { selector } = require('@openzeppelin/contracts-helpers/methods');
+const { ProposalState, VoteType } = require('@openzeppelin/contracts-helpers/enums');
+const time = require('@openzeppelin/contracts-helpers/time');
 
 function prepareOperation({ sender, target, value = 0n, data = '0x' }) {
   return {

@@ -2,8 +2,8 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { forceDeployCode } = require('../helpers/deploy');
-const { product } = require('../helpers/iterate');
+const { forceDeployCode } = require('@openzeppelin/contracts-helpers/deploy');
+const { product } = require('@openzeppelin/contracts-helpers/iterate');
 const { SIZES } = require('../../scripts/generate/templates/Packing.opts');
 
 async function fixture() {
