@@ -66,8 +66,8 @@ library ERC7579Utils {
 
     /// @dev Executes a single call.
     function execSingle(
-        ExecType execType,
-        bytes calldata executionCalldata
+        bytes calldata executionCalldata,
+        ExecType execType
     ) internal returns (bytes[] memory returnData) {
         (address target, uint256 value, bytes calldata callData) = decodeSingle(executionCalldata);
         returnData = new bytes[](1);
@@ -76,8 +76,8 @@ library ERC7579Utils {
 
     /// @dev Executes a batch of calls.
     function execBatch(
-        ExecType execType,
-        bytes calldata executionCalldata
+        bytes calldata executionCalldata,
+        ExecType execType
     ) internal returns (bytes[] memory returnData) {
         Execution[] calldata executionBatch = decodeBatch(executionCalldata);
         returnData = new bytes[](executionBatch.length);
@@ -94,8 +94,8 @@ library ERC7579Utils {
 
     /// @dev Executes a delegate call.
     function execDelegateCall(
-        ExecType execType,
-        bytes calldata executionCalldata
+        bytes calldata executionCalldata,
+        ExecType execType
     ) internal returns (bytes[] memory returnData) {
         (address target, bytes calldata callData) = decodeDelegate(executionCalldata);
         returnData = new bytes[](1);

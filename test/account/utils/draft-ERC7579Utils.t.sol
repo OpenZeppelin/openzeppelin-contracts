@@ -87,13 +87,13 @@ contract SampleAccount is IAccount, Ownable {
 
         // check if calltype is batch or single
         if (callType == ERC7579Utils.CALLTYPE_SINGLE) {
-            ERC7579Utils.execSingle(execType, executionCalldata);
+            executionCalldata.execSingle(execType);
         } else if (callType == ERC7579Utils.CALLTYPE_BATCH) {
-            ERC7579Utils.execBatch(execType, executionCalldata);
+            executionCalldata.execBatch(execType);
 
             emit Log(false, executionCalldata.decodeBatch());
         } else if (callType == ERC7579Utils.CALLTYPE_DELEGATECALL) {
-            ERC7579Utils.execDelegateCall(execType, executionCalldata);
+            executionCalldata.execDelegateCall(execType);
         } else {
             revert UnsupportedCallType(callType);
         }
