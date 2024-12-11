@@ -9,18 +9,19 @@ import {Governor} from "../Governor.sol";
  * sequential ids.
  */
 abstract contract GovernorSequentialProposalId is Governor {
-    uint256 private _nextProposalId = 1;
+    uint256 private _latestProposalId;
     mapping(uint256 proposalHash => uint256 proposalId) private _proposalIds;
 
     /**
-     * @dev The proposal count may only be set if the current proposal count is uninitialized.
+     * @dev The {latestProposalId} may only be initialized if it hasn't been set yet
+     * (through initialization or the creation of a proposal).
      */
-    error GovernorAlreadyInitializedNextProposalId();
+    error GovernorAlreadyInitializedLatestProposalId();
 
     /**
-     * @dev The proposal count may only be set to a non-zero value.
+     * @dev The {latestProposalId} may only be set to a non-zero value.
      */
-    error GovernorInvalidNextProposalId();
+    error GovernorInvalidLatestProposalId();
 
     /**
      * @dev See {IGovernor-getProposalId}.
@@ -40,10 +41,10 @@ abstract contract GovernorSequentialProposalId is Governor {
     }
 
     /**
-     * @dev Returns the next proposal id.
+     * @dev Returns the latest proposal id. A return value of 0 means no proposals have been created yet.
      */
-    function nextProposalId() public view virtual returns (uint256) {
-        return _nextProposalId;
+    function latestProposalId() public view virtual returns (uint256) {
+        return _latestProposalId;
     }
 
     /**
@@ -60,24 +61,24 @@ abstract contract GovernorSequentialProposalId is Governor {
         uint256 proposalHash = hashProposal(targets, values, calldatas, keccak256(bytes(description)));
         uint256 storedProposalId = _proposalIds[proposalHash];
         if (storedProposalId == 0) {
-            _proposalIds[proposalHash] = _nextProposalId++;
+            _proposalIds[proposalHash] = ++_latestProposalId;
         }
         return super._propose(targets, values, calldatas, description, proposer);
     }
 
     /**
-     * @dev Internal function to set the new {nextProposalId}. This function is helpful when transitioning
-     * from another governance system.
+     * @dev Internal function to set the {latestProposalId}. This function is helpful when transitioning
+     * from another governance system. The next proposal id will be `newLatestProposalId` + 1.
      *
-     * May only call this function if the current value of {nextProposalId} is one.
+     * May only call this function if the current value of {latestProposalId} is 0.
      */
-    function _initializeNextProposalId(uint256 newNextProposalId) internal virtual {
-        if (_nextProposalId != 1) {
-            revert GovernorAlreadyInitializedNextProposalId();
+    function _initializeLatestProposalId(uint256 newLatestProposalId) internal virtual {
+        if (_latestProposalId != 0) {
+            revert GovernorAlreadyInitializedLatestProposalId();
         }
-        if (newNextProposalId == 0) {
-            revert GovernorInvalidNextProposalId();
+        if (newLatestProposalId == 0) {
+            revert GovernorInvalidLatestProposalId();
         }
-        _nextProposalId = newNextProposalId;
+        _latestProposalId = newLatestProposalId;
     }
 }

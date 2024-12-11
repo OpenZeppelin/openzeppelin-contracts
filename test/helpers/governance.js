@@ -42,7 +42,7 @@ class GovernorHelper {
   }
 
   get id() {
-    return this.governor.nextProposalId ? this.governor.getProposalId(...this.shortProposal) : this.hash;
+    return this.governor.latestProposalId ? this.governor.getProposalId(...this.shortProposal) : this.hash;
   }
 
   // used for checking events
