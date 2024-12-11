@@ -173,7 +173,7 @@ library ERC7579Utils {
 
     /// @dev Decodes a batch of executions. See {encodeBatch}.
     ///
-    /// Note: This function runs some checks and will throw a {ERC7579DecodingError} if the input is not properly formatted.
+    /// NOTE: This function runs some checks and will throw a {ERC7579DecodingError} if the input is not properly formatted.
     function decodeBatch(bytes calldata executionCalldata) internal pure returns (Execution[] calldata executionBatch) {
         unchecked {
             uint256 bufferLength = executionCalldata.length;
