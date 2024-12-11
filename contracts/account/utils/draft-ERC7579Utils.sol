@@ -179,10 +179,9 @@ library ERC7579Utils {
 
         // Extract the ERC7579 Executions array
         //
-        // We need to check that the calldataload are within bounds, and that the resulting array is within the input buffer.
-        //
-        // We don't need to check that the array contains valid objects in calldata
-        // This will be done lazily when the elements of the array are accessed
+        // We need to check that the calldataload are within bounds, and that the resulting array is within the input
+        // buffer. We don't need to check the individual array elements as this is done (by solidity) when they are
+        // accessed.
         assembly ("memory-safe") {
             // Pointer to the end of the calldata buffer
             let end := add(executionCalldata.offset, executionCalldata.length)
