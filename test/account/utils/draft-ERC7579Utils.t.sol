@@ -287,6 +287,58 @@ contract ERC7579UtilsTest is Test {
         _collectAndPrintLogs(true);
     }
 
+    function testDecodeBatch() public {
+        // BAD: buffer empty
+        vm.expectRevert(ERC7579Utils.ERC7579DecodingError.selector);
+        this.callDecodeBatch("");
+
+        // BAD: buffer too short
+        vm.expectRevert(ERC7579Utils.ERC7579DecodingError.selector);
+        this.callDecodeBatch(abi.encodePacked(uint128(0)));
+
+        // GOOD
+        this.callDecodeBatch(abi.encode(0));
+        // Note: Solidity also supports this even though it's odd
+        uint256[] memory _1 = abi.decode(abi.encode(0), (uint256[])); _1;
+
+        // BAD: offset is out of bounds
+        vm.expectRevert(ERC7579Utils.ERC7579DecodingError.selector);
+        this.callDecodeBatch(abi.encode(1));
+
+        // GOOD
+        this.callDecodeBatch(abi.encode(32, 0));
+
+        // BAD: reported array length extends beyond bounds
+        vm.expectRevert(ERC7579Utils.ERC7579DecodingError.selector);
+        this.callDecodeBatch(abi.encode(32, 1, 0, 0));
+
+        // GOOD
+        this.callDecodeBatch(abi.encode(32, 1, 0, 0, 0));
+
+        // GOOD
+        assertEq("", this.callDecodeBatchAndGetFirstBytes(abi.encode(32, 1, 0, 0,  0)));
+        assertEq("", this.callDecodeBatchAndGetFirstBytes(abi.encode(32, 1, 0, 0, 96, 0)));
+
+        // this is invalid: the bytes field of the first element of the array points out of bounds
+        // but we allow it past initial validation, because solidity will validate later when the bytes field is accessed
+        this.callDecodeBatch(abi.encode(32, 1, 0, 0, 96));
+        this.callDecodeBatchAndGetFirst(abi.encode(32, 1, 0, 0, 96));
+        vm.expectRevert();
+        this.callDecodeBatchAndGetFirstBytes(abi.encode(32, 1, 0, 0, 96));
+    }
+
+    function callDecodeBatch(bytes calldata executionCalldata) public pure {
+        ERC7579Utils.decodeBatch(executionCalldata);
+    }
+
+    function callDecodeBatchAndGetFirst(bytes calldata executionCalldata) public pure {
+        ERC7579Utils.decodeBatch(executionCalldata)[0];
+    }
+
+    function callDecodeBatchAndGetFirstBytes(bytes calldata executionCalldata) public pure returns (bytes memory) {
+        return ERC7579Utils.decodeBatch(executionCalldata)[0].callData;
+    }
+
     function _collectAndPrintLogs(bool includeTotalValue) internal {
         Vm.Log[] memory logs = vm.getRecordedLogs();
         for (uint256 i = 0; i < logs.length; i++) {
