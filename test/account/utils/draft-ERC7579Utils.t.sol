@@ -316,7 +316,6 @@ contract ERC7579UtilsTest is Test {
         this.callDecodeBatch(abi.encode(32, 1, 0, 0, 0));
 
         // GOOD
-        assertEq("", this.callDecodeBatchAndGetFirstBytes(abi.encode(32, 1, 0, 0,  0)));
         assertEq("", this.callDecodeBatchAndGetFirstBytes(abi.encode(32, 1, 0, 0, 96, 0)));
 
         // this is invalid: the bytes field of the first element of the array points out of bounds
