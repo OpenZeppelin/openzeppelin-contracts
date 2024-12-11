@@ -175,52 +175,32 @@ library ERC7579Utils {
     ///
     /// Note: This function runs some checks and will throw a {ERC7579DecodingError} if the input is not properly formatted.
     function decodeBatch(bytes calldata executionCalldata) internal pure returns (Execution[] calldata executionBatch) {
-        bool failure = false;
+        unchecked {
+            uint256 bufferLength = executionCalldata.length;
 
-        // Extract the ERC7579 Executions array
-        //
-        // We need to check that the calldataload are within bounds, and that the resulting array is within the input
-        // buffer. We don't need to check the individual array elements as this is done (by solidity) when they are
-        // accessed.
-        assembly ("memory-safe") {
-            // Pointer to the end of the calldata buffer
-            let end := add(executionCalldata.offset, executionCalldata.length)
+            // Check executionCalldata is not empty
+            if (bufferLength < 32) revert ERC7579DecodingError();
 
-            // Check the buffer at least one element (the offset to the array)
-            if slt(executionCalldata.length, 32) {
-                failure := 1
-            }
-            {
-                // Fetch offset to the array
-                let offset := calldataload(executionCalldata.offset)
+            // Get the offset of the array, and check its valid
+            uint256 offset = uint256(bytes32(executionCalldata[0:32]));
 
-                // Check offset is within bound
-                if gt(offset, 0xffffffffffffffff) {
-                    failure := 1
-                }
-                {
-                    // Pointer to the start of the array data
-                    let ptr := add(executionCalldata.offset, offset)
+            // Array length is between offset and offset + 32. We check that this is in the buffer
+            // Since we know executionCalldata is at least 32, we can substract with no overflow risk.
+            if (offset > bufferLength - 32) revert ERC7579DecodingError();
 
-                    // Check pointer is within bound
-                    if gt(add(ptr, 32), end) {
-                        failure := 1
-                    }
-                    {
-                        executionBatch.offset := add(ptr, 32)
-                        executionBatch.length := calldataload(ptr)
+            // Get the array length
+            uint256 arrayLength = uint256(bytes32(executionCalldata[offset:offset + 32]));
+            if (arrayLength > type(uint64).max) revert ERC7579DecodingError();
 
-                        // Check that the length is within bounds
-                        failure := or(
-                            gt(executionBatch.length, 0xffffffffffffffff),
-                            gt(add(executionBatch.offset, mul(executionBatch.length, 32)), end)
-                        )
-                    }
-                }
+            // Get the array as a bytes slice, and check its is long enough
+            bytes calldata executionArray = executionCalldata[offset + 32:];
+            if (executionArray.length < arrayLength * 96) revert ERC7579DecodingError();
+
+            assembly ("memory-safe") {
+                executionBatch.offset := executionArray.offset
+                executionBatch.length := arrayLength
             }
         }
-
-        if (failure) revert ERC7579DecodingError();
     }
 
     /// @dev Executes a `call` to the target with the provided {ExecType}.
