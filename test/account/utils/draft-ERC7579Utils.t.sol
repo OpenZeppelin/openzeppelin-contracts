@@ -15,6 +15,11 @@ import {ERC4337Utils} from "@openzeppelin/contracts/account/utils/draft-ERC4337U
 import {ERC7579Utils, Mode, CallType, ExecType, ModeSelector, ModePayload, Execution} from "@openzeppelin/contracts/account/utils/draft-ERC7579Utils.sol";
 
 contract SampleAccount is IAccount, Ownable {
+    using ECDSA for *;
+    using MessageHashUtils for *;
+    using ERC4337Utils for *;
+    using ERC7579Utils for *;
+
     IEntryPoint internal constant ENTRY_POINT = IEntryPoint(payable(0x0000000071727De22E5E9d8BAf0edAc6f37da032));
 
     event Log(bool duringValidation, Execution[] calls);
@@ -30,13 +35,13 @@ contract SampleAccount is IAccount, Ownable {
     ) external override returns (uint256 validationData) {
         require(msg.sender == address(ENTRY_POINT), "only from EP");
         // Check signature
-        if (ECDSA.recover(MessageHashUtils.toEthSignedMessageHash(userOpHash), userOp.signature) != owner()) {
+        if (userOpHash.toEthSignedMessageHash().recover(userOp.signature) != owner()) {
             revert OwnableUnauthorizedAccount(_msgSender());
         }
 
         // If this is an execute call with a batch operation, log the call details from the calldata
         if (bytes4(userOp.callData[0x00:0x04]) == this.execute.selector) {
-            (CallType callType, , , ) = ERC7579Utils.decodeMode(Mode.wrap(bytes32(userOp.callData[0x04:0x24])));
+            (CallType callType, , , ) = Mode.wrap(bytes32(userOp.callData[0x04:0x24])).decodeMode();
 
             if (callType == ERC7579Utils.CALLTYPE_BATCH) {
                 // Remove the selector
@@ -63,7 +68,7 @@ contract SampleAccount is IAccount, Ownable {
                 // This is where the vulnerability from ExecutionLib results in a different result between validation
                 // andexecution.
 
-                emit Log(true, ERC7579Utils.decodeBatch(executionCalldata));
+                emit Log(true, executionCalldata.decodeBatch());
             }
         }
 
@@ -78,7 +83,7 @@ contract SampleAccount is IAccount, Ownable {
     function execute(Mode mode, bytes calldata executionCalldata) external payable {
         require(msg.sender == address(this) || msg.sender == address(ENTRY_POINT), "not auth");
 
-        (CallType callType, ExecType execType, , ) = ERC7579Utils.decodeMode(mode);
+        (CallType callType, ExecType execType, , ) = mode.decodeMode();
 
         // check if calltype is batch or single
         if (callType == ERC7579Utils.CALLTYPE_SINGLE) {
@@ -86,7 +91,7 @@ contract SampleAccount is IAccount, Ownable {
         } else if (callType == ERC7579Utils.CALLTYPE_BATCH) {
             ERC7579Utils.execBatch(execType, executionCalldata);
 
-            emit Log(false, ERC7579Utils.decodeBatch(executionCalldata));
+            emit Log(false, executionCalldata.decodeBatch());
         } else if (callType == ERC7579Utils.CALLTYPE_DELEGATECALL) {
             ERC7579Utils.execDelegateCall(execType, executionCalldata);
         } else {
@@ -95,7 +100,11 @@ contract SampleAccount is IAccount, Ownable {
     }
 }
 
-contract LoggingPOCTest is Test {
+contract ERC7579UtilsTest is Test {
+    using MessageHashUtils for *;
+    using ERC4337Utils for *;
+    using ERC7579Utils for *;
+
     IEntryPoint private constant ENTRYPOINT = IEntryPoint(payable(0x0000000071727De22E5E9d8BAf0edAc6f37da032));
     address private _owner;
     uint256 private _ownerKey;
@@ -126,7 +135,8 @@ contract LoggingPOCTest is Test {
         calls[0] = Execution({target: _recipient1, value: 1 wei, callData: ""});
         calls[1] = Execution({target: _recipient2, value: 1 wei, callData: ""});
 
-        PackedUserOperation memory userOp = PackedUserOperation({
+        PackedUserOperation[] memory userOps = new PackedUserOperation[](1);
+        userOps[0] = PackedUserOperation({
             sender: _account,
             nonce: 0,
             initCode: "",
@@ -149,12 +159,11 @@ contract LoggingPOCTest is Test {
             signature: ""
         });
 
-        bytes32 userOpHash = ERC4337Utils.hashMemory(userOp, address(ENTRYPOINT), block.chainid);
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(_ownerKey, MessageHashUtils.toEthSignedMessageHash(userOpHash));
-        userOp.signature = abi.encodePacked(r, s, v);
-
-        PackedUserOperation[] memory userOps = new PackedUserOperation[](1);
-        userOps[0] = userOp;
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(
+            _ownerKey,
+            userOps[0].hashMemory(address(ENTRYPOINT), block.chainid).toEthSignedMessageHash()
+        );
+        userOps[0].signature = abi.encodePacked(r, s, v);
 
         vm.recordLogs();
         ENTRYPOINT.handleOps(userOps, payable(_beneficiary));
@@ -175,7 +184,8 @@ contract LoggingPOCTest is Test {
             uint256(0) // length of
         );
 
-        PackedUserOperation memory userOp = PackedUserOperation({
+        PackedUserOperation[] memory userOps = new PackedUserOperation[](1);
+        userOps[0] = PackedUserOperation({
             sender: _account,
             nonce: 0,
             initCode: "",
@@ -200,17 +210,21 @@ contract LoggingPOCTest is Test {
             signature: ""
         });
 
-        bytes32 userOpHash = ERC4337Utils.hashMemory(userOp, address(ENTRYPOINT), block.chainid);
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(_ownerKey, MessageHashUtils.toEthSignedMessageHash(userOpHash));
-        userOp.signature = abi.encodePacked(r, s, v);
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(
+            _ownerKey,
+            userOps[0].hashMemory(address(ENTRYPOINT), block.chainid).toEthSignedMessageHash()
+        );
+        userOps[0].signature = abi.encodePacked(r, s, v);
 
-        PackedUserOperation[] memory userOps = new PackedUserOperation[](1);
-        userOps[0] = userOp;
-
-        vm.recordLogs();
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                IEntryPoint.FailedOpWithRevert.selector,
+                0,
+                "AA23 reverted",
+                abi.encodeWithSelector(ERC7579Utils.ERC7579DecodingError.selector)
+            )
+        );
         ENTRYPOINT.handleOps(userOps, payable(_beneficiary));
-
-        assertEq(_recipient1.balance, 0 wei);
 
         _collectAndPrintLogs(false);
     }
@@ -228,7 +242,8 @@ contract LoggingPOCTest is Test {
             // During execution, the offset will be 0, pointing to a call with value.
         );
 
-        PackedUserOperation memory userOp = PackedUserOperation({
+        PackedUserOperation[] memory userOps = new PackedUserOperation[](1);
+        userOps[0] = PackedUserOperation({
             sender: _account,
             nonce: 0,
             initCode: "",
@@ -253,17 +268,21 @@ contract LoggingPOCTest is Test {
             signature: ""
         });
 
-        bytes32 userOpHash = ERC4337Utils.hashMemory(userOp, address(ENTRYPOINT), block.chainid);
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(_ownerKey, MessageHashUtils.toEthSignedMessageHash(userOpHash));
-        userOp.signature = abi.encodePacked(r, s, v);
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(
+            _ownerKey,
+            userOps[0].hashMemory(address(ENTRYPOINT), block.chainid).toEthSignedMessageHash()
+        );
+        userOps[0].signature = abi.encodePacked(r, s, v);
 
-        PackedUserOperation[] memory userOps = new PackedUserOperation[](1);
-        userOps[0] = userOp;
-
-        vm.recordLogs();
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                IEntryPoint.FailedOpWithRevert.selector,
+                0,
+                "AA23 reverted",
+                abi.encodeWithSelector(ERC7579Utils.ERC7579DecodingError.selector)
+            )
+        );
         ENTRYPOINT.handleOps(userOps, payable(_beneficiary));
-
-        assertEq(_recipient1.balance, 0 wei);
 
         _collectAndPrintLogs(true);
     }
@@ -280,16 +299,16 @@ contract LoggingPOCTest is Test {
     function _printDecodedCalls(bytes memory logData, bool includeTotalValue) internal pure {
         (bool duringValidation, Execution[] memory calls) = abi.decode(logData, (bool, Execution[]));
 
-        if (duringValidation) {
-            console.log("Batch execute contents, as read during validation: ");
-        } else {
-            console.log("Batch execute contents, as read during execution: ");
-        }
-
+        console.log(
+            string.concat(
+                "Batch execute contents, as read during ",
+                duringValidation ? "validation" : "execution",
+                ": "
+            )
+        );
         console.log("  Execution[] length: %s", calls.length);
 
         uint256 totalValue = 0;
-
         for (uint256 i = 0; i < calls.length; ++i) {
             console.log(string.concat("    calls[", vm.toString(i), "].target = ", vm.toString(calls[i].target)));
             console.log(string.concat("    calls[", vm.toString(i), "].value = ", vm.toString(calls[i].value)));
