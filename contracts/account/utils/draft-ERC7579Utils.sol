@@ -185,7 +185,7 @@ library ERC7579Utils {
             uint256 offset = uint256(bytes32(executionCalldata[0:32]));
 
             // Array length is between offset and offset + 32. We check that this is in the buffer
-            // Since we know executionCalldata is at least 32, we can substract with no overflow risk.
+            // Since we know executionCalldata is at least 32, we can subtract with no overflow risk.
             if (offset > bufferLength - 32) revert ERC7579DecodingError();
 
             // Get the array length
