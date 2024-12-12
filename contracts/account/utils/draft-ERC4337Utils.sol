@@ -99,33 +99,6 @@ library ERC4337Utils {
         return result;
     }
 
-    /// @dev Variant of {hash} that supports user operations in memory.
-    function hashMemory(
-        PackedUserOperation memory self,
-        address entrypoint,
-        uint256 chainid
-    ) internal pure returns (bytes32) {
-        bytes32 result = keccak256(
-            abi.encode(
-                keccak256(
-                    abi.encode(
-                        self.sender,
-                        self.nonce,
-                        keccak256(self.initCode),
-                        keccak256(self.callData),
-                        self.accountGasLimits,
-                        self.preVerificationGas,
-                        self.gasFees,
-                        keccak256(self.paymasterAndData)
-                    )
-                ),
-                entrypoint,
-                chainid
-            )
-        );
-        return result;
-    }
-
     /// @dev Returns `factory` from the {PackedUserOperation}, or address(0) if the initCode is empty or not properly formatted.
     function factory(PackedUserOperation calldata self) internal pure returns (address) {
         return self.initCode.length < 20 ? address(0) : address(bytes20(self.initCode[0:20]));

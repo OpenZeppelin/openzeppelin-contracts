@@ -161,7 +161,7 @@ contract ERC7579UtilsTest is Test {
 
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(
             _ownerKey,
-            userOps[0].hashMemory(address(ENTRYPOINT), block.chainid).toEthSignedMessageHash()
+            this.hashUserOperation(userOps[0]).toEthSignedMessageHash()
         );
         userOps[0].signature = abi.encodePacked(r, s, v);
 
@@ -212,7 +212,7 @@ contract ERC7579UtilsTest is Test {
 
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(
             _ownerKey,
-            userOps[0].hashMemory(address(ENTRYPOINT), block.chainid).toEthSignedMessageHash()
+            this.hashUserOperation(userOps[0]).toEthSignedMessageHash()
         );
         userOps[0].signature = abi.encodePacked(r, s, v);
 
@@ -270,7 +270,7 @@ contract ERC7579UtilsTest is Test {
 
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(
             _ownerKey,
-            userOps[0].hashMemory(address(ENTRYPOINT), block.chainid).toEthSignedMessageHash()
+            this.hashUserOperation(userOps[0]).toEthSignedMessageHash()
         );
         userOps[0].signature = abi.encodePacked(r, s, v);
 
@@ -299,7 +299,8 @@ contract ERC7579UtilsTest is Test {
         // GOOD
         this.callDecodeBatch(abi.encode(0));
         // Note: Solidity also supports this even though it's odd
-        uint256[] memory _1 = abi.decode(abi.encode(0), (uint256[])); _1;
+        uint256[] memory _1 = abi.decode(abi.encode(0), (uint256[]));
+        _1;
 
         // BAD: offset is out of bounds
         vm.expectRevert(ERC7579Utils.ERC7579DecodingError.selector);
@@ -337,6 +338,10 @@ contract ERC7579UtilsTest is Test {
 
     function callDecodeBatchAndGetFirstBytes(bytes calldata executionCalldata) public pure returns (bytes memory) {
         return ERC7579Utils.decodeBatch(executionCalldata)[0].callData;
+    }
+
+    function hashUserOperation(PackedUserOperation calldata useroperation) public view returns (bytes32) {
+        return useroperation.hash(address(ENTRYPOINT), block.chainid);
     }
 
     function _collectAndPrintLogs(bool includeTotalValue) internal {
