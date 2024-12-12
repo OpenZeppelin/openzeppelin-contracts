@@ -33,7 +33,7 @@ async function deployToken(contractName) {
   }
 }
 
-describe.only('GovernorSequentialProposalId', function () {
+describe('GovernorSequentialProposalId', function () {
   for (const { Token, mode } of TOKENS) {
     const fixture = async () => {
       const [owner, proposer, voter1, voter2, voter3, voter4, userEOA] = await ethers.getSigners();
