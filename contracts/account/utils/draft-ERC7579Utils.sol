@@ -181,19 +181,18 @@ library ERC7579Utils {
             // Check executionCalldata is not empty.
             if (bufferLength < 32) revert ERC7579DecodingError();
 
-            // Get the offset of the array, and check its valid.
+            // Get the offset of the array.
             uint256 offset = uint256(bytes32(executionCalldata[0:32]));
 
-            // Array length is between offset and offset + 32. We check that this is in the buffer.
-            // Since we know executionCalldata is at least 32, we can subtract with no overflow risk.
-            // This also guarantees that offset + 32 doesn't overflow.
+            // The array length should be found at offset and be 32 bytes long. We check that this is within the
+            // buffer bounds. Since we know executionCalldata is at least 32, we can subtract with no overflow risk.
             if (offset > bufferLength - 32) revert ERC7579DecodingError();
 
-            // Get the array length.
+            // Get the array length. offset + 32 is bounded by bufferLength so does not overflow.
             uint256 arrayLength = uint256(bytes32(executionCalldata[offset:offset + 32]));
             if (arrayLength > type(uint64).max) revert ERC7579DecodingError();
 
-            // Get the array as a bytes slice, and check its is long enough:
+            // Get the array as a bytes slice, and check it is long enough:
             // - each element of the array is an "offset pointer" to the data
             //   - each offset pointer takes 32 bytes
             //   - validity of the calldata at that location is checked when the array element is accessed.
