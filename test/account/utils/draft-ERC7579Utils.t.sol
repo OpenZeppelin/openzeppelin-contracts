@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.24;
 
+// Parts of this test file are adapted for Adam Egyed (@adamegyed) proof of concept available at:
+// https://github.com/adamegyed/erc7579-execute-vulnerability/tree/4589a30ff139e143d6c57183ac62b5c029217a90
+//
 // solhint-disable no-console
 
 import {Test} from "forge-std/Test.sol";
