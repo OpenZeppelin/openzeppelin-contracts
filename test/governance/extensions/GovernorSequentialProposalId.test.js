@@ -33,7 +33,7 @@ async function deployToken(contractName) {
   }
 }
 
-describe('GovernorSequentialProposalId', function () {
+describe.only('GovernorSequentialProposalId', function () {
   for (const { Token, mode } of TOKENS) {
     const fixture = async () => {
       const [owner, proposer, voter1, voter2, voter3, voter4, userEOA] = await ethers.getSigners();
@@ -154,7 +154,7 @@ describe('GovernorSequentialProposalId', function () {
         }
       });
 
-      it('can only initialize proposal count from 0', async function () {
+      it('can only initialize latest proposal id from 0', async function () {
         await this.helper.propose();
         expect(this.mock.latestProposalId()).to.eventually.equal(1);
         await expect(this.mock.$_initializeLatestProposalId(2)).to.be.revertedWithCustomError(

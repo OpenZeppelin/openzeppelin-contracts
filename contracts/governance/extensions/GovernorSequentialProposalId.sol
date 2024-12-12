@@ -19,11 +19,6 @@ abstract contract GovernorSequentialProposalId is Governor {
     error GovernorAlreadyInitializedLatestProposalId();
 
     /**
-     * @dev The {latestProposalId} may only be set to a non-zero value.
-     */
-    error GovernorInvalidLatestProposalId();
-
-    /**
      * @dev See {IGovernor-getProposalId}.
      */
     function getProposalId(
@@ -75,9 +70,6 @@ abstract contract GovernorSequentialProposalId is Governor {
     function _initializeLatestProposalId(uint256 newLatestProposalId) internal virtual {
         if (_latestProposalId != 0) {
             revert GovernorAlreadyInitializedLatestProposalId();
-        }
-        if (newLatestProposalId == 0) {
-            revert GovernorInvalidLatestProposalId();
         }
         _latestProposalId = newLatestProposalId;
     }
