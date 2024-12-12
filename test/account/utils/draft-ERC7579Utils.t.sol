@@ -298,9 +298,9 @@ contract ERC7579UtilsTest is Test {
 
         // GOOD
         this.callDecodeBatch(abi.encode(0));
-        // Note: Solidity also supports this even though it's odd
-        uint256[] memory _1 = abi.decode(abi.encode(0), (uint256[]));
-        _1;
+        // Note: Solidity also supports this even though it's odd. Offset 0 means array is at the same location, which
+        // is interpreted as an array of length 0, which doesn't require any more data
+        abi.decode(abi.encode(0), (uint256[]));
 
         // BAD: offset is out of bounds
         vm.expectRevert(ERC7579Utils.ERC7579DecodingError.selector);
@@ -309,7 +309,7 @@ contract ERC7579UtilsTest is Test {
         // GOOD
         this.callDecodeBatch(abi.encode(32, 0));
 
-        // // BAD: reported array length extends beyond bounds
+        // BAD: reported array length extends beyond bounds
         vm.expectRevert(ERC7579Utils.ERC7579DecodingError.selector);
         this.callDecodeBatch(abi.encode(32, 1));
 
