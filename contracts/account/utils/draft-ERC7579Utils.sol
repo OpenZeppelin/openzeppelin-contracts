@@ -178,21 +178,27 @@ library ERC7579Utils {
         unchecked {
             uint256 bufferLength = executionCalldata.length;
 
-            // Check executionCalldata is not empty
+            // Check executionCalldata is not empty.
             if (bufferLength < 32) revert ERC7579DecodingError();
 
-            // Get the offset of the array, and check its valid
+            // Get the offset of the array, and check its valid.
             uint256 offset = uint256(bytes32(executionCalldata[0:32]));
 
-            // Array length is between offset and offset + 32. We check that this is in the buffer
+            // Array length is between offset and offset + 32. We check that this is in the buffer.
             // Since we know executionCalldata is at least 32, we can subtract with no overflow risk.
+            // This also guarantees that offset + 32 doesn't overflow.
             if (offset > bufferLength - 32) revert ERC7579DecodingError();
 
-            // Get the array length
+            // Get the array length.
             uint256 arrayLength = uint256(bytes32(executionCalldata[offset:offset + 32]));
             if (arrayLength > type(uint64).max) revert ERC7579DecodingError();
 
-            // Get the array as a bytes slice, and check its is long enough
+            // Get the array as a bytes slice, and check its is long enough:
+            // - `96` is the size of `Execution`'s "head" representation. This is composed of
+            //   - 32 bytes for the `target` (address)
+            //   - 32 bytes for the `value` (uint256)
+            //   - 32 bytes for the offset pointer to the `callData` (bytes)
+            // - `arrayLength * 96` does not overflow because `arrayLength` is less than `2**64`.
             bytes calldata executionArray = executionCalldata[offset + 32:];
             if (executionArray.length < arrayLength * 96) revert ERC7579DecodingError();
 
