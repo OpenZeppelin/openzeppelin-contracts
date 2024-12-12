@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.24;
 
-// Parts of this test file are adapted for Adam Egyed (@adamegyed) proof of concept available at:
+// Parts of this test file are adapted from Adam Egyed (@adamegyed) proof of concept available at:
 // https://github.com/adamegyed/erc7579-execute-vulnerability/tree/4589a30ff139e143d6c57183ac62b5c029217a90
 //
 // solhint-disable no-console
@@ -303,7 +303,9 @@ contract ERC7579UtilsTest is Test {
         this.callDecodeBatch(abi.encode(0));
         // Note: Solidity also supports this even though it's odd. Offset 0 means array is at the same location, which
         // is interpreted as an array of length 0, which doesn't require any more data
-        abi.decode(abi.encode(0), (uint256[]));
+        // solhint-disable-next-line var-name-mixedcase
+        uint256[] memory _1 = abi.decode(abi.encode(0), (uint256[]));
+        _1;
 
         // BAD: offset is out of bounds
         vm.expectRevert(ERC7579Utils.ERC7579DecodingError.selector);
@@ -332,7 +334,7 @@ contract ERC7579UtilsTest is Test {
         assertEq(
             bytes("Hello World!"),
             this.callDecodeBatchAndGetFirstBytes(
-                abi.encode(32, 1, 32, _recipient1, 42, 96, 12, bytes12(0x48656c6c6f20576f726c6421))
+                abi.encode(32, 1, 32, _recipient1, 42, 96, 12, bytes12("Hello World!"))
             )
         );
 
