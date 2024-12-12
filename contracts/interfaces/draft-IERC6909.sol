@@ -48,7 +48,7 @@ interface IERC6909 is IERC165 {
      *
      * Must return true.
      */
-    function approve(address spender, uint256 id, uint256 amount) external view returns (bool);
+    function approve(address spender, uint256 id, uint256 amount) external returns (bool);
 
     /**
      * @dev Grants or revokes unlimited transfer permission of any token id to `spender` for the caller's tokens.
