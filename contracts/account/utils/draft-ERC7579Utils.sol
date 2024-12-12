@@ -194,13 +194,12 @@ library ERC7579Utils {
             if (arrayLength > type(uint64).max) revert ERC7579DecodingError();
 
             // Get the array as a bytes slice, and check its is long enough:
-            // - `96` is the size of `Execution`'s "head" representation. This is composed of
-            //   - 32 bytes for the `target` (address)
-            //   - 32 bytes for the `value` (uint256)
-            //   - 32 bytes for the offset pointer to the `callData` (bytes)
-            // - `arrayLength * 96` does not overflow because `arrayLength` is less than `2**64`.
+            // - each element of the array is an "offset pointer" to the data
+            //   - each offset pointer takes 32 bytes
+            //   - validity of the calldata at that location is checked when the array element is accessed.
+            // - `arrayLength * 32` does not overflow because `arrayLength` is less than `2**64`.
             bytes calldata executionArray = executionCalldata[offset + 32:];
-            if (executionArray.length < arrayLength * 96) revert ERC7579DecodingError();
+            if (executionArray.length < arrayLength * 32) revert ERC7579DecodingError();
 
             assembly ("memory-safe") {
                 executionBatch.offset := executionArray.offset
