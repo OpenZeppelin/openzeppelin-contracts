@@ -191,7 +191,7 @@ library ERC7579Utils {
             // Get the array length. offset + 32 is bounded by bufferLength so does not overflow.
             uint256 arrayLength = uint256(bytes32(executionCalldata[offset:offset + 32]));
 
-            // Get the array as a bytes slice, and check it is long enough:
+            // Check that the buffer is long enough to store the array elements as "offset pointer":
             // - each element of the array is an "offset pointer" to the data
             //   - each offset pointer (to an array element) takes 32 bytes
             //   - validity of the calldata at that location is checked when the array element is accessed.
