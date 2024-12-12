@@ -185,23 +185,23 @@ library ERC7579Utils {
             uint256 offset = uint256(bytes32(executionCalldata[0:32]));
 
             // The array length should be found at offset and be 32 bytes long. We check that this is within the
-            // buffer bounds. Since we know executionCalldata is at least 32, we can subtract with no overflow risk.
+            // buffer bounds. Since we know bufferLength is at least 32, we can subtract with no overflow risk.
             if (offset > bufferLength - 32) revert ERC7579DecodingError();
 
             // Get the array length. offset + 32 is bounded by bufferLength so does not overflow.
             uint256 arrayLength = uint256(bytes32(executionCalldata[offset:offset + 32]));
-            if (arrayLength > type(uint64).max) revert ERC7579DecodingError();
 
             // Get the array as a bytes slice, and check it is long enough:
             // - each element of the array is an "offset pointer" to the data
             //   - each offset pointer takes 32 bytes
             //   - validity of the calldata at that location is checked when the array element is accessed.
             // - `arrayLength * 32` does not overflow because `arrayLength` is less than `2**64`.
-            bytes calldata executionArray = executionCalldata[offset + 32:];
-            if (executionArray.length < arrayLength * 32) revert ERC7579DecodingError();
+            // Since we know bufferLength is at least offset + 32, we can subtract with no overflow risk.
+            if (arrayLength > type(uint64).max || bufferLength - offset - 32 < arrayLength * 32)
+                revert ERC7579DecodingError();
 
             assembly ("memory-safe") {
-                executionBatch.offset := executionArray.offset
+                executionBatch.offset := add(add(executionCalldata.offset, offset), 32)
                 executionBatch.length := arrayLength
             }
         }
