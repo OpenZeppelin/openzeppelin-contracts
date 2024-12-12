@@ -71,3 +71,48 @@ interface IERC6909 is IERC165 {
      */
     function transferFrom(address from, address to, uint256 id, uint256 amount) external returns (bool);
 }
+
+/**
+ * @dev Optional extension of {IERC6909} that adds metadata functions.
+ */
+interface IERC6909Metadata is IERC6909 {
+    /**
+     * @dev Returns the name of the token of type `id`.
+     */
+    function name(uint256 id) external view returns (string memory);
+
+    /**
+     * @dev Returns the ticker symbol of the token of type `id`.
+     */
+    function symbol(uint256 id) external view returns (string memory);
+
+    /**
+     * @dev Returns the number of decimals for the token of type `id`.
+     */
+    function decimals(uint256 id) external view returns (uint8);
+}
+
+/**
+ * @dev Optional extension of {IERC6909} that adds URI functions.
+ */
+interface IERC6909ContractURI is IERC6909 {
+    /**
+     * @dev Returns URI for the contract.
+     */
+    function contractURI() external view returns (string memory);
+
+    /**
+     * @dev Returns the URI for the token of type `id`.
+     */
+    function tokenURI(uint256 id) external view returns (string memory);
+}
+
+/**
+ * @dev Optional extension of {IERC6909} that adds a token supply function.
+ */
+interface IERC6909TokenSupply is IERC6909 {
+    /**
+     * @dev Returns the total supply of the token of type `id`.
+     */
+    function totalSupply(uint256 id) external view returns (uint256);
+}
