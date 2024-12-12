@@ -1,4 +1,4 @@
-# Engineering Guidelines
+Engineering Guidelines
 
 ## Testing
 
