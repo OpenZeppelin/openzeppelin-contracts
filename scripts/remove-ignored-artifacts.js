@@ -42,4 +42,4 @@ for (const filename of filenames) {
   }
 }
 
-console.error(`Removed ${n} mock artifacts`);
+console.error(`Removed ${n} ignored artifacts`);
