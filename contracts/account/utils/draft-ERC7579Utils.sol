@@ -193,7 +193,7 @@ library ERC7579Utils {
 
             // Get the array as a bytes slice, and check it is long enough:
             // - each element of the array is an "offset pointer" to the data
-            //   - each offset pointer takes 32 bytes
+            //   - each offset pointer (to an array element) takes 32 bytes
             //   - validity of the calldata at that location is checked when the array element is accessed.
             // - `arrayLength * 32` does not overflow because `arrayLength` is less than `2**64`.
             // Since we know bufferLength is at least offset + 32, we can subtract with no overflow risk.
