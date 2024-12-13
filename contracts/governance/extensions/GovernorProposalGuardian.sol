@@ -1,24 +1,23 @@
 // SPDX-License-Identifier: MIT
-
 pragma solidity ^0.8.20;
 
 import {Governor} from "../Governor.sol";
 
 /**
- * @dev Extension of {Governor} for adds a security council that can cancel proposals at any stage of their lifecycle.
+ * @dev Extension of {Governor} which adds a proposal guardian that can cancel proposals at any stage of their lifecycle.
  *
- * Note: if the council is not configure, then proposers take over the
+ * Note: if the proposal guardian is not configured, then proposers take this role for their proposals.
  */
-abstract contract GovernorSecurityCouncil is Governor {
-    address private _council;
+abstract contract GovernorProposalGuardian is Governor {
+    address private _proposalGuardian;
 
-    event CouncilSet(address oldCouncil, address newCouncil);
+    event ProposalGuardianSet(address oldProposalGuardian, address newProposalGuardian);
 
     /**
      * @dev Override {IGovernor-cancel} that implements the extended cancellation logic.
-     * * council can cancel any proposal at any point in the lifecycle.
-     * * if no council is set, proposer can cancel their proposals at any point in the lifecycle.
-     * * if the council is set, proposer keep their ability to cancel during the pending stage (default behavior).
+     * * proposal guardian can cancel any proposal at any point in the lifecycle.
+     * * if no proposal guardian is set, proposer can cancel their proposals at any point in the lifecycle.
+     * * if the proposal guardian is set, proposer keep their ability to cancel during the pending stage (default behavior).
      */
     function cancel(
         address[] memory targets,
@@ -27,10 +26,10 @@ abstract contract GovernorSecurityCouncil is Governor {
         bytes32 descriptionHash
     ) public virtual override returns (uint256) {
         address caller = _msgSender();
-        address authority = council();
+        address authority = proposalGuardian();
 
         if (authority == address(0)) {
-            // if there is no council
+            // if there is no proposal guardian
             // ... only the proposer can cancel
             // ... no restriction on when the proposer can cancel
             uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
@@ -38,39 +37,39 @@ abstract contract GovernorSecurityCouncil is Governor {
             if (caller != proposer) revert GovernorOnlyProposer(caller);
             return _cancel(targets, values, calldatas, descriptionHash);
         } else if (authority == caller) {
-            // if there is a council, and the caller is the council
+            // if there is a proposal guardian, and the caller is the proposal guardian
             // ... just cancel
             return _cancel(targets, values, calldatas, descriptionHash);
         } else {
-            // if there is a council, and the caller is not the council
+            // if there is a proposal guardian, and the caller is not the proposal guardian
             // ... apply default behavior
             return super.cancel(targets, values, calldatas, descriptionHash);
         }
     }
 
     /**
-     * @dev Getter that returns the address of the council
+     * @dev Getter that returns the address of the proposal guardian.
      */
-    function council() public view virtual returns (address) {
-        return _council;
+    function proposalGuardian() public view virtual returns (address) {
+        return _proposalGuardian;
     }
 
     /**
-     * @dev Update the council's address. This operation can only be performed through a governance proposal.
+     * @dev Update the proposal guardian's address. This operation can only be performed through a governance proposal.
      *
-     * Emits a {CouncilSet} event.
+     * Emits a {ProposalGuardianSet} event.
      */
-    function setCouncil(address newCouncil) public virtual onlyGovernance {
-        _setCouncil(newCouncil);
+    function setProposalGuardian(address newProposalGuardian) public virtual onlyGovernance {
+        _setProposalGuardian(newProposalGuardian);
     }
 
     /**
-     * @dev Internal setter for the council.
+     * @dev Internal setter for the proposal guardian.
      *
-     * Emits a {CouncilSet} event.
+     * Emits a {ProposalGuardianSet} event.
      */
-    function _setCouncil(address newCouncil) internal virtual {
-        emit CouncilSet(_council, newCouncil);
-        _council = newCouncil;
+    function _setProposalGuardian(address newProposalGuardian) internal virtual {
+        emit ProposalGuardianSet(_proposalGuardian, newProposalGuardian);
+        _proposalGuardian = newProposalGuardian;
     }
 }
