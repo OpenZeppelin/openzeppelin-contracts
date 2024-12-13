@@ -1,4 +1,4 @@
-const customRules = require('./scripts/solhint-custom');
+const customRules = require('solhint-plugin-openzeppelin');
 
 const rules = [
   'avoid-tx-origin',
