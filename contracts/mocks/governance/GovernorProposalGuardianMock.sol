@@ -6,13 +6,13 @@ import {Governor} from "../../governance/Governor.sol";
 import {GovernorSettings} from "../../governance/extensions/GovernorSettings.sol";
 import {GovernorCountingSimple} from "../../governance/extensions/GovernorCountingSimple.sol";
 import {GovernorVotesQuorumFraction} from "../../governance/extensions/GovernorVotesQuorumFraction.sol";
-import {GovernorSecurityCouncil} from "../../governance/extensions/GovernorSecurityCouncil.sol";
+import {GovernorProposalGuardian} from "../../governance/extensions/GovernorProposalGuardian.sol";
 
-abstract contract GovernorSecurityCouncilMock is
+abstract contract GovernorProposalGuardianMock is
     GovernorSettings,
     GovernorVotesQuorumFraction,
     GovernorCountingSimple,
-    GovernorSecurityCouncil
+    GovernorProposalGuardian
 {
     function proposalThreshold() public view override(Governor, GovernorSettings) returns (uint256) {
         return super.proposalThreshold();
@@ -23,7 +23,7 @@ abstract contract GovernorSecurityCouncilMock is
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) public override(Governor, GovernorSecurityCouncil) returns (uint256) {
+    ) public override(Governor, GovernorProposalGuardian) returns (uint256) {
         return super.cancel(targets, values, calldatas, descriptionHash);
     }
 }

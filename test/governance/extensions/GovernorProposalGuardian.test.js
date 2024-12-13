@@ -11,7 +11,7 @@ const TOKENS = [
   { Token: '$ERC20VotesTimestampMock', mode: 'timestamp' },
 ];
 
-const name = 'Security Council Governor';
+const name = 'Proposal Guardian Governor';
 const version = '1';
 const tokenName = 'MockToken';
 const tokenSymbol = 'MTKN';
@@ -20,14 +20,14 @@ const votingDelay = 4n;
 const votingPeriod = 16n;
 const value = ethers.parseEther('1');
 
-describe('GovernorSecurityCouncil', function () {
+describe.only('GovernorProposalGuardian', function () {
   for (const { Token, mode } of TOKENS) {
     const fixture = async () => {
       const [owner, proposer, voter1, voter2, voter3, voter4, other] = await ethers.getSigners();
       const receiver = await ethers.deployContract('CallReceiverMock');
 
       const token = await ethers.deployContract(Token, [tokenName, tokenSymbol, tokenName, version]);
-      const mock = await ethers.deployContract('$GovernorSecurityCouncilMock', [
+      const mock = await ethers.deployContract('$GovernorProposalGuardianMock', [
         name, // name
         votingDelay, // initialVotingDelay
         votingPeriod, // initialVotingPeriod
@@ -73,17 +73,17 @@ describe('GovernorSecurityCouncil', function () {
         expect(await this.mock.votingPeriod()).to.equal(votingPeriod);
       });
 
-      describe('set council', function () {
+      describe('set proposal guardian', function () {
         it('from governance', async function () {
           const governorSigner = await ethers.getSigner(this.mock.target);
-          await expect(this.mock.connect(governorSigner).setCouncil(this.voter1.address))
-            .to.emit(this.mock, 'CouncilSet')
+          await expect(this.mock.connect(governorSigner).setProposalGuardian(this.voter1.address))
+            .to.emit(this.mock, 'ProposalGuardianSet')
             .withArgs(ethers.ZeroAddress, this.voter1.address);
-          expect(this.mock.council()).to.eventually.equal(this.voter1.address);
+          expect(this.mock.proposalGuardian()).to.eventually.equal(this.voter1.address);
         });
 
         it('from non-governance', async function () {
-          await expect(this.mock.setCouncil(this.voter1.address))
+          await expect(this.mock.setProposalGuardian(this.voter1.address))
             .to.be.revertedWithCustomError(this.mock, 'GovernorOnlyExecutor')
             .withArgs(this.owner.address);
         });
@@ -91,19 +91,19 @@ describe('GovernorSecurityCouncil', function () {
 
       describe('cancel proposal during active state', function () {
         beforeEach(async function () {
-          await this.mock.$_setCouncil(this.voter1.address);
+          await this.mock.$_setProposalGuardian(this.voter1.address);
           await this.helper.connect(this.proposer).propose();
           await this.helper.waitForSnapshot(1n);
           expect(this.mock.state(this.proposal.id)).to.eventually.equal(ProposalState.Active);
         });
 
-        it('from council', async function () {
+        it('from proposal guardian', async function () {
           await expect(this.helper.connect(this.voter1).cancel())
             .to.emit(this.mock, 'ProposalCanceled')
             .withArgs(this.proposal.id);
         });
 
-        it('from proposer when council is non-zero', async function () {
+        it('from proposer when proposal guardian is non-zero', async function () {
           await expect(this.helper.connect(this.proposer).cancel())
             .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
             .withArgs(
@@ -113,8 +113,8 @@ describe('GovernorSecurityCouncil', function () {
             );
         });
 
-        it('from proposer when council is zero', async function () {
-          await this.mock.$_setCouncil(ethers.ZeroAddress);
+        it('from proposer when proposal guardian is zero', async function () {
+          await this.mock.$_setProposalGuardian(ethers.ZeroAddress);
           await expect(this.helper.connect(this.proposer).cancel())
             .to.emit(this.mock, 'ProposalCanceled')
             .withArgs(this.proposal.id);
