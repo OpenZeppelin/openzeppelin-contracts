@@ -20,7 +20,7 @@ const votingDelay = 4n;
 const votingPeriod = 16n;
 const value = ethers.parseEther('1');
 
-describe.only('GovernorProposalGuardian', function () {
+describe('GovernorProposalGuardian', function () {
   for (const { Token, mode } of TOKENS) {
     const fixture = async () => {
       const [owner, proposer, voter1, voter2, voter3, voter4, other] = await ethers.getSigners();
