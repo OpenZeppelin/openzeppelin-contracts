@@ -18,11 +18,11 @@ contract ERC6909ContentURI is ERC6909, IERC6909ContentURI {
         return _tokenURIs[id];
     }
 
-    function _setContractURI(string memory contractURI_) internal {
-        _contractURI = contractURI_;
+    function _setContractURI(string memory newContractURI) internal {
+        _contractURI = newContractURI;
     }
 
-    function _setTokenURI(uint256 id, string memory tokenURI_) internal {
-        _tokenURIs[id] = tokenURI_;
+    function _setTokenURI(uint256 id, string memory newTokenURI) internal {
+        _tokenURIs[id] = newTokenURI;
     }
 }

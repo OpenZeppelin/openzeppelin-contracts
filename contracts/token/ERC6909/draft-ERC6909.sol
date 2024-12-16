@@ -12,9 +12,6 @@ contract ERC6909 is Context, ERC165, IERC6909 {
 
     mapping(address account => mapping(address operator => bool)) private _operatorApprovals;
 
-    // ERC1155 stores the `_uri` in the 3rd slot. We leave it empty to avoid conflicts on upgrades.
-    string private __gap;
-
     mapping(address account => mapping(address operator => mapping(uint256 id => uint256))) private _allowances;
 
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IERC165) returns (bool) {
