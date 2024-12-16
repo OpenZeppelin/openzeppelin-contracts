@@ -13,7 +13,7 @@ contract ERC6909Metadata is ERC6909, IERC6909Metadata {
         uint8 decimals;
     }
 
-    mapping(uint256 => TokenMetadata) private _tokenMetadata;
+    mapping(uint256 id => TokenMetadata) private _tokenMetadata;
 
     function name(uint256 id) external view virtual override returns (string memory) {
         return _tokenMetadata[id].uri;

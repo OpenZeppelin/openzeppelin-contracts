@@ -15,7 +15,7 @@ contract ERC6909 is Context, ERC165, IERC6909 {
     // ERC1155 stores the `_uri` in the 3rd slot. We leave it empty to avoid conflicts on upgrades.
     string private __gap;
 
-    mapping(address account => mapping(address operator => mapping(uint256 => uint256))) private _allowances;
+    mapping(address account => mapping(address operator => mapping(uint256 id => uint256))) private _allowances;
 
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IERC165) returns (bool) {
         return interfaceId == type(IERC6909).interfaceId || super.supportsInterface(interfaceId);
@@ -37,7 +37,6 @@ contract ERC6909 is Context, ERC165, IERC6909 {
         _allowances[_msgSender()][spender][id] = amount;
 
         emit Approval(_msgSender(), spender, id, amount);
-
         return true;
     }
 
@@ -45,13 +44,11 @@ contract ERC6909 is Context, ERC165, IERC6909 {
         _operatorApprovals[_msgSender()][spender] = approved;
 
         emit OperatorSet(_msgSender(), spender, approved);
-
         return true;
     }
 
     function transfer(address to, uint256 id, uint256 amount) external virtual override returns (bool) {
         _update(_msgSender(), to, id, amount);
-
         return true;
     }
 
@@ -69,7 +66,6 @@ contract ERC6909 is Context, ERC165, IERC6909 {
         }
 
         _update(from, to, id, amount);
-
         return true;
     }
 
