@@ -1,6 +1,10 @@
 # Changelog
 
 
+## 5.2.0-rc.1 (2024-12-16)
+
+- `ERC7579Utils`: Add ABI decoding checks on calldata bounds within `decodeBatch` ([#5367](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5367))
+
 ## 5.2.0-rc.0 (2024-12-04)
 
 ### Changes by category
