@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (metatx/ERC2771Forwarder.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (metatx/ERC2771Forwarder.sol)
 
 pragma solidity ^0.8.20;
 
@@ -218,7 +218,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
      */
     function _recoverForwardRequestSigner(
         ForwardRequestData calldata request
-    ) internal view virtual returns (bool, address) {
+    ) internal view virtual returns (bool isValid, address signer) {
         (address recovered, ECDSA.RecoverError err, ) = _hashTypedDataV4(
             keccak256(
                 abi.encode(

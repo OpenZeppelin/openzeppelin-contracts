@@ -92,8 +92,16 @@ const SIGNATURES = {
 
 const INTERFACE_IDS = mapValues(SIGNATURES, interfaceId);
 
-function shouldSupportInterfaces(interfaces = []) {
+function shouldSupportInterfaces(interfaces = [], signatures = SIGNATURES) {
+  // case where only signatures are provided
+  if (!Array.isArray(interfaces)) {
+    signatures = interfaces;
+    interfaces = Object.keys(interfaces);
+  }
+
   interfaces.unshift('ERC165');
+  signatures.ERC165 = SIGNATURES.ERC165;
+  const interfaceIds = mapValues(signatures, interfaceId, ([name]) => interfaces.includes(name));
 
   describe('ERC165', function () {
     beforeEach(function () {
@@ -103,14 +111,14 @@ function shouldSupportInterfaces(interfaces = []) {
     describe('when the interfaceId is supported', function () {
       it('uses less than 30k gas', async function () {
         for (const k of interfaces) {
-          const interface = INTERFACE_IDS[k] ?? k;
-          expect(await this.contractUnderTest.supportsInterface.estimateGas(interface)).to.lte(30_000n);
+          const interfaceId = interfaceIds[k] ?? k;
+          expect(await this.contractUnderTest.supportsInterface.estimateGas(interfaceId)).to.lte(30_000n);
         }
       });
 
       it('returns true', async function () {
         for (const k of interfaces) {
-          const interfaceId = INTERFACE_IDS[k] ?? k;
+          const interfaceId = interfaceIds[k] ?? k;
           expect(await this.contractUnderTest.supportsInterface(interfaceId), `does not support ${k}`).to.be.true;
         }
       });
@@ -129,10 +137,10 @@ function shouldSupportInterfaces(interfaces = []) {
     it('all interface functions are in ABI', async function () {
       for (const k of interfaces) {
         // skip interfaces for which we don't have a function list
-        if (SIGNATURES[k] === undefined) continue;
+        if (signatures[k] === undefined) continue;
 
         // Check the presence of each function in the contract's interface
-        for (const fnSig of SIGNATURES[k]) {
+        for (const fnSig of signatures[k]) {
           expect(this.contractUnderTest.interface.hasFunction(fnSig), `did not find ${fnSig}`).to.be.true;
         }
       }
@@ -141,5 +149,7 @@ function shouldSupportInterfaces(interfaces = []) {
 }
 
 module.exports = {
+  SIGNATURES,
+  INTERFACE_IDS,
   shouldSupportInterfaces,
 };
