@@ -2,13 +2,18 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { packValidationData, packPaymasterData, UserOperation } = require('../../helpers/erc4337');
+const { packValidationData, UserOperation } = require('../../helpers/erc4337');
+const { deployEntrypoint } = require('../../helpers/erc4337-entrypoint');
 const { MAX_UINT48 } = require('../../helpers/constants');
+const ADDRESS_ONE = '0x0000000000000000000000000000000000000001';
 
 const fixture = async () => {
-  const [authorizer, sender, entrypoint, paymaster] = await ethers.getSigners();
+  const { entrypoint } = await deployEntrypoint();
+  const [authorizer, sender, factory, paymaster] = await ethers.getSigners();
   const utils = await ethers.deployContract('$ERC4337Utils');
-  return { utils, authorizer, sender, entrypoint, paymaster };
+  const SIG_VALIDATION_SUCCESS = await utils.$SIG_VALIDATION_SUCCESS();
+  const SIG_VALIDATION_FAILED = await utils.$SIG_VALIDATION_FAILED();
+  return { utils, authorizer, sender, entrypoint, factory, paymaster, SIG_VALIDATION_SUCCESS, SIG_VALIDATION_FAILED };
 };
 
 describe('ERC4337Utils', function () {
@@ -41,6 +46,20 @@ describe('ERC4337Utils', function () {
         MAX_UINT48,
       ]);
     });
+
+    it('parse canonical values', async function () {
+      expect(this.utils.$parseValidationData(this.SIG_VALIDATION_SUCCESS)).to.eventually.deep.equal([
+        ethers.ZeroAddress,
+        0n,
+        MAX_UINT48,
+      ]);
+
+      expect(this.utils.$parseValidationData(this.SIG_VALIDATION_FAILED)).to.eventually.deep.equal([
+        ADDRESS_ONE,
+        0n,
+        MAX_UINT48,
+      ]);
+    });
   });
 
   describe('packValidationData', function () {
@@ -63,6 +82,21 @@ describe('ERC4337Utils', function () {
 
       expect(this.utils.$packValidationData(ethers.Typed.bool(success), validAfter, validUntil)).to.eventually.equal(
         validationData,
+      );
+    });
+
+    it('packing reproduced canonical values', async function () {
+      expect(this.utils.$packValidationData(ethers.Typed.address(ethers.ZeroAddress), 0n, 0n)).to.eventually.equal(
+        this.SIG_VALIDATION_SUCCESS,
+      );
+      expect(this.utils.$packValidationData(ethers.Typed.bool(true), 0n, 0n)).to.eventually.equal(
+        this.SIG_VALIDATION_SUCCESS,
+      );
+      expect(this.utils.$packValidationData(ethers.Typed.address(ADDRESS_ONE), 0n, 0n)).to.eventually.equal(
+        this.SIG_VALIDATION_FAILED,
+      );
+      expect(this.utils.$packValidationData(ethers.Typed.bool(false), 0n, 0n)).to.eventually.equal(
+        this.SIG_VALIDATION_FAILED,
       );
     });
   });
@@ -133,24 +167,52 @@ describe('ERC4337Utils', function () {
   });
 
   describe('hash', function () {
-    it('returns the user operation hash', async function () {
-      const userOp = new UserOperation({ sender: this.sender, nonce: 1 });
-      const chainId = await ethers.provider.getNetwork().then(({ chainId }) => chainId);
-
-      expect(this.utils.$hash(userOp.packed)).to.eventually.equal(userOp.hash(this.utils.target, chainId));
-    });
-
     it('returns the operation hash with specified entrypoint and chainId', async function () {
       const userOp = new UserOperation({ sender: this.sender, nonce: 1 });
-      const chainId = 0xdeadbeef;
+      const chainId = await ethers.provider.getNetwork().then(({ chainId }) => chainId);
+      const otherChainId = 0xdeadbeef;
 
+      // check that helper matches entrypoint logic
+      expect(this.entrypoint.getUserOpHash(userOp.packed)).to.eventually.equal(userOp.hash(this.entrypoint, chainId));
+
+      // check library against helper
       expect(this.utils.$hash(userOp.packed, this.entrypoint, chainId)).to.eventually.equal(
         userOp.hash(this.entrypoint, chainId),
+      );
+      expect(this.utils.$hash(userOp.packed, this.entrypoint, otherChainId)).to.eventually.equal(
+        userOp.hash(this.entrypoint, otherChainId),
       );
     });
   });
 
   describe('userOp values', function () {
+    describe('intiCode', function () {
+      beforeEach(async function () {
+        this.userOp = new UserOperation({
+          sender: this.sender,
+          nonce: 1,
+          verificationGas: 0x12345678n,
+          factory: this.factory,
+          factoryData: '0x123456',
+        });
+
+        this.emptyUserOp = new UserOperation({
+          sender: this.sender,
+          nonce: 1,
+        });
+      });
+
+      it('returns factory', async function () {
+        expect(this.utils.$factory(this.userOp.packed)).to.eventually.equal(this.factory);
+        expect(this.utils.$factory(this.emptyUserOp.packed)).to.eventually.equal(ethers.ZeroAddress);
+      });
+
+      it('returns factoryData', async function () {
+        expect(this.utils.$factoryData(this.userOp.packed)).to.eventually.equal('0x123456');
+        expect(this.utils.$factoryData(this.emptyUserOp.packed)).to.eventually.equal('0x');
+      });
+    });
+
     it('returns verificationGasLimit', async function () {
       const userOp = new UserOperation({ sender: this.sender, nonce: 1, verificationGas: 0x12345678n });
       expect(this.utils.$verificationGasLimit(userOp.packed)).to.eventually.equal(userOp.verificationGas);
@@ -183,28 +245,43 @@ describe('ERC4337Utils', function () {
 
     describe('paymasterAndData', function () {
       beforeEach(async function () {
-        this.verificationGasLimit = 0x12345678n;
-        this.postOpGasLimit = 0x87654321n;
-        this.paymasterAndData = packPaymasterData(this.paymaster, this.verificationGasLimit, this.postOpGasLimit);
         this.userOp = new UserOperation({
           sender: this.sender,
           nonce: 1,
-          paymasterAndData: this.paymasterAndData,
+          paymaster: this.paymaster,
+          paymasterVerificationGasLimit: 0x12345678n,
+          paymasterPostOpGasLimit: 0x87654321n,
+          paymasterData: '0xbeefcafe',
+        });
+
+        this.emptyUserOp = new UserOperation({
+          sender: this.sender,
+          nonce: 1,
         });
       });
 
       it('returns paymaster', async function () {
-        expect(this.utils.$paymaster(this.userOp.packed)).to.eventually.equal(this.paymaster);
+        expect(this.utils.$paymaster(this.userOp.packed)).to.eventually.equal(this.userOp.paymaster);
+        expect(this.utils.$paymaster(this.emptyUserOp.packed)).to.eventually.equal(ethers.ZeroAddress);
       });
 
       it('returns verificationGasLimit', async function () {
         expect(this.utils.$paymasterVerificationGasLimit(this.userOp.packed)).to.eventually.equal(
-          this.verificationGasLimit,
+          this.userOp.paymasterVerificationGasLimit,
         );
+        expect(this.utils.$paymasterVerificationGasLimit(this.emptyUserOp.packed)).to.eventually.equal(0n);
       });
 
       it('returns postOpGasLimit', async function () {
-        expect(this.utils.$paymasterPostOpGasLimit(this.userOp.packed)).to.eventually.equal(this.postOpGasLimit);
+        expect(this.utils.$paymasterPostOpGasLimit(this.userOp.packed)).to.eventually.equal(
+          this.userOp.paymasterPostOpGasLimit,
+        );
+        expect(this.utils.$paymasterPostOpGasLimit(this.emptyUserOp.packed)).to.eventually.equal(0n);
+      });
+
+      it('returns data', async function () {
+        expect(this.utils.$paymasterData(this.userOp.packed)).to.eventually.equal(this.userOp.paymasterData);
+        expect(this.utils.$paymasterData(this.emptyUserOp.packed)).to.eventually.equal('0x');
       });
     });
   });
