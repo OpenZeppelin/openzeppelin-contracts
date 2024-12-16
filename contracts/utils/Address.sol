@@ -35,9 +35,9 @@ library Address {
             revert Errors.InsufficientBalance(address(this).balance, amount);
         }
 
-        (bool success, ) = recipient.call{value: amount}("");
+        (bool success, bytes memory returndata) = recipient.call{value: amount}("");
         if (!success) {
-            revert Errors.FailedCall();
+            _revert(returndata);
         }
     }
 
