@@ -12,8 +12,8 @@ contract ERC6909 is Context, ERC165, IERC6909 {
 
     mapping(address account => mapping(address operator => bool)) private _operatorApprovals;
 
-    // Used as the URI for all token types by relying on ID substitution, e.g. https://token-cdn-domain/{id}.json
-    string private _uri;
+    // ERC1155 stores the `_uri` in the 3rd slot. We leave it empty to avoid conflicts on upgrades.
+    string private __gap;
 
     mapping(address account => mapping(address operator => mapping(uint256 => uint256))) private _allowances;
 
