@@ -93,9 +93,9 @@ interface IERC6909Metadata is IERC6909 {
 }
 
 /**
- * @dev Optional extension of {IERC6909} that adds URI functions.
+ * @dev Optional extension of {IERC6909} that adds content URI functions.
  */
-interface IERC6909ContractURI is IERC6909 {
+interface IERC6909ContentURI is IERC6909 {
     /**
      * @dev Returns URI for the contract.
      */
