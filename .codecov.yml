@@ -1,16 +1,32 @@
-comment: off
-github_checks:
-  annotations: false
-coverage:
-  status:
-    patch:
-      default:
-        target: 95%
-        only_pulls: true
-    project:
-      default:
-        threshold: 1%
-ignore:
-  - "test"
-  - "contracts/mocks"
-  - "contracts/vendor"
+name: Test Coverage
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Run tests with coverage
+        run: yarn test --coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage/coverage-final.json
+          flags: unittests
+          fail_ci_if_error: true
