@@ -111,7 +111,7 @@ library Address {
         if (!success) {
             _revert(returndata);
         } else {
-            // only check if target is a contract if the call was successful and the return data is empty
+            // only check if target is a contract if the call was successful and there is no return data
             // otherwise we already know that it was a contract
             if (returndata.length == 0 && target.code.length == 0) {
                 revert AddressEmptyCode(target);
@@ -139,6 +139,7 @@ library Address {
         // Look for revert reason and bubble it up if present
         if (returndata.length > 0) {
             // The easiest way to bubble the revert reason is using memory via assembly
+            // Use assembly to revert with returndata, which is the easiest way to propagate revert reasons
             assembly ("memory-safe") {
                 let returndata_size := mload(returndata)
                 revert(add(32, returndata), returndata_size)
