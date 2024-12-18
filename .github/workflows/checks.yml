@@ -13,9 +13,6 @@ concurrency:
   group: checks-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  NODE_OPTIONS: --max_old_space_size=8192
-
 jobs:
   lint:
     runs-on: ubuntu-latest

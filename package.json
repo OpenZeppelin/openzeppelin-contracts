@@ -25,7 +25,7 @@
     "prepack": "scripts/prepack.sh",
     "generate": "scripts/generate/run.js",
     "version": "scripts/release/version.sh",
-    "test": "NODE_OPTIONS=\"--max-old-space-size=8192\" hardhat test",
+    "test": "scripts/set-max-old-space-size.sh && hardhat test",
     "test:generation": "scripts/checks/generation.sh",
     "test:inheritance": "scripts/checks/inheritance-ordering.js artifacts/build-info/*",
     "test:pragma": "scripts/checks/pragma-consistency.js artifacts/build-info/*",
