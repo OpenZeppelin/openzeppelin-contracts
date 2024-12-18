@@ -1,4 +1,4 @@
-# EditorConfig is awesome: https://EditorConfig.org
+ # EditorConfig is awesome: https://EditorConfig.org
 
 # top-most EditorConfig file
 root = true
@@ -18,4 +18,4 @@ indent_size = 4
 indent_size = 2
 
 [*.{adoc,md}]
-max_line_length = 0
+# Removed max_line_length property
