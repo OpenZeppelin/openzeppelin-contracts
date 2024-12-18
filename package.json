@@ -10,7 +10,7 @@
   "scripts": {
     "compile": "hardhat compile",
     "compile:harnesses": "env SRC=./certora/harnesses hardhat compile",
-    "coverage": "NODE_OPTIONS=\"--max-old-space-size=8192\" scripts/checks/coverage.sh",
+    "coverage": "scripts/checks/coverage.sh",
     "docs": "npm run prepare-docs && oz-docs",
     "docs:watch": "oz-docs watch contracts docs/templates docs/config.js",
     "prepare": "husky",
