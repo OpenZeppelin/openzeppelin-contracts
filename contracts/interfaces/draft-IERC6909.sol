@@ -10,8 +10,8 @@ import {IERC165} from "../utils/introspection/IERC165.sol";
  */
 interface IERC6909 is IERC165 {
     /**
-     * @dev Emitted when the allowance of a `spender` for an `owner` is set by a call to `approve` for a
-     * token of type `id`. The new allowance is `amount`.
+     * @dev Emitted when the allowance of a `spender` for an `owner` is set for a token of type `id`.
+     * The new allowance is `amount`.
      */
     event Approval(address indexed owner, address indexed spender, uint256 indexed id, uint256 amount);
 
