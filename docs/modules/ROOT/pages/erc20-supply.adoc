@@ -68,4 +68,4 @@ include::api:example$ERC20WithAutoMinerReward.sol[]
 [[wrapping-up]]
 == Wrapping Up
 
-We've seen how to implement a ERC-20 supply mechanism: internally through `_mint`. Hopefully this has helped you understand how to use OpenZeppelin Contracts and some of the design principles behind it, and you can apply them to your own smart contracts.
+We've seen how to implement an ERC-20 supply mechanism: internally through `_mint`. Hopefully this has helped you understand how to use OpenZeppelin Contracts and some of the design principles behind it, and you can apply them to your own smart contracts.
