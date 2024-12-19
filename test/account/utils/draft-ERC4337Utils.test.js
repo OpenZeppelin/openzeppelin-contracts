@@ -1,19 +1,18 @@
-const { ethers } = require('hardhat');
+const { ethers, entrypoint } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { packValidationData, UserOperation } = require('../../helpers/erc4337');
-const { deployEntrypoint } = require('../../helpers/erc4337-entrypoint');
 const { MAX_UINT48 } = require('../../helpers/constants');
 const ADDRESS_ONE = '0x0000000000000000000000000000000000000001';
 
 const fixture = async () => {
-  const { entrypoint } = await deployEntrypoint();
   const [authorizer, sender, factory, paymaster] = await ethers.getSigners();
   const utils = await ethers.deployContract('$ERC4337Utils');
   const SIG_VALIDATION_SUCCESS = await utils.$SIG_VALIDATION_SUCCESS();
   const SIG_VALIDATION_FAILED = await utils.$SIG_VALIDATION_FAILED();
-  return { utils, authorizer, sender, entrypoint, factory, paymaster, SIG_VALIDATION_SUCCESS, SIG_VALIDATION_FAILED };
+
+  return { utils, authorizer, sender, factory, paymaster, SIG_VALIDATION_SUCCESS, SIG_VALIDATION_FAILED };
 };
 
 describe('ERC4337Utils', function () {
@@ -173,14 +172,14 @@ describe('ERC4337Utils', function () {
       const otherChainId = 0xdeadbeef;
 
       // check that helper matches entrypoint logic
-      expect(this.entrypoint.getUserOpHash(userOp.packed)).to.eventually.equal(userOp.hash(this.entrypoint, chainId));
+      expect(entrypoint.getUserOpHash(userOp.packed)).to.eventually.equal(userOp.hash(entrypoint, chainId));
 
       // check library against helper
-      expect(this.utils.$hash(userOp.packed, this.entrypoint, chainId)).to.eventually.equal(
-        userOp.hash(this.entrypoint, chainId),
+      expect(this.utils.$hash(userOp.packed, entrypoint, chainId)).to.eventually.equal(
+        userOp.hash(entrypoint, chainId),
       );
-      expect(this.utils.$hash(userOp.packed, this.entrypoint, otherChainId)).to.eventually.equal(
-        userOp.hash(this.entrypoint, otherChainId),
+      expect(this.utils.$hash(userOp.packed, entrypoint, otherChainId)).to.eventually.equal(
+        userOp.hash(entrypoint, otherChainId),
       );
     });
   });
