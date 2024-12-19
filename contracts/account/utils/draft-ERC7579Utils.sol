@@ -203,7 +203,7 @@ library ERC7579Utils {
                 revert ERC7579DecodingError();
 
             assembly ("memory-safe") {
-                executionBatch.offset := add(add(executionCalldata.offset, arrayLengthOffset), 32)
+                executionBatch.offset := add(add(executionCalldata.offset, arrayLengthOffset), 0x20)
                 executionBatch.length := arrayLength
             }
         }
