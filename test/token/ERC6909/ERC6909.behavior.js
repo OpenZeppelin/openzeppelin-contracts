@@ -93,11 +93,9 @@ function shouldBehaveLikeERC6909() {
       });
 
       it('transfers to the zero address are allowed', async function () {
-        await expect(
-          this.token.connect(this.alice).transfer(ethers.constants.AddressZero, firstTokenId, firstTokenAmount),
-        )
+        await expect(this.token.connect(this.alice).transfer(ethers.ZeroAddress, firstTokenId, firstTokenAmount))
           .to.emit(this.token, 'Transfer')
-          .withArgs(this.alice, ethers.constants.AddressZero, firstTokenId, firstTokenAmount);
+          .withArgs(this.alice, this.alice, ethers.ZeroAddress, firstTokenId, firstTokenAmount);
       });
     });
 

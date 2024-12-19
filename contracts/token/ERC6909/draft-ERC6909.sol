@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (token/ERC6909/draft-ERC6909.sol)
 
 pragma solidity ^0.8.20;
 
@@ -8,6 +7,9 @@ import {Context} from "../../utils/Context.sol";
 import {IERC165, ERC165} from "../../utils/introspection/ERC165.sol";
 
 contract ERC6909 is Context, ERC165, IERC6909 {
+    error ERC6909InsufficientBalance(address sender, uint256 balance, uint256 needed, uint256 id);
+    error ERC6909InsufficientAllowance(address spender, uint256 allowance, uint256 needed, uint256 id);
+
     mapping(uint256 id => mapping(address owner => uint256)) private _balances;
 
     mapping(address owner => mapping(address operator => bool)) private _operatorApprovals;
@@ -61,7 +63,12 @@ contract ERC6909 is Context, ERC165, IERC6909 {
         if (caller != sender && !isOperator(sender, caller)) {
             uint256 currentAllowance = _allowances[sender][caller][id];
             if (currentAllowance != type(uint256).max) {
-                _allowances[sender][_msgSender()][id] = currentAllowance - amount;
+                if (currentAllowance < amount) {
+                    revert ERC6909InsufficientAllowance(caller, currentAllowance, amount, id);
+                }
+                unchecked {
+                    _allowances[sender][_msgSender()][id] = currentAllowance - amount;
+                }
             }
         }
 
@@ -73,7 +80,13 @@ contract ERC6909 is Context, ERC165, IERC6909 {
         address caller = _msgSender();
 
         if (from != address(0)) {
-            _balances[id][from] -= amount;
+            uint256 fromBalance = _balances[id][from];
+            if (fromBalance < amount) {
+                revert ERC6909InsufficientBalance(from, fromBalance, amount, id);
+            }
+            unchecked {
+                _balances[id][from] -= amount;
+            }
         }
         if (to != address(0)) {
             _balances[id][to] += amount;
