@@ -840,7 +840,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
     function _unsafeReadBytesOffset(bytes memory buffer, uint256 offset) private pure returns (bytes32 value) {
         // This is not memory safe in the general case, but all calls to this private function are within bounds.
         assembly ("memory-safe") {
-            value := mload(add(buffer, add(0x20, offset)))
+            value := mload(add(add(buffer, 0x20), offset))
         }
     }
 }
