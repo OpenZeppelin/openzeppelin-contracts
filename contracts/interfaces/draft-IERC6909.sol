@@ -18,12 +18,18 @@ interface IERC6909 is IERC165 {
     /**
      * @dev Emitted when `owner` grants or revokes operator status for a `spender`.
      */
-    event OperatorSet(address indexed owner, address indexed spender, bool isOperator);
+    event OperatorSet(address indexed owner, address indexed spender, bool approved);
 
     /**
-     * @dev Emitted when `amount` tokens of type `id` are moved from `from` to `to` initiated by `caller`.
+     * @dev Emitted when `amount` tokens of type `id` are moved from `sender` to `receiver` initiated by `caller`.
      */
-    event Transfer(address caller, address indexed from, address indexed to, uint256 indexed id, uint256 amount);
+    event Transfer(
+        address caller,
+        address indexed sender,
+        address indexed receiver,
+        uint256 indexed id,
+        uint256 amount
+    );
 
     /**
      * @dev Returns the amount of tokens of type `id` owned by `owner`.
@@ -54,21 +60,21 @@ interface IERC6909 is IERC165 {
      *
      * Must return true.
      */
-    function setOperator(address spender, bool isOperator) external returns (bool);
+    function setOperator(address spender, bool approved) external returns (bool);
 
     /**
-     * @dev Transfers `amount` of token type `id` from the caller's account to `to`.
+     * @dev Transfers `amount` of token type `id` from the caller's account to `receiver`.
      *
      * Must return true.
      */
-    function transfer(address to, uint256 id, uint256 amount) external returns (bool);
+    function transfer(address receiver, uint256 id, uint256 amount) external returns (bool);
 
     /**
-     * @dev Transfers `amount` of token type `id` from `from` to `to`.
+     * @dev Transfers `amount` of token type `id` from `sender` to `receiver`.
      *
      * Must return true.
      */
-    function transferFrom(address from, address to, uint256 id, uint256 amount) external returns (bool);
+    function transferFrom(address sender, address receiver, uint256 id, uint256 amount) external returns (bool);
 }
 
 /**
