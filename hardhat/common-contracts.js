@@ -19,7 +19,7 @@ const INSTANCES = {
 };
 
 task(TASK_TEST_SETUP_TEST_ENVIRONMENT).setAction((_, env, runSuper) =>
-  runSuper().then(result =>
+  runSuper().then(() =>
     Promise.all(
       Object.entries(INSTANCES).map(([name, { address, abi, bytecode }]) =>
         setCode(address, '0x' + bytecode.replace(/0x/, ''))
@@ -28,6 +28,6 @@ task(TASK_TEST_SETUP_TEST_ENVIRONMENT).setAction((_, env, runSuper) =>
       ),
     )
       .then(namedInstances => Object.assign(env, ...namedInstances))
-      .then(() => result),
+      .then(() => {}),
   ),
 );
