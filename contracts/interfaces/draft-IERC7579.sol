@@ -50,7 +50,7 @@ interface IERC7579Validator is IERC7579Module {
      *
      * MUST validate that the signature is a valid signature of the userOpHash
      * SHOULD return ERC-4337's SIG_VALIDATION_FAILED (and not revert) on signature mismatch
-     * See ERC-4337 for additional information on the return value
+     * See {IAccount-validateUserOp} for additional information on the return value
      */
     function validateUserOp(PackedUserOperation calldata userOp, bytes32 userOpHash) external returns (uint256);
 
@@ -127,6 +127,7 @@ interface IERC7579Execution {
      *         This function is intended to be called by Executor Modules
      * @param mode The encoded execution mode of the transaction. See ModeLib.sol for details
      * @param executionCalldata The encoded execution call data
+     * @return returnData An array with the returned data of each executed subcall
      *
      * MUST ensure adequate authorization control: i.e. onlyExecutorModule
      * If a mode is requested that is not supported by the Account, it MUST revert
@@ -140,7 +141,7 @@ interface IERC7579Execution {
 /**
  * @dev ERC-7579 Account Config.
  *
- * Accounts should implement this interface to exposes information that identifies the account, supported modules and capabilities.
+ * Accounts should implement this interface to expose information that identifies the account, supported modules and capabilities.
  */
 interface IERC7579AccountConfig {
     /**
@@ -174,7 +175,7 @@ interface IERC7579AccountConfig {
 /**
  * @dev ERC-7579 Module Config.
  *
- * Accounts should implement this interface to allows installing and uninstalling modules.
+ * Accounts should implement this interface to allow installing and uninstalling modules.
  */
 interface IERC7579ModuleConfig {
     event ModuleInstalled(uint256 moduleTypeId, address module);
