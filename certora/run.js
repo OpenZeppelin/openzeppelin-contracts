@@ -26,7 +26,7 @@ const argv = yargs(hideBin(process.argv))
     spec: {
       alias: 's',
       type: 'string',
-      default: path.resolve(import.meta.dirname, 'specs.json'),
+      default: path.resolve(path.dirname(new URL(import.meta.url).pathname), 'specs.json'),
     },
     parallel: {
       alias: 'p',
