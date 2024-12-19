@@ -8,61 +8,64 @@ import {Context} from "../../utils/Context.sol";
 import {IERC165, ERC165} from "../../utils/introspection/ERC165.sol";
 
 contract ERC6909 is Context, ERC165, IERC6909 {
-    mapping(uint256 id => mapping(address account => uint256)) private _balances;
+    mapping(uint256 id => mapping(address owner => uint256)) private _balances;
 
-    mapping(address account => mapping(address operator => bool)) private _operatorApprovals;
+    mapping(address owner => mapping(address operator => bool)) private _operatorApprovals;
 
-    mapping(address account => mapping(address operator => mapping(uint256 id => uint256))) private _allowances;
+    mapping(address owner => mapping(address spender => mapping(uint256 id => uint256))) private _allowances;
 
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IERC165) returns (bool) {
         return interfaceId == type(IERC6909).interfaceId || super.supportsInterface(interfaceId);
     }
 
-    function balanceOf(address account, uint256 id) public view virtual override returns (uint256) {
-        return _balances[id][account];
+    function balanceOf(address owner, uint256 id) public view virtual override returns (uint256) {
+        return _balances[id][owner];
     }
 
     function allowance(address owner, address spender, uint256 id) public view virtual override returns (uint256) {
         return _allowances[owner][spender][id];
     }
 
-    function isOperator(address owner, address operator) public view virtual override returns (bool) {
-        return _operatorApprovals[owner][operator];
+    function isOperator(address owner, address spender) public view virtual override returns (bool) {
+        return _operatorApprovals[owner][spender];
     }
 
     function approve(address spender, uint256 id, uint256 amount) external virtual override returns (bool) {
-        _allowances[_msgSender()][spender][id] = amount;
+        address caller = _msgSender();
+        _allowances[caller][spender][id] = amount;
 
-        emit Approval(_msgSender(), spender, id, amount);
+        emit Approval(caller, spender, id, amount);
         return true;
     }
 
     function setOperator(address spender, bool approved) external virtual override returns (bool) {
-        _operatorApprovals[_msgSender()][spender] = approved;
+        address caller = _msgSender();
+        _operatorApprovals[caller][spender] = approved;
 
-        emit OperatorSet(_msgSender(), spender, approved);
+        emit OperatorSet(caller, spender, approved);
         return true;
     }
 
-    function transfer(address to, uint256 id, uint256 amount) external virtual override returns (bool) {
-        _update(_msgSender(), to, id, amount);
+    function transfer(address receiver, uint256 id, uint256 amount) external virtual override returns (bool) {
+        _update(_msgSender(), receiver, id, amount);
         return true;
     }
 
     function transferFrom(
-        address from,
-        address to,
+        address sender,
+        address receiver,
         uint256 id,
         uint256 amount
     ) external virtual override returns (bool) {
         address caller = _msgSender();
-        if (caller != from && !isOperator(from, caller)) {
-            if (_allowances[from][_msgSender()][id] != type(uint256).max) {
-                _allowances[from][_msgSender()][id] -= amount;
+        if (caller != sender && !isOperator(sender, caller)) {
+            uint256 currentAllowance = _allowances[sender][caller][id];
+            if (currentAllowance != type(uint256).max) {
+                _allowances[sender][_msgSender()][id] = currentAllowance - amount;
             }
         }
 
-        _update(from, to, id, amount);
+        _update(sender, receiver, id, amount);
         return true;
     }
 
