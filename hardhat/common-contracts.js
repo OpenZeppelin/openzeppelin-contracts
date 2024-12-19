@@ -22,12 +22,10 @@ task(TASK_TEST_SETUP_TEST_ENVIRONMENT).setAction((_, env, runSuper) =>
   runSuper().then(() =>
     Promise.all(
       Object.entries(INSTANCES).map(([name, { address, abi, bytecode }]) =>
-        setCode(address, '0x' + bytecode.replace(/0x/, ''))
-          .then(() => env.ethers.getContractAt(abi, address))
-          .then(instance => ({ [name]: instance })),
+        setCode(address, '0x' + bytecode.replace(/0x/, '')).then(() =>
+          env.ethers.getContractAt(abi, address).then(instance => (env[name] = instance)),
+        ),
       ),
-    )
-      .then(namedInstances => Object.assign(env, ...namedInstances))
-      .then(() => {}),
+    ),
   ),
 );
