@@ -32,7 +32,7 @@ abstract contract GovernorProposalGuardian is Governor {
             // if there is no proposal guardian
             // ... only the proposer can cancel
             // ... no restriction on when the proposer can cancel
-            uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
+            uint256 proposalId = getProposalId(targets, values, calldatas, descriptionHash);
             address proposer = proposalProposer(proposalId);
             if (caller != proposer) revert GovernorOnlyProposer(caller);
             return _cancel(targets, values, calldatas, descriptionHash);
