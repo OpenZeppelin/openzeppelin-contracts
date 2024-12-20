@@ -154,7 +154,29 @@ function shouldBehaveLikeERC6909() {
       });
     });
 
-    describe('with operator approval', function () {});
+    describe('with operator approval', function () {
+      beforeEach(async function () {
+        await this.token.connect(this.holder).setOperator(this.operator, true);
+        await this.token.$_mint(this.holder, firstTokenId, firstTokenAmount);
+      });
+
+      it('operator can transfer', async function () {
+        await expect(
+          this.token.connect(this.operator).transferFrom(this.holder, this.alice, firstTokenId, firstTokenAmount),
+        )
+          .to.emit(this.token, 'Transfer')
+          .withArgs(this.operator, this.holder, this.alice, firstTokenId, firstTokenAmount);
+        expect(this.token.balanceOf(this.holder, firstTokenId)).to.eventually.equal(0);
+        expect(this.token.balanceOf(this.alice, firstTokenId)).to.eventually.equal(firstTokenAmount);
+      });
+
+      it('operator transfer does not reduce allowance', async function () {
+        // Also give allowance
+        await this.token.connect(this.holder).approve(this.operator, firstTokenId, firstTokenAmount);
+        await this.token.connect(this.operator).transferFrom(this.holder, this.alice, firstTokenId, firstTokenAmount);
+        expect(this.token.allowance(this.holder, this.operator, firstTokenId)).to.eventually.equal(firstTokenAmount);
+      });
+    });
 
     shouldSupportInterfaces(['ERC6909']);
   });

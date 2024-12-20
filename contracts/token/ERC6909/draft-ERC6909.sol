@@ -9,6 +9,8 @@ import {IERC165, ERC165} from "../../utils/introspection/ERC165.sol";
 contract ERC6909 is Context, ERC165, IERC6909 {
     error ERC6909InsufficientBalance(address sender, uint256 balance, uint256 needed, uint256 id);
     error ERC6909InsufficientAllowance(address spender, uint256 allowance, uint256 needed, uint256 id);
+    error ERC6909InvalidReceiver(address receiver);
+    error ERC6909InvalidSender(address sender);
 
     mapping(uint256 id => mapping(address owner => uint256)) private _balances;
 
@@ -72,8 +74,18 @@ contract ERC6909 is Context, ERC165, IERC6909 {
             }
         }
 
-        _update(sender, receiver, id, amount);
+        _transfer(sender, receiver, id, amount);
         return true;
+    }
+
+    function _transfer(address from, address to, uint256 id, uint256 amount) internal {
+        if (from == address(0)) {
+            revert ERC6909InvalidSender(address(0));
+        }
+        if (to == address(0)) {
+            revert ERC6909InvalidReceiver(address(0));
+        }
+        _update(from, to, id, amount);
     }
 
     function _update(address from, address to, uint256 id, uint256 amount) internal virtual {
@@ -96,10 +108,16 @@ contract ERC6909 is Context, ERC165, IERC6909 {
     }
 
     function _mint(address to, uint256 id, uint256 amount) internal {
+        if (to == address(0)) {
+            revert ERC6909InvalidReceiver(address(0));
+        }
         _update(address(0), to, id, amount);
     }
 
     function _burn(address from, uint256 id, uint256 amount) internal {
+        if (from == address(0)) {
+            revert ERC6909InvalidSender(address(0));
+        }
         _update(from, address(0), id, amount);
     }
 }
