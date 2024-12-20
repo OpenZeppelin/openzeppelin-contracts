@@ -18,13 +18,35 @@ library Math {
     }
 
     /**
+     * @dev Unsigned saturating addition, bounds to `2 ** 256 - 1` instead of overflowing.
+     */
+    function saturatingAdd(uint256 a, uint256 b) internal pure returns (uint256) {
+        unchecked {
+            uint256 c = a + b;
+            // equivalent to: c < a ? type(uint256).max : c
+            return c | (0 - SafeCast.toUint(c < a));
+        }
+    }
+
+    /**
      * @dev Returns the addition of two unsigned integers, with an success flag (no overflow).
      */
     function tryAdd(uint256 a, uint256 b) internal pure returns (bool success, uint256 result) {
         unchecked {
             uint256 c = a + b;
-            if (c < a) return (false, 0);
-            return (true, c);
+            success = c >= a;
+            // equivalent to: c >= a ? c : 0
+            result = SafeCast.toUint(success) * c;
+        }
+    }
+
+    /**
+     * @dev Unsigned saturating subtraction, bounds to zero instead of overflowing.
+     */
+    function saturatingSub(uint256 a, uint256 b) internal pure returns (uint256) {
+        unchecked {
+            // equivalent to: a > b ? a - b : 0
+            return (a - b) * SafeCast.toUint(a > b);
         }
     }
 
@@ -33,8 +55,25 @@ library Math {
      */
     function trySub(uint256 a, uint256 b) internal pure returns (bool success, uint256 result) {
         unchecked {
-            if (b > a) return (false, 0);
-            return (true, a - b);
+            success = a >= b;
+            // equivalent to: success ? (a - b) : 0
+            result = SafeCast.toUint(success) * (a - b);
+        }
+    }
+
+    /**
+     * @dev Unsigned saturating multiplication, bounds to `2 ** 256 - 1` instead of overflowing.
+     */
+    function saturatingMul(uint256 a, uint256 b) internal pure returns (uint256) {
+        unchecked {
+            uint256 c = a * b;
+            bool success;
+            assembly {
+                // Only true when the multiplication doesn't overflow
+                // (c / a == b) || (a == 0)
+                success := or(eq(div(c, a), b), iszero(a))
+            }
+            return c | (SafeCast.toUint(success) - 1);
         }
     }
 
@@ -43,13 +82,14 @@ library Math {
      */
     function tryMul(uint256 a, uint256 b) internal pure returns (bool success, uint256 result) {
         unchecked {
-            // Gas optimization: this is cheaper than requiring 'a' not being zero, but the
-            // benefit is lost if 'b' is also tested.
-            // See: https://github.com/OpenZeppelin/openzeppelin-contracts/pull/522
-            if (a == 0) return (true, 0);
             uint256 c = a * b;
-            if (c / a != b) return (false, 0);
-            return (true, c);
+            assembly {
+                // Only true when the multiplication doesn't overflow
+                // (c / a == b) || (a == 0)
+                success := or(eq(div(c, a), b), iszero(a))
+            }
+            // equivalent to: success ? c : 0
+            result = SafeCast.toUint(success) * c;
         }
     }
 
@@ -58,8 +98,11 @@ library Math {
      */
     function tryDiv(uint256 a, uint256 b) internal pure returns (bool success, uint256 result) {
         unchecked {
-            if (b == 0) return (false, 0);
-            return (true, a / b);
+            success = b > 0;
+            assembly {
+                // In EVM any value divided by zero is zero.
+                result := div(a, b)
+            }
         }
     }
 
@@ -68,8 +111,11 @@ library Math {
      */
     function tryMod(uint256 a, uint256 b) internal pure returns (bool success, uint256 result) {
         unchecked {
-            if (b == 0) return (false, 0);
-            return (true, a % b);
+            success = b > 0;
+            assembly {
+                // In EVM a value modulus zero is equal to zero.
+                result := mod(a, b)
+            }
         }
     }
 
