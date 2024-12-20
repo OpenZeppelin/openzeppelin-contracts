@@ -10,6 +10,7 @@ uint256 constant MODULE_TYPE_EXECUTOR = 2;
 uint256 constant MODULE_TYPE_FALLBACK = 3;
 uint256 constant MODULE_TYPE_HOOK = 4;
 
+/// @dev Minimal configuration interface for ERC-7579 modules
 interface IERC7579Module {
     /**
      * @dev This function is called by the smart account during installation of the module
@@ -36,6 +37,11 @@ interface IERC7579Module {
     function isModuleType(uint256 moduleTypeId) external view returns (bool);
 }
 
+/**
+ * @dev ERC-7579 Validation module (type 1).
+ *
+ * A module that implements logic to validate user operations and signatures.
+ */
 interface IERC7579Validator is IERC7579Module {
     /**
      * @dev Validates a UserOperation
@@ -44,6 +50,7 @@ interface IERC7579Validator is IERC7579Module {
      *
      * MUST validate that the signature is a valid signature of the userOpHash
      * SHOULD return ERC-4337's SIG_VALIDATION_FAILED (and not revert) on signature mismatch
+     * See {IAccount-validateUserOp} for additional information on the return value
      */
     function validateUserOp(PackedUserOperation calldata userOp, bytes32 userOpHash) external returns (uint256);
 
@@ -63,6 +70,12 @@ interface IERC7579Validator is IERC7579Module {
     ) external view returns (bytes4);
 }
 
+/**
+ * @dev ERC-7579 Hooks module (type 4).
+ *
+ * A module that implements logic to execute before and after the account executes a user operation,
+ * either individually or batched.
+ */
 interface IERC7579Hook is IERC7579Module {
     /**
      * @dev Called by the smart account before execution
@@ -93,6 +106,11 @@ struct Execution {
     bytes callData;
 }
 
+/**
+ * @dev ERC-7579 Execution.
+ *
+ * Accounts should implement this interface so that the Entrypoint and ERC-7579 modules can execute operations.
+ */
 interface IERC7579Execution {
     /**
      * @dev Executes a transaction on behalf of the account.
@@ -109,6 +127,7 @@ interface IERC7579Execution {
      *         This function is intended to be called by Executor Modules
      * @param mode The encoded execution mode of the transaction. See ModeLib.sol for details
      * @param executionCalldata The encoded execution call data
+     * @return returnData An array with the returned data of each executed subcall
      *
      * MUST ensure adequate authorization control: i.e. onlyExecutorModule
      * If a mode is requested that is not supported by the Account, it MUST revert
@@ -119,6 +138,11 @@ interface IERC7579Execution {
     ) external returns (bytes[] memory returnData);
 }
 
+/**
+ * @dev ERC-7579 Account Config.
+ *
+ * Accounts should implement this interface to expose information that identifies the account, supported modules and capabilities.
+ */
 interface IERC7579AccountConfig {
     /**
      * @dev Returns the account id of the smart account
@@ -148,6 +172,11 @@ interface IERC7579AccountConfig {
     function supportsModule(uint256 moduleTypeId) external view returns (bool);
 }
 
+/**
+ * @dev ERC-7579 Module Config.
+ *
+ * Accounts should implement this interface to allow installing and uninstalling modules.
+ */
 interface IERC7579ModuleConfig {
     event ModuleInstalled(uint256 moduleTypeId, address module);
     event ModuleUninstalled(uint256 moduleTypeId, address module);
