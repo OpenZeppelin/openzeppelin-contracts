@@ -5,6 +5,8 @@ set -euo pipefail
 export COVERAGE=true
 export FOUNDRY_FUZZ_RUNS=10
 
+. scripts/set-max-old-space-size.sh
+
 # Hardhat coverage
 hardhat coverage
 
