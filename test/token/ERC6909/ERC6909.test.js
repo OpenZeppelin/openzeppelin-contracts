@@ -35,7 +35,7 @@ describe('ERC6909', function () {
         });
 
         it('emits a Transfer event from 0 address', async function () {
-          expect(this.tx)
+          await expect(this.tx)
             .to.emit(this.token, 'Transfer')
             .withArgs(this.operator, ethers.ZeroAddress, this.holder, tokenId, mintValue);
         });
@@ -60,7 +60,7 @@ describe('ERC6909', function () {
         });
 
         it('emits a Transfer event to 0 address', async function () {
-          expect(this.tx)
+          await expect(this.tx)
             .to.emit(this.token, 'Transfer')
             .withArgs(this.operator, this.holder, ethers.ZeroAddress, tokenId, burnValue);
         });

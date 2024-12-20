@@ -45,7 +45,7 @@ function shouldBehaveLikeERC6909() {
       });
 
       it('emits an an OperatorSet event', async function () {
-        expect(this.tx).to.emit(this.token, 'OperatorSet').withArgs(this.holder, this.operator, true);
+        await expect(this.tx).to.emit(this.token, 'OperatorSet').withArgs(this.holder, this.operator, true);
       });
 
       it('should be reflected in isOperator call', async function () {
@@ -67,7 +67,7 @@ function shouldBehaveLikeERC6909() {
       });
 
       it('emits an Approval event', async function () {
-        expect(this.tx)
+        await expect(this.tx)
           .to.emit(this.token, 'Approval')
           .withArgs(this.holder, this.operator, firstTokenId, firstTokenAmount);
       });
@@ -135,7 +135,7 @@ function shouldBehaveLikeERC6909() {
         });
 
         it('should emit transfer event', async function () {
-          expect(this.tx)
+          await expect(this.tx)
             .to.emit(this.token, 'Transfer')
             .withArgs(this.operator, this.alice, this.bruce, firstTokenId, firstTokenAmount - 1n);
         });
