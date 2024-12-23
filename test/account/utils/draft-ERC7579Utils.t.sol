@@ -385,23 +385,27 @@ contract ERC7579UtilsTest is Test {
     }
 
     function _testDecodeBatch(bytes memory encoded, uint256 test) private {
+        bytes memory extraData = new bytes(256);
+
         if (test & TEST_DECODE > 0) {
             if (test & FAIL_DECODE > 0) vm.expectRevert(ERC7579Utils.ERC7579DecodingError.selector);
             this.callDecodeBatch(encoded);
             if (test & FAIL_ANY > 0) vm.expectRevert(ERC7579Utils.ERC7579DecodingError.selector);
-            this.callDecodeBatchWithCalldata(encoded, new bytes(256));
+            this.callDecodeBatchWithCalldata(encoded, extraData);
         }
+
         if (test & TEST_GETFIRST > 0) {
-            if (test & FAIL_GETFIRST > 0) vm.expectRevert();
+            if (test & FAIL_GETFIRST > 0) vm.expectRevert(); // solidity failure without data
             this.callDecodeBatchAndGetFirst(encoded);
-            if (test & FAIL_ANY > 0) vm.expectRevert();
-            this.callDecodeBatchAndGetFirstWithCalldata(encoded, new bytes(256));
+            if (test & FAIL_ANY > 0) vm.expectRevert(ERC7579Utils.ERC7579DecodingError.selector);
+            this.callDecodeBatchAndGetFirstWithCalldata(encoded, extraData);
         }
+
         if (test & TEST_GETFIRSTBYTES > 0) {
-            if (test & FAIL_GETFIRSTBYTES > 0) vm.expectRevert();
+            if (test & FAIL_GETFIRSTBYTES > 0) vm.expectRevert(); // solidity failure without data
             this.callDecodeBatchAndGetFirstBytes(encoded);
-            if (test & FAIL_ANY > 0) vm.expectRevert();
-            this.callDecodeBatchAndGetFirstBytesWithCalldata(encoded, new bytes(256));
+            if (test & FAIL_ANY > 0) vm.expectRevert(ERC7579Utils.ERC7579DecodingError.selector);
+            this.callDecodeBatchAndGetFirstBytesWithCalldata(encoded, extraData);
         }
     }
 
