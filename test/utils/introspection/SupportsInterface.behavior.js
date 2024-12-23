@@ -90,6 +90,7 @@ const SIGNATURES = {
   Governor: GOVERNOR_INTERFACE,
   Governor_5_3: GOVERNOR_INTERFACE.concat('getProposalId(address[],uint256[],bytes[],bytes32)'),
   ERC2981: ['royaltyInfo(uint256,uint256)'],
+  ERC5169: ['scriptURI()', 'setScriptURI(string[])'],
 };
 
 const INTERFACE_IDS = mapValues(SIGNATURES, interfaceId);
