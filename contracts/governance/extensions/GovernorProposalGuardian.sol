@@ -6,7 +6,7 @@ import {Governor} from "../Governor.sol";
 /**
  * @dev Extension of {Governor} which adds a proposal guardian that can cancel proposals at any stage of their lifecycle.
  *
- * Note: if the proposal guardian is not configured, then proposers take this role for their proposals.
+ * NOTE: if the proposal guardian is not configured, then proposers take this role for their proposals.
  */
 abstract contract GovernorProposalGuardian is Governor {
     address private _proposalGuardian;
@@ -15,9 +15,9 @@ abstract contract GovernorProposalGuardian is Governor {
 
     /**
      * @dev Override {IGovernor-cancel} that implements the extended cancellation logic.
-     * * proposal guardian can cancel any proposal at any point in the lifecycle.
+     * * The {proposalGuardian} can cancel any proposal at any point in the lifecycle.
      * * if no proposal guardian is set, the {proposalProposer} can cancel their proposals at any point in the lifecycle.
-     * * if the proposal guardian is set, proposer keep their ability to cancel during the pending stage (default behavior).
+     * * if the proposal guardian is set, the {proposalProposer} keeps their default rights defined in {IGovernor-cancel} (calling `super`).
      */
     function cancel(
         address[] memory targets,
@@ -26,9 +26,9 @@ abstract contract GovernorProposalGuardian is Governor {
         bytes32 descriptionHash
     ) public virtual override returns (uint256) {
         address caller = _msgSender();
-        address authority = proposalGuardian();
+        address guardian = proposalGuardian();
 
-        if (authority == address(0)) {
+        if (guardian == address(0)) {
             // if there is no proposal guardian
             // ... only the proposer can cancel
             // ... no restriction on when the proposer can cancel
@@ -36,7 +36,7 @@ abstract contract GovernorProposalGuardian is Governor {
             address proposer = proposalProposer(proposalId);
             if (caller != proposer) revert GovernorOnlyProposer(caller);
             return _cancel(targets, values, calldatas, descriptionHash);
-        } else if (authority == caller) {
+        } else if (guardian == caller) {
             // if there is a proposal guardian, and the caller is the proposal guardian
             // ... just cancel
             return _cancel(targets, values, calldatas, descriptionHash);
