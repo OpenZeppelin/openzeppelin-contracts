@@ -223,9 +223,7 @@ library ERC7579Utils {
                 uint256 arrayPtr = arrayLengthOffset + 32;
 
                 for (uint256 i = 0; i < arrayLength; ++i) {
-                    // Location of the element pointer in the array ...
-                    // ... and offset stored at that location
-                    //
+                    // Location of the element pointer in the array, and offset stored at that location
                     // Cannot overflow: arrayPtr + arrayLength * 32 is bounded by bufferLength
                     uint256 elementPtrPtr = arrayPtr + i * 32;
                     uint256 elementOffset = uint256(bytes32(executionCalldata[elementPtrPtr:elementPtrPtr + 32]));
@@ -235,9 +233,7 @@ library ERC7579Utils {
                     if (elementOffset > type(uint64).max || bufferLength - arrayPtr < elementOffset + 96)
                         revert ERC7579DecodingError();
 
-                    // Location of the element data (arrayPtr + offset stored at elementPtrPtr) ...
-                    // ... and offset stored at that location
-                    //
+                    // Location of the element data, and offset stored at that location
                     // Cannot overflow: arrayPtr + elementOffset + 96 is bounded by bufferLength
                     uint256 elementPtr = arrayPtr + elementOffset;
                     uint256 elementCalldataOffset = uint256(
@@ -251,9 +247,7 @@ library ERC7579Utils {
                         bufferLength - elementPtr < elementCalldataOffset + 32
                     ) revert ERC7579DecodingError();
 
-                    // Location of the element inner calldata (elementPtr + offset stored as elementPtr + 64) ...
-                    // ... and length of the calldata stored at the location
-                    //
+                    // Location of the element inner calldata, and length of the calldata stored at the location
                     // Cannot overflow: elementPtr + elementCalldataOffset + 32 is bounded by bufferLength
                     uint256 elementCalldataPtr = elementPtr + elementCalldataOffset;
                     uint256 elementCalldataLength = uint256(
