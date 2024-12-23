@@ -176,7 +176,12 @@ library ERC7579Utils {
     /// NOTE: This function runs some checks and will throw a {ERC7579DecodingError} if the input is not properly formatted.
     function decodeBatch(bytes calldata executionCalldata) internal pure returns (Execution[] calldata executionBatch) {
         unchecked {
-            uint256 bufferLength = executionCalldata.length;
+            uint256 bufferPtr;
+            uint256 bufferLength;
+            assembly ("memory-safe") {
+                bufferPtr := executionCalldata.offset
+                bufferLength := executionCalldata.length
+            }
 
             // Check executionCalldata is not empty.
             if (bufferLength < 32) revert ERC7579DecodingError();
@@ -203,7 +208,7 @@ library ERC7579Utils {
                 revert ERC7579DecodingError();
 
             assembly ("memory-safe") {
-                executionBatch.offset := add(add(executionCalldata.offset, arrayLengthOffset), 32)
+                executionBatch.offset := add(add(bufferPtr, arrayLengthOffset), 32)
                 executionBatch.length := arrayLength
             }
 
@@ -214,37 +219,50 @@ library ERC7579Utils {
             // that point to the memory space between the end of the `executionCalldata` buffer.
             // If we are in a situation where the lazy checks are not sufficient, we do an in-depth traversal of the
             // array, checking that everything is valid.
-            uint256 bufferEnd;
-            assembly ("memory-safe") {
-                bufferEnd := add(executionCalldata.offset, bufferLength)
-            }
-
-            if (bufferEnd < msg.data.length) {
+            if (bufferPtr + bufferLength < msg.data.length) {
                 uint256 arrayPtr = arrayLengthOffset + 32;
+
                 for (uint256 i = 0; i < arrayLength; ++i) {
-                    // location of the element pointer in the array
-                    uint256 elementPtr = arrayPtr + i * 32;
+                    // Location of the element pointer in the array ...
+                    // ... and offset stored at that location
+                    //
+                    // Cannot overflow: arrayPtr + arrayLength * 32 is bounded by bufferLength
+                    uint256 elementPtrPtr = arrayPtr + i * 32;
+                    uint256 elementOffset = uint256(bytes32(executionCalldata[elementPtrPtr:elementPtrPtr + 32]));
 
-                    // location of the element data (arrayPtr + offset stored at elementPtr)
-                    uint256 elementDataPtr = arrayPtr + uint256(bytes32(executionCalldata[elementPtr:elementPtr + 32]));
+                    // Check that element data fits in the buffer (element has length 0x60 = 96)
+                    // We know that arrayPtr <= bufferLength, so "bufferLength - arrayPtr" is safe
+                    if (elementOffset > type(uint64).max || bufferLength - arrayPtr < elementOffset + 96)
+                        revert ERC7579DecodingError();
 
-                    // check that element data fits in the buffer (element has length 0x60 = 96)
-                    if (bufferLength < elementDataPtr + 96) revert ERC7579DecodingError();
-
-                    // location of the element inner calldata (elementDataPtr + offset stored as elementDataPtr + 64)
-                    uint256 elementContentPtr = elementDataPtr +
-                        uint256(bytes32(executionCalldata[elementDataPtr + 64:elementDataPtr + 96]));
-
-                    // check that at length of element inner calldata fits in the buffer
-                    if (bufferLength < elementContentPtr + 32) revert ERC7579DecodingError();
-
-                    // length of the element inner calldata
-                    uint256 elementContentLength = uint256(
-                        bytes32(executionCalldata[elementContentPtr:elementContentPtr + 32])
+                    // Location of the element data (arrayPtr + offset stored at elementPtrPtr) ...
+                    // ... and offset stored at that location
+                    //
+                    // Cannot overflow: arrayPtr + elementOffset + 96 is bounded by bufferLength
+                    uint256 elementPtr = arrayPtr + elementOffset;
+                    uint256 elementCalldataOffset = uint256(
+                        bytes32(executionCalldata[elementPtr + 64:elementPtr + 96])
                     );
 
-                    // check that all the data of the element inner calldata fits in the buffer
-                    if (bufferLength < elementContentPtr + 32 + elementContentLength) revert ERC7579DecodingError();
+                    // Check that at length of element inner calldata fits in the buffer
+                    // We know that elementPtr + 96 <= bufferLength, so "bufferLength - elementPtr" is safe
+                    if (
+                        elementCalldataOffset > type(uint64).max ||
+                        bufferLength - elementPtr < elementCalldataOffset + 32
+                    ) revert ERC7579DecodingError();
+
+                    // Location of the element inner calldata (elementPtr + offset stored as elementPtr + 64) ...
+                    // ... and length of the calldata stored at the location
+                    //
+                    // Cannot overflow: elementPtr + elementCalldataOffset + 32 is bounded by bufferLength
+                    uint256 elementCalldataPtr = elementPtr + elementCalldataOffset;
+                    uint256 elementCalldataLength = uint256(
+                        bytes32(executionCalldata[elementCalldataPtr:elementCalldataPtr + 32])
+                    );
+
+                    // Check that all the data of the element inner calldata fits in the buffer
+                    // We know that elementCalldataOffset + 32 <= bufferLength, so "bufferLength - elementCalldataPtr" - 32 is safe
+                    if (bufferLength - elementCalldataPtr - 32 < elementCalldataLength) revert ERC7579DecodingError();
                 }
             }
         }
