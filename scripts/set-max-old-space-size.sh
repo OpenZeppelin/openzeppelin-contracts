@@ -5,6 +5,6 @@
 
 export NODE_OPTIONS="${NODE_OPTIONS:-}"
 
-if [[ $NODE_OPTIONS != *"--max-old-space-size"* ]]; then
+if [ "$NODE_OPTIONS" != *"--max-old-space-size"* ]; then
   export NODE_OPTIONS="${NODE_OPTIONS} --max-old-space-size=8192"
 fi
