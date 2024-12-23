@@ -145,7 +145,7 @@ jobs:
       - name: Upload tarball artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ steps.pack.outputs.tarball }}
       - name: Publish
         run: bash scripts/release/workflow/publish.sh
@@ -172,7 +172,7 @@ jobs:
         id: artifact
         uses: actions/download-artifact@v4
         with:
-          name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}-${{ github.run_id }}-${{ github.run_attempt }}
       - name: Check integrity
         run: bash scripts/release/workflow/integrity-check.sh
         env:
