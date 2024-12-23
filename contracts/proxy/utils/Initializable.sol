@@ -217,12 +217,22 @@ abstract contract Initializable {
     }
 
     /**
+     * @dev Pointer to storage slot. Allows to override it with a custom storage location.
+     *
+     * NOTE: Consider following the ERC-7201 formula to derive storage locations.
+     */
+    function _initializableStorageSlot() internal pure virtual returns (bytes32) {
+        return INITIALIZABLE_STORAGE;
+    }
+
+    /**
      * @dev Returns a pointer to the storage namespace.
      */
     // solhint-disable-next-line var-name-mixedcase
     function _getInitializableStorage() private pure returns (InitializableStorage storage $) {
+        bytes32 slot = _initializableStorageSlot();
         assembly {
-            $.slot := INITIALIZABLE_STORAGE
+            $.slot := slot
         }
     }
 }
