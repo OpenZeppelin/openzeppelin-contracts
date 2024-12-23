@@ -206,6 +206,47 @@ library ERC7579Utils {
                 executionBatch.offset := add(add(executionCalldata.offset, arrayLengthOffset), 32)
                 executionBatch.length := arrayLength
             }
+
+            // [ Sanity check ]
+            // Solidity performs "lazy" verification that all calldata objects are valid, by checking that they are
+            // within calldatasize. This check is performed when objects are dereferenced. If the `executionCalldata`
+            // is not the last element (buffer) in msg.data, this check will not detect potentially ill-formed objects
+            // that point to the memory space between the end of the `executionCalldata` buffer.
+            // If we are in a situation where the lazy checks are not sufficient, we do an in-depth traversal of the
+            // array, checking that everything is valid.
+            uint256 bufferEnd;
+            assembly ("memory-safe") {
+                bufferEnd := add(executionCalldata.offset, bufferLength)
+            }
+
+            if (bufferEnd < msg.data.length) {
+                uint256 arrayPtr = arrayLengthOffset + 32;
+                for (uint256 i = 0; i < arrayLength; ++i) {
+                    // location of the element pointer in the array
+                    uint256 elementPtr = arrayPtr + i * 32;
+
+                    // location of the element data (arrayPtr + offset stored at elementPtr)
+                    uint256 elementDataPtr = arrayPtr + uint256(bytes32(executionCalldata[elementPtr:elementPtr + 32]));
+
+                    // check that element data fits in the buffer (element has length 0x60 = 96)
+                    if (bufferLength < elementDataPtr + 96) revert ERC7579DecodingError();
+
+                    // location of the element inner calldata (elementDataPtr + offset stored as elementDataPtr + 64)
+                    uint256 elementContentPtr = elementDataPtr +
+                        uint256(bytes32(executionCalldata[elementDataPtr + 64:elementDataPtr + 96]));
+
+                    // check that at length of element inner calldata fits in the buffer
+                    if (bufferLength < elementContentPtr + 32) revert ERC7579DecodingError();
+
+                    // length of the element inner calldata
+                    uint256 elementContentLength = uint256(
+                        bytes32(executionCalldata[elementContentPtr:elementContentPtr + 32])
+                    );
+
+                    // check that all the data of the element inner calldata fits in the buffer
+                    if (bufferLength < elementContentPtr + 32 + elementContentLength) revert ERC7579DecodingError();
+                }
+            }
         }
     }
 
