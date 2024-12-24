@@ -1,4 +1,4 @@
-const { ethers } = require('hardhat');
+const { ethers, entrypoint } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
@@ -7,11 +7,12 @@ const { MAX_UINT48 } = require('../../helpers/constants');
 const ADDRESS_ONE = '0x0000000000000000000000000000000000000001';
 
 const fixture = async () => {
-  const [authorizer, sender, entrypoint, factory, paymaster] = await ethers.getSigners();
+  const [authorizer, sender, factory, paymaster] = await ethers.getSigners();
   const utils = await ethers.deployContract('$ERC4337Utils');
   const SIG_VALIDATION_SUCCESS = await utils.$SIG_VALIDATION_SUCCESS();
   const SIG_VALIDATION_FAILED = await utils.$SIG_VALIDATION_FAILED();
-  return { utils, authorizer, sender, entrypoint, factory, paymaster, SIG_VALIDATION_SUCCESS, SIG_VALIDATION_FAILED };
+
+  return { utils, authorizer, sender, factory, paymaster, SIG_VALIDATION_SUCCESS, SIG_VALIDATION_FAILED };
 };
 
 describe('ERC4337Utils', function () {
@@ -167,10 +168,18 @@ describe('ERC4337Utils', function () {
   describe('hash', function () {
     it('returns the operation hash with specified entrypoint and chainId', async function () {
       const userOp = new UserOperation({ sender: this.sender, nonce: 1 });
-      const chainId = 0xdeadbeef;
+      const chainId = await ethers.provider.getNetwork().then(({ chainId }) => chainId);
+      const otherChainId = 0xdeadbeef;
 
-      expect(this.utils.$hash(userOp.packed, this.entrypoint, chainId)).to.eventually.equal(
-        userOp.hash(this.entrypoint, chainId),
+      // check that helper matches entrypoint logic
+      expect(entrypoint.getUserOpHash(userOp.packed)).to.eventually.equal(userOp.hash(entrypoint, chainId));
+
+      // check library against helper
+      expect(this.utils.$hash(userOp.packed, entrypoint, chainId)).to.eventually.equal(
+        userOp.hash(entrypoint, chainId),
+      );
+      expect(this.utils.$hash(userOp.packed, entrypoint, otherChainId)).to.eventually.equal(
+        userOp.hash(entrypoint, otherChainId),
       );
     });
   });
