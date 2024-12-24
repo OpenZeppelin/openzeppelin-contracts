@@ -331,14 +331,8 @@ contract ERC7579UtilsTest is Test {
         _testDecodeBatch(abi.encode(32, 1), TEST_DECODE | FAIL_DECODE);
     }
 
-    // GOOD at first level, BAD when dereferencing
-    function testDecodeBatchTopLevelCheck() public {
-        _testDecodeBatch(abi.encode(32, 1, 0), TEST_DECODE | TEST_GETFIRST | FAIL_GETFIRST);
-    }
-
     // GOOD
     function testDecodeBatchFirstBytes() public view {
-        //
         // 0000000000000000000000000000000000000000000000000000000000000020 (32) offset
         // 0000000000000000000000000000000000000000000000000000000000000001 ( 1) array length
         // 0000000000000000000000000000000000000000000000000000000000000020 (32) element 0 offset
@@ -356,9 +350,19 @@ contract ERC7579UtilsTest is Test {
     }
 
     // GOOD at first level, BAD when dereferencing
-    function testDecodeBatchTopLevelCheckBis() public {
+    function testDecodeBatchDeepOutOfBound1() public {
         // This is invalid, the first element of the array points is out of bounds
-        // but we allow it past initial validation, because solidity will validate later when the bytes field is accessed
+        //
+        // 0000000000000000000000000000000000000000000000000000000000000020 (32) offset
+        // 0000000000000000000000000000000000000000000000000000000000000001 ( 1) array length
+        // 0000000000000000000000000000000000000000000000000000000000000000 ( 0) element 0 offset
+        // <missing element>
+        _testDecodeBatch(abi.encode(32, 1, 0), TEST_DECODE | TEST_GETFIRST | FAIL_GETFIRST);
+    }
+
+    // GOOD at first level, BAD when dereferencing
+    function testDecodeBatchDeepOutOfBound2() public {
+        // This is invalid, the first element of the array points is out of bounds
         //
         // 0000000000000000000000000000000000000000000000000000000000000020 (32) offset
         // 0000000000000000000000000000000000000000000000000000000000000001 ( 1) array length
@@ -367,9 +371,19 @@ contract ERC7579UtilsTest is Test {
         _testDecodeBatch(abi.encode(32, 1, 32), TEST_DECODE | TEST_GETFIRST | FAIL_GETFIRST);
     }
 
-    function testDecodeBatchDeepOutOfBound() public {
-        // this is invalid: the bytes field of the first element of the array is out of bounds
-        // but we allow it past initial validation, because solidity will validate later when the bytes field is accessed
+    function testDecodeBatchDeepOutOfBound3() public {
+        // This is invalid: the first item is partly out of bounds.
+        //
+        // 0000000000000000000000000000000000000000000000000000000000000020 (32) offset
+        // 0000000000000000000000000000000000000000000000000000000000000001 ( 1) array length
+        // 0000000000000000000000000000000000000000000000000000000000000020 (32) element 0 offset
+        // 000000000000000000000000xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx (recipient) target for element #0
+        // <missing data>
+        _testDecodeBatch(abi.encode(32, 1, 32, _recipient1), TEST_DECODE | TEST_GETFIRST | FAIL_GETFIRST);
+    }
+
+    function testDecodeBatchDeepOutOfBound4() public {
+        // This is invalid: the bytes field of the first element of the array is out of bounds
         //
         // 0000000000000000000000000000000000000000000000000000000000000020 (32) offset
         // 0000000000000000000000000000000000000000000000000000000000000001 ( 1) array length
