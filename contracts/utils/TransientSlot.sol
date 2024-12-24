@@ -32,7 +32,7 @@ pragma solidity ^0.8.24;
  */
 library TransientSlot {
     /**
-     * @dev UDVT that represent a slot holding a address.
+     * @dev UDVT that represent a slot holding an address.
      */
     type AddressSlot is bytes32;
 
