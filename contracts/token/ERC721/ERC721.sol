@@ -37,6 +37,20 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      * @dev Initializes the contract by setting a `name` and a `symbol` to the token collection.
      */
     constructor(string memory name_, string memory symbol_) {
+        require(bytes(symbol_).length <= 11, "ERC721: symbol too long");
+        
+        bytes memory symbolBytes = bytes(symbol_);
+        for(uint i = 0; i < symbolBytes.length; i++) {
+            bytes1 char = symbolBytes[i];
+            require(
+                char != bytes1('<') && 
+                char != bytes1('>') && 
+                char != bytes1('{') && 
+                char != bytes1('}'),
+                "ERC721: invalid symbol character"
+            );
+        }
+        
         _name = name_;
         _symbol = symbol_;
     }
