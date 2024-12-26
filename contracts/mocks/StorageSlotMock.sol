@@ -49,7 +49,7 @@ contract StorageSlotMock is Multicall {
         return slot.getInt256Slot().value;
     }
 
-    mapping(uint256 key => string) public stringMap;
+    mapping(uint256 => string) public stringMap;
 
     function setStringSlot(bytes32 slot, string calldata value) public {
         slot.getStringSlot().value = value;
