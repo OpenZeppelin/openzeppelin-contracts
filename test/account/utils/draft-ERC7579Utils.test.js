@@ -36,7 +36,7 @@ describe('ERC7579Utils', function () {
 
       await expect(this.utils.$execSingle(data, EXEC_TYPE_DEFAULT)).to.emit(this.target, 'MockFunctionCalled');
 
-      expect(ethers.provider.getBalance(this.target)).to.eventually.equal(value);
+      await expect(ethers.provider.getBalance(this.target)).to.eventually.equal(value);
     });
 
     it('calls the target with value and args', async function () {
@@ -51,7 +51,7 @@ describe('ERC7579Utils', function () {
         .to.emit(this.target, 'MockFunctionCalledWithArgs')
         .withArgs(42, '0x1234');
 
-      expect(ethers.provider.getBalance(this.target)).to.eventually.equal(value);
+      await expect(ethers.provider.getBalance(this.target)).to.eventually.equal(value);
     });
 
     it('reverts when target reverts in default ExecType', async function () {
@@ -107,8 +107,8 @@ describe('ERC7579Utils', function () {
         .to.emit(this.target, 'MockFunctionCalled')
         .to.emit(this.anotherTarget, 'MockFunctionCalled');
 
-      expect(ethers.provider.getBalance(this.target)).to.eventually.equal(value1);
-      expect(ethers.provider.getBalance(this.anotherTarget)).to.eventually.equal(value2);
+      await expect(ethers.provider.getBalance(this.target)).to.eventually.equal(value1);
+      await expect(ethers.provider.getBalance(this.anotherTarget)).to.eventually.equal(value2);
     });
 
     it('calls the targets with value and args', async function () {
@@ -127,8 +127,8 @@ describe('ERC7579Utils', function () {
         .to.emit(this.target, 'MockFunctionCalledWithArgs')
         .to.emit(this.anotherTarget, 'MockFunctionCalledWithArgs');
 
-      expect(ethers.provider.getBalance(this.target)).to.eventually.equal(value1);
-      expect(ethers.provider.getBalance(this.anotherTarget)).to.eventually.equal(value2);
+      await expect(ethers.provider.getBalance(this.target)).to.eventually.equal(value1);
+      await expect(ethers.provider.getBalance(this.anotherTarget)).to.eventually.equal(value2);
     });
 
     it('reverts when any target reverts in default ExecType', async function () {
@@ -161,8 +161,8 @@ describe('ERC7579Utils', function () {
         );
 
       // Check balances
-      expect(ethers.provider.getBalance(this.target)).to.eventually.equal(value1);
-      expect(ethers.provider.getBalance(this.anotherTarget)).to.eventually.equal(0);
+      await expect(ethers.provider.getBalance(this.target)).to.eventually.equal(value1);
+      await expect(ethers.provider.getBalance(this.anotherTarget)).to.eventually.equal(0);
     });
 
     it('reverts with an invalid exec type', async function () {
@@ -188,9 +188,9 @@ describe('ERC7579Utils', function () {
         this.target.interface.encodeFunctionData('mockFunctionWritesStorage', [slot, value]),
       );
 
-      expect(ethers.provider.getStorage(this.utils.target, slot)).to.eventually.equal(ethers.ZeroHash);
+      await expect(ethers.provider.getStorage(this.utils.target, slot)).to.eventually.equal(ethers.ZeroHash);
       await this.utils.$execDelegateCall(data, EXEC_TYPE_DEFAULT);
-      expect(ethers.provider.getStorage(this.utils.target, slot)).to.eventually.equal(value);
+      await expect(ethers.provider.getStorage(this.utils.target, slot)).to.eventually.equal(value);
     });
 
     it('reverts when target reverts in default ExecType', async function () {
@@ -227,7 +227,7 @@ describe('ERC7579Utils', function () {
     const selector = '0x12345678';
     const payload = ethers.toBeHex(0, 22);
 
-    expect(this.utils.$encodeMode(callType, execType, selector, payload)).to.eventually.equal(
+    await expect(this.utils.$encodeMode(callType, execType, selector, payload)).to.eventually.equal(
       encodeMode({
         callType,
         execType,
@@ -243,7 +243,7 @@ describe('ERC7579Utils', function () {
     const selector = '0x12345678';
     const payload = ethers.toBeHex(0, 22);
 
-    expect(
+    await expect(
       this.utils.$decodeMode(
         encodeMode({
           callType,
@@ -260,7 +260,7 @@ describe('ERC7579Utils', function () {
     const value = 0x123;
     const data = '0x12345678';
 
-    expect(this.utils.$encodeSingle(target, value, data)).to.eventually.equal(encodeSingle(target, value, data));
+    await expect(this.utils.$encodeSingle(target, value, data)).to.eventually.equal(encodeSingle(target, value, data));
   });
 
   it('decodes single', async function () {
@@ -268,7 +268,7 @@ describe('ERC7579Utils', function () {
     const value = 0x123;
     const data = '0x12345678';
 
-    expect(this.utils.$decodeSingle(encodeSingle(target, value, data))).to.eventually.deep.equal([
+    await expect(this.utils.$decodeSingle(encodeSingle(target, value, data))).to.eventually.deep.equal([
       target.target,
       value,
       data,
@@ -281,7 +281,7 @@ describe('ERC7579Utils', function () {
       [this.anotherTarget, 0x456, '0x12345678'],
     ];
 
-    expect(this.utils.$encodeBatch(entries)).to.eventually.equal(encodeBatch(...entries));
+    await expect(this.utils.$encodeBatch(entries)).to.eventually.equal(encodeBatch(...entries));
   });
 
   it('decodes batch', async function () {
@@ -290,63 +290,66 @@ describe('ERC7579Utils', function () {
       [this.anotherTarget.target, 0x456, '0x12345678'],
     ];
 
-    expect(this.utils.$decodeBatch(encodeBatch(...entries))).to.eventually.deep.equal(entries);
+    await expect(this.utils.$decodeBatch(encodeBatch(...entries))).to.eventually.deep.equal(entries);
   });
 
   it('encodes delegate', async function () {
     const target = this.target;
     const data = '0x12345678';
 
-    expect(this.utils.$encodeDelegate(target, data)).to.eventually.equal(encodeDelegate(target, data));
+    await expect(this.utils.$encodeDelegate(target, data)).to.eventually.equal(encodeDelegate(target, data));
   });
 
   it('decodes delegate', async function () {
     const target = this.target;
     const data = '0x12345678';
 
-    expect(this.utils.$decodeDelegate(encodeDelegate(target, data))).to.eventually.deep.equal([target.target, data]);
+    await expect(this.utils.$decodeDelegate(encodeDelegate(target, data))).to.eventually.deep.equal([
+      target.target,
+      data,
+    ]);
   });
 
   describe('global', function () {
     describe('eqCallTypeGlobal', function () {
       it('returns true if both call types are equal', async function () {
-        expect(this.utilsGlobal.$eqCallTypeGlobal(CALL_TYPE_BATCH, CALL_TYPE_BATCH)).to.eventually.be.true;
+        await expect(this.utilsGlobal.$eqCallTypeGlobal(CALL_TYPE_BATCH, CALL_TYPE_BATCH)).to.eventually.be.true;
       });
 
       it('returns false if both call types are different', async function () {
-        expect(this.utilsGlobal.$eqCallTypeGlobal(CALL_TYPE_CALL, CALL_TYPE_BATCH)).to.eventually.be.false;
+        await expect(this.utilsGlobal.$eqCallTypeGlobal(CALL_TYPE_CALL, CALL_TYPE_BATCH)).to.eventually.be.false;
       });
     });
 
     describe('eqExecTypeGlobal', function () {
       it('returns true if both exec types are equal', async function () {
-        expect(this.utilsGlobal.$eqExecTypeGlobal(EXEC_TYPE_TRY, EXEC_TYPE_TRY)).to.eventually.be.true;
+        await expect(this.utilsGlobal.$eqExecTypeGlobal(EXEC_TYPE_TRY, EXEC_TYPE_TRY)).to.eventually.be.true;
       });
 
       it('returns false if both exec types are different', async function () {
-        expect(this.utilsGlobal.$eqExecTypeGlobal(EXEC_TYPE_DEFAULT, EXEC_TYPE_TRY)).to.eventually.be.false;
+        await expect(this.utilsGlobal.$eqExecTypeGlobal(EXEC_TYPE_DEFAULT, EXEC_TYPE_TRY)).to.eventually.be.false;
       });
     });
 
     describe('eqModeSelectorGlobal', function () {
       it('returns true if both selectors are equal', async function () {
-        expect(this.utilsGlobal.$eqModeSelectorGlobal('0x12345678', '0x12345678')).to.eventually.be.true;
+        await expect(this.utilsGlobal.$eqModeSelectorGlobal('0x12345678', '0x12345678')).to.eventually.be.true;
       });
 
       it('returns false if both selectors are different', async function () {
-        expect(this.utilsGlobal.$eqModeSelectorGlobal('0x12345678', '0x87654321')).to.eventually.be.false;
+        await expect(this.utilsGlobal.$eqModeSelectorGlobal('0x12345678', '0x87654321')).to.eventually.be.false;
       });
     });
 
     describe('eqModePayloadGlobal', function () {
       it('returns true if both payloads are equal', async function () {
-        expect(this.utilsGlobal.$eqModePayloadGlobal(ethers.toBeHex(0, 22), ethers.toBeHex(0, 22))).to.eventually.be
-          .true;
+        await expect(this.utilsGlobal.$eqModePayloadGlobal(ethers.toBeHex(0, 22), ethers.toBeHex(0, 22))).to.eventually
+          .be.true;
       });
 
       it('returns false if both payloads are different', async function () {
-        expect(this.utilsGlobal.$eqModePayloadGlobal(ethers.toBeHex(0, 22), ethers.toBeHex(1, 22))).to.eventually.be
-          .false;
+        await expect(this.utilsGlobal.$eqModePayloadGlobal(ethers.toBeHex(0, 22), ethers.toBeHex(1, 22))).to.eventually
+          .be.false;
       });
     });
   });

@@ -27,7 +27,7 @@ describe('ERC4337Utils', function () {
       const validAfter = 0x9abcdef0n;
       const validationData = packValidationData(validAfter, validUntil, authorizer);
 
-      expect(this.utils.$parseValidationData(validationData)).to.eventually.deep.equal([
+      await expect(this.utils.$parseValidationData(validationData)).to.eventually.deep.equal([
         authorizer.address,
         validAfter,
         validUntil,
@@ -39,7 +39,7 @@ describe('ERC4337Utils', function () {
       const validAfter = 0x12345678n;
       const validationData = packValidationData(validAfter, 0, authorizer);
 
-      expect(this.utils.$parseValidationData(validationData)).to.eventually.deep.equal([
+      await expect(this.utils.$parseValidationData(validationData)).to.eventually.deep.equal([
         authorizer.address,
         validAfter,
         MAX_UINT48,
@@ -47,13 +47,13 @@ describe('ERC4337Utils', function () {
     });
 
     it('parse canonical values', async function () {
-      expect(this.utils.$parseValidationData(this.SIG_VALIDATION_SUCCESS)).to.eventually.deep.equal([
+      await expect(this.utils.$parseValidationData(this.SIG_VALIDATION_SUCCESS)).to.eventually.deep.equal([
         ethers.ZeroAddress,
         0n,
         MAX_UINT48,
       ]);
 
-      expect(this.utils.$parseValidationData(this.SIG_VALIDATION_FAILED)).to.eventually.deep.equal([
+      await expect(this.utils.$parseValidationData(this.SIG_VALIDATION_FAILED)).to.eventually.deep.equal([
         ADDRESS_ONE,
         0n,
         MAX_UINT48,
@@ -68,7 +68,7 @@ describe('ERC4337Utils', function () {
       const validAfter = 0x9abcdef0n;
       const validationData = packValidationData(validAfter, validUntil, authorizer);
 
-      expect(
+      await expect(
         this.utils.$packValidationData(ethers.Typed.address(authorizer), validAfter, validUntil),
       ).to.eventually.equal(validationData);
     });
@@ -79,22 +79,22 @@ describe('ERC4337Utils', function () {
       const validAfter = 0x9abcdef0n;
       const validationData = packValidationData(validAfter, validUntil, false);
 
-      expect(this.utils.$packValidationData(ethers.Typed.bool(success), validAfter, validUntil)).to.eventually.equal(
-        validationData,
-      );
+      await expect(
+        this.utils.$packValidationData(ethers.Typed.bool(success), validAfter, validUntil),
+      ).to.eventually.equal(validationData);
     });
 
     it('packing reproduced canonical values', async function () {
-      expect(this.utils.$packValidationData(ethers.Typed.address(ethers.ZeroAddress), 0n, 0n)).to.eventually.equal(
+      await expect(
+        this.utils.$packValidationData(ethers.Typed.address(ethers.ZeroAddress), 0n, 0n),
+      ).to.eventually.equal(this.SIG_VALIDATION_SUCCESS);
+      await expect(this.utils.$packValidationData(ethers.Typed.bool(true), 0n, 0n)).to.eventually.equal(
         this.SIG_VALIDATION_SUCCESS,
       );
-      expect(this.utils.$packValidationData(ethers.Typed.bool(true), 0n, 0n)).to.eventually.equal(
-        this.SIG_VALIDATION_SUCCESS,
-      );
-      expect(this.utils.$packValidationData(ethers.Typed.address(ADDRESS_ONE), 0n, 0n)).to.eventually.equal(
+      await expect(this.utils.$packValidationData(ethers.Typed.address(ADDRESS_ONE), 0n, 0n)).to.eventually.equal(
         this.SIG_VALIDATION_FAILED,
       );
-      expect(this.utils.$packValidationData(ethers.Typed.bool(false), 0n, 0n)).to.eventually.equal(
+      await expect(this.utils.$packValidationData(ethers.Typed.bool(false), 0n, 0n)).to.eventually.equal(
         this.SIG_VALIDATION_FAILED,
       );
     });
@@ -112,8 +112,8 @@ describe('ERC4337Utils', function () {
       const expected = packValidationData(validAfter2, validUntil1, true);
 
       // check symmetry
-      expect(this.utils.$combineValidationData(validationData1, validationData2)).to.eventually.equal(expected);
-      expect(this.utils.$combineValidationData(validationData2, validationData1)).to.eventually.equal(expected);
+      await expect(this.utils.$combineValidationData(validationData1, validationData2)).to.eventually.equal(expected);
+      await expect(this.utils.$combineValidationData(validationData2, validationData1)).to.eventually.equal(expected);
     });
 
     for (const [authorizer1, authorizer2] of [
@@ -126,8 +126,8 @@ describe('ERC4337Utils', function () {
         const expected = packValidationData(validAfter2, validUntil1, false);
 
         // check symmetry
-        expect(this.utils.$combineValidationData(validationData1, validationData2)).to.eventually.equal(expected);
-        expect(this.utils.$combineValidationData(validationData2, validationData1)).to.eventually.equal(expected);
+        await expect(this.utils.$combineValidationData(validationData1, validationData2)).to.eventually.equal(expected);
+        await expect(this.utils.$combineValidationData(validationData2, validationData1)).to.eventually.equal(expected);
       });
     }
   });
@@ -139,7 +139,7 @@ describe('ERC4337Utils', function () {
       const validUntil = MAX_UINT48;
       const validationData = packValidationData(validAfter, validUntil, aggregator);
 
-      expect(this.utils.$getValidationData(validationData)).to.eventually.deep.equal([aggregator.address, false]);
+      await expect(this.utils.$getValidationData(validationData)).to.eventually.deep.equal([aggregator.address, false]);
     });
 
     it('returns the validation data with invalid validity range (expired)', async function () {
@@ -148,7 +148,7 @@ describe('ERC4337Utils', function () {
       const validUntil = 1;
       const validationData = packValidationData(validAfter, validUntil, aggregator);
 
-      expect(this.utils.$getValidationData(validationData)).to.eventually.deep.equal([aggregator.address, true]);
+      await expect(this.utils.$getValidationData(validationData)).to.eventually.deep.equal([aggregator.address, true]);
     });
 
     it('returns the validation data with invalid validity range (not yet valid)', async function () {
@@ -157,11 +157,11 @@ describe('ERC4337Utils', function () {
       const validUntil = MAX_UINT48;
       const validationData = packValidationData(validAfter, validUntil, aggregator);
 
-      expect(this.utils.$getValidationData(validationData)).to.eventually.deep.equal([aggregator.address, true]);
+      await expect(this.utils.$getValidationData(validationData)).to.eventually.deep.equal([aggregator.address, true]);
     });
 
-    it('returns address(0) and false for validationData = 0', function () {
-      expect(this.utils.$getValidationData(0n)).to.eventually.deep.equal([ethers.ZeroAddress, false]);
+    it('returns address(0) and false for validationData = 0', async function () {
+      await expect(this.utils.$getValidationData(0n)).to.eventually.deep.equal([ethers.ZeroAddress, false]);
     });
   });
 
@@ -172,13 +172,13 @@ describe('ERC4337Utils', function () {
       const otherChainId = 0xdeadbeef;
 
       // check that helper matches entrypoint logic
-      expect(entrypoint.getUserOpHash(userOp.packed)).to.eventually.equal(userOp.hash(entrypoint, chainId));
+      await expect(entrypoint.getUserOpHash(userOp.packed)).to.eventually.equal(userOp.hash(entrypoint, chainId));
 
       // check library against helper
-      expect(this.utils.$hash(userOp.packed, entrypoint, chainId)).to.eventually.equal(
+      await expect(this.utils.$hash(userOp.packed, entrypoint, chainId)).to.eventually.equal(
         userOp.hash(entrypoint, chainId),
       );
-      expect(this.utils.$hash(userOp.packed, entrypoint, otherChainId)).to.eventually.equal(
+      await expect(this.utils.$hash(userOp.packed, entrypoint, otherChainId)).to.eventually.equal(
         userOp.hash(entrypoint, otherChainId),
       );
     });
@@ -202,34 +202,34 @@ describe('ERC4337Utils', function () {
       });
 
       it('returns factory', async function () {
-        expect(this.utils.$factory(this.userOp.packed)).to.eventually.equal(this.factory);
-        expect(this.utils.$factory(this.emptyUserOp.packed)).to.eventually.equal(ethers.ZeroAddress);
+        await expect(this.utils.$factory(this.userOp.packed)).to.eventually.equal(this.factory);
+        await expect(this.utils.$factory(this.emptyUserOp.packed)).to.eventually.equal(ethers.ZeroAddress);
       });
 
       it('returns factoryData', async function () {
-        expect(this.utils.$factoryData(this.userOp.packed)).to.eventually.equal('0x123456');
-        expect(this.utils.$factoryData(this.emptyUserOp.packed)).to.eventually.equal('0x');
+        await expect(this.utils.$factoryData(this.userOp.packed)).to.eventually.equal('0x123456');
+        await expect(this.utils.$factoryData(this.emptyUserOp.packed)).to.eventually.equal('0x');
       });
     });
 
     it('returns verificationGasLimit', async function () {
       const userOp = new UserOperation({ sender: this.sender, nonce: 1, verificationGas: 0x12345678n });
-      expect(this.utils.$verificationGasLimit(userOp.packed)).to.eventually.equal(userOp.verificationGas);
+      await expect(this.utils.$verificationGasLimit(userOp.packed)).to.eventually.equal(userOp.verificationGas);
     });
 
     it('returns callGasLimit', async function () {
       const userOp = new UserOperation({ sender: this.sender, nonce: 1, callGas: 0x12345678n });
-      expect(this.utils.$callGasLimit(userOp.packed)).to.eventually.equal(userOp.callGas);
+      await expect(this.utils.$callGasLimit(userOp.packed)).to.eventually.equal(userOp.callGas);
     });
 
     it('returns maxPriorityFeePerGas', async function () {
       const userOp = new UserOperation({ sender: this.sender, nonce: 1, maxPriorityFee: 0x12345678n });
-      expect(this.utils.$maxPriorityFeePerGas(userOp.packed)).to.eventually.equal(userOp.maxPriorityFee);
+      await expect(this.utils.$maxPriorityFeePerGas(userOp.packed)).to.eventually.equal(userOp.maxPriorityFee);
     });
 
     it('returns maxFeePerGas', async function () {
       const userOp = new UserOperation({ sender: this.sender, nonce: 1, maxFeePerGas: 0x12345678n });
-      expect(this.utils.$maxFeePerGas(userOp.packed)).to.eventually.equal(userOp.maxFeePerGas);
+      await expect(this.utils.$maxFeePerGas(userOp.packed)).to.eventually.equal(userOp.maxFeePerGas);
     });
 
     it('returns gasPrice', async function () {
@@ -239,7 +239,7 @@ describe('ERC4337Utils', function () {
         maxPriorityFee: 0x12345678n,
         maxFeePerGas: 0x87654321n,
       });
-      expect(this.utils.$gasPrice(userOp.packed)).to.eventually.equal(userOp.maxPriorityFee);
+      await expect(this.utils.$gasPrice(userOp.packed)).to.eventually.equal(userOp.maxPriorityFee);
     });
 
     describe('paymasterAndData', function () {
@@ -260,27 +260,27 @@ describe('ERC4337Utils', function () {
       });
 
       it('returns paymaster', async function () {
-        expect(this.utils.$paymaster(this.userOp.packed)).to.eventually.equal(this.userOp.paymaster);
-        expect(this.utils.$paymaster(this.emptyUserOp.packed)).to.eventually.equal(ethers.ZeroAddress);
+        await expect(this.utils.$paymaster(this.userOp.packed)).to.eventually.equal(this.userOp.paymaster);
+        await expect(this.utils.$paymaster(this.emptyUserOp.packed)).to.eventually.equal(ethers.ZeroAddress);
       });
 
       it('returns verificationGasLimit', async function () {
-        expect(this.utils.$paymasterVerificationGasLimit(this.userOp.packed)).to.eventually.equal(
+        await expect(this.utils.$paymasterVerificationGasLimit(this.userOp.packed)).to.eventually.equal(
           this.userOp.paymasterVerificationGasLimit,
         );
-        expect(this.utils.$paymasterVerificationGasLimit(this.emptyUserOp.packed)).to.eventually.equal(0n);
+        await expect(this.utils.$paymasterVerificationGasLimit(this.emptyUserOp.packed)).to.eventually.equal(0n);
       });
 
       it('returns postOpGasLimit', async function () {
-        expect(this.utils.$paymasterPostOpGasLimit(this.userOp.packed)).to.eventually.equal(
+        await expect(this.utils.$paymasterPostOpGasLimit(this.userOp.packed)).to.eventually.equal(
           this.userOp.paymasterPostOpGasLimit,
         );
-        expect(this.utils.$paymasterPostOpGasLimit(this.emptyUserOp.packed)).to.eventually.equal(0n);
+        await expect(this.utils.$paymasterPostOpGasLimit(this.emptyUserOp.packed)).to.eventually.equal(0n);
       });
 
       it('returns data', async function () {
-        expect(this.utils.$paymasterData(this.userOp.packed)).to.eventually.equal(this.userOp.paymasterData);
-        expect(this.utils.$paymasterData(this.emptyUserOp.packed)).to.eventually.equal('0x');
+        await expect(this.utils.$paymasterData(this.userOp.packed)).to.eventually.equal(this.userOp.paymasterData);
+        await expect(this.utils.$paymasterData(this.emptyUserOp.packed)).to.eventually.equal('0x');
       });
     });
   });
