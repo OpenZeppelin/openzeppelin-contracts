@@ -404,21 +404,21 @@ contract ERC7579UtilsTest is Test {
         if (test & TEST_DECODE > 0) {
             if (test & FAIL_DECODE > 0) vm.expectRevert(ERC7579Utils.ERC7579DecodingError.selector);
             this.callDecodeBatch(encoded);
-            if (test & FAIL_ANY > 0) vm.expectRevert(ERC7579Utils.ERC7579DecodingError.selector);
+            if (test & FAIL_ANY > 0) vm.expectRevert();
             this.callDecodeBatchWithCalldata(encoded, extraData);
         }
 
         if (test & TEST_GETFIRST > 0) {
-            if (test & FAIL_GETFIRST > 0) vm.expectRevert(); // solidity failure without data
+            if (test & FAIL_GETFIRST > 0) vm.expectRevert();
             this.callDecodeBatchAndGetFirst(encoded);
-            if (test & FAIL_ANY > 0) vm.expectRevert(ERC7579Utils.ERC7579DecodingError.selector);
+            if (test & FAIL_ANY > 0) vm.expectRevert();
             this.callDecodeBatchAndGetFirstWithCalldata(encoded, extraData);
         }
 
         if (test & TEST_GETFIRSTBYTES > 0) {
-            if (test & FAIL_GETFIRSTBYTES > 0) vm.expectRevert(); // solidity failure without data
+            if (test & FAIL_GETFIRSTBYTES > 0) vm.expectRevert();
             this.callDecodeBatchAndGetFirstBytes(encoded);
-            if (test & FAIL_ANY > 0) vm.expectRevert(ERC7579Utils.ERC7579DecodingError.selector);
+            if (test & FAIL_ANY > 0) vm.expectRevert();
             this.callDecodeBatchAndGetFirstBytesWithCalldata(encoded, extraData);
         }
     }

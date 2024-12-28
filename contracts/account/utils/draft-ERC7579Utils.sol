@@ -212,52 +212,33 @@ library ERC7579Utils {
                 executionBatch.length := arrayLength
             }
 
-            // [ Sanity check ]
-            // Solidity performs "lazy" verification that all calldata objects are valid, by checking that they are
-            // within calldatasize. This check is performed when objects are dereferenced. If the `executionCalldata`
-            // is not the last element (buffer) in msg.data, this check will not detect potentially ill-formed objects
-            // that point to the memory space between the end of the `executionCalldata` buffer.
-            // If we are in a situation where the lazy checks are not sufficient, we do an in-depth traversal of the
-            // array, checking that everything is valid.
-            if (bufferPtr + bufferLength < msg.data.length) {
-                uint256 arrayPtr = arrayLengthOffset + 32;
+            _validateCalldataBound(executionBatch, bufferPtr + bufferLength);
+        }
+    }
 
-                for (uint256 i = 0; i < arrayLength; ++i) {
-                    // Location of the element pointer in the array, and offset stored at that location
-                    // Cannot overflow: arrayPtr + arrayLength * 32 is bounded by bufferLength
-                    uint256 elementPtrPtr = arrayPtr + i * 32;
-                    uint256 elementOffset = uint256(bytes32(executionCalldata[elementPtrPtr:elementPtrPtr + 32]));
+    /** @dev Calldata sanity check
+     *
+     * Solidity performs "lazy" verification that all calldata objects are valid, by checking that they are
+     * within calldatasize. This check is performed when objects are dereferenced. If the `executionCalldata`
+     * is not the last element (buffer) in msg.data, this check will not detect potentially ill-formed objects
+     * that point to the memory space between the end of the `executionCalldata` buffer.
+     * If we are in a situation where the lazy checks are not sufficient, we do an in-depth traversal of the
+     * array, checking that everything is valid.
+     */
+    function _validateCalldataBound(Execution[] calldata executionBatch, uint256 bound) private pure {
+        if (bound < msg.data.length) {
+            for (uint256 i = 0; i < executionBatch.length; ++i) {
+                Execution calldata item = executionBatch[i];
+                bytes calldata itemCalldata = item.callData;
 
-                    // Check that element data fits in the buffer (element has length 0x60 = 96)
-                    // We know that arrayPtr <= bufferLength, so "bufferLength - arrayPtr" is safe
-                    if (elementOffset > type(uint64).max || bufferLength - arrayPtr < elementOffset + 96)
-                        revert ERC7579DecodingError();
-
-                    // Location of the element data, and offset stored at that location
-                    // Cannot overflow: arrayPtr + elementOffset + 96 is bounded by bufferLength
-                    uint256 elementPtr = arrayPtr + elementOffset;
-                    uint256 elementCalldataOffset = uint256(
-                        bytes32(executionCalldata[elementPtr + 64:elementPtr + 96])
-                    );
-
-                    // Check that at length of element inner calldata fits in the buffer
-                    // We know that elementPtr + 96 <= bufferLength, so "bufferLength - elementPtr" is safe
-                    if (
-                        elementCalldataOffset > type(uint64).max ||
-                        bufferLength - elementPtr < elementCalldataOffset + 32
-                    ) revert ERC7579DecodingError();
-
-                    // Location of the element inner calldata, and length of the calldata stored at the location
-                    // Cannot overflow: elementPtr + elementCalldataOffset + 32 is bounded by bufferLength
-                    uint256 elementCalldataPtr = elementPtr + elementCalldataOffset;
-                    uint256 elementCalldataLength = uint256(
-                        bytes32(executionCalldata[elementCalldataPtr:elementCalldataPtr + 32])
-                    );
-
-                    // Check that all the data of the element inner calldata fits in the buffer
-                    // We know that elementCalldataOffset + 32 <= bufferLength, so "bufferLength - elementCalldataPtr" - 32 is safe
-                    if (bufferLength - elementCalldataPtr - 32 < elementCalldataLength) revert ERC7579DecodingError();
+                bool outOfBound;
+                assembly ("memory-safe") {
+                    outOfBound := or(
+                        gt(add(item, 0x60), bound),
+                        gt(add(itemCalldata.offset, itemCalldata.length), bound)
+                    )
                 }
+                if (outOfBound) revert ERC7579DecodingError();
             }
         }
     }
