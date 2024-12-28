@@ -48,25 +48,25 @@ Before you begin, make sure you have the following installed:
    // SPDX-License-Identifier: MIT
    pragma solidity ^0.8.0;
 
-  import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+   import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-  contract MyToken is ERC20 {
+   contract MyToken is ERC20 {
     constructor(uint256 initialSupply) ERC20("MyToken", "MTK") {
         _mint(msg.sender, initialSupply);
      }
-  }
+   }
 
 2. Compile the Contract:
 
 a : #### Using Truffle
 
-   ```bash  
-   truffle compile
-
+  ```bash  
+    truffle compile
+ 
 b : #### Using Hardhat
 
-    ```bash
-    npx hardhat compile
+  ```bash
+     npx hardhat compile
 
 3. Deploy the Contract:
 
@@ -102,6 +102,7 @@ b : #### Using Hardhat
 
  ```bash
  npx hardhat run scripts/deploy.js
+
 
 
 
