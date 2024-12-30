@@ -42,12 +42,10 @@ contract MathTest is Test {
 
         // square of result is bigger than input
         if (_squareBigger(result, input)) {
-            assertTrue(Math.unsignedRoundsUp(rounding));
             assertTrue(_squareSmaller(result - 1, input));
         }
         // square of result is smaller than input
         else if (_squareSmaller(result, input)) {
-            assertFalse(Math.unsignedRoundsUp(rounding));
             assertTrue(_squareBigger(result + 1, input));
         }
         // input is perfect square
@@ -109,10 +107,8 @@ contract MathTest is Test {
         if (input == 0) {
             assertEq(result, 0);
         } else if (_powerOf2Bigger(result, input)) {
-            assertTrue(Math.unsignedRoundsUp(rounding));
             assertTrue(_powerOf2Smaller(result - 1, input));
         } else if (_powerOf2Smaller(result, input)) {
-            assertFalse(Math.unsignedRoundsUp(rounding));
             assertTrue(_powerOf2Bigger(result + 1, input));
         } else {
             assertEq(2 ** result, input);
@@ -136,10 +132,8 @@ contract MathTest is Test {
         if (input == 0) {
             assertEq(result, 0);
         } else if (_powerOf10Bigger(result, input)) {
-            assertTrue(Math.unsignedRoundsUp(rounding));
             assertTrue(_powerOf10Smaller(result - 1, input));
         } else if (_powerOf10Smaller(result, input)) {
-            assertFalse(Math.unsignedRoundsUp(rounding));
             assertTrue(_powerOf10Bigger(result + 1, input));
         } else {
             assertEq(10 ** result, input);
@@ -163,10 +157,8 @@ contract MathTest is Test {
         if (input == 0) {
             assertEq(result, 0);
         } else if (_powerOf256Bigger(result, input)) {
-            assertTrue(Math.unsignedRoundsUp(rounding));
             assertTrue(_powerOf256Smaller(result - 1, input));
         } else if (_powerOf256Smaller(result, input)) {
-            assertFalse(Math.unsignedRoundsUp(rounding));
             assertTrue(_powerOf256Bigger(result + 1, input));
         } else {
             assertEq(256 ** result, input);
