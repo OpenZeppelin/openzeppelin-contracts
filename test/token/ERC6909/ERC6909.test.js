@@ -70,5 +70,11 @@ describe('ERC6909', function () {
         });
       });
     });
+
+    it('reverts when transferring from the zero address', async function () {
+      await expect(this.token.$_transfer(ethers.ZeroAddress, this.holder, 1n, 1n))
+        .to.be.revertedWithCustomError(this.token, 'ERC6909InvalidSender')
+        .withArgs(ethers.ZeroAddress);
+    });
   });
 });
