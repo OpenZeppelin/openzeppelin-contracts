@@ -8,8 +8,8 @@ const { min, max, modExp } = require('../../helpers/math');
 const { generators } = require('../../helpers/random');
 const { product, range } = require('../../helpers/iterate');
 
-const RoundingDown = [Rounding.Floor, Rounding.Trunc];
-const RoundingUp = [Rounding.Ceil, Rounding.Expand];
+const RoundingDown = [Rounding.Floor];
+const RoundingUp = [Rounding.Ceil];
 
 const bytes = (value, width = undefined) => ethers.Typed.bytes(ethers.toBeHex(value, width));
 const uint256 = value => ethers.Typed.uint256(value);

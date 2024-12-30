@@ -11,10 +11,8 @@ import {SafeCast} from "./SafeCast.sol";
  */
 library Math {
     enum Rounding {
-        Floor, // Toward negative infinity
-        Ceil, // Toward positive infinity
-        Trunc, // Toward zero
-        Expand // Away from zero
+        Floor, // Towards zero
+        Ceil // Towards infinity
     }
 
     /**
@@ -226,7 +224,7 @@ library Math {
      * @dev Calculates x * y / denominator with full precision, following the selected rounding direction.
      */
     function mulDiv(uint256 x, uint256 y, uint256 denominator, Rounding rounding) internal pure returns (uint256) {
-        return mulDiv(x, y, denominator) + SafeCast.toUint(unsignedRoundsUp(rounding) && mulmod(x, y, denominator) > 0);
+        return mulDiv(x, y, denominator) + unsignedRoundsUp(rounding, mulmod(x, y, denominator) > 0);
     }
 
     /**
@@ -529,7 +527,7 @@ library Math {
     function sqrt(uint256 a, Rounding rounding) internal pure returns (uint256) {
         unchecked {
             uint256 result = sqrt(a);
-            return result + SafeCast.toUint(unsignedRoundsUp(rounding) && result * result < a);
+            return result + unsignedRoundsUp(rounding, result * result < a);
         }
     }
 
@@ -585,7 +583,7 @@ library Math {
     function log2(uint256 value, Rounding rounding) internal pure returns (uint256) {
         unchecked {
             uint256 result = log2(value);
-            return result + SafeCast.toUint(unsignedRoundsUp(rounding) && 1 << result < value);
+            return result + unsignedRoundsUp(rounding, 1 << result < value);
         }
     }
 
@@ -634,7 +632,7 @@ library Math {
     function log10(uint256 value, Rounding rounding) internal pure returns (uint256) {
         unchecked {
             uint256 result = log10(value);
-            return result + SafeCast.toUint(unsignedRoundsUp(rounding) && 10 ** result < value);
+            return result + unsignedRoundsUp(rounding, 10 ** result < value);
         }
     }
 
@@ -664,14 +662,14 @@ library Math {
     function log256(uint256 value, Rounding rounding) internal pure returns (uint256) {
         unchecked {
             uint256 result = log256(value);
-            return result + SafeCast.toUint(unsignedRoundsUp(rounding) && 1 << (result << 3) < value);
+            return result + unsignedRoundsUp(rounding, 1 << (result << 3) < value);
         }
     }
 
     /**
-     * @dev Returns whether a provided rounding mode is considered rounding up for unsigned integers.
+     * @dev Returns 1 if rounding up is required and 0 if rounding up is not required.
      */
-    function unsignedRoundsUp(Rounding rounding) internal pure returns (bool) {
-        return uint8(rounding) % 2 == 1;
+    function unsignedRoundsUp(Rounding rounding, bool cond) internal pure returns (uint256) {
+        return SafeCast.toUint(rounding == Rounding.Ceil && cond);
     }
 }
