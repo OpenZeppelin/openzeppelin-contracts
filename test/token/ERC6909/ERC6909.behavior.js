@@ -106,6 +106,14 @@ function shouldBehaveLikeERC6909() {
           .to.be.revertedWithCustomError(this.token, 'ERC6909InsufficientBalance')
           .withArgs(this.alice, firstTokenAmount, firstTokenAmount + 1n, firstTokenId);
       });
+
+      it('emits event and transfers tokens', async function () {
+        await expect(this.token.connect(this.alice).transfer(this.bruce, firstTokenId, firstTokenAmount))
+          .to.emit(this.token, 'Transfer')
+          .withArgs(this.alice, this.alice, this.bruce, firstTokenId, firstTokenAmount);
+        await expect(this.token.balanceOf(this.alice, firstTokenId)).to.eventually.equal(0);
+        return expect(this.token.balanceOf(this.bruce, firstTokenId)).to.eventually.equal(firstTokenAmount);
+      });
     });
 
     describe('transferFrom', function () {

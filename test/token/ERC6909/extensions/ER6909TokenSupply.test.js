@@ -10,7 +10,7 @@ async function fixture() {
   return { token, operator, holder, otherAccounts };
 }
 
-describe.only('ERC6909TokenSupply', function () {
+describe('ERC6909TokenSupply', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });
