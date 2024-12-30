@@ -41,7 +41,7 @@ describe('ERC6909', function () {
         });
 
         it('credits the minted token value', async function () {
-          expect(this.token.balanceOf(this.holder, tokenId)).to.eventually.be.equal(mintValue);
+          await expect(this.token.balanceOf(this.holder, tokenId)).to.eventually.be.equal(mintValue);
         });
       });
     });
@@ -66,7 +66,7 @@ describe('ERC6909', function () {
         });
 
         it('debits the burned token value', async function () {
-          expect(this.token.balanceOf(this.holder, tokenId)).to.eventually.be.equal(mintValue - burnValue);
+          await expect(this.token.balanceOf(this.holder, tokenId)).to.eventually.be.equal(mintValue - burnValue);
         });
       });
     });

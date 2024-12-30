@@ -51,7 +51,7 @@ contract ERC6909 is Context, ERC165, IERC6909 {
     }
 
     function transfer(address receiver, uint256 id, uint256 amount) external virtual override returns (bool) {
-        _update(_msgSender(), receiver, id, amount);
+        _transfer(_msgSender(), receiver, id, amount);
         return true;
     }
 
@@ -63,13 +63,13 @@ contract ERC6909 is Context, ERC165, IERC6909 {
     ) external virtual override returns (bool) {
         address caller = _msgSender();
         if (caller != sender && !isOperator(sender, caller)) {
-            uint256 currentAllowance = _allowances[sender][caller][id];
+            uint256 currentAllowance = allowance(sender, caller, id);
             if (currentAllowance != type(uint256).max) {
                 if (currentAllowance < amount) {
                     revert ERC6909InsufficientAllowance(caller, currentAllowance, amount, id);
                 }
                 unchecked {
-                    _allowances[sender][_msgSender()][id] = currentAllowance - amount;
+                    _allowances[sender][caller][id] = currentAllowance - amount;
                 }
             }
         }
@@ -92,7 +92,7 @@ contract ERC6909 is Context, ERC165, IERC6909 {
         address caller = _msgSender();
 
         if (from != address(0)) {
-            uint256 fromBalance = _balances[id][from];
+            uint256 fromBalance = balanceOf(from, id);
             if (fromBalance < amount) {
                 revert ERC6909InsufficientBalance(from, fromBalance, amount, id);
             }
