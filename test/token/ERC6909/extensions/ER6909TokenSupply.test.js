@@ -22,11 +22,11 @@ describe.only('ERC6909TokenSupply', function () {
       await this.token.$_mint(this.holder, 1n, 1000n);
     });
 
-    it('Minting tokens increases the total supply', async function () {
+    it('minting tokens increases the total supply', async function () {
       return expect(this.token.totalSupply(1n)).to.eventually.be.equal(1000n);
     });
 
-    it('Burning tokens decreases the total supply', async function () {
+    it('burning tokens decreases the total supply', async function () {
       await this.token.$_burn(this.holder, 1n, 500n);
       return expect(this.token.totalSupply(1n)).to.eventually.be.equal(500n);
     });
