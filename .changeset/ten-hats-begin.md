@@ -2,4 +2,4 @@
 'openzeppelin-solidity': minor
 ---
 
-`ERC6909`: Add a standard implmentation of ERC6909.
+`ERC6909`: Add a standard implementation of ERC6909.
