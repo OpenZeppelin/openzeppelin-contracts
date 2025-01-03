@@ -30,7 +30,7 @@ contract ERC6909Metadata is ERC6909, IERC6909Metadata {
         _tokenMetadata[id].name = newName;
     }
 
-    function _setTokenSymbol(uint256 id, string memory newSymbol) internal {
+    function _setSymbol(uint256 id, string memory newSymbol) internal {
         _tokenMetadata[id].symbol = newSymbol;
     }
 
