@@ -234,7 +234,7 @@ library ERC7579Utils {
                 uint256 itemEnd;
                 uint256 itemCalldataEnd;
                 assembly ("memory-safe") {
-                    itemOffset := add(item, 0x60)
+                    itemEnd := add(item, 0x60)
                     itemCalldataEnd := add(itemCalldata.offset, itemCalldata.length)
                 }
                 if (itemEnd > bound || itemCalldataEnd > bound) revert ERC7579DecodingError();
