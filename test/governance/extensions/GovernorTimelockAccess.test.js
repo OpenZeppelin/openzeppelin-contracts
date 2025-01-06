@@ -40,7 +40,7 @@ describe('GovernorTimelockAccess', function () {
       const manager = await ethers.deployContract('$AccessManager', [admin]);
       const receiver = await ethers.deployContract('$AccessManagedTarget', [manager]);
 
-      const token = await ethers.deployContract(Token, [tokenName, tokenSymbol, version]);
+      const token = await ethers.deployContract(Token, [tokenName, tokenSymbol, tokenName, version]);
       const mock = await ethers.deployContract('$GovernorTimelockAccessMock', [
         name,
         votingDelay,

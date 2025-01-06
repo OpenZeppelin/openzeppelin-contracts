@@ -240,6 +240,11 @@ describe('Strings', function () {
       expect(await this.mock.$tryParseUint('1 000')).deep.equal([false, 0n]);
     });
 
+    it('parseUint invalid range', async function () {
+      expect(this.mock.$parseUint('12', 3, 2)).to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar');
+      expect(await this.mock.$tryParseUint('12', 3, 2)).to.deep.equal([false, 0n]);
+    });
+
     it('parseInt overflow', async function () {
       await expect(this.mock.$parseInt((ethers.MaxUint256 + 1n).toString(10))).to.be.revertedWithPanic(
         PANIC_CODES.ARITHMETIC_OVERFLOW,
@@ -276,6 +281,11 @@ describe('Strings', function () {
       expect(await this.mock.$tryParseInt('1 000')).to.deep.equal([false, 0n]);
     });
 
+    it('parseInt invalid range', async function () {
+      expect(this.mock.$parseInt('-12', 3, 2)).to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar');
+      expect(await this.mock.$tryParseInt('-12', 3, 2)).to.deep.equal([false, 0n]);
+    });
+
     it('parseHexUint overflow', async function () {
       await expect(this.mock.$parseHexUint((ethers.MaxUint256 + 1n).toString(16))).to.be.revertedWithPanic(
         PANIC_CODES.ARITHMETIC_OVERFLOW,
@@ -301,6 +311,11 @@ describe('Strings', function () {
       expect(await this.mock.$tryParseHexUint('-0xf')).to.deep.equal([false, 0n]);
       expect(await this.mock.$tryParseHexUint('1.0')).to.deep.equal([false, 0n]);
       expect(await this.mock.$tryParseHexUint('1 000')).to.deep.equal([false, 0n]);
+    });
+
+    it('parseHexUint invalid begin and end', async function () {
+      expect(this.mock.$parseHexUint('0x', 3, 2)).to.be.revertedWithCustomError(this.mock, 'StringsInvalidChar');
+      expect(await this.mock.$tryParseHexUint('0x', 3, 2)).to.deep.equal([false, 0n]);
     });
 
     it('parseAddress invalid format', async function () {

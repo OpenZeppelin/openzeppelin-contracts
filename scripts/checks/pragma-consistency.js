@@ -31,7 +31,7 @@ for (const artifact of artifacts) {
     const minVersion = semver.minVersion(pragma[source]);
     // loop over all imports in source
     for (const { absolutePath } of findAll('ImportDirective', solcOutput.sources[source].ast)) {
-      // So files that only import without declaring anything cause issues, because they don't shop in in "pragma"
+      // So files that only import without declaring anything cause issues, because they don't shop in "pragma"
       if (!pragma[absolutePath]) continue;
       // Check that the minVersion for source satisfies the requirements of the imported files
       if (!semver.satisfies(minVersion, pragma[absolutePath])) {
