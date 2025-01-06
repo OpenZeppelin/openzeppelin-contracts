@@ -231,14 +231,13 @@ library ERC7579Utils {
                 Execution calldata item = executionBatch[i];
                 bytes calldata itemCalldata = item.callData;
 
-                bool outOfBound;
+                uint256 itemEnd;
+                uint256 itemCalldataEnd;
                 assembly ("memory-safe") {
-                    outOfBound := or(
-                        gt(add(item, 0x60), bound),
-                        gt(add(itemCalldata.offset, itemCalldata.length), bound)
-                    )
+                    itemOffset := add(item, 0x60)
+                    itemCalldataEnd := add(itemCalldata.offset, itemCalldata.length)
                 }
-                if (outOfBound) revert ERC7579DecodingError();
+                if (itemEnd > bound || itemCalldataEnd > bound) revert ERC7579DecodingError();
             }
         }
     }
