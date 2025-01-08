@@ -115,7 +115,7 @@ library ERC4337Utils {
         return uint128(self.accountGasLimits.extract_32_16(0));
     }
 
-    /// @dev Returns `accountGasLimits` from the {PackedUserOperation}.
+    /// @dev Returns `callGasLimit` from the {PackedUserOperation}.
     function callGasLimit(PackedUserOperation calldata self) internal pure returns (uint256) {
         return uint128(self.accountGasLimits.extract_32_16(16));
     }
@@ -155,7 +155,7 @@ library ERC4337Utils {
         return self.paymasterAndData.length < 52 ? 0 : uint128(bytes16(self.paymasterAndData[36:52]));
     }
 
-    /// @dev Returns the forth section of `paymasterAndData` from the {PackedUserOperation}.
+    /// @dev Returns the fourth section of `paymasterAndData` from the {PackedUserOperation}.
     function paymasterData(PackedUserOperation calldata self) internal pure returns (bytes calldata) {
         return self.paymasterAndData.length < 52 ? _emptyCalldataBytes() : self.paymasterAndData[52:];
     }
