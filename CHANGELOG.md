@@ -20,7 +20,6 @@ This version comes with changes to the custom error identifiers. Contracts previ
 
 - `ERC4337Utils`: Add a reusable library to manipulate user operations and interact with ERC-4337 contracts ([#5274](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5274))
 - `ERC7579Utils`: Add a reusable library to interact with ERC-7579 modular accounts ([#5274](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5274))
-- `ERC7579Utils`: Add ABI decoding checks on calldata bounds within `decodeBatch` ([#5367](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5367))
 
 #### Governance
 
