@@ -1,5 +1,47 @@
 # Changelog
 
+## 5.2.0 (2025-01-08)
+
+### Breaking Changes
+
+#### Custom error changes
+
+This version comes with changes to the custom error identifiers. Contracts previously depending on the following errors should be replaced accordingly:
+
+- Replace `Errors.FailedCall` with a bubbled-up revert reason in `Address.sendValue`.
+
+### Changes by category
+
+#### General
+
+- Update some pragma directives to ensure that all file requirements match that of the files they import. ([#5273](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5273))
+
+#### Account
+
+- `ERC4337Utils`: Add a reusable library to manipulate user operations and interact with ERC-4337 contracts ([#5274](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5274))
+- `ERC7579Utils`: Add a reusable library to interact with ERC-7579 modular accounts ([#5274](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5274))
+
+#### Governance
+
+- `GovernorCountingOverridable`: Add a governor counting module that enables token holders to override the vote of their delegate. ([#5192](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5192))
+- `VotesExtended`: Create an extension of `Votes` which checkpoints balances and delegates. ([#5192](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5192))
+
+### Proxy
+
+- `Clones`: Add `cloneWithImmutableArgs` and `cloneDeterministicWithImmutableArgs` variants that create clones with per-instance immutable arguments. The immutable arguments can be retrieved using `fetchCloneArgs`. The corresponding `predictDeterministicWithImmutableArgs` function is also included. ([#5109](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5109))
+
+### Tokens
+
+- `ERC1363Utils`: Add helper similar to the existing `ERC721Utils` and `ERC1155Utils` ([#5133](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5133))
+
+### Utils
+
+- `Address`: bubble up revert data on `sendValue` failed call ([#5418](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5418))
+- `Bytes`: Add a library of common operations that operate on `bytes` objects. ([#5252](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5252))
+- `CAIP2` and `CAIP10`: Add libraries for formatting and parsing CAIP-2 and CAIP-10 identifiers. ([#5252](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5252))
+- `NoncesKeyed`: Add a variant of `Nonces` that implements the ERC-4337 entrypoint nonce system. ([#5272](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5272))
+- `Packing`: Add variants for packing `bytes10` and `bytes22` ([#5274](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5274))
+- `Strings`: Add `parseUint`, `parseInt`, `parseHexUint` and `parseAddress` to parse strings into numbers and addresses. Also provide variants of these functions that parse substrings, and `tryXxx` variants that do not revert on invalid input. ([#5166](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5166))
 
 ## 5.1.0 (2024-10-17)
 
