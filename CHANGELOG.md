@@ -1,11 +1,14 @@
 # Changelog
 
+## 5.2.0 (2025-01-08)
 
-## 5.2.0-rc.1 (2024-12-16)
+### Breaking Changes
 
-- `ERC7579Utils`: Add ABI decoding checks on calldata bounds within `decodeBatch` ([#5367](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5367))
+#### Custom error changes
 
-## 5.2.0-rc.0 (2024-12-04)
+This version comes with changes to the custom error identifiers. Contracts previously depending on the following errors should be replaced accordingly:
+
+- Replace `Errors.FailedCall` with a bubbled-up revert reason in `Address.sendValue`.
 
 ### Changes by category
 
@@ -33,6 +36,7 @@
 
 ### Utils
 
+- `Address`: bubble up revert data on `sendValue` failed call ([#5418](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5418))
 - `Bytes`: Add a library of common operation that operate on `bytes` objects. ([#5252](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5252))
 - `CAIP2` and `CAIP10`: Add libraries for formatting and parsing CAIP-2 and CAIP-10 identifiers. ([#5252](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5252))
 - `NoncesKeyed`: Add a variant of `Nonces` that implements the ERC-4337 entrypoint nonce system. ([#5272](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5272))
