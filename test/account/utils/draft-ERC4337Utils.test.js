@@ -100,9 +100,9 @@ describe('ERC4337Utils', function () {
     });
 
     it('packing reproduced canonical values', async function () {
-      await expect(this.utils.$packValidationData(ethers.Typed.address(ethers.ZeroAddress), 0n, 0n)).to.eventually.equal(
-        this.SIG_VALIDATION_SUCCESS,
-      );
+      await expect(
+        this.utils.$packValidationData(ethers.Typed.address(ethers.ZeroAddress), 0n, 0n),
+      ).to.eventually.equal(this.SIG_VALIDATION_SUCCESS);
       await expect(this.utils.$packValidationData(ethers.Typed.bool(true), 0n, 0n)).to.eventually.equal(
         this.SIG_VALIDATION_SUCCESS,
       );
