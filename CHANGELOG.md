@@ -37,7 +37,7 @@ This version comes with changes to the custom error identifiers. Contracts previ
 ### Utils
 
 - `Address`: bubble up revert data on `sendValue` failed call ([#5418](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5418))
-- `Bytes`: Add a library of common operation that operate on `bytes` objects. ([#5252](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5252))
+- `Bytes`: Add a library of common operations that operate on `bytes` objects. ([#5252](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5252))
 - `CAIP2` and `CAIP10`: Add libraries for formatting and parsing CAIP-2 and CAIP-10 identifiers. ([#5252](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5252))
 - `NoncesKeyed`: Add a variant of `Nonces` that implements the ERC-4337 entrypoint nonce system. ([#5272](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5272))
 - `Packing`: Add variants for packing `bytes10` and `bytes22` ([#5274](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5274))

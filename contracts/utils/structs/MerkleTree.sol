@@ -88,7 +88,7 @@ library MerkleTree {
 
         // Build each root of zero-filled subtrees
         bytes32 currentZero = zero;
-        for (uint32 i = 0; i < treeDepth; ++i) {
+        for (uint256 i = 0; i < treeDepth; ++i) {
             Arrays.unsafeAccess(self._zeros, i).value = currentZero;
             currentZero = fnHash(currentZero, currentZero);
         }
@@ -143,7 +143,7 @@ library MerkleTree {
         // Rebuild branch from leaf to root
         uint256 currentIndex = index;
         bytes32 currentLevelHash = leaf;
-        for (uint32 i = 0; i < treeDepth; i++) {
+        for (uint256 i = 0; i < treeDepth; i++) {
             // Reaching the parent node, is currentLevelHash the left child?
             bool isLeft = currentIndex % 2 == 0;
 
