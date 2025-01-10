@@ -18,12 +18,10 @@ abstract contract GovernorProposalGuardianMock is
         return super.proposalThreshold();
     }
 
-    function cancel(
-        address[] memory targets,
-        uint256[] memory values,
-        bytes[] memory calldatas,
-        bytes32 descriptionHash
-    ) public override(Governor, GovernorProposalGuardian) returns (uint256) {
-        return super.cancel(targets, values, calldatas, descriptionHash);
+    function _validateCancel(
+        address caller,
+        uint256 proposalId
+    ) internal view override(Governor, GovernorProposalGuardian) returns (bool) {
+        return super._validateCancel(caller, proposalId);
     }
 }

@@ -14,37 +14,32 @@ abstract contract GovernorProposalGuardian is Governor {
     event ProposalGuardianSet(address oldProposalGuardian, address newProposalGuardian);
 
     /**
-     * @dev Override {IGovernor-cancel} that implements the extended cancellation logic.
+     * @dev Override `_validateCancel` that implements the extended cancellation logic.
      *
      * * The {proposalGuardian} can cancel any proposal at any point in the lifecycle.
      * * if no proposal guardian is set, the {proposalProposer} can cancel their proposals at any point in the lifecycle.
      * * if the proposal guardian is set, the {proposalProposer} keeps their default rights defined in {IGovernor-cancel} (calling `super`).
      */
-    function cancel(
-        address[] memory targets,
-        uint256[] memory values,
-        bytes[] memory calldatas,
-        bytes32 descriptionHash
-    ) public virtual override returns (uint256) {
-        address caller = _msgSender();
+    function _validateCancel(address caller, uint256 proposalId) internal view virtual override returns (bool) {
+        // no additional validation is required
+
         address guardian = proposalGuardian();
 
         if (guardian == address(0)) {
             // if there is no proposal guardian
             // ... only the proposer can cancel
             // ... no restriction on when the proposer can cancel
-            uint256 proposalId = getProposalId(targets, values, calldatas, descriptionHash);
             address proposer = proposalProposer(proposalId);
             if (caller != proposer) revert GovernorOnlyProposer(caller);
-            return _cancel(targets, values, calldatas, descriptionHash);
+            return true;
         } else if (guardian == caller) {
             // if there is a proposal guardian, and the caller is the proposal guardian
             // ... just cancel
-            return _cancel(targets, values, calldatas, descriptionHash);
+            return true;
         } else {
             // if there is a proposal guardian, and the caller is not the proposal guardian
             // ... apply default behavior
-            return super.cancel(targets, values, calldatas, descriptionHash);
+            return super._validateCancel(caller, proposalId);
         }
     }
 
