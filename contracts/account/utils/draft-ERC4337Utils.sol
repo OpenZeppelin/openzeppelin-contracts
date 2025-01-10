@@ -5,6 +5,7 @@ pragma solidity ^0.8.20;
 
 import {PackedUserOperation} from "../../interfaces/draft-IERC4337.sol";
 import {Math} from "../../utils/math/Math.sol";
+import {Calldata} from "../../utils/Calldata.sol";
 import {Packing} from "../../utils/Packing.sol";
 
 /**
@@ -107,7 +108,7 @@ library ERC4337Utils {
 
     /// @dev Returns `factoryData` from the {PackedUserOperation}, or empty bytes if the initCode is empty or not properly formatted.
     function factoryData(PackedUserOperation calldata self) internal pure returns (bytes calldata) {
-        return self.initCode.length < 20 ? _emptyCalldataBytes() : self.initCode[20:];
+        return self.initCode.length < 20 ? Calldata.emptyBytes() : self.initCode[20:];
     }
 
     /// @dev Returns `verificationGasLimit` from the {PackedUserOperation}.
@@ -157,14 +158,6 @@ library ERC4337Utils {
 
     /// @dev Returns the fourth section of `paymasterAndData` from the {PackedUserOperation}.
     function paymasterData(PackedUserOperation calldata self) internal pure returns (bytes calldata) {
-        return self.paymasterAndData.length < 52 ? _emptyCalldataBytes() : self.paymasterAndData[52:];
-    }
-
-    // slither-disable-next-line write-after-write
-    function _emptyCalldataBytes() private pure returns (bytes calldata result) {
-        assembly ("memory-safe") {
-            result.offset := 0
-            result.length := 0
-        }
+        return self.paymasterAndData.length < 52 ? Calldata.emptyBytes() : self.paymasterAndData[52:];
     }
 }
