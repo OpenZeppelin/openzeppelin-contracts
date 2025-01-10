@@ -6,6 +6,10 @@ import {IERC6909} from "../../interfaces/draft-IERC6909.sol";
 import {Context} from "../../utils/Context.sol";
 import {IERC165, ERC165} from "../../utils/introspection/ERC165.sol";
 
+/**
+ * @dev Basic implementation of ERC6909.
+ * See https://eips.ethereum.org/EIPS/eip-6909
+ */
 contract ERC6909 is Context, ERC165, IERC6909 {
     error ERC6909InsufficientBalance(address sender, uint256 balance, uint256 needed, uint256 id);
     error ERC6909InsufficientAllowance(address spender, uint256 allowance, uint256 needed, uint256 id);
@@ -18,22 +22,27 @@ contract ERC6909 is Context, ERC165, IERC6909 {
 
     mapping(address owner => mapping(address spender => mapping(uint256 id => uint256))) private _allowances;
 
+    /// @inheritdoc IERC165
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IERC165) returns (bool) {
         return interfaceId == type(IERC6909).interfaceId || super.supportsInterface(interfaceId);
     }
 
+    /// @inheritdoc IERC6909
     function balanceOf(address owner, uint256 id) public view virtual override returns (uint256) {
         return _balances[id][owner];
     }
 
+    /// @inheritdoc IERC6909
     function allowance(address owner, address spender, uint256 id) public view virtual override returns (uint256) {
         return _allowances[owner][spender][id];
     }
 
+    /// @inheritdoc IERC6909
     function isOperator(address owner, address spender) public view virtual override returns (bool) {
         return _operatorApprovals[owner][spender];
     }
 
+    /// @inheritdoc IERC6909
     function approve(address spender, uint256 id, uint256 amount) external virtual override returns (bool) {
         address caller = _msgSender();
         _allowances[caller][spender][id] = amount;
@@ -42,6 +51,7 @@ contract ERC6909 is Context, ERC165, IERC6909 {
         return true;
     }
 
+    /// @inheritdoc IERC6909
     function setOperator(address spender, bool approved) external virtual override returns (bool) {
         address caller = _msgSender();
         _operatorApprovals[caller][spender] = approved;
@@ -50,11 +60,13 @@ contract ERC6909 is Context, ERC165, IERC6909 {
         return true;
     }
 
+    /// @inheritdoc IERC6909
     function transfer(address receiver, uint256 id, uint256 amount) external virtual override returns (bool) {
         _transfer(_msgSender(), receiver, id, amount);
         return true;
     }
 
+    /// @inheritdoc IERC6909
     function transferFrom(
         address sender,
         address receiver,
@@ -78,6 +90,16 @@ contract ERC6909 is Context, ERC165, IERC6909 {
         return true;
     }
 
+    /**
+     * @dev Moves `amount` of token `id` from `from` to `to` without checking for approvals.
+     *
+     * This internal function is equivalent to {transfer}, and can be used to
+     * e.g. implement automatic token fees, slashing mechanisms, etc.
+     *
+     * Emits a {Transfer} event.
+     *
+     * NOTE: This function is not virtual, {_update} should be overridden instead.
+     */
     function _transfer(address from, address to, uint256 id, uint256 amount) internal {
         if (from == address(0)) {
             revert ERC6909InvalidSender(address(0));
@@ -88,6 +110,13 @@ contract ERC6909 is Context, ERC165, IERC6909 {
         _update(from, to, id, amount);
     }
 
+    /**
+     * @dev Transfers `amount` of token `id` from `from` to `to`, or alternatively mints (or burns) if `from`
+     * (or `to`) is the zero address. All customizations to transfers, mints, and burns should be done by overriding
+     * this function.
+     *
+     * Emits a {Transfer} event.
+     */
     function _update(address from, address to, uint256 id, uint256 amount) internal virtual {
         address caller = _msgSender();
 
@@ -107,6 +136,14 @@ contract ERC6909 is Context, ERC165, IERC6909 {
         emit Transfer(caller, from, to, id, amount);
     }
 
+    /**
+     * @dev Creates `amount` of token `id` and assigns them to `account`, by transferring it from address(0).
+     * Relies on the `_update` mechanism
+     *
+     * Emits a {Transfer} event with `from` set to the zero address.
+     *
+     * NOTE: This function is not virtual, {_update} should be overridden instead.
+     */
     function _mint(address to, uint256 id, uint256 amount) internal {
         if (to == address(0)) {
             revert ERC6909InvalidReceiver(address(0));
@@ -114,6 +151,14 @@ contract ERC6909 is Context, ERC165, IERC6909 {
         _update(address(0), to, id, amount);
     }
 
+    /**
+     * @dev Destroys a `amount` of token `id` from `account`.
+     * Relies on the `_update` mechanism.
+     *
+     * Emits a {Transfer} event with `to` set to the zero address.
+     *
+     * NOTE: This function is not virtual, {_update} should be overridden instead
+     */
     function _burn(address from, uint256 id, uint256 amount) internal {
         if (from == address(0)) {
             revert ERC6909InvalidSender(address(0));

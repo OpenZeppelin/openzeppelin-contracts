@@ -9,10 +9,12 @@ contract ERC6909ContentURI is ERC6909, IERC6909ContentURI {
     string private _contractURI;
     mapping(uint256 id => string) private _tokenURIs;
 
+    /// @inheritdoc IERC6909ContentURI
     function contractURI() external view virtual override returns (string memory) {
         return _contractURI;
     }
 
+    /// @inheritdoc IERC6909ContentURI
     function tokenURI(uint256 id) external view virtual override returns (string memory) {
         return _tokenURIs[id];
     }
