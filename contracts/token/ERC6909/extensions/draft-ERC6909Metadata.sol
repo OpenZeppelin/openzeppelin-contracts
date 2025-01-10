@@ -44,6 +44,9 @@ contract ERC6909Metadata is ERC6909, IERC6909Metadata {
         _tokenMetadata[id].decimals = newDecimals;
     }
 
+    /**
+     * @dev Sets the metadata for a given token `id` to the provided `metadata` struct. Overwrites any previous metadata for this token id.
+     */
     function _setTokenMetadata(uint256 id, TokenMetadata memory metadata) internal {
         _tokenMetadata[id] = metadata;
     }
