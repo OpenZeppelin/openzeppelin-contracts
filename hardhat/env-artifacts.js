@@ -2,7 +2,7 @@ const { HardhatError } = require('hardhat/internal/core/errors');
 
 function isExpectedError(e, suffix) {
   // HH700: Artifact not found - from https://hardhat.org/hardhat-runner/docs/errors#HH700
-  return HardhatError.isHardhatError(e) && e.number === 700 && suffix !== '';
+  return HardhatError.isHardhatError(e) && e.errorCode === 'HH700' && suffix !== '';
 }
 
 // Modifies the artifact require functions so that instead of X it loads the XUpgradeable contract.
