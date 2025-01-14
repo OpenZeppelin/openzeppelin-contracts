@@ -1,0 +1,5 @@
+= ERC-6909
+
+ERC-6909 is a draft EIP that draws on ERC-1155 and learnings since it was published in 2018. The main goals of ERC-6909 is to decrease gas costs and complexity--this is mainly accomplished by removing batching and callbacks.
+
+TIP: To understand the inspiration for a multi token standard, see the xref:erc1155.adoc#multi-token-standard[multi token standard] section within the EIP-1155 docs.
