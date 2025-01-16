@@ -109,7 +109,7 @@ interface IERC6909ContentURI is IERC6909 {
     /**
      * @dev Returns the URI for the token of type `id`.
      *
-     * NOTE: MUST replace occurrences of {id} in the returned URI string by the client.
+     * NOTE: MUST replace occurrences of `{id}` in the returned URI string by the client.
      */
     function tokenURI(uint256 id) external view returns (string memory);
 }

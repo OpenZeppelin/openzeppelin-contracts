@@ -9,7 +9,7 @@ import {IERC6909TokenSupply} from "../../../interfaces/draft-IERC6909.sol";
  * @dev Implementation of the Token Supply extension defined in ERC6909.
  * Tracks the total supply of each token id individually.
  */
-contract ER6909TokenSupply is ERC6909, IERC6909TokenSupply {
+contract ERC6909TokenSupply is ERC6909, IERC6909TokenSupply {
     mapping(uint256 id => uint256) private _totalSupplies;
 
     /// @inheritdoc IERC6909TokenSupply
@@ -17,6 +17,7 @@ contract ER6909TokenSupply is ERC6909, IERC6909TokenSupply {
         return _totalSupplies[id];
     }
 
+    /// @dev Override the `_update` function to update the total supply of each token id as necessary.
     function _update(address from, address to, uint256 id, uint256 amount) internal virtual override {
         super._update(from, to, id, amount);
 

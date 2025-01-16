@@ -6,9 +6,10 @@ TIP: To understand the inspiration for a multi token standard, see the xref:erc1
 
 == Changes from ERC-1155
 There are three main changes from ERC-1155 which are as follows:
-1. The removal of batch operations.
-2. The removal of transfer callbacks.
-3. Granularization in approvals--approvals can be set globally (as operators) or as amounts per token (inspired by ERC20).
+
+. The removal of batch operations.
+. The removal of transfer callbacks.
+. Granularization in approvals--approvals can be set globally (as operators) or as amounts per token (inspired by ERC20).
 
 == Constructing an ERC-6909 Token Contract
 

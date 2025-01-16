@@ -6,7 +6,7 @@ const { shouldBehaveLikeERC6909 } = require('../ERC6909.behavior');
 
 async function fixture() {
   const [operator, holder, ...otherAccounts] = await ethers.getSigners();
-  const token = await ethers.deployContract('$ER6909TokenSupply');
+  const token = await ethers.deployContract('$ERC6909TokenSupply');
   return { token, operator, holder, otherAccounts };
 }
 
