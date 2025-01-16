@@ -25,3 +25,21 @@ Here's what a contract for tokenized items might look like:
 include::api:example$token/ERC6909/GameItems.sol[]
 ----
 
+Note that the vanilla xref:api:token/ERC6909.adoc#ERC6909[`ERC6909`] implementation does not have any concept of decimals, but the xref:api:token/ERC6909.adoc#ERC6909Metadata[`ERC6909Metadata`] extension does. This is very useful when some (or all) of the tokens represented by the ERC-6909 contract are fungible. Additionally, there is no content URI functionality in the base implementation, but the xref:api:token/ERC6909.adoc#ERC6909ContentURI[`ERC6909ContentURI`] extension adds it.
+
+Once the contract is deployed, we will be able to query the deployer’s balance:
+[source,javascript]
+----
+> gameItems.balanceOf(deployerAddress,3)
+1000000000
+----
+
+We can transfer items to player accounts:
+[source,javascript]
+----
+> gameItems.transfer(playerAddress, 2, 1)
+> gameItems.balanceOf(playerAddress, 2)
+1
+> gameItems.balanceOf(deployerAddress, 2)
+0
+----
