@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.20;
 
-import {IERC6909} from "../../interfaces/draft-IERC6909.sol";
+import {IERC6909} from "./draft-IERC6909.sol";
 import {Context} from "../../utils/Context.sol";
 import {IERC165, ERC165} from "../../utils/introspection/ERC165.sol";
 
