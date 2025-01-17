@@ -139,7 +139,7 @@ library Strings {
     }
 
     /**
-     * @dev Variant of {xref-Strings-parseUint-string-}[`++parseUint++`] that parses a substring of `input` located between position `begin` (included) and
+     * @dev Variant of {parseUint-string} that parses a substring of `input` located between position `begin` (included) and
      * `end` (excluded).
      *
      * Requirements:
@@ -153,7 +153,7 @@ library Strings {
     }
 
     /**
-     * @dev Variant of {xref-Strings-parseUint-string-}[`++parseUint++`] that returns false if the parsing fails because of an invalid character.
+     * @dev Variant of {parseUint-string} that returns false if the parsing fails because of an invalid character.
      *
      * NOTE: This function will revert if the result does not fit in a `uint256`.
      */
@@ -162,7 +162,7 @@ library Strings {
     }
 
     /**
-     * @dev Variant of {xref-Strings-parseUint-string-uint256-uint256-}[`++parseUint++`] that returns false if the parsing fails because of an invalid
+     * @dev Variant of {parseUint-string-uint256-uint256} that returns false if the parsing fails because of an invalid
      * character.
      *
      * NOTE: This function will revert if the result does not fit in a `uint256`.
@@ -177,7 +177,7 @@ library Strings {
     }
 
     /**
-     * @dev Implementation of {xref-Strings-tryParseUint-string-uint256-uint256}[`++tryParseUint++`] that does not check bounds. Caller should make sure that
+     * @dev Implementation of {tryParseUint-string-uint256-uint256} that does not check bounds. Caller should make sure that
      * `begin <= end <= input.length`. Other inputs would result in undefined behavior.
      */
     function _tryParseUintUncheckedBounds(
@@ -209,7 +209,7 @@ library Strings {
     }
 
     /**
-     * @dev Variant of {xref-Strings-parseInt-string-}[`++parseInt++`] that parses a substring of `input` located between position `begin` (included) and
+     * @dev Variant of {parseInt-string} that parses a substring of `input` located between position `begin` (included) and
      * `end` (excluded).
      *
      * Requirements:
@@ -223,7 +223,7 @@ library Strings {
     }
 
     /**
-     * @dev Variant of {xref-Strings-parseInt-string-}[`++parseInt++`] that returns false if the parsing fails because of an invalid character or if
+     * @dev Variant of {parseInt-string} that returns false if the parsing fails because of an invalid character or if
      * the result does not fit in a `int256`.
      *
      * NOTE: This function will revert if the absolute value of the result does not fit in a `uint256`.
@@ -235,7 +235,7 @@ library Strings {
     uint256 private constant ABS_MIN_INT256 = 2 ** 255;
 
     /**
-     * @dev Variant of {xref-Strings-parseInt-string-uint256-uint256-}[`++parseInt++`] that returns false if the parsing fails because of an invalid
+     * @dev Variant of {parseInt-string-uint256-uint256} that returns false if the parsing fails because of an invalid
      * character or if the result does not fit in a `int256`.
      *
      * NOTE: This function will revert if the absolute value of the result does not fit in a `uint256`.
@@ -250,7 +250,7 @@ library Strings {
     }
 
     /**
-     * @dev Implementation of {xref-Strings-tryParseInt-string-uint256-uint256-}[`++tryParseInt++`] that does not check bounds. Caller should make sure that
+     * @dev Implementation of {tryParseInt-string-uint256-uint256} that does not check bounds. Caller should make sure that
      * `begin <= end <= input.length`. Other inputs would result in undefined behavior.
      */
     function _tryParseIntUncheckedBounds(
@@ -287,7 +287,7 @@ library Strings {
     }
 
     /**
-     * @dev Variant of {xref-Strings-parseHexUint-string-}[`++parseHexUint++`] that parses a substring of `input` located between position `begin` (included) and
+     * @dev Variant of {parseHexUint-string} that parses a substring of `input` located between position `begin` (included) and
      * `end` (excluded).
      *
      * Requirements:
@@ -301,7 +301,7 @@ library Strings {
     }
 
     /**
-     * @dev Variant of {xref-Strings-parseHexUint-string-}[`++parseHexUint++`] that returns false if the parsing fails because of an invalid character.
+     * @dev Variant of {parseHexUint-string} that returns false if the parsing fails because of an invalid character.
      *
      * NOTE: This function will revert if the result does not fit in a `uint256`.
      */
@@ -310,7 +310,7 @@ library Strings {
     }
 
     /**
-     * @dev Variant of {xref-Strings-parseHexUint-string-uint256-uint256-}[`++parseHexUint++`] that returns false if the parsing fails because of an
+     * @dev Variant of {parseHexUint-string-uint256-uint256} that returns false if the parsing fails because of an
      * invalid character.
      *
      * NOTE: This function will revert if the result does not fit in a `uint256`.
@@ -325,7 +325,7 @@ library Strings {
     }
 
     /**
-     * @dev Implementation of {xref-Strings-tryParseHexUint-string-uint256-uint256-}[`++tryParseHexUint++`] that does not check bounds. Caller should make sure that
+     * @dev Implementation of {tryParseHexUint-string-uint256-uint256} that does not check bounds. Caller should make sure that
      * `begin <= end <= input.length`. Other inputs would result in undefined behavior.
      */
     function _tryParseHexUintUncheckedBounds(
@@ -364,7 +364,7 @@ library Strings {
     }
 
     /**
-     * @dev Variant of {xref-Strings-parseAddress-string-}[`++parseAddress++`] that parses a substring of `input` located between position `begin` (included) and
+     * @dev Variant of {parseAddress-string} that parses a substring of `input` located between position `begin` (included) and
      * `end` (excluded).
      *
      * Requirements:
@@ -377,16 +377,16 @@ library Strings {
     }
 
     /**
-     * @dev Variant of {xref-Strings-parseAddress-string-}[`++parseAddress++`] that returns false if the parsing fails because the input is not a properly
-     * formatted address. See {xref-Strings-parseAddress-string-}[`++parseAddress++`] requirements.
+     * @dev Variant of {parseAddress-string} that returns false if the parsing fails because the input is not a properly
+     * formatted address. See {parseAddress-string} requirements.
      */
     function tryParseAddress(string memory input) internal pure returns (bool success, address value) {
         return tryParseAddress(input, 0, bytes(input).length);
     }
 
     /**
-     * @dev Variant of {xref-Strings-parseAddress-string-uint256-uint256-}[`++parseAddress++`] that returns false if the parsing fails because input is not a properly
-     * formatted address. See {xref-Strings-parseAddress-string-uint256-uint256-}[`++parseAddress++`] requirements.
+     * @dev Variant of {parseAddress-string-uint256-uint256} that returns false if the parsing fails because input is not a properly
+     * formatted address. See {parseAddress-string-uint256-uint256} requirements.
      */
     function tryParseAddress(
         string memory input,
