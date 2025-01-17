@@ -13,7 +13,7 @@ There are three main changes from ERC-1155 which are as follows:
 
 == Constructing an ERC-6909 Token Contract
 
-We'll use ERC-6909 to track multiple items in a game, each having their own unique attributes. All item types with by minted to the deployer of the contract, which we can later transfer to players.
+We'll use ERC-6909 to track multiple items in a game, each having their own unique attributes. All item types with by minted to the deployer of the contract, which we can later transfer to players. We'll also use the xref:api:token/ERC6909.adoc#ERC6909Metadata[`ERC6909Metadata`] extension to add decimals to our fungible items (the vanilla ERC-6909 implementation does not have decimals).
 
 For simplicity, we will mint all items in the constructor--however, minting functionality could be added to the contract to min on demand to players.
 
@@ -26,7 +26,7 @@ Here's what a contract for tokenized items might look like:
 include::api:example$token/ERC6909/GameItems.sol[]
 ----
 
-Note that the vanilla xref:api:token/ERC6909.adoc#ERC6909[`ERC6909`] implementation does not have any concept of decimals, but the xref:api:token/ERC6909.adoc#ERC6909Metadata[`ERC6909Metadata`] extension does. This is very useful when some (or all) of the tokens represented by the ERC-6909 contract are fungible. Additionally, there is no content URI functionality in the base implementation, but the xref:api:token/ERC6909.adoc#ERC6909ContentURI[`ERC6909ContentURI`] extension adds it.
+Note that there is no content URI functionality in the base implementation, but the xref:api:token/ERC6909.adoc#ERC6909ContentURI[`ERC6909ContentURI`] extension adds it. Additionally, the base implementation does not track total supplies, but the xref:api:token/ERC6909.adoc#ERC6909TokenSupply[`ERC6909TokenSupply`] extension tracks the total supply of each token id.
 
 Once the contract is deployed, we will be able to query the deployer’s balance:
 [source,javascript]
