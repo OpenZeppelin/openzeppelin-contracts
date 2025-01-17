@@ -23,7 +23,7 @@ Here's what a contract for tokenized items might look like:
 
 [source,solidity]
 ----
-include::api:example$token/ERC6909/GameItems.sol[]
+include::api:example$token/ERC6909/ERC6909GameItems.sol[]
 ----
 
 Note that there is no content URI functionality in the base implementation, but the xref:api:token/ERC6909.adoc#ERC6909ContentURI[`ERC6909ContentURI`] extension adds it. Additionally, the base implementation does not track total supplies, but the xref:api:token/ERC6909.adoc#ERC6909TokenSupply[`ERC6909TokenSupply`] extension tracks the total supply of each token id.

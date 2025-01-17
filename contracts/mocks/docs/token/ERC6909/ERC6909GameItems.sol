@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 import {ERC6909Metadata} from "../../../../token/ERC6909/extensions/draft-ERC6909Metadata.sol";
 
-contract GameItems is ERC6909Metadata {
+contract ERC6909GameItems is ERC6909Metadata {
     uint256 public constant GOLD = 0;
     uint256 public constant SILVER = 1;
     uint256 public constant THORS_HAMMER = 2;
