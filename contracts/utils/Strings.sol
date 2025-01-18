@@ -357,7 +357,7 @@ library Strings {
      * @dev Parse a hexadecimal string (with or without "0x" prefix), and returns the value as an `address`.
      *
      * Requirements:
-     * - The string must be formatted as `(0x)?[0-9a-fA-F]\{40}`
+     * - The string must be formatted as `(0x)?[0-9a-fA-F]{40}`
      */
     function parseAddress(string memory input) internal pure returns (address) {
         return parseAddress(input, 0, bytes(input).length);
@@ -368,7 +368,7 @@ library Strings {
      * `end` (excluded).
      *
      * Requirements:
-     * - The substring must be formatted as `(0x)?[0-9a-fA-F]\{40}`
+     * - The substring must be formatted as `(0x)?[0-9a-fA-F]{40}`
      */
     function parseAddress(string memory input, uint256 begin, uint256 end) internal pure returns (address) {
         (bool success, address value) = tryParseAddress(input, begin, end);
