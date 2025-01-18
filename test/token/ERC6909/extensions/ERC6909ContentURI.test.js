@@ -22,6 +22,10 @@ describe('ERC6909ContentURI', function () {
       await this.token.$_setContractURI('https://example.com');
       return expect(this.token.contractURI()).to.eventually.equal('https://example.com');
     });
+
+    it('emits an event when set', async function () {
+      await expect(this.token.$_setContractURI('https://example.com')).to.emit(this.token, 'ContractURIUpdated');
+    });
   });
 
   describe('tokenURI', function () {
@@ -35,6 +39,10 @@ describe('ERC6909ContentURI', function () {
 
       // Only set for the specified token ID
       return expect(this.token.tokenURI(2n)).to.eventually.equal('');
+    });
+
+    it('emits an event when set', async function () {
+      await expect(this.token.$_setTokenURI(1n, 'https://example.com/1')).to.emit(this.token, 'MetadataUpdate').withArgs(1n);
     });
   });
 });
