@@ -5,7 +5,7 @@ shopt -s globstar
 
 # cross platform `mkdir -p`
 mkdirp() {
-  node -e "fs.mkdirSync('$1', { recursive: true })"
+  mkdir -p "$1"
 }
 
 # cd to the root of the repo
