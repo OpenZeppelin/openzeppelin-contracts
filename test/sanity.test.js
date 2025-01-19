@@ -12,15 +12,14 @@ describe('Environment sanity', function () {
   });
 
   describe('snapshot', function () {
-    let blockNumberBefore;
-
     it('cache and mine', async function () {
-      blockNumberBefore = await ethers.provider.getBlockNumber();
+      const blockNumberBefore = await ethers.provider.getBlockNumber();
       await mine();
       expect(await ethers.provider.getBlockNumber()).to.equal(blockNumberBefore + 1);
     });
 
     it('check snapshot', async function () {
+      const blockNumberBefore = await ethers.provider.getBlockNumber();
       expect(await ethers.provider.getBlockNumber()).to.equal(blockNumberBefore);
     });
   });
