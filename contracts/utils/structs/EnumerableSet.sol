@@ -4,6 +4,8 @@
 
 pragma solidity ^0.8.20;
 
+import "../cryptography/Hashes.sol";
+
 /**
  * @dev Library for managing
  * https://en.wikipedia.org/wiki/Set_(abstract_data_type)[sets] of primitive
@@ -481,6 +483,6 @@ library EnumerableSet {
     }
 
     function _hash(bytes32[2] memory value) private pure returns (bytes32) {
-        return keccak256(abi.encode(value));
+        return Hashes.efficientKeccak256(value[0], value[1]);
     }
 }

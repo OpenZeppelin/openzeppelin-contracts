@@ -5,6 +5,8 @@ const { TYPES } = require('./EnumerableSet.opts');
 const header = `\
 pragma solidity ^0.8.20;
 
+import "../cryptography/Hashes.sol";
+
 /**
  * @dev Library for managing
  * https://en.wikipedia.org/wiki/Set_(abstract_data_type)[sets] of primitive
@@ -340,9 +342,11 @@ function at(${name} storage self, uint256 index) internal view returns (${type} 
 function values(${name} storage self) internal view returns (${type}[] memory) {
     return self._values;
 }
+`;
 
-function _hash(${type} memory value) private pure returns (bytes32) {
-    return keccak256(abi.encode(value));
+const hashes = `\
+function _hash(bytes32[2] memory value) private pure returns (bytes32) {
+    return Hashes.efficientKeccak256(value[0], value[1]);
 }
 `;
 
@@ -355,6 +359,7 @@ module.exports = format(
       defaultSet,
       TYPES.filter(({ size }) => size == undefined).map(details => customSet(details)),
       TYPES.filter(({ size }) => size != undefined).map(details => memorySet(details)),
+      hashes,
     ),
   ).trimEnd(),
   '}',
