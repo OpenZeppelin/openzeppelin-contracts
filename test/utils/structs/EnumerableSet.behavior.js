@@ -47,7 +47,7 @@ function shouldBehaveLikeSet() {
 
     it('retrieves existing element', async function () {
       await this.methods.add(this.valueA);
-      expect(await this.methods.at(0)).to.equal(this.valueA);
+      expect(await this.methods.at(0)).to.deep.equal(this.valueA);
     });
   });
 
