@@ -7,7 +7,7 @@ import {Context} from "../../utils/Context.sol";
 import {IERC165, ERC165} from "../../utils/introspection/ERC165.sol";
 
 /**
- * @dev Basic implementation of ERC6909.
+ * @dev Implementation of ERC-6909.
  * See https://eips.ethereum.org/EIPS/eip-6909
  */
 contract ERC6909 is Context, ERC165, IERC6909 {
@@ -43,7 +43,7 @@ contract ERC6909 is Context, ERC165, IERC6909 {
     }
 
     /// @inheritdoc IERC6909
-    function approve(address spender, uint256 id, uint256 amount) external virtual override returns (bool) {
+    function approve(address spender, uint256 id, uint256 amount) public virtual override returns (bool) {
         address caller = _msgSender();
         _allowances[caller][spender][id] = amount;
 
@@ -52,7 +52,7 @@ contract ERC6909 is Context, ERC165, IERC6909 {
     }
 
     /// @inheritdoc IERC6909
-    function setOperator(address spender, bool approved) external virtual override returns (bool) {
+    function setOperator(address spender, bool approved) public virtual override returns (bool) {
         address caller = _msgSender();
         _operatorApprovals[caller][spender] = approved;
 
@@ -61,7 +61,7 @@ contract ERC6909 is Context, ERC165, IERC6909 {
     }
 
     /// @inheritdoc IERC6909
-    function transfer(address receiver, uint256 id, uint256 amount) external virtual override returns (bool) {
+    function transfer(address receiver, uint256 id, uint256 amount) public virtual override returns (bool) {
         _transfer(_msgSender(), receiver, id, amount);
         return true;
     }
@@ -72,7 +72,7 @@ contract ERC6909 is Context, ERC165, IERC6909 {
         address receiver,
         uint256 id,
         uint256 amount
-    ) external virtual override returns (bool) {
+    ) public virtual override returns (bool) {
         address caller = _msgSender();
         if (caller != sender && !isOperator(sender, caller)) {
             uint256 currentAllowance = allowance(sender, caller, id);
@@ -121,7 +121,7 @@ contract ERC6909 is Context, ERC165, IERC6909 {
         address caller = _msgSender();
 
         if (from != address(0)) {
-            uint256 fromBalance = balanceOf(from, id);
+            uint256 fromBalance = _balances[id][from];
             if (fromBalance < amount) {
                 revert ERC6909InsufficientBalance(from, fromBalance, amount, id);
             }
