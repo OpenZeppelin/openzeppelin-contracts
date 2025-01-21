@@ -21,8 +21,6 @@ abstract contract GovernorProposalGuardian is Governor {
      * * if the proposal guardian is set, the {proposalProposer} keeps their default rights defined in {IGovernor-_validateCancel} (calling `super`).
      */
     function _validateCancel(uint256 proposalId) internal view virtual override returns (bool) {
-        // no additional validation is required
-
         address guardian = proposalGuardian();
         address caller = _msgSender();
 
@@ -31,17 +29,17 @@ abstract contract GovernorProposalGuardian is Governor {
             // ... only the proposer can cancel
             // ... no restriction on when the proposer can cancel
             address proposer = proposalProposer(proposalId);
-            if (caller != proposer) return false;
-            return true;
+            if (caller == proposer) return true;
         } else if (guardian == caller) {
             // if there is a proposal guardian, and the caller is the proposal guardian
             // ... just cancel
             return true;
-        } else {
-            // if there is a proposal guardian, and the caller is not the proposal guardian
-            // ... apply default behavior
-            return super._validateCancel(proposalId);
         }
+
+        // if there is no guardian and the caller isn't the proposer or
+        // there is a proposal guardian, and the caller is not the proposal guardian
+        // ... apply default behavior
+        return super._validateCancel(proposalId);
     }
 
     /**

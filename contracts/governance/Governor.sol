@@ -491,7 +491,9 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
 
     function _validateCancel(uint256 proposalId) internal view virtual returns (bool) {
         // public cancel restrictions (on top of existing _cancel restrictions).
-        _validateStateBitmap(proposalId, _encodeStateBitmap(ProposalState.Pending));
+        if (_encodeStateBitmap(state(proposalId)) & _encodeStateBitmap(ProposalState.Pending) == bytes32(0)) {
+            return false;
+        }
         if (_msgSender() != proposalProposer(proposalId)) {
             return false;
         }
