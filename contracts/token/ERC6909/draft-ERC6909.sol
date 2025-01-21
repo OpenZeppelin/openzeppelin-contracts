@@ -159,7 +159,7 @@ contract ERC6909 is Context, ERC165, IERC6909 {
     }
 
     /**
-     * @dev Updates `owner` s allowance for `spender` based on spent `value`.
+     * @dev Updates `owner` s allowance for `spender` based on spent `amount`.
      *
      * Does not update the allowance value in case of infinite allowance.
      * Revert if not enough allowance is available.
