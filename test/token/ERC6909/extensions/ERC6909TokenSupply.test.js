@@ -5,9 +5,9 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { shouldBehaveLikeERC6909 } = require('../ERC6909.behavior');
 
 async function fixture() {
-  const [operator, holder, ...otherAccounts] = await ethers.getSigners();
+  const [operator, holder, receiver, ...otherAccounts] = await ethers.getSigners();
   const token = await ethers.deployContract('$ERC6909TokenSupply');
-  return { token, operator, holder, otherAccounts };
+  return { token, operator, holder, receiver, otherAccounts };
 }
 
 describe('ERC6909TokenSupply', function () {
@@ -18,17 +18,36 @@ describe('ERC6909TokenSupply', function () {
   shouldBehaveLikeERC6909();
 
   describe('totalSupply', function () {
-    beforeEach(async function () {
-      await this.token.$_mint(this.holder, 1n, 1000n);
+    it('is zero before any mint', async function () {
+      await expect(this.token.totalSupply(1n)).to.eventually.be.equal(0n);
     });
 
     it('minting tokens increases the total supply', async function () {
-      return expect(this.token.totalSupply(1n)).to.eventually.be.equal(1000n);
+      await this.token.$_mint(this.receiver, 1n, 17n);
+      await expect(this.token.totalSupply(1n)).to.eventually.be.equal(17n);
     });
 
-    it('burning tokens decreases the total supply', async function () {
-      await this.token.$_burn(this.holder, 1n, 500n);
-      return expect(this.token.totalSupply(1n)).to.eventually.be.equal(500n);
+    describe('with tokens minted', function () {
+      const supply = 1000n;
+
+      beforeEach(async function () {
+        await this.token.$_mint(this.holder, 1n, supply);
+      });
+
+      it('burning tokens decreases the total supply', async function () {
+        await this.token.$_burn(this.holder, 1n, 17n);
+        await expect(this.token.totalSupply(1n)).to.eventually.be.equal(supply - 17n);
+      });
+
+      it('supply unaffected by transfers', async function () {
+        await this.token.$_transfer(this.holder, this.receiver, 1n, 42n);
+        await expect(this.token.totalSupply(1n)).to.eventually.be.equal(supply);
+      });
+
+      it('supply unaffected by no-op', async function () {
+        await this.token.$_update(ethers.ZeroAddress, ethers.ZeroAddress, 1n, 42n);
+        await expect(this.token.totalSupply(1n)).to.eventually.be.equal(supply);
+      });
     });
   });
 });

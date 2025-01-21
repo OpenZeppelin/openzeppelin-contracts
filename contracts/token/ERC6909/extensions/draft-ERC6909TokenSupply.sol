@@ -23,7 +23,8 @@ contract ERC6909TokenSupply is ERC6909, IERC6909TokenSupply {
 
         if (from == address(0)) {
             _totalSupplies[id] += amount;
-        } else if (to == address(0)) {
+        }
+        if (to == address(0)) {
             unchecked {
                 // amount <= _balances[id][from] <= _totalSupplies[id]
                 _totalSupplies[id] -= amount;

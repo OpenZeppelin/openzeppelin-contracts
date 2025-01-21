@@ -14,12 +14,12 @@ describe('ERC6909ContentURI', function () {
 
   describe('contractURI', function () {
     it('is empty string be default', async function () {
-      return expect(this.token.contractURI()).to.eventually.equal('');
+      await expect(this.token.contractURI()).to.eventually.equal('');
     });
 
     it('is settable by internal setter', async function () {
       await this.token.$_setContractURI('https://example.com');
-      return expect(this.token.contractURI()).to.eventually.equal('https://example.com');
+      await expect(this.token.contractURI()).to.eventually.equal('https://example.com');
     });
 
     it('emits an event when set', async function () {
@@ -29,7 +29,7 @@ describe('ERC6909ContentURI', function () {
 
   describe('tokenURI', function () {
     it('is empty string be default', async function () {
-      return expect(this.token.tokenURI(1n)).to.eventually.equal('');
+      await expect(this.token.tokenURI(1n)).to.eventually.equal('');
     });
 
     it('can be set by dedicated setter', async function () {
@@ -37,7 +37,7 @@ describe('ERC6909ContentURI', function () {
       await expect(this.token.tokenURI(1n)).to.eventually.equal('https://example.com/1');
 
       // Only set for the specified token ID
-      return expect(this.token.tokenURI(2n)).to.eventually.equal('');
+      await expect(this.token.tokenURI(2n)).to.eventually.equal('');
     });
 
     it('emits an event when set', async function () {
