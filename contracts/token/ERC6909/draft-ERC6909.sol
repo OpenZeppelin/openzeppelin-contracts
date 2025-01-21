@@ -74,18 +74,9 @@ contract ERC6909 is Context, ERC165, IERC6909 {
         uint256 amount
     ) public virtual override returns (bool) {
         address caller = _msgSender();
-        if (caller != sender && !isOperator(sender, caller)) {
-            uint256 currentAllowance = allowance(sender, caller, id);
-            if (currentAllowance != type(uint256).max) {
-                if (currentAllowance < amount) {
-                    revert ERC6909InsufficientAllowance(caller, currentAllowance, amount, id);
-                }
-                unchecked {
-                    _allowances[sender][caller][id] = currentAllowance - amount;
-                }
-            }
+        if (sender != caller && !isOperator(sender, caller)) {
+            _spendAllowance(sender, caller, id, amount);
         }
-
         _transfer(sender, receiver, id, amount);
         return true;
     }
@@ -126,7 +117,8 @@ contract ERC6909 is Context, ERC165, IERC6909 {
                 revert ERC6909InsufficientBalance(from, fromBalance, amount, id);
             }
             unchecked {
-                _balances[id][from] -= amount;
+                // Overflow not possible: amount <= fromBalance.
+                _balances[id][from] = fromBalance - amount;
             }
         }
         if (to != address(0)) {
@@ -164,5 +156,26 @@ contract ERC6909 is Context, ERC165, IERC6909 {
             revert ERC6909InvalidSender(address(0));
         }
         _update(from, address(0), id, amount);
+    }
+
+    /**
+     * @dev Updates `owner` s allowance for `spender` based on spent `value`.
+     *
+     * Does not update the allowance value in case of infinite allowance.
+     * Revert if not enough allowance is available.
+     *
+     * Does not emit an {Approval} event.
+     */
+    function _spendAllowance(address owner, address spender, uint256 id, uint256 amount) internal virtual {
+        uint256 currentAllowance = allowance(owner, spender, id);
+        // uint256 currentAllowance = allowance(owner, spender);
+        if (currentAllowance < type(uint256).max) {
+            if (currentAllowance < amount) {
+                revert ERC6909InsufficientAllowance(spender, currentAllowance, amount, id);
+            }
+            unchecked {
+                _allowances[owner][spender][id] = currentAllowance - amount;
+            }
+        }
     }
 }

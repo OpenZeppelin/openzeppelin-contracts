@@ -1,11 +1,10 @@
 const { ethers } = require('hardhat');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { expect } = require('chai');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 async function fixture() {
-  const [operator, holder, ...otherAccounts] = await ethers.getSigners();
   const token = await ethers.deployContract('$ERC6909ContentURI');
-  return { token, operator, holder, otherAccounts };
+  return { token };
 }
 
 describe('ERC6909ContentURI', function () {

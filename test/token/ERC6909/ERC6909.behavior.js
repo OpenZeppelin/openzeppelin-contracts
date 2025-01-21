@@ -95,9 +95,9 @@ function shouldBehaveLikeERC6909() {
       });
 
       it('transfers to the zero address are blocked', async function () {
-        await expect(
-          this.token.connect(this.alice).transfer(ethers.ZeroAddress, firstTokenId, firstTokenAmount),
-        ).to.be.revertedWithCustomError(this.token, 'ERC6909InvalidReceiver');
+        await expect(this.token.connect(this.alice).transfer(ethers.ZeroAddress, firstTokenId, firstTokenAmount))
+          .to.be.revertedWithCustomError(this.token, 'ERC6909InvalidReceiver')
+          .withArgs(ethers.ZeroAddress);
         await expect(this.token.balanceOf(this.alice, firstTokenId)).to.eventually.equal(firstTokenAmount);
       });
 
@@ -112,7 +112,7 @@ function shouldBehaveLikeERC6909() {
           .to.emit(this.token, 'Transfer')
           .withArgs(this.alice, this.alice, this.bruce, firstTokenId, firstTokenAmount);
         await expect(this.token.balanceOf(this.alice, firstTokenId)).to.eventually.equal(0);
-        return expect(this.token.balanceOf(this.bruce, firstTokenId)).to.eventually.equal(firstTokenAmount);
+        await expect(this.token.balanceOf(this.bruce, firstTokenId)).to.eventually.equal(firstTokenAmount);
       });
     });
 
@@ -123,33 +123,36 @@ function shouldBehaveLikeERC6909() {
       });
 
       it('transfer from self', async function () {
-        await this.token.connect(this.alice).transferFrom(this.alice, this.bruce, firstTokenId, firstTokenAmount);
+        await expect(
+          this.token.connect(this.alice).transferFrom(this.alice, this.bruce, firstTokenId, firstTokenAmount),
+        )
+          .to.emit(this.token, 'Transfer')
+          .withArgs(this.alice, this.alice, this.bruce, firstTokenId, firstTokenAmount);
         await expect(this.token.balanceOf(this.alice, firstTokenId)).to.eventually.equal(0);
         await expect(this.token.balanceOf(this.bruce, firstTokenId)).to.eventually.equal(firstTokenAmount);
       });
 
       describe('with approval', async function () {
         beforeEach(async function () {
-          await this.token.connect(this.alice).approve(this.operator, firstTokenId, firstTokenAmount - 1n);
-          this.tx = await this.token
-            .connect(this.operator)
-            .transferFrom(this.alice, this.bruce, firstTokenId, firstTokenAmount - 1n);
+          await this.token.connect(this.alice).approve(this.operator, firstTokenId, firstTokenAmount);
         });
 
         it('reverts when insufficient allowance', async function () {
-          await expect(this.token.connect(this.operator).transferFrom(this.alice, this.bruce, firstTokenId, 1))
+          await expect(
+            this.token.connect(this.operator).transferFrom(this.alice, this.bruce, firstTokenId, firstTokenAmount + 1n),
+          )
             .to.be.revertedWithCustomError(this.token, 'ERC6909InsufficientAllowance')
-            .withArgs(this.operator, 0, 1, firstTokenId);
+            .withArgs(this.operator, firstTokenAmount, firstTokenAmount + 1n, firstTokenId);
         });
 
-        it('should emit transfer event', async function () {
-          await expect(this.tx)
+        it('should emit transfer event and update approval (without an Approval event)', async function () {
+          await expect(
+            this.token.connect(this.operator).transferFrom(this.alice, this.bruce, firstTokenId, firstTokenAmount),
+          )
             .to.emit(this.token, 'Transfer')
-            .withArgs(this.operator, this.alice, this.bruce, firstTokenId, firstTokenAmount - 1n);
-        });
-
-        it('should update approval', async function () {
-          expect(this.token.allowance(this.alice, this.operator, firstTokenId)).to.eventually.equal(0);
+            .withArgs(this.operator, this.alice, this.bruce, firstTokenId, firstTokenAmount)
+            .to.not.emit(this.token, 'Approval');
+          await expect(this.token.allowance(this.alice, this.operator, firstTokenId)).to.eventually.equal(0);
         });
 
         it("shouldn't reduce allowance when infinite", async function () {
@@ -183,7 +186,11 @@ function shouldBehaveLikeERC6909() {
       it('operator transfer does not reduce allowance', async function () {
         // Also give allowance
         await this.token.connect(this.holder).approve(this.operator, firstTokenId, firstTokenAmount);
-        await this.token.connect(this.operator).transferFrom(this.holder, this.alice, firstTokenId, firstTokenAmount);
+        await expect(
+          this.token.connect(this.operator).transferFrom(this.holder, this.alice, firstTokenId, firstTokenAmount),
+        )
+          .to.emit(this.token, 'Transfer')
+          .withArgs(this.operator, this.holder, this.alice, firstTokenId, firstTokenAmount);
         await expect(this.token.allowance(this.holder, this.operator, firstTokenId)).to.eventually.equal(
           firstTokenAmount,
         );
