@@ -5,7 +5,7 @@ const { TYPES } = require('./EnumerableSet.opts');
 const header = `\
 pragma solidity ^0.8.20;
 
-import "../cryptography/Hashes.sol";
+import {Hashes} from "../cryptography/Hashes.sol";
 
 /**
  * @dev Library for managing
