@@ -624,8 +624,8 @@ describe('Governor', function () {
             await this.helper.connect(this.proposer).propose();
 
             await expect(this.helper.connect(this.owner).cancel('external'))
-              .to.be.revertedWithCustomError(this.mock, 'GovernorOnlyProposer')
-              .withArgs(this.owner);
+              .to.be.revertedWithCustomError(this.mock, 'GovernorUnableToCancel')
+              .withArgs(this.proposal.id, this.owner.address);
           });
 
           it('after vote started', async function () {

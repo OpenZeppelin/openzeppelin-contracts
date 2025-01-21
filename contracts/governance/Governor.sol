@@ -470,8 +470,6 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         }
     }
 
-    error UnableToCancel();
-
     /**
      * @dev See {IGovernor-cancel}.
      */
@@ -486,15 +484,15 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         // changes it. The `getProposalId` duplication has a cost that is limited, and that we accept.
         uint256 proposalId = getProposalId(targets, values, calldatas, descriptionHash);
 
-        if (!_validateCancel(_msgSender(), proposalId)) revert UnableToCancel();
+        if (!_validateCancel(proposalId)) revert GovernorUnableToCancel(proposalId, _msgSender());
 
         return _cancel(targets, values, calldatas, descriptionHash);
     }
 
-    function _validateCancel(address caller, uint256 proposalId) internal view virtual returns (bool) {
+    function _validateCancel(uint256 proposalId) internal view virtual returns (bool) {
         // public cancel restrictions (on top of existing _cancel restrictions).
         _validateStateBitmap(proposalId, _encodeStateBitmap(ProposalState.Pending));
-        if (caller != proposalProposer(proposalId)) {
+        if (_msgSender() != proposalProposer(proposalId)) {
             return false;
         }
 

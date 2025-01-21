@@ -18,19 +18,20 @@ abstract contract GovernorProposalGuardian is Governor {
      *
      * * The {proposalGuardian} can cancel any proposal at any point in the lifecycle.
      * * if no proposal guardian is set, the {proposalProposer} can cancel their proposals at any point in the lifecycle.
-     * * if the proposal guardian is set, the {proposalProposer} keeps their default rights defined in {IGovernor-cancel} (calling `super`).
+     * * if the proposal guardian is set, the {proposalProposer} keeps their default rights defined in {IGovernor-_validateCancel} (calling `super`).
      */
-    function _validateCancel(address caller, uint256 proposalId) internal view virtual override returns (bool) {
+    function _validateCancel(uint256 proposalId) internal view virtual override returns (bool) {
         // no additional validation is required
 
         address guardian = proposalGuardian();
+        address caller = _msgSender();
 
         if (guardian == address(0)) {
             // if there is no proposal guardian
             // ... only the proposer can cancel
             // ... no restriction on when the proposer can cancel
             address proposer = proposalProposer(proposalId);
-            if (caller != proposer) revert GovernorOnlyProposer(caller);
+            if (caller != proposer) return false;
             return true;
         } else if (guardian == caller) {
             // if there is a proposal guardian, and the caller is the proposal guardian
@@ -39,7 +40,7 @@ abstract contract GovernorProposalGuardian is Governor {
         } else {
             // if there is a proposal guardian, and the caller is not the proposal guardian
             // ... apply default behavior
-            return super._validateCancel(caller, proposalId);
+            return super._validateCancel(proposalId);
         }
     }
 
