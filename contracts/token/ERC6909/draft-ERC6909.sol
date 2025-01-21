@@ -168,7 +168,6 @@ contract ERC6909 is Context, ERC165, IERC6909 {
      */
     function _spendAllowance(address owner, address spender, uint256 id, uint256 amount) internal virtual {
         uint256 currentAllowance = allowance(owner, spender, id);
-        // uint256 currentAllowance = allowance(owner, spender);
         if (currentAllowance < type(uint256).max) {
             if (currentAllowance < amount) {
                 revert ERC6909InsufficientAllowance(spender, currentAllowance, amount, id);
