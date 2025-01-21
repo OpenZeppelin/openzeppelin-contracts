@@ -16,7 +16,7 @@ contract ERC6909 is Context, ERC165, IERC6909 {
     error ERC6909InvalidReceiver(address receiver);
     error ERC6909InvalidSender(address sender);
 
-    mapping(uint256 id => mapping(address owner => uint256)) private _balances;
+    mapping(address owner => mapping(uint256 id => uint256)) private _balances;
 
     mapping(address owner => mapping(address operator => bool)) private _operatorApprovals;
 
@@ -29,7 +29,7 @@ contract ERC6909 is Context, ERC165, IERC6909 {
 
     /// @inheritdoc IERC6909
     function balanceOf(address owner, uint256 id) public view virtual override returns (uint256) {
-        return _balances[id][owner];
+        return _balances[owner][id];
     }
 
     /// @inheritdoc IERC6909
@@ -112,17 +112,17 @@ contract ERC6909 is Context, ERC165, IERC6909 {
         address caller = _msgSender();
 
         if (from != address(0)) {
-            uint256 fromBalance = _balances[id][from];
+            uint256 fromBalance = _balances[from][id];
             if (fromBalance < amount) {
                 revert ERC6909InsufficientBalance(from, fromBalance, amount, id);
             }
             unchecked {
                 // Overflow not possible: amount <= fromBalance.
-                _balances[id][from] = fromBalance - amount;
+                _balances[from][id] = fromBalance - amount;
             }
         }
         if (to != address(0)) {
-            _balances[id][to] += amount;
+            _balances[to][id] += amount;
         }
 
         emit Transfer(caller, from, to, id, amount);
