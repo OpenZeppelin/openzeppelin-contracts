@@ -4,7 +4,7 @@
 
 - Replace `GovernorCountingOverridable.VoteReceipt` struct parameter member names `hasOverriden` and `overridenWeight` for `hasOverridden` and `overriddenWeight` respectively.
 
-### Custom error changes
+#### Custom error changes
 
 - Replace `GovernorAlreadyOverridenVote` with `GovernorAlreadyOverriddenVote`.
 
