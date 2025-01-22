@@ -68,7 +68,7 @@ NOTE: Functions of the `Governor` contract do not include access control. If you
 
 {{GovernorCountingFractional}}
 
-{{GovernorCountingOverride}}
+{{GovernorCountingOverridable}}
 
 {{GovernorVotes}}
 
