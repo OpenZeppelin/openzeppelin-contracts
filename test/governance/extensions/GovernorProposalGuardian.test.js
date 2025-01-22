@@ -1,8 +1,8 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
-const { impersonate } = require('../../helpers/account');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
+const { impersonate } = require('../../helpers/account');
 const { GovernorHelper } = require('../../helpers/governance');
 const { ProposalState } = require('../../helpers/enums');
 
