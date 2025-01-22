@@ -15,6 +15,7 @@ abstract contract GovernorProposalGuardian is Governor {
 
     /**
      * @dev Override {IGovernor-cancel} that implements the extended cancellation logic.
+     *
      * * The {proposalGuardian} can cancel any proposal at any point in the lifecycle.
      * * if no proposal guardian is set, the {proposalProposer} can cancel their proposals at any point in the lifecycle.
      * * if the proposal guardian is set, the {proposalProposer} keeps their default rights defined in {IGovernor-cancel} (calling `super`).
