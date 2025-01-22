@@ -808,8 +808,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
      * The default implementation allows the proposal proposer to cancel the proposal during the pending state.
      */
     function _validateCancel(uint256 proposalId, address caller) internal view virtual returns (bool) {
-        return (_encodeStateBitmap(state(proposalId)) & _encodeStateBitmap(ProposalState.Pending) != bytes32(0) &&
-            caller == proposalProposer(proposalId));
+        return (state(proposalId) == ProposalState.Pending) && caller == proposalProposer(proposalId);
     }
 
     /**
