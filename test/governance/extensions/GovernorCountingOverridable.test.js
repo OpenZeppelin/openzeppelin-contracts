@@ -264,7 +264,7 @@ describe('GovernorCountingOverridable', function () {
             .to.emit(this.mock, 'OverrideVoteCast')
             .withArgs(this.voter1, this.helper.id, VoteType.Against, ethers.parseEther('10'), '');
           await expect(this.mock.connect(this.voter1).castOverrideVote(this.helper.id, VoteType.Abstain, ''))
-            .to.be.revertedWithCustomError(this.mock, 'GovernorAlreadyOverridenVote')
+            .to.be.revertedWithCustomError(this.mock, 'GovernorAlreadyOverriddenVote')
             .withArgs(this.voter1.address);
         });
 
