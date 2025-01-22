@@ -1,5 +1,13 @@
 # Changelog
 
+### Breaking Changes
+
+- Replace `GovernorCountingOverridable.VoteReceipt` struct parameter member names `hasOverriden` and `overridenWeight` for `hasOverridden` and `overriddenWeight` respectively.
+
+#### Custom error changes
+
+- Replace `GovernorAlreadyOverridenVote` with `GovernorAlreadyOverriddenVote`.
+
 ## 5.2.0 (2025-01-08)
 
 ### Breaking Changes
