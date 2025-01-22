@@ -51,10 +51,8 @@ abstract contract GovernorProposalGuardian is Governor {
 
         if (guardian == address(0)) {
             // if there is no proposal guardian
-            // ... only the proposer can cancel
             // ... no restriction on when the proposer can cancel
-            address proposer = proposalProposer(proposalId);
-            if (caller == proposer) return true;
+            if (caller == proposalProposer(proposalId)) return true;
         } else if (guardian == caller) {
             // if there is a proposal guardian, and the caller is the proposal guardian
             // ... just cancel
