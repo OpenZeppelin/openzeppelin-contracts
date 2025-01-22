@@ -6,6 +6,7 @@ pragma solidity ^0.8.20;
 import {Hashes} from "../cryptography/Hashes.sol";
 import {Arrays} from "../Arrays.sol";
 import {Panic} from "../Panic.sol";
+import {StorageSlot} from "../StorageSlot.sol";
 
 /**
  * @dev Library for managing https://wikipedia.org/wiki/Merkle_Tree[Merkle Tree] data structures.
@@ -164,6 +165,91 @@ library MerkleTree {
         }
 
         return (index, currentLevelHash);
+    }
+
+    /**
+     * @dev Change value of the leaf at position `index` from `oldValue` to `newValue`. Returns the recomputed "old"
+     * root (before the update) and "new" root (after the update). The caller must verify that the reconstructed old
+     * root is the last known one.
+     *
+     * The `proof` must be an up-to-date inclusion proof for the leaf being update. This means that this function is
+     * vulnerable to front-running. Any {push} or {update} operation (that changes the root of the tree) would render
+     * all "in flight" updates invalid.
+     *
+     * This variant uses {Hashes-commutativeKeccak256} to hash internal nodes. It should only be used on merkle trees
+     * that were setup using the same (default) hashing function (i.e. by calling
+     * {xref-MerkleTree-setup-struct-MerkleTree-Bytes32PushTree-uint8-bytes32-}[the default setup] function).
+     */
+    function update(
+        Bytes32PushTree storage self,
+        uint256 index,
+        bytes32 oldValue,
+        bytes32 newValue,
+        bytes32[] memory proof
+    ) internal returns (bytes32 oldRoot, bytes32 newRoot) {
+        return update(self, index, oldValue, newValue, proof, Hashes.commutativeKeccak256);
+    }
+
+    /**
+     * @dev Change value of the leaf at position `index` from `oldValue` to `newValue`. Returns the recomputed "old"
+     * root (before the update) and "new" root (after the update). The caller must verify that the reconstructed old
+     * root is the last known one.
+     *
+     * The `proof` must be an up-to-date inclusion proof for the leaf being update. This means that this function is
+     * vulnerable to front-running. Any {push} or {update} operation (that changes the root of the tree) would render
+     * all "in flight" updates invalid.
+     *
+     * This variant uses a custom hashing function to hash internal nodes. It should only be called with the same
+     * function as the one used during the initial setup of the merkle tree.
+     */
+    function update(
+        Bytes32PushTree storage self,
+        uint256 index,
+        bytes32 oldValue,
+        bytes32 newValue,
+        bytes32[] memory proof,
+        function(bytes32, bytes32) view returns (bytes32) fnHash
+    ) internal returns (bytes32 oldRoot, bytes32 newRoot) {
+        unchecked {
+            // Check index range
+            uint256 nextLeafIndex = self._nextLeafIndex;
+            require(index < nextLeafIndex, "invalid index");
+
+            // Cache read
+            uint256 treeDepth = depth(self);
+
+            // Workaround stack too deep
+            bytes32[] storage sides = self._sides;
+
+            // This cannot overflow because: 0 <= index < nextLeafIndex
+            uint256 lastIndex = nextLeafIndex - 1;
+            uint256 currentIndex = index;
+            bytes32 currentLevelHashOld = oldValue;
+            bytes32 currentLevelHashNew = newValue;
+            for (uint32 i = 0; i < treeDepth; i++) {
+                bool isLeft = currentIndex % 2 == 0;
+
+                if (isLeft && (currentIndex >> 1) == (lastIndex >> 1)) {
+                    StorageSlot.Bytes32Slot storage side = Arrays.unsafeAccess(sides, i);
+                    require(side.value == currentLevelHashOld, "Invalid proof");
+                    side.value = currentLevelHashNew;
+                }
+
+                bytes32 sibling = proof[i];
+                currentLevelHashOld = fnHash(
+                    isLeft ? currentLevelHashOld : sibling,
+                    isLeft ? sibling : currentLevelHashOld
+                );
+                currentLevelHashNew = fnHash(
+                    isLeft ? currentLevelHashNew : sibling,
+                    isLeft ? sibling : currentLevelHashNew
+                );
+
+                lastIndex >>= 1;
+                currentIndex >>= 1;
+            }
+            return (currentLevelHashOld, currentLevelHashNew);
+        }
     }
 
     /**
