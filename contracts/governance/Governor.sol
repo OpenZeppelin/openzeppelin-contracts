@@ -484,21 +484,10 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         // changes it. The `getProposalId` duplication has a cost that is limited, and that we accept.
         uint256 proposalId = getProposalId(targets, values, calldatas, descriptionHash);
 
-        if (!_validateCancel(proposalId)) revert GovernorUnableToCancel(proposalId, _msgSender());
+        address caller = _msgSender();
+        if (!_validateCancel(proposalId, caller)) revert GovernorUnableToCancel(proposalId, caller);
 
         return _cancel(targets, values, calldatas, descriptionHash);
-    }
-
-    function _validateCancel(uint256 proposalId) internal view virtual returns (bool) {
-        // public cancel restrictions (on top of existing _cancel restrictions).
-        if (_encodeStateBitmap(state(proposalId)) & _encodeStateBitmap(ProposalState.Pending) == bytes32(0)) {
-            return false;
-        }
-        if (_msgSender() != proposalProposer(proposalId)) {
-            return false;
-        }
-
-        return true;
     }
 
     /**
@@ -811,6 +800,16 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
             (bool success, address recovered) = Strings.tryParseAddress(description, length - 42, length);
             return !success || recovered == proposer;
         }
+    }
+
+    /**
+     * @dev Check if the `caller` can cancel the proposal with the given `proposalId`.
+     *
+     * The default implementation allows the proposal proposer to cancel the proposal during the pending state.
+     */
+    function _validateCancel(uint256 proposalId, address caller) internal view virtual returns (bool) {
+        return (_encodeStateBitmap(state(proposalId)) & _encodeStateBitmap(ProposalState.Pending) != bytes32(0) &&
+            caller == proposalProposer(proposalId));
     }
 
     /**

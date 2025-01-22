@@ -19,8 +19,9 @@ abstract contract GovernorProposalGuardianMock is
     }
 
     function _validateCancel(
-        uint256 proposalId
+        uint256 proposalId,
+        address caller
     ) internal view override(Governor, GovernorProposalGuardian) returns (bool) {
-        return super._validateCancel(proposalId);
+        return super._validateCancel(proposalId, caller);
     }
 }
