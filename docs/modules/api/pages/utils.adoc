@@ -15,6 +15,8 @@
 :ReentrancyGuard: pass:normal[xref:utils.adoc#ReentrancyGuard[`ReentrancyGuard`]]
 :Pausable: pass:normal[xref:utils.adoc#Pausable[`Pausable`]]
 :Nonces: pass:normal[xref:utils.adoc#Nonces[`Nonces`]]
+:NoncesKeyed: pass:normal[xref:utils.adoc#NoncesKeyed[`NoncesKeyed`]]
+:Nonces: pass:normal[xref:utils.adoc#Nonces[`Nonces`]]
 :ERC165: pass:normal[xref:utils.adoc#ERC165[`ERC165`]]
 :ERC165Checker: pass:normal[xref:utils.adoc#ERC165Checker[`ERC165Checker`]]
 :BitMaps: pass:normal[xref:utils.adoc#BitMaps[`BitMaps`]]
@@ -30,6 +32,7 @@
 :Address: pass:normal[xref:utils.adoc#Address[`Address`]]
 :Arrays: pass:normal[xref:utils.adoc#Arrays[`Arrays`]]
 :Base64: pass:normal[xref:utils.adoc#Base64[`Base64`]]
+:Bytes: pass:normal[xref:utils.adoc#Bytes[`Bytes`]]
 :Strings: pass:normal[xref:utils.adoc#Strings[`Strings`]]
 :ShortString: pass:normal[xref:utils.adoc#ShortString[`ShortString`]]
 :SlotDerivation: pass:normal[xref:utils.adoc#SlotDerivation[`SlotDerivation`]]
@@ -41,6 +44,8 @@
 :Panic: pass:normal[xref:utils.adoc#Panic[`Panic`]]
 :Comparators: pass:normal[xref:utils.adoc#Comparators[`Comparators`]]
 :Heap: pass:normal[xref:utils.adoc#Heap[`Heap`]]
+:CAIP2: pass:normal[xref:utils.adoc#CAIP2[`CAIP2`]]
+:CAIP10: pass:normal[xref:utils.adoc#CAIP10[`CAIP10`]]
 :EnumerableMap: pass:normal[xref:utils.adoc#EnumerableMap[`EnumerableMap`]]
 :EnumerableSet: pass:normal[xref:utils.adoc#EnumerableSet[`EnumerableSet`]]
 :xref-Math-tryAdd-uint256-uint256-: xref:utils.adoc#Math-tryAdd-uint256-uint256-
@@ -233,6 +238,17 @@
 :xref-Nonces-nonces-address-: xref:utils.adoc#Nonces-nonces-address-
 :xref-Nonces-_useNonce-address-: xref:utils.adoc#Nonces-_useNonce-address-
 :xref-Nonces-_useCheckedNonce-address-uint256-: xref:utils.adoc#Nonces-_useCheckedNonce-address-uint256-
+:xref-Nonces-InvalidAccountNonce-address-uint256-: xref:utils.adoc#Nonces-InvalidAccountNonce-address-uint256-
+:Nonces: pass:normal[xref:utils.adoc#Nonces[`Nonces`]]
+:Nonces: pass:normal[xref:utils.adoc#Nonces[`Nonces`]]
+:Nonces: pass:normal[xref:utils.adoc#Nonces[`Nonces`]]
+:NoncesKeyed: pass:normal[xref:utils.adoc#NoncesKeyed[`NoncesKeyed`]]
+:xref-NoncesKeyed-nonces-address-uint192-: xref:utils.adoc#NoncesKeyed-nonces-address-uint192-
+:xref-NoncesKeyed-_useNonce-address-uint192-: xref:utils.adoc#NoncesKeyed-_useNonce-address-uint192-
+:xref-NoncesKeyed-_useCheckedNonce-address-uint256-: xref:utils.adoc#NoncesKeyed-_useCheckedNonce-address-uint256-
+:xref-NoncesKeyed-_useCheckedNonce-address-uint192-uint64-: xref:utils.adoc#NoncesKeyed-_useCheckedNonce-address-uint192-uint64-
+:xref-Nonces-nonces-address-: xref:utils.adoc#Nonces-nonces-address-
+:xref-Nonces-_useNonce-address-: xref:utils.adoc#Nonces-_useNonce-address-
 :xref-Nonces-InvalidAccountNonce-address-uint256-: xref:utils.adoc#Nonces-InvalidAccountNonce-address-uint256-
 :ERC165Checker: pass:normal[xref:utils.adoc#ERC165Checker[`ERC165Checker`]]
 :ERC165: pass:normal[xref:utils.adoc#ERC165[`ERC165`]]
@@ -469,7 +485,25 @@
 :xref-Strings-toHexString-address-: xref:utils.adoc#Strings-toHexString-address-
 :xref-Strings-toChecksumHexString-address-: xref:utils.adoc#Strings-toChecksumHexString-address-
 :xref-Strings-equal-string-string-: xref:utils.adoc#Strings-equal-string-string-
+:xref-Strings-parseUint-string-: xref:utils.adoc#Strings-parseUint-string-
+:xref-Strings-parseUint-string-uint256-uint256-: xref:utils.adoc#Strings-parseUint-string-uint256-uint256-
+:xref-Strings-tryParseUint-string-: xref:utils.adoc#Strings-tryParseUint-string-
+:xref-Strings-tryParseUint-string-uint256-uint256-: xref:utils.adoc#Strings-tryParseUint-string-uint256-uint256-
+:xref-Strings-parseInt-string-: xref:utils.adoc#Strings-parseInt-string-
+:xref-Strings-parseInt-string-uint256-uint256-: xref:utils.adoc#Strings-parseInt-string-uint256-uint256-
+:xref-Strings-tryParseInt-string-: xref:utils.adoc#Strings-tryParseInt-string-
+:xref-Strings-tryParseInt-string-uint256-uint256-: xref:utils.adoc#Strings-tryParseInt-string-uint256-uint256-
+:xref-Strings-parseHexUint-string-: xref:utils.adoc#Strings-parseHexUint-string-
+:xref-Strings-parseHexUint-string-uint256-uint256-: xref:utils.adoc#Strings-parseHexUint-string-uint256-uint256-
+:xref-Strings-tryParseHexUint-string-: xref:utils.adoc#Strings-tryParseHexUint-string-
+:xref-Strings-tryParseHexUint-string-uint256-uint256-: xref:utils.adoc#Strings-tryParseHexUint-string-uint256-uint256-
+:xref-Strings-parseAddress-string-: xref:utils.adoc#Strings-parseAddress-string-
+:xref-Strings-parseAddress-string-uint256-uint256-: xref:utils.adoc#Strings-parseAddress-string-uint256-uint256-
+:xref-Strings-tryParseAddress-string-: xref:utils.adoc#Strings-tryParseAddress-string-
+:xref-Strings-tryParseAddress-string-uint256-uint256-: xref:utils.adoc#Strings-tryParseAddress-string-uint256-uint256-
 :xref-Strings-StringsInsufficientHexLength-uint256-uint256-: xref:utils.adoc#Strings-StringsInsufficientHexLength-uint256-uint256-
+:xref-Strings-StringsInvalidChar--: xref:utils.adoc#Strings-StringsInvalidChar--
+:xref-Strings-StringsInvalidAddressFormat--: xref:utils.adoc#Strings-StringsInvalidAddressFormat--
 :xref-ShortStrings-toShortString-string-: xref:utils.adoc#ShortStrings-toShortString-string-
 :xref-ShortStrings-toString-ShortString-: xref:utils.adoc#ShortStrings-toString-ShortString-
 :xref-ShortStrings-byteLength-ShortString-: xref:utils.adoc#ShortStrings-byteLength-ShortString-
@@ -524,8 +558,13 @@
 :xref-Packing-pack_2_2-bytes2-bytes2-: xref:utils.adoc#Packing-pack_2_2-bytes2-bytes2-
 :xref-Packing-pack_2_4-bytes2-bytes4-: xref:utils.adoc#Packing-pack_2_4-bytes2-bytes4-
 :xref-Packing-pack_2_6-bytes2-bytes6-: xref:utils.adoc#Packing-pack_2_6-bytes2-bytes6-
+:xref-Packing-pack_2_8-bytes2-bytes8-: xref:utils.adoc#Packing-pack_2_8-bytes2-bytes8-
+:xref-Packing-pack_2_10-bytes2-bytes10-: xref:utils.adoc#Packing-pack_2_10-bytes2-bytes10-
+:xref-Packing-pack_2_20-bytes2-bytes20-: xref:utils.adoc#Packing-pack_2_20-bytes2-bytes20-
+:xref-Packing-pack_2_22-bytes2-bytes22-: xref:utils.adoc#Packing-pack_2_22-bytes2-bytes22-
 :xref-Packing-pack_4_2-bytes4-bytes2-: xref:utils.adoc#Packing-pack_4_2-bytes4-bytes2-
 :xref-Packing-pack_4_4-bytes4-bytes4-: xref:utils.adoc#Packing-pack_4_4-bytes4-bytes4-
+:xref-Packing-pack_4_6-bytes4-bytes6-: xref:utils.adoc#Packing-pack_4_6-bytes4-bytes6-
 :xref-Packing-pack_4_8-bytes4-bytes8-: xref:utils.adoc#Packing-pack_4_8-bytes4-bytes8-
 :xref-Packing-pack_4_12-bytes4-bytes12-: xref:utils.adoc#Packing-pack_4_12-bytes4-bytes12-
 :xref-Packing-pack_4_16-bytes4-bytes16-: xref:utils.adoc#Packing-pack_4_16-bytes4-bytes16-
@@ -533,25 +572,41 @@
 :xref-Packing-pack_4_24-bytes4-bytes24-: xref:utils.adoc#Packing-pack_4_24-bytes4-bytes24-
 :xref-Packing-pack_4_28-bytes4-bytes28-: xref:utils.adoc#Packing-pack_4_28-bytes4-bytes28-
 :xref-Packing-pack_6_2-bytes6-bytes2-: xref:utils.adoc#Packing-pack_6_2-bytes6-bytes2-
+:xref-Packing-pack_6_4-bytes6-bytes4-: xref:utils.adoc#Packing-pack_6_4-bytes6-bytes4-
 :xref-Packing-pack_6_6-bytes6-bytes6-: xref:utils.adoc#Packing-pack_6_6-bytes6-bytes6-
+:xref-Packing-pack_6_10-bytes6-bytes10-: xref:utils.adoc#Packing-pack_6_10-bytes6-bytes10-
+:xref-Packing-pack_6_16-bytes6-bytes16-: xref:utils.adoc#Packing-pack_6_16-bytes6-bytes16-
+:xref-Packing-pack_6_22-bytes6-bytes22-: xref:utils.adoc#Packing-pack_6_22-bytes6-bytes22-
+:xref-Packing-pack_8_2-bytes8-bytes2-: xref:utils.adoc#Packing-pack_8_2-bytes8-bytes2-
 :xref-Packing-pack_8_4-bytes8-bytes4-: xref:utils.adoc#Packing-pack_8_4-bytes8-bytes4-
 :xref-Packing-pack_8_8-bytes8-bytes8-: xref:utils.adoc#Packing-pack_8_8-bytes8-bytes8-
 :xref-Packing-pack_8_12-bytes8-bytes12-: xref:utils.adoc#Packing-pack_8_12-bytes8-bytes12-
 :xref-Packing-pack_8_16-bytes8-bytes16-: xref:utils.adoc#Packing-pack_8_16-bytes8-bytes16-
 :xref-Packing-pack_8_20-bytes8-bytes20-: xref:utils.adoc#Packing-pack_8_20-bytes8-bytes20-
 :xref-Packing-pack_8_24-bytes8-bytes24-: xref:utils.adoc#Packing-pack_8_24-bytes8-bytes24-
+:xref-Packing-pack_10_2-bytes10-bytes2-: xref:utils.adoc#Packing-pack_10_2-bytes10-bytes2-
+:xref-Packing-pack_10_6-bytes10-bytes6-: xref:utils.adoc#Packing-pack_10_6-bytes10-bytes6-
+:xref-Packing-pack_10_10-bytes10-bytes10-: xref:utils.adoc#Packing-pack_10_10-bytes10-bytes10-
+:xref-Packing-pack_10_12-bytes10-bytes12-: xref:utils.adoc#Packing-pack_10_12-bytes10-bytes12-
+:xref-Packing-pack_10_22-bytes10-bytes22-: xref:utils.adoc#Packing-pack_10_22-bytes10-bytes22-
 :xref-Packing-pack_12_4-bytes12-bytes4-: xref:utils.adoc#Packing-pack_12_4-bytes12-bytes4-
 :xref-Packing-pack_12_8-bytes12-bytes8-: xref:utils.adoc#Packing-pack_12_8-bytes12-bytes8-
+:xref-Packing-pack_12_10-bytes12-bytes10-: xref:utils.adoc#Packing-pack_12_10-bytes12-bytes10-
 :xref-Packing-pack_12_12-bytes12-bytes12-: xref:utils.adoc#Packing-pack_12_12-bytes12-bytes12-
 :xref-Packing-pack_12_16-bytes12-bytes16-: xref:utils.adoc#Packing-pack_12_16-bytes12-bytes16-
 :xref-Packing-pack_12_20-bytes12-bytes20-: xref:utils.adoc#Packing-pack_12_20-bytes12-bytes20-
 :xref-Packing-pack_16_4-bytes16-bytes4-: xref:utils.adoc#Packing-pack_16_4-bytes16-bytes4-
+:xref-Packing-pack_16_6-bytes16-bytes6-: xref:utils.adoc#Packing-pack_16_6-bytes16-bytes6-
 :xref-Packing-pack_16_8-bytes16-bytes8-: xref:utils.adoc#Packing-pack_16_8-bytes16-bytes8-
 :xref-Packing-pack_16_12-bytes16-bytes12-: xref:utils.adoc#Packing-pack_16_12-bytes16-bytes12-
 :xref-Packing-pack_16_16-bytes16-bytes16-: xref:utils.adoc#Packing-pack_16_16-bytes16-bytes16-
+:xref-Packing-pack_20_2-bytes20-bytes2-: xref:utils.adoc#Packing-pack_20_2-bytes20-bytes2-
 :xref-Packing-pack_20_4-bytes20-bytes4-: xref:utils.adoc#Packing-pack_20_4-bytes20-bytes4-
 :xref-Packing-pack_20_8-bytes20-bytes8-: xref:utils.adoc#Packing-pack_20_8-bytes20-bytes8-
 :xref-Packing-pack_20_12-bytes20-bytes12-: xref:utils.adoc#Packing-pack_20_12-bytes20-bytes12-
+:xref-Packing-pack_22_2-bytes22-bytes2-: xref:utils.adoc#Packing-pack_22_2-bytes22-bytes2-
+:xref-Packing-pack_22_6-bytes22-bytes6-: xref:utils.adoc#Packing-pack_22_6-bytes22-bytes6-
+:xref-Packing-pack_22_10-bytes22-bytes10-: xref:utils.adoc#Packing-pack_22_10-bytes22-bytes10-
 :xref-Packing-pack_24_4-bytes24-bytes4-: xref:utils.adoc#Packing-pack_24_4-bytes24-bytes4-
 :xref-Packing-pack_24_8-bytes24-bytes8-: xref:utils.adoc#Packing-pack_24_8-bytes24-bytes8-
 :xref-Packing-pack_28_4-bytes28-bytes4-: xref:utils.adoc#Packing-pack_28_4-bytes28-bytes4-
@@ -575,6 +630,16 @@
 :xref-Packing-replace_8_4-bytes8-bytes4-uint8-: xref:utils.adoc#Packing-replace_8_4-bytes8-bytes4-uint8-
 :xref-Packing-extract_8_6-bytes8-uint8-: xref:utils.adoc#Packing-extract_8_6-bytes8-uint8-
 :xref-Packing-replace_8_6-bytes8-bytes6-uint8-: xref:utils.adoc#Packing-replace_8_6-bytes8-bytes6-uint8-
+:xref-Packing-extract_10_1-bytes10-uint8-: xref:utils.adoc#Packing-extract_10_1-bytes10-uint8-
+:xref-Packing-replace_10_1-bytes10-bytes1-uint8-: xref:utils.adoc#Packing-replace_10_1-bytes10-bytes1-uint8-
+:xref-Packing-extract_10_2-bytes10-uint8-: xref:utils.adoc#Packing-extract_10_2-bytes10-uint8-
+:xref-Packing-replace_10_2-bytes10-bytes2-uint8-: xref:utils.adoc#Packing-replace_10_2-bytes10-bytes2-uint8-
+:xref-Packing-extract_10_4-bytes10-uint8-: xref:utils.adoc#Packing-extract_10_4-bytes10-uint8-
+:xref-Packing-replace_10_4-bytes10-bytes4-uint8-: xref:utils.adoc#Packing-replace_10_4-bytes10-bytes4-uint8-
+:xref-Packing-extract_10_6-bytes10-uint8-: xref:utils.adoc#Packing-extract_10_6-bytes10-uint8-
+:xref-Packing-replace_10_6-bytes10-bytes6-uint8-: xref:utils.adoc#Packing-replace_10_6-bytes10-bytes6-uint8-
+:xref-Packing-extract_10_8-bytes10-uint8-: xref:utils.adoc#Packing-extract_10_8-bytes10-uint8-
+:xref-Packing-replace_10_8-bytes10-bytes8-uint8-: xref:utils.adoc#Packing-replace_10_8-bytes10-bytes8-uint8-
 :xref-Packing-extract_12_1-bytes12-uint8-: xref:utils.adoc#Packing-extract_12_1-bytes12-uint8-
 :xref-Packing-replace_12_1-bytes12-bytes1-uint8-: xref:utils.adoc#Packing-replace_12_1-bytes12-bytes1-uint8-
 :xref-Packing-extract_12_2-bytes12-uint8-: xref:utils.adoc#Packing-extract_12_2-bytes12-uint8-
@@ -585,6 +650,8 @@
 :xref-Packing-replace_12_6-bytes12-bytes6-uint8-: xref:utils.adoc#Packing-replace_12_6-bytes12-bytes6-uint8-
 :xref-Packing-extract_12_8-bytes12-uint8-: xref:utils.adoc#Packing-extract_12_8-bytes12-uint8-
 :xref-Packing-replace_12_8-bytes12-bytes8-uint8-: xref:utils.adoc#Packing-replace_12_8-bytes12-bytes8-uint8-
+:xref-Packing-extract_12_10-bytes12-uint8-: xref:utils.adoc#Packing-extract_12_10-bytes12-uint8-
+:xref-Packing-replace_12_10-bytes12-bytes10-uint8-: xref:utils.adoc#Packing-replace_12_10-bytes12-bytes10-uint8-
 :xref-Packing-extract_16_1-bytes16-uint8-: xref:utils.adoc#Packing-extract_16_1-bytes16-uint8-
 :xref-Packing-replace_16_1-bytes16-bytes1-uint8-: xref:utils.adoc#Packing-replace_16_1-bytes16-bytes1-uint8-
 :xref-Packing-extract_16_2-bytes16-uint8-: xref:utils.adoc#Packing-extract_16_2-bytes16-uint8-
@@ -595,6 +662,8 @@
 :xref-Packing-replace_16_6-bytes16-bytes6-uint8-: xref:utils.adoc#Packing-replace_16_6-bytes16-bytes6-uint8-
 :xref-Packing-extract_16_8-bytes16-uint8-: xref:utils.adoc#Packing-extract_16_8-bytes16-uint8-
 :xref-Packing-replace_16_8-bytes16-bytes8-uint8-: xref:utils.adoc#Packing-replace_16_8-bytes16-bytes8-uint8-
+:xref-Packing-extract_16_10-bytes16-uint8-: xref:utils.adoc#Packing-extract_16_10-bytes16-uint8-
+:xref-Packing-replace_16_10-bytes16-bytes10-uint8-: xref:utils.adoc#Packing-replace_16_10-bytes16-bytes10-uint8-
 :xref-Packing-extract_16_12-bytes16-uint8-: xref:utils.adoc#Packing-extract_16_12-bytes16-uint8-
 :xref-Packing-replace_16_12-bytes16-bytes12-uint8-: xref:utils.adoc#Packing-replace_16_12-bytes16-bytes12-uint8-
 :xref-Packing-extract_20_1-bytes20-uint8-: xref:utils.adoc#Packing-extract_20_1-bytes20-uint8-
@@ -607,10 +676,30 @@
 :xref-Packing-replace_20_6-bytes20-bytes6-uint8-: xref:utils.adoc#Packing-replace_20_6-bytes20-bytes6-uint8-
 :xref-Packing-extract_20_8-bytes20-uint8-: xref:utils.adoc#Packing-extract_20_8-bytes20-uint8-
 :xref-Packing-replace_20_8-bytes20-bytes8-uint8-: xref:utils.adoc#Packing-replace_20_8-bytes20-bytes8-uint8-
+:xref-Packing-extract_20_10-bytes20-uint8-: xref:utils.adoc#Packing-extract_20_10-bytes20-uint8-
+:xref-Packing-replace_20_10-bytes20-bytes10-uint8-: xref:utils.adoc#Packing-replace_20_10-bytes20-bytes10-uint8-
 :xref-Packing-extract_20_12-bytes20-uint8-: xref:utils.adoc#Packing-extract_20_12-bytes20-uint8-
 :xref-Packing-replace_20_12-bytes20-bytes12-uint8-: xref:utils.adoc#Packing-replace_20_12-bytes20-bytes12-uint8-
 :xref-Packing-extract_20_16-bytes20-uint8-: xref:utils.adoc#Packing-extract_20_16-bytes20-uint8-
 :xref-Packing-replace_20_16-bytes20-bytes16-uint8-: xref:utils.adoc#Packing-replace_20_16-bytes20-bytes16-uint8-
+:xref-Packing-extract_22_1-bytes22-uint8-: xref:utils.adoc#Packing-extract_22_1-bytes22-uint8-
+:xref-Packing-replace_22_1-bytes22-bytes1-uint8-: xref:utils.adoc#Packing-replace_22_1-bytes22-bytes1-uint8-
+:xref-Packing-extract_22_2-bytes22-uint8-: xref:utils.adoc#Packing-extract_22_2-bytes22-uint8-
+:xref-Packing-replace_22_2-bytes22-bytes2-uint8-: xref:utils.adoc#Packing-replace_22_2-bytes22-bytes2-uint8-
+:xref-Packing-extract_22_4-bytes22-uint8-: xref:utils.adoc#Packing-extract_22_4-bytes22-uint8-
+:xref-Packing-replace_22_4-bytes22-bytes4-uint8-: xref:utils.adoc#Packing-replace_22_4-bytes22-bytes4-uint8-
+:xref-Packing-extract_22_6-bytes22-uint8-: xref:utils.adoc#Packing-extract_22_6-bytes22-uint8-
+:xref-Packing-replace_22_6-bytes22-bytes6-uint8-: xref:utils.adoc#Packing-replace_22_6-bytes22-bytes6-uint8-
+:xref-Packing-extract_22_8-bytes22-uint8-: xref:utils.adoc#Packing-extract_22_8-bytes22-uint8-
+:xref-Packing-replace_22_8-bytes22-bytes8-uint8-: xref:utils.adoc#Packing-replace_22_8-bytes22-bytes8-uint8-
+:xref-Packing-extract_22_10-bytes22-uint8-: xref:utils.adoc#Packing-extract_22_10-bytes22-uint8-
+:xref-Packing-replace_22_10-bytes22-bytes10-uint8-: xref:utils.adoc#Packing-replace_22_10-bytes22-bytes10-uint8-
+:xref-Packing-extract_22_12-bytes22-uint8-: xref:utils.adoc#Packing-extract_22_12-bytes22-uint8-
+:xref-Packing-replace_22_12-bytes22-bytes12-uint8-: xref:utils.adoc#Packing-replace_22_12-bytes22-bytes12-uint8-
+:xref-Packing-extract_22_16-bytes22-uint8-: xref:utils.adoc#Packing-extract_22_16-bytes22-uint8-
+:xref-Packing-replace_22_16-bytes22-bytes16-uint8-: xref:utils.adoc#Packing-replace_22_16-bytes22-bytes16-uint8-
+:xref-Packing-extract_22_20-bytes22-uint8-: xref:utils.adoc#Packing-extract_22_20-bytes22-uint8-
+:xref-Packing-replace_22_20-bytes22-bytes20-uint8-: xref:utils.adoc#Packing-replace_22_20-bytes22-bytes20-uint8-
 :xref-Packing-extract_24_1-bytes24-uint8-: xref:utils.adoc#Packing-extract_24_1-bytes24-uint8-
 :xref-Packing-replace_24_1-bytes24-bytes1-uint8-: xref:utils.adoc#Packing-replace_24_1-bytes24-bytes1-uint8-
 :xref-Packing-extract_24_2-bytes24-uint8-: xref:utils.adoc#Packing-extract_24_2-bytes24-uint8-
@@ -621,12 +710,16 @@
 :xref-Packing-replace_24_6-bytes24-bytes6-uint8-: xref:utils.adoc#Packing-replace_24_6-bytes24-bytes6-uint8-
 :xref-Packing-extract_24_8-bytes24-uint8-: xref:utils.adoc#Packing-extract_24_8-bytes24-uint8-
 :xref-Packing-replace_24_8-bytes24-bytes8-uint8-: xref:utils.adoc#Packing-replace_24_8-bytes24-bytes8-uint8-
+:xref-Packing-extract_24_10-bytes24-uint8-: xref:utils.adoc#Packing-extract_24_10-bytes24-uint8-
+:xref-Packing-replace_24_10-bytes24-bytes10-uint8-: xref:utils.adoc#Packing-replace_24_10-bytes24-bytes10-uint8-
 :xref-Packing-extract_24_12-bytes24-uint8-: xref:utils.adoc#Packing-extract_24_12-bytes24-uint8-
 :xref-Packing-replace_24_12-bytes24-bytes12-uint8-: xref:utils.adoc#Packing-replace_24_12-bytes24-bytes12-uint8-
 :xref-Packing-extract_24_16-bytes24-uint8-: xref:utils.adoc#Packing-extract_24_16-bytes24-uint8-
 :xref-Packing-replace_24_16-bytes24-bytes16-uint8-: xref:utils.adoc#Packing-replace_24_16-bytes24-bytes16-uint8-
 :xref-Packing-extract_24_20-bytes24-uint8-: xref:utils.adoc#Packing-extract_24_20-bytes24-uint8-
 :xref-Packing-replace_24_20-bytes24-bytes20-uint8-: xref:utils.adoc#Packing-replace_24_20-bytes24-bytes20-uint8-
+:xref-Packing-extract_24_22-bytes24-uint8-: xref:utils.adoc#Packing-extract_24_22-bytes24-uint8-
+:xref-Packing-replace_24_22-bytes24-bytes22-uint8-: xref:utils.adoc#Packing-replace_24_22-bytes24-bytes22-uint8-
 :xref-Packing-extract_28_1-bytes28-uint8-: xref:utils.adoc#Packing-extract_28_1-bytes28-uint8-
 :xref-Packing-replace_28_1-bytes28-bytes1-uint8-: xref:utils.adoc#Packing-replace_28_1-bytes28-bytes1-uint8-
 :xref-Packing-extract_28_2-bytes28-uint8-: xref:utils.adoc#Packing-extract_28_2-bytes28-uint8-
@@ -637,12 +730,16 @@
 :xref-Packing-replace_28_6-bytes28-bytes6-uint8-: xref:utils.adoc#Packing-replace_28_6-bytes28-bytes6-uint8-
 :xref-Packing-extract_28_8-bytes28-uint8-: xref:utils.adoc#Packing-extract_28_8-bytes28-uint8-
 :xref-Packing-replace_28_8-bytes28-bytes8-uint8-: xref:utils.adoc#Packing-replace_28_8-bytes28-bytes8-uint8-
+:xref-Packing-extract_28_10-bytes28-uint8-: xref:utils.adoc#Packing-extract_28_10-bytes28-uint8-
+:xref-Packing-replace_28_10-bytes28-bytes10-uint8-: xref:utils.adoc#Packing-replace_28_10-bytes28-bytes10-uint8-
 :xref-Packing-extract_28_12-bytes28-uint8-: xref:utils.adoc#Packing-extract_28_12-bytes28-uint8-
 :xref-Packing-replace_28_12-bytes28-bytes12-uint8-: xref:utils.adoc#Packing-replace_28_12-bytes28-bytes12-uint8-
 :xref-Packing-extract_28_16-bytes28-uint8-: xref:utils.adoc#Packing-extract_28_16-bytes28-uint8-
 :xref-Packing-replace_28_16-bytes28-bytes16-uint8-: xref:utils.adoc#Packing-replace_28_16-bytes28-bytes16-uint8-
 :xref-Packing-extract_28_20-bytes28-uint8-: xref:utils.adoc#Packing-extract_28_20-bytes28-uint8-
 :xref-Packing-replace_28_20-bytes28-bytes20-uint8-: xref:utils.adoc#Packing-replace_28_20-bytes28-bytes20-uint8-
+:xref-Packing-extract_28_22-bytes28-uint8-: xref:utils.adoc#Packing-extract_28_22-bytes28-uint8-
+:xref-Packing-replace_28_22-bytes28-bytes22-uint8-: xref:utils.adoc#Packing-replace_28_22-bytes28-bytes22-uint8-
 :xref-Packing-extract_28_24-bytes28-uint8-: xref:utils.adoc#Packing-extract_28_24-bytes28-uint8-
 :xref-Packing-replace_28_24-bytes28-bytes24-uint8-: xref:utils.adoc#Packing-replace_28_24-bytes28-bytes24-uint8-
 :xref-Packing-extract_32_1-bytes32-uint8-: xref:utils.adoc#Packing-extract_32_1-bytes32-uint8-
@@ -655,12 +752,16 @@
 :xref-Packing-replace_32_6-bytes32-bytes6-uint8-: xref:utils.adoc#Packing-replace_32_6-bytes32-bytes6-uint8-
 :xref-Packing-extract_32_8-bytes32-uint8-: xref:utils.adoc#Packing-extract_32_8-bytes32-uint8-
 :xref-Packing-replace_32_8-bytes32-bytes8-uint8-: xref:utils.adoc#Packing-replace_32_8-bytes32-bytes8-uint8-
+:xref-Packing-extract_32_10-bytes32-uint8-: xref:utils.adoc#Packing-extract_32_10-bytes32-uint8-
+:xref-Packing-replace_32_10-bytes32-bytes10-uint8-: xref:utils.adoc#Packing-replace_32_10-bytes32-bytes10-uint8-
 :xref-Packing-extract_32_12-bytes32-uint8-: xref:utils.adoc#Packing-extract_32_12-bytes32-uint8-
 :xref-Packing-replace_32_12-bytes32-bytes12-uint8-: xref:utils.adoc#Packing-replace_32_12-bytes32-bytes12-uint8-
 :xref-Packing-extract_32_16-bytes32-uint8-: xref:utils.adoc#Packing-extract_32_16-bytes32-uint8-
 :xref-Packing-replace_32_16-bytes32-bytes16-uint8-: xref:utils.adoc#Packing-replace_32_16-bytes32-bytes16-uint8-
 :xref-Packing-extract_32_20-bytes32-uint8-: xref:utils.adoc#Packing-extract_32_20-bytes32-uint8-
 :xref-Packing-replace_32_20-bytes32-bytes20-uint8-: xref:utils.adoc#Packing-replace_32_20-bytes32-bytes20-uint8-
+:xref-Packing-extract_32_22-bytes32-uint8-: xref:utils.adoc#Packing-extract_32_22-bytes32-uint8-
+:xref-Packing-replace_32_22-bytes32-bytes22-uint8-: xref:utils.adoc#Packing-replace_32_22-bytes32-bytes22-uint8-
 :xref-Packing-extract_32_24-bytes32-uint8-: xref:utils.adoc#Packing-extract_32_24-bytes32-uint8-
 :xref-Packing-replace_32_24-bytes32-bytes24-uint8-: xref:utils.adoc#Packing-replace_32_24-bytes32-bytes24-uint8-
 :xref-Packing-extract_32_28-bytes32-uint8-: xref:utils.adoc#Packing-extract_32_28-bytes32-uint8-
@@ -699,6 +800,7 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {ReentrancyGuardTransient}: Variant of {ReentrancyGuard} that uses transient storage (https://eips.ethereum.org/EIPS/eip-1153[EIP-1153]).
  * {Pausable}: A common emergency response mechanism that can pause functionality while a remediation is pending.
  * {Nonces}: Utility for tracking and verifying address nonces that only increment.
+ * {NoncesKeyed}: Alternative to {Nonces}, that support key-ed nonces following https://eips.ethereum.org/EIPS/eip-4337#semi-abstracted-nonce-support[ERC-4337 speciciations].
  * {ERC165}, {ERC165Checker}: Utilities for inspecting interfaces supported by contracts.
  * {BitMaps}: A simple library to manage boolean value mapped to a numerical index in an efficient way.
  * {EnumerableMap}: A type like Solidity's https://solidity.readthedocs.io/en/latest/types.html#mapping-types[`mapping`], but with key-value _enumeration_: this will let you know how many entries a mapping has, and iterate over them (which is not possible with `mapping`).
@@ -712,16 +814,18 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {Address}: Collection of functions for overloading Solidity's https://docs.soliditylang.org/en/latest/types.html#address[`address`] type.
  * {Arrays}: Collection of functions that operate on https://docs.soliditylang.org/en/latest/types.html#arrays[`arrays`].
  * {Base64}: On-chain base64 and base64URL encoding according to https://datatracker.ietf.org/doc/html/rfc4648[RFC-4648].
+ * {Bytes}: Common operations on bytes objects.
  * {Strings}: Common operations for strings formatting.
  * {ShortString}: Library to encode (and decode) short strings into (or from) a single bytes32 slot for optimizing costs. Short strings are limited to 31 characters.
  * {SlotDerivation}: Methods for deriving storage slot from ERC-7201 namespaces as well as from constructions such as mapping and arrays.
- * {StorageSlot}: Methods for accessing specific storage slots formatted as common primitive types. 
+ * {StorageSlot}: Methods for accessing specific storage slots formatted as common primitive types.
  * {TransientSlot}: Primitives for reading from and writing to transient storage (only value types are currently supported).
  * {Multicall}: Abstract contract with a utility to allow batching together multiple calls in a single transaction. Useful for allowing EOAs to perform multiple operations at once.
  * {Context}: A utility for abstracting the sender and calldata in the current execution context.
  * {Packing}: A library for packing and unpacking multiple values into bytes32
  * {Panic}: A library to revert with https://docs.soliditylang.org/en/v0.8.20/control-structures.html#panic-via-assert-and-error-via-require[Solidity panic codes].
  * {Comparators}: A library that contains comparator functions to use with with the {Heap} library.
+ * {CAIP2}, {CAIP10}: Libraries for formatting and parsing CAIP-2 and CAIP-10 identifiers.
 
 [NOTE]
 ====
@@ -761,7 +865,7 @@ Because Solidity does not support generic types, {EnumerableMap} and {Enumerable
 
 [.contract]
 [[Math]]
-=== `++Math++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/utils/math/Math.sol[{github-icon},role=heading-link]
+=== `++Math++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/utils/math/Math.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1028,7 +1132,7 @@ Returns whether a provided rounding mode is considered rounding up for unsigned 
 
 [.contract]
 [[SignedMath]]
-=== `++SignedMath++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/utils/math/SignedMath.sol[{github-icon},role=heading-link]
+=== `++SignedMath++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/utils/math/SignedMath.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1155,7 +1259,7 @@ Returns the absolute unsigned value of a signed value.
 
 [.contract]
 [[SafeCast]]
-=== `++SafeCast++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/utils/math/SafeCast.sol[{github-icon},role=heading-link]
+=== `++SafeCast++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/utils/math/SafeCast.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2156,7 +2260,7 @@ An uint value doesn't fit in an int of `bits` size.
 
 [.contract]
 [[ECDSA]]
-=== `++ECDSA++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/utils/cryptography/ECDSA.sol[{github-icon},role=heading-link]
+=== `++ECDSA++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/utils/cryptography/ECDSA.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2291,7 +2395,7 @@ The signature has an S value that is in the upper half order.
 
 [.contract]
 [[P256]]
-=== `++P256++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/utils/cryptography/P256.sol[{github-icon},role=heading-link]
+=== `++P256++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/utils/cryptography/P256.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2410,7 +2514,7 @@ B parameter of the weierstrass equation
 
 [.contract]
 [[RSA]]
-=== `++RSA++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/utils/cryptography/RSA.sol[{github-icon},role=heading-link]
+=== `++RSA++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/utils/cryptography/RSA.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2469,7 +2573,7 @@ using a low exponent out of security concerns.
 
 [.contract]
 [[EIP712]]
-=== `++EIP712++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/utils/cryptography/EIP712.sol[{github-icon},role=heading-link]
+=== `++EIP712++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/utils/cryptography/EIP712.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2592,7 +2696,7 @@ It only reads from storage if necessary (in case the value is too large to fit i
 
 [.contract]
 [[MessageHashUtils]]
-=== `++MessageHashUtils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/utils/cryptography/MessageHashUtils.sol[{github-icon},role=heading-link]
+=== `++MessageHashUtils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/utils/cryptography/MessageHashUtils.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2674,7 +2778,7 @@ See {ECDSA-recover}.
 
 [.contract]
 [[SignatureChecker]]
-=== `++SignatureChecker++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/utils/cryptography/SignatureChecker.sol[{github-icon},role=heading-link]
+=== `++SignatureChecker++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/utils/cryptography/SignatureChecker.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2717,7 +2821,7 @@ change through time. It could return true at block N and false at block N+1 (or 
 
 [.contract]
 [[Hashes]]
-=== `++Hashes++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/utils/cryptography/Hashes.sol[{github-icon},role=heading-link]
+=== `++Hashes++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/utils/cryptography/Hashes.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2763,7 +2867,7 @@ NOTE: Equivalent to the `standardNodeHash` in our https://github.com/OpenZeppeli
 
 [.contract]
 [[MerkleProof]]
-=== `++MerkleProof++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/utils/cryptography/MerkleProof.sol[{github-icon},role=heading-link]
+=== `++MerkleProof++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/utils/cryptography/MerkleProof.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3055,7 +3159,7 @@ The multiproof provided is not valid.
 
 [.contract]
 [[ReentrancyGuard]]
-=== `++ReentrancyGuard++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/utils/ReentrancyGuard.sol[{github-icon},role=heading-link]
+=== `++ReentrancyGuard++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/utils/ReentrancyGuard.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3134,7 +3238,7 @@ Unauthorized reentrant call.
 
 [.contract]
 [[ReentrancyGuardTransient]]
-=== `++ReentrancyGuardTransient++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/utils/ReentrancyGuardTransient.sol[{github-icon},role=heading-link]
+=== `++ReentrancyGuardTransient++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/utils/ReentrancyGuardTransient.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3205,7 +3309,7 @@ Unauthorized reentrant call.
 
 [.contract]
 [[Pausable]]
-=== `++Pausable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/utils/Pausable.sol[{github-icon},role=heading-link]
+=== `++Pausable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/utils/Pausable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3350,7 +3454,7 @@ The operation failed because the contract is not paused.
 
 [.contract]
 [[Nonces]]
-=== `++Nonces++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/utils/Nonces.sol[{github-icon},role=heading-link]
+=== `++Nonces++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/utils/Nonces.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3401,6 +3505,86 @@ Same as {_useNonce} but checking that `nonce` is the next valid for `owner`.
 
 The nonce used for an `account` is not the expected current nonce.
 
+:nonces: pass:normal[xref:#NoncesKeyed-nonces-address-uint192-[`++nonces++`]]
+:_useNonce: pass:normal[xref:#NoncesKeyed-_useNonce-address-uint192-[`++_useNonce++`]]
+:_useCheckedNonce: pass:normal[xref:#NoncesKeyed-_useCheckedNonce-address-uint256-[`++_useCheckedNonce++`]]
+:_useCheckedNonce: pass:normal[xref:#NoncesKeyed-_useCheckedNonce-address-uint192-uint64-[`++_useCheckedNonce++`]]
+
+[.contract]
+[[NoncesKeyed]]
+=== `++NoncesKeyed++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/utils/NoncesKeyed.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/utils/NoncesKeyed.sol";
+```
+
+Alternative to {Nonces}, that supports key-ed nonces.
+
+Follows the https://eips.ethereum.org/EIPS/eip-4337#semi-abstracted-nonce-support[ERC-4337's semi-abstracted nonce system].
+
+NOTE: This contract inherits from {Nonces} and reuses its storage for the first nonce key (i.e. `0`). This
+makes upgrading from {Nonces} to {NoncesKeyed} safe when using their upgradeable versions (e.g. `NoncesKeyedUpgradeable`).
+Doing so will NOT reset the current state of nonces, avoiding replay attacks where a nonce is reused after the upgrade.
+
+[.contract-index]
+.Functions
+--
+* {xref-NoncesKeyed-nonces-address-uint192-}[`++nonces(owner, key)++`]
+* {xref-NoncesKeyed-_useNonce-address-uint192-}[`++_useNonce(owner, key)++`]
+* {xref-NoncesKeyed-_useCheckedNonce-address-uint256-}[`++_useCheckedNonce(owner, keyNonce)++`]
+* {xref-NoncesKeyed-_useCheckedNonce-address-uint192-uint64-}[`++_useCheckedNonce(owner, key, nonce)++`]
+
+[.contract-subindex-inherited]
+.Nonces
+* {xref-Nonces-nonces-address-}[`++nonces(owner)++`]
+* {xref-Nonces-_useNonce-address-}[`++_useNonce(owner)++`]
+
+--
+
+[.contract-index]
+.Errors
+--
+
+[.contract-subindex-inherited]
+.Nonces
+* {xref-Nonces-InvalidAccountNonce-address-uint256-}[`++InvalidAccountNonce(account, currentNonce)++`]
+
+--
+
+[.contract-item]
+[[NoncesKeyed-nonces-address-uint192-]]
+==== `[.contract-item-name]#++nonces++#++(address owner, uint192 key) → uint256++` [.item-kind]#public#
+
+Returns the next unused nonce for an address and key. Result contains the key prefix.
+
+[.contract-item]
+[[NoncesKeyed-_useNonce-address-uint192-]]
+==== `[.contract-item-name]#++_useNonce++#++(address owner, uint192 key) → uint256++` [.item-kind]#internal#
+
+Consumes the next unused nonce for an address and key.
+
+Returns the current value without the key prefix. Consumed nonce is increased, so calling this function twice
+with the same arguments will return different (sequential) results.
+
+[.contract-item]
+[[NoncesKeyed-_useCheckedNonce-address-uint256-]]
+==== `[.contract-item-name]#++_useCheckedNonce++#++(address owner, uint256 keyNonce)++` [.item-kind]#internal#
+
+Same as {_useNonce} but checking that `nonce` is the next valid for `owner`.
+
+This version takes the key and the nonce in a single uint256 parameter:
+- use the first 24 bytes for the key
+- use the last 8 bytes for the nonce
+
+[.contract-item]
+[[NoncesKeyed-_useCheckedNonce-address-uint192-uint64-]]
+==== `[.contract-item-name]#++_useCheckedNonce++#++(address owner, uint192 key, uint64 nonce)++` [.item-kind]#internal#
+
+Same as {_useNonce} but checking that `nonce` is the next valid for `owner`.
+
+This version takes the key and the nonce as two different parameters.
+
 == Introspection
 
 This set of interfaces and contracts deal with https://en.wikipedia.org/wiki/Type_introspection[type introspection] of contracts, that is, examining which functions can be called on them. This is usually referred to as a contract's _interface_.
@@ -3411,7 +3595,7 @@ Ethereum contracts have no native concept of an interface, so applications must 
 
 [.contract]
 [[IERC165]]
-=== `++IERC165++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/utils/introspection/IERC165.sol[{github-icon},role=heading-link]
+=== `++IERC165++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/utils/introspection/IERC165.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3448,7 +3632,7 @@ This function call must use less than 30 000 gas.
 
 [.contract]
 [[ERC165]]
-=== `++ERC165++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/utils/introspection/ERC165.sol[{github-icon},role=heading-link]
+=== `++ERC165++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/utils/introspection/ERC165.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3490,7 +3674,7 @@ See {IERC165-supportsInterface}.
 
 [.contract]
 [[ERC165Checker]]
-=== `++ERC165Checker++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/utils/introspection/ERC165Checker.sol[{github-icon},role=heading-link]
+=== `++ERC165Checker++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/utils/introspection/ERC165Checker.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3575,7 +3759,7 @@ Interface identification is specified in ERC-165.
 
 [.contract]
 [[BitMaps]]
-=== `++BitMaps++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/utils/structs/BitMaps.sol[{github-icon},role=heading-link]
+=== `++BitMaps++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/utils/structs/BitMaps.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3713,7 +3897,7 @@ Unsets the bit at `index`.
 
 [.contract]
 [[EnumerableMap]]
-=== `++EnumerableMap++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/utils/structs/EnumerableMap.sol[{github-icon},role=heading-link]
+=== `++EnumerableMap++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/utils/structs/EnumerableMap.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -4509,7 +4693,7 @@ Query for a nonexistent map key.
 
 [.contract]
 [[EnumerableSet]]
-=== `++EnumerableSet++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/utils/structs/EnumerableSet.sol[{github-icon},role=heading-link]
+=== `++EnumerableSet++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/utils/structs/EnumerableSet.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -4749,7 +4933,7 @@ uncallable if the set grows to a point where copying to memory consumes too much
 
 [.contract]
 [[DoubleEndedQueue]]
-=== `++DoubleEndedQueue++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/utils/structs/DoubleEndedQueue.sol[{github-icon},role=heading-link]
+=== `++DoubleEndedQueue++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/utils/structs/DoubleEndedQueue.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -4873,7 +5057,7 @@ Returns true if the queue is empty.
 
 [.contract]
 [[CircularBuffer]]
-=== `++CircularBuffer++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/utils/structs/CircularBuffer.sol[{github-icon},role=heading-link]
+=== `++CircularBuffer++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/utils/structs/CircularBuffer.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -5023,7 +5207,7 @@ Error emitted when trying to setup a buffer with a size of 0.
 
 [.contract]
 [[Checkpoints]]
-=== `++Checkpoints++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/utils/structs/Checkpoints.sol[{github-icon},role=heading-link]
+=== `++Checkpoints++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/utils/structs/Checkpoints.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -5272,7 +5456,7 @@ A value was attempted to be inserted on a past checkpoint.
 
 [.contract]
 [[Heap]]
-=== `++Heap++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/utils/structs/Heap.sol[{github-icon},role=heading-link]
+=== `++Heap++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/utils/structs/Heap.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -5403,7 +5587,7 @@ Removes all elements in the heap.
 
 [.contract]
 [[MerkleTree]]
-=== `++MerkleTree++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/utils/structs/MerkleTree.sol[{github-icon},role=heading-link]
+=== `++MerkleTree++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/utils/structs/MerkleTree.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -5511,7 +5695,7 @@ Tree's depth (set at initialization)
 
 [.contract]
 [[Create2]]
-=== `++Create2++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/utils/Create2.sol[{github-icon},role=heading-link]
+=== `++Create2++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/utils/Create2.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -5590,7 +5774,7 @@ There's no code to deploy.
 
 [.contract]
 [[Address]]
-=== `++Address++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/utils/Address.sol[{github-icon},role=heading-link]
+=== `++Address++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/utils/Address.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -5729,7 +5913,7 @@ There's no code at `target` (it is not a contract).
 
 [.contract]
 [[Arrays]]
-=== `++Arrays++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/utils/Arrays.sol[{github-icon},role=heading-link]
+=== `++Arrays++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/utils/Arrays.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -5959,7 +6143,7 @@ WARNING: this does not clear elements if length is reduced, of initialize elemen
 
 [.contract]
 [[Base64]]
-=== `++Base64++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/utils/Base64.sol[{github-icon},role=heading-link]
+=== `++Base64++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/utils/Base64.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -6009,6 +6193,8 @@ See sections 4 and 5 of https://datatracker.ietf.org/doc/html/rfc4648
 ==== `string [.contract-item-name]#++_TABLE_URL++#` [.item-kind]#internal constant#
 
 :StringsInsufficientHexLength: pass:normal[xref:#Strings-StringsInsufficientHexLength-uint256-uint256-[`++StringsInsufficientHexLength++`]]
+:StringsInvalidChar: pass:normal[xref:#Strings-StringsInvalidChar--[`++StringsInvalidChar++`]]
+:StringsInvalidAddressFormat: pass:normal[xref:#Strings-StringsInvalidAddressFormat--[`++StringsInvalidAddressFormat++`]]
 :toString: pass:normal[xref:#Strings-toString-uint256-[`++toString++`]]
 :toStringSigned: pass:normal[xref:#Strings-toStringSigned-int256-[`++toStringSigned++`]]
 :toHexString: pass:normal[xref:#Strings-toHexString-uint256-[`++toHexString++`]]
@@ -6016,10 +6202,26 @@ See sections 4 and 5 of https://datatracker.ietf.org/doc/html/rfc4648
 :toHexString: pass:normal[xref:#Strings-toHexString-address-[`++toHexString++`]]
 :toChecksumHexString: pass:normal[xref:#Strings-toChecksumHexString-address-[`++toChecksumHexString++`]]
 :equal: pass:normal[xref:#Strings-equal-string-string-[`++equal++`]]
+:parseUint: pass:normal[xref:#Strings-parseUint-string-[`++parseUint++`]]
+:parseUint: pass:normal[xref:#Strings-parseUint-string-uint256-uint256-[`++parseUint++`]]
+:tryParseUint: pass:normal[xref:#Strings-tryParseUint-string-[`++tryParseUint++`]]
+:tryParseUint: pass:normal[xref:#Strings-tryParseUint-string-uint256-uint256-[`++tryParseUint++`]]
+:parseInt: pass:normal[xref:#Strings-parseInt-string-[`++parseInt++`]]
+:parseInt: pass:normal[xref:#Strings-parseInt-string-uint256-uint256-[`++parseInt++`]]
+:tryParseInt: pass:normal[xref:#Strings-tryParseInt-string-[`++tryParseInt++`]]
+:tryParseInt: pass:normal[xref:#Strings-tryParseInt-string-uint256-uint256-[`++tryParseInt++`]]
+:parseHexUint: pass:normal[xref:#Strings-parseHexUint-string-[`++parseHexUint++`]]
+:parseHexUint: pass:normal[xref:#Strings-parseHexUint-string-uint256-uint256-[`++parseHexUint++`]]
+:tryParseHexUint: pass:normal[xref:#Strings-tryParseHexUint-string-[`++tryParseHexUint++`]]
+:tryParseHexUint: pass:normal[xref:#Strings-tryParseHexUint-string-uint256-uint256-[`++tryParseHexUint++`]]
+:parseAddress: pass:normal[xref:#Strings-parseAddress-string-[`++parseAddress++`]]
+:parseAddress: pass:normal[xref:#Strings-parseAddress-string-uint256-uint256-[`++parseAddress++`]]
+:tryParseAddress: pass:normal[xref:#Strings-tryParseAddress-string-[`++tryParseAddress++`]]
+:tryParseAddress: pass:normal[xref:#Strings-tryParseAddress-string-uint256-uint256-[`++tryParseAddress++`]]
 
 [.contract]
 [[Strings]]
-=== `++Strings++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/utils/Strings.sol[{github-icon},role=heading-link]
+=== `++Strings++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/utils/Strings.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -6038,6 +6240,22 @@ String operations.
 * {xref-Strings-toHexString-address-}[`++toHexString(addr)++`]
 * {xref-Strings-toChecksumHexString-address-}[`++toChecksumHexString(addr)++`]
 * {xref-Strings-equal-string-string-}[`++equal(a, b)++`]
+* {xref-Strings-parseUint-string-}[`++parseUint(input)++`]
+* {xref-Strings-parseUint-string-uint256-uint256-}[`++parseUint(input, begin, end)++`]
+* {xref-Strings-tryParseUint-string-}[`++tryParseUint(input)++`]
+* {xref-Strings-tryParseUint-string-uint256-uint256-}[`++tryParseUint(input, begin, end)++`]
+* {xref-Strings-parseInt-string-}[`++parseInt(input)++`]
+* {xref-Strings-parseInt-string-uint256-uint256-}[`++parseInt(input, begin, end)++`]
+* {xref-Strings-tryParseInt-string-}[`++tryParseInt(input)++`]
+* {xref-Strings-tryParseInt-string-uint256-uint256-}[`++tryParseInt(input, begin, end)++`]
+* {xref-Strings-parseHexUint-string-}[`++parseHexUint(input)++`]
+* {xref-Strings-parseHexUint-string-uint256-uint256-}[`++parseHexUint(input, begin, end)++`]
+* {xref-Strings-tryParseHexUint-string-}[`++tryParseHexUint(input)++`]
+* {xref-Strings-tryParseHexUint-string-uint256-uint256-}[`++tryParseHexUint(input, begin, end)++`]
+* {xref-Strings-parseAddress-string-}[`++parseAddress(input)++`]
+* {xref-Strings-parseAddress-string-uint256-uint256-}[`++parseAddress(input, begin, end)++`]
+* {xref-Strings-tryParseAddress-string-}[`++tryParseAddress(input)++`]
+* {xref-Strings-tryParseAddress-string-uint256-uint256-}[`++tryParseAddress(input, begin, end)++`]
 
 --
 
@@ -6045,6 +6263,8 @@ String operations.
 .Errors
 --
 * {xref-Strings-StringsInsufficientHexLength-uint256-uint256-}[`++StringsInsufficientHexLength(value, length)++`]
+* {xref-Strings-StringsInvalidChar--}[`++StringsInvalidChar()++`]
+* {xref-Strings-StringsInvalidAddressFormat--}[`++StringsInvalidAddressFormat()++`]
 
 --
 
@@ -6093,10 +6313,170 @@ representation, according to EIP-55.
 Returns true if the two strings are equal.
 
 [.contract-item]
+[[Strings-parseUint-string-]]
+==== `[.contract-item-name]#++parseUint++#++(string input) → uint256++` [.item-kind]#internal#
+
+Parse a decimal string and returns the value as a `uint256`.
+
+Requirements:
+- The string must be formatted as `[0-9]*`
+- The result must fit into an `uint256` type
+
+[.contract-item]
+[[Strings-parseUint-string-uint256-uint256-]]
+==== `[.contract-item-name]#++parseUint++#++(string input, uint256 begin, uint256 end) → uint256++` [.item-kind]#internal#
+
+Variant of {parseUint} that parses a substring of `input` located between position `begin` (included) and
+`end` (excluded).
+
+Requirements:
+- The substring must be formatted as `[0-9]*`
+- The result must fit into an `uint256` type
+
+[.contract-item]
+[[Strings-tryParseUint-string-]]
+==== `[.contract-item-name]#++tryParseUint++#++(string input) → bool success, uint256 value++` [.item-kind]#internal#
+
+Variant of {parseUint-string} that returns false if the parsing fails because of an invalid character.
+
+NOTE: This function will revert if the result does not fit in a `uint256`.
+
+[.contract-item]
+[[Strings-tryParseUint-string-uint256-uint256-]]
+==== `[.contract-item-name]#++tryParseUint++#++(string input, uint256 begin, uint256 end) → bool success, uint256 value++` [.item-kind]#internal#
+
+Variant of {parseUint-string-uint256-uint256} that returns false if the parsing fails because of an invalid
+character.
+
+NOTE: This function will revert if the result does not fit in a `uint256`.
+
+[.contract-item]
+[[Strings-parseInt-string-]]
+==== `[.contract-item-name]#++parseInt++#++(string input) → int256++` [.item-kind]#internal#
+
+Parse a decimal string and returns the value as a `int256`.
+
+Requirements:
+- The string must be formatted as `[-+]?[0-9]*`
+- The result must fit in an `int256` type.
+
+[.contract-item]
+[[Strings-parseInt-string-uint256-uint256-]]
+==== `[.contract-item-name]#++parseInt++#++(string input, uint256 begin, uint256 end) → int256++` [.item-kind]#internal#
+
+Variant of {parseInt-string} that parses a substring of `input` located between position `begin` (included) and
+`end` (excluded).
+
+Requirements:
+- The substring must be formatted as `[-+]?[0-9]*`
+- The result must fit in an `int256` type.
+
+[.contract-item]
+[[Strings-tryParseInt-string-]]
+==== `[.contract-item-name]#++tryParseInt++#++(string input) → bool success, int256 value++` [.item-kind]#internal#
+
+Variant of {parseInt-string} that returns false if the parsing fails because of an invalid character or if
+the result does not fit in a `int256`.
+
+NOTE: This function will revert if the absolute value of the result does not fit in a `uint256`.
+
+[.contract-item]
+[[Strings-tryParseInt-string-uint256-uint256-]]
+==== `[.contract-item-name]#++tryParseInt++#++(string input, uint256 begin, uint256 end) → bool success, int256 value++` [.item-kind]#internal#
+
+Variant of {parseInt-string-uint256-uint256} that returns false if the parsing fails because of an invalid
+character or if the result does not fit in a `int256`.
+
+NOTE: This function will revert if the absolute value of the result does not fit in a `uint256`.
+
+[.contract-item]
+[[Strings-parseHexUint-string-]]
+==== `[.contract-item-name]#++parseHexUint++#++(string input) → uint256++` [.item-kind]#internal#
+
+Parse a hexadecimal string (with or without "0x" prefix), and returns the value as a `uint256`.
+
+Requirements:
+- The string must be formatted as `(0x)?[0-9a-fA-F]*`
+- The result must fit in an `uint256` type.
+
+[.contract-item]
+[[Strings-parseHexUint-string-uint256-uint256-]]
+==== `[.contract-item-name]#++parseHexUint++#++(string input, uint256 begin, uint256 end) → uint256++` [.item-kind]#internal#
+
+Variant of {parseHexUint} that parses a substring of `input` located between position `begin` (included) and
+`end` (excluded).
+
+Requirements:
+- The substring must be formatted as `(0x)?[0-9a-fA-F]*`
+- The result must fit in an `uint256` type.
+
+[.contract-item]
+[[Strings-tryParseHexUint-string-]]
+==== `[.contract-item-name]#++tryParseHexUint++#++(string input) → bool success, uint256 value++` [.item-kind]#internal#
+
+Variant of {parseHexUint-string} that returns false if the parsing fails because of an invalid character.
+
+NOTE: This function will revert if the result does not fit in a `uint256`.
+
+[.contract-item]
+[[Strings-tryParseHexUint-string-uint256-uint256-]]
+==== `[.contract-item-name]#++tryParseHexUint++#++(string input, uint256 begin, uint256 end) → bool success, uint256 value++` [.item-kind]#internal#
+
+Variant of {parseHexUint-string-uint256-uint256} that returns false if the parsing fails because of an
+invalid character.
+
+NOTE: This function will revert if the result does not fit in a `uint256`.
+
+[.contract-item]
+[[Strings-parseAddress-string-]]
+==== `[.contract-item-name]#++parseAddress++#++(string input) → address++` [.item-kind]#internal#
+
+Parse a hexadecimal string (with or without "0x" prefix), and returns the value as an `address`.
+
+Requirements:
+- The string must be formatted as `(0x)?[0-9a-fA-F]{40}`
+
+[.contract-item]
+[[Strings-parseAddress-string-uint256-uint256-]]
+==== `[.contract-item-name]#++parseAddress++#++(string input, uint256 begin, uint256 end) → address++` [.item-kind]#internal#
+
+Variant of {parseAddress} that parses a substring of `input` located between position `begin` (included) and
+`end` (excluded).
+
+Requirements:
+- The substring must be formatted as `(0x)?[0-9a-fA-F]{40}`
+
+[.contract-item]
+[[Strings-tryParseAddress-string-]]
+==== `[.contract-item-name]#++tryParseAddress++#++(string input) → bool success, address value++` [.item-kind]#internal#
+
+Variant of {parseAddress-string} that returns false if the parsing fails because the input is not a properly
+formatted address. See {parseAddress} requirements.
+
+[.contract-item]
+[[Strings-tryParseAddress-string-uint256-uint256-]]
+==== `[.contract-item-name]#++tryParseAddress++#++(string input, uint256 begin, uint256 end) → bool success, address value++` [.item-kind]#internal#
+
+Variant of {parseAddress-string-uint256-uint256} that returns false if the parsing fails because input is not a properly
+formatted address. See {parseAddress} requirements.
+
+[.contract-item]
 [[Strings-StringsInsufficientHexLength-uint256-uint256-]]
 ==== `[.contract-item-name]#++StringsInsufficientHexLength++#++(uint256 value, uint256 length)++` [.item-kind]#error#
 
 The `value` string doesn't fit in the specified `length`.
+
+[.contract-item]
+[[Strings-StringsInvalidChar--]]
+==== `[.contract-item-name]#++StringsInvalidChar++#++()++` [.item-kind]#error#
+
+The string being parsed contains characters that are not in scope of the given base.
+
+[.contract-item]
+[[Strings-StringsInvalidAddressFormat--]]
+==== `[.contract-item-name]#++StringsInvalidAddressFormat++#++()++` [.item-kind]#error#
+
+The string being parsed is not a properly formatted address.
 
 :StringTooLong: pass:normal[xref:#ShortStrings-StringTooLong-string-[`++StringTooLong++`]]
 :InvalidShortString: pass:normal[xref:#ShortStrings-InvalidShortString--[`++InvalidShortString++`]]
@@ -6109,7 +6489,7 @@ The `value` string doesn't fit in the specified `length`.
 
 [.contract]
 [[ShortStrings]]
-=== `++ShortStrings++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/utils/ShortStrings.sol[{github-icon},role=heading-link]
+=== `++ShortStrings++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/utils/ShortStrings.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -6226,7 +6606,7 @@ actual characters as the UTF-8 encoding of a single character can span over mult
 
 [.contract]
 [[SlotDerivation]]
-=== `++SlotDerivation++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/utils/SlotDerivation.sol[{github-icon},role=heading-link]
+=== `++SlotDerivation++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/utils/SlotDerivation.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -6361,7 +6741,7 @@ Derive the location of a mapping element from the key.
 
 [.contract]
 [[StorageSlot]]
-=== `++StorageSlot++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/utils/StorageSlot.sol[{github-icon},role=heading-link]
+=== `++StorageSlot++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/utils/StorageSlot.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -6486,7 +6866,7 @@ Returns an `BytesSlot` representation of the bytes storage pointer `store`.
 
 [.contract]
 [[TransientSlot]]
-=== `++TransientSlot++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/utils/TransientSlot.sol[{github-icon},role=heading-link]
+=== `++TransientSlot++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/utils/TransientSlot.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -6633,7 +7013,7 @@ Store `value` at location `slot` in transient storage.
 
 [.contract]
 [[Multicall]]
-=== `++Multicall++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/utils/Multicall.sol[{github-icon},role=heading-link]
+=== `++Multicall++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/utils/Multicall.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -6670,7 +7050,7 @@ Receives and executes a batch of function calls on this contract.
 
 [.contract]
 [[Context]]
-=== `++Context++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/utils/Context.sol[{github-icon},role=heading-link]
+=== `++Context++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/utils/Context.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -6712,8 +7092,13 @@ This contract is only required for intermediate, library-like contracts.
 :pack_2_2: pass:normal[xref:#Packing-pack_2_2-bytes2-bytes2-[`++pack_2_2++`]]
 :pack_2_4: pass:normal[xref:#Packing-pack_2_4-bytes2-bytes4-[`++pack_2_4++`]]
 :pack_2_6: pass:normal[xref:#Packing-pack_2_6-bytes2-bytes6-[`++pack_2_6++`]]
+:pack_2_8: pass:normal[xref:#Packing-pack_2_8-bytes2-bytes8-[`++pack_2_8++`]]
+:pack_2_10: pass:normal[xref:#Packing-pack_2_10-bytes2-bytes10-[`++pack_2_10++`]]
+:pack_2_20: pass:normal[xref:#Packing-pack_2_20-bytes2-bytes20-[`++pack_2_20++`]]
+:pack_2_22: pass:normal[xref:#Packing-pack_2_22-bytes2-bytes22-[`++pack_2_22++`]]
 :pack_4_2: pass:normal[xref:#Packing-pack_4_2-bytes4-bytes2-[`++pack_4_2++`]]
 :pack_4_4: pass:normal[xref:#Packing-pack_4_4-bytes4-bytes4-[`++pack_4_4++`]]
+:pack_4_6: pass:normal[xref:#Packing-pack_4_6-bytes4-bytes6-[`++pack_4_6++`]]
 :pack_4_8: pass:normal[xref:#Packing-pack_4_8-bytes4-bytes8-[`++pack_4_8++`]]
 :pack_4_12: pass:normal[xref:#Packing-pack_4_12-bytes4-bytes12-[`++pack_4_12++`]]
 :pack_4_16: pass:normal[xref:#Packing-pack_4_16-bytes4-bytes16-[`++pack_4_16++`]]
@@ -6721,25 +7106,41 @@ This contract is only required for intermediate, library-like contracts.
 :pack_4_24: pass:normal[xref:#Packing-pack_4_24-bytes4-bytes24-[`++pack_4_24++`]]
 :pack_4_28: pass:normal[xref:#Packing-pack_4_28-bytes4-bytes28-[`++pack_4_28++`]]
 :pack_6_2: pass:normal[xref:#Packing-pack_6_2-bytes6-bytes2-[`++pack_6_2++`]]
+:pack_6_4: pass:normal[xref:#Packing-pack_6_4-bytes6-bytes4-[`++pack_6_4++`]]
 :pack_6_6: pass:normal[xref:#Packing-pack_6_6-bytes6-bytes6-[`++pack_6_6++`]]
+:pack_6_10: pass:normal[xref:#Packing-pack_6_10-bytes6-bytes10-[`++pack_6_10++`]]
+:pack_6_16: pass:normal[xref:#Packing-pack_6_16-bytes6-bytes16-[`++pack_6_16++`]]
+:pack_6_22: pass:normal[xref:#Packing-pack_6_22-bytes6-bytes22-[`++pack_6_22++`]]
+:pack_8_2: pass:normal[xref:#Packing-pack_8_2-bytes8-bytes2-[`++pack_8_2++`]]
 :pack_8_4: pass:normal[xref:#Packing-pack_8_4-bytes8-bytes4-[`++pack_8_4++`]]
 :pack_8_8: pass:normal[xref:#Packing-pack_8_8-bytes8-bytes8-[`++pack_8_8++`]]
 :pack_8_12: pass:normal[xref:#Packing-pack_8_12-bytes8-bytes12-[`++pack_8_12++`]]
 :pack_8_16: pass:normal[xref:#Packing-pack_8_16-bytes8-bytes16-[`++pack_8_16++`]]
 :pack_8_20: pass:normal[xref:#Packing-pack_8_20-bytes8-bytes20-[`++pack_8_20++`]]
 :pack_8_24: pass:normal[xref:#Packing-pack_8_24-bytes8-bytes24-[`++pack_8_24++`]]
+:pack_10_2: pass:normal[xref:#Packing-pack_10_2-bytes10-bytes2-[`++pack_10_2++`]]
+:pack_10_6: pass:normal[xref:#Packing-pack_10_6-bytes10-bytes6-[`++pack_10_6++`]]
+:pack_10_10: pass:normal[xref:#Packing-pack_10_10-bytes10-bytes10-[`++pack_10_10++`]]
+:pack_10_12: pass:normal[xref:#Packing-pack_10_12-bytes10-bytes12-[`++pack_10_12++`]]
+:pack_10_22: pass:normal[xref:#Packing-pack_10_22-bytes10-bytes22-[`++pack_10_22++`]]
 :pack_12_4: pass:normal[xref:#Packing-pack_12_4-bytes12-bytes4-[`++pack_12_4++`]]
 :pack_12_8: pass:normal[xref:#Packing-pack_12_8-bytes12-bytes8-[`++pack_12_8++`]]
+:pack_12_10: pass:normal[xref:#Packing-pack_12_10-bytes12-bytes10-[`++pack_12_10++`]]
 :pack_12_12: pass:normal[xref:#Packing-pack_12_12-bytes12-bytes12-[`++pack_12_12++`]]
 :pack_12_16: pass:normal[xref:#Packing-pack_12_16-bytes12-bytes16-[`++pack_12_16++`]]
 :pack_12_20: pass:normal[xref:#Packing-pack_12_20-bytes12-bytes20-[`++pack_12_20++`]]
 :pack_16_4: pass:normal[xref:#Packing-pack_16_4-bytes16-bytes4-[`++pack_16_4++`]]
+:pack_16_6: pass:normal[xref:#Packing-pack_16_6-bytes16-bytes6-[`++pack_16_6++`]]
 :pack_16_8: pass:normal[xref:#Packing-pack_16_8-bytes16-bytes8-[`++pack_16_8++`]]
 :pack_16_12: pass:normal[xref:#Packing-pack_16_12-bytes16-bytes12-[`++pack_16_12++`]]
 :pack_16_16: pass:normal[xref:#Packing-pack_16_16-bytes16-bytes16-[`++pack_16_16++`]]
+:pack_20_2: pass:normal[xref:#Packing-pack_20_2-bytes20-bytes2-[`++pack_20_2++`]]
 :pack_20_4: pass:normal[xref:#Packing-pack_20_4-bytes20-bytes4-[`++pack_20_4++`]]
 :pack_20_8: pass:normal[xref:#Packing-pack_20_8-bytes20-bytes8-[`++pack_20_8++`]]
 :pack_20_12: pass:normal[xref:#Packing-pack_20_12-bytes20-bytes12-[`++pack_20_12++`]]
+:pack_22_2: pass:normal[xref:#Packing-pack_22_2-bytes22-bytes2-[`++pack_22_2++`]]
+:pack_22_6: pass:normal[xref:#Packing-pack_22_6-bytes22-bytes6-[`++pack_22_6++`]]
+:pack_22_10: pass:normal[xref:#Packing-pack_22_10-bytes22-bytes10-[`++pack_22_10++`]]
 :pack_24_4: pass:normal[xref:#Packing-pack_24_4-bytes24-bytes4-[`++pack_24_4++`]]
 :pack_24_8: pass:normal[xref:#Packing-pack_24_8-bytes24-bytes8-[`++pack_24_8++`]]
 :pack_28_4: pass:normal[xref:#Packing-pack_28_4-bytes28-bytes4-[`++pack_28_4++`]]
@@ -6763,6 +7164,16 @@ This contract is only required for intermediate, library-like contracts.
 :replace_8_4: pass:normal[xref:#Packing-replace_8_4-bytes8-bytes4-uint8-[`++replace_8_4++`]]
 :extract_8_6: pass:normal[xref:#Packing-extract_8_6-bytes8-uint8-[`++extract_8_6++`]]
 :replace_8_6: pass:normal[xref:#Packing-replace_8_6-bytes8-bytes6-uint8-[`++replace_8_6++`]]
+:extract_10_1: pass:normal[xref:#Packing-extract_10_1-bytes10-uint8-[`++extract_10_1++`]]
+:replace_10_1: pass:normal[xref:#Packing-replace_10_1-bytes10-bytes1-uint8-[`++replace_10_1++`]]
+:extract_10_2: pass:normal[xref:#Packing-extract_10_2-bytes10-uint8-[`++extract_10_2++`]]
+:replace_10_2: pass:normal[xref:#Packing-replace_10_2-bytes10-bytes2-uint8-[`++replace_10_2++`]]
+:extract_10_4: pass:normal[xref:#Packing-extract_10_4-bytes10-uint8-[`++extract_10_4++`]]
+:replace_10_4: pass:normal[xref:#Packing-replace_10_4-bytes10-bytes4-uint8-[`++replace_10_4++`]]
+:extract_10_6: pass:normal[xref:#Packing-extract_10_6-bytes10-uint8-[`++extract_10_6++`]]
+:replace_10_6: pass:normal[xref:#Packing-replace_10_6-bytes10-bytes6-uint8-[`++replace_10_6++`]]
+:extract_10_8: pass:normal[xref:#Packing-extract_10_8-bytes10-uint8-[`++extract_10_8++`]]
+:replace_10_8: pass:normal[xref:#Packing-replace_10_8-bytes10-bytes8-uint8-[`++replace_10_8++`]]
 :extract_12_1: pass:normal[xref:#Packing-extract_12_1-bytes12-uint8-[`++extract_12_1++`]]
 :replace_12_1: pass:normal[xref:#Packing-replace_12_1-bytes12-bytes1-uint8-[`++replace_12_1++`]]
 :extract_12_2: pass:normal[xref:#Packing-extract_12_2-bytes12-uint8-[`++extract_12_2++`]]
@@ -6773,6 +7184,8 @@ This contract is only required for intermediate, library-like contracts.
 :replace_12_6: pass:normal[xref:#Packing-replace_12_6-bytes12-bytes6-uint8-[`++replace_12_6++`]]
 :extract_12_8: pass:normal[xref:#Packing-extract_12_8-bytes12-uint8-[`++extract_12_8++`]]
 :replace_12_8: pass:normal[xref:#Packing-replace_12_8-bytes12-bytes8-uint8-[`++replace_12_8++`]]
+:extract_12_10: pass:normal[xref:#Packing-extract_12_10-bytes12-uint8-[`++extract_12_10++`]]
+:replace_12_10: pass:normal[xref:#Packing-replace_12_10-bytes12-bytes10-uint8-[`++replace_12_10++`]]
 :extract_16_1: pass:normal[xref:#Packing-extract_16_1-bytes16-uint8-[`++extract_16_1++`]]
 :replace_16_1: pass:normal[xref:#Packing-replace_16_1-bytes16-bytes1-uint8-[`++replace_16_1++`]]
 :extract_16_2: pass:normal[xref:#Packing-extract_16_2-bytes16-uint8-[`++extract_16_2++`]]
@@ -6783,6 +7196,8 @@ This contract is only required for intermediate, library-like contracts.
 :replace_16_6: pass:normal[xref:#Packing-replace_16_6-bytes16-bytes6-uint8-[`++replace_16_6++`]]
 :extract_16_8: pass:normal[xref:#Packing-extract_16_8-bytes16-uint8-[`++extract_16_8++`]]
 :replace_16_8: pass:normal[xref:#Packing-replace_16_8-bytes16-bytes8-uint8-[`++replace_16_8++`]]
+:extract_16_10: pass:normal[xref:#Packing-extract_16_10-bytes16-uint8-[`++extract_16_10++`]]
+:replace_16_10: pass:normal[xref:#Packing-replace_16_10-bytes16-bytes10-uint8-[`++replace_16_10++`]]
 :extract_16_12: pass:normal[xref:#Packing-extract_16_12-bytes16-uint8-[`++extract_16_12++`]]
 :replace_16_12: pass:normal[xref:#Packing-replace_16_12-bytes16-bytes12-uint8-[`++replace_16_12++`]]
 :extract_20_1: pass:normal[xref:#Packing-extract_20_1-bytes20-uint8-[`++extract_20_1++`]]
@@ -6795,10 +7210,30 @@ This contract is only required for intermediate, library-like contracts.
 :replace_20_6: pass:normal[xref:#Packing-replace_20_6-bytes20-bytes6-uint8-[`++replace_20_6++`]]
 :extract_20_8: pass:normal[xref:#Packing-extract_20_8-bytes20-uint8-[`++extract_20_8++`]]
 :replace_20_8: pass:normal[xref:#Packing-replace_20_8-bytes20-bytes8-uint8-[`++replace_20_8++`]]
+:extract_20_10: pass:normal[xref:#Packing-extract_20_10-bytes20-uint8-[`++extract_20_10++`]]
+:replace_20_10: pass:normal[xref:#Packing-replace_20_10-bytes20-bytes10-uint8-[`++replace_20_10++`]]
 :extract_20_12: pass:normal[xref:#Packing-extract_20_12-bytes20-uint8-[`++extract_20_12++`]]
 :replace_20_12: pass:normal[xref:#Packing-replace_20_12-bytes20-bytes12-uint8-[`++replace_20_12++`]]
 :extract_20_16: pass:normal[xref:#Packing-extract_20_16-bytes20-uint8-[`++extract_20_16++`]]
 :replace_20_16: pass:normal[xref:#Packing-replace_20_16-bytes20-bytes16-uint8-[`++replace_20_16++`]]
+:extract_22_1: pass:normal[xref:#Packing-extract_22_1-bytes22-uint8-[`++extract_22_1++`]]
+:replace_22_1: pass:normal[xref:#Packing-replace_22_1-bytes22-bytes1-uint8-[`++replace_22_1++`]]
+:extract_22_2: pass:normal[xref:#Packing-extract_22_2-bytes22-uint8-[`++extract_22_2++`]]
+:replace_22_2: pass:normal[xref:#Packing-replace_22_2-bytes22-bytes2-uint8-[`++replace_22_2++`]]
+:extract_22_4: pass:normal[xref:#Packing-extract_22_4-bytes22-uint8-[`++extract_22_4++`]]
+:replace_22_4: pass:normal[xref:#Packing-replace_22_4-bytes22-bytes4-uint8-[`++replace_22_4++`]]
+:extract_22_6: pass:normal[xref:#Packing-extract_22_6-bytes22-uint8-[`++extract_22_6++`]]
+:replace_22_6: pass:normal[xref:#Packing-replace_22_6-bytes22-bytes6-uint8-[`++replace_22_6++`]]
+:extract_22_8: pass:normal[xref:#Packing-extract_22_8-bytes22-uint8-[`++extract_22_8++`]]
+:replace_22_8: pass:normal[xref:#Packing-replace_22_8-bytes22-bytes8-uint8-[`++replace_22_8++`]]
+:extract_22_10: pass:normal[xref:#Packing-extract_22_10-bytes22-uint8-[`++extract_22_10++`]]
+:replace_22_10: pass:normal[xref:#Packing-replace_22_10-bytes22-bytes10-uint8-[`++replace_22_10++`]]
+:extract_22_12: pass:normal[xref:#Packing-extract_22_12-bytes22-uint8-[`++extract_22_12++`]]
+:replace_22_12: pass:normal[xref:#Packing-replace_22_12-bytes22-bytes12-uint8-[`++replace_22_12++`]]
+:extract_22_16: pass:normal[xref:#Packing-extract_22_16-bytes22-uint8-[`++extract_22_16++`]]
+:replace_22_16: pass:normal[xref:#Packing-replace_22_16-bytes22-bytes16-uint8-[`++replace_22_16++`]]
+:extract_22_20: pass:normal[xref:#Packing-extract_22_20-bytes22-uint8-[`++extract_22_20++`]]
+:replace_22_20: pass:normal[xref:#Packing-replace_22_20-bytes22-bytes20-uint8-[`++replace_22_20++`]]
 :extract_24_1: pass:normal[xref:#Packing-extract_24_1-bytes24-uint8-[`++extract_24_1++`]]
 :replace_24_1: pass:normal[xref:#Packing-replace_24_1-bytes24-bytes1-uint8-[`++replace_24_1++`]]
 :extract_24_2: pass:normal[xref:#Packing-extract_24_2-bytes24-uint8-[`++extract_24_2++`]]
@@ -6809,12 +7244,16 @@ This contract is only required for intermediate, library-like contracts.
 :replace_24_6: pass:normal[xref:#Packing-replace_24_6-bytes24-bytes6-uint8-[`++replace_24_6++`]]
 :extract_24_8: pass:normal[xref:#Packing-extract_24_8-bytes24-uint8-[`++extract_24_8++`]]
 :replace_24_8: pass:normal[xref:#Packing-replace_24_8-bytes24-bytes8-uint8-[`++replace_24_8++`]]
+:extract_24_10: pass:normal[xref:#Packing-extract_24_10-bytes24-uint8-[`++extract_24_10++`]]
+:replace_24_10: pass:normal[xref:#Packing-replace_24_10-bytes24-bytes10-uint8-[`++replace_24_10++`]]
 :extract_24_12: pass:normal[xref:#Packing-extract_24_12-bytes24-uint8-[`++extract_24_12++`]]
 :replace_24_12: pass:normal[xref:#Packing-replace_24_12-bytes24-bytes12-uint8-[`++replace_24_12++`]]
 :extract_24_16: pass:normal[xref:#Packing-extract_24_16-bytes24-uint8-[`++extract_24_16++`]]
 :replace_24_16: pass:normal[xref:#Packing-replace_24_16-bytes24-bytes16-uint8-[`++replace_24_16++`]]
 :extract_24_20: pass:normal[xref:#Packing-extract_24_20-bytes24-uint8-[`++extract_24_20++`]]
 :replace_24_20: pass:normal[xref:#Packing-replace_24_20-bytes24-bytes20-uint8-[`++replace_24_20++`]]
+:extract_24_22: pass:normal[xref:#Packing-extract_24_22-bytes24-uint8-[`++extract_24_22++`]]
+:replace_24_22: pass:normal[xref:#Packing-replace_24_22-bytes24-bytes22-uint8-[`++replace_24_22++`]]
 :extract_28_1: pass:normal[xref:#Packing-extract_28_1-bytes28-uint8-[`++extract_28_1++`]]
 :replace_28_1: pass:normal[xref:#Packing-replace_28_1-bytes28-bytes1-uint8-[`++replace_28_1++`]]
 :extract_28_2: pass:normal[xref:#Packing-extract_28_2-bytes28-uint8-[`++extract_28_2++`]]
@@ -6825,12 +7264,16 @@ This contract is only required for intermediate, library-like contracts.
 :replace_28_6: pass:normal[xref:#Packing-replace_28_6-bytes28-bytes6-uint8-[`++replace_28_6++`]]
 :extract_28_8: pass:normal[xref:#Packing-extract_28_8-bytes28-uint8-[`++extract_28_8++`]]
 :replace_28_8: pass:normal[xref:#Packing-replace_28_8-bytes28-bytes8-uint8-[`++replace_28_8++`]]
+:extract_28_10: pass:normal[xref:#Packing-extract_28_10-bytes28-uint8-[`++extract_28_10++`]]
+:replace_28_10: pass:normal[xref:#Packing-replace_28_10-bytes28-bytes10-uint8-[`++replace_28_10++`]]
 :extract_28_12: pass:normal[xref:#Packing-extract_28_12-bytes28-uint8-[`++extract_28_12++`]]
 :replace_28_12: pass:normal[xref:#Packing-replace_28_12-bytes28-bytes12-uint8-[`++replace_28_12++`]]
 :extract_28_16: pass:normal[xref:#Packing-extract_28_16-bytes28-uint8-[`++extract_28_16++`]]
 :replace_28_16: pass:normal[xref:#Packing-replace_28_16-bytes28-bytes16-uint8-[`++replace_28_16++`]]
 :extract_28_20: pass:normal[xref:#Packing-extract_28_20-bytes28-uint8-[`++extract_28_20++`]]
 :replace_28_20: pass:normal[xref:#Packing-replace_28_20-bytes28-bytes20-uint8-[`++replace_28_20++`]]
+:extract_28_22: pass:normal[xref:#Packing-extract_28_22-bytes28-uint8-[`++extract_28_22++`]]
+:replace_28_22: pass:normal[xref:#Packing-replace_28_22-bytes28-bytes22-uint8-[`++replace_28_22++`]]
 :extract_28_24: pass:normal[xref:#Packing-extract_28_24-bytes28-uint8-[`++extract_28_24++`]]
 :replace_28_24: pass:normal[xref:#Packing-replace_28_24-bytes28-bytes24-uint8-[`++replace_28_24++`]]
 :extract_32_1: pass:normal[xref:#Packing-extract_32_1-bytes32-uint8-[`++extract_32_1++`]]
@@ -6843,12 +7286,16 @@ This contract is only required for intermediate, library-like contracts.
 :replace_32_6: pass:normal[xref:#Packing-replace_32_6-bytes32-bytes6-uint8-[`++replace_32_6++`]]
 :extract_32_8: pass:normal[xref:#Packing-extract_32_8-bytes32-uint8-[`++extract_32_8++`]]
 :replace_32_8: pass:normal[xref:#Packing-replace_32_8-bytes32-bytes8-uint8-[`++replace_32_8++`]]
+:extract_32_10: pass:normal[xref:#Packing-extract_32_10-bytes32-uint8-[`++extract_32_10++`]]
+:replace_32_10: pass:normal[xref:#Packing-replace_32_10-bytes32-bytes10-uint8-[`++replace_32_10++`]]
 :extract_32_12: pass:normal[xref:#Packing-extract_32_12-bytes32-uint8-[`++extract_32_12++`]]
 :replace_32_12: pass:normal[xref:#Packing-replace_32_12-bytes32-bytes12-uint8-[`++replace_32_12++`]]
 :extract_32_16: pass:normal[xref:#Packing-extract_32_16-bytes32-uint8-[`++extract_32_16++`]]
 :replace_32_16: pass:normal[xref:#Packing-replace_32_16-bytes32-bytes16-uint8-[`++replace_32_16++`]]
 :extract_32_20: pass:normal[xref:#Packing-extract_32_20-bytes32-uint8-[`++extract_32_20++`]]
 :replace_32_20: pass:normal[xref:#Packing-replace_32_20-bytes32-bytes20-uint8-[`++replace_32_20++`]]
+:extract_32_22: pass:normal[xref:#Packing-extract_32_22-bytes32-uint8-[`++extract_32_22++`]]
+:replace_32_22: pass:normal[xref:#Packing-replace_32_22-bytes32-bytes22-uint8-[`++replace_32_22++`]]
 :extract_32_24: pass:normal[xref:#Packing-extract_32_24-bytes32-uint8-[`++extract_32_24++`]]
 :replace_32_24: pass:normal[xref:#Packing-replace_32_24-bytes32-bytes24-uint8-[`++replace_32_24++`]]
 :extract_32_28: pass:normal[xref:#Packing-extract_32_28-bytes32-uint8-[`++extract_32_28++`]]
@@ -6856,7 +7303,7 @@ This contract is only required for intermediate, library-like contracts.
 
 [.contract]
 [[Packing]]
-=== `++Packing++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/utils/Packing.sol[{github-icon},role=heading-link]
+=== `++Packing++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/utils/Packing.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -6897,8 +7344,13 @@ _Available since v5.1._
 * {xref-Packing-pack_2_2-bytes2-bytes2-}[`++pack_2_2(left, right)++`]
 * {xref-Packing-pack_2_4-bytes2-bytes4-}[`++pack_2_4(left, right)++`]
 * {xref-Packing-pack_2_6-bytes2-bytes6-}[`++pack_2_6(left, right)++`]
+* {xref-Packing-pack_2_8-bytes2-bytes8-}[`++pack_2_8(left, right)++`]
+* {xref-Packing-pack_2_10-bytes2-bytes10-}[`++pack_2_10(left, right)++`]
+* {xref-Packing-pack_2_20-bytes2-bytes20-}[`++pack_2_20(left, right)++`]
+* {xref-Packing-pack_2_22-bytes2-bytes22-}[`++pack_2_22(left, right)++`]
 * {xref-Packing-pack_4_2-bytes4-bytes2-}[`++pack_4_2(left, right)++`]
 * {xref-Packing-pack_4_4-bytes4-bytes4-}[`++pack_4_4(left, right)++`]
+* {xref-Packing-pack_4_6-bytes4-bytes6-}[`++pack_4_6(left, right)++`]
 * {xref-Packing-pack_4_8-bytes4-bytes8-}[`++pack_4_8(left, right)++`]
 * {xref-Packing-pack_4_12-bytes4-bytes12-}[`++pack_4_12(left, right)++`]
 * {xref-Packing-pack_4_16-bytes4-bytes16-}[`++pack_4_16(left, right)++`]
@@ -6906,25 +7358,41 @@ _Available since v5.1._
 * {xref-Packing-pack_4_24-bytes4-bytes24-}[`++pack_4_24(left, right)++`]
 * {xref-Packing-pack_4_28-bytes4-bytes28-}[`++pack_4_28(left, right)++`]
 * {xref-Packing-pack_6_2-bytes6-bytes2-}[`++pack_6_2(left, right)++`]
+* {xref-Packing-pack_6_4-bytes6-bytes4-}[`++pack_6_4(left, right)++`]
 * {xref-Packing-pack_6_6-bytes6-bytes6-}[`++pack_6_6(left, right)++`]
+* {xref-Packing-pack_6_10-bytes6-bytes10-}[`++pack_6_10(left, right)++`]
+* {xref-Packing-pack_6_16-bytes6-bytes16-}[`++pack_6_16(left, right)++`]
+* {xref-Packing-pack_6_22-bytes6-bytes22-}[`++pack_6_22(left, right)++`]
+* {xref-Packing-pack_8_2-bytes8-bytes2-}[`++pack_8_2(left, right)++`]
 * {xref-Packing-pack_8_4-bytes8-bytes4-}[`++pack_8_4(left, right)++`]
 * {xref-Packing-pack_8_8-bytes8-bytes8-}[`++pack_8_8(left, right)++`]
 * {xref-Packing-pack_8_12-bytes8-bytes12-}[`++pack_8_12(left, right)++`]
 * {xref-Packing-pack_8_16-bytes8-bytes16-}[`++pack_8_16(left, right)++`]
 * {xref-Packing-pack_8_20-bytes8-bytes20-}[`++pack_8_20(left, right)++`]
 * {xref-Packing-pack_8_24-bytes8-bytes24-}[`++pack_8_24(left, right)++`]
+* {xref-Packing-pack_10_2-bytes10-bytes2-}[`++pack_10_2(left, right)++`]
+* {xref-Packing-pack_10_6-bytes10-bytes6-}[`++pack_10_6(left, right)++`]
+* {xref-Packing-pack_10_10-bytes10-bytes10-}[`++pack_10_10(left, right)++`]
+* {xref-Packing-pack_10_12-bytes10-bytes12-}[`++pack_10_12(left, right)++`]
+* {xref-Packing-pack_10_22-bytes10-bytes22-}[`++pack_10_22(left, right)++`]
 * {xref-Packing-pack_12_4-bytes12-bytes4-}[`++pack_12_4(left, right)++`]
 * {xref-Packing-pack_12_8-bytes12-bytes8-}[`++pack_12_8(left, right)++`]
+* {xref-Packing-pack_12_10-bytes12-bytes10-}[`++pack_12_10(left, right)++`]
 * {xref-Packing-pack_12_12-bytes12-bytes12-}[`++pack_12_12(left, right)++`]
 * {xref-Packing-pack_12_16-bytes12-bytes16-}[`++pack_12_16(left, right)++`]
 * {xref-Packing-pack_12_20-bytes12-bytes20-}[`++pack_12_20(left, right)++`]
 * {xref-Packing-pack_16_4-bytes16-bytes4-}[`++pack_16_4(left, right)++`]
+* {xref-Packing-pack_16_6-bytes16-bytes6-}[`++pack_16_6(left, right)++`]
 * {xref-Packing-pack_16_8-bytes16-bytes8-}[`++pack_16_8(left, right)++`]
 * {xref-Packing-pack_16_12-bytes16-bytes12-}[`++pack_16_12(left, right)++`]
 * {xref-Packing-pack_16_16-bytes16-bytes16-}[`++pack_16_16(left, right)++`]
+* {xref-Packing-pack_20_2-bytes20-bytes2-}[`++pack_20_2(left, right)++`]
 * {xref-Packing-pack_20_4-bytes20-bytes4-}[`++pack_20_4(left, right)++`]
 * {xref-Packing-pack_20_8-bytes20-bytes8-}[`++pack_20_8(left, right)++`]
 * {xref-Packing-pack_20_12-bytes20-bytes12-}[`++pack_20_12(left, right)++`]
+* {xref-Packing-pack_22_2-bytes22-bytes2-}[`++pack_22_2(left, right)++`]
+* {xref-Packing-pack_22_6-bytes22-bytes6-}[`++pack_22_6(left, right)++`]
+* {xref-Packing-pack_22_10-bytes22-bytes10-}[`++pack_22_10(left, right)++`]
 * {xref-Packing-pack_24_4-bytes24-bytes4-}[`++pack_24_4(left, right)++`]
 * {xref-Packing-pack_24_8-bytes24-bytes8-}[`++pack_24_8(left, right)++`]
 * {xref-Packing-pack_28_4-bytes28-bytes4-}[`++pack_28_4(left, right)++`]
@@ -6948,6 +7416,16 @@ _Available since v5.1._
 * {xref-Packing-replace_8_4-bytes8-bytes4-uint8-}[`++replace_8_4(self, value, offset)++`]
 * {xref-Packing-extract_8_6-bytes8-uint8-}[`++extract_8_6(self, offset)++`]
 * {xref-Packing-replace_8_6-bytes8-bytes6-uint8-}[`++replace_8_6(self, value, offset)++`]
+* {xref-Packing-extract_10_1-bytes10-uint8-}[`++extract_10_1(self, offset)++`]
+* {xref-Packing-replace_10_1-bytes10-bytes1-uint8-}[`++replace_10_1(self, value, offset)++`]
+* {xref-Packing-extract_10_2-bytes10-uint8-}[`++extract_10_2(self, offset)++`]
+* {xref-Packing-replace_10_2-bytes10-bytes2-uint8-}[`++replace_10_2(self, value, offset)++`]
+* {xref-Packing-extract_10_4-bytes10-uint8-}[`++extract_10_4(self, offset)++`]
+* {xref-Packing-replace_10_4-bytes10-bytes4-uint8-}[`++replace_10_4(self, value, offset)++`]
+* {xref-Packing-extract_10_6-bytes10-uint8-}[`++extract_10_6(self, offset)++`]
+* {xref-Packing-replace_10_6-bytes10-bytes6-uint8-}[`++replace_10_6(self, value, offset)++`]
+* {xref-Packing-extract_10_8-bytes10-uint8-}[`++extract_10_8(self, offset)++`]
+* {xref-Packing-replace_10_8-bytes10-bytes8-uint8-}[`++replace_10_8(self, value, offset)++`]
 * {xref-Packing-extract_12_1-bytes12-uint8-}[`++extract_12_1(self, offset)++`]
 * {xref-Packing-replace_12_1-bytes12-bytes1-uint8-}[`++replace_12_1(self, value, offset)++`]
 * {xref-Packing-extract_12_2-bytes12-uint8-}[`++extract_12_2(self, offset)++`]
@@ -6958,6 +7436,8 @@ _Available since v5.1._
 * {xref-Packing-replace_12_6-bytes12-bytes6-uint8-}[`++replace_12_6(self, value, offset)++`]
 * {xref-Packing-extract_12_8-bytes12-uint8-}[`++extract_12_8(self, offset)++`]
 * {xref-Packing-replace_12_8-bytes12-bytes8-uint8-}[`++replace_12_8(self, value, offset)++`]
+* {xref-Packing-extract_12_10-bytes12-uint8-}[`++extract_12_10(self, offset)++`]
+* {xref-Packing-replace_12_10-bytes12-bytes10-uint8-}[`++replace_12_10(self, value, offset)++`]
 * {xref-Packing-extract_16_1-bytes16-uint8-}[`++extract_16_1(self, offset)++`]
 * {xref-Packing-replace_16_1-bytes16-bytes1-uint8-}[`++replace_16_1(self, value, offset)++`]
 * {xref-Packing-extract_16_2-bytes16-uint8-}[`++extract_16_2(self, offset)++`]
@@ -6968,6 +7448,8 @@ _Available since v5.1._
 * {xref-Packing-replace_16_6-bytes16-bytes6-uint8-}[`++replace_16_6(self, value, offset)++`]
 * {xref-Packing-extract_16_8-bytes16-uint8-}[`++extract_16_8(self, offset)++`]
 * {xref-Packing-replace_16_8-bytes16-bytes8-uint8-}[`++replace_16_8(self, value, offset)++`]
+* {xref-Packing-extract_16_10-bytes16-uint8-}[`++extract_16_10(self, offset)++`]
+* {xref-Packing-replace_16_10-bytes16-bytes10-uint8-}[`++replace_16_10(self, value, offset)++`]
 * {xref-Packing-extract_16_12-bytes16-uint8-}[`++extract_16_12(self, offset)++`]
 * {xref-Packing-replace_16_12-bytes16-bytes12-uint8-}[`++replace_16_12(self, value, offset)++`]
 * {xref-Packing-extract_20_1-bytes20-uint8-}[`++extract_20_1(self, offset)++`]
@@ -6980,10 +7462,30 @@ _Available since v5.1._
 * {xref-Packing-replace_20_6-bytes20-bytes6-uint8-}[`++replace_20_6(self, value, offset)++`]
 * {xref-Packing-extract_20_8-bytes20-uint8-}[`++extract_20_8(self, offset)++`]
 * {xref-Packing-replace_20_8-bytes20-bytes8-uint8-}[`++replace_20_8(self, value, offset)++`]
+* {xref-Packing-extract_20_10-bytes20-uint8-}[`++extract_20_10(self, offset)++`]
+* {xref-Packing-replace_20_10-bytes20-bytes10-uint8-}[`++replace_20_10(self, value, offset)++`]
 * {xref-Packing-extract_20_12-bytes20-uint8-}[`++extract_20_12(self, offset)++`]
 * {xref-Packing-replace_20_12-bytes20-bytes12-uint8-}[`++replace_20_12(self, value, offset)++`]
 * {xref-Packing-extract_20_16-bytes20-uint8-}[`++extract_20_16(self, offset)++`]
 * {xref-Packing-replace_20_16-bytes20-bytes16-uint8-}[`++replace_20_16(self, value, offset)++`]
+* {xref-Packing-extract_22_1-bytes22-uint8-}[`++extract_22_1(self, offset)++`]
+* {xref-Packing-replace_22_1-bytes22-bytes1-uint8-}[`++replace_22_1(self, value, offset)++`]
+* {xref-Packing-extract_22_2-bytes22-uint8-}[`++extract_22_2(self, offset)++`]
+* {xref-Packing-replace_22_2-bytes22-bytes2-uint8-}[`++replace_22_2(self, value, offset)++`]
+* {xref-Packing-extract_22_4-bytes22-uint8-}[`++extract_22_4(self, offset)++`]
+* {xref-Packing-replace_22_4-bytes22-bytes4-uint8-}[`++replace_22_4(self, value, offset)++`]
+* {xref-Packing-extract_22_6-bytes22-uint8-}[`++extract_22_6(self, offset)++`]
+* {xref-Packing-replace_22_6-bytes22-bytes6-uint8-}[`++replace_22_6(self, value, offset)++`]
+* {xref-Packing-extract_22_8-bytes22-uint8-}[`++extract_22_8(self, offset)++`]
+* {xref-Packing-replace_22_8-bytes22-bytes8-uint8-}[`++replace_22_8(self, value, offset)++`]
+* {xref-Packing-extract_22_10-bytes22-uint8-}[`++extract_22_10(self, offset)++`]
+* {xref-Packing-replace_22_10-bytes22-bytes10-uint8-}[`++replace_22_10(self, value, offset)++`]
+* {xref-Packing-extract_22_12-bytes22-uint8-}[`++extract_22_12(self, offset)++`]
+* {xref-Packing-replace_22_12-bytes22-bytes12-uint8-}[`++replace_22_12(self, value, offset)++`]
+* {xref-Packing-extract_22_16-bytes22-uint8-}[`++extract_22_16(self, offset)++`]
+* {xref-Packing-replace_22_16-bytes22-bytes16-uint8-}[`++replace_22_16(self, value, offset)++`]
+* {xref-Packing-extract_22_20-bytes22-uint8-}[`++extract_22_20(self, offset)++`]
+* {xref-Packing-replace_22_20-bytes22-bytes20-uint8-}[`++replace_22_20(self, value, offset)++`]
 * {xref-Packing-extract_24_1-bytes24-uint8-}[`++extract_24_1(self, offset)++`]
 * {xref-Packing-replace_24_1-bytes24-bytes1-uint8-}[`++replace_24_1(self, value, offset)++`]
 * {xref-Packing-extract_24_2-bytes24-uint8-}[`++extract_24_2(self, offset)++`]
@@ -6994,12 +7496,16 @@ _Available since v5.1._
 * {xref-Packing-replace_24_6-bytes24-bytes6-uint8-}[`++replace_24_6(self, value, offset)++`]
 * {xref-Packing-extract_24_8-bytes24-uint8-}[`++extract_24_8(self, offset)++`]
 * {xref-Packing-replace_24_8-bytes24-bytes8-uint8-}[`++replace_24_8(self, value, offset)++`]
+* {xref-Packing-extract_24_10-bytes24-uint8-}[`++extract_24_10(self, offset)++`]
+* {xref-Packing-replace_24_10-bytes24-bytes10-uint8-}[`++replace_24_10(self, value, offset)++`]
 * {xref-Packing-extract_24_12-bytes24-uint8-}[`++extract_24_12(self, offset)++`]
 * {xref-Packing-replace_24_12-bytes24-bytes12-uint8-}[`++replace_24_12(self, value, offset)++`]
 * {xref-Packing-extract_24_16-bytes24-uint8-}[`++extract_24_16(self, offset)++`]
 * {xref-Packing-replace_24_16-bytes24-bytes16-uint8-}[`++replace_24_16(self, value, offset)++`]
 * {xref-Packing-extract_24_20-bytes24-uint8-}[`++extract_24_20(self, offset)++`]
 * {xref-Packing-replace_24_20-bytes24-bytes20-uint8-}[`++replace_24_20(self, value, offset)++`]
+* {xref-Packing-extract_24_22-bytes24-uint8-}[`++extract_24_22(self, offset)++`]
+* {xref-Packing-replace_24_22-bytes24-bytes22-uint8-}[`++replace_24_22(self, value, offset)++`]
 * {xref-Packing-extract_28_1-bytes28-uint8-}[`++extract_28_1(self, offset)++`]
 * {xref-Packing-replace_28_1-bytes28-bytes1-uint8-}[`++replace_28_1(self, value, offset)++`]
 * {xref-Packing-extract_28_2-bytes28-uint8-}[`++extract_28_2(self, offset)++`]
@@ -7010,12 +7516,16 @@ _Available since v5.1._
 * {xref-Packing-replace_28_6-bytes28-bytes6-uint8-}[`++replace_28_6(self, value, offset)++`]
 * {xref-Packing-extract_28_8-bytes28-uint8-}[`++extract_28_8(self, offset)++`]
 * {xref-Packing-replace_28_8-bytes28-bytes8-uint8-}[`++replace_28_8(self, value, offset)++`]
+* {xref-Packing-extract_28_10-bytes28-uint8-}[`++extract_28_10(self, offset)++`]
+* {xref-Packing-replace_28_10-bytes28-bytes10-uint8-}[`++replace_28_10(self, value, offset)++`]
 * {xref-Packing-extract_28_12-bytes28-uint8-}[`++extract_28_12(self, offset)++`]
 * {xref-Packing-replace_28_12-bytes28-bytes12-uint8-}[`++replace_28_12(self, value, offset)++`]
 * {xref-Packing-extract_28_16-bytes28-uint8-}[`++extract_28_16(self, offset)++`]
 * {xref-Packing-replace_28_16-bytes28-bytes16-uint8-}[`++replace_28_16(self, value, offset)++`]
 * {xref-Packing-extract_28_20-bytes28-uint8-}[`++extract_28_20(self, offset)++`]
 * {xref-Packing-replace_28_20-bytes28-bytes20-uint8-}[`++replace_28_20(self, value, offset)++`]
+* {xref-Packing-extract_28_22-bytes28-uint8-}[`++extract_28_22(self, offset)++`]
+* {xref-Packing-replace_28_22-bytes28-bytes22-uint8-}[`++replace_28_22(self, value, offset)++`]
 * {xref-Packing-extract_28_24-bytes28-uint8-}[`++extract_28_24(self, offset)++`]
 * {xref-Packing-replace_28_24-bytes28-bytes24-uint8-}[`++replace_28_24(self, value, offset)++`]
 * {xref-Packing-extract_32_1-bytes32-uint8-}[`++extract_32_1(self, offset)++`]
@@ -7028,12 +7538,16 @@ _Available since v5.1._
 * {xref-Packing-replace_32_6-bytes32-bytes6-uint8-}[`++replace_32_6(self, value, offset)++`]
 * {xref-Packing-extract_32_8-bytes32-uint8-}[`++extract_32_8(self, offset)++`]
 * {xref-Packing-replace_32_8-bytes32-bytes8-uint8-}[`++replace_32_8(self, value, offset)++`]
+* {xref-Packing-extract_32_10-bytes32-uint8-}[`++extract_32_10(self, offset)++`]
+* {xref-Packing-replace_32_10-bytes32-bytes10-uint8-}[`++replace_32_10(self, value, offset)++`]
 * {xref-Packing-extract_32_12-bytes32-uint8-}[`++extract_32_12(self, offset)++`]
 * {xref-Packing-replace_32_12-bytes32-bytes12-uint8-}[`++replace_32_12(self, value, offset)++`]
 * {xref-Packing-extract_32_16-bytes32-uint8-}[`++extract_32_16(self, offset)++`]
 * {xref-Packing-replace_32_16-bytes32-bytes16-uint8-}[`++replace_32_16(self, value, offset)++`]
 * {xref-Packing-extract_32_20-bytes32-uint8-}[`++extract_32_20(self, offset)++`]
 * {xref-Packing-replace_32_20-bytes32-bytes20-uint8-}[`++replace_32_20(self, value, offset)++`]
+* {xref-Packing-extract_32_22-bytes32-uint8-}[`++extract_32_22(self, offset)++`]
+* {xref-Packing-replace_32_22-bytes32-bytes22-uint8-}[`++replace_32_22(self, value, offset)++`]
 * {xref-Packing-extract_32_24-bytes32-uint8-}[`++extract_32_24(self, offset)++`]
 * {xref-Packing-replace_32_24-bytes32-bytes24-uint8-}[`++replace_32_24(self, value, offset)++`]
 * {xref-Packing-extract_32_28-bytes32-uint8-}[`++extract_32_28(self, offset)++`]
@@ -7065,12 +7579,32 @@ _Available since v5.1._
 ==== `[.contract-item-name]#++pack_2_6++#++(bytes2 left, bytes6 right) → bytes8 result++` [.item-kind]#internal#
 
 [.contract-item]
+[[Packing-pack_2_8-bytes2-bytes8-]]
+==== `[.contract-item-name]#++pack_2_8++#++(bytes2 left, bytes8 right) → bytes10 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-pack_2_10-bytes2-bytes10-]]
+==== `[.contract-item-name]#++pack_2_10++#++(bytes2 left, bytes10 right) → bytes12 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-pack_2_20-bytes2-bytes20-]]
+==== `[.contract-item-name]#++pack_2_20++#++(bytes2 left, bytes20 right) → bytes22 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-pack_2_22-bytes2-bytes22-]]
+==== `[.contract-item-name]#++pack_2_22++#++(bytes2 left, bytes22 right) → bytes24 result++` [.item-kind]#internal#
+
+[.contract-item]
 [[Packing-pack_4_2-bytes4-bytes2-]]
 ==== `[.contract-item-name]#++pack_4_2++#++(bytes4 left, bytes2 right) → bytes6 result++` [.item-kind]#internal#
 
 [.contract-item]
 [[Packing-pack_4_4-bytes4-bytes4-]]
 ==== `[.contract-item-name]#++pack_4_4++#++(bytes4 left, bytes4 right) → bytes8 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-pack_4_6-bytes4-bytes6-]]
+==== `[.contract-item-name]#++pack_4_6++#++(bytes4 left, bytes6 right) → bytes10 result++` [.item-kind]#internal#
 
 [.contract-item]
 [[Packing-pack_4_8-bytes4-bytes8-]]
@@ -7101,8 +7635,28 @@ _Available since v5.1._
 ==== `[.contract-item-name]#++pack_6_2++#++(bytes6 left, bytes2 right) → bytes8 result++` [.item-kind]#internal#
 
 [.contract-item]
+[[Packing-pack_6_4-bytes6-bytes4-]]
+==== `[.contract-item-name]#++pack_6_4++#++(bytes6 left, bytes4 right) → bytes10 result++` [.item-kind]#internal#
+
+[.contract-item]
 [[Packing-pack_6_6-bytes6-bytes6-]]
 ==== `[.contract-item-name]#++pack_6_6++#++(bytes6 left, bytes6 right) → bytes12 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-pack_6_10-bytes6-bytes10-]]
+==== `[.contract-item-name]#++pack_6_10++#++(bytes6 left, bytes10 right) → bytes16 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-pack_6_16-bytes6-bytes16-]]
+==== `[.contract-item-name]#++pack_6_16++#++(bytes6 left, bytes16 right) → bytes22 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-pack_6_22-bytes6-bytes22-]]
+==== `[.contract-item-name]#++pack_6_22++#++(bytes6 left, bytes22 right) → bytes28 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-pack_8_2-bytes8-bytes2-]]
+==== `[.contract-item-name]#++pack_8_2++#++(bytes8 left, bytes2 right) → bytes10 result++` [.item-kind]#internal#
 
 [.contract-item]
 [[Packing-pack_8_4-bytes8-bytes4-]]
@@ -7129,12 +7683,36 @@ _Available since v5.1._
 ==== `[.contract-item-name]#++pack_8_24++#++(bytes8 left, bytes24 right) → bytes32 result++` [.item-kind]#internal#
 
 [.contract-item]
+[[Packing-pack_10_2-bytes10-bytes2-]]
+==== `[.contract-item-name]#++pack_10_2++#++(bytes10 left, bytes2 right) → bytes12 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-pack_10_6-bytes10-bytes6-]]
+==== `[.contract-item-name]#++pack_10_6++#++(bytes10 left, bytes6 right) → bytes16 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-pack_10_10-bytes10-bytes10-]]
+==== `[.contract-item-name]#++pack_10_10++#++(bytes10 left, bytes10 right) → bytes20 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-pack_10_12-bytes10-bytes12-]]
+==== `[.contract-item-name]#++pack_10_12++#++(bytes10 left, bytes12 right) → bytes22 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-pack_10_22-bytes10-bytes22-]]
+==== `[.contract-item-name]#++pack_10_22++#++(bytes10 left, bytes22 right) → bytes32 result++` [.item-kind]#internal#
+
+[.contract-item]
 [[Packing-pack_12_4-bytes12-bytes4-]]
 ==== `[.contract-item-name]#++pack_12_4++#++(bytes12 left, bytes4 right) → bytes16 result++` [.item-kind]#internal#
 
 [.contract-item]
 [[Packing-pack_12_8-bytes12-bytes8-]]
 ==== `[.contract-item-name]#++pack_12_8++#++(bytes12 left, bytes8 right) → bytes20 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-pack_12_10-bytes12-bytes10-]]
+==== `[.contract-item-name]#++pack_12_10++#++(bytes12 left, bytes10 right) → bytes22 result++` [.item-kind]#internal#
 
 [.contract-item]
 [[Packing-pack_12_12-bytes12-bytes12-]]
@@ -7153,6 +7731,10 @@ _Available since v5.1._
 ==== `[.contract-item-name]#++pack_16_4++#++(bytes16 left, bytes4 right) → bytes20 result++` [.item-kind]#internal#
 
 [.contract-item]
+[[Packing-pack_16_6-bytes16-bytes6-]]
+==== `[.contract-item-name]#++pack_16_6++#++(bytes16 left, bytes6 right) → bytes22 result++` [.item-kind]#internal#
+
+[.contract-item]
 [[Packing-pack_16_8-bytes16-bytes8-]]
 ==== `[.contract-item-name]#++pack_16_8++#++(bytes16 left, bytes8 right) → bytes24 result++` [.item-kind]#internal#
 
@@ -7165,6 +7747,10 @@ _Available since v5.1._
 ==== `[.contract-item-name]#++pack_16_16++#++(bytes16 left, bytes16 right) → bytes32 result++` [.item-kind]#internal#
 
 [.contract-item]
+[[Packing-pack_20_2-bytes20-bytes2-]]
+==== `[.contract-item-name]#++pack_20_2++#++(bytes20 left, bytes2 right) → bytes22 result++` [.item-kind]#internal#
+
+[.contract-item]
 [[Packing-pack_20_4-bytes20-bytes4-]]
 ==== `[.contract-item-name]#++pack_20_4++#++(bytes20 left, bytes4 right) → bytes24 result++` [.item-kind]#internal#
 
@@ -7175,6 +7761,18 @@ _Available since v5.1._
 [.contract-item]
 [[Packing-pack_20_12-bytes20-bytes12-]]
 ==== `[.contract-item-name]#++pack_20_12++#++(bytes20 left, bytes12 right) → bytes32 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-pack_22_2-bytes22-bytes2-]]
+==== `[.contract-item-name]#++pack_22_2++#++(bytes22 left, bytes2 right) → bytes24 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-pack_22_6-bytes22-bytes6-]]
+==== `[.contract-item-name]#++pack_22_6++#++(bytes22 left, bytes6 right) → bytes28 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-pack_22_10-bytes22-bytes10-]]
+==== `[.contract-item-name]#++pack_22_10++#++(bytes22 left, bytes10 right) → bytes32 result++` [.item-kind]#internal#
 
 [.contract-item]
 [[Packing-pack_24_4-bytes24-bytes4-]]
@@ -7269,6 +7867,46 @@ _Available since v5.1._
 ==== `[.contract-item-name]#++replace_8_6++#++(bytes8 self, bytes6 value, uint8 offset) → bytes8 result++` [.item-kind]#internal#
 
 [.contract-item]
+[[Packing-extract_10_1-bytes10-uint8-]]
+==== `[.contract-item-name]#++extract_10_1++#++(bytes10 self, uint8 offset) → bytes1 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-replace_10_1-bytes10-bytes1-uint8-]]
+==== `[.contract-item-name]#++replace_10_1++#++(bytes10 self, bytes1 value, uint8 offset) → bytes10 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-extract_10_2-bytes10-uint8-]]
+==== `[.contract-item-name]#++extract_10_2++#++(bytes10 self, uint8 offset) → bytes2 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-replace_10_2-bytes10-bytes2-uint8-]]
+==== `[.contract-item-name]#++replace_10_2++#++(bytes10 self, bytes2 value, uint8 offset) → bytes10 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-extract_10_4-bytes10-uint8-]]
+==== `[.contract-item-name]#++extract_10_4++#++(bytes10 self, uint8 offset) → bytes4 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-replace_10_4-bytes10-bytes4-uint8-]]
+==== `[.contract-item-name]#++replace_10_4++#++(bytes10 self, bytes4 value, uint8 offset) → bytes10 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-extract_10_6-bytes10-uint8-]]
+==== `[.contract-item-name]#++extract_10_6++#++(bytes10 self, uint8 offset) → bytes6 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-replace_10_6-bytes10-bytes6-uint8-]]
+==== `[.contract-item-name]#++replace_10_6++#++(bytes10 self, bytes6 value, uint8 offset) → bytes10 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-extract_10_8-bytes10-uint8-]]
+==== `[.contract-item-name]#++extract_10_8++#++(bytes10 self, uint8 offset) → bytes8 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-replace_10_8-bytes10-bytes8-uint8-]]
+==== `[.contract-item-name]#++replace_10_8++#++(bytes10 self, bytes8 value, uint8 offset) → bytes10 result++` [.item-kind]#internal#
+
+[.contract-item]
 [[Packing-extract_12_1-bytes12-uint8-]]
 ==== `[.contract-item-name]#++extract_12_1++#++(bytes12 self, uint8 offset) → bytes1 result++` [.item-kind]#internal#
 
@@ -7309,6 +7947,14 @@ _Available since v5.1._
 ==== `[.contract-item-name]#++replace_12_8++#++(bytes12 self, bytes8 value, uint8 offset) → bytes12 result++` [.item-kind]#internal#
 
 [.contract-item]
+[[Packing-extract_12_10-bytes12-uint8-]]
+==== `[.contract-item-name]#++extract_12_10++#++(bytes12 self, uint8 offset) → bytes10 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-replace_12_10-bytes12-bytes10-uint8-]]
+==== `[.contract-item-name]#++replace_12_10++#++(bytes12 self, bytes10 value, uint8 offset) → bytes12 result++` [.item-kind]#internal#
+
+[.contract-item]
 [[Packing-extract_16_1-bytes16-uint8-]]
 ==== `[.contract-item-name]#++extract_16_1++#++(bytes16 self, uint8 offset) → bytes1 result++` [.item-kind]#internal#
 
@@ -7347,6 +7993,14 @@ _Available since v5.1._
 [.contract-item]
 [[Packing-replace_16_8-bytes16-bytes8-uint8-]]
 ==== `[.contract-item-name]#++replace_16_8++#++(bytes16 self, bytes8 value, uint8 offset) → bytes16 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-extract_16_10-bytes16-uint8-]]
+==== `[.contract-item-name]#++extract_16_10++#++(bytes16 self, uint8 offset) → bytes10 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-replace_16_10-bytes16-bytes10-uint8-]]
+==== `[.contract-item-name]#++replace_16_10++#++(bytes16 self, bytes10 value, uint8 offset) → bytes16 result++` [.item-kind]#internal#
 
 [.contract-item]
 [[Packing-extract_16_12-bytes16-uint8-]]
@@ -7397,6 +8051,14 @@ _Available since v5.1._
 ==== `[.contract-item-name]#++replace_20_8++#++(bytes20 self, bytes8 value, uint8 offset) → bytes20 result++` [.item-kind]#internal#
 
 [.contract-item]
+[[Packing-extract_20_10-bytes20-uint8-]]
+==== `[.contract-item-name]#++extract_20_10++#++(bytes20 self, uint8 offset) → bytes10 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-replace_20_10-bytes20-bytes10-uint8-]]
+==== `[.contract-item-name]#++replace_20_10++#++(bytes20 self, bytes10 value, uint8 offset) → bytes20 result++` [.item-kind]#internal#
+
+[.contract-item]
 [[Packing-extract_20_12-bytes20-uint8-]]
 ==== `[.contract-item-name]#++extract_20_12++#++(bytes20 self, uint8 offset) → bytes12 result++` [.item-kind]#internal#
 
@@ -7411,6 +8073,78 @@ _Available since v5.1._
 [.contract-item]
 [[Packing-replace_20_16-bytes20-bytes16-uint8-]]
 ==== `[.contract-item-name]#++replace_20_16++#++(bytes20 self, bytes16 value, uint8 offset) → bytes20 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-extract_22_1-bytes22-uint8-]]
+==== `[.contract-item-name]#++extract_22_1++#++(bytes22 self, uint8 offset) → bytes1 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-replace_22_1-bytes22-bytes1-uint8-]]
+==== `[.contract-item-name]#++replace_22_1++#++(bytes22 self, bytes1 value, uint8 offset) → bytes22 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-extract_22_2-bytes22-uint8-]]
+==== `[.contract-item-name]#++extract_22_2++#++(bytes22 self, uint8 offset) → bytes2 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-replace_22_2-bytes22-bytes2-uint8-]]
+==== `[.contract-item-name]#++replace_22_2++#++(bytes22 self, bytes2 value, uint8 offset) → bytes22 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-extract_22_4-bytes22-uint8-]]
+==== `[.contract-item-name]#++extract_22_4++#++(bytes22 self, uint8 offset) → bytes4 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-replace_22_4-bytes22-bytes4-uint8-]]
+==== `[.contract-item-name]#++replace_22_4++#++(bytes22 self, bytes4 value, uint8 offset) → bytes22 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-extract_22_6-bytes22-uint8-]]
+==== `[.contract-item-name]#++extract_22_6++#++(bytes22 self, uint8 offset) → bytes6 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-replace_22_6-bytes22-bytes6-uint8-]]
+==== `[.contract-item-name]#++replace_22_6++#++(bytes22 self, bytes6 value, uint8 offset) → bytes22 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-extract_22_8-bytes22-uint8-]]
+==== `[.contract-item-name]#++extract_22_8++#++(bytes22 self, uint8 offset) → bytes8 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-replace_22_8-bytes22-bytes8-uint8-]]
+==== `[.contract-item-name]#++replace_22_8++#++(bytes22 self, bytes8 value, uint8 offset) → bytes22 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-extract_22_10-bytes22-uint8-]]
+==== `[.contract-item-name]#++extract_22_10++#++(bytes22 self, uint8 offset) → bytes10 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-replace_22_10-bytes22-bytes10-uint8-]]
+==== `[.contract-item-name]#++replace_22_10++#++(bytes22 self, bytes10 value, uint8 offset) → bytes22 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-extract_22_12-bytes22-uint8-]]
+==== `[.contract-item-name]#++extract_22_12++#++(bytes22 self, uint8 offset) → bytes12 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-replace_22_12-bytes22-bytes12-uint8-]]
+==== `[.contract-item-name]#++replace_22_12++#++(bytes22 self, bytes12 value, uint8 offset) → bytes22 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-extract_22_16-bytes22-uint8-]]
+==== `[.contract-item-name]#++extract_22_16++#++(bytes22 self, uint8 offset) → bytes16 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-replace_22_16-bytes22-bytes16-uint8-]]
+==== `[.contract-item-name]#++replace_22_16++#++(bytes22 self, bytes16 value, uint8 offset) → bytes22 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-extract_22_20-bytes22-uint8-]]
+==== `[.contract-item-name]#++extract_22_20++#++(bytes22 self, uint8 offset) → bytes20 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-replace_22_20-bytes22-bytes20-uint8-]]
+==== `[.contract-item-name]#++replace_22_20++#++(bytes22 self, bytes20 value, uint8 offset) → bytes22 result++` [.item-kind]#internal#
 
 [.contract-item]
 [[Packing-extract_24_1-bytes24-uint8-]]
@@ -7453,6 +8187,14 @@ _Available since v5.1._
 ==== `[.contract-item-name]#++replace_24_8++#++(bytes24 self, bytes8 value, uint8 offset) → bytes24 result++` [.item-kind]#internal#
 
 [.contract-item]
+[[Packing-extract_24_10-bytes24-uint8-]]
+==== `[.contract-item-name]#++extract_24_10++#++(bytes24 self, uint8 offset) → bytes10 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-replace_24_10-bytes24-bytes10-uint8-]]
+==== `[.contract-item-name]#++replace_24_10++#++(bytes24 self, bytes10 value, uint8 offset) → bytes24 result++` [.item-kind]#internal#
+
+[.contract-item]
 [[Packing-extract_24_12-bytes24-uint8-]]
 ==== `[.contract-item-name]#++extract_24_12++#++(bytes24 self, uint8 offset) → bytes12 result++` [.item-kind]#internal#
 
@@ -7475,6 +8217,14 @@ _Available since v5.1._
 [.contract-item]
 [[Packing-replace_24_20-bytes24-bytes20-uint8-]]
 ==== `[.contract-item-name]#++replace_24_20++#++(bytes24 self, bytes20 value, uint8 offset) → bytes24 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-extract_24_22-bytes24-uint8-]]
+==== `[.contract-item-name]#++extract_24_22++#++(bytes24 self, uint8 offset) → bytes22 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-replace_24_22-bytes24-bytes22-uint8-]]
+==== `[.contract-item-name]#++replace_24_22++#++(bytes24 self, bytes22 value, uint8 offset) → bytes24 result++` [.item-kind]#internal#
 
 [.contract-item]
 [[Packing-extract_28_1-bytes28-uint8-]]
@@ -7517,6 +8267,14 @@ _Available since v5.1._
 ==== `[.contract-item-name]#++replace_28_8++#++(bytes28 self, bytes8 value, uint8 offset) → bytes28 result++` [.item-kind]#internal#
 
 [.contract-item]
+[[Packing-extract_28_10-bytes28-uint8-]]
+==== `[.contract-item-name]#++extract_28_10++#++(bytes28 self, uint8 offset) → bytes10 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-replace_28_10-bytes28-bytes10-uint8-]]
+==== `[.contract-item-name]#++replace_28_10++#++(bytes28 self, bytes10 value, uint8 offset) → bytes28 result++` [.item-kind]#internal#
+
+[.contract-item]
 [[Packing-extract_28_12-bytes28-uint8-]]
 ==== `[.contract-item-name]#++extract_28_12++#++(bytes28 self, uint8 offset) → bytes12 result++` [.item-kind]#internal#
 
@@ -7539,6 +8297,14 @@ _Available since v5.1._
 [.contract-item]
 [[Packing-replace_28_20-bytes28-bytes20-uint8-]]
 ==== `[.contract-item-name]#++replace_28_20++#++(bytes28 self, bytes20 value, uint8 offset) → bytes28 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-extract_28_22-bytes28-uint8-]]
+==== `[.contract-item-name]#++extract_28_22++#++(bytes28 self, uint8 offset) → bytes22 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-replace_28_22-bytes28-bytes22-uint8-]]
+==== `[.contract-item-name]#++replace_28_22++#++(bytes28 self, bytes22 value, uint8 offset) → bytes28 result++` [.item-kind]#internal#
 
 [.contract-item]
 [[Packing-extract_28_24-bytes28-uint8-]]
@@ -7589,6 +8355,14 @@ _Available since v5.1._
 ==== `[.contract-item-name]#++replace_32_8++#++(bytes32 self, bytes8 value, uint8 offset) → bytes32 result++` [.item-kind]#internal#
 
 [.contract-item]
+[[Packing-extract_32_10-bytes32-uint8-]]
+==== `[.contract-item-name]#++extract_32_10++#++(bytes32 self, uint8 offset) → bytes10 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-replace_32_10-bytes32-bytes10-uint8-]]
+==== `[.contract-item-name]#++replace_32_10++#++(bytes32 self, bytes10 value, uint8 offset) → bytes32 result++` [.item-kind]#internal#
+
+[.contract-item]
 [[Packing-extract_32_12-bytes32-uint8-]]
 ==== `[.contract-item-name]#++extract_32_12++#++(bytes32 self, uint8 offset) → bytes12 result++` [.item-kind]#internal#
 
@@ -7611,6 +8385,14 @@ _Available since v5.1._
 [.contract-item]
 [[Packing-replace_32_20-bytes32-bytes20-uint8-]]
 ==== `[.contract-item-name]#++replace_32_20++#++(bytes32 self, bytes20 value, uint8 offset) → bytes32 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-extract_32_22-bytes32-uint8-]]
+==== `[.contract-item-name]#++extract_32_22++#++(bytes32 self, uint8 offset) → bytes22 result++` [.item-kind]#internal#
+
+[.contract-item]
+[[Packing-replace_32_22-bytes32-bytes22-uint8-]]
+==== `[.contract-item-name]#++replace_32_22++#++(bytes32 self, bytes22 value, uint8 offset) → bytes32 result++` [.item-kind]#internal#
 
 [.contract-item]
 [[Packing-extract_32_24-bytes32-uint8-]]
@@ -7646,7 +8428,7 @@ _Available since v5.1._
 
 [.contract]
 [[Panic]]
-=== `++Panic++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/utils/Panic.sol[{github-icon},role=heading-link]
+=== `++Panic++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/utils/Panic.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -7766,7 +8548,7 @@ calling invalid internal function
 
 [.contract]
 [[Comparators]]
-=== `++Comparators++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/utils/Comparators.sol[{github-icon},role=heading-link]
+=== `++Comparators++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/utils/Comparators.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity

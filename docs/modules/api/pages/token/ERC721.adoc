@@ -392,6 +392,7 @@
 :xref-ERC721Votes-_increaseBalance-address-uint128-: xref:token/ERC721.adoc#ERC721Votes-_increaseBalance-address-uint128-
 :xref-Votes-clock--: xref:governance.adoc#Votes-clock--
 :xref-Votes-CLOCK_MODE--: xref:governance.adoc#Votes-CLOCK_MODE--
+:xref-Votes-_validateTimepoint-uint256-: xref:governance.adoc#Votes-_validateTimepoint-uint256-
 :xref-Votes-getVotes-address-: xref:governance.adoc#Votes-getVotes-address-
 :xref-Votes-getPastVotes-address-uint256-: xref:governance.adoc#Votes-getPastVotes-address-uint256-
 :xref-Votes-getPastTotalSupply-uint256-: xref:governance.adoc#Votes-getPastTotalSupply-uint256-
@@ -629,7 +630,7 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 
 [.contract]
 [[IERC721]]
-=== `++IERC721++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/token/ERC721/IERC721.sol[{github-icon},role=heading-link]
+=== `++IERC721++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC721/IERC721.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -811,7 +812,7 @@ Emitted when `owner` enables or disables (`approved`) `operator` to manage all o
 
 [.contract]
 [[IERC721Metadata]]
-=== `++IERC721Metadata++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/token/ERC721/extensions/IERC721Metadata.sol[{github-icon},role=heading-link]
+=== `++IERC721Metadata++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC721/extensions/IERC721Metadata.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -884,7 +885,7 @@ Returns the Uniform Resource Identifier (URI) for `tokenId` token.
 
 [.contract]
 [[IERC721Enumerable]]
-=== `++IERC721Enumerable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/token/ERC721/extensions/IERC721Enumerable.sol[{github-icon},role=heading-link]
+=== `++IERC721Enumerable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC721/extensions/IERC721Enumerable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -988,7 +989,7 @@ Use along with {totalSupply} to enumerate all tokens.
 
 [.contract]
 [[ERC721]]
-=== `++ERC721++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/token/ERC721/ERC721.sol[{github-icon},role=heading-link]
+=== `++ERC721++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC721/ERC721.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1406,7 +1407,7 @@ Overrides to ownership logic should be done to {_ownerOf}.
 
 [.contract]
 [[ERC721Enumerable]]
-=== `++ERC721Enumerable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/token/ERC721/extensions/ERC721Enumerable.sol[{github-icon},role=heading-link]
+=== `++ERC721Enumerable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC721/extensions/ERC721Enumerable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1599,7 +1600,7 @@ Batch mint is not allowed.
 
 [.contract]
 [[IERC721Receiver]]
-=== `++IERC721Receiver++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/token/ERC721/IERC721Receiver.sol[{github-icon},role=heading-link]
+=== `++IERC721Receiver++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC721/IERC721Receiver.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1635,7 +1636,7 @@ The selector can be obtained in Solidity with `IERC721Receiver.onERC721Received.
 
 [.contract]
 [[ERC721Pausable]]
-=== `++ERC721Pausable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/token/ERC721/extensions/ERC721Pausable.sol[{github-icon},role=heading-link]
+=== `++ERC721Pausable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC721/extensions/ERC721Pausable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1800,7 +1801,7 @@ Requirements:
 
 [.contract]
 [[ERC721Burnable]]
-=== `++ERC721Burnable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/token/ERC721/extensions/ERC721Burnable.sol[{github-icon},role=heading-link]
+=== `++ERC721Burnable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC721/extensions/ERC721Burnable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1946,7 +1947,7 @@ Requirements:
 
 [.contract]
 [[ERC721Consecutive]]
-=== `++ERC721Consecutive++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/token/ERC721/extensions/ERC721Consecutive.sol[{github-icon},role=heading-link]
+=== `++ERC721Consecutive++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC721/extensions/ERC721Consecutive.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2186,7 +2187,7 @@ Batch burn is not supported.
 
 [.contract]
 [[ERC721URIStorage]]
-=== `++ERC721URIStorage++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/token/ERC721/extensions/ERC721URIStorage.sol[{github-icon},role=heading-link]
+=== `++ERC721URIStorage++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC721/extensions/ERC721URIStorage.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2347,7 +2348,7 @@ Emits {MetadataUpdate}.
 
 [.contract]
 [[ERC721Votes]]
-=== `++ERC721Votes++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/token/ERC721/extensions/ERC721Votes.sol[{github-icon},role=heading-link]
+=== `++ERC721Votes++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC721/extensions/ERC721Votes.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2372,6 +2373,7 @@ the votes in governance decisions, or they can delegate to themselves to be thei
 .Votes
 * {xref-Votes-clock--}[`++clock()++`]
 * {xref-Votes-CLOCK_MODE--}[`++CLOCK_MODE()++`]
+* {xref-Votes-_validateTimepoint-uint256-}[`++_validateTimepoint(timepoint)++`]
 * {xref-Votes-getVotes-address-}[`++getVotes(account)++`]
 * {xref-Votes-getPastVotes-address-uint256-}[`++getPastVotes(account, timepoint)++`]
 * {xref-Votes-getPastTotalSupply-uint256-}[`++getPastTotalSupply(timepoint)++`]
@@ -2594,7 +2596,7 @@ See {ERC721-_increaseBalance}. We need that to account tokens that were minted i
 
 [.contract]
 [[ERC721Royalty]]
-=== `++ERC721Royalty++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/token/ERC721/extensions/ERC721Royalty.sol[{github-icon},role=heading-link]
+=== `++ERC721Royalty++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC721/extensions/ERC721Royalty.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2769,7 +2771,7 @@ See {IERC165-supportsInterface}.
 
 [.contract]
 [[ERC721Wrapper]]
-=== `++ERC721Wrapper++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/token/ERC721/extensions/ERC721Wrapper.sol[{github-icon},role=heading-link]
+=== `++ERC721Wrapper++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC721/extensions/ERC721Wrapper.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2966,7 +2968,7 @@ The received ERC-721 token couldn't be wrapped.
 
 [.contract]
 [[ERC721Holder]]
-=== `++ERC721Holder++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/token/ERC721/utils/ERC721Holder.sol[{github-icon},role=heading-link]
+=== `++ERC721Holder++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC721/utils/ERC721Holder.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3001,7 +3003,7 @@ Always returns `IERC721Receiver.onERC721Received.selector`.
 
 [.contract]
 [[ERC721Utils]]
-=== `++ERC721Utils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/token/ERC721/utils/ERC721Utils.sol[{github-icon},role=heading-link]
+=== `++ERC721Utils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC721/utils/ERC721Utils.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity

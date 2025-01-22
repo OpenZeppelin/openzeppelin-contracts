@@ -128,6 +128,23 @@ class GovernorHelper {
     return await this.governor[method](...args);
   }
 
+  async overrideVote(vote = {}) {
+    let method = 'castOverrideVote';
+    let args = [this.id, vote.support];
+
+    vote.reason = vote.reason ?? '';
+
+    if (vote.signature) {
+      let message = this.forgeMessage(vote);
+      message.reason = message.reason ?? '';
+      const sign = await vote.signature(this.governor, message);
+      method = 'castOverrideVoteBySig';
+      args.push(vote.voter, vote.reason ?? '', sign);
+    }
+
+    return await this.governor[method](...args);
+  }
+
   /// Clock helpers
   async waitForSnapshot(offset = 0n) {
     const timepoint = await this.governor.proposalSnapshot(this.id);

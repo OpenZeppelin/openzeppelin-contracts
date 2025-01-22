@@ -41,6 +41,8 @@ jobs:
         run: npm run test
       - name: Check linearisation of the inheritance graph
         run: npm run test:inheritance
+      - name: Check pragma consistency between files
+        run: npm run test:pragma
       - name: Check proceduraly generated contracts are up-to-date
         run: npm run test:generation
       - name: Compare gas costs
@@ -68,6 +70,8 @@ jobs:
         run: npm run test
       - name: Check linearisation of the inheritance graph
         run: npm run test:inheritance
+      - name: Check pragma consistency between files
+        run: npm run test:pragma
       - name: Check storage layout
         uses: ./.github/actions/storage-layout
         continue-on-error: ${{ contains(github.event.pull_request.labels.*.name, 'breaking change') }}
@@ -125,8 +129,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Run CodeSpell
-        uses: codespell-project/actions-codespell@v2.0
+        uses: codespell-project/actions-codespell@v2.1
         with:
           check_hidden: true
           check_filenames: true
-          skip: package-lock.json,*.pdf
+          skip: package-lock.json,*.pdf,vendor

@@ -230,6 +230,7 @@
 :xref-ERC20Votes-checkpoints-address-uint32-: xref:token/ERC20.adoc#ERC20Votes-checkpoints-address-uint32-
 :xref-Votes-clock--: xref:governance.adoc#Votes-clock--
 :xref-Votes-CLOCK_MODE--: xref:governance.adoc#Votes-CLOCK_MODE--
+:xref-Votes-_validateTimepoint-uint256-: xref:governance.adoc#Votes-_validateTimepoint-uint256-
 :xref-Votes-getVotes-address-: xref:governance.adoc#Votes-getVotes-address-
 :xref-Votes-getPastVotes-address-uint256-: xref:governance.adoc#Votes-getPastVotes-address-uint256-
 :xref-Votes-getPastTotalSupply-uint256-: xref:governance.adoc#Votes-getPastTotalSupply-uint256-
@@ -580,7 +581,7 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 
 [.contract]
 [[IERC20]]
-=== `++IERC20++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/token/ERC20/IERC20.sol[{github-icon},role=heading-link]
+=== `++IERC20++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC20/IERC20.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -693,7 +694,7 @@ a call to {approve}. `value` is the new allowance.
 
 [.contract]
 [[IERC20Metadata]]
-=== `++IERC20Metadata++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/token/ERC20/extensions/IERC20Metadata.sol[{github-icon},role=heading-link]
+=== `++IERC20Metadata++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC20/extensions/IERC20Metadata.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -769,7 +770,7 @@ Returns the decimals places of the token.
 
 [.contract]
 [[ERC20]]
-=== `++ERC20++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/token/ERC20/ERC20.sol[{github-icon},role=heading-link]
+=== `++ERC20++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC20/ERC20.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1065,7 +1066,7 @@ Does not emit an {Approval} event.
 
 [.contract]
 [[IERC20Permit]]
-=== `++IERC20Permit++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/token/ERC20/extensions/IERC20Permit.sol[{github-icon},role=heading-link]
+=== `++IERC20Permit++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC20/extensions/IERC20Permit.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1167,7 +1168,7 @@ Returns the domain separator used in the encoding of the signature for {permit},
 
 [.contract]
 [[ERC20Permit]]
-=== `++ERC20Permit++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/token/ERC20/extensions/ERC20Permit.sol[{github-icon},role=heading-link]
+=== `++ERC20Permit++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC20/extensions/ERC20Permit.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1377,7 +1378,7 @@ Mismatched signature.
 
 [.contract]
 [[ERC20Burnable]]
-=== `++ERC20Burnable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/token/ERC20/extensions/ERC20Burnable.sol[{github-icon},role=heading-link]
+=== `++ERC20Burnable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC20/extensions/ERC20Burnable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1498,7 +1499,7 @@ Requirements:
 
 [.contract]
 [[ERC20Capped]]
-=== `++ERC20Capped++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/token/ERC20/extensions/ERC20Capped.sol[{github-icon},role=heading-link]
+=== `++ERC20Capped++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC20/extensions/ERC20Capped.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1624,7 +1625,7 @@ The supplied cap is not a valid cap.
 
 [.contract]
 [[ERC20Pausable]]
-=== `++ERC20Pausable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/token/ERC20/extensions/ERC20Pausable.sol[{github-icon},role=heading-link]
+=== `++ERC20Pausable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC20/extensions/ERC20Pausable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1758,7 +1759,7 @@ Requirements:
 
 [.contract]
 [[ERC20Votes]]
-=== `++ERC20Votes++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/token/ERC20/extensions/ERC20Votes.sol[{github-icon},role=heading-link]
+=== `++ERC20Votes++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC20/extensions/ERC20Votes.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1790,6 +1791,7 @@ requires users to delegate to themselves in order to activate checkpoints and ha
 .Votes
 * {xref-Votes-clock--}[`++clock()++`]
 * {xref-Votes-CLOCK_MODE--}[`++CLOCK_MODE()++`]
+* {xref-Votes-_validateTimepoint-uint256-}[`++_validateTimepoint(timepoint)++`]
 * {xref-Votes-getVotes-address-}[`++getVotes(account)++`]
 * {xref-Votes-getPastVotes-address-uint256-}[`++getPastVotes(account, timepoint)++`]
 * {xref-Votes-getPastTotalSupply-uint256-}[`++getPastTotalSupply(timepoint)++`]
@@ -2010,7 +2012,7 @@ Total supply cap has been exceeded, introducing a risk of votes overflowing.
 
 [.contract]
 [[ERC20Wrapper]]
-=== `++ERC20Wrapper++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/token/ERC20/extensions/ERC20Wrapper.sol[{github-icon},role=heading-link]
+=== `++ERC20Wrapper++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC20/extensions/ERC20Wrapper.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2164,7 +2166,7 @@ The underlying token couldn't be wrapped.
 
 [.contract]
 [[ERC20FlashMint]]
-=== `++ERC20FlashMint++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/token/ERC20/extensions/ERC20FlashMint.sol[{github-icon},role=heading-link]
+=== `++ERC20FlashMint++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC20/extensions/ERC20FlashMint.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2342,7 +2344,7 @@ The receiver of a flashloan is not a valid {IERC3156FlashBorrower-onFlashLoan} i
 
 [.contract]
 [[ERC20TemporaryApproval]]
-=== `++ERC20TemporaryApproval++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/token/ERC20/extensions/draft-ERC20TemporaryApproval.sol[{github-icon},role=heading-link]
+=== `++ERC20TemporaryApproval++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC20/extensions/draft-ERC20TemporaryApproval.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2509,7 +2511,7 @@ is enough to cover the spending.
 
 [.contract]
 [[ERC1363]]
-=== `++ERC1363++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/token/ERC20/extensions/ERC1363.sol[{github-icon},role=heading-link]
+=== `++ERC1363++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC20/extensions/ERC1363.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2653,7 +2655,8 @@ This function call must use less than 30 000 gas.
 ==== `[.contract-item-name]#++transferAndCall++#++(address to, uint256 value) → bool++` [.item-kind]#public#
 
 Moves a `value` amount of tokens from the caller's account to `to`
-and then calls {IERC1363Receiver-onTransferReceived} on `to`.
+and then calls {IERC1363Receiver-onTransferReceived} on `to`. Returns a flag that indicates
+if the call succeeded.
 
 Requirements:
 
@@ -2674,7 +2677,8 @@ no specified format.
 ==== `[.contract-item-name]#++transferFromAndCall++#++(address from, address to, uint256 value) → bool++` [.item-kind]#public#
 
 Moves a `value` amount of tokens from `from` to `to` using the allowance mechanism
-and then calls {IERC1363Receiver-onTransferReceived} on `to`.
+and then calls {IERC1363Receiver-onTransferReceived} on `to`. Returns a flag that indicates
+if the call succeeded.
 
 Requirements:
 
@@ -2696,6 +2700,7 @@ no specified format.
 
 Sets a `value` amount of tokens as the allowance of `spender` over the
 caller's tokens and then calls {IERC1363Spender-onApprovalReceived} on `spender`.
+Returns a flag that indicates if the call succeeded.
 
 Requirements:
 
@@ -2759,7 +2764,7 @@ Indicates a failure within the {approve} part of a approveAndCall operation.
 
 [.contract]
 [[ERC4626]]
-=== `++ERC4626++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/token/ERC20/extensions/ERC4626.sol[{github-icon},role=heading-link]
+=== `++ERC4626++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC20/extensions/ERC4626.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3096,7 +3101,7 @@ Attempted to redeem more shares than the max amount for `receiver`.
 
 [.contract]
 [[SafeERC20]]
-=== `++SafeERC20++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/token/ERC20/utils/SafeERC20.sol[{github-icon},role=heading-link]
+=== `++SafeERC20++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC20/utils/SafeERC20.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3235,7 +3240,7 @@ Indicates a failed `decreaseAllowance` request.
 
 [.contract]
 [[ERC1363Utils]]
-=== `++ERC1363Utils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/token/ERC20/utils/ERC1363Utils.sol[{github-icon},role=heading-link]
+=== `++ERC1363Utils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC20/utils/ERC1363Utils.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity

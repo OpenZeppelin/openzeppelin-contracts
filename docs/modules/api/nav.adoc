@@ -1,5 +1,6 @@
 .API
 * xref:access.adoc[Access]
+* xref:account.adoc[Account]
 * xref:token/common.adoc[Common (Tokens)]
 * xref:token/ERC20.adoc[ERC 20]
 * xref:token/ERC721.adoc[ERC 721]

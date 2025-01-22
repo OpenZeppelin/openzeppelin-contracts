@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (governance/extensions/GovernorPreventLateQuorum.sol)
+// OpenZeppelin Contracts (last updated v5.2.0) (governance/extensions/GovernorPreventLateQuorum.sol)
 
 pragma solidity ^0.8.20;
 
@@ -44,20 +44,12 @@ abstract contract GovernorPreventLateQuorum is Governor {
     }
 
     /**
-     * @dev Casts a vote and detects if it caused quorum to be reached, potentially extending the voting period. See
-     * {Governor-_castVote}.
+     * @dev Vote tally updated and detects if it caused quorum to be reached, potentially extending the voting period.
      *
      * May emit a {ProposalExtended} event.
      */
-    function _castVote(
-        uint256 proposalId,
-        address account,
-        uint8 support,
-        string memory reason,
-        bytes memory params
-    ) internal virtual override returns (uint256) {
-        uint256 result = super._castVote(proposalId, account, support, reason, params);
-
+    function _tallyUpdated(uint256 proposalId) internal virtual override {
+        super._tallyUpdated(proposalId);
         if (_extendedDeadlines[proposalId] == 0 && _quorumReached(proposalId)) {
             uint48 extendedDeadline = clock() + lateQuorumVoteExtension();
 
@@ -67,8 +59,6 @@ abstract contract GovernorPreventLateQuorum is Governor {
 
             _extendedDeadlines[proposalId] = extendedDeadline;
         }
-
-        return result;
     }
 
     /**

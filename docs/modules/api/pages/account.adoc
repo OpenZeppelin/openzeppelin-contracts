@@ -1,0 +1,479 @@
+:github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
+:xref-ERC4337Utils-parseValidationData-uint256-: xref:account.adoc#ERC4337Utils-parseValidationData-uint256-
+:xref-ERC4337Utils-packValidationData-address-uint48-uint48-: xref:account.adoc#ERC4337Utils-packValidationData-address-uint48-uint48-
+:xref-ERC4337Utils-packValidationData-bool-uint48-uint48-: xref:account.adoc#ERC4337Utils-packValidationData-bool-uint48-uint48-
+:xref-ERC4337Utils-combineValidationData-uint256-uint256-: xref:account.adoc#ERC4337Utils-combineValidationData-uint256-uint256-
+:xref-ERC4337Utils-getValidationData-uint256-: xref:account.adoc#ERC4337Utils-getValidationData-uint256-
+:xref-ERC4337Utils-hash-struct-PackedUserOperation-address-uint256-: xref:account.adoc#ERC4337Utils-hash-struct-PackedUserOperation-address-uint256-
+:xref-ERC4337Utils-factory-struct-PackedUserOperation-: xref:account.adoc#ERC4337Utils-factory-struct-PackedUserOperation-
+:xref-ERC4337Utils-factoryData-struct-PackedUserOperation-: xref:account.adoc#ERC4337Utils-factoryData-struct-PackedUserOperation-
+:xref-ERC4337Utils-verificationGasLimit-struct-PackedUserOperation-: xref:account.adoc#ERC4337Utils-verificationGasLimit-struct-PackedUserOperation-
+:xref-ERC4337Utils-callGasLimit-struct-PackedUserOperation-: xref:account.adoc#ERC4337Utils-callGasLimit-struct-PackedUserOperation-
+:xref-ERC4337Utils-maxPriorityFeePerGas-struct-PackedUserOperation-: xref:account.adoc#ERC4337Utils-maxPriorityFeePerGas-struct-PackedUserOperation-
+:xref-ERC4337Utils-maxFeePerGas-struct-PackedUserOperation-: xref:account.adoc#ERC4337Utils-maxFeePerGas-struct-PackedUserOperation-
+:xref-ERC4337Utils-gasPrice-struct-PackedUserOperation-: xref:account.adoc#ERC4337Utils-gasPrice-struct-PackedUserOperation-
+:xref-ERC4337Utils-paymaster-struct-PackedUserOperation-: xref:account.adoc#ERC4337Utils-paymaster-struct-PackedUserOperation-
+:xref-ERC4337Utils-paymasterVerificationGasLimit-struct-PackedUserOperation-: xref:account.adoc#ERC4337Utils-paymasterVerificationGasLimit-struct-PackedUserOperation-
+:xref-ERC4337Utils-paymasterPostOpGasLimit-struct-PackedUserOperation-: xref:account.adoc#ERC4337Utils-paymasterPostOpGasLimit-struct-PackedUserOperation-
+:xref-ERC4337Utils-paymasterData-struct-PackedUserOperation-: xref:account.adoc#ERC4337Utils-paymasterData-struct-PackedUserOperation-
+:xref-ERC4337Utils-SIG_VALIDATION_SUCCESS-uint256: xref:account.adoc#ERC4337Utils-SIG_VALIDATION_SUCCESS-uint256
+:xref-ERC4337Utils-SIG_VALIDATION_FAILED-uint256: xref:account.adoc#ERC4337Utils-SIG_VALIDATION_FAILED-uint256
+:PackedUserOperation: pass:normal[xref:interfaces.adoc#PackedUserOperation[`PackedUserOperation`]]
+:PackedUserOperation: pass:normal[xref:interfaces.adoc#PackedUserOperation[`PackedUserOperation`]]
+:PackedUserOperation: pass:normal[xref:interfaces.adoc#PackedUserOperation[`PackedUserOperation`]]
+:PackedUserOperation: pass:normal[xref:interfaces.adoc#PackedUserOperation[`PackedUserOperation`]]
+:PackedUserOperation: pass:normal[xref:interfaces.adoc#PackedUserOperation[`PackedUserOperation`]]
+:PackedUserOperation: pass:normal[xref:interfaces.adoc#PackedUserOperation[`PackedUserOperation`]]
+:PackedUserOperation: pass:normal[xref:interfaces.adoc#PackedUserOperation[`PackedUserOperation`]]
+:PackedUserOperation: pass:normal[xref:interfaces.adoc#PackedUserOperation[`PackedUserOperation`]]
+:PackedUserOperation: pass:normal[xref:interfaces.adoc#PackedUserOperation[`PackedUserOperation`]]
+:PackedUserOperation: pass:normal[xref:interfaces.adoc#PackedUserOperation[`PackedUserOperation`]]
+:PackedUserOperation: pass:normal[xref:interfaces.adoc#PackedUserOperation[`PackedUserOperation`]]
+:xref-ERC7579Utils-execSingle-bytes-ExecType-: xref:account.adoc#ERC7579Utils-execSingle-bytes-ExecType-
+:xref-ERC7579Utils-execBatch-bytes-ExecType-: xref:account.adoc#ERC7579Utils-execBatch-bytes-ExecType-
+:xref-ERC7579Utils-execDelegateCall-bytes-ExecType-: xref:account.adoc#ERC7579Utils-execDelegateCall-bytes-ExecType-
+:xref-ERC7579Utils-encodeMode-CallType-ExecType-ModeSelector-ModePayload-: xref:account.adoc#ERC7579Utils-encodeMode-CallType-ExecType-ModeSelector-ModePayload-
+:xref-ERC7579Utils-decodeMode-Mode-: xref:account.adoc#ERC7579Utils-decodeMode-Mode-
+:xref-ERC7579Utils-encodeSingle-address-uint256-bytes-: xref:account.adoc#ERC7579Utils-encodeSingle-address-uint256-bytes-
+:xref-ERC7579Utils-decodeSingle-bytes-: xref:account.adoc#ERC7579Utils-decodeSingle-bytes-
+:xref-ERC7579Utils-encodeDelegate-address-bytes-: xref:account.adoc#ERC7579Utils-encodeDelegate-address-bytes-
+:xref-ERC7579Utils-decodeDelegate-bytes-: xref:account.adoc#ERC7579Utils-decodeDelegate-bytes-
+:xref-ERC7579Utils-encodeBatch-struct-Execution---: xref:account.adoc#ERC7579Utils-encodeBatch-struct-Execution---
+:xref-ERC7579Utils-decodeBatch-bytes-: xref:account.adoc#ERC7579Utils-decodeBatch-bytes-
+:xref-ERC7579Utils-ERC7579TryExecuteFail-uint256-bytes-: xref:account.adoc#ERC7579Utils-ERC7579TryExecuteFail-uint256-bytes-
+:xref-ERC7579Utils-ERC7579UnsupportedCallType-CallType-: xref:account.adoc#ERC7579Utils-ERC7579UnsupportedCallType-CallType-
+:xref-ERC7579Utils-ERC7579UnsupportedExecType-ExecType-: xref:account.adoc#ERC7579Utils-ERC7579UnsupportedExecType-ExecType-
+:xref-ERC7579Utils-ERC7579MismatchedModuleTypeId-uint256-address-: xref:account.adoc#ERC7579Utils-ERC7579MismatchedModuleTypeId-uint256-address-
+:xref-ERC7579Utils-ERC7579UninstalledModule-uint256-address-: xref:account.adoc#ERC7579Utils-ERC7579UninstalledModule-uint256-address-
+:xref-ERC7579Utils-ERC7579AlreadyInstalledModule-uint256-address-: xref:account.adoc#ERC7579Utils-ERC7579AlreadyInstalledModule-uint256-address-
+:xref-ERC7579Utils-ERC7579UnsupportedModuleType-uint256-: xref:account.adoc#ERC7579Utils-ERC7579UnsupportedModuleType-uint256-
+:xref-ERC7579Utils-ERC7579DecodingError--: xref:account.adoc#ERC7579Utils-ERC7579DecodingError--
+:xref-ERC7579Utils-CALLTYPE_SINGLE-CallType: xref:account.adoc#ERC7579Utils-CALLTYPE_SINGLE-CallType
+:xref-ERC7579Utils-CALLTYPE_BATCH-CallType: xref:account.adoc#ERC7579Utils-CALLTYPE_BATCH-CallType
+:xref-ERC7579Utils-CALLTYPE_DELEGATECALL-CallType: xref:account.adoc#ERC7579Utils-CALLTYPE_DELEGATECALL-CallType
+:xref-ERC7579Utils-EXECTYPE_DEFAULT-ExecType: xref:account.adoc#ERC7579Utils-EXECTYPE_DEFAULT-ExecType
+:xref-ERC7579Utils-EXECTYPE_TRY-ExecType: xref:account.adoc#ERC7579Utils-EXECTYPE_TRY-ExecType
+:CallType: pass:normal[xref:account.adoc#CallType[`CallType`]]
+:ExecType: pass:normal[xref:account.adoc#ExecType[`ExecType`]]
+= Account
+
+[.readme-notice]
+NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/account
+
+This directory includes contracts to build accounts for ERC-4337.
+
+== Utilities
+
+:SIG_VALIDATION_SUCCESS: pass:normal[xref:#ERC4337Utils-SIG_VALIDATION_SUCCESS-uint256[`++SIG_VALIDATION_SUCCESS++`]]
+:SIG_VALIDATION_FAILED: pass:normal[xref:#ERC4337Utils-SIG_VALIDATION_FAILED-uint256[`++SIG_VALIDATION_FAILED++`]]
+:parseValidationData: pass:normal[xref:#ERC4337Utils-parseValidationData-uint256-[`++parseValidationData++`]]
+:packValidationData: pass:normal[xref:#ERC4337Utils-packValidationData-address-uint48-uint48-[`++packValidationData++`]]
+:packValidationData: pass:normal[xref:#ERC4337Utils-packValidationData-bool-uint48-uint48-[`++packValidationData++`]]
+:combineValidationData: pass:normal[xref:#ERC4337Utils-combineValidationData-uint256-uint256-[`++combineValidationData++`]]
+:getValidationData: pass:normal[xref:#ERC4337Utils-getValidationData-uint256-[`++getValidationData++`]]
+:hash: pass:normal[xref:#ERC4337Utils-hash-struct-PackedUserOperation-address-uint256-[`++hash++`]]
+:factory: pass:normal[xref:#ERC4337Utils-factory-struct-PackedUserOperation-[`++factory++`]]
+:factoryData: pass:normal[xref:#ERC4337Utils-factoryData-struct-PackedUserOperation-[`++factoryData++`]]
+:verificationGasLimit: pass:normal[xref:#ERC4337Utils-verificationGasLimit-struct-PackedUserOperation-[`++verificationGasLimit++`]]
+:callGasLimit: pass:normal[xref:#ERC4337Utils-callGasLimit-struct-PackedUserOperation-[`++callGasLimit++`]]
+:maxPriorityFeePerGas: pass:normal[xref:#ERC4337Utils-maxPriorityFeePerGas-struct-PackedUserOperation-[`++maxPriorityFeePerGas++`]]
+:maxFeePerGas: pass:normal[xref:#ERC4337Utils-maxFeePerGas-struct-PackedUserOperation-[`++maxFeePerGas++`]]
+:gasPrice: pass:normal[xref:#ERC4337Utils-gasPrice-struct-PackedUserOperation-[`++gasPrice++`]]
+:paymaster: pass:normal[xref:#ERC4337Utils-paymaster-struct-PackedUserOperation-[`++paymaster++`]]
+:paymasterVerificationGasLimit: pass:normal[xref:#ERC4337Utils-paymasterVerificationGasLimit-struct-PackedUserOperation-[`++paymasterVerificationGasLimit++`]]
+:paymasterPostOpGasLimit: pass:normal[xref:#ERC4337Utils-paymasterPostOpGasLimit-struct-PackedUserOperation-[`++paymasterPostOpGasLimit++`]]
+:paymasterData: pass:normal[xref:#ERC4337Utils-paymasterData-struct-PackedUserOperation-[`++paymasterData++`]]
+
+[.contract]
+[[ERC4337Utils]]
+=== `++ERC4337Utils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/account/utils/draft-ERC4337Utils.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/account/utils/draft-ERC4337Utils.sol";
+```
+
+Library with common ERC-4337 utility functions.
+
+See https://eips.ethereum.org/EIPS/eip-4337[ERC-4337].
+
+[.contract-index]
+.Functions
+--
+* {xref-ERC4337Utils-parseValidationData-uint256-}[`++parseValidationData(validationData)++`]
+* {xref-ERC4337Utils-packValidationData-address-uint48-uint48-}[`++packValidationData(aggregator, validAfter, validUntil)++`]
+* {xref-ERC4337Utils-packValidationData-bool-uint48-uint48-}[`++packValidationData(sigSuccess, validAfter, validUntil)++`]
+* {xref-ERC4337Utils-combineValidationData-uint256-uint256-}[`++combineValidationData(validationData1, validationData2)++`]
+* {xref-ERC4337Utils-getValidationData-uint256-}[`++getValidationData(validationData)++`]
+* {xref-ERC4337Utils-hash-struct-PackedUserOperation-address-uint256-}[`++hash(self, entrypoint, chainid)++`]
+* {xref-ERC4337Utils-factory-struct-PackedUserOperation-}[`++factory(self)++`]
+* {xref-ERC4337Utils-factoryData-struct-PackedUserOperation-}[`++factoryData(self)++`]
+* {xref-ERC4337Utils-verificationGasLimit-struct-PackedUserOperation-}[`++verificationGasLimit(self)++`]
+* {xref-ERC4337Utils-callGasLimit-struct-PackedUserOperation-}[`++callGasLimit(self)++`]
+* {xref-ERC4337Utils-maxPriorityFeePerGas-struct-PackedUserOperation-}[`++maxPriorityFeePerGas(self)++`]
+* {xref-ERC4337Utils-maxFeePerGas-struct-PackedUserOperation-}[`++maxFeePerGas(self)++`]
+* {xref-ERC4337Utils-gasPrice-struct-PackedUserOperation-}[`++gasPrice(self)++`]
+* {xref-ERC4337Utils-paymaster-struct-PackedUserOperation-}[`++paymaster(self)++`]
+* {xref-ERC4337Utils-paymasterVerificationGasLimit-struct-PackedUserOperation-}[`++paymasterVerificationGasLimit(self)++`]
+* {xref-ERC4337Utils-paymasterPostOpGasLimit-struct-PackedUserOperation-}[`++paymasterPostOpGasLimit(self)++`]
+* {xref-ERC4337Utils-paymasterData-struct-PackedUserOperation-}[`++paymasterData(self)++`]
+
+--
+
+[.contract-index]
+.Internal Variables
+--
+* {xref-ERC4337Utils-SIG_VALIDATION_SUCCESS-uint256}[`++uint256 constant SIG_VALIDATION_SUCCESS++`]
+* {xref-ERC4337Utils-SIG_VALIDATION_FAILED-uint256}[`++uint256 constant SIG_VALIDATION_FAILED++`]
+
+--
+
+[.contract-item]
+[[ERC4337Utils-parseValidationData-uint256-]]
+==== `[.contract-item-name]#++parseValidationData++#++(uint256 validationData) → address aggregator, uint48 validAfter, uint48 validUntil++` [.item-kind]#internal#
+
+Parses the validation data into its components. See {packValidationData}.
+
+[.contract-item]
+[[ERC4337Utils-packValidationData-address-uint48-uint48-]]
+==== `[.contract-item-name]#++packValidationData++#++(address aggregator, uint48 validAfter, uint48 validUntil) → uint256++` [.item-kind]#internal#
+
+Packs the validation data into a single uint256. See {parseValidationData}.
+
+[.contract-item]
+[[ERC4337Utils-packValidationData-bool-uint48-uint48-]]
+==== `[.contract-item-name]#++packValidationData++#++(bool sigSuccess, uint48 validAfter, uint48 validUntil) → uint256++` [.item-kind]#internal#
+
+Same as {packValidationData}, but with a boolean signature success flag.
+
+[.contract-item]
+[[ERC4337Utils-combineValidationData-uint256-uint256-]]
+==== `[.contract-item-name]#++combineValidationData++#++(uint256 validationData1, uint256 validationData2) → uint256++` [.item-kind]#internal#
+
+Combines two validation data into a single one.
+
+The `aggregator` is set to {SIG_VALIDATION_SUCCESS} if both are successful, while
+the `validAfter` is the maximum and the `validUntil` is the minimum of both.
+
+[.contract-item]
+[[ERC4337Utils-getValidationData-uint256-]]
+==== `[.contract-item-name]#++getValidationData++#++(uint256 validationData) → address aggregator, bool outOfTimeRange++` [.item-kind]#internal#
+
+Returns the aggregator of the `validationData` and whether it is out of time range.
+
+[.contract-item]
+[[ERC4337Utils-hash-struct-PackedUserOperation-address-uint256-]]
+==== `[.contract-item-name]#++hash++#++(struct PackedUserOperation self, address entrypoint, uint256 chainid) → bytes32++` [.item-kind]#internal#
+
+Computes the hash of a user operation for a given entrypoint and chainid.
+
+[.contract-item]
+[[ERC4337Utils-factory-struct-PackedUserOperation-]]
+==== `[.contract-item-name]#++factory++#++(struct PackedUserOperation self) → address++` [.item-kind]#internal#
+
+Returns `factory` from the {PackedUserOperation}, or address(0) if the initCode is empty or not properly formatted.
+
+[.contract-item]
+[[ERC4337Utils-factoryData-struct-PackedUserOperation-]]
+==== `[.contract-item-name]#++factoryData++#++(struct PackedUserOperation self) → bytes++` [.item-kind]#internal#
+
+Returns `factoryData` from the {PackedUserOperation}, or empty bytes if the initCode is empty or not properly formatted.
+
+[.contract-item]
+[[ERC4337Utils-verificationGasLimit-struct-PackedUserOperation-]]
+==== `[.contract-item-name]#++verificationGasLimit++#++(struct PackedUserOperation self) → uint256++` [.item-kind]#internal#
+
+Returns `verificationGasLimit` from the {PackedUserOperation}.
+
+[.contract-item]
+[[ERC4337Utils-callGasLimit-struct-PackedUserOperation-]]
+==== `[.contract-item-name]#++callGasLimit++#++(struct PackedUserOperation self) → uint256++` [.item-kind]#internal#
+
+Returns `callGasLimit` from the {PackedUserOperation}.
+
+[.contract-item]
+[[ERC4337Utils-maxPriorityFeePerGas-struct-PackedUserOperation-]]
+==== `[.contract-item-name]#++maxPriorityFeePerGas++#++(struct PackedUserOperation self) → uint256++` [.item-kind]#internal#
+
+Returns the first section of `gasFees` from the {PackedUserOperation}.
+
+[.contract-item]
+[[ERC4337Utils-maxFeePerGas-struct-PackedUserOperation-]]
+==== `[.contract-item-name]#++maxFeePerGas++#++(struct PackedUserOperation self) → uint256++` [.item-kind]#internal#
+
+Returns the second section of `gasFees` from the {PackedUserOperation}.
+
+[.contract-item]
+[[ERC4337Utils-gasPrice-struct-PackedUserOperation-]]
+==== `[.contract-item-name]#++gasPrice++#++(struct PackedUserOperation self) → uint256++` [.item-kind]#internal#
+
+Returns the total gas price for the {PackedUserOperation} (ie. `maxFeePerGas` or `maxPriorityFeePerGas + basefee`).
+
+[.contract-item]
+[[ERC4337Utils-paymaster-struct-PackedUserOperation-]]
+==== `[.contract-item-name]#++paymaster++#++(struct PackedUserOperation self) → address++` [.item-kind]#internal#
+
+Returns the first section of `paymasterAndData` from the {PackedUserOperation}.
+
+[.contract-item]
+[[ERC4337Utils-paymasterVerificationGasLimit-struct-PackedUserOperation-]]
+==== `[.contract-item-name]#++paymasterVerificationGasLimit++#++(struct PackedUserOperation self) → uint256++` [.item-kind]#internal#
+
+Returns the second section of `paymasterAndData` from the {PackedUserOperation}.
+
+[.contract-item]
+[[ERC4337Utils-paymasterPostOpGasLimit-struct-PackedUserOperation-]]
+==== `[.contract-item-name]#++paymasterPostOpGasLimit++#++(struct PackedUserOperation self) → uint256++` [.item-kind]#internal#
+
+Returns the third section of `paymasterAndData` from the {PackedUserOperation}.
+
+[.contract-item]
+[[ERC4337Utils-paymasterData-struct-PackedUserOperation-]]
+==== `[.contract-item-name]#++paymasterData++#++(struct PackedUserOperation self) → bytes++` [.item-kind]#internal#
+
+Returns the fourth section of `paymasterAndData` from the {PackedUserOperation}.
+
+[.contract-item]
+[[ERC4337Utils-SIG_VALIDATION_SUCCESS-uint256]]
+==== `uint256 [.contract-item-name]#++SIG_VALIDATION_SUCCESS++#` [.item-kind]#internal constant#
+
+For simulation purposes, validateUserOp (and validatePaymasterUserOp) return this value on success.
+
+[.contract-item]
+[[ERC4337Utils-SIG_VALIDATION_FAILED-uint256]]
+==== `uint256 [.contract-item-name]#++SIG_VALIDATION_FAILED++#` [.item-kind]#internal constant#
+
+For simulation purposes, validateUserOp (and validatePaymasterUserOp) must return this value in case of signature failure, instead of revert.
+
+:CALLTYPE_SINGLE: pass:normal[xref:#ERC7579Utils-CALLTYPE_SINGLE-CallType[`++CALLTYPE_SINGLE++`]]
+:CALLTYPE_BATCH: pass:normal[xref:#ERC7579Utils-CALLTYPE_BATCH-CallType[`++CALLTYPE_BATCH++`]]
+:CALLTYPE_DELEGATECALL: pass:normal[xref:#ERC7579Utils-CALLTYPE_DELEGATECALL-CallType[`++CALLTYPE_DELEGATECALL++`]]
+:EXECTYPE_DEFAULT: pass:normal[xref:#ERC7579Utils-EXECTYPE_DEFAULT-ExecType[`++EXECTYPE_DEFAULT++`]]
+:EXECTYPE_TRY: pass:normal[xref:#ERC7579Utils-EXECTYPE_TRY-ExecType[`++EXECTYPE_TRY++`]]
+:ERC7579TryExecuteFail: pass:normal[xref:#ERC7579Utils-ERC7579TryExecuteFail-uint256-bytes-[`++ERC7579TryExecuteFail++`]]
+:ERC7579UnsupportedCallType: pass:normal[xref:#ERC7579Utils-ERC7579UnsupportedCallType-CallType-[`++ERC7579UnsupportedCallType++`]]
+:ERC7579UnsupportedExecType: pass:normal[xref:#ERC7579Utils-ERC7579UnsupportedExecType-ExecType-[`++ERC7579UnsupportedExecType++`]]
+:ERC7579MismatchedModuleTypeId: pass:normal[xref:#ERC7579Utils-ERC7579MismatchedModuleTypeId-uint256-address-[`++ERC7579MismatchedModuleTypeId++`]]
+:ERC7579UninstalledModule: pass:normal[xref:#ERC7579Utils-ERC7579UninstalledModule-uint256-address-[`++ERC7579UninstalledModule++`]]
+:ERC7579AlreadyInstalledModule: pass:normal[xref:#ERC7579Utils-ERC7579AlreadyInstalledModule-uint256-address-[`++ERC7579AlreadyInstalledModule++`]]
+:ERC7579UnsupportedModuleType: pass:normal[xref:#ERC7579Utils-ERC7579UnsupportedModuleType-uint256-[`++ERC7579UnsupportedModuleType++`]]
+:ERC7579DecodingError: pass:normal[xref:#ERC7579Utils-ERC7579DecodingError--[`++ERC7579DecodingError++`]]
+:execSingle: pass:normal[xref:#ERC7579Utils-execSingle-bytes-ExecType-[`++execSingle++`]]
+:execBatch: pass:normal[xref:#ERC7579Utils-execBatch-bytes-ExecType-[`++execBatch++`]]
+:execDelegateCall: pass:normal[xref:#ERC7579Utils-execDelegateCall-bytes-ExecType-[`++execDelegateCall++`]]
+:encodeMode: pass:normal[xref:#ERC7579Utils-encodeMode-CallType-ExecType-ModeSelector-ModePayload-[`++encodeMode++`]]
+:decodeMode: pass:normal[xref:#ERC7579Utils-decodeMode-Mode-[`++decodeMode++`]]
+:encodeSingle: pass:normal[xref:#ERC7579Utils-encodeSingle-address-uint256-bytes-[`++encodeSingle++`]]
+:decodeSingle: pass:normal[xref:#ERC7579Utils-decodeSingle-bytes-[`++decodeSingle++`]]
+:encodeDelegate: pass:normal[xref:#ERC7579Utils-encodeDelegate-address-bytes-[`++encodeDelegate++`]]
+:decodeDelegate: pass:normal[xref:#ERC7579Utils-decodeDelegate-bytes-[`++decodeDelegate++`]]
+:encodeBatch: pass:normal[xref:#ERC7579Utils-encodeBatch-struct-Execution---[`++encodeBatch++`]]
+:decodeBatch: pass:normal[xref:#ERC7579Utils-decodeBatch-bytes-[`++decodeBatch++`]]
+
+[.contract]
+[[ERC7579Utils]]
+=== `++ERC7579Utils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/account/utils/draft-ERC7579Utils.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/account/utils/draft-ERC7579Utils.sol";
+```
+
+Library with common ERC-7579 utility functions.
+
+See https://eips.ethereum.org/EIPS/eip-7579[ERC-7579].
+
+[.contract-index]
+.Functions
+--
+* {xref-ERC7579Utils-execSingle-bytes-ExecType-}[`++execSingle(executionCalldata, execType)++`]
+* {xref-ERC7579Utils-execBatch-bytes-ExecType-}[`++execBatch(executionCalldata, execType)++`]
+* {xref-ERC7579Utils-execDelegateCall-bytes-ExecType-}[`++execDelegateCall(executionCalldata, execType)++`]
+* {xref-ERC7579Utils-encodeMode-CallType-ExecType-ModeSelector-ModePayload-}[`++encodeMode(callType, execType, selector, payload)++`]
+* {xref-ERC7579Utils-decodeMode-Mode-}[`++decodeMode(mode)++`]
+* {xref-ERC7579Utils-encodeSingle-address-uint256-bytes-}[`++encodeSingle(target, value, callData)++`]
+* {xref-ERC7579Utils-decodeSingle-bytes-}[`++decodeSingle(executionCalldata)++`]
+* {xref-ERC7579Utils-encodeDelegate-address-bytes-}[`++encodeDelegate(target, callData)++`]
+* {xref-ERC7579Utils-decodeDelegate-bytes-}[`++decodeDelegate(executionCalldata)++`]
+* {xref-ERC7579Utils-encodeBatch-struct-Execution---}[`++encodeBatch(executionBatch)++`]
+* {xref-ERC7579Utils-decodeBatch-bytes-}[`++decodeBatch(executionCalldata)++`]
+
+--
+
+[.contract-index]
+.Events
+--
+* {xref-ERC7579Utils-ERC7579TryExecuteFail-uint256-bytes-}[`++ERC7579TryExecuteFail(batchExecutionIndex, returndata)++`]
+
+--
+
+[.contract-index]
+.Errors
+--
+* {xref-ERC7579Utils-ERC7579UnsupportedCallType-CallType-}[`++ERC7579UnsupportedCallType(callType)++`]
+* {xref-ERC7579Utils-ERC7579UnsupportedExecType-ExecType-}[`++ERC7579UnsupportedExecType(execType)++`]
+* {xref-ERC7579Utils-ERC7579MismatchedModuleTypeId-uint256-address-}[`++ERC7579MismatchedModuleTypeId(moduleTypeId, module)++`]
+* {xref-ERC7579Utils-ERC7579UninstalledModule-uint256-address-}[`++ERC7579UninstalledModule(moduleTypeId, module)++`]
+* {xref-ERC7579Utils-ERC7579AlreadyInstalledModule-uint256-address-}[`++ERC7579AlreadyInstalledModule(moduleTypeId, module)++`]
+* {xref-ERC7579Utils-ERC7579UnsupportedModuleType-uint256-}[`++ERC7579UnsupportedModuleType(moduleTypeId)++`]
+* {xref-ERC7579Utils-ERC7579DecodingError--}[`++ERC7579DecodingError()++`]
+
+--
+
+[.contract-index]
+.Internal Variables
+--
+* {xref-ERC7579Utils-CALLTYPE_SINGLE-CallType}[`++CallType constant CALLTYPE_SINGLE++`]
+* {xref-ERC7579Utils-CALLTYPE_BATCH-CallType}[`++CallType constant CALLTYPE_BATCH++`]
+* {xref-ERC7579Utils-CALLTYPE_DELEGATECALL-CallType}[`++CallType constant CALLTYPE_DELEGATECALL++`]
+* {xref-ERC7579Utils-EXECTYPE_DEFAULT-ExecType}[`++ExecType constant EXECTYPE_DEFAULT++`]
+* {xref-ERC7579Utils-EXECTYPE_TRY-ExecType}[`++ExecType constant EXECTYPE_TRY++`]
+
+--
+
+[.contract-item]
+[[ERC7579Utils-execSingle-bytes-ExecType-]]
+==== `[.contract-item-name]#++execSingle++#++(bytes executionCalldata, ExecType execType) → bytes[] returnData++` [.item-kind]#internal#
+
+Executes a single call.
+
+[.contract-item]
+[[ERC7579Utils-execBatch-bytes-ExecType-]]
+==== `[.contract-item-name]#++execBatch++#++(bytes executionCalldata, ExecType execType) → bytes[] returnData++` [.item-kind]#internal#
+
+Executes a batch of calls.
+
+[.contract-item]
+[[ERC7579Utils-execDelegateCall-bytes-ExecType-]]
+==== `[.contract-item-name]#++execDelegateCall++#++(bytes executionCalldata, ExecType execType) → bytes[] returnData++` [.item-kind]#internal#
+
+Executes a delegate call.
+
+[.contract-item]
+[[ERC7579Utils-encodeMode-CallType-ExecType-ModeSelector-ModePayload-]]
+==== `[.contract-item-name]#++encodeMode++#++(CallType callType, ExecType execType, ModeSelector selector, ModePayload payload) → Mode mode++` [.item-kind]#internal#
+
+Encodes the mode with the provided parameters. See {decodeMode}.
+
+[.contract-item]
+[[ERC7579Utils-decodeMode-Mode-]]
+==== `[.contract-item-name]#++decodeMode++#++(Mode mode) → CallType callType, ExecType execType, ModeSelector selector, ModePayload payload++` [.item-kind]#internal#
+
+Decodes the mode into its parameters. See {encodeMode}.
+
+[.contract-item]
+[[ERC7579Utils-encodeSingle-address-uint256-bytes-]]
+==== `[.contract-item-name]#++encodeSingle++#++(address target, uint256 value, bytes callData) → bytes executionCalldata++` [.item-kind]#internal#
+
+Encodes a single call execution. See {decodeSingle}.
+
+[.contract-item]
+[[ERC7579Utils-decodeSingle-bytes-]]
+==== `[.contract-item-name]#++decodeSingle++#++(bytes executionCalldata) → address target, uint256 value, bytes callData++` [.item-kind]#internal#
+
+Decodes a single call execution. See {encodeSingle}.
+
+[.contract-item]
+[[ERC7579Utils-encodeDelegate-address-bytes-]]
+==== `[.contract-item-name]#++encodeDelegate++#++(address target, bytes callData) → bytes executionCalldata++` [.item-kind]#internal#
+
+Encodes a delegate call execution. See {decodeDelegate}.
+
+[.contract-item]
+[[ERC7579Utils-decodeDelegate-bytes-]]
+==== `[.contract-item-name]#++decodeDelegate++#++(bytes executionCalldata) → address target, bytes callData++` [.item-kind]#internal#
+
+Decodes a delegate call execution. See {encodeDelegate}.
+
+[.contract-item]
+[[ERC7579Utils-encodeBatch-struct-Execution---]]
+==== `[.contract-item-name]#++encodeBatch++#++(struct Execution[] executionBatch) → bytes executionCalldata++` [.item-kind]#internal#
+
+Encodes a batch of executions. See {decodeBatch}.
+
+[.contract-item]
+[[ERC7579Utils-decodeBatch-bytes-]]
+==== `[.contract-item-name]#++decodeBatch++#++(bytes executionCalldata) → struct Execution[] executionBatch++` [.item-kind]#internal#
+
+Decodes a batch of executions. See {encodeBatch}.
+
+NOTE: This function runs some checks and will throw a {ERC7579DecodingError} if the input is not properly formatted.
+
+[.contract-item]
+[[ERC7579Utils-ERC7579TryExecuteFail-uint256-bytes-]]
+==== `[.contract-item-name]#++ERC7579TryExecuteFail++#++(uint256 batchExecutionIndex, bytes returndata)++` [.item-kind]#event#
+
+Emits when an {EXECTYPE_TRY} execution fails.
+
+[.contract-item]
+[[ERC7579Utils-ERC7579UnsupportedCallType-CallType-]]
+==== `[.contract-item-name]#++ERC7579UnsupportedCallType++#++(CallType callType)++` [.item-kind]#error#
+
+The provided {CallType} is not supported.
+
+[.contract-item]
+[[ERC7579Utils-ERC7579UnsupportedExecType-ExecType-]]
+==== `[.contract-item-name]#++ERC7579UnsupportedExecType++#++(ExecType execType)++` [.item-kind]#error#
+
+The provided {ExecType} is not supported.
+
+[.contract-item]
+[[ERC7579Utils-ERC7579MismatchedModuleTypeId-uint256-address-]]
+==== `[.contract-item-name]#++ERC7579MismatchedModuleTypeId++#++(uint256 moduleTypeId, address module)++` [.item-kind]#error#
+
+The provided module doesn't match the provided module type.
+
+[.contract-item]
+[[ERC7579Utils-ERC7579UninstalledModule-uint256-address-]]
+==== `[.contract-item-name]#++ERC7579UninstalledModule++#++(uint256 moduleTypeId, address module)++` [.item-kind]#error#
+
+The module is not installed.
+
+[.contract-item]
+[[ERC7579Utils-ERC7579AlreadyInstalledModule-uint256-address-]]
+==== `[.contract-item-name]#++ERC7579AlreadyInstalledModule++#++(uint256 moduleTypeId, address module)++` [.item-kind]#error#
+
+The module is already installed.
+
+[.contract-item]
+[[ERC7579Utils-ERC7579UnsupportedModuleType-uint256-]]
+==== `[.contract-item-name]#++ERC7579UnsupportedModuleType++#++(uint256 moduleTypeId)++` [.item-kind]#error#
+
+The module type is not supported.
+
+[.contract-item]
+[[ERC7579Utils-ERC7579DecodingError--]]
+==== `[.contract-item-name]#++ERC7579DecodingError++#++()++` [.item-kind]#error#
+
+Input calldata not properly formatted and possibly malicious.
+
+[.contract-item]
+[[ERC7579Utils-CALLTYPE_SINGLE-CallType]]
+==== `CallType [.contract-item-name]#++CALLTYPE_SINGLE++#` [.item-kind]#internal constant#
+
+A single `call` execution.
+
+[.contract-item]
+[[ERC7579Utils-CALLTYPE_BATCH-CallType]]
+==== `CallType [.contract-item-name]#++CALLTYPE_BATCH++#` [.item-kind]#internal constant#
+
+A batch of `call` executions.
+
+[.contract-item]
+[[ERC7579Utils-CALLTYPE_DELEGATECALL-CallType]]
+==== `CallType [.contract-item-name]#++CALLTYPE_DELEGATECALL++#` [.item-kind]#internal constant#
+
+A `delegatecall` execution.
+
+[.contract-item]
+[[ERC7579Utils-EXECTYPE_DEFAULT-ExecType]]
+==== `ExecType [.contract-item-name]#++EXECTYPE_DEFAULT++#` [.item-kind]#internal constant#
+
+Default execution type that reverts on failure.
+
+[.contract-item]
+[[ERC7579Utils-EXECTYPE_TRY-ExecType]]
+==== `ExecType [.contract-item-name]#++EXECTYPE_TRY++#` [.item-kind]#internal constant#
+
+Execution type that does not revert on failure.
+

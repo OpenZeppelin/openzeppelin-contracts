@@ -54,7 +54,7 @@ This directory includes contracts for adding meta-transaction capabilities (i.e.
 
 [.contract]
 [[ERC2771Context]]
-=== `++ERC2771Context++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/metatx/ERC2771Context.sol[{github-icon},role=heading-link]
+=== `++ERC2771Context++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/metatx/ERC2771Context.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -142,7 +142,7 @@ ERC-2771 specifies the context as being a single address (20 bytes).
 
 [.contract]
 [[ERC2771Forwarder]]
-=== `++ERC2771Forwarder++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.1.0/contracts/metatx/ERC2771Forwarder.sol[{github-icon},role=heading-link]
+=== `++ERC2771Forwarder++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/metatx/ERC2771Forwarder.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity

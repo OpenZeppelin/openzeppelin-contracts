@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.1.0) (proxy/utils/UUPSUpgradeable.sol)
+// OpenZeppelin Contracts (last updated v5.2.0) (proxy/utils/UUPSUpgradeable.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.22;
 
 import {IERC1822Proxiable} from "../../interfaces/draft-IERC1822.sol";
 import {ERC1967Utils} from "../ERC1967/ERC1967Utils.sol";

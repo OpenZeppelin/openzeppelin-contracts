@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.1.0) (governance/utils/Votes.sol)
+// OpenZeppelin Contracts (last updated v5.2.0) (governance/utils/Votes.sol)
 pragma solidity ^0.8.20;
 
 import {IERC5805} from "../../interfaces/IERC5805.sol";
@@ -72,6 +72,15 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
     }
 
     /**
+     * @dev Validate that a timepoint is in the past, and return it as a uint48.
+     */
+    function _validateTimepoint(uint256 timepoint) internal view returns (uint48) {
+        uint48 currentTimepoint = clock();
+        if (timepoint >= currentTimepoint) revert ERC5805FutureLookup(timepoint, currentTimepoint);
+        return SafeCast.toUint48(timepoint);
+    }
+
+    /**
      * @dev Returns the current amount of votes that `account` has.
      */
     function getVotes(address account) public view virtual returns (uint256) {
@@ -87,11 +96,7 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
      * - `timepoint` must be in the past. If operating using block numbers, the block must be already mined.
      */
     function getPastVotes(address account, uint256 timepoint) public view virtual returns (uint256) {
-        uint48 currentTimepoint = clock();
-        if (timepoint >= currentTimepoint) {
-            revert ERC5805FutureLookup(timepoint, currentTimepoint);
-        }
-        return _delegateCheckpoints[account].upperLookupRecent(SafeCast.toUint48(timepoint));
+        return _delegateCheckpoints[account].upperLookupRecent(_validateTimepoint(timepoint));
     }
 
     /**
@@ -107,11 +112,7 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
      * - `timepoint` must be in the past. If operating using block numbers, the block must be already mined.
      */
     function getPastTotalSupply(uint256 timepoint) public view virtual returns (uint256) {
-        uint48 currentTimepoint = clock();
-        if (timepoint >= currentTimepoint) {
-            revert ERC5805FutureLookup(timepoint, currentTimepoint);
-        }
-        return _totalCheckpoints.upperLookupRecent(SafeCast.toUint48(timepoint));
+        return _totalCheckpoints.upperLookupRecent(_validateTimepoint(timepoint));
     }
 
     /**

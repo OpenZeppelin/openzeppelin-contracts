@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.1.0) (governance/Governor.sol)
+// OpenZeppelin Contracts (last updated v5.2.0) (governance/Governor.sol)
 
 pragma solidity ^0.8.20;
 
@@ -13,6 +13,7 @@ import {DoubleEndedQueue} from "../utils/structs/DoubleEndedQueue.sol";
 import {Address} from "../utils/Address.sol";
 import {Context} from "../utils/Context.sol";
 import {Nonces} from "../utils/Nonces.sol";
+import {Strings} from "../utils/Strings.sol";
 import {IGovernor, IERC6372} from "./IGovernor.sol";
 
 /**
@@ -258,6 +259,13 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         uint256 totalWeight,
         bytes memory params
     ) internal virtual returns (uint256);
+
+    /**
+     * @dev Hook that should be called every time the tally for a proposal is updated.
+     *
+     * Note: This function must run successfully. Reverts will result in the bricking of governance
+     */
+    function _tallyUpdated(uint256 proposalId) internal virtual {}
 
     /**
      * @dev Default additional encoded parameters used by castVote methods that don't include them
@@ -648,6 +656,8 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
             emit VoteCastWithParams(account, proposalId, support, votedWeight, reason, params);
         }
 
+        _tallyUpdated(proposalId);
+
         return votedWeight;
     }
 
@@ -731,7 +741,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
      *
      * If requirements are not met, reverts with a {GovernorUnexpectedProposalState} error.
      */
-    function _validateStateBitmap(uint256 proposalId, bytes32 allowedStates) private view returns (ProposalState) {
+    function _validateStateBitmap(uint256 proposalId, bytes32 allowedStates) internal view returns (ProposalState) {
         ProposalState currentState = state(proposalId);
         if (_encodeStateBitmap(currentState) & allowedStates == bytes32(0)) {
             revert GovernorUnexpectedProposalState(proposalId, currentState, allowedStates);
@@ -760,67 +770,25 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         address proposer,
         string memory description
     ) internal view virtual returns (bool) {
-        uint256 len = bytes(description).length;
+        unchecked {
+            uint256 length = bytes(description).length;
 
-        // Length is too short to contain a valid proposer suffix
-        if (len < 52) {
-            return true;
-        }
-
-        // Extract what would be the `#proposer=0x` marker beginning the suffix
-        bytes12 marker;
-        assembly ("memory-safe") {
-            // - Start of the string contents in memory = description + 32
-            // - First character of the marker = len - 52
-            //   - Length of "#proposer=0x0000000000000000000000000000000000000000" = 52
-            // - We read the memory word starting at the first character of the marker:
-            //   - (description + 32) + (len - 52) = description + (len - 20)
-            // - Note: Solidity will ignore anything past the first 12 bytes
-            marker := mload(add(description, sub(len, 20)))
-        }
-
-        // If the marker is not found, there is no proposer suffix to check
-        if (marker != bytes12("#proposer=0x")) {
-            return true;
-        }
-
-        // Parse the 40 characters following the marker as uint160
-        uint160 recovered = 0;
-        for (uint256 i = len - 40; i < len; ++i) {
-            (bool isHex, uint8 value) = _tryHexToUint(bytes(description)[i]);
-            // If any of the characters is not a hex digit, ignore the suffix entirely
-            if (!isHex) {
+            // Length is too short to contain a valid proposer suffix
+            if (length < 52) {
                 return true;
             }
-            recovered = (recovered << 4) | value;
-        }
 
-        return recovered == uint160(proposer);
-    }
+            // Extract what would be the `#proposer=` marker beginning the suffix
+            bytes10 marker = bytes10(_unsafeReadBytesOffset(bytes(description), length - 52));
 
-    /**
-     * @dev Try to parse a character from a string as a hex value. Returns `(true, value)` if the char is in
-     * `[0-9a-fA-F]` and `(false, 0)` otherwise. Value is guaranteed to be in the range `0 <= value < 16`
-     */
-    function _tryHexToUint(bytes1 char) private pure returns (bool isHex, uint8 value) {
-        uint8 c = uint8(char);
-        unchecked {
-            // Case 0-9
-            if (47 < c && c < 58) {
-                return (true, c - 48);
+            // If the marker is not found, there is no proposer suffix to check
+            if (marker != bytes10("#proposer=")) {
+                return true;
             }
-            // Case A-F
-            else if (64 < c && c < 71) {
-                return (true, c - 55);
-            }
-            // Case a-f
-            else if (96 < c && c < 103) {
-                return (true, c - 87);
-            }
-            // Else: not a hex char
-            else {
-                return (false, 0);
-            }
+
+            // Check that the last 42 characters (after the marker) are a properly formatted address.
+            (bool success, address recovered) = Strings.tryParseAddress(description, length - 42, length);
+            return !success || recovered == proposer;
         }
     }
 
@@ -849,4 +817,17 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
      * @inheritdoc IGovernor
      */
     function quorum(uint256 timepoint) public view virtual returns (uint256);
+
+    /**
+     * @dev Reads a bytes32 from a bytes array without bounds checking.
+     *
+     * NOTE: making this function internal would mean it could be used with memory unsafe offset, and marking the
+     * assembly block as such would prevent some optimizations.
+     */
+    function _unsafeReadBytesOffset(bytes memory buffer, uint256 offset) private pure returns (bytes32 value) {
+        // This is not memory safe in the general case, but all calls to this private function are within bounds.
+        assembly ("memory-safe") {
+            value := mload(add(buffer, add(0x20, offset)))
+        }
+    }
 }
