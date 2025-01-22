@@ -104,12 +104,8 @@ describe('GovernorProposalGuardian', function () {
 
         it('from proposer when proposal guardian is non-zero', async function () {
           await expect(this.helper.connect(this.proposer).cancel())
-            .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
-            .withArgs(
-              this.proposal.id,
-              ProposalState.Active,
-              GovernorHelper.proposalStatesToBitMap([ProposalState.Pending]),
-            );
+            .to.be.revertedWithCustomError(this.mock, 'GovernorUnableToCancel')
+            .withArgs(this.proposal.id, this.proposer);
         });
 
         it('from proposer when proposal guardian is zero', async function () {

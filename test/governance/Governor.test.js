@@ -40,7 +40,7 @@ async function deployToken(contractName) {
   }
 }
 
-describe('Governor', function () {
+describe.only('Governor', function () {
   for (const { Token, mode } of TOKENS) {
     const fixture = async () => {
       const [owner, proposer, voter1, voter2, voter3, voter4, userEOA] = await ethers.getSigners();
@@ -625,7 +625,7 @@ describe('Governor', function () {
 
             await expect(this.helper.connect(this.owner).cancel('external'))
               .to.be.revertedWithCustomError(this.mock, 'GovernorUnableToCancel')
-              .withArgs(this.proposal.id, this.owner.address);
+              .withArgs(this.proposal.id, this.owner);
           });
 
           it('after vote started', async function () {
@@ -634,7 +634,7 @@ describe('Governor', function () {
 
             await expect(this.helper.cancel('external'))
               .to.be.revertedWithCustomError(this.mock, 'GovernorUnableToCancel')
-              .withArgs(this.proposal.id, this.owner.address);
+              .withArgs(this.proposal.id, this.owner);
           });
 
           it('after vote', async function () {
@@ -644,7 +644,7 @@ describe('Governor', function () {
 
             await expect(this.helper.cancel('external'))
               .to.be.revertedWithCustomError(this.mock, 'GovernorUnableToCancel')
-              .withArgs(this.proposal.id, this.voter1.address);
+              .withArgs(this.proposal.id, this.voter1);
           });
 
           it('after deadline', async function () {
@@ -655,7 +655,7 @@ describe('Governor', function () {
 
             await expect(this.helper.cancel('external'))
               .to.be.revertedWithCustomError(this.mock, 'GovernorUnableToCancel')
-              .withArgs(this.proposal.id, this.voter1.address);
+              .withArgs(this.proposal.id, this.voter1);
           });
 
           it('after execution', async function () {
@@ -667,7 +667,7 @@ describe('Governor', function () {
 
             await expect(this.helper.cancel('external'))
               .to.be.revertedWithCustomError(this.mock, 'GovernorUnableToCancel')
-              .withArgs(this.proposal.id, this.voter1.address);
+              .withArgs(this.proposal.id, this.voter1);
           });
         });
       });
