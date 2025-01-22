@@ -23,12 +23,12 @@ contract ERC6909ContentURI is ERC6909, IERC6909ContentURI {
     event MetadataUpdate(uint256 _tokenId);
 
     /// @inheritdoc IERC6909ContentURI
-    function contractURI() external view virtual override returns (string memory) {
+    function contractURI() public view virtual override returns (string memory) {
         return _contractURI;
     }
 
     /// @inheritdoc IERC6909ContentURI
-    function tokenURI(uint256 id) external view virtual override returns (string memory) {
+    function tokenURI(uint256 id) public view virtual override returns (string memory) {
         return _tokenURIs[id];
     }
 
