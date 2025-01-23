@@ -73,15 +73,10 @@ describe('MerkleTree', function () {
   });
 
   describe('update', function () {
-    for (const [i, { leafCount, leafIndex }] of Object.entries([
-      { leafCount: 1, leafIndex: 0 },
-      { leafCount: 3, leafIndex: 0 },
-      { leafCount: 3, leafIndex: 1 },
-      { leafCount: 3, leafIndex: 2 },
-      { leafCount: 9, leafIndex: 3 },
-      { leafCount: 16, leafIndex: 7 },
-    ]))
-      it(`tree is correctly updated (case ${i})`, async function () {
+    for (const { leafCount, leafIndex } of range(2 ** DEPTH + 1).flatMap(leafCount =>
+      range(leafCount).map(leafIndex => ({ leafCount, leafIndex })),
+    ))
+      it(`tree is correctly updated (update leaf #${leafIndex + 1}/${leafCount})`, async function () {
         // initial tree
         const leaves = Array.from({ length: leafCount }, generators.bytes32);
         const oldTree = makeTree(leaves);
@@ -107,14 +102,14 @@ describe('MerkleTree', function () {
         // verify updated root
         await expect(this.mock.root()).to.eventually.equal(newTree.root);
 
-        // if there is still room in the tree
-        if (leafCount < 2 ** DEPTH) {
+        // if there is still room in the tree, fill it
+        for (const i of range(leafCount, 2 ** DEPTH)) {
           // push new value and rebuild tree
           leaves.push(generators.bytes32());
           const nextTree = makeTree(leaves);
 
           // push and verify root
-          await this.mock.push(nextTree.leafHash(nextTree.at(leafCount)));
+          await this.mock.push(nextTree.leafHash(nextTree.at(i)));
           await expect(this.mock.root()).to.eventually.equal(nextTree.root);
         }
       });
