@@ -28,6 +28,12 @@ import {StorageSlot} from "../StorageSlot.sol";
  * _Available since v5.1._
  */
 library MerkleTree {
+    /// @dev Error emitted when trying to update a leaf that was not previously pushed.
+    error MerkleTreeUpdateInvalidIndex(uint256 index, uint256 length);
+
+    /// @dev Error emitted when the proof used during an update is invalid (could not reproduce the side).
+    error MerkleTreeUpdateInvalidProof();
+
     /**
      * @dev A complete `bytes32` Merkle tree.
      *
@@ -212,8 +218,8 @@ library MerkleTree {
     ) internal returns (bytes32 oldRoot, bytes32 newRoot) {
         unchecked {
             // Check index range
-            uint256 nextLeafIndex = self._nextLeafIndex;
-            require(index < nextLeafIndex, "invalid index");
+            uint256 length = self._nextLeafIndex;
+            if (index >= length) revert MerkleTreeUpdateInvalidIndex(index, length);
 
             // Cache read
             uint256 treeDepth = depth(self);
@@ -221,8 +227,8 @@ library MerkleTree {
             // Workaround stack too deep
             bytes32[] storage sides = self._sides;
 
-            // This cannot overflow because: 0 <= index < nextLeafIndex
-            uint256 lastIndex = nextLeafIndex - 1;
+            // This cannot overflow because: 0 <= index < length
+            uint256 lastIndex = length - 1;
             uint256 currentIndex = index;
             bytes32 currentLevelHashOld = oldValue;
             bytes32 currentLevelHashNew = newValue;
@@ -234,7 +240,7 @@ library MerkleTree {
 
                 if (isLeft && currentIndex == lastIndex) {
                     StorageSlot.Bytes32Slot storage side = Arrays.unsafeAccess(sides, i);
-                    require(side.value == currentLevelHashOld, "Invalid proof");
+                    if (side.value != currentLevelHashOld) revert MerkleTreeUpdateInvalidProof();
                     side.value = currentLevelHashNew;
                 }
 

@@ -43,7 +43,7 @@ describe('MerkleTree', function () {
   });
 
   describe('push', function () {
-    it('tree is correctly updated', async function () {
+    it('pushing correctly updates the tree', async function () {
       const leaves = [];
 
       // for each leaf slot
@@ -64,7 +64,7 @@ describe('MerkleTree', function () {
       }
     });
 
-    it('revert when tree is full', async function () {
+    it('pushing to a full tree reverts', async function () {
       await Promise.all(Array.from({ length: 2 ** Number(DEPTH) }).map(() => this.mock.push(ethers.ZeroHash)));
 
       await expect(this.mock.push(ethers.ZeroHash)).to.be.revertedWithPanic(PANIC_CODES.TOO_MUCH_MEMORY_ALLOCATED);
@@ -75,7 +75,7 @@ describe('MerkleTree', function () {
     for (const { leafCount, leafIndex } of range(2 ** DEPTH + 1).flatMap(leafCount =>
       range(leafCount).map(leafIndex => ({ leafCount, leafIndex })),
     ))
-      it(`tree is correctly updated (update leaf #${leafIndex + 1}/${leafCount})`, async function () {
+      it(`updating a leaf correctly updates the tree (leaf #${leafIndex + 1}/${leafCount})`, async function () {
         // initial tree
         const leaves = Array.from({ length: leafCount }, generators.bytes32);
         const oldTree = makeTree(leaves);
@@ -112,6 +112,38 @@ describe('MerkleTree', function () {
           await expect(this.mock.root()).to.eventually.equal(nextTree.root);
         }
       });
+
+    it('replacing a leaf that was not previously pushed reverts', async function () {
+      // changing leaf 0 on an empty tree
+      await expect(this.mock.update(1, ZERO, ZERO, []))
+        .to.be.revertedWithCustomError(this.mock, 'MerkleTreeUpdateInvalidIndex')
+        .withArgs(1, 0);
+    });
+
+    it('replacing a leaf using an invalid proof reverts', async function () {
+      const leafCount = 4;
+      const leafIndex = 2;
+
+      const leaves = Array.from({ length: leafCount }, generators.bytes32);
+      const tree = makeTree(leaves);
+
+      // fill tree and verify root
+      for (const i in leaves) {
+        await this.mock.push(tree.leafHash(tree.at(i)));
+      }
+      await expect(this.mock.root()).to.eventually.equal(tree.root);
+
+      const oldLeafHash = tree.leafHash(tree.at(leafIndex));
+      const newLeafHash = generators.bytes32();
+      const proof = tree.getProof(leafIndex);
+      // invalid proof (tamper)
+      proof[1] = generators.bytes32();
+
+      await expect(this.mock.update(leafIndex, oldLeafHash, newLeafHash, proof)).to.be.revertedWithCustomError(
+        this.mock,
+        'MerkleTreeUpdateInvalidProof',
+      );
+    });
   });
 
   it('reset', async function () {
