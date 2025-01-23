@@ -20,9 +20,8 @@ const makeTree = (leaves = [], length = 2 ** DEPTH, zero = ethers.ZeroHash) =>
     ['bytes32'],
     { sortLeaves: false },
   );
-const hashLeaf = leaf => makeTree().leafHash([leaf]);
 
-const ZERO = hashLeaf(ethers.ZeroHash);
+const ZERO = makeTree().leafHash([ethers.ZeroHash]);
 
 async function fixture() {
   const mock = await ethers.deployContract('MerkleTreeMock');
