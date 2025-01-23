@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.9.0) (governance/utils/Votes.sol)
-pragma solidity ^0.8.19;
+// OpenZeppelin Contracts (last updated v5.2.0) (governance/utils/Votes.sol)
+pragma solidity ^0.8.20;
 
 import {IERC5805} from "../../interfaces/IERC5805.sol";
 import {Context} from "../../utils/Context.sol";
@@ -9,6 +9,7 @@ import {EIP712} from "../../utils/cryptography/EIP712.sol";
 import {Checkpoints} from "../../utils/structs/Checkpoints.sol";
 import {SafeCast} from "../../utils/math/SafeCast.sol";
 import {ECDSA} from "../../utils/cryptography/ECDSA.sol";
+import {Time} from "../../utils/types/Time.sol";
 
 /**
  * @dev This is a base abstract contract that tracks voting units, which are a measure of voting power that can be
@@ -26,19 +27,19 @@ import {ECDSA} from "../../utils/cryptography/ECDSA.sol";
  *
  * When using this module the derived contract must implement {_getVotingUnits} (for example, make it return
  * {ERC721-balanceOf}), and can use {_transferVotingUnits} to track a change in the distribution of those units (in the
- * previous example, it would be included in {ERC721-_beforeTokenTransfer}).
+ * previous example, it would be included in {ERC721-_update}).
  */
 abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
-    using Checkpoints for Checkpoints.Trace224;
+    using Checkpoints for Checkpoints.Trace208;
 
-    bytes32 private constant _DELEGATION_TYPEHASH =
+    bytes32 private constant DELEGATION_TYPEHASH =
         keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
 
-    mapping(address => address) private _delegation;
+    mapping(address account => address) private _delegatee;
 
-    mapping(address => Checkpoints.Trace224) private _delegateCheckpoints;
+    mapping(address delegatee => Checkpoints.Trace208) private _delegateCheckpoints;
 
-    Checkpoints.Trace224 private _totalCheckpoints;
+    Checkpoints.Trace208 private _totalCheckpoints;
 
     /**
      * @dev The clock was incorrectly modified.
@@ -55,19 +56,28 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
      * checkpoints (and voting), in which case {CLOCK_MODE} should be overridden as well to match.
      */
     function clock() public view virtual returns (uint48) {
-        return SafeCast.toUint48(block.number);
+        return Time.blockNumber();
     }
 
     /**
-     * @dev Machine-readable description of the clock as specified in EIP-6372.
+     * @dev Machine-readable description of the clock as specified in ERC-6372.
      */
     // solhint-disable-next-line func-name-mixedcase
     function CLOCK_MODE() public view virtual returns (string memory) {
         // Check that the clock was not modified
-        if (clock() != block.number) {
+        if (clock() != Time.blockNumber()) {
             revert ERC6372InconsistentClock();
         }
         return "mode=blocknumber&from=default";
+    }
+
+    /**
+     * @dev Validate that a timepoint is in the past, and return it as a uint48.
+     */
+    function _validateTimepoint(uint256 timepoint) internal view returns (uint48) {
+        uint48 currentTimepoint = clock();
+        if (timepoint >= currentTimepoint) revert ERC5805FutureLookup(timepoint, currentTimepoint);
+        return SafeCast.toUint48(timepoint);
     }
 
     /**
@@ -86,11 +96,7 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
      * - `timepoint` must be in the past. If operating using block numbers, the block must be already mined.
      */
     function getPastVotes(address account, uint256 timepoint) public view virtual returns (uint256) {
-        uint48 currentTimepoint = clock();
-        if (timepoint >= currentTimepoint) {
-            revert ERC5805FutureLookup(timepoint, currentTimepoint);
-        }
-        return _delegateCheckpoints[account].upperLookupRecent(SafeCast.toUint32(timepoint));
+        return _delegateCheckpoints[account].upperLookupRecent(_validateTimepoint(timepoint));
     }
 
     /**
@@ -106,11 +112,7 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
      * - `timepoint` must be in the past. If operating using block numbers, the block must be already mined.
      */
     function getPastTotalSupply(uint256 timepoint) public view virtual returns (uint256) {
-        uint48 currentTimepoint = clock();
-        if (timepoint >= currentTimepoint) {
-            revert ERC5805FutureLookup(timepoint, currentTimepoint);
-        }
-        return _totalCheckpoints.upperLookupRecent(SafeCast.toUint32(timepoint));
+        return _totalCheckpoints.upperLookupRecent(_validateTimepoint(timepoint));
     }
 
     /**
@@ -124,7 +126,7 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
      * @dev Returns the delegate that `account` has chosen.
      */
     function delegates(address account) public view virtual returns (address) {
-        return _delegation[account];
+        return _delegatee[account];
     }
 
     /**
@@ -150,7 +152,7 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
             revert VotesExpiredSignature(expiry);
         }
         address signer = ECDSA.recover(
-            _hashTypedDataV4(keccak256(abi.encode(_DELEGATION_TYPEHASH, delegatee, nonce, expiry))),
+            _hashTypedDataV4(keccak256(abi.encode(DELEGATION_TYPEHASH, delegatee, nonce, expiry))),
             v,
             r,
             s
@@ -166,7 +168,7 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
      */
     function _delegate(address account, address delegatee) internal virtual {
         address oldDelegate = delegates(account);
-        _delegation[account] = delegatee;
+        _delegatee[account] = delegatee;
 
         emit DelegateChanged(account, oldDelegate, delegatee);
         _moveDelegateVotes(oldDelegate, delegatee, _getVotingUnits(account));
@@ -178,10 +180,10 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
      */
     function _transferVotingUnits(address from, address to, uint256 amount) internal virtual {
         if (from == address(0)) {
-            _push(_totalCheckpoints, _add, SafeCast.toUint224(amount));
+            _push(_totalCheckpoints, _add, SafeCast.toUint208(amount));
         }
         if (to == address(0)) {
-            _push(_totalCheckpoints, _subtract, SafeCast.toUint224(amount));
+            _push(_totalCheckpoints, _subtract, SafeCast.toUint208(amount));
         }
         _moveDelegateVotes(delegates(from), delegates(to), amount);
     }
@@ -189,13 +191,13 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
     /**
      * @dev Moves delegated votes from one delegate to another.
      */
-    function _moveDelegateVotes(address from, address to, uint256 amount) private {
+    function _moveDelegateVotes(address from, address to, uint256 amount) internal virtual {
         if (from != to && amount > 0) {
             if (from != address(0)) {
                 (uint256 oldValue, uint256 newValue) = _push(
                     _delegateCheckpoints[from],
                     _subtract,
-                    SafeCast.toUint224(amount)
+                    SafeCast.toUint208(amount)
                 );
                 emit DelegateVotesChanged(from, oldValue, newValue);
             }
@@ -203,7 +205,7 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
                 (uint256 oldValue, uint256 newValue) = _push(
                     _delegateCheckpoints[to],
                     _add,
-                    SafeCast.toUint224(amount)
+                    SafeCast.toUint208(amount)
                 );
                 emit DelegateVotesChanged(to, oldValue, newValue);
             }
@@ -223,23 +225,23 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
     function _checkpoints(
         address account,
         uint32 pos
-    ) internal view virtual returns (Checkpoints.Checkpoint224 memory) {
+    ) internal view virtual returns (Checkpoints.Checkpoint208 memory) {
         return _delegateCheckpoints[account].at(pos);
     }
 
     function _push(
-        Checkpoints.Trace224 storage store,
-        function(uint224, uint224) view returns (uint224) op,
-        uint224 delta
-    ) private returns (uint224, uint224) {
-        return store.push(SafeCast.toUint32(clock()), op(store.latest(), delta));
+        Checkpoints.Trace208 storage store,
+        function(uint208, uint208) view returns (uint208) op,
+        uint208 delta
+    ) private returns (uint208 oldValue, uint208 newValue) {
+        return store.push(clock(), op(store.latest(), delta));
     }
 
-    function _add(uint224 a, uint224 b) private pure returns (uint224) {
+    function _add(uint208 a, uint208 b) private pure returns (uint208) {
         return a + b;
     }
 
-    function _subtract(uint224 a, uint224 b) private pure returns (uint224) {
+    function _subtract(uint208 a, uint208 b) private pure returns (uint208) {
         return a - b;
     }
 

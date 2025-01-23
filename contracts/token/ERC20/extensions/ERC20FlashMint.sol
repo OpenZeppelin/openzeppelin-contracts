@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.8.0) (token/ERC20/extensions/ERC20FlashMint.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (token/ERC20/extensions/ERC20FlashMint.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import {IERC3156FlashBorrower} from "../../../interfaces/IERC3156FlashBorrower.sol";
 import {IERC3156FlashLender} from "../../../interfaces/IERC3156FlashLender.sol";
 import {ERC20} from "../ERC20.sol";
 
 /**
- * @dev Implementation of the ERC3156 Flash loans extension, as defined in
+ * @dev Implementation of the ERC-3156 Flash loans extension, as defined in
  * https://eips.ethereum.org/EIPS/eip-3156[ERC-3156].
  *
  * Adds the {flashLoan} method, which provides flash loan support at the token
@@ -19,7 +19,7 @@ import {ERC20} from "../ERC20.sol";
  * overriding {maxFlashLoan} so that it correctly reflects the supply cap.
  */
 abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
-    bytes32 private constant _RETURN_VALUE = keccak256("ERC3156FlashBorrower.onFlashLoan");
+    bytes32 private constant RETURN_VALUE = keccak256("ERC3156FlashBorrower.onFlashLoan");
 
     /**
      * @dev The loan token is not valid.
@@ -32,7 +32,7 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
     error ERC3156ExceededMaxLoan(uint256 maxLoan);
 
     /**
-     * @dev The receiver of a flashloan is not a valid {onFlashLoan} implementer.
+     * @dev The receiver of a flashloan is not a valid {IERC3156FlashBorrower-onFlashLoan} implementer.
      */
     error ERC3156InvalidReceiver(address receiver);
 
@@ -118,7 +118,7 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
         }
         uint256 fee = flashFee(token, value);
         _mint(address(receiver), value);
-        if (receiver.onFlashLoan(_msgSender(), token, value, fee, data) != _RETURN_VALUE) {
+        if (receiver.onFlashLoan(_msgSender(), token, value, fee, data) != RETURN_VALUE) {
             revert ERC3156InvalidReceiver(address(receiver));
         }
         address flashFeeReceiver = _flashFeeReceiver();

@@ -1,8 +1,8 @@
-import "helpers/helpers.spec"
-import "methods/IOwnable.spec"
+import "helpers/helpers.spec";
+import "methods/IOwnable.spec";
 
 methods {
-    restricted()
+    function restricted() external;
 }
 
 /*
@@ -26,7 +26,6 @@ rule transferOwnership(env e) {
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Function correctness: renounceOwnership removes the owner                                                           │
-
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule renounceOwnership(env e) {
@@ -72,7 +71,7 @@ rule onlyOwnerOrPendingOwnerCanChangeOwnership(env e) {
 
     // If owner changes, must be either transferOwnership or renounceOwnership
     assert oldCurrent != newCurrent => (
-        (e.msg.sender == oldCurrent && newCurrent != 0 && f.selector == transferOwnership(address).selector) ||
-        (e.msg.sender == oldCurrent && newCurrent == 0 && f.selector == renounceOwnership().selector)
+        (e.msg.sender == oldCurrent && newCurrent != 0 && f.selector == sig:transferOwnership(address).selector) ||
+        (e.msg.sender == oldCurrent && newCurrent == 0 && f.selector == sig:renounceOwnership().selector)
     );
 }

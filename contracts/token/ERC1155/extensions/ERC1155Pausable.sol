@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.8.2) (token/ERC1155/extensions/ERC1155Pausable.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (token/ERC1155/extensions/ERC1155Pausable.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import {ERC1155} from "../ERC1155.sol";
-import {Pausable} from "../../../security/Pausable.sol";
+import {Pausable} from "../../../utils/Pausable.sol";
 
 /**
- * @dev ERC1155 token with pausable token transfers, minting and burning.
+ * @dev ERC-1155 token with pausable token transfers, minting and burning.
  *
  * Useful for scenarios such as preventing trades until the end of an evaluation
  * period, or having an emergency switch for freezing all token transfers in the

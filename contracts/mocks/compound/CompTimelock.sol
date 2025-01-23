@@ -24,7 +24,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 contract CompTimelock {
     event NewAdmin(address indexed newAdmin);

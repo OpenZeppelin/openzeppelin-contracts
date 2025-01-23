@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC1155/IERC1155.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (token/ERC1155/IERC1155.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import {IERC165} from "../../utils/introspection/IERC165.sol";
 
 /**
- * @dev Required interface of an ERC1155 compliant contract, as defined in the
- * https://eips.ethereum.org/EIPS/eip-1155[EIP].
+ * @dev Required interface of an ERC-1155 compliant contract, as defined in the
+ * https://eips.ethereum.org/EIPS/eip-1155[ERC].
  */
 interface IERC1155 is IERC165 {
     /**
@@ -44,10 +44,6 @@ interface IERC1155 is IERC165 {
 
     /**
      * @dev Returns the value of tokens of token type `id` owned by `account`.
-     *
-     * Requirements:
-     *
-     * - `account` cannot be the zero address.
      */
     function balanceOf(address account, uint256 id) external view returns (uint256);
 
@@ -70,7 +66,7 @@ interface IERC1155 is IERC165 {
      *
      * Requirements:
      *
-     * - `operator` cannot be the caller.
+     * - `operator` cannot be the zero address.
      */
     function setApprovalForAll(address operator, bool approved) external;
 
@@ -104,13 +100,12 @@ interface IERC1155 is IERC165 {
     /**
      * @dev xref:ROOT:erc1155.adoc#batch-operations[Batched] version of {safeTransferFrom}.
      *
-     *
      * WARNING: This function can potentially allow a reentrancy attack when transferring tokens
      * to an untrusted contract, when invoking {onERC1155BatchReceived} on the receiver.
      * Ensure to follow the checks-effects-interactions pattern and consider employing
      * reentrancy guards when interacting with untrusted contracts.
      *
-     * Emits a {TransferBatch} event.
+     * Emits either a {TransferSingle} or a {TransferBatch} event, depending on the length of the array arguments.
      *
      * Requirements:
      *

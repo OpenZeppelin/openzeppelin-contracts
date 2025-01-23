@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.9.0) (utils/ShortStrings.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (utils/ShortStrings.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import {StorageSlot} from "./StorageSlot.sol";
 
@@ -39,7 +39,7 @@ type ShortString is bytes32;
  */
 library ShortStrings {
     // Used as an identifier for strings longer than 31 bytes.
-    bytes32 private constant _FALLBACK_SENTINEL = 0x00000000000000000000000000000000000000000000000000000000000000FF;
+    bytes32 private constant FALLBACK_SENTINEL = 0x00000000000000000000000000000000000000000000000000000000000000FF;
 
     error StringTooLong(string str);
     error InvalidShortString();
@@ -64,8 +64,7 @@ library ShortStrings {
         uint256 len = byteLength(sstr);
         // using `new string(len)` would work locally but is not memory safe.
         string memory str = new string(32);
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             mstore(str, len)
             mstore(add(str, 0x20), sstr)
         }
@@ -91,7 +90,7 @@ library ShortStrings {
             return toShortString(value);
         } else {
             StorageSlot.getStringSlot(store).value = value;
-            return ShortString.wrap(_FALLBACK_SENTINEL);
+            return ShortString.wrap(FALLBACK_SENTINEL);
         }
     }
 
@@ -99,7 +98,7 @@ library ShortStrings {
      * @dev Decode a string that was encoded to `ShortString` or written to storage using {setWithFallback}.
      */
     function toStringWithFallback(ShortString value, string storage store) internal pure returns (string memory) {
-        if (ShortString.unwrap(value) != _FALLBACK_SENTINEL) {
+        if (ShortString.unwrap(value) != FALLBACK_SENTINEL) {
             return toString(value);
         } else {
             return store;
@@ -107,13 +106,14 @@ library ShortStrings {
     }
 
     /**
-     * @dev Return the length of a string that was encoded to `ShortString` or written to storage using {setWithFallback}.
+     * @dev Return the length of a string that was encoded to `ShortString` or written to storage using
+     * {setWithFallback}.
      *
      * WARNING: This will return the "byte length" of the string. This may not reflect the actual length in terms of
      * actual characters as the UTF-8 encoding of a single character can span over multiple bytes.
      */
     function byteLengthWithFallback(ShortString value, string storage store) internal view returns (uint256) {
-        if (ShortString.unwrap(value) != _FALLBACK_SENTINEL) {
+        if (ShortString.unwrap(value) != FALLBACK_SENTINEL) {
             return byteLength(value);
         } else {
             return bytes(store).length;

@@ -10,7 +10,7 @@ about: Report a bug in OpenZeppelin Contracts
 
 **💻 Environment**
 
-<!-- Tell us what version of OpenZeppelin Contracts you're using, and how you're using it: Truffle, Remix, etc. -->
+<!-- Tell us what version of OpenZeppelin Contracts you're using, and how you're using it: Hardhat, Remix, etc. -->
 
 **📝 Details**
 

@@ -10,9 +10,9 @@ on:
   workflow_dispatch: {}
 
 env:
-  PIP_VERSION: '3.10'
+  PIP_VERSION: '3.11'
   JAVA_VERSION: '11'
-  SOLC_VERSION: '0.8.19'
+  SOLC_VERSION: '0.8.20'
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
@@ -20,7 +20,7 @@ jobs:
   apply-diff:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Apply patches
         run: make -C certora apply
 
@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'formal-verification')
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Set up environment
@@ -44,14 +44,15 @@ jobs:
           fi
           echo "result=$RESULT" >> "$GITHUB_OUTPUT"
       - name: Install python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PIP_VERSION }}
           cache: 'pip'
+          cache-dependency-path: 'fv-requirements.txt'
       - name: Install python packages
-        run: pip install -r requirements.txt
+        run: pip install -r fv-requirements.txt
       - name: Install java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: ${{ env.JAVA_VERSION }}
@@ -66,3 +67,20 @@ jobs:
           node certora/run.js ${{ steps.arguments.outputs.result }} >> "$GITHUB_STEP_SUMMARY"
         env:
           CERTORAKEY: ${{ secrets.CERTORAKEY }}
+
+  halmos:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up environment
+        uses: ./.github/actions/setup
+      - name: Install python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PIP_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: 'fv-requirements.txt'
+      - name: Install python packages
+        run: pip install -r fv-requirements.txt
+      - name: Run Halmos
+        run: halmos --match-test '^symbolic|^testSymbolic' -vv

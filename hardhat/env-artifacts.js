@@ -1,18 +1,23 @@
 const { HardhatError } = require('hardhat/internal/core/errors');
 
-// Modifies `artifacts.require(X)` so that instead of X it loads the XUpgradeable contract.
+function isExpectedError(e, suffix) {
+  // HH700: Artifact not found - from https://hardhat.org/hardhat-runner/docs/errors#HH700
+  return HardhatError.isHardhatError(e) && e.number === 700 && suffix !== '';
+}
+
+// Modifies the artifact require functions so that instead of X it loads the XUpgradeable contract.
 // This allows us to run the same test suite on both the original and the transpiled and renamed Upgradeable contracts.
+extendEnvironment(hre => {
+  const suffixes = ['UpgradeableWithInit', 'Upgradeable', ''];
 
-extendEnvironment(env => {
-  const artifactsRequire = env.artifacts.require;
-
-  env.artifacts.require = name => {
-    for (const suffix of ['UpgradeableWithInit', 'Upgradeable', '']) {
+  // Ethers
+  const originalReadArtifact = hre.artifacts.readArtifact;
+  hre.artifacts.readArtifact = async function (name) {
+    for (const suffix of suffixes) {
       try {
-        return artifactsRequire(name + suffix);
+        return await originalReadArtifact.call(this, name + suffix);
       } catch (e) {
-        // HH700: Artifact not found - from https://hardhat.org/hardhat-runner/docs/errors#HH700
-        if (HardhatError.isHardhatError(e) && e.number === 700 && suffix !== '') {
+        if (isExpectedError(e, suffix)) {
           continue;
         } else {
           throw e;

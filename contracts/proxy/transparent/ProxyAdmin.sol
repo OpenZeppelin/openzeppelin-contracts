@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.8.3) (proxy/transparent/ProxyAdmin.sol)
+// OpenZeppelin Contracts (last updated v5.2.0) (proxy/transparent/ProxyAdmin.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.22;
 
 import {ITransparentUpgradeableProxy} from "./TransparentUpgradeableProxy.sol";
 import {Ownable} from "../../access/Ownable.sol";
@@ -12,11 +12,11 @@ import {Ownable} from "../../access/Ownable.sol";
  */
 contract ProxyAdmin is Ownable {
     /**
-     * @dev The version of the upgrade interface of the contract. If this getter is missing, both `upgrade(address)`
-     * and `upgradeAndCall(address,bytes)` are present, and `upgradeTo` must be used if no function should be called,
-     * while `upgradeAndCall` will invoke the `receive` function if the second argument is the empty byte string.
-     * If the getter returns `"5.0.0"`, only `upgradeAndCall(address,bytes)` is present, and the second argument must
-     * be the empty byte string if no function should be called, being impossible to invoke the `receive` function
+     * @dev The version of the upgrade interface of the contract. If this getter is missing, both `upgrade(address,address)`
+     * and `upgradeAndCall(address,address,bytes)` are present, and `upgrade` must be used if no function should be called,
+     * while `upgradeAndCall` will invoke the `receive` function if the third argument is the empty byte string.
+     * If the getter returns `"5.0.0"`, only `upgradeAndCall(address,address,bytes)` is present, and the third argument must
+     * be the empty byte string if no function should be called, making it impossible to invoke the `receive` function
      * during an upgrade.
      */
     string public constant UPGRADE_INTERFACE_VERSION = "5.0.0";

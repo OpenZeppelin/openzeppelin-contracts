@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.9.0) (governance/extensions/GovernorPreventLateQuorum.sol)
+// OpenZeppelin Contracts (last updated v5.2.0) (governance/extensions/GovernorPreventLateQuorum.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import {Governor} from "../Governor.sol";
 import {Math} from "../../utils/math/Math.sol";
@@ -18,7 +18,7 @@ import {Math} from "../../utils/math/Math.sol";
 abstract contract GovernorPreventLateQuorum is Governor {
     uint48 private _voteExtension;
 
-    mapping(uint256 => uint48) private _extendedDeadlines;
+    mapping(uint256 proposalId => uint48) private _extendedDeadlines;
 
     /// @dev Emitted when a proposal deadline is pushed back due to reaching quorum late in its voting period.
     event ProposalExtended(uint256 indexed proposalId, uint64 extendedDeadline);
@@ -27,9 +27,9 @@ abstract contract GovernorPreventLateQuorum is Governor {
     event LateQuorumVoteExtensionSet(uint64 oldVoteExtension, uint64 newVoteExtension);
 
     /**
-     * @dev Initializes the vote extension parameter: the time in either number of blocks or seconds (depending on the governor
-     * clock mode) that is required to pass since the moment a proposal reaches quorum until its voting period ends. If
-     * necessary the voting period will be extended beyond the one set during proposal creation.
+     * @dev Initializes the vote extension parameter: the time in either number of blocks or seconds (depending on the
+     * governor clock mode) that is required to pass since the moment a proposal reaches quorum until its voting period
+     * ends. If necessary the voting period will be extended beyond the one set during proposal creation.
      */
     constructor(uint48 initialVoteExtension) {
         _setLateQuorumVoteExtension(initialVoteExtension);
@@ -44,20 +44,12 @@ abstract contract GovernorPreventLateQuorum is Governor {
     }
 
     /**
-     * @dev Casts a vote and detects if it caused quorum to be reached, potentially extending the voting period. See
-     * {Governor-_castVote}.
+     * @dev Vote tally updated and detects if it caused quorum to be reached, potentially extending the voting period.
      *
      * May emit a {ProposalExtended} event.
      */
-    function _castVote(
-        uint256 proposalId,
-        address account,
-        uint8 support,
-        string memory reason,
-        bytes memory params
-    ) internal virtual override returns (uint256) {
-        uint256 result = super._castVote(proposalId, account, support, reason, params);
-
+    function _tallyUpdated(uint256 proposalId) internal virtual override {
+        super._tallyUpdated(proposalId);
         if (_extendedDeadlines[proposalId] == 0 && _quorumReached(proposalId)) {
             uint48 extendedDeadline = clock() + lateQuorumVoteExtension();
 
@@ -67,8 +59,6 @@ abstract contract GovernorPreventLateQuorum is Governor {
 
             _extendedDeadlines[proposalId] = extendedDeadline;
         }
-
-        return result;
     }
 
     /**

@@ -7,11 +7,16 @@
 //    node certora/run.js AccessControl
 //    node certora/run.js AccessControlHarness:AccessControl
 
-const proc = require('child_process');
-const { PassThrough } = require('stream');
-const events = require('events');
+import { spawn } from 'child_process';
+import { PassThrough } from 'stream';
+import { once } from 'events';
+import path from 'path';
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
+import pLimit from 'p-limit';
+import fs from 'fs/promises';
 
-const argv = require('yargs')
+const argv = yargs(hideBin(process.argv))
   .env('')
   .options({
     all: {
@@ -21,30 +26,37 @@ const argv = require('yargs')
     spec: {
       alias: 's',
       type: 'string',
-      default: __dirname + '/specs.json',
+      default: path.resolve(import.meta.dirname, 'specs.json'),
     },
     parallel: {
       alias: 'p',
       type: 'number',
       default: 4,
     },
+    verbose: {
+      alias: 'v',
+      type: 'count',
+      default: 0,
+    },
     options: {
       alias: 'o',
       type: 'array',
       default: [],
     },
-  }).argv;
+  })
+  .parse();
 
 function match(entry, request) {
   const [reqSpec, reqContract] = request.split(':').reverse();
   return entry.spec == reqSpec && (!reqContract || entry.contract == reqContract);
 }
 
-const specs = require(argv.spec).filter(s => argv.all || argv._.some(r => match(s, r)));
-const limit = require('p-limit')(argv.parallel);
+const specs = JSON.parse(fs.readFileSync(argv.spec, 'utf8')).filter(s => argv.all || argv._.some(r => match(s, r)));
+
+const limit = pLimit(argv.parallel);
 
 if (argv._.length == 0 && !argv.all) {
-  console.error(`Warning: No specs requested. Did you forgot to toggle '--all'?`);
+  console.error(`Warning: No specs requested. Did you forget to toggle '--all'?`);
 }
 
 for (const r of argv._) {
@@ -59,13 +71,23 @@ if (process.exitCode) {
 }
 
 for (const { spec, contract, files, options = [] } of specs) {
-  limit(runCertora, spec, contract, files, [...options.flatMap(opt => opt.split(' ')), ...argv.options]);
+  limit(() =>
+    runCertora(
+      spec,
+      contract,
+      files,
+      [...options, ...argv.options].flatMap(opt => opt.split(' ')),
+    ),
+  );
 }
 
 // Run certora, aggregate the output and print it at the end
 async function runCertora(spec, contract, files, options = []) {
   const args = [...files, '--verify', `${contract}:certora/specs/${spec}.spec`, ...options];
-  const child = proc.spawn('certoraRun', args);
+  if (argv.verbose) {
+    console.log('Running:', args.join(' '));
+  }
+  const child = spawn('certoraRun', args);
 
   const stream = new PassThrough();
   const output = collect(stream);
@@ -89,7 +111,7 @@ async function runCertora(spec, contract, files, options = []) {
   });
 
   // wait for process end
-  const [code, signal] = await events.once(child, 'exit');
+  const [code, signal] = await once(child, 'exit');
 
   // error
   if (code || signal) {

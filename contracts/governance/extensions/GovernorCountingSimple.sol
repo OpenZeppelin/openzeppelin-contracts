@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.9.0) (governance/extensions/GovernorCountingSimple.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (governance/extensions/GovernorCountingSimple.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import {Governor} from "../Governor.sol";
 
@@ -22,10 +22,10 @@ abstract contract GovernorCountingSimple is Governor {
         uint256 againstVotes;
         uint256 forVotes;
         uint256 abstainVotes;
-        mapping(address => bool) hasVoted;
+        mapping(address voter => bool) hasVoted;
     }
 
-    mapping(uint256 => ProposalVote) private _proposalVotes;
+    mapping(uint256 proposalId => ProposalVote) private _proposalVotes;
 
     /**
      * @dev See {IGovernor-COUNTING_MODE}.
@@ -77,9 +77,9 @@ abstract contract GovernorCountingSimple is Governor {
         uint256 proposalId,
         address account,
         uint8 support,
-        uint256 weight,
+        uint256 totalWeight,
         bytes memory // params
-    ) internal virtual override {
+    ) internal virtual override returns (uint256) {
         ProposalVote storage proposalVote = _proposalVotes[proposalId];
 
         if (proposalVote.hasVoted[account]) {
@@ -88,13 +88,15 @@ abstract contract GovernorCountingSimple is Governor {
         proposalVote.hasVoted[account] = true;
 
         if (support == uint8(VoteType.Against)) {
-            proposalVote.againstVotes += weight;
+            proposalVote.againstVotes += totalWeight;
         } else if (support == uint8(VoteType.For)) {
-            proposalVote.forVotes += weight;
+            proposalVote.forVotes += totalWeight;
         } else if (support == uint8(VoteType.Abstain)) {
-            proposalVote.abstainVotes += weight;
+            proposalVote.abstainVotes += totalWeight;
         } else {
             revert GovernorInvalidVoteType();
         }
+
+        return totalWeight;
     }
 }

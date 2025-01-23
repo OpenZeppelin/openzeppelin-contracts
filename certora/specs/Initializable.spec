@@ -1,19 +1,19 @@
-import "helpers/helpers.spec"
+import "helpers/helpers.spec";
 
 methods {
     // initialize, reinitialize, disable
-    initialize()        envfree
-    reinitialize(uint8) envfree
-    disable()           envfree
+    function initialize()         external envfree;
+    function reinitialize(uint64) external envfree;
+    function disable()            external envfree;
 
-    nested_init_init()            envfree
-    nested_init_reinit(uint8)       envfree
-    nested_reinit_init(uint8)       envfree
-    nested_reinit_reinit(uint8,uint8) envfree
+    function nested_init_init()                  external envfree;
+    function nested_init_reinit(uint64)          external envfree;
+    function nested_reinit_init(uint64)          external envfree;
+    function nested_reinit_reinit(uint64,uint64) external envfree;
 
     // view
-    version()      returns uint8 envfree
-    initializing() returns bool  envfree
+    function version()      external returns uint64 envfree;
+    function initializing() external returns bool   envfree;
 }
 
 /*
@@ -23,7 +23,7 @@ methods {
 */
 definition isUninitialized() returns bool = version() == 0;
 definition isInitialized()   returns bool = version() > 0;
-definition isDisabled()      returns bool = version() == 255;
+definition isDisabled()      returns bool = version() == max_uint64;
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -31,7 +31,7 @@ definition isDisabled()      returns bool = version() == 255;
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant notInitializing()
-    !initializing()
+    !initializing();
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -39,7 +39,7 @@ invariant notInitializing()
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule increasingVersion(env e) {
-    uint8 versionBefore = version();
+    uint64 versionBefore = version();
     bool disabledBefore = isDisabled();
 
     method f; calldataarg args;
@@ -83,7 +83,7 @@ rule cannotInitializeOnceDisabled() {
 rule cannotReinitializeOnceDisabled() {
     require isDisabled();
 
-    uint8 n;
+    uint64 n;
     reinitialize@withrevert(n);
 
     assert lastReverted, "contract is disabled";
@@ -99,17 +99,17 @@ rule cannotNestInitializers_init_init() {
     assert lastReverted, "nested initializers";
 }
 
-rule cannotNestInitializers_init_reinit(uint8 m) {
+rule cannotNestInitializers_init_reinit(uint64 m) {
     nested_init_reinit@withrevert(m);
     assert lastReverted, "nested initializers";
 }
 
-rule cannotNestInitializers_reinit_init(uint8 n) {
+rule cannotNestInitializers_reinit_init(uint64 n) {
     nested_reinit_init@withrevert(n);
     assert lastReverted, "nested initializers";
 }
 
-rule cannotNestInitializers_reinit_reinit(uint8 n, uint8 m) {
+rule cannotNestInitializers_reinit_reinit(uint64 n, uint64 m) {
     nested_reinit_reinit@withrevert(n, m);
     assert lastReverted, "nested initializers";
 }
@@ -139,9 +139,9 @@ rule initializeEffects() {
 rule reinitializeEffects() {
     requireInvariant notInitializing();
 
-    uint8 versionBefore = version();
+    uint64 versionBefore = version();
 
-    uint8 n;
+    uint64 n;
     reinitialize@withrevert(n);
     bool success = !lastReverted;
 

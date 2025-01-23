@@ -1,0 +1,4 @@
+certora-cli==4.13.1
+# File uses a custom name (fv-requirements.txt) so that it isn't picked by Netlify's build
+# whose latest Python version is 0.3.8, incompatible with most recent versions of Halmos
+halmos==0.2.3

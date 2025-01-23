@@ -1,15 +1,19 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import {Test} from "forge-std/Test.sol";
-import {Strings} from "../../contracts/utils/Strings.sol";
-import {Governor} from "../../contracts/governance/Governor.sol";
+import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
+import {Governor} from "@openzeppelin/contracts/governance/Governor.sol";
 
 contract GovernorInternalTest is Test, Governor {
     constructor() Governor("") {}
 
-    function testValidDescriptionForProposer(string memory description, address proposer, bool includeProposer) public {
+    function testValidDescriptionForProposer(
+        string memory description,
+        address proposer,
+        bool includeProposer
+    ) public view {
         if (includeProposer) {
             description = string.concat(description, "#proposer=", Strings.toHexString(proposer));
         }
@@ -20,13 +24,13 @@ contract GovernorInternalTest is Test, Governor {
         string memory description,
         address commitProposer,
         address actualProposer
-    ) public {
+    ) public view {
         vm.assume(commitProposer != actualProposer);
         description = string.concat(description, "#proposer=", Strings.toHexString(commitProposer));
         assertFalse(_isValidDescriptionForProposer(actualProposer, description));
     }
 
-    // We don't need to truly implement implement the missing functions because we are just testing
+    // We don't need to truly implement the missing functions because we are just testing
     // internal helpers.
 
     function clock() public pure override returns (uint48) {}
@@ -51,5 +55,5 @@ contract GovernorInternalTest is Test, Governor {
 
     function _getVotes(address, uint256, bytes memory) internal pure virtual override returns (uint256) {}
 
-    function _countVote(uint256, address, uint8, uint256, bytes memory) internal virtual override {}
+    function _countVote(uint256, address, uint8, uint256, bytes memory) internal virtual override returns (uint256) {}
 }

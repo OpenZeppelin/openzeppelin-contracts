@@ -49,13 +49,17 @@ class Report {
 
   // Compare two reports
   static compare(update, ref, opts = { hideEqual: true, strictTesting: false }) {
-    if (JSON.stringify(update.config.metadata) !== JSON.stringify(ref.config.metadata)) {
-      throw new Error('Reports produced with non matching metadata');
+    if (JSON.stringify(update.options?.solcInfo) !== JSON.stringify(ref.options?.solcInfo)) {
+      console.warn('WARNING: Reports produced with non matching metadata');
     }
 
-    const deployments = update.info.deployments
+    // gasReporter 1.0.0 uses ".info", but 2.0.0 uses ".data"
+    const updateInfo = update.info ?? update.data;
+    const refInfo = ref.info ?? ref.data;
+
+    const deployments = updateInfo.deployments
       .map(contract =>
-        Object.assign(contract, { previousVersion: ref.info.deployments.find(({ name }) => name === contract.name) }),
+        Object.assign(contract, { previousVersion: refInfo.deployments.find(({ name }) => name === contract.name) }),
       )
       .filter(contract => contract.gasData?.length && contract.previousVersion?.gasData?.length)
       .flatMap(contract => [
@@ -75,18 +79,18 @@ class Report {
       ])
       .sort((a, b) => `${a.contract}:${a.method}`.localeCompare(`${b.contract}:${b.method}`));
 
-    const methods = Object.keys(update.info.methods)
-      .filter(key => ref.info.methods[key])
-      .filter(key => update.info.methods[key].numberOfCalls > 0)
+    const methods = Object.keys(updateInfo.methods)
+      .filter(key => refInfo.methods[key])
+      .filter(key => updateInfo.methods[key].numberOfCalls > 0)
       .filter(
-        key => !opts.strictTesting || update.info.methods[key].numberOfCalls === ref.info.methods[key].numberOfCalls,
+        key => !opts.strictTesting || updateInfo.methods[key].numberOfCalls === refInfo.methods[key].numberOfCalls,
       )
       .map(key => ({
-        contract: ref.info.methods[key].contract,
-        method: ref.info.methods[key].fnSig,
-        min: variation(...[update, ref].map(x => Math.min(...x.info.methods[key].gasData)), BASE_TX_COST),
-        max: variation(...[update, ref].map(x => Math.max(...x.info.methods[key].gasData)), BASE_TX_COST),
-        avg: variation(...[update, ref].map(x => Math.round(average(...x.info.methods[key].gasData))), BASE_TX_COST),
+        contract: refInfo.methods[key].contract,
+        method: refInfo.methods[key].fnSig,
+        min: variation(...[updateInfo, refInfo].map(x => Math.min(...x.methods[key].gasData)), BASE_TX_COST),
+        max: variation(...[updateInfo, refInfo].map(x => Math.max(...x.methods[key].gasData)), BASE_TX_COST),
+        avg: variation(...[updateInfo, refInfo].map(x => Math.round(average(...x.methods[key].gasData))), BASE_TX_COST),
       }))
       .sort((a, b) => `${a.contract}:${a.method}`.localeCompare(`${b.contract}:${b.method}`));
 
@@ -176,7 +180,7 @@ function formatCellMarkdown(cell) {
   return [
     !isFinite(cell?.value) ? '-' : cell.value.toString(),
     !isFinite(cell?.delta) ? '-' : plusSign(cell.delta) + cell.delta.toString(),
-    !isFinite(cell?.prcnt) ? '-' : plusSign(cell.prcnt) + cell.prcnt.toFixed(2) + '%' + trend(cell.delta),
+    !isFinite(cell?.prcnt) ? '-' : plusSign(cell.prcnt) + cell.prcnt.toFixed(2) + '% ' + trend(cell.delta),
   ];
 }
 

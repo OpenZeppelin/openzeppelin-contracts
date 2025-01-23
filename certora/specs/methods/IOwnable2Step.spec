@@ -1,7 +1,7 @@
 methods {
-    owner() returns (address) envfree
-    pendingOwner() returns (address) envfree
-    transferOwnership(address)
-    acceptOwnership()
-    renounceOwnership()
+    function owner() external returns (address) envfree;
+    function pendingOwner() external returns (address) envfree;
+    function transferOwnership(address) external;
+    function acceptOwnership() external;
+    function renounceOwnership() external;
 }

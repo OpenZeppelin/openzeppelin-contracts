@@ -1,12 +1,5 @@
-import "helpers/helpers.spec"
-import "methods/IAccessControl.spec"
-
-/*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Definitions                                                                                                         │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
-definition DEFAULT_ADMIN_ROLE() returns bytes32 = 0x0000000000000000000000000000000000000000000000000000000000000000;
+import "helpers/helpers.spec";
+import "methods/IAccessControl.spec";
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -24,15 +17,15 @@ rule onlyGrantCanGrant(env e, method f, bytes32 role, address account) {
         !hasRoleBefore &&
         hasRoleAfter
     ) => (
-        f.selector == grantRole(bytes32, address).selector
+        f.selector == sig:grantRole(bytes32, address).selector
     );
 
     assert (
         hasRoleBefore &&
         !hasRoleAfter
     ) => (
-        f.selector == revokeRole(bytes32, address).selector ||
-        f.selector == renounceRole(bytes32, address).selector
+        f.selector == sig:revokeRole(bytes32, address).selector ||
+        f.selector == sig:renounceRole(bytes32, address).selector
     );
 }
 

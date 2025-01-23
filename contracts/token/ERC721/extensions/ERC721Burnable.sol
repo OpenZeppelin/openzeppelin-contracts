@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.8.0) (token/ERC721/extensions/ERC721Burnable.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (token/ERC721/extensions/ERC721Burnable.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import {ERC721} from "../ERC721.sol";
 import {Context} from "../../../utils/Context.sol";
 
 /**
- * @title ERC721 Burnable Token
- * @dev ERC721 Token that can be burned (destroyed).
+ * @title ERC-721 Burnable Token
+ * @dev ERC-721 Token that can be burned (destroyed).
  */
 abstract contract ERC721Burnable is Context, ERC721 {
     /**
@@ -19,9 +19,8 @@ abstract contract ERC721Burnable is Context, ERC721 {
      * - The caller must own `tokenId` or be an approved operator.
      */
     function burn(uint256 tokenId) public virtual {
-        if (!_isApprovedOrOwner(_msgSender(), tokenId)) {
-            revert ERC721InsufficientApproval(_msgSender(), tokenId);
-        }
-        _burn(tokenId);
+        // Setting an "auth" arguments enables the `_isAuthorized` check which verifies that the token exists
+        // (from != 0). Therefore, it is not needed to verify that the return value is not 0 here.
+        _update(address(0), tokenId, _msgSender());
     }
 }

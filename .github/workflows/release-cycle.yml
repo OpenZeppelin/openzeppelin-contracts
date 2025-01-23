@@ -27,12 +27,12 @@ jobs:
       pull-requests: read
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up environment
         uses: ./.github/actions/setup
       - id: state
         name: Get state
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         env:
           TRIGGERING_ACTOR: ${{ github.triggering_actor }}
         with:
@@ -58,7 +58,7 @@ jobs:
     if: needs.state.outputs.start == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up environment
         uses: ./.github/actions/setup
       - run: bash scripts/git-user-config.sh
@@ -66,7 +66,7 @@ jobs:
         name: Create branch with release candidate
         run: bash scripts/release/workflow/start.sh
       - name: Re-run workflow
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         env:
           REF: ${{ steps.start.outputs.branch }}
         with:
@@ -81,7 +81,7 @@ jobs:
     if: needs.state.outputs.promote == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up environment
         uses: ./.github/actions/setup
       - run: bash scripts/git-user-config.sh
@@ -89,7 +89,7 @@ jobs:
         if: needs.state.outputs.is_prerelease == 'true'
         run: bash scripts/release/workflow/exit-prerelease.sh
       - name: Re-run workflow
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           script: await require('./scripts/release/workflow/rerun.js')({ github, context })
 
@@ -102,13 +102,13 @@ jobs:
     if: needs.state.outputs.changesets == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # To get all tags
       - name: Set up environment
         uses: ./.github/actions/setup
       - name: Set release title
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           result-encoding: string
           script: await require('./scripts/release/workflow/set-changesets-pr-title.js')({ core })
@@ -134,7 +134,7 @@ jobs:
     if: needs.state.outputs.publish == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up environment
         uses: ./.github/actions/setup
       - id: pack
@@ -143,22 +143,18 @@ jobs:
         env:
           PRERELEASE: ${{ needs.state.outputs.is_prerelease }}
       - name: Upload tarball artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ github.ref_name }}
           path: ${{ steps.pack.outputs.tarball }}
-      - name: Tag
-        run: npx changeset tag
       - name: Publish
         run: bash scripts/release/workflow/publish.sh
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           TARBALL: ${{ steps.pack.outputs.tarball }}
           TAG: ${{ steps.pack.outputs.tag }}
-      - name: Push tags
-        run: git push --tags
       - name: Create Github Release
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         env:
           PRERELEASE: ${{ needs.state.outputs.is_prerelease }}
         with:
@@ -171,12 +167,10 @@ jobs:
     name: Tarball Integrity Check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Download tarball artifact
         id: artifact
-        # Replace with actions/upload-artifact@v3 when
-        # https://github.com/actions/download-artifact/pull/194 gets released
-        uses: actions/download-artifact@e9ef242655d12993efdcda9058dee2db83a2cb9b
+        uses: actions/download-artifact@v4
         with:
           name: ${{ github.ref_name }}
       - name: Check integrity
@@ -195,7 +189,7 @@ jobs:
     env:
       MERGE_BRANCH: merge/${{ github.ref_name }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # All branches
       - name: Set up environment
@@ -206,7 +200,7 @@ jobs:
           git checkout -B "$MERGE_BRANCH" "$GITHUB_REF_NAME"
           git push -f origin "$MERGE_BRANCH"
       - name: Create PR back to master
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           script: |
             await github.rest.pulls.create({

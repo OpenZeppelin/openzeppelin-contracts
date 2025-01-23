@@ -1,6 +1,6 @@
 diff --git a/.github/ISSUE_TEMPLATE/bug_report.md b/.github/ISSUE_TEMPLATE/bug_report.md
 deleted file mode 100644
-index 2797a088..00000000
+index 35ad097ff..000000000
 --- a/.github/ISSUE_TEMPLATE/bug_report.md
 +++ /dev/null
 @@ -1,21 +0,0 @@
@@ -16,7 +16,7 @@ index 2797a088..00000000
 -
 -**💻 Environment**
 -
--<!-- Tell us what version of OpenZeppelin Contracts you're using, and how you're using it: Truffle, Remix, etc. -->
+-<!-- Tell us what version of OpenZeppelin Contracts you're using, and how you're using it: Hardhat, Remix, etc. -->
 -
 -**📝 Details**
 -
@@ -26,7 +26,7 @@ index 2797a088..00000000
 -
 -<!-- We will be able to better help if you provide a minimal example that triggers the bug. -->
 diff --git a/.github/ISSUE_TEMPLATE/config.yml b/.github/ISSUE_TEMPLATE/config.yml
-index 4018cef2..d343a53d 100644
+index 4018cef29..d343a53d8 100644
 --- a/.github/ISSUE_TEMPLATE/config.yml
 +++ b/.github/ISSUE_TEMPLATE/config.yml
 @@ -1,4 +1,8 @@
@@ -40,7 +40,7 @@ index 4018cef2..d343a53d 100644
      about: Ask in the OpenZeppelin Forum
 diff --git a/.github/ISSUE_TEMPLATE/feature_request.md b/.github/ISSUE_TEMPLATE/feature_request.md
 deleted file mode 100644
-index ff596b0c..00000000
+index ff596b0c3..000000000
 --- a/.github/ISSUE_TEMPLATE/feature_request.md
 +++ /dev/null
 @@ -1,14 +0,0 @@
@@ -59,40 +59,44 @@ index ff596b0c..00000000
 -<!-- Make sure that you have reviewed the OpenZeppelin Contracts Contributor Guidelines. -->
 -<!-- https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/CONTRIBUTING.md -->
 diff --git a/README.md b/README.md
-index 27627f43..e42a66e8 100644
+index fa7b4e31e..4799b6376 100644
 --- a/README.md
 +++ b/README.md
 @@ -19,6 +19,9 @@
+ > [!IMPORTANT]
+ > OpenZeppelin Contracts uses semantic versioning to communicate backwards compatibility of its API and storage layout. For upgradeable contracts, the storage layout of different major versions should be assumed incompatible, for example, it is unsafe to upgrade from 4.9.3 to 5.0.0. Learn more at [Backwards Compatibility](https://docs.openzeppelin.com/contracts/backwards-compatibility).
  
- :building_construction: **Want to scale your decentralized application?** Check out [OpenZeppelin Defender](https://openzeppelin.com/defender) — a secure platform for automating and monitoring your operations.
- 
-+> **Note**
-+> You are looking at the upgradeable variant of OpenZeppelin Contracts. Be sure to review the documentation on [Using OpenZeppelin Contracts with Upgrades](https://docs.openzeppelin.com/contracts/4.x/upgradeable).
-+
+++> [!NOTE]
+++> You are looking at the upgradeable variant of OpenZeppelin Contracts. Be sure to review the documentation on [Using OpenZeppelin Contracts with Upgrades](https://docs.openzeppelin.com/contracts/upgradeable).
+++
  ## Overview
  
  ### Installation
 @@ -26,7 +29,7 @@
- #### Hardhat, Truffle (npm)
+ #### Hardhat (npm)
  
  ```
 -$ npm install @openzeppelin/contracts
 +$ npm install @openzeppelin/contracts-upgradeable
  ```
  
- OpenZeppelin Contracts features a [stable API](https://docs.openzeppelin.com/contracts/releases-stability#api-stability), which means that your contracts won't break unexpectedly when upgrading to a newer minor version.
-@@ -38,7 +41,7 @@ OpenZeppelin Contracts features a [stable API](https://docs.openzeppelin.com/con
- > **Warning** Foundry installs the latest version initially, but subsequent `forge update` commands will use the `master` branch.
+ #### Foundry (git)
+@@ -38,10 +41,10 @@ $ npm install @openzeppelin/contracts
+ > Foundry installs the latest version initially, but subsequent `forge update` commands will use the `master` branch.
  
  ```
 -$ forge install OpenZeppelin/openzeppelin-contracts
 +$ forge install OpenZeppelin/openzeppelin-contracts-upgradeable
  ```
  
+-Add `@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/` in `remappings.txt.`
++Add `@openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/` in `remappings.txt.`
+ 
  ### Usage
-@@ -48,10 +51,11 @@ Once installed, you can use the contracts in the library by importing them:
+ 
+@@ -50,10 +53,11 @@ Once installed, you can use the contracts in the library by importing them:
  ```solidity
- pragma solidity ^0.8.19;
+ pragma solidity ^0.8.20;
  
 -import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 +import {ERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
@@ -106,7 +110,7 @@ index 27627f43..e42a66e8 100644
  }
  ```
 diff --git a/contracts/package.json b/contracts/package.json
-index df141192..1cf90ad1 100644
+index 845e8c403..8dc181b91 100644
 --- a/contracts/package.json
 +++ b/contracts/package.json
 @@ -1,5 +1,5 @@
@@ -114,7 +118,7 @@ index df141192..1cf90ad1 100644
 -  "name": "@openzeppelin/contracts",
 +  "name": "@openzeppelin/contracts-upgradeable",
    "description": "Secure Smart Contract library for Solidity",
-   "version": "4.9.2",
+   "version": "5.0.2",
    "files": [
 @@ -13,7 +13,7 @@
    },
@@ -125,12 +129,22 @@ index df141192..1cf90ad1 100644
    },
    "keywords": [
      "solidity",
+@@ -28,5 +28,8 @@
+   "bugs": {
+     "url": "https://github.com/OpenZeppelin/openzeppelin-contracts/issues"
+   },
+-  "homepage": "https://openzeppelin.com/contracts/"
++  "homepage": "https://openzeppelin.com/contracts/",
++  "peerDependencies": {
++    "@openzeppelin/contracts": "<package-version>"
++  }
+ }
 diff --git a/contracts/utils/cryptography/EIP712.sol b/contracts/utils/cryptography/EIP712.sol
-index 36f076e5..90c1db78 100644
+index 77c4c8990..602467f40 100644
 --- a/contracts/utils/cryptography/EIP712.sol
 +++ b/contracts/utils/cryptography/EIP712.sol
 @@ -4,7 +4,6 @@
- pragma solidity ^0.8.19;
+ pragma solidity ^0.8.20;
  
  import {MessageHashUtils} from "./MessageHashUtils.sol";
 -import {ShortStrings, ShortString} from "../ShortStrings.sol";
@@ -147,7 +161,7 @@ index 36f076e5..90c1db78 100644
  abstract contract EIP712 is IERC5267 {
 -    using ShortStrings for *;
 -
-     bytes32 private constant _TYPE_HASH =
+     bytes32 private constant TYPE_HASH =
          keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
  
 -    // Cache the domain separator as an immutable value, but also store the chain id that it corresponds to, in order to
@@ -203,8 +217,8 @@ index 36f076e5..90c1db78 100644
      }
  
      function _buildDomainSeparator() private view returns (bytes32) {
--        return keccak256(abi.encode(_TYPE_HASH, _hashedName, _hashedVersion, block.chainid, address(this)));
-+        return keccak256(abi.encode(_TYPE_HASH, _EIP712NameHash(), _EIP712VersionHash(), block.chainid, address(this)));
+-        return keccak256(abi.encode(TYPE_HASH, _hashedName, _hashedVersion, block.chainid, address(this)));
++        return keccak256(abi.encode(TYPE_HASH, _EIP712NameHash(), _EIP712VersionHash(), block.chainid, address(this)));
      }
  
      /**
@@ -293,10 +307,10 @@ index 36f076e5..90c1db78 100644
      }
  }
 diff --git a/package.json b/package.json
-index 9eae6732..b3a56366 100644
+index c4b358e10..96ab2559c 100644
 --- a/package.json
 +++ b/package.json
-@@ -33,7 +33,7 @@
+@@ -32,7 +32,7 @@
    },
    "repository": {
      "type": "git",
@@ -305,13 +319,21 @@ index 9eae6732..b3a56366 100644
    },
    "keywords": [
      "solidity",
+diff --git a/remappings.txt b/remappings.txt
+index 304d1386a..a1cd63bee 100644
+--- a/remappings.txt
++++ b/remappings.txt
+@@ -1 +1,2 @@
+-@openzeppelin/contracts/=contracts/
++@openzeppelin/contracts-upgradeable/=contracts/
++@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
 diff --git a/test/utils/cryptography/EIP712.test.js b/test/utils/cryptography/EIP712.test.js
-index 7ea535b7..32e3a370 100644
+index 2b6e7fa97..268e0d29d 100644
 --- a/test/utils/cryptography/EIP712.test.js
 +++ b/test/utils/cryptography/EIP712.test.js
-@@ -47,26 +47,6 @@ contract('EIP712', function (accounts) {
+@@ -47,27 +47,6 @@ describe('EIP712', function () {
            const rebuildDomain = await getDomain(this.eip712);
-           expect(mapValues(rebuildDomain, String)).to.be.deep.equal(mapValues(this.domain, String));
+           expect(rebuildDomain).to.be.deep.equal(this.domain);
          });
 -
 -        if (shortOrLong === 'short') {
@@ -319,17 +341,18 @@ index 7ea535b7..32e3a370 100644
 -          // the upgradeable contract variant is used and the initializer is invoked.
 -
 -          it('adjusts when behind proxy', async function () {
--            const factory = await Clones.new();
--            const cloneReceipt = await factory.$clone(this.eip712.address);
--            const cloneAddress = cloneReceipt.logs.find(({ event }) => event === 'return$clone').args.instance;
--            const clone = new EIP712Verifier(cloneAddress);
+-            const factory = await ethers.deployContract('$Clones');
 -
--            const cloneDomain = { ...this.domain, verifyingContract: clone.address };
+-            const clone = await factory
+-              .$clone(this.eip712)
+-              .then(tx => tx.wait())
+-              .then(receipt => receipt.logs.find(ev => ev.fragment.name == 'return$clone_address').args.instance)
+-              .then(address => ethers.getContractAt('$EIP712Verifier', address));
 -
--            const reportedDomain = await getDomain(clone);
--            expect(mapValues(reportedDomain, String)).to.be.deep.equal(mapValues(cloneDomain, String));
+-            const expectedDomain = { ...this.domain, verifyingContract: clone.target };
+-            expect(await getDomain(clone)).to.be.deep.equal(expectedDomain);
 -
--            const expectedSeparator = await domainSeparator(cloneDomain);
+-            const expectedSeparator = await domainSeparator(expectedDomain);
 -            expect(await clone.$_domainSeparatorV4()).to.equal(expectedSeparator);
 -          });
 -        }

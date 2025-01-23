@@ -1,15 +1,17 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.9.0) (metatx/ERC2771Forwarder.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (metatx/ERC2771Forwarder.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
+import {ERC2771Context} from "./ERC2771Context.sol";
 import {ECDSA} from "../utils/cryptography/ECDSA.sol";
 import {EIP712} from "../utils/cryptography/EIP712.sol";
 import {Nonces} from "../utils/Nonces.sol";
 import {Address} from "../utils/Address.sol";
+import {Errors} from "../utils/Errors.sol";
 
 /**
- * @dev A forwarder compatible with ERC2771 contracts. See {ERC2771Context}.
+ * @dev A forwarder compatible with ERC-2771 contracts. See {ERC2771Context}.
  *
  * This forwarder operates on forward requests that include:
  *
@@ -25,6 +27,12 @@ import {Address} from "../utils/Address.sol";
  * throughput, relayers may run into limitations of the chain such as limits on the number of
  * transactions in the mempool. In these cases the recommendation is to distribute the load among
  * multiple accounts.
+ *
+ * NOTE: Batching requests includes an optional refund for unused `msg.value` that is achieved by
+ * performing a call with empty calldata. While this is within the bounds of ERC-2771 compliance,
+ * if the refund receiver happens to consider the forwarder a trusted forwarder, it MUST properly
+ * handle `msg.data.length == 0`. `ERC2771Context` in OpenZeppelin Contracts versions prior to 4.9.3
+ * do not handle this properly.
  *
  * ==== Security Considerations
  *
@@ -83,6 +91,11 @@ contract ERC2771Forwarder is EIP712, Nonces {
     error ERC2771ForwarderExpiredRequest(uint48 deadline);
 
     /**
+     * @dev The request target doesn't trust the `forwarder`.
+     */
+    error ERC2771UntrustfulTarget(address target, address forwarder);
+
+    /**
      * @dev See {EIP712-constructor}.
      */
     constructor(string memory name) EIP712(name, "1") {}
@@ -90,15 +103,15 @@ contract ERC2771Forwarder is EIP712, Nonces {
     /**
      * @dev Returns `true` if a request is valid for a provided `signature` at the current block timestamp.
      *
-     * A transaction is considered valid when it hasn't expired (deadline is not met), and the signer
-     * matches the `from` parameter of the signed request.
+     * A transaction is considered valid when the target trusts this forwarder, the request hasn't expired
+     * (deadline is not met), and the signer matches the `from` parameter of the signed request.
      *
      * NOTE: A request may return false here but it won't cause {executeBatch} to revert if a refund
      * receiver is provided.
      */
     function verify(ForwardRequestData calldata request) public view virtual returns (bool) {
-        (bool alive, bool signerMatch, ) = _validate(request);
-        return alive && signerMatch;
+        (bool isTrustedForwarder, bool active, bool signerMatch, ) = _validate(request);
+        return isTrustedForwarder && active && signerMatch;
     }
 
     /**
@@ -120,7 +133,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
         }
 
         if (!_execute(request, true)) {
-            revert Address.FailedInnerCall();
+            revert Errors.FailedCall();
         }
     }
 
@@ -186,31 +199,42 @@ contract ERC2771Forwarder is EIP712, Nonces {
      */
     function _validate(
         ForwardRequestData calldata request
-    ) internal view virtual returns (bool alive, bool signerMatch, address signer) {
-        signer = _recoverForwardRequestSigner(request);
-        return (request.deadline >= block.timestamp, signer == request.from, signer);
+    ) internal view virtual returns (bool isTrustedForwarder, bool active, bool signerMatch, address signer) {
+        (bool isValid, address recovered) = _recoverForwardRequestSigner(request);
+
+        return (
+            _isTrustedByTarget(request.to),
+            request.deadline >= block.timestamp,
+            isValid && recovered == request.from,
+            recovered
+        );
     }
 
     /**
-     * @dev Recovers the signer of an EIP712 message hash for a forward `request` and its corresponding `signature`.
-     * See {ECDSA-recover}.
+     * @dev Returns a tuple with the recovered the signer of an EIP712 forward request message hash
+     * and a boolean indicating if the signature is valid.
+     *
+     * NOTE: The signature is considered valid if {ECDSA-tryRecover} indicates no recover error for it.
      */
-    function _recoverForwardRequestSigner(ForwardRequestData calldata request) internal view virtual returns (address) {
-        return
-            _hashTypedDataV4(
-                keccak256(
-                    abi.encode(
-                        _FORWARD_REQUEST_TYPEHASH,
-                        request.from,
-                        request.to,
-                        request.value,
-                        request.gas,
-                        nonces(request.from),
-                        request.deadline,
-                        keccak256(request.data)
-                    )
+    function _recoverForwardRequestSigner(
+        ForwardRequestData calldata request
+    ) internal view virtual returns (bool isValid, address signer) {
+        (address recovered, ECDSA.RecoverError err, ) = _hashTypedDataV4(
+            keccak256(
+                abi.encode(
+                    _FORWARD_REQUEST_TYPEHASH,
+                    request.from,
+                    request.to,
+                    request.value,
+                    request.gas,
+                    nonces(request.from),
+                    request.deadline,
+                    keccak256(request.data)
                 )
-            ).recover(request.signature);
+            )
+        ).tryRecover(request.signature);
+
+        return (err == ECDSA.RecoverError.NoError, recovered);
     }
 
     /**
@@ -232,12 +256,16 @@ contract ERC2771Forwarder is EIP712, Nonces {
         ForwardRequestData calldata request,
         bool requireValidRequest
     ) internal virtual returns (bool success) {
-        (bool alive, bool signerMatch, address signer) = _validate(request);
+        (bool isTrustedForwarder, bool active, bool signerMatch, address signer) = _validate(request);
 
         // Need to explicitly specify if a revert is required since non-reverting is default for
         // batches and reversion is opt-in since it could be useful in some scenarios
         if (requireValidRequest) {
-            if (!alive) {
+            if (!isTrustedForwarder) {
+                revert ERC2771UntrustfulTarget(request.to, address(this));
+            }
+
+            if (!active) {
                 revert ERC2771ForwarderExpiredRequest(request.deadline);
             }
 
@@ -247,18 +275,55 @@ contract ERC2771Forwarder is EIP712, Nonces {
         }
 
         // Ignore an invalid request because requireValidRequest = false
-        if (signerMatch && alive) {
+        if (isTrustedForwarder && signerMatch && active) {
             // Nonce should be used before the call to prevent reusing by reentrancy
             uint256 currentNonce = _useNonce(signer);
 
-            (success, ) = request.to.call{gas: request.gas, value: request.value}(
-                abi.encodePacked(request.data, request.from)
-            );
+            uint256 reqGas = request.gas;
+            address to = request.to;
+            uint256 value = request.value;
+            bytes memory data = abi.encodePacked(request.data, request.from);
 
-            _checkForwardedGas(gasleft(), request);
+            uint256 gasLeft;
+
+            assembly ("memory-safe") {
+                success := call(reqGas, to, value, add(data, 0x20), mload(data), 0, 0)
+                gasLeft := gas()
+            }
+
+            _checkForwardedGas(gasLeft, request);
 
             emit ExecutedForwardRequest(signer, currentNonce, success);
         }
+    }
+
+    /**
+     * @dev Returns whether the target trusts this forwarder.
+     *
+     * This function performs a static call to the target contract calling the
+     * {ERC2771Context-isTrustedForwarder} function.
+     *
+     * NOTE: Consider the execution of this forwarder is permissionless. Without this check, anyone may transfer assets
+     * that are owned by, or are approved to this forwarder.
+     */
+    function _isTrustedByTarget(address target) internal view virtual returns (bool) {
+        bytes memory encodedParams = abi.encodeCall(ERC2771Context.isTrustedForwarder, (address(this)));
+
+        bool success;
+        uint256 returnSize;
+        uint256 returnValue;
+        assembly ("memory-safe") {
+            // Perform the staticcall and save the result in the scratch space.
+            // | Location  | Content  | Content (Hex)                                                      |
+            // |-----------|----------|--------------------------------------------------------------------|
+            // |           |          |                                                           result ↓ |
+            // | 0x00:0x1F | selector | 0x0000000000000000000000000000000000000000000000000000000000000001 |
+            success := staticcall(gas(), target, add(encodedParams, 0x20), mload(encodedParams), 0, 0x20)
+            returnSize := returndatasize()
+            returnValue := mload(0)
+        }
+
+        return success && returnSize >= 0x20 && returnValue > 0;
     }
 
     /**
@@ -284,7 +349,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
         // We can't know X after CALL dynamic costs, but we want it to be such that X * 63 / 64 >= req.gas.
         // Let Y be the gas used in the subcall. gasleft() measured immediately after the subcall will be gasleft() = X - Y.
         // If the subcall ran out of gas, then Y = X * 63 / 64 and gasleft() = X - Y = X / 64.
-        // Under this assumption req.gas / 63 > gasleft() is true is true if and only if
+        // Under this assumption req.gas / 63 > gasleft() is true if and only if
         // req.gas / 63 > X / 64, or equivalently req.gas > X * 63 / 64.
         // This means that if the subcall runs out of gas we are able to detect that insufficient gas was passed.
         //
@@ -297,10 +362,9 @@ contract ERC2771Forwarder is EIP712, Nonces {
         // the forwarding does not revert.
         if (gasLeft < request.gas / 63) {
             // We explicitly trigger invalid opcode to consume all gas and bubble-up the effects, since
-            // neither revert or assert consume all gas since Solidity 0.8.0
-            // https://docs.soliditylang.org/en/v0.8.0/control-structures.html#panic-via-assert-and-error-via-require
-            /// @solidity memory-safe-assembly
-            assembly {
+            // neither revert or assert consume all gas since Solidity 0.8.20
+            // https://docs.soliditylang.org/en/v0.8.20/control-structures.html#panic-via-assert-and-error-via-require
+            assembly ("memory-safe") {
                 invalid()
             }
         }

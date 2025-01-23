@@ -55,7 +55,7 @@ External contributions must be reviewed separately by multiple maintainers.
 
 Automation should be used as much as possible to reduce the possibility of human error and forgetfulness.
 
-Automations that make use of sensitive credentials must use secure secret management, and must be strengthened against attacks such as [those on GitHub Actions worklows](https://github.com/nikitastupin/pwnhub).
+Automations that make use of sensitive credentials must use secure secret management, and must be strengthened against attacks such as [those on GitHub Actions workflows](https://github.com/nikitastupin/pwnhub).
 
 Some other examples of automation are:
 
@@ -95,8 +95,18 @@ In addition to the official Solidity Style Guide we have a number of other conve
   }
   ```
 
-* Events should be emitted immediately after the state change that they
-  represent, and should be named in the past tense.
+* Functions should be declared virtual, with few exceptions listed below. The
+  contract logic should be written considering that these functions may be
+  overridden by developers, e.g. getting a value using an internal getter rather
+  than reading directly from a state variable.
+
+  If function A is an "alias" of function B, i.e. it invokes function B without
+  significant additional logic, then function A should not be virtual so that
+  any user overrides are implemented on B, preventing inconsistencies.
+
+* Events should generally be emitted immediately after the state change that they
+  represent, and should be named in the past tense. Some exceptions may be made for gas
+  efficiency if the result doesn't affect observable ordering of events.
 
   ```solidity
   function _burn(address who, uint256 value) internal {
@@ -105,7 +115,7 @@ In addition to the official Solidity Style Guide we have a number of other conve
   }
   ```
 
-  Some standards (e.g. ERC20) use present tense, and in those cases the
+  Some standards (e.g. ERC-20) use present tense, and in those cases the
   standard specification is used.
   
 * Interface names should have a capital I prefix.
@@ -119,6 +129,13 @@ In addition to the official Solidity Style Guide we have a number of other conve
 
   ```solidity
   abstract contract AccessControl is ..., {
+  ```
+
+* Return values are generally not named, unless they are not immediately clear or there are multiple return values.
+
+  ```solidity
+  function expiration() public view returns (uint256) { // Good
+  function hasRole() public view returns (bool isMember, uint32 currentDelay) { // Good
   ```
 
 * Unchecked arithmetic blocks should contain comments explaining why overflow is guaranteed not to happen. If the reason is immediately apparent from the line above the unchecked block, the comment may be omitted.

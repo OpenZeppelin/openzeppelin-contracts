@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.9.0) (access/AccessControl.sol)
+// OpenZeppelin Contracts (last updated v5.0.0) (access/AccessControl.sol)
 
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import {IAccessControl} from "./IAccessControl.sol";
 import {Context} from "../utils/Context.sol";
@@ -48,21 +48,17 @@ import {ERC165} from "../utils/introspection/ERC165.sol";
  */
 abstract contract AccessControl is Context, IAccessControl, ERC165 {
     struct RoleData {
-        mapping(address => bool) members;
+        mapping(address account => bool) hasRole;
         bytes32 adminRole;
     }
 
-    mapping(bytes32 => RoleData) private _roles;
+    mapping(bytes32 role => RoleData) private _roles;
 
     bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
 
     /**
      * @dev Modifier that checks that an account has a specific role. Reverts
-     * with a standardized message including the required role.
-     *
-     * The format of the revert reason is given by the following regular expression:
-     *
-     *  /^AccessControl: account (0x[0-9a-f]{40}) is missing role (0x[0-9a-f]{64})$/
+     * with an {AccessControlUnauthorizedAccount} error including the required role.
      */
     modifier onlyRole(bytes32 role) {
         _checkRole(role);
@@ -80,25 +76,20 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      * @dev Returns `true` if `account` has been granted `role`.
      */
     function hasRole(bytes32 role, address account) public view virtual returns (bool) {
-        return _roles[role].members[account];
+        return _roles[role].hasRole[account];
     }
 
     /**
-     * @dev Revert with a standard message if `_msgSender()` is missing `role`.
-     * Overriding this function changes the behavior of the {onlyRole} modifier.
-     *
-     * Format of the revert message is described in {_checkRole}.
+     * @dev Reverts with an {AccessControlUnauthorizedAccount} error if `_msgSender()`
+     * is missing `role`. Overriding this function changes the behavior of the {onlyRole} modifier.
      */
     function _checkRole(bytes32 role) internal view virtual {
         _checkRole(role, _msgSender());
     }
 
     /**
-     * @dev Revert with a standard message if `account` is missing `role`.
-     *
-     * The format of the revert reason is given by the following regular expression:
-     *
-     *  /^AccessControl: account (0x[0-9a-f]{40}) is missing role (0x[0-9a-f]{64})$/
+     * @dev Reverts with an {AccessControlUnauthorizedAccount} error if `account`
+     * is missing `role`.
      */
     function _checkRole(bytes32 role, address account) internal view virtual {
         if (!hasRole(role, account)) {
@@ -183,30 +174,36 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
     }
 
     /**
-     * @dev Grants `role` to `account`.
+     * @dev Attempts to grant `role` to `account` and returns a boolean indicating if `role` was granted.
      *
      * Internal function without access restriction.
      *
      * May emit a {RoleGranted} event.
      */
-    function _grantRole(bytes32 role, address account) internal virtual {
+    function _grantRole(bytes32 role, address account) internal virtual returns (bool) {
         if (!hasRole(role, account)) {
-            _roles[role].members[account] = true;
+            _roles[role].hasRole[account] = true;
             emit RoleGranted(role, account, _msgSender());
+            return true;
+        } else {
+            return false;
         }
     }
 
     /**
-     * @dev Revokes `role` from `account`.
+     * @dev Attempts to revoke `role` from `account` and returns a boolean indicating if `role` was revoked.
      *
      * Internal function without access restriction.
      *
      * May emit a {RoleRevoked} event.
      */
-    function _revokeRole(bytes32 role, address account) internal virtual {
+    function _revokeRole(bytes32 role, address account) internal virtual returns (bool) {
         if (hasRole(role, account)) {
-            _roles[role].members[account] = false;
+            _roles[role].hasRole[account] = false;
             emit RoleRevoked(role, account, _msgSender());
+            return true;
+        } else {
+            return false;
         }
     }
 }
