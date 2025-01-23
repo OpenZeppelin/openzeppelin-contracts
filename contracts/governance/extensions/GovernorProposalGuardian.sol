@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 import {Governor} from "../Governor.sol";
 
 /**
- * @dev Extension of {Governor} which adds a proposal guardian that can cancel proposals at any stage of their lifecycle.
+ * @dev Extension of {Governor} which adds a proposal guardian that can cancel proposals at any stage in the proposal's lifecycle.
  *
  * NOTE: if the proposal guardian is not configured, then proposers take this role for their proposals.
  */
@@ -40,7 +40,7 @@ abstract contract GovernorProposalGuardian is Governor {
     }
 
     /**
-     * @dev Override `_validateCancel` that implements the extended cancellation logic.
+     * @dev Override `_validateCancel` to implement the extended cancellation logic.
      *
      * * The {proposalGuardian} can cancel any proposal at any point.
      * * If no proposal guardian is set, the {IGovernor-proposalProposer} can cancel their proposals at any point.
@@ -49,8 +49,9 @@ abstract contract GovernorProposalGuardian is Governor {
     function _validateCancel(uint256 proposalId, address caller) internal view virtual override returns (bool) {
         address guardian = proposalGuardian();
 
-        return guardian == caller
-            || (guardian == address(0) && caller == proposalProposer(proposalId))
-            || super._validateCancel(proposalId, caller);
+        return
+            guardian == caller ||
+            (guardian == address(0) && caller == proposalProposer(proposalId)) ||
+            super._validateCancel(proposalId, caller);
     }
 }
