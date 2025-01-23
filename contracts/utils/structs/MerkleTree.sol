@@ -229,7 +229,10 @@ library MerkleTree {
             for (uint32 i = 0; i < treeDepth; i++) {
                 bool isLeft = currentIndex % 2 == 0;
 
-                if (isLeft && (currentIndex >> 1) == (lastIndex >> 1)) {
+                lastIndex >>= 1;
+                currentIndex >>= 1;
+
+                if (isLeft && currentIndex == lastIndex) {
                     StorageSlot.Bytes32Slot storage side = Arrays.unsafeAccess(sides, i);
                     require(side.value == currentLevelHashOld, "Invalid proof");
                     side.value = currentLevelHashNew;
@@ -244,9 +247,6 @@ library MerkleTree {
                     isLeft ? currentLevelHashNew : sibling,
                     isLeft ? sibling : currentLevelHashNew
                 );
-
-                lastIndex >>= 1;
-                currentIndex >>= 1;
             }
             return (currentLevelHashOld, currentLevelHashNew);
         }
