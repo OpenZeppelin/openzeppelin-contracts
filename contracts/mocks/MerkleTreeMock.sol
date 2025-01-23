@@ -28,7 +28,7 @@ contract MerkleTreeMock {
 
     function update(uint256 index, bytes32 oldValue, bytes32 newValue, bytes32[] memory proof) public {
         (bytes32 oldRoot, bytes32 newRoot) = _tree.update(index, oldValue, newValue, proof);
-        if (oldRoot != root) revert MerkleTreeUpdateInvalidProof();
+        if (oldRoot != root) revert MerkleTree.MerkleTreeUpdateInvalidProof();
         emit LeafUpdated(oldValue, newValue, index, newRoot);
         root = newRoot;
     }
