@@ -14,41 +14,6 @@ abstract contract GovernorProposalGuardian is Governor {
     event ProposalGuardianSet(address oldProposalGuardian, address newProposalGuardian);
 
     /**
-     * @dev Override {IGovernor-cancel} that implements the extended cancellation logic.
-     *
-     * * The {proposalGuardian} can cancel any proposal at any point in the lifecycle.
-     * * if no proposal guardian is set, the {proposalProposer} can cancel their proposals at any point in the lifecycle.
-     * * if the proposal guardian is set, the {proposalProposer} keeps their default rights defined in {IGovernor-cancel} (calling `super`).
-     */
-    function cancel(
-        address[] memory targets,
-        uint256[] memory values,
-        bytes[] memory calldatas,
-        bytes32 descriptionHash
-    ) public virtual override returns (uint256) {
-        address caller = _msgSender();
-        address guardian = proposalGuardian();
-
-        if (guardian == address(0)) {
-            // if there is no proposal guardian
-            // ... only the proposer can cancel
-            // ... no restriction on when the proposer can cancel
-            uint256 proposalId = getProposalId(targets, values, calldatas, descriptionHash);
-            address proposer = proposalProposer(proposalId);
-            if (caller != proposer) revert GovernorOnlyProposer(caller);
-            return _cancel(targets, values, calldatas, descriptionHash);
-        } else if (guardian == caller) {
-            // if there is a proposal guardian, and the caller is the proposal guardian
-            // ... just cancel
-            return _cancel(targets, values, calldatas, descriptionHash);
-        } else {
-            // if there is a proposal guardian, and the caller is not the proposal guardian
-            // ... apply default behavior
-            return super.cancel(targets, values, calldatas, descriptionHash);
-        }
-    }
-
-    /**
      * @dev Getter that returns the address of the proposal guardian.
      */
     function proposalGuardian() public view virtual returns (address) {
@@ -72,5 +37,31 @@ abstract contract GovernorProposalGuardian is Governor {
     function _setProposalGuardian(address newProposalGuardian) internal virtual {
         emit ProposalGuardianSet(_proposalGuardian, newProposalGuardian);
         _proposalGuardian = newProposalGuardian;
+    }
+
+    /**
+     * @dev Override `_validateCancel` that implements the extended cancellation logic.
+     *
+     * * The {proposalGuardian} can cancel any proposal at any point.
+     * * If no proposal guardian is set, the {IGovernor-proposalProposer} can cancel their proposals at any point.
+     * * All other conditions are forwarded to super for default cancellation validation (as defined in {Governor-_validateCancel}).
+     */
+    function _validateCancel(uint256 proposalId, address caller) internal view virtual override returns (bool) {
+        address guardian = proposalGuardian();
+
+        if (guardian == address(0)) {
+            // if there is no proposal guardian
+            // ... no restriction on when the proposer can cancel
+            if (caller == proposalProposer(proposalId)) return true;
+        } else if (guardian == caller) {
+            // if there is a proposal guardian, and the caller is the proposal guardian
+            // ... just cancel
+            return true;
+        }
+
+        // if there is no guardian and the caller isn't the proposer or
+        // there is a proposal guardian, and the caller is not the proposal guardian
+        // ... apply default behavior
+        return super._validateCancel(proposalId, caller);
     }
 }

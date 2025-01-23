@@ -1,8 +1,8 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { impersonate } = require('../../helpers/account');
 
+const { impersonate } = require('../../helpers/account');
 const { GovernorHelper } = require('../../helpers/governance');
 const { ProposalState } = require('../../helpers/enums');
 
@@ -10,7 +10,6 @@ const TOKENS = [
   { Token: '$ERC20Votes', mode: 'blocknumber' },
   { Token: '$ERC20VotesTimestampMock', mode: 'timestamp' },
 ];
-
 const name = 'Proposal Guardian Governor';
 const version = '1';
 const tokenName = 'MockToken';
@@ -105,12 +104,8 @@ describe('GovernorProposalGuardian', function () {
 
         it('from proposer when proposal guardian is non-zero', async function () {
           await expect(this.helper.connect(this.proposer).cancel())
-            .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
-            .withArgs(
-              this.proposal.id,
-              ProposalState.Active,
-              GovernorHelper.proposalStatesToBitMap([ProposalState.Pending]),
-            );
+            .to.be.revertedWithCustomError(this.mock, 'GovernorUnableToCancel')
+            .withArgs(this.proposal.id, this.proposer);
         });
 
         it('from proposer when proposal guardian is zero', async function () {
