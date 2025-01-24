@@ -14,11 +14,13 @@ describe('ERC6909Metadata', function () {
 
   describe('name', function () {
     it('is empty string be default', async function () {
-      return expect(this.token.name(1n)).to.eventually.equal('');
+      await expect(this.token.name(1n)).to.eventually.equal('');
     });
 
     it('can be set by dedicated setter', async function () {
-      await this.token.$_setName(1n, 'My Token');
+      await expect(this.token.$_setName(1n, 'My Token'))
+        .to.emit(this.token, 'ERC6909NameUpdated')
+        .withArgs(1n, 'My Token');
       await expect(this.token.name(1n)).to.eventually.equal('My Token');
 
       // Only set for the specified token ID
@@ -32,7 +34,7 @@ describe('ERC6909Metadata', function () {
     });
 
     it('can be set by dedicated setter', async function () {
-      await this.token.$_setSymbol(1n, 'MTK');
+      await expect(this.token.$_setSymbol(1n, 'MTK')).to.emit(this.token, 'ERC6909SymbolUpdated').withArgs(1n, 'MTK');
       await expect(this.token.symbol(1n)).to.eventually.equal('MTK');
 
       // Only set for the specified token ID
@@ -46,7 +48,7 @@ describe('ERC6909Metadata', function () {
     });
 
     it('can be set by dedicated setter', async function () {
-      await this.token.$_setDecimals(1n, 18);
+      await expect(this.token.$_setDecimals(1n, 18)).to.emit(this.token, 'ERC6909DecimalsUpdated').withArgs(1n, 18);
       await expect(this.token.decimals(1n)).to.eventually.equal(18);
 
       // Only set for the specified token ID

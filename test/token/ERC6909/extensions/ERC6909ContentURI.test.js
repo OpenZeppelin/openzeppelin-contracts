@@ -42,8 +42,8 @@ describe('ERC6909ContentURI', function () {
 
     it('emits an event when set', async function () {
       await expect(this.token.$_setTokenURI(1n, 'https://example.com/1'))
-        .to.emit(this.token, 'MetadataUpdate')
-        .withArgs(1n);
+        .to.emit(this.token, 'URI')
+        .withArgs('https://example.com/1', 1n);
     });
   });
 });

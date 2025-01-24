@@ -17,10 +17,9 @@ contract ERC6909ContentURI is ERC6909, IERC6909ContentURI {
      */
     event ContractURIUpdated();
 
-    /**
-     * @dev See {IERC4906-MetadataUpdate}. This contract does not inherit {IERC4906} as it requires {IERC721}.
-     */
-    event MetadataUpdate(uint256 _tokenId);
+    /// @dev See {IERC1155-URI}
+
+    event URI(string value, uint256 indexed id);
 
     /// @inheritdoc IERC6909ContentURI
     function contractURI() public view virtual override returns (string memory) {
@@ -41,6 +40,6 @@ contract ERC6909ContentURI is ERC6909, IERC6909ContentURI {
     function _setTokenURI(uint256 id, string memory newTokenURI) internal {
         _tokenURIs[id] = newTokenURI;
 
-        emit MetadataUpdate(id);
+        emit URI(newTokenURI, id);
     }
 }
