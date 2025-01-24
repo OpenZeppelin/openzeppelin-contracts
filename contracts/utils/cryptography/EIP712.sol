@@ -109,7 +109,7 @@ abstract contract EIP712 is IERC5267 {
     }
 
     /**
-     * @dev See {IERC-5267}.
+     * @inheritdoc IERC5267
      */
     function eip712Domain()
         public
