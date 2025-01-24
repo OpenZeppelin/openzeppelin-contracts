@@ -22,6 +22,7 @@ abstract contract ERC7540 is ERC4626, IERC7540 {
 
     // Mappings to track pending and claimable requests
     mapping(address => mapping(uint256 => Request)) private _pendingDepositRequests;
+    mapping(address => mapping(uint256 => Request)) private _pendingRedeemRequests;
 
     mapping(address => mapping(address => bool)) private _operators;
 
@@ -46,6 +47,26 @@ abstract contract ERC7540 is ERC4626, IERC7540 {
     }
 
     /**
+     * @dev Creates a new redeem request.
+     */
+    function requestRedeem(
+        uint256 shares,
+        address controller,
+        address owner
+    ) external override returns (uint256 requestId) {
+        require(shares > 0, "ERC7540: shares must be greater than zero");
+        require(owner == msg.sender || isOperator(owner, msg.sender), "ERC7540: unauthorized");
+
+        requestId = _generateRequestId(controller, shares);
+
+        _burn(owner, shares);
+
+        _pendingRedeemRequests[controller][requestId].amount += shares;
+
+        emit RedeemRequest(controller, owner, requestId, msg.sender, shares);
+    }
+
+    /**
      * @dev Gets the pending deposit request amount.
      */
     function pendingDepositRequest(uint256 requestId, address controller) external view override returns (uint256) {
@@ -57,6 +78,20 @@ abstract contract ERC7540 is ERC4626, IERC7540 {
      */
     function claimableDepositRequest(uint256 requestId, address controller) external view override returns (uint256) {
         return _pendingDepositRequests[controller][requestId].claimable;
+    }
+
+    /**
+     * @dev Gets the pending redeem request amount.
+     */
+    function pendingRedeemRequest(uint256 requestId, address controller) external view override returns (uint256) {
+        return _pendingRedeemRequests[controller][requestId].amount;
+    }
+
+    /**
+     * @dev Gets the claimable redeem request amount.
+     */
+    function claimableRedeemRequest(uint256 requestId, address controller) external view override returns (uint256) {
+        return _pendingRedeemRequests[controller][requestId].claimable;
     }
 
     /**
