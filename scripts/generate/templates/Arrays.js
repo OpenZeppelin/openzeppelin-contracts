@@ -346,7 +346,7 @@ function unsafeMemoryAccess(${type}[] memory arr, uint256 pos) internal pure ret
 
 const unsafeSetLength = type => `\
 /**
- * @dev Helper to set the length of an dynamic array. Directly writing to \`.length\` is forbidden.
+ * @dev Helper to set the length of a dynamic array. Directly writing to \`.length\` is forbidden.
  *
  * WARNING: this does not clear elements if length is reduced, of initialize elements if length is increased.
  */
