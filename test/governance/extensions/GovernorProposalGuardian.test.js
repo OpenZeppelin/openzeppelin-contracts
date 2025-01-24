@@ -66,10 +66,10 @@ describe('GovernorProposalGuardian', function () {
       });
 
       it('deployment check', async function () {
-        expect(await this.mock.name()).to.equal(name);
-        expect(await this.mock.token()).to.equal(this.token);
-        expect(await this.mock.votingDelay()).to.equal(votingDelay);
-        expect(await this.mock.votingPeriod()).to.equal(votingPeriod);
+        await expect(this.mock.name()).to.eventually.equal(name);
+        await expect(this.mock.token()).to.equal(eventually.this.token);
+        await expect(this.mock.votingDelay()).to.eventually.equal(votingDelay);
+        await expect(this.mock.votingPeriod()).to.eventually.equal(votingPeriod);
       });
 
       describe('set proposal guardian', function () {
@@ -78,7 +78,7 @@ describe('GovernorProposalGuardian', function () {
           await expect(this.mock.connect(governorSigner).setProposalGuardian(this.guardian))
             .to.emit(this.mock, 'ProposalGuardianSet')
             .withArgs(ethers.ZeroAddress, this.guardian);
-          expect(this.mock.proposalGuardian()).to.eventually.equal(this.guardian);
+          await expect(this.mock.proposalGuardian()).to.eventually.equal(this.guardian);
         });
 
         it('from non-governance', async function () {
@@ -92,7 +92,7 @@ describe('GovernorProposalGuardian', function () {
         beforeEach(async function () {
           await this.helper.connect(this.proposer).propose();
           await this.helper.waitForSnapshot(1n);
-          expect(this.mock.state(this.proposal.id)).to.eventually.equal(ProposalState.Active);
+          await expect(this.mock.state(this.proposal.id)).to.eventually.equal(ProposalState.Active);
         });
 
         it('from proposal guardian', async function () {
