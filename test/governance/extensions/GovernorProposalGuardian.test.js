@@ -88,6 +88,13 @@ describe('GovernorProposalGuardian', function () {
         });
       });
 
+      it('cancel during pending state from proposer when proposal guardian is non-zero', async function () {
+        await this.helper.connect(this.proposer).propose();
+        await expect(this.helper.connect(this.proposer).cancel())
+          .to.emit(this.mock, 'ProposalCanceled')
+          .withArgs(this.proposal.id);
+      });
+
       describe('cancel proposal during active state', function () {
         beforeEach(async function () {
           await this.helper.connect(this.proposer).propose();
