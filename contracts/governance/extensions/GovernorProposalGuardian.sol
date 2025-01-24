@@ -40,7 +40,7 @@ abstract contract GovernorProposalGuardian is Governor {
     }
 
     /**
-     * @dev Override `_validateCancel` to implement the extended cancellation logic.
+     * @dev Override {Governor-_validateCancel} to implement the extended cancellation logic.
      *
      * * The {proposalGuardian} can cancel any proposal at any point.
      * * If no proposal guardian is set, the {IGovernor-proposalProposer} can cancel their proposals at any point.
