@@ -146,7 +146,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ github.ref_name }}
-          overwrite: true
           path: ${{ steps.pack.outputs.tarball }}
       - name: Publish
         run: bash scripts/release/workflow/publish.sh
