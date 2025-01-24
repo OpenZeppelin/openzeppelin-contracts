@@ -44,7 +44,7 @@ abstract contract GovernorProposalGuardian is Governor {
      *
      * * The {proposalGuardian} can cancel any proposal at any point.
      * * If no proposal guardian is set, the {IGovernor-proposalProposer} can cancel their proposals at any point.
-     * * All other conditions are forwarded to super for default cancellation validation (as defined in {Governor-_validateCancel}).
+     * * In any case, permissions defined in {Governor-_validateCancel} (or another override) remains valid.
      */
     function _validateCancel(uint256 proposalId, address caller) internal view virtual override returns (bool) {
         address guardian = proposalGuardian();
