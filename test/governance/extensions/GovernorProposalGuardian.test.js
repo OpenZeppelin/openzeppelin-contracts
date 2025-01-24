@@ -67,7 +67,7 @@ describe('GovernorProposalGuardian', function () {
 
       it('deployment check', async function () {
         await expect(this.mock.name()).to.eventually.equal(name);
-        await expect(this.mock.token()).to.equal(eventually.this.token);
+        await expect(this.mock.token()).to.eventually.equal(this.token);
         await expect(this.mock.votingDelay()).to.eventually.equal(votingDelay);
         await expect(this.mock.votingPeriod()).to.eventually.equal(votingPeriod);
       });
@@ -84,7 +84,7 @@ describe('GovernorProposalGuardian', function () {
         it('from non-governance', async function () {
           await expect(this.mock.connect(this.other).setProposalGuardian(this.guardian))
             .to.be.revertedWithCustomError(this.mock, 'GovernorOnlyExecutor')
-            .withArgs(this.owner.address);
+            .withArgs(this.other);
         });
       });
 
@@ -113,7 +113,7 @@ describe('GovernorProposalGuardian', function () {
 
         it('from proposer when proposal guardian is zero', async function () {
           await this.mock.$_setProposalGuardian(ethers.ZeroAddress);
-          
+
           await expect(this.helper.connect(this.proposer).cancel())
             .to.emit(this.mock, 'ProposalCanceled')
             .withArgs(this.proposal.id);
