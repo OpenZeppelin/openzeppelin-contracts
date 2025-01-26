@@ -2,16 +2,17 @@
 
 pragma solidity ^0.8.20;
 
-import {ERC4626} from "./ERC4626.sol";
 import {IERC7540} from "../../../interfaces/IERC7540.sol";
-import {SafeERC20} from "../utils/SafeERC20.sol";
 import {IERC20} from "../../../interfaces/IERC20.sol";
+import {ERC4626} from "./ERC4626.sol";
+import {SafeERC20} from "../utils/SafeERC20.sol";
 import {Math} from "../../../utils/math/Math.sol";
+import {ReentrancyGuard} from "../../../utils/ReentrancyGuard.sol";
 
 /**
  * @dev Abstract implementation of the ERC-7540 standard, extending ERC-4626.
  */
-abstract contract ERC7540 is ERC4626, IERC7540 {
+abstract contract ERC7540 is ERC4626, IERC7540, ReentrancyGuard {
     using SafeERC20 for IERC20;
     using Math for uint256;
 
@@ -21,10 +22,15 @@ abstract contract ERC7540 is ERC4626, IERC7540 {
     }
 
     // Mappings to track pending and claimable requests
-    mapping(address => mapping(uint256 => Request)) private _pendingDepositRequests;
-    mapping(address => mapping(uint256 => Request)) private _pendingRedeemRequests;
+    mapping(address => mapping(uint256 => Request)) internal _pendingDepositRequests;
+    mapping(address => mapping(uint256 => Request)) internal _pendingRedeemRequests;
 
     mapping(address => mapping(address => bool)) private _operators;
+
+    /**
+     * @dev Set the underlying asset contract.
+     */
+    constructor(IERC20 asset) ERC4626(asset) {}
 
     /**
      * @dev Creates a new deposit request.
@@ -33,7 +39,7 @@ abstract contract ERC7540 is ERC4626, IERC7540 {
         uint256 assets,
         address controller,
         address owner
-    ) external override returns (uint256 requestId) {
+    ) external override nonReentrant returns (uint256 requestId) {
         require(assets > 0, "ERC7540: assets must be greater than zero");
         require(owner == msg.sender || isOperator(owner, msg.sender), "ERC7540: unauthorized");
 
@@ -53,7 +59,7 @@ abstract contract ERC7540 is ERC4626, IERC7540 {
         uint256 shares,
         address controller,
         address owner
-    ) external override returns (uint256 requestId) {
+    ) external override nonReentrant returns (uint256 requestId) {
         require(shares > 0, "ERC7540: shares must be greater than zero");
         require(owner == msg.sender || isOperator(owner, msg.sender), "ERC7540: unauthorized");
 
@@ -114,7 +120,7 @@ abstract contract ERC7540 is ERC4626, IERC7540 {
      * @dev Internal function to generate a unique request ID.
      */
     function _generateRequestId(address controller, uint256 input) internal view returns (uint256) {
-        return uint256(keccak256(abi.encodePacked(block.timestamp, controller, input)));
+        return uint256(keccak256(abi.encodePacked(block.timestamp, block.number, msg.sender, controller, input)));
     }
 
     /**
