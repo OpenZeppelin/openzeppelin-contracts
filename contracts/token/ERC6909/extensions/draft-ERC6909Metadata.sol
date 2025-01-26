@@ -17,7 +17,7 @@ contract ERC6909Metadata is ERC6909, IERC6909Metadata {
 
     mapping(uint256 id => TokenMetadata) private _tokenMetadata;
 
-    /// The name of the token of type `id` was updated to `newName`.
+    /// @dev The name of the token of type `id` was updated to `newName`.
     event ERC6909NameUpdated(uint256 indexed id, string newName);
 
     /// @dev The symbol for the token of type `id` was updated to `newSymbol`.
