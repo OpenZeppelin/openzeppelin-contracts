@@ -11,16 +11,16 @@ import {IERC165, ERC165} from "../../utils/introspection/ERC165.sol";
  * See https://eips.ethereum.org/EIPS/eip-6909
  */
 contract ERC6909 is Context, ERC165, IERC6909 {
-    error ERC6909InsufficientBalance(address sender, uint256 balance, uint256 needed, uint256 id);
-    error ERC6909InsufficientAllowance(address spender, uint256 allowance, uint256 needed, uint256 id);
-    error ERC6909InvalidReceiver(address receiver);
-    error ERC6909InvalidSender(address sender);
-
     mapping(address owner => mapping(uint256 id => uint256)) private _balances;
 
     mapping(address owner => mapping(address operator => bool)) private _operatorApprovals;
 
     mapping(address owner => mapping(address spender => mapping(uint256 id => uint256))) private _allowances;
+
+    error ERC6909InsufficientBalance(address sender, uint256 balance, uint256 needed, uint256 id);
+    error ERC6909InsufficientAllowance(address spender, uint256 allowance, uint256 needed, uint256 id);
+    error ERC6909InvalidReceiver(address receiver);
+    error ERC6909InvalidSender(address sender);
 
     /// @inheritdoc IERC165
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IERC165) returns (bool) {
