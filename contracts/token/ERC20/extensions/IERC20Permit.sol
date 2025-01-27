@@ -41,8 +41,8 @@ pragma solidity ^0.8.20;
  */
 interface IERC20Permit {
     /**
-     * @dev Sets `value` as the allowance of `spender` over ``owner'``s tokens,
-     * given ``owner'``s signed approval.
+     * @dev Sets `value` as the allowance of `spender` over ``owner``'s tokens,
+     * given ``owner``'s signed approval.
      *
      * IMPORTANT: The same issues {IERC20-approve} has related to transaction
      * ordering also apply here.
