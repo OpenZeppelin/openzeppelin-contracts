@@ -46,6 +46,20 @@ describe('ERC6909', function () {
       });
     });
 
+    describe('_transfer', function () {
+      it('reverts when transferring from the zero address', async function () {
+        await expect(this.token.$_transfer(ethers.ZeroAddress, this.holder, 1n, 1n))
+          .to.be.revertedWithCustomError(this.token, 'ERC6909InvalidSender')
+          .withArgs(ethers.ZeroAddress);
+      });
+
+      it('reverts when transferring to the zero address', async function () {
+        await expect(this.token.$_transfer(this.holder, ethers.ZeroAddress, 1n, 1n))
+          .to.be.revertedWithCustomError(this.token, 'ERC6909InvalidReceiver')
+          .withArgs(ethers.ZeroAddress);
+      });
+    });
+
     describe('_burn', function () {
       it('reverts with a zero from address', async function () {
         await expect(this.token.$_burn(ethers.ZeroAddress, tokenId, burnValue))
@@ -71,10 +85,20 @@ describe('ERC6909', function () {
       });
     });
 
-    it('reverts when transferring from the zero address', async function () {
-      await expect(this.token.$_transfer(ethers.ZeroAddress, this.holder, 1n, 1n))
-        .to.be.revertedWithCustomError(this.token, 'ERC6909InvalidSender')
-        .withArgs(ethers.ZeroAddress);
+    describe('_approve', function () {
+      it('reverts when the owner is the zero address', async function () {
+        await expect(this.token.$_approve(ethers.ZeroAddress, this.recipient, 1n, 1n))
+          .to.be.revertedWithCustomError(this.token, 'ERC6909InvalidApprover')
+          .withArgs(ethers.ZeroAddress);
+      });
+    });
+
+    describe('_setOperator', function () {
+      it('reverts when the owner is the zero address', async function () {
+        await expect(this.token.$_setOperator(ethers.ZeroAddress, this.operator, true))
+          .to.be.revertedWithCustomError(this.token, 'ERC6909InvalidApprover')
+          .withArgs(ethers.ZeroAddress);
+      });
     });
   });
 });

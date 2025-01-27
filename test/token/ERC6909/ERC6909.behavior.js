@@ -40,16 +40,14 @@ function shouldBehaveLikeERC6909() {
     });
 
     describe('setOperator', function () {
-      beforeEach(async function () {
-        this.tx = await this.token.connect(this.holder).setOperator(this.operator, true);
-      });
+      it('emits an an OperatorSet event and updated the value', async function () {
+        await expect(this.token.connect(this.holder).setOperator(this.operator, true))
+          .to.emit(this.token, 'OperatorSet')
+          .withArgs(this.holder, this.operator, true);
 
-      it('emits an an OperatorSet event', async function () {
-        await expect(this.tx).to.emit(this.token, 'OperatorSet').withArgs(this.holder, this.operator, true);
-      });
-
-      it('should be reflected in isOperator call', async function () {
+        // operator for holder
         await expect(this.token.isOperator(this.holder, this.operator)).to.eventually.be.true;
+
         // not operator for other account
         await expect(this.token.isOperator(this.alice, this.operator)).to.eventually.be.false;
       });
@@ -59,24 +57,25 @@ function shouldBehaveLikeERC6909() {
           .to.emit(this.token, 'OperatorSet')
           .withArgs(this.holder, this.operator, false);
       });
+
+      it('cannot set address(0) as an operator', async function () {
+        await expect(this.token.setOperator(ethers.ZeroAddress, true))
+          .to.be.revertedWithCustomError(this.token, 'ERC6909InvalidSpender')
+          .withArgs(ethers.ZeroAddress);
+      });
     });
 
     describe('approve', function () {
-      beforeEach(async function () {
-        this.tx = await this.token.connect(this.holder).approve(this.operator, firstTokenId, firstTokenAmount);
-      });
-
-      it('emits an Approval event', async function () {
-        await expect(this.tx)
+      it('emits an Approval event and updates allowance', async function () {
+        await expect(this.token.connect(this.holder).approve(this.operator, firstTokenId, firstTokenAmount))
           .to.emit(this.token, 'Approval')
           .withArgs(this.holder, this.operator, firstTokenId, firstTokenAmount);
-      });
 
-      it('is reflected in allowance', async function () {
+        // approved
         await expect(this.token.allowance(this.holder, this.operator, firstTokenId)).to.eventually.be.equal(
           firstTokenAmount,
         );
-        // not operator for other account
+        // other account is not approved
         await expect(this.token.allowance(this.alice, this.operator, firstTokenId)).to.eventually.be.equal(0);
       });
 
@@ -85,6 +84,12 @@ function shouldBehaveLikeERC6909() {
           .to.emit(this.token, 'Approval')
           .withArgs(this.holder, this.operator, firstTokenId, 0);
         await expect(this.token.allowance(this.holder, this.operator, firstTokenId)).to.eventually.be.equal(0);
+      });
+
+      it('cannot give allowance to address(0)', async function () {
+        await expect(this.token.connect(this.holder).approve(ethers.ZeroAddress, firstTokenId, firstTokenAmount))
+          .to.be.revertedWithCustomError(this.token, 'ERC6909InvalidSpender')
+          .withArgs(ethers.ZeroAddress);
       });
     });
 
