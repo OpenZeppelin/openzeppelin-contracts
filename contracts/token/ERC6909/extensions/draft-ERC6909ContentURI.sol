@@ -28,12 +28,22 @@ contract ERC6909ContentURI is ERC6909, IERC6909ContentURI {
         return _tokenURIs[id];
     }
 
+    /**
+     * @dev Sets the {contractURI} for the contract.
+     *
+     * Emits a {ContractURIUpdated} event.
+     */
     function _setContractURI(string memory newContractURI) internal virtual {
         _contractURI = newContractURI;
 
         emit ContractURIUpdated();
     }
 
+    /**
+     * @dev Sets the {tokenURI} for a given token of type `id`.
+     *
+     * Emits a {URI} event.
+     */
     function _setTokenURI(uint256 id, string memory newTokenURI) internal virtual {
         _tokenURIs[id] = newTokenURI;
 
