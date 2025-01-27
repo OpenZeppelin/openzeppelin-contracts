@@ -155,7 +155,7 @@ contract ERC6909 is Context, ERC165, IERC6909 {
     }
 
     /**
-     * @dev Sets `amount` as the allowance of `spender` over the `owner` s `id` tokens.
+     * @dev Sets `amount` as the allowance of `spender` over the `owner`'s `id` tokens.
      *
      * This internal function is equivalent to `approve`, and can be used to e.g. set automatic allowances for certain
      * subsystems, etc.
@@ -179,7 +179,7 @@ contract ERC6909 is Context, ERC165, IERC6909 {
     }
 
     /**
-     * @dev Approve `spender` to operate on all of `owner` tokens
+     * @dev Approve `spender` to operate on all of `owner`'s tokens
      *
      * This internal function is equivalent to `setOperator`, and can be used to e.g. set automatic allowances for
      * certain subsystems, etc.
@@ -203,7 +203,7 @@ contract ERC6909 is Context, ERC165, IERC6909 {
     }
 
     /**
-     * @dev Updates `owner` s allowance for `spender` based on spent `amount`.
+     * @dev Updates `owner`'s allowance for `spender` based on spent `amount`.
      *
      * Does not update the allowance value in case of infinite allowance.
      * Revert if not enough allowance is available.
