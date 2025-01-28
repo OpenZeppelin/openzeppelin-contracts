@@ -30,14 +30,12 @@ contract ERC7540Mock is ERC7540 {
         Request memory depositRequest = getPendingDepositRequest(controller, requestId);
         if (depositRequest.amount > 0) {
             depositRequest.claimable += depositRequest.amount;
-            emit DepositProcessed(controller, requestId, depositRequest.amount);
             depositRequest.amount = 0;
         }
 
         Request memory redeemRequest = getPendingRedeemRequest(controller, requestId);
         if (redeemRequest.amount > 0) {
             redeemRequest.claimable += redeemRequest.amount;
-            emit RedeemProcessed(controller, requestId, redeemRequest.amount);
             redeemRequest.amount = 0;
         }
     }

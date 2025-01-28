@@ -33,10 +33,6 @@ interface IERC7540 is IERC4626 {
 
     event OperatorSet(address indexed controller, address indexed operator, bool approved);
 
-    event DepositProcessed(address indexed controller, uint256 indexed requestId, uint256 amount);
-
-    event RedeemProcessed(address indexed controller, uint256 indexed requestId, uint256 amount);
-
     /**
      * @dev Indicates an error related to the current `shares` of a `sender`. Used in transfers.
      * @param sender Address whose tokens are being transferred.
