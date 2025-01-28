@@ -141,7 +141,7 @@ abstract contract ERC7540 is ERC4626, IERC7540 {
     /**
      * @dev Internal function to generates a request ID. Requests created within the same block,
      * for the same controller, input, and sender, are cumulative.
-     * 
+     *
      * Using only `block.number` ensures consistent behavior on L2s, where
      * `block.timestamp` might vary slightly between operators. This approach
      * defines "fungibility" of requests generated within the same block and
