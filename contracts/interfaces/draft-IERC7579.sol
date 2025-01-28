@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.2.0) (interfaces/draft-IERC7579.sol)
 pragma solidity ^0.8.20;
 
 import {PackedUserOperation} from "./draft-IERC4337.sol";
@@ -120,7 +121,7 @@ interface IERC7579Execution {
      * MUST ensure adequate authorization control: e.g. onlyEntryPointOrSelf if used with ERC-4337
      * If a mode is requested that is not supported by the Account, it MUST revert
      */
-    function execute(bytes32 mode, bytes calldata executionCalldata) external;
+    function execute(bytes32 mode, bytes calldata executionCalldata) external payable;
 
     /**
      * @dev Executes a transaction on behalf of the account.
@@ -135,7 +136,7 @@ interface IERC7579Execution {
     function executeFromExecutor(
         bytes32 mode,
         bytes calldata executionCalldata
-    ) external returns (bytes[] memory returnData);
+    ) external payable returns (bytes[] memory returnData);
 }
 
 /**
