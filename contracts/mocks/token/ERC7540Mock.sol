@@ -8,7 +8,7 @@ import {ERC7540} from "../../token/ERC20/extensions/ERC7540.sol";
 import {ERC4626} from "../../token/ERC20/extensions/ERC4626.sol";
 
 contract ERC7540Mock is ERC7540 {
-    constructor(address asset) ERC20("ERC4626Mock", "E4626M") ERC7540(IERC20(asset)) {}
+    constructor(IERC20 asset) ERC20("ERC4626Mock", "E4626M") ERC7540(asset) {}
 
     function processPendingDeposit(uint256 requestId, address controller) external view {
         Request memory request = getPendingDepositRequest(controller, requestId);
