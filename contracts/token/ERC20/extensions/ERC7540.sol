@@ -15,11 +15,6 @@ abstract contract ERC7540 is ERC4626, IERC7540 {
     using SafeERC20 for IERC20;
     using Math for uint256;
 
-    struct Request {
-        uint256 amount;
-        uint256 claimable;
-    }
-
     // Mappings to track pending and claimable requests
     mapping(address => mapping(uint256 => Request)) private _pendingDepositRequests;
     mapping(address => mapping(uint256 => Request)) private _pendingRedeemRequests;
@@ -116,23 +111,23 @@ abstract contract ERC7540 is ERC4626, IERC7540 {
     }
 
     /**
-     * @dev Internal function to return pending deposit request.
+     * @dev Function to return pending deposit request.
      */
-    function _getPendingDepositRequest(address controller, uint256 requestId) internal view returns (Request memory) {
+    function getPendingDepositRequest(address controller, uint256 requestId) public view returns (Request memory) {
         return _pendingDepositRequests[controller][requestId];
     }
 
     /**
-     * @dev Internal function to return pending redeem request.
+     * @dev Function to return pending redeem request.
      */
-    function _getPendingRedeemRequest(address controller, uint256 requestId) internal view returns (Request memory) {
+    function getPendingRedeemRequest(address controller, uint256 requestId) public view returns (Request memory) {
         return _pendingRedeemRequests[controller][requestId];
     }
 
     /**
-     * @dev Internal function to return operator.
+     * @dev Function to return operator.
      */
-    function _getOperator(address controller, address operator) internal view returns (bool) {
+    function getOperator(address controller, address operator) public view returns (bool) {
         return _operators[controller][operator];
     }
 
@@ -140,7 +135,7 @@ abstract contract ERC7540 is ERC4626, IERC7540 {
      * @dev Internal function to generate a unique request ID.
      */
     function _generateRequestId(address controller, uint256 input) internal view returns (uint256) {
-        return uint256(keccak256(abi.encodePacked(block.timestamp, block.number, msg.sender, controller, input)));
+        return uint256(keccak256(abi.encodePacked(block.timestamp, block.prevrandao, msg.sender, controller, input)));
     }
 
     /**

@@ -11,7 +11,7 @@ contract ERC7540Mock is ERC7540 {
     constructor(address asset) ERC20("ERC4626Mock", "E4626M") ERC7540(IERC20(asset)) {}
 
     function processPendingDeposit(uint256 requestId, address controller) external view {
-        Request memory request = _getPendingDepositRequest(controller, requestId);
+        Request memory request = getPendingDepositRequest(controller, requestId);
         require(request.amount > 0, "No pending deposit request");
 
         request.claimable += request.amount;
@@ -19,7 +19,7 @@ contract ERC7540Mock is ERC7540 {
     }
 
     function processPendingRedeem(uint256 requestId, address controller) external view {
-        Request memory request = _getPendingRedeemRequest(controller, requestId);
+        Request memory request = getPendingRedeemRequest(controller, requestId);
         require(request.amount > 0, "No pending redeem request");
 
         request.claimable += request.amount;
@@ -27,14 +27,14 @@ contract ERC7540Mock is ERC7540 {
     }
 
     function _processPendingRequests(uint256 requestId, address controller) internal override {
-        Request memory depositRequest = _getPendingDepositRequest(controller, requestId);
+        Request memory depositRequest = getPendingDepositRequest(controller, requestId);
         if (depositRequest.amount > 0) {
             depositRequest.claimable += depositRequest.amount;
             emit DepositProcessed(controller, requestId, depositRequest.amount);
             depositRequest.amount = 0;
         }
 
-        Request memory redeemRequest = _getPendingRedeemRequest(controller, requestId);
+        Request memory redeemRequest = getPendingRedeemRequest(controller, requestId);
         if (redeemRequest.amount > 0) {
             redeemRequest.claimable += redeemRequest.amount;
             emit RedeemProcessed(controller, requestId, redeemRequest.amount);
