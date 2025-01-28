@@ -80,17 +80,17 @@ abstract contract ERC7540 is ERC4626, IERC7540, ReentrancyGuard {
     }
 
     /**
-     * @dev Gets the claimable deposit request amount.
-     */
-    function claimableDepositRequest(uint256 requestId, address controller) external view override returns (uint256) {
-        return _pendingDepositRequests[controller][requestId].claimable;
-    }
-
-    /**
      * @dev Gets the pending redeem request amount.
      */
     function pendingRedeemRequest(uint256 requestId, address controller) external view override returns (uint256) {
         return _pendingRedeemRequests[controller][requestId].amount;
+    }
+
+    /**
+     * @dev Gets the claimable deposit request amount.
+     */
+    function claimableDepositRequest(uint256 requestId, address controller) external view override returns (uint256) {
+        return _pendingDepositRequests[controller][requestId].claimable;
     }
 
     /**

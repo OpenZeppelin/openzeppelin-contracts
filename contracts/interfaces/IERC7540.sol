@@ -61,20 +61,20 @@ interface IERC7540 is IERC4626 {
     function pendingDepositRequest(uint256 requestId, address controller) external view returns (uint256 assets);
 
     /**
-     * @dev Gets the claimable deposit request amount for a given controller and requestId.
-     * @param requestId The unique identifier for the request.
-     * @param controller The address of the controller.
-     * @return assets The amount of assets in the claimable state.
-     */
-    function claimableDepositRequest(uint256 requestId, address controller) external view returns (uint256 assets);
-
-    /**
      * @dev Gets the pending redeem request amount for a given controller and requestId.
      * @param requestId The unique identifier for the request.
      * @param controller The address of the controller.
      * @return shares The amount of shares in the pending state.
      */
     function pendingRedeemRequest(uint256 requestId, address controller) external view returns (uint256 shares);
+
+    /**
+     * @dev Gets the claimable deposit request amount for a given controller and requestId.
+     * @param requestId The unique identifier for the request.
+     * @param controller The address of the controller.
+     * @return assets The amount of assets in the claimable state.
+     */
+    function claimableDepositRequest(uint256 requestId, address controller) external view returns (uint256 assets);
 
     /**
      * @dev Gets the claimable redeem request amount for a given controller and requestId.
