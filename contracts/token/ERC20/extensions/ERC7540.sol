@@ -34,11 +34,13 @@ abstract contract ERC7540 is ERC4626, IERC7540 {
         address controller,
         address owner
     ) external override returns (uint256 requestId) {
+        address sender = _msgSender();
+
         if (assets == 0) {
             return 0;
         }
 
-        require(owner == msg.sender || isOperator(owner, msg.sender), "ERC7540: unauthorized");
+        require(owner == sender || isOperator(owner, sender), "ERC7540: unauthorized");
 
         requestId = _generateRequestId(controller, assets);
 
@@ -46,7 +48,7 @@ abstract contract ERC7540 is ERC4626, IERC7540 {
 
         IERC20(asset()).safeTransferFrom(owner, address(this), assets);
 
-        emit DepositRequest(controller, owner, requestId, msg.sender, assets);
+        emit DepositRequest(controller, owner, requestId, sender, assets);
     }
 
     /**
@@ -57,8 +59,11 @@ abstract contract ERC7540 is ERC4626, IERC7540 {
         address controller,
         address owner
     ) external override returns (uint256 requestId) {
-        require(shares > 0, "ERC7540: shares must be greater than zero");
-        require(owner == msg.sender || isOperator(owner, msg.sender), "ERC7540: unauthorized");
+        address sender = _msgSender();
+        if (shares <= 0) {
+            revert ERC7540InsufficientShares(sender, shares);
+        }
+        require(owner == sender || isOperator(owner, sender), "ERC7540: unauthorized");
 
         requestId = _generateRequestId(controller, shares);
 
@@ -66,7 +71,7 @@ abstract contract ERC7540 is ERC4626, IERC7540 {
 
         _pendingRedeemRequests[controller][requestId].amount += shares;
 
-        emit RedeemRequest(controller, owner, requestId, msg.sender, shares);
+        emit RedeemRequest(controller, owner, requestId, sender, shares);
     }
 
     /**
@@ -101,8 +106,9 @@ abstract contract ERC7540 is ERC4626, IERC7540 {
      * @dev Sets or revokes an operator for the given controller.
      */
     function setOperator(address operator, bool approved) external override returns (bool) {
-        _operators[msg.sender][operator] = approved;
-        emit OperatorSet(msg.sender, operator, approved);
+        address sender = _msgSender();
+        _operators[sender][operator] = approved;
+        emit OperatorSet(sender, operator, approved);
         return true;
     }
 
@@ -138,7 +144,8 @@ abstract contract ERC7540 is ERC4626, IERC7540 {
      * @dev Internal function to generate a unique request ID.
      */
     function _generateRequestId(address controller, uint256 input) internal virtual returns (uint256) {
-        return uint256(keccak256(abi.encodePacked(block.timestamp, block.prevrandao, msg.sender, controller, input)));
+        address sender = _msgSender();
+        return uint256(keccak256(abi.encodePacked(block.timestamp, block.prevrandao, sender, controller, input)));
     }
 
     /**
