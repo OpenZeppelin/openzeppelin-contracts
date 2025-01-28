@@ -21,8 +21,8 @@ abstract contract ERC7540 is ERC4626, IERC7540 {
     }
 
     // Mappings to track pending and claimable requests
-    mapping(address => mapping(uint256 => Request)) internal _pendingDepositRequests;
-    mapping(address => mapping(uint256 => Request)) internal _pendingRedeemRequests;
+    mapping(address => mapping(uint256 => Request)) private _pendingDepositRequests;
+    mapping(address => mapping(uint256 => Request)) private _pendingRedeemRequests;
 
     mapping(address => mapping(address => bool)) private _operators;
 
@@ -112,6 +112,27 @@ abstract contract ERC7540 is ERC4626, IERC7540 {
      * @dev Checks if an operator is approved for a controller.
      */
     function isOperator(address controller, address operator) public view override returns (bool) {
+        return _operators[controller][operator];
+    }
+
+    /**
+     * @dev Internal function to return pending deposit request.
+     */
+    function _getPendingDepositRequest(address controller, uint256 requestId) internal view returns (Request memory) {
+        return _pendingDepositRequests[controller][requestId];
+    }
+
+    /**
+     * @dev Internal function to return pending redeem request.
+     */
+    function _getPendingRedeemRequest(address controller, uint256 requestId) internal view returns (Request memory) {
+        return _pendingRedeemRequests[controller][requestId];
+    }
+
+    /**
+     * @dev Internal function to return operator.
+     */
+    function _getOperator(address controller, address operator) internal view returns (bool) {
         return _operators[controller][operator];
     }
 
