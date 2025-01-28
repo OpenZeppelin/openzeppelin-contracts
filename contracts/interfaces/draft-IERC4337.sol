@@ -54,7 +54,7 @@ struct PackedUserOperation {
  *
  * See https://eips.ethereum.org/EIPS/eip-7766[ERC-7766]
  */
-interface IAggregator {
+interface IERC4337Aggregator {
     /**
      * @dev Validates the signature for a user operation.
      * Returns an alternative signature that should be used during bundling.
@@ -89,7 +89,7 @@ interface IAggregator {
  *
  * See https://eips.ethereum.org/EIPS/eip-4337#semi-abstracted-nonce-support[ERC-4337 semi-abstracted nonce support].
  */
-interface IEntryPointNonces {
+interface IERC4337EntryPointNonces {
     /**
      * @dev Returns the nonce for a `sender` account and a `key`.
      *
@@ -105,7 +105,7 @@ interface IEntryPointNonces {
  * and thus have more flexibility in their storage access
  * (see https://eips.ethereum.org/EIPS/eip-4337#reputation-scoring-and-throttlingbanning-for-global-entities[reputation, throttling and banning.])
  */
-interface IEntryPointStake {
+interface IERC4337EntryPointStake {
     /**
      * @dev Returns the balance of the account.
      */
@@ -142,7 +142,7 @@ interface IEntryPointStake {
  *
  * User operations are validated and executed by this contract.
  */
-interface IEntryPoint is IEntryPointNonces, IEntryPointStake {
+interface IERC4337EntryPoint is IERC4337EntryPointNonces, IERC4337EntryPointStake {
     /**
      * @dev A user operation at `opIndex` failed with `reason`.
      */
@@ -158,7 +158,7 @@ interface IEntryPoint is IEntryPointNonces, IEntryPointStake {
      */
     struct UserOpsPerAggregator {
         PackedUserOperation[] userOps;
-        IAggregator aggregator;
+        IERC4337Aggregator aggregator;
         bytes signature;
     }
 
@@ -181,7 +181,7 @@ interface IEntryPoint is IEntryPointNonces, IEntryPointStake {
 /**
  * @dev Base interface for an ERC-4337 account.
  */
-interface IAccount {
+interface IERC4337Account {
     /**
      * @dev Validates a user operation.
      *
@@ -208,7 +208,7 @@ interface IAccount {
  * @dev Support for executing user operations by prepending the {executeUserOp} function selector
  * to the UserOperation's `callData`.
  */
-interface IAccountExecute {
+interface IERC4337AccountExecute {
     /**
      * @dev Executes a user operation.
      */
@@ -220,7 +220,7 @@ interface IAccountExecute {
  *
  * NOTE: A paymaster must hold a stake to cover the required entrypoint stake and also the gas for the transaction.
  */
-interface IPaymaster {
+interface IERC4337Paymaster {
     enum PostOpMode {
         opSucceeded,
         opReverted,
@@ -229,7 +229,7 @@ interface IPaymaster {
 
     /**
      * @dev Validates whether the paymaster is willing to pay for the user operation. See
-     * {IAccount-validateUserOp} for additional information on the return value.
+     * {IERC4337Account-validateUserOp} for additional information on the return value.
      *
      * NOTE: Bundlers will reject this method if it modifies the state, unless it's whitelisted.
      */
