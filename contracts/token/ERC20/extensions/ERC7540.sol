@@ -39,9 +39,9 @@ abstract contract ERC7540 is ERC4626, IERC7540 {
 
         requestId = _generateRequestId(controller, assets);
 
-        IERC20(asset()).safeTransferFrom(owner, address(this), assets);
-
         _pendingDepositRequests[controller][requestId].amount += assets;
+
+        IERC20(asset()).safeTransferFrom(owner, address(this), assets);
 
         emit DepositRequest(controller, owner, requestId, msg.sender, assets);
     }
