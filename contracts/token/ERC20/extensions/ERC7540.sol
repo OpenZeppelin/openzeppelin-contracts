@@ -34,7 +34,10 @@ abstract contract ERC7540 is ERC4626, IERC7540 {
         address controller,
         address owner
     ) external override returns (uint256 requestId) {
-        require(assets > 0, "ERC7540: assets must be greater than zero");
+        if (assets == 0) {
+            return 0;
+        }
+
         require(owner == msg.sender || isOperator(owner, msg.sender), "ERC7540: unauthorized");
 
         requestId = _generateRequestId(controller, assets);
