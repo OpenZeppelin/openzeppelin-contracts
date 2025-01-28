@@ -143,7 +143,7 @@ abstract contract ERC7540 is ERC4626, IERC7540 {
      */
     function _generateRequestId(address controller, uint256 input) internal virtual returns (uint256) {
         address sender = _msgSender();
-        return uint256(keccak256(abi.encodePacked(block.timestamp, block.prevrandao, sender, controller, input)));
+        return uint256(keccak256(abi.encodePacked(block.number, sender, controller, input)));
     }
 
     /**
