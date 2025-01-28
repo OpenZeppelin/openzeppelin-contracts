@@ -26,7 +26,7 @@ contract ERC7540Mock is ERC7540 {
         request.amount = 0;
     }
 
-    function _processPendingRequests(uint256 requestId, address controller) internal override {
+    function _processPendingRequests(uint256 requestId, address controller) internal view override {
         Request memory depositRequest = getPendingDepositRequest(controller, requestId);
         if (depositRequest.amount > 0) {
             depositRequest.claimable += depositRequest.amount;
