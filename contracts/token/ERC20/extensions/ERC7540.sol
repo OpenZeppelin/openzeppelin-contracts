@@ -65,7 +65,10 @@ abstract contract ERC7540 is ERC4626, IERC7540 {
         if (shares == 0) {
             revert ERC7540ZeroSharesNotAllowed(sender, shares);
         }
-        require(owner == sender || isOperator(owner, sender), "ERC7540: unauthorized");
+
+        if (owner != sender && !isOperator(owner, sender)) {
+            revert ERC7540Unauthorized(sender, owner);
+        }
 
         requestId = _generateRequestId(controller, shares);
 
@@ -133,13 +136,6 @@ abstract contract ERC7540 is ERC4626, IERC7540 {
      */
     function getPendingRedeemRequest(address controller, uint256 requestId) public view returns (Request memory) {
         return _pendingRedeemRequests[controller][requestId];
-    }
-
-    /**
-     * @dev Function to return operator.
-     */
-    function getOperator(address controller, address operator) public view returns (bool) {
-        return _operators[controller][operator];
     }
 
     /**

@@ -140,12 +140,4 @@ interface IERC7540 is IERC4626 {
         address controller,
         uint256 requestId
     ) external view returns (Request memory request);
-
-    /**
-     * @dev Gets the status of an operator for a given controller.
-     * @param controller The address of the controller.
-     * @param operator The address of the operator.
-     * @return status Whether the operator is approved.
-     */
-    function getOperator(address controller, address operator) external view returns (bool status);
 }
