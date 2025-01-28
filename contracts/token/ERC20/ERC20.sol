@@ -291,7 +291,7 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
     }
 
     /**
-     * @dev Updates `owner`s allowance for `spender` based on spent `value`.
+     * @dev Updates `owner`'s allowance for `spender` based on spent `value`.
      *
      * Does not update the allowance value in case of infinite allowance.
      * Revert if not enough allowance is available.
