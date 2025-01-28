@@ -7,12 +7,11 @@ import {IERC20} from "../../../interfaces/IERC20.sol";
 import {ERC4626} from "./ERC4626.sol";
 import {SafeERC20} from "../utils/SafeERC20.sol";
 import {Math} from "../../../utils/math/Math.sol";
-import {ReentrancyGuard} from "../../../utils/ReentrancyGuard.sol";
 
 /**
  * @dev Abstract implementation of the ERC-7540 standard, extending ERC-4626.
  */
-abstract contract ERC7540 is ERC4626, IERC7540, ReentrancyGuard {
+abstract contract ERC7540 is ERC4626, IERC7540 {
     using SafeERC20 for IERC20;
     using Math for uint256;
 
@@ -39,7 +38,7 @@ abstract contract ERC7540 is ERC4626, IERC7540, ReentrancyGuard {
         uint256 assets,
         address controller,
         address owner
-    ) external override nonReentrant returns (uint256 requestId) {
+    ) external override returns (uint256 requestId) {
         require(assets > 0, "ERC7540: assets must be greater than zero");
         require(owner == msg.sender || isOperator(owner, msg.sender), "ERC7540: unauthorized");
 
@@ -59,7 +58,7 @@ abstract contract ERC7540 is ERC4626, IERC7540, ReentrancyGuard {
         uint256 shares,
         address controller,
         address owner
-    ) external override nonReentrant returns (uint256 requestId) {
+    ) external override returns (uint256 requestId) {
         require(shares > 0, "ERC7540: shares must be greater than zero");
         require(owner == msg.sender || isOperator(owner, msg.sender), "ERC7540: unauthorized");
 
