@@ -40,7 +40,9 @@ abstract contract ERC7540 is ERC4626, IERC7540 {
             return 0;
         }
 
-        require(owner == sender || isOperator(owner, sender), "ERC7540: unauthorized");
+        if (owner != sender && !isOperator(owner, sender)) {
+            revert ERC7540Unauthorized(sender, owner);
+        }
 
         requestId = _generateRequestId(controller, assets);
 
@@ -60,8 +62,8 @@ abstract contract ERC7540 is ERC4626, IERC7540 {
         address owner
     ) external override returns (uint256 requestId) {
         address sender = _msgSender();
-        if (shares <= 0) {
-            revert ERC7540InsufficientShares(sender, shares);
+        if (shares == 0) {
+            revert ERC7540ZeroSharesNotAllowed(sender, shares);
         }
         require(owner == sender || isOperator(owner, sender), "ERC7540: unauthorized");
 

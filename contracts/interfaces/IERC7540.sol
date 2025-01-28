@@ -42,7 +42,14 @@ interface IERC7540 is IERC4626 {
      * @param sender Address whose tokens are being transferred.
      * @param shares Current shares for the interacting account.
      */
-    error ERC7540InsufficientShares(address sender, uint256 shares);
+    error ERC7540ZeroSharesNotAllowed(address sender, uint256 shares);
+
+    /**
+     * @dev Indicates an error related to the current `assets` of a `sender`. Used in transfers.
+     * @param sender Address whose tokens are being transferred.
+     * @param owner Address of the owner.
+     */
+    error ERC7540Unauthorized(address sender, address owner);
 
     // Methods
 
