@@ -3,6 +3,7 @@
 pragma solidity ^0.8.20;
 
 import {IERC7540} from "../../../interfaces/IERC7540.sol";
+import {IERC4626} from "../../../interfaces/IERC4626.sol";
 import {IERC20} from "../../../interfaces/IERC20.sol";
 import {ERC4626} from "./ERC4626.sol";
 import {SafeERC20} from "../utils/SafeERC20.sol";
@@ -15,11 +16,13 @@ abstract contract ERC7540 is ERC4626, IERC7540 {
     using SafeERC20 for IERC20;
     using Math for uint256;
 
+    uint256 public constant VESTING_DURATION = 48 hours;
+
     // Mappings to track pending and claimable requests
     mapping(address => mapping(uint256 => Request)) private _pendingDepositRequests;
     mapping(address => mapping(uint256 => Request)) private _pendingRedeemRequests;
-
     mapping(address => mapping(address => bool)) private _operators;
+    mapping(uint256 => uint256) private _vestingTimestamps;
 
     /**
      * @dev Set the underlying asset contract.
@@ -46,7 +49,9 @@ abstract contract ERC7540 is ERC4626, IERC7540 {
 
         requestId = _generateRequestId(controller, assets);
 
-        _pendingDepositRequests[controller][requestId].amount += assets;
+        uint256 shares = previewDeposit(assets);
+
+        _pendingDepositRequests[controller][requestId].amount += shares;
 
         IERC20(asset()).safeTransferFrom(owner, address(this), assets);
 
@@ -62,6 +67,7 @@ abstract contract ERC7540 is ERC4626, IERC7540 {
         address owner
     ) external override returns (uint256 requestId) {
         address sender = _msgSender();
+
         if (shares == 0) {
             revert ERC7540ZeroSharesNotAllowed(sender, shares);
         }
@@ -72,9 +78,14 @@ abstract contract ERC7540 is ERC4626, IERC7540 {
 
         requestId = _generateRequestId(controller, shares);
 
+        uint256 assets = previewRedeem(shares);
+
         _burn(owner, shares);
 
-        _pendingRedeemRequests[controller][requestId].amount += shares;
+        _pendingRedeemRequests[controller][requestId].amount += assets;
+
+        // Set vesting unlock time
+        _vestingTimestamps[requestId] = block.timestamp + VESTING_DURATION;
 
         emit RedeemRequest(controller, owner, requestId, sender, shares);
     }
@@ -107,6 +118,16 @@ abstract contract ERC7540 is ERC4626, IERC7540 {
         return _pendingRedeemRequests[controller][requestId].claimable;
     }
 
+    /** @dev See {IERC4626-maxWithdraw}. */
+    function maxWithdraw(address) public pure override(ERC4626, IERC4626) returns (uint256) {
+        return 0; // Withdrawals are only possible through requestRedeem
+    }
+
+    /** @dev See {IERC4626-maxRedeem}. */
+    function maxRedeem(address) public pure override(ERC4626, IERC4626) returns (uint256) {
+        return 0; // Redemptions are only possible through requestRedeem
+    }
+
     /**
      * @dev Sets or revokes an operator for the given controller.
      */
@@ -122,20 +143,6 @@ abstract contract ERC7540 is ERC4626, IERC7540 {
      */
     function isOperator(address controller, address operator) public view override returns (bool) {
         return _operators[controller][operator];
-    }
-
-    /**
-     * @dev Function to return pending deposit request.
-     */
-    function getPendingDepositRequest(address controller, uint256 requestId) public view returns (Request memory) {
-        return _pendingDepositRequests[controller][requestId];
-    }
-
-    /**
-     * @dev Function to return pending redeem request.
-     */
-    function getPendingRedeemRequest(address controller, uint256 requestId) public view returns (Request memory) {
-        return _pendingRedeemRequests[controller][requestId];
     }
 
     /**

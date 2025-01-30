@@ -114,26 +114,4 @@ interface IERC7540 is IERC4626 {
      * @return status Whether the operator is approved.
      */
     function isOperator(address controller, address operator) external view returns (bool status);
-
-    /**
-     * @dev Gets the details of a pending deposit request.
-     * @param controller The address of the controller.
-     * @param requestId The unique identifier for the deposit request.
-     * @return request The request object containing amount and claimable details.
-     */
-    function getPendingDepositRequest(
-        address controller,
-        uint256 requestId
-    ) external view returns (Request memory request);
-
-    /**
-     * @dev Gets the details of a pending redeem request.
-     * @param controller The address of the controller.
-     * @param requestId The unique identifier for the redeem request.
-     * @return request The request object containing amount and claimable details.
-     */
-    function getPendingRedeemRequest(
-        address controller,
-        uint256 requestId
-    ) external view returns (Request memory request);
 }
