@@ -6,13 +6,14 @@ import {IERC7540} from "../../../interfaces/IERC7540.sol";
 import {IERC4626} from "../../../interfaces/IERC4626.sol";
 import {IERC20} from "../../../interfaces/IERC20.sol";
 import {ERC4626} from "./ERC4626.sol";
+import {IERC165} from "../../../interfaces/IERC165.sol";
 import {SafeERC20} from "../utils/SafeERC20.sol";
 import {Math} from "../../../utils/math/Math.sol";
 
 /**
  * @dev Abstract implementation of the ERC-7540 standard, extending ERC-4626.
  */
-abstract contract ERC7540 is ERC4626, IERC7540 {
+abstract contract ERC7540 is ERC4626, IERC7540, IERC165 {
     using SafeERC20 for IERC20;
     using Math for uint256;
 
@@ -36,7 +37,7 @@ abstract contract ERC7540 is ERC4626, IERC7540 {
         uint256 assets,
         address controller,
         address owner
-    ) external override returns (uint256 requestId) {
+    ) public virtual override returns (uint256 requestId) {
         address sender = _msgSender();
 
         if (assets == 0) {
@@ -49,9 +50,7 @@ abstract contract ERC7540 is ERC4626, IERC7540 {
 
         requestId = _generateRequestId(controller, assets);
 
-        uint256 shares = previewDeposit(assets);
-
-        _pendingDepositRequests[controller][requestId].amount += shares;
+        _pendingDepositRequests[controller][requestId].amount += assets;
 
         IERC20(asset()).safeTransferFrom(owner, address(this), assets);
 
@@ -65,7 +64,7 @@ abstract contract ERC7540 is ERC4626, IERC7540 {
         uint256 shares,
         address controller,
         address owner
-    ) external override returns (uint256 requestId) {
+    ) public virtual override returns (uint256 requestId) {
         address sender = _msgSender();
 
         if (shares == 0) {
@@ -78,16 +77,28 @@ abstract contract ERC7540 is ERC4626, IERC7540 {
 
         requestId = _generateRequestId(controller, shares);
 
-        uint256 assets = previewRedeem(shares);
-
         _burn(owner, shares);
 
-        _pendingRedeemRequests[controller][requestId].amount += assets;
+        _pendingRedeemRequests[controller][requestId].amount += shares;
 
         // Set vesting unlock time
         _vestingTimestamps[requestId] = block.timestamp + VESTING_DURATION;
 
         emit RedeemRequest(controller, owner, requestId, sender, shares);
+    }
+
+    /*
+     * @dev Overrides maxDeposit to allow deposits up to claimable request amount
+     */
+    function maxDeposit(address controller) public view virtual override(ERC4626, IERC4626) returns (uint256) {
+        return _pendingDepositRequests[controller][0].claimable;
+    }
+
+    /*
+     * @dev Overrides maxRedeem to allow redemptions up to claimable request amount
+     */
+    function maxRedeem(address controller) public view virtual override(ERC4626, IERC4626) returns (uint256) {
+        return _pendingRedeemRequests[controller][0].claimable;
     }
 
     /**
@@ -118,14 +129,57 @@ abstract contract ERC7540 is ERC4626, IERC7540 {
         return _pendingRedeemRequests[controller][requestId].claimable;
     }
 
-    /** @dev See {IERC4626-maxWithdraw}. */
-    function maxWithdraw(address) public pure override(ERC4626, IERC4626) returns (uint256) {
-        return 0; // Withdrawals are only possible through requestRedeem
+    /**
+     * @dev Implements ERC-7540 deposit by allowing users to deposit through calling ERC4626 deposit.
+     */
+    function deposit(uint256 assets, address receiver, address controller) public virtual returns (uint256 shares) {
+        address sender = _msgSender();
+
+        if (sender != controller && !isOperator(controller, sender)) {
+            revert ERC7540Unauthorized(sender, controller);
+        }
+
+        Request storage request = _pendingDepositRequests[controller][0];
+        if (request.claimable < assets) {
+            revert ERC7540InsufficientClaimable(assets, request.claimable);
+        }
+
+        request.claimable -= assets;
+
+        uint256 maxAssets = maxDeposit(receiver);
+        if (assets > maxAssets) {
+            revert ERC4626ExceededMaxDeposit(receiver, assets, maxAssets);
+        }
+        
+        shares = super.deposit(assets, receiver);
+        
+        return shares;
     }
 
-    /** @dev See {IERC4626-maxRedeem}. */
-    function maxRedeem(address) public pure override(ERC4626, IERC4626) returns (uint256) {
-        return 0; // Redemptions are only possible through requestRedeem
+    /**
+     * @dev Implements ERC-7540 claim by allowing users to redeem claimable shares.
+     */
+    function redeem(uint256 shares, address receiver, address controller) public virtual override(ERC4626, IERC4626) returns (uint256 assets) {
+        address sender = _msgSender();
+        if (sender != controller && !isOperator(controller, sender)) {
+            revert ERC7540Unauthorized(sender, controller);
+        }
+
+        Request storage request = _pendingRedeemRequests[controller][0];
+        if (request.claimable < shares) {
+            revert ERC7540InsufficientClaimable(shares, request.claimable);
+        }
+
+        request.claimable -= shares;
+
+        uint256 maxShares = maxRedeem(controller);
+        if (shares > maxShares) {
+            revert ERC4626ExceededMaxRedeem(controller, shares, maxShares);
+        }
+        
+        assets = super.redeem(shares, receiver, controller);
+        
+        return assets;
     }
 
     /**
@@ -145,6 +199,34 @@ abstract contract ERC7540 is ERC4626, IERC7540 {
         return _operators[controller][operator];
     }
 
+    function previewDeposit(uint256) public view virtual override(ERC4626, IERC4626) returns (uint256) {
+        revert("ERC7540: previewDeposit not supported");
+    }
+
+    function previewMint(uint256) public view virtual override(ERC4626, IERC4626) returns (uint256) {
+        revert("ERC7540: previewMint not supported");
+    }
+
+    function previewRedeem(uint256) public view virtual override(ERC4626, IERC4626) returns (uint256) {
+        revert("ERC7540: previewRedeem not supported");
+    }
+
+    function previewWithdraw(uint256) public view virtual override(ERC4626, IERC4626) returns (uint256) {
+        revert("ERC7540: previewWithdraw not supported");
+    }
+
+    /**
+     * @dev Implements ERC-165 interface detection.
+     */
+    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+        return
+            interfaceId == type(IERC165).interfaceId ||
+            interfaceId == 0xe3bc4e65 || // ERC-7540 operator methods
+            interfaceId == 0x2f0a18c5 || // ERC-7575 interface
+            interfaceId == 0xce3bbe50 || // Asynchronous deposit Vault
+            interfaceId == 0x620ee8e4; // Asynchronous redemption Vault
+    }
+
     /**
      * @dev Internal function to generates a request ID. Requests created within the same block,
      * for the same controller, input, and sender, are cumulative.
@@ -162,5 +244,17 @@ abstract contract ERC7540 is ERC4626, IERC7540 {
     /**
      * @dev Abstract function for transitioning requests from Pending to Claimable.
      */
-    function _processPendingRequests(uint256 requestId, address controller) internal virtual;
+    function _processPendingRequests(uint256 requestId, address controller) internal virtual {
+        Request storage depositRequest = _pendingDepositRequests[controller][requestId];
+        if (depositRequest.amount > 0) {
+            depositRequest.claimable += depositRequest.amount;
+            depositRequest.amount = 0;
+        }
+
+        Request storage redeemRequest = _pendingRedeemRequests[controller][requestId];
+        if (redeemRequest.amount > 0) {
+            redeemRequest.claimable += redeemRequest.amount;
+            redeemRequest.amount = 0;
+        }
+    }
 }

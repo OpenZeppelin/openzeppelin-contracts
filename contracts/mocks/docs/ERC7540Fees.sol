@@ -3,6 +3,7 @@
 pragma solidity ^0.8.20;
 
 import {IERC4626} from "../../interfaces/IERC4626.sol";
+import {IERC7540} from "../../interfaces/IERC7540.sol";
 import {IERC20} from "../../token/ERC20/IERC20.sol";
 import {ERC7540} from "../../token/ERC20/extensions/ERC7540.sol";
 import {ERC4626} from "../../token/ERC20/extensions/ERC4626.sol";
@@ -24,16 +25,16 @@ abstract contract ERC7540Fees is ERC7540 {
 
     uint256 private constant _BASIS_POINT_SCALE = 1e4;
 
-    function previewDeposit(uint256 assets) public view virtual override(ERC4626, IERC4626) returns (uint256) {
-        uint256 fee = _feeOnTotal(assets, _entryFeeBasisPoints());
-        return super.previewDeposit(assets - fee);
-    }
+//    function previewDeposit(uint256 assets) public view virtual override(ERC7540) returns (uint256) {
+//        uint256 fee = _feeOnTotal(assets, _entryFeeBasisPoints());
+//        return super.previewDeposit(assets - fee);
+//    }
 
-    function previewRedeem(uint256 shares) public view virtual override(ERC4626, IERC4626) returns (uint256) {
-        uint256 assets = super.previewRedeem(shares);
-        uint256 fee = _feeOnTotal(assets, _exitFeeBasisPoints());
-        return assets - fee;
-    }
+//    function previewRedeem(uint256 shares) public view virtual override(ERC7540) returns (uint256) {
+//        uint256 assets = super.previewRedeem(shares);
+//        uint256 fee = _feeOnTotal(assets, _exitFeeBasisPoints());
+//        return assets - fee;
+//    }
 
     function _deposit(address caller, address receiver, uint256 assets, uint256 shares) internal virtual override {
         uint256 fee = _feeOnTotal(assets, _entryFeeBasisPoints());

@@ -16,11 +16,11 @@ abstract contract ERC7540LimitsMock is ERC7540 {
         _maxMint = maxMintValue;
     }
 
-    function maxDeposit(address) public view override(IERC4626, ERC4626) returns (uint256) {
+    function maxDeposit(address) public view override(ERC7540) returns (uint256) {
         return _maxDeposit;
     }
 
-    function maxMint(address) public view override(IERC4626, ERC4626) returns (uint256) {
+    function maxMint(address) public view override(ERC4626, IERC4626) returns (uint256) {
         return _maxMint;
     }
 }
