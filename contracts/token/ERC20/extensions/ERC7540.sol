@@ -41,7 +41,7 @@ abstract contract ERC7540 is ERC4626, IERC7540, IERC165 {
         address sender = _msgSender();
 
         if (assets == 0) {
-            return 0;
+            revert ERC7540ZeroAssetsNotAllowed(sender, assets);
         }
 
         if (owner != sender && !isOperator(owner, sender)) {

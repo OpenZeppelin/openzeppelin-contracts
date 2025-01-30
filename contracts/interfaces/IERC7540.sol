@@ -43,6 +43,13 @@ interface IERC7540 is IERC4626 {
     /**
      * @dev Indicates an error related to the current `assets` of a `sender`.
      * @param sender Address whose tokens are being transferred.
+     * @param assets Current assets for the interacting account.
+     */
+    error ERC7540ZeroAssetsNotAllowed(address sender, uint256 assets);
+
+    /**
+     * @dev Indicates an error related to the current `assets` of a `sender`.
+     * @param sender Address whose tokens are being transferred.
      * @param owner Address of the owner.
      */
     error ERC7540Unauthorized(address sender, address owner);
