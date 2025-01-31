@@ -17,7 +17,7 @@ library ERC4337Utils {
     using Packing for *;
 
     /// @dev Address of the entrypoint v0.7.0
-    IEntryPoint internal constant ENTRYPOINT = IEntryPoint(0x0000000071727De22E5E9d8BAf0edAc6f37da032);
+    IEntryPoint internal constant ENTRYPOINT_V07 = IEntryPoint(0x0000000071727De22E5E9d8BAf0edAc6f37da032);
 
     /// @dev For simulation purposes, validateUserOp (and validatePaymasterUserOp) return this value on success.
     uint256 internal constant SIG_VALIDATION_SUCCESS = 0;
@@ -166,26 +166,26 @@ library ERC4337Utils {
 
     /// @dev Deposit ether into the entrypoint.
     function depositTo(address to, uint256 value) internal {
-        ENTRYPOINT.depositTo{value: value}(to);
+        ENTRYPOINT_V07.depositTo{value: value}(to);
     }
 
     /// @dev Withdraw ether from the entrypoint.
     function withdrawTo(address payable to, uint256 value) internal {
-        ENTRYPOINT.withdrawTo(to, value);
+        ENTRYPOINT_V07.withdrawTo(to, value);
     }
 
     /// @dev Add stake to the entrypoint.
     function addStake(uint256 value, uint32 unstakeDelaySec) internal {
-        ENTRYPOINT.addStake{value: value}(unstakeDelaySec);
+        ENTRYPOINT_V07.addStake{value: value}(unstakeDelaySec);
     }
 
     /// @dev Unlock stake on the entrypoint.
     function unlockStake() internal {
-        ENTRYPOINT.unlockStake();
+        ENTRYPOINT_V07.unlockStake();
     }
 
     /// @dev Withdraw unlocked stake from the entrypoint.
     function withdrawStake(address payable to) internal {
-        ENTRYPOINT.withdrawStake(to);
+        ENTRYPOINT_V07.withdrawStake(to);
     }
 }
