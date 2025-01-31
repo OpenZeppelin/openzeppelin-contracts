@@ -23,18 +23,18 @@ abstract contract ERC7540Fees is ERC7540 {
     using SafeERC20 for IERC20;
     using Math for uint256;
 
-    uint256 private constant _BASIS_POINT_SCALE = 1e4;
+    uint256 private constant BASIS_POINT_SCALE = 1e4;
 
-//    function previewDeposit(uint256 assets) public view virtual override(ERC7540) returns (uint256) {
-//        uint256 fee = _feeOnTotal(assets, _entryFeeBasisPoints());
-//        return super.previewDeposit(assets - fee);
-//    }
+    //    function previewDeposit(uint256 assets) public view virtual override(ERC7540) returns (uint256) {
+    //        uint256 fee = _feeOnTotal(assets, _entryFeeBasisPoints());
+    //        return super.previewDeposit(assets - fee);
+    //    }
 
-//    function previewRedeem(uint256 shares) public view virtual override(ERC7540) returns (uint256) {
-//        uint256 assets = super.previewRedeem(shares);
-//        uint256 fee = _feeOnTotal(assets, _exitFeeBasisPoints());
-//        return assets - fee;
-//    }
+    //    function previewRedeem(uint256 shares) public view virtual override(ERC7540) returns (uint256) {
+    //        uint256 assets = super.previewRedeem(shares);
+    //        uint256 fee = _feeOnTotal(assets, _exitFeeBasisPoints());
+    //        return assets - fee;
+    //    }
 
     function _deposit(address caller, address receiver, uint256 assets, uint256 shares) internal virtual override {
         uint256 fee = _feeOnTotal(assets, _entryFeeBasisPoints());
@@ -81,10 +81,10 @@ abstract contract ERC7540Fees is ERC7540 {
     }
 
     function _feeOnRaw(uint256 assets, uint256 feeBasisPoints) private pure returns (uint256) {
-        return assets.mulDiv(feeBasisPoints, _BASIS_POINT_SCALE, Math.Rounding.Ceil);
+        return assets.mulDiv(feeBasisPoints, BASIS_POINT_SCALE, Math.Rounding.Ceil);
     }
 
     function _feeOnTotal(uint256 assets, uint256 feeBasisPoints) private pure returns (uint256) {
-        return assets.mulDiv(feeBasisPoints, feeBasisPoints + _BASIS_POINT_SCALE, Math.Rounding.Ceil);
+        return assets.mulDiv(feeBasisPoints, feeBasisPoints + BASIS_POINT_SCALE, Math.Rounding.Ceil);
     }
 }

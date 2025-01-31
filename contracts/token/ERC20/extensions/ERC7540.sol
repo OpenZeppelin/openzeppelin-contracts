@@ -150,16 +150,20 @@ abstract contract ERC7540 is ERC4626, IERC7540, IERC165 {
         if (assets > maxAssets) {
             revert ERC4626ExceededMaxDeposit(receiver, assets, maxAssets);
         }
-        
+
         shares = super.deposit(assets, receiver);
-        
+
         return shares;
     }
 
     /**
      * @dev Implements ERC-7540 claim by allowing users to redeem claimable shares.
      */
-    function redeem(uint256 shares, address receiver, address controller) public virtual override(ERC4626, IERC4626) returns (uint256 assets) {
+    function redeem(
+        uint256 shares,
+        address receiver,
+        address controller
+    ) public virtual override(ERC4626, IERC4626) returns (uint256 assets) {
         address sender = _msgSender();
         if (sender != controller && !isOperator(controller, sender)) {
             revert ERC7540Unauthorized(sender, controller);
@@ -176,9 +180,9 @@ abstract contract ERC7540 is ERC4626, IERC7540, IERC165 {
         if (shares > maxShares) {
             revert ERC4626ExceededMaxRedeem(controller, shares, maxShares);
         }
-        
+
         assets = super.redeem(shares, receiver, controller);
-        
+
         return assets;
     }
 
@@ -197,22 +201,6 @@ abstract contract ERC7540 is ERC4626, IERC7540, IERC165 {
      */
     function isOperator(address controller, address operator) public view override returns (bool) {
         return _operators[controller][operator];
-    }
-
-    function previewDeposit(uint256) public view virtual override(ERC4626, IERC4626) returns (uint256) {
-        revert("ERC7540: previewDeposit not supported");
-    }
-
-    function previewMint(uint256) public view virtual override(ERC4626, IERC4626) returns (uint256) {
-        revert("ERC7540: previewMint not supported");
-    }
-
-    function previewRedeem(uint256) public view virtual override(ERC4626, IERC4626) returns (uint256) {
-        revert("ERC7540: previewRedeem not supported");
-    }
-
-    function previewWithdraw(uint256) public view virtual override(ERC4626, IERC4626) returns (uint256) {
-        revert("ERC7540: previewWithdraw not supported");
     }
 
     /**
