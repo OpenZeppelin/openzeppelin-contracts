@@ -4,6 +4,8 @@
 
 pragma solidity ^0.8.20;
 
+import {Arrays} from "../Arrays.sol";
+
 /**
  * @dev Library for managing
  * https://en.wikipedia.org/wiki/Set_(abstract_data_type)[sets] of primitive
@@ -121,9 +123,11 @@ library EnumerableSet {
      * function uncallable if the set grows to the point where clearing it consumes too much gas to fit in a block.
      */
     function _clear(Set storage set) private {
-        for (uint256 i = _length(set); i > 0; --i) {
-            _remove(set, _at(set, i - 1));
+        uint256 len = _length(set);
+        for (uint256 i = 0; i < len; ++i) {
+            delete set._positions[set._values[i]];
         }
+        Arrays.unsafeSetLength(set._values, 0);
     }
 
     /**
