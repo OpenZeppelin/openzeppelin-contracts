@@ -37,7 +37,7 @@ contract VestingWallet is Context, Ownable {
     event ERC20Released(address indexed token, uint256 amount);
 
     uint256 private _released;
-    mapping(address token => uint256) private _erc20Released;
+    mapping(address => uint256) private _erc20Released;
     uint64 private immutable _start;
     uint64 private immutable _duration;
 
