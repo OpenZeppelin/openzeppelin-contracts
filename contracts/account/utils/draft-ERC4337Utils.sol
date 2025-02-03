@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.20;
 
-import {PackedUserOperation} from "../../interfaces/draft-IERC4337.sol";
+import {IEntryPoint, PackedUserOperation} from "../../interfaces/draft-IERC4337.sol";
 import {Math} from "../../utils/math/Math.sol";
 import {Calldata} from "../../utils/Calldata.sol";
 import {Packing} from "../../utils/Packing.sol";
@@ -15,6 +15,9 @@ import {Packing} from "../../utils/Packing.sol";
  */
 library ERC4337Utils {
     using Packing for *;
+
+    /// @dev Address of the entrypoint v0.7.0
+    IEntryPoint internal constant ENTRYPOINT = IEntryPoint(0x0000000071727De22E5E9d8BAf0edAc6f37da032);
 
     /// @dev For simulation purposes, validateUserOp (and validatePaymasterUserOp) return this value on success.
     uint256 internal constant SIG_VALIDATION_SUCCESS = 0;
@@ -159,5 +162,30 @@ library ERC4337Utils {
     /// @dev Returns the fourth section of `paymasterAndData` from the {PackedUserOperation}.
     function paymasterData(PackedUserOperation calldata self) internal pure returns (bytes calldata) {
         return self.paymasterAndData.length < 52 ? Calldata.emptyBytes() : self.paymasterAndData[52:];
+    }
+
+    /// @dev Deposit ether into the entrypoint.
+    function depositTo(address to, uint256 value) internal {
+        ENTRYPOINT.depositTo{value: value}(to);
+    }
+
+    /// @dev Withdraw ether from the entrypoint.
+    function withdrawTo(address payable to, uint256 value) internal {
+        ENTRYPOINT.withdrawTo(to, value);
+    }
+
+    /// @dev Add stake to the entrypoint.
+    function addStake(uint256 value, uint32 unstakeDelaySec) internal {
+        ENTRYPOINT.addStake{value: value}(unstakeDelaySec);
+    }
+
+    /// @dev Unlock stake on the entrypoint.
+    function unlockStake() internal {
+        ENTRYPOINT.unlockStake();
+    }
+
+    /// @dev Withdraw unlocked stake from the entrypoint.
+    function withdrawStake(address payable to) internal {
+        ENTRYPOINT.withdrawStake(to);
     }
 }

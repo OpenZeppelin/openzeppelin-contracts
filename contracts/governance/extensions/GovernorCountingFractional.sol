@@ -125,9 +125,9 @@ abstract contract GovernorCountingFractional is Governor {
      *
      * `abi.encodePacked(uint128(againstVotes), uint128(forVotes), uint128(abstainVotes))`
      *
-     * NOTE: Consider that fractional voting restricts the number of casted vote (in each category) to 128 bits.
+     * NOTE: Consider that fractional voting restricts the number of casted votes (in each category) to 128 bits.
      * Depending on how many decimals the underlying token has, a single voter may require to split their vote into
-     * multiple vote operations. For precision higher than ~30 decimals, large token holders may require an
+     * multiple vote operations. For precision higher than ~30 decimals, large token holders may require a
      * potentially large number of calls to cast all their votes. The voter has the possibility to cast all the
      * remaining votes in a single operation using the traditional "bravo" vote.
      */
