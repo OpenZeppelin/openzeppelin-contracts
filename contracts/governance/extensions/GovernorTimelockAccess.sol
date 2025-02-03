@@ -24,7 +24,7 @@ import {Time} from "../../utils/types/Time.sol";
  *
  * ==== Security Considerations
  *
- * Some operations may be cancelable in the `AccessManager` by the admin or a set of guardians, depending on the
+ * Some operations may be cancellable in the `AccessManager` by the admin or a set of guardians, depending on the
  * restricted function being invoked. Since proposals are atomic, the cancellation by a guardian of a single operation
  * in a proposal will cause all of the proposal to become unable to execute. Consider proposing cancellable operations
  * separately.
