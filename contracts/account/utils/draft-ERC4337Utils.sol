@@ -163,29 +163,4 @@ library ERC4337Utils {
     function paymasterData(PackedUserOperation calldata self) internal pure returns (bytes calldata) {
         return self.paymasterAndData.length < 52 ? Calldata.emptyBytes() : self.paymasterAndData[52:];
     }
-
-    /// @dev Deposit ether into the entrypoint.
-    function depositTo(address to, uint256 value) internal {
-        ENTRYPOINT_V07.depositTo{value: value}(to);
-    }
-
-    /// @dev Withdraw ether from the entrypoint.
-    function withdrawTo(address payable to, uint256 value) internal {
-        ENTRYPOINT_V07.withdrawTo(to, value);
-    }
-
-    /// @dev Add stake to the entrypoint.
-    function addStake(uint256 value, uint32 unstakeDelaySec) internal {
-        ENTRYPOINT_V07.addStake{value: value}(unstakeDelaySec);
-    }
-
-    /// @dev Unlock stake on the entrypoint.
-    function unlockStake() internal {
-        ENTRYPOINT_V07.unlockStake();
-    }
-
-    /// @dev Withdraw unlocked stake from the entrypoint.
-    function withdrawStake(address payable to) internal {
-        ENTRYPOINT_V07.withdrawStake(to);
-    }
 }
