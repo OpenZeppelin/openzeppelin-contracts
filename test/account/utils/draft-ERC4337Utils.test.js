@@ -4,15 +4,16 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { packValidationData, UserOperation } = require('../../helpers/erc4337');
 const { MAX_UINT48 } = require('../../helpers/constants');
+const time = require('../../helpers/time');
 const ADDRESS_ONE = '0x0000000000000000000000000000000000000001';
 
 const fixture = async () => {
-  const [authorizer, sender, factory, paymaster] = await ethers.getSigners();
+  const [authorizer, sender, factory, paymaster, other] = await ethers.getSigners();
   const utils = await ethers.deployContract('$ERC4337Utils');
   const SIG_VALIDATION_SUCCESS = await utils.$SIG_VALIDATION_SUCCESS();
   const SIG_VALIDATION_FAILED = await utils.$SIG_VALIDATION_FAILED();
 
-  return { utils, authorizer, sender, factory, paymaster, SIG_VALIDATION_SUCCESS, SIG_VALIDATION_FAILED };
+  return { utils, authorizer, sender, factory, paymaster, other, SIG_VALIDATION_SUCCESS, SIG_VALIDATION_FAILED };
 };
 
 describe('ERC4337Utils', function () {
@@ -282,6 +283,70 @@ describe('ERC4337Utils', function () {
         await expect(this.utils.$paymasterData(this.userOp.packed)).to.eventually.equal(this.userOp.paymasterData);
         await expect(this.utils.$paymasterData(this.emptyUserOp.packed)).to.eventually.equal('0x');
       });
+    });
+  });
+
+  describe('stake management', function () {
+    const unstakeDelaySec = 3600n;
+
+    beforeEach(async function () {
+      await this.authorizer.sendTransaction({ to: this.utils, value: ethers.parseEther('1') });
+    });
+
+    it('deposit & withdraw', async function () {
+      await expect(entrypoint.balanceOf(this.utils)).to.eventually.equal(0n);
+
+      // deposit
+      await expect(this.utils.$depositTo(this.utils, 42n)).to.changeEtherBalances(
+        [this.utils, entrypoint],
+        [-42n, 42n],
+      );
+
+      await expect(entrypoint.balanceOf(this.utils)).to.eventually.equal(42n);
+
+      // withdraw
+      await expect(this.utils.$withdrawTo(this.other, 17n)).to.changeEtherBalances(
+        [entrypoint, this.other],
+        [-17n, 17n],
+      );
+
+      await expect(entrypoint.balanceOf(this.utils)).to.eventually.equal(25n); // 42 - 17
+    });
+
+    it('stake, unlock & withdraw stake', async function () {
+      await expect(entrypoint.deposits(this.utils)).to.eventually.deep.equal([0n, false, 0n, 0n, 0n]);
+
+      // stake
+      await expect(this.utils.$addStake(42n, unstakeDelaySec)).to.changeEtherBalances(
+        [this.utils, entrypoint],
+        [-42n, 42n],
+      );
+
+      await expect(entrypoint.deposits(this.utils)).to.eventually.deep.equal([0n, true, 42n, unstakeDelaySec, 0n]);
+
+      // unlock
+      const unlockTx = this.utils.$unlockStake();
+      await expect(unlockTx).to.changeEtherBalances([this.utils, entrypoint], [0n, 0n]); // no ether movement
+
+      const timestamp = await time.clockFromReceipt.timestamp(unlockTx);
+      await expect(entrypoint.deposits(this.utils)).to.eventually.deep.equal([
+        0n,
+        false,
+        42n,
+        unstakeDelaySec,
+        timestamp + unstakeDelaySec,
+      ]);
+
+      // wait
+      await time.increaseBy.timestamp(unstakeDelaySec);
+
+      // withdraw stake
+      await expect(this.utils.$withdrawStake(this.other)).to.changeEtherBalances(
+        [this.utils, entrypoint, this.other],
+        [0n, -42n, 42n],
+      );
+
+      await expect(entrypoint.deposits(this.utils)).to.eventually.deep.equal([0n, false, 0n, 0n, 0n]);
     });
   });
 });
