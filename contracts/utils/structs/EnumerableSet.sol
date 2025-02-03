@@ -13,7 +13,7 @@ pragma solidity ^0.8.20;
  *
  * - Elements are added, removed, and checked for existence in constant time
  * (O(1)).
- * - Elements are enumerated in O(n). No guarantees are made on the ordering.
+ * - Elements are enumerated and cleared in O(n). No guarantees are made on the ordering.
  *
  * ```solidity
  * contract Example {
@@ -115,6 +115,18 @@ library EnumerableSet {
     }
 
     /**
+     * @dev Removes all the values from a set. O(n).
+     *
+     * WARNING: Developers should keep in mind that this function has an unbounded cost and using it may render the
+     * function uncallable if the set grows to the point where clearing it consumes too much gas to fit in a block.
+     */
+    function _clear(Set storage set) private {
+        for (uint256 i = _length(set); i > 0; --i) {
+            _remove(set, _at(set, i - 1));
+        }
+    }
+
+    /**
      * @dev Returns true if the value is in the set. O(1).
      */
     function _contains(Set storage set, bytes32 value) private view returns (bool) {
@@ -178,6 +190,16 @@ library EnumerableSet {
      */
     function remove(Bytes32Set storage set, bytes32 value) internal returns (bool) {
         return _remove(set._inner, value);
+    }
+
+    /**
+     * @dev Removes all the values from a set. O(n).
+     *
+     * WARNING: Developers should keep in mind that this function has an unbounded cost and using it may render the
+     * function uncallable if the set grows to the point where clearing it consumes too much gas to fit in a block.
+     */
+    function clear(Bytes32Set storage set) internal {
+        _clear(set._inner);
     }
 
     /**
@@ -254,6 +276,16 @@ library EnumerableSet {
     }
 
     /**
+     * @dev Removes all the values from a set. O(n).
+     *
+     * WARNING: Developers should keep in mind that this function has an unbounded cost and using it may render the
+     * function uncallable if the set grows to the point where clearing it consumes too much gas to fit in a block.
+     */
+    function clear(AddressSet storage set) internal {
+        _clear(set._inner);
+    }
+
+    /**
      * @dev Returns true if the value is in the set. O(1).
      */
     function contains(AddressSet storage set, address value) internal view returns (bool) {
@@ -324,6 +356,16 @@ library EnumerableSet {
      */
     function remove(UintSet storage set, uint256 value) internal returns (bool) {
         return _remove(set._inner, bytes32(value));
+    }
+
+    /**
+     * @dev Removes all the values from a set. O(n).
+     *
+     * WARNING: Developers should keep in mind that this function has an unbounded cost and using it may render the
+     * function uncallable if the set grows to the point where clearing it consumes too much gas to fit in a block.
+     */
+    function clear(UintSet storage set) internal {
+        _clear(set._inner);
     }
 
     /**

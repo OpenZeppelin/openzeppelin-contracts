@@ -109,6 +109,41 @@ function shouldBehaveLikeSet() {
       expect(await this.methods.contains(this.valueB)).to.be.false;
     });
   });
+
+  describe('clear', function () {
+    it('clears a single item', async function () {
+      await this.methods.add(this.valueA);
+      await expect(this.methods.length()).to.eventually.equal(1);
+
+      await this.methods.clear();
+
+      await expect(this.methods.length()).to.eventually.equal(0);
+    });
+
+    it('clears multiple items', async function () {
+      await this.methods.add(this.valueA);
+      await this.methods.add(this.valueB);
+      await this.methods.add(this.valueC);
+      await expect(this.methods.length()).to.eventually.equal(3);
+
+      await this.methods.clear();
+
+      await expect(this.methods.length()).to.eventually.equal(0);
+    });
+
+    it('does not revert on empty set', async function () {
+      await this.methods.clear();
+    });
+
+    it('clear then add value', async function () {
+      await this.methods.add(this.valueA);
+      await this.methods.add(this.valueB);
+      await this.methods.clear();
+
+      await this.methods.add(this.valueA);
+      await expectMembersMatch(this.methods, [this.valueA]);
+    });
+  });
 }
 
 module.exports = {
