@@ -66,7 +66,7 @@ contract SampleAccount is IAccount, Ownable {
                 // builtin decoder for the `execute` function.
 
                 // This is where the vulnerability from ExecutionLib results in a different result between validation
-                // andexecution.
+                // and execution.
 
                 emit Log(true, executionCalldata.decodeBatch());
             }
