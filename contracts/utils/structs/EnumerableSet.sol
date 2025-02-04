@@ -489,6 +489,24 @@ library EnumerableSet {
     }
 
     /**
+     * @dev Removes all the values from a set. O(n).
+     *
+     * WARNING: Developers should keep in mind that this function has an unbounded cost and using it may render the
+     * function uncallable if the set grows to the point where clearing it consumes too much gas to fit in a block.
+     */
+    function clear(Bytes32x2Set storage self) internal {
+        bytes32[2][] storage v = self._values;
+
+        uint256 len = length(self);
+        for (uint256 i = 0; i < len; ++i) {
+            delete self._positions[_hash(v[i])];
+        }
+        assembly ("memory-safe") {
+            sstore(v.slot, 0)
+        }
+    }
+
+    /**
      * @dev Returns true if the value is in the self. O(1).
      */
     function contains(Bytes32x2Set storage self, bytes32[2] memory value) internal view returns (bool) {
