@@ -40,7 +40,7 @@ describe('ERC6909TokenSupply', function () {
       });
 
       it('supply unaffected by transfers', async function () {
-        await this.token.$_transfer(this.holder, this.receiver, 1n, 42n);
+        await this.token.$_transfer(this.holder, this.recipient, 1n, 42n);
         await expect(this.token.totalSupply(1n)).to.eventually.be.equal(supply);
       });
 
