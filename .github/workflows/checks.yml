@@ -119,8 +119,6 @@ jobs:
       - name: Set up environment
         uses: ./.github/actions/setup
       - uses: crytic/slither-action@v0.4.0
-        with:
-          slither-version: 0.10.4
 
   codespell:
     runs-on: ubuntu-latest
