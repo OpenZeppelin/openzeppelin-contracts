@@ -111,7 +111,7 @@ function shouldBehaveLikeSet() {
   });
 
   describe('clear', function () {
-    it('clears a single item', async function () {
+    it('clears a single value', async function () {
       await this.methods.add(this.valueA);
 
       await this.methods.clear();
@@ -120,7 +120,7 @@ function shouldBehaveLikeSet() {
       await expectMembersMatch(this.methods, []);
     });
 
-    it('clears multiple items', async function () {
+    it('clears multiple values', async function () {
       await this.methods.add(this.valueA);
       await this.methods.add(this.valueB);
       await this.methods.add(this.valueC);
