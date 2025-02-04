@@ -5,9 +5,9 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { shouldBehaveLikeERC6909 } = require('../ERC6909.behavior');
 
 async function fixture() {
-  const [operator, holder, receiver, ...otherAccounts] = await ethers.getSigners();
+  const [holder, operator, recipient, other] = await ethers.getSigners();
   const token = await ethers.deployContract('$ERC6909TokenSupply');
-  return { token, operator, holder, receiver, otherAccounts };
+  return { token, holder, operator, recipient, other };
 }
 
 describe('ERC6909TokenSupply', function () {
@@ -23,7 +23,7 @@ describe('ERC6909TokenSupply', function () {
     });
 
     it('minting tokens increases the total supply', async function () {
-      await this.token.$_mint(this.receiver, 1n, 17n);
+      await this.token.$_mint(this.holder, 1n, 17n);
       await expect(this.token.totalSupply(1n)).to.eventually.be.equal(17n);
     });
 

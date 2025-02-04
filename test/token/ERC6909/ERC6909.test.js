@@ -5,9 +5,9 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { shouldBehaveLikeERC6909 } = require('./ERC6909.behavior');
 
 async function fixture() {
-  const [operator, holder, ...otherAccounts] = await ethers.getSigners();
+  const [holder, operator, recipient, other] = await ethers.getSigners();
   const token = await ethers.deployContract('$ERC6909');
-  return { token, operator, holder, otherAccounts };
+  return { token, holder, operator, recipient, other };
 }
 
 describe('ERC6909', function () {
