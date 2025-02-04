@@ -22,10 +22,10 @@ library Math {
      *
      * The result is stored in two 256 variables such that product = high * 2²⁵⁶ + low.
      */
-    function addFull(uint256 a, uint256 b) internal pure returns (uint256 high, uint256 low) {
+    function add512(uint256 a, uint256 b) internal pure returns (uint256 high, uint256 low) {
         assembly ("memory-safe") {
-            low: = add(a, b)
-            high: = lt(low, a)
+            low := add(a, b)
+            high := lt(low, a)
         }
     }
 
@@ -34,7 +34,7 @@ library Math {
      *
      * The result is stored in two 256 variables such that product = high * 2²⁵⁶ + low.
      */
-    function mulFull(uint256 a, uint256 b) internal pure returns (uint256 high, uint256 low) {
+    function mul512(uint256 a, uint256 b) internal pure returns (uint256 high, uint256 low) {
         // Compute the product mod 2²⁵⁶ and mod 2²⁵⁶ - 1, then use use the Chinese Remainder Theorem to reconstruct
         // the 512 bit result.
         assembly ("memory-safe") {
@@ -170,7 +170,7 @@ library Math {
      */
     function mulDiv(uint256 x, uint256 y, uint256 denominator) internal pure returns (uint256 result) {
         unchecked {
-            (uint256 prod1, uint256 prod0) = mulFull(x, y);
+            (uint256 prod1, uint256 prod0) = mul512(x, y);
 
             // Handle non-overflow cases, 256 by 256 division.
             if (prod1 == 0) {
@@ -246,6 +246,26 @@ library Math {
      */
     function mulDiv(uint256 x, uint256 y, uint256 denominator, Rounding rounding) internal pure returns (uint256) {
         return mulDiv(x, y, denominator) + SafeCast.toUint(unsignedRoundsUp(rounding) && mulmod(x, y, denominator) > 0);
+    }
+
+    /**
+     * @dev Calculates floor(x * y >> n) with full precision. Throws if result overflows a uint256.
+     */
+    function mulShr(uint256 x, uint256 y, uint8 n) internal pure returns (uint256 result) {
+        unchecked {
+            (uint256 prod1, uint256 prod0) = mul512(x, y);
+            if (prod1 >= 1 << n) {
+                Panic.panic(Panic.UNDER_OVERFLOW);
+            }
+            return prod1 << (256 - n) | prod0 >> n;
+        }
+    }
+
+    /**
+     * @dev Calculates x * y >> n with full precision, following the selected rounding direction.
+     */
+    function mulShr(uint256 x, uint256 y, uint8 n, Rounding rounding) internal pure returns (uint256) {
+        return mulShr(x, y, n) + SafeCast.toUint(unsignedRoundsUp(rounding) && mulmod(x, y, 1 << n) > 0);
     }
 
     /**

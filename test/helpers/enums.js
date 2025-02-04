@@ -1,5 +1,7 @@
+const { ethers } = require('ethers');
+
 function Enum(...options) {
-  return Object.fromEntries(options.map((key, i) => [key, BigInt(i)]));
+  return Object.fromEntries(options.map((key, i) => [key, ethers.Typed.uint8(i)]));
 }
 
 module.exports = {
