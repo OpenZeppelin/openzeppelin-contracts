@@ -1,0 +1,1 @@
+[{"inputs":[{"internalType":"bytes","name":"initCode","type":"bytes"}],"name":"createSender","outputs":[{"internalType":"address","name":"sender","type":"address"}],"stateMutability":"nonpayable","type":"function"}]

@@ -41,6 +41,8 @@ jobs:
         run: npm run test
       - name: Check linearisation of the inheritance graph
         run: npm run test:inheritance
+      - name: Check pragma consistency between files
+        run: npm run test:pragma
       - name: Check proceduraly generated contracts are up-to-date
         run: npm run test:generation
       - name: Compare gas costs
@@ -68,6 +70,8 @@ jobs:
         run: npm run test
       - name: Check linearisation of the inheritance graph
         run: npm run test:inheritance
+      - name: Check pragma consistency between files
+        run: npm run test:pragma
       - name: Check storage layout
         uses: ./.github/actions/storage-layout
         continue-on-error: ${{ contains(github.event.pull_request.labels.*.name, 'breaking change') }}
@@ -93,7 +97,7 @@ jobs:
         uses: ./.github/actions/setup
       - name: Run coverage
         run: npm run coverage
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v5
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
@@ -114,19 +118,15 @@ jobs:
       - uses: actions/checkout@v4
       - name: Set up environment
         uses: ./.github/actions/setup
-      - run: rm foundry.toml
-      - uses: crytic/slither-action@v0.3.2
-        with:
-          node-version: 18.15
-          slither-version: 0.10.1
+      - uses: crytic/slither-action@v0.4.0
 
   codespell:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Run CodeSpell
-        uses: codespell-project/actions-codespell@v2.0
+        uses: codespell-project/actions-codespell@v2.1
         with:
           check_hidden: true
           check_filenames: true
-          skip: package-lock.json,*.pdf
+          skip: package-lock.json,*.pdf,vendor

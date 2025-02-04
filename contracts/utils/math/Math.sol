@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (utils/math/Math.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (utils/math/Math.sol)
 
 pragma solidity ^0.8.20;
 
@@ -35,8 +35,9 @@ library Math {
      * The result is stored in two 256 variables such that product = high * 2²⁵⁶ + low.
      */
     function mul512(uint256 a, uint256 b) internal pure returns (uint256 high, uint256 low) {
-        // Compute the product mod 2²⁵⁶ and mod 2²⁵⁶ - 1, then use use the Chinese Remainder Theorem to reconstruct
-        // the 512 bit result.
+        // 512-bit multiply [prod1 prod0] = x * y. Compute the product mod 2²⁵⁶ and mod 2²⁵⁶ - 1, then use
+        // the Chinese Remainder Theorem to reconstruct the 512 bit result. The result is stored in two 256
+        // variables such that product = prod1 * 2²⁵⁶ + prod0.
         assembly ("memory-safe") {
             let mm := mulmod(a, b, not(0))
             low := mul(a, b)
@@ -257,7 +258,7 @@ library Math {
             if (prod1 >= 1 << n) {
                 Panic.panic(Panic.UNDER_OVERFLOW);
             }
-            return prod1 << (256 - n) | prod0 >> n;
+            return (prod1 << (256 - n)) | (prod0 >> n);
         }
     }
 
@@ -271,13 +272,13 @@ library Math {
     /**
      * @dev Calculate the modular multiplicative inverse of a number in Z/nZ.
      *
-     * If n is a prime, then Z/nZ is a field. In that case all elements are inversible, expect 0.
+     * If n is a prime, then Z/nZ is a field. In that case all elements are inversible, except 0.
      * If n is not a prime, then Z/nZ is not a field, and some elements might not be inversible.
      *
      * If the input value is not inversible, 0 is returned.
      *
-     * NOTE: If you know for sure that n is (big) a prime, it may be cheaper to use Ferma's little theorem and get the
-     * inverse using `Math.modExp(a, n - 2, n)`.
+     * NOTE: If you know for sure that n is (big) a prime, it may be cheaper to use Fermat's little theorem and get the
+     * inverse using `Math.modExp(a, n - 2, n)`. See {invModPrime}.
      */
     function invMod(uint256 a, uint256 n) internal pure returns (uint256) {
         unchecked {
@@ -328,6 +329,21 @@ library Math {
     }
 
     /**
+     * @dev Variant of {invMod}. More efficient, but only works if `p` is known to be a prime greater than `2`.
+     *
+     * From https://en.wikipedia.org/wiki/Fermat%27s_little_theorem[Fermat's little theorem], we know that if p is
+     * prime, then `a**(p-1) ≡ 1 mod p`. As a consequence, we have `a * a**(p-2) ≡ 1 mod p`, which means that
+     * `a**(p-2)` is the modular multiplicative inverse of a in Fp.
+     *
+     * NOTE: this function does NOT check that `p` is a prime greater than `2`.
+     */
+    function invModPrime(uint256 a, uint256 p) internal view returns (uint256) {
+        unchecked {
+            return Math.modExp(a, p - 2, p);
+        }
+    }
+
+    /**
      * @dev Returns the modular exponentiation of the specified base, exponent and modulus (b ** e % m)
      *
      * Requirements:
@@ -350,7 +366,7 @@ library Math {
 
     /**
      * @dev Returns the modular exponentiation of the specified base, exponent and modulus (b ** e % m).
-     * It includes a success flag indicating if the operation succeeded. Operation will be marked has failed if trying
+     * It includes a success flag indicating if the operation succeeded. Operation will be marked as failed if trying
      * to operate modulo 0 or if the underlying precompile reverted.
      *
      * IMPORTANT: The result is only valid if the success flag is true. When using this function, make sure the chain
@@ -360,8 +376,7 @@ library Math {
      */
     function tryModExp(uint256 b, uint256 e, uint256 m) internal view returns (bool success, uint256 result) {
         if (m == 0) return (false, 0);
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             let ptr := mload(0x40)
             // | Offset    | Content    | Content (Hex)                                                      |
             // |-----------|------------|--------------------------------------------------------------------|
@@ -411,8 +426,7 @@ library Math {
         // Encode call args in result and move the free memory pointer
         result = abi.encodePacked(b.length, e.length, mLen, b, e, m);
 
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             let dataPtr := add(result, 0x20)
             // Write result on top of args to avoid allocating extra memory.
             success := staticcall(gas(), 0x05, dataPtr, mload(result), dataPtr, mLen)
@@ -563,41 +577,45 @@ library Math {
      * @dev Return the log in base 2 of a positive value rounded towards zero.
      * Returns 0 if given 0.
      */
-    function log2(uint256 value) internal pure returns (uint256) {
-        uint256 result = 0;
-        uint256 exp;
-        unchecked {
-            exp = 128 * SafeCast.toUint(value > (1 << 128) - 1);
-            value >>= exp;
-            result += exp;
+    function log2(uint256 x) internal pure returns (uint256 r) {
+        // If value has upper 128 bits set, log2 result is at least 128
+        r = SafeCast.toUint(x > 0xffffffffffffffffffffffffffffffff) << 7;
+        // If upper 64 bits of 128-bit half set, add 64 to result
+        r |= SafeCast.toUint((x >> r) > 0xffffffffffffffff) << 6;
+        // If upper 32 bits of 64-bit half set, add 32 to result
+        r |= SafeCast.toUint((x >> r) > 0xffffffff) << 5;
+        // If upper 16 bits of 32-bit half set, add 16 to result
+        r |= SafeCast.toUint((x >> r) > 0xffff) << 4;
+        // If upper 8 bits of 16-bit half set, add 8 to result
+        r |= SafeCast.toUint((x >> r) > 0xff) << 3;
+        // If upper 4 bits of 8-bit half set, add 4 to result
+        r |= SafeCast.toUint((x >> r) > 0xf) << 2;
 
-            exp = 64 * SafeCast.toUint(value > (1 << 64) - 1);
-            value >>= exp;
-            result += exp;
-
-            exp = 32 * SafeCast.toUint(value > (1 << 32) - 1);
-            value >>= exp;
-            result += exp;
-
-            exp = 16 * SafeCast.toUint(value > (1 << 16) - 1);
-            value >>= exp;
-            result += exp;
-
-            exp = 8 * SafeCast.toUint(value > (1 << 8) - 1);
-            value >>= exp;
-            result += exp;
-
-            exp = 4 * SafeCast.toUint(value > (1 << 4) - 1);
-            value >>= exp;
-            result += exp;
-
-            exp = 2 * SafeCast.toUint(value > (1 << 2) - 1);
-            value >>= exp;
-            result += exp;
-
-            result += SafeCast.toUint(value > 1);
+        // Shifts value right by the current result and use it as an index into this lookup table:
+        //
+        // | x (4 bits) |  index  | table[index] = MSB position |
+        // |------------|---------|-----------------------------|
+        // |    0000    |    0    |        table[0] = 0         |
+        // |    0001    |    1    |        table[1] = 0         |
+        // |    0010    |    2    |        table[2] = 1         |
+        // |    0011    |    3    |        table[3] = 1         |
+        // |    0100    |    4    |        table[4] = 2         |
+        // |    0101    |    5    |        table[5] = 2         |
+        // |    0110    |    6    |        table[6] = 2         |
+        // |    0111    |    7    |        table[7] = 2         |
+        // |    1000    |    8    |        table[8] = 3         |
+        // |    1001    |    9    |        table[9] = 3         |
+        // |    1010    |   10    |        table[10] = 3        |
+        // |    1011    |   11    |        table[11] = 3        |
+        // |    1100    |   12    |        table[12] = 3        |
+        // |    1101    |   13    |        table[13] = 3        |
+        // |    1110    |   14    |        table[14] = 3        |
+        // |    1111    |   15    |        table[15] = 3        |
+        //
+        // The lookup table is represented as a 32-byte value with the MSB positions for 0-15 in the last 16 bytes.
+        assembly ("memory-safe") {
+            r := or(r, byte(shr(r, x), 0x0000010102020202030303030303030300000000000000000000000000000000))
         }
-        return result;
     }
 
     /**
@@ -666,29 +684,17 @@ library Math {
      *
      * Adding one to the result gives the number of pairs of hex symbols needed to represent `value` as a hex string.
      */
-    function log256(uint256 value) internal pure returns (uint256) {
-        uint256 result = 0;
-        uint256 isGt;
-        unchecked {
-            isGt = SafeCast.toUint(value > (1 << 128) - 1);
-            value >>= isGt * 128;
-            result += isGt * 16;
-
-            isGt = SafeCast.toUint(value > (1 << 64) - 1);
-            value >>= isGt * 64;
-            result += isGt * 8;
-
-            isGt = SafeCast.toUint(value > (1 << 32) - 1);
-            value >>= isGt * 32;
-            result += isGt * 4;
-
-            isGt = SafeCast.toUint(value > (1 << 16) - 1);
-            value >>= isGt * 16;
-            result += isGt * 2;
-
-            result += SafeCast.toUint(value > (1 << 8) - 1);
-        }
-        return result;
+    function log256(uint256 x) internal pure returns (uint256 r) {
+        // If value has upper 128 bits set, log2 result is at least 128
+        r = SafeCast.toUint(x > 0xffffffffffffffffffffffffffffffff) << 7;
+        // If upper 64 bits of 128-bit half set, add 64 to result
+        r |= SafeCast.toUint((x >> r) > 0xffffffffffffffff) << 6;
+        // If upper 32 bits of 64-bit half set, add 32 to result
+        r |= SafeCast.toUint((x >> r) > 0xffffffff) << 5;
+        // If upper 16 bits of 32-bit half set, add 16 to result
+        r |= SafeCast.toUint((x >> r) > 0xffff) << 4;
+        // Add 1 if upper 8 bits of 16-bit half set, and divide accumulated result by 8
+        return (r >> 3) | SafeCast.toUint((x >> r) > 0xff);
     }
 
     /**

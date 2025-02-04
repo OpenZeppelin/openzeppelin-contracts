@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (token/ERC721/ERC721.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (token/ERC721/ERC721.sol)
 
 pragma solidity ^0.8.20;
 
@@ -195,8 +195,9 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
 
     /**
      * @dev Checks if `spender` can operate on `tokenId`, assuming the provided `owner` is the actual owner.
-     * Reverts if `spender` does not have approval from the provided `owner` for the given token or for all its assets
-     * the `spender` for the specific `tokenId`.
+     * Reverts if:
+     * - `spender` does not have approval from `owner` for `tokenId`.
+     * - `spender` does not have approval to manage all of `owner`'s assets.
      *
      * WARNING: This function assumes that `owner` is the actual owner of `tokenId` and does not verify this
      * assumption.

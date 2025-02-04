@@ -29,7 +29,7 @@ describe('GovernorVotesQuorumFraction', function () {
 
       const receiver = await ethers.deployContract('CallReceiverMock');
 
-      const token = await ethers.deployContract(Token, [tokenName, tokenSymbol, version]);
+      const token = await ethers.deployContract(Token, [tokenName, tokenSymbol, tokenName, version]);
       const mock = await ethers.deployContract('$GovernorMock', [name, votingDelay, votingPeriod, 0n, token, ratio]);
 
       await owner.sendTransaction({ to: mock, value });
@@ -74,7 +74,7 @@ describe('GovernorVotesQuorumFraction', function () {
         );
       });
 
-      it('quroum reached', async function () {
+      it('quorum reached', async function () {
         await this.helper.propose();
         await this.helper.waitForSnapshot();
         await this.helper.connect(this.voter1).vote({ support: VoteType.For });
@@ -82,7 +82,7 @@ describe('GovernorVotesQuorumFraction', function () {
         await this.helper.execute();
       });
 
-      it('quroum not reached', async function () {
+      it('quorum not reached', async function () {
         await this.helper.propose();
         await this.helper.waitForSnapshot();
         await this.helper.connect(this.voter2).vote({ support: VoteType.For });

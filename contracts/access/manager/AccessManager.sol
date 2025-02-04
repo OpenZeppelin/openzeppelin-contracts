@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (access/manager/AccessManager.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (access/manager/AccessManager.sol)
 
 pragma solidity ^0.8.20;
 
@@ -97,7 +97,15 @@ contract AccessManager is Context, Multicall, IAccessManager {
         uint32 nonce;
     }
 
+    /**
+     * @dev The identifier of the admin role. Required to perform most configuration operations including
+     * other roles' management and target restrictions.
+     */
     uint64 public constant ADMIN_ROLE = type(uint64).min; // 0
+
+    /**
+     * @dev The identifier of the public role. Automatically granted to all addresses with no delay.
+     */
     uint64 public constant PUBLIC_ROLE = type(uint64).max; // 2**64-1
 
     mapping(address target => TargetConfig mode) private _targets;
@@ -412,9 +420,6 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * Emits a {TargetClosed} event.
      */
     function _setTargetClosed(address target, bool closed) internal virtual {
-        if (target == address(this)) {
-            revert AccessManagerLockedAccount(target);
-        }
         _targets[target].closed = closed;
         emit TargetClosed(target, closed);
     }
@@ -586,7 +591,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
     // ================================================= ADMIN LOGIC ==================================================
     /**
-     * @dev Check if the current call is authorized according to admin logic.
+     * @dev Check if the current call is authorized according to admin and roles logic.
+     *
+     * WARNING: Carefully review the considerations of {AccessManaged-restricted} since they apply to this modifier.
      */
     function _checkAuthorized() private {
         address caller = _msgSender();
@@ -611,7 +618,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      */
     function _getAdminRestrictions(
         bytes calldata data
-    ) private view returns (bool restricted, uint64 roleAdminId, uint32 executionDelay) {
+    ) private view returns (bool adminRestricted, uint64 roleAdminId, uint32 executionDelay) {
         if (data.length < 4) {
             return (false, 0, 0);
         }
@@ -648,7 +655,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
             return (true, getRoleAdmin(roleId), 0);
         }
 
-        return (false, 0, 0);
+        return (false, getTargetFunctionRole(address(this), selector), 0);
     }
 
     // =================================================== HELPERS ====================================================
@@ -673,7 +680,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /**
-     * @dev A version of {canCall} that checks for admin restrictions in this contract.
+     * @dev A version of {canCall} that checks for restrictions in this contract.
      */
     function _canCallSelf(address caller, bytes calldata data) private view returns (bool immediate, uint32 delay) {
         if (data.length < 4) {
@@ -686,8 +693,10 @@ contract AccessManager is Context, Multicall, IAccessManager {
             return (_isExecuting(address(this), _checkSelector(data)), 0);
         }
 
-        (bool enabled, uint64 roleId, uint32 operationDelay) = _getAdminRestrictions(data);
-        if (!enabled) {
+        (bool adminRestricted, uint64 roleId, uint32 operationDelay) = _getAdminRestrictions(data);
+
+        // isTargetClosed apply to non-admin-restricted function
+        if (!adminRestricted && isTargetClosed(address(this))) {
             return (false, 0);
         }
 

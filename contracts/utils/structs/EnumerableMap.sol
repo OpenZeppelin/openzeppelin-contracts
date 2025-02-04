@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (utils/structs/EnumerableMap.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (utils/structs/EnumerableMap.sol)
 // This file was procedurally generated from scripts/generate/templates/EnumerableMap.js.
 
 pragma solidity ^0.8.20;
@@ -114,21 +114,21 @@ library EnumerableMap {
      *
      * - `index` must be strictly less than {length}.
      */
-    function at(Bytes32ToBytes32Map storage map, uint256 index) internal view returns (bytes32, bytes32) {
-        bytes32 key = map._keys.at(index);
-        return (key, map._values[key]);
+    function at(Bytes32ToBytes32Map storage map, uint256 index) internal view returns (bytes32 key, bytes32 value) {
+        bytes32 atKey = map._keys.at(index);
+        return (atKey, map._values[atKey]);
     }
 
     /**
      * @dev Tries to returns the value associated with `key`. O(1).
      * Does not revert if `key` is not in the map.
      */
-    function tryGet(Bytes32ToBytes32Map storage map, bytes32 key) internal view returns (bool, bytes32) {
-        bytes32 value = map._values[key];
-        if (value == bytes32(0)) {
+    function tryGet(Bytes32ToBytes32Map storage map, bytes32 key) internal view returns (bool exists, bytes32 value) {
+        bytes32 val = map._values[key];
+        if (val == bytes32(0)) {
             return (contains(map, key), bytes32(0));
         } else {
-            return (true, value);
+            return (true, val);
         }
     }
 
@@ -208,18 +208,18 @@ library EnumerableMap {
      *
      * - `index` must be strictly less than {length}.
      */
-    function at(UintToUintMap storage map, uint256 index) internal view returns (uint256, uint256) {
-        (bytes32 key, bytes32 value) = at(map._inner, index);
-        return (uint256(key), uint256(value));
+    function at(UintToUintMap storage map, uint256 index) internal view returns (uint256 key, uint256 value) {
+        (bytes32 atKey, bytes32 val) = at(map._inner, index);
+        return (uint256(atKey), uint256(val));
     }
 
     /**
      * @dev Tries to returns the value associated with `key`. O(1).
      * Does not revert if `key` is not in the map.
      */
-    function tryGet(UintToUintMap storage map, uint256 key) internal view returns (bool, uint256) {
-        (bool success, bytes32 value) = tryGet(map._inner, bytes32(key));
-        return (success, uint256(value));
+    function tryGet(UintToUintMap storage map, uint256 key) internal view returns (bool exists, uint256 value) {
+        (bool success, bytes32 val) = tryGet(map._inner, bytes32(key));
+        return (success, uint256(val));
     }
 
     /**
@@ -245,8 +245,7 @@ library EnumerableMap {
         bytes32[] memory store = keys(map._inner);
         uint256[] memory result;
 
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             result := store
         }
 
@@ -302,18 +301,18 @@ library EnumerableMap {
      *
      * - `index` must be strictly less than {length}.
      */
-    function at(UintToAddressMap storage map, uint256 index) internal view returns (uint256, address) {
-        (bytes32 key, bytes32 value) = at(map._inner, index);
-        return (uint256(key), address(uint160(uint256(value))));
+    function at(UintToAddressMap storage map, uint256 index) internal view returns (uint256 key, address value) {
+        (bytes32 atKey, bytes32 val) = at(map._inner, index);
+        return (uint256(atKey), address(uint160(uint256(val))));
     }
 
     /**
      * @dev Tries to returns the value associated with `key`. O(1).
      * Does not revert if `key` is not in the map.
      */
-    function tryGet(UintToAddressMap storage map, uint256 key) internal view returns (bool, address) {
-        (bool success, bytes32 value) = tryGet(map._inner, bytes32(key));
-        return (success, address(uint160(uint256(value))));
+    function tryGet(UintToAddressMap storage map, uint256 key) internal view returns (bool exists, address value) {
+        (bool success, bytes32 val) = tryGet(map._inner, bytes32(key));
+        return (success, address(uint160(uint256(val))));
     }
 
     /**
@@ -339,8 +338,7 @@ library EnumerableMap {
         bytes32[] memory store = keys(map._inner);
         uint256[] memory result;
 
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             result := store
         }
 
@@ -396,18 +394,18 @@ library EnumerableMap {
      *
      * - `index` must be strictly less than {length}.
      */
-    function at(UintToBytes32Map storage map, uint256 index) internal view returns (uint256, bytes32) {
-        (bytes32 key, bytes32 value) = at(map._inner, index);
-        return (uint256(key), value);
+    function at(UintToBytes32Map storage map, uint256 index) internal view returns (uint256 key, bytes32 value) {
+        (bytes32 atKey, bytes32 val) = at(map._inner, index);
+        return (uint256(atKey), val);
     }
 
     /**
      * @dev Tries to returns the value associated with `key`. O(1).
      * Does not revert if `key` is not in the map.
      */
-    function tryGet(UintToBytes32Map storage map, uint256 key) internal view returns (bool, bytes32) {
-        (bool success, bytes32 value) = tryGet(map._inner, bytes32(key));
-        return (success, value);
+    function tryGet(UintToBytes32Map storage map, uint256 key) internal view returns (bool exists, bytes32 value) {
+        (bool success, bytes32 val) = tryGet(map._inner, bytes32(key));
+        return (success, val);
     }
 
     /**
@@ -433,8 +431,7 @@ library EnumerableMap {
         bytes32[] memory store = keys(map._inner);
         uint256[] memory result;
 
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             result := store
         }
 
@@ -490,18 +487,18 @@ library EnumerableMap {
      *
      * - `index` must be strictly less than {length}.
      */
-    function at(AddressToUintMap storage map, uint256 index) internal view returns (address, uint256) {
-        (bytes32 key, bytes32 value) = at(map._inner, index);
-        return (address(uint160(uint256(key))), uint256(value));
+    function at(AddressToUintMap storage map, uint256 index) internal view returns (address key, uint256 value) {
+        (bytes32 atKey, bytes32 val) = at(map._inner, index);
+        return (address(uint160(uint256(atKey))), uint256(val));
     }
 
     /**
      * @dev Tries to returns the value associated with `key`. O(1).
      * Does not revert if `key` is not in the map.
      */
-    function tryGet(AddressToUintMap storage map, address key) internal view returns (bool, uint256) {
-        (bool success, bytes32 value) = tryGet(map._inner, bytes32(uint256(uint160(key))));
-        return (success, uint256(value));
+    function tryGet(AddressToUintMap storage map, address key) internal view returns (bool exists, uint256 value) {
+        (bool success, bytes32 val) = tryGet(map._inner, bytes32(uint256(uint160(key))));
+        return (success, uint256(val));
     }
 
     /**
@@ -527,8 +524,7 @@ library EnumerableMap {
         bytes32[] memory store = keys(map._inner);
         address[] memory result;
 
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             result := store
         }
 
@@ -584,18 +580,18 @@ library EnumerableMap {
      *
      * - `index` must be strictly less than {length}.
      */
-    function at(AddressToAddressMap storage map, uint256 index) internal view returns (address, address) {
-        (bytes32 key, bytes32 value) = at(map._inner, index);
-        return (address(uint160(uint256(key))), address(uint160(uint256(value))));
+    function at(AddressToAddressMap storage map, uint256 index) internal view returns (address key, address value) {
+        (bytes32 atKey, bytes32 val) = at(map._inner, index);
+        return (address(uint160(uint256(atKey))), address(uint160(uint256(val))));
     }
 
     /**
      * @dev Tries to returns the value associated with `key`. O(1).
      * Does not revert if `key` is not in the map.
      */
-    function tryGet(AddressToAddressMap storage map, address key) internal view returns (bool, address) {
-        (bool success, bytes32 value) = tryGet(map._inner, bytes32(uint256(uint160(key))));
-        return (success, address(uint160(uint256(value))));
+    function tryGet(AddressToAddressMap storage map, address key) internal view returns (bool exists, address value) {
+        (bool success, bytes32 val) = tryGet(map._inner, bytes32(uint256(uint160(key))));
+        return (success, address(uint160(uint256(val))));
     }
 
     /**
@@ -621,8 +617,7 @@ library EnumerableMap {
         bytes32[] memory store = keys(map._inner);
         address[] memory result;
 
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             result := store
         }
 
@@ -678,18 +673,18 @@ library EnumerableMap {
      *
      * - `index` must be strictly less than {length}.
      */
-    function at(AddressToBytes32Map storage map, uint256 index) internal view returns (address, bytes32) {
-        (bytes32 key, bytes32 value) = at(map._inner, index);
-        return (address(uint160(uint256(key))), value);
+    function at(AddressToBytes32Map storage map, uint256 index) internal view returns (address key, bytes32 value) {
+        (bytes32 atKey, bytes32 val) = at(map._inner, index);
+        return (address(uint160(uint256(atKey))), val);
     }
 
     /**
      * @dev Tries to returns the value associated with `key`. O(1).
      * Does not revert if `key` is not in the map.
      */
-    function tryGet(AddressToBytes32Map storage map, address key) internal view returns (bool, bytes32) {
-        (bool success, bytes32 value) = tryGet(map._inner, bytes32(uint256(uint160(key))));
-        return (success, value);
+    function tryGet(AddressToBytes32Map storage map, address key) internal view returns (bool exists, bytes32 value) {
+        (bool success, bytes32 val) = tryGet(map._inner, bytes32(uint256(uint160(key))));
+        return (success, val);
     }
 
     /**
@@ -715,8 +710,7 @@ library EnumerableMap {
         bytes32[] memory store = keys(map._inner);
         address[] memory result;
 
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             result := store
         }
 
@@ -772,18 +766,18 @@ library EnumerableMap {
      *
      * - `index` must be strictly less than {length}.
      */
-    function at(Bytes32ToUintMap storage map, uint256 index) internal view returns (bytes32, uint256) {
-        (bytes32 key, bytes32 value) = at(map._inner, index);
-        return (key, uint256(value));
+    function at(Bytes32ToUintMap storage map, uint256 index) internal view returns (bytes32 key, uint256 value) {
+        (bytes32 atKey, bytes32 val) = at(map._inner, index);
+        return (atKey, uint256(val));
     }
 
     /**
      * @dev Tries to returns the value associated with `key`. O(1).
      * Does not revert if `key` is not in the map.
      */
-    function tryGet(Bytes32ToUintMap storage map, bytes32 key) internal view returns (bool, uint256) {
-        (bool success, bytes32 value) = tryGet(map._inner, key);
-        return (success, uint256(value));
+    function tryGet(Bytes32ToUintMap storage map, bytes32 key) internal view returns (bool exists, uint256 value) {
+        (bool success, bytes32 val) = tryGet(map._inner, key);
+        return (success, uint256(val));
     }
 
     /**
@@ -809,8 +803,7 @@ library EnumerableMap {
         bytes32[] memory store = keys(map._inner);
         bytes32[] memory result;
 
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             result := store
         }
 
@@ -866,18 +859,18 @@ library EnumerableMap {
      *
      * - `index` must be strictly less than {length}.
      */
-    function at(Bytes32ToAddressMap storage map, uint256 index) internal view returns (bytes32, address) {
-        (bytes32 key, bytes32 value) = at(map._inner, index);
-        return (key, address(uint160(uint256(value))));
+    function at(Bytes32ToAddressMap storage map, uint256 index) internal view returns (bytes32 key, address value) {
+        (bytes32 atKey, bytes32 val) = at(map._inner, index);
+        return (atKey, address(uint160(uint256(val))));
     }
 
     /**
      * @dev Tries to returns the value associated with `key`. O(1).
      * Does not revert if `key` is not in the map.
      */
-    function tryGet(Bytes32ToAddressMap storage map, bytes32 key) internal view returns (bool, address) {
-        (bool success, bytes32 value) = tryGet(map._inner, key);
-        return (success, address(uint160(uint256(value))));
+    function tryGet(Bytes32ToAddressMap storage map, bytes32 key) internal view returns (bool exists, address value) {
+        (bool success, bytes32 val) = tryGet(map._inner, key);
+        return (success, address(uint160(uint256(val))));
     }
 
     /**
@@ -903,8 +896,7 @@ library EnumerableMap {
         bytes32[] memory store = keys(map._inner);
         bytes32[] memory result;
 
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             result := store
         }
 

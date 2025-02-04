@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (governance/IGovernor.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (governance/IGovernor.sol)
 
 pragma solidity ^0.8.20;
 
@@ -8,6 +8,9 @@ import {IERC6372} from "../interfaces/IERC6372.sol";
 
 /**
  * @dev Interface of the {Governor} core.
+ *
+ * NOTE: Event parameters lack the `indexed` keyword for compatibility with GovernorBravo events.
+ * Making event parameters `indexed` affects how events are decoded, potentially breaking existing indexers.
  */
 interface IGovernor is IERC165, IERC6372 {
     enum ProposalState {
@@ -35,11 +38,6 @@ interface IGovernor is IERC165, IERC6372 {
      * @dev Token deposits are disabled in this contract.
      */
     error GovernorDisabledDeposit();
-
-    /**
-     * @dev The `account` is not a proposer.
-     */
-    error GovernorOnlyProposer(address account);
 
     /**
      * @dev The `account` is not the governance executor.
@@ -84,6 +82,11 @@ interface IGovernor is IERC165, IERC6372 {
     error GovernorInvalidVoteType();
 
     /**
+     * @dev The provided params buffer is not supported by the counting module.
+     */
+    error GovernorInvalidVoteParams();
+
+    /**
      * @dev Queue operation is not implemented for this governor. Execute should be called directly.
      */
     error GovernorQueueNotImplemented();
@@ -103,6 +106,11 @@ interface IGovernor is IERC165, IERC6372 {
      * If the `voter` is a contract, the signature is not valid using {IERC1271-isValidSignature}.
      */
     error GovernorInvalidSignature(address voter);
+
+    /**
+     * @dev The given `account` is unable to cancel the proposal with given `proposalId`.
+     */
+    error GovernorUnableToCancel(uint256 proposalId, address account);
 
     /**
      * @dev Emitted when a proposal is created.
@@ -145,7 +153,7 @@ interface IGovernor is IERC165, IERC6372 {
      * @dev Emitted when a vote is cast with params.
      *
      * Note: `support` values should be seen as buckets. Their interpretation depends on the voting module used.
-     * `params` are additional encoded parameters. Their interpepretation also depends on the voting module used.
+     * `params` are additional encoded parameters. Their interpretation  also depends on the voting module used.
      */
     event VoteCastWithParams(
         address indexed voter,
@@ -195,7 +203,9 @@ interface IGovernor is IERC165, IERC6372 {
 
     /**
      * @notice module:core
-     * @dev Hashing function used to (re)build the proposal id from the proposal details..
+     * @dev Hashing function used to (re)build the proposal id from the proposal details.
+     *
+     * NOTE: For all off-chain and external calls, use {getProposalId}.
      */
     function hashProposal(
         address[] memory targets,
@@ -203,6 +213,17 @@ interface IGovernor is IERC165, IERC6372 {
         bytes[] memory calldatas,
         bytes32 descriptionHash
     ) external pure returns (uint256);
+
+    /**
+     * @notice module:core
+     * @dev Function used to get the proposal id from the proposal details.
+     */
+    function getProposalId(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 descriptionHash
+    ) external view returns (uint256);
 
     /**
      * @notice module:core

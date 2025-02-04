@@ -2,14 +2,14 @@
 
 These instructions detail the process for running Certora Verification Tool on OpenZeppelin Contracts.
 
-Documentation for CVT and the specification language are available [here](https://certora.atlassian.net/wiki/spaces/CPD/overview).
+Documentation for CVT and the specification language is available [here](https://certora.atlassian.net/wiki/spaces/CPD/overview).
 
 ## Prerequisites
 
 Follow the [Certora installation guide](https://docs.certora.com/en/latest/docs/user-guide/getting-started/install.html) in order to get the Certora Prover Package and the `solc` executable folder in your path.
 
 > **Note**
-> An API Key is required for local testing. Although the prover will run on a Github Actions' CI environment on selected Pull Requests.
+> An API Key is required for local testing. Although the prover will run on a GitHub Actions' CI environment on selected Pull Requests.
 
 ## Running the verification
 
