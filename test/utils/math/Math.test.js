@@ -16,10 +16,13 @@ const uint256 = value => ethers.Typed.uint256(value);
 bytes.zero = '0x';
 uint256.zero = 0n;
 
-async function testCommutative(fn, lhs, rhs, expected, ...extra) {
-  await expect(fn(lhs, rhs, ...extra)).to.eventually.deep.equal(expected);
-  await expect(fn(rhs, lhs, ...extra)).to.eventually.deep.equal(expected);
-}
+const testCommutative = (fn, lhs, rhs, expected, ...extra) =>
+  Promise.all([
+    expect(fn(lhs, rhs, ...extra)).to.eventually.deep.equal(expected),
+    expect(fn(rhs, lhs, ...extra)).to.eventually.deep.equal(expected),
+  ]);
+
+const splitHighLow = n => [n / (1n << 256n), n % (1n << 256n)];
 
 async function fixture() {
   const mock = await ethers.deployContract('$Math');
@@ -37,6 +40,24 @@ async function fixture() {
 describe('Math', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
+  });
+
+  describe('add512', function () {
+    it('adds correctly without reverting', async function () {
+      const values = [0n, 1n, 17n, 42n, ethers.MaxUint256 - 1n, ethers.MaxUint256];
+      for (const [a, b] of product(values, values)) {
+        await expect(this.mock.$add512(a, b)).to.eventually.deep.equal(splitHighLow(a + b));
+      }
+    });
+  });
+
+  describe('mul512', function () {
+    it('multiplies correctly without reverting', async function () {
+      const values = [0n, 1n, 17n, 42n, ethers.MaxUint256 - 1n, ethers.MaxUint256];
+      for (const [a, b] of product(values, values)) {
+        await expect(this.mock.$mul512(a, b)).to.eventually.deep.equal(splitHighLow(a * b));
+      }
+    });
   });
 
   describe('tryAdd', function () {
