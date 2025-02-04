@@ -20,8 +20,6 @@ contract SampleAccount is IAccount, Ownable {
     using ERC4337Utils for *;
     using ERC7579Utils for *;
 
-    IEntryPoint internal constant ENTRY_POINT = IEntryPoint(payable(0x0000000071727De22E5E9d8BAf0edAc6f37da032));
-
     event Log(bool duringValidation, Execution[] calls);
 
     error UnsupportedCallType(CallType callType);
@@ -33,7 +31,7 @@ contract SampleAccount is IAccount, Ownable {
         bytes32 userOpHash,
         uint256 missingAccountFunds
     ) external override returns (uint256 validationData) {
-        require(msg.sender == address(ENTRY_POINT), "only from EP");
+        require(msg.sender == address(ERC4337Utils.ENTRYPOINT_V07), "only from EP");
         // Check signature
         if (userOpHash.toEthSignedMessageHash().recover(userOp.signature) != owner()) {
             revert OwnableUnauthorizedAccount(_msgSender());
@@ -81,7 +79,7 @@ contract SampleAccount is IAccount, Ownable {
     }
 
     function execute(Mode mode, bytes calldata executionCalldata) external payable {
-        require(msg.sender == address(this) || msg.sender == address(ENTRY_POINT), "not auth");
+        require(msg.sender == address(this) || msg.sender == address(ERC4337Utils.ENTRYPOINT_V07), "not auth");
 
         (CallType callType, ExecType execType, , ) = mode.decodeMode();
 
@@ -105,7 +103,6 @@ contract ERC7579UtilsTest is Test {
     using ERC4337Utils for *;
     using ERC7579Utils for *;
 
-    IEntryPoint private constant ENTRYPOINT = IEntryPoint(payable(0x0000000071727De22E5E9d8BAf0edAc6f37da032));
     address private _owner;
     uint256 private _ownerKey;
     address private _account;
@@ -166,7 +163,7 @@ contract ERC7579UtilsTest is Test {
         userOps[0].signature = abi.encodePacked(r, s, v);
 
         vm.recordLogs();
-        ENTRYPOINT.handleOps(userOps, payable(_beneficiary));
+        ERC4337Utils.ENTRYPOINT_V07.handleOps(userOps, payable(_beneficiary));
 
         assertEq(_recipient1.balance, 1 wei);
         assertEq(_recipient2.balance, 1 wei);
@@ -224,7 +221,7 @@ contract ERC7579UtilsTest is Test {
                 abi.encodeWithSelector(ERC7579Utils.ERC7579DecodingError.selector)
             )
         );
-        ENTRYPOINT.handleOps(userOps, payable(_beneficiary));
+        ERC4337Utils.ENTRYPOINT_V07.handleOps(userOps, payable(_beneficiary));
 
         _collectAndPrintLogs(false);
     }
@@ -282,7 +279,7 @@ contract ERC7579UtilsTest is Test {
                 abi.encodeWithSelector(ERC7579Utils.ERC7579DecodingError.selector)
             )
         );
-        ENTRYPOINT.handleOps(userOps, payable(_beneficiary));
+        ERC4337Utils.ENTRYPOINT_V07.handleOps(userOps, payable(_beneficiary));
 
         _collectAndPrintLogs(true);
     }
@@ -378,7 +375,7 @@ contract ERC7579UtilsTest is Test {
     }
 
     function hashUserOperation(PackedUserOperation calldata useroperation) public view returns (bytes32) {
-        return useroperation.hash(address(ENTRYPOINT), block.chainid);
+        return useroperation.hash(address(ERC4337Utils.ENTRYPOINT_V07), block.chainid);
     }
 
     function _collectAndPrintLogs(bool includeTotalValue) internal {
