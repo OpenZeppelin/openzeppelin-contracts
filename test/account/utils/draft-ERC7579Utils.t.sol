@@ -9,18 +9,19 @@ pragma solidity ^0.8.24;
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
-import {PackedUserOperation, IAccount, IEntryPoint} from "@openzeppelin/contracts/interfaces/draft-IERC4337.sol";
+import {PackedUserOperation, IERC4337Account, IERC4337EntryPoint} from "@openzeppelin/contracts/interfaces/draft-IERC4337.sol";
 import {ERC4337Utils} from "@openzeppelin/contracts/account/utils/draft-ERC4337Utils.sol";
 import {ERC7579Utils, Mode, CallType, ExecType, ModeSelector, ModePayload, Execution} from "@openzeppelin/contracts/account/utils/draft-ERC7579Utils.sol";
 import {Test, Vm, console} from "forge-std/Test.sol";
 
-contract SampleAccount is IAccount, Ownable {
+contract SampleAccount is IERC4337Account, Ownable {
     using ECDSA for *;
     using MessageHashUtils for *;
     using ERC4337Utils for *;
     using ERC7579Utils for *;
 
-    IEntryPoint internal constant ENTRY_POINT = IEntryPoint(payable(0x0000000071727De22E5E9d8BAf0edAc6f37da032));
+    IERC4337EntryPoint internal constant ENTRY_POINT =
+        IERC4337EntryPoint(payable(0x0000000071727De22E5E9d8BAf0edAc6f37da032));
 
     event Log(bool duringValidation, Execution[] calls);
 
@@ -105,7 +106,8 @@ contract ERC7579UtilsTest is Test {
     using ERC4337Utils for *;
     using ERC7579Utils for *;
 
-    IEntryPoint private constant ENTRYPOINT = IEntryPoint(payable(0x0000000071727De22E5E9d8BAf0edAc6f37da032));
+    IERC4337EntryPoint private constant ENTRYPOINT =
+        IERC4337EntryPoint(payable(0x0000000071727De22E5E9d8BAf0edAc6f37da032));
     address private _owner;
     uint256 private _ownerKey;
     address private _account;
@@ -218,7 +220,7 @@ contract ERC7579UtilsTest is Test {
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                IEntryPoint.FailedOpWithRevert.selector,
+                IERC4337EntryPoint.FailedOpWithRevert.selector,
                 0,
                 "AA23 reverted",
                 abi.encodeWithSelector(ERC7579Utils.ERC7579DecodingError.selector)
@@ -276,7 +278,7 @@ contract ERC7579UtilsTest is Test {
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                IEntryPoint.FailedOpWithRevert.selector,
+                IERC4337EntryPoint.FailedOpWithRevert.selector,
                 0,
                 "AA23 reverted",
                 abi.encodeWithSelector(ERC7579Utils.ERC7579DecodingError.selector)
