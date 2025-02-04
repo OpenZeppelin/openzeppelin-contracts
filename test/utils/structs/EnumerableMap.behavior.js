@@ -118,7 +118,7 @@ function shouldBehaveLikeMap() {
   });
 
   describe('clear', function () {
-    it('clears a single item', async function () {
+    it('clears a single entry', async function () {
       await this.methods.set(this.keyA, this.valueA);
 
       await this.methods.clear();
@@ -127,7 +127,7 @@ function shouldBehaveLikeMap() {
       await expectMembersMatch(this.methods, [], []);
     });
 
-    it('clears multiple items', async function () {
+    it('clears multiple entries', async function () {
       await this.methods.set(this.keyA, this.valueA);
       await this.methods.set(this.keyB, this.valueB);
       await this.methods.set(this.keyC, this.valueC);
@@ -140,11 +140,11 @@ function shouldBehaveLikeMap() {
       await expectMembersMatch(this.methods, [], []);
     });
 
-    it('does not revert on empty set', async function () {
+    it('does not revert on empty map', async function () {
       await this.methods.clear();
     });
 
-    it('clear then add value', async function () {
+    it('clear then add entry', async function () {
       await this.methods.set(this.keyA, this.valueA);
       await this.methods.set(this.keyB, this.valueB);
       await this.methods.set(this.keyC, this.valueC);
