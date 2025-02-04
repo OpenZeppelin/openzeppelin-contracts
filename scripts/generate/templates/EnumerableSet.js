@@ -16,7 +16,8 @@ import {Arrays} from "../Arrays.sol";
  *
  * - Elements are added, removed, and checked for existence in constant time
  * (O(1)).
- * - Elements are enumerated and cleared in O(n). No guarantees are made on the ordering.
+ * - Elements are enumerated in O(n). No guarantees are made on the ordering.
+ * - Set can be cleared (all elements removed) in O(n).
  *
  * \`\`\`solidity
  * contract Example {
