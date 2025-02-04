@@ -11,6 +11,29 @@ contract MathTest is Test {
         assertEq(Math.ternary(f, a, b), f ? a : b);
     }
 
+    // ADD512 & MUL512
+    function testAdd512(uint256 a, uint256 b) public pure {
+        (uint256 high, uint256 low) = Math.add512(a, b);
+        (bool success, uint256 result) = Math.tryAdd(a, b);
+        if (success) {
+            assertEq(high, 0);
+            assertEq(low, result);
+        } else {
+            assertEq(high, 1);
+        }
+    }
+
+    function testMul512(uint256 a, uint256 b) public pure {
+        (uint256 high, uint256 low) = Math.mul512(a, b);
+        (bool success, uint256 result) = Math.tryMul(a, b);
+        if (success) {
+            assertEq(high, 0);
+            assertEq(low, result);
+        } else {
+            assertGt(high, 0);
+        }
+    }
+
     // MIN & MAX
     function testSymbolicMinMax(uint256 a, uint256 b) public pure {
         assertEq(Math.min(a, b), a < b ? a : b);
