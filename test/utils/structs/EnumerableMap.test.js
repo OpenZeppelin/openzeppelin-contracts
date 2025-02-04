@@ -26,6 +26,7 @@ async function fixture() {
             get: `$get_EnumerableMap_${name}(uint256,${keyType})`,
             tryGet: `$tryGet_EnumerableMap_${name}(uint256,${keyType})`,
             remove: `$remove_EnumerableMap_${name}(uint256,${keyType})`,
+            clear: `$clear_EnumerableMap_${name}(uint256)`,
             length: `$length_EnumerableMap_${name}(uint256)`,
             at: `$at_EnumerableMap_${name}(uint256,uint256)`,
             contains: `$contains_EnumerableMap_${name}(uint256,${keyType})`,

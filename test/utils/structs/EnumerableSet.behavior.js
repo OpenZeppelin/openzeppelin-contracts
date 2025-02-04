@@ -113,22 +113,24 @@ function shouldBehaveLikeSet() {
   describe('clear', function () {
     it('clears a single item', async function () {
       await this.methods.add(this.valueA);
-      await expect(this.methods.length()).to.eventually.equal(1);
 
       await this.methods.clear();
 
-      await expect(this.methods.length()).to.eventually.equal(0);
+      expect(await this.methods.contains(this.valueA)).to.be.false;
+      await expectMembersMatch(this.methods, []);
     });
 
     it('clears multiple items', async function () {
       await this.methods.add(this.valueA);
       await this.methods.add(this.valueB);
       await this.methods.add(this.valueC);
-      await expect(this.methods.length()).to.eventually.equal(3);
 
       await this.methods.clear();
 
-      await expect(this.methods.length()).to.eventually.equal(0);
+      expect(await this.methods.contains(this.valueA)).to.be.false;
+      expect(await this.methods.contains(this.valueB)).to.be.false;
+      expect(await this.methods.contains(this.valueC)).to.be.false;
+      await expectMembersMatch(this.methods, []);
     });
 
     it('does not revert on empty set', async function () {
@@ -138,9 +140,15 @@ function shouldBehaveLikeSet() {
     it('clear then add value', async function () {
       await this.methods.add(this.valueA);
       await this.methods.add(this.valueB);
+      await this.methods.add(this.valueC);
+
       await this.methods.clear();
 
       await this.methods.add(this.valueA);
+
+      expect(await this.methods.contains(this.valueA)).to.be.true;
+      expect(await this.methods.contains(this.valueB)).to.be.false;
+      expect(await this.methods.contains(this.valueC)).to.be.false;
       await expectMembersMatch(this.methods, [this.valueA]);
     });
   });
