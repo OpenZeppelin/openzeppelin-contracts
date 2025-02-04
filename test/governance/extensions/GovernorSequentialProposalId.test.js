@@ -93,12 +93,12 @@ describe('GovernorSequentialProposalId', function () {
         for (const i of iterate.range(1, 10)) {
           this.proposal.description = `<proposal description #${i}>`;
 
-          expect(this.mock.hashProposal(...this.proposal.shortProposal)).to.eventually.equal(this.proposal.hash);
+          await expect(this.mock.hashProposal(...this.proposal.shortProposal)).to.eventually.equal(this.proposal.hash);
           await expect(this.mock.getProposalId(...this.proposal.shortProposal)).revertedWithCustomError(
             this.mock,
             'GovernorNonexistentProposal',
           );
-          expect(this.mock.latestProposalId()).to.eventually.equal(i - 1);
+          await expect(this.mock.latestProposalId()).to.eventually.equal(i - 1);
 
           await expect(this.helper.connect(this.proposer).propose())
             .to.emit(this.mock, 'ProposalCreated')
@@ -114,9 +114,9 @@ describe('GovernorSequentialProposalId', function () {
               this.proposal.description,
             );
 
-          expect(this.mock.hashProposal(...this.proposal.shortProposal)).to.eventually.equal(this.proposal.hash);
-          expect(this.mock.getProposalId(...this.proposal.shortProposal)).to.eventually.equal(i);
-          expect(this.mock.latestProposalId()).to.eventually.equal(i);
+          await expect(this.mock.hashProposal(...this.proposal.shortProposal)).to.eventually.equal(this.proposal.hash);
+          await expect(this.mock.getProposalId(...this.proposal.shortProposal)).to.eventually.equal(i);
+          await expect(this.mock.latestProposalId()).to.eventually.equal(i);
         }
       });
 
@@ -127,12 +127,12 @@ describe('GovernorSequentialProposalId', function () {
         for (const i of iterate.range(offset + 1, offset + 10)) {
           this.proposal.description = `<proposal description #${i}>`;
 
-          expect(this.mock.hashProposal(...this.proposal.shortProposal)).to.eventually.equal(this.proposal.hash);
+          await expect(this.mock.hashProposal(...this.proposal.shortProposal)).to.eventually.equal(this.proposal.hash);
           await expect(this.mock.getProposalId(...this.proposal.shortProposal)).revertedWithCustomError(
             this.mock,
             'GovernorNonexistentProposal',
           );
-          expect(this.mock.latestProposalId()).to.eventually.equal(i - 1);
+          await expect(this.mock.latestProposalId()).to.eventually.equal(i - 1);
 
           await expect(this.helper.connect(this.proposer).propose())
             .to.emit(this.mock, 'ProposalCreated')
@@ -148,15 +148,15 @@ describe('GovernorSequentialProposalId', function () {
               this.proposal.description,
             );
 
-          expect(this.mock.hashProposal(...this.proposal.shortProposal)).to.eventually.equal(this.proposal.hash);
-          expect(this.mock.getProposalId(...this.proposal.shortProposal)).to.eventually.equal(i);
-          expect(this.mock.latestProposalId()).to.eventually.equal(i);
+          await expect(this.mock.hashProposal(...this.proposal.shortProposal)).to.eventually.equal(this.proposal.hash);
+          await expect(this.mock.getProposalId(...this.proposal.shortProposal)).to.eventually.equal(i);
+          await expect(this.mock.latestProposalId()).to.eventually.equal(i);
         }
       });
 
       it('can only initialize latest proposal id from 0', async function () {
         await this.helper.propose();
-        expect(this.mock.latestProposalId()).to.eventually.equal(1);
+        await expect(this.mock.latestProposalId()).to.eventually.equal(1);
         await expect(this.mock.$_initializeLatestProposalId(2)).to.be.revertedWithCustomError(
           this.mock,
           'GovernorAlreadyInitializedLatestProposalId',
@@ -192,7 +192,7 @@ describe('GovernorSequentialProposalId', function () {
 
         await this.helper.waitForDeadline();
 
-        expect(this.helper.execute())
+        await expect(this.helper.execute())
           .to.eventually.emit(this.mock, 'ProposalExecuted')
           .withArgs(1)
           .emit(this.receiver, 'MockFunctionCalled');

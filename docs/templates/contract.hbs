@@ -2,6 +2,10 @@
 :{{name}}: pass:normal[xref:#{{anchor}}[`++{{name}}++`]]
 {{/each}}
 
+{{#each functions}}
+:{{fullname}}: pass:normal[xref:#{{anchor}}[`++{{name}}++`]]
+{{/each}}
+
 [.contract]
 [[{{anchor}}]]
 === `++{{name}}++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v{{oz-version}}/{{__item_context.file.absolutePath}}[{github-icon},role=heading-link]

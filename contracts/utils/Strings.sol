@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.1.0) (utils/Strings.sol)
+// OpenZeppelin Contracts (last updated v5.2.0) (utils/Strings.sol)
 
 pragma solidity ^0.8.20;
 
@@ -139,7 +139,7 @@ library Strings {
     }
 
     /**
-     * @dev Variant of {parseUint} that parses a substring of `input` located between position `begin` (included) and
+     * @dev Variant of {parseUint-string} that parses a substring of `input` located between position `begin` (included) and
      * `end` (excluded).
      *
      * Requirements:
@@ -177,7 +177,7 @@ library Strings {
     }
 
     /**
-     * @dev Implementation of {tryParseUint} that does not check bounds. Caller should make sure that
+     * @dev Implementation of {tryParseUint-string-uint256-uint256} that does not check bounds. Caller should make sure that
      * `begin <= end <= input.length`. Other inputs would result in undefined behavior.
      */
     function _tryParseUintUncheckedBounds(
@@ -250,7 +250,7 @@ library Strings {
     }
 
     /**
-     * @dev Implementation of {tryParseInt} that does not check bounds. Caller should make sure that
+     * @dev Implementation of {tryParseInt-string-uint256-uint256} that does not check bounds. Caller should make sure that
      * `begin <= end <= input.length`. Other inputs would result in undefined behavior.
      */
     function _tryParseIntUncheckedBounds(
@@ -287,7 +287,7 @@ library Strings {
     }
 
     /**
-     * @dev Variant of {parseHexUint} that parses a substring of `input` located between position `begin` (included) and
+     * @dev Variant of {parseHexUint-string} that parses a substring of `input` located between position `begin` (included) and
      * `end` (excluded).
      *
      * Requirements:
@@ -325,7 +325,7 @@ library Strings {
     }
 
     /**
-     * @dev Implementation of {tryParseHexUint} that does not check bounds. Caller should make sure that
+     * @dev Implementation of {tryParseHexUint-string-uint256-uint256} that does not check bounds. Caller should make sure that
      * `begin <= end <= input.length`. Other inputs would result in undefined behavior.
      */
     function _tryParseHexUintUncheckedBounds(
@@ -346,7 +346,7 @@ library Strings {
             result *= 16;
             unchecked {
                 // Multiplying by 16 is equivalent to a shift of 4 bits (with additional overflow check).
-                // This guaratees that adding a value < 16 will not cause an overflow, hence the unchecked.
+                // This guarantees that adding a value < 16 will not cause an overflow, hence the unchecked.
                 result += chr;
             }
         }
@@ -364,7 +364,7 @@ library Strings {
     }
 
     /**
-     * @dev Variant of {parseAddress} that parses a substring of `input` located between position `begin` (included) and
+     * @dev Variant of {parseAddress-string} that parses a substring of `input` located between position `begin` (included) and
      * `end` (excluded).
      *
      * Requirements:
@@ -378,7 +378,7 @@ library Strings {
 
     /**
      * @dev Variant of {parseAddress-string} that returns false if the parsing fails because the input is not a properly
-     * formatted address. See {parseAddress} requirements.
+     * formatted address. See {parseAddress-string} requirements.
      */
     function tryParseAddress(string memory input) internal pure returns (bool success, address value) {
         return tryParseAddress(input, 0, bytes(input).length);
@@ -386,7 +386,7 @@ library Strings {
 
     /**
      * @dev Variant of {parseAddress-string-uint256-uint256} that returns false if the parsing fails because input is not a properly
-     * formatted address. See {parseAddress} requirements.
+     * formatted address. See {parseAddress-string-uint256-uint256} requirements.
      */
     function tryParseAddress(
         string memory input,
