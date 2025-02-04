@@ -59,7 +59,7 @@ index ff596b0c3..000000000
 -<!-- Make sure that you have reviewed the OpenZeppelin Contracts Contributor Guidelines. -->
 -<!-- https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/CONTRIBUTING.md -->
 diff --git a/README.md b/README.md
-index fa7b4e31e..4799b6376 100644
+index 60d0a430a..0e4f91a6d 100644
 --- a/README.md
 +++ b/README.md
 @@ -19,6 +19,9 @@
@@ -110,7 +110,7 @@ index fa7b4e31e..4799b6376 100644
  }
  ```
 diff --git a/contracts/package.json b/contracts/package.json
-index 845e8c403..8dc181b91 100644
+index 3682eadeb..4f870d094 100644
 --- a/contracts/package.json
 +++ b/contracts/package.json
 @@ -1,5 +1,5 @@
@@ -118,7 +118,7 @@ index 845e8c403..8dc181b91 100644
 -  "name": "@openzeppelin/contracts",
 +  "name": "@openzeppelin/contracts-upgradeable",
    "description": "Secure Smart Contract library for Solidity",
-   "version": "5.0.2",
+   "version": "5.2.0",
    "files": [
 @@ -13,7 +13,7 @@
    },
@@ -140,7 +140,7 @@ index 845e8c403..8dc181b91 100644
 +  }
  }
 diff --git a/contracts/utils/cryptography/EIP712.sol b/contracts/utils/cryptography/EIP712.sol
-index 77c4c8990..602467f40 100644
+index bcb67c87a..7195c3bbd 100644
 --- a/contracts/utils/cryptography/EIP712.sol
 +++ b/contracts/utils/cryptography/EIP712.sol
 @@ -4,7 +4,6 @@
@@ -151,7 +151,7 @@ index 77c4c8990..602467f40 100644
  import {IERC5267} from "../../interfaces/IERC5267.sol";
  
  /**
-@@ -28,28 +27,18 @@ import {IERC5267} from "../../interfaces/IERC5267.sol";
+@@ -28,30 +27,18 @@ import {IERC5267} from "../../interfaces/IERC5267.sol";
   * NOTE: In the upgradeable version of this contract, the cached values will correspond to the address, and the domain
   * separator of the implementation contract. This will cause the {_domainSeparatorV4} function to always rebuild the
   * separator from the immutable values, which is cheaper than accessing a cached version in cold storage.
@@ -177,14 +177,16 @@ index 77c4c8990..602467f40 100644
  
 -    ShortString private immutable _name;
 -    ShortString private immutable _version;
+-    // slither-disable-next-line constable-states
 -    string private _nameFallback;
+-    // slither-disable-next-line constable-states
 -    string private _versionFallback;
 +    string private _name;
 +    string private _version;
  
      /**
       * @dev Initializes the domain separator and parameter caches.
-@@ -64,29 +53,23 @@ abstract contract EIP712 is IERC5267 {
+@@ -66,29 +53,23 @@ abstract contract EIP712 is IERC5267 {
       * contract upgrade].
       */
      constructor(string memory name, string memory version) {
@@ -222,7 +224,7 @@ index 77c4c8990..602467f40 100644
      }
  
      /**
-@@ -125,6 +108,10 @@ abstract contract EIP712 is IERC5267 {
+@@ -127,6 +108,10 @@ abstract contract EIP712 is IERC5267 {
              uint256[] memory extensions
          )
      {
@@ -233,7 +235,7 @@ index 77c4c8990..602467f40 100644
          return (
              hex"0f", // 01111
              _EIP712Name(),
-@@ -139,22 +126,62 @@ abstract contract EIP712 is IERC5267 {
+@@ -141,22 +126,62 @@ abstract contract EIP712 is IERC5267 {
      /**
       * @dev The name parameter for the EIP712 domain.
       *
@@ -307,10 +309,10 @@ index 77c4c8990..602467f40 100644
      }
  }
 diff --git a/package.json b/package.json
-index c4b358e10..96ab2559c 100644
+index f9e7d9205..c35020d51 100644
 --- a/package.json
 +++ b/package.json
-@@ -32,7 +32,7 @@
+@@ -34,7 +34,7 @@
    },
    "repository": {
      "type": "git",
