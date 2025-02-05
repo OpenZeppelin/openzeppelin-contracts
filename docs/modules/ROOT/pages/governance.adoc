@@ -20,7 +20,7 @@ The ERC-20 extension to keep track of votes and vote delegation is one such case
 
 === Governor & GovernorStorage
 
-An OpenZeppelin Governor contract is not interface-compatible with Compound's GovernorAlpha or Bravo. Even though events are fully compatible, proposal lifecycle functions (creation, execution, etc.) have different signatures that are meant to optimize storage use. Other functions from GovernorAlpha and Bravo are likewise not available. It’s possible to opt in some Bravo-like behavior by inheriting from the GovernorStorage module. This module provides proposal enumerability and alternate versions of the `queue`, `execute` and `cancel` function that only take the proposal id. This module reduces the calldata needed by some operations in exchange for an increased the storage footprint. This might be a good trade-off for some L2 chains. It also provides primitives for indexer-free frontends.
+An OpenZeppelin Governor contract is not interface-compatible with Compound's GovernorAlpha or Bravo. Even though events are fully compatible, proposal lifecycle functions (creation, execution, etc.) have different signatures that are meant to optimize storage use. Other functions from GovernorAlpha and Bravo are likewise not available. It’s possible to opt in some Bravo-like behavior by inheriting from the GovernorStorage module. This module provides proposal enumerability and alternate versions of the `queue`, `execute` and `cancel` function that only take the proposal id. This module reduces the calldata needed by some operations in exchange for an increased storage footprint. This might be a good trade-off for some L2 chains. It also provides primitives for indexer-free frontends.
 
 Note that even with the use of this module, one important difference with Compound's GovernorBravo is the way that `proposalId`s are calculated. Governor uses the hash of the proposal parameters with the purpose of keeping its data off-chain by event indexing, while the original Bravo implementation uses sequential `proposalId`s.
 
@@ -52,7 +52,7 @@ If your project already has a live token that does not include ERC20Votes and is
 include::api:example$governance/MyTokenWrapped.sol[]
 ```
 
-NOTE: The only other source of voting power available in OpenZeppelin Contracts currently is xref:api:token/ERC721.adoc#ERC721Votes[`ERC721Votes`]. ERC-721 tokens that don't provide this functionality can be wrapped into a voting tokens using a combination of xref:api:token/ERC721.adoc#ERC721Votes[`ERC721Votes`] and xref:api:token/ERC721Wrapper.adoc#ERC721Wrapper[`ERC721Wrapper`].
+NOTE: The only other source of voting power available in OpenZeppelin Contracts currently is xref:api:token/ERC721.adoc#ERC721Votes[`ERC721Votes`]. ERC-721 tokens that don't provide this functionality can be wrapped into a voting tokens using a combination of xref:api:token/ERC721.adoc#ERC721Votes[`ERC721Votes`] and xref:api:token/ERC721.adoc#ERC721Wrapper[`ERC721Wrapper`].
 
 NOTE: The internal clock used by the token to store voting balances will dictate the operating mode of the Governor contract attached to it. By default, block numbers are used. Since v4.9, developers can override the xref:api:interfaces.adoc#IERC6372[IERC6372] clock to use timestamps instead of block numbers.
 

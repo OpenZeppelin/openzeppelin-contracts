@@ -160,7 +160,7 @@ function writeEntry(spec, contract, success, url) {
     formatRow(
       spec,
       contract,
-      success ? ':x:' : ':heavy_check_mark:',
+      success ? ':heavy_check_mark:' : ':x:',
       url ? `[link](${url?.replace('/output/', '/jobStatus/')})` : 'error',
       url ? `[link](${url})` : 'error',
     ),

@@ -33,8 +33,9 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {Arrays}: Collection of functions that operate on https://docs.soliditylang.org/en/latest/types.html#arrays[`arrays`].
  * {Base64}: On-chain base64 and base64URL encoding according to https://datatracker.ietf.org/doc/html/rfc4648[RFC-4648].
  * {Bytes}: Common operations on bytes objects.
+ * {Calldata}: Helpers for manipulating calldata.
  * {Strings}: Common operations for strings formatting.
- * {ShortString}: Library to encode (and decode) short strings into (or from) a single bytes32 slot for optimizing costs. Short strings are limited to 31 characters.
+ * {ShortStrings}: Library to encode (and decode) short strings into (or from) a single bytes32 slot for optimizing costs. Short strings are limited to 31 characters.
  * {SlotDerivation}: Methods for deriving storage slot from ERC-7201 namespaces as well as from constructions such as mapping and arrays.
  * {StorageSlot}: Methods for accessing specific storage slots formatted as common primitive types.
  * {TransientSlot}: Primitives for reading from and writing to transient storage (only value types are currently supported).
@@ -128,6 +129,10 @@ Ethereum contracts have no native concept of an interface, so applications must 
 
 {{Base64}}
 
+{{Bytes}}
+
+{{Calldata}}
+
 {{Strings}}
 
 {{ShortStrings}}
@@ -147,3 +152,7 @@ Ethereum contracts have no native concept of an interface, so applications must 
 {{Panic}}
 
 {{Comparators}}
+
+{{CAIP2}}
+
+{{CAIP10}}

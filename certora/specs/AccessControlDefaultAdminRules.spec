@@ -176,7 +176,7 @@ rule renounceRoleEffect(env e, bytes32 role) {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: defaultAdmin is only affected by accepting an admin transfer or renoucing                                     │
+│ Rule: defaultAdmin is only affected by accepting an admin transfer or renouncing                                    │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule noDefaultAdminChange(env e, method f, calldataarg args) {
@@ -188,7 +188,7 @@ rule noDefaultAdminChange(env e, method f, calldataarg args) {
     f.selector == sig:acceptDefaultAdminTransfer().selector ||
     f.selector == sig:renounceRole(bytes32,address).selector
   ),
-    "default admin is only affected by accepting an admin transfer or renoucing";
+    "default admin is only affected by accepting an admin transfer or renouncing";
 }
 
 /*

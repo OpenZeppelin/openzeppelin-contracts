@@ -20,6 +20,12 @@ describe('ERC4337Utils', function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
+  describe('entrypoint', function () {
+    it('v0.7.0', async function () {
+      await expect(this.utils.$ENTRYPOINT_V07()).to.eventually.equal(entrypoint);
+    });
+  });
+
   describe('parseValidationData', function () {
     it('parses the validation data', async function () {
       const authorizer = this.authorizer;
