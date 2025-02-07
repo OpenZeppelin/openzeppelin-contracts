@@ -15,6 +15,7 @@ const GOVERNOR_INTERFACE = [
   'proposalProposer(uint256)',
   'proposalEta(uint256)',
   'proposalNeedsQueuing(uint256)',
+  'proposalVotes(uint256)',
   'votingDelay()',
   'votingPeriod()',
   'quorum(uint256)',

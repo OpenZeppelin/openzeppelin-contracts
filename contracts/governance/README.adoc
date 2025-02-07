@@ -24,6 +24,8 @@ Votes modules determine the source of voting power, and sometimes quorum number.
 
 * {GovernorVotesQuorumFraction}: Combines with `GovernorVotes` to set the quorum as a fraction of the total token supply.
 
+* {GovernorVotesSuperQuorumFraction}: Combines with `GovernorVotesQuorumFraction` to set the super quorum as a fraction of the total token supply.
+
 Counting modules determine valid voting options.
 
 * {GovernorCountingSimple}: Simple voting mechanism with 3 voting options: Against, For and Abstain.
@@ -49,6 +51,8 @@ Other extensions can customize the behavior or interface in multiple ways.
 * {GovernorPreventLateQuorum}: Ensures there is a minimum voting period after quorum is reached as a security protection against large voters.
 
 * {GovernorProposalGuardian}: Adds a proposal guardian that can cancel proposals at any stage in their lifecycle--this permission is passed on to the proposers if the guardian is not set.
+
+* {GovernorSuperQuorum}: Adds a super quorum that if reached, the proposal can proceed to the next state without waiting for the proposal deadline.
 
 In addition to modules and extensions, the core contract requires a few virtual functions to be implemented to your particular specifications:
 

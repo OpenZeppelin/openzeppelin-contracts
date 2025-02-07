@@ -21,8 +21,8 @@ import {IGovernor, IERC6372} from "./IGovernor.sol";
  *
  * This contract is abstract and requires several functions to be implemented in various modules:
  *
- * - A counting module must implement {quorum}, {_quorumReached}, {_voteSucceeded} and {_countVote}
- * - A voting module must implement {_getVotes}
+ * - A counting module must implement {proposalVotes}, {_quorumReached}, {_voteSucceeded} and {_countVote}
+ * - A voting module must implement {_getVotes} and {quorum}
  * - Additionally, {votingPeriod} must also be implemented
  */
 abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC721Receiver, IERC1155Receiver {
@@ -836,6 +836,13 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
      * @inheritdoc IGovernor
      */
     function quorum(uint256 timepoint) public view virtual returns (uint256);
+
+    /**
+     * @inheritdoc IGovernor
+     */
+    function proposalVotes(
+        uint256 proposalId
+    ) public view virtual returns (uint256 againstVotes, uint256 forVotes, uint256 abstainVotes);
 
     /**
      * @dev Reads a bytes32 from a bytes array without bounds checking.

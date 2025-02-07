@@ -45,10 +45,20 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
      * @dev Returns the quorum numerator at a specific timepoint. See {quorumDenominator}.
      */
     function quorumNumerator(uint256 timepoint) public view virtual returns (uint256) {
-        uint256 length = _quorumNumeratorHistory._checkpoints.length;
+        return _numerator(_quorumNumeratorHistory, timepoint);
+    }
+
+    /**
+     * @dev Returns the numerator at a specific timepoint.
+     */
+    function _numerator(
+        Checkpoints.Trace208 storage numeratorHistory,
+        uint256 timepoint
+    ) internal view returns (uint256) {
+        uint256 length = numeratorHistory._checkpoints.length;
 
         // Optimistic search, check the latest checkpoint
-        Checkpoints.Checkpoint208 storage latest = _quorumNumeratorHistory._checkpoints[length - 1];
+        Checkpoints.Checkpoint208 storage latest = numeratorHistory._checkpoints[length - 1];
         uint48 latestKey = latest._key;
         uint208 latestValue = latest._value;
         if (latestKey <= timepoint) {
@@ -56,7 +66,7 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
         }
 
         // Otherwise, do the binary search
-        return _quorumNumeratorHistory.upperLookupRecent(SafeCast.toUint48(timepoint));
+        return numeratorHistory.upperLookupRecent(SafeCast.toUint48(timepoint));
     }
 
     /**
@@ -84,6 +94,7 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
      * - New numerator must be smaller or equal to the denominator.
      */
     function updateQuorumNumerator(uint256 newQuorumNumerator) external virtual onlyGovernance {
+        _validateQuorumNumerator(newQuorumNumerator);
         _updateQuorumNumerator(newQuorumNumerator);
     }
 
@@ -107,4 +118,9 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
 
         emit QuorumNumeratorUpdated(oldQuorumNumerator, newQuorumNumerator);
     }
+
+    /**
+     * @dev Run additional optional quorum numerator validation in proposals.
+     */
+    function _validateQuorumNumerator(uint256 newQuorumNumerator) internal view virtual {}
 }
