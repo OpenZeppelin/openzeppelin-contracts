@@ -273,14 +273,6 @@ interface IGovernor is IERC165, IERC6372 {
     function proposalNeedsQueuing(uint256 proposalId) external view returns (bool);
 
     /**
-     * @notice module:core
-     * @dev Accessor to the internal vote counts.
-     */
-    function proposalVotes(
-        uint256 proposalId
-    ) external view returns (uint256 againstVotes, uint256 forVotes, uint256 abstainVotes);
-
-    /**
      * @notice module:user-config
      * @dev Delay, between the proposal is created and the vote starts. The unit this duration is expressed in depends
      * on the clock (see ERC-6372) this contract uses.
@@ -309,8 +301,7 @@ interface IGovernor is IERC165, IERC6372 {
 
     /**
      * @notice module:user-config
-     * @dev Minimum number of cast voted required for a proposal to be successful. Both FOR and ABSTAIN votes are counted
-     * towards the quorum.
+     * @dev Minimum number of cast voted required for a proposal to be successful.
      *
      * NOTE: The `timepoint` parameter corresponds to the snapshot used for counting vote. This allows to scale the
      * quorum depending on values such as the totalSupply of a token at this timepoint (see {ERC20Votes}).

@@ -113,7 +113,7 @@ describe('GovernorSuperQuorum', function () {
         expect(await this.mock.state(this.proposal.id)).to.equal(ProposalState.Succeeded);
       });
 
-      it('proposal can still fail with super quorum if against votes are higher', async function () {
+      it('proposal remains active if super quorum is reached but vote fails', async function () {
         await this.helper.connect(this.proposer).propose();
         await this.helper.waitForSnapshot();
 
@@ -124,7 +124,13 @@ describe('GovernorSuperQuorum', function () {
         // Vote for with voter1 (40) (reaching super quorum)
         await this.helper.connect(this.voter1).vote({ support: VoteType.For });
 
-        // Should be defeated since against votes are higher
+        // should be active since super quorum is reached but vote fails
+        expect(await this.mock.state(this.proposal.id)).to.equal(ProposalState.Active);
+
+        // wait for deadline
+        await this.helper.waitForDeadline(1n);
+
+        // should be defeated since against votes are higher
         expect(await this.mock.state(this.proposal.id)).to.equal(ProposalState.Defeated);
       });
 

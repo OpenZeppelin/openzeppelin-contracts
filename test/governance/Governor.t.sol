@@ -56,6 +56,4 @@ contract GovernorInternalTest is Test, Governor {
     function _getVotes(address, uint256, bytes memory) internal pure virtual override returns (uint256) {}
 
     function _countVote(uint256, address, uint8, uint256, bytes memory) internal virtual override returns (uint256) {}
-
-    function proposalVotes(uint256) public view virtual override returns (uint256, uint256, uint256) {}
 }
