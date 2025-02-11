@@ -94,7 +94,6 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
      * - New numerator must be smaller or equal to the denominator.
      */
     function updateQuorumNumerator(uint256 newQuorumNumerator) external virtual onlyGovernance {
-        _validateQuorumNumerator(newQuorumNumerator);
         _updateQuorumNumerator(newQuorumNumerator);
     }
 
@@ -118,9 +117,4 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
 
         emit QuorumNumeratorUpdated(oldQuorumNumerator, newQuorumNumerator);
     }
-
-    /**
-     * @dev Run additional optional quorum numerator validation in proposals.
-     */
-    function _validateQuorumNumerator(uint256 newQuorumNumerator) internal view virtual {}
 }

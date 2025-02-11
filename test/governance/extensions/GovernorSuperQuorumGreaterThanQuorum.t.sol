@@ -43,7 +43,6 @@ contract GovernorHandler is GovernorVotesSuperQuorumFractionMock {
     }
 
     function updateQuorumNumerator(uint256 newQuorumNumerator) external override {
-        _validateQuorumNumerator(newQuorumNumerator);
         _updateQuorumNumerator(newQuorumNumerator);
     }
 }
