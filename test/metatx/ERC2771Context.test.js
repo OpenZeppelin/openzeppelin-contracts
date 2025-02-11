@@ -21,7 +21,7 @@ describe('ERC2771Context', function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
-  it('recognizes trusted forwarder', async function () {
+  it('recognize trusted forwarder', async function () {
     expect(await this.context.isTrustedForwarder(this.forwarder)).to.be.true;
   });
 
@@ -51,11 +51,11 @@ describe('ERC2771Context', function () {
         expect(await this.forwarder.verify(req)).to.be.true;
         await expect(this.forwarder.execute(req))
           .to.emit(this.context, 'Sender')
-          .withArgs(await this.sender.getAddress());
+          .withArgs(this.sender);
       });
 
       it('returns the original sender when calldata length is less than 20 bytes (address length)', async function () {
-        // The forwarder doesn't produce calls with calldata length less than 20 bytes so we use `forwarderAsSigner`
+        // The forwarder doesn't produce calls with calldata length less than 20 bytes so `this.forwarderAsSigner` is used instead.
         await expect(this.context.connect(this.forwarderAsSigner).msgSender())
           .to.emit(this.context, 'Sender')
           .withArgs(this.forwarder);
@@ -76,7 +76,7 @@ describe('ERC2771Context', function () {
           nonce,
           deadline: MAX_UINT48,
         };
-        req.signature = await this.sender.signTypedData(this.domain, this.types, req);
+        req.signature = this.sender.signTypedData(this.domain, this.types, req);
         expect(await this.forwarder.verify(req)).to.be.true;
         await expect(this.forwarder.execute(req))
           .to.emit(this.context, 'Data')
@@ -86,8 +86,8 @@ describe('ERC2771Context', function () {
 
     it('returns the full original data when calldata length is less than 20 bytes (address length)', async function () {
       const data = this.context.interface.encodeFunctionData('msgDataShort');
-      // The forwarder doesn't produce calls with calldata length less than 20 bytes so we use `forwarderAsSigner`
-      await expect(this.context.connect(this.forwarderAsSigner).msgDataShort())
+      // The forwarder doesn't produce calls with calldata length less than 20 bytes so `this.forwarderAsSigner` is used instead.
+      await expect(await this.context.connect(this.forwarderAsSigner).msgDataShort())
         .to.emit(this.context, 'DataShort')
         .withArgs(data);
     });
@@ -95,11 +95,12 @@ describe('ERC2771Context', function () {
 
   it('multicall poison attack', async function () {
     const nonce = await this.forwarder.nonces(this.sender);
-    const callData = ethers.concat([
-      this.context.interface.encodeFunctionData('msgSender'),
-      this.other.address,
+    const data = this.context.interface.encodeFunctionData('multicall', [
+      [
+        // poisoned call to 'msgSender()'
+        ethers.concat([this.context.interface.encodeFunctionData('msgSender'), this.other.address]),
+      ],
     ]);
-    const data = this.context.interface.encodeFunctionData('multicall', [[callData]]);
     const req = {
       from: await this.sender.getAddress(),
       to: await this.context.getAddress(),
@@ -113,6 +114,6 @@ describe('ERC2771Context', function () {
     expect(await this.forwarder.verify(req)).to.be.true;
     await expect(this.forwarder.execute(req))
       .to.emit(this.context, 'Sender')
-      .withArgs(await this.sender.getAddress());
+      .withArgs(this.sender);
   });
 });
