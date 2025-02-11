@@ -3,7 +3,7 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { mapValues } = require('../../helpers/iterate');
 const { generators } = require('../../helpers/random');
-const { TYPES } = require('../../../scripts/generate/templates/EnumerableSet.opts');
+const { SET_TYPES } = require('../../../scripts/generate/templates/Enumerable.opts');
 
 const { shouldBehaveLikeSet } = require('./EnumerableSet.behavior');
 
@@ -20,24 +20,25 @@ async function fixture() {
   const mock = await ethers.deployContract('$EnumerableSet');
 
   const env = Object.fromEntries(
-    TYPES.map(({ name, type, base, size }) => [
-      type,
+    SET_TYPES.map(({ name, value }) => [
+      name,
       {
+        value,
         values: Array.from(
           { length: 3 },
-          size ? () => Array.from({ length: size }, generators[base]) : generators[type],
+          value.size ? () => Array.from({ length: value.size }, generators[value.base]) : generators[value.type],
         ),
         methods: getMethods(mock, {
-          add: `$add(uint256,${type})`,
-          remove: `$remove(uint256,${type})`,
-          contains: `$contains(uint256,${type})`,
+          add: `$add(uint256,${value.type})`,
+          remove: `$remove(uint256,${value.type})`,
+          contains: `$contains(uint256,${value.type})`,
           length: `$length_EnumerableSet_${name}(uint256)`,
           at: `$at_EnumerableSet_${name}(uint256,uint256)`,
           values: `$values_EnumerableSet_${name}(uint256)`,
         }),
         events: {
-          addReturn: `return$add_EnumerableSet_${name}_${type.replace(/[[\]]/g, '_')}`,
-          removeReturn: `return$remove_EnumerableSet_${name}_${type.replace(/[[\]]/g, '_')}`,
+          addReturn: `return$add_EnumerableSet_${name}_${value.type.replace(/[[\]]/g, '_')}`,
+          removeReturn: `return$remove_EnumerableSet_${name}_${value.type.replace(/[[\]]/g, '_')}`,
         },
       },
     ]),
@@ -51,10 +52,10 @@ describe('EnumerableSet', function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
-  for (const { type } of TYPES) {
-    describe(type, function () {
+  for (const { name, value } of SET_TYPES) {
+    describe(`${name} (enumerable set of ${value.type})`, function () {
       beforeEach(function () {
-        Object.assign(this, this.env[type]);
+        Object.assign(this, this.env[name]);
         [this.valueA, this.valueB, this.valueC] = this.values;
       });
 
@@ -62,3 +63,4 @@ describe('EnumerableSet', function () {
     });
   }
 });
+// type, base, size

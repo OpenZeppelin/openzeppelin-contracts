@@ -129,8 +129,12 @@ function shouldBehaveLikeMap() {
 
       it('missing value', async function () {
         await expect(this.methods.get(this.keyB))
-          .to.be.revertedWithCustomError(this.mock, 'EnumerableMapNonexistentKey')
-          .withArgs(ethers.AbiCoder.defaultAbiCoder().encode([this.keyType], [this.keyB]));
+          .to.be.revertedWithCustomError(this.mock, this.error)
+          .withArgs(
+            this.key.memory || this.value.memory
+              ? this.keyB
+              : ethers.AbiCoder.defaultAbiCoder().encode([this.key.type], [this.keyB]),
+          );
       });
     });
 
