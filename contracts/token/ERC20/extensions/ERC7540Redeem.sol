@@ -73,7 +73,7 @@ abstract contract BaseERC7540Redeem is BaseERC7540, IERC7540Redeem {
     /**
      * @dev TODO
      */
-    function _fulfillRedeem(address controller, uint256 assets) internal returns (uint256 shares) {
+    function _fulfillRedeem(address controller, uint256 shares) internal returns (uint256 assets) {
         PendingRedeem storage request = _pendingRedeem[controller];
         require(request.shares != 0 && shares <= request.shares, "ZERO_SHARES");
 
