@@ -1,18 +1,22 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+
 const { impersonate } = require('../helpers/account');
 const { getDomain, ForwardRequest } = require('../helpers/eip712');
 const { MAX_UINT48 } = require('../helpers/constants');
+
 const { shouldBehaveLikeRegularContext } = require('../utils/Context.behavior');
 
 async function fixture() {
   const [sender, other] = await ethers.getSigners();
+
   const forwarder = await ethers.deployContract('ERC2771Forwarder', []);
   const forwarderAsSigner = await impersonate(forwarder.target);
   const context = await ethers.deployContract('ERC2771ContextMock', [forwarder]);
   const domain = await getDomain(forwarder);
   const types = { ForwardRequest };
+  
   return { sender, other, forwarder, forwarderAsSigner, context, domain, types };
 }
 
@@ -48,10 +52,9 @@ describe('ERC2771Context', function () {
           deadline: MAX_UINT48,
         };
         req.signature = await this.sender.signTypedData(this.domain, this.types, req);
-        expect(await this.forwarder.verify(req)).to.be.true;
-        await expect(this.forwarder.execute(req))
-          .to.emit(this.context, 'Sender')
-          .withArgs(this.sender);
+        
+        await expect(this.forwarder.verify(req)).to.eventually.be.true;
+        await expect(this.forwarder.execute(req)).to.emit(this.context, 'Sender').withArgs(this.sender);
       });
 
       it('returns the original sender when calldata length is less than 20 bytes (address length)', async function () {
@@ -76,8 +79,9 @@ describe('ERC2771Context', function () {
           nonce,
           deadline: MAX_UINT48,
         };
-        req.signature = this.sender.signTypedData(this.domain, this.types, req);
-        expect(await this.forwarder.verify(req)).to.be.true;
+        req.signature = await this.sender.signTypedData(this.domain, this.types, req);
+        
+        await expect(this.forwarder.verify(req)).to.eventually.be.true;
         await expect(this.forwarder.execute(req))
           .to.emit(this.context, 'Data')
           .withArgs(data, ...args);
@@ -86,8 +90,9 @@ describe('ERC2771Context', function () {
 
     it('returns the full original data when calldata length is less than 20 bytes (address length)', async function () {
       const data = this.context.interface.encodeFunctionData('msgDataShort');
+
       // The forwarder doesn't produce calls with calldata length less than 20 bytes so `this.forwarderAsSigner` is used instead.
-      await expect(await this.context.connect(this.forwarderAsSigner).msgDataShort())
+      await expect(this.context.connect(this.forwarderAsSigner).msgDataShort())
         .to.emit(this.context, 'DataShort')
         .withArgs(data);
     });
@@ -111,9 +116,8 @@ describe('ERC2771Context', function () {
       deadline: MAX_UINT48,
     };
     req.signature = await this.sender.signTypedData(this.domain, this.types, req);
-    expect(await this.forwarder.verify(req)).to.be.true;
-    await expect(this.forwarder.execute(req))
-      .to.emit(this.context, 'Sender')
-      .withArgs(this.sender);
+
+    await expect(this.forwarder.verify(req)).to.eventually.be.true;
+    await expect(this.forwarder.execute(req)).to.emit(this.context, 'Sender').withArgs(this.sender);
   });
 });
