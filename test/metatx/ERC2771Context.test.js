@@ -53,7 +53,7 @@ describe('ERC2771Context', function () {
           deadline: MAX_UINT48,
         };
         req.signature = await this.sender.signTypedData(this.domain, this.types, req);
-        
+
         await expect(this.forwarder.verify(req)).to.eventually.be.true;
 
         await expect(this.forwarder.execute(req)).to.emit(this.context, 'Sender').withArgs(this.sender);
