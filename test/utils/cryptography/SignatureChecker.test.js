@@ -27,15 +27,18 @@ describe('SignatureChecker (ERC1271)', function () {
 
   describe('EOA account', function () {
     it('with matching signer and signature', async function () {
-      expect(await this.mock.$isValidSignatureNow(this.signer, TEST_MESSAGE_HASH, this.signature)).to.be.true;
+      await expect(this.mock.$isValidSignatureNow(this.signer, TEST_MESSAGE_HASH, this.signature)).to.eventually.be
+        .true;
     });
 
     it('with invalid signer', async function () {
-      expect(await this.mock.$isValidSignatureNow(this.other, TEST_MESSAGE_HASH, this.signature)).to.be.false;
+      await expect(this.mock.$isValidSignatureNow(this.other, TEST_MESSAGE_HASH, this.signature)).to.eventually.be
+        .false;
     });
 
     it('with invalid signature', async function () {
-      expect(await this.mock.$isValidSignatureNow(this.signer, WRONG_MESSAGE_HASH, this.signature)).to.be.false;
+      await expect(this.mock.$isValidSignatureNow(this.signer, WRONG_MESSAGE_HASH, this.signature)).to.eventually.be
+        .false;
     });
   });
 
@@ -43,29 +46,33 @@ describe('SignatureChecker (ERC1271)', function () {
     for (const fn of ['isValidERC1271SignatureNow', 'isValidSignatureNow']) {
       describe(fn, function () {
         it('with matching signer and signature', async function () {
-          expect(await this.mock.getFunction(`$${fn}`)(this.wallet, TEST_MESSAGE_HASH, this.signature)).to.be.true;
+          await expect(this.mock.getFunction(`$${fn}`)(this.wallet, TEST_MESSAGE_HASH, this.signature)).to.eventually.be
+            .true;
         });
 
         it('with invalid signer', async function () {
-          expect(await this.mock.getFunction(`$${fn}`)(this.mock, TEST_MESSAGE_HASH, this.signature)).to.be.false;
+          await expect(this.mock.getFunction(`$${fn}`)(this.mock, TEST_MESSAGE_HASH, this.signature)).to.eventually.be
+            .false;
         });
 
         it('with identity precompile and random hash', async function () {
-          expect(await this.mock.getFunction(`$${fn}`)(precompile.identity, TEST_MESSAGE_HASH, this.signature)).to.be
-            .false;
+          await expect(this.mock.getFunction(`$${fn}`)(precompile.identity, TEST_MESSAGE_HASH, this.signature)).to
+            .eventually.be.false;
         });
 
         it('with identity precompile and zero hash', async function () {
-          expect(await this.mock.getFunction(`$${fn}`)(precompile.identity, ethers.ZeroHash, this.signature)).to.be
-            .false;
+          await expect(this.mock.getFunction(`$${fn}`)(precompile.identity, ethers.ZeroHash, this.signature)).to
+            .eventually.be.false;
         });
 
         it('with invalid signature', async function () {
-          expect(await this.mock.getFunction(`$${fn}`)(this.wallet, WRONG_MESSAGE_HASH, this.signature)).to.be.false;
+          await expect(this.mock.getFunction(`$${fn}`)(this.wallet, WRONG_MESSAGE_HASH, this.signature)).to.eventually
+            .be.false;
         });
 
         it('with malicious wallet', async function () {
-          expect(await this.mock.getFunction(`$${fn}`)(this.malicious, TEST_MESSAGE_HASH, this.signature)).to.be.false;
+          await expect(this.mock.getFunction(`$${fn}`)(this.malicious, TEST_MESSAGE_HASH, this.signature)).to.eventually
+            .be.false;
         });
       });
     }
