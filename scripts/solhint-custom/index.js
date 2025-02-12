@@ -75,7 +75,7 @@ module.exports = [
     static ruleId = 'no-external-virtual';
 
     FunctionDefinition(node) {
-      // Skip constructor, function without a name (receive/fallback) and interface definitions
+      // Skip constructor, functions without a name (receive/fallback) and interface definitions
       if (node.isConstructor || node.name == null || node.parent.kind === 'interface') {
         return;
       }
