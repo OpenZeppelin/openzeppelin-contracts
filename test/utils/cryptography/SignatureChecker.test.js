@@ -2,6 +2,8 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
+const precompile = require('../../helpers/precompiles');
+
 const TEST_MESSAGE = ethers.id('OpenZeppelin');
 const TEST_MESSAGE_HASH = ethers.hashMessage(TEST_MESSAGE);
 
@@ -46,6 +48,16 @@ describe('SignatureChecker (ERC1271)', function () {
 
         it('with invalid signer', async function () {
           expect(await this.mock.getFunction(`$${fn}`)(this.mock, TEST_MESSAGE_HASH, this.signature)).to.be.false;
+        });
+
+        it('with identity precompile and random hash', async function () {
+          expect(await this.mock.getFunction(`$${fn}`)(precompile.identity, TEST_MESSAGE_HASH, this.signature)).to.be
+            .false;
+        });
+
+        it('with identity precompile and zero hash', async function () {
+          expect(await this.mock.getFunction(`$${fn}`)(precompile.identity, ethers.ZeroHash, this.signature)).to.be
+            .false;
         });
 
         it('with invalid signature', async function () {
