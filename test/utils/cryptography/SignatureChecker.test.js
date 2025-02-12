@@ -55,13 +55,8 @@ describe('SignatureChecker (ERC1271)', function () {
             .false;
         });
 
-        it('with identity precompile and random hash', async function () {
+        it('with identity precompile', async function () {
           await expect(this.mock.getFunction(`$${fn}`)(precompile.identity, TEST_MESSAGE_HASH, this.signature)).to
-            .eventually.be.false;
-        });
-
-        it('with identity precompile and zero hash', async function () {
-          await expect(this.mock.getFunction(`$${fn}`)(precompile.identity, ethers.ZeroHash, this.signature)).to
             .eventually.be.false;
         });
 

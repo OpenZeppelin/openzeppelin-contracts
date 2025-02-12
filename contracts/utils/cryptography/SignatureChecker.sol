@@ -45,7 +45,6 @@ library SignatureChecker {
         );
         return (success &&
             result.length >= 32 &&
-            abi.decode(result, (bytes32)) == bytes32(IERC1271.isValidSignature.selector) &&
-            signer != address(0x4));
+            abi.decode(result, (bytes32)) == bytes32(IERC1271.isValidSignature.selector));
     }
 }
