@@ -16,7 +16,6 @@ async function fixture() {
   const context = await ethers.deployContract('ERC2771ContextMock', [forwarder]);
   const domain = await getDomain(forwarder);
   const types = { ForwardRequest };
-  
   return { sender, other, forwarder, forwarderAsSigner, context, domain, types };
 }
 
