@@ -16,6 +16,7 @@ async function fixture() {
   const context = await ethers.deployContract('ERC2771ContextMock', [forwarder]);
   const domain = await getDomain(forwarder);
   const types = { ForwardRequest };
+
   return { sender, other, forwarder, forwarderAsSigner, context, domain, types };
 }
 
@@ -41,6 +42,7 @@ describe('ERC2771Context', function () {
       it('returns the relayed transaction original sender', async function () {
         const nonce = await this.forwarder.nonces(this.sender);
         const data = this.context.interface.encodeFunctionData('msgSender');
+
         const req = {
           from: await this.sender.getAddress(),
           to: await this.context.getAddress(),
@@ -53,6 +55,7 @@ describe('ERC2771Context', function () {
         req.signature = await this.sender.signTypedData(this.domain, this.types, req);
         
         await expect(this.forwarder.verify(req)).to.eventually.be.true;
+
         await expect(this.forwarder.execute(req)).to.emit(this.context, 'Sender').withArgs(this.sender);
       });
 
@@ -69,6 +72,7 @@ describe('ERC2771Context', function () {
         const args = [42n, 'OpenZeppelin'];
         const nonce = await this.forwarder.nonces(this.sender);
         const data = this.context.interface.encodeFunctionData('msgData', args);
+
         const req = {
           from: await this.sender.getAddress(),
           to: await this.context.getAddress(),
@@ -81,6 +85,7 @@ describe('ERC2771Context', function () {
         req.signature = await this.sender.signTypedData(this.domain, this.types, req);
         
         await expect(this.forwarder.verify(req)).to.eventually.be.true;
+
         await expect(this.forwarder.execute(req))
           .to.emit(this.context, 'Data')
           .withArgs(data, ...args);
@@ -105,6 +110,7 @@ describe('ERC2771Context', function () {
         ethers.concat([this.context.interface.encodeFunctionData('msgSender'), this.other.address]),
       ],
     ]);
+
     const req = {
       from: await this.sender.getAddress(),
       to: await this.context.getAddress(),
@@ -117,6 +123,7 @@ describe('ERC2771Context', function () {
     req.signature = await this.sender.signTypedData(this.domain, this.types, req);
 
     await expect(this.forwarder.verify(req)).to.eventually.be.true;
+
     await expect(this.forwarder.execute(req)).to.emit(this.context, 'Sender').withArgs(this.sender);
   });
 });
