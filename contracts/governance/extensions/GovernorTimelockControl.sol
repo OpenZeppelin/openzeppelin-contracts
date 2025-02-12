@@ -149,7 +149,7 @@ abstract contract GovernorTimelockControl is Governor {
      *
      * CAUTION: It is not recommended to change the timelock while there are other queued governance proposals.
      */
-    function updateTimelock(TimelockController newTimelock) external virtual onlyGovernance {
+    function updateTimelock(TimelockController newTimelock) public virtual onlyGovernance {
         _updateTimelock(newTimelock);
     }
 

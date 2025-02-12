@@ -79,8 +79,9 @@ module.exports = [
       if (node.isConstructor || node.parent.kind === 'interface') {
         return;
       }
-      
-      if (node.visibility === 'external' && node.isVirtual) {
+
+      // name is null for receive and fallback functions
+      if (node.visibility === 'external' && node.isVirtual && node.name != null) {
         this.error(node, 'External functions should not be virtual. Consider using public virtual instead.');
       }
     }
