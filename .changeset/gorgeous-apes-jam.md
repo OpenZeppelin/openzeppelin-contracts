@@ -2,4 +2,4 @@
 'openzeppelin-solidity': minor
 ---
 
-Added virtual keyboard to receive method on TimelockController
+`TimelockController`: Receive function is now virtual.
