@@ -14,13 +14,13 @@ async function fixture() {
   // We use a vesting wallet, with 3 constructor arguments.
   const constructorByteCode = await ethers
     .getContractFactory('VestingWallet')
-    .then(({ bytecode, interface }) => ethers.concat([bytecode, interface.encodeDeploy([other.address, 0n, 0n])]));
+    .then(factory => ethers.concat([factory.bytecode, factory.interface.encodeDeploy([other.address, 0n, 0n])]));
 
   // Bytecode for deploying a contract that has no constructor log.
   // Here we use the Create2 helper factory.
   const constructorLessBytecode = await ethers
     .getContractFactory('$Create2')
-    .then(({ bytecode, interface }) => ethers.concat([bytecode, interface.encodeDeploy([])]));
+    .then(factory => ethers.concat([factory.bytecode, factory.interface.encodeDeploy([])]));
 
   const mockFactory = await ethers.getContractFactory('ConstructorMock');
 

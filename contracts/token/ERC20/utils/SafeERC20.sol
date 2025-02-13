@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (token/ERC20/utils/SafeERC20.sol)
+// OpenZeppelin Contracts (last updated v5.2.0) (token/ERC20/utils/SafeERC20.sol)
 
 pragma solidity ^0.8.20;
 
 import {IERC20} from "../IERC20.sol";
 import {IERC1363} from "../../../interfaces/IERC1363.sol";
-import {Address} from "../../../utils/Address.sol";
 
 /**
  * @title SafeERC20
@@ -17,8 +16,6 @@ import {Address} from "../../../utils/Address.sol";
  * which allows you to call the safe operations as `token.safeTransfer(...)`, etc.
  */
 library SafeERC20 {
-    using Address for address;
-
     /**
      * @dev An operation with an ERC-20 token failed.
      */
@@ -46,8 +43,27 @@ library SafeERC20 {
     }
 
     /**
+     * @dev Variant of {safeTransfer} that returns a bool instead of reverting if the operation is not successful.
+     */
+    function trySafeTransfer(IERC20 token, address to, uint256 value) internal returns (bool) {
+        return _callOptionalReturnBool(token, abi.encodeCall(token.transfer, (to, value)));
+    }
+
+    /**
+     * @dev Variant of {safeTransferFrom} that returns a bool instead of reverting if the operation is not successful.
+     */
+    function trySafeTransferFrom(IERC20 token, address from, address to, uint256 value) internal returns (bool) {
+        return _callOptionalReturnBool(token, abi.encodeCall(token.transferFrom, (from, to, value)));
+    }
+
+    /**
      * @dev Increase the calling contract's allowance toward `spender` by `value`. If `token` returns no value,
      * non-reverting calls are assumed to be successful.
+     *
+     * IMPORTANT: If the token implements ERC-7674 (ERC-20 with temporary allowance), and if the "client"
+     * smart contract uses ERC-7674 to set temporary allowances, then the "client" smart contract should avoid using
+     * this function. Performing a {safeIncreaseAllowance} or {safeDecreaseAllowance} operation on a token contract
+     * that has a non-zero temporary allowance (for that particular owner-spender) will result in unexpected behavior.
      */
     function safeIncreaseAllowance(IERC20 token, address spender, uint256 value) internal {
         uint256 oldAllowance = token.allowance(address(this), spender);
@@ -57,6 +73,11 @@ library SafeERC20 {
     /**
      * @dev Decrease the calling contract's allowance toward `spender` by `requestedDecrease`. If `token` returns no
      * value, non-reverting calls are assumed to be successful.
+     *
+     * IMPORTANT: If the token implements ERC-7674 (ERC-20 with temporary allowance), and if the "client"
+     * smart contract uses ERC-7674 to set temporary allowances, then the "client" smart contract should avoid using
+     * this function. Performing a {safeIncreaseAllowance} or {safeDecreaseAllowance} operation on a token contract
+     * that has a non-zero temporary allowance (for that particular owner-spender) will result in unexpected behavior.
      */
     function safeDecreaseAllowance(IERC20 token, address spender, uint256 requestedDecrease) internal {
         unchecked {
@@ -72,6 +93,10 @@ library SafeERC20 {
      * @dev Set the calling contract's allowance toward `spender` to `value`. If `token` returns no value,
      * non-reverting calls are assumed to be successful. Meant to be used with tokens that require the approval
      * to be set to zero before setting it to a non-zero value, such as USDT.
+     *
+     * NOTE: If the token implements ERC-7674, this function will not modify any temporary allowance. This function
+     * only sets the "standard" allowance. Any temporary allowance will remain active, in addition to the value being
+     * set here.
      */
     function forceApprove(IERC20 token, address spender, uint256 value) internal {
         bytes memory approvalCall = abi.encodeCall(token.approve, (spender, value));
@@ -142,14 +167,25 @@ library SafeERC20 {
      * on the return value: the return value is optional (but if data is returned, it must not be false).
      * @param token The token targeted by the call.
      * @param data The call data (encoded using abi.encode or one of its variants).
+     *
+     * This is a variant of {_callOptionalReturnBool} that reverts if call fails to meet the requirements.
      */
     function _callOptionalReturn(IERC20 token, bytes memory data) private {
-        // We need to perform a low level call here, to bypass Solidity's return data size checking mechanism, since
-        // we're implementing it ourselves. We use {Address-functionCall} to perform this call, which verifies that
-        // the target address contains contract code and also asserts for success in the low-level call.
+        uint256 returnSize;
+        uint256 returnValue;
+        assembly ("memory-safe") {
+            let success := call(gas(), token, 0, add(data, 0x20), mload(data), 0, 0x20)
+            // bubble errors
+            if iszero(success) {
+                let ptr := mload(0x40)
+                returndatacopy(ptr, 0, returndatasize())
+                revert(ptr, returndatasize())
+            }
+            returnSize := returndatasize()
+            returnValue := mload(0)
+        }
 
-        bytes memory returndata = address(token).functionCall(data);
-        if (returndata.length != 0 && !abi.decode(returndata, (bool))) {
+        if (returnSize == 0 ? address(token).code.length == 0 : returnValue != 1) {
             revert SafeERC20FailedOperation(address(token));
         }
     }
@@ -160,14 +196,17 @@ library SafeERC20 {
      * @param token The token targeted by the call.
      * @param data The call data (encoded using abi.encode or one of its variants).
      *
-     * This is a variant of {_callOptionalReturn} that silents catches all reverts and returns a bool instead.
+     * This is a variant of {_callOptionalReturn} that silently catches all reverts and returns a bool instead.
      */
     function _callOptionalReturnBool(IERC20 token, bytes memory data) private returns (bool) {
-        // We need to perform a low level call here, to bypass Solidity's return data size checking mechanism, since
-        // we're implementing it ourselves. We cannot use {Address-functionCall} here since this should return false
-        // and not revert is the subcall reverts.
-
-        (bool success, bytes memory returndata) = address(token).call(data);
-        return success && (returndata.length == 0 || abi.decode(returndata, (bool))) && address(token).code.length > 0;
+        bool success;
+        uint256 returnSize;
+        uint256 returnValue;
+        assembly ("memory-safe") {
+            success := call(gas(), token, 0, add(data, 0x20), mload(data), 0, 0x20)
+            returnSize := returndatasize()
+            returnValue := mload(0)
+        }
+        return success && (returnSize == 0 ? address(token).code.length > 0 : returnValue == 1);
     }
 }
