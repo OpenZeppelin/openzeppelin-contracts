@@ -1,5 +1,28 @@
 # Changelog
 
+
+## 5.3.0-rc.0 (2025-02-13)
+
+- `GovernorSequentialProposalId`: Adds a `Governor` extension that sequentially numbers proposal ids instead of using the hash. ([#5290](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5290))
+- `SafeERC20`: Add `trySafeTransfer` and `trySafeTransferFrom` that do not revert and return false if the transfer is not successful. ([#5483](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5483))
+- `ER6909TokenSupply`: Add an extension of ERC6909 which tracks total supply for each token id. ([#5394](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5394))
+- `Address`: bubble up revert data on `sendValue` failed call ([#5379](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5379))
+- `ERC6909ContentURI`: Add an extension of ERC6909 which adds content URI functionality. ([#5394](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5394))
+- `ERC2771Forwarder`: Expose the `_isTrustedByTarget` internal function to check whether a target trusts the forwarder. ([#5416](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5416))
+- `EnumerableMap`: Add `clear` function to EnumerableMaps which deletes all entries in the map. ([#5486](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5486))
+- `Calldata`: Library with `emptyBytes` and `emptyString` functions to generate empty `bytes` and `string` calldata types. ([#5422](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5422))
+- `Pausable`: Stop explicitly setting `paused` to `false` during construction. ([#5448](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5448))
+- `IERC6909`: Add the interface for ERC-6909. ([#5343](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5343))
+- `EnumerableSet`: Add `Bytes32x2Set` that handles (ordered) pairs of bytes32. ([#5442](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5442))
+- `GovernorProposalGuardian`: Add a governance extension that defines a proposal guardian who can cancel proposals at any stage in their lifecycle. ([#5303](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5303))
+- `ERC6909Metadata`: Add an extension of ERC6909 which adds metadata functionality. ([#5394](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5394))
+- `EnumerableSet`: Add `clear` function to EnumerableSets which deletes all values in the set. ([#5486](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5486))
+- `IGovernor`: Add the `getProposalId` function to the governor interface. ([#5290](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5290))
+- `ERC6909`: Add a standard implementation of ERC6909. ([#5394](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5394))
+- `Hashes`: Expose `efficientKeccak256` for hashing non-commutative pairs of bytes32 without allocating extra memory. ([#5442](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5442))
+- `ERC7579Utils`: Add ABI decoding checks on calldata bounds within `decodeBatch` ([#5371](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5371))
+- `ERC4626`: Use the `asset` getter in `totalAssets`, `_deposit` and `_withdraw`. ([#5322](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5322))
+
 ### Breaking Changes
 
 - Replace `GovernorCountingOverridable.VoteReceipt` struct parameter member names `hasOverriden` and `overridenWeight` for `hasOverridden` and `overriddenWeight` respectively.
