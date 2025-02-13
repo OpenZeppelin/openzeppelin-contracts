@@ -77,7 +77,7 @@ describe('ERC20Wrapper', function () {
         .withArgs(this.token, 0, initialSupply);
     });
 
-    it('reverts when inssuficient balance', async function () {
+    it('reverts when insufficient balance', async function () {
       await this.underlying.connect(this.holder).approve(this.token, ethers.MaxUint256);
 
       await expect(this.token.connect(this.holder).depositFor(this.holder, ethers.MaxUint256))
@@ -117,7 +117,7 @@ describe('ERC20Wrapper', function () {
       await this.token.connect(this.holder).depositFor(this.holder, initialSupply);
     });
 
-    it('reverts when inssuficient balance', async function () {
+    it('reverts when insufficient balance', async function () {
       await expect(this.token.connect(this.holder).withdrawTo(this.holder, ethers.MaxInt256))
         .to.be.revertedWithCustomError(this.token, 'ERC20InsufficientBalance')
         .withArgs(this.holder, initialSupply, ethers.MaxInt256);
