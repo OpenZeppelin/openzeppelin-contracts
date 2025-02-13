@@ -19,7 +19,7 @@ library AuthorityUtils {
     ) internal view returns (bool immediate, uint32 delay) {
         bytes memory data = abi.encodeCall(IAuthority.canCall, (caller, target, selector));
 
-        assembly {
+        assembly ("memory-safe") {
             mstore(0x00, 0x00)
             mstore(0x20, 0x00)
 
