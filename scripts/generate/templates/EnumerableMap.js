@@ -17,6 +17,7 @@ import {EnumerableSet} from "./EnumerableSet.sol";
  * - Entries are added, removed, and checked for existence in constant time
  * (O(1)).
  * - Entries are enumerated in O(n). No guarantees are made on the ordering.
+ * - Map can be cleared (all entries removed) in O(n).
  *
  * \`\`\`solidity
  * contract Example {
@@ -89,6 +90,20 @@ function set(Bytes32ToBytes32Map storage map, bytes32 key, bytes32 value) intern
 function remove(Bytes32ToBytes32Map storage map, bytes32 key) internal returns (bool) {
     delete map._values[key];
     return map._keys.remove(key);
+}
+
+/**
+ * @dev Removes all the entries from a map. O(n).
+ *
+ * WARNING: Developers should keep in mind that this function has an unbounded cost and using it may render the
+ * function uncallable if the map grows to the point where clearing it consumes too much gas to fit in a block.
+ */
+function clear(Bytes32ToBytes32Map storage map) internal {
+    uint256 len = length(map);
+    for (uint256 i = 0; i < len; ++i) {
+        delete map._values[map._keys.at(i)];
+    }
+    map._keys.clear();
 }
 
 /**
@@ -186,6 +201,16 @@ function set(${name} storage map, ${keyType} key, ${valueType} value) internal r
  */
 function remove(${name} storage map, ${keyType} key) internal returns (bool) {
     return remove(map._inner, ${toBytes32(keyType, 'key')});
+}
+
+/**
+ * @dev Removes all the entries from a map. O(n).
+ *
+ * WARNING: Developers should keep in mind that this function has an unbounded cost and using it may render the
+ * function uncallable if the map grows to the point where clearing it consumes too much gas to fit in a block.
+ */
+function clear(${name} storage map) internal {
+    clear(map._inner);
 }
 
 /**

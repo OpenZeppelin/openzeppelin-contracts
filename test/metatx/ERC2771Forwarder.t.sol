@@ -171,7 +171,7 @@ contract ERC2771ForwarderTest is Test {
         uint256 refundExpected = 0;
         uint256 nonce = _erc2771Forwarder.nonces(_signer);
 
-        // create an sign array or requests (that may fail)
+        // create an array of signed requests (that may fail)
         ERC2771Forwarder.ForwardRequestData[] memory requests = new ERC2771Forwarder.ForwardRequestData[](batchSize);
         for (uint256 i = 0; i < batchSize; ++i) {
             bool failure = (seed >> i) & 0x1 == 0x1;
@@ -229,7 +229,7 @@ contract ERC2771ForwarderTest is Test {
         TamperType tamper = _asTamper(_tamper);
         uint256 nonce = _erc2771Forwarder.nonces(_signer);
 
-        // create an sign array or requests
+        // create an array of signed requests
         ERC2771Forwarder.ForwardRequestData[] memory requests = new ERC2771Forwarder.ForwardRequestData[](3);
         for (uint256 i = 0; i < requests.length; ++i) {
             requests[i] = _forgeRequestData({
@@ -252,7 +252,7 @@ contract ERC2771ForwarderTest is Test {
         TamperType tamper = _asTamper(_tamper);
         uint256 nonce = _erc2771Forwarder.nonces(_signer);
 
-        // create an sign array or requests
+        // create an array of signed requests
         ERC2771Forwarder.ForwardRequestData[] memory requests = new ERC2771Forwarder.ForwardRequestData[](3);
         for (uint256 i = 0; i < requests.length; ++i) {
             requests[i] = _forgeRequestData({

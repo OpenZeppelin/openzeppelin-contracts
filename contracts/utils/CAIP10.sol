@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.2.0) (utils/CAIP10.sol)
 
 pragma solidity ^0.8.24;
 
-import {SafeCast} from "./math/SafeCast.sol";
 import {Bytes} from "./Bytes.sol";
-import {CAIP2} from "./CAIP2.sol";
 import {Strings} from "./Strings.sol";
+import {CAIP2} from "./CAIP2.sol";
 
 /**
  * @dev Helper library to format and parse CAIP-10 identifiers
@@ -14,9 +14,14 @@ import {Strings} from "./Strings.sol";
  * account_id:        chain_id + ":" + account_address
  * chain_id:          [-a-z0-9]{3,8}:[-_a-zA-Z0-9]{1,32} (See {CAIP2})
  * account_address:   [-.%a-zA-Z0-9]{1,128}
+ *
+ * WARNING: According to [CAIP-10's canonicalization section](https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-10.md#canonicalization),
+ * the implementation remains at the developer's discretion. Please note that case variations may introduce ambiguity.
+ * For example, when building hashes to identify accounts or data associated to them, multiple representations of the
+ * same account would derive to different hashes. For EVM chains, we recommend using checksummed addresses for the
+ * "account_address" part. They can be generated onchain using {Strings-toChecksumHexString}.
  */
 library CAIP10 {
-    using SafeCast for uint256;
     using Strings for address;
     using Bytes for bytes;
 

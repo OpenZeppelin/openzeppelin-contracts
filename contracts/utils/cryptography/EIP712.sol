@@ -48,7 +48,9 @@ abstract contract EIP712 is IERC5267 {
 
     ShortString private immutable _name;
     ShortString private immutable _version;
+    // slither-disable-next-line constable-states
     string private _nameFallback;
+    // slither-disable-next-line constable-states
     string private _versionFallback;
 
     /**
@@ -109,7 +111,7 @@ abstract contract EIP712 is IERC5267 {
     }
 
     /**
-     * @dev See {IERC-5267}.
+     * @inheritdoc IERC5267
      */
     function eip712Domain()
         public

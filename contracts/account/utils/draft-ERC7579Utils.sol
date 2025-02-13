@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.2.0) (account/utils/draft-ERC7579Utils.sol)
 
 pragma solidity ^0.8.20;
 
@@ -22,22 +23,26 @@ library ERC7579Utils {
     using Packing for *;
 
     /// @dev A single `call` execution.
-    CallType constant CALLTYPE_SINGLE = CallType.wrap(0x00);
+    CallType internal constant CALLTYPE_SINGLE = CallType.wrap(0x00);
 
     /// @dev A batch of `call` executions.
-    CallType constant CALLTYPE_BATCH = CallType.wrap(0x01);
+    CallType internal constant CALLTYPE_BATCH = CallType.wrap(0x01);
 
     /// @dev A `delegatecall` execution.
-    CallType constant CALLTYPE_DELEGATECALL = CallType.wrap(0xFF);
+    CallType internal constant CALLTYPE_DELEGATECALL = CallType.wrap(0xFF);
 
     /// @dev Default execution type that reverts on failure.
-    ExecType constant EXECTYPE_DEFAULT = ExecType.wrap(0x00);
+    ExecType internal constant EXECTYPE_DEFAULT = ExecType.wrap(0x00);
 
     /// @dev Execution type that does not revert on failure.
-    ExecType constant EXECTYPE_TRY = ExecType.wrap(0x01);
+    ExecType internal constant EXECTYPE_TRY = ExecType.wrap(0x01);
 
-    /// @dev Emits when an {EXECTYPE_TRY} execution fails.
-    event ERC7579TryExecuteFail(uint256 batchExecutionIndex, bytes result);
+    /**
+     * @dev Emits when an {EXECTYPE_TRY} execution fails.
+     * @param batchExecutionIndex The index of the failed call in the execution batch.
+     * @param returndata The returned data from the failed call.
+     */
+    event ERC7579TryExecuteFail(uint256 batchExecutionIndex, bytes returndata);
 
     /// @dev The provided {CallType} is not supported.
     error ERC7579UnsupportedCallType(CallType callType);
@@ -57,10 +62,13 @@ library ERC7579Utils {
     /// @dev The module type is not supported.
     error ERC7579UnsupportedModuleType(uint256 moduleTypeId);
 
+    /// @dev Input calldata not properly formatted and possibly malicious.
+    error ERC7579DecodingError();
+
     /// @dev Executes a single call.
     function execSingle(
-        ExecType execType,
-        bytes calldata executionCalldata
+        bytes calldata executionCalldata,
+        ExecType execType
     ) internal returns (bytes[] memory returnData) {
         (address target, uint256 value, bytes calldata callData) = decodeSingle(executionCalldata);
         returnData = new bytes[](1);
@@ -69,8 +77,8 @@ library ERC7579Utils {
 
     /// @dev Executes a batch of calls.
     function execBatch(
-        ExecType execType,
-        bytes calldata executionCalldata
+        bytes calldata executionCalldata,
+        ExecType execType
     ) internal returns (bytes[] memory returnData) {
         Execution[] calldata executionBatch = decodeBatch(executionCalldata);
         returnData = new bytes[](executionBatch.length);
@@ -87,8 +95,8 @@ library ERC7579Utils {
 
     /// @dev Executes a delegate call.
     function execDelegateCall(
-        ExecType execType,
-        bytes calldata executionCalldata
+        bytes calldata executionCalldata,
+        ExecType execType
     ) internal returns (bytes[] memory returnData) {
         (address target, bytes calldata callData) = decodeDelegate(executionCalldata);
         returnData = new bytes[](1);
@@ -165,12 +173,40 @@ library ERC7579Utils {
     }
 
     /// @dev Decodes a batch of executions. See {encodeBatch}.
+    ///
+    /// NOTE: This function runs some checks and will throw a {ERC7579DecodingError} if the input is not properly formatted.
     function decodeBatch(bytes calldata executionCalldata) internal pure returns (Execution[] calldata executionBatch) {
-        assembly ("memory-safe") {
-            let ptr := add(executionCalldata.offset, calldataload(executionCalldata.offset))
-            // Extract the ERC7579 Executions
-            executionBatch.offset := add(ptr, 32)
-            executionBatch.length := calldataload(ptr)
+        unchecked {
+            uint256 bufferLength = executionCalldata.length;
+
+            // Check executionCalldata is not empty.
+            if (bufferLength < 32) revert ERC7579DecodingError();
+
+            // Get the offset of the array (pointer to the array length).
+            uint256 arrayLengthOffset = uint256(bytes32(executionCalldata[0:32]));
+
+            // The array length (at arrayLengthOffset) should be 32 bytes long. We check that this is within the
+            // buffer bounds. Since we know bufferLength is at least 32, we can subtract with no overflow risk.
+            if (arrayLengthOffset > bufferLength - 32) revert ERC7579DecodingError();
+
+            // Get the array length. arrayLengthOffset + 32 is bounded by bufferLength so it does not overflow.
+            uint256 arrayLength = uint256(bytes32(executionCalldata[arrayLengthOffset:arrayLengthOffset + 32]));
+
+            // Check that the buffer is long enough to store the array elements as "offset pointer":
+            // - each element of the array is an "offset pointer" to the data.
+            // - each "offset pointer" (to an array element) takes 32 bytes.
+            // - validity of the calldata at that location is checked when the array element is accessed, so we only
+            //   need to check that the buffer is large enough to hold the pointers.
+            //
+            // Since we know bufferLength is at least arrayLengthOffset + 32, we can subtract with no overflow risk.
+            // Solidity limits length of such arrays to 2**64-1, this guarantees `arrayLength * 32` does not overflow.
+            if (arrayLength > type(uint64).max || bufferLength - arrayLengthOffset - 32 < arrayLength * 32)
+                revert ERC7579DecodingError();
+
+            assembly ("memory-safe") {
+                executionBatch.offset := add(add(executionCalldata.offset, arrayLengthOffset), 32)
+                executionBatch.length := arrayLength
+            }
         }
     }
 

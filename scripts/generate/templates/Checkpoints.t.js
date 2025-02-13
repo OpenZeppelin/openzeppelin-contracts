@@ -36,7 +36,7 @@ function _prepareKeys(${opts.keyTypeName}[] memory keys, ${opts.keyTypeName} max
     }
 }
 
-function _assertLatestCheckpoint(bool exist, ${opts.keyTypeName} key, ${opts.valueTypeName} value) internal {
+function _assertLatestCheckpoint(bool exist, ${opts.keyTypeName} key, ${opts.valueTypeName} value) internal view {
     (bool _exist, ${opts.keyTypeName} _key, ${opts.valueTypeName} _value) = _ckpts.latestCheckpoint();
     assertEq(_exist, exist);
     assertEq(_key, key);

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.1.0) (utils/Address.sol)
+// OpenZeppelin Contracts (last updated v5.2.0) (utils/Address.sol)
 
 pragma solidity ^0.8.20;
 
@@ -35,9 +35,9 @@ library Address {
             revert Errors.InsufficientBalance(address(this).balance, amount);
         }
 
-        (bool success, ) = recipient.call{value: amount}("");
+        (bool success, bytes memory returndata) = recipient.call{value: amount}("");
         if (!success) {
-            revert Errors.FailedCall();
+            _revert(returndata);
         }
     }
 

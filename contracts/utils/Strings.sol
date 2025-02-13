@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.1.0) (utils/Strings.sol)
+// OpenZeppelin Contracts (last updated v5.2.0) (utils/Strings.sol)
 
 pragma solidity ^0.8.20;
 
@@ -139,7 +139,7 @@ library Strings {
     }
 
     /**
-     * @dev Variant of {parseUint} that parses a substring of `input` located between position `begin` (included) and
+     * @dev Variant of {parseUint-string} that parses a substring of `input` located between position `begin` (included) and
      * `end` (excluded).
      *
      * Requirements:
@@ -158,7 +158,7 @@ library Strings {
      * NOTE: This function will revert if the result does not fit in a `uint256`.
      */
     function tryParseUint(string memory input) internal pure returns (bool success, uint256 value) {
-        return tryParseUint(input, 0, bytes(input).length);
+        return _tryParseUintUncheckedBounds(input, 0, bytes(input).length);
     }
 
     /**
@@ -172,6 +172,19 @@ library Strings {
         uint256 begin,
         uint256 end
     ) internal pure returns (bool success, uint256 value) {
+        if (end > bytes(input).length || begin > end) return (false, 0);
+        return _tryParseUintUncheckedBounds(input, begin, end);
+    }
+
+    /**
+     * @dev Implementation of {tryParseUint-string-uint256-uint256} that does not check bounds. Caller should make sure that
+     * `begin <= end <= input.length`. Other inputs would result in undefined behavior.
+     */
+    function _tryParseUintUncheckedBounds(
+        string memory input,
+        uint256 begin,
+        uint256 end
+    ) private pure returns (bool success, uint256 value) {
         bytes memory buffer = bytes(input);
 
         uint256 result = 0;
@@ -216,7 +229,7 @@ library Strings {
      * NOTE: This function will revert if the absolute value of the result does not fit in a `uint256`.
      */
     function tryParseInt(string memory input) internal pure returns (bool success, int256 value) {
-        return tryParseInt(input, 0, bytes(input).length);
+        return _tryParseIntUncheckedBounds(input, 0, bytes(input).length);
     }
 
     uint256 private constant ABS_MIN_INT256 = 2 ** 255;
@@ -232,10 +245,23 @@ library Strings {
         uint256 begin,
         uint256 end
     ) internal pure returns (bool success, int256 value) {
+        if (end > bytes(input).length || begin > end) return (false, 0);
+        return _tryParseIntUncheckedBounds(input, begin, end);
+    }
+
+    /**
+     * @dev Implementation of {tryParseInt-string-uint256-uint256} that does not check bounds. Caller should make sure that
+     * `begin <= end <= input.length`. Other inputs would result in undefined behavior.
+     */
+    function _tryParseIntUncheckedBounds(
+        string memory input,
+        uint256 begin,
+        uint256 end
+    ) private pure returns (bool success, int256 value) {
         bytes memory buffer = bytes(input);
 
         // Check presence of a negative sign.
-        bytes1 sign = bytes1(_unsafeReadBytesOffset(buffer, begin));
+        bytes1 sign = begin == end ? bytes1(0) : bytes1(_unsafeReadBytesOffset(buffer, begin)); // don't do out-of-bound (possibly unsafe) read if sub-string is empty
         bool positiveSign = sign == bytes1("+");
         bool negativeSign = sign == bytes1("-");
         uint256 offset = (positiveSign || negativeSign).toUint();
@@ -261,7 +287,7 @@ library Strings {
     }
 
     /**
-     * @dev Variant of {parseHexUint} that parses a substring of `input` located between position `begin` (included) and
+     * @dev Variant of {parseHexUint-string} that parses a substring of `input` located between position `begin` (included) and
      * `end` (excluded).
      *
      * Requirements:
@@ -280,7 +306,7 @@ library Strings {
      * NOTE: This function will revert if the result does not fit in a `uint256`.
      */
     function tryParseHexUint(string memory input) internal pure returns (bool success, uint256 value) {
-        return tryParseHexUint(input, 0, bytes(input).length);
+        return _tryParseHexUintUncheckedBounds(input, 0, bytes(input).length);
     }
 
     /**
@@ -294,10 +320,23 @@ library Strings {
         uint256 begin,
         uint256 end
     ) internal pure returns (bool success, uint256 value) {
+        if (end > bytes(input).length || begin > end) return (false, 0);
+        return _tryParseHexUintUncheckedBounds(input, begin, end);
+    }
+
+    /**
+     * @dev Implementation of {tryParseHexUint-string-uint256-uint256} that does not check bounds. Caller should make sure that
+     * `begin <= end <= input.length`. Other inputs would result in undefined behavior.
+     */
+    function _tryParseHexUintUncheckedBounds(
+        string memory input,
+        uint256 begin,
+        uint256 end
+    ) private pure returns (bool success, uint256 value) {
         bytes memory buffer = bytes(input);
 
         // skip 0x prefix if present
-        bool hasPrefix = bytes2(_unsafeReadBytesOffset(buffer, begin)) == bytes2("0x");
+        bool hasPrefix = (end > begin + 1) && bytes2(_unsafeReadBytesOffset(buffer, begin)) == bytes2("0x"); // don't do out-of-bound (possibly unsafe) read if sub-string is empty
         uint256 offset = hasPrefix.toUint() * 2;
 
         uint256 result = 0;
@@ -307,7 +346,7 @@ library Strings {
             result *= 16;
             unchecked {
                 // Multiplying by 16 is equivalent to a shift of 4 bits (with additional overflow check).
-                // This guaratees that adding a value < 16 will not cause an overflow, hence the unchecked.
+                // This guarantees that adding a value < 16 will not cause an overflow, hence the unchecked.
                 result += chr;
             }
         }
@@ -325,7 +364,7 @@ library Strings {
     }
 
     /**
-     * @dev Variant of {parseAddress} that parses a substring of `input` located between position `begin` (included) and
+     * @dev Variant of {parseAddress-string} that parses a substring of `input` located between position `begin` (included) and
      * `end` (excluded).
      *
      * Requirements:
@@ -339,7 +378,7 @@ library Strings {
 
     /**
      * @dev Variant of {parseAddress-string} that returns false if the parsing fails because the input is not a properly
-     * formatted address. See {parseAddress} requirements.
+     * formatted address. See {parseAddress-string} requirements.
      */
     function tryParseAddress(string memory input) internal pure returns (bool success, address value) {
         return tryParseAddress(input, 0, bytes(input).length);
@@ -347,20 +386,22 @@ library Strings {
 
     /**
      * @dev Variant of {parseAddress-string-uint256-uint256} that returns false if the parsing fails because input is not a properly
-     * formatted address. See {parseAddress} requirements.
+     * formatted address. See {parseAddress-string-uint256-uint256} requirements.
      */
     function tryParseAddress(
         string memory input,
         uint256 begin,
         uint256 end
     ) internal pure returns (bool success, address value) {
-        // check that input is the correct length
-        bool hasPrefix = bytes2(_unsafeReadBytesOffset(bytes(input), begin)) == bytes2("0x");
+        if (end > bytes(input).length || begin > end) return (false, address(0));
+
+        bool hasPrefix = (end > begin + 1) && bytes2(_unsafeReadBytesOffset(bytes(input), begin)) == bytes2("0x"); // don't do out-of-bound (possibly unsafe) read if sub-string is empty
         uint256 expectedLength = 40 + hasPrefix.toUint() * 2;
 
+        // check that input is the correct length
         if (end - begin == expectedLength) {
             // length guarantees that this does not overflow, and value is at most type(uint160).max
-            (bool s, uint256 v) = tryParseHexUint(input, begin, end);
+            (bool s, uint256 v) = _tryParseHexUintUncheckedBounds(input, begin, end);
             return (s, address(uint160(v)));
         } else {
             return (false, address(0));

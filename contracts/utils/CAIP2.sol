@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.2.0) (utils/CAIP2.sol)
 
 pragma solidity ^0.8.24;
 
-import {SafeCast} from "./math/SafeCast.sol";
 import {Bytes} from "./Bytes.sol";
 import {Strings} from "./Strings.sol";
 
@@ -13,9 +13,13 @@ import {Strings} from "./Strings.sol";
  * chain_id:    namespace + ":" + reference
  * namespace:   [-a-z0-9]{3,8}
  * reference:   [-_a-zA-Z0-9]{1,32}
+ *
+ * WARNING: In some cases, multiple CAIP-2 identifiers may all be valid representation of a single chain.
+ * For EVM chains, it is recommended to use `eip155:xxx` as the canonical representation (where `xxx` is
+ * the EIP-155 chain id). Consider the possible ambiguity when processing CAIP-2 identifiers or when using them
+ * in the context of hashes.
  */
 library CAIP2 {
-    using SafeCast for uint256;
     using Strings for uint256;
     using Bytes for bytes;
 

@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.2.0) (governance/extensions/GovernorCountingOverridable.sol)
 
 pragma solidity ^0.8.20;
 
@@ -8,8 +9,8 @@ import {VotesExtended} from "../utils/VotesExtended.sol";
 import {GovernorVotes} from "./GovernorVotes.sol";
 
 /**
- * @dev Extension of {Governor} which enables delegatees to override the vote of their delegates. This module requires a
- * token token that inherits `VotesExtended`.
+ * @dev Extension of {Governor} which enables delegators to override the vote of their delegates. This module requires a
+ * token that inherits {VotesExtended}.
  */
 abstract contract GovernorCountingOverridable is GovernorVotes {
     bytes32 public constant OVERRIDE_BALLOT_TYPEHASH =
@@ -26,8 +27,8 @@ abstract contract GovernorCountingOverridable is GovernorVotes {
 
     struct VoteReceipt {
         uint8 casted; // 0 if vote was not casted. Otherwise: support + 1
-        bool hasOverriden;
-        uint208 overridenWeight;
+        bool hasOverridden;
+        uint208 overriddenWeight;
     }
 
     struct ProposalVote {
@@ -35,10 +36,13 @@ abstract contract GovernorCountingOverridable is GovernorVotes {
         mapping(address voter => VoteReceipt) voteReceipt;
     }
 
-    event VoteReduced(address indexed voter, uint256 proposalId, uint8 support, uint256 weight);
+    /// @dev The votes casted by `delegate` were reduced by `weight` after an override vote was casted by the original token holder
+    event VoteReduced(address indexed delegate, uint256 proposalId, uint8 support, uint256 weight);
+
+    /// @dev A delegated vote on `proposalId` was overridden by `weight`
     event OverrideVoteCast(address indexed voter, uint256 proposalId, uint8 support, uint256 weight, string reason);
 
-    error GovernorAlreadyOverridenVote(address account);
+    error GovernorAlreadyOverriddenVote(address account);
 
     mapping(uint256 proposalId => ProposalVote) private _proposalVotes;
 
@@ -52,6 +56,11 @@ abstract contract GovernorCountingOverridable is GovernorVotes {
 
     /**
      * @dev See {IGovernor-hasVoted}.
+     *
+     * NOTE: Calling {castVote} (or similar) casts a vote using the voting power that is delegated to the voter.
+     * Conversely, calling {castOverrideVote} (or similar) uses the voting power of the account itself, from its asset
+     * balances. Casting an "override vote" does not count as voting and won't be reflected by this getter. Consider
+     * using {hasVotedOverride} to check if an account has casted an "override vote" for a given proposal id.
      */
     function hasVoted(uint256 proposalId, address account) public view virtual override returns (bool) {
         return _proposalVotes[proposalId].voteReceipt[account].casted != 0;
@@ -61,7 +70,7 @@ abstract contract GovernorCountingOverridable is GovernorVotes {
      * @dev Check if an `account` has overridden their delegate for a proposal.
      */
     function hasVotedOverride(uint256 proposalId, address account) public view virtual returns (bool) {
-        return _proposalVotes[proposalId].voteReceipt[account].hasOverriden;
+        return _proposalVotes[proposalId].voteReceipt[account].hasOverridden;
     }
 
     /**
@@ -113,14 +122,18 @@ abstract contract GovernorCountingOverridable is GovernorVotes {
             revert GovernorAlreadyCastVote(account);
         }
 
-        totalWeight -= proposalVote.voteReceipt[account].overridenWeight;
+        totalWeight -= proposalVote.voteReceipt[account].overriddenWeight;
         proposalVote.votes[support] += totalWeight;
         proposalVote.voteReceipt[account].casted = support + 1;
 
         return totalWeight;
     }
 
-    /// @dev Variant of {Governor-_countVote} that deals with vote overrides.
+    /**
+     * @dev Variant of {Governor-_countVote} that deals with vote overrides.
+     *
+     * NOTE: See {hasVoted} for more details about the difference between {castVote} and {castOverrideVote}.
+     */
     function _countOverride(uint256 proposalId, address account, uint8 support) internal virtual returns (uint256) {
         ProposalVote storage proposalVote = _proposalVotes[proposalId];
 
@@ -128,29 +141,29 @@ abstract contract GovernorCountingOverridable is GovernorVotes {
             revert GovernorInvalidVoteType();
         }
 
-        if (proposalVote.voteReceipt[account].hasOverriden) {
-            revert GovernorAlreadyOverridenVote(account);
+        if (proposalVote.voteReceipt[account].hasOverridden) {
+            revert GovernorAlreadyOverriddenVote(account);
         }
 
-        uint256 proposalSnapshot = proposalSnapshot(proposalId);
-        uint256 overridenWeight = VotesExtended(address(token())).getPastBalanceOf(account, proposalSnapshot);
-        address delegate = VotesExtended(address(token())).getPastDelegate(account, proposalSnapshot);
+        uint256 snapshot = proposalSnapshot(proposalId);
+        uint256 overriddenWeight = VotesExtended(address(token())).getPastBalanceOf(account, snapshot);
+        address delegate = VotesExtended(address(token())).getPastDelegate(account, snapshot);
         uint8 delegateCasted = proposalVote.voteReceipt[delegate].casted;
 
-        proposalVote.voteReceipt[account].hasOverriden = true;
-        proposalVote.votes[support] += overridenWeight;
+        proposalVote.voteReceipt[account].hasOverridden = true;
+        proposalVote.votes[support] += overriddenWeight;
         if (delegateCasted == 0) {
-            proposalVote.voteReceipt[delegate].overridenWeight += SafeCast.toUint208(overridenWeight);
+            proposalVote.voteReceipt[delegate].overriddenWeight += SafeCast.toUint208(overriddenWeight);
         } else {
             uint8 delegateSupport = delegateCasted - 1;
-            proposalVote.votes[delegateSupport] -= overridenWeight;
-            emit VoteReduced(delegate, proposalId, delegateSupport, overridenWeight);
+            proposalVote.votes[delegateSupport] -= overriddenWeight;
+            emit VoteReduced(delegate, proposalId, delegateSupport, overriddenWeight);
         }
 
-        return overridenWeight;
+        return overriddenWeight;
     }
 
-    /// @dev variant of {Governor-_castVote} that deals with vote overrides.
+    /// @dev Variant of {Governor-_castVote} that deals with vote overrides. Returns the overridden weight.
     function _castOverride(
         uint256 proposalId,
         address account,
@@ -159,16 +172,16 @@ abstract contract GovernorCountingOverridable is GovernorVotes {
     ) internal virtual returns (uint256) {
         _validateStateBitmap(proposalId, _encodeStateBitmap(ProposalState.Active));
 
-        uint256 overridenWeight = _countOverride(proposalId, account, support);
+        uint256 overriddenWeight = _countOverride(proposalId, account, support);
 
-        emit OverrideVoteCast(account, proposalId, support, overridenWeight, reason);
+        emit OverrideVoteCast(account, proposalId, support, overriddenWeight, reason);
 
         _tallyUpdated(proposalId);
 
-        return overridenWeight;
+        return overriddenWeight;
     }
 
-    /// @dev Public function for casting an override vote
+    /// @dev Public function for casting an override vote. Returns the overridden weight.
     function castOverrideVote(
         uint256 proposalId,
         uint8 support,
@@ -178,7 +191,7 @@ abstract contract GovernorCountingOverridable is GovernorVotes {
         return _castOverride(proposalId, voter, support, reason);
     }
 
-    /// @dev Public function for casting an override vote using a voter's signature
+    /// @dev Public function for casting an override vote using a voter's signature. Returns the overridden weight.
     function castOverrideVoteBySig(
         uint256 proposalId,
         uint8 support,

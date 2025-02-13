@@ -1,7 +1,7 @@
 {
   "name": "openzeppelin-solidity",
   "description": "Secure Smart Contract library for Solidity",
-  "version": "5.1.0",
+  "version": "5.2.0",
   "private": true,
   "files": [
     "/contracts/**/*.sol",
@@ -13,7 +13,7 @@
     "coverage": "scripts/checks/coverage.sh",
     "docs": "npm run prepare-docs && oz-docs",
     "docs:watch": "oz-docs watch contracts docs/templates docs/config.js",
-    "prepare": "scripts/prepare.sh",
+    "prepare": "husky",
     "prepare-docs": "scripts/prepare-docs.sh",
     "lint": "npm run lint:js && npm run lint:sol",
     "lint:fix": "npm run lint:js:fix && npm run lint:sol:fix",
@@ -25,7 +25,7 @@
     "prepack": "scripts/prepack.sh",
     "generate": "scripts/generate/run.js",
     "version": "scripts/release/version.sh",
-    "test": "hardhat test",
+    "test": ". scripts/set-max-old-space-size.sh && hardhat test",
     "test:generation": "scripts/checks/generation.sh",
     "test:inheritance": "scripts/checks/inheritance-ordering.js artifacts/build-info/*",
     "test:pragma": "scripts/checks/pragma-consistency.js artifacts/build-info/*",
@@ -66,17 +66,19 @@
     "chai": "^4.2.0",
     "eslint": "^9.0.0",
     "eslint-config-prettier": "^9.0.0",
-    "ethers": "^6.7.1",
-    "globals": "^15.3.0",
+    "ethers": "^6.13.4",
     "glob": "^11.0.0",
+    "globals": "^15.3.0",
     "graphlib": "^2.1.8",
     "hardhat": "^2.22.2",
     "hardhat-exposed": "^0.3.15",
-    "hardhat-gas-reporter": "^2.0.0",
+    "hardhat-gas-reporter": "^2.1.0",
     "hardhat-ignore-warnings": "^0.2.11",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.2.10",
     "lodash.startcase": "^4.4.0",
     "micromatch": "^4.0.2",
-    "p-limit": "^3.1.0",
+    "p-limit": "^6.0.0",
     "prettier": "^3.0.0",
     "prettier-plugin-solidity": "^1.1.0",
     "rimraf": "^6.0.0",
@@ -86,7 +88,17 @@
     "solidity-ast": "^0.4.50",
     "solidity-coverage": "^0.8.5",
     "solidity-docgen": "^0.6.0-beta.29",
-    "undici": "^6.11.1",
+    "undici": "^7.0.0",
     "yargs": "^17.0.0"
+  },
+  "lint-staged": {
+    "*.{js,ts}": [
+      "prettier --log-level warn --ignore-path .gitignore --check",
+      "eslint"
+    ],
+    "*.sol": [
+      "prettier --log-level warn --ignore-path .gitignore --check",
+      "solhint"
+    ]
   }
 }

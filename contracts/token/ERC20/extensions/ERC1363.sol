@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.1.0) (token/ERC20/extensions/ERC1363.sol)
+// OpenZeppelin Contracts (last updated v5.2.0) (token/ERC20/extensions/ERC1363.sol)
 
 pragma solidity ^0.8.20;
 
@@ -48,7 +48,8 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
 
     /**
      * @dev Moves a `value` amount of tokens from the caller's account to `to`
-     * and then calls {IERC1363Receiver-onTransferReceived} on `to`.
+     * and then calls {IERC1363Receiver-onTransferReceived} on `to`. Returns a flag that indicates
+     * if the call succeeded.
      *
      * Requirements:
      *
@@ -75,7 +76,8 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
 
     /**
      * @dev Moves a `value` amount of tokens from `from` to `to` using the allowance mechanism
-     * and then calls {IERC1363Receiver-onTransferReceived} on `to`.
+     * and then calls {IERC1363Receiver-onTransferReceived} on `to`. Returns a flag that indicates
+     * if the call succeeded.
      *
      * Requirements:
      *
@@ -108,6 +110,7 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
     /**
      * @dev Sets a `value` amount of tokens as the allowance of `spender` over the
      * caller's tokens and then calls {IERC1363Spender-onApprovalReceived} on `spender`.
+     * Returns a flag that indicates if the call succeeded.
      *
      * Requirements:
      *

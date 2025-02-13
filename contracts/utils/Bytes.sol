@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.2.0) (utils/Bytes.sol)
 
 pragma solidity ^0.8.24;
 
@@ -27,15 +28,13 @@ library Bytes {
      * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf[Javascript's `Array.indexOf`]
      */
     function indexOf(bytes memory buffer, bytes1 s, uint256 pos) internal pure returns (uint256) {
-        unchecked {
-            uint256 length = buffer.length;
-            for (uint256 i = pos; i < length; ++i) {
-                if (bytes1(_unsafeReadBytesOffset(buffer, i)) == s) {
-                    return i;
-                }
+        uint256 length = buffer.length;
+        for (uint256 i = pos; i < length; ++i) {
+            if (bytes1(_unsafeReadBytesOffset(buffer, i)) == s) {
+                return i;
             }
-            return type(uint256).max;
         }
+        return type(uint256).max;
     }
 
     /**
