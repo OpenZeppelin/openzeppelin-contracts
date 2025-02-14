@@ -15,15 +15,15 @@ library Strings {
 
     bytes16 private constant HEX_DIGITS = "0123456789abcdef";
     uint8 private constant ADDRESS_LENGTH = 20;
-    uint256 constant SPECIAL_CHARS_LOOKUP = 
-    (1 << 8) |  // backspace
-    (1 << 9) |  // tab
-    (1 << 10) | // newline
-    (1 << 12) | // form feed
-    (1 << 13) | // carriage return
-    (1 << 34) | // double quote
-    (1 << 47) | // forward slash
-    (1 << 92);  // backslash
+    uint256 private constant SPECIAL_CHARS_LOOKUP = 
+    (1 << 0x08) |  // backspace
+    (1 << 0x09) |  // tab
+    (1 << 0x0a) | // newline
+    (1 << 0x0c) | // form feed
+    (1 << 0x0d) | // carriage return
+    (1 << 0x22) | // double quote
+    (1 << 0x2f) | // forward slash
+    (1 << 0x5c);  // backslash
 
     /**
      * @dev The `value` string doesn't fit in the specified `length`.
