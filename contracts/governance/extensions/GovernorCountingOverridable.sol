@@ -79,7 +79,7 @@ abstract contract GovernorCountingOverridable is GovernorVotes, IGovernorCountin
      */
     function proposalVotes(
         uint256 proposalId
-    ) public view virtual override returns (uint256 againstVotes, uint256 forVotes, uint256 abstainVotes) {
+    ) public view virtual returns (uint256 againstVotes, uint256 forVotes, uint256 abstainVotes) {
         uint256[3] storage votes = _proposalVotes[proposalId].votes;
         return (votes[uint8(VoteType.Against)], votes[uint8(VoteType.For)], votes[uint8(VoteType.Abstain)]);
     }

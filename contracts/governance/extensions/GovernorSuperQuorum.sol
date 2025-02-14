@@ -10,8 +10,6 @@ import {Checkpoints} from "../../utils/structs/Checkpoints.sol";
  * @dev Extension of {Governor} with a super quorum. Proposals that meet the super quorum can be executed
  * earlier than the proposal deadline. Counting modules that want to use this extension must implement
  * {IGovernorCounting}.
- *
- * NOTE: It's up to developers to implement `superQuorum` and validate it against `quorum`.
  */
 abstract contract GovernorSuperQuorum is Governor {
     /**
@@ -21,6 +19,8 @@ abstract contract GovernorSuperQuorum is Governor {
      *
      * NOTE: The `timepoint` parameter corresponds to the snapshot used for counting vote. This allows to scale the
      * quorum depending on values such as the totalSupply of a token at this timepoint (see {ERC20Votes}).
+     * NOTE: Make sure the value specified for the super quorum is greater than {quorum}, otherwise, it
+     * may be possible to pass a proposal with less votes than the default quorum.
      */
     function superQuorum(uint256 timepoint) public view virtual returns (uint256);
 
