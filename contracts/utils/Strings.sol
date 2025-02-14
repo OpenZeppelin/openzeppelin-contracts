@@ -15,6 +15,15 @@ library Strings {
 
     bytes16 private constant HEX_DIGITS = "0123456789abcdef";
     uint8 private constant ADDRESS_LENGTH = 20;
+    uint256 constant SPECIAL_CHARS_LOOKUP = 
+    (1 << 8) |  // backspace
+    (1 << 9) |  // tab
+    (1 << 10) | // newline
+    (1 << 12) | // form feed
+    (1 << 13) | // carriage return
+    (1 << 34) | // double quote
+    (1 << 47) | // forward slash
+    (1 << 92);  // backslash
 
     /**
      * @dev The `value` string doesn't fit in the specified `length`.
@@ -438,4 +447,42 @@ library Strings {
             value := mload(add(buffer, add(0x20, offset)))
         }
     }
+    
+    function _escapeJsonString(string memory input) private pure returns (string memory) {
+    bytes memory buffer = bytes(input);
+    bytes memory output = new bytes(buffer.length * 2); // Allocate max possible space
+    uint256 outputLength = 0;
+
+    for (uint256 i; i < buffer.length; ) {
+        bytes1 char = buffer[i];
+
+        if ((SPECIAL_CHARS_LOOKUP & (1 << uint8(char))) != 0) {
+            output[outputLength++] = '\\';
+
+            if (char == 0x08) output[outputLength++] = 'b';
+            else if (char == 0x09) output[outputLength++] = 't';
+            else if (char == 0x0A) output[outputLength++] = 'n';
+            else if (char == 0x0C) output[outputLength++] = 'f';
+            else if (char == 0x0D) output[outputLength++] = 'r';
+            else if (char == 0x22) output[outputLength++] = '"';
+            else if (char == 0x2F) output[outputLength++] = '/';
+            else if (char == 0x5C) output[outputLength++] = '\\';
+        } else {
+            output[outputLength++] = char;
+        }
+
+        unchecked { ++i; }
+    }
+
+    // Trim the output to the correct length
+    bytes memory finalOutput = new bytes(outputLength);
+    for (uint256 i = 0; i < outputLength; i++) {
+        finalOutput[i] = output[i];
+    }
+
+    return string(finalOutput);
+}
+
+
+    
 }
