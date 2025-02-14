@@ -52,10 +52,9 @@ describe('ERC2771Context', function () {
           nonce,
           deadline: MAX_UINT48,
         };
-
         req.signature = await this.sender.signTypedData(this.domain, this.types, req);
 
-        expect(await this.forwarder.verify(req)).to.be.true;
+        await expect(this.forwarder.verify(req)).to.eventually.be.true;
 
         await expect(this.forwarder.execute(req)).to.emit(this.context, 'Sender').withArgs(this.sender);
       });
@@ -71,7 +70,6 @@ describe('ERC2771Context', function () {
     describe('msgData', function () {
       it('returns the relayed transaction original data', async function () {
         const args = [42n, 'OpenZeppelin'];
-
         const nonce = await this.forwarder.nonces(this.sender);
         const data = this.context.interface.encodeFunctionData('msgData', args);
 
@@ -84,10 +82,9 @@ describe('ERC2771Context', function () {
           nonce,
           deadline: MAX_UINT48,
         };
-
-        req.signature = this.sender.signTypedData(this.domain, this.types, req);
-
-        expect(await this.forwarder.verify(req)).to.be.true;
+        req.signature = await this.sender.signTypedData(this.domain, this.types, req);
+        
+        await expect(this.forwarder.verify(req)).to.eventually.be.true;
 
         await expect(this.forwarder.execute(req))
           .to.emit(this.context, 'Data')
@@ -99,7 +96,7 @@ describe('ERC2771Context', function () {
       const data = this.context.interface.encodeFunctionData('msgDataShort');
 
       // The forwarder doesn't produce calls with calldata length less than 20 bytes so `this.forwarderAsSigner` is used instead.
-      await expect(await this.context.connect(this.forwarderAsSigner).msgDataShort())
+      await expect(this.context.connect(this.forwarderAsSigner).msgDataShort())
         .to.emit(this.context, 'DataShort')
         .withArgs(data);
     });
@@ -109,7 +106,7 @@ describe('ERC2771Context', function () {
     const nonce = await this.forwarder.nonces(this.sender);
     const data = this.context.interface.encodeFunctionData('multicall', [
       [
-        // poisonned call to 'msgSender()'
+        // poisoned call to 'msgSender()'
         ethers.concat([this.context.interface.encodeFunctionData('msgSender'), this.other.address]),
       ],
     ]);
@@ -123,10 +120,9 @@ describe('ERC2771Context', function () {
       nonce,
       deadline: MAX_UINT48,
     };
-
     req.signature = await this.sender.signTypedData(this.domain, this.types, req);
 
-    expect(await this.forwarder.verify(req)).to.be.true;
+    await expect(this.forwarder.verify(req)).to.eventually.be.true;
 
     await expect(this.forwarder.execute(req)).to.emit(this.context, 'Sender').withArgs(this.sender);
   });
