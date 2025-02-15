@@ -204,6 +204,7 @@ contract MathTest is Test {
         assertEq(xyLo, qdRemLo);
     }
 
+    /// forge-config: default.allow_internal_expect_revert = true
     function testMulDivDomain(uint256 x, uint256 y, uint256 d) public {
         (uint256 xyHi, ) = _mulHighLow(x, y);
 
@@ -216,6 +217,7 @@ contract MathTest is Test {
     }
 
     // MOD EXP
+    /// forge-config: default.allow_internal_expect_revert = true
     function testModExp(uint256 b, uint256 e, uint256 m) public {
         if (m == 0) {
             vm.expectRevert(stdError.divisionError);
@@ -236,6 +238,7 @@ contract MathTest is Test {
         }
     }
 
+    /// forge-config: default.allow_internal_expect_revert = true
     function testModExpMemory(uint256 b, uint256 e, uint256 m) public {
         if (m == 0) {
             vm.expectRevert(stdError.divisionError);
