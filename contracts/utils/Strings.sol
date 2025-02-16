@@ -449,40 +449,44 @@ library Strings {
     }
     
     function _escapeJsonString(string memory input) private pure returns (string memory) {
-    bytes memory buffer = bytes(input);
-    bytes memory output = new bytes(buffer.length * 2); // Allocate max possible space
-    uint256 outputLength = 0;
+        bytes memory buffer = bytes(input);
+        bytes memory output = new bytes(buffer.length);
+        uint256 outputLength = 0;
 
-    for (uint256 i; i < buffer.length; ) {
-        bytes1 char = buffer[i];
+        for (uint256 i; i < buffer.length; ) {
+            bytes1 char = buffer[i]; 
 
-        if ((SPECIAL_CHARS_LOOKUP & (1 << uint8(char))) != 0) {
-            output[outputLength++] = '\\';
+            if (((SPECIAL_CHARS_LOOKUP & (1 << uint8(char))) != 0)) {
 
-            if (char == 0x08) output[outputLength++] = 'b';
-            else if (char == 0x09) output[outputLength++] = 't';
-            else if (char == 0x0A) output[outputLength++] = 'n';
-            else if (char == 0x0C) output[outputLength++] = 'f';
-            else if (char == 0x0D) output[outputLength++] = 'r';
-            else if (char == 0x22) output[outputLength++] = '"';
-            else if (char == 0x2F) output[outputLength++] = '/';
-            else if (char == 0x5C) output[outputLength++] = '\\';
-        } else {
-            output[outputLength++] = char;
+            if (outputLength >= buffer.length - 1) {
+                assembly {
+                    mstore(output, add(outputLength, 2))
+                    mstore(0x40, add(add(output, 0x20), mul(div(add(add(outputLength, 2), 31), 32), 32)))
+                }
+            }
+
+                output[outputLength++] = '\\';
+                if (char == 0x08) output[outputLength++] = 'b';
+                else if (char == 0x09) output[outputLength++] = 't';
+                else if (char == 0x0A) output[outputLength++] = 'n';
+                else if (char == 0x0C) output[outputLength++] = 'f';
+                else if (char == 0x0D) output[outputLength++] = 'r';
+                else if (char == 0x22) output[outputLength++] = '"';
+                else if (char == 0x2F) output[outputLength++] = '/';
+                else if (char == 0x5C) output[outputLength++] = '\\';
+            } else {
+                if (outputLength >= buffer.length) {
+                    assembly {
+                        mstore(output, add(outputLength, 1))
+                        mstore(0x40, add(add(output, 0x20), mul(div(add(add(outputLength, 1), 31), 32), 32)))
+                    }
+                }
+                output[outputLength++] = char;
+            }
+
+            ++i;
         }
-
-        unchecked { ++i; }
+        return string(output);
     }
-
-    // Trim the output to the correct length
-    bytes memory finalOutput = new bytes(outputLength);
-    for (uint256 i = 0; i < outputLength; i++) {
-        finalOutput[i] = output[i];
-    }
-
-    return string(finalOutput);
-}
-
-
     
 }
