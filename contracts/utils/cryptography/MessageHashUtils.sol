@@ -72,8 +72,13 @@ library MessageHashUtils {
      *
      * See {ECDSA-recover}.
      */
-    function toDataWithIntendedValidatorHash(address validator, bytes32 messageHash) internal pure returns (bytes32) {
-        return toDataWithIntendedValidatorHash(validator, abi.encodePacked(messageHash));
+    function toDataWithIntendedValidatorHash(address validator, bytes32 messageHash) internal pure returns (bytes32 digest) {
+        assembly ("memory-safe") {
+            mstore(0x00, hex"19_00")
+            mstore(0x02, shl(96, validator))
+            mstore(0x16, messageHash)
+            digest := keccak256(0x00, 0x36)
+        }
     }
 
     /**
