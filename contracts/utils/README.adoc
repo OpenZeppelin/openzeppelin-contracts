@@ -5,23 +5,51 @@ NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/
 
 Miscellaneous contracts and libraries containing utility functions you can use to improve security, work with new data types, or safely use low-level primitives.
 
-The {Address}, {Arrays}, {Base64} and {Strings} libraries provide more operations related to these native data types, while {SafeCast} adds ways to safely convert between the different signed and unsigned numeric types.
-{Multicall} provides a function to batch together multiple calls in a single external call.
-
-For new data types:
-
- * {Counters}: a simple way to get a counter that can only be incremented, decremented or reset. Very useful for ID generation, counting contract activity, among others.
- * {EnumerableMap}: like Solidity's https://solidity.readthedocs.io/en/latest/types.html#mapping-types[`mapping`] type, but with key-value _enumeration_: this will let you know how many entries a mapping has, and iterate over them (which is not possible with `mapping`).
- * {EnumerableSet}: like {EnumerableMap}, but for https://en.wikipedia.org/wiki/Set_(abstract_data_type)[sets]. Can be used to store privileged accounts, issued IDs, etc.
+ * {Math}, {SignedMath}: Implementation of various arithmetic functions.
+ * {SafeCast}: Checked downcasting functions to avoid silent truncation.
+ * {ECDSA}, {MessageHashUtils}: Libraries for interacting with ECDSA signatures.
+ * {P256}: Library for verifying and recovering public keys from secp256r1 signatures.
+ * {RSA}: Library with RSA PKCS#1 v1.5 signature verification utilities.
+ * {SignatureChecker}: A library helper to support regular ECDSA from EOAs as well as ERC-1271 signatures for smart contracts.
+ * {Hashes}: Commonly used hash functions.
+ * {MerkleProof}: Functions for verifying https://en.wikipedia.org/wiki/Merkle_tree[Merkle Tree] proofs.
+ * {EIP712}: Contract with functions to allow processing signed typed structure data according to https://eips.ethereum.org/EIPS/eip-712[EIP-712].
+ * {ReentrancyGuard}: A modifier that can prevent reentrancy during certain functions.
+ * {ReentrancyGuardTransient}: Variant of {ReentrancyGuard} that uses transient storage (https://eips.ethereum.org/EIPS/eip-1153[EIP-1153]).
+ * {Pausable}: A common emergency response mechanism that can pause functionality while a remediation is pending.
+ * {Nonces}: Utility for tracking and verifying address nonces that only increment.
+ * {NoncesKeyed}: Alternative to {Nonces}, that support key-ed nonces following https://eips.ethereum.org/EIPS/eip-4337#semi-abstracted-nonce-support[ERC-4337 speciciations].
+ * {ERC165}, {ERC165Checker}: Utilities for inspecting interfaces supported by contracts.
+ * {BitMaps}: A simple library to manage boolean value mapped to a numerical index in an efficient way.
+ * {EnumerableMap}: A type like Solidity's https://solidity.readthedocs.io/en/latest/types.html#mapping-types[`mapping`], but with key-value _enumeration_: this will let you know how many entries a mapping has, and iterate over them (which is not possible with `mapping`).
+ * {EnumerableSet}: Like {EnumerableMap}, but for https://en.wikipedia.org/wiki/Set_(abstract_data_type)[sets]. Can be used to store privileged accounts, issued IDs, etc.
+ * {DoubleEndedQueue}: An implementation of a https://en.wikipedia.org/wiki/Double-ended_queue[double ended queue] whose values can be removed added or remove from both sides. Useful for FIFO and LIFO structures.
+ * {CircularBuffer}: A data structure to store the last N values pushed to it.
+ * {Checkpoints}: A data structure to store values mapped to a strictly increasing key. Can be used for storing and accessing values over time.
+ * {Heap}: A library that implements a https://en.wikipedia.org/wiki/Binary_heap[binary heap] in storage.
+ * {MerkleTree}: A library with https://wikipedia.org/wiki/Merkle_Tree[Merkle Tree] data structures and helper functions.
+ * {Create2}: Wrapper around the https://blog.openzeppelin.com/getting-the-most-out-of-create2/[`CREATE2` EVM opcode] for safe use without having to deal with low-level assembly.
+ * {Address}: Collection of functions for overloading Solidity's https://docs.soliditylang.org/en/latest/types.html#address[`address`] type.
+ * {Arrays}: Collection of functions that operate on https://docs.soliditylang.org/en/latest/types.html#arrays[`arrays`].
+ * {Base64}: On-chain base64 and base64URL encoding according to https://datatracker.ietf.org/doc/html/rfc4648[RFC-4648].
+ * {Bytes}: Common operations on bytes objects.
+ * {Calldata}: Helpers for manipulating calldata.
+ * {Strings}: Common operations for strings formatting.
+ * {ShortStrings}: Library to encode (and decode) short strings into (or from) a single bytes32 slot for optimizing costs. Short strings are limited to 31 characters.
+ * {SlotDerivation}: Methods for deriving storage slot from ERC-7201 namespaces as well as from constructions such as mapping and arrays.
+ * {StorageSlot}: Methods for accessing specific storage slots formatted as common primitive types.
+ * {TransientSlot}: Primitives for reading from and writing to transient storage (only value types are currently supported).
+ * {Multicall}: Abstract contract with a utility to allow batching together multiple calls in a single transaction. Useful for allowing EOAs to perform multiple operations at once.
+ * {Context}: A utility for abstracting the sender and calldata in the current execution context.
+ * {Packing}: A library for packing and unpacking multiple values into bytes32
+ * {Panic}: A library to revert with https://docs.soliditylang.org/en/v0.8.20/control-structures.html#panic-via-assert-and-error-via-require[Solidity panic codes].
+ * {Comparators}: A library that contains comparator functions to use with the {Heap} library.
+ * {CAIP2}, {CAIP10}: Libraries for formatting and parsing CAIP-2 and CAIP-10 identifiers.
 
 [NOTE]
 ====
 Because Solidity does not support generic types, {EnumerableMap} and {EnumerableSet} are specialized to a limited number of key-value types.
-
-As of v3.0, {EnumerableMap} supports `uint256 -> address` (`UintToAddressMap`), and {EnumerableSet} supports `address` and `uint256` (`AddressSet` and `UintSet`).
 ====
-
-Finally, {Create2} contains all necessary utilities to safely use the https://blog.openzeppelin.com/getting-the-most-out-of-create2/[`CREATE2` EVM opcode], without having to deal with low-level assembly.
 
 == Math
 
@@ -31,54 +59,47 @@ Finally, {Create2} contains all necessary utilities to safely use the https://bl
 
 {{SafeCast}}
 
-{{SafeMath}}
-
-{{SignedSafeMath}}
-
 == Cryptography
 
 {{ECDSA}}
 
-{{SignatureChecker}}
+{{P256}}
 
-{{MerkleProof}}
+{{RSA}}
 
 {{EIP712}}
 
-== Escrow
+{{MessageHashUtils}}
 
-{{ConditionalEscrow}}
+{{SignatureChecker}}
 
-{{Escrow}}
+{{Hashes}}
 
-{{RefundEscrow}}
+{{MerkleProof}}
+
+== Security
+
+{{ReentrancyGuard}}
+
+{{ReentrancyGuardTransient}}
+
+{{Pausable}}
+
+{{Nonces}}
+
+{{NoncesKeyed}}
 
 == Introspection
 
 This set of interfaces and contracts deal with https://en.wikipedia.org/wiki/Type_introspection[type introspection] of contracts, that is, examining which functions can be called on them. This is usually referred to as a contract's _interface_.
 
-Ethereum contracts have no native concept of an interface, so applications must usually simply trust they are not making an incorrect call. For trusted setups this is a non-issue, but often unknown and untrusted third-party addresses need to be interacted with. There may even not be any direct calls to them! (e.g. `ERC20` tokens may be sent to a contract that lacks a way to transfer them out of it, locking them forever). In these cases, a contract _declaring_ its interface can be very helpful in preventing errors.
-
-There are two main ways to approach this.
-
-* Locally, where a contract implements `IERC165` and declares an interface, and a second one queries it directly via `ERC165Checker`.
-* Globally, where a global and unique registry (`IERC1820Registry`) is used to register implementers of a certain interface (`IERC1820Implementer`). It is then the registry that is queried, which allows for more complex setups, like contracts implementing interfaces for externally-owned accounts.
-
-Note that, in all cases, accounts simply _declare_ their interfaces, but they are not required to actually implement them. This mechanism can therefore be used to both prevent errors and allow for complex interactions (see `ERC777`), but it must not be relied on for security.
+Ethereum contracts have no native concept of an interface, so applications must usually simply trust they are not making an incorrect call. For trusted setups this is a non-issue, but often unknown and untrusted third-party addresses need to be interacted with. There may even not be any direct calls to them! (e.g. ERC-20 tokens may be sent to a contract that lacks a way to transfer them out of it, locking them forever). In these cases, a contract _declaring_ its interface can be very helpful in preventing errors.
 
 {{IERC165}}
 
 {{ERC165}}
 
-{{ERC165Storage}}
-
 {{ERC165Checker}}
-
-{{IERC1820Registry}}
-
-{{IERC1820Implementer}}
-
-{{ERC1820Implementer}}
 
 == Data Structures
 
@@ -90,7 +111,13 @@ Note that, in all cases, accounts simply _declare_ their interfaces, but they ar
 
 {{DoubleEndedQueue}}
 
+{{CircularBuffer}}
+
 {{Checkpoints}}
+
+{{Heap}}
+
+{{MerkleTree}}
 
 == Libraries
 
@@ -102,10 +129,30 @@ Note that, in all cases, accounts simply _declare_ their interfaces, but they ar
 
 {{Base64}}
 
-{{Counters}}
+{{Bytes}}
+
+{{Calldata}}
 
 {{Strings}}
 
+{{ShortStrings}}
+
+{{SlotDerivation}}
+
 {{StorageSlot}}
 
+{{TransientSlot}}
+
 {{Multicall}}
+
+{{Context}}
+
+{{Packing}}
+
+{{Panic}}
+
+{{Comparators}}
+
+{{CAIP2}}
+
+{{CAIP10}}

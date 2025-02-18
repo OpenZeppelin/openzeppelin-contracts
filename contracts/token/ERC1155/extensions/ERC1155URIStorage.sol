@@ -1,16 +1,14 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.6.0) (token/ERC1155/extensions/ERC1155URIStorage.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (token/ERC1155/extensions/ERC1155URIStorage.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
-import "../../../utils/Strings.sol";
-import "../ERC1155.sol";
+import {Strings} from "../../../utils/Strings.sol";
+import {ERC1155} from "../ERC1155.sol";
 
 /**
- * @dev ERC1155 token with storage based token URI management.
- * Inspired by the ERC721URIStorage extension
- *
- * _Available since v4.6._
+ * @dev ERC-1155 token with storage based token URI management.
+ * Inspired by the {ERC721URIStorage} extension
  */
 abstract contract ERC1155URIStorage is ERC1155 {
     using Strings for uint256;
@@ -19,7 +17,7 @@ abstract contract ERC1155URIStorage is ERC1155 {
     string private _baseURI = "";
 
     // Optional mapping for token URIs
-    mapping(uint256 => string) private _tokenURIs;
+    mapping(uint256 tokenId => string) private _tokenURIs;
 
     /**
      * @dev See {IERC1155MetadataURI-uri}.
@@ -42,8 +40,8 @@ abstract contract ERC1155URIStorage is ERC1155 {
     function uri(uint256 tokenId) public view virtual override returns (string memory) {
         string memory tokenURI = _tokenURIs[tokenId];
 
-        // If token URI is set, concatenate base URI and tokenURI (via abi.encodePacked).
-        return bytes(tokenURI).length > 0 ? string(abi.encodePacked(_baseURI, tokenURI)) : super.uri(tokenId);
+        // If token URI is set, concatenate base URI and tokenURI (via string.concat).
+        return bytes(tokenURI).length > 0 ? string.concat(_baseURI, tokenURI) : super.uri(tokenId);
     }
 
     /**

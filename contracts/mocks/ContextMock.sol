@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
-import "../utils/Context.sol";
+import {Context} from "../utils/Context.sol";
 
 contract ContextMock is Context {
     event Sender(address sender);
@@ -15,6 +15,12 @@ contract ContextMock is Context {
 
     function msgData(uint256 integerValue, string memory stringValue) public {
         emit Data(_msgData(), integerValue, stringValue);
+    }
+
+    event DataShort(bytes data);
+
+    function msgDataShort() public {
+        emit DataShort(_msgData());
     }
 }
 

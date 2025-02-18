@@ -6,16 +6,30 @@
  * Flexible xref:access-control.adoc[role-based permissioning] scheme.
  * Reusable xref:utilities.adoc[Solidity components] to build custom contracts and complex decentralized systems.
 
+IMPORTANT: OpenZeppelin Contracts uses semantic versioning to communicate backwards compatibility of its API and storage layout. For upgradeable contracts, the storage layout of different major versions should be assumed incompatible, for example, it is unsafe to upgrade from 4.9.3 to 5.0.0. Learn more at xref:backwards-compatibility.adoc[Backwards Compatibility].
+
 == Overview
 
 [[install]]
 === Installation
 
+==== Hardhat (npm)
+
 ```console
 $ npm install @openzeppelin/contracts
 ```
 
-OpenZeppelin Contracts features a xref:releases-stability.adoc#api-stability[stable API], which means your contracts won't break unexpectedly when upgrading to a newer minor version.
+==== Foundry (git)
+
+WARNING: When installing via git, it is a common error to use the `master` branch. This is a development branch that should be avoided in favor of tagged releases. The release process involves security measures that the `master` branch does not guarantee.
+
+WARNING: Foundry installs the latest version initially, but subsequent `forge update` commands will use the `master` branch.
+
+```console
+$ forge install OpenZeppelin/openzeppelin-contracts
+```
+
+Add `@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/` in `remappings.txt.` 
 
 [[usage]]
 === Usage
@@ -24,16 +38,7 @@ Once installed, you can use the contracts in the library by importing them:
 
 [source,solidity]
 ----
-// contracts/MyNFT.sol
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
-
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-
-contract MyNFT is ERC721 {
-    constructor() ERC721("MyNFT", "MNFT") {
-    }
-}
+include::api:example$MyNFT.sol[]
 ----
 
 TIP: If you're new to smart contract development, head to xref:learn::developing-smart-contracts.adoc[Developing Smart Contracts] to learn about creating a new project and compiling your contracts.
@@ -44,6 +49,8 @@ To keep your system secure, you should **always** use the installed code as-is, 
 == Security
 
 Please report any security issues you find via our https://www.immunefi.com/bounty/openzeppelin[bug bounty program on Immunefi] or directly to security@openzeppelin.org.
+
+The https://contracts.openzeppelin.com/security[Security Center] contains more details about the secure development process.
 
 [[next-steps]]
 == Learn More
@@ -56,7 +63,7 @@ The guides in the sidebar will teach about different concepts, and how to use th
 
 The xref:api:token/ERC20.adoc[full API] is also thoroughly documented, and serves as a great reference when developing your smart contract application. You can also ask for help or follow Contracts' development in the https://forum.openzeppelin.com[community forum].
 
-Finally, you may want to take a look at the https://blog.openzeppelin.com/guides/[guides on our blog], which cover several common use cases and good practices. The following articles provide great background reading, though please note, some of the referenced tools have changed as the tooling in the ecosystem continues to rapidly evolve.
+The following articles provide great background reading, though please note, some of the referenced tools have changed as the tooling in the ecosystem continues to rapidly evolve.
 
 * https://blog.openzeppelin.com/the-hitchhikers-guide-to-smart-contracts-in-ethereum-848f08001f05[The Hitchhiker’s Guide to Smart Contracts in Ethereum] will help you get an overview of the various tools available for smart contract development, and help you set up your environment.
 * https://blog.openzeppelin.com/a-gentle-introduction-to-ethereum-programming-part-1-783cc7796094[A Gentle Introduction to Ethereum Programming, Part 1] provides very useful information on an introductory level, including many basic concepts from the Ethereum platform.

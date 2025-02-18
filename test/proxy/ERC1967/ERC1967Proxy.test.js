@@ -1,13 +1,23 @@
+const { ethers } = require('hardhat');
+
 const shouldBehaveLikeProxy = require('../Proxy.behaviour');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const ERC1967Proxy = artifacts.require('ERC1967Proxy');
+const fixture = async () => {
+  const [nonContractAddress] = await ethers.getSigners();
 
-contract('ERC1967Proxy', function (accounts) {
-  const [proxyAdminOwner] = accounts;
+  const implementation = await ethers.deployContract('DummyImplementation');
 
-  const createProxy = async function (implementation, _admin, initData, opts) {
-    return ERC1967Proxy.new(implementation, initData, opts);
-  };
+  const createProxy = (implementation, initData, opts) =>
+    ethers.deployContract('ERC1967Proxy', [implementation, initData], opts);
 
-  shouldBehaveLikeProxy(createProxy, undefined, proxyAdminOwner);
+  return { nonContractAddress, implementation, createProxy };
+};
+
+describe('ERC1967Proxy', function () {
+  beforeEach(async function () {
+    Object.assign(this, await loadFixture(fixture));
+  });
+
+  shouldBehaveLikeProxy();
 });

@@ -17,4 +17,4 @@ Fixes #???? <!-- Fill in with issue number -->
 
 - [ ] Tests
 - [ ] Documentation
-- [ ] Changelog entry
+- [ ] Changeset entry (run `npx changeset add`)

@@ -1,0 +1,57 @@
+name: Compare storage layouts
+description: Compare storage layouts between branches
+inputs:
+  token:
+    description: github token
+    required: true
+  buildinfo:
+    description: compilation artifacts
+    required: false
+    default: artifacts/build-info/*.json
+  layout:
+    description: extracted storage layout
+    required: false
+    default: HEAD.layout.json
+  out_layout:
+    description: storage layout to upload
+    required: false
+    default: ${{ github.ref_name }}.layout.json
+  ref_layout:
+    description: storage layout for the reference branch
+    required: false
+    default: ${{ github.base_ref }}.layout.json
+
+runs:
+  using: composite
+  steps:
+    - name: Extract layout
+      run: |
+        node scripts/checks/extract-layout.js ${{ inputs.buildinfo }} > ${{ inputs.layout }}
+      shell: bash
+    - name: Download reference
+      if: github.event_name == 'pull_request'
+      run: |
+        RUN_ID=`gh run list --repo ${{ github.repository }} --branch ${{ github.base_ref }} --workflow ${{ github.workflow }} --limit 100 --json 'conclusion,databaseId,event' --jq 'map(select(.conclusion=="success" and .event!="pull_request"))[0].databaseId'`
+        gh run download ${RUN_ID} --repo ${{ github.repository }} -n layout
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
+      shell: bash
+      continue-on-error: true
+      id: reference
+    - name: Compare layouts
+      if: steps.reference.outcome == 'success' && github.event_name == 'pull_request'
+      run: |
+        node scripts/checks/compare-layout.js --head ${{ inputs.layout }} --ref ${{ inputs.ref_layout }}
+      shell: bash
+    - name: Rename artifacts for upload
+      if: github.event_name != 'pull_request'
+      run: |
+        mv ${{ inputs.layout }} ${{ inputs.out_layout }}
+      shell: bash
+    - name: Save artifacts
+      if: github.event_name != 'pull_request'
+      uses: actions/upload-artifact@v4
+      with:
+        name: layout
+        overwrite: true
+        path: ${{ inputs.out_layout }}

@@ -1,36 +1,45 @@
 # Releasing
 
-> Visit the documentation for [details about release schedule].
+OpenZeppelin Contracts uses a fully automated release process that takes care of compiling, packaging, and publishing the library, all of which is carried out in a clean CI environment (GitHub Actions), implemented in the ([`release-cycle`](.github/workflows/release-cycle.yml)) workflow. This helps to reduce the potential for human error and inconsistencies, and ensures that the release process is ongoing and reliable.
 
-Start on an up-to-date `master` branch.
+## Changesets
 
-Create the release branch with `npm run release start minor`.
+[Changesets](https://github.com/changesets/changesets/) are used as part of our release process for `CHANGELOG.md` management. Each change that is relevant for the codebase is expected to include a changeset.
 
-Publish a release candidate with `npm run release rc`.
+## Branching model
 
-Publish the final release with `npm run release final`.
+The release cycle happens on release branches called `release-vX.Y`. Each of these branches starts as a release candidate (rc) and is eventually promoted to final.
 
-Follow the general [OpenZeppelin Contracts release checklist].
+A release branch can be updated with cherry-picked patches from `master`, or may sometimes be committed to directly in the case of old releases. These commits will lead to a new release candidate or a patch increment depending on the state of the release branch.
 
-[details about release schedule]: https://docs.openzeppelin.com/contracts/releases-stability
-[OpenZeppelin Contracts release checklist]: https://github.com/OpenZeppelin/code-style/blob/master/RELEASE_CHECKLIST.md
+```mermaid
+  %%{init: {'gitGraph': {'mainBranchName': 'master'}} }%%
+  gitGraph
+    commit id: "Feature A"
+    commit id: "Feature B"
+    branch release-vX.Y
+    commit id: "Start release"
+    commit id: "Release vX.Y.0-rc.0"
 
+    checkout master
+    commit id: "Feature C"
+    commit id: "Fix A"
 
-## Merging the release branch
+    checkout release-vX.Y
+    cherry-pick id: "Fix A" tag: ""
+    commit id: "Release vX.Y.0-rc.1"
+    commit id: "Release vX.Y.0"
 
-After the final release, the release branch should be merged back into `master`. This merge must not be squashed because it would lose the tagged release commit. Since the GitHub repo is set up to only allow squashed merges, the merge should be done locally and pushed.
+    checkout master
+    merge release-vX.Y
+    commit id: "Feature D"
+    commit id: "Patch B"
 
-Make sure to have the latest changes from `upstream` in your local release branch.
-
+    checkout release-vX.Y
+    cherry-pick id: "Patch B" tag: ""
+    commit id: "Release vX.Y.1"
+    
+    checkout master
+    merge release-vX.Y
+    commit id: "Feature E"
 ```
-git checkout release-vX.Y.Z
-git pull upstream
-```
-
-```
-git checkout master
-git merge --no-ff release-vX.Y.Z
-git push upstream master
-```
-
-The release branch can then be deleted on GitHub.

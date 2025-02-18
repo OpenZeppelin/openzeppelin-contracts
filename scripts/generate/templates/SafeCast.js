@@ -1,70 +1,13 @@
-const assert = require('assert');
 const format = require('../format-lines');
 const { range } = require('../../helpers');
 
 const LENGTHS = range(8, 256, 8).reverse(); // 248 → 8 (in steps of 8)
 
-// Returns the version of OpenZeppelin Contracts in which a particular function was introduced.
-// This is used in the docs for each function.
-const version = (selector, length) => {
-  switch (selector) {
-    case 'toUint(uint)': {
-      switch (length) {
-        case 8:
-        case 16:
-        case 32:
-        case 64:
-        case 128:
-          return '2.5';
-        case 96:
-        case 224:
-          return '4.2';
-        default:
-          assert(LENGTHS.includes(length));
-          return '4.7';
-      }
-    }
-    case 'toInt(int)': {
-      switch (length) {
-        case 8:
-        case 16:
-        case 32:
-        case 64:
-        case 128:
-          return '3.1';
-        default:
-          assert(LENGTHS.includes(length));
-          return '4.7';
-      }
-    }
-    case 'toUint(int)': {
-      switch (length) {
-        case 256:
-          return '3.0';
-        default:
-          assert(false);
-          return;
-      }
-    }
-    case 'toInt(uint)': {
-      switch (length) {
-        case 256:
-          return '3.0';
-        default:
-          assert(false);
-          return;
-      }
-    }
-    default:
-      assert(false);
-  }
-};
-
 const header = `\
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
 /**
- * @dev Wrappers over Solidity's uintXX/intXX casting operators with added overflow
+ * @dev Wrappers over Solidity's uintXX/intXX/bool casting operators with added overflow
  * checks.
  *
  * Downcasting from uint256/int256 in Solidity does not revert on overflow. This can
@@ -74,10 +17,29 @@ pragma solidity ^0.8.0;
  *
  * Using this library instead of the unchecked operations eliminates an entire
  * class of bugs, so it's recommended to use it always.
- *
- * Can be combined with {SafeMath} and {SignedSafeMath} to extend it to smaller types, by performing
- * all math on \`uint256\` and \`int256\` and then downcasting.
  */
+`;
+
+const errors = `\
+/**
+ * @dev Value doesn't fit in an uint of \`bits\` size.
+ */
+error SafeCastOverflowedUintDowncast(uint8 bits, uint256 value);
+
+/**
+ * @dev An int value doesn't fit in an uint of \`bits\` size.
+ */
+error SafeCastOverflowedIntToUint(int256 value);
+
+/**
+ * @dev Value doesn't fit in an int of \`bits\` size.
+ */
+error SafeCastOverflowedIntDowncast(uint8 bits, int256 value);
+
+/**
+ * @dev An uint value doesn't fit in an int of \`bits\` size.
+ */
+error SafeCastOverflowedUintToInt(uint256 value);
 `;
 
 const toUintDownCast = length => `\
@@ -90,16 +52,15 @@ const toUintDownCast = length => `\
  * Requirements:
  *
  * - input must fit into ${length} bits
- *
- * _Available since v${version('toUint(uint)', length)}._
  */
 function toUint${length}(uint256 value) internal pure returns (uint${length}) {
-    require(value <= type(uint${length}).max, "SafeCast: value doesn't fit in ${length} bits");
+    if (value > type(uint${length}).max) {
+        revert SafeCastOverflowedUintDowncast(${length}, value);
+    }
     return uint${length}(value);
 }
 `;
 
-/* eslint-disable max-len */
 const toIntDownCast = length => `\
 /**
  * @dev Returns the downcasted int${length} from int256, reverting on
@@ -111,15 +72,14 @@ const toIntDownCast = length => `\
  * Requirements:
  *
  * - input must fit into ${length} bits
- *
- * _Available since v${version('toInt(int)', length)}._
  */
 function toInt${length}(int256 value) internal pure returns (int${length} downcasted) {
     downcasted = int${length}(value);
-    require(downcasted == value, "SafeCast: value doesn't fit in ${length} bits");
+    if (downcasted != value) {
+        revert SafeCastOverflowedIntDowncast(${length}, value);
+    }
 }
 `;
-/* eslint-enable max-len */
 
 const toInt = length => `\
 /**
@@ -128,12 +88,12 @@ const toInt = length => `\
  * Requirements:
  *
  * - input must be less than or equal to maxInt${length}.
- *
- * _Available since v${version('toInt(uint)', length)}._
  */
 function toInt${length}(uint${length} value) internal pure returns (int${length}) {
     // Note: Unsafe cast below is okay because \`type(int${length}).max\` is guaranteed to be positive
-    require(value <= uint${length}(type(int${length}).max), "SafeCast: value doesn't fit in an int${length}");
+    if (value > uint${length}(type(int${length}).max)) {
+        revert SafeCastOverflowedUintToInt(value);
+    }
     return int${length}(value);
 }
 `;
@@ -145,12 +105,23 @@ const toUint = length => `\
  * Requirements:
  *
  * - input must be greater than or equal to 0.
- *
- * _Available since v${version('toUint(int)', length)}._
  */
 function toUint${length}(int${length} value) internal pure returns (uint${length}) {
-    require(value >= 0, "SafeCast: value must be positive");
+    if (value < 0) {
+        revert SafeCastOverflowedIntToUint(value);
+    }
     return uint${length}(value);
+}
+`;
+
+const boolToUint = `\
+/**
+ * @dev Cast a boolean (false or true) to a uint256 (0 or 1) with no jump.
+ */
+function toUint(bool b) internal pure returns (uint256 u) {
+    assembly ("memory-safe") {
+        u := iszero(iszero(b))
+    }
 }
 `;
 
@@ -158,6 +129,8 @@ function toUint${length}(int${length} value) internal pure returns (uint${length
 module.exports = format(
   header.trimEnd(),
   'library SafeCast {',
-  [...LENGTHS.map(toUintDownCast), toUint(256), ...LENGTHS.map(toIntDownCast), toInt(256)],
+  format(
+    [].concat(errors, LENGTHS.map(toUintDownCast), toUint(256), LENGTHS.map(toIntDownCast), toInt(256), boolToUint),
+  ).trimEnd(),
   '}',
 );

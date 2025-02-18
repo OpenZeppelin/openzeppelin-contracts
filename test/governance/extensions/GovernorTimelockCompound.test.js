@@ -1,333 +1,448 @@
-const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
+const { ethers } = require('hardhat');
 const { expect } = require('chai');
-const RLP = require('rlp');
-const Enums = require('../../helpers/enums');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+const { anyValue } = require('@nomicfoundation/hardhat-chai-matchers/withArgs');
+
 const { GovernorHelper } = require('../../helpers/governance');
+const { ProposalState, VoteType } = require('../../helpers/enums');
+const time = require('../../helpers/time');
 
-const { shouldSupportInterfaces } = require('../../utils/introspection/SupportsInterface.behavior');
+const TOKENS = [
+  { Token: '$ERC20Votes', mode: 'blocknumber' },
+  { Token: '$ERC20VotesTimestampMock', mode: 'timestamp' },
+];
 
-const Token = artifacts.require('$ERC20Votes');
-const Timelock = artifacts.require('CompTimelock');
-const Governor = artifacts.require('$GovernorTimelockCompoundMock');
-const CallReceiver = artifacts.require('CallReceiverMock');
+const name = 'OZ-Governor';
+const version = '1';
+const tokenName = 'MockToken';
+const tokenSymbol = 'MTKN';
+const tokenSupply = ethers.parseEther('100');
+const votingDelay = 4n;
+const votingPeriod = 16n;
+const value = ethers.parseEther('1');
+const defaultDelay = time.duration.days(2n);
 
-function makeContractAddress(creator, nonce) {
-  return web3.utils.toChecksumAddress(
-    web3.utils
-      .sha3(RLP.encode([creator, nonce]))
-      .slice(12)
-      .substring(14),
-  );
-}
+describe('GovernorTimelockCompound', function () {
+  for (const { Token, mode } of TOKENS) {
+    const fixture = async () => {
+      const [deployer, owner, voter1, voter2, voter3, voter4, other] = await ethers.getSigners();
+      const receiver = await ethers.deployContract('CallReceiverMock');
 
-contract('GovernorTimelockCompound', function (accounts) {
-  const [owner, voter1, voter2, voter3, voter4, other] = accounts;
+      const token = await ethers.deployContract(Token, [tokenName, tokenSymbol, tokenName, version]);
+      const predictGovernor = await deployer
+        .getNonce()
+        .then(nonce => ethers.getCreateAddress({ from: deployer.address, nonce: nonce + 1 }));
+      const timelock = await ethers.deployContract('CompTimelock', [predictGovernor, defaultDelay]);
+      const mock = await ethers.deployContract('$GovernorTimelockCompoundMock', [
+        name,
+        votingDelay,
+        votingPeriod,
+        0n,
+        timelock,
+        token,
+        0n,
+      ]);
 
-  const name = 'OZ-Governor';
-  // const version = '1';
-  const tokenName = 'MockToken';
-  const tokenSymbol = 'MTKN';
-  const tokenSupply = web3.utils.toWei('100');
-  const votingDelay = new BN(4);
-  const votingPeriod = new BN(16);
-  const value = web3.utils.toWei('1');
+      await owner.sendTransaction({ to: timelock, value });
+      await token.$_mint(owner, tokenSupply);
 
-  beforeEach(async function () {
-    const [deployer] = await web3.eth.getAccounts();
+      const helper = new GovernorHelper(mock, mode);
+      await helper.connect(owner).delegate({ token, to: voter1, value: ethers.parseEther('10') });
+      await helper.connect(owner).delegate({ token, to: voter2, value: ethers.parseEther('7') });
+      await helper.connect(owner).delegate({ token, to: voter3, value: ethers.parseEther('5') });
+      await helper.connect(owner).delegate({ token, to: voter4, value: ethers.parseEther('2') });
 
-    this.token = await Token.new(tokenName, tokenSymbol, tokenName);
+      return { deployer, owner, voter1, voter2, voter3, voter4, other, receiver, token, mock, timelock, helper };
+    };
 
-    // Need to predict governance address to set it as timelock admin with a delayed transfer
-    const nonce = await web3.eth.getTransactionCount(deployer);
-    const predictGovernor = makeContractAddress(deployer, nonce + 1);
-
-    this.timelock = await Timelock.new(predictGovernor, 2 * 86400);
-    this.mock = await Governor.new(name, votingDelay, votingPeriod, 0, this.timelock.address, this.token.address, 0);
-    this.receiver = await CallReceiver.new();
-
-    this.helper = new GovernorHelper(this.mock);
-
-    await web3.eth.sendTransaction({ from: owner, to: this.timelock.address, value });
-
-    await this.token.$_mint(owner, tokenSupply);
-    await this.helper.delegate({ token: this.token, to: voter1, value: web3.utils.toWei('10') }, { from: owner });
-    await this.helper.delegate({ token: this.token, to: voter2, value: web3.utils.toWei('7') }, { from: owner });
-    await this.helper.delegate({ token: this.token, to: voter3, value: web3.utils.toWei('5') }, { from: owner });
-    await this.helper.delegate({ token: this.token, to: voter4, value: web3.utils.toWei('2') }, { from: owner });
-
-    // default proposal
-    this.proposal = this.helper.setProposal(
-      [
-        {
-          target: this.receiver.address,
-          value,
-          data: this.receiver.contract.methods.mockFunction().encodeABI(),
-        },
-      ],
-      '<proposal description>',
-    );
-  });
-
-  shouldSupportInterfaces(['ERC165', 'Governor', 'GovernorWithParams', 'GovernorTimelock']);
-
-  it("doesn't accept ether transfers", async function () {
-    await expectRevert.unspecified(web3.eth.sendTransaction({ from: owner, to: this.mock.address, value: 1 }));
-  });
-
-  it('post deployment check', async function () {
-    expect(await this.mock.name()).to.be.equal(name);
-    expect(await this.mock.token()).to.be.equal(this.token.address);
-    expect(await this.mock.votingDelay()).to.be.bignumber.equal(votingDelay);
-    expect(await this.mock.votingPeriod()).to.be.bignumber.equal(votingPeriod);
-    expect(await this.mock.quorum(0)).to.be.bignumber.equal('0');
-
-    expect(await this.mock.timelock()).to.be.equal(this.timelock.address);
-    expect(await this.timelock.admin()).to.be.equal(this.mock.address);
-  });
-
-  it('nominal', async function () {
-    await this.helper.propose();
-    await this.helper.waitForSnapshot();
-    await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-    await this.helper.vote({ support: Enums.VoteType.For }, { from: voter2 });
-    await this.helper.vote({ support: Enums.VoteType.Against }, { from: voter3 });
-    await this.helper.vote({ support: Enums.VoteType.Abstain }, { from: voter4 });
-    await this.helper.waitForDeadline();
-    const txQueue = await this.helper.queue();
-    const eta = await this.mock.proposalEta(this.proposal.id);
-    await this.helper.waitForEta();
-    const txExecute = await this.helper.execute();
-
-    expectEvent(txQueue, 'ProposalQueued', { proposalId: this.proposal.id });
-    await expectEvent.inTransaction(txQueue.tx, this.timelock, 'QueueTransaction', { eta });
-
-    expectEvent(txExecute, 'ProposalExecuted', { proposalId: this.proposal.id });
-    await expectEvent.inTransaction(txExecute.tx, this.timelock, 'ExecuteTransaction', { eta });
-    await expectEvent.inTransaction(txExecute.tx, this.receiver, 'MockFunctionCalled');
-  });
-
-  describe('should revert', function () {
-    describe('on queue', function () {
-      it('if already queued', async function () {
-        await this.helper.propose();
-        await this.helper.waitForSnapshot();
-        await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-        await this.helper.waitForDeadline();
-        await this.helper.queue();
-        await expectRevert(this.helper.queue(), 'Governor: proposal not successful');
-      });
-
-      it('if proposal contains duplicate calls', async function () {
-        const action = {
-          target: this.token.address,
-          data: this.token.contract.methods.approve(this.receiver.address, constants.MAX_UINT256).encodeABI(),
-        };
-        this.helper.setProposal([action, action], '<proposal description>');
-
-        await this.helper.propose();
-        await this.helper.waitForSnapshot();
-        await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-        await this.helper.waitForDeadline();
-        await expectRevert(this.helper.queue(), 'GovernorTimelockCompound: identical proposal action already queued');
-        await expectRevert(this.helper.execute(), 'GovernorTimelockCompound: proposal not yet queued');
-      });
-    });
-
-    describe('on execute', function () {
-      it('if not queued', async function () {
-        await this.helper.propose();
-        await this.helper.waitForSnapshot();
-        await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-        await this.helper.waitForDeadline(+1);
-
-        expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Succeeded);
-
-        await expectRevert(this.helper.execute(), 'GovernorTimelockCompound: proposal not yet queued');
-      });
-
-      it('if too early', async function () {
-        await this.helper.propose();
-        await this.helper.waitForSnapshot();
-        await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-        await this.helper.waitForDeadline();
-        await this.helper.queue();
-
-        expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Queued);
-
-        await expectRevert(
-          this.helper.execute(),
-          "Timelock::executeTransaction: Transaction hasn't surpassed time lock",
-        );
-      });
-
-      it('if too late', async function () {
-        await this.helper.propose();
-        await this.helper.waitForSnapshot();
-        await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-        await this.helper.waitForDeadline();
-        await this.helper.queue();
-        await this.helper.waitForEta(+30 * 86400);
-
-        expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Expired);
-
-        await expectRevert(this.helper.execute(), 'Governor: proposal not successful');
-      });
-
-      it('if already executed', async function () {
-        await this.helper.propose();
-        await this.helper.waitForSnapshot();
-        await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-        await this.helper.waitForDeadline();
-        await this.helper.queue();
-        await this.helper.waitForEta();
-        await this.helper.execute();
-        await expectRevert(this.helper.execute(), 'Governor: proposal not successful');
-      });
-    });
-  });
-
-  describe('cancel', function () {
-    it('cancel before queue prevents scheduling', async function () {
-      await this.helper.propose();
-      await this.helper.waitForSnapshot();
-      await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-      await this.helper.waitForDeadline();
-
-      expectEvent(await this.helper.cancel(), 'ProposalCanceled', { proposalId: this.proposal.id });
-
-      expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
-      await expectRevert(this.helper.queue(), 'Governor: proposal not successful');
-    });
-
-    it('cancel after queue prevents executing', async function () {
-      await this.helper.propose();
-      await this.helper.waitForSnapshot();
-      await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-      await this.helper.waitForDeadline();
-      await this.helper.queue();
-
-      expectEvent(await this.helper.cancel(), 'ProposalCanceled', { proposalId: this.proposal.id });
-
-      expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
-      await expectRevert(this.helper.execute(), 'Governor: proposal not successful');
-    });
-  });
-
-  describe('onlyGovernance', function () {
-    describe('relay', function () {
+    describe(`using ${Token}`, function () {
       beforeEach(async function () {
-        await this.token.$_mint(this.mock.address, 1);
-      });
+        Object.assign(this, await loadFixture(fixture));
 
-      it('is protected', async function () {
-        await expectRevert(
-          this.mock.relay(this.token.address, 0, this.token.contract.methods.transfer(other, 1).encodeABI()),
-          'Governor: onlyGovernance',
-        );
-      });
-
-      it('can be executed through governance', async function () {
-        this.helper.setProposal(
+        // default proposal
+        this.proposal = this.helper.setProposal(
           [
             {
-              target: this.mock.address,
-              data: this.mock.contract.methods
-                .relay(this.token.address, 0, this.token.contract.methods.transfer(other, 1).encodeABI())
-                .encodeABI(),
+              target: this.receiver.target,
+              value,
+              data: this.receiver.interface.encodeFunctionData('mockFunction'),
             },
           ],
           '<proposal description>',
         );
-
-        expect(await this.token.balanceOf(this.mock.address), 1);
-        expect(await this.token.balanceOf(other), 0);
-
-        await this.helper.propose();
-        await this.helper.waitForSnapshot();
-        await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-        await this.helper.waitForDeadline();
-        await this.helper.queue();
-        await this.helper.waitForEta();
-        const txExecute = await this.helper.execute();
-
-        expect(await this.token.balanceOf(this.mock.address), 0);
-        expect(await this.token.balanceOf(other), 1);
-
-        expectEvent.inTransaction(txExecute.tx, this.token, 'Transfer', {
-          from: this.mock.address,
-          to: other,
-          value: '1',
-        });
-      });
-    });
-
-    describe('updateTimelock', function () {
-      beforeEach(async function () {
-        this.newTimelock = await Timelock.new(this.mock.address, 7 * 86400);
       });
 
-      it('is protected', async function () {
-        await expectRevert(this.mock.updateTimelock(this.newTimelock.address), 'Governor: onlyGovernance');
-      });
-
-      it('can be executed through governance to', async function () {
-        this.helper.setProposal(
-          [
-            {
-              target: this.timelock.address,
-              data: this.timelock.contract.methods.setPendingAdmin(owner).encodeABI(),
-            },
-            {
-              target: this.mock.address,
-              data: this.mock.contract.methods.updateTimelock(this.newTimelock.address).encodeABI(),
-            },
-          ],
-          '<proposal description>',
+      it("doesn't accept ether transfers", async function () {
+        await expect(this.owner.sendTransaction({ to: this.mock, value: 1n })).to.be.revertedWithCustomError(
+          this.mock,
+          'GovernorDisabledDeposit',
         );
+      });
+
+      it('post deployment check', async function () {
+        expect(await this.mock.name()).to.equal(name);
+        expect(await this.mock.token()).to.equal(this.token);
+        expect(await this.mock.votingDelay()).to.equal(votingDelay);
+        expect(await this.mock.votingPeriod()).to.equal(votingPeriod);
+        expect(await this.mock.quorum(0n)).to.equal(0n);
+
+        expect(await this.mock.timelock()).to.equal(this.timelock);
+        expect(await this.timelock.admin()).to.equal(this.mock);
+      });
+
+      it('nominal', async function () {
+        expect(await this.mock.proposalEta(this.proposal.id)).to.equal(0n);
+        expect(await this.mock.proposalNeedsQueuing(this.proposal.id)).to.be.true;
 
         await this.helper.propose();
         await this.helper.waitForSnapshot();
-        await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+        await this.helper.connect(this.voter1).vote({ support: VoteType.For });
+        await this.helper.connect(this.voter2).vote({ support: VoteType.For });
+        await this.helper.connect(this.voter3).vote({ support: VoteType.Against });
+        await this.helper.connect(this.voter4).vote({ support: VoteType.Abstain });
         await this.helper.waitForDeadline();
-        await this.helper.queue();
+        const txQueue = await this.helper.queue();
+
+        const eta = (await time.clockFromReceipt.timestamp(txQueue)) + defaultDelay;
+        expect(await this.mock.proposalEta(this.proposal.id)).to.equal(eta);
+        expect(await this.mock.proposalNeedsQueuing(this.proposal.id)).to.be.true;
+
         await this.helper.waitForEta();
         const txExecute = await this.helper.execute();
 
-        expectEvent(txExecute, 'TimelockChange', {
-          oldTimelock: this.timelock.address,
-          newTimelock: this.newTimelock.address,
+        await expect(txQueue)
+          .to.emit(this.mock, 'ProposalQueued')
+          .withArgs(this.proposal.id, eta)
+          .to.emit(this.timelock, 'QueueTransaction')
+          .withArgs(...Array(5).fill(anyValue), eta);
+
+        await expect(txExecute)
+          .to.emit(this.mock, 'ProposalExecuted')
+          .withArgs(this.proposal.id)
+          .to.emit(this.timelock, 'ExecuteTransaction')
+          .withArgs(...Array(5).fill(anyValue), eta)
+          .to.emit(this.receiver, 'MockFunctionCalled');
+      });
+
+      describe('should revert', function () {
+        describe('on queue', function () {
+          it('if already queued', async function () {
+            await this.helper.propose();
+            await this.helper.waitForSnapshot();
+            await this.helper.connect(this.voter1).vote({ support: VoteType.For });
+            await this.helper.waitForDeadline();
+            await this.helper.queue();
+            await expect(this.helper.queue())
+              .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
+              .withArgs(
+                this.proposal.id,
+                ProposalState.Queued,
+                GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded]),
+              );
+          });
+
+          it('if proposal contains duplicate calls', async function () {
+            const action = {
+              target: this.token.target,
+              data: this.token.interface.encodeFunctionData('approve', [this.receiver.target, ethers.MaxUint256]),
+            };
+            const { id } = this.helper.setProposal([action, action], '<proposal description>');
+
+            await this.helper.propose();
+            await this.helper.waitForSnapshot();
+            await this.helper.connect(this.voter1).vote({ support: VoteType.For });
+            await this.helper.waitForDeadline();
+            await expect(this.helper.queue())
+              .to.be.revertedWithCustomError(this.mock, 'GovernorAlreadyQueuedProposal')
+              .withArgs(id);
+            await expect(this.helper.execute())
+              .to.be.revertedWithCustomError(this.mock, 'GovernorNotQueuedProposal')
+              .withArgs(id);
+          });
         });
 
-        expect(await this.mock.timelock()).to.be.bignumber.equal(this.newTimelock.address);
+        describe('on execute', function () {
+          it('if not queued', async function () {
+            await this.helper.propose();
+            await this.helper.waitForSnapshot();
+            await this.helper.connect(this.voter1).vote({ support: VoteType.For });
+            await this.helper.waitForDeadline(1n);
+
+            expect(await this.mock.state(this.proposal.id)).to.equal(ProposalState.Succeeded);
+
+            await expect(this.helper.execute())
+              .to.be.revertedWithCustomError(this.mock, 'GovernorNotQueuedProposal')
+              .withArgs(this.proposal.id);
+          });
+
+          it('if too early', async function () {
+            await this.helper.propose();
+            await this.helper.waitForSnapshot();
+            await this.helper.connect(this.voter1).vote({ support: VoteType.For });
+            await this.helper.waitForDeadline();
+            await this.helper.queue();
+
+            expect(await this.mock.state(this.proposal.id)).to.equal(ProposalState.Queued);
+
+            await expect(this.helper.execute()).to.be.rejectedWith(
+              "Timelock::executeTransaction: Transaction hasn't surpassed time lock",
+            );
+          });
+
+          it('if too late', async function () {
+            await this.helper.propose();
+            await this.helper.waitForSnapshot();
+            await this.helper.connect(this.voter1).vote({ support: VoteType.For });
+            await this.helper.waitForDeadline();
+            await this.helper.queue();
+            await this.helper.waitForEta(time.duration.days(30));
+
+            expect(await this.mock.state(this.proposal.id)).to.equal(ProposalState.Expired);
+
+            await expect(this.helper.execute())
+              .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
+              .withArgs(
+                this.proposal.id,
+                ProposalState.Expired,
+                GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded, ProposalState.Queued]),
+              );
+          });
+
+          it('if already executed', async function () {
+            await this.helper.propose();
+            await this.helper.waitForSnapshot();
+            await this.helper.connect(this.voter1).vote({ support: VoteType.For });
+            await this.helper.waitForDeadline();
+            await this.helper.queue();
+            await this.helper.waitForEta();
+            await this.helper.execute();
+
+            await expect(this.helper.execute())
+              .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
+              .withArgs(
+                this.proposal.id,
+                ProposalState.Executed,
+                GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded, ProposalState.Queued]),
+              );
+          });
+        });
+
+        describe('on safe receive', function () {
+          describe('ERC721', function () {
+            const tokenId = 1n;
+
+            beforeEach(async function () {
+              this.token = await ethers.deployContract('$ERC721', ['Non Fungible Token', 'NFT']);
+              await this.token.$_mint(this.owner, tokenId);
+            });
+
+            it("can't receive an ERC721 safeTransfer", async function () {
+              await expect(
+                this.token.connect(this.owner).safeTransferFrom(this.owner, this.mock, tokenId),
+              ).to.be.revertedWithCustomError(this.mock, 'GovernorDisabledDeposit');
+            });
+          });
+
+          describe('ERC1155', function () {
+            const tokenIds = {
+              1: 1000n,
+              2: 2000n,
+              3: 3000n,
+            };
+
+            beforeEach(async function () {
+              this.token = await ethers.deployContract('$ERC1155', ['https://token-cdn-domain/{id}.json']);
+              await this.token.$_mintBatch(this.owner, Object.keys(tokenIds), Object.values(tokenIds), '0x');
+            });
+
+            it("can't receive ERC1155 safeTransfer", async function () {
+              await expect(
+                this.token.connect(this.owner).safeTransferFrom(
+                  this.owner,
+                  this.mock,
+                  ...Object.entries(tokenIds)[0], // id + amount
+                  '0x',
+                ),
+              ).to.be.revertedWithCustomError(this.mock, 'GovernorDisabledDeposit');
+            });
+
+            it("can't receive ERC1155 safeBatchTransfer", async function () {
+              await expect(
+                this.token
+                  .connect(this.owner)
+                  .safeBatchTransferFrom(this.owner, this.mock, Object.keys(tokenIds), Object.values(tokenIds), '0x'),
+              ).to.be.revertedWithCustomError(this.mock, 'GovernorDisabledDeposit');
+            });
+          });
+        });
+      });
+
+      describe('cancel', function () {
+        it('cancel before queue prevents scheduling', async function () {
+          await this.helper.propose();
+          await this.helper.waitForSnapshot();
+          await this.helper.connect(this.voter1).vote({ support: VoteType.For });
+          await this.helper.waitForDeadline();
+
+          await expect(this.helper.cancel('internal'))
+            .to.emit(this.mock, 'ProposalCanceled')
+            .withArgs(this.proposal.id);
+
+          expect(await this.mock.state(this.proposal.id)).to.equal(ProposalState.Canceled);
+
+          await expect(this.helper.queue())
+            .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
+            .withArgs(
+              this.proposal.id,
+              ProposalState.Canceled,
+              GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded]),
+            );
+        });
+
+        it('cancel after queue prevents executing', async function () {
+          await this.helper.propose();
+          await this.helper.waitForSnapshot();
+          await this.helper.connect(this.voter1).vote({ support: VoteType.For });
+          await this.helper.waitForDeadline();
+          await this.helper.queue();
+
+          await expect(this.helper.cancel('internal'))
+            .to.emit(this.mock, 'ProposalCanceled')
+            .withArgs(this.proposal.id);
+
+          expect(await this.mock.state(this.proposal.id)).to.equal(ProposalState.Canceled);
+
+          await expect(this.helper.execute())
+            .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
+            .withArgs(
+              this.proposal.id,
+              ProposalState.Canceled,
+              GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded, ProposalState.Queued]),
+            );
+        });
+      });
+
+      describe('onlyGovernance', function () {
+        describe('relay', function () {
+          beforeEach(async function () {
+            await this.token.$_mint(this.mock, 1);
+          });
+
+          it('is protected', async function () {
+            await expect(
+              this.mock
+                .connect(this.owner)
+                .relay(this.token, 0, this.token.interface.encodeFunctionData('transfer', [this.other.address, 1n])),
+            )
+              .to.be.revertedWithCustomError(this.mock, 'GovernorOnlyExecutor')
+              .withArgs(this.owner);
+          });
+
+          it('can be executed through governance', async function () {
+            this.helper.setProposal(
+              [
+                {
+                  target: this.mock.target,
+                  data: this.mock.interface.encodeFunctionData('relay', [
+                    this.token.target,
+                    0n,
+                    this.token.interface.encodeFunctionData('transfer', [this.other.address, 1n]),
+                  ]),
+                },
+              ],
+              '<proposal description>',
+            );
+
+            await this.helper.propose();
+            await this.helper.waitForSnapshot();
+            await this.helper.connect(this.voter1).vote({ support: VoteType.For });
+            await this.helper.waitForDeadline();
+            await this.helper.queue();
+            await this.helper.waitForEta();
+
+            const txExecute = this.helper.execute();
+
+            await expect(txExecute).to.changeTokenBalances(this.token, [this.mock, this.other], [-1n, 1n]);
+
+            await expect(txExecute).to.emit(this.token, 'Transfer').withArgs(this.mock, this.other, 1n);
+          });
+        });
+
+        describe('updateTimelock', function () {
+          beforeEach(async function () {
+            this.newTimelock = await ethers.deployContract('CompTimelock', [this.mock, time.duration.days(7n)]);
+          });
+
+          it('is protected', async function () {
+            await expect(this.mock.connect(this.owner).updateTimelock(this.newTimelock))
+              .to.be.revertedWithCustomError(this.mock, 'GovernorOnlyExecutor')
+              .withArgs(this.owner);
+          });
+
+          it('can be executed through governance to', async function () {
+            this.helper.setProposal(
+              [
+                {
+                  target: this.timelock.target,
+                  data: this.timelock.interface.encodeFunctionData('setPendingAdmin', [this.owner.address]),
+                },
+                {
+                  target: this.mock.target,
+                  data: this.mock.interface.encodeFunctionData('updateTimelock', [this.newTimelock.target]),
+                },
+              ],
+              '<proposal description>',
+            );
+
+            await this.helper.propose();
+            await this.helper.waitForSnapshot();
+            await this.helper.connect(this.voter1).vote({ support: VoteType.For });
+            await this.helper.waitForDeadline();
+            await this.helper.queue();
+            await this.helper.waitForEta();
+
+            await expect(this.helper.execute())
+              .to.emit(this.mock, 'TimelockChange')
+              .withArgs(this.timelock, this.newTimelock);
+
+            expect(await this.mock.timelock()).to.equal(this.newTimelock);
+          });
+        });
+
+        it('can transfer timelock to new governor', async function () {
+          const newGovernor = await ethers.deployContract('$GovernorTimelockCompoundMock', [
+            name,
+            8n,
+            32n,
+            0n,
+            this.timelock,
+            this.token,
+            0n,
+          ]);
+
+          this.helper.setProposal(
+            [
+              {
+                target: this.timelock.target,
+                data: this.timelock.interface.encodeFunctionData('setPendingAdmin', [newGovernor.target]),
+              },
+            ],
+            '<proposal description>',
+          );
+
+          await this.helper.propose();
+          await this.helper.waitForSnapshot();
+          await this.helper.connect(this.voter1).vote({ support: VoteType.For });
+          await this.helper.waitForDeadline();
+          await this.helper.queue();
+          await this.helper.waitForEta();
+
+          await expect(this.helper.execute()).to.emit(this.timelock, 'NewPendingAdmin').withArgs(newGovernor);
+
+          await newGovernor.__acceptAdmin();
+          expect(await this.timelock.admin()).to.equal(newGovernor);
+        });
       });
     });
-
-    it('can transfer timelock to new governor', async function () {
-      const newGovernor = await Governor.new(name, 8, 32, 0, this.timelock.address, this.token.address, 0);
-      this.helper.setProposal(
-        [
-          {
-            target: this.timelock.address,
-            data: this.timelock.contract.methods.setPendingAdmin(newGovernor.address).encodeABI(),
-          },
-        ],
-        '<proposal description>',
-      );
-
-      await this.helper.propose();
-      await this.helper.waitForSnapshot();
-      await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-      await this.helper.waitForDeadline();
-      await this.helper.queue();
-      await this.helper.waitForEta();
-      const txExecute = await this.helper.execute();
-
-      await expectEvent.inTransaction(txExecute.tx, this.timelock, 'NewPendingAdmin', {
-        newPendingAdmin: newGovernor.address,
-      });
-
-      await newGovernor.__acceptAdmin();
-      expect(await this.timelock.admin()).to.be.bignumber.equal(newGovernor.address);
-    });
-  });
+  }
 });

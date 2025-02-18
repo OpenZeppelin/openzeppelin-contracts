@@ -1,142 +1,165 @@
-const { BN, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
+const { ethers } = require('hardhat');
 const { expect } = require('chai');
-const Enums = require('../../helpers/enums');
+const { loadFixture, mine } = require('@nomicfoundation/hardhat-network-helpers');
+
 const { GovernorHelper } = require('../../helpers/governance');
+const { ProposalState, VoteType } = require('../../helpers/enums');
+const time = require('../../helpers/time');
 
-const Token = artifacts.require('$ERC20Votes');
-const Governor = artifacts.require('$GovernorMock');
-const CallReceiver = artifacts.require('CallReceiverMock');
+const TOKENS = [
+  { Token: '$ERC20Votes', mode: 'blocknumber' },
+  { Token: '$ERC20VotesTimestampMock', mode: 'timestamp' },
+];
 
-contract('GovernorVotesQuorumFraction', function (accounts) {
-  const [owner, voter1, voter2, voter3, voter4] = accounts;
+const name = 'OZ-Governor';
+const version = '1';
+const tokenName = 'MockToken';
+const tokenSymbol = 'MTKN';
+const tokenSupply = ethers.parseEther('100');
+const ratio = 8n; // percents
+const newRatio = 6n; // percents
+const votingDelay = 4n;
+const votingPeriod = 16n;
+const value = ethers.parseEther('1');
 
-  const name = 'OZ-Governor';
-  // const version = '1';
-  const tokenName = 'MockToken';
-  const tokenSymbol = 'MTKN';
-  const tokenSupply = new BN(web3.utils.toWei('100'));
-  const ratio = new BN(8); // percents
-  const newRatio = new BN(6); // percents
-  const votingDelay = new BN(4);
-  const votingPeriod = new BN(16);
-  const value = web3.utils.toWei('1');
+describe('GovernorVotesQuorumFraction', function () {
+  for (const { Token, mode } of TOKENS) {
+    const fixture = async () => {
+      const [owner, voter1, voter2, voter3, voter4] = await ethers.getSigners();
 
-  beforeEach(async function () {
-    this.owner = owner;
-    this.token = await Token.new(tokenName, tokenSymbol, tokenName);
-    this.mock = await Governor.new(name, votingDelay, votingPeriod, 0, this.token.address, ratio);
-    this.receiver = await CallReceiver.new();
+      const receiver = await ethers.deployContract('CallReceiverMock');
 
-    this.helper = new GovernorHelper(this.mock);
+      const token = await ethers.deployContract(Token, [tokenName, tokenSymbol, tokenName, version]);
+      const mock = await ethers.deployContract('$GovernorMock', [name, votingDelay, votingPeriod, 0n, token, ratio]);
 
-    await web3.eth.sendTransaction({ from: owner, to: this.mock.address, value });
+      await owner.sendTransaction({ to: mock, value });
+      await token.$_mint(owner, tokenSupply);
 
-    await this.token.$_mint(owner, tokenSupply);
-    await this.helper.delegate({ token: this.token, to: voter1, value: web3.utils.toWei('10') }, { from: owner });
-    await this.helper.delegate({ token: this.token, to: voter2, value: web3.utils.toWei('7') }, { from: owner });
-    await this.helper.delegate({ token: this.token, to: voter3, value: web3.utils.toWei('5') }, { from: owner });
-    await this.helper.delegate({ token: this.token, to: voter4, value: web3.utils.toWei('2') }, { from: owner });
+      const helper = new GovernorHelper(mock, mode);
+      await helper.connect(owner).delegate({ token, to: voter1, value: ethers.parseEther('10') });
+      await helper.connect(owner).delegate({ token, to: voter2, value: ethers.parseEther('7') });
+      await helper.connect(owner).delegate({ token, to: voter3, value: ethers.parseEther('5') });
+      await helper.connect(owner).delegate({ token, to: voter4, value: ethers.parseEther('2') });
 
-    // default proposal
-    this.proposal = this.helper.setProposal(
-      [
-        {
-          target: this.receiver.address,
-          value,
-          data: this.receiver.contract.methods.mockFunction().encodeABI(),
-        },
-      ],
-      '<proposal description>',
-    );
-  });
+      return { owner, voter1, voter2, voter3, voter4, receiver, token, mock, helper };
+    };
 
-  it('deployment check', async function () {
-    expect(await this.mock.name()).to.be.equal(name);
-    expect(await this.mock.token()).to.be.equal(this.token.address);
-    expect(await this.mock.votingDelay()).to.be.bignumber.equal(votingDelay);
-    expect(await this.mock.votingPeriod()).to.be.bignumber.equal(votingPeriod);
-    expect(await this.mock.quorum(0)).to.be.bignumber.equal('0');
-    expect(await this.mock.quorumNumerator()).to.be.bignumber.equal(ratio);
-    expect(await this.mock.quorumDenominator()).to.be.bignumber.equal('100');
-    expect(await time.latestBlock().then(blockNumber => this.mock.quorum(blockNumber.subn(1)))).to.be.bignumber.equal(
-      tokenSupply.mul(ratio).divn(100),
-    );
-  });
+    describe(`using ${Token}`, function () {
+      beforeEach(async function () {
+        Object.assign(this, await loadFixture(fixture));
 
-  it('quroum reached', async function () {
-    await this.helper.propose();
-    await this.helper.waitForSnapshot();
-    await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-    await this.helper.waitForDeadline();
-    await this.helper.execute();
-  });
-
-  it('quroum not reached', async function () {
-    await this.helper.propose();
-    await this.helper.waitForSnapshot();
-    await this.helper.vote({ support: Enums.VoteType.For }, { from: voter2 });
-    await this.helper.waitForDeadline();
-    await expectRevert(this.helper.execute(), 'Governor: proposal not successful');
-  });
-
-  describe('onlyGovernance updates', function () {
-    it('updateQuorumNumerator is protected', async function () {
-      await expectRevert(this.mock.updateQuorumNumerator(newRatio), 'Governor: onlyGovernance');
-    });
-
-    it('can updateQuorumNumerator through governance', async function () {
-      this.helper.setProposal(
-        [
-          {
-            target: this.mock.address,
-            data: this.mock.contract.methods.updateQuorumNumerator(newRatio).encodeABI(),
-          },
-        ],
-        '<proposal description>',
-      );
-
-      await this.helper.propose();
-      await this.helper.waitForSnapshot();
-      await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-      await this.helper.waitForDeadline();
-
-      expectEvent(await this.helper.execute(), 'QuorumNumeratorUpdated', {
-        oldQuorumNumerator: ratio,
-        newQuorumNumerator: newRatio,
+        // default proposal
+        this.proposal = this.helper.setProposal(
+          [
+            {
+              target: this.receiver.target,
+              value,
+              data: this.receiver.interface.encodeFunctionData('mockFunction'),
+            },
+          ],
+          '<proposal description>',
+        );
       });
 
-      expect(await this.mock.quorumNumerator()).to.be.bignumber.equal(newRatio);
-      expect(await this.mock.quorumDenominator()).to.be.bignumber.equal('100');
+      it('deployment check', async function () {
+        expect(await this.mock.name()).to.equal(name);
+        expect(await this.mock.token()).to.equal(this.token);
+        expect(await this.mock.votingDelay()).to.equal(votingDelay);
+        expect(await this.mock.votingPeriod()).to.equal(votingPeriod);
+        expect(await this.mock.quorum(0)).to.equal(0n);
+        expect(await this.mock.quorumNumerator()).to.equal(ratio);
+        expect(await this.mock.quorumDenominator()).to.equal(100n);
+        expect(await time.clock[mode]().then(clock => this.mock.quorum(clock - 1n))).to.equal(
+          (tokenSupply * ratio) / 100n,
+        );
+      });
 
-      // it takes one block for the new quorum to take effect
-      expect(await time.latestBlock().then(blockNumber => this.mock.quorum(blockNumber.subn(1)))).to.be.bignumber.equal(
-        tokenSupply.mul(ratio).divn(100),
-      );
+      it('quorum reached', async function () {
+        await this.helper.propose();
+        await this.helper.waitForSnapshot();
+        await this.helper.connect(this.voter1).vote({ support: VoteType.For });
+        await this.helper.waitForDeadline();
+        await this.helper.execute();
+      });
 
-      await time.advanceBlock();
+      it('quorum not reached', async function () {
+        await this.helper.propose();
+        await this.helper.waitForSnapshot();
+        await this.helper.connect(this.voter2).vote({ support: VoteType.For });
+        await this.helper.waitForDeadline();
+        await expect(this.helper.execute())
+          .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
+          .withArgs(
+            this.proposal.id,
+            ProposalState.Defeated,
+            GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded, ProposalState.Queued]),
+          );
+      });
 
-      expect(await time.latestBlock().then(blockNumber => this.mock.quorum(blockNumber.subn(1)))).to.be.bignumber.equal(
-        tokenSupply.mul(newRatio).divn(100),
-      );
+      describe('onlyGovernance updates', function () {
+        it('updateQuorumNumerator is protected', async function () {
+          await expect(this.mock.connect(this.owner).updateQuorumNumerator(newRatio))
+            .to.be.revertedWithCustomError(this.mock, 'GovernorOnlyExecutor')
+            .withArgs(this.owner);
+        });
+
+        it('can updateQuorumNumerator through governance', async function () {
+          this.helper.setProposal(
+            [
+              {
+                target: this.mock.target,
+                data: this.mock.interface.encodeFunctionData('updateQuorumNumerator', [newRatio]),
+              },
+            ],
+            '<proposal description>',
+          );
+
+          await this.helper.propose();
+          await this.helper.waitForSnapshot();
+          await this.helper.connect(this.voter1).vote({ support: VoteType.For });
+          await this.helper.waitForDeadline();
+
+          await expect(this.helper.execute()).to.emit(this.mock, 'QuorumNumeratorUpdated').withArgs(ratio, newRatio);
+
+          expect(await this.mock.quorumNumerator()).to.equal(newRatio);
+          expect(await this.mock.quorumDenominator()).to.equal(100n);
+
+          // it takes one block for the new quorum to take effect
+          expect(await time.clock[mode]().then(blockNumber => this.mock.quorum(blockNumber - 1n))).to.equal(
+            (tokenSupply * ratio) / 100n,
+          );
+
+          await mine();
+
+          expect(await time.clock[mode]().then(blockNumber => this.mock.quorum(blockNumber - 1n))).to.equal(
+            (tokenSupply * newRatio) / 100n,
+          );
+        });
+
+        it('cannot updateQuorumNumerator over the maximum', async function () {
+          const quorumNumerator = 101n;
+          this.helper.setProposal(
+            [
+              {
+                target: this.mock.target,
+                data: this.mock.interface.encodeFunctionData('updateQuorumNumerator', [quorumNumerator]),
+              },
+            ],
+            '<proposal description>',
+          );
+
+          await this.helper.propose();
+          await this.helper.waitForSnapshot();
+          await this.helper.connect(this.voter1).vote({ support: VoteType.For });
+          await this.helper.waitForDeadline();
+
+          const quorumDenominator = await this.mock.quorumDenominator();
+
+          await expect(this.helper.execute())
+            .to.be.revertedWithCustomError(this.mock, 'GovernorInvalidQuorumFraction')
+            .withArgs(quorumNumerator, quorumDenominator);
+        });
+      });
     });
-
-    it('cannot updateQuorumNumerator over the maximum', async function () {
-      this.helper.setProposal(
-        [
-          {
-            target: this.mock.address,
-            data: this.mock.contract.methods.updateQuorumNumerator('101').encodeABI(),
-          },
-        ],
-        '<proposal description>',
-      );
-
-      await this.helper.propose();
-      await this.helper.waitForSnapshot();
-      await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-      await this.helper.waitForDeadline();
-
-      await expectRevert(this.helper.execute(), 'GovernorVotesQuorumFraction: quorumNumerator over quorumDenominator');
-    });
-  });
+  }
 });

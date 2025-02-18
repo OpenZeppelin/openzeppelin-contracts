@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.1 (proxy/beacon/UpgradeableBeacon.sol)
+// OpenZeppelin Contracts (last updated v5.0.0) (proxy/beacon/UpgradeableBeacon.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
-import "./IBeacon.sol";
-import "../../access/Ownable.sol";
-import "../../utils/Address.sol";
+import {IBeacon} from "./IBeacon.sol";
+import {Ownable} from "../../access/Ownable.sol";
 
 /**
  * @dev This contract is used in conjunction with one or more instances of {BeaconProxy} to determine their
@@ -17,22 +16,26 @@ contract UpgradeableBeacon is IBeacon, Ownable {
     address private _implementation;
 
     /**
+     * @dev The `implementation` of the beacon is invalid.
+     */
+    error BeaconInvalidImplementation(address implementation);
+
+    /**
      * @dev Emitted when the implementation returned by the beacon is changed.
      */
     event Upgraded(address indexed implementation);
 
     /**
-     * @dev Sets the address of the initial implementation, and the deployer account as the owner who can upgrade the
-     * beacon.
+     * @dev Sets the address of the initial implementation, and the initial owner who can upgrade the beacon.
      */
-    constructor(address implementation_) {
+    constructor(address implementation_, address initialOwner) Ownable(initialOwner) {
         _setImplementation(implementation_);
     }
 
     /**
      * @dev Returns the current implementation address.
      */
-    function implementation() public view virtual override returns (address) {
+    function implementation() public view virtual returns (address) {
         return _implementation;
     }
 
@@ -48,7 +51,6 @@ contract UpgradeableBeacon is IBeacon, Ownable {
      */
     function upgradeTo(address newImplementation) public virtual onlyOwner {
         _setImplementation(newImplementation);
-        emit Upgraded(newImplementation);
     }
 
     /**
@@ -59,7 +61,10 @@ contract UpgradeableBeacon is IBeacon, Ownable {
      * - `newImplementation` must be a contract.
      */
     function _setImplementation(address newImplementation) private {
-        require(Address.isContract(newImplementation), "UpgradeableBeacon: implementation is not a contract");
+        if (newImplementation.code.length == 0) {
+            revert BeaconInvalidImplementation(newImplementation);
+        }
         _implementation = newImplementation;
+        emit Upgraded(newImplementation);
     }
 }

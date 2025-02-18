@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.1 (proxy/transparent/ProxyAdmin.sol)
+// OpenZeppelin Contracts (last updated v5.2.0) (proxy/transparent/ProxyAdmin.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.22;
 
-import "./TransparentUpgradeableProxy.sol";
-import "../../access/Ownable.sol";
+import {ITransparentUpgradeableProxy} from "./TransparentUpgradeableProxy.sol";
+import {Ownable} from "../../access/Ownable.sol";
 
 /**
  * @dev This is an auxiliary contract meant to be assigned as the admin of a {TransparentUpgradeableProxy}. For an
@@ -12,67 +12,31 @@ import "../../access/Ownable.sol";
  */
 contract ProxyAdmin is Ownable {
     /**
-     * @dev Returns the current implementation of `proxy`.
+     * @dev The version of the upgrade interface of the contract. If this getter is missing, both `upgrade(address,address)`
+     * and `upgradeAndCall(address,address,bytes)` are present, and `upgrade` must be used if no function should be called,
+     * while `upgradeAndCall` will invoke the `receive` function if the third argument is the empty byte string.
+     * If the getter returns `"5.0.0"`, only `upgradeAndCall(address,address,bytes)` is present, and the third argument must
+     * be the empty byte string if no function should be called, making it impossible to invoke the `receive` function
+     * during an upgrade.
+     */
+    string public constant UPGRADE_INTERFACE_VERSION = "5.0.0";
+
+    /**
+     * @dev Sets the initial owner who can perform upgrades.
+     */
+    constructor(address initialOwner) Ownable(initialOwner) {}
+
+    /**
+     * @dev Upgrades `proxy` to `implementation` and calls a function on the new implementation.
+     * See {TransparentUpgradeableProxy-_dispatchUpgradeToAndCall}.
      *
      * Requirements:
      *
      * - This contract must be the admin of `proxy`.
-     */
-    function getProxyImplementation(TransparentUpgradeableProxy proxy) public view virtual returns (address) {
-        // We need to manually run the static call since the getter cannot be flagged as view
-        // bytes4(keccak256("implementation()")) == 0x5c60da1b
-        (bool success, bytes memory returndata) = address(proxy).staticcall(hex"5c60da1b");
-        require(success);
-        return abi.decode(returndata, (address));
-    }
-
-    /**
-     * @dev Returns the current admin of `proxy`.
-     *
-     * Requirements:
-     *
-     * - This contract must be the admin of `proxy`.
-     */
-    function getProxyAdmin(TransparentUpgradeableProxy proxy) public view virtual returns (address) {
-        // We need to manually run the static call since the getter cannot be flagged as view
-        // bytes4(keccak256("admin()")) == 0xf851a440
-        (bool success, bytes memory returndata) = address(proxy).staticcall(hex"f851a440");
-        require(success);
-        return abi.decode(returndata, (address));
-    }
-
-    /**
-     * @dev Changes the admin of `proxy` to `newAdmin`.
-     *
-     * Requirements:
-     *
-     * - This contract must be the current admin of `proxy`.
-     */
-    function changeProxyAdmin(TransparentUpgradeableProxy proxy, address newAdmin) public virtual onlyOwner {
-        proxy.changeAdmin(newAdmin);
-    }
-
-    /**
-     * @dev Upgrades `proxy` to `implementation`. See {TransparentUpgradeableProxy-upgradeTo}.
-     *
-     * Requirements:
-     *
-     * - This contract must be the admin of `proxy`.
-     */
-    function upgrade(TransparentUpgradeableProxy proxy, address implementation) public virtual onlyOwner {
-        proxy.upgradeTo(implementation);
-    }
-
-    /**
-     * @dev Upgrades `proxy` to `implementation` and calls a function on the new implementation. See
-     * {TransparentUpgradeableProxy-upgradeToAndCall}.
-     *
-     * Requirements:
-     *
-     * - This contract must be the admin of `proxy`.
+     * - If `data` is empty, `msg.value` must be zero.
      */
     function upgradeAndCall(
-        TransparentUpgradeableProxy proxy,
+        ITransparentUpgradeableProxy proxy,
         address implementation,
         bytes memory data
     ) public payable virtual onlyOwner {

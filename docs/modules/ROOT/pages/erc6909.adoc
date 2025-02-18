@@ -1,0 +1,47 @@
+= ERC-6909
+
+ERC-6909 is a draft EIP that draws on ERC-1155 learnings since it was published in 2018. The main goals of ERC-6909 is to decrease gas costs and complexity--this is mainly accomplished by removing batching and callbacks.
+
+TIP: To understand the inspiration for a multi token standard, see the xref:erc1155.adoc#multi-token-standard[multi token standard] section within the EIP-1155 docs.
+
+== Changes from ERC-1155
+
+There are three main changes from ERC-1155 which are as follows:
+
+. The removal of batch operations.
+. The removal of transfer callbacks.
+. Granularization in approvals--approvals can be set globally (as operators) or as amounts per token (inspired by ERC20).
+
+== Constructing an ERC-6909 Token Contract
+
+We'll use ERC-6909 to track multiple items in a game, each having their own unique attributes. All item types will by minted to the deployer of the contract, which we can later transfer to players. We'll also use the xref:api:token/ERC6909.adoc#ERC6909Metadata[`ERC6909Metadata`] extension to add decimals to our fungible items (the vanilla ERC-6909 implementation does not have decimals).
+
+For simplicity, we will mint all items in the constructor--however, minting functionality could be added to the contract to mint on demand to players.
+
+TIP: For an overview of minting mechanisms, check out xref:erc20-supply.adoc[Creating ERC-20 Supply].
+
+Here's what a contract for tokenized items might look like:
+
+[source,solidity]
+----
+include::api:example$token/ERC6909/ERC6909GameItems.sol[]
+----
+
+Note that there is no content URI functionality in the base implementation, but the xref:api:token/ERC6909.adoc#ERC6909ContentURI[`ERC6909ContentURI`] extension adds it. Additionally, the base implementation does not track total supplies, but the xref:api:token/ERC6909.adoc#ERC6909TokenSupply[`ERC6909TokenSupply`] extension tracks the total supply of each token id.
+
+Once the contract is deployed, we will be able to query the deployer’s balance:
+[source,javascript]
+----
+> gameItems.balanceOf(deployerAddress, 3)
+1000000000
+----
+
+We can transfer items to player accounts:
+[source,javascript]
+----
+> gameItems.transfer(playerAddress, 2, 1)
+> gameItems.balanceOf(playerAddress, 2)
+1
+> gameItems.balanceOf(deployerAddress, 2)
+0
+----

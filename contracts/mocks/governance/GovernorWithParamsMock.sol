@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
-import "../../governance/extensions/GovernorCountingSimple.sol";
-import "../../governance/extensions/GovernorVotes.sol";
+import {Governor} from "../../governance/Governor.sol";
+import {GovernorCountingSimple} from "../../governance/extensions/GovernorCountingSimple.sol";
+import {GovernorVotes} from "../../governance/extensions/GovernorVotes.sol";
 
 abstract contract GovernorWithParamsMock is GovernorVotes, GovernorCountingSimple {
     event CountParams(uint256 uintParam, string strParam);
@@ -40,7 +41,7 @@ abstract contract GovernorWithParamsMock is GovernorVotes, GovernorCountingSimpl
         uint8 support,
         uint256 weight,
         bytes memory params
-    ) internal override(Governor, GovernorCountingSimple) {
+    ) internal override(Governor, GovernorCountingSimple) returns (uint256) {
         if (params.length > 0) {
             (uint256 _uintParam, string memory _strParam) = abi.decode(params, (uint256, string));
             emit CountParams(_uintParam, _strParam);

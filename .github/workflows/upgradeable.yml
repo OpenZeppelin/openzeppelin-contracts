@@ -1,4 +1,4 @@
-name: Upgradeable Trigger
+name: transpile upgradeable
 
 on:
   push:
@@ -7,17 +7,28 @@ on:
       - release-v*
 
 jobs:
-  trigger:
+  transpile:
+    environment: push-upgradeable
     runs-on: ubuntu-latest
     steps:
-      - id: app
-        uses: getsentry/action-github-app-token@v1
+      - uses: actions/checkout@v4
         with:
-          app_id: ${{ secrets.UPGRADEABLE_APP_ID }}
-          private_key: ${{ secrets.UPGRADEABLE_APP_PK }}
-      - run: |
-          curl -X POST \
-            https://api.github.com/repos/OpenZeppelin/openzeppelin-contracts-upgradeable/dispatches \
-            -H 'Accept: application/vnd.github.v3+json' \
-            -H 'Authorization: token ${{ steps.app.outputs.token }}' \
-            -d '{ "event_type": "Update", "client_payload": { "ref": "${{ github.ref }}" } }'
+          repository: OpenZeppelin/openzeppelin-contracts-upgradeable
+          fetch-depth: 0
+          token: ${{ secrets.GH_TOKEN_UPGRADEABLE }}
+      - name: Fetch current non-upgradeable branch
+        run: |
+          git fetch "$REMOTE" master # Fetch default branch first for patch to apply cleanly
+          git fetch "$REMOTE" "$REF"
+          git checkout FETCH_HEAD
+        env:
+          REF: ${{ github.ref }}
+          REMOTE: https://github.com/${{ github.repository }}.git
+      - name: Set up environment
+        uses: ./.github/actions/setup
+      - run: bash scripts/git-user-config.sh
+      - name: Transpile to upgradeable
+        run: bash scripts/upgradeable/transpile-onto.sh ${{ github.ref_name }} origin/${{ github.ref_name }}
+        env:
+          SUBMODULE_REMOTE: https://github.com/${{ github.repository }}.git
+      - run: git push origin ${{ github.ref_name }}

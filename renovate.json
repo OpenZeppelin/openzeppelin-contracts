@@ -1,4 +1,4 @@
 {
   "extends": ["github>OpenZeppelin/configs"],
-  "labels": ["ignore-changelog"]
+  "labels": ["ignore-changeset"]
 }

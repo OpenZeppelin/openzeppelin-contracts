@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
-import "../../governance/extensions/GovernorPreventLateQuorum.sol";
-import "../../governance/extensions/GovernorSettings.sol";
-import "../../governance/extensions/GovernorCountingSimple.sol";
-import "../../governance/extensions/GovernorVotes.sol";
+import {Governor} from "../../governance/Governor.sol";
+import {GovernorPreventLateQuorum} from "../../governance/extensions/GovernorPreventLateQuorum.sol";
+import {GovernorSettings} from "../../governance/extensions/GovernorSettings.sol";
+import {GovernorCountingSimple} from "../../governance/extensions/GovernorCountingSimple.sol";
+import {GovernorVotes} from "../../governance/extensions/GovernorVotes.sol";
 
 abstract contract GovernorPreventLateQuorumMock is
     GovernorSettings,
@@ -33,13 +34,7 @@ abstract contract GovernorPreventLateQuorumMock is
         return super.proposalThreshold();
     }
 
-    function _castVote(
-        uint256 proposalId,
-        address account,
-        uint8 support,
-        string memory reason,
-        bytes memory params
-    ) internal override(Governor, GovernorPreventLateQuorum) returns (uint256) {
-        return super._castVote(proposalId, account, support, reason, params);
+    function _tallyUpdated(uint256 proposalId) internal override(Governor, GovernorPreventLateQuorum) {
+        super._tallyUpdated(proposalId);
     }
 }

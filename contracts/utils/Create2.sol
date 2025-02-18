@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.8.0) (utils/Create2.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (utils/Create2.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
+
+import {Errors} from "./Errors.sol";
 
 /**
  * @dev Helper to make usage of the `CREATE2` EVM opcode easier and safer.
@@ -13,6 +15,11 @@ pragma solidity ^0.8.0;
  * information.
  */
 library Create2 {
+    /**
+     * @dev There's no code to deploy.
+     */
+    error Create2EmptyBytecode();
+
     /**
      * @dev Deploys a contract using `CREATE2`. The address where the contract
      * will be deployed can be known in advance via {computeAddress}.
@@ -28,13 +35,24 @@ library Create2 {
      * - if `amount` is non-zero, `bytecode` must have a `payable` constructor.
      */
     function deploy(uint256 amount, bytes32 salt, bytes memory bytecode) internal returns (address addr) {
-        require(address(this).balance >= amount, "Create2: insufficient balance");
-        require(bytecode.length != 0, "Create2: bytecode length is zero");
-        /// @solidity memory-safe-assembly
-        assembly {
-            addr := create2(amount, add(bytecode, 0x20), mload(bytecode), salt)
+        if (address(this).balance < amount) {
+            revert Errors.InsufficientBalance(address(this).balance, amount);
         }
-        require(addr != address(0), "Create2: Failed on deploy");
+        if (bytecode.length == 0) {
+            revert Create2EmptyBytecode();
+        }
+        assembly ("memory-safe") {
+            addr := create2(amount, add(bytecode, 0x20), mload(bytecode), salt)
+            // if no address was created, and returndata is not empty, bubble revert
+            if and(iszero(addr), not(iszero(returndatasize()))) {
+                let p := mload(0x40)
+                returndatacopy(p, 0, returndatasize())
+                revert(p, returndatasize())
+            }
+        }
+        if (addr == address(0)) {
+            revert Errors.FailedDeployment();
+        }
     }
 
     /**
@@ -50,8 +68,7 @@ library Create2 {
      * `deployer`. If `deployer` is this contract's address, returns the same value as {computeAddress}.
      */
     function computeAddress(bytes32 salt, bytes32 bytecodeHash, address deployer) internal pure returns (address addr) {
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             let ptr := mload(0x40) // Get free memory pointer
 
             // |                   | ↓ ptr ...  ↓ ptr + 0x0B (start) ...  ↓ ptr + 0x20 ...  ↓ ptr + 0x40 ...   |
@@ -69,7 +86,7 @@ library Create2 {
             mstore(ptr, deployer) // Right-aligned with 12 preceding garbage bytes
             let start := add(ptr, 0x0b) // The hashed data starts at the final garbage byte which we will set to 0xff
             mstore8(start, 0xff)
-            addr := keccak256(start, 85)
+            addr := and(keccak256(start, 85), 0xffffffffffffffffffffffffffffffffffffffff)
         }
     }
 }

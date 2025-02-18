@@ -1,0 +1,214 @@
+= ERC-4626
+:stem: latexmath
+
+https://eips.ethereum.org/EIPS/eip-4626[ERC-4626] is an extension of xref:erc20.adoc[ERC-20] that proposes a standard interface for token vaults. This standard interface can be used by widely different contracts (including lending markets, aggregators, and intrinsically interest bearing tokens), which brings a number of subtleties. Navigating these potential issues is essential to implementing a compliant and composable token vault.
+
+We provide a base implementation of ERC-4626 that includes a simple vault. This contract is designed in a way that allows developers to easily re-configure the vault's behavior, with minimal overrides, while staying compliant. In this guide, we will discuss some security considerations that affect ERC-4626. We will also discuss common customizations of the vault.
+
+[[inflation-attack]]
+== Security concern: Inflation attack
+
+=== Visualizing the vault
+
+In exchange for the assets deposited into an ERC-4626 vault, a user receives shares. These shares can later be burned to redeem the corresponding underlying assets. The number of shares a user gets depends on the amount of assets they put in and on the exchange rate of the vault. This exchange rate is defined by the current liquidity held by the vault.
+
+- If a vault has 100 tokens to back 200 shares, then each share is worth 0.5 assets.
+- If a vault has 200 tokens to back 100 shares, then each share is worth 2.0 assets.
+
+In other words, the exchange rate can be defined as the slope of the line that passes through the origin and the current number of assets and shares in the vault. Deposits and withdrawals move the vault in this line.
+
+image::erc4626-rate-linear.png[Exchange rates in linear scale]
+
+When plotted in log-log scale, the rate is defined similarly, but appears differently (because the point (0,0) is infinitely far away). Rates are represented by "diagonal" lines with different offsets.
+
+image::erc4626-rate-loglog.png[Exchange rates in logarithmic scale]
+
+In such a representation, widely different rates can be clearly visible in the same graph. This wouldn't be the case in linear scale.
+
+image::erc4626-rate-loglogext.png[More exchange rates in logarithmic scale]
+
+=== The attack
+
+When depositing tokens, the number of shares a user gets is rounded towards zero. This rounding takes away value from the user in favor of the vault (i.e. in favor of all the current shareholders). This rounding is often negligible because of the amount at stake. If you deposit 1e9 shares worth of tokens, the rounding will have you lose at most 0.0000001% of your deposit. However if you deposit 10 shares worth of tokens, you could lose 10% of your deposit. Even worse, if you deposit <1 share worth of tokens, then you get 0 shares, and you basically made a donation.
+
+For a given amount of assets, the more shares you receive the safer you are. If you want to limit your losses to at most 1%, you need to receive at least 100 shares.
+
+image::erc4626-deposit.png[Depositing assets]
+
+In the figure we can see that for a given deposit of 500 assets, the number of shares we get and the corresponding rounding losses depend on the exchange rate. If the exchange rate is that of the orange curve, we are getting less than a share, so we lose 100% of our deposit. However, if the exchange rate is that of the green curve, we get 5000 shares, which limits our rounding losses to at most 0.02%.
+
+image::erc4626-mint.png[Minting shares]
+
+Symmetrically, if we focus on limiting our losses to a maximum of 0.5%, we need to get at least 200 shares. With the green exchange rate that requires just 20 tokens, but with the orange rate that requires 200000 tokens.
+
+We can clearly see that the blue and green curves correspond to vaults that are safer than the yellow and orange curves.
+
+The idea of an inflation attack is that an attacker can donate assets to the vault to move the rate curve to the right, and make the vault unsafe.
+
+image::erc4626-attack.png[Inflation attack without protection]
+
+Figure 6 shows how an attacker can manipulate the rate of an empty vault. First the attacker must deposit a small amount of tokens (1 token) and follow up with a donation of 1e5 tokens directly to the vault to move the exchange rate "right". This puts the vault in a state where any deposit smaller than 1e5 would be completely lost to the vault. Given that the attacker is the only shareholder (from their donation), the attacker would steal all the tokens deposited.
+
+An attacker would typically wait for a user to do the first deposit into the vault, and would frontrun that operation with the attack described above. The risk is low, and the size of the "donation" required to manipulate the vault is equivalent to the size of the deposit that is being attacked.
+
+In math that gives:
+
+- stem:[a_0] the attacker deposit
+- stem:[a_1] the attacker donation
+- stem:[u] the user deposit
+
+[%header,cols=4*]
+|===
+|
+| Assets
+| Shares
+| Rate
+
+| initial
+| stem:[0]
+| stem:[0]
+| -
+
+| after attacker's deposit
+| stem:[a_0]
+| stem:[a_0]
+| stem:[1]
+
+| after attacker's donation
+| stem:[a_0+a_1]
+| stem:[a_0]
+| stem:[\frac{a_0}{a_0+a_1}]
+|===
+
+This means a deposit of stem:[u] will give stem:[\frac{u \times a_0}{a_0 + a_1}] shares.
+
+For the attacker to dilute that deposit to 0 shares, causing the user to lose all its deposit, it must ensure that
+
+[stem]
+++++
+\frac{u \times a_0}{a_0+a_1} < 1 \iff u < 1 + \frac{a_1}{a_0}
+++++
+
+Using stem:[a_0 = 1] and stem:[a_1 = u] is enough. So the attacker only needs stem:[u+1] assets to perform a successful attack.
+
+It is easy to generalize the above results to scenarios where the attacker is going after a smaller fraction of the user's deposit. In order to target stem:[\frac{u}{n}], the user needs to suffer rounding of a similar fraction, which means the user must receive at most stem:[n] shares. This results in:
+
+[stem]
+++++
+\frac{u \times a_0}{a_0+a_1} < n \iff \frac{u}{n} < 1 + \frac{a_1}{a_0}
+++++
+
+In this scenario, the attack is stem:[n] times less powerful (in how much it is stealing) and costs stem:[n] times less to execute. In both cases, the amount of funds the attacker needs to commit is equivalent to its potential earnings.
+
+=== Defending with a virtual offset
+
+The defense we propose is based on the approach used in link:https://github.com/boringcrypto/YieldBox[YieldBox]. It consists of two parts:
+
+- Use an offset between the "precision" of the representation of shares and assets. Said otherwise, we use more decimal places to represent the shares than the underlying token does to represent the assets.
+- Include virtual shares and virtual assets in the exchange rate computation. These virtual assets enforce the conversion rate when the vault is empty.
+
+These two parts work together in enforcing the security of the vault. First, the increased precision corresponds to a high rate, which we saw is safer as it reduces the rounding error when computing the amount of shares. Second, the virtual assets and shares (in addition to simplifying a lot of the computations) capture part of the donation, making it unprofitable for a developer to perform an attack.
+
+Following the previous math definitions, we have:
+
+- stem:[\delta] the vault offset
+- stem:[a_0] the attacker deposit
+- stem:[a_1] the attacker donation
+- stem:[u] the user deposit
+
+[%header,cols=4*]
+|===
+|
+| Assets
+| Shares
+| Rate
+
+| initial
+| stem:[1]
+| stem:[10^\delta]
+| stem:[10^\delta]
+
+| after attacker's deposit
+| stem:[1+a_0]
+| stem:[10^\delta \times (1+a_0)]
+| stem:[10^\delta]
+
+| after attacker's donation
+| stem:[1+a_0+a_1]
+| stem:[10^\delta \times (1+a_0)]
+| stem:[10^\delta \times \frac{1+a_0}{1+a_0+a_1}]
+|===
+
+One important thing to note is that the attacker only owns a fraction stem:[\frac{a_0}{1 + a_0}] of the shares, so when doing the donation, he will only be able to recover that fraction stem:[\frac{a_1 \times a_0}{1 + a_0}] of the donation. The remaining stem:[\frac{a_1}{1+a_0}] are captured by the vault.
+
+[stem]
+++++
+\mathit{loss} = \frac{a_1}{1+a_0}
+++++
+
+When the user deposits stem:[u], he receives
+
+[stem]
+++++
+10^\delta \times u \times \frac{1+a_0}{1+a_0+a_1}
+++++
+
+For the attacker to dilute that deposit to 0 shares, causing the user to lose all its deposit, it must ensure that
+
+[stem]
+++++
+10^\delta \times u \times \frac{1+a_0}{1+a_0+a_1} < 1
+++++
+
+[stem]
+++++
+\iff 10^\delta \times u < \frac{1+a_0+a_1}{1+a_0}
+++++
+
+[stem]
+++++
+\iff 10^\delta \times u < 1 + \frac{a_1}{1+a_0}
+++++
+
+[stem]
+++++
+\iff 10^\delta \times u \le \mathit{loss}
+++++
+
+- If the offset is 0, the attacker loss is at least equal to the user's deposit.
+- If the offset is greater than 0, the attacker will have to suffer losses that are orders of magnitude bigger than the amount of value that can hypothetically be stolen from the user.
+
+This shows that even with an offset of 0, the virtual shares and assets make this attack non profitable for the attacker. Bigger offsets increase the security even further by making any attack on the user extremely wasteful.
+
+The following figure shows how the offset impacts the initial rate and limits the ability of an attacker with limited funds to inflate it effectively.
+
+image::erc4626-attack-3a.png[Inflation attack without offset=3]
+stem:[\delta = 3], stem:[a_0 = 1], stem:[a_1 = 10^5]
+
+image::erc4626-attack-3b.png[Inflation attack without offset=3 and an attacker deposit that limits its losses]
+stem:[\delta = 3], stem:[a_0 = 100], stem:[a_1 = 10^5]
+
+image::erc4626-attack-6.png[Inflation attack without offset=6]
+stem:[\delta = 6], stem:[a_0 = 1], stem:[a_1 = 10^5]
+
+
+[[fees]]
+== Custom behavior: Adding fees to the vault
+
+In an ERC-4626 vaults, fees can be captured during the deposit/mint and/or during the withdraw/redeem steps. In both cases it is essential to remain compliant with the ERC-4626 requirements with regard to the preview functions.
+
+For example, if calling `deposit(100, receiver)`, the caller should deposit exactly 100 underlying tokens, including fees, and the receiver should receive a number of shares that matches the value returned by `previewDeposit(100)`. Similarly, `previewMint` should account for the fees that the user will have to pay on top of share's cost.
+
+As for the `Deposit` event, while this is less clear in the EIP spec itself, there seems to be consensus that it should include the number of assets paid for by the user, including the fees.
+
+On the other hand, when withdrawing assets, the number given by the user should correspond to what he receives. Any fees should be added to the quote (in shares) performed by `previewWithdraw`.
+
+The `Withdraw` event should include the number of shares the user burns (including fees) and the number of assets the user actually receives (after fees are deducted).
+
+The consequence of this design is that both the `Deposit` and `Withdraw` events will describe two exchange rates. The spread between the "Buy-in" and the "Exit" prices correspond to the fees taken by the vault.
+
+The following example describes how fees proportional to the deposited/withdrawn amount can be implemented:
+
+```solidity
+include::api:example$ERC4626Fees.sol[]
+```

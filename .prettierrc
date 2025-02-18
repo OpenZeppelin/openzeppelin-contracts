@@ -10,5 +10,6 @@
         "singleQuote": false
       }
     }
-  ]
+  ],
+  "plugins": ["prettier-plugin-solidity"]
 }

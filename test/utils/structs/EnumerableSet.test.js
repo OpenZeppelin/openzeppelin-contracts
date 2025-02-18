@@ -1,76 +1,65 @@
-const EnumerableSet = artifacts.require('$EnumerableSet');
-const { mapValues } = require('../../helpers/map-values');
+const { ethers } = require('hardhat');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+
+const { mapValues } = require('../../helpers/iterate');
+const { generators } = require('../../helpers/random');
+const { TYPES } = require('../../../scripts/generate/templates/EnumerableSet.opts');
 
 const { shouldBehaveLikeSet } = require('./EnumerableSet.behavior');
 
-const getMethods = ms => {
+const getMethods = (mock, fnSigs) => {
   return mapValues(
-    ms,
-    m =>
-      (self, ...args) =>
-        self.methods[m](0, ...args),
+    fnSigs,
+    fnSig =>
+      (...args) =>
+        mock.getFunction(fnSig)(0, ...args),
   );
 };
 
-contract('EnumerableSet', function (accounts) {
+async function fixture() {
+  const mock = await ethers.deployContract('$EnumerableSet');
+
+  const env = Object.fromEntries(
+    TYPES.map(({ name, type, base, size }) => [
+      type,
+      {
+        values: Array.from(
+          { length: 3 },
+          size ? () => Array.from({ length: size }, generators[base]) : generators[type],
+        ),
+        methods: getMethods(mock, {
+          add: `$add(uint256,${type})`,
+          remove: `$remove(uint256,${type})`,
+          clear: `$clear_EnumerableSet_${name}(uint256)`,
+          contains: `$contains(uint256,${type})`,
+          length: `$length_EnumerableSet_${name}(uint256)`,
+          at: `$at_EnumerableSet_${name}(uint256,uint256)`,
+          values: `$values_EnumerableSet_${name}(uint256)`,
+        }),
+        events: {
+          addReturn: `return$add_EnumerableSet_${name}_${type.replace(/[[\]]/g, '_')}`,
+          removeReturn: `return$remove_EnumerableSet_${name}_${type.replace(/[[\]]/g, '_')}`,
+        },
+      },
+    ]),
+  );
+
+  return { mock, env };
+}
+
+describe('EnumerableSet', function () {
   beforeEach(async function () {
-    this.set = await EnumerableSet.new();
+    Object.assign(this, await loadFixture(fixture));
   });
 
-  // Bytes32Set
-  describe('EnumerableBytes32Set', function () {
-    shouldBehaveLikeSet(
-      ['0xdeadbeef', '0x0123456789', '0x42424242'].map(e => e.padEnd(66, '0')),
-      getMethods({
-        add: '$add(uint256,bytes32)',
-        remove: '$remove(uint256,bytes32)',
-        contains: '$contains(uint256,bytes32)',
-        length: '$length_EnumerableSet_Bytes32Set(uint256)',
-        at: '$at_EnumerableSet_Bytes32Set(uint256,uint256)',
-        values: '$values_EnumerableSet_Bytes32Set(uint256)',
-      }),
-      {
-        addReturn: 'return$add_EnumerableSet_Bytes32Set_bytes32',
-        removeReturn: 'return$remove_EnumerableSet_Bytes32Set_bytes32',
-      },
-    );
-  });
+  for (const { type } of TYPES) {
+    describe(type, function () {
+      beforeEach(function () {
+        Object.assign(this, this.env[type]);
+        [this.valueA, this.valueB, this.valueC] = this.values;
+      });
 
-  // AddressSet
-  describe('EnumerableAddressSet', function () {
-    shouldBehaveLikeSet(
-      accounts,
-      getMethods({
-        add: '$add(uint256,address)',
-        remove: '$remove(uint256,address)',
-        contains: '$contains(uint256,address)',
-        length: '$length_EnumerableSet_AddressSet(uint256)',
-        at: '$at_EnumerableSet_AddressSet(uint256,uint256)',
-        values: '$values_EnumerableSet_AddressSet(uint256)',
-      }),
-      {
-        addReturn: 'return$add_EnumerableSet_AddressSet_address',
-        removeReturn: 'return$remove_EnumerableSet_AddressSet_address',
-      },
-    );
-  });
-
-  // UintSet
-  describe('EnumerableUintSet', function () {
-    shouldBehaveLikeSet(
-      [1234, 5678, 9101112].map(e => web3.utils.toBN(e)),
-      getMethods({
-        add: '$add(uint256,uint256)',
-        remove: '$remove(uint256,uint256)',
-        contains: '$contains(uint256,uint256)',
-        length: '$length_EnumerableSet_UintSet(uint256)',
-        at: '$at_EnumerableSet_UintSet(uint256,uint256)',
-        values: '$values_EnumerableSet_UintSet(uint256)',
-      }),
-      {
-        addReturn: 'return$add_EnumerableSet_UintSet_uint256',
-        removeReturn: 'return$remove_EnumerableSet_UintSet_uint256',
-      },
-    );
-  });
+      shouldBehaveLikeSet();
+    });
+  }
 });

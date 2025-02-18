@@ -1,21 +1,29 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.7.0) (proxy/beacon/BeaconProxy.sol)
+// OpenZeppelin Contracts (last updated v5.2.0) (proxy/beacon/BeaconProxy.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.22;
 
-import "./IBeacon.sol";
-import "../Proxy.sol";
-import "../ERC1967/ERC1967Upgrade.sol";
+import {IBeacon} from "./IBeacon.sol";
+import {Proxy} from "../Proxy.sol";
+import {ERC1967Utils} from "../ERC1967/ERC1967Utils.sol";
 
 /**
  * @dev This contract implements a proxy that gets the implementation address for each call from an {UpgradeableBeacon}.
  *
- * The beacon address is stored in storage slot `uint256(keccak256('eip1967.proxy.beacon')) - 1`, so that it doesn't
- * conflict with the storage layout of the implementation behind the proxy.
+ * The beacon address can only be set once during construction, and cannot be changed afterwards. It is stored in an
+ * immutable variable to avoid unnecessary storage reads, and also in the beacon storage slot specified by
+ * https://eips.ethereum.org/EIPS/eip-1967[ERC-1967] so that it can be accessed externally.
  *
- * _Available since v3.4._
+ * CAUTION: Since the beacon address can never be changed, you must ensure that you either control the beacon, or trust
+ * the beacon to not upgrade the implementation maliciously.
+ *
+ * IMPORTANT: Do not use the implementation logic to modify the beacon storage slot. Doing so would leave the proxy in
+ * an inconsistent state where the beacon storage slot does not match the beacon address.
  */
-contract BeaconProxy is Proxy, ERC1967Upgrade {
+contract BeaconProxy is Proxy {
+    // An immutable address for the beacon to avoid unnecessary SLOADs before each delegate call.
+    address private immutable _beacon;
+
     /**
      * @dev Initializes the proxy with `beacon`.
      *
@@ -26,16 +34,11 @@ contract BeaconProxy is Proxy, ERC1967Upgrade {
      * Requirements:
      *
      * - `beacon` must be a contract with the interface {IBeacon}.
+     * - If `data` is empty, `msg.value` must be zero.
      */
     constructor(address beacon, bytes memory data) payable {
-        _upgradeBeaconToAndCall(beacon, data, false);
-    }
-
-    /**
-     * @dev Returns the current beacon address.
-     */
-    function _beacon() internal view virtual returns (address) {
-        return _getBeacon();
+        ERC1967Utils.upgradeBeaconToAndCall(beacon, data);
+        _beacon = beacon;
     }
 
     /**
@@ -46,16 +49,9 @@ contract BeaconProxy is Proxy, ERC1967Upgrade {
     }
 
     /**
-     * @dev Changes the proxy to use a new beacon. Deprecated: see {_upgradeBeaconToAndCall}.
-     *
-     * If `data` is nonempty, it's used as data in a delegate call to the implementation returned by the beacon.
-     *
-     * Requirements:
-     *
-     * - `beacon` must be a contract.
-     * - The implementation returned by `beacon` must be a contract.
+     * @dev Returns the beacon.
      */
-    function _setBeacon(address beacon, bytes memory data) internal virtual {
-        _upgradeBeaconToAndCall(beacon, data, false);
+    function _getBeacon() internal view virtual returns (address) {
+        return _beacon;
     }
 }

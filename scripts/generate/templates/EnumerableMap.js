@@ -1,18 +1,11 @@
 const format = require('../format-lines');
 const { fromBytes32, toBytes32 } = require('./conversion');
+const { TYPES } = require('./EnumerableMap.opts');
 
-const TYPES = [
-  { name: 'UintToUintMap', keyType: 'uint256', valueType: 'uint256' },
-  { name: 'UintToAddressMap', keyType: 'uint256', valueType: 'address' },
-  { name: 'AddressToUintMap', keyType: 'address', valueType: 'uint256' },
-  { name: 'Bytes32ToUintMap', keyType: 'bytes32', valueType: 'uint256' },
-];
-
-/* eslint-disable max-len */
 const header = `\
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
-import "./EnumerableSet.sol";
+import {EnumerableSet} from "./EnumerableSet.sol";
 
 /**
  * @dev Library for managing an enumerable variant of Solidity's
@@ -24,8 +17,9 @@ import "./EnumerableSet.sol";
  * - Entries are added, removed, and checked for existence in constant time
  * (O(1)).
  * - Entries are enumerated in O(n). No guarantees are made on the ordering.
+ * - Map can be cleared (all entries removed) in O(n).
  *
- * \`\`\`
+ * \`\`\`solidity
  * contract Example {
  *     // Add the library methods
  *     using EnumerableMap for EnumerableMap.UintToAddressMap;
@@ -42,6 +36,10 @@ import "./EnumerableSet.sol";
  * - \`bytes32 -> bytes32\` (\`Bytes32ToBytes32Map\`) since v4.6.0
  * - \`uint256 -> uint256\` (\`UintToUintMap\`) since v4.7.0
  * - \`bytes32 -> uint256\` (\`Bytes32ToUintMap\`) since v4.7.0
+ * - \`uint256 -> bytes32\` (\`UintToBytes32Map\`) since v5.1.0
+ * - \`address -> address\` (\`AddressToAddressMap\`) since v5.1.0
+ * - \`address -> bytes32\` (\`AddressToBytes32Map\`) since v5.1.0
+ * - \`bytes32 -> address\` (\`Bytes32ToAddressMap\`) since v5.1.0
  *
  * [WARNING]
  * ====
@@ -54,22 +52,22 @@ import "./EnumerableSet.sol";
  * ====
  */
 `;
-/* eslint-enable max-len */
 
-const defaultMap = () => `\
-// To implement this library for multiple types with as little code
-// repetition as possible, we write it in terms of a generic Map type with
-// bytes32 keys and values.
-// The Map implementation uses private functions, and user-facing
-// implementations (such as Uint256ToAddressMap) are just wrappers around
-// the underlying Map.
-// This means that we can only create new EnumerableMaps for types that fit
-// in bytes32.
+const defaultMap = `\
+// To implement this library for multiple types with as little code repetition as possible, we write it in
+// terms of a generic Map type with bytes32 keys and values. The Map implementation uses private functions,
+// and user-facing implementations such as \`UintToAddressMap\` are just wrappers around the underlying Map.
+// This means that we can only create new EnumerableMaps for types that fit in bytes32.
+
+/**
+ * @dev Query for a nonexistent map key.
+ */
+error EnumerableMapNonexistentKey(bytes32 key);
 
 struct Bytes32ToBytes32Map {
     // Storage of keys
     EnumerableSet.Bytes32Set _keys;
-    mapping(bytes32 => bytes32) _values;
+    mapping(bytes32 key => bytes32) _values;
 }
 
 /**
@@ -79,11 +77,7 @@ struct Bytes32ToBytes32Map {
  * Returns true if the key was added to the map, that is if it was not
  * already present.
  */
-function set(
-    Bytes32ToBytes32Map storage map,
-    bytes32 key,
-    bytes32 value
-) internal returns (bool) {
+function set(Bytes32ToBytes32Map storage map, bytes32 key, bytes32 value) internal returns (bool) {
     map._values[key] = value;
     return map._keys.add(key);
 }
@@ -96,6 +90,20 @@ function set(
 function remove(Bytes32ToBytes32Map storage map, bytes32 key) internal returns (bool) {
     delete map._values[key];
     return map._keys.remove(key);
+}
+
+/**
+ * @dev Removes all the entries from a map. O(n).
+ *
+ * WARNING: Developers should keep in mind that this function has an unbounded cost and using it may render the
+ * function uncallable if the map grows to the point where clearing it consumes too much gas to fit in a block.
+ */
+function clear(Bytes32ToBytes32Map storage map) internal {
+    uint256 len = length(map);
+    for (uint256 i = 0; i < len; ++i) {
+        delete map._values[map._keys.at(i)];
+    }
+    map._keys.clear();
 }
 
 /**
@@ -122,21 +130,21 @@ function length(Bytes32ToBytes32Map storage map) internal view returns (uint256)
  *
  * - \`index\` must be strictly less than {length}.
  */
-function at(Bytes32ToBytes32Map storage map, uint256 index) internal view returns (bytes32, bytes32) {
-    bytes32 key = map._keys.at(index);
-    return (key, map._values[key]);
+function at(Bytes32ToBytes32Map storage map, uint256 index) internal view returns (bytes32 key, bytes32 value) {
+    bytes32 atKey = map._keys.at(index);
+    return (atKey, map._values[atKey]);
 }
 
 /**
  * @dev Tries to returns the value associated with \`key\`. O(1).
  * Does not revert if \`key\` is not in the map.
  */
-function tryGet(Bytes32ToBytes32Map storage map, bytes32 key) internal view returns (bool, bytes32) {
-    bytes32 value = map._values[key];
-    if (value == bytes32(0)) {
+function tryGet(Bytes32ToBytes32Map storage map, bytes32 key) internal view returns (bool exists, bytes32 value) {
+    bytes32 val = map._values[key];
+    if (val == bytes32(0)) {
         return (contains(map, key), bytes32(0));
     } else {
-        return (true, value);
+        return (true, val);
     }
 }
 
@@ -149,23 +157,9 @@ function tryGet(Bytes32ToBytes32Map storage map, bytes32 key) internal view retu
  */
 function get(Bytes32ToBytes32Map storage map, bytes32 key) internal view returns (bytes32) {
     bytes32 value = map._values[key];
-    require(value != 0 || contains(map, key), "EnumerableMap: nonexistent key");
-    return value;
-}
-
-/**
- * @dev Same as {get}, with a custom error message when \`key\` is not in the map.
- *
- * CAUTION: This function is deprecated because it requires allocating memory for the error
- * message unnecessarily. For custom revert reasons use {tryGet}.
- */
-function get(
-    Bytes32ToBytes32Map storage map,
-    bytes32 key,
-    string memory errorMessage
-) internal view returns (bytes32) {
-    bytes32 value = map._values[key];
-    require(value != 0 || contains(map, key), errorMessage);
+    if (value == 0 && !contains(map, key)) {
+        revert EnumerableMapNonexistentKey(key);
+    }
     return value;
 }
 
@@ -196,11 +190,7 @@ struct ${name} {
  * Returns true if the key was added to the map, that is if it was not
  * already present.
  */
-function set(
-    ${name} storage map,
-    ${keyType} key,
-    ${valueType} value
-) internal returns (bool) {
+function set(${name} storage map, ${keyType} key, ${valueType} value) internal returns (bool) {
     return set(map._inner, ${toBytes32(keyType, 'key')}, ${toBytes32(valueType, 'value')});
 }
 
@@ -211,6 +201,16 @@ function set(
  */
 function remove(${name} storage map, ${keyType} key) internal returns (bool) {
     return remove(map._inner, ${toBytes32(keyType, 'key')});
+}
+
+/**
+ * @dev Removes all the entries from a map. O(n).
+ *
+ * WARNING: Developers should keep in mind that this function has an unbounded cost and using it may render the
+ * function uncallable if the map grows to the point where clearing it consumes too much gas to fit in a block.
+ */
+function clear(${name} storage map) internal {
+    clear(map._inner);
 }
 
 /**
@@ -236,18 +236,18 @@ function length(${name} storage map) internal view returns (uint256) {
  *
  * - \`index\` must be strictly less than {length}.
  */
-function at(${name} storage map, uint256 index) internal view returns (${keyType}, ${valueType}) {
-    (bytes32 key, bytes32 value) = at(map._inner, index);
-    return (${fromBytes32(keyType, 'key')}, ${fromBytes32(valueType, 'value')});
+function at(${name} storage map, uint256 index) internal view returns (${keyType} key, ${valueType} value) {
+    (bytes32 atKey, bytes32 val) = at(map._inner, index);
+    return (${fromBytes32(keyType, 'atKey')}, ${fromBytes32(valueType, 'val')});
 }
 
 /**
  * @dev Tries to returns the value associated with \`key\`. O(1).
  * Does not revert if \`key\` is not in the map.
  */
-function tryGet(${name} storage map, ${keyType} key) internal view returns (bool, ${valueType}) {
-    (bool success, bytes32 value) = tryGet(map._inner, ${toBytes32(keyType, 'key')});
-    return (success, ${fromBytes32(valueType, 'value')});
+function tryGet(${name} storage map, ${keyType} key) internal view returns (bool exists, ${valueType} value) {
+    (bool success, bytes32 val) = tryGet(map._inner, ${toBytes32(keyType, 'key')});
+    return (success, ${fromBytes32(valueType, 'val')});
 }
 
 /**
@@ -262,20 +262,6 @@ function get(${name} storage map, ${keyType} key) internal view returns (${value
 }
 
 /**
- * @dev Same as {get}, with a custom error message when \`key\` is not in the map.
- *
- * CAUTION: This function is deprecated because it requires allocating memory for the error
- * message unnecessarily. For custom revert reasons use {tryGet}.
- */
-function get(
-    ${name} storage map,
-    ${keyType} key,
-    string memory errorMessage
-) internal view returns (${valueType}) {
-    return ${fromBytes32(valueType, `get(map._inner, ${toBytes32(keyType, 'key')}, errorMessage)`)};
-}
-
-/**
  * @dev Return the an array containing all the keys
  *
  * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
@@ -287,8 +273,7 @@ function keys(${name} storage map) internal view returns (${keyType}[] memory) {
     bytes32[] memory store = keys(map._inner);
     ${keyType}[] memory result;
 
-    /// @solidity memory-safe-assembly
-    assembly {
+    assembly ("memory-safe") {
         result := store
     }
 
@@ -300,11 +285,13 @@ function keys(${name} storage map) internal view returns (${keyType}[] memory) {
 module.exports = format(
   header.trimEnd(),
   'library EnumerableMap {',
-  [
-    'using EnumerableSet for EnumerableSet.Bytes32Set;',
-    '',
-    defaultMap(),
-    TYPES.map(details => customMap(details).trimEnd()).join('\n\n'),
-  ],
+  format(
+    [].concat(
+      'using EnumerableSet for EnumerableSet.Bytes32Set;',
+      '',
+      defaultMap,
+      TYPES.map(details => customMap(details)),
+    ),
+  ).trimEnd(),
   '}',
 );
