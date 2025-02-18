@@ -76,9 +76,13 @@ NOTE: Functions of the `Governor` contract do not include access control. If you
 
 {{GovernorCountingOverridable}}
 
+{{GovernorSuperQuorum}}
+
 {{GovernorVotes}}
 
 {{GovernorVotesQuorumFraction}}
+
+{{GovernorVotesSuperQuorumFraction}}
 
 === Extensions
 
