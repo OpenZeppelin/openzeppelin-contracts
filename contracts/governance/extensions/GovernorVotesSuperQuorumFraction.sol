@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 import {Governor} from "../Governor.sol";
 import {GovernorSuperQuorum} from "./GovernorSuperQuorum.sol";
 import {GovernorVotesQuorumFraction} from "./GovernorVotesQuorumFraction.sol";
+import {Math} from "../../utils/math/Math.sol";
 import {SafeCast} from "../../utils/math/SafeCast.sol";
 import {Checkpoints} from "../../utils/structs/Checkpoints.sol";
 
@@ -62,7 +63,7 @@ abstract contract GovernorVotesSuperQuorumFraction is GovernorVotesQuorumFractio
      * @dev Returns the super quorum for a timepoint, in terms of number of votes: `supply * numerator / denominator`.
      */
     function superQuorum(uint256 timepoint) public view virtual override returns (uint256) {
-        return (token().getPastTotalSupply(timepoint) * superQuorumNumerator(timepoint)) / quorumDenominator();
+        return Math.mulDiv(token().getPastTotalSupply(timepoint), superQuorumNumerator(timepoint), quorumDenominator());
     }
 
     /**
