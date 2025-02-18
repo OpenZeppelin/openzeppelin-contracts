@@ -5,7 +5,6 @@ pragma solidity ^0.8.20;
 
 import {Governor} from "../Governor.sol";
 import {GovernorCountingSimple} from "./GovernorCountingSimple.sol";
-import {IGovernorCounting} from "./IGovernorCounting.sol";
 import {Math} from "../../utils/math/Math.sol";
 
 /**
@@ -32,7 +31,7 @@ import {Math} from "../../utils/math/Math.sol";
  *
  * _Available since v5.1._
  */
-abstract contract GovernorCountingFractional is Governor, IGovernorCounting {
+abstract contract GovernorCountingFractional is Governor {
     using Math for *;
 
     uint8 internal constant VOTE_TYPE_FRACTIONAL = 255;

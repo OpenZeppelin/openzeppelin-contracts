@@ -36,6 +36,18 @@ abstract contract GovernorSuperQuorumMock is
         return 16;
     }
 
+    function proposalVotes(
+        uint256 proposalId
+    )
+        public
+        view
+        virtual
+        override(GovernorCountingSimple, GovernorSuperQuorum)
+        returns (uint256 againstVotes, uint256 forVotes, uint256 abstainVotes)
+    {
+        return super.proposalVotes(proposalId);
+    }
+
     function _cancel(
         address[] memory targets,
         uint256[] memory values,

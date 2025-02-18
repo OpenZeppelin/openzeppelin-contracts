@@ -17,6 +17,18 @@ abstract contract GovernorVotesSuperQuorumFractionMock is
         return super.proposalThreshold();
     }
 
+    function proposalVotes(
+        uint256 proposalId
+    )
+        public
+        view
+        virtual
+        override(GovernorCountingSimple, GovernorSuperQuorum)
+        returns (uint256 againstVotes, uint256 forVotes, uint256 abstainVotes)
+    {
+        return super.proposalVotes(proposalId);
+    }
+
     function state(
         uint256 proposalId
     ) public view override(Governor, GovernorVotesSuperQuorumFraction) returns (ProposalState) {

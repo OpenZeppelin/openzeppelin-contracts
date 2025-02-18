@@ -45,28 +45,7 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
      * @dev Returns the quorum numerator at a specific timepoint. See {quorumDenominator}.
      */
     function quorumNumerator(uint256 timepoint) public view virtual returns (uint256) {
-        return _numerator(_quorumNumeratorHistory, timepoint);
-    }
-
-    /**
-     * @dev Returns the numerator at a specific timepoint.
-     */
-    function _numerator(
-        Checkpoints.Trace208 storage numeratorHistory,
-        uint256 timepoint
-    ) internal view returns (uint256) {
-        uint256 length = numeratorHistory._checkpoints.length;
-
-        // Optimistic search, check the latest checkpoint
-        Checkpoints.Checkpoint208 storage latest = numeratorHistory._checkpoints[length - 1];
-        uint48 latestKey = latest._key;
-        uint208 latestValue = latest._value;
-        if (latestKey <= timepoint) {
-            return latestValue;
-        }
-
-        // Otherwise, do the binary search
-        return numeratorHistory.upperLookupRecent(SafeCast.toUint48(timepoint));
+        return _optimisticUpperLookupRecent(_quorumNumeratorHistory, timepoint);
     }
 
     /**
@@ -116,5 +95,18 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
         _quorumNumeratorHistory.push(clock(), SafeCast.toUint208(newQuorumNumerator));
 
         emit QuorumNumeratorUpdated(oldQuorumNumerator, newQuorumNumerator);
+    }
+
+    /**
+     * @dev Returns the numerator at a specific timepoint.
+     */
+    function _optimisticUpperLookupRecent(
+        Checkpoints.Trace208 storage ckpts,
+        uint256 timepoint
+    ) internal view returns (uint256) {
+        // If trace is empty, key and value are both equal to 0.
+        // In that case `key <= timepoint` is true, and it is ok to return 0.
+        (, uint48 key, uint208 value) = ckpts.latestCheckpoint();
+        return key <= timepoint ? value : ckpts.upperLookupRecent(SafeCast.toUint48(timepoint));
     }
 }

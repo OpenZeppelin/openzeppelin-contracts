@@ -55,7 +55,7 @@ abstract contract GovernorVotesSuperQuorumFraction is GovernorVotesQuorumFractio
      * @dev Returns the super quorum numerator at a specific timepoint.
      */
     function superQuorumNumerator(uint256 timepoint) public view virtual returns (uint256) {
-        return _numerator(_superQuorumNumeratorHistory, timepoint);
+        return _optimisticUpperLookupRecent(_superQuorumNumeratorHistory, timepoint);
     }
 
     /**
