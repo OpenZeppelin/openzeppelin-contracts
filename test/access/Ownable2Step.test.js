@@ -81,5 +81,22 @@ describe('Ownable2Step', function () {
 
       expect(await this.ownable2Step.owner()).to.equal(this.accountA);
     });
+
+    it('allows the owner to cancel an initiated ownership transfer by setting newOwner to zero address', async function () {
+      // initiate ownership transfer to accountA
+      await this.ownable2Step.connect(this.owner).transferOwnership(this.accountA);
+      expect(await this.ownable2Step.pendingOwner()).to.equal(this.accountA);
+
+      // cancel the ownership transfer by setting newOwner to zero address
+      await expect(this.ownable2Step.connect(this.owner).transferOwnership(ethers.ZeroAddress))
+        .to.emit(this.ownable2Step, 'OwnershipTransferStarted')
+        .withArgs(this.owner, ethers.ZeroAddress);
+      expect(await this.ownable2Step.pendingOwner()).to.equal(ethers.ZeroAddress);
+
+      // verify that accountA cannot accept ownership anymore
+      await expect(this.ownable2Step.connect(this.accountA).acceptOwnership())
+        .to.be.revertedWithCustomError(this.ownable2Step, 'OwnableUnauthorizedAccount')
+        .withArgs(this.accountA);
+    });
   });
 });

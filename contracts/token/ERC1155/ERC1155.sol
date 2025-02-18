@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (token/ERC1155/ERC1155.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (token/ERC1155/ERC1155.sol)
 
 pragma solidity ^0.8.20;
 
@@ -381,8 +381,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
         uint256 element1,
         uint256 element2
     ) private pure returns (uint256[] memory array1, uint256[] memory array2) {
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             // Load the free memory pointer
             array1 := mload(0x40)
             // Set array length to 1

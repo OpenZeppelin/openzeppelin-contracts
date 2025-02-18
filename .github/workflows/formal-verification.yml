@@ -10,7 +10,7 @@ on:
   workflow_dispatch: {}
 
 env:
-  PIP_VERSION: '3.10'
+  PIP_VERSION: '3.11'
   JAVA_VERSION: '11'
   SOLC_VERSION: '0.8.20'
 
@@ -52,7 +52,7 @@ jobs:
       - name: Install python packages
         run: pip install -r fv-requirements.txt
       - name: Install java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: ${{ env.JAVA_VERSION }}

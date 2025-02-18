@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (utils/Create2.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (utils/Create2.sol)
 
 pragma solidity ^0.8.20;
 
@@ -41,8 +41,7 @@ library Create2 {
         if (bytecode.length == 0) {
             revert Create2EmptyBytecode();
         }
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             addr := create2(amount, add(bytecode, 0x20), mload(bytecode), salt)
             // if no address was created, and returndata is not empty, bubble revert
             if and(iszero(addr), not(iszero(returndatasize()))) {
@@ -69,8 +68,7 @@ library Create2 {
      * `deployer`. If `deployer` is this contract's address, returns the same value as {computeAddress}.
      */
     function computeAddress(bytes32 salt, bytes32 bytecodeHash, address deployer) internal pure returns (address addr) {
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             let ptr := mload(0x40) // Get free memory pointer
 
             // |                   | ↓ ptr ...  ↓ ptr + 0x0B (start) ...  ↓ ptr + 0x20 ...  ↓ ptr + 0x40 ...   |

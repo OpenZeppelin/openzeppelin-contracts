@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.2) (utils/Base64.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (utils/Base64.sol)
 
 pragma solidity ^0.8.20;
 
@@ -23,6 +23,7 @@ library Base64 {
 
     /**
      * @dev Converts a `bytes` to its Bytes64Url `string` representation.
+     * Output is not padded with `=` as specified in https://www.rfc-editor.org/rfc/rfc4648[rfc4648].
      */
     function encodeURL(bytes memory data) internal pure returns (string memory) {
         return _encode(data, _TABLE_URL, false);
@@ -40,20 +41,22 @@ library Base64 {
 
         // If padding is enabled, the final length should be `bytes` data length divided by 3 rounded up and then
         // multiplied by 4 so that it leaves room for padding the last chunk
-        // - `data.length + 2`  -> Round up
-        // - `/ 3`              -> Number of 3-bytes chunks
+        // - `data.length + 2`  -> Prepare for division rounding up
+        // - `/ 3`              -> Number of 3-bytes chunks (rounded up)
         // - `4 *`              -> 4 characters for each chunk
+        // This is equivalent to: 4 * Math.ceil(data.length / 3)
+        //
         // If padding is disabled, the final length should be `bytes` data length multiplied by 4/3 rounded up as
         // opposed to when padding is required to fill the last chunk.
-        // - `4 *`              -> 4 characters for each chunk
-        // - `data.length + 2`  -> Round up
-        // - `/ 3`              -> Number of 3-bytes chunks
+        // - `4 * data.length`  -> 4 characters for each chunk
+        // - ` + 2`             -> Prepare for division rounding up
+        // - `/ 3`              -> Number of 3-bytes chunks (rounded up)
+        // This is equivalent to: Math.ceil((4 * data.length) / 3)
         uint256 resultLength = withPadding ? 4 * ((data.length + 2) / 3) : (4 * data.length + 2) / 3;
 
         string memory result = new string(resultLength);
 
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             // Prepare the lookup table (skip the first "length" byte)
             let tablePtr := add(table, 1)
 
