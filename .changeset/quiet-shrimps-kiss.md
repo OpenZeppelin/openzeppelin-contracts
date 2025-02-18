@@ -2,4 +2,4 @@
 "openzeppelin-solidity": patch
 ---
 
-feat: add `toDataWithIntendedValidatorHash()` with `messageHash`
+`MessageHashUtils`: Add `toDataWithIntendedValidatorHash(address, bytes32)`.
