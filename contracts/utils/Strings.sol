@@ -15,15 +15,15 @@ library Strings {
 
     bytes16 private constant HEX_DIGITS = "0123456789abcdef";
     uint8 private constant ADDRESS_LENGTH = 20;
-    uint256 private constant SPECIAL_CHARS_LOOKUP = 
-    (1 << 0x08) |  // backspace
-    (1 << 0x09) |  // tab
-    (1 << 0x0a) | // newline
-    (1 << 0x0c) | // form feed
-    (1 << 0x0d) | // carriage return
-    (1 << 0x22) | // double quote
-    (1 << 0x2f) | // forward slash
-    (1 << 0x5c);  // backslash
+    uint256 private constant SPECIAL_CHARS_LOOKUP =
+        (1 << 0x08) | // backspace
+            (1 << 0x09) | // tab
+            (1 << 0x0a) | // newline
+            (1 << 0x0c) | // form feed
+            (1 << 0x0d) | // carriage return
+            (1 << 0x22) | // double quote
+            (1 << 0x2f) | // forward slash
+            (1 << 0x5c); // backslash
 
     /**
      * @dev The `value` string doesn't fit in the specified `length`.
@@ -436,6 +436,40 @@ library Strings {
     }
 
     /**
+     * @dev Escape special characters in JSON strings. This can be usefull to prevent JSON injection in NFT metadata.
+     */
+    function escapeJSON(string memory input) internal pure returns (string memory) {
+        bytes memory buffer = bytes(input);
+        bytes memory output = new bytes(2 * buffer.length); // worst case scenario
+        uint256 outputLength = 0;
+
+        for (uint256 i; i < buffer.length; ++i) {
+            bytes1 char = buffer[i];
+            if (((SPECIAL_CHARS_LOOKUP & (1 << uint8(char))) != 0)) {
+                output[outputLength++] = "\\";
+                if (char == 0x08) output[outputLength++] = "b";
+                else if (char == 0x09) output[outputLength++] = "t";
+                else if (char == 0x0A) output[outputLength++] = "n";
+                else if (char == 0x0C) output[outputLength++] = "f";
+                else if (char == 0x0D) output[outputLength++] = "r";
+                else if (char == 0x22) output[outputLength++] = '"';
+                else if (char == 0x2F) output[outputLength++] = "/";
+                else if (char == 0x5C) output[outputLength++] = "\\";
+            } else {
+                output[outputLength++] = char;
+            }
+        }
+
+        // write the actual length and deallocate unused memory
+        assembly ("memory-safe") {
+            mstore(output, outputLength)
+            mstore(0x40, add(output, shl(5, shr(5, add(outputLength, 63)))))
+        }
+
+        return string(output);
+    }
+
+    /**
      * @dev Reads a bytes32 from a bytes array without bounds checking.
      *
      * NOTE: making this function internal would mean it could be used with memory unsafe offset, and marking the
@@ -447,46 +481,4 @@ library Strings {
             value := mload(add(buffer, add(0x20, offset)))
         }
     }
-    
-    function _escapeJsonString(string memory input) private pure returns (string memory) {
-        bytes memory buffer = bytes(input);
-        bytes memory output = new bytes(buffer.length);
-        uint256 outputLength = 0;
-
-        for (uint256 i; i < buffer.length; ) {
-            bytes1 char = buffer[i]; 
-
-            if (((SPECIAL_CHARS_LOOKUP & (1 << uint8(char))) != 0)) {
-
-            if (outputLength >= buffer.length - 1) {
-                assembly {
-                    mstore(output, add(outputLength, 2))
-                    mstore(0x40, add(add(output, 0x20), mul(div(add(add(outputLength, 2), 31), 32), 32)))
-                }
-            }
-
-                output[outputLength++] = '\\';
-                if (char == 0x08) output[outputLength++] = 'b';
-                else if (char == 0x09) output[outputLength++] = 't';
-                else if (char == 0x0A) output[outputLength++] = 'n';
-                else if (char == 0x0C) output[outputLength++] = 'f';
-                else if (char == 0x0D) output[outputLength++] = 'r';
-                else if (char == 0x22) output[outputLength++] = '"';
-                else if (char == 0x2F) output[outputLength++] = '/';
-                else if (char == 0x5C) output[outputLength++] = '\\';
-            } else {
-                if (outputLength >= buffer.length) {
-                    assembly {
-                        mstore(output, add(outputLength, 1))
-                        mstore(0x40, add(add(output, 0x20), mul(div(add(add(outputLength, 1), 31), 32), 32)))
-                    }
-                }
-                output[outputLength++] = char;
-            }
-
-            ++i;
-        }
-        return string(output);
-    }
-    
 }
