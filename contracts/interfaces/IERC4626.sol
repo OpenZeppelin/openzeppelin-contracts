@@ -198,7 +198,7 @@ interface IERC4626 is IERC20, IERC20Metadata {
     function maxRedeem(address owner) external view returns (uint256 maxShares);
 
     /**
-     * @dev Allows an on-chain or off-chain user to simulate the effects of their redeemption at the current block,
+     * @dev Allows an on-chain or off-chain user to simulate the effects of their redemption at the current block,
      * given current on-chain conditions.
      *
      * - MUST return as close to and no more than the exact amount of assets that would be withdrawn in a redeem call

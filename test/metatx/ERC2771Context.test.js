@@ -109,7 +109,7 @@ describe('ERC2771Context', function () {
     const nonce = await this.forwarder.nonces(this.sender);
     const data = this.context.interface.encodeFunctionData('multicall', [
       [
-        // poisonned call to 'msgSender()'
+        // poisoned call to 'msgSender()'
         ethers.concat([this.context.interface.encodeFunctionData('msgSender'), this.other.address]),
       ],
     ]);
