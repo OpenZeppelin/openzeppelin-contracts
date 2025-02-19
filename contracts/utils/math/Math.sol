@@ -20,7 +20,7 @@ library Math {
     /**
      * @dev Return the 512-bit addition of two uint256.
      *
-     * The result is stored in two 256 variables such that product = high * 2²⁵⁶ + low.
+     * The result is stored in two 256 variables such that sum = high * 2²⁵⁶ + low.
      */
     function add512(uint256 a, uint256 b) internal pure returns (uint256 high, uint256 low) {
         assembly ("memory-safe") {
