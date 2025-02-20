@@ -38,11 +38,13 @@ contract GovernorHandler is GovernorVotesSuperQuorumFractionMock {
         GovernorVotesSuperQuorumFraction(superQuorumNumerator_)
     {}
 
-    function updateSuperQuorumNumerator(uint256 newSuperQuorumNumerator) external override {
+    // solhint-disable-next-line func-name-mixedcase
+    function $_updateSuperQuorumNumerator(uint256 newSuperQuorumNumerator) public {
         _updateSuperQuorumNumerator(newSuperQuorumNumerator);
     }
 
-    function updateQuorumNumerator(uint256 newQuorumNumerator) external override {
+    // solhint-disable-next-line func-name-mixedcase
+    function $_updateQuorumNumerator(uint256 newQuorumNumerator) public {
         _updateQuorumNumerator(newQuorumNumerator);
     }
 }
@@ -51,29 +53,27 @@ contract GovernorSuperQuorumGreaterThanQuorum is Test {
     GovernorHandler private _governorHandler;
 
     function setUp() external {
-        IVotes token = IVotes(address(new TokenMock()));
         _governorHandler = new GovernorHandler(
             "GovernorName",
             0, // votingDelay
             1e4, // votingPeriod
             0, // proposalThreshold
-            token, // token
+            new TokenMock(), // token
             10, // quorumNumerator
             50 // superQuorumNumerator
         );
 
         // limit the fuzzer scope
-        targetContract(address(_governorHandler));
         bytes4[] memory selectors = new bytes4[](2);
-        selectors[0] = GovernorHandler.updateSuperQuorumNumerator.selector;
-        selectors[1] = GovernorHandler.updateQuorumNumerator.selector;
+        selectors[0] = GovernorHandler.$_updateSuperQuorumNumerator.selector;
+        selectors[1] = GovernorHandler.$_updateQuorumNumerator.selector;
+
+        targetContract(address(_governorHandler));
         targetSelector(FuzzSelector(address(_governorHandler), selectors));
     }
 
     // solhint-disable-next-line func-name-mixedcase
     function invariant_superQuorumGreaterThanQuorum() external view {
-        uint256 superQuorum = _governorHandler.superQuorumNumerator();
-        uint256 quorum = _governorHandler.quorumNumerator();
-        assertGt(superQuorum, quorum);
+        assertGt(_governorHandler.superQuorumNumerator(), _governorHandler.quorumNumerator());
     }
 }
