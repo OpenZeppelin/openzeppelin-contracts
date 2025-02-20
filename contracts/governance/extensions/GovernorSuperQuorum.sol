@@ -25,7 +25,7 @@ abstract contract GovernorSuperQuorum is Governor {
     function superQuorum(uint256 timepoint) public view virtual returns (uint256);
 
     /**
-     * @dev Accessor to the internal vote counts. This must be implemented by the counting module. Counting module
+     * @dev Accessor to the internal vote counts. This must be implemented by the counting module. Counting modules
      * that don't implement this function are incompatible with this module
      */
     function proposalVotes(
