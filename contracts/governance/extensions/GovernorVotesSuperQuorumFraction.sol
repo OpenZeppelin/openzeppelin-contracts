@@ -77,7 +77,7 @@ abstract contract GovernorVotesSuperQuorumFraction is GovernorVotesQuorumFractio
      * - New super quorum numerator must be smaller or equal to the denominator.
      * - New super quorum numerator must be bigger than the quorum numerator.
      */
-    function updateSuperQuorumNumerator(uint256 newSuperQuorumNumerator) external virtual onlyGovernance {
+    function updateSuperQuorumNumerator(uint256 newSuperQuorumNumerator) public virtual onlyGovernance {
         _updateSuperQuorumNumerator(newSuperQuorumNumerator);
     }
 
