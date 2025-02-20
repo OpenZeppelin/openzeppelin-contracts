@@ -22,7 +22,6 @@ library Strings {
             (1 << 0x0c) | // form feed
             (1 << 0x0d) | // carriage return
             (1 << 0x22) | // double quote
-            (1 << 0x2f) | // forward slash
             (1 << 0x5c); // backslash
 
     /**
@@ -446,20 +445,24 @@ library Strings {
         for (uint256 i; i < buffer.length; ++i) {
             bytes1 char = buffer[i];
             if (((SPECIAL_CHARS_LOOKUP & (1 << uint8(char))) != 0)) {
-                output[outputLength++] = "\\";
-                if (char == 0x08) output[outputLength++] = "b";
-                else if (char == 0x09) output[outputLength++] = "t";
-                else if (char == 0x0A) output[outputLength++] = "n";
-                else if (char == 0x0C) output[outputLength++] = "f";
-                else if (char == 0x0D) output[outputLength++] = "r";
-                else if (char == 0x22) output[outputLength++] = '"';
-                else if (char == 0x2F) output[outputLength++] = "/";
-                else if (char == 0x5C) output[outputLength++] = "\\";
+                output[outputLength++] = bytes1(uint8(0x5C)); // backslash
+                if (char == 0x08)
+                    output[outputLength++] = bytes1(uint8(0x62)); // b
+                else if (char == 0x09)
+                    output[outputLength++] = bytes1(uint8(0x74)); // t
+                else if (char == 0x0A)
+                    output[outputLength++] = bytes1(uint8(0x6E)); // n
+                else if (char == 0x0C)
+                    output[outputLength++] = bytes1(uint8(0x66)); // f
+                else if (char == 0x0D)
+                    output[outputLength++] = bytes1(uint8(0x72)); // r
+                else if (char == 0x22)
+                    output[outputLength++] = bytes1(uint8(0x22)); // "
+                else if (char == 0x5C) output[outputLength++] = bytes1(uint8(0x5C)); // \
             } else {
                 output[outputLength++] = char;
             }
         }
-
         // write the actual length and deallocate unused memory
         assembly ("memory-safe") {
             mstore(output, outputLength)
