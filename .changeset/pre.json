@@ -4,5 +4,26 @@
   "initialVersions": {
     "openzeppelin-solidity": "5.2.0"
   },
-  "changesets": []
+  "changesets": [
+    "brave-islands-sparkle",
+    "brown-seals-sing",
+    "brown-turkeys-marry",
+    "cyan-taxis-travel",
+    "dirty-bananas-shake",
+    "famous-timers-compare",
+    "good-cameras-rush",
+    "good-cameras-serve",
+    "gorgeous-apes-jam",
+    "green-drinks-report",
+    "long-walls-draw",
+    "lucky-teachers-sip",
+    "pretty-lobsters-tan",
+    "proud-cooks-do",
+    "seven-insects-taste",
+    "sixty-tips-wink",
+    "ten-fishes-fold",
+    "ten-hats-begin",
+    "ten-peas-mix",
+    "thin-eels-cross"
+  ]
 }
