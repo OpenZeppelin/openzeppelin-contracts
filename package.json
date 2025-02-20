@@ -68,7 +68,7 @@
     "eslint-config-prettier": "^9.0.0",
     "ethers": "^6.13.4",
     "glob": "^11.0.0",
-    "globals": "^15.3.0",
+    "globals": "^16.0.0",
     "graphlib": "^2.1.8",
     "hardhat": "^2.22.2",
     "hardhat-exposed": "^0.3.15",
