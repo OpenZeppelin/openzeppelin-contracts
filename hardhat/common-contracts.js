@@ -20,10 +20,16 @@ const INSTANCES = {
   // Arachnid's deterministic deployment proxy
   // See: https://github.com/Arachnid/deterministic-deployment-proxy/tree/master
   arachnidDeployer: {
-    address: '0x4e59b44847b379578588920ca78fbf26c0b4956c',
+    address: '0x4e59b44847b379578588920cA78FbF26c0B4956C',
     abi: [],
     bytecode:
       '0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe03601600081602082378035828234f58015156039578182fd5b8082525050506014600cf3',
+  },
+  // Mocah's deployer
+  mocahDeployer: {
+    address: '0x7A0D94F55792C434d74a40883C6ed8545E406D12',
+    abi: [],
+    bytecode: '0x60003681823780368234f58015156014578182fd5b80825250506014600cf3',
   },
 };
 
