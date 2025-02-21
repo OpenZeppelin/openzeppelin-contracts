@@ -6,6 +6,7 @@ const fs = require('fs');
 const path = require('path');
 
 const INSTANCES = {
+  // Entrypoint v0.7.0
   entrypoint: {
     address: '0x0000000071727De22E5E9d8BAf0edAc6f37da032',
     abi: JSON.parse(fs.readFileSync(path.resolve(__dirname, '../test/bin/EntryPoint070.abi'), 'utf-8')),
@@ -15,6 +16,14 @@ const INSTANCES = {
     address: '0xEFC2c1444eBCC4Db75e7613d20C6a62fF67A167C',
     abi: JSON.parse(fs.readFileSync(path.resolve(__dirname, '../test/bin/SenderCreator070.abi'), 'utf-8')),
     bytecode: fs.readFileSync(path.resolve(__dirname, '../test/bin/SenderCreator070.bytecode'), 'hex'),
+  },
+  // Arachnid's deterministic deployment proxy
+  // See: https://github.com/Arachnid/deterministic-deployment-proxy/tree/master
+  arachnidDeployer: {
+    address: '0x4e59b44847b379578588920ca78fbf26c0b4956c',
+    abi: [],
+    bytecode:
+      '0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe03601600081602082378035828234f58015156039578182fd5b8082525050506014600cf3',
   },
 };
 
