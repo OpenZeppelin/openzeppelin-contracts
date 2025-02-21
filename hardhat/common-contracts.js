@@ -25,8 +25,8 @@ const INSTANCES = {
     bytecode:
       '0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe03601600081602082378035828234f58015156039578182fd5b8082525050506014600cf3',
   },
-  // Mocah's deployer
-  mocahDeployer: {
+  // Micah's deployer
+  micahDeployer: {
     address: '0x7A0D94F55792C434d74a40883C6ed8545E406D12',
     abi: [],
     bytecode: '0x60003681823780368234f58015156014578182fd5b80825250506014600cf3',
