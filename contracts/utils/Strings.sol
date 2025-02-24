@@ -445,20 +445,17 @@ library Strings {
         for (uint256 i; i < buffer.length; ++i) {
             bytes1 char = buffer[i];
             if (((SPECIAL_CHARS_LOOKUP & (1 << uint8(char))) != 0)) {
-                output[outputLength++] = bytes1(uint8(0x5C)); // backslash
-                if (char == 0x08)
-                    output[outputLength++] = bytes1(uint8(0x62)); // b
-                else if (char == 0x09)
-                    output[outputLength++] = bytes1(uint8(0x74)); // t
-                else if (char == 0x0A)
-                    output[outputLength++] = bytes1(uint8(0x6E)); // n
-                else if (char == 0x0C)
-                    output[outputLength++] = bytes1(uint8(0x66)); // f
-                else if (char == 0x0D)
-                    output[outputLength++] = bytes1(uint8(0x72)); // r
-                else if (char == 0x22)
-                    output[outputLength++] = bytes1(uint8(0x22)); // "
-                else if (char == 0x5C) output[outputLength++] = bytes1(uint8(0x5C)); // \
+                output[outputLength++] = "\\";
+                if (char == 0x08) output[outputLength++] = "b";
+                else if (char == 0x09) output[outputLength++] = "t";
+                else if (char == 0x0A) output[outputLength++] = "n";
+                else if (char == 0x0C) output[outputLength++] = "f";
+                else if (char == 0x0D) output[outputLength++] = "r";
+                else if (char == 0x5C) output[outputLength++] = "\\";
+                else if (char == 0x22) {
+                    // solhint-disable-next-line quotes
+                    output[outputLength++] = '"';
+                }
             } else {
                 output[outputLength++] = char;
             }
