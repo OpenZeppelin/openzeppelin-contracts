@@ -174,7 +174,7 @@ library MerkleTree {
     }
 
     /**
-     * @dev Change value of the leaf at position `index` from `oldValue` to `newValue`. Returns the recomputed "old"
+     * @dev Change the value of the leaf at position `index` from `oldValue` to `newValue`. Returns the recomputed "old"
      * root (before the update) and "new" root (after the update). The caller must verify that the reconstructed old
      * root is the last known one.
      *
@@ -197,7 +197,7 @@ library MerkleTree {
     }
 
     /**
-     * @dev Change value of the leaf at position `index` from `oldValue` to `newValue`. Returns the recomputed "old"
+     * @dev Change the value of the leaf at position `index` from `oldValue` to `newValue`. Returns the recomputed "old"
      * root (before the update) and "new" root (after the update). The caller must verify that the reconstructed old
      * root is the last known one.
      *
