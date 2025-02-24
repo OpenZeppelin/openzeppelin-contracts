@@ -21,7 +21,7 @@ library Clones {
     error CloneArgumentsTooLong();
 
     /**
-     * @dev Deploys and returns the address of a clone that mimics the behaviour of `implementation`.
+     * @dev Deploys and returns the address of a clone that mimics the behavior of `implementation`.
      *
      * This function uses the create opcode, which should never revert.
      */
@@ -54,7 +54,7 @@ library Clones {
     }
 
     /**
-     * @dev Deploys and returns the address of a clone that mimics the behaviour of `implementation`.
+     * @dev Deploys and returns the address of a clone that mimics the behavior of `implementation`.
      *
      * This function uses the create2 opcode and a `salt` to deterministically deploy
      * the clone. Using the same `implementation` and `salt` multiple times will revert, since
@@ -158,7 +158,7 @@ library Clones {
     }
 
     /**
-     * @dev Deploys and returns the address of a clone that mimics the behaviour of `implementation` with custom
+     * @dev Deploys and returns the address of a clone that mimics the behavior of `implementation` with custom
      * immutable arguments. These are provided through `args` and cannot be changed after deployment. To
      * access the arguments within the implementation, use {fetchCloneArgs}.
      *
