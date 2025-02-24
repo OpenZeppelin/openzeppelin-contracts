@@ -14,6 +14,7 @@ contract MerkleTreeMock {
     bytes32 public root;
 
     event LeafInserted(bytes32 leaf, uint256 index, bytes32 root);
+    event LeafUpdated(bytes32 oldLeaf, bytes32 newLeaf, uint256 index, bytes32 root);
 
     function setup(uint8 _depth, bytes32 _zero) public {
         root = _tree.setup(_depth, _zero);
@@ -23,6 +24,13 @@ contract MerkleTreeMock {
         (uint256 leafIndex, bytes32 currentRoot) = _tree.push(leaf);
         emit LeafInserted(leaf, leafIndex, currentRoot);
         root = currentRoot;
+    }
+
+    function update(uint256 index, bytes32 oldValue, bytes32 newValue, bytes32[] memory proof) public {
+        (bytes32 oldRoot, bytes32 newRoot) = _tree.update(index, oldValue, newValue, proof);
+        if (oldRoot != root) revert MerkleTree.MerkleTreeUpdateInvalidProof();
+        emit LeafUpdated(oldValue, newValue, index, newRoot);
+        root = newRoot;
     }
 
     function depth() public view returns (uint256) {
