@@ -61,7 +61,7 @@ abstract contract ERC20TemporaryApproval is ERC20, IERC7674 {
     }
 
     /**
-     * @dev Sets `value` as the temporary allowance of `spender` over the `owner` s tokens.
+     * @dev Sets `value` as the temporary allowance of `spender` over the `owner`'s tokens.
      *
      * This internal function is equivalent to `temporaryApprove`, and can be used to e.g. set automatic allowances
      * for certain subsystems, etc.
