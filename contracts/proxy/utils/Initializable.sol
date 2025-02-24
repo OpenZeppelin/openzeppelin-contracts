@@ -217,7 +217,7 @@ abstract contract Initializable {
     }
 
     /**
-     * @dev Pointer to storage slot. Allows to override it with a custom storage location.
+     * @dev Pointer to storage slot. Allows integrators to override it with a custom storage location.
      *
      * NOTE: Consider following the ERC-7201 formula to derive storage locations.
      */
