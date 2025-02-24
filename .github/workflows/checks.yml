@@ -43,7 +43,7 @@ jobs:
         run: npm run test:inheritance
       - name: Check pragma consistency between files
         run: npm run test:pragma
-      - name: Check proceduraly generated contracts are up-to-date
+      - name: Check procedurally generated contracts are up-to-date
         run: npm run test:generation
       - name: Compare gas costs
         uses: ./.github/actions/gas-compare
