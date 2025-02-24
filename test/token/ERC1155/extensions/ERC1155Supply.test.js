@@ -19,7 +19,7 @@ describe('ERC1155Supply', function () {
   });
 
   describe('before mint', function () {
-    it('exist', async function () {
+    it('exist'), async function () {
       expect(await this.token.exists(firstTokenId)).to.be.false;
     });
 
@@ -35,7 +35,7 @@ describe('ERC1155Supply', function () {
         await this.token.$_mint(this.holder, firstTokenId, firstTokenValue, '0x');
       });
 
-      it('exist', async function () {
+      it('exist'), async function () {
         expect(await this.token.exists(firstTokenId)).to.be.true;
       });
 
@@ -55,7 +55,7 @@ describe('ERC1155Supply', function () {
         );
       });
 
-      it('exist', async function () {
+      it('exist'), async function () {
         expect(await this.token.exists(firstTokenId)).to.be.true;
         expect(await this.token.exists(secondTokenId)).to.be.true;
       });
