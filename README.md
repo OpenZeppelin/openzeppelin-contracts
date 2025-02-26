@@ -23,6 +23,8 @@
 
 ### Installation
 
+### Remix
+
 #### Hardhat (npm)
 
 ```
