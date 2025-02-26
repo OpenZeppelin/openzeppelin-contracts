@@ -110,7 +110,7 @@ library Math {
     }
 
     /**
-     * @dev Unsigned saturating addition, bounds to `2 ** 256 - 1` instead of overflowing.
+     * @dev Unsigned saturating addition, bounds to `2²⁵⁶ - 1` instead of overflowing.
      */
     function saturatingAdd(uint256 a, uint256 b) internal pure returns (uint256) {
         (bool success, uint256 result) = tryAdd(a, b);
@@ -126,7 +126,7 @@ library Math {
     }
 
     /**
-     * @dev Unsigned saturating multiplication, bounds to `2 ** 256 - 1` instead of overflowing.
+     * @dev Unsigned saturating multiplication, bounds to `2²⁵⁶ - 1` instead of overflowing.
      */
     function saturatingMul(uint256 a, uint256 b) internal pure returns (uint256) {
         (bool success, uint256 result) = tryMul(a, b);
