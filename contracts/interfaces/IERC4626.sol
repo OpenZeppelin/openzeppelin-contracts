@@ -30,7 +30,7 @@ interface IERC4626 is IERC20, IERC20Metadata {
     function asset() external view returns (address assetTokenAddress);
 
     /**
-     * @dev Returns the total amount of the underlying asset that is “managed” by Vault.
+     * @dev Returns the total amount of the underlying asset that is "managed" by Vault.
      *
      * - SHOULD include any compounding that occurs from yield.
      * - MUST be inclusive of any fees that are charged against assets in the Vault.
@@ -47,8 +47,8 @@ interface IERC4626 is IERC20, IERC20Metadata {
      * - MUST NOT reflect slippage or other on-chain conditions, when performing the actual exchange.
      * - MUST NOT revert.
      *
-     * NOTE: This calculation MAY NOT reflect the “per-user” price-per-share, and instead should reflect the
-     * “average-user’s” price-per-share, meaning what the average user should expect to see when exchanging to and
+     * NOTE: This calculation MAY NOT reflect the "per-user" price-per-share, and instead should reflect the
+     * "average-user’s" price-per-share, meaning what the average user should expect to see when exchanging to and
      * from.
      */
     function convertToShares(uint256 assets) external view returns (uint256 shares);
@@ -62,8 +62,8 @@ interface IERC4626 is IERC20, IERC20Metadata {
      * - MUST NOT reflect slippage or other on-chain conditions, when performing the actual exchange.
      * - MUST NOT revert.
      *
-     * NOTE: This calculation MAY NOT reflect the “per-user” price-per-share, and instead should reflect the
-     * “average-user’s” price-per-share, meaning what the average user should expect to see when exchanging to and
+     * NOTE: This calculation MAY NOT reflect the "per-user" price-per-share, and instead should reflect the
+     * "average-user’s" price-per-share, meaning what the average user should expect to see when exchanging to and
      * from.
      */
     function convertToAssets(uint256 shares) external view returns (uint256 assets);

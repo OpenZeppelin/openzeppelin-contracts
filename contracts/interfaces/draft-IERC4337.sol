@@ -6,7 +6,7 @@ pragma solidity ^0.8.20;
 /**
  * @dev A https://github.com/ethereum/ercs/blob/master/ERCS/erc-4337.md#useroperation[user operation] is composed of the following elements:
  * - `sender` (`address`): The account making the operation
- * - `nonce` (`uint256`): Anti-replay parameter (see “Semi-abstracted Nonce Support” )
+ * - `nonce` (`uint256`): Anti-replay parameter (see "Semi-abstracted Nonce Support" )
  * - `factory` (`address`): account factory, only for new accounts
  * - `factoryData` (`bytes`): data for account factory (only if account factory exists)
  * - `callData` (`bytes`): The data to pass to the sender during the main execution call
@@ -188,13 +188,13 @@ interface IAccount {
      * * MUST validate the caller is a trusted EntryPoint
      * * MUST validate that the signature is a valid signature of the userOpHash, and SHOULD
      *   return SIG_VALIDATION_FAILED (and not revert) on signature mismatch. Any other error MUST revert.
-     * * MUST pay the entryPoint (caller) at least the “missingAccountFunds” (which might
+     * * MUST pay the entryPoint (caller) at least the "missingAccountFunds" (which might
      *   be zero, in case the current account’s deposit is high enough)
      *
      * Returns an encoded packed validation data that is composed of the following elements:
      *
      * - `authorizer` (`address`): 0 for success, 1 for failure, otherwise the address of an authorizer contract
-     * - `validUntil` (`uint48`): The UserOp is valid only up to this time. Zero for “infinite”.
+     * - `validUntil` (`uint48`): The UserOp is valid only up to this time. Zero for "infinite".
      * - `validAfter` (`uint48`): The UserOp is valid only after this time.
      */
     function validateUserOp(
