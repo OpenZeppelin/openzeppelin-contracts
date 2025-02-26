@@ -62,7 +62,7 @@ library Math {
         unchecked {
             success = b > 0;
             assembly ("memory-safe") {
-                // In EVM any value divided by zero is zero.
+                // The `DIV` opcode returns zero when the denominator is 0.
                 result := div(a, b)
             }
         }
@@ -75,7 +75,7 @@ library Math {
         unchecked {
             success = b > 0;
             assembly ("memory-safe") {
-                // In EVM a value modulus zero is equal to zero.
+                // The `MOD` opcode returns zero when the denominator is 0.
                 result := mod(a, b)
             }
         }
