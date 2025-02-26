@@ -16,8 +16,8 @@ abstract contract GovernorSuperQuorum is Governor {
      * towards the super quorum. Once the super quorum is reached, an active proposal can proceed to the next state
      * without waiting for the proposal deadline.
      *
-     * NOTE: The `timepoint` parameter corresponds to the snapshot used for counting vote. This allows to scale the
-     * quorum depending on values such as the totalSupply of a token at this timepoint (see {ERC20Votes}).
+     * NOTE: The `timepoint` parameter corresponds to the snapshot used for counting the vote. This enables scaling of the
+     * quorum depending on values such as the `totalSupply` of a token at this timepoint (see {ERC20Votes}).
      *
      * NOTE: Make sure the value specified for the super quorum is greater than {quorum}, otherwise, it may be
      * possible to pass a proposal with less votes than the default quorum.
