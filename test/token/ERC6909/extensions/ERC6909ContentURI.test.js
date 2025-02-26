@@ -13,7 +13,7 @@ describe('ERC6909ContentURI', function () {
   });
 
   describe('contractURI', function () {
-    it('is empty string be default', async function () {
+    it('is empty string by default', async function () {
       await expect(this.token.contractURI()).to.eventually.equal('');
     });
 
@@ -28,7 +28,7 @@ describe('ERC6909ContentURI', function () {
   });
 
   describe('tokenURI', function () {
-    it('is empty string be default', async function () {
+    it('is empty string by default', async function () {
       await expect(this.token.tokenURI(1n)).to.eventually.equal('');
     });
 
