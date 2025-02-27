@@ -6,9 +6,9 @@ import {SafeCast} from "../../utils/math/SafeCast.sol";
 import {Checkpoints} from "../../utils/structs/Checkpoints.sol";
 
 /**
- * @dev Extension of {Governor} with a super quorum. Proposals that meet the super quorum can be executed
- * earlier than the proposal deadline. Counting modules that want to use this extension must implement
- * {proposalVotes}.
+ * @dev Extension of {Governor} with a super quorum. Proposals that meet the super quorum (and have a majority of for 
+ * votes) advance to the `Succeeded` state before the proposal deadline. Counting modules that want to use this 
+ * extension must implement {proposalVotes}.
  */
 abstract contract GovernorSuperQuorum is Governor {
     /**
