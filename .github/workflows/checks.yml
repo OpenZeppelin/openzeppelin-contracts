@@ -14,7 +14,8 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NODE_OPTIONS: --max_old_space_size=8192
+  NODE_OPTIONS: --max_old_space_size=10240
+  FORCE_COLOR: 1
 
 jobs:
   lint:
@@ -28,7 +29,6 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     env:
-      FORCE_COLOR: 1
       # Needed for "eth-gas-reporter" to produce a "gasReporterOutput.json" as documented in
       # https://github.com/cgewecke/eth-gas-reporter/blob/v0.2.27/docs/gasReporterOutput.md
       CI: true
@@ -52,8 +52,6 @@ jobs:
 
   tests-upgradeable:
     runs-on: ubuntu-latest
-    env:
-      FORCE_COLOR: 1
     steps:
       - uses: actions/checkout@v4
         with:
@@ -64,10 +62,13 @@ jobs:
         run: |
           mkdir -p lib/openzeppelin-contracts
           cp -rnT contracts lib/openzeppelin-contracts/contracts
+          ls -la lib/openzeppelin-contracts/contracts
       - name: Transpile to upgradeable
-        run: bash scripts/upgradeable/transpile.sh
+        run: |
+          bash scripts/upgradeable/transpile.sh
+          ls -la contracts
       - name: Run tests
-        run: npm run test
+        run: npm run test || { echo "Test failure. Let's see what's in the contracts directory:"; find contracts -type f | grep Arrays; exit 1; }
       - name: Check linearisation of the inheritance graph
         run: npm run test:inheritance
       - name: Check pragma consistency between files

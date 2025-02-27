@@ -11,11 +11,16 @@ runs:
       id: cache
       with:
         path: '**/node_modules'
-        key: npm-v3-${{ hashFiles('**/package-lock.json') }}
+        key: npm-v4-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          npm-v4-
     - name: Install dependencies
-      run: npm ci
+      run: npm ci --prefer-offline --no-audit
       shell: bash
       if: steps.cache.outputs.cache-hit != 'true'
+    - name: Check node_modules integrity
+      run: npm ls --depth=0 || true
+      shell: bash
     - name: Install Foundry
       uses: foundry-rs/foundry-toolchain@v1
       with:
