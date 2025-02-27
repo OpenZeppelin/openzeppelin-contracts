@@ -15,6 +15,7 @@ concurrency:
 
 env:
   NODE_OPTIONS: --max_old_space_size=8192
+  FORCE_COLOR: 1
 
 jobs:
   lint:
@@ -28,7 +29,6 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     env:
-      FORCE_COLOR: 1
       # Needed for "eth-gas-reporter" to produce a "gasReporterOutput.json" as documented in
       # https://github.com/cgewecke/eth-gas-reporter/blob/v0.2.27/docs/gasReporterOutput.md
       CI: true
@@ -52,8 +52,6 @@ jobs:
 
   tests-upgradeable:
     runs-on: ubuntu-latest
-    env:
-      FORCE_COLOR: 1
     steps:
       - uses: actions/checkout@v4
         with:
