@@ -53,14 +53,14 @@ abstract contract GovernorVotesSuperQuorumFraction is GovernorVotesQuorumFractio
     }
 
     /**
-     * @dev Returns the super quorum numerator at a specific timepoint.
+     * @dev Returns the super quorum numerator at a specific `timepoint`.
      */
     function superQuorumNumerator(uint256 timepoint) public view virtual returns (uint256) {
         return _optimisticUpperLookupRecent(_superQuorumNumeratorHistory, timepoint);
     }
 
     /**
-     * @dev Returns the super quorum for a timepoint, in terms of number of votes: `supply * numerator / denominator`.
+     * @dev Returns the super quorum for a `timepoint`, in terms of number of votes: `supply * numerator / denominator`.
      */
     function superQuorum(uint256 timepoint) public view virtual override returns (uint256) {
         return Math.mulDiv(token().getPastTotalSupply(timepoint), superQuorumNumerator(timepoint), quorumDenominator());
@@ -108,7 +108,7 @@ abstract contract GovernorVotesSuperQuorumFraction is GovernorVotesQuorumFractio
     }
 
     /**
-     * @dev Overrides {GovernorVotesQuorumFraction._updateQuorumNumerator} to ensure the super
+     * @dev Overrides {GovernorVotesQuorumFraction-_updateQuorumNumerator} to ensure the super
      * quorum numerator is bigger than the quorum numerator.
      */
     function _updateQuorumNumerator(uint256 newQuorumNumerator) internal virtual override {
