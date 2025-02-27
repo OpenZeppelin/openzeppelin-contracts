@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.1.0) (utils/Arrays.sol)
 // This file was procedurally generated from scripts/generate/templates/Arrays.js.
 
 pragma solidity ^0.8.20;
@@ -490,6 +489,38 @@ library Arrays {
      *
      * WARNING: This function is destructive. It will modify the array passed by reference.
      */
+    function uniquifySorted(address[] memory array) internal pure returns (address[] memory) {
+        uint256[] memory castedArray = _castToUint256Array(array);
+        uniquifySorted(castedArray);
+        return array;
+    }
+
+    /**
+     * @dev Removes duplicate values from a sorted array. This function does not check that the array is sorted,
+     * behavior is undefined if the array is not sorted. The resulting array will have no duplicates and will
+     * be shorter or the same length as the input array.
+     *
+     * This operation is performed in-place by moving elements and modifying the length of the array.
+     * Time complexity O(n).
+     *
+     * WARNING: This function is destructive. It will modify the array passed by reference.
+     */
+    function uniquifySorted(bytes32[] memory array) internal pure returns (bytes32[] memory) {
+        uint256[] memory castedArray = _castToUint256Array(array);
+        uniquifySorted(castedArray);
+        return array;
+    }
+
+    /**
+     * @dev Removes duplicate values from a sorted array. This function does not check that the array is sorted,
+     * behavior is undefined if the array is not sorted. The resulting array will have no duplicates and will
+     * be shorter or the same length as the input array.
+     *
+     * This operation is performed in-place by moving elements and modifying the length of the array.
+     * Time complexity O(n).
+     *
+     * WARNING: This function is destructive. It will modify the array passed by reference.
+     */
     function uniquifySorted(uint256[] memory array) internal pure returns (uint256[] memory) {
         if (array.length <= 1) {
             return array;
@@ -511,37 +542,5 @@ library Arrays {
             result[i] = array[i];
         }
         return result;
-    }
-
-    /**
-     * @dev Removes duplicate values from a sorted address array. This function does not check that the array
-     * is sorted, behavior is undefined if the array is not sorted. The resulting array will have no duplicates
-     * and will be shorter or the same length as the input array.
-     *
-     * This operation is performed in-place by moving elements and modifying the length of the array.
-     * Time complexity O(n).
-     *
-     * WARNING: This function is destructive. It will modify the array passed by reference.
-     */
-    function uniquifySorted(address[] memory array) internal pure returns (address[] memory) {
-        uint256[] memory castedArray = _castToUint256Array(array);
-        uniquifySorted(castedArray);
-        return array;
-    }
-
-    /**
-     * @dev Removes duplicate values from a sorted bytes32 array. This function does not check that the array
-     * is sorted, behavior is undefined if the array is not sorted. The resulting array will have no duplicates
-     * and will be shorter or the same length as the input array.
-     *
-     * This operation is performed in-place by moving elements and modifying the length of the array.
-     * Time complexity O(n).
-     *
-     * WARNING: This function is destructive. It will modify the array passed by reference.
-     */
-    function uniquifySorted(bytes32[] memory array) internal pure returns (bytes32[] memory) {
-        uint256[] memory castedArray = _castToUint256Array(array);
-        uniquifySorted(castedArray);
-        return array;
     }
 }

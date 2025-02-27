@@ -357,6 +357,48 @@ function unsafeSetLength(${type}[] storage array, uint256 len) internal {
 }
 `;
 
+// Template for the uniquifySorted function that removes duplicates from sorted arrays
+const uniquifySorted = type => `\
+/**
+ * @dev Removes duplicate values from a sorted array. This function does not check that the array is sorted,
+ * behavior is undefined if the array is not sorted. The resulting array will have no duplicates and will
+ * be shorter or the same length as the input array.
+ *
+ * This operation is performed in-place by moving elements and modifying the length of the array.
+ * Time complexity O(n).
+ *
+ * WARNING: This function is destructive. It will modify the array passed by reference.
+ */
+function uniquifySorted(${type}[] memory array) internal pure returns (${type}[] memory) {
+    ${
+      type === 'uint256'
+      ? `if (array.length <= 1) {
+        return array;
+    }
+
+    uint256 resultSize = 1;
+    for (uint256 i = 1; i < array.length; ++i) {
+        if (array[i] != array[i - 1]) {
+            if (i != resultSize) {
+                array[resultSize] = array[i];
+            }
+            ++resultSize;
+        }
+    }
+
+    // Resize the array by creating a new one (can't modify length of memory arrays directly)
+    uint256[] memory result = new uint256[](resultSize);
+    for (uint256 i = 0; i < resultSize; ++i) {
+        result[i] = array[i];
+    }
+    return result;`
+      : `uint256[] memory castedArray = _castToUint256Array(array);
+    uniquifySorted(castedArray);
+    return array;`
+    }
+}
+`;
+
 // GENERATE
 module.exports = format(
   header.trimEnd(),
@@ -378,6 +420,8 @@ module.exports = format(
       TYPES.map(unsafeAccessStorage),
       TYPES.map(unsafeAccessMemory),
       TYPES.map(unsafeSetLength),
+      // uniquify sorted arrays
+      TYPES.map(uniquifySorted),
     ),
   ).trimEnd(),
   '}',
