@@ -77,8 +77,6 @@ NOTE: Functions of the `Governor` contract do not include access control. If you
 
 {{GovernorCountingOverridable}}
 
-{{GovernorSuperQuorum}}
-
 {{GovernorVotes}}
 
 {{GovernorVotesQuorumFraction}}
@@ -100,6 +98,8 @@ NOTE: Functions of the `Governor` contract do not include access control. If you
 {{GovernorStorage}}
 
 {{GovernorProposalGuardian}}
+
+{{GovernorSuperQuorum}}
 
 == Utils
 
