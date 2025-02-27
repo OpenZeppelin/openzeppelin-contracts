@@ -36,7 +36,7 @@ describe('ERC1155Holder', function () {
     }
   });
 
-  it('receives ERC1155 tokens from a multiple IDs', async function () {
+  it('receives ERC1155 tokens from a multiple IDs'), async function () {
     expect(
       await this.token.balanceOfBatch(
         ids.map(() => this.mock),
