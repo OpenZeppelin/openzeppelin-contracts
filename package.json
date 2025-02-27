@@ -65,7 +65,7 @@
     "@openzeppelin/upgrades-core": "^1.20.6",
     "chai": "^4.2.0",
     "eslint": "^9.0.0",
-    "eslint-config-prettier": "^9.0.0",
+    "eslint-config-prettier": "^10.0.0",
     "ethers": "^6.13.4",
     "glob": "^11.0.0",
     "globals": "^15.3.0",
