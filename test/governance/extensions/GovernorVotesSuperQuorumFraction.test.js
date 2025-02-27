@@ -132,71 +132,25 @@ describe('GovernorVotesSuperQuorumFraction', function () {
 
         it('cannot set super quorum below quorum', async function () {
           const invalidSuperQuorum = quorumRatio - 1n;
-          this.helper.setProposal(
-            [
-              {
-                target: this.mock.target,
-                data: this.mock.interface.encodeFunctionData('updateSuperQuorumNumerator', [invalidSuperQuorum]),
-              },
-            ],
-            '<proposal description>',
-          );
 
-          await this.helper.propose();
-          await this.helper.waitForSnapshot();
-          await this.helper.connect(this.voter1).vote({ support: VoteType.For });
-          await this.helper.connect(this.voter2).vote({ support: VoteType.For });
-          await this.helper.waitForDeadline();
-
-          await expect(this.helper.execute())
+          await expect(this.mock.$_updateSuperQuorumNumerator(invalidSuperQuorum))
             .to.be.revertedWithCustomError(this.mock, 'GovernorInvalidSuperQuorumTooSmall')
             .withArgs(invalidSuperQuorum, quorumRatio);
         });
 
         it('cannot set super quorum above denominator', async function () {
-          const invalidSuperQuorum = 101n;
-          this.helper.setProposal(
-            [
-              {
-                target: this.mock.target,
-                data: this.mock.interface.encodeFunctionData('updateSuperQuorumNumerator', [invalidSuperQuorum]),
-              },
-            ],
-            '<proposal description>',
-          );
-
-          await this.helper.propose();
-          await this.helper.waitForSnapshot();
-          await this.helper.connect(this.voter1).vote({ support: VoteType.For });
-          await this.helper.connect(this.voter2).vote({ support: VoteType.For });
-          await this.helper.waitForDeadline();
-
           const denominator = await this.mock.quorumDenominator();
+          const invalidSuperQuorum = BigInt(denominator) + 1n;
 
-          await expect(this.helper.execute())
+          await expect(this.mock.$_updateSuperQuorumNumerator(invalidSuperQuorum))
             .to.be.revertedWithCustomError(this.mock, 'GovernorInvalidSuperQuorumFraction')
             .withArgs(invalidSuperQuorum, denominator);
         });
 
         it('cannot set quorum above super quorum', async function () {
           const invalidQuorum = superQuorumRatio + 1n;
-          this.helper.setProposal(
-            [
-              {
-                target: this.mock.target,
-                data: this.mock.interface.encodeFunctionData('updateQuorumNumerator', [invalidQuorum]),
-              },
-            ],
-            '<proposal description>',
-          );
 
-          await this.helper.propose();
-          await this.helper.waitForSnapshot();
-          await this.helper.connect(this.voter1).vote({ support: VoteType.For });
-          await this.helper.connect(this.voter2).vote({ support: VoteType.For });
-          await this.helper.waitForDeadline();
-
-          await expect(this.helper.execute())
+          await expect(this.mock.$_updateQuorumNumerator(invalidQuorum))
             .to.be.revertedWithCustomError(this.mock, 'GovernorInvalidQuorumTooLarge')
             .withArgs(invalidQuorum, superQuorumRatio);
         });
