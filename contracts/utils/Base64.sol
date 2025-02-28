@@ -23,7 +23,7 @@ library Base64 {
 
     /**
      * @dev Converts a `bytes` to its Bytes64Url `string` representation.
-     * Output is not padded with `=` as specified in https://www.rfc-editor.org/rfc/rfc4648[rfc4648].
+     * Output is not padded with `=` as specified in https://www.rfc-editor.org/rfc/rfc4648.
      */
     function encodeURL(bytes memory data) internal pure returns (string memory) {
         return _encode(data, _TABLE_URL, false);
