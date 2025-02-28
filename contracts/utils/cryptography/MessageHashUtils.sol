@@ -64,6 +64,21 @@ library MessageHashUtils {
     }
 
     /**
+     * @dev Variant of {toDataWithIntendedValidatorHash-address-bytes} optimized for cases where `data` is a bytes32.
+     */
+    function toDataWithIntendedValidatorHash(
+        address validator,
+        bytes32 messageHash
+    ) internal pure returns (bytes32 digest) {
+        assembly ("memory-safe") {
+            mstore(0x00, hex"19_00")
+            mstore(0x02, shl(96, validator))
+            mstore(0x16, messageHash)
+            digest := keccak256(0x00, 0x36)
+        }
+    }
+
+    /**
      * @dev Returns the keccak256 digest of an EIP-712 typed data (ERC-191 version `0x01`).
      *
      * The digest is calculated from a `domainSeparator` and a `structHash`, by prefixing them with
