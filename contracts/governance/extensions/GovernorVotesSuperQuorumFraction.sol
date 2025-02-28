@@ -75,7 +75,7 @@ abstract contract GovernorVotesSuperQuorumFraction is GovernorVotesQuorumFractio
      *
      * - Must be called through a governance proposal.
      * - New super quorum numerator must be smaller or equal to the denominator.
-     * - New super quorum numerator must be bigger than the quorum numerator.
+     * - New super quorum numerator must be greater than or equal to the quorum numerator.
      */
     function updateSuperQuorumNumerator(uint256 newSuperQuorumNumerator) public virtual onlyGovernance {
         _updateSuperQuorumNumerator(newSuperQuorumNumerator);
@@ -89,7 +89,7 @@ abstract contract GovernorVotesSuperQuorumFraction is GovernorVotesQuorumFractio
      * Requirements:
      *
      * - New super quorum numerator must be smaller or equal to the denominator.
-     * - New super quorum numerator must be bigger than the quorum numerator.
+     * - New super quorum numerator must be greater than or equal to the quorum numerator.
      */
     function _updateSuperQuorumNumerator(uint256 newSuperQuorumNumerator) internal virtual {
         uint256 denominator = quorumDenominator();
@@ -110,7 +110,7 @@ abstract contract GovernorVotesSuperQuorumFraction is GovernorVotesQuorumFractio
 
     /**
      * @dev Overrides {GovernorVotesQuorumFraction-_updateQuorumNumerator} to ensure the super
-     * quorum numerator is bigger than the quorum numerator.
+     * quorum numerator is greater than or equal to the quorum numerator.
      */
     function _updateQuorumNumerator(uint256 newQuorumNumerator) internal virtual override {
         // Ignoring check when the superQuorum was never set (construction sets quorum before superQuorum)
