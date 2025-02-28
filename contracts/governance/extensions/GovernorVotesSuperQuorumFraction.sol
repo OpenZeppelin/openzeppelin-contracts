@@ -114,7 +114,7 @@ abstract contract GovernorVotesSuperQuorumFraction is GovernorVotesQuorumFractio
     function _updateQuorumNumerator(uint256 newQuorumNumerator) internal virtual override {
         uint256 superQuorumNumerator_ = superQuorumNumerator();
         // Ignoring a super quorum of 0 as it is the initial value when the contract is deployed.
-        if (superQuorumNumerator_ != 0 && newQuorumNumerator >= superQuorumNumerator_) {
+        if (superQuorumNumerator_ != 0 && newQuorumNumerator > superQuorumNumerator_) {
             revert GovernorInvalidQuorumTooLarge(newQuorumNumerator, superQuorumNumerator_);
         }
         super._updateQuorumNumerator(newQuorumNumerator);
