@@ -113,10 +113,12 @@ abstract contract GovernorVotesSuperQuorumFraction is GovernorVotesQuorumFractio
      * quorum numerator is bigger than the quorum numerator.
      */
     function _updateQuorumNumerator(uint256 newQuorumNumerator) internal virtual override {
-        uint256 superQuorumNumerator_ = superQuorumNumerator();
         // Ignoring check when the superQuorum was never set (construction sets quorum before superQuorum)
-        if (newQuorumNumerator > superQuorumNumerator_ && _superQuorumNumeratorHistory.length() != 0) {
-            revert GovernorInvalidQuorumTooLarge(newQuorumNumerator, superQuorumNumerator_);
+        if (_superQuorumNumeratorHistory.length() > 0) {
+            uint256 superQuorumNumerator_ = superQuorumNumerator();
+            if (newQuorumNumerator > superQuorumNumerator_) {
+                revert GovernorInvalidQuorumTooLarge(newQuorumNumerator, superQuorumNumerator_);
+            }
         }
         super._updateQuorumNumerator(newQuorumNumerator);
     }
