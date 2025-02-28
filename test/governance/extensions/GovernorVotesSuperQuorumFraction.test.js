@@ -70,14 +70,14 @@ describe('GovernorVotesSuperQuorumFraction', function () {
       });
 
       it('deployment check', async function () {
-        expect(await this.mock.name()).to.equal(name);
-        expect(await this.mock.token()).to.equal(this.token);
-        expect(await this.mock.votingDelay()).to.equal(votingDelay);
-        expect(await this.mock.votingPeriod()).to.equal(votingPeriod);
-        expect(await this.mock.quorumNumerator()).to.equal(quorumRatio);
-        expect(await this.mock.superQuorumNumerator()).to.equal(superQuorumRatio);
-        expect(await this.mock.quorumDenominator()).to.equal(100n);
-        expect(await time.clock[mode]().then(clock => this.mock.superQuorum(clock - 1n))).to.equal(
+        await expect(this.mock.name()).to.eventually.eventually.equal(name);
+        await expect(this.mock.token()).to.eventually.equal(this.token);
+        await expect(this.mock.votingDelay()).to.eventually.equal(votingDelay);
+        await expect(this.mock.votingPeriod()).to.eventually.equal(votingPeriod);
+        await expect(this.mock.quorumNumerator()).to.eventually.equal(quorumRatio);
+        await expect(this.mock.superQuorumNumerator()).to.eventually.equal(superQuorumRatio);
+        await expect(this.mock.quorumDenominator()).to.eventually.equal(100n);
+        await expect(time.clock[mode]().then(clock => this.mock.superQuorum(clock - 1n))).to.eventually.equal(
           (tokenSupply * superQuorumRatio) / 100n,
         );
       });
@@ -90,13 +90,13 @@ describe('GovernorVotesSuperQuorumFraction', function () {
         await this.helper.connect(this.voter1).vote({ support: VoteType.For });
 
         // Check proposal is still active
-        expect(await this.mock.state(this.proposal.id)).to.equal(ProposalState.Active);
+        await expect(this.mock.state(this.proposal.id)).to.eventually.equal(ProposalState.Active);
 
         // Vote with voter2 (20%) - now matches super quorum
         await this.helper.connect(this.voter2).vote({ support: VoteType.For });
 
         // Proposal should no longer be active
-        expect(await this.mock.state(this.proposal.id)).to.equal(ProposalState.Succeeded);
+        await expect(this.mock.state(this.proposal.id)).to.eventually.equal(ProposalState.Succeeded);
       });
 
       describe('super quorum updates', function () {
@@ -127,7 +127,7 @@ describe('GovernorVotesSuperQuorumFraction', function () {
             .to.emit(this.mock, 'SuperQuorumNumeratorUpdated')
             .withArgs(superQuorumRatio, newSuperQuorumRatio);
 
-          expect(await this.mock.superQuorumNumerator()).to.equal(newSuperQuorumRatio);
+          await expect(this.mock.superQuorumNumerator()).to.eventually.equal(newSuperQuorumRatio);
         });
 
         it('cannot set super quorum below quorum', async function () {

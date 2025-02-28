@@ -3,37 +3,43 @@
 pragma solidity ^0.8.20;
 
 import {Governor} from "../../governance/Governor.sol";
+import {GovernorSettings} from "../../governance/extensions/GovernorSettings.sol";
 import {GovernorVotes} from "../../governance/extensions/GovernorVotes.sol";
 import {GovernorSuperQuorum} from "../../governance/extensions/GovernorSuperQuorum.sol";
 import {GovernorCountingSimple} from "../../governance/extensions/GovernorCountingSimple.sol";
 import {GovernorTimelockControl} from "../../governance/extensions/GovernorTimelockControl.sol";
 
 abstract contract GovernorSuperQuorumMock is
+    GovernorSettings,
     GovernorVotes,
     GovernorTimelockControl,
     GovernorSuperQuorum,
     GovernorCountingSimple
 {
+    uint256 private _quorum;
+    uint256 private _superQuorum;
+
+    constructor(uint256 quorum_, uint256 superQuorum_) {
+        _quorum = quorum_;
+        _superQuorum = superQuorum_;
+    }
+
+    function quorum(uint256) public view override returns (uint256) {
+        return _quorum;
+    }
+
+    function superQuorum(uint256) public view override returns (uint256) {
+        return _superQuorum;
+    }
+
     function state(
         uint256 proposalId
     ) public view override(Governor, GovernorSuperQuorum, GovernorTimelockControl) returns (ProposalState) {
         return super.state(proposalId);
     }
 
-    function superQuorum(uint256) public pure override(GovernorSuperQuorum) returns (uint256) {
-        return 40;
-    }
-
-    function quorum(uint256) public pure override(Governor) returns (uint256) {
-        return 10;
-    }
-
-    function votingDelay() public pure override returns (uint256) {
-        return 4;
-    }
-
-    function votingPeriod() public pure override returns (uint256) {
-        return 16;
+    function proposalThreshold() public view override(Governor, GovernorSettings) returns (uint256) {
+        return super.proposalThreshold();
     }
 
     function proposalVotes(
