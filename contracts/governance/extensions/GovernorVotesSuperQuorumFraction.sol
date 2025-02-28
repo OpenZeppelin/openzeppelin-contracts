@@ -97,7 +97,7 @@ abstract contract GovernorVotesSuperQuorumFraction is GovernorVotesQuorumFractio
             revert GovernorInvalidSuperQuorumFraction(newSuperQuorumNumerator, denominator);
         }
         uint256 quorumNumerator = quorumNumerator();
-        if (newSuperQuorumNumerator <= quorumNumerator) {
+        if (newSuperQuorumNumerator < quorumNumerator) {
             revert GovernorInvalidSuperQuorumTooSmall(newSuperQuorumNumerator, quorumNumerator);
         }
 
