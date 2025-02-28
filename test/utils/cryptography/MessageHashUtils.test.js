@@ -19,14 +19,16 @@ describe('MessageHashUtils', function () {
       const message = ethers.randomBytes(32);
       const expectedHash = ethers.hashMessage(message);
 
-      expect(await this.mock.getFunction('$toEthSignedMessageHash(bytes32)')(message)).to.equal(expectedHash);
+      await expect(this.mock.getFunction('$toEthSignedMessageHash(bytes32)')(message)).to.eventually.equal(
+        expectedHash,
+      );
     });
 
     it('prefixes dynamic length data correctly', async function () {
       const message = ethers.randomBytes(128);
       const expectedHash = ethers.hashMessage(message);
 
-      expect(await this.mock.getFunction('$toEthSignedMessageHash(bytes)')(message)).to.equal(expectedHash);
+      await expect(this.mock.getFunction('$toEthSignedMessageHash(bytes)')(message)).to.eventually.equal(expectedHash);
     });
 
     it('version match for bytes32', async function () {
@@ -47,9 +49,9 @@ describe('MessageHashUtils', function () {
         ['\x19\x00', verifier, message],
       );
 
-      expect(
-        await this.mock.getFunction('$toDataWithIntendedValidatorHash(address,bytes32)')(verifier, message),
-      ).to.equal(expectedHash);
+      await expect(
+        this.mock.getFunction('$toDataWithIntendedValidatorHash(address,bytes32)')(verifier, message),
+      ).to.eventually.equal(expectedHash);
     });
 
     it('returns the digest of `bytes memory message` correctly', async function () {
@@ -60,9 +62,9 @@ describe('MessageHashUtils', function () {
         ['\x19\x00', verifier, message],
       );
 
-      expect(
-        await this.mock.getFunction('$toDataWithIntendedValidatorHash(address,bytes)')(verifier, message),
-      ).to.equal(expectedHash);
+      await expect(
+        this.mock.getFunction('$toDataWithIntendedValidatorHash(address,bytes)')(verifier, message),
+      ).to.eventually.equal(expectedHash);
     });
 
     it('version match for bytes32', async function () {
@@ -89,7 +91,7 @@ describe('MessageHashUtils', function () {
       const structhash = ethers.randomBytes(32);
       const expectedHash = hashTypedData(domain, structhash);
 
-      expect(await this.mock.$toTypedDataHash(domainSeparator(domain), structhash)).to.equal(expectedHash);
+      await expect(this.mock.$toTypedDataHash(domainSeparator(domain), structhash)).to.eventually.equal(expectedHash);
     });
   });
 });
