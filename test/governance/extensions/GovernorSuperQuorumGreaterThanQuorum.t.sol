@@ -74,6 +74,6 @@ contract GovernorSuperQuorumGreaterThanQuorum is Test {
 
     // solhint-disable-next-line func-name-mixedcase
     function invariant_superQuorumGreaterThanQuorum() external view {
-        assertGt(_governorHandler.superQuorumNumerator(), _governorHandler.quorumNumerator());
+        assertGe(_governorHandler.superQuorumNumerator(), _governorHandler.quorumNumerator());
     }
 }

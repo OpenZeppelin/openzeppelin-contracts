@@ -10,7 +10,7 @@ import {Checkpoints} from "../../utils/structs/Checkpoints.sol";
 
 /**
  * @dev Extension of {GovernorVotesQuorumFraction} with a super quorum expressed as a
- * fraction of the total supply. Proposals that meet the super quorum (and have a majority of for votes) advance to 
+ * fraction of the total supply. Proposals that meet the super quorum (and have a majority of for votes) advance to
  * the `Succeeded` state before the proposal deadline.
  */
 abstract contract GovernorVotesSuperQuorumFraction is GovernorVotesQuorumFraction, GovernorSuperQuorum {
@@ -96,6 +96,7 @@ abstract contract GovernorVotesSuperQuorumFraction is GovernorVotesQuorumFractio
         if (newSuperQuorumNumerator > denominator) {
             revert GovernorInvalidSuperQuorumFraction(newSuperQuorumNumerator, denominator);
         }
+
         uint256 quorumNumerator = quorumNumerator();
         if (newSuperQuorumNumerator < quorumNumerator) {
             revert GovernorInvalidSuperQuorumTooSmall(newSuperQuorumNumerator, quorumNumerator);
@@ -113,8 +114,8 @@ abstract contract GovernorVotesSuperQuorumFraction is GovernorVotesQuorumFractio
      */
     function _updateQuorumNumerator(uint256 newQuorumNumerator) internal virtual override {
         uint256 superQuorumNumerator_ = superQuorumNumerator();
-        // Ignoring a super quorum of 0 as it is the initial value when the contract is deployed.
-        if (superQuorumNumerator_ != 0 && newQuorumNumerator > superQuorumNumerator_) {
+        // Ignoring check when the superQuorum was never set (construction sets quorum before superQuorum)
+        if (newQuorumNumerator > superQuorumNumerator_ && _superQuorumNumeratorHistory.length() != 0) {
             revert GovernorInvalidQuorumTooLarge(newQuorumNumerator, superQuorumNumerator_);
         }
         super._updateQuorumNumerator(newQuorumNumerator);
