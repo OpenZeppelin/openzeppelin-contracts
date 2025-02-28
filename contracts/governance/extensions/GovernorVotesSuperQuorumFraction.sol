@@ -10,8 +10,8 @@ import {Checkpoints} from "../../utils/structs/Checkpoints.sol";
 
 /**
  * @dev Extension of {GovernorVotesQuorumFraction} with a super quorum expressed as a
- * fraction of the total supply. Proposals that meet the super quorum can be executed
- * earlier than the proposal deadline.
+ * fraction of the total supply. Proposals that meet the super quorum (and have a majority of for votes) advance to 
+ * the `Succeeded` state before the proposal deadline.
  */
 abstract contract GovernorVotesSuperQuorumFraction is GovernorVotesQuorumFraction, GovernorSuperQuorum {
     using Checkpoints for Checkpoints.Trace208;

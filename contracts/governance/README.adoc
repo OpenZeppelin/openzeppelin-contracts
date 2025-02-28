@@ -24,7 +24,7 @@ Votes modules determine the source of voting power, and sometimes quorum number.
 
 * {GovernorVotesQuorumFraction}: Combines with `GovernorVotes` to set the quorum as a fraction of the total token supply.
 
-* {GovernorVotesSuperQuorumFraction}: Combines with `GovernorVotesQuorumFraction` to set the super quorum as a fraction of the total token supply.
+* {GovernorVotesSuperQuorumFraction}: Combines `GovernorSuperQuorum` with `GovernorVotesQuorumFraction` to set the super quorum as a fraction of the total token supply.
 
 Counting modules determine valid voting options.
 
