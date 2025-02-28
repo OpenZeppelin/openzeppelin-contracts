@@ -62,7 +62,7 @@ library CircularBuffer {
     }
 
     /**
-     * @dev Initialize a new CircularBuffer of given size.
+     * @dev Initialize a new CircularBuffer of a given size.
      *
      * If the CircularBuffer was already setup and used, calling that function again will reset it to a blank state.
      *

@@ -37,7 +37,7 @@ function shouldBehaveLikeERC6909() {
     });
 
     describe('setOperator', function () {
-      it('emits an an OperatorSet event and updated the value', async function () {
+      it('emits an OperatorSet event and updated the value', async function () {
         await expect(this.token.connect(this.holder).setOperator(this.operator, true))
           .to.emit(this.token, 'OperatorSet')
           .withArgs(this.holder, this.operator, true);
