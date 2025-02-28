@@ -64,7 +64,7 @@ library MessageHashUtils {
     }
 
     /**
-     * @dev Variant of {toDataWithIntendedValidatorHash-address-bytes-} optimized for cases where `data` is a bytes32.
+     * @dev Variant of {toDataWithIntendedValidatorHash-address-bytes} optimized for cases where `data` is a bytes32.
      */
     function toDataWithIntendedValidatorHash(
         address validator,
