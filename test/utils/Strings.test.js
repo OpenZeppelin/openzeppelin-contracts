@@ -339,4 +339,11 @@ describe('Strings', function () {
       }
     });
   });
+
+  describe('Escape JSON string', function () {
+    for (const input of ['', 'a', '{"a":"b/c"}', 'a\tb\nc\\d"e\rf/g\fh\bi'])
+      it(`escape ${JSON.stringify(input)}`, async function () {
+        await expect(this.mock.$escapeJSON(input)).to.eventually.equal(JSON.stringify(input).slice(1, -1));
+      });
+  });
 });
