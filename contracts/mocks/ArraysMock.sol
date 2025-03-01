@@ -56,6 +56,10 @@ contract Uint256ArraysMock {
     function length() external view returns (uint256) {
         return _array.length;
     }
+
+    function uniquifySorted(uint256[] memory array) external pure returns (uint256[] memory) {
+        return array.uniquifySorted();
+    }
 }
 
 contract AddressArraysMock {
@@ -90,6 +94,10 @@ contract AddressArraysMock {
     function length() external view returns (uint256) {
         return _array.length;
     }
+
+    function uniquifySorted(address[] memory array) external pure returns (address[] memory) {
+        return array.uniquifySorted();
+    }
 }
 
 contract Bytes32ArraysMock {
@@ -123,5 +131,9 @@ contract Bytes32ArraysMock {
 
     function length() external view returns (uint256) {
         return _array.length;
+    }
+
+    function uniquifySorted(bytes32[] memory array) external pure returns (bytes32[] memory) {
+        return array.uniquifySorted();
     }
 }
