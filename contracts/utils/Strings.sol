@@ -15,6 +15,14 @@ library Strings {
 
     bytes16 private constant HEX_DIGITS = "0123456789abcdef";
     uint8 private constant ADDRESS_LENGTH = 20;
+    uint256 private constant SPECIAL_CHARS_LOOKUP =
+        (1 << 0x08) | // backspace
+            (1 << 0x09) | // tab
+            (1 << 0x0a) | // newline
+            (1 << 0x0c) | // form feed
+            (1 << 0x0d) | // carriage return
+            (1 << 0x22) | // double quote
+            (1 << 0x5c); // backslash
 
     /**
      * @dev The `value` string doesn't fit in the specified `length`.
@@ -424,6 +432,43 @@ library Strings {
         }
 
         return value;
+    }
+
+    /**
+     * @dev Escape special characters in JSON strings. This can be useful to prevent JSON injection in NFT metadata.
+     *
+     * WARNING: This function should only be used in double quoted JSON strings. Single quotes are not escaped.
+     */
+    function escapeJSON(string memory input) internal pure returns (string memory) {
+        bytes memory buffer = bytes(input);
+        bytes memory output = new bytes(2 * buffer.length); // worst case scenario
+        uint256 outputLength = 0;
+
+        for (uint256 i; i < buffer.length; ++i) {
+            bytes1 char = bytes1(_unsafeReadBytesOffset(buffer, i));
+            if (((SPECIAL_CHARS_LOOKUP & (1 << uint8(char))) != 0)) {
+                output[outputLength++] = "\\";
+                if (char == 0x08) output[outputLength++] = "b";
+                else if (char == 0x09) output[outputLength++] = "t";
+                else if (char == 0x0a) output[outputLength++] = "n";
+                else if (char == 0x0c) output[outputLength++] = "f";
+                else if (char == 0x0d) output[outputLength++] = "r";
+                else if (char == 0x5c) output[outputLength++] = "\\";
+                else if (char == 0x22) {
+                    // solhint-disable-next-line quotes
+                    output[outputLength++] = '"';
+                }
+            } else {
+                output[outputLength++] = char;
+            }
+        }
+        // write the actual length and deallocate unused memory
+        assembly ("memory-safe") {
+            mstore(output, outputLength)
+            mstore(0x40, add(output, shl(5, shr(5, add(outputLength, 63)))))
+        }
+
+        return string(output);
     }
 
     /**
