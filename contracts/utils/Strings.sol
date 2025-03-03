@@ -443,15 +443,15 @@ library Strings {
         uint256 outputLength = 0;
 
         for (uint256 i; i < buffer.length; ++i) {
-            bytes1 char = buffer[i];
+            bytes1 char = bytes1(_unsafeReadBytesOffset(buffer, i));
             if (((SPECIAL_CHARS_LOOKUP & (1 << uint8(char))) != 0)) {
                 output[outputLength++] = "\\";
                 if (char == 0x08) output[outputLength++] = "b";
                 else if (char == 0x09) output[outputLength++] = "t";
-                else if (char == 0x0A) output[outputLength++] = "n";
-                else if (char == 0x0C) output[outputLength++] = "f";
-                else if (char == 0x0D) output[outputLength++] = "r";
-                else if (char == 0x5C) output[outputLength++] = "\\";
+                else if (char == 0x0a) output[outputLength++] = "n";
+                else if (char == 0x0c) output[outputLength++] = "f";
+                else if (char == 0x0d) output[outputLength++] = "r";
+                else if (char == 0x5c) output[outputLength++] = "\\";
                 else if (char == 0x22) {
                     // solhint-disable-next-line quotes
                     output[outputLength++] = '"';
