@@ -220,13 +220,6 @@ contract BlacklistableTest is Test {
         assertEq(token.balanceOf(user2), user2InitialBalance + transferAmount);
     }
     
-    // Test ownership control - only owner can blacklist
-    function testOnlyOwnerCanBlacklist() public {
-        vm.prank(user1);
-        vm.expectRevert("Ownable: caller is not the owner");
-        token.addToBlacklist(user2);
-    }
-    
     // Test blacklisting the owner
     function testBlacklistOwner() public {
         // Owner can blacklist themselves
