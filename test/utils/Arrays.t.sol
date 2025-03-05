@@ -11,19 +11,19 @@ contract ArraysTest is Test, SymTest {
         Arrays.sort(values);
         _assertSort(values);
     }
-    
+
     function testUniquifySorted(uint256[] memory values) public pure {
         if (values.length == 0) return;
-        
+
         // First sort the array
         Arrays.sort(values);
-        
+
         // Then uniquify
         uint256[] memory result = Arrays.uniquifySorted(values);
-        
+
         // Assert the result is still sorted
         _assertSort(result);
-        
+
         // Assert no duplicates exist
         _assertNoDuplicates(result);
     }
@@ -44,7 +44,7 @@ contract ArraysTest is Test, SymTest {
             assertLe(values[i - 1], values[i]);
         }
     }
-    
+
     function _assertNoDuplicates(uint256[] memory values) internal pure {
         for (uint256 i = 1; i < values.length; ++i) {
             assertTrue(values[i - 1] != values[i]);
