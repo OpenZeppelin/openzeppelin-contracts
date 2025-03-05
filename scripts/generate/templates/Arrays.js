@@ -372,7 +372,7 @@ const uniquifySorted = type => `\
 function uniquifySorted(${type}[] memory array) internal pure returns (${type}[] memory) {
     ${
       type === 'uint256'
-      ? `if (array.length <= 1) {
+        ? `if (array.length <= 1) {
         return array;
     }
 
@@ -392,7 +392,7 @@ function uniquifySorted(${type}[] memory array) internal pure returns (${type}[]
         result[i] = array[i];
     }
     return result;`
-      : `uint256[] memory castedArray = _castToUint256Array(array);
+        : `uint256[] memory castedArray = _castToUint256Array(array);
     uniquifySorted(castedArray);
     return array;`
     }

@@ -144,14 +144,14 @@ describe('Arrays', function () {
               expect(await this.instance.sort(this.array)).to.deep.equal(expected);
               expect(await this.instance.sortReverse(this.array)).to.deep.equal(reversed);
             });
-            
+
             it('uniquify sorted array', async function () {
               // Sort and then add duplicates
               this.array.sort(comparator);
-              
+
               // Create expected result (unique values)
               const expected = [...new Set(this.array)].sort(comparator);
-              
+
               // Test uniquifySorted on the sorted array
               expect(await this.instance.uniquifySorted(this.array)).to.deep.equal(expected);
             });
