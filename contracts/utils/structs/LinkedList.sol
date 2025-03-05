@@ -9,8 +9,6 @@ pragma solidity ^0.8.20;
  * done by having a "reversed" linked list.
  */
 library LinkedList {
-    error LinkListEmpty();
-
     struct Bytes32LinkedList {
         mapping(bytes32 => bytes32) _list;
         uint256 _size;
@@ -18,11 +16,7 @@ library LinkedList {
 
     bytes32 private constant SENTINEL = keccak256(abi.encode("SENTINEL"));
 
-    /// @dev Returns the last element in the linked list. O(1)
-    function peek(Bytes32LinkedList storage self) internal view returns (bytes32) {
-        bytes32 val = self._list[SENTINEL];
-        return val;
-    }
+    error LinkListEmpty();
 
     /// @dev Insert a `value` into the linked list before the `next` element. O(1)
     function insert(Bytes32LinkedList storage self, bytes32 next, bytes32 value) internal returns (bool) {
@@ -131,11 +125,6 @@ library LinkedList {
         return removedVal;
     }
 
-    /// @dev Check if `value` is contained in the linked list. O(1)
-    function contains(Bytes32LinkedList storage self, bytes32 value) internal view returns (bool) {
-        return self._list[value] != 0;
-    }
-
     /// @dev Removes all elements from the linked list. O(n)
     function clear(Bytes32LinkedList storage self) internal {
         bytes32 prev = SENTINEL;
@@ -165,5 +154,16 @@ library LinkedList {
     /// @dev Returns the number of elements in the linked list.
     function size(Bytes32LinkedList storage self) internal view returns (uint256) {
         return self._size;
+    }
+
+    /// @dev Returns the last element in the linked list. O(1)
+    function peek(Bytes32LinkedList storage self) internal view returns (bytes32) {
+        bytes32 val = self._list[SENTINEL];
+        return val;
+    }
+
+    /// @dev Check if `value` is contained in the linked list. O(1)
+    function contains(Bytes32LinkedList storage self, bytes32 value) internal view returns (bool) {
+        return self._list[value] != 0;
     }
 }
