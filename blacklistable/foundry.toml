@@ -1,6 +1,16 @@
 [profile.default]
-src = "src"
-out = "out"
-libs = ["lib"]
+etherscan_api_key = "${ETHERSCAN_API_KEY}"
+ETH_RPC_URL = "https://polygon-rpc.com/"
+ffi = true
+ast = true
+build_info = true
+extra_output = ["storageLayout"]
 
-# See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
+remappings = [
+	"@openzeppelin/contracts/=../contracts/",
+]
+
+[rpc_endpoints]
+bsctest = "https://bsc-testnet-dataseed.bnbchain.org/"
+amoy = "https://rpc-amoy.polygon.technology/"
+polygon = "https://polygon-rpc.com/"
