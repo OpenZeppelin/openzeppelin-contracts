@@ -14,3 +14,6 @@
 [submodule "blacklistable/lib/openzeppelin-contracts"]
 	path = blacklistable/lib/openzeppelin-contracts
 	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "temp/lib/forge-std"]
+	path = temp/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
