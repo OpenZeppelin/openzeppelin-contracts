@@ -10,9 +10,7 @@ import "./Strings.sol";
  * @dev Allows addresses to be blacklisted by a contract owner
  * @notice In order for this to work like an actual blacklist, you need to add the following to your _update function in the implementation contract before super._update:
  * // Check blacklist status before executing transfer
- * if (from != address(0) && to != address(0)) {
- * 	_checkBlacklist(from, to);
- * }
+ * _checkBlacklist(from, to);
  */
 abstract contract Blacklistable is Ownable {
 	mapping(address => bool) private _blacklisted;
@@ -23,14 +21,14 @@ abstract contract Blacklistable is Ownable {
 	/**
 	 * @dev Enables events
 	 */
-	function _enableEvents() external onlyOwner {
+	function _enableEvents() virtual external onlyOwner {
 		_eventsEnabled = true;
 	}
 
 	/**
 	 * @dev Disables events
 	 */
-	function _disableEvents() external onlyOwner {
+	function _disableEvents() virtual external onlyOwner {
 		_eventsEnabled = false;
 	}
 	
@@ -38,7 +36,7 @@ abstract contract Blacklistable is Ownable {
 	 * @dev Checks if an account is blacklisted
 	 * @param account The address to check
 	 */
-	function isBlacklisted(address account) public view returns (bool) {
+	function isBlacklisted(address account) virtual public view returns (bool) {
 		return _blacklisted[account];
 	}
 	
@@ -46,7 +44,7 @@ abstract contract Blacklistable is Ownable {
 	 * @dev Adds an address to the blacklist
 	 * @param account The address to blacklist
 	 */
-	function addToBlacklist(address account) external onlyOwner {
+	function addToBlacklist(address account) virtual external onlyOwner {
 		require(account != address(0), "Blacklistable: invalid address");
 		require(!_blacklisted[account], "Blacklistable: account already blacklisted");
 		
@@ -60,7 +58,7 @@ abstract contract Blacklistable is Ownable {
 	 * @dev Removes an address from the blacklist
 	 * @param account The address to remove from the blacklist
 	 */
-	function removeFromBlacklist(address account) external onlyOwner {
+	function removeFromBlacklist(address account) virtual external onlyOwner {
 		require(account != address(0), "Blacklistable: invalid address");
 		require(_blacklisted[account], "Blacklistable: account not blacklisted");
 		
@@ -74,7 +72,7 @@ abstract contract Blacklistable is Ownable {
 	 * @dev Adds multiple addresses to the blacklist
 	 * @param accounts Array of addresses to blacklist
 	 */
-	function batchBlacklist(address[] calldata accounts, bool blacklisted) external onlyOwner {
+	function batchBlacklist(address[] calldata accounts, bool blacklisted) virtual external onlyOwner {
 		require(accounts.length > 0, "Blacklistable: empty accounts array");
 		
 		for (uint256 i = 0; i < accounts.length; i++) {
@@ -91,7 +89,7 @@ abstract contract Blacklistable is Ownable {
 	/**
 	 * @dev Modifier to make a function callable only when the caller is not blacklisted
 	 */
-	modifier notBlacklisted(address account) {
+	modifier notBlacklisted(address account) virtual {
 		require(!_blacklisted[account], "Blacklistable: account is blacklisted");
 		_;
 	}
@@ -99,7 +97,7 @@ abstract contract Blacklistable is Ownable {
 	/**
 	 * @dev Ensures neither the sender nor recipient is blacklisted
 	 */
-	function _checkBlacklist(address from, address to) internal view {
+	function _checkBlacklist(address from, address to) virtual internal view {
 		require(!_blacklisted[from], "Blacklistable: sender is blacklisted");
 		require(!_blacklisted[to], "Blacklistable: recipient is blacklisted");
 	}
