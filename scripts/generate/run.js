@@ -13,7 +13,7 @@ function getVersion(path) {
   }
 }
 
-function generateFromTemplate(file, template, outputPrefix = '') {
+function generateFromTemplate(file, template, outputPrefix = '', lint = false) {
   const script = path.relative(path.join(__dirname, '../..'), __filename);
   const input = path.join(path.dirname(script), template);
   const output = path.join(outputPrefix, file);
@@ -25,10 +25,12 @@ function generateFromTemplate(file, template, outputPrefix = '') {
     '',
     require(template).trimEnd(),
   );
-
   fs.writeFileSync(output, content);
-  cp.execFileSync('prettier', ['--write', output]);
+  lint && cp.execFileSync('prettier', ['--write', output]);
 }
+
+// Some templates needs to go through the linter after generation
+const needsLinter = ['utils/structs/EnumerableMap.sol'];
 
 // Contracts
 for (const [file, template] of Object.entries({
@@ -45,7 +47,7 @@ for (const [file, template] of Object.entries({
   'mocks/StorageSlotMock.sol': './templates/StorageSlotMock.js',
   'mocks/TransientSlotMock.sol': './templates/TransientSlotMock.js',
 })) {
-  generateFromTemplate(file, template, './contracts/');
+  generateFromTemplate(file, template, './contracts/', needsLinter.indexOf(file) != -1);
 }
 
 // Tests
@@ -54,5 +56,5 @@ for (const [file, template] of Object.entries({
   'utils/Packing.t.sol': './templates/Packing.t.js',
   'utils/SlotDerivation.t.sol': './templates/SlotDerivation.t.js',
 })) {
-  generateFromTemplate(file, template, './test/');
+  generateFromTemplate(file, template, './test/', needsLinter.indexOf(file) != -1);
 }
