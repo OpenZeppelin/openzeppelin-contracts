@@ -63,4 +63,3 @@ describe('EnumerableSet', function () {
     });
   }
 });
-// type, base, size
