@@ -2,8 +2,8 @@
 // OpenZeppelin Contracts (last updated v5.2.0) (utils/Blacklistable.sol)
 pragma solidity ^0.8.20;
 
-import {Ownable} from "../../contracts/access/Ownable.sol";
-import "../../contracts/utils/Strings.sol";
+import {Ownable} from "../access/Ownable.sol";
+import "./Strings.sol";
 
 /**
  * @title Blacklistable

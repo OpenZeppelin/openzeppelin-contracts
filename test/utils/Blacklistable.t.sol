@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {Test, console2} from "forge-std/Test.sol";
-import {Blacklistable} from "../src/Blacklistable.sol";
+import {Test} from "forge-std/Test.sol";
+import {Blacklistable} from "../../contracts/utils/Blacklistable.sol";
 import {Ownable} from "../../contracts/access/Ownable.sol";
 
 // Create a concrete implementation of the abstract Blacklistable contract
