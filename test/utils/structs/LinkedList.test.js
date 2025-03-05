@@ -7,7 +7,7 @@ async function fixture() {
   return { mock };
 }
 
-describe.only('LinkedList', function () {
+describe('LinkedList', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });
