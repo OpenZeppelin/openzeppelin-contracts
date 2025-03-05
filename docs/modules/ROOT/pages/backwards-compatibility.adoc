@@ -19,7 +19,7 @@ ERCs that are not Final can change in incompatible ways. For this reason, we avo
 
 Almost all functions in this library are virtual with some exceptions, but this does not mean that overrides are encouraged. There is a subset of functions that are designed to be overridden. By defining overrides outside of this subset you are potentially relying on internal implementation details. We make efforts to preserve backwards compatibility even in these cases but it is extremely difficult and easy to accidentally break. Caution is advised.
 
-Additionally, some minor updates may result in new compilation errors of the kind "two or more base classes define function with same name and parameter types" or "need to specify overridden contract", due to what Solidity considers ambiguity in inherited functions. This should be resolved by adding an override that invokes the function via `super`.
+Additionally, some minor updates may result in new compilation errors of the kind "two or more base classes define a function with the same name and parameter types" or "need to specify overridden contract", due to what Solidity considers ambiguity in inherited functions. This should be resolved by adding an override that invokes the function via `super`.
 
 See xref:extending-contracts.adoc[Extending Contracts] for more about virtual and overrides.
 
@@ -39,7 +39,7 @@ An important aspect that major releases may break is "upgrade compatibility", in
 
 == Storage Layout
 
-Minor and patch updates always preserve storage layout compatibility. This means that a live contract can be upgraded from one minor to another without corrupting the storage layout. In some cases it may be necessary to initialize new state variables when upgrading, although we expect this to be infrequent.
+Minor and patch updates always preserve storage layout compatibility. This means that a live contract can be upgraded from one minor to another without corrupting the storage layout. In some cases it may be necessary to initialize new state variables when upgrading, although we expect this to happen infrequently.
 
 We recommend using xref:upgrades-plugins::index.adoc[OpenZeppelin Upgrades Plugins or CLI] to ensure storage layout safety of upgrades.
 
