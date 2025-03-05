@@ -331,7 +331,7 @@ function tryGet(
     ${key.typeLoc} key
 ) internal view returns (bool exists, ${value.typeLoc} value) {
     value = map._values[key];
-    exists = ${key.memory ? 'bytes(value).length != 0' : `value != ${value.type(0)}`} || contains(map, key);
+    exists = ${value.memory ? 'bytes(value).length != 0' : `value != ${value.type}(0)`} || contains(map, key);
 }
 
 /**
@@ -357,7 +357,7 @@ function get(${name} storage map, ${key.typeLoc} key) internal view returns (${v
  * this function has an unbounded cost, and using it as part of a state-changing function may render the function
  * uncallable if the map grows to a point where copying to memory consumes too much gas to fit in a block.
  */
-function keys(${name} storage map) internal view returns (${value.type}[] memory) {
+function keys(${name} storage map) internal view returns (${key.type}[] memory) {
     return map._keys.values();
 }
 `;

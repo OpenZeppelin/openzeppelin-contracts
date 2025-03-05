@@ -28,6 +28,7 @@ const SET_TYPES = [
   { type: 'address' },
   { type: 'uint256' },
   { type: 'string', memory: true },
+  { type: 'bytes', memory: true },
 ]
   .map(typeDescr)
   .map(toSetTypeDescr);
@@ -41,6 +42,7 @@ const MAP_TYPES = [
   { key: { type: 'address' }, value: { type: 'bytes32' } },
   { key: { type: 'bytes32' }, value: { type: 'uint256' } },
   { key: { type: 'bytes32' }, value: { type: 'address' } },
+  { key: { type: 'bytes', memory: true }, value: { type: 'uint256' } },
   { key: { type: 'string', memory: true }, value: { type: 'string', memory: true } },
 ]
   .map(entry => mapValues(entry, typeDescr))

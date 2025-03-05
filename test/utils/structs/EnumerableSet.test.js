@@ -7,14 +7,13 @@ const { SET_TYPES } = require('../../../scripts/generate/templates/Enumerable.op
 
 const { shouldBehaveLikeSet } = require('./EnumerableSet.behavior');
 
-const getMethods = (mock, fnSigs) => {
-  return mapValues(
+const getMethods = (mock, fnSigs) =>
+  mapValues(
     fnSigs,
     fnSig =>
       (...args) =>
         mock.getFunction(fnSig)(0, ...args),
   );
-};
 
 async function fixture() {
   const mock = await ethers.deployContract('$EnumerableSet');
