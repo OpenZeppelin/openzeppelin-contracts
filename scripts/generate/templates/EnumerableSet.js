@@ -5,6 +5,7 @@ const { SET_TYPES } = require('./Enumerable.opts');
 const header = `\
 pragma solidity ^0.8.20;
 
+import {Arrays} from "../Arrays.sol";
 import {Hashes} from "../cryptography/Hashes.sol";
 
 /**
@@ -17,6 +18,7 @@ import {Hashes} from "../cryptography/Hashes.sol";
  * - Elements are added, removed, and checked for existence in constant time
  * (O(1)).
  * - Elements are enumerated in O(n). No guarantees are made on the ordering.
+ * - Set can be cleared (all elements removed) in O(n).
  *
  * \`\`\`solidity
  * contract Example {
@@ -120,6 +122,20 @@ function _remove(Set storage set, bytes32 value) private returns (bool) {
 }
 
 /**
+ * @dev Removes all the values from a set. O(n).
+ *
+ * WARNING: Developers should keep in mind that this function has an unbounded cost and using it may render the
+ * function uncallable if the set grows to the point where clearing it consumes too much gas to fit in a block.
+ */
+function _clear(Set storage set) private {
+    uint256 len = _length(set);
+    for (uint256 i = 0; i < len; ++i) {
+        delete set._positions[set._values[i]];
+    }
+    Arrays.unsafeSetLength(set._values, 0);
+}
+
+/**
  * @dev Returns true if the value is in the set. O(1).
  */
 function _contains(Set storage set, bytes32 value) private view returns (bool) {
@@ -185,6 +201,16 @@ function add(${name} storage set, ${value.type} value) internal returns (bool) {
  */
 function remove(${name} storage set, ${value.type} value) internal returns (bool) {
     return _remove(set._inner, ${toBytes32(value.type, 'value')});
+}
+
+/**
+ * @dev Removes all the values from a set. O(n).
+ *
+ * WARNING: Developers should keep in mind that this function has an unbounded cost and using it may render the
+ * function uncallable if the set grows to the point where clearing it consumes too much gas to fit in a block.
+ */
+function clear(${name} storage set) internal {
+    _clear(set._inner);
 }
 
 /**
@@ -303,6 +329,20 @@ function remove(${name} storage self, ${value.type} memory value) internal retur
 }
 
 /**
+ * @dev Removes all the values from a set. O(n).
+ *
+ * WARNING: Developers should keep in mind that this function has an unbounded cost and using it may render the
+ * function uncallable if the set grows to the point where clearing it consumes too much gas to fit in a block.
+ */
+function clear(${name} storage set) internal {
+    uint256 len = length(set);
+    for (uint256 i = 0; i < len; ++i) {
+        delete set._positions[set._values[i]];
+    }
+    Arrays.unsafeSetLength(set._values, 0);
+}
+
+/**
  * @dev Returns true if the value is in the self. O(1).
  */
 function contains(${name} storage self, ${value.type} memory value) internal view returns (bool) {
@@ -408,6 +448,24 @@ function remove(${name} storage self, ${value.type} memory value) internal retur
         return true;
     } else {
         return false;
+    }
+}
+
+/**
+ * @dev Removes all the values from a set. O(n).
+ *
+ * WARNING: Developers should keep in mind that this function has an unbounded cost and using it may render the
+ * function uncallable if the set grows to the point where clearing it consumes too much gas to fit in a block.
+ */
+function clear(${name} storage self) internal {
+    ${value.type}[] storage v = self._values;
+
+    uint256 len = length(self);
+    for (uint256 i = 0; i < len; ++i) {
+        delete self._positions[_hash(v[i])];
+    }
+    assembly ("memory-safe") {
+        sstore(v.slot, 0)
     }
 }
 

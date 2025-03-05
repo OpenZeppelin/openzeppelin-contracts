@@ -28,9 +28,10 @@ async function fixture() {
                 get: `$get(uint256,${key.type})`,
                 tryGet: `$tryGet(uint256,${key.type})`,
                 remove: `$remove(uint256,${key.type})`,
+                contains: `$contains(uint256,${key.type})`,
+                clear: `$clear_EnumerableMap_${name}(uint256)`,
                 length: `$length_EnumerableMap_${name}(uint256)`,
                 at: `$at_EnumerableMap_${name}(uint256,uint256)`,
-                contains: `$contains(uint256,${key.type})`,
                 keys: `$keys_EnumerableMap_${name}(uint256)`,
               }
             : {
@@ -38,9 +39,10 @@ async function fixture() {
                 get: `$get_EnumerableMap_${name}(uint256,${key.type})`,
                 tryGet: `$tryGet_EnumerableMap_${name}(uint256,${key.type})`,
                 remove: `$remove_EnumerableMap_${name}(uint256,${key.type})`,
+                contains: `$contains_EnumerableMap_${name}(uint256,${key.type})`,
+                clear: `$clear_EnumerableMap_${name}(uint256)`,
                 length: `$length_EnumerableMap_${name}(uint256)`,
                 at: `$at_EnumerableMap_${name}(uint256,uint256)`,
-                contains: `$contains_EnumerableMap_${name}(uint256,${key.type})`,
                 keys: `$keys_EnumerableMap_${name}(uint256)`,
               },
           fnSig =>
