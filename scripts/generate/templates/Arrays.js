@@ -378,6 +378,9 @@ module.exports = format(
       TYPES.map(unsafeAccessStorage),
       TYPES.map(unsafeAccessMemory),
       TYPES.map(unsafeSetLength),
+      // arrays of non-value types
+      unsafeSetLength('bytes'),
+      unsafeSetLength('string'),
     ),
   ).trimEnd(),
   '}',
