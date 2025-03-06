@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (utils/cryptography/MerkleProof.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (utils/cryptography/MerkleProof.sol)
 // This file was procedurally generated from scripts/generate/templates/MerkleProof.js.
 
 pragma solidity ^0.8.20;
@@ -19,6 +19,9 @@ import {Hashes} from "./Hashes.sol";
  * the Merkle tree could be reinterpreted as a leaf value.
  * OpenZeppelin's JavaScript library generates Merkle trees that are safe
  * against this attack out of the box.
+ *
+ * IMPORTANT: Consider memory side-effects when using custom hashing functions
+ * that access memory in an unsafe way.
  *
  * NOTE: This library supports proof verification for merkle trees built using
  * custom _commutative_ hashing functions (i.e. `H(a, b) == H(b, a)`). Proving
@@ -47,7 +50,7 @@ library MerkleProof {
      * @dev Returns the rebuilt hash obtained by traversing a Merkle tree up
      * from `leaf` using `proof`. A `proof` is valid if and only if the rebuilt
      * hash matches the root of the tree. When processing the proof, the pairs
-     * of leafs & pre-images are assumed to be sorted.
+     * of leaves & pre-images are assumed to be sorted.
      *
      * This version handles proofs in memory with the default hashing function.
      */
@@ -80,7 +83,7 @@ library MerkleProof {
      * @dev Returns the rebuilt hash obtained by traversing a Merkle tree up
      * from `leaf` using `proof`. A `proof` is valid if and only if the rebuilt
      * hash matches the root of the tree. When processing the proof, the pairs
-     * of leafs & pre-images are assumed to be sorted.
+     * of leaves & pre-images are assumed to be sorted.
      *
      * This version handles proofs in memory with a custom hashing function.
      */
@@ -112,7 +115,7 @@ library MerkleProof {
      * @dev Returns the rebuilt hash obtained by traversing a Merkle tree up
      * from `leaf` using `proof`. A `proof` is valid if and only if the rebuilt
      * hash matches the root of the tree. When processing the proof, the pairs
-     * of leafs & pre-images are assumed to be sorted.
+     * of leaves & pre-images are assumed to be sorted.
      *
      * This version handles proofs in calldata with the default hashing function.
      */
@@ -145,7 +148,7 @@ library MerkleProof {
      * @dev Returns the rebuilt hash obtained by traversing a Merkle tree up
      * from `leaf` using `proof`. A `proof` is valid if and only if the rebuilt
      * hash matches the root of the tree. When processing the proof, the pairs
-     * of leafs & pre-images are assumed to be sorted.
+     * of leaves & pre-images are assumed to be sorted.
      *
      * This version handles proofs in calldata with a custom hashing function.
      */

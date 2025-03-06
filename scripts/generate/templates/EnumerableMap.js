@@ -2,7 +2,6 @@ const format = require('../format-lines');
 const { fromBytes32, toBytes32 } = require('./conversion');
 const { TYPES } = require('./EnumerableMap.opts');
 
-/* eslint-disable max-len */
 const header = `\
 pragma solidity ^0.8.20;
 
@@ -18,6 +17,7 @@ import {EnumerableSet} from "./EnumerableSet.sol";
  * - Entries are added, removed, and checked for existence in constant time
  * (O(1)).
  * - Entries are enumerated in O(n). No guarantees are made on the ordering.
+ * - Map can be cleared (all entries removed) in O(n).
  *
  * \`\`\`solidity
  * contract Example {
@@ -52,7 +52,6 @@ import {EnumerableSet} from "./EnumerableSet.sol";
  * ====
  */
 `;
-/* eslint-enable max-len */
 
 const defaultMap = `\
 // To implement this library for multiple types with as little code repetition as possible, we write it in
@@ -94,6 +93,20 @@ function remove(Bytes32ToBytes32Map storage map, bytes32 key) internal returns (
 }
 
 /**
+ * @dev Removes all the entries from a map. O(n).
+ *
+ * WARNING: Developers should keep in mind that this function has an unbounded cost and using it may render the
+ * function uncallable if the map grows to the point where clearing it consumes too much gas to fit in a block.
+ */
+function clear(Bytes32ToBytes32Map storage map) internal {
+    uint256 len = length(map);
+    for (uint256 i = 0; i < len; ++i) {
+        delete map._values[map._keys.at(i)];
+    }
+    map._keys.clear();
+}
+
+/**
  * @dev Returns true if the key is in the map. O(1).
  */
 function contains(Bytes32ToBytes32Map storage map, bytes32 key) internal view returns (bool) {
@@ -117,21 +130,21 @@ function length(Bytes32ToBytes32Map storage map) internal view returns (uint256)
  *
  * - \`index\` must be strictly less than {length}.
  */
-function at(Bytes32ToBytes32Map storage map, uint256 index) internal view returns (bytes32, bytes32) {
-    bytes32 key = map._keys.at(index);
-    return (key, map._values[key]);
+function at(Bytes32ToBytes32Map storage map, uint256 index) internal view returns (bytes32 key, bytes32 value) {
+    bytes32 atKey = map._keys.at(index);
+    return (atKey, map._values[atKey]);
 }
 
 /**
  * @dev Tries to returns the value associated with \`key\`. O(1).
  * Does not revert if \`key\` is not in the map.
  */
-function tryGet(Bytes32ToBytes32Map storage map, bytes32 key) internal view returns (bool, bytes32) {
-    bytes32 value = map._values[key];
-    if (value == bytes32(0)) {
+function tryGet(Bytes32ToBytes32Map storage map, bytes32 key) internal view returns (bool exists, bytes32 value) {
+    bytes32 val = map._values[key];
+    if (val == bytes32(0)) {
         return (contains(map, key), bytes32(0));
     } else {
-        return (true, value);
+        return (true, val);
     }
 }
 
@@ -191,6 +204,16 @@ function remove(${name} storage map, ${keyType} key) internal returns (bool) {
 }
 
 /**
+ * @dev Removes all the entries from a map. O(n).
+ *
+ * WARNING: Developers should keep in mind that this function has an unbounded cost and using it may render the
+ * function uncallable if the map grows to the point where clearing it consumes too much gas to fit in a block.
+ */
+function clear(${name} storage map) internal {
+    clear(map._inner);
+}
+
+/**
  * @dev Returns true if the key is in the map. O(1).
  */
 function contains(${name} storage map, ${keyType} key) internal view returns (bool) {
@@ -213,18 +236,18 @@ function length(${name} storage map) internal view returns (uint256) {
  *
  * - \`index\` must be strictly less than {length}.
  */
-function at(${name} storage map, uint256 index) internal view returns (${keyType}, ${valueType}) {
-    (bytes32 key, bytes32 value) = at(map._inner, index);
-    return (${fromBytes32(keyType, 'key')}, ${fromBytes32(valueType, 'value')});
+function at(${name} storage map, uint256 index) internal view returns (${keyType} key, ${valueType} value) {
+    (bytes32 atKey, bytes32 val) = at(map._inner, index);
+    return (${fromBytes32(keyType, 'atKey')}, ${fromBytes32(valueType, 'val')});
 }
 
 /**
  * @dev Tries to returns the value associated with \`key\`. O(1).
  * Does not revert if \`key\` is not in the map.
  */
-function tryGet(${name} storage map, ${keyType} key) internal view returns (bool, ${valueType}) {
-    (bool success, bytes32 value) = tryGet(map._inner, ${toBytes32(keyType, 'key')});
-    return (success, ${fromBytes32(valueType, 'value')});
+function tryGet(${name} storage map, ${keyType} key) internal view returns (bool exists, ${valueType} value) {
+    (bool success, bytes32 val) = tryGet(map._inner, ${toBytes32(keyType, 'key')});
+    return (success, ${fromBytes32(valueType, 'val')});
 }
 
 /**

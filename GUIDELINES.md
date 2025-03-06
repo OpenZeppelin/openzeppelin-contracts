@@ -6,7 +6,7 @@ Code must be thoroughly tested with quality unit tests.
 
 We defer to the [Moloch Testing Guide](https://github.com/MolochVentures/moloch/tree/master/test#readme) for specific recommendations, though not all of it is relevant here. Note the introduction:
 
-> Tests should be written, not only to verify correctness of the target code, but to be comprehensively reviewed by other programmers. Therefore, for mission critical Solidity code, the quality of the tests are just as important (if not more so) than the code itself, and should be written with the highest standards of clarity and elegance.
+> Tests should be written, not only to verify correctness of the target code, but to be comprehensively reviewed by other programmers. Therefore, for mission critical Solidity code, the quality of the tests is just as important (if not more so) than the code itself, and should be written to the highest standards of clarity and elegance.
 
 Every addition or change to the code must come with relevant and comprehensive tests.
 
@@ -55,7 +55,7 @@ External contributions must be reviewed separately by multiple maintainers.
 
 Automation should be used as much as possible to reduce the possibility of human error and forgetfulness.
 
-Automations that make use of sensitive credentials must use secure secret management, and must be strengthened against attacks such as [those on GitHub Actions worklows](https://github.com/nikitastupin/pwnhub).
+Automations that make use of sensitive credentials must use secure secret management, and must be strengthened against attacks such as [those on GitHub Actions workflows](https://github.com/nikitastupin/pwnhub).
 
 Some other examples of automation are:
 
@@ -129,6 +129,13 @@ In addition to the official Solidity Style Guide we have a number of other conve
 
   ```solidity
   abstract contract AccessControl is ..., {
+  ```
+
+* Return values are generally not named, unless they are not immediately clear or there are multiple return values.
+
+  ```solidity
+  function expiration() public view returns (uint256) { // Good
+  function hasRole() public view returns (bool isMember, uint32 currentDelay) { // Good
   ```
 
 * Unchecked arithmetic blocks should contain comments explaining why overflow is guaranteed not to happen. If the reason is immediately apparent from the line above the unchecked block, the comment may be omitted.

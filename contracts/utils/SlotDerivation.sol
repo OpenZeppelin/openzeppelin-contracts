@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.1.0) (utils/SlotDerivation.sol)
 // This file was procedurally generated from scripts/generate/templates/SlotDerivation.js.
 
 pragma solidity ^0.8.20;
@@ -18,7 +19,7 @@ pragma solidity ^0.8.20;
  *     using SlotDerivation for bytes32;
  *
  *     // Declare a namespace
- *     string private constant _NAMESPACE = "<namespace>" // eg. OpenZeppelin.Slot
+ *     string private constant _NAMESPACE = "<namespace>"; // eg. OpenZeppelin.Slot
  *
  *     function setValueInNamespace(uint256 key, address newValue) internal {
  *         _NAMESPACE.erc7201Slot().deriveMapping(key).getAddressSlot().value = newValue;
@@ -34,6 +35,8 @@ pragma solidity ^0.8.20;
  *
  * NOTE: This library provides a way to manipulate storage locations in a non-standard way. Tooling for checking
  * upgrade safety will ignore the slots accessed through this library.
+ *
+ * _Available since v5.1._
  */
 library SlotDerivation {
     /**
@@ -70,7 +73,7 @@ library SlotDerivation {
      */
     function deriveMapping(bytes32 slot, address key) internal pure returns (bytes32 result) {
         assembly ("memory-safe") {
-            mstore(0x00, key)
+            mstore(0x00, and(key, shr(96, not(0))))
             mstore(0x20, slot)
             result := keccak256(0x00, 0x40)
         }
@@ -81,7 +84,7 @@ library SlotDerivation {
      */
     function deriveMapping(bytes32 slot, bool key) internal pure returns (bytes32 result) {
         assembly ("memory-safe") {
-            mstore(0x00, key)
+            mstore(0x00, iszero(iszero(key)))
             mstore(0x20, slot)
             result := keccak256(0x00, 0x40)
         }

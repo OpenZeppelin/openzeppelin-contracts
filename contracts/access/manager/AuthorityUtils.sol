@@ -19,17 +19,18 @@ library AuthorityUtils {
         bytes4 selector
     ) internal view returns (bool immediate, uint32 delay) {
         Memory.Pointer ptr = Memory.getFreePointer();
-        (bool success, bytes memory data) = authority.staticcall(
-            abi.encodeCall(IAuthority.canCall, (caller, target, selector))
-        );
-        if (success) {
-            if (data.length >= 0x40) {
-                (immediate, delay) = abi.decode(data, (bool, uint32));
-            } else if (data.length >= 0x20) {
-                immediate = abi.decode(data, (bool));
+        bytes memory data = abi.encodeCall(IAuthority.canCall, (caller, target, selector));
+
+        assembly ("memory-safe") {
+            mstore(0x00, 0x00)
+            mstore(0x20, 0x00)
+
+            if staticcall(gas(), authority, add(data, 0x20), mload(data), 0x00, 0x40) {
+                immediate := mload(0x00)
+                delay := mload(0x20)
             }
         }
+
         Memory.setFreePointer(ptr);
-        return (immediate, delay);
     }
 }

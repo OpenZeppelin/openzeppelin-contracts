@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (utils/introspection/ERC165Checker.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (utils/introspection/ERC165Checker.sol)
 
 pragma solidity ^0.8.20;
 
@@ -113,7 +113,7 @@ library ERC165Checker {
         bool success;
         uint256 returnSize;
         uint256 returnValue;
-        assembly {
+        assembly ("memory-safe") {
             success := staticcall(30000, account, add(encodedParams, 0x20), mload(encodedParams), 0x00, 0x20)
             returnSize := returndatasize()
             returnValue := mload(0x00)

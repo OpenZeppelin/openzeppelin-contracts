@@ -21,7 +21,7 @@ function shouldBehaveLikeAccessControl() {
       expect(await this.mock.hasRole(DEFAULT_ADMIN_ROLE, this.defaultAdmin)).to.be.true;
     });
 
-    it("other roles's admin is the default admin role", async function () {
+    it("other role's admin is the default admin role", async function () {
       expect(await this.mock.getRoleAdmin(ROLE)).to.equal(DEFAULT_ADMIN_ROLE);
     });
 
