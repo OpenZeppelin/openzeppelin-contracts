@@ -112,7 +112,7 @@ abstract contract Initializable {
         // Allowed calls:
         // - initialSetup: the contract is not in the initializing state and no previous version was
         //                 initialized
-        // - construction: the contract is initialized at version 1 (no reininitialization) and the
+        // - construction: the contract is initialized at version 1 (no reinitialization) and the
         //                 current contract is just being deployed
         bool initialSetup = initialized == 0 && isTopLevelCall;
         bool construction = initialized == 1 && address(this).code.length == 0;
