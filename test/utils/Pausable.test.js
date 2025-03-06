@@ -106,7 +106,9 @@ describe('Pausable', function () {
       });
 
       it('includes reason in revert message', async function () {
-        await expect(this.mock.normalProcess()).to.be.revertedWithCustomError(this.mock, 'EnforcedPause').withArgs(REASON);
+        await expect(this.mock.normalProcess())
+          .to.be.revertedWithCustomError(this.mock, 'EnforcedPause')
+          .withArgs(REASON);
       });
 
       describe('when unpaused with reason', function () {
