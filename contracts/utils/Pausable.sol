@@ -16,21 +16,22 @@ import {Context} from "../utils/Context.sol";
  */
 abstract contract Pausable is Context {
     bool private _paused;
+    string private _pauseReason;
 
     /**
-     * @dev Emitted when the pause is triggered by `account`.
+     * @dev Emitted when the pause is triggered by `account` with an optional reason.
      */
-    event Paused(address account);
+    event Paused(address account, string reason);
 
     /**
-     * @dev Emitted when the pause is lifted by `account`.
+     * @dev Emitted when the pause is lifted by `account` with an optional reason.
      */
-    event Unpaused(address account);
+    event Unpaused(address account, string reason);
 
     /**
      * @dev The operation failed because the contract is paused.
      */
-    error EnforcedPause();
+    error EnforcedPause(string reason);
 
     /**
      * @dev The operation failed because the contract is not paused.
@@ -69,11 +70,18 @@ abstract contract Pausable is Context {
     }
 
     /**
+     * @dev Returns the reason why the contract is paused, empty if not paused.
+     */
+    function pauseReason() public view virtual returns (string memory) {
+        return _pauseReason;
+    }
+
+    /**
      * @dev Throws if the contract is paused.
      */
     function _requireNotPaused() internal view virtual {
         if (paused()) {
-            revert EnforcedPause();
+            revert EnforcedPause(_pauseReason);
         }
     }
 
@@ -87,26 +95,50 @@ abstract contract Pausable is Context {
     }
 
     /**
-     * @dev Triggers stopped state.
+     * @dev Triggers stopped state with a reason string.
+     *
+     * Requirements:
+     *
+     * - The contract must not be paused.
+     */
+    function _pause(string memory reason) internal virtual whenNotPaused {
+        _paused = true;
+        _pauseReason = reason;
+        emit Paused(_msgSender(), reason);
+    }
+
+    /**
+     * @dev Returns to normal state with a reason string.
+     *
+     * Requirements:
+     *
+     * - The contract must be paused.
+     */
+    function _unpause(string memory reason) internal virtual whenPaused {
+        _paused = false;
+        _pauseReason = "";
+        emit Unpaused(_msgSender(), reason);
+    }
+
+    /**
+     * @dev Backward compatibility: Triggers stopped state without a reason.
      *
      * Requirements:
      *
      * - The contract must not be paused.
      */
     function _pause() internal virtual whenNotPaused {
-        _paused = true;
-        emit Paused(_msgSender());
+        _pause("");
     }
 
     /**
-     * @dev Returns to normal state.
+     * @dev Backward compatibility: Returns to normal state without a reason.
      *
      * Requirements:
      *
      * - The contract must be paused.
      */
     function _unpause() internal virtual whenPaused {
-        _paused = false;
-        emit Unpaused(_msgSender());
+        _unpause("");
     }
 }

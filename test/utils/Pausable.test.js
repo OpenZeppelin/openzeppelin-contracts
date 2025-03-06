@@ -39,11 +39,11 @@ describe('Pausable', function () {
       });
 
       it('emits a Paused event', async function () {
-        await expect(this.tx).to.emit(this.mock, 'Paused').withArgs(this.pauser);
+        await expect(this.tx).to.emit(this.mock, 'Paused').withArgs(this.pauser, '');
       });
 
       it('cannot perform normal process in pause', async function () {
-        await expect(this.mock.normalProcess()).to.be.revertedWithCustomError(this.mock, 'EnforcedPause');
+        await expect(this.mock.normalProcess()).to.be.revertedWithCustomError(this.mock, 'EnforcedPause').withArgs('');
       });
 
       it('can take a drastic measure in a pause', async function () {
@@ -52,7 +52,7 @@ describe('Pausable', function () {
       });
 
       it('reverts when re-pausing', async function () {
-        await expect(this.mock.pause()).to.be.revertedWithCustomError(this.mock, 'EnforcedPause');
+        await expect(this.mock.pause()).to.be.revertedWithCustomError(this.mock, 'EnforcedPause').withArgs('');
       });
 
       describe('unpausing', function () {
@@ -67,7 +67,7 @@ describe('Pausable', function () {
           });
 
           it('emits an Unpaused event', async function () {
-            await expect(this.tx).to.emit(this.mock, 'Unpaused').withArgs(this.pauser);
+            await expect(this.tx).to.emit(this.mock, 'Unpaused').withArgs(this.pauser, '');
           });
 
           it('should resume allowing normal process', async function () {
@@ -83,6 +83,43 @@ describe('Pausable', function () {
           it('reverts when re-unpausing', async function () {
             await expect(this.mock.unpause()).to.be.revertedWithCustomError(this.mock, 'ExpectedPause');
           });
+        });
+      });
+    });
+  });
+
+  describe('with reason string', function () {
+    const REASON = 'Emergency maintenance';
+    const UNPAUSE_REASON = 'Maintenance complete';
+
+    describe('when paused with reason', function () {
+      beforeEach(async function () {
+        this.tx = await this.mock.pauseWithReason(REASON);
+      });
+
+      it('emits a Paused event with reason', async function () {
+        await expect(this.tx).to.emit(this.mock, 'Paused').withArgs(this.pauser, REASON);
+      });
+
+      it('stores the pause reason', async function () {
+        expect(await this.mock.pauseReason()).to.equal(REASON);
+      });
+
+      it('includes reason in revert message', async function () {
+        await expect(this.mock.normalProcess()).to.be.revertedWithCustomError(this.mock, 'EnforcedPause').withArgs(REASON);
+      });
+
+      describe('when unpaused with reason', function () {
+        beforeEach(async function () {
+          this.tx = await this.mock.unpauseWithReason(UNPAUSE_REASON);
+        });
+
+        it('emits an Unpaused event with reason', async function () {
+          await expect(this.tx).to.emit(this.mock, 'Unpaused').withArgs(this.pauser, UNPAUSE_REASON);
+        });
+
+        it('clears the pause reason', async function () {
+          expect(await this.mock.pauseReason()).to.equal('');
         });
       });
     });

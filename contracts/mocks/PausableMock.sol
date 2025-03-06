@@ -28,4 +28,12 @@ contract PausableMock is Pausable {
     function unpause() external {
         _unpause();
     }
+
+    function pauseWithReason(string memory reason) external {
+        _pause(reason);
+    }
+
+    function unpauseWithReason(string memory reason) external {
+        _unpause(reason);
+    }
 }
