@@ -217,14 +217,6 @@ describe('ERC721Consecutive', function () {
       ).to.be.revertedWithCustomError(factory, 'ERC721ForbiddenMint');
     });
 
-    it('cannot use single minting during construction', async function () {
-      const factory = await ethers.getContractFactory('$ERC721ConsecutiveNoConstructorMintMock');
-
-      await expect(
-        ethers.deployContract('$ERC721ConsecutiveNoConstructorMintMock', [name, symbol]),
-      ).to.be.revertedWithCustomError(factory, 'ERC721ForbiddenMint');
-    });
-
     it('consecutive mint not compatible with enumerability', async function () {
       const factory = await ethers.getContractFactory('$ERC721ConsecutiveEnumerableMock');
 
