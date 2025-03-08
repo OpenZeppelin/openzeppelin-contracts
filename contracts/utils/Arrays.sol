@@ -479,4 +479,69 @@ library Arrays {
             sstore(array.slot, len)
         }
     }
+
+    /**
+     * @dev Removes duplicate values from a sorted array. This function does not check that the array is sorted,
+     * behavior is undefined if the array is not sorted. The resulting array will have no duplicates and will
+     * be shorter or the same length as the input array.
+     *
+     * This operation is performed in-place by moving elements and modifying the length of the array.
+     * Time complexity O(n).
+     *
+     * WARNING: This function is destructive. It will modify the array passed by reference.
+     */
+    function uniquifySorted(uint256[] memory array) internal pure returns (uint256[] memory) {
+        if (array.length <= 1) {
+            return array;
+        }
+
+        uint256 resultSize = 1;
+        for (uint256 i = 1; i < array.length; ++i) {
+            if (array[i] != array[i - 1]) {
+                if (i != resultSize) {
+                    array[resultSize] = array[i];
+                }
+                ++resultSize;
+            }
+        }
+
+        // Resize the array by creating a new one (can't modify length of memory arrays directly)
+        uint256[] memory result = new uint256[](resultSize);
+        for (uint256 i = 0; i < resultSize; ++i) {
+            result[i] = array[i];
+        }
+        return result;
+    }
+
+    /**
+     * @dev Removes duplicate values from a sorted address array. This function does not check that the array
+     * is sorted, behavior is undefined if the array is not sorted. The resulting array will have no duplicates
+     * and will be shorter or the same length as the input array.
+     *
+     * This operation is performed in-place by moving elements and modifying the length of the array.
+     * Time complexity O(n).
+     *
+     * WARNING: This function is destructive. It will modify the array passed by reference.
+     */
+    function uniquifySorted(address[] memory array) internal pure returns (address[] memory) {
+        uint256[] memory castedArray = _castToUint256Array(array);
+        uniquifySorted(castedArray);
+        return array;
+    }
+
+    /**
+     * @dev Removes duplicate values from a sorted bytes32 array. This function does not check that the array
+     * is sorted, behavior is undefined if the array is not sorted. The resulting array will have no duplicates
+     * and will be shorter or the same length as the input array.
+     *
+     * This operation is performed in-place by moving elements and modifying the length of the array.
+     * Time complexity O(n).
+     *
+     * WARNING: This function is destructive. It will modify the array passed by reference.
+     */
+    function uniquifySorted(bytes32[] memory array) internal pure returns (bytes32[] memory) {
+        uint256[] memory castedArray = _castToUint256Array(array);
+        uniquifySorted(castedArray);
+        return array;
+    }
 }
