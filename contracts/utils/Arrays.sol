@@ -479,4 +479,26 @@ library Arrays {
             sstore(array.slot, len)
         }
     }
+
+    /**
+     * @dev Helper to set the length of a dynamic array. Directly writing to `.length` is forbidden.
+     *
+     * WARNING: this does not clear elements if length is reduced, of initialize elements if length is increased.
+     */
+    function unsafeSetLength(bytes[] storage array, uint256 len) internal {
+        assembly ("memory-safe") {
+            sstore(array.slot, len)
+        }
+    }
+
+    /**
+     * @dev Helper to set the length of a dynamic array. Directly writing to `.length` is forbidden.
+     *
+     * WARNING: this does not clear elements if length is reduced, of initialize elements if length is increased.
+     */
+    function unsafeSetLength(string[] storage array, uint256 len) internal {
+        assembly ("memory-safe") {
+            sstore(array.slot, len)
+        }
+    }
 }
