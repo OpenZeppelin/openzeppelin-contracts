@@ -12,7 +12,7 @@ import {SafeCast} from "../utils/math/SafeCast.sol";
 import {DoubleEndedQueue} from "../utils/structs/DoubleEndedQueue.sol";
 import {Address} from "../utils/Address.sol";
 import {Context} from "../utils/Context.sol";
-import {Nonces} from "../utils/Nonces.sol";
+import {NoncesKeyed} from "../utils/NoncesKeyed.sol";
 import {Strings} from "../utils/Strings.sol";
 import {IGovernor, IERC6372} from "./IGovernor.sol";
 
@@ -25,7 +25,7 @@ import {IGovernor, IERC6372} from "./IGovernor.sol";
  * - A voting module must implement {_getVotes}
  * - Additionally, {votingPeriod}, {votingDelay}, and {quorum} must also be implemented
  */
-abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC721Receiver, IERC1155Receiver {
+abstract contract Governor is Context, ERC165, EIP712, NoncesKeyed, IGovernor, IERC721Receiver, IERC1155Receiver {
     using DoubleEndedQueue for DoubleEndedQueue.Bytes32Deque;
 
     bytes32 public constant BALLOT_TYPEHASH =
@@ -578,15 +578,8 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         address voter,
         bytes memory signature
     ) public virtual returns (uint256) {
-        bool valid = SignatureChecker.isValidSignatureNow(
-            voter,
-            _hashTypedDataV4(keccak256(abi.encode(BALLOT_TYPEHASH, proposalId, support, voter, _useNonce(voter)))),
-            signature
-        );
-
-        if (!valid) {
-            revert GovernorInvalidSignature(voter);
-        }
+        bytes memory rawSignatureDigestData = abi.encode(BALLOT_TYPEHASH, proposalId, support, voter, nonces(voter));
+        _validateVoteSignature(voter, proposalId, signature, rawSignatureDigestData);
 
         return _castVote(proposalId, voter, support, "");
     }
@@ -602,29 +595,54 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         bytes memory params,
         bytes memory signature
     ) public virtual returns (uint256) {
-        bool valid = SignatureChecker.isValidSignatureNow(
+        bytes memory rawSignatureDigestData = abi.encode(
+            EXTENDED_BALLOT_TYPEHASH,
+            proposalId,
+            support,
             voter,
-            _hashTypedDataV4(
-                keccak256(
-                    abi.encode(
-                        EXTENDED_BALLOT_TYPEHASH,
-                        proposalId,
-                        support,
-                        voter,
-                        _useNonce(voter),
-                        keccak256(bytes(reason)),
-                        keccak256(params)
-                    )
-                )
-            ),
-            signature
+            nonces(voter),
+            keccak256(bytes(reason)),
+            keccak256(params)
         );
+        _validateVoteSignature(voter, proposalId, signature, rawSignatureDigestData);
+
+        return _castVote(proposalId, voter, support, reason, params);
+    }
+
+    function _validateVoteSignature(
+        address voter,
+        uint256 proposalId,
+        bytes memory signature,
+        bytes memory rawSignatureDigestData
+    ) internal virtual {
+        bool valid;
+        if (
+            SignatureChecker.isValidSignatureNow(voter, _hashTypedDataV4(keccak256(rawSignatureDigestData)), signature)
+        ) {
+            valid = true;
+            _useNonce(voter);
+        } else {
+            // uint192 is sufficient entropy for proposalId within nonce keys.
+            uint256 keyedNonce = nonces(voter, uint192(proposalId));
+            assembly ("memory-safe") {
+                mstore(add(rawSignatureDigestData, 0xA0), keyedNonce)
+            }
+
+            if (
+                SignatureChecker.isValidSignatureNow(
+                    voter,
+                    _hashTypedDataV4(keccak256(rawSignatureDigestData)),
+                    signature
+                )
+            ) {
+                valid = true;
+                _useNonce(voter, uint192(proposalId));
+            }
+        }
 
         if (!valid) {
             revert GovernorInvalidSignature(voter);
         }
-
-        return _castVote(proposalId, voter, support, reason, params);
     }
 
     /**

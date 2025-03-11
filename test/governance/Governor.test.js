@@ -3,7 +3,7 @@ const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { GovernorHelper } = require('../helpers/governance');
-const { getDomain, Ballot } = require('../helpers/eip712');
+const { getDomain, Ballot, ExtendedBallot } = require('../helpers/eip712');
 const { ProposalState, VoteType } = require('../helpers/enums');
 const time = require('../helpers/time');
 
@@ -27,6 +27,8 @@ const value = ethers.parseEther('1');
 
 const signBallot = account => (contract, message) =>
   getDomain(contract).then(domain => account.signTypedData(domain, { Ballot }, message));
+const signExtendedBallot = account => (contract, message) =>
+  getDomain(contract).then(domain => account.signTypedData(domain, { ExtendedBallot }, message));
 
 async function deployToken(contractName) {
   try {
@@ -40,7 +42,7 @@ async function deployToken(contractName) {
   }
 }
 
-describe('Governor', function () {
+describe.only('Governor', function () {
   for (const { Token, mode } of TOKENS) {
     const fixture = async () => {
       const [owner, proposer, voter1, voter2, voter3, voter4, userEOA] = await ethers.getSigners();
@@ -198,66 +200,110 @@ describe('Governor', function () {
       });
 
       describe('vote with signature', function () {
-        it('votes with an EOA signature', async function () {
-          await this.token.connect(this.voter1).delegate(this.userEOA);
+        for (const nonceType of ['default', 'keyed']) {
+          describe(`with ${nonceType} nonce`, function () {
+            beforeEach(async function () {
+              await this.helper.propose();
 
-          const nonce = await this.mock.nonces(this.userEOA);
+              const maskedProposalId = BigInt(this.helper.id) & (2n ** 192n - 1n);
 
-          // Run proposal
-          await this.helper.propose();
-          await this.helper.waitForSnapshot();
-          await expect(
-            this.helper.vote({
-              support: VoteType.For,
-              voter: this.userEOA.address,
-              nonce,
-              signature: signBallot(this.userEOA),
-            }),
-          )
-            .to.emit(this.mock, 'VoteCast')
-            .withArgs(this.userEOA, this.proposal.id, VoteType.For, ethers.parseEther('10'), '');
+              this.getNonce = async address => {
+                return await (nonceType === 'default'
+                  ? this.mock.nonces(address)
+                  : this.mock['nonces(address,uint192)'](address, maskedProposalId));
+              };
+            });
 
-          await this.helper.waitForDeadline();
-          await this.helper.execute();
+            it('votes with an EOA signature', async function () {
+              await this.token.connect(this.voter1).delegate(this.userEOA);
 
-          // After
-          expect(await this.mock.hasVoted(this.proposal.id, this.userEOA)).to.be.true;
-          expect(await this.mock.nonces(this.userEOA)).to.equal(nonce + 1n);
-        });
+              const nonce = await this.getNonce(this.userEOA);
 
-        it('votes with a valid EIP-1271 signature', async function () {
-          const wallet = await ethers.deployContract('ERC1271WalletMock', [this.userEOA]);
+              await this.helper.waitForSnapshot();
+              await expect(
+                this.helper.vote({
+                  support: VoteType.For,
+                  voter: this.userEOA.address,
+                  nonce,
+                  signature: signBallot(this.userEOA),
+                }),
+              )
+                .to.emit(this.mock, 'VoteCast')
+                .withArgs(this.userEOA, this.proposal.id, VoteType.For, ethers.parseEther('10'), '');
 
-          await this.token.connect(this.voter1).delegate(wallet);
+              await this.helper.waitForDeadline();
+              await this.helper.execute();
 
-          const nonce = await this.mock.nonces(this.userEOA);
+              // After
+              expect(await this.mock.hasVoted(this.proposal.id, this.userEOA)).to.be.true;
+              expect(await this.getNonce(this.userEOA)).to.equal(nonce + 1n);
+            });
 
-          // Run proposal
-          await this.helper.propose();
-          await this.helper.waitForSnapshot();
-          await expect(
-            this.helper.vote({
-              support: VoteType.For,
-              voter: wallet.target,
-              nonce,
-              signature: signBallot(this.userEOA),
-            }),
-          )
-            .to.emit(this.mock, 'VoteCast')
-            .withArgs(wallet, this.proposal.id, VoteType.For, ethers.parseEther('10'), '');
-          await this.helper.waitForDeadline();
-          await this.helper.execute();
+            it('votes with an EOA signature with reason', async function () {
+              await this.token.connect(this.voter1).delegate(this.userEOA);
 
-          // After
-          expect(await this.mock.hasVoted(this.proposal.id, wallet)).to.be.true;
-          expect(await this.mock.nonces(wallet)).to.equal(nonce + 1n);
-        });
+              const nonce = await this.getNonce(this.userEOA);
 
-        afterEach('no other votes are cast', async function () {
-          expect(await this.mock.hasVoted(this.proposal.id, this.owner)).to.be.false;
-          expect(await this.mock.hasVoted(this.proposal.id, this.voter1)).to.be.false;
-          expect(await this.mock.hasVoted(this.proposal.id, this.voter2)).to.be.false;
-        });
+              await this.helper.waitForSnapshot();
+              await expect(
+                this.helper.vote({
+                  support: VoteType.For,
+                  voter: this.userEOA.address,
+                  nonce,
+                  reason: 'This is an example reason',
+                  signature: signExtendedBallot(this.userEOA),
+                }),
+              )
+                .to.emit(this.mock, 'VoteCast')
+                .withArgs(
+                  this.userEOA,
+                  this.proposal.id,
+                  VoteType.For,
+                  ethers.parseEther('10'),
+                  'This is an example reason',
+                );
+
+              await this.helper.waitForDeadline();
+              await this.helper.execute();
+
+              // After
+              expect(await this.mock.hasVoted(this.proposal.id, this.userEOA)).to.be.true;
+              expect(await this.getNonce(this.userEOA)).to.equal(nonce + 1n);
+            });
+
+            it('votes with a valid EIP-1271 signature', async function () {
+              const wallet = await ethers.deployContract('ERC1271WalletMock', [this.userEOA]);
+
+              await this.token.connect(this.voter1).delegate(wallet);
+
+              const nonce = await this.getNonce(wallet.target);
+
+              await this.helper.waitForSnapshot();
+              await expect(
+                this.helper.vote({
+                  support: VoteType.For,
+                  voter: wallet.target,
+                  nonce,
+                  signature: signBallot(this.userEOA),
+                }),
+              )
+                .to.emit(this.mock, 'VoteCast')
+                .withArgs(wallet, this.proposal.id, VoteType.For, ethers.parseEther('10'), '');
+              await this.helper.waitForDeadline();
+              await this.helper.execute();
+
+              // After
+              expect(await this.mock.hasVoted(this.proposal.id, wallet)).to.be.true;
+              expect(await this.getNonce(wallet)).to.equal(nonce + 1n);
+            });
+
+            afterEach('no other votes are cast', async function () {
+              expect(await this.mock.hasVoted(this.proposal.id, this.owner)).to.be.false;
+              expect(await this.mock.hasVoted(this.proposal.id, this.voter1)).to.be.false;
+              expect(await this.mock.hasVoted(this.proposal.id, this.voter2)).to.be.false;
+            });
+          });
+        }
       });
 
       describe('should revert', function () {
@@ -358,20 +404,24 @@ describe('Governor', function () {
               .withArgs(voteParams.voter);
           });
 
-          it('if vote nonce is incorrect', async function () {
-            const nonce = await this.mock.nonces(this.userEOA);
+          for (const nonceType of ['default', 'keyed']) {
+            it(`if vote nonce is incorrect with ${nonceType} nonce`, async function () {
+              const nonce = await (nonceType === 'default'
+                ? this.mock.nonces(this.userEOA)
+                : this.mock['nonces(address,uint192)'](this.userEOA, BigInt(this.helper.id) & (2n ** 192n - 1n)));
 
-            const voteParams = {
-              support: VoteType.For,
-              voter: this.userEOA.address,
-              nonce: nonce + 1n,
-              signature: signBallot(this.userEOA),
-            };
+              const voteParams = {
+                support: VoteType.For,
+                voter: this.userEOA.address,
+                nonce: nonce + 1n,
+                signature: signBallot(this.userEOA),
+              };
 
-            await expect(this.helper.vote(voteParams))
-              .to.be.revertedWithCustomError(this.mock, 'GovernorInvalidSignature')
-              .withArgs(voteParams.voter);
-          });
+              await expect(this.helper.vote(voteParams))
+                .to.be.revertedWithCustomError(this.mock, 'GovernorInvalidSignature')
+                .withArgs(voteParams.voter);
+            });
+          }
         });
 
         describe('on queue', function () {
