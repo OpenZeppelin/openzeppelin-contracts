@@ -17,6 +17,22 @@ module.exports.anchor = function anchor({ item, contract }) {
   return res;
 };
 
+module.exports.fullname = function fullname({ item }) {
+  let res = '';
+  res += item.name;
+  if ('parameters' in item) {
+    const signature = item.parameters.parameters.map(v => v.typeName.typeDescriptions.typeString).join(',');
+    res += slug('(' + signature + ')');
+  }
+  if (isNodeType('VariableDeclaration', item)) {
+    res += '-' + slug(item.typeName.typeDescriptions.typeString);
+  }
+  if (res.charAt(res.length - 1) === '-') {
+    return res.slice(0, -1);
+  }
+  return res;
+};
+
 module.exports.inheritance = function ({ item, build }) {
   if (!isNodeType('ContractDefinition', item)) {
     throw new Error('used inherited-items on non-contract');

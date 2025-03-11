@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.1.0) (governance/Governor.sol)
+// OpenZeppelin Contracts (last updated v5.2.0) (governance/Governor.sol)
 
 pragma solidity ^0.8.20;
 
@@ -21,9 +21,9 @@ import {IGovernor, IERC6372} from "./IGovernor.sol";
  *
  * This contract is abstract and requires several functions to be implemented in various modules:
  *
- * - A counting module must implement {quorum}, {_quorumReached}, {_voteSucceeded} and {_countVote}
+ * - A counting module must implement {_quorumReached}, {_voteSucceeded} and {_countVote}
  * - A voting module must implement {_getVotes}
- * - Additionally, {votingPeriod} must also be implemented
+ * - Additionally, {votingPeriod}, {votingDelay}, and {quorum} must also be implemented
  */
 abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC721Receiver, IERC1155Receiver {
     using DoubleEndedQueue for DoubleEndedQueue.Bytes32Deque;
@@ -455,7 +455,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
      * performed (for example adding a vault/timelock).
      *
      * NOTE: Calling this function directly will NOT check the current state of the proposal, set the executed flag to
-     * true or emit the `ProposalExecuted` event. Executing a proposal should be done using {execute} or {_execute}.
+     * true or emit the `ProposalExecuted` event. Executing a proposal should be done using {execute}.
      */
     function _executeOperations(
         uint256 /* proposalId */,
@@ -484,11 +484,8 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         // changes it. The `getProposalId` duplication has a cost that is limited, and that we accept.
         uint256 proposalId = getProposalId(targets, values, calldatas, descriptionHash);
 
-        // public cancel restrictions (on top of existing _cancel restrictions).
-        _validateStateBitmap(proposalId, _encodeStateBitmap(ProposalState.Pending));
-        if (_msgSender() != proposalProposer(proposalId)) {
-            revert GovernorOnlyProposer(_msgSender());
-        }
+        address caller = _msgSender();
+        if (!_validateCancel(proposalId, caller)) revert GovernorUnableToCancel(proposalId, caller);
 
         return _cancel(targets, values, calldatas, descriptionHash);
     }
@@ -803,6 +800,15 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
             (bool success, address recovered) = Strings.tryParseAddress(description, length - 42, length);
             return !success || recovered == proposer;
         }
+    }
+
+    /**
+     * @dev Check if the `caller` can cancel the proposal with the given `proposalId`.
+     *
+     * The default implementation allows the proposal proposer to cancel the proposal during the pending state.
+     */
+    function _validateCancel(uint256 proposalId, address caller) internal view virtual returns (bool) {
+        return (state(proposalId) == ProposalState.Pending) && caller == proposalProposer(proposalId);
     }
 
     /**
