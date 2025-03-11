@@ -2,4 +2,4 @@
 'openzeppelin-solidity': minor
 ---
 
-`Arrays`: Add `unsafeSetLength` for `bytes[]` and `string[]`.
+`Arrays`: Add `unsafeAccess`, `unsafeMemoryAccess` and `unsafeSetLength` for `bytes[]` and `string[]`.
