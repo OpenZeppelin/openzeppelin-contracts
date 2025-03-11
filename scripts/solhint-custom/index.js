@@ -48,8 +48,8 @@ module.exports = [
 
     VariableDeclaration(node) {
       if (node.isDeclaredConst) {
-        // TODO: expand visibility and fix
-        if (node.visibility === 'private' && /^_/.test(node.name)) {
+        // Check all constant variables regardless of visibility
+        if (/^_/.test(node.name)) {
           this.error(node, 'Constant variables should not have leading underscore');
         }
       } else if (node.visibility === 'private' && !/^_/.test(node.name)) {
