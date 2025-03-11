@@ -75,13 +75,15 @@ module.exports = [
     static ruleId = 'no-external-virtual';
 
     FunctionDefinition(node) {
-      // Skip constructor functions, interface definitions, and receive/fallback functions
+      // Skip constructor functions, interface definitions, receive/fallback functions,
+      // and governance/multicall functions which legitimately use external virtual
       if (
         node.isConstructor ||
         node.parent.kind === 'interface' ||
         node.name === '' || // receive/fallback functions have empty names
         node.isReceiveEther ||
-        node.isFallback
+        node.isFallback ||
+        /^(update|multicall)/.test(node.name) // Allow external virtual for update* and multicall functions
       ) {
         return;
       }
