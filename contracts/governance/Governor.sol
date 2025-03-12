@@ -578,8 +578,15 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         address voter,
         bytes memory signature
     ) public virtual returns (uint256) {
-        bytes memory rawSignatureDigestData = abi.encode(BALLOT_TYPEHASH, proposalId, support, voter, uint256(0));
-        if (!_validateVoteSignature(voter, proposalId, signature, rawSignatureDigestData, 0xA0)) {
+        if (
+            !_validateVoteSignature(
+                voter,
+                proposalId,
+                signature,
+                abi.encode(BALLOT_TYPEHASH, proposalId, support, voter, uint256(0)),
+                0xA0
+            )
+        ) {
             revert GovernorInvalidSignature(voter);
         }
 
@@ -597,16 +604,23 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         bytes memory params,
         bytes memory signature
     ) public virtual returns (uint256) {
-        bytes memory rawSignatureDigestData = abi.encode(
-            EXTENDED_BALLOT_TYPEHASH,
-            proposalId,
-            support,
-            voter,
-            uint256(0),
-            keccak256(bytes(reason)),
-            keccak256(params)
-        );
-        if (!_validateVoteSignature(voter, proposalId, signature, rawSignatureDigestData, 0xA0)) {
+        if (
+            !_validateVoteSignature(
+                voter,
+                proposalId,
+                signature,
+                abi.encode(
+                    EXTENDED_BALLOT_TYPEHASH,
+                    proposalId,
+                    support,
+                    voter,
+                    uint256(0),
+                    keccak256(bytes(reason)),
+                    keccak256(params)
+                ),
+                0xA0
+            )
+        ) {
             revert GovernorInvalidSignature(voter);
         }
 
