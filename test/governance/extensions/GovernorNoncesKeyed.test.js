@@ -25,14 +25,14 @@ const signBallot = account => (contract, message) =>
 const signExtendedBallot = account => (contract, message) =>
   getDomain(contract).then(domain => account.signTypedData(domain, { ExtendedBallot }, message));
 
-describe('GovernorKeyedNonces', function () {
+describe('GovernorNoncesKeyed', function () {
   for (const { Token, mode } of TOKENS) {
     const fixture = async () => {
       const [owner, proposer, voter1, voter2, voter3, voter4, userEOA] = await ethers.getSigners();
       const receiver = await ethers.deployContract('CallReceiverMock');
 
       const token = await ethers.deployContract(Token, [tokenName, tokenSymbol, tokenName, version]);
-      const mock = await ethers.deployContract('$GovernorKeyedNoncesMock', [
+      const mock = await ethers.deployContract('$GovernorNoncesKeyedMock', [
         name, // name
         votingDelay, // initialVotingDelay
         votingPeriod, // initialVotingPeriod

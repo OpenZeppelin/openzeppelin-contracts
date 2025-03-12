@@ -7,13 +7,13 @@ import {GovernorSettings} from "../../governance/extensions/GovernorSettings.sol
 import {GovernorCountingSimple} from "../../governance/extensions/GovernorCountingSimple.sol";
 import {GovernorVotesQuorumFraction} from "../../governance/extensions/GovernorVotesQuorumFraction.sol";
 import {GovernorProposalGuardian} from "../../governance/extensions/GovernorProposalGuardian.sol";
-import {GovernorKeyedNonces} from "../../governance/extensions/GovernorKeyedNonces.sol";
+import {GovernorNoncesKeyed} from "../../governance/extensions/GovernorNoncesKeyed.sol";
 
-abstract contract GovernorKeyedNoncesMock is
+abstract contract GovernorNoncesKeyedMock is
     GovernorSettings,
     GovernorVotesQuorumFraction,
     GovernorCountingSimple,
-    GovernorKeyedNonces
+    GovernorNoncesKeyed
 {
     function proposalThreshold() public view override(Governor, GovernorSettings) returns (uint256) {
         return super.proposalThreshold();
@@ -25,11 +25,11 @@ abstract contract GovernorKeyedNoncesMock is
         bytes memory signature,
         bytes memory rawSignatureDigestData,
         uint256 noncePositionOffset
-    ) internal virtual override(Governor, GovernorKeyedNonces) returns (bool) {
+    ) internal virtual override(Governor, GovernorNoncesKeyed) returns (bool) {
         return super._validateVoteSignature(voter, proposalId, signature, rawSignatureDigestData, noncePositionOffset);
     }
 
-    function _useCheckedNonce(address owner, uint256 nonce) internal virtual override(Nonces, GovernorKeyedNonces) {
+    function _useCheckedNonce(address owner, uint256 nonce) internal virtual override(Nonces, GovernorNoncesKeyed) {
         super._useCheckedNonce(owner, nonce);
     }
 }

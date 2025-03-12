@@ -631,17 +631,15 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         address voter,
         uint256 /* proposalId */,
         bytes memory signature,
-        bytes memory rawSignatureDigestData,
+        bytes memory digestPreimage,
         uint256 noncePositionOffset
     ) internal virtual returns (bool) {
         uint256 nonce = nonces(voter);
         assembly ("memory-safe") {
-            mstore(add(rawSignatureDigestData, noncePositionOffset), nonce)
+            mstore(add(digestPreimage, noncePositionOffset), nonce)
         }
 
-        if (
-            SignatureChecker.isValidSignatureNow(voter, _hashTypedDataV4(keccak256(rawSignatureDigestData)), signature)
-        ) {
+        if (SignatureChecker.isValidSignatureNow(voter, _hashTypedDataV4(keccak256(digestPreimage)), signature)) {
             _useNonce(voter);
             return true;
         }

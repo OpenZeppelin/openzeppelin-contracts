@@ -7,7 +7,7 @@ import {Nonces} from "../../utils/Nonces.sol";
 import {NoncesKeyed} from "../../utils/NoncesKeyed.sol";
 import {SignatureChecker} from "../../utils/cryptography/SignatureChecker.sol";
 
-abstract contract GovernorKeyedNonces is Governor, NoncesKeyed {
+abstract contract GovernorNoncesKeyed is Governor, NoncesKeyed {
     function _useCheckedNonce(address owner, uint256 nonce) internal virtual override(Nonces, NoncesKeyed) {
         super._useCheckedNonce(owner, nonce);
     }
@@ -16,22 +16,20 @@ abstract contract GovernorKeyedNonces is Governor, NoncesKeyed {
         address voter,
         uint256 proposalId,
         bytes memory signature,
-        bytes memory rawSignatureDigestData,
+        bytes memory digestPreimage,
         uint256 noncePositionOffset
     ) internal virtual override returns (bool) {
-        if (super._validateVoteSignature(voter, proposalId, signature, rawSignatureDigestData, noncePositionOffset)) {
+        if (super._validateVoteSignature(voter, proposalId, signature, digestPreimage, noncePositionOffset)) {
             return true;
         }
 
         // uint192 is sufficient entropy for proposalId within nonce keys.
         uint256 keyedNonce = nonces(voter, uint192(proposalId));
         assembly ("memory-safe") {
-            mstore(add(rawSignatureDigestData, noncePositionOffset), keyedNonce)
+            mstore(add(digestPreimage, noncePositionOffset), keyedNonce)
         }
 
-        if (
-            SignatureChecker.isValidSignatureNow(voter, _hashTypedDataV4(keccak256(rawSignatureDigestData)), signature)
-        ) {
+        if (SignatureChecker.isValidSignatureNow(voter, _hashTypedDataV4(keccak256(digestPreimage)), signature)) {
             _useNonce(voter, uint192(proposalId));
             return true;
         }
