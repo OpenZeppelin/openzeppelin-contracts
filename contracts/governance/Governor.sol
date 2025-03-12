@@ -615,34 +615,27 @@ abstract contract Governor is Context, ERC165, EIP712, NoncesKeyed, IGovernor, I
         bytes memory signature,
         bytes memory rawSignatureDigestData
     ) internal virtual {
-        bool valid;
         if (
             SignatureChecker.isValidSignatureNow(voter, _hashTypedDataV4(keccak256(rawSignatureDigestData)), signature)
         ) {
-            valid = true;
             _useNonce(voter);
-        } else {
-            // uint192 is sufficient entropy for proposalId within nonce keys.
-            uint256 keyedNonce = nonces(voter, uint192(proposalId));
-            assembly ("memory-safe") {
-                mstore(add(rawSignatureDigestData, 0xA0), keyedNonce)
-            }
-
-            if (
-                SignatureChecker.isValidSignatureNow(
-                    voter,
-                    _hashTypedDataV4(keccak256(rawSignatureDigestData)),
-                    signature
-                )
-            ) {
-                valid = true;
-                _useNonce(voter, uint192(proposalId));
-            }
+            return;
         }
 
-        if (!valid) {
-            revert GovernorInvalidSignature(voter);
+        // uint192 is sufficient entropy for proposalId within nonce keys.
+        uint256 keyedNonce = nonces(voter, uint192(proposalId));
+        assembly ("memory-safe") {
+            mstore(add(rawSignatureDigestData, 0xA0), keyedNonce)
         }
+
+        if (
+            SignatureChecker.isValidSignatureNow(voter, _hashTypedDataV4(keccak256(rawSignatureDigestData)), signature)
+        ) {
+            _useNonce(voter, uint192(proposalId));
+            return;
+        }
+
+        revert GovernorInvalidSignature(voter);
     }
 
     /**
