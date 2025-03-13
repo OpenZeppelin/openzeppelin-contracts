@@ -5,6 +5,7 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { GovernorHelper } = require('../../helpers/governance');
 const { getDomain, Ballot, ExtendedBallot } = require('../../helpers/eip712');
 const { VoteType } = require('../../helpers/enums');
+const { shouldBehaveLikeNoncesKeyed } = require('../../utils/Nonces.behavior');
 
 const TOKENS = [
   { Token: '$ERC20Votes', mode: 'blocknumber' },
@@ -245,6 +246,8 @@ describe('GovernorNoncesKeyed', function () {
           });
         }
       });
+
+      shouldBehaveLikeNoncesKeyed();
     });
   }
 });
