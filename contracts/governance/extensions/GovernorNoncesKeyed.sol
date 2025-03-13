@@ -7,11 +7,18 @@ import {Nonces} from "../../utils/Nonces.sol";
 import {NoncesKeyed} from "../../utils/NoncesKeyed.sol";
 import {SignatureChecker} from "../../utils/cryptography/SignatureChecker.sol";
 
+/**
+ * @dev An extension of {Governor} that extends existing nonce management to use {NoncesKeyed}, where the key is the first 192 bits of the `proposalId`.
+ * This is useful for voting by signature while maintaining separate sequences of nonces for each proposal.
+ *
+ * NOTE: Traditional (un-keyed) nonces are still supported and can continue to be used as if this extension was not present.
+ */
 abstract contract GovernorNoncesKeyed is Governor, NoncesKeyed {
     function _useCheckedNonce(address owner, uint256 nonce) internal virtual override(Nonces, NoncesKeyed) {
         super._useCheckedNonce(owner, nonce);
     }
 
+    /// @dev Check the signature against the traditional nonce and then the keyed nonce.
     function _validateVoteSignature(
         address voter,
         uint256 proposalId,

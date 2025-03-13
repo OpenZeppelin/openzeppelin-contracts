@@ -627,6 +627,11 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         return _castVote(proposalId, voter, support, reason, params);
     }
 
+    /**
+     * @dev Validate the `signature` used in {castVoteBySig} and {castVoteWithReasonAndParamsBySig} functions. The `digestPreimage`
+     * is the EIP712 digest prior to hashing with a 32 bytes gap left at `noncePositionOffset` for the nonce to be inserted
+     * (note the offset includes the first 32 bytes storing the size of the bytes array).
+     */
     function _validateVoteSignature(
         address voter,
         uint256 /* proposalId */,
