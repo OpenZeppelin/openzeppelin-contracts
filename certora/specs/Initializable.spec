@@ -12,8 +12,8 @@ methods {
     function nested_reinit_reinit(uint64,uint64) external envfree;
 
     // view
-    function version()      external returns uint64 envfree;
-    function initializing() external returns bool   envfree;
+    function version()      external returns (uint64) envfree;
+    function initializing() external returns (bool)   envfree;
 }
 
 /*
@@ -145,7 +145,7 @@ rule reinitializeEffects() {
     reinitialize@withrevert(n);
     bool success = !lastReverted;
 
-    assert success <=> versionBefore < n, "can only reinitialize to a latter versions";
+    assert success <=> versionBefore < n, "can only reinitialize to a later version";
     assert success => version() == n,     "reinitialize must set version() to n";
 }
 
