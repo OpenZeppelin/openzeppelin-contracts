@@ -15,6 +15,6 @@ for (const name in oldLayout) {
       process.exitCode = 1;
     }
   } else {
-    console.log(`WARNING: ${name} is missing from the current branch`);
+    console.log(`WARNING: ${name} is missing in the current branch`);
   }
 }
