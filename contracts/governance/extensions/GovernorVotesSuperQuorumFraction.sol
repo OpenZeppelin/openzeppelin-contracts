@@ -61,6 +61,7 @@ abstract contract GovernorVotesSuperQuorumFraction is GovernorVotesQuorumFractio
 
     /**
      * @dev Returns the super quorum for a `timepoint`, in terms of number of votes: `supply * numerator / denominator`.
+     * See {GovernorSuperQuorum-superQuorum} for more details.
      */
     function superQuorum(uint256 timepoint) public view virtual override returns (uint256) {
         return Math.mulDiv(token().getPastTotalSupply(timepoint), superQuorumNumerator(timepoint), quorumDenominator());
