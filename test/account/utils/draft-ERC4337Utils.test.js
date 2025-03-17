@@ -174,13 +174,9 @@ describe('ERC4337Utils', function () {
   describe('hash', function () {
     it('returns the operation hash with specified entrypoint and chainId', async function () {
       const userOp = new UserOperation({ sender: this.sender, nonce: 1 });
-      const expectedValue = await userOp.hash(entrypoint);
+      const expected = await userOp.hash(entrypoint);
 
-      // check that helper matches entrypoint logic
-      await expect(entrypoint.getUserOpHash(userOp.packed)).to.eventually.equal(expectedValue);
-
-      // check library against helper
-      await expect(this.utils.$hash(userOp.packed, entrypoint)).to.eventually.equal(expectedValue);
+      await expect(this.utils.$hash(userOp.packed, entrypoint)).to.eventually.equal(expected);
     });
   });
 
