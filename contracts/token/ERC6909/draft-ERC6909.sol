@@ -94,7 +94,7 @@ contract ERC6909 is Context, ERC165, IERC6909 {
 
     /**
      * @dev Moves `amount` of token `id` from `from` to `to` without checking for approvals. This function verifies
-     * that neither the sender or the receiver are address(0), which means it cannot mint or burn tokens.
+     * that neither the sender nor the receiver are address(0), which means it cannot mint or burn tokens.
      * Relies on the `_update` mechanism.
      *
      * Emits a {Transfer} event.
