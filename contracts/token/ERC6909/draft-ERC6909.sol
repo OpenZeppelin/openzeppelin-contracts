@@ -165,7 +165,6 @@ contract ERC6909 is Context, ERC165, IERC6909 {
      *
      * - `owner` cannot be the zero address.
      * - `spender` cannot be the zero address.
-     *
      */
     function _approve(address owner, address spender, uint256 id, uint256 amount) internal virtual {
         if (owner == address(0)) {
