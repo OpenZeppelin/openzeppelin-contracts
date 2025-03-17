@@ -166,6 +166,9 @@ contract ERC6909 is Context, ERC165, IERC6909 {
      *
      * - `owner` cannot be the zero address.
      * - `spender` cannot be the zero address.
+     *
+     * Note: Setting `amount` to `type(uint256).max` is equivalent to setting an "infinite" allowance that won't
+     * be reduced when used.
      */
     function _approve(address owner, address spender, uint256 id, uint256 amount) internal virtual {
         if (owner == address(0)) {
