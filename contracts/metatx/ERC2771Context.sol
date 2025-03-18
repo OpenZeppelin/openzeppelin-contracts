@@ -55,7 +55,7 @@ abstract contract ERC2771Context is Context {
     function _msgSender() internal view virtual override returns (address) {
         uint256 calldataLength = msg.data.length;
         uint256 contextSuffixLength = _contextSuffixLength();
-        if (isTrustedForwarder(msg.sender) && calldataLength >= contextSuffixLength) {
+        if (calldataLength >= contextSuffixLength && isTrustedForwarder(msg.sender)) {
             return address(bytes20(msg.data[calldataLength - contextSuffixLength:]));
         } else {
             return super._msgSender();
@@ -70,7 +70,7 @@ abstract contract ERC2771Context is Context {
     function _msgData() internal view virtual override returns (bytes calldata) {
         uint256 calldataLength = msg.data.length;
         uint256 contextSuffixLength = _contextSuffixLength();
-        if (isTrustedForwarder(msg.sender) && calldataLength >= contextSuffixLength) {
+        if (calldataLength >= contextSuffixLength && isTrustedForwarder(msg.sender)) {
             return msg.data[:calldataLength - contextSuffixLength];
         } else {
             return super._msgData();
