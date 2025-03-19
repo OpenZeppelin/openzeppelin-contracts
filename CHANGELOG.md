@@ -25,6 +25,12 @@
 - `GovernorVotesSuperQuorumFraction`: Add a variant of the `GovernorSuperQuorum` extensions where the super quorum is expressed as a fraction of the total supply. ([#5526](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5526))
 - `TimelockController`: Receive function is now virtual. ([#5509](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5509))
 
+#### Structures
+
+- `EnumerableSet`: Add `clear` function to EnumerableSets which deletes all values in the set. ([#5486](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5486))
+- `EnumerableMap`: Add `clear` function to EnumerableMaps which deletes all entries in the map. ([#5486](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5486))
+- `MerkleTree`: Add an update function that replaces a previously inserted leaf with a new value, updating the tree root along the way. ([#5526](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5526))
+
 #### Tokens
 
 - `ERC4626`: Use the `asset` getter in `totalAssets`, `_deposit` and `_withdraw`. ([#5322](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5322))
@@ -34,12 +40,6 @@
 - `ERC6909Metadata`: Add an extension of ERC6909 which adds metadata functionality. ([#5394](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5394))
 - `ERC6909ContentURI`: Add an extension of ERC6909 which adds content URI functionality. ([#5394](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5394))
 - `SafeERC20`: Add `trySafeTransfer` and `trySafeTransferFrom` that do not revert and return false if the transfer is not successful. ([#5483](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5483))
-
-#### Structures
-
-- `EnumerableSet`: Add `clear` function to EnumerableSets which deletes all values in the set. ([#5486](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5486))
-- `EnumerableMap`: Add `clear` function to EnumerableMaps which deletes all entries in the map. ([#5486](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5486))
-- `MerkleTree`: Add an update function that replaces a previously inserted leaf with a new value, updating the tree root along the way. ([#5526](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5526))
 
 #### Other
 
