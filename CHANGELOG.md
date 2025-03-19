@@ -14,7 +14,7 @@
 
 #### Account
 
-- `ERC7579Utils`: Add ABI decoding checks on calldata bounds within `decodeBatch` ([#5371](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5371))
+- `ERC7579Utils`: Add ABI decoding checks on calldata bounds within `decodeBatch`. ([#5371](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5371))
 
 #### Governance
 
@@ -43,7 +43,7 @@
 
 #### Other
 
-- `Address`: bubble up revert data on `sendValue` failed call ([#5379](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5379))
+- `Address`: bubble up revert data on `sendValue` failed call. ([#5379](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5379))
 - `Calldata`: Library with `emptyBytes` and `emptyString` functions to generate empty `bytes` and `string` calldata types. ([#5422](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5422))
 - `ERC2771Forwarder`: Expose the `_isTrustedByTarget` internal function to check whether a target trusts the forwarder. ([#5416](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5416))
 - `Hashes`: Expose `efficientKeccak256` for hashing non-commutative pairs of bytes32 without allocating extra memory. ([#5442](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5442))
