@@ -49,7 +49,8 @@ interface IERC6909 is IERC165 {
     function isOperator(address owner, address spender) external view returns (bool);
 
     /**
-     * @dev Sets an approval to `spender` for `amount` tokens of type `id` from the caller's tokens.
+     * @dev Sets an approval to `spender` for `amount` of tokens of type `id` from the caller's tokens. An `amount` of
+     * `type(uint256).max` signifies an unlimited approval.
      *
      * Must return true.
      */

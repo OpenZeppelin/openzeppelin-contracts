@@ -178,7 +178,7 @@ library MerkleTree {
      * root (before the update) and "new" root (after the update). The caller must verify that the reconstructed old
      * root is the last known one.
      *
-     * The `proof` must be an up-to-date inclusion proof for the leaf being update. This means that this function is
+     * The `proof` must be an up-to-date inclusion proof for the leaf being updated. This means that this function is
      * vulnerable to front-running. Any {push} or {update} operation (that changes the root of the tree) would render
      * all "in flight" updates invalid.
      *
