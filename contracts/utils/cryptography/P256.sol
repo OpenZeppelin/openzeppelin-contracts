@@ -124,7 +124,7 @@ library P256 {
      * To flip the `s` value, compute `s = N - s` and `v = 1 - v` if (`v = 0 | 1`).
      */
     function recovery(bytes32 h, uint8 v, bytes32 r, bytes32 s) internal view returns (bytes32 x, bytes32 y) {
-        if (!_isProperSignature(r, s) || v > 1) {
+        if (!_isProperSignature(r, s) || (v != 0 && v != 1)) {
             return (0, 0);
         }
 
