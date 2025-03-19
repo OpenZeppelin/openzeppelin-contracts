@@ -12,6 +12,10 @@
 
 ### Changes by category
 
+#### Account
+
+- `ERC7579Utils`: Add ABI decoding checks on calldata bounds within `decodeBatch` ([#5371](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5371))
+
 #### Governance
 
 - `IGovernor`: Add the `getProposalId` function to the governor interface. ([#5290](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5290))
@@ -42,7 +46,6 @@
 - `Address`: bubble up revert data on `sendValue` failed call ([#5379](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5379))
 - `Calldata`: Library with `emptyBytes` and `emptyString` functions to generate empty `bytes` and `string` calldata types. ([#5422](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5422))
 - `ERC2771Forwarder`: Expose the `_isTrustedByTarget` internal function to check whether a target trusts the forwarder. ([#5416](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5416))
-- `ERC7579Utils`: Add ABI decoding checks on calldata bounds within `decodeBatch` ([#5371](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5371))
 - `Hashes`: Expose `efficientKeccak256` for hashing non-commutative pairs of bytes32 without allocating extra memory. ([#5442](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5442))
 - `Initializable`: Add `_initializableStorageSlot` function that returns a pointer to the storage struct. The function allows customizing with a custom storage slot with an `override`. ([#5526](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5526))
 - `Math`: Add `add512`, `mul512` and `mulShr`. ([#5526](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5526))
