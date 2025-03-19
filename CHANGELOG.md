@@ -32,7 +32,7 @@
 - `ERC6909ContentURI`: Add an extension of ERC6909 which adds content URI functionality. ([#5394](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5394))
 - `SafeERC20`: Add `trySafeTransfer` and `trySafeTransferFrom` that do not revert and return false if the transfer is not successful. ([#5483](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5483))
 
-#### Datastructures
+#### Structures
 
 - `EnumerableSet`: Add `clear` function to EnumerableSets which deletes all values in the set. ([#5486](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5486))
 - `EnumerableMap`: Add `clear` function to EnumerableMaps which deletes all entries in the map. ([#5486](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5486))
