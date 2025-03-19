@@ -54,8 +54,8 @@ library RSA {
             // cache and check length
             uint256 length = n.length;
             if (
-                length < 0x100 || // Enforce 2048 bits minimum
-                length != s.length // signature must have the same length as the finite field
+                length < 256 || // Enforce 2048 bits minimum (256 bytes)
+                length != s.length // Signature must have the same length as the modulus
             ) {
                 return false;
             }
