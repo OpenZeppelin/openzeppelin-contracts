@@ -302,8 +302,11 @@ contract ERC2771Forwarder is EIP712, Nonces {
      *
      * This function performs a static call to the target contract calling the
      * {ERC2771Context-isTrustedForwarder} function.
+     *
+     * NOTE: Consider the execution of this forwarder is permissionless. Without this check, anyone may transfer assets
+     * that are owned by, or are approved to this forwarder.
      */
-    function _isTrustedByTarget(address target) private view returns (bool) {
+    function _isTrustedByTarget(address target) internal view virtual returns (bool) {
         bytes memory encodedParams = abi.encodeCall(ERC2771Context.isTrustedForwarder, (address(this)));
 
         bool success;

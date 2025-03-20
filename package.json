@@ -1,7 +1,7 @@
 {
   "name": "openzeppelin-solidity",
   "description": "Secure Smart Contract library for Solidity",
-  "version": "5.1.0",
+  "version": "5.2.0",
   "private": true,
   "files": [
     "/contracts/**/*.sol",
@@ -68,7 +68,7 @@
     "eslint-config-prettier": "^9.0.0",
     "ethers": "^6.13.4",
     "glob": "^11.0.0",
-    "globals": "^15.3.0",
+    "globals": "^16.0.0",
     "graphlib": "^2.1.8",
     "hardhat": "^2.22.2",
     "hardhat-exposed": "^0.3.15",
@@ -88,7 +88,7 @@
     "solidity-ast": "^0.4.50",
     "solidity-coverage": "^0.8.5",
     "solidity-docgen": "^0.6.0-beta.29",
-    "undici": "^7.0.0",
+    "undici": "^7.4.0",
     "yargs": "^17.0.0"
   },
   "lint-staged": {

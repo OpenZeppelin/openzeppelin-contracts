@@ -159,7 +159,7 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
     }
 
     /**
-     * @dev Used to offset the first token id in {_nextConsecutiveId}
+     * @dev Used to offset the first token id in `_nextConsecutiveId`
      */
     function _firstConsecutiveId() internal view virtual returns (uint96) {
         return 0;

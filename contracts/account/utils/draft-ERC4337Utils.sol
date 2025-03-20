@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.2.0) (account/utils/draft-ERC4337Utils.sol)
 
 pragma solidity ^0.8.20;
 
-import {PackedUserOperation} from "../../interfaces/draft-IERC4337.sol";
+import {IEntryPoint, PackedUserOperation} from "../../interfaces/draft-IERC4337.sol";
 import {Math} from "../../utils/math/Math.sol";
+import {Calldata} from "../../utils/Calldata.sol";
 import {Packing} from "../../utils/Packing.sol";
 
 /**
@@ -13,6 +15,9 @@ import {Packing} from "../../utils/Packing.sol";
  */
 library ERC4337Utils {
     using Packing for *;
+
+    /// @dev Address of the entrypoint v0.7.0
+    IEntryPoint internal constant ENTRYPOINT_V07 = IEntryPoint(0x0000000071727De22E5E9d8BAf0edAc6f37da032);
 
     /// @dev For simulation purposes, validateUserOp (and validatePaymasterUserOp) return this value on success.
     uint256 internal constant SIG_VALIDATION_SUCCESS = 0;
@@ -106,7 +111,7 @@ library ERC4337Utils {
 
     /// @dev Returns `factoryData` from the {PackedUserOperation}, or empty bytes if the initCode is empty or not properly formatted.
     function factoryData(PackedUserOperation calldata self) internal pure returns (bytes calldata) {
-        return self.initCode.length < 20 ? _emptyCalldataBytes() : self.initCode[20:];
+        return self.initCode.length < 20 ? Calldata.emptyBytes() : self.initCode[20:];
     }
 
     /// @dev Returns `verificationGasLimit` from the {PackedUserOperation}.
@@ -114,7 +119,7 @@ library ERC4337Utils {
         return uint128(self.accountGasLimits.extract_32_16(0));
     }
 
-    /// @dev Returns `accountGasLimits` from the {PackedUserOperation}.
+    /// @dev Returns `callGasLimit` from the {PackedUserOperation}.
     function callGasLimit(PackedUserOperation calldata self) internal pure returns (uint256) {
         return uint128(self.accountGasLimits.extract_32_16(16));
     }
@@ -156,14 +161,6 @@ library ERC4337Utils {
 
     /// @dev Returns the fourth section of `paymasterAndData` from the {PackedUserOperation}.
     function paymasterData(PackedUserOperation calldata self) internal pure returns (bytes calldata) {
-        return self.paymasterAndData.length < 52 ? _emptyCalldataBytes() : self.paymasterAndData[52:];
-    }
-
-    // slither-disable-next-line write-after-write
-    function _emptyCalldataBytes() private pure returns (bytes calldata result) {
-        assembly ("memory-safe") {
-            result.offset := 0
-            result.length := 0
-        }
+        return self.paymasterAndData.length < 52 ? Calldata.emptyBytes() : self.paymasterAndData[52:];
     }
 }

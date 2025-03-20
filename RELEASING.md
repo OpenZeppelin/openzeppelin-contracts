@@ -1,10 +1,10 @@
 # Releasing
 
-OpenZeppelin Contracts uses a fully automated release process that takes care of compiling, packaging, and publishing the library, all of which is carried out in a clean CI environment (GitHub Actions), implemented in the ([`release-cycle`](.github/workflows/release-cycle.yml)) workflow. This helps to reduce the potential for human error and inconsistencies, and ensures that the release process is ongoing and reliable.
+OpenZeppelin Contracts uses a fully automated release process that takes care of compiling, packaging, and publishing the library, all of which is carried out in a clean CI environment (GitHub Actions), implemented in the [`release-cycle`](.github/workflows/release-cycle.yml) workflow. This helps to reduce the potential for human error and inconsistencies, and ensures that the release process is consistent and reliable.
 
 ## Changesets
 
-[Changesets](https://github.com/changesets/changesets/) is used as part of our release process for `CHANGELOG.md` management. Each change that is relevant for the codebase is expected to include a changeset.
+[Changesets](https://github.com/changesets/changesets/) are used as part of our release process for `CHANGELOG.md` management. Each change that is relevant for the codebase is expected to include a changeset.
 
 ## Branching model
 

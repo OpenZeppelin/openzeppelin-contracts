@@ -40,11 +40,6 @@ interface IGovernor is IERC165, IERC6372 {
     error GovernorDisabledDeposit();
 
     /**
-     * @dev The `account` is not a proposer.
-     */
-    error GovernorOnlyProposer(address account);
-
-    /**
      * @dev The `account` is not the governance executor.
      */
     error GovernorOnlyExecutor(address account);
@@ -111,6 +106,11 @@ interface IGovernor is IERC165, IERC6372 {
      * If the `voter` is a contract, the signature is not valid using {IERC1271-isValidSignature}.
      */
     error GovernorInvalidSignature(address voter);
+
+    /**
+     * @dev The given `account` is unable to cancel the proposal with given `proposalId`.
+     */
+    error GovernorUnableToCancel(uint256 proposalId, address account);
 
     /**
      * @dev Emitted when a proposal is created.
