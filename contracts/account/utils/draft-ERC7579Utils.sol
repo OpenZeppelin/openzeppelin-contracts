@@ -217,7 +217,7 @@ library ERC7579Utils {
         }
     }
 
-    /** 
+    /**
      * @dev Calldata sanity check
      *
      * Solidity performs "lazy" verification that all calldata objects are valid, by checking that they are
