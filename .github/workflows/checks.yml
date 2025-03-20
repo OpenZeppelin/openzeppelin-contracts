@@ -118,7 +118,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Set up environment
         uses: ./.github/actions/setup
-      - uses: arr00/slither-action # Temporarily fix slither until https://github.com/crytic/slither-action/pull/93
+      - uses: arr00/slither-action@main # Temporarily fix slither until https://github.com/crytic/slither-action/pull/93
 
   codespell:
     runs-on: ubuntu-latest
