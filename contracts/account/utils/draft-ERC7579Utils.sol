@@ -217,7 +217,8 @@ library ERC7579Utils {
         }
     }
 
-    /** @dev Calldata sanity check
+    /** 
+     * @dev Calldata sanity check
      *
      * Solidity performs "lazy" verification that all calldata objects are valid, by checking that they are
      * within calldatasize. This check is performed when objects are dereferenced. If the `executionCalldata`
