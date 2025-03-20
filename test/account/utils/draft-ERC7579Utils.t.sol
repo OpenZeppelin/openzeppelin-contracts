@@ -375,7 +375,7 @@ contract ERC7579UtilsTest is Test {
     }
 
     function hashUserOperation(PackedUserOperation calldata useroperation) public view returns (bytes32) {
-        return useroperation.hash(address(ERC4337Utils.ENTRYPOINT_V07), block.chainid);
+        return useroperation.hash(address(ERC4337Utils.ENTRYPOINT_V07));
     }
 
     function _collectAndPrintLogs(bool includeTotalValue) internal {
