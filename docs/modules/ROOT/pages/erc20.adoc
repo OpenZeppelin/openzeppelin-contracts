@@ -2,7 +2,7 @@
 
 An ERC-20 token contract keeps track of xref:tokens.adoc#different-kinds-of-tokens[_fungible_ tokens]: any one token is exactly equal to any other token; no tokens have special rights or behavior associated with them. This makes ERC-20 tokens useful for things like a *medium of exchange currency*, *voting rights*, *staking*, and more.
 
-OpenZeppelin Contracts provides many ERC20-related contracts. On the xref:api:token/ERC20.adoc[`API reference`] you'll find detailed information on their properties and usage.
+OpenZeppelin Contracts provide many ERC20-related contracts. On the xref:api:token/ERC20.adoc[`API reference`] you'll find detailed information on their properties and usage.
 
 [[constructing-an-erc20-token-contract]]
 == Constructing an ERC-20 Token Contract
@@ -16,7 +16,7 @@ Here's what our GLD token might look like.
 include::api:example$token/ERC20/GLDToken.sol[]
 ----
 
-Our contracts are often used via https://solidity.readthedocs.io/en/latest/contracts.html#inheritance[inheritance], and here we're reusing xref:api:token/ERC20.adoc#erc20[`ERC20`] for both the basic standard implementation and the xref:api:token/ERC20.adoc#ERC20-name--[`name`], xref:api:token/ERC20.adoc#ERC20-symbol--[`symbol`], and xref:api:token/ERC20.adoc#ERC20-decimals--[`decimals`] optional extensions. Additionally, we're creating an `initialSupply` of tokens, which will be assigned to the address that deploys the contract.
+Our contracts are often used via https://solidity.readthedocs.io/en/latest/contracts.html#inheritance[inheritance], and here we're reusing xref:api:token/ERC20.adoc#erc20[`ERC20`] for both the basic standard implementation and the xref:api:token/ERC20.adoc#ERC20-name[`name`], xref:api:token/ERC20.adoc#ERC20-symbol[`symbol`], and xref:api:token/ERC20.adoc#ERC20-decimals[`decimals`] optional extensions. Additionally, we're creating an `initialSupply` of tokens, which will be assigned to the address that deploys the contract.
 
 TIP: For a more complete discussion of ERC-20 supply mechanisms, see xref:erc20-supply.adoc[Creating ERC-20 Supply].
 
