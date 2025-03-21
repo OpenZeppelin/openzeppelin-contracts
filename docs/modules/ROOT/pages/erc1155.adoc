@@ -9,7 +9,7 @@ TIP: ERC-1155 draws ideas from all of xref:erc20.adoc[ERC-20], xref:erc721.adoc[
 
 The distinctive feature of ERC-1155 is that it uses a single smart contract to represent multiple tokens at once. This is why its xref:api:token/ERC1155.adoc#IERC1155-balanceOf-address-uint256-[`balanceOf`] function differs from ERC-20's and ERC-777's: it has an additional `id` argument for the identifier of the token that you want to query the balance of.
 
-This is similar to how ERC-721 does things, but in that standard a token `id` has no concept of balance: each token is non-fungible and exists or doesn't. The ERC-721 xref:api:token/ERC721.adoc#IERC721-balanceOf-address-[`balanceOf`] function refers to _how many different tokens_ an account has, not how many of each. On the other hand, in ERC-1155 accounts have a distinct balance for each token `id`, and non-fungible tokens are implemented by simply minting a single one of them.
+This is similar to how ERC-721 does things, but in that standard, a token `id` has no concept of balance: each token is non-fungible and exists or doesn't. The ERC-721 xref:api:token/ERC721.adoc#IERC721-balanceOf-address-[`balanceOf`] function refers to _how many different tokens_ an account has, not how many of each. On the other hand, in ERC-1155 accounts have a distinct balance for each token `id`, and non-fungible tokens are implemented by simply minting a single one of them.
 
 This approach leads to massive gas savings for projects that require multiple tokens. Instead of deploying a new contract for each token type, a single ERC-1155 token contract can hold the entire system state, reducing deployment costs and complexity.
 
@@ -35,7 +35,7 @@ Here's what a contract for tokenized items might look like:
 include::api:example$token/ERC1155/GameItems.sol[]
 ----
 
-Note that for our Game Items, Gold is a fungible token whilst Thor's Hammer is a non-fungible token as we minted only one.
+Note that for our Game Items, Gold is a fungible token while Thor's Hammer is a non-fungible token as we minted only one.
 
 The xref:api:token/ERC1155.adoc#ERC1155[`ERC1155`] contract includes the optional extension xref:api:token/ERC1155.adoc#IERC1155MetadataURI[`IERC1155MetadataURI`]. That's where the xref:api:token/ERC1155.adoc#IERC1155MetadataURI-uri-uint256-[`uri`] function comes from: we use it to retrieve the metadata uri.
 
@@ -74,7 +74,7 @@ The metadata uri can be obtained:
 "https://game.example/api/item/{id}.json"
 ----
 
-The `uri` can include the string `++{id}++` which clients must replace with the actual token ID, in lowercase hexadecimal (with no 0x prefix) and leading zero padded to 64 hex characters.
+The `uri` can include the string `++{id}++`, which clients must replace with the actual token ID, in lowercase hexadecimal (with no 0x prefix) and leading zero padded to 64 hex characters.
 
 For token ID `2` and uri `++https://game.example/api/item/{id}.json++` clients would replace `++{id}++` with `0000000000000000000000000000000000000000000000000000000000000002` to retrieve JSON at `https://game.example/api/item/0000000000000000000000000000000000000000000000000000000000000002.json`.
 
@@ -94,7 +94,7 @@ For more information about the metadata JSON Schema, check out the https://githu
 
 NOTE: You'll notice that the item's information is included in the metadata, but that information isn't on-chain! So a game developer could change the underlying metadata, changing the rules of the game!
 
-TIP: If you'd like to put all item information on-chain, you can extend ERC-721 to do so (though it will be rather costly) by providing a xref:utilities.adoc#base64[`Base64`] Data URI with the JSON schema encoded. You could also leverage IPFS to store the URI information, but these techniques are out of the scope of this overview guide
+TIP: If you'd like to put all item information on-chain, you can extend ERC-721 to do so (though it will be rather costly) by providing a xref:utilities.adoc#base64[`Base64`] Data URI with the JSON schema encoded. You could also leverage IPFS to store the URI information, but these techniques are beyond the scope of this overview guide
 
 [[sending-to-contracts]]
 == Sending Tokens to Contracts
@@ -106,7 +106,7 @@ A key difference when using xref:api:token/ERC1155.adoc#IERC1155-safeTransferFro
 ERC1155InvalidReceiver("<ADDRESS>")
 ----
 
-This is a good thing! It means that the recipient contract has not registered itself as aware of the ERC-1155 protocol, so transfers to it are disabled to *prevent tokens from being locked forever*. As an example, https://etherscan.io/token/0xa74476443119A942dE498590Fe1f2454d7D4aC0d?a=0xa74476443119A942dE498590Fe1f2454d7D4aC0d[the Golem contract currently holds over 350k `GNT` tokens], and lacks methods to get them out of there. This has happened to virtually every ERC20-backed project, usually due to user error.
+This is a good thing! It means that the recipient contract has not registered itself as aware of the ERC-1155 protocol, so transfers to it are disabled to *prevent tokens from being locked forever*. As an example, https://etherscan.io/token/0xa74476443119A942dE498590Fe1f2454d7D4aC0d?a=0xa74476443119A942dE498590Fe1f2454d7D4aC0d[the Golem contract currently holds over 350,000 `GNT` tokens], and lacks methods to get them out of there. This has happened to virtually every ERC20-backed project, usually due to user error.
 
 In order for our contract to receive ERC-1155 tokens we can inherit from the convenience contract xref:api:token/ERC1155.adoc#ERC1155Holder[`ERC1155Holder`] which handles the registering for us. However, we need to remember to implement functionality to allow tokens to be transferred out of our contract:
 
