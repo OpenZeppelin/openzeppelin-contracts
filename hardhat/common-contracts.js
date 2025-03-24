@@ -27,7 +27,7 @@ const INSTANCES = {
     },
     v08: {
       address: '0x449ED7C3e6Fee6a97311d4b55475DF59C44AdD33',
-      abi: [], // not verified yet
+      abi: JSON.parse(fs.readFileSync(path.resolve(__dirname, '../test/bin/SenderCreator080.abi'), 'utf-8')),
       bytecode: fs.readFileSync(path.resolve(__dirname, '../test/bin/SenderCreator080.bytecode'), 'hex'),
     },
   },
