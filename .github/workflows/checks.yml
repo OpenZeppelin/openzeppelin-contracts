@@ -118,7 +118,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Set up environment
         uses: ./.github/actions/setup
-      - uses: crytic/slither-action@v0.4.0
+      - uses: crytic/slither-action@d86660fe7e45835a0ec7b7aeb768d271fb421ea0 # Temporary use tagged commit until PR #93 merged
 
   codespell:
     runs-on: ubuntu-latest
