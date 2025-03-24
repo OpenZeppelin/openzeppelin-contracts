@@ -93,8 +93,7 @@ library ERC4337Utils {
         // entrypoint, this depends on the Entrypoint's domain separator, which cannot be hardcoded and is complex
         // to recompute. Domain separator could be fetch using the `getDomainSeparatorV4` getter, or recomputed from
         // the ERC-5267 getter, but both operation would require doing a view call to the entrypoint. Overall it feels
-        // simpler and less error prone
-        // directly.
+        // simpler and less error prone to get that functionality from the entrypoint directly.
         return IEntryPointExtra(entrypoint).getUserOpHash(self);
     }
 
