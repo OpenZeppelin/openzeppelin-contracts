@@ -24,7 +24,7 @@ library ERC4337Utils {
     /// @dev Address of the entrypoint v0.7.0
     IEntryPoint internal constant ENTRYPOINT_V07 = IEntryPoint(0x0000000071727De22E5E9d8BAf0edAc6f37da032);
 
-    /// @dev Address of the entrypoint v0.8.0 - TBD
+    /// @dev Address of the entrypoint v0.8.0
     IEntryPoint internal constant ENTRYPOINT_V08 = IEntryPoint(0x4337084D9E255Ff0702461CF8895CE9E3b5Ff108);
 
     /// @dev For simulation purposes, validateUserOp (and validatePaymasterUserOp) return this value on success.
@@ -90,10 +90,10 @@ library ERC4337Utils {
         // NOTE: getUserOpHash is available since v0.4.0
         //
         // Prior to v0.8.0, this has was easy to replicate for any entrypoint and any chainId. Since v0.8.0 of the
-        // entrypoint, this depends on the Entrypoint's domain separator, which is cannot be hardcoded and is complex
+        // entrypoint, this depends on the Entrypoint's domain separator, which cannot be hardcoded and is complex
         // to recompute. Domain separator could be fetch using the `getDomainSeparatorV4` getter, or recomputed from
         // the ERC-5267 getter, but both operation would require doing a view call to the entrypoint. Overall it feels
-        // simpler, less error prone, and probably not much more expensive to ask the entrypoint to compute the hash
+        // simpler and less error prone
         // directly.
         return IEntryPointExtra(entrypoint).getUserOpHash(self);
     }
