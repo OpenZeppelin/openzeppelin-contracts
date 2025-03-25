@@ -9,6 +9,7 @@ const {
   encodeDelegate,
   CALL_TYPE_CALL,
   CALL_TYPE_BATCH,
+  CALL_TYPE_DELEGATE,
   encodeMode,
 } = require('../../helpers/erc7579');
 const { selector } = require('../../helpers/methods');
@@ -52,6 +53,18 @@ describe('ERC7579Utils', function () {
         .withArgs(42, '0x1234');
 
       await expect(ethers.provider.getBalance(this.target)).to.eventually.equal(value);
+    });
+
+    it('default to calling self is target is address(0) (ERC-7821 calldata compression)', async function () {
+      const data = encodeSingle(
+        ethers.ZeroAddress, // address(0)
+        0,
+        this.utils.interface.encodeFunctionData('$CALLTYPE_SINGLE', []),
+      );
+
+      await expect(this.utils.$execSingle(data, EXEC_TYPE_DEFAULT))
+        .to.emit(this.utils, 'return$execSingle')
+        .withArgs([ethers.zeroPadBytes(CALL_TYPE_CALL, 32)]);
     });
 
     it('reverts when target reverts in default ExecType', async function () {
@@ -131,6 +144,17 @@ describe('ERC7579Utils', function () {
       await expect(ethers.provider.getBalance(this.anotherTarget)).to.eventually.equal(value2);
     });
 
+    it('default to calling self is target is address(0) (ERC-7821 calldata compression)', async function () {
+      const data = encodeBatch(
+        [ethers.ZeroAddress, 0, this.utils.interface.encodeFunctionData('$CALLTYPE_SINGLE', [])],
+        [ethers.ZeroAddress, 0, this.utils.interface.encodeFunctionData('$CALLTYPE_BATCH', [])],
+      );
+
+      await expect(this.utils.$execBatch(data, EXEC_TYPE_DEFAULT))
+        .to.emit(this.utils, 'return$execBatch')
+        .withArgs([ethers.zeroPadBytes(CALL_TYPE_CALL, 32), ethers.zeroPadBytes(CALL_TYPE_BATCH, 32)]);
+    });
+
     it('reverts when any target reverts in default ExecType', async function () {
       const value1 = 0x012;
       const value2 = 0x234;
@@ -191,6 +215,17 @@ describe('ERC7579Utils', function () {
       await expect(ethers.provider.getStorage(this.utils.target, slot)).to.eventually.equal(ethers.ZeroHash);
       await this.utils.$execDelegateCall(data, EXEC_TYPE_DEFAULT);
       await expect(ethers.provider.getStorage(this.utils.target, slot)).to.eventually.equal(value);
+    });
+
+    it('default to calling self is target is address(0) (ERC-7821 calldata compression)', async function () {
+      const data = encodeDelegate(
+        ethers.ZeroAddress,
+        this.utils.interface.encodeFunctionData('$CALLTYPE_DELEGATECALL', []),
+      );
+
+      await expect(this.utils.$execDelegateCall(data, EXEC_TYPE_DEFAULT))
+        .to.emit(this.utils, 'return$execDelegateCall')
+        .withArgs([ethers.zeroPadBytes(CALL_TYPE_DELEGATE, 32)]);
     });
 
     it('reverts when target reverts in default ExecType', async function () {
