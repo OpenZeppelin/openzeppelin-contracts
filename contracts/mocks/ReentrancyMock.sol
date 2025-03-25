@@ -12,6 +12,14 @@ contract ReentrancyMock is ReentrancyGuard {
         counter = 0;
     }
 
+    function readOnlyFunction() public nonReentrantView view returns (uint256) {
+        return 42;
+    }
+
+    function startReentrancy() public nonReentrant {
+        // Modifier nonReentrant sudah memanggil _nonReentrantBefore secara internal
+    }
+
     function callback() external nonReentrant {
         _count();
     }
@@ -33,7 +41,8 @@ contract ReentrancyMock is ReentrancyGuard {
 
     function countAndCall(ReentrancyAttack attacker) public nonReentrant {
         _count();
-        attacker.callSender(abi.encodeCall(this.callback, ()));
+        bool success = attacker.callSender(abi.encodeCall(this.callback, ()));
+        require(success, "ReentrancyMock: failed call");
     }
 
     function _count() private {
@@ -47,4 +56,8 @@ contract ReentrancyMock is ReentrancyGuard {
     function unguardedCheckNotEntered() public view {
         require(!_reentrancyGuardEntered());
     }
+    function startReentrancyWithCallback() public nonReentrant {
+    (bool success, ) = address(this).call(abi.encodeCall(this.callback, ()));
+    require(success, "ReentrancyMock: failed call");
+}
 }

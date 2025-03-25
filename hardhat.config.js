@@ -14,11 +14,10 @@ const path = require('path');
 const { argv } = require('yargs/yargs')()
   .env('')
   .options({
-    // Compilation settings
     compiler: {
       alias: 'compileVersion',
       type: 'string',
-      default: '0.8.24',
+      default: '0.8.20',
     },
     src: {
       alias: 'source',
@@ -40,7 +39,6 @@ const { argv } = require('yargs/yargs')()
       type: 'string',
       default: 'cancun',
     },
-    // Extra modules
     coverage: {
       type: 'boolean',
       default: false,
@@ -73,16 +71,44 @@ for (const f of fs.readdirSync(path.join(__dirname, 'hardhat'))) {
  */
 module.exports = {
   solidity: {
-    version: argv.compiler,
-    settings: {
-      optimizer: {
-        enabled: true,
-        runs: argv.runs,
+    compilers: [
+      {
+        version: '0.8.20',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: argv.runs,
+          },
+          evmVersion: argv.evm,
+          viaIR: argv.ir,
+          outputSelection: { '*': { '*': ['storageLayout'] } },
+        },
       },
-      evmVersion: argv.evm,
-      viaIR: argv.ir,
-      outputSelection: { '*': { '*': ['storageLayout'] } },
-    },
+      {
+        version: '0.8.22',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: argv.runs,
+          },
+          evmVersion: argv.evm,
+          viaIR: argv.ir,
+          outputSelection: { '*': { '*': ['storageLayout'] } },
+        },
+      },
+      {
+        version: '0.8.24',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: argv.runs,
+          },
+          evmVersion: argv.evm,
+          viaIR: argv.ir,
+          outputSelection: { '*': { '*': ['storageLayout'] } },
+        },
+      },
+    ],
   },
   warnings: {
     'contracts-exposed/**/*': {
@@ -90,16 +116,18 @@ module.exports = {
       'initcode-size': 'off',
     },
     '*': {
-      'unused-param': !argv.coverage, // coverage causes unused-param warnings
-      'transient-storage': false,
-      default: 'error',
+      'code-size': 'warn',
+      'initcode-size': 'warn',
+      'unused-param': 'warn',
+      'state-mutability': 'warn',
+      'shadowing': 'warn',
+      'transient-storage': 'warn',
+      default: 'warn',
     },
   },
   networks: {
     hardhat: {
       hardfork: argv.evm,
-      // Exposed contracts often exceed the maximum contract size. For normal contract,
-      // we rely on the `code-size` compiler warning, that will cause a compilation error.
       allowUnlimitedContractSize: true,
       initialBaseFeePerGas: argv.coverage ? 0 : undefined,
     },
