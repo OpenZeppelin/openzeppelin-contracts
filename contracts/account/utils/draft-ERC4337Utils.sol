@@ -89,7 +89,7 @@ library ERC4337Utils {
     function hash(PackedUserOperation calldata self, address entrypoint) internal view returns (bytes32) {
         // NOTE: getUserOpHash is available since v0.4.0
         //
-        // Prior to v0.8.0, this has was easy to replicate for any entrypoint and any chainId. Since v0.8.0 of the
+        // Prior to v0.8.0, this was easy to replicate for any entrypoint and chainId. Since v0.8.0 of the
         // entrypoint, this depends on the Entrypoint's domain separator, which cannot be hardcoded and is complex
         // to recompute. Domain separator could be fetch using the `getDomainSeparatorV4` getter, or recomputed from
         // the ERC-5267 getter, but both operation would require doing a view call to the entrypoint. Overall it feels
