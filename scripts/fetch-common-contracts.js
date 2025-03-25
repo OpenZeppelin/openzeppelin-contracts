@@ -15,8 +15,8 @@ const fs = require('fs');
 const path = require('path');
 const { ethers } = require('ethers');
 const { request } = require('undici');
-
-const { argv } = require('yargs/yargs')()
+const { hideBin } = require('yargs/helpers');
+const { argv } = require('yargs/yargs')(hideBin(process.argv))
   .env('')
   .options({
     output: { type: 'string', default: 'test/bin/' },
