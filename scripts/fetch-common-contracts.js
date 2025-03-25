@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
 // This script snapshots the bytecode and ABI for the `hardhat/common-contracts.js` script.
-// - Bytecode is fetched directly from the blockchain by querying the provided client endpoint. If not endpoint is
+// - Bytecode is fetched directly from the blockchain by querying the provided client endpoint. If no endpoint is
 //   provided, ethers default provider is used instead.
-// - ABI is fetched from etherscan's API using the provided etherscan API key. If no api key is provided, ABI will not
+// - ABI is fetched from etherscan's API using the provided etherscan API key. If no API key is provided, ABI will not
 //   be fetched and saved.
 //
 // The produced artifacts are stored in the `output` folder ('test/bin' by default). For each contract, two files are
