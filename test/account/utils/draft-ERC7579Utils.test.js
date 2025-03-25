@@ -2,14 +2,14 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const {
+  CALL_TYPE_CALL,
+  CALL_TYPE_BATCH,
+  CALL_TYPE_DELEGATE,
   EXEC_TYPE_DEFAULT,
   EXEC_TYPE_TRY,
   encodeSingle,
   encodeBatch,
   encodeDelegate,
-  CALL_TYPE_CALL,
-  CALL_TYPE_BATCH,
-  CALL_TYPE_DELEGATE,
   encodeMode,
 } = require('../../helpers/erc7579');
 const { selector } = require('../../helpers/methods');
@@ -28,6 +28,14 @@ const fixture = async () => {
 describe('ERC7579Utils', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
+  });
+
+  it('constants', async function () {
+    await expect(this.utils.$CALLTYPE_SINGLE()).to.eventually.equal(CALL_TYPE_CALL);
+    await expect(this.utils.$CALLTYPE_BATCH()).to.eventually.equal(CALL_TYPE_BATCH);
+    await expect(this.utils.$CALLTYPE_DELEGATECALL()).to.eventually.equal(CALL_TYPE_DELEGATE);
+    await expect(this.utils.$EXECTYPE_DEFAULT()).to.eventually.equal(EXEC_TYPE_DEFAULT);
+    await expect(this.utils.$EXECTYPE_TRY()).to.eventually.equal(EXEC_TYPE_TRY);
   });
 
   describe('execSingle', function () {
