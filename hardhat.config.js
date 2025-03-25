@@ -120,7 +120,7 @@ module.exports = {
       'initcode-size': 'warn',
       'unused-param': 'warn',
       'state-mutability': 'warn',
-      'shadowing': 'warn',
+      shadowing: 'warn',
       'transient-storage': 'warn',
       default: 'warn',
     },
