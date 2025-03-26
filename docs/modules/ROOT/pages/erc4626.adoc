@@ -187,7 +187,7 @@ When stem:[\delta = 0], the loss peaks at half the user's deposit because settin
 - If the offset is 0, the attacker loss peaks at half the user's deposit and decreases with larger initial deposits.
 - If the offset is greater than 0, the attacker will have to suffer losses that are orders of magnitude bigger than the amount of value that can hypothetically be stolen from the user.
 
-This shows that even with an offset of 0, the virtual shares and assets make this attack non profitable for the attacker. Bigger offsets increase the security even further by making any attack on the user extremely wasteful.
+This shows that even with an offset of 0, the virtual shares and assets make this attack non profitable for the attacker with small initial deposits. Bigger offsets increase the security even further by making any attack on the user extremely wasteful.
 
 The following figure shows how the offset impacts the initial rate and limits the ability of an attacker with limited funds to inflate it effectively.
 
