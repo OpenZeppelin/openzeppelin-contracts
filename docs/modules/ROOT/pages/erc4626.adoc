@@ -148,7 +148,7 @@ One important thing to note is that the attacker only owns a fraction stem:[\fra
 
 [stem]
 ++++
-\mathit{loss} \approx \frac{a_1}{1 + a_0} - \frac{a_0 \times u}{1 + a_0}
+\mathit{loss} \approx \frac{a_1}{1 + a_0} - \frac{a_0 \times u}{1 + a_0} = \frac{a1 - a_0 \times u}{1 + a_0}
 ++++
 
 The negative term stem:[-\frac{a_0 \times u}{1 + a_0}] accounts for the portion of the user's deposit stem:[u] that the attacker recovers upon redeeming their shares. After the user deposits stem:[u], the vault's total assets increase, and the attacker, owning stem:[\frac{a_0}{1 + a_0}] of the shares, can reclaim stem:[\frac{a_0 \times u}{1 + a_0}], reducing their net loss beyond just the unrecovered donation.
