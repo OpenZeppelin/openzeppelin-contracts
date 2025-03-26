@@ -137,14 +137,21 @@ Following the previous math definitions, we have:
 | stem:[1+a_0+a_1]
 | stem:[10^\delta \times (1+a_0)]
 | stem:[10^\delta \times \frac{1+a_0}{1+a_0+a_1}]
+
+| after user's deposit
+| stem:[1+a_0+a_1+u]
+| stem:[10^\delta \times (1+a_0+a_1)]
+| stem:[10^\delta \times \frac{1+a_0+a_1}{1+a_0+a_1+u}]
 |===
 
 One important thing to note is that the attacker only owns a fraction stem:[\frac{a_0}{1 + a_0}] of the shares, so when doing the donation, he will only be able to recover that fraction stem:[\frac{a_1 \times a_0}{1 + a_0}] of the donation. The remaining stem:[\frac{a_1}{1+a_0}] are captured by the vault.
 
 [stem]
 ++++
-\mathit{loss} = \frac{a_1}{1+a_0}
+\text{loss} \approx \frac{a_1}{1 + a_0} - \frac{a_0 \times u}{1 + a_0}
 ++++
+
+The negative term stem:[-\frac{a_0 \times u}{1 + a_0}] accounts for the portion of the user's deposit stem:[u] that the attacker recovers upon redeeming their shares. After the user deposits stem:[u], the vault's total assets increase, and the attacker, owning stem:[\frac{a_0}{1 + a_0}] of the shares, can reclaim stem:[\frac{a_0 \times u}{1 + a_0}], reducing their net loss beyond just the unrecovered donation.
 
 When the user deposits stem:[u], he receives
 
@@ -157,25 +164,27 @@ For the attacker to dilute that deposit to 0 shares, causing the user to lose al
 
 [stem]
 ++++
-10^\delta \times u \times \frac{1+a_0}{1+a_0+a_1} < 1
+10^\delta \times u \leq \frac{a_1}{1 + a_0}
 ++++
 
 [stem]
 ++++
-\iff 10^\delta \times u < \frac{1+a_0+a_1}{1+a_0}
+\iff 10^\delta \times u - \frac{a_0 \times u}{1 + a_0} \leq \frac{a_1}{1 + a_0} - \frac{a_0 \times u}{1 + a_0}
 ++++
 
 [stem]
 ++++
-\iff 10^\delta \times u < 1 + \frac{a_1}{1+a_0}
+\iff 10^\delta \times u - \frac{a_0 \times u}{1 + a_0} \le \mathit{loss}
 ++++
 
 [stem]
 ++++
-\iff 10^\delta \times u \le \mathit{loss}
+\iff 10^\delta \times u \times (1 - \frac{a_0}{1 + a_0}) \le \mathit{loss}
 ++++
 
-- If the offset is 0, the attacker loss is at least equal to the user's deposit.
+When stem:[\delta = 0], the loss peaks at half the user's deposit because setting stem:[a_0 = 1] maximizes the fraction stem:[\frac{a0}{1 + a_0}] to stem:[\frac{1}{2}], and choosing stem:[a_1 \approx 2u] ensures the user's shares are zero, resulting in a loss of approximately stem:[\frac{u}{2}]. Larger stem:[a_0] values reduce this fraction, lowering the loss.
+
+- If the offset is 0, the attacker loss peaks at half the user's deposit and decreases with larger initial deposits.
 - If the offset is greater than 0, the attacker will have to suffer losses that are orders of magnitude bigger than the amount of value that can hypothetically be stolen from the user.
 
 This shows that even with an offset of 0, the virtual shares and assets make this attack non profitable for the attacker. Bigger offsets increase the security even further by making any attack on the user extremely wasteful.
