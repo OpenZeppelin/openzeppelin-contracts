@@ -8,6 +8,11 @@ import {Math} from "../../utils/math/Math.sol";
 import {Calldata} from "../../utils/Calldata.sol";
 import {Packing} from "../../utils/Packing.sol";
 
+/// @dev This is available on all entrypoint since v0.4.0, but is not formally part of the ERC.
+interface IEntryPointExtra {
+    function getUserOpHash(PackedUserOperation calldata userOp) external view returns (bytes32);
+}
+
 /**
  * @dev Library with common ERC-4337 utility functions.
  *
@@ -18,6 +23,9 @@ library ERC4337Utils {
 
     /// @dev Address of the entrypoint v0.7.0
     IEntryPoint internal constant ENTRYPOINT_V07 = IEntryPoint(0x0000000071727De22E5E9d8BAf0edAc6f37da032);
+
+    /// @dev Address of the entrypoint v0.8.0
+    IEntryPoint internal constant ENTRYPOINT_V08 = IEntryPoint(0x4337084D9E255Ff0702461CF8895CE9E3b5Ff108);
 
     /// @dev For simulation purposes, validateUserOp (and validatePaymasterUserOp) return this value on success.
     uint256 internal constant SIG_VALIDATION_SUCCESS = 0;
@@ -77,31 +85,16 @@ library ERC4337Utils {
         return (aggregator_, block.timestamp < validAfter || validUntil < block.timestamp);
     }
 
-    /// @dev Computes the hash of a user operation for a given entrypoint and chainid.
-    function hash(
-        PackedUserOperation calldata self,
-        address entrypoint,
-        uint256 chainid
-    ) internal pure returns (bytes32) {
-        bytes32 result = keccak256(
-            abi.encode(
-                keccak256(
-                    abi.encode(
-                        self.sender,
-                        self.nonce,
-                        keccak256(self.initCode),
-                        keccak256(self.callData),
-                        self.accountGasLimits,
-                        self.preVerificationGas,
-                        self.gasFees,
-                        keccak256(self.paymasterAndData)
-                    )
-                ),
-                entrypoint,
-                chainid
-            )
-        );
-        return result;
+    /// @dev Get the hash of a user operation for a given entrypoint
+    function hash(PackedUserOperation calldata self, address entrypoint) internal view returns (bytes32) {
+        // NOTE: getUserOpHash is available since v0.4.0
+        //
+        // Prior to v0.8.0, this was easy to replicate for any entrypoint and chainId. Since v0.8.0 of the
+        // entrypoint, this depends on the Entrypoint's domain separator, which cannot be hardcoded and is complex
+        // to recompute. Domain separator could be fetch using the `getDomainSeparatorV4` getter, or recomputed from
+        // the ERC-5267 getter, but both operation would require doing a view call to the entrypoint. Overall it feels
+        // simpler and less error prone to get that functionality from the entrypoint directly.
+        return IEntryPointExtra(entrypoint).getUserOpHash(self);
     }
 
     /// @dev Returns `factory` from the {PackedUserOperation}, or address(0) if the initCode is empty or not properly formatted.
