@@ -55,7 +55,7 @@ function push(
  */
 function lowerLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} key) internal view returns (${opts.valueTypeName}) {
     uint256 len = self.${opts.checkpointFieldName}.length;
-    uint256 pos = _lowerBinaryLookup(self.${opts.checkpointFieldName}, key, 0, len);
+    uint256 pos = lowerBinaryLookup(self.${opts.checkpointFieldName}, key, 0, len);
     return pos == len ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos).${opts.valueFieldName};
 }
 
@@ -65,7 +65,7 @@ function lowerLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} k
  */
 function upperLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} key) internal view returns (${opts.valueTypeName}) {
     uint256 len = self.${opts.checkpointFieldName}.length;
-    uint256 pos = _upperBinaryLookup(self.${opts.checkpointFieldName}, key, 0, len);
+    uint256 pos = upperBinaryLookup(self.${opts.checkpointFieldName}, key, 0, len);
     return pos == 0 ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos - 1).${opts.valueFieldName};
 }
 
@@ -91,7 +91,7 @@ function upperLookupRecent(${opts.historyTypeName} storage self, ${opts.keyTypeN
         }
     }
 
-    uint256 pos = _upperBinaryLookup(self.${opts.checkpointFieldName}, key, low, high);
+    uint256 pos = upperBinaryLookup(self.${opts.checkpointFieldName}, key, low, high);
 
     return pos == 0 ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos - 1).${opts.valueFieldName};
 }
@@ -173,12 +173,12 @@ function _insert(
  *
  * WARNING: \`high\` should not be greater than the array's length.
  */
-function _upperBinaryLookup(
+function upperBinaryLookup(
     ${opts.checkpointTypeName}[] storage self,
     ${opts.keyTypeName} key,
     uint256 low,
     uint256 high
-) private view returns (uint256) {
+) internal view returns (uint256) {
     while (low < high) {
         uint256 mid = Math.average(low, high);
         if (_unsafeAccess(self, mid).${opts.keyFieldName} > key) {
@@ -197,12 +197,12 @@ function _upperBinaryLookup(
  *
  * WARNING: \`high\` should not be greater than the array's length.
  */
-function _lowerBinaryLookup(
+function lowerBinaryLookup(
     ${opts.checkpointTypeName}[] storage self,
     ${opts.keyTypeName} key,
     uint256 low,
     uint256 high
-) private view returns (uint256) {
+) internal view returns (uint256) {
     while (low < high) {
         uint256 mid = Math.average(low, high);
         if (_unsafeAccess(self, mid).${opts.keyFieldName} < key) {
