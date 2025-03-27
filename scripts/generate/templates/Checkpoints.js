@@ -55,8 +55,24 @@ function push(
  */
 function lowerLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} key) internal view returns (${opts.valueTypeName}) {
     uint256 len = self.${opts.checkpointFieldName}.length;
-    uint256 pos = lowerBinaryLookup(self.${opts.checkpointFieldName}, key, 0, len);
+    uint256 pos = _lowerBinaryLookup(self.${opts.checkpointFieldName}, key, 0, len);
     return pos == len ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos).${opts.valueFieldName};
+}
+
+/**
+ * @dev Return the index of the first (oldest) checkpoint with key greater or equal than the search key, or \`high\`
+ * if there is none. \`low\` and \`high\` define a section where to do the search, with inclusive \`low\` and exclusive
+ * \`high\`.
+ *
+ * WARNING: \`high\` should not be greater than the array's length.
+ */
+function lowerBinaryLookup(
+    ${opts.historyTypeName} storage self,
+    ${opts.keyTypeName} key,
+    uint256 low,
+    uint256 high
+) internal view returns (uint256) {
+    return _lowerBinaryLookup(self.${opts.checkpointFieldName}, key, low, high);
 }
 
 /**
@@ -65,7 +81,7 @@ function lowerLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} k
  */
 function upperLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} key) internal view returns (${opts.valueTypeName}) {
     uint256 len = self.${opts.checkpointFieldName}.length;
-    uint256 pos = upperBinaryLookup(self.${opts.checkpointFieldName}, key, 0, len);
+    uint256 pos = _upperBinaryLookup(self.${opts.checkpointFieldName}, key, 0, len);
     return pos == 0 ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos - 1).${opts.valueFieldName};
 }
 
@@ -91,9 +107,25 @@ function upperLookupRecent(${opts.historyTypeName} storage self, ${opts.keyTypeN
         }
     }
 
-    uint256 pos = upperBinaryLookup(self.${opts.checkpointFieldName}, key, low, high);
+    uint256 pos = _upperBinaryLookup(self.${opts.checkpointFieldName}, key, low, high);
 
     return pos == 0 ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos - 1).${opts.valueFieldName};
+}
+
+/**
+ * @dev Return the index of the first (oldest) checkpoint with key strictly bigger than the search key, or \`high\`
+ * if there is none. \`low\` and \`high\` define a section where to do the search, with inclusive \`low\` and exclusive
+ * \`high\`.
+ *
+ * WARNING: \`high\` should not be greater than the array's length.
+ */
+function upperBinaryLookup(
+    ${opts.historyTypeName} storage self,
+    ${opts.keyTypeName} key,
+    uint256 low,
+    uint256 high
+) internal view returns (uint256) {
+    return _upperBinaryLookup(self.${opts.checkpointFieldName}, key, low, high);
 }
 
 /**
@@ -173,12 +205,12 @@ function _insert(
  *
  * WARNING: \`high\` should not be greater than the array's length.
  */
-function upperBinaryLookup(
+function _upperBinaryLookup(
     ${opts.checkpointTypeName}[] storage self,
     ${opts.keyTypeName} key,
     uint256 low,
     uint256 high
-) internal view returns (uint256) {
+) private view returns (uint256) {
     while (low < high) {
         uint256 mid = Math.average(low, high);
         if (_unsafeAccess(self, mid).${opts.keyFieldName} > key) {
@@ -197,12 +229,12 @@ function upperBinaryLookup(
  *
  * WARNING: \`high\` should not be greater than the array's length.
  */
-function lowerBinaryLookup(
+function _lowerBinaryLookup(
     ${opts.checkpointTypeName}[] storage self,
     ${opts.keyTypeName} key,
     uint256 low,
     uint256 high
-) internal view returns (uint256) {
+) private view returns (uint256) {
     while (low < high) {
         uint256 mid = Math.average(low, high);
         if (_unsafeAccess(self, mid).${opts.keyFieldName} < key) {
