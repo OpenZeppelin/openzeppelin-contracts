@@ -28,12 +28,12 @@ const value = ethers.parseEther('1');
 const signBallot = account => (contract, message) =>
   getDomain(contract).then(domain => account.signTypedData(domain, { Ballot }, message));
 
-async function deployToken(contractName) {
+async function deployToken(contractName, args = []) {
   try {
-    return await ethers.deployContract(contractName, [tokenName, tokenSymbol, tokenName, version]);
+    return await ethers.deployContract(contractName, args);
   } catch (error) {
     if (error.message == 'incorrect number of arguments to constructor') {
-      // ERC20VotesLegacyMock has a different construction that uses version='1' by default.
+      // ERC20VotesLegacyMock has a different constructor, fallback to shorter args
       return ethers.deployContract(contractName, [tokenName, tokenSymbol, tokenName]);
     }
     throw error;
