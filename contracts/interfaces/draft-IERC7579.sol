@@ -200,7 +200,7 @@ interface IERC7579ModuleConfig {
      * @dev Uninstalls a Module of a certain type on the smart account
      * @param moduleTypeId the module type ID according the ERC-7579 spec
      * @param module the module address
-     * @param deInitData arbitrary data that may be required on the module during `onInstall`
+     * @param deInitData arbitrary data that may be required on the module during `onUninstall`
      * initialization.
      *
      * MUST implement authorization control
