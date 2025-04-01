@@ -28,19 +28,16 @@ abstract contract GovernorNoncesKeyed is Governor, NoncesKeyed {
     ) internal virtual override returns (bool) {
         if (super._validateVoteSignature(voter, proposalId, signature, digestPreimage, noncePositionOffset)) {
             return true;
-        }
+        } else {
+            // uint192 is sufficient entropy for proposalId within nonce keys.
+            uint256 keyedNonce = nonces(voter, uint192(proposalId));
+            assembly ("memory-safe") {
+                mstore(add(digestPreimage, noncePositionOffset), keyedNonce)
+            }
 
-        // uint192 is sufficient entropy for proposalId within nonce keys.
-        uint256 keyedNonce = nonces(voter, uint192(proposalId));
-        assembly ("memory-safe") {
-            mstore(add(digestPreimage, noncePositionOffset), keyedNonce)
+            bool isValid = SignatureChecker.isValidSignatureNow(voter, _hashTypedDataV4(keccak256(digestPreimage)), signature);
+            if (isValid) _useNonce(voter, uint192(proposalId));
+            return isValid;
         }
-
-        if (SignatureChecker.isValidSignatureNow(voter, _hashTypedDataV4(keccak256(digestPreimage)), signature)) {
-            _useNonce(voter, uint192(proposalId));
-            return true;
-        }
-
-        return false;
     }
 }
