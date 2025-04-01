@@ -201,7 +201,7 @@ interface IERC7579ModuleConfig {
      * @param moduleTypeId the module type ID according the ERC-7579 spec
      * @param module the module address
      * @param deInitData arbitrary data that may be required on the module during `onUninstall`
-     * initialization.
+     * deinitialization.
      *
      * MUST implement authorization control
      * MUST call `onUninstall` on the module with the `deInitData` parameter if provided
