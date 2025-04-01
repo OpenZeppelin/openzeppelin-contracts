@@ -62,7 +62,16 @@ contract ERC6909 is Context, ERC165, IERC6909 {
         return true;
     }
 
-    /// @inheritdoc IERC6909
+    /**
+     * @dev See {IERC6909-transferFrom}.
+     *
+     * When the caller is neither the sender nor an operator for the sender, the caller’s allowance for the specified
+     * token `id` is reduced by the transferred amount (unless the allowance is infinite). See {_spendAllowance}.
+     *
+     * NOTE: Does not decreases the allowance if the `sender` is an operator for the `caller`. Operators can
+     * execute transfers on behalf of the `sender` without depleting their token-specific allowances, meeting common
+     * expectations for operator functionality.
+     */
     function transferFrom(
         address sender,
         address receiver,
