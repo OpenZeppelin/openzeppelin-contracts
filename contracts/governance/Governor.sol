@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+e// SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.2.0) (governance/Governor.sol)
 
 pragma solidity ^0.8.20;
@@ -644,12 +644,9 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
             mstore(add(digestPreimage, noncePositionOffset), nonce)
         }
 
-        if (SignatureChecker.isValidSignatureNow(voter, _hashTypedDataV4(keccak256(digestPreimage)), signature)) {
-            _useNonce(voter);
-            return true;
-        }
-
-        return false;
+        bool isValid = SignatureChecker.isValidSignatureNow(voter, _hashTypedDataV4(keccak256(digestPreimage)), signature);
+        if (isValid) _useNonce(voter);
+        return isValid;
     }
 
     /**
