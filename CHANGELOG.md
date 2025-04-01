@@ -9,6 +9,7 @@
 #### Custom error changes
 
 - Replace `GovernorAlreadyOverridenVote` with `GovernorAlreadyOverriddenVote`.
+- Replace `GovernorOnlyProposer` with `GovernorUnableToCancel`.
 
 ### Changes by category
 
