@@ -10,8 +10,8 @@ TIP: For an overview of ERC-20 tokens and a walk through on how to create a toke
 There are a few core contracts that implement the behavior specified in the ERC-20 standard:
 
 * {IERC20}: the interface all ERC-20 implementations should conform to.
-* {IERC20Metadata}: the extended ERC-20 interface including the <<ERC20-name,`name`>>, <<ERC20-symbol,`symbol`>> and <<ERC20-decimals,`decimals`>> functions.
-* {ERC20}: the implementation of the ERC-20 interface, including the <<ERC20-name,`name`>>, <<ERC20-symbol,`symbol`>> and <<ERC20-decimals,`decimals`>> optional extensions to the standard interface.
+* {IERC20Metadata}: the extended ERC-20 interface including the <<ERC20-name--,`name`>>, <<ERC20-symbol--,`symbol`>> and <<ERC20-decimals--,`decimals`>> functions.
+* {ERC20}: the implementation of the ERC-20 interface, including the <<ERC20-name--,`name`>>, <<ERC20-symbol--,`symbol`>> and <<ERC20-decimals--,`decimals`>> optional extensions to the standard interface.
 
 Additionally there are multiple custom extensions, including:
 
