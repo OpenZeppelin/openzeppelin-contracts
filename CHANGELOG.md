@@ -7,6 +7,7 @@
 #### Custom error changes
 
 - Replace `GovernorAlreadyOverridenVote` with `GovernorAlreadyOverriddenVote`.
+- Replace `AccessControlNonRevokable` with `AccessControlNonRevocable`.
 
 ## 5.2.0 (2025-01-08)
 
