@@ -35,7 +35,11 @@ abstract contract GovernorNoncesKeyed is Governor, NoncesKeyed {
                 mstore(add(digestPreimage, noncePositionOffset), keyedNonce)
             }
 
-            bool isValid = SignatureChecker.isValidSignatureNow(voter, _hashTypedDataV4(keccak256(digestPreimage)), signature);
+            bool isValid = SignatureChecker.isValidSignatureNow(
+                voter,
+                _hashTypedDataV4(keccak256(digestPreimage)),
+                signature
+            );
             if (isValid) _useNonce(voter, uint192(proposalId));
             return isValid;
         }

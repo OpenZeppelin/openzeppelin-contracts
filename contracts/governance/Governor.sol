@@ -644,7 +644,11 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
             mstore(add(digestPreimage, noncePositionOffset), nonce)
         }
 
-        bool isValid = SignatureChecker.isValidSignatureNow(voter, _hashTypedDataV4(keccak256(digestPreimage)), signature);
+        bool isValid = SignatureChecker.isValidSignatureNow(
+            voter,
+            _hashTypedDataV4(keccak256(digestPreimage)),
+            signature
+        );
         if (isValid) _useNonce(voter);
         return isValid;
     }
