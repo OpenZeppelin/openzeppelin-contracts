@@ -44,15 +44,15 @@ describe('P256', function () {
     });
 
     it('verify valid signature', async function () {
-      expect(await this.mock.$verify(this.messageHash, ...this.signature, ...this.publicKey)).to.be.true;
-      expect(await this.mock.$verifySolidity(this.messageHash, ...this.signature, ...this.publicKey)).to.be.true;
-      await expect(this.mock.$verifyNative(this.messageHash, ...this.signature, ...this.publicKey))
-        .to.be.revertedWithCustomError(this.mock, 'MissingPrecompile')
-        .withArgs('0x0000000000000000000000000000000000000100');
+      await expect(this.mock.$verify(this.messageHash, ...this.signature, ...this.publicKey)).to.eventually.be.true;
+      await expect(this.mock.$verifySolidity(this.messageHash, ...this.signature, ...this.publicKey)).to.eventually.be
+        .true;
+      await expect(this.mock.$verifyNative(this.messageHash, ...this.signature, ...this.publicKey)).to.eventually.be
+        .true;
     });
 
     it('recover public key', async function () {
-      expect(await this.mock.$recovery(this.messageHash, this.recovery, ...this.signature)).to.deep.equal(
+      await expect(this.mock.$recovery(this.messageHash, this.recovery, ...this.signature)).to.eventually.deep.equal(
         this.publicKey,
       );
     });
@@ -61,9 +61,11 @@ describe('P256', function () {
       // flip public key
       this.publicKey.reverse();
 
-      expect(await this.mock.$verify(this.messageHash, ...this.signature, ...this.publicKey)).to.be.false;
-      expect(await this.mock.$verifySolidity(this.messageHash, ...this.signature, ...this.publicKey)).to.be.false;
-      expect(await this.mock.$verifyNative(this.messageHash, ...this.signature, ...this.publicKey)).to.be.false; // Flipped public key is not in the curve
+      await expect(this.mock.$verify(this.messageHash, ...this.signature, ...this.publicKey)).to.eventually.be.false;
+      await expect(this.mock.$verifySolidity(this.messageHash, ...this.signature, ...this.publicKey)).to.eventually.be
+        .false;
+      await expect(this.mock.$verifyNative(this.messageHash, ...this.signature, ...this.publicKey)).to.eventually.be
+        .false;
     });
 
     it('reject signature with flipped signature values ([r,s] >> [s,r])', async function () {
@@ -81,42 +83,42 @@ describe('P256', function () {
       ];
 
       // Make sure it works
-      expect(await this.mock.$verify(this.messageHash, ...this.signature, ...this.publicKey)).to.be.true;
+      await expect(this.mock.$verify(this.messageHash, ...this.signature, ...this.publicKey)).to.eventually.be.true;
 
       // Flip signature
       this.signature.reverse();
 
-      expect(await this.mock.$verify(this.messageHash, ...this.signature, ...this.publicKey)).to.be.false;
-      expect(await this.mock.$verifySolidity(this.messageHash, ...this.signature, ...this.publicKey)).to.be.false;
-      await expect(this.mock.$verifyNative(this.messageHash, ...this.signature, ...this.publicKey))
-        .to.be.revertedWithCustomError(this.mock, 'MissingPrecompile')
-        .withArgs('0x0000000000000000000000000000000000000100');
-      expect(await this.mock.$recovery(this.messageHash, this.recovery, ...this.signature)).to.not.deep.equal(
-        this.publicKey,
-      );
+      await expect(this.mock.$verify(this.messageHash, ...this.signature, ...this.publicKey)).to.eventually.be.false;
+      await expect(this.mock.$verifySolidity(this.messageHash, ...this.signature, ...this.publicKey)).to.eventually.be
+        .false;
+      await expect(this.mock.$verifyNative(this.messageHash, ...this.signature, ...this.publicKey)).to.eventually.be
+        .false;
+      await expect(
+        this.mock.$recovery(this.messageHash, this.recovery, ...this.signature),
+      ).to.eventually.not.deep.equal(this.publicKey);
     });
 
     it('reject signature with invalid message hash', async function () {
       // random message hash
       this.messageHash = ethers.hexlify(ethers.randomBytes(32));
 
-      expect(await this.mock.$verify(this.messageHash, ...this.signature, ...this.publicKey)).to.be.false;
-      expect(await this.mock.$verifySolidity(this.messageHash, ...this.signature, ...this.publicKey)).to.be.false;
-      await expect(this.mock.$verifyNative(this.messageHash, ...this.signature, ...this.publicKey))
-        .to.be.revertedWithCustomError(this.mock, 'MissingPrecompile')
-        .withArgs('0x0000000000000000000000000000000000000100');
-      expect(await this.mock.$recovery(this.messageHash, this.recovery, ...this.signature)).to.not.deep.equal(
-        this.publicKey,
-      );
+      await expect(this.mock.$verify(this.messageHash, ...this.signature, ...this.publicKey)).to.eventually.be.false;
+      await expect(this.mock.$verifySolidity(this.messageHash, ...this.signature, ...this.publicKey)).to.eventually.be
+        .false;
+      await expect(this.mock.$verifyNative(this.messageHash, ...this.signature, ...this.publicKey)).to.eventually.be
+        .false;
+      await expect(
+        this.mock.$recovery(this.messageHash, this.recovery, ...this.signature),
+      ).to.eventually.not.deep.equal(this.publicKey);
     });
 
     it('fail to recover signature with invalid recovery bit', async function () {
       // flip recovery bit
       this.recovery = 1 - this.recovery;
 
-      expect(await this.mock.$recovery(this.messageHash, this.recovery, ...this.signature)).to.not.deep.equal(
-        this.publicKey,
-      );
+      await expect(
+        this.mock.$recovery(this.messageHash, this.recovery, ...this.signature),
+      ).to.eventually.not.deep.equal(this.publicKey);
     });
   });
 
@@ -148,7 +150,7 @@ describe('P256', function () {
           const messageHash = ethers.sha256('0x' + msg);
 
           // check verify
-          expect(await this.mock.$verify(messageHash, r, s, x, y)).to.equal(result == 'valid');
+          await expect(this.mock.$verify(messageHash, r, s, x, y)).to.eventually.equal(result == 'valid');
         });
       }
     }
