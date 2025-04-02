@@ -110,7 +110,7 @@ library P256 {
     /**
      * @dev Low level helper for {_tryVerifyNative}. Calls the precompile and checks if there is a return value.
      *
-     * Note: According to RIP-7212, invalid signature are indistinguishable from the absence of the precompile.
+     * NOTE: According to RIP-7212, invalid signature are indistinguishable from the absence of the precompile.
      * Getting the success boolean, copying the returndata to memory, and loading it as a boolean, is not strictly
      * necessary, but it protects against non-standard implementations that would return 0 (false) for
      * invalid signatures.
