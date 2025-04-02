@@ -90,10 +90,42 @@ library P256 {
     ) private view returns (bool valid, bool supported) {
         if (!_isProperSignature(r, s) || !isValidPublicKey(qx, qy)) {
             return (false, true); // signature is invalid, and its not because the precompile is missing
+        } else if (_erc7212(h, r, s, qx, qy)) {
+            return (true, true); // precompile is present, signature is valid
+        } else if (
+            _erc7212(
+                0x4cee90eb86eaa050036147a12d49004b6b9c72bd725d39d4785011fe190f0b4d,
+                0xa73bd4903f0ce3b639bbbf6e8e80d16931ff4bcf5993d58468e8fb19086e8cac,
+                0x36dbcd03009df8c59286b162af3bd7fcc0450c9aa81be5d10d312af6c66b1d60,
+                0x4aebd3099c618202fcfe16ae7770b0c49ab5eadf74b754204a3bb6060e44eff3,
+                0x7618b065f9832de4ca6ca971a7a1adc826d0f7c00181a5fb2ddf79ae00b4e10e
+            )
+        ) {
+            return (false, true); // precompile is present, signature is invalid
+        } else {
+            return (false, false); // precompile is absent
         }
+    }
 
-        (bool success, bytes memory returndata) = address(0x100).staticcall(abi.encode(h, r, s, qx, qy));
-        return (success && returndata.length == 0x20) ? (abi.decode(returndata, (bool)), true) : (false, false);
+    /**
+     * @dev Low level helper for {_tryVerifyNative}. Calls the recompile and check if there is a return value.
+     *
+     * Note: According to RIP-7212, invalid signature are indistinguishable from the absence of the precompile.
+     * Getting the success boolean, copying the returndata to memory, and loading it as a boolean, is not strictly
+     * speaking necessary, but it's protects against non standard implementation that would return 0 (false) for
+     * invalid signatures.
+     */
+    function _erc7212(bytes32 h, bytes32 r, bytes32 s, bytes32 qx, bytes32 qy) private view returns (bool isValid) {
+        assembly ("memory-safe") {
+            let ptr := mload(0x40)
+            mstore(ptr, h)
+            mstore(add(ptr, 0x20), r)
+            mstore(add(ptr, 0x40), s)
+            mstore(add(ptr, 0x60), qx)
+            mstore(add(ptr, 0x80), qy)
+            let success := staticcall(gas(), 0x100, ptr, 0xa0, 0x00, 0x20)
+            isValid := and(success, and(eq(returndatasize(), 0x20), eq(mload(0x0), 1)))
+        }
     }
 
     /**
