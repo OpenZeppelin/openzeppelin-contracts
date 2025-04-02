@@ -94,7 +94,7 @@ library P256 {
             return (true, true); // precompile is present, signature is valid
         } else if (
             // Given precompiles have no bytecode (i.e. `address(0x100).code.length == 0`), we use
-            // a valid signature with small `r` and `s` values to check if the compiler is present. Taken from
+            // a valid signature with small `r` and `s` values to check if the precompile is present. Taken from
             //  https://github.com/C2SP/wycheproof/blob/4672ff74d68766e7785c2cac4c597effccef2c5c/testvectors/ecdsa_secp256r1_sha256_p1363_test.json#L1181-L1204
             _rip7212(
                 0xbb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023, // sha256("123400")
