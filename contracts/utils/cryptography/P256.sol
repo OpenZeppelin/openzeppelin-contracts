@@ -124,7 +124,7 @@ library P256 {
             mstore(add(ptr, 0x60), qx)
             mstore(add(ptr, 0x80), qy)
             let success := staticcall(gas(), 0x100, ptr, 0xa0, 0x00, 0x20)
-            isValid := and(success, and(eq(returndatasize(), 0x20), eq(mload(0x0), 1)))
+            isValid := and(success, and(eq(returndatasize(), 0x20), eq(mload(0), 1)))
         }
     }
 
