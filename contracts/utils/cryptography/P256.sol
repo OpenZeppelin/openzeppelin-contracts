@@ -90,10 +90,10 @@ library P256 {
     ) private view returns (bool valid, bool supported) {
         if (!_isProperSignature(r, s) || !isValidPublicKey(qx, qy)) {
             return (false, true); // signature is invalid, and its not because the precompile is missing
-        } else if (_erc7212(h, r, s, qx, qy)) {
+        } else if (_rip7212(h, r, s, qx, qy)) {
             return (true, true); // precompile is present, signature is valid
         } else if (
-            _erc7212(
+            _rip7212(
                 0x4cee90eb86eaa050036147a12d49004b6b9c72bd725d39d4785011fe190f0b4d,
                 0xa73bd4903f0ce3b639bbbf6e8e80d16931ff4bcf5993d58468e8fb19086e8cac,
                 0x36dbcd03009df8c59286b162af3bd7fcc0450c9aa81be5d10d312af6c66b1d60,
@@ -115,7 +115,7 @@ library P256 {
      * necessary, but it protects against non-standard implementations that would return 0 (false) for
      * invalid signatures.
      */
-    function _erc7212(bytes32 h, bytes32 r, bytes32 s, bytes32 qx, bytes32 qy) private view returns (bool isValid) {
+    function _rip7212(bytes32 h, bytes32 r, bytes32 s, bytes32 qx, bytes32 qy) private view returns (bool isValid) {
         assembly ("memory-safe") {
             let ptr := mload(0x40)
             mstore(ptr, h)
