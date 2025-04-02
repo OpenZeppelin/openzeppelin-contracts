@@ -93,12 +93,15 @@ library P256 {
         } else if (_rip7212(h, r, s, qx, qy)) {
             return (true, true); // precompile is present, signature is valid
         } else if (
+            // Given precompiles have no bytecode (i.e. `address(0x100).code.length == 0`), we use
+            // a valid signature with small `r` and `s` values to check if the compiler is present. Taken from
+            //  https://github.com/C2SP/wycheproof/blob/4672ff74d68766e7785c2cac4c597effccef2c5c/testvectors/ecdsa_secp256r1_sha256_p1363_test.json#L1181-L1204
             _rip7212(
-                0x532eaabd9574880dbf76b9b8cc00832c20a6ec113d682299550d7a6e0f345e25,
+                0xbb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023, // sha256("123400")
                 0x0000000000000000000000000000000000000000000000000000000000000005,
                 0x0000000000000000000000000000000000000000000000000000000000000001,
-                0x4a03ef9f92eb268cafa601072489a56380fa0dc43171d7712813b3a19a1eb5e5,
-                0x3e213e28a608ce9a2f4a17fd830c6654018a79b3e0263d91a8ba90622df6f2f0
+                0x6627cec4f0731ea23fc2931f90ebe5b7572f597d20df08fc2b31ee8ef16b1572,
+                0x6170ed77d8d0a14fc5c9c3c4c9be7f0d3ee18f709bb275eaf2073e258fe694a5
             )
         ) {
             return (false, true); // precompile is present, signature is invalid
@@ -110,7 +113,7 @@ library P256 {
     /**
      * @dev Low level helper for {_tryVerifyNative}. Calls the precompile and checks if there is a return value.
      *
-     * NOTE: According to RIP-7212, invalid signature are indistinguishable from the absence of the precompile.
+     * NOTE: According to RIP-7212, invalid signatures are indistinguishable from the absence of the precompile.
      * Getting the success boolean, copying the returndata to memory, and loading it as a boolean, is not strictly
      * necessary, but it protects against non-standard implementations that would return 0 (false) for
      * invalid signatures.
