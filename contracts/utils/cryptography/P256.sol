@@ -112,7 +112,7 @@ library P256 {
      *
      * Note: According to RIP-7212, invalid signature are indistinguishable from the absence of the precompile.
      * Getting the success boolean, copying the returndata to memory, and loading it as a boolean, is not strictly
-     * speaking necessary, but it's protects against non standard implementation that would return 0 (false) for
+     * necessary, but it protects against non-standard implementations that would return 0 (false) for
      * invalid signatures.
      */
     function _erc7212(bytes32 h, bytes32 r, bytes32 s, bytes32 qx, bytes32 qy) private view returns (bool isValid) {
