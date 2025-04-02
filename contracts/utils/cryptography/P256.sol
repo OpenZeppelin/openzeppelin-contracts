@@ -95,13 +95,13 @@ library P256 {
         } else if (
             // Given precompiles have no bytecode (i.e. `address(0x100).code.length == 0`), we use
             // a valid signature with small `r` and `s` values to check if the precompile is present. Taken from
-            // https://github.com/C2SP/wycheproof/blob/4672ff74d68766e7785c2cac4c597effccef2c5c/testvectors/ecdsa_secp256r1_sha256_p1363_test.json#L1181-L1204
+            // https://github.com/C2SP/wycheproof/blob/4672ff74d68766e7785c2cac4c597effccef2c5c/testvectors/ecdsa_secp256r1_sha256_p1363_test.json#L1173-L1204
             _rip7212(
                 0xbb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023, // sha256("123400")
                 0x0000000000000000000000000000000000000000000000000000000000000005,
                 0x0000000000000000000000000000000000000000000000000000000000000001,
-                0x6627cec4f0731ea23fc2931f90ebe5b7572f597d20df08fc2b31ee8ef16b1572,
-                0x6170ed77d8d0a14fc5c9c3c4c9be7f0d3ee18f709bb275eaf2073e258fe694a5
+                0xa71af64de5126a4a4e02b7922d66ce9415ce88a4c9d25514d91082c8725ac957,
+                0x5d47723c8fbe580bb369fec9c2665d8e30a435b9932645482e7c9f11e872296b
             )
         ) {
             return (false, true); // precompile is present, signature is invalid
