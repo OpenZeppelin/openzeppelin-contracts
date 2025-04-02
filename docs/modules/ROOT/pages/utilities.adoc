@@ -12,7 +12,7 @@ At a high level, signatures are a set of cryptographic algorithms that allow for
 
 ==== Ethereum Signatures (secp256k1)
 
-xref:api:utils.adoc#ECDSA[`ECDSA`] provides functions for recovering and managing Ethereum account ECDSA signatures. These are often generated via https://web3js.readthedocs.io/en/v1.7.3/web3-eth.html#sign[`web3.eth.sign`], and are a 65 byte array (of type `bytes` in Solidity) arranged the following way: `[[v (1)], [r (32)], [s (32)]]`.
+xref:api:utils.adoc#ECDSA[`ECDSA`] provides functions for recovering and managing Ethereum account ECDSA signatures. These are often generated via https://web3js.readthedocs.io/en/v1.7.3/web3-eth.html#sign[`web3.eth.sign`], and form a 65-byte array (of type `bytes` in Solidity) arranged the following way: `[[v (1)], [r (32)], [s (32)]]`.
 
 The data signer can be recovered with xref:api:utils.adoc#ECDSA-recover-bytes32-bytes-[`ECDSA.recover`], and its address compared to verify the signature. Most wallets will hash the data to sign and add the prefix `\x19Ethereum Signed Message:\n`, so when attempting to recover the signer of an Ethereum signed message hash, you'll want to use xref:api:utils.adoc#MessageHashUtils-toEthSignedMessageHash-bytes32-[`toEthSignedMessageHash`].
 
@@ -197,7 +197,7 @@ The `Enumerable*` structures are similar to mappings in that they store and remo
 
 Building an on-chain Merkle Tree allows developers to keep track of the history of roots in a decentralized manner. For these cases, the xref:api:utils.adoc#MerkleTree[`MerkleTree`] includes a predefined structure with functions to manipulate the tree (e.g. pushing values or resetting the tree).
 
-The Merkle Tree does not keep track of the roots purposely, so that developers can choose their tracking mechanism. Setting up and using a Merkle Tree in Solidity is as simple as follows:
+The Merkle Tree does not keep track of the roots intentionally, so that developers can choose their tracking mechanism. Setting up and using a Merkle Tree in Solidity is as simple as follows:
 
 NOTE: Functions are exposed without access control for demonstration purposes
 
@@ -243,7 +243,7 @@ function _hashFn(bytes32 a, bytes32 b) internal view returns(bytes32) {
 
 === Using a Heap
 
-A https://en.wikipedia.org/wiki/Binary_heap[binary heap] is a data structure that always store the most important element at its peak and it can be used as a priority queue.
+A https://en.wikipedia.org/wiki/Binary_heap[binary heap] is a data structure that always stores the most important element at its peak and it can be used as a priority queue.
 
 To define what is most important in a heap, these frequently take comparator functions that tell the binary heap whether a value has more relevance than another.
 
@@ -358,7 +358,7 @@ This is especially useful for building URL-safe tokenURIs for both xref:api:toke
 
 Here is an example to send JSON Metadata through a Base64 Data URI using an ERC-721:
 
-[source, solidity]
+[source,solidity]
 ----
 include::api:example$utilities/Base64NFT.sol[]
 ----
