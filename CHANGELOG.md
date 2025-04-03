@@ -1,5 +1,11 @@
 # Changelog
 
+
+## 5.3.0-rc.1 (2025-04-02)
+
+- `ERC7579Utils`: Replace `address(0)` with `address(this)` during execution for calldata compression efficiency. ([#5614](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5614))
+- `ERC4337Utils`: Update the `hash` function to call `getUserOpHash` on the specified entrypoint and add an `ENTRYPOINT_V08` constant. ([#5614](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5614))
+
 ## 5.3.0-rc.0 (2025-03-19)
 
 ### Breaking Changes
