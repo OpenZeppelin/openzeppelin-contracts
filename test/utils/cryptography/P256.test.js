@@ -51,10 +51,34 @@ describe('P256', function () {
         .true;
     });
 
+    it('verify improper signature', async function () {
+      const signature = this.signature;
+      this.signature[0] = ethers.toBeHex(N, 0x20); // r = N
+      await expect(this.mock.$verify(this.messageHash, ...signature, ...this.publicKey)).to.eventually.be.false;
+      await expect(this.mock.$verifySolidity(this.messageHash, ...signature, ...this.publicKey)).to.eventually.be.false;
+      await expect(this.mock.$verifyNative(this.messageHash, ...signature, ...this.publicKey)).to.eventually.be.false;
+    });
+
     it('recover public key', async function () {
       await expect(this.mock.$recovery(this.messageHash, this.recovery, ...this.signature)).to.eventually.deep.equal(
         this.publicKey,
       );
+    });
+
+    it('recovers (0,0) for invalid recovery bit', async function () {
+      await expect(this.mock.$recovery(this.messageHash, 2, ...this.signature)).to.eventually.deep.equal([
+        ethers.ZeroHash,
+        ethers.ZeroHash,
+      ]);
+    });
+
+    it('recovers (0,0) for improper signature', async function () {
+      const signature = this.signature;
+      this.signature[0] = ethers.toBeHex(N, 0x20); // r = N
+      await expect(this.mock.$recovery(this.messageHash, this.recovery, ...signature)).to.eventually.deep.equal([
+        ethers.ZeroHash,
+        ethers.ZeroHash,
+      ]);
     });
 
     it('reject signature with flipped public key coordinates ([x,y] >> [y,x])', async function () {
