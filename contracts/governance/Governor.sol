@@ -578,13 +578,15 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         address voter,
         bytes memory signature
     ) public virtual returns (uint256) {
-        bool valid = SignatureChecker.isValidSignatureNow(
-            voter,
-            _hashTypedDataV4(keccak256(abi.encode(BALLOT_TYPEHASH, proposalId, support, voter, _useNonce(voter)))),
-            signature
-        );
-
-        if (!valid) {
+        if (
+            !_validateVoteSignature(
+                voter,
+                proposalId,
+                signature,
+                abi.encode(BALLOT_TYPEHASH, proposalId, support, voter, uint256(0)),
+                0xA0
+            )
+        ) {
             revert GovernorInvalidSignature(voter);
         }
 
@@ -602,29 +604,53 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         bytes memory params,
         bytes memory signature
     ) public virtual returns (uint256) {
-        bool valid = SignatureChecker.isValidSignatureNow(
-            voter,
-            _hashTypedDataV4(
-                keccak256(
-                    abi.encode(
-                        EXTENDED_BALLOT_TYPEHASH,
-                        proposalId,
-                        support,
-                        voter,
-                        _useNonce(voter),
-                        keccak256(bytes(reason)),
-                        keccak256(params)
-                    )
-                )
-            ),
-            signature
-        );
-
-        if (!valid) {
+        if (
+            !_validateVoteSignature(
+                voter,
+                proposalId,
+                signature,
+                abi.encode(
+                    EXTENDED_BALLOT_TYPEHASH,
+                    proposalId,
+                    support,
+                    voter,
+                    uint256(0),
+                    keccak256(bytes(reason)),
+                    keccak256(params)
+                ),
+                0xA0
+            )
+        ) {
             revert GovernorInvalidSignature(voter);
         }
 
         return _castVote(proposalId, voter, support, reason, params);
+    }
+
+    /**
+     * @dev Validate the `signature` used in {castVoteBySig} and {castVoteWithReasonAndParamsBySig} functions. The `digestPreimage`
+     * is the EIP712 digest prior to hashing with a 32 bytes gap left at `noncePositionOffset` for the nonce to be inserted
+     * (note the offset includes the first 32 bytes storing the size of the bytes array).
+     */
+    function _validateVoteSignature(
+        address voter,
+        uint256 /* proposalId */,
+        bytes memory signature,
+        bytes memory digestPreimage,
+        uint256 noncePositionOffset
+    ) internal virtual returns (bool) {
+        uint256 nonce = nonces(voter);
+        assembly ("memory-safe") {
+            mstore(add(digestPreimage, noncePositionOffset), nonce)
+        }
+
+        bool isValid = SignatureChecker.isValidSignatureNow(
+            voter,
+            _hashTypedDataV4(keccak256(digestPreimage)),
+            signature
+        );
+        if (isValid) _useNonce(voter);
+        return isValid;
     }
 
     /**
