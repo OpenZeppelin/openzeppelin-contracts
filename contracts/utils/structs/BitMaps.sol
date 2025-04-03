@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 
 /**
  * @dev Library for managing uint256 to bool mapping in a compact and efficient way, provided the keys are sequential.
- * Largely inspired by Uniswap's https://github.com/Uniswap/merkle-distributor/blob/master/contracts/MerkleDistributor.sol[merkle-distributor].
+ * Largely inspired by Uniswap's https://github.com/Uniswap/merkle-distributor/blob/master/contracts/MerkleDistributor.sol.
  *
  * BitMaps pack 256 booleans across each bit of a single 256-bit slot of `uint256` type.
  * Hence booleans corresponding to 256 _sequential_ indices would only consume a single slot,
