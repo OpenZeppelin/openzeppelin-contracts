@@ -86,7 +86,7 @@
     "solhint": "^5.0.0",
     "solhint-plugin-openzeppelin": "file:scripts/solhint-custom",
     "solidity-ast": "^0.4.50",
-    "solidity-coverage": "^0.8.5",
+    "solidity-coverage": "^0.8.14",
     "solidity-docgen": "^0.6.0-beta.29",
     "undici": "^7.4.0",
     "yargs": "^17.0.0"
