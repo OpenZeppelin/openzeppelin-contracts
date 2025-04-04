@@ -55,6 +55,22 @@ library Checkpoints {
     }
 
     /**
+     * @dev Return the index of the first (oldest) checkpoint with key greater or equal than the search key, or `high`
+     * if there is none. `low` and `high` define a section where to do the search, with inclusive `low` and exclusive
+     * `high`.
+     *
+     * WARNING: `high` should not be greater than the array's length.
+     */
+    function lowerBinaryLookup(
+        Trace224 storage self,
+        uint32 key,
+        uint256 low,
+        uint256 high
+    ) internal view returns (uint256) {
+        return _lowerBinaryLookup(self._checkpoints, key, low, high);
+    }
+
+    /**
      * @dev Returns the value in the last (most recent) checkpoint with key lower or equal than the search key, or zero
      * if there is none.
      */
@@ -89,6 +105,22 @@ library Checkpoints {
         uint256 pos = _upperBinaryLookup(self._checkpoints, key, low, high);
 
         return pos == 0 ? 0 : _unsafeAccess(self._checkpoints, pos - 1)._value;
+    }
+
+    /**
+     * @dev Return the index of the first (oldest) checkpoint with key strictly bigger than the search key, or `high`
+     * if there is none. `low` and `high` define a section where to do the search, with inclusive `low` and exclusive
+     * `high`.
+     *
+     * WARNING: `high` should not be greater than the array's length.
+     */
+    function upperBinaryLookup(
+        Trace224 storage self,
+        uint32 key,
+        uint256 low,
+        uint256 high
+    ) internal view returns (uint256) {
+        return _upperBinaryLookup(self._checkpoints, key, low, high);
     }
 
     /**
@@ -258,6 +290,22 @@ library Checkpoints {
     }
 
     /**
+     * @dev Return the index of the first (oldest) checkpoint with key greater or equal than the search key, or `high`
+     * if there is none. `low` and `high` define a section where to do the search, with inclusive `low` and exclusive
+     * `high`.
+     *
+     * WARNING: `high` should not be greater than the array's length.
+     */
+    function lowerBinaryLookup(
+        Trace208 storage self,
+        uint48 key,
+        uint256 low,
+        uint256 high
+    ) internal view returns (uint256) {
+        return _lowerBinaryLookup(self._checkpoints, key, low, high);
+    }
+
+    /**
      * @dev Returns the value in the last (most recent) checkpoint with key lower or equal than the search key, or zero
      * if there is none.
      */
@@ -292,6 +340,22 @@ library Checkpoints {
         uint256 pos = _upperBinaryLookup(self._checkpoints, key, low, high);
 
         return pos == 0 ? 0 : _unsafeAccess(self._checkpoints, pos - 1)._value;
+    }
+
+    /**
+     * @dev Return the index of the first (oldest) checkpoint with key strictly bigger than the search key, or `high`
+     * if there is none. `low` and `high` define a section where to do the search, with inclusive `low` and exclusive
+     * `high`.
+     *
+     * WARNING: `high` should not be greater than the array's length.
+     */
+    function upperBinaryLookup(
+        Trace208 storage self,
+        uint48 key,
+        uint256 low,
+        uint256 high
+    ) internal view returns (uint256) {
+        return _upperBinaryLookup(self._checkpoints, key, low, high);
     }
 
     /**
@@ -461,6 +525,22 @@ library Checkpoints {
     }
 
     /**
+     * @dev Return the index of the first (oldest) checkpoint with key greater or equal than the search key, or `high`
+     * if there is none. `low` and `high` define a section where to do the search, with inclusive `low` and exclusive
+     * `high`.
+     *
+     * WARNING: `high` should not be greater than the array's length.
+     */
+    function lowerBinaryLookup(
+        Trace160 storage self,
+        uint96 key,
+        uint256 low,
+        uint256 high
+    ) internal view returns (uint256) {
+        return _lowerBinaryLookup(self._checkpoints, key, low, high);
+    }
+
+    /**
      * @dev Returns the value in the last (most recent) checkpoint with key lower or equal than the search key, or zero
      * if there is none.
      */
@@ -495,6 +575,22 @@ library Checkpoints {
         uint256 pos = _upperBinaryLookup(self._checkpoints, key, low, high);
 
         return pos == 0 ? 0 : _unsafeAccess(self._checkpoints, pos - 1)._value;
+    }
+
+    /**
+     * @dev Return the index of the first (oldest) checkpoint with key strictly bigger than the search key, or `high`
+     * if there is none. `low` and `high` define a section where to do the search, with inclusive `low` and exclusive
+     * `high`.
+     *
+     * WARNING: `high` should not be greater than the array's length.
+     */
+    function upperBinaryLookup(
+        Trace160 storage self,
+        uint96 key,
+        uint256 low,
+        uint256 high
+    ) internal view returns (uint256) {
+        return _upperBinaryLookup(self._checkpoints, key, low, high);
     }
 
     /**
