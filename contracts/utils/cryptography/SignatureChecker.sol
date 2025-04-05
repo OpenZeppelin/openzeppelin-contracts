@@ -5,6 +5,7 @@ pragma solidity ^0.8.20;
 
 import {ECDSA} from "./ECDSA.sol";
 import {IERC1271} from "../../interfaces/IERC1271.sol";
+import {Memory} from "../Memory.sol";
 
 /**
  * @dev Signature verification helper that can be used instead of `ECDSA.recover` to seamlessly support both ECDSA
@@ -40,11 +41,14 @@ library SignatureChecker {
         bytes32 hash,
         bytes memory signature
     ) internal view returns (bool) {
+        Memory.Pointer ptr = Memory.getFreePointer();
         (bool success, bytes memory result) = signer.staticcall(
             abi.encodeCall(IERC1271.isValidSignature, (hash, signature))
         );
-        return (success &&
+        bool valid = (success &&
             result.length >= 32 &&
             abi.decode(result, (bytes32)) == bytes32(IERC1271.isValidSignature.selector));
+        Memory.setFreePointer(ptr);
+        return valid;
     }
 }
