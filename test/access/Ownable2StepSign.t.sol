@@ -22,13 +22,27 @@ contract Ownable2StepSignMock is Ownable2StepSign {
 
 contract Ownable2StepSignTest is Test {
     address private constant INITIAL_OWNER = address(1);
-    Ownable2StepSignMock private ownable2StepSignMock;
-    Vm.Wallet private newOwner;
+    Ownable2StepSignMock private _ownable2StepSignMock;
+    Vm.Wallet private _newOwner;
 
     function setUp() external {
         ownable2StepSignMock = new Ownable2StepSignMock(INITIAL_OWNER);
         newOwner = vm.createWallet("newOwner");
         assertEq(ownable2StepSignMock.owner(), INITIAL_OWNER);
+    }
+
+    function testDomainSeparator() public {
+        bytes32 manuallyComputedDomainSeparator = keccak256(
+            abi.encode(
+                // TYPE_HASH
+                keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
+                keccak256(bytes("Ownable2StepSign")),
+                keccak256(bytes("1")),
+                block.chainid,
+                address(ownable2StepSignMock)
+            )
+        );
+        assertEq(ownable2StepSignMock.DOMAIN_SEPARATOR(), manuallyComputedDomainSeparator);
     }
 
     function testTransferOwnership() public {
