@@ -31,20 +31,6 @@ contract Ownable2StepSignTest is Test {
         assertEq(_ownable2StepSignMock.owner(), INITIAL_OWNER);
     }
 
-    function testDomainSeparator() public {
-        bytes32 manuallyComputedDomainSeparator = keccak256(
-            abi.encode(
-                // TYPE_HASH
-                keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
-                keccak256(bytes("Ownable2StepSign")),
-                keccak256(bytes("1")),
-                block.chainid,
-                address(_ownable2StepSignMock)
-            )
-        );
-        assertEq(_ownable2StepSignMock.DOMAIN_SEPARATOR(), manuallyComputedDomainSeparator);
-    }
-
     function testTransferOwnership() public {
         uint256 deadline = block.timestamp;
         uint256 nonce = 0;

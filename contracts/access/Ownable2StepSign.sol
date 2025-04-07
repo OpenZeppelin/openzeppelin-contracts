@@ -91,9 +91,4 @@ abstract contract Ownable2StepSign is Ownable2Step, EIP712 {
     function nonce() public view virtual returns (uint256) {
         return _nonce;
     }
-
-    // solhint-disable-next-line func-name-mixedcase
-    function DOMAIN_SEPARATOR() external view virtual returns (bytes32) {
-        return _domainSeparatorV4();
-    }
 }
