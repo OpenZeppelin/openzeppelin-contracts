@@ -5,54 +5,45 @@ pragma solidity ^0.8.20;
 import {Test} from "forge-std/Test.sol";
 import {Vm} from "forge-std/Vm.sol";
 
-import {Ownable2StepSign} from "@openzeppelin/contracts/access/Ownable2StepSign.sol";
+import {OwnableRecipientSignOff} from "@openzeppelin/contracts/access/OwnableRecipientSignOff.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {EIP712} from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 
-contract Ownable2StepSignMock is Ownable2StepSign {
+contract OwnableRecipientSignOffMock is OwnableRecipientSignOff {
     bytes32 private constant TRANSFER_OWNERSHIP_TYPEHASH =
         keccak256("TransferOwnership(uint256 nonce,uint256 deadline)");
 
-    constructor(address initialOwner) Ownable2StepSign("Ownable2StepSign") Ownable(initialOwner) {}
+    constructor(address initialOwner) OwnableRecipientSignOff("OwnableRecipientSignOff") Ownable(initialOwner) {}
 
     function computeHash(uint256 nonce, uint256 deadline) external view returns (bytes32) {
         return _hashTypedDataV4(keccak256(abi.encode(TRANSFER_OWNERSHIP_TYPEHASH, nonce, deadline)));
     }
 }
 
-contract Ownable2StepSignTest is Test {
+contract OwnableRecipientSignOffTest is Test {
     address private constant INITIAL_OWNER = address(1);
-    Ownable2StepSignMock private _ownable2StepSignMock;
+    OwnableRecipientSignOffMock private _ownableRecipientSignMock;
     Vm.Wallet private _newOwner;
 
     function setUp() external {
-        _ownable2StepSignMock = new Ownable2StepSignMock(INITIAL_OWNER);
+        _ownableRecipientSignMock = new OwnableRecipientSignOffMock(INITIAL_OWNER);
         _newOwner = vm.createWallet("_newOwner");
-        assertEq(_ownable2StepSignMock.owner(), INITIAL_OWNER);
+        assertEq(_ownableRecipientSignMock.owner(), INITIAL_OWNER);
     }
 
     function testTransferOwnership() public {
         uint256 deadline = block.timestamp;
         uint256 nonce = 0;
 
-        bytes32 hash = _ownable2StepSignMock.computeHash(nonce, deadline);
+        bytes32 hash = _ownableRecipientSignMock.computeHash(nonce, deadline);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(_newOwner, hash);
+        bytes memory signature = abi.encodePacked(r, s, v);
 
         vm.prank(INITIAL_OWNER);
-        _ownable2StepSignMock.transferOwnership(_newOwner.addr, deadline, v, r, s);
+        _ownableRecipientSignMock.transferOwnership(_newOwner.addr, deadline, signature);
 
-        assertEq(_ownable2StepSignMock.owner(), _newOwner.addr);
-        assertEq(_ownable2StepSignMock.nonce(), nonce + 1);
-    }
-
-    function testTransferOwnershipDeletesPendingOwner() external {
-        vm.prank(INITIAL_OWNER);
-        _ownable2StepSignMock.transferOwnership(address(2));
-        assertEq(_ownable2StepSignMock.pendingOwner(), address(2));
-
-        testTransferOwnership();
-
-        assertEq(_ownable2StepSignMock.pendingOwner(), address(0));
+        assertEq(_ownableRecipientSignMock.owner(), _newOwner.addr);
+        assertEq(_ownableRecipientSignMock.nonce(), nonce + 1);
     }
 
     function testRevertWhenUnauthorizedCallIsMadeToTransferOwnership() external {
@@ -60,24 +51,26 @@ contract Ownable2StepSignTest is Test {
         uint256 nonce = 0;
         address unauthorizedCaller = address(2);
 
-        bytes32 hash = _ownable2StepSignMock.computeHash(nonce, deadline);
+        bytes32 hash = _ownableRecipientSignMock.computeHash(nonce, deadline);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(_newOwner, hash);
+        bytes memory signature = abi.encodePacked(r, s, v);
 
         vm.prank(unauthorizedCaller);
         vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, unauthorizedCaller));
-        _ownable2StepSignMock.transferOwnership(_newOwner.addr, deadline, v, r, s);
+        _ownableRecipientSignMock.transferOwnership(_newOwner.addr, deadline, signature);
     }
 
     function testRevertTransferOwnershipWhenSignatureExpires() external {
         uint256 deadline = block.timestamp - 1;
         uint256 nonce = 0;
 
-        bytes32 hash = _ownable2StepSignMock.computeHash(nonce, deadline);
+        bytes32 hash = _ownableRecipientSignMock.computeHash(nonce, deadline);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(_newOwner, hash);
+        bytes memory signature = abi.encodePacked(r, s, v);
 
         vm.prank(INITIAL_OWNER);
-        vm.expectRevert(abi.encodeWithSelector(Ownable2StepSign.ExpiredSignature.selector, deadline));
-        _ownable2StepSignMock.transferOwnership(_newOwner.addr, deadline, v, r, s);
+        vm.expectRevert(abi.encodeWithSelector(OwnableRecipientSignOff.ExpiredSignature.selector, deadline));
+        _ownableRecipientSignMock.transferOwnership(_newOwner.addr, deadline, signature);
     }
 
     function testRevertTransferOwnershipWhenSignatureIsInvalid() external {
@@ -85,14 +78,13 @@ contract Ownable2StepSignTest is Test {
         uint256 deadline = block.timestamp;
         uint256 nonce = 0;
 
-        bytes32 hash = _ownable2StepSignMock.computeHash(nonce, deadline);
+        bytes32 hash = _ownableRecipientSignMock.computeHash(nonce, deadline);
         // Data is valid but signed by an inadequate wallet.
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(falseSigner, hash);
+        bytes memory signature = abi.encodePacked(r, s, v);
 
         vm.prank(INITIAL_OWNER);
-        vm.expectRevert(
-            abi.encodeWithSelector(Ownable2StepSign.InvalidSigner.selector, falseSigner.addr, _newOwner.addr)
-        );
-        _ownable2StepSignMock.transferOwnership(_newOwner.addr, deadline, v, r, s);
+        vm.expectRevert(OwnableRecipientSignOff.InvalidSigner.selector);
+        _ownableRecipientSignMock.transferOwnership(_newOwner.addr, deadline, signature);
     }
 }

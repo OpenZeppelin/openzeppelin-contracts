@@ -2,8 +2,8 @@
 
 pragma solidity ^0.8.20;
 
-import {Ownable2Step} from "./Ownable2Step.sol";
-import {ECDSA} from "../utils/cryptography/ECDSA.sol";
+import {Ownable} from "./Ownable.sol";
+import {SignatureChecker} from "../utils/cryptography/SignatureChecker.sol";
 import {EIP712} from "../utils/cryptography/EIP712.sol";
 
 /**
@@ -11,21 +11,19 @@ import {EIP712} from "../utils/cryptography/EIP712.sol";
  * there is an account (an owner) that can be granted exclusive access to
  * specific functions.
  *
- * This extension of the {Ownable2Step}, which is an extension of {Ownable} contract,
- * includes a signature protected ownership transfer mechanism,
- * where the `newOwner` must provide a signature in order to replace the
- * old one. This can help prevent common mistakes, such as transfers of ownership to
- * incorrect accounts, and keep the `newOwner` wallet safer, as it can stay offline at a time.
- * Function `transferOwnership` available through {Ownable2Step} provides a safe way of making
- * an ownership transfer to a contract.
+ * This extension of the {Ownable} includes a signature protected ownership transfer mechanism,
+ * where the `newOwner` must provide a signature in order to replace the old one.
+ * This can help prevent common mistakes, such as transfers of ownership to incorrect accounts,
+ * and improve the safety of a `newOwner` wallet, as it can stay offline at a time.
+ * Function `transferOwnership` provides a safe way of making an ownership transfer to contracts as well.
  *
  * The initial owner is specified at deployment time in the constructor for `Ownable`. This
  * can later be changed with {transferOwnership}.
  *
  * This module is used through inheritance. It will make available all functions
- * from parents (Ownable2Step and Ownable).
+ * from parent (Ownable).
  */
-abstract contract Ownable2StepSign is Ownable2Step, EIP712 {
+abstract contract OwnableRecipientSignOff is Ownable, EIP712 {
     /**
      * @dev Nonce used for signatures.
      */
@@ -42,7 +40,7 @@ abstract contract Ownable2StepSign is Ownable2Step, EIP712 {
     /**
      * @dev Mismatched signature.
      */
-    error InvalidSigner(address signer, address newOwner);
+    error InvalidSigner();
 
     constructor(string memory name) EIP712(name, "1") {}
 
@@ -51,22 +49,15 @@ abstract contract Ownable2StepSign is Ownable2Step, EIP712 {
      * Can only be called by the current owner.
      * Requires a `newOwner` account's signature.
      */
-    function transferOwnership(
-        address newOwner,
-        uint256 deadline,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) public virtual onlyOwner {
+    function transferOwnership(address newOwner, uint256 deadline, bytes memory signature) public virtual onlyOwner {
         if (block.timestamp > deadline) {
             revert ExpiredSignature(deadline);
         }
 
         bytes32 hash = _hashTypedDataV4(keccak256(abi.encode(TRANSFER_OWNERSHIP_TYPEHASH, _useNonce(), deadline)));
 
-        address signer = ECDSA.recover(hash, v, r, s);
-        if (signer != newOwner) {
-            revert InvalidSigner(signer, newOwner);
+        if (!SignatureChecker.isValidSignatureNow(newOwner, hash, signature)) {
+            revert InvalidSigner();
         }
 
         super._transferOwnership(newOwner);
