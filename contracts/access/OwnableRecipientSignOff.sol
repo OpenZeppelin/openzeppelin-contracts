@@ -53,13 +53,15 @@ abstract contract OwnableRecipientSignOff is Ownable, EIP712 {
         if (block.timestamp > deadline) {
             revert ExpiredSignature(deadline);
         }
-
-        bytes32 hash = _hashTypedDataV4(keccak256(abi.encode(TRANSFER_OWNERSHIP_TYPEHASH, _useNonce(), deadline)));
-
-        if (!SignatureChecker.isValidSignatureNow(newOwner, hash, signature)) {
+        if (
+            !SignatureChecker.isValidSignatureNow(
+                newOwner,
+                _hashTypedDataV4(keccak256(abi.encode(TRANSFER_OWNERSHIP_TYPEHASH, _useNonce(), deadline))),
+                signature
+            )
+        ) {
             revert InvalidSigner();
         }
-
         super._transferOwnership(newOwner);
     }
 
