@@ -62,7 +62,7 @@ abstract contract RelayedCall {
         // 0x0011 | 35       | calldataload   | cd[0] value 0 (cds-0x14) 0 0
         // 0x0012 | 6060     | push1 0x60     | 0x60 cd[0] value 0 (cds-0x14) 0 0
         // 0x0014 | 1c       | shr            | target value 0 (cds-0x14) 0 0
-        // 0x0015 | 5a       | gas            | gas 0xbebe value 0 (cds-0x14) 0 0
+        // 0x0015 | 5a       | gas            | gas target value 0 (cds-0x14) 0 0
         // 0x0016 | f1       | call           | suc
         // 0x0017 | 3d       | returndatasize | rds suc
         // 0x0018 | 5f       | push0          | 0 rds suc
