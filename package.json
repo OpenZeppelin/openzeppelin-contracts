@@ -71,7 +71,7 @@
     "globals": "^16.0.0",
     "graphlib": "^2.1.8",
     "hardhat": "^2.22.7",
-    "hardhat-exposed": "^0.3.15",
+    "hardhat-exposed": "^0.3.19",
     "hardhat-gas-reporter": "^2.1.0",
     "hardhat-ignore-warnings": "^0.2.11",
     "husky": "^9.1.7",
