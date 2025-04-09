@@ -1,6 +1,6 @@
 # Changelog
 
-## 5.3.0-rc.0 (2025-03-19)
+## 5.3.0 (2025-04-09)
 
 ### Breaking Changes
 
@@ -16,7 +16,9 @@
 
 #### Account
 
+- `ERC4337Utils`: Update the `hash` function to call `getUserOpHash` on the specified entrypoint and add an `ENTRYPOINT_V08` constant. ([#5614](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5614))
 - `ERC7579Utils`: Add ABI decoding checks on calldata bounds within `decodeBatch`. ([#5371](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5371))
+- `ERC7579Utils`: Replace `address(0)` with `address(this)` during execution for calldata compression efficiency. ([#5614](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5614))
 
 #### Governance
 
@@ -53,6 +55,7 @@
 - `Math`: Add `add512`, `mul512` and `mulShr`. ([#5526](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5526))
 - `Math`: Add saturating arithmetic operations `saturatingAdd`, `saturatingSub` and `saturatingMul`. ([#5526](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5526))
 - `MessageHashUtils`: Add `toDataWithIntendedValidatorHash(address, bytes32)`. ([#5526](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5526))
+- `P256`: Adjust precompile detection in `verifyNative` to consider empty `returndata` on invalid verification. Previously, invalid signatures would've reverted with a `MissingPrecompile` error in chains with RIP-7212 support. ([#5620](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5620))
 - `Pausable`: Stop explicitly setting `paused` to `false` during construction. ([#5448](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5448))
 - `Strings`: Add `espaceJSON` that escapes special characters in JSON strings. ([#5526](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5526))
 
