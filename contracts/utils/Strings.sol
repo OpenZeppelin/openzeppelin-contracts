@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.2.0) (utils/Strings.sol)
+// OpenZeppelin Contracts (last updated v5.3.0) (utils/Strings.sol)
 
 pragma solidity ^0.8.20;
 
@@ -438,6 +438,10 @@ library Strings {
      * @dev Escape special characters in JSON strings. This can be useful to prevent JSON injection in NFT metadata.
      *
      * WARNING: This function should only be used in double quoted JSON strings. Single quotes are not escaped.
+     *
+     * NOTE: This function escapes all unicode characters, and not just the ones in ranges defined in section 2.5 of
+     * RFC-4627 (U+0000 to U+001F, U+0022 and U+005C). ECMAScript's `JSON.parse` does recover escaped unicode
+     * characters that are not in this range, but other tooling may provide different results.
      */
     function escapeJSON(string memory input) internal pure returns (string memory) {
         bytes memory buffer = bytes(input);
