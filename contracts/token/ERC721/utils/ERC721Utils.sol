@@ -41,7 +41,7 @@ library ERC721Utils {
                     revert IERC721Errors.ERC721InvalidReceiver(to);
                 } else {
                     assembly ("memory-safe") {
-                        revert(add(32, reason), mload(reason))
+                        revert(add(reason, 0x20), mload(reason))
                     }
                 }
             }
