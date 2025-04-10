@@ -8,7 +8,6 @@
 
 #### Custom error changes
 
-- Replace `AccessControlNonRevokable` with `AccessControlNonRevocable`.
 - Replace `GovernorAlreadyOverridenVote` with `GovernorAlreadyOverriddenVote`.
 - Replace `GovernorOnlyProposer` with `GovernorUnableToCancel`.
 
