@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (token/common/ERC2981.sol)
+// OpenZeppelin Contracts (last updated v5.3.0) (token/common/ERC2981.sol)
 
 pragma solidity ^0.8.20;
 
@@ -39,7 +39,7 @@ abstract contract ERC2981 is IERC2981, ERC165 {
     error ERC2981InvalidDefaultRoyaltyReceiver(address receiver);
 
     /**
-     * @dev The royalty set for an specific `tokenId` is invalid (eg. (numerator / denominator) >= 1).
+     * @dev The royalty set for a specific `tokenId` is invalid (eg. (numerator / denominator) >= 1).
      */
     error ERC2981InvalidTokenRoyalty(uint256 tokenId, uint256 numerator, uint256 denominator);
 
@@ -58,7 +58,10 @@ abstract contract ERC2981 is IERC2981, ERC165 {
     /**
      * @inheritdoc IERC2981
      */
-    function royaltyInfo(uint256 tokenId, uint256 salePrice) public view virtual returns (address, uint256) {
+    function royaltyInfo(
+        uint256 tokenId,
+        uint256 salePrice
+    ) public view virtual returns (address receiver, uint256 amount) {
         RoyaltyInfo storage _royaltyInfo = _tokenRoyaltyInfo[tokenId];
         address royaltyReceiver = _royaltyInfo.receiver;
         uint96 royaltyFraction = _royaltyInfo.royaltyFraction;

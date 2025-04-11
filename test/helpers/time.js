@@ -7,8 +7,11 @@ const clock = {
   timestamp: () => time.latest().then(ethers.toBigInt),
 };
 const clockFromReceipt = {
-  blocknumber: receipt => Promise.resolve(ethers.toBigInt(receipt.blockNumber)),
-  timestamp: receipt => ethers.provider.getBlock(receipt.blockNumber).then(block => ethers.toBigInt(block.timestamp)),
+  blocknumber: receipt => Promise.resolve(receipt).then(({ blockNumber }) => ethers.toBigInt(blockNumber)),
+  timestamp: receipt =>
+    Promise.resolve(receipt)
+      .then(({ blockNumber }) => ethers.provider.getBlock(blockNumber))
+      .then(({ timestamp }) => ethers.toBigInt(timestamp)),
 };
 const increaseBy = {
   blockNumber: mine,
