@@ -25,45 +25,61 @@ contract ERC6909 is Context, ERC165, IERC6909 {
     error ERC6909InvalidSender(address sender);
     error ERC6909InvalidSpender(address spender);
 
-    /// @inheritdoc IERC165
+    /**
+     * @inheritdoc IERC165
+     */
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IERC165) returns (bool) {
         return interfaceId == type(IERC6909).interfaceId || super.supportsInterface(interfaceId);
     }
 
-    /// @inheritdoc IERC6909
+    /**
+     * @inheritdoc IERC6909
+     */
     function balanceOf(address owner, uint256 id) public view virtual override returns (uint256) {
         return _balances[owner][id];
     }
 
-    /// @inheritdoc IERC6909
+    /**
+     * @inheritdoc IERC6909
+     */
     function allowance(address owner, address spender, uint256 id) public view virtual override returns (uint256) {
         return _allowances[owner][spender][id];
     }
 
-    /// @inheritdoc IERC6909
+    /**
+     * @inheritdoc IERC6909
+     */
     function isOperator(address owner, address spender) public view virtual override returns (bool) {
         return _operatorApprovals[owner][spender];
     }
 
-    /// @inheritdoc IERC6909
+    /**
+     * @inheritdoc IERC6909
+     */
     function approve(address spender, uint256 id, uint256 amount) public virtual override returns (bool) {
         _approve(_msgSender(), spender, id, amount);
         return true;
     }
 
-    /// @inheritdoc IERC6909
+    /**
+     * @inheritdoc IERC6909
+     */
     function setOperator(address spender, bool approved) public virtual override returns (bool) {
         _setOperator(_msgSender(), spender, approved);
         return true;
     }
 
-    /// @inheritdoc IERC6909
+    /**
+     * @inheritdoc IERC6909
+     */
     function transfer(address receiver, uint256 id, uint256 amount) public virtual override returns (bool) {
         _transfer(_msgSender(), receiver, id, amount);
         return true;
     }
 
-    /// @inheritdoc IERC6909
+    /**
+     * @inheritdoc IERC6909
+     */
     function transferFrom(
         address sender,
         address receiver,

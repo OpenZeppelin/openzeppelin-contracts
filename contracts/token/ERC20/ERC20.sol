@@ -79,14 +79,14 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
     }
 
     /**
-     * @dev See {IERC20-totalSupply}.
+     * @inheritdoc IERC20
      */
     function totalSupply() public view virtual returns (uint256) {
         return _totalSupply;
     }
 
     /**
-     * @dev See {IERC20-balanceOf}.
+     * @inheritdoc IERC20
      */
     function balanceOf(address account) public view virtual returns (uint256) {
         return _balances[account];
@@ -107,7 +107,7 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
     }
 
     /**
-     * @dev See {IERC20-allowance}.
+     * @inheritdoc IERC20
      */
     function allowance(address owner, address spender) public view virtual returns (uint256) {
         return _allowances[owner][spender];

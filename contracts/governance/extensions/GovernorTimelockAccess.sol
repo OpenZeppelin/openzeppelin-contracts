@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.20;
 
-import {Governor} from "../Governor.sol";
+import {IGovernor, Governor} from "../Governor.sol";
 import {AuthorityUtils} from "../../access/manager/AuthorityUtils.sol";
 import {IAccessManager} from "../../access/manager/IAccessManager.sol";
 import {Address} from "../../utils/Address.sol";
@@ -172,14 +172,14 @@ abstract contract GovernorTimelockAccess is Governor {
     }
 
     /**
-     * @dev See {IGovernor-proposalNeedsQueuing}.
+     * @inheritdoc IGovernor
      */
     function proposalNeedsQueuing(uint256 proposalId) public view virtual override returns (bool) {
         return _executionPlan[proposalId].delay > 0;
     }
 
     /**
-     * @dev See {IGovernor-propose}
+     * @inheritdoc IGovernor
      */
     function propose(
         address[] memory targets,
@@ -277,7 +277,7 @@ abstract contract GovernorTimelockAccess is Governor {
     }
 
     /**
-     * @dev See {Governor-_cancel}
+     * @inheritdoc Governor
      */
     function _cancel(
         address[] memory targets,

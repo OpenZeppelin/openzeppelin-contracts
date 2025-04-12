@@ -47,7 +47,7 @@ abstract contract ERC1155Supply is ERC1155 {
     }
 
     /**
-     * @dev See {ERC1155-_update}.
+     * @inheritdoc ERC1155
      */
     function _update(
         address from,

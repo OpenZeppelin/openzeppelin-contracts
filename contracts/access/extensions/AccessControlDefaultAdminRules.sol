@@ -8,6 +8,7 @@ import {AccessControl, IAccessControl} from "../AccessControl.sol";
 import {SafeCast} from "../../utils/math/SafeCast.sol";
 import {Math} from "../../utils/math/Math.sol";
 import {IERC5313} from "../../interfaces/IERC5313.sol";
+import {IERC165} from "../../utils/introspection/ERC165.sol";
 
 /**
  * @dev Extension of {AccessControl} that allows specifying special rules to manage
@@ -60,14 +61,14 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     }
 
     /**
-     * @dev See {IERC165-supportsInterface}.
+     * @inheritdoc IERC165
      */
     function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
         return interfaceId == type(IAccessControlDefaultAdminRules).interfaceId || super.supportsInterface(interfaceId);
     }
 
     /**
-     * @dev See {IERC5313-owner}.
+     * @inheritdoc IERC5313
      */
     function owner() public view virtual returns (address) {
         return defaultAdmin();
@@ -141,7 +142,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     }
 
     /**
-     * @dev See {AccessControl-_revokeRole}.
+     * @inheritdoc AccessControl
      */
     function _revokeRole(bytes32 role, address account) internal virtual override returns (bool) {
         if (role == DEFAULT_ADMIN_ROLE && account == defaultAdmin()) {
