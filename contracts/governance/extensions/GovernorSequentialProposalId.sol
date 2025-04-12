@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.20;
 
-import {Governor} from "../Governor.sol";
+import {IGovernor, Governor} from "../Governor.sol";
 
 /**
  * @dev Extension of {Governor} that changes the numbering of proposal ids from the default hash-based approach to

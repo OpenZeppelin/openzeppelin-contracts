@@ -34,7 +34,7 @@ abstract contract ERC20Wrapper is ERC20 {
     }
 
     /**
-     * @inheritdoc IERC20
+     * @inheritdoc IERC20Metadata
      */
     function decimals() public view virtual override returns (uint8) {
         try IERC20Metadata(address(_underlying)).decimals() returns (uint8 value) {

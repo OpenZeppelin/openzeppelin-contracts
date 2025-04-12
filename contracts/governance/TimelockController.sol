@@ -7,6 +7,7 @@ import {AccessControl} from "../access/AccessControl.sol";
 import {ERC721Holder} from "../token/ERC721/utils/ERC721Holder.sol";
 import {ERC1155Holder} from "../token/ERC1155/utils/ERC1155Holder.sol";
 import {Address} from "../utils/Address.sol";
+import {IERC165} from "../utils/introspection/ERC165.sol";
 
 /**
  * @dev Contract module which acts as a timelocked controller. When set as the

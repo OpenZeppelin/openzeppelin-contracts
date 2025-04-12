@@ -96,7 +96,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
     error ERC2771UntrustfulTarget(address target, address forwarder);
 
     /**
-     * @inheritdoc EIP712
+     * @dev See {EIP712-constructor}.
      */
     constructor(string memory name) EIP712(name, "1") {}
 

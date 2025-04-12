@@ -69,7 +69,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
     }
 
     /**
-     * @inheritdoc IERC721
+     * @inheritdoc IERC721Metadata
      */
     function name() public view virtual returns (string memory) {
         return _name;
