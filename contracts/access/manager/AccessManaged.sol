@@ -58,12 +58,16 @@ abstract contract AccessManaged is Context, IAccessManaged {
         _;
     }
 
-    /// @inheritdoc IAccessManaged
+    /**
+     * @inheritdoc IAccessManaged
+     */
     function authority() public view virtual returns (address) {
         return _authority;
     }
 
-    /// @inheritdoc IAccessManaged
+    /**
+     * @inheritdoc IAccessManaged
+     */
     function setAuthority(address newAuthority) public virtual {
         address caller = _msgSender();
         if (caller != authority()) {
@@ -75,7 +79,9 @@ abstract contract AccessManaged is Context, IAccessManaged {
         _setAuthority(newAuthority);
     }
 
-    /// @inheritdoc IAccessManaged
+    /**
+     * @inheritdoc IAccessManaged
+     */
     function isConsumingScheduledOp() public view returns (bytes4) {
         return _consumingSchedule ? this.isConsumingScheduledOp.selector : bytes4(0);
     }

@@ -172,14 +172,14 @@ abstract contract GovernorTimelockAccess is Governor {
     }
 
     /**
-     * @dev See {IGovernor-proposalNeedsQueuing}.
+     * @inheritdoc IGovernor
      */
     function proposalNeedsQueuing(uint256 proposalId) public view virtual override returns (bool) {
         return _executionPlan[proposalId].delay > 0;
     }
 
     /**
-     * @dev See {IGovernor-propose}
+     * @inheritdoc IGovernor
      */
     function propose(
         address[] memory targets,
@@ -277,7 +277,7 @@ abstract contract GovernorTimelockAccess is Governor {
     }
 
     /**
-     * @dev See {Governor-_cancel}
+     * @inheritdoc Governor
      */
     function _cancel(
         address[] memory targets,

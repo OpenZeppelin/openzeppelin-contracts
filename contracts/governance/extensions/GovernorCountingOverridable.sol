@@ -47,7 +47,7 @@ abstract contract GovernorCountingOverridable is GovernorVotes {
     mapping(uint256 proposalId => ProposalVote) private _proposalVotes;
 
     /**
-     * @dev See {IGovernor-COUNTING_MODE}.
+     * @inheritdoc IGovernor
      */
     // solhint-disable-next-line func-name-mixedcase
     function COUNTING_MODE() public pure virtual override returns (string memory) {
@@ -84,7 +84,7 @@ abstract contract GovernorCountingOverridable is GovernorVotes {
     }
 
     /**
-     * @dev See {Governor-_quorumReached}.
+     * @inheritdoc Governor
      */
     function _quorumReached(uint256 proposalId) internal view virtual override returns (bool) {
         uint256[3] storage votes = _proposalVotes[proposalId].votes;

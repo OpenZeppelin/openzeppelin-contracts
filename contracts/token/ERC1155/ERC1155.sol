@@ -35,7 +35,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
     }
 
     /**
-     * @dev See {IERC165-supportsInterface}.
+     * @inheritdoc IERC165
      */
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IERC165) returns (bool) {
         return
@@ -59,7 +59,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
     }
 
     /**
-     * @dev See {IERC1155-balanceOf}.
+     * @inheritdoc IERC1155
      */
     function balanceOf(address account, uint256 id) public view virtual returns (uint256) {
         return _balances[id][account];
@@ -90,21 +90,21 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
     }
 
     /**
-     * @dev See {IERC1155-setApprovalForAll}.
+     * @inheritdoc IERC1155
      */
     function setApprovalForAll(address operator, bool approved) public virtual {
         _setApprovalForAll(_msgSender(), operator, approved);
     }
 
     /**
-     * @dev See {IERC1155-isApprovedForAll}.
+     * @inheritdoc IERC1155
      */
     function isApprovedForAll(address account, address operator) public view virtual returns (bool) {
         return _operatorApprovals[account][operator];
     }
 
     /**
-     * @dev See {IERC1155-safeTransferFrom}.
+     * @inheritdoc IERC1155
      */
     function safeTransferFrom(address from, address to, uint256 id, uint256 value, bytes memory data) public virtual {
         address sender = _msgSender();
@@ -115,7 +115,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
     }
 
     /**
-     * @dev See {IERC1155-safeBatchTransferFrom}.
+     * @inheritdoc IERC1155
      */
     function safeBatchTransferFrom(
         address from,

@@ -16,7 +16,7 @@ abstract contract AccessControlEnumerable is IAccessControlEnumerable, AccessCon
     mapping(bytes32 role => EnumerableSet.AddressSet) private _roleMembers;
 
     /**
-     * @dev See {IERC165-supportsInterface}.
+     * @inheritdoc IERC165
      */
     function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
         return interfaceId == type(IAccessControlEnumerable).interfaceId || super.supportsInterface(interfaceId);

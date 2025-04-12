@@ -54,7 +54,7 @@ abstract contract GovernorCountingFractional is Governor {
     error GovernorExceedRemainingWeight(address voter, uint256 usedVotes, uint256 remainingWeight);
 
     /**
-     * @dev See {IGovernor-COUNTING_MODE}.
+     * @inheritdoc IGovernor
      */
     // solhint-disable-next-line func-name-mixedcase
     function COUNTING_MODE() public pure virtual override returns (string memory) {
@@ -62,7 +62,7 @@ abstract contract GovernorCountingFractional is Governor {
     }
 
     /**
-     * @dev See {IGovernor-hasVoted}.
+     * @inheritdoc IGovernor
      */
     function hasVoted(uint256 proposalId, address account) public view virtual override returns (bool) {
         return usedVotes(proposalId, account) > 0;
@@ -87,7 +87,7 @@ abstract contract GovernorCountingFractional is Governor {
     }
 
     /**
-     * @dev See {Governor-_quorumReached}.
+     * @inheritdoc Governor
      */
     function _quorumReached(uint256 proposalId) internal view virtual override returns (bool) {
         ProposalVote storage proposalVote = _proposalVotes[proposalId];

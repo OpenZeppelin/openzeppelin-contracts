@@ -68,7 +68,7 @@ abstract contract GovernorTimelockControl is Governor {
     }
 
     /**
-     * @dev See {IGovernor-proposalNeedsQueuing}.
+     * @inheritdoc IGovernor
      */
     function proposalNeedsQueuing(uint256) public view virtual override returns (bool) {
         return true;

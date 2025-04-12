@@ -155,7 +155,7 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
     receive() external payable virtual {}
 
     /**
-     * @dev See {IERC165-supportsInterface}.
+     * @inheritdoc IERC165
      */
     function supportsInterface(
         bytes4 interfaceId

@@ -60,14 +60,14 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     }
 
     /**
-     * @dev See {IERC165-supportsInterface}.
+     * @inheritdoc IERC165
      */
     function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
         return interfaceId == type(IAccessControlDefaultAdminRules).interfaceId || super.supportsInterface(interfaceId);
     }
 
     /**
-     * @dev See {IERC5313-owner}.
+     * @inheritdoc IERC5313
      */
     function owner() public view virtual returns (address) {
         return defaultAdmin();
@@ -141,7 +141,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     }
 
     /**
-     * @dev See {AccessControl-_revokeRole}.
+     * @inheritdoc AccessControl
      */
     function _revokeRole(bytes32 role, address account) internal virtual override returns (bool) {
         if (role == DEFAULT_ADMIN_ROLE && account == defaultAdmin()) {
