@@ -4,6 +4,7 @@
 pragma solidity ^0.8.20;
 
 import {IAuthority} from "./IAuthority.sol";
+import {Memory} from "../../utils/Memory.sol";
 
 library AuthorityUtils {
     /**
@@ -17,6 +18,7 @@ library AuthorityUtils {
         address target,
         bytes4 selector
     ) internal view returns (bool immediate, uint32 delay) {
+        Memory.Pointer ptr = Memory.getFreePointer();
         bytes memory data = abi.encodeCall(IAuthority.canCall, (caller, target, selector));
 
         assembly ("memory-safe") {
@@ -32,5 +34,7 @@ library AuthorityUtils {
                 delay := mul(delay, iszero(shr(32, delay)))
             }
         }
+
+        Memory.setFreePointer(ptr);
     }
 }
