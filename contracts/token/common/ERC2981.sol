@@ -48,16 +48,12 @@ abstract contract ERC2981 is IERC2981, ERC165 {
      */
     error ERC2981InvalidTokenRoyaltyReceiver(uint256 tokenId, address receiver);
 
-    /**
-     * @dev See {IERC165-supportsInterface}.
-     */
+    /// @inheritdoc IERC165
     function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, ERC165) returns (bool) {
         return interfaceId == type(IERC2981).interfaceId || super.supportsInterface(interfaceId);
     }
 
-    /**
-     * @inheritdoc IERC2981
-     */
+    /// @inheritdoc IERC2981
     function royaltyInfo(
         uint256 tokenId,
         uint256 salePrice

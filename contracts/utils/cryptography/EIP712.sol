@@ -110,9 +110,7 @@ abstract contract EIP712 is IERC5267 {
         return MessageHashUtils.toTypedDataHash(_domainSeparatorV4(), structHash);
     }
 
-    /**
-     * @inheritdoc IERC5267
-     */
+    /// @inheritdoc IERC5267
     function eip712Domain()
         public
         view

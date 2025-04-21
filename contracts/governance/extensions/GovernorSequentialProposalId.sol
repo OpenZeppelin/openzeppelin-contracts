@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.20;
 
-import {Governor} from "../Governor.sol";
+import {IGovernor, Governor} from "../Governor.sol";
 
 /**
  * @dev Extension of {Governor} that changes the numbering of proposal ids from the default hash-based approach to
@@ -19,9 +19,7 @@ abstract contract GovernorSequentialProposalId is Governor {
      */
     error GovernorAlreadyInitializedLatestProposalId();
 
-    /**
-     * @dev See {IGovernor-getProposalId}.
-     */
+    /// @inheritdoc IGovernor
     function getProposalId(
         address[] memory targets,
         uint256[] memory values,
