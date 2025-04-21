@@ -38,7 +38,7 @@ npm install @openzeppelin/contracts
 > Foundry installs the latest version initially, but subsequent `forge update` commands will use the `master` branch.
 
 ```
-$ forge install OpenZeppelin/openzeppelin-contracts
+forge install OpenZeppelin/openzeppelin-contracts
 ```
 
 Add `@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/` in `remappings.txt.`
