@@ -229,23 +229,17 @@ contract AccessManager is Context, Multicall, IAccessManager {
         emit RoleLabel(roleId, label);
     }
 
-    /**
-     * @inheritdoc IAccessManager
-     */
+    /// @inheritdoc IAccessManager
     function grantRole(uint64 roleId, address account, uint32 executionDelay) public virtual onlyAuthorized {
         _grantRole(roleId, account, getRoleGrantDelay(roleId), executionDelay);
     }
 
-    /**
-     * @inheritdoc IAccessManager
-     */
+    /// @inheritdoc IAccessManager
     function revokeRole(uint64 roleId, address account) public virtual onlyAuthorized {
         _revokeRole(roleId, account);
     }
 
-    /**
-     * @inheritdoc IAccessManager
-     */
+    /// @inheritdoc IAccessManager
     function renounceRole(uint64 roleId, address callerConfirmation) public virtual {
         if (callerConfirmation != _msgSender()) {
             revert AccessManagerBadConfirmation();
