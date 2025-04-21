@@ -22,16 +22,12 @@ abstract contract ERC721URIStorage is IERC4906, ERC721 {
     // Optional mapping for token URIs
     mapping(uint256 tokenId => string) private _tokenURIs;
 
-    /**
-     * @inheritdoc IERC165
-     */
+    /// @inheritdoc IERC165
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, IERC165) returns (bool) {
         return interfaceId == ERC4906_INTERFACE_ID || super.supportsInterface(interfaceId);
     }
 
-    /**
-     * @inheritdoc IERC721Metadata
-     */
+    /// @inheritdoc IERC721Metadata
     function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
         _requireOwned(tokenId);
 

@@ -60,16 +60,12 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
         _grantRole(DEFAULT_ADMIN_ROLE, initialDefaultAdmin);
     }
 
-    /**
-     * @inheritdoc IERC165
-     */
+    /// @inheritdoc IERC165
     function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
         return interfaceId == type(IAccessControlDefaultAdminRules).interfaceId || super.supportsInterface(interfaceId);
     }
 
-    /**
-     * @inheritdoc IERC5313
-     */
+    /// @inheritdoc IERC5313
     function owner() public view virtual returns (address) {
         return defaultAdmin();
     }
@@ -141,9 +137,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
         return super._grantRole(role, account);
     }
 
-    /**
-     * @inheritdoc AccessControl
-     */
+    /// @inheritdoc AccessControl
     function _revokeRole(bytes32 role, address account) internal virtual override returns (bool) {
         if (role == DEFAULT_ADMIN_ROLE && account == defaultAdmin()) {
             delete _currentDefaultAdmin;
@@ -165,39 +159,29 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     /// AccessControlDefaultAdminRules accessors
     ///
 
-    /**
-     * @inheritdoc IAccessControlDefaultAdminRules
-     */
+    /// @inheritdoc IAccessControlDefaultAdminRules
     function defaultAdmin() public view virtual returns (address) {
         return _currentDefaultAdmin;
     }
 
-    /**
-     * @inheritdoc IAccessControlDefaultAdminRules
-     */
+    /// @inheritdoc IAccessControlDefaultAdminRules
     function pendingDefaultAdmin() public view virtual returns (address newAdmin, uint48 schedule) {
         return (_pendingDefaultAdmin, _pendingDefaultAdminSchedule);
     }
 
-    /**
-     * @inheritdoc IAccessControlDefaultAdminRules
-     */
+    /// @inheritdoc IAccessControlDefaultAdminRules
     function defaultAdminDelay() public view virtual returns (uint48) {
         uint48 schedule = _pendingDelaySchedule;
         return (_isScheduleSet(schedule) && _hasSchedulePassed(schedule)) ? _pendingDelay : _currentDelay;
     }
 
-    /**
-     * @inheritdoc IAccessControlDefaultAdminRules
-     */
+    /// @inheritdoc IAccessControlDefaultAdminRules
     function pendingDefaultAdminDelay() public view virtual returns (uint48 newDelay, uint48 schedule) {
         schedule = _pendingDelaySchedule;
         return (_isScheduleSet(schedule) && !_hasSchedulePassed(schedule)) ? (_pendingDelay, schedule) : (0, 0);
     }
 
-    /**
-     * @inheritdoc IAccessControlDefaultAdminRules
-     */
+    /// @inheritdoc IAccessControlDefaultAdminRules
     function defaultAdminDelayIncreaseWait() public view virtual returns (uint48) {
         return 5 days;
     }
@@ -206,9 +190,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     /// AccessControlDefaultAdminRules public and internal setters for defaultAdmin/pendingDefaultAdmin
     ///
 
-    /**
-     * @inheritdoc IAccessControlDefaultAdminRules
-     */
+    /// @inheritdoc IAccessControlDefaultAdminRules
     function beginDefaultAdminTransfer(address newAdmin) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
         _beginDefaultAdminTransfer(newAdmin);
     }
@@ -224,9 +206,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
         emit DefaultAdminTransferScheduled(newAdmin, newSchedule);
     }
 
-    /**
-     * @inheritdoc IAccessControlDefaultAdminRules
-     */
+    /// @inheritdoc IAccessControlDefaultAdminRules
     function cancelDefaultAdminTransfer() public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
         _cancelDefaultAdminTransfer();
     }
@@ -240,9 +220,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
         _setPendingDefaultAdmin(address(0), 0);
     }
 
-    /**
-     * @inheritdoc IAccessControlDefaultAdminRules
-     */
+    /// @inheritdoc IAccessControlDefaultAdminRules
     function acceptDefaultAdminTransfer() public virtual {
         (address newDefaultAdmin, ) = pendingDefaultAdmin();
         if (_msgSender() != newDefaultAdmin) {
@@ -272,9 +250,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     /// AccessControlDefaultAdminRules public and internal setters for defaultAdminDelay/pendingDefaultAdminDelay
     ///
 
-    /**
-     * @inheritdoc IAccessControlDefaultAdminRules
-     */
+    /// @inheritdoc IAccessControlDefaultAdminRules
     function changeDefaultAdminDelay(uint48 newDelay) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
         _changeDefaultAdminDelay(newDelay);
     }
@@ -290,9 +266,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
         emit DefaultAdminDelayChangeScheduled(newDelay, newSchedule);
     }
 
-    /**
-     * @inheritdoc IAccessControlDefaultAdminRules
-     */
+    /// @inheritdoc IAccessControlDefaultAdminRules
     function rollbackDefaultAdminDelay() public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
         _rollbackDefaultAdminDelay();
     }

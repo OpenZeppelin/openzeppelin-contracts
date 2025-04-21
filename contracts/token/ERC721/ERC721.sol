@@ -41,9 +41,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
         _symbol = symbol_;
     }
 
-    /**
-     * @inheritdoc IERC165
-     */
+    /// @inheritdoc IERC165
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IERC165) returns (bool) {
         return
             interfaceId == type(IERC721).interfaceId ||
@@ -51,9 +49,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
             super.supportsInterface(interfaceId);
     }
 
-    /**
-     * @inheritdoc IERC721
-     */
+    /// @inheritdoc IERC721
     function balanceOf(address owner) public view virtual returns (uint256) {
         if (owner == address(0)) {
             revert ERC721InvalidOwner(address(0));
@@ -61,30 +57,22 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
         return _balances[owner];
     }
 
-    /**
-     * @inheritdoc IERC721
-     */
+    /// @inheritdoc IERC721
     function ownerOf(uint256 tokenId) public view virtual returns (address) {
         return _requireOwned(tokenId);
     }
 
-    /**
-     * @inheritdoc IERC721Metadata
-     */
+    /// @inheritdoc IERC721Metadata
     function name() public view virtual returns (string memory) {
         return _name;
     }
 
-    /**
-     * @inheritdoc IERC721Metadata
-     */
+    /// @inheritdoc IERC721Metadata
     function symbol() public view virtual returns (string memory) {
         return _symbol;
     }
 
-    /**
-     * @inheritdoc IERC721Metadata
-     */
+    /// @inheritdoc IERC721Metadata
     function tokenURI(uint256 tokenId) public view virtual returns (string memory) {
         _requireOwned(tokenId);
 
@@ -101,39 +89,29 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
         return "";
     }
 
-    /**
-     * @inheritdoc IERC721
-     */
+    /// @inheritdoc IERC721
     function approve(address to, uint256 tokenId) public virtual {
         _approve(to, tokenId, _msgSender());
     }
 
-    /**
-     * @inheritdoc IERC721
-     */
+    /// @inheritdoc IERC721
     function getApproved(uint256 tokenId) public view virtual returns (address) {
         _requireOwned(tokenId);
 
         return _getApproved(tokenId);
     }
 
-    /**
-     * @inheritdoc IERC721
-     */
+    /// @inheritdoc IERC721
     function setApprovalForAll(address operator, bool approved) public virtual {
         _setApprovalForAll(_msgSender(), operator, approved);
     }
 
-    /**
-     * @inheritdoc IERC721
-     */
+    /// @inheritdoc IERC721
     function isApprovedForAll(address owner, address operator) public view virtual returns (bool) {
         return _operatorApprovals[owner][operator];
     }
 
-    /**
-     * @inheritdoc IERC721
-     */
+    /// @inheritdoc IERC721
     function transferFrom(address from, address to, uint256 tokenId) public virtual {
         if (to == address(0)) {
             revert ERC721InvalidReceiver(address(0));
@@ -146,16 +124,12 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
         }
     }
 
-    /**
-     * @inheritdoc IERC721
-     */
+    /// @inheritdoc IERC721
     function safeTransferFrom(address from, address to, uint256 tokenId) public {
         safeTransferFrom(from, to, tokenId, "");
     }
 
-    /**
-     * @inheritdoc IERC721
-     */
+    /// @inheritdoc IERC721
     function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory data) public virtual {
         transferFrom(from, to, tokenId);
         ERC721Utils.checkOnERC721Received(_msgSender(), from, to, tokenId, data);

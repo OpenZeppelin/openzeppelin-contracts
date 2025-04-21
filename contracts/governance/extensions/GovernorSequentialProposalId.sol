@@ -19,9 +19,7 @@ abstract contract GovernorSequentialProposalId is Governor {
      */
     error GovernorAlreadyInitializedLatestProposalId();
 
-    /**
-     * @inheritdoc IGovernor
-     */
+    /// @inheritdoc IGovernor
     function getProposalId(
         address[] memory targets,
         uint256[] memory values,

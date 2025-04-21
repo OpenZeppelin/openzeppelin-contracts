@@ -27,17 +27,13 @@ abstract contract GovernorCountingSimple is Governor {
 
     mapping(uint256 proposalId => ProposalVote) private _proposalVotes;
 
-    /**
-     * @inheritdoc IGovernor
-     */
+    /// @inheritdoc IGovernor
     // solhint-disable-next-line func-name-mixedcase
     function COUNTING_MODE() public pure virtual override returns (string memory) {
         return "support=bravo&quorum=for,abstain";
     }
 
-    /**
-     * @inheritdoc IGovernor
-     */
+    /// @inheritdoc IGovernor
     function hasVoted(uint256 proposalId, address account) public view virtual override returns (bool) {
         return _proposalVotes[proposalId].hasVoted[account];
     }
@@ -52,9 +48,7 @@ abstract contract GovernorCountingSimple is Governor {
         return (proposalVote.againstVotes, proposalVote.forVotes, proposalVote.abstainVotes);
     }
 
-    /**
-     * @inheritdoc Governor
-     */
+    /// @inheritdoc Governor
     function _quorumReached(uint256 proposalId) internal view virtual override returns (bool) {
         ProposalVote storage proposalVote = _proposalVotes[proposalId];
 

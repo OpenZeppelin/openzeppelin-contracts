@@ -33,16 +33,12 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
      */
     error ERC721EnumerableForbiddenBatchMint();
 
-    /**
-     * @inheritdoc IERC165
-     */
+    /// @inheritdoc IERC165
     function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, ERC721) returns (bool) {
         return interfaceId == type(IERC721Enumerable).interfaceId || super.supportsInterface(interfaceId);
     }
 
-    /**
-     * @inheritdoc IERC721Enumerable
-     */
+    /// @inheritdoc IERC721Enumerable
     function tokenOfOwnerByIndex(address owner, uint256 index) public view virtual returns (uint256) {
         if (index >= balanceOf(owner)) {
             revert ERC721OutOfBoundsIndex(owner, index);
@@ -50,16 +46,12 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
         return _ownedTokens[owner][index];
     }
 
-    /**
-     * @inheritdoc IERC721Enumerable
-     */
+    /// @inheritdoc IERC721Enumerable
     function totalSupply() public view virtual returns (uint256) {
         return _allTokens.length;
     }
 
-    /**
-     * @inheritdoc IERC721Enumerable
-     */
+    /// @inheritdoc IERC721Enumerable
     function tokenByIndex(uint256 index) public view virtual returns (uint256) {
         if (index >= totalSupply()) {
             revert ERC721OutOfBoundsIndex(address(0), index);
@@ -67,9 +59,7 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
         return _allTokens[index];
     }
 
-    /**
-     * @inheritdoc ERC721
-     */
+    /// @inheritdoc ERC721
     function _update(address to, uint256 tokenId, address auth) internal virtual override returns (address) {
         address previousOwner = super._update(to, tokenId, auth);
 

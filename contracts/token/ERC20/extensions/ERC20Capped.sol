@@ -39,9 +39,7 @@ abstract contract ERC20Capped is ERC20 {
         return _cap;
     }
 
-    /**
-     * @inheritdoc ERC20
-     */
+    /// @inheritdoc ERC20
     function _update(address from, address to, uint256 value) internal virtual override {
         super._update(from, to, value);
 

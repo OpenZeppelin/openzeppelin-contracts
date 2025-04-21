@@ -107,93 +107,67 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         return _underlyingDecimals + _decimalsOffset();
     }
 
-    /**
-     * @inheritdoc IERC4626
-     */
+    /// @inheritdoc IERC4626
     function asset() public view virtual returns (address) {
         return address(_asset);
     }
 
-    /**
-     * @inheritdoc IERC4626
-     */
+    /// @inheritdoc IERC4626
     function totalAssets() public view virtual returns (uint256) {
         return IERC20(asset()).balanceOf(address(this));
     }
 
-    /**
-     * @inheritdoc IERC4626
-     */
+    /// @inheritdoc IERC4626
     function convertToShares(uint256 assets) public view virtual returns (uint256) {
         return _convertToShares(assets, Math.Rounding.Floor);
     }
 
-    /**
-     * @inheritdoc IERC4626
-     */
+    /// @inheritdoc IERC4626
     function convertToAssets(uint256 shares) public view virtual returns (uint256) {
         return _convertToAssets(shares, Math.Rounding.Floor);
     }
 
-    /**
-     * @inheritdoc IERC4626
-     */
+    /// @inheritdoc IERC4626
     function maxDeposit(address) public view virtual returns (uint256) {
         return type(uint256).max;
     }
 
-    /**
-     * @inheritdoc IERC4626
-     */
+    /// @inheritdoc IERC4626
     function maxMint(address) public view virtual returns (uint256) {
         return type(uint256).max;
     }
 
-    /**
-     * @inheritdoc IERC4626
-     */
+    /// @inheritdoc IERC4626
     function maxWithdraw(address owner) public view virtual returns (uint256) {
         return _convertToAssets(balanceOf(owner), Math.Rounding.Floor);
     }
 
-    /**
-     * @inheritdoc IERC4626
-     */
+    /// @inheritdoc IERC4626
     function maxRedeem(address owner) public view virtual returns (uint256) {
         return balanceOf(owner);
     }
 
-    /**
-     * @inheritdoc IERC4626
-     */
+    /// @inheritdoc IERC4626
     function previewDeposit(uint256 assets) public view virtual returns (uint256) {
         return _convertToShares(assets, Math.Rounding.Floor);
     }
 
-    /**
-     * @inheritdoc IERC4626
-     */
+    /// @inheritdoc IERC4626
     function previewMint(uint256 shares) public view virtual returns (uint256) {
         return _convertToAssets(shares, Math.Rounding.Ceil);
     }
 
-    /**
-     * @inheritdoc IERC4626
-     */
+    /// @inheritdoc IERC4626
     function previewWithdraw(uint256 assets) public view virtual returns (uint256) {
         return _convertToShares(assets, Math.Rounding.Ceil);
     }
 
-    /**
-     * @inheritdoc IERC4626
-     */
+    /// @inheritdoc IERC4626
     function previewRedeem(uint256 shares) public view virtual returns (uint256) {
         return _convertToAssets(shares, Math.Rounding.Floor);
     }
 
-    /**
-     * @inheritdoc IERC4626
-     */
+    /// @inheritdoc IERC4626
     function deposit(uint256 assets, address receiver) public virtual returns (uint256) {
         uint256 maxAssets = maxDeposit(receiver);
         if (assets > maxAssets) {
@@ -206,9 +180,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         return shares;
     }
 
-    /**
-     * @inheritdoc IERC4626
-     */
+    /// @inheritdoc IERC4626
     function mint(uint256 shares, address receiver) public virtual returns (uint256) {
         uint256 maxShares = maxMint(receiver);
         if (shares > maxShares) {
@@ -221,9 +193,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         return assets;
     }
 
-    /**
-     * @inheritdoc IERC4626
-     */
+    /// @inheritdoc IERC4626
     function withdraw(uint256 assets, address receiver, address owner) public virtual returns (uint256) {
         uint256 maxAssets = maxWithdraw(owner);
         if (assets > maxAssets) {
@@ -236,9 +206,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         return shares;
     }
 
-    /**
-     * @inheritdoc IERC4626
-     */
+    /// @inheritdoc IERC4626
     function redeem(uint256 shares, address receiver, address owner) public virtual returns (uint256) {
         uint256 maxShares = maxRedeem(owner);
         if (shares > maxShares) {

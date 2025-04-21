@@ -65,9 +65,7 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
         _;
     }
 
-    /**
-     * @inheritdoc IERC165
-     */
+    /// @inheritdoc IERC165
     function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
         return interfaceId == type(IAccessControl).interfaceId || super.supportsInterface(interfaceId);
     }

@@ -46,9 +46,7 @@ abstract contract ERC1155Supply is ERC1155 {
         return totalSupply(id) > 0;
     }
 
-    /**
-     * @inheritdoc ERC1155
-     */
+    /// @inheritdoc ERC1155
     function _update(
         address from,
         address to,

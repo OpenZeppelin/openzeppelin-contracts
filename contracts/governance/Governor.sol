@@ -86,9 +86,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         }
     }
 
-    /**
-     * @inheritdoc IERC165
-     */
+    /// @inheritdoc IERC165
     function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, ERC165) returns (bool) {
         return
             interfaceId == type(IGovernor).interfaceId ||
@@ -97,16 +95,12 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
             super.supportsInterface(interfaceId);
     }
 
-    /**
-     * @inheritdoc IGovernor
-     */
+    /// @inheritdoc IGovernor
     function name() public view virtual returns (string memory) {
         return _name;
     }
 
-    /**
-     * @inheritdoc IGovernor
-     */
+    /// @inheritdoc IGovernor
     function version() public view virtual returns (string memory) {
         return "1";
     }
@@ -133,9 +127,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         return uint256(keccak256(abi.encode(targets, values, calldatas, descriptionHash)));
     }
 
-    /**
-     * @inheritdoc IGovernor
-     */
+    /// @inheritdoc IGovernor
     function getProposalId(
         address[] memory targets,
         uint256[] memory values,
@@ -145,9 +137,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         return hashProposal(targets, values, calldatas, descriptionHash);
     }
 
-    /**
-     * @inheritdoc IGovernor
-     */
+    /// @inheritdoc IGovernor
     function state(uint256 proposalId) public view virtual returns (ProposalState) {
         // We read the struct fields into the stack at once so Solidity emits a single SLOAD
         ProposalCore storage proposal = _proposals[proposalId];
@@ -187,44 +177,32 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         }
     }
 
-    /**
-     * @inheritdoc IGovernor
-     */
+    /// @inheritdoc IGovernor
     function proposalThreshold() public view virtual returns (uint256) {
         return 0;
     }
 
-    /**
-     * @inheritdoc IGovernor
-     */
+    /// @inheritdoc IGovernor
     function proposalSnapshot(uint256 proposalId) public view virtual returns (uint256) {
         return _proposals[proposalId].voteStart;
     }
 
-    /**
-     * @inheritdoc IGovernor
-     */
+    /// @inheritdoc IGovernor
     function proposalDeadline(uint256 proposalId) public view virtual returns (uint256) {
         return _proposals[proposalId].voteStart + _proposals[proposalId].voteDuration;
     }
 
-    /**
-     * @inheritdoc IGovernor
-     */
+    /// @inheritdoc IGovernor
     function proposalProposer(uint256 proposalId) public view virtual returns (address) {
         return _proposals[proposalId].proposer;
     }
 
-    /**
-     * @inheritdoc IGovernor
-     */
+    /// @inheritdoc IGovernor
     function proposalEta(uint256 proposalId) public view virtual returns (uint256) {
         return _proposals[proposalId].etaSeconds;
     }
 
-    /**
-     * @inheritdoc IGovernor
-     */
+    /// @inheritdoc IGovernor
     function proposalNeedsQueuing(uint256) public view virtual returns (bool) {
         return false;
     }
@@ -362,9 +340,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         // Using a named return variable to avoid stack too deep errors
     }
 
-    /**
-     * @inheritdoc IGovernor
-     */
+    /// @inheritdoc IGovernor
     function queue(
         address[] memory targets,
         uint256[] memory values,
@@ -410,9 +386,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         return 0;
     }
 
-    /**
-     * @inheritdoc IGovernor
-     */
+    /// @inheritdoc IGovernor
     function execute(
         address[] memory targets,
         uint256[] memory values,
@@ -470,9 +444,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         }
     }
 
-    /**
-     * @inheritdoc IGovernor
-     */
+    /// @inheritdoc IGovernor
     function cancel(
         address[] memory targets,
         uint256[] memory values,
@@ -518,16 +490,12 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         return proposalId;
     }
 
-    /**
-     * @inheritdoc IGovernor
-     */
+    /// @inheritdoc IGovernor
     function getVotes(address account, uint256 timepoint) public view virtual returns (uint256) {
         return _getVotes(account, timepoint, _defaultParams());
     }
 
-    /**
-     * @inheritdoc IGovernor
-     */
+    /// @inheritdoc IGovernor
     function getVotesWithParams(
         address account,
         uint256 timepoint,
@@ -536,17 +504,13 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         return _getVotes(account, timepoint, params);
     }
 
-    /**
-     * @inheritdoc IGovernor
-     */
+    /// @inheritdoc IGovernor
     function castVote(uint256 proposalId, uint8 support) public virtual returns (uint256) {
         address voter = _msgSender();
         return _castVote(proposalId, voter, support, "");
     }
 
-    /**
-     * @inheritdoc IGovernor
-     */
+    /// @inheritdoc IGovernor
     function castVoteWithReason(
         uint256 proposalId,
         uint8 support,
@@ -556,9 +520,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         return _castVote(proposalId, voter, support, reason);
     }
 
-    /**
-     * @inheritdoc IGovernor
-     */
+    /// @inheritdoc IGovernor
     function castVoteWithReasonAndParams(
         uint256 proposalId,
         uint8 support,
@@ -569,9 +531,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         return _castVote(proposalId, voter, support, reason, params);
     }
 
-    /**
-     * @inheritdoc IGovernor
-     */
+    /// @inheritdoc IGovernor
     function castVoteBySig(
         uint256 proposalId,
         uint8 support,
@@ -591,9 +551,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         return _castVote(proposalId, voter, support, "");
     }
 
-    /**
-     * @inheritdoc IGovernor
-     */
+    /// @inheritdoc IGovernor
     function castVoteWithReasonAndParamsBySig(
         uint256 proposalId,
         uint8 support,
@@ -811,30 +769,20 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         return (state(proposalId) == ProposalState.Pending) && caller == proposalProposer(proposalId);
     }
 
-    /**
-     * @inheritdoc IERC6372
-     */
+    /// @inheritdoc IERC6372
     function clock() public view virtual returns (uint48);
 
-    /**
-     * @inheritdoc IERC6372
-     */
+    /// @inheritdoc IERC6372
     // solhint-disable-next-line func-name-mixedcase
     function CLOCK_MODE() public view virtual returns (string memory);
 
-    /**
-     * @inheritdoc IGovernor
-     */
+    /// @inheritdoc IGovernor
     function votingDelay() public view virtual returns (uint256);
 
-    /**
-     * @inheritdoc IGovernor
-     */
+    /// @inheritdoc IGovernor
     function votingPeriod() public view virtual returns (uint256);
 
-    /**
-     * @inheritdoc IGovernor
-     */
+    /// @inheritdoc IGovernor
     function quorum(uint256 timepoint) public view virtual returns (uint256);
 
     /**
