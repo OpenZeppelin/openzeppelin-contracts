@@ -224,9 +224,6 @@ abstract contract GovernorTimelockAccess is Governor {
      * NOTE: The execution delay is chosen based on the delay information retrieved in {propose}. This value may be
      * off if the delay was updated since proposal creation. In this case, the proposal needs to be recreated.
      */
-    // This function can reenteer when calling `_manager.schedule` before performing state updates in `_setManagerData`.
-    // However, the `manager` is a trusted contract in the current context's security model (e.g. an `AccessManager`).
-    // slither-disable-next-line reentrancy-no-eth
     function _queueOperations(
         uint256 proposalId,
         address[] memory targets,
@@ -240,6 +237,9 @@ abstract contract GovernorTimelockAccess is Governor {
         for (uint256 i = 0; i < targets.length; ++i) {
             (, bool withDelay, ) = _getManagerData(plan, i);
             if (withDelay) {
+                // This function can reenteer when calling `_manager.schedule` before performing state updates in `_setManagerData`.
+                // However, the `manager` is a trusted contract in the current context's security model (e.g. an `AccessManager`).
+                // slither-disable-next-line reentrancy-no-eth
                 (, uint32 nonce) = _manager.schedule(targets[i], calldatas[i], etaSeconds);
                 _setManagerData(plan, i, true, nonce);
             }
