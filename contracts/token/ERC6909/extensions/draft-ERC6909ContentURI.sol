@@ -13,26 +13,18 @@ contract ERC6909ContentURI is ERC6909, IERC6909ContentURI {
     string private _contractURI;
     mapping(uint256 id => string) private _tokenURIs;
 
-    /**
-     * @dev Event emitted when the contract URI is changed. See https://eips.ethereum.org/EIPS/eip-7572[ERC-7572] for details.
-     */
+    /// @dev Event emitted when the contract URI is changed. See https://eips.ethereum.org/EIPS/eip-7572[ERC-7572] for details.
     event ContractURIUpdated();
 
-    /**
-     * @dev See {IERC1155-URI}
-     */
+    /// @dev See {IERC1155-URI}
     event URI(string value, uint256 indexed id);
 
-    /**
-     * @inheritdoc IERC6909ContentURI
-     */
+    /// @inheritdoc IERC6909ContentURI
     function contractURI() public view virtual override returns (string memory) {
         return _contractURI;
     }
 
-    /**
-     * @inheritdoc IERC6909ContentURI
-     */
+    /// @inheritdoc IERC6909ContentURI
     function tokenURI(uint256 id) public view virtual override returns (string memory) {
         return _tokenURIs[id];
     }

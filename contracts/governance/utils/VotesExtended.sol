@@ -62,18 +62,14 @@ abstract contract VotesExtended is Votes {
         return _userVotingUnitsCheckpoints[account].upperLookupRecent(_validateTimepoint(timepoint));
     }
 
-    /**
-     * @inheritdoc Votes
-     */
+    /// @inheritdoc Votes
     function _delegate(address account, address delegatee) internal virtual override {
         super._delegate(account, delegatee);
 
         _userDelegationCheckpoints[account].push(clock(), uint160(delegatee));
     }
 
-    /**
-     * @inheritdoc Votes
-     */
+    /// @inheritdoc Votes
     function _transferVotingUnits(address from, address to, uint256 amount) internal virtual override {
         super._transferVotingUnits(from, to, amount);
         if (from != to) {

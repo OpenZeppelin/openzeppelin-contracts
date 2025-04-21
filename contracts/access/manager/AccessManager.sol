@@ -135,9 +135,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     // =================================================== GETTERS ====================================================
-    /**
-     * @inheritdoc IAccessManager
-     */
+    /// @inheritdoc IAccessManager
     function canCall(
         address caller,
         address target,
@@ -156,65 +154,47 @@ contract AccessManager is Context, Multicall, IAccessManager {
         }
     }
 
-    /**
-     * @inheritdoc IAccessManager
-     */
+    /// @inheritdoc IAccessManager
     function expiration() public view virtual returns (uint32) {
         return 1 weeks;
     }
 
-    /**
-     * @inheritdoc IAccessManager
-     */
+    /// @inheritdoc IAccessManager
     function minSetback() public view virtual returns (uint32) {
         return 5 days;
     }
 
-    /**
-     * @inheritdoc IAccessManager
-     */
+    /// @inheritdoc IAccessManager
     function isTargetClosed(address target) public view virtual returns (bool) {
         return _targets[target].closed;
     }
 
-    /**
-     * @inheritdoc IAccessManager
-     */
+    /// @inheritdoc IAccessManager
     function getTargetFunctionRole(address target, bytes4 selector) public view virtual returns (uint64) {
         return _targets[target].allowedRoles[selector];
     }
 
-    /**
-     * @inheritdoc IAccessManager
-     */
+    /// @inheritdoc IAccessManager
     function getTargetAdminDelay(address target) public view virtual returns (uint32) {
         return _targets[target].adminDelay.get();
     }
 
-    /**
-     * @inheritdoc IAccessManager
-     */
+    /// @inheritdoc IAccessManager
     function getRoleAdmin(uint64 roleId) public view virtual returns (uint64) {
         return _roles[roleId].admin;
     }
 
-    /**
-     * @inheritdoc IAccessManager
-     */
+    /// @inheritdoc IAccessManager
     function getRoleGuardian(uint64 roleId) public view virtual returns (uint64) {
         return _roles[roleId].guardian;
     }
 
-    /**
-     * @inheritdoc IAccessManager
-     */
+    /// @inheritdoc IAccessManager
     function getRoleGrantDelay(uint64 roleId) public view virtual returns (uint32) {
         return _roles[roleId].grantDelay.get();
     }
 
-    /**
-     * @inheritdoc IAccessManager
-     */
+    /// @inheritdoc IAccessManager
     function getAccess(
         uint64 roleId,
         address account
@@ -227,9 +207,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         return (since, currentDelay, pendingDelay, effect);
     }
 
-    /**
-     * @inheritdoc IAccessManager
-     */
+    /// @inheritdoc IAccessManager
     function hasRole(
         uint64 roleId,
         address account
@@ -243,9 +221,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     // =============================================== ROLE MANAGEMENT ===============================================
-    /**
-     * @inheritdoc IAccessManager
-     */
+    /// @inheritdoc IAccessManager
     function labelRole(uint64 roleId, string calldata label) public virtual onlyAuthorized {
         if (roleId == ADMIN_ROLE || roleId == PUBLIC_ROLE) {
             revert AccessManagerLockedRole(roleId);
@@ -277,23 +253,17 @@ contract AccessManager is Context, Multicall, IAccessManager {
         _revokeRole(roleId, callerConfirmation);
     }
 
-    /**
-     * @inheritdoc IAccessManager
-     */
+    /// @inheritdoc IAccessManager
     function setRoleAdmin(uint64 roleId, uint64 admin) public virtual onlyAuthorized {
         _setRoleAdmin(roleId, admin);
     }
 
-    /**
-     * @inheritdoc IAccessManager
-     */
+    /// @inheritdoc IAccessManager
     function setRoleGuardian(uint64 roleId, uint64 guardian) public virtual onlyAuthorized {
         _setRoleGuardian(roleId, guardian);
     }
 
-    /**
-     * @inheritdoc IAccessManager
-     */
+    /// @inheritdoc IAccessManager
     function setGrantDelay(uint64 roleId, uint32 newDelay) public virtual onlyAuthorized {
         _setGrantDelay(roleId, newDelay);
     }
@@ -406,9 +376,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     // ============================================= FUNCTION MANAGEMENT ==============================================
-    /**
-     * @inheritdoc IAccessManager
-     */
+    /// @inheritdoc IAccessManager
     function setTargetFunctionRole(
         address target,
         bytes4[] calldata selectors,
@@ -429,9 +397,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         emit TargetFunctionRoleUpdated(target, selector, roleId);
     }
 
-    /**
-     * @inheritdoc IAccessManager
-     */
+    /// @inheritdoc IAccessManager
     function setTargetAdminDelay(address target, uint32 newDelay) public virtual onlyAuthorized {
         _setTargetAdminDelay(target, newDelay);
     }
@@ -449,9 +415,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     // =============================================== MODE MANAGEMENT ================================================
-    /**
-     * @inheritdoc IAccessManager
-     */
+    /// @inheritdoc IAccessManager
     function setTargetClosed(address target, bool closed) public virtual onlyAuthorized {
         _setTargetClosed(target, closed);
     }
@@ -467,24 +431,18 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     // ============================================== DELAYED OPERATIONS ==============================================
-    /**
-     * @inheritdoc IAccessManager
-     */
+    /// @inheritdoc IAccessManager
     function getSchedule(bytes32 id) public view virtual returns (uint48) {
         uint48 timepoint = _schedules[id].timepoint;
         return _isExpired(timepoint) ? 0 : timepoint;
     }
 
-    /**
-     * @inheritdoc IAccessManager
-     */
+    /// @inheritdoc IAccessManager
     function getNonce(bytes32 id) public view virtual returns (uint32) {
         return _schedules[id].nonce;
     }
 
-    /**
-     * @inheritdoc IAccessManager
-     */
+    /// @inheritdoc IAccessManager
     function schedule(
         address target,
         bytes calldata data,
@@ -570,9 +528,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         return nonce;
     }
 
-    /**
-     * @inheritdoc IAccessManager
-     */
+    /// @inheritdoc IAccessManager
     function cancel(address caller, address target, bytes calldata data) public virtual returns (uint32) {
         address msgsender = _msgSender();
         bytes4 selector = _checkSelector(data);
@@ -596,9 +552,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         return nonce;
     }
 
-    /**
-     * @inheritdoc IAccessManager
-     */
+    /// @inheritdoc IAccessManager
     function consumeScheduledOp(address caller, bytes calldata data) public virtual {
         address target = _msgSender();
         if (IAccessManaged(target).isConsumingScheduledOp() != IAccessManaged.isConsumingScheduledOp.selector) {
@@ -630,17 +584,13 @@ contract AccessManager is Context, Multicall, IAccessManager {
         return nonce;
     }
 
-    /**
-     * @inheritdoc IAccessManager
-     */
+    /// @inheritdoc IAccessManager
     function hashOperation(address caller, address target, bytes calldata data) public view virtual returns (bytes32) {
         return keccak256(abi.encode(caller, target, data));
     }
 
     // ==================================================== OTHERS ====================================================
-    /**
-     * @inheritdoc IAccessManager
-     */
+    /// @inheritdoc IAccessManager
     function updateAuthority(address target, address newAuthority) public virtual onlyAuthorized {
         IAccessManaged(target).setAuthority(newAuthority);
     }

@@ -27,23 +27,17 @@ contract ERC6909Metadata is ERC6909, IERC6909Metadata {
     /// @dev The decimals value for token of type `id` was updated to `newDecimals`.
     event ERC6909DecimalsUpdated(uint256 indexed id, uint8 newDecimals);
 
-    /**
-     * @inheritdoc IERC6909Metadata
-     */
+    /// @inheritdoc IERC6909Metadata
     function name(uint256 id) public view virtual override returns (string memory) {
         return _tokenMetadata[id].name;
     }
 
-    /**
-     * @inheritdoc IERC6909Metadata
-     */
+    /// @inheritdoc IERC6909Metadata
     function symbol(uint256 id) public view virtual override returns (string memory) {
         return _tokenMetadata[id].symbol;
     }
 
-    /**
-     * @inheritdoc IERC6909Metadata
-     */
+    /// @inheritdoc IERC6909Metadata
     function decimals(uint256 id) public view virtual override returns (uint8) {
         return _tokenMetadata[id].decimals;
     }

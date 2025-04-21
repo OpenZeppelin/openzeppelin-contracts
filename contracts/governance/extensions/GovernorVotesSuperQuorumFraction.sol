@@ -125,9 +125,7 @@ abstract contract GovernorVotesSuperQuorumFraction is GovernorVotesQuorumFractio
         super._updateQuorumNumerator(newQuorumNumerator);
     }
 
-    /**
-     * @inheritdoc GovernorSuperQuorum
-     */
+    /// @inheritdoc GovernorSuperQuorum
     function state(
         uint256 proposalId
     ) public view virtual override(Governor, GovernorSuperQuorum) returns (ProposalState) {

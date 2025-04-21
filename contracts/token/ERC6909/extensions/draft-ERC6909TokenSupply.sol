@@ -13,9 +13,7 @@ import {IERC6909TokenSupply} from "../../../interfaces/draft-IERC6909.sol";
 contract ERC6909TokenSupply is ERC6909, IERC6909TokenSupply {
     mapping(uint256 id => uint256) private _totalSupplies;
 
-    /**
-     * @inheritdoc IERC6909TokenSupply
-     */
+    /// @inheritdoc IERC6909TokenSupply
     function totalSupply(uint256 id) public view virtual override returns (uint256) {
         return _totalSupplies[id];
     }
