@@ -27,6 +27,7 @@ async function fixture() {
         methods: getMethods(mock, {
           add: `$add(uint256,${type})`,
           remove: `$remove(uint256,${type})`,
+          clear: `$clear_EnumerableSet_${name}(uint256)`,
           contains: `$contains(uint256,${type})`,
           length: `$length_EnumerableSet_${name}(uint256)`,
           at: `$at_EnumerableSet_${name}(uint256,uint256)`,

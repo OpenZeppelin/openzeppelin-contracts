@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.3.0) (utils/ReentrancyGuardTransient.sol)
 
 pragma solidity ^0.8.24;
 
-import {StorageSlot} from "./StorageSlot.sol";
+import {TransientSlot} from "./TransientSlot.sol";
 
 /**
  * @dev Variant of {ReentrancyGuard} that uses transient storage.
@@ -12,7 +13,7 @@ import {StorageSlot} from "./StorageSlot.sol";
  * _Available since v5.1._
  */
 abstract contract ReentrancyGuardTransient {
-    using StorageSlot for *;
+    using TransientSlot for *;
 
     // keccak256(abi.encode(uint256(keccak256("openzeppelin.storage.ReentrancyGuard")) - 1)) & ~bytes32(uint256(0xff))
     bytes32 private constant REENTRANCY_GUARD_STORAGE =
@@ -37,7 +38,7 @@ abstract contract ReentrancyGuardTransient {
     }
 
     function _nonReentrantBefore() private {
-        // On the first call to nonReentrant, _status will be NOT_ENTERED
+        // On the first call to nonReentrant, REENTRANCY_GUARD_STORAGE.asBoolean().tload() will be false
         if (_reentrancyGuardEntered()) {
             revert ReentrancyGuardReentrantCall();
         }

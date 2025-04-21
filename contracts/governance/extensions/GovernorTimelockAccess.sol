@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (governance/extensions/GovernorTimelockAccess.sol)
+// OpenZeppelin Contracts (last updated v5.3.0) (governance/extensions/GovernorTimelockAccess.sol)
 
 pragma solidity ^0.8.20;
 
@@ -237,6 +237,9 @@ abstract contract GovernorTimelockAccess is Governor {
         for (uint256 i = 0; i < targets.length; ++i) {
             (, bool withDelay, ) = _getManagerData(plan, i);
             if (withDelay) {
+                // This function can reenter when calling `_manager.schedule` before performing state updates in `_setManagerData`.
+                // However, the `manager` is a trusted contract in the current context's security model (e.g. an `AccessManager`).
+                // slither-disable-next-line reentrancy-no-eth
                 (, uint32 nonce) = _manager.schedule(targets[i], calldatas[i], etaSeconds);
                 _setManagerData(plan, i, true, nonce);
             }
@@ -277,7 +280,7 @@ abstract contract GovernorTimelockAccess is Governor {
     }
 
     /**
-     * @dev See {IGovernor-_cancel}
+     * @dev See {Governor-_cancel}
      */
     function _cancel(
         address[] memory targets,

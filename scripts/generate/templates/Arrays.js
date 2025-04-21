@@ -17,7 +17,7 @@ import {Math} from "./math/Math.sol";
 
 const sort = type => `\
 /**
- * @dev Sort an array of ${type} (in memory) following the provided comparator function.
+ * @dev Sort an array of ${type.name} (in memory) following the provided comparator function.
  *
  * This function does the sorting "in place", meaning that it overrides the input. The object is returned for
  * convenience, but that returned value can be discarded safely if the caller has a memory pointer to the array.
@@ -30,11 +30,11 @@ const sort = type => `\
  * IMPORTANT: Consider memory side-effects when using custom comparator functions that access memory in an unsafe way.
  */
 function sort(
-    ${type}[] memory array,
-    function(${type}, ${type}) pure returns (bool) comp
-) internal pure returns (${type}[] memory) {
+    ${type.name}[] memory array,
+    function(${type.name}, ${type.name}) pure returns (bool) comp
+) internal pure returns (${type.name}[] memory) {
     ${
-      type === 'uint256'
+      type.name === 'uint256'
         ? '_quickSort(_begin(array), _end(array), comp);'
         : 'sort(_castToUint256Array(array), _castToUint256Comp(comp));'
     }
@@ -42,10 +42,10 @@ function sort(
 }
 
 /**
- * @dev Variant of {sort} that sorts an array of ${type} in increasing order.
+ * @dev Variant of {sort} that sorts an array of ${type.name} in increasing order.
  */
-function sort(${type}[] memory array) internal pure returns (${type}[] memory) {
-    ${type === 'uint256' ? 'sort(array, Comparators.lt);' : 'sort(_castToUint256Array(array), Comparators.lt);'}
+function sort(${type.name}[] memory array) internal pure returns (${type.name}[] memory) {
+    ${type.name === 'uint256' ? 'sort(array, Comparators.lt);' : 'sort(_castToUint256Array(array), Comparators.lt);'}
     return array;
 }
 `;
@@ -126,8 +126,8 @@ function _swap(uint256 ptr1, uint256 ptr2) private pure {
 `;
 
 const castArray = type => `\
-/// @dev Helper: low level cast ${type} memory array to uint256 memory array
-function _castToUint256Array(${type}[] memory input) private pure returns (uint256[] memory output) {
+/// @dev Helper: low level cast ${type.name} memory array to uint256 memory array
+function _castToUint256Array(${type.name}[] memory input) private pure returns (uint256[] memory output) {
     assembly {
         output := input
     }
@@ -135,9 +135,9 @@ function _castToUint256Array(${type}[] memory input) private pure returns (uint2
 `;
 
 const castComparator = type => `\
-/// @dev Helper: low level cast ${type} comp function to uint256 comp function
+/// @dev Helper: low level cast ${type.name} comp function to uint256 comp function
 function _castToUint256Comp(
-    function(${type}, ${type}) pure returns (bool) input
+    function(${type.name}, ${type.name}) pure returns (bool) input
 ) private pure returns (function(uint256, uint256) pure returns (bool) output) {
     assembly {
         output := input
@@ -320,14 +320,14 @@ const unsafeAccessStorage = type => `\
  *
  * WARNING: Only use if you are certain \`pos\` is lower than the array length.
  */
-function unsafeAccess(${type}[] storage arr, uint256 pos) internal pure returns (StorageSlot.${capitalize(
-  type,
+function unsafeAccess(${type.name}[] storage arr, uint256 pos) internal pure returns (StorageSlot.${capitalize(
+  type.name,
 )}Slot storage) {
     bytes32 slot;
     assembly ("memory-safe") {
         slot := arr.slot
     }
-    return slot.deriveArray().offset(pos).get${capitalize(type)}Slot();
+    return slot.deriveArray().offset(pos).get${capitalize(type.name)}Slot();
 }
 `;
 
@@ -337,7 +337,9 @@ const unsafeAccessMemory = type => `\
  *
  * WARNING: Only use if you are certain \`pos\` is lower than the array length.
  */
-function unsafeMemoryAccess(${type}[] memory arr, uint256 pos) internal pure returns (${type} res) {
+function unsafeMemoryAccess(${type.name}[] memory arr, uint256 pos) internal pure returns (${type.name}${
+  type.isValueType ? '' : ' memory'
+} res) {
     assembly {
         res := mload(add(add(arr, 0x20), mul(pos, 0x20)))
     }
@@ -346,11 +348,11 @@ function unsafeMemoryAccess(${type}[] memory arr, uint256 pos) internal pure ret
 
 const unsafeSetLength = type => `\
 /**
- * @dev Helper to set the length of an dynamic array. Directly writing to \`.length\` is forbidden.
+ * @dev Helper to set the length of a dynamic array. Directly writing to \`.length\` is forbidden.
  *
  * WARNING: this does not clear elements if length is reduced, of initialize elements if length is increased.
  */
-function unsafeSetLength(${type}[] storage array, uint256 len) internal {
+function unsafeSetLength(${type.name}[] storage array, uint256 len) internal {
     assembly ("memory-safe") {
         sstore(array.slot, len)
     }
@@ -367,11 +369,11 @@ module.exports = format(
       'using StorageSlot for bytes32;',
       '',
       // sorting, comparator, helpers and internal
-      sort('uint256'),
-      TYPES.filter(type => type !== 'uint256').map(sort),
+      sort({ name: 'uint256' }),
+      TYPES.filter(type => type.isValueType && type.name !== 'uint256').map(sort),
       quickSort,
-      TYPES.filter(type => type !== 'uint256').map(castArray),
-      TYPES.filter(type => type !== 'uint256').map(castComparator),
+      TYPES.filter(type => type.isValueType && type.name !== 'uint256').map(castArray),
+      TYPES.filter(type => type.isValueType && type.name !== 'uint256').map(castComparator),
       // lookup
       search,
       // unsafe (direct) storage and memory access

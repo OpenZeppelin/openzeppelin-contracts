@@ -119,7 +119,7 @@ function latestCheckpoint(${opts.historyTypeName} storage self) internal view re
 }
 
 /**
- * @dev Returns the number of checkpoint.
+ * @dev Returns the number of checkpoints.
  */
 function length(${opts.historyTypeName} storage self) internal view returns (uint256) {
     return self.${opts.checkpointFieldName}.length;
@@ -227,7 +227,6 @@ function _unsafeAccess(
     }
 }
 `;
-/* eslint-enable max-len */
 
 // GENERATE
 module.exports = format(

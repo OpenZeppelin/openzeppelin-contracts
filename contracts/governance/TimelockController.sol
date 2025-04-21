@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (governance/TimelockController.sol)
+// OpenZeppelin Contracts (last updated v5.3.0) (governance/TimelockController.sol)
 
 pragma solidity ^0.8.20;
 
@@ -152,7 +152,7 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
     /**
      * @dev Contract might receive/hold ETH as part of the maintenance process.
      */
-    receive() external payable {}
+    receive() external payable virtual {}
 
     /**
      * @dev See {IERC165-supportsInterface}.

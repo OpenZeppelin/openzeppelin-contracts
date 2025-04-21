@@ -60,10 +60,22 @@ describe('SafeERC20', function () {
         .withArgs(this.token);
     });
 
+    it('returns false on trySafeTransfer', async function () {
+      await expect(this.mock.$trySafeTransfer(this.token, this.receiver, 0n))
+        .to.emit(this.mock, 'return$trySafeTransfer')
+        .withArgs(false);
+    });
+
     it('reverts on transferFrom', async function () {
       await expect(this.mock.$safeTransferFrom(this.token, this.mock, this.receiver, 0n))
         .to.be.revertedWithCustomError(this.mock, 'SafeERC20FailedOperation')
         .withArgs(this.token);
+    });
+
+    it('returns false on trySafeTransferFrom', async function () {
+      await expect(this.mock.$trySafeTransferFrom(this.token, this.mock, this.receiver, 0n))
+        .to.emit(this.mock, 'return$trySafeTransferFrom')
+        .withArgs(false);
     });
 
     it('reverts on increaseAllowance', async function () {
@@ -94,10 +106,22 @@ describe('SafeERC20', function () {
         .withArgs(this.token);
     });
 
+    it('returns false on trySafeTransfer', async function () {
+      await expect(this.mock.$trySafeTransfer(this.token, this.receiver, 0n))
+        .to.emit(this.mock, 'return$trySafeTransfer')
+        .withArgs(false);
+    });
+
     it('reverts on transferFrom', async function () {
       await expect(this.mock.$safeTransferFrom(this.token, this.mock, this.receiver, 0n))
         .to.be.revertedWithCustomError(this.mock, 'SafeERC20FailedOperation')
         .withArgs(this.token);
+    });
+
+    it('returns false on trySafeTransferFrom', async function () {
+      await expect(this.mock.$trySafeTransferFrom(this.token, this.mock, this.receiver, 0n))
+        .to.emit(this.mock, 'return$trySafeTransferFrom')
+        .withArgs(false);
     });
 
     it('reverts on increaseAllowance', async function () {
@@ -357,10 +381,22 @@ function shouldOnlyRevertOnErrors() {
         .withArgs(this.mock, this.receiver, 10n);
     });
 
+    it('returns true on trySafeTransfer', async function () {
+      await expect(this.mock.$trySafeTransfer(this.token, this.receiver, 10n))
+        .to.emit(this.mock, 'return$trySafeTransfer')
+        .withArgs(true);
+    });
+
     it("doesn't revert on transferFrom", async function () {
       await expect(this.mock.$safeTransferFrom(this.token, this.owner, this.receiver, 10n))
         .to.emit(this.token, 'Transfer')
         .withArgs(this.owner, this.receiver, 10n);
+    });
+
+    it('returns true on trySafeTransferFrom', async function () {
+      await expect(this.mock.$trySafeTransferFrom(this.token, this.owner, this.receiver, 10n))
+        .to.emit(this.mock, 'return$trySafeTransferFrom')
+        .withArgs(true);
     });
   });
 

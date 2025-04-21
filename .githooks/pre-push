@@ -1,8 +1,0 @@
-#!/usr/bin/env bash
-
-set -euo pipefail
-
-if [ "${CI:-"false"}" != "true" ]; then
-  npm run test:generation
-  npm run lint
-fi

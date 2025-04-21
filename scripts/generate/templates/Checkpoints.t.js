@@ -11,11 +11,10 @@ import {SafeCast} from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 import {Checkpoints} from "@openzeppelin/contracts/utils/structs/Checkpoints.sol";
 `;
 
-/* eslint-disable max-len */
 const template = opts => `\
 using Checkpoints for Checkpoints.${opts.historyTypeName};
 
-// Maximum gap between keys used during the fuzzing tests: the \`_prepareKeys\` function with make sure that
+// Maximum gap between keys used during the fuzzing tests: the \`_prepareKeys\` function will make sure that
 // key#n+1 is in the [key#n, key#n + _KEY_MAX_GAP] range.
 uint8 internal constant _KEY_MAX_GAP = 64;
 
@@ -37,7 +36,7 @@ function _prepareKeys(${opts.keyTypeName}[] memory keys, ${opts.keyTypeName} max
     }
 }
 
-function _assertLatestCheckpoint(bool exist, ${opts.keyTypeName} key, ${opts.valueTypeName} value) internal {
+function _assertLatestCheckpoint(bool exist, ${opts.keyTypeName} key, ${opts.valueTypeName} value) internal view {
     (bool _exist, ${opts.keyTypeName} _key, ${opts.valueTypeName} _value) = _ckpts.latestCheckpoint();
     assertEq(_exist, exist);
     assertEq(_key, key);

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (utils/Pausable.sol)
+// OpenZeppelin Contracts (last updated v5.3.0) (utils/Pausable.sol)
 
 pragma solidity ^0.8.20;
 
@@ -36,13 +36,6 @@ abstract contract Pausable is Context {
      * @dev The operation failed because the contract is not paused.
      */
     error ExpectedPause();
-
-    /**
-     * @dev Initializes the contract in unpaused state.
-     */
-    constructor() {
-        _paused = false;
-    }
 
     /**
      * @dev Modifier to make a function callable only when the contract is not paused.
