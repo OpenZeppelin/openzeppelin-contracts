@@ -224,6 +224,8 @@ abstract contract GovernorTimelockAccess is Governor {
      * NOTE: The execution delay is chosen based on the delay information retrieved in {propose}. This value may be
      * off if the delay was updated since proposal creation. In this case, the proposal needs to be recreated.
      */
+    // This function can reentrer when calling `_manager.schedule` given the `manager` is assumed to be an `AccessManager`
+    // contract in the security model for this contract.
     // slither-disable-next-line reentrancy-no-eth
     function _queueOperations(
         uint256 proposalId,
