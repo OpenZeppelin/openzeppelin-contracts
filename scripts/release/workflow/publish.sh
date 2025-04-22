@@ -9,7 +9,7 @@ PACKAGE_JSON_VERSION="$(tar xfO "$TARBALL" package/package.json | jq -r .version
 echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
 
 # Actual publish
-npm publish --provenance "$TARBALL" --tag "$TAG"
+npm publish "$TARBALL" --tag "$TAG"
 
 # Clean up tags
 delete_tag() {
