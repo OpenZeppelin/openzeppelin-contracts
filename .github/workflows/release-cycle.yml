@@ -131,6 +131,7 @@ jobs:
     environment: npm
     permissions:
       contents: write
+      id-token: write
     if: needs.state.outputs.publish == 'true'
     runs-on: ubuntu-latest
     steps:
@@ -153,6 +154,7 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           TARBALL: ${{ steps.pack.outputs.tarball }}
           TAG: ${{ steps.pack.outputs.tag }}
+          NPM_CONFIG_PROVENANCE: true
       - name: Create Github Release
         uses: actions/github-script@v7
         env:
