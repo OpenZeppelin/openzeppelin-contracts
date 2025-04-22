@@ -7,11 +7,11 @@ import {Blockhash} from "../../contracts/utils/Blockhash.sol";
 contract BlockhashTest is Test {
     uint256 internal startingBlock;
 
-    address internal SYSTEM_ADDRESS = 0xffffFFFfFFffffffffffffffFfFFFfffFFFfFFfE;
+    address internal constant SYSTEM_ADDRESS = 0xffffFFFfFFffffffffffffffFfFFFfffFFFfFFfE;
 
     // See https://eips.ethereum.org/EIPS/eip-2935#bytecode
     // Generated using https://www.evm.codes/playground
-    bytes HISTORY_STORAGE_BYTECODE =
+    bytes private HISTORY_STORAGE_BYTECODE =
         hex"3373fffffffffffffffffffffffffffffffffffffffe14604657602036036042575f35600143038111604257611fff81430311604257611fff9006545f5260205ff35b5f5ffd5b5f35611fff60014303065500";
 
     function setUp() public {
