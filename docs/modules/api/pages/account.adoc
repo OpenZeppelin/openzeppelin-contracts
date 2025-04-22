@@ -4,7 +4,7 @@
 :xref-ERC4337Utils-packValidationData-bool-uint48-uint48-: xref:account.adoc#ERC4337Utils-packValidationData-bool-uint48-uint48-
 :xref-ERC4337Utils-combineValidationData-uint256-uint256-: xref:account.adoc#ERC4337Utils-combineValidationData-uint256-uint256-
 :xref-ERC4337Utils-getValidationData-uint256-: xref:account.adoc#ERC4337Utils-getValidationData-uint256-
-:xref-ERC4337Utils-hash-struct-PackedUserOperation-address-uint256-: xref:account.adoc#ERC4337Utils-hash-struct-PackedUserOperation-address-uint256-
+:xref-ERC4337Utils-hash-struct-PackedUserOperation-address-: xref:account.adoc#ERC4337Utils-hash-struct-PackedUserOperation-address-
 :xref-ERC4337Utils-factory-struct-PackedUserOperation-: xref:account.adoc#ERC4337Utils-factory-struct-PackedUserOperation-
 :xref-ERC4337Utils-factoryData-struct-PackedUserOperation-: xref:account.adoc#ERC4337Utils-factoryData-struct-PackedUserOperation-
 :xref-ERC4337Utils-verificationGasLimit-struct-PackedUserOperation-: xref:account.adoc#ERC4337Utils-verificationGasLimit-struct-PackedUserOperation-
@@ -16,6 +16,8 @@
 :xref-ERC4337Utils-paymasterVerificationGasLimit-struct-PackedUserOperation-: xref:account.adoc#ERC4337Utils-paymasterVerificationGasLimit-struct-PackedUserOperation-
 :xref-ERC4337Utils-paymasterPostOpGasLimit-struct-PackedUserOperation-: xref:account.adoc#ERC4337Utils-paymasterPostOpGasLimit-struct-PackedUserOperation-
 :xref-ERC4337Utils-paymasterData-struct-PackedUserOperation-: xref:account.adoc#ERC4337Utils-paymasterData-struct-PackedUserOperation-
+:xref-ERC4337Utils-ENTRYPOINT_V07-contract-IEntryPoint: xref:account.adoc#ERC4337Utils-ENTRYPOINT_V07-contract-IEntryPoint
+:xref-ERC4337Utils-ENTRYPOINT_V08-contract-IEntryPoint: xref:account.adoc#ERC4337Utils-ENTRYPOINT_V08-contract-IEntryPoint
 :xref-ERC4337Utils-SIG_VALIDATION_SUCCESS-uint256: xref:account.adoc#ERC4337Utils-SIG_VALIDATION_SUCCESS-uint256
 :xref-ERC4337Utils-SIG_VALIDATION_FAILED-uint256: xref:account.adoc#ERC4337Utils-SIG_VALIDATION_FAILED-uint256
 :PackedUserOperation: pass:normal[xref:interfaces.adoc#PackedUserOperation[`PackedUserOperation`]]
@@ -64,6 +66,8 @@ This directory includes contracts to build accounts for ERC-4337.
 
 == Utilities
 
+:ENTRYPOINT_V07: pass:normal[xref:#ERC4337Utils-ENTRYPOINT_V07-contract-IEntryPoint[`++ENTRYPOINT_V07++`]]
+:ENTRYPOINT_V08: pass:normal[xref:#ERC4337Utils-ENTRYPOINT_V08-contract-IEntryPoint[`++ENTRYPOINT_V08++`]]
 :SIG_VALIDATION_SUCCESS: pass:normal[xref:#ERC4337Utils-SIG_VALIDATION_SUCCESS-uint256[`++SIG_VALIDATION_SUCCESS++`]]
 :SIG_VALIDATION_FAILED: pass:normal[xref:#ERC4337Utils-SIG_VALIDATION_FAILED-uint256[`++SIG_VALIDATION_FAILED++`]]
 :parseValidationData: pass:normal[xref:#ERC4337Utils-parseValidationData-uint256-[`++parseValidationData++`]]
@@ -71,7 +75,7 @@ This directory includes contracts to build accounts for ERC-4337.
 :packValidationData: pass:normal[xref:#ERC4337Utils-packValidationData-bool-uint48-uint48-[`++packValidationData++`]]
 :combineValidationData: pass:normal[xref:#ERC4337Utils-combineValidationData-uint256-uint256-[`++combineValidationData++`]]
 :getValidationData: pass:normal[xref:#ERC4337Utils-getValidationData-uint256-[`++getValidationData++`]]
-:hash: pass:normal[xref:#ERC4337Utils-hash-struct-PackedUserOperation-address-uint256-[`++hash++`]]
+:hash: pass:normal[xref:#ERC4337Utils-hash-struct-PackedUserOperation-address-[`++hash++`]]
 :factory: pass:normal[xref:#ERC4337Utils-factory-struct-PackedUserOperation-[`++factory++`]]
 :factoryData: pass:normal[xref:#ERC4337Utils-factoryData-struct-PackedUserOperation-[`++factoryData++`]]
 :verificationGasLimit: pass:normal[xref:#ERC4337Utils-verificationGasLimit-struct-PackedUserOperation-[`++verificationGasLimit++`]]
@@ -84,9 +88,27 @@ This directory includes contracts to build accounts for ERC-4337.
 :paymasterPostOpGasLimit: pass:normal[xref:#ERC4337Utils-paymasterPostOpGasLimit-struct-PackedUserOperation-[`++paymasterPostOpGasLimit++`]]
 :paymasterData: pass:normal[xref:#ERC4337Utils-paymasterData-struct-PackedUserOperation-[`++paymasterData++`]]
 
+:parseValidationData-uint256: pass:normal[xref:#ERC4337Utils-parseValidationData-uint256-[`++parseValidationData++`]]
+:packValidationData-address-uint48-uint48: pass:normal[xref:#ERC4337Utils-packValidationData-address-uint48-uint48-[`++packValidationData++`]]
+:packValidationData-bool-uint48-uint48: pass:normal[xref:#ERC4337Utils-packValidationData-bool-uint48-uint48-[`++packValidationData++`]]
+:combineValidationData-uint256-uint256: pass:normal[xref:#ERC4337Utils-combineValidationData-uint256-uint256-[`++combineValidationData++`]]
+:getValidationData-uint256: pass:normal[xref:#ERC4337Utils-getValidationData-uint256-[`++getValidationData++`]]
+:hash-struct-PackedUserOperation-address: pass:normal[xref:#ERC4337Utils-hash-struct-PackedUserOperation-address-[`++hash++`]]
+:factory-struct-PackedUserOperation: pass:normal[xref:#ERC4337Utils-factory-struct-PackedUserOperation-[`++factory++`]]
+:factoryData-struct-PackedUserOperation: pass:normal[xref:#ERC4337Utils-factoryData-struct-PackedUserOperation-[`++factoryData++`]]
+:verificationGasLimit-struct-PackedUserOperation: pass:normal[xref:#ERC4337Utils-verificationGasLimit-struct-PackedUserOperation-[`++verificationGasLimit++`]]
+:callGasLimit-struct-PackedUserOperation: pass:normal[xref:#ERC4337Utils-callGasLimit-struct-PackedUserOperation-[`++callGasLimit++`]]
+:maxPriorityFeePerGas-struct-PackedUserOperation: pass:normal[xref:#ERC4337Utils-maxPriorityFeePerGas-struct-PackedUserOperation-[`++maxPriorityFeePerGas++`]]
+:maxFeePerGas-struct-PackedUserOperation: pass:normal[xref:#ERC4337Utils-maxFeePerGas-struct-PackedUserOperation-[`++maxFeePerGas++`]]
+:gasPrice-struct-PackedUserOperation: pass:normal[xref:#ERC4337Utils-gasPrice-struct-PackedUserOperation-[`++gasPrice++`]]
+:paymaster-struct-PackedUserOperation: pass:normal[xref:#ERC4337Utils-paymaster-struct-PackedUserOperation-[`++paymaster++`]]
+:paymasterVerificationGasLimit-struct-PackedUserOperation: pass:normal[xref:#ERC4337Utils-paymasterVerificationGasLimit-struct-PackedUserOperation-[`++paymasterVerificationGasLimit++`]]
+:paymasterPostOpGasLimit-struct-PackedUserOperation: pass:normal[xref:#ERC4337Utils-paymasterPostOpGasLimit-struct-PackedUserOperation-[`++paymasterPostOpGasLimit++`]]
+:paymasterData-struct-PackedUserOperation: pass:normal[xref:#ERC4337Utils-paymasterData-struct-PackedUserOperation-[`++paymasterData++`]]
+
 [.contract]
 [[ERC4337Utils]]
-=== `++ERC4337Utils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/account/utils/draft-ERC4337Utils.sol[{github-icon},role=heading-link]
+=== `++ERC4337Utils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/account/utils/draft-ERC4337Utils.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -105,7 +127,7 @@ See https://eips.ethereum.org/EIPS/eip-4337[ERC-4337].
 * {xref-ERC4337Utils-packValidationData-bool-uint48-uint48-}[`++packValidationData(sigSuccess, validAfter, validUntil)++`]
 * {xref-ERC4337Utils-combineValidationData-uint256-uint256-}[`++combineValidationData(validationData1, validationData2)++`]
 * {xref-ERC4337Utils-getValidationData-uint256-}[`++getValidationData(validationData)++`]
-* {xref-ERC4337Utils-hash-struct-PackedUserOperation-address-uint256-}[`++hash(self, entrypoint, chainid)++`]
+* {xref-ERC4337Utils-hash-struct-PackedUserOperation-address-}[`++hash(self, entrypoint)++`]
 * {xref-ERC4337Utils-factory-struct-PackedUserOperation-}[`++factory(self)++`]
 * {xref-ERC4337Utils-factoryData-struct-PackedUserOperation-}[`++factoryData(self)++`]
 * {xref-ERC4337Utils-verificationGasLimit-struct-PackedUserOperation-}[`++verificationGasLimit(self)++`]
@@ -123,6 +145,8 @@ See https://eips.ethereum.org/EIPS/eip-4337[ERC-4337].
 [.contract-index]
 .Internal Variables
 --
+* {xref-ERC4337Utils-ENTRYPOINT_V07-contract-IEntryPoint}[`++contract IEntryPoint constant ENTRYPOINT_V07++`]
+* {xref-ERC4337Utils-ENTRYPOINT_V08-contract-IEntryPoint}[`++contract IEntryPoint constant ENTRYPOINT_V08++`]
 * {xref-ERC4337Utils-SIG_VALIDATION_SUCCESS-uint256}[`++uint256 constant SIG_VALIDATION_SUCCESS++`]
 * {xref-ERC4337Utils-SIG_VALIDATION_FAILED-uint256}[`++uint256 constant SIG_VALIDATION_FAILED++`]
 
@@ -162,10 +186,10 @@ the `validAfter` is the maximum and the `validUntil` is the minimum of both.
 Returns the aggregator of the `validationData` and whether it is out of time range.
 
 [.contract-item]
-[[ERC4337Utils-hash-struct-PackedUserOperation-address-uint256-]]
-==== `[.contract-item-name]#++hash++#++(struct PackedUserOperation self, address entrypoint, uint256 chainid) → bytes32++` [.item-kind]#internal#
+[[ERC4337Utils-hash-struct-PackedUserOperation-address-]]
+==== `[.contract-item-name]#++hash++#++(struct PackedUserOperation self, address entrypoint) → bytes32++` [.item-kind]#internal#
 
-Computes the hash of a user operation for a given entrypoint and chainid.
+Get the hash of a user operation for a given entrypoint
 
 [.contract-item]
 [[ERC4337Utils-factory-struct-PackedUserOperation-]]
@@ -234,6 +258,18 @@ Returns the third section of `paymasterAndData` from the {PackedUserOperation}.
 Returns the fourth section of `paymasterAndData` from the {PackedUserOperation}.
 
 [.contract-item]
+[[ERC4337Utils-ENTRYPOINT_V07-contract-IEntryPoint]]
+==== `contract IEntryPoint [.contract-item-name]#++ENTRYPOINT_V07++#` [.item-kind]#internal constant#
+
+Address of the entrypoint v0.7.0
+
+[.contract-item]
+[[ERC4337Utils-ENTRYPOINT_V08-contract-IEntryPoint]]
+==== `contract IEntryPoint [.contract-item-name]#++ENTRYPOINT_V08++#` [.item-kind]#internal constant#
+
+Address of the entrypoint v0.8.0
+
+[.contract-item]
 [[ERC4337Utils-SIG_VALIDATION_SUCCESS-uint256]]
 ==== `uint256 [.contract-item-name]#++SIG_VALIDATION_SUCCESS++#` [.item-kind]#internal constant#
 
@@ -270,9 +306,21 @@ For simulation purposes, validateUserOp (and validatePaymasterUserOp) must retur
 :encodeBatch: pass:normal[xref:#ERC7579Utils-encodeBatch-struct-Execution---[`++encodeBatch++`]]
 :decodeBatch: pass:normal[xref:#ERC7579Utils-decodeBatch-bytes-[`++decodeBatch++`]]
 
+:execSingle-bytes-ExecType: pass:normal[xref:#ERC7579Utils-execSingle-bytes-ExecType-[`++execSingle++`]]
+:execBatch-bytes-ExecType: pass:normal[xref:#ERC7579Utils-execBatch-bytes-ExecType-[`++execBatch++`]]
+:execDelegateCall-bytes-ExecType: pass:normal[xref:#ERC7579Utils-execDelegateCall-bytes-ExecType-[`++execDelegateCall++`]]
+:encodeMode-CallType-ExecType-ModeSelector-ModePayload: pass:normal[xref:#ERC7579Utils-encodeMode-CallType-ExecType-ModeSelector-ModePayload-[`++encodeMode++`]]
+:decodeMode-Mode: pass:normal[xref:#ERC7579Utils-decodeMode-Mode-[`++decodeMode++`]]
+:encodeSingle-address-uint256-bytes: pass:normal[xref:#ERC7579Utils-encodeSingle-address-uint256-bytes-[`++encodeSingle++`]]
+:decodeSingle-bytes: pass:normal[xref:#ERC7579Utils-decodeSingle-bytes-[`++decodeSingle++`]]
+:encodeDelegate-address-bytes: pass:normal[xref:#ERC7579Utils-encodeDelegate-address-bytes-[`++encodeDelegate++`]]
+:decodeDelegate-bytes: pass:normal[xref:#ERC7579Utils-decodeDelegate-bytes-[`++decodeDelegate++`]]
+:encodeBatch-struct-Execution--: pass:normal[xref:#ERC7579Utils-encodeBatch-struct-Execution---[`++encodeBatch++`]]
+:decodeBatch-bytes: pass:normal[xref:#ERC7579Utils-decodeBatch-bytes-[`++decodeBatch++`]]
+
 [.contract]
 [[ERC7579Utils]]
-=== `++ERC7579Utils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/account/utils/draft-ERC7579Utils.sol[{github-icon},role=heading-link]
+=== `++ERC7579Utils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/account/utils/draft-ERC7579Utils.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity

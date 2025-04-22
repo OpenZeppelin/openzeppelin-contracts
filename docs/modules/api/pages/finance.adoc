@@ -56,9 +56,24 @@ This directory includes primitives for financial systems:
 :vestedAmount: pass:normal[xref:#VestingWallet-vestedAmount-address-uint64-[`++vestedAmount++`]]
 :_vestingSchedule: pass:normal[xref:#VestingWallet-_vestingSchedule-uint256-uint64-[`++_vestingSchedule++`]]
 
+:constructor-address-uint64-uint64: pass:normal[xref:#VestingWallet-constructor-address-uint64-uint64-[`++constructor++`]]
+:receive-: pass:normal[xref:#VestingWallet-receive--[`++receive++`]]
+:start-: pass:normal[xref:#VestingWallet-start--[`++start++`]]
+:duration-: pass:normal[xref:#VestingWallet-duration--[`++duration++`]]
+:end-: pass:normal[xref:#VestingWallet-end--[`++end++`]]
+:released-: pass:normal[xref:#VestingWallet-released--[`++released++`]]
+:released-address: pass:normal[xref:#VestingWallet-released-address-[`++released++`]]
+:releasable-: pass:normal[xref:#VestingWallet-releasable--[`++releasable++`]]
+:releasable-address: pass:normal[xref:#VestingWallet-releasable-address-[`++releasable++`]]
+:release-: pass:normal[xref:#VestingWallet-release--[`++release++`]]
+:release-address: pass:normal[xref:#VestingWallet-release-address-[`++release++`]]
+:vestedAmount-uint64: pass:normal[xref:#VestingWallet-vestedAmount-uint64-[`++vestedAmount++`]]
+:vestedAmount-address-uint64: pass:normal[xref:#VestingWallet-vestedAmount-address-uint64-[`++vestedAmount++`]]
+:_vestingSchedule-uint256-uint64: pass:normal[xref:#VestingWallet-_vestingSchedule-uint256-uint64-[`++_vestingSchedule++`]]
+
 [.contract]
 [[VestingWallet]]
-=== `++VestingWallet++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/finance/VestingWallet.sol[{github-icon},role=heading-link]
+=== `++VestingWallet++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/finance/VestingWallet.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -72,7 +87,7 @@ Any assets transferred to this contract will follow the vesting schedule as if t
 Consequently, if the vesting has already started, any amount of tokens sent to this contract will (at least partly)
 be immediately releasable.
 
-By setting the duration to 0, one can configure this contract to behave like an asset timelock that hold tokens for
+By setting the duration to 0, one can configure this contract to behave like an asset timelock that holds tokens for
 a beneficiary until a specified time.
 
 NOTE: Since the wallet is {Ownable}, and ownership can be transferred, it is possible to sell unvested tokens.

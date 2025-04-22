@@ -15,6 +15,7 @@
 :xref-ERC2771Forwarder-_validate-struct-ERC2771Forwarder-ForwardRequestData-: xref:metatx.adoc#ERC2771Forwarder-_validate-struct-ERC2771Forwarder-ForwardRequestData-
 :xref-ERC2771Forwarder-_recoverForwardRequestSigner-struct-ERC2771Forwarder-ForwardRequestData-: xref:metatx.adoc#ERC2771Forwarder-_recoverForwardRequestSigner-struct-ERC2771Forwarder-ForwardRequestData-
 :xref-ERC2771Forwarder-_execute-struct-ERC2771Forwarder-ForwardRequestData-bool-: xref:metatx.adoc#ERC2771Forwarder-_execute-struct-ERC2771Forwarder-ForwardRequestData-bool-
+:xref-ERC2771Forwarder-_isTrustedByTarget-address-: xref:metatx.adoc#ERC2771Forwarder-_isTrustedByTarget-address-
 :xref-Nonces-nonces-address-: xref:utils.adoc#Nonces-nonces-address-
 :xref-Nonces-_useNonce-address-: xref:utils.adoc#Nonces-_useNonce-address-
 :xref-Nonces-_useCheckedNonce-address-uint256-: xref:utils.adoc#Nonces-_useCheckedNonce-address-uint256-
@@ -33,6 +34,7 @@
 :xref-ERC2771Forwarder-_FORWARD_REQUEST_TYPEHASH-bytes32: xref:metatx.adoc#ERC2771Forwarder-_FORWARD_REQUEST_TYPEHASH-bytes32
 :EIP712-constructor: pass:normal[xref:utils.adoc#EIP712-constructor-string-string-[`EIP712.constructor`]]
 :ECDSA-tryRecover: pass:normal[xref:utils.adoc#ECDSA-tryRecover-bytes32-uint8-bytes32-bytes32-[`ECDSA.tryRecover`]]
+:ERC2771Context-isTrustedForwarder: pass:normal[xref:metatx.adoc#ERC2771Context-isTrustedForwarder-address-[`ERC2771Context.isTrustedForwarder`]]
 = Meta Transactions
 
 [.readme-notice]
@@ -52,9 +54,16 @@ This directory includes contracts for adding meta-transaction capabilities (i.e.
 :_msgData: pass:normal[xref:#ERC2771Context-_msgData--[`++_msgData++`]]
 :_contextSuffixLength: pass:normal[xref:#ERC2771Context-_contextSuffixLength--[`++_contextSuffixLength++`]]
 
+:constructor-address: pass:normal[xref:#ERC2771Context-constructor-address-[`++constructor++`]]
+:trustedForwarder-: pass:normal[xref:#ERC2771Context-trustedForwarder--[`++trustedForwarder++`]]
+:isTrustedForwarder-address: pass:normal[xref:#ERC2771Context-isTrustedForwarder-address-[`++isTrustedForwarder++`]]
+:_msgSender-: pass:normal[xref:#ERC2771Context-_msgSender--[`++_msgSender++`]]
+:_msgData-: pass:normal[xref:#ERC2771Context-_msgData--[`++_msgData++`]]
+:_contextSuffixLength-: pass:normal[xref:#ERC2771Context-_contextSuffixLength--[`++_contextSuffixLength++`]]
+
 [.contract]
 [[ERC2771Context]]
-=== `++ERC2771Context++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/metatx/ERC2771Context.sol[{github-icon},role=heading-link]
+=== `++ERC2771Context++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/metatx/ERC2771Context.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -139,10 +148,20 @@ ERC-2771 specifies the context as being a single address (20 bytes).
 :_validate: pass:normal[xref:#ERC2771Forwarder-_validate-struct-ERC2771Forwarder-ForwardRequestData-[`++_validate++`]]
 :_recoverForwardRequestSigner: pass:normal[xref:#ERC2771Forwarder-_recoverForwardRequestSigner-struct-ERC2771Forwarder-ForwardRequestData-[`++_recoverForwardRequestSigner++`]]
 :_execute: pass:normal[xref:#ERC2771Forwarder-_execute-struct-ERC2771Forwarder-ForwardRequestData-bool-[`++_execute++`]]
+:_isTrustedByTarget: pass:normal[xref:#ERC2771Forwarder-_isTrustedByTarget-address-[`++_isTrustedByTarget++`]]
+
+:constructor-string: pass:normal[xref:#ERC2771Forwarder-constructor-string-[`++constructor++`]]
+:verify-struct-ERC2771Forwarder-ForwardRequestData: pass:normal[xref:#ERC2771Forwarder-verify-struct-ERC2771Forwarder-ForwardRequestData-[`++verify++`]]
+:execute-struct-ERC2771Forwarder-ForwardRequestData: pass:normal[xref:#ERC2771Forwarder-execute-struct-ERC2771Forwarder-ForwardRequestData-[`++execute++`]]
+:executeBatch-struct-ERC2771Forwarder-ForwardRequestData---address-payable: pass:normal[xref:#ERC2771Forwarder-executeBatch-struct-ERC2771Forwarder-ForwardRequestData---address-payable-[`++executeBatch++`]]
+:_validate-struct-ERC2771Forwarder-ForwardRequestData: pass:normal[xref:#ERC2771Forwarder-_validate-struct-ERC2771Forwarder-ForwardRequestData-[`++_validate++`]]
+:_recoverForwardRequestSigner-struct-ERC2771Forwarder-ForwardRequestData: pass:normal[xref:#ERC2771Forwarder-_recoverForwardRequestSigner-struct-ERC2771Forwarder-ForwardRequestData-[`++_recoverForwardRequestSigner++`]]
+:_execute-struct-ERC2771Forwarder-ForwardRequestData-bool: pass:normal[xref:#ERC2771Forwarder-_execute-struct-ERC2771Forwarder-ForwardRequestData-bool-[`++_execute++`]]
+:_isTrustedByTarget-address: pass:normal[xref:#ERC2771Forwarder-_isTrustedByTarget-address-[`++_isTrustedByTarget++`]]
 
 [.contract]
 [[ERC2771Forwarder]]
-=== `++ERC2771Forwarder++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/metatx/ERC2771Forwarder.sol[{github-icon},role=heading-link]
+=== `++ERC2771Forwarder++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/metatx/ERC2771Forwarder.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -196,6 +215,7 @@ used to execute arbitrary code.
 * {xref-ERC2771Forwarder-_validate-struct-ERC2771Forwarder-ForwardRequestData-}[`++_validate(request)++`]
 * {xref-ERC2771Forwarder-_recoverForwardRequestSigner-struct-ERC2771Forwarder-ForwardRequestData-}[`++_recoverForwardRequestSigner(request)++`]
 * {xref-ERC2771Forwarder-_execute-struct-ERC2771Forwarder-ForwardRequestData-bool-}[`++_execute(request, requireValidRequest)++`]
+* {xref-ERC2771Forwarder-_isTrustedByTarget-address-}[`++_isTrustedByTarget(target)++`]
 
 [.contract-subindex-inherited]
 .Nonces
@@ -359,6 +379,18 @@ Emits an {ExecutedForwardRequest} event.
 
 IMPORTANT: Using this function doesn't check that all the `msg.value` was sent, potentially
 leaving value stuck in the contract.
+
+[.contract-item]
+[[ERC2771Forwarder-_isTrustedByTarget-address-]]
+==== `[.contract-item-name]#++_isTrustedByTarget++#++(address target) → bool++` [.item-kind]#internal#
+
+Returns whether the target trusts this forwarder.
+
+This function performs a static call to the target contract calling the
+{ERC2771Context-isTrustedForwarder} function.
+
+NOTE: Consider the execution of this forwarder is permissionless. Without this check, anyone may transfer assets
+that are owned by, or are approved to this forwarder.
 
 [.contract-item]
 [[ERC2771Forwarder-ExecutedForwardRequest-address-uint256-bool-]]

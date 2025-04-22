@@ -5,6 +5,7 @@
 * xref:token/ERC20.adoc[ERC 20]
 * xref:token/ERC721.adoc[ERC 721]
 * xref:token/ERC1155.adoc[ERC 1155]
+* xref:token/ERC6909.adoc[ERC 6909]
 * xref:finance.adoc[Finance]
 * xref:governance.adoc[Governance]
 * xref:interfaces.adoc[Interfaces]

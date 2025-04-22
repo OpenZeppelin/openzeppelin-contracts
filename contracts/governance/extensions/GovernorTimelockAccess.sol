@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.1.0) (governance/extensions/GovernorTimelockAccess.sol)
+// OpenZeppelin Contracts (last updated v5.3.0) (governance/extensions/GovernorTimelockAccess.sol)
 
 pragma solidity ^0.8.20;
 
@@ -277,7 +277,7 @@ abstract contract GovernorTimelockAccess is Governor {
     }
 
     /**
-     * @dev See {IGovernor-_cancel}
+     * @dev See {Governor-_cancel}
      */
     function _cancel(
         address[] memory targets,

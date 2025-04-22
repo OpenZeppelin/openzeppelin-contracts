@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.1.0) (governance/IGovernor.sol)
+// OpenZeppelin Contracts (last updated v5.3.0) (governance/IGovernor.sol)
 
 pragma solidity ^0.8.20;
 
@@ -38,11 +38,6 @@ interface IGovernor is IERC165, IERC6372 {
      * @dev Token deposits are disabled in this contract.
      */
     error GovernorDisabledDeposit();
-
-    /**
-     * @dev The `account` is not a proposer.
-     */
-    error GovernorOnlyProposer(address account);
 
     /**
      * @dev The `account` is not the governance executor.
@@ -111,6 +106,11 @@ interface IGovernor is IERC165, IERC6372 {
      * If the `voter` is a contract, the signature is not valid using {IERC1271-isValidSignature}.
      */
     error GovernorInvalidSignature(address voter);
+
+    /**
+     * @dev The given `account` is unable to cancel the proposal with given `proposalId`.
+     */
+    error GovernorUnableToCancel(uint256 proposalId, address account);
 
     /**
      * @dev Emitted when a proposal is created.
@@ -203,7 +203,9 @@ interface IGovernor is IERC165, IERC6372 {
 
     /**
      * @notice module:core
-     * @dev Hashing function used to (re)build the proposal id from the proposal details..
+     * @dev Hashing function used to (re)build the proposal id from the proposal details.
+     *
+     * NOTE: For all off-chain and external calls, use {getProposalId}.
      */
     function hashProposal(
         address[] memory targets,
@@ -211,6 +213,17 @@ interface IGovernor is IERC165, IERC6372 {
         bytes[] memory calldatas,
         bytes32 descriptionHash
     ) external pure returns (uint256);
+
+    /**
+     * @notice module:core
+     * @dev Function used to get the proposal id from the proposal details.
+     */
+    function getProposalId(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 descriptionHash
+    ) external view returns (uint256);
 
     /**
      * @notice module:core

@@ -34,7 +34,7 @@ pragma solidity ^0.8.24;
 
 const udvt = ({ type, name }) => `\
 /**
- * @dev UDVT that represent a slot holding a ${type}.
+ * @dev UDVT that represents a slot holding ${type == 'address' ? 'an' : 'a'} ${type}.
  */
 type ${name}Slot is bytes32;
 

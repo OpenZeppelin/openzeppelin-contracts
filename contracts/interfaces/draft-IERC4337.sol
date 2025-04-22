@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.2.0) (interfaces/draft-IERC4337.sol)
+// OpenZeppelin Contracts (last updated v5.3.0) (interfaces/draft-IERC4337.sol)
 
 pragma solidity ^0.8.20;
 
@@ -21,7 +21,7 @@ pragma solidity ^0.8.20;
  * - `paymasterData` (`bytes`): Data for paymaster (only if paymaster exists)
  * - `signature` (`bytes`): Data passed into the account to verify authorization
  *
- * When passed to on-chain contacts, the following packed version is used.
+ * When passed to on-chain contracts, the following packed version is used.
  * - `sender` (`address`)
  * - `nonce` (`uint256`)
  * - `initCode` (`bytes`): concatenation of factory address and factoryData (or empty)
@@ -164,13 +164,13 @@ interface IEntryPoint is IEntryPointNonces, IEntryPointStake {
 
     /**
      * @dev Executes a batch of user operations.
-     * @param beneficiary Address to which gas is refunded up completing the execution.
+     * @param beneficiary Address to which gas is refunded upon completing the execution.
      */
     function handleOps(PackedUserOperation[] calldata ops, address payable beneficiary) external;
 
     /**
      * @dev Executes a batch of aggregated user operations per aggregator.
-     * @param beneficiary Address to which gas is refunded up completing the execution.
+     * @param beneficiary Address to which gas is refunded upon completing the execution.
      */
     function handleAggregatedOps(
         UserOpsPerAggregator[] calldata opsPerAggregator,

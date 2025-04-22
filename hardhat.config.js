@@ -90,7 +90,6 @@ module.exports = {
       'initcode-size': 'off',
     },
     '*': {
-      'code-size': true,
       'unused-param': !argv.coverage, // coverage causes unused-param warnings
       'transient-storage': false,
       default: 'error',
@@ -103,6 +102,7 @@ module.exports = {
       // we rely on the `code-size` compiler warning, that will cause a compilation error.
       allowUnlimitedContractSize: true,
       initialBaseFeePerGas: argv.coverage ? 0 : undefined,
+      enableRip7212: true,
     },
   },
   exposed: {

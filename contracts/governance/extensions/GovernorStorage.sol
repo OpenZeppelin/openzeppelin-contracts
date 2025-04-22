@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.1.0) (governance/extensions/GovernorStorage.sol)
+// OpenZeppelin Contracts (last updated v5.3.0) (governance/extensions/GovernorStorage.sol)
 
 pragma solidity ^0.8.20;
 
@@ -50,7 +50,7 @@ abstract contract GovernorStorage is Governor {
     }
 
     /**
-     * @dev Version of {IGovernorTimelock-queue} with only `proposalId` as an argument.
+     * @dev Version of {IGovernor-queue} with only `proposalId` as an argument.
      */
     function queue(uint256 proposalId) public virtual {
         // here, using storage is more efficient than memory

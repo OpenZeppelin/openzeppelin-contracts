@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.1.0) (token/ERC1155/IERC1155.sol)
+// OpenZeppelin Contracts (last updated v5.3.0) (token/ERC1155/IERC1155.sol)
 
 pragma solidity ^0.8.20;
 
@@ -81,7 +81,7 @@ interface IERC1155 is IERC165 {
      * @dev Transfers a `value` amount of tokens of type `id` from `from` to `to`.
      *
      * WARNING: This function can potentially allow a reentrancy attack when transferring tokens
-     * to an untrusted contract, when invoking {onERC1155Received} on the receiver.
+     * to an untrusted contract, when invoking {IERC1155Receiver-onERC1155Received} on the receiver.
      * Ensure to follow the checks-effects-interactions pattern and consider employing
      * reentrancy guards when interacting with untrusted contracts.
      *
@@ -101,7 +101,7 @@ interface IERC1155 is IERC165 {
      * @dev xref:ROOT:erc1155.adoc#batch-operations[Batched] version of {safeTransferFrom}.
      *
      * WARNING: This function can potentially allow a reentrancy attack when transferring tokens
-     * to an untrusted contract, when invoking {onERC1155BatchReceived} on the receiver.
+     * to an untrusted contract, when invoking {IERC1155Receiver-onERC1155BatchReceived} on the receiver.
      * Ensure to follow the checks-effects-interactions pattern and consider employing
      * reentrancy guards when interacting with untrusted contracts.
      *

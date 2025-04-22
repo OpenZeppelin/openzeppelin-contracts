@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (access/manager/AuthorityUtils.sol)
+// OpenZeppelin Contracts (last updated v5.3.0) (access/manager/AuthorityUtils.sol)
 
 pragma solidity ^0.8.20;
 
@@ -17,16 +17,20 @@ library AuthorityUtils {
         address target,
         bytes4 selector
     ) internal view returns (bool immediate, uint32 delay) {
-        (bool success, bytes memory data) = authority.staticcall(
-            abi.encodeCall(IAuthority.canCall, (caller, target, selector))
-        );
-        if (success) {
-            if (data.length >= 0x40) {
-                (immediate, delay) = abi.decode(data, (bool, uint32));
-            } else if (data.length >= 0x20) {
-                immediate = abi.decode(data, (bool));
+        bytes memory data = abi.encodeCall(IAuthority.canCall, (caller, target, selector));
+
+        assembly ("memory-safe") {
+            mstore(0x00, 0x00)
+            mstore(0x20, 0x00)
+
+            if staticcall(gas(), authority, add(data, 0x20), mload(data), 0x00, 0x40) {
+                immediate := mload(0x00)
+                delay := mload(0x20)
+
+                // If delay does not fit in a uint32, return 0 (no delay)
+                // equivalent to: if gt(delay, 0xFFFFFFFF) { delay := 0 }
+                delay := mul(delay, iszero(shr(32, delay)))
             }
         }
-        return (immediate, delay);
     }
 }

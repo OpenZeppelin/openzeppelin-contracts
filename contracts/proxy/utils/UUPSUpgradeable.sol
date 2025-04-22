@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.2.0) (proxy/utils/UUPSUpgradeable.sol)
+// OpenZeppelin Contracts (last updated v5.3.0) (proxy/utils/UUPSUpgradeable.sol)
 
 pragma solidity ^0.8.22;
 
@@ -91,7 +91,6 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable {
     /**
      * @dev Reverts if the execution is not performed via delegatecall or the execution
      * context is not of a proxy with an ERC-1967 compliant implementation pointing to self.
-     * See {_onlyProxy}.
      */
     function _checkProxy() internal view virtual {
         if (

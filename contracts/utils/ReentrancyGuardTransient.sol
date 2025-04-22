@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.1.0) (utils/ReentrancyGuardTransient.sol)
+// OpenZeppelin Contracts (last updated v5.3.0) (utils/ReentrancyGuardTransient.sol)
 
 pragma solidity ^0.8.24;
 
@@ -38,7 +38,7 @@ abstract contract ReentrancyGuardTransient {
     }
 
     function _nonReentrantBefore() private {
-        // On the first call to nonReentrant, _status will be NOT_ENTERED
+        // On the first call to nonReentrant, REENTRANCY_GUARD_STORAGE.asBoolean().tload() will be false
         if (_reentrancyGuardEntered()) {
             revert ReentrancyGuardReentrantCall();
         }

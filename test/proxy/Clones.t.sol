@@ -10,7 +10,7 @@ contract ClonesTest is Test {
         return 42;
     }
 
-    function testSymbolicPredictDeterministicAddressSpillage(address implementation, bytes32 salt) public {
+    function testSymbolicPredictDeterministicAddressSpillage(address implementation, bytes32 salt) public view {
         address predicted = Clones.predictDeterministicAddress(implementation, salt);
         bytes32 spillage;
         assembly ("memory-safe") {
@@ -23,7 +23,7 @@ contract ClonesTest is Test {
         address implementation,
         bytes32 salt,
         bytes memory args
-    ) public {
+    ) public view {
         vm.assume(args.length < 0xbfd3);
 
         address predicted = Clones.predictDeterministicAddressWithImmutableArgs(implementation, args, salt);
@@ -59,7 +59,7 @@ contract ClonesTest is Test {
         assertEq(ClonesTest(cloneDirty).getNumber(), this.getNumber());
     }
 
-    function testPredictDeterministicAddressDirty(bytes32 salt) external {
+    function testPredictDeterministicAddressDirty(bytes32 salt) external view {
         address predictClean = Clones.predictDeterministicAddress(address(this), salt);
         address predictDirty = Clones.predictDeterministicAddress(_dirty(address(this)), salt);
 

@@ -1,0 +1,891 @@
+:github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
+:IERC6909: pass:normal[xref:interfaces.adoc#IERC6909[`IERC6909`]]
+:IERC6909ContentURI: pass:normal[xref:interfaces.adoc#IERC6909ContentURI[`IERC6909ContentURI`]]
+:IERC6909Metadata: pass:normal[xref:interfaces.adoc#IERC6909Metadata[`IERC6909Metadata`]]
+:IERC6909TokenSupply: pass:normal[xref:interfaces.adoc#IERC6909TokenSupply[`IERC6909TokenSupply`]]
+:xref-ERC6909-supportsInterface-bytes4-: xref:token/ERC6909.adoc#ERC6909-supportsInterface-bytes4-
+:xref-ERC6909-balanceOf-address-uint256-: xref:token/ERC6909.adoc#ERC6909-balanceOf-address-uint256-
+:xref-ERC6909-allowance-address-address-uint256-: xref:token/ERC6909.adoc#ERC6909-allowance-address-address-uint256-
+:xref-ERC6909-isOperator-address-address-: xref:token/ERC6909.adoc#ERC6909-isOperator-address-address-
+:xref-ERC6909-approve-address-uint256-uint256-: xref:token/ERC6909.adoc#ERC6909-approve-address-uint256-uint256-
+:xref-ERC6909-setOperator-address-bool-: xref:token/ERC6909.adoc#ERC6909-setOperator-address-bool-
+:xref-ERC6909-transfer-address-uint256-uint256-: xref:token/ERC6909.adoc#ERC6909-transfer-address-uint256-uint256-
+:xref-ERC6909-transferFrom-address-address-uint256-uint256-: xref:token/ERC6909.adoc#ERC6909-transferFrom-address-address-uint256-uint256-
+:xref-ERC6909-_mint-address-uint256-uint256-: xref:token/ERC6909.adoc#ERC6909-_mint-address-uint256-uint256-
+:xref-ERC6909-_transfer-address-address-uint256-uint256-: xref:token/ERC6909.adoc#ERC6909-_transfer-address-address-uint256-uint256-
+:xref-ERC6909-_burn-address-uint256-uint256-: xref:token/ERC6909.adoc#ERC6909-_burn-address-uint256-uint256-
+:xref-ERC6909-_update-address-address-uint256-uint256-: xref:token/ERC6909.adoc#ERC6909-_update-address-address-uint256-uint256-
+:xref-ERC6909-_approve-address-address-uint256-uint256-: xref:token/ERC6909.adoc#ERC6909-_approve-address-address-uint256-uint256-
+:xref-ERC6909-_setOperator-address-address-bool-: xref:token/ERC6909.adoc#ERC6909-_setOperator-address-address-bool-
+:xref-ERC6909-_spendAllowance-address-address-uint256-uint256-: xref:token/ERC6909.adoc#ERC6909-_spendAllowance-address-address-uint256-uint256-
+:xref-IERC6909-Approval-address-address-uint256-uint256-: xref:interfaces.adoc#IERC6909-Approval-address-address-uint256-uint256-
+:xref-IERC6909-OperatorSet-address-address-bool-: xref:interfaces.adoc#IERC6909-OperatorSet-address-address-bool-
+:xref-IERC6909-Transfer-address-address-address-uint256-uint256-: xref:interfaces.adoc#IERC6909-Transfer-address-address-address-uint256-uint256-
+:xref-ERC6909-ERC6909InsufficientBalance-address-uint256-uint256-uint256-: xref:token/ERC6909.adoc#ERC6909-ERC6909InsufficientBalance-address-uint256-uint256-uint256-
+:xref-ERC6909-ERC6909InsufficientAllowance-address-uint256-uint256-uint256-: xref:token/ERC6909.adoc#ERC6909-ERC6909InsufficientAllowance-address-uint256-uint256-uint256-
+:xref-ERC6909-ERC6909InvalidApprover-address-: xref:token/ERC6909.adoc#ERC6909-ERC6909InvalidApprover-address-
+:xref-ERC6909-ERC6909InvalidReceiver-address-: xref:token/ERC6909.adoc#ERC6909-ERC6909InvalidReceiver-address-
+:xref-ERC6909-ERC6909InvalidSender-address-: xref:token/ERC6909.adoc#ERC6909-ERC6909InvalidSender-address-
+:xref-ERC6909-ERC6909InvalidSpender-address-: xref:token/ERC6909.adoc#ERC6909-ERC6909InvalidSpender-address-
+:xref-ERC6909ContentURI-contractURI--: xref:token/ERC6909.adoc#ERC6909ContentURI-contractURI--
+:xref-ERC6909ContentURI-tokenURI-uint256-: xref:token/ERC6909.adoc#ERC6909ContentURI-tokenURI-uint256-
+:xref-ERC6909ContentURI-_setContractURI-string-: xref:token/ERC6909.adoc#ERC6909ContentURI-_setContractURI-string-
+:xref-ERC6909ContentURI-_setTokenURI-uint256-string-: xref:token/ERC6909.adoc#ERC6909ContentURI-_setTokenURI-uint256-string-
+:xref-ERC6909-supportsInterface-bytes4-: xref:token/ERC6909.adoc#ERC6909-supportsInterface-bytes4-
+:xref-ERC6909-balanceOf-address-uint256-: xref:token/ERC6909.adoc#ERC6909-balanceOf-address-uint256-
+:xref-ERC6909-allowance-address-address-uint256-: xref:token/ERC6909.adoc#ERC6909-allowance-address-address-uint256-
+:xref-ERC6909-isOperator-address-address-: xref:token/ERC6909.adoc#ERC6909-isOperator-address-address-
+:xref-ERC6909-approve-address-uint256-uint256-: xref:token/ERC6909.adoc#ERC6909-approve-address-uint256-uint256-
+:xref-ERC6909-setOperator-address-bool-: xref:token/ERC6909.adoc#ERC6909-setOperator-address-bool-
+:xref-ERC6909-transfer-address-uint256-uint256-: xref:token/ERC6909.adoc#ERC6909-transfer-address-uint256-uint256-
+:xref-ERC6909-transferFrom-address-address-uint256-uint256-: xref:token/ERC6909.adoc#ERC6909-transferFrom-address-address-uint256-uint256-
+:xref-ERC6909-_mint-address-uint256-uint256-: xref:token/ERC6909.adoc#ERC6909-_mint-address-uint256-uint256-
+:xref-ERC6909-_transfer-address-address-uint256-uint256-: xref:token/ERC6909.adoc#ERC6909-_transfer-address-address-uint256-uint256-
+:xref-ERC6909-_burn-address-uint256-uint256-: xref:token/ERC6909.adoc#ERC6909-_burn-address-uint256-uint256-
+:xref-ERC6909-_update-address-address-uint256-uint256-: xref:token/ERC6909.adoc#ERC6909-_update-address-address-uint256-uint256-
+:xref-ERC6909-_approve-address-address-uint256-uint256-: xref:token/ERC6909.adoc#ERC6909-_approve-address-address-uint256-uint256-
+:xref-ERC6909-_setOperator-address-address-bool-: xref:token/ERC6909.adoc#ERC6909-_setOperator-address-address-bool-
+:xref-ERC6909-_spendAllowance-address-address-uint256-uint256-: xref:token/ERC6909.adoc#ERC6909-_spendAllowance-address-address-uint256-uint256-
+:xref-ERC6909ContentURI-ContractURIUpdated--: xref:token/ERC6909.adoc#ERC6909ContentURI-ContractURIUpdated--
+:xref-ERC6909ContentURI-URI-string-uint256-: xref:token/ERC6909.adoc#ERC6909ContentURI-URI-string-uint256-
+:xref-IERC6909-Approval-address-address-uint256-uint256-: xref:interfaces.adoc#IERC6909-Approval-address-address-uint256-uint256-
+:xref-IERC6909-OperatorSet-address-address-bool-: xref:interfaces.adoc#IERC6909-OperatorSet-address-address-bool-
+:xref-IERC6909-Transfer-address-address-address-uint256-uint256-: xref:interfaces.adoc#IERC6909-Transfer-address-address-address-uint256-uint256-
+:xref-ERC6909-ERC6909InsufficientBalance-address-uint256-uint256-uint256-: xref:token/ERC6909.adoc#ERC6909-ERC6909InsufficientBalance-address-uint256-uint256-uint256-
+:xref-ERC6909-ERC6909InsufficientAllowance-address-uint256-uint256-uint256-: xref:token/ERC6909.adoc#ERC6909-ERC6909InsufficientAllowance-address-uint256-uint256-uint256-
+:xref-ERC6909-ERC6909InvalidApprover-address-: xref:token/ERC6909.adoc#ERC6909-ERC6909InvalidApprover-address-
+:xref-ERC6909-ERC6909InvalidReceiver-address-: xref:token/ERC6909.adoc#ERC6909-ERC6909InvalidReceiver-address-
+:xref-ERC6909-ERC6909InvalidSender-address-: xref:token/ERC6909.adoc#ERC6909-ERC6909InvalidSender-address-
+:xref-ERC6909-ERC6909InvalidSpender-address-: xref:token/ERC6909.adoc#ERC6909-ERC6909InvalidSpender-address-
+:IERC1155-URI: pass:normal[xref:token/ERC1155.adoc#IERC1155-URI-string-uint256-[`IERC1155.URI`]]
+:xref-ERC6909Metadata-name-uint256-: xref:token/ERC6909.adoc#ERC6909Metadata-name-uint256-
+:xref-ERC6909Metadata-symbol-uint256-: xref:token/ERC6909.adoc#ERC6909Metadata-symbol-uint256-
+:xref-ERC6909Metadata-decimals-uint256-: xref:token/ERC6909.adoc#ERC6909Metadata-decimals-uint256-
+:xref-ERC6909Metadata-_setName-uint256-string-: xref:token/ERC6909.adoc#ERC6909Metadata-_setName-uint256-string-
+:xref-ERC6909Metadata-_setSymbol-uint256-string-: xref:token/ERC6909.adoc#ERC6909Metadata-_setSymbol-uint256-string-
+:xref-ERC6909Metadata-_setDecimals-uint256-uint8-: xref:token/ERC6909.adoc#ERC6909Metadata-_setDecimals-uint256-uint8-
+:xref-ERC6909-supportsInterface-bytes4-: xref:token/ERC6909.adoc#ERC6909-supportsInterface-bytes4-
+:xref-ERC6909-balanceOf-address-uint256-: xref:token/ERC6909.adoc#ERC6909-balanceOf-address-uint256-
+:xref-ERC6909-allowance-address-address-uint256-: xref:token/ERC6909.adoc#ERC6909-allowance-address-address-uint256-
+:xref-ERC6909-isOperator-address-address-: xref:token/ERC6909.adoc#ERC6909-isOperator-address-address-
+:xref-ERC6909-approve-address-uint256-uint256-: xref:token/ERC6909.adoc#ERC6909-approve-address-uint256-uint256-
+:xref-ERC6909-setOperator-address-bool-: xref:token/ERC6909.adoc#ERC6909-setOperator-address-bool-
+:xref-ERC6909-transfer-address-uint256-uint256-: xref:token/ERC6909.adoc#ERC6909-transfer-address-uint256-uint256-
+:xref-ERC6909-transferFrom-address-address-uint256-uint256-: xref:token/ERC6909.adoc#ERC6909-transferFrom-address-address-uint256-uint256-
+:xref-ERC6909-_mint-address-uint256-uint256-: xref:token/ERC6909.adoc#ERC6909-_mint-address-uint256-uint256-
+:xref-ERC6909-_transfer-address-address-uint256-uint256-: xref:token/ERC6909.adoc#ERC6909-_transfer-address-address-uint256-uint256-
+:xref-ERC6909-_burn-address-uint256-uint256-: xref:token/ERC6909.adoc#ERC6909-_burn-address-uint256-uint256-
+:xref-ERC6909-_update-address-address-uint256-uint256-: xref:token/ERC6909.adoc#ERC6909-_update-address-address-uint256-uint256-
+:xref-ERC6909-_approve-address-address-uint256-uint256-: xref:token/ERC6909.adoc#ERC6909-_approve-address-address-uint256-uint256-
+:xref-ERC6909-_setOperator-address-address-bool-: xref:token/ERC6909.adoc#ERC6909-_setOperator-address-address-bool-
+:xref-ERC6909-_spendAllowance-address-address-uint256-uint256-: xref:token/ERC6909.adoc#ERC6909-_spendAllowance-address-address-uint256-uint256-
+:xref-ERC6909Metadata-ERC6909NameUpdated-uint256-string-: xref:token/ERC6909.adoc#ERC6909Metadata-ERC6909NameUpdated-uint256-string-
+:xref-ERC6909Metadata-ERC6909SymbolUpdated-uint256-string-: xref:token/ERC6909.adoc#ERC6909Metadata-ERC6909SymbolUpdated-uint256-string-
+:xref-ERC6909Metadata-ERC6909DecimalsUpdated-uint256-uint8-: xref:token/ERC6909.adoc#ERC6909Metadata-ERC6909DecimalsUpdated-uint256-uint8-
+:xref-IERC6909-Approval-address-address-uint256-uint256-: xref:interfaces.adoc#IERC6909-Approval-address-address-uint256-uint256-
+:xref-IERC6909-OperatorSet-address-address-bool-: xref:interfaces.adoc#IERC6909-OperatorSet-address-address-bool-
+:xref-IERC6909-Transfer-address-address-address-uint256-uint256-: xref:interfaces.adoc#IERC6909-Transfer-address-address-address-uint256-uint256-
+:xref-ERC6909-ERC6909InsufficientBalance-address-uint256-uint256-uint256-: xref:token/ERC6909.adoc#ERC6909-ERC6909InsufficientBalance-address-uint256-uint256-uint256-
+:xref-ERC6909-ERC6909InsufficientAllowance-address-uint256-uint256-uint256-: xref:token/ERC6909.adoc#ERC6909-ERC6909InsufficientAllowance-address-uint256-uint256-uint256-
+:xref-ERC6909-ERC6909InvalidApprover-address-: xref:token/ERC6909.adoc#ERC6909-ERC6909InvalidApprover-address-
+:xref-ERC6909-ERC6909InvalidReceiver-address-: xref:token/ERC6909.adoc#ERC6909-ERC6909InvalidReceiver-address-
+:xref-ERC6909-ERC6909InvalidSender-address-: xref:token/ERC6909.adoc#ERC6909-ERC6909InvalidSender-address-
+:xref-ERC6909-ERC6909InvalidSpender-address-: xref:token/ERC6909.adoc#ERC6909-ERC6909InvalidSpender-address-
+:xref-ERC6909TokenSupply-totalSupply-uint256-: xref:token/ERC6909.adoc#ERC6909TokenSupply-totalSupply-uint256-
+:xref-ERC6909TokenSupply-_update-address-address-uint256-uint256-: xref:token/ERC6909.adoc#ERC6909TokenSupply-_update-address-address-uint256-uint256-
+:xref-ERC6909-supportsInterface-bytes4-: xref:token/ERC6909.adoc#ERC6909-supportsInterface-bytes4-
+:xref-ERC6909-balanceOf-address-uint256-: xref:token/ERC6909.adoc#ERC6909-balanceOf-address-uint256-
+:xref-ERC6909-allowance-address-address-uint256-: xref:token/ERC6909.adoc#ERC6909-allowance-address-address-uint256-
+:xref-ERC6909-isOperator-address-address-: xref:token/ERC6909.adoc#ERC6909-isOperator-address-address-
+:xref-ERC6909-approve-address-uint256-uint256-: xref:token/ERC6909.adoc#ERC6909-approve-address-uint256-uint256-
+:xref-ERC6909-setOperator-address-bool-: xref:token/ERC6909.adoc#ERC6909-setOperator-address-bool-
+:xref-ERC6909-transfer-address-uint256-uint256-: xref:token/ERC6909.adoc#ERC6909-transfer-address-uint256-uint256-
+:xref-ERC6909-transferFrom-address-address-uint256-uint256-: xref:token/ERC6909.adoc#ERC6909-transferFrom-address-address-uint256-uint256-
+:xref-ERC6909-_mint-address-uint256-uint256-: xref:token/ERC6909.adoc#ERC6909-_mint-address-uint256-uint256-
+:xref-ERC6909-_transfer-address-address-uint256-uint256-: xref:token/ERC6909.adoc#ERC6909-_transfer-address-address-uint256-uint256-
+:xref-ERC6909-_burn-address-uint256-uint256-: xref:token/ERC6909.adoc#ERC6909-_burn-address-uint256-uint256-
+:xref-ERC6909-_approve-address-address-uint256-uint256-: xref:token/ERC6909.adoc#ERC6909-_approve-address-address-uint256-uint256-
+:xref-ERC6909-_setOperator-address-address-bool-: xref:token/ERC6909.adoc#ERC6909-_setOperator-address-address-bool-
+:xref-ERC6909-_spendAllowance-address-address-uint256-uint256-: xref:token/ERC6909.adoc#ERC6909-_spendAllowance-address-address-uint256-uint256-
+:xref-IERC6909-Approval-address-address-uint256-uint256-: xref:interfaces.adoc#IERC6909-Approval-address-address-uint256-uint256-
+:xref-IERC6909-OperatorSet-address-address-bool-: xref:interfaces.adoc#IERC6909-OperatorSet-address-address-bool-
+:xref-IERC6909-Transfer-address-address-address-uint256-uint256-: xref:interfaces.adoc#IERC6909-Transfer-address-address-address-uint256-uint256-
+:xref-ERC6909-ERC6909InsufficientBalance-address-uint256-uint256-uint256-: xref:token/ERC6909.adoc#ERC6909-ERC6909InsufficientBalance-address-uint256-uint256-uint256-
+:xref-ERC6909-ERC6909InsufficientAllowance-address-uint256-uint256-uint256-: xref:token/ERC6909.adoc#ERC6909-ERC6909InsufficientAllowance-address-uint256-uint256-uint256-
+:xref-ERC6909-ERC6909InvalidApprover-address-: xref:token/ERC6909.adoc#ERC6909-ERC6909InvalidApprover-address-
+:xref-ERC6909-ERC6909InvalidReceiver-address-: xref:token/ERC6909.adoc#ERC6909-ERC6909InvalidReceiver-address-
+:xref-ERC6909-ERC6909InvalidSender-address-: xref:token/ERC6909.adoc#ERC6909-ERC6909InvalidSender-address-
+:xref-ERC6909-ERC6909InvalidSpender-address-: xref:token/ERC6909.adoc#ERC6909-ERC6909InvalidSpender-address-
+= ERC-6909
+
+[.readme-notice]
+NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/token/erc6909
+
+This set of interfaces and contracts are all related to the https://eips.ethereum.org/EIPS/eip-6909[ERC-6909 Minimal Multi-Token Interface].
+
+The ERC consists of four interfaces which fulfill different roles--the interfaces are as follows:
+
+. {IERC6909}: Base interface for a vanilla ERC6909 token.
+. {IERC6909ContentURI}: Extends the base interface and adds content URI (contract and token level) functionality.
+. {IERC6909Metadata}: Extends the base interface and adds metadata functionality, which exposes a name, symbol, and decimals for each token id.
+. {IERC6909TokenSupply}: Extends the base interface and adds total supply functionality for each token id.
+
+Implementations are provided for each of the 4 interfaces defined in the ERC.
+
+== Core
+
+:ERC6909InsufficientBalance: pass:normal[xref:#ERC6909-ERC6909InsufficientBalance-address-uint256-uint256-uint256-[`++ERC6909InsufficientBalance++`]]
+:ERC6909InsufficientAllowance: pass:normal[xref:#ERC6909-ERC6909InsufficientAllowance-address-uint256-uint256-uint256-[`++ERC6909InsufficientAllowance++`]]
+:ERC6909InvalidApprover: pass:normal[xref:#ERC6909-ERC6909InvalidApprover-address-[`++ERC6909InvalidApprover++`]]
+:ERC6909InvalidReceiver: pass:normal[xref:#ERC6909-ERC6909InvalidReceiver-address-[`++ERC6909InvalidReceiver++`]]
+:ERC6909InvalidSender: pass:normal[xref:#ERC6909-ERC6909InvalidSender-address-[`++ERC6909InvalidSender++`]]
+:ERC6909InvalidSpender: pass:normal[xref:#ERC6909-ERC6909InvalidSpender-address-[`++ERC6909InvalidSpender++`]]
+:supportsInterface: pass:normal[xref:#ERC6909-supportsInterface-bytes4-[`++supportsInterface++`]]
+:balanceOf: pass:normal[xref:#ERC6909-balanceOf-address-uint256-[`++balanceOf++`]]
+:allowance: pass:normal[xref:#ERC6909-allowance-address-address-uint256-[`++allowance++`]]
+:isOperator: pass:normal[xref:#ERC6909-isOperator-address-address-[`++isOperator++`]]
+:approve: pass:normal[xref:#ERC6909-approve-address-uint256-uint256-[`++approve++`]]
+:setOperator: pass:normal[xref:#ERC6909-setOperator-address-bool-[`++setOperator++`]]
+:transfer: pass:normal[xref:#ERC6909-transfer-address-uint256-uint256-[`++transfer++`]]
+:transferFrom: pass:normal[xref:#ERC6909-transferFrom-address-address-uint256-uint256-[`++transferFrom++`]]
+:_mint: pass:normal[xref:#ERC6909-_mint-address-uint256-uint256-[`++_mint++`]]
+:_transfer: pass:normal[xref:#ERC6909-_transfer-address-address-uint256-uint256-[`++_transfer++`]]
+:_burn: pass:normal[xref:#ERC6909-_burn-address-uint256-uint256-[`++_burn++`]]
+:_update: pass:normal[xref:#ERC6909-_update-address-address-uint256-uint256-[`++_update++`]]
+:_approve: pass:normal[xref:#ERC6909-_approve-address-address-uint256-uint256-[`++_approve++`]]
+:_setOperator: pass:normal[xref:#ERC6909-_setOperator-address-address-bool-[`++_setOperator++`]]
+:_spendAllowance: pass:normal[xref:#ERC6909-_spendAllowance-address-address-uint256-uint256-[`++_spendAllowance++`]]
+
+:supportsInterface-bytes4: pass:normal[xref:#ERC6909-supportsInterface-bytes4-[`++supportsInterface++`]]
+:balanceOf-address-uint256: pass:normal[xref:#ERC6909-balanceOf-address-uint256-[`++balanceOf++`]]
+:allowance-address-address-uint256: pass:normal[xref:#ERC6909-allowance-address-address-uint256-[`++allowance++`]]
+:isOperator-address-address: pass:normal[xref:#ERC6909-isOperator-address-address-[`++isOperator++`]]
+:approve-address-uint256-uint256: pass:normal[xref:#ERC6909-approve-address-uint256-uint256-[`++approve++`]]
+:setOperator-address-bool: pass:normal[xref:#ERC6909-setOperator-address-bool-[`++setOperator++`]]
+:transfer-address-uint256-uint256: pass:normal[xref:#ERC6909-transfer-address-uint256-uint256-[`++transfer++`]]
+:transferFrom-address-address-uint256-uint256: pass:normal[xref:#ERC6909-transferFrom-address-address-uint256-uint256-[`++transferFrom++`]]
+:_mint-address-uint256-uint256: pass:normal[xref:#ERC6909-_mint-address-uint256-uint256-[`++_mint++`]]
+:_transfer-address-address-uint256-uint256: pass:normal[xref:#ERC6909-_transfer-address-address-uint256-uint256-[`++_transfer++`]]
+:_burn-address-uint256-uint256: pass:normal[xref:#ERC6909-_burn-address-uint256-uint256-[`++_burn++`]]
+:_update-address-address-uint256-uint256: pass:normal[xref:#ERC6909-_update-address-address-uint256-uint256-[`++_update++`]]
+:_approve-address-address-uint256-uint256: pass:normal[xref:#ERC6909-_approve-address-address-uint256-uint256-[`++_approve++`]]
+:_setOperator-address-address-bool: pass:normal[xref:#ERC6909-_setOperator-address-address-bool-[`++_setOperator++`]]
+:_spendAllowance-address-address-uint256-uint256: pass:normal[xref:#ERC6909-_spendAllowance-address-address-uint256-uint256-[`++_spendAllowance++`]]
+
+[.contract]
+[[ERC6909]]
+=== `++ERC6909++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/token/ERC6909/draft-ERC6909.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/token/ERC6909/draft-ERC6909.sol";
+```
+
+Implementation of ERC-6909.
+See https://eips.ethereum.org/EIPS/eip-6909
+
+[.contract-index]
+.Functions
+--
+* {xref-ERC6909-supportsInterface-bytes4-}[`++supportsInterface(interfaceId)++`]
+* {xref-ERC6909-balanceOf-address-uint256-}[`++balanceOf(owner, id)++`]
+* {xref-ERC6909-allowance-address-address-uint256-}[`++allowance(owner, spender, id)++`]
+* {xref-ERC6909-isOperator-address-address-}[`++isOperator(owner, spender)++`]
+* {xref-ERC6909-approve-address-uint256-uint256-}[`++approve(spender, id, amount)++`]
+* {xref-ERC6909-setOperator-address-bool-}[`++setOperator(spender, approved)++`]
+* {xref-ERC6909-transfer-address-uint256-uint256-}[`++transfer(receiver, id, amount)++`]
+* {xref-ERC6909-transferFrom-address-address-uint256-uint256-}[`++transferFrom(sender, receiver, id, amount)++`]
+* {xref-ERC6909-_mint-address-uint256-uint256-}[`++_mint(to, id, amount)++`]
+* {xref-ERC6909-_transfer-address-address-uint256-uint256-}[`++_transfer(from, to, id, amount)++`]
+* {xref-ERC6909-_burn-address-uint256-uint256-}[`++_burn(from, id, amount)++`]
+* {xref-ERC6909-_update-address-address-uint256-uint256-}[`++_update(from, to, id, amount)++`]
+* {xref-ERC6909-_approve-address-address-uint256-uint256-}[`++_approve(owner, spender, id, amount)++`]
+* {xref-ERC6909-_setOperator-address-address-bool-}[`++_setOperator(owner, spender, approved)++`]
+* {xref-ERC6909-_spendAllowance-address-address-uint256-uint256-}[`++_spendAllowance(owner, spender, id, amount)++`]
+
+[.contract-subindex-inherited]
+.IERC6909
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-index]
+.Events
+--
+
+[.contract-subindex-inherited]
+.IERC6909
+* {xref-IERC6909-Approval-address-address-uint256-uint256-}[`++Approval(owner, spender, id, amount)++`]
+* {xref-IERC6909-OperatorSet-address-address-bool-}[`++OperatorSet(owner, spender, approved)++`]
+* {xref-IERC6909-Transfer-address-address-address-uint256-uint256-}[`++Transfer(caller, sender, receiver, id, amount)++`]
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-index]
+.Errors
+--
+* {xref-ERC6909-ERC6909InsufficientBalance-address-uint256-uint256-uint256-}[`++ERC6909InsufficientBalance(sender, balance, needed, id)++`]
+* {xref-ERC6909-ERC6909InsufficientAllowance-address-uint256-uint256-uint256-}[`++ERC6909InsufficientAllowance(spender, allowance, needed, id)++`]
+* {xref-ERC6909-ERC6909InvalidApprover-address-}[`++ERC6909InvalidApprover(approver)++`]
+* {xref-ERC6909-ERC6909InvalidReceiver-address-}[`++ERC6909InvalidReceiver(receiver)++`]
+* {xref-ERC6909-ERC6909InvalidSender-address-}[`++ERC6909InvalidSender(sender)++`]
+* {xref-ERC6909-ERC6909InvalidSpender-address-}[`++ERC6909InvalidSpender(spender)++`]
+
+[.contract-subindex-inherited]
+.IERC6909
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-item]
+[[ERC6909-supportsInterface-bytes4-]]
+==== `[.contract-item-name]#++supportsInterface++#++(bytes4 interfaceId) → bool++` [.item-kind]#public#
+
+Returns true if this contract implements the interface defined by
+`interfaceId`. See the corresponding
+https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section]
+to learn more about how these ids are created.
+
+This function call must use less than 30 000 gas.
+
+[.contract-item]
+[[ERC6909-balanceOf-address-uint256-]]
+==== `[.contract-item-name]#++balanceOf++#++(address owner, uint256 id) → uint256++` [.item-kind]#public#
+
+Returns the amount of tokens of type `id` owned by `owner`.
+
+[.contract-item]
+[[ERC6909-allowance-address-address-uint256-]]
+==== `[.contract-item-name]#++allowance++#++(address owner, address spender, uint256 id) → uint256++` [.item-kind]#public#
+
+Returns the amount of tokens of type `id` that `spender` is allowed to spend on behalf of `owner`.
+
+NOTE: Does not include operator allowances.
+
+[.contract-item]
+[[ERC6909-isOperator-address-address-]]
+==== `[.contract-item-name]#++isOperator++#++(address owner, address spender) → bool++` [.item-kind]#public#
+
+Returns true if `spender` is set as an operator for `owner`.
+
+[.contract-item]
+[[ERC6909-approve-address-uint256-uint256-]]
+==== `[.contract-item-name]#++approve++#++(address spender, uint256 id, uint256 amount) → bool++` [.item-kind]#public#
+
+Sets an approval to `spender` for `amount` of tokens of type `id` from the caller's tokens. An `amount` of
+`type(uint256).max` signifies an unlimited approval.
+
+Must return true.
+
+[.contract-item]
+[[ERC6909-setOperator-address-bool-]]
+==== `[.contract-item-name]#++setOperator++#++(address spender, bool approved) → bool++` [.item-kind]#public#
+
+Grants or revokes unlimited transfer permission of any token id to `spender` for the caller's tokens.
+
+Must return true.
+
+[.contract-item]
+[[ERC6909-transfer-address-uint256-uint256-]]
+==== `[.contract-item-name]#++transfer++#++(address receiver, uint256 id, uint256 amount) → bool++` [.item-kind]#public#
+
+Transfers `amount` of token type `id` from the caller's account to `receiver`.
+
+Must return true.
+
+[.contract-item]
+[[ERC6909-transferFrom-address-address-uint256-uint256-]]
+==== `[.contract-item-name]#++transferFrom++#++(address sender, address receiver, uint256 id, uint256 amount) → bool++` [.item-kind]#public#
+
+Transfers `amount` of token type `id` from `sender` to `receiver`.
+
+Must return true.
+
+[.contract-item]
+[[ERC6909-_mint-address-uint256-uint256-]]
+==== `[.contract-item-name]#++_mint++#++(address to, uint256 id, uint256 amount)++` [.item-kind]#internal#
+
+Creates `amount` of token `id` and assigns them to `account`, by transferring it from address(0).
+Relies on the `_update` mechanism.
+
+Emits a {Transfer} event with `from` set to the zero address.
+
+NOTE: This function is not virtual, {_update} should be overridden instead.
+
+[.contract-item]
+[[ERC6909-_transfer-address-address-uint256-uint256-]]
+==== `[.contract-item-name]#++_transfer++#++(address from, address to, uint256 id, uint256 amount)++` [.item-kind]#internal#
+
+Moves `amount` of token `id` from `from` to `to` without checking for approvals. This function verifies
+that neither the sender nor the receiver are address(0), which means it cannot mint or burn tokens.
+Relies on the `_update` mechanism.
+
+Emits a {Transfer} event.
+
+NOTE: This function is not virtual, {_update} should be overridden instead.
+
+[.contract-item]
+[[ERC6909-_burn-address-uint256-uint256-]]
+==== `[.contract-item-name]#++_burn++#++(address from, uint256 id, uint256 amount)++` [.item-kind]#internal#
+
+Destroys a `amount` of token `id` from `account`.
+Relies on the `_update` mechanism.
+
+Emits a {Transfer} event with `to` set to the zero address.
+
+NOTE: This function is not virtual, {_update} should be overridden instead
+
+[.contract-item]
+[[ERC6909-_update-address-address-uint256-uint256-]]
+==== `[.contract-item-name]#++_update++#++(address from, address to, uint256 id, uint256 amount)++` [.item-kind]#internal#
+
+Transfers `amount` of token `id` from `from` to `to`, or alternatively mints (or burns) if `from`
+(or `to`) is the zero address. All customizations to transfers, mints, and burns should be done by overriding
+this function.
+
+Emits a {Transfer} event.
+
+[.contract-item]
+[[ERC6909-_approve-address-address-uint256-uint256-]]
+==== `[.contract-item-name]#++_approve++#++(address owner, address spender, uint256 id, uint256 amount)++` [.item-kind]#internal#
+
+Sets `amount` as the allowance of `spender` over the `owner`'s `id` tokens.
+
+This internal function is equivalent to `approve`, and can be used to e.g. set automatic allowances for certain
+subsystems, etc.
+
+Emits an {Approval} event.
+
+Requirements:
+
+- `owner` cannot be the zero address.
+- `spender` cannot be the zero address.
+
+[.contract-item]
+[[ERC6909-_setOperator-address-address-bool-]]
+==== `[.contract-item-name]#++_setOperator++#++(address owner, address spender, bool approved)++` [.item-kind]#internal#
+
+Approve `spender` to operate on all of `owner`'s tokens
+
+This internal function is equivalent to `setOperator`, and can be used to e.g. set automatic allowances for
+certain subsystems, etc.
+
+Emits an {OperatorSet} event.
+
+Requirements:
+
+- `owner` cannot be the zero address.
+- `spender` cannot be the zero address.
+
+[.contract-item]
+[[ERC6909-_spendAllowance-address-address-uint256-uint256-]]
+==== `[.contract-item-name]#++_spendAllowance++#++(address owner, address spender, uint256 id, uint256 amount)++` [.item-kind]#internal#
+
+Updates `owner`'s allowance for `spender` based on spent `amount`.
+
+Does not update the allowance value in case of infinite allowance.
+Revert if not enough allowance is available.
+
+Does not emit an {Approval} event.
+
+[.contract-item]
+[[ERC6909-ERC6909InsufficientBalance-address-uint256-uint256-uint256-]]
+==== `[.contract-item-name]#++ERC6909InsufficientBalance++#++(address sender, uint256 balance, uint256 needed, uint256 id)++` [.item-kind]#error#
+
+[.contract-item]
+[[ERC6909-ERC6909InsufficientAllowance-address-uint256-uint256-uint256-]]
+==== `[.contract-item-name]#++ERC6909InsufficientAllowance++#++(address spender, uint256 allowance, uint256 needed, uint256 id)++` [.item-kind]#error#
+
+[.contract-item]
+[[ERC6909-ERC6909InvalidApprover-address-]]
+==== `[.contract-item-name]#++ERC6909InvalidApprover++#++(address approver)++` [.item-kind]#error#
+
+[.contract-item]
+[[ERC6909-ERC6909InvalidReceiver-address-]]
+==== `[.contract-item-name]#++ERC6909InvalidReceiver++#++(address receiver)++` [.item-kind]#error#
+
+[.contract-item]
+[[ERC6909-ERC6909InvalidSender-address-]]
+==== `[.contract-item-name]#++ERC6909InvalidSender++#++(address sender)++` [.item-kind]#error#
+
+[.contract-item]
+[[ERC6909-ERC6909InvalidSpender-address-]]
+==== `[.contract-item-name]#++ERC6909InvalidSpender++#++(address spender)++` [.item-kind]#error#
+
+== Extensions
+
+:ContractURIUpdated: pass:normal[xref:#ERC6909ContentURI-ContractURIUpdated--[`++ContractURIUpdated++`]]
+:URI: pass:normal[xref:#ERC6909ContentURI-URI-string-uint256-[`++URI++`]]
+:contractURI: pass:normal[xref:#ERC6909ContentURI-contractURI--[`++contractURI++`]]
+:tokenURI: pass:normal[xref:#ERC6909ContentURI-tokenURI-uint256-[`++tokenURI++`]]
+:_setContractURI: pass:normal[xref:#ERC6909ContentURI-_setContractURI-string-[`++_setContractURI++`]]
+:_setTokenURI: pass:normal[xref:#ERC6909ContentURI-_setTokenURI-uint256-string-[`++_setTokenURI++`]]
+
+:contractURI-: pass:normal[xref:#ERC6909ContentURI-contractURI--[`++contractURI++`]]
+:tokenURI-uint256: pass:normal[xref:#ERC6909ContentURI-tokenURI-uint256-[`++tokenURI++`]]
+:_setContractURI-string: pass:normal[xref:#ERC6909ContentURI-_setContractURI-string-[`++_setContractURI++`]]
+:_setTokenURI-uint256-string: pass:normal[xref:#ERC6909ContentURI-_setTokenURI-uint256-string-[`++_setTokenURI++`]]
+
+[.contract]
+[[ERC6909ContentURI]]
+=== `++ERC6909ContentURI++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/token/ERC6909/extensions/draft-ERC6909ContentURI.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/token/ERC6909/extensions/draft-ERC6909ContentURI.sol";
+```
+
+Implementation of the Content URI extension defined in ERC6909.
+
+[.contract-index]
+.Functions
+--
+* {xref-ERC6909ContentURI-contractURI--}[`++contractURI()++`]
+* {xref-ERC6909ContentURI-tokenURI-uint256-}[`++tokenURI(id)++`]
+* {xref-ERC6909ContentURI-_setContractURI-string-}[`++_setContractURI(newContractURI)++`]
+* {xref-ERC6909ContentURI-_setTokenURI-uint256-string-}[`++_setTokenURI(id, newTokenURI)++`]
+
+[.contract-subindex-inherited]
+.IERC6909ContentURI
+
+[.contract-subindex-inherited]
+.ERC6909
+* {xref-ERC6909-supportsInterface-bytes4-}[`++supportsInterface(interfaceId)++`]
+* {xref-ERC6909-balanceOf-address-uint256-}[`++balanceOf(owner, id)++`]
+* {xref-ERC6909-allowance-address-address-uint256-}[`++allowance(owner, spender, id)++`]
+* {xref-ERC6909-isOperator-address-address-}[`++isOperator(owner, spender)++`]
+* {xref-ERC6909-approve-address-uint256-uint256-}[`++approve(spender, id, amount)++`]
+* {xref-ERC6909-setOperator-address-bool-}[`++setOperator(spender, approved)++`]
+* {xref-ERC6909-transfer-address-uint256-uint256-}[`++transfer(receiver, id, amount)++`]
+* {xref-ERC6909-transferFrom-address-address-uint256-uint256-}[`++transferFrom(sender, receiver, id, amount)++`]
+* {xref-ERC6909-_mint-address-uint256-uint256-}[`++_mint(to, id, amount)++`]
+* {xref-ERC6909-_transfer-address-address-uint256-uint256-}[`++_transfer(from, to, id, amount)++`]
+* {xref-ERC6909-_burn-address-uint256-uint256-}[`++_burn(from, id, amount)++`]
+* {xref-ERC6909-_update-address-address-uint256-uint256-}[`++_update(from, to, id, amount)++`]
+* {xref-ERC6909-_approve-address-address-uint256-uint256-}[`++_approve(owner, spender, id, amount)++`]
+* {xref-ERC6909-_setOperator-address-address-bool-}[`++_setOperator(owner, spender, approved)++`]
+* {xref-ERC6909-_spendAllowance-address-address-uint256-uint256-}[`++_spendAllowance(owner, spender, id, amount)++`]
+
+[.contract-subindex-inherited]
+.IERC6909
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-index]
+.Events
+--
+* {xref-ERC6909ContentURI-ContractURIUpdated--}[`++ContractURIUpdated()++`]
+* {xref-ERC6909ContentURI-URI-string-uint256-}[`++URI(value, id)++`]
+
+[.contract-subindex-inherited]
+.IERC6909ContentURI
+
+[.contract-subindex-inherited]
+.ERC6909
+
+[.contract-subindex-inherited]
+.IERC6909
+* {xref-IERC6909-Approval-address-address-uint256-uint256-}[`++Approval(owner, spender, id, amount)++`]
+* {xref-IERC6909-OperatorSet-address-address-bool-}[`++OperatorSet(owner, spender, approved)++`]
+* {xref-IERC6909-Transfer-address-address-address-uint256-uint256-}[`++Transfer(caller, sender, receiver, id, amount)++`]
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-index]
+.Errors
+--
+
+[.contract-subindex-inherited]
+.IERC6909ContentURI
+
+[.contract-subindex-inherited]
+.ERC6909
+* {xref-ERC6909-ERC6909InsufficientBalance-address-uint256-uint256-uint256-}[`++ERC6909InsufficientBalance(sender, balance, needed, id)++`]
+* {xref-ERC6909-ERC6909InsufficientAllowance-address-uint256-uint256-uint256-}[`++ERC6909InsufficientAllowance(spender, allowance, needed, id)++`]
+* {xref-ERC6909-ERC6909InvalidApprover-address-}[`++ERC6909InvalidApprover(approver)++`]
+* {xref-ERC6909-ERC6909InvalidReceiver-address-}[`++ERC6909InvalidReceiver(receiver)++`]
+* {xref-ERC6909-ERC6909InvalidSender-address-}[`++ERC6909InvalidSender(sender)++`]
+* {xref-ERC6909-ERC6909InvalidSpender-address-}[`++ERC6909InvalidSpender(spender)++`]
+
+[.contract-subindex-inherited]
+.IERC6909
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-item]
+[[ERC6909ContentURI-contractURI--]]
+==== `[.contract-item-name]#++contractURI++#++() → string++` [.item-kind]#public#
+
+Returns URI for the contract.
+
+[.contract-item]
+[[ERC6909ContentURI-tokenURI-uint256-]]
+==== `[.contract-item-name]#++tokenURI++#++(uint256 id) → string++` [.item-kind]#public#
+
+Returns the URI for the token of type `id`.
+
+[.contract-item]
+[[ERC6909ContentURI-_setContractURI-string-]]
+==== `[.contract-item-name]#++_setContractURI++#++(string newContractURI)++` [.item-kind]#internal#
+
+Sets the {contractURI} for the contract.
+
+Emits a {ContractURIUpdated} event.
+
+[.contract-item]
+[[ERC6909ContentURI-_setTokenURI-uint256-string-]]
+==== `[.contract-item-name]#++_setTokenURI++#++(uint256 id, string newTokenURI)++` [.item-kind]#internal#
+
+Sets the {tokenURI} for a given token of type `id`.
+
+Emits a {URI} event.
+
+[.contract-item]
+[[ERC6909ContentURI-ContractURIUpdated--]]
+==== `[.contract-item-name]#++ContractURIUpdated++#++()++` [.item-kind]#event#
+
+Event emitted when the contract URI is changed. See https://eips.ethereum.org/EIPS/eip-7572[ERC-7572] for details.
+
+[.contract-item]
+[[ERC6909ContentURI-URI-string-uint256-]]
+==== `[.contract-item-name]#++URI++#++(string value, uint256 indexed id)++` [.item-kind]#event#
+
+See {IERC1155-URI}
+
+:TokenMetadata: pass:normal[xref:#ERC6909Metadata-TokenMetadata[`++TokenMetadata++`]]
+:ERC6909NameUpdated: pass:normal[xref:#ERC6909Metadata-ERC6909NameUpdated-uint256-string-[`++ERC6909NameUpdated++`]]
+:ERC6909SymbolUpdated: pass:normal[xref:#ERC6909Metadata-ERC6909SymbolUpdated-uint256-string-[`++ERC6909SymbolUpdated++`]]
+:ERC6909DecimalsUpdated: pass:normal[xref:#ERC6909Metadata-ERC6909DecimalsUpdated-uint256-uint8-[`++ERC6909DecimalsUpdated++`]]
+:name: pass:normal[xref:#ERC6909Metadata-name-uint256-[`++name++`]]
+:symbol: pass:normal[xref:#ERC6909Metadata-symbol-uint256-[`++symbol++`]]
+:decimals: pass:normal[xref:#ERC6909Metadata-decimals-uint256-[`++decimals++`]]
+:_setName: pass:normal[xref:#ERC6909Metadata-_setName-uint256-string-[`++_setName++`]]
+:_setSymbol: pass:normal[xref:#ERC6909Metadata-_setSymbol-uint256-string-[`++_setSymbol++`]]
+:_setDecimals: pass:normal[xref:#ERC6909Metadata-_setDecimals-uint256-uint8-[`++_setDecimals++`]]
+
+:name-uint256: pass:normal[xref:#ERC6909Metadata-name-uint256-[`++name++`]]
+:symbol-uint256: pass:normal[xref:#ERC6909Metadata-symbol-uint256-[`++symbol++`]]
+:decimals-uint256: pass:normal[xref:#ERC6909Metadata-decimals-uint256-[`++decimals++`]]
+:_setName-uint256-string: pass:normal[xref:#ERC6909Metadata-_setName-uint256-string-[`++_setName++`]]
+:_setSymbol-uint256-string: pass:normal[xref:#ERC6909Metadata-_setSymbol-uint256-string-[`++_setSymbol++`]]
+:_setDecimals-uint256-uint8: pass:normal[xref:#ERC6909Metadata-_setDecimals-uint256-uint8-[`++_setDecimals++`]]
+
+[.contract]
+[[ERC6909Metadata]]
+=== `++ERC6909Metadata++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/token/ERC6909/extensions/draft-ERC6909Metadata.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/token/ERC6909/extensions/draft-ERC6909Metadata.sol";
+```
+
+Implementation of the Metadata extension defined in ERC6909. Exposes the name, symbol, and decimals of each token id.
+
+[.contract-index]
+.Functions
+--
+* {xref-ERC6909Metadata-name-uint256-}[`++name(id)++`]
+* {xref-ERC6909Metadata-symbol-uint256-}[`++symbol(id)++`]
+* {xref-ERC6909Metadata-decimals-uint256-}[`++decimals(id)++`]
+* {xref-ERC6909Metadata-_setName-uint256-string-}[`++_setName(id, newName)++`]
+* {xref-ERC6909Metadata-_setSymbol-uint256-string-}[`++_setSymbol(id, newSymbol)++`]
+* {xref-ERC6909Metadata-_setDecimals-uint256-uint8-}[`++_setDecimals(id, newDecimals)++`]
+
+[.contract-subindex-inherited]
+.IERC6909Metadata
+
+[.contract-subindex-inherited]
+.ERC6909
+* {xref-ERC6909-supportsInterface-bytes4-}[`++supportsInterface(interfaceId)++`]
+* {xref-ERC6909-balanceOf-address-uint256-}[`++balanceOf(owner, id)++`]
+* {xref-ERC6909-allowance-address-address-uint256-}[`++allowance(owner, spender, id)++`]
+* {xref-ERC6909-isOperator-address-address-}[`++isOperator(owner, spender)++`]
+* {xref-ERC6909-approve-address-uint256-uint256-}[`++approve(spender, id, amount)++`]
+* {xref-ERC6909-setOperator-address-bool-}[`++setOperator(spender, approved)++`]
+* {xref-ERC6909-transfer-address-uint256-uint256-}[`++transfer(receiver, id, amount)++`]
+* {xref-ERC6909-transferFrom-address-address-uint256-uint256-}[`++transferFrom(sender, receiver, id, amount)++`]
+* {xref-ERC6909-_mint-address-uint256-uint256-}[`++_mint(to, id, amount)++`]
+* {xref-ERC6909-_transfer-address-address-uint256-uint256-}[`++_transfer(from, to, id, amount)++`]
+* {xref-ERC6909-_burn-address-uint256-uint256-}[`++_burn(from, id, amount)++`]
+* {xref-ERC6909-_update-address-address-uint256-uint256-}[`++_update(from, to, id, amount)++`]
+* {xref-ERC6909-_approve-address-address-uint256-uint256-}[`++_approve(owner, spender, id, amount)++`]
+* {xref-ERC6909-_setOperator-address-address-bool-}[`++_setOperator(owner, spender, approved)++`]
+* {xref-ERC6909-_spendAllowance-address-address-uint256-uint256-}[`++_spendAllowance(owner, spender, id, amount)++`]
+
+[.contract-subindex-inherited]
+.IERC6909
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-index]
+.Events
+--
+* {xref-ERC6909Metadata-ERC6909NameUpdated-uint256-string-}[`++ERC6909NameUpdated(id, newName)++`]
+* {xref-ERC6909Metadata-ERC6909SymbolUpdated-uint256-string-}[`++ERC6909SymbolUpdated(id, newSymbol)++`]
+* {xref-ERC6909Metadata-ERC6909DecimalsUpdated-uint256-uint8-}[`++ERC6909DecimalsUpdated(id, newDecimals)++`]
+
+[.contract-subindex-inherited]
+.IERC6909Metadata
+
+[.contract-subindex-inherited]
+.ERC6909
+
+[.contract-subindex-inherited]
+.IERC6909
+* {xref-IERC6909-Approval-address-address-uint256-uint256-}[`++Approval(owner, spender, id, amount)++`]
+* {xref-IERC6909-OperatorSet-address-address-bool-}[`++OperatorSet(owner, spender, approved)++`]
+* {xref-IERC6909-Transfer-address-address-address-uint256-uint256-}[`++Transfer(caller, sender, receiver, id, amount)++`]
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-index]
+.Errors
+--
+
+[.contract-subindex-inherited]
+.IERC6909Metadata
+
+[.contract-subindex-inherited]
+.ERC6909
+* {xref-ERC6909-ERC6909InsufficientBalance-address-uint256-uint256-uint256-}[`++ERC6909InsufficientBalance(sender, balance, needed, id)++`]
+* {xref-ERC6909-ERC6909InsufficientAllowance-address-uint256-uint256-uint256-}[`++ERC6909InsufficientAllowance(spender, allowance, needed, id)++`]
+* {xref-ERC6909-ERC6909InvalidApprover-address-}[`++ERC6909InvalidApprover(approver)++`]
+* {xref-ERC6909-ERC6909InvalidReceiver-address-}[`++ERC6909InvalidReceiver(receiver)++`]
+* {xref-ERC6909-ERC6909InvalidSender-address-}[`++ERC6909InvalidSender(sender)++`]
+* {xref-ERC6909-ERC6909InvalidSpender-address-}[`++ERC6909InvalidSpender(spender)++`]
+
+[.contract-subindex-inherited]
+.IERC6909
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-item]
+[[ERC6909Metadata-name-uint256-]]
+==== `[.contract-item-name]#++name++#++(uint256 id) → string++` [.item-kind]#public#
+
+Returns the name of the token of type `id`.
+
+[.contract-item]
+[[ERC6909Metadata-symbol-uint256-]]
+==== `[.contract-item-name]#++symbol++#++(uint256 id) → string++` [.item-kind]#public#
+
+Returns the ticker symbol of the token of type `id`.
+
+[.contract-item]
+[[ERC6909Metadata-decimals-uint256-]]
+==== `[.contract-item-name]#++decimals++#++(uint256 id) → uint8++` [.item-kind]#public#
+
+Returns the number of decimals for the token of type `id`.
+
+[.contract-item]
+[[ERC6909Metadata-_setName-uint256-string-]]
+==== `[.contract-item-name]#++_setName++#++(uint256 id, string newName)++` [.item-kind]#internal#
+
+Sets the `name` for a given token of type `id`.
+
+Emits an {ERC6909NameUpdated} event.
+
+[.contract-item]
+[[ERC6909Metadata-_setSymbol-uint256-string-]]
+==== `[.contract-item-name]#++_setSymbol++#++(uint256 id, string newSymbol)++` [.item-kind]#internal#
+
+Sets the `symbol` for a given token of type `id`.
+
+Emits an {ERC6909SymbolUpdated} event.
+
+[.contract-item]
+[[ERC6909Metadata-_setDecimals-uint256-uint8-]]
+==== `[.contract-item-name]#++_setDecimals++#++(uint256 id, uint8 newDecimals)++` [.item-kind]#internal#
+
+Sets the `decimals` for a given token of type `id`.
+
+Emits an {ERC6909DecimalsUpdated} event.
+
+[.contract-item]
+[[ERC6909Metadata-ERC6909NameUpdated-uint256-string-]]
+==== `[.contract-item-name]#++ERC6909NameUpdated++#++(uint256 indexed id, string newName)++` [.item-kind]#event#
+
+The name of the token of type `id` was updated to `newName`.
+
+[.contract-item]
+[[ERC6909Metadata-ERC6909SymbolUpdated-uint256-string-]]
+==== `[.contract-item-name]#++ERC6909SymbolUpdated++#++(uint256 indexed id, string newSymbol)++` [.item-kind]#event#
+
+The symbol for the token of type `id` was updated to `newSymbol`.
+
+[.contract-item]
+[[ERC6909Metadata-ERC6909DecimalsUpdated-uint256-uint8-]]
+==== `[.contract-item-name]#++ERC6909DecimalsUpdated++#++(uint256 indexed id, uint8 newDecimals)++` [.item-kind]#event#
+
+The decimals value for token of type `id` was updated to `newDecimals`.
+
+:totalSupply: pass:normal[xref:#ERC6909TokenSupply-totalSupply-uint256-[`++totalSupply++`]]
+:_update: pass:normal[xref:#ERC6909TokenSupply-_update-address-address-uint256-uint256-[`++_update++`]]
+
+:totalSupply-uint256: pass:normal[xref:#ERC6909TokenSupply-totalSupply-uint256-[`++totalSupply++`]]
+:_update-address-address-uint256-uint256: pass:normal[xref:#ERC6909TokenSupply-_update-address-address-uint256-uint256-[`++_update++`]]
+
+[.contract]
+[[ERC6909TokenSupply]]
+=== `++ERC6909TokenSupply++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/token/ERC6909/extensions/draft-ERC6909TokenSupply.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/token/ERC6909/extensions/draft-ERC6909TokenSupply.sol";
+```
+
+Implementation of the Token Supply extension defined in ERC6909.
+Tracks the total supply of each token id individually.
+
+[.contract-index]
+.Functions
+--
+* {xref-ERC6909TokenSupply-totalSupply-uint256-}[`++totalSupply(id)++`]
+* {xref-ERC6909TokenSupply-_update-address-address-uint256-uint256-}[`++_update(from, to, id, amount)++`]
+
+[.contract-subindex-inherited]
+.IERC6909TokenSupply
+
+[.contract-subindex-inherited]
+.ERC6909
+* {xref-ERC6909-supportsInterface-bytes4-}[`++supportsInterface(interfaceId)++`]
+* {xref-ERC6909-balanceOf-address-uint256-}[`++balanceOf(owner, id)++`]
+* {xref-ERC6909-allowance-address-address-uint256-}[`++allowance(owner, spender, id)++`]
+* {xref-ERC6909-isOperator-address-address-}[`++isOperator(owner, spender)++`]
+* {xref-ERC6909-approve-address-uint256-uint256-}[`++approve(spender, id, amount)++`]
+* {xref-ERC6909-setOperator-address-bool-}[`++setOperator(spender, approved)++`]
+* {xref-ERC6909-transfer-address-uint256-uint256-}[`++transfer(receiver, id, amount)++`]
+* {xref-ERC6909-transferFrom-address-address-uint256-uint256-}[`++transferFrom(sender, receiver, id, amount)++`]
+* {xref-ERC6909-_mint-address-uint256-uint256-}[`++_mint(to, id, amount)++`]
+* {xref-ERC6909-_transfer-address-address-uint256-uint256-}[`++_transfer(from, to, id, amount)++`]
+* {xref-ERC6909-_burn-address-uint256-uint256-}[`++_burn(from, id, amount)++`]
+* {xref-ERC6909-_approve-address-address-uint256-uint256-}[`++_approve(owner, spender, id, amount)++`]
+* {xref-ERC6909-_setOperator-address-address-bool-}[`++_setOperator(owner, spender, approved)++`]
+* {xref-ERC6909-_spendAllowance-address-address-uint256-uint256-}[`++_spendAllowance(owner, spender, id, amount)++`]
+
+[.contract-subindex-inherited]
+.IERC6909
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-index]
+.Events
+--
+
+[.contract-subindex-inherited]
+.IERC6909TokenSupply
+
+[.contract-subindex-inherited]
+.ERC6909
+
+[.contract-subindex-inherited]
+.IERC6909
+* {xref-IERC6909-Approval-address-address-uint256-uint256-}[`++Approval(owner, spender, id, amount)++`]
+* {xref-IERC6909-OperatorSet-address-address-bool-}[`++OperatorSet(owner, spender, approved)++`]
+* {xref-IERC6909-Transfer-address-address-address-uint256-uint256-}[`++Transfer(caller, sender, receiver, id, amount)++`]
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-index]
+.Errors
+--
+
+[.contract-subindex-inherited]
+.IERC6909TokenSupply
+
+[.contract-subindex-inherited]
+.ERC6909
+* {xref-ERC6909-ERC6909InsufficientBalance-address-uint256-uint256-uint256-}[`++ERC6909InsufficientBalance(sender, balance, needed, id)++`]
+* {xref-ERC6909-ERC6909InsufficientAllowance-address-uint256-uint256-uint256-}[`++ERC6909InsufficientAllowance(spender, allowance, needed, id)++`]
+* {xref-ERC6909-ERC6909InvalidApprover-address-}[`++ERC6909InvalidApprover(approver)++`]
+* {xref-ERC6909-ERC6909InvalidReceiver-address-}[`++ERC6909InvalidReceiver(receiver)++`]
+* {xref-ERC6909-ERC6909InvalidSender-address-}[`++ERC6909InvalidSender(sender)++`]
+* {xref-ERC6909-ERC6909InvalidSpender-address-}[`++ERC6909InvalidSpender(spender)++`]
+
+[.contract-subindex-inherited]
+.IERC6909
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-item]
+[[ERC6909TokenSupply-totalSupply-uint256-]]
+==== `[.contract-item-name]#++totalSupply++#++(uint256 id) → uint256++` [.item-kind]#public#
+
+Returns the total supply of the token of type `id`.
+
+[.contract-item]
+[[ERC6909TokenSupply-_update-address-address-uint256-uint256-]]
+==== `[.contract-item-name]#++_update++#++(address from, address to, uint256 id, uint256 amount)++` [.item-kind]#internal#
+
+Override the `_update` function to update the total supply of each token id as necessary.
+

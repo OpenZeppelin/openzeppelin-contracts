@@ -31,7 +31,7 @@ for (const artifact of artifacts) {
   }
 
   /// graphlib.alg.findCycles will not find minimal cycles.
-  /// We are only interested int cycles of lengths 2 (needs proof)
+  /// We are only interested in cycles of lengths 2 (needs proof)
   graph.nodes().forEach((x, i, nodes) =>
     nodes
       .slice(i + 1)

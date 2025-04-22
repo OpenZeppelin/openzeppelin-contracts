@@ -3,6 +3,34 @@ const { interfaceId } = require('../../helpers/methods');
 const { mapValues } = require('../../helpers/iterate');
 
 const INVALID_ID = '0xffffffff';
+const GOVERNOR_INTERFACE = [
+  'name()',
+  'version()',
+  'COUNTING_MODE()',
+  'hashProposal(address[],uint256[],bytes[],bytes32)',
+  'state(uint256)',
+  'proposalThreshold()',
+  'proposalSnapshot(uint256)',
+  'proposalDeadline(uint256)',
+  'proposalProposer(uint256)',
+  'proposalEta(uint256)',
+  'proposalNeedsQueuing(uint256)',
+  'votingDelay()',
+  'votingPeriod()',
+  'quorum(uint256)',
+  'getVotes(address,uint256)',
+  'getVotesWithParams(address,uint256,bytes)',
+  'hasVoted(uint256,address)',
+  'propose(address[],uint256[],bytes[],string)',
+  'queue(address[],uint256[],bytes[],bytes32)',
+  'execute(address[],uint256[],bytes[],bytes32)',
+  'cancel(address[],uint256[],bytes[],bytes32)',
+  'castVote(uint256,uint8)',
+  'castVoteWithReason(uint256,uint8,string)',
+  'castVoteWithReasonAndParams(uint256,uint8,string,bytes)',
+  'castVoteBySig(uint256,uint8,address,bytes)',
+  'castVoteWithReasonAndParamsBySig(uint256,uint8,address,string,bytes,bytes)',
+];
 const SIGNATURES = {
   ERC165: ['supportsInterface(bytes4)'],
   ERC721: [
@@ -59,41 +87,32 @@ const SIGNATURES = {
     'acceptDefaultAdminTransfer()',
     'cancelDefaultAdminTransfer()',
   ],
-  Governor: [
-    'name()',
-    'version()',
-    'COUNTING_MODE()',
-    'hashProposal(address[],uint256[],bytes[],bytes32)',
-    'state(uint256)',
-    'proposalThreshold()',
-    'proposalSnapshot(uint256)',
-    'proposalDeadline(uint256)',
-    'proposalProposer(uint256)',
-    'proposalEta(uint256)',
-    'proposalNeedsQueuing(uint256)',
-    'votingDelay()',
-    'votingPeriod()',
-    'quorum(uint256)',
-    'getVotes(address,uint256)',
-    'getVotesWithParams(address,uint256,bytes)',
-    'hasVoted(uint256,address)',
-    'propose(address[],uint256[],bytes[],string)',
-    'queue(address[],uint256[],bytes[],bytes32)',
-    'execute(address[],uint256[],bytes[],bytes32)',
-    'cancel(address[],uint256[],bytes[],bytes32)',
-    'castVote(uint256,uint8)',
-    'castVoteWithReason(uint256,uint8,string)',
-    'castVoteWithReasonAndParams(uint256,uint8,string,bytes)',
-    'castVoteBySig(uint256,uint8,address,bytes)',
-    'castVoteWithReasonAndParamsBySig(uint256,uint8,address,string,bytes,bytes)',
-  ],
+  Governor: GOVERNOR_INTERFACE,
+  Governor_5_3: GOVERNOR_INTERFACE.concat('getProposalId(address[],uint256[],bytes[],bytes32)'),
   ERC2981: ['royaltyInfo(uint256,uint256)'],
+  ERC6909: [
+    'balanceOf(address,uint256)',
+    'allowance(address,address,uint256)',
+    'isOperator(address,address)',
+    'transfer(address,uint256,uint256)',
+    'transferFrom(address,address,uint256,uint256)',
+    'approve(address,uint256,uint256)',
+    'setOperator(address,bool)',
+  ],
 };
 
 const INTERFACE_IDS = mapValues(SIGNATURES, interfaceId);
 
-function shouldSupportInterfaces(interfaces = []) {
+function shouldSupportInterfaces(interfaces = [], signatures = SIGNATURES) {
+  // case where only signatures are provided
+  if (!Array.isArray(interfaces)) {
+    signatures = interfaces;
+    interfaces = Object.keys(interfaces);
+  }
+
   interfaces.unshift('ERC165');
+  signatures.ERC165 = SIGNATURES.ERC165;
+  const interfaceIds = mapValues(signatures, interfaceId, ([name]) => interfaces.includes(name));
 
   describe('ERC165', function () {
     beforeEach(function () {
@@ -103,14 +122,14 @@ function shouldSupportInterfaces(interfaces = []) {
     describe('when the interfaceId is supported', function () {
       it('uses less than 30k gas', async function () {
         for (const k of interfaces) {
-          const interfaceId = INTERFACE_IDS[k] ?? k;
+          const interfaceId = interfaceIds[k] ?? k;
           expect(await this.contractUnderTest.supportsInterface.estimateGas(interfaceId)).to.lte(30_000n);
         }
       });
 
       it('returns true', async function () {
         for (const k of interfaces) {
-          const interfaceId = INTERFACE_IDS[k] ?? k;
+          const interfaceId = interfaceIds[k] ?? k;
           expect(await this.contractUnderTest.supportsInterface(interfaceId), `does not support ${k}`).to.be.true;
         }
       });
@@ -129,10 +148,10 @@ function shouldSupportInterfaces(interfaces = []) {
     it('all interface functions are in ABI', async function () {
       for (const k of interfaces) {
         // skip interfaces for which we don't have a function list
-        if (SIGNATURES[k] === undefined) continue;
+        if (signatures[k] === undefined) continue;
 
         // Check the presence of each function in the contract's interface
-        for (const fnSig of SIGNATURES[k]) {
+        for (const fnSig of signatures[k]) {
           expect(this.contractUnderTest.interface.hasFunction(fnSig), `did not find ${fnSig}`).to.be.true;
         }
       }
@@ -141,5 +160,7 @@ function shouldSupportInterfaces(interfaces = []) {
 }
 
 module.exports = {
+  SIGNATURES,
+  INTERFACE_IDS,
   shouldSupportInterfaces,
 };

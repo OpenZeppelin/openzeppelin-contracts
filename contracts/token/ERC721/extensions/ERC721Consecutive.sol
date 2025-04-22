@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.1.0) (token/ERC721/extensions/ERC721Consecutive.sol)
+// OpenZeppelin Contracts (last updated v5.3.0) (token/ERC721/extensions/ERC721Consecutive.sol)
 
 pragma solidity ^0.8.20;
 
@@ -159,7 +159,7 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
     }
 
     /**
-     * @dev Used to offset the first token id in {_nextConsecutiveId}
+     * @dev Used to offset the first token id in `_nextConsecutiveId`
      */
     function _firstConsecutiveId() internal view virtual returns (uint96) {
         return 0;

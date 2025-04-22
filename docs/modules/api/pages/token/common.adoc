@@ -35,9 +35,17 @@ Functionality that is common to multiple token standards.
 :_setTokenRoyalty: pass:normal[xref:#ERC2981-_setTokenRoyalty-uint256-address-uint96-[`++_setTokenRoyalty++`]]
 :_resetTokenRoyalty: pass:normal[xref:#ERC2981-_resetTokenRoyalty-uint256-[`++_resetTokenRoyalty++`]]
 
+:supportsInterface-bytes4: pass:normal[xref:#ERC2981-supportsInterface-bytes4-[`++supportsInterface++`]]
+:royaltyInfo-uint256-uint256: pass:normal[xref:#ERC2981-royaltyInfo-uint256-uint256-[`++royaltyInfo++`]]
+:_feeDenominator-: pass:normal[xref:#ERC2981-_feeDenominator--[`++_feeDenominator++`]]
+:_setDefaultRoyalty-address-uint96: pass:normal[xref:#ERC2981-_setDefaultRoyalty-address-uint96-[`++_setDefaultRoyalty++`]]
+:_deleteDefaultRoyalty-: pass:normal[xref:#ERC2981-_deleteDefaultRoyalty--[`++_deleteDefaultRoyalty++`]]
+:_setTokenRoyalty-uint256-address-uint96: pass:normal[xref:#ERC2981-_setTokenRoyalty-uint256-address-uint96-[`++_setTokenRoyalty++`]]
+:_resetTokenRoyalty-uint256: pass:normal[xref:#ERC2981-_resetTokenRoyalty-uint256-[`++_resetTokenRoyalty++`]]
+
 [.contract]
 [[ERC2981]]
-=== `++ERC2981++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/common/ERC2981.sol[{github-icon},role=heading-link]
+=== `++ERC2981++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/token/common/ERC2981.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -171,7 +179,7 @@ The default royalty receiver is invalid.
 [[ERC2981-ERC2981InvalidTokenRoyalty-uint256-uint256-uint256-]]
 ==== `[.contract-item-name]#++ERC2981InvalidTokenRoyalty++#++(uint256 tokenId, uint256 numerator, uint256 denominator)++` [.item-kind]#error#
 
-The royalty set for an specific `tokenId` is invalid (eg. (numerator / denominator) >= 1).
+The royalty set for a specific `tokenId` is invalid (eg. (numerator / denominator) >= 1).
 
 [.contract-item]
 [[ERC2981-ERC2981InvalidTokenRoyaltyReceiver-uint256-address-]]

@@ -96,7 +96,7 @@ describe('Governor', function () {
         );
       });
 
-      shouldSupportInterfaces(['ERC1155Receiver', 'Governor']);
+      shouldSupportInterfaces(['ERC1155Receiver', 'Governor', 'Governor_5_3']);
       shouldBehaveLikeERC6372(mode);
 
       it('deployment check', async function () {
@@ -624,8 +624,8 @@ describe('Governor', function () {
             await this.helper.connect(this.proposer).propose();
 
             await expect(this.helper.connect(this.owner).cancel('external'))
-              .to.be.revertedWithCustomError(this.mock, 'GovernorOnlyProposer')
-              .withArgs(this.owner);
+              .to.be.revertedWithCustomError(this.mock, 'GovernorUnableToCancel')
+              .withArgs(this.proposal.id, this.owner);
           });
 
           it('after vote started', async function () {
@@ -633,12 +633,8 @@ describe('Governor', function () {
             await this.helper.waitForSnapshot(1n); // snapshot + 1 block
 
             await expect(this.helper.cancel('external'))
-              .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
-              .withArgs(
-                this.proposal.id,
-                ProposalState.Active,
-                GovernorHelper.proposalStatesToBitMap([ProposalState.Pending]),
-              );
+              .to.be.revertedWithCustomError(this.mock, 'GovernorUnableToCancel')
+              .withArgs(this.proposal.id, this.owner);
           });
 
           it('after vote', async function () {
@@ -647,12 +643,8 @@ describe('Governor', function () {
             await this.helper.connect(this.voter1).vote({ support: VoteType.For });
 
             await expect(this.helper.cancel('external'))
-              .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
-              .withArgs(
-                this.proposal.id,
-                ProposalState.Active,
-                GovernorHelper.proposalStatesToBitMap([ProposalState.Pending]),
-              );
+              .to.be.revertedWithCustomError(this.mock, 'GovernorUnableToCancel')
+              .withArgs(this.proposal.id, this.voter1);
           });
 
           it('after deadline', async function () {
@@ -662,12 +654,8 @@ describe('Governor', function () {
             await this.helper.waitForDeadline();
 
             await expect(this.helper.cancel('external'))
-              .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
-              .withArgs(
-                this.proposal.id,
-                ProposalState.Succeeded,
-                GovernorHelper.proposalStatesToBitMap([ProposalState.Pending]),
-              );
+              .to.be.revertedWithCustomError(this.mock, 'GovernorUnableToCancel')
+              .withArgs(this.proposal.id, this.voter1);
           });
 
           it('after execution', async function () {
@@ -678,12 +666,8 @@ describe('Governor', function () {
             await this.helper.execute();
 
             await expect(this.helper.cancel('external'))
-              .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
-              .withArgs(
-                this.proposal.id,
-                ProposalState.Executed,
-                GovernorHelper.proposalStatesToBitMap([ProposalState.Pending]),
-              );
+              .to.be.revertedWithCustomError(this.mock, 'GovernorUnableToCancel')
+              .withArgs(this.proposal.id, this.voter1);
           });
         });
       });

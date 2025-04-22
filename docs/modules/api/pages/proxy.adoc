@@ -124,6 +124,7 @@
 :xref-Initializable-_disableInitializers--: xref:proxy.adoc#Initializable-_disableInitializers--
 :xref-Initializable-_getInitializedVersion--: xref:proxy.adoc#Initializable-_getInitializedVersion--
 :xref-Initializable-_isInitializing--: xref:proxy.adoc#Initializable-_isInitializing--
+:xref-Initializable-_initializableStorageSlot--: xref:proxy.adoc#Initializable-_initializableStorageSlot--
 :xref-Initializable-Initialized-uint64-: xref:proxy.adoc#Initializable-Initialized-uint64-
 :xref-Initializable-InvalidInitialization--: xref:proxy.adoc#Initializable-InvalidInitialization--
 :xref-Initializable-NotInitializing--: xref:proxy.adoc#Initializable-NotInitializing--
@@ -198,9 +199,14 @@ The current implementation of this security mechanism uses https://eips.ethereum
 :_fallback: pass:normal[xref:#Proxy-_fallback--[`++_fallback++`]]
 :fallback: pass:normal[xref:#Proxy-fallback--[`++fallback++`]]
 
+:_delegate-address: pass:normal[xref:#Proxy-_delegate-address-[`++_delegate++`]]
+:_implementation-: pass:normal[xref:#Proxy-_implementation--[`++_implementation++`]]
+:_fallback-: pass:normal[xref:#Proxy-_fallback--[`++_fallback++`]]
+:fallback-: pass:normal[xref:#Proxy-fallback--[`++fallback++`]]
+
 [.contract]
 [[Proxy]]
-=== `++Proxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/proxy/Proxy.sol[{github-icon},role=heading-link]
+=== `++Proxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/proxy/Proxy.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -261,9 +267,12 @@ function in the contract matches the call data.
 :constructor: pass:normal[xref:#ERC1967Proxy-constructor-address-bytes-[`++constructor++`]]
 :_implementation: pass:normal[xref:#ERC1967Proxy-_implementation--[`++_implementation++`]]
 
+:constructor-address-bytes: pass:normal[xref:#ERC1967Proxy-constructor-address-bytes-[`++constructor++`]]
+:_implementation-: pass:normal[xref:#ERC1967Proxy-_implementation--[`++_implementation++`]]
+
 [.contract]
 [[ERC1967Proxy]]
-=== `++ERC1967Proxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/proxy/ERC1967/ERC1967Proxy.sol[{github-icon},role=heading-link]
+=== `++ERC1967Proxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/proxy/ERC1967/ERC1967Proxy.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -326,9 +335,16 @@ the https://eth.wiki/json-rpc/API#eth_getstorageat[`eth_getStorageAt`] RPC call.
 :getBeacon: pass:normal[xref:#ERC1967Utils-getBeacon--[`++getBeacon++`]]
 :upgradeBeaconToAndCall: pass:normal[xref:#ERC1967Utils-upgradeBeaconToAndCall-address-bytes-[`++upgradeBeaconToAndCall++`]]
 
+:getImplementation-: pass:normal[xref:#ERC1967Utils-getImplementation--[`++getImplementation++`]]
+:upgradeToAndCall-address-bytes: pass:normal[xref:#ERC1967Utils-upgradeToAndCall-address-bytes-[`++upgradeToAndCall++`]]
+:getAdmin-: pass:normal[xref:#ERC1967Utils-getAdmin--[`++getAdmin++`]]
+:changeAdmin-address: pass:normal[xref:#ERC1967Utils-changeAdmin-address-[`++changeAdmin++`]]
+:getBeacon-: pass:normal[xref:#ERC1967Utils-getBeacon--[`++getBeacon++`]]
+:upgradeBeaconToAndCall-address-bytes: pass:normal[xref:#ERC1967Utils-upgradeBeaconToAndCall-address-bytes-[`++upgradeBeaconToAndCall++`]]
+
 [.contract]
 [[ERC1967Utils]]
-=== `++ERC1967Utils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/proxy/ERC1967/ERC1967Utils.sol[{github-icon},role=heading-link]
+=== `++ERC1967Utils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/proxy/ERC1967/ERC1967Utils.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -475,9 +491,13 @@ This is the keccak-256 hash of "eip1967.proxy.beacon" subtracted by 1.
 :_proxyAdmin: pass:normal[xref:#TransparentUpgradeableProxy-_proxyAdmin--[`++_proxyAdmin++`]]
 :_fallback: pass:normal[xref:#TransparentUpgradeableProxy-_fallback--[`++_fallback++`]]
 
+:constructor-address-address-bytes: pass:normal[xref:#TransparentUpgradeableProxy-constructor-address-address-bytes-[`++constructor++`]]
+:_proxyAdmin-: pass:normal[xref:#TransparentUpgradeableProxy-_proxyAdmin--[`++_proxyAdmin++`]]
+:_fallback-: pass:normal[xref:#TransparentUpgradeableProxy-_fallback--[`++_fallback++`]]
+
 [.contract]
 [[TransparentUpgradeableProxy]]
-=== `++TransparentUpgradeableProxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/proxy/transparent/TransparentUpgradeableProxy.sol[{github-icon},role=heading-link]
+=== `++TransparentUpgradeableProxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/proxy/transparent/TransparentUpgradeableProxy.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -584,9 +604,13 @@ The proxy caller is the current admin, and can't fallback to the proxy target.
 :constructor: pass:normal[xref:#ProxyAdmin-constructor-address-[`++constructor++`]]
 :upgradeAndCall: pass:normal[xref:#ProxyAdmin-upgradeAndCall-contract-ITransparentUpgradeableProxy-address-bytes-[`++upgradeAndCall++`]]
 
+:constructor-address: pass:normal[xref:#ProxyAdmin-constructor-address-[`++constructor++`]]
+:upgradeAndCall-contract-ITransparentUpgradeableProxy-address-bytes: pass:normal[xref:#ProxyAdmin-upgradeAndCall-contract-ITransparentUpgradeableProxy-address-bytes-[`++upgradeAndCall++`]]
+:UPGRADE_INTERFACE_VERSION-string: pass:normal[xref:#ProxyAdmin-UPGRADE_INTERFACE_VERSION-string[`++UPGRADE_INTERFACE_VERSION++`]]
+
 [.contract]
 [[ProxyAdmin]]
-=== `++ProxyAdmin++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/proxy/transparent/ProxyAdmin.sol[{github-icon},role=heading-link]
+=== `++ProxyAdmin++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/proxy/transparent/ProxyAdmin.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -669,9 +693,13 @@ during an upgrade.
 :_implementation: pass:normal[xref:#BeaconProxy-_implementation--[`++_implementation++`]]
 :_getBeacon: pass:normal[xref:#BeaconProxy-_getBeacon--[`++_getBeacon++`]]
 
+:constructor-address-bytes: pass:normal[xref:#BeaconProxy-constructor-address-bytes-[`++constructor++`]]
+:_implementation-: pass:normal[xref:#BeaconProxy-_implementation--[`++_implementation++`]]
+:_getBeacon-: pass:normal[xref:#BeaconProxy-_getBeacon--[`++_getBeacon++`]]
+
 [.contract]
 [[BeaconProxy]]
-=== `++BeaconProxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/proxy/beacon/BeaconProxy.sol[{github-icon},role=heading-link]
+=== `++BeaconProxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/proxy/beacon/BeaconProxy.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -734,9 +762,11 @@ Returns the beacon.
 
 :implementation: pass:normal[xref:#IBeacon-implementation--[`++implementation++`]]
 
+:implementation-: pass:normal[xref:#IBeacon-implementation--[`++implementation++`]]
+
 [.contract]
 [[IBeacon]]
-=== `++IBeacon++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/proxy/beacon/IBeacon.sol[{github-icon},role=heading-link]
+=== `++IBeacon++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/proxy/beacon/IBeacon.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -766,9 +796,13 @@ Must return an address that can be used as a delegate call target.
 :implementation: pass:normal[xref:#UpgradeableBeacon-implementation--[`++implementation++`]]
 :upgradeTo: pass:normal[xref:#UpgradeableBeacon-upgradeTo-address-[`++upgradeTo++`]]
 
+:constructor-address-address: pass:normal[xref:#UpgradeableBeacon-constructor-address-address-[`++constructor++`]]
+:implementation-: pass:normal[xref:#UpgradeableBeacon-implementation--[`++implementation++`]]
+:upgradeTo-address: pass:normal[xref:#UpgradeableBeacon-upgradeTo-address-[`++upgradeTo++`]]
+
 [.contract]
 [[UpgradeableBeacon]]
-=== `++UpgradeableBeacon++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/proxy/beacon/UpgradeableBeacon.sol[{github-icon},role=heading-link]
+=== `++UpgradeableBeacon++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/proxy/beacon/UpgradeableBeacon.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -883,9 +917,23 @@ The `implementation` of the beacon is invalid.
 :predictDeterministicAddressWithImmutableArgs: pass:normal[xref:#Clones-predictDeterministicAddressWithImmutableArgs-address-bytes-bytes32-[`++predictDeterministicAddressWithImmutableArgs++`]]
 :fetchCloneArgs: pass:normal[xref:#Clones-fetchCloneArgs-address-[`++fetchCloneArgs++`]]
 
+:clone-address: pass:normal[xref:#Clones-clone-address-[`++clone++`]]
+:clone-address-uint256: pass:normal[xref:#Clones-clone-address-uint256-[`++clone++`]]
+:cloneDeterministic-address-bytes32: pass:normal[xref:#Clones-cloneDeterministic-address-bytes32-[`++cloneDeterministic++`]]
+:cloneDeterministic-address-bytes32-uint256: pass:normal[xref:#Clones-cloneDeterministic-address-bytes32-uint256-[`++cloneDeterministic++`]]
+:predictDeterministicAddress-address-bytes32-address: pass:normal[xref:#Clones-predictDeterministicAddress-address-bytes32-address-[`++predictDeterministicAddress++`]]
+:predictDeterministicAddress-address-bytes32: pass:normal[xref:#Clones-predictDeterministicAddress-address-bytes32-[`++predictDeterministicAddress++`]]
+:cloneWithImmutableArgs-address-bytes: pass:normal[xref:#Clones-cloneWithImmutableArgs-address-bytes-[`++cloneWithImmutableArgs++`]]
+:cloneWithImmutableArgs-address-bytes-uint256: pass:normal[xref:#Clones-cloneWithImmutableArgs-address-bytes-uint256-[`++cloneWithImmutableArgs++`]]
+:cloneDeterministicWithImmutableArgs-address-bytes-bytes32: pass:normal[xref:#Clones-cloneDeterministicWithImmutableArgs-address-bytes-bytes32-[`++cloneDeterministicWithImmutableArgs++`]]
+:cloneDeterministicWithImmutableArgs-address-bytes-bytes32-uint256: pass:normal[xref:#Clones-cloneDeterministicWithImmutableArgs-address-bytes-bytes32-uint256-[`++cloneDeterministicWithImmutableArgs++`]]
+:predictDeterministicAddressWithImmutableArgs-address-bytes-bytes32-address: pass:normal[xref:#Clones-predictDeterministicAddressWithImmutableArgs-address-bytes-bytes32-address-[`++predictDeterministicAddressWithImmutableArgs++`]]
+:predictDeterministicAddressWithImmutableArgs-address-bytes-bytes32: pass:normal[xref:#Clones-predictDeterministicAddressWithImmutableArgs-address-bytes-bytes32-[`++predictDeterministicAddressWithImmutableArgs++`]]
+:fetchCloneArgs-address: pass:normal[xref:#Clones-fetchCloneArgs-address-[`++fetchCloneArgs++`]]
+
 [.contract]
 [[Clones]]
-=== `++Clones++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/proxy/Clones.sol[{github-icon},role=heading-link]
+=== `++Clones++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/proxy/Clones.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -932,7 +980,7 @@ deterministic method.
 [[Clones-clone-address-]]
 ==== `[.contract-item-name]#++clone++#++(address implementation) → address instance++` [.item-kind]#internal#
 
-Deploys and returns the address of a clone that mimics the behaviour of `implementation`.
+Deploys and returns the address of a clone that mimics the behavior of `implementation`.
 
 This function uses the create opcode, which should never revert.
 
@@ -950,7 +998,7 @@ to always have enough balance for new deployments. Consider exposing this functi
 [[Clones-cloneDeterministic-address-bytes32-]]
 ==== `[.contract-item-name]#++cloneDeterministic++#++(address implementation, bytes32 salt) → address instance++` [.item-kind]#internal#
 
-Deploys and returns the address of a clone that mimics the behaviour of `implementation`.
+Deploys and returns the address of a clone that mimics the behavior of `implementation`.
 
 This function uses the create2 opcode and a `salt` to deterministically deploy
 the clone. Using the same `implementation` and `salt` multiple times will revert, since
@@ -1002,7 +1050,7 @@ to always have enough balance for new deployments. Consider exposing this functi
 [[Clones-cloneDeterministicWithImmutableArgs-address-bytes-bytes32-]]
 ==== `[.contract-item-name]#++cloneDeterministicWithImmutableArgs++#++(address implementation, bytes args, bytes32 salt) → address instance++` [.item-kind]#internal#
 
-Deploys and returns the address of a clone that mimics the behaviour of `implementation` with custom
+Deploys and returns the address of a clone that mimics the behavior of `implementation` with custom
 immutable arguments. These are provided through `args` and cannot be changed after deployment. To
 access the arguments within the implementation, use {fetchCloneArgs}.
 
@@ -1063,10 +1111,17 @@ Get the immutable args attached to a clone.
 :_disableInitializers: pass:normal[xref:#Initializable-_disableInitializers--[`++_disableInitializers++`]]
 :_getInitializedVersion: pass:normal[xref:#Initializable-_getInitializedVersion--[`++_getInitializedVersion++`]]
 :_isInitializing: pass:normal[xref:#Initializable-_isInitializing--[`++_isInitializing++`]]
+:_initializableStorageSlot: pass:normal[xref:#Initializable-_initializableStorageSlot--[`++_initializableStorageSlot++`]]
+
+:_checkInitializing-: pass:normal[xref:#Initializable-_checkInitializing--[`++_checkInitializing++`]]
+:_disableInitializers-: pass:normal[xref:#Initializable-_disableInitializers--[`++_disableInitializers++`]]
+:_getInitializedVersion-: pass:normal[xref:#Initializable-_getInitializedVersion--[`++_getInitializedVersion++`]]
+:_isInitializing-: pass:normal[xref:#Initializable-_isInitializing--[`++_isInitializing++`]]
+:_initializableStorageSlot-: pass:normal[xref:#Initializable-_initializableStorageSlot--[`++_initializableStorageSlot++`]]
 
 [.contract]
 [[Initializable]]
-=== `++Initializable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/proxy/utils/Initializable.sol[{github-icon},role=heading-link]
+=== `++Initializable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/proxy/utils/Initializable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1137,6 +1192,7 @@ constructor() {
 * {xref-Initializable-_disableInitializers--}[`++_disableInitializers()++`]
 * {xref-Initializable-_getInitializedVersion--}[`++_getInitializedVersion()++`]
 * {xref-Initializable-_isInitializing--}[`++_isInitializing()++`]
+* {xref-Initializable-_initializableStorageSlot--}[`++_initializableStorageSlot()++`]
 
 --
 
@@ -1226,6 +1282,14 @@ Returns the highest version that has been initialized. See {reinitializer}.
 Returns `true` if the contract is currently initializing. See {onlyInitializing}.
 
 [.contract-item]
+[[Initializable-_initializableStorageSlot--]]
+==== `[.contract-item-name]#++_initializableStorageSlot++#++() → bytes32++` [.item-kind]#internal#
+
+Pointer to storage slot. Allows integrators to override it with a custom storage location.
+
+NOTE: Consider following the ERC-7201 formula to derive storage locations.
+
+[.contract-item]
 [[Initializable-Initialized-uint64-]]
 ==== `[.contract-item-name]#++Initialized++#++(uint64 version)++` [.item-kind]#event#
 
@@ -1254,9 +1318,16 @@ The contract is not initializing.
 :_checkNotDelegated: pass:normal[xref:#UUPSUpgradeable-_checkNotDelegated--[`++_checkNotDelegated++`]]
 :_authorizeUpgrade: pass:normal[xref:#UUPSUpgradeable-_authorizeUpgrade-address-[`++_authorizeUpgrade++`]]
 
+:proxiableUUID-: pass:normal[xref:#UUPSUpgradeable-proxiableUUID--[`++proxiableUUID++`]]
+:upgradeToAndCall-address-bytes: pass:normal[xref:#UUPSUpgradeable-upgradeToAndCall-address-bytes-[`++upgradeToAndCall++`]]
+:_checkProxy-: pass:normal[xref:#UUPSUpgradeable-_checkProxy--[`++_checkProxy++`]]
+:_checkNotDelegated-: pass:normal[xref:#UUPSUpgradeable-_checkNotDelegated--[`++_checkNotDelegated++`]]
+:_authorizeUpgrade-address: pass:normal[xref:#UUPSUpgradeable-_authorizeUpgrade-address-[`++_authorizeUpgrade++`]]
+:UPGRADE_INTERFACE_VERSION-string: pass:normal[xref:#UUPSUpgradeable-UPGRADE_INTERFACE_VERSION-string[`++UPGRADE_INTERFACE_VERSION++`]]
+
 [.contract]
 [[UUPSUpgradeable]]
-=== `++UUPSUpgradeable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/proxy/utils/UUPSUpgradeable.sol[{github-icon},role=heading-link]
+=== `++UUPSUpgradeable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/proxy/utils/UUPSUpgradeable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1350,7 +1421,6 @@ Emits an {Upgraded} event.
 
 Reverts if the execution is not performed via delegatecall or the execution
 context is not of a proxy with an ERC-1967 compliant implementation pointing to self.
-See {_onlyProxy}.
 
 [.contract-item]
 [[UUPSUpgradeable-_checkNotDelegated--]]

@@ -78,26 +78,8 @@ class UserOperation {
     };
   }
 
-  hash(entrypoint, chainId) {
-    const p = this.packed;
-    const h = ethers.keccak256(
-      ethers.AbiCoder.defaultAbiCoder().encode(
-        ['address', 'uint256', 'bytes32', 'bytes32', 'uint256', 'uint256', 'uint256', 'uint256'],
-        [
-          p.sender,
-          p.nonce,
-          ethers.keccak256(p.initCode),
-          ethers.keccak256(p.callData),
-          p.accountGasLimits,
-          p.preVerificationGas,
-          p.gasFees,
-          ethers.keccak256(p.paymasterAndData),
-        ],
-      ),
-    );
-    return ethers.keccak256(
-      ethers.AbiCoder.defaultAbiCoder().encode(['bytes32', 'address', 'uint256'], [h, getAddress(entrypoint), chainId]),
-    );
+  hash(entrypoint) {
+    return entrypoint.getUserOpHash(this.packed);
   }
 }
 

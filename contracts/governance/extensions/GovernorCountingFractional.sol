@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.1.0) (governance/extensions/GovernorCountingFractional.sol)
+// OpenZeppelin Contracts (last updated v5.3.0) (governance/extensions/GovernorCountingFractional.sol)
 
 pragma solidity ^0.8.20;
 
@@ -27,7 +27,7 @@ import {Math} from "../../utils/math/Math.sol";
  * * Voting from an L2 with tokens held by a bridge
  * * Voting privately from a shielded pool using zero knowledge proofs.
  *
- * Based on ScopeLift's GovernorCountingFractional[https://github.com/ScopeLift/flexible-voting/blob/e5de2efd1368387b840931f19f3c184c85842761/src/GovernorCountingFractional.sol]
+ * Based on ScopeLift's https://github.com/ScopeLift/flexible-voting/blob/e5de2efd1368387b840931f19f3c184c85842761/src/GovernorCountingFractional.sol[`GovernorCountingFractional`]
  *
  * _Available since v5.1._
  */
@@ -125,9 +125,9 @@ abstract contract GovernorCountingFractional is Governor {
      *
      * `abi.encodePacked(uint128(againstVotes), uint128(forVotes), uint128(abstainVotes))`
      *
-     * NOTE: Consider that fractional voting restricts the number of casted vote (in each category) to 128 bits.
+     * NOTE: Consider that fractional voting restricts the number of casted votes (in each category) to 128 bits.
      * Depending on how many decimals the underlying token has, a single voter may require to split their vote into
-     * multiple vote operations. For precision higher than ~30 decimals, large token holders may require an
+     * multiple vote operations. For precision higher than ~30 decimals, large token holders may require a
      * potentially large number of calls to cast all their votes. The voter has the possibility to cast all the
      * remaining votes in a single operation using the traditional "bravo" vote.
      */

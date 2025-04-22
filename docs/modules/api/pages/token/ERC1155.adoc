@@ -19,6 +19,8 @@
 :xref-IERC1155-ApprovalForAll-address-address-bool-: xref:token/ERC1155.adoc#IERC1155-ApprovalForAll-address-address-bool-
 :xref-IERC1155-URI-string-uint256-: xref:token/ERC1155.adoc#IERC1155-URI-string-uint256-
 :IERC1155Receiver-onERC1155Received: pass:normal[xref:token/ERC1155.adoc#IERC1155Receiver-onERC1155Received-address-address-uint256-uint256-bytes-[`IERC1155Receiver.onERC1155Received`]]
+:IERC1155Receiver-onERC1155Received: pass:normal[xref:token/ERC1155.adoc#IERC1155Receiver-onERC1155Received-address-address-uint256-uint256-bytes-[`IERC1155Receiver.onERC1155Received`]]
+:IERC1155Receiver-onERC1155BatchReceived: pass:normal[xref:token/ERC1155.adoc#IERC1155Receiver-onERC1155BatchReceived-address-address-uint256---uint256---bytes-[`IERC1155Receiver.onERC1155BatchReceived`]]
 :IERC1155Receiver-onERC1155BatchReceived: pass:normal[xref:token/ERC1155.adoc#IERC1155Receiver-onERC1155BatchReceived-address-address-uint256---uint256---bytes-[`IERC1155Receiver.onERC1155BatchReceived`]]
 :IERC1155MetadataURI-uri: pass:normal[xref:token/ERC1155.adoc#IERC1155MetadataURI-uri-uint256-[`IERC1155MetadataURI.uri`]]
 :xref-IERC1155MetadataURI-uri-uint256-: xref:token/ERC1155.adoc#IERC1155MetadataURI-uri-uint256-
@@ -231,6 +233,8 @@
 :xref-ERC1155Utils-checkOnERC1155BatchReceived-address-address-address-uint256---uint256---bytes-: xref:token/ERC1155.adoc#ERC1155Utils-checkOnERC1155BatchReceived-address-address-address-uint256---uint256---bytes-
 :IERC1155Receiver-onERC1155Received: pass:normal[xref:token/ERC1155.adoc#IERC1155Receiver-onERC1155Received-address-address-uint256-uint256-bytes-[`IERC1155Receiver.onERC1155Received`]]
 :IERC1155Receiver-onERC1155Received: pass:normal[xref:token/ERC1155.adoc#IERC1155Receiver-onERC1155Received-address-address-uint256-uint256-bytes-[`IERC1155Receiver.onERC1155Received`]]
+:IERC1155Receiver-onERC1155BatchReceived: pass:normal[xref:token/ERC1155.adoc#IERC1155Receiver-onERC1155BatchReceived-address-address-uint256---uint256---bytes-[`IERC1155Receiver.onERC1155BatchReceived`]]
+:IERC1155Receiver-onERC1155Received: pass:normal[xref:token/ERC1155.adoc#IERC1155Receiver-onERC1155Received-address-address-uint256-uint256-bytes-[`IERC1155Receiver.onERC1155Received`]]
 = ERC-1155
 
 [.readme-notice]
@@ -262,9 +266,16 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 :safeTransferFrom: pass:normal[xref:#IERC1155-safeTransferFrom-address-address-uint256-uint256-bytes-[`++safeTransferFrom++`]]
 :safeBatchTransferFrom: pass:normal[xref:#IERC1155-safeBatchTransferFrom-address-address-uint256---uint256---bytes-[`++safeBatchTransferFrom++`]]
 
+:balanceOf-address-uint256: pass:normal[xref:#IERC1155-balanceOf-address-uint256-[`++balanceOf++`]]
+:balanceOfBatch-address---uint256--: pass:normal[xref:#IERC1155-balanceOfBatch-address---uint256---[`++balanceOfBatch++`]]
+:setApprovalForAll-address-bool: pass:normal[xref:#IERC1155-setApprovalForAll-address-bool-[`++setApprovalForAll++`]]
+:isApprovedForAll-address-address: pass:normal[xref:#IERC1155-isApprovedForAll-address-address-[`++isApprovedForAll++`]]
+:safeTransferFrom-address-address-uint256-uint256-bytes: pass:normal[xref:#IERC1155-safeTransferFrom-address-address-uint256-uint256-bytes-[`++safeTransferFrom++`]]
+:safeBatchTransferFrom-address-address-uint256---uint256---bytes: pass:normal[xref:#IERC1155-safeBatchTransferFrom-address-address-uint256---uint256---bytes-[`++safeBatchTransferFrom++`]]
+
 [.contract]
 [[IERC1155]]
-=== `++IERC1155++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC1155/IERC1155.sol[{github-icon},role=heading-link]
+=== `++IERC1155++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/token/ERC1155/IERC1155.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -346,7 +357,7 @@ See {setApprovalForAll}.
 Transfers a `value` amount of tokens of type `id` from `from` to `to`.
 
 WARNING: This function can potentially allow a reentrancy attack when transferring tokens
-to an untrusted contract, when invoking {onERC1155Received} on the receiver.
+to an untrusted contract, when invoking {IERC1155Receiver-onERC1155Received} on the receiver.
 Ensure to follow the checks-effects-interactions pattern and consider employing
 reentrancy guards when interacting with untrusted contracts.
 
@@ -367,7 +378,7 @@ acceptance magic value.
 xref:ROOT:erc1155.adoc#batch-operations[Batched] version of {safeTransferFrom}.
 
 WARNING: This function can potentially allow a reentrancy attack when transferring tokens
-to an untrusted contract, when invoking {onERC1155BatchReceived} on the receiver.
+to an untrusted contract, when invoking {IERC1155Receiver-onERC1155BatchReceived} on the receiver.
 Ensure to follow the checks-effects-interactions pattern and consider employing
 reentrancy guards when interacting with untrusted contracts.
 
@@ -411,9 +422,11 @@ returned by {IERC1155MetadataURI-uri}.
 
 :uri: pass:normal[xref:#IERC1155MetadataURI-uri-uint256-[`++uri++`]]
 
+:uri-uint256: pass:normal[xref:#IERC1155MetadataURI-uri-uint256-[`++uri++`]]
+
 [.contract]
 [[IERC1155MetadataURI]]
-=== `++IERC1155MetadataURI++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC1155/extensions/IERC1155MetadataURI.sol[{github-icon},role=heading-link]
+=== `++IERC1155MetadataURI++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/token/ERC1155/extensions/IERC1155MetadataURI.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -488,9 +501,29 @@ clients with the actual token type ID.
 :_burnBatch: pass:normal[xref:#ERC1155-_burnBatch-address-uint256---uint256---[`++_burnBatch++`]]
 :_setApprovalForAll: pass:normal[xref:#ERC1155-_setApprovalForAll-address-address-bool-[`++_setApprovalForAll++`]]
 
+:constructor-string: pass:normal[xref:#ERC1155-constructor-string-[`++constructor++`]]
+:supportsInterface-bytes4: pass:normal[xref:#ERC1155-supportsInterface-bytes4-[`++supportsInterface++`]]
+:uri-uint256: pass:normal[xref:#ERC1155-uri-uint256-[`++uri++`]]
+:balanceOf-address-uint256: pass:normal[xref:#ERC1155-balanceOf-address-uint256-[`++balanceOf++`]]
+:balanceOfBatch-address---uint256--: pass:normal[xref:#ERC1155-balanceOfBatch-address---uint256---[`++balanceOfBatch++`]]
+:setApprovalForAll-address-bool: pass:normal[xref:#ERC1155-setApprovalForAll-address-bool-[`++setApprovalForAll++`]]
+:isApprovedForAll-address-address: pass:normal[xref:#ERC1155-isApprovedForAll-address-address-[`++isApprovedForAll++`]]
+:safeTransferFrom-address-address-uint256-uint256-bytes: pass:normal[xref:#ERC1155-safeTransferFrom-address-address-uint256-uint256-bytes-[`++safeTransferFrom++`]]
+:safeBatchTransferFrom-address-address-uint256---uint256---bytes: pass:normal[xref:#ERC1155-safeBatchTransferFrom-address-address-uint256---uint256---bytes-[`++safeBatchTransferFrom++`]]
+:_update-address-address-uint256---uint256--: pass:normal[xref:#ERC1155-_update-address-address-uint256---uint256---[`++_update++`]]
+:_updateWithAcceptanceCheck-address-address-uint256---uint256---bytes: pass:normal[xref:#ERC1155-_updateWithAcceptanceCheck-address-address-uint256---uint256---bytes-[`++_updateWithAcceptanceCheck++`]]
+:_safeTransferFrom-address-address-uint256-uint256-bytes: pass:normal[xref:#ERC1155-_safeTransferFrom-address-address-uint256-uint256-bytes-[`++_safeTransferFrom++`]]
+:_safeBatchTransferFrom-address-address-uint256---uint256---bytes: pass:normal[xref:#ERC1155-_safeBatchTransferFrom-address-address-uint256---uint256---bytes-[`++_safeBatchTransferFrom++`]]
+:_setURI-string: pass:normal[xref:#ERC1155-_setURI-string-[`++_setURI++`]]
+:_mint-address-uint256-uint256-bytes: pass:normal[xref:#ERC1155-_mint-address-uint256-uint256-bytes-[`++_mint++`]]
+:_mintBatch-address-uint256---uint256---bytes: pass:normal[xref:#ERC1155-_mintBatch-address-uint256---uint256---bytes-[`++_mintBatch++`]]
+:_burn-address-uint256-uint256: pass:normal[xref:#ERC1155-_burn-address-uint256-uint256-[`++_burn++`]]
+:_burnBatch-address-uint256---uint256--: pass:normal[xref:#ERC1155-_burnBatch-address-uint256---uint256---[`++_burnBatch++`]]
+:_setApprovalForAll-address-address-bool: pass:normal[xref:#ERC1155-_setApprovalForAll-address-address-bool-[`++_setApprovalForAll++`]]
+
 [.contract]
 [[ERC1155]]
-=== `++ERC1155++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC1155/ERC1155.sol[{github-icon},role=heading-link]
+=== `++ERC1155++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/token/ERC1155/ERC1155.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -810,9 +843,12 @@ Requirements:
 :onERC1155Received: pass:normal[xref:#IERC1155Receiver-onERC1155Received-address-address-uint256-uint256-bytes-[`++onERC1155Received++`]]
 :onERC1155BatchReceived: pass:normal[xref:#IERC1155Receiver-onERC1155BatchReceived-address-address-uint256---uint256---bytes-[`++onERC1155BatchReceived++`]]
 
+:onERC1155Received-address-address-uint256-uint256-bytes: pass:normal[xref:#IERC1155Receiver-onERC1155Received-address-address-uint256-uint256-bytes-[`++onERC1155Received++`]]
+:onERC1155BatchReceived-address-address-uint256---uint256---bytes: pass:normal[xref:#IERC1155Receiver-onERC1155BatchReceived-address-address-uint256---uint256---bytes-[`++onERC1155BatchReceived++`]]
+
 [.contract]
 [[IERC1155Receiver]]
-=== `++IERC1155Receiver++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC1155/IERC1155Receiver.sol[{github-icon},role=heading-link]
+=== `++IERC1155Receiver++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/token/ERC1155/IERC1155Receiver.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -861,9 +897,11 @@ NOTE: To accept the transfer(s), this must return
 
 :_update: pass:normal[xref:#ERC1155Pausable-_update-address-address-uint256---uint256---[`++_update++`]]
 
+:_update-address-address-uint256---uint256--: pass:normal[xref:#ERC1155Pausable-_update-address-address-uint256---uint256---[`++_update++`]]
+
 [.contract]
 [[ERC1155Pausable]]
-=== `++ERC1155Pausable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC1155/extensions/ERC1155Pausable.sol[{github-icon},role=heading-link]
+=== `++ERC1155Pausable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/token/ERC1155/extensions/ERC1155Pausable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1014,9 +1052,12 @@ Requirements:
 :burn: pass:normal[xref:#ERC1155Burnable-burn-address-uint256-uint256-[`++burn++`]]
 :burnBatch: pass:normal[xref:#ERC1155Burnable-burnBatch-address-uint256---uint256---[`++burnBatch++`]]
 
+:burn-address-uint256-uint256: pass:normal[xref:#ERC1155Burnable-burn-address-uint256-uint256-[`++burn++`]]
+:burnBatch-address-uint256---uint256--: pass:normal[xref:#ERC1155Burnable-burnBatch-address-uint256---uint256---[`++burnBatch++`]]
+
 [.contract]
 [[ERC1155Burnable]]
-=== `++ERC1155Burnable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC1155/extensions/ERC1155Burnable.sol[{github-icon},role=heading-link]
+=== `++ERC1155Burnable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/token/ERC1155/extensions/ERC1155Burnable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1142,9 +1183,14 @@ own tokens and those that they have been approved to use.
 :exists: pass:normal[xref:#ERC1155Supply-exists-uint256-[`++exists++`]]
 :_update: pass:normal[xref:#ERC1155Supply-_update-address-address-uint256---uint256---[`++_update++`]]
 
+:totalSupply-uint256: pass:normal[xref:#ERC1155Supply-totalSupply-uint256-[`++totalSupply++`]]
+:totalSupply-: pass:normal[xref:#ERC1155Supply-totalSupply--[`++totalSupply++`]]
+:exists-uint256: pass:normal[xref:#ERC1155Supply-exists-uint256-[`++exists++`]]
+:_update-address-address-uint256---uint256--: pass:normal[xref:#ERC1155Supply-_update-address-address-uint256---uint256---[`++_update++`]]
+
 [.contract]
 [[ERC1155Supply]]
-=== `++ERC1155Supply++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC1155/extensions/ERC1155Supply.sol[{github-icon},role=heading-link]
+=== `++ERC1155Supply++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/token/ERC1155/extensions/ERC1155Supply.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1295,9 +1341,13 @@ See {ERC1155-_update}.
 :_setURI: pass:normal[xref:#ERC1155URIStorage-_setURI-uint256-string-[`++_setURI++`]]
 :_setBaseURI: pass:normal[xref:#ERC1155URIStorage-_setBaseURI-string-[`++_setBaseURI++`]]
 
+:uri-uint256: pass:normal[xref:#ERC1155URIStorage-uri-uint256-[`++uri++`]]
+:_setURI-uint256-string: pass:normal[xref:#ERC1155URIStorage-_setURI-uint256-string-[`++_setURI++`]]
+:_setBaseURI-string: pass:normal[xref:#ERC1155URIStorage-_setBaseURI-string-[`++_setBaseURI++`]]
+
 [.contract]
 [[ERC1155URIStorage]]
-=== `++ERC1155URIStorage++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC1155/extensions/ERC1155URIStorage.sol[{github-icon},role=heading-link]
+=== `++ERC1155URIStorage++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/token/ERC1155/extensions/ERC1155URIStorage.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1449,9 +1499,13 @@ Sets `baseURI` as the `_baseURI` for all tokens
 :onERC1155Received: pass:normal[xref:#ERC1155Holder-onERC1155Received-address-address-uint256-uint256-bytes-[`++onERC1155Received++`]]
 :onERC1155BatchReceived: pass:normal[xref:#ERC1155Holder-onERC1155BatchReceived-address-address-uint256---uint256---bytes-[`++onERC1155BatchReceived++`]]
 
+:supportsInterface-bytes4: pass:normal[xref:#ERC1155Holder-supportsInterface-bytes4-[`++supportsInterface++`]]
+:onERC1155Received-address-address-uint256-uint256-bytes: pass:normal[xref:#ERC1155Holder-onERC1155Received-address-address-uint256-uint256-bytes-[`++onERC1155Received++`]]
+:onERC1155BatchReceived-address-address-uint256---uint256---bytes: pass:normal[xref:#ERC1155Holder-onERC1155BatchReceived-address-address-uint256---uint256---bytes-[`++onERC1155BatchReceived++`]]
+
 [.contract]
 [[ERC1155Holder]]
-=== `++ERC1155Holder++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC1155/utils/ERC1155Holder.sol[{github-icon},role=heading-link]
+=== `++ERC1155Holder++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/token/ERC1155/utils/ERC1155Holder.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1498,9 +1552,12 @@ See {IERC165-supportsInterface}.
 :checkOnERC1155Received: pass:normal[xref:#ERC1155Utils-checkOnERC1155Received-address-address-address-uint256-uint256-bytes-[`++checkOnERC1155Received++`]]
 :checkOnERC1155BatchReceived: pass:normal[xref:#ERC1155Utils-checkOnERC1155BatchReceived-address-address-address-uint256---uint256---bytes-[`++checkOnERC1155BatchReceived++`]]
 
+:checkOnERC1155Received-address-address-address-uint256-uint256-bytes: pass:normal[xref:#ERC1155Utils-checkOnERC1155Received-address-address-address-uint256-uint256-bytes-[`++checkOnERC1155Received++`]]
+:checkOnERC1155BatchReceived-address-address-address-uint256---uint256---bytes: pass:normal[xref:#ERC1155Utils-checkOnERC1155BatchReceived-address-address-address-uint256---uint256---bytes-[`++checkOnERC1155BatchReceived++`]]
+
 [.contract]
 [[ERC1155Utils]]
-=== `++ERC1155Utils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC1155/utils/ERC1155Utils.sol[{github-icon},role=heading-link]
+=== `++ERC1155Utils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/token/ERC1155/utils/ERC1155Utils.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1525,7 +1582,7 @@ _Available since v5.1._
 [[ERC1155Utils-checkOnERC1155Received-address-address-address-uint256-uint256-bytes-]]
 ==== `[.contract-item-name]#++checkOnERC1155Received++#++(address operator, address from, address to, uint256 id, uint256 value, bytes data)++` [.item-kind]#internal#
 
-Performs an acceptance check for the provided `operator` by calling {IERC1155-onERC1155Received}
+Performs an acceptance check for the provided `operator` by calling {IERC1155Receiver-onERC1155Received}
 on the `to` address. The `operator` is generally the address that initiated the token transfer (i.e. `msg.sender`).
 
 The acceptance call is not executed and treated as a no-op if the target address doesn't contain code (i.e. an EOA).
@@ -1536,7 +1593,7 @@ the transfer.
 [[ERC1155Utils-checkOnERC1155BatchReceived-address-address-address-uint256---uint256---bytes-]]
 ==== `[.contract-item-name]#++checkOnERC1155BatchReceived++#++(address operator, address from, address to, uint256[] ids, uint256[] values, bytes data)++` [.item-kind]#internal#
 
-Performs a batch acceptance check for the provided `operator` by calling {IERC1155-onERC1155BatchReceived}
+Performs a batch acceptance check for the provided `operator` by calling {IERC1155Receiver-onERC1155BatchReceived}
 on the `to` address. The `operator` is generally the address that initiated the token transfer (i.e. `msg.sender`).
 
 The acceptance call is not executed and treated as a no-op if the target address doesn't contain code (i.e. an EOA).

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.2.0) (utils/Strings.sol)
+// OpenZeppelin Contracts (last updated v5.3.0) (utils/Strings.sol)
 
 pragma solidity ^0.8.20;
 
@@ -15,6 +15,14 @@ library Strings {
 
     bytes16 private constant HEX_DIGITS = "0123456789abcdef";
     uint8 private constant ADDRESS_LENGTH = 20;
+    uint256 private constant SPECIAL_CHARS_LOOKUP =
+        (1 << 0x08) | // backspace
+            (1 << 0x09) | // tab
+            (1 << 0x0a) | // newline
+            (1 << 0x0c) | // form feed
+            (1 << 0x0d) | // carriage return
+            (1 << 0x22) | // double quote
+            (1 << 0x5c); // backslash
 
     /**
      * @dev The `value` string doesn't fit in the specified `length`.
@@ -139,7 +147,7 @@ library Strings {
     }
 
     /**
-     * @dev Variant of {parseUint} that parses a substring of `input` located between position `begin` (included) and
+     * @dev Variant of {parseUint-string} that parses a substring of `input` located between position `begin` (included) and
      * `end` (excluded).
      *
      * Requirements:
@@ -177,7 +185,7 @@ library Strings {
     }
 
     /**
-     * @dev Implementation of {tryParseUint} that does not check bounds. Caller should make sure that
+     * @dev Implementation of {tryParseUint-string-uint256-uint256} that does not check bounds. Caller should make sure that
      * `begin <= end <= input.length`. Other inputs would result in undefined behavior.
      */
     function _tryParseUintUncheckedBounds(
@@ -250,7 +258,7 @@ library Strings {
     }
 
     /**
-     * @dev Implementation of {tryParseInt} that does not check bounds. Caller should make sure that
+     * @dev Implementation of {tryParseInt-string-uint256-uint256} that does not check bounds. Caller should make sure that
      * `begin <= end <= input.length`. Other inputs would result in undefined behavior.
      */
     function _tryParseIntUncheckedBounds(
@@ -287,7 +295,7 @@ library Strings {
     }
 
     /**
-     * @dev Variant of {parseHexUint} that parses a substring of `input` located between position `begin` (included) and
+     * @dev Variant of {parseHexUint-string} that parses a substring of `input` located between position `begin` (included) and
      * `end` (excluded).
      *
      * Requirements:
@@ -325,7 +333,7 @@ library Strings {
     }
 
     /**
-     * @dev Implementation of {tryParseHexUint} that does not check bounds. Caller should make sure that
+     * @dev Implementation of {tryParseHexUint-string-uint256-uint256} that does not check bounds. Caller should make sure that
      * `begin <= end <= input.length`. Other inputs would result in undefined behavior.
      */
     function _tryParseHexUintUncheckedBounds(
@@ -346,7 +354,7 @@ library Strings {
             result *= 16;
             unchecked {
                 // Multiplying by 16 is equivalent to a shift of 4 bits (with additional overflow check).
-                // This guaratees that adding a value < 16 will not cause an overflow, hence the unchecked.
+                // This guarantees that adding a value < 16 will not cause an overflow, hence the unchecked.
                 result += chr;
             }
         }
@@ -364,7 +372,7 @@ library Strings {
     }
 
     /**
-     * @dev Variant of {parseAddress} that parses a substring of `input` located between position `begin` (included) and
+     * @dev Variant of {parseAddress-string} that parses a substring of `input` located between position `begin` (included) and
      * `end` (excluded).
      *
      * Requirements:
@@ -378,7 +386,7 @@ library Strings {
 
     /**
      * @dev Variant of {parseAddress-string} that returns false if the parsing fails because the input is not a properly
-     * formatted address. See {parseAddress} requirements.
+     * formatted address. See {parseAddress-string} requirements.
      */
     function tryParseAddress(string memory input) internal pure returns (bool success, address value) {
         return tryParseAddress(input, 0, bytes(input).length);
@@ -386,7 +394,7 @@ library Strings {
 
     /**
      * @dev Variant of {parseAddress-string-uint256-uint256} that returns false if the parsing fails because input is not a properly
-     * formatted address. See {parseAddress} requirements.
+     * formatted address. See {parseAddress-string-uint256-uint256} requirements.
      */
     function tryParseAddress(
         string memory input,
@@ -424,6 +432,47 @@ library Strings {
         }
 
         return value;
+    }
+
+    /**
+     * @dev Escape special characters in JSON strings. This can be useful to prevent JSON injection in NFT metadata.
+     *
+     * WARNING: This function should only be used in double quoted JSON strings. Single quotes are not escaped.
+     *
+     * NOTE: This function escapes all unicode characters, and not just the ones in ranges defined in section 2.5 of
+     * RFC-4627 (U+0000 to U+001F, U+0022 and U+005C). ECMAScript's `JSON.parse` does recover escaped unicode
+     * characters that are not in this range, but other tooling may provide different results.
+     */
+    function escapeJSON(string memory input) internal pure returns (string memory) {
+        bytes memory buffer = bytes(input);
+        bytes memory output = new bytes(2 * buffer.length); // worst case scenario
+        uint256 outputLength = 0;
+
+        for (uint256 i; i < buffer.length; ++i) {
+            bytes1 char = bytes1(_unsafeReadBytesOffset(buffer, i));
+            if (((SPECIAL_CHARS_LOOKUP & (1 << uint8(char))) != 0)) {
+                output[outputLength++] = "\\";
+                if (char == 0x08) output[outputLength++] = "b";
+                else if (char == 0x09) output[outputLength++] = "t";
+                else if (char == 0x0a) output[outputLength++] = "n";
+                else if (char == 0x0c) output[outputLength++] = "f";
+                else if (char == 0x0d) output[outputLength++] = "r";
+                else if (char == 0x5c) output[outputLength++] = "\\";
+                else if (char == 0x22) {
+                    // solhint-disable-next-line quotes
+                    output[outputLength++] = '"';
+                }
+            } else {
+                output[outputLength++] = char;
+            }
+        }
+        // write the actual length and deallocate unused memory
+        assembly ("memory-safe") {
+            mstore(output, outputLength)
+            mstore(0x40, add(output, shl(5, shr(5, add(outputLength, 63)))))
+        }
+
+        return string(output);
     }
 
     /**

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.2.0) (governance/Governor.sol)
+// OpenZeppelin Contracts (last updated v5.3.0) (governance/Governor.sol)
 
 pragma solidity ^0.8.20;
 
@@ -21,9 +21,9 @@ import {IGovernor, IERC6372} from "./IGovernor.sol";
  *
  * This contract is abstract and requires several functions to be implemented in various modules:
  *
- * - A counting module must implement {quorum}, {_quorumReached}, {_voteSucceeded} and {_countVote}
+ * - A counting module must implement {_quorumReached}, {_voteSucceeded} and {_countVote}
  * - A voting module must implement {_getVotes}
- * - Additionally, {votingPeriod} must also be implemented
+ * - Additionally, {votingPeriod}, {votingDelay}, and {quorum} must also be implemented
  */
 abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC721Receiver, IERC1155Receiver {
     using DoubleEndedQueue for DoubleEndedQueue.Bytes32Deque;
@@ -92,6 +92,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
     function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, ERC165) returns (bool) {
         return
             interfaceId == type(IGovernor).interfaceId ||
+            interfaceId == type(IGovernor).interfaceId ^ IGovernor.getProposalId.selector ||
             interfaceId == type(IERC1155Receiver).interfaceId ||
             super.supportsInterface(interfaceId);
     }
@@ -130,6 +131,18 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         bytes32 descriptionHash
     ) public pure virtual returns (uint256) {
         return uint256(keccak256(abi.encode(targets, values, calldatas, descriptionHash)));
+    }
+
+    /**
+     * @dev See {IGovernor-getProposalId}.
+     */
+    function getProposalId(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 descriptionHash
+    ) public view virtual returns (uint256) {
+        return hashProposal(targets, values, calldatas, descriptionHash);
     }
 
     /**
@@ -317,7 +330,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         string memory description,
         address proposer
     ) internal virtual returns (uint256 proposalId) {
-        proposalId = hashProposal(targets, values, calldatas, keccak256(bytes(description)));
+        proposalId = getProposalId(targets, values, calldatas, keccak256(bytes(description)));
 
         if (targets.length != values.length || targets.length != calldatas.length || targets.length == 0) {
             revert GovernorInvalidProposalLength(targets.length, calldatas.length, values.length);
@@ -358,7 +371,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         bytes[] memory calldatas,
         bytes32 descriptionHash
     ) public virtual returns (uint256) {
-        uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
+        uint256 proposalId = getProposalId(targets, values, calldatas, descriptionHash);
 
         _validateStateBitmap(proposalId, _encodeStateBitmap(ProposalState.Succeeded));
 
@@ -406,7 +419,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         bytes[] memory calldatas,
         bytes32 descriptionHash
     ) public payable virtual returns (uint256) {
-        uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
+        uint256 proposalId = getProposalId(targets, values, calldatas, descriptionHash);
 
         _validateStateBitmap(
             proposalId,
@@ -442,7 +455,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
      * performed (for example adding a vault/timelock).
      *
      * NOTE: Calling this function directly will NOT check the current state of the proposal, set the executed flag to
-     * true or emit the `ProposalExecuted` event. Executing a proposal should be done using {execute} or {_execute}.
+     * true or emit the `ProposalExecuted` event. Executing a proposal should be done using {execute}.
      */
     function _executeOperations(
         uint256 /* proposalId */,
@@ -468,14 +481,11 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
     ) public virtual returns (uint256) {
         // The proposalId will be recomputed in the `_cancel` call further down. However we need the value before we
         // do the internal call, because we need to check the proposal state BEFORE the internal `_cancel` call
-        // changes it. The `hashProposal` duplication has a cost that is limited, and that we accept.
-        uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
+        // changes it. The `getProposalId` duplication has a cost that is limited, and that we accept.
+        uint256 proposalId = getProposalId(targets, values, calldatas, descriptionHash);
 
-        // public cancel restrictions (on top of existing _cancel restrictions).
-        _validateStateBitmap(proposalId, _encodeStateBitmap(ProposalState.Pending));
-        if (_msgSender() != proposalProposer(proposalId)) {
-            revert GovernorOnlyProposer(_msgSender());
-        }
+        address caller = _msgSender();
+        if (!_validateCancel(proposalId, caller)) revert GovernorUnableToCancel(proposalId, caller);
 
         return _cancel(targets, values, calldatas, descriptionHash);
     }
@@ -492,7 +502,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         bytes[] memory calldatas,
         bytes32 descriptionHash
     ) internal virtual returns (uint256) {
-        uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
+        uint256 proposalId = getProposalId(targets, values, calldatas, descriptionHash);
 
         _validateStateBitmap(
             proposalId,
@@ -790,6 +800,15 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
             (bool success, address recovered) = Strings.tryParseAddress(description, length - 42, length);
             return !success || recovered == proposer;
         }
+    }
+
+    /**
+     * @dev Check if the `caller` can cancel the proposal with the given `proposalId`.
+     *
+     * The default implementation allows the proposal proposer to cancel the proposal during the pending state.
+     */
+    function _validateCancel(uint256 proposalId, address caller) internal view virtual returns (bool) {
+        return (state(proposalId) == ProposalState.Pending) && caller == proposalProposer(proposalId);
     }
 
     /**

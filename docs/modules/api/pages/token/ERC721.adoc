@@ -386,6 +386,7 @@
 :xref-IERC721Errors-ERC721InvalidOperator-address-: xref:interfaces.adoc#IERC721Errors-ERC721InvalidOperator-address-
 :IERC165-supportsInterface: pass:normal[xref:utils.adoc#IERC165-supportsInterface-bytes4-[`IERC165.supportsInterface`]]
 :IERC721Metadata-tokenURI: pass:normal[xref:token/ERC721.adoc#IERC721Metadata-tokenURI-uint256-[`IERC721Metadata.tokenURI`]]
+:IERC4906-MetadataUpdate: pass:normal[xref:interfaces.adoc#IERC4906-MetadataUpdate-uint256-[`IERC4906.MetadataUpdate`]]
 :Votes: pass:normal[xref:governance.adoc#Votes[`Votes`]]
 :xref-ERC721Votes-_update-address-uint256-address-: xref:token/ERC721.adoc#ERC721Votes-_update-address-uint256-address-
 :xref-ERC721Votes-_getVotingUnits-address-: xref:token/ERC721.adoc#ERC721Votes-_getVotingUnits-address-
@@ -579,12 +580,13 @@
 :IERC721Receiver-onERC721Received: pass:normal[xref:token/ERC721.adoc#IERC721Receiver-onERC721Received-address-address-uint256-bytes-[`IERC721Receiver.onERC721Received`]]
 :xref-ERC721Utils-checkOnERC721Received-address-address-address-uint256-bytes-: xref:token/ERC721.adoc#ERC721Utils-checkOnERC721Received-address-address-address-uint256-bytes-
 :IERC721Receiver-onERC721Received: pass:normal[xref:token/ERC721.adoc#IERC721Receiver-onERC721Received-address-address-uint256-bytes-[`IERC721Receiver.onERC721Received`]]
+:IERC721Receiver-onERC721Received: pass:normal[xref:token/ERC721.adoc#IERC721Receiver-onERC721Received-address-address-uint256-bytes-[`IERC721Receiver.onERC721Received`]]
 = ERC-721
 
 [.readme-notice]
 NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/token/erc721
 
-This set of interfaces, contracts, and utilities are all related to the https://eips.ethereum.org/EIPS/eip-721[ERC-721 Non-Fungible Token Standard].
+This set of interfaces, contracts, and utilities is all related to the https://eips.ethereum.org/EIPS/eip-721[ERC-721 Non-Fungible Token Standard].
 
 TIP: For a walk through on how to create an ERC-721 token read our xref:ROOT:erc721.adoc[ERC-721 guide].
 
@@ -603,7 +605,7 @@ OpenZeppelin Contracts provides implementations of all four interfaces:
 
 Additionally there are a few of other extensions:
 
-* {ERC721Consecutive}: An implementation of https://eips.ethereum.org/EIPS/eip-2309[ERC-2309] for minting batchs of tokens during construction, in accordance with ERC-721.
+* {ERC721Consecutive}: An implementation of https://eips.ethereum.org/EIPS/eip-2309[ERC-2309] for minting batches of tokens during construction, in accordance with ERC-721.
 * {ERC721URIStorage}: A more flexible but more expensive way of storing metadata.
 * {ERC721Votes}: Support for voting and vote delegation.
 * {ERC721Royalty}: A way to signal royalty information following ERC-2981.
@@ -628,9 +630,19 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 :getApproved: pass:normal[xref:#IERC721-getApproved-uint256-[`++getApproved++`]]
 :isApprovedForAll: pass:normal[xref:#IERC721-isApprovedForAll-address-address-[`++isApprovedForAll++`]]
 
+:balanceOf-address: pass:normal[xref:#IERC721-balanceOf-address-[`++balanceOf++`]]
+:ownerOf-uint256: pass:normal[xref:#IERC721-ownerOf-uint256-[`++ownerOf++`]]
+:safeTransferFrom-address-address-uint256-bytes: pass:normal[xref:#IERC721-safeTransferFrom-address-address-uint256-bytes-[`++safeTransferFrom++`]]
+:safeTransferFrom-address-address-uint256: pass:normal[xref:#IERC721-safeTransferFrom-address-address-uint256-[`++safeTransferFrom++`]]
+:transferFrom-address-address-uint256: pass:normal[xref:#IERC721-transferFrom-address-address-uint256-[`++transferFrom++`]]
+:approve-address-uint256: pass:normal[xref:#IERC721-approve-address-uint256-[`++approve++`]]
+:setApprovalForAll-address-bool: pass:normal[xref:#IERC721-setApprovalForAll-address-bool-[`++setApprovalForAll++`]]
+:getApproved-uint256: pass:normal[xref:#IERC721-getApproved-uint256-[`++getApproved++`]]
+:isApprovedForAll-address-address: pass:normal[xref:#IERC721-isApprovedForAll-address-address-[`++isApprovedForAll++`]]
+
 [.contract]
 [[IERC721]]
-=== `++IERC721++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC721/IERC721.sol[{github-icon},role=heading-link]
+=== `++IERC721++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/token/ERC721/IERC721.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -810,9 +822,13 @@ Emitted when `owner` enables or disables (`approved`) `operator` to manage all o
 :symbol: pass:normal[xref:#IERC721Metadata-symbol--[`++symbol++`]]
 :tokenURI: pass:normal[xref:#IERC721Metadata-tokenURI-uint256-[`++tokenURI++`]]
 
+:name-: pass:normal[xref:#IERC721Metadata-name--[`++name++`]]
+:symbol-: pass:normal[xref:#IERC721Metadata-symbol--[`++symbol++`]]
+:tokenURI-uint256: pass:normal[xref:#IERC721Metadata-tokenURI-uint256-[`++tokenURI++`]]
+
 [.contract]
 [[IERC721Metadata]]
-=== `++IERC721Metadata++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC721/extensions/IERC721Metadata.sol[{github-icon},role=heading-link]
+=== `++IERC721Metadata++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/token/ERC721/extensions/IERC721Metadata.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -883,9 +899,13 @@ Returns the Uniform Resource Identifier (URI) for `tokenId` token.
 :tokenOfOwnerByIndex: pass:normal[xref:#IERC721Enumerable-tokenOfOwnerByIndex-address-uint256-[`++tokenOfOwnerByIndex++`]]
 :tokenByIndex: pass:normal[xref:#IERC721Enumerable-tokenByIndex-uint256-[`++tokenByIndex++`]]
 
+:totalSupply-: pass:normal[xref:#IERC721Enumerable-totalSupply--[`++totalSupply++`]]
+:tokenOfOwnerByIndex-address-uint256: pass:normal[xref:#IERC721Enumerable-tokenOfOwnerByIndex-address-uint256-[`++tokenOfOwnerByIndex++`]]
+:tokenByIndex-uint256: pass:normal[xref:#IERC721Enumerable-tokenByIndex-uint256-[`++tokenByIndex++`]]
+
 [.contract]
 [[IERC721Enumerable]]
-=== `++IERC721Enumerable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC721/extensions/IERC721Enumerable.sol[{github-icon},role=heading-link]
+=== `++IERC721Enumerable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/token/ERC721/extensions/IERC721Enumerable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -987,9 +1007,42 @@ Use along with {totalSupply} to enumerate all tokens.
 :_setApprovalForAll: pass:normal[xref:#ERC721-_setApprovalForAll-address-address-bool-[`++_setApprovalForAll++`]]
 :_requireOwned: pass:normal[xref:#ERC721-_requireOwned-uint256-[`++_requireOwned++`]]
 
+:constructor-string-string: pass:normal[xref:#ERC721-constructor-string-string-[`++constructor++`]]
+:supportsInterface-bytes4: pass:normal[xref:#ERC721-supportsInterface-bytes4-[`++supportsInterface++`]]
+:balanceOf-address: pass:normal[xref:#ERC721-balanceOf-address-[`++balanceOf++`]]
+:ownerOf-uint256: pass:normal[xref:#ERC721-ownerOf-uint256-[`++ownerOf++`]]
+:name-: pass:normal[xref:#ERC721-name--[`++name++`]]
+:symbol-: pass:normal[xref:#ERC721-symbol--[`++symbol++`]]
+:tokenURI-uint256: pass:normal[xref:#ERC721-tokenURI-uint256-[`++tokenURI++`]]
+:_baseURI-: pass:normal[xref:#ERC721-_baseURI--[`++_baseURI++`]]
+:approve-address-uint256: pass:normal[xref:#ERC721-approve-address-uint256-[`++approve++`]]
+:getApproved-uint256: pass:normal[xref:#ERC721-getApproved-uint256-[`++getApproved++`]]
+:setApprovalForAll-address-bool: pass:normal[xref:#ERC721-setApprovalForAll-address-bool-[`++setApprovalForAll++`]]
+:isApprovedForAll-address-address: pass:normal[xref:#ERC721-isApprovedForAll-address-address-[`++isApprovedForAll++`]]
+:transferFrom-address-address-uint256: pass:normal[xref:#ERC721-transferFrom-address-address-uint256-[`++transferFrom++`]]
+:safeTransferFrom-address-address-uint256: pass:normal[xref:#ERC721-safeTransferFrom-address-address-uint256-[`++safeTransferFrom++`]]
+:safeTransferFrom-address-address-uint256-bytes: pass:normal[xref:#ERC721-safeTransferFrom-address-address-uint256-bytes-[`++safeTransferFrom++`]]
+:_ownerOf-uint256: pass:normal[xref:#ERC721-_ownerOf-uint256-[`++_ownerOf++`]]
+:_getApproved-uint256: pass:normal[xref:#ERC721-_getApproved-uint256-[`++_getApproved++`]]
+:_isAuthorized-address-address-uint256: pass:normal[xref:#ERC721-_isAuthorized-address-address-uint256-[`++_isAuthorized++`]]
+:_checkAuthorized-address-address-uint256: pass:normal[xref:#ERC721-_checkAuthorized-address-address-uint256-[`++_checkAuthorized++`]]
+:_increaseBalance-address-uint128: pass:normal[xref:#ERC721-_increaseBalance-address-uint128-[`++_increaseBalance++`]]
+:_update-address-uint256-address: pass:normal[xref:#ERC721-_update-address-uint256-address-[`++_update++`]]
+:_mint-address-uint256: pass:normal[xref:#ERC721-_mint-address-uint256-[`++_mint++`]]
+:_safeMint-address-uint256: pass:normal[xref:#ERC721-_safeMint-address-uint256-[`++_safeMint++`]]
+:_safeMint-address-uint256-bytes: pass:normal[xref:#ERC721-_safeMint-address-uint256-bytes-[`++_safeMint++`]]
+:_burn-uint256: pass:normal[xref:#ERC721-_burn-uint256-[`++_burn++`]]
+:_transfer-address-address-uint256: pass:normal[xref:#ERC721-_transfer-address-address-uint256-[`++_transfer++`]]
+:_safeTransfer-address-address-uint256: pass:normal[xref:#ERC721-_safeTransfer-address-address-uint256-[`++_safeTransfer++`]]
+:_safeTransfer-address-address-uint256-bytes: pass:normal[xref:#ERC721-_safeTransfer-address-address-uint256-bytes-[`++_safeTransfer++`]]
+:_approve-address-uint256-address: pass:normal[xref:#ERC721-_approve-address-uint256-address-[`++_approve++`]]
+:_approve-address-uint256-address-bool: pass:normal[xref:#ERC721-_approve-address-uint256-address-bool-[`++_approve++`]]
+:_setApprovalForAll-address-address-bool: pass:normal[xref:#ERC721-_setApprovalForAll-address-address-bool-[`++_setApprovalForAll++`]]
+:_requireOwned-uint256: pass:normal[xref:#ERC721-_requireOwned-uint256-[`++_requireOwned++`]]
+
 [.contract]
 [[ERC721]]
-=== `++ERC721++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC721/ERC721.sol[{github-icon},role=heading-link]
+=== `++ERC721++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/token/ERC721/ERC721.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1405,9 +1458,16 @@ Overrides to ownership logic should be done to {_ownerOf}.
 :_update: pass:normal[xref:#ERC721Enumerable-_update-address-uint256-address-[`++_update++`]]
 :_increaseBalance: pass:normal[xref:#ERC721Enumerable-_increaseBalance-address-uint128-[`++_increaseBalance++`]]
 
+:supportsInterface-bytes4: pass:normal[xref:#ERC721Enumerable-supportsInterface-bytes4-[`++supportsInterface++`]]
+:tokenOfOwnerByIndex-address-uint256: pass:normal[xref:#ERC721Enumerable-tokenOfOwnerByIndex-address-uint256-[`++tokenOfOwnerByIndex++`]]
+:totalSupply-: pass:normal[xref:#ERC721Enumerable-totalSupply--[`++totalSupply++`]]
+:tokenByIndex-uint256: pass:normal[xref:#ERC721Enumerable-tokenByIndex-uint256-[`++tokenByIndex++`]]
+:_update-address-uint256-address: pass:normal[xref:#ERC721Enumerable-_update-address-uint256-address-[`++_update++`]]
+:_increaseBalance-address-uint128: pass:normal[xref:#ERC721Enumerable-_increaseBalance-address-uint128-[`++_increaseBalance++`]]
+
 [.contract]
 [[ERC721Enumerable]]
-=== `++ERC721Enumerable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC721/extensions/ERC721Enumerable.sol[{github-icon},role=heading-link]
+=== `++ERC721Enumerable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/token/ERC721/extensions/ERC721Enumerable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1598,9 +1658,11 @@ Batch mint is not allowed.
 
 :onERC721Received: pass:normal[xref:#IERC721Receiver-onERC721Received-address-address-uint256-bytes-[`++onERC721Received++`]]
 
+:onERC721Received-address-address-uint256-bytes: pass:normal[xref:#IERC721Receiver-onERC721Received-address-address-uint256-bytes-[`++onERC721Received++`]]
+
 [.contract]
 [[IERC721Receiver]]
-=== `++IERC721Receiver++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC721/IERC721Receiver.sol[{github-icon},role=heading-link]
+=== `++IERC721Receiver++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/token/ERC721/IERC721Receiver.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1634,9 +1696,11 @@ The selector can be obtained in Solidity with `IERC721Receiver.onERC721Received.
 
 :_update: pass:normal[xref:#ERC721Pausable-_update-address-uint256-address-[`++_update++`]]
 
+:_update-address-uint256-address: pass:normal[xref:#ERC721Pausable-_update-address-uint256-address-[`++_update++`]]
+
 [.contract]
 [[ERC721Pausable]]
-=== `++ERC721Pausable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC721/extensions/ERC721Pausable.sol[{github-icon},role=heading-link]
+=== `++ERC721Pausable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/token/ERC721/extensions/ERC721Pausable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1799,9 +1863,11 @@ Requirements:
 
 :burn: pass:normal[xref:#ERC721Burnable-burn-uint256-[`++burn++`]]
 
+:burn-uint256: pass:normal[xref:#ERC721Burnable-burn-uint256-[`++burn++`]]
+
 [.contract]
 [[ERC721Burnable]]
-=== `++ERC721Burnable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC721/extensions/ERC721Burnable.sol[{github-icon},role=heading-link]
+=== `++ERC721Burnable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/token/ERC721/extensions/ERC721Burnable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1945,9 +2011,15 @@ Requirements:
 :_update: pass:normal[xref:#ERC721Consecutive-_update-address-uint256-address-[`++_update++`]]
 :_firstConsecutiveId: pass:normal[xref:#ERC721Consecutive-_firstConsecutiveId--[`++_firstConsecutiveId++`]]
 
+:_maxBatchSize-: pass:normal[xref:#ERC721Consecutive-_maxBatchSize--[`++_maxBatchSize++`]]
+:_ownerOf-uint256: pass:normal[xref:#ERC721Consecutive-_ownerOf-uint256-[`++_ownerOf++`]]
+:_mintConsecutive-address-uint96: pass:normal[xref:#ERC721Consecutive-_mintConsecutive-address-uint96-[`++_mintConsecutive++`]]
+:_update-address-uint256-address: pass:normal[xref:#ERC721Consecutive-_update-address-uint256-address-[`++_update++`]]
+:_firstConsecutiveId-: pass:normal[xref:#ERC721Consecutive-_firstConsecutiveId--[`++_firstConsecutiveId++`]]
+
 [.contract]
 [[ERC721Consecutive]]
-=== `++ERC721Consecutive++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC721/extensions/ERC721Consecutive.sol[{github-icon},role=heading-link]
+=== `++ERC721Consecutive++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/token/ERC721/extensions/ERC721Consecutive.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2153,7 +2225,7 @@ After construction, {_mintConsecutive} is no longer available and minting throug
 [[ERC721Consecutive-_firstConsecutiveId--]]
 ==== `[.contract-item-name]#++_firstConsecutiveId++#++() → uint96++` [.item-kind]#internal#
 
-Used to offset the first token id in {_nextConsecutiveId}
+Used to offset the first token id in `_nextConsecutiveId`
 
 [.contract-item]
 [[ERC721Consecutive-ERC721ForbiddenBatchMint--]]
@@ -2185,9 +2257,13 @@ Batch burn is not supported.
 :tokenURI: pass:normal[xref:#ERC721URIStorage-tokenURI-uint256-[`++tokenURI++`]]
 :_setTokenURI: pass:normal[xref:#ERC721URIStorage-_setTokenURI-uint256-string-[`++_setTokenURI++`]]
 
+:supportsInterface-bytes4: pass:normal[xref:#ERC721URIStorage-supportsInterface-bytes4-[`++supportsInterface++`]]
+:tokenURI-uint256: pass:normal[xref:#ERC721URIStorage-tokenURI-uint256-[`++tokenURI++`]]
+:_setTokenURI-uint256-string: pass:normal[xref:#ERC721URIStorage-_setTokenURI-uint256-string-[`++_setTokenURI++`]]
+
 [.contract]
 [[ERC721URIStorage]]
-=== `++ERC721URIStorage++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC721/extensions/ERC721URIStorage.sol[{github-icon},role=heading-link]
+=== `++ERC721URIStorage++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/token/ERC721/extensions/ERC721URIStorage.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2340,15 +2416,19 @@ See {IERC721Metadata-tokenURI}.
 
 Sets `_tokenURI` as the tokenURI of `tokenId`.
 
-Emits {MetadataUpdate}.
+Emits {IERC4906-MetadataUpdate}.
 
 :_update: pass:normal[xref:#ERC721Votes-_update-address-uint256-address-[`++_update++`]]
 :_getVotingUnits: pass:normal[xref:#ERC721Votes-_getVotingUnits-address-[`++_getVotingUnits++`]]
 :_increaseBalance: pass:normal[xref:#ERC721Votes-_increaseBalance-address-uint128-[`++_increaseBalance++`]]
 
+:_update-address-uint256-address: pass:normal[xref:#ERC721Votes-_update-address-uint256-address-[`++_update++`]]
+:_getVotingUnits-address: pass:normal[xref:#ERC721Votes-_getVotingUnits-address-[`++_getVotingUnits++`]]
+:_increaseBalance-address-uint128: pass:normal[xref:#ERC721Votes-_increaseBalance-address-uint128-[`++_increaseBalance++`]]
+
 [.contract]
 [[ERC721Votes]]
-=== `++ERC721Votes++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC721/extensions/ERC721Votes.sol[{github-icon},role=heading-link]
+=== `++ERC721Votes++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/token/ERC721/extensions/ERC721Votes.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2594,9 +2674,11 @@ See {ERC721-_increaseBalance}. We need that to account tokens that were minted i
 
 :supportsInterface: pass:normal[xref:#ERC721Royalty-supportsInterface-bytes4-[`++supportsInterface++`]]
 
+:supportsInterface-bytes4: pass:normal[xref:#ERC721Royalty-supportsInterface-bytes4-[`++supportsInterface++`]]
+
 [.contract]
 [[ERC721Royalty]]
-=== `++ERC721Royalty++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC721/extensions/ERC721Royalty.sol[{github-icon},role=heading-link]
+=== `++ERC721Royalty++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/token/ERC721/extensions/ERC721Royalty.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2769,9 +2851,16 @@ See {IERC165-supportsInterface}.
 :_recover: pass:normal[xref:#ERC721Wrapper-_recover-address-uint256-[`++_recover++`]]
 :underlying: pass:normal[xref:#ERC721Wrapper-underlying--[`++underlying++`]]
 
+:constructor-contract-IERC721: pass:normal[xref:#ERC721Wrapper-constructor-contract-IERC721-[`++constructor++`]]
+:depositFor-address-uint256--: pass:normal[xref:#ERC721Wrapper-depositFor-address-uint256---[`++depositFor++`]]
+:withdrawTo-address-uint256--: pass:normal[xref:#ERC721Wrapper-withdrawTo-address-uint256---[`++withdrawTo++`]]
+:onERC721Received-address-address-uint256-bytes: pass:normal[xref:#ERC721Wrapper-onERC721Received-address-address-uint256-bytes-[`++onERC721Received++`]]
+:_recover-address-uint256: pass:normal[xref:#ERC721Wrapper-_recover-address-uint256-[`++_recover++`]]
+:underlying-: pass:normal[xref:#ERC721Wrapper-underlying--[`++underlying++`]]
+
 [.contract]
 [[ERC721Wrapper]]
-=== `++ERC721Wrapper++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC721/extensions/ERC721Wrapper.sol[{github-icon},role=heading-link]
+=== `++ERC721Wrapper++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/token/ERC721/extensions/ERC721Wrapper.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2966,9 +3055,11 @@ The received ERC-721 token couldn't be wrapped.
 
 :onERC721Received: pass:normal[xref:#ERC721Holder-onERC721Received-address-address-uint256-bytes-[`++onERC721Received++`]]
 
+:onERC721Received-address-address-uint256-bytes: pass:normal[xref:#ERC721Holder-onERC721Received-address-address-uint256-bytes-[`++onERC721Received++`]]
+
 [.contract]
 [[ERC721Holder]]
-=== `++ERC721Holder++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC721/utils/ERC721Holder.sol[{github-icon},role=heading-link]
+=== `++ERC721Holder++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/token/ERC721/utils/ERC721Holder.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3001,9 +3092,11 @@ Always returns `IERC721Receiver.onERC721Received.selector`.
 
 :checkOnERC721Received: pass:normal[xref:#ERC721Utils-checkOnERC721Received-address-address-address-uint256-bytes-[`++checkOnERC721Received++`]]
 
+:checkOnERC721Received-address-address-address-uint256-bytes: pass:normal[xref:#ERC721Utils-checkOnERC721Received-address-address-address-uint256-bytes-[`++checkOnERC721Received++`]]
+
 [.contract]
 [[ERC721Utils]]
-=== `++ERC721Utils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/token/ERC721/utils/ERC721Utils.sol[{github-icon},role=heading-link]
+=== `++ERC721Utils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/token/ERC721/utils/ERC721Utils.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3027,7 +3120,7 @@ _Available since v5.1._
 [[ERC721Utils-checkOnERC721Received-address-address-address-uint256-bytes-]]
 ==== `[.contract-item-name]#++checkOnERC721Received++#++(address operator, address from, address to, uint256 tokenId, bytes data)++` [.item-kind]#internal#
 
-Performs an acceptance check for the provided `operator` by calling {IERC721-onERC721Received}
+Performs an acceptance check for the provided `operator` by calling {IERC721Receiver-onERC721Received}
 on the `to` address. The `operator` is generally the address that initiated the token transfer (i.e. `msg.sender`).
 
 The acceptance call is not executed and treated as a no-op if the target address doesn't contain code (i.e. an EOA).

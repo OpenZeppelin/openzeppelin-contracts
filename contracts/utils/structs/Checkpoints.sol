@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.1.0) (utils/structs/Checkpoints.sol)
+// OpenZeppelin Contracts (last updated v5.3.0) (utils/structs/Checkpoints.sol)
 // This file was procedurally generated from scripts/generate/templates/Checkpoints.js.
 
 pragma solidity ^0.8.20;
@@ -114,7 +114,7 @@ library Checkpoints {
     }
 
     /**
-     * @dev Returns the number of checkpoint.
+     * @dev Returns the number of checkpoints.
      */
     function length(Trace224 storage self) internal view returns (uint256) {
         return self._checkpoints.length;
@@ -317,7 +317,7 @@ library Checkpoints {
     }
 
     /**
-     * @dev Returns the number of checkpoint.
+     * @dev Returns the number of checkpoints.
      */
     function length(Trace208 storage self) internal view returns (uint256) {
         return self._checkpoints.length;
@@ -520,7 +520,7 @@ library Checkpoints {
     }
 
     /**
-     * @dev Returns the number of checkpoint.
+     * @dev Returns the number of checkpoints.
      */
     function length(Trace160 storage self) internal view returns (uint256) {
         return self._checkpoints.length;

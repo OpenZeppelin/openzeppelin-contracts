@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.1.0) (utils/structs/MerkleTree.sol)
+// OpenZeppelin Contracts (last updated v5.3.0) (utils/structs/MerkleTree.sol)
 
 pragma solidity ^0.8.20;
 
 import {Hashes} from "../cryptography/Hashes.sol";
 import {Arrays} from "../Arrays.sol";
 import {Panic} from "../Panic.sol";
+import {StorageSlot} from "../StorageSlot.sol";
 
 /**
  * @dev Library for managing https://wikipedia.org/wiki/Merkle_Tree[Merkle Tree] data structures.
@@ -27,6 +28,12 @@ import {Panic} from "../Panic.sol";
  * _Available since v5.1._
  */
 library MerkleTree {
+    /// @dev Error emitted when trying to update a leaf that was not previously pushed.
+    error MerkleTreeUpdateInvalidIndex(uint256 index, uint256 length);
+
+    /// @dev Error emitted when the proof used during an update is invalid (could not reproduce the side).
+    error MerkleTreeUpdateInvalidProof();
+
     /**
      * @dev A complete `bytes32` Merkle tree.
      *
@@ -88,7 +95,7 @@ library MerkleTree {
 
         // Build each root of zero-filled subtrees
         bytes32 currentZero = zero;
-        for (uint32 i = 0; i < treeDepth; ++i) {
+        for (uint256 i = 0; i < treeDepth; ++i) {
             Arrays.unsafeAccess(self._zeros, i).value = currentZero;
             currentZero = fnHash(currentZero, currentZero);
         }
@@ -143,7 +150,7 @@ library MerkleTree {
         // Rebuild branch from leaf to root
         uint256 currentIndex = index;
         bytes32 currentLevelHash = leaf;
-        for (uint32 i = 0; i < treeDepth; i++) {
+        for (uint256 i = 0; i < treeDepth; i++) {
             // Reaching the parent node, is currentLevelHash the left child?
             bool isLeft = currentIndex % 2 == 0;
 
@@ -164,6 +171,91 @@ library MerkleTree {
         }
 
         return (index, currentLevelHash);
+    }
+
+    /**
+     * @dev Change the value of the leaf at position `index` from `oldValue` to `newValue`. Returns the recomputed "old"
+     * root (before the update) and "new" root (after the update). The caller must verify that the reconstructed old
+     * root is the last known one.
+     *
+     * The `proof` must be an up-to-date inclusion proof for the leaf being updated. This means that this function is
+     * vulnerable to front-running. Any {push} or {update} operation (that changes the root of the tree) would render
+     * all "in flight" updates invalid.
+     *
+     * This variant uses {Hashes-commutativeKeccak256} to hash internal nodes. It should only be used on merkle trees
+     * that were setup using the same (default) hashing function (i.e. by calling
+     * {xref-MerkleTree-setup-struct-MerkleTree-Bytes32PushTree-uint8-bytes32-}[the default setup] function).
+     */
+    function update(
+        Bytes32PushTree storage self,
+        uint256 index,
+        bytes32 oldValue,
+        bytes32 newValue,
+        bytes32[] memory proof
+    ) internal returns (bytes32 oldRoot, bytes32 newRoot) {
+        return update(self, index, oldValue, newValue, proof, Hashes.commutativeKeccak256);
+    }
+
+    /**
+     * @dev Change the value of the leaf at position `index` from `oldValue` to `newValue`. Returns the recomputed "old"
+     * root (before the update) and "new" root (after the update). The caller must verify that the reconstructed old
+     * root is the last known one.
+     *
+     * The `proof` must be an up-to-date inclusion proof for the leaf being update. This means that this function is
+     * vulnerable to front-running. Any {push} or {update} operation (that changes the root of the tree) would render
+     * all "in flight" updates invalid.
+     *
+     * This variant uses a custom hashing function to hash internal nodes. It should only be called with the same
+     * function as the one used during the initial setup of the merkle tree.
+     */
+    function update(
+        Bytes32PushTree storage self,
+        uint256 index,
+        bytes32 oldValue,
+        bytes32 newValue,
+        bytes32[] memory proof,
+        function(bytes32, bytes32) view returns (bytes32) fnHash
+    ) internal returns (bytes32 oldRoot, bytes32 newRoot) {
+        unchecked {
+            // Check index range
+            uint256 length = self._nextLeafIndex;
+            if (index >= length) revert MerkleTreeUpdateInvalidIndex(index, length);
+
+            // Cache read
+            uint256 treeDepth = depth(self);
+
+            // Workaround stack too deep
+            bytes32[] storage sides = self._sides;
+
+            // This cannot overflow because: 0 <= index < length
+            uint256 lastIndex = length - 1;
+            uint256 currentIndex = index;
+            bytes32 currentLevelHashOld = oldValue;
+            bytes32 currentLevelHashNew = newValue;
+            for (uint32 i = 0; i < treeDepth; i++) {
+                bool isLeft = currentIndex % 2 == 0;
+
+                lastIndex >>= 1;
+                currentIndex >>= 1;
+
+                if (isLeft && currentIndex == lastIndex) {
+                    StorageSlot.Bytes32Slot storage side = Arrays.unsafeAccess(sides, i);
+                    if (side.value != currentLevelHashOld) revert MerkleTreeUpdateInvalidProof();
+                    side.value = currentLevelHashNew;
+                }
+
+                bytes32 sibling = proof[i];
+                currentLevelHashOld = fnHash(
+                    isLeft ? currentLevelHashOld : sibling,
+                    isLeft ? sibling : currentLevelHashOld
+                );
+                currentLevelHashNew = fnHash(
+                    isLeft ? currentLevelHashNew : sibling,
+                    isLeft ? sibling : currentLevelHashNew
+                );
+            }
+            return (currentLevelHashOld, currentLevelHashNew);
+        }
     }
 
     /**

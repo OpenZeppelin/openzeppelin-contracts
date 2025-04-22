@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.1.0) (token/ERC721/extensions/ERC721URIStorage.sol)
+// OpenZeppelin Contracts (last updated v5.3.0) (token/ERC721/extensions/ERC721URIStorage.sol)
 
 pragma solidity ^0.8.20;
 
@@ -52,7 +52,7 @@ abstract contract ERC721URIStorage is IERC4906, ERC721 {
     /**
      * @dev Sets `_tokenURI` as the tokenURI of `tokenId`.
      *
-     * Emits {MetadataUpdate}.
+     * Emits {IERC4906-MetadataUpdate}.
      */
     function _setTokenURI(uint256 tokenId, string memory _tokenURI) internal virtual {
         _tokenURIs[tokenId] = _tokenURI;

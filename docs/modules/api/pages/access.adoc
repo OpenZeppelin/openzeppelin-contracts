@@ -356,9 +356,16 @@ This directory provides ways to restrict who can access the functions of a contr
 :transferOwnership: pass:normal[xref:#Ownable-transferOwnership-address-[`++transferOwnership++`]]
 :_transferOwnership: pass:normal[xref:#Ownable-_transferOwnership-address-[`++_transferOwnership++`]]
 
+:constructor-address: pass:normal[xref:#Ownable-constructor-address-[`++constructor++`]]
+:owner-: pass:normal[xref:#Ownable-owner--[`++owner++`]]
+:_checkOwner-: pass:normal[xref:#Ownable-_checkOwner--[`++_checkOwner++`]]
+:renounceOwnership-: pass:normal[xref:#Ownable-renounceOwnership--[`++renounceOwnership++`]]
+:transferOwnership-address: pass:normal[xref:#Ownable-transferOwnership-address-[`++transferOwnership++`]]
+:_transferOwnership-address: pass:normal[xref:#Ownable-_transferOwnership-address-[`++_transferOwnership++`]]
+
 [.contract]
 [[Ownable]]
-=== `++Ownable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/access/Ownable.sol[{github-icon},role=heading-link]
+=== `++Ownable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/access/Ownable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -479,9 +486,14 @@ The owner is not a valid owner account. (eg. `address(0)`)
 :_transferOwnership: pass:normal[xref:#Ownable2Step-_transferOwnership-address-[`++_transferOwnership++`]]
 :acceptOwnership: pass:normal[xref:#Ownable2Step-acceptOwnership--[`++acceptOwnership++`]]
 
+:pendingOwner-: pass:normal[xref:#Ownable2Step-pendingOwner--[`++pendingOwner++`]]
+:transferOwnership-address: pass:normal[xref:#Ownable2Step-transferOwnership-address-[`++transferOwnership++`]]
+:_transferOwnership-address: pass:normal[xref:#Ownable2Step-_transferOwnership-address-[`++_transferOwnership++`]]
+:acceptOwnership-: pass:normal[xref:#Ownable2Step-acceptOwnership--[`++acceptOwnership++`]]
+
 [.contract]
 [[Ownable2Step]]
-=== `++Ownable2Step++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/access/Ownable2Step.sol[{github-icon},role=heading-link]
+=== `++Ownable2Step++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/access/Ownable2Step.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -585,9 +597,15 @@ The new owner accepts the ownership transfer.
 :revokeRole: pass:normal[xref:#IAccessControl-revokeRole-bytes32-address-[`++revokeRole++`]]
 :renounceRole: pass:normal[xref:#IAccessControl-renounceRole-bytes32-address-[`++renounceRole++`]]
 
+:hasRole-bytes32-address: pass:normal[xref:#IAccessControl-hasRole-bytes32-address-[`++hasRole++`]]
+:getRoleAdmin-bytes32: pass:normal[xref:#IAccessControl-getRoleAdmin-bytes32-[`++getRoleAdmin++`]]
+:grantRole-bytes32-address: pass:normal[xref:#IAccessControl-grantRole-bytes32-address-[`++grantRole++`]]
+:revokeRole-bytes32-address: pass:normal[xref:#IAccessControl-revokeRole-bytes32-address-[`++revokeRole++`]]
+:renounceRole-bytes32-address: pass:normal[xref:#IAccessControl-renounceRole-bytes32-address-[`++renounceRole++`]]
+
 [.contract]
 [[IAccessControl]]
-=== `++IAccessControl++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/access/IAccessControl.sol[{github-icon},role=heading-link]
+=== `++IAccessControl++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/access/IAccessControl.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -688,7 +706,7 @@ Requirements:
 Emitted when `newAdminRole` is set as ``role``'s admin role, replacing `previousAdminRole`
 
 `DEFAULT_ADMIN_ROLE` is the starting admin for all roles, despite
-{RoleAdminChanged} not being emitted signaling this.
+{RoleAdminChanged} not being emitted to signal this.
 
 [.contract-item]
 [[IAccessControl-RoleGranted-bytes32-address-address-]]
@@ -738,9 +756,22 @@ NOTE: Don't confuse with {AccessControlUnauthorizedAccount}.
 :_grantRole: pass:normal[xref:#AccessControl-_grantRole-bytes32-address-[`++_grantRole++`]]
 :_revokeRole: pass:normal[xref:#AccessControl-_revokeRole-bytes32-address-[`++_revokeRole++`]]
 
+:supportsInterface-bytes4: pass:normal[xref:#AccessControl-supportsInterface-bytes4-[`++supportsInterface++`]]
+:hasRole-bytes32-address: pass:normal[xref:#AccessControl-hasRole-bytes32-address-[`++hasRole++`]]
+:_checkRole-bytes32: pass:normal[xref:#AccessControl-_checkRole-bytes32-[`++_checkRole++`]]
+:_checkRole-bytes32-address: pass:normal[xref:#AccessControl-_checkRole-bytes32-address-[`++_checkRole++`]]
+:getRoleAdmin-bytes32: pass:normal[xref:#AccessControl-getRoleAdmin-bytes32-[`++getRoleAdmin++`]]
+:grantRole-bytes32-address: pass:normal[xref:#AccessControl-grantRole-bytes32-address-[`++grantRole++`]]
+:revokeRole-bytes32-address: pass:normal[xref:#AccessControl-revokeRole-bytes32-address-[`++revokeRole++`]]
+:renounceRole-bytes32-address: pass:normal[xref:#AccessControl-renounceRole-bytes32-address-[`++renounceRole++`]]
+:_setRoleAdmin-bytes32-bytes32: pass:normal[xref:#AccessControl-_setRoleAdmin-bytes32-bytes32-[`++_setRoleAdmin++`]]
+:_grantRole-bytes32-address: pass:normal[xref:#AccessControl-_grantRole-bytes32-address-[`++_grantRole++`]]
+:_revokeRole-bytes32-address: pass:normal[xref:#AccessControl-_revokeRole-bytes32-address-[`++_revokeRole++`]]
+:DEFAULT_ADMIN_ROLE-bytes32: pass:normal[xref:#AccessControl-DEFAULT_ADMIN_ROLE-bytes32[`++DEFAULT_ADMIN_ROLE++`]]
+
 [.contract]
 [[AccessControl]]
-=== `++AccessControl++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/access/AccessControl.sol[{github-icon},role=heading-link]
+=== `++AccessControl++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/access/AccessControl.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -965,7 +996,7 @@ May emit a {RoleGranted} event.
 [[AccessControl-_revokeRole-bytes32-address-]]
 ==== `[.contract-item-name]#++_revokeRole++#++(bytes32 role, address account) → bool++` [.item-kind]#internal#
 
-Attempts to revoke `role` to `account` and returns a boolean indicating if `role` was revoked.
+Attempts to revoke `role` from `account` and returns a boolean indicating if `role` was revoked.
 
 Internal function without access restriction.
 
@@ -980,9 +1011,12 @@ May emit a {RoleRevoked} event.
 :getRoleMember: pass:normal[xref:#IAccessControlEnumerable-getRoleMember-bytes32-uint256-[`++getRoleMember++`]]
 :getRoleMemberCount: pass:normal[xref:#IAccessControlEnumerable-getRoleMemberCount-bytes32-[`++getRoleMemberCount++`]]
 
+:getRoleMember-bytes32-uint256: pass:normal[xref:#IAccessControlEnumerable-getRoleMember-bytes32-uint256-[`++getRoleMember++`]]
+:getRoleMemberCount-bytes32: pass:normal[xref:#IAccessControlEnumerable-getRoleMemberCount-bytes32-[`++getRoleMemberCount++`]]
+
 [.contract]
 [[IAccessControlEnumerable]]
-=== `++IAccessControlEnumerable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/access/extensions/IAccessControlEnumerable.sol[{github-icon},role=heading-link]
+=== `++IAccessControlEnumerable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/access/extensions/IAccessControlEnumerable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1059,9 +1093,16 @@ together with {getRoleMember} to enumerate all bearers of a role.
 :_grantRole: pass:normal[xref:#AccessControlEnumerable-_grantRole-bytes32-address-[`++_grantRole++`]]
 :_revokeRole: pass:normal[xref:#AccessControlEnumerable-_revokeRole-bytes32-address-[`++_revokeRole++`]]
 
+:supportsInterface-bytes4: pass:normal[xref:#AccessControlEnumerable-supportsInterface-bytes4-[`++supportsInterface++`]]
+:getRoleMember-bytes32-uint256: pass:normal[xref:#AccessControlEnumerable-getRoleMember-bytes32-uint256-[`++getRoleMember++`]]
+:getRoleMemberCount-bytes32: pass:normal[xref:#AccessControlEnumerable-getRoleMemberCount-bytes32-[`++getRoleMemberCount++`]]
+:getRoleMembers-bytes32: pass:normal[xref:#AccessControlEnumerable-getRoleMembers-bytes32-[`++getRoleMembers++`]]
+:_grantRole-bytes32-address: pass:normal[xref:#AccessControlEnumerable-_grantRole-bytes32-address-[`++_grantRole++`]]
+:_revokeRole-bytes32-address: pass:normal[xref:#AccessControlEnumerable-_revokeRole-bytes32-address-[`++_revokeRole++`]]
+
 [.contract]
 [[AccessControlEnumerable]]
-=== `++AccessControlEnumerable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/access/extensions/AccessControlEnumerable.sol[{github-icon},role=heading-link]
+=== `++AccessControlEnumerable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/access/extensions/AccessControlEnumerable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1222,9 +1263,20 @@ Overload {AccessControl-_revokeRole} to track enumerable memberships
 :rollbackDefaultAdminDelay: pass:normal[xref:#IAccessControlDefaultAdminRules-rollbackDefaultAdminDelay--[`++rollbackDefaultAdminDelay++`]]
 :defaultAdminDelayIncreaseWait: pass:normal[xref:#IAccessControlDefaultAdminRules-defaultAdminDelayIncreaseWait--[`++defaultAdminDelayIncreaseWait++`]]
 
+:defaultAdmin-: pass:normal[xref:#IAccessControlDefaultAdminRules-defaultAdmin--[`++defaultAdmin++`]]
+:pendingDefaultAdmin-: pass:normal[xref:#IAccessControlDefaultAdminRules-pendingDefaultAdmin--[`++pendingDefaultAdmin++`]]
+:defaultAdminDelay-: pass:normal[xref:#IAccessControlDefaultAdminRules-defaultAdminDelay--[`++defaultAdminDelay++`]]
+:pendingDefaultAdminDelay-: pass:normal[xref:#IAccessControlDefaultAdminRules-pendingDefaultAdminDelay--[`++pendingDefaultAdminDelay++`]]
+:beginDefaultAdminTransfer-address: pass:normal[xref:#IAccessControlDefaultAdminRules-beginDefaultAdminTransfer-address-[`++beginDefaultAdminTransfer++`]]
+:cancelDefaultAdminTransfer-: pass:normal[xref:#IAccessControlDefaultAdminRules-cancelDefaultAdminTransfer--[`++cancelDefaultAdminTransfer++`]]
+:acceptDefaultAdminTransfer-: pass:normal[xref:#IAccessControlDefaultAdminRules-acceptDefaultAdminTransfer--[`++acceptDefaultAdminTransfer++`]]
+:changeDefaultAdminDelay-uint48: pass:normal[xref:#IAccessControlDefaultAdminRules-changeDefaultAdminDelay-uint48-[`++changeDefaultAdminDelay++`]]
+:rollbackDefaultAdminDelay-: pass:normal[xref:#IAccessControlDefaultAdminRules-rollbackDefaultAdminDelay--[`++rollbackDefaultAdminDelay++`]]
+:defaultAdminDelayIncreaseWait-: pass:normal[xref:#IAccessControlDefaultAdminRules-defaultAdminDelayIncreaseWait--[`++defaultAdminDelayIncreaseWait++`]]
+
 [.contract]
 [[IAccessControlDefaultAdminRules]]
-=== `++IAccessControlDefaultAdminRules++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/access/extensions/IAccessControlDefaultAdminRules.sol[{github-icon},role=heading-link]
+=== `++IAccessControlDefaultAdminRules++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/access/extensions/IAccessControlDefaultAdminRules.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1511,9 +1563,35 @@ NOTE: `schedule` can be 0 indicating there's no transfer scheduled.
 :_rollbackDefaultAdminDelay: pass:normal[xref:#AccessControlDefaultAdminRules-_rollbackDefaultAdminDelay--[`++_rollbackDefaultAdminDelay++`]]
 :_delayChangeWait: pass:normal[xref:#AccessControlDefaultAdminRules-_delayChangeWait-uint48-[`++_delayChangeWait++`]]
 
+:constructor-uint48-address: pass:normal[xref:#AccessControlDefaultAdminRules-constructor-uint48-address-[`++constructor++`]]
+:supportsInterface-bytes4: pass:normal[xref:#AccessControlDefaultAdminRules-supportsInterface-bytes4-[`++supportsInterface++`]]
+:owner-: pass:normal[xref:#AccessControlDefaultAdminRules-owner--[`++owner++`]]
+:grantRole-bytes32-address: pass:normal[xref:#AccessControlDefaultAdminRules-grantRole-bytes32-address-[`++grantRole++`]]
+:revokeRole-bytes32-address: pass:normal[xref:#AccessControlDefaultAdminRules-revokeRole-bytes32-address-[`++revokeRole++`]]
+:renounceRole-bytes32-address: pass:normal[xref:#AccessControlDefaultAdminRules-renounceRole-bytes32-address-[`++renounceRole++`]]
+:_grantRole-bytes32-address: pass:normal[xref:#AccessControlDefaultAdminRules-_grantRole-bytes32-address-[`++_grantRole++`]]
+:_revokeRole-bytes32-address: pass:normal[xref:#AccessControlDefaultAdminRules-_revokeRole-bytes32-address-[`++_revokeRole++`]]
+:_setRoleAdmin-bytes32-bytes32: pass:normal[xref:#AccessControlDefaultAdminRules-_setRoleAdmin-bytes32-bytes32-[`++_setRoleAdmin++`]]
+:defaultAdmin-: pass:normal[xref:#AccessControlDefaultAdminRules-defaultAdmin--[`++defaultAdmin++`]]
+:pendingDefaultAdmin-: pass:normal[xref:#AccessControlDefaultAdminRules-pendingDefaultAdmin--[`++pendingDefaultAdmin++`]]
+:defaultAdminDelay-: pass:normal[xref:#AccessControlDefaultAdminRules-defaultAdminDelay--[`++defaultAdminDelay++`]]
+:pendingDefaultAdminDelay-: pass:normal[xref:#AccessControlDefaultAdminRules-pendingDefaultAdminDelay--[`++pendingDefaultAdminDelay++`]]
+:defaultAdminDelayIncreaseWait-: pass:normal[xref:#AccessControlDefaultAdminRules-defaultAdminDelayIncreaseWait--[`++defaultAdminDelayIncreaseWait++`]]
+:beginDefaultAdminTransfer-address: pass:normal[xref:#AccessControlDefaultAdminRules-beginDefaultAdminTransfer-address-[`++beginDefaultAdminTransfer++`]]
+:_beginDefaultAdminTransfer-address: pass:normal[xref:#AccessControlDefaultAdminRules-_beginDefaultAdminTransfer-address-[`++_beginDefaultAdminTransfer++`]]
+:cancelDefaultAdminTransfer-: pass:normal[xref:#AccessControlDefaultAdminRules-cancelDefaultAdminTransfer--[`++cancelDefaultAdminTransfer++`]]
+:_cancelDefaultAdminTransfer-: pass:normal[xref:#AccessControlDefaultAdminRules-_cancelDefaultAdminTransfer--[`++_cancelDefaultAdminTransfer++`]]
+:acceptDefaultAdminTransfer-: pass:normal[xref:#AccessControlDefaultAdminRules-acceptDefaultAdminTransfer--[`++acceptDefaultAdminTransfer++`]]
+:_acceptDefaultAdminTransfer-: pass:normal[xref:#AccessControlDefaultAdminRules-_acceptDefaultAdminTransfer--[`++_acceptDefaultAdminTransfer++`]]
+:changeDefaultAdminDelay-uint48: pass:normal[xref:#AccessControlDefaultAdminRules-changeDefaultAdminDelay-uint48-[`++changeDefaultAdminDelay++`]]
+:_changeDefaultAdminDelay-uint48: pass:normal[xref:#AccessControlDefaultAdminRules-_changeDefaultAdminDelay-uint48-[`++_changeDefaultAdminDelay++`]]
+:rollbackDefaultAdminDelay-: pass:normal[xref:#AccessControlDefaultAdminRules-rollbackDefaultAdminDelay--[`++rollbackDefaultAdminDelay++`]]
+:_rollbackDefaultAdminDelay-: pass:normal[xref:#AccessControlDefaultAdminRules-_rollbackDefaultAdminDelay--[`++_rollbackDefaultAdminDelay++`]]
+:_delayChangeWait-uint48: pass:normal[xref:#AccessControlDefaultAdminRules-_delayChangeWait-uint48-[`++_delayChangeWait++`]]
+
 [.contract]
 [[AccessControlDefaultAdminRules]]
-=== `++AccessControlDefaultAdminRules++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/access/extensions/AccessControlDefaultAdminRules.sol[{github-icon},role=heading-link]
+=== `++AccessControlDefaultAdminRules++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/access/extensions/AccessControlDefaultAdminRules.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1932,9 +2010,11 @@ See {defaultAdminDelayIncreaseWait}.
 
 :canCall: pass:normal[xref:#IAuthority-canCall-address-address-bytes4-[`++canCall++`]]
 
+:canCall-address-address-bytes4: pass:normal[xref:#IAuthority-canCall-address-address-bytes4-[`++canCall++`]]
+
 [.contract]
 [[IAuthority]]
-=== `++IAuthority++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/access/manager/IAuthority.sol[{github-icon},role=heading-link]
+=== `++IAuthority++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/access/manager/IAuthority.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2009,9 +2089,39 @@ Returns true if the caller can invoke on a target the function identified by a f
 :hashOperation: pass:normal[xref:#IAccessManager-hashOperation-address-address-bytes-[`++hashOperation++`]]
 :updateAuthority: pass:normal[xref:#IAccessManager-updateAuthority-address-address-[`++updateAuthority++`]]
 
+:canCall-address-address-bytes4: pass:normal[xref:#IAccessManager-canCall-address-address-bytes4-[`++canCall++`]]
+:expiration-: pass:normal[xref:#IAccessManager-expiration--[`++expiration++`]]
+:minSetback-: pass:normal[xref:#IAccessManager-minSetback--[`++minSetback++`]]
+:isTargetClosed-address: pass:normal[xref:#IAccessManager-isTargetClosed-address-[`++isTargetClosed++`]]
+:getTargetFunctionRole-address-bytes4: pass:normal[xref:#IAccessManager-getTargetFunctionRole-address-bytes4-[`++getTargetFunctionRole++`]]
+:getTargetAdminDelay-address: pass:normal[xref:#IAccessManager-getTargetAdminDelay-address-[`++getTargetAdminDelay++`]]
+:getRoleAdmin-uint64: pass:normal[xref:#IAccessManager-getRoleAdmin-uint64-[`++getRoleAdmin++`]]
+:getRoleGuardian-uint64: pass:normal[xref:#IAccessManager-getRoleGuardian-uint64-[`++getRoleGuardian++`]]
+:getRoleGrantDelay-uint64: pass:normal[xref:#IAccessManager-getRoleGrantDelay-uint64-[`++getRoleGrantDelay++`]]
+:getAccess-uint64-address: pass:normal[xref:#IAccessManager-getAccess-uint64-address-[`++getAccess++`]]
+:hasRole-uint64-address: pass:normal[xref:#IAccessManager-hasRole-uint64-address-[`++hasRole++`]]
+:labelRole-uint64-string: pass:normal[xref:#IAccessManager-labelRole-uint64-string-[`++labelRole++`]]
+:grantRole-uint64-address-uint32: pass:normal[xref:#IAccessManager-grantRole-uint64-address-uint32-[`++grantRole++`]]
+:revokeRole-uint64-address: pass:normal[xref:#IAccessManager-revokeRole-uint64-address-[`++revokeRole++`]]
+:renounceRole-uint64-address: pass:normal[xref:#IAccessManager-renounceRole-uint64-address-[`++renounceRole++`]]
+:setRoleAdmin-uint64-uint64: pass:normal[xref:#IAccessManager-setRoleAdmin-uint64-uint64-[`++setRoleAdmin++`]]
+:setRoleGuardian-uint64-uint64: pass:normal[xref:#IAccessManager-setRoleGuardian-uint64-uint64-[`++setRoleGuardian++`]]
+:setGrantDelay-uint64-uint32: pass:normal[xref:#IAccessManager-setGrantDelay-uint64-uint32-[`++setGrantDelay++`]]
+:setTargetFunctionRole-address-bytes4---uint64: pass:normal[xref:#IAccessManager-setTargetFunctionRole-address-bytes4---uint64-[`++setTargetFunctionRole++`]]
+:setTargetAdminDelay-address-uint32: pass:normal[xref:#IAccessManager-setTargetAdminDelay-address-uint32-[`++setTargetAdminDelay++`]]
+:setTargetClosed-address-bool: pass:normal[xref:#IAccessManager-setTargetClosed-address-bool-[`++setTargetClosed++`]]
+:getSchedule-bytes32: pass:normal[xref:#IAccessManager-getSchedule-bytes32-[`++getSchedule++`]]
+:getNonce-bytes32: pass:normal[xref:#IAccessManager-getNonce-bytes32-[`++getNonce++`]]
+:schedule-address-bytes-uint48: pass:normal[xref:#IAccessManager-schedule-address-bytes-uint48-[`++schedule++`]]
+:execute-address-bytes: pass:normal[xref:#IAccessManager-execute-address-bytes-[`++execute++`]]
+:cancel-address-address-bytes: pass:normal[xref:#IAccessManager-cancel-address-address-bytes-[`++cancel++`]]
+:consumeScheduledOp-address-bytes: pass:normal[xref:#IAccessManager-consumeScheduledOp-address-bytes-[`++consumeScheduledOp++`]]
+:hashOperation-address-address-bytes: pass:normal[xref:#IAccessManager-hashOperation-address-address-bytes-[`++hashOperation++`]]
+:updateAuthority-address-address: pass:normal[xref:#IAccessManager-updateAuthority-address-address-[`++updateAuthority++`]]
+
 [.contract]
 [[IAccessManager]]
-=== `++IAccessManager++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/access/manager/IAccessManager.sol[{github-icon},role=heading-link]
+=== `++IAccessManager++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/access/manager/IAccessManager.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2583,9 +2693,51 @@ Admin delay for a given `target` will be updated to `delay` when `since` is reac
 :hashOperation: pass:normal[xref:#AccessManager-hashOperation-address-address-bytes-[`++hashOperation++`]]
 :updateAuthority: pass:normal[xref:#AccessManager-updateAuthority-address-address-[`++updateAuthority++`]]
 
+:constructor-address: pass:normal[xref:#AccessManager-constructor-address-[`++constructor++`]]
+:canCall-address-address-bytes4: pass:normal[xref:#AccessManager-canCall-address-address-bytes4-[`++canCall++`]]
+:expiration-: pass:normal[xref:#AccessManager-expiration--[`++expiration++`]]
+:minSetback-: pass:normal[xref:#AccessManager-minSetback--[`++minSetback++`]]
+:isTargetClosed-address: pass:normal[xref:#AccessManager-isTargetClosed-address-[`++isTargetClosed++`]]
+:getTargetFunctionRole-address-bytes4: pass:normal[xref:#AccessManager-getTargetFunctionRole-address-bytes4-[`++getTargetFunctionRole++`]]
+:getTargetAdminDelay-address: pass:normal[xref:#AccessManager-getTargetAdminDelay-address-[`++getTargetAdminDelay++`]]
+:getRoleAdmin-uint64: pass:normal[xref:#AccessManager-getRoleAdmin-uint64-[`++getRoleAdmin++`]]
+:getRoleGuardian-uint64: pass:normal[xref:#AccessManager-getRoleGuardian-uint64-[`++getRoleGuardian++`]]
+:getRoleGrantDelay-uint64: pass:normal[xref:#AccessManager-getRoleGrantDelay-uint64-[`++getRoleGrantDelay++`]]
+:getAccess-uint64-address: pass:normal[xref:#AccessManager-getAccess-uint64-address-[`++getAccess++`]]
+:hasRole-uint64-address: pass:normal[xref:#AccessManager-hasRole-uint64-address-[`++hasRole++`]]
+:labelRole-uint64-string: pass:normal[xref:#AccessManager-labelRole-uint64-string-[`++labelRole++`]]
+:grantRole-uint64-address-uint32: pass:normal[xref:#AccessManager-grantRole-uint64-address-uint32-[`++grantRole++`]]
+:revokeRole-uint64-address: pass:normal[xref:#AccessManager-revokeRole-uint64-address-[`++revokeRole++`]]
+:renounceRole-uint64-address: pass:normal[xref:#AccessManager-renounceRole-uint64-address-[`++renounceRole++`]]
+:setRoleAdmin-uint64-uint64: pass:normal[xref:#AccessManager-setRoleAdmin-uint64-uint64-[`++setRoleAdmin++`]]
+:setRoleGuardian-uint64-uint64: pass:normal[xref:#AccessManager-setRoleGuardian-uint64-uint64-[`++setRoleGuardian++`]]
+:setGrantDelay-uint64-uint32: pass:normal[xref:#AccessManager-setGrantDelay-uint64-uint32-[`++setGrantDelay++`]]
+:_grantRole-uint64-address-uint32-uint32: pass:normal[xref:#AccessManager-_grantRole-uint64-address-uint32-uint32-[`++_grantRole++`]]
+:_revokeRole-uint64-address: pass:normal[xref:#AccessManager-_revokeRole-uint64-address-[`++_revokeRole++`]]
+:_setRoleAdmin-uint64-uint64: pass:normal[xref:#AccessManager-_setRoleAdmin-uint64-uint64-[`++_setRoleAdmin++`]]
+:_setRoleGuardian-uint64-uint64: pass:normal[xref:#AccessManager-_setRoleGuardian-uint64-uint64-[`++_setRoleGuardian++`]]
+:_setGrantDelay-uint64-uint32: pass:normal[xref:#AccessManager-_setGrantDelay-uint64-uint32-[`++_setGrantDelay++`]]
+:setTargetFunctionRole-address-bytes4---uint64: pass:normal[xref:#AccessManager-setTargetFunctionRole-address-bytes4---uint64-[`++setTargetFunctionRole++`]]
+:_setTargetFunctionRole-address-bytes4-uint64: pass:normal[xref:#AccessManager-_setTargetFunctionRole-address-bytes4-uint64-[`++_setTargetFunctionRole++`]]
+:setTargetAdminDelay-address-uint32: pass:normal[xref:#AccessManager-setTargetAdminDelay-address-uint32-[`++setTargetAdminDelay++`]]
+:_setTargetAdminDelay-address-uint32: pass:normal[xref:#AccessManager-_setTargetAdminDelay-address-uint32-[`++_setTargetAdminDelay++`]]
+:setTargetClosed-address-bool: pass:normal[xref:#AccessManager-setTargetClosed-address-bool-[`++setTargetClosed++`]]
+:_setTargetClosed-address-bool: pass:normal[xref:#AccessManager-_setTargetClosed-address-bool-[`++_setTargetClosed++`]]
+:getSchedule-bytes32: pass:normal[xref:#AccessManager-getSchedule-bytes32-[`++getSchedule++`]]
+:getNonce-bytes32: pass:normal[xref:#AccessManager-getNonce-bytes32-[`++getNonce++`]]
+:schedule-address-bytes-uint48: pass:normal[xref:#AccessManager-schedule-address-bytes-uint48-[`++schedule++`]]
+:execute-address-bytes: pass:normal[xref:#AccessManager-execute-address-bytes-[`++execute++`]]
+:cancel-address-address-bytes: pass:normal[xref:#AccessManager-cancel-address-address-bytes-[`++cancel++`]]
+:consumeScheduledOp-address-bytes: pass:normal[xref:#AccessManager-consumeScheduledOp-address-bytes-[`++consumeScheduledOp++`]]
+:_consumeScheduledOp-bytes32: pass:normal[xref:#AccessManager-_consumeScheduledOp-bytes32-[`++_consumeScheduledOp++`]]
+:hashOperation-address-address-bytes: pass:normal[xref:#AccessManager-hashOperation-address-address-bytes-[`++hashOperation++`]]
+:updateAuthority-address-address: pass:normal[xref:#AccessManager-updateAuthority-address-address-[`++updateAuthority++`]]
+:ADMIN_ROLE-uint64: pass:normal[xref:#AccessManager-ADMIN_ROLE-uint64[`++ADMIN_ROLE++`]]
+:PUBLIC_ROLE-uint64: pass:normal[xref:#AccessManager-PUBLIC_ROLE-uint64[`++PUBLIC_ROLE++`]]
+
 [.contract]
 [[AccessManager]]
-=== `++AccessManager++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/access/manager/AccessManager.sol[{github-icon},role=heading-link]
+=== `++AccessManager++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/access/manager/AccessManager.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3184,9 +3336,13 @@ The identifier of the public role. Automatically granted to all addresses with n
 :setAuthority: pass:normal[xref:#IAccessManaged-setAuthority-address-[`++setAuthority++`]]
 :isConsumingScheduledOp: pass:normal[xref:#IAccessManaged-isConsumingScheduledOp--[`++isConsumingScheduledOp++`]]
 
+:authority-: pass:normal[xref:#IAccessManaged-authority--[`++authority++`]]
+:setAuthority-address: pass:normal[xref:#IAccessManaged-setAuthority-address-[`++setAuthority++`]]
+:isConsumingScheduledOp-: pass:normal[xref:#IAccessManaged-isConsumingScheduledOp--[`++isConsumingScheduledOp++`]]
+
 [.contract]
 [[IAccessManaged]]
-=== `++IAccessManaged++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/access/manager/IAccessManaged.sol[{github-icon},role=heading-link]
+=== `++IAccessManaged++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/access/manager/IAccessManaged.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3264,9 +3420,16 @@ Authority that manages this contract was updated.
 :_setAuthority: pass:normal[xref:#AccessManaged-_setAuthority-address-[`++_setAuthority++`]]
 :_checkCanCall: pass:normal[xref:#AccessManaged-_checkCanCall-address-bytes-[`++_checkCanCall++`]]
 
+:constructor-address: pass:normal[xref:#AccessManaged-constructor-address-[`++constructor++`]]
+:authority-: pass:normal[xref:#AccessManaged-authority--[`++authority++`]]
+:setAuthority-address: pass:normal[xref:#AccessManaged-setAuthority-address-[`++setAuthority++`]]
+:isConsumingScheduledOp-: pass:normal[xref:#AccessManaged-isConsumingScheduledOp--[`++isConsumingScheduledOp++`]]
+:_setAuthority-address: pass:normal[xref:#AccessManaged-_setAuthority-address-[`++_setAuthority++`]]
+:_checkCanCall-address-bytes: pass:normal[xref:#AccessManaged-_checkCanCall-address-bytes-[`++_checkCanCall++`]]
+
 [.contract]
 [[AccessManaged]]
-=== `++AccessManaged++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/access/manager/AccessManaged.sol[{github-icon},role=heading-link]
+=== `++AccessManaged++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/access/manager/AccessManaged.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3392,9 +3555,11 @@ is less than 4 bytes long.
 
 :canCallWithDelay: pass:normal[xref:#AuthorityUtils-canCallWithDelay-address-address-address-bytes4-[`++canCallWithDelay++`]]
 
+:canCallWithDelay-address-address-address-bytes4: pass:normal[xref:#AuthorityUtils-canCallWithDelay-address-address-address-bytes4-[`++canCallWithDelay++`]]
+
 [.contract]
 [[AuthorityUtils]]
-=== `++AuthorityUtils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.2.0/contracts/access/manager/AuthorityUtils.sol[{github-icon},role=heading-link]
+=== `++AuthorityUtils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/access/manager/AuthorityUtils.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity

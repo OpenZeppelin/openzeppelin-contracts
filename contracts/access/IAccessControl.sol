@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.1.0) (access/IAccessControl.sol)
+// OpenZeppelin Contracts (last updated v5.3.0) (access/IAccessControl.sol)
 
 pragma solidity ^0.8.20;
 
@@ -23,7 +23,7 @@ interface IAccessControl {
      * @dev Emitted when `newAdminRole` is set as ``role``'s admin role, replacing `previousAdminRole`
      *
      * `DEFAULT_ADMIN_ROLE` is the starting admin for all roles, despite
-     * {RoleAdminChanged} not being emitted signaling this.
+     * {RoleAdminChanged} not being emitted to signal this.
      */
     event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole);
 

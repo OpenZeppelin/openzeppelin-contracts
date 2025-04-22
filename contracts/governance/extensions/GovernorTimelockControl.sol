@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.1.0) (governance/extensions/GovernorTimelockControl.sol)
+// OpenZeppelin Contracts (last updated v5.3.0) (governance/extensions/GovernorTimelockControl.sol)
 
 pragma solidity ^0.8.20;
 
@@ -17,7 +17,7 @@ import {SafeCast} from "../../utils/math/SafeCast.sol";
  * the assets and permissions must be attached to the {TimelockController}. Any asset sent to the {Governor} will be
  * inaccessible from a proposal, unless executed via {Governor-relay}.
  *
- * WARNING: Setting up the TimelockController to have additional proposers or cancellers besides the governor is very
+ * WARNING: Setting up the TimelockController to have additional proposers or cancelers besides the governor is very
  * risky, as it grants them the ability to: 1) execute operations as the timelock, and thus possibly performing
  * operations or accessing funds that are expected to only be accessible through a vote, and 2) block governance
  * proposals that have been approved by the voters, effectively executing a Denial of Service attack.

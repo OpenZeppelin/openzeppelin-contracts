@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.1.0) (token/ERC721/utils/ERC721Utils.sol)
+// OpenZeppelin Contracts (last updated v5.3.0) (token/ERC721/utils/ERC721Utils.sol)
 
 pragma solidity ^0.8.20;
 
@@ -15,7 +15,7 @@ import {IERC721Errors} from "../../../interfaces/draft-IERC6093.sol";
  */
 library ERC721Utils {
     /**
-     * @dev Performs an acceptance check for the provided `operator` by calling {IERC721-onERC721Received}
+     * @dev Performs an acceptance check for the provided `operator` by calling {IERC721Receiver-onERC721Received}
      * on the `to` address. The `operator` is generally the address that initiated the token transfer (i.e. `msg.sender`).
      *
      * The acceptance call is not executed and treated as a no-op if the target address doesn't contain code (i.e. an EOA).
