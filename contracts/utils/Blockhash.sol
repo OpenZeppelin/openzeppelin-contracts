@@ -38,12 +38,12 @@ library Blockhash {
     function _historyStorageCall(uint256 blockNumber) private view returns (bytes32 hash) {
         assembly ("memory-safe") {
             // Use scratch space to allocate blockNumber
-            mstore(0, 0x20) // Store length and clear potentially dirty scratch space
-            mstore(0x20, blockNumber) // Store the blockNumber in scratch space
+            mstore(0, blockNumber) // Store the blockNumber in scratch space
 
             // In case the history storage address is not deployed, the call will succeed
             // without returndata, so the hash will be 0 just as querying `blockhash` directly.
-            let success := staticcall(gas(), HISTORY_STORAGE_ADDRESS, 0x20, 0, 0, 0x20)
+            let success := staticcall(gas(), HISTORY_STORAGE_ADDRESS, 0, 0x20, 0, 0x20)
+
             // In case of failure, the returndata might include the revert reason or custom error
             if success {
                 hash := mload(0)
