@@ -6,7 +6,7 @@ about: Report a bug in OpenZeppelin Contracts
 
 <!-- Briefly describe the issue you're experiencing. Tell us what you were trying to do and what happened instead. -->
 
-<!-- Remember, this is not a place to ask for help debugging code. For that, we welcome you in the OpenZeppelin Community Forum: https://forum.openzeppelin.com/. -->
+<!-- Remember, this is not a place to ask for help debugging code. For that, we welcome you to the OpenZeppelin Community Forum: https://forum.openzeppelin.com/. -->
 
 **💻 Environment**
 
