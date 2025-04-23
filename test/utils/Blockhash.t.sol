@@ -81,12 +81,13 @@ contract BlockhashTest is Test {
     }
 
     function _setHistoryBlockhash(uint256 blockNumber, bytes32 blockHash) internal {
-        uint256 currentBlock = block.number;
+        // Subtracting 1 due to bug encountered during coverage
+        uint256 currentBlock = block.number - 1;
         vm.assume(blockNumber < type(uint256).max);
         vm.roll(blockNumber + 1); // roll to the next block so the storage contract sets the parent's blockhash
         vm.prank(SYSTEM_ADDRESS);
         (bool success, ) = Blockhash.HISTORY_STORAGE_ADDRESS.call(abi.encode(blockHash)); // set parent's blockhash
         assertTrue(success);
-        vm.roll(currentBlock);
+        vm.roll(currentBlock + 1);
     }
 }
