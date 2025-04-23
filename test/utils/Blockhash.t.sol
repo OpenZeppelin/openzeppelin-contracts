@@ -15,17 +15,19 @@ contract BlockhashTest is Test {
         hex"3373fffffffffffffffffffffffffffffffffffffffe14604657602036036042575f35600143038111604257611fff81430311604257611fff9006545f5260205ff35b5f5ffd5b5f35611fff60014303065500";
 
     function setUp() public {
+        vm.roll(block.number + 100);
+
         startingBlock = block.number;
         vm.etch(Blockhash.HISTORY_STORAGE_ADDRESS, HISTORY_STORAGE_BYTECODE);
     }
 
-    function testFuzzRecentBlocks(uint256 offset, uint256 currentBlock, bytes32 expectedHash) public {
+    function testFuzzRecentBlocks(uint8 offset, uint64 currentBlock, bytes32 expectedHash) public {
         // Recent blocks (1-256 blocks old)
-        offset = bound(offset, 1, 256);
-        vm.assume(currentBlock > offset);
+        uint256 boundedOffset = uint256(offset) + 1;
+        vm.assume(currentBlock > boundedOffset);
         vm.roll(currentBlock);
 
-        uint256 targetBlock = currentBlock - offset;
+        uint256 targetBlock = currentBlock - boundedOffset;
         vm.setBlockhash(targetBlock, expectedHash);
 
         bytes32 result = Blockhash.blockHash(targetBlock);
@@ -33,14 +35,15 @@ contract BlockhashTest is Test {
         assertEq(result, expectedHash);
     }
 
-    function testFuzzHistoryBlocks(uint256 offset, uint256 currentBlock, bytes32 expectedHash) public {
+    function testFuzzHistoryBlocks(uint16 offset, uint256 currentBlock, bytes32 expectedHash) public {
         // History blocks (257-8191 blocks old)
-        offset = bound(offset, 257, 8191);
+        offset = uint16(bound(offset, 257, 8191));
         vm.assume(currentBlock > offset);
         vm.roll(currentBlock);
-        _setHistoryBlockhash(expectedHash);
 
         uint256 targetBlock = currentBlock - offset;
+        _setHistoryBlockhash(targetBlock, expectedHash);
+
         bytes32 result = Blockhash.blockHash(targetBlock);
         (bool success, bytes memory returndata) = Blockhash.HISTORY_STORAGE_ADDRESS.staticcall(
             abi.encodePacked(bytes32(targetBlock))
@@ -74,11 +77,16 @@ contract BlockhashTest is Test {
     }
 
     function _setHistoryBlockhash(bytes32 blockHash) internal {
-        vm.assume(block.number < type(uint256).max);
-        vm.roll(block.number + 1); // roll to the next block so the storage contract sets the parent's blockhash
+        _setHistoryBlockhash(block.number, blockHash);
+    }
+
+    function _setHistoryBlockhash(uint256 blockNumber, bytes32 blockHash) internal {
+        uint256 currentBlock = block.number;
+        vm.assume(blockNumber < type(uint256).max);
+        vm.roll(blockNumber + 1); // roll to the next block so the storage contract sets the parent's blockhash
         vm.prank(SYSTEM_ADDRESS);
         (bool success, ) = Blockhash.HISTORY_STORAGE_ADDRESS.call(abi.encode(blockHash)); // set parent's blockhash
         assertTrue(success);
-        vm.roll(block.number - 1);
+        vm.roll(currentBlock);
     }
 }
