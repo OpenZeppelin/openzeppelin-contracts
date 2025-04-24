@@ -76,6 +76,13 @@ contract BlockhashTest is Test {
         }
     }
 
+    function testUnsupportedChainsReturnZeroWhenOutOfRange() public {
+        vm.etch(Blockhash.HISTORY_STORAGE_ADDRESS, hex"");
+
+        vm.roll(block.number + 1000);
+        assertEq(Blockhash.blockHash(block.number - 1000), bytes32(0));
+    }
+
     function _setHistoryBlockhash(bytes32 blockHash) internal {
         _setHistoryBlockhash(block.number, blockHash);
     }
