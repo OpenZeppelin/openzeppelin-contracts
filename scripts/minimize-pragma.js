@@ -1,10 +1,5 @@
 const { exec } = require('child_process');
 const fs = require('fs');
-const { hideBin } = require('yargs/helpers');
-const { argv } = require('yargs/yargs')(hideBin(process.argv)).positional('file', {
-  type: 'string',
-  describe: 'The contract to set pragma for',
-});
 
 let solcVersionsMaxPatch = ['0.5.16', '0.6.12', '0.7.6', '0.8.29'];
 const allSolcVersions = solcVersionsMaxPatch.flatMap(minorVersion => {
@@ -17,21 +12,48 @@ const allSolcVersions = solcVersionsMaxPatch.flatMap(minorVersion => {
   return patchVersions;
 });
 
-temp('contracts/interfaces/IERC721.sol');
+let finalizedFiles = [];
 
-async function main() {
-  console.log(await Promise.all(allSolcVersions.map(version => compileWithVersion(argv.file, version))));
-}
+minimizeAllInterfacePragmas();
 
 async function getApplicablePragmas(file) {
   const pragmas = await Promise.all(allSolcVersions.map(version => compileWithVersion(file, version)));
   return pragmas;
 }
 
-async function temp(file) {
-  const sources = getFileSources(file);
+async function minimizePragma(file) {
+  if (finalizedFiles.includes(file)) {
+    return;
+  }
 
-  console.log(mergePragmaLists(await getApplicablePragmas(file), await getParentApplicablePragmas(sources)));
+  await updatePragmaWithDependencies(file);
+
+  const sources = getFileSources(file);
+  for (const source of sources) {
+    console.log(source);
+    await minimizePragma(source);
+  }
+
+  const applicablePragmas = mergePragmaLists(
+    await getApplicablePragmas(file),
+    await getParentApplicablePragmas(sources),
+  );
+
+  const newPragma = applicablePragmas.reduce((accumulator, currentVal) => {
+    if (currentVal.success && accumulator === '') {
+      return `>= ${currentVal.solcVersion}`;
+    }
+
+    if (!currentVal.success && accumulator !== '') {
+      throw new Error('Unexpected failing compilation');
+    }
+    return accumulator;
+  }, '');
+
+  updatePragma(file, newPragma);
+
+  console.log(`Finalized pragma in ${file} to ${newPragma}`);
+  finalizedFiles.push(file);
 }
 
 async function getParentApplicablePragmas(parents) {
@@ -57,14 +79,14 @@ async function compileWithVersion(file, solcVersion) {
   });
 }
 
-async function updateAllInterfacePragmas(newPragma) {
+async function minimizeAllInterfacePragmas() {
   const dirPath = 'contracts/interfaces';
   const files = fs.readdirSync(dirPath);
   for (const file of files) {
-    if (!file.endsWith('.sol')) {
+    if (!file.endsWith('.sol') || file.startsWith('draft')) {
       continue;
     }
-    await updatePragmaWithDependencies(`${dirPath}/${file}`, newPragma);
+    await minimizePragma(`${dirPath}/${file}`);
   }
 }
 
@@ -82,22 +104,24 @@ function getFileSources(file) {
   return sources.filter(source => source !== file);
 }
 
-async function updatePragma(file, newPragma) {
+function updatePragma(file, newPragma) {
+  if (finalizedFiles.includes(file)) return;
+
   let fileContent = fs.readFileSync(file, 'utf8').split('\n');
   const pragmaLineIndex = fileContent.findIndex(line => line.startsWith('pragma solidity'));
   fileContent[pragmaLineIndex] = `pragma solidity ${newPragma};`;
 
   fs.writeFileSync(file, fileContent.join('\n'), 'utf8');
-  console.log(`Updated pragma in ${file}`);
+  console.log(`Updated pragma in ${file} to ${newPragma}`);
 }
 
-async function updatePragmaWithDependencies(file, newPragma) {
+async function updatePragmaWithDependencies(file, newPragma = '>=0.5.0') {
   updatePragma(file, newPragma);
 
   const sources = getFileSources(file);
 
   for (const source of sources) {
-    if (source !== file && !source.split('.').at(-1).startsWith('draft')) {
+    if (source !== file) {
       await updatePragmaWithDependencies(source, newPragma);
     }
   }
