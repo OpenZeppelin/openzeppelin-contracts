@@ -41,7 +41,7 @@ async function minimizePragma(file) {
 
   const newPragma = applicablePragmas.reduce((accumulator, currentVal) => {
     if (currentVal.success && accumulator === '') {
-      return `>= ${currentVal.solcVersion}`;
+      return `>=${currentVal.solcVersion}`;
     }
 
     if (!currentVal.success && accumulator !== '') {
