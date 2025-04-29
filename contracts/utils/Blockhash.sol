@@ -41,7 +41,7 @@ library Blockhash {
 
             // In case the history storage address is not deployed, the call will succeed
             // without returndata, so the hash will be 0 just as querying `blockhash` directly.
-            if and(staticcall(gas(), HISTORY_STORAGE_ADDRESS, 0, 0x20, 0, 0x20), gt(returndatasize(), 0)) {
+            if and(gt(returndatasize(), 0), staticcall(gas(), HISTORY_STORAGE_ADDRESS, 0, 0x20, 0, 0x20)) {
                 hash := mload(0)
             }
         }
