@@ -395,7 +395,7 @@ The library seamlessly combines native `BLOCKHASH` opcode access for recent bloc
 
 [source,solidity]
 ----
-contract L2StateVerifier {
+contract L1Inbox {
     using Blockhash for uint256;
 
     function verifyBlockHash(uint256 blockNumber, bytes32 expectedHash) public view returns (bool) {
