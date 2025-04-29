@@ -14,6 +14,7 @@ pragma solidity ^0.8.20;
  * Before that, only block hashes since the fork block will be available.
  */
 library Blockhash {
+    /// @dev Address of the EIP-2935 history storage contract.
     address internal constant HISTORY_STORAGE_ADDRESS = 0x0000F90827F1C53a10cb7A02335B175320002935;
 
     /**
