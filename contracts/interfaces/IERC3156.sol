@@ -3,5 +3,6 @@
 
 pragma solidity ^0.8.20;
 
+// solhint-disable no-unused-import
 import {IERC3156FlashBorrower} from "./IERC3156FlashBorrower.sol";
 import {IERC3156FlashLender} from "./IERC3156FlashLender.sol";

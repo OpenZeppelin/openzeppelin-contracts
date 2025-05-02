@@ -3,4 +3,5 @@
 
 pragma solidity ^0.8.20;
 
+// solhint-disable no-unused-import
 import {IERC721Enumerable} from "../token/ERC721/extensions/IERC721Enumerable.sol";

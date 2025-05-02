@@ -3,4 +3,5 @@
 
 pragma solidity ^0.8.20;
 
+// solhint-disable no-unused-import
 import {IERC721Receiver} from "../token/ERC721/IERC721Receiver.sol";

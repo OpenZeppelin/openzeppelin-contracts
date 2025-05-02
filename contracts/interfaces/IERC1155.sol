@@ -3,4 +3,5 @@
 
 pragma solidity ^0.8.20;
 
+// solhint-disable no-unused-import
 import {IERC1155} from "../token/ERC1155/IERC1155.sol";
