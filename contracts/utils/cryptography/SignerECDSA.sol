@@ -6,8 +6,7 @@ import {ECDSA} from "../cryptography/ECDSA.sol";
 import {AbstractSigner} from "./AbstractSigner.sol";
 
 /**
- * @dev Implementation of {AbstractSigner} using
- * https://docs.openzeppelin.com/contracts/api/utils#ECDSA[ECDSA] signatures.
+ * @dev Implementation of {AbstractSigner} using xref:api:utils#ECDSA[ECDSA] signatures.
  *
  * For {Account} usage, a {_setSigner} function is provided to set the {signer} address.
  * Doing so is easier for a factory, who is likely to use initializable clones of this contract.

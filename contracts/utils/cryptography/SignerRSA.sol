@@ -6,8 +6,7 @@ import {RSA} from "./RSA.sol";
 import {AbstractSigner} from "./AbstractSigner.sol";
 
 /**
- * @dev Implementation of {AbstractSigner} using
- * https://docs.openzeppelin.com/contracts/api/utils#RSA[RSA] signatures.
+ * @dev Implementation of {AbstractSigner} using xref:api:utils#RSA[RSA] signatures.
  *
  * For {Account} usage, a {_setSigner} function is provided to set the {signer} public key.
  * Doing so is easier for a factory, who is likely to use initializable clones of this contract.
