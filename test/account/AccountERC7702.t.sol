@@ -45,7 +45,7 @@ contract AccountERC7702Test is Test {
         vm.deal(address(ERC4337Utils.ENTRYPOINT_V08), MAX_ETH);
         vm.etch(
             address(ERC4337Utils.ENTRYPOINT_V08),
-            vm.readFileBinary("./lib/@openzeppelin-contracts/test/bin/EntryPoint070.bytecode")
+            vm.readFileBinary("test/bin/EntryPoint070.bytecode")
         );
     }
 
