@@ -169,16 +169,8 @@ describe('ERC7739Utils', function () {
         contentTypeName: 'B',
         contentType: 'A(C c)B(A a)C(uint256 v)',
       },
-      {
-        descr: 'should return nothing for an empty descriptor',
-        contentsDescr: '',
-        contentTypeName: null,
-      },
-      {
-        descr: 'should return nothing if no [(] is present',
-        contentsDescr: 'SomeType',
-        contentTypeName: null,
-      },
+      { descr: 'should return nothing for an empty descriptor', contentsDescr: '', contentTypeName: null },
+      { descr: 'should return nothing if no [(] is present', contentsDescr: 'SomeType', contentTypeName: null },
       {
         descr: 'should return nothing if starts with [(] (implicit)',
         contentsDescr: '(SomeType(address foo,uint256 bar)',
@@ -189,21 +181,25 @@ describe('ERC7739Utils', function () {
         contentsDescr: '(SomeType(address foo,uint256 bar)(SomeType',
         contentTypeName: null,
       },
-      forbiddenChars.split('').map(char => ({
-        descr: `should return nothing if contains [${char}] (implicit)`,
-        contentsDescr: `SomeType${char}(address foo,uint256 bar)`,
-        contentTypeName: null,
-      })),
-      forbiddenChars.split('').map(char => ({
-        descr: `should return nothing if contains [${char}] (explicit)`,
-        contentsDescr: `SomeType${char}(address foo,uint256 bar)SomeType${char}`,
-        contentTypeName: null,
-      })),
+      forbiddenChars
+        .split('')
+        .map(char => ({
+          descr: `should return nothing if contains [${char}] (implicit)`,
+          contentsDescr: `SomeType${char}(address foo,uint256 bar)`,
+          contentTypeName: null,
+        })),
+      forbiddenChars
+        .split('')
+        .map(char => ({
+          descr: `should return nothing if contains [${char}] (explicit)`,
+          contentsDescr: `SomeType${char}(address foo,uint256 bar)SomeType${char}`,
+          contentTypeName: null,
+        })),
     )) {
       it(descr, async function () {
         await expect(this.mock.$decodeContentsDescr(contentsDescr)).to.eventually.deep.equal([
           contentTypeName ?? '',
-          contentTypeName ? contentType ?? contentsDescr : '',
+          contentTypeName ? (contentType ?? contentsDescr) : '',
         ]);
       });
     }
