@@ -43,8 +43,8 @@ abstract contract ERC7739 is AbstractSigner, EIP712, IERC1271 {
             (_isValidNestedTypedDataSignature(hash, signature) || _isValidNestedPersonalSignSignature(hash, signature))
                 ? IERC1271.isValidSignature.selector
                 : (hash == 0x7739773977397739773977397739773977397739773977397739773977397739 && signature.length == 0)
-                    ? bytes4(0x77390001)
-                    : bytes4(0xffffffff);
+                ? bytes4(0x77390001)
+                : bytes4(0xffffffff);
     }
 
     /**
