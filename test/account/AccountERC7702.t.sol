@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 import {Test} from "forge-std/Test.sol";
-import {AccountERC7702Mock} from "@openzeppelin/contracts/mocks/account/AccountERC7702Mock.sol";
+import {AccountERC7702Mock} from "@openzeppelin/contracts/mocks/account/AccountMock.sol";
 import {CallReceiverMock} from "@openzeppelin/contracts/mocks/CallReceiverMock.sol";
 import {EIP712} from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import {ERC7579Utils, Execution, Mode, ModeSelector, ModePayload} from "@openzeppelin/contracts/account/utils/draft-ERC7579Utils.sol";

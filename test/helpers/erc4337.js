@@ -1,4 +1,4 @@
-const { ethers } = require('hardhat');
+const { ethers, config, entrypoint, senderCreator } = require('hardhat');
 
 const SIG_VALIDATION_SUCCESS = '0x0000000000000000000000000000000000000000';
 const SIG_VALIDATION_FAILURE = '0x0000000000000000000000000000000000000001';
