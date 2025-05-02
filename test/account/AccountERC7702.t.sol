@@ -43,10 +43,7 @@ contract AccountERC7702Test is Test {
 
         // Setup entrypoint
         vm.deal(address(ERC4337Utils.ENTRYPOINT_V08), MAX_ETH);
-        vm.etch(
-            address(ERC4337Utils.ENTRYPOINT_V08),
-            vm.readFileBinary("test/bin/EntryPoint070.bytecode")
-        );
+        vm.etch(address(ERC4337Utils.ENTRYPOINT_V08), vm.readFileBinary("test/bin/EntryPoint070.bytecode"));
     }
 
     function testExecuteBatch(uint256 argA, uint256 argB) public {
