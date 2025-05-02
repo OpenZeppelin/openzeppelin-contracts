@@ -12,7 +12,7 @@ contract NotAuthorityMock is IAuthority {
 }
 
 contract AuthorityNoDelayMock is IAuthority {
-    bool _immediate;
+    bool private _immediate;
 
     function canCall(
         address /* caller */,
@@ -28,14 +28,14 @@ contract AuthorityNoDelayMock is IAuthority {
 }
 
 contract AuthorityDelayMock {
-    bool _immediate;
-    uint32 _delay;
+    bool private _immediate;
+    uint256 private _delay;
 
     function canCall(
         address /* caller */,
         address /* target */,
         bytes4 /* selector */
-    ) external view returns (bool immediate, uint32 delay) {
+    ) external view returns (bool immediate, uint256 delay) {
         return (_immediate, _delay);
     }
 
@@ -43,7 +43,7 @@ contract AuthorityDelayMock {
         _immediate = immediate;
     }
 
-    function _setDelay(uint32 delay) external {
+    function _setDelay(uint256 delay) external {
         _delay = delay;
     }
 }

@@ -1,5 +1,7 @@
 # Changelog
 
+## 5.3.0 (2025-04-09)
+
 ### Breaking Changes
 
 - Replace `GovernorCountingOverridable.VoteReceipt` struct parameter member names `hasOverriden` and `overridenWeight` for `hasOverridden` and `overriddenWeight` respectively.
@@ -7,7 +9,54 @@
 #### Custom error changes
 
 - Replace `GovernorAlreadyOverridenVote` with `GovernorAlreadyOverriddenVote`.
-- Replace `AccessControlNonRevokable` with `AccessControlNonRevocable`.
+- Replace `GovernorOnlyProposer` with `GovernorUnableToCancel`.
+
+### Changes by category
+
+#### Account
+
+- `ERC4337Utils`: Update the `hash` function to call `getUserOpHash` on the specified entrypoint and add an `ENTRYPOINT_V08` constant. ([#5614](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5614))
+- `ERC7579Utils`: Add ABI decoding checks on calldata bounds within `decodeBatch`. ([#5371](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5371))
+- `ERC7579Utils`: Replace `address(0)` with `address(this)` during execution for calldata compression efficiency. ([#5614](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5614))
+
+#### Governance
+
+- `IGovernor`: Add the `getProposalId` function to the governor interface. ([#5290](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5290))
+- `GovernorProposalGuardian`: Add a governance extension that defines a proposal guardian who can cancel proposals at any stage in their lifecycle. ([#5303](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5303))
+- `GovernorSequentialProposalId`: Adds a `Governor` extension that sequentially numbers proposal ids instead of using the hash. ([#5290](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5290))
+- `GovernorSuperQuorum`: Add a governance extension to support a super quorum. Proposals that meet the super quorum (and have a majority of for votes) advance to the `Succeeded` state before the proposal deadline. ([#5526](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5526))
+- `GovernorVotesSuperQuorumFraction`: Add a variant of the `GovernorSuperQuorum` extensions where the super quorum is expressed as a fraction of the total supply. ([#5526](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5526))
+- `TimelockController`: Receive function is now virtual. ([#5509](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5509))
+
+#### Structures
+
+- `EnumerableSet`: Add `clear` function to EnumerableSets which deletes all values in the set. ([#5486](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5486))
+- `EnumerableMap`: Add `clear` function to EnumerableMaps which deletes all entries in the map. ([#5486](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5486))
+- `MerkleTree`: Add an update function that replaces a previously inserted leaf with a new value, updating the tree root along the way. ([#5526](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5526))
+
+#### Tokens
+
+- `ERC4626`: Use the `asset` getter in `totalAssets`, `_deposit` and `_withdraw`. ([#5322](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5322))
+- `IERC6909`: Add the interface for ERC-6909. ([#5343](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5343))
+- `ERC6909`: Add a standard implementation of ERC6909. ([#5394](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5394))
+- `ERC6909TokenSupply`: Add an extension of ERC6909 which tracks total supply for each token id. ([#5394](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5394))
+- `ERC6909Metadata`: Add an extension of ERC6909 which adds metadata functionality. ([#5394](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5394))
+- `ERC6909ContentURI`: Add an extension of ERC6909 which adds content URI functionality. ([#5394](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5394))
+- `SafeERC20`: Add `trySafeTransfer` and `trySafeTransferFrom` that do not revert and return false if the transfer is not successful. ([#5483](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5483))
+
+#### Other
+
+- `Address`: bubble up revert data on `sendValue` failed call. ([#5379](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5379))
+- `Calldata`: Library with `emptyBytes` and `emptyString` functions to generate empty `bytes` and `string` calldata types. ([#5422](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5422))
+- `ERC2771Forwarder`: Expose the `_isTrustedByTarget` internal function to check whether a target trusts the forwarder. ([#5416](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5416))
+- `Hashes`: Expose `efficientKeccak256` for hashing non-commutative pairs of bytes32 without allocating extra memory. ([#5442](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5442))
+- `Initializable`: Add `_initializableStorageSlot` function that returns a pointer to the storage struct. The function allows customizing with a custom storage slot with an `override`. ([#5526](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5526))
+- `Math`: Add `add512`, `mul512` and `mulShr`. ([#5526](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5526))
+- `Math`: Add saturating arithmetic operations `saturatingAdd`, `saturatingSub` and `saturatingMul`. ([#5526](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5526))
+- `MessageHashUtils`: Add `toDataWithIntendedValidatorHash(address, bytes32)`. ([#5526](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5526))
+- `P256`: Adjust precompile detection in `verifyNative` to consider empty `returndata` on invalid verification. Previously, invalid signatures would've reverted with a `MissingPrecompile` error in chains with RIP-7212 support. ([#5620](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5620))
+- `Pausable`: Stop explicitly setting `paused` to `false` during construction. ([#5448](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5448))
+- `Strings`: Add `espaceJSON` that escapes special characters in JSON strings. ([#5526](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5526))
 
 ## 5.2.0 (2025-01-08)
 
