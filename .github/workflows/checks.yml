@@ -118,7 +118,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Set up environment
         uses: ./.github/actions/setup
-      - run: npm run compile
+      - run: forge build
       - uses: crytic/slither-action@v0.4.1
         with:
           ignore-compile: true
