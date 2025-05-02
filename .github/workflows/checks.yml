@@ -118,6 +118,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Set up environment
         uses: ./.github/actions/setup
+      - run: rm package-lock.json # Dependencies already installed
       - uses: crytic/slither-action@v0.4.1
 
   codespell:
