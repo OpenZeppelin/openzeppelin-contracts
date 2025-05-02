@@ -386,3 +386,22 @@ await instance.multicall([
     instance.interface.encodeFunctionData("bar")
 ]);
 ----
+
+=== Historical Block Hashes
+
+xref:api:utils.adoc#Blockhash[`Blockhash`] provides L2 protocol developers with extended access to historical block hashes beyond Ethereum's native 256-block limit. By leveraging https://eips.ethereum.org/EIPS/eip-2935[EIP-2935]'s history storage contract, the library enables access to block hashes up to 8,191 blocks in the past, making it invaluable for L2 fraud proofs and state verification systems.
+
+The library seamlessly combines native `BLOCKHASH` opcode access for recent blocks (≤256) with EIP-2935 history storage queries for older blocks (257-8,191). It handles edge cases gracefully by returning zero for future blocks or those beyond the history window, matching the EVM's behavior. The implementation uses gas-efficient assembly for static calls to the history storage contract.
+
+[source,solidity]
+----
+contract L1Inbox {
+    using Blockhash for uint256;
+
+    function verifyBlockHash(uint256 blockNumber, bytes32 expectedHash) public view returns (bool) {
+        return blockNumber.blockHash() == expectedHash;
+    }
+}
+----
+
+IMPORTANT: After EIP-2935 activation, it takes 8,191 blocks to completely fill the history storage. Before that, only block hashes since the fork block will be available.

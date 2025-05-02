@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.1.0) (governance/extensions/GovernorTimelockControl.sol)
+// OpenZeppelin Contracts (last updated v5.3.0) (governance/extensions/GovernorTimelockControl.sol)
 
 pragma solidity ^0.8.20;
 
@@ -67,9 +67,7 @@ abstract contract GovernorTimelockControl is Governor {
         return address(_timelock);
     }
 
-    /**
-     * @dev See {IGovernor-proposalNeedsQueuing}.
-     */
+    /// @inheritdoc IGovernor
     function proposalNeedsQueuing(uint256) public view virtual override returns (bool) {
         return true;
     }
