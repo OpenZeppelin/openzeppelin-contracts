@@ -2,9 +2,7 @@ const { ethers, entrypoint } = require('hardhat');
 const { expect } = require('chai');
 const { impersonate } = require('../helpers/account');
 const { SIG_VALIDATION_SUCCESS, SIG_VALIDATION_FAILURE } = require('../helpers/erc4337');
-const {
-  shouldSupportInterfaces,
-} = require('../utils/introspection/SupportsInterface.behavior');
+const { shouldSupportInterfaces } = require('../utils/introspection/SupportsInterface.behavior');
 
 function shouldBehaveLikeAccountCore() {
   describe('entryPoint', function () {
@@ -143,7 +141,4 @@ function shouldBehaveLikeAccountHolder() {
   });
 }
 
-module.exports = {
-  shouldBehaveLikeAccountCore,
-  shouldBehaveLikeAccountHolder,
-};
+module.exports = { shouldBehaveLikeAccountCore, shouldBehaveLikeAccountHolder };
