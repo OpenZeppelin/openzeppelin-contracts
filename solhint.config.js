@@ -13,7 +13,6 @@ const rules = [
   'modifier-name-mixedcase',
   'no-console',
   'no-global-import',
-  'no-unused-import',
   'no-unused-vars',
   'quotes',
   'use-forbidden-name',

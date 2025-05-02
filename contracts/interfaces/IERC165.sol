@@ -3,5 +3,4 @@
 
 pragma solidity ^0.8.20;
 
-// solhint-disable no-unused-import
 import {IERC165} from "../utils/introspection/IERC165.sol";

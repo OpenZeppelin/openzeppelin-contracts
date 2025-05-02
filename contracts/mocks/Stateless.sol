@@ -4,7 +4,6 @@ pragma solidity ^0.8.24;
 
 // We keep these imports and a dummy contract just to we can run the test suite after transpilation.
 
-// solhint-disable no-unused-import
 import {Address} from "../utils/Address.sol";
 import {Arrays} from "../utils/Arrays.sol";
 import {AuthorityUtils} from "../access/manager/AuthorityUtils.sol";

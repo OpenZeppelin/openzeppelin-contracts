@@ -3,5 +3,4 @@
 
 pragma solidity ^0.8.20;
 
-// solhint-disable no-unused-import
 import {IERC20Metadata} from "../token/ERC20/extensions/IERC20Metadata.sol";
