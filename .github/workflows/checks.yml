@@ -119,6 +119,8 @@ jobs:
       - name: Set up environment
         uses: ./.github/actions/setup
       - uses: crytic/slither-action@v0.4.1
+        with:
+          ignore-compile: true
 
   codespell:
     runs-on: ubuntu-latest
