@@ -174,7 +174,9 @@ describe('ERC2771Forwarder', function () {
       // Because the relayer call consumes gas until the `CALL` opcode, the gas left after failing
       // the subcall won't enough to finish the top level call (after testing), so we add a
       // moderated buffer.
-      const gasLimit = estimate + 2_000n;
+      const gasLimit = estimate + 10_000n;
+
+      console.log(estimate);
 
       // The subcall out of gas should be caught by the contract and then bubbled up consuming
       // the available gas with an `invalid` opcode.
