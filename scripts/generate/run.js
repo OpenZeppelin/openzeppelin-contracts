@@ -44,6 +44,8 @@ for (const [file, template] of Object.entries({
   'utils/Packing.sol': './templates/Packing.js',
   'mocks/StorageSlotMock.sol': './templates/StorageSlotMock.js',
   'mocks/TransientSlotMock.sol': './templates/TransientSlotMock.js',
+  'utils/structs/EnumerableSetExtended.sol': './templates/EnumerableSetExtended.js',
+  'utils/structs/EnumerableMapExtended.sol': './templates/EnumerableMapExtended.js',
 })) {
   generateFromTemplate(file, template, './contracts/');
 }

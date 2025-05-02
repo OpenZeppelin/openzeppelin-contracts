@@ -1,6 +1,6 @@
 const format = require('../format-lines');
 const { fromBytes32, toBytes32 } = require('./conversion');
-const { TYPES } = require('./EnumerableMap.opts');
+const { MAP_TYPES } = require('./Enumerable.opts');
 
 const header = `\
 pragma solidity ^0.8.20;
@@ -290,7 +290,7 @@ module.exports = format(
       'using EnumerableSet for EnumerableSet.Bytes32Set;',
       '',
       defaultMap,
-      TYPES.map(details => customMap(details)),
+      MAP_TYPES.map(details => customMap(details)),
     ),
   ).trimEnd(),
   '}',
