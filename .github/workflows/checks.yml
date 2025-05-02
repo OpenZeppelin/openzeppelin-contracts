@@ -119,6 +119,7 @@ jobs:
       - name: Set up environment
         uses: ./.github/actions/setup
       - run: forge build
+      - run: npm run compile
       - uses: crytic/slither-action@v0.4.1
         with:
           ignore-compile: true
