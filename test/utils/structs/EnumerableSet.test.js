@@ -3,7 +3,7 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { mapValues } = require('../../helpers/iterate');
 const { generators } = require('../../helpers/random');
-const { TYPES } = require('../../../scripts/generate/templates/EnumerableSet.opts');
+const { SET_TYPES } = require('../../../scripts/generate/templates/Enumerable.opts');
 
 const { shouldBehaveLikeSet } = require('./EnumerableSet.behavior');
 
@@ -20,7 +20,7 @@ async function fixture() {
   const mock = await ethers.deployContract('$EnumerableSet');
 
   const env = Object.fromEntries(
-    TYPES.map(({ name, type }) => [
+    SET_TYPES.map(({ name, type }) => [
       type,
       {
         values: Array.from({ length: 3 }, generators[type]),
@@ -49,7 +49,7 @@ describe('EnumerableSet', function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
-  for (const { type } of TYPES) {
+  for (const { type } of SET_TYPES) {
     describe(type, function () {
       beforeEach(function () {
         Object.assign(this, this.env[type]);
