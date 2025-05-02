@@ -195,7 +195,7 @@ describe('ERC7739Utils', function () {
       it(descr, async function () {
         await expect(this.mock.$decodeContentsDescr(contentsDescr)).to.eventually.deep.equal([
           contentTypeName ?? '',
-          contentTypeName ? contentType ?? contentsDescr : '',
+          contentTypeName ? (contentType ?? contentsDescr) : '',
         ]);
       });
     }
