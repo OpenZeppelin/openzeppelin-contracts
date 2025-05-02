@@ -20,7 +20,7 @@ import {Calldata} from "../Calldata.sol";
  * NOTE: A provider for a smart contract wallet would need to return this signature as the
  * result of a call to `personal_sign` or `eth_signTypedData`, and this may be unsupported by
  * API clients that expect a return value of 129 bytes, or specifically the `r,s,v` parameters
- * of an xref:api:utils#ECDSA[ECDSA] signature, as is for example specified for 
+ * of an xref:api:utils#ECDSA[ECDSA] signature, as is for example specified for
  * xref:api:utils#EIP712[EIP-712].
  */
 library ERC7739Utils {
