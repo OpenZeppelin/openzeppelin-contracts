@@ -176,8 +176,6 @@ describe('ERC2771Forwarder', function () {
       // moderated buffer.
       const gasLimit = estimate + 10_000n;
 
-      console.log(estimate);
-
       // The subcall out of gas should be caught by the contract and then bubbled up consuming
       // the available gas with an `invalid` opcode.
       await expect(this.forwarder.execute(request, { gasLimit })).to.be.revertedWithoutReason();
