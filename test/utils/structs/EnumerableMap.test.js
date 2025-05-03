@@ -3,17 +3,17 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { mapValues } = require('../../helpers/iterate');
 const { generators } = require('../../helpers/random');
-const { TYPES, formatType } = require('../../../scripts/generate/templates/EnumerableMap.opts');
+const { MAP_TYPES, formatMapType } = require('../../../scripts/generate/templates/Enumerable.opts');
 
 const { shouldBehaveLikeMap } = require('./EnumerableMap.behavior');
 
 // Add Bytes32ToBytes32Map that must be tested but is not part of the generated types.
-TYPES.unshift(formatType('bytes32', 'bytes32'));
+MAP_TYPES.unshift(formatMapType('bytes32', 'bytes32'));
 
 async function fixture() {
   const mock = await ethers.deployContract('$EnumerableMap');
   const env = Object.fromEntries(
-    TYPES.map(({ name, keyType, valueType }) => [
+    MAP_TYPES.map(({ name, keyType, valueType }) => [
       name,
       {
         keyType,
@@ -52,7 +52,7 @@ describe('EnumerableMap', function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
-  for (const { name } of TYPES) {
+  for (const { name } of MAP_TYPES) {
     describe(name, function () {
       beforeEach(async function () {
         Object.assign(this, this.env[name]);

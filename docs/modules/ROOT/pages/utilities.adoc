@@ -97,6 +97,31 @@ function _verify(
 
 IMPORTANT: Always use keys of at least 2048 bits. Additionally, be aware that PKCS#1 v1.5 allows for replayability due to the possibility of arbitrary optional parameters. To prevent replay attacks, consider including an onchain nonce or unique identifier in the message.
 
+=== ERC-7913 Signature Verifiers
+
+ERC-7913 extends the concept of signature verification to support keys that don't have their own Ethereum address. This is particularly useful for integrating non-Ethereum cryptographic curves, hardware devices, or other identity systems into smart accounts.
+
+The standard defines a verifier interface that can be implemented to support different types of keys. A signer is represented as a `bytes` object that concatenates a verifier address and a key: `verifier || key`.
+
+xref:api:utils.adoc#ERC7913Utils[`ERC7913Utils`] provides functions for verifying signatures using ERC-7913 compatible verifiers:
+
+[source,solidity]
+----
+using ERC7913Utils for bytes;
+
+function _verify(bytes memory signer, bytes32 hash, bytes memory signature) internal view returns (bool) {
+    return signer.isValidSignatureNow(hash, signature);
+}
+----
+
+The verification process works as follows:
+
+* If `signer.length < 20`: verification fails
+* If `signer.length == 20`: verification is done using xref:api:utils#SignatureChecker[SignatureChecker]
+* Otherwise: verification is done using an ERC-7913 verifier.
+
+This allows for backward compatibility with EOAs and ERC-1271 contracts while supporting new types of keys.
+
 === Verifying Merkle Proofs
 
 Developers can build a Merkle Tree off-chain, which allows for verifying that an element (leaf) is part of a set by using a Merkle Proof. This technique is widely used for creating whitelists (e.g., for airdrops) and other advanced use cases.

@@ -5,6 +5,7 @@ pragma solidity ^0.8.20;
 contract CallReceiverMock {
     event MockFunctionCalled();
     event MockFunctionCalledWithArgs(uint256 a, uint256 b);
+    event MockFunctionCalledExtra(address caller, uint256 value);
 
     uint256[] private _array;
 
@@ -57,6 +58,10 @@ contract CallReceiverMock {
             sstore(slot, value)
         }
         return "0x1234";
+    }
+
+    function mockFunctionExtra() public payable {
+        emit MockFunctionCalledExtra(msg.sender, msg.value);
     }
 }
 
