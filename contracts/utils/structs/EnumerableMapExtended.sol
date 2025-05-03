@@ -120,10 +120,7 @@ library EnumerableMapExtended {
      *
      * - `index` must be strictly less than {length}.
      */
-    function at(
-        BytesToUintMap storage map,
-        uint256 index
-    ) internal view returns (bytes memory key, uint256 value) {
+    function at(BytesToUintMap storage map, uint256 index) internal view returns (bytes memory key, uint256 value) {
         key = map._keys.at(index);
         value = map._values[key];
     }
@@ -132,10 +129,7 @@ library EnumerableMapExtended {
      * @dev Tries to returns the value associated with `key`. O(1).
      * Does not revert if `key` is not in the map.
      */
-    function tryGet(
-        BytesToUintMap storage map,
-        bytes memory key
-    ) internal view returns (bool exists, uint256 value) {
+    function tryGet(BytesToUintMap storage map, bytes memory key) internal view returns (bool exists, uint256 value) {
         value = map._values[key];
         exists = value != uint256(0) || contains(map, key);
     }
