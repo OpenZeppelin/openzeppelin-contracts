@@ -27,7 +27,7 @@ import {Hashes} from "../cryptography/Hashes.sol";
  * }
  * ```
  *
- * Sets of type `string` (`StringSet`), `bytes` (`BytesSet`) and 
+ * Sets of type `string` (`StringSet`), `bytes` (`BytesSet`) and
  * `bytes32[2]` (`Bytes32x2Set`) are supported.
  *
  * [WARNING]

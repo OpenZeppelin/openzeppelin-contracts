@@ -120,10 +120,7 @@ function length(${name} storage map) internal view returns (uint256) {
  *
  * - \`index\` must be strictly less than {length}.
  */
-function at(
-    ${name} storage map,
-    uint256 index
-) internal view returns (${key.typeLoc} key, ${value.typeLoc} value) {
+function at(${name} storage map, uint256 index) internal view returns (${key.typeLoc} key, ${value.typeLoc} value) {
     key = map._keys.at(index);
     value = map._values[key];
 }
@@ -132,10 +129,7 @@ function at(
  * @dev Tries to returns the value associated with \`key\`. O(1).
  * Does not revert if \`key\` is not in the map.
  */
-function tryGet(
-    ${name} storage map,
-    ${key.typeLoc} key
-) internal view returns (bool exists, ${value.typeLoc} value) {
+function tryGet(${name} storage map, ${key.typeLoc} key) internal view returns (bool exists, ${value.typeLoc} value) {
     value = map._values[key];
     exists = ${value.memory ? 'bytes(value).length != 0' : `value != ${value.type}(0)`} || contains(map, key);
 }
