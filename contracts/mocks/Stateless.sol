@@ -9,6 +9,7 @@ import {Arrays} from "../utils/Arrays.sol";
 import {AuthorityUtils} from "../access/manager/AuthorityUtils.sol";
 import {Base64} from "../utils/Base64.sol";
 import {BitMaps} from "../utils/structs/BitMaps.sol";
+import {Blockhash} from "../utils/Blockhash.sol";
 import {Bytes} from "../utils/Bytes.sol";
 import {CAIP2} from "../utils/CAIP2.sol";
 import {CAIP10} from "../utils/CAIP10.sol";

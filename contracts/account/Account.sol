@@ -19,6 +19,8 @@ import {AbstractSigner} from "../utils/cryptography/AbstractSigner.sol";
  * IMPORTANT: Implementing a mechanism to validate signatures is a security-sensitive operation as it may allow an
  * attacker to bypass the account's security measures. Check out {SignerECDSA}, {SignerP256}, or {SignerRSA} for
  * digital signature validation implementations.
+ *
+ * @custom:stateless
  */
 abstract contract Account is AbstractSigner, IAccount {
     /**
