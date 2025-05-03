@@ -10,6 +10,8 @@ import {Account} from "../Account.sol";
  * @dev Minimal batch executor following ERC-7821.
  *
  * Only supports supports single batch mode (`0x01000000000000000000`). Does not support optional "opData".
+ *
+ * @custom:stateless
  */
 abstract contract ERC7821 is IERC7821 {
     using ERC7579Utils for *;

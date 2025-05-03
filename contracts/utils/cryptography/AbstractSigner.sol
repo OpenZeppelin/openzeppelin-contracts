@@ -6,6 +6,8 @@ pragma solidity ^0.8.20;
  * @dev Abstract contract for signature validation.
  *
  * Developers must implement {_rawSignatureValidation} and use it as the lowest-level signature validation mechanism.
+ *
+ * @custom:stateless
  */
 abstract contract AbstractSigner {
     /**

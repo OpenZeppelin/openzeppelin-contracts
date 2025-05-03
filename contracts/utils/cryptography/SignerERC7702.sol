@@ -7,6 +7,8 @@ import {AbstractSigner} from "./AbstractSigner.sol";
 
 /**
  * @dev Implementation of {AbstractSigner} for implementation for an EOA. Useful for ERC-7702 accounts.
+ *
+ * @custom:stateless
  */
 abstract contract SignerERC7702 is AbstractSigner {
     /**
