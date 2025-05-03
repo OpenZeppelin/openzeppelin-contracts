@@ -110,7 +110,7 @@ index 60d0a430a..0e4f91a6d 100644
  }
  ```
 diff --git a/contracts/package.json b/contracts/package.json
-index 70ae73bc2..99bc6f8b2 100644
+index 70ae73bc2..ef659873f 100644
 --- a/contracts/package.json
 +++ b/contracts/package.json
 @@ -1,5 +1,5 @@
@@ -136,7 +136,7 @@ index 70ae73bc2..99bc6f8b2 100644
 -  "homepage": "https://openzeppelin.com/contracts/"
 +  "homepage": "https://openzeppelin.com/contracts/",
 +  "peerDependencies": {
-+    "@openzeppelin/contracts": "5.3.0"
++    "@openzeppelin/contracts": "<package-version>"
 +  }
  }
 diff --git a/contracts/utils/cryptography/EIP712.sol b/contracts/utils/cryptography/EIP712.sol
