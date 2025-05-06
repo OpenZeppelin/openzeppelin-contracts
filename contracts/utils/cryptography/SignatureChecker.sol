@@ -13,8 +13,8 @@ import {IERC1271} from "../../interfaces/IERC1271.sol";
  */
 library SignatureChecker {
     /**
-     * @dev Checks if a signature is valid for a given signer and data hash. If the signer is a smart contract, the
-     * signature is validated against that smart contract using ERC-1271, otherwise it's validated using `ECDSA.recover`.
+     * @dev Checks if a signature is valid for a given signer and data hash. If the signer has code, the
+     * signature is validated against it using ERC-1271, otherwise it's validated using `ECDSA.recover`.
      *
      * NOTE: Unlike ECDSA signatures, contract signatures are revocable, and the outcome of this function can thus
      * change through time. It could return true at block N and false at block N+1 (or the opposite).
