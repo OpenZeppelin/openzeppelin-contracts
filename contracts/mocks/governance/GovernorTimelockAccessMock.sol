@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.20;
 
-import {IGovernor, Governor} from "../../governance/Governor.sol";
+import {Governor} from "../../governance/Governor.sol";
 import {GovernorTimelockAccess} from "../../governance/extensions/GovernorTimelockAccess.sol";
 import {GovernorSettings} from "../../governance/extensions/GovernorSettings.sol";
 import {GovernorCountingSimple} from "../../governance/extensions/GovernorCountingSimple.sol";
