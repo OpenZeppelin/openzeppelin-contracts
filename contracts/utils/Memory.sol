@@ -3,7 +3,7 @@
 pragma solidity ^0.8.20;
 
 /**
- *  @dev Utilities to manipulate memory.
+ * @dev Utilities to manipulate memory.
  *
  * Memory is a contiguous and dynamic byte array in which Solidity stores non-primitive types.
  * This library provides functions to manipulate pointers to this dynamic array.
