@@ -177,7 +177,12 @@ library ERC7579Utils {
     /// NOTE: This function runs some checks and will throw a {ERC7579DecodingError} if the input is not properly formatted.
     function decodeBatch(bytes calldata executionCalldata) internal pure returns (Execution[] calldata executionBatch) {
         unchecked {
-            uint256 bufferLength = executionCalldata.length;
+            uint256 bufferPtr;
+            uint256 bufferLength;
+            assembly ("memory-safe") {
+                bufferPtr := executionCalldata.offset
+                bufferLength := executionCalldata.length
+            }
 
             // Check executionCalldata is not empty.
             if (bufferLength < 32) revert ERC7579DecodingError();
@@ -204,8 +209,37 @@ library ERC7579Utils {
                 revert ERC7579DecodingError();
 
             assembly ("memory-safe") {
-                executionBatch.offset := add(add(executionCalldata.offset, arrayLengthOffset), 32)
+                executionBatch.offset := add(add(bufferPtr, arrayLengthOffset), 32)
                 executionBatch.length := arrayLength
+            }
+
+            _validateCalldataBound(executionBatch, bufferPtr + bufferLength);
+        }
+    }
+
+    /**
+     * @dev Calldata sanity check
+     *
+     * Solidity performs "lazy" verification that all calldata objects are valid, by checking that they are
+     * within calldatasize. This check is performed when objects are dereferenced. If the `executionCalldata`
+     * is not the last element (buffer) in msg.data, this check will not detect potentially ill-formed objects
+     * that point to the memory space between the end of the `executionCalldata` buffer.
+     * If we are in a situation where the lazy checks are not sufficient, we do an in-depth traversal of the
+     * array, checking that everything is valid.
+     */
+    function _validateCalldataBound(Execution[] calldata executionBatch, uint256 bound) private pure {
+        if (bound < msg.data.length) {
+            for (uint256 i = 0; i < executionBatch.length; ++i) {
+                Execution calldata item = executionBatch[i];
+                bytes calldata itemCalldata = item.callData;
+
+                uint256 itemEnd;
+                uint256 itemCalldataEnd;
+                assembly ("memory-safe") {
+                    itemEnd := add(item, 0x60)
+                    itemCalldataEnd := add(itemCalldata.offset, itemCalldata.length)
+                }
+                if (itemEnd > bound || itemCalldataEnd > bound) revert ERC7579DecodingError();
             }
         }
     }

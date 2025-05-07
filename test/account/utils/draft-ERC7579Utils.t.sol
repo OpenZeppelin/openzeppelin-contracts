@@ -284,39 +284,52 @@ contract ERC7579UtilsTest is Test {
         _collectAndPrintLogs(true);
     }
 
-    function testDecodeBatch() public {
-        // BAD: buffer empty
-        vm.expectRevert(ERC7579Utils.ERC7579DecodingError.selector);
-        this.callDecodeBatch("");
+    uint256 private constant TEST_DECODE = 0x01;
+    uint256 private constant TEST_GETFIRST = 0x02;
+    uint256 private constant TEST_GETFIRSTBYTES = 0x04;
+    uint256 private constant FAIL_DECODE = 0x10;
+    uint256 private constant FAIL_GETFIRST = 0x20;
+    uint256 private constant FAIL_GETFIRSTBYTES = 0x40;
+    uint256 private constant FAIL_ANY = FAIL_DECODE | FAIL_GETFIRST | FAIL_GETFIRSTBYTES;
 
-        // BAD: buffer too short
-        vm.expectRevert(ERC7579Utils.ERC7579DecodingError.selector);
-        this.callDecodeBatch(abi.encodePacked(uint128(0)));
+    // BAD: buffer empty
+    function testDecodeBatchEmptyBuffer() public {
+        _testDecodeBatch("", TEST_DECODE | FAIL_DECODE);
+    }
 
-        // GOOD
-        this.callDecodeBatch(abi.encode(0));
+    // BAD: buffer too short
+    function testDecodeBatchBufferTooShort() public {
+        _testDecodeBatch(abi.encodePacked(uint128(0)), TEST_DECODE | FAIL_DECODE);
+    }
+
+    // GOOD
+    function testDecodeBatchZero() public {
+        _testDecodeBatch(abi.encode(0), TEST_DECODE);
+
         // Note: Solidity also supports this even though it's odd. Offset 0 means array is at the same location, which
         // is interpreted as an array of length 0, which doesn't require any more data
         // solhint-disable-next-line var-name-mixedcase
         uint256[] memory _1 = abi.decode(abi.encode(0), (uint256[]));
         _1;
+    }
 
-        // BAD: offset is out of bounds
-        vm.expectRevert(ERC7579Utils.ERC7579DecodingError.selector);
-        this.callDecodeBatch(abi.encode(1));
+    // BAD: offset is out of bounds
+    function testDecodeBatchOffsetOutOfBound() public {
+        _testDecodeBatch(abi.encode(1), TEST_DECODE | FAIL_DECODE);
+    }
 
-        // GOOD
-        this.callDecodeBatch(abi.encode(32, 0));
+    // GOOD
+    function testDecodeBatchEmptyArray() public {
+        _testDecodeBatch(abi.encode(32, 0), TEST_DECODE);
+    }
 
-        // BAD: reported array length extends beyond bounds
-        vm.expectRevert(ERC7579Utils.ERC7579DecodingError.selector);
-        this.callDecodeBatch(abi.encode(32, 1));
+    // BAD: reported array length extends beyond bounds
+    function testDecodeBatchLengthExtendsOutOfBound() public {
+        _testDecodeBatch(abi.encode(32, 1), TEST_DECODE | FAIL_DECODE);
+    }
 
-        // GOOD
-        this.callDecodeBatch(abi.encode(32, 1, 0));
-
-        // GOOD
-        //
+    // GOOD
+    function testDecodeBatchFirstBytes() public view {
         // 0000000000000000000000000000000000000000000000000000000000000020 (32) offset
         // 0000000000000000000000000000000000000000000000000000000000000001 ( 1) array length
         // 0000000000000000000000000000000000000000000000000000000000000020 (32) element 0 offset
@@ -331,21 +344,43 @@ contract ERC7579UtilsTest is Test {
                 abi.encode(32, 1, 32, _recipient1, 42, 96, 12, bytes12("Hello World!"))
             )
         );
+    }
 
+    // GOOD at first level, BAD when dereferencing
+    function testDecodeBatchDeepOutOfBound1() public {
         // This is invalid, the first element of the array points is out of bounds
-        // but we allow it past initial validation, because solidity will validate later when the bytes field is accessed
+        //
+        // 0000000000000000000000000000000000000000000000000000000000000020 (32) offset
+        // 0000000000000000000000000000000000000000000000000000000000000001 ( 1) array length
+        // 0000000000000000000000000000000000000000000000000000000000000000 ( 0) element 0 offset
+        // <missing element>
+        _testDecodeBatch(abi.encode(32, 1, 0), TEST_DECODE | TEST_GETFIRST | FAIL_GETFIRST);
+    }
+
+    // GOOD at first level, BAD when dereferencing
+    function testDecodeBatchDeepOutOfBound2() public {
+        // This is invalid, the first element of the array points is out of bounds
         //
         // 0000000000000000000000000000000000000000000000000000000000000020 (32) offset
         // 0000000000000000000000000000000000000000000000000000000000000001 ( 1) array length
         // 0000000000000000000000000000000000000000000000000000000000000020 (32) element 0 offset
         // <missing element>
-        bytes memory invalid = abi.encode(32, 1, 32);
-        this.callDecodeBatch(invalid);
-        vm.expectRevert();
-        this.callDecodeBatchAndGetFirst(invalid);
+        _testDecodeBatch(abi.encode(32, 1, 32), TEST_DECODE | TEST_GETFIRST | FAIL_GETFIRST);
+    }
 
-        // this is invalid: the bytes field of the first element of the array is out of bounds
-        // but we allow it past initial validation, because solidity will validate later when the bytes field is accessed
+    function testDecodeBatchDeepOutOfBound3() public {
+        // This is invalid: the first item is partly out of bounds.
+        //
+        // 0000000000000000000000000000000000000000000000000000000000000020 (32) offset
+        // 0000000000000000000000000000000000000000000000000000000000000001 ( 1) array length
+        // 0000000000000000000000000000000000000000000000000000000000000020 (32) element 0 offset
+        // 000000000000000000000000xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx (recipient) target for element #0
+        // <missing data>
+        _testDecodeBatch(abi.encode(32, 1, 32, _recipient1), TEST_DECODE | TEST_GETFIRST | FAIL_GETFIRST);
+    }
+
+    function testDecodeBatchDeepOutOfBound4() public {
+        // This is invalid: the bytes field of the first element of the array is out of bounds
         //
         // 0000000000000000000000000000000000000000000000000000000000000020 (32) offset
         // 0000000000000000000000000000000000000000000000000000000000000001 ( 1) array length
@@ -354,15 +389,42 @@ contract ERC7579UtilsTest is Test {
         // 000000000000000000000000000000000000000000000000000000000000002a (42) value for element #0
         // 0000000000000000000000000000000000000000000000000000000000000060 (96) offset to calldata for element #0
         // <missing data>
-        bytes memory invalidDeeply = abi.encode(32, 1, 32, _recipient1, 42, 96);
-        this.callDecodeBatch(invalidDeeply);
-        // Note that this is ok because we don't return the value. Returning it would introduce a check that would fails.
-        this.callDecodeBatchAndGetFirst(invalidDeeply);
-        vm.expectRevert();
-        this.callDecodeBatchAndGetFirstBytes(invalidDeeply);
+        _testDecodeBatch(
+            abi.encode(32, 1, 32, _recipient1, 42, 96),
+            TEST_DECODE | TEST_GETFIRST | TEST_GETFIRSTBYTES | FAIL_GETFIRSTBYTES
+        );
+    }
+
+    function _testDecodeBatch(bytes memory encoded, uint256 test) private {
+        bytes memory extraData = new bytes(256);
+
+        if (test & TEST_DECODE > 0) {
+            if (test & FAIL_DECODE > 0) vm.expectRevert(ERC7579Utils.ERC7579DecodingError.selector);
+            this.callDecodeBatch(encoded);
+            if (test & FAIL_ANY > 0) vm.expectRevert();
+            this.callDecodeBatchWithCalldata(encoded, extraData);
+        }
+
+        if (test & TEST_GETFIRST > 0) {
+            if (test & FAIL_GETFIRST > 0) vm.expectRevert();
+            this.callDecodeBatchAndGetFirst(encoded);
+            if (test & FAIL_ANY > 0) vm.expectRevert();
+            this.callDecodeBatchAndGetFirstWithCalldata(encoded, extraData);
+        }
+
+        if (test & TEST_GETFIRSTBYTES > 0) {
+            if (test & FAIL_GETFIRSTBYTES > 0) vm.expectRevert();
+            this.callDecodeBatchAndGetFirstBytes(encoded);
+            if (test & FAIL_ANY > 0) vm.expectRevert();
+            this.callDecodeBatchAndGetFirstBytesWithCalldata(encoded, extraData);
+        }
     }
 
     function callDecodeBatch(bytes calldata executionCalldata) public pure {
+        ERC7579Utils.decodeBatch(executionCalldata);
+    }
+
+    function callDecodeBatchWithCalldata(bytes calldata executionCalldata, bytes calldata) public pure {
         ERC7579Utils.decodeBatch(executionCalldata);
     }
 
@@ -370,7 +432,18 @@ contract ERC7579UtilsTest is Test {
         ERC7579Utils.decodeBatch(executionCalldata)[0];
     }
 
+    function callDecodeBatchAndGetFirstWithCalldata(bytes calldata executionCalldata, bytes calldata) public pure {
+        ERC7579Utils.decodeBatch(executionCalldata)[0];
+    }
+
     function callDecodeBatchAndGetFirstBytes(bytes calldata executionCalldata) public pure returns (bytes calldata) {
+        return ERC7579Utils.decodeBatch(executionCalldata)[0].callData;
+    }
+
+    function callDecodeBatchAndGetFirstBytesWithCalldata(
+        bytes calldata executionCalldata,
+        bytes calldata
+    ) public pure returns (bytes calldata) {
         return ERC7579Utils.decodeBatch(executionCalldata)[0].callData;
     }
 
