@@ -1,14 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {IGovernor, Governor} from "../../../governance/Governor.sol";
+import {Governor} from "../../../governance/Governor.sol";
 import {GovernorCountingSimple} from "../../../governance/extensions/GovernorCountingSimple.sol";
 import {GovernorVotes} from "../../../governance/extensions/GovernorVotes.sol";
 import {GovernorVotesQuorumFraction} from "../../../governance/extensions/GovernorVotesQuorumFraction.sol";
 import {GovernorTimelockControl} from "../../../governance/extensions/GovernorTimelockControl.sol";
 import {TimelockController} from "../../../governance/TimelockController.sol";
 import {IVotes} from "../../../governance/utils/IVotes.sol";
-import {IERC165} from "../../../interfaces/IERC165.sol";
 
 contract MyGovernor is
     Governor,
