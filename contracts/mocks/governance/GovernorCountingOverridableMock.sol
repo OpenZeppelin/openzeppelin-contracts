@@ -5,7 +5,7 @@ pragma solidity ^0.8.20;
 import {Governor} from "../../governance/Governor.sol";
 import {GovernorSettings} from "../../governance/extensions/GovernorSettings.sol";
 import {GovernorVotesQuorumFraction} from "../../governance/extensions/GovernorVotesQuorumFraction.sol";
-import {GovernorCountingOverridable, VotesExtended} from "../../governance/extensions/GovernorCountingOverridable.sol";
+import {GovernorCountingOverridable} from "../../governance/extensions/GovernorCountingOverridable.sol";
 
 abstract contract GovernorCountingOverridableMock is
     GovernorSettings,

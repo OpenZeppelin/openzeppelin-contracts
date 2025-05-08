@@ -3,8 +3,6 @@
 pragma solidity ^0.8.20;
 
 import {Governor} from "../Governor.sol";
-import {SafeCast} from "../../utils/math/SafeCast.sol";
-import {Checkpoints} from "../../utils/structs/Checkpoints.sol";
 
 /**
  * @dev Extension of {Governor} with a super quorum. Proposals that meet the super quorum (and have a majority of for

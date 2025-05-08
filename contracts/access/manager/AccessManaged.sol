@@ -3,7 +3,6 @@
 
 pragma solidity ^0.8.20;
 
-import {IAuthority} from "./IAuthority.sol";
 import {AuthorityUtils} from "./AuthorityUtils.sol";
 import {IAccessManager} from "./IAccessManager.sol";
 import {IAccessManaged} from "./IAccessManaged.sol";
