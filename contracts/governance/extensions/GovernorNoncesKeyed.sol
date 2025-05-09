@@ -18,30 +18,58 @@ abstract contract GovernorNoncesKeyed is Governor, NoncesKeyed {
         super._useCheckedNonce(owner, nonce);
     }
 
-    /// @dev Check the signature against the traditional nonce and then the keyed nonce.
-    function _validateVoteSignature(
-        address voter,
+    /**
+     * @dev Check the signature against keyed nonce and falls back to the traditional nonce.
+     *
+     * NOTE: The function skips calling `super._validateVoteSig` if the keyed nonce is valid.
+     * Consider side effects might be missed depending in the linearization of the function.
+     */
+    function _validateVoteSig(
         uint256 proposalId,
-        bytes memory signature,
-        bytes memory digestPreimage,
-        uint256 noncePositionOffset
+        uint8 support,
+        address voter,
+        bytes memory signature
     ) internal virtual override returns (bool) {
-        if (super._validateVoteSignature(voter, proposalId, signature, digestPreimage, noncePositionOffset)) {
-            return true;
-        } else {
-            // uint192 is sufficient entropy for proposalId within nonce keys.
-            uint256 keyedNonce = nonces(voter, uint192(proposalId));
-            assembly ("memory-safe") {
-                mstore(add(digestPreimage, noncePositionOffset), keyedNonce)
-            }
+        bool valid = SignatureChecker.isValidSignatureNow(
+            voter,
+            _hashTypedDataV4(
+                keccak256(abi.encode(BALLOT_TYPEHASH, proposalId, support, voter, nonces(voter, uint192(proposalId))))
+            ),
+            signature
+        );
+        if (valid) _useNonce(voter, uint192(proposalId));
+        else valid = super._validateVoteSig(proposalId, support, voter, signature);
+        return valid;
+    }
 
-            bool isValid = SignatureChecker.isValidSignatureNow(
+    /**
+     * @dev Check the signature against keyed nonce and falls back to the traditional nonce.
+     *
+     * NOTE: The function skips calling `super._validateVoteSig` if the keyed nonce is valid.
+     * Consider side effects might be missed depending in the linearization of the function.
+     */
+    function _validateExtendedVoteSig(
+        uint256 proposalId,
+        uint8 support,
+        address voter,
+        string memory reason,
+        bytes memory params,
+        bytes memory signature
+    ) internal virtual override returns (bool) {
+        bytes32 structHash = keccak256(
+            abi.encode(
+                EXTENDED_BALLOT_TYPEHASH,
+                proposalId,
+                support,
                 voter,
-                _hashTypedDataV4(keccak256(digestPreimage)),
-                signature
-            );
-            if (isValid) _useNonce(voter, uint192(proposalId));
-            return isValid;
-        }
+                nonces(voter, uint192(proposalId)),
+                keccak256(bytes(reason)),
+                keccak256(params)
+            )
+        );
+        bool valid = SignatureChecker.isValidSignatureNow(voter, _hashTypedDataV4(structHash), signature);
+        if (valid) _useNonce(voter, uint192(proposalId));
+        else valid = super._validateExtendedVoteSig(proposalId, support, voter, reason, params, signature);
+        return valid;
     }
 }

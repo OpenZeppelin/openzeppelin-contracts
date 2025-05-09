@@ -19,14 +19,24 @@ abstract contract GovernorNoncesKeyedMock is
         return super.proposalThreshold();
     }
 
-    function _validateVoteSignature(
-        address voter,
+    function _validateVoteSig(
         uint256 proposalId,
-        bytes memory signature,
-        bytes memory rawSignatureDigestData,
-        uint256 noncePositionOffset
+        uint8 support,
+        address voter,
+        bytes memory signature
     ) internal virtual override(Governor, GovernorNoncesKeyed) returns (bool) {
-        return super._validateVoteSignature(voter, proposalId, signature, rawSignatureDigestData, noncePositionOffset);
+        return super._validateVoteSig(proposalId, support, voter, signature);
+    }
+
+    function _validateExtendedVoteSig(
+        uint256 proposalId,
+        uint8 support,
+        address voter,
+        string memory reason,
+        bytes memory params,
+        bytes memory signature
+    ) internal virtual override(Governor, GovernorNoncesKeyed) returns (bool) {
+        return super._validateExtendedVoteSig(proposalId, support, voter, reason, params, signature);
     }
 
     function _useCheckedNonce(address owner, uint256 nonce) internal virtual override(Nonces, GovernorNoncesKeyed) {
