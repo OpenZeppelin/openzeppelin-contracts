@@ -1,5 +1,5 @@
 /// ENVVAR
-// - COMPILER:      compiler version (default: 0.8.24)
+// - COMPILER:      compiler version (default: 0.8.27)
 // - SRC:           contracts folder to compile (default: contracts)
 // - RUNS:          number of optimization runs (default: 200)
 // - IR:            enable IR compilation (default: false)
