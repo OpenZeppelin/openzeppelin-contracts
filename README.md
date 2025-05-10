@@ -2,6 +2,7 @@
 
 [![NPM Package](https://img.shields.io/npm/v/@openzeppelin/contracts.svg)](https://www.npmjs.org/package/@openzeppelin/contracts)
 [![Coverage Status](https://codecov.io/gh/OpenZeppelin/openzeppelin-contracts/graph/badge.svg)](https://codecov.io/gh/OpenZeppelin/openzeppelin-contracts)
+[![Checks](https://github.com/OpenZeppelin/openzeppelin-contracts/actions/workflows/checks.yml/badge.svg)](https://github.com/OpenZeppelin/openzeppelin-contracts/actions)
 [![GitPOAPs](https://public-api.gitpoap.io/v1/repo/OpenZeppelin/openzeppelin-contracts/badge)](https://www.gitpoap.io/gh/OpenZeppelin/openzeppelin-contracts)
 [![Docs](https://img.shields.io/badge/docs-%F0%9F%93%84-yellow)](https://docs.openzeppelin.com/contracts)
 [![Forum](https://img.shields.io/badge/forum-%F0%9F%92%AC-yellow)](https://forum.openzeppelin.com/)
