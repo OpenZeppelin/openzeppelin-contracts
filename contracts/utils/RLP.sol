@@ -9,23 +9,24 @@ library RLP {
     using Bytes for bytes;
 
     struct Item {
-        uint256 length;
-        bytes32 ptr;
+        uint256 length; // Total length of the item in bytes
+        bytes32 ptr; // Memory pointer to the start of the item
     }
 
     enum ItemType {
-        DATA_ITEM,
-        LIST_ITEM
+        DATA_ITEM, // Single data value
+        LIST_ITEM // List of RLP encoded items
     }
 
-    uint8 internal constant SHORT_THRESHOLD = 55;
+    uint8 internal constant SHORT_THRESHOLD = 55; // Maximum length for data that will be encoded using the short format
 
-    uint8 internal constant SHORT_OFFSET = 128;
-    uint8 internal constant LONG_LENGTH_OFFSET = SHORT_OFFSET + SHORT_THRESHOLD + 1; // 184
-    uint8 internal constant LONG_OFFSET = LONG_LENGTH_OFFSET + 8; // 192
-    uint8 internal constant SHORT_LIST_OFFSET = LONG_OFFSET + SHORT_THRESHOLD + 1; // 248
+    uint8 internal constant SHORT_OFFSET = 128; // Prefix for short string (0-55 bytes)
+    uint8 internal constant LONG_LENGTH_OFFSET = SHORT_OFFSET + SHORT_THRESHOLD + 1; // 184 - Prefix for long string length
+    uint8 internal constant LONG_OFFSET = LONG_LENGTH_OFFSET + 8; // 192 - Prefix for list items
+    uint8 internal constant SHORT_LIST_OFFSET = LONG_OFFSET + SHORT_THRESHOLD + 1; // 248 - Prefix for long list length
 
     function encode(bytes memory buffer) internal pure returns (bytes memory) {
+        // Single bytes below 128 are encoded as themselves, otherwise as length prefix + data
         return _isSingleByte(buffer) ? buffer : bytes.concat(_encodeLength(buffer.length, SHORT_OFFSET), buffer);
     }
 
@@ -162,13 +163,23 @@ library RLP {
         require(item.length != 0);
         bytes32 ptr = item.ptr;
         uint256 prefix = uint8(_extractMemoryByte(ptr));
-        if (prefix < SHORT_OFFSET) return (0, 1, ItemType.DATA_ITEM); // Single byte.
+
+        // Single byte below 128
+        if (prefix < SHORT_OFFSET) return (0, 1, ItemType.DATA_ITEM);
+
+        // Short string (0-55 bytes)
         if (prefix < LONG_LENGTH_OFFSET) return _decodeShortString(prefix - SHORT_OFFSET, item);
+
+        // Long string (>55 bytes)
         if (prefix < LONG_OFFSET) {
             (offset, length) = _decodeLong(prefix - LONG_LENGTH_OFFSET, item);
             return (offset, length, ItemType.DATA_ITEM);
         }
+
+        // Short list
         if (prefix < SHORT_LIST_OFFSET) return _decodeShortList(prefix - LONG_OFFSET, item);
+
+        // Long list
         (offset, length) = _decodeLong(prefix - SHORT_LIST_OFFSET, item);
         return (offset, length, ItemType.LIST_ITEM);
     }
@@ -195,6 +206,7 @@ library RLP {
         require(item.length > lengthLength);
         require(_extractMemoryByte(item.ptr) != 0x00);
 
+        // Extract the length value from the next bytes
         uint256 len = _extractMemoryWord(bytes32(uint256(item.ptr) + 1)) >> (256 - 8 * lengthLength);
         require(len > SHORT_OFFSET);
         require(item.length <= lengthLength + len);
