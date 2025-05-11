@@ -99,6 +99,23 @@ library Bytes {
         return result;
     }
 
+    /// @dev Split each byte in `value` into two nibbles (4 bits each).
+    function nibbles(bytes memory value) internal pure returns (bytes memory) {
+        uint256 length = value.length;
+        bytes memory nibbles_ = new bytes(length * 2);
+        for (uint256 i = 0; i < length; i++) {
+            (nibbles_[i * 2], nibbles_[i * 2 + 1]) = (value[i] & 0xf0, value[i] & 0x0f);
+        }
+        return nibbles_;
+    }
+
+    /**
+     * @dev Returns true if the two byte buffers are equal.
+     */
+    function equal(bytes memory a, bytes memory b) internal pure returns (bool) {
+        return a.length == b.length && keccak256(a) == keccak256(b);
+    }
+
     /**
      * @dev Reads a bytes32 from a bytes array without bounds checking.
      *

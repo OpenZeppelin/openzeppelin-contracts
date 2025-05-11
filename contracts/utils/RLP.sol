@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.25;
+pragma solidity ^0.8.27;
 
 import {Math} from "./math/Math.sol";
 import {Endianness} from "./math/Endianness.sol";
