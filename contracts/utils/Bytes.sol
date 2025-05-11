@@ -116,6 +116,17 @@ library Bytes {
         return a.length == b.length && keccak256(a) == keccak256(b);
     }
 
+    /// @dev Counts the number of leading zero bytes in a uint256.
+    function countLeadingZeroes(uint256 x) internal pure returns (uint256) {
+        uint256 r = 0;
+        if (x > 0xffffffffffffffffffffffffffffffff) r = 128; // Upper 128 bits
+        if ((x >> r) > 0xffffffffffffffff) r |= 64; // Next 64 bits
+        if ((x >> r) > 0xffffffff) r |= 32; // Next 32 bits
+        if ((x >> r) > 0xffff) r |= 16; // Next 16 bits
+        if ((x >> r) > 0xff) r |= 8; // Next 8 bits
+        return 31 ^ (r >> 3); // Convert to leading zero bytes count
+    }
+
     /**
      * @dev Reads a bytes32 from a bytes array without bounds checking.
      *

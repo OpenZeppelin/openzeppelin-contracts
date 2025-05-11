@@ -5,6 +5,12 @@ import {Bytes} from "./Bytes.sol";
 import {RLP} from "./RLP.sol";
 import {Math} from "./math/Math.sol";
 
+/**
+ * @dev Library for verifying Ethereum Merkle-Patricia trie inclusion proofs.
+ *
+ * Ethereum's State Trie state layout is a 4-item array of `[nonce, balance, storageRoot, codeHash]`
+ * See https://ethereum.org/en/developers/docs/data-structures-and-encoding/patricia-merkle-trie[Merkle-Patricia trie]
+ */
 library TrieProof {
     using Bytes for bytes;
     using RLP for *;
@@ -37,9 +43,15 @@ library TrieProof {
         RLP.Item[] decoded; // Decoded RLP items
     }
 
-    uint256 internal constant EVM_TREE_RADIX = 16; // Ethereum uses 16 as its trie radix (hex)
-    uint256 internal constant LEAF_OR_EXTENSION_NODE_LENGTH = 2; // Leaf and extension nodes have exactly 2 items
+    /// @dev The radix of the Ethereum trie (hexadecimal = 16)
+    uint256 internal constant EVM_TREE_RADIX = 16;
+    /// @dev Number of items in leaf or extension nodes (always 2)
+    uint256 internal constant LEAF_OR_EXTENSION_NODE_LENGTH = 2;
 
+    /**
+     * @dev Verifies a `proof` against a given `key`, `value`, `and root` hash
+     * using the default Ethereum radix (16).
+     */
     function verify(
         bytes memory key,
         bytes memory value,
@@ -49,6 +61,7 @@ library TrieProof {
         return verify(key, value, proof, root, EVM_TREE_RADIX);
     }
 
+    /// @dev Same as {verify} but with a custom radix.
     function verify(
         bytes memory key,
         bytes memory value,
@@ -60,26 +73,28 @@ library TrieProof {
         return processedValue.equal(value) && err == ProofError.NO_ERROR;
     }
 
+    /// @dev Processes a proof for a given key using default Ethereum radix (16) and returns the processed value.
     function processProof(
-        bytes memory key_,
+        bytes memory key,
         bytes[] memory proof,
         bytes32 root
     ) internal pure returns (bytes memory value, ProofError) {
-        return processProof(key_, proof, root, EVM_TREE_RADIX);
+        return processProof(key, proof, root, EVM_TREE_RADIX);
     }
 
+    /// @dev Same as {processProof} but with a custom radix.
     function processProof(
-        bytes memory key_,
+        bytes memory key,
         bytes[] memory proof,
         bytes32 root,
         uint256 radix
     ) internal pure returns (bytes memory value, ProofError) {
-        if (key_.length == 0) return ("", ProofError.EMPTY_KEY);
+        if (key.length == 0) return ("", ProofError.EMPTY_KEY);
         // Convert key to nibbles (4-bit values) and begin processing from the root
-        return _processInclusionProof(_decodeProof(proof), key_.nibbles(), bytes.concat(root), 0, radix);
+        return _processInclusionProof(_decodeProof(proof), key.nibbles(), bytes.concat(root), 0, radix);
     }
 
-    // Main recursive function that traverses the trie using the provided proof
+    /// @dev Main recursive function that traverses the trie using the provided proof.
     function _processInclusionProof(
         Node[] memory trieProof,
         bytes memory key,
@@ -138,6 +153,7 @@ library TrieProof {
         return ("", ProofError.INVALID_PROOF);
     }
 
+    /// @dev Validates the node hashes at different levels of the proof.
     function _validateNodeHashes(
         bytes memory nodeId,
         Node memory node,
@@ -150,6 +166,10 @@ library TrieProof {
         return ProofError.NO_ERROR; // No error
     }
 
+    /**
+     * @dev Validates that we've reached a valid leaf value and this is the last proof element.
+     * Ensures the value is not empty and no extra proof elements exist.
+     */
     function _validateLastItem(
         RLP.Item memory item,
         Node[] memory trieProof,
@@ -161,6 +181,10 @@ library TrieProof {
         return (value_, ProofError.NO_ERROR);
     }
 
+    /**
+     * @dev Converts raw proof bytes into structured Node objects with RLP parsing.
+     * Transforms each proof element into a Node with both encoded and decoded forms.
+     */
     function _decodeProof(bytes[] memory proof) private pure returns (Node[] memory proof_) {
         uint256 length = proof.length;
         proof_ = new Node[](length);
@@ -169,14 +193,26 @@ library TrieProof {
         }
     }
 
+    /**
+     * @dev Extracts the node ID (hash or raw data based on size).
+     * For small nodes (<32 bytes), returns the raw bytes; for large nodes, returns the hash.
+     */
     function _id(RLP.Item memory node) private pure returns (bytes memory) {
         return node.length < 32 ? node.readRawBytes() : node.readBytes();
     }
 
+    /**
+     * @dev Extracts the path from a leaf or extension node.
+     * The path is stored as the first element in the node's decoded array.
+     */
     function _path(Node memory node) private pure returns (bytes memory) {
         return node.decoded[0].readBytes().nibbles();
     }
 
+    /**
+     * @dev Calculates the number of shared nibbles between two byte arrays.
+     * Used to determine how much of a path matches a key during trie traversal.
+     */
     function _sharedNibbleLength(bytes memory _a, bytes memory _b) private pure returns (uint256 shared_) {
         uint256 max = Math.max(_a.length, _b.length);
         uint256 length;
