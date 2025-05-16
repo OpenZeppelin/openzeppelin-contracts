@@ -23,6 +23,7 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {BitMaps}: A simple library to manage boolean value mapped to a numerical index in an efficient way.
  * {EnumerableMap}: A type like Solidity's https://solidity.readthedocs.io/en/latest/types.html#mapping-types[`mapping`], but with key-value _enumeration_: this will let you know how many entries a mapping has, and iterate over them (which is not possible with `mapping`).
  * {EnumerableSet}: Like {EnumerableMap}, but for https://en.wikipedia.org/wiki/Set_(abstract_data_type)[sets]. Can be used to store privileged accounts, issued IDs, etc.
+ * {EnumerableSetExtended} and {EnumerableMapExtended}: Extensions of the `EnumerableSet` and `EnumerableMap` libraries with more types, including non-value types.
  * {DoubleEndedQueue}: An implementation of a https://en.wikipedia.org/wiki/Double-ended_queue[double ended queue] whose values can be added or removed from both sides. Useful for FIFO and LIFO structures.
  * {CircularBuffer}: A data structure to store the last N values pushed to it.
  * {Checkpoints}: A data structure to store values mapped to a strictly increasing key. Can be used for storing and accessing values over time.
@@ -49,7 +50,12 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {AbstractSigner}: Abstract contract for internal signature validation in smart contracts.
  * {ERC7739}: An abstract contract to validate signatures following the rehashing scheme from `ERC7739Utils`.
  * {ERC7739Utils}: Utilities library that implements a defensive rehashing mechanism to prevent replayability of smart contract signatures based on ERC-7739.
- 
+ * {ERC7913Utils}: utilities library that implements ERC-7913 signature verification with fallback to ERC-1271 and ECDSA.
+ * {SignerECDSA}, {SignerP256}, {SignerRSA}: Implementations of an {AbstractSigner} with specific signature validation algorithms.
+ * {SignerERC7702}: Implementation of {AbstractSigner} that validates signatures using the contract's own address as the signer, useful for delegated accounts following EIP-7702.
+ * {SignerERC7913}, {MultiSignerERC7913}, {MultiSignerERC7913Weighted}: Implementations of {AbstractSigner} that validate signatures based on ERC-7913. Including a simple and weighted multisignature scheme.
+ * {ERC7913SignatureVerifierP256}, {ERC7913SignatureVerifierRSA}: Ready to use ERC-7913 signature verifiers for P256 and RSA keys
+
 [NOTE]
 ====
 Because Solidity does not support generic types, {EnumerableMap} and {EnumerableSet} are specialized to a limited number of key-value types.
@@ -89,6 +95,28 @@ Because Solidity does not support generic types, {EnumerableMap} and {Enumerable
 
 {{AbstractSigner}}
 
+{{SignerECDSA}}
+
+{{SignerP256}}
+
+{{SignerERC7702}}
+
+{{SignerRSA}}
+
+{{SignerERC7913}}
+
+{{MultiSignerERC7913}}
+
+{{MultiSignerERC7913Weighted}}
+
+=== ERC-7913
+
+{{ERC7913Utils}}
+
+{{ERC7913SignatureVerifierP256}}
+
+{{ERC7913SignatureVerifierRSA}}
+
 == Security
 
 {{ReentrancyGuard}}
@@ -119,7 +147,11 @@ Ethereum contracts have no native concept of an interface, so applications must 
 
 {{EnumerableMap}}
 
+{{EnumerableMapExtended}}
+
 {{EnumerableSet}}
+
+{{EnumerableSetExtended}}
 
 {{DoubleEndedQueue}}
 

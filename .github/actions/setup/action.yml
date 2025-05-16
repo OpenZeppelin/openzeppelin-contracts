@@ -13,8 +13,7 @@ runs:
         path: '**/node_modules'
         key: npm-v3-${{ hashFiles('**/package-lock.json') }}
     - name: Install dependencies
-      ## TODO: Remove when EIP-7702 authorizations are enabled in latest non-beta ethers version
-      run: npm ci --legacy-peer-deps
+      run: npm ci
       shell: bash
       if: steps.cache.outputs.cache-hit != 'true'
     - name: Install Foundry

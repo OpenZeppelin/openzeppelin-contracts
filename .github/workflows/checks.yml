@@ -118,8 +118,6 @@ jobs:
       - uses: actions/checkout@v4
       - name: Set up environment
         uses: ./.github/actions/setup
-      ## TODO: Remove when EIP-7702 authorizations are enabled in latest non-beta ethers version
-      - run: rm package-lock.json package.json # Dependencies already installed
       - uses: crytic/slither-action@v0.4.1
 
   codespell:
