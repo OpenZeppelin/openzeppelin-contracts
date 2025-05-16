@@ -48,8 +48,8 @@ module.exports = [
 
     VariableDeclaration(node) {
       if (node.isDeclaredConst) {
-        // TODO: expand visibility and fix
-        if (node.visibility === 'private' && /^_/.test(node.name)) {
+        // Check all visibility types for constants
+        if ((node.visibility === 'private' || node.visibility === 'internal') && /^_/.test(node.name)) {
           this.error(node, 'Constant variables should not have leading underscore');
         }
       } else if (node.visibility === 'private' && !/^_/.test(node.name)) {
@@ -71,14 +71,26 @@ module.exports = [
     }
   },
 
-  // TODO: re-enable and fix
-  // class extends Base {
-  //   static ruleId = 'no-external-virtual';
-  //
-  //   FunctionDefinition(node) {
-  //     if (node.visibility == 'external' && node.isVirtual) {
-  //       this.error(node, 'Functions should not be external and virtual');
-  //     }
-  //   }
-  // },
+  class extends Base {
+    static ruleId = 'no-external-virtual';
+
+    FunctionDefinition(node) {
+      // Skip constructor functions, interface definitions, receive/fallback functions,
+      // and governance/multicall functions which legitimately use external virtual
+      if (
+        node.isConstructor ||
+        node.parent.kind === 'interface' ||
+        node.name === '' || // receive/fallback functions have empty names
+        node.isReceiveEther ||
+        node.isFallback ||
+        /^(update|multicall)/.test(node.name) // Allow external virtual for update* and multicall functions
+      ) {
+        return;
+      }
+
+      if (node.visibility === 'external' && node.isVirtual) {
+        this.error(node, 'External functions should not be virtual. Consider using public virtual instead.');
+      }
+    }
+  },
 ];
