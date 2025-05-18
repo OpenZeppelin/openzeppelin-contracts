@@ -405,3 +405,81 @@ contract L1Inbox {
 ----
 
 IMPORTANT: After EIP-2935 activation, it takes 8,191 blocks to completely fill the history storage. Before that, only block hashes since the fork block will be available.
+
+=== Time
+
+The xref:api:utils.adoc#Time[`Time`] library provides helpers for manipulating time-related objects in a type-safe manner. It uses `uint48` for timepoints and `uint32` for durations, helping to reduce gas costs while providing adequate precision.
+
+One of its key features is the `Delay` type, which represents a duration that can automatically change its value at a specified point in the future while maintaining delay guarantees. For example, when reducing a delay value (e.g., from 7 days to 1 day), the change only takes effect after the difference between the old and new delay (i.e. a 6 days) or a minimum setback period, preventing an attacker who gains admin access from immediately reducing security timeouts and executing sensitive operations. This is particularly useful for governance and security mechanisms where timelock periods need to be enforced.
+
+Consider this example for using and safely updating Delays:   
+[source,solidity]
+----
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.27;
+
+import {Time} from "contracts/utils/types/Time.sol";
+
+contract MyDelayedContract {
+    using Time for *;
+    
+    Time.Delay private _delay;
+
+    constructor() {
+        _delay = Time.toDelay(3 days);
+    }
+
+    function schedule(bytes32 operationId) external {
+        // Get the current `_delay` value, respecting any pending delay changes if they've taken effect
+        uint32 currentDelay = _delay.get();
+        uint48 executionTime = Time.timestamp() + currentDelay;
+        
+        // ... schedule the operation at `executionTime`
+    }
+    
+    function execute(bytes32 operationId) external {
+        uint48 executionTime = getExecutionTime(operationId);
+        require(executionTime > 0, "Operation not scheduled");
+        require(Time.timestamp() >= executionTime, "Delay not elapsed yet");
+
+        // ... execute the operation
+    }
+    
+    // Update the delay with `Time`'s safety mechanism
+    function updateDelay(uint32 newDelay) external {
+        (Time.Delay updatedDelay, uint48 effect) = _delay.withUpdate(
+            newDelay,    // The new delay value
+            5 days       // Minimum setback if reducing the delay
+        );
+        
+        _delay = updatedDelay;
+
+        // ... emit events
+    }
+    
+    // Get complete delay details including pending changes
+    function getDelayDetails() external view returns (
+        uint32 currentValue, // The current delay value
+        uint32 pendingValue, // The pending delay value
+        uint48 effectTime    // The timepoint when the pending delay change takes effect
+    ) {
+        return _delay.getFull();
+    }
+}
+----
+
+This pattern is used extensively in OpenZeppelin's xref:api:access.adoc#AccessManager[AccessManager] for implementing secure time-based access control. For example, when changing an admin delay:
+
+[source,solidity]
+----
+// From AccessManager.sol
+function _setTargetAdminDelay(address target, uint32 newDelay) internal virtual {
+    uint48 effect;
+    (_targets[target].adminDelay, effect) = _targets[target].adminDelay.withUpdate(
+        newDelay,
+        minSetback()
+    );
+
+    emit TargetAdminDelayUpdated(target, newDelay, effect);
+}
+----

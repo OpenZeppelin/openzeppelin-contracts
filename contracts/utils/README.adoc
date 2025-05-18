@@ -49,6 +49,7 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {AbstractSigner}: Abstract contract for internal signature validation in smart contracts.
  * {ERC7739}: An abstract contract to validate signatures following the rehashing scheme from `ERC7739Utils`.
  * {ERC7739Utils}: Utilities library that implements a defensive rehashing mechanism to prevent replayability of smart contract signatures based on ERC-7739.
+ * {Time}: A library that provides helpers for manipulating time-related objects, including a `Delay` type.
  
 [NOTE]
 ====
@@ -170,3 +171,5 @@ Ethereum contracts have no native concept of an interface, so applications must 
 {{CAIP10}}
 
 {{Blockhash}}
+
+{{Time}}
