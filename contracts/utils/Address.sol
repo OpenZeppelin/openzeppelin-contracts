@@ -73,7 +73,7 @@ library Address {
      * - the called Solidity function must be `payable`.
      */
     function functionCallWithValue(address target, bytes memory data, uint256 value) internal returns (bytes memory) {
-        if (address(this).balance < value) {
+        if (value > 0 && address(this).balance < value) {
             revert Errors.InsufficientBalance(address(this).balance, value);
         }
         (bool success, bytes memory returndata) = target.call{value: value}(data);
