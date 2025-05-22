@@ -156,7 +156,9 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
         if (callerConfirmation != _msgSender()) {
             revert AccessControlBadConfirmation();
         }
-
+      if (!hasRole(role, callerConfirmation)){
+            revert AccessControlUnauthorizedAccount(callerConfirmation, role);
+      }
         _revokeRole(role, callerConfirmation);
     }
 
