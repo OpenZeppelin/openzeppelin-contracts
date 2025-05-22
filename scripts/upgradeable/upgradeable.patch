@@ -1,6 +1,6 @@
 diff --git a/.github/ISSUE_TEMPLATE/bug_report.md b/.github/ISSUE_TEMPLATE/bug_report.md
 deleted file mode 100644
-index 35ad097f..00000000
+index 35ad097ff..000000000
 --- a/.github/ISSUE_TEMPLATE/bug_report.md
 +++ /dev/null
 @@ -1,21 +0,0 @@
@@ -26,7 +26,7 @@ index 35ad097f..00000000
 -
 -<!-- We will be able to better help if you provide a minimal example that triggers the bug. -->
 diff --git a/.github/ISSUE_TEMPLATE/config.yml b/.github/ISSUE_TEMPLATE/config.yml
-index 4018cef2..d343a53d 100644
+index 4018cef29..d343a53d8 100644
 --- a/.github/ISSUE_TEMPLATE/config.yml
 +++ b/.github/ISSUE_TEMPLATE/config.yml
 @@ -1,4 +1,8 @@
@@ -40,7 +40,7 @@ index 4018cef2..d343a53d 100644
      about: Ask in the OpenZeppelin Forum
 diff --git a/.github/ISSUE_TEMPLATE/feature_request.md b/.github/ISSUE_TEMPLATE/feature_request.md
 deleted file mode 100644
-index ff596b0c..00000000
+index ff596b0c3..000000000
 --- a/.github/ISSUE_TEMPLATE/feature_request.md
 +++ /dev/null
 @@ -1,14 +0,0 @@
@@ -59,48 +59,48 @@ index ff596b0c..00000000
 -<!-- Make sure that you have reviewed the OpenZeppelin Contracts Contributor Guidelines. -->
 -<!-- https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/CONTRIBUTING.md -->
 diff --git a/README.md b/README.md
-index 60d0a430..0e4f91a6 100644
+index 60d0a430a..0e4f91a6d 100644
 --- a/README.md
 +++ b/README.md
 @@ -19,6 +19,9 @@
  > [!IMPORTANT]
  > OpenZeppelin Contracts uses semantic versioning to communicate backwards compatibility of its API and storage layout. For upgradeable contracts, the storage layout of different major versions should be assumed incompatible, for example, it is unsafe to upgrade from 4.9.3 to 5.0.0. Learn more at [Backwards Compatibility](https://docs.openzeppelin.com/contracts/backwards-compatibility).
-
+ 
 ++> [!NOTE]
 ++> You are looking at the upgradeable variant of OpenZeppelin Contracts. Be sure to review the documentation on [Using OpenZeppelin Contracts with Upgrades](https://docs.openzeppelin.com/contracts/upgradeable).
 ++
  ## Overview
-
+ 
  ### Installation
 @@ -26,7 +29,7 @@
  #### Hardhat (npm)
-
+ 
  ```
 -$ npm install @openzeppelin/contracts
 +$ npm install @openzeppelin/contracts-upgradeable
  ```
-
+ 
  #### Foundry (git)
 @@ -38,10 +41,10 @@ $ npm install @openzeppelin/contracts
  > Foundry installs the latest version initially, but subsequent `forge update` commands will use the `master` branch.
-
+ 
  ```
 -$ forge install OpenZeppelin/openzeppelin-contracts
 +$ forge install OpenZeppelin/openzeppelin-contracts-upgradeable
  ```
-
+ 
 -Add `@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/` in `remappings.txt.`
 +Add `@openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/` in `remappings.txt.`
-
+ 
  ### Usage
-
+ 
 @@ -50,10 +53,11 @@ Once installed, you can use the contracts in the library by importing them:
  ```solidity
  pragma solidity ^0.8.20;
-
+ 
 -import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 +import {ERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
-
+ 
 -contract MyCollectible is ERC721 {
 -    constructor() ERC721("MyCollectible", "MCO") {
 +contract MyCollectible is ERC721Upgradeable {
@@ -110,7 +110,7 @@ index 60d0a430..0e4f91a6 100644
  }
  ```
 diff --git a/contracts/package.json b/contracts/package.json
-index 70ae73bc..ef659873 100644
+index 70ae73bc2..ef659873f 100644
 --- a/contracts/package.json
 +++ b/contracts/package.json
 @@ -1,5 +1,5 @@
@@ -140,16 +140,16 @@ index 70ae73bc..ef659873 100644
 +  }
  }
 diff --git a/contracts/utils/cryptography/EIP712.sol b/contracts/utils/cryptography/EIP712.sol
-index c39954e3..fe681f87 100644
+index c39954e35..fe681f87a 100644
 --- a/contracts/utils/cryptography/EIP712.sol
 +++ b/contracts/utils/cryptography/EIP712.sol
 @@ -4,7 +4,6 @@
  pragma solidity ^0.8.20;
-
+ 
  import {MessageHashUtils} from "./MessageHashUtils.sol";
 -import {ShortStrings, ShortString} from "../ShortStrings.sol";
  import {IERC5267} from "../../interfaces/IERC5267.sol";
-
+ 
  /**
 @@ -25,33 +24,20 @@ import {IERC5267} from "../../interfaces/IERC5267.sol";
   * NOTE: This contract implements the version of the encoding known as "v4", as implemented by the JSON RPC method
@@ -168,7 +168,7 @@ index c39954e3..fe681f87 100644
 -
      bytes32 private constant TYPE_HASH =
          keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
-
+ 
 -    // Cache the domain separator as an immutable value, but also store the chain id that it corresponds to, in order to
 -    // invalidate the cached domain separator if the chain id changes.
 -    bytes32 private immutable _cachedDomainSeparator;
@@ -179,7 +179,7 @@ index c39954e3..fe681f87 100644
      bytes32 private immutable _hashedName;
 +    /// @custom:oz-renamed-from _HASHED_VERSION
      bytes32 private immutable _hashedVersion;
-
+ 
 -    ShortString private immutable _name;
 -    ShortString private immutable _version;
 -    // slither-disable-next-line constable-states
@@ -188,7 +188,7 @@ index c39954e3..fe681f87 100644
 -    string private _versionFallback;
 +    string private _name;
 +    string private _version;
-
+ 
      /**
       * @dev Initializes the domain separator and parameter caches.
 @@ -66,29 +52,23 @@ abstract contract EIP712 is IERC5267 {
@@ -210,7 +210,7 @@ index c39954e3..fe681f87 100644
 +        _hashedName = 0;
 +        _hashedVersion = 0;
      }
-
+ 
      /**
       * @dev Returns the domain separator for the current chain.
       */
@@ -222,12 +222,12 @@ index c39954e3..fe681f87 100644
 -        }
 +        return _buildDomainSeparator();
      }
-
+ 
      function _buildDomainSeparator() private view returns (bytes32) {
 -        return keccak256(abi.encode(TYPE_HASH, _hashedName, _hashedVersion, block.chainid, address(this)));
 +        return keccak256(abi.encode(TYPE_HASH, _EIP712NameHash(), _EIP712VersionHash(), block.chainid, address(this)));
      }
-
+ 
      /**
 @@ -125,6 +105,10 @@ abstract contract EIP712 is IERC5267 {
              uint256[] memory extensions
@@ -255,7 +255,7 @@ index c39954e3..fe681f87 100644
 +    function _EIP712Name() internal view virtual returns (string memory) {
 +        return _name;
      }
-
+ 
      /**
       * @dev The version parameter for the EIP712 domain.
       *
@@ -314,7 +314,7 @@ index c39954e3..fe681f87 100644
      }
  }
 diff --git a/package.json b/package.json
-index eeeaf0bc..65581c54 100644
+index eeeaf0bcd..65581c544 100644
 --- a/package.json
 +++ b/package.json
 @@ -34,7 +34,7 @@
@@ -327,7 +327,7 @@ index eeeaf0bc..65581c54 100644
    "keywords": [
      "solidity",
 diff --git a/remappings.txt b/remappings.txt
-index 304d1386..a1cd63be 100644
+index 304d1386a..a1cd63bee 100644
 --- a/remappings.txt
 +++ b/remappings.txt
 @@ -1 +1,2 @@
@@ -335,7 +335,7 @@ index 304d1386..a1cd63be 100644
 +@openzeppelin/contracts-upgradeable/=contracts/
 +@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
 diff --git a/test/utils/cryptography/EIP712.test.js b/test/utils/cryptography/EIP712.test.js
-index 2b6e7fa9..268e0d29 100644
+index 2b6e7fa97..268e0d29d 100644
 --- a/test/utils/cryptography/EIP712.test.js
 +++ b/test/utils/cryptography/EIP712.test.js
 @@ -47,27 +47,6 @@ describe('EIP712', function () {
@@ -364,5 +364,5 @@ index 2b6e7fa9..268e0d29 100644
 -          });
 -        }
        });
-
+ 
        it('hash digest', async function () {
