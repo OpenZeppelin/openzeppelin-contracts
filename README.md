@@ -19,17 +19,17 @@
 > [!IMPORTANT]
 > OpenZeppelin Contracts uses semantic versioning to communicate backwards compatibility of its API and storage layout. For upgradeable contracts, the storage layout of different major versions should be assumed incompatible, for example, it is unsafe to upgrade from 4.9.3 to 5.0.0. Learn more at [Backwards Compatibility](https://docs.openzeppelin.com/contracts/backwards-compatibility).
 
-## Overview
+## 🌐 Overview
 
-### Installation
+### 📥 Installation
 
-#### Hardhat (npm)
+#### 📦 Hardhat (npm)
 
 ```
 $ npm install @openzeppelin/contracts
 ```
 
-#### Foundry (git)
+#### ⚠️ Foundry (git)
 
 > [!WARNING]
 > When installing via git, it is a common error to use the `master` branch. This is a development branch that should be avoided in favor of tagged releases. The release process involves security measures that the `master` branch does not guarantee.
@@ -43,7 +43,7 @@ $ forge install OpenZeppelin/openzeppelin-contracts
 
 Add `@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/` in `remappings.txt.`
 
-### Usage
+### 🛠️ Usage
 
 Once installed, you can use the contracts in the library by importing them:
 
@@ -62,7 +62,7 @@ _If you're new to smart contract development, head to [Developing Smart Contract
 
 To keep your system secure, you should **always** use the installed code as-is, and neither copy-paste it from online sources nor modify it yourself. The library is designed so that only the contracts and functions you use are deployed, so you don't need to worry about it needlessly increasing gas costs.
 
-## Learn More
+## 📚 Learn More
 
 The guides in the [documentation site](https://docs.openzeppelin.com/contracts) will teach about different concepts, and how to use the related contracts that OpenZeppelin Contracts provides:
 
@@ -78,7 +78,7 @@ Finally, you may want to take a look at the [guides on our blog](https://blog.op
 * [A Gentle Introduction to Ethereum Programming, Part 1](https://blog.openzeppelin.com/a-gentle-introduction-to-ethereum-programming-part-1-783cc7796094) provides very useful information on an introductory level, including many basic concepts from the Ethereum platform.
 * For a more in-depth dive, you may read the guide [Designing the Architecture for Your Ethereum Application](https://blog.openzeppelin.com/designing-the-architecture-for-your-ethereum-application-9cec086f8317), which discusses how to better structure your application and its relationship to the real world.
 
-## Security
+## 🔒 Security
 
 This project is maintained by [OpenZeppelin](https://openzeppelin.com) with the goal of providing a secure and reliable library of smart contract components for the ecosystem. We address security through risk management in various areas such as engineering and open source best practices, scoping and API design, multi-layered review processes, and incident response preparedness.
 
@@ -94,14 +94,14 @@ Smart contracts are a nascent technology and carry a high level of technical ris
 
 OpenZeppelin Contracts is made available under the MIT License, which disclaims all warranties in relation to the project and which limits the liability of those that contribute and maintain the project, including OpenZeppelin. As set out further in the Terms, you acknowledge that you are solely responsible for any use of OpenZeppelin Contracts and you assume all risks associated with any such use.
 
-## Contribute
+## 🤝 Contribute
 
 OpenZeppelin Contracts exists thanks to its contributors. There are many ways you can participate and help build high quality software. Check out the [contribution guide](CONTRIBUTING.md)!
 
-## License
+## 📜 License
 
 OpenZeppelin Contracts is released under the [MIT License](LICENSE).
 
-## Legal
+## ⚖️ Legal
 
 Your use of this Project is governed by the terms found at www.openzeppelin.com/tos (the "Terms").
