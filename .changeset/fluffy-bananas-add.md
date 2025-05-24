@@ -2,4 +2,4 @@
 'openzeppelin-solidity': patch
 ---
 
-Add draft ERC-7572 interface
+`IERC7572`: Add interface to support contract-level metadata.
