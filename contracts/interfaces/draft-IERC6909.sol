@@ -4,6 +4,7 @@
 pragma solidity ^0.8.20;
 
 import {IERC165} from "../utils/introspection/IERC165.sol";
+import {IERC7572} from "./draft-IERC7572.sol";
 
 /**
  * @dev Required interface of an ERC-6909 compliant contract, as defined in the
@@ -102,12 +103,7 @@ interface IERC6909Metadata is IERC6909 {
 /**
  * @dev Optional extension of {IERC6909} that adds content URI functions.
  */
-interface IERC6909ContentURI is IERC6909 {
-    /**
-     * @dev Returns URI for the contract.
-     */
-    function contractURI() external view returns (string memory);
-
+interface IERC6909ContentURI is IERC6909, IERC7572 {
     /**
      * @dev Returns the URI for the token of type `id`.
      */

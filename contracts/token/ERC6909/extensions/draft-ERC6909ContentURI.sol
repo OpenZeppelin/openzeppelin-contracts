@@ -4,6 +4,7 @@
 pragma solidity ^0.8.20;
 
 import {ERC6909} from "../draft-ERC6909.sol";
+import {IERC7572} from "../../../interfaces/draft-IERC7572.sol";
 import {IERC6909ContentURI} from "../../../interfaces/draft-IERC6909.sol";
 
 /**
@@ -13,13 +14,10 @@ contract ERC6909ContentURI is ERC6909, IERC6909ContentURI {
     string private _contractURI;
     mapping(uint256 id => string) private _tokenURIs;
 
-    /// @dev Event emitted when the contract URI is changed. See https://eips.ethereum.org/EIPS/eip-7572[ERC-7572] for details.
-    event ContractURIUpdated();
-
     /// @dev See {IERC1155-URI}
     event URI(string value, uint256 indexed id);
 
-    /// @inheritdoc IERC6909ContentURI
+    /// @inheritdoc IERC7572
     function contractURI() public view virtual override returns (string memory) {
         return _contractURI;
     }
