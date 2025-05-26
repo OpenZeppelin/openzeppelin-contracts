@@ -4,6 +4,13 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { getAddressInSlot, BeaconSlot } = require('../../helpers/storage');
 
+async function deployBeaconProxy(beaconAddress) {
+  const BeaconProxy = await ethers.getContractFactory('BeaconProxy');
+  const proxy = await BeaconProxy.deploy(beaconAddress, '0x');
+  await proxy.deployed();
+  return proxy;
+}
+
 async function fixture() {
   const [admin, other] = await ethers.getSigners();
 
@@ -136,6 +143,14 @@ describe('BeaconProxy', function () {
       // test upgraded version
       expect(await proxy1.version()).to.equal('V2');
       expect(await proxy2.version()).to.equal('V2');
+    });
+    it('should revert if beacon returns a non-contract address', async function () {
+      const BadBeacon = await ethers.getContractFactory('BadBeacon');
+      const badBeacon = await BadBeacon.deploy();
+    
+      await expect(
+        deployBeaconProxy(badBeacon.address)
+      ).to.be.reverted;
     });
   });
 });
