@@ -32,14 +32,14 @@ describe('EIP7702Utils', function () {
 
     it('EOA with delegation', async function () {
       // set delegation
-      await this.eoa.authorize({ address: this.mock.target }).then(relayAuthorization);
+      await this.eoa.authorize({ address: this.mock }).then(relayAuthorization);
 
       await expect(this.mock.$fetchDelegate(this.eoa)).to.eventually.equal(this.mock);
     });
 
     it('EOA with revoked delegation', async function () {
       // set delegation
-      await this.eoa.authorize({ address: this.mock.target }).then(relayAuthorization);
+      await this.eoa.authorize({ address: this.mock }).then(relayAuthorization);
       // reset delegation
       await this.eoa.authorize({ address: ethers.ZeroAddress }).then(relayAuthorization);
 
