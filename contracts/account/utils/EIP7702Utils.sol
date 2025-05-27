@@ -15,8 +15,6 @@ library EIP7702Utils {
      */
     function fetchDelegate(address account) internal view returns (address) {
         bytes23 delegation = bytes23(account.code);
-        return bytes3(delegation) == EIP7702_PREFIX
-            ? address(bytes20(delegation << 24))
-            : address(0);
+        return bytes3(delegation) == EIP7702_PREFIX ? address(bytes20(delegation << 24)) : address(0);
     }
 }
