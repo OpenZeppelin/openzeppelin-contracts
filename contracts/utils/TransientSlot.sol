@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.1.0) (utils/TransientSlot.sol)
+// OpenZeppelin Contracts (last updated v5.3.0) (utils/TransientSlot.sol)
 // This file was procedurally generated from scripts/generate/templates/TransientSlot.js.
 
 pragma solidity ^0.8.24;
@@ -32,7 +32,7 @@ pragma solidity ^0.8.24;
  */
 library TransientSlot {
     /**
-     * @dev UDVT that represents a slot holding a address.
+     * @dev UDVT that represents a slot holding an address.
      */
     type AddressSlot is bytes32;
 

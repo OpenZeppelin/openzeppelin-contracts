@@ -6,7 +6,6 @@ pragma solidity ^0.8.20;
 import {Governor} from "../Governor.sol";
 import {IVotes} from "../utils/IVotes.sol";
 import {IERC5805} from "../../interfaces/IERC5805.sol";
-import {SafeCast} from "../../utils/math/SafeCast.sol";
 import {Time} from "../../utils/types/Time.sol";
 
 /**

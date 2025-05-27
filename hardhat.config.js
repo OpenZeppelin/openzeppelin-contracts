@@ -18,7 +18,7 @@ const { argv } = require('yargs/yargs')()
     compiler: {
       alias: 'compileVersion',
       type: 'string',
-      default: '0.8.24',
+      default: '0.8.27',
     },
     src: {
       alias: 'source',
@@ -38,7 +38,7 @@ const { argv } = require('yargs/yargs')()
     evm: {
       alias: 'evmVersion',
       type: 'string',
-      default: 'cancun',
+      default: 'prague',
     },
     // Extra modules
     coverage: {
@@ -102,6 +102,7 @@ module.exports = {
       // we rely on the `code-size` compiler warning, that will cause a compilation error.
       allowUnlimitedContractSize: true,
       initialBaseFeePerGas: argv.coverage ? 0 : undefined,
+      enableRip7212: true,
     },
   },
   exposed: {

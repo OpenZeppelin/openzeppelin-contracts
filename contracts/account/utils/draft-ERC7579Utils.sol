@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.2.0) (account/utils/draft-ERC7579Utils.sol)
+// OpenZeppelin Contracts (last updated v5.3.0) (account/utils/draft-ERC7579Utils.sol)
 
 pragma solidity ^0.8.20;
 
@@ -204,7 +204,7 @@ library ERC7579Utils {
                 revert ERC7579DecodingError();
 
             assembly ("memory-safe") {
-                executionBatch.offset := add(add(executionCalldata.offset, arrayLengthOffset), 32)
+                executionBatch.offset := add(add(executionCalldata.offset, arrayLengthOffset), 0x20)
                 executionBatch.length := arrayLength
             }
         }
@@ -218,7 +218,9 @@ library ERC7579Utils {
         uint256 value,
         bytes calldata data
     ) private returns (bytes memory) {
-        (bool success, bytes memory returndata) = target.call{value: value}(data);
+        (bool success, bytes memory returndata) = (target == address(0) ? address(this) : target).call{value: value}(
+            data
+        );
         return _validateExecutionMode(index, execType, success, returndata);
     }
 
@@ -229,7 +231,7 @@ library ERC7579Utils {
         address target,
         bytes calldata data
     ) private returns (bytes memory) {
-        (bool success, bytes memory returndata) = target.delegatecall(data);
+        (bool success, bytes memory returndata) = (target == address(0) ? address(this) : target).delegatecall(data);
         return _validateExecutionMode(index, execType, success, returndata);
     }
 

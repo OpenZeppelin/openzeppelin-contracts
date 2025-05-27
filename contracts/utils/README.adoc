@@ -45,7 +45,12 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {Panic}: A library to revert with https://docs.soliditylang.org/en/v0.8.20/control-structures.html#panic-via-assert-and-error-via-require[Solidity panic codes].
  * {Comparators}: A library that contains comparator functions to use with the {Heap} library.
  * {CAIP2}, {CAIP10}: Libraries for formatting and parsing CAIP-2 and CAIP-10 identifiers.
-
+ * {Blockhash}: A library for accessing historical block hashes beyond the standard 256 block limit utilizing EIP-2935's historical blockhash functionality.
+ * {AbstractSigner}: Abstract contract for internal signature validation in smart contracts.
+ * {ERC7739}: An abstract contract to validate signatures following the rehashing scheme from `ERC7739Utils`.
+ * {ERC7739Utils}: Utilities library that implements a defensive rehashing mechanism to prevent replayability of smart contract signatures based on ERC-7739.
+ * {Time}: A library that provides helpers for manipulating time-related objects, including a `Delay` type.
+ 
 [NOTE]
 ====
 Because Solidity does not support generic types, {EnumerableMap} and {EnumerableSet} are specialized to a limited number of key-value types.
@@ -76,6 +81,14 @@ Because Solidity does not support generic types, {EnumerableMap} and {Enumerable
 {{Hashes}}
 
 {{MerkleProof}}
+
+{{ERC7739}}
+
+{{ERC7739Utils}}
+
+=== Abstract Signers
+
+{{AbstractSigner}}
 
 == Security
 
@@ -156,3 +169,7 @@ Ethereum contracts have no native concept of an interface, so applications must 
 {{CAIP2}}
 
 {{CAIP10}}
+
+{{Blockhash}}
+
+{{Time}}
