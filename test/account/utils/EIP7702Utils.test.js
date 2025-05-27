@@ -15,7 +15,7 @@ const relayAuthorization = authorization =>
   });
 
 const fixture = async () => {
-  const eoa = ethers.Wallet.createRandom().connect(ethers.provider);
+  const eoa = ethers.Wallet.createRandom(ethers.provider);
   const mock = await ethers.deployContract('$EIP7702Utils');
   return { eoa, mock };
 };
