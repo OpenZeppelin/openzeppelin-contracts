@@ -42,7 +42,7 @@ library Blockhash {
             mstore(0x00, blockNumber)
             mstore(0x20, 0)
 
-            // call history storage contract
+            // call history storage address
             pop(staticcall(gas(), HISTORY_STORAGE_ADDRESS, 0x00, 0x20, 0x20, 0x20))
 
             // load result
