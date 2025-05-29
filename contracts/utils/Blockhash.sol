@@ -32,7 +32,7 @@ library Blockhash {
             distance = current - blockNumber;
         }
 
-        return distance > 256 && distance < 8192 ? _historyStorageCall(blockNumber) : blockhash(blockNumber);
+        return distance < 257 ? blockhash(blockNumber) : _historyStorageCall(blockNumber);
     }
 
     /// @dev Internal function to query the EIP-2935 history storage contract.
