@@ -30,16 +30,22 @@ abstract contract GovernorNoncesKeyed is Governor, NoncesKeyed {
         address voter,
         bytes memory signature
     ) internal virtual override returns (bool) {
-        bool valid = SignatureChecker.isValidSignatureNow(
-            voter,
-            _hashTypedDataV4(
-                keccak256(abi.encode(BALLOT_TYPEHASH, proposalId, support, voter, nonces(voter, uint192(proposalId))))
-            ),
-            signature
-        );
-        if (valid) _useNonce(voter, uint192(proposalId));
-        else valid = super._validateVoteSig(proposalId, support, voter, signature);
-        return valid;
+        if (
+            SignatureChecker.isValidSignatureNow(
+                voter,
+                _hashTypedDataV4(
+                    keccak256(
+                        abi.encode(BALLOT_TYPEHASH, proposalId, support, voter, nonces(voter, uint192(proposalId)))
+                    )
+                ),
+                signature
+            )
+        ) {
+            _useNonce(voter, uint192(proposalId));
+            return true;
+        } else {
+            return super._validateVoteSig(proposalId, support, voter, signature);
+        }
     }
 
     /**
@@ -56,20 +62,29 @@ abstract contract GovernorNoncesKeyed is Governor, NoncesKeyed {
         bytes memory params,
         bytes memory signature
     ) internal virtual override returns (bool) {
-        bytes32 structHash = keccak256(
-            abi.encode(
-                EXTENDED_BALLOT_TYPEHASH,
-                proposalId,
-                support,
+        if (
+            SignatureChecker.isValidSignatureNow(
                 voter,
-                nonces(voter, uint192(proposalId)),
-                keccak256(bytes(reason)),
-                keccak256(params)
+                _hashTypedDataV4(
+                    keccak256(
+                        abi.encode(
+                            EXTENDED_BALLOT_TYPEHASH,
+                            proposalId,
+                            support,
+                            voter,
+                            nonces(voter, uint192(proposalId)),
+                            keccak256(bytes(reason)),
+                            keccak256(params)
+                        )
+                    )
+                ),
+                signature
             )
-        );
-        bool valid = SignatureChecker.isValidSignatureNow(voter, _hashTypedDataV4(structHash), signature);
-        if (valid) _useNonce(voter, uint192(proposalId));
-        else valid = super._validateExtendedVoteSig(proposalId, support, voter, reason, params, signature);
-        return valid;
+        ) {
+            _useNonce(voter, uint192(proposalId));
+            return true;
+        } else {
+            return super._validateExtendedVoteSig(proposalId, support, voter, reason, params, signature);
+        }
     }
 }

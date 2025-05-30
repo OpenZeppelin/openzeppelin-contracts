@@ -578,8 +578,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         address voter,
         bytes memory signature
     ) public virtual returns (uint256) {
-        bool valid = _validateVoteSig(proposalId, support, voter, signature);
-        if (!valid) {
+        if (!_validateVoteSig(proposalId, support, voter, signature)) {
             revert GovernorInvalidSignature(voter);
         }
         return _castVote(proposalId, voter, support, "");
@@ -596,8 +595,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         bytes memory params,
         bytes memory signature
     ) public virtual returns (uint256) {
-        bool valid = _validateExtendedVoteSig(proposalId, support, voter, reason, params, signature);
-        if (!valid) {
+        if (!_validateExtendedVoteSig(proposalId, support, voter, reason, params, signature)) {
             revert GovernorInvalidSignature(voter);
         }
         return _castVote(proposalId, voter, support, reason, params);
