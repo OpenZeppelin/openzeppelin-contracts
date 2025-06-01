@@ -26,17 +26,17 @@ describe('BitMaps', function () {
     describe('setTo', function () {
       it('set a key to true', async function () {
         await this.bitmap.$setTo(0, keyA, true);
-        expect(await this.bitmap.$get_BitMaps_BitMap(0, keyA)).to.be.true;
-        expect(await this.bitmap.$get_BitMaps_BitMap(0, keyB)).to.be.false;
-        expect(await this.bitmap.$get_BitMaps_BitMap(0, keyC)).to.be.false;
+        await expect(this.bitmap.$get_BitMaps_BitMap(0, keyA)).to.eventually.be.true;
+        await expect(this.bitmap.$get_BitMaps_BitMap(0, keyB)).to.eventually.be.false;
+        await expect(this.bitmap.$get_BitMaps_BitMap(0, keyC)).to.eventually.be.false;
       });
 
       it('set a key to false', async function () {
         await this.bitmap.$setTo(0, keyA, true);
         await this.bitmap.$setTo(0, keyA, false);
-        expect(await this.bitmap.$get_BitMaps_BitMap(0, keyA)).to.be.false;
-        expect(await this.bitmap.$get_BitMaps_BitMap(0, keyB)).to.be.false;
-        expect(await this.bitmap.$get_BitMaps_BitMap(0, keyC)).to.be.false;
+        await expect(this.bitmap.$get_BitMaps_BitMap(0, keyA)).to.eventually.be.false;
+        await expect(this.bitmap.$get_BitMaps_BitMap(0, keyB)).to.eventually.be.false;
+        await expect(this.bitmap.$get_BitMaps_BitMap(0, keyC)).to.eventually.be.false;
       });
 
       it('set several consecutive keys', async function () {
@@ -47,39 +47,39 @@ describe('BitMaps', function () {
         await this.bitmap.$setTo(0, keyA + 4n, true);
         await this.bitmap.$setTo(0, keyA + 2n, false);
         await this.bitmap.$setTo(0, keyA + 4n, false);
-        expect(await this.bitmap.$get_BitMaps_BitMap(0, keyA + 0n)).to.be.true;
-        expect(await this.bitmap.$get_BitMaps_BitMap(0, keyA + 1n)).to.be.true;
-        expect(await this.bitmap.$get_BitMaps_BitMap(0, keyA + 2n)).to.be.false;
-        expect(await this.bitmap.$get_BitMaps_BitMap(0, keyA + 3n)).to.be.true;
-        expect(await this.bitmap.$get_BitMaps_BitMap(0, keyA + 4n)).to.be.false;
+        await expect(this.bitmap.$get_BitMaps_BitMap(0, keyA + 0n)).to.eventually.be.true;
+        await expect(this.bitmap.$get_BitMaps_BitMap(0, keyA + 1n)).to.eventually.be.true;
+        await expect(this.bitmap.$get_BitMaps_BitMap(0, keyA + 2n)).to.eventually.be.false;
+        await expect(this.bitmap.$get_BitMaps_BitMap(0, keyA + 3n)).to.eventually.be.true;
+        await expect(this.bitmap.$get_BitMaps_BitMap(0, keyA + 4n)).to.eventually.be.false;
       });
     });
 
     describe('set', function () {
       it('adds a key', async function () {
         await this.bitmap.$set(0, keyA);
-        expect(await this.bitmap.$get_BitMaps_BitMap(0, keyA)).to.be.true;
-        expect(await this.bitmap.$get_BitMaps_BitMap(0, keyB)).to.be.false;
-        expect(await this.bitmap.$get_BitMaps_BitMap(0, keyC)).to.be.false;
+        await expect(this.bitmap.$get_BitMaps_BitMap(0, keyA)).to.eventually.be.true;
+        await expect(this.bitmap.$get_BitMaps_BitMap(0, keyB)).to.eventually.be.false;
+        await expect(this.bitmap.$get_BitMaps_BitMap(0, keyC)).to.eventually.be.false;
       });
 
       it('adds several keys', async function () {
         await this.bitmap.$set(0, keyA);
         await this.bitmap.$set(0, keyB);
-        expect(await this.bitmap.$get_BitMaps_BitMap(0, keyA)).to.be.true;
-        expect(await this.bitmap.$get_BitMaps_BitMap(0, keyB)).to.be.true;
-        expect(await this.bitmap.$get_BitMaps_BitMap(0, keyC)).to.be.false;
+        await expect(this.bitmap.$get_BitMaps_BitMap(0, keyA)).to.eventually.be.true;
+        await expect(this.bitmap.$get_BitMaps_BitMap(0, keyB)).to.eventually.be.true;
+        await expect(this.bitmap.$get_BitMaps_BitMap(0, keyC)).to.eventually.be.false;
       });
 
       it('adds several consecutive keys', async function () {
         await this.bitmap.$set(0, keyA + 0n);
         await this.bitmap.$set(0, keyA + 1n);
         await this.bitmap.$set(0, keyA + 3n);
-        expect(await this.bitmap.$get_BitMaps_BitMap(0, keyA + 0n)).to.be.true;
-        expect(await this.bitmap.$get_BitMaps_BitMap(0, keyA + 1n)).to.be.true;
-        expect(await this.bitmap.$get_BitMaps_BitMap(0, keyA + 2n)).to.be.false;
-        expect(await this.bitmap.$get_BitMaps_BitMap(0, keyA + 3n)).to.be.true;
-        expect(await this.bitmap.$get_BitMaps_BitMap(0, keyA + 4n)).to.be.false;
+        await expect(this.bitmap.$get_BitMaps_BitMap(0, keyA + 0n)).to.eventually.be.true;
+        await expect(this.bitmap.$get_BitMaps_BitMap(0, keyA + 1n)).to.eventually.be.true;
+        await expect(this.bitmap.$get_BitMaps_BitMap(0, keyA + 2n)).to.eventually.be.false;
+        await expect(this.bitmap.$get_BitMaps_BitMap(0, keyA + 3n)).to.eventually.be.true;
+        await expect(this.bitmap.$get_BitMaps_BitMap(0, keyA + 4n)).to.eventually.be.false;
       });
     });
 
@@ -88,9 +88,9 @@ describe('BitMaps', function () {
         await this.bitmap.$set(0, keyA);
         await this.bitmap.$set(0, keyB);
         await this.bitmap.$unset(0, keyA);
-        expect(await this.bitmap.$get_BitMaps_BitMap(0, keyA)).to.be.false;
-        expect(await this.bitmap.$get_BitMaps_BitMap(0, keyB)).to.be.true;
-        expect(await this.bitmap.$get_BitMaps_BitMap(0, keyC)).to.be.false;
+        await expect(this.bitmap.$get_BitMaps_BitMap(0, keyA)).to.eventually.be.false;
+        await expect(this.bitmap.$get_BitMaps_BitMap(0, keyB)).to.eventually.be.true;
+        await expect(this.bitmap.$get_BitMaps_BitMap(0, keyC)).to.eventually.be.false;
       });
 
       it('removes consecutive added keys', async function () {
@@ -98,11 +98,11 @@ describe('BitMaps', function () {
         await this.bitmap.$set(0, keyA + 1n);
         await this.bitmap.$set(0, keyA + 3n);
         await this.bitmap.$unset(0, keyA + 1n);
-        expect(await this.bitmap.$get_BitMaps_BitMap(0, keyA + 0n)).to.be.true;
-        expect(await this.bitmap.$get_BitMaps_BitMap(0, keyA + 1n)).to.be.false;
-        expect(await this.bitmap.$get_BitMaps_BitMap(0, keyA + 2n)).to.be.false;
-        expect(await this.bitmap.$get_BitMaps_BitMap(0, keyA + 3n)).to.be.true;
-        expect(await this.bitmap.$get_BitMaps_BitMap(0, keyA + 4n)).to.be.false;
+        await expect(this.bitmap.$get_BitMaps_BitMap(0, keyA + 0n)).to.eventually.be.true;
+        await expect(this.bitmap.$get_BitMaps_BitMap(0, keyA + 1n)).to.eventually.be.false;
+        await expect(this.bitmap.$get_BitMaps_BitMap(0, keyA + 2n)).to.eventually.be.false;
+        await expect(this.bitmap.$get_BitMaps_BitMap(0, keyA + 3n)).to.eventually.be.true;
+        await expect(this.bitmap.$get_BitMaps_BitMap(0, keyA + 4n)).to.eventually.be.false;
       });
 
       it('adds and removes multiple keys', async function () {
@@ -142,9 +142,9 @@ describe('BitMaps', function () {
 
         // [A, C]
 
-        expect(await this.bitmap.$get_BitMaps_BitMap(0, keyA)).to.be.true;
-        expect(await this.bitmap.$get_BitMaps_BitMap(0, keyB)).to.be.false;
-        expect(await this.bitmap.$get_BitMaps_BitMap(0, keyC)).to.be.true;
+        await expect(this.bitmap.$get_BitMaps_BitMap(0, keyA)).to.eventually.be.true;
+        await expect(this.bitmap.$get_BitMaps_BitMap(0, keyB)).to.eventually.be.false;
+        await expect(this.bitmap.$get_BitMaps_BitMap(0, keyC)).to.eventually.be.true;
       });
     });
   });
@@ -156,10 +156,10 @@ describe('BitMaps', function () {
       await this.bitmap.$set_BitMaps_PairMap(1, 2n, 2);
       await this.bitmap.$set_BitMaps_PairMap(1, 3n, 3);
 
-      expect(await this.bitmap.$get_BitMaps_PairMap(1, 0n)).to.equal(0);
-      expect(await this.bitmap.$get_BitMaps_PairMap(1, 1n)).to.equal(1);
-      expect(await this.bitmap.$get_BitMaps_PairMap(1, 2n)).to.equal(2);
-      expect(await this.bitmap.$get_BitMaps_PairMap(1, 3n)).to.equal(3);
+      await expect(this.bitmap.$get_BitMaps_PairMap(1, 0n)).to.eventually.equal(0);
+      await expect(this.bitmap.$get_BitMaps_PairMap(1, 1n)).to.eventually.equal(1);
+      await expect(this.bitmap.$get_BitMaps_PairMap(1, 2n)).to.eventually.equal(2);
+      await expect(this.bitmap.$get_BitMaps_PairMap(1, 3n)).to.eventually.equal(3);
     });
 
     it('truncates values larger than 3', async function () {
@@ -168,10 +168,10 @@ describe('BitMaps', function () {
       await this.bitmap.$set_BitMaps_PairMap(1, 2n, 6); // Should become 2
       await this.bitmap.$set_BitMaps_PairMap(1, 3n, 7); // Should become 3
 
-      expect(await this.bitmap.$get_BitMaps_PairMap(1, 0n)).to.equal(0);
-      expect(await this.bitmap.$get_BitMaps_PairMap(1, 1n)).to.equal(1);
-      expect(await this.bitmap.$get_BitMaps_PairMap(1, 2n)).to.equal(2);
-      expect(await this.bitmap.$get_BitMaps_PairMap(1, 3n)).to.equal(3);
+      await expect(this.bitmap.$get_BitMaps_PairMap(1, 0n)).to.eventually.equal(0);
+      await expect(this.bitmap.$get_BitMaps_PairMap(1, 1n)).to.eventually.equal(1);
+      await expect(this.bitmap.$get_BitMaps_PairMap(1, 2n)).to.eventually.equal(2);
+      await expect(this.bitmap.$get_BitMaps_PairMap(1, 3n)).to.eventually.equal(3);
     });
 
     it('handles multiple buckets', async function () {
@@ -179,8 +179,8 @@ describe('BitMaps', function () {
       await this.bitmap.$set_BitMaps_PairMap(1, 127n, 2);
       await this.bitmap.$set_BitMaps_PairMap(1, 128n, 3);
 
-      expect(await this.bitmap.$get_BitMaps_PairMap(1, 127n)).to.equal(2);
-      expect(await this.bitmap.$get_BitMaps_PairMap(1, 128n)).to.equal(3);
+      await expect(this.bitmap.$get_BitMaps_PairMap(1, 127n)).to.eventually.equal(2);
+      await expect(this.bitmap.$get_BitMaps_PairMap(1, 128n)).to.eventually.equal(3);
     });
   });
 
@@ -191,10 +191,10 @@ describe('BitMaps', function () {
       await this.bitmap.$set_BitMaps_NibbleMap(2, 2n, 10);
       await this.bitmap.$set_BitMaps_NibbleMap(2, 3n, 15);
 
-      expect(await this.bitmap.$get_BitMaps_NibbleMap(2, 0n)).to.equal(0);
-      expect(await this.bitmap.$get_BitMaps_NibbleMap(2, 1n)).to.equal(5);
-      expect(await this.bitmap.$get_BitMaps_NibbleMap(2, 2n)).to.equal(10);
-      expect(await this.bitmap.$get_BitMaps_NibbleMap(2, 3n)).to.equal(15);
+      await expect(this.bitmap.$get_BitMaps_NibbleMap(2, 0n)).to.eventually.equal(0);
+      await expect(this.bitmap.$get_BitMaps_NibbleMap(2, 1n)).to.eventually.equal(5);
+      await expect(this.bitmap.$get_BitMaps_NibbleMap(2, 2n)).to.eventually.equal(10);
+      await expect(this.bitmap.$get_BitMaps_NibbleMap(2, 3n)).to.eventually.equal(15);
     });
 
     it('truncates values larger than 15', async function () {
@@ -203,10 +203,10 @@ describe('BitMaps', function () {
       await this.bitmap.$set_BitMaps_NibbleMap(2, 2n, 30); // Should become 14
       await this.bitmap.$set_BitMaps_NibbleMap(2, 3n, 31); // Should become 15
 
-      expect(await this.bitmap.$get_BitMaps_NibbleMap(2, 0n)).to.equal(0);
-      expect(await this.bitmap.$get_BitMaps_NibbleMap(2, 1n)).to.equal(1);
-      expect(await this.bitmap.$get_BitMaps_NibbleMap(2, 2n)).to.equal(14);
-      expect(await this.bitmap.$get_BitMaps_NibbleMap(2, 3n)).to.equal(15);
+      await expect(this.bitmap.$get_BitMaps_NibbleMap(2, 0n)).to.eventually.equal(0);
+      await expect(this.bitmap.$get_BitMaps_NibbleMap(2, 1n)).to.eventually.equal(1);
+      await expect(this.bitmap.$get_BitMaps_NibbleMap(2, 2n)).to.eventually.equal(14);
+      await expect(this.bitmap.$get_BitMaps_NibbleMap(2, 3n)).to.eventually.equal(15);
     });
   });
 
@@ -216,9 +216,9 @@ describe('BitMaps', function () {
       await this.bitmap.$set_BitMaps_Uint8Map(3, 1n, ethers.Typed.uint8(42));
       await this.bitmap.$set_BitMaps_Uint8Map(3, 2n, ethers.Typed.uint8(255));
 
-      expect(await this.bitmap.$get_BitMaps_Uint8Map(3, 0n)).to.equal(0);
-      expect(await this.bitmap.$get_BitMaps_Uint8Map(3, 1n)).to.equal(42);
-      expect(await this.bitmap.$get_BitMaps_Uint8Map(3, 2n)).to.equal(255);
+      await expect(this.bitmap.$get_BitMaps_Uint8Map(3, 0n)).to.eventually.equal(0);
+      await expect(this.bitmap.$get_BitMaps_Uint8Map(3, 1n)).to.eventually.equal(42);
+      await expect(this.bitmap.$get_BitMaps_Uint8Map(3, 2n)).to.eventually.equal(255);
     });
 
     it('handles bucket boundaries', async function () {
@@ -226,8 +226,8 @@ describe('BitMaps', function () {
       await this.bitmap.$set_BitMaps_Uint8Map(3, 31n, ethers.Typed.uint8(100));
       await this.bitmap.$set_BitMaps_Uint8Map(3, 32n, ethers.Typed.uint8(200));
 
-      expect(await this.bitmap.$get_BitMaps_Uint8Map(3, 31n)).to.equal(100);
-      expect(await this.bitmap.$get_BitMaps_Uint8Map(3, 32n)).to.equal(200);
+      await expect(this.bitmap.$get_BitMaps_Uint8Map(3, 31n)).to.eventually.equal(100);
+      await expect(this.bitmap.$get_BitMaps_Uint8Map(3, 32n)).to.eventually.equal(200);
     });
   });
 
@@ -237,9 +237,9 @@ describe('BitMaps', function () {
       await this.bitmap.$set(4, 1n, ethers.Typed.uint16(1000));
       await this.bitmap.$set(4, 2n, ethers.Typed.uint16(65535));
 
-      expect(await this.bitmap.$get_BitMaps_Uint16Map(4, 0n)).to.equal(0);
-      expect(await this.bitmap.$get_BitMaps_Uint16Map(4, 1n)).to.equal(1000);
-      expect(await this.bitmap.$get_BitMaps_Uint16Map(4, 2n)).to.equal(65535);
+      await expect(this.bitmap.$get_BitMaps_Uint16Map(4, 0n)).to.eventually.equal(0);
+      await expect(this.bitmap.$get_BitMaps_Uint16Map(4, 1n)).to.eventually.equal(1000);
+      await expect(this.bitmap.$get_BitMaps_Uint16Map(4, 2n)).to.eventually.equal(65535);
     });
 
     it('handles bucket boundaries', async function () {
@@ -247,8 +247,8 @@ describe('BitMaps', function () {
       await this.bitmap.$set(4, 15n, ethers.Typed.uint16(100));
       await this.bitmap.$set(4, 16n, ethers.Typed.uint16(200));
 
-      expect(await this.bitmap.$get_BitMaps_Uint16Map(4, 15n)).to.equal(100);
-      expect(await this.bitmap.$get_BitMaps_Uint16Map(4, 16n)).to.equal(200);
+      await expect(this.bitmap.$get_BitMaps_Uint16Map(4, 15n)).to.eventually.equal(100);
+      await expect(this.bitmap.$get_BitMaps_Uint16Map(4, 16n)).to.eventually.equal(200);
     });
   });
 
@@ -258,9 +258,9 @@ describe('BitMaps', function () {
       await this.bitmap.$set(5, 1n, ethers.Typed.uint32(1000000));
       await this.bitmap.$set(5, 2n, ethers.Typed.uint32(4294967295)); // 2^32 - 1
 
-      expect(await this.bitmap.$get_BitMaps_Uint32Map(5, 0n)).to.equal(0);
-      expect(await this.bitmap.$get_BitMaps_Uint32Map(5, 1n)).to.equal(1000000);
-      expect(await this.bitmap.$get_BitMaps_Uint32Map(5, 2n)).to.equal(4294967295);
+      await expect(this.bitmap.$get_BitMaps_Uint32Map(5, 0n)).to.eventually.equal(0);
+      await expect(this.bitmap.$get_BitMaps_Uint32Map(5, 1n)).to.eventually.equal(1000000);
+      await expect(this.bitmap.$get_BitMaps_Uint32Map(5, 2n)).to.eventually.equal(4294967295);
     });
 
     it('handles bucket boundaries', async function () {
@@ -268,8 +268,8 @@ describe('BitMaps', function () {
       await this.bitmap.$set(5, 31n, ethers.Typed.uint32(100));
       await this.bitmap.$set(5, 32n, ethers.Typed.uint32(200));
 
-      expect(await this.bitmap.$get_BitMaps_Uint32Map(5, 31n)).to.equal(100);
-      expect(await this.bitmap.$get_BitMaps_Uint32Map(5, 32n)).to.equal(200);
+      await expect(this.bitmap.$get_BitMaps_Uint32Map(5, 31n)).to.eventually.equal(100);
+      await expect(this.bitmap.$get_BitMaps_Uint32Map(5, 32n)).to.eventually.equal(200);
     });
   });
 
@@ -281,9 +281,9 @@ describe('BitMaps', function () {
       await this.bitmap.$set(6, 1n, ethers.Typed.uint64(1000000000));
       await this.bitmap.$set(6, 2n, ethers.Typed.uint64(maxUint64));
 
-      expect(await this.bitmap.$get_BitMaps_Uint64Map(6, 0n)).to.equal(0);
-      expect(await this.bitmap.$get_BitMaps_Uint64Map(6, 1n)).to.equal(1000000000);
-      expect(await this.bitmap.$get_BitMaps_Uint64Map(6, 2n)).to.equal(maxUint64);
+      await expect(this.bitmap.$get_BitMaps_Uint64Map(6, 0n)).to.eventually.equal(0);
+      await expect(this.bitmap.$get_BitMaps_Uint64Map(6, 1n)).to.eventually.equal(1000000000);
+      await expect(this.bitmap.$get_BitMaps_Uint64Map(6, 2n)).to.eventually.equal(maxUint64);
     });
   });
 
@@ -296,9 +296,9 @@ describe('BitMaps', function () {
       await this.bitmap.$set(7, 1n, ethers.Typed.uint128(largeValue));
       await this.bitmap.$set(7, 2n, ethers.Typed.uint128(maxUint128));
 
-      expect(await this.bitmap.$get_BitMaps_Uint128Map(7, 0n)).to.equal(0);
-      expect(await this.bitmap.$get_BitMaps_Uint128Map(7, 1n)).to.equal(largeValue);
-      expect(await this.bitmap.$get_BitMaps_Uint128Map(7, 2n)).to.equal(maxUint128);
+      await expect(this.bitmap.$get_BitMaps_Uint128Map(7, 0n)).to.eventually.equal(0);
+      await expect(this.bitmap.$get_BitMaps_Uint128Map(7, 1n)).to.eventually.equal(largeValue);
+      await expect(this.bitmap.$get_BitMaps_Uint128Map(7, 2n)).to.eventually.equal(maxUint128);
     });
 
     it('handles bucket boundaries', async function () {
@@ -306,8 +306,8 @@ describe('BitMaps', function () {
       await this.bitmap.$set(7, 31n, ethers.Typed.uint128(100));
       await this.bitmap.$set(7, 32n, ethers.Typed.uint128(200));
 
-      expect(await this.bitmap.$get_BitMaps_Uint128Map(7, 31n)).to.equal(100);
-      expect(await this.bitmap.$get_BitMaps_Uint128Map(7, 32n)).to.equal(200);
+      await expect(this.bitmap.$get_BitMaps_Uint128Map(7, 31n)).to.eventually.equal(100);
+      await expect(this.bitmap.$get_BitMaps_Uint128Map(7, 32n)).to.eventually.equal(200);
     });
   });
 });
