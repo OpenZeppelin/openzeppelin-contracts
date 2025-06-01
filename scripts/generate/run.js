@@ -52,6 +52,7 @@ for (const [file, template] of Object.entries({
 // Tests
 for (const [file, template] of Object.entries({
   'utils/structs/Checkpoints.t.sol': './templates/Checkpoints.t.js',
+  'utils/structs/BitMaps.t.sol': './templates/BitMaps.t.js',
   'utils/Packing.t.sol': './templates/Packing.t.js',
   'utils/SlotDerivation.t.sol': './templates/SlotDerivation.t.js',
 })) {

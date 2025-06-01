@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: MIT
+// This file was procedurally generated from scripts/generate/templates/BitMaps.t.js.
+
 pragma solidity ^0.8.20;
 
 import {Test} from "forge-std/Test.sol";
@@ -7,17 +9,9 @@ import {BitMaps} from "../../../contracts/utils/structs/BitMaps.sol";
 contract BitMapsTest is Test {
     using BitMaps for *;
 
-    // Test state for different map types
-    BitMaps.BitMap[2] private _bitmaps;
-    BitMaps.PairMap[2] private _pairMaps;
-    BitMaps.NibbleMap[2] private _nibbleMaps;
-    BitMaps.Uint8Map[2] private _uint8Maps;
-    BitMaps.Uint16Map[2] private _uint16Maps;
-    BitMaps.Uint32Map[2] private _uint32Maps;
-    BitMaps.Uint64Map[2] private _uint64Maps;
-    BitMaps.Uint128Map[2] private _uint128Maps;
-
     // ========== BitMap Tests ==========
+
+    BitMaps.BitMap[2] private _bitmaps;
 
     function testBitMapSetAndGet(uint256 value) public {
         assertFalse(_bitmaps[0].get(value)); // initial state
@@ -45,6 +39,8 @@ contract BitMapsTest is Test {
     }
 
     // ========== PairMap Tests ==========
+
+    BitMaps.PairMap[2] private _pairMaps;
 
     function testPairMapSetAndGet(uint256 index, uint8 value) public {
         vm.assume(value <= 3); // PairMap only supports 2-bit values (0-3)
@@ -75,6 +71,8 @@ contract BitMapsTest is Test {
 
     // ========== NibbleMap Tests ==========
 
+    BitMaps.NibbleMap[2] private _nibbleMaps;
+
     function testNibbleMapSetAndGet(uint256 index, uint8 value) public {
         vm.assume(value <= 15); // NibbleMap only supports 4-bit values (0-15)
         assertEq(_nibbleMaps[0].get(index), 0); // initial state
@@ -103,6 +101,8 @@ contract BitMapsTest is Test {
     }
 
     // ========== Uint8Map Tests ==========
+
+    BitMaps.Uint8Map[2] private _uint8Maps;
 
     function testUint8MapSetAndGet(uint256 index, uint8 value) public {
         assertEq(_uint8Maps[0].get(index), 0); // initial state
@@ -134,6 +134,8 @@ contract BitMapsTest is Test {
 
     // ========== Uint16Map Tests ==========
 
+    BitMaps.Uint16Map[2] private _uint16Maps;
+
     function testUint16MapSetAndGet(uint256 index, uint16 value) public {
         assertEq(_uint16Maps[0].get(index), 0); // initial state
         _uint16Maps[0].set(index, value);
@@ -163,6 +165,8 @@ contract BitMapsTest is Test {
     }
 
     // ========== Uint32Map Tests ==========
+
+    BitMaps.Uint32Map[2] private _uint32Maps;
 
     function testUint32MapSetAndGet(uint256 index, uint32 value) public {
         assertEq(_uint32Maps[0].get(index), 0); // initial state
@@ -194,6 +198,8 @@ contract BitMapsTest is Test {
 
     // ========== Uint64Map Tests ==========
 
+    BitMaps.Uint64Map[2] private _uint64Maps;
+
     function testUint64MapSetAndGet(uint256 index, uint64 value) public {
         assertEq(_uint64Maps[0].get(index), 0); // initial state
         _uint64Maps[0].set(index, value);
@@ -223,6 +229,8 @@ contract BitMapsTest is Test {
     }
 
     // ========== Uint128Map Tests ==========
+
+    BitMaps.Uint128Map[2] private _uint128Maps;
 
     function testUint128MapSetAndGet(uint256 index, uint128 value) public {
         assertEq(_uint128Maps[0].get(index), 0); // initial state
