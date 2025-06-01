@@ -4,8 +4,6 @@
 
 pragma solidity ^0.8.20;
 
-import {Panic} from "../Panic.sol";
-
 /**
  * @dev Library for managing bytes-based mappings in a compact and efficient way, provided the keys are sequential.
  * Largely inspired by Uniswap's https://github.com/Uniswap/merkle-distributor/blob/master/contracts/MerkleDistributor.sol[merkle-distributor].
