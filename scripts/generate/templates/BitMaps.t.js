@@ -6,7 +6,7 @@ const header = `\
 pragma solidity ^0.8.20;
 
 import {Test} from "forge-std/Test.sol";
-import {BitMaps} from "../../../contracts/utils/structs/BitMaps.sol";
+import {BitMaps} from "@openzeppelin/contracts/utils/structs/BitMaps.sol";
 
 contract BitMapsTest is Test {
     using BitMaps for *;
