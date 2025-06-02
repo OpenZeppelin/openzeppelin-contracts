@@ -3,7 +3,6 @@
 pragma solidity ^0.8.20;
 
 import {AccessManager} from "../access/manager/AccessManager.sol";
-import {StorageSlot} from "../utils/StorageSlot.sol";
 
 contract AccessManagerMock is AccessManager {
     event CalledRestricted(address caller);

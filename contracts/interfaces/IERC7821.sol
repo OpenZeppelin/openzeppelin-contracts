@@ -27,6 +27,9 @@ interface IERC7821 {
      *
      * `opData` may be used to store additional data for authentication,
      * paymaster data, gas limits, etc.
+     *
+     * For calldata compression efficiency, if a Call.to is `address(0)`,
+     * it will be replaced with `address(this)`.
      */
     function execute(bytes32 mode, bytes calldata executionData) external payable;
 
