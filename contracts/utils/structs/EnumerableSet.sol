@@ -502,11 +502,7 @@ library EnumerableSet {
         for (uint256 i = 0; i < len; ++i) {
             delete set._positions[set._values[i]];
         }
-        // Replace when these are available in Arrays.sol
-        string[] storage array = set._values;
-        assembly ("memory-safe") {
-            sstore(array.slot, 0)
-        }
+        Arrays.unsafeSetLength(set._values, 0);
     }
 
     /**
@@ -626,11 +622,7 @@ library EnumerableSet {
         for (uint256 i = 0; i < len; ++i) {
             delete set._positions[set._values[i]];
         }
-        // Replace when these are available in Arrays.sol
-        bytes[] storage array = set._values;
-        assembly ("memory-safe") {
-            sstore(array.slot, 0)
-        }
+        Arrays.unsafeSetLength(set._values, 0);
     }
 
     /**

@@ -345,11 +345,7 @@ function clear(${name} storage set) internal {
     for (uint256 i = 0; i < len; ++i) {
         delete set._positions[set._values[i]];
     }
-    // Replace when these are available in Arrays.sol
-    ${value.type}[] storage array = set._values;
-    assembly ("memory-safe") {
-        sstore(array.slot, 0)
-    }
+    Arrays.unsafeSetLength(set._values, 0);
 }
 
 /**
