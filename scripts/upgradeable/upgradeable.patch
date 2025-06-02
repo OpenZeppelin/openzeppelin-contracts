@@ -334,6 +334,36 @@ index 304d1386a..a1cd63bee 100644
 -@openzeppelin/contracts/=contracts/
 +@openzeppelin/contracts-upgradeable/=contracts/
 +@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
+diff --git a/test/account/AccountERC7702.test.js b/test/account/AccountERC7702.test.js
+index d08a52209..7a44bccfe 100644
+--- a/test/account/AccountERC7702.test.js
++++ b/test/account/AccountERC7702.test.js
+@@ -26,8 +26,8 @@ async function fixture() {
+ 
+   // domain cannot be fetched using getDomain(mock) before the mock is deployed
+   const domain = {
+-    name: 'AccountERC7702Mock',
+-    version: '1',
++    name: '', // Not initialized in the context of signer
++    version: '', // Not initialized in the context of signer
+     chainId: entrypointDomain.chainId,
+     verifyingContract: mock.address,
+   };
+diff --git a/test/account/examples/AccountERC7702WithModulesMock.test.js b/test/account/examples/AccountERC7702WithModulesMock.test.js
+index 9ee5f9177..f6106bcc7 100644
+--- a/test/account/examples/AccountERC7702WithModulesMock.test.js
++++ b/test/account/examples/AccountERC7702WithModulesMock.test.js
+@@ -36,8 +36,8 @@ async function fixture() {
+ 
+   // domain cannot be fetched using getDomain(mock) before the mock is deployed
+   const domain = {
+-    name: 'AccountERC7702WithModulesMock',
+-    version: '1',
++    name: '', // Not initialized in the context of signer
++    version: '', // Not initialized in the context of signer
+     chainId: entrypointDomain.chainId,
+     verifyingContract: mock.address,
+   };
 diff --git a/test/utils/cryptography/EIP712.test.js b/test/utils/cryptography/EIP712.test.js
 index 2b6e7fa97..268e0d29d 100644
 --- a/test/utils/cryptography/EIP712.test.js
