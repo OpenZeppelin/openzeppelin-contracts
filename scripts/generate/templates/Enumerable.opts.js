@@ -26,7 +26,6 @@ const SET_TYPES = [
   { type: 'bytes32' },
   { type: 'address' },
   { type: 'uint256' },
-  { type: 'bytes32', size: 2 },
   { type: 'string', memory: true },
   { type: 'bytes', memory: true },
 ]
