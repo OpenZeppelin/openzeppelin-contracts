@@ -40,74 +40,80 @@ contract BitMapsTest is Test {
 
     // ========== PairMap Tests ==========
 
-    BitMaps.PairMap[2] private _pairMaps;
+    BitMaps.PairMap[2] private _pairmaps;
 
     function testSymbolicPairMapSetAndGet(uint256 index, uint8 value) public {
-        vm.assume(value <= 3); // PairMap only supports 2-bit values (0-3)
-        assertEq(_pairMaps[0].get(index), 0); // initial state
-        _pairMaps[0].set(index, value);
-        assertEq(_pairMaps[0].get(index), value); // after set
+        value = uint8(bound(value, 0, 0x03)); // PairMap only supports 2-bit values (0-0x03)
+
+        assertEq(_pairmaps[0].get(index), 0); // initial state
+        _pairmaps[0].set(index, value);
+        assertEq(_pairmaps[0].get(index), value); // after set
     }
 
     function testSymbolicPairMapTruncation(uint256 index, uint8 value) public {
-        vm.assume(value > 3); // Test values that need truncation
-        _pairMaps[0].set(index, value);
-        assertEq(_pairMaps[0].get(index), value & 3); // Should be truncated to 2 bits
+        value = uint8(bound(value, 4, type(uint8).max)); // Test values that need truncation
+
+        _pairmaps[0].set(index, value);
+        assertEq(_pairmaps[0].get(index), value & 0x03); // Should be truncated to 2 bits
     }
 
     function testSymbolicPairMapIsolation(uint256 index1, uint256 index2, uint8 value1, uint8 value2) public {
         vm.assume(index1 != index2);
-        vm.assume(value1 <= 3);
-        vm.assume(value2 <= 3);
+        value1 = uint8(bound(value1, 0, 0x03));
+        value2 = uint8(bound(value2, 0, 0x03));
 
-        _pairMaps[0].set(index1, value1);
-        _pairMaps[1].set(index2, value2);
+        _pairmaps[0].set(index1, value1);
+        _pairmaps[1].set(index2, value2);
 
-        assertEq(_pairMaps[0].get(index1), value1);
-        assertEq(_pairMaps[1].get(index2), value2);
-        assertEq(_pairMaps[0].get(index2), 0);
-        assertEq(_pairMaps[1].get(index1), 0);
+        assertEq(_pairmaps[0].get(index1), value1);
+        assertEq(_pairmaps[1].get(index2), value2);
+        assertEq(_pairmaps[0].get(index2), 0);
+        assertEq(_pairmaps[1].get(index1), 0);
     }
 
     // ========== NibbleMap Tests ==========
 
-    BitMaps.NibbleMap[2] private _nibbleMaps;
+    BitMaps.NibbleMap[2] private _nibblemaps;
 
     function testSymbolicNibbleMapSetAndGet(uint256 index, uint8 value) public {
-        vm.assume(value <= 15); // NibbleMap only supports 4-bit values (0-15)
-        assertEq(_nibbleMaps[0].get(index), 0); // initial state
-        _nibbleMaps[0].set(index, value);
-        assertEq(_nibbleMaps[0].get(index), value); // after set
+        value = uint8(bound(value, 0, 0x0f)); // NibbleMap only supports 4-bit values (0-0x0f)
+
+        assertEq(_nibblemaps[0].get(index), 0); // initial state
+        _nibblemaps[0].set(index, value);
+        assertEq(_nibblemaps[0].get(index), value); // after set
     }
 
     function testSymbolicNibbleMapTruncation(uint256 index, uint8 value) public {
-        vm.assume(value > 15); // Test values that need truncation
-        _nibbleMaps[0].set(index, value);
-        assertEq(_nibbleMaps[0].get(index), value & 15); // Should be truncated to 4 bits
+        value = uint8(bound(value, 16, type(uint8).max)); // Test values that need truncation
+
+        _nibblemaps[0].set(index, value);
+        assertEq(_nibblemaps[0].get(index), value & 0x0f); // Should be truncated to 4 bits
     }
 
     function testSymbolicNibbleMapIsolation(uint256 index1, uint256 index2, uint8 value1, uint8 value2) public {
         vm.assume(index1 != index2);
-        vm.assume(value1 <= 15);
-        vm.assume(value2 <= 15);
+        value1 = uint8(bound(value1, 0, 0x0f));
+        value2 = uint8(bound(value2, 0, 0x0f));
 
-        _nibbleMaps[0].set(index1, value1);
-        _nibbleMaps[1].set(index2, value2);
+        _nibblemaps[0].set(index1, value1);
+        _nibblemaps[1].set(index2, value2);
 
-        assertEq(_nibbleMaps[0].get(index1), value1);
-        assertEq(_nibbleMaps[1].get(index2), value2);
-        assertEq(_nibbleMaps[0].get(index2), 0);
-        assertEq(_nibbleMaps[1].get(index1), 0);
+        assertEq(_nibblemaps[0].get(index1), value1);
+        assertEq(_nibblemaps[1].get(index2), value2);
+        assertEq(_nibblemaps[0].get(index2), 0);
+        assertEq(_nibblemaps[1].get(index1), 0);
     }
 
     // ========== Uint8Map Tests ==========
 
-    BitMaps.Uint8Map[2] private _uint8Maps;
+    BitMaps.Uint8Map[2] private _uint8maps;
 
     function testSymbolicUint8MapSetAndGet(uint256 index, uint8 value) public {
-        assertEq(_uint8Maps[0].get(index), 0); // initial state
-        _uint8Maps[0].set(index, value);
-        assertEq(_uint8Maps[0].get(index), value); // after set
+        value = uint8(bound(value, 0, 0xff)); // Uint8Map only supports 8-bit values (0-0xff)
+
+        assertEq(_uint8maps[0].get(index), 0); // initial state
+        _uint8maps[0].set(index, value);
+        assertEq(_uint8maps[0].get(index), value); // after set
     }
 
     function testSymbolicUint8MapAssemblyCorruption(uint256 index, uint8 value) public {
@@ -116,30 +122,35 @@ contract BitMapsTest is Test {
         assembly {
             corruptedValue := corrupted
         }
-        _uint8Maps[0].set(index, corruptedValue);
-        assertEq(_uint8Maps[0].get(index), uint8(corrupted)); // Should match truncated value
+
+        _uint8maps[0].set(index, corruptedValue);
+        assertEq(_uint8maps[0].get(index), uint8(corrupted)); // Should match truncated value
     }
 
     function testSymbolicUint8MapIsolation(uint256 index1, uint256 index2, uint8 value1, uint8 value2) public {
         vm.assume(index1 != index2);
+        value1 = uint8(bound(value1, 0, 0xff));
+        value2 = uint8(bound(value2, 0, 0xff));
 
-        _uint8Maps[0].set(index1, value1);
-        _uint8Maps[1].set(index2, value2);
+        _uint8maps[0].set(index1, value1);
+        _uint8maps[1].set(index2, value2);
 
-        assertEq(_uint8Maps[0].get(index1), value1);
-        assertEq(_uint8Maps[1].get(index2), value2);
-        assertEq(_uint8Maps[0].get(index2), 0);
-        assertEq(_uint8Maps[1].get(index1), 0);
+        assertEq(_uint8maps[0].get(index1), value1);
+        assertEq(_uint8maps[1].get(index2), value2);
+        assertEq(_uint8maps[0].get(index2), 0);
+        assertEq(_uint8maps[1].get(index1), 0);
     }
 
     // ========== Uint16Map Tests ==========
 
-    BitMaps.Uint16Map[2] private _uint16Maps;
+    BitMaps.Uint16Map[2] private _uint16maps;
 
     function testSymbolicUint16MapSetAndGet(uint256 index, uint16 value) public {
-        assertEq(_uint16Maps[0].get(index), 0); // initial state
-        _uint16Maps[0].set(index, value);
-        assertEq(_uint16Maps[0].get(index), value); // after set
+        value = uint16(bound(value, 0, 0xffff)); // Uint16Map only supports 16-bit values (0-0xffff)
+
+        assertEq(_uint16maps[0].get(index), 0); // initial state
+        _uint16maps[0].set(index, value);
+        assertEq(_uint16maps[0].get(index), value); // after set
     }
 
     function testSymbolicUint16MapAssemblyCorruption(uint256 index, uint16 value) public {
@@ -148,30 +159,35 @@ contract BitMapsTest is Test {
         assembly {
             corruptedValue := corrupted
         }
-        _uint16Maps[0].set(index, corruptedValue);
-        assertEq(_uint16Maps[0].get(index), uint16(corrupted)); // Should match truncated value
+
+        _uint16maps[0].set(index, corruptedValue);
+        assertEq(_uint16maps[0].get(index), uint16(corrupted)); // Should match truncated value
     }
 
     function testSymbolicUint16MapIsolation(uint256 index1, uint256 index2, uint16 value1, uint16 value2) public {
         vm.assume(index1 != index2);
+        value1 = uint16(bound(value1, 0, 0xffff));
+        value2 = uint16(bound(value2, 0, 0xffff));
 
-        _uint16Maps[0].set(index1, value1);
-        _uint16Maps[1].set(index2, value2);
+        _uint16maps[0].set(index1, value1);
+        _uint16maps[1].set(index2, value2);
 
-        assertEq(_uint16Maps[0].get(index1), value1);
-        assertEq(_uint16Maps[1].get(index2), value2);
-        assertEq(_uint16Maps[0].get(index2), 0);
-        assertEq(_uint16Maps[1].get(index1), 0);
+        assertEq(_uint16maps[0].get(index1), value1);
+        assertEq(_uint16maps[1].get(index2), value2);
+        assertEq(_uint16maps[0].get(index2), 0);
+        assertEq(_uint16maps[1].get(index1), 0);
     }
 
     // ========== Uint32Map Tests ==========
 
-    BitMaps.Uint32Map[2] private _uint32Maps;
+    BitMaps.Uint32Map[2] private _uint32maps;
 
     function testSymbolicUint32MapSetAndGet(uint256 index, uint32 value) public {
-        assertEq(_uint32Maps[0].get(index), 0); // initial state
-        _uint32Maps[0].set(index, value);
-        assertEq(_uint32Maps[0].get(index), value); // after set
+        value = uint32(bound(value, 0, 0xffffffff)); // Uint32Map only supports 32-bit values (0-0xffffffff)
+
+        assertEq(_uint32maps[0].get(index), 0); // initial state
+        _uint32maps[0].set(index, value);
+        assertEq(_uint32maps[0].get(index), value); // after set
     }
 
     function testSymbolicUint32MapAssemblyCorruption(uint256 index, uint32 value) public {
@@ -180,30 +196,35 @@ contract BitMapsTest is Test {
         assembly {
             corruptedValue := corrupted
         }
-        _uint32Maps[0].set(index, corruptedValue);
-        assertEq(_uint32Maps[0].get(index), uint32(corrupted)); // Should match truncated value
+
+        _uint32maps[0].set(index, corruptedValue);
+        assertEq(_uint32maps[0].get(index), uint32(corrupted)); // Should match truncated value
     }
 
     function testSymbolicUint32MapIsolation(uint256 index1, uint256 index2, uint32 value1, uint32 value2) public {
         vm.assume(index1 != index2);
+        value1 = uint32(bound(value1, 0, 0xffffffff));
+        value2 = uint32(bound(value2, 0, 0xffffffff));
 
-        _uint32Maps[0].set(index1, value1);
-        _uint32Maps[1].set(index2, value2);
+        _uint32maps[0].set(index1, value1);
+        _uint32maps[1].set(index2, value2);
 
-        assertEq(_uint32Maps[0].get(index1), value1);
-        assertEq(_uint32Maps[1].get(index2), value2);
-        assertEq(_uint32Maps[0].get(index2), 0);
-        assertEq(_uint32Maps[1].get(index1), 0);
+        assertEq(_uint32maps[0].get(index1), value1);
+        assertEq(_uint32maps[1].get(index2), value2);
+        assertEq(_uint32maps[0].get(index2), 0);
+        assertEq(_uint32maps[1].get(index1), 0);
     }
 
     // ========== Uint64Map Tests ==========
 
-    BitMaps.Uint64Map[2] private _uint64Maps;
+    BitMaps.Uint64Map[2] private _uint64maps;
 
     function testSymbolicUint64MapSetAndGet(uint256 index, uint64 value) public {
-        assertEq(_uint64Maps[0].get(index), 0); // initial state
-        _uint64Maps[0].set(index, value);
-        assertEq(_uint64Maps[0].get(index), value); // after set
+        value = uint64(bound(value, 0, 0xffffffffffffffff)); // Uint64Map only supports 64-bit values (0-0xffffffffffffffff)
+
+        assertEq(_uint64maps[0].get(index), 0); // initial state
+        _uint64maps[0].set(index, value);
+        assertEq(_uint64maps[0].get(index), value); // after set
     }
 
     function testSymbolicUint64MapAssemblyCorruption(uint256 index, uint64 value) public {
@@ -212,30 +233,35 @@ contract BitMapsTest is Test {
         assembly {
             corruptedValue := corrupted
         }
-        _uint64Maps[0].set(index, corruptedValue);
-        assertEq(_uint64Maps[0].get(index), uint64(corrupted)); // Should match truncated value
+
+        _uint64maps[0].set(index, corruptedValue);
+        assertEq(_uint64maps[0].get(index), uint64(corrupted)); // Should match truncated value
     }
 
     function testSymbolicUint64MapIsolation(uint256 index1, uint256 index2, uint64 value1, uint64 value2) public {
         vm.assume(index1 != index2);
+        value1 = uint64(bound(value1, 0, 0xffffffffffffffff));
+        value2 = uint64(bound(value2, 0, 0xffffffffffffffff));
 
-        _uint64Maps[0].set(index1, value1);
-        _uint64Maps[1].set(index2, value2);
+        _uint64maps[0].set(index1, value1);
+        _uint64maps[1].set(index2, value2);
 
-        assertEq(_uint64Maps[0].get(index1), value1);
-        assertEq(_uint64Maps[1].get(index2), value2);
-        assertEq(_uint64Maps[0].get(index2), 0);
-        assertEq(_uint64Maps[1].get(index1), 0);
+        assertEq(_uint64maps[0].get(index1), value1);
+        assertEq(_uint64maps[1].get(index2), value2);
+        assertEq(_uint64maps[0].get(index2), 0);
+        assertEq(_uint64maps[1].get(index1), 0);
     }
 
     // ========== Uint128Map Tests ==========
 
-    BitMaps.Uint128Map[2] private _uint128Maps;
+    BitMaps.Uint128Map[2] private _uint128maps;
 
     function testSymbolicUint128MapSetAndGet(uint256 index, uint128 value) public {
-        assertEq(_uint128Maps[0].get(index), 0); // initial state
-        _uint128Maps[0].set(index, value);
-        assertEq(_uint128Maps[0].get(index), value); // after set
+        value = uint128(bound(value, 0, 0xffffffffffffffffffffffffffffffff)); // Uint128Map only supports 128-bit values (0-0xffffffffffffffffffffffffffffffff)
+
+        assertEq(_uint128maps[0].get(index), 0); // initial state
+        _uint128maps[0].set(index, value);
+        assertEq(_uint128maps[0].get(index), value); // after set
     }
 
     function testSymbolicUint128MapAssemblyCorruption(uint256 index, uint128 value) public {
@@ -244,20 +270,23 @@ contract BitMapsTest is Test {
         assembly {
             corruptedValue := corrupted
         }
-        _uint128Maps[0].set(index, corruptedValue);
-        assertEq(_uint128Maps[0].get(index), uint128(corrupted)); // Should match truncated value
+
+        _uint128maps[0].set(index, corruptedValue);
+        assertEq(_uint128maps[0].get(index), uint128(corrupted)); // Should match truncated value
     }
 
     function testSymbolicUint128MapIsolation(uint256 index1, uint256 index2, uint128 value1, uint128 value2) public {
         vm.assume(index1 != index2);
+        value1 = uint128(bound(value1, 0, 0xffffffffffffffffffffffffffffffff));
+        value2 = uint128(bound(value2, 0, 0xffffffffffffffffffffffffffffffff));
 
-        _uint128Maps[0].set(index1, value1);
-        _uint128Maps[1].set(index2, value2);
+        _uint128maps[0].set(index1, value1);
+        _uint128maps[1].set(index2, value2);
 
-        assertEq(_uint128Maps[0].get(index1), value1);
-        assertEq(_uint128Maps[1].get(index2), value2);
-        assertEq(_uint128Maps[0].get(index2), 0);
-        assertEq(_uint128Maps[1].get(index1), 0);
+        assertEq(_uint128maps[0].get(index1), value1);
+        assertEq(_uint128maps[1].get(index2), value2);
+        assertEq(_uint128maps[0].get(index2), 0);
+        assertEq(_uint128maps[1].get(index1), 0);
     }
 
     function _corruptValue(uint256 value) private pure returns (uint256 corrupted) {

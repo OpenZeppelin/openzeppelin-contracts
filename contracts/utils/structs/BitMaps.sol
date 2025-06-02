@@ -72,23 +72,24 @@ library BitMaps {
     }
 
     /**
-     * @dev Returns the 2-bit value at `index` in `pairMap`.
+     * @dev Returns the 2-bit value at `index` in `map`.
      */
-    function get(PairMap storage pairMap, uint256 index) internal view returns (uint8) {
+    function get(PairMap storage map, uint256 index) internal view returns (uint8) {
         uint256 bucket = index >> 7; // 128 values per bucket (256/2)
         uint256 shift = (index & 0x7f) << 1; // i.e. (index % 128) * 2 = position * 2
-        return uint8((pairMap._data[bucket] >> shift) & 0x03);
+        return uint8((map._data[bucket] >> shift) & 0x03);
     }
 
     /**
-     * @dev Sets the 2-bit value at `index` in `pairMap`.
-     * Values larger than 3 are truncated to 2 bits (e.g., 4 becomes 0).
+     * @dev Sets the 2-bit value at `index` in `map`.
+     *
+     * NOTE: Assumes `value` fits in 2 bits. Assembly-manipulated values may corrupt adjacent data.
      */
-    function set(PairMap storage pairMap, uint256 index, uint8 value) internal {
+    function set(PairMap storage map, uint256 index, uint8 value) internal {
         uint256 bucket = index >> 7; // 128 values per bucket (256/2)
         uint256 shift = (index & 0x7f) << 1; // i.e. (index % 128) * 2 = position * 2
         uint256 mask = 0x03 << shift;
-        pairMap._data[bucket] = (pairMap._data[bucket] & ~mask) | (uint256(value) << shift); // set the 2 bits
+        map._data[bucket] = (map._data[bucket] & ~mask) | (uint256(value) << shift); // set the 2 bits
     }
 
     struct NibbleMap {
@@ -96,23 +97,24 @@ library BitMaps {
     }
 
     /**
-     * @dev Returns the 4-bit value at `index` in `nibbleMap`.
+     * @dev Returns the 4-bit value at `index` in `map`.
      */
-    function get(NibbleMap storage nibbleMap, uint256 index) internal view returns (uint8) {
+    function get(NibbleMap storage map, uint256 index) internal view returns (uint8) {
         uint256 bucket = index >> 6; // 64 values per bucket (256/4)
         uint256 shift = (index & 0x3f) << 2; // i.e. (index % 64) * 4 = position * 4
-        return uint8((nibbleMap._data[bucket] >> shift) & 0x0f);
+        return uint8((map._data[bucket] >> shift) & 0x0f);
     }
 
     /**
-     * @dev Sets the 4-bit value at `index` in `nibbleMap`.
-     * Values larger than 15 are truncated to 4 bits (e.g., 16 becomes 0).
+     * @dev Sets the 4-bit value at `index` in `map`.
+     *
+     * NOTE: Assumes `value` fits in 4 bits. Assembly-manipulated values may corrupt adjacent data.
      */
-    function set(NibbleMap storage nibbleMap, uint256 index, uint8 value) internal {
+    function set(NibbleMap storage map, uint256 index, uint8 value) internal {
         uint256 bucket = index >> 6; // 64 values per bucket (256/4)
         uint256 shift = (index & 0x3f) << 2; // i.e. (index % 64) * 4 = position * 4
         uint256 mask = 0x0f << shift;
-        nibbleMap._data[bucket] = (nibbleMap._data[bucket] & ~mask) | (uint256(value) << shift); // set the 4 bits
+        map._data[bucket] = (map._data[bucket] & ~mask) | (uint256(value) << shift); // set the 4 bits
     }
 
     struct Uint8Map {
