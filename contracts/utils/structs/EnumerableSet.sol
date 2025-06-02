@@ -673,8 +673,4 @@ library EnumerableSet {
     function values(BytesSet storage self) internal view returns (bytes[] memory) {
         return self._values;
     }
-
-    function _hash(bytes32[2] memory value) private pure returns (bytes32) {
-        return Hashes.efficientKeccak256(value[0], value[1]);
-    }
 }

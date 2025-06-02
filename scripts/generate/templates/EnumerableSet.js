@@ -394,12 +394,6 @@ function values(${name} storage self) internal view returns (${value.type}[] mem
 }
 `;
 
-const hashes = `\
-function _hash(bytes32[2] memory value) private pure returns (bytes32) {
-    return Hashes.efficientKeccak256(value[0], value[1]);
-}
-`;
-
 // GENERATE
 module.exports = format(
   header.trimEnd(),
@@ -409,7 +403,6 @@ module.exports = format(
       defaultSet,
       SET_TYPES.filter(({ value }) => !value.memory).map(customSet),
       SET_TYPES.filter(({ value }) => value.memory).map(memorySet),
-      hashes,
     ),
   ).trimEnd(),
   '}',
