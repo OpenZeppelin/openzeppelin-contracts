@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const cp = require('child_process');
+// const cp = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const format = require('./format-lines');
@@ -27,7 +27,7 @@ function generateFromTemplate(file, template, outputPrefix = '') {
   );
 
   fs.writeFileSync(output, content);
-  cp.execFileSync('prettier', ['--write', output]);
+  // cp.execFileSync('prettier', ['--write', output]);
 }
 
 // Contracts
@@ -44,8 +44,6 @@ for (const [file, template] of Object.entries({
   'utils/Packing.sol': './templates/Packing.js',
   'mocks/StorageSlotMock.sol': './templates/StorageSlotMock.js',
   'mocks/TransientSlotMock.sol': './templates/TransientSlotMock.js',
-  'utils/structs/EnumerableSetExtended.sol': './templates/EnumerableSetExtended.js',
-  'utils/structs/EnumerableMapExtended.sol': './templates/EnumerableMapExtended.js',
 })) {
   generateFromTemplate(file, template, './contracts/');
 }
