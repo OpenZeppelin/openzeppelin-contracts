@@ -263,8 +263,7 @@ function values(${name} storage set) internal view returns (${type}[] memory) {
 }
 `;
 
-// NOTE: this should be used for all value-type sets in v6.0
-const set = ({ name, value }) => `\
+const memorySet = ({ name, value }) => `\
 struct ${name} {
     // Storage of set values
     ${value.type}[] _values;
@@ -531,7 +530,7 @@ module.exports = format(
     [].concat(
       defaultSet,
       SET_TYPES.filter(({ value }) => !value.memory).map(customSet),
-      SET_TYPES.filter(({ value }) => value.memory && value.size == 0).map(set),
+      SET_TYPES.filter(({ value }) => value.memory && value.size == 0).map(memorySet),
       SET_TYPES.filter(({ value }) => value.memory && value.size > 0).map(arraySet),
       hashes,
     ),
