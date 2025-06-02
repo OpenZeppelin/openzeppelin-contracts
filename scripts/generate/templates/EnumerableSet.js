@@ -30,8 +30,14 @@ import {Hashes} from "../cryptography/Hashes.sol";
  * }
  * \`\`\`
  *
- * As of v3.3.0, sets of type \`bytes32\` (\`Bytes32Set\`), \`address\` (\`AddressSet\`)
- * and \`uint256\` (\`UintSet\`) are supported.
+ * The following types are supported:
+ *
+ * - \`bytes32\` (\`Bytes32Set\`) since v3.3.0
+ * - \`address\` (\`AddressSet\`) since v3.3.0
+ * - \`uint256\` (\`UintSet\`) since v3.3.0
+ * - \`string\` (\`StringSet\`) since v5.4.0
+ * - \`bytes\` (\`BytesSet\`) since v5.4.0
+ * - \`bytes32[2]\` (\`Bytes32x2Set\`) since v5.4.0
  *
  * [WARNING]
  * ====
