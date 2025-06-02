@@ -13,7 +13,7 @@ runs:
         path: '**/node_modules'
         key: npm-v3-${{ hashFiles('**/package-lock.json') }}
     - name: Install dependencies
-      run: npm ci --legacy-peer-deps
+      run: npm ci
       shell: bash
       if: steps.cache.outputs.cache-hit != 'true'
     - name: Install Foundry
