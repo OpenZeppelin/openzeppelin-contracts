@@ -176,7 +176,7 @@ function shouldBehaveLikeMap() {
           .withArgs(
             this.key?.memory || this.value?.memory
               ? this.keyB
-              : ethers.AbiCoder.defaultAbiCoder().encode([this.keyType], [this.keyB]),
+              : ethers.AbiCoder.defaultAbiCoder().encode([this.key.type], [this.keyB]),
           );
       });
     });
