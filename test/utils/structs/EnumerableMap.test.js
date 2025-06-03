@@ -34,6 +34,7 @@ async function fixture() {
                 length: `$length_EnumerableMap_${name}(uint256)`,
                 at: `$at_EnumerableMap_${name}(uint256,uint256)`,
                 keys: `$keys_EnumerableMap_${name}(uint256)`,
+                keysPage: `$keys_EnumerableMap_${name}(uint256,uint256,uint256)`,
               }
             : {
                 set: `$set(uint256,${key.type},${value.type})`,
@@ -45,6 +46,7 @@ async function fixture() {
                 length: `$length_EnumerableMap_${name}(uint256)`,
                 at: `$at_EnumerableMap_${name}(uint256,uint256)`,
                 keys: `$keys_EnumerableMap_${name}(uint256)`,
+                keysPage: `$keys_EnumerableMap_${name}(uint256,uint256,uint256)`,
               },
           fnSig =>
             (...args) =>

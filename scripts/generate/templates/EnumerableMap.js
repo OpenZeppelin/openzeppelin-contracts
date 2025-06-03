@@ -175,6 +175,18 @@ function get(Bytes32ToBytes32Map storage map, bytes32 key) internal view returns
 function keys(Bytes32ToBytes32Map storage map) internal view returns (bytes32[] memory) {
     return map._keys.values();
 }
+
+/**
+ * @dev Return the an array containing a slice of the keys
+ *
+ * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+ * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+ * this function has an unbounded cost, and using it as part of a state-changing function may render the function
+ * uncallable if the map grows to a point where copying to memory consumes too much gas to fit in a block.
+ */
+function keys(Bytes32ToBytes32Map storage map, uint256 start, uint256 end) internal view returns (bytes32[] memory) {
+    return map._keys.values(start, end);
+}
 `;
 
 const customMap = ({ name, key, value }) => `\
@@ -272,6 +284,25 @@ function get(${name} storage map, ${key.type} key) internal view returns (${valu
  */
 function keys(${name} storage map) internal view returns (${key.type}[] memory) {
     bytes32[] memory store = keys(map._inner);
+    ${key.type}[] memory result;
+
+    assembly ("memory-safe") {
+        result := store
+    }
+
+    return result;
+}
+
+/**
+ * @dev Return the an array containing a slice of the keys
+ *
+ * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+ * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+ * this function has an unbounded cost, and using it as part of a state-changing function may render the function
+ * uncallable if the map grows to a point where copying to memory consumes too much gas to fit in a block.
+ */
+function keys(${name} storage map, uint256 start, uint256 end) internal view returns (${key.type}[] memory) {
+    bytes32[] memory store = keys(map._inner, start, end);
     ${key.type}[] memory result;
 
     assembly ("memory-safe") {
@@ -399,6 +430,18 @@ function get(${name} storage map, ${key.typeLoc} key) internal view returns (${v
  */
 function keys(${name} storage map) internal view returns (${key.type}[] memory) {
     return map._keys.values();
+}
+
+/**
+ * @dev Return the an array containing a slice of the keys
+ *
+ * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+ * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+ * this function has an unbounded cost, and using it as part of a state-changing function may render the function
+ * uncallable if the map grows to a point where copying to memory consumes too much gas to fit in a block.
+ */
+function keys(${name} storage map, uint256 start, uint256 end) internal view returns (${key.type}[] memory) {
+    return map._keys.values(start, end);
 }
 `;
 
