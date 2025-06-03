@@ -1,7 +1,7 @@
 const fs = require('fs');
 const { getStorageUpgradeReport } = require('@openzeppelin/upgrades-core/dist/storage');
 
-const { ref, head } = require('yargs').argv;
+const { ref, head } = require('yargs/yargs')().argv;
 
 const oldLayout = JSON.parse(fs.readFileSync(ref));
 const newLayout = JSON.parse(fs.readFileSync(head));
