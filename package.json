@@ -75,7 +75,7 @@
     "hardhat-gas-reporter": "^2.1.0",
     "hardhat-ignore-warnings": "^0.2.11",
     "husky": "^9.1.7",
-    "lint-staged": "^15.2.10",
+    "lint-staged": "^16.0.0",
     "lodash.startcase": "^4.4.0",
     "micromatch": "^4.0.2",
     "p-limit": "^6.0.0",
