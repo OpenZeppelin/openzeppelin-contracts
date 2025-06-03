@@ -13,9 +13,12 @@ const {
   hexlify,
   sha256,
   toBeHex,
+  keccak256,
+  toBigInt,
 } = require('ethers');
 const { secp256r1 } = require('@noble/curves/p256');
 const { generateKeyPairSync, privateEncrypt } = require('crypto');
+const { AbiCoder } = require('ethers');
 
 // Lightweight version of BaseWallet
 class NonNativeSigner extends AbstractSigner {
@@ -144,4 +147,62 @@ class RSASHA256SigningKey extends RSASigningKey {
   }
 }
 
-module.exports = { NonNativeSigner, P256SigningKey, RSASigningKey, RSASHA256SigningKey };
+class MultiERC7913SigningKey {
+  #signers;
+  #weights;
+
+  constructor(signers, weights = null) {
+    assertArgument(
+      Array.isArray(signers) && signers.length > 0,
+      'signers must be a non-empty array',
+      'signers',
+      signers.length,
+    );
+
+    if (weights !== null) {
+      assertArgument(
+        Array.isArray(weights) && weights.length === signers.length,
+        'weights must be an array with the same length as signers',
+        'weights',
+        weights.length,
+      );
+    }
+
+    this.#signers = signers;
+    this.#weights = weights;
+  }
+
+  get signers() {
+    return this.#signers;
+  }
+
+  get weights() {
+    return this.#weights;
+  }
+
+  sign(digest /*: BytesLike*/ /*: Signature*/) {
+    assertArgument(dataLength(digest) === 32, 'invalid digest length', 'digest', digest);
+
+    const sortedSigners = this.#signers
+      .map(signer => {
+        const signerBytes = typeof signer.address === 'string' ? signer.address : signer.bytes;
+
+        const id = keccak256(signerBytes);
+        return {
+          id,
+          signer: signerBytes,
+          signature: signer.signingKey.sign(digest).serialized,
+        };
+      })
+      .sort((a, b) => (toBigInt(a.id) < toBigInt(b.id) ? -1 : 1));
+
+    return {
+      serialized: AbiCoder.defaultAbiCoder().encode(
+        ['bytes[]', 'bytes[]'],
+        [sortedSigners.map(p => p.signer), sortedSigners.map(p => p.signature)],
+      ),
+    };
+  }
+}
+
+module.exports = { NonNativeSigner, P256SigningKey, RSASigningKey, RSASHA256SigningKey, MultiERC7913SigningKey };
