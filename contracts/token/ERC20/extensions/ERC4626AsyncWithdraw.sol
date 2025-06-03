@@ -47,7 +47,7 @@ abstract contract ERC4626AsyncWithdraw is ERC4626 {
     /**
      * @dev Emitted when shares are queued for asynchronous withdrawal.
      */
-    event ERC4626AsyncWithdraw(address indexed owner, uint256 shares);
+    event WithdrawQueued(address indexed owner, uint256 shares);
 
     /**
      * @dev Returns the delay period for withdrawals. Shares queued at time T will be fully available
@@ -86,7 +86,7 @@ abstract contract ERC4626AsyncWithdraw is ERC4626 {
      * - The caller must have sufficient share balance
      * - The total queued shares cannot exceed the caller's share balance
      *
-     * Emits a {ERC4626AsyncWithdraw} event.
+     * Emits a {WithdrawQueued} event.
      */
     function queueRedeem(uint256 shares, address owner) public virtual {
         _queueShares(shares, owner);
@@ -132,7 +132,7 @@ abstract contract ERC4626AsyncWithdraw is ERC4626 {
      * - The caller must have sufficient share balance to cover the required shares for withdrawing `assets`
      * - The total queued shares cannot exceed the caller's share balance
      *
-     * Emits a {ERC4626AsyncWithdraw} event.
+     * Emits a {WithdrawQueued} event.
      */
     function queueWithdraw(uint256 assets, address owner) public virtual {
         _queueShares(previewWithdraw(assets), owner);
@@ -177,7 +177,7 @@ abstract contract ERC4626AsyncWithdraw is ERC4626 {
                 Math.mulDiv(block.timestamp, shares, newQueuedShares)
         );
 
-        emit ERC4626AsyncWithdraw(owner, shares);
+        emit WithdrawQueued(owner, shares);
     }
 
     /**

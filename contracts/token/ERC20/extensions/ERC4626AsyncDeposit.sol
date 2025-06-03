@@ -3,7 +3,7 @@
 pragma solidity ^0.8.20;
 
 import {ERC4626} from "./ERC4626.sol";
-import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
+import {Math} from "../../../utils/math/Math.sol";
 import {IERC20} from "../ERC20.sol";
 
 /**
@@ -176,6 +176,8 @@ abstract contract ERC4626AsyncDeposit is ERC4626 {
             Math.mulDiv(previousAverageTimestamp, queuedAssets, newQueuedAssets) +
                 Math.mulDiv(block.timestamp, assets, newQueuedAssets)
         );
+
+        emit DepositQueued(owner, assets);
     }
 
     /**
