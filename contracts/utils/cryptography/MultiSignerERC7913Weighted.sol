@@ -5,7 +5,7 @@ pragma solidity ^0.8.27;
 import {Math} from "../math/Math.sol";
 import {SafeCast} from "../math/SafeCast.sol";
 import {MultiSignerERC7913} from "./MultiSignerERC7913.sol";
-import {EnumerableSetExtended} from "../../utils/structs/EnumerableSetExtended.sol";
+import {EnumerableSet} from "../../utils/structs/EnumerableSet.sol";
 
 /**
  * @dev Extension of {MultiSignerERC7913} that supports weighted signatures.
@@ -49,7 +49,7 @@ import {EnumerableSetExtended} from "../../utils/structs/EnumerableSetExtended.s
  * least two signers (e.g., one with weight 1 and one with weight 3). See {signerWeight}.
  */
 abstract contract MultiSignerERC7913Weighted is MultiSignerERC7913 {
-    using EnumerableSetExtended for EnumerableSetExtended.BytesSet;
+    using EnumerableSet for EnumerableSet.BytesSet;
     using SafeCast for uint256;
 
     // Invariant: sum(weights) >= threshold

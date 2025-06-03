@@ -4,7 +4,7 @@ pragma solidity ^0.8.27;
 
 import {AbstractSigner} from "./AbstractSigner.sol";
 import {ERC7913Utils} from "./ERC7913Utils.sol";
-import {EnumerableSetExtended} from "../structs/EnumerableSetExtended.sol";
+import {EnumerableSet} from "../structs/EnumerableSet.sol";
 import {Calldata} from "../../utils/Calldata.sol";
 import {SafeCast} from "../../utils/math/SafeCast.sol";
 
@@ -46,11 +46,11 @@ import {SafeCast} from "../../utils/math/SafeCast.sol";
  * either front-runnable or unusable.
  */
 abstract contract MultiSignerERC7913 is AbstractSigner {
-    using EnumerableSetExtended for EnumerableSetExtended.BytesSet;
+    using EnumerableSet for EnumerableSet.BytesSet;
     using ERC7913Utils for *;
     using SafeCast for uint256;
 
-    EnumerableSetExtended.BytesSet private _signersSet;
+    EnumerableSet.BytesSet private _signersSet;
     uint128 private _threshold;
 
     /// @dev Emitted when signers are added.
@@ -96,7 +96,7 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
     }
 
     /// @dev Returns the set of authorized signers.
-    function _signers() internal view virtual returns (EnumerableSetExtended.BytesSet storage) {
+    function _signers() internal view virtual returns (EnumerableSet.BytesSet storage) {
         return _signersSet;
     }
 
