@@ -2,7 +2,6 @@
 
 pragma solidity ^0.8.20;
 
-import {Ownable} from "../access/Ownable.sol";
 import {IERC7913SignatureVerifier} from "../interfaces/IERC7913.sol";
 
 contract ERC7913MaliciousMock is IERC7913SignatureVerifier {
