@@ -60,7 +60,7 @@ library SignatureChecker {
      *
      * Verification is done as follows:
      * - If `signer.length < 20`: verification fails
-     * - If `signer.length == 20`: verification is done using {SignatureChecker}
+     * - If `signer.length == 20`: verification is done using {isValidSignatureNow(address,bytes32,bytes)}
      * - Otherwise: verification is done using {IERC7913SignatureVerifier}
      */
     function isValidSignatureNow(
