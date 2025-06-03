@@ -27,23 +27,41 @@ describe('SignatureChecker (ERC1271)', function () {
 
   describe('EOA account', function () {
     it('with matching signer and signature', async function () {
-      await expect(this.mock.$isValidSignatureNow(this.signer, TEST_MESSAGE_HASH, this.signature)).to.eventually.be
-        .true;
+      await expect(
+        this.mock.getFunction('$isValidSignatureNow(address,bytes32,bytes)')(
+          this.signer,
+          TEST_MESSAGE_HASH,
+          this.signature,
+        ),
+      ).to.eventually.be.true;
     });
 
     it('with invalid signer', async function () {
-      await expect(this.mock.$isValidSignatureNow(this.other, TEST_MESSAGE_HASH, this.signature)).to.eventually.be
-        .false;
+      await expect(
+        this.mock.getFunction('$isValidSignatureNow(address,bytes32,bytes)')(
+          this.other,
+          TEST_MESSAGE_HASH,
+          this.signature,
+        ),
+      ).to.eventually.be.false;
     });
 
     it('with invalid signature', async function () {
-      await expect(this.mock.$isValidSignatureNow(this.signer, WRONG_MESSAGE_HASH, this.signature)).to.eventually.be
-        .false;
+      await expect(
+        this.mock.getFunction('$isValidSignatureNow(address,bytes32,bytes)')(
+          this.signer,
+          WRONG_MESSAGE_HASH,
+          this.signature,
+        ),
+      ).to.eventually.be.false;
     });
   });
 
   describe('ERC1271 wallet', function () {
-    for (const fn of ['isValidERC1271SignatureNow', 'isValidSignatureNow']) {
+    for (const fn of [
+      'isValidERC1271SignatureNow(address,bytes32,bytes)',
+      'isValidSignatureNow(address,bytes32,bytes)',
+    ]) {
       describe(fn, function () {
         it('with matching signer and signature', async function () {
           await expect(this.mock.getFunction(`$${fn}`)(this.wallet, TEST_MESSAGE_HASH, this.signature)).to.eventually.be
@@ -71,5 +89,9 @@ describe('SignatureChecker (ERC1271)', function () {
         });
       });
     }
+  });
+
+  describe('ERC7913 verifier', function () {
+    // TODO
   });
 });

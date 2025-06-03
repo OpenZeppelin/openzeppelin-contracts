@@ -2,8 +2,8 @@
 
 pragma solidity ^0.8.20;
 
-import {P256} from "./P256.sol";
 import {AbstractSigner} from "./AbstractSigner.sol";
+import {P256} from "../P256.sol";
 
 /**
  * @dev Implementation of {AbstractSigner} using xref:api:utils#P256[P256] signatures.
