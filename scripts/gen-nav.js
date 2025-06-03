@@ -25,17 +25,16 @@ const links = files.map(file => {
   const doc = file.replace(baseDir, '');
   const title = path.parse(file).name;
 
-  return {
-    xref: `* xref:${doc}[${getPageTitle(title)}]`,
-    title,
-  };
+  const level = doc.split('/').length;
+
+  return `${'*'.repeat(level)} xref:${doc}[${getPageTitle(title)}]`;
 });
 
-// Case-insensitive sort based on titles (so 'token/ERC20' gets sorted as 'erc20')
+// Case-insensitive sort based on xref (so 'token/ERC20' gets sorted as 'token/erc20')
 const sortedLinks = links.sort(function (a, b) {
-  return a.title.toLowerCase().localeCompare(b.title.toLowerCase(), undefined, { numeric: true });
+  return a.toLowerCase().localeCompare(b.toLowerCase(), undefined, { numeric: true });
 });
 
 for (const link of sortedLinks) {
-  console.log(link.xref);
+  console.log(link);
 }
