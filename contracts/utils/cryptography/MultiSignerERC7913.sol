@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.27;
 
-import {AbstractSigner} from "./AbstractSigner.sol";
+import {AbstractSigner} from "./signers/AbstractSigner.sol";
 import {ERC7913Utils} from "./ERC7913Utils.sol";
 import {EnumerableSetExtended} from "../structs/EnumerableSetExtended.sol";
 import {Calldata} from "../../utils/Calldata.sol";

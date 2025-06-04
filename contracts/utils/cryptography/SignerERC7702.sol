@@ -3,7 +3,7 @@
 pragma solidity ^0.8.20;
 
 import {ECDSA} from "./ECDSA.sol";
-import {AbstractSigner} from "./AbstractSigner.sol";
+import {AbstractSigner} from "./signers/AbstractSigner.sol";
 
 /**
  * @dev Implementation of {AbstractSigner} for implementation for an EOA. Useful for ERC-7702 accounts.

@@ -2,8 +2,8 @@
 
 pragma solidity ^0.8.20;
 
-import {ECDSA} from "../cryptography/ECDSA.sol";
-import {AbstractSigner} from "./AbstractSigner.sol";
+import {ECDSA} from "./ECDSA.sol";
+import {AbstractSigner} from "./signers/AbstractSigner.sol";
 
 /**
  * @dev Implementation of {AbstractSigner} using xref:api:utils#ECDSA[ECDSA] signatures.
