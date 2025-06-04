@@ -2,8 +2,8 @@
 
 pragma solidity ^0.8.20;
 
-import {RSA} from "./RSA.sol";
 import {AbstractSigner} from "./AbstractSigner.sol";
+import {RSA} from "../RSA.sol";
 
 /**
  * @dev Implementation of {AbstractSigner} using xref:api:utils#RSA[RSA] signatures.
