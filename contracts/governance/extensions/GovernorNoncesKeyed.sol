@@ -21,7 +21,7 @@ abstract contract GovernorNoncesKeyed is Governor, NoncesKeyed {
     /**
      * @dev Check the signature against keyed nonce and falls back to the traditional nonce.
      *
-     * NOTE: This function skips calling `super._validateVoteSig` if the keyed nonce is valid.
+     * NOTE: This function won't call `super._validateVoteSig` if the keyed nonce is valid.
      * Side effects may be skipped depending on the linearization of the function.
      */
     function _validateVoteSig(
@@ -51,7 +51,7 @@ abstract contract GovernorNoncesKeyed is Governor, NoncesKeyed {
     /**
      * @dev Check the signature against keyed nonce and falls back to the traditional nonce.
      *
-     * NOTE: This function skips calling `super._validateExtendedVoteSig` if the keyed nonce is valid.
+     * NOTE: This function won't call `super._validateExtendedVoteSig` if the keyed nonce is valid.
      * Side effects may be skipped depending on the linearization of the function.
      */
     function _validateExtendedVoteSig(
