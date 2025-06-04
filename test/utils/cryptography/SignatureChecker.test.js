@@ -3,7 +3,6 @@ const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const precompile = require('../../helpers/precompiles');
-const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
 
 const TEST_MESSAGE = ethers.id('OpenZeppelin');
 const TEST_MESSAGE_HASH = ethers.hashMessage(TEST_MESSAGE);
@@ -297,14 +296,14 @@ describe('SignatureChecker (ERC1271)', function () {
         ).to.eventually.be.false;
       });
 
-      it('should fail if signatures array length does not match signers array length', async function () {
+      it('should return false if signatures array length does not match signers array length', async function () {
         await expect(
           this.mock.$areValidERC7913SignaturesNow(
             TEST_MESSAGE_HASH,
             [ethers.zeroPadValue(this.signer.address, 20), await this.extraSigner.signMessage(TEST_MESSAGE)],
             [await this.signer.signMessage(TEST_MESSAGE)], // Missing one signature
           ),
-        ).to.be.revertedWithPanic(PANIC_CODES.ARRAY_ACCESS_OUT_OF_BOUNDS);
+        ).to.eventually.be.false;
       });
 
       it('should pass with empty arrays', async function () {
