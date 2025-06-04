@@ -164,7 +164,7 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Return the an array containing all the keys
+     * @dev Returns an array containing all the keys
      *
      * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
      * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
@@ -173,6 +173,22 @@ library EnumerableMap {
      */
     function keys(Bytes32ToBytes32Map storage map) internal view returns (bytes32[] memory) {
         return map._keys.values();
+    }
+
+    /**
+     * @dev Returns an array containing a slice of the keys
+     *
+     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+     * this function has an unbounded cost, and using it as part of a state-changing function may render the function
+     * uncallable if the map grows to a point where copying to memory consumes too much gas to fit in a block.
+     */
+    function keys(
+        Bytes32ToBytes32Map storage map,
+        uint256 start,
+        uint256 end
+    ) internal view returns (bytes32[] memory) {
+        return map._keys.values(start, end);
     }
 
     // UintToUintMap
@@ -269,6 +285,25 @@ library EnumerableMap {
      */
     function keys(UintToUintMap storage map) internal view returns (uint256[] memory) {
         bytes32[] memory store = keys(map._inner);
+        uint256[] memory result;
+
+        assembly ("memory-safe") {
+            result := store
+        }
+
+        return result;
+    }
+
+    /**
+     * @dev Return the an array containing a slice of the keys
+     *
+     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+     * this function has an unbounded cost, and using it as part of a state-changing function may render the function
+     * uncallable if the map grows to a point where copying to memory consumes too much gas to fit in a block.
+     */
+    function keys(UintToUintMap storage map, uint256 start, uint256 end) internal view returns (uint256[] memory) {
+        bytes32[] memory store = keys(map._inner, start, end);
         uint256[] memory result;
 
         assembly ("memory-safe") {
@@ -381,6 +416,25 @@ library EnumerableMap {
         return result;
     }
 
+    /**
+     * @dev Return the an array containing a slice of the keys
+     *
+     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+     * this function has an unbounded cost, and using it as part of a state-changing function may render the function
+     * uncallable if the map grows to a point where copying to memory consumes too much gas to fit in a block.
+     */
+    function keys(UintToAddressMap storage map, uint256 start, uint256 end) internal view returns (uint256[] memory) {
+        bytes32[] memory store = keys(map._inner, start, end);
+        uint256[] memory result;
+
+        assembly ("memory-safe") {
+            result := store
+        }
+
+        return result;
+    }
+
     // UintToBytes32Map
 
     struct UintToBytes32Map {
@@ -475,6 +529,25 @@ library EnumerableMap {
      */
     function keys(UintToBytes32Map storage map) internal view returns (uint256[] memory) {
         bytes32[] memory store = keys(map._inner);
+        uint256[] memory result;
+
+        assembly ("memory-safe") {
+            result := store
+        }
+
+        return result;
+    }
+
+    /**
+     * @dev Return the an array containing a slice of the keys
+     *
+     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+     * this function has an unbounded cost, and using it as part of a state-changing function may render the function
+     * uncallable if the map grows to a point where copying to memory consumes too much gas to fit in a block.
+     */
+    function keys(UintToBytes32Map storage map, uint256 start, uint256 end) internal view returns (uint256[] memory) {
+        bytes32[] memory store = keys(map._inner, start, end);
         uint256[] memory result;
 
         assembly ("memory-safe") {
@@ -587,6 +660,25 @@ library EnumerableMap {
         return result;
     }
 
+    /**
+     * @dev Return the an array containing a slice of the keys
+     *
+     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+     * this function has an unbounded cost, and using it as part of a state-changing function may render the function
+     * uncallable if the map grows to a point where copying to memory consumes too much gas to fit in a block.
+     */
+    function keys(AddressToUintMap storage map, uint256 start, uint256 end) internal view returns (address[] memory) {
+        bytes32[] memory store = keys(map._inner, start, end);
+        address[] memory result;
+
+        assembly ("memory-safe") {
+            result := store
+        }
+
+        return result;
+    }
+
     // AddressToAddressMap
 
     struct AddressToAddressMap {
@@ -681,6 +773,29 @@ library EnumerableMap {
      */
     function keys(AddressToAddressMap storage map) internal view returns (address[] memory) {
         bytes32[] memory store = keys(map._inner);
+        address[] memory result;
+
+        assembly ("memory-safe") {
+            result := store
+        }
+
+        return result;
+    }
+
+    /**
+     * @dev Return the an array containing a slice of the keys
+     *
+     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+     * this function has an unbounded cost, and using it as part of a state-changing function may render the function
+     * uncallable if the map grows to a point where copying to memory consumes too much gas to fit in a block.
+     */
+    function keys(
+        AddressToAddressMap storage map,
+        uint256 start,
+        uint256 end
+    ) internal view returns (address[] memory) {
+        bytes32[] memory store = keys(map._inner, start, end);
         address[] memory result;
 
         assembly ("memory-safe") {
@@ -793,6 +908,29 @@ library EnumerableMap {
         return result;
     }
 
+    /**
+     * @dev Return the an array containing a slice of the keys
+     *
+     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+     * this function has an unbounded cost, and using it as part of a state-changing function may render the function
+     * uncallable if the map grows to a point where copying to memory consumes too much gas to fit in a block.
+     */
+    function keys(
+        AddressToBytes32Map storage map,
+        uint256 start,
+        uint256 end
+    ) internal view returns (address[] memory) {
+        bytes32[] memory store = keys(map._inner, start, end);
+        address[] memory result;
+
+        assembly ("memory-safe") {
+            result := store
+        }
+
+        return result;
+    }
+
     // Bytes32ToUintMap
 
     struct Bytes32ToUintMap {
@@ -896,6 +1034,25 @@ library EnumerableMap {
         return result;
     }
 
+    /**
+     * @dev Return the an array containing a slice of the keys
+     *
+     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+     * this function has an unbounded cost, and using it as part of a state-changing function may render the function
+     * uncallable if the map grows to a point where copying to memory consumes too much gas to fit in a block.
+     */
+    function keys(Bytes32ToUintMap storage map, uint256 start, uint256 end) internal view returns (bytes32[] memory) {
+        bytes32[] memory store = keys(map._inner, start, end);
+        bytes32[] memory result;
+
+        assembly ("memory-safe") {
+            result := store
+        }
+
+        return result;
+    }
+
     // Bytes32ToAddressMap
 
     struct Bytes32ToAddressMap {
@@ -990,6 +1147,29 @@ library EnumerableMap {
      */
     function keys(Bytes32ToAddressMap storage map) internal view returns (bytes32[] memory) {
         bytes32[] memory store = keys(map._inner);
+        bytes32[] memory result;
+
+        assembly ("memory-safe") {
+            result := store
+        }
+
+        return result;
+    }
+
+    /**
+     * @dev Return the an array containing a slice of the keys
+     *
+     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+     * this function has an unbounded cost, and using it as part of a state-changing function may render the function
+     * uncallable if the map grows to a point where copying to memory consumes too much gas to fit in a block.
+     */
+    function keys(
+        Bytes32ToAddressMap storage map,
+        uint256 start,
+        uint256 end
+    ) internal view returns (bytes32[] memory) {
+        bytes32[] memory store = keys(map._inner, start, end);
         bytes32[] memory result;
 
         assembly ("memory-safe") {
@@ -1106,7 +1286,7 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Return the an array containing all the keys
+     * @dev Returns an array containing all the keys
      *
      * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
      * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
@@ -1115,5 +1295,17 @@ library EnumerableMap {
      */
     function keys(BytesToBytesMap storage map) internal view returns (bytes[] memory) {
         return map._keys.values();
+    }
+
+    /**
+     * @dev Returns an array containing a slice of the keys
+     *
+     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+     * this function has an unbounded cost, and using it as part of a state-changing function may render the function
+     * uncallable if the map grows to a point where copying to memory consumes too much gas to fit in a block.
+     */
+    function keys(BytesToBytesMap storage map, uint256 start, uint256 end) internal view returns (bytes[] memory) {
+        return map._keys.values(start, end);
     }
 }

@@ -6,6 +6,7 @@ const header = `\
 pragma solidity ^0.8.20;
 
 import {Arrays} from "../Arrays.sol";
+import {Math} from "../math/Math.sol";
 
 /**
  * @dev Library for managing
@@ -179,6 +180,28 @@ function _at(Set storage set, uint256 index) private view returns (bytes32) {
 function _values(Set storage set) private view returns (bytes32[] memory) {
     return set._values;
 }
+
+/**
+ * @dev Return a slice of the set in an array
+ *
+ * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+ * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+ * this function has an unbounded cost, and using it as part of a state-changing function may render the function
+ * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
+ */
+function _values(Set storage set, uint256 start, uint256 end) private view returns (bytes32[] memory) {
+    unchecked {
+        end = Math.min(end, _length(set));
+        start = Math.min(start, end);
+
+        uint256 len = end - start;
+        bytes32[] memory result = new bytes32[](len);
+        for (uint256 i = 0; i < len; ++i) {
+            result[i] = Arrays.unsafeAccess(set._values, start + i).value;
+        }
+        return result;
+    }
+}
 `;
 
 // NOTE: this should be deprecated in favor of a more native construction in v6.0
@@ -257,6 +280,25 @@ function at(${name} storage set, uint256 index) internal view returns (${type}) 
  */
 function values(${name} storage set) internal view returns (${type}[] memory) {
     bytes32[] memory store = _values(set._inner);
+    ${type}[] memory result;
+
+    assembly ("memory-safe") {
+        result := store
+    }
+
+    return result;
+}
+
+/**
+ * @dev Return a slice of the set in an array
+ *
+ * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+ * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+ * this function has an unbounded cost, and using it as part of a state-changing function may render the function
+ * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
+ */
+function values(${name} storage set, uint256 start, uint256 end) internal view returns (${type}[] memory) {
+    bytes32[] memory store = _values(set._inner, start, end);
     ${type}[] memory result;
 
     assembly ("memory-safe") {
@@ -386,6 +428,28 @@ function at(${name} storage self, uint256 index) internal view returns (${value.
  */
 function values(${name} storage self) internal view returns (${value.type}[] memory) {
     return self._values;
+}
+
+/**
+ * @dev Return a slice of the set in an array
+ *
+ * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+ * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+ * this function has an unbounded cost, and using it as part of a state-changing function may render the function
+ * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
+ */
+function values(${name} storage set, uint256 start, uint256 end) internal view returns (${value.type}[] memory) {
+    unchecked {
+        end = Math.min(end, length(set));
+        start = Math.min(start, end);
+
+        uint256 len = end - start;
+        ${value.type}[] memory result = new ${value.type}[](len);
+        for (uint256 i = 0; i < len; ++i) {
+            result[i] = Arrays.unsafeAccess(set._values, start + i).value;
+        }
+        return result;
+    }
 }
 `;
 

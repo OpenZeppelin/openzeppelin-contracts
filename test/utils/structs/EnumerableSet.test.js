@@ -35,6 +35,7 @@ async function fixture() {
           length: `$length_EnumerableSet_${name}(uint256)`,
           at: `$at_EnumerableSet_${name}(uint256,uint256)`,
           values: `$values_EnumerableSet_${name}(uint256)`,
+          valuesPage: `$values_EnumerableSet_${name}(uint256,uint256,uint256)`,
         }),
         events: {
           addReturn: `return$add_EnumerableSet_${name}_${value.type.replace(/[[\]]/g, '_')}`,
