@@ -140,7 +140,7 @@ index 70ae73bc2..ef659873f 100644
 +  }
  }
 diff --git a/contracts/utils/cryptography/EIP712.sol b/contracts/utils/cryptography/EIP712.sol
-index c39954e35..aff99fe86 100644
+index c39954e35..fe681f87a 100644
 --- a/contracts/utils/cryptography/EIP712.sol
 +++ b/contracts/utils/cryptography/EIP712.sol
 @@ -4,7 +4,6 @@
@@ -151,12 +151,17 @@ index c39954e35..aff99fe86 100644
  import {IERC5267} from "../../interfaces/IERC5267.sol";
  
  /**
-@@ -28,30 +27,18 @@ import {IERC5267} from "../../interfaces/IERC5267.sol";
-  * NOTE: In the upgradeable version of this contract, the cached values will correspond to the address, and the domain
-  * separator of the implementation contract. This will cause the {_domainSeparatorV4} function to always rebuild the
-  * separator from the immutable values, which is cheaper than accessing a cached version in cold storage.
+@@ -25,33 +24,20 @@ import {IERC5267} from "../../interfaces/IERC5267.sol";
+  * NOTE: This contract implements the version of the encoding known as "v4", as implemented by the JSON RPC method
+  * https://docs.metamask.io/guide/signing-data.html[`eth_signTypedDataV4` in MetaMask].
+  *
+- * NOTE: In the upgradeable version of this contract, the cached values will correspond to the address, and the domain
+- * separator of the implementation contract. This will cause the {_domainSeparatorV4} function to always rebuild the
+- * separator from the immutable values, which is cheaper than accessing a cached version in cold storage.
 - *
 - * @custom:oz-upgrades-unsafe-allow state-variable-immutable
++ * NOTE: The upgradeable version of this contract does not use an immutable cache and recomputes the domain separator
++ * each time {_domainSeparatorV4} is called. That is cheaper than accessing a cached version in cold storage.
   */
  abstract contract EIP712 is IERC5267 {
 -    using ShortStrings for *;
@@ -186,7 +191,7 @@ index c39954e35..aff99fe86 100644
  
      /**
       * @dev Initializes the domain separator and parameter caches.
-@@ -66,29 +53,23 @@ abstract contract EIP712 is IERC5267 {
+@@ -66,29 +52,23 @@ abstract contract EIP712 is IERC5267 {
       * contract upgrade].
       */
      constructor(string memory name, string memory version) {
@@ -224,7 +229,7 @@ index c39954e35..aff99fe86 100644
      }
  
      /**
-@@ -125,6 +106,10 @@ abstract contract EIP712 is IERC5267 {
+@@ -125,6 +105,10 @@ abstract contract EIP712 is IERC5267 {
              uint256[] memory extensions
          )
      {
@@ -235,7 +240,7 @@ index c39954e35..aff99fe86 100644
          return (
              hex"0f", // 01111
              _EIP712Name(),
-@@ -139,22 +124,62 @@ abstract contract EIP712 is IERC5267 {
+@@ -139,22 +123,62 @@ abstract contract EIP712 is IERC5267 {
      /**
       * @dev The name parameter for the EIP712 domain.
       *
@@ -309,7 +314,7 @@ index c39954e35..aff99fe86 100644
      }
  }
 diff --git a/package.json b/package.json
-index 64ee144be..f4665ac9b 100644
+index eeeaf0bcd..65581c544 100644
 --- a/package.json
 +++ b/package.json
 @@ -34,7 +34,7 @@

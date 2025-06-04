@@ -32,19 +32,21 @@ library Blockhash {
             distance = current - blockNumber;
         }
 
-        return distance > 256 && distance <= 8191 ? _historyStorageCall(blockNumber) : blockhash(blockNumber);
+        return distance < 257 ? blockhash(blockNumber) : _historyStorageCall(blockNumber);
     }
 
     /// @dev Internal function to query the EIP-2935 history storage contract.
     function _historyStorageCall(uint256 blockNumber) private view returns (bytes32 hash) {
         assembly ("memory-safe") {
-            mstore(0, blockNumber) // Store the blockNumber in scratch space
+            // Store the blockNumber in scratch space
+            mstore(0x00, blockNumber)
+            mstore(0x20, 0)
 
-            // In case the history storage address is not deployed, the call will succeed
-            // without returndata, so the hash will be 0 just as querying `blockhash` directly.
-            if and(gt(returndatasize(), 0), staticcall(gas(), HISTORY_STORAGE_ADDRESS, 0, 0x20, 0, 0x20)) {
-                hash := mload(0)
-            }
+            // call history storage address
+            pop(staticcall(gas(), HISTORY_STORAGE_ADDRESS, 0x00, 0x20, 0x20, 0x20))
+
+            // load result
+            hash := mload(0x20)
         }
     }
 }

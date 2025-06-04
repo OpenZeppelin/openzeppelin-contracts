@@ -4,10 +4,10 @@ pragma solidity ^0.8.20;
 
 import {ECDSA} from "../../../utils/cryptography/ECDSA.sol";
 import {EIP712} from "../../../utils/cryptography/EIP712.sol";
-import {ERC7739} from "../../../utils/cryptography/ERC7739.sol";
-import {SignerECDSA} from "../../../utils/cryptography/SignerECDSA.sol";
-import {SignerP256} from "../../../utils/cryptography/SignerP256.sol";
-import {SignerRSA} from "../../../utils/cryptography/SignerRSA.sol";
+import {ERC7739} from "../../../utils/cryptography/signers/ERC7739.sol";
+import {SignerECDSA} from "../../../utils/cryptography/signers/SignerECDSA.sol";
+import {SignerP256} from "../../../utils/cryptography/signers/SignerP256.sol";
+import {SignerRSA} from "../../../utils/cryptography/signers/SignerRSA.sol";
 
 contract ERC7739ECDSAMock is ERC7739, SignerECDSA {
     constructor(address signerAddr) EIP712("ERC7739ECDSA", "1") {
