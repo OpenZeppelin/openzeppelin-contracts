@@ -99,11 +99,11 @@ abstract contract MultiSignerERC7913Weighted is MultiSignerERC7913 {
      * Emits {ERC7913SignerWeightChanged} for each signer.
      */
     function _setSignerWeights(bytes[] memory signers, uint256[] memory newWeights) internal virtual {
-        require(signers.length == newWeights.length, MultiSignerERC7913WeightedMismatchedLength());
-        uint256 oldWeight = _weightSigners(signers);
         uint256 signersLength = signers.length;
+        require(signersLength == newWeights.length, MultiSignerERC7913WeightedMismatchedLength());
+        uint256 oldWeight = _weightSigners(signers);
 
-        for (uint256 i = 0; i < signersLength; i++) {
+        for (uint256 i = 0; i < signers.length; ++i) {
             bytes memory signer = signers[i];
             uint256 newWeight = newWeights[i];
             require(isSigner(signer), MultiSignerERC7913NonexistentSigner(signer));
@@ -170,8 +170,7 @@ abstract contract MultiSignerERC7913Weighted is MultiSignerERC7913 {
     /// @dev Calculates the total weight of a set of signers. For all signers weight use {totalWeight}.
     function _weightSigners(bytes[] memory signers) internal view virtual returns (uint256) {
         uint256 weight = 0;
-        uint256 signersLength = signers.length;
-        for (uint256 i = 0; i < signersLength; i++) {
+        for (uint256 i = 0; i < signers.length; ++i) {
             weight += signerWeight(signers[i]);
         }
         return weight;
@@ -187,8 +186,7 @@ abstract contract MultiSignerERC7913Weighted is MultiSignerERC7913 {
      * Emits {ERC7913SignerWeightChanged} for each signer.
      */
     function _unsafeSetSignerWeights(bytes[] memory signers, uint256[] memory newWeights) private {
-        uint256 signersLength = signers.length;
-        for (uint256 i = 0; i < signersLength; i++) {
+        for (uint256 i = 0; i < signers.length; ++i) {
             _weights[signers[i]] = newWeights[i];
             emit ERC7913SignerWeightChanged(signers[i], newWeights[i]);
         }

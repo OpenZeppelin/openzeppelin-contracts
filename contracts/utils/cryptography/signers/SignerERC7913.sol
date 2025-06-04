@@ -3,7 +3,7 @@
 pragma solidity ^0.8.24;
 
 import {AbstractSigner} from "./AbstractSigner.sol";
-import {ERC7913Utils} from "../ERC7913Utils.sol";
+import {SignatureChecker} from "../SignatureChecker.sol";
 
 /**
  * @dev Implementation of {AbstractSigner} using
@@ -41,11 +41,11 @@ abstract contract SignerERC7913 is AbstractSigner {
         _signer = signer_;
     }
 
-    /// @dev Verifies a signature using {ERC7913Utils-isValidSignatureNow} with {signer}, `hash` and `signature`.
+    /// @dev Verifies a signature using {SignatureChecker-isValidERC7913SignatureNow} with {signer}, `hash` and `signature`.
     function _rawSignatureValidation(
         bytes32 hash,
         bytes calldata signature
     ) internal view virtual override returns (bool) {
-        return ERC7913Utils.isValidSignatureNow(signer(), hash, signature);
+        return SignatureChecker.isValidERC7913SignatureNow(signer(), hash, signature);
     }
 }

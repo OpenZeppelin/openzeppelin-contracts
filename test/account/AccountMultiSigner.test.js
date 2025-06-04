@@ -136,7 +136,7 @@ describe('AccountMultiSigner', function () {
 
       // Successfully adds a signer
       const signersArrayBefore = await this.mock.signers().then(s => s.map(ethers.getAddress));
-      await expect(this.mock.$_addSigners(signers)).to.emit(this.mock, 'ERC7913SignersAdded');
+      await expect(this.mock.$_addSigners(signers)).to.emit(this.mock, 'ERC7913SignerAdded');
       const signersArrayAfter = await this.mock.signers().then(s => s.map(ethers.getAddress));
       expect(signersArrayAfter.length).to.equal(signersArrayBefore.length + 1);
       expect(signersArrayAfter).to.include(ethers.getAddress(signerECDSA3.address));
@@ -152,7 +152,7 @@ describe('AccountMultiSigner', function () {
 
       // Successfully removes an already added signer
       const signersArrayBefore = await this.mock.signers().then(s => s.map(ethers.getAddress));
-      await expect(this.mock.$_removeSigners(signers)).to.emit(this.mock, 'ERC7913SignersRemoved');
+      await expect(this.mock.$_removeSigners(signers)).to.emit(this.mock, 'ERC7913SignerRemoved');
       const signersArrayAfter = await this.mock.signers().then(s => s.map(ethers.getAddress));
       expect(signersArrayAfter.length).to.equal(signersArrayBefore.length - 1);
       expect(signersArrayAfter).to.not.include(ethers.getAddress(signerECDSA2.address));

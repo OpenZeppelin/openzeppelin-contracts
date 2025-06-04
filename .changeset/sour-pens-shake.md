@@ -2,4 +2,4 @@
 'openzeppelin-solidity': minor
 ---
 
-`ERC7913Utils`: Utilities library for verifying signatures by ERC-7913 formatted signers.
+`SignatureChecker`: Add support for ERC-7913 signatures alongside existing ECDSA and ERC-1271 signature verification.
