@@ -110,6 +110,8 @@ library SignatureChecker {
         bytes[] memory signers,
         bytes[] memory signatures
     ) internal view returns (bool) {
+        if (signers.length != signatures.length) return false;
+
         bytes32 lastId = bytes32(0);
 
         for (uint256 i = 0; i < signers.length; ++i) {
