@@ -1,5 +1,9 @@
 # Changelog
 
+### Breaking changes
+
+- Update minimum pragma to 0.8.24 in `SignatureChecker`, `Governor` and Governor's extensions. ([#5716](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5716)).
+
 ## 5.3.0 (2025-04-09)
 
 ### Breaking Changes
