@@ -94,13 +94,10 @@ library SignatureChecker {
 
     /**
      * @dev Verifies multiple ERC-7913 `signatures` for a given `hash` using a set of `signers`.
+     * Returns `false` if the number of signers and signatures is not the same.
      *
      * The signers should be ordered by their `keccak256` hash to ensure efficient duplication check. Unordered
      * signers are supported, but the uniqueness check will be more expensive.
-     *
-     * Requirements:
-     *
-     * * The `signatures` array must be at least the  `signers` array's length.
      *
      * NOTE: Unlike ECDSA signatures, contract signatures are revocable, and the outcome of this function can thus
      * change through time. It could return true at block N and false at block N+1 (or the opposite).
