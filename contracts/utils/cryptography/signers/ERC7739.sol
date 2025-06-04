@@ -2,12 +2,12 @@
 
 pragma solidity ^0.8.20;
 
-import {IERC1271} from "../../interfaces/IERC1271.sol";
-import {EIP712} from "../cryptography/EIP712.sol";
-import {MessageHashUtils} from "../cryptography/MessageHashUtils.sol";
-import {ShortStrings} from "../ShortStrings.sol";
 import {AbstractSigner} from "./AbstractSigner.sol";
-import {ERC7739Utils} from "./ERC7739Utils.sol";
+import {EIP712} from "../EIP712.sol";
+import {ERC7739Utils} from "../ERC7739Utils.sol";
+import {IERC1271} from "../../../interfaces/IERC1271.sol";
+import {MessageHashUtils} from "../MessageHashUtils.sol";
+import {ShortStrings} from "../../ShortStrings.sol";
 
 /**
  * @dev Validates signatures wrapping the message hash in a nested EIP712 type. See {ERC7739Utils}.

@@ -8,18 +8,15 @@ import {AccountERC7579Hooked} from "../../account/extensions/AccountERC7579Hooke
 import {ERC721Holder} from "../../token/ERC721/utils/ERC721Holder.sol";
 import {ERC1155Holder} from "../../token/ERC1155/utils/ERC1155Holder.sol";
 import {ERC4337Utils} from "../../account/utils/draft-ERC4337Utils.sol";
-import {ERC7739} from "../../utils/cryptography/ERC7739.sol";
+import {ERC7739} from "../../utils/cryptography/signers/ERC7739.sol";
 import {ERC7821} from "../../account/extensions/ERC7821.sol";
 import {MODULE_TYPE_VALIDATOR} from "../../interfaces/draft-IERC7579.sol";
 import {PackedUserOperation} from "../../interfaces/draft-IERC4337.sol";
-import {AbstractSigner} from "../../utils/cryptography/AbstractSigner.sol";
-import {SignerECDSA} from "../../utils/cryptography/SignerECDSA.sol";
-import {SignerP256} from "../../utils/cryptography/SignerP256.sol";
-import {SignerRSA} from "../../utils/cryptography/SignerRSA.sol";
-import {SignerERC7702} from "../../utils/cryptography/SignerERC7702.sol";
-import {SignerERC7913} from "../../utils/cryptography/SignerERC7913.sol";
-import {MultiSignerERC7913} from "../../utils/cryptography/MultiSignerERC7913.sol";
-import {MultiSignerERC7913Weighted} from "../../utils/cryptography/MultiSignerERC7913Weighted.sol";
+import {AbstractSigner} from "../../utils/cryptography/signers/AbstractSigner.sol";
+import {SignerECDSA} from "../../utils/cryptography/signers/SignerECDSA.sol";
+import {SignerP256} from "../../utils/cryptography/signers/SignerP256.sol";
+import {SignerRSA} from "../../utils/cryptography/signers/SignerRSA.sol";
+import {SignerERC7702} from "../../utils/cryptography/signers/SignerERC7702.sol";
 
 abstract contract AccountMock is Account, ERC7739, ERC7821, ERC721Holder, ERC1155Holder {
     /// Validates a user operation with a boolean signature.
