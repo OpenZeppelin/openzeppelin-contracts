@@ -6,7 +6,7 @@ import {AbstractSigner} from "./AbstractSigner.sol";
 import {P256} from "../P256.sol";
 
 /**
- * @dev Implementation of {AbstractSigner} using xref:api:utils#P256[P256] signatures.
+ * @dev Implementation of {AbstractSigner} using xref:api:utils/cryptography#P256[P256] signatures.
  *
  * For {Account} usage, a {_setSigner} function is provided to set the {signer} public key.
  * Doing so is easier for a factory, who is likely to use initializable clones of this contract.
