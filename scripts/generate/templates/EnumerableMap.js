@@ -421,7 +421,7 @@ function get(${name} storage map, ${key.typeLoc} key) internal view returns (${v
 }
 
 /**
- * @dev Return the an array containing all the keys
+ * @dev Returns an array containing all the keys
  *
  * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
  * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
@@ -433,7 +433,7 @@ function keys(${name} storage map) internal view returns (${key.type}[] memory) 
 }
 
 /**
- * @dev Return the an array containing a slice of the keys
+ * @dev Returns an array containing a slice of the keys
  *
  * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
  * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
