@@ -14,27 +14,68 @@ function getPageTitle(directory) {
   switch (directory) {
     case 'metatx':
       return 'Meta Transactions';
-    case 'common':
-      return 'Common (Tokens)';
     default:
       return startCase(directory);
   }
 }
 
-const links = files.map(file => {
-  const doc = file.replace(baseDir, '');
-  const title = path.parse(file).name;
+const menuItems = files.reduce(
+  (acc, file) => {
+    let current = acc;
+    const doc = file.replace(baseDir, '');
 
-  const level = doc.split('/').length;
+    const keys = doc
+      .split('/')
+      .filter(Boolean)
+      .map(k => k.replace('.adoc', ''));
 
-  return `${'*'.repeat(level)} xref:${doc}[${getPageTitle(title)}]`;
-});
+    for (let i = 0; i < keys.length; i++) {
+      current = current.items[keys[i]] ??= {
+        name: startCase(keys[i]),
+        dir: keys[i],
+        items: {},
+        doc,
+      };
+    }
 
-// Case-insensitive sort based on xref (so 'token/ERC20' gets sorted as 'token/erc20')
-const sortedLinks = links.sort(function (a, b) {
-  return a.toLowerCase().localeCompare(b.toLowerCase(), undefined, { numeric: true });
-});
+    return acc;
+  },
+  {
+    items: {
+      token: {
+        name: 'tokens',
+        dir: '',
+        items: {},
+      },
+    },
+  },
+);
 
-for (const link of sortedLinks) {
-  console.log(link);
-}
+const arrayifyItems = items =>
+  Object.entries(items).map(([k, v]) => {
+    if (Object.keys(v.items ?? {}).length > 0) return [v, arrayifyItems(v.items)];
+    return [k, v];
+  });
+
+const isString = v => typeof v === 'string';
+
+const sortItems = items =>
+  items.sort(([a], [b]) =>
+    (isString(a) ? a : a.name).toLowerCase().localeCompare(isString(b) ? b : b.name, undefined, { numeric: true }),
+  );
+
+const print = (items, level = 1) => {
+  items.forEach(([k, v]) => {
+    if (v.doc || k?.doc)
+      console.log(`${'*'.repeat(level)} xref:${v.doc || k.doc}[${getPageTitle(isString(k) ? k : k.name)}]`);
+    else console.log(`${'*'.repeat(level)} ${getPageTitle(isString(k) ? k : k.name)}`);
+    if (Array.isArray(v)) print(v, level + 1);
+  });
+};
+
+print(
+  sortItems(arrayifyItems(menuItems.items)).map(([k, v]) => {
+    if (v?.length > 0) return [k, sortItems(v)];
+    return [k, v];
+  }),
+);
