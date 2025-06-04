@@ -191,6 +191,22 @@ function shouldBehaveLikeMap() {
       });
     });
   });
+
+  it('keys (full & paginated)', async function () {
+    const keys = [this.keyA, this.keyB, this.keyC];
+    await this.methods.set(this.keyA, this.valueA);
+    await this.methods.set(this.keyB, this.valueB);
+    await this.methods.set(this.keyC, this.valueC);
+
+    // get all values
+    expect([...(await this.methods.keys())]).to.deep.equal(keys);
+
+    // try pagination
+    for (const begin of [0, 1, 2, 3, 4])
+      for (const end of [0, 1, 2, 3, 4]) {
+        expect([...(await this.methods.keysPage(begin, end))]).to.deep.equal(keys.slice(begin, end));
+      }
+  });
 }
 
 module.exports = {
