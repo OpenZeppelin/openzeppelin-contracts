@@ -97,59 +97,79 @@ function _verify(
 
 IMPORTANT: Always use keys of at least 2048 bits. Additionally, be aware that PKCS#1 v1.5 allows for replayability due to the possibility of arbitrary optional parameters. To prevent replay attacks, consider including an onchain nonce or unique identifier in the message.
 
-=== Validating Typed Data Signatures
+=== Signature Verification
 
-As opposed to validating plain-text messages, it is possible to let your users sign structured data (i.e. typed values) in a way that is still readable on their wallets. This is possible by implementing xref:api:utils#EIP712[`EIP712`], a standard way to encode structured data into a typed data hash.
+The xref:api:utils.adoc#SignatureChecker[`SignatureChecker`] library provides a unified interface for verifying signatures from different sources. It seamlessly supports:
 
-To start validating signed typed structures, just validate the xref:api:utils#EIP712-_hashTypedDataV4-bytes32-[typed data hash]:
+* ECDSA signatures from externally owned accounts (EOAs)
+* ERC-1271 signatures from smart contract wallets like Argent and Safe Wallet
+* ERC-7913 signatures from keys that don't have their own Ethereum address
 
-[source,solidity]
-----
-include::api:example$utils/cryptography/MyContractDomain.sol[]
-----
+This allows developers to write signature verification code once and have it work across all these different signature types.
 
-As part of the message, EIP-712 requires implementers to include a domain separator, which is a hash that includes the current smart contract address and the chain id where it's deployed. This way, the smart contract can be sure that the structured message was signed for its specific domain, avoiding replayability of signatures in smart contracts.
+==== Basic Signature Verification
 
-==== Validating Nested EIP-712 Signatures
-
-Accounts (i.e. Smart Contract Wallets or Smart Accounts) are particularly likely to be controlled by multiple signers. As such, it's important to make sure that signatures are:
-
-1. Only valid for the intended domain and account.
-2. Validated in a way that's readable for the end signer.
-
-On one hand, making sure that the Account signature is only valid for an specific smart contract (i.e. an application) is difficult since it requires to validate a signature whose domain is the application but also the Account itself. For these reason, the community developed https://eips.ethereum.org/EIPS/eip-7739[ERC-7739]; a defensive rehashing mechanism that binds a signature to a single domain using a nested EIP-712 approach (i.e. an EIP-712 typed structure wrapping another).
-
-In case your smart contract validates signatures, using xref:api:utils.adoc#ERC7739Signer[`ERC7739Signer`] will implement the xref:api:interfaces#IERC1271[`IERC1271`] interface for validating smart contract signatures following the approach suggested by ERC-7739:
+For standard signature verification that supports both EOAs and ERC-1271 contracts:
 
 [source,solidity]
 ----
-include::api:example$utils/cryptography/ERC7739SignerECDSA.sol[]
+using SignatureChecker for address;
+
+function _verifySignature(address signer, bytes32 hash, bytes memory signature) internal view returns (bool) {
+    return SignatureChecker.isValidSignatureNow(signer, hash, signature);
+}
 ----
 
-=== ERC-7913 Signature Verifiers
+The library automatically detects whether the signer is an EOA or a contract and uses the appropriate verification method.
 
-ERC-7913 extends the concept of signature verification to support keys that don't have their own Ethereum address. This is particularly useful for integrating non-Ethereum cryptographic curves, hardware devices, or other identity systems into smart accounts.
+==== ERC-1271 Contract Signatures
 
-The standard defines a verifier interface that can be implemented to support different types of keys. A signer is represented as a `bytes` object that concatenates a verifier address and a key: `verifier || key`.
-
-xref:api:utils.adoc#ERC7913Utils[`ERC7913Utils`] provides functions for verifying signatures using ERC-7913 compatible verifiers:
+For smart contract wallets that implement ERC-1271, you can explicitly use:
 
 [source,solidity]
 ----
-using ERC7913Utils for bytes;
+function _verifyContractSignature(address signer, bytes32 hash, bytes memory signature) internal view returns (bool) {
+    return SignatureChecker.isValidERC1271SignatureNow(signer, hash, signature);
+}
+----
 
-function _verify(bytes memory signer, bytes32 hash, bytes memory signature) internal view returns (bool) {
-    return signer.isValidSignatureNow(hash, signature);
+==== ERC-7913 Extended Signatures
+
+ERC-7913 extends signature verification to support keys that don't have their own Ethereum address. This is useful for integrating non-Ethereum cryptographic curves, hardware devices, or other identity systems.
+
+A signer is represented as a `bytes` object that concatenates a verifier address and a key: `verifier || key`.
+
+[source,solidity]
+----
+function _verifyERC7913Signature(bytes memory signer, bytes32 hash, bytes memory signature) internal view returns (bool) {
+    return SignatureChecker.isValidERC7913SignatureNow(signer, hash, signature);
 }
 ----
 
 The verification process works as follows:
 
 * If `signer.length < 20`: verification fails
-* If `signer.length == 20`: verification is done using xref:api:utils#SignatureChecker[SignatureChecker]
-* Otherwise: verification is done using an ERC-7913 verifier.
+* If `signer.length == 20`: verification is done using standard signature checking
+* Otherwise: verification is done using an ERC-7913 verifier
 
-This allows for backward compatibility with EOAs and ERC-1271 contracts while supporting new types of keys.
+==== Batch Verification
+
+For verifying multiple ERC-7913 signatures at once:
+
+[source,solidity]
+----
+function _verifyMultipleSignatures(
+    bytes32 hash,
+    bytes[] memory signers,
+    bytes[] memory signatures
+) internal view returns (bool) {
+    return SignatureChecker.areValidERC7913SignaturesNow(hash, signers, signatures);
+}
+----
+
+The signers must be ordered by their `keccak256` hash to ensure no duplicates and optimize verification.
+
+This unified approach allows smart contracts to accept signatures from any supported source without needing to implement different verification logic for each type.
 
 === Verifying Merkle Proofs
 
