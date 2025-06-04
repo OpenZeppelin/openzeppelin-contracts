@@ -10,7 +10,7 @@ import {ERC1155Holder} from "../../../token/ERC1155/utils/ERC1155Holder.sol";
 import {ERC7739} from "../../../utils/cryptography/signers/ERC7739.sol";
 import {ERC7821} from "../../../account/extensions/ERC7821.sol";
 import {Initializable} from "../../../proxy/utils/Initializable.sol";
-import {MultiSignerERC7913} from "../../../utils/cryptography/MultiSignerERC7913.sol";
+import {MultiSignerERC7913} from "../../../utils/cryptography/signers/MultiSignerERC7913.sol";
 
 contract MyAccountMultiSigner is
     Account,

@@ -6,7 +6,7 @@ import {Account} from "../../../account/Account.sol";
 import {ERC721Holder} from "../../../token/ERC721/utils/ERC721Holder.sol";
 import {ERC1155Holder} from "../../../token/ERC1155/utils/ERC1155Holder.sol";
 import {ERC7821} from "../../../account/extensions/ERC7821.sol";
-import {SignerERC7702} from "../../../utils/cryptography/SignerERC7702.sol";
+import {SignerERC7702} from "../../../utils/cryptography/signers/SignerERC7702.sol";
 
 contract MyAccountERC7702 is Account, SignerERC7702, ERC7821, ERC721Holder, ERC1155Holder {
     /// @dev Allows the entry point as an authorized executor.

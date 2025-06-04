@@ -10,7 +10,7 @@ import {ERC1155Holder} from "../../../token/ERC1155/utils/ERC1155Holder.sol";
 import {ERC7739} from "../../../utils/cryptography/signers/ERC7739.sol";
 import {ERC7821} from "../../../account/extensions/ERC7821.sol";
 import {Initializable} from "../../../proxy/utils/Initializable.sol";
-import {SignerERC7913} from "../../../utils/cryptography/SignerERC7913.sol";
+import {SignerERC7913} from "../../../utils/cryptography/signers/SignerERC7913.sol";
 
 contract MyAccountERC7913 is Account, SignerERC7913, ERC7739, ERC7821, ERC721Holder, ERC1155Holder, Initializable {
     constructor() EIP712("MyAccount7913", "1") {}
