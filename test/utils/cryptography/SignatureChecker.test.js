@@ -191,47 +191,90 @@ describe('SignatureChecker (ERC1271)', function () {
       it('should validate multiple signatures with different signer types', async function () {
         const signature = await this.signer.signMessage(TEST_MESSAGE);
         const pairs = [
-          [ethers.zeroPadValue(this.signer.address, 20), signature],
-          [ethers.zeroPadValue(this.wallet.target, 20), signature],
-          [ethers.concat([this.verifier.target, VALID_SW_KEY_1]), VALID_SW_SIGNATURE_1],
-        ].sort(([a], [b]) => ethers.keccak256(a) - ethers.keccak256(b));
-        const signers = pairs.map(([signer]) => signer);
-        const signatures = pairs.map(([, signature]) => signature);
-        await expect(this.mock.$areValidERC7913SignaturesNow(TEST_MESSAGE_HASH, signers, signatures)).to.eventually.be
-          .true;
+          { signer: ethers.zeroPadValue(this.signer.address, 20), signature },
+          { signer: ethers.zeroPadValue(this.wallet.target, 20), signature },
+          { signer: ethers.concat([this.verifier.target, VALID_SW_KEY_1]), signature: VALID_SW_SIGNATURE_1 },
+        ].sort(({ signer: a }, { signer: b }) => ethers.keccak256(a) - ethers.keccak256(b));
+
+        await expect(
+          this.mock.$areValidERC7913SignaturesNow(
+            TEST_MESSAGE_HASH,
+            pairs.map(({ signer }) => signer),
+            pairs.map(({ signature }) => signature),
+          ),
+        ).to.eventually.be.true;
       });
 
       it('should validate multiple EOA signatures', async function () {
         const pairs = [
-          [ethers.zeroPadValue(this.signer.address, 20), await this.signer.signMessage(TEST_MESSAGE)],
-          [ethers.zeroPadValue(this.extraSigner.address, 20), await this.extraSigner.signMessage(TEST_MESSAGE)],
-        ].sort(([a], [b]) => ethers.keccak256(a) - ethers.keccak256(b));
-        const signers = pairs.map(([signer]) => signer);
-        const signatures = pairs.map(([, signature]) => signature);
-        await expect(this.mock.$areValidERC7913SignaturesNow(TEST_MESSAGE_HASH, signers, signatures)).to.eventually.be
-          .true;
+          {
+            signer: ethers.zeroPadValue(this.signer.address, 20),
+            signature: await this.signer.signMessage(TEST_MESSAGE),
+          },
+          {
+            signer: ethers.zeroPadValue(this.extraSigner.address, 20),
+            signature: await this.extraSigner.signMessage(TEST_MESSAGE),
+          },
+        ].sort(({ signer: a }, { signer: b }) => ethers.keccak256(a) - ethers.keccak256(b));
+
+        await expect(
+          this.mock.$areValidERC7913SignaturesNow(
+            TEST_MESSAGE_HASH,
+            pairs.map(({ signer }) => signer),
+            pairs.map(({ signature }) => signature),
+          ),
+        ).to.eventually.be.true;
       });
 
       it('should validate multiple ERC-1271 wallet signatures', async function () {
         const pairs = [
-          [ethers.zeroPadValue(this.wallet.target, 20), await this.signer.signMessage(TEST_MESSAGE)],
-          [ethers.zeroPadValue(this.wallet2.target, 20), await this.extraSigner.signMessage(TEST_MESSAGE)],
-        ].sort(([a], [b]) => ethers.keccak256(a) - ethers.keccak256(b));
-        const signers = pairs.map(([signer]) => signer);
-        const signatures = pairs.map(([, signature]) => signature);
-        await expect(this.mock.$areValidERC7913SignaturesNow(TEST_MESSAGE_HASH, signers, signatures)).to.eventually.be
-          .true;
+          {
+            signer: ethers.zeroPadValue(this.wallet.target, 20),
+            signature: await this.signer.signMessage(TEST_MESSAGE),
+          },
+          {
+            signer: ethers.zeroPadValue(this.wallet2.target, 20),
+            signature: await this.extraSigner.signMessage(TEST_MESSAGE),
+          },
+        ].sort(({ signer: a }, { signer: b }) => ethers.keccak256(a) - ethers.keccak256(b));
+
+        await expect(
+          this.mock.$areValidERC7913SignaturesNow(
+            TEST_MESSAGE_HASH,
+            pairs.map(({ signer }) => signer),
+            pairs.map(({ signature }) => signature),
+          ),
+        ).to.eventually.be.true;
       });
 
-      it('should validate multiple ERC-7913 signatures', async function () {
+      it('should validate multiple ERC-7913 signatures (ordered by ID)', async function () {
         const pairs = [
-          [ethers.concat([this.verifier.target, VALID_SW_KEY_1]), VALID_SW_SIGNATURE_1],
-          [ethers.concat([this.verifier.target, VALID_SW_KEY_2]), VALID_SW_SIGNATURE_2],
-        ].sort(([a], [b]) => ethers.keccak256(a) - ethers.keccak256(b));
-        const signers = pairs.map(([signer]) => signer);
-        const signatures = pairs.map(([, signature]) => signature);
-        await expect(this.mock.$areValidERC7913SignaturesNow(TEST_MESSAGE_HASH, signers, signatures)).to.eventually.be
-          .true;
+          { signer: ethers.concat([this.verifier.target, VALID_SW_KEY_1]), signature: VALID_SW_SIGNATURE_1 },
+          { signer: ethers.concat([this.verifier.target, VALID_SW_KEY_2]), signature: VALID_SW_SIGNATURE_2 },
+        ].sort(({ signer: a }, { signer: b }) => ethers.keccak256(a) - ethers.keccak256(b));
+
+        await expect(
+          this.mock.$areValidERC7913SignaturesNow(
+            TEST_MESSAGE_HASH,
+            pairs.map(({ signer }) => signer),
+            pairs.map(({ signature }) => signature),
+          ),
+        ).to.eventually.be.true;
+      });
+
+      it('should validate multiple ERC-7913 signatures (unordered)', async function () {
+        const pairs = [
+          { signer: ethers.concat([this.verifier.target, VALID_SW_KEY_1]), signature: VALID_SW_SIGNATURE_1 },
+          { signer: ethers.concat([this.verifier.target, VALID_SW_KEY_2]), signature: VALID_SW_SIGNATURE_2 },
+        ].sort(({ signer: a }, { signer: b }) => ethers.keccak256(b) - ethers.keccak256(a)); // reverse
+
+        await expect(
+          this.mock.$areValidERC7913SignaturesNow(
+            TEST_MESSAGE_HASH,
+            pairs.map(({ signer }) => signer),
+            pairs.map(({ signature }) => signature),
+          ),
+        ).to.eventually.be.true;
       });
 
       it('should return false if any signature is invalid', async function () {
@@ -242,22 +285,6 @@ describe('SignatureChecker (ERC1271)', function () {
             [await this.signer.signMessage(TEST_MESSAGE), await this.signer.signMessage(WRONG_MESSAGE)],
           ),
         ).to.eventually.be.false;
-      });
-
-      it('should return false if signers are not ordered by ID', async function () {
-        const pairs = [
-          [ethers.zeroPadValue(this.signer.address, 20), await this.signer.signMessage(TEST_MESSAGE)],
-          [ethers.zeroPadValue(this.extraSigner.address, 20), await this.extraSigner.signMessage(TEST_MESSAGE)],
-        ];
-
-        if (ethers.keccak256(pairs[0][0]) < ethers.keccak256(pairs[1][0])) {
-          pairs.reverse();
-        }
-
-        const signers = pairs.map(([signer]) => signer);
-        const signatures = pairs.map(([, signature]) => signature);
-        await expect(this.mock.$areValidERC7913SignaturesNow(TEST_MESSAGE_HASH, signers, signatures)).to.eventually.be
-          .false;
       });
 
       it('should return false if there are duplicate signers', async function () {

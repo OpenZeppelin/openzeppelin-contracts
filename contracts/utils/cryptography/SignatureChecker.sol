@@ -95,8 +95,8 @@ library SignatureChecker {
     /**
      * @dev Verifies multiple ERC-7913 `signatures` for a given `hash` using a set of `signers`.
      *
-     * The signers must be ordered by their `keccak256` hash to ensure no duplicates and to optimize
-     * the verification process. The function will return `false` if the signers are not properly ordered.
+     * The signers should be ordered by their `keccak256` hash to ensure efficient duplication check. Unordered
+     * signers are supported, but the uniqueness check will be more expensive.
      *
      * Requirements:
      *
@@ -110,17 +110,25 @@ library SignatureChecker {
         bytes[] memory signers,
         bytes[] memory signatures
     ) internal view returns (bool) {
-        bytes32 previousId = bytes32(0);
+        bytes32 lastId = bytes32(0);
 
         for (uint256 i = 0; i < signers.length; ++i) {
             bytes memory signer = signers[i];
-            // Signers must ordered by id to ensure no duplicates
-            bytes32 id = keccak256(signer);
-            if (previousId >= id || !isValidERC7913SignatureNow(signer, hash, signatures[i])) {
-                return false;
-            }
 
-            previousId = id;
+            // If one of the signatures is invalid, reject the batch
+            if (!isValidERC7913SignatureNow(signer, hash, signatures[i])) return false;
+
+            bytes32 id = keccak256(signer);
+            // If the current signer ID is greater than all previous IDs, then this is a new signer.
+            if (lastId < id) {
+                lastId = id;
+            } else {
+                // If this signer id is not greater than all the previous ones, verify that it is not a duplicate of a previous one
+                // This loop is never executed if the signers are ordered by id.
+                for (uint256 j = 0; j < i; ++j) {
+                    if (id == keccak256(signers[j])) return false;
+                }
+            }
         }
 
         return true;
