@@ -3,6 +3,7 @@ const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const precompile = require('../../helpers/precompiles');
+const { P256SigningKey, NonNativeSigner } = require('../../helpers/signers');
 
 const TEST_MESSAGE = ethers.id('OpenZeppelin');
 const TEST_MESSAGE_HASH = ethers.hashMessage(TEST_MESSAGE);
@@ -10,11 +11,8 @@ const TEST_MESSAGE_HASH = ethers.hashMessage(TEST_MESSAGE);
 const WRONG_MESSAGE = ethers.id('Nope');
 const WRONG_MESSAGE_HASH = ethers.hashMessage(WRONG_MESSAGE);
 
-const VALID_SW_KEY_1 = ethers.toUtf8Bytes('valid_key_1');
-const VALID_SW_KEY_2 = ethers.toUtf8Bytes('valid_key_2');
-
-const VALID_SW_SIGNATURE_1 = ethers.toUtf8Bytes('valid_signature_1');
-const VALID_SW_SIGNATURE_2 = ethers.toUtf8Bytes('valid_signature_2');
+const aliceP256 = new NonNativeSigner(P256SigningKey.random());
+const bobP256 = new NonNativeSigner(P256SigningKey.random());
 
 async function fixture() {
   const [signer, extraSigner, other] = await ethers.getSigners();
@@ -23,7 +21,7 @@ async function fixture() {
   const wallet2 = await ethers.deployContract('ERC1271WalletMock', [extraSigner]);
   const malicious = await ethers.deployContract('ERC1271MaliciousMock');
   const signature = await signer.signMessage(TEST_MESSAGE);
-  const verifier = await ethers.deployContract('ERC7913VerifierMock');
+  const verifier = await ethers.deployContract('ERC7913P256Verifier');
 
   return { signer, other, extraSigner, mock, wallet, wallet2, malicious, signature, verifier };
 }
@@ -131,28 +129,38 @@ describe('SignatureChecker (ERC1271)', function () {
 
       describe('with ERC-7913 verifier', function () {
         it('with matching signer and signature', async function () {
+          const signature = await aliceP256.signMessage(TEST_MESSAGE);
           await expect(
             this.mock.$isValidERC7913SignatureNow(
-              ethers.concat([this.verifier.target, VALID_SW_KEY_1]),
+              ethers.concat([
+                this.verifier.target,
+                aliceP256.signingKey.publicKey.qx,
+                aliceP256.signingKey.publicKey.qy,
+              ]),
               TEST_MESSAGE_HASH,
-              VALID_SW_SIGNATURE_1,
+              signature,
             ),
           ).to.eventually.be.true;
         });
 
         it('with invalid verifier', async function () {
-          const invalidVerifierSigner = ethers.concat([this.mock.target, VALID_SW_KEY_1]);
-          await expect(
-            this.mock.$isValidERC7913SignatureNow(invalidVerifierSigner, TEST_MESSAGE_HASH, VALID_SW_SIGNATURE_1),
-          ).to.eventually.be.false;
+          const signature = await aliceP256.signMessage(TEST_MESSAGE);
+          const invalidVerifierSigner = ethers.concat([
+            this.mock.target,
+            aliceP256.signingKey.publicKey.qx,
+            aliceP256.signingKey.publicKey.qy,
+          ]);
+          await expect(this.mock.$isValidERC7913SignatureNow(invalidVerifierSigner, TEST_MESSAGE_HASH, signature)).to
+            .eventually.be.false;
         });
 
         it('with invalid key', async function () {
+          const signature = await aliceP256.signMessage(TEST_MESSAGE);
           await expect(
             this.mock.$isValidERC7913SignatureNow(
               ethers.concat([this.verifier.target, ethers.randomBytes(32)]),
               TEST_MESSAGE_HASH,
-              VALID_SW_SIGNATURE_1,
+              signature,
             ),
           ).to.eventually.be.false;
         });
@@ -160,7 +168,11 @@ describe('SignatureChecker (ERC1271)', function () {
         it('with invalid signature', async function () {
           await expect(
             this.mock.$isValidERC7913SignatureNow(
-              ethers.concat([this.verifier.target, VALID_SW_KEY_1]),
+              ethers.concat([
+                this.verifier.target,
+                aliceP256.signingKey.publicKey.qx,
+                aliceP256.signingKey.publicKey.qy,
+              ]),
               TEST_MESSAGE_HASH,
               ethers.randomBytes(65),
             ),
@@ -169,8 +181,9 @@ describe('SignatureChecker (ERC1271)', function () {
 
         it('with signer too short', async function () {
           const shortSigner = ethers.randomBytes(19);
-          await expect(this.mock.$isValidERC7913SignatureNow(shortSigner, TEST_MESSAGE_HASH, VALID_SW_SIGNATURE_1)).to
-            .eventually.be.false;
+          const signature = await aliceP256.signMessage(TEST_MESSAGE);
+          await expect(this.mock.$isValidERC7913SignatureNow(shortSigner, TEST_MESSAGE_HASH, signature)).to.eventually
+            .be.false;
         });
       });
     });
@@ -189,10 +202,18 @@ describe('SignatureChecker (ERC1271)', function () {
 
       it('should validate multiple signatures with different signer types', async function () {
         const signature = await this.signer.signMessage(TEST_MESSAGE);
+        const aliceSignature = await aliceP256.signMessage(TEST_MESSAGE);
         const pairs = [
           { signer: ethers.zeroPadValue(this.signer.address, 20), signature },
           { signer: ethers.zeroPadValue(this.wallet.target, 20), signature },
-          { signer: ethers.concat([this.verifier.target, VALID_SW_KEY_1]), signature: VALID_SW_SIGNATURE_1 },
+          {
+            signer: ethers.concat([
+              this.verifier.target,
+              aliceP256.signingKey.publicKey.qx,
+              aliceP256.signingKey.publicKey.qy,
+            ]),
+            signature: aliceSignature,
+          },
         ].sort(({ signer: a }, { signer: b }) => ethers.keccak256(a) - ethers.keccak256(b));
 
         await expect(
@@ -247,9 +268,25 @@ describe('SignatureChecker (ERC1271)', function () {
       });
 
       it('should validate multiple ERC-7913 signatures (ordered by ID)', async function () {
+        const aliceSignature = await aliceP256.signMessage(TEST_MESSAGE);
+        const bobSignature = await bobP256.signMessage(TEST_MESSAGE);
         const pairs = [
-          { signer: ethers.concat([this.verifier.target, VALID_SW_KEY_1]), signature: VALID_SW_SIGNATURE_1 },
-          { signer: ethers.concat([this.verifier.target, VALID_SW_KEY_2]), signature: VALID_SW_SIGNATURE_2 },
+          {
+            signer: ethers.concat([
+              this.verifier.target,
+              aliceP256.signingKey.publicKey.qx,
+              aliceP256.signingKey.publicKey.qy,
+            ]),
+            signature: aliceSignature,
+          },
+          {
+            signer: ethers.concat([
+              this.verifier.target,
+              bobP256.signingKey.publicKey.qx,
+              bobP256.signingKey.publicKey.qy,
+            ]),
+            signature: bobSignature,
+          },
         ].sort(({ signer: a }, { signer: b }) => ethers.keccak256(a) - ethers.keccak256(b));
 
         await expect(
@@ -262,9 +299,25 @@ describe('SignatureChecker (ERC1271)', function () {
       });
 
       it('should validate multiple ERC-7913 signatures (unordered)', async function () {
+        const aliceSignature = await aliceP256.signMessage(TEST_MESSAGE);
+        const bobSignature = await bobP256.signMessage(TEST_MESSAGE);
         const pairs = [
-          { signer: ethers.concat([this.verifier.target, VALID_SW_KEY_1]), signature: VALID_SW_SIGNATURE_1 },
-          { signer: ethers.concat([this.verifier.target, VALID_SW_KEY_2]), signature: VALID_SW_SIGNATURE_2 },
+          {
+            signer: ethers.concat([
+              this.verifier.target,
+              aliceP256.signingKey.publicKey.qx,
+              aliceP256.signingKey.publicKey.qy,
+            ]),
+            signature: aliceSignature,
+          },
+          {
+            signer: ethers.concat([
+              this.verifier.target,
+              bobP256.signingKey.publicKey.qx,
+              bobP256.signingKey.publicKey.qy,
+            ]),
+            signature: bobSignature,
+          },
         ].sort(({ signer: a }, { signer: b }) => ethers.keccak256(b) - ethers.keccak256(a)); // reverse
 
         await expect(
