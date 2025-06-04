@@ -74,14 +74,16 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
     error MultiSignerERC7913UnreachableThreshold(uint256 signers, uint256 threshold);
 
     /**
-     * @dev Returns the set of authorized signers. Prefer {_signers} for internal use.
+     * @dev Returns a slice of the set of authorized signers.
      *
-     * WARNING: This operation copies the entire signers set to memory, which can be expensive. This is designed
-     * for view accessors queried without gas fees. Using it in state-changing functions may become uncallable
-     * if the signers set grows too large.
+     * Using `start = 0` and `end = type(uint256).max` will return the entire set of signers.
+     *
+     * WARNING: Depending on the `start` and `end`, this operation can copy a large amount of data to memory, which
+     * can be expensive. This is designed for view accessors queried without gas fees. Using it in state-changing
+     * functions may become uncallable if the slice grows too large.
      */
-    function signers() public view virtual returns (bytes[] memory) {
-        return _signers.values();
+    function getSigners(uint256 start, uint256 end) public view virtual returns (bytes[] memory) {
+        return _signers.values(start, end);
     }
 
     /// @dev Returns whether the `signer` is an authorized signer.
@@ -197,8 +199,8 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
         bytes calldata signature
     ) internal view virtual override returns (bool) {
         if (signature.length == 0) return false; // For ERC-7739 compatibility
-        (bytes[] memory signingSigners, bytes[] memory signatures) = abi.decode(signature, (bytes[], bytes[]));
-        return _validateThreshold(signingSigners) && _validateSignatures(hash, signingSigners, signatures);
+        (bytes[] memory signers, bytes[] memory signatures) = abi.decode(signature, (bytes[], bytes[]));
+        return _validateThreshold(signers) && _validateSignatures(hash, signers, signatures);
     }
 
     /**
@@ -211,19 +213,19 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
      *
      * Requirements:
      *
-     * * The `signatures` arrays must be at least as large as the `signingSigners` arrays. Panics otherwise.
+     * * The `signatures` arrays must be at least as large as the `signers` arrays. Panics otherwise.
      */
     function _validateSignatures(
         bytes32 hash,
-        bytes[] memory signingSigners,
+        bytes[] memory signers,
         bytes[] memory signatures
     ) internal view virtual returns (bool valid) {
-        for (uint256 i = 0; i < signingSigners.length; ++i) {
-            if (!isSigner(signingSigners[i])) {
+        for (uint256 i = 0; i < signers.length; ++i) {
+            if (!isSigner(signers[i])) {
                 return false;
             }
         }
-        return hash.areValidERC7913SignaturesNow(signingSigners, signatures);
+        return hash.areValidERC7913SignaturesNow(signers, signatures);
     }
 
     /**
