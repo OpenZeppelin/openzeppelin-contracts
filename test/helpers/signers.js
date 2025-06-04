@@ -15,7 +15,6 @@ const {
   sha256,
   toBeHex,
   keccak256,
-  toBigInt,
 } = require('ethers');
 const { secp256r1 } = require('@noble/curves/p256');
 const { generateKeyPairSync, privateEncrypt } = require('crypto');
@@ -170,9 +169,7 @@ class MultiERC7913SigningKey {
 
     // Sorting is done at construction so that it doesn't have to be done in sign()
     this.#signers = zip(signers, weights ?? [])
-      .sort(([s1], [s2]) =>
-        toBigInt(keccak256(s1.bytes ?? s1.address)) < toBigInt(keccak256(s2.bytes ?? s2.address)) ? -1 : 1,
-      )
+      .sort(([s1], [s2]) => keccak256(s1.bytes ?? s1.address) - keccak256(s2.bytes ?? s2.address))
       .map(([signer, weight = 1]) => ({ signer, weight }));
   }
 
