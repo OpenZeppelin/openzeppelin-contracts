@@ -17,6 +17,9 @@ import {SignerECDSA} from "../../utils/cryptography/signers/SignerECDSA.sol";
 import {SignerP256} from "../../utils/cryptography/signers/SignerP256.sol";
 import {SignerRSA} from "../../utils/cryptography/signers/SignerRSA.sol";
 import {SignerERC7702} from "../../utils/cryptography/signers/SignerERC7702.sol";
+import {SignerERC7913} from "../../utils/cryptography/signers/SignerERC7913.sol";
+import {MultiSignerERC7913} from "../../utils/cryptography/signers/MultiSignerERC7913.sol";
+import {MultiSignerERC7913Weighted} from "../../utils/cryptography/signers/MultiSignerERC7913Weighted.sol";
 
 abstract contract AccountMock is Account, ERC7739, ERC7821, ERC721Holder, ERC1155Holder {
     /// Validates a user operation with a boolean signature.

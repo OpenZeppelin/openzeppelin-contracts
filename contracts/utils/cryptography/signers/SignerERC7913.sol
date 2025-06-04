@@ -3,7 +3,7 @@
 pragma solidity ^0.8.24;
 
 import {AbstractSigner} from "./AbstractSigner.sol";
-import {ERC7913Utils} from "./ERC7913Utils.sol";
+import {ERC7913Utils} from "../ERC7913Utils.sol";
 
 /**
  * @dev Implementation of {AbstractSigner} using

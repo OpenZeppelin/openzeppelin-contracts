@@ -3,10 +3,10 @@
 pragma solidity ^0.8.27;
 
 import {AbstractSigner} from "./AbstractSigner.sol";
-import {ERC7913Utils} from "./ERC7913Utils.sol";
-import {EnumerableSet} from "../structs/EnumerableSet.sol";
-import {Calldata} from "../../utils/Calldata.sol";
-import {SafeCast} from "../../utils/math/SafeCast.sol";
+import {ERC7913Utils} from "../ERC7913Utils.sol";
+import {EnumerableSet} from "../../structs/EnumerableSet.sol";
+import {Calldata} from "../../../utils/Calldata.sol";
+import {SafeCast} from "../../../utils/math/SafeCast.sol";
 
 /**
  * @dev Implementation of {AbstractSigner} using multiple ERC-7913 signers with a threshold-based

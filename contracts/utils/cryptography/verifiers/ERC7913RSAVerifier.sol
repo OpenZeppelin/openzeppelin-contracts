@@ -2,8 +2,8 @@
 
 pragma solidity ^0.8.20;
 
-import {RSA} from "../../utils/cryptography/RSA.sol";
-import {IERC7913SignatureVerifier} from "../../interfaces/IERC7913.sol";
+import {RSA} from "../../../utils/cryptography/RSA.sol";
+import {IERC7913SignatureVerifier} from "../../../interfaces/IERC7913.sol";
 
 /**
  * @dev ERC-7913 signature verifier that support RSA keys.
