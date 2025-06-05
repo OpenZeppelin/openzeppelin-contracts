@@ -75,7 +75,7 @@ jobs:
       - name: Check files are compilable with specified pragma
         run: npm run test:pragma-validity
       - name: Check pragma consistency between files
-        run: npm run test:pragma
+        run: npm run test:pragma-consistency
       - name: Check storage layout
         uses: ./.github/actions/storage-layout
         continue-on-error: ${{ contains(github.event.pull_request.labels.*.name, 'breaking change') }}
