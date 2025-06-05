@@ -167,7 +167,7 @@ function _verifyMultipleSignatures(
 }
 ----
 
-This function will reject inputs that contain duplicated signers. Sorting the signers by their `keccak256` hash is recommanded to minimize the gas cost.
+This function will reject inputs that contain duplicated signers. Sorting the signers by their `keccak256` hash is recommended to minimize the gas cost.
 
 This unified approach allows smart contracts to accept signatures from any supported source without needing to implement different verification logic for each type.
 
