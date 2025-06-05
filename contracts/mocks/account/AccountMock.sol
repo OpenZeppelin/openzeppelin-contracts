@@ -179,7 +179,7 @@ abstract contract AccountMultiSignerWeightedMock is
     ERC721Holder,
     ERC1155Holder
 {
-    constructor(bytes[] memory signers, uint256[] memory weights, uint256 threshold) {
+    constructor(bytes[] memory signers, uint64[] memory weights, uint64 threshold) {
         _addSigners(signers);
         _setSignerWeights(signers, weights);
         _setThreshold(threshold);
