@@ -140,7 +140,7 @@ abstract contract AccountERC7579HookedMock is AccountERC7579Hooked {
 }
 
 abstract contract AccountMultiSignerMock is Account, MultiSignerERC7913, ERC7739, ERC7821, ERC721Holder, ERC1155Holder {
-    constructor(bytes[] memory signers, uint256 threshold) {
+    constructor(bytes[] memory signers, uint64 threshold) {
         _addSigners(signers);
         _setThreshold(threshold);
     }
