@@ -17,8 +17,6 @@ import {EnumerableSet} from "../../../utils/structs/EnumerableSet.sol";
  *
  * ```solidity
  * contract MyWeightedMultiSignerAccount is Account, MultiSignerERC7913Weighted, Initializable {
- *     constructor() EIP712("MyWeightedMultiSignerAccount", "1") {}
- *
  *     function initialize(bytes[] memory signers, uint64[] memory weights, uint64 threshold) public initializer {
  *         _addSigners(signers);
  *         _setSignerWeights(signers, weights);
