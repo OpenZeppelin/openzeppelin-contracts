@@ -18,6 +18,10 @@ describe('CircularBuffer', function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
+  it('reverts on invalid setup', async function () {
+    await expect(this.mock.$setup(0, 0)).to.be.revertedWithCustomError(this.mock, 'InvalidBufferSize');
+  });
+
   it('starts empty', async function () {
     expect(await this.mock.$count(0)).to.equal(0n);
     expect(await this.mock.$length(0)).to.equal(LENGTH);

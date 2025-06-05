@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (utils/math/SafeCast.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (utils/math/SafeCast.sol)
 // This file was procedurally generated from scripts/generate/templates/SafeCast.js.
 
 pragma solidity ^0.8.20;
@@ -1155,8 +1155,7 @@ library SafeCast {
      * @dev Cast a boolean (false or true) to a uint256 (0 or 1) with no jump.
      */
     function toUint(bool b) internal pure returns (uint256 u) {
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             u := iszero(iszero(b))
         }
     }

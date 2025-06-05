@@ -130,10 +130,10 @@ describe('ERC4626', function () {
       expect(await this.vault.previewWithdraw(value)).to.equal(sharesForWithdraw);
     });
 
-    // Donate newly minted tokens to the vault during the reentracy causes the share price to increase.
-    // Still, the deposit that trigger the reentracy is not affected and get the previewed price.
+    // Donate newly minted tokens to the vault during the reentrancy causes the share price to increase.
+    // Still, the deposit that trigger the reentrancy is not affected and get the previewed price.
     // Further deposits will get a different price (getting fewer shares for the same value of assets)
-    it('share price change during reentracy does not affect deposit', async function () {
+    it('share price change during reentrancy does not affect deposit', async function () {
       // Schedules a reentrancy from the token contract that mess up the share price
       await this.token.scheduleReenter(
         reenterType.Before,
@@ -154,10 +154,10 @@ describe('ERC4626', function () {
       expect(await this.vault.previewDeposit(value)).to.lt(sharesBefore);
     });
 
-    // Burn some tokens from the vault during the reentracy causes the share price to drop.
-    // Still, the withdraw that trigger the reentracy is not affected and get the previewed price.
+    // Burn some tokens from the vault during the reentrancy causes the share price to drop.
+    // Still, the withdraw that trigger the reentrancy is not affected and get the previewed price.
     // Further withdraw will get a different price (needing more shares for the same value of assets)
-    it('share price change during reentracy does not affect withdraw', async function () {
+    it('share price change during reentrancy does not affect withdraw', async function () {
       await this.vault.connect(this.holder).deposit(value, this.holder);
       await this.vault.connect(this.other).deposit(value, this.other);
 

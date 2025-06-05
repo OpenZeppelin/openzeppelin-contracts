@@ -10,12 +10,12 @@ import {ShortStrings, ShortString} from "@openzeppelin/contracts/utils/ShortStri
 contract ShortStringsTest is Test, SymTest {
     string _fallback;
 
-    function testRoundtripShort(string memory input) external {
+    function testRoundtripShort(string memory input) external pure {
         vm.assume(_isShort(input));
         _assertRoundtripShort(input);
     }
 
-    function symbolicRoundtripShort() external {
+    function symbolicRoundtripShort() external pure {
         string memory input = svm.createString(31, "RoundtripShortInput");
         _assertRoundtripShort(input);
     }
@@ -41,12 +41,12 @@ contract ShortStringsTest is Test, SymTest {
         _assertRevertLong(input);
     }
 
-    function testLengthShort(string memory input) external {
+    function testLengthShort(string memory input) external pure {
         vm.assume(_isShort(input));
         _assertLengthShort(input);
     }
 
-    function symbolicLengthShort() external {
+    function symbolicLengthShort() external pure {
         string memory input = svm.createString(31, "LengthShortInput");
         _assertLengthShort(input);
     }
@@ -66,7 +66,7 @@ contract ShortStringsTest is Test, SymTest {
 
     /// Assertions
 
-    function _assertRoundtripShort(string memory input) internal {
+    function _assertRoundtripShort(string memory input) internal pure {
         ShortString short = ShortStrings.toShortString(input);
         string memory output = ShortStrings.toString(short);
         assertEq(input, output);
@@ -84,7 +84,7 @@ contract ShortStringsTest is Test, SymTest {
         this.toShortString(input);
     }
 
-    function _assertLengthShort(string memory input) internal {
+    function _assertLengthShort(string memory input) internal pure {
         ShortString short = ShortStrings.toShortString(input);
         uint256 shortLength = ShortStrings.byteLength(short);
         uint256 inputLength = bytes(input).length;

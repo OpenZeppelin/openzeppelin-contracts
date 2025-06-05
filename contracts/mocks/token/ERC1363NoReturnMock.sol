@@ -2,7 +2,6 @@
 
 pragma solidity ^0.8.20;
 
-import {IERC20, ERC20} from "../../token/ERC20/ERC20.sol";
 import {ERC1363} from "../../token/ERC20/extensions/ERC1363.sol";
 
 abstract contract ERC1363NoReturnMock is ERC1363 {

@@ -18,7 +18,7 @@ methods {
 */
 ghost mapping(address => mathint)                     trackedMintAmount;
 ghost mapping(address => mathint)                     trackedBurnAmount;
-ghost mapping(address => mapping(address => mathint)) trackedTransferedAmount;
+ghost mapping(address => mapping(address => mathint)) trackedTransferredAmount;
 
 function specUpdate(address from, address to, uint256 amount) {
     if (from == 0 && to == 0) { assert(false); } // defensive
@@ -28,7 +28,7 @@ function specUpdate(address from, address to, uint256 amount) {
     } else if (to == 0) {
         trackedBurnAmount[from] = amount;
     } else {
-        trackedTransferedAmount[from][to] = amount;
+        trackedTransferredAmount[from][to] = amount;
     }
 }
 
@@ -51,5 +51,5 @@ rule checkMintAndBurn(env e) {
 
     assert trackedMintAmount[receiver] == to_mathint(amount);
     assert trackedBurnAmount[receiver] == amount + to_mathint(recipient == 0 ? fees : 0);
-    assert (fees > 0 && recipient != 0) => trackedTransferedAmount[receiver][recipient] == to_mathint(fees);
+    assert (fees > 0 && recipient != 0) => trackedTransferredAmount[receiver][recipient] == to_mathint(fees);
 }

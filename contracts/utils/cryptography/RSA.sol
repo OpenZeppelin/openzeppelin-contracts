@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.1.0) (utils/cryptography/RSA.sol)
 pragma solidity ^0.8.20;
 
 import {Math} from "../math/Math.sol";
@@ -8,13 +9,15 @@ import {Math} from "../math/Math.sol";
  *
  * This library supports PKCS#1 v1.5 padding to avoid malleability via chosen plaintext attacks in practical implementations.
  * The padding follows the EMSA-PKCS1-v1_5-ENCODE encoding definition as per section 9.2 of the RFC. This padding makes
- * RSA semanticaly secure for signing messages.
+ * RSA semantically secure for signing messages.
  *
- * Inspired by https://github.com/adria0/SolRsaVerify[Adrià Massanet's work]
+ * Inspired by https://github.com/adria0/SolRsaVerify/blob/79c6182cabb9102ea69d4a2e996816091d5f1cd1[Adrià Massanet's work] (GNU General Public License v3.0).
+ *
+ * _Available since v5.1._
  */
 library RSA {
     /**
-     * @dev Same as {pkcs1} but using SHA256 to calculate the digest of `data`.
+     * @dev Same as {pkcs1Sha256} but using SHA256 to calculate the digest of `data`.
      */
     function pkcs1Sha256(
         bytes memory data,
@@ -22,30 +25,36 @@ library RSA {
         bytes memory e,
         bytes memory n
     ) internal view returns (bool) {
-        return pkcs1(sha256(data), s, e, n);
+        return pkcs1Sha256(sha256(data), s, e, n);
     }
 
     /**
-     * @dev Verifies a PKCSv1.5 signature given a digest according the verification
-     * method described in https://datatracker.ietf.org/doc/html/rfc8017#section-8.2.2[section 8.2.2 of RFC8017].
+     * @dev Verifies a PKCSv1.5 signature given a digest according to the verification
+     * method described in https://datatracker.ietf.org/doc/html/rfc8017#section-8.2.2[section 8.2.2 of RFC8017] with
+     * support for explicit or implicit NULL parameters in the DigestInfo (no other optional parameters are supported).
      *
-     * IMPORTANT: Although this function allows for it, using n of length 1024 bits is considered unsafe.
-     * Consider using at least 2048 bits.
+     * IMPORTANT: For security reason, this function requires the signature and modulus to have a length of at least
+     * 2048 bits. If you use a smaller key, consider replacing it with a larger, more secure, one.
      *
-     * WARNING: PKCS#1 v1.5 allows for replayability given the message may contain arbitrary optional parameters in the
-     * DigestInfo. Consider using an onchain nonce or unique identifier to include in the message to prevent replay attacks.
+     * WARNING: This verification algorithm doesn't prevent replayability. If called multiple times with the same
+     * digest, public key and (valid signature), it will return true every time. Consider including an onchain nonce
+     * or unique identifier in the message to prevent replay attacks.
+     *
+     * WARNING: This verification algorithm supports any exponent. NIST recommends using `65537` (or higher).
+     * That is the default value many libraries use, such as OpenSSL. Developers may choose to reject public keys
+     * using a low exponent out of security concerns.
      *
      * @param digest the digest to verify
      * @param s is a buffer containing the signature
      * @param e is the exponent of the public key
      * @param n is the modulus of the public key
      */
-    function pkcs1(bytes32 digest, bytes memory s, bytes memory e, bytes memory n) internal view returns (bool) {
+    function pkcs1Sha256(bytes32 digest, bytes memory s, bytes memory e, bytes memory n) internal view returns (bool) {
         unchecked {
             // cache and check length
             uint256 length = n.length;
             if (
-                length < 0x40 || // PKCS#1 padding is slightly less than 0x40 bytes at the bare minimum
+                length < 0x100 || // Enforce 2048 bits minimum
                 length != s.length // signature must have the same length as the finite field
             ) {
                 return false;
@@ -78,7 +87,7 @@ library RSA {
             // - PS is padding filled with 0xFF
             // - DigestInfo ::= SEQUENCE {
             //    digestAlgorithm AlgorithmIdentifier,
-            //      [optional algorithm parameters]
+            //      [optional algorithm parameters] -- not currently supported
             //    digest OCTET STRING
             // }
 
@@ -94,13 +103,13 @@ library RSA {
             // it should be at 32 (digest) + 2 bytes from the end. To those 34 bytes, we add the
             // OID (9 bytes) and its length (2 bytes) to get the position of the DigestInfo sequence,
             // which is expected to have a length of 0x31 when the NULL param is present or 0x2f if not.
-            if (bytes1(_unsafeReadBytes32(buffer, length - 50)) == 0x31) {
+            if (bytes1(_unsafeReadBytes32(buffer, length - 0x32)) == 0x31) {
                 offset = 0x34;
                 // 00 (1 byte) | SEQUENCE length (0x31) = 3031 (2 bytes) | SEQUENCE length (0x0d) = 300d (2 bytes) | OBJECT_IDENTIFIER length (0x09) = 0609 (2 bytes)
                 // SHA256 OID = 608648016503040201 (9 bytes) | NULL = 0500 (2 bytes) (explicit) | OCTET_STRING length (0x20) = 0420 (2 bytes)
                 params = 0x003031300d060960864801650304020105000420000000000000000000000000;
                 mask = 0xffffffffffffffffffffffffffffffffffffffff000000000000000000000000; // (20 bytes)
-            } else if (bytes1(_unsafeReadBytes32(buffer, length - 48)) == 0x2F) {
+            } else if (bytes1(_unsafeReadBytes32(buffer, length - 0x30)) == 0x2F) {
                 offset = 0x32;
                 // 00 (1 byte) | SEQUENCE length (0x2f) = 302f (2 bytes) | SEQUENCE length (0x0b) = 300b (2 bytes) | OBJECT_IDENTIFIER length (0x09) = 0609 (2 bytes)
                 // SHA256 OID = 608648016503040201 (9 bytes) | NULL = <implicit> | OCTET_STRING length (0x20) = 0420 (2 bytes)
@@ -111,7 +120,7 @@ library RSA {
                 return false;
             }
 
-            // Length is at least 0x40 and offset is at most 0x34, so this is safe. There is always some padding.
+            // Length is at least 0x100 and offset is at most 0x34, so this is safe. There is always some padding.
             uint256 paddingEnd = length - offset;
 
             // The padding has variable (arbitrary) length, so we check it byte per byte in a loop.
@@ -136,8 +145,8 @@ library RSA {
 
     /// @dev Reads a bytes32 from a bytes array without bounds checking.
     function _unsafeReadBytes32(bytes memory array, uint256 offset) private pure returns (bytes32 result) {
-        // Memory safetiness is guaranteed as long as the provided `array` is a Solidity-allocated bytes array
-        // and `offset` is within bounds. This is the case for all calls to this private function from {pkcs1}.
+        // Memory safeness is guaranteed as long as the provided `array` is a Solidity-allocated bytes array
+        // and `offset` is within bounds. This is the case for all calls to this private function from {pkcs1Sha256}.
         assembly ("memory-safe") {
             result := mload(add(add(array, 0x20), offset))
         }

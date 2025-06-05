@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.1) (utils/Multicall.sol)
+// OpenZeppelin Contracts (last updated v5.3.0) (utils/Multicall.sol)
 
 pragma solidity ^0.8.20;
 
@@ -13,10 +13,10 @@ import {Context} from "./Context.sol";
  * careful about sending transactions invoking {multicall}. For example, a relay address that filters function
  * selectors won't filter calls nested within a {multicall} operation.
  *
- * NOTE: Since 5.0.1 and 4.9.4, this contract identifies non-canonical contexts (i.e. `msg.sender` is not {_msgSender}).
+ * NOTE: Since 5.0.1 and 4.9.4, this contract identifies non-canonical contexts (i.e. `msg.sender` is not {Context-_msgSender}).
  * If a non-canonical context is identified, the following self `delegatecall` appends the last bytes of `msg.data`
  * to the subcall. This makes it safe to use with {ERC2771Context}. Contexts that don't affect the resolution of
- * {_msgSender} are not propagated to subcalls.
+ * {Context-_msgSender} are not propagated to subcalls.
  */
 abstract contract Multicall is Context {
     /**

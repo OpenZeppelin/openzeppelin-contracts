@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (governance/TimelockController.sol)
+// OpenZeppelin Contracts (last updated v5.3.0) (governance/TimelockController.sol)
 
 pragma solidity ^0.8.20;
 
@@ -7,6 +7,7 @@ import {AccessControl} from "../access/AccessControl.sol";
 import {ERC721Holder} from "../token/ERC721/utils/ERC721Holder.sol";
 import {ERC1155Holder} from "../token/ERC1155/utils/ERC1155Holder.sol";
 import {Address} from "../utils/Address.sol";
+import {IERC165} from "../utils/introspection/ERC165.sol";
 
 /**
  * @dev Contract module which acts as a timelocked controller. When set as the
@@ -152,11 +153,9 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
     /**
      * @dev Contract might receive/hold ETH as part of the maintenance process.
      */
-    receive() external payable {}
+    receive() external payable virtual {}
 
-    /**
-     * @dev See {IERC165-supportsInterface}.
-     */
+    /// @inheritdoc IERC165
     function supportsInterface(
         bytes4 interfaceId
     ) public view virtual override(AccessControl, ERC1155Holder) returns (bool) {

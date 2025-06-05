@@ -10,7 +10,6 @@ const firstTokenId = 5042n;
 const secondTokenId = 79217n;
 const nonExistentTokenId = 13n;
 const fourthTokenId = 4n;
-const baseURI = 'https://api.example.com/v1/';
 
 const RECEIVER_MAGIC_VALUE = '0x150b7a02';
 
@@ -935,31 +934,6 @@ function shouldBehaveLikeERC721Metadata(name, symbol) {
         await expect(this.token.tokenURI(nonExistentTokenId))
           .to.be.revertedWithCustomError(this.token, 'ERC721NonexistentToken')
           .withArgs(nonExistentTokenId);
-      });
-
-      describe('base URI', function () {
-        beforeEach(function () {
-          if (!this.token.interface.hasFunction('setBaseURI')) {
-            this.skip();
-          }
-        });
-
-        it('base URI can be set', async function () {
-          await this.token.setBaseURI(baseURI);
-          expect(await this.token.baseURI()).to.equal(baseURI);
-        });
-
-        it('base URI is added as a prefix to the token URI', async function () {
-          await this.token.setBaseURI(baseURI);
-          expect(await this.token.tokenURI(firstTokenId)).to.equal(baseURI + firstTokenId.toString());
-        });
-
-        it('token URI can be changed by changing the base URI', async function () {
-          await this.token.setBaseURI(baseURI);
-          const newBaseURI = 'https://api.example.com/v2/';
-          await this.token.setBaseURI(newBaseURI);
-          expect(await this.token.tokenURI(firstTokenId)).to.equal(newBaseURI + firstTokenId.toString());
-        });
       });
     });
   });

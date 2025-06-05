@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (governance/extensions/GovernorVotesQuorumFraction.sol)
+// OpenZeppelin Contracts (last updated v5.3.0) (governance/extensions/GovernorVotesQuorumFraction.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
 import {GovernorVotes} from "./GovernorVotes.sol";
+import {Math} from "../../utils/math/Math.sol";
 import {SafeCast} from "../../utils/math/SafeCast.sol";
 import {Checkpoints} from "../../utils/structs/Checkpoints.sol";
 
@@ -45,18 +46,7 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
      * @dev Returns the quorum numerator at a specific timepoint. See {quorumDenominator}.
      */
     function quorumNumerator(uint256 timepoint) public view virtual returns (uint256) {
-        uint256 length = _quorumNumeratorHistory._checkpoints.length;
-
-        // Optimistic search, check the latest checkpoint
-        Checkpoints.Checkpoint208 storage latest = _quorumNumeratorHistory._checkpoints[length - 1];
-        uint48 latestKey = latest._key;
-        uint208 latestValue = latest._value;
-        if (latestKey <= timepoint) {
-            return latestValue;
-        }
-
-        // Otherwise, do the binary search
-        return _quorumNumeratorHistory.upperLookupRecent(SafeCast.toUint48(timepoint));
+        return _optimisticUpperLookupRecent(_quorumNumeratorHistory, timepoint);
     }
 
     /**
@@ -70,7 +60,7 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
      * @dev Returns the quorum for a timepoint, in terms of number of votes: `supply * numerator / denominator`.
      */
     function quorum(uint256 timepoint) public view virtual override returns (uint256) {
-        return (token().getPastTotalSupply(timepoint) * quorumNumerator(timepoint)) / quorumDenominator();
+        return Math.mulDiv(token().getPastTotalSupply(timepoint), quorumNumerator(timepoint), quorumDenominator());
     }
 
     /**
@@ -106,5 +96,18 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
         _quorumNumeratorHistory.push(clock(), SafeCast.toUint208(newQuorumNumerator));
 
         emit QuorumNumeratorUpdated(oldQuorumNumerator, newQuorumNumerator);
+    }
+
+    /**
+     * @dev Returns the numerator at a specific timepoint.
+     */
+    function _optimisticUpperLookupRecent(
+        Checkpoints.Trace208 storage ckpts,
+        uint256 timepoint
+    ) internal view returns (uint256) {
+        // If trace is empty, key and value are both equal to 0.
+        // In that case `key <= timepoint` is true, and it is ok to return 0.
+        (, uint48 key, uint208 value) = ckpts.latestCheckpoint();
+        return key <= timepoint ? value : ckpts.upperLookupRecent(SafeCast.toUint48(timepoint));
     }
 }

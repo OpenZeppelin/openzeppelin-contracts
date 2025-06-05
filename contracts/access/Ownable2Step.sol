@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (access/Ownable2Step.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (access/Ownable2Step.sol)
 
 pragma solidity ^0.8.20;
 
@@ -37,6 +37,8 @@ abstract contract Ownable2Step is Ownable {
     /**
      * @dev Starts the ownership transfer of the contract to a new account. Replaces the pending transfer if there is one.
      * Can only be called by the current owner.
+     *
+     * Setting `newOwner` to the zero address is allowed; this can be used to cancel an initiated ownership transfer.
      */
     function transferOwnership(address newOwner) public virtual override onlyOwner {
         _pendingOwner = newOwner;

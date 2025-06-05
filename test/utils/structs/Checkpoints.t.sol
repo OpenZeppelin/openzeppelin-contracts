@@ -10,7 +10,7 @@ import {Checkpoints} from "@openzeppelin/contracts/utils/structs/Checkpoints.sol
 contract CheckpointsTrace224Test is Test {
     using Checkpoints for Checkpoints.Trace224;
 
-    // Maximum gap between keys used during the fuzzing tests: the `_prepareKeys` function with make sure that
+    // Maximum gap between keys used during the fuzzing tests: the `_prepareKeys` function will make sure that
     // key#n+1 is in the [key#n, key#n + _KEY_MAX_GAP] range.
     uint8 internal constant _KEY_MAX_GAP = 64;
 
@@ -30,7 +30,7 @@ contract CheckpointsTrace224Test is Test {
         }
     }
 
-    function _assertLatestCheckpoint(bool exist, uint32 key, uint224 value) internal {
+    function _assertLatestCheckpoint(bool exist, uint32 key, uint224 value) internal view {
         (bool _exist, uint32 _key, uint224 _value) = _ckpts.latestCheckpoint();
         assertEq(_exist, exist);
         assertEq(_key, key);
@@ -118,7 +118,7 @@ contract CheckpointsTrace224Test is Test {
 contract CheckpointsTrace208Test is Test {
     using Checkpoints for Checkpoints.Trace208;
 
-    // Maximum gap between keys used during the fuzzing tests: the `_prepareKeys` function with make sure that
+    // Maximum gap between keys used during the fuzzing tests: the `_prepareKeys` function will make sure that
     // key#n+1 is in the [key#n, key#n + _KEY_MAX_GAP] range.
     uint8 internal constant _KEY_MAX_GAP = 64;
 
@@ -138,7 +138,7 @@ contract CheckpointsTrace208Test is Test {
         }
     }
 
-    function _assertLatestCheckpoint(bool exist, uint48 key, uint208 value) internal {
+    function _assertLatestCheckpoint(bool exist, uint48 key, uint208 value) internal view {
         (bool _exist, uint48 _key, uint208 _value) = _ckpts.latestCheckpoint();
         assertEq(_exist, exist);
         assertEq(_key, key);
@@ -226,7 +226,7 @@ contract CheckpointsTrace208Test is Test {
 contract CheckpointsTrace160Test is Test {
     using Checkpoints for Checkpoints.Trace160;
 
-    // Maximum gap between keys used during the fuzzing tests: the `_prepareKeys` function with make sure that
+    // Maximum gap between keys used during the fuzzing tests: the `_prepareKeys` function will make sure that
     // key#n+1 is in the [key#n, key#n + _KEY_MAX_GAP] range.
     uint8 internal constant _KEY_MAX_GAP = 64;
 
@@ -246,7 +246,7 @@ contract CheckpointsTrace160Test is Test {
         }
     }
 
-    function _assertLatestCheckpoint(bool exist, uint96 key, uint160 value) internal {
+    function _assertLatestCheckpoint(bool exist, uint96 key, uint160 value) internal view {
         (bool _exist, uint96 _key, uint160 _value) = _ckpts.latestCheckpoint();
         assertEq(_exist, exist);
         assertEq(_key, key);
