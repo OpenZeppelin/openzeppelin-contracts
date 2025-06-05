@@ -19,8 +19,6 @@ const {
 const { secp256r1 } = require('@noble/curves/p256');
 const { generateKeyPairSync, privateEncrypt } = require('crypto');
 
-const { zip } = require('./iterate');
-
 // Lightweight version of BaseWallet
 class NonNativeSigner extends AbstractSigner {
   #signingKey;
@@ -152,7 +150,7 @@ class MultiERC7913SigningKey {
   // this is a sorted array of objects that contain {signer, weight}
   #signers;
 
-  constructor(signers, weights = undefined) {
+  constructor(signers) {
     assertArgument(
       Array.isArray(signers) && signers.length > 0,
       'signers must be a non-empty array',
@@ -160,25 +158,12 @@ class MultiERC7913SigningKey {
       signers.length,
     );
 
-    assertArgument(
-      weights === undefined || (Array.isArray(weights) && weights.length === signers.length),
-      'weights must be an array with the same length as signers',
-      'weights',
-      weights?.length,
-    );
-
     // Sorting is done at construction so that it doesn't have to be done in sign()
-    this.#signers = zip(signers, weights ?? [])
-      .sort(([s1], [s2]) => keccak256(s1.bytes ?? s1.address) - keccak256(s2.bytes ?? s2.address))
-      .map(([signer, weight = 1]) => ({ signer, weight }));
+    this.#signers = signers.sort((s1, s2) => keccak256(s1.bytes ?? s1.address) - keccak256(s2.bytes ?? s2.address));
   }
 
   get signers() {
-    return this.#signers.map(({ signer }) => signer);
-  }
-
-  get weights() {
-    return this.#signers.map(({ weight }) => weight);
+    return this.#signers;
   }
 
   sign(digest /*: BytesLike*/ /*: Signature*/) {
@@ -188,8 +173,8 @@ class MultiERC7913SigningKey {
       serialized: AbiCoder.defaultAbiCoder().encode(
         ['bytes[]', 'bytes[]'],
         [
-          this.#signers.map(({ signer }) => signer.bytes ?? signer.address),
-          this.#signers.map(({ signer }) => signer.signingKey.sign(digest).serialized),
+          this.#signers.map(signer => signer.bytes ?? signer.address),
+          this.#signers.map(signer => signer.signingKey.sign(digest).serialized),
         ],
       ),
     };
