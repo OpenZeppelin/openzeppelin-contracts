@@ -50,13 +50,15 @@ import {EnumerableSet} from "../../../utils/structs/EnumerableSet.sol";
 abstract contract MultiSignerERC7913Weighted is MultiSignerERC7913 {
     using EnumerableSet for EnumerableSet.BytesSet;
 
-    // Invariant: sum(weights) >= threshold
-    uint64 private _totalWeight;
-
     // Mapping from signer to weight
     mapping(bytes signer => uint64) private _weights;
 
-    /// @dev Emitted when a signer's weight is changed.
+    /**
+     * @dev Emitted when a signer's weight is changed.
+     *
+     * NOTE: Not emitted in {_addSigners}. Indexers must rely on {ERC7913SignerAdded} to index a
+     * default weight of 1. See {_signerWeight}.
+     */
     event ERC7913SignerWeightChanged(bytes indexed signer, uint64 weight);
 
     /// @dev Thrown when a signer's weight is invalid.
@@ -72,7 +74,7 @@ abstract contract MultiSignerERC7913Weighted is MultiSignerERC7913 {
 
     /// @dev Gets the total weight of all signers.
     function totalWeight() public view virtual returns (uint64) {
-        return _totalWeight; // Doesn't need Math.max because it's incremented by the default 1 in `_addSigners`
+        return _weightSigners(getSigners(0, totalSigners()));
     }
 
     /**
@@ -97,9 +99,7 @@ abstract contract MultiSignerERC7913Weighted is MultiSignerERC7913 {
      * Emits {ERC7913SignerWeightChanged} for each signer.
      */
     function _setSignerWeights(bytes[] memory signers, uint64[] memory newWeights) internal virtual {
-        uint256 signersLength = signers.length;
-        require(signersLength == newWeights.length, MultiSignerERC7913WeightedMismatchedLength());
-        uint64 oldWeight = _weightSigners(signers);
+        require(signers.length == newWeights.length, MultiSignerERC7913WeightedMismatchedLength());
 
         for (uint256 i = 0; i < signers.length; ++i) {
             bytes memory signer = signers[i];
@@ -109,15 +109,7 @@ abstract contract MultiSignerERC7913Weighted is MultiSignerERC7913 {
         }
 
         _unsafeSetSignerWeights(signers, newWeights);
-        _totalWeight = (_totalWeight - oldWeight + _weightSigners(signers));
         _validateReachableThreshold();
-    }
-
-    /// @inheritdoc MultiSignerERC7913
-    function _addSigners(bytes[] memory newSigners) internal virtual override {
-        super._addSigners(newSigners);
-        // Each new signer has a default weight of 1
-        _totalWeight += uint64(newSigners.length); // Overflow is economically impossible
     }
 
     /**
@@ -126,11 +118,6 @@ abstract contract MultiSignerERC7913Weighted is MultiSignerERC7913 {
      * Emits {ERC7913SignerWeightChanged} for each removed signer.
      */
     function _removeSigners(bytes[] memory oldSigners) internal virtual override {
-        uint64 removedWeight = _weightSigners(oldSigners);
-        unchecked {
-            // Can't overflow. Invariant: sum(weights) >= threshold
-            _totalWeight -= removedWeight;
-        }
         // Clean up weights for removed signers
         _unsafeSetSignerWeights(oldSigners, new uint64[](oldSigners.length));
         super._removeSigners(oldSigners);
@@ -157,7 +144,7 @@ abstract contract MultiSignerERC7913Weighted is MultiSignerERC7913 {
     /**
      * @dev Validates that the total weight of signers meets the threshold requirement.
      *
-     * NOTE: This function intentionally does not call `super. _validateThreshold` because the base implementation
+     * NOTE: This function intentionally does not call `super._validateThreshold` because the base implementation
      * assumes each signer has a weight of 1, which is a subset of this weighted implementation. Consider that multiple
      * implementations of this function may exist in the contract, so important side effects may be missed
      * depending on the linearization order.
