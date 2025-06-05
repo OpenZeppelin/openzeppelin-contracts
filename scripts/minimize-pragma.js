@@ -10,7 +10,7 @@ const { range, unique } = require('./helpers');
 const pattern = 'contracts/**/*.sol';
 const exclude = ['contracts/mocks/'];
 
-const solcVersionsMaxPatch = ['0.5.16', '0.6.12', '0.7.6', '0.8.30'];
+const solcVersionsMaxPatch = ['0.4.26', '0.5.16', '0.6.12', '0.7.6', '0.8.30'];
 const minVersionForContracts = '0.8.20';
 const minVersionForInterfaces = '0.0.0';
 const allSolcVersions = solcVersionsMaxPatch
