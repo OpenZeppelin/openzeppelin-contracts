@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.1.0) (utils/cryptography/P256.sol)
+// OpenZeppelin Contracts (last updated v5.3.0) (utils/cryptography/P256.sol)
 pragma solidity ^0.8.20;
 
 import {Math} from "../math/Math.sol";
@@ -90,10 +90,48 @@ library P256 {
     ) private view returns (bool valid, bool supported) {
         if (!_isProperSignature(r, s) || !isValidPublicKey(qx, qy)) {
             return (false, true); // signature is invalid, and its not because the precompile is missing
+        } else if (_rip7212(h, r, s, qx, qy)) {
+            return (true, true); // precompile is present, signature is valid
+        } else if (
+            // Given precompiles have no bytecode (i.e. `address(0x100).code.length == 0`), we use
+            // a valid signature with small `r` and `s` values to check if the precompile is present. Taken from
+            // https://github.com/C2SP/wycheproof/blob/4672ff74d68766e7785c2cac4c597effccef2c5c/testvectors/ecdsa_secp256r1_sha256_p1363_test.json#L1173-L1204
+            _rip7212(
+                0xbb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023, // sha256("123400")
+                0x0000000000000000000000000000000000000000000000000000000000000005,
+                0x0000000000000000000000000000000000000000000000000000000000000001,
+                0xa71af64de5126a4a4e02b7922d66ce9415ce88a4c9d25514d91082c8725ac957,
+                0x5d47723c8fbe580bb369fec9c2665d8e30a435b9932645482e7c9f11e872296b
+            )
+        ) {
+            return (false, true); // precompile is present, signature is invalid
+        } else {
+            return (false, false); // precompile is absent
         }
+    }
 
-        (bool success, bytes memory returndata) = address(0x100).staticcall(abi.encode(h, r, s, qx, qy));
-        return (success && returndata.length == 0x20) ? (abi.decode(returndata, (bool)), true) : (false, false);
+    /**
+     * @dev Low level helper for {_tryVerifyNative}. Calls the precompile and checks if there is a return value.
+     */
+    function _rip7212(bytes32 h, bytes32 r, bytes32 s, bytes32 qx, bytes32 qy) private view returns (bool isValid) {
+        assembly ("memory-safe") {
+            // Use the free memory pointer without updating it at the end of the function
+            let ptr := mload(0x40)
+            mstore(ptr, h)
+            mstore(add(ptr, 0x20), r)
+            mstore(add(ptr, 0x40), s)
+            mstore(add(ptr, 0x60), qx)
+            mstore(add(ptr, 0x80), qy)
+            // RIP-7212 precompiles return empty bytes when an invalid signature is passed, making it impossible
+            // to distinguish the presence of the precompile. Custom precompile implementations may decide to
+            // return `bytes32(0)` (i.e. false) without developers noticing, so we decide to evaluate the return value
+            // without expanding memory using scratch space.
+            mstore(0x00, 0) // zero out scratch space in case the precompile doesn't return anything
+            if iszero(staticcall(gas(), 0x100, ptr, 0xa0, 0x00, 0x20)) {
+                invalid()
+            }
+            isValid := mload(0x00)
+        }
     }
 
     /**

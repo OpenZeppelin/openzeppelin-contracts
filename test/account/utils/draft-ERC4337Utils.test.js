@@ -22,7 +22,11 @@ describe('ERC4337Utils', function () {
 
   describe('entrypoint', function () {
     it('v0.7.0', async function () {
-      await expect(this.utils.$ENTRYPOINT_V07()).to.eventually.equal(entrypoint);
+      await expect(this.utils.$ENTRYPOINT_V07()).to.eventually.equal(entrypoint.v07);
+    });
+
+    it('v0.8.0', async function () {
+      await expect(this.utils.$ENTRYPOINT_V08()).to.eventually.equal(entrypoint.v08);
     });
   });
 
@@ -172,22 +176,14 @@ describe('ERC4337Utils', function () {
   });
 
   describe('hash', function () {
-    it('returns the operation hash with specified entrypoint and chainId', async function () {
-      const userOp = new UserOperation({ sender: this.sender, nonce: 1 });
-      const chainId = await ethers.provider.getNetwork().then(({ chainId }) => chainId);
-      const otherChainId = 0xdeadbeef;
+    for (const [version, instance] of Object.entries(entrypoint)) {
+      it(`returns the operation hash for entrypoint ${version}`, async function () {
+        const userOp = new UserOperation({ sender: this.sender, nonce: 1 });
+        const expected = await userOp.hash(instance);
 
-      // check that helper matches entrypoint logic
-      await expect(entrypoint.getUserOpHash(userOp.packed)).to.eventually.equal(userOp.hash(entrypoint, chainId));
-
-      // check library against helper
-      await expect(this.utils.$hash(userOp.packed, entrypoint, chainId)).to.eventually.equal(
-        userOp.hash(entrypoint, chainId),
-      );
-      await expect(this.utils.$hash(userOp.packed, entrypoint, otherChainId)).to.eventually.equal(
-        userOp.hash(entrypoint, otherChainId),
-      );
-    });
+        await expect(this.utils.$hash(userOp.packed, instance)).to.eventually.equal(expected);
+      });
+    }
   });
 
   describe('userOp values', function () {

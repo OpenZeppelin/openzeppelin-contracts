@@ -1,6 +1,6 @@
 const format = require('../format-lines');
 const { fromBytes32, toBytes32 } = require('./conversion');
-const { TYPES } = require('./EnumerableMap.opts');
+const { MAP_TYPES } = require('./Enumerable.opts');
 
 const header = `\
 pragma solidity ^0.8.20;
@@ -40,6 +40,7 @@ import {EnumerableSet} from "./EnumerableSet.sol";
  * - \`address -> address\` (\`AddressToAddressMap\`) since v5.1.0
  * - \`address -> bytes32\` (\`AddressToBytes32Map\`) since v5.1.0
  * - \`bytes32 -> address\` (\`Bytes32ToAddressMap\`) since v5.1.0
+ * - \`bytes -> bytes\` (\`BytesToBytesMap\`) since v5.4.0
  *
  * [WARNING]
  * ====
@@ -164,7 +165,7 @@ function get(Bytes32ToBytes32Map storage map, bytes32 key) internal view returns
 }
 
 /**
- * @dev Return the an array containing all the keys
+ * @dev Returns an array containing all the keys
  *
  * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
  * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
@@ -174,9 +175,21 @@ function get(Bytes32ToBytes32Map storage map, bytes32 key) internal view returns
 function keys(Bytes32ToBytes32Map storage map) internal view returns (bytes32[] memory) {
     return map._keys.values();
 }
+
+/**
+ * @dev Returns an array containing a slice of the keys
+ *
+ * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+ * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+ * this function has an unbounded cost, and using it as part of a state-changing function may render the function
+ * uncallable if the map grows to a point where copying to memory consumes too much gas to fit in a block.
+ */
+function keys(Bytes32ToBytes32Map storage map, uint256 start, uint256 end) internal view returns (bytes32[] memory) {
+    return map._keys.values(start, end);
+}
 `;
 
-const customMap = ({ name, keyType, valueType }) => `\
+const customMap = ({ name, key, value }) => `\
 // ${name}
 
 struct ${name} {
@@ -190,8 +203,8 @@ struct ${name} {
  * Returns true if the key was added to the map, that is if it was not
  * already present.
  */
-function set(${name} storage map, ${keyType} key, ${valueType} value) internal returns (bool) {
-    return set(map._inner, ${toBytes32(keyType, 'key')}, ${toBytes32(valueType, 'value')});
+function set(${name} storage map, ${key.type} key, ${value.type} value) internal returns (bool) {
+    return set(map._inner, ${toBytes32(key.type, 'key')}, ${toBytes32(value.type, 'value')});
 }
 
 /**
@@ -199,8 +212,8 @@ function set(${name} storage map, ${keyType} key, ${valueType} value) internal r
  *
  * Returns true if the key was removed from the map, that is if it was present.
  */
-function remove(${name} storage map, ${keyType} key) internal returns (bool) {
-    return remove(map._inner, ${toBytes32(keyType, 'key')});
+function remove(${name} storage map, ${key.type} key) internal returns (bool) {
+    return remove(map._inner, ${toBytes32(key.type, 'key')});
 }
 
 /**
@@ -216,8 +229,8 @@ function clear(${name} storage map) internal {
 /**
  * @dev Returns true if the key is in the map. O(1).
  */
-function contains(${name} storage map, ${keyType} key) internal view returns (bool) {
-    return contains(map._inner, ${toBytes32(keyType, 'key')});
+function contains(${name} storage map, ${key.type} key) internal view returns (bool) {
+    return contains(map._inner, ${toBytes32(key.type, 'key')});
 }
 
 /**
@@ -236,18 +249,18 @@ function length(${name} storage map) internal view returns (uint256) {
  *
  * - \`index\` must be strictly less than {length}.
  */
-function at(${name} storage map, uint256 index) internal view returns (${keyType} key, ${valueType} value) {
+function at(${name} storage map, uint256 index) internal view returns (${key.type} key, ${value.type} value) {
     (bytes32 atKey, bytes32 val) = at(map._inner, index);
-    return (${fromBytes32(keyType, 'atKey')}, ${fromBytes32(valueType, 'val')});
+    return (${fromBytes32(key.type, 'atKey')}, ${fromBytes32(value.type, 'val')});
 }
 
 /**
  * @dev Tries to returns the value associated with \`key\`. O(1).
  * Does not revert if \`key\` is not in the map.
  */
-function tryGet(${name} storage map, ${keyType} key) internal view returns (bool exists, ${valueType} value) {
-    (bool success, bytes32 val) = tryGet(map._inner, ${toBytes32(keyType, 'key')});
-    return (success, ${fromBytes32(valueType, 'val')});
+function tryGet(${name} storage map, ${key.type} key) internal view returns (bool exists, ${value.type} value) {
+    (bool success, bytes32 val) = tryGet(map._inner, ${toBytes32(key.type, 'key')});
+    return (success, ${fromBytes32(value.type, 'val')});
 }
 
 /**
@@ -257,8 +270,8 @@ function tryGet(${name} storage map, ${keyType} key) internal view returns (bool
  *
  * - \`key\` must be in the map.
  */
-function get(${name} storage map, ${keyType} key) internal view returns (${valueType}) {
-    return ${fromBytes32(valueType, `get(map._inner, ${toBytes32(keyType, 'key')})`)};
+function get(${name} storage map, ${key.type} key) internal view returns (${value.type}) {
+    return ${fromBytes32(value.type, `get(map._inner, ${toBytes32(key.type, 'key')})`)};
 }
 
 /**
@@ -269,9 +282,28 @@ function get(${name} storage map, ${keyType} key) internal view returns (${value
  * this function has an unbounded cost, and using it as part of a state-changing function may render the function
  * uncallable if the map grows to a point where copying to memory consumes too much gas to fit in a block.
  */
-function keys(${name} storage map) internal view returns (${keyType}[] memory) {
+function keys(${name} storage map) internal view returns (${key.type}[] memory) {
     bytes32[] memory store = keys(map._inner);
-    ${keyType}[] memory result;
+    ${key.type}[] memory result;
+
+    assembly ("memory-safe") {
+        result := store
+    }
+
+    return result;
+}
+
+/**
+ * @dev Return the an array containing a slice of the keys
+ *
+ * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+ * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+ * this function has an unbounded cost, and using it as part of a state-changing function may render the function
+ * uncallable if the map grows to a point where copying to memory consumes too much gas to fit in a block.
+ */
+function keys(${name} storage map, uint256 start, uint256 end) internal view returns (${key.type}[] memory) {
+    bytes32[] memory store = keys(map._inner, start, end);
+    ${key.type}[] memory result;
 
     assembly ("memory-safe") {
         result := store
@@ -281,16 +313,149 @@ function keys(${name} storage map) internal view returns (${keyType}[] memory) {
 }
 `;
 
+const memoryMap = ({ name, keySet, key, value }) => `\
+/**
+ * @dev Query for a nonexistent map key.
+ */
+error EnumerableMapNonexistent${key.name}Key(${key.type} key);
+
+struct ${name} {
+    // Storage of keys
+    EnumerableSet.${keySet.name} _keys;
+    mapping(${key.type} key => ${value.type}) _values;
+}
+
+/**
+ * @dev Adds a key-value pair to a map, or updates the value for an existing
+ * key. O(1).
+ *
+ * Returns true if the key was added to the map, that is if it was not
+ * already present.
+ */
+function set(${name} storage map, ${key.typeLoc} key, ${value.typeLoc} value) internal returns (bool) {
+    map._values[key] = value;
+    return map._keys.add(key);
+}
+
+/**
+ * @dev Removes a key-value pair from a map. O(1).
+ *
+ * Returns true if the key was removed from the map, that is if it was present.
+ */
+function remove(${name} storage map, ${key.typeLoc} key) internal returns (bool) {
+    delete map._values[key];
+    return map._keys.remove(key);
+}
+
+/**
+ * @dev Removes all the entries from a map. O(n).
+ *
+ * WARNING: Developers should keep in mind that this function has an unbounded cost and using it may render the
+ * function uncallable if the map grows to the point where clearing it consumes too much gas to fit in a block.
+ */
+function clear(${name} storage map) internal {
+    uint256 len = length(map);
+    for (uint256 i = 0; i < len; ++i) {
+        delete map._values[map._keys.at(i)];
+    }
+    map._keys.clear();
+}
+
+/**
+ * @dev Returns true if the key is in the map. O(1).
+ */
+function contains(${name} storage map, ${key.typeLoc} key) internal view returns (bool) {
+    return map._keys.contains(key);
+}
+
+/**
+ * @dev Returns the number of key-value pairs in the map. O(1).
+ */
+function length(${name} storage map) internal view returns (uint256) {
+    return map._keys.length();
+}
+
+/**
+ * @dev Returns the key-value pair stored at position \`index\` in the map. O(1).
+ *
+ * Note that there are no guarantees on the ordering of entries inside the
+ * array, and it may change when more entries are added or removed.
+ *
+ * Requirements:
+ *
+ * - \`index\` must be strictly less than {length}.
+ */
+function at(
+    ${name} storage map,
+    uint256 index
+) internal view returns (${key.typeLoc} key, ${value.typeLoc} value) {
+    key = map._keys.at(index);
+    value = map._values[key];
+}
+
+/**
+ * @dev Tries to returns the value associated with \`key\`. O(1).
+ * Does not revert if \`key\` is not in the map.
+ */
+function tryGet(
+    ${name} storage map,
+    ${key.typeLoc} key
+) internal view returns (bool exists, ${value.typeLoc} value) {
+    value = map._values[key];
+    exists = ${value.memory ? 'bytes(value).length != 0' : `value != ${value.type}(0)`} || contains(map, key);
+}
+
+/**
+ * @dev Returns the value associated with \`key\`. O(1).
+ *
+ * Requirements:
+ *
+ * - \`key\` must be in the map.
+ */
+function get(${name} storage map, ${key.typeLoc} key) internal view returns (${value.typeLoc} value) {
+    bool exists;
+    (exists, value) = tryGet(map, key);
+    if (!exists) {
+        revert EnumerableMapNonexistent${key.name}Key(key);
+    }
+}
+
+/**
+ * @dev Returns an array containing all the keys
+ *
+ * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+ * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+ * this function has an unbounded cost, and using it as part of a state-changing function may render the function
+ * uncallable if the map grows to a point where copying to memory consumes too much gas to fit in a block.
+ */
+function keys(${name} storage map) internal view returns (${key.type}[] memory) {
+    return map._keys.values();
+}
+
+/**
+ * @dev Returns an array containing a slice of the keys
+ *
+ * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+ * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+ * this function has an unbounded cost, and using it as part of a state-changing function may render the function
+ * uncallable if the map grows to a point where copying to memory consumes too much gas to fit in a block.
+ */
+function keys(${name} storage map, uint256 start, uint256 end) internal view returns (${key.type}[] memory) {
+    return map._keys.values(start, end);
+}
+`;
+
 // GENERATE
 module.exports = format(
   header.trimEnd(),
   'library EnumerableMap {',
   format(
     [].concat(
-      'using EnumerableSet for EnumerableSet.Bytes32Set;',
+      'using EnumerableSet for *;',
       '',
       defaultMap,
-      TYPES.map(details => customMap(details)),
+      MAP_TYPES.filter(({ key, value }) => !(key.memory || value.memory)).map(customMap),
+      MAP_TYPES.filter(({ key, value }) => key.memory || value.memory).map(memoryMap),
     ),
   ).trimEnd(),
   '}',

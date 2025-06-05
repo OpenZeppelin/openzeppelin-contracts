@@ -125,3 +125,47 @@ contract Bytes32ArraysMock {
         return _array.length;
     }
 }
+
+contract BytesArraysMock {
+    using Arrays for bytes[];
+
+    bytes[] private _array;
+
+    constructor(bytes[] memory array) {
+        _array = array;
+    }
+
+    function unsafeAccess(uint256 pos) external view returns (bytes memory) {
+        return _array.unsafeAccess(pos).value;
+    }
+
+    function unsafeSetLength(uint256 newLength) external {
+        _array.unsafeSetLength(newLength);
+    }
+
+    function length() external view returns (uint256) {
+        return _array.length;
+    }
+}
+
+contract StringArraysMock {
+    using Arrays for string[];
+
+    string[] private _array;
+
+    constructor(string[] memory array) {
+        _array = array;
+    }
+
+    function unsafeAccess(uint256 pos) external view returns (string memory) {
+        return _array.unsafeAccess(pos).value;
+    }
+
+    function unsafeSetLength(uint256 newLength) external {
+        _array.unsafeSetLength(newLength);
+    }
+
+    function length() external view returns (uint256) {
+        return _array.length;
+    }
+}

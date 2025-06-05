@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+// OpenZeppelin Contracts (last updated v5.3.0) (governance/extensions/GovernorVotesSuperQuorumFraction.sol)
+pragma solidity ^0.8.24;
 
 import {Governor} from "../Governor.sol";
 import {GovernorSuperQuorum} from "./GovernorSuperQuorum.sol";
@@ -61,6 +62,7 @@ abstract contract GovernorVotesSuperQuorumFraction is GovernorVotesQuorumFractio
 
     /**
      * @dev Returns the super quorum for a `timepoint`, in terms of number of votes: `supply * numerator / denominator`.
+     * See {GovernorSuperQuorum-superQuorum} for more details.
      */
     function superQuorum(uint256 timepoint) public view virtual override returns (uint256) {
         return Math.mulDiv(token().getPastTotalSupply(timepoint), superQuorumNumerator(timepoint), quorumDenominator());
