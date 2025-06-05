@@ -12,7 +12,7 @@ import {EnumerableSet} from "../../structs/EnumerableSet.sol";
  *
  * This contract allows managing a set of authorized signers and requires a minimum number of
  * signatures (threshold) to approve operations. It uses ERC-7913 formatted signers, which
- * makes it nativelly compatible with ECDSA and ERC-1271 signers.
+ * makes it natively compatible with ECDSA and ERC-1271 signers.
  *
  * Example of usage:
  *
@@ -210,9 +210,8 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
      * @dev Validates the signatures using the signers and their corresponding signatures.
      * Returns whether whether the signers are authorized and the signatures are valid for the given hash.
      *
-     * IMPORTANT: For simplicity, this contract assumes that the signers are ordered by their `keccak256` hash
-     * to avoid duplication when iterating through the signers (i.e. `keccak256(signer1) < keccak256(signer2)`).
-     * The function will return false if the signers are not ordered.
+     * IMPORTANT: Sorting the signers by their `keccak256` hash will improve the gas efficiency of this function.
+     * See {SignatureChecker-areValidERC7913SignaturesNow} for more details.
      *
      * Requirements:
      *
