@@ -75,13 +75,13 @@ module.exports = [
     static ruleId = 'no-external-virtual';
 
     FunctionDefinition(node) {
-      // Skip interface definitions, constructors and receive/fallback functions
+      // Skip interface definitions, constructors, receive, fallback functions
       if (
         node.parent.kind !== 'interface' &&
         !node.isConstructor &&
         !node.isReceiveEther &&
-        !node.isFallback &&  
-        node.visibility === 'external' && 
+        !node.isFallback &&
+        node.visibility === 'external' &&
         node.isVirtual
       ) {
         this.error(node, 'External functions should not be virtual. Consider using public virtual instead.');
