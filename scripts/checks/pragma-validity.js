@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const { exec } = require('child_process');
 const fs = require('fs');
 const glob = require('glob');
@@ -13,17 +15,18 @@ Promise.all(
     .filter(file => exclude.every(e => path.relative(e, file).startsWith('..')))
     .map(
       file =>
-        new Promise((resolve, reject) => {
+        new Promise(resolve => {
           const { version } = semver.minVersion(
             fs.readFileSync(file, 'utf8').match(/pragma solidity (?<pragma>[><=^]*[0-9]+.[0-9]+.[0-9]+);/)?.groups
               .pragma,
           );
-          return exec(`forge build ${file} --use ${version} --out out/out-solc${version}`, error =>
-            error === null ? resolve() : reject(`Failed to compile ${file} using solc ${version}\n${error}`),
-          );
+          exec(`forge build ${file} --use ${version} --out out/out-solc${version}`, error => {
+            if (error) {
+              console.log(`Failed to compile ${file} using solc ${version}\n${error}`);
+              process.exitCode = 1;
+              resolve();
+            }
+          });
         }),
     ),
-).catch(error => {
-  console.error(error);
-  process.exit(1);
-});
+);
