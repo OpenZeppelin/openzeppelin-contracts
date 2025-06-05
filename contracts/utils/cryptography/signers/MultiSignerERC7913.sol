@@ -12,7 +12,7 @@ import {EnumerableSet} from "../../structs/EnumerableSet.sol";
  *
  * This contract allows managing a set of authorized signers and requires a minimum number of
  * signatures (threshold) to approve operations. It uses ERC-7913 formatted signers, which
- * concatenate a verifier address and a key: `verifier || key`.
+ * makes it natively compatible with ECDSA and ERC-1271 signers.
  *
  * Example of usage:
  *
@@ -70,11 +70,6 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
 
     /// @dev The `threshold` is unreachable given the number of `signers`.
     error MultiSignerERC7913UnreachableThreshold(uint64 signers, uint64 threshold);
-
-    /// @dev Returns the total number of signers.
-    function totalSigners() public view virtual returns (uint64) {
-        return uint64(_signers.length()); // Safe cast. Extremely costly to overflow.
-    }
 
     /**
      * @dev Returns a slice of the set of authorized signers.
@@ -156,11 +151,14 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
      * * The {signers}'s length must be `>=` to the {threshold}. Throws {MultiSignerERC7913UnreachableThreshold} if not.
      */
     function _validateReachableThreshold() internal view virtual {
-        uint64 signersLength = totalSigners();
+        uint256 signersLength = _signers.length();
         uint64 currentThreshold = threshold();
         require(
             signersLength >= currentThreshold,
-            MultiSignerERC7913UnreachableThreshold(signersLength, currentThreshold)
+            MultiSignerERC7913UnreachableThreshold(
+                uint64(signersLength), // Safe cast. Economically impossible to overflow.
+                currentThreshold
+            )
         );
     }
 
@@ -210,9 +208,8 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
      * @dev Validates the signatures using the signers and their corresponding signatures.
      * Returns whether whether the signers are authorized and the signatures are valid for the given hash.
      *
-     * IMPORTANT: For simplicity, this contract assumes that the signers are ordered by their `keccak256` hash
-     * to avoid duplication when iterating through the signers (i.e. `keccak256(signer1) < keccak256(signer2)`).
-     * The function will return false if the signers are not ordered.
+     * IMPORTANT: Sorting the signers by their `keccak256` hash will improve the gas efficiency of this function.
+     * See {SignatureChecker-areValidERC7913SignaturesNow} for more details.
      *
      * Requirements:
      *
