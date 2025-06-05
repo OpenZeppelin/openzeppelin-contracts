@@ -75,20 +75,15 @@ module.exports = [
     static ruleId = 'no-external-virtual';
 
     FunctionDefinition(node) {
-      // Skip constructor functions, interface definitions, receive/fallback functions,
-      // and governance/multicall functions which legitimately use external virtual
+      // Skip interface definitions, constructors and receive/fallback functions
       if (
-        node.isConstructor ||
-        node.parent.kind === 'interface' ||
-        node.name === '' || // receive/fallback functions have empty names
-        node.isReceiveEther ||
-        node.isFallback ||
-        /^(update|multicall)/.test(node.name) // Allow external virtual for update* and multicall functions
+        node.parent.kind !== 'interface' &&
+        !node.isConstructor &&
+        !node.isReceiveEther &&
+        !node.isFallback &&  
+        node.visibility === 'external' && 
+        node.isVirtual
       ) {
-        return;
-      }
-
-      if (node.visibility === 'external' && node.isVirtual) {
         this.error(node, 'External functions should not be virtual. Consider using public virtual instead.');
       }
     }
