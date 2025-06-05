@@ -1,32 +1,43 @@
 #!/usr/bin/env node
 
 const { exec } = require('child_process');
-const fs = require('fs');
-const glob = require('glob');
 const path = require('path');
 const semver = require('semver');
+const match = require('micromatch');
+const { findAll } = require('solidity-ast/utils');
+const { _: artifacts } = require('yargs').argv;
 
-const pattern = 'contracts/**/*.sol';
-const exclude = ['contracts/mocks/'];
+// files to skip
+const skipPatterns = ['contracts-exposed/**', 'contracts/mocks/**'];
 
 Promise.all(
-  glob
-    .sync(pattern)
-    .filter(file => exclude.every(e => path.relative(e, file).startsWith('..')))
-    .map(
-      file =>
-        new Promise(resolve => {
-          const { version } = semver.minVersion(
-            fs.readFileSync(file, 'utf8').match(/pragma solidity (?<pragma>[><=^]*[0-9]+.[0-9]+.[0-9]+);/)?.groups
-              .pragma,
-          );
-          exec(`forge build ${file} --use ${version} --out out/out-solc${version}`, error => {
-            if (error) {
-              console.log(`Failed to compile ${file} using solc ${version}\n${error}`);
-              process.exitCode = 1;
-              resolve();
-            }
-          });
-        }),
-    ),
-);
+  artifacts.flatMap(artifact => {
+    const { output: solcOutput } = require(path.resolve(__dirname, '../..', artifact));
+    return Object.keys(solcOutput.contracts)
+      .filter(source => !match.any(source, skipPatterns))
+      .map(
+        source =>
+          new Promise((resolve, reject) => {
+            const [
+              {
+                literals: [first, ...rest],
+              },
+            ] = findAll('PragmaDirective', solcOutput.sources[source].ast);
+            if (first === 'solidity') {
+              const { version } = semver.minVersion(rest.join(''));
+              exec(`forge build ${source} --use ${version} --out out/out-solc${version}`, error => {
+                if (error) {
+                  console.log(`Failed to compile ${source} using solc ${version}\n${error}`);
+                  process.exitCode = 1;
+                  resolve();
+                }
+              });
+            } else reject();
+          }),
+      );
+  }),
+).finally(() => {
+  if (!process.exitCode) {
+    console.log('All files can be compiler with the specified pragma.');
+  }
+});
