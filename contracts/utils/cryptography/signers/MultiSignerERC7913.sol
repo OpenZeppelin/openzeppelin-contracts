@@ -155,7 +155,10 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
         uint64 currentThreshold = threshold();
         require(
             signersLength >= currentThreshold,
-            MultiSignerERC7913UnreachableThreshold(signersLength, currentThreshold)
+            MultiSignerERC7913UnreachableThreshold(
+                uint64(signersLength), // Safe cast. Economically impossible to overflow.
+                currentThreshold
+            )
         );
     }
 
