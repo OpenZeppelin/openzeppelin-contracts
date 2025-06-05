@@ -71,11 +71,6 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
     /// @dev The `threshold` is unreachable given the number of `signers`.
     error MultiSignerERC7913UnreachableThreshold(uint64 signers, uint64 threshold);
 
-    /// @dev Returns the total number of signers.
-    function totalSigners() public view virtual returns (uint64) {
-        return uint64(_signers.length()); // Safe cast. Extremely costly to overflow.
-    }
-
     /**
      * @dev Returns a slice of the set of authorized signers.
      *
@@ -156,7 +151,7 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
      * * The {signers}'s length must be `>=` to the {threshold}. Throws {MultiSignerERC7913UnreachableThreshold} if not.
      */
     function _validateReachableThreshold() internal view virtual {
-        uint64 signersLength = totalSigners();
+        uint64 signersLength = uint64(_signers.length()); // Safe cast. Economically impossible to overflow.
         uint64 currentThreshold = threshold();
         require(
             signersLength >= currentThreshold,
