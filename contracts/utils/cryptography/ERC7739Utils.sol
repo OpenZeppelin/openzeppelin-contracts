@@ -9,7 +9,7 @@ import {Calldata} from "../Calldata.sol";
  * that are specific to an EIP-712 domain.
  *
  * This library provides methods to wrap, unwrap and operate over typed data signatures with a defensive
- * rehashing mechanism that includes the application's xref:api:utils#EIP712-_domainSeparatorV4[EIP-712]
+ * rehashing mechanism that includes the app's xref:api:utils/cryptography#EIP712-_domainSeparatorV4[EIP-712]
  * and preserves readability of the signed content using an EIP-712 nested approach.
  *
  * A smart contract domain can validate a signature for a typed data structure in two ways:
@@ -20,8 +20,8 @@ import {Calldata} from "../Calldata.sol";
  * NOTE: A provider for a smart contract wallet would need to return this signature as the
  * result of a call to `personal_sign` or `eth_signTypedData`, and this may be unsupported by
  * API clients that expect a return value of 129 bytes, or specifically the `r,s,v` parameters
- * of an xref:api:utils#ECDSA[ECDSA] signature, as is for example specified for
- * xref:api:utils#EIP712[EIP-712].
+ * of an xref:api:utils/cryptography#ECDSA[ECDSA] signature, as is for example specified for
+ * xref:api:utils/cryptography#EIP712[EIP-712].
  */
 library ERC7739Utils {
     /**

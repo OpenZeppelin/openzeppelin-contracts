@@ -12,9 +12,9 @@ At a high level, signatures are a set of cryptographic algorithms that allow for
 
 ==== Ethereum Signatures (secp256k1)
 
-xref:api:utils.adoc#ECDSA[`ECDSA`] provides functions for recovering and managing Ethereum account ECDSA signatures. These are often generated via https://web3js.readthedocs.io/en/v1.7.3/web3-eth.html#sign[`web3.eth.sign`], and form a 65-byte array (of type `bytes` in Solidity) arranged the following way: `[[v (1)], [r (32)], [s (32)]]`.
+xref:api:utils/cryptography.adoc#ECDSA[`ECDSA`] provides functions for recovering and managing Ethereum account ECDSA signatures. These are often generated via https://web3js.readthedocs.io/en/v1.7.3/web3-eth.html#sign[`web3.eth.sign`], and form a 65-byte array (of type `bytes` in Solidity) arranged the following way: `[[v (1)], [r (32)], [s (32)]]`.
 
-The data signer can be recovered with xref:api:utils.adoc#ECDSA-recover-bytes32-bytes-[`ECDSA.recover`], and its address compared to verify the signature. Most wallets will hash the data to sign and add the prefix `\x19Ethereum Signed Message:\n`, so when attempting to recover the signer of an Ethereum signed message hash, you'll want to use xref:api:utils.adoc#MessageHashUtils-toEthSignedMessageHash-bytes32-[`toEthSignedMessageHash`].
+The data signer can be recovered with xref:api:utils/cryptography.adoc#ECDSA-recover-bytes32-bytes-[`ECDSA.recover`], and its address compared to verify the signature. Most wallets will hash the data to sign and add the prefix `\x19Ethereum Signed Message:\n`, so when attempting to recover the signer of an Ethereum signed message hash, you'll want to use xref:api:utils/cryptography.adoc#MessageHashUtils-toEthSignedMessageHash-bytes32-[`toEthSignedMessageHash`].
 
 [source,solidity]
 ----
@@ -28,7 +28,7 @@ function _verify(bytes32 data, bytes memory signature, address account) internal
 }
 ----
 
-WARNING: Getting signature verification right is not trivial: make sure you fully read and understand xref:api:utils.adoc#MessageHashUtils[`MessageHashUtils`]'s and xref:api:utils.adoc#ECDSA[`ECDSA`]'s documentation.
+WARNING: Getting signature verification right is not trivial: make sure you fully read and understand xref:api:utils/cryptography.adoc#MessageHashUtils[`MessageHashUtils`]'s and xref:api:utils/cryptography.adoc#ECDSA[`ECDSA`]'s documentation.
 
 ==== P256 Signatures (secp256r1)
 
@@ -79,7 +79,7 @@ This cryptosystem consists of using a private key that's the product of 2 large 
 
 RSA signatures are known for being less efficient than elliptic curve signatures given the size of the keys, which are big compared to ECDSA keys with the same security level. Using plain RSA is considered unsafe, this is why the implementation uses the `EMSA-PKCS1-v1_5` encoding method from https://datatracker.ietf.org/doc/html/rfc8017[RFC8017] to include padding to the signature.
 
-To verify a signature using RSA, you can leverage the xref:api:utils.adoc#RSA[`RSA`] library that exposes a method for verifying RSA with the PKCS 1.5 standard:
+To verify a signature using RSA, you can leverage the xref:api:utils/cryptography.adoc#RSA[`RSA`] library that exposes a method for verifying RSA with the PKCS 1.5 standard:
 
 [source,solidity]
 ----
@@ -103,11 +103,11 @@ Developers can build a Merkle Tree off-chain, which allows for verifying that an
 
 TIP: OpenZeppelin Contracts provides a https://github.com/OpenZeppelin/merkle-tree[JavaScript library] for building trees off-chain and generating proofs.
 
-xref:api:utils.adoc#MerkleProof[`MerkleProof`] provides:
+xref:api:utils/cryptography.adoc#MerkleProof[`MerkleProof`] provides:
 
-* xref:api:utils.adoc#MerkleProof-verify-bytes32---bytes32-bytes32-[`verify`] - can prove that some value is part of a https://en.wikipedia.org/wiki/Merkle_tree[Merkle tree].
+* xref:api:utils/cryptography.adoc#MerkleProof-verify-bytes32---bytes32-bytes32-[`verify`] - can prove that some value is part of a https://en.wikipedia.org/wiki/Merkle_tree[Merkle tree].
 
-* xref:api:utils.adoc#MerkleProof-multiProofVerify-bytes32-bytes32---bytes32---bool---[`multiProofVerify`] - can prove multiple values are part of a Merkle tree.
+* xref:api:utils/cryptography.adoc#MerkleProof-multiProofVerify-bytes32-bytes32---bytes32---bool---[`multiProofVerify`] - can prove multiple values are part of a Merkle tree.
 
 For an on-chain Merkle Tree, see the xref:api:utils.adoc#MerkleTree[`MerkleTree`] library.
 
