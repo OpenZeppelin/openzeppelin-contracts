@@ -5,6 +5,7 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { getDomain } = require('../helpers/eip712');
 const { ERC4337Helper } = require('../helpers/erc4337');
 const { NonNativeSigner, P256SigningKey, RSASHA256SigningKey, MultiERC7913SigningKey } = require('../helpers/signers');
+const { MAX_UINT64 } = require('../helpers/constants');
 
 const { shouldBehaveLikeAccountCore, shouldBehaveLikeAccountHolder } = require('./Account.behavior');
 const { shouldBehaveLikeERC1271 } = require('../utils/cryptography/ERC1271.behavior');
@@ -133,11 +134,11 @@ describe('AccountMultiSigner', function () {
       const signers = [signerECDSA3.address];
 
       // Successfully adds a signer
-      const signersArrayBefore = await this.mock.getSigners(0, ethers.MaxUint256).then(s => s.map(ethers.getAddress));
+      const signersArrayBefore = await this.mock.getSigners(0, MAX_UINT64).then(s => s.map(ethers.getAddress));
       await expect(this.mock.$_addSigners(signers))
         .to.emit(this.mock, 'ERC7913SignerAdded')
         .withArgs(signerECDSA3.address);
-      const signersArrayAfter = await this.mock.getSigners(0, ethers.MaxUint256).then(s => s.map(ethers.getAddress));
+      const signersArrayAfter = await this.mock.getSigners(0, MAX_UINT64).then(s => s.map(ethers.getAddress));
       expect(signersArrayAfter.length).to.equal(signersArrayBefore.length + 1);
       expect(signersArrayAfter).to.include(ethers.getAddress(signerECDSA3.address));
 
@@ -151,11 +152,11 @@ describe('AccountMultiSigner', function () {
       const signers = [signerECDSA2.address];
 
       // Successfully removes an already added signer
-      const signersArrayBefore = await this.mock.getSigners(0, ethers.MaxUint256).then(s => s.map(ethers.getAddress));
+      const signersArrayBefore = await this.mock.getSigners(0, MAX_UINT64).then(s => s.map(ethers.getAddress));
       await expect(this.mock.$_removeSigners(signers))
         .to.emit(this.mock, 'ERC7913SignerRemoved')
         .withArgs(signerECDSA2.address);
-      const signersArrayAfter = await this.mock.getSigners(0, ethers.MaxUint256).then(s => s.map(ethers.getAddress));
+      const signersArrayAfter = await this.mock.getSigners(0, MAX_UINT64).then(s => s.map(ethers.getAddress));
       expect(signersArrayAfter.length).to.equal(signersArrayBefore.length - 1);
       expect(signersArrayAfter).to.not.include(ethers.getAddress(signerECDSA2.address));
 
@@ -191,7 +192,7 @@ describe('AccountMultiSigner', function () {
 
     it('can read signers and threshold', async function () {
       await expect(
-        this.mock.getSigners(0, ethers.MaxUint256).then(s => s.map(ethers.getAddress)),
+        this.mock.getSigners(0, MAX_UINT64).then(s => s.map(ethers.getAddress)),
       ).to.eventually.have.deep.members([signerECDSA1.address, signerECDSA2.address]);
 
       await expect(this.mock.threshold()).to.eventually.equal(1);

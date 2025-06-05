@@ -5,7 +5,6 @@ pragma solidity ^0.8.27;
 import {AbstractSigner} from "./AbstractSigner.sol";
 import {SignatureChecker} from "../SignatureChecker.sol";
 import {EnumerableSet} from "../../structs/EnumerableSet.sol";
-import {SafeCast} from "../../../utils/math/SafeCast.sol";
 
 /**
  * @dev Implementation of {AbstractSigner} using multiple ERC-7913 signers with a threshold-based
@@ -21,7 +20,7 @@ import {SafeCast} from "../../../utils/math/SafeCast.sol";
  * contract MyMultiSignerAccount is Account, MultiSignerERC7913, Initializable {
  *     constructor() EIP712("MyMultiSignerAccount", "1") {}
  *
- *     function initialize(bytes[] memory signers, uint256 threshold) public initializer {
+ *     function initialize(bytes[] memory signers, uint64 threshold) public initializer {
  *         _addSigners(signers);
  *         _setThreshold(threshold);
  *     }
@@ -34,7 +33,7 @@ import {SafeCast} from "../../../utils/math/SafeCast.sol";
  *         _removeSigners(signers);
  *     }
  *
- *     function setThreshold(uint256 threshold) public onlyEntryPointOrSelf {
+ *     function setThreshold(uint64 threshold) public onlyEntryPointOrSelf {
  *         _setThreshold(threshold);
  *     }
  * }
@@ -47,10 +46,9 @@ import {SafeCast} from "../../../utils/math/SafeCast.sol";
 abstract contract MultiSignerERC7913 is AbstractSigner {
     using EnumerableSet for EnumerableSet.BytesSet;
     using SignatureChecker for *;
-    using SafeCast for uint256;
 
     EnumerableSet.BytesSet private _signers;
-    uint128 private _threshold;
+    uint64 private _threshold;
 
     /// @dev Emitted when a signer is added.
     event ERC7913SignerAdded(bytes indexed signers);
@@ -59,7 +57,7 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
     event ERC7913SignerRemoved(bytes indexed signers);
 
     /// @dev Emitted when the threshold is updated.
-    event ERC7913ThresholdSet(uint256 threshold);
+    event ERC7913ThresholdSet(uint64 threshold);
 
     /// @dev The `signer` already exists.
     error MultiSignerERC7913AlreadyExists(bytes signer);
@@ -71,18 +69,18 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
     error MultiSignerERC7913InvalidSigner(bytes signer);
 
     /// @dev The `threshold` is unreachable given the number of `signers`.
-    error MultiSignerERC7913UnreachableThreshold(uint256 signers, uint256 threshold);
+    error MultiSignerERC7913UnreachableThreshold(uint64 signers, uint64 threshold);
 
     /**
      * @dev Returns a slice of the set of authorized signers.
      *
-     * Using `start = 0` and `end = type(uint256).max` will return the entire set of signers.
+     * Using `start = 0` and `end = type(uint64).max` will return the entire set of signers.
      *
      * WARNING: Depending on the `start` and `end`, this operation can copy a large amount of data to memory, which
      * can be expensive. This is designed for view accessors queried without gas fees. Using it in state-changing
      * functions may become uncallable if the slice grows too large.
      */
-    function getSigners(uint256 start, uint256 end) public view virtual returns (bytes[] memory) {
+    function getSigners(uint64 start, uint64 end) public view virtual returns (bytes[] memory) {
         return _signers.values(start, end);
     }
 
@@ -92,7 +90,7 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
     }
 
     /// @dev Returns the minimum number of signers required to approve a multisignature operation.
-    function threshold() public view virtual returns (uint256) {
+    function threshold() public view virtual returns (uint64) {
         return _threshold;
     }
 
@@ -139,8 +137,8 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
      *
      * * See {_validateReachableThreshold} for the threshold validation.
      */
-    function _setThreshold(uint256 newThreshold) internal virtual {
-        _threshold = newThreshold.toUint128();
+    function _setThreshold(uint64 newThreshold) internal virtual {
+        _threshold = newThreshold;
         _validateReachableThreshold();
         emit ERC7913ThresholdSet(newThreshold);
     }
@@ -153,8 +151,8 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
      * * The {signers}'s length must be `>=` to the {threshold}. Throws {MultiSignerERC7913UnreachableThreshold} if not.
      */
     function _validateReachableThreshold() internal view virtual {
-        uint256 totalSigners = _signers.length();
-        uint256 currentThreshold = threshold();
+        uint64 totalSigners = uint64(_signers.length()); // Safe cast. Extremely costly to overflow.
+        uint64 currentThreshold = threshold();
         require(
             totalSigners >= currentThreshold,
             MultiSignerERC7913UnreachableThreshold(totalSigners, currentThreshold)
