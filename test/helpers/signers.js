@@ -1,4 +1,5 @@
 const {
+  AbiCoder,
   AbstractSigner,
   Signature,
   TypedDataEncoder,
@@ -13,6 +14,7 @@ const {
   hexlify,
   sha256,
   toBeHex,
+  keccak256,
 } = require('ethers');
 const { secp256r1 } = require('@noble/curves/p256');
 const { generateKeyPairSync, privateEncrypt } = require('crypto');
@@ -144,4 +146,39 @@ class RSASHA256SigningKey extends RSASigningKey {
   }
 }
 
-module.exports = { NonNativeSigner, P256SigningKey, RSASigningKey, RSASHA256SigningKey };
+class MultiERC7913SigningKey {
+  // this is a sorted array of objects that contain {signer, weight}
+  #signers;
+
+  constructor(signers) {
+    assertArgument(
+      Array.isArray(signers) && signers.length > 0,
+      'signers must be a non-empty array',
+      'signers',
+      signers.length,
+    );
+
+    // Sorting is done at construction so that it doesn't have to be done in sign()
+    this.#signers = signers.sort((s1, s2) => keccak256(s1.bytes ?? s1.address) - keccak256(s2.bytes ?? s2.address));
+  }
+
+  get signers() {
+    return this.#signers;
+  }
+
+  sign(digest /*: BytesLike*/ /*: Signature*/) {
+    assertArgument(dataLength(digest) === 32, 'invalid digest length', 'digest', digest);
+
+    return {
+      serialized: AbiCoder.defaultAbiCoder().encode(
+        ['bytes[]', 'bytes[]'],
+        [
+          this.#signers.map(signer => signer.bytes ?? signer.address),
+          this.#signers.map(signer => signer.signingKey.sign(digest).serialized),
+        ],
+      ),
+    };
+  }
+}
+
+module.exports = { NonNativeSigner, P256SigningKey, RSASigningKey, RSASHA256SigningKey, MultiERC7913SigningKey };

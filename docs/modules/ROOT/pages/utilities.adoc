@@ -97,6 +97,80 @@ function _verify(
 
 IMPORTANT: Always use keys of at least 2048 bits. Additionally, be aware that PKCS#1 v1.5 allows for replayability due to the possibility of arbitrary optional parameters. To prevent replay attacks, consider including an onchain nonce or unique identifier in the message.
 
+=== Signature Verification
+
+The xref:api:utils.adoc#SignatureChecker[`SignatureChecker`] library provides a unified interface for verifying signatures from different sources. It seamlessly supports:
+
+* ECDSA signatures from externally owned accounts (EOAs)
+* ERC-1271 signatures from smart contract wallets like Argent and Safe Wallet
+* ERC-7913 signatures from keys that don't have their own Ethereum address
+
+This allows developers to write signature verification code once and have it work across all these different signature types.
+
+==== Basic Signature Verification
+
+For standard signature verification that supports both EOAs and ERC-1271 contracts:
+
+[source,solidity]
+----
+using SignatureChecker for address;
+
+function _verifySignature(address signer, bytes32 hash, bytes memory signature) internal view returns (bool) {
+    return SignatureChecker.isValidSignatureNow(signer, hash, signature);
+}
+----
+
+The library automatically detects whether the signer is an EOA or a contract and uses the appropriate verification method.
+
+==== ERC-1271 Contract Signatures
+
+For smart contract wallets that implement ERC-1271, you can explicitly use:
+
+[source,solidity]
+----
+function _verifyContractSignature(address signer, bytes32 hash, bytes memory signature) internal view returns (bool) {
+    return SignatureChecker.isValidERC1271SignatureNow(signer, hash, signature);
+}
+----
+
+==== ERC-7913 Extended Signatures
+
+ERC-7913 extends signature verification to support keys that don't have their own Ethereum address. This is useful for integrating non-Ethereum cryptographic curves, hardware devices, or other identity systems.
+
+A signer is represented as a `bytes` object that concatenates a verifier address and a key: `verifier || key`.
+
+[source,solidity]
+----
+function _verifyERC7913Signature(bytes memory signer, bytes32 hash, bytes memory signature) internal view returns (bool) {
+    return SignatureChecker.isValidERC7913SignatureNow(signer, hash, signature);
+}
+----
+
+The verification process works as follows:
+
+* If `signer.length < 20`: verification fails
+* If `signer.length == 20`: verification is done using standard signature checking
+* Otherwise: verification is done using an ERC-7913 verifier
+
+==== Batch Verification
+
+For verifying multiple ERC-7913 signatures at once:
+
+[source,solidity]
+----
+function _verifyMultipleSignatures(
+    bytes32 hash,
+    bytes[] memory signers,
+    bytes[] memory signatures
+) internal view returns (bool) {
+    return SignatureChecker.areValidERC7913SignaturesNow(hash, signers, signatures);
+}
+----
+
+This function will reject inputs that contain duplicated signers. Sorting the signers by their `keccak256` hash is recommended to minimize the gas cost.
+
+This unified approach allows smart contracts to accept signatures from any supported source without needing to implement different verification logic for each type.
+
 === Verifying Merkle Proofs
 
 Developers can build a Merkle Tree off-chain, which allows for verifying that an element (leaf) is part of a set by using a Merkle Proof. This technique is widely used for creating whitelists (e.g., for airdrops) and other advanced use cases.
