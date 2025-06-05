@@ -1,4 +1,5 @@
 const {
+  AbiCoder,
   AbstractSigner,
   Signature,
   TypedDataEncoder,
@@ -14,11 +15,9 @@ const {
   sha256,
   toBeHex,
   keccak256,
-  toBigInt,
 } = require('ethers');
 const { secp256r1 } = require('@noble/curves/p256');
 const { generateKeyPairSync, privateEncrypt } = require('crypto');
-const { AbiCoder } = require('ethers');
 
 // Lightweight version of BaseWallet
 class NonNativeSigner extends AbstractSigner {
@@ -148,10 +147,10 @@ class RSASHA256SigningKey extends RSASigningKey {
 }
 
 class MultiERC7913SigningKey {
+  // this is a sorted array of objects that contain {signer, weight}
   #signers;
-  #weights;
 
-  constructor(signers, weights = null) {
+  constructor(signers) {
     assertArgument(
       Array.isArray(signers) && signers.length > 0,
       'signers must be a non-empty array',
@@ -159,47 +158,24 @@ class MultiERC7913SigningKey {
       signers.length,
     );
 
-    if (weights !== null) {
-      assertArgument(
-        Array.isArray(weights) && weights.length === signers.length,
-        'weights must be an array with the same length as signers',
-        'weights',
-        weights.length,
-      );
-    }
-
-    this.#signers = signers;
-    this.#weights = weights;
+    // Sorting is done at construction so that it doesn't have to be done in sign()
+    this.#signers = signers.sort((s1, s2) => keccak256(s1.bytes ?? s1.address) - keccak256(s2.bytes ?? s2.address));
   }
 
   get signers() {
     return this.#signers;
   }
 
-  get weights() {
-    return this.#weights;
-  }
-
   sign(digest /*: BytesLike*/ /*: Signature*/) {
     assertArgument(dataLength(digest) === 32, 'invalid digest length', 'digest', digest);
-
-    const sortedSigners = this.#signers
-      .map(signer => {
-        const signerBytes = typeof signer.address === 'string' ? signer.address : signer.bytes;
-
-        const id = keccak256(signerBytes);
-        return {
-          id,
-          signer: signerBytes,
-          signature: signer.signingKey.sign(digest).serialized,
-        };
-      })
-      .sort((a, b) => (toBigInt(a.id) < toBigInt(b.id) ? -1 : 1));
 
     return {
       serialized: AbiCoder.defaultAbiCoder().encode(
         ['bytes[]', 'bytes[]'],
-        [sortedSigners.map(p => p.signer), sortedSigners.map(p => p.signature)],
+        [
+          this.#signers.map(signer => signer.bytes ?? signer.address),
+          this.#signers.map(signer => signer.signingKey.sign(digest).serialized),
+        ],
       ),
     };
   }
