@@ -41,8 +41,10 @@ jobs:
         run: npm run test
       - name: Check linearisation of the inheritance graph
         run: npm run test:inheritance
+      - name: Check files are compilable with specified pragma
+        run: npm run test:pragma-validity
       - name: Check pragma consistency between files
-        run: npm run test:pragma
+        run: npm run test:pragma-consistency
       - name: Check procedurally generated contracts are up-to-date
         run: npm run test:generation
       - name: Compare gas costs
@@ -70,6 +72,8 @@ jobs:
         run: npm run test
       - name: Check linearisation of the inheritance graph
         run: npm run test:inheritance
+      - name: Check files are compilable with specified pragma
+        run: npm run test:pragma-validity
       - name: Check pragma consistency between files
         run: npm run test:pragma
       - name: Check storage layout
