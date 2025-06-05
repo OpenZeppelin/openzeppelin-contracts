@@ -12,7 +12,7 @@ import {EnumerableSet} from "../../structs/EnumerableSet.sol";
  *
  * This contract allows managing a set of authorized signers and requires a minimum number of
  * signatures (threshold) to approve operations. It uses ERC-7913 formatted signers, which
- * concatenate a verifier address and a key: `verifier || key`.
+ * makes it nativelly compatible with ECDSA and ERC-1271 signers.
  *
  * Example of usage:
  *
