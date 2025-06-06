@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.3.0) (governance/extensions/GovernorTimelockControl.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
 import {IGovernor, Governor} from "../Governor.sol";
 import {TimelockController} from "../TimelockController.sol";
-import {IERC165} from "../../interfaces/IERC165.sol";
 import {SafeCast} from "../../utils/math/SafeCast.sol";
 
 /**
