@@ -54,6 +54,8 @@ Other extensions can customize the behavior or interface in multiple ways.
 
 * {GovernorSuperQuorum}: Extension of {Governor} with a super quorum. Proposals that meet the super quorum (and have a majority of for votes) advance to the `Succeeded` state before the proposal deadline.
 
+* {GovernorNoncesKeyed}: An extension of {Governor} with support for keyed nonces in addition to traditional nonces when voting by signature.
+
 In addition to modules and extensions, the core contract requires a few virtual functions to be implemented to your particular specifications:
 
 * <<Governor-votingDelay-,`votingDelay()`>>: Delay (in ERC-6372 clock) since the proposal is submitted until voting power is fixed and voting starts. This can be used to enforce a delay after a proposal is published for users to buy tokens, or delegate their votes.
@@ -99,6 +101,8 @@ NOTE: Functions of the `Governor` contract do not include access control. If you
 {{GovernorProposalGuardian}}
 
 {{GovernorSuperQuorum}}
+
+{{GovernorNoncesKeyed}}
 
 == Utils
 

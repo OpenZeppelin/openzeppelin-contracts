@@ -53,7 +53,7 @@ library ERC1363Utils {
                 revert ERC1363InvalidReceiver(to);
             } else {
                 assembly ("memory-safe") {
-                    revert(add(32, reason), mload(reason))
+                    revert(add(reason, 0x20), mload(reason))
                 }
             }
         }
@@ -87,7 +87,7 @@ library ERC1363Utils {
                 revert ERC1363InvalidSpender(spender);
             } else {
                 assembly ("memory-safe") {
-                    revert(add(32, reason), mload(reason))
+                    revert(add(reason, 0x20), mload(reason))
                 }
             }
         }
