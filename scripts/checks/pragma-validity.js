@@ -38,6 +38,6 @@ Promise.all(
   }),
 ).finally(() => {
   if (!process.exitCode) {
-    console.log('All files can be compiler with the specified pragma.');
+    console.log('All files can be compiled with the specified pragma.');
   }
 });
