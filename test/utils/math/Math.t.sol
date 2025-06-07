@@ -308,6 +308,27 @@ contract MathTest is Test {
         }
     }
 
+    // REVERSE BITS
+    function testSymbolicReverseBitsUint256(uint256 value) public pure {
+        assertEq(Math.reverseBitsUint256(Math.reverseBitsUint256(value)), value);
+    }
+
+    function testSymbolicReverseBitsUint128(uint128 value) public pure {
+        assertEq(Math.reverseBitsUint128(uint128(Math.reverseBitsUint128(value))), value);
+    }
+
+    function testSymbolicReverseBitsUint64(uint64 value) public pure {
+        assertEq(Math.reverseBitsUint64(uint64(Math.reverseBitsUint64(value))), value);
+    }
+
+    function testSymbolicReverseBitsUint32(uint32 value) public pure {
+        assertEq(Math.reverseBitsUint32(uint32(Math.reverseBitsUint32(value))), value);
+    }
+
+    function testSymbolicReverseBits16(uint16 value) public pure {
+        assertEq(Math.reverseBits16(uint16(Math.reverseBits16(value))), value);
+    }
+
     // Helpers
     function _asRounding(uint8 r) private pure returns (Math.Rounding) {
         vm.assume(r < uint8(type(Math.Rounding).max));
