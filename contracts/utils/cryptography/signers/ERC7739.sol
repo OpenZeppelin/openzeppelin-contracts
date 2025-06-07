@@ -2,12 +2,12 @@
 
 pragma solidity ^0.8.20;
 
-import {IERC1271} from "../../interfaces/IERC1271.sol";
-import {EIP712} from "../cryptography/EIP712.sol";
-import {MessageHashUtils} from "../cryptography/MessageHashUtils.sol";
-import {ShortStrings} from "../ShortStrings.sol";
 import {AbstractSigner} from "./AbstractSigner.sol";
-import {ERC7739Utils} from "./ERC7739Utils.sol";
+import {EIP712} from "../EIP712.sol";
+import {ERC7739Utils} from "../ERC7739Utils.sol";
+import {IERC1271} from "../../../interfaces/IERC1271.sol";
+import {MessageHashUtils} from "../MessageHashUtils.sol";
+import {ShortStrings} from "../../ShortStrings.sol";
 
 /**
  * @dev Validates signatures wrapping the message hash in a nested EIP712 type. See {ERC7739Utils}.
@@ -18,8 +18,8 @@ import {ERC7739Utils} from "./ERC7739Utils.sol";
  * This contract requires implementing the {_rawSignatureValidation} function, which passes the wrapped message hash,
  * which may be either an typed data or a personal sign nested type.
  *
- * NOTE: xref:api:utils#EIP712[EIP-712] uses xref:api:utils#ShortStrings[ShortStrings] to optimize gas
- * costs for short strings (up to 31 characters). Consider that strings longer than that will use storage,
+ * NOTE: xref:api:utils/cryptography#EIP712[EIP-712] uses xref:api:utils/cryptography#ShortStrings[ShortStrings] to
+ * optimize gas costs for short strings (up to 31 characters). Consider that strings longer than that will use storage,
  * which may limit the ability of the signer to be used within the ERC-4337 validation phase (due to
  * https://eips.ethereum.org/EIPS/eip-7562#storage-rules[ERC-7562 storage access rules]).
  */
