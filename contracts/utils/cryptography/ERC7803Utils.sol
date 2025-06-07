@@ -89,8 +89,7 @@ library ERC7803Utils {
         }
 
         assembly ("memory-safe") {
-            // Can't overflow because `end` is less than `data.length`
-            mstore(data, sub(mload(data), sub(end, start)))
+            mstore(data, sub(end, start)) // Reset the length of the array. Can't overflow because `end` is less than `data.length`.
         }
 
         return data;
