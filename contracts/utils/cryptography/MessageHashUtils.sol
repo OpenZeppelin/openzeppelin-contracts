@@ -88,11 +88,34 @@ library MessageHashUtils {
      * See {ECDSA-recover}.
      */
     function toTypedDataHash(bytes32 domainSeparator, bytes32 structHash) internal pure returns (bytes32 digest) {
+        return _toTypedDataHash(hex"19_01", domainSeparator, structHash);
+    }
+
+    /**
+     * @dev Returns the keccak256 digest of an ERC-7803 signing domain data (ERC-191 version `0x02`).
+     *
+     * The digest is calculated by prefixing a `signingDomainSeparator` with `\x19\x02` and concatenating
+     * it with the `innerHash`, then hashing the result. This corresponds to the ERC-7803 signing domain
+     * encoding scheme for Account Abstraction.
+     *
+     * This function implements one step of the recursive encoding defined in ERC-7803:
+     * `"\x19\x02" ‖ signingDomainSeparator ‖ innerHash`
+     *
+     * See {ERC7803Utils-encodeForSigningDomains} for the complete recursive implementation.
+     */
+    function toSigningDomainHash(
+        bytes32 signingDomainSeparator,
+        bytes32 innerHash
+    ) internal pure returns (bytes32 digest) {
+        return _toTypedDataHash(hex"19_02", signingDomainSeparator, innerHash);
+    }
+
+    function _toTypedDataHash(bytes2 version, bytes32 separator, bytes32 hash) private pure returns (bytes32 digest) {
         assembly ("memory-safe") {
             let ptr := mload(0x40)
-            mstore(ptr, hex"19_01")
-            mstore(add(ptr, 0x02), domainSeparator)
-            mstore(add(ptr, 0x22), structHash)
+            mstore(ptr, version)
+            mstore(add(ptr, 0x02), separator)
+            mstore(add(ptr, 0x22), hash)
             digest := keccak256(ptr, 0x42)
         }
     }
