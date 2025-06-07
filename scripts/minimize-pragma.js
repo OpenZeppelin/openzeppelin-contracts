@@ -1,22 +1,16 @@
-const { exec } = require('child_process');
 const fs = require('fs');
-const glob = require('glob');
 const graphlib = require('graphlib');
 const match = require('micromatch');
 const path = require('path');
 const semver = require('semver');
+const { findAll } = require('solidity-ast/utils');
+const { _: artifacts } = require('yargs').argv;
 
-const { range, unique } = require('./helpers');
+const { versions: allSolcVersions, compile } = require('./solc-versions');
 
-const pattern = 'contracts/**/*.sol';
-const exclude = ['contracts/mocks/**'];
-
-const solcVersionsMaxPatch = ['0.4.26', '0.5.16', '0.6.12', '0.7.6', '0.8.30'];
+const skipPatterns = ['contracts-exposed/**', 'contracts/mocks/**'];
 const minVersionForContracts = '0.8.20';
 const minVersionForInterfaces = '0.0.0';
-const allSolcVersions = solcVersionsMaxPatch
-  .map(semver.parse)
-  .flatMap(({ major, minor, patch }) => range(patch + 1).map(p => `${major}.${minor}.${p}`));
 
 /********************************************************************************************************************
  *                                                     HELPERS                                                      *
@@ -35,26 +29,20 @@ const updatePragma = (file, pragma) =>
   );
 
 /**
- * Compile the given file with the specified solidity version using forge.
- * @param {*} file Absolute path to the file to compile.
- * @param {*} solcVersion Solc version to use for compilation. (ex: '0.8.4')
- * @returns {Promise<boolean>} Compilation result.
- */
-const compileWithVersion = (file, solcVersion) =>
-  new Promise(resolve =>
-    exec(`forge build ${file} --use ${solcVersion} --out out/out-solc${solcVersion}`, error => resolve(error === null)),
-  );
-
-/**
  * Get the applicable pragmas for a given file by compiling it with all solc versions.
  * @param {*} file Absolute path to the file to compile.
  * @param {*} candidates List of solc version to test. (ex: ['0.8.4','0.8.5'])
  * @returns {Promise<string[]>} List of applicable pragmas.
  */
 const getApplicablePragmas = (file, candidates = allSolcVersions) =>
-  Promise.all(candidates.map(version => compileWithVersion(file, version).then(ok => (ok ? version : undefined)))).then(
-    versions => versions.filter(Boolean),
-  );
+  Promise.all(
+    candidates.map(version =>
+      compile(file, version).then(
+        () => version,
+        () => null,
+      ),
+    ),
+  ).then(versions => versions.filter(Boolean));
 
 /**
  * Get the minimum applicable pragmas for a given file.
@@ -90,21 +78,22 @@ const setMinimalApplicablePragma = (file, candidates = allSolcVersions, prefix =
  *                                                       MAIN                                                       *
  ********************************************************************************************************************/
 
-// extract metadata for all source files
-const files = glob.sync(pattern).filter(file => !match.any(file, exclude));
-
 const metadata = Object.fromEntries(
-  files.map(file => {
-    // Get all objects (contracts, libraries, interfaces) defined in the file
-    const items = glob.sync(`out/${path.basename(file)}/*`);
-    // Get the (deduplicated) sources for each of these object. If we don't filter, we get some 'lib/forge-std' stuff we don't want.
-    const sources = unique(
-      items.flatMap(path => Object.keys(JSON.parse(fs.readFileSync(path)).metadata.sources)),
-    ).filter(item => item !== file && files.includes(item));
-    // Check if all objects are interfaces.
-    const isInterface = items.every(item => path.basename(item).match(/^I[A-Z]/));
-
-    return [file, { sources, isInterface }];
+  artifacts.flatMap(artifact => {
+    const { output: solcOutput } = require(path.resolve(__dirname, '..', artifact));
+    return Object.keys(solcOutput.contracts)
+      .filter(source => !match.any(source, skipPatterns))
+      .map(source => [
+        source,
+        {
+          sources: Array.from(findAll('ImportDirective', solcOutput.sources[source].ast)).map(
+            ({ absolutePath }) => absolutePath,
+          ),
+          interface: Array.from(findAll('ContractDefinition', solcOutput.sources[source].ast)).every(
+            ({ contractKind }) => contractKind === 'interface',
+          ),
+        },
+      ]);
   }),
 );
 
@@ -116,23 +105,33 @@ Object.keys(metadata).forEach(file => {
 });
 
 // Weaken all pragma to allow exploration
-files.forEach(file => updatePragma(file, '>=0.0.0'));
+Object.keys(metadata).forEach(file => updatePragma(file, '>=0.0.0'));
 
 // Do a topological traversal of the dependency graph, minimizing pragma for each file we encounter
 (async () => {
   const queue = graph.sources();
-  const minimized = {};
+  const pragmas = {};
   while (queue.length) {
     const file = queue.shift();
-    if (!Object.hasOwn(minimized, file)) {
-      const minVersion = metadata[file].isInterface ? minVersionForInterfaces : minVersionForContracts;
-      const candidates = allSolcVersions.filter(v => semver.gte(v, minVersion));
-      const pragmaPrefix = metadata[file].isInterface ? '>=' : '^';
+    if (!Object.hasOwn(pragmas, file)) {
+      const isInterface = metadata[file]?.interface ?? true;
+      const minVersion = isInterface ? minVersionForInterfaces : minVersionForContracts;
+      const parentsPragmas = graph
+        .predecessors(file)
+        .map(f => pragmas[f])
+        .filter(Boolean);
+      const candidates = allSolcVersions.filter(
+        v => semver.gte(v, minVersion) && parentsPragmas.every(p => semver.satisfies(v, p)),
+      );
+      const pragmaPrefix = isInterface ? '>=' : '^';
 
-      process.stdout.write(`Searching minimal version for ${file} ... `);
-      await setMinimalApplicablePragma(file, candidates, pragmaPrefix).then(console.log);
+      process.stdout.write(
+        `[${Object.keys(pragmas).length + 1}/${Object.keys(metadata).length}] Searching minimal version for ${file} ... `,
+      );
+      const pragma = await setMinimalApplicablePragma(file, candidates, pragmaPrefix);
+      console.log(pragma);
 
-      minimized[file] = true;
+      pragmas[file] = pragma;
       queue.push(...graph.successors(file));
     }
   }
