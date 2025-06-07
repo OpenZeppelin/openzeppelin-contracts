@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.27;
 
-import {Bytes} from "./Bytes.sol";
-import {RLP} from "./RLP.sol";
-import {Math} from "./math/Math.sol";
+import {Bytes} from "../Bytes.sol";
+import {RLP} from "../RLP.sol";
+import {Math} from "../math/Math.sol";
 
 /**
  * @dev Library for verifying Ethereum Merkle-Patricia trie inclusion proofs.
