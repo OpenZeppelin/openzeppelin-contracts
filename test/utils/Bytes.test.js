@@ -85,4 +85,98 @@ describe('Bytes', function () {
       }
     });
   });
+
+  describe('nibbles', function () {
+    it('converts single byte', async function () {
+      await expect(this.mock.$nibbles('0xab')).to.eventually.equal('0xa00b');
+    });
+
+    it('converts multiple bytes', async function () {
+      await expect(this.mock.$nibbles('0x1234')).to.eventually.equal('0x10023004');
+    });
+
+    it('handles empty bytes', async function () {
+      await expect(this.mock.$nibbles('0x')).to.eventually.equal('0x');
+    });
+
+    it('converts lorem text', async function () {
+      const result = await this.mock.$nibbles(lorem);
+      expect(ethers.dataLength(result)).to.equal(lorem.length * 2);
+
+      // Check nibble extraction for first few bytes
+      for (let i = 0; i < Math.min(lorem.length, 5); i++) {
+        const originalByte = lorem[i];
+        const highNibble = ethers.dataSlice(result, i * 2, i * 2 + 1);
+        const lowNibble = ethers.dataSlice(result, i * 2 + 1, i * 2 + 2);
+
+        expect(highNibble).to.equal(ethers.toBeHex(originalByte & 0xf0, 1));
+        expect(lowNibble).to.equal(ethers.toBeHex(originalByte & 0x0f, 1));
+      }
+    });
+  });
+
+  describe('equal', function () {
+    it('identical arrays', async function () {
+      await expect(this.mock.$equal(lorem, lorem)).to.eventually.be.true;
+    });
+
+    it('same content', async function () {
+      const copy = new Uint8Array(lorem);
+      await expect(this.mock.$equal(lorem, copy)).to.eventually.be.true;
+    });
+
+    it('different content', async function () {
+      const different = ethers.toUtf8Bytes('Different content');
+      await expect(this.mock.$equal(lorem, different)).to.eventually.be.false;
+    });
+
+    it('different lengths', async function () {
+      const shorter = lorem.slice(0, 10);
+      await expect(this.mock.$equal(lorem, shorter)).to.eventually.be.false;
+    });
+
+    it('empty arrays', async function () {
+      const empty1 = new Uint8Array(0);
+      const empty2 = new Uint8Array(0);
+      await expect(this.mock.$equal(empty1, empty2)).to.eventually.be.true;
+    });
+
+    it('one empty one not', async function () {
+      const empty = new Uint8Array(0);
+      await expect(this.mock.$equal(lorem, empty)).to.eventually.be.false;
+    });
+  });
+
+  describe('countLeadingZeroes', function () {
+    it('zero value', async function () {
+      await expect(this.mock.$countLeadingZeroes(0)).to.eventually.equal(31);
+    });
+
+    it('small values', async function () {
+      await expect(this.mock.$countLeadingZeroes(1)).to.eventually.equal(31);
+      await expect(this.mock.$countLeadingZeroes(255)).to.eventually.equal(31);
+    });
+
+    it('larger values', async function () {
+      await expect(this.mock.$countLeadingZeroes(256)).to.eventually.equal(30);
+      await expect(this.mock.$countLeadingZeroes(0xff00)).to.eventually.equal(30);
+      await expect(this.mock.$countLeadingZeroes(0x10000)).to.eventually.equal(29);
+    });
+
+    it('max value', async function () {
+      await expect(this.mock.$countLeadingZeroes(ethers.MaxUint256)).to.eventually.equal(0);
+    });
+
+    it('specific patterns', async function () {
+      await expect(
+        this.mock.$countLeadingZeroes('0x0000000000000000000000000000000000000000000000000000000000000100'),
+      ).to.eventually.equal(30);
+      await expect(
+        this.mock.$countLeadingZeroes('0x0000000000000000000000000000000000000000000000000000000000010000'),
+      ).to.eventually.equal(29);
+      await expect(
+        this.mock.$countLeadingZeroes('0x0000000000000000000000000000000000000000000000000000000001000000'),
+      ).to.eventually.equal(28);
+    });
+  });
 });
