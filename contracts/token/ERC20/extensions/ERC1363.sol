@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.2.0) (token/ERC20/extensions/ERC1363.sol)
 
 pragma solidity ^0.8.20;
 
@@ -12,6 +13,8 @@ import {ERC1363Utils} from "../utils/ERC1363Utils.sol";
  * @dev Extension of {ERC20} tokens that adds support for code execution after transfers and approvals
  * on recipient contracts. Calls after transfers are enabled through the {ERC1363-transferAndCall} and
  * {ERC1363-transferFromAndCall} methods while calls after approvals can be made with {ERC1363-approveAndCall}
+ *
+ * _Available since v5.1._
  */
 abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
     /**
@@ -36,16 +39,15 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
      */
     error ERC1363ApproveFailed(address spender, uint256 value);
 
-    /**
-     * @inheritdoc IERC165
-     */
+    /// @inheritdoc IERC165
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IERC165) returns (bool) {
         return interfaceId == type(IERC1363).interfaceId || super.supportsInterface(interfaceId);
     }
 
     /**
      * @dev Moves a `value` amount of tokens from the caller's account to `to`
-     * and then calls {IERC1363Receiver-onTransferReceived} on `to`.
+     * and then calls {IERC1363Receiver-onTransferReceived} on `to`. Returns a flag that indicates
+     * if the call succeeded.
      *
      * Requirements:
      *
@@ -72,7 +74,8 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
 
     /**
      * @dev Moves a `value` amount of tokens from `from` to `to` using the allowance mechanism
-     * and then calls {IERC1363Receiver-onTransferReceived} on `to`.
+     * and then calls {IERC1363Receiver-onTransferReceived} on `to`. Returns a flag that indicates
+     * if the call succeeded.
      *
      * Requirements:
      *
@@ -105,6 +108,7 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
     /**
      * @dev Sets a `value` amount of tokens as the allowance of `spender` over the
      * caller's tokens and then calls {IERC1363Spender-onApprovalReceived} on `spender`.
+     * Returns a flag that indicates if the call succeeded.
      *
      * Requirements:
      *

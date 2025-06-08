@@ -34,7 +34,7 @@ describe('GovernorTimelockControl', function () {
       const [deployer, owner, voter1, voter2, voter3, voter4, other] = await ethers.getSigners();
       const receiver = await ethers.deployContract('CallReceiverMock');
 
-      const token = await ethers.deployContract(Token, [tokenName, tokenSymbol, version]);
+      const token = await ethers.deployContract(Token, [tokenName, tokenSymbol, tokenName, version]);
       const timelock = await ethers.deployContract('TimelockController', [delay, [], [], deployer]);
       const mock = await ethers.deployContract('$GovernorTimelockControlMock', [
         name,

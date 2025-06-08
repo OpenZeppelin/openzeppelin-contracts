@@ -41,7 +41,11 @@ struct ${opts.checkpointTypeName} {
  * IMPORTANT: Never accept \`key\` as a user input, since an arbitrary \`type(${opts.keyTypeName}).max\` key set will disable the
  * library.
  */
-function push(${opts.historyTypeName} storage self, ${opts.keyTypeName} key, ${opts.valueTypeName} value) internal returns (${opts.valueTypeName}, ${opts.valueTypeName}) {
+function push(
+    ${opts.historyTypeName} storage self,
+    ${opts.keyTypeName} key,
+    ${opts.valueTypeName} value
+) internal returns (${opts.valueTypeName} oldValue, ${opts.valueTypeName} newValue) {
     return _insert(self.${opts.checkpointFieldName}, key, value);
 }
 
@@ -69,7 +73,7 @@ function upperLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} k
  * @dev Returns the value in the last (most recent) checkpoint with key lower or equal than the search key, or zero
  * if there is none.
  *
- * NOTE: This is a variant of {upperLookup} that is optimised to find "recent" checkpoint (checkpoints with high
+ * NOTE: This is a variant of {upperLookup} that is optimized to find "recent" checkpoint (checkpoints with high
  * keys).
  */
 function upperLookupRecent(${opts.historyTypeName} storage self, ${opts.keyTypeName} key) internal view returns (${opts.valueTypeName}) {
@@ -115,7 +119,7 @@ function latestCheckpoint(${opts.historyTypeName} storage self) internal view re
 }
 
 /**
- * @dev Returns the number of checkpoint.
+ * @dev Returns the number of checkpoints.
  */
 function length(${opts.historyTypeName} storage self) internal view returns (uint256) {
     return self.${opts.checkpointFieldName}.length;
@@ -132,7 +136,11 @@ function at(${opts.historyTypeName} storage self, uint32 pos) internal view retu
  * @dev Pushes a (\`key\`, \`value\`) pair into an ordered list of checkpoints, either by inserting a new checkpoint,
  * or by updating the last one.
  */
-function _insert(${opts.checkpointTypeName}[] storage self, ${opts.keyTypeName} key, ${opts.valueTypeName} value) private returns (${opts.valueTypeName}, ${opts.valueTypeName}) {
+function _insert(
+    ${opts.checkpointTypeName}[] storage self,
+    ${opts.keyTypeName} key,
+    ${opts.valueTypeName} value
+) private returns (${opts.valueTypeName} oldValue, ${opts.valueTypeName} newValue) {
     uint256 pos = self.length;
 
     if (pos > 0) {
@@ -219,7 +227,6 @@ function _unsafeAccess(
     }
 }
 `;
-/* eslint-enable max-len */
 
 // GENERATE
 module.exports = format(

@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.1.0) (utils/Errors.sol)
 
 pragma solidity ^0.8.20;
 
@@ -7,6 +8,8 @@ pragma solidity ^0.8.20;
  *
  * IMPORTANT: Backwards compatibility is not guaranteed in future versions of the library.
  * It is recommended to avoid relying on the error API for critical functionality.
+ *
+ * _Available since v5.1._
  */
 library Errors {
     /**

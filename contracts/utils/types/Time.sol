@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (utils/types/Time.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (utils/types/Time.sol)
 
 pragma solidity ^0.8.20;
 
@@ -71,8 +71,11 @@ library Time {
      * @dev Get the value at a given timepoint plus the pending value and effect timepoint if there is a scheduled
      * change after this timepoint. If the effect timepoint is 0, then the pending value should not be considered.
      */
-    function _getFullAt(Delay self, uint48 timepoint) private pure returns (uint32, uint32, uint48) {
-        (uint32 valueBefore, uint32 valueAfter, uint48 effect) = self.unpack();
+    function _getFullAt(
+        Delay self,
+        uint48 timepoint
+    ) private pure returns (uint32 valueBefore, uint32 valueAfter, uint48 effect) {
+        (valueBefore, valueAfter, effect) = self.unpack();
         return effect <= timepoint ? (valueAfter, 0, 0) : (valueBefore, valueAfter, effect);
     }
 
@@ -80,7 +83,7 @@ library Time {
      * @dev Get the current value plus the pending value and effect timepoint if there is a scheduled change. If the
      * effect timepoint is 0, then the pending value should not be considered.
      */
-    function getFull(Delay self) internal view returns (uint32, uint32, uint48) {
+    function getFull(Delay self) internal view returns (uint32 valueBefore, uint32 valueAfter, uint48 effect) {
         return _getFullAt(self, timestamp());
     }
 

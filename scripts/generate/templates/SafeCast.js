@@ -61,7 +61,6 @@ function toUint${length}(uint256 value) internal pure returns (uint${length}) {
 }
 `;
 
-/* eslint-disable max-len */
 const toIntDownCast = length => `\
 /**
  * @dev Returns the downcasted int${length} from int256, reverting on
@@ -81,7 +80,6 @@ function toInt${length}(int256 value) internal pure returns (int${length} downca
     }
 }
 `;
-/* eslint-enable max-len */
 
 const toInt = length => `\
 /**

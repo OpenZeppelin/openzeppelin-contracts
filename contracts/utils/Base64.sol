@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.2) (utils/Base64.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (utils/Base64.sol)
 
 pragma solidity ^0.8.20;
 
@@ -23,6 +23,7 @@ library Base64 {
 
     /**
      * @dev Converts a `bytes` to its Bytes64Url `string` representation.
+     * Output is not padded with `=` as specified in https://www.rfc-editor.org/rfc/rfc4648[rfc4648].
      */
     function encodeURL(bytes memory data) internal pure returns (string memory) {
         return _encode(data, _TABLE_URL, false);
@@ -71,11 +72,7 @@ library Base64 {
             mstore(afterPtr, 0x00)
 
             // Run over the input, 3 bytes at a time
-            for {
-
-            } lt(dataPtr, endPtr) {
-
-            } {
+            for {} lt(dataPtr, endPtr) {} {
                 // Advance 3 bytes
                 dataPtr := add(dataPtr, 3)
                 let input := mload(dataPtr)
