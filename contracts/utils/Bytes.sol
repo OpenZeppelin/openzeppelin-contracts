@@ -118,6 +118,7 @@ library Bytes {
 
     /// @dev Counts the number of leading zero bytes in a uint256.
     function countLeadingZeroes(uint256 x) internal pure returns (uint256) {
+        if (x == 0) return 32; // All 32 bytes are zero
         uint256 r = 0;
         if (x > 0xffffffffffffffffffffffffffffffff) r = 128; // Upper 128 bits
         if ((x >> r) > 0xffffffffffffffff) r |= 64; // Next 64 bits

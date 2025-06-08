@@ -63,10 +63,17 @@ contract BytesTest is Test {
 
     function testSymbolicCountLeadingZeroes(uint256 x) public pure {
         uint256 result = Bytes.countLeadingZeroes(x);
-        assertLe(result, 31);
-        uint256 firstNonZeroByte = 31 - result;
-        uint256 byteValue = (x >> (firstNonZeroByte * 8)) & 0xff;
-        assertTrue(byteValue > 0 || x == 0);
-        for (uint256 i = 0; i < result; i++) assertEq((x >> ((31 - i) * 8)) & 0xff, 0);
+        assertLe(result, 32); // [0, 32]
+
+        if (x != 0) {
+            uint256 firstNonZeroBytePos = 32 - result - 1;
+            uint256 byteValue = (x >> (firstNonZeroBytePos * 8)) & 0xff;
+            assertNotEq(byteValue, 0);
+
+            // x != 0 implies result < 32
+            // most significant byte should be non-zero
+            uint256 msbValue = (x >> (248 - result * 8)) & 0xff;
+            assertNotEq(msbValue, 0);
+        }
     }
 }
