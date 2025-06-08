@@ -125,14 +125,14 @@ library RLP {
         require(expectedLength == item.length, RLPContentLengthMismatch(expectedLength, item.length));
         Item[] memory items = new Item[](32);
 
-        uint256 itemCount = item.length;
+        uint256 itemCount;
 
-        for (uint256 i; listOffset < itemCount; i++) {
+        for (uint256 currentOffset = listOffset; currentOffset < item.length; ++itemCount) {
             (uint256 itemOffset, uint256 itemLength, ) = _decodeLength(
-                Item(itemCount - listOffset, bytes32(uint256(item.ptr) + listOffset))
+                Item(item.length - currentOffset, bytes32(uint256(item.ptr) + currentOffset))
             );
-            items[i] = Item(itemLength + itemOffset, bytes32(uint256(item.ptr) + listOffset));
-            listOffset += itemOffset + itemLength;
+            items[itemCount] = Item(itemLength + itemOffset, bytes32(uint256(item.ptr) + currentOffset));
+            currentOffset += itemOffset + itemLength;
         }
 
         // Decrease the array size to match the actual item count.
@@ -296,7 +296,7 @@ library RLP {
 
         // Extract the length value from the next bytes
         uint256 len = _extractMemoryWord(bytes32(uint256(item.ptr) + 1)) >> (256 - 8 * lengthLength);
-        require(len > SHORT_OFFSET, RLPInvalidDataRemainder(SHORT_OFFSET, len));
+        require(len > SHORT_THRESHOLD, RLPInvalidDataRemainder(SHORT_THRESHOLD, len));
         uint256 expectedLength = lengthLength + len;
         require(item.length <= expectedLength, RLPContentLengthMismatch(expectedLength, item.length));
         return (lengthLength + 1, len);
