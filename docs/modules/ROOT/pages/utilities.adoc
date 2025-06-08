@@ -463,37 +463,52 @@ await instance.multicall([
 
 === Memory
 
-The `Memory` library provides functions for advanced use cases that require granular memory management. A common use case is to avoid unnecessary memory expansion costs when iterating over a section of the code that allocates new memory. Consider the following example:
+The `Memory` library provides functions for advanced use cases that require granular memory management. A common use case is to avoid unnecessary memory expansion costs when performing repeated operations that allocate memory in a loop. Consider the following example:
 
 [source,solidity]
 ----
-function callFoo(address target) internal {
-  bytes memory callData = abi.encodeWithSelector(
-    bytes4(keccak256("foo()"))
-  )
-  (bool success, /* bytes memory returndata */) = target.call(callData);
-  require(success);
+function processMultipleItems(uint256[] memory items) internal {
+  for (uint256 i = 0; i < items.length; i++) {
+    bytes memory tempData = abi.encode(items[i], block.timestamp);
+    // Process tempData...
+  }
 }
 ----
 
-Note the function allocates memory for both the `callData` argument and for the returndata even if it's ignored. As such, it may be desirable to reset the free memory pointer after the end of the function.
+Note that each iteration allocates new memory for `tempData`, causing the memory to expand continuously. This can be optimized by resetting the memory pointer between iterations:
 
 [source,solidity]
 ----
-function callFoo(address target) internal {
+function processMultipleItems(uint256[] memory items) internal {
   Memory.Pointer ptr = Memory.getFreePointer(); // Cache pointer
-  bytes memory callData = abi.encodeWithSelector(
-    bytes4(keccak256("foo()"))
-  )
-  (bool success, /* bytes memory returndata */) = target.call(callData);
-  require(success);
-  Memory.setFreePointer(ptr); // Reset pointer
+  for (uint256 i = 0; i < items.length; i++) {
+    bytes memory tempData = abi.encode(items[i], block.timestamp);
+    // Process tempData...
+    Memory.setFreePointer(ptr); // Reset pointer for reuse
+  }
 }
 ----
 
-This way, memory is allocated to accommodate the `callData`, and the `returndata` is freed. This allows other memory operations to reuse that space, thus reducing the memory expansion costs of these operations. In particular, this allows many `callFoo` to be performed in a loop with limited memory expansion costs.
+This way, memory allocated for `tempData` in each iteration is reused, significantly reducing memory expansion costs when processing many items.
 
-IMPORTANT: By default, Solidity handles memory safely. Using this library without understanding how memory works may be dangerous. Consider thoroughly reading the Solidity documentation about the https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_memory.html[memory layout] and how the language defines https://docs.soliditylang.org/en/v0.8.20/assembly.html#memory-safety[memory safety].
+==== Copying memory buffers
+
+The `Memory` library provides a `copy` function that allows copying data between memory locations. This is useful when you need to extract a segment of data from a larger buffer or when you want to avoid unnecessary memory allocations. The following example demonstrates how to copy a segment of data from a source buffer:
+
+[source,solidity]
+----
+function copyDataSegment(bytes memory source, uint256 offset, uint256 length) 
+    internal pure returns (bytes memory result) {
+    
+    result = new bytes(length);
+    Memory.Pointer srcPtr = Memory.addOffset(Memory.contentPointer(source), offset);
+    Memory.Pointer destPtr = Memory.contentPointer(result);
+    
+    Memory.copy(destPtr, srcPtr, length);
+}
+----
+
+IMPORTANT: Manual memory management increases gas costs and prevents compiler optimizations. Only use these functions after profiling confirms they're necessary. By default, Solidity handles memory safely - using this library without understanding memory layout and safety may be dangerous. See the https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_memory.html[memory layout] and https://docs.soliditylang.org/en/v0.8.20/assembly.html#memory-safety[memory safety] documentation for details.
 
 === Historical Block Hashes
 
