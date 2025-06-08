@@ -1,16 +1,22 @@
 const fs = require('fs');
 const graphlib = require('graphlib');
-const match = require('micromatch');
-const path = require('path');
 const semver = require('semver');
-const { findAll } = require('solidity-ast/utils');
-const { _: artifacts } = require('yargs').argv;
+const { hideBin } = require('yargs/helpers');
+const yargs = require('yargs/yargs');
 
+const getContractsMetadata = require('./get-contracts-metadata');
 const { versions: allSolcVersions, compile } = require('./solc-versions');
 
-const skipPatterns = ['contracts-exposed/**', 'contracts/mocks/**'];
-const minVersionForContracts = '0.8.20';
-const minVersionForInterfaces = '0.0.0';
+const {
+  argv: { pattern, skipPatterns, minVersionForContracts, minVersionForInterfaces, _: artifacts },
+} = yargs(hideBin(process.argv))
+  .env('')
+  .options({
+    pattern: { alias: 'p', type: 'string', default: 'contracts/**/*.sol' },
+    skipPatterns: { alias: 's', type: 'string', default: 'contracts/mocks/**/*.sol' },
+    minVersionForContracts: { type: 'string', default: '0.8.20' },
+    minVersionForInterfaces: { type: 'string', default: '0.0.0' },
+  });
 
 /********************************************************************************************************************
  *                                                     HELPERS                                                      *
@@ -78,24 +84,8 @@ const setMinimalApplicablePragma = (file, candidates = allSolcVersions, prefix =
  *                                                       MAIN                                                       *
  ********************************************************************************************************************/
 
-const metadata = Object.fromEntries(
-  artifacts.flatMap(artifact => {
-    const { output: solcOutput } = require(path.resolve(__dirname, '..', artifact));
-    return Object.keys(solcOutput.contracts)
-      .filter(source => !match.any(source, skipPatterns))
-      .map(source => [
-        source,
-        {
-          sources: Array.from(findAll('ImportDirective', solcOutput.sources[source].ast)).map(
-            ({ absolutePath }) => absolutePath,
-          ),
-          interface: Array.from(findAll('ContractDefinition', solcOutput.sources[source].ast)).every(
-            ({ contractKind }) => contractKind === 'interface',
-          ),
-        },
-      ]);
-  }),
-);
+// Build metadata from artifact files (hardhat compilation)
+const metadata = getContractsMetadata(pattern, skipPatterns, artifacts);
 
 // Build dependency graph
 const graph = new graphlib.Graph({ directed: true });
@@ -114,16 +104,15 @@ Object.keys(metadata).forEach(file => updatePragma(file, '>=0.0.0'));
   while (queue.length) {
     const file = queue.shift();
     if (!Object.hasOwn(pragmas, file)) {
-      const isInterface = metadata[file]?.interface ?? true;
-      const minVersion = isInterface ? minVersionForInterfaces : minVersionForContracts;
+      const minVersion = metadata[file].interface ? minVersionForInterfaces : minVersionForContracts;
       const parentsPragmas = graph
         .predecessors(file)
-        .map(f => pragmas[f])
+        .map(file => pragmas[file])
         .filter(Boolean);
       const candidates = allSolcVersions.filter(
         v => semver.gte(v, minVersion) && parentsPragmas.every(p => semver.satisfies(v, p)),
       );
-      const pragmaPrefix = isInterface ? '>=' : '^';
+      const pragmaPrefix = metadata[file].interface ? '>=' : '^';
 
       process.stdout.write(
         `[${Object.keys(pragmas).length + 1}/${Object.keys(metadata).length}] Searching minimal version for ${file} ... `,
