@@ -126,11 +126,10 @@ library RLP {
         require(itemType == ItemType.DATA_ITEM);
         require(item.length == itemOffset + itemLength);
 
-        uint256 start = itemOffset;
         bytes32 itemPtr = item.ptr;
         bytes memory result = new bytes(itemLength);
         assembly ("memory-safe") {
-            mcopy(add(result, 0x20), add(itemPtr, start), itemLength)
+            mcopy(add(result, 0x20), add(itemPtr, itemOffset), itemLength)
         }
 
         return result;
@@ -155,7 +154,7 @@ library RLP {
 
     /// @dev Checks if a buffer is a single byte below 128 (0x80). Encoded as-is in RLP.
     function _isSingleByte(bytes memory buffer) private pure returns (bool) {
-        return buffer.length == 1 && uint8(buffer[0]) <= SHORT_OFFSET - 1;
+        return buffer.length == 1 && uint8(buffer[0]) < SHORT_OFFSET;
     }
 
     /**
@@ -296,12 +295,6 @@ library RLP {
     function _extractMemoryWord(bytes32 ptr) private pure returns (uint256 v) {
         assembly ("memory-safe") {
             v := mload(ptr)
-        }
-    }
-
-    function _buffer(bytes32 ptr) private pure returns (bytes memory buffer) {
-        assembly ("memory-safe") {
-            buffer := ptr
         }
     }
 }
