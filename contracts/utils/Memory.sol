@@ -47,7 +47,11 @@ library Memory {
         }
     }
 
-    /// @dev Extracts a `bytes1` from a `Pointer`. `offset` starts from the most significant byte.
+    /**
+     * @dev Extracts a `bytes1` from a `Pointer`. `offset` starts from the most significant byte.
+     *
+     * NOTE: Will return `0x00` if `offset` is larger or equal to `32`.
+     */
     function extractByte(Pointer ptr, uint256 offset) internal pure returns (bytes1 v) {
         bytes32 word = extractWord(ptr);
         assembly ("memory-safe") {
@@ -67,22 +71,22 @@ library Memory {
         return asPointer(bytes32(asUint256(ptr) + offset));
     }
 
-    /// @dev `Pointer` to `bytes32`.
+    /// @dev `Pointer` to `bytes32`. Expects a pointer to a properly ABI-encoded `bytes` object.
     function asBytes32(Pointer ptr) internal pure returns (bytes32) {
         return Pointer.unwrap(ptr);
     }
 
-    /// @dev `Pointer` to `uint256`.
+    /// @dev `Pointer` to `uint256`. Expects a pointer to a properly ABI-encoded `bytes` object.
     function asUint256(Pointer ptr) internal pure returns (uint256) {
         return uint256(asBytes32(ptr));
     }
 
-    /// @dev `bytes32` to `Pointer`.
+    /// @dev `bytes32` to `Pointer`. Expects a pointer to a properly ABI-encoded `bytes` object.
     function asPointer(bytes32 value) internal pure returns (Pointer) {
         return Pointer.wrap(value);
     }
 
-    /// @dev `bytes` to `Pointer`.
+    /// @dev Returns a `Pointer` to the `value`'s header (i.e. includes the length word).
     function asPointer(bytes memory value) internal pure returns (Pointer) {
         bytes32 ptr;
         assembly ("memory-safe") {
@@ -91,7 +95,7 @@ library Memory {
         return asPointer(ptr);
     }
 
-    /// @dev `Pointer` to `bytes`.
+    /// @dev `Pointer` to `bytes`. Expects a pointer to a properly ABI-encoded `bytes` object.
     function asBytes(Pointer ptr) internal pure returns (bytes memory b) {
         assembly ("memory-safe") {
             b := ptr
