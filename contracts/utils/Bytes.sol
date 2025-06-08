@@ -100,13 +100,6 @@ library Bytes {
     }
 
     /**
-     * @dev Returns true if the two byte buffers are equal.
-     */
-    function equal(bytes memory a, bytes memory b) internal pure returns (bool) {
-        return a.length == b.length && keccak256(a) == keccak256(b);
-    }
-
-    /**
      * @dev Reads a bytes32 from a bytes array without bounds checking.
      *
      * NOTE: making this function internal would mean it could be used with memory unsafe offset, and marking the
