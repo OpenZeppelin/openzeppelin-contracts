@@ -463,7 +463,7 @@ await instance.multicall([
 
 === Memory
 
-The `Memory` library provides functions for advanced use cases that require granular memory management. A common use case is to avoid unnecessary memory expansion costs when performing repeated operations that allocate memory in a loop. Consider the following example:
+The xref:api:utils.adoc#Memory[`Memory`] library provides functions for advanced use cases that require granular memory management. A common use case is to avoid unnecessary memory expansion costs when performing repeated operations that allocate memory in a loop. Consider the following example:
 
 [source,solidity]
 ----
