@@ -182,12 +182,8 @@ library SafeERC20 {
         (bool success, bytes32 returnValue) = LowLevelCall.callReturnBytes32(address(token), data);
         uint256 returnSize = LowLevelCall.returnDataSize();
 
-        assembly ("memory-safe") {
-            if iszero(success) {
-                // Bubble up revert reason
-                returndatacopy(data, 0, returnSize)
-                revert(data, returnSize)
-            }
+        if (!success) {
+            LowLevelCall.bubbleRevert(data);
         }
 
         if (returnSize == 0 ? address(token).code.length == 0 : uint256(returnValue) != 1) {

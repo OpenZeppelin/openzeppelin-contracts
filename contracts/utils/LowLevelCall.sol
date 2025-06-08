@@ -3,6 +3,7 @@
 pragma solidity ^0.8.20;
 
 import {Errors} from "./Errors.sol";
+import {Memory} from "./Memory.sol";
 
 /**
  * @dev Library of low level call functions that implement different calling strategies to deal with the return data.
@@ -11,6 +12,8 @@ import {Errors} from "./Errors.sol";
  * to use the {Address} library instead.
  */
 library LowLevelCall {
+    using Memory for *;
+
     /// === CALL ===
 
     /// @dev Performs a Solidity function call using a low level `call` and ignoring the return data.
@@ -115,6 +118,35 @@ library LowLevelCall {
     function returnDataSize() internal pure returns (uint256 size) {
         assembly ("memory-safe") {
             size := returndatasize()
+        }
+    }
+
+    /// @dev Returns the return data buffer.
+    function returnData() internal pure returns (bytes memory data) {
+        uint256 size = returnDataSize();
+        assembly ("memory-safe") {
+            data := mload(0x40)
+            returndatacopy(data, 0, size)
+        }
+    }
+
+    /// === BUBBLE UP REVERT REASON ===
+
+    /**
+     * @dev Bubbles up the revert reason. This function is useful to bubble up the revert reason
+     * from a low level call. Developers can provide any bytes memory pointer to the revert reason
+     * since the function will revert regardless of the pointer value.
+     */
+    function bubbleRevert(bytes memory ptr) internal pure {
+        bubbleRevert(ptr.asPointer().asBytes32());
+    }
+
+    /// @dev Same as {bubbleRevert-bytes}, but for `bytes32` pointers.
+    function bubbleRevert(bytes32 ptr) internal pure {
+        uint256 size = returnDataSize();
+        assembly ("memory-safe") {
+            returndatacopy(ptr, 0, size)
+            revert(ptr, size)
         }
     }
 }

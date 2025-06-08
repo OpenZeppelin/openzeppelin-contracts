@@ -7,8 +7,6 @@ import {IERC20, IERC20Metadata, ERC20} from "../ERC20.sol";
 import {SafeERC20} from "../utils/SafeERC20.sol";
 import {IERC4626} from "../../../interfaces/IERC4626.sol";
 import {Math} from "../../../utils/math/Math.sol";
-import {Memory} from "../../../utils/Memory.sol";
-import {LowLevelCall} from "../../../utils/LowLevelCall.sol";
 
 /**
  * @dev Implementation of the ERC-4626 "Tokenized Vault Standard" as defined in
@@ -77,7 +75,8 @@ abstract contract ERC4626 is ERC20, IERC4626 {
      * @dev Set the underlying asset contract. This must be an ERC20-compatible contract (ERC-20 or ERC-777).
      */
     constructor(IERC20 asset_) {
-        _underlyingDecimals = _tryGetAssetDecimalsWithFallback(asset_, 18);
+        (bool success, uint8 assetDecimals) = _tryGetAssetDecimals(asset_);
+        _underlyingDecimals = success ? assetDecimals : 18;
         _asset = asset_;
     }
 

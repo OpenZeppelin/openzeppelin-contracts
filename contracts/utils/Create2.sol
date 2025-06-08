@@ -4,6 +4,8 @@
 pragma solidity ^0.8.20;
 
 import {Errors} from "./Errors.sol";
+import {LowLevelCall} from "./LowLevelCall.sol";
+import {Memory} from "./Memory.sol";
 
 /**
  * @dev Helper to make usage of the `CREATE2` EVM opcode easier and safer.
@@ -43,15 +45,10 @@ library Create2 {
         }
         assembly ("memory-safe") {
             addr := create2(amount, add(bytecode, 0x20), mload(bytecode), salt)
-            // if no address was created, and returndata is not empty, bubble revert
-            if and(iszero(addr), not(iszero(returndatasize()))) {
-                let p := mload(0x40)
-                returndatacopy(p, 0, returndatasize())
-                revert(p, returndatasize())
-            }
         }
         if (addr == address(0)) {
-            revert Errors.FailedDeployment();
+            if (LowLevelCall.returnDataSize() != 0) LowLevelCall.bubbleRevert(LowLevelCall.returnData());
+            else revert Errors.FailedDeployment();
         }
     }
 

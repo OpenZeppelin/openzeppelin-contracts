@@ -5,11 +5,14 @@ pragma solidity ^0.8.20;
 
 import {Errors} from "./Errors.sol";
 import {LowLevelCall} from "./LowLevelCall.sol";
+import {Memory} from "./Memory.sol";
 
 /**
  * @dev Collection of functions related to the address type
  */
 library Address {
+    using Memory for *;
+
     /**
      * @dev There's no code at `target` (it is not a contract).
      */
@@ -140,10 +143,7 @@ library Address {
     function _revert(bytes memory returndata) private pure {
         // Look for revert reason and bubble it up if present
         if (returndata.length > 0) {
-            // The easiest way to bubble the revert reason is using memory via assembly
-            assembly ("memory-safe") {
-                revert(add(returndata, 0x20), mload(returndata))
-            }
+            LowLevelCall.bubbleRevert(returndata.asPointer().addOffset(0x20).asBytes32());
         } else {
             revert Errors.FailedCall();
         }
