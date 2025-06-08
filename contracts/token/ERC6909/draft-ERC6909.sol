@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.3.0) (token/ERC6909/draft-ERC6909.sol)
 
 pragma solidity ^0.8.20;
 
@@ -79,7 +80,7 @@ contract ERC6909 is Context, ERC165, IERC6909 {
 
     /**
      * @dev Creates `amount` of token `id` and assigns them to `account`, by transferring it from address(0).
-     * Relies on the `_update` mechanism
+     * Relies on the `_update` mechanism.
      *
      * Emits a {Transfer} event with `from` set to the zero address.
      *
@@ -93,10 +94,9 @@ contract ERC6909 is Context, ERC165, IERC6909 {
     }
 
     /**
-     * @dev Moves `amount` of token `id` from `from` to `to` without checking for approvals.
-     *
-     * This internal function is equivalent to {transfer}, and can be used to
-     * e.g. implement automatic token fees, slashing mechanisms, etc.
+     * @dev Moves `amount` of token `id` from `from` to `to` without checking for approvals. This function verifies
+     * that neither the sender nor the receiver are address(0), which means it cannot mint or burn tokens.
+     * Relies on the `_update` mechanism.
      *
      * Emits a {Transfer} event.
      *
