@@ -3,6 +3,7 @@ pragma solidity ^0.8.27;
 
 import {Math} from "./math/Math.sol";
 import {Bytes} from "./Bytes.sol";
+import {Memory} from "./Memory.sol";
 
 /**
  * @dev Library for encoding and decoding data in RLP format.
@@ -12,6 +13,7 @@ import {Bytes} from "./Bytes.sol";
 library RLP {
     using Math for uint256;
     using Bytes for *;
+    using Memory for *;
 
     /// @dev Items with length 0 are not RLP items.
     error RLPEmptyItem();
@@ -27,7 +29,7 @@ library RLP {
 
     struct Item {
         uint256 length; // Total length of the item in bytes
-        bytes32 ptr; // Memory pointer to the start of the item
+        Memory.Pointer ptr; // Memory pointer to the start of the item
     }
 
     enum ItemType {
@@ -114,7 +116,7 @@ library RLP {
     /// @dev Creates an RLP Item from a bytes array.
     function toItem(bytes memory value) internal pure returns (Item memory) {
         require(value.length != 0, RLPEmptyItem()); // Empty arrays are not RLP items.
-        return Item(value.length, _skippedLengthPtr(value));
+        return Item(value.length, value.contentPointer());
     }
 
     /// @dev Decodes an RLP encoded list into an array of RLP Items. See {_decodeLength}
@@ -129,9 +131,9 @@ library RLP {
 
         for (uint256 currentOffset = listOffset; currentOffset < item.length; ++itemCount) {
             (uint256 itemOffset, uint256 itemLength, ) = _decodeLength(
-                Item(item.length - currentOffset, bytes32(uint256(item.ptr) + currentOffset))
+                Item(item.length - currentOffset, item.ptr.addOffset(currentOffset))
             );
-            items[itemCount] = Item(itemLength + itemOffset, bytes32(uint256(item.ptr) + currentOffset));
+            items[itemCount] = Item(itemLength + itemOffset, item.ptr.addOffset(currentOffset));
             currentOffset += itemOffset + itemLength;
         }
 
@@ -154,11 +156,8 @@ library RLP {
         uint256 expectedLength = itemOffset + itemLength;
         require(expectedLength == item.length, RLPContentLengthMismatch(expectedLength, item.length));
 
-        bytes32 itemPtr = item.ptr;
         bytes memory result = new bytes(itemLength);
-        assembly ("memory-safe") {
-            mcopy(add(result, 0x20), add(itemPtr, itemOffset), itemLength)
-        }
+        result.contentPointer().copy(item.ptr.addOffset(itemOffset), itemLength);
 
         return result;
     }
@@ -170,12 +169,9 @@ library RLP {
 
     /// @dev Reads the raw bytes of an RLP item without decoding the content. Includes prefix bytes.
     function readRawBytes(Item memory item) internal pure returns (bytes memory) {
-        bytes32 itemPtr = item.ptr;
         uint256 itemLength = item.length;
         bytes memory result = new bytes(itemLength);
-        assembly ("memory-safe") {
-            mcopy(add(result, 0x20), itemPtr, itemLength)
-        }
+        result.contentPointer().copy(item.ptr, itemLength);
 
         return result;
     }
@@ -220,12 +216,12 @@ library RLP {
     function _flatten(bytes[] memory list) private pure returns (bytes memory) {
         // TODO: Move to Arrays.sol
         bytes memory flattened = new bytes(_totalLength(list));
-        bytes32 dataPtr = _skippedLengthPtr(flattened);
+        Memory.Pointer dataPtr = flattened.contentPointer();
         for (uint256 i = 0; i < list.length; i++) {
             bytes memory item = list[i];
             uint256 length = item.length;
-            _copy(dataPtr, _skippedLengthPtr(item), length);
-            dataPtr = bytes32(uint256(dataPtr) + length);
+            dataPtr.copy(item.contentPointer(), length);
+            dataPtr = dataPtr.addOffset(length);
         }
         return flattened;
     }
@@ -246,8 +242,7 @@ library RLP {
      */
     function _decodeLength(Item memory item) private pure returns (uint256 offset, uint256 length, ItemType) {
         require(item.length != 0, RLPEmptyItem());
-        bytes32 ptr = item.ptr;
-        uint256 prefix = uint8(_extractMemoryByte(ptr));
+        uint256 prefix = uint8(item.ptr.extractByte());
 
         // Single byte below 128
         if (prefix < SHORT_OFFSET) return (0, 1, ItemType.DATA_ITEM);
@@ -275,7 +270,7 @@ library RLP {
         Item memory item
     ) private pure returns (uint256 offset, uint256 length, ItemType) {
         require(item.length > strLength, RLPInvalidDataRemainder(strLength, item.length));
-        require(strLength != 1 || _extractMemoryByte(bytes32(uint256(item.ptr) + 1)) >= bytes1(SHORT_OFFSET));
+        require(strLength != 1 || item.ptr.addOffset(1).extractByte() >= bytes1(SHORT_OFFSET));
         return (1, strLength, ItemType.DATA_ITEM);
     }
 
@@ -292,38 +287,13 @@ library RLP {
     function _decodeLong(uint256 lengthLength, Item memory item) private pure returns (uint256 offset, uint256 length) {
         lengthLength += 1; // 1 byte for the length itself
         require(item.length > lengthLength, RLPInvalidDataRemainder(lengthLength, item.length));
-        require(_extractMemoryByte(item.ptr) != 0x00);
+        require(item.ptr.extractByte() != 0x00);
 
         // Extract the length value from the next bytes
-        uint256 len = _extractMemoryWord(bytes32(uint256(item.ptr) + 1)) >> (256 - 8 * lengthLength);
+        uint256 len = item.ptr.addOffset(1).extractWord() >> (256 - 8 * lengthLength);
         require(len > SHORT_THRESHOLD, RLPInvalidDataRemainder(SHORT_THRESHOLD, len));
         uint256 expectedLength = lengthLength + len;
         require(item.length <= expectedLength, RLPContentLengthMismatch(expectedLength, item.length));
         return (lengthLength + 1, len);
-    }
-
-    function _copy(bytes32 destPtr, bytes32 srcPtr, uint256 length) private pure returns (bytes memory src) {
-        assembly ("memory-safe") {
-            mcopy(destPtr, srcPtr, length)
-            src := mload(src)
-        }
-    }
-
-    function _skippedLengthPtr(bytes memory buffer) private pure returns (bytes32 ptr) {
-        assembly ("memory-safe") {
-            ptr := add(buffer, 32)
-        }
-    }
-
-    function _extractMemoryByte(bytes32 ptr) private pure returns (bytes1 v) {
-        assembly ("memory-safe") {
-            v := byte(0, mload(ptr))
-        }
-    }
-
-    function _extractMemoryWord(bytes32 ptr) private pure returns (uint256 v) {
-        assembly ("memory-safe") {
-            v := mload(ptr)
-        }
     }
 }
