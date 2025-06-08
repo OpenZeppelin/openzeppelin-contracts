@@ -13,6 +13,18 @@ library RLP {
     using Math for uint256;
     using Bytes for *;
 
+    /// @dev Items with length 0 are not RLP items.
+    error RLPEmptyItem();
+
+    /// @dev The `item` is not of the `expected` type.
+    error RLPUnexpectedType(ItemType expected, ItemType actual);
+
+    /// @dev The item is not long enough to contain the data.
+    error RLPInvalidDataRemainder(uint256 minLength, uint256 actualLength);
+
+    /// @dev The content length does not match the expected length.
+    error RLPContentLengthMismatch(uint256 expectedLength, uint256 actualLength);
+
     struct Item {
         uint256 length; // Total length of the item in bytes
         bytes32 ptr; // Memory pointer to the start of the item
@@ -77,25 +89,40 @@ library RLP {
 
     /**
      * @dev Convenience method to encode a boolean as RLP.
-     * Boolean `true` is encoded as single byte 0x01, false as an empty string (0x80).
+     *
+     * Boolean `true` is encoded as 0x01, `false` as 0x80 (equivalent to encoding integers 1 and 0).
+     * This follows the de facto ecosystem standard where booleans are treated as 0/1 integers.
+     *
+     * NOTE: Both this and {encodeStrict} produce identical encoded bytes at the output level.
+     * Use this for ecosystem compatibility; use {encodeStrict} for strict RLP spec compliance.
      */
     function encode(bool value) internal pure returns (bytes memory) {
-        bytes memory encoded = new bytes(1);
-        encoded[0] = value ? bytes1(0x01) : bytes1(SHORT_OFFSET); // false is encoded as an empty string
-        return encoded;
+        return encode(value ? uint256(1) : uint256(0));
+    }
+
+    /**
+     * @dev Strict RLP encoding of a boolean following literal spec interpretation.
+     * Boolean `true` is encoded as 0x01, `false` as empty bytes (0x80).
+     *
+     * NOTE: This is the strict RLP spec interpretation where false represents "empty".
+     * Use this for strict RLP spec compliance; use {encode} for ecosystem compatibility.
+     */
+    function encodeStrict(bool value) internal pure returns (bytes memory) {
+        return value ? abi.encodePacked(bytes1(0x01)) : encode(new bytes(0));
     }
 
     /// @dev Creates an RLP Item from a bytes array.
     function toItem(bytes memory value) internal pure returns (Item memory) {
-        require(value.length != 0); // Empty arrays are not RLP items.
+        require(value.length != 0, RLPEmptyItem()); // Empty arrays are not RLP items.
         return Item(value.length, _skippedLengthPtr(value));
     }
 
     /// @dev Decodes an RLP encoded list into an array of RLP Items. See {_decodeLength}
     function readList(Item memory item) internal pure returns (Item[] memory) {
         (uint256 listOffset, uint256 listLength, ItemType itemType) = _decodeLength(item);
-        require(itemType == ItemType.LIST_ITEM);
-        require(listOffset + listLength == item.length);
+        require(itemType == ItemType.LIST_ITEM, RLPUnexpectedType(ItemType.LIST_ITEM, itemType));
+        uint256 expectedLength = listOffset + listLength;
+        require(expectedLength == item.length, RLPContentLengthMismatch(expectedLength, item.length));
         Item[] memory items = new Item[](32);
 
         uint256 itemCount = item.length;
@@ -123,8 +150,9 @@ library RLP {
     /// @dev Decodes an RLP encoded item.
     function readBytes(Item memory item) internal pure returns (bytes memory) {
         (uint256 itemOffset, uint256 itemLength, ItemType itemType) = _decodeLength(item);
-        require(itemType == ItemType.DATA_ITEM);
-        require(item.length == itemOffset + itemLength);
+        require(itemType == ItemType.DATA_ITEM, RLPUnexpectedType(ItemType.DATA_ITEM, itemType));
+        uint256 expectedLength = itemOffset + itemLength;
+        require(expectedLength == item.length, RLPContentLengthMismatch(expectedLength, item.length));
 
         bytes32 itemPtr = item.ptr;
         bytes memory result = new bytes(itemLength);
@@ -217,7 +245,7 @@ library RLP {
      * Returns the offset, length, and type of the RLP item based on the encoding rules.
      */
     function _decodeLength(Item memory item) private pure returns (uint256 offset, uint256 length, ItemType) {
-        require(item.length != 0);
+        require(item.length != 0, RLPEmptyItem());
         bytes32 ptr = item.ptr;
         uint256 prefix = uint8(_extractMemoryByte(ptr));
 
@@ -246,7 +274,7 @@ library RLP {
         uint256 strLength,
         Item memory item
     ) private pure returns (uint256 offset, uint256 length, ItemType) {
-        require(item.length > strLength);
+        require(item.length > strLength, RLPInvalidDataRemainder(strLength, item.length));
         require(strLength != 1 || _extractMemoryByte(bytes32(uint256(item.ptr) + 1)) >= bytes1(SHORT_OFFSET));
         return (1, strLength, ItemType.DATA_ITEM);
     }
@@ -256,20 +284,21 @@ library RLP {
         uint256 listLength,
         Item memory item
     ) private pure returns (uint256 offset, uint256 length, ItemType) {
-        require(item.length > listLength);
+        require(item.length > listLength, RLPInvalidDataRemainder(listLength, item.length));
         return (1, listLength, ItemType.LIST_ITEM);
     }
 
     /// @dev Decodes a long string or list (>55 bytes). The first byte indicates the length of the length, followed by the length itself.
     function _decodeLong(uint256 lengthLength, Item memory item) private pure returns (uint256 offset, uint256 length) {
         lengthLength += 1; // 1 byte for the length itself
-        require(item.length > lengthLength);
+        require(item.length > lengthLength, RLPInvalidDataRemainder(lengthLength, item.length));
         require(_extractMemoryByte(item.ptr) != 0x00);
 
         // Extract the length value from the next bytes
         uint256 len = _extractMemoryWord(bytes32(uint256(item.ptr) + 1)) >> (256 - 8 * lengthLength);
-        require(len > SHORT_OFFSET);
-        require(item.length <= lengthLength + len);
+        require(len > SHORT_OFFSET, RLPInvalidDataRemainder(SHORT_OFFSET, len));
+        uint256 expectedLength = lengthLength + len;
+        require(item.length <= expectedLength, RLPContentLengthMismatch(expectedLength, item.length));
         return (lengthLength + 1, len);
     }
 
