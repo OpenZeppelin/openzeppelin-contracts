@@ -4,7 +4,6 @@ pragma solidity ^0.8.20;
 
 import {Test} from "forge-std/Test.sol";
 import {Memory} from "@openzeppelin/contracts/utils/Memory.sol";
-import {Bytes} from "@openzeppelin/contracts/utils/Bytes.sol";
 
 contract MemoryTest is Test {
     using Memory for *;
@@ -25,28 +24,44 @@ contract MemoryTest is Test {
         assertEq(ptr.asBytes().contentPointer().asBytes32(), ptr.addOffset(32).asBytes32());
     }
 
-    // function testCopy(bytes memory data, uint256 destSeed) public pure {
-    //     uint256 upperPtr = data.asPointer().asUint256() + data.length;
-    //     Memory.Pointer destPtr = bytes32(bound(destSeed, upperPtr, upperPtr + 100)).asPointer();
-    //     Memory.copy(data.asPointer(), destPtr, data.length + 32);
-    //     for (uint256 i = 0; i < data.length; i++) {
-    //         assertEq(data[i], destPtr.asBytes()[i]);
-    //     }
-    // }
-
-    function testExtractByte(uint256 seed, uint256 index) public pure {
-        index = bound(index, 0, 31);
-        Memory.Pointer ptr = bytes32(bound(seed, START_PTR, END_PTR)).asPointer();
-        assertEq(ptr.extractByte(index), bytes1(ptr.asBytes32() >> (256 - index * 8)));
+    function testCopy(bytes memory data, uint256 destSeed) public pure {
+        uint256 minDestPtr = Memory.getFreePointer().asUint256();
+        Memory.Pointer destPtr = bytes32(bound(destSeed, minDestPtr, minDestPtr + END_PTR)).asPointer();
+        destPtr.addOffset(data.length + 32).setFreePointer();
+        destPtr.copy(data.asPointer(), data.length + 32);
+        bytes memory copiedData = destPtr.asBytes();
+        assertEq(data.length, copiedData.length);
+        for (uint256 i = 0; i < data.length; i++) {
+            assertEq(data[i], copiedData[i]);
+        }
     }
 
-    // function testExtractWord(uint256 seed) public pure {
-    //     Memory.Pointer ptr = bytes32(bound(seed, START_PTR, END_PTR)).asPointer();
-    //     assertEq(ptr.extractWord(), ptr.asBytes32());
-    // }
+    function testExtractByte(uint256 seed, uint256 index, bytes32 value) public pure {
+        index = bound(index, 0, 31);
+        Memory.Pointer ptr = bytes32(bound(seed, START_PTR, END_PTR)).asPointer();
 
-    // function testAddOffset(uint256 seed, uint256 offset) public pure {
-    //     Memory.Pointer ptr = bytes32(bound(seed, START_PTR, END_PTR)).asPointer();
-    //     assertEq(ptr.addOffset(offset).asUint256(), ptr.asUint256() + offset);
-    // }
+        assembly ("memory-safe") {
+            mstore(ptr, value)
+        }
+
+        bytes1 expected;
+        assembly ("memory-safe") {
+            expected := byte(index, value)
+        }
+        assertEq(ptr.extractByte(index), expected);
+    }
+
+    function testExtractWord(uint256 seed, bytes32 value) public pure {
+        Memory.Pointer ptr = bytes32(bound(seed, START_PTR, END_PTR)).asPointer();
+        assembly ("memory-safe") {
+            mstore(ptr, value)
+        }
+        assertEq(ptr.extractWord(), value);
+    }
+
+    function testSymbolicAddOffset(uint256 seed, uint256 offset) public pure {
+        offset = bound(offset, 0, type(uint256).max - END_PTR);
+        Memory.Pointer ptr = bytes32(bound(seed, START_PTR, END_PTR)).asPointer();
+        assertEq(ptr.addOffset(offset).asUint256(), ptr.asUint256() + offset);
+    }
 }
