@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 
 import {AbstractSigner} from "./AbstractSigner.sol";
 import {EIP712} from "../EIP712.sol";
-import {ERC7739Utils} from "../ERC7739Utils.sol";
+import {ERC7739Utils} from "../draft-ERC7739Utils.sol";
 import {IERC1271} from "../../../interfaces/IERC1271.sol";
 import {MessageHashUtils} from "../MessageHashUtils.sol";
 import {ShortStrings} from "../../ShortStrings.sol";
