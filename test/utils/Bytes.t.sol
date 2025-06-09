@@ -62,7 +62,7 @@ contract BytesTest is Test {
     }
 
     function testSymbolicCountLeadingZeroes(uint256 x) public pure {
-        uint256 result = Bytes.countLeadingZeroes(x);
+        uint256 result = Bytes.clz(x);
         assertLe(result, 32); // [0, 32]
 
         if (x != 0) {
