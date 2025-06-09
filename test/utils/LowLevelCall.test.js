@@ -161,20 +161,14 @@ describe('LowLevelCall', function () {
         this.returnValue,
         ethers.ZeroHash,
       ]);
-      await expect(this.mock.$staticcallReturnBytes32(this.target, call)).to.eventually.deep.equal([
-        true,
-        this.returnValue,
-      ]);
+      expect(await this.mock.$staticcallReturnBytes32(this.target, call)).to.deep.equal([true, this.returnValue]);
     });
 
     it('calls the requested function and returns false if the subcall reverts', async function () {
       const iface = new ethers.Interface(['function mockFunctionDoesNotExist()']);
 
       const call = iface.encodeFunctionData('mockFunctionDoesNotExist');
-      await expect(this.mock.$staticcallReturnBytes32(this.target, call)).to.eventually.deep.equal([
-        false,
-        ethers.ZeroHash,
-      ]);
+      expect(await this.mock.$staticcallReturnBytes32(this.target, call)).to.deep.equal([false, ethers.ZeroHash]);
     });
   });
 
@@ -189,7 +183,7 @@ describe('LowLevelCall', function () {
         this.returnValue1,
         this.returnValue2,
       ]);
-      await expect(this.mock.$staticcallReturnBytes32Pair(this.target, call)).to.eventually.deep.equal([
+      expect(await this.mock.$staticcallReturnBytes32Pair(this.target, call)).to.deep.equal([
         true,
         this.returnValue1,
         this.returnValue2,
@@ -200,7 +194,7 @@ describe('LowLevelCall', function () {
       const iface = new ethers.Interface(['function mockFunctionDoesNotExist()']);
 
       const call = iface.encodeFunctionData('mockFunctionDoesNotExist');
-      await expect(this.mock.$staticcallReturnBytes32Pair(this.target, call)).to.eventually.deep.equal([
+      expect(await this.mock.$staticcallReturnBytes32Pair(this.target, call)).to.deep.equal([
         false,
         ethers.ZeroHash,
         ethers.ZeroHash,

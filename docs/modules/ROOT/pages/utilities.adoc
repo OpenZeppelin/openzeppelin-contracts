@@ -461,46 +461,41 @@ await instance.multicall([
 ]);
 ----
 
-=== LowLevelCall
+=== Low-level Calls
 
-The `LowLevelCall` library contains a set of functions to perform external calls with low-level assembly, allowing them to deal with the callee's `returndata` in different ways. This is especially useful to make a call in a way that is safe against return bombing (i.e. the callee allocates too much memory using a long returndata).
+The xref:api:utils.adoc#LowLevelCall[`LowLevelCall`] library provides low-level external calls with fixed-size return data handling, protecting against return bombing attacks where callees allocate excessive memory.
 
-The functions in the library efficiently allocates a fixed sized of the `returndata` up to 64 bytes. You can either ignore the returned data, or get 1 or 2 `bytes32` values.
+The library efficiently handles return data up to 64 bytes, allowing you to ignore it entirely or extract 1-2 `bytes32` values:
 
 [source,solidity]
 ----
 using LowLevelCall for address;
 
-function _foo(address target, bytes memory data) internal {
+function example(address target, bytes memory data) internal {
     bool success;
-    bytes32 returnValue1;
-    bytes32 returnValue2;
+    bytes32 result1;
+    bytes32 result2;
 
     // Ignore return data
     success = target.callRaw(data);
 
-    // Copy only 32 bytes from return data
-    (success, returnValue1) = target.callReturnBytes32(data);
+    // Extract single 32-byte value
+    (success, result1) = target.callReturnBytes32(data);
 
-    // Copy two (32 bytes) EVM words from returndata
-    (success, returnValue1, returnValue2) = target.callReturnBytes32Pair(data);
+    // Extract two 32-byte values
+    (success, result1, result2) = target.callReturnBytes32Pair(data);
 }
 ----
 
-There are cases where you would like to check the size of the returned data, either to make sure it fits the expected size, or to check it before loading it to memory. In those case, the library also includes a function to separately check the return data size:
-
+You can also check return data size before processing:
 
 [source,solidity]
 ----
-using LowLevelCall for address;
-
-function _foo(address target, bytes memory data) internal returns (bool returnBool) {
+function checkReturnSize(address target, bytes memory data) internal returns (bool) {
     if (!target.callRaw(data)) {
-        // Unsuccessful call
         return false;
     }
-
-    // As long as the contract returned data, its content doesn't matter
+    
     return LowLevelCall.returnDataSize() >= 32;
 }
 ----
