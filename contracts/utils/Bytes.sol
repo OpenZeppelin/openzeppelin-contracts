@@ -99,6 +99,35 @@ library Bytes {
         return result;
     }
 
+    /// @dev Split each byte in `value` into two nibbles (4 bits each).
+    function nibbles(bytes memory value) internal pure returns (bytes memory) {
+        uint256 length = value.length;
+        bytes memory nibbles_ = new bytes(length * 2);
+        for (uint256 i = 0; i < length; i++) {
+            (nibbles_[i * 2], nibbles_[i * 2 + 1]) = (value[i] & 0xf0, value[i] & 0x0f);
+        }
+        return nibbles_;
+    }
+
+    /**
+     * @dev Returns true if the two byte buffers are equal.
+     */
+    function equal(bytes memory a, bytes memory b) internal pure returns (bool) {
+        return a.length == b.length && keccak256(a) == keccak256(b);
+    }
+
+    /// @dev Counts the number of leading zero bytes in a uint256.
+    function countLeadingZeroes(uint256 x) internal pure returns (uint256) {
+        if (x == 0) return 32; // All 32 bytes are zero
+        uint256 r = 0;
+        if (x > 0xffffffffffffffffffffffffffffffff) r = 128; // Upper 128 bits
+        if ((x >> r) > 0xffffffffffffffff) r |= 64; // Next 64 bits
+        if ((x >> r) > 0xffffffff) r |= 32; // Next 32 bits
+        if ((x >> r) > 0xffff) r |= 16; // Next 16 bits
+        if ((x >> r) > 0xff) r |= 8; // Next 8 bits
+        return 31 ^ (r >> 3); // Convert to leading zero bytes count
+    }
+
     /**
      * @dev Reads a bytes32 from a bytes array without bounds checking.
      *
