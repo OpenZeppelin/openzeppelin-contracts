@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const chalk = require('chalk');
-const { argv } = require('yargs')
+const { argv } = require('yargs/yargs')()
   .env()
   .options({
     style: {
