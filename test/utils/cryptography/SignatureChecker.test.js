@@ -33,18 +33,21 @@ describe('SignatureChecker (ERC1271)', function () {
 
   describe('EOA account', function () {
     it('with matching signer and signature', async function () {
-      await expect(this.mock.$isValidSignatureNow(this.signer, TEST_MESSAGE_HASH, this.signature)).to.eventually.be
-        .true;
+      await expect(
+        this.mock.$isValidSignatureNow(ethers.Typed.address(this.signer.address), TEST_MESSAGE_HASH, this.signature),
+      ).to.eventually.be.true;
     });
 
     it('with invalid signer', async function () {
-      await expect(this.mock.$isValidSignatureNow(this.other, TEST_MESSAGE_HASH, this.signature)).to.eventually.be
-        .false;
+      await expect(
+        this.mock.$isValidSignatureNow(ethers.Typed.address(this.other.address), TEST_MESSAGE_HASH, this.signature),
+      ).to.eventually.be.false;
     });
 
     it('with invalid signature', async function () {
-      await expect(this.mock.$isValidSignatureNow(this.signer, WRONG_MESSAGE_HASH, this.signature)).to.eventually.be
-        .false;
+      await expect(
+        this.mock.$isValidSignatureNow(ethers.Typed.address(this.signer.address), WRONG_MESSAGE_HASH, this.signature),
+      ).to.eventually.be.false;
     });
   });
 
@@ -52,55 +55,76 @@ describe('SignatureChecker (ERC1271)', function () {
     for (const fn of ['isValidERC1271SignatureNow', 'isValidSignatureNow']) {
       describe(fn, function () {
         it('with matching signer and signature', async function () {
-          await expect(this.mock.getFunction(`$${fn}`)(this.wallet, TEST_MESSAGE_HASH, this.signature)).to.eventually.be
-            .true;
+          await expect(
+            this.mock.getFunction(`$${fn}`)(
+              ethers.Typed.address(this.wallet.target),
+              TEST_MESSAGE_HASH,
+              this.signature,
+            ),
+          ).to.eventually.be.true;
         });
 
         it('with invalid signer', async function () {
-          await expect(this.mock.getFunction(`$${fn}`)(this.mock, TEST_MESSAGE_HASH, this.signature)).to.eventually.be
-            .false;
+          await expect(
+            this.mock.getFunction(`$${fn}`)(ethers.Typed.address(this.mock.target), TEST_MESSAGE_HASH, this.signature),
+          ).to.eventually.be.false;
         });
 
         it('with identity precompile', async function () {
-          await expect(this.mock.getFunction(`$${fn}`)(precompile.identity, TEST_MESSAGE_HASH, this.signature)).to
-            .eventually.be.false;
+          await expect(
+            this.mock.getFunction(`$${fn}`)(
+              ethers.Typed.address(precompile.identity),
+              TEST_MESSAGE_HASH,
+              this.signature,
+            ),
+          ).to.eventually.be.false;
         });
 
         it('with invalid signature', async function () {
-          await expect(this.mock.getFunction(`$${fn}`)(this.wallet, WRONG_MESSAGE_HASH, this.signature)).to.eventually
-            .be.false;
+          await expect(
+            this.mock.getFunction(`$${fn}`)(
+              ethers.Typed.address(this.wallet.target),
+              WRONG_MESSAGE_HASH,
+              this.signature,
+            ),
+          ).to.eventually.be.false;
         });
 
         it('with malicious wallet', async function () {
-          await expect(this.mock.getFunction(`$${fn}`)(this.malicious, TEST_MESSAGE_HASH, this.signature)).to.eventually
-            .be.false;
+          await expect(
+            this.mock.getFunction(`$${fn}`)(
+              ethers.Typed.address(this.malicious.target),
+              TEST_MESSAGE_HASH,
+              this.signature,
+            ),
+          ).to.eventually.be.false;
         });
       });
     }
   });
 
   describe('ERC7913', function () {
-    describe('isValidERC7913SignatureNow', function () {
+    describe('isValidSignatureNow', function () {
       describe('with EOA signer', function () {
         it('with matching signer and signature', async function () {
           const eoaSigner = ethers.zeroPadValue(this.signer.address, 20);
           const signature = await this.signer.signMessage(TEST_MESSAGE);
-          await expect(this.mock.$isValidERC7913SignatureNow(eoaSigner, TEST_MESSAGE_HASH, signature)).to.eventually.be
-            .true;
+          await expect(this.mock.$isValidSignatureNow(ethers.Typed.bytes(eoaSigner), TEST_MESSAGE_HASH, signature)).to
+            .eventually.be.true;
         });
 
         it('with invalid signer', async function () {
           const eoaSigner = ethers.zeroPadValue(this.other.address, 20);
           const signature = await this.signer.signMessage(TEST_MESSAGE);
-          await expect(this.mock.$isValidERC7913SignatureNow(eoaSigner, TEST_MESSAGE_HASH, signature)).to.eventually.be
-            .false;
+          await expect(this.mock.$isValidSignatureNow(ethers.Typed.bytes(eoaSigner), TEST_MESSAGE_HASH, signature)).to
+            .eventually.be.false;
         });
 
         it('with invalid signature', async function () {
           const eoaSigner = ethers.zeroPadValue(this.signer.address, 20);
           const signature = await this.signer.signMessage(TEST_MESSAGE);
-          await expect(this.mock.$isValidERC7913SignatureNow(eoaSigner, WRONG_MESSAGE_HASH, signature)).to.eventually.be
-            .false;
+          await expect(this.mock.$isValidSignatureNow(ethers.Typed.bytes(eoaSigner), WRONG_MESSAGE_HASH, signature)).to
+            .eventually.be.false;
         });
       });
 
@@ -108,22 +132,22 @@ describe('SignatureChecker (ERC1271)', function () {
         it('with matching signer and signature', async function () {
           const walletSigner = ethers.zeroPadValue(this.wallet.target, 20);
           const signature = await this.signer.signMessage(TEST_MESSAGE);
-          await expect(this.mock.$isValidERC7913SignatureNow(walletSigner, TEST_MESSAGE_HASH, signature)).to.eventually
-            .be.true;
+          await expect(this.mock.$isValidSignatureNow(ethers.Typed.bytes(walletSigner), TEST_MESSAGE_HASH, signature))
+            .to.eventually.be.true;
         });
 
         it('with invalid signer', async function () {
           const walletSigner = ethers.zeroPadValue(this.mock.target, 20);
           const signature = await this.signer.signMessage(TEST_MESSAGE);
-          await expect(this.mock.$isValidERC7913SignatureNow(walletSigner, TEST_MESSAGE_HASH, signature)).to.eventually
-            .be.false;
+          await expect(this.mock.$isValidSignatureNow(ethers.Typed.bytes(walletSigner), TEST_MESSAGE_HASH, signature))
+            .to.eventually.be.false;
         });
 
         it('with invalid signature', async function () {
           const walletSigner = ethers.zeroPadValue(this.wallet.target, 20);
           const signature = await this.signer.signMessage(TEST_MESSAGE);
-          await expect(this.mock.$isValidERC7913SignatureNow(walletSigner, WRONG_MESSAGE_HASH, signature)).to.eventually
-            .be.false;
+          await expect(this.mock.$isValidSignatureNow(ethers.Typed.bytes(walletSigner), WRONG_MESSAGE_HASH, signature))
+            .to.eventually.be.false;
         });
       });
 
@@ -136,8 +160,8 @@ describe('SignatureChecker (ERC1271)', function () {
           ]);
           const signature = await aliceP256.signMessage(TEST_MESSAGE);
 
-          await expect(this.mock.$isValidERC7913SignatureNow(signer, TEST_MESSAGE_HASH, signature)).to.eventually.be
-            .true;
+          await expect(this.mock.$isValidSignatureNow(ethers.Typed.bytes(signer), TEST_MESSAGE_HASH, signature)).to
+            .eventually.be.true;
         });
 
         it('with invalid verifier', async function () {
@@ -148,16 +172,16 @@ describe('SignatureChecker (ERC1271)', function () {
           ]);
           const signature = await aliceP256.signMessage(TEST_MESSAGE);
 
-          await expect(this.mock.$isValidERC7913SignatureNow(signer, TEST_MESSAGE_HASH, signature)).to.eventually.be
-            .false;
+          await expect(this.mock.$isValidSignatureNow(ethers.Typed.bytes(signer), TEST_MESSAGE_HASH, signature)).to
+            .eventually.be.false;
         });
 
         it('with invalid key', async function () {
           const signer = ethers.concat([this.verifier.target, ethers.randomBytes(32)]);
           const signature = await aliceP256.signMessage(TEST_MESSAGE);
 
-          await expect(this.mock.$isValidERC7913SignatureNow(signer, TEST_MESSAGE_HASH, signature)).to.eventually.be
-            .false;
+          await expect(this.mock.$isValidSignatureNow(ethers.Typed.bytes(signer), TEST_MESSAGE_HASH, signature)).to
+            .eventually.be.false;
         });
 
         it('with invalid signature', async function () {
@@ -168,20 +192,20 @@ describe('SignatureChecker (ERC1271)', function () {
           ]);
           const signature = ethers.randomBytes(65); // invalid (random) signature
 
-          await expect(this.mock.$isValidERC7913SignatureNow(signer, TEST_MESSAGE_HASH, signature)).to.eventually.be
-            .false;
+          await expect(this.mock.$isValidSignatureNow(ethers.Typed.bytes(signer), TEST_MESSAGE_HASH, signature)).to
+            .eventually.be.false;
         });
 
         it('with signer too short', async function () {
           const signer = ethers.randomBytes(19); // too short
           const signature = await aliceP256.signMessage(TEST_MESSAGE);
-          await expect(this.mock.$isValidERC7913SignatureNow(signer, TEST_MESSAGE_HASH, signature)).to.eventually.be
-            .false;
+          await expect(this.mock.$isValidSignatureNow(ethers.Typed.bytes(signer), TEST_MESSAGE_HASH, signature)).to
+            .eventually.be.false;
         });
       });
     });
 
-    describe('areValidERC7913SignaturesNow', function () {
+    describe('areValidSignaturesNow', function () {
       const sortSigners = (...signers) =>
         signers.sort(({ signer: a }, { signer: b }) => ethers.keccak256(b) - ethers.keccak256(a));
 
@@ -189,8 +213,7 @@ describe('SignatureChecker (ERC1271)', function () {
         const signer = ethers.zeroPadValue(this.signer.address, 20);
         const signature = await this.signer.signMessage(TEST_MESSAGE);
 
-        await expect(this.mock.$areValidERC7913SignaturesNow(TEST_MESSAGE_HASH, [signer], [signature])).to.eventually.be
-          .true;
+        await expect(this.mock.$areValidSignaturesNow(TEST_MESSAGE_HASH, [signer], [signature])).to.eventually.be.true;
       });
 
       it('should validate multiple signatures with different signer types', async function () {
@@ -214,7 +237,7 @@ describe('SignatureChecker (ERC1271)', function () {
         );
 
         await expect(
-          this.mock.$areValidERC7913SignaturesNow(
+          this.mock.$areValidSignaturesNow(
             TEST_MESSAGE_HASH,
             signers.map(({ signer }) => signer),
             signers.map(({ signature }) => signature),
@@ -235,7 +258,7 @@ describe('SignatureChecker (ERC1271)', function () {
         );
 
         await expect(
-          this.mock.$areValidERC7913SignaturesNow(
+          this.mock.$areValidSignaturesNow(
             TEST_MESSAGE_HASH,
             signers.map(({ signer }) => signer),
             signers.map(({ signature }) => signature),
@@ -256,7 +279,7 @@ describe('SignatureChecker (ERC1271)', function () {
         );
 
         await expect(
-          this.mock.$areValidERC7913SignaturesNow(
+          this.mock.$areValidSignaturesNow(
             TEST_MESSAGE_HASH,
             signers.map(({ signer }) => signer),
             signers.map(({ signature }) => signature),
@@ -285,7 +308,7 @@ describe('SignatureChecker (ERC1271)', function () {
         );
 
         await expect(
-          this.mock.$areValidERC7913SignaturesNow(
+          this.mock.$areValidSignaturesNow(
             TEST_MESSAGE_HASH,
             signers.map(({ signer }) => signer),
             signers.map(({ signature }) => signature),
@@ -314,7 +337,7 @@ describe('SignatureChecker (ERC1271)', function () {
         ).reverse(); // reverse
 
         await expect(
-          this.mock.$areValidERC7913SignaturesNow(
+          this.mock.$areValidSignaturesNow(
             TEST_MESSAGE_HASH,
             signers.map(({ signer }) => signer),
             signers.map(({ signature }) => signature),
@@ -335,7 +358,7 @@ describe('SignatureChecker (ERC1271)', function () {
         );
 
         await expect(
-          this.mock.$areValidERC7913SignaturesNow(
+          this.mock.$areValidSignaturesNow(
             TEST_MESSAGE_HASH,
             signers.map(({ signer }) => signer),
             signers.map(({ signature }) => signature),
@@ -356,7 +379,7 @@ describe('SignatureChecker (ERC1271)', function () {
         );
 
         await expect(
-          this.mock.$areValidERC7913SignaturesNow(
+          this.mock.$areValidSignaturesNow(
             TEST_MESSAGE_HASH,
             signers.map(({ signer }) => signer),
             signers.map(({ signature }) => signature),
@@ -377,7 +400,7 @@ describe('SignatureChecker (ERC1271)', function () {
         );
 
         await expect(
-          this.mock.$areValidERC7913SignaturesNow(
+          this.mock.$areValidSignaturesNow(
             TEST_MESSAGE_HASH,
             signers.map(({ signer }) => signer),
             signers.map(({ signature }) => signature).slice(1),
@@ -386,7 +409,7 @@ describe('SignatureChecker (ERC1271)', function () {
       });
 
       it('should pass with empty arrays', async function () {
-        await expect(this.mock.$areValidERC7913SignaturesNow(TEST_MESSAGE_HASH, [], [])).to.eventually.be.true;
+        await expect(this.mock.$areValidSignaturesNow(TEST_MESSAGE_HASH, [], [])).to.eventually.be.true;
       });
     });
   });

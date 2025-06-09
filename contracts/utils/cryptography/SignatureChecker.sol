@@ -27,7 +27,7 @@ library SignatureChecker {
      * NOTE: Unlike ECDSA signatures, contract signatures are revocable, and the outcome of this function can thus
      * change through time. It could return true at block N and false at block N+1 (or the opposite).
      *
-     * NOTE: For an extended version of this function that supports ERC-7913 signatures, see {isValidERC7913SignatureNow}.
+     * NOTE: For an extended version of this function that supports ERC-7913 signatures, see {isValidSignatureNow-bytes-bytes32-bytes-}.
      */
     function isValidSignatureNow(address signer, bytes32 hash, bytes memory signature) internal view returns (bool) {
         if (signer.code.length == 0) {
@@ -73,7 +73,7 @@ library SignatureChecker {
      * NOTE: Unlike ECDSA signatures, contract signatures are revocable, and the outcome of this function can thus
      * change through time. It could return true at block N and false at block N+1 (or the opposite).
      */
-    function isValidERC7913SignatureNow(
+    function isValidSignatureNow(
         bytes memory signer,
         bytes32 hash,
         bytes memory signature
@@ -103,7 +103,7 @@ library SignatureChecker {
      * NOTE: Unlike ECDSA signatures, contract signatures are revocable, and the outcome of this function can thus
      * change through time. It could return true at block N and false at block N+1 (or the opposite).
      */
-    function areValidERC7913SignaturesNow(
+    function areValidSignaturesNow(
         bytes32 hash,
         bytes[] memory signers,
         bytes[] memory signatures
@@ -116,7 +116,7 @@ library SignatureChecker {
             bytes memory signer = signers[i];
 
             // If one of the signatures is invalid, reject the batch
-            if (!isValidERC7913SignatureNow(signer, hash, signatures[i])) return false;
+            if (!isValidSignatureNow(signer, hash, signatures[i])) return false;
 
             bytes32 id = keccak256(signer);
             // If the current signer ID is greater than all previous IDs, then this is a new signer.
