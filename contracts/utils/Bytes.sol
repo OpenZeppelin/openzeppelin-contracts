@@ -109,13 +109,6 @@ library Bytes {
         return nibbles_;
     }
 
-    /**
-     * @dev Returns true if the two byte buffers are equal.
-     */
-    function equal(bytes memory a, bytes memory b) internal pure returns (bool) {
-        return a.length == b.length && keccak256(a) == keccak256(b);
-    }
-
     /// @dev Counts the number of leading zero bytes in a uint256.
     function clz(uint256 x) internal pure returns (uint256) {
         if (x == 0) return 32; // All 32 bytes are zero
