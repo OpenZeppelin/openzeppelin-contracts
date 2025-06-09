@@ -14,14 +14,14 @@ pragma solidity ^0.8.20;
 library Memory {
     type Pointer is bytes32;
 
-    /// @dev Returns a memory pointer to the current free memory pointer.
+    /// @dev Returns a `Pointer` to the current free `Pointer`.
     function getFreePointer() internal pure returns (Pointer ptr) {
         assembly ("memory-safe") {
             ptr := mload(0x40)
         }
     }
 
-    /// @dev Sets the free memory pointer to a specific value.
+    /// @dev Sets the free `Pointer` to a specific value.
     ///
     /// WARNING: Everything after the pointer may be overwritten.
     function setFreePointer(Pointer ptr) internal pure {
@@ -30,57 +30,75 @@ library Memory {
         }
     }
 
-    /// @dev Returns a memory pointer to the content of a buffer. Skips the length word.
+    /// @dev Returns a `Pointer` to the content of a `bytes` buffer. Skips the length word.
     function contentPointer(bytes memory buffer) internal pure returns (Pointer) {
-        bytes32 ptr;
-        assembly ("memory-safe") {
-            ptr := add(buffer, 32)
-        }
-        return asPointer(ptr);
+        return addOffset(asPointer(buffer), 32);
     }
 
-    /// @dev Copies `length` bytes from `srcPtr` to `destPtr`.
+    /**
+     * @dev Copies `length` bytes from `srcPtr` to `destPtr`. Equivalent to https://www.evm.codes/?fork=cancun#5e[`mcopy`].
+     *
+     * WARNING: Reading or writing beyond the allocated memory bounds of either pointer
+     * will result in undefined behavior and potential memory corruption.
+     */
     function copy(Pointer destPtr, Pointer srcPtr, uint256 length) internal pure {
         assembly ("memory-safe") {
             mcopy(destPtr, srcPtr, length)
         }
     }
 
-    /// @dev Extracts a byte from a memory pointer.
-    function extractByte(Pointer ptr) internal pure returns (bytes1 v) {
+    /**
+     * @dev Extracts a `bytes1` from a `Pointer`. `offset` starts from the most significant byte.
+     *
+     * NOTE: Will return `0x00` if `offset` is larger or equal to `32`.
+     */
+    function extractByte(Pointer ptr, uint256 offset) internal pure returns (bytes1 v) {
+        bytes32 word = extractWord(ptr);
         assembly ("memory-safe") {
-            v := byte(0, mload(ptr))
+            v := byte(offset, word)
         }
     }
 
-    /// @dev Extracts a word from a memory pointer.
-    function extractWord(Pointer ptr) internal pure returns (uint256 v) {
+    /// @dev Extracts a `bytes32` from a `Pointer`.
+    function extractWord(Pointer ptr) internal pure returns (bytes32 v) {
         assembly ("memory-safe") {
             v := mload(ptr)
         }
     }
 
-    /// @dev Adds an offset to a memory pointer.
+    /// @dev Adds an offset to a `Pointer`.
     function addOffset(Pointer ptr, uint256 offset) internal pure returns (Pointer) {
-        return asPointer(bytes32(uint256(asBytes32(ptr)) + offset));
+        return asPointer(bytes32(asUint256(ptr) + offset));
     }
 
-    /// @dev Pointer to `bytes32`.
+    /// @dev `Pointer` to `bytes32`. Expects a pointer to a properly ABI-encoded `bytes` object.
     function asBytes32(Pointer ptr) internal pure returns (bytes32) {
         return Pointer.unwrap(ptr);
     }
 
-    /// @dev `bytes32` to pointer.
+    /// @dev `Pointer` to `uint256`. Expects a pointer to a properly ABI-encoded `bytes` object.
+    function asUint256(Pointer ptr) internal pure returns (uint256) {
+        return uint256(asBytes32(ptr));
+    }
+
+    /// @dev `bytes32` to `Pointer`. Expects a pointer to a properly ABI-encoded `bytes` object.
     function asPointer(bytes32 value) internal pure returns (Pointer) {
         return Pointer.wrap(value);
     }
 
-    /// @dev `bytes` to pointer.
+    /// @dev Returns a `Pointer` to the `value`'s header (i.e. includes the length word).
     function asPointer(bytes memory value) internal pure returns (Pointer) {
         bytes32 ptr;
         assembly ("memory-safe") {
             ptr := value
         }
         return asPointer(ptr);
+    }
+
+    /// @dev `Pointer` to `bytes`. Expects a pointer to a properly ABI-encoded `bytes` object.
+    function asBytes(Pointer ptr) internal pure returns (bytes memory b) {
+        assembly ("memory-safe") {
+            b := ptr
+        }
     }
 }

@@ -209,7 +209,7 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
      * Returns whether whether the signers are authorized and the signatures are valid for the given hash.
      *
      * IMPORTANT: Sorting the signers by their `keccak256` hash will improve the gas efficiency of this function.
-     * See {SignatureChecker-areValidERC7913SignaturesNow} for more details.
+     * See {SignatureChecker-areValidSignaturesNow-bytes32-bytes[]-bytes[]} for more details.
      *
      * Requirements:
      *
@@ -225,7 +225,7 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
                 return false;
             }
         }
-        return hash.areValidERC7913SignaturesNow(signers, signatures);
+        return hash.areValidSignaturesNow(signers, signatures);
     }
 
     /**
