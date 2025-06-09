@@ -52,15 +52,15 @@ library Memory {
      *
      * NOTE: Will return `0x00` if `offset` is larger or equal to `32`.
      */
-    function extractByte(Pointer ptr, uint256 offset) internal pure returns (bytes1 v) {
-        bytes32 word = extractWord(ptr);
+    function loadByte(Pointer ptr, uint256 offset) internal pure returns (bytes1 v) {
+        bytes32 word = load(ptr);
         assembly ("memory-safe") {
             v := byte(offset, word)
         }
     }
 
     /// @dev Extracts a `bytes32` from a `Pointer`.
-    function extractWord(Pointer ptr) internal pure returns (bytes32 v) {
+    function load(Pointer ptr) internal pure returns (bytes32 v) {
         assembly ("memory-safe") {
             v := mload(ptr)
         }

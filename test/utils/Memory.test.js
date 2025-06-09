@@ -26,14 +26,14 @@ describe('Memory', function () {
     });
   });
 
-  it('extractWord extracts a word', async function () {
+  it('load extracts a word', async function () {
     const ptr = await this.mock.$getFreePointer();
-    await expect(this.mock.$extractWord(ptr)).to.eventually.equal(ethers.toBeHex(0, 32));
+    await expect(this.mock.$load(ptr)).to.eventually.equal(ethers.toBeHex(0, 32));
   });
 
-  it('extractByte extracts a byte', async function () {
+  it('loadByte extracts a byte', async function () {
     const ptr = await this.mock.$getFreePointer();
-    await expect(this.mock.$extractByte(ptr, 0)).to.eventually.equal(ethers.toBeHex(0, 1));
+    await expect(this.mock.$loadByte(ptr, 0)).to.eventually.equal(ethers.toBeHex(0, 1));
   });
 
   it('contentPointer', async function () {

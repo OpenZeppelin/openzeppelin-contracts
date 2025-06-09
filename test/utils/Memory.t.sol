@@ -36,7 +36,7 @@ contract MemoryTest is Test {
         }
     }
 
-    function testExtractByte(uint256 seed, uint256 index, bytes32 value) public pure {
+    function testLoadByte(uint256 seed, uint256 index, bytes32 value) public pure {
         index = bound(index, 0, 31);
         Memory.Pointer ptr = bytes32(bound(seed, START_PTR, END_PTR)).asPointer();
 
@@ -48,15 +48,15 @@ contract MemoryTest is Test {
         assembly ("memory-safe") {
             expected := byte(index, value)
         }
-        assertEq(ptr.extractByte(index), expected);
+        assertEq(ptr.loadByte(index), expected);
     }
 
-    function testExtractWord(uint256 seed, bytes32 value) public pure {
+    function testLoad(uint256 seed, bytes32 value) public pure {
         Memory.Pointer ptr = bytes32(bound(seed, START_PTR, END_PTR)).asPointer();
         assembly ("memory-safe") {
             mstore(ptr, value)
         }
-        assertEq(ptr.extractWord(), value);
+        assertEq(ptr.load(), value);
     }
 
     function testSymbolicAddOffset(uint256 seed, uint256 offset) public pure {
