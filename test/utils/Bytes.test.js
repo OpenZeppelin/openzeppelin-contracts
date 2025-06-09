@@ -149,7 +149,7 @@ describe('Bytes', function () {
 
   describe('countLeadingZeroes', function () {
     it('zero value', async function () {
-      await expect(this.mock.$countLeadingZeroes(0)).to.eventually.equal(31);
+      await expect(this.mock.$countLeadingZeroes(0)).to.eventually.equal(32);
     });
 
     it('small values', async function () {
