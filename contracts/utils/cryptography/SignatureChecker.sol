@@ -94,7 +94,6 @@ library SignatureChecker {
 
     /**
      * @dev Verifies multiple ERC-7913 `signatures` for a given `hash` using a set of `signers`.
-     *
      * Returns `false` if the number of signers and signatures is not the same.
      *
      * The signers should be ordered by their `keccak256` hash to ensure efficient duplication check. Unordered
