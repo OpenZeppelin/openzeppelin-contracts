@@ -4,7 +4,7 @@ import {Test} from "forge-std/Test.sol";
 import {Bytes} from "@openzeppelin/contracts/utils/Bytes.sol";
 
 contract BytesTest is Test {
-    function testSymbolicEqual(bytes memory a, bytes memory b) public pure {
-        assertEq(Bytes.equal(a, b), Bytes.equal(a, b));
+    function testSymbolicEqual(bytes memory a) public pure {
+        assertTrue(Bytes.equal(a, a));
     }
 }
