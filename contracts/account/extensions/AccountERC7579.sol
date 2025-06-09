@@ -7,6 +7,8 @@ import {IERC1271} from "../../interfaces/IERC1271.sol";
 import {IERC7579Module, IERC7579Validator, IERC7579Execution, IERC7579AccountConfig, IERC7579ModuleConfig, MODULE_TYPE_VALIDATOR, MODULE_TYPE_EXECUTOR, MODULE_TYPE_FALLBACK} from "../../interfaces/draft-IERC7579.sol";
 import {ERC7579Utils, Mode, CallType, ExecType} from "../../account/utils/draft-ERC7579Utils.sol";
 import {EnumerableSet} from "../../utils/structs/EnumerableSet.sol";
+import {LowLevelCall} from "../../utils/LowLevelCall.sol";
+import {Memory} from "../../utils/Memory.sol";
 import {Bytes} from "../../utils/Bytes.sol";
 import {Packing} from "../../utils/Packing.sol";
 import {Address} from "../../utils/Address.sol";
@@ -50,6 +52,8 @@ abstract contract AccountERC7579 is Account, IERC1271, IERC7579Execution, IERC75
     using ERC7579Utils for *;
     using EnumerableSet for *;
     using Packing for bytes32;
+    using LowLevelCall for *;
+    using Memory for *;
 
     EnumerableSet.AddressSet private _validators;
     EnumerableSet.AddressSet private _executors;
@@ -311,9 +315,7 @@ abstract contract AccountERC7579 is Account, IERC1271, IERC7579Execution, IERC75
 
         if (success) return returndata;
 
-        assembly ("memory-safe") {
-            revert(add(returndata, 0x20), mload(returndata))
-        }
+        returndata.asPointer().addOffset(0x20).asBytes().bubbleRevert();
     }
 
     /// @dev Returns the fallback handler for the given selector. Returns `address(0)` if not installed.
