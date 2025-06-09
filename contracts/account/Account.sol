@@ -5,6 +5,7 @@ pragma solidity ^0.8.20;
 import {PackedUserOperation, IAccount, IEntryPoint} from "../interfaces/draft-IERC4337.sol";
 import {ERC4337Utils} from "./utils/draft-ERC4337Utils.sol";
 import {AbstractSigner} from "../utils/cryptography/signers/AbstractSigner.sol";
+import {LowLevelCall} from "../utils/LowLevelCall.sol";
 
 /**
  * @dev A simple ERC4337 account implementation. This base implementation only includes the minimal logic to process
@@ -112,8 +113,7 @@ abstract contract Account is AbstractSigner, IAccount {
      */
     function _payPrefund(uint256 missingAccountFunds) internal virtual {
         if (missingAccountFunds > 0) {
-            (bool success, ) = payable(msg.sender).call{value: missingAccountFunds}("");
-            success; // Silence warning. The entrypoint should validate the result.
+            LowLevelCall.callRaw(msg.sender, "", missingAccountFunds); // The entrypoint should validate the result.
         }
     }
 
