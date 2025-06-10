@@ -4,7 +4,6 @@ pragma solidity ^0.8.27;
 
 import {Math} from "../../math/Math.sol";
 import {MultiSignerERC7913} from "./MultiSignerERC7913.sol";
-import {EnumerableSet} from "../../../utils/structs/EnumerableSet.sol";
 
 /**
  * @dev Extension of {MultiSignerERC7913} that supports weighted signatures.
@@ -46,8 +45,6 @@ import {EnumerableSet} from "../../../utils/structs/EnumerableSet.sol";
  * least two signers (e.g., one with weight 1 and one with weight 3). See {signerWeight}.
  */
 abstract contract MultiSignerERC7913Weighted is MultiSignerERC7913 {
-    using EnumerableSet for EnumerableSet.BytesSet;
-
     // Mapping from signer to weight
     mapping(bytes signer => uint64) private _weights;
 
