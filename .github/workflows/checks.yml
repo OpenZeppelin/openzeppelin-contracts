@@ -41,7 +41,7 @@ jobs:
         run: npm run test
       - name: Check linearisation of the inheritance graph
         run: npm run test:inheritance
-      - name: Check pragma consistency between files
+      - name: Check pragma validity
         run: npm run test:pragma
       - name: Check procedurally generated contracts are up-to-date
         run: npm run test:generation
