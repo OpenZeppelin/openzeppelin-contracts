@@ -3,6 +3,7 @@
 pragma solidity ^0.8.20;
 
 import {Address} from "./Address.sol";
+import {Create2} from "./Create2.sol";
 
 /**
  * @dev Helper contract for performing potentially dangerous calls through a relay the hide the address of the
@@ -14,34 +15,33 @@ import {Address} from "./Address.sol";
  * "senderCreator" when calling account factories. Similarly ERC-6942 does factory calls that could be dangerous if
  * performed directly.
  *
- * This contract provides a `_relayedCall` that can be used to perform dangerous calls. These calls are relayed
- * through a minimal relayer. This relayer is deployed at construction and its address is stored in immutable storage.
+ * This contract provides a `indirectCall` that can be used to perform dangerous calls. These calls are indirect
+ * through a minimal relayer.
  */
-abstract contract RelayedCall {
-    /// @custom:oz-upgrades-unsafe-allow state-variable-immutable
-    /// TODO: should be internal, but hardhat-exposed doesn't expose that correctly in 0.3.19
-    address public immutable _relayer = _deployRelayer();
-
-    function _relayedCallStrict(address target, bytes memory data) internal returns (bytes memory) {
-        return _relayedCallStrict(target, 0, data);
+library IndirectCall {
+    function indirectCall(address target, bytes memory data) internal returns (bool, bytes memory) {
+        return indirectCall(target, 0, data);
     }
 
-    function _relayedCallStrict(address target, uint256 value, bytes memory data) internal returns (bytes memory) {
-        (bool success, bytes memory returndata) = _relayedCall(target, value, data);
+    function indirectCall(address target, uint256 value, bytes memory data) internal returns (bool, bytes memory) {
+        return getRelayer().call{value: value}(abi.encodePacked(target, data));
+    }
+
+    function indirectCallStrict(address target, bytes memory data) internal returns (bytes memory) {
+        return indirectCallStrict(target, 0, data);
+    }
+
+    function indirectCallStrict(address target, uint256 value, bytes memory data) internal returns (bytes memory) {
+        (bool success, bytes memory returndata) = indirectCall(target, value, data);
         return Address.verifyCallResult(success, returndata);
     }
 
-    function _relayedCall(address target, bytes memory data) internal returns (bool, bytes memory) {
-        return _relayedCall(target, 0, data);
-    }
-
-    function _relayedCall(address target, uint256 value, bytes memory data) internal returns (bool, bytes memory) {
-        return _relayer.call{value: value}(abi.encodePacked(target, data));
-    }
-
-    function _deployRelayer() private returns (address addr) {
+    function getRelayer() internal returns (address) {
+        // [Relayer details]
+        //
         // deployment prefix: 3d602f80600a3d3981f3
         // deployed bytecode: 60133611600a575f5ffd5b6014360360145f375f5f601436035f345f3560601c5af13d5f5f3e5f3d91602d57fd5bf3
+        // bytecode hash: 7bc0ea09c689dc0a6de3865d8789dae51a081efcf6569589ddae4b677df5dd3f
         //
         // offset | bytecode | opcode         | stack
         // -------|----------|----------------|--------
@@ -85,15 +85,23 @@ abstract contract RelayedCall {
         // 0x002c | fd       | revert         |
         // 0x002d | 5b       | jumpdest       | 0 rds
         // 0x002e | f3       | return         |
-        assembly ("memory-safe") {
-            mstore(0x19, 0x1436035f345f3560601c5af13d5f5f3e5f3d91602d57fd5bf3)
-            mstore(0x00, 0x3d602f80600a3d3981f360133611600a575f5ffd5b6014360360145f375f5f60)
-            addr := create2(0, 0, 0x39, 0)
-            if iszero(addr) {
-                let ptr := mload(0x40)
-                returndatacopy(ptr, 0, returndatasize())
-                revert(ptr, returndatasize())
+
+        // Create2 address computation, and deploy it if not yet available
+        address relayer = Create2.computeAddress(
+            bytes32(0),
+            0x7bc0ea09c689dc0a6de3865d8789dae51a081efcf6569589ddae4b677df5dd3f
+        );
+        if (relayer.code.length == 0) {
+            assembly ("memory-safe") {
+                mstore(0x19, 0x1436035f345f3560601c5af13d5f5f3e5f3d91602d57fd5bf3)
+                mstore(0x00, 0x3d602f80600a3d3981f360133611600a575f5ffd5b6014360360145f375f5f60)
+                if iszero(create2(0, 0, 0x39, 0)) {
+                    let ptr := mload(0x40)
+                    returndatacopy(ptr, 0, returndatasize())
+                    revert(ptr, returndatasize())
+                }
             }
         }
+        return relayer;
     }
 }
