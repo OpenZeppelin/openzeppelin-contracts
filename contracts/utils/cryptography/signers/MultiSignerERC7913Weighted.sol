@@ -57,7 +57,7 @@ abstract contract MultiSignerERC7913Weighted is MultiSignerERC7913 {
      * @dev Emitted when a signer's weight is changed.
      *
      * NOTE: Not emitted in {_addSigners}. Indexers must rely on {ERC7913SignerAdded} to index a
-     * default weight of 1. See {_signerWeight}.
+     * default weight of 1. See {signerWeight}.
      */
     event ERC7913SignerWeightChanged(bytes indexed signer, uint64 weight);
 
