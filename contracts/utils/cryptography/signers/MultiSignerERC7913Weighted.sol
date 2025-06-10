@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.27;
 
-import {Math} from "../../math/Math.sol";
+import {SafeCast} from "../../math/SafeCast.sol";
 import {MultiSignerERC7913} from "./MultiSignerERC7913.sol";
 
 /**
@@ -45,8 +45,13 @@ import {MultiSignerERC7913} from "./MultiSignerERC7913.sol";
  * least two signers (e.g., one with weight 1 and one with weight 3). See {signerWeight}.
  */
 abstract contract MultiSignerERC7913Weighted is MultiSignerERC7913 {
-    // Mapping from signer to weight
-    mapping(bytes signer => uint64) private _weights;
+    using SafeCast for *;
+
+    // Sum of all the extra weights of all signers. Storage packed with `MultiSignerERC7913._threshold`
+    uint64 private _totalExtraWeight;
+
+    // Mapping from signer to extraWeight (in addition to all authorized signers having weight 1)
+    mapping(bytes signer => uint64) private _extraWeights;
 
     /**
      * @dev Emitted when a signer's weight is changed.
@@ -64,21 +69,15 @@ abstract contract MultiSignerERC7913Weighted is MultiSignerERC7913 {
 
     /// @dev Gets the weight of a signer. Returns 0 if the signer is not authorized.
     function signerWeight(bytes memory signer) public view virtual returns (uint64) {
-        return uint64(Math.ternary(isSigner(signer), _signerWeight(signer), 0)); // Safe cast, both uint64
+        unchecked {
+            // Safe cast, _setSignerWeights guarantees 1+_extraWeights is a uint64
+            return uint64(isSigner(signer).toUint() * (1 + _extraWeights[signer]));
+        }
     }
 
     /// @dev Gets the total weight of all signers.
     function totalWeight() public view virtual returns (uint64) {
-        return _weightSigners(getSigners(0, type(uint64).max));
-    }
-
-    /**
-     * @dev Gets the weight of the current signer. Returns 1 if not explicitly set.
-     *
-     * NOTE: This internal function doesn't check if the signer is authorized.
-     */
-    function _signerWeight(bytes memory signer) internal view virtual returns (uint64) {
-        return uint64(Math.max(_weights[signer], 1)); // Safe cast, both uint64
+        return (getSignerCount() + _totalExtraWeight).toUint64();
     }
 
     /**
@@ -93,17 +92,24 @@ abstract contract MultiSignerERC7913Weighted is MultiSignerERC7913 {
      *
      * Emits {ERC7913SignerWeightChanged} for each signer.
      */
-    function _setSignerWeights(bytes[] memory signers, uint64[] memory newWeights) internal virtual {
-        require(signers.length == newWeights.length, MultiSignerERC7913WeightedMismatchedLength());
+    function _setSignerWeights(bytes[] memory signers, uint64[] memory weights) internal virtual {
+        require(signers.length == weights.length, MultiSignerERC7913WeightedMismatchedLength());
 
+        uint256 extraWeightAdded = 0;
+        uint256 extraWeightRemoved = 0;
         for (uint256 i = 0; i < signers.length; ++i) {
             bytes memory signer = signers[i];
-            uint64 newWeight = newWeights[i];
-            require(isSigner(signer), MultiSignerERC7913NonexistentSigner(signer));
-            require(newWeight > 0, MultiSignerERC7913WeightedInvalidWeight(signer, newWeight));
-        }
+            uint64 weight = weights[i];
 
-        _unsafeSetSignerWeights(signers, newWeights);
+            require(isSigner(signer), MultiSignerERC7913NonexistentSigner(signer));
+            require(weight > 0, MultiSignerERC7913WeightedInvalidWeight(signer, weight));
+
+            extraWeightRemoved += _extraWeights[signer];
+            extraWeightAdded += _extraWeights[signer] = weight - 1;
+
+            emit ERC7913SignerWeightChanged(signer, weight);
+        }
+        _totalExtraWeight = (uint256(_totalExtraWeight) + extraWeightAdded - extraWeightRemoved).toUint64();
         _validateReachableThreshold();
     }
 
@@ -112,10 +118,24 @@ abstract contract MultiSignerERC7913Weighted is MultiSignerERC7913 {
      *
      * Emits {ERC7913SignerWeightChanged} for each removed signer.
      */
-    function _removeSigners(bytes[] memory oldSigners) internal virtual override {
+    function _removeSigners(bytes[] memory signers) internal virtual override {
         // Clean up weights for removed signers
-        _unsafeSetSignerWeights(oldSigners, new uint64[](oldSigners.length));
-        super._removeSigners(oldSigners);
+        //
+        // Both math operation cannot overflow because extraWeightRemoved is bounded by _totalExtraWeight under the
+        // assumption that signers doesn't contain duplicates. If signers contains duplicate, the super call will
+        // fail (duplicated removal).
+        unchecked {
+            uint64 extraWeightRemoved = 0;
+            for (uint256 i = 0; i < signers.length; ++i) {
+                bytes memory signer = signers[i];
+
+                extraWeightRemoved += _extraWeights[signer];
+                delete _extraWeights[signer];
+                emit ERC7913SignerWeightChanged(signer, 0);
+            }
+            _totalExtraWeight -= extraWeightRemoved;
+        }
+        super._removeSigners(signers);
     }
 
     /**
@@ -145,31 +165,10 @@ abstract contract MultiSignerERC7913Weighted is MultiSignerERC7913 {
      * depending on the linearization order.
      */
     function _validateThreshold(bytes[] memory signers) internal view virtual override returns (bool) {
-        return _weightSigners(signers) >= threshold();
-    }
-
-    /// @dev Calculates the total weight of a set of signers. For all signers weight use {totalWeight}.
-    function _weightSigners(bytes[] memory signers) internal view virtual returns (uint64) {
         uint64 weight = 0;
         for (uint256 i = 0; i < signers.length; ++i) {
             weight += signerWeight(signers[i]);
         }
-        return weight;
-    }
-
-    /**
-     * @dev Sets the weights for multiple signers without updating the total weight or validating the threshold.
-     *
-     * Requirements:
-     *
-     * * The `newWeights` array must be at least as large as the `signers` array. Panics otherwise.
-     *
-     * Emits {ERC7913SignerWeightChanged} for each signer.
-     */
-    function _unsafeSetSignerWeights(bytes[] memory signers, uint64[] memory newWeights) private {
-        for (uint256 i = 0; i < signers.length; ++i) {
-            _weights[signers[i]] = newWeights[i];
-            emit ERC7913SignerWeightChanged(signers[i], newWeights[i]);
-        }
+        return weight >= threshold();
     }
 }

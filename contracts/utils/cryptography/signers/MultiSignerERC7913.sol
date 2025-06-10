@@ -82,6 +82,11 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
         return _signers.values(start, end);
     }
 
+    /// @dev Returns the number of authorized signers
+    function getSignerCount() public view virtual returns (uint256) {
+        return _signers.length();
+    }
+
     /// @dev Returns whether the `signer` is an authorized signer.
     function isSigner(bytes memory signer) public view virtual returns (bool) {
         return _signers.contains(signer);
