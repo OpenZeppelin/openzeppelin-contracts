@@ -51,7 +51,7 @@ describe('ERC20Bridgeable', function () {
         .to.emit(this.token, 'Transfer')
         .withArgs(ethers.ZeroAddress, this.other, amount);
 
-      expect(await this.token.balanceOf(this.other)).to.equal(amount);
+      await expect(this.token.balanceOf(this.other)).to.eventually.equal(amount);
     });
   });
 
@@ -73,7 +73,7 @@ describe('ERC20Bridgeable', function () {
         .to.emit(this.token, 'Transfer')
         .withArgs(this.other, ethers.ZeroAddress, amount);
 
-      expect(await this.token.balanceOf(this.other)).to.equal(0);
+      await expect(this.token.balanceOf(this.other)).to.eventually.equal(0);
     });
   });
 
