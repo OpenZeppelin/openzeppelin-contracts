@@ -104,23 +104,25 @@ Object.keys(metadata).forEach(file => updatePragma(file, '>=0.0.0'));
   while (queue.length) {
     const file = queue.shift();
     if (!Object.hasOwn(pragmas, file)) {
-      const minVersion = metadata[file].interface ? minVersionForInterfaces : minVersionForContracts;
-      const parentsPragmas = graph
-        .predecessors(file)
-        .map(file => pragmas[file])
-        .filter(Boolean);
-      const candidates = allSolcVersions.filter(
-        v => semver.gte(v, minVersion) && parentsPragmas.every(p => semver.satisfies(v, p)),
-      );
-      const pragmaPrefix = metadata[file].interface ? '>=' : '^';
+      if (Object.hasOwn(metadata, file)) {
+        const minVersion = metadata[file].interface ? minVersionForInterfaces : minVersionForContracts;
+        const parentsPragmas = graph
+          .predecessors(file)
+          .map(file => pragmas[file])
+          .filter(Boolean);
+        const candidates = allSolcVersions.filter(
+          v => semver.gte(v, minVersion) && parentsPragmas.every(p => semver.satisfies(v, p)),
+        );
+        const pragmaPrefix = metadata[file].interface ? '>=' : '^';
 
-      process.stdout.write(
-        `[${Object.keys(pragmas).length + 1}/${Object.keys(metadata).length}] Searching minimal version for ${file} ... `,
-      );
-      const pragma = await setMinimalApplicablePragma(file, candidates, pragmaPrefix);
-      console.log(pragma);
+        process.stdout.write(
+          `[${Object.keys(pragmas).length + 1}/${Object.keys(metadata).length}] Searching minimal version for ${file} ... `,
+        );
+        const pragma = await setMinimalApplicablePragma(file, candidates, pragmaPrefix);
+        console.log(pragma);
 
-      pragmas[file] = pragma;
+        pragmas[file] = pragma;
+      }
       queue.push(...graph.successors(file));
     }
   }
