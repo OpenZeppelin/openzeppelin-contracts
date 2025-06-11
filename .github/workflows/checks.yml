@@ -42,7 +42,7 @@ jobs:
       - name: Check linearisation of the inheritance graph
         run: npm run test:inheritance
       - name: Check pragma validity
-        run: npm run test:pragma
+        run: npm run test:pragma -- --concurrency 4
       - name: Check procedurally generated contracts are up-to-date
         run: npm run test:generation
       - name: Compare gas costs
