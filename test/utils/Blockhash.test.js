@@ -21,61 +21,40 @@ describe('Blockhash', function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
-  describe('supported chain', function () {
-    beforeEach(async function () {
-      await this.systemSigner.sendTransaction({ to: HISTORY_STORAGE_ADDRESS, data: this.latestBlock.hash });
-    });
+  for (const supported of [true, false]) {
+    describe(`${supported ? 'supported' : 'unsupported'} chain`, function () {
+      beforeEach(async function () {
+        if (supported) {
+          await this.systemSigner.sendTransaction({ to: HISTORY_STORAGE_ADDRESS, data: this.latestBlock.hash });
+        } else {
+          await setCode(HISTORY_STORAGE_ADDRESS, '0x00');
+        }
+      });
 
-    it('recent block', async function () {
-      // fast forward (less than blockhash serve window)
-      await mineUpTo(this.latestBlock.number + BLOCKHASH_SERVE_WINDOW - 10);
-      await expect(this.mock.$blockHash(this.latestBlock.number)).to.eventually.equal(this.latestBlock.hash);
-    });
+      it('recent block', async function () {
+        // fast forward (less than blockhash serve window)
+        await mineUpTo(this.latestBlock.number + BLOCKHASH_SERVE_WINDOW);
+        await expect(this.mock.$blockHash(this.latestBlock.number)).to.eventually.equal(this.latestBlock.hash);
+      });
 
-    it('old block', async function () {
-      // fast forward (more than blockhash serve window)
-      await mineUpTo(this.latestBlock.number + BLOCKHASH_SERVE_WINDOW + 10);
-      await expect(this.mock.$blockHash(this.latestBlock.number)).to.eventually.equal(this.latestBlock.hash);
-    });
+      it('old block', async function () {
+        // fast forward (more than blockhash serve window)
+        await mineUpTo(this.latestBlock.number + BLOCKHASH_SERVE_WINDOW + 1);
+        await expect(this.mock.$blockHash(this.latestBlock.number)).to.eventually.equal(
+          supported ? this.latestBlock.hash : ethers.ZeroHash,
+        );
+      });
 
-    it('very old block', async function () {
-      // fast forward (more than history serve window)
-      await mineUpTo(this.latestBlock.number + HISTORY_SERVE_WINDOW + 10);
-      await expect(this.mock.$blockHash(this.latestBlock.number)).to.eventually.equal(ethers.ZeroHash);
-    });
+      it('very old block', async function () {
+        // fast forward (more than history serve window)
+        await mineUpTo(this.latestBlock.number + HISTORY_SERVE_WINDOW + 10);
+        await expect(this.mock.$blockHash(this.latestBlock.number)).to.eventually.equal(ethers.ZeroHash);
+      });
 
-    it('future block', async function () {
-      // check history access in the future
-      await expect(this.mock.$blockHash(this.latestBlock.number + 10)).to.eventually.equal(ethers.ZeroHash);
+      it('future block', async function () {
+        // check history access in the future
+        await expect(this.mock.$blockHash(this.latestBlock.number + 10)).to.eventually.equal(ethers.ZeroHash);
+      });
     });
-  });
-
-  describe('unsupported chain', function () {
-    beforeEach(async function () {
-      await setCode(HISTORY_STORAGE_ADDRESS, '0x00');
-    });
-
-    it('recent block', async function () {
-      // fast forward (less than blockhash serve window)
-      await mineUpTo(this.latestBlock.number + BLOCKHASH_SERVE_WINDOW - 10);
-      await expect(this.mock.$blockHash(this.latestBlock.number)).to.eventually.equal(this.latestBlock.hash);
-    });
-
-    it('old block', async function () {
-      // fast forward (more than blockhash serve window)
-      await mineUpTo(this.latestBlock.number + BLOCKHASH_SERVE_WINDOW + 10);
-      await expect(this.mock.$blockHash(this.latestBlock.number)).to.eventually.equal(ethers.ZeroHash);
-    });
-
-    it('very old block', async function () {
-      // fast forward (more than history serve window)
-      await mineUpTo(this.latestBlock.number + HISTORY_SERVE_WINDOW + 10);
-      await expect(this.mock.$blockHash(this.latestBlock.number)).to.eventually.equal(ethers.ZeroHash);
-    });
-
-    it('future block', async function () {
-      // check history access in the future
-      await expect(this.mock.$blockHash(this.latestBlock.number + 10)).to.eventually.equal(ethers.ZeroHash);
-    });
-  });
+  }
 });
