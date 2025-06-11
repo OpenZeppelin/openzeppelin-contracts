@@ -9,9 +9,6 @@ import {IERC7802} from "../../../interfaces/draft-IERC7802.sol";
 /**
  * @dev ERC20 extension that implements the standard token interface according to
  * https://eips.ethereum.org/EIPS/eip-7802[ERC-7802].
- *
- * NOTE: To implement a crosschain gateway for a chain, consider using an implementation if {IERC7786} token
- * bridge (e.g. {AxelarGatewaySource}, {AxelarGatewayDestination}).
  */
 abstract contract ERC20Bridgeable is ERC20, ERC165, IERC7802 {
     /// @dev Modifier to restrict access to the token bridge.
