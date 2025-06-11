@@ -104,9 +104,8 @@ abstract contract MultiSignerERC7913Weighted is MultiSignerERC7913 {
             require(isSigner(signer), MultiSignerERC7913NonexistentSigner(signer));
             require(weight > 0, MultiSignerERC7913WeightedInvalidWeight(signer, weight));
 
-            uint64 newWeight = weight - 1;
-            extraWeightRemoved += _updateSignerExtraWeight(signer, newWeight);
-            extraWeightAdded += newWeight;
+            extraWeightRemoved += _updateSignerExtraWeight(signer, weight);
+            extraWeightAdded += weight - 1;
         }
         _totalExtraWeight = (uint256(_totalExtraWeight) + extraWeightAdded - extraWeightRemoved).toUint64();
         _validateReachableThreshold();
@@ -169,7 +168,9 @@ abstract contract MultiSignerERC7913Weighted is MultiSignerERC7913 {
 
     function _updateSignerExtraWeight(bytes memory signer, uint64 newWeight) private returns (uint64) {
         uint64 oldWeight = _extraWeights[signer];
-        _extraWeights[signer] = newWeight;
+        unchecked {
+            _extraWeights[signer] = newWeight > 0 ? newWeight - 1 : 0;
+        }
         emit ERC7913SignerWeightChanged(signer, newWeight);
         return oldWeight;
     }
