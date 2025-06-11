@@ -8,7 +8,7 @@ module.exports = {
     .flatMap(({ major, minor, patch }) => range(patch + 1).map(p => `${major}.${minor}.${p}`)),
   compile: (source, version) =>
     new Promise((resolve, reject) =>
-      exec(`forge build ${source} --use ${version} --out out/out-solc${version}`, error =>
+      exec(`forge build ${source} --use ${version} --out out/solc-${version}`, error =>
         error ? reject(error) : resolve(),
       ),
     ),
