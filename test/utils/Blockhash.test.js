@@ -27,7 +27,7 @@ describe('Blockhash', function () {
         if (supported) {
           await this.systemSigner.sendTransaction({ to: HISTORY_STORAGE_ADDRESS, data: this.latestBlock.hash });
         } else {
-          await setCode(HISTORY_STORAGE_ADDRESS, '0x00');
+          await setCode(HISTORY_STORAGE_ADDRESS, '0x');
         }
       });
 
