@@ -30,7 +30,7 @@ Promise.all(
             verbose && console.log(`Compile ${file} using solc ${version}: ok`);
           },
           error => {
-            console.log(`Failed to compile ${file} using solc ${version}\n${error}`);
+            console.error(`Failed to compile ${file} using solc ${version}\n${error}`);
             process.exitCode = 1;
           },
         ),
