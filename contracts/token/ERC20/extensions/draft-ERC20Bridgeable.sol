@@ -14,7 +14,7 @@ abstract contract ERC20Bridgeable is ERC20, ERC165, IERC7802 {
     /// @dev Modifier to restrict access to the token bridge.
     modifier onlyTokenBridge() {
         // Token bridge should never be impersonated using a relayer/forwarder. Using msg.sender is preferable to
-        // _msgSender() for cost and security reasons.
+        // _msgSender() for security reasons.
         _checkTokenBridge(msg.sender);
         _;
     }
