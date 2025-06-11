@@ -104,10 +104,9 @@ abstract contract MultiSignerERC7913Weighted is MultiSignerERC7913 {
             require(isSigner(signer), MultiSignerERC7913NonexistentSigner(signer));
             require(weight > 0, MultiSignerERC7913WeightedInvalidWeight(signer, weight));
 
-            extraWeightRemoved += _extraWeights[signer];
-            extraWeightAdded += _extraWeights[signer] = weight - 1;
-
-            emit ERC7913SignerWeightChanged(signer, weight);
+            uint64 newWeight = weight - 1;
+            extraWeightRemoved += _updateSignerExtraWeight(signer, newWeight);
+            extraWeightAdded += newWeight;
         }
         _totalExtraWeight = (uint256(_totalExtraWeight) + extraWeightAdded - extraWeightRemoved).toUint64();
         _validateReachableThreshold();
@@ -127,11 +126,7 @@ abstract contract MultiSignerERC7913Weighted is MultiSignerERC7913 {
         unchecked {
             uint64 extraWeightRemoved = 0;
             for (uint256 i = 0; i < signers.length; ++i) {
-                bytes memory signer = signers[i];
-
-                extraWeightRemoved += _extraWeights[signer];
-                delete _extraWeights[signer];
-                emit ERC7913SignerWeightChanged(signer, 0);
+                extraWeightRemoved += _updateSignerExtraWeight(signers[i], 0);
             }
             _totalExtraWeight -= extraWeightRemoved;
         }
@@ -170,5 +165,12 @@ abstract contract MultiSignerERC7913Weighted is MultiSignerERC7913 {
             weight += signerWeight(signers[i]);
         }
         return weight >= threshold();
+    }
+
+    function _updateSignerExtraWeight(bytes memory signer, uint64 newWeight) private returns (uint64) {
+        uint64 oldWeight = _extraWeights[signer];
+        _extraWeights[signer] = newWeight;
+        emit ERC7913SignerWeightChanged(signer, newWeight);
+        return oldWeight;
     }
 }
