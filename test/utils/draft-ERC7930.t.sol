@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 import {Test} from "forge-std/Test.sol";
-import {ERC7930} from "../../contracts/utils/ERC7930.sol";
+import {ERC7930} from "../../contracts/utils/draft-ERC7930.sol";
 
 contract ERC7930Test is Test {
     using ERC7930 for bytes;
