@@ -56,15 +56,15 @@ abstract contract MultiSignerERC7913Weighted is MultiSignerERC7913 {
     /**
      * @dev Emitted when a signer's weight is changed.
      *
-     * NOTE: Not emitted in {_addSigners}. Indexers must rely on {ERC7913SignerAdded} to index a
-     * default weight of 1. See {signerWeight}.
+     * NOTE: Not emitted in {_addSigners} or {_removeSigners}. Indexers must rely on {ERC7913SignerAdded}
+     * and {ERC7913SignerRemoved} to index a default weight of 1. See {signerWeight}.
      */
     event ERC7913SignerWeightChanged(bytes indexed signer, uint64 weight);
 
     /// @dev Thrown when a signer's weight is invalid.
     error MultiSignerERC7913WeightedInvalidWeight(bytes signer, uint64 weight);
 
-    /// @dev Thrown when the threshold is unreachable.
+    /// @dev Thrown when the arrays lengths don't match. See {_setSignerWeights}.
     error MultiSignerERC7913WeightedMismatchedLength();
 
     /// @dev Gets the weight of a signer. Returns 0 if the signer is not authorized.
@@ -85,10 +85,10 @@ abstract contract MultiSignerERC7913Weighted is MultiSignerERC7913 {
      *
      * Requirements:
      *
-     * - `signers` and `weights` arrays must have the same length. Reverts with {MultiSignerERC7913WeightedMismatchedLength} on mismatch.
-     * - Each signer must exist in the set of authorized signers. Reverts with {MultiSignerERC7913NonexistentSigner} if not.
-     * - Each weight must be greater than 0. Reverts with {MultiSignerERC7913WeightedInvalidWeight} if not.
-     * - See {_validateReachableThreshold} for the threshold validation.
+     * * `signers` and `weights` arrays must have the same length. Reverts with {MultiSignerERC7913WeightedMismatchedLength} on mismatch.
+     * * Each signer must exist in the set of authorized signers. Otherwise reverts with {MultiSignerERC7913NonexistentSigner}
+     * * Each weight must be greater than 0. Otherwise reverts with {MultiSignerERC7913WeightedInvalidWeight}
+     * * See {_validateReachableThreshold} for the threshold validation.
      *
      * Emits {ERC7913SignerWeightChanged} for each signer.
      */
@@ -122,9 +122,9 @@ abstract contract MultiSignerERC7913Weighted is MultiSignerERC7913 {
     function _removeSigners(bytes[] memory signers) internal virtual override {
         // Clean up weights for removed signers
         //
-        // Both math operation cannot overflow because extraWeightRemoved is bounded by _totalExtraWeight under the
-        // assumption that signers doesn't contain duplicates. If signers contains duplicate, the super call will
-        // fail (duplicated removal).
+        // The `extraWeightRemoved` is bounded by `_totalExtraWeight`. The `super._removeSigners` function will revert
+        // if the signers array contains any duplicates, ensuring each signer's weight is only counted once. Since
+        // `_totalExtraWeight` is stored as a `uint64`, the final subtraction operation is also safe.
         unchecked {
             uint64 extraWeightRemoved = 0;
             for (uint256 i = 0; i < signers.length; ++i) {
@@ -143,7 +143,7 @@ abstract contract MultiSignerERC7913Weighted is MultiSignerERC7913 {
      *
      * Requirements:
      *
-     * * The {totalWeight} must be `>=` to the {threshold}. Throws {MultiSignerERC7913UnreachableThreshold} if not.
+     * * The {totalWeight} must be `>=` the {threshold}. Otherwise reverts with {MultiSignerERC7913UnreachableThreshold}
      *
      * NOTE: This function intentionally does not call `super._validateReachableThreshold` because the base implementation
      * assumes each signer has a weight of 1, which is a subset of this weighted implementation. Consider that multiple
