@@ -116,7 +116,8 @@ abstract contract MultiSignerERC7913Weighted is MultiSignerERC7913 {
     /**
      * @dev See {MultiSignerERC7913-_removeSigners}.
      *
-     * Emits {ERC7913SignerWeightChanged} for each removed signer.
+     * Just like {_addSigners}, this function does not emit {ERC7913SignerWeightChanged} events. The
+     * {ERC7913SignerRemoved} event emitted by {MultiSignerERC7913-_removeSigners} is enough to track weights here.
      */
     function _removeSigners(bytes[] memory signers) internal virtual override {
         // Clean up weights for removed signers
@@ -131,7 +132,6 @@ abstract contract MultiSignerERC7913Weighted is MultiSignerERC7913 {
 
                 extraWeightRemoved += _extraWeights[signer];
                 delete _extraWeights[signer];
-                emit ERC7913SignerWeightChanged(signer, 0);
             }
             _totalExtraWeight -= extraWeightRemoved;
         }
