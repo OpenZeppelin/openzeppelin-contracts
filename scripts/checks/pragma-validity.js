@@ -16,7 +16,7 @@ const {
   .options({
     pattern: { alias: 'p', type: 'string', default: 'contracts/**/*.sol' },
     skipPatterns: { alias: 's', type: 'string', default: 'contracts/mocks/**/*.sol' },
-    concurrency: { alias: 'c', type: 'number', default: 8 },
+    concurrency: { alias: 'c', type: 'number', default: 4 },
     verbose: { alias: 'v', type: 'count' },
   });
 
