@@ -55,19 +55,41 @@ describe('ERC7390', function () {
           fields: { type, reference, address },
         } = formatERC7913v1(parseERC7913v1(name));
 
-        await expect(this.mock.$parseV1(binary)).to.eventually.deep.equal([
-          CAIP350[type].chainType,
-          asHex(reference),
-          asHex(address),
-        ]);
+        const expected = [CAIP350[type].chainType, asHex(reference), asHex(address)];
 
-        await expect(
-          this.mock.$formatV1(CAIP350[type].chainType, asHex(reference), asHex(address)),
-        ).to.eventually.equal(binary);
+        await expect(this.mock.$parseV1(binary)).to.eventually.deep.equal(expected);
+        await expect(this.mock.$parseV1Calldata(binary)).to.eventually.deep.equal(expected);
+        await expect(this.mock.$tryParseV1(binary)).to.eventually.deep.equal([true, ...expected]);
+        await expect(this.mock.$tryParseV1Calldata(binary)).to.eventually.deep.equal([true, ...expected]);
+        await expect(this.mock.$formatV1(...expected)).to.eventually.equal(binary);
 
         if (type == 'eip155' && reference && address) {
           await expect(this.mock.$formatEvmV1(reference, address)).to.eventually.equal(binary.toLowerCase());
         }
+      });
+    }
+  });
+
+  describe('invalid format', function () {
+    for (const [title, binary] of Object.entries({
+      // version 2 + some data
+      'unsupported version': '0x00020000010100',
+      // version + ref: missing chainReferenceLength and addressLength
+      'too short (case 1)': '0x00010000',
+      // version + ref + chainReference: missing addressLength
+      'too short (case 2)': '0x000100000101',
+      // version + ref + chainReference + addressLength + part of the address: missing 2 bytes of the address
+      'too short (case 3)': '0x00010000010114d8da6bf26964af9d7eed9e03e53415d37aa9',
+    })) {
+      it(title, async function () {
+        await expect(this.mock.$parseV1(binary))
+          .to.be.revertedWithCustomError(this.mock, 'ERC7930ParsingError')
+          .withArgs(binary);
+        await expect(this.mock.$parseV1Calldata(binary))
+          .to.be.revertedWithCustomError(this.mock, 'ERC7930ParsingError')
+          .withArgs(binary);
+        await expect(this.mock.$tryParseV1(binary)).to.eventually.deep.equal([false, '0x0000', '0x', '0x']);
+        await expect(this.mock.$tryParseV1Calldata(binary)).to.eventually.deep.equal([false, '0x0000', '0x', '0x']);
       });
     }
   });
