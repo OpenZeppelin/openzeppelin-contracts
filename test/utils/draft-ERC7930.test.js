@@ -125,8 +125,41 @@ describe('ERC7390', function () {
         await expect(this.mock.$parseV1Calldata(binary))
           .to.be.revertedWithCustomError(this.mock, 'ERC7930ParsingError')
           .withArgs(binary);
+        await expect(this.mock.$parseEvmV1(binary))
+          .to.be.revertedWithCustomError(this.mock, 'ERC7930ParsingError')
+          .withArgs(binary);
+        await expect(this.mock.$parseEvmV1Calldata(binary))
+          .to.be.revertedWithCustomError(this.mock, 'ERC7930ParsingError')
+          .withArgs(binary);
         await expect(this.mock.$tryParseV1(binary)).to.eventually.deep.equal([false, '0x0000', '0x', '0x']);
         await expect(this.mock.$tryParseV1Calldata(binary)).to.eventually.deep.equal([false, '0x0000', '0x', '0x']);
+        await expect(this.mock.$tryParseEvmV1(binary)).to.eventually.deep.equal([false, 0n, ethers.ZeroAddress]);
+        await expect(this.mock.$tryParseEvmV1Calldata(binary)).to.eventually.deep.equal([
+          false,
+          0n,
+          ethers.ZeroAddress,
+        ]);
+      });
+    }
+
+    for (const [title, binary] of Object.entries({
+      'not an evm format: chainid too long':
+        '0x00010000212dc7f03c13ad47809e88339107c33a612043d704c1c9693a74996e7f9c6bee8f2314d8da6bf26964af9d7eed9e03e53415d37aa96045',
+      'not an evm format: address in not 20 bytes': '0x00010000010112d8da6bf26964af9d7eed9e03e53415d37aa9',
+    })) {
+      it(title, async function () {
+        await expect(this.mock.$parseEvmV1(binary))
+          .to.be.revertedWithCustomError(this.mock, 'ERC7930ParsingError')
+          .withArgs(binary);
+        await expect(this.mock.$parseEvmV1Calldata(binary))
+          .to.be.revertedWithCustomError(this.mock, 'ERC7930ParsingError')
+          .withArgs(binary);
+        await expect(this.mock.$tryParseEvmV1(binary)).to.eventually.deep.equal([false, 0n, ethers.ZeroAddress]);
+        await expect(this.mock.$tryParseEvmV1Calldata(binary)).to.eventually.deep.equal([
+          false,
+          0n,
+          ethers.ZeroAddress,
+        ]);
       });
     }
   });
