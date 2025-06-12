@@ -46,14 +46,37 @@ library ERC7930 {
             uint256 length = Math.log256(chainid) + 1;
             return
                 abi.encodePacked(
-                    bytes2(0x0001),
-                    bytes2(0x0000),
+                    bytes4(0x00010000),
                     uint8(length),
                     abi.encodePacked(chainid).slice(32 - length),
                     uint8(20),
                     addr
                 );
         }
+    }
+
+    /**
+     * @dev Variant of {formatEvmV1} that specifies an EVM chain without an address.
+     */
+    function formatEvmV1(uint256 chainid) internal pure returns (bytes memory) {
+        unchecked {
+            // length fits in a uint8: log256(type(uint256).max) is 31
+            uint256 length = Math.log256(chainid) + 1;
+            return
+                abi.encodePacked(
+                    bytes4(0x00010000),
+                    uint8(length),
+                    abi.encodePacked(chainid).slice(32 - length),
+                    uint8(0)
+                );
+        }
+    }
+
+    /**
+     * @dev Variant of {formatEvmV1} that specifies an EVM address without a chain reference.
+     */
+    function formatEvmV1(address addr) internal pure returns (bytes memory) {
+        return abi.encodePacked(bytes6(0x000100000014), addr);
     }
 
     /**

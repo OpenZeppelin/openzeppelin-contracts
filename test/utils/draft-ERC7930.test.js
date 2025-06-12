@@ -16,7 +16,9 @@ describe('ERC7390', function () {
 
   it('formatEvmV1 address on the local chain', async function () {
     const { reference: chainid, toErc7930 } = await getLocalChain();
-    await expect(this.mock.$formatEvmV1(chainid, this.mock)).to.eventually.equal(toErc7930(this.mock).binary);
+    await expect(
+      this.mock.$formatEvmV1(ethers.Typed.uint256(chainid), ethers.Typed.address(this.mock)),
+    ).to.eventually.equal(toErc7930(this.mock).binary);
   });
 
   it('formatV1 fails if both reference and address are empty', async function () {
@@ -86,9 +88,20 @@ describe('ERC7390', function () {
             reference ?? 0n,
             address ?? ethers.ZeroAddress,
           ]);
-        }
-        if (type == 'eip155' && reference && address) {
-          await expect(this.mock.$formatEvmV1(reference, address)).to.eventually.equal(binary.toLowerCase());
+
+          if (!address) {
+            await expect(this.mock.$formatEvmV1(ethers.Typed.uint256(reference))).to.eventually.equal(
+              binary.toLowerCase(),
+            );
+          } else if (!reference) {
+            await expect(this.mock.$formatEvmV1(ethers.Typed.address(address))).to.eventually.equal(
+              binary.toLowerCase(),
+            );
+          } else {
+            await expect(
+              this.mock.$formatEvmV1(ethers.Typed.uint256(reference), ethers.Typed.address(address)),
+            ).to.eventually.equal(binary.toLowerCase());
+          }
         }
       });
     }
