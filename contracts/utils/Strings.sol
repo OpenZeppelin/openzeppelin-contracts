@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.3.0) (utils/Strings.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
 import {Math} from "./math/Math.sol";
 import {SafeCast} from "./math/SafeCast.sol";
@@ -132,7 +132,7 @@ library Strings {
      * @dev Returns true if the two strings are equal.
      */
     function equal(string memory a, string memory b) internal pure returns (bool) {
-        return bytes(a).length == bytes(b).length && keccak256(bytes(a)) == keccak256(bytes(b));
+        return a.length == b.length && keccak256(bytes(a)) == keccak256(bytes(b));
     }
 
     /**
