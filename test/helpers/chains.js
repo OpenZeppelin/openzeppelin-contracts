@@ -84,7 +84,7 @@ const formatERC7913v1 = ({ type, reference, address }) => {
 };
 
 const parseERC7913v1 = input => {
-  const parse = input.match(/(?<address>[.-:_%a-zA-Z0-9]*)@(?<chain>[.-:_a-zA-Z0-9]*)#(?<checksum>[0-9A-F]{8})/);
+  const parse = input.match(/((?<address>[.-:_%a-zA-Z0-9]*)@)?(?<chain>[.-:_a-zA-Z0-9]*)#(?<checksum>[0-9A-F]{8})/);
   if (parse) {
     const { address, chain, checksum } = parse.groups;
     const [type, reference] = chain.split(/:(.*)/s);

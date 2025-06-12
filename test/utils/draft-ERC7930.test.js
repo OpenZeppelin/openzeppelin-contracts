@@ -48,6 +48,10 @@ describe('ERC7390', function () {
         title: 'Example 5: Arbitrum One address',
         name: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045@eip155:42161#D2E02854',
       },
+      {
+        title: 'Example 6: Ethereum mainnet, no address',
+        name: 'eip155:1#F54D4FBF',
+      },
     ]) {
       it(title, async function () {
         const {
@@ -63,6 +67,26 @@ describe('ERC7390', function () {
         await expect(this.mock.$tryParseV1Calldata(binary)).to.eventually.deep.equal([true, ...expected]);
         await expect(this.mock.$formatV1(...expected)).to.eventually.equal(binary);
 
+        if (type == 'eip155') {
+          await expect(this.mock.$parseEvmV1(binary)).to.eventually.deep.equal([
+            reference ?? 0n,
+            address ?? ethers.ZeroAddress,
+          ]);
+          await expect(this.mock.$parseEvmV1Calldata(binary)).to.eventually.deep.equal([
+            reference ?? 0n,
+            address ?? ethers.ZeroAddress,
+          ]);
+          await expect(this.mock.$tryParseEvmV1(binary)).to.eventually.deep.equal([
+            true,
+            reference ?? 0n,
+            address ?? ethers.ZeroAddress,
+          ]);
+          await expect(this.mock.$tryParseEvmV1Calldata(binary)).to.eventually.deep.equal([
+            true,
+            reference ?? 0n,
+            address ?? ethers.ZeroAddress,
+          ]);
+        }
         if (type == 'eip155' && reference && address) {
           await expect(this.mock.$formatEvmV1(reference, address)).to.eventually.equal(binary.toLowerCase());
         }

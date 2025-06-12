@@ -140,6 +140,76 @@ library ERC7930 {
         }
     }
 
+    /**
+     * @dev Parse a ERC-7930 interoperable address (version 1) corresponding to an EIP-155 chain.
+     *
+     * NOTE: This function will revert if the input is not following version 1 of ERC-7930 or if the underlying
+     * chainType is not "eip-155". If the input doesn't include a chainReference, then 0 is returned as a chainId.
+     * Similarly if the input doesn't include an address, then address(0) is returned.
+     */
+    function parseEvmV1(bytes memory self) internal pure returns (uint256 chainId, address addr) {
+        bool success;
+        (success, chainId, addr) = tryParseEvmV1(self);
+        require(success, ERC7930ParsingError(self));
+    }
+
+    /**
+     * @dev Variant of {parseEvmV1} that handles calldata slices to reduce memory copy costs.
+     *
+     * NOTE: This function will revert if the input is not following version 1 of ERC-7930 or if the underlying
+     * chainType is not "eip-155". If the input doesn't include a chainReference, then 0 is returned as a chainId.
+     * Similarly if the input doesn't include an address, then address(0) is returned.
+     */
+    function parseEvmV1Calldata(bytes calldata self) internal pure returns (uint256 chainId, address addr) {
+        bool success;
+        (success, chainId, addr) = tryParseEvmV1Calldata(self);
+        require(success, ERC7930ParsingError(self));
+    }
+
+    /**
+     * @dev Parse a ERC-7930 interoperable address (version 1) corresponding to an EIP-155 chain.
+     *
+     * NOTE: This function will not revert if the input is not following version 1 of ERC-7930 or if the underlying
+     * chainType is not "eip-155". Instead it return a false boolean, indicating the parsing was a failure. If the
+     * input doesn't include a chainReference, then 0 is returned as a chainId. Similarly if the input doesn't include
+     * an address, then address(0) is returned.
+     */
+    function tryParseEvmV1(bytes memory self) internal pure returns (bool success, uint256 chainId, address addr) {
+        (bool success_, bytes2 chainType_, bytes memory chainReference_, bytes memory addr_) = tryParseV1(self);
+        return
+            (success_ && chainType_ == 0x0000 && (addr_.length == 0 || addr_.length == 20))
+                ? (
+                    true,
+                    uint256(bytes32(chainReference_)) >> (256 - 8 * chainReference_.length),
+                    address(bytes20(addr_))
+                )
+                : (false, 0, address(0));
+    }
+
+    /**
+     * @dev Variant of {tryParseEvmV1} that handles calldata slices to reduce memory copy costs.
+     *
+     * NOTE: This function will not revert if the input is not following version 1 of ERC-7930 or if the underlying
+     * chainType is not "eip-155". Instead it return a false boolean, indicating the parsing was a failure. If the
+     * input doesn't include a chainReference, then 0 is returned as a chainId. Similarly if the input doesn't include
+     * an address, then address(0) is returned.
+     */
+    function tryParseEvmV1Calldata(
+        bytes calldata self
+    ) internal pure returns (bool success, uint256 chainId, address addr) {
+        (bool success_, bytes2 chainType_, bytes calldata chainReference_, bytes calldata addr_) = tryParseV1Calldata(
+            self
+        );
+        return
+            (success_ && chainType_ == 0x0000 && (addr_.length == 0 || addr_.length == 20))
+                ? (
+                    true,
+                    uint256(bytes32(chainReference_)) >> (256 - 8 * chainReference_.length),
+                    address(bytes20(addr_))
+                )
+                : (false, 0, address(0));
+    }
+
     function _readBytes2(bytes memory buffer, uint256 offset) private pure returns (bytes2 value) {
         // This is not memory safe in the general case, but all calls to this private function are within bounds.
         assembly ("memory-safe") {
