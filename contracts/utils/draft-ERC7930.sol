@@ -177,7 +177,7 @@ library ERC7930 {
     function tryParseEvmV1(bytes memory self) internal pure returns (bool success, uint256 chainId, address addr) {
         (bool success_, bytes2 chainType_, bytes memory chainReference_, bytes memory addr_) = tryParseV1(self);
         return
-            (success_ && chainType_ == 0x0000 && (addr_.length == 0 || addr_.length == 20))
+            (success_ && chainType_ == 0x0000 && chainReference_.length < 33 && (addr_.length == 0 || addr_.length == 20))
                 ? (
                     true,
                     uint256(bytes32(chainReference_)) >> (256 - 8 * chainReference_.length),
@@ -201,7 +201,7 @@ library ERC7930 {
             self
         );
         return
-            (success_ && chainType_ == 0x0000 && (addr_.length == 0 || addr_.length == 20))
+            (success_ && chainType_ == 0x0000 && chainReference_.length < 33 && (addr_.length == 0 || addr_.length == 20))
                 ? (
                     true,
                     uint256(bytes32(chainReference_)) >> (256 - 8 * chainReference_.length),
