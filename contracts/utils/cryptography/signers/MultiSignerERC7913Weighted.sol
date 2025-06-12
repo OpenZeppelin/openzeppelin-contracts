@@ -104,12 +104,19 @@ abstract contract MultiSignerERC7913Weighted is MultiSignerERC7913 {
             require(isSigner(signer), MultiSignerERC7913NonexistentSigner(signer));
             require(weight > 0, MultiSignerERC7913WeightedInvalidWeight(signer, weight));
 
-            extraWeightRemoved += _extraWeights[signer];
-            extraWeightAdded += _extraWeights[signer] = weight - 1;
+            unchecked {
+                // Overflow impossible: weight values are bounded by uint64 and economic constraints
+                extraWeightRemoved += _extraWeights[signer];
+                extraWeightAdded += _extraWeights[signer] = weight - 1;
+            }
 
             emit ERC7913SignerWeightChanged(signer, weight);
         }
-        _totalExtraWeight = (uint256(_totalExtraWeight) + extraWeightAdded - extraWeightRemoved).toUint64();
+        unchecked {
+            // Safe from underflow: `extraWeightRemoved` is bounded by `_totalExtraWeight` by construction
+            // and weight values are bounded by uint64 and economic constraints
+            _totalExtraWeight = (uint256(_totalExtraWeight) + extraWeightAdded - extraWeightRemoved).toUint64();
+        }
         _validateReachableThreshold();
     }
 
@@ -165,10 +172,13 @@ abstract contract MultiSignerERC7913Weighted is MultiSignerERC7913 {
      * depending on the linearization order.
      */
     function _validateThreshold(bytes[] memory signers) internal view virtual override returns (bool) {
-        uint64 weight = 0;
-        for (uint256 i = 0; i < signers.length; ++i) {
-            weight += signerWeight(signers[i]);
+        unchecked {
+            uint64 weight = 0;
+            for (uint256 i = 0; i < signers.length; ++i) {
+                // Overflow impossible: weight values are bounded by uint64 and economic constraints
+                weight += signerWeight(signers[i]);
+            }
+            return weight >= threshold();
         }
-        return weight >= threshold();
     }
 }
