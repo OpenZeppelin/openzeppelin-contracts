@@ -24,6 +24,7 @@
     "clean": "hardhat clean && rimraf build contracts/build",
     "prepack": "scripts/prepack.sh",
     "generate": "scripts/generate/run.js",
+    "pragma": "scripts/minimize-pragma.js artifacts/build-info/*",
     "version": "scripts/release/version.sh",
     "test": ". scripts/set-max-old-space-size.sh && hardhat test",
     "test:generation": "scripts/checks/generation.sh",
