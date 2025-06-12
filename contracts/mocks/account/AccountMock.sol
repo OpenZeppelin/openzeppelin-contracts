@@ -19,6 +19,7 @@ import {SignerRSA} from "../../utils/cryptography/signers/SignerRSA.sol";
 import {SignerERC7702} from "../../utils/cryptography/signers/SignerERC7702.sol";
 import {SignerERC7913} from "../../utils/cryptography/signers/SignerERC7913.sol";
 import {MultiSignerERC7913} from "../../utils/cryptography/signers/MultiSignerERC7913.sol";
+import {MultiSignerERC7913Weighted} from "../../utils/cryptography/signers/MultiSignerERC7913Weighted.sol";
 
 abstract contract AccountMock is Account, ERC7739, ERC7821, ERC721Holder, ERC1155Holder {
     /// Validates a user operation with a boolean signature.
@@ -139,6 +140,21 @@ abstract contract AccountERC7579HookedMock is AccountERC7579Hooked {
     }
 }
 
+abstract contract AccountERC7913Mock is Account, SignerERC7913, ERC7739, ERC7821, ERC721Holder, ERC1155Holder {
+    constructor(bytes memory _signer) {
+        _setSigner(_signer);
+    }
+
+    /// @inheritdoc ERC7821
+    function _erc7821AuthorizedExecutor(
+        address caller,
+        bytes32 mode,
+        bytes calldata executionData
+    ) internal view virtual override returns (bool) {
+        return caller == address(entryPoint()) || super._erc7821AuthorizedExecutor(caller, mode, executionData);
+    }
+}
+
 abstract contract AccountMultiSignerMock is Account, MultiSignerERC7913, ERC7739, ERC7821, ERC721Holder, ERC1155Holder {
     constructor(bytes[] memory signers, uint64 threshold) {
         _addSigners(signers);
@@ -155,9 +171,18 @@ abstract contract AccountMultiSignerMock is Account, MultiSignerERC7913, ERC7739
     }
 }
 
-abstract contract AccountERC7913Mock is Account, SignerERC7913, ERC7739, ERC7821, ERC721Holder, ERC1155Holder {
-    constructor(bytes memory _signer) {
-        _setSigner(_signer);
+abstract contract AccountMultiSignerWeightedMock is
+    Account,
+    MultiSignerERC7913Weighted,
+    ERC7739,
+    ERC7821,
+    ERC721Holder,
+    ERC1155Holder
+{
+    constructor(bytes[] memory signers, uint64[] memory weights, uint64 threshold) {
+        _addSigners(signers);
+        _setSignerWeights(signers, weights);
+        _setThreshold(threshold);
     }
 
     /// @inheritdoc ERC7821
