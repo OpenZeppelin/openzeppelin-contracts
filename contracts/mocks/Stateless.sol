@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.26;
 
 // We keep these imports and a dummy contract just to we can run the test suite after transpilation.
 
@@ -29,6 +29,7 @@ import {ERC1155Holder} from "../token/ERC1155/utils/ERC1155Holder.sol";
 import {ERC1967Utils} from "../proxy/ERC1967/ERC1967Utils.sol";
 import {ERC4337Utils} from "../account/utils/draft-ERC4337Utils.sol";
 import {ERC7579Utils} from "../account/utils/draft-ERC7579Utils.sol";
+import {ERC7930} from "../utils/draft-ERC7930.sol";
 import {Heap} from "../utils/structs/Heap.sol";
 import {Math} from "../utils/math/Math.sol";
 import {MerkleProof} from "../utils/cryptography/MerkleProof.sol";
