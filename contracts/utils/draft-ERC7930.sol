@@ -7,6 +7,10 @@ import {SafeCast} from "./math/SafeCast.sol";
 import {Bytes} from "./Bytes.sol";
 import {Calldata} from "./Calldata.sol";
 
+/**
+ * @dev Helper library to format and parse https://github.com/ethereum/ERCs/pull/1002[ERC-7930] interoperable
+ * addresses.
+ */
 library ERC7930 {
     using SafeCast for uint256;
     using Bytes for bytes;
