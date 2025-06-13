@@ -194,27 +194,3 @@ abstract contract AccountMultiSignerWeightedMock is
         return caller == address(entryPoint()) || super._erc7821AuthorizedExecutor(caller, mode, executionData);
     }
 }
-
-abstract contract AccountMultiSignerWeightedMock is
-    Account,
-    MultiSignerERC7913Weighted,
-    ERC7739,
-    ERC7821,
-    ERC721Holder,
-    ERC1155Holder
-{
-    constructor(bytes[] memory signers, uint256[] memory weights, uint256 threshold) {
-        _addSigners(signers);
-        _setSignerWeights(signers, weights);
-        _setThreshold(threshold);
-    }
-
-    /// @inheritdoc ERC7821
-    function _erc7821AuthorizedExecutor(
-        address caller,
-        bytes32 mode,
-        bytes calldata executionData
-    ) internal view virtual override returns (bool) {
-        return caller == address(entryPoint()) || super._erc7821AuthorizedExecutor(caller, mode, executionData);
-    }
-}
