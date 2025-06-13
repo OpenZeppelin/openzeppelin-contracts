@@ -45,35 +45,16 @@ library ERC7930 {
      * a given chainid and ethereum address.
      */
     function formatEvmV1(uint256 chainid, address addr) internal pure returns (bytes memory) {
-        unchecked {
-            // length fits in a uint8: log256(type(uint256).max) is 31
-            uint256 length = Math.log256(chainid) + 1;
-            return
-                abi.encodePacked(
-                    bytes4(0x00010000),
-                    uint8(length),
-                    abi.encodePacked(chainid).slice(32 - length),
-                    uint8(20),
-                    addr
-                );
-        }
+        bytes memory chainReference = _toChainReference(chainid);
+        return abi.encodePacked(bytes4(0x00010000), uint8(chainReference.length), chainReference, uint8(20), addr);
     }
 
     /**
      * @dev Variant of {formatEvmV1} that specifies an EVM chain without an address.
      */
     function formatEvmV1(uint256 chainid) internal pure returns (bytes memory) {
-        unchecked {
-            // length fits in a uint8: log256(type(uint256).max) is 31
-            uint256 length = Math.log256(chainid) + 1;
-            return
-                abi.encodePacked(
-                    bytes4(0x00010000),
-                    uint8(length),
-                    abi.encodePacked(chainid).slice(32 - length),
-                    uint8(0)
-                );
-        }
+        bytes memory chainReference = _toChainReference(chainid);
+        return abi.encodePacked(bytes4(0x00010000), uint8(chainReference.length), chainReference, uint8(0));
     }
 
     /**
@@ -241,6 +222,14 @@ library ERC7930 {
                     address(bytes20(addr_))
                 )
                 : (false, 0, address(0));
+    }
+
+    function _toChainReference(uint256 chainid) private pure returns (bytes memory) {
+        unchecked {
+            // length fits in a uint8: log256(type(uint256).max) is 31
+            uint256 length = Math.log256(chainid) + 1;
+            return abi.encodePacked(chainid).slice(32 - length);
+        }
     }
 
     function _readBytes2(bytes memory buffer, uint256 offset) private pure returns (bytes2 value) {
