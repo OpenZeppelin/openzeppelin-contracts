@@ -43,6 +43,7 @@ npx @openzeppelin/upgrade-safe-transpiler -D \
   -p 'contracts/finance/VestingWallet.sol' \
   -p 'contracts/governance/TimelockController.sol' \
   -p 'contracts/metatx/ERC2771Forwarder.sol' \
+  -x 'contracts/mocks/docs/**/*' \
   -n \
   -N 'contracts/mocks/**/*' \
   -q '@openzeppelin/'
