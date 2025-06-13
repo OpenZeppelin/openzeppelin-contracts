@@ -2,7 +2,7 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { CAIP350, asHex, parseERC7913v1, formatERC7913v1, getLocalChain } = require('../helpers/chains');
+const { CAIP350, asHex, parseERC7930v1, formatERC7930v1, getLocalChain } = require('../helpers/chains');
 
 async function fixture() {
   const mock = await ethers.deployContract('$ERC7930');
@@ -59,7 +59,7 @@ describe('ERC7390', function () {
         const {
           binary,
           fields: { type, reference, address },
-        } = formatERC7913v1(parseERC7913v1(name));
+        } = formatERC7930v1(parseERC7930v1(name));
 
         const expected = [CAIP350[type].chainType, asHex(reference), asHex(address)];
 

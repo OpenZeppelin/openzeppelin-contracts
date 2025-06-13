@@ -56,7 +56,7 @@ const asHex = value => {
   throw new Error(`Unable to decode ${value}`);
 };
 
-const formatERC7913v1 = ({ type, reference, address }) => {
+const formatERC7930v1 = ({ type, reference, address }) => {
   const chainReferenceHex = asHex(reference);
   const addressHex = asHex(address);
   const binary = ethers.solidityPacked(
@@ -83,13 +83,13 @@ const formatERC7913v1 = ({ type, reference, address }) => {
   return { binary, name, fields: { type, reference, address, checksum } };
 };
 
-const parseERC7913v1 = input => {
+const parseERC7930v1 = input => {
   const parse = input.match(/((?<address>[.-:_%a-zA-Z0-9]*)@)?(?<chain>[.-:_a-zA-Z0-9]*)#(?<checksum>[0-9A-F]{8})/);
   if (parse) {
     const { address, chain, checksum } = parse.groups;
     const [type, reference] = chain.split(/:(.*)/s);
     const entry = { type, reference: reference || undefined, address: address || undefined };
-    return formatERC7913v1(entry)?.fields.checksum === checksum ? entry : null;
+    return formatERC7930v1(entry)?.fields.checksum === checksum ? entry : null;
   } else if (ethers.isBytesLike(input)) {
     const buffer = ethers.getBytes(input);
     if (ethers.toBigInt(buffer.slice(0, 2)) !== 1n) throw new Error('only version 1 is supported');
@@ -114,9 +114,9 @@ const format = ({ namespace, reference }) => ({
   namespace,
   reference: reference.toString(),
   caip2: `${namespace}:${reference}`,
-  erc7930: formatERC7913v1({ type: namespace, reference }),
+  erc7930: formatERC7930v1({ type: namespace, reference }),
   toCaip10: other => `${namespace}:${reference}:${ethers.getAddress(other.target ?? other.address ?? other)}`,
-  toErc7930: other => formatERC7913v1({ type: namespace, reference, address: other.target ?? other.address ?? other }),
+  toErc7930: other => formatERC7930v1({ type: namespace, reference, address: other.target ?? other.address ?? other }),
 });
 
 module.exports = {
@@ -130,7 +130,7 @@ module.exports = {
   ),
   getLocalChain: () =>
     ethers.provider.getNetwork().then(({ chainId }) => format({ namespace: 'eip155', reference: chainId })),
-  formatERC7913v1,
-  parseERC7913v1,
+  formatERC7930v1,
+  parseERC7930v1,
   asHex,
 };
