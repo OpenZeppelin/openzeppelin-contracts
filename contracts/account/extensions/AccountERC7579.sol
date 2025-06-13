@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.27;
+pragma solidity ^0.8.26;
 
 import {PackedUserOperation} from "../../interfaces/draft-IERC4337.sol";
 import {IERC1271} from "../../interfaces/IERC1271.sol";
