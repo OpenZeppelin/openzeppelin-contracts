@@ -9,7 +9,7 @@ import {ERC7579Utils, Execution, Mode, ModeSelector, ModePayload} from "@openzep
 import {ERC4337Utils, IEntryPointExtra} from "@openzeppelin/contracts/account/utils/draft-ERC4337Utils.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {PackedUserOperation} from "@openzeppelin/contracts/interfaces/draft-IERC4337.sol";
-import {ERC7821} from "@openzeppelin/contracts/account/extensions/ERC7821.sol";
+import {ERC7821} from "@openzeppelin/contracts/account/extensions/draft-ERC7821.sol";
 
 contract AccountERC7702MockConstructor is AccountERC7702Mock {
     constructor() EIP712("MyAccount", "1") {}
