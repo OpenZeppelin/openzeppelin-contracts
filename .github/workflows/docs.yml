@@ -1,5 +1,4 @@
 name: Build Docs
-
 on:
   push:
     branches: [release-v*]
