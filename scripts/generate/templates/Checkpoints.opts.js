@@ -5,6 +5,7 @@ const defaultOpts = size => ({
   historyTypeName: `Trace${size}`,
   checkpointTypeName: `Checkpoint${size}`,
   checkpointFieldName: '_checkpoints',
+  checkpointSize: size < 256 ? 1 : 2,
   keyTypeName: size < 256 ? `uint${256 - size}` : 'uint256',
   keyFieldName: '_key',
   valueTypeName: `uint${size}`,
