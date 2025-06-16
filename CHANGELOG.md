@@ -1,13 +1,12 @@
 # Changelog
 
-
 ## 5.4.0-rc.0 (2025-06-13)
 
 ### Breaking changes
 
 - Update minimum pragma to 0.8.24 in `SignatureChecker`, `Governor` and Governor's extensions. ([#5716](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5716)).
 
-### Pragma changes
+### Pragma changes
 
 - Reduced pragma requirement of interface files
 
@@ -29,7 +28,9 @@
 
 - `ERC20Bridgeable`: Implementation of ERC-7802 that makes an ERC-20 compatible with crosschain bridges. ([#5739](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5739))
 
-#### Cryptography - signers
+#### Cryptography
+
+##### Signers
 
 - `AbstractSigner`, `SignerECDSA`, `SignerP256`, and `SignerRSA`: Add an abstract contract and various implementations for contracts that deal with signature verification. ([#5657](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5657))
 - `SignerERC7702`: Implementation of `AbstractSigner` for Externally Owned Accounts (EOAs). Useful with ERC-7702. ([#5657](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5657))
@@ -37,11 +38,11 @@
 - `MultiSignerERC7913`: Implementation of `AbstractSigner` that supports multiple ERC-7913 signers with a threshold-based signature verification system. ([#5659](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5659))
 - `MultiSignerERC7913Weighted`: Extension of `MultiSignerERC7913` that supports assigning different weights to each signer, enabling more flexible governance schemes. ([#5741](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5741))
 
-#### Cryptography - verifiers
+##### Verifiers
 
 - `ERC7913P256Verifier` and `ERC7913RSAVerifier`: Ready to use ERC-7913 verifiers that implement key verification for P256 (secp256r1) and RSA keys. ([#5659](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5659))
 
-#### Cryptography - other
+##### Other
 
 - `SignatureChecker`: Add support for ERC-7913 signatures alongside existing ECDSA and ERC-1271 signature verification. ([#5659](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5659))
 - `ERC7739`: An abstract contract to validate signatures following the rehashing scheme from `ERC7739Utils`. ([#5664](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5664))
@@ -54,7 +55,7 @@
 - `EnumerableSet`: Add support for `StringSet` and `BytesSet` types. ([#5658](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5658))
 - `EnumerableSet`: Add `values(uint256,uint256)` that returns a subset (slice) of the values in the set. ([#5713](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5713))
 
-#### Other
+#### Utils
 
 - `Arrays`: Add `unsafeAccess`, `unsafeMemoryAccess` and `unsafeSetLength` for `bytes[]` and `string[]`. ([#5568](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5568))
 - `Blockhash`: Add a library that provides access to historical block hashes using EIP-2935's history storage, extending the standard 256-block limit to 8191 blocks. ([#5642](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5642))
