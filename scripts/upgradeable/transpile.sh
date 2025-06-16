@@ -33,6 +33,7 @@ npx @openzeppelin/upgrade-safe-transpiler -D \
   -i contracts/proxy/utils/Initializable.sol \
   -x 'contracts-exposed/**/*' \
   -x 'contracts/proxy/**/*' \
+  -x '!contracts/proxy/utils/UUPSUpgradeable.sol' \
   -p 'contracts/access/manager/AccessManager.sol' \
   -p 'contracts/finance/VestingWallet.sol' \
   -p 'contracts/governance/TimelockController.sol' \
