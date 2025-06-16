@@ -4,7 +4,7 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { OPTS } = require('../../../scripts/generate/templates/Checkpoints.opts');
 
-describe.only('Checkpoints', function () {
+describe('Checkpoints', function () {
   for (const opt of OPTS) {
     describe(opt.historyTypeName, function () {
       const fixture = async () => {
