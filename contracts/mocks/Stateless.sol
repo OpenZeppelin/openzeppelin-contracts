@@ -30,6 +30,7 @@ import {ERC1967Utils} from "../proxy/ERC1967/ERC1967Utils.sol";
 import {ERC4337Utils} from "../account/utils/draft-ERC4337Utils.sol";
 import {ERC7579Utils} from "../account/utils/draft-ERC7579Utils.sol";
 import {Heap} from "../utils/structs/Heap.sol";
+import {IndirectCall} from "../utils/IndirectCall.sol";
 import {Math} from "../utils/math/Math.sol";
 import {MerkleProof} from "../utils/cryptography/MerkleProof.sol";
 import {MessageHashUtils} from "../utils/cryptography/MessageHashUtils.sol";
