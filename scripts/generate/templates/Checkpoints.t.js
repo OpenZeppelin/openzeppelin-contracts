@@ -25,9 +25,9 @@ function _bound${capitalize(opts.keyTypeName)}(${opts.keyTypeName} x, ${opts.key
   opts.keyTypeName
 } max) internal pure returns (${opts.keyTypeName}) {
     return ${
-      opts.keyTypeName !== 'uint256'
-        ? `SafeCast.to${capitalize(opts.keyTypeName)}(bound(uint256(x), uint256(min), uint256(max)))`
-        : 'bound(uint256(x), uint256(min), uint256(max))'
+      opts.keyTypeName === 'uint256'
+        ? 'bound(x, min, max)'
+        : `SafeCast.to${capitalize(opts.keyTypeName)}(bound(uint256(x), uint256(min), uint256(max)))`
     };
 }
 

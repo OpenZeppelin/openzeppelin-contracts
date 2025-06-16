@@ -18,7 +18,7 @@ contract CheckpointsTrace256Test is Test {
 
     // helpers
     function _boundUint256(uint256 x, uint256 min, uint256 max) internal pure returns (uint256) {
-        return bound(uint256(x), uint256(min), uint256(max));
+        return bound(x, min, max);
     }
 
     function _prepareKeys(uint256[] memory keys, uint256 maxSpread) internal pure {
