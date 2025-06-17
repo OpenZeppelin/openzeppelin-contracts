@@ -1,7 +1,7 @@
 = Cryptography
 
 [.readme-notice]
-NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/utils/cryptography
+NOTE: This document is better viewed at https://docs.openzeppelin.com/community-contracts/0.0.1/api/utils/cryptography
 
 A collection of contracts and libraries that implement various signature validation schemes and cryptographic primitives. These utilities enable secure authentication, multisignature operations, and advanced cryptographic operations in smart contracts.
 
