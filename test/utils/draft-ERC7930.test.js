@@ -53,7 +53,7 @@ describe('ERC7390', function () {
       },
       {
         title: 'Example 6: Ethereum mainnet, no address',
-        input: 'eip155:1#F54D4FBF',
+        input: '@eip155:1#F54D4FBF',
       },
     ]) {
       const {
