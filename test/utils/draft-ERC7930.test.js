@@ -29,38 +29,41 @@ describe('ERC7390', function () {
   });
 
   describe('reference examples', function () {
-    for (const { title, name } of [
+    for (const { title, input } of [
       {
         title: 'Example 1: Ethereum mainnet address',
-        name: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045@eip155:1#4CA88C9C',
+        input: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045@eip155:1#4CA88C9C',
       },
       {
         title: 'Example 2: Solana mainnet address',
-        name: 'MJKqp326RZCHnAAbew9MDdui3iCKWco7fsK9sVuZTX2@solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d#88835C11',
+        input:
+          'MJKqp326RZCHnAAbew9MDdui3iCKWco7fsK9sVuZTX2@solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d#88835C11',
       },
       {
         title: 'Example 3: EVM address without chainid',
-        name: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045@eip155#B26DB7CB',
+        input: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045@eip155#B26DB7CB',
       },
       {
         title: 'Example 4: Solana mainnet network, no address',
-        name: '@solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d#2EB18670',
+        input: '@solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d#2EB18670',
       },
       {
         title: 'Example 5: Arbitrum One address',
-        name: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045@eip155:42161#D2E02854',
+        input: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045@eip155:42161#D2E02854',
       },
       {
         title: 'Example 6: Ethereum mainnet, no address',
-        name: 'eip155:1#F54D4FBF',
+        input: 'eip155:1#F54D4FBF',
       },
     ]) {
-      it(title, async function () {
-        const {
-          binary,
-          fields: { type, reference, address },
-        } = formatERC7930v1(parseERC7930v1(name));
+      const {
+        binary,
+        name,
+        fields: { type, reference, address },
+      } = formatERC7930v1(parseERC7930v1(input));
+      expect(name).to.equal(input);
 
+      it(title, async function () {
         const expected = [CAIP350[type].chainType, asHex(reference), asHex(address)];
 
         await expect(this.mock.$parseV1(binary)).to.eventually.deep.equal(expected);
