@@ -1,8 +1,10 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+const { addressCoder, nameCoder } = require('interoperable-addresses');
+const { CAIP350, chainTypeCoder } = require('interoperable-addresses/dist/CAIP350');
 
-const { CAIP350, asHex, parseERC7930v1, formatERC7930v1, getLocalChain } = require('../helpers/chains');
+const { getLocalChain } = require('../helpers/chains');
 
 async function fixture() {
   const mock = await ethers.deployContract('$ERC7930');
@@ -18,7 +20,7 @@ describe('ERC7390', function () {
     const { reference: chainid, toErc7930 } = await getLocalChain();
     await expect(
       this.mock.$formatEvmV1(ethers.Typed.uint256(chainid), ethers.Typed.address(this.mock)),
-    ).to.eventually.equal(toErc7930(this.mock).binary);
+    ).to.eventually.equal(toErc7930(this.mock));
   });
 
   it('formatV1 fails if both reference and address are empty', async function () {
@@ -29,42 +31,41 @@ describe('ERC7390', function () {
   });
 
   describe('reference examples', function () {
-    for (const { title, input } of [
+    for (const { title, name } of [
       {
         title: 'Example 1: Ethereum mainnet address',
-        input: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045@eip155:1#4CA88C9C',
+        name: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045@eip155:1#4CA88C9C',
       },
       {
         title: 'Example 2: Solana mainnet address',
-        input:
-          'MJKqp326RZCHnAAbew9MDdui3iCKWco7fsK9sVuZTX2@solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d#88835C11',
+        name: 'MJKqp326RZCHnAAbew9MDdui3iCKWco7fsK9sVuZTX2@solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d#88835C11',
       },
       {
         title: 'Example 3: EVM address without chainid',
-        input: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045@eip155#B26DB7CB',
+        name: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045@eip155#B26DB7CB',
       },
       {
         title: 'Example 4: Solana mainnet network, no address',
-        input: '@solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d#2EB18670',
+        name: '@solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d#2EB18670',
       },
       {
         title: 'Example 5: Arbitrum One address',
-        input: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045@eip155:42161#D2E02854',
+        name: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045@eip155:42161#D2E02854',
       },
       {
         title: 'Example 6: Ethereum mainnet, no address',
-        input: '@eip155:1#F54D4FBF',
+        name: '@eip155:1#F54D4FBF',
       },
     ]) {
-      const {
-        binary,
-        name,
-        fields: { type, reference, address },
-      } = formatERC7930v1(parseERC7930v1(input));
-      expect(name).to.equal(input);
+      const { chainType, reference, address } = nameCoder.decode(name, true);
+      const binary = addressCoder.encode({ chainType, reference, address });
 
       it(title, async function () {
-        const expected = [CAIP350[type].chainType, asHex(reference), asHex(address)];
+        const expected = [
+          chainTypeCoder.encode(chainType),
+          CAIP350[chainType].reference.decode(reference),
+          CAIP350[chainType].address.decode(address),
+        ].map(ethers.hexlify);
 
         await expect(this.mock.$parseV1(binary)).to.eventually.deep.equal(expected);
         await expect(this.mock.$parseV1Calldata(binary)).to.eventually.deep.equal(expected);
@@ -72,7 +73,7 @@ describe('ERC7390', function () {
         await expect(this.mock.$tryParseV1Calldata(binary)).to.eventually.deep.equal([true, ...expected]);
         await expect(this.mock.$formatV1(...expected)).to.eventually.equal(binary);
 
-        if (type == 'eip155') {
+        if (chainType == 'eip155') {
           await expect(this.mock.$parseEvmV1(binary)).to.eventually.deep.equal([
             reference ?? 0n,
             address ?? ethers.ZeroAddress,
