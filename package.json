@@ -81,7 +81,7 @@
     "micromatch": "^4.0.2",
     "p-limit": "^6.0.0",
     "prettier": "^3.0.0",
-    "prettier-plugin-solidity": "^1.1.0",
+    "prettier-plugin-solidity": "^2.0.0",
     "rimraf": "^6.0.0",
     "semver": "^7.3.5",
     "solhint": "^5.0.0",
