@@ -2,8 +2,10 @@
 
 const fs = require('fs');
 const chalk = require('chalk');
-const { argv } = require('yargs')
-  .env()
+
+const { hideBin } = require('yargs/helpers');
+const { argv } = require('yargs/yargs')(hideBin(process.argv))
+  .env('')
   .options({
     style: {
       type: 'string',

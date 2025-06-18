@@ -4,7 +4,7 @@ const path = require('path');
 const graphlib = require('graphlib');
 const match = require('micromatch');
 const { findAll } = require('solidity-ast/utils');
-const { _: artifacts } = require('yargs').argv;
+const { _: artifacts } = require('yargs/yargs')().argv;
 
 // files to skip
 const skipPatterns = ['contracts-exposed/**', 'contracts/mocks/**'];
