@@ -8,7 +8,7 @@ import {Bytes} from "./Bytes.sol";
 import {Calldata} from "./Calldata.sol";
 
 /**
- * @dev Helper library to format and parse https://github.com/ethereum/ERCs/pull/1002[ERC-7930] interoperable
+ * @dev Helper library to format and parse https://ethereum-magicians.org/t/erc-7930-interoperable-addresses/23365[ERC-7930] interoperable
  * addresses.
  */
 library InteroperableAddress {
