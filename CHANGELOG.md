@@ -1,6 +1,6 @@
 # Changelog
 
-## 5.4.0-rc.0 (2025-06-13)
+## 5.4.0-rc.0 (2025-06-18)
 
 ### Breaking changes
 
