@@ -41,8 +41,8 @@ library InteroperableAddress {
     }
 
     /**
-     * @dev Variant of {formatV1-bytes2-bytes-bytes-} specific to EVM chains. Returns the ERC-7930 interoperable address (version 1) for
-     * a given chainid and ethereum address.
+     * @dev Variant of {formatV1-bytes2-bytes-bytes-} specific to EVM chains. Returns the ERC-7930 interoperable
+     * address (version 1) for a given chainid and ethereum address.
      */
     function formatEvmV1(uint256 chainid, address addr) internal pure returns (bytes memory) {
         bytes memory chainReference = _toChainReference(chainid);
@@ -65,8 +65,8 @@ library InteroperableAddress {
     }
 
     /**
-     * @dev Parse a ERC-7930 interoperable address (version 1) into its different components.
-     * Reverts if the input is not following a version 1 of ERC-7930
+     * @dev Parse a ERC-7930 interoperable address (version 1) into its different components. Reverts if the input is
+     * not following a version 1 of ERC-7930
      */
     function parseV1(
         bytes memory self
@@ -141,9 +141,8 @@ library InteroperableAddress {
     }
 
     /**
-     * @dev Parse a ERC-7930 interoperable address (version 1) corresponding to an EIP-155 chain.
-     * The `chainId` and `addr` return values will be zero if the input doesn't include a chainReference
-     * or an address, respectively.
+     * @dev Parse a ERC-7930 interoperable address (version 1) corresponding to an EIP-155 chain. The `chainId` and
+     * `addr` return values will be zero if the input doesn't include a chainReference or an address, respectively.
      *
      * Requirements:
      *
