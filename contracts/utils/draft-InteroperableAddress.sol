@@ -11,12 +11,12 @@ import {Calldata} from "./Calldata.sol";
  * @dev Helper library to format and parse https://github.com/ethereum/ERCs/pull/1002[ERC-7930] interoperable
  * addresses.
  */
-library ERC7930 {
+library InteroperableAddress {
     using SafeCast for uint256;
     using Bytes for bytes;
 
-    error ERC7930ParsingError(bytes);
-    error ERC7930EmptyReferenceAndAddress();
+    error InteroperableAddressParsingError(bytes);
+    error InteroperableAddressEmptyReferenceAndAddress();
 
     /**
      * @dev Format an ERC-7930 interoperable address (version 1) from its components `chainType`, `chainReference`
@@ -28,7 +28,7 @@ library ERC7930 {
         bytes memory chainReference,
         bytes memory addr
     ) internal pure returns (bytes memory) {
-        require(chainReference.length > 0 || addr.length > 0, ERC7930EmptyReferenceAndAddress());
+        require(chainReference.length > 0 || addr.length > 0, InteroperableAddressEmptyReferenceAndAddress());
         return
             abi.encodePacked(
                 bytes2(0x0001),
@@ -74,7 +74,7 @@ library ERC7930 {
     ) internal pure returns (bytes2 chainType, bytes memory chainReference, bytes memory addr) {
         bool success;
         (success, chainType, chainReference, addr) = tryParseV1(self);
-        require(success, ERC7930ParsingError(self));
+        require(success, InteroperableAddressParsingError(self));
     }
 
     /**
@@ -87,7 +87,7 @@ library ERC7930 {
     ) internal pure returns (bytes2 chainType, bytes calldata chainReference, bytes calldata addr) {
         bool success;
         (success, chainType, chainReference, addr) = tryParseV1Calldata(self);
-        require(success, ERC7930ParsingError(self));
+        require(success, InteroperableAddressParsingError(self));
     }
 
     /**
@@ -158,7 +158,7 @@ library ERC7930 {
     function parseEvmV1(bytes memory self) internal pure returns (uint256 chainId, address addr) {
         bool success;
         (success, chainId, addr) = tryParseEvmV1(self);
-        require(success, ERC7930ParsingError(self));
+        require(success, InteroperableAddressParsingError(self));
     }
 
     /**
@@ -171,7 +171,7 @@ library ERC7930 {
     function parseEvmV1Calldata(bytes calldata self) internal pure returns (uint256 chainId, address addr) {
         bool success;
         (success, chainId, addr) = tryParseEvmV1Calldata(self);
-        require(success, ERC7930ParsingError(self));
+        require(success, InteroperableAddressParsingError(self));
     }
 
     /**

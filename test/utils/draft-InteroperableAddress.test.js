@@ -7,7 +7,7 @@ const { CAIP350, chainTypeCoder } = require('interoperable-addresses/dist/CAIP35
 const { getLocalChain } = require('../helpers/chains');
 
 async function fixture() {
-  const mock = await ethers.deployContract('$ERC7930');
+  const mock = await ethers.deployContract('$InteroperableAddress');
   return { mock };
 }
 
@@ -26,7 +26,7 @@ describe('ERC7390', function () {
   it('formatV1 fails if both reference and address are empty', async function () {
     await expect(this.mock.$formatV1('0x0000', '0x', '0x')).to.be.revertedWithCustomError(
       this.mock,
-      'ERC7930EmptyReferenceAndAddress',
+      'InteroperableAddressEmptyReferenceAndAddress',
     );
   });
 
@@ -62,7 +62,7 @@ describe('ERC7390', function () {
 
       it(title, async function () {
         const expected = [
-          chainTypeCoder.encode(chainType),
+          chainTypeCoder.decode(chainType),
           CAIP350[chainType].reference.decode(reference),
           CAIP350[chainType].address.decode(address),
         ].map(ethers.hexlify);
@@ -124,16 +124,16 @@ describe('ERC7390', function () {
     })) {
       it(title, async function () {
         await expect(this.mock.$parseV1(binary))
-          .to.be.revertedWithCustomError(this.mock, 'ERC7930ParsingError')
+          .to.be.revertedWithCustomError(this.mock, 'InteroperableAddressParsingError')
           .withArgs(binary);
         await expect(this.mock.$parseV1Calldata(binary))
-          .to.be.revertedWithCustomError(this.mock, 'ERC7930ParsingError')
+          .to.be.revertedWithCustomError(this.mock, 'InteroperableAddressParsingError')
           .withArgs(binary);
         await expect(this.mock.$parseEvmV1(binary))
-          .to.be.revertedWithCustomError(this.mock, 'ERC7930ParsingError')
+          .to.be.revertedWithCustomError(this.mock, 'InteroperableAddressParsingError')
           .withArgs(binary);
         await expect(this.mock.$parseEvmV1Calldata(binary))
-          .to.be.revertedWithCustomError(this.mock, 'ERC7930ParsingError')
+          .to.be.revertedWithCustomError(this.mock, 'InteroperableAddressParsingError')
           .withArgs(binary);
         await expect(this.mock.$tryParseV1(binary)).to.eventually.deep.equal([false, '0x0000', '0x', '0x']);
         await expect(this.mock.$tryParseV1Calldata(binary)).to.eventually.deep.equal([false, '0x0000', '0x', '0x']);
@@ -153,10 +153,10 @@ describe('ERC7390', function () {
     })) {
       it(title, async function () {
         await expect(this.mock.$parseEvmV1(binary))
-          .to.be.revertedWithCustomError(this.mock, 'ERC7930ParsingError')
+          .to.be.revertedWithCustomError(this.mock, 'InteroperableAddressParsingError')
           .withArgs(binary);
         await expect(this.mock.$parseEvmV1Calldata(binary))
-          .to.be.revertedWithCustomError(this.mock, 'ERC7930ParsingError')
+          .to.be.revertedWithCustomError(this.mock, 'InteroperableAddressParsingError')
           .withArgs(binary);
         await expect(this.mock.$tryParseEvmV1(binary)).to.eventually.deep.equal([false, 0n, ethers.ZeroAddress]);
         await expect(this.mock.$tryParseEvmV1Calldata(binary)).to.eventually.deep.equal([
