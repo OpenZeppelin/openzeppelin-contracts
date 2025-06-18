@@ -41,9 +41,7 @@ describe('EIP7702Utils', function () {
       // set delegation
       await this.eoa.authorize({ address: this.mock }).then(relayAuthorization);
       // reset delegation
-      await this.eoa
-        .authorize(await this.eoa.populateAuthorization({ address: ethers.ZeroAddress }))
-        .then(relayAuthorization);
+      await this.eoa.authorize({ address: ethers.ZeroAddress }).then(relayAuthorization);
 
       await expect(this.mock.$fetchDelegate(this.eoa)).to.eventually.equal(ethers.ZeroAddress);
     });
