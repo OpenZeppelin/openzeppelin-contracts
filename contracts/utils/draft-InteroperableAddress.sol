@@ -78,7 +78,6 @@ library InteroperableAddress {
 
     /**
      * @dev Variant of {parseV1} that handles calldata slices to reduce memory copy costs.
-     *
      */
     function parseV1Calldata(
         bytes calldata self
@@ -141,7 +140,7 @@ library InteroperableAddress {
         }
     }
 
-     /**
+    /**
      * @dev Parse a ERC-7930 interoperable address (version 1) corresponding to an EIP-155 chain.
      * The `chainId` and `addr` return values will be zero if the input doesn't include a chainReference
      * or an address, respectively.
@@ -157,7 +156,7 @@ library InteroperableAddress {
         require(success, InteroperableAddressParsingError(self));
     }
 
-   /**
+    /**
      * @dev Variant of {parseEvmV1} that handles calldata slices to reduce memory copy costs.
      */
     function parseEvmV1Calldata(bytes calldata self) internal pure returns (uint256 chainId, address addr) {
