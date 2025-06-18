@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.2.0) (interfaces/draft-IERC7579.sol)
-pragma solidity ^0.8.20;
+// OpenZeppelin Contracts (last updated v5.3.0) (interfaces/draft-IERC7579.sol)
+pragma solidity >=0.8.4;
 
 import {PackedUserOperation} from "./draft-IERC4337.sol";
 
@@ -15,7 +15,7 @@ uint256 constant MODULE_TYPE_HOOK = 4;
 interface IERC7579Module {
     /**
      * @dev This function is called by the smart account during installation of the module
-     * @param data arbitrary data that may be required on the module during `onInstall` initialization
+     * @param data arbitrary data that may be passed to the module during `onInstall` initialization
      *
      * MUST revert on error (e.g. if module is already enabled)
      */
@@ -23,7 +23,7 @@ interface IERC7579Module {
 
     /**
      * @dev This function is called by the smart account during uninstallation of the module
-     * @param data arbitrary data that may be required on the module during `onUninstall` de-initialization
+     * @param data arbitrary data that may be passed to the module during `onUninstall` de-initialization
      *
      * MUST revert on error
      */
@@ -186,7 +186,7 @@ interface IERC7579ModuleConfig {
      * @dev Installs a Module of a certain type on the smart account
      * @param moduleTypeId the module type ID according to the ERC-7579 spec
      * @param module the module address
-     * @param initData arbitrary data that may be required on the module during `onInstall`
+     * @param initData arbitrary data that may be passed to the module during `onInstall`
      * initialization.
      *
      * MUST implement authorization control
@@ -200,8 +200,8 @@ interface IERC7579ModuleConfig {
      * @dev Uninstalls a Module of a certain type on the smart account
      * @param moduleTypeId the module type ID according the ERC-7579 spec
      * @param module the module address
-     * @param deInitData arbitrary data that may be required on the module during `onInstall`
-     * initialization.
+     * @param deInitData arbitrary data that may be passed to the module during `onUninstall`
+     * deinitialization.
      *
      * MUST implement authorization control
      * MUST call `onUninstall` on the module with the `deInitData` parameter if provided
@@ -214,7 +214,7 @@ interface IERC7579ModuleConfig {
      * @dev Returns whether a module is installed on the smart account
      * @param moduleTypeId the module type ID according the ERC-7579 spec
      * @param module the module address
-     * @param additionalContext arbitrary data that may be required to determine if the module is installed
+     * @param additionalContext arbitrary data that may be passed to determine if the module is installed
      *
      * MUST return true if the module is installed and false otherwise
      */

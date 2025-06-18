@@ -41,8 +41,8 @@ jobs:
         run: npm run test
       - name: Check linearisation of the inheritance graph
         run: npm run test:inheritance
-      - name: Check pragma consistency between files
-        run: npm run test:pragma
+      - name: Check pragma validity
+        run: npm run test:pragma -- --concurrency 1
       - name: Check procedurally generated contracts are up-to-date
         run: npm run test:generation
       - name: Compare gas costs
@@ -70,8 +70,8 @@ jobs:
         run: npm run test
       - name: Check linearisation of the inheritance graph
         run: npm run test:inheritance
-      - name: Check pragma consistency between files
-        run: npm run test:pragma
+      - name: Check pragma validity
+        run: npm run test:pragma -- --concurrency 1
       - name: Check storage layout
         uses: ./.github/actions/storage-layout
         continue-on-error: ${{ contains(github.event.pull_request.labels.*.name, 'breaking change') }}
@@ -87,7 +87,7 @@ jobs:
       - name: Set up environment
         uses: ./.github/actions/setup
       - name: Run tests
-        run: forge test -vv
+        run: forge test -vvv
 
   coverage:
     runs-on: ubuntu-latest
