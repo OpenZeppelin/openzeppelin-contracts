@@ -7,13 +7,6 @@ Miscellaneous contracts and libraries containing utility functions you can use t
 
  * {Math}, {SignedMath}: Implementation of various arithmetic functions.
  * {SafeCast}: Checked downcasting functions to avoid silent truncation.
- * {ECDSA}, {MessageHashUtils}: Libraries for interacting with ECDSA signatures.
- * {P256}: Library for verifying and recovering public keys from secp256r1 signatures.
- * {RSA}: Library with RSA PKCS#1 v1.5 signature verification utilities.
- * {SignatureChecker}: A library helper to support regular ECDSA from EOAs as well as ERC-1271 signatures for smart contracts.
- * {Hashes}: Commonly used hash functions.
- * {MerkleProof}: Functions for verifying https://en.wikipedia.org/wiki/Merkle_tree[Merkle Tree] proofs.
- * {EIP712}: Contract with functions to allow processing signed typed structure data according to https://eips.ethereum.org/EIPS/eip-712[EIP-712].
  * {ReentrancyGuard}: A modifier that can prevent reentrancy during certain functions.
  * {ReentrancyGuardTransient}: Variant of {ReentrancyGuard} that uses transient storage (https://eips.ethereum.org/EIPS/eip-1153[EIP-1153]).
  * {Pausable}: A common emergency response mechanism that can pause functionality while a remediation is pending.
@@ -46,9 +39,6 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {Comparators}: A library that contains comparator functions to use with the {Heap} library.
  * {CAIP2}, {CAIP10}: Libraries for formatting and parsing CAIP-2 and CAIP-10 identifiers.
  * {Blockhash}: A library for accessing historical block hashes beyond the standard 256 block limit utilizing EIP-2935's historical blockhash functionality.
- * {AbstractSigner}: Abstract contract for internal signature validation in smart contracts.
- * {ERC7739}: An abstract contract to validate signatures following the rehashing scheme from `ERC7739Utils`.
- * {ERC7739Utils}: Utilities library that implements a defensive rehashing mechanism to prevent replayability of smart contract signatures based on ERC-7739.
  * {Time}: A library that provides helpers for manipulating time-related objects, including a `Delay` type.
  
 [NOTE]
@@ -63,32 +53,6 @@ Because Solidity does not support generic types, {EnumerableMap} and {Enumerable
 {{SignedMath}}
 
 {{SafeCast}}
-
-== Cryptography
-
-{{ECDSA}}
-
-{{P256}}
-
-{{RSA}}
-
-{{EIP712}}
-
-{{MessageHashUtils}}
-
-{{SignatureChecker}}
-
-{{Hashes}}
-
-{{MerkleProof}}
-
-{{ERC7739}}
-
-{{ERC7739Utils}}
-
-=== Abstract Signers
-
-{{AbstractSigner}}
 
 == Security
 
