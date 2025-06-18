@@ -41,7 +41,7 @@ library InteroperableAddress {
     }
 
     /**
-     * @dev Variant of {formatV1} specific to EVM chains. Returns the ERC-7930 interoperable address (version 1) for
+     * @dev Variant of {formatV1-bytes2-bytes-bytes-} specific to EVM chains. Returns the ERC-7930 interoperable address (version 1) for
      * a given chainid and ethereum address.
      */
     function formatEvmV1(uint256 chainid, address addr) internal pure returns (bytes memory) {
@@ -50,7 +50,7 @@ library InteroperableAddress {
     }
 
     /**
-     * @dev Variant of {formatEvmV1} that specifies an EVM chain without an address.
+     * @dev Variant of {formatV1-bytes2-bytes-bytes-} that specifies an EVM chain without an address.
      */
     function formatEvmV1(uint256 chainid) internal pure returns (bytes memory) {
         bytes memory chainReference = _toChainReference(chainid);
@@ -58,7 +58,7 @@ library InteroperableAddress {
     }
 
     /**
-     * @dev Variant of {formatEvmV1} that specifies an EVM address without a chain reference.
+     * @dev Variant of {formatV1-bytes2-bytes-bytes-} that specifies an EVM address without a chain reference.
      */
     function formatEvmV1(address addr) internal pure returns (bytes memory) {
         return abi.encodePacked(bytes6(0x000100000014), addr);
@@ -66,8 +66,7 @@ library InteroperableAddress {
 
     /**
      * @dev Parse a ERC-7930 interoperable address (version 1) into its different components.
-     *
-     * NOTE: This function will revert if the input is not following version 1 of ERC-7930.
+     * Reverts if the input is not following a version 1 of ERC-7930
      */
     function parseV1(
         bytes memory self
@@ -80,7 +79,6 @@ library InteroperableAddress {
     /**
      * @dev Variant of {parseV1} that handles calldata slices to reduce memory copy costs.
      *
-     * NOTE: This function will revert if the input is not following version 1 of ERC-7930.
      */
     function parseV1Calldata(
         bytes calldata self
@@ -91,10 +89,8 @@ library InteroperableAddress {
     }
 
     /**
-     * @dev Parse a ERC-7930 interoperable address (version 1) into its different components.
-     *
-     * NOTE: If the input is not following version 1 of ERC-7930, this function will not revert, and instead will
-     * return a false boolean, indicating the parsing was a failure.
+     * @dev Variant of {parseV1} that does not revert on invalid input. Instead, it returns `false` as the first
+     * return value to indicate parsing failure when the input does not follow version 1 of ERC-7930.
      */
     function tryParseV1(
         bytes memory self
@@ -121,9 +117,6 @@ library InteroperableAddress {
 
     /**
      * @dev Variant of {tryParseV1} that handles calldata slices to reduce memory copy costs.
-     *
-     * NOTE: If the input is not following version 1 of ERC-7930, this function will not revert, and instead will
-     * return a false boolean, indicating the parsing was a failure.
      */
     function tryParseV1Calldata(
         bytes calldata self
@@ -148,12 +141,15 @@ library InteroperableAddress {
         }
     }
 
-    /**
+     /**
      * @dev Parse a ERC-7930 interoperable address (version 1) corresponding to an EIP-155 chain.
+     * The `chainId` and `addr` return values will be zero if the input doesn't include a chainReference
+     * or an address, respectively.
      *
-     * NOTE: This function will revert if the input is not following version 1 of ERC-7930 or if the underlying
-     * chainType is not "eip-155". If the input doesn't include a chainReference, then 0 is returned as a chainId.
-     * Similarly if the input doesn't include an address, then address(0) is returned.
+     * Requirements:
+     *
+     * * The input must be a valid ERC-7930 interoperable address (version 1)
+     * * The underlying chainType must be "eip-155"
      */
     function parseEvmV1(bytes memory self) internal pure returns (uint256 chainId, address addr) {
         bool success;
@@ -161,12 +157,8 @@ library InteroperableAddress {
         require(success, InteroperableAddressParsingError(self));
     }
 
-    /**
+   /**
      * @dev Variant of {parseEvmV1} that handles calldata slices to reduce memory copy costs.
-     *
-     * NOTE: This function will revert if the input is not following version 1 of ERC-7930 or if the underlying
-     * chainType is not "eip-155". If the input doesn't include a chainReference, then 0 is returned as a chainId.
-     * Similarly if the input doesn't include an address, then address(0) is returned.
      */
     function parseEvmV1Calldata(bytes calldata self) internal pure returns (uint256 chainId, address addr) {
         bool success;
@@ -175,12 +167,8 @@ library InteroperableAddress {
     }
 
     /**
-     * @dev Parse a ERC-7930 interoperable address (version 1) corresponding to an EIP-155 chain.
-     *
-     * NOTE: This function will not revert if the input is not following version 1 of ERC-7930 or if the underlying
-     * chainType is not "eip-155". Instead it return a false boolean, indicating the parsing was a failure. If the
-     * input doesn't include a chainReference, then 0 is returned as a chainId. Similarly if the input doesn't include
-     * an address, then address(0) is returned.
+     * @dev Variant of {parseEvmV1} that does not revert on invalid input. Instead, it returns `false` as the first
+     * return value to indicate parsing failure when the input does not follow version 1 of ERC-7930.
      */
     function tryParseEvmV1(bytes memory self) internal pure returns (bool success, uint256 chainId, address addr) {
         (bool success_, bytes2 chainType_, bytes memory chainReference_, bytes memory addr_) = tryParseV1(self);
@@ -199,11 +187,6 @@ library InteroperableAddress {
 
     /**
      * @dev Variant of {tryParseEvmV1} that handles calldata slices to reduce memory copy costs.
-     *
-     * NOTE: This function will not revert if the input is not following version 1 of ERC-7930 or if the underlying
-     * chainType is not "eip-155". Instead it return a false boolean, indicating the parsing was a failure. If the
-     * input doesn't include a chainReference, then 0 is returned as a chainId. Similarly if the input doesn't include
-     * an address, then address(0) is returned.
      */
     function tryParseEvmV1Calldata(
         bytes calldata self
