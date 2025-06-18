@@ -95,7 +95,7 @@ Here's an example of how to use batched execution:
 [source,solidity]
 ----
 import {Account} from "@openzeppelin/community-contracts/account/Account.sol";
-import {ERC7821} from "@openzeppelin/community-contracts/account/extensions/ERC7821.sol";
+import {ERC7821} from "@openzeppelin/community-contracts/account/extensions/draft-ERC7821.sol";
 
 contract MyAccount is Account, ERC7821 {
     // Override to allow the entrypoint to execute batches
