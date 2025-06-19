@@ -22,8 +22,6 @@ import {ShortStrings} from "../../ShortStrings.sol";
  * optimize gas costs for short strings (up to 31 characters). Consider that strings longer than that will use storage,
  * which may limit the ability of the signer to be used within the ERC-4337 validation phase (due to
  * https://eips.ethereum.org/EIPS/eip-7562#storage-rules[ERC-7562 storage access rules]).
- *
- * @custom:stateless
  */
 abstract contract ERC7739 is AbstractSigner, EIP712, IERC1271 {
     using ERC7739Utils for *;
