@@ -7,6 +7,8 @@ import {IERC7913SignatureVerifier} from "../../../interfaces/IERC7913.sol";
 
 /**
  * @dev ERC-7913 signature verifier that support P256 (secp256r1) keys.
+ *
+ * @custom:stateless
  */
 contract ERC7913P256Verifier is IERC7913SignatureVerifier {
     /// @inheritdoc IERC7913SignatureVerifier
