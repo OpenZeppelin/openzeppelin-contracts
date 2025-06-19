@@ -34,7 +34,7 @@ TIP: Use xref:api:account.adoc#ERC4337Utils[`ERC4337Utils`] to manipulate the `U
 
 === Entrypoint
 
-Each `UserOperation` is executed through a contract known as the https://etherscan.io/address/0x0000000071727de22e5e9d8baf0edac6f37da032#code[`EntryPoint`]. This contract is a singleton deployed across multiple networks at the same address although other custom implementations may be used.
+Each `UserOperation` is executed through a contract known as the https://etherscan.io/address/0x4337084D9E255Ff0702461CF8895CE9E3b5Ff108#code[`EntryPoint`]. This contract is a singleton deployed across multiple networks at the same address although other custom implementations may be used.
 
 The Entrypoint contracts is considered a trusted entity by the account.
 
