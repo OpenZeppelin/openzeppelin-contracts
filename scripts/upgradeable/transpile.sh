@@ -23,7 +23,6 @@ fi
 # -D: delete original and excluded files
 # -b: use this build info file
 # -i: use included Initializable
-# -x: exclude docs contracts with an exceptions
 # -x: exclude proxy-related contracts with a few exceptions
 # -p: emit public initializer
 # -n: use namespaces
@@ -33,8 +32,6 @@ npx @openzeppelin/upgrade-safe-transpiler -D \
   -b "$build_info" \
   -i contracts/proxy/utils/Initializable.sol \
   -x 'contracts-exposed/**/*' \
-  -x 'contracts/mocks/docs/**/*' \
-  -x '!contracts/mocks/docs/ERC4626Fees.sol' \
   -x 'contracts/proxy/**/*' \
   -x '!contracts/proxy/Clones.sol' \
   -x '!contracts/proxy/ERC1967/ERC1967Storage.sol' \
