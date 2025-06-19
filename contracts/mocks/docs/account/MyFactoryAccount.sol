@@ -27,11 +27,6 @@ contract MyFactoryAccount {
 
     /// @dev Create clone accounts on demand
     function cloneAndInitialize(bytes32 salt, bytes calldata callData) public returns (address) {
-        return _cloneAndInitialize(salt, callData);
-    }
-
-    /// @dev Create clone accounts on demand and return the address. Uses `callData` to initialize the clone.
-    function _cloneAndInitialize(bytes32 salt, bytes calldata callData) internal returns (address) {
         (address predicted, bytes32 _calldataSalt) = predictAddress(salt, callData);
         if (predicted.code.length == 0) {
             _impl.cloneDeterministic(_calldataSalt);

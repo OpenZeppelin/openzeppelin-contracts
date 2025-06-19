@@ -22,7 +22,7 @@ import {SignatureChecker} from "../SignatureChecker.sol";
  *       _setSigner(signer_);
  *     }
  *
- *     function setSigner(bytes memory signer_) public {
+ *     function setSigner(bytes memory signer_) public onlyEntryPointOrSelf {
  *       _setSigner(signer_);
  *     }
  * }
