@@ -29,7 +29,36 @@ The xref:api:utils.adoc#SignerERC7913[`SignerERC7913`] contract allows a single 
 
 [source,solidity]
 ----
-include::api:example$account/MyAccountERC7913.sol[]
+// contracts/MyAccountERC7913.sol
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.8.24;
+
+import {Account} from "@openzeppelin/community-contracts/account/Account.sol";
+import {EIP712} from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
+import {ERC721Holder} from "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
+import {ERC1155Holder} from "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
+import {ERC7739} from "@openzeppelin/community-contracts/utils/cryptography/signers/ERC7739.sol";
+import {ERC7821} from "@openzeppelin/community-contracts/account/extensions/ERC7821.sol";
+import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+import {SignerERC7913} from "@openzeppelin/community-contracts/utils/cryptography/signers/SignerERC7913.sol";
+
+contract MyAccountERC7913 is Account, SignerERC7913, ERC7739, ERC7821, ERC721Holder, ERC1155Holder, Initializable {
+    constructor() EIP712("MyAccount7913", "1") {}
+
+    function initialize(bytes memory signer) public initializer {
+        _setSigner(signer);
+    }
+
+    /// @dev Allows the entry point as an authorized executor.
+    function _erc7821AuthorizedExecutor(
+        address caller,
+        bytes32 mode,
+        bytes calldata executionData
+    ) internal view virtual override returns (bool) {
+        return caller == address(entryPoint()) || super._erc7821AuthorizedExecutor(caller, mode, executionData);
+    }
+}
 ----
 
 WARNING: Leaving an account uninitialized may leave it unusable since no public key was associated with it.
@@ -40,8 +69,59 @@ The xref:api:utils.adoc#MultiSignerERC7913[`MultiSignerERC7913`] contract extend
 
 [source,solidity]
 ----
-include::api:example$account/MyAccountMultiSigner.sol[]
+// contracts/MyAccountMultiSigner.sol
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.8.27;
+
+import {Account} from "@openzeppelin/community-contracts/account/Account.sol";
+import {EIP712} from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
+import {ERC721Holder} from "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
+import {ERC1155Holder} from "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
+import {ERC7739} from "@openzeppelin/community-contracts/utils/cryptography/signers/ERC7739.sol";
+import {ERC7821} from "@openzeppelin/community-contracts/account/extensions/ERC7821.sol";
+import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+import {MultiSignerERC7913} from "@openzeppelin/community-contracts/utils/cryptography/signers/MultiSignerERC7913.sol";
+
+contract MyAccountMultiSigner is
+    Account,
+    MultiSignerERC7913,
+    ERC7739,
+    ERC7821,
+    ERC721Holder,
+    ERC1155Holder,
+    Initializable
+{
+    constructor() EIP712("MyAccountMultiSigner", "1") {}
+
+    function initialize(bytes[] memory signers, uint256 threshold) public initializer {
+        _addSigners(signers);
+        _setThreshold(threshold);
+    }
+
+    function addSigners(bytes[] memory signers) public onlyEntryPointOrSelf {
+        _addSigners(signers);
+    }
+
+    function removeSigners(bytes[] memory signers) public onlyEntryPointOrSelf {
+        _removeSigners(signers);
+    }
+
+    function setThreshold(uint256 threshold) public onlyEntryPointOrSelf {
+        _setThreshold(threshold);
+    }
+
+    /// @dev Allows the entry point as an authorized executor.
+    function _erc7821AuthorizedExecutor(
+        address caller,
+        bytes32 mode,
+        bytes calldata executionData
+    ) internal view virtual override returns (bool) {
+        return caller == address(entryPoint()) || super._erc7821AuthorizedExecutor(caller, mode, executionData);
+    }
+}
 ----
+
 This implementation is ideal for standard multisig setups where each signer has equal authority, and a fixed number of approvals is required.
 
 The `MultiSignerERC7913` contract provides several key features for managing multi-signature accounts. It maintains a set of authorized signers and implements a threshold-based system that requires a minimum number of signatures to approve operations. The contract includes an internal interface for managing signers, allowing for the addition and removal of authorized parties.
@@ -56,7 +136,62 @@ For more sophisticated governance structures, the xref:api:utils.adoc#MultiSigne
 
 [source,solidity]
 ----
-include::api:example$account/MyAccountMultiSignerWeighted.sol[]
+// contracts/MyAccountMultiSignerWeighted.sol
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.8.27;
+
+import {Account} from "@openzeppelin/community-contracts/account/Account.sol";
+import {EIP712} from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
+import {ERC721Holder} from "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
+import {ERC1155Holder} from "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
+import {ERC7739} from "@openzeppelin/community-contracts/utils/cryptography/signers/ERC7739.sol";
+import {ERC7821} from "@openzeppelin/community-contracts/account/extensions/ERC7821.sol";
+import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+import {MultiSignerERC7913Weighted} from "@openzeppelin/community-contracts/utils/cryptography/signers/MultiSignerERC7913Weighted.sol";
+
+contract MyAccountMultiSignerWeighted is
+    Account,
+    MultiSignerERC7913Weighted,
+    ERC7739,
+    ERC7821,
+    ERC721Holder,
+    ERC1155Holder,
+    Initializable
+{
+    constructor() EIP712("MyAccountMultiSignerWeighted", "1") {}
+
+    function initialize(bytes[] memory signers, uint256[] memory weights, uint256 threshold) public initializer {
+        _addSigners(signers);
+        _setSignerWeights(signers, weights);
+        _setThreshold(threshold);
+    }
+
+    function addSigners(bytes[] memory signers) public onlyEntryPointOrSelf {
+        _addSigners(signers);
+    }
+
+    function removeSigners(bytes[] memory signers) public onlyEntryPointOrSelf {
+        _removeSigners(signers);
+    }
+
+    function setThreshold(uint256 threshold) public onlyEntryPointOrSelf {
+        _setThreshold(threshold);
+    }
+
+    function setSignerWeights(bytes[] memory signers, uint256[] memory weights) public onlyEntryPointOrSelf {
+        _setSignerWeights(signers, weights);
+    }
+
+    /// @dev Allows the entry point as an authorized executor.
+    function _erc7821AuthorizedExecutor(
+        address caller,
+        bytes32 mode,
+        bytes calldata executionData
+    ) internal view virtual override returns (bool) {
+        return caller == address(entryPoint()) || super._erc7821AuthorizedExecutor(caller, mode, executionData);
+    }
+}
 ----
 
 This implementation is perfect for scenarios where different signers should have varying levels of authority, such as:
