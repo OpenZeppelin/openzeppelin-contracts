@@ -50,6 +50,10 @@ contract MyAccountERC7913 is Account, SignerERC7913, ERC7739, ERC7821, ERC721Hol
         _setSigner(signer);
     }
 
+    function setSigner(bytes memory signer) public {
+        _setSigner(signer);
+    }
+
     /// @dev Allows the entry point as an authorized executor.
     function _erc7821AuthorizedExecutor(
         address caller,

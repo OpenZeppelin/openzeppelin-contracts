@@ -21,6 +21,10 @@ import {SignatureChecker} from "../SignatureChecker.sol";
  *     function initialize(bytes memory signer_) public initializer {
  *       _setSigner(signer_);
  *     }
+ *
+ *     function setSigner(bytes memory signer_) public {
+ *       _setSigner(signer_);
+ *     }
  * }
  * ```
  *
