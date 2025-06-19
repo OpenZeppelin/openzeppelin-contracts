@@ -16,6 +16,7 @@ contract MyFactoryAccount {
     address private immutable _impl;
 
     constructor(address impl_) {
+        require(impl_.code.length > 0);
         _impl = impl_;
     }
 
