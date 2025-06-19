@@ -49,4 +49,6 @@ import {StorageSlot} from "../utils/StorageSlot.sol";
 import {Strings} from "../utils/Strings.sol";
 import {Time} from "../utils/types/Time.sol";
 
-contract Dummy1234 {}
+contract Dummy1234 {
+    // Empty contract. This comment is required for linting purposes.
+}
