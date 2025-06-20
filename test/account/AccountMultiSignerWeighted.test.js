@@ -37,7 +37,7 @@ async function fixture() {
 
   const makeMock = (signers, weights, threshold) =>
     helper
-      .newAccount('$AccountMultiSignerWeightedMock', ['AccountMultiSignerWeighted', '1', signers, weights, threshold])
+      .newAccount('$AccountMultiSignerWeightedMock', [signers, weights, threshold, 'AccountMultiSignerWeighted', '1'])
       .then(mock => {
         domain.verifyingContract = mock.address;
         return mock;
