@@ -295,7 +295,7 @@ const userOpHash = await entrypoint.read.getUserOpHash([userOp]);
 userOp.signature = await eoa.sign({ hash: userOpHash });
 ----
 
-NOTE: Using `getUserOpHash` directly may provide a poorer user experience as users see an opaque hash rather than structured transaction data.
+IMPORTANT: Using `getUserOpHash` directly may provide a poorer user experience as users see an opaque hash rather than structured transaction data. In many cases, offchain signers won't have an option to sign a raw hash.
 
 === Sending the UserOp
 
