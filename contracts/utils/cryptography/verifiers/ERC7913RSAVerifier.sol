@@ -7,6 +7,8 @@ import {IERC7913SignatureVerifier} from "../../../interfaces/IERC7913.sol";
 
 /**
  * @dev ERC-7913 signature verifier that support RSA keys.
+ *
+ * @custom:stateless
  */
 contract ERC7913RSAVerifier is IERC7913SignatureVerifier {
     /// @inheritdoc IERC7913SignatureVerifier
