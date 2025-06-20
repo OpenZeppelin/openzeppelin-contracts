@@ -5,6 +5,7 @@
     "openzeppelin-solidity": "5.3.0"
   },
   "changesets": [
+    "all-geese-stand",
     "clean-ways-push",
     "fine-frogs-bake",
     "full-ways-help",
