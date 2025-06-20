@@ -40,6 +40,7 @@ for (const [file, template] of Object.entries({
   'utils/structs/Checkpoints.sol': './templates/Checkpoints.js',
   'utils/structs/EnumerableSet.sol': './templates/EnumerableSet.js',
   'utils/structs/EnumerableMap.sol': './templates/EnumerableMap.js',
+  'utils/structs/BitMaps.sol': './templates/BitMaps.js',
   'utils/SlotDerivation.sol': './templates/SlotDerivation.js',
   'utils/StorageSlot.sol': './templates/StorageSlot.js',
   'utils/TransientSlot.sol': './templates/TransientSlot.js',
@@ -54,6 +55,7 @@ for (const [file, template] of Object.entries({
 // Tests
 for (const [file, template] of Object.entries({
   'utils/structs/Checkpoints.t.sol': './templates/Checkpoints.t.js',
+  'utils/structs/BitMaps.t.sol': './templates/BitMaps.t.js',
   'utils/Packing.t.sol': './templates/Packing.t.js',
   'utils/SlotDerivation.t.sol': './templates/SlotDerivation.t.js',
 })) {
