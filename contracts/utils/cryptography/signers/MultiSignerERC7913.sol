@@ -66,8 +66,16 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
     /// @dev The `signer` is less than 20 bytes long.
     error MultiSignerERC7913InvalidSigner(bytes signer);
 
+    /// @dev The new threshold is 0.
+    error MultiSignerERC7913NullThreshold();
+
     /// @dev The `threshold` is unreachable given the number of `signers`.
     error MultiSignerERC7913UnreachableThreshold(uint64 signers, uint64 threshold);
+
+    constructor(bytes[] memory signers_, uint64 threshold_) {
+        _addSigners(signers_);
+        _setThreshold(threshold_);
+    }
 
     /**
      * @dev Returns a slice of the set of authorized signers.
@@ -141,6 +149,7 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
      * * See {_validateReachableThreshold} for the threshold validation.
      */
     function _setThreshold(uint64 newThreshold) internal virtual {
+        require(newThreshold > 0, MultiSignerERC7913NullThreshold());
         _threshold = newThreshold;
         _validateReachableThreshold();
         emit ERC7913ThresholdSet(newThreshold);
