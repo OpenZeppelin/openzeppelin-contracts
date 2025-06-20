@@ -151,7 +151,7 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
      *
      * Requirements:
      *
-     * * The {signers}'s length must be `>=` to the {threshold}. Throws {MultiSignerERC7913UnreachableThreshold} if not.
+     * * The {getSignerCount}'s length must be `>=` to the {threshold}. Throws {MultiSignerERC7913UnreachableThreshold} if not.
      */
     function _validateReachableThreshold() internal view virtual {
         uint256 signersLength = _signers.length();

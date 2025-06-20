@@ -339,7 +339,7 @@ To prevent this, developers may use xref:api:account#ERC7739Signer[`ERC7739Signe
 
 === EIP-7702 Delegation
 
-https://eips.ethereum.org/EIPS/eip-7702[EIP-7702] lets EOAs delegate to smart contracts while keeping their original signing key. This creates a hybrid account that works like an EOA for signing but has smart contract features. Protocols don't need major changes to support EIP-7702 since they already handle both EOAs and smart contracts (see xref:api:utils#SignatureChecker[SignatureChecker]).
+https://eips.ethereum.org/EIPS/eip-7702[EIP-7702] lets EOAs delegate to smart contracts while keeping their original signing key. This creates a hybrid account that works like an EOA for signing but has smart contract features. Protocols don't need major changes to support EIP-7702 since they already handle both EOAs and smart contracts (see xref:api:utils/cryptography.adoc#SignatureChecker[SignatureChecker]).
 
 The signature verification stays compatible: delegated EOAs are treated as contracts using ERC-1271, making it easy to redelegate to a contract with ERC-1271 support with little overhead by reusing the validation mechanism of the account. 
 
