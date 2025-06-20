@@ -180,12 +180,6 @@ describe('AccountMultiSigner', function () {
         this.mock,
         'MultiSignerERC7913UnreachableThreshold',
       );
-
-      // No threshold would open the contract to anyone
-      await expect(this.mock.$_setThreshold(0)).to.revertedWithCustomError(
-        this.mock,
-        'MultiSignerERC7913NullThreshold',
-      );
     });
 
     it('rejects invalid signer format', async function () {

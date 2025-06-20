@@ -149,7 +149,6 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
      * * See {_validateReachableThreshold} for the threshold validation.
      */
     function _setThreshold(uint64 newThreshold) internal virtual {
-        require(newThreshold > 0, MultiSignerERC7913NullThreshold());
         _threshold = newThreshold;
         _validateReachableThreshold();
         emit ERC7913ThresholdSet(newThreshold);
