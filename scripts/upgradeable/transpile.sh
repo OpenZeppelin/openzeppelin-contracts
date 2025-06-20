@@ -42,6 +42,12 @@ npx @openzeppelin/upgrade-safe-transpiler -D \
   -p 'contracts/finance/VestingWallet.sol' \
   -p 'contracts/governance/TimelockController.sol' \
   -p 'contracts/metatx/ERC2771Forwarder.sol' \
+  -p 'contracts/utils/cryptography/signers/MultiSignerERC7913.sol' \
+  -p 'contracts/utils/cryptography/signers/MultiSignerERC7913Weighted.sol' \
+  -p 'contracts/utils/cryptography/signers/SignerECDSA.sol' \
+  -p 'contracts/utils/cryptography/signers/SignerERC7913.sol' \
+  -p 'contracts/utils/cryptography/signers/SignerP256.sol' \
+  -p 'contracts/utils/cryptography/signers/SignerRSA.sol' \
   -n \
   -N 'contracts/mocks/**/*' \
   -q '@openzeppelin/'
