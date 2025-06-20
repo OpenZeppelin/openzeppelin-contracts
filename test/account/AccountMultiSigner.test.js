@@ -37,7 +37,7 @@ async function fixture() {
   const domain = { name: 'AccountMultiSigner', version: '1', chainId: entrypointDomain.chainId }; // Missing verifyingContract
 
   const makeMock = (signers, threshold) =>
-    helper.newAccount('$AccountMultiSignerMock', ['AccountMultiSigner', '1', signers, threshold]).then(mock => {
+    helper.newAccount('$AccountMultiSignerMock', [signers, threshold, 'AccountMultiSigner', '1']).then(mock => {
       domain.verifyingContract = mock.address;
       return mock;
     });

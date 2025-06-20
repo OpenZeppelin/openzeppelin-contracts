@@ -70,6 +70,11 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
     /// @dev The `threshold` is unreachable given the number of `signers`.
     error MultiSignerERC7913UnreachableThreshold(uint64 signers, uint64 threshold);
 
+    constructor(bytes[] memory signers_, uint64 threshold_) {
+        _addSigners(signers_);
+        _setThreshold(threshold_);
+    }
+
     /**
      * @dev Returns a slice of the set of authorized signers.
      *

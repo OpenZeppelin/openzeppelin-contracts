@@ -32,6 +32,10 @@ import {SignatureChecker} from "../SignatureChecker.sol";
 abstract contract SignerERC7913 is AbstractSigner {
     bytes private _signer;
 
+    constructor(bytes memory signer_) {
+        _setSigner(signer_);
+    }
+
     /// @dev Return the ERC-7913 signer (i.e. `verifier || key`).
     function signer() public view virtual returns (bytes memory) {
         return _signer;

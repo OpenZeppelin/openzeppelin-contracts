@@ -29,6 +29,10 @@ abstract contract SignerRSA is AbstractSigner {
     bytes private _e;
     bytes private _n;
 
+    constructor(bytes memory e, bytes memory n) {
+        _setSigner(e, n);
+    }
+
     /**
      * @dev Sets the signer with a RSA public key. This function should be called during construction
      * or through an initializer.

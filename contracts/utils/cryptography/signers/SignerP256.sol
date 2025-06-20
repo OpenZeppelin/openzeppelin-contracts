@@ -31,6 +31,10 @@ abstract contract SignerP256 is AbstractSigner {
 
     error SignerP256InvalidPublicKey(bytes32 qx, bytes32 qy);
 
+    constructor(bytes32 qx, bytes32 qy) {
+        _setSigner(qx, qy);
+    }
+
     /**
      * @dev Sets the signer with a P256 public key. This function should be called during construction
      * or through an initializer.
