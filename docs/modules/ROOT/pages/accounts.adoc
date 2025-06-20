@@ -249,10 +249,10 @@ import { signTypedData } from 'viem/actions';
 
 // EntryPoint v0.8 EIP-712 domain
 const domain = {
-  name: 'Account Abstraction',
-  version: '0.8.0',
+  name: 'ERC4337',
+  version: '1',
   chainId: 1, // Your target chain ID
-  verifyingContract: '0x<ENTRYPOINT_ADDRESS>',
+  verifyingContract: '0x4337084D9E255Ff0702461CF8895CE9E3b5Ff108',
 };
 
 // EIP-712 types for PackedUserOperation
