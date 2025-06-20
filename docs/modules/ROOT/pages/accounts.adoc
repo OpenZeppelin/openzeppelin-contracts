@@ -241,7 +241,53 @@ IMPORTANT: A penalty of 10% (`UNUSED_GAS_PENALTY_PERCENT`) is applied on the amo
 
 === Signing the UserOp
 
-To sign a UserOperation, you'll need to first calculate its hash using the EntryPoint's `getUserOpHash` function, then sign this hash using your account's signature scheme, and finally encode the resulting signature in the format that your account contract expects for verification.
+To sign a UserOperation, you'll need to first calculate its hash as an EIP-712 typed data structure using the EntryPoint's domain, then sign this hash using your account's signature scheme, and finally encode the resulting signature in the format that your account contract expects for verification.
+
+[source,typescript]
+----
+import { signTypedData } from 'viem/actions';
+
+// EntryPoint v0.8 EIP-712 domain
+const domain = {
+  name: 'Account Abstraction',
+  version: '0.8.0',
+  chainId: 1, // Your target chain ID
+  verifyingContract: '0x<ENTRYPOINT_ADDRESS>',
+};
+
+// EIP-712 types for PackedUserOperation
+const types = {
+  PackedUserOperation: [
+    { name: 'sender', type: 'address' },
+    { name: 'nonce', type: 'uint256' },
+    { name: 'initCode', type: 'bytes' },
+    { name: 'callData', type: 'bytes' },
+    { name: 'accountGasLimits', type: 'bytes32' },
+    { name: 'preVerificationGas', type: 'uint256' },
+    { name: 'gasFees', type: 'bytes32' },
+    { name: 'paymasterAndData', type: 'bytes' },
+  ],
+} as const;
+
+// Sign the UserOperation using EIP-712
+userOp.signature = await eoa.signTypedData({
+  domain,
+  types,
+  primaryType: 'PackedUserOperation',
+  message: {
+    sender: userOp.sender,
+    nonce: userOp.nonce,
+    initCode: userOp.initCode,
+    callData: userOp.callData,
+    accountGasLimits: userOp.accountGasLimits,
+    preVerificationGas: userOp.preVerificationGas,
+    gasFees: userOp.gasFees,
+    paymasterAndData: userOp.paymasterAndData,
+  },
+});
+----
+
+Alternatively, developers can get the raw user operation hash by using the Entrypoint's `getUserOpHash` function:
 
 [source,typescript]
 ----
@@ -249,7 +295,7 @@ const userOpHash = await entrypoint.read.getUserOpHash([userOp]);
 userOp.signature = await eoa.sign({ hash: userOpHash });
 ----
 
-NOTE: The previous example assumes that the account is owned by a single ECDSA signer without any particular signature format.
+NOTE: Using `getUserOpHash` directly may provide a poorer user experience as users see an opaque hash rather than structured transaction data.
 
 === Sending the UserOp
 
