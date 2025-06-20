@@ -11,7 +11,7 @@ async function fixture() {
   return { mock };
 }
 
-describe('Strings', function () {
+describe('Base64', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });
