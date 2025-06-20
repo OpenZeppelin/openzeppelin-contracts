@@ -252,7 +252,7 @@ const domain = {
   name: 'ERC4337',
   version: '1',
   chainId: 1, // Your target chain ID
-  verifyingContract: '0x4337084D9E255Ff0702461CF8895CE9E3b5Ff108',
+  verifyingContract: '0x4337084D9E255Ff0702461CF8895CE9E3b5Ff108', // v08
 };
 
 // EIP-712 types for PackedUserOperation
