@@ -24,6 +24,7 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {Create2}: Wrapper around the https://blog.openzeppelin.com/getting-the-most-out-of-create2/[`CREATE2` EVM opcode] for safe use without having to deal with low-level assembly.
  * {Address}: Collection of functions for overloading Solidity's https://docs.soliditylang.org/en/latest/types.html#address[`address`] type.
  * {Arrays}: Collection of functions that operate on https://docs.soliditylang.org/en/latest/types.html#arrays[`arrays`].
+ * {Base58}: On-chain base58 encoding and decoding.
  * {Base64}: On-chain base64 and base64URL encoding according to https://datatracker.ietf.org/doc/html/rfc4648[RFC-4648].
  * {Bytes}: Common operations on bytes objects.
  * {Calldata}: Helpers for manipulating calldata.
@@ -104,6 +105,8 @@ Ethereum contracts have no native concept of an interface, so applications must 
 {{Address}}
 
 {{Arrays}}
+
+{{Base58}}
 
 {{Base64}}
 
