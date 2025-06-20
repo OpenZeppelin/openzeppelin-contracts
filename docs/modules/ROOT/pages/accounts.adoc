@@ -90,14 +90,15 @@ Batched execution allows accounts to execute multiple calls in a single transact
 
 The library implementation supports a single batch mode (`0x01000000000000000000`) and allows accounts to execute multiple calls atomically. The standard includes access control through the xref:api:account.adoc#ERC7821-_erc7821AuthorizedExecutor-address-bytes32-bytes-[`_erc7821AuthorizedExecutor`] function, which by default only allows the contract itself to execute batches.
 
-Here's an example of how to use batched execution:
+Here's an example of how to use batched execution using EIP-7702:
 
 [source,solidity]
 ----
 import {Account} from "@openzeppelin/community-contracts/account/Account.sol";
 import {ERC7821} from "@openzeppelin/community-contracts/account/extensions/draft-ERC7821.sol";
+import {SignerERC7702} from "@openzeppelin/community-contracts/utils/cryptography/SignerERC7702.sol";
 
-contract MyAccount is Account, ERC7821 {
+contract MyAccount is Account, SignerERC7702, ERC7821 {
     // Override to allow the entrypoint to execute batches
     function _erc7821AuthorizedExecutor(
         address caller,
