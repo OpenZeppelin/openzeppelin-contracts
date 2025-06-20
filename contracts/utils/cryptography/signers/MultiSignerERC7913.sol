@@ -18,8 +18,6 @@ import {EnumerableSet} from "../../structs/EnumerableSet.sol";
  *
  * ```solidity
  * contract MyMultiSignerAccount is Account, MultiSignerERC7913, Initializable {
- *     constructor() EIP712("MyMultiSignerAccount", "1") {}
- *
  *     function initialize(bytes[] memory signers, uint64 threshold) public initializer {
  *         _addSigners(signers);
  *         _setThreshold(threshold);
@@ -71,6 +69,11 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
     /// @dev The `threshold` is unreachable given the number of `signers`.
     error MultiSignerERC7913UnreachableThreshold(uint64 signers, uint64 threshold);
 
+    constructor(bytes[] memory signers_, uint64 threshold_) {
+        _addSigners(signers_);
+        _setThreshold(threshold_);
+    }
+
     /**
      * @dev Returns a slice of the set of authorized signers.
      *
@@ -82,6 +85,11 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
      */
     function getSigners(uint64 start, uint64 end) public view virtual returns (bytes[] memory) {
         return _signers.values(start, end);
+    }
+
+    /// @dev Returns the number of authorized signers
+    function getSignerCount() public view virtual returns (uint256) {
+        return _signers.length();
     }
 
     /// @dev Returns whether the `signer` is an authorized signer.

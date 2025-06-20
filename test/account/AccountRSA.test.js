@@ -21,10 +21,10 @@ async function fixture() {
   // ERC-4337 account
   const helper = new ERC4337Helper();
   const mock = await helper.newAccount('$AccountRSAMock', [
-    'AccountRSA',
-    '1',
     signer.signingKey.publicKey.e,
     signer.signingKey.publicKey.n,
+    'AccountRSA',
+    '1',
   ]);
 
   // ERC-4337 Entrypoint domain
