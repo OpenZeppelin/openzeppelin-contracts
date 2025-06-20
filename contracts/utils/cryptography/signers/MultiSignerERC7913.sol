@@ -66,9 +66,6 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
     /// @dev The `signer` is less than 20 bytes long.
     error MultiSignerERC7913InvalidSigner(bytes signer);
 
-    /// @dev The new threshold is 0.
-    error MultiSignerERC7913NullThreshold();
-
     /// @dev The `threshold` is unreachable given the number of `signers`.
     error MultiSignerERC7913UnreachableThreshold(uint64 signers, uint64 threshold);
 
