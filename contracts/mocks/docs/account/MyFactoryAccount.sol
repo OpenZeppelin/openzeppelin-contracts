@@ -21,16 +21,15 @@ contract MyFactoryAccount {
     }
 
     /// @dev Predict the address of the account
-    function predictAddress(bytes32 salt, bytes calldata callData) public view returns (address, bytes32) {
-        bytes32 calldataSalt = _saltedCallData(salt, callData);
-        return (_impl.predictDeterministicAddress(calldataSalt, address(this)), calldataSalt);
+    function predictAddress(bytes32 salt, bytes calldata callData) public view returns (address) {
+        return (_impl.predictDeterministicAddress(_saltedCallData(salt, callData), address(this)));
     }
 
     /// @dev Create clone accounts on demand
     function cloneAndInitialize(bytes32 salt, bytes calldata callData) public returns (address) {
-        (address predicted, bytes32 _calldataSalt) = predictAddress(salt, callData);
+        address predicted = predictAddress(salt, callData);
         if (predicted.code.length == 0) {
-            _impl.cloneDeterministic(_calldataSalt);
+            _impl.cloneDeterministic(_saltedCallData(salt, callData));
             predicted.functionCall(callData);
         }
         return predicted;
