@@ -1,5 +1,10 @@
 # Changelog
 
+
+## 5.4.0-rc.1 (2025-06-20)
+
+- Add constructors to the different signers.
+
 ## 5.4.0-rc.0 (2025-06-18)
 
 ### Breaking changes
