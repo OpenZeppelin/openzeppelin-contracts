@@ -14,15 +14,20 @@ describe('Base58', function () {
 
   describe('base58', function () {
     describe('encode/decode', function () {
-      for (const length of [0, 1, 2, 3, 4, 32, 42, 128, 384]) // 512 runs out of gas
-        it(`buffer of length ${length}`, async function () {
-          const buffer = ethers.randomBytes(length);
-          const hex = ethers.hexlify(buffer);
-          const b58 = ethers.encodeBase58(buffer);
+      // length 512 runs out of gas.
+      // this checks are very slow when running coverage, causing CI to timeout.
+      for (const length of [0, 1, 2, 3, 4, 32, 42, 128, 384])
+        it(
+          [length > 32 && '[skip-on-coverage]', `buffer of length ${length}`].filter(Boolean).join(' '),
+          async function () {
+            const buffer = ethers.randomBytes(length);
+            const hex = ethers.hexlify(buffer);
+            const b58 = ethers.encodeBase58(buffer);
 
-          await expect(this.mock.$encode(hex)).to.eventually.equal(b58);
-          await expect(this.mock.$decode(b58)).to.eventually.equal(hex);
-        });
+            await expect(this.mock.$encode(hex)).to.eventually.equal(b58);
+            await expect(this.mock.$decode(b58)).to.eventually.equal(hex);
+          },
+        );
     });
 
     describe('decode invalid format', function () {
