@@ -71,14 +71,14 @@ library Bytes {
     /**
      * @dev Count number of occurrences of `search` at the beginning of `buffer`.
      */
-    function countLeading(bytes memory buffer, bytes1 search) public pure returns (uint256) {
+    function countLeading(bytes memory buffer, bytes1 search) internal pure returns (uint256) {
         return countConsecutive(buffer, 0, search);
     }
 
     /**
      * @dev Count number of occurrences of `search` in `buffer`, starting from position `offset`.
      */
-    function countConsecutive(bytes memory buffer, uint256 offset, bytes1 search) public pure returns (uint256 i) {
+    function countConsecutive(bytes memory buffer, uint256 offset, bytes1 search) internal pure returns (uint256 i) {
         assembly ("memory-safe") {
             let chunk
             let length := sub(mload(buffer), offset)
