@@ -69,6 +69,42 @@ library Bytes {
     }
 
     /**
+     * @dev Count number of occurrences of `search` at the beginning of `buffer`.
+     */
+    function countLeading(bytes memory buffer, bytes1 search) internal pure returns (uint256) {
+        return countConsecutive(buffer, 0, search);
+    }
+
+    /**
+     * @dev Count number of occurrences of `search` in `buffer`, starting from position `offset`.
+     */
+    function countConsecutive(bytes memory buffer, uint256 offset, bytes1 search) internal pure returns (uint256 i) {
+        uint256 length = buffer.length;
+        if (offset > length) return 0;
+
+        assembly ("memory-safe") {
+            let chunk
+            let end := sub(length, offset)
+            for {
+                i := 0
+            } lt(i, end) {
+                i := add(i, 1)
+            } {
+                // every 32 bytes, load a new chunk
+                if iszero(mod(i, 0x20)) {
+                    chunk := mload(add(buffer, add(0x20, add(offset, i))))
+                }
+                // if the first byte of the chunk does not match the search element, exit
+                if shr(248, xor(chunk, search)) {
+                    break
+                }
+                // shift chunk
+                chunk := shl(8, chunk)
+            }
+        }
+    }
+
+    /**
      * @dev Copies the content of `buffer`, from `start` (included) to the end of `buffer` into a new bytes object in
      * memory.
      *
@@ -97,6 +133,35 @@ library Bytes {
         }
 
         return result;
+    }
+
+    /**
+     * @dev In place slice: moves the content of `buffer`, from `start` (included) to the end of `buffer` to the start of that buffer.
+     *
+     * NOTE: This function modifies the provided buffer in place. If you need to preserve the original buffer, use {slice} instead
+     */
+    function splice(bytes memory buffer, uint256 start) internal pure returns (bytes memory) {
+        return splice(buffer, start, buffer.length);
+    }
+
+    /**
+     * @dev In place slice: moves the content of `buffer`, from `start` (included) to end (excluded) to the start of that buffer.
+     *
+     * NOTE: This function modifies the provided buffer in place. If you need to preserve the original buffer, use {slice} instead
+     */
+    function splice(bytes memory buffer, uint256 start, uint256 end) internal pure returns (bytes memory) {
+        // sanitize
+        uint256 length = buffer.length;
+        end = Math.min(end, length);
+        start = Math.min(start, end);
+
+        // allocate and copy
+        assembly ("memory-safe") {
+            mcopy(add(buffer, 0x20), add(add(buffer, 0x20), start), sub(end, start))
+            mstore(buffer, sub(end, start))
+        }
+
+        return buffer;
     }
 
     /**
