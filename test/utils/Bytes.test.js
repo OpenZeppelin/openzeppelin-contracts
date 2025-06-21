@@ -56,6 +56,35 @@ describe('Bytes', function () {
     });
   });
 
+  describe('countConsecutive', function () {
+    it('empty buffer', async function () {
+      await expect(this.mock.$countConsecutive('0x', 0, '0x00')).to.eventually.equal(0);
+    });
+
+    it('no occurrence', async function () {
+      await expect(this.mock.$countConsecutive('0xa4f678', 0, '0x00')).to.eventually.equal(0);
+      await expect(this.mock.$countConsecutive('0x000000', 0, '0x01')).to.eventually.equal(0);
+    });
+
+    it('single occurrence', async function () {
+      await expect(this.mock.$countConsecutive('0xa4f678', 0, '0xa4')).to.eventually.equal(1);
+      await expect(this.mock.$countConsecutive('0xa4f678', 1, '0xf6')).to.eventually.equal(1);
+      await expect(this.mock.$countConsecutive('0xa4f678', 2, '0x78')).to.eventually.equal(1);
+    });
+
+    it('multiple occurrence', async function () {
+      await expect(this.mock.$countConsecutive('0xa4a4f6f6f6f678', 0, '0xa4')).to.eventually.equal(2);
+      await expect(this.mock.$countConsecutive('0xa4a4f6f6f6f678', 2, '0xf6')).to.eventually.equal(4);
+      await expect(this.mock.$countConsecutive('0x78787878787878', 0, '0x78')).to.eventually.equal(7);
+      await expect(this.mock.$countConsecutive('0x78787878787878', 3, '0x78')).to.eventually.equal(4);
+    });
+
+    it('out of bound offset', async function () {
+      await expect(this.mock.$countConsecutive('0x000000', 3, '0x00')).to.eventually.equal(0);
+      await expect(this.mock.$countConsecutive('0x000000', 42, '0x00')).to.eventually.equal(0);
+    });
+  });
+
   describe('slice & splice', function () {
     describe('slice(bytes, uint256) & splice(bytes, uint256)', function () {
       for (const [descr, start] of Object.entries({

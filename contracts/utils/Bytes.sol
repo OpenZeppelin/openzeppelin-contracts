@@ -79,12 +79,15 @@ library Bytes {
      * @dev Count number of occurrences of `search` in `buffer`, starting from position `offset`.
      */
     function countConsecutive(bytes memory buffer, uint256 offset, bytes1 search) internal pure returns (uint256 i) {
+        uint256 length = buffer.length;
+        if (offset > length) return 0;
+
         assembly ("memory-safe") {
             let chunk
-            let length := sub(mload(buffer), offset)
+            let end := sub(length, offset)
             for {
                 i := 0
-            } lt(i, length) {
+            } lt(i, end) {
                 i := add(i, 1)
             } {
                 // every 32 bytes, load a new chunk

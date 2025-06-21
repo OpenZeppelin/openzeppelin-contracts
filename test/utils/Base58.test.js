@@ -20,8 +20,8 @@ describe('Base58', function () {
           const hex = ethers.hexlify(buffer);
           const b58 = ethers.encodeBase58(buffer);
 
-          expect(await this.mock.$encode(hex)).to.equal(b58);
-          expect(await this.mock.$decode(b58)).to.equal(hex);
+          await expect(this.mock.$encode(hex)).to.eventually.equal(b58);
+          await expect(this.mock.$decode(b58)).to.eventually.equal(hex);
         });
     });
 
