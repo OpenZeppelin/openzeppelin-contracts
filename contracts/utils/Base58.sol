@@ -16,14 +16,23 @@ library Base58 {
 
     error InvalidBase56Digit(uint8);
 
+    /**
+     * @dev Base58 encoding and decoding tables
+     */
     bytes internal constant _TABLE = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
     bytes internal constant _LOOKUP_TABLE =
         hex"000102030405060708ffffffffffffff090a0b0c0d0e0f10ff1112131415ff161718191a1b1c1d1e1f20ffffffffffff2122232425262728292a2bff2c2d2e2f30313233343536373839";
 
+    /**
+     * @dev Encode a `bytes` buffer as a Base58 `string`.
+     */
     function encode(bytes memory data) internal pure returns (string memory) {
         return string(_encode(data));
     }
 
+    /**
+     * @dev Decode a Base58 `string` into a `bytes` buffer.
+     */
     function decode(string memory data) internal pure returns (bytes memory) {
         return _decode(bytes(data));
     }
