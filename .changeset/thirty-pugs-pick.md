@@ -2,4 +2,4 @@
 'openzeppelin-solidity': minor
 ---
 
-`Bytes`: add `countLeading` and `countConsecutive`
+`Bytes`: Add `countLeading` and `countConsecutive`
