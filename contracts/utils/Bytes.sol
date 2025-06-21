@@ -69,6 +69,39 @@ library Bytes {
     }
 
     /**
+     * @dev Count number of occurrences of `search` at the beginning of `buffer`.
+     */
+    function countLeading(bytes memory buffer, bytes1 search) public pure returns (uint256) {
+        return countConsecutive(buffer, 0, search);
+    }
+
+    /**
+     * @dev Count number of occurrences of `search` in `buffer`, starting from position `offset`.
+     */
+    function countConsecutive(bytes memory buffer, uint256 offset, bytes1 search) public pure returns (uint256 i) {
+        assembly ("memory-safe") {
+            let chunk
+            let length := sub(mload(buffer), offset)
+            for {
+                i := 0
+            } lt(i, length) {
+                i := add(i, 1)
+            } {
+                // every 32 bytes, load a new chunk
+                if iszero(mod(i, 0x20)) {
+                    chunk := mload(add(buffer, add(0x20, add(offset, i))))
+                }
+                // if the first byte of the chunk does not match the search element, exit
+                if shr(248, xor(chunk, search)) {
+                    break
+                }
+                // shift chunk
+                chunk := shl(8, chunk)
+            }
+        }
+    }
+
+    /**
      * @dev Copies the content of `buffer`, from `start` (included) to the end of `buffer` into a new bytes object in
      * memory.
      *

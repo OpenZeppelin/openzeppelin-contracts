@@ -10,6 +10,14 @@ contract Base58Test is Test {
         assertEq(Base58.decode(Base58.encode("")), "");
     }
 
+    function testEncodeDecodeZeros() external pure {
+        bytes memory zeros = hex"0000000000000000";
+        assertEq(Base58.decode(Base58.encode(zeros)), zeros);
+
+        bytes memory almostZeros = hex"00000000a400000000";
+        assertEq(Base58.decode(Base58.encode(almostZeros)), almostZeros);
+    }
+
     function testEncodeDecode(bytes memory input) external pure {
         assertEq(Base58.decode(Base58.encode(input)), input);
     }

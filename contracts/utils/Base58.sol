@@ -2,6 +2,7 @@
 
 pragma solidity ^0.8.24;
 
+import {SafeCast} from "./math/SafeCast.sol";
 import {Bytes} from "./Bytes.sol";
 
 /**
@@ -10,6 +11,7 @@ import {Bytes} from "./Bytes.sol";
  * Based on the original https://github.com/storyicon/base58-solidity/commit/807428e5174e61867e4c606bdb26cba58a8c5cb1[implementation of storyicon] (MIT).
  */
 library Base58 {
+    using SafeCast for bool;
     using Bytes for bytes;
 
     string internal constant _TABLE = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
@@ -24,13 +26,13 @@ library Base58 {
 
     function _encode(bytes memory data) private pure returns (bytes memory) {
         unchecked {
-            uint256 dataCLZ = _countLeading(data, 0x00);
-            uint256 slotLength = dataCLZ + ((data.length - dataCLZ) * 8351) / 6115 + 1;
+            uint256 dataCLZ = data.countLeading(0x00);
+            uint256 length = dataCLZ + ((data.length - dataCLZ) * 8351) / 6115 + 1;
+            bytes memory slot = new bytes(length);
 
-            bytes memory slot = new bytes(slotLength);
-            uint256 end = slotLength;
+            uint256 end = length;
             for (uint256 i = 0; i < data.length; i++) {
-                uint256 ptr = slotLength;
+                uint256 ptr = length;
                 for (uint256 carry = _mload8i(data, i); ptr > end || carry != 0; --ptr) {
                     carry += 256 * _mload8i(slot, ptr - 1);
                     _mstore8i(slot, ptr - 1, uint8(carry % 58));
@@ -39,18 +41,14 @@ library Base58 {
                 end = ptr;
             }
 
-            uint256 slotCLZ = _countLeading(slot, 0x00);
-            uint256 resultLength = slotLength + dataCLZ - slotCLZ;
+            uint256 slotCLZ = slot.countLeading(0x00);
+            length -= slotCLZ - dataCLZ;
+            slot.splice(slotCLZ - dataCLZ);
 
             bytes memory cache = bytes(_TABLE);
-            for (uint256 i = 0; i < resultLength; ++i) {
-                uint256 idx = _mload8i(slot, i + slotCLZ - dataCLZ);
-                bytes1 c = _mload8(cache, idx);
-                _mstore8(slot, i, c);
-            }
-
-            assembly ("memory-safe") {
-                mstore(slot, resultLength)
+            for (uint256 i = 0; i < length; ++i) {
+                // equivalent to `slot[i] = TABLE[slot[i]];`
+                _mstore8(slot, i, _mload8(cache, _mload8i(slot, i)));
             }
 
             return slot;
@@ -88,13 +86,9 @@ library Base58 {
                 mask = 4;
             }
 
-            uint256 dataCLZ = _countLeading(data, 0x31);
-            for (uint256 msb = dataCLZ; msb < binu.length; ++msb) {
-                if (_mload8(binu, msb) != 0x00) {
-                    return binu.slice(msb - dataCLZ, ptr);
-                }
-            }
-            return binu.slice(0, ptr);
+            uint256 dataCLZ = data.countLeading(0x31);
+            uint256 msb = binu.countConsecutive(dataCLZ, 0x00);
+            return binu.splice(msb * (dataCLZ + msb < binu.length).toUint(), ptr);
         }
     }
 
@@ -124,12 +118,5 @@ library Base58 {
         assembly ("memory-safe") {
             mstore8(add(add(buffer, 0x20), offset), value)
         }
-    }
-
-    function _countLeading(bytes memory buffer, bytes1 el) private pure returns (uint256) {
-        uint256 length = buffer.length;
-        uint256 i = 0;
-        while (i < length && _mload8(buffer, i) == el) ++i;
-        return i;
     }
 }
