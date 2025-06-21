@@ -14,7 +14,11 @@ library Base58 {
     using SafeCast for bool;
     using Bytes for bytes;
 
-    string internal constant _TABLE = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+    error InvalidBase56Digit(uint8);
+
+    bytes internal constant _TABLE = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+    bytes internal constant _LOOKUP_TABLE =
+        hex"000102030405060708ffffffffffffff090a0b0c0d0e0f10ff1112131415ff161718191a1b1c1d1e1f20ffffffffffff2122232425262728292a2bff2c2d2e2f30313233343536373839";
 
     function encode(bytes memory data) internal pure returns (string memory) {
         return string(_encode(data));
@@ -45,7 +49,7 @@ library Base58 {
             length -= slotCLZ - dataCLZ;
             slot.splice(slotCLZ - dataCLZ);
 
-            bytes memory cache = bytes(_TABLE);
+            bytes memory cache = _TABLE;
             for (uint256 i = 0; i < length; ++i) {
                 // equivalent to `slot[i] = TABLE[slot[i]];`
                 _mstore8(slot, i, _mload8(cache, _mload8i(slot, i)));
@@ -62,22 +66,29 @@ library Base58 {
             uint256 size = 2 * ((b58Length * 8351) / 6115 + 1);
             bytes memory binu = new bytes(size);
 
-            bytes memory cache = bytes(_TABLE);
-            uint32[] memory outi = new uint32[]((b58Length + 3) / 4);
-            for (uint256 i = 0; i < data.length; i++) {
-                bytes1 r = _mload8(data, i);
-                uint256 c = cache.indexOf(r); // can we avoid the loop here ?
-                require(c != type(uint256).max, "invalid base58 digit");
-                for (uint256 k = outi.length; k > 0; --k) {
-                    uint256 t = uint64(outi[k - 1]) * 58 + c;
-                    c = t >> 32;
-                    outi[k - 1] = uint32(t & 0xffffffff);
+            bytes memory cache = _LOOKUP_TABLE;
+            uint256 outiLength = (b58Length + 3) / 4;
+            // Note: allocating uint32[] would be enough, but solidity doesn't pack memory.
+            uint256[] memory outi = new uint256[](outiLength);
+            for (uint256 i = 0; i < data.length; ++i) {
+                // get b58 char
+                uint8 chr = _mload8i(data, i);
+                require(chr > 48 && chr < 123, InvalidBase56Digit(chr));
+
+                // decode b58 char
+                uint256 carry = _mload8i(cache, chr - 49);
+                require(carry < 58, InvalidBase56Digit(chr));
+
+                for (uint256 j = outiLength; j > 0; --j) {
+                    uint256 value = carry + 58 * outi[j - 1];
+                    carry = value >> 32;
+                    outi[j - 1] = value & 0xffffffff;
                 }
             }
 
             uint256 ptr = 0;
             uint256 mask = ((b58Length - 1) % 4) + 1;
-            for (uint256 j = 0; j < outi.length; ++j) {
+            for (uint256 j = 0; j < outiLength; ++j) {
                 while (mask > 0) {
                     --mask;
                     _mstore8(binu, ptr, bytes1(uint8(outi[j] >> (8 * mask))));
