@@ -8,7 +8,7 @@ import {Bytes} from "./Bytes.sol";
 /**
  * @dev Provides a set of functions to operate with Base58 strings.
  *
- * Based on the original https://github.com/storyicon/base58-solidity/commit/807428e5174e61867e4c606bdb26cba58a8c5cb1[implementation of storyicon] (MIT).
+ * Based on https://github.com/storyicon/base58-solidity/commit/807428e5174e61867e4c606bdb26cba58a8c5cb1[storyicon's implementation] (MIT).
  */
 library Base58 {
     using SafeCast for bool;
@@ -17,7 +17,8 @@ library Base58 {
     error InvalidBase56Digit(uint8);
 
     /**
-     * @dev Base58 encoding and decoding tables
+     * @dev Base58 encoding & decoding tables
+     * See sections 2 of https://datatracker.ietf.org/doc/html/draft-msporny-base58-03
      */
     bytes internal constant _TABLE = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
     bytes internal constant _LOOKUP_TABLE =

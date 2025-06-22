@@ -30,6 +30,8 @@ describe('Base58', function () {
         );
     });
 
+    // Tests case from section 5 of the (no longer active) Base58 Encoding Scheme RFC
+    // https://datatracker.ietf.org/doc/html/draft-msporny-base58-03
     describe('test vectors', function () {
       for (const { raw, b58 } of [
         { raw: 'Hello World!', b58: '2NEpo7TZRRrLZSi2U' },
