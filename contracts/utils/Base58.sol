@@ -163,11 +163,11 @@ library Base58 {
             uint256[] memory outi = new uint256[](outiLength);
             for (uint256 i = 0; i < data.length; ++i) {
                 // get b58 char
-                uint8 chr = _mload8i(data, i);
+                uint8 chr = uint8(data[i]);
                 require(chr > 48 && chr < 123, InvalidBase56Digit(chr));
 
                 // decode b58 char
-                uint256 carry = _mload8i(cache, chr - 49);
+                uint256 carry = uint8(cache[chr - 49]);
                 require(carry < 58, InvalidBase56Digit(chr));
 
                 for (uint256 j = outiLength; j > 0; --j) {
@@ -182,8 +182,8 @@ library Base58 {
             for (uint256 j = 0; j < outiLength; ++j) {
                 while (mask > 0) {
                     --mask;
-                    _mstore8(binu, ptr, bytes1(uint8(outi[j] >> (8 * mask))));
-                    ptr++;
+                    binu[ptr] = bytes1(uint8(outi[j] >> (8 * mask)));
+                    ++ptr;
                 }
                 mask = 4;
             }
@@ -191,34 +191,6 @@ library Base58 {
             uint256 dataLeadingZeros = data.countLeading(0x31);
             uint256 msb = binu.countConsecutive(dataLeadingZeros, 0x00);
             return binu.splice(msb * (dataLeadingZeros + msb < binu.length).toUint(), ptr);
-        }
-    }
-
-    function _mload8(bytes memory buffer, uint256 offset) private pure returns (bytes1 value) {
-        // This is not memory safe in the general case, but all calls to this private function are within bounds.
-        assembly ("memory-safe") {
-            value := mload(add(add(buffer, 0x20), offset))
-        }
-    }
-
-    function _mload8i(bytes memory buffer, uint256 offset) private pure returns (uint8 value) {
-        // This is not memory safe in the general case, but all calls to this private function are within bounds.
-        assembly ("memory-safe") {
-            value := shr(248, mload(add(add(buffer, 0x20), offset)))
-        }
-    }
-
-    function _mstore8(bytes memory buffer, uint256 offset, bytes1 value) private pure {
-        // This is not memory safe in the general case, but all calls to this private function are within bounds.
-        assembly ("memory-safe") {
-            mstore8(add(add(buffer, 0x20), offset), shr(248, value))
-        }
-    }
-
-    function _mstore8i(bytes memory buffer, uint256 offset, uint8 value) private pure {
-        // This is not memory safe in the general case, but all calls to this private function are within bounds.
-        assembly ("memory-safe") {
-            mstore8(add(add(buffer, 0x20), offset), value)
         }
     }
 }
