@@ -40,8 +40,8 @@ library Base58 {
     function _encode(bytes memory data) private pure returns (bytes memory encoded) {
         // For reference, solidity implementation
         // unchecked {
-        //     uint256 dataCLZ = data.countLeading(0x00);
-        //     uint256 length = dataCLZ + ((data.length - dataCLZ) * 8351) / 6115 + 1;
+        //     uint256 dataLeadingZeros = data.countLeading(0x00);
+        //     uint256 length = dataLeadingZeros + ((data.length - dataLeadingZeros) * 8351) / 6115 + 1;
         //     encoded = new bytes(length);
         //     uint256 end = length;
         //     for (uint256 i = 0; i < data.length; ++i) {
@@ -54,8 +54,8 @@ library Base58 {
         //         end = ptr;
         //     }
         //     uint256 encodedCLZ = encoded.countLeading(0x00);
-        //     length -= encodedCLZ - dataCLZ;
-        //     encoded.splice(encodedCLZ - dataCLZ);
+        //     length -= encodedCLZ - dataLeadingZeros;
+        //     encoded.splice(encodedCLZ - dataLeadingZeros);
         //     for (uint256 i = 0; i < length; ++i) {
         //         encoded[i] = _TABLE[uint8(encoded[i])];
         //     }
@@ -86,11 +86,12 @@ library Base58 {
             encoded := mload(0x40)
             let dataLength := mload(data)
 
-            // Count number of zero bytes at the beginning of `data`
-            let dataCLZ := clzBytes(add(data, 0x20), dataLength)
+            // Count number of zero bytes at the beginning of `data`. These are encoded using the same number of '1's
+            // at then beginning of the encoded string.
+            let dataLeadingZeros := clzBytes(add(data, 0x20), dataLength)
 
-            // Initial encoding
-            let slotLength := add(add(dataCLZ, div(mul(sub(dataLength, dataCLZ), 8351), 6115)), 1)
+            // Initial encoding length: 100% of zero bytes (zero prefix) + 138% of non zero bytes + 1
+            let slotLength := add(add(div(mul(sub(dataLength, dataLeadingZeros), 138), 100), dataLeadingZeros), 1)
 
             // Zero the encoded buffer
             for {
@@ -121,17 +122,19 @@ library Base58 {
                 end := ptr
             }
 
-            // Count number of zero bytes at the beginning of slots
-            let slotCLZ := clzBytes(add(encoded, 0x20), slotLength)
+            // Count number of zero bytes at the beginning of slots. This is a pointer to the first non zero slot that
+            // contains the base58 data. This base58 data span over `slotLength-slotLeadingZeros` bytes.
+            let slotLeadingZeros := clzBytes(add(encoded, 0x20), slotLength)
 
-            // Update length
-            let offset := sub(slotCLZ, dataCLZ)
+            // Update length: `slotLength-slotLeadingZeros` of non-zero data plus `dataLeadingZeros` of zero prefix.
+            let offset := sub(slotLeadingZeros, dataLeadingZeros)
             let encodedLength := sub(slotLength, offset)
 
             // Store the encoding table. This overlaps with the FMP that we are going to reset later anyway.
             mstore(0x1f, "123456789ABCDEFGHJKLMNPQRSTUVWXY")
             mstore(0x3f, "Zabcdefghijkmnopqrstuvwxyz")
 
+            // For each slot, use the table to obtain the corresponding base58 "digit".
             for {
                 let i := 0
             } lt(i, encodedLength) {
@@ -140,7 +143,7 @@ library Base58 {
                 mstore8(add(add(encoded, 0x20), i), mload(shr(248, mload(add(add(encoded, 0x20), add(offset, i))))))
             }
 
-            // Store length and allocate memory
+            // Store length and allocate (reserve) memory
             mstore(encoded, encodedLength)
             mstore(0x40, add(add(encoded, 0x20), encodedLength))
         }
@@ -184,9 +187,9 @@ library Base58 {
                 mask = 4;
             }
 
-            uint256 dataCLZ = data.countLeading(0x31);
-            uint256 msb = binu.countConsecutive(dataCLZ, 0x00);
-            return binu.splice(msb * (dataCLZ + msb < binu.length).toUint(), ptr);
+            uint256 dataLeadingZeros = data.countLeading(0x31);
+            uint256 msb = binu.countConsecutive(dataLeadingZeros, 0x00);
+            return binu.splice(msb * (dataLeadingZeros + msb < binu.length).toUint(), ptr);
         }
     }
 
