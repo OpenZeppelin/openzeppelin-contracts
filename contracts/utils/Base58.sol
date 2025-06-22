@@ -37,34 +37,112 @@ library Base58 {
         return _decode(bytes(data));
     }
 
-    function _encode(bytes memory data) private pure returns (bytes memory) {
-        unchecked {
-            uint256 dataCLZ = data.countLeading(0x00);
-            uint256 length = dataCLZ + ((data.length - dataCLZ) * 8351) / 6115 + 1;
-            bytes memory slot = new bytes(length);
+    function _encode(bytes memory data) private pure returns (bytes memory encoded) {
+        // For reference, solidity implementation
+        // unchecked {
+        //     uint256 dataCLZ = data.countLeading(0x00);
+        //     uint256 length = dataCLZ + ((data.length - dataCLZ) * 8351) / 6115 + 1;
+        //     encoded = new bytes(length);
+        //     uint256 end = length;
+        //     for (uint256 i = 0; i < data.length; ++i) {
+        //         uint256 ptr = length;
+        //         for (uint256 carry = uint8(data[i]); ptr > end || carry != 0; --ptr) {
+        //             carry += 256 * uint8(encoded[ptr - 1]);
+        //             encoded[ptr - 1] = bytes1(uint8(carry % 58));
+        //             carry /= 58;
+        //         }
+        //         end = ptr;
+        //     }
+        //     uint256 encodedCLZ = encoded.countLeading(0x00);
+        //     length -= encodedCLZ - dataCLZ;
+        //     encoded.splice(encodedCLZ - dataCLZ);
+        //     for (uint256 i = 0; i < length; ++i) {
+        //         encoded[i] = _TABLE[uint8(encoded[i])];
+        //     }
+        // }
 
-            uint256 end = length;
-            for (uint256 i = 0; i < data.length; i++) {
-                uint256 ptr = length;
-                for (uint256 carry = _mload8i(data, i); ptr > end || carry != 0; --ptr) {
-                    carry += 256 * _mload8i(slot, ptr - 1);
-                    _mstore8i(slot, ptr - 1, uint8(carry % 58));
-                    carry /= 58;
+        // Assembly is ~50% cheaper for buffers of size 32.
+        assembly ("memory-safe") {
+            function clzBytes(ptr, length) -> i {
+                let chunk
+                for {
+                    i := 0
+                } lt(i, length) {
+                    i := add(i, 1)
+                } {
+                    // Every 32 bytes, load a new chunk
+                    if iszero(mod(i, 0x20)) {
+                        chunk := mload(add(ptr, i))
+                    }
+                    // If the first byte of the chunk is not zero, break
+                    if shr(248, chunk) {
+                        break
+                    }
+                    // Shift chunk
+                    chunk := shl(8, chunk)
                 }
-                end = ptr;
             }
 
-            uint256 slotCLZ = slot.countLeading(0x00);
-            length -= slotCLZ - dataCLZ;
-            slot.splice(slotCLZ - dataCLZ);
+            encoded := mload(0x40)
+            let dataLength := mload(data)
 
-            bytes memory cache = _TABLE;
-            for (uint256 i = 0; i < length; ++i) {
-                // equivalent to `slot[i] = TABLE[slot[i]];`
-                _mstore8(slot, i, _mload8(cache, _mload8i(slot, i)));
+            // Count number of zero bytes at the beginning of `data`
+            let dataCLZ := clzBytes(add(data, 0x20), dataLength)
+
+            // Initial encoding
+            let slotLength := add(add(dataCLZ, div(mul(sub(dataLength, dataCLZ), 8351), 6115)), 1)
+
+            // Zero the encoded buffer
+            for {
+                let i := 0
+            } lt(i, slotLength) {
+                i := add(i, 0x20)
+            } {
+                mstore(add(add(encoded, 0x20), i), 0)
             }
 
-            return slot;
+            // Build the "slots"
+            for {
+                let i := 0
+                let end := slotLength
+            } lt(i, dataLength) {
+                i := add(i, 1)
+            } {
+                let ptr := slotLength
+                for {
+                    let carry := shr(248, mload(add(add(data, 0x20), i)))
+                } or(carry, lt(end, ptr)) {
+                    ptr := sub(ptr, 1)
+                    carry := div(carry, 58)
+                } {
+                    carry := add(carry, mul(256, shr(248, mload(add(add(encoded, 0x1f), ptr)))))
+                    mstore8(add(add(encoded, 0x1f), ptr), mod(carry, 58))
+                }
+                end := ptr
+            }
+
+            // Count number of zero bytes at the beginning of slots
+            let slotCLZ := clzBytes(add(encoded, 0x20), slotLength)
+
+            // Update length
+            let offset := sub(slotCLZ, dataCLZ)
+            let encodedLength := sub(slotLength, offset)
+
+            // Store the encoding table. This overlaps with the FMP that we are going to reset later anyway.
+            mstore(0x1f, "123456789ABCDEFGHJKLMNPQRSTUVWXY")
+            mstore(0x3f, "Zabcdefghijkmnopqrstuvwxyz")
+
+            for {
+                let i := 0
+            } lt(i, encodedLength) {
+                i := add(i, 1)
+            } {
+                mstore8(add(add(encoded, 0x20), i), mload(shr(248, mload(add(add(encoded, 0x20), add(offset, i))))))
+            }
+
+            // Store length and allocate memory
+            mstore(encoded, encodedLength)
+            mstore(0x40, add(add(encoded, 0x20), encodedLength))
         }
     }
 
