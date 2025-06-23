@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.3.0) (governance/Governor.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
 import {IERC721Receiver} from "../token/ERC721/IERC721Receiver.sol";
 import {IERC1155Receiver} from "../token/ERC1155/IERC1155Receiver.sol";
@@ -538,16 +538,9 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         address voter,
         bytes memory signature
     ) public virtual returns (uint256) {
-        bool valid = SignatureChecker.isValidSignatureNow(
-            voter,
-            _hashTypedDataV4(keccak256(abi.encode(BALLOT_TYPEHASH, proposalId, support, voter, _useNonce(voter)))),
-            signature
-        );
-
-        if (!valid) {
+        if (!_validateVoteSig(proposalId, support, voter, signature)) {
             revert GovernorInvalidSignature(voter);
         }
-
         return _castVote(proposalId, voter, support, "");
     }
 
@@ -560,29 +553,54 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         bytes memory params,
         bytes memory signature
     ) public virtual returns (uint256) {
-        bool valid = SignatureChecker.isValidSignatureNow(
-            voter,
-            _hashTypedDataV4(
-                keccak256(
-                    abi.encode(
-                        EXTENDED_BALLOT_TYPEHASH,
-                        proposalId,
-                        support,
-                        voter,
-                        _useNonce(voter),
-                        keccak256(bytes(reason)),
-                        keccak256(params)
-                    )
-                )
-            ),
-            signature
-        );
-
-        if (!valid) {
+        if (!_validateExtendedVoteSig(proposalId, support, voter, reason, params, signature)) {
             revert GovernorInvalidSignature(voter);
         }
-
         return _castVote(proposalId, voter, support, reason, params);
+    }
+
+    /// @dev Validate the `signature` used in {castVoteBySig} function.
+    function _validateVoteSig(
+        uint256 proposalId,
+        uint8 support,
+        address voter,
+        bytes memory signature
+    ) internal virtual returns (bool) {
+        return
+            SignatureChecker.isValidSignatureNow(
+                voter,
+                _hashTypedDataV4(keccak256(abi.encode(BALLOT_TYPEHASH, proposalId, support, voter, _useNonce(voter)))),
+                signature
+            );
+    }
+
+    /// @dev Validate the `signature` used in {castVoteWithReasonAndParamsBySig} function.
+    function _validateExtendedVoteSig(
+        uint256 proposalId,
+        uint8 support,
+        address voter,
+        string memory reason,
+        bytes memory params,
+        bytes memory signature
+    ) internal virtual returns (bool) {
+        return
+            SignatureChecker.isValidSignatureNow(
+                voter,
+                _hashTypedDataV4(
+                    keccak256(
+                        abi.encode(
+                            EXTENDED_BALLOT_TYPEHASH,
+                            proposalId,
+                            support,
+                            voter,
+                            _useNonce(voter),
+                            keccak256(bytes(reason)),
+                            keccak256(params)
+                        )
+                    )
+                ),
+                signature
+            );
     }
 
     /**
