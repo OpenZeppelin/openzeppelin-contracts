@@ -188,11 +188,19 @@ library Base64 {
                 let input := mload(dataPtr)
 
                 // Decode each byte in the chunk as a 6 bit block, and align them to form a block of 3 bytes
-                let b0 := shl(250, decodeChr(byte(28, input), 1))
-                let b1 := shl(244, decodeChr(byte(29, input), 1))
-                let b2 := shl(238, decodeChr(byte(30, input), lt(add(resultPtr, 1), endPtr)))
-                let b3 := shl(232, decodeChr(byte(31, input), lt(add(resultPtr, 2), endPtr)))
-                mstore(resultPtr, or(b0, or(b1, or(b2, b3))))
+                mstore(
+                    resultPtr,
+                    or(
+                        shl(250, decodeChr(byte(28, input), 1)),
+                        or(
+                            shl(244, decodeChr(byte(29, input), 1)),
+                            or(
+                                shl(238, decodeChr(byte(30, input), lt(add(resultPtr, 1), endPtr))),
+                                shl(232, decodeChr(byte(31, input), lt(add(resultPtr, 2), endPtr)))
+                            )
+                        )
+                    )
+                )
 
                 resultPtr := add(resultPtr, 3)
             }
