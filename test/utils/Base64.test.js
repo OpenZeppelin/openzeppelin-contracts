@@ -11,7 +11,7 @@ async function fixture() {
   return { mock };
 }
 
-describe('Strings', function () {
+describe('Base64', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });
@@ -27,8 +27,9 @@ describe('Strings', function () {
     ])
       it(title, async function () {
         const buffer = Buffer.from(input, 'ascii');
-        expect(await this.mock.$encode(buffer)).to.equal(ethers.encodeBase64(buffer));
-        expect(await this.mock.$encode(buffer)).to.equal(expected);
+        await expect(this.mock.$encode(buffer)).to.eventually.equal(ethers.encodeBase64(buffer));
+        await expect(this.mock.$encode(buffer)).to.eventually.equal(expected);
+        await expect(this.mock.$decode(expected)).to.eventually.equal(ethers.hexlify(buffer));
       });
   });
 
@@ -43,9 +44,15 @@ describe('Strings', function () {
     ])
       it(title, async function () {
         const buffer = Buffer.from(input, 'ascii');
-        expect(await this.mock.$encodeURL(buffer)).to.equal(base64toBase64Url(ethers.encodeBase64(buffer)));
-        expect(await this.mock.$encodeURL(buffer)).to.equal(expected);
+        await expect(this.mock.$encodeURL(buffer)).to.eventually.equal(base64toBase64Url(ethers.encodeBase64(buffer)));
+        await expect(this.mock.$encodeURL(buffer)).to.eventually.equal(expected);
+        await expect(this.mock.$decode(expected)).to.eventually.equal(ethers.hexlify(buffer));
       });
+  });
+
+  // TODO ?
+  it.skip('Decode invalid base64 string', async function () {
+    await expect(this.mock.$decode('dGVzd$==')).to.be.reverted;
   });
 
   it('Encode reads beyond the input buffer into dirty memory', async function () {
