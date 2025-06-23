@@ -65,23 +65,11 @@ library Base58 {
         // Assembly is ~50% cheaper for buffers of size 32.
         assembly ("memory-safe") {
             function clzBytes(ptr, length) -> i {
-                let chunk
                 for {
                     i := 0
-                } lt(i, length) {
+                } and(iszero(shr(248, mload(add(ptr, i)))), lt(i, length)) {
                     i := add(i, 1)
-                } {
-                    // Every 32 bytes, load a new chunk
-                    if iszero(mod(i, 0x20)) {
-                        chunk := mload(add(ptr, i))
-                    }
-                    // If the first byte of the chunk is not zero, break
-                    if shr(248, chunk) {
-                        break
-                    }
-                    // Shift chunk
-                    chunk := shl(8, chunk)
-                }
+                } {}
             }
 
             encoded := mload(0x40)
