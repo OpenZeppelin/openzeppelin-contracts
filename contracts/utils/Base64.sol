@@ -45,9 +45,13 @@ library Base64 {
     }
 
     /**
-     * @dev Internal table-agnostic conversion
+     * @dev Internal table-agnostic encoding
      */
-    function _encode(bytes memory data, bytes memory table, bool withPadding) private pure returns (bytes memory) {
+    function _encode(
+        bytes memory data,
+        bytes memory table,
+        bool withPadding
+    ) private pure returns (bytes memory result) {
         /**
          * Inspired by Brecht Devos (Brechtpd) implementation - MIT licence
          * https://github.com/Brechtpd/base64/blob/e78d9fd951e7b0977ddca77d92dc85183770daf4/base64.sol
@@ -69,9 +73,9 @@ library Base64 {
         // This is equivalent to: Math.ceil((4 * data.length) / 3)
         uint256 resultLength = withPadding ? 4 * ((data.length + 2) / 3) : (4 * data.length + 2) / 3;
 
-        bytes memory result = new bytes(resultLength);
-
         assembly ("memory-safe") {
+            result := mload(0x40)
+
             // Prepare the lookup table (skip the first "length" byte)
             let tablePtr := add(table, 1)
 
@@ -122,67 +126,80 @@ library Base64 {
                 case 1 {
                     mstore8(sub(resultPtr, 1), 0x3d)
                     mstore8(sub(resultPtr, 2), 0x3d)
+                    resultPtr := add(resultPtr, 2)
                 }
                 case 2 {
                     mstore8(sub(resultPtr, 1), 0x3d)
+                    resultPtr := add(resultPtr, 1)
                 }
             }
-        }
 
-        return result;
+            // Store result length and update FMP to reserve allocated space
+            mstore(result, resultLength)
+            mstore(0x40, resultPtr)
+        }
     }
 
-    function _decode(bytes memory data) private pure returns (bytes memory) {
-        if (data.length == 0) return "";
+    /**
+     * @dev Internal decoding
+     */
+    function _decode(bytes memory data) private pure returns (bytes memory result) {
+        uint256 dataLength = data.length;
+        if (dataLength == 0) return "";
 
-        uint256 resultLength = (data.length / 4) * 3;
-        if (data.length % 4 == 0) {
-            resultLength -= (data[data.length - 1] == "=").toUint() + (data[data.length - 2] == "=").toUint();
+        uint256 resultLength = (dataLength / 4) * 3;
+        if (dataLength % 4 == 0) {
+            resultLength -= (data[dataLength - 1] == "=").toUint() + (data[dataLength - 2] == "=").toUint();
         } else {
-            resultLength += (data.length % 4) - 1;
+            resultLength += (dataLength % 4) - 1;
         }
 
-        bytes memory result = new bytes(resultLength);
-
         assembly ("memory-safe") {
-            // Magic values. This writes over FMP (0x40) and zero slot (0x60) that will have to be reset.
-            let m := 0xfc000000fc00686c7074787c8084888c9094989ca0a4a8acb0b4b8bcc0c4c8cc
-            mstore(0x5b, m)
-            mstore(0x3b, 0x04080c1014181c2024282c3034383c4044484c5054585c6064)
-            mstore(0x1a, 0xf8fcf800fcd0d4d8dce0e4e8ecf0f4)
+            result := mload(0x40)
+
+            // Temporarily store the reverse lookup table between in memory. This spans from 0x00 to 0x50, Using:
+            // - all 64bytes of scratch space
+            // - part of the FMP (at location 0x40)
+            mstore(0x30, 0x2425262728292a2b2c2d2e2f30313233)
+            mstore(0x20, 0x0a0b0c0d0e0f10111213141516171819ffffffff3fff1a1b1c1d1e1f20212223)
+            mstore(0x00, 0x3eff3eff3f3435363738393a3b3c3dffffffffffffff00010203040506070809)
+
+            // decode function
+            function decodeChr(chr, filter) -> decoded {
+                if and(filter, or(lt(chr, 43), gt(chr, 122))) {
+                    revert(0, 0)
+                }
+                decoded := byte(0, mload(mul(filter, sub(chr, 43))))
+                if gt(decoded, 63) {
+                    revert(0, 0)
+                }
+            }
 
             // Prepare result pointer, jump over length
             let dataPtr := data
             let resultPtr := add(result, 0x20)
             let endPtr := add(resultPtr, resultLength)
 
+            // loop while not everything is decoded
             for {} lt(resultPtr, endPtr) {} {
-                // Advance 4 bytes
                 dataPtr := add(dataPtr, 4)
+
+                // Read a 4 bytes chunk of data
                 let input := mload(dataPtr)
 
-                mstore(
-                    resultPtr,
-                    or(
-                        and(m, mload(byte(28, input))),
-                        shr(
-                            6,
-                            or(
-                                and(m, mload(byte(29, input))),
-                                shr(6, or(and(m, mload(byte(30, input))), shr(6, and(m, mload(byte(31, input))))))
-                            )
-                        )
-                    )
-                )
+                // Decode each byte in the chunk as a 6 bit block, and align them to form a block of 3 bytes
+                let b0 := shl(250, decodeChr(byte(28, input), 1))
+                let b1 := shl(244, decodeChr(byte(29, input), 1))
+                let b2 := shl(238, decodeChr(byte(30, input), lt(add(resultPtr, 1), endPtr)))
+                let b3 := shl(232, decodeChr(byte(31, input), lt(add(resultPtr, 2), endPtr)))
+                mstore(resultPtr, or(b0, or(b1, or(b2, b3))))
 
                 resultPtr := add(resultPtr, 3)
             }
 
-            // Restore FMP and zero slot.
+            // Store result length and update FMP to reserve allocated space
+            mstore(result, resultLength)
             mstore(0x40, endPtr)
-            mstore(0x60, 0)
         }
-
-        return result;
     }
 }

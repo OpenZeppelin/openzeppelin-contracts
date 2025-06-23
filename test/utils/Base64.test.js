@@ -50,9 +50,13 @@ describe('Base64', function () {
       });
   });
 
-  // TODO ?
-  it.skip('Decode invalid base64 string', async function () {
+  it('Decode invalid base64 string', async function () {
+    // ord('$') < 43
     await expect(this.mock.$decode('dGVzd$==')).to.be.reverted;
+    // ord('~') > 122
+    await expect(this.mock.$decode('dGVzd~==')).to.be.reverted;
+    // ord('@') in range, but '@' not in the dictionary
+    await expect(this.mock.$decode('dGVzd@==')).to.be.reverted;
   });
 
   it('Encode reads beyond the input buffer into dirty memory', async function () {
