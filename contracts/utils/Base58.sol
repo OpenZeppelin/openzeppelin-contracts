@@ -67,7 +67,7 @@ library Base58 {
             function clzBytes(ptr, length) -> i {
                 for {
                     i := 0
-                } and(iszero(shr(248, mload(add(ptr, i)))), lt(i, length)) {
+                } and(iszero(byte(0, mload(add(ptr, i)))), lt(i, length)) {
                     i := add(i, 1)
                 } {}
             }
@@ -100,12 +100,12 @@ library Base58 {
             } {
                 let ptr := slotLength
                 for {
-                    let carry := shr(248, mload(add(add(data, 0x20), i)))
+                    let carry := byte(0, mload(add(add(data, 0x20), i)))
                 } or(carry, lt(end, ptr)) {
                     ptr := sub(ptr, 1)
                     carry := div(carry, 58)
                 } {
-                    carry := add(carry, mul(256, shr(248, mload(add(add(encoded, 0x1f), ptr)))))
+                    carry := add(carry, mul(256, byte(0, mload(add(add(encoded, 0x1f), ptr)))))
                     mstore8(add(add(encoded, 0x1f), ptr), mod(carry, 58))
                 }
                 end := ptr
@@ -129,7 +129,7 @@ library Base58 {
             } lt(i, encodedLength) {
                 i := add(i, 1)
             } {
-                mstore8(add(add(encoded, 0x20), i), mload(shr(248, mload(add(add(encoded, 0x20), add(offset, i))))))
+                mstore8(add(add(encoded, 0x20), i), mload(byte(0, mload(add(add(encoded, 0x20), add(offset, i))))))
             }
 
             // Store length and allocate (reserve) memory
