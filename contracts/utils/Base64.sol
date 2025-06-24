@@ -192,11 +192,8 @@ library Base64 {
                 mstore(
                     resultPtr,
                     or(
-                        shl(250, decodeChr(byte(28, input))),
-                        or(
-                            shl(244, decodeChr(byte(29, input))),
-                            or(shl(238, decodeChr(byte(30, input))), shl(232, decodeChr(byte(31, input))))
-                        )
+                        or(shl(250, decodeChr(byte(28, input))), shl(244, decodeChr(byte(29, input)))),
+                        or(shl(238, decodeChr(byte(30, input))), shl(232, decodeChr(byte(31, input))))
                     )
                 )
 
