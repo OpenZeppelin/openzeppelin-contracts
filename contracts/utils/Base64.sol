@@ -12,17 +12,10 @@ library Base64 {
     using SafeCast for bool;
 
     /**
-     * @dev Base64 Encoding/Decoding Table
-     * See sections 4 and 5 of https://datatracker.ietf.org/doc/html/rfc4648
-     */
-    bytes internal constant _TABLE = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-    bytes internal constant _TABLE_URL = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
-
-    /**
      * @dev Converts a `bytes` to its Bytes64 `string` representation.
      */
     function encode(bytes memory data) internal pure returns (string memory) {
-        return string(_encode(data, _TABLE, true));
+        return string(_encode(data, true));
     }
 
     /**
@@ -30,7 +23,7 @@ library Base64 {
      * Output is not padded with `=` as specified in https://www.rfc-editor.org/rfc/rfc4648[rfc4648].
      */
     function encodeURL(bytes memory data) internal pure returns (string memory) {
-        return string(_encode(data, _TABLE_URL, false));
+        return string(_encode(data, false));
     }
 
     /**
@@ -46,12 +39,11 @@ library Base64 {
 
     /**
      * @dev Internal table-agnostic encoding
+     *
+     * If padding is enabled, uses the Base64 table, otherwise use the Base64Url table.
+     * See sections 4 and 5 of https://datatracker.ietf.org/doc/html/rfc4648
      */
-    function _encode(
-        bytes memory data,
-        bytes memory table,
-        bool withPadding
-    ) private pure returns (bytes memory result) {
+    function _encode(bytes memory data, bool withPadding) private pure returns (bytes memory result) {
         /**
          * Inspired by Brecht Devos (Brechtpd) implementation - MIT licence
          * https://github.com/Brechtpd/base64/blob/e78d9fd951e7b0977ddca77d92dc85183770daf4/base64.sol
@@ -76,8 +68,15 @@ library Base64 {
         assembly ("memory-safe") {
             result := mload(0x40)
 
-            // Prepare the lookup table (skip the first "length" byte)
-            let tablePtr := add(table, 1)
+            // Store the encoding table in the scratch space (and fmp ptr) to avoid memory allocation
+            //
+            // Base64    (ascii)  A B C D E F G H I J K L M N O P Q R S T U V W X Y Z a b c d e f g h i j k l m n o p q r s t u v w x y z 0 1 2 3 4 5 6 7 8 9 + /
+            // Base64    (hex)   4142434445464748494a4b4c4d4e4f505152535455565758595a6162636465666768696a6b6c6d6e6f707172737475767778797a303132333435363738392b2f
+            // Base64Url (ascii)  A B C D E F G H I J K L M N O P Q R S T U V W X Y Z a b c d e f g h i j k l m n o p q r s t u v w x y z 0 1 2 3 4 5 6 7 8 9 - _
+            // Base64Url (hex)   4142434445464748494a4b4c4d4e4f505152535455565758595a6162636465666768696a6b6c6d6e6f707172737475767778797a303132333435363738392d5f
+            // xor       (hex)   00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000670
+            mstore(0x1f, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef")
+            mstore(0x3f, xor("ghijklmnopqrstuvwxyz0123456789-_", mul(withPadding, 0x670)))
 
             // Prepare result pointer, jump over length
             let resultPtr := add(result, 0x20)
@@ -102,17 +101,13 @@ library Base64 {
                 // Use this as an index into the lookup table, mload an entire word
                 // so the desired character is in the least significant byte, and
                 // mstore8 this least significant byte into the result and continue.
-
-                mstore8(resultPtr, mload(add(tablePtr, and(shr(18, input), 0x3F))))
+                mstore8(resultPtr, mload(and(shr(18, input), 0x3F)))
                 resultPtr := add(resultPtr, 1) // Advance
-
-                mstore8(resultPtr, mload(add(tablePtr, and(shr(12, input), 0x3F))))
+                mstore8(resultPtr, mload(and(shr(12, input), 0x3F)))
                 resultPtr := add(resultPtr, 1) // Advance
-
-                mstore8(resultPtr, mload(add(tablePtr, and(shr(6, input), 0x3F))))
+                mstore8(resultPtr, mload(and(shr(6, input), 0x3F)))
                 resultPtr := add(resultPtr, 1) // Advance
-
-                mstore8(resultPtr, mload(add(tablePtr, and(input, 0x3F))))
+                mstore8(resultPtr, mload(and(input, 0x3F)))
                 resultPtr := add(resultPtr, 1) // Advance
             }
 
