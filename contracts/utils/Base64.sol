@@ -157,14 +157,14 @@ library Base64 {
             // - part of the FMP (at location 0x40)
             mstore(0x30, 0x2425262728292a2b2c2d2e2f30313233)
             mstore(0x20, 0x0a0b0c0d0e0f10111213141516171819ffffffff3fff1a1b1c1d1e1f20212223)
-            mstore(0x00, 0x3eff3eff3f3435363738393a3b3c3dffffffffffffff00010203040506070809)
+            mstore(0x00, 0x3eff3eff3f3435363738393a3b3c3dffffff00ffffff00010203040506070809)
 
             // decode function
-            function decodeChr(chr, filter) -> decoded {
-                if and(filter, or(lt(chr, 43), gt(chr, 122))) {
+            function decodeChr(chr) -> decoded {
+                if or(lt(chr, 43), gt(chr, 122)) {
                     revert(0, 0)
                 }
-                decoded := byte(0, mload(mul(filter, sub(chr, 43))))
+                decoded := byte(0, mload(sub(chr, 43)))
                 if gt(decoded, 63) {
                     revert(0, 0)
                 }
@@ -174,6 +174,12 @@ library Base64 {
             let dataPtr := data
             let resultPtr := add(result, 0x20)
             let endPtr := add(resultPtr, resultLength)
+
+            // In some cases, the last iteration will read bytes after the end of the data. We cache the value, and
+            // set it to "==" (fake padding) to make sure no dirty bytes are read in that section.
+            let afterPtr := add(add(data, 0x20), dataLength)
+            let afterCache := mload(afterPtr)
+            mstore(afterPtr, shl(240, 0x3d3d))
 
             // loop while not everything is decoded
             for {} lt(resultPtr, endPtr) {} {
@@ -186,19 +192,19 @@ library Base64 {
                 mstore(
                     resultPtr,
                     or(
-                        shl(250, decodeChr(byte(28, input), 1)),
+                        shl(250, decodeChr(byte(28, input))),
                         or(
-                            shl(244, decodeChr(byte(29, input), 1)),
-                            or(
-                                shl(238, decodeChr(byte(30, input), lt(add(resultPtr, 1), endPtr))),
-                                shl(232, decodeChr(byte(31, input), lt(add(resultPtr, 2), endPtr)))
-                            )
+                            shl(244, decodeChr(byte(29, input))),
+                            or(shl(238, decodeChr(byte(30, input))), shl(232, decodeChr(byte(31, input))))
                         )
                     )
                 )
 
                 resultPtr := add(resultPtr, 3)
             }
+
+            // Reset the value that was cached
+            mstore(afterPtr, afterCache)
 
             // Store result length and update FMP to reserve allocated space
             mstore(result, resultLength)
