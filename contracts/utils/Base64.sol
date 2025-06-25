@@ -15,7 +15,7 @@ library Base64 {
      * @dev Converts a `bytes` to its Bytes64 `string` representation.
      */
     function encode(bytes memory data) internal pure returns (string memory) {
-        return string(_encode(data, true));
+        return string(_encode(data, false));
     }
 
     /**
@@ -23,7 +23,7 @@ library Base64 {
      * Output is not padded with `=` as specified in https://www.rfc-editor.org/rfc/rfc4648[rfc4648].
      */
     function encodeURL(bytes memory data) internal pure returns (string memory) {
-        return string(_encode(data, false));
+        return string(_encode(data, true));
     }
 
     /**
@@ -43,13 +43,15 @@ library Base64 {
      * If padding is enabled, uses the Base64 table, otherwise use the Base64Url table.
      * See sections 4 and 5 of https://datatracker.ietf.org/doc/html/rfc4648
      */
-    function _encode(bytes memory data, bool withPadding) private pure returns (bytes memory result) {
+    function _encode(bytes memory data, bool urlAndFilenameSafe) private pure returns (bytes memory result) {
         /**
          * Inspired by Brecht Devos (Brechtpd) implementation - MIT licence
          * https://github.com/Brechtpd/base64/blob/e78d9fd951e7b0977ddca77d92dc85183770daf4/base64.sol
          */
         if (data.length == 0) return "";
 
+        // Padding is enabled by default, but disabled when the "urlAndFilenameSafe" alphabet is used
+        //
         // If padding is enabled, the final length should be `bytes` data length divided by 3 rounded up and then
         // multiplied by 4 so that it leaves room for padding the last chunk
         // - `data.length + 2`  -> Prepare for division rounding up
@@ -63,7 +65,7 @@ library Base64 {
         // - ` + 2`             -> Prepare for division rounding up
         // - `/ 3`              -> Number of 3-bytes chunks (rounded up)
         // This is equivalent to: Math.ceil((4 * data.length) / 3)
-        uint256 resultLength = withPadding ? 4 * ((data.length + 2) / 3) : (4 * data.length + 2) / 3;
+        uint256 resultLength = urlAndFilenameSafe ? (4 * data.length + 2) / 3 : 4 * ((data.length + 2) / 3);
 
         assembly ("memory-safe") {
             result := mload(0x40)
@@ -76,7 +78,7 @@ library Base64 {
             // Base64Url (hex)   4142434445464748494a4b4c4d4e4f505152535455565758595a6162636465666768696a6b6c6d6e6f707172737475767778797a303132333435363738392d5f
             // xor       (hex)   00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000670
             mstore(0x1f, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef")
-            mstore(0x3f, xor("ghijklmnopqrstuvwxyz0123456789-_", mul(withPadding, 0x670)))
+            mstore(0x3f, xor("ghijklmnopqrstuvwxyz0123456789+/", mul(urlAndFilenameSafe, 0x670)))
 
             // Prepare result pointer, jump over length
             let resultPtr := add(result, 0x20)
@@ -114,7 +116,7 @@ library Base64 {
             // Reset the value that was cached
             mstore(afterPtr, afterCache)
 
-            if withPadding {
+            if iszero(urlAndFilenameSafe) {
                 // When data `bytes` is not exactly 3 bytes long
                 // it is padded with `=` characters at the end
                 switch mod(mload(data), 3)
