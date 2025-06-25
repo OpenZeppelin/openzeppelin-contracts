@@ -1,6 +1,6 @@
-const { ethers, network } = require('hardhat');
+const { ethers } = require('hardhat');
 const { expect } = require('chai');
-const { loadFixture, mineUpTo } = require('@nomicfoundation/hardhat-network-helpers');
+const { loadFixture, mineUpTo, setCode } = require('@nomicfoundation/hardhat-network-helpers');
 const { impersonate } = require('../helpers/account');
 
 const HISTORY_STORAGE_ADDRESS = '0x0000F90827F1C53a10cb7A02335B175320002935';
@@ -16,7 +16,7 @@ async function fixture() {
   };
 }
 
-describe('Blockhash', function () {
+describe.only('Blockhash', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });
@@ -27,8 +27,7 @@ describe('Blockhash', function () {
         if (supported) {
           await this.systemSigner.sendTransaction({ to: HISTORY_STORAGE_ADDRESS, data: this.latestBlock.hash });
         } else {
-          // `setCode` in hardhat-network-helpers doesn't support empty code :/
-          await network.provider.request({ method: 'hardhat_setCode', params: [HISTORY_STORAGE_ADDRESS, '0x'] });
+          await setCode(HISTORY_STORAGE_ADDRESS, '0x');
         }
       });
 
