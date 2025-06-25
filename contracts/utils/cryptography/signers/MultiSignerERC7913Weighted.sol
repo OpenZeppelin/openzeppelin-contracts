@@ -67,6 +67,11 @@ abstract contract MultiSignerERC7913Weighted is MultiSignerERC7913 {
     /// @dev Thrown when the arrays lengths don't match. See {_setSignerWeights}.
     error MultiSignerERC7913WeightedMismatchedLength();
 
+    constructor(bytes[] memory signers_, uint64[] memory weights_, uint64 threshold_) MultiSignerERC7913(signers_, 1) {
+        _setSignerWeights(signers_, weights_);
+        _setThreshold(threshold_);
+    }
+
     /// @dev Gets the weight of a signer. Returns 0 if the signer is not authorized.
     function signerWeight(bytes memory signer) public view virtual returns (uint64) {
         unchecked {
