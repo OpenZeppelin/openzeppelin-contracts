@@ -83,13 +83,7 @@ library Base58 {
             let slotLength := add(add(div(mul(sub(dataLength, dataLeadingZeros), 138), 100), dataLeadingZeros), 1)
 
             // Zero the encoded buffer
-            for {
-                let i := 0
-            } lt(i, slotLength) {
-                i := add(i, 0x20)
-            } {
-                mstore(add(add(encoded, 0x20), i), 0)
-            }
+            calldatacopy(add(encoded, 0x20), calldatasize(), slotLength)
 
             // Build the "slots"
             for {
