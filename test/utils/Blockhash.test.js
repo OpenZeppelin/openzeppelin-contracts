@@ -16,7 +16,7 @@ async function fixture() {
   };
 }
 
-describe.only('Blockhash', function () {
+describe('Blockhash', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });
