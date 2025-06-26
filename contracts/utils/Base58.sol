@@ -9,6 +9,8 @@ pragma solidity ^0.8.20;
  * Based on the updated and improved https://github.com/Vectorized/solady/blob/main/src/utils/Base58.sol[Vectorized version] (MIT).
  */
 library Base58 {
+    error InvalidBase56Digit(uint8);
+
     /**
      * @dev Encode a `bytes` buffer as a Base58 `string`.
      */
@@ -115,6 +117,8 @@ library Base58 {
     }
 
     function _decode(bytes memory input) private pure returns (bytes memory output) {
+        bytes4 errorSelector = InvalidBase56Digit.selector;
+
         uint256 inputLength = input.length;
         if (inputLength == 0) return "";
 
@@ -140,17 +144,6 @@ library Base58 {
             mstore(0x20, 0x1718191a1b1c1d1e1f20ffffffffffff2122232425262728292a2bff2c2d2e2f)
             mstore(0x00, 0x000102030405060708ffffffffffffff090a0b0c0d0e0f10ff1112131415ff16)
 
-            // decode function
-            function decodeChr(chr) -> decoded {
-                if or(lt(chr, 49), gt(chr, 122)) {
-                    revert(0, 0)
-                }
-                decoded := byte(0, mload(sub(chr, 49)))
-                if gt(decoded, 57) {
-                    revert(0, 0)
-                }
-            }
-
             // Decode each char of the input string, and stored that in section (limbs) of 31 bytes. Store in scratch.
             let ptr := scratch
             let mask := shr(8, not(0))
@@ -160,7 +153,14 @@ library Base58 {
                 j := add(j, 1)
             } {
                 // for each char, decode it ...
-                let carry := decodeChr(byte(0, mload(add(add(input, 0x20), j))))
+                let c := sub(byte(0, mload(add(add(input, 0x20), j))), 49)
+                if iszero(and(shl(c, 1), 0x3fff7ff03ffbeff01ff)) {
+                    mstore(0, errorSelector)
+                    mstore(4, add(c, 49))
+                    revert(0, 0x24)
+                }
+                let carry := byte(0, mload(c))
+
                 // ... and add it to the limbs starting a `scratch`
                 for {
                     let i := scratch
