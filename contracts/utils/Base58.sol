@@ -154,6 +154,7 @@ library Base58 {
             } {
                 // for each char, decode it ...
                 let c := sub(byte(0, mload(add(add(input, 0x20), j))), 49)
+                /// slither-disable-next-line incorrect-shift
                 if iszero(and(shl(c, 1), 0x3fff7ff03ffbeff01ff)) {
                     mstore(0, errorSelector)
                     mstore(4, add(c, 49))
