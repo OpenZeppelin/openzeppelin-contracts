@@ -174,11 +174,8 @@ library SafeERC20 {
      * @param value The amount of token to transfer
      * @param bubble Behavior switch if the transfer call reverts: bubble the revert reason or return a false boolean.
      */
-    function _safeTransfer(IERC20 token, address to, uint256 value, bool bubble) private returns (bool) {
+    function _safeTransfer(IERC20 token, address to, uint256 value, bool bubble) private returns (bool success) {
         bytes4 selector = IERC20.transfer.selector;
-        bool success;
-        uint256 returnSize;
-        uint256 returnValue;
 
         assembly ("memory-safe") {
             let fmp := mload(0x40)
@@ -186,16 +183,23 @@ library SafeERC20 {
             mstore(0x04, and(to, shr(96, not(0))))
             mstore(0x24, value)
             success := call(gas(), token, 0, 0, 0x44, 0, 0x20)
-            if and(bubble, iszero(success)) {
-                returndatacopy(fmp, 0, returndatasize())
-                revert(fmp, returndatasize())
+            // if call success and return is true, all is good.
+            if iszero(and(success, eq(mload(0x00), 1))) {
+                // if the call was a failure and bubble is enabled, bubble the error
+                if and(iszero(success), bubble) {
+                    returndatacopy(fmp, 0, returndatasize())
+                    revert(fmp, returndatasize())
+                }
+                // if the call is successful, and either
+                // - we got returndata (is that case mload(0x00) is a real false)
+                // - the token address doesn't have code
+                if and(success, or(gt(returndatasize(), 0), iszero(extcodesize(token)))) {
+                    // than the transfer is a failure
+                    success := 0
+                }
             }
-            returnSize := returndatasize()
-            returnValue := mload(0)
             mstore(0x40, fmp)
         }
-
-        return success && (returnSize == 0 ? address(token).code.length > 0 : returnValue == 1);
     }
 
     /**
@@ -214,11 +218,8 @@ library SafeERC20 {
         address to,
         uint256 value,
         bool bubble
-    ) private returns (bool) {
+    ) private returns (bool success) {
         bytes4 selector = IERC20.transferFrom.selector;
-        bool success;
-        uint256 returnSize;
-        uint256 returnValue;
 
         assembly ("memory-safe") {
             let fmp := mload(0x40)
@@ -227,17 +228,24 @@ library SafeERC20 {
             mstore(0x24, and(to, shr(96, not(0))))
             mstore(0x44, value)
             success := call(gas(), token, 0, 0, 0x64, 0, 0x20)
-            if and(bubble, iszero(success)) {
-                returndatacopy(fmp, 0, returndatasize())
-                revert(fmp, returndatasize())
+            // if call success and return is true, all is good.
+            if iszero(and(success, eq(mload(0x00), 1))) {
+                // if the call was a failure and bubble is enabled, bubble the error
+                if and(iszero(success), bubble) {
+                    returndatacopy(fmp, 0, returndatasize())
+                    revert(fmp, returndatasize())
+                }
+                // if the call is successful, and either
+                // - we got returndata (is that case mload(0x00) is a real false)
+                // - the token address doesn't have code
+                if and(success, or(gt(returndatasize(), 0), iszero(extcodesize(token)))) {
+                    // than the transfer is a failure
+                    success := 0
+                }
             }
-            returnSize := returndatasize()
-            returnValue := mload(0)
             mstore(0x40, fmp)
             mstore(0x60, 0)
         }
-
-        return success && (returnSize == 0 ? address(token).code.length > 0 : returnValue == 1);
     }
 
     /**
@@ -249,11 +257,8 @@ library SafeERC20 {
      * @param value The amount of token to transfer
      * @param bubble Behavior switch if the transfer call reverts: bubble the revert reason or return a false boolean.
      */
-    function _safeApprove(IERC20 token, address spender, uint256 value, bool bubble) private returns (bool) {
+    function _safeApprove(IERC20 token, address spender, uint256 value, bool bubble) private returns (bool success) {
         bytes4 selector = IERC20.approve.selector;
-        bool success;
-        uint256 returnSize;
-        uint256 returnValue;
 
         assembly ("memory-safe") {
             let fmp := mload(0x40)
@@ -261,15 +266,22 @@ library SafeERC20 {
             mstore(0x04, and(spender, shr(96, not(0))))
             mstore(0x24, value)
             success := call(gas(), token, 0, 0, 0x44, 0, 0x20)
-            if and(bubble, iszero(success)) {
-                returndatacopy(fmp, 0, returndatasize())
-                revert(fmp, returndatasize())
+            // if call success and return is true, all is good.
+            if iszero(and(success, eq(mload(0x00), 1))) {
+                // if the call was a failure and bubble is enabled, bubble the error
+                if and(iszero(success), bubble) {
+                    returndatacopy(fmp, 0, returndatasize())
+                    revert(fmp, returndatasize())
+                }
+                // if the call is successful, and either
+                // - we got returndata (is that case mload(0x00) is a real false)
+                // - the token address doesn't have code
+                if and(success, or(gt(returndatasize(), 0), iszero(extcodesize(token)))) {
+                    // than the transfer is a failure
+                    success := 0
+                }
             }
-            returnSize := returndatasize()
-            returnValue := mload(0)
             mstore(0x40, fmp)
         }
-
-        return success && (returnSize == 0 ? address(token).code.length > 0 : returnValue == 1);
     }
 }
