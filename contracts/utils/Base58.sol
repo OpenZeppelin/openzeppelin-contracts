@@ -1,86 +1,74 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.26;
-
-import {SafeCast} from "./math/SafeCast.sol";
-import {Bytes} from "./Bytes.sol";
+pragma solidity ^0.8.20;
 
 /**
  * @dev Provides a set of functions to operate with Base58 strings.
  *
- * Based on https://github.com/storyicon/base58-solidity/commit/807428e5174e61867e4c606bdb26cba58a8c5cb1[storyicon's implementation] (MIT).
+ * Initially based on https://github.com/storyicon/base58-solidity/commit/807428e5174e61867e4c606bdb26cba58a8c5cb1[storyicon's implementation] (MIT).
+ * Based on the updated and improved https://github.com/Vectorized/solady/blob/main/src/utils/Base58.sol[Vectorized version] (MIT).
  */
 library Base58 {
-    using SafeCast for bool;
-    using Bytes for bytes;
-
-    error InvalidBase56Digit(uint8);
-
-    bytes internal constant _LOOKUP_TABLE =
-        hex"000102030405060708ffffffffffffff090a0b0c0d0e0f10ff1112131415ff161718191a1b1c1d1e1f20ffffffffffff2122232425262728292a2bff2c2d2e2f30313233343536373839";
-
     /**
      * @dev Encode a `bytes` buffer as a Base58 `string`.
      */
-    function encode(bytes memory data) internal pure returns (string memory) {
-        return string(_encode(data));
+    function encode(bytes memory input) internal pure returns (string memory) {
+        return string(_encode(input));
     }
 
     /**
      * @dev Decode a Base58 `string` into a `bytes` buffer.
      */
-    function decode(string memory data) internal pure returns (bytes memory) {
-        return _decode(bytes(data));
+    function decode(string memory input) internal pure returns (bytes memory) {
+        return _decode(bytes(input));
     }
 
-    function _encode(bytes memory data) private pure returns (bytes memory encoded) {
-        uint256 dataLength = data.length;
-        if (dataLength == 0) return "";
+    function _encode(bytes memory input) private pure returns (bytes memory output) {
+        uint256 inputLength = input.length;
+        if (inputLength == 0) return "";
 
         assembly ("memory-safe") {
-            // Count number of zero bytes at the beginning of `data`. These are encoded using the same number of '1's
+            // Count number of zero bytes at the beginning of `input`. These are encoded using the same number of '1's
             // at then beginning of the encoded string.
-            let dataLeadingZeros := 0
-            for {} lt(byte(0, mload(add(add(data, 0x20), dataLeadingZeros))), lt(dataLeadingZeros, dataLength)) {} {
-                dataLeadingZeros := add(dataLeadingZeros, 1)
+            let inputLeadingZeros := 0
+            for {} lt(byte(0, mload(add(add(input, 0x20), inputLeadingZeros))), lt(inputLeadingZeros, inputLength)) {} {
+                inputLeadingZeros := add(inputLeadingZeros, 1)
             }
 
             // Start the output offset by an over-estimate of the length.
-            let overEstimatedSlotLength := add(
-                dataLeadingZeros,
-                div(mul(sub(dataLength, dataLeadingZeros), 8351), 6115)
-            )
-            // This is going to be our "scratch" workspace. Be leave enough room on the left to store length + encoded data.
-            let scratch := add(mload(0x40), add(overEstimatedSlotLength, 0x21))
+            let outputLengthEstim := add(inputLeadingZeros, div(mul(sub(inputLength, inputLeadingZeros), 8351), 6115))
+
+            // This is going to be our "scratch" workspace. Be leave enough room on the left to store length + encoded input.
+            let scratch := add(mload(0x40), add(outputLengthEstim, 0x21))
 
             // Cut the input buffer in section (limbs) of 31 bytes (248 bits). Store in scratch.
             let ptr := scratch
             for {
                 // first section is possibly smaller than 31 bytes
-                let i := mod(dataLength, 31)
+                let i := mod(inputLength, 31)
                 // unfold first loop, with a different shift.
                 if i {
-                    mstore(ptr, shr(mul(sub(32, i), 8), mload(add(data, 0x20))))
+                    mstore(ptr, shr(mul(sub(32, i), 8), mload(add(input, 0x20))))
                     ptr := add(ptr, 0x20)
                 }
-            } lt(i, dataLength) {
+            } lt(i, inputLength) {
                 ptr := add(ptr, 0x20) // next limb
                 i := add(i, 31) // move in buffer
             } {
                 // Load 32 bytes from the input buffer and shift to only keep the 31 leftmost.
-                mstore(ptr, shr(8, mload(add(add(data, 0x20), i))))
+                mstore(ptr, shr(8, mload(add(add(input, 0x20), i))))
             }
 
             // Store the encoding table. This overlaps with the FMP that we are going to reset later anyway.
-            // See sections 2 of https://datatracker.ietf.org/doc/html/draft-msporny-base58-03
+            // See sections 2 of https://inputtracker.ietf.org/doc/html/draft-msporny-base58-03
             mstore(0x1f, "123456789ABCDEFGHJKLMNPQRSTUVWXY")
             mstore(0x3f, "Zabcdefghijkmnopqrstuvwxyz")
 
-            // Encoding the "data" part of the result.
-            // `encoded` point the the left part of the encoded string. we start from scratch, which means we have
-            // overEstimatedSlotLength bytes to work with before hitting the FMP
+            // Encoding the "input" part of the result.
+            // `output` point the the left part of the encoded string. we start from scratch, which means we have
+            // outputLengthEstim bytes to work with before hitting the FMP
             for {
-                encoded := scratch
+                output := scratch
             } 1 {} {
                 // check if there are non-zero limbs remaining
                 let i := scratch
@@ -103,70 +91,116 @@ library Base58 {
                     carry := mod(acc, 58)
                 }
 
-                // encoded carry using base58 table, and add it to the output
-                encoded := sub(encoded, 1)
-                mstore8(encoded, mload(carry))
+                // encode carry using base58 table, and add it to the output
+                output := sub(output, 1)
+                mstore8(output, mload(carry))
             }
 
-            // Write the data leading zeros at the left of the encoded.
+            // Write the input leading zeros at the left of the encoded.
             // This will spill to the left into the "length" of the buffer.
             for {
-                let j := 0
-            } lt(j, dataLeadingZeros) {} {
-                j := add(j, 0x20)
-                mstore(sub(encoded, j), "11111111111111111111111111111111")
+                let i := 0
+            } lt(i, inputLeadingZeros) {} {
+                i := add(i, 0x20)
+                mstore(sub(output, i), "11111111111111111111111111111111")
             }
 
-            // Move encoded pointer to account for dataLeadingZeros
-            encoded := sub(encoded, add(dataLeadingZeros, 0x20))
+            // Move output pointer to account for inputLeadingZeros
+            output := sub(output, add(inputLeadingZeros, 0x20))
 
             // Store length and allocate (reserve) memory up to scratch.
-            mstore(encoded, sub(scratch, add(encoded, 0x20)))
+            mstore(output, sub(scratch, add(output, 0x20)))
             mstore(0x40, scratch)
         }
     }
 
-    function _decode(bytes memory data) private pure returns (bytes memory) {
-        unchecked {
-            uint256 b58Length = data.length;
+    function _decode(bytes memory input) private pure returns (bytes memory output) {
+        uint256 inputLength = input.length;
+        if (inputLength == 0) return "";
 
-            uint256 size = 2 * ((b58Length * 8351) / 6115 + 1);
-            bytes memory binu = new bytes(size);
+        /// @solidity memory-safe-assembly
+        assembly {
+            let inputLeadingZeros := 0 // Number of leading '1' in `input`.
+            // Count leading zeros. In base58, zeros are represented using '1' (chr(49)).
+            for {} and(
+                eq(byte(0, mload(add(add(input, 0x20), inputLeadingZeros))), 49),
+                lt(inputLeadingZeros, inputLength)
+            ) {} {
+                inputLeadingZeros := add(inputLeadingZeros, 1)
+            }
 
-            bytes memory cache = _LOOKUP_TABLE;
-            uint256 outiLength = (b58Length + 3) / 4;
-            // Note: allocating uint32[] would be enough, but solidity doesn't pack memory.
-            uint256[] memory outi = new uint256[](outiLength);
-            for (uint256 i = 0; i < data.length; ++i) {
-                // get b58 char
-                uint8 chr = uint8(data[i]);
-                require(chr > 48 && chr < 123, InvalidBase56Digit(chr));
+            // Start the output offset by an over-estimate of the length.
+            let outputLengthEstim := add(inputLeadingZeros, div(mul(sub(inputLength, inputLeadingZeros), 6115), 8351))
 
-                // decode b58 char
-                uint256 carry = uint8(cache[chr - 49]);
-                require(carry < 58, InvalidBase56Digit(chr));
+            // This is going to be our "scratch" workspace. Be leave enough room on the left to store length + encoded input.
+            let scratch := add(mload(0x40), add(outputLengthEstim, 0x21))
 
-                for (uint256 j = outiLength; j > 0; --j) {
-                    uint256 value = carry + 58 * outi[j - 1];
-                    carry = value >> 32;
-                    outi[j - 1] = value & 0xffffffff;
+            // Store the decoding table. This overlaps with the FMP that we are going to reset later anyway.
+            mstore(0x2a, 0x30313233343536373839)
+            mstore(0x20, 0x1718191a1b1c1d1e1f20ffffffffffff2122232425262728292a2bff2c2d2e2f)
+            mstore(0x00, 0x000102030405060708ffffffffffffff090a0b0c0d0e0f10ff1112131415ff16)
+
+            // decode function
+            function decodeChr(chr) -> decoded {
+                if or(lt(chr, 49), gt(chr, 122)) {
+                    revert(0, 0)
+                }
+                decoded := byte(0, mload(sub(chr, 49)))
+                if gt(decoded, 57) {
+                    revert(0, 0)
                 }
             }
 
-            uint256 ptr = 0;
-            uint256 mask = ((b58Length - 1) % 4) + 1;
-            for (uint256 j = 0; j < outiLength; ++j) {
-                while (mask > 0) {
-                    --mask;
-                    binu[ptr] = bytes1(uint8(outi[j] >> (8 * mask)));
-                    ++ptr;
+            // Decode each char of the input string, and stored that in section (limbs) of 31 bytes. Store in scratch.
+            let ptr := scratch
+            let mask := shr(8, not(0))
+            for {
+                let j := 0
+            } lt(j, inputLength) {
+                j := add(j, 1)
+            } {
+                // for each char, decode it ...
+                let carry := decodeChr(byte(0, mload(add(add(input, 0x20), j))))
+                // ... and add it to the limbs starting a `scratch`
+                for {
+                    let i := scratch
+                } lt(i, ptr) {
+                    i := add(i, 0x20)
+                } {
+                    let acc := add(carry, mul(58, mload(i)))
+                    mstore(i, and(mask, acc))
+                    carry := shr(248, acc)
                 }
-                mask = 4;
+                // If the char just read result in a leftover carry, extend the limbs with the new value
+                if carry {
+                    mstore(ptr, carry)
+                    ptr := add(ptr, 0x20)
+                }
             }
 
-            uint256 dataLeadingZeros = data.countLeading(0x31);
-            uint256 msb = binu.countConsecutive(dataLeadingZeros, 0x00);
-            return binu.splice(msb * (dataLeadingZeros + msb < binu.length).toUint(), ptr);
+            // Copy and compact the uint248 limbs + remove any zeros at the beginning.
+            output := scratch
+            for {
+                let i := scratch
+            } lt(i, ptr) {
+                i := add(i, 0x20)
+            } {
+                output := sub(output, 31)
+                mstore(sub(output, 1), mload(i))
+            }
+            for {} lt(byte(0, mload(output)), lt(output, scratch)) {} {
+                output := add(output, 1)
+            }
+
+            // Add the zeros that were encoded in the input (prefix '1's)
+            calldatacopy(sub(output, inputLeadingZeros), calldatasize(), inputLeadingZeros)
+
+            // Move output pointer to account for inputLeadingZeros
+            output := sub(output, add(inputLeadingZeros, 0x20))
+
+            // Store length and allocate (reserve) memory up to scratch.
+            mstore(output, sub(scratch, add(output, 0x20)))
+            mstore(0x40, scratch)
         }
     }
 }
