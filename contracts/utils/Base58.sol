@@ -78,12 +78,11 @@ library Base58 {
                 dataLeadingZeros,
                 div(mul(sub(dataLength, dataLeadingZeros), 8351), 6115)
             )
-            // `scratch` this is going to be our workspace. Be leave enough room on the left to store length + encoded data.
+            // This is going to be our "scratch" workspace. Be leave enough room on the left to store length + encoded data.
             let scratch := add(mload(0x40), add(overEstimatedSlotLength, 0x21))
 
-            // Cut the input buffer in section (limbs) of 31 bytes (248 bits)
-            let limbs := scratch
-            let ptr := limbs
+            // Cut the input buffer in section (limbs) of 31 bytes (248 bits). Store in scratch.
+            let ptr := scratch
             for {
                 // first section is possibly smaller than 31 bytes
                 let i := mod(dataLength, 31)
@@ -104,31 +103,25 @@ library Base58 {
             mstore(0x1f, "123456789ABCDEFGHJKLMNPQRSTUVWXY")
             mstore(0x3f, "Zabcdefghijkmnopqrstuvwxyz")
 
-            // Put sentinel after limbs for faster looping. Since limbs are 248bits, 0xFF..FF
-            // cannot be confused with an actual limb.
-            mstore(ptr, not(0))
-
             // Encoding the "data" part of the result.
             // `encoded` point the the left part of the encoded string. we start from scratch, which means we have
             // overEstimatedSlotLength bytes to work with before hitting the FMP
             for {
                 encoded := scratch
             } 1 {} {
-                // find location of the first non-zero limb
-                let i := limbs
-                for {} iszero(mload(i)) {
+                // check if there are non-zero limbs remaining
+                let i := scratch
+                for {} and(iszero(mload(i)), lt(i, ptr)) {
                     i := add(i, 0x20)
                 } {}
-
-                // if that is the sentinel limb (0xFF..FF), we are done
-                if iszero(not(mload(i))) {
+                if eq(i, ptr) {
                     break
                 }
 
                 // base 58 arithmetics on the 248bits limbs
                 let carry := 0
                 for {
-                    i := limbs
+                    i := scratch
                 } lt(i, ptr) {
                     i := add(i, 0x20)
                 } {
@@ -137,11 +130,11 @@ library Base58 {
                     carry := mod(acc, 58)
                 }
 
+                // encoded carry using base58 table, and add it to the output
                 encoded := sub(encoded, 1)
                 mstore8(encoded, mload(carry))
             }
 
-            // Write the data leading zeros at the left of the encoded.
             // Write the data leading zeros at the left of the encoded.
             // This will spill to the left into the "length" of the buffer.
             for {
@@ -154,7 +147,7 @@ library Base58 {
             // Move encoded pointer to account for dataLeadingZeros
             encoded := sub(encoded, add(dataLeadingZeros, 0x20))
 
-            // // Store length and allocate (reserve) memory
+            // Store length and allocate (reserve) memory up to scratch.
             mstore(encoded, sub(scratch, add(encoded, 0x20)))
             mstore(0x40, scratch)
         }
