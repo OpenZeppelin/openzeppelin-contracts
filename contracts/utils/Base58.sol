@@ -62,81 +62,101 @@ library Base58 {
         //     }
         // }
 
-        // Assembly is ~50% cheaper for buffers of size 32.
+        uint256 dataLength = data.length;
+        if (dataLength == 0) return "";
+
         assembly ("memory-safe") {
-            function clzBytes(ptr, length) -> i {
-                // for continues while `i < length` = 1 (true) and the byte at `ptr+1` to be 0
-                for {
-                    i := 0
-                } lt(byte(0, mload(add(ptr, i))), lt(i, length)) {
-                    i := add(i, 1)
-                } {}
-            }
-
-            encoded := mload(0x40)
-            let dataLength := mload(data)
-
             // Count number of zero bytes at the beginning of `data`. These are encoded using the same number of '1's
             // at then beginning of the encoded string.
-            let dataLeadingZeros := clzBytes(add(data, 0x20), dataLength)
-
-            // Initial encoding length: 100% of zero bytes (zero prefix) + ~137% of non zero bytes + 1
-            let slotLength := add(add(div(mul(sub(dataLength, dataLeadingZeros), 8351), 6115), dataLeadingZeros), 32)
-
-            // Zero the encoded buffer
-            calldatacopy(add(encoded, 0x20), calldatasize(), slotLength)
-
-            // Build the "slots"
-            for {
-                let i := 0
-                let end := slotLength
-            } lt(i, dataLength) {
-                i := add(i, 1)
-            } {
-                let ptr := slotLength
-                for {
-                    let carry := byte(0, mload(add(add(data, 0x20), i)))
-                } or(carry, lt(end, ptr)) {
-                    ptr := sub(ptr, 1)
-                    carry := div(carry, 58)
-                } {
-                    carry := add(carry, mul(256, byte(0, mload(add(add(encoded, 0x1f), ptr)))))
-                    mstore8(add(add(encoded, 0x1f), ptr), mod(carry, 58))
-                }
-                end := ptr
+            let dataLeadingZeros := 0
+            for {} lt(byte(0, mload(add(add(data, 0x20), dataLeadingZeros))), lt(dataLeadingZeros, dataLength)) {} {
+                dataLeadingZeros := add(dataLeadingZeros, 1)
             }
 
-            // Count number of zero bytes at the beginning of slots. This is a pointer to the first non zero slot that
-            // contains the base58 data. This base58 data span over `slotLength-slotLeadingZeros` bytes.
-            let slotLeadingZeros := clzBytes(add(encoded, 0x20), slotLength)
+            // Start the output offset by an over-estimate of the length.
+            let overEstimatedSlotLength := add(
+                dataLeadingZeros,
+                div(mul(sub(dataLength, dataLeadingZeros), 8351), 6115)
+            )
+            // `scratch` this is going to be our workspace. Be leave enough room on the left to store length + encoded data.
+            let scratch := add(mload(0x40), add(overEstimatedSlotLength, 0x21))
 
-            // Update length: `slotLength-slotLeadingZeros` of non-zero data plus `dataLeadingZeros` of zero prefix.
-            let offset := sub(slotLeadingZeros, dataLeadingZeros)
-            let encodedLength := sub(slotLength, offset)
+            // Cut the input buffer in section (limbs) of 31 bytes (248 bits)
+            let limbs := scratch
+            let ptr := limbs
+            for {
+                // first section is possibly smaller than 31 bytes
+                let i := mod(dataLength, 31)
+                // unfold first loop, with a different shift.
+                if i {
+                    mstore(ptr, shr(mul(sub(32, i), 8), mload(add(data, 0x20))))
+                    ptr := add(ptr, 0x20)
+                }
+            } lt(i, dataLength) {
+                ptr := add(ptr, 0x20) // next limb
+                i := add(i, 31) // move in buffer
+            } {
+                // Load 32 bytes from the input buffer and shift to only keep the 31 leftmost.
+                mstore(ptr, shr(8, mload(add(add(data, 0x20), i))))
+            }
 
             // Store the encoding table. This overlaps with the FMP that we are going to reset later anyway.
             mstore(0x1f, "123456789ABCDEFGHJKLMNPQRSTUVWXY")
             mstore(0x3f, "Zabcdefghijkmnopqrstuvwxyz")
 
-            // For each slot, use the table to obtain the corresponding base58 "digit".
+            // Put sentinel after limbs for faster looping. Since limbs are 248bits, 0xFF..FF
+            // cannot be confused with an actual limb.
+            mstore(ptr, not(0))
+
+            // Encoding the "data" part of the result.
+            // `encoded` point the the left part of the encoded string. we start from scratch, which means we have
+            // overEstimatedSlotLength bytes to work with before hitting the FMP
             for {
-                let i := 0
-            } lt(i, dataLeadingZeros) {
-                i := add(i, 32)
-            } {
-                mstore(add(add(encoded, 0x20), i), "11111111111111111111111111111111")
-            }
-            for {
-                let i := dataLeadingZeros
-            } lt(i, encodedLength) {
-                i := add(i, 1)
-            } {
-                mstore8(add(add(encoded, 0x20), i), mload(byte(0, mload(add(add(encoded, 0x20), add(offset, i))))))
+                encoded := scratch
+            } 1 {} {
+                // find location of the first non-zero limb
+                let i := limbs
+                for {} iszero(mload(i)) {
+                    i := add(i, 0x20)
+                } {}
+
+                // if that is the sentinel limb (0xFF..FF), we are done
+                if iszero(not(mload(i))) {
+                    break
+                }
+
+                // base 58 arithmetics on the 248bits limbs
+                let carry := 0
+                for {
+                    i := limbs
+                } lt(i, ptr) {
+                    i := add(i, 0x20)
+                } {
+                    let acc := add(shl(248, carry), mload(i))
+                    mstore(i, div(acc, 58))
+                    carry := mod(acc, 58)
+                }
+
+                encoded := sub(encoded, 1)
+                mstore8(encoded, mload(carry))
             }
 
-            // Store length and allocate (reserve) memory
-            mstore(encoded, encodedLength)
-            mstore(0x40, add(add(encoded, 0x20), encodedLength))
+            // Write the data leading zeros at the left of the encoded.
+            // Write the data leading zeros at the left of the encoded.
+            // This will spill to the left into the "length" of the buffer.
+            for {
+                let j := 0
+            } lt(j, dataLeadingZeros) {} {
+                j := add(j, 0x20)
+                mstore(sub(encoded, j), "11111111111111111111111111111111")
+            }
+
+            // Move encoded pointer to account for dataLeadingZeros
+            encoded := sub(encoded, add(dataLeadingZeros, 0x20))
+
+            // // Store length and allocate (reserve) memory
+            mstore(encoded, sub(scratch, add(encoded, 0x20)))
+            mstore(0x40, scratch)
         }
     }
 
