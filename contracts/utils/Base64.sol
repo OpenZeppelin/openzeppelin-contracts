@@ -11,6 +11,8 @@ import {SafeCast} from "./math/SafeCast.sol";
 library Base64 {
     using SafeCast for bool;
 
+    error InvalidBase64Digit(uint8);
+
     /**
      * @dev Converts a `bytes` to its Bytes64 `string` representation.
      */
@@ -141,6 +143,8 @@ library Base64 {
      * @dev Internal decoding
      */
     function _decode(bytes memory data) private pure returns (bytes memory result) {
+        bytes4 errorSelector = InvalidBase64Digit.selector;
+
         uint256 dataLength = data.length;
         if (dataLength == 0) return "";
 
@@ -161,17 +165,6 @@ library Base64 {
             mstore(0x20, 0x0a0b0c0d0e0f10111213141516171819ffffffff3fff1a1b1c1d1e1f20212223)
             mstore(0x00, 0x3eff3eff3f3435363738393a3b3c3dffffff00ffffff00010203040506070809)
 
-            // decode function
-            function decodeChr(chr) -> decoded {
-                if or(lt(chr, 43), gt(chr, 122)) {
-                    revert(0, 0)
-                }
-                decoded := byte(0, mload(sub(chr, 43)))
-                if gt(decoded, 63) {
-                    revert(0, 0)
-                }
-            }
-
             // Prepare result pointer, jump over length
             let dataPtr := data
             let resultPtr := add(result, 0x20)
@@ -191,11 +184,36 @@ library Base64 {
                 let input := mload(dataPtr)
 
                 // Decode each byte in the chunk as a 6 bit block, and align them to form a block of 3 bytes
+                let a := sub(byte(28, input), 43)
+                if iszero(and(shl(a, 1), 0xffffffd0ffffffc47ff5)) {
+                    mstore(0, errorSelector)
+                    mstore(4, add(a, 49))
+                    revert(0, 0x24)
+                }
+                let b := sub(byte(29, input), 43)
+                if iszero(and(shl(b, 1), 0xffffffd0ffffffc47ff5)) {
+                    mstore(0, errorSelector)
+                    mstore(4, add(b, 49))
+                    revert(0, 0x24)
+                }
+                let c := sub(byte(30, input), 43)
+                if iszero(and(shl(c, 1), 0xffffffd0ffffffc47ff5)) {
+                    mstore(0, errorSelector)
+                    mstore(4, add(c, 49))
+                    revert(0, 0x24)
+                }
+                let d := sub(byte(31, input), 43)
+                if iszero(and(shl(d, 1), 0xffffffd0ffffffc47ff5)) {
+                    mstore(0, errorSelector)
+                    mstore(4, add(d, 49))
+                    revert(0, 0x24)
+                }
+
                 mstore(
                     resultPtr,
                     or(
-                        or(shl(250, decodeChr(byte(28, input))), shl(244, decodeChr(byte(29, input)))),
-                        or(shl(238, decodeChr(byte(30, input))), shl(232, decodeChr(byte(31, input))))
+                        or(shl(250, byte(0, mload(a))), shl(244, byte(0, mload(b)))),
+                        or(shl(238, byte(0, mload(c))), shl(232, byte(0, mload(d))))
                     )
                 )
 
