@@ -16,11 +16,6 @@ library Base58 {
 
     error InvalidBase56Digit(uint8);
 
-    /**
-     * @dev Base58 encoding & decoding tables
-     * See sections 2 of https://datatracker.ietf.org/doc/html/draft-msporny-base58-03
-     */
-    bytes internal constant _TABLE = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
     bytes internal constant _LOOKUP_TABLE =
         hex"000102030405060708ffffffffffffff090a0b0c0d0e0f10ff1112131415ff161718191a1b1c1d1e1f20ffffffffffff2122232425262728292a2bff2c2d2e2f30313233343536373839";
 
@@ -39,29 +34,6 @@ library Base58 {
     }
 
     function _encode(bytes memory data) private pure returns (bytes memory encoded) {
-        // For reference, solidity implementation
-        // unchecked {
-        //     uint256 dataLeadingZeros = data.countLeading(0x00);
-        //     uint256 length = dataLeadingZeros + ((data.length - dataLeadingZeros) * 8351) / 6115 + 1;
-        //     encoded = new bytes(length);
-        //     uint256 end = length;
-        //     for (uint256 i = 0; i < data.length; ++i) {
-        //         uint256 ptr = length;
-        //         for (uint256 carry = uint8(data[i]); ptr > end || carry != 0; --ptr) {
-        //             carry += 256 * uint8(encoded[ptr - 1]);
-        //             encoded[ptr - 1] = bytes1(uint8(carry % 58));
-        //             carry /= 58;
-        //         }
-        //         end = ptr;
-        //     }
-        //     uint256 encodedCLZ = encoded.countLeading(0x00);
-        //     length -= encodedCLZ - dataLeadingZeros;
-        //     encoded.splice(encodedCLZ - dataLeadingZeros);
-        //     for (uint256 i = 0; i < length; ++i) {
-        //         encoded[i] = _TABLE[uint8(encoded[i])];
-        //     }
-        // }
-
         uint256 dataLength = data.length;
         if (dataLength == 0) return "";
 
@@ -100,6 +72,7 @@ library Base58 {
             }
 
             // Store the encoding table. This overlaps with the FMP that we are going to reset later anyway.
+            // See sections 2 of https://datatracker.ietf.org/doc/html/draft-msporny-base58-03
             mstore(0x1f, "123456789ABCDEFGHJKLMNPQRSTUVWXY")
             mstore(0x3f, "Zabcdefghijkmnopqrstuvwxyz")
 
@@ -118,7 +91,7 @@ library Base58 {
                     break
                 }
 
-                // base 58 arithmetics on the 248bits limbs
+                // base 58 arithmetic on the 248bits limbs
                 let carry := 0
                 for {
                     i := scratch
