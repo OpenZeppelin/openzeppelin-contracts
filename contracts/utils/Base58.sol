@@ -65,9 +65,10 @@ library Base58 {
         // Assembly is ~50% cheaper for buffers of size 32.
         assembly ("memory-safe") {
             function clzBytes(ptr, length) -> i {
+                // for continues while `i < length` = 1 (true) and the byte at `ptr+1` to be 0
                 for {
                     i := 0
-                } and(iszero(byte(0, mload(add(ptr, i)))), lt(i, length)) {
+                } lt(byte(0, mload(add(ptr, i))), lt(i, length)) {
                     i := add(i, 1)
                 } {}
             }
@@ -79,8 +80,8 @@ library Base58 {
             // at then beginning of the encoded string.
             let dataLeadingZeros := clzBytes(add(data, 0x20), dataLength)
 
-            // Initial encoding length: 100% of zero bytes (zero prefix) + 138% of non zero bytes + 1
-            let slotLength := add(add(div(mul(sub(dataLength, dataLeadingZeros), 138), 100), dataLeadingZeros), 1)
+            // Initial encoding length: 100% of zero bytes (zero prefix) + ~137% of non zero bytes + 1
+            let slotLength := add(add(div(mul(sub(dataLength, dataLeadingZeros), 8351), 6115), dataLeadingZeros), 32)
 
             // Zero the encoded buffer
             calldatacopy(add(encoded, 0x20), calldatasize(), slotLength)
@@ -120,6 +121,13 @@ library Base58 {
             // For each slot, use the table to obtain the corresponding base58 "digit".
             for {
                 let i := 0
+            } lt(i, dataLeadingZeros) {
+                i := add(i, 32)
+            } {
+                mstore(add(add(encoded, 0x20), i), "11111111111111111111111111111111")
+            }
+            for {
+                let i := dataLeadingZeros
             } lt(i, encodedLength) {
                 i := add(i, 1)
             } {
