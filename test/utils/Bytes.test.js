@@ -56,8 +56,37 @@ describe('Bytes', function () {
     });
   });
 
-  describe('slice', function () {
-    describe('slice(bytes, uint256)', function () {
+  describe('countConsecutive', function () {
+    it('empty buffer', async function () {
+      await expect(this.mock.$countConsecutive('0x', 0, '0x00')).to.eventually.equal(0);
+    });
+
+    it('no occurrence', async function () {
+      await expect(this.mock.$countConsecutive('0xa4f678', 0, '0x00')).to.eventually.equal(0);
+      await expect(this.mock.$countConsecutive('0x000000', 0, '0x01')).to.eventually.equal(0);
+    });
+
+    it('single occurrence', async function () {
+      await expect(this.mock.$countConsecutive('0xa4f678', 0, '0xa4')).to.eventually.equal(1);
+      await expect(this.mock.$countConsecutive('0xa4f678', 1, '0xf6')).to.eventually.equal(1);
+      await expect(this.mock.$countConsecutive('0xa4f678', 2, '0x78')).to.eventually.equal(1);
+    });
+
+    it('multiple occurrence', async function () {
+      await expect(this.mock.$countConsecutive('0xa4a4f6f6f6f678', 0, '0xa4')).to.eventually.equal(2);
+      await expect(this.mock.$countConsecutive('0xa4a4f6f6f6f678', 2, '0xf6')).to.eventually.equal(4);
+      await expect(this.mock.$countConsecutive('0x78787878787878', 0, '0x78')).to.eventually.equal(7);
+      await expect(this.mock.$countConsecutive('0x78787878787878', 3, '0x78')).to.eventually.equal(4);
+    });
+
+    it('out of bound offset', async function () {
+      await expect(this.mock.$countConsecutive('0x000000', 3, '0x00')).to.eventually.equal(0);
+      await expect(this.mock.$countConsecutive('0x000000', 42, '0x00')).to.eventually.equal(0);
+    });
+  });
+
+  describe('slice & splice', function () {
+    describe('slice(bytes, uint256) & splice(bytes, uint256)', function () {
       for (const [descr, start] of Object.entries({
         'start = 0': 0,
         'start within bound': 10,
@@ -66,11 +95,12 @@ describe('Bytes', function () {
         it(descr, async function () {
           const result = ethers.hexlify(lorem.slice(start));
           expect(await this.mock.$slice(lorem, start)).to.equal(result);
+          expect(await this.mock.$splice(lorem, start)).to.equal(result);
         });
       }
     });
 
-    describe('slice(bytes, uint256, uint256)', function () {
+    describe('slice(bytes, uint256, uint256) & splice(bytes, uint256, uint256)', function () {
       for (const [descr, [start, end]] of Object.entries({
         'start = 0': [0, 42],
         'start and end within bound': [17, 42],
@@ -81,6 +111,7 @@ describe('Bytes', function () {
         it(descr, async function () {
           const result = ethers.hexlify(lorem.slice(start, end));
           expect(await this.mock.$slice(lorem, start, ethers.Typed.uint256(end))).to.equal(result);
+          expect(await this.mock.$splice(lorem, start, ethers.Typed.uint256(end))).to.equal(result);
         });
       }
     });
