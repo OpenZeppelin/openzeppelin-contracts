@@ -158,6 +158,10 @@ describe('AccountMultiSignerWeighted', function () {
       await expect(this.mock.signerWeight(signer3)).to.eventually.equal(3); // unchanged
     });
 
+    it("no-op doesn't emit an event", async function () {
+      await expect(this.mock.$_setSignerWeights([signer1], [1])).to.not.emit(this.mock, 'ERC7913SignerWeightChanged');
+    });
+
     it('cannot set weight to non-existent signer', async function () {
       // Reverts when setting weight for non-existent signer
       await expect(this.mock.$_setSignerWeights([signer4], [1]))
@@ -186,14 +190,9 @@ describe('AccountMultiSignerWeighted', function () {
     });
 
     it('validates threshold is reachable when updating weights', async function () {
-      // First, lower the weights so the sum is exactly 6 (just enough for threshold=6)
-      await expect(this.mock.$_setSignerWeights([signer1, signer2, signer3], [1, 2, 3]))
-        .to.emit(this.mock, 'ERC7913SignerWeightChanged')
-        .withArgs(signer1, 1)
-        .to.emit(this.mock, 'ERC7913SignerWeightChanged')
-        .withArgs(signer2, 2)
-        .to.emit(this.mock, 'ERC7913SignerWeightChanged')
-        .withArgs(signer3, 3);
+      await expect(this.mock.signerWeight(signer1)).to.eventually.equal(1);
+      await expect(this.mock.signerWeight(signer2)).to.eventually.equal(2);
+      await expect(this.mock.signerWeight(signer3)).to.eventually.equal(3);
 
       // Increase threshold to 6
       await expect(this.mock.$_setThreshold(6)).to.emit(this.mock, 'ERC7913ThresholdSet').withArgs(6);
