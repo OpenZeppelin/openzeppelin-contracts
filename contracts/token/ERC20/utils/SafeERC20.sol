@@ -239,7 +239,7 @@ library SafeERC20 {
                 // - we got returndata (in that case mload(0x00) is a real false)
                 // - the token address doesn't have code
                 if and(success, or(gt(returndatasize(), 0), iszero(extcodesize(token)))) {
-                    // than the transfer is a failure
+                    // then the transfer is a failure
                     success := 0
                 }
             }
