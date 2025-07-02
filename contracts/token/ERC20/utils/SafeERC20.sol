@@ -236,7 +236,7 @@ library SafeERC20 {
                     revert(fmp, returndatasize())
                 }
                 // if the call is successful, and either
-                // - we got returndata (is that case mload(0x00) is a real false)
+                // - we got returndata (in that case mload(0x00) is a real false)
                 // - the token address doesn't have code
                 if and(success, or(gt(returndatasize(), 0), iszero(extcodesize(token)))) {
                     // than the transfer is a failure
