@@ -225,7 +225,7 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
      *
      * Requirements:
      *
-     * * The `signatures` arrays must be at least as large as the `signers` arrays. Panics otherwise.
+     * * The `signatures` arrays must be equal in length to the `signers` arrays. Panics otherwise.
      */
     function _validateSignatures(
         bytes32 hash,
