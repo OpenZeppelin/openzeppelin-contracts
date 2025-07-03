@@ -105,18 +105,22 @@ abstract contract MultiSignerERC7913Weighted is MultiSignerERC7913 {
         uint256 extraWeightRemoved = 0;
         for (uint256 i = 0; i < signers.length; ++i) {
             bytes memory signer = signers[i];
-            uint64 weight = weights[i];
-
             require(isSigner(signer), MultiSignerERC7913NonexistentSigner(signer));
+
+            uint64 weight = weights[i];
             require(weight > 0, MultiSignerERC7913WeightedInvalidWeight(signer, weight));
 
             unchecked {
-                // Overflow impossible: weight values are bounded by uint64 and economic constraints
-                extraWeightRemoved += _extraWeights[signer];
-                extraWeightAdded += _extraWeights[signer] = weight - 1;
-            }
+                uint64 oldExtraWeight = _extraWeights[signer];
+                uint64 newExtraWeight = weight - 1;
 
-            emit ERC7913SignerWeightChanged(signer, weight);
+                if (oldExtraWeight != newExtraWeight) {
+                    // Overflow impossible: weight values are bounded by uint64 and economic constraints
+                    extraWeightRemoved += oldExtraWeight;
+                    extraWeightAdded += _extraWeights[signer] = newExtraWeight;
+                    emit ERC7913SignerWeightChanged(signer, weight);
+                }
+            }
         }
         unchecked {
             // Safe from underflow: `extraWeightRemoved` is bounded by `_totalExtraWeight` by construction
