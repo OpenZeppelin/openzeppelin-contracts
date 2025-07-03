@@ -220,8 +220,9 @@ library EnumerableMap {
     /**
      * @dev Removes all the entries from a map. O(n).
      *
-     * WARNING: Developers should keep in mind that this function has an unbounded cost and using it may render the
-     * function uncallable if the map grows to the point where clearing it consumes too much gas to fit in a block.
+     * WARNING: This function has an unbounded cost that scales with map size. Developers should keep in mind that
+     * using it may render the function uncallable if the map grows to the point where clearing it consumes too much
+     * gas to fit in a block.
      */
     function clear(UintToUintMap storage map) internal {
         clear(map._inner);
@@ -342,8 +343,9 @@ library EnumerableMap {
     /**
      * @dev Removes all the entries from a map. O(n).
      *
-     * WARNING: Developers should keep in mind that this function has an unbounded cost and using it may render the
-     * function uncallable if the map grows to the point where clearing it consumes too much gas to fit in a block.
+     * WARNING: This function has an unbounded cost that scales with map size. Developers should keep in mind that
+     * using it may render the function uncallable if the map grows to the point where clearing it consumes too much
+     * gas to fit in a block.
      */
     function clear(UintToAddressMap storage map) internal {
         clear(map._inner);
@@ -464,8 +466,9 @@ library EnumerableMap {
     /**
      * @dev Removes all the entries from a map. O(n).
      *
-     * WARNING: Developers should keep in mind that this function has an unbounded cost and using it may render the
-     * function uncallable if the map grows to the point where clearing it consumes too much gas to fit in a block.
+     * WARNING: This function has an unbounded cost that scales with map size. Developers should keep in mind that
+     * using it may render the function uncallable if the map grows to the point where clearing it consumes too much
+     * gas to fit in a block.
      */
     function clear(UintToBytes32Map storage map) internal {
         clear(map._inner);
@@ -586,8 +589,9 @@ library EnumerableMap {
     /**
      * @dev Removes all the entries from a map. O(n).
      *
-     * WARNING: Developers should keep in mind that this function has an unbounded cost and using it may render the
-     * function uncallable if the map grows to the point where clearing it consumes too much gas to fit in a block.
+     * WARNING: This function has an unbounded cost that scales with map size. Developers should keep in mind that
+     * using it may render the function uncallable if the map grows to the point where clearing it consumes too much
+     * gas to fit in a block.
      */
     function clear(AddressToUintMap storage map) internal {
         clear(map._inner);
@@ -708,8 +712,9 @@ library EnumerableMap {
     /**
      * @dev Removes all the entries from a map. O(n).
      *
-     * WARNING: Developers should keep in mind that this function has an unbounded cost and using it may render the
-     * function uncallable if the map grows to the point where clearing it consumes too much gas to fit in a block.
+     * WARNING: This function has an unbounded cost that scales with map size. Developers should keep in mind that
+     * using it may render the function uncallable if the map grows to the point where clearing it consumes too much
+     * gas to fit in a block.
      */
     function clear(AddressToAddressMap storage map) internal {
         clear(map._inner);
@@ -834,8 +839,9 @@ library EnumerableMap {
     /**
      * @dev Removes all the entries from a map. O(n).
      *
-     * WARNING: Developers should keep in mind that this function has an unbounded cost and using it may render the
-     * function uncallable if the map grows to the point where clearing it consumes too much gas to fit in a block.
+     * WARNING: This function has an unbounded cost that scales with map size. Developers should keep in mind that
+     * using it may render the function uncallable if the map grows to the point where clearing it consumes too much
+     * gas to fit in a block.
      */
     function clear(AddressToBytes32Map storage map) internal {
         clear(map._inner);
@@ -960,8 +966,9 @@ library EnumerableMap {
     /**
      * @dev Removes all the entries from a map. O(n).
      *
-     * WARNING: Developers should keep in mind that this function has an unbounded cost and using it may render the
-     * function uncallable if the map grows to the point where clearing it consumes too much gas to fit in a block.
+     * WARNING: This function has an unbounded cost that scales with map size. Developers should keep in mind that
+     * using it may render the function uncallable if the map grows to the point where clearing it consumes too much
+     * gas to fit in a block.
      */
     function clear(Bytes32ToUintMap storage map) internal {
         clear(map._inner);
@@ -1082,8 +1089,9 @@ library EnumerableMap {
     /**
      * @dev Removes all the entries from a map. O(n).
      *
-     * WARNING: Developers should keep in mind that this function has an unbounded cost and using it may render the
-     * function uncallable if the map grows to the point where clearing it consumes too much gas to fit in a block.
+     * WARNING: This function has an unbounded cost that scales with map size. Developers should keep in mind that
+     * using it may render the function uncallable if the map grows to the point where clearing it consumes too much
+     * gas to fit in a block.
      */
     function clear(Bytes32ToAddressMap storage map) internal {
         clear(map._inner);
