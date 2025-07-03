@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.27;
+pragma solidity ^0.8.26;
 
 import {SafeCast} from "../../math/SafeCast.sol";
 import {MultiSignerERC7913} from "./MultiSignerERC7913.sol";
