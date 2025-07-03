@@ -190,23 +190,28 @@ describe('AccountMultiSignerWeighted', function () {
     });
 
     it('validates threshold is reachable when updating weights', async function () {
-      await expect(this.mock.signerWeight(signer1)).to.eventually.equal(1);
-      await expect(this.mock.signerWeight(signer2)).to.eventually.equal(2);
-      await expect(this.mock.signerWeight(signer3)).to.eventually.equal(3);
+      // First, lower the weights so the sum is exactly 9 (just enough for threshold=9)
+      await expect(this.mock.$_setSignerWeights([signer1, signer2, signer3], [2, 3, 4]))
+        .to.emit(this.mock, 'ERC7913SignerWeightChanged')
+        .withArgs(signer1, 2)
+        .to.emit(this.mock, 'ERC7913SignerWeightChanged')
+        .withArgs(signer2, 3)
+        .to.emit(this.mock, 'ERC7913SignerWeightChanged')
+        .withArgs(signer3, 4);
 
-      // Increase threshold to 6
-      await expect(this.mock.$_setThreshold(6)).to.emit(this.mock, 'ERC7913ThresholdSet').withArgs(6);
+      // Increase threshold to 9
+      await expect(this.mock.$_setThreshold(9)).to.emit(this.mock, 'ERC7913ThresholdSet').withArgs(9);
 
       // Now try to lower weights so their sum is less than the threshold
-      await expect(this.mock.$_setSignerWeights([signer1, signer2, signer3], [1, 1, 1])).to.be.revertedWithCustomError(
+      await expect(this.mock.$_setSignerWeights([signer1, signer2, signer3], [2, 2, 2])).to.be.revertedWithCustomError(
         this.mock,
         'MultiSignerERC7913UnreachableThreshold',
       );
 
       // Try to increase threshold to be larger than the total weight
-      await expect(this.mock.$_setThreshold(7))
+      await expect(this.mock.$_setThreshold(10))
         .to.be.revertedWithCustomError(this.mock, 'MultiSignerERC7913UnreachableThreshold')
-        .withArgs(6, 7);
+        .withArgs(9, 10);
     });
 
     it('reports default weight of 1 for signers without explicit weight', async function () {
