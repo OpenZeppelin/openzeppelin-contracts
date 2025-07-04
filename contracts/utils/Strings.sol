@@ -6,6 +6,7 @@ pragma solidity ^0.8.20;
 import {Math} from "./math/Math.sol";
 import {SafeCast} from "./math/SafeCast.sol";
 import {SignedMath} from "./math/SignedMath.sol";
+import {Bytes} from "./Bytes.sol";
 
 /**
  * @dev String operations.
@@ -132,7 +133,7 @@ library Strings {
      * @dev Returns true if the two strings are equal.
      */
     function equal(string memory a, string memory b) internal pure returns (bool) {
-        return bytes(a).length == bytes(b).length && keccak256(bytes(a)) == keccak256(bytes(b));
+        return Bytes.equal(bytes(a), bytes(b));
     }
 
     /**
