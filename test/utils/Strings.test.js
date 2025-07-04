@@ -186,6 +186,17 @@ describe('Strings', function () {
     });
   });
 
+  describe('bytes', function () {
+    describe('toHexString', function () {
+      for (const length of [0, 17, 20, 32, 42, 64, 512]) {
+        const input = ethers.hexlify(ethers.randomBytes(length));
+        it(`hexlify buffer of length ${length}`, async function () {
+          expect(await this.mock.getFunction('$toHexString(bytes)')(input)).to.equal(input);
+        });
+      }
+    });
+  });
+
   describe('equal', function () {
     it('compares two empty strings', async function () {
       expect(await this.mock.$equal('', '')).to.be.true;
