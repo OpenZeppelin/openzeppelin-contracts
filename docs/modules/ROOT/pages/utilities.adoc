@@ -480,11 +480,11 @@ Note that each iteration allocates new memory for `tempData`, causing the memory
 [source,solidity]
 ----
 function processMultipleItems(uint256[] memory items) internal {
-  Memory.Pointer ptr = Memory.getFreePointer(); // Cache pointer
+  Memory.Pointer ptr = Memory.getFreeMemoryPointer(); // Cache pointer
   for (uint256 i = 0; i < items.length; i++) {
     bytes memory tempData = abi.encode(items[i], block.timestamp);
     // Process tempData...
-    Memory.setFreePointer(ptr); // Reset pointer for reuse
+    Memory.setFreeMemoryPointer(ptr); // Reset pointer for reuse
   }
 }
 ----

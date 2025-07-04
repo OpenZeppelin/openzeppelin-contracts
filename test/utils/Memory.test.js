@@ -16,23 +16,23 @@ describe('Memory', function () {
   describe('free pointer', function () {
     it('sets free memory pointer', async function () {
       const ptr = ethers.toBeHex(0xa0, 32);
-      await expect(this.mock.$setFreePointer(ptr)).to.not.be.reverted;
+      await expect(this.mock.$setFreeMemoryPointer(ptr)).to.not.be.reverted;
     });
 
     it('gets free memory pointer', async function () {
-      await expect(this.mock.$getFreePointer()).to.eventually.equal(
+      await expect(this.mock.$getFreeMemoryPointer()).to.eventually.equal(
         ethers.toBeHex(0x80, 32), // Default pointer
       );
     });
   });
 
   it('load extracts a word', async function () {
-    const ptr = await this.mock.$getFreePointer();
+    const ptr = await this.mock.$getFreeMemoryPointer();
     await expect(this.mock.$load(ptr)).to.eventually.equal(ethers.toBeHex(0, 32));
   });
 
   it('loadByte extracts a byte', async function () {
-    const ptr = await this.mock.$getFreePointer();
+    const ptr = await this.mock.$getFreeMemoryPointer();
     await expect(this.mock.$loadByte(ptr, 0)).to.eventually.equal(ethers.toBeHex(0, 1));
   });
 

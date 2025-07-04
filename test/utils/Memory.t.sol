@@ -13,10 +13,10 @@ contract MemoryTest is Test {
     // - moving the free memory pointer to far causes OOG errors
     uint256 constant END_PTR = type(uint24).max;
 
-    function testGetSetFreePointer(uint256 seed) public pure {
+    function testGetsetFreeMemoryPointer(uint256 seed) public pure {
         bytes32 ptr = bytes32(bound(seed, START_PTR, END_PTR));
-        ptr.asPointer().setFreePointer();
-        assertEq(Memory.getFreePointer().asBytes32(), ptr);
+        ptr.asPointer().setFreeMemoryPointer();
+        assertEq(Memory.getFreeMemoryPointer().asBytes32(), ptr);
     }
 
     function testSymbolicContentPointer(uint256 seed) public pure {
@@ -25,9 +25,9 @@ contract MemoryTest is Test {
     }
 
     function testCopy(bytes memory data, uint256 destSeed) public pure {
-        uint256 minDestPtr = Memory.getFreePointer().asUint256();
+        uint256 minDestPtr = Memory.getFreeMemoryPointer().asUint256();
         Memory.Pointer destPtr = bytes32(bound(destSeed, minDestPtr, minDestPtr + END_PTR)).asPointer();
-        destPtr.addOffset(data.length + 32).setFreePointer();
+        destPtr.addOffset(data.length + 32).setFreeMemoryPointer();
         destPtr.copy(data.asPointer(), data.length + 32);
         bytes memory copiedData = destPtr.asBytes();
         assertEq(data.length, copiedData.length);
