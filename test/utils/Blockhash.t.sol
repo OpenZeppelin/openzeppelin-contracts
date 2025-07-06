@@ -67,6 +67,7 @@ contract BlockhashTest is Test {
     function testFuzzFutureBlocks(uint256 offset, uint256 currentBlock) public {
         // Future blocks
         offset = bound(offset, 1, type(uint256).max);
+        currentBlock = bound(currentBlock, 0, type(uint256).max - offset);
         vm.roll(currentBlock);
 
         unchecked {
