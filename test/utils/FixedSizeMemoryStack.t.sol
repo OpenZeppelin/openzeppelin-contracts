@@ -36,12 +36,16 @@ contract FixedSizeMemoryStackTest is Test, SymTest {
     }
 
     /// forge-config: default.allow_internal_expect_revert = true
-    function testPeek() public {
+    function testPeekStackUnderflow() public {
         FixedSizeMemoryStack.Stack memory stack = FixedSizeMemoryStack.init(10);
 
         vm.expectRevert(abi.encodeWithSelector(FixedSizeMemoryStack.StackUnderflow.selector));
         stack.peek();
         assertEq(stack._top, 0);
+    }
+
+    function testPeek() public {
+        FixedSizeMemoryStack.Stack memory stack = FixedSizeMemoryStack.init(10);
 
         stack.push(bytes32(uint256(1)));
         stack.push(bytes32(uint256(2)));

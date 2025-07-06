@@ -49,9 +49,7 @@ library FixedSizeMemoryStack {
         uint256 t = stack._top;
         if (t >= stack._data.length) revert StackOverflow(stack._data.length);
         stack._data[t] = value;
-        unchecked {
-            stack._top = t + 1;
-        }
+        stack._top = t + 1;
     }
 
     /// @notice Pop the top value from the stack.
@@ -60,9 +58,7 @@ library FixedSizeMemoryStack {
     function pop(Stack memory stack) internal pure returns (bytes32 value) {
         uint256 t = stack._top;
         if (t == 0) revert StackUnderflow();
-        unchecked {
-            t -= 1;
-        }
+        t -= 1;
         value = stack._data[t];
         stack._top = t;
     }
