@@ -123,7 +123,7 @@ async function runCertora(spec, contract, files, options = []) {
   stream.end();
 
   // write results in markdown format
-  writeEntry(spec, contract, code || signal, (await output).match(/https:\/\/prover.certora.com\/output\/\S*/)?.[0]);
+  writeEntry(spec, contract, !(code || signal), (await output).match(/https:\/\/prover.certora.com\/output\/\S*/)?.[0]);
 
   // write all details
   console.error(`+ certoraRun ${args.join(' ')}\n` + (await output));
