@@ -87,23 +87,31 @@ rule callOpcodeRule(
             isExecutionModule
         ) || (
             f.selector == sig:installModule(uint256,address,bytes).selector &&
-            isEntryPointOrSelf
+            isEntryPointOrSelf &&
+            call_value == 0
         ) || (
             f.selector == sig:uninstallModule(uint256,address,bytes).selector &&
-            isEntryPointOrSelf
+            isEntryPointOrSelf &&
+            call_value == 0
         ) || (
             f.selector == sig:validateUserOp(Account.PackedUserOperation,bytes32,uint256).selector &&
             isEntryPoint &&
             (
-                // payPrefund (target is entryPoint and argsLength is 0)
-                (call_target == entryPoint() && call_argsLength == 0 && call_value > 0)
-                ||
-                // isValidSignatureWithSender (target is as validation module)
-                (isModuleInstalled(1, call_target, context))
+                (
+                    // payPrefund (target is entryPoint and argsLength is 0)
+                    call_target == entryPoint() &&
+                    call_value > 0 &&
+                    call_argsLength == 0
+                ) || (
+                    // isValidSignatureWithSender (target is as validation module)
+                    isModuleInstalled(1, call_target, context) &&
+                    call_value == 0
+                )
             )
         ) || (
             fallbackHandler != 0 &&
-            call_target == fallbackHandler
+            call_target == fallbackHandler &&
+            call_value == e.msg.value
         )
     );
 }
