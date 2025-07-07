@@ -5,13 +5,7 @@ import {Test} from "forge-std/Test.sol";
 import {AccountERC7702Mock} from "@openzeppelin/contracts/mocks/account/AccountMock.sol";
 import {CallReceiverMock} from "@openzeppelin/contracts/mocks/CallReceiverMock.sol";
 import {EIP712} from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
-import {
-    ERC7579Utils,
-    Execution,
-    Mode,
-    ModeSelector,
-    ModePayload
-} from "@openzeppelin/contracts/account/utils/draft-ERC7579Utils.sol";
+import {ERC7579Utils, Execution, Mode, ModeSelector, ModePayload} from "@openzeppelin/contracts/account/utils/draft-ERC7579Utils.sol";
 import {ERC4337Utils, IEntryPointExtra} from "@openzeppelin/contracts/account/utils/draft-ERC4337Utils.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {PackedUserOperation} from "@openzeppelin/contracts/interfaces/draft-IERC4337.sol";

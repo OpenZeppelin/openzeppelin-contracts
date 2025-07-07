@@ -2,14 +2,7 @@
 
 pragma solidity ^0.8.24;
 
-import {
-    MODULE_TYPE_HOOK,
-    MODULE_TYPE_FALLBACK,
-    MODULE_TYPE_VALIDATOR,
-    IERC7579Hook,
-    IERC7579Module,
-    IERC7579Validator
-} from "../../../interfaces/draft-IERC7579.sol";
+import {MODULE_TYPE_HOOK, MODULE_TYPE_FALLBACK, MODULE_TYPE_VALIDATOR, IERC7579Hook, IERC7579Module, IERC7579Validator} from "../../../interfaces/draft-IERC7579.sol";
 import {SignatureChecker} from "../../../utils/cryptography/SignatureChecker.sol";
 import {PackedUserOperation} from "../../../interfaces/draft-IERC4337.sol";
 import {IERC1271} from "../../../interfaces/IERC1271.sol";
