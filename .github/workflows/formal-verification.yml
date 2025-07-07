@@ -65,6 +65,8 @@ jobs:
         run: |
           make -C certora apply
           node certora/run.js ${{ steps.arguments.outputs.result }} -p 1 -v >> "$GITHUB_STEP_SUMMARY"
+        env:
+          CERTORAKEY: ${{ secrets.CERTORAKEY }}
 
   halmos:
     runs-on: ubuntu-latest
