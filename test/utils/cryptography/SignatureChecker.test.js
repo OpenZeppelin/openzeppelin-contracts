@@ -36,23 +36,29 @@ describe('SignatureChecker (ERC1271)', function () {
       await expect(
         this.mock.$isValidSignatureNow(ethers.Typed.address(this.signer.address), TEST_MESSAGE_HASH, this.signature),
       ).to.eventually.be.true;
+      await expect(this.mock.$isValidSignatureNowCalldata(this.signer.address, TEST_MESSAGE_HASH, this.signature)).to
+        .eventually.be.true;
     });
 
     it('with invalid signer', async function () {
       await expect(
         this.mock.$isValidSignatureNow(ethers.Typed.address(this.other.address), TEST_MESSAGE_HASH, this.signature),
       ).to.eventually.be.false;
+      await expect(this.mock.$isValidSignatureNowCalldata(this.other.address, TEST_MESSAGE_HASH, this.signature)).to
+        .eventually.be.false;
     });
 
     it('with invalid signature', async function () {
       await expect(
         this.mock.$isValidSignatureNow(ethers.Typed.address(this.signer.address), WRONG_MESSAGE_HASH, this.signature),
       ).to.eventually.be.false;
+      await expect(this.mock.$isValidSignatureNowCalldata(this.signer.address, WRONG_MESSAGE_HASH, this.signature)).to
+        .eventually.be.false;
     });
   });
 
   describe('ERC1271 wallet', function () {
-    for (const fn of ['isValidERC1271SignatureNow', 'isValidSignatureNow']) {
+    for (const fn of ['isValidERC1271SignatureNow', 'isValidSignatureNow', 'isValidSignatureNowCalldata']) {
       describe(fn, function () {
         it('with matching signer and signature', async function () {
           await expect(

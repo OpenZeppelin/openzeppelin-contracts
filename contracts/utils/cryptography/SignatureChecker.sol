@@ -39,6 +39,22 @@ library SignatureChecker {
     }
 
     /**
+     * @dev Variant of {isValidSignatureNow} that takes a signature in calldata
+     */
+    function isValidSignatureNowCalldata(
+        address signer,
+        bytes32 hash,
+        bytes calldata signature
+    ) internal view returns (bool) {
+        if (signer.code.length == 0) {
+            (address recovered, ECDSA.RecoverError err, ) = ECDSA.tryRecoverCalldata(hash, signature);
+            return err == ECDSA.RecoverError.NoError && recovered == signer;
+        } else {
+            return isValidERC1271SignatureNow(signer, hash, signature);
+        }
+    }
+
+    /**
      * @dev Checks if a signature is valid for a given signer and data hash. The signature is validated
      * against the signer smart contract using ERC-1271.
      *
