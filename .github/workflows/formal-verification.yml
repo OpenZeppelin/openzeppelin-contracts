@@ -64,7 +64,7 @@ jobs:
       - name: Verify specification
         run: |
           make -C certora apply
-          node certora/run.js ${{ steps.arguments.outputs.result }} --parallel 1 --verbose >> "$GITHUB_STEP_SUMMARY"
+          node certora/run.js ${{ steps.arguments.outputs.result }} -p 1 -v >> "$GITHUB_STEP_SUMMARY"
         env:
           CERTORAKEY: ${{ secrets.CERTORAKEY }}
 

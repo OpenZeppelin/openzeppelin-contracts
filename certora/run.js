@@ -51,7 +51,7 @@ if (argv._.length == 0 && !argv.all) {
                   'https://prover.certora.com/output/[a-z0-9]+/[a-z0-9]+[?]anonymousKey=[a-z0-9]+',
                 );
                 if (error) {
-                  console.error(`[ERR] ${conf} failed with:\n${stderr}`);
+                  console.error(`[ERR] ${conf} failed with:\n${stderr || stdout}`);
                   process.exitCode = 1;
                 } else if (match) {
                   console.log(`${conf} - ${match[0]}`);
