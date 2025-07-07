@@ -85,8 +85,8 @@ library ECDSA {
             bytes32 r;
             bytes32 s;
             uint8 v;
-            // ecrecover takes the signature parameters, and the only way to get them
-            // currently is to use assembly.
+            // ecrecover takes the signature parameters, calldata slices would work here, but are
+            // significantly more expensive (length check) than using calldataload in assembly.
             assembly ("memory-safe") {
                 r := calldataload(signature.offset)
                 s := calldataload(add(signature.offset, 0x20))
