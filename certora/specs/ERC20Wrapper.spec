@@ -2,14 +2,14 @@ import "helpers/helpers.spec";
 import "ERC20.spec";
 
 methods {
-    function underlying()                       external returns(address) envfree;
-    function underlyingTotalSupply()            external returns(uint256) envfree;
-    function underlyingBalanceOf(address)       external returns(uint256) envfree;
-    function underlyingAllowanceToThis(address) external returns(uint256) envfree;
+    function underlying()                          external returns(address) envfree;
+    function underlyingTotalSupply()               external returns(uint256) envfree;
+    function underlyingBalanceOf(address)          external returns(uint256) envfree;
+    function underlyingAllowance(address, address) external returns(uint256) envfree;
 
-    function depositFor(address, uint256)       external returns(bool);
-    function withdrawTo(address, uint256)       external returns(bool);
-    function recover(address)                   external returns(uint256);
+    function depositFor(address, uint256)          external returns(bool);
+    function withdrawTo(address, uint256)          external returns(bool);
+    function recover(address)                      external returns(uint256);
 }
 
 use invariant totalSupplyIsSumOfBalances;
@@ -19,11 +19,24 @@ use invariant totalSupplyIsSumOfBalances;
 │ Helper: consequence of `totalSupplyIsSumOfBalances` applied to underlying                                           │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-definition underlyingBalancesLowerThanUnderlyingSupply(address a) returns bool =
-    underlyingBalanceOf(a) <= underlyingTotalSupply();
-
 definition sumOfUnderlyingBalancesLowerThanUnderlyingSupply(address a, address b) returns bool =
     a != b => underlyingBalanceOf(a) + underlyingBalanceOf(b) <= to_mathint(underlyingTotalSupply());
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Invariant: wrapped token should not allow any third party to spend its tokens                                       │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+invariant noAllowance(address user)
+    underlyingAllowance(currentContract, user) == 0
+    {
+        preserved ERC20PermitHarness.approve(address spender, uint256 value) with (env e) {
+            require e.msg.sender != currentContract;
+        }
+        preserved ERC20PermitHarness.permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s) with (env e) {
+            require owner != currentContract;
+        }
+    }
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -35,12 +48,19 @@ invariant totalSupplyIsSmallerThanUnderlyingBalance()
     underlyingBalanceOf(currentContract) <= underlyingTotalSupply() &&
     underlyingTotalSupply() <= max_uint256
     {
-        preserved {
+        preserved with (env e) {
             requireInvariant totalSupplyIsSumOfBalances;
-            require underlyingBalancesLowerThanUnderlyingSupply(currentContract);
-        }
-        preserved depositFor(address account, uint256 amount) with (env e) {
+            require e.msg.sender != currentContract;
             require sumOfUnderlyingBalancesLowerThanUnderlyingSupply(e.msg.sender, currentContract);
+        }
+        preserved ERC20PermitHarness.transferFrom(address from, address to, uint256 amount) with (env e) {
+            requireInvariant noAllowance(e.msg.sender);
+            require sumOfUnderlyingBalancesLowerThanUnderlyingSupply(from, to);
+        }
+        preserved ERC20PermitHarness.burn(address from, uint256 amount) with (env e) {
+            // If someone can burn from the wrapper, than the invariant obviously doesn't hold.
+            require from != currentContract;
+            require sumOfUnderlyingBalancesLowerThanUnderlyingSupply(from, currentContract);
         }
     }
 
@@ -69,7 +89,7 @@ rule depositFor(env e) {
     uint256 balanceBefore                   = balanceOf(receiver);
     uint256 supplyBefore                    = totalSupply();
     uint256 senderUnderlyingBalanceBefore   = underlyingBalanceOf(sender);
-    uint256 senderUnderlyingAllowanceBefore = underlyingAllowanceToThis(sender);
+    uint256 senderUnderlyingAllowanceBefore = underlyingAllowance(sender, currentContract);
     uint256 wrapperUnderlyingBalanceBefore  = underlyingBalanceOf(currentContract);
     uint256 underlyingSupplyBefore          = underlyingTotalSupply();
 

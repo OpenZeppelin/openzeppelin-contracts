@@ -20,8 +20,8 @@ contract ERC20WrapperHarness is ERC20Permit, ERC20Wrapper {
         return underlying().balanceOf(account);
     }
 
-    function underlyingAllowanceToThis(address account) public view returns (uint256) {
-        return underlying().allowance(account, address(this));
+    function underlyingAllowance(address spender, address receiver) public view returns (uint256) {
+        return underlying().allowance(spender, receiver);
     }
 
     function recover(address account) public returns (uint256) {
