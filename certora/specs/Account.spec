@@ -74,7 +74,7 @@ rule callOpcodeRule(
     bool isEntryPoint = e.msg.sender == entryPoint();
     bool isEntryPointOrSelf = e.msg.sender == entryPoint() || e.msg.sender == currentContract;
     bool isExecutionModule = isModuleInstalled(2, e.msg.sender, context);
-    address fallbackHandler = getFallbackHandler(f.selector);
+    address fallbackHandler = getFallbackHandler(to_bytes4(f.selector));
 
     f(e, args);
 

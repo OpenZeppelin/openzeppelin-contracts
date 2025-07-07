@@ -7,7 +7,7 @@ import {EIP712} from "../patched/utils/cryptography/EIP712.sol";
 contract AccountHarness is AccountERC7702WithModulesMock {
     constructor(string memory name, string memory version) EIP712(name, version) {}
 
-    function getFallbackHandler(uint32 selector) external view returns (address) {
-        return _fallbackHandler(bytes4(selector));
+    function getFallbackHandler(bytes4 selector) external view returns (address) {
+        return _fallbackHandler(selector);
     }
 }
