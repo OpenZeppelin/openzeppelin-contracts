@@ -184,6 +184,7 @@ library SafeERC20 {
             mstore(0x24, value)
             success := call(gas(), token, 0, 0, 0x44, 0, 0x20)
             // if call success and return is true, all is good.
+            // otherwize (not success or return is not true), we need to perform further checks
             if iszero(and(success, eq(mload(0x00), 1))) {
                 // if the call was a failure and bubble is enabled, bubble the error
                 if and(iszero(success), bubble) {
@@ -229,6 +230,7 @@ library SafeERC20 {
             mstore(0x44, value)
             success := call(gas(), token, 0, 0, 0x64, 0, 0x20)
             // if call success and return is true, all is good.
+            // otherwize (not success or return is not true), we need to perform further checks
             if iszero(and(success, eq(mload(0x00), 1))) {
                 // if the call was a failure and bubble is enabled, bubble the error
                 if and(iszero(success), bubble) {
@@ -267,6 +269,7 @@ library SafeERC20 {
             mstore(0x24, value)
             success := call(gas(), token, 0, 0, 0x44, 0, 0x20)
             // if call success and return is true, all is good.
+            // otherwize (not success or return is not true), we need to perform further checks
             if iszero(and(success, eq(mload(0x00), 1))) {
                 // if the call was a failure and bubble is enabled, bubble the error
                 if and(iszero(success), bubble) {
