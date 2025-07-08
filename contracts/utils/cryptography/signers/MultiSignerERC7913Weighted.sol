@@ -140,7 +140,7 @@ abstract contract MultiSignerERC7913Weighted is MultiSignerERC7913 {
         super._addSigners(newSigners);
 
         // This will revert if the new signers cause an overflow
-        _validateReachableThreshold
+        _validateReachableThreshold();
     }
 
     /**
