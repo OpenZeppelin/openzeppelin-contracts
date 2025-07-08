@@ -1,6 +1,10 @@
 import "helpers/helpers.spec";
 import "methods/IAccount.spec";
 
+methods {
+    function getFallbackHandler(bytes4) external returns (address) envfree;
+}
+
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │                                                  Module management                                                  │
@@ -51,14 +55,16 @@ rule moduleManagementRule(
 */
 ghost bool    call;
 ghost address call_target;
+ghost uint32  call_selector;
 ghost uint256 call_value;
 ghost uint256 call_argsLength;
 
 hook CALL(uint256 gas, address target, uint256 value, uint256 argsOffset, uint256 argsLength, uint256 retOffset, uint256 retLength) uint256 rc {
     if (executingContract == currentContract) {
-        call = true;
-        call_target = target;
-        call_value = value;
+        call            = true;
+        call_target     = target;
+        call_selector   = selector;
+        call_value      = value;
         call_argsLength = argsLength;
     }
 }
@@ -108,8 +114,8 @@ rule callOpcodeRule(env e, method f, calldataarg args) {
                 )
             )
         ) || (
-            // TODO: check target of call is fallbackHandler
             f.isFallback &&
+            call_target == getFallbackHandler(to_bytes4(call_selector)) &&
             call_value == e.msg.value
         )
     );
