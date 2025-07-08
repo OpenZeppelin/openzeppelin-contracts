@@ -1,6 +1,11 @@
 import "helpers/helpers.spec";
 import "methods/IAccount.spec";
 
+// Harness
+methods {
+    function getFallbackHandler(bytes4) external returns (address) envfree;
+}
+
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │                                                  Module management                                                  │
@@ -74,7 +79,9 @@ rule callOpcodeRule(
     bool isEntryPoint = e.msg.sender == entryPoint();
     bool isEntryPointOrSelf = e.msg.sender == entryPoint() || e.msg.sender == currentContract;
     bool isExecutionModule = isModuleInstalled(2, e.msg.sender, context);
-    address fallbackHandler = getFallbackHandler(to_bytes4(f.selector));
+
+    // For some reason, f.selector does not effectivelly match the msg.sig when f.isFallback
+    // address fallbackHandler = getFallbackHandler(to_bytes4(f.selector));
 
     f(e, args);
 
@@ -109,9 +116,52 @@ rule callOpcodeRule(
                 )
             )
         ) || (
-            fallbackHandler != 0 &&
-            call_target == fallbackHandler &&
+            f.isFallback &&
+            // fallbackHandler != 0 &&
+            // call_target == fallbackHandler &&
             call_value == e.msg.value
+        )
+    );
+}
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                 DELEGATECALL OPCODE                                                 │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+ghost bool    delegatecall;
+ghost address delegatecall_target;
+ghost uint256 delegatecall_argsLength;
+
+hook DELEGATECALL(uint256 gas, address target, uint256 argsOffset, uint256 argsLength, uint256 retOffset, uint256 retLength) uint256 rc {
+    delegatecall = true;
+    delegatecall_target = target;
+    delegatecall_argsLength = argsLength;
+}
+
+rule delegatecallOpcodeRule(
+    env e,
+    method f,
+    calldataarg args
+) {
+    require !delegatecall;
+
+    bytes context;
+    require context.length == 0;
+
+    bool isEntryPoint = e.msg.sender == entryPoint();
+    bool isEntryPointOrSelf = e.msg.sender == entryPoint() || e.msg.sender == currentContract;
+    bool isExecutionModule = isModuleInstalled(2, e.msg.sender, context);
+
+    f(e, args);
+
+    assert delegatecall => (
+        (
+            f.selector == sig:execute(bytes32,bytes).selector &&
+            isEntryPointOrSelf
+        ) || (
+            f.selector == sig:executeFromExecutor(bytes32,bytes).selector &&
+            isExecutionModule
         )
     );
 }

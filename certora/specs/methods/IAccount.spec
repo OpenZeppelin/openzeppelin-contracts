@@ -31,7 +31,4 @@ methods {
 
     // IERC165
     function supportsInterface(bytes4)                                         external returns (bool)    envfree;
-
-    // Harness
-    function getFallbackHandler(uint32)                                        external returns (address) envfree;
 }
