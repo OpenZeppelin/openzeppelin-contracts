@@ -1,0 +1,10 @@
+# List of approvers/reviewers for OpenZeppelin Contracts
+#
+# Get in touch with us via the OpenZeppelin Forum
+#  https://forum.openzeppelin.com/
+# 
+# Learn about CODEOWNERS file format: 
+#  https://help.github.com/en/articles/about-code-owners
+
+# These owners will be the default owners for everything in the repo.
+* @OpenZeppelin/contracts

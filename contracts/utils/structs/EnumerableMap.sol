@@ -136,7 +136,7 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Tries to returns the value associated with `key`. O(1).
+     * @dev Tries to return the value associated with `key`. O(1).
      * Does not revert if `key` is not in the map.
      */
     function tryGet(Bytes32ToBytes32Map storage map, bytes32 key) internal view returns (bool exists, bytes32 value) {
@@ -256,7 +256,7 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Tries to returns the value associated with `key`. O(1).
+     * @dev Tries to return the value associated with `key`. O(1).
      * Does not revert if `key` is not in the map.
      */
     function tryGet(UintToUintMap storage map, uint256 key) internal view returns (bool exists, uint256 value) {
@@ -276,7 +276,7 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Return the an array containing all the keys
+     * @dev Returns an array containing all the keys
      *
      * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
      * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
@@ -295,7 +295,7 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Return the an array containing a slice of the keys
+     * @dev Returns an array containing a slice of the keys
      *
      * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
      * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
@@ -378,7 +378,7 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Tries to returns the value associated with `key`. O(1).
+     * @dev Tries to return the value associated with `key`. O(1).
      * Does not revert if `key` is not in the map.
      */
     function tryGet(UintToAddressMap storage map, uint256 key) internal view returns (bool exists, address value) {
@@ -398,7 +398,7 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Return the an array containing all the keys
+     * @dev Returns an array containing all the keys
      *
      * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
      * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
@@ -417,7 +417,7 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Return the an array containing a slice of the keys
+     * @dev Returns an array containing a slice of the keys
      *
      * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
      * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
@@ -500,7 +500,7 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Tries to returns the value associated with `key`. O(1).
+     * @dev Tries to return the value associated with `key`. O(1).
      * Does not revert if `key` is not in the map.
      */
     function tryGet(UintToBytes32Map storage map, uint256 key) internal view returns (bool exists, bytes32 value) {
@@ -520,7 +520,7 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Return the an array containing all the keys
+     * @dev Returns an array containing all the keys
      *
      * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
      * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
@@ -539,7 +539,7 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Return the an array containing a slice of the keys
+     * @dev Returns an array containing a slice of the keys
      *
      * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
      * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
@@ -622,7 +622,7 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Tries to returns the value associated with `key`. O(1).
+     * @dev Tries to return the value associated with `key`. O(1).
      * Does not revert if `key` is not in the map.
      */
     function tryGet(AddressToUintMap storage map, address key) internal view returns (bool exists, uint256 value) {
@@ -642,7 +642,7 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Return the an array containing all the keys
+     * @dev Returns an array containing all the keys
      *
      * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
      * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
@@ -661,7 +661,7 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Return the an array containing a slice of the keys
+     * @dev Returns an array containing a slice of the keys
      *
      * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
      * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
@@ -744,7 +744,7 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Tries to returns the value associated with `key`. O(1).
+     * @dev Tries to return the value associated with `key`. O(1).
      * Does not revert if `key` is not in the map.
      */
     function tryGet(AddressToAddressMap storage map, address key) internal view returns (bool exists, address value) {
@@ -764,7 +764,7 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Return the an array containing all the keys
+     * @dev Returns an array containing all the keys
      *
      * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
      * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
@@ -783,7 +783,7 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Return the an array containing a slice of the keys
+     * @dev Returns an array containing a slice of the keys
      *
      * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
      * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
@@ -870,7 +870,7 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Tries to returns the value associated with `key`. O(1).
+     * @dev Tries to return the value associated with `key`. O(1).
      * Does not revert if `key` is not in the map.
      */
     function tryGet(AddressToBytes32Map storage map, address key) internal view returns (bool exists, bytes32 value) {
@@ -890,7 +890,7 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Return the an array containing all the keys
+     * @dev Returns an array containing all the keys
      *
      * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
      * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
@@ -909,7 +909,7 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Return the an array containing a slice of the keys
+     * @dev Returns an array containing a slice of the keys
      *
      * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
      * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
@@ -996,7 +996,7 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Tries to returns the value associated with `key`. O(1).
+     * @dev Tries to return the value associated with `key`. O(1).
      * Does not revert if `key` is not in the map.
      */
     function tryGet(Bytes32ToUintMap storage map, bytes32 key) internal view returns (bool exists, uint256 value) {
@@ -1016,7 +1016,7 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Return the an array containing all the keys
+     * @dev Returns an array containing all the keys
      *
      * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
      * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
@@ -1035,7 +1035,7 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Return the an array containing a slice of the keys
+     * @dev Returns an array containing a slice of the keys
      *
      * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
      * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
@@ -1118,7 +1118,7 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Tries to returns the value associated with `key`. O(1).
+     * @dev Tries to return the value associated with `key`. O(1).
      * Does not revert if `key` is not in the map.
      */
     function tryGet(Bytes32ToAddressMap storage map, bytes32 key) internal view returns (bool exists, address value) {
@@ -1138,7 +1138,7 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Return the an array containing all the keys
+     * @dev Returns an array containing all the keys
      *
      * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
      * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
@@ -1157,7 +1157,7 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Return the an array containing a slice of the keys
+     * @dev Returns an array containing a slice of the keys
      *
      * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
      * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
@@ -1259,7 +1259,7 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Tries to returns the value associated with `key`. O(1).
+     * @dev Tries to return the value associated with `key`. O(1).
      * Does not revert if `key` is not in the map.
      */
     function tryGet(

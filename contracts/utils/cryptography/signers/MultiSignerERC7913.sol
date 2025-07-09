@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.27;
+pragma solidity ^0.8.26;
 
 import {AbstractSigner} from "./AbstractSigner.sol";
 import {SignatureChecker} from "../SignatureChecker.sol";
@@ -18,8 +18,6 @@ import {EnumerableSet} from "../../structs/EnumerableSet.sol";
  *
  * ```solidity
  * contract MyMultiSignerAccount is Account, MultiSignerERC7913, Initializable {
- *     constructor() EIP712("MyMultiSignerAccount", "1") {}
- *
  *     function initialize(bytes[] memory signers, uint64 threshold) public initializer {
  *         _addSigners(signers);
  *         _setThreshold(threshold);
@@ -68,8 +66,16 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
     /// @dev The `signer` is less than 20 bytes long.
     error MultiSignerERC7913InvalidSigner(bytes signer);
 
+    /// @dev The `threshold` is zero.
+    error MultiSignerERC7913ZeroThreshold();
+
     /// @dev The `threshold` is unreachable given the number of `signers`.
     error MultiSignerERC7913UnreachableThreshold(uint64 signers, uint64 threshold);
+
+    constructor(bytes[] memory signers_, uint64 threshold_) {
+        _addSigners(signers_);
+        _setThreshold(threshold_);
+    }
 
     /**
      * @dev Returns a slice of the set of authorized signers.
@@ -82,6 +88,11 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
      */
     function getSigners(uint64 start, uint64 end) public view virtual returns (bytes[] memory) {
         return _signers.values(start, end);
+    }
+
+    /// @dev Returns the number of authorized signers
+    function getSignerCount() public view virtual returns (uint256) {
+        return _signers.length();
     }
 
     /// @dev Returns whether the `signer` is an authorized signer.
@@ -138,6 +149,7 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
      * * See {_validateReachableThreshold} for the threshold validation.
      */
     function _setThreshold(uint64 newThreshold) internal virtual {
+        require(newThreshold > 0, MultiSignerERC7913ZeroThreshold());
         _threshold = newThreshold;
         _validateReachableThreshold();
         emit ERC7913ThresholdSet(newThreshold);
@@ -206,7 +218,7 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
 
     /**
      * @dev Validates the signatures using the signers and their corresponding signatures.
-     * Returns whether whether the signers are authorized and the signatures are valid for the given hash.
+     * Returns whether the signers are authorized and the signatures are valid for the given hash.
      *
      * IMPORTANT: Sorting the signers by their `keccak256` hash will improve the gas efficiency of this function.
      * See {SignatureChecker-areValidSignaturesNow-bytes32-bytes[]-bytes[]} for more details.

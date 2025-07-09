@@ -39,9 +39,10 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {Comparators}: A library that contains comparator functions to use with the {Heap} library.
  * {CAIP2}, {CAIP10}: Libraries for formatting and parsing CAIP-2 and CAIP-10 identifiers.
  * {Memory}: A utility library to manipulate memory.
+ * {InteroperableAddress}: Library for formatting and parsing ERC-7930 interoperable addresses.
  * {Blockhash}: A library for accessing historical block hashes beyond the standard 256 block limit utilizing EIP-2935's historical blockhash functionality.
  * {Time}: A library that provides helpers for manipulating time-related objects, including a `Delay` type.
- 
+
 [NOTE]
 ====
 Because Solidity does not support generic types, {EnumerableMap} and {EnumerableSet} are specialized to a limited number of key-value types.
@@ -136,6 +137,8 @@ Ethereum contracts have no native concept of an interface, so applications must 
 {{CAIP10}}
 
 {{Memory}}
+
+{{InteroperableAddress}}
 
 {{Blockhash}}
 
