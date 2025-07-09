@@ -131,6 +131,20 @@ abstract contract MultiSignerERC7913Weighted is MultiSignerERC7913 {
     }
 
     /**
+     * @dev See {MultiSignerERC7913-_addSigners}.
+     *
+     * In cases where {totalWeight} is almost `type(uint64).max` (due to a large `_totalExtraWeight`), adding new
+     * signers could cause the {totalWeight} computation to overflow. Adding a {totalWeight} calls after the new
+     * signers are added ensures no such overflow happens.
+     */
+    function _addSigners(bytes[] memory newSigners) internal virtual override {
+        super._addSigners(newSigners);
+
+        // This will revert if the new signers cause an overflow
+        _validateReachableThreshold();
+    }
+
+    /**
      * @dev See {MultiSignerERC7913-_removeSigners}.
      *
      * Just like {_addSigners}, this function does not emit {ERC7913SignerWeightChanged} events. The
