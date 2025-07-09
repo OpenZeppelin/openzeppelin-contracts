@@ -116,6 +116,7 @@ library Bytes {
         return a.length == b.length && keccak256(a) == keccak256(b);
     }
 
+    /// @dev Counts the number of leading zeros in a uint256.
     function clz(uint256 x) internal pure returns (uint256) {
         return Math.ternary(x == 0, 32, 31 - Math.log256(x));
     }
