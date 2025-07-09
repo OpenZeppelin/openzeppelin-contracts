@@ -761,7 +761,7 @@ library Math {
     }
 
     /// @dev Same as {reverseBitsUint256} but optimized for 128-bit values.
-    function reverseBitsUint128(uint128 value) internal pure returns (uint256) {
+    function reverseBitsUint128(uint128 value) internal pure returns (uint128) {
         value = // swap bytes
             ((value & 0xFF00FF00FF00FF00FF00FF00FF00FF00) >> 8) |
             ((value & 0x00FF00FF00FF00FF00FF00FF00FF00FF) << 8);
@@ -775,20 +775,20 @@ library Math {
     }
 
     /// @dev Same as {reverseBitsUint256} but optimized for 64-bit values.
-    function reverseBitsUint64(uint64 value) internal pure returns (uint256) {
+    function reverseBitsUint64(uint64 value) internal pure returns (uint64) {
         value = ((value & 0xFF00FF00FF00FF00) >> 8) | ((value & 0x00FF00FF00FF00FF) << 8); // swap bytes
         value = ((value & 0xFFFF0000FFFF0000) >> 16) | ((value & 0x0000FFFF0000FFFF) << 16); // swap 2-byte long pairs
         return (value >> 32) | (value << 32); // swap 4-byte long pairs
     }
 
     /// @dev Same as {reverseBitsUint256} but optimized for 32-bit values.
-    function reverseBitsUint32(uint32 value) internal pure returns (uint256) {
+    function reverseBitsUint32(uint32 value) internal pure returns (uint32) {
         value = ((value & 0xFF00FF00) >> 8) | ((value & 0x00FF00FF) << 8); // swap bytes
         return (value >> 16) | (value << 16); // swap 2-byte long pairs
     }
 
     /// @dev Same as {reverseBitsUint256} but optimized for 16-bit values.
-    function reverseBitsUint16(uint16 value) internal pure returns (uint256) {
+    function reverseBitsUint16(uint16 value) internal pure returns (uint16) {
         return (value >> 8) | (value << 8);
     }
 
