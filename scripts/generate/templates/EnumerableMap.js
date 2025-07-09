@@ -219,8 +219,9 @@ function remove(${name} storage map, ${key.type} key) internal returns (bool) {
 /**
  * @dev Removes all the entries from a map. O(n).
  *
- * WARNING: Developers should keep in mind that this function has an unbounded cost and using it may render the
- * function uncallable if the map grows to the point where clearing it consumes too much gas to fit in a block.
+ * WARNING: This function has an unbounded cost that scales with map size. Developers should keep in mind that
+ * using it may render the function uncallable if the map grows to the point where clearing it consumes too much
+ * gas to fit in a block.
  */
 function clear(${name} storage map) internal {
     clear(map._inner);
