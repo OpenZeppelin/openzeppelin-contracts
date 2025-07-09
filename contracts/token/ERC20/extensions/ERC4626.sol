@@ -86,7 +86,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
      * @dev Attempts to fetch the asset decimals. A return value of false indicates that the attempt failed in some way.
      */
     function _tryGetAssetDecimals(IERC20 asset_) private view returns (bool ok, uint8 assetDecimals) {
-        Memory.Pointer ptr = Memory.getFreePointer();
+        Memory.Pointer ptr = Memory.getFMP();
         (bool success, bytes32 encodedDecimals, ) = LowLevelCall.staticcallReturn64Bytes(
             address(asset_),
             abi.encodeCall(IERC20Metadata.decimals, ())
@@ -94,11 +94,11 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         if (success && LowLevelCall.returnDataSize() >= 32) {
             uint256 returnedDecimals = uint256(encodedDecimals);
             if (returnedDecimals <= type(uint8).max) {
-                Memory.setFreePointer(ptr);
+                Memory.setFMP(ptr);
                 return (true, uint8(returnedDecimals));
             }
         }
-        Memory.setFreePointer(ptr);
+        Memory.setFMP(ptr);
         return (false, 0);
     }
 

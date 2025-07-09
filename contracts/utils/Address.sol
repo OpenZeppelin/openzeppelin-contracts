@@ -39,7 +39,7 @@ library Address {
             revert Errors.InsufficientBalance(address(this).balance, amount);
         }
         if (LowLevelCall.callNoReturn(recipient, amount, "")) {
-            // call succesfull, nothing to do
+            // call successful, nothing to do
             return;
         } else if (LowLevelCall.returnDataSize() == 0) {
             revert Errors.FailedCall();

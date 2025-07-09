@@ -15,7 +15,7 @@ library Memory {
     type Pointer is bytes32;
 
     /// @dev Returns a `Pointer` to the current free `Pointer`.
-    function getFreePointer() internal pure returns (Pointer ptr) {
+    function getFMP() internal pure returns (Pointer ptr) {
         assembly ("memory-safe") {
             ptr := mload(0x40)
         }
@@ -24,9 +24,19 @@ library Memory {
     /// @dev Sets the free `Pointer` to a specific value.
     ///
     /// WARNING: Everything after the pointer may be overwritten.
-    function setFreePointer(Pointer ptr) internal pure {
+    function setFMP(Pointer ptr) internal pure {
         assembly ("memory-safe") {
             mstore(0x40, ptr)
         }
+    }
+
+    /// @dev `Pointer` to `bytes32`. Expects a pointer to a properly ABI-encoded `bytes` object.
+    function asBytes32(Pointer ptr) internal pure returns (bytes32) {
+        return Pointer.unwrap(ptr);
+    }
+
+    /// @dev `bytes32` to `Pointer`. Expects a pointer to a properly ABI-encoded `bytes` object.
+    function asPointer(bytes32 value) internal pure returns (Pointer) {
+        return Pointer.wrap(value);
     }
 }
