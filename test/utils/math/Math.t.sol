@@ -309,24 +309,24 @@ contract MathTest is Test {
     }
 
     // REVERSE BITS
-    function testSymbolicReverseBitsUint256(uint256 value) public pure {
-        assertEq(Math.reverseBitsUint256(Math.reverseBitsUint256(value)), value);
+    function testSymbolicReverseBits256(bytes32 value) public pure {
+        assertEq(Math.reverseBits256(Math.reverseBits256(value)), value);
     }
 
-    function testSymbolicReverseBitsUint128(uint128 value) public pure {
-        assertEq(Math.reverseBitsUint128(uint128(Math.reverseBitsUint128(value))), value);
+    function testSymbolicReverseBits128(bytes16 value) public pure {
+        assertEq(Math.reverseBits128(Math.reverseBits128(value)), value);
     }
 
-    function testSymbolicReverseBitsUint64(uint64 value) public pure {
-        assertEq(Math.reverseBitsUint64(uint64(Math.reverseBitsUint64(value))), value);
+    function testSymbolicReverseBits64(bytes8 value) public pure {
+        assertEq(Math.reverseBits64(Math.reverseBits64(value)), value);
     }
 
-    function testSymbolicReverseBitsUint32(uint32 value) public pure {
-        assertEq(Math.reverseBitsUint32(uint32(Math.reverseBitsUint32(value))), value);
+    function testSymbolicReverseBits32(bytes4 value) public pure {
+        assertEq(Math.reverseBits32(Math.reverseBits32(value)), value);
     }
 
-    function testSymbolicreverseBitsUint16(uint16 value) public pure {
-        assertEq(Math.reverseBitsUint16(uint16(Math.reverseBitsUint16(value))), value);
+    function testSymbolicReverseBits16(bytes2 value) public pure {
+        assertEq(Math.reverseBits16(Math.reverseBits16(value)), value);
     }
 
     // Helpers
