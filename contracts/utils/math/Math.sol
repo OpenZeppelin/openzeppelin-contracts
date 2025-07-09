@@ -788,7 +788,7 @@ library Math {
     }
 
     /// @dev Same as {reverseBitsUint256} but optimized for 16-bit values.
-    function reverseBits16(uint16 value) internal pure returns (uint256) {
+    function reverseBitsUint16(uint16 value) internal pure returns (uint256) {
         return (value >> 8) | (value << 8);
     }
 

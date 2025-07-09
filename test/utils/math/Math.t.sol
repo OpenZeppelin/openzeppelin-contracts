@@ -325,8 +325,8 @@ contract MathTest is Test {
         assertEq(Math.reverseBitsUint32(uint32(Math.reverseBitsUint32(value))), value);
     }
 
-    function testSymbolicReverseBits16(uint16 value) public pure {
-        assertEq(Math.reverseBits16(uint16(Math.reverseBits16(value))), value);
+    function testSymbolicreverseBitsUint16(uint16 value) public pure {
+        assertEq(Math.reverseBitsUint16(uint16(Math.reverseBitsUint16(value))), value);
     }
 
     // Helpers

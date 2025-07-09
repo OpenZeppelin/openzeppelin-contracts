@@ -794,32 +794,32 @@ describe('Math', function () {
 
     describe('reverseBits16', function () {
       it('reverses bytes correctly', async function () {
-        await expect(this.mock.$reverseBits16(0)).to.eventually.equal(0n);
-        await expect(this.mock.$reverseBits16(MAX_UINT16)).to.eventually.equal(MAX_UINT16);
+        await expect(this.mock.$reverseBitsUint16(0)).to.eventually.equal(0n);
+        await expect(this.mock.$reverseBitsUint16(MAX_UINT16)).to.eventually.equal(MAX_UINT16);
 
         // Test known pattern: 0x1234 -> 0x3412
-        await expect(this.mock.$reverseBits16(0x1234)).to.eventually.equal(0x3412);
+        await expect(this.mock.$reverseBitsUint16(0x1234)).to.eventually.equal(0x3412);
       });
 
       it('double reverse returns original', async function () {
         const values = [0n, 1n, 0x1234n, MAX_UINT16];
         for (const value of values) {
-          const reversed = await this.mock.$reverseBits16(value);
+          const reversed = await this.mock.$reverseBitsUint16(value);
           // Cast back to uint16 for comparison since function returns uint256
-          await expect(this.mock.$reverseBits16(reversed & MAX_UINT16)).to.eventually.equal(value);
+          await expect(this.mock.$reverseBitsUint16(reversed & MAX_UINT16)).to.eventually.equal(value);
         }
       });
     });
 
     describe('edge cases', function () {
       it('handles single byte values', async function () {
-        await expect(this.mock.$reverseBits16(0x00ff)).to.eventually.equal(0xff00);
+        await expect(this.mock.$reverseBitsUint16(0x00ff)).to.eventually.equal(0xff00);
         await expect(this.mock.$reverseBitsUint32(0x000000ff)).to.eventually.equal(0xff000000);
       });
 
       it('handles alternating patterns', async function () {
-        await expect(this.mock.$reverseBits16(0xaaaa)).to.eventually.equal(0xaaaa);
-        await expect(this.mock.$reverseBits16(0x5555)).to.eventually.equal(0x5555);
+        await expect(this.mock.$reverseBitsUint16(0xaaaa)).to.eventually.equal(0xaaaa);
+        await expect(this.mock.$reverseBitsUint16(0x5555)).to.eventually.equal(0x5555);
         await expect(this.mock.$reverseBitsUint32(0xaaaaaaaa)).to.eventually.equal(0xaaaaaaaa);
         await expect(this.mock.$reverseBitsUint32(0x55555555)).to.eventually.equal(0x55555555);
       });
