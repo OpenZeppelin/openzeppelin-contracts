@@ -13,16 +13,27 @@ describe('Memory', function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
-  describe('free pointer', function () {
+  describe('free memory pointer', function () {
     it('sets free memory pointer', async function () {
-      const ptr = ethers.toBeHex(0xa0, 32);
-      await expect(this.mock.$setFreePointer(ptr)).to.not.be.reverted;
+      const ptr = '0x00000000000000000000000000000000000000000000000000000000000000a0';
+      await expect(this.mock.$setFMP(ptr)).to.not.be.reverted;
     });
 
     it('gets free memory pointer', async function () {
-      await expect(this.mock.$getFreePointer()).to.eventually.equal(
-        ethers.toBeHex(0x80, 32), // Default pointer
+      await expect(this.mock.$getFMP()).to.eventually.equal(
+        // Default pointer
+        '0x0000000000000000000000000000000000000000000000000000000000000080',
       );
+    });
+
+    it('asBytes32', async function () {
+      const ptr = '0x0000000000000000000000000000000000000000000000000000000000001234';
+      await expect(this.mock.$asBytes32(ptr)).to.eventually.equal(ptr);
+    });
+
+    it('asPointer', async function () {
+      const ptr = '0x0000000000000000000000000000000000000000000000000000000000001234';
+      await expect(this.mock.$asPointer(ptr)).to.eventually.equal(ptr);
     });
   });
 });
