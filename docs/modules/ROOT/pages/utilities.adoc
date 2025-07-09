@@ -491,23 +491,6 @@ function processMultipleItems(uint256[] memory items) internal {
 
 This way, memory allocated for `tempData` in each iteration is reused, significantly reducing memory expansion costs when processing many items.
 
-==== Copying memory buffers
-
-The `Memory` library provides a `copy` function that allows copying data between memory locations. This is useful when you need to extract a segment of data from a larger buffer or when you want to avoid unnecessary memory allocations. The following example demonstrates how to copy a segment of data from a source buffer:
-
-[source,solidity]
-----
-function copyDataSegment(bytes memory source, uint256 offset, uint256 length) 
-    internal pure returns (bytes memory result) {
-    
-    result = new bytes(length);
-    Memory.Pointer srcPtr = Memory.addOffset(Memory.contentPointer(source), offset);
-    Memory.Pointer destPtr = Memory.contentPointer(result);
-    
-    Memory.copy(destPtr, srcPtr, length);
-}
-----
-
 IMPORTANT: Manual memory management increases gas costs and prevents compiler optimizations. Only use these functions after profiling confirms they're necessary. By default, Solidity handles memory safely - using this library without understanding memory layout and safety may be dangerous. See the https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_memory.html[memory layout] and https://docs.soliditylang.org/en/v0.8.20/assembly.html#memory-safety[memory safety] documentation for details.
 
 === Historical Block Hashes
