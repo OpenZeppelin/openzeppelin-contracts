@@ -19,7 +19,7 @@ async function fixture() {
 
   // ERC-4337 account
   const helper = new ERC4337Helper();
-  const mock = await helper.newAccount('$AccountECDSAMock', ['AccountECDSA', '1', signer]);
+  const mock = await helper.newAccount('$AccountECDSAMock', [signer, 'AccountECDSA', '1']);
 
   // ERC-4337 Entrypoint domain
   const entrypointDomain = await getDomain(entrypoint.v08);
