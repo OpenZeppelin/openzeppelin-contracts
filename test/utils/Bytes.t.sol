@@ -8,40 +8,40 @@ import {Bytes} from "@openzeppelin/contracts/utils/Bytes.sol";
 
 contract BytesTest is Test {
     // REVERSE BITS
-    function testSymbolicReverseBits256(bytes32 value) public pure {
-        assertEq(Bytes.reverseBits256(Bytes.reverseBits256(value)), value);
+    function testSymbolicReverseBytes32(bytes32 value) public pure {
+        assertEq(Bytes.reverseBytes32(Bytes.reverseBytes32(value)), value);
     }
 
-    function testSymbolicReverseBits128(bytes16 value) public pure {
-        assertEq(Bytes.reverseBits128(Bytes.reverseBits128(value)), value);
+    function testSymbolicReverseBytes16(bytes16 value) public pure {
+        assertEq(Bytes.reverseBytes16(Bytes.reverseBytes16(value)), value);
     }
 
-    function testSymbolicReverseBits128Dirty(bytes16 value) public pure {
-        assertEq(Bytes.reverseBits128(Bytes.reverseBits128(_dirtyBytes128(value))), value);
+    function testSymbolicReverseBytes16Dirty(bytes16 value) public pure {
+        assertEq(Bytes.reverseBytes16(Bytes.reverseBytes16(_dirtyBytes128(value))), value);
     }
 
-    function testSymbolicReverseBits64(bytes8 value) public pure {
-        assertEq(Bytes.reverseBits64(Bytes.reverseBits64(value)), value);
+    function testSymbolicReverseBytes8(bytes8 value) public pure {
+        assertEq(Bytes.reverseBytes8(Bytes.reverseBytes8(value)), value);
     }
 
-    function testSymbolicReverseBits64Dirty(bytes8 value) public pure {
-        assertEq(Bytes.reverseBits64(Bytes.reverseBits64(_dirtyBytes64(value))), value);
+    function testSymbolicReverseBytes8Dirty(bytes8 value) public pure {
+        assertEq(Bytes.reverseBytes8(Bytes.reverseBytes8(_dirtyBytes64(value))), value);
     }
 
-    function testSymbolicReverseBits32(bytes4 value) public pure {
-        assertEq(Bytes.reverseBits32(Bytes.reverseBits32(value)), value);
+    function testSymbolicReverseBytes4(bytes4 value) public pure {
+        assertEq(Bytes.reverseBytes4(Bytes.reverseBytes4(value)), value);
     }
 
-    function testSymbolicReverseBits32Dirty(bytes4 value) public pure {
-        assertEq(Bytes.reverseBits32(Bytes.reverseBits32(_dirtyBytes32(value))), value);
+    function testSymbolicReverseBytes4Dirty(bytes4 value) public pure {
+        assertEq(Bytes.reverseBytes4(Bytes.reverseBytes4(_dirtyBytes32(value))), value);
     }
 
-    function testSymbolicReverseBits16(bytes2 value) public pure {
-        assertEq(Bytes.reverseBits16(Bytes.reverseBits16(value)), value);
+    function testSymbolicReverseBytes2(bytes2 value) public pure {
+        assertEq(Bytes.reverseBytes2(Bytes.reverseBytes2(value)), value);
     }
 
-    function testSymbolicReverseBits16Dirty(bytes2 value) public pure {
-        assertEq(Bytes.reverseBits16(Bytes.reverseBits16(_dirtyBytes16(value))), value);
+    function testSymbolicReverseBytes2Dirty(bytes2 value) public pure {
+        assertEq(Bytes.reverseBytes2(Bytes.reverseBytes2(_dirtyBytes16(value))), value);
     }
 
     // Helpers
