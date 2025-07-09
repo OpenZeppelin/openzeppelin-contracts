@@ -122,6 +122,58 @@ library Bytes {
     }
 
     /**
+     * @dev Reverses the byte order of a uint256 value, converting between little-endian and big-endian.
+     * Inspired in https://graphics.stanford.edu/~seander/bithacks.html#ReverseParallel[Reverse Parallel]
+     */
+    function reverseBits256(bytes32 value) internal pure returns (bytes32) {
+        value = // swap bytes
+            ((value >> 8) & 0x00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF) |
+            ((value & 0x00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF) << 8);
+        value = // swap 2-byte long pairs
+            ((value >> 16) & 0x0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF) |
+            ((value & 0x0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF) << 16);
+        value = // swap 4-byte long pairs
+            ((value >> 32) & 0x00000000FFFFFFFF00000000FFFFFFFF00000000FFFFFFFF00000000FFFFFFFF) |
+            ((value & 0x00000000FFFFFFFF00000000FFFFFFFF00000000FFFFFFFF00000000FFFFFFFF) << 32);
+        value = // swap 8-byte long pairs
+            ((value >> 64) & 0x0000000000000000FFFFFFFFFFFFFFFF0000000000000000FFFFFFFFFFFFFFFF) |
+            ((value & 0x0000000000000000FFFFFFFFFFFFFFFF0000000000000000FFFFFFFFFFFFFFFF) << 64);
+        return (value >> 128) | (value << 128); // swap 16-byte long pairs
+    }
+
+    /// @dev Same as {reverseBits256} but optimized for 128-bit values.
+    function reverseBits128(bytes16 value) internal pure returns (bytes16) {
+        value = // swap bytes
+            ((value & 0xFF00FF00FF00FF00FF00FF00FF00FF00) >> 8) |
+            ((value & 0x00FF00FF00FF00FF00FF00FF00FF00FF) << 8);
+        value = // swap 2-byte long pairs
+            ((value & 0xFFFF0000FFFF0000FFFF0000FFFF0000) >> 16) |
+            ((value & 0x0000FFFF0000FFFF0000FFFF0000FFFF) << 16);
+        value = // swap 4-byte long pairs
+            ((value & 0xFFFFFFFF00000000FFFFFFFF00000000) >> 32) |
+            ((value & 0x00000000FFFFFFFF00000000FFFFFFFF) << 32);
+        return (value >> 64) | (value << 64); // swap 8-byte long pairs
+    }
+
+    /// @dev Same as {reverseBits256} but optimized for 64-bit values.
+    function reverseBits64(bytes8 value) internal pure returns (bytes8) {
+        value = ((value & 0xFF00FF00FF00FF00) >> 8) | ((value & 0x00FF00FF00FF00FF) << 8); // swap bytes
+        value = ((value & 0xFFFF0000FFFF0000) >> 16) | ((value & 0x0000FFFF0000FFFF) << 16); // swap 2-byte long pairs
+        return (value >> 32) | (value << 32); // swap 4-byte long pairs
+    }
+
+    /// @dev Same as {reverseBits256} but optimized for 32-bit values.
+    function reverseBits32(bytes4 value) internal pure returns (bytes4) {
+        value = ((value & 0xFF00FF00) >> 8) | ((value & 0x00FF00FF) << 8); // swap bytes
+        return (value >> 16) | (value << 16); // swap 2-byte long pairs
+    }
+
+    /// @dev Same as {reverseBits256} but optimized for 16-bit values.
+    function reverseBits16(bytes2 value) internal pure returns (bytes2) {
+        return (value >> 8) | (value << 8);
+    }
+
+    /**
      * @dev Reads a bytes32 from a bytes array without bounds checking.
      *
      * NOTE: making this function internal would mean it could be used with memory unsafe offset, and marking the

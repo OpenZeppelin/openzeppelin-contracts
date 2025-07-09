@@ -203,7 +203,7 @@ library RLP {
         return
             abi.encodePacked(
                 bytes1(uint8(bytesLength) + uint8(offset) + SHORT_THRESHOLD),
-                length.reverseBitsUint256() // to big-endian
+                bytes32(length).reverseBits256() // to big-endian
             );
     }
 

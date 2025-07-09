@@ -7,7 +7,6 @@ const { Rounding } = require('../../helpers/enums');
 const { min, max, modExp } = require('../../helpers/math');
 const { generators } = require('../../helpers/random');
 const { product, range } = require('../../helpers/iterate');
-const { MAX_UINT128, MAX_UINT64, MAX_UINT32, MAX_UINT16 } = require('../../helpers/constants');
 
 const RoundingDown = [Rounding.Floor, Rounding.Trunc];
 const RoundingUp = [Rounding.Ceil, Rounding.Expand];
@@ -708,120 +707,6 @@ describe('Math', function () {
           await expect(this.mock.$log256(65537n, rounding)).to.eventually.equal(3n);
           await expect(this.mock.$log256(ethers.MaxUint256, rounding)).to.eventually.equal(32n);
         }
-      });
-    });
-  });
-
-  describe('reverseBits', function () {
-    describe('reverseBitsUint256', function () {
-      it('reverses bytes correctly', async function () {
-        await expect(this.mock.$reverseBitsUint256(0)).to.eventually.equal(0n);
-        await expect(this.mock.$reverseBitsUint256(ethers.MaxUint256)).to.eventually.equal(ethers.MaxUint256);
-
-        // Test simple pattern
-        await expect(
-          this.mock.$reverseBitsUint256('0x0000000000000000000000000000000000000000000000000000000000000001'),
-        ).to.eventually.equal('0x0100000000000000000000000000000000000000000000000000000000000000');
-      });
-
-      it('double reverse returns original', async function () {
-        const values = [0n, 1n, 0x12345678n, ethers.MaxUint256];
-        for (const value of values) {
-          const reversed = await this.mock.$reverseBitsUint256(value);
-          await expect(this.mock.$reverseBitsUint256(reversed)).to.eventually.equal(value);
-        }
-      });
-    });
-
-    describe('reverseBitsUint128', function () {
-      it('reverses bytes correctly', async function () {
-        await expect(this.mock.$reverseBitsUint128(0)).to.eventually.equal(0n);
-        await expect(this.mock.$reverseBitsUint128(MAX_UINT128)).to.eventually.equal(MAX_UINT128);
-
-        // Test simple pattern
-        await expect(this.mock.$reverseBitsUint128('0x00000000000000000000000000000001')).to.eventually.equal(
-          '0x01000000000000000000000000000000',
-        );
-      });
-
-      it('double reverse returns original', async function () {
-        const values = [0n, 1n, 0x12345678n, MAX_UINT128];
-        for (const value of values) {
-          const reversed = await this.mock.$reverseBitsUint128(value);
-          // Cast back to uint128 for comparison since function returns uint256
-          await expect(this.mock.$reverseBitsUint128(reversed & MAX_UINT128)).to.eventually.equal(value);
-        }
-      });
-    });
-
-    describe('reverseBitsUint64', function () {
-      it('reverses bytes correctly', async function () {
-        await expect(this.mock.$reverseBitsUint64(0)).to.eventually.equal(0n);
-        await expect(this.mock.$reverseBitsUint64(MAX_UINT64)).to.eventually.equal(MAX_UINT64);
-
-        // Test known pattern: 0x123456789ABCDEF0 -> 0xF0DEBC9A78563412
-        await expect(this.mock.$reverseBitsUint64('0x123456789ABCDEF0')).to.eventually.equal('0xF0DEBC9A78563412');
-      });
-
-      it('double reverse returns original', async function () {
-        const values = [0n, 1n, 0x12345678n, MAX_UINT64];
-        for (const value of values) {
-          const reversed = await this.mock.$reverseBitsUint64(value);
-          // Cast back to uint64 for comparison since function returns uint256
-          await expect(this.mock.$reverseBitsUint64(reversed & MAX_UINT64)).to.eventually.equal(value);
-        }
-      });
-    });
-
-    describe('reverseBitsUint32', function () {
-      it('reverses bytes correctly', async function () {
-        await expect(this.mock.$reverseBitsUint32(0)).to.eventually.equal(0n);
-        await expect(this.mock.$reverseBitsUint32(MAX_UINT32)).to.eventually.equal(MAX_UINT32);
-
-        // Test known pattern: 0x12345678 -> 0x78563412
-        await expect(this.mock.$reverseBitsUint32(0x12345678)).to.eventually.equal(0x78563412);
-      });
-
-      it('double reverse returns original', async function () {
-        const values = [0n, 1n, 0x12345678n, MAX_UINT32];
-        for (const value of values) {
-          const reversed = await this.mock.$reverseBitsUint32(value);
-          // Cast back to uint32 for comparison since function returns uint256
-          await expect(this.mock.$reverseBitsUint32(reversed & MAX_UINT32)).to.eventually.equal(value);
-        }
-      });
-    });
-
-    describe('reverseBits16', function () {
-      it('reverses bytes correctly', async function () {
-        await expect(this.mock.$reverseBits16(0)).to.eventually.equal(0n);
-        await expect(this.mock.$reverseBits16(MAX_UINT16)).to.eventually.equal(MAX_UINT16);
-
-        // Test known pattern: 0x1234 -> 0x3412
-        await expect(this.mock.$reverseBits16(0x1234)).to.eventually.equal(0x3412);
-      });
-
-      it('double reverse returns original', async function () {
-        const values = [0n, 1n, 0x1234n, MAX_UINT16];
-        for (const value of values) {
-          const reversed = await this.mock.$reverseBits16(value);
-          // Cast back to uint16 for comparison since function returns uint256
-          await expect(this.mock.$reverseBits16(reversed & MAX_UINT16)).to.eventually.equal(value);
-        }
-      });
-    });
-
-    describe('edge cases', function () {
-      it('handles single byte values', async function () {
-        await expect(this.mock.$reverseBits16(0x00ff)).to.eventually.equal(0xff00);
-        await expect(this.mock.$reverseBitsUint32(0x000000ff)).to.eventually.equal(0xff000000);
-      });
-
-      it('handles alternating patterns', async function () {
-        await expect(this.mock.$reverseBits16(0xaaaa)).to.eventually.equal(0xaaaa);
-        await expect(this.mock.$reverseBits16(0x5555)).to.eventually.equal(0x5555);
-        await expect(this.mock.$reverseBitsUint32(0xaaaaaaaa)).to.eventually.equal(0xaaaaaaaa);
-        await expect(this.mock.$reverseBitsUint32(0x55555555)).to.eventually.equal(0x55555555);
       });
     });
   });
