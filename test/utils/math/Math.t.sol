@@ -318,8 +318,7 @@ contract MathTest is Test {
     }
 
     function testSymbolicReverseBits128Dirty(bytes16 value) public pure {
-        bytes16 dirty = _dirtyBytes128(value);
-        assertEq(Math.reverseBits128(Math.reverseBits128(dirty)), value);
+        assertEq(Math.reverseBits128(Math.reverseBits128(_dirtyBytes128(value))), value);
     }
 
     function testSymbolicReverseBits64(bytes8 value) public pure {
@@ -327,8 +326,7 @@ contract MathTest is Test {
     }
 
     function testSymbolicReverseBits64Dirty(bytes8 value) public pure {
-        bytes8 dirty = _dirtyBytes64(value);
-        assertEq(Math.reverseBits64(Math.reverseBits64(dirty)), value);
+        assertEq(Math.reverseBits64(Math.reverseBits64(_dirtyBytes64(value))), value);
     }
 
     function testSymbolicReverseBits32(bytes4 value) public pure {
@@ -336,8 +334,7 @@ contract MathTest is Test {
     }
 
     function testSymbolicReverseBits32Dirty(bytes4 value) public pure {
-        bytes4 dirty = _dirtyBytes32(value);
-        assertEq(Math.reverseBits32(Math.reverseBits32(dirty)), value);
+        assertEq(Math.reverseBits32(Math.reverseBits32(_dirtyBytes32(value))), value);
     }
 
     function testSymbolicReverseBits16(bytes2 value) public pure {
@@ -345,8 +342,7 @@ contract MathTest is Test {
     }
 
     function testSymbolicReverseBits16Dirty(bytes2 value) public pure {
-        bytes2 dirty = _dirtyBytes16(value);
-        assertEq(Math.reverseBits16(Math.reverseBits16(dirty)), value);
+        assertEq(Math.reverseBits16(Math.reverseBits16(_dirtyBytes16(value))), value);
     }
 
     // Helpers
