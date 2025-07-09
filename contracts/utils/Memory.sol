@@ -30,9 +30,55 @@ library Memory {
         }
     }
 
+    /// @dev Returns a `Pointer` to the content of a `bytes` buffer. Skips the length word.
+    function contentPointer(bytes memory buffer) internal pure returns (Pointer) {
+        return addOffset(asPointer(buffer), 32);
+    }
+
+    /**
+     * @dev Copies `length` bytes from `srcPtr` to `destPtr`. Equivalent to https://www.evm.codes/?fork=cancun#5e[`mcopy`].
+     *
+     * WARNING: Reading or writing beyond the allocated memory bounds of either pointer
+     * will result in undefined behavior and potential memory corruption.
+     */
+    function copy(Pointer destPtr, Pointer srcPtr, uint256 length) internal pure {
+        assembly ("memory-safe") {
+            mcopy(destPtr, srcPtr, length)
+        }
+    }
+
+    /**
+     * @dev Extracts a `bytes1` from a `Pointer`. `offset` starts from the most significant byte.
+     *
+     * NOTE: Will return `0x00` if `offset` is larger or equal to `32`.
+     */
+    function loadByte(Pointer ptr, uint256 offset) internal pure returns (bytes1 v) {
+        bytes32 word = load(ptr);
+        assembly ("memory-safe") {
+            v := byte(offset, word)
+        }
+    }
+
+    /// @dev Extracts a `bytes32` from a `Pointer`.
+    function load(Pointer ptr) internal pure returns (bytes32 v) {
+        assembly ("memory-safe") {
+            v := mload(ptr)
+        }
+    }
+
+    /// @dev Adds an offset to a `Pointer`.
+    function addOffset(Pointer ptr, uint256 offset) internal pure returns (Pointer) {
+        return asPointer(bytes32(asUint256(ptr) + offset));
+    }
+
     /// @dev `Pointer` to `bytes32`. Expects a pointer to a properly ABI-encoded `bytes` object.
     function asBytes32(Pointer ptr) internal pure returns (bytes32) {
         return Pointer.unwrap(ptr);
+    }
+
+    /// @dev `Pointer` to `uint256`. Expects a pointer to a properly ABI-encoded `bytes` object.
+    function asUint256(Pointer ptr) internal pure returns (uint256) {
+        return uint256(asBytes32(ptr));
     }
 
     /// @dev `bytes32` to `Pointer`. Expects a pointer to a properly ABI-encoded `bytes` object.
