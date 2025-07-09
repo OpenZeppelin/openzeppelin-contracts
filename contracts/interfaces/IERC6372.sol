@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.0.0) (interfaces/IERC6372.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity >=0.4.16;
 
 interface IERC6372 {
     /**

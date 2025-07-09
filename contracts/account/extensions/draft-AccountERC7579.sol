@@ -1,10 +1,19 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.27;
+pragma solidity ^0.8.26;
 
 import {PackedUserOperation} from "../../interfaces/draft-IERC4337.sol";
 import {IERC1271} from "../../interfaces/IERC1271.sol";
-import {IERC7579Module, IERC7579Validator, IERC7579Execution, IERC7579AccountConfig, IERC7579ModuleConfig, MODULE_TYPE_VALIDATOR, MODULE_TYPE_EXECUTOR, MODULE_TYPE_FALLBACK} from "../../interfaces/draft-IERC7579.sol";
+import {
+    IERC7579Module,
+    IERC7579Validator,
+    IERC7579Execution,
+    IERC7579AccountConfig,
+    IERC7579ModuleConfig,
+    MODULE_TYPE_VALIDATOR,
+    MODULE_TYPE_EXECUTOR,
+    MODULE_TYPE_FALLBACK
+} from "../../interfaces/draft-IERC7579.sol";
 import {ERC7579Utils, Mode, CallType, ExecType} from "../../account/utils/draft-ERC7579Utils.sol";
 import {EnumerableSet} from "../../utils/structs/EnumerableSet.sol";
 import {Bytes} from "../../utils/Bytes.sol";

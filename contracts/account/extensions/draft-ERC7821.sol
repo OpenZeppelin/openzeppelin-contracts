@@ -3,7 +3,7 @@
 pragma solidity ^0.8.20;
 
 import {ERC7579Utils, Mode, CallType, ExecType, ModeSelector} from "../utils/draft-ERC7579Utils.sol";
-import {IERC7821} from "../../interfaces/IERC7821.sol";
+import {IERC7821} from "../../interfaces/draft-IERC7821.sol";
 import {Account} from "../Account.sol";
 
 /**
