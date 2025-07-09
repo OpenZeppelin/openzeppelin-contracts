@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.2.0) (governance/utils/Votes.sol)
+// OpenZeppelin Contracts (last updated v5.5.0) (governance/utils/Votes.sol)
 pragma solidity ^0.8.24;
 
 import {IERC5805} from "../../interfaces/IERC5805.sol";
@@ -162,7 +162,7 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
     }
 
     /**
-     * @dev Delegate all of `account`'s voting units to `delegatee`.
+     * @dev Delegate all available `account`'s voting units to `delegatee`.
      *
      * Emits events {IVotes-DelegateChanged} and {IVotes-DelegateVotesChanged}.
      */
@@ -172,6 +172,13 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
 
         emit DelegateChanged(account, oldDelegate, delegatee);
         _moveDelegateVotes(oldDelegate, delegatee, _getVotingUnits(account));
+    }
+
+    /**
+     @dev Setter of _delegatee for inheriting contracts
+     */
+    function _setDelegate(address account, address delegatee) internal virtual {
+        _delegatee[account] = delegatee;
     }
 
     /**
