@@ -357,7 +357,7 @@ contract MathTest is Test {
     function _dirtyBytes64(bytes8 value) private pure returns (bytes8) {
         bytes8 dirty = value;
         assembly ("memory-safe") {
-            dirty := or(dirty, shr(64, not(0)))
+            dirty := or(dirty, shr(192, not(0)))
         }
         return dirty;
     }
@@ -365,7 +365,7 @@ contract MathTest is Test {
     function _dirtyBytes32(bytes4 value) private pure returns (bytes4) {
         bytes4 dirty = value;
         assembly ("memory-safe") {
-            dirty := or(dirty, shr(32, not(0)))
+            dirty := or(dirty, shr(224, not(0)))
         }
         return dirty;
     }
@@ -373,7 +373,7 @@ contract MathTest is Test {
     function _dirtyBytes16(bytes2 value) private pure returns (bytes2) {
         bytes2 dirty = value;
         assembly ("memory-safe") {
-            dirty := or(dirty, shr(16, not(0)))
+            dirty := or(dirty, shr(240, not(0)))
         }
         return dirty;
     }
