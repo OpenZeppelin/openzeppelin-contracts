@@ -1,15 +1,17 @@
 import "helpers/helpers.spec";
 import "ERC20.spec";
 
+using ERC20PermitHarness as underlying;
+
 methods {
     function underlying()                          external returns(address) envfree;
-    function underlyingTotalSupply()               external returns(uint256) envfree;
-    function underlyingBalanceOf(address)          external returns(uint256) envfree;
-    function underlyingAllowance(address, address) external returns(uint256) envfree;
-
     function depositFor(address, uint256)          external returns(bool);
     function withdrawTo(address, uint256)          external returns(bool);
     function recover(address)                      external returns(uint256);
+
+    function underlying.totalSupply()              external returns (uint256) envfree;
+    function underlying.balanceOf(address)         external returns (uint256) envfree;
+    function underlying.allowance(address,address) external returns (uint256) envfree;
 }
 
 use invariant totalSupplyIsSumOfBalances;
@@ -20,7 +22,7 @@ use invariant totalSupplyIsSumOfBalances;
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 definition sumOfUnderlyingBalancesLowerThanUnderlyingSupply(address a, address b) returns bool =
-    a != b => underlyingBalanceOf(a) + underlyingBalanceOf(b) <= to_mathint(underlyingTotalSupply());
+    a != b => underlying.balanceOf(a) + underlying.balanceOf(b) <= to_mathint(underlying.totalSupply());
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -28,7 +30,7 @@ definition sumOfUnderlyingBalancesLowerThanUnderlyingSupply(address a, address b
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant noAllowance(address user)
-    underlyingAllowance(currentContract, user) == 0
+    underlying.allowance(currentContract, user) == 0
     {
         preserved ERC20PermitHarness.approve(address spender, uint256 value) with (env e) {
             require e.msg.sender != currentContract;
@@ -44,9 +46,9 @@ invariant noAllowance(address user)
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant totalSupplyIsSmallerThanUnderlyingBalance()
-    totalSupply() <= underlyingBalanceOf(currentContract) &&
-    underlyingBalanceOf(currentContract) <= underlyingTotalSupply() &&
-    underlyingTotalSupply() <= max_uint256
+    totalSupply() <= underlying.balanceOf(currentContract) &&
+    underlying.balanceOf(currentContract) <= underlying.totalSupply() &&
+    underlying.totalSupply() <= max_uint256
     {
         preserved with (env e) {
             requireInvariant totalSupplyIsSumOfBalances;
@@ -88,13 +90,13 @@ rule depositFor(env e) {
 
     uint256 balanceBefore                   = balanceOf(receiver);
     uint256 supplyBefore                    = totalSupply();
-    uint256 senderUnderlyingBalanceBefore   = underlyingBalanceOf(sender);
-    uint256 senderUnderlyingAllowanceBefore = underlyingAllowance(sender, currentContract);
-    uint256 wrapperUnderlyingBalanceBefore  = underlyingBalanceOf(currentContract);
-    uint256 underlyingSupplyBefore          = underlyingTotalSupply();
+    uint256 senderUnderlyingBalanceBefore   = underlying.balanceOf(sender);
+    uint256 senderUnderlyingAllowanceBefore = underlying.allowance(sender, currentContract);
+    uint256 wrapperUnderlyingBalanceBefore  = underlying.balanceOf(currentContract);
+    uint256 underlyingSupplyBefore          = underlying.totalSupply();
 
     uint256 otherBalanceBefore              = balanceOf(other);
-    uint256 otherUnderlyingBalanceBefore    = underlyingBalanceOf(other);
+    uint256 otherUnderlyingBalanceBefore    = underlying.balanceOf(other);
 
     depositFor@withrevert(e, receiver, amount);
     bool success = !lastReverted;
@@ -113,14 +115,14 @@ rule depositFor(env e) {
     assert success => (
         to_mathint(balanceOf(receiver)) == balanceBefore + amount &&
         to_mathint(totalSupply()) == supplyBefore + amount &&
-        to_mathint(underlyingBalanceOf(currentContract)) == wrapperUnderlyingBalanceBefore + amount &&
-        to_mathint(underlyingBalanceOf(sender)) == senderUnderlyingBalanceBefore - amount
+        to_mathint(underlying.balanceOf(currentContract)) == wrapperUnderlyingBalanceBefore + amount &&
+        to_mathint(underlying.balanceOf(sender)) == senderUnderlyingBalanceBefore - amount
     );
 
     // no side effect
-    assert underlyingTotalSupply() == underlyingSupplyBefore;
+    assert underlying.totalSupply() == underlyingSupplyBefore;
     assert balanceOf(other)           != otherBalanceBefore           => other == receiver;
-    assert underlyingBalanceOf(other) != otherUnderlyingBalanceBefore => (other == sender || other == currentContract);
+    assert underlying.balanceOf(other) != otherUnderlyingBalanceBefore => (other == sender || other == currentContract);
 }
 
 /*
@@ -144,12 +146,12 @@ rule withdrawTo(env e) {
 
     uint256 balanceBefore                   = balanceOf(sender);
     uint256 supplyBefore                    = totalSupply();
-    uint256 receiverUnderlyingBalanceBefore = underlyingBalanceOf(receiver);
-    uint256 wrapperUnderlyingBalanceBefore  = underlyingBalanceOf(currentContract);
-    uint256 underlyingSupplyBefore          = underlyingTotalSupply();
+    uint256 receiverUnderlyingBalanceBefore = underlying.balanceOf(receiver);
+    uint256 wrapperUnderlyingBalanceBefore  = underlying.balanceOf(currentContract);
+    uint256 underlyingSupplyBefore          = underlying.totalSupply();
 
     uint256 otherBalanceBefore              = balanceOf(other);
-    uint256 otherUnderlyingBalanceBefore    = underlyingBalanceOf(other);
+    uint256 otherUnderlyingBalanceBefore    = underlying.balanceOf(other);
 
     withdrawTo@withrevert(e, receiver, amount);
     bool success = !lastReverted;
@@ -166,14 +168,14 @@ rule withdrawTo(env e) {
     assert success => (
         to_mathint(balanceOf(sender)) == balanceBefore - amount &&
         to_mathint(totalSupply()) == supplyBefore - amount &&
-        to_mathint(underlyingBalanceOf(currentContract)) == wrapperUnderlyingBalanceBefore - (currentContract != receiver ? amount : 0) &&
-        to_mathint(underlyingBalanceOf(receiver)) == receiverUnderlyingBalanceBefore + (currentContract != receiver ? amount : 0)
+        to_mathint(underlying.balanceOf(currentContract)) == wrapperUnderlyingBalanceBefore - (currentContract != receiver ? amount : 0) &&
+        to_mathint(underlying.balanceOf(receiver)) == receiverUnderlyingBalanceBefore + (currentContract != receiver ? amount : 0)
     );
 
     // no side effect
-    assert underlyingTotalSupply() == underlyingSupplyBefore;
+    assert underlying.totalSupply() == underlyingSupplyBefore;
     assert balanceOf(other)           != otherBalanceBefore           => other == sender;
-    assert underlyingBalanceOf(other) != otherUnderlyingBalanceBefore => (other == receiver || other == currentContract);
+    assert underlying.balanceOf(other) != otherUnderlyingBalanceBefore => (other == receiver || other == currentContract);
 }
 
 /*
@@ -192,12 +194,12 @@ rule recover(env e) {
     requireInvariant totalSupplyIsSumOfBalances;
     requireInvariant totalSupplyIsSmallerThanUnderlyingBalance;
 
-    mathint value                        = underlyingBalanceOf(currentContract) - totalSupply();
+    mathint value                        = underlying.balanceOf(currentContract) - totalSupply();
     uint256 supplyBefore                 = totalSupply();
     uint256 balanceBefore                = balanceOf(receiver);
 
     uint256 otherBalanceBefore           = balanceOf(other);
-    uint256 otherUnderlyingBalanceBefore = underlyingBalanceOf(other);
+    uint256 otherUnderlyingBalanceBefore = underlying.balanceOf(other);
 
     recover@withrevert(e, receiver);
     bool success = !lastReverted;
@@ -209,10 +211,10 @@ rule recover(env e) {
     assert success => (
         to_mathint(balanceOf(receiver)) == balanceBefore + value &&
         to_mathint(totalSupply()) == supplyBefore + value &&
-        totalSupply() == underlyingBalanceOf(currentContract)
+        totalSupply() == underlying.balanceOf(currentContract)
     );
 
     // no side effect
-    assert underlyingBalanceOf(other) == otherUnderlyingBalanceBefore;
+    assert underlying.balanceOf(other) == otherUnderlyingBalanceBefore;
     assert balanceOf(other) != otherBalanceBefore => other == receiver;
 }
