@@ -52,7 +52,7 @@ library SignatureChecker {
         bytes memory signature
     ) internal view returns (bool) {
         bytes memory params = abi.encodeCall(IERC1271.isValidSignature, (hash, signature));
-        (bool success, bytes32 result) = LowLevelCall.staticcallReturnBytes32(signer, params);
+        (bool success, bytes32 result, ) = LowLevelCall.staticcallReturn64Bytes(signer, params);
 
         return success && LowLevelCall.returnDataSize() >= 32 && result == bytes32(IERC1271.isValidSignature.selector);
     }

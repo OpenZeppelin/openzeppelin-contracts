@@ -113,7 +113,7 @@ abstract contract Account is AbstractSigner, IAccount {
      */
     function _payPrefund(uint256 missingAccountFunds) internal virtual {
         if (missingAccountFunds > 0) {
-            LowLevelCall.callRaw(msg.sender, "", missingAccountFunds); // The entrypoint should validate the result.
+            LowLevelCall.callNoReturn(msg.sender, missingAccountFunds, ""); // The entrypoint should validate the result.
         }
     }
 

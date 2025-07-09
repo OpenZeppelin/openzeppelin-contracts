@@ -179,14 +179,11 @@ library SafeERC20 {
      * This is a variant of {_callOptionalReturnBool} that reverts if call fails to meet the requirements.
      */
     function _callOptionalReturn(IERC20 token, bytes memory data) private {
-        (bool success, bytes32 returnValue) = LowLevelCall.callReturnBytes32(address(token), data);
-        uint256 returnSize = LowLevelCall.returnDataSize();
+        (bool success, bytes32 returnValue, ) = LowLevelCall.callReturn64Bytes(address(token), data);
 
         if (!success) {
-            LowLevelCall.bubbleRevert(data);
-        }
-
-        if (returnSize == 0 ? address(token).code.length == 0 : uint256(returnValue) != 1) {
+            LowLevelCall.bubbleRevert();
+        } else if (LowLevelCall.returnDataSize() == 0 ? address(token).code.length == 0 : uint256(returnValue) != 1) {
             revert SafeERC20FailedOperation(address(token));
         }
     }
@@ -200,8 +197,9 @@ library SafeERC20 {
      * This is a variant of {_callOptionalReturn} that silently catches all reverts and returns a bool instead.
      */
     function _callOptionalReturnBool(IERC20 token, bytes memory data) private returns (bool) {
-        (bool success, bytes32 returnValue) = LowLevelCall.callReturnBytes32(address(token), data);
-        uint256 returnSize = LowLevelCall.returnDataSize();
-        return success && (returnSize == 0 ? address(token).code.length > 0 : uint256(returnValue) == 1);
+        (bool success, bytes32 returnValue, ) = LowLevelCall.callReturn64Bytes(address(token), data);
+        return
+            success &&
+            (LowLevelCall.returnDataSize() == 0 ? address(token).code.length > 0 : uint256(returnValue) == 1);
     }
 }

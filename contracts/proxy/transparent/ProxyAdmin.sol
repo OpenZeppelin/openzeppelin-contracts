@@ -41,10 +41,10 @@ contract ProxyAdmin is Ownable {
         address implementation,
         bytes memory data
     ) public payable virtual onlyOwner {
-        LowLevelCall.callRaw(
+        LowLevelCall.callNoReturn(
             address(proxy),
-            abi.encodeCall(ITransparentUpgradeableProxy.upgradeToAndCall, (implementation, data)),
-            msg.value
+            msg.value,
+            abi.encodeCall(ITransparentUpgradeableProxy.upgradeToAndCall, (implementation, data))
         );
     }
 }

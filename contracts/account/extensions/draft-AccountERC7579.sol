@@ -17,10 +17,8 @@ import {
 import {ERC7579Utils, Mode, CallType, ExecType} from "../../account/utils/draft-ERC7579Utils.sol";
 import {EnumerableSet} from "../../utils/structs/EnumerableSet.sol";
 import {LowLevelCall} from "../../utils/LowLevelCall.sol";
-import {Memory} from "../../utils/Memory.sol";
 import {Bytes} from "../../utils/Bytes.sol";
 import {Packing} from "../../utils/Packing.sol";
-import {Address} from "../../utils/Address.sol";
 import {Calldata} from "../../utils/Calldata.sol";
 import {Account} from "../Account.sol";
 
@@ -62,7 +60,6 @@ abstract contract AccountERC7579 is Account, IERC1271, IERC7579Execution, IERC75
     using EnumerableSet for *;
     using Packing for bytes32;
     using LowLevelCall for *;
-    using Memory for *;
 
     EnumerableSet.AddressSet private _validators;
     EnumerableSet.AddressSet private _executors;
@@ -321,10 +318,11 @@ abstract contract AccountERC7579 is Account, IERC1271, IERC7579Execution, IERC75
         (bool success, bytes memory returndata) = handler.call{value: msg.value}(
             abi.encodePacked(msg.data, msg.sender)
         );
-
-        if (success) return returndata;
-
-        returndata.asPointer().addOffset(0x20).asBytes().bubbleRevert();
+        if (success) {
+            return returndata;
+        } else {
+            LowLevelCall.bubbleRevert(returndata);
+        }
     }
 
     /// @dev Returns the fallback handler for the given selector. Returns `address(0)` if not installed.
