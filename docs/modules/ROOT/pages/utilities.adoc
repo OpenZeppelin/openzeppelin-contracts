@@ -491,7 +491,7 @@ function processMultipleItems(uint256[] memory items) internal {
 
 This way, memory allocated for `tempData` in each iteration is reused, significantly reducing memory expansion costs when processing many items.
 
-IMPORTANT: Manual memory management increases gas costs and prevents compiler optimizations. Only use these functions after profiling confirms they're necessary. By default, Solidity handles memory safely - using this library without understanding memory layout and safety may be dangerous. See the https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_memory.html[memory layout] and https://docs.soliditylang.org/en/v0.8.20/assembly.html#memory-safety[memory safety] documentation for details.
+IMPORTANT: Only use these functions after carefully confirming they're necessary. By default, Solidity handles memory safely. Using this library without understanding memory layout and safety may be dangerous. See the https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_memory.html[memory layout] and https://docs.soliditylang.org/en/v0.8.20/assembly.html#memory-safety[memory safety] documentation for details.
 
 === Historical Block Hashes
 
