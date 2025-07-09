@@ -100,7 +100,7 @@ library Bytes {
     }
 
     /**
-     * @dev Reverses the byte order of a uint256 value, converting between little-endian and big-endian.
+     * @dev Reverses the byte order of a bytes32 value, converting between little-endian and big-endian.
      * Inspired in https://graphics.stanford.edu/~seander/bithacks.html#ReverseParallel[Reverse Parallel]
      */
     function reverseBits256(bytes32 value) internal pure returns (bytes32) {
