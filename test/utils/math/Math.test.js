@@ -727,10 +727,10 @@ describe('Math', function () {
           bytes32(ethers.MaxUint256),
         );
 
-        // Test simple pattern
+        // Test complex pattern that clearly shows byte reversal
         await expect(
-          this.mock.$reverseBits256('0x0000000000000000000000000000000000000000000000000000000000000001'),
-        ).to.eventually.equal('0x0100000000000000000000000000000000000000000000000000000000000000');
+          this.mock.$reverseBits256('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'),
+        ).to.eventually.equal('0xefcdab8967452301efcdab8967452301efcdab8967452301efcdab8967452301');
       });
 
       it('double reverse returns original', async function () {
@@ -747,9 +747,9 @@ describe('Math', function () {
         await expect(this.mock.$reverseBits128(bytes16(0))).to.eventually.equal(bytes16(0));
         await expect(this.mock.$reverseBits128(bytes16(MAX_UINT128))).to.eventually.equal(bytes16(MAX_UINT128));
 
-        // Test simple pattern
-        await expect(this.mock.$reverseBits128('0x00000000000000000000000000000001')).to.eventually.equal(
-          '0x01000000000000000000000000000000',
+        // Test complex pattern that clearly shows byte reversal
+        await expect(this.mock.$reverseBits128('0x0123456789abcdef0123456789abcdef')).to.eventually.equal(
+          '0xefcdab8967452301efcdab8967452301',
         );
       });
 
@@ -769,7 +769,7 @@ describe('Math', function () {
         await expect(this.mock.$reverseBits64(bytes8(MAX_UINT64))).to.eventually.equal(bytes8(MAX_UINT64));
 
         // Test known pattern: 0x123456789ABCDEF0 -> 0xF0DEBC9A78563412
-        await expect(this.mock.$reverseBits64('0x123456789ABCDEF0')).to.eventually.equal('0xf0debc9a78563412');
+        await expect(this.mock.$reverseBits64('0x123456789abcdef0')).to.eventually.equal('0xf0debc9a78563412');
       });
 
       it('double reverse returns original', async function () {

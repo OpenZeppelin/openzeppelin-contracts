@@ -317,19 +317,71 @@ contract MathTest is Test {
         assertEq(Math.reverseBits128(Math.reverseBits128(value)), value);
     }
 
+    function testSymbolicReverseBits128Dirty(bytes16 value) public pure {
+        bytes16 dirty = _dirtyBytes128(value);
+        assertEq(Math.reverseBits128(Math.reverseBits128(dirty)), value);
+    }
+
     function testSymbolicReverseBits64(bytes8 value) public pure {
         assertEq(Math.reverseBits64(Math.reverseBits64(value)), value);
+    }
+
+    function testSymbolicReverseBits64Dirty(bytes8 value) public pure {
+        bytes8 dirty = _dirtyBytes64(value);
+        assertEq(Math.reverseBits64(Math.reverseBits64(dirty)), value);
     }
 
     function testSymbolicReverseBits32(bytes4 value) public pure {
         assertEq(Math.reverseBits32(Math.reverseBits32(value)), value);
     }
 
+    function testSymbolicReverseBits32Dirty(bytes4 value) public pure {
+        bytes4 dirty = _dirtyBytes32(value);
+        assertEq(Math.reverseBits32(Math.reverseBits32(dirty)), value);
+    }
+
     function testSymbolicReverseBits16(bytes2 value) public pure {
         assertEq(Math.reverseBits16(Math.reverseBits16(value)), value);
     }
 
+    function testSymbolicReverseBits16Dirty(bytes2 value) public pure {
+        bytes2 dirty = _dirtyBytes16(value);
+        assertEq(Math.reverseBits16(Math.reverseBits16(dirty)), value);
+    }
+
     // Helpers
+    function _dirtyBytes128(bytes16 value) private pure returns (bytes16) {
+        bytes16 dirty = value;
+        assembly ("memory-safe") {
+            dirty := or(dirty, shr(128, not(0)))
+        }
+        return dirty;
+    }
+
+    function _dirtyBytes64(bytes8 value) private pure returns (bytes8) {
+        bytes8 dirty = value;
+        assembly ("memory-safe") {
+            dirty := or(dirty, shr(64, not(0)))
+        }
+        return dirty;
+    }
+
+    function _dirtyBytes32(bytes4 value) private pure returns (bytes4) {
+        bytes4 dirty = value;
+        assembly ("memory-safe") {
+            dirty := or(dirty, shr(32, not(0)))
+        }
+        return dirty;
+    }
+
+    function _dirtyBytes16(bytes2 value) private pure returns (bytes2) {
+        bytes2 dirty = value;
+        assembly ("memory-safe") {
+            dirty := or(dirty, shr(16, not(0)))
+        }
+        return dirty;
+    }
+
     function _asRounding(uint8 r) private pure returns (Math.Rounding) {
         vm.assume(r < uint8(type(Math.Rounding).max));
         return Math.Rounding(r);
