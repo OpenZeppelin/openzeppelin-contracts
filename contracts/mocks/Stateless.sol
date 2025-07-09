@@ -49,6 +49,7 @@ import {SignatureChecker} from "../utils/cryptography/SignatureChecker.sol";
 import {SignedMath} from "../utils/math/SignedMath.sol";
 import {StorageSlot} from "../utils/StorageSlot.sol";
 import {Strings} from "../utils/Strings.sol";
+import {Memory} from "../utils/Memory.sol";
 import {Time} from "../utils/types/Time.sol";
 
 contract Dummy1234 {}
