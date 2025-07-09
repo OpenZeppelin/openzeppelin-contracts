@@ -31,6 +31,10 @@ import {SignatureChecker} from "../SignatureChecker.sol";
 abstract contract SignerERC7913 is AbstractSigner {
     bytes private _signer;
 
+    constructor(bytes memory signer_) {
+        _setSigner(signer_);
+    }
+
     /// @dev Return the ERC-7913 signer (i.e. `verifier || key`).
     function signer() public view virtual returns (bytes memory) {
         return _signer;
@@ -41,11 +45,14 @@ abstract contract SignerERC7913 is AbstractSigner {
         _signer = signer_;
     }
 
-    /// @dev Verifies a signature using {SignatureChecker-isValidERC7913SignatureNow} with {signer}, `hash` and `signature`.
+    /**
+     * @dev Verifies a signature using {SignatureChecker-isValidSignatureNow-bytes-bytes32-bytes-}
+     * with {signer}, `hash` and `signature`.
+     */
     function _rawSignatureValidation(
         bytes32 hash,
         bytes calldata signature
     ) internal view virtual override returns (bool) {
-        return SignatureChecker.isValidERC7913SignatureNow(signer(), hash, signature);
+        return SignatureChecker.isValidSignatureNow(signer(), hash, signature);
     }
 }

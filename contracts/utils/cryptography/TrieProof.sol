@@ -2,6 +2,7 @@
 pragma solidity ^0.8.27;
 
 import {Bytes} from "../Bytes.sol";
+import {Strings} from "../Strings.sol";
 import {RLP} from "../RLP.sol";
 import {Math} from "../math/Math.sol";
 
@@ -14,6 +15,7 @@ import {Math} from "../math/Math.sol";
 library TrieProof {
     using Bytes for bytes;
     using RLP for *;
+    using Strings for string;
 
     enum Prefix {
         EXTENSION_EVEN, // 0 - Extension node with even length path
@@ -70,7 +72,7 @@ library TrieProof {
         uint256 radix
     ) internal pure returns (bool) {
         (bytes memory processedValue, ProofError err) = processProof(key, proof, root, radix);
-        return processedValue.equal(value) && err == ProofError.NO_ERROR;
+        return string(processedValue).equal(string(value)) && err == ProofError.NO_ERROR;
     }
 
     /// @dev Processes a proof for a given key using default Ethereum radix (16) and returns the processed value.
@@ -140,10 +142,11 @@ library TrieProof {
         Node memory node,
         uint256 keyIndex
     ) private pure returns (ProofError) {
-        if (keyIndex == 0 && !bytes.concat(keccak256(node.encoded)).equal(nodeId)) return ProofError.INVALID_ROOT_HASH; // Root node must match root hash
-        if (node.encoded.length >= 32 && !bytes.concat(keccak256(node.encoded)).equal(nodeId))
+        if (keyIndex == 0 && !string(bytes.concat(keccak256(node.encoded))).equal(string(nodeId)))
+            return ProofError.INVALID_ROOT_HASH; // Root node must match root hash
+        if (node.encoded.length >= 32 && !string(bytes.concat(keccak256(node.encoded))).equal(string(nodeId)))
             return ProofError.INVALID_LARGE_INTERNAL_HASH; // Large nodes are stored as hashes
-        if (!node.encoded.equal(nodeId)) return ProofError.INVALID_INTERNAL_NODE_HASH; // Small nodes must match directly
+        if (!string(node.encoded).equal(string(nodeId))) return ProofError.INVALID_INTERNAL_NODE_HASH; // Small nodes must match directly
         return ProofError.NO_ERROR; // No error
     }
 

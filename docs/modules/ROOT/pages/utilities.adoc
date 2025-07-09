@@ -142,7 +142,7 @@ A signer is represented as a `bytes` object that concatenates a verifier address
 [source,solidity]
 ----
 function _verifyERC7913Signature(bytes memory signer, bytes32 hash, bytes memory signature) internal view returns (bool) {
-    return SignatureChecker.isValidERC7913SignatureNow(signer, hash, signature);
+    return SignatureChecker.isValidSignatureNow(signer, hash, signature);
 }
 ----
 
@@ -163,7 +163,7 @@ function _verifyMultipleSignatures(
     bytes[] memory signers,
     bytes[] memory signatures
 ) internal view returns (bool) {
-    return SignatureChecker.areValidERC7913SignaturesNow(hash, signers, signatures);
+    return SignatureChecker.areValidSignaturesNow(hash, signers, signatures);
 }
 ----
 
@@ -263,7 +263,7 @@ Some use cases require more powerful data structures than arrays and mappings of
 - xref:api:utils.adoc#EnumerableSet[`EnumerableSet`]: A https://en.wikipedia.org/wiki/Set_(abstract_data_type)[set] with enumeration capabilities.
 - xref:api:utils.adoc#EnumerableMap[`EnumerableMap`]: A `mapping` variant with enumeration capabilities.
 - xref:api:utils.adoc#MerkleTree[`MerkleTree`]: An on-chain https://wikipedia.org/wiki/Merkle_Tree[Merkle Tree] with helper functions.
-- xref:api:utils.adoc#Heap.sol[`Heap`]: A 
+- xref:api:utils.adoc#Heap.sol[`Heap`]: A https://en.wikipedia.org/wiki/Binary_heap[binary heap] to store elements with priority defined by a compartor function.
 
 The `Enumerable*` structures are similar to mappings in that they store and remove elements in constant time and don't allow for repeated entries, but they also support _enumeration_, which means you can easily query all stored entries both on and off-chain.
 
@@ -460,6 +460,38 @@ await instance.multicall([
     instance.interface.encodeFunctionData("bar")
 ]);
 ----
+
+=== Memory
+
+The xref:api:utils.adoc#Memory[`Memory`] library provides functions for advanced use cases that require granular memory management. A common use case is to avoid unnecessary memory expansion costs when performing repeated operations that allocate memory in a loop. Consider the following example:
+
+[source,solidity]
+----
+function processMultipleItems(uint256[] memory items) internal {
+  for (uint256 i = 0; i < items.length; i++) {
+    bytes memory tempData = abi.encode(items[i], block.timestamp);
+    // Process tempData...
+  }
+}
+----
+
+Note that each iteration allocates new memory for `tempData`, causing the memory to expand continuously. This can be optimized by resetting the memory pointer between iterations:
+
+[source,solidity]
+----
+function processMultipleItems(uint256[] memory items) internal {
+  Memory.Pointer ptr = Memory.getFreeMemoryPointer(); // Cache pointer
+  for (uint256 i = 0; i < items.length; i++) {
+    bytes memory tempData = abi.encode(items[i], block.timestamp);
+    // Process tempData...
+    Memory.setFreeMemoryPointer(ptr); // Reset pointer for reuse
+  }
+}
+----
+
+This way, memory allocated for `tempData` in each iteration is reused, significantly reducing memory expansion costs when processing many items.
+
+IMPORTANT: Manual memory management increases gas costs and prevents compiler optimizations. Only use these functions after profiling confirms they're necessary. By default, Solidity handles memory safely - using this library without understanding memory layout and safety may be dangerous. See the https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_memory.html[memory layout] and https://docs.soliditylang.org/en/v0.8.20/assembly.html#memory-safety[memory safety] documentation for details.
 
 === Historical Block Hashes
 

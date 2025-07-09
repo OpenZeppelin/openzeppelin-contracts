@@ -57,10 +57,6 @@ contract BytesTest is Test {
         }
     }
 
-    function testSymbolicEqual(bytes memory a, bytes memory b) public pure {
-        assertEq(Bytes.equal(a, b), Bytes.equal(a, b));
-    }
-
     function testSymbolicCountLeadingZeroes(uint256 x) public pure {
         uint256 result = Bytes.clz(x);
         assertLe(result, 32); // [0, 32]

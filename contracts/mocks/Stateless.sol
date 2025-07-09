@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.26;
 
 // We keep these imports and a dummy contract just to we can run the test suite after transpilation.
 
@@ -29,7 +29,10 @@ import {ERC1155Holder} from "../token/ERC1155/utils/ERC1155Holder.sol";
 import {ERC1967Utils} from "../proxy/ERC1967/ERC1967Utils.sol";
 import {ERC4337Utils} from "../account/utils/draft-ERC4337Utils.sol";
 import {ERC7579Utils} from "../account/utils/draft-ERC7579Utils.sol";
+import {ERC7913P256Verifier} from "../utils/cryptography/verifiers/ERC7913P256Verifier.sol";
+import {ERC7913RSAVerifier} from "../utils/cryptography/verifiers/ERC7913RSAVerifier.sol";
 import {Heap} from "../utils/structs/Heap.sol";
+import {InteroperableAddress} from "../utils/draft-InteroperableAddress.sol";
 import {Math} from "../utils/math/Math.sol";
 import {MerkleProof} from "../utils/cryptography/MerkleProof.sol";
 import {MessageHashUtils} from "../utils/cryptography/MessageHashUtils.sol";
@@ -46,6 +49,7 @@ import {SignatureChecker} from "../utils/cryptography/SignatureChecker.sol";
 import {SignedMath} from "../utils/math/SignedMath.sol";
 import {StorageSlot} from "../utils/StorageSlot.sol";
 import {Strings} from "../utils/Strings.sol";
+import {Memory} from "../utils/Memory.sol";
 import {Time} from "../utils/types/Time.sol";
 
 contract Dummy1234 {}

@@ -32,7 +32,7 @@ async function fixture() {
   const domain = { name: 'AccountERC7913', version: '1', chainId: entrypointDomain.chainId }; // Missing verifyingContract,
 
   const makeMock = signer =>
-    helper.newAccount('$AccountERC7913Mock', ['AccountERC7913', '1', signer]).then(mock => {
+    helper.newAccount('$AccountERC7913Mock', [signer, 'AccountERC7913', '1']).then(mock => {
       domain.verifyingContract = mock.address;
       return mock;
     });

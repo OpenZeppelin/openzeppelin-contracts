@@ -116,7 +116,7 @@ library RLP {
     /// @dev Creates an RLP Item from a bytes array.
     function toItem(bytes memory value) internal pure returns (Item memory) {
         require(value.length != 0, RLPEmptyItem()); // Empty arrays are not RLP items.
-        return Item(value.length, value.contentPointer());
+        return Item(value.length, _addOffset(value.asPointer(), 32));
     }
 
     /// @dev Decodes an RLP encoded list into an array of RLP Items. See {_decodeLength}
@@ -131,9 +131,9 @@ library RLP {
 
         for (uint256 currentOffset = listOffset; currentOffset < item.length; ++itemCount) {
             (uint256 itemOffset, uint256 itemLength, ) = _decodeLength(
-                Item(item.length - currentOffset, item.ptr.addOffset(currentOffset))
+                Item(item.length - currentOffset, _addOffset(item.ptr, currentOffset))
             );
-            items[itemCount] = Item(itemLength + itemOffset, item.ptr.addOffset(currentOffset));
+            items[itemCount] = Item(itemLength + itemOffset, _addOffset(item.ptr, currentOffset));
             currentOffset += itemOffset + itemLength;
         }
 
@@ -157,7 +157,7 @@ library RLP {
         require(expectedLength == item.length, RLPContentLengthMismatch(expectedLength, item.length));
 
         bytes memory result = new bytes(itemLength);
-        result.contentPointer().copy(item.ptr.addOffset(itemOffset), itemLength);
+        _copy(_addOffset(result.asPointer(), 32), _addOffset(item.ptr, itemOffset), itemLength);
 
         return result;
     }
@@ -171,7 +171,7 @@ library RLP {
     function readRawBytes(Item memory item) internal pure returns (bytes memory) {
         uint256 itemLength = item.length;
         bytes memory result = new bytes(itemLength);
-        result.contentPointer().copy(item.ptr, itemLength);
+        _copy(_addOffset(result.asPointer(), 32), item.ptr, itemLength);
 
         return result;
     }
@@ -216,12 +216,12 @@ library RLP {
     function _flatten(bytes[] memory list) private pure returns (bytes memory) {
         // TODO: Move to Arrays.sol
         bytes memory flattened = new bytes(_totalLength(list));
-        Memory.Pointer dataPtr = flattened.contentPointer();
+        Memory.Pointer dataPtr = _addOffset(flattened.asPointer(), 32);
         for (uint256 i = 0; i < list.length; i++) {
             bytes memory item = list[i];
             uint256 length = item.length;
-            dataPtr.copy(item.contentPointer(), length);
-            dataPtr = dataPtr.addOffset(length);
+            _copy(dataPtr, item.asPointer(), length);
+            dataPtr = _addOffset(dataPtr, length);
         }
         return flattened;
     }
@@ -242,7 +242,7 @@ library RLP {
      */
     function _decodeLength(Item memory item) private pure returns (uint256 offset, uint256 length, ItemType) {
         require(item.length != 0, RLPEmptyItem());
-        uint256 prefix = uint8(item.ptr.extractByte());
+        uint256 prefix = uint8(_loadByte(item.ptr, 0));
 
         // Single byte below 128
         if (prefix < SHORT_OFFSET) return (0, 1, ItemType.DATA_ITEM);
@@ -270,7 +270,7 @@ library RLP {
         Item memory item
     ) private pure returns (uint256 offset, uint256 length, ItemType) {
         require(item.length > strLength, RLPInvalidDataRemainder(strLength, item.length));
-        require(strLength != 1 || item.ptr.addOffset(1).extractByte() >= bytes1(SHORT_OFFSET));
+        require(strLength != 1 || _loadByte(_addOffset(item.ptr, 1), 0) >= bytes1(SHORT_OFFSET));
         return (1, strLength, ItemType.DATA_ITEM);
     }
 
@@ -287,13 +287,36 @@ library RLP {
     function _decodeLong(uint256 lengthLength, Item memory item) private pure returns (uint256 offset, uint256 length) {
         lengthLength += 1; // 1 byte for the length itself
         require(item.length > lengthLength, RLPInvalidDataRemainder(lengthLength, item.length));
-        require(item.ptr.extractByte() != 0x00);
+        require(_loadByte(item.ptr, 0) != 0x00);
 
         // Extract the length value from the next bytes
-        uint256 len = item.ptr.addOffset(1).extractWord() >> (256 - 8 * lengthLength);
+        uint256 len = uint256(_load(_addOffset(item.ptr, 1)) >> (256 - 8 * lengthLength));
         require(len > SHORT_THRESHOLD, RLPInvalidDataRemainder(SHORT_THRESHOLD, len));
         uint256 expectedLength = lengthLength + len;
         require(item.length <= expectedLength, RLPContentLengthMismatch(expectedLength, item.length));
         return (lengthLength + 1, len);
+    }
+
+    function _addOffset(Memory.Pointer ptr, uint256 offset) private pure returns (Memory.Pointer) {
+        return bytes32(uint256(ptr.asBytes32()) + offset).asPointer();
+    }
+
+    function _copy(Memory.Pointer destPtr, Memory.Pointer srcPtr, uint256 length) private pure {
+        assembly ("memory-safe") {
+            mcopy(destPtr, srcPtr, length)
+        }
+    }
+
+    function _loadByte(Memory.Pointer ptr, uint256 offset) private pure returns (bytes1 v) {
+        bytes32 word = _load(ptr);
+        assembly ("memory-safe") {
+            v := byte(offset, word)
+        }
+    }
+
+    function _load(Memory.Pointer ptr) private pure returns (bytes32 v) {
+        assembly ("memory-safe") {
+            v := mload(ptr)
+        }
     }
 }
