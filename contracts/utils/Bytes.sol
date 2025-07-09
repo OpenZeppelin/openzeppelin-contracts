@@ -109,16 +109,16 @@ library Bytes {
         return nibbles_;
     }
 
-    /// @dev Counts the number of leading zero bytes in a uint256.
+    /**
+     * @dev Returns true if the two byte buffers are equal.
+     */
+    function equal(bytes memory a, bytes memory b) internal pure returns (bool) {
+        return a.length == b.length && keccak256(a) == keccak256(b);
+    }
+
+    /// @dev Counts the number of leading zeros in a uint256.
     function clz(uint256 x) internal pure returns (uint256) {
-        if (x == 0) return 32; // All 32 bytes are zero
-        uint256 r = 0;
-        if (x > 0xffffffffffffffffffffffffffffffff) r = 128; // Upper 128 bits
-        if ((x >> r) > 0xffffffffffffffff) r |= 64; // Next 64 bits
-        if ((x >> r) > 0xffffffff) r |= 32; // Next 32 bits
-        if ((x >> r) > 0xffff) r |= 16; // Next 16 bits
-        if ((x >> r) > 0xff) r |= 8; // Next 8 bits
-        return 31 ^ (r >> 3); // Convert to leading zero bytes count
+        return Math.ternary(x == 0, 32, 31 - Math.log256(x));
     }
 
     /**
