@@ -69,6 +69,28 @@ library Bytes {
     }
 
     /**
+     * @dev Count number of occurrences of `search` at the beginning of `buffer`.
+     */
+    function countLeading(bytes memory buffer, bytes1 search) internal pure returns (uint256) {
+        return countConsecutive(buffer, 0, search);
+    }
+
+    /**
+     * @dev Count number of occurrences of `search` in `buffer`, starting from position `offset`.
+     */
+    function countConsecutive(bytes memory buffer, uint256 offset, bytes1 search) internal pure returns (uint256 i) {
+        uint256 length = Math.saturatingSub(buffer.length, offset);
+        assembly ("memory-safe") {
+            for {
+                let ptr := add(add(buffer, 0x20), offset)
+                i := 0
+            } and(iszero(shr(248, xor(mload(add(ptr, i)), search))), lt(i, length)) {
+                i := add(i, 1)
+            } {}
+        }
+    }
+
+    /**
      * @dev Copies the content of `buffer`, from `start` (included) to the end of `buffer` into a new bytes object in
      * memory.
      *
@@ -97,6 +119,35 @@ library Bytes {
         }
 
         return result;
+    }
+
+    /**
+     * @dev In place slice: moves the content of `buffer`, from `start` (included) to the end of `buffer` to the start of that buffer.
+     *
+     * NOTE: This function modifies the provided buffer in place. If you need to preserve the original buffer, use {slice} instead
+     */
+    function splice(bytes memory buffer, uint256 start) internal pure returns (bytes memory) {
+        return splice(buffer, start, buffer.length);
+    }
+
+    /**
+     * @dev In place slice: moves the content of `buffer`, from `start` (included) to end (excluded) to the start of that buffer.
+     *
+     * NOTE: This function modifies the provided buffer in place. If you need to preserve the original buffer, use {slice} instead
+     */
+    function splice(bytes memory buffer, uint256 start, uint256 end) internal pure returns (bytes memory) {
+        // sanitize
+        uint256 length = buffer.length;
+        end = Math.min(end, length);
+        start = Math.min(start, end);
+
+        // allocate and copy
+        assembly ("memory-safe") {
+            mcopy(add(buffer, 0x20), add(add(buffer, 0x20), start), sub(end, start))
+            mstore(buffer, sub(end, start))
+        }
+
+        return buffer;
     }
 
     /**

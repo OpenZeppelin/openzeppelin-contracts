@@ -8,21 +8,21 @@ pragma solidity ^0.8.20;
  */
 library Base64 {
     /**
-     * @dev Base64 Encoding/Decoding Table
+     * @dev Base64 encoding table
      * See sections 4 and 5 of https://datatracker.ietf.org/doc/html/rfc4648
      */
     string internal constant _TABLE = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     string internal constant _TABLE_URL = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 
     /**
-     * @dev Converts a `bytes` to its Bytes64 `string` representation.
+     * @dev Converts a `bytes` to its Base64 `string` representation.
      */
     function encode(bytes memory data) internal pure returns (string memory) {
         return _encode(data, _TABLE, true);
     }
 
     /**
-     * @dev Converts a `bytes` to its Bytes64Url `string` representation.
+     * @dev Converts a `bytes` to its Base64Url `string` representation.
      * Output is not padded with `=` as specified in https://www.rfc-editor.org/rfc/rfc4648[rfc4648].
      */
     function encodeURL(bytes memory data) internal pure returns (string memory) {
