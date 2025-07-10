@@ -4,6 +4,7 @@
 pragma solidity ^0.8.20;
 
 import {Errors} from "./Errors.sol";
+import {LowLevelCall} from "./LowLevelCall.sol";
 
 /**
  * @dev Collection of functions related to the address type
@@ -34,10 +35,13 @@ library Address {
         if (address(this).balance < amount) {
             revert Errors.InsufficientBalance(address(this).balance, amount);
         }
-
-        (bool success, bytes memory returndata) = recipient.call{value: amount}("");
-        if (!success) {
-            _revert(returndata);
+        if (LowLevelCall.callNoReturn(recipient, amount, "")) {
+            // call successful, nothing to do
+            return;
+        } else if (LowLevelCall.returnDataSize() == 0) {
+            revert Errors.FailedCall();
+        } else {
+            LowLevelCall.bubbleRevert();
         }
     }
 
@@ -76,8 +80,16 @@ library Address {
         if (address(this).balance < value) {
             revert Errors.InsufficientBalance(address(this).balance, value);
         }
-        (bool success, bytes memory returndata) = target.call{value: value}(data);
-        return verifyCallResultFromTarget(target, success, returndata);
+        bool success = LowLevelCall.callNoReturn(target, value, data);
+        if (success && (LowLevelCall.returnDataSize() > 0 || target.code.length > 0)) {
+            return LowLevelCall.returnData();
+        } else if (success) {
+            revert AddressEmptyCode(target);
+        } else if (LowLevelCall.returnDataSize() > 0) {
+            LowLevelCall.bubbleRevert();
+        } else {
+            revert Errors.FailedCall();
+        }
     }
 
     /**
@@ -85,8 +97,16 @@ library Address {
      * but performing a static call.
      */
     function functionStaticCall(address target, bytes memory data) internal view returns (bytes memory) {
-        (bool success, bytes memory returndata) = target.staticcall(data);
-        return verifyCallResultFromTarget(target, success, returndata);
+        bool success = LowLevelCall.staticcallNoReturn(target, data);
+        if (success && (LowLevelCall.returnDataSize() > 0 || target.code.length > 0)) {
+            return LowLevelCall.returnData();
+        } else if (success) {
+            revert AddressEmptyCode(target);
+        } else if (LowLevelCall.returnDataSize() > 0) {
+            LowLevelCall.bubbleRevert();
+        } else {
+            revert Errors.FailedCall();
+        }
     }
 
     /**
@@ -94,8 +114,16 @@ library Address {
      * but performing a delegate call.
      */
     function functionDelegateCall(address target, bytes memory data) internal returns (bytes memory) {
-        (bool success, bytes memory returndata) = target.delegatecall(data);
-        return verifyCallResultFromTarget(target, success, returndata);
+        bool success = LowLevelCall.delegatecallNoReturn(target, data);
+        if (success && (LowLevelCall.returnDataSize() > 0 || target.code.length > 0)) {
+            return LowLevelCall.returnData();
+        } else if (success) {
+            revert AddressEmptyCode(target);
+        } else if (LowLevelCall.returnDataSize() > 0) {
+            LowLevelCall.bubbleRevert();
+        } else {
+            revert Errors.FailedCall();
+        }
     }
 
     /**
@@ -138,10 +166,7 @@ library Address {
     function _revert(bytes memory returndata) private pure {
         // Look for revert reason and bubble it up if present
         if (returndata.length > 0) {
-            // The easiest way to bubble the revert reason is using memory via assembly
-            assembly ("memory-safe") {
-                revert(add(returndata, 0x20), mload(returndata))
-            }
+            LowLevelCall.bubbleRevert(returndata);
         } else {
             revert Errors.FailedCall();
         }

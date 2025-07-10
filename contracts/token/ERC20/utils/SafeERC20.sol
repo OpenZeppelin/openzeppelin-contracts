@@ -5,6 +5,9 @@ pragma solidity ^0.8.20;
 
 import {IERC20} from "../IERC20.sol";
 import {IERC1363} from "../../../interfaces/IERC1363.sol";
+import {Address} from "../../../utils/Address.sol";
+import {LowLevelCall} from "../../../utils/LowLevelCall.sol";
+import {Memory} from "../../../utils/Memory.sol";
 
 /**
  * @title SafeERC20
@@ -31,7 +34,9 @@ library SafeERC20 {
      * non-reverting calls are assumed to be successful.
      */
     function safeTransfer(IERC20 token, address to, uint256 value) internal {
+        Memory.Pointer ptr = Memory.getFreeMemoryPointer();
         _callOptionalReturn(token, abi.encodeCall(token.transfer, (to, value)));
+        Memory.setFreeMemoryPointer(ptr);
     }
 
     /**
@@ -39,7 +44,9 @@ library SafeERC20 {
      * calling contract. If `token` returns no value, non-reverting calls are assumed to be successful.
      */
     function safeTransferFrom(IERC20 token, address from, address to, uint256 value) internal {
+        Memory.Pointer ptr = Memory.getFreeMemoryPointer();
         _callOptionalReturn(token, abi.encodeCall(token.transferFrom, (from, to, value)));
+        Memory.setFreeMemoryPointer(ptr);
     }
 
     /**
@@ -99,12 +106,13 @@ library SafeERC20 {
      * set here.
      */
     function forceApprove(IERC20 token, address spender, uint256 value) internal {
+        Memory.Pointer ptr = Memory.getFreeMemoryPointer();
         bytes memory approvalCall = abi.encodeCall(token.approve, (spender, value));
-
         if (!_callOptionalReturnBool(token, approvalCall)) {
             _callOptionalReturn(token, abi.encodeCall(token.approve, (spender, 0)));
             _callOptionalReturn(token, approvalCall);
         }
+        Memory.setFreeMemoryPointer(ptr);
     }
 
     /**
@@ -171,21 +179,11 @@ library SafeERC20 {
      * This is a variant of {_callOptionalReturnBool} that reverts if call fails to meet the requirements.
      */
     function _callOptionalReturn(IERC20 token, bytes memory data) private {
-        uint256 returnSize;
-        uint256 returnValue;
-        assembly ("memory-safe") {
-            let success := call(gas(), token, 0, add(data, 0x20), mload(data), 0, 0x20)
-            // bubble errors
-            if iszero(success) {
-                let ptr := mload(0x40)
-                returndatacopy(ptr, 0, returndatasize())
-                revert(ptr, returndatasize())
-            }
-            returnSize := returndatasize()
-            returnValue := mload(0)
-        }
+        (bool success, bytes32 returnValue, ) = LowLevelCall.callReturn64Bytes(address(token), data);
 
-        if (returnSize == 0 ? address(token).code.length == 0 : returnValue != 1) {
+        if (!success) {
+            LowLevelCall.bubbleRevert();
+        } else if (LowLevelCall.returnDataSize() == 0 ? address(token).code.length == 0 : uint256(returnValue) != 1) {
             revert SafeERC20FailedOperation(address(token));
         }
     }
@@ -199,14 +197,9 @@ library SafeERC20 {
      * This is a variant of {_callOptionalReturn} that silently catches all reverts and returns a bool instead.
      */
     function _callOptionalReturnBool(IERC20 token, bytes memory data) private returns (bool) {
-        bool success;
-        uint256 returnSize;
-        uint256 returnValue;
-        assembly ("memory-safe") {
-            success := call(gas(), token, 0, add(data, 0x20), mload(data), 0, 0x20)
-            returnSize := returndatasize()
-            returnValue := mload(0)
-        }
-        return success && (returnSize == 0 ? address(token).code.length > 0 : returnValue == 1);
+        (bool success, bytes32 returnValue, ) = LowLevelCall.callReturn64Bytes(address(token), data);
+        return
+            success &&
+            (LowLevelCall.returnDataSize() == 0 ? address(token).code.length > 0 : uint256(returnValue) == 1);
     }
 }
