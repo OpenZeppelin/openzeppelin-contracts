@@ -2,8 +2,7 @@
 
 pragma solidity ^0.8.20;
 
-import {Test, stdError} from "forge-std/Test.sol";
-
+import {Test} from "forge-std/Test.sol";
 import {Bytes} from "@openzeppelin/contracts/utils/Bytes.sol";
 
 contract BytesTest is Test {
