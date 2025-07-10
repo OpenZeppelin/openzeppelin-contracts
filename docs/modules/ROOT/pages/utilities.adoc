@@ -477,13 +477,13 @@ function example(address target, bytes memory data) internal {
     bytes32 result2;
 
     // Ignore return data
-    success = target.callRaw(data);
+    success = target.callNoReturn(data);
 
     // Extract single 32-byte value
-    (success, result1) = target.callReturnBytes32(data);
+    (success, result1, ) = target.callReturn64Bytes(data);
 
     // Extract two 32-byte values
-    (success, result1, result2) = target.callReturnBytes32Pair(data);
+    (success, result1, result2) = target.callReturn64Bytes(data);
 }
 ----
 
@@ -491,12 +491,16 @@ You can also check return data size before processing:
 
 [source,solidity]
 ----
-function checkReturnSize(address target, bytes memory data) internal returns (bool) {
-    if (!target.callRaw(data)) {
-        return false;
+function checkReturnSize(address target, bytes memory data) internal returns (uint256 value, uint256 otherValue) {
+    (bool success, bytes32 result1, bytes32 result2) = target.callReturn64Bytes(data);
+
+    if (!success || LowLevelCall.returnDataSize() < 32) {
+        return (0, 0);
+    } else if (LowLevelCall.returnDataSize() < 64) {
+        return (uint256(result1), 0);
+    } else {
+        return (uint256(result1), uint256(result2));
     }
-    
-    return LowLevelCall.returnDataSize() >= 32;
 }
 ----
 
