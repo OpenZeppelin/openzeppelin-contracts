@@ -5,7 +5,6 @@ pragma solidity ^0.8.20;
 
 import {Errors} from "./Errors.sol";
 import {LowLevelCall} from "./LowLevelCall.sol";
-import {Memory} from "./Memory.sol";
 
 /**
  * @dev Helper to make usage of the `CREATE2` EVM opcode easier and safer.

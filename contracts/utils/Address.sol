@@ -5,14 +5,11 @@ pragma solidity ^0.8.20;
 
 import {Errors} from "./Errors.sol";
 import {LowLevelCall} from "./LowLevelCall.sol";
-import {Memory} from "./Memory.sol";
 
 /**
  * @dev Collection of functions related to the address type
  */
 library Address {
-    using Memory for *;
-
     /**
      * @dev There's no code at `target` (it is not a contract).
      */

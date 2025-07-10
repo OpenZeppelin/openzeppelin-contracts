@@ -2,14 +2,17 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
+const value = ethers.parseEther('1');
+const returnValue1 = ethers.id('hello');
+const returnValue2 = ethers.id('world');
+
 async function fixture() {
-  const [recipient, other] = await ethers.getSigners();
+  const [account] = await ethers.getSigners();
 
   const mock = await ethers.deployContract('$LowLevelCall');
   const target = await ethers.deployContract('CallReceiverMock');
-  const targetEther = await ethers.deployContract('EtherReceiverMock');
 
-  return { recipient, other, mock, target, targetEther, value: BigInt(1e18) };
+  return { account, mock, target };
 }
 
 describe('LowLevelCall', function () {
@@ -17,188 +20,235 @@ describe('LowLevelCall', function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
-  describe('callRaw', function () {
-    beforeEach(function () {
-      this.call = this.target.interface.encodeFunctionData('mockFunction');
+  describe('call', function () {
+    describe('without any return', function () {
+      it('calls the requested function and returns true', async function () {
+        await expect(this.target.nbCalls()).to.eventually.equal(0);
+
+        await expect(this.mock.$callNoReturn(this.target, this.target.interface.encodeFunctionData('mockFunction')))
+          .to.emit(this.target, 'MockFunctionCalled')
+          .to.emit(this.mock, 'return$callNoReturn_address_bytes')
+          .withArgs(true);
+
+        await expect(this.target.nbCalls()).to.eventually.equal(1);
+      });
+
+      it('calls the requested function with value and returns true', async function () {
+        await this.account.sendTransaction({ to: this.mock, value });
+
+        await expect(this.target.nbCalls()).to.eventually.equal(0);
+
+        const tx = this.mock.$callNoReturn(
+          this.target,
+          ethers.Typed.uint256(value),
+          this.target.interface.encodeFunctionData('mockFunction'),
+        );
+        await expect(tx).to.changeEtherBalances([this.mock, this.target], [-value, value]);
+        await expect(tx).to.emit(this.mock, 'return$callNoReturn_address_uint256_bytes').withArgs(true);
+
+        await expect(this.target.nbCalls()).to.eventually.equal(1);
+      });
+
+      it("calls the requested function and returns false if the caller doesn't have enough balance", async function () {
+        await expect(this.target.nbCalls()).to.eventually.equal(0);
+
+        const tx = this.mock.$callNoReturn(
+          this.target,
+          ethers.Typed.uint256(value),
+          this.target.interface.encodeFunctionData('mockFunction'),
+        );
+        await expect(tx).to.changeEtherBalances([this.mock, this.target], [0n, 0n]);
+        await expect(tx).to.emit(this.mock, 'return$callNoReturn_address_uint256_bytes').withArgs(false);
+
+        // reverted call do not count
+        await expect(this.target.nbCalls()).to.eventually.equal(0);
+      });
+
+      it('calls the requested function and returns false if the subcall reverts', async function () {
+        await expect(this.target.nbCalls()).to.eventually.equal(0);
+
+        const tx = this.mock.$callNoReturn(
+          this.target,
+          this.target.interface.encodeFunctionData('mockFunctionRevertsNoReason'),
+        );
+        await expect(tx).to.emit(this.mock, 'return$callNoReturn_address_bytes').withArgs(false);
+
+        // reverted call do not count
+        await expect(this.target.nbCalls()).to.eventually.equal(0);
+      });
     });
 
-    it('calls the requested function and returns true', async function () {
-      await expect(this.mock.$callRaw(this.target, this.call))
-        .to.emit(this.target, 'MockFunctionCalled')
-        .to.emit(this.mock, 'return$callRaw_address_bytes')
-        .withArgs(true);
-    });
+    describe('with 64 bytes return in the scratch space', function () {
+      it('calls the requested function and returns true', async function () {
+        await expect(this.target.nbCalls()).to.eventually.equal(0);
 
-    it('calls the requested function with value and returns true', async function () {
-      await this.other.sendTransaction({ to: this.mock, value: this.value });
+        await expect(
+          this.mock.$callReturn64Bytes(
+            this.target,
+            this.target.interface.encodeFunctionData('mockFunctionWithArgsReturn', [returnValue1, returnValue2]),
+          ),
+        )
+          .to.emit(this.target, 'MockFunctionCalledWithArgs')
+          .withArgs(returnValue1, returnValue2)
+          .to.emit(this.mock, 'return$callReturn64Bytes_address_bytes')
+          .withArgs(true, returnValue1, returnValue2);
 
-      const tx = this.mock['$callRaw(address,bytes,uint256)'](this.target, this.call, this.value);
-      await expect(tx).to.changeEtherBalance(this.target, this.value);
-      await expect(tx).to.emit(this.mock, 'return$callRaw_address_bytes_uint256').withArgs(true);
-    });
+        await expect(this.target.nbCalls()).to.eventually.equal(1);
+      });
 
-    it("calls the requested function and returns false if the caller doesn't have enough balance", async function () {
-      const tx = this.mock['$callRaw(address,bytes,uint256)'](this.target, this.call, this.value);
-      await expect(tx).to.not.changeEtherBalance(this.target, this.value);
-      await expect(tx).to.emit(this.mock, 'return$callRaw_address_bytes_uint256').withArgs(false);
-    });
+      it('calls the requested function with value and returns true', async function () {
+        await this.account.sendTransaction({ to: this.mock, value });
 
-    it('calls the requested function and returns false if the subcall reverts', async function () {
-      const call = this.target.interface.encodeFunctionData('mockFunctionRevertsNoReason');
-      const tx = await this.mock.$callRaw(this.target, call);
-      expect(tx).to.emit(this.mock, 'return$callRaw_address_bytes').withArgs(false);
-    });
-  });
+        await expect(this.target.nbCalls()).to.eventually.equal(0);
 
-  describe('callReturnBytes32', function () {
-    beforeEach(function () {
-      this.returnValue = ethers.id('returnDataBytes32');
-      this.call = this.target.interface.encodeFunctionData('mockFunctionWithArgsReturn', [
-        this.returnValue,
-        ethers.ZeroHash,
-      ]);
-    });
+        const tx = this.mock.$callReturn64Bytes(
+          this.target,
+          ethers.Typed.uint256(value),
+          this.target.interface.encodeFunctionData('mockFunctionWithArgsReturn', [returnValue1, returnValue2]),
+        );
+        await expect(tx).to.changeEtherBalances([this.mock, this.target], [-value, value]);
+        await expect(tx)
+          .to.emit(this.mock, 'return$callReturn64Bytes_address_uint256_bytes')
+          .withArgs(true, returnValue1, returnValue2);
 
-    it('calls the requested function and returns true', async function () {
-      await expect(this.mock.$callReturnBytes32(this.target, this.call))
-        .to.emit(this.target, 'MockFunctionCalledWithArgs')
-        .withArgs(this.returnValue, ethers.ZeroHash)
-        .to.emit(this.mock, 'return$callReturnBytes32_address_bytes')
-        .withArgs(true, this.returnValue);
-    });
+        await expect(this.target.nbCalls()).to.eventually.equal(1);
+      });
 
-    it('calls the requested function with value and returns true', async function () {
-      await this.other.sendTransaction({ to: this.mock, value: this.value });
+      it("calls the requested function and returns false if the caller doesn't have enough balance", async function () {
+        await expect(this.target.nbCalls()).to.eventually.equal(0);
 
-      const tx = this.mock['$callReturnBytes32(address,bytes,uint256)'](this.target, this.call, this.value);
-      await expect(tx).to.changeEtherBalance(this.target, this.value);
-      await expect(tx)
-        .to.emit(this.mock, 'return$callReturnBytes32_address_bytes_uint256')
-        .withArgs(true, this.returnValue);
-    });
+        const tx = this.mock.$callReturn64Bytes(
+          this.target,
+          ethers.Typed.uint256(value),
+          this.target.interface.encodeFunctionData('mockFunctionWithArgsReturn', [returnValue1, returnValue2]),
+        );
+        await expect(tx).to.changeEtherBalances([this.mock, this.target], [0n, 0n]);
+        await expect(tx)
+          .to.emit(this.mock, 'return$callReturn64Bytes_address_uint256_bytes')
+          .withArgs(false, ethers.ZeroHash, ethers.ZeroHash);
 
-    it("calls the requested function and returns false if the caller doesn't have enough balance", async function () {
-      const tx = this.mock['$callReturnBytes32(address,bytes,uint256)'](this.target, this.call, this.value);
-      await expect(tx).to.not.changeEtherBalance(this.target, this.value);
-      await expect(tx)
-        .to.emit(this.mock, 'return$callReturnBytes32_address_bytes_uint256')
-        .withArgs(false, ethers.ZeroHash);
-    });
+        // reverted call do not count
+        await expect(this.target.nbCalls()).to.eventually.equal(0);
+      });
 
-    it('calls the requested function and returns false if the subcall reverts', async function () {
-      const call = this.target.interface.encodeFunctionData('mockFunctionRevertsNoReason');
-      const tx = await this.mock.$callReturnBytes32(this.target, call);
-      expect(tx).to.emit(this.mock, 'return$callReturnBytes32_address_bytes').withArgs(false, ethers.ZeroHash);
-    });
-  });
+      it('calls the requested function and returns false if the subcall reverts', async function () {
+        await expect(this.target.nbCalls()).to.eventually.equal(0);
 
-  describe('callReturnBytes32Pair', function () {
-    beforeEach(function () {
-      this.returnValue1 = ethers.id('returnDataBytes32Pair1');
-      this.returnValue2 = ethers.id('returnDataBytes32Pair2');
-      this.call = this.target.interface.encodeFunctionData('mockFunctionWithArgsReturn', [
-        this.returnValue1,
-        this.returnValue2,
-      ]);
-    });
+        const tx = this.mock.$callReturn64Bytes(
+          this.target,
+          this.target.interface.encodeFunctionData('mockFunctionRevertsNoReason'),
+        );
+        await expect(tx)
+          .to.emit(this.mock, 'return$callReturn64Bytes_address_bytes')
+          .withArgs(false, ethers.ZeroHash, ethers.ZeroHash);
 
-    it('calls the requested function and returns true', async function () {
-      await expect(this.mock.$callReturnBytes32Pair(this.target, this.call))
-        .to.emit(this.target, 'MockFunctionCalledWithArgs')
-        .withArgs(this.returnValue1, this.returnValue2)
-        .to.emit(this.mock, 'return$callReturnBytes32Pair_address_bytes')
-        .withArgs(true, this.returnValue1, this.returnValue2);
-    });
-
-    it('calls the requested function with value and returns true', async function () {
-      await this.other.sendTransaction({ to: this.mock, value: this.value });
-
-      const tx = this.mock['$callReturnBytes32Pair(address,bytes,uint256)'](this.target, this.call, this.value);
-      await expect(tx).to.changeEtherBalance(this.target, this.value);
-      await expect(tx)
-        .to.emit(this.mock, 'return$callReturnBytes32Pair_address_bytes_uint256')
-        .withArgs(true, this.returnValue1, this.returnValue2);
-    });
-
-    it("calls the requested function and returns false if the caller doesn't have enough balance", async function () {
-      const tx = this.mock['$callReturnBytes32Pair(address,bytes,uint256)'](this.target, this.call, this.value);
-      await expect(tx).to.not.changeEtherBalance(this.target, this.value);
-      await expect(tx)
-        .to.emit(this.mock, 'return$callReturnBytes32Pair_address_bytes_uint256')
-        .withArgs(false, ethers.ZeroHash, ethers.ZeroHash);
-    });
-
-    it('calls the requested function and returns false if the subcall reverts', async function () {
-      const call = this.target.interface.encodeFunctionData('mockFunctionRevertsNoReason');
-      const tx = await this.mock.$callReturnBytes32Pair(this.target, call);
-      expect(tx)
-        .to.emit(this.mock, 'return$callReturnBytes32Pair_address_bytes')
-        .withArgs(false, ethers.ZeroHash, ethers.ZeroHash);
-    });
-  });
-
-  describe('staticcallRaw', function () {
-    it('calls the requested function and returns true', async function () {
-      const call = this.target.interface.encodeFunctionData('mockStaticFunction');
-      await expect(this.mock.$staticcallRaw(this.target, call)).to.eventually.equal(true);
-    });
-
-    it('calls the requested function and returns false if the subcall reverts', async function () {
-      const iface = new ethers.Interface(['function mockFunctionDoesNotExist()']);
-
-      const call = iface.encodeFunctionData('mockFunctionDoesNotExist');
-      await expect(this.mock.$staticcallRaw(this.target, call)).to.eventually.equal(false);
+        // reverted call do not count
+        await expect(this.target.nbCalls()).to.eventually.equal(0);
+      });
     });
   });
 
-  describe('staticcallReturnBytes32', function () {
-    beforeEach(function () {
-      this.returnValue = ethers.id('returnDataBytes32');
+  describe('staticcall', function () {
+    describe('without any return', function () {
+      it('calls the requested function and returns true', async function () {
+        await expect(
+          this.mock.$staticcallNoReturn(this.target, this.target.interface.encodeFunctionData('mockStaticFunction')),
+        ).to.eventually.equal(true);
+      });
+
+      it('calls the requested function and returns false if the subcall reverts', async function () {
+        await expect(
+          this.mock.$staticcallNoReturn(
+            this.target,
+            this.target.interface.encodeFunctionData('mockFunctionRevertsNoReason'),
+          ),
+        ).to.eventually.equal(false);
+      });
     });
 
-    it('calls the requested function and returns true', async function () {
-      const call = this.target.interface.encodeFunctionData('mockStaticFunctionWithArgsReturn', [
-        this.returnValue,
-        ethers.ZeroHash,
-      ]);
-      expect(await this.mock.$staticcallReturnBytes32(this.target, call)).to.deep.equal([true, this.returnValue]);
-    });
+    describe('with 64 bytes return in the scratch space', function () {
+      it('calls the requested function and returns true', async function () {
+        await expect(
+          this.mock.$staticcallReturn64Bytes(
+            this.target,
+            this.target.interface.encodeFunctionData('mockStaticFunctionWithArgsReturn', [returnValue1, returnValue2]),
+          ),
+        ).to.eventually.deep.equal([true, returnValue1, returnValue2]);
+      });
 
-    it('calls the requested function and returns false if the subcall reverts', async function () {
-      const iface = new ethers.Interface(['function mockFunctionDoesNotExist()']);
-
-      const call = iface.encodeFunctionData('mockFunctionDoesNotExist');
-      expect(await this.mock.$staticcallReturnBytes32(this.target, call)).to.deep.equal([false, ethers.ZeroHash]);
+      it('calls the requested function and returns false if the subcall reverts', async function () {
+        await expect(
+          this.mock.$staticcallReturn64Bytes(
+            this.target,
+            this.target.interface.encodeFunctionData('mockFunctionRevertsNoReason'),
+          ),
+        ).to.eventually.deep.equal([false, ethers.ZeroHash, ethers.ZeroHash]);
+      });
     });
   });
 
-  describe('staticcallReturnBytes32Pair', function () {
-    beforeEach(function () {
-      this.returnValue1 = ethers.id('returnDataBytes32Pair1');
-      this.returnValue2 = ethers.id('returnDataBytes32Pair2');
+  describe('delegate', function () {
+    describe('without any return', function () {
+      it('calls the requested function and returns true', async function () {
+        await expect(ethers.provider.getStorage(this.mock, 0)).to.eventually.equal(ethers.toBeHex(0, 32));
+
+        await expect(
+          this.mock.$delegatecallNoReturn(this.target, this.target.interface.encodeFunctionData('mockFunction')),
+        )
+          .to.emit(this.mock, 'return$delegatecallNoReturn')
+          .withArgs(true);
+
+        await expect(ethers.provider.getStorage(this.mock, 0)).to.eventually.equal(ethers.toBeHex(1, 32));
+      });
+
+      it('calls the requested function and returns false if the subcall reverts', async function () {
+        await expect(ethers.provider.getStorage(this.mock, 0)).to.eventually.equal(ethers.toBeHex(0, 32));
+
+        await expect(
+          this.mock.$delegatecallNoReturn(
+            this.target,
+            this.target.interface.encodeFunctionData('mockFunctionRevertsNoReason'),
+          ),
+        )
+          .to.emit(this.mock, 'return$delegatecallNoReturn')
+          .withArgs(false);
+
+        // reverted call do not count
+        await expect(ethers.provider.getStorage(this.mock, 0)).to.eventually.equal(ethers.toBeHex(0, 32));
+      });
     });
 
-    it('calls the requested function and returns true', async function () {
-      const call = this.target.interface.encodeFunctionData('mockStaticFunctionWithArgsReturn', [
-        this.returnValue1,
-        this.returnValue2,
-      ]);
-      expect(await this.mock.$staticcallReturnBytes32Pair(this.target, call)).to.deep.equal([
-        true,
-        this.returnValue1,
-        this.returnValue2,
-      ]);
-    });
+    describe('with 64 bytes return in the scratch space', function () {
+      it('calls the requested function and returns true', async function () {
+        await expect(ethers.provider.getStorage(this.mock, 0)).to.eventually.equal(ethers.toBeHex(0, 32));
 
-    it('calls the requested function and returns false if the subcall reverts', async function () {
-      const iface = new ethers.Interface(['function mockFunctionDoesNotExist()']);
+        await expect(
+          this.mock.$delegatecallReturn64Bytes(
+            this.target,
+            this.target.interface.encodeFunctionData('mockFunctionWithArgsReturn', [returnValue1, returnValue2]),
+          ),
+        )
+          .to.emit(this.mock, 'return$delegatecallReturn64Bytes')
+          .withArgs(true, returnValue1, returnValue2);
 
-      const call = iface.encodeFunctionData('mockFunctionDoesNotExist');
-      expect(await this.mock.$staticcallReturnBytes32Pair(this.target, call)).to.deep.equal([
-        false,
-        ethers.ZeroHash,
-        ethers.ZeroHash,
-      ]);
+        await expect(ethers.provider.getStorage(this.mock, 0)).to.eventually.equal(ethers.toBeHex(1, 32));
+      });
+
+      it('calls the requested function and returns false if the subcall reverts', async function () {
+        await expect(ethers.provider.getStorage(this.mock, 0)).to.eventually.equal(ethers.toBeHex(0, 32));
+
+        await expect(
+          this.mock.$delegatecallReturn64Bytes(
+            this.target,
+            this.target.interface.encodeFunctionData('mockFunctionRevertsNoReason'),
+          ),
+        )
+          .to.emit(this.mock, 'return$delegatecallReturn64Bytes')
+          .withArgs(false, ethers.ZeroHash, ethers.ZeroHash);
+
+        // reverted call do not count
+        await expect(ethers.provider.getStorage(this.mock, 0)).to.eventually.equal(ethers.toBeHex(0, 32));
+      });
     });
   });
 });

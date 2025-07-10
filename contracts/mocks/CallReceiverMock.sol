@@ -7,31 +7,37 @@ contract CallReceiverMock {
     event MockFunctionCalledWithArgs(uint256 a, uint256 b);
     event MockFunctionCalledExtra(address caller, uint256 value);
 
+    uint256 public nbCalls;
     uint256[] private _array;
 
-    function mockFunction() public payable returns (string memory) {
+    modifier countCall() {
+        ++nbCalls;
+        _;
+    }
+
+    function mockFunction() public payable countCall returns (string memory) {
         emit MockFunctionCalled();
 
         return "0x1234";
     }
 
-    function mockFunctionEmptyReturn() public payable {
+    function mockFunctionEmptyReturn() public payable countCall {
         emit MockFunctionCalled();
     }
 
-    function mockFunctionWithArgs(uint256 a, uint256 b) public payable returns (string memory) {
+    function mockFunctionWithArgs(uint256 a, uint256 b) public payable countCall returns (string memory) {
         emit MockFunctionCalledWithArgs(a, b);
 
         return "0x1234";
     }
 
-    function mockFunctionWithArgsReturn(uint256 a, uint256 b) public payable returns (uint256, uint256) {
+    function mockFunctionWithArgsReturn(uint256 a, uint256 b) public payable countCall returns (uint256, uint256) {
         emit MockFunctionCalledWithArgs(a, b);
 
         return (a, b);
     }
 
-    function mockFunctionNonPayable() public returns (string memory) {
+    function mockFunctionNonPayable() public countCall returns (string memory) {
         emit MockFunctionCalled();
 
         return "0x1234";
@@ -45,32 +51,32 @@ contract CallReceiverMock {
         return (a, b);
     }
 
-    function mockFunctionRevertsNoReason() public payable {
+    function mockFunctionRevertsNoReason() public payable countCall {
         revert();
     }
 
-    function mockFunctionRevertsReason() public payable {
+    function mockFunctionRevertsReason() public payable countCall {
         revert("CallReceiverMock: reverting");
     }
 
-    function mockFunctionThrows() public payable {
+    function mockFunctionThrows() public payable countCall {
         assert(false);
     }
 
-    function mockFunctionOutOfGas() public payable {
+    function mockFunctionOutOfGas() public payable countCall {
         for (uint256 i = 0; ; ++i) {
             _array.push(i);
         }
     }
 
-    function mockFunctionWritesStorage(bytes32 slot, bytes32 value) public returns (string memory) {
+    function mockFunctionWritesStorage(bytes32 slot, bytes32 value) public countCall returns (string memory) {
         assembly {
             sstore(slot, value)
         }
         return "0x1234";
     }
 
-    function mockFunctionExtra() public payable {
+    function mockFunctionExtra() public payable countCall {
         emit MockFunctionCalledExtra(msg.sender, msg.value);
     }
 }
