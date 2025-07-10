@@ -99,7 +99,7 @@ IMPORTANT: Always use keys of at least 2048 bits. Additionally, be aware that PK
 
 === Signature Verification
 
-The xref:api:utils.adoc#SignatureChecker[`SignatureChecker`] library provides a unified interface for verifying signatures from different sources. It seamlessly supports:
+The xref:api:utils/cryptography.adoc#SignatureChecker[`SignatureChecker`] library provides a unified interface for verifying signatures from different sources. It seamlessly supports:
 
 * ECDSA signatures from externally owned accounts (EOAs)
 * ERC-1271 signatures from smart contract wallets like Argent and Safe Wallet
