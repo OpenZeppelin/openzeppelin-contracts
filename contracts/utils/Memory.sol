@@ -41,20 +41,4 @@ library Memory {
     function asPointer(bytes32 value) internal pure returns (Pointer) {
         return Pointer.wrap(value);
     }
-
-    /// @dev Returns a `Pointer` to the `value`'s header (i.e. includes the length word).
-    function asPointer(bytes memory value) internal pure returns (Pointer) {
-        bytes32 ptr;
-        assembly ("memory-safe") {
-            ptr := value
-        }
-        return asPointer(ptr);
-    }
-
-    /// @dev `Pointer` to `bytes`. Expects a pointer to a properly ABI-encoded `bytes` object.
-    function asBytes(Pointer ptr) internal pure returns (bytes memory b) {
-        assembly ("memory-safe") {
-            b := ptr
-        }
-    }
 }
