@@ -65,25 +65,17 @@ module.exports = [
     }
 
     FunctionDefinition(node) {
-      if (node.visibility === 'private') {
-        if (!/^_/.test(node.name)) {
-          this.error(node, 'Private functions must have leading underscore');
-        }
+      if (node.visibility === 'private' && !/^_/.test(node.name)) {
+        this.error(node, 'Private functions must have leading underscore');
       }
-      if (node.visibility === 'internal' && node.parent.kind !== 'library') {
-        if (!/^_/.test(node.name)) {
-          this.error(node, 'Non-library internal functions must have leading underscore');
-        }
+      if (node.visibility === 'internal' && node.parent.kind !== 'library' && !/^_/.test(node.name)) {
+        this.error(node, 'Non-library internal functions must have leading underscore');
       }
-      if (node.visibility === 'internal' && node.parent.kind === 'library') {
-        if (/^_/.test(node.name)) {
-          this.error(node, 'Library internal functions should not have leading underscore');
-        }
+      if (node.visibility === 'internal' && node.parent.kind === 'library' && /^_/.test(node.name)) {
+        this.error(node, 'Library internal functions should not have leading underscore');
       }
-      if (node.visibility === 'public' || node.visibility === 'external') {
-        if (/^_/.test(node.name)) {
-          this.error(node, 'Public and external functions should not have leading underscore');
-        }
+      if (node.visibility === 'public' || node.visibility === 'external' && /^_/.test(node.name)) {
+        this.error(node, 'Public and external functions should not have leading underscore');
       }
     }
   },
