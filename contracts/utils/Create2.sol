@@ -50,7 +50,7 @@ library Create2 {
                 revert Errors.FailedDeployment();
             } else {
                 LowLevelCall.bubbleRevert();
-            } 
+            }
         }
     }
 

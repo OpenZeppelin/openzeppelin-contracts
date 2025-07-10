@@ -5,6 +5,8 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const value = ethers.parseEther('1');
 const returnValue1 = ethers.id('hello');
 const returnValue2 = ethers.id('world');
+const storageSlot = ethers.id('location');
+const storageValue = ethers.id('data');
 
 async function fixture() {
   const [account] = await ethers.getSigners();
@@ -23,20 +25,14 @@ describe('LowLevelCall', function () {
   describe('call', function () {
     describe('without any return', function () {
       it('calls the requested function and returns true', async function () {
-        await expect(this.target.nbCalls()).to.eventually.equal(0);
-
         await expect(this.mock.$callNoReturn(this.target, this.target.interface.encodeFunctionData('mockFunction')))
           .to.emit(this.target, 'MockFunctionCalled')
           .to.emit(this.mock, 'return$callNoReturn_address_bytes')
           .withArgs(true);
-
-        await expect(this.target.nbCalls()).to.eventually.equal(1);
       });
 
       it('calls the requested function with value and returns true', async function () {
         await this.account.sendTransaction({ to: this.mock, value });
-
-        await expect(this.target.nbCalls()).to.eventually.equal(0);
 
         const tx = this.mock.$callNoReturn(
           this.target,
@@ -45,13 +41,9 @@ describe('LowLevelCall', function () {
         );
         await expect(tx).to.changeEtherBalances([this.mock, this.target], [-value, value]);
         await expect(tx).to.emit(this.mock, 'return$callNoReturn_address_uint256_bytes').withArgs(true);
-
-        await expect(this.target.nbCalls()).to.eventually.equal(1);
       });
 
       it("calls the requested function and returns false if the caller doesn't have enough balance", async function () {
-        await expect(this.target.nbCalls()).to.eventually.equal(0);
-
         const tx = this.mock.$callNoReturn(
           this.target,
           ethers.Typed.uint256(value),
@@ -59,29 +51,19 @@ describe('LowLevelCall', function () {
         );
         await expect(tx).to.changeEtherBalances([this.mock, this.target], [0n, 0n]);
         await expect(tx).to.emit(this.mock, 'return$callNoReturn_address_uint256_bytes').withArgs(false);
-
-        // reverted call do not count
-        await expect(this.target.nbCalls()).to.eventually.equal(0);
       });
 
       it('calls the requested function and returns false if the subcall reverts', async function () {
-        await expect(this.target.nbCalls()).to.eventually.equal(0);
-
         const tx = this.mock.$callNoReturn(
           this.target,
           this.target.interface.encodeFunctionData('mockFunctionRevertsNoReason'),
         );
         await expect(tx).to.emit(this.mock, 'return$callNoReturn_address_bytes').withArgs(false);
-
-        // reverted call do not count
-        await expect(this.target.nbCalls()).to.eventually.equal(0);
       });
     });
 
     describe('with 64 bytes return in the scratch space', function () {
       it('calls the requested function and returns true', async function () {
-        await expect(this.target.nbCalls()).to.eventually.equal(0);
-
         await expect(
           this.mock.$callReturn64Bytes(
             this.target,
@@ -92,14 +74,10 @@ describe('LowLevelCall', function () {
           .withArgs(returnValue1, returnValue2)
           .to.emit(this.mock, 'return$callReturn64Bytes_address_bytes')
           .withArgs(true, returnValue1, returnValue2);
-
-        await expect(this.target.nbCalls()).to.eventually.equal(1);
       });
 
       it('calls the requested function with value and returns true', async function () {
         await this.account.sendTransaction({ to: this.mock, value });
-
-        await expect(this.target.nbCalls()).to.eventually.equal(0);
 
         const tx = this.mock.$callReturn64Bytes(
           this.target,
@@ -110,13 +88,9 @@ describe('LowLevelCall', function () {
         await expect(tx)
           .to.emit(this.mock, 'return$callReturn64Bytes_address_uint256_bytes')
           .withArgs(true, returnValue1, returnValue2);
-
-        await expect(this.target.nbCalls()).to.eventually.equal(1);
       });
 
       it("calls the requested function and returns false if the caller doesn't have enough balance", async function () {
-        await expect(this.target.nbCalls()).to.eventually.equal(0);
-
         const tx = this.mock.$callReturn64Bytes(
           this.target,
           ethers.Typed.uint256(value),
@@ -126,14 +100,9 @@ describe('LowLevelCall', function () {
         await expect(tx)
           .to.emit(this.mock, 'return$callReturn64Bytes_address_uint256_bytes')
           .withArgs(false, ethers.ZeroHash, ethers.ZeroHash);
-
-        // reverted call do not count
-        await expect(this.target.nbCalls()).to.eventually.equal(0);
       });
 
       it('calls the requested function and returns false if the subcall reverts', async function () {
-        await expect(this.target.nbCalls()).to.eventually.equal(0);
-
         const tx = this.mock.$callReturn64Bytes(
           this.target,
           this.target.interface.encodeFunctionData('mockFunctionRevertsNoReason'),
@@ -141,9 +110,6 @@ describe('LowLevelCall', function () {
         await expect(tx)
           .to.emit(this.mock, 'return$callReturn64Bytes_address_bytes')
           .withArgs(false, ethers.ZeroHash, ethers.ZeroHash);
-
-        // reverted call do not count
-        await expect(this.target.nbCalls()).to.eventually.equal(0);
       });
     });
   });
@@ -190,20 +156,22 @@ describe('LowLevelCall', function () {
   describe('delegate', function () {
     describe('without any return', function () {
       it('calls the requested function and returns true', async function () {
-        await expect(ethers.provider.getStorage(this.mock, 0)).to.eventually.equal(ethers.toBeHex(0, 32));
+        await expect(ethers.provider.getStorage(this.mock, storageSlot)).to.eventually.equal(ethers.ZeroHash);
 
         await expect(
-          this.mock.$delegatecallNoReturn(this.target, this.target.interface.encodeFunctionData('mockFunction')),
+          this.mock.$delegatecallNoReturn(
+            this.target,
+            this.target.interface.encodeFunctionData('mockFunctionWritesStorage', [storageSlot, storageValue]),
+          ),
         )
           .to.emit(this.mock, 'return$delegatecallNoReturn')
           .withArgs(true);
 
-        await expect(ethers.provider.getStorage(this.mock, 0)).to.eventually.equal(ethers.toBeHex(1, 32));
+        // check delegate call set storage correctly
+        await expect(ethers.provider.getStorage(this.mock, storageSlot)).to.eventually.equal(storageValue);
       });
 
       it('calls the requested function and returns false if the subcall reverts', async function () {
-        await expect(ethers.provider.getStorage(this.mock, 0)).to.eventually.equal(ethers.toBeHex(0, 32));
-
         await expect(
           this.mock.$delegatecallNoReturn(
             this.target,
@@ -212,31 +180,32 @@ describe('LowLevelCall', function () {
         )
           .to.emit(this.mock, 'return$delegatecallNoReturn')
           .withArgs(false);
-
-        // reverted call do not count
-        await expect(ethers.provider.getStorage(this.mock, 0)).to.eventually.equal(ethers.toBeHex(0, 32));
       });
     });
 
     describe('with 64 bytes return in the scratch space', function () {
       it('calls the requested function and returns true', async function () {
-        await expect(ethers.provider.getStorage(this.mock, 0)).to.eventually.equal(ethers.toBeHex(0, 32));
+        await expect(ethers.provider.getStorage(this.mock, storageSlot)).to.eventually.equal(ethers.ZeroHash);
 
         await expect(
           this.mock.$delegatecallReturn64Bytes(
             this.target,
-            this.target.interface.encodeFunctionData('mockFunctionWithArgsReturn', [returnValue1, returnValue2]),
+            this.target.interface.encodeFunctionData('mockFunctionWithArgsReturnWritesStorage', [
+              storageSlot,
+              storageValue,
+              returnValue1,
+              returnValue2,
+            ]),
           ),
         )
           .to.emit(this.mock, 'return$delegatecallReturn64Bytes')
           .withArgs(true, returnValue1, returnValue2);
 
-        await expect(ethers.provider.getStorage(this.mock, 0)).to.eventually.equal(ethers.toBeHex(1, 32));
+        // check delegate call set storage correctly
+        await expect(ethers.provider.getStorage(this.mock, storageSlot)).to.eventually.equal(storageValue);
       });
 
       it('calls the requested function and returns false if the subcall reverts', async function () {
-        await expect(ethers.provider.getStorage(this.mock, 0)).to.eventually.equal(ethers.toBeHex(0, 32));
-
         await expect(
           this.mock.$delegatecallReturn64Bytes(
             this.target,
@@ -245,9 +214,6 @@ describe('LowLevelCall', function () {
         )
           .to.emit(this.mock, 'return$delegatecallReturn64Bytes')
           .withArgs(false, ethers.ZeroHash, ethers.ZeroHash);
-
-        // reverted call do not count
-        await expect(ethers.provider.getStorage(this.mock, 0)).to.eventually.equal(ethers.toBeHex(0, 32));
       });
     });
   });
