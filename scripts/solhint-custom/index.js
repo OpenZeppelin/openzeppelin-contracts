@@ -47,23 +47,19 @@ module.exports = [
     static ruleId = 'leading-underscore';
 
     VariableDeclaration(node) {
-        if (node.isDeclaredConst || node.isImmutable) {
-            if (/^_/.test(node.name)) {
-              this.error(node, 'Constant and immutable variables should not have leading underscore');
-            }
+      if (node.isDeclaredConst || node.isImmutable) {
+        if (/^_/.test(node.name)) {
+          this.error(node, 'Constant and immutable variables should not have leading underscore');
         }
-        else {
-          if (node.isStateVar) {
-            if (node.visibility === 'private' || node.visibility === 'internal') {
-              if (!/^_/.test(node.name)) {
-                this.error(node, 'Private and internal state variables must have leading underscore');
-              }
-            }
-            else {
-                if (/^_/.test(node.name)) {
-                  this.error(node, 'Public state variables should not have leading underscore');
-                }
-            }
+      } else if (node.isStateVar) {
+        if (node.visibility === 'private' || node.visibility === 'internal') {
+          if (!/^_/.test(node.name)) {
+            this.error(node, 'Private and internal state variables must have leading underscore');
+          }
+        } else {
+          if (/^_/.test(node.name)) {
+            this.error(node, 'Public state variables should not have leading underscore');
+          }
         }
       }
     }
