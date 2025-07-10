@@ -74,8 +74,11 @@ module.exports = [
       if (node.visibility === 'internal' && node.parent.kind === 'library' && /^_/.test(node.name)) {
         this.error(node, 'Library internal functions should not have leading underscore');
       }
-      if (node.visibility === 'public' || node.visibility === 'external' && /^_/.test(node.name)) {
-        this.error(node, 'Public and external functions should not have leading underscore');
+      if (node.visibility === 'public' && /^_/.test(node.name)) {
+        this.error(node, 'Public functions should not have leading underscore');
+      }
+      if (node.visibility === 'external' && /^_/.test(node.name)) {
+        this.error(node, 'External functions should not have leading underscore');
       }
     }
   },
