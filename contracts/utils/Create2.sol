@@ -46,8 +46,11 @@ library Create2 {
             addr := create2(amount, add(bytecode, 0x20), mload(bytecode), salt)
         }
         if (addr == address(0)) {
-            if (LowLevelCall.returnDataSize() != 0) LowLevelCall.bubbleRevert(LowLevelCall.returnData());
-            else revert Errors.FailedDeployment();
+            if (LowLevelCall.returnDataSize() == 0) {
+                revert Errors.FailedDeployment();
+            } else {
+                LowLevelCall.bubbleRevert();
+            } 
         }
     }
 
