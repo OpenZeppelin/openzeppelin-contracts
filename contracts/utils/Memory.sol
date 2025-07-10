@@ -15,16 +15,18 @@ library Memory {
     type Pointer is bytes32;
 
     /// @dev Returns a `Pointer` to the current free `Pointer`.
-    function getFMP() internal pure returns (Pointer ptr) {
+    function getFreeMemoryPointer() internal pure returns (Pointer ptr) {
         assembly ("memory-safe") {
             ptr := mload(0x40)
         }
     }
 
-    /// @dev Sets the free `Pointer` to a specific value.
-    ///
-    /// WARNING: Everything after the pointer may be overwritten.
-    function setFMP(Pointer ptr) internal pure {
+    /**
+     * @dev Sets the free `Pointer` to a specific value.
+     *
+     * WARNING: Everything after the pointer may be overwritten.
+     **/
+    function setFreeMemoryPointer(Pointer ptr) internal pure {
         assembly ("memory-safe") {
             mstore(0x40, ptr)
         }

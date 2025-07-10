@@ -15,7 +15,7 @@ contract MemoryTest is Test {
 
     function testGetsetFreeMemoryPointer(uint256 seed) public pure {
         bytes32 ptr = bytes32(bound(seed, START_PTR, END_PTR));
-        ptr.asPointer().setFMP();
-        assertEq(Memory.getFMP().asBytes32(), ptr);
+        ptr.asPointer().setFreeMemoryPointer();
+        assertEq(Memory.getFreeMemoryPointer().asBytes32(), ptr);
     }
 }
