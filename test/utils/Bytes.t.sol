@@ -10,12 +10,11 @@ contract BytesTest is Test {
     using Bytes for bytes;
 
     function testSliceWithStartOnly(bytes memory buffer, uint256 start) public pure {
-        bytes32 hashBefore = keccak256(buffer);
+        bytes memory originalBuffer = bytes.concat(buffer);
         bytes memory result = buffer.slice(start);
-        bytes32 hashAfter = keccak256(buffer);
 
         // Original buffer was not modified
-        assertEq(hashBefore, hashAfter);
+        assertEq(buffer, originalBuffer);
 
         // Should return bytes from start to end
         assertEq(result.length, Math.saturatingSub(buffer.length, start));
@@ -27,12 +26,11 @@ contract BytesTest is Test {
     }
 
     function testSlice(bytes memory buffer, uint256 start, uint256 end) public pure {
-        bytes32 hashBefore = keccak256(buffer);
+        bytes memory originalBuffer = bytes.concat(buffer);
         bytes memory result = buffer.slice(start, end);
-        bytes32 hashAfter = keccak256(buffer);
 
         // Original buffer was not modified
-        assertEq(hashBefore, hashAfter);
+        assertEq(buffer, originalBuffer);
 
         // Calculate expected bounds after sanitization
         uint256 sanitizedEnd = Math.min(end, buffer.length);
@@ -49,7 +47,6 @@ contract BytesTest is Test {
 
     function testSpliceWithStartOnly(bytes memory buffer, uint256 start) public pure {
         bytes memory originalBuffer = bytes.concat(buffer);
-
         bytes memory result = buffer.splice(start);
 
         // Result should be the same object as input (modified in place)
@@ -66,7 +63,6 @@ contract BytesTest is Test {
 
     function testSplice(bytes memory buffer, uint256 start, uint256 end) public pure {
         bytes memory originalBuffer = bytes.concat(buffer);
-
         bytes memory result = buffer.splice(start, end);
 
         // Result should be the same object as input (modified in place)
