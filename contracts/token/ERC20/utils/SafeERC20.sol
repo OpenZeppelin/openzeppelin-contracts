@@ -190,13 +190,10 @@ library SafeERC20 {
                     returndatacopy(fmp, 0, returndatasize())
                     revert(fmp, returndatasize())
                 }
-                // if the call is successful, and either
-                // - we got returndata (in that case mload(0x00) is a real false)
-                // - the token address doesn't have code
-                if and(success, or(gt(returndatasize(), 0), iszero(extcodesize(token)))) {
-                    // then the transfer is a failure
-                    success := 0
-                }
+                // if the return value is not true, then the call is only successful if:
+                // - the token address has code
+                // - the returndata is empty
+                success := and(success, and(iszero(returndatasize()), gt(extcodesize(token), 0)))
             }
             mstore(0x40, fmp)
         }
@@ -236,13 +233,10 @@ library SafeERC20 {
                     returndatacopy(fmp, 0, returndatasize())
                     revert(fmp, returndatasize())
                 }
-                // if the call is successful, and either
-                // - we got returndata (in that case mload(0x00) is a real false)
-                // - the token address doesn't have code
-                if and(success, or(gt(returndatasize(), 0), iszero(extcodesize(token)))) {
-                    // then the transfer is a failure
-                    success := 0
-                }
+                // if the return value is not true, then the call is only successful if:
+                // - the token address has code
+                // - the returndata is empty
+                success := and(success, and(iszero(returndatasize()), gt(extcodesize(token), 0)))
             }
             mstore(0x40, fmp)
             mstore(0x60, 0)
@@ -275,13 +269,10 @@ library SafeERC20 {
                     returndatacopy(fmp, 0, returndatasize())
                     revert(fmp, returndatasize())
                 }
-                // if the call is successful, and either
-                // - we got returndata (in that case mload(0x00) is a real false)
-                // - the token address doesn't have code
-                if and(success, or(gt(returndatasize(), 0), iszero(extcodesize(token)))) {
-                    // then the approval is a failure
-                    success := 0
-                }
+                // if the return value is not true, then the call is only successful if:
+                // - the token address has code
+                // - the returndata is empty
+                success := and(success, and(iszero(returndatasize()), gt(extcodesize(token), 0)))
             }
             mstore(0x40, fmp)
         }
