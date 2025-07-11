@@ -21,7 +21,7 @@
     "lint:js:fix": "prettier --log-level warn --ignore-path .gitignore '**/*.{js,ts}' --write && eslint . --fix",
     "lint:sol": "prettier --log-level warn --ignore-path .gitignore '{contracts,test}/**/*.sol' --check && npm run solhint",
     "lint:sol:fix": "prettier --log-level warn --ignore-path .gitignore '{contracts,test}/**/*.sol' --write",
-    "solhint": "solhint --config solhint.config.js --noPoster '{contracts,test}/**/*.sol'",
+    "lint:solhint": "solhint --config solhint.config.js --noPoster '{contracts,test}/**/*.sol'",
     "clean": "hardhat clean && rimraf build contracts/build",
     "prepack": "scripts/prepack.sh",
     "generate": "scripts/generate/run.js",
