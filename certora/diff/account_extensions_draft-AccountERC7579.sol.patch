@@ -1,0 +1,14 @@
+--- account/extensions/draft-AccountERC7579.sol	2025-07-07 12:07:22.042739166 +0200
++++ account/extensions/draft-AccountERC7579.sol	2025-07-08 18:43:59.413714889 +0200
+@@ -308,8 +308,9 @@
+      * the ERC-2771 format.
+      */
+     function _fallback() internal virtual returns (bytes memory) {
+-        address handler = _fallbackHandler(msg.sig);
+-        require(handler != address(0), ERC7579MissingFallbackHandler(msg.sig));
++        bytes4 selector = bytes4(msg.data[0:4]);
++        address handler = _fallbackHandler(selector);
++        require(handler != address(0), ERC7579MissingFallbackHandler(selector));
+ 
+         // From https://eips.ethereum.org/EIPS/eip-7579#fallback[ERC-7579 specifications]:
+         // - MUST utilize ERC-2771 to add the original msg.sender to the calldata sent to the fallback handler
