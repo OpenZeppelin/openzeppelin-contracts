@@ -24,19 +24,27 @@ library IndirectCall {
     }
 
     function indirectCall(address target, uint256 value, bytes memory data) internal returns (bool, bytes memory) {
-        return getRelayer().call{value: value}(abi.encodePacked(target, data));
-    }
-
-    function indirectCallStrict(address target, bytes memory data) internal returns (bytes memory) {
-        return indirectCallStrict(target, 0, data);
-    }
-
-    function indirectCallStrict(address target, uint256 value, bytes memory data) internal returns (bytes memory) {
-        (bool success, bytes memory returndata) = indirectCall(target, value, data);
-        return Address.verifyCallResult(success, returndata);
+        return getRelayer(bytes32(0)).call{value: value}(abi.encodePacked(target, data));
     }
 
     function getRelayer() internal returns (address) {
+        return getRelayer(bytes32(0));
+    }
+
+    function indirectCall(address target, bytes memory data, bytes32 salt) internal returns (bool, bytes memory) {
+        return indirectCall(target, 0, data, salt);
+    }
+
+    function indirectCall(
+        address target,
+        uint256 value,
+        bytes memory data,
+        bytes32 salt
+    ) internal returns (bool, bytes memory) {
+        return getRelayer(salt).call{value: value}(abi.encodePacked(target, data));
+    }
+
+    function getRelayer(bytes32 salt) internal returns (address) {
         // [Relayer details]
         //
         // deployment prefix: 3d602f80600a3d3981f3
@@ -88,17 +96,16 @@ library IndirectCall {
 
         // Create2 address computation, and deploy it if not yet available
         address relayer = Create2.computeAddress(
-            bytes32(0),
+            salt,
             0x7bc0ea09c689dc0a6de3865d8789dae51a081efcf6569589ddae4b677df5dd3f
         );
         if (relayer.code.length == 0) {
             assembly ("memory-safe") {
                 mstore(0x19, 0x1436035f345f3560601c5af13d5f5f3e5f3d91602d57fd5bf3)
                 mstore(0x00, 0x3d602f80600a3d3981f360133611600a575f5ffd5b6014360360145f375f5f60)
-                if iszero(create2(0, 0, 0x39, 0)) {
-                    let ptr := mload(0x40)
-                    returndatacopy(ptr, 0, returndatasize())
-                    revert(ptr, returndatasize())
+                if iszero(create2(0, 0, 0x39, salt)) {
+                    returndatacopy(0, 0, returndatasize())
+                    revert(0, returndatasize())
                 }
             }
         }
