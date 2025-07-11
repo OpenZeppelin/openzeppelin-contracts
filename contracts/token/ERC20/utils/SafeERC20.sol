@@ -187,8 +187,8 @@ library SafeERC20 {
             if iszero(and(success, eq(mload(0x00), 1))) {
                 // if the call was a failure and bubble is enabled, bubble the error
                 if and(iszero(success), bubble) {
-                    returndatacopy(fmp, 0, returndatasize())
-                    revert(fmp, returndatasize())
+                    returndatacopy(0, 0, returndatasize())
+                    revert(0, returndatasize())
                 }
                 // if the return value is not true, then the call is only successful if:
                 // - the token address has code
@@ -230,8 +230,8 @@ library SafeERC20 {
             if iszero(and(success, eq(mload(0x00), 1))) {
                 // if the call was a failure and bubble is enabled, bubble the error
                 if and(iszero(success), bubble) {
-                    returndatacopy(fmp, 0, returndatasize())
-                    revert(fmp, returndatasize())
+                    returndatacopy(0, 0, returndatasize())
+                    revert(0, returndatasize())
                 }
                 // if the return value is not true, then the call is only successful if:
                 // - the token address has code
@@ -266,8 +266,8 @@ library SafeERC20 {
             if iszero(and(success, eq(mload(0x00), 1))) {
                 // if the call was a failure and bubble is enabled, bubble the error
                 if and(iszero(success), bubble) {
-                    returndatacopy(fmp, 0, returndatasize())
-                    revert(fmp, returndatasize())
+                    returndatacopy(0, 0, returndatasize())
+                    revert(0, returndatasize())
                 }
                 // if the return value is not true, then the call is only successful if:
                 // - the token address has code
