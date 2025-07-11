@@ -104,9 +104,8 @@ library SafeERC20 {
      */
     function forceApprove(IERC20 token, address spender, uint256 value) internal {
         if (!_safeApprove(token, spender, value, false)) {
-            if (!_safeApprove(token, spender, 0, true) || !_safeApprove(token, spender, value, true)) {
-                revert SafeERC20FailedOperation(address(token));
-            }
+            if (!_safeApprove(token, spender, 0, true)) revert SafeERC20FailedOperation(address(token));
+            if (!_safeApprove(token, spender, value, true)) revert SafeERC20FailedOperation(address(token));
         }
     }
 
