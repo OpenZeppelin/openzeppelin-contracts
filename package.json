@@ -19,7 +19,7 @@
     "lint:fix": "npm run lint:js:fix && npm run lint:sol:fix",
     "lint:js": "prettier --log-level warn --ignore-path .gitignore '**/*.{js,ts}' --check && eslint .",
     "lint:js:fix": "prettier --log-level warn --ignore-path .gitignore '**/*.{js,ts}' --write && eslint . --fix",
-    "lint:sol": "prettier --log-level warn --ignore-path .gitignore '{contracts,test}/**/*.sol' --check && lint:solhint",
+    "lint:sol": "prettier --log-level warn --ignore-path .gitignore '{contracts,test}/**/*.sol' --check && npm run lint:solhint",
     "lint:sol:fix": "prettier --log-level warn --ignore-path .gitignore '{contracts,test}/**/*.sol' --write",
     "lint:solhint": "solhint --config solhint.config.js --noPoster '{contracts,test}/**/*.sol'",
     "clean": "hardhat clean && rimraf build contracts/build",
