@@ -50,6 +50,7 @@ library ECDSA {
      * be too long), and then calling {MessageHashUtils-toEthSignedMessageHash} on it.
      *
      * Documentation for signature generation:
+     *
      * - with https://web3js.readthedocs.io/en/v1.3.4/web3-eth-accounts.html#sign[Web3.js]
      * - with https://docs.ethers.io/v5/api/signer/#Signer-signMessage[ethers]
      */
