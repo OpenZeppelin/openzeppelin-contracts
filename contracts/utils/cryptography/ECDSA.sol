@@ -75,6 +75,30 @@ library ECDSA {
     }
 
     /**
+     * @dev Variant of {tryRecover} that takes a signature in calldata
+     */
+    function tryRecoverCalldata(
+        bytes32 hash,
+        bytes calldata signature
+    ) internal pure returns (address recovered, RecoverError err, bytes32 errArg) {
+        if (signature.length == 65) {
+            bytes32 r;
+            bytes32 s;
+            uint8 v;
+            // ecrecover takes the signature parameters, calldata slices would work here, but are
+            // significantly more expensive (length check) than using calldataload in assembly.
+            assembly ("memory-safe") {
+                r := calldataload(signature.offset)
+                s := calldataload(add(signature.offset, 0x20))
+                v := byte(0, calldataload(add(signature.offset, 0x40)))
+            }
+            return tryRecover(hash, v, r, s);
+        } else {
+            return (address(0), RecoverError.InvalidSignatureLength, bytes32(signature.length));
+        }
+    }
+
+    /**
      * @dev Returns the address that signed a hashed message (`hash`) with
      * `signature`. This address can then be used for verification purposes.
      *
@@ -90,6 +114,15 @@ library ECDSA {
      */
     function recover(bytes32 hash, bytes memory signature) internal pure returns (address) {
         (address recovered, RecoverError error, bytes32 errorArg) = tryRecover(hash, signature);
+        _throwError(error, errorArg);
+        return recovered;
+    }
+
+    /**
+     * @dev Variant of {recover} that takes a signature in calldata
+     */
+    function recoverCalldata(bytes32 hash, bytes calldata signature) internal pure returns (address) {
+        (address recovered, RecoverError error, bytes32 errorArg) = tryRecoverCalldata(hash, signature);
         _throwError(error, errorArg);
         return recovered;
     }

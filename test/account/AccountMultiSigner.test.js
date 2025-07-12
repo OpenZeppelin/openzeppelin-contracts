@@ -37,7 +37,7 @@ async function fixture() {
   const domain = { name: 'AccountMultiSigner', version: '1', chainId: entrypointDomain.chainId }; // Missing verifyingContract
 
   const makeMock = (signers, threshold) =>
-    helper.newAccount('$AccountMultiSignerMock', ['AccountMultiSigner', '1', signers, threshold]).then(mock => {
+    helper.newAccount('$AccountMultiSignerMock', [signers, threshold, 'AccountMultiSigner', '1']).then(mock => {
       domain.verifyingContract = mock.address;
       return mock;
     });
@@ -176,9 +176,14 @@ describe('AccountMultiSigner', function () {
       await expect(this.mock.$_setThreshold(2)).to.emit(this.mock, 'ERC7913ThresholdSet');
 
       // Unreachable threshold reverts
-      await expect(this.mock.$_setThreshold(3)).to.revertedWithCustomError(
+      await expect(this.mock.$_setThreshold(3))
+        .to.revertedWithCustomError(this.mock, 'MultiSignerERC7913UnreachableThreshold')
+        .withArgs(2, 3);
+
+      // Zero threshold reverts
+      await expect(this.mock.$_setThreshold(0)).to.revertedWithCustomError(
         this.mock,
-        'MultiSignerERC7913UnreachableThreshold',
+        'MultiSignerERC7913ZeroThreshold',
       );
     });
 
