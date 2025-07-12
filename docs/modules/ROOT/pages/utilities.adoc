@@ -99,7 +99,7 @@ IMPORTANT: Always use keys of at least 2048 bits. Additionally, be aware that PK
 
 === Signature Verification
 
-The xref:api:utils.adoc#SignatureChecker[`SignatureChecker`] library provides a unified interface for verifying signatures from different sources. It seamlessly supports:
+The xref:api:utils/cryptography.adoc#SignatureChecker[`SignatureChecker`] library provides a unified interface for verifying signatures from different sources. It seamlessly supports:
 
 * ECDSA signatures from externally owned accounts (EOAs)
 * ERC-1271 signatures from smart contract wallets like Argent and Safe Wallet
@@ -491,7 +491,7 @@ function processMultipleItems(uint256[] memory items) internal {
 
 This way, memory allocated for `tempData` in each iteration is reused, significantly reducing memory expansion costs when processing many items.
 
-IMPORTANT: Manual memory management increases gas costs and prevents compiler optimizations. Only use these functions after profiling confirms they're necessary. By default, Solidity handles memory safely - using this library without understanding memory layout and safety may be dangerous. See the https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_memory.html[memory layout] and https://docs.soliditylang.org/en/v0.8.20/assembly.html#memory-safety[memory safety] documentation for details.
+IMPORTANT: Only use these functions after carefully confirming they're necessary. By default, Solidity handles memory safely. Using this library without understanding memory layout and safety may be dangerous. See the https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_memory.html[memory layout] and https://docs.soliditylang.org/en/v0.8.20/assembly.html#memory-safety[memory safety] documentation for details.
 
 === Historical Block Hashes
 

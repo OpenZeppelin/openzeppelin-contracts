@@ -44,6 +44,7 @@ describe('ECDSA', function () {
 
         // Recover the signer address from the generated message and signature.
         expect(await this.mock.$recover(ethers.hashMessage(TEST_MESSAGE), signature)).to.equal(this.signer);
+        expect(await this.mock.$recoverCalldata(ethers.hashMessage(TEST_MESSAGE), signature)).to.equal(this.signer);
       });
 
       it('returns signer address with correct signature for arbitrary length message', async function () {
@@ -52,17 +53,23 @@ describe('ECDSA', function () {
 
         // Recover the signer address from the generated message and signature.
         expect(await this.mock.$recover(ethers.hashMessage(NON_HASH_MESSAGE), signature)).to.equal(this.signer);
+        expect(await this.mock.$recoverCalldata(ethers.hashMessage(NON_HASH_MESSAGE), signature)).to.equal(this.signer);
       });
 
       it('returns a different address', async function () {
         const signature = await this.signer.signMessage(TEST_MESSAGE);
         expect(await this.mock.$recover(WRONG_MESSAGE, signature)).to.not.be.equal(this.signer);
+        expect(await this.mock.$recoverCalldata(WRONG_MESSAGE, signature)).to.not.be.equal(this.signer);
       });
 
       it('reverts with invalid signature', async function () {
         const signature =
           '0x332ce75a821c982f9127538858900d87d3ec1f9f737338ad67cad133fa48feff48e6fa0c18abc62e42820f05943e47af3e9fbe306ce74d64094bdf1691ee53e01c';
         await expect(this.mock.$recover(TEST_MESSAGE, signature)).to.be.revertedWithCustomError(
+          this.mock,
+          'ECDSAInvalidSignature',
+        );
+        await expect(this.mock.$recoverCalldata(TEST_MESSAGE, signature)).to.be.revertedWithCustomError(
           this.mock,
           'ECDSAInvalidSignature',
         );
@@ -79,6 +86,7 @@ describe('ECDSA', function () {
         const v = '0x1b'; // 27 = 1b.
         const signature = ethers.concat([signatureWithoutV, v]);
         expect(await this.mock.$recover(TEST_MESSAGE, signature)).to.equal(signer);
+        expect(await this.mock.$recoverCalldata(TEST_MESSAGE, signature)).to.equal(signer);
 
         const { r, s, yParityAndS: vs } = ethers.Signature.from(signature);
         expect(await this.mock.getFunction('$recover(bytes32,uint8,bytes32,bytes32)')(TEST_MESSAGE, v, r, s)).to.equal(
@@ -92,6 +100,7 @@ describe('ECDSA', function () {
         const v = '0x1c'; // 28 = 1c.
         const signature = ethers.concat([signatureWithoutV, v]);
         expect(await this.mock.$recover(TEST_MESSAGE, signature)).to.not.equal(signer);
+        expect(await this.mock.$recoverCalldata(TEST_MESSAGE, signature)).to.not.equal(signer);
 
         const { r, s, yParityAndS: vs } = ethers.Signature.from(signature);
         expect(
@@ -107,6 +116,10 @@ describe('ECDSA', function () {
         for (const v of ['0x00', '0x01']) {
           const signature = ethers.concat([signatureWithoutV, v]);
           await expect(this.mock.$recover(TEST_MESSAGE, signature)).to.be.revertedWithCustomError(
+            this.mock,
+            'ECDSAInvalidSignature',
+          );
+          await expect(this.mock.$recoverCalldata(TEST_MESSAGE, signature)).to.be.revertedWithCustomError(
             this.mock,
             'ECDSAInvalidSignature',
           );
@@ -126,6 +139,9 @@ describe('ECDSA', function () {
         await expect(this.mock.$recover(TEST_MESSAGE, compactSerialized))
           .to.be.revertedWithCustomError(this.mock, 'ECDSAInvalidSignatureLength')
           .withArgs(64);
+        await expect(this.mock.$recoverCalldata(TEST_MESSAGE, compactSerialized))
+          .to.be.revertedWithCustomError(this.mock, 'ECDSAInvalidSignatureLength')
+          .withArgs(64);
       });
     });
 
@@ -139,6 +155,7 @@ describe('ECDSA', function () {
         const v = '0x1c'; // 28 = 1c.
         const signature = ethers.concat([signatureWithoutV, v]);
         expect(await this.mock.$recover(TEST_MESSAGE, signature)).to.equal(signer);
+        expect(await this.mock.$recoverCalldata(TEST_MESSAGE, signature)).to.equal(signer);
 
         const { r, s, yParityAndS: vs } = ethers.Signature.from(signature);
         expect(await this.mock.getFunction('$recover(bytes32,uint8,bytes32,bytes32)')(TEST_MESSAGE, v, r, s)).to.equal(
@@ -152,6 +169,7 @@ describe('ECDSA', function () {
         const v = '0x1b'; // 27 = 1b.
         const signature = ethers.concat([signatureWithoutV, v]);
         expect(await this.mock.$recover(TEST_MESSAGE, signature)).to.not.equal(signer);
+        expect(await this.mock.$recoverCalldata(TEST_MESSAGE, signature)).to.not.equal(signer);
 
         const { r, s, yParityAndS: vs } = ethers.Signature.from(signature);
         expect(
@@ -167,6 +185,10 @@ describe('ECDSA', function () {
         for (const v of ['0x00', '0x01']) {
           const signature = ethers.concat([signatureWithoutV, v]);
           await expect(this.mock.$recover(TEST_MESSAGE, signature)).to.be.revertedWithCustomError(
+            this.mock,
+            'ECDSAInvalidSignature',
+          );
+          await expect(this.mock.$recoverCalldata(TEST_MESSAGE, signature)).to.be.revertedWithCustomError(
             this.mock,
             'ECDSAInvalidSignature',
           );
@@ -186,6 +208,9 @@ describe('ECDSA', function () {
         await expect(this.mock.$recover(TEST_MESSAGE, compactSerialized))
           .to.be.revertedWithCustomError(this.mock, 'ECDSAInvalidSignatureLength')
           .withArgs(64);
+        await expect(this.mock.$recoverCalldata(TEST_MESSAGE, compactSerialized))
+          .to.be.revertedWithCustomError(this.mock, 'ECDSAInvalidSignatureLength')
+          .withArgs(64);
       });
     });
 
@@ -200,6 +225,9 @@ describe('ECDSA', function () {
       const v = ethers.dataSlice(highSSignature, 64, 65);
 
       await expect(this.mock.$recover(message, highSSignature))
+        .to.be.revertedWithCustomError(this.mock, 'ECDSAInvalidSignatureS')
+        .withArgs(s);
+      await expect(this.mock.$recoverCalldata(message, highSSignature))
         .to.be.revertedWithCustomError(this.mock, 'ECDSAInvalidSignatureS')
         .withArgs(s);
       await expect(this.mock.getFunction('$recover(bytes32,uint8,bytes32,bytes32)')(TEST_MESSAGE, v, r, s))

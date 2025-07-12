@@ -116,7 +116,7 @@ library RLP {
     /// @dev Creates an RLP Item from a bytes array.
     function toItem(bytes memory value) internal pure returns (Item memory) {
         require(value.length != 0, RLPEmptyItem()); // Empty arrays are not RLP items.
-        return Item(value.length, _addOffset(value.asPointer(), 32));
+        return Item(value.length, _addOffset(_asPointer(value), 32));
     }
 
     /// @dev Decodes an RLP encoded list into an array of RLP Items. See {_decodeLength}
@@ -157,7 +157,7 @@ library RLP {
         require(expectedLength == item.length, RLPContentLengthMismatch(expectedLength, item.length));
 
         bytes memory result = new bytes(itemLength);
-        _copy(_addOffset(result.asPointer(), 32), _addOffset(item.ptr, itemOffset), itemLength);
+        _copy(_addOffset(_asPointer(result), 32), _addOffset(item.ptr, itemOffset), itemLength);
 
         return result;
     }
@@ -171,7 +171,7 @@ library RLP {
     function readRawBytes(Item memory item) internal pure returns (bytes memory) {
         uint256 itemLength = item.length;
         bytes memory result = new bytes(itemLength);
-        _copy(_addOffset(result.asPointer(), 32), item.ptr, itemLength);
+        _copy(_addOffset(_asPointer(result), 32), item.ptr, itemLength);
 
         return result;
     }
@@ -216,11 +216,11 @@ library RLP {
     function _flatten(bytes[] memory list) private pure returns (bytes memory) {
         // TODO: Move to Arrays.sol
         bytes memory flattened = new bytes(_totalLength(list));
-        Memory.Pointer dataPtr = _addOffset(flattened.asPointer(), 32);
+        Memory.Pointer dataPtr = _addOffset(_asPointer(flattened), 32);
         for (uint256 i = 0; i < list.length; i++) {
             bytes memory item = list[i];
             uint256 length = item.length;
-            _copy(dataPtr, item.asPointer(), length);
+            _copy(dataPtr, _asPointer(item), length);
             dataPtr = _addOffset(dataPtr, length);
         }
         return flattened;
@@ -317,6 +317,12 @@ library RLP {
     function _load(Memory.Pointer ptr) private pure returns (bytes32 v) {
         assembly ("memory-safe") {
             v := mload(ptr)
+        }
+    }
+
+    function _asPointer(bytes memory value) private pure returns (Memory.Pointer ptr) {
+        assembly ("memory-safe") {
+            ptr := value
         }
     }
 }
