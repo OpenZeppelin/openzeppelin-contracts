@@ -130,6 +130,23 @@ library Strings {
     }
 
     /**
+     * @dev Converts a `bytes` buffer to its ASCII `string` hexadecimal representation.
+     */
+    function toHexString(bytes memory input) internal pure returns (string memory) {
+        unchecked {
+            bytes memory buffer = new bytes(2 * input.length + 2);
+            buffer[0] = "0";
+            buffer[1] = "x";
+            for (uint256 i = 0; i < input.length; ++i) {
+                uint8 v = uint8(input[i]);
+                buffer[2 * i + 2] = HEX_DIGITS[v >> 4];
+                buffer[2 * i + 3] = HEX_DIGITS[v & 0xf];
+            }
+            return string(buffer);
+        }
+    }
+
+    /**
      * @dev Returns true if the two strings are equal.
      */
     function equal(string memory a, string memory b) internal pure returns (bool) {
