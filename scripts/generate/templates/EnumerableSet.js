@@ -130,8 +130,9 @@ function _remove(Set storage set, bytes32 value) private returns (bool) {
 /**
  * @dev Removes all the values from a set. O(n).
  *
- * WARNING: Developers should keep in mind that this function has an unbounded cost and using it may render the
- * function uncallable if the set grows to the point where clearing it consumes too much gas to fit in a block.
+ * WARNING: This function has an unbounded cost that scales with set size. Developers should keep in mind that
+ * using it may render the function uncallable if the set grows to the point where clearing it consumes too much
+ * gas to fit in a block.
  */
 function _clear(Set storage set) private {
     uint256 len = _length(set);
@@ -324,12 +325,12 @@ struct ${name} {
  * Returns true if the value was added to the set, that is if it was not
  * already present.
  */
-function add(${name} storage self, ${value.type} memory value) internal returns (bool) {
-    if (!contains(self, value)) {
-        self._values.push(value);
+function add(${name} storage set, ${value.type} memory value) internal returns (bool) {
+    if (!contains(set, value)) {
+        set._values.push(value);
         // The value is stored at length-1, but we add 1 to all indexes
         // and use 0 as a sentinel value
-        self._positions[value] = self._values.length;
+        set._positions[value] = set._values.length;
         return true;
     } else {
         return false;
@@ -342,33 +343,33 @@ function add(${name} storage self, ${value.type} memory value) internal returns 
  * Returns true if the value was removed from the set, that is if it was
  * present.
  */
-function remove(${name} storage self, ${value.type} memory value) internal returns (bool) {
+function remove(${name} storage set, ${value.type} memory value) internal returns (bool) {
     // We cache the value's position to prevent multiple reads from the same storage slot
-    uint256 position = self._positions[value];
+    uint256 position = set._positions[value];
 
     if (position != 0) {
-        // Equivalent to contains(self, value)
+        // Equivalent to contains(set, value)
         // To delete an element from the _values array in O(1), we swap the element to delete with the last one in
         // the array, and then remove the last element (sometimes called as 'swap and pop').
         // This modifies the order of the array, as noted in {at}.
 
         uint256 valueIndex = position - 1;
-        uint256 lastIndex = self._values.length - 1;
+        uint256 lastIndex = set._values.length - 1;
 
         if (valueIndex != lastIndex) {
-            ${value.type} memory lastValue = self._values[lastIndex];
+            ${value.type} memory lastValue = set._values[lastIndex];
 
             // Move the lastValue to the index where the value to delete is
-            self._values[valueIndex] = lastValue;
+            set._values[valueIndex] = lastValue;
             // Update the tracked position of the lastValue (that was just moved)
-            self._positions[lastValue] = position;
+            set._positions[lastValue] = position;
         }
 
         // Delete the slot where the moved value was stored
-        self._values.pop();
+        set._values.pop();
 
         // Delete the tracked position for the deleted slot
-        delete self._positions[value];
+        delete set._positions[value];
 
         return true;
     } else {
@@ -393,15 +394,15 @@ function clear(${name} storage set) internal {
 /**
  * @dev Returns true if the value is in the set. O(1).
  */
-function contains(${name} storage self, ${value.type} memory value) internal view returns (bool) {
-    return self._positions[value] != 0;
+function contains(${name} storage set, ${value.type} memory value) internal view returns (bool) {
+    return set._positions[value] != 0;
 }
 
 /**
  * @dev Returns the number of values on the set. O(1).
  */
-function length(${name} storage self) internal view returns (uint256) {
-    return self._values.length;
+function length(${name} storage set) internal view returns (uint256) {
+    return set._values.length;
 }
 
 /**
@@ -414,8 +415,8 @@ function length(${name} storage self) internal view returns (uint256) {
  *
  * - \`index\` must be strictly less than {length}.
  */
-function at(${name} storage self, uint256 index) internal view returns (${value.type} memory) {
-    return self._values[index];
+function at(${name} storage set, uint256 index) internal view returns (${value.type} memory) {
+    return set._values[index];
 }
 
 /**
@@ -426,8 +427,8 @@ function at(${name} storage self, uint256 index) internal view returns (${value.
  * this function has an unbounded cost, and using it as part of a state-changing function may render the function
  * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
  */
-function values(${name} storage self) internal view returns (${value.type}[] memory) {
-    return self._values;
+function values(${name} storage set) internal view returns (${value.type}[] memory) {
+    return set._values;
 }
 
 /**

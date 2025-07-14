@@ -137,7 +137,7 @@ function at(Bytes32ToBytes32Map storage map, uint256 index) internal view return
 }
 
 /**
- * @dev Tries to returns the value associated with \`key\`. O(1).
+ * @dev Tries to return the value associated with \`key\`. O(1).
  * Does not revert if \`key\` is not in the map.
  */
 function tryGet(Bytes32ToBytes32Map storage map, bytes32 key) internal view returns (bool exists, bytes32 value) {
@@ -219,8 +219,9 @@ function remove(${name} storage map, ${key.type} key) internal returns (bool) {
 /**
  * @dev Removes all the entries from a map. O(n).
  *
- * WARNING: Developers should keep in mind that this function has an unbounded cost and using it may render the
- * function uncallable if the map grows to the point where clearing it consumes too much gas to fit in a block.
+ * WARNING: This function has an unbounded cost that scales with map size. Developers should keep in mind that
+ * using it may render the function uncallable if the map grows to the point where clearing it consumes too much
+ * gas to fit in a block.
  */
 function clear(${name} storage map) internal {
     clear(map._inner);
@@ -255,7 +256,7 @@ function at(${name} storage map, uint256 index) internal view returns (${key.typ
 }
 
 /**
- * @dev Tries to returns the value associated with \`key\`. O(1).
+ * @dev Tries to return the value associated with \`key\`. O(1).
  * Does not revert if \`key\` is not in the map.
  */
 function tryGet(${name} storage map, ${key.type} key) internal view returns (bool exists, ${value.type} value) {
@@ -275,7 +276,7 @@ function get(${name} storage map, ${key.type} key) internal view returns (${valu
 }
 
 /**
- * @dev Return the an array containing all the keys
+ * @dev Returns an array containing all the keys
  *
  * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
  * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
@@ -294,7 +295,7 @@ function keys(${name} storage map) internal view returns (${key.type}[] memory) 
 }
 
 /**
- * @dev Return the an array containing a slice of the keys
+ * @dev Returns an array containing a slice of the keys
  *
  * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
  * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
@@ -394,7 +395,7 @@ function at(
 }
 
 /**
- * @dev Tries to returns the value associated with \`key\`. O(1).
+ * @dev Tries to return the value associated with \`key\`. O(1).
  * Does not revert if \`key\` is not in the map.
  */
 function tryGet(
