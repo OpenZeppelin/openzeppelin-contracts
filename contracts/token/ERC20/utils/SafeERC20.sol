@@ -5,9 +5,6 @@ pragma solidity ^0.8.20;
 
 import {IERC20} from "../IERC20.sol";
 import {IERC1363} from "../../../interfaces/IERC1363.sol";
-import {Address} from "../../../utils/Address.sol";
-import {LowLevelCall} from "../../../utils/LowLevelCall.sol";
-import {Memory} from "../../../utils/Memory.sol";
 
 /**
  * @title SafeERC20
@@ -110,7 +107,6 @@ library SafeERC20 {
             if (!_safeApprove(token, spender, 0, true)) revert SafeERC20FailedOperation(address(token));
             if (!_safeApprove(token, spender, value, true)) revert SafeERC20FailedOperation(address(token));
         }
-        Memory.setFreeMemoryPointer(ptr);
     }
 
     /**

@@ -5,8 +5,6 @@ pragma solidity ^0.8.24;
 
 import {ECDSA} from "./ECDSA.sol";
 import {IERC1271} from "../../interfaces/IERC1271.sol";
-import {LowLevelCall} from "../LowLevelCall.sol";
-import {Memory} from "../Memory.sol";
 import {IERC7913SignatureVerifier} from "../../interfaces/IERC7913.sol";
 import {Bytes} from "../../utils/Bytes.sol";
 
