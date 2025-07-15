@@ -80,7 +80,7 @@ library Bytes {
 
     /**
      * @dev Copies the content of `buffer`, from `start` (included) to `end` (excluded) into a new bytes object in
-     * memory.
+     * memory. The `end` argument is truncated to the length of the `buffer`.
      *
      * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice[Javascript's `Array.slice`]
      */
@@ -100,6 +100,36 @@ library Bytes {
     }
 
     /**
+     * @dev Moves the content of `buffer`, from `start` (included) to the end of `buffer` to the start of that buffer.
+     *
+     * NOTE: This function modifies the provided buffer in place. If you need to preserve the original buffer, use {slice} instead
+     */
+    function splice(bytes memory buffer, uint256 start) internal pure returns (bytes memory) {
+        return splice(buffer, start, buffer.length);
+    }
+
+    /**
+     * @dev Moves the content of `buffer`, from `start` (included) to end (excluded) to the start of that buffer. The
+     * `end` argument is truncated to the length of the `buffer`.
+     *
+     * NOTE: This function modifies the provided buffer in place. If you need to preserve the original buffer, use {slice} instead
+     */
+    function splice(bytes memory buffer, uint256 start, uint256 end) internal pure returns (bytes memory) {
+        // sanitize
+        uint256 length = buffer.length;
+        end = Math.min(end, length);
+        start = Math.min(start, end);
+
+        // allocate and copy
+        assembly ("memory-safe") {
+            mcopy(add(buffer, 0x20), add(add(buffer, 0x20), start), sub(end, start))
+            mstore(buffer, sub(end, start))
+        }
+
+        return buffer;
+    }
+
+    /*
      * @dev Reverses the byte order of a bytes32 value, converting between little-endian and big-endian.
      * Inspired in https://graphics.stanford.edu/~seander/bithacks.html#ReverseParallel[Reverse Parallel]
      */

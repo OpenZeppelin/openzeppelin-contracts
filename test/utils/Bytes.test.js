@@ -64,8 +64,8 @@ describe('Bytes', function () {
     });
   });
 
-  describe('slice', function () {
-    describe('slice(bytes, uint256)', function () {
+  describe('slice & splice', function () {
+    describe('slice(bytes, uint256) & splice(bytes, uint256)', function () {
       for (const [descr, start] of Object.entries({
         'start = 0': 0,
         'start within bound': 10,
@@ -74,11 +74,12 @@ describe('Bytes', function () {
         it(descr, async function () {
           const result = ethers.hexlify(lorem.slice(start));
           expect(await this.mock.$slice(lorem, start)).to.equal(result);
+          expect(await this.mock.$splice(lorem, start)).to.equal(result);
         });
       }
     });
 
-    describe('slice(bytes, uint256, uint256)', function () {
+    describe('slice(bytes, uint256, uint256) & splice(bytes, uint256, uint256)', function () {
       for (const [descr, [start, end]] of Object.entries({
         'start = 0': [0, 42],
         'start and end within bound': [17, 42],
@@ -89,6 +90,7 @@ describe('Bytes', function () {
         it(descr, async function () {
           const result = ethers.hexlify(lorem.slice(start, end));
           expect(await this.mock.$slice(lorem, start, ethers.Typed.uint256(end))).to.equal(result);
+          expect(await this.mock.$splice(lorem, start, ethers.Typed.uint256(end))).to.equal(result);
         });
       }
     });
