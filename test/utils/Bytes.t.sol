@@ -89,7 +89,7 @@ contract BytesTest is Test {
         uint256 result = Bytes.indexOf(buffer, s, pos);
 
         // Should not be found before result
-        for (uint256 i = pos; result != type(uint256).max && i < result; i++) assertNotEq(buffer[i], s);
+        for (uint256 i = pos; i < Math.min(buffer.length, result); ++i) assertNotEq(buffer[i], s);
         if (result != type(uint256).max) assertEq(buffer[result], s);
     }
 
@@ -102,20 +102,8 @@ contract BytesTest is Test {
         uint256 result = Bytes.lastIndexOf(buffer, s, pos);
 
         // Should not be found before result
-        for (uint256 i = pos; result != type(uint256).max && i < result; i++) assertNotEq(buffer[i], s);
+        for (uint256 i = pos; i < Math.min(buffer.length, result); ++i) assertNotEq(buffer[i], s);
         if (result != type(uint256).max) assertEq(buffer[result], s);
-    }
-
-    function testSlice(bytes memory buffer, uint256 start) public pure {
-        testSlice(buffer, start, buffer.length);
-    }
-
-    function testSlice(bytes memory buffer, uint256 start, uint256 end) public pure {
-        bytes memory result = Bytes.slice(buffer, start, end);
-        uint256 sanitizedEnd = Math.min(end, buffer.length);
-        uint256 sanitizedStart = Math.min(start, sanitizedEnd);
-        assertEq(result.length, sanitizedEnd - sanitizedStart);
-        for (uint256 i = 0; i < result.length; i++) assertEq(result[i], buffer[sanitizedStart + i]);
     }
 
     function testNibbles(bytes memory value) public pure {

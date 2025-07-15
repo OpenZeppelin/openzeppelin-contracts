@@ -203,7 +203,7 @@ library RLP {
         return
             abi.encodePacked(
                 bytes1(uint8(bytesLength) + uint8(offset) + SHORT_THRESHOLD),
-                bytes32(length).reverseBits256() // to big-endian
+                bytes32(length).reverseBytes32() // to big-endian
             );
     }
 
@@ -308,9 +308,8 @@ library RLP {
     }
 
     function _loadByte(Memory.Pointer ptr, uint256 offset) private pure returns (bytes1 v) {
-        bytes32 word = _load(ptr);
         assembly ("memory-safe") {
-            v := byte(offset, word)
+            v := byte(offset, mload(ptr))
         }
     }
 
