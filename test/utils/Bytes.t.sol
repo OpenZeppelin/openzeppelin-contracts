@@ -9,6 +9,37 @@ import {Bytes} from "@openzeppelin/contracts/utils/Bytes.sol";
 contract BytesTest is Test {
     using Bytes for bytes;
 
+    // INDEX OF
+    function testIndexOf(bytes memory buffer, bytes1 s) public pure {
+        testIndexOf(buffer, s, 0);
+    }
+
+    function testIndexOf(bytes memory buffer, bytes1 s, uint256 pos) public pure {
+        uint256 result = Bytes.indexOf(buffer, s, pos);
+
+        // The search value should not me present between `pos` (included) and `result` excluded.
+        // Do not search after the end of the buffer
+        for (uint256 i = pos; i < Math.min(result, buffer.length); ++i) assertNotEq(buffer[i], s);
+        if (result != type(uint256).max) assertEq(buffer[result], s);
+    }
+
+    function testLastIndexOf(bytes memory buffer, bytes1 s) public pure {
+        testLastIndexOf(buffer, s, 0);
+    }
+
+    function testLastIndexOf(bytes memory buffer, bytes1 s, uint256 pos) public pure {
+        uint256 result = Bytes.lastIndexOf(buffer, s, pos);
+
+        // Case found: the search value should not be present between `result` (excluded) and `pos` (included)
+        // Case not found: the search value should not be present anywhere before `pos` (included)
+        unchecked {
+            // using unchecked gives us `result + 1 == 0` in the "not found" case
+            for (uint256 i = result + 1; i < Math.min(pos + 1, buffer.length); ++i) assertNotEq(buffer[i], s);
+        }
+        if (result != type(uint256).max) assertEq(buffer[result], s);
+    }
+
+    // SLICES
     function testSliceWithStartOnly(bytes memory buffer, uint256 start) public pure {
         bytes memory originalBuffer = bytes.concat(buffer);
         bytes memory result = buffer.slice(start);
