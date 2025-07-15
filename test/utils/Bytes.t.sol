@@ -17,10 +17,18 @@ contract BytesTest is Test {
     function testIndexOf(bytes memory buffer, bytes1 s, uint256 pos) public pure {
         uint256 result = Bytes.indexOf(buffer, s, pos);
 
-        // The search value should not me present between `pos` (included) and `result` excluded.
-        // Do not search after the end of the buffer
-        for (uint256 i = pos; i < Math.min(result, buffer.length); ++i) assertNotEq(buffer[i], s);
-        if (result != type(uint256).max) assertEq(buffer[result], s);
+        if (buffer.length == 0) {
+            // Case 0: buffer is empty
+            assertEq(result, type(uint256).max);
+        } else if (result == type(uint256).max) {
+            // Case 1: search value could not be found
+            for (uint256 i = pos; i < buffer.length; ++i) assertNotEq(buffer[i], s);
+        } else {
+            // Case 2: search value was found
+            assertEq(buffer[result], s);
+            // search value is not present anywhere before the found location
+            for (uint256 i = pos; i < result; ++i) assertNotEq(buffer[i], s);
+        }
     }
 
     function testLastIndexOf(bytes memory buffer, bytes1 s) public pure {
@@ -30,13 +38,18 @@ contract BytesTest is Test {
     function testLastIndexOf(bytes memory buffer, bytes1 s, uint256 pos) public pure {
         uint256 result = Bytes.lastIndexOf(buffer, s, pos);
 
-        // Case found: the search value should not be present between `result` (excluded) and `pos` (included)
-        // Case not found: the search value should not be present anywhere before `pos` (included)
-        unchecked {
-            // using unchecked gives us `result + 1 == 0` in the "not found" case
-            for (uint256 i = result + 1; i < Math.min(pos + 1, buffer.length); ++i) assertNotEq(buffer[i], s);
+        if (buffer.length == 0) {
+            // Case 0: buffer is empty
+            assertEq(result, type(uint256).max);
+        } else if (result == type(uint256).max) {
+            // Case 1: search value could not be found
+            for (uint256 i = 0; i <= Math.min(pos, buffer.length - 1); ++i) assertNotEq(buffer[i], s);
+        } else {
+            // Case 2: search value was found
+            assertEq(buffer[result], s);
+            // search value is not present anywhere after the found location
+            for (uint256 i = result + 1; i <= Math.min(pos, buffer.length - 1); ++i) assertNotEq(buffer[i], s);
         }
-        if (result != type(uint256).max) assertEq(buffer[result], s);
     }
 
     // SLICES
