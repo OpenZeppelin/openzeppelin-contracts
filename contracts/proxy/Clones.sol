@@ -37,10 +37,9 @@ library Clones {
      * @dev Same as {xref-Clones-clone-address-}[clone], but with a `value` parameter to send native currency
      * to the new contract.
      *
-     * WARNING: This function does NOT check that `implementation` contains code. If that is not the case, creation of
-     * the clone will succeed, and any following initialization call risks silently failing (no code is executed but
-     * call is seen as successful) if it doesn't return any data. This would leave the clone uninitialize, with a risk
-     * of malicious initialization by a third party after the implementation contract is deployed.
+     * WARNING: This function does not check if `implementation` has code. A clone that points to an address
+     * without code cannot be initialized. Initialization calls may appear to be successful when, in reality, they
+     * have no effect and leave the clone uninitialized, allowing a third party to initialize it later.
      *
      * NOTE: Using a non-zero value at creation will require the contract using this function (e.g. a factory)
      * to always have enough balance for new deployments. Consider exposing this function under a payable method.
@@ -69,10 +68,9 @@ library Clones {
      * the clone. Using the same `implementation` and `salt` multiple times will revert, since
      * the clones cannot be deployed twice at the same address.
      *
-     * WARNING: This function does NOT check that `implementation` contains code. If that is not the case, creation of
-     * the clone will succeed, and any following initialization call risks silently failing (no code is executed but
-     * call is seen as successful) if it doesn't return any data. This would leave the clone uninitialize, with a risk
-     * of malicious initialization by a third party after the implementation contract is deployed.
+     * WARNING: This function does not check if `implementation` has code. A clone that points to an address
+     * without code cannot be initialized. Initialization calls may appear to be successful when, in reality, they
+     * have no effect and leave the clone uninitialized, allowing a third party to initialize it later.
      */
     function cloneDeterministic(address implementation, bytes32 salt) internal returns (address instance) {
         return cloneDeterministic(implementation, salt, 0);
@@ -82,10 +80,9 @@ library Clones {
      * @dev Same as {xref-Clones-cloneDeterministic-address-bytes32-}[cloneDeterministic], but with
      * a `value` parameter to send native currency to the new contract.
      *
-     * WARNING: This function does NOT check that `implementation` contains code. If that is not the case, creation of
-     * the clone will succeed, and any following initialization call risks silently failing (no code is executed but
-     * call is seen as successful) if it doesn't return any data. This would leave the clone uninitialize, with a risk
-     * of malicious initialization by a third party after the implementation contract is deployed.
+     * WARNING: This function does not check if `implementation` has code. A clone that points to an address
+     * without code cannot be initialized. Initialization calls may appear to be successful when, in reality, they
+     * have no effect and leave the clone uninitialized, allowing a third party to initialize it later.
      *
      * NOTE: Using a non-zero value at creation will require the contract using this function (e.g. a factory)
      * to always have enough balance for new deployments. Consider exposing this function under a payable method.
@@ -148,10 +145,9 @@ library Clones {
      *
      * This function uses the create opcode, which should never revert.
      *
-     * WARNING: This function does NOT check that `implementation` contains code. If that is not the case, creation of
-     * the clone will succeed, and any following initialization call risks silently failing (no code is executed but
-     * call is seen as successful) if it doesn't return any data. This would leave the clone uninitialize, with a risk
-     * of malicious initialization by a third party after the implementation contract is deployed.
+     * WARNING: This function does not check if `implementation` has code. A clone that points to an address
+     * without code cannot be initialized. Initialization calls may appear to be successful when, in reality, they
+     * have no effect and leave the clone uninitialized, allowing a third party to initialize it later.
      */
     function cloneWithImmutableArgs(address implementation, bytes memory args) internal returns (address instance) {
         return cloneWithImmutableArgs(implementation, args, 0);
@@ -161,10 +157,9 @@ library Clones {
      * @dev Same as {xref-Clones-cloneWithImmutableArgs-address-bytes-}[cloneWithImmutableArgs], but with a `value`
      * parameter to send native currency to the new contract.
      *
-     * WARNING: This function does NOT check that `implementation` contains code. If that is not the case, creation of
-     * the clone will succeed, and any following initialization call risks silently failing (no code is executed but
-     * call is seen as successful) if it doesn't return any data. This would leave the clone uninitialize, with a risk
-     * of malicious initialization by a third party after the implementation contract is deployed.
+     * WARNING: This function does not check if `implementation` has code. A clone that points to an address
+     * without code cannot be initialized. Initialization calls may appear to be successful when, in reality, they
+     * have no effect and leave the clone uninitialized, allowing a third party to initialize it later.
      *
      * NOTE: Using a non-zero value at creation will require the contract using this function (e.g. a factory)
      * to always have enough balance for new deployments. Consider exposing this function under a payable method.
@@ -195,10 +190,9 @@ library Clones {
      * `implementation`, `args` and `salt` multiple times will revert, since the clones cannot be deployed twice
      * at the same address.
      *
-     * WARNING: This function does NOT check that `implementation` contains code. If that is not the case, creation of
-     * the clone will succeed, and any following initialization call risks silently failing (no code is executed but
-     * call is seen as successful) if it doesn't return any data. This would leave the clone uninitialize, with a risk
-     * of malicious initialization by a third party after the implementation contract is deployed.
+     * WARNING: This function does not check if `implementation` has code. A clone that points to an address
+     * without code cannot be initialized. Initialization calls may appear to be successful when, in reality, they
+     * have no effect and leave the clone uninitialized, allowing a third party to initialize it later.
      */
     function cloneDeterministicWithImmutableArgs(
         address implementation,
@@ -212,10 +206,9 @@ library Clones {
      * @dev Same as {xref-Clones-cloneDeterministicWithImmutableArgs-address-bytes-bytes32-}[cloneDeterministicWithImmutableArgs],
      * but with a `value` parameter to send native currency to the new contract.
      *
-     * WARNING: This function does NOT check that `implementation` contains code. If that is not the case, creation of
-     * the clone will succeed, and any following initialization call risks silently failing (no code is executed but
-     * call is seen as successful) if it doesn't return any data. This would leave the clone uninitialize, with a risk
-     * of malicious initialization by a third party after the implementation contract is deployed.
+     * WARNING: This function does not check if `implementation` has code. A clone that points to an address
+     * without code cannot be initialized. Initialization calls may appear to be successful when, in reality, they
+     * have no effect and leave the clone uninitialized, allowing a third party to initialize it later.
      *
      * NOTE: Using a non-zero value at creation will require the contract using this function (e.g. a factory)
      * to always have enough balance for new deployments. Consider exposing this function under a payable method.
