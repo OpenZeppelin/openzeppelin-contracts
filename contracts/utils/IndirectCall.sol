@@ -24,11 +24,7 @@ library IndirectCall {
     }
 
     function indirectCall(address target, uint256 value, bytes memory data) internal returns (bool, bytes memory) {
-        return getRelayer(bytes32(0)).call{value: value}(abi.encodePacked(target, data));
-    }
-
-    function getRelayer() internal returns (address) {
-        return getRelayer(bytes32(0));
+        return indirectCall(target, value, data, bytes32(0));
     }
 
     function indirectCall(address target, bytes memory data, bytes32 salt) internal returns (bool, bytes memory) {
@@ -42,6 +38,10 @@ library IndirectCall {
         bytes32 salt
     ) internal returns (bool, bytes memory) {
         return getRelayer(salt).call{value: value}(abi.encodePacked(target, data));
+    }
+
+    function getRelayer() internal returns (address) {
+        return getRelayer(bytes32(0));
     }
 
     function getRelayer(bytes32 salt) internal returns (address) {
