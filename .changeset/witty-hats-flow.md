@@ -2,4 +2,4 @@
 'openzeppelin-solidity': patch
 ---
 
-`Bytes`: Fix an issue when calling `lastIndexOf(bytes,byte,uint256)` with an empty buffer and a lookup position that is not 2²⁵⁶-1.
+`Bytes`: Fix `lastIndexOf(bytes,byte,uint256)` with empty buffers and finite position to correctly return `type(uint256).max` instead of accessing uninitialized memory sections.
