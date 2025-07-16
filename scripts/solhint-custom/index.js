@@ -52,14 +52,14 @@ module.exports = [
           this.error(node, 'Constant and immutable variables should not have leading underscore');
         }
       } else if (node.isStateVar) {
-        if (node.visibility === 'private' || node.visibility === 'internal') {
-          if (!/^_/.test(node.name)) {
-            this.error(node, 'Private and internal state variables must have leading underscore');
-          }
-        } else {
-          if (/^_/.test(node.name)) {
-            this.error(node, 'Public state variables should not have leading underscore');
-          }
+        if (node.visibility === 'private' && !/^_/.test(node.name))
+          this.error(node, 'Private state variables must have leading underscore');
+        }
+        if (node.visibility === 'internal' && !/^_/.test(node.name)) {
+          this.error(node, 'Internal state variables must have leading underscore');
+        }
+        if (node.visibility === 'public' && /^_/.test(node.name)) {
+          this.error(node, 'Public state variables should not have leading underscore');
         }
       }
     }
