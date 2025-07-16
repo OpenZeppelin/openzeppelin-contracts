@@ -16,6 +16,8 @@ contract ReentrancyTransientMock is ReentrancyGuardTransient {
         _count();
     }
 
+    function viewCallback() external view nonReentrantView {}
+
     function countLocalRecursive(uint256 n) public nonReentrant {
         if (n > 0) {
             _count();
@@ -34,6 +36,11 @@ contract ReentrancyTransientMock is ReentrancyGuardTransient {
     function countAndCall(ReentrancyAttack attacker) public nonReentrant {
         _count();
         attacker.callSender(abi.encodeCall(this.callback, ()));
+    }
+
+    function countAndCallView(ReentrancyAttack attacker) public nonReentrant {
+        _count();
+        attacker.staticcallSender(abi.encodeCall(this.viewCallback, ()));
     }
 
     function _count() private {
