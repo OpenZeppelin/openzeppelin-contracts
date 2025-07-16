@@ -36,8 +36,7 @@ module.exports = [
     static ruleId = 'private-variables';
 
     VariableDeclaration(node) {
-      const constantOrImmutable = node.isDeclaredConst || node.isImmutable;
-      if (node.isStateVar && !constantOrImmutable && node.visibility !== 'private') {
+      if (node.isStateVar && !node.isDeclaredConst && !node.isImmutable && node.visibility !== 'private') {
         this.error(node, 'State variables must be private');
       }
     }
@@ -47,37 +46,37 @@ module.exports = [
     static ruleId = 'leading-underscore';
 
     VariableDeclaration(node) {
-      if (node.isDeclaredConst && /^_/.test(node.name)) {
+      if (node.isDeclaredConst && node.name.startsWith('_')) {
         this.error(node, 'Constant variables should not have leading underscore');
       }
-      if (node.isImmutable && /^_/.test(node.name)) {
+      if (node.isImmutable && node.name.startsWith('_')) {
         this.error(node, 'Immutable variables should not have leading underscore');
       }
-      if (node.isStateVar && node.visibility === 'private' && !/^_/.test(node.name)) {
+      if (node.isStateVar && node.visibility === 'private' && !node.name.startsWith('_')) {
         this.error(node, 'Private state variables must have leading underscore');
       }
-      if (node.isStateVar && node.visibility === 'internal' && !/^_/.test(node.name)) {
+      if (node.isStateVar && node.visibility === 'internal' && !node.name.startsWith('_')) {
         this.error(node, 'Internal state variables must have leading underscore');
       }
-      if (node.isStateVar && node.visibility === 'public' && /^_/.test(node.name)) {
+      if (node.isStateVar && node.visibility === 'public' && node.name.startsWith('_')) {
         this.error(node, 'Public state variables should not have leading underscore');
       }
     }
 
     FunctionDefinition(node) {
-      if (node.visibility === 'private' && !/^_/.test(node.name)) {
+      if (node.visibility === 'private' && !node.name.startsWith('_')) {
         this.error(node, 'Private functions must have leading underscore');
       }
-      if (node.visibility === 'internal' && node.parent.kind !== 'library' && !/^_/.test(node.name)) {
+      if (node.visibility === 'internal' && node.parent.kind !== 'library' && !node.name.startsWith('_')) {
         this.error(node, 'Non-library internal functions must have leading underscore');
       }
-      if (node.visibility === 'internal' && node.parent.kind === 'library' && /^_/.test(node.name)) {
+      if (node.visibility === 'internal' && node.parent.kind === 'library' && node.name.startsWith('_')) {
         this.error(node, 'Library internal functions should not have leading underscore');
       }
-      if (node.visibility === 'public' && /^_/.test(node.name)) {
+      if (node.visibility === 'public' && node.name.startsWith('_')) {
         this.error(node, 'Public functions should not have leading underscore');
       }
-      if (node.visibility === 'external' && /^_/.test(node.name)) {
+      if (node.visibility === 'external' && node.name.startsWith('_')) {
         this.error(node, 'External functions should not have leading underscore');
       }
     }
