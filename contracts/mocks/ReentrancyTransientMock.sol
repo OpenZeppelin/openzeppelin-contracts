@@ -16,7 +16,9 @@ contract ReentrancyTransientMock is ReentrancyGuardTransient {
         _count();
     }
 
-    function viewCallback() external view nonReentrantView {}
+    function viewCallback() external view nonReentrantView returns (uint256) {
+        return counter;
+    }
 
     function countLocalRecursive(uint256 n) public nonReentrant {
         if (n > 0) {
