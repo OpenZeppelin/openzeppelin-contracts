@@ -47,20 +47,20 @@ module.exports = [
     static ruleId = 'leading-underscore';
 
     VariableDeclaration(node) {
-      if (node.isDeclaredConst || node.isImmutable) {
-        if (/^_/.test(node.name)) {
-          this.error(node, 'Constant and immutable variables should not have leading underscore');
-        }
-      } else if (node.isStateVar) {
-        if (node.visibility === 'private' && !/^_/.test(node.name))
-          this.error(node, 'Private state variables must have leading underscore');
-        }
-        if (node.visibility === 'internal' && !/^_/.test(node.name)) {
-          this.error(node, 'Internal state variables must have leading underscore');
-        }
-        if (node.visibility === 'public' && /^_/.test(node.name)) {
-          this.error(node, 'Public state variables should not have leading underscore');
-        }
+      if (node.isDeclaredConst && /^_/.test(node.name)) {
+        this.error(node, 'Constant variables should not have leading underscore');
+      }
+      if (node.isImmutable && /^_/.test(node.name)) {
+        this.error(node, 'Immutable variables should not have leading underscore');
+      }
+      if (node.isStateVar && node.visibility === 'private' && !/^_/.test(node.name)) {
+        this.error(node, 'Private state variables must have leading underscore');
+      }
+      if (node.isStateVar && node.visibility === 'internal' && !/^_/.test(node.name)) {
+        this.error(node, 'Internal state variables must have leading underscore');
+      }
+      if (node.isStateVar && node.visibility === 'public' && /^_/.test(node.name)) {
+        this.error(node, 'Public state variables should not have leading underscore');
       }
     }
 
