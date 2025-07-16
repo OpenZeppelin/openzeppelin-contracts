@@ -57,7 +57,8 @@ library Bytes {
      */
     function lastIndexOf(bytes memory buffer, bytes1 s, uint256 pos) internal pure returns (uint256) {
         unchecked {
-            for (uint256 i = Math.min(Math.saturatingAdd(pos, 1), buffer.length); i > 0; --i) {
+            uint256 length = buffer.length;
+            for (uint256 i = Math.min(Math.saturatingAdd(pos, 1), length); i > 0; --i) {
                 if (bytes1(_unsafeReadBytesOffset(buffer, i - 1)) == s) {
                     return i - 1;
                 }
