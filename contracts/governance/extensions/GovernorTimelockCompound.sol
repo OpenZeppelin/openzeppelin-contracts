@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.3.0) (governance/extensions/GovernorTimelockCompound.sol)
+// OpenZeppelin Contracts (last updated v5.4.0) (governance/extensions/GovernorTimelockCompound.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
 import {IGovernor, Governor} from "../Governor.sol";
 import {ICompoundTimelock} from "../../vendor/compound/ICompoundTimelock.sol";
@@ -53,9 +53,7 @@ abstract contract GovernorTimelockCompound is Governor {
         return address(_timelock);
     }
 
-    /**
-     * @dev See {IGovernor-proposalNeedsQueuing}.
-     */
+    /// @inheritdoc IGovernor
     function proposalNeedsQueuing(uint256) public view virtual override returns (bool) {
         return true;
     }

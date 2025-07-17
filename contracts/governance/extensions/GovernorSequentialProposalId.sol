@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.3.0) (governance/extensions/GovernorSequentialProposalId.sol)
+// OpenZeppelin Contracts (last updated v5.4.0) (governance/extensions/GovernorSequentialProposalId.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
-import {Governor} from "../Governor.sol";
+import {IGovernor, Governor} from "../Governor.sol";
 
 /**
  * @dev Extension of {Governor} that changes the numbering of proposal ids from the default hash-based approach to
@@ -19,9 +19,7 @@ abstract contract GovernorSequentialProposalId is Governor {
      */
     error GovernorAlreadyInitializedLatestProposalId();
 
-    /**
-     * @dev See {IGovernor-getProposalId}.
-     */
+    /// @inheritdoc IGovernor
     function getProposalId(
         address[] memory targets,
         uint256[] memory values,

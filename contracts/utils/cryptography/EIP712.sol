@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.3.0) (utils/cryptography/EIP712.sol)
+// OpenZeppelin Contracts (last updated v5.4.0) (utils/cryptography/EIP712.sol)
 
 pragma solidity ^0.8.20;
 
@@ -110,9 +110,7 @@ abstract contract EIP712 is IERC5267 {
         return MessageHashUtils.toTypedDataHash(_domainSeparatorV4(), structHash);
     }
 
-    /**
-     * @inheritdoc IERC5267
-     */
+    /// @inheritdoc IERC5267
     function eip712Domain()
         public
         view

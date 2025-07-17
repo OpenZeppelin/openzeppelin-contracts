@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.2.0) (utils/Address.sol)
+// OpenZeppelin Contracts (last updated v5.4.0) (utils/Address.sol)
 
 pragma solidity ^0.8.20;
 
@@ -140,8 +140,7 @@ library Address {
         if (returndata.length > 0) {
             // The easiest way to bubble the revert reason is using memory via assembly
             assembly ("memory-safe") {
-                let returndata_size := mload(returndata)
-                revert(add(32, returndata), returndata_size)
+                revert(add(returndata, 0x20), mload(returndata))
             }
         } else {
             revert Errors.FailedCall();

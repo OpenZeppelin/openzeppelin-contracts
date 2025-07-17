@@ -206,7 +206,7 @@ The current implementation of this security mechanism uses https://eips.ethereum
 
 [.contract]
 [[Proxy]]
-=== `++Proxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/proxy/Proxy.sol[{github-icon},role=heading-link]
+=== `++Proxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/proxy/Proxy.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -272,7 +272,7 @@ function in the contract matches the call data.
 
 [.contract]
 [[ERC1967Proxy]]
-=== `++ERC1967Proxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/proxy/ERC1967/ERC1967Proxy.sol[{github-icon},role=heading-link]
+=== `++ERC1967Proxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/proxy/ERC1967/ERC1967Proxy.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -344,7 +344,7 @@ the https://eth.wiki/json-rpc/API#eth_getstorageat[`eth_getStorageAt`] RPC call.
 
 [.contract]
 [[ERC1967Utils]]
-=== `++ERC1967Utils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/proxy/ERC1967/ERC1967Utils.sol[{github-icon},role=heading-link]
+=== `++ERC1967Utils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/proxy/ERC1967/ERC1967Utils.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -497,7 +497,7 @@ This is the keccak-256 hash of "eip1967.proxy.beacon" subtracted by 1.
 
 [.contract]
 [[TransparentUpgradeableProxy]]
-=== `++TransparentUpgradeableProxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/proxy/transparent/TransparentUpgradeableProxy.sol[{github-icon},role=heading-link]
+=== `++TransparentUpgradeableProxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/proxy/transparent/TransparentUpgradeableProxy.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -610,7 +610,7 @@ The proxy caller is the current admin, and can't fallback to the proxy target.
 
 [.contract]
 [[ProxyAdmin]]
-=== `++ProxyAdmin++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/proxy/transparent/ProxyAdmin.sol[{github-icon},role=heading-link]
+=== `++ProxyAdmin++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/proxy/transparent/ProxyAdmin.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -699,7 +699,7 @@ during an upgrade.
 
 [.contract]
 [[BeaconProxy]]
-=== `++BeaconProxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/proxy/beacon/BeaconProxy.sol[{github-icon},role=heading-link]
+=== `++BeaconProxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/proxy/beacon/BeaconProxy.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -766,7 +766,7 @@ Returns the beacon.
 
 [.contract]
 [[IBeacon]]
-=== `++IBeacon++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/proxy/beacon/IBeacon.sol[{github-icon},role=heading-link]
+=== `++IBeacon++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/proxy/beacon/IBeacon.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -802,7 +802,7 @@ Must return an address that can be used as a delegate call target.
 
 [.contract]
 [[UpgradeableBeacon]]
-=== `++UpgradeableBeacon++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/proxy/beacon/UpgradeableBeacon.sol[{github-icon},role=heading-link]
+=== `++UpgradeableBeacon++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/proxy/beacon/UpgradeableBeacon.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -933,7 +933,7 @@ The `implementation` of the beacon is invalid.
 
 [.contract]
 [[Clones]]
-=== `++Clones++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/proxy/Clones.sol[{github-icon},role=heading-link]
+=== `++Clones++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/proxy/Clones.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -984,12 +984,20 @@ Deploys and returns the address of a clone that mimics the behavior of `implemen
 
 This function uses the create opcode, which should never revert.
 
+WARNING: This function does not check if `implementation` has code. A clone that points to an address
+without code cannot be initialized. Initialization calls may appear to be successful when, in reality, they
+have no effect and leave the clone uninitialized, allowing a third party to initialize it later.
+
 [.contract-item]
 [[Clones-clone-address-uint256-]]
 ==== `[.contract-item-name]#++clone++#++(address implementation, uint256 value) → address instance++` [.item-kind]#internal#
 
 Same as {xref-Clones-clone-address-}[clone], but with a `value` parameter to send native currency
 to the new contract.
+
+WARNING: This function does not check if `implementation` has code. A clone that points to an address
+without code cannot be initialized. Initialization calls may appear to be successful when, in reality, they
+have no effect and leave the clone uninitialized, allowing a third party to initialize it later.
 
 NOTE: Using a non-zero value at creation will require the contract using this function (e.g. a factory)
 to always have enough balance for new deployments. Consider exposing this function under a payable method.
@@ -1004,12 +1012,20 @@ This function uses the create2 opcode and a `salt` to deterministically deploy
 the clone. Using the same `implementation` and `salt` multiple times will revert, since
 the clones cannot be deployed twice at the same address.
 
+WARNING: This function does not check if `implementation` has code. A clone that points to an address
+without code cannot be initialized. Initialization calls may appear to be successful when, in reality, they
+have no effect and leave the clone uninitialized, allowing a third party to initialize it later.
+
 [.contract-item]
 [[Clones-cloneDeterministic-address-bytes32-uint256-]]
 ==== `[.contract-item-name]#++cloneDeterministic++#++(address implementation, bytes32 salt, uint256 value) → address instance++` [.item-kind]#internal#
 
 Same as {xref-Clones-cloneDeterministic-address-bytes32-}[cloneDeterministic], but with
 a `value` parameter to send native currency to the new contract.
+
+WARNING: This function does not check if `implementation` has code. A clone that points to an address
+without code cannot be initialized. Initialization calls may appear to be successful when, in reality, they
+have no effect and leave the clone uninitialized, allowing a third party to initialize it later.
 
 NOTE: Using a non-zero value at creation will require the contract using this function (e.g. a factory)
 to always have enough balance for new deployments. Consider exposing this function under a payable method.
@@ -1036,12 +1052,20 @@ access the arguments within the implementation, use {fetchCloneArgs}.
 
 This function uses the create opcode, which should never revert.
 
+WARNING: This function does not check if `implementation` has code. A clone that points to an address
+without code cannot be initialized. Initialization calls may appear to be successful when, in reality, they
+have no effect and leave the clone uninitialized, allowing a third party to initialize it later.
+
 [.contract-item]
 [[Clones-cloneWithImmutableArgs-address-bytes-uint256-]]
 ==== `[.contract-item-name]#++cloneWithImmutableArgs++#++(address implementation, bytes args, uint256 value) → address instance++` [.item-kind]#internal#
 
 Same as {xref-Clones-cloneWithImmutableArgs-address-bytes-}[cloneWithImmutableArgs], but with a `value`
 parameter to send native currency to the new contract.
+
+WARNING: This function does not check if `implementation` has code. A clone that points to an address
+without code cannot be initialized. Initialization calls may appear to be successful when, in reality, they
+have no effect and leave the clone uninitialized, allowing a third party to initialize it later.
 
 NOTE: Using a non-zero value at creation will require the contract using this function (e.g. a factory)
 to always have enough balance for new deployments. Consider exposing this function under a payable method.
@@ -1058,12 +1082,20 @@ This function uses the create2 opcode and a `salt` to deterministically deploy t
 `implementation`, `args` and `salt` multiple times will revert, since the clones cannot be deployed twice
 at the same address.
 
+WARNING: This function does not check if `implementation` has code. A clone that points to an address
+without code cannot be initialized. Initialization calls may appear to be successful when, in reality, they
+have no effect and leave the clone uninitialized, allowing a third party to initialize it later.
+
 [.contract-item]
 [[Clones-cloneDeterministicWithImmutableArgs-address-bytes-bytes32-uint256-]]
 ==== `[.contract-item-name]#++cloneDeterministicWithImmutableArgs++#++(address implementation, bytes args, bytes32 salt, uint256 value) → address instance++` [.item-kind]#internal#
 
 Same as {xref-Clones-cloneDeterministicWithImmutableArgs-address-bytes-bytes32-}[cloneDeterministicWithImmutableArgs],
 but with a `value` parameter to send native currency to the new contract.
+
+WARNING: This function does not check if `implementation` has code. A clone that points to an address
+without code cannot be initialized. Initialization calls may appear to be successful when, in reality, they
+have no effect and leave the clone uninitialized, allowing a third party to initialize it later.
 
 NOTE: Using a non-zero value at creation will require the contract using this function (e.g. a factory)
 to always have enough balance for new deployments. Consider exposing this function under a payable method.
@@ -1121,7 +1153,7 @@ Get the immutable args attached to a clone.
 
 [.contract]
 [[Initializable]]
-=== `++Initializable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/proxy/utils/Initializable.sol[{github-icon},role=heading-link]
+=== `++Initializable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/proxy/utils/Initializable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1327,7 +1359,7 @@ The contract is not initializing.
 
 [.contract]
 [[UUPSUpgradeable]]
-=== `++UUPSUpgradeable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/proxy/utils/UUPSUpgradeable.sol[{github-icon},role=heading-link]
+=== `++UUPSUpgradeable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/proxy/utils/UUPSUpgradeable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity

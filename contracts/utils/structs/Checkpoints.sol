@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.3.0) (utils/structs/Checkpoints.sol)
+// OpenZeppelin Contracts (last updated v5.4.0) (utils/structs/Checkpoints.sol)
 // This file was procedurally generated from scripts/generate/templates/Checkpoints.js.
 
 pragma solidity ^0.8.20;
@@ -68,7 +68,7 @@ library Checkpoints {
      * @dev Returns the value in the last (most recent) checkpoint with key lower or equal than the search key, or zero
      * if there is none.
      *
-     * NOTE: This is a variant of {upperLookup} that is optimised to find "recent" checkpoint (checkpoints with high
+     * NOTE: This is a variant of {upperLookup} that is optimized to find "recent" checkpoint (checkpoints with high
      * keys).
      */
     function upperLookupRecent(Trace224 storage self, uint32 key) internal view returns (uint224) {
@@ -271,7 +271,7 @@ library Checkpoints {
      * @dev Returns the value in the last (most recent) checkpoint with key lower or equal than the search key, or zero
      * if there is none.
      *
-     * NOTE: This is a variant of {upperLookup} that is optimised to find "recent" checkpoint (checkpoints with high
+     * NOTE: This is a variant of {upperLookup} that is optimized to find "recent" checkpoint (checkpoints with high
      * keys).
      */
     function upperLookupRecent(Trace208 storage self, uint48 key) internal view returns (uint208) {
@@ -474,7 +474,7 @@ library Checkpoints {
      * @dev Returns the value in the last (most recent) checkpoint with key lower or equal than the search key, or zero
      * if there is none.
      *
-     * NOTE: This is a variant of {upperLookup} that is optimised to find "recent" checkpoint (checkpoints with high
+     * NOTE: This is a variant of {upperLookup} that is optimized to find "recent" checkpoint (checkpoints with high
      * keys).
      */
     function upperLookupRecent(Trace160 storage self, uint96 key) internal view returns (uint160) {

@@ -19,11 +19,11 @@
 :xref-Nonces-nonces-address-: xref:utils.adoc#Nonces-nonces-address-
 :xref-Nonces-_useNonce-address-: xref:utils.adoc#Nonces-_useNonce-address-
 :xref-Nonces-_useCheckedNonce-address-uint256-: xref:utils.adoc#Nonces-_useCheckedNonce-address-uint256-
-:xref-EIP712-_domainSeparatorV4--: xref:utils.adoc#EIP712-_domainSeparatorV4--
-:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils.adoc#EIP712-_hashTypedDataV4-bytes32-
-:xref-EIP712-eip712Domain--: xref:utils.adoc#EIP712-eip712Domain--
-:xref-EIP712-_EIP712Name--: xref:utils.adoc#EIP712-_EIP712Name--
-:xref-EIP712-_EIP712Version--: xref:utils.adoc#EIP712-_EIP712Version--
+:xref-EIP712-_domainSeparatorV4--: xref:utils/cryptography.adoc#EIP712-_domainSeparatorV4--
+:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils/cryptography.adoc#EIP712-_hashTypedDataV4-bytes32-
+:xref-EIP712-eip712Domain--: xref:utils/cryptography.adoc#EIP712-eip712Domain--
+:xref-EIP712-_EIP712Name--: xref:utils/cryptography.adoc#EIP712-_EIP712Name--
+:xref-EIP712-_EIP712Version--: xref:utils/cryptography.adoc#EIP712-_EIP712Version--
 :xref-ERC2771Forwarder-ExecutedForwardRequest-address-uint256-bool-: xref:metatx.adoc#ERC2771Forwarder-ExecutedForwardRequest-address-uint256-bool-
 :xref-IERC5267-EIP712DomainChanged--: xref:interfaces.adoc#IERC5267-EIP712DomainChanged--
 :xref-ERC2771Forwarder-ERC2771ForwarderInvalidSigner-address-address-: xref:metatx.adoc#ERC2771Forwarder-ERC2771ForwarderInvalidSigner-address-address-
@@ -32,8 +32,8 @@
 :xref-ERC2771Forwarder-ERC2771UntrustfulTarget-address-address-: xref:metatx.adoc#ERC2771Forwarder-ERC2771UntrustfulTarget-address-address-
 :xref-Nonces-InvalidAccountNonce-address-uint256-: xref:utils.adoc#Nonces-InvalidAccountNonce-address-uint256-
 :xref-ERC2771Forwarder-_FORWARD_REQUEST_TYPEHASH-bytes32: xref:metatx.adoc#ERC2771Forwarder-_FORWARD_REQUEST_TYPEHASH-bytes32
-:EIP712-constructor: pass:normal[xref:utils.adoc#EIP712-constructor-string-string-[`EIP712.constructor`]]
-:ECDSA-tryRecover: pass:normal[xref:utils.adoc#ECDSA-tryRecover-bytes32-uint8-bytes32-bytes32-[`ECDSA.tryRecover`]]
+:EIP712-constructor: pass:normal[xref:utils/cryptography.adoc#EIP712-constructor-string-string-[`EIP712.constructor`]]
+:ECDSA-tryRecover: pass:normal[xref:utils/cryptography.adoc#ECDSA-tryRecover-bytes32-uint8-bytes32-bytes32-[`ECDSA.tryRecover`]]
 :ERC2771Context-isTrustedForwarder: pass:normal[xref:metatx.adoc#ERC2771Context-isTrustedForwarder-address-[`ERC2771Context.isTrustedForwarder`]]
 = Meta Transactions
 
@@ -63,7 +63,7 @@ This directory includes contracts for adding meta-transaction capabilities (i.e.
 
 [.contract]
 [[ERC2771Context]]
-=== `++ERC2771Context++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/metatx/ERC2771Context.sol[{github-icon},role=heading-link]
+=== `++ERC2771Context++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/metatx/ERC2771Context.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -161,7 +161,7 @@ ERC-2771 specifies the context as being a single address (20 bytes).
 
 [.contract]
 [[ERC2771Forwarder]]
-=== `++ERC2771Forwarder++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/metatx/ERC2771Forwarder.sol[{github-icon},role=heading-link]
+=== `++ERC2771Forwarder++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/metatx/ERC2771Forwarder.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity

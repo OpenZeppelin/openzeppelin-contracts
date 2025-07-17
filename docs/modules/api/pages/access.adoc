@@ -57,7 +57,6 @@
 :xref-IAccessControl-RoleRevoked-bytes32-address-address-: xref:access.adoc#IAccessControl-RoleRevoked-bytes32-address-address-
 :xref-IAccessControl-AccessControlUnauthorizedAccount-address-bytes32-: xref:access.adoc#IAccessControl-AccessControlUnauthorizedAccount-address-bytes32-
 :xref-IAccessControl-AccessControlBadConfirmation--: xref:access.adoc#IAccessControl-AccessControlBadConfirmation--
-:IERC165-supportsInterface: pass:normal[xref:utils.adoc#IERC165-supportsInterface-bytes4-[`IERC165.supportsInterface`]]
 :xref-IAccessControlEnumerable-getRoleMember-bytes32-uint256-: xref:access.adoc#IAccessControlEnumerable-getRoleMember-bytes32-uint256-
 :xref-IAccessControlEnumerable-getRoleMemberCount-bytes32-: xref:access.adoc#IAccessControlEnumerable-getRoleMemberCount-bytes32-
 :xref-IAccessControl-hasRole-bytes32-address-: xref:access.adoc#IAccessControl-hasRole-bytes32-address-
@@ -91,7 +90,6 @@
 :xref-IAccessControl-RoleRevoked-bytes32-address-address-: xref:access.adoc#IAccessControl-RoleRevoked-bytes32-address-address-
 :xref-IAccessControl-AccessControlUnauthorizedAccount-address-bytes32-: xref:access.adoc#IAccessControl-AccessControlUnauthorizedAccount-address-bytes32-
 :xref-IAccessControl-AccessControlBadConfirmation--: xref:access.adoc#IAccessControl-AccessControlBadConfirmation--
-:IERC165-supportsInterface: pass:normal[xref:utils.adoc#IERC165-supportsInterface-bytes4-[`IERC165.supportsInterface`]]
 :AccessControl-_grantRole: pass:normal[xref:access.adoc#AccessControl-_grantRole-bytes32-address-[`AccessControl._grantRole`]]
 :AccessControl-_revokeRole: pass:normal[xref:access.adoc#AccessControl-_revokeRole-bytes32-address-[`AccessControl._revokeRole`]]
 :xref-IAccessControlDefaultAdminRules-defaultAdmin--: xref:access.adoc#IAccessControlDefaultAdminRules-defaultAdmin--
@@ -165,13 +163,10 @@
 :xref-IAccessControlDefaultAdminRules-AccessControlEnforcedDefaultAdminDelay-uint48-: xref:access.adoc#IAccessControlDefaultAdminRules-AccessControlEnforcedDefaultAdminDelay-uint48-
 :xref-IAccessControl-AccessControlUnauthorizedAccount-address-bytes32-: xref:access.adoc#IAccessControl-AccessControlUnauthorizedAccount-address-bytes32-
 :xref-IAccessControl-AccessControlBadConfirmation--: xref:access.adoc#IAccessControl-AccessControlBadConfirmation--
-:IERC165-supportsInterface: pass:normal[xref:utils.adoc#IERC165-supportsInterface-bytes4-[`IERC165.supportsInterface`]]
-:IERC5313-owner: pass:normal[xref:interfaces.adoc#IERC5313-owner--[`IERC5313.owner`]]
 :AccessControl-grantRole: pass:normal[xref:access.adoc#AccessControl-grantRole-bytes32-address-[`AccessControl.grantRole`]]
 :AccessControl-revokeRole: pass:normal[xref:access.adoc#AccessControl-revokeRole-bytes32-address-[`AccessControl.revokeRole`]]
 :AccessControl-renounceRole: pass:normal[xref:access.adoc#AccessControl-renounceRole-bytes32-address-[`AccessControl.renounceRole`]]
 :AccessControl-_grantRole: pass:normal[xref:access.adoc#AccessControl-_grantRole-bytes32-address-[`AccessControl._grantRole`]]
-:AccessControl-_revokeRole: pass:normal[xref:access.adoc#AccessControl-_revokeRole-bytes32-address-[`AccessControl._revokeRole`]]
 :AccessControl-_setRoleAdmin: pass:normal[xref:access.adoc#AccessControl-_setRoleAdmin-bytes32-bytes32-[`AccessControl._setRoleAdmin`]]
 :xref-IAuthority-canCall-address-address-bytes4-: xref:access.adoc#IAuthority-canCall-address-address-bytes4-
 :xref-IAccessManager-canCall-address-address-bytes4-: xref:access.adoc#IAccessManager-canCall-address-address-bytes4-
@@ -365,7 +360,7 @@ This directory provides ways to restrict who can access the functions of a contr
 
 [.contract]
 [[Ownable]]
-=== `++Ownable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/access/Ownable.sol[{github-icon},role=heading-link]
+=== `++Ownable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/access/Ownable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -493,7 +488,7 @@ The owner is not a valid owner account. (eg. `address(0)`)
 
 [.contract]
 [[Ownable2Step]]
-=== `++Ownable2Step++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/access/Ownable2Step.sol[{github-icon},role=heading-link]
+=== `++Ownable2Step++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/access/Ownable2Step.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -605,7 +600,7 @@ The new owner accepts the ownership transfer.
 
 [.contract]
 [[IAccessControl]]
-=== `++IAccessControl++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/access/IAccessControl.sol[{github-icon},role=heading-link]
+=== `++IAccessControl++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/access/IAccessControl.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -771,7 +766,7 @@ NOTE: Don't confuse with {AccessControlUnauthorizedAccount}.
 
 [.contract]
 [[AccessControl]]
-=== `++AccessControl++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/access/AccessControl.sol[{github-icon},role=heading-link]
+=== `++AccessControl++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/access/AccessControl.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -895,8 +890,6 @@ with an {AccessControlUnauthorizedAccount} error including the required role.
 [[AccessControl-supportsInterface-bytes4-]]
 ==== `[.contract-item-name]#++supportsInterface++#++(bytes4 interfaceId) → bool++` [.item-kind]#public#
 
-See {IERC165-supportsInterface}.
-
 [.contract-item]
 [[AccessControl-hasRole-bytes32-address-]]
 ==== `[.contract-item-name]#++hasRole++#++(bytes32 role, address account) → bool++` [.item-kind]#public#
@@ -1016,7 +1009,7 @@ May emit a {RoleRevoked} event.
 
 [.contract]
 [[IAccessControlEnumerable]]
-=== `++IAccessControlEnumerable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/access/extensions/IAccessControlEnumerable.sol[{github-icon},role=heading-link]
+=== `++IAccessControlEnumerable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/access/extensions/IAccessControlEnumerable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1102,7 +1095,7 @@ together with {getRoleMember} to enumerate all bearers of a role.
 
 [.contract]
 [[AccessControlEnumerable]]
-=== `++AccessControlEnumerable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/access/extensions/AccessControlEnumerable.sol[{github-icon},role=heading-link]
+=== `++AccessControlEnumerable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/access/extensions/AccessControlEnumerable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1198,8 +1191,6 @@ Extension of {AccessControl} that allows enumerating the members of each role.
 [[AccessControlEnumerable-supportsInterface-bytes4-]]
 ==== `[.contract-item-name]#++supportsInterface++#++(bytes4 interfaceId) → bool++` [.item-kind]#public#
 
-See {IERC165-supportsInterface}.
-
 [.contract-item]
 [[AccessControlEnumerable-getRoleMember-bytes32-uint256-]]
 ==== `[.contract-item-name]#++getRoleMember++#++(bytes32 role, uint256 index) → address++` [.item-kind]#public#
@@ -1276,7 +1267,7 @@ Overload {AccessControl-_revokeRole} to track enumerable memberships
 
 [.contract]
 [[IAccessControlDefaultAdminRules]]
-=== `++IAccessControlDefaultAdminRules++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/access/extensions/IAccessControlDefaultAdminRules.sol[{github-icon},role=heading-link]
+=== `++IAccessControlDefaultAdminRules++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/access/extensions/IAccessControlDefaultAdminRules.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1591,7 +1582,7 @@ NOTE: `schedule` can be 0 indicating there's no transfer scheduled.
 
 [.contract]
 [[AccessControlDefaultAdminRules]]
-=== `++AccessControlDefaultAdminRules++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/access/extensions/AccessControlDefaultAdminRules.sol[{github-icon},role=heading-link]
+=== `++AccessControlDefaultAdminRules++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/access/extensions/AccessControlDefaultAdminRules.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1611,6 +1602,7 @@ This contract implements the following risk mitigations on top of {AccessControl
 * Enforces a 2-step process to transfer the `DEFAULT_ADMIN_ROLE` to another account.
 * Enforces a configurable delay between the two steps, with the ability to cancel before the transfer is accepted.
 * The delay can be changed by scheduling, see {changeDefaultAdminDelay}.
+* Role transfers must wait at least one block after scheduling before it can be accepted.
 * It is not possible to use another role to manage the `DEFAULT_ADMIN_ROLE`.
 
 Example usage:
@@ -1748,13 +1740,11 @@ Sets the initial values for {defaultAdminDelay} and {defaultAdmin} address.
 [[AccessControlDefaultAdminRules-supportsInterface-bytes4-]]
 ==== `[.contract-item-name]#++supportsInterface++#++(bytes4 interfaceId) → bool++` [.item-kind]#public#
 
-See {IERC165-supportsInterface}.
-
 [.contract-item]
 [[AccessControlDefaultAdminRules-owner--]]
 ==== `[.contract-item-name]#++owner++#++() → address++` [.item-kind]#public#
 
-See {IERC5313-owner}.
+Gets the address of the owner.
 
 [.contract-item]
 [[AccessControlDefaultAdminRules-grantRole-bytes32-address-]]
@@ -1800,7 +1790,11 @@ assignable again. Make sure to guarantee this is the expected behavior in your i
 [[AccessControlDefaultAdminRules-_revokeRole-bytes32-address-]]
 ==== `[.contract-item-name]#++_revokeRole++#++(bytes32 role, address account) → bool++` [.item-kind]#internal#
 
-See {AccessControl-_revokeRole}.
+Attempts to revoke `role` from `account` and returns a boolean indicating if `role` was revoked.
+
+Internal function without access restriction.
+
+May emit a {RoleRevoked} event.
 
 [.contract-item]
 [[AccessControlDefaultAdminRules-_setRoleAdmin-bytes32-bytes32-]]
@@ -2014,7 +2008,7 @@ See {defaultAdminDelayIncreaseWait}.
 
 [.contract]
 [[IAuthority]]
-=== `++IAuthority++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/access/manager/IAuthority.sol[{github-icon},role=heading-link]
+=== `++IAuthority++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/access/manager/IAuthority.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2121,7 +2115,7 @@ Returns true if the caller can invoke on a target the function identified by a f
 
 [.contract]
 [[IAccessManager]]
-=== `++IAccessManager++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/access/manager/IAccessManager.sol[{github-icon},role=heading-link]
+=== `++IAccessManager++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/access/manager/IAccessManager.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2211,7 +2205,7 @@ Therefore we only return true if the call can be performed without any delay. If
 previously set delay (not zero), then the function should return false and the caller should schedule the operation
 for future execution.
 
-If `immediate` is true, the delay can be disregarded and the operation can be immediately executed, otherwise
+If `allowed` is true, the delay can be disregarded and the operation can be immediately executed, otherwise
 the operation can be executed if and only if delay is greater than 0.
 
 NOTE: The IAuthority interface does not include the `uint32` delay. This is an extension of that interface that
@@ -2737,7 +2731,7 @@ Admin delay for a given `target` will be updated to `delay` when `since` is reac
 
 [.contract]
 [[AccessManager]]
-=== `++AccessManager++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/access/manager/AccessManager.sol[{github-icon},role=heading-link]
+=== `++AccessManager++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/access/manager/AccessManager.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2921,7 +2915,7 @@ Therefore we only return true if the call can be performed without any delay. If
 previously set delay (not zero), then the function should return false and the caller should schedule the operation
 for future execution.
 
-If `immediate` is true, the delay can be disregarded and the operation can be immediately executed, otherwise
+If `allowed` is true, the delay can be disregarded and the operation can be immediately executed, otherwise
 the operation can be executed if and only if delay is greater than 0.
 
 NOTE: The IAuthority interface does not include the `uint32` delay. This is an extension of that interface that
@@ -3342,7 +3336,7 @@ The identifier of the public role. Automatically granted to all addresses with n
 
 [.contract]
 [[IAccessManaged]]
-=== `++IAccessManaged++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/access/manager/IAccessManaged.sol[{github-icon},role=heading-link]
+=== `++IAccessManaged++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/access/manager/IAccessManaged.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3429,7 +3423,7 @@ Authority that manages this contract was updated.
 
 [.contract]
 [[AccessManaged]]
-=== `++AccessManaged++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/access/manager/AccessManaged.sol[{github-icon},role=heading-link]
+=== `++AccessManaged++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/access/manager/AccessManaged.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3559,7 +3553,7 @@ is less than 4 bytes long.
 
 [.contract]
 [[AuthorityUtils]]
-=== `++AuthorityUtils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/access/manager/AuthorityUtils.sol[{github-icon},role=heading-link]
+=== `++AuthorityUtils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/access/manager/AuthorityUtils.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity

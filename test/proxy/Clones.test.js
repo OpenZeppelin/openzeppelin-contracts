@@ -31,17 +31,18 @@ async function fixture() {
   const newClone =
     args =>
     async (opts = {}) => {
-      const clone = await (args
-        ? factory.$cloneWithImmutableArgs.staticCall(implementation, args)
-        : factory.$clone.staticCall(implementation)
+      const clone = await (
+        args
+          ? factory.$cloneWithImmutableArgs.staticCall(implementation, args)
+          : factory.$clone.staticCall(implementation)
       ).then(address => implementation.attach(address));
       const tx = await (args
         ? opts.deployValue
           ? factory.$cloneWithImmutableArgs(implementation, args, ethers.Typed.uint256(opts.deployValue))
           : factory.$cloneWithImmutableArgs(implementation, args)
         : opts.deployValue
-        ? factory.$clone(implementation, ethers.Typed.uint256(opts.deployValue))
-        : factory.$clone(implementation));
+          ? factory.$clone(implementation, ethers.Typed.uint256(opts.deployValue))
+          : factory.$clone(implementation));
       if (opts.initData || opts.initValue) {
         await deployer.sendTransaction({ to: clone, value: opts.initValue ?? 0n, data: opts.initData ?? '0x' });
       }
@@ -52,9 +53,10 @@ async function fixture() {
     args =>
     async (opts = {}) => {
       const salt = opts.salt ?? ethers.randomBytes(32);
-      const clone = await (args
-        ? factory.$cloneDeterministicWithImmutableArgs.staticCall(implementation, args, salt)
-        : factory.$cloneDeterministic.staticCall(implementation, salt)
+      const clone = await (
+        args
+          ? factory.$cloneDeterministicWithImmutableArgs.staticCall(implementation, args, salt)
+          : factory.$cloneDeterministic.staticCall(implementation, salt)
       ).then(address => implementation.attach(address));
       const tx = await (args
         ? opts.deployValue
@@ -66,8 +68,8 @@ async function fixture() {
             )
           : factory.$cloneDeterministicWithImmutableArgs(implementation, args, salt)
         : opts.deployValue
-        ? factory.$cloneDeterministic(implementation, salt, ethers.Typed.uint256(opts.deployValue))
-        : factory.$cloneDeterministic(implementation, salt));
+          ? factory.$cloneDeterministic(implementation, salt, ethers.Typed.uint256(opts.deployValue))
+          : factory.$cloneDeterministic(implementation, salt));
       if (opts.initData || opts.initValue) {
         await deployer.sendTransaction({ to: clone, value: opts.initValue ?? 0n, data: opts.initData ?? '0x' });
       }

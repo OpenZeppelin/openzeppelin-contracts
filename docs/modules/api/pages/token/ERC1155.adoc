@@ -65,14 +65,12 @@
 :xref-IERC1155Errors-ERC1155InvalidApprover-address-: xref:interfaces.adoc#IERC1155Errors-ERC1155InvalidApprover-address-
 :xref-IERC1155Errors-ERC1155InvalidOperator-address-: xref:interfaces.adoc#IERC1155Errors-ERC1155InvalidOperator-address-
 :xref-IERC1155Errors-ERC1155InvalidArrayLength-uint256-uint256-: xref:interfaces.adoc#IERC1155Errors-ERC1155InvalidArrayLength-uint256-uint256-
-:IERC165-supportsInterface: pass:normal[xref:utils.adoc#IERC165-supportsInterface-bytes4-[`IERC165.supportsInterface`]]
 :IERC1155MetadataURI-uri: pass:normal[xref:token/ERC1155.adoc#IERC1155MetadataURI-uri-uint256-[`IERC1155MetadataURI.uri`]]
-:IERC1155-balanceOf: pass:normal[xref:token/ERC1155.adoc#IERC1155-balanceOf-address-uint256-[`IERC1155.balanceOf`]]
 :IERC1155-balanceOfBatch: pass:normal[xref:token/ERC1155.adoc#IERC1155-balanceOfBatch-address---uint256---[`IERC1155.balanceOfBatch`]]
-:IERC1155-setApprovalForAll: pass:normal[xref:token/ERC1155.adoc#IERC1155-setApprovalForAll-address-bool-[`IERC1155.setApprovalForAll`]]
-:IERC1155-isApprovedForAll: pass:normal[xref:token/ERC1155.adoc#IERC1155-isApprovedForAll-address-address-[`IERC1155.isApprovedForAll`]]
-:IERC1155-safeTransferFrom: pass:normal[xref:token/ERC1155.adoc#IERC1155-safeTransferFrom-address-address-uint256-uint256-bytes-[`IERC1155.safeTransferFrom`]]
-:IERC1155-safeBatchTransferFrom: pass:normal[xref:token/ERC1155.adoc#IERC1155-safeBatchTransferFrom-address-address-uint256---uint256---bytes-[`IERC1155.safeBatchTransferFrom`]]
+:IERC1155Receiver-onERC1155Received: pass:normal[xref:token/ERC1155.adoc#IERC1155Receiver-onERC1155Received-address-address-uint256-uint256-bytes-[`IERC1155Receiver.onERC1155Received`]]
+:IERC1155Receiver-onERC1155Received: pass:normal[xref:token/ERC1155.adoc#IERC1155Receiver-onERC1155Received-address-address-uint256-uint256-bytes-[`IERC1155Receiver.onERC1155Received`]]
+:IERC1155Receiver-onERC1155BatchReceived: pass:normal[xref:token/ERC1155.adoc#IERC1155Receiver-onERC1155BatchReceived-address-address-uint256---uint256---bytes-[`IERC1155Receiver.onERC1155BatchReceived`]]
+:IERC1155Receiver-onERC1155BatchReceived: pass:normal[xref:token/ERC1155.adoc#IERC1155Receiver-onERC1155BatchReceived-address-address-uint256---uint256---bytes-[`IERC1155Receiver.onERC1155BatchReceived`]]
 :IERC1155Receiver-onERC1155Received: pass:normal[xref:token/ERC1155.adoc#IERC1155Receiver-onERC1155Received-address-address-uint256-uint256-bytes-[`IERC1155Receiver.onERC1155Received`]]
 :IERC1155Receiver-onERC1155BatchReceived: pass:normal[xref:token/ERC1155.adoc#IERC1155Receiver-onERC1155BatchReceived-address-address-uint256---uint256---bytes-[`IERC1155Receiver.onERC1155BatchReceived`]]
 :IERC1155Receiver-onERC1155Received: pass:normal[xref:token/ERC1155.adoc#IERC1155Receiver-onERC1155Received-address-address-uint256-uint256-bytes-[`IERC1155Receiver.onERC1155Received`]]
@@ -191,7 +189,8 @@
 :xref-IERC1155Errors-ERC1155InvalidApprover-address-: xref:interfaces.adoc#IERC1155Errors-ERC1155InvalidApprover-address-
 :xref-IERC1155Errors-ERC1155InvalidOperator-address-: xref:interfaces.adoc#IERC1155Errors-ERC1155InvalidOperator-address-
 :xref-IERC1155Errors-ERC1155InvalidArrayLength-uint256-uint256-: xref:interfaces.adoc#IERC1155Errors-ERC1155InvalidArrayLength-uint256-uint256-
-:ERC1155-_update: pass:normal[xref:token/ERC1155.adoc#ERC1155-_update-address-address-uint256---uint256---[`ERC1155._update`]]
+:IERC1155Receiver-onERC1155Received: pass:normal[xref:token/ERC1155.adoc#IERC1155Receiver-onERC1155Received-address-address-uint256-uint256-bytes-[`IERC1155Receiver.onERC1155Received`]]
+:IERC1155Receiver-onERC1155BatchReceived: pass:normal[xref:token/ERC1155.adoc#IERC1155Receiver-onERC1155BatchReceived-address-address-uint256---uint256---bytes-[`IERC1155Receiver.onERC1155BatchReceived`]]
 :ERC721URIStorage: pass:normal[xref:token/ERC721.adoc#ERC721URIStorage[`ERC721URIStorage`]]
 :xref-ERC1155URIStorage-uri-uint256-: xref:token/ERC1155.adoc#ERC1155URIStorage-uri-uint256-
 :xref-ERC1155URIStorage-_setURI-uint256-string-: xref:token/ERC1155.adoc#ERC1155URIStorage-_setURI-uint256-string-
@@ -228,7 +227,6 @@
 :xref-ERC1155Holder-supportsInterface-bytes4-: xref:token/ERC1155.adoc#ERC1155Holder-supportsInterface-bytes4-
 :xref-ERC1155Holder-onERC1155Received-address-address-uint256-uint256-bytes-: xref:token/ERC1155.adoc#ERC1155Holder-onERC1155Received-address-address-uint256-uint256-bytes-
 :xref-ERC1155Holder-onERC1155BatchReceived-address-address-uint256---uint256---bytes-: xref:token/ERC1155.adoc#ERC1155Holder-onERC1155BatchReceived-address-address-uint256---uint256---bytes-
-:IERC165-supportsInterface: pass:normal[xref:utils.adoc#IERC165-supportsInterface-bytes4-[`IERC165.supportsInterface`]]
 :xref-ERC1155Utils-checkOnERC1155Received-address-address-address-uint256-uint256-bytes-: xref:token/ERC1155.adoc#ERC1155Utils-checkOnERC1155Received-address-address-address-uint256-uint256-bytes-
 :xref-ERC1155Utils-checkOnERC1155BatchReceived-address-address-address-uint256---uint256---bytes-: xref:token/ERC1155.adoc#ERC1155Utils-checkOnERC1155BatchReceived-address-address-address-uint256---uint256---bytes-
 :IERC1155Receiver-onERC1155Received: pass:normal[xref:token/ERC1155.adoc#IERC1155Receiver-onERC1155Received-address-address-uint256-uint256-bytes-[`IERC1155Receiver.onERC1155Received`]]
@@ -275,7 +273,7 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 
 [.contract]
 [[IERC1155]]
-=== `++IERC1155++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/token/ERC1155/IERC1155.sol[{github-icon},role=heading-link]
+=== `++IERC1155++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/token/ERC1155/IERC1155.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -426,7 +424,7 @@ returned by {IERC1155MetadataURI-uri}.
 
 [.contract]
 [[IERC1155MetadataURI]]
-=== `++IERC1155MetadataURI++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/token/ERC1155/extensions/IERC1155MetadataURI.sol[{github-icon},role=heading-link]
+=== `++IERC1155MetadataURI++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/token/ERC1155/extensions/IERC1155MetadataURI.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -523,7 +521,7 @@ clients with the actual token type ID.
 
 [.contract]
 [[ERC1155]]
-=== `++ERC1155++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/token/ERC1155/ERC1155.sol[{github-icon},role=heading-link]
+=== `++ERC1155++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/token/ERC1155/ERC1155.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -637,7 +635,12 @@ See {_setURI}.
 [[ERC1155-supportsInterface-bytes4-]]
 ==== `[.contract-item-name]#++supportsInterface++#++(bytes4 interfaceId) → bool++` [.item-kind]#public#
 
-See {IERC165-supportsInterface}.
+Returns true if this contract implements the interface defined by
+`interfaceId`. See the corresponding
+https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section]
+to learn more about how these ids are created.
+
+This function call must use less than 30 000 gas.
 
 [.contract-item]
 [[ERC1155-uri-uint256-]]
@@ -656,7 +659,7 @@ actual token type ID.
 [[ERC1155-balanceOf-address-uint256-]]
 ==== `[.contract-item-name]#++balanceOf++#++(address account, uint256 id) → uint256++` [.item-kind]#public#
 
-See {IERC1155-balanceOf}.
+Returns the value of tokens of token type `id` owned by `account`.
 
 [.contract-item]
 [[ERC1155-balanceOfBatch-address---uint256---]]
@@ -672,25 +675,61 @@ Requirements:
 [[ERC1155-setApprovalForAll-address-bool-]]
 ==== `[.contract-item-name]#++setApprovalForAll++#++(address operator, bool approved)++` [.item-kind]#public#
 
-See {IERC1155-setApprovalForAll}.
+Grants or revokes permission to `operator` to transfer the caller's tokens, according to `approved`,
+
+Emits an {ApprovalForAll} event.
+
+Requirements:
+
+- `operator` cannot be the zero address.
 
 [.contract-item]
 [[ERC1155-isApprovedForAll-address-address-]]
 ==== `[.contract-item-name]#++isApprovedForAll++#++(address account, address operator) → bool++` [.item-kind]#public#
 
-See {IERC1155-isApprovedForAll}.
+Returns true if `operator` is approved to transfer ``account``'s tokens.
+
+See {setApprovalForAll}.
 
 [.contract-item]
 [[ERC1155-safeTransferFrom-address-address-uint256-uint256-bytes-]]
 ==== `[.contract-item-name]#++safeTransferFrom++#++(address from, address to, uint256 id, uint256 value, bytes data)++` [.item-kind]#public#
 
-See {IERC1155-safeTransferFrom}.
+Transfers a `value` amount of tokens of type `id` from `from` to `to`.
+
+WARNING: This function can potentially allow a reentrancy attack when transferring tokens
+to an untrusted contract, when invoking {IERC1155Receiver-onERC1155Received} on the receiver.
+Ensure to follow the checks-effects-interactions pattern and consider employing
+reentrancy guards when interacting with untrusted contracts.
+
+Emits a {TransferSingle} event.
+
+Requirements:
+
+- `to` cannot be the zero address.
+- If the caller is not `from`, it must have been approved to spend ``from``'s tokens via {setApprovalForAll}.
+- `from` must have a balance of tokens of type `id` of at least `value` amount.
+- If `to` refers to a smart contract, it must implement {IERC1155Receiver-onERC1155Received} and return the
+acceptance magic value.
 
 [.contract-item]
 [[ERC1155-safeBatchTransferFrom-address-address-uint256---uint256---bytes-]]
 ==== `[.contract-item-name]#++safeBatchTransferFrom++#++(address from, address to, uint256[] ids, uint256[] values, bytes data)++` [.item-kind]#public#
 
-See {IERC1155-safeBatchTransferFrom}.
+xref:ROOT:erc1155.adoc#batch-operations[Batched] version of {safeTransferFrom}.
+
+WARNING: This function can potentially allow a reentrancy attack when transferring tokens
+to an untrusted contract, when invoking {IERC1155Receiver-onERC1155BatchReceived} on the receiver.
+Ensure to follow the checks-effects-interactions pattern and consider employing
+reentrancy guards when interacting with untrusted contracts.
+
+Emits either a {TransferSingle} or a {TransferBatch} event, depending on the length of the array arguments.
+
+Requirements:
+
+- `ids` and `values` must have the same length.
+- If `to` refers to a smart contract, it must implement {IERC1155Receiver-onERC1155BatchReceived} and return the
+acceptance magic value.
 
 [.contract-item]
 [[ERC1155-_update-address-address-uint256---uint256---]]
@@ -848,7 +887,7 @@ Requirements:
 
 [.contract]
 [[IERC1155Receiver]]
-=== `++IERC1155Receiver++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/token/ERC1155/IERC1155Receiver.sol[{github-icon},role=heading-link]
+=== `++IERC1155Receiver++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/token/ERC1155/IERC1155Receiver.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -901,7 +940,7 @@ NOTE: To accept the transfer(s), this must return
 
 [.contract]
 [[ERC1155Pausable]]
-=== `++ERC1155Pausable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/token/ERC1155/extensions/ERC1155Pausable.sol[{github-icon},role=heading-link]
+=== `++ERC1155Pausable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/token/ERC1155/extensions/ERC1155Pausable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1057,7 +1096,7 @@ Requirements:
 
 [.contract]
 [[ERC1155Burnable]]
-=== `++ERC1155Burnable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/token/ERC1155/extensions/ERC1155Burnable.sol[{github-icon},role=heading-link]
+=== `++ERC1155Burnable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/token/ERC1155/extensions/ERC1155Burnable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1190,7 +1229,7 @@ own tokens and those that they have been approved to use.
 
 [.contract]
 [[ERC1155Supply]]
-=== `++ERC1155Supply++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/token/ERC1155/extensions/ERC1155Supply.sol[{github-icon},role=heading-link]
+=== `++ERC1155Supply++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/token/ERC1155/extensions/ERC1155Supply.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1335,7 +1374,18 @@ Indicates whether any token exist with a given id, or not.
 [[ERC1155Supply-_update-address-address-uint256---uint256---]]
 ==== `[.contract-item-name]#++_update++#++(address from, address to, uint256[] ids, uint256[] values)++` [.item-kind]#internal#
 
-See {ERC1155-_update}.
+Transfers a `value` amount of tokens of type `id` from `from` to `to`. Will mint (or burn) if `from`
+(or `to`) is the zero address.
+
+Emits a {TransferSingle} event if the arrays contain one element, and {TransferBatch} otherwise.
+
+Requirements:
+
+- If `to` refers to a smart contract, it must implement either {IERC1155Receiver-onERC1155Received}
+  or {IERC1155Receiver-onERC1155BatchReceived} and return the acceptance magic value.
+- `ids` and `values` must have the same length.
+
+NOTE: The ERC-1155 acceptance check is not performed in this function. See {_updateWithAcceptanceCheck} instead.
 
 :uri: pass:normal[xref:#ERC1155URIStorage-uri-uint256-[`++uri++`]]
 :_setURI: pass:normal[xref:#ERC1155URIStorage-_setURI-uint256-string-[`++_setURI++`]]
@@ -1347,7 +1397,7 @@ See {ERC1155-_update}.
 
 [.contract]
 [[ERC1155URIStorage]]
-=== `++ERC1155URIStorage++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/token/ERC1155/extensions/ERC1155URIStorage.sol[{github-icon},role=heading-link]
+=== `++ERC1155URIStorage++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/token/ERC1155/extensions/ERC1155URIStorage.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1505,7 +1555,7 @@ Sets `baseURI` as the `_baseURI` for all tokens
 
 [.contract]
 [[ERC1155Holder]]
-=== `++ERC1155Holder++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/token/ERC1155/utils/ERC1155Holder.sol[{github-icon},role=heading-link]
+=== `++ERC1155Holder++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/token/ERC1155/utils/ERC1155Holder.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1539,7 +1589,12 @@ stuck.
 [[ERC1155Holder-supportsInterface-bytes4-]]
 ==== `[.contract-item-name]#++supportsInterface++#++(bytes4 interfaceId) → bool++` [.item-kind]#public#
 
-See {IERC165-supportsInterface}.
+Returns true if this contract implements the interface defined by
+`interfaceId`. See the corresponding
+https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section]
+to learn more about how these ids are created.
+
+This function call must use less than 30 000 gas.
 
 [.contract-item]
 [[ERC1155Holder-onERC1155Received-address-address-uint256-uint256-bytes-]]
@@ -1557,7 +1612,7 @@ See {IERC165-supportsInterface}.
 
 [.contract]
 [[ERC1155Utils]]
-=== `++ERC1155Utils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/token/ERC1155/utils/ERC1155Utils.sol[{github-icon},role=heading-link]
+=== `++ERC1155Utils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/token/ERC1155/utils/ERC1155Utils.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity

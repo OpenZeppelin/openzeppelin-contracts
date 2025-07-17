@@ -1,10 +1,8 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.3.0) (governance/extensions/GovernorSuperQuorum.sol)
-pragma solidity ^0.8.20;
+// OpenZeppelin Contracts (last updated v5.4.0) (governance/extensions/GovernorSuperQuorum.sol)
+pragma solidity ^0.8.24;
 
 import {Governor} from "../Governor.sol";
-import {SafeCast} from "../../utils/math/SafeCast.sol";
-import {Checkpoints} from "../../utils/structs/Checkpoints.sol";
 
 /**
  * @dev Extension of {Governor} with a super quorum. Proposals that meet the super quorum (and have a majority of for

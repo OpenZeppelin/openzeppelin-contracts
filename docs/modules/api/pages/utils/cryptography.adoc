@@ -1,0 +1,2456 @@
+:github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
+:ECDSA: pass:normal[xref:utils/cryptography.adoc#ECDSA[`ECDSA`]]
+:MessageHashUtils: pass:normal[xref:utils/cryptography.adoc#MessageHashUtils[`MessageHashUtils`]]
+:P256: pass:normal[xref:utils/cryptography.adoc#P256[`P256`]]
+:RSA: pass:normal[xref:utils/cryptography.adoc#RSA[`RSA`]]
+:SignatureChecker: pass:normal[xref:utils/cryptography.adoc#SignatureChecker[`SignatureChecker`]]
+:Hashes: pass:normal[xref:utils/cryptography.adoc#Hashes[`Hashes`]]
+:MerkleProof: pass:normal[xref:utils/cryptography.adoc#MerkleProof[`MerkleProof`]]
+:EIP712: pass:normal[xref:utils/cryptography.adoc#EIP712[`EIP712`]]
+:ERC7739Utils: pass:normal[xref:utils/cryptography.adoc#ERC7739Utils[`ERC7739Utils`]]
+:AbstractSigner: pass:normal[xref:utils/cryptography.adoc#AbstractSigner[`AbstractSigner`]]
+:ERC7739: pass:normal[xref:utils/cryptography.adoc#ERC7739[`ERC7739`]]
+:ERC7739Utils: pass:normal[xref:utils/cryptography.adoc#ERC7739Utils[`ERC7739Utils`]]
+:SignerECDSA: pass:normal[xref:utils/cryptography.adoc#SignerECDSA[`SignerECDSA`]]
+:SignerP256: pass:normal[xref:utils/cryptography.adoc#SignerP256[`SignerP256`]]
+:SignerRSA: pass:normal[xref:utils/cryptography.adoc#SignerRSA[`SignerRSA`]]
+:AbstractSigner: pass:normal[xref:utils/cryptography.adoc#AbstractSigner[`AbstractSigner`]]
+:SignerERC7702: pass:normal[xref:utils/cryptography.adoc#SignerERC7702[`SignerERC7702`]]
+:AbstractSigner: pass:normal[xref:utils/cryptography.adoc#AbstractSigner[`AbstractSigner`]]
+:SignerERC7913: pass:normal[xref:utils/cryptography.adoc#SignerERC7913[`SignerERC7913`]]
+:MultiSignerERC7913: pass:normal[xref:utils/cryptography.adoc#MultiSignerERC7913[`MultiSignerERC7913`]]
+:MultiSignerERC7913Weighted: pass:normal[xref:utils/cryptography.adoc#MultiSignerERC7913Weighted[`MultiSignerERC7913Weighted`]]
+:AbstractSigner: pass:normal[xref:utils/cryptography.adoc#AbstractSigner[`AbstractSigner`]]
+:ERC7913P256Verifier: pass:normal[xref:utils/cryptography.adoc#ERC7913P256Verifier[`ERC7913P256Verifier`]]
+:ERC7913RSAVerifier: pass:normal[xref:utils/cryptography.adoc#ERC7913RSAVerifier[`ERC7913RSAVerifier`]]
+:xref-ECDSA-tryRecover-bytes32-bytes-: xref:utils/cryptography.adoc#ECDSA-tryRecover-bytes32-bytes-
+:xref-ECDSA-recover-bytes32-bytes-: xref:utils/cryptography.adoc#ECDSA-recover-bytes32-bytes-
+:xref-ECDSA-tryRecover-bytes32-bytes32-bytes32-: xref:utils/cryptography.adoc#ECDSA-tryRecover-bytes32-bytes32-bytes32-
+:xref-ECDSA-recover-bytes32-bytes32-bytes32-: xref:utils/cryptography.adoc#ECDSA-recover-bytes32-bytes32-bytes32-
+:xref-ECDSA-tryRecover-bytes32-uint8-bytes32-bytes32-: xref:utils/cryptography.adoc#ECDSA-tryRecover-bytes32-uint8-bytes32-bytes32-
+:xref-ECDSA-recover-bytes32-uint8-bytes32-bytes32-: xref:utils/cryptography.adoc#ECDSA-recover-bytes32-uint8-bytes32-bytes32-
+:xref-ECDSA-ECDSAInvalidSignature--: xref:utils/cryptography.adoc#ECDSA-ECDSAInvalidSignature--
+:xref-ECDSA-ECDSAInvalidSignatureLength-uint256-: xref:utils/cryptography.adoc#ECDSA-ECDSAInvalidSignatureLength-uint256-
+:xref-ECDSA-ECDSAInvalidSignatureS-bytes32-: xref:utils/cryptography.adoc#ECDSA-ECDSAInvalidSignatureS-bytes32-
+:MessageHashUtils-toEthSignedMessageHash: pass:normal[xref:utils/cryptography.adoc#MessageHashUtils-toEthSignedMessageHash-bytes-[`MessageHashUtils.toEthSignedMessageHash`]]
+:MessageHashUtils-toEthSignedMessageHash: pass:normal[xref:utils/cryptography.adoc#MessageHashUtils-toEthSignedMessageHash-bytes-[`MessageHashUtils.toEthSignedMessageHash`]]
+:ECDSA-tryRecover: pass:normal[xref:utils/cryptography.adoc#ECDSA-tryRecover-bytes32-uint8-bytes32-bytes32-[`ECDSA.tryRecover`]]
+:ECDSA-recover: pass:normal[xref:utils/cryptography.adoc#ECDSA-recover-bytes32-uint8-bytes32-bytes32-[`ECDSA.recover`]]
+:ECDSA-tryRecover: pass:normal[xref:utils/cryptography.adoc#ECDSA-tryRecover-bytes32-uint8-bytes32-bytes32-[`ECDSA.tryRecover`]]
+:ECDSA-recover: pass:normal[xref:utils/cryptography.adoc#ECDSA-recover-bytes32-uint8-bytes32-bytes32-[`ECDSA.recover`]]
+:ECDSA: pass:normal[xref:utils/cryptography.adoc#ECDSA[`ECDSA`]]
+:xref-MessageHashUtils-toEthSignedMessageHash-bytes32-: xref:utils/cryptography.adoc#MessageHashUtils-toEthSignedMessageHash-bytes32-
+:xref-MessageHashUtils-toEthSignedMessageHash-bytes-: xref:utils/cryptography.adoc#MessageHashUtils-toEthSignedMessageHash-bytes-
+:xref-MessageHashUtils-toDataWithIntendedValidatorHash-address-bytes-: xref:utils/cryptography.adoc#MessageHashUtils-toDataWithIntendedValidatorHash-address-bytes-
+:xref-MessageHashUtils-toDataWithIntendedValidatorHash-address-bytes32-: xref:utils/cryptography.adoc#MessageHashUtils-toDataWithIntendedValidatorHash-address-bytes32-
+:xref-MessageHashUtils-toTypedDataHash-bytes32-bytes32-: xref:utils/cryptography.adoc#MessageHashUtils-toTypedDataHash-bytes32-bytes32-
+:ECDSA-recover: pass:normal[xref:utils/cryptography.adoc#ECDSA-recover-bytes32-uint8-bytes32-bytes32-[`ECDSA.recover`]]
+:ECDSA-recover: pass:normal[xref:utils/cryptography.adoc#ECDSA-recover-bytes32-uint8-bytes32-bytes32-[`ECDSA.recover`]]
+:ECDSA-recover: pass:normal[xref:utils/cryptography.adoc#ECDSA-recover-bytes32-uint8-bytes32-bytes32-[`ECDSA.recover`]]
+:ECDSA-recover: pass:normal[xref:utils/cryptography.adoc#ECDSA-recover-bytes32-uint8-bytes32-bytes32-[`ECDSA.recover`]]
+:xref-P256-verify-bytes32-bytes32-bytes32-bytes32-bytes32-: xref:utils/cryptography.adoc#P256-verify-bytes32-bytes32-bytes32-bytes32-bytes32-
+:xref-P256-verifyNative-bytes32-bytes32-bytes32-bytes32-bytes32-: xref:utils/cryptography.adoc#P256-verifyNative-bytes32-bytes32-bytes32-bytes32-bytes32-
+:xref-P256-verifySolidity-bytes32-bytes32-bytes32-bytes32-bytes32-: xref:utils/cryptography.adoc#P256-verifySolidity-bytes32-bytes32-bytes32-bytes32-bytes32-
+:xref-P256-recovery-bytes32-uint8-bytes32-bytes32-: xref:utils/cryptography.adoc#P256-recovery-bytes32-uint8-bytes32-bytes32-
+:xref-P256-isValidPublicKey-bytes32-bytes32-: xref:utils/cryptography.adoc#P256-isValidPublicKey-bytes32-bytes32-
+:xref-P256-GX-uint256: xref:utils/cryptography.adoc#P256-GX-uint256
+:xref-P256-GY-uint256: xref:utils/cryptography.adoc#P256-GY-uint256
+:xref-P256-P-uint256: xref:utils/cryptography.adoc#P256-P-uint256
+:xref-P256-N-uint256: xref:utils/cryptography.adoc#P256-N-uint256
+:xref-P256-A-uint256: xref:utils/cryptography.adoc#P256-A-uint256
+:xref-P256-B-uint256: xref:utils/cryptography.adoc#P256-B-uint256
+:xref-RSA-pkcs1Sha256-bytes-bytes-bytes-bytes-: xref:utils/cryptography.adoc#RSA-pkcs1Sha256-bytes-bytes-bytes-bytes-
+:xref-RSA-pkcs1Sha256-bytes32-bytes-bytes-bytes-: xref:utils/cryptography.adoc#RSA-pkcs1Sha256-bytes32-bytes-bytes-bytes-
+:xref-SignatureChecker-isValidSignatureNow-address-bytes32-bytes-: xref:utils/cryptography.adoc#SignatureChecker-isValidSignatureNow-address-bytes32-bytes-
+:xref-SignatureChecker-isValidERC1271SignatureNow-address-bytes32-bytes-: xref:utils/cryptography.adoc#SignatureChecker-isValidERC1271SignatureNow-address-bytes32-bytes-
+:xref-SignatureChecker-isValidSignatureNow-bytes-bytes32-bytes-: xref:utils/cryptography.adoc#SignatureChecker-isValidSignatureNow-bytes-bytes32-bytes-
+:xref-SignatureChecker-areValidSignaturesNow-bytes32-bytes---bytes---: xref:utils/cryptography.adoc#SignatureChecker-areValidSignaturesNow-bytes32-bytes---bytes---
+:IERC7913SignatureVerifier: pass:normal[xref:interfaces.adoc#IERC7913SignatureVerifier[`IERC7913SignatureVerifier`]]
+:xref-Hashes-commutativeKeccak256-bytes32-bytes32-: xref:utils/cryptography.adoc#Hashes-commutativeKeccak256-bytes32-bytes32-
+:xref-Hashes-efficientKeccak256-bytes32-bytes32-: xref:utils/cryptography.adoc#Hashes-efficientKeccak256-bytes32-bytes32-
+:xref-MerkleProof-verify-bytes32---bytes32-bytes32-: xref:utils/cryptography.adoc#MerkleProof-verify-bytes32---bytes32-bytes32-
+:xref-MerkleProof-processProof-bytes32---bytes32-: xref:utils/cryptography.adoc#MerkleProof-processProof-bytes32---bytes32-
+:xref-MerkleProof-verify-bytes32---bytes32-bytes32-function--bytes32-bytes32--view-returns--bytes32--: xref:utils/cryptography.adoc#MerkleProof-verify-bytes32---bytes32-bytes32-function--bytes32-bytes32--view-returns--bytes32--
+:xref-MerkleProof-processProof-bytes32---bytes32-function--bytes32-bytes32--view-returns--bytes32--: xref:utils/cryptography.adoc#MerkleProof-processProof-bytes32---bytes32-function--bytes32-bytes32--view-returns--bytes32--
+:xref-MerkleProof-verifyCalldata-bytes32---bytes32-bytes32-: xref:utils/cryptography.adoc#MerkleProof-verifyCalldata-bytes32---bytes32-bytes32-
+:xref-MerkleProof-processProofCalldata-bytes32---bytes32-: xref:utils/cryptography.adoc#MerkleProof-processProofCalldata-bytes32---bytes32-
+:xref-MerkleProof-verifyCalldata-bytes32---bytes32-bytes32-function--bytes32-bytes32--view-returns--bytes32--: xref:utils/cryptography.adoc#MerkleProof-verifyCalldata-bytes32---bytes32-bytes32-function--bytes32-bytes32--view-returns--bytes32--
+:xref-MerkleProof-processProofCalldata-bytes32---bytes32-function--bytes32-bytes32--view-returns--bytes32--: xref:utils/cryptography.adoc#MerkleProof-processProofCalldata-bytes32---bytes32-function--bytes32-bytes32--view-returns--bytes32--
+:xref-MerkleProof-multiProofVerify-bytes32---bool---bytes32-bytes32---: xref:utils/cryptography.adoc#MerkleProof-multiProofVerify-bytes32---bool---bytes32-bytes32---
+:xref-MerkleProof-processMultiProof-bytes32---bool---bytes32---: xref:utils/cryptography.adoc#MerkleProof-processMultiProof-bytes32---bool---bytes32---
+:xref-MerkleProof-multiProofVerify-bytes32---bool---bytes32-bytes32---function--bytes32-bytes32--view-returns--bytes32--: xref:utils/cryptography.adoc#MerkleProof-multiProofVerify-bytes32---bool---bytes32-bytes32---function--bytes32-bytes32--view-returns--bytes32--
+:xref-MerkleProof-processMultiProof-bytes32---bool---bytes32---function--bytes32-bytes32--view-returns--bytes32--: xref:utils/cryptography.adoc#MerkleProof-processMultiProof-bytes32---bool---bytes32---function--bytes32-bytes32--view-returns--bytes32--
+:xref-MerkleProof-multiProofVerifyCalldata-bytes32---bool---bytes32-bytes32---: xref:utils/cryptography.adoc#MerkleProof-multiProofVerifyCalldata-bytes32---bool---bytes32-bytes32---
+:xref-MerkleProof-processMultiProofCalldata-bytes32---bool---bytes32---: xref:utils/cryptography.adoc#MerkleProof-processMultiProofCalldata-bytes32---bool---bytes32---
+:xref-MerkleProof-multiProofVerifyCalldata-bytes32---bool---bytes32-bytes32---function--bytes32-bytes32--view-returns--bytes32--: xref:utils/cryptography.adoc#MerkleProof-multiProofVerifyCalldata-bytes32---bool---bytes32-bytes32---function--bytes32-bytes32--view-returns--bytes32--
+:xref-MerkleProof-processMultiProofCalldata-bytes32---bool---bytes32---function--bytes32-bytes32--view-returns--bytes32--: xref:utils/cryptography.adoc#MerkleProof-processMultiProofCalldata-bytes32---bool---bytes32---function--bytes32-bytes32--view-returns--bytes32--
+:xref-MerkleProof-MerkleProofInvalidMultiproof--: xref:utils/cryptography.adoc#MerkleProof-MerkleProofInvalidMultiproof--
+:xref-EIP712-constructor-string-string-: xref:utils/cryptography.adoc#EIP712-constructor-string-string-
+:xref-EIP712-_domainSeparatorV4--: xref:utils/cryptography.adoc#EIP712-_domainSeparatorV4--
+:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils/cryptography.adoc#EIP712-_hashTypedDataV4-bytes32-
+:xref-EIP712-eip712Domain--: xref:utils/cryptography.adoc#EIP712-eip712Domain--
+:xref-EIP712-_EIP712Name--: xref:utils/cryptography.adoc#EIP712-_EIP712Name--
+:xref-EIP712-_EIP712Version--: xref:utils/cryptography.adoc#EIP712-_EIP712Version--
+:xref-IERC5267-EIP712DomainChanged--: xref:interfaces.adoc#IERC5267-EIP712DomainChanged--
+:ECDSA-recover: pass:normal[xref:utils/cryptography.adoc#ECDSA-recover-bytes32-uint8-bytes32-bytes32-[`ECDSA.recover`]]
+:xref-ERC7739Utils-encodeTypedDataSig-bytes-bytes32-bytes32-string-: xref:utils/cryptography.adoc#ERC7739Utils-encodeTypedDataSig-bytes-bytes32-bytes32-string-
+:xref-ERC7739Utils-decodeTypedDataSig-bytes-: xref:utils/cryptography.adoc#ERC7739Utils-decodeTypedDataSig-bytes-
+:xref-ERC7739Utils-personalSignStructHash-bytes32-: xref:utils/cryptography.adoc#ERC7739Utils-personalSignStructHash-bytes32-
+:xref-ERC7739Utils-typedDataSignStructHash-string-string-bytes32-bytes-: xref:utils/cryptography.adoc#ERC7739Utils-typedDataSignStructHash-string-string-bytes32-bytes-
+:xref-ERC7739Utils-typedDataSignStructHash-string-bytes32-bytes-: xref:utils/cryptography.adoc#ERC7739Utils-typedDataSignStructHash-string-bytes32-bytes-
+:xref-ERC7739Utils-typedDataSignTypehash-string-string-: xref:utils/cryptography.adoc#ERC7739Utils-typedDataSignTypehash-string-string-
+:xref-ERC7739Utils-decodeContentsDescr-string-: xref:utils/cryptography.adoc#ERC7739Utils-decodeContentsDescr-string-
+:EIP712-_domainSeparatorV4: pass:normal[xref:utils/cryptography.adoc#EIP712-_domainSeparatorV4--[`EIP712._domainSeparatorV4`]]
+:MessageHashUtils-toTypedDataHash: pass:normal[xref:utils/cryptography.adoc#MessageHashUtils-toTypedDataHash-bytes32-bytes32-[`MessageHashUtils.toTypedDataHash`]]
+:MessageHashUtils-toTypedDataHash: pass:normal[xref:utils/cryptography.adoc#MessageHashUtils-toTypedDataHash-bytes32-bytes32-[`MessageHashUtils.toTypedDataHash`]]
+:xref-AbstractSigner-_rawSignatureValidation-bytes32-bytes-: xref:utils/cryptography.adoc#AbstractSigner-_rawSignatureValidation-bytes32-bytes-
+:ERC7739Utils: pass:normal[xref:utils/cryptography.adoc#ERC7739Utils[`ERC7739Utils`]]
+:xref-ERC7739-isValidSignature-bytes32-bytes-: xref:utils/cryptography.adoc#ERC7739-isValidSignature-bytes32-bytes-
+:xref-EIP712-_domainSeparatorV4--: xref:utils/cryptography.adoc#EIP712-_domainSeparatorV4--
+:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils/cryptography.adoc#EIP712-_hashTypedDataV4-bytes32-
+:xref-EIP712-eip712Domain--: xref:utils/cryptography.adoc#EIP712-eip712Domain--
+:xref-EIP712-_EIP712Name--: xref:utils/cryptography.adoc#EIP712-_EIP712Name--
+:xref-EIP712-_EIP712Version--: xref:utils/cryptography.adoc#EIP712-_EIP712Version--
+:xref-AbstractSigner-_rawSignatureValidation-bytes32-bytes-: xref:utils/cryptography.adoc#AbstractSigner-_rawSignatureValidation-bytes32-bytes-
+:xref-IERC5267-EIP712DomainChanged--: xref:interfaces.adoc#IERC5267-EIP712DomainChanged--
+:AbstractSigner: pass:normal[xref:utils/cryptography.adoc#AbstractSigner[`AbstractSigner`]]
+:Account: pass:normal[xref:account.adoc#Account[`Account`]]
+:xref-SignerECDSA-constructor-address-: xref:utils/cryptography.adoc#SignerECDSA-constructor-address-
+:xref-SignerECDSA-_setSigner-address-: xref:utils/cryptography.adoc#SignerECDSA-_setSigner-address-
+:xref-SignerECDSA-signer--: xref:utils/cryptography.adoc#SignerECDSA-signer--
+:xref-SignerECDSA-_rawSignatureValidation-bytes32-bytes-: xref:utils/cryptography.adoc#SignerECDSA-_rawSignatureValidation-bytes32-bytes-
+:AbstractSigner: pass:normal[xref:utils/cryptography.adoc#AbstractSigner[`AbstractSigner`]]
+:Account: pass:normal[xref:account.adoc#Account[`Account`]]
+:xref-SignerP256-constructor-bytes32-bytes32-: xref:utils/cryptography.adoc#SignerP256-constructor-bytes32-bytes32-
+:xref-SignerP256-_setSigner-bytes32-bytes32-: xref:utils/cryptography.adoc#SignerP256-_setSigner-bytes32-bytes32-
+:xref-SignerP256-signer--: xref:utils/cryptography.adoc#SignerP256-signer--
+:xref-SignerP256-_rawSignatureValidation-bytes32-bytes-: xref:utils/cryptography.adoc#SignerP256-_rawSignatureValidation-bytes32-bytes-
+:xref-SignerP256-SignerP256InvalidPublicKey-bytes32-bytes32-: xref:utils/cryptography.adoc#SignerP256-SignerP256InvalidPublicKey-bytes32-bytes32-
+:AbstractSigner: pass:normal[xref:utils/cryptography.adoc#AbstractSigner[`AbstractSigner`]]
+:Account: pass:normal[xref:account.adoc#Account[`Account`]]
+:xref-SignerRSA-constructor-bytes-bytes-: xref:utils/cryptography.adoc#SignerRSA-constructor-bytes-bytes-
+:xref-SignerRSA-_setSigner-bytes-bytes-: xref:utils/cryptography.adoc#SignerRSA-_setSigner-bytes-bytes-
+:xref-SignerRSA-signer--: xref:utils/cryptography.adoc#SignerRSA-signer--
+:xref-SignerRSA-_rawSignatureValidation-bytes32-bytes-: xref:utils/cryptography.adoc#SignerRSA-_rawSignatureValidation-bytes32-bytes-
+:AbstractSigner-_rawSignatureValidation: pass:normal[xref:utils/cryptography.adoc#AbstractSigner-_rawSignatureValidation-bytes32-bytes-[`AbstractSigner._rawSignatureValidation`]]
+:AbstractSigner: pass:normal[xref:utils/cryptography.adoc#AbstractSigner[`AbstractSigner`]]
+:xref-SignerERC7702-_rawSignatureValidation-bytes32-bytes-: xref:utils/cryptography.adoc#SignerERC7702-_rawSignatureValidation-bytes32-bytes-
+:AbstractSigner: pass:normal[xref:utils/cryptography.adoc#AbstractSigner[`AbstractSigner`]]
+:Account: pass:normal[xref:account.adoc#Account[`Account`]]
+:xref-SignerERC7913-constructor-bytes-: xref:utils/cryptography.adoc#SignerERC7913-constructor-bytes-
+:xref-SignerERC7913-signer--: xref:utils/cryptography.adoc#SignerERC7913-signer--
+:xref-SignerERC7913-_setSigner-bytes-: xref:utils/cryptography.adoc#SignerERC7913-_setSigner-bytes-
+:xref-SignerERC7913-_rawSignatureValidation-bytes32-bytes-: xref:utils/cryptography.adoc#SignerERC7913-_rawSignatureValidation-bytes32-bytes-
+:AbstractSigner: pass:normal[xref:utils/cryptography.adoc#AbstractSigner[`AbstractSigner`]]
+:xref-MultiSignerERC7913-constructor-bytes---uint64-: xref:utils/cryptography.adoc#MultiSignerERC7913-constructor-bytes---uint64-
+:xref-MultiSignerERC7913-getSigners-uint64-uint64-: xref:utils/cryptography.adoc#MultiSignerERC7913-getSigners-uint64-uint64-
+:xref-MultiSignerERC7913-getSignerCount--: xref:utils/cryptography.adoc#MultiSignerERC7913-getSignerCount--
+:xref-MultiSignerERC7913-isSigner-bytes-: xref:utils/cryptography.adoc#MultiSignerERC7913-isSigner-bytes-
+:xref-MultiSignerERC7913-threshold--: xref:utils/cryptography.adoc#MultiSignerERC7913-threshold--
+:xref-MultiSignerERC7913-_addSigners-bytes---: xref:utils/cryptography.adoc#MultiSignerERC7913-_addSigners-bytes---
+:xref-MultiSignerERC7913-_removeSigners-bytes---: xref:utils/cryptography.adoc#MultiSignerERC7913-_removeSigners-bytes---
+:xref-MultiSignerERC7913-_setThreshold-uint64-: xref:utils/cryptography.adoc#MultiSignerERC7913-_setThreshold-uint64-
+:xref-MultiSignerERC7913-_validateReachableThreshold--: xref:utils/cryptography.adoc#MultiSignerERC7913-_validateReachableThreshold--
+:xref-MultiSignerERC7913-_rawSignatureValidation-bytes32-bytes-: xref:utils/cryptography.adoc#MultiSignerERC7913-_rawSignatureValidation-bytes32-bytes-
+:xref-MultiSignerERC7913-_validateSignatures-bytes32-bytes---bytes---: xref:utils/cryptography.adoc#MultiSignerERC7913-_validateSignatures-bytes32-bytes---bytes---
+:xref-MultiSignerERC7913-_validateThreshold-bytes---: xref:utils/cryptography.adoc#MultiSignerERC7913-_validateThreshold-bytes---
+:xref-MultiSignerERC7913-ERC7913SignerAdded-bytes-: xref:utils/cryptography.adoc#MultiSignerERC7913-ERC7913SignerAdded-bytes-
+:xref-MultiSignerERC7913-ERC7913SignerRemoved-bytes-: xref:utils/cryptography.adoc#MultiSignerERC7913-ERC7913SignerRemoved-bytes-
+:xref-MultiSignerERC7913-ERC7913ThresholdSet-uint64-: xref:utils/cryptography.adoc#MultiSignerERC7913-ERC7913ThresholdSet-uint64-
+:xref-MultiSignerERC7913-MultiSignerERC7913AlreadyExists-bytes-: xref:utils/cryptography.adoc#MultiSignerERC7913-MultiSignerERC7913AlreadyExists-bytes-
+:xref-MultiSignerERC7913-MultiSignerERC7913NonexistentSigner-bytes-: xref:utils/cryptography.adoc#MultiSignerERC7913-MultiSignerERC7913NonexistentSigner-bytes-
+:xref-MultiSignerERC7913-MultiSignerERC7913InvalidSigner-bytes-: xref:utils/cryptography.adoc#MultiSignerERC7913-MultiSignerERC7913InvalidSigner-bytes-
+:xref-MultiSignerERC7913-MultiSignerERC7913ZeroThreshold--: xref:utils/cryptography.adoc#MultiSignerERC7913-MultiSignerERC7913ZeroThreshold--
+:xref-MultiSignerERC7913-MultiSignerERC7913UnreachableThreshold-uint64-uint64-: xref:utils/cryptography.adoc#MultiSignerERC7913-MultiSignerERC7913UnreachableThreshold-uint64-uint64-
+:MultiSignerERC7913: pass:normal[xref:utils/cryptography.adoc#MultiSignerERC7913[`MultiSignerERC7913`]]
+:xref-MultiSignerERC7913Weighted-constructor-bytes---uint64---uint64-: xref:utils/cryptography.adoc#MultiSignerERC7913Weighted-constructor-bytes---uint64---uint64-
+:xref-MultiSignerERC7913Weighted-signerWeight-bytes-: xref:utils/cryptography.adoc#MultiSignerERC7913Weighted-signerWeight-bytes-
+:xref-MultiSignerERC7913Weighted-totalWeight--: xref:utils/cryptography.adoc#MultiSignerERC7913Weighted-totalWeight--
+:xref-MultiSignerERC7913Weighted-_setSignerWeights-bytes---uint64---: xref:utils/cryptography.adoc#MultiSignerERC7913Weighted-_setSignerWeights-bytes---uint64---
+:xref-MultiSignerERC7913Weighted-_addSigners-bytes---: xref:utils/cryptography.adoc#MultiSignerERC7913Weighted-_addSigners-bytes---
+:xref-MultiSignerERC7913Weighted-_removeSigners-bytes---: xref:utils/cryptography.adoc#MultiSignerERC7913Weighted-_removeSigners-bytes---
+:xref-MultiSignerERC7913Weighted-_validateReachableThreshold--: xref:utils/cryptography.adoc#MultiSignerERC7913Weighted-_validateReachableThreshold--
+:xref-MultiSignerERC7913Weighted-_validateThreshold-bytes---: xref:utils/cryptography.adoc#MultiSignerERC7913Weighted-_validateThreshold-bytes---
+:xref-MultiSignerERC7913-getSigners-uint64-uint64-: xref:utils/cryptography.adoc#MultiSignerERC7913-getSigners-uint64-uint64-
+:xref-MultiSignerERC7913-getSignerCount--: xref:utils/cryptography.adoc#MultiSignerERC7913-getSignerCount--
+:xref-MultiSignerERC7913-isSigner-bytes-: xref:utils/cryptography.adoc#MultiSignerERC7913-isSigner-bytes-
+:xref-MultiSignerERC7913-threshold--: xref:utils/cryptography.adoc#MultiSignerERC7913-threshold--
+:xref-MultiSignerERC7913-_setThreshold-uint64-: xref:utils/cryptography.adoc#MultiSignerERC7913-_setThreshold-uint64-
+:xref-MultiSignerERC7913-_rawSignatureValidation-bytes32-bytes-: xref:utils/cryptography.adoc#MultiSignerERC7913-_rawSignatureValidation-bytes32-bytes-
+:xref-MultiSignerERC7913-_validateSignatures-bytes32-bytes---bytes---: xref:utils/cryptography.adoc#MultiSignerERC7913-_validateSignatures-bytes32-bytes---bytes---
+:xref-MultiSignerERC7913Weighted-ERC7913SignerWeightChanged-bytes-uint64-: xref:utils/cryptography.adoc#MultiSignerERC7913Weighted-ERC7913SignerWeightChanged-bytes-uint64-
+:xref-MultiSignerERC7913-ERC7913SignerAdded-bytes-: xref:utils/cryptography.adoc#MultiSignerERC7913-ERC7913SignerAdded-bytes-
+:xref-MultiSignerERC7913-ERC7913SignerRemoved-bytes-: xref:utils/cryptography.adoc#MultiSignerERC7913-ERC7913SignerRemoved-bytes-
+:xref-MultiSignerERC7913-ERC7913ThresholdSet-uint64-: xref:utils/cryptography.adoc#MultiSignerERC7913-ERC7913ThresholdSet-uint64-
+:xref-MultiSignerERC7913Weighted-MultiSignerERC7913WeightedInvalidWeight-bytes-uint64-: xref:utils/cryptography.adoc#MultiSignerERC7913Weighted-MultiSignerERC7913WeightedInvalidWeight-bytes-uint64-
+:xref-MultiSignerERC7913Weighted-MultiSignerERC7913WeightedMismatchedLength--: xref:utils/cryptography.adoc#MultiSignerERC7913Weighted-MultiSignerERC7913WeightedMismatchedLength--
+:xref-MultiSignerERC7913-MultiSignerERC7913AlreadyExists-bytes-: xref:utils/cryptography.adoc#MultiSignerERC7913-MultiSignerERC7913AlreadyExists-bytes-
+:xref-MultiSignerERC7913-MultiSignerERC7913NonexistentSigner-bytes-: xref:utils/cryptography.adoc#MultiSignerERC7913-MultiSignerERC7913NonexistentSigner-bytes-
+:xref-MultiSignerERC7913-MultiSignerERC7913InvalidSigner-bytes-: xref:utils/cryptography.adoc#MultiSignerERC7913-MultiSignerERC7913InvalidSigner-bytes-
+:xref-MultiSignerERC7913-MultiSignerERC7913ZeroThreshold--: xref:utils/cryptography.adoc#MultiSignerERC7913-MultiSignerERC7913ZeroThreshold--
+:xref-MultiSignerERC7913-MultiSignerERC7913UnreachableThreshold-uint64-uint64-: xref:utils/cryptography.adoc#MultiSignerERC7913-MultiSignerERC7913UnreachableThreshold-uint64-uint64-
+:MultiSignerERC7913-_addSigners: pass:normal[xref:utils/cryptography.adoc#MultiSignerERC7913-_addSigners-bytes---[`MultiSignerERC7913._addSigners`]]
+:MultiSignerERC7913-_removeSigners: pass:normal[xref:utils/cryptography.adoc#MultiSignerERC7913-_removeSigners-bytes---[`MultiSignerERC7913._removeSigners`]]
+:MultiSignerERC7913-_removeSigners: pass:normal[xref:utils/cryptography.adoc#MultiSignerERC7913-_removeSigners-bytes---[`MultiSignerERC7913._removeSigners`]]
+:xref-ERC7913P256Verifier-verify-bytes-bytes32-bytes-: xref:utils/cryptography.adoc#ERC7913P256Verifier-verify-bytes-bytes32-bytes-
+:xref-ERC7913RSAVerifier-verify-bytes-bytes32-bytes-: xref:utils/cryptography.adoc#ERC7913RSAVerifier-verify-bytes-bytes32-bytes-
+= Cryptography
+
+[.readme-notice]
+NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/utils/cryptography
+
+A collection of contracts and libraries that implement various signature validation schemes and cryptographic primitives. These utilities enable secure authentication, multisignature operations, and advanced cryptographic operations in smart contracts.
+
+ * {ECDSA}, {MessageHashUtils}: Libraries for interacting with ECDSA signatures.
+ * {P256}: Library for verifying and recovering public keys from secp256r1 signatures.
+ * {RSA}: Library with RSA PKCS#1 v1.5 signature verification utilities.
+ * {SignatureChecker}: A library helper to support regular ECDSA from EOAs as well as ERC-1271 signatures for smart contracts.
+ * {Hashes}: Commonly used hash functions.
+ * {MerkleProof}: Functions for verifying https://en.wikipedia.org/wiki/Merkle_tree[Merkle Tree] proofs.
+ * {EIP712}: Contract with functions to allow processing signed typed structure data according to https://eips.ethereum.org/EIPS/eip-712[EIP-712].
+ * {ERC7739Utils}: Utilities library that implements a defensive rehashing mechanism to prevent replayability of smart contract signatures based on ERC-7739.
+ * {AbstractSigner}: Abstract contract for internal signature validation in smart contracts.
+ * {ERC7739}: An abstract contract to validate signatures following the rehashing scheme from {ERC7739Utils}.
+ * {SignerECDSA}, {SignerP256}, {SignerRSA}: Implementations of an {AbstractSigner} with specific signature validation algorithms.
+ * {SignerERC7702}: Implementation of {AbstractSigner} that validates signatures using the contract's own address as the signer, useful for delegated accounts following EIP-7702.
+ * {SignerERC7913}, {MultiSignerERC7913}, {MultiSignerERC7913Weighted}: Implementations of {AbstractSigner} that validate signatures based on ERC-7913. Including a simple and weighted multisignature scheme.
+ * {ERC7913P256Verifier}, {ERC7913RSAVerifier}: Ready to use ERC-7913 signature verifiers for P256 and RSA keys.
+
+== Utils
+
+:RecoverError: pass:normal[xref:#ECDSA-RecoverError[`++RecoverError++`]]
+:ECDSAInvalidSignature: pass:normal[xref:#ECDSA-ECDSAInvalidSignature--[`++ECDSAInvalidSignature++`]]
+:ECDSAInvalidSignatureLength: pass:normal[xref:#ECDSA-ECDSAInvalidSignatureLength-uint256-[`++ECDSAInvalidSignatureLength++`]]
+:ECDSAInvalidSignatureS: pass:normal[xref:#ECDSA-ECDSAInvalidSignatureS-bytes32-[`++ECDSAInvalidSignatureS++`]]
+:tryRecover: pass:normal[xref:#ECDSA-tryRecover-bytes32-bytes-[`++tryRecover++`]]
+:recover: pass:normal[xref:#ECDSA-recover-bytes32-bytes-[`++recover++`]]
+:tryRecover: pass:normal[xref:#ECDSA-tryRecover-bytes32-bytes32-bytes32-[`++tryRecover++`]]
+:recover: pass:normal[xref:#ECDSA-recover-bytes32-bytes32-bytes32-[`++recover++`]]
+:tryRecover: pass:normal[xref:#ECDSA-tryRecover-bytes32-uint8-bytes32-bytes32-[`++tryRecover++`]]
+:recover: pass:normal[xref:#ECDSA-recover-bytes32-uint8-bytes32-bytes32-[`++recover++`]]
+
+:tryRecover-bytes32-bytes: pass:normal[xref:#ECDSA-tryRecover-bytes32-bytes-[`++tryRecover++`]]
+:recover-bytes32-bytes: pass:normal[xref:#ECDSA-recover-bytes32-bytes-[`++recover++`]]
+:tryRecover-bytes32-bytes32-bytes32: pass:normal[xref:#ECDSA-tryRecover-bytes32-bytes32-bytes32-[`++tryRecover++`]]
+:recover-bytes32-bytes32-bytes32: pass:normal[xref:#ECDSA-recover-bytes32-bytes32-bytes32-[`++recover++`]]
+:tryRecover-bytes32-uint8-bytes32-bytes32: pass:normal[xref:#ECDSA-tryRecover-bytes32-uint8-bytes32-bytes32-[`++tryRecover++`]]
+:recover-bytes32-uint8-bytes32-bytes32: pass:normal[xref:#ECDSA-recover-bytes32-uint8-bytes32-bytes32-[`++recover++`]]
+
+[.contract]
+[[ECDSA]]
+=== `++ECDSA++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/utils/cryptography/ECDSA.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+```
+
+Elliptic Curve Digital Signature Algorithm (ECDSA) operations.
+
+These functions can be used to verify that a message was signed by the holder
+of the private keys of a given address.
+
+[.contract-index]
+.Functions
+--
+* {xref-ECDSA-tryRecover-bytes32-bytes-}[`++tryRecover(hash, signature)++`]
+* {xref-ECDSA-recover-bytes32-bytes-}[`++recover(hash, signature)++`]
+* {xref-ECDSA-tryRecover-bytes32-bytes32-bytes32-}[`++tryRecover(hash, r, vs)++`]
+* {xref-ECDSA-recover-bytes32-bytes32-bytes32-}[`++recover(hash, r, vs)++`]
+* {xref-ECDSA-tryRecover-bytes32-uint8-bytes32-bytes32-}[`++tryRecover(hash, v, r, s)++`]
+* {xref-ECDSA-recover-bytes32-uint8-bytes32-bytes32-}[`++recover(hash, v, r, s)++`]
+
+--
+
+[.contract-index]
+.Errors
+--
+* {xref-ECDSA-ECDSAInvalidSignature--}[`++ECDSAInvalidSignature()++`]
+* {xref-ECDSA-ECDSAInvalidSignatureLength-uint256-}[`++ECDSAInvalidSignatureLength(length)++`]
+* {xref-ECDSA-ECDSAInvalidSignatureS-bytes32-}[`++ECDSAInvalidSignatureS(s)++`]
+
+--
+
+[.contract-item]
+[[ECDSA-tryRecover-bytes32-bytes-]]
+==== `[.contract-item-name]#++tryRecover++#++(bytes32 hash, bytes signature) → address recovered, enum ECDSA.RecoverError err, bytes32 errArg++` [.item-kind]#internal#
+
+Returns the address that signed a hashed message (`hash`) with `signature` or an error. This will not
+return address(0) without also returning an error description. Errors are documented using an enum (error type)
+and a bytes32 providing additional information about the error.
+
+If no error is returned, then the address can be used for verification purposes.
+
+The `ecrecover` EVM precompile allows for malleable (non-unique) signatures:
+this function rejects them by requiring the `s` value to be in the lower
+half order, and the `v` value to be either 27 or 28.
+
+IMPORTANT: `hash` _must_ be the result of a hash operation for the
+verification to be secure: it is possible to craft signatures that
+recover to arbitrary addresses for non-hashed data. A safe way to ensure
+this is by receiving a hash of the original message (which may otherwise
+be too long), and then calling {MessageHashUtils-toEthSignedMessageHash} on it.
+
+Documentation for signature generation:
+- with https://web3js.readthedocs.io/en/v1.3.4/web3-eth-accounts.html#sign[Web3.js]
+- with https://docs.ethers.io/v5/api/signer/#Signer-signMessage[ethers]
+
+[.contract-item]
+[[ECDSA-recover-bytes32-bytes-]]
+==== `[.contract-item-name]#++recover++#++(bytes32 hash, bytes signature) → address++` [.item-kind]#internal#
+
+Returns the address that signed a hashed message (`hash`) with
+`signature`. This address can then be used for verification purposes.
+
+The `ecrecover` EVM precompile allows for malleable (non-unique) signatures:
+this function rejects them by requiring the `s` value to be in the lower
+half order, and the `v` value to be either 27 or 28.
+
+IMPORTANT: `hash` _must_ be the result of a hash operation for the
+verification to be secure: it is possible to craft signatures that
+recover to arbitrary addresses for non-hashed data. A safe way to ensure
+this is by receiving a hash of the original message (which may otherwise
+be too long), and then calling {MessageHashUtils-toEthSignedMessageHash} on it.
+
+[.contract-item]
+[[ECDSA-tryRecover-bytes32-bytes32-bytes32-]]
+==== `[.contract-item-name]#++tryRecover++#++(bytes32 hash, bytes32 r, bytes32 vs) → address recovered, enum ECDSA.RecoverError err, bytes32 errArg++` [.item-kind]#internal#
+
+Overload of {ECDSA-tryRecover} that receives the `r` and `vs` short-signature fields separately.
+
+See https://eips.ethereum.org/EIPS/eip-2098[ERC-2098 short signatures]
+
+[.contract-item]
+[[ECDSA-recover-bytes32-bytes32-bytes32-]]
+==== `[.contract-item-name]#++recover++#++(bytes32 hash, bytes32 r, bytes32 vs) → address++` [.item-kind]#internal#
+
+Overload of {ECDSA-recover} that receives the `r and `vs` short-signature fields separately.
+
+[.contract-item]
+[[ECDSA-tryRecover-bytes32-uint8-bytes32-bytes32-]]
+==== `[.contract-item-name]#++tryRecover++#++(bytes32 hash, uint8 v, bytes32 r, bytes32 s) → address recovered, enum ECDSA.RecoverError err, bytes32 errArg++` [.item-kind]#internal#
+
+Overload of {ECDSA-tryRecover} that receives the `v`,
+`r` and `s` signature fields separately.
+
+[.contract-item]
+[[ECDSA-recover-bytes32-uint8-bytes32-bytes32-]]
+==== `[.contract-item-name]#++recover++#++(bytes32 hash, uint8 v, bytes32 r, bytes32 s) → address++` [.item-kind]#internal#
+
+Overload of {ECDSA-recover} that receives the `v`,
+`r` and `s` signature fields separately.
+
+[.contract-item]
+[[ECDSA-ECDSAInvalidSignature--]]
+==== `[.contract-item-name]#++ECDSAInvalidSignature++#++()++` [.item-kind]#error#
+
+The signature derives the `address(0)`.
+
+[.contract-item]
+[[ECDSA-ECDSAInvalidSignatureLength-uint256-]]
+==== `[.contract-item-name]#++ECDSAInvalidSignatureLength++#++(uint256 length)++` [.item-kind]#error#
+
+The signature has an invalid length.
+
+[.contract-item]
+[[ECDSA-ECDSAInvalidSignatureS-bytes32-]]
+==== `[.contract-item-name]#++ECDSAInvalidSignatureS++#++(bytes32 s)++` [.item-kind]#error#
+
+The signature has an S value that is in the upper half order.
+
+:toEthSignedMessageHash: pass:normal[xref:#MessageHashUtils-toEthSignedMessageHash-bytes32-[`++toEthSignedMessageHash++`]]
+:toEthSignedMessageHash: pass:normal[xref:#MessageHashUtils-toEthSignedMessageHash-bytes-[`++toEthSignedMessageHash++`]]
+:toDataWithIntendedValidatorHash: pass:normal[xref:#MessageHashUtils-toDataWithIntendedValidatorHash-address-bytes-[`++toDataWithIntendedValidatorHash++`]]
+:toDataWithIntendedValidatorHash: pass:normal[xref:#MessageHashUtils-toDataWithIntendedValidatorHash-address-bytes32-[`++toDataWithIntendedValidatorHash++`]]
+:toTypedDataHash: pass:normal[xref:#MessageHashUtils-toTypedDataHash-bytes32-bytes32-[`++toTypedDataHash++`]]
+
+:toEthSignedMessageHash-bytes32: pass:normal[xref:#MessageHashUtils-toEthSignedMessageHash-bytes32-[`++toEthSignedMessageHash++`]]
+:toEthSignedMessageHash-bytes: pass:normal[xref:#MessageHashUtils-toEthSignedMessageHash-bytes-[`++toEthSignedMessageHash++`]]
+:toDataWithIntendedValidatorHash-address-bytes: pass:normal[xref:#MessageHashUtils-toDataWithIntendedValidatorHash-address-bytes-[`++toDataWithIntendedValidatorHash++`]]
+:toDataWithIntendedValidatorHash-address-bytes32: pass:normal[xref:#MessageHashUtils-toDataWithIntendedValidatorHash-address-bytes32-[`++toDataWithIntendedValidatorHash++`]]
+:toTypedDataHash-bytes32-bytes32: pass:normal[xref:#MessageHashUtils-toTypedDataHash-bytes32-bytes32-[`++toTypedDataHash++`]]
+
+[.contract]
+[[MessageHashUtils]]
+=== `++MessageHashUtils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/utils/cryptography/MessageHashUtils.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
+```
+
+Signature message hash utilities for producing digests to be consumed by {ECDSA} recovery or signing.
+
+The library provides methods for generating a hash of a message that conforms to the
+https://eips.ethereum.org/EIPS/eip-191[ERC-191] and https://eips.ethereum.org/EIPS/eip-712[EIP 712]
+specifications.
+
+[.contract-index]
+.Functions
+--
+* {xref-MessageHashUtils-toEthSignedMessageHash-bytes32-}[`++toEthSignedMessageHash(messageHash)++`]
+* {xref-MessageHashUtils-toEthSignedMessageHash-bytes-}[`++toEthSignedMessageHash(message)++`]
+* {xref-MessageHashUtils-toDataWithIntendedValidatorHash-address-bytes-}[`++toDataWithIntendedValidatorHash(validator, data)++`]
+* {xref-MessageHashUtils-toDataWithIntendedValidatorHash-address-bytes32-}[`++toDataWithIntendedValidatorHash(validator, messageHash)++`]
+* {xref-MessageHashUtils-toTypedDataHash-bytes32-bytes32-}[`++toTypedDataHash(domainSeparator, structHash)++`]
+
+--
+
+[.contract-item]
+[[MessageHashUtils-toEthSignedMessageHash-bytes32-]]
+==== `[.contract-item-name]#++toEthSignedMessageHash++#++(bytes32 messageHash) → bytes32 digest++` [.item-kind]#internal#
+
+Returns the keccak256 digest of an ERC-191 signed data with version
+`0x45` (`personal_sign` messages).
+
+The digest is calculated by prefixing a bytes32 `messageHash` with
+`"\x19Ethereum Signed Message:\n32"` and hashing the result. It corresponds with the
+hash signed when using the https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_sign[`eth_sign`] JSON-RPC method.
+
+NOTE: The `messageHash` parameter is intended to be the result of hashing a raw message with
+keccak256, although any bytes32 value can be safely used because the final digest will
+be re-hashed.
+
+See {ECDSA-recover}.
+
+[.contract-item]
+[[MessageHashUtils-toEthSignedMessageHash-bytes-]]
+==== `[.contract-item-name]#++toEthSignedMessageHash++#++(bytes message) → bytes32++` [.item-kind]#internal#
+
+Returns the keccak256 digest of an ERC-191 signed data with version
+`0x45` (`personal_sign` messages).
+
+The digest is calculated by prefixing an arbitrary `message` with
+`"\x19Ethereum Signed Message:\n" + len(message)` and hashing the result. It corresponds with the
+hash signed when using the https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_sign[`eth_sign`] JSON-RPC method.
+
+See {ECDSA-recover}.
+
+[.contract-item]
+[[MessageHashUtils-toDataWithIntendedValidatorHash-address-bytes-]]
+==== `[.contract-item-name]#++toDataWithIntendedValidatorHash++#++(address validator, bytes data) → bytes32++` [.item-kind]#internal#
+
+Returns the keccak256 digest of an ERC-191 signed data with version
+`0x00` (data with intended validator).
+
+The digest is calculated by prefixing an arbitrary `data` with `"\x19\x00"` and the intended
+`validator` address. Then hashing the result.
+
+See {ECDSA-recover}.
+
+[.contract-item]
+[[MessageHashUtils-toDataWithIntendedValidatorHash-address-bytes32-]]
+==== `[.contract-item-name]#++toDataWithIntendedValidatorHash++#++(address validator, bytes32 messageHash) → bytes32 digest++` [.item-kind]#internal#
+
+Variant of {toDataWithIntendedValidatorHash-address-bytes} optimized for cases where `data` is a bytes32.
+
+[.contract-item]
+[[MessageHashUtils-toTypedDataHash-bytes32-bytes32-]]
+==== `[.contract-item-name]#++toTypedDataHash++#++(bytes32 domainSeparator, bytes32 structHash) → bytes32 digest++` [.item-kind]#internal#
+
+Returns the keccak256 digest of an EIP-712 typed data (ERC-191 version `0x01`).
+
+The digest is calculated from a `domainSeparator` and a `structHash`, by prefixing them with
+`\x19\x01` and hashing the result. It corresponds to the hash signed by the
+https://eips.ethereum.org/EIPS/eip-712[`eth_signTypedData`] JSON-RPC method as part of EIP-712.
+
+See {ECDSA-recover}.
+
+:JPoint: pass:normal[xref:#P256-JPoint[`++JPoint++`]]
+:GX: pass:normal[xref:#P256-GX-uint256[`++GX++`]]
+:GY: pass:normal[xref:#P256-GY-uint256[`++GY++`]]
+:P: pass:normal[xref:#P256-P-uint256[`++P++`]]
+:N: pass:normal[xref:#P256-N-uint256[`++N++`]]
+:A: pass:normal[xref:#P256-A-uint256[`++A++`]]
+:B: pass:normal[xref:#P256-B-uint256[`++B++`]]
+:verify: pass:normal[xref:#P256-verify-bytes32-bytes32-bytes32-bytes32-bytes32-[`++verify++`]]
+:verifyNative: pass:normal[xref:#P256-verifyNative-bytes32-bytes32-bytes32-bytes32-bytes32-[`++verifyNative++`]]
+:verifySolidity: pass:normal[xref:#P256-verifySolidity-bytes32-bytes32-bytes32-bytes32-bytes32-[`++verifySolidity++`]]
+:recovery: pass:normal[xref:#P256-recovery-bytes32-uint8-bytes32-bytes32-[`++recovery++`]]
+:isValidPublicKey: pass:normal[xref:#P256-isValidPublicKey-bytes32-bytes32-[`++isValidPublicKey++`]]
+
+:verify-bytes32-bytes32-bytes32-bytes32-bytes32: pass:normal[xref:#P256-verify-bytes32-bytes32-bytes32-bytes32-bytes32-[`++verify++`]]
+:verifyNative-bytes32-bytes32-bytes32-bytes32-bytes32: pass:normal[xref:#P256-verifyNative-bytes32-bytes32-bytes32-bytes32-bytes32-[`++verifyNative++`]]
+:verifySolidity-bytes32-bytes32-bytes32-bytes32-bytes32: pass:normal[xref:#P256-verifySolidity-bytes32-bytes32-bytes32-bytes32-bytes32-[`++verifySolidity++`]]
+:recovery-bytes32-uint8-bytes32-bytes32: pass:normal[xref:#P256-recovery-bytes32-uint8-bytes32-bytes32-[`++recovery++`]]
+:isValidPublicKey-bytes32-bytes32: pass:normal[xref:#P256-isValidPublicKey-bytes32-bytes32-[`++isValidPublicKey++`]]
+
+[.contract]
+[[P256]]
+=== `++P256++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/utils/cryptography/P256.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/utils/cryptography/P256.sol";
+```
+
+Implementation of secp256r1 verification and recovery functions.
+
+The secp256r1 curve (also known as P256) is a NIST standard curve with wide support in modern devices
+and cryptographic standards. Some notable examples include Apple's Secure Enclave and Android's Keystore
+as well as authentication protocols like FIDO2.
+
+Based on the original https://github.com/itsobvioustech/aa-passkeys-wallet/blob/d3d423f28a4d8dfcb203c7fa0c47f42592a7378e/src/Secp256r1.sol[implementation of itsobvioustech] (GNU General Public License v3.0).
+Heavily inspired in https://github.com/maxrobot/elliptic-solidity/blob/c4bb1b6e8ae89534d8db3a6b3a6b52219100520f/contracts/Secp256r1.sol[maxrobot] and
+https://github.com/tdrerup/elliptic-curve-solidity/blob/59a9c25957d4d190eff53b6610731d81a077a15e/contracts/curves/EllipticCurve.sol[tdrerup] implementations.
+
+_Available since v5.1._
+
+[.contract-index]
+.Functions
+--
+* {xref-P256-verify-bytes32-bytes32-bytes32-bytes32-bytes32-}[`++verify(h, r, s, qx, qy)++`]
+* {xref-P256-verifyNative-bytes32-bytes32-bytes32-bytes32-bytes32-}[`++verifyNative(h, r, s, qx, qy)++`]
+* {xref-P256-verifySolidity-bytes32-bytes32-bytes32-bytes32-bytes32-}[`++verifySolidity(h, r, s, qx, qy)++`]
+* {xref-P256-recovery-bytes32-uint8-bytes32-bytes32-}[`++recovery(h, v, r, s)++`]
+* {xref-P256-isValidPublicKey-bytes32-bytes32-}[`++isValidPublicKey(x, y)++`]
+
+--
+
+[.contract-index]
+.Internal Variables
+--
+* {xref-P256-GX-uint256}[`++uint256 constant GX++`]
+* {xref-P256-GY-uint256}[`++uint256 constant GY++`]
+* {xref-P256-P-uint256}[`++uint256 constant P++`]
+* {xref-P256-N-uint256}[`++uint256 constant N++`]
+* {xref-P256-A-uint256}[`++uint256 constant A++`]
+* {xref-P256-B-uint256}[`++uint256 constant B++`]
+
+--
+
+[.contract-item]
+[[P256-verify-bytes32-bytes32-bytes32-bytes32-bytes32-]]
+==== `[.contract-item-name]#++verify++#++(bytes32 h, bytes32 r, bytes32 s, bytes32 qx, bytes32 qy) → bool++` [.item-kind]#internal#
+
+Verifies a secp256r1 signature using the RIP-7212 precompile and falls back to the Solidity implementation
+if the precompile is not available. This version should work on all chains, but requires the deployment of more
+bytecode.
+
+[.contract-item]
+[[P256-verifyNative-bytes32-bytes32-bytes32-bytes32-bytes32-]]
+==== `[.contract-item-name]#++verifyNative++#++(bytes32 h, bytes32 r, bytes32 s, bytes32 qx, bytes32 qy) → bool++` [.item-kind]#internal#
+
+Same as {verify}, but it will revert if the required precompile is not available.
+
+Make sure any logic (code or precompile) deployed at that address is the expected one,
+otherwise the returned value may be misinterpreted as a positive boolean.
+
+[.contract-item]
+[[P256-verifySolidity-bytes32-bytes32-bytes32-bytes32-bytes32-]]
+==== `[.contract-item-name]#++verifySolidity++#++(bytes32 h, bytes32 r, bytes32 s, bytes32 qx, bytes32 qy) → bool++` [.item-kind]#internal#
+
+Same as {verify}, but only the Solidity implementation is used.
+
+[.contract-item]
+[[P256-recovery-bytes32-uint8-bytes32-bytes32-]]
+==== `[.contract-item-name]#++recovery++#++(bytes32 h, uint8 v, bytes32 r, bytes32 s) → bytes32 x, bytes32 y++` [.item-kind]#internal#
+
+Public key recovery
+
+[.contract-item]
+[[P256-isValidPublicKey-bytes32-bytes32-]]
+==== `[.contract-item-name]#++isValidPublicKey++#++(bytes32 x, bytes32 y) → bool result++` [.item-kind]#internal#
+
+Checks if (x, y) are valid coordinates of a point on the curve.
+In particular this function checks that x < P and y < P.
+
+[.contract-item]
+[[P256-GX-uint256]]
+==== `uint256 [.contract-item-name]#++GX++#` [.item-kind]#internal constant#
+
+Generator (x component)
+
+[.contract-item]
+[[P256-GY-uint256]]
+==== `uint256 [.contract-item-name]#++GY++#` [.item-kind]#internal constant#
+
+Generator (y component)
+
+[.contract-item]
+[[P256-P-uint256]]
+==== `uint256 [.contract-item-name]#++P++#` [.item-kind]#internal constant#
+
+P (size of the field)
+
+[.contract-item]
+[[P256-N-uint256]]
+==== `uint256 [.contract-item-name]#++N++#` [.item-kind]#internal constant#
+
+N (order of G)
+
+[.contract-item]
+[[P256-A-uint256]]
+==== `uint256 [.contract-item-name]#++A++#` [.item-kind]#internal constant#
+
+A parameter of the weierstrass equation
+
+[.contract-item]
+[[P256-B-uint256]]
+==== `uint256 [.contract-item-name]#++B++#` [.item-kind]#internal constant#
+
+B parameter of the weierstrass equation
+
+:pkcs1Sha256: pass:normal[xref:#RSA-pkcs1Sha256-bytes-bytes-bytes-bytes-[`++pkcs1Sha256++`]]
+:pkcs1Sha256: pass:normal[xref:#RSA-pkcs1Sha256-bytes32-bytes-bytes-bytes-[`++pkcs1Sha256++`]]
+
+:pkcs1Sha256-bytes-bytes-bytes-bytes: pass:normal[xref:#RSA-pkcs1Sha256-bytes-bytes-bytes-bytes-[`++pkcs1Sha256++`]]
+:pkcs1Sha256-bytes32-bytes-bytes-bytes: pass:normal[xref:#RSA-pkcs1Sha256-bytes32-bytes-bytes-bytes-[`++pkcs1Sha256++`]]
+
+[.contract]
+[[RSA]]
+=== `++RSA++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/utils/cryptography/RSA.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/utils/cryptography/RSA.sol";
+```
+
+RSA PKCS#1 v1.5 signature verification implementation according to https://datatracker.ietf.org/doc/html/rfc8017[RFC8017].
+
+This library supports PKCS#1 v1.5 padding to avoid malleability via chosen plaintext attacks in practical implementations.
+The padding follows the EMSA-PKCS1-v1_5-ENCODE encoding definition as per section 9.2 of the RFC. This padding makes
+RSA semantically secure for signing messages.
+
+Inspired by https://github.com/adria0/SolRsaVerify/blob/79c6182cabb9102ea69d4a2e996816091d5f1cd1[Adrià Massanet's work] (GNU General Public License v3.0).
+
+_Available since v5.1._
+
+[.contract-index]
+.Functions
+--
+* {xref-RSA-pkcs1Sha256-bytes-bytes-bytes-bytes-}[`++pkcs1Sha256(data, s, e, n)++`]
+* {xref-RSA-pkcs1Sha256-bytes32-bytes-bytes-bytes-}[`++pkcs1Sha256(digest, s, e, n)++`]
+
+--
+
+[.contract-item]
+[[RSA-pkcs1Sha256-bytes-bytes-bytes-bytes-]]
+==== `[.contract-item-name]#++pkcs1Sha256++#++(bytes data, bytes s, bytes e, bytes n) → bool++` [.item-kind]#internal#
+
+Same as {pkcs1Sha256} but using SHA256 to calculate the digest of `data`.
+
+[.contract-item]
+[[RSA-pkcs1Sha256-bytes32-bytes-bytes-bytes-]]
+==== `[.contract-item-name]#++pkcs1Sha256++#++(bytes32 digest, bytes s, bytes e, bytes n) → bool++` [.item-kind]#internal#
+
+Verifies a PKCSv1.5 signature given a digest according to the verification
+method described in https://datatracker.ietf.org/doc/html/rfc8017#section-8.2.2[section 8.2.2 of RFC8017] with
+support for explicit or implicit NULL parameters in the DigestInfo (no other optional parameters are supported).
+
+IMPORTANT: For security reason, this function requires the signature and modulus to have a length of at least
+2048 bits. If you use a smaller key, consider replacing it with a larger, more secure, one.
+
+WARNING: This verification algorithm doesn't prevent replayability. If called multiple times with the same
+digest, public key and (valid signature), it will return true every time. Consider including an onchain nonce
+or unique identifier in the message to prevent replay attacks.
+
+WARNING: This verification algorithm supports any exponent. NIST recommends using `65537` (or higher).
+That is the default value many libraries use, such as OpenSSL. Developers may choose to reject public keys
+using a low exponent out of security concerns.
+
+:isValidSignatureNow: pass:normal[xref:#SignatureChecker-isValidSignatureNow-address-bytes32-bytes-[`++isValidSignatureNow++`]]
+:isValidERC1271SignatureNow: pass:normal[xref:#SignatureChecker-isValidERC1271SignatureNow-address-bytes32-bytes-[`++isValidERC1271SignatureNow++`]]
+:isValidSignatureNow: pass:normal[xref:#SignatureChecker-isValidSignatureNow-bytes-bytes32-bytes-[`++isValidSignatureNow++`]]
+:areValidSignaturesNow: pass:normal[xref:#SignatureChecker-areValidSignaturesNow-bytes32-bytes---bytes---[`++areValidSignaturesNow++`]]
+
+:isValidSignatureNow-address-bytes32-bytes: pass:normal[xref:#SignatureChecker-isValidSignatureNow-address-bytes32-bytes-[`++isValidSignatureNow++`]]
+:isValidERC1271SignatureNow-address-bytes32-bytes: pass:normal[xref:#SignatureChecker-isValidERC1271SignatureNow-address-bytes32-bytes-[`++isValidERC1271SignatureNow++`]]
+:isValidSignatureNow-bytes-bytes32-bytes: pass:normal[xref:#SignatureChecker-isValidSignatureNow-bytes-bytes32-bytes-[`++isValidSignatureNow++`]]
+:areValidSignaturesNow-bytes32-bytes---bytes--: pass:normal[xref:#SignatureChecker-areValidSignaturesNow-bytes32-bytes---bytes---[`++areValidSignaturesNow++`]]
+
+[.contract]
+[[SignatureChecker]]
+=== `++SignatureChecker++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/utils/cryptography/SignatureChecker.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
+```
+
+Signature verification helper that can be used instead of `ECDSA.recover` to seamlessly support:
+
+* ECDSA signatures from externally owned accounts (EOAs)
+* ERC-1271 signatures from smart contract wallets like Argent and Safe Wallet (previously Gnosis Safe)
+* ERC-7913 signatures from keys that do not have an Ethereum address of their own
+
+See https://eips.ethereum.org/EIPS/eip-1271[ERC-1271] and https://eips.ethereum.org/EIPS/eip-7913[ERC-7913].
+
+[.contract-index]
+.Functions
+--
+* {xref-SignatureChecker-isValidSignatureNow-address-bytes32-bytes-}[`++isValidSignatureNow(signer, hash, signature)++`]
+* {xref-SignatureChecker-isValidERC1271SignatureNow-address-bytes32-bytes-}[`++isValidERC1271SignatureNow(signer, hash, signature)++`]
+* {xref-SignatureChecker-isValidSignatureNow-bytes-bytes32-bytes-}[`++isValidSignatureNow(signer, hash, signature)++`]
+* {xref-SignatureChecker-areValidSignaturesNow-bytes32-bytes---bytes---}[`++areValidSignaturesNow(hash, signers, signatures)++`]
+
+--
+
+[.contract-item]
+[[SignatureChecker-isValidSignatureNow-address-bytes32-bytes-]]
+==== `[.contract-item-name]#++isValidSignatureNow++#++(address signer, bytes32 hash, bytes signature) → bool++` [.item-kind]#internal#
+
+Checks if a signature is valid for a given signer and data hash. If the signer has code, the
+signature is validated against it using ERC-1271, otherwise it's validated using `ECDSA.recover`.
+
+NOTE: Unlike ECDSA signatures, contract signatures are revocable, and the outcome of this function can thus
+change through time. It could return true at block N and false at block N+1 (or the opposite).
+
+NOTE: For an extended version of this function that supports ERC-7913 signatures, see {isValidSignatureNow-bytes-bytes32-bytes-}.
+
+[.contract-item]
+[[SignatureChecker-isValidERC1271SignatureNow-address-bytes32-bytes-]]
+==== `[.contract-item-name]#++isValidERC1271SignatureNow++#++(address signer, bytes32 hash, bytes signature) → bool++` [.item-kind]#internal#
+
+Checks if a signature is valid for a given signer and data hash. The signature is validated
+against the signer smart contract using ERC-1271.
+
+NOTE: Unlike ECDSA signatures, contract signatures are revocable, and the outcome of this function can thus
+change through time. It could return true at block N and false at block N+1 (or the opposite).
+
+[.contract-item]
+[[SignatureChecker-isValidSignatureNow-bytes-bytes32-bytes-]]
+==== `[.contract-item-name]#++isValidSignatureNow++#++(bytes signer, bytes32 hash, bytes signature) → bool++` [.item-kind]#internal#
+
+Verifies a signature for a given ERC-7913 signer and hash.
+
+The signer is a `bytes` object that is the concatenation of an address and optionally a key:
+`verifier || key`. A signer must be at least 20 bytes long.
+
+Verification is done as follows:
+
+* If `signer.length < 20`: verification fails
+* If `signer.length == 20`: verification is done using {isValidSignatureNow}
+* Otherwise: verification is done using {IERC7913SignatureVerifier}
+
+NOTE: Unlike ECDSA signatures, contract signatures are revocable, and the outcome of this function can thus
+change through time. It could return true at block N and false at block N+1 (or the opposite).
+
+[.contract-item]
+[[SignatureChecker-areValidSignaturesNow-bytes32-bytes---bytes---]]
+==== `[.contract-item-name]#++areValidSignaturesNow++#++(bytes32 hash, bytes[] signers, bytes[] signatures) → bool++` [.item-kind]#internal#
+
+Verifies multiple ERC-7913 `signatures` for a given `hash` using a set of `signers`.
+Returns `false` if the number of signers and signatures is not the same.
+
+The signers should be ordered by their `keccak256` hash to ensure efficient duplication check. Unordered
+signers are supported, but the uniqueness check will be more expensive.
+
+NOTE: Unlike ECDSA signatures, contract signatures are revocable, and the outcome of this function can thus
+change through time. It could return true at block N and false at block N+1 (or the opposite).
+
+:commutativeKeccak256: pass:normal[xref:#Hashes-commutativeKeccak256-bytes32-bytes32-[`++commutativeKeccak256++`]]
+:efficientKeccak256: pass:normal[xref:#Hashes-efficientKeccak256-bytes32-bytes32-[`++efficientKeccak256++`]]
+
+:commutativeKeccak256-bytes32-bytes32: pass:normal[xref:#Hashes-commutativeKeccak256-bytes32-bytes32-[`++commutativeKeccak256++`]]
+:efficientKeccak256-bytes32-bytes32: pass:normal[xref:#Hashes-efficientKeccak256-bytes32-bytes32-[`++efficientKeccak256++`]]
+
+[.contract]
+[[Hashes]]
+=== `++Hashes++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/utils/cryptography/Hashes.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/utils/cryptography/Hashes.sol";
+```
+
+Library of standard hash functions.
+
+_Available since v5.1._
+
+[.contract-index]
+.Functions
+--
+* {xref-Hashes-commutativeKeccak256-bytes32-bytes32-}[`++commutativeKeccak256(a, b)++`]
+* {xref-Hashes-efficientKeccak256-bytes32-bytes32-}[`++efficientKeccak256(a, b)++`]
+
+--
+
+[.contract-item]
+[[Hashes-commutativeKeccak256-bytes32-bytes32-]]
+==== `[.contract-item-name]#++commutativeKeccak256++#++(bytes32 a, bytes32 b) → bytes32++` [.item-kind]#internal#
+
+Commutative Keccak256 hash of a sorted pair of bytes32. Frequently used when working with merkle proofs.
+
+NOTE: Equivalent to the `standardNodeHash` in our https://github.com/OpenZeppelin/merkle-tree[JavaScript library].
+
+[.contract-item]
+[[Hashes-efficientKeccak256-bytes32-bytes32-]]
+==== `[.contract-item-name]#++efficientKeccak256++#++(bytes32 a, bytes32 b) → bytes32 value++` [.item-kind]#internal#
+
+Implementation of keccak256(abi.encode(a, b)) that doesn't allocate or expand memory.
+
+:MerkleProofInvalidMultiproof: pass:normal[xref:#MerkleProof-MerkleProofInvalidMultiproof--[`++MerkleProofInvalidMultiproof++`]]
+:verify: pass:normal[xref:#MerkleProof-verify-bytes32---bytes32-bytes32-[`++verify++`]]
+:processProof: pass:normal[xref:#MerkleProof-processProof-bytes32---bytes32-[`++processProof++`]]
+:verify: pass:normal[xref:#MerkleProof-verify-bytes32---bytes32-bytes32-function--bytes32-bytes32--view-returns--bytes32--[`++verify++`]]
+:processProof: pass:normal[xref:#MerkleProof-processProof-bytes32---bytes32-function--bytes32-bytes32--view-returns--bytes32--[`++processProof++`]]
+:verifyCalldata: pass:normal[xref:#MerkleProof-verifyCalldata-bytes32---bytes32-bytes32-[`++verifyCalldata++`]]
+:processProofCalldata: pass:normal[xref:#MerkleProof-processProofCalldata-bytes32---bytes32-[`++processProofCalldata++`]]
+:verifyCalldata: pass:normal[xref:#MerkleProof-verifyCalldata-bytes32---bytes32-bytes32-function--bytes32-bytes32--view-returns--bytes32--[`++verifyCalldata++`]]
+:processProofCalldata: pass:normal[xref:#MerkleProof-processProofCalldata-bytes32---bytes32-function--bytes32-bytes32--view-returns--bytes32--[`++processProofCalldata++`]]
+:multiProofVerify: pass:normal[xref:#MerkleProof-multiProofVerify-bytes32---bool---bytes32-bytes32---[`++multiProofVerify++`]]
+:processMultiProof: pass:normal[xref:#MerkleProof-processMultiProof-bytes32---bool---bytes32---[`++processMultiProof++`]]
+:multiProofVerify: pass:normal[xref:#MerkleProof-multiProofVerify-bytes32---bool---bytes32-bytes32---function--bytes32-bytes32--view-returns--bytes32--[`++multiProofVerify++`]]
+:processMultiProof: pass:normal[xref:#MerkleProof-processMultiProof-bytes32---bool---bytes32---function--bytes32-bytes32--view-returns--bytes32--[`++processMultiProof++`]]
+:multiProofVerifyCalldata: pass:normal[xref:#MerkleProof-multiProofVerifyCalldata-bytes32---bool---bytes32-bytes32---[`++multiProofVerifyCalldata++`]]
+:processMultiProofCalldata: pass:normal[xref:#MerkleProof-processMultiProofCalldata-bytes32---bool---bytes32---[`++processMultiProofCalldata++`]]
+:multiProofVerifyCalldata: pass:normal[xref:#MerkleProof-multiProofVerifyCalldata-bytes32---bool---bytes32-bytes32---function--bytes32-bytes32--view-returns--bytes32--[`++multiProofVerifyCalldata++`]]
+:processMultiProofCalldata: pass:normal[xref:#MerkleProof-processMultiProofCalldata-bytes32---bool---bytes32---function--bytes32-bytes32--view-returns--bytes32--[`++processMultiProofCalldata++`]]
+
+:verify-bytes32---bytes32-bytes32: pass:normal[xref:#MerkleProof-verify-bytes32---bytes32-bytes32-[`++verify++`]]
+:processProof-bytes32---bytes32: pass:normal[xref:#MerkleProof-processProof-bytes32---bytes32-[`++processProof++`]]
+:verify-bytes32---bytes32-bytes32-function--bytes32-bytes32--view-returns--bytes32-: pass:normal[xref:#MerkleProof-verify-bytes32---bytes32-bytes32-function--bytes32-bytes32--view-returns--bytes32--[`++verify++`]]
+:processProof-bytes32---bytes32-function--bytes32-bytes32--view-returns--bytes32-: pass:normal[xref:#MerkleProof-processProof-bytes32---bytes32-function--bytes32-bytes32--view-returns--bytes32--[`++processProof++`]]
+:verifyCalldata-bytes32---bytes32-bytes32: pass:normal[xref:#MerkleProof-verifyCalldata-bytes32---bytes32-bytes32-[`++verifyCalldata++`]]
+:processProofCalldata-bytes32---bytes32: pass:normal[xref:#MerkleProof-processProofCalldata-bytes32---bytes32-[`++processProofCalldata++`]]
+:verifyCalldata-bytes32---bytes32-bytes32-function--bytes32-bytes32--view-returns--bytes32-: pass:normal[xref:#MerkleProof-verifyCalldata-bytes32---bytes32-bytes32-function--bytes32-bytes32--view-returns--bytes32--[`++verifyCalldata++`]]
+:processProofCalldata-bytes32---bytes32-function--bytes32-bytes32--view-returns--bytes32-: pass:normal[xref:#MerkleProof-processProofCalldata-bytes32---bytes32-function--bytes32-bytes32--view-returns--bytes32--[`++processProofCalldata++`]]
+:multiProofVerify-bytes32---bool---bytes32-bytes32--: pass:normal[xref:#MerkleProof-multiProofVerify-bytes32---bool---bytes32-bytes32---[`++multiProofVerify++`]]
+:processMultiProof-bytes32---bool---bytes32--: pass:normal[xref:#MerkleProof-processMultiProof-bytes32---bool---bytes32---[`++processMultiProof++`]]
+:multiProofVerify-bytes32---bool---bytes32-bytes32---function--bytes32-bytes32--view-returns--bytes32-: pass:normal[xref:#MerkleProof-multiProofVerify-bytes32---bool---bytes32-bytes32---function--bytes32-bytes32--view-returns--bytes32--[`++multiProofVerify++`]]
+:processMultiProof-bytes32---bool---bytes32---function--bytes32-bytes32--view-returns--bytes32-: pass:normal[xref:#MerkleProof-processMultiProof-bytes32---bool---bytes32---function--bytes32-bytes32--view-returns--bytes32--[`++processMultiProof++`]]
+:multiProofVerifyCalldata-bytes32---bool---bytes32-bytes32--: pass:normal[xref:#MerkleProof-multiProofVerifyCalldata-bytes32---bool---bytes32-bytes32---[`++multiProofVerifyCalldata++`]]
+:processMultiProofCalldata-bytes32---bool---bytes32--: pass:normal[xref:#MerkleProof-processMultiProofCalldata-bytes32---bool---bytes32---[`++processMultiProofCalldata++`]]
+:multiProofVerifyCalldata-bytes32---bool---bytes32-bytes32---function--bytes32-bytes32--view-returns--bytes32-: pass:normal[xref:#MerkleProof-multiProofVerifyCalldata-bytes32---bool---bytes32-bytes32---function--bytes32-bytes32--view-returns--bytes32--[`++multiProofVerifyCalldata++`]]
+:processMultiProofCalldata-bytes32---bool---bytes32---function--bytes32-bytes32--view-returns--bytes32-: pass:normal[xref:#MerkleProof-processMultiProofCalldata-bytes32---bool---bytes32---function--bytes32-bytes32--view-returns--bytes32--[`++processMultiProofCalldata++`]]
+
+[.contract]
+[[MerkleProof]]
+=== `++MerkleProof++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/utils/cryptography/MerkleProof.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
+```
+
+These functions deal with verification of Merkle Tree proofs.
+
+The tree and the proofs can be generated using our
+https://github.com/OpenZeppelin/merkle-tree[JavaScript library].
+You will find a quickstart guide in the readme.
+
+WARNING: You should avoid using leaf values that are 64 bytes long prior to
+hashing, or use a hash function other than keccak256 for hashing leaves.
+This is because the concatenation of a sorted pair of internal nodes in
+the Merkle tree could be reinterpreted as a leaf value.
+OpenZeppelin's JavaScript library generates Merkle trees that are safe
+against this attack out of the box.
+
+IMPORTANT: Consider memory side-effects when using custom hashing functions
+that access memory in an unsafe way.
+
+NOTE: This library supports proof verification for merkle trees built using
+custom _commutative_ hashing functions (i.e. `H(a, b) == H(b, a)`). Proving
+leaf inclusion in trees built using non-commutative hashing functions requires
+additional logic that is not supported by this library.
+
+[.contract-index]
+.Functions
+--
+* {xref-MerkleProof-verify-bytes32---bytes32-bytes32-}[`++verify(proof, root, leaf)++`]
+* {xref-MerkleProof-processProof-bytes32---bytes32-}[`++processProof(proof, leaf)++`]
+* {xref-MerkleProof-verify-bytes32---bytes32-bytes32-function--bytes32-bytes32--view-returns--bytes32--}[`++verify(proof, root, leaf, hasher)++`]
+* {xref-MerkleProof-processProof-bytes32---bytes32-function--bytes32-bytes32--view-returns--bytes32--}[`++processProof(proof, leaf, hasher)++`]
+* {xref-MerkleProof-verifyCalldata-bytes32---bytes32-bytes32-}[`++verifyCalldata(proof, root, leaf)++`]
+* {xref-MerkleProof-processProofCalldata-bytes32---bytes32-}[`++processProofCalldata(proof, leaf)++`]
+* {xref-MerkleProof-verifyCalldata-bytes32---bytes32-bytes32-function--bytes32-bytes32--view-returns--bytes32--}[`++verifyCalldata(proof, root, leaf, hasher)++`]
+* {xref-MerkleProof-processProofCalldata-bytes32---bytes32-function--bytes32-bytes32--view-returns--bytes32--}[`++processProofCalldata(proof, leaf, hasher)++`]
+* {xref-MerkleProof-multiProofVerify-bytes32---bool---bytes32-bytes32---}[`++multiProofVerify(proof, proofFlags, root, leaves)++`]
+* {xref-MerkleProof-processMultiProof-bytes32---bool---bytes32---}[`++processMultiProof(proof, proofFlags, leaves)++`]
+* {xref-MerkleProof-multiProofVerify-bytes32---bool---bytes32-bytes32---function--bytes32-bytes32--view-returns--bytes32--}[`++multiProofVerify(proof, proofFlags, root, leaves, hasher)++`]
+* {xref-MerkleProof-processMultiProof-bytes32---bool---bytes32---function--bytes32-bytes32--view-returns--bytes32--}[`++processMultiProof(proof, proofFlags, leaves, hasher)++`]
+* {xref-MerkleProof-multiProofVerifyCalldata-bytes32---bool---bytes32-bytes32---}[`++multiProofVerifyCalldata(proof, proofFlags, root, leaves)++`]
+* {xref-MerkleProof-processMultiProofCalldata-bytes32---bool---bytes32---}[`++processMultiProofCalldata(proof, proofFlags, leaves)++`]
+* {xref-MerkleProof-multiProofVerifyCalldata-bytes32---bool---bytes32-bytes32---function--bytes32-bytes32--view-returns--bytes32--}[`++multiProofVerifyCalldata(proof, proofFlags, root, leaves, hasher)++`]
+* {xref-MerkleProof-processMultiProofCalldata-bytes32---bool---bytes32---function--bytes32-bytes32--view-returns--bytes32--}[`++processMultiProofCalldata(proof, proofFlags, leaves, hasher)++`]
+
+--
+
+[.contract-index]
+.Errors
+--
+* {xref-MerkleProof-MerkleProofInvalidMultiproof--}[`++MerkleProofInvalidMultiproof()++`]
+
+--
+
+[.contract-item]
+[[MerkleProof-verify-bytes32---bytes32-bytes32-]]
+==== `[.contract-item-name]#++verify++#++(bytes32[] proof, bytes32 root, bytes32 leaf) → bool++` [.item-kind]#internal#
+
+Returns true if a `leaf` can be proved to be a part of a Merkle tree
+defined by `root`. For this, a `proof` must be provided, containing
+sibling hashes on the branch from the leaf to the root of the tree. Each
+pair of leaves and each pair of pre-images are assumed to be sorted.
+
+This version handles proofs in memory with the default hashing function.
+
+[.contract-item]
+[[MerkleProof-processProof-bytes32---bytes32-]]
+==== `[.contract-item-name]#++processProof++#++(bytes32[] proof, bytes32 leaf) → bytes32++` [.item-kind]#internal#
+
+Returns the rebuilt hash obtained by traversing a Merkle tree up
+from `leaf` using `proof`. A `proof` is valid if and only if the rebuilt
+hash matches the root of the tree. When processing the proof, the pairs
+of leaves & pre-images are assumed to be sorted.
+
+This version handles proofs in memory with the default hashing function.
+
+[.contract-item]
+[[MerkleProof-verify-bytes32---bytes32-bytes32-function--bytes32-bytes32--view-returns--bytes32--]]
+==== `[.contract-item-name]#++verify++#++(bytes32[] proof, bytes32 root, bytes32 leaf, function (bytes32,bytes32) view returns (bytes32) hasher) → bool++` [.item-kind]#internal#
+
+Returns true if a `leaf` can be proved to be a part of a Merkle tree
+defined by `root`. For this, a `proof` must be provided, containing
+sibling hashes on the branch from the leaf to the root of the tree. Each
+pair of leaves and each pair of pre-images are assumed to be sorted.
+
+This version handles proofs in memory with a custom hashing function.
+
+[.contract-item]
+[[MerkleProof-processProof-bytes32---bytes32-function--bytes32-bytes32--view-returns--bytes32--]]
+==== `[.contract-item-name]#++processProof++#++(bytes32[] proof, bytes32 leaf, function (bytes32,bytes32) view returns (bytes32) hasher) → bytes32++` [.item-kind]#internal#
+
+Returns the rebuilt hash obtained by traversing a Merkle tree up
+from `leaf` using `proof`. A `proof` is valid if and only if the rebuilt
+hash matches the root of the tree. When processing the proof, the pairs
+of leaves & pre-images are assumed to be sorted.
+
+This version handles proofs in memory with a custom hashing function.
+
+[.contract-item]
+[[MerkleProof-verifyCalldata-bytes32---bytes32-bytes32-]]
+==== `[.contract-item-name]#++verifyCalldata++#++(bytes32[] proof, bytes32 root, bytes32 leaf) → bool++` [.item-kind]#internal#
+
+Returns true if a `leaf` can be proved to be a part of a Merkle tree
+defined by `root`. For this, a `proof` must be provided, containing
+sibling hashes on the branch from the leaf to the root of the tree. Each
+pair of leaves and each pair of pre-images are assumed to be sorted.
+
+This version handles proofs in calldata with the default hashing function.
+
+[.contract-item]
+[[MerkleProof-processProofCalldata-bytes32---bytes32-]]
+==== `[.contract-item-name]#++processProofCalldata++#++(bytes32[] proof, bytes32 leaf) → bytes32++` [.item-kind]#internal#
+
+Returns the rebuilt hash obtained by traversing a Merkle tree up
+from `leaf` using `proof`. A `proof` is valid if and only if the rebuilt
+hash matches the root of the tree. When processing the proof, the pairs
+of leaves & pre-images are assumed to be sorted.
+
+This version handles proofs in calldata with the default hashing function.
+
+[.contract-item]
+[[MerkleProof-verifyCalldata-bytes32---bytes32-bytes32-function--bytes32-bytes32--view-returns--bytes32--]]
+==== `[.contract-item-name]#++verifyCalldata++#++(bytes32[] proof, bytes32 root, bytes32 leaf, function (bytes32,bytes32) view returns (bytes32) hasher) → bool++` [.item-kind]#internal#
+
+Returns true if a `leaf` can be proved to be a part of a Merkle tree
+defined by `root`. For this, a `proof` must be provided, containing
+sibling hashes on the branch from the leaf to the root of the tree. Each
+pair of leaves and each pair of pre-images are assumed to be sorted.
+
+This version handles proofs in calldata with a custom hashing function.
+
+[.contract-item]
+[[MerkleProof-processProofCalldata-bytes32---bytes32-function--bytes32-bytes32--view-returns--bytes32--]]
+==== `[.contract-item-name]#++processProofCalldata++#++(bytes32[] proof, bytes32 leaf, function (bytes32,bytes32) view returns (bytes32) hasher) → bytes32++` [.item-kind]#internal#
+
+Returns the rebuilt hash obtained by traversing a Merkle tree up
+from `leaf` using `proof`. A `proof` is valid if and only if the rebuilt
+hash matches the root of the tree. When processing the proof, the pairs
+of leaves & pre-images are assumed to be sorted.
+
+This version handles proofs in calldata with a custom hashing function.
+
+[.contract-item]
+[[MerkleProof-multiProofVerify-bytes32---bool---bytes32-bytes32---]]
+==== `[.contract-item-name]#++multiProofVerify++#++(bytes32[] proof, bool[] proofFlags, bytes32 root, bytes32[] leaves) → bool++` [.item-kind]#internal#
+
+Returns true if the `leaves` can be simultaneously proven to be a part of a Merkle tree defined by
+`root`, according to `proof` and `proofFlags` as described in {processMultiProof}.
+
+This version handles multiproofs in memory with the default hashing function.
+
+CAUTION: Not all Merkle trees admit multiproofs. See {processMultiProof} for details.
+
+NOTE: Consider the case where `root == proof[0] && leaves.length == 0` as it will return `true`.
+The `leaves` must be validated independently. See {processMultiProof}.
+
+[.contract-item]
+[[MerkleProof-processMultiProof-bytes32---bool---bytes32---]]
+==== `[.contract-item-name]#++processMultiProof++#++(bytes32[] proof, bool[] proofFlags, bytes32[] leaves) → bytes32 merkleRoot++` [.item-kind]#internal#
+
+Returns the root of a tree reconstructed from `leaves` and sibling nodes in `proof`. The reconstruction
+proceeds by incrementally reconstructing all inner nodes by combining a leaf/inner node with either another
+leaf/inner node or a proof sibling node, depending on whether each `proofFlags` item is true or false
+respectively.
+
+This version handles multiproofs in memory with the default hashing function.
+
+CAUTION: Not all Merkle trees admit multiproofs. To use multiproofs, it is sufficient to ensure that: 1) the tree
+is complete (but not necessarily perfect), 2) the leaves to be proven are in the opposite order they are in the
+tree (i.e., as seen from right to left starting at the deepest layer and continuing at the next layer).
+
+NOTE: The _empty set_ (i.e. the case where `proof.length == 1 && leaves.length == 0`) is considered a no-op,
+and therefore a valid multiproof (i.e. it returns `proof[0]`). Consider disallowing this case if you're not
+validating the leaves elsewhere.
+
+[.contract-item]
+[[MerkleProof-multiProofVerify-bytes32---bool---bytes32-bytes32---function--bytes32-bytes32--view-returns--bytes32--]]
+==== `[.contract-item-name]#++multiProofVerify++#++(bytes32[] proof, bool[] proofFlags, bytes32 root, bytes32[] leaves, function (bytes32,bytes32) view returns (bytes32) hasher) → bool++` [.item-kind]#internal#
+
+Returns true if the `leaves` can be simultaneously proven to be a part of a Merkle tree defined by
+`root`, according to `proof` and `proofFlags` as described in {processMultiProof}.
+
+This version handles multiproofs in memory with a custom hashing function.
+
+CAUTION: Not all Merkle trees admit multiproofs. See {processMultiProof} for details.
+
+NOTE: Consider the case where `root == proof[0] && leaves.length == 0` as it will return `true`.
+The `leaves` must be validated independently. See {processMultiProof}.
+
+[.contract-item]
+[[MerkleProof-processMultiProof-bytes32---bool---bytes32---function--bytes32-bytes32--view-returns--bytes32--]]
+==== `[.contract-item-name]#++processMultiProof++#++(bytes32[] proof, bool[] proofFlags, bytes32[] leaves, function (bytes32,bytes32) view returns (bytes32) hasher) → bytes32 merkleRoot++` [.item-kind]#internal#
+
+Returns the root of a tree reconstructed from `leaves` and sibling nodes in `proof`. The reconstruction
+proceeds by incrementally reconstructing all inner nodes by combining a leaf/inner node with either another
+leaf/inner node or a proof sibling node, depending on whether each `proofFlags` item is true or false
+respectively.
+
+This version handles multiproofs in memory with a custom hashing function.
+
+CAUTION: Not all Merkle trees admit multiproofs. To use multiproofs, it is sufficient to ensure that: 1) the tree
+is complete (but not necessarily perfect), 2) the leaves to be proven are in the opposite order they are in the
+tree (i.e., as seen from right to left starting at the deepest layer and continuing at the next layer).
+
+NOTE: The _empty set_ (i.e. the case where `proof.length == 1 && leaves.length == 0`) is considered a no-op,
+and therefore a valid multiproof (i.e. it returns `proof[0]`). Consider disallowing this case if you're not
+validating the leaves elsewhere.
+
+[.contract-item]
+[[MerkleProof-multiProofVerifyCalldata-bytes32---bool---bytes32-bytes32---]]
+==== `[.contract-item-name]#++multiProofVerifyCalldata++#++(bytes32[] proof, bool[] proofFlags, bytes32 root, bytes32[] leaves) → bool++` [.item-kind]#internal#
+
+Returns true if the `leaves` can be simultaneously proven to be a part of a Merkle tree defined by
+`root`, according to `proof` and `proofFlags` as described in {processMultiProof}.
+
+This version handles multiproofs in calldata with the default hashing function.
+
+CAUTION: Not all Merkle trees admit multiproofs. See {processMultiProof} for details.
+
+NOTE: Consider the case where `root == proof[0] && leaves.length == 0` as it will return `true`.
+The `leaves` must be validated independently. See {processMultiProofCalldata}.
+
+[.contract-item]
+[[MerkleProof-processMultiProofCalldata-bytes32---bool---bytes32---]]
+==== `[.contract-item-name]#++processMultiProofCalldata++#++(bytes32[] proof, bool[] proofFlags, bytes32[] leaves) → bytes32 merkleRoot++` [.item-kind]#internal#
+
+Returns the root of a tree reconstructed from `leaves` and sibling nodes in `proof`. The reconstruction
+proceeds by incrementally reconstructing all inner nodes by combining a leaf/inner node with either another
+leaf/inner node or a proof sibling node, depending on whether each `proofFlags` item is true or false
+respectively.
+
+This version handles multiproofs in calldata with the default hashing function.
+
+CAUTION: Not all Merkle trees admit multiproofs. To use multiproofs, it is sufficient to ensure that: 1) the tree
+is complete (but not necessarily perfect), 2) the leaves to be proven are in the opposite order they are in the
+tree (i.e., as seen from right to left starting at the deepest layer and continuing at the next layer).
+
+NOTE: The _empty set_ (i.e. the case where `proof.length == 1 && leaves.length == 0`) is considered a no-op,
+and therefore a valid multiproof (i.e. it returns `proof[0]`). Consider disallowing this case if you're not
+validating the leaves elsewhere.
+
+[.contract-item]
+[[MerkleProof-multiProofVerifyCalldata-bytes32---bool---bytes32-bytes32---function--bytes32-bytes32--view-returns--bytes32--]]
+==== `[.contract-item-name]#++multiProofVerifyCalldata++#++(bytes32[] proof, bool[] proofFlags, bytes32 root, bytes32[] leaves, function (bytes32,bytes32) view returns (bytes32) hasher) → bool++` [.item-kind]#internal#
+
+Returns true if the `leaves` can be simultaneously proven to be a part of a Merkle tree defined by
+`root`, according to `proof` and `proofFlags` as described in {processMultiProof}.
+
+This version handles multiproofs in calldata with a custom hashing function.
+
+CAUTION: Not all Merkle trees admit multiproofs. See {processMultiProof} for details.
+
+NOTE: Consider the case where `root == proof[0] && leaves.length == 0` as it will return `true`.
+The `leaves` must be validated independently. See {processMultiProofCalldata}.
+
+[.contract-item]
+[[MerkleProof-processMultiProofCalldata-bytes32---bool---bytes32---function--bytes32-bytes32--view-returns--bytes32--]]
+==== `[.contract-item-name]#++processMultiProofCalldata++#++(bytes32[] proof, bool[] proofFlags, bytes32[] leaves, function (bytes32,bytes32) view returns (bytes32) hasher) → bytes32 merkleRoot++` [.item-kind]#internal#
+
+Returns the root of a tree reconstructed from `leaves` and sibling nodes in `proof`. The reconstruction
+proceeds by incrementally reconstructing all inner nodes by combining a leaf/inner node with either another
+leaf/inner node or a proof sibling node, depending on whether each `proofFlags` item is true or false
+respectively.
+
+This version handles multiproofs in calldata with a custom hashing function.
+
+CAUTION: Not all Merkle trees admit multiproofs. To use multiproofs, it is sufficient to ensure that: 1) the tree
+is complete (but not necessarily perfect), 2) the leaves to be proven are in the opposite order they are in the
+tree (i.e., as seen from right to left starting at the deepest layer and continuing at the next layer).
+
+NOTE: The _empty set_ (i.e. the case where `proof.length == 1 && leaves.length == 0`) is considered a no-op,
+and therefore a valid multiproof (i.e. it returns `proof[0]`). Consider disallowing this case if you're not
+validating the leaves elsewhere.
+
+[.contract-item]
+[[MerkleProof-MerkleProofInvalidMultiproof--]]
+==== `[.contract-item-name]#++MerkleProofInvalidMultiproof++#++()++` [.item-kind]#error#
+
+The multiproof provided is not valid.
+
+:constructor: pass:normal[xref:#EIP712-constructor-string-string-[`++constructor++`]]
+:_domainSeparatorV4: pass:normal[xref:#EIP712-_domainSeparatorV4--[`++_domainSeparatorV4++`]]
+:_hashTypedDataV4: pass:normal[xref:#EIP712-_hashTypedDataV4-bytes32-[`++_hashTypedDataV4++`]]
+:eip712Domain: pass:normal[xref:#EIP712-eip712Domain--[`++eip712Domain++`]]
+:_EIP712Name: pass:normal[xref:#EIP712-_EIP712Name--[`++_EIP712Name++`]]
+:_EIP712Version: pass:normal[xref:#EIP712-_EIP712Version--[`++_EIP712Version++`]]
+
+:constructor-string-string: pass:normal[xref:#EIP712-constructor-string-string-[`++constructor++`]]
+:_domainSeparatorV4-: pass:normal[xref:#EIP712-_domainSeparatorV4--[`++_domainSeparatorV4++`]]
+:_hashTypedDataV4-bytes32: pass:normal[xref:#EIP712-_hashTypedDataV4-bytes32-[`++_hashTypedDataV4++`]]
+:eip712Domain-: pass:normal[xref:#EIP712-eip712Domain--[`++eip712Domain++`]]
+:_EIP712Name-: pass:normal[xref:#EIP712-_EIP712Name--[`++_EIP712Name++`]]
+:_EIP712Version-: pass:normal[xref:#EIP712-_EIP712Version--[`++_EIP712Version++`]]
+
+[.contract]
+[[EIP712]]
+=== `++EIP712++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/utils/cryptography/EIP712.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
+```
+
+https://eips.ethereum.org/EIPS/eip-712[EIP-712] is a standard for hashing and signing of typed structured data.
+
+The encoding scheme specified in the EIP requires a domain separator and a hash of the typed structured data, whose
+encoding is very generic and therefore its implementation in Solidity is not feasible, thus this contract
+does not implement the encoding itself. Protocols need to implement the type-specific encoding they need in order to
+produce the hash of their typed data using a combination of `abi.encode` and `keccak256`.
+
+This contract implements the EIP-712 domain separator ({_domainSeparatorV4}) that is used as part of the encoding
+scheme, and the final step of the encoding to obtain the message digest that is then signed via ECDSA
+({_hashTypedDataV4}).
+
+The implementation of the domain separator was designed to be as efficient as possible while still properly updating
+the chain id to protect against replay attacks on an eventual fork of the chain.
+
+NOTE: This contract implements the version of the encoding known as "v4", as implemented by the JSON RPC method
+https://docs.metamask.io/guide/signing-data.html[`eth_signTypedDataV4` in MetaMask].
+
+NOTE: In the upgradeable version of this contract, the cached values will correspond to the address, and the domain
+separator of the implementation contract. This will cause the {_domainSeparatorV4} function to always rebuild the
+separator from the immutable values, which is cheaper than accessing a cached version in cold storage.
+
+[.contract-index]
+.Functions
+--
+* {xref-EIP712-constructor-string-string-}[`++constructor(name, version)++`]
+* {xref-EIP712-_domainSeparatorV4--}[`++_domainSeparatorV4()++`]
+* {xref-EIP712-_hashTypedDataV4-bytes32-}[`++_hashTypedDataV4(structHash)++`]
+* {xref-EIP712-eip712Domain--}[`++eip712Domain()++`]
+* {xref-EIP712-_EIP712Name--}[`++_EIP712Name()++`]
+* {xref-EIP712-_EIP712Version--}[`++_EIP712Version()++`]
+
+[.contract-subindex-inherited]
+.IERC5267
+
+--
+
+[.contract-index]
+.Events
+--
+
+[.contract-subindex-inherited]
+.IERC5267
+* {xref-IERC5267-EIP712DomainChanged--}[`++EIP712DomainChanged()++`]
+
+--
+
+[.contract-item]
+[[EIP712-constructor-string-string-]]
+==== `[.contract-item-name]#++constructor++#++(string name, string version)++` [.item-kind]#internal#
+
+Initializes the domain separator and parameter caches.
+
+The meaning of `name` and `version` is specified in
+https://eips.ethereum.org/EIPS/eip-712#definition-of-domainseparator[EIP-712]:
+
+- `name`: the user readable name of the signing domain, i.e. the name of the DApp or the protocol.
+- `version`: the current major version of the signing domain.
+
+NOTE: These parameters cannot be changed except through a xref:learn::upgrading-smart-contracts.adoc[smart
+contract upgrade].
+
+[.contract-item]
+[[EIP712-_domainSeparatorV4--]]
+==== `[.contract-item-name]#++_domainSeparatorV4++#++() → bytes32++` [.item-kind]#internal#
+
+Returns the domain separator for the current chain.
+
+[.contract-item]
+[[EIP712-_hashTypedDataV4-bytes32-]]
+==== `[.contract-item-name]#++_hashTypedDataV4++#++(bytes32 structHash) → bytes32++` [.item-kind]#internal#
+
+Given an already https://eips.ethereum.org/EIPS/eip-712#definition-of-hashstruct[hashed struct], this
+function returns the hash of the fully encoded EIP712 message for this domain.
+
+This hash can be used together with {ECDSA-recover} to obtain the signer of a message. For example:
+
+```solidity
+bytes32 digest = _hashTypedDataV4(keccak256(abi.encode(
+    keccak256("Mail(address to,string contents)"),
+    mailTo,
+    keccak256(bytes(mailContents))
+)));
+address signer = ECDSA.recover(digest, signature);
+```
+
+[.contract-item]
+[[EIP712-eip712Domain--]]
+==== `[.contract-item-name]#++eip712Domain++#++() → bytes1 fields, string name, string version, uint256 chainId, address verifyingContract, bytes32 salt, uint256[] extensions++` [.item-kind]#public#
+
+returns the fields and values that describe the domain separator used by this contract for EIP-712
+signature.
+
+[.contract-item]
+[[EIP712-_EIP712Name--]]
+==== `[.contract-item-name]#++_EIP712Name++#++() → string++` [.item-kind]#internal#
+
+The name parameter for the EIP712 domain.
+
+NOTE: By default this function reads _name which is an immutable value.
+It only reads from storage if necessary (in case the value is too large to fit in a ShortString).
+
+[.contract-item]
+[[EIP712-_EIP712Version--]]
+==== `[.contract-item-name]#++_EIP712Version++#++() → string++` [.item-kind]#internal#
+
+The version parameter for the EIP712 domain.
+
+NOTE: By default this function reads _version which is an immutable value.
+It only reads from storage if necessary (in case the value is too large to fit in a ShortString).
+
+:encodeTypedDataSig: pass:normal[xref:#ERC7739Utils-encodeTypedDataSig-bytes-bytes32-bytes32-string-[`++encodeTypedDataSig++`]]
+:decodeTypedDataSig: pass:normal[xref:#ERC7739Utils-decodeTypedDataSig-bytes-[`++decodeTypedDataSig++`]]
+:personalSignStructHash: pass:normal[xref:#ERC7739Utils-personalSignStructHash-bytes32-[`++personalSignStructHash++`]]
+:typedDataSignStructHash: pass:normal[xref:#ERC7739Utils-typedDataSignStructHash-string-string-bytes32-bytes-[`++typedDataSignStructHash++`]]
+:typedDataSignStructHash: pass:normal[xref:#ERC7739Utils-typedDataSignStructHash-string-bytes32-bytes-[`++typedDataSignStructHash++`]]
+:typedDataSignTypehash: pass:normal[xref:#ERC7739Utils-typedDataSignTypehash-string-string-[`++typedDataSignTypehash++`]]
+:decodeContentsDescr: pass:normal[xref:#ERC7739Utils-decodeContentsDescr-string-[`++decodeContentsDescr++`]]
+
+:encodeTypedDataSig-bytes-bytes32-bytes32-string: pass:normal[xref:#ERC7739Utils-encodeTypedDataSig-bytes-bytes32-bytes32-string-[`++encodeTypedDataSig++`]]
+:decodeTypedDataSig-bytes: pass:normal[xref:#ERC7739Utils-decodeTypedDataSig-bytes-[`++decodeTypedDataSig++`]]
+:personalSignStructHash-bytes32: pass:normal[xref:#ERC7739Utils-personalSignStructHash-bytes32-[`++personalSignStructHash++`]]
+:typedDataSignStructHash-string-string-bytes32-bytes: pass:normal[xref:#ERC7739Utils-typedDataSignStructHash-string-string-bytes32-bytes-[`++typedDataSignStructHash++`]]
+:typedDataSignStructHash-string-bytes32-bytes: pass:normal[xref:#ERC7739Utils-typedDataSignStructHash-string-bytes32-bytes-[`++typedDataSignStructHash++`]]
+:typedDataSignTypehash-string-string: pass:normal[xref:#ERC7739Utils-typedDataSignTypehash-string-string-[`++typedDataSignTypehash++`]]
+:decodeContentsDescr-string: pass:normal[xref:#ERC7739Utils-decodeContentsDescr-string-[`++decodeContentsDescr++`]]
+
+[.contract]
+[[ERC7739Utils]]
+=== `++ERC7739Utils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/utils/cryptography/draft-ERC7739Utils.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/utils/cryptography/draft-ERC7739Utils.sol";
+```
+
+Utilities to process https://ercs.ethereum.org/ERCS/erc-7739[ERC-7739] typed data signatures
+that are specific to an EIP-712 domain.
+
+This library provides methods to wrap, unwrap and operate over typed data signatures with a defensive
+rehashing mechanism that includes the app's xref:api:utils/cryptography#EIP712-_domainSeparatorV4[EIP-712]
+and preserves readability of the signed content using an EIP-712 nested approach.
+
+A smart contract domain can validate a signature for a typed data structure in two ways:
+
+- As an application validating a typed data signature. See {typedDataSignStructHash}.
+- As a smart contract validating a raw message signature. See {personalSignStructHash}.
+
+NOTE: A provider for a smart contract wallet would need to return this signature as the
+result of a call to `personal_sign` or `eth_signTypedData`, and this may be unsupported by
+API clients that expect a return value of 129 bytes, or specifically the `r,s,v` parameters
+of an xref:api:utils/cryptography#ECDSA[ECDSA] signature, as is for example specified for
+xref:api:utils/cryptography#EIP712[EIP-712].
+
+[.contract-index]
+.Functions
+--
+* {xref-ERC7739Utils-encodeTypedDataSig-bytes-bytes32-bytes32-string-}[`++encodeTypedDataSig(signature, appSeparator, contentsHash, contentsDescr)++`]
+* {xref-ERC7739Utils-decodeTypedDataSig-bytes-}[`++decodeTypedDataSig(encodedSignature)++`]
+* {xref-ERC7739Utils-personalSignStructHash-bytes32-}[`++personalSignStructHash(contents)++`]
+* {xref-ERC7739Utils-typedDataSignStructHash-string-string-bytes32-bytes-}[`++typedDataSignStructHash(contentsName, contentsType, contentsHash, domainBytes)++`]
+* {xref-ERC7739Utils-typedDataSignStructHash-string-bytes32-bytes-}[`++typedDataSignStructHash(contentsDescr, contentsHash, domainBytes)++`]
+* {xref-ERC7739Utils-typedDataSignTypehash-string-string-}[`++typedDataSignTypehash(contentsName, contentsType)++`]
+* {xref-ERC7739Utils-decodeContentsDescr-string-}[`++decodeContentsDescr(contentsDescr)++`]
+
+--
+
+[.contract-item]
+[[ERC7739Utils-encodeTypedDataSig-bytes-bytes32-bytes32-string-]]
+==== `[.contract-item-name]#++encodeTypedDataSig++#++(bytes signature, bytes32 appSeparator, bytes32 contentsHash, string contentsDescr) → bytes++` [.item-kind]#internal#
+
+Nest a signature for a given EIP-712 type into a nested signature for the domain of the app.
+
+Counterpart of {decodeTypedDataSig} to extract the original signature and the nested components.
+
+[.contract-item]
+[[ERC7739Utils-decodeTypedDataSig-bytes-]]
+==== `[.contract-item-name]#++decodeTypedDataSig++#++(bytes encodedSignature) → bytes signature, bytes32 appSeparator, bytes32 contentsHash, string contentsDescr++` [.item-kind]#internal#
+
+Parses a nested signature into its components.
+
+Constructed as follows:
+
+`signature ‖ APP_DOMAIN_SEPARATOR ‖ contentsHash ‖ contentsDescr ‖ uint16(contentsDescr.length)`
+
+- `signature` is the signature for the (ERC-7739) nested struct hash. This signature indirectly signs over the
+  original "contents" hash (from the app) and the account's domain separator.
+- `APP_DOMAIN_SEPARATOR` is the EIP-712 {EIP712-_domainSeparatorV4} of the application smart contract that is
+  requesting the signature verification (though ERC-1271).
+- `contentsHash` is the hash of the underlying data structure or message.
+- `contentsDescr` is a descriptor of the "contents" part of the the EIP-712 type of the nested signature.
+
+NOTE: This function returns empty if the input format is invalid instead of reverting.
+data instead.
+
+[.contract-item]
+[[ERC7739Utils-personalSignStructHash-bytes32-]]
+==== `[.contract-item-name]#++personalSignStructHash++#++(bytes32 contents) → bytes32++` [.item-kind]#internal#
+
+Nests an `ERC-191` digest into a `PersonalSign` EIP-712 struct, and returns the corresponding struct hash.
+This struct hash must be combined with a domain separator, using {MessageHashUtils-toTypedDataHash} before
+being verified/recovered.
+
+This is used to simulates the `personal_sign` RPC method in the context of smart contracts.
+
+[.contract-item]
+[[ERC7739Utils-typedDataSignStructHash-string-string-bytes32-bytes-]]
+==== `[.contract-item-name]#++typedDataSignStructHash++#++(string contentsName, string contentsType, bytes32 contentsHash, bytes domainBytes) → bytes32 result++` [.item-kind]#internal#
+
+Nests an `EIP-712` hash (`contents`) into a `TypedDataSign` EIP-712 struct, and returns the corresponding
+struct hash. This struct hash must be combined with a domain separator, using {MessageHashUtils-toTypedDataHash}
+before being verified/recovered.
+
+[.contract-item]
+[[ERC7739Utils-typedDataSignStructHash-string-bytes32-bytes-]]
+==== `[.contract-item-name]#++typedDataSignStructHash++#++(string contentsDescr, bytes32 contentsHash, bytes domainBytes) → bytes32 result++` [.item-kind]#internal#
+
+Variant of {typedDataSignStructHash-string-string-bytes32-bytes} that takes a content descriptor
+and decodes the `contentsName` and `contentsType` out of it.
+
+[.contract-item]
+[[ERC7739Utils-typedDataSignTypehash-string-string-]]
+==== `[.contract-item-name]#++typedDataSignTypehash++#++(string contentsName, string contentsType) → bytes32++` [.item-kind]#internal#
+
+Compute the EIP-712 typehash of the `TypedDataSign` structure for a given type (and typename).
+
+[.contract-item]
+[[ERC7739Utils-decodeContentsDescr-string-]]
+==== `[.contract-item-name]#++decodeContentsDescr++#++(string contentsDescr) → string contentsName, string contentsType++` [.item-kind]#internal#
+
+Parse the type name out of the ERC-7739 contents type description. Supports both the implicit and explicit
+modes.
+
+Following ERC-7739 specifications, a `contentsName` is considered invalid if it's empty or it contains
+any of the following bytes , )\x00
+
+If the `contentsType` is invalid, this returns an empty string. Otherwise, the return string has non-zero
+length.
+
+== Abstract Signers
+
+:_rawSignatureValidation: pass:normal[xref:#AbstractSigner-_rawSignatureValidation-bytes32-bytes-[`++_rawSignatureValidation++`]]
+
+:_rawSignatureValidation-bytes32-bytes: pass:normal[xref:#AbstractSigner-_rawSignatureValidation-bytes32-bytes-[`++_rawSignatureValidation++`]]
+
+[.contract]
+[[AbstractSigner]]
+=== `++AbstractSigner++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/utils/cryptography/signers/AbstractSigner.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/utils/cryptography/signers/AbstractSigner.sol";
+```
+
+Abstract contract for signature validation.
+
+Developers must implement {_rawSignatureValidation} and use it as the lowest-level signature validation mechanism.
+
+@custom:stateless
+
+[.contract-index]
+.Functions
+--
+* {xref-AbstractSigner-_rawSignatureValidation-bytes32-bytes-}[`++_rawSignatureValidation(hash, signature)++`]
+
+--
+
+[.contract-item]
+[[AbstractSigner-_rawSignatureValidation-bytes32-bytes-]]
+==== `[.contract-item-name]#++_rawSignatureValidation++#++(bytes32 hash, bytes signature) → bool++` [.item-kind]#internal#
+
+Signature validation algorithm.
+
+WARNING: Implementing a signature validation algorithm is a security-sensitive operation as it involves
+cryptographic verification. It is important to review and test thoroughly before deployment. Consider
+using one of the signature verification libraries (xref:api:utils/cryptography#ECDSA[ECDSA],
+xref:api:utils/cryptography#P256[P256] or xref:api:utils/cryptography#RSA[RSA]).
+
+:isValidSignature: pass:normal[xref:#ERC7739-isValidSignature-bytes32-bytes-[`++isValidSignature++`]]
+
+:isValidSignature-bytes32-bytes: pass:normal[xref:#ERC7739-isValidSignature-bytes32-bytes-[`++isValidSignature++`]]
+
+[.contract]
+[[ERC7739]]
+=== `++ERC7739++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/utils/cryptography/signers/draft-ERC7739.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/utils/cryptography/signers/draft-ERC7739.sol";
+```
+
+Validates signatures wrapping the message hash in a nested EIP712 type. See {ERC7739Utils}.
+
+Linking the signature to the EIP-712 domain separator is a security measure to prevent signature replay across different
+EIP-712 domains (e.g. a single offchain owner of multiple contracts).
+
+This contract requires implementing the {_rawSignatureValidation} function, which passes the wrapped message hash,
+which may be either an typed data or a personal sign nested type.
+
+NOTE: xref:api:utils/cryptography#EIP712[EIP-712] uses xref:api:utils/cryptography#ShortStrings[ShortStrings] to
+optimize gas costs for short strings (up to 31 characters). Consider that strings longer than that will use storage,
+which may limit the ability of the signer to be used within the ERC-4337 validation phase (due to
+https://eips.ethereum.org/EIPS/eip-7562#storage-rules[ERC-7562 storage access rules]).
+
+[.contract-index]
+.Functions
+--
+* {xref-ERC7739-isValidSignature-bytes32-bytes-}[`++isValidSignature(hash, signature)++`]
+
+[.contract-subindex-inherited]
+.IERC1271
+
+[.contract-subindex-inherited]
+.EIP712
+* {xref-EIP712-_domainSeparatorV4--}[`++_domainSeparatorV4()++`]
+* {xref-EIP712-_hashTypedDataV4-bytes32-}[`++_hashTypedDataV4(structHash)++`]
+* {xref-EIP712-eip712Domain--}[`++eip712Domain()++`]
+* {xref-EIP712-_EIP712Name--}[`++_EIP712Name()++`]
+* {xref-EIP712-_EIP712Version--}[`++_EIP712Version()++`]
+
+[.contract-subindex-inherited]
+.IERC5267
+
+[.contract-subindex-inherited]
+.AbstractSigner
+* {xref-AbstractSigner-_rawSignatureValidation-bytes32-bytes-}[`++_rawSignatureValidation(hash, signature)++`]
+
+--
+
+[.contract-index]
+.Events
+--
+
+[.contract-subindex-inherited]
+.IERC1271
+
+[.contract-subindex-inherited]
+.EIP712
+
+[.contract-subindex-inherited]
+.IERC5267
+* {xref-IERC5267-EIP712DomainChanged--}[`++EIP712DomainChanged()++`]
+
+[.contract-subindex-inherited]
+.AbstractSigner
+
+--
+
+[.contract-item]
+[[ERC7739-isValidSignature-bytes32-bytes-]]
+==== `[.contract-item-name]#++isValidSignature++#++(bytes32 hash, bytes signature) → bytes4 result++` [.item-kind]#public#
+
+Attempts validating the signature in a nested EIP-712 type.
+
+A nested EIP-712 type might be presented in 2 different ways:
+
+- As a nested EIP-712 typed data
+- As a _personal_ signature (an EIP-712 mimic of the `eth_personalSign` for a smart contract)
+
+:constructor: pass:normal[xref:#SignerECDSA-constructor-address-[`++constructor++`]]
+:_setSigner: pass:normal[xref:#SignerECDSA-_setSigner-address-[`++_setSigner++`]]
+:signer: pass:normal[xref:#SignerECDSA-signer--[`++signer++`]]
+:_rawSignatureValidation: pass:normal[xref:#SignerECDSA-_rawSignatureValidation-bytes32-bytes-[`++_rawSignatureValidation++`]]
+
+:constructor-address: pass:normal[xref:#SignerECDSA-constructor-address-[`++constructor++`]]
+:_setSigner-address: pass:normal[xref:#SignerECDSA-_setSigner-address-[`++_setSigner++`]]
+:signer-: pass:normal[xref:#SignerECDSA-signer--[`++signer++`]]
+:_rawSignatureValidation-bytes32-bytes: pass:normal[xref:#SignerECDSA-_rawSignatureValidation-bytes32-bytes-[`++_rawSignatureValidation++`]]
+
+[.contract]
+[[SignerECDSA]]
+=== `++SignerECDSA++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/utils/cryptography/signers/SignerECDSA.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/utils/cryptography/signers/SignerECDSA.sol";
+```
+
+Implementation of {AbstractSigner} using xref:api:utils/cryptography#ECDSA[ECDSA] signatures.
+
+For {Account} usage, a {_setSigner} function is provided to set the {signer} address.
+Doing so is easier for a factory, who is likely to use initializable clones of this contract.
+
+Example of usage:
+
+```solidity
+contract MyAccountECDSA is Account, SignerECDSA, Initializable {
+    function initialize(address signerAddr) public initializer {
+      _setSigner(signerAddr);
+    }
+}
+```
+
+IMPORTANT: Failing to call {_setSigner} either during construction (if used standalone)
+or during initialization (if used as a clone) may leave the signer either front-runnable or unusable.
+
+[.contract-index]
+.Functions
+--
+* {xref-SignerECDSA-constructor-address-}[`++constructor(signerAddr)++`]
+* {xref-SignerECDSA-_setSigner-address-}[`++_setSigner(signerAddr)++`]
+* {xref-SignerECDSA-signer--}[`++signer()++`]
+* {xref-SignerECDSA-_rawSignatureValidation-bytes32-bytes-}[`++_rawSignatureValidation(hash, signature)++`]
+
+[.contract-subindex-inherited]
+.AbstractSigner
+
+--
+
+[.contract-item]
+[[SignerECDSA-constructor-address-]]
+==== `[.contract-item-name]#++constructor++#++(address signerAddr)++` [.item-kind]#internal#
+
+[.contract-item]
+[[SignerECDSA-_setSigner-address-]]
+==== `[.contract-item-name]#++_setSigner++#++(address signerAddr)++` [.item-kind]#internal#
+
+Sets the signer with the address of the native signer. This function should be called during construction
+or through an initializer.
+
+[.contract-item]
+[[SignerECDSA-signer--]]
+==== `[.contract-item-name]#++signer++#++() → address++` [.item-kind]#public#
+
+Return the signer's address.
+
+[.contract-item]
+[[SignerECDSA-_rawSignatureValidation-bytes32-bytes-]]
+==== `[.contract-item-name]#++_rawSignatureValidation++#++(bytes32 hash, bytes signature) → bool++` [.item-kind]#internal#
+
+Signature validation algorithm.
+
+WARNING: Implementing a signature validation algorithm is a security-sensitive operation as it involves
+cryptographic verification. It is important to review and test thoroughly before deployment. Consider
+using one of the signature verification libraries (xref:api:utils/cryptography#ECDSA[ECDSA],
+xref:api:utils/cryptography#P256[P256] or xref:api:utils/cryptography#RSA[RSA]).
+
+:SignerP256InvalidPublicKey: pass:normal[xref:#SignerP256-SignerP256InvalidPublicKey-bytes32-bytes32-[`++SignerP256InvalidPublicKey++`]]
+:constructor: pass:normal[xref:#SignerP256-constructor-bytes32-bytes32-[`++constructor++`]]
+:_setSigner: pass:normal[xref:#SignerP256-_setSigner-bytes32-bytes32-[`++_setSigner++`]]
+:signer: pass:normal[xref:#SignerP256-signer--[`++signer++`]]
+:_rawSignatureValidation: pass:normal[xref:#SignerP256-_rawSignatureValidation-bytes32-bytes-[`++_rawSignatureValidation++`]]
+
+:constructor-bytes32-bytes32: pass:normal[xref:#SignerP256-constructor-bytes32-bytes32-[`++constructor++`]]
+:_setSigner-bytes32-bytes32: pass:normal[xref:#SignerP256-_setSigner-bytes32-bytes32-[`++_setSigner++`]]
+:signer-: pass:normal[xref:#SignerP256-signer--[`++signer++`]]
+:_rawSignatureValidation-bytes32-bytes: pass:normal[xref:#SignerP256-_rawSignatureValidation-bytes32-bytes-[`++_rawSignatureValidation++`]]
+
+[.contract]
+[[SignerP256]]
+=== `++SignerP256++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/utils/cryptography/signers/SignerP256.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/utils/cryptography/signers/SignerP256.sol";
+```
+
+Implementation of {AbstractSigner} using xref:api:utils/cryptography#P256[P256] signatures.
+
+For {Account} usage, a {_setSigner} function is provided to set the {signer} public key.
+Doing so is easier for a factory, who is likely to use initializable clones of this contract.
+
+Example of usage:
+
+```solidity
+contract MyAccountP256 is Account, SignerP256, Initializable {
+    function initialize(bytes32 qx, bytes32 qy) public initializer {
+      _setSigner(qx, qy);
+    }
+}
+```
+
+IMPORTANT: Failing to call {_setSigner} either during construction (if used standalone)
+or during initialization (if used as a clone) may leave the signer either front-runnable or unusable.
+
+[.contract-index]
+.Functions
+--
+* {xref-SignerP256-constructor-bytes32-bytes32-}[`++constructor(qx, qy)++`]
+* {xref-SignerP256-_setSigner-bytes32-bytes32-}[`++_setSigner(qx, qy)++`]
+* {xref-SignerP256-signer--}[`++signer()++`]
+* {xref-SignerP256-_rawSignatureValidation-bytes32-bytes-}[`++_rawSignatureValidation(hash, signature)++`]
+
+[.contract-subindex-inherited]
+.AbstractSigner
+
+--
+
+[.contract-index]
+.Errors
+--
+* {xref-SignerP256-SignerP256InvalidPublicKey-bytes32-bytes32-}[`++SignerP256InvalidPublicKey(qx, qy)++`]
+
+[.contract-subindex-inherited]
+.AbstractSigner
+
+--
+
+[.contract-item]
+[[SignerP256-constructor-bytes32-bytes32-]]
+==== `[.contract-item-name]#++constructor++#++(bytes32 qx, bytes32 qy)++` [.item-kind]#internal#
+
+[.contract-item]
+[[SignerP256-_setSigner-bytes32-bytes32-]]
+==== `[.contract-item-name]#++_setSigner++#++(bytes32 qx, bytes32 qy)++` [.item-kind]#internal#
+
+Sets the signer with a P256 public key. This function should be called during construction
+or through an initializer.
+
+[.contract-item]
+[[SignerP256-signer--]]
+==== `[.contract-item-name]#++signer++#++() → bytes32 qx, bytes32 qy++` [.item-kind]#public#
+
+Return the signer's P256 public key.
+
+[.contract-item]
+[[SignerP256-_rawSignatureValidation-bytes32-bytes-]]
+==== `[.contract-item-name]#++_rawSignatureValidation++#++(bytes32 hash, bytes signature) → bool++` [.item-kind]#internal#
+
+Signature validation algorithm.
+
+WARNING: Implementing a signature validation algorithm is a security-sensitive operation as it involves
+cryptographic verification. It is important to review and test thoroughly before deployment. Consider
+using one of the signature verification libraries (xref:api:utils/cryptography#ECDSA[ECDSA],
+xref:api:utils/cryptography#P256[P256] or xref:api:utils/cryptography#RSA[RSA]).
+
+[.contract-item]
+[[SignerP256-SignerP256InvalidPublicKey-bytes32-bytes32-]]
+==== `[.contract-item-name]#++SignerP256InvalidPublicKey++#++(bytes32 qx, bytes32 qy)++` [.item-kind]#error#
+
+:constructor: pass:normal[xref:#SignerRSA-constructor-bytes-bytes-[`++constructor++`]]
+:_setSigner: pass:normal[xref:#SignerRSA-_setSigner-bytes-bytes-[`++_setSigner++`]]
+:signer: pass:normal[xref:#SignerRSA-signer--[`++signer++`]]
+:_rawSignatureValidation: pass:normal[xref:#SignerRSA-_rawSignatureValidation-bytes32-bytes-[`++_rawSignatureValidation++`]]
+
+:constructor-bytes-bytes: pass:normal[xref:#SignerRSA-constructor-bytes-bytes-[`++constructor++`]]
+:_setSigner-bytes-bytes: pass:normal[xref:#SignerRSA-_setSigner-bytes-bytes-[`++_setSigner++`]]
+:signer-: pass:normal[xref:#SignerRSA-signer--[`++signer++`]]
+:_rawSignatureValidation-bytes32-bytes: pass:normal[xref:#SignerRSA-_rawSignatureValidation-bytes32-bytes-[`++_rawSignatureValidation++`]]
+
+[.contract]
+[[SignerRSA]]
+=== `++SignerRSA++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/utils/cryptography/signers/SignerRSA.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/utils/cryptography/signers/SignerRSA.sol";
+```
+
+Implementation of {AbstractSigner} using xref:api:utils/cryptography#RSA[RSA] signatures.
+
+For {Account} usage, a {_setSigner} function is provided to set the {signer} public key.
+Doing so is easier for a factory, who is likely to use initializable clones of this contract.
+
+Example of usage:
+
+```solidity
+contract MyAccountRSA is Account, SignerRSA, Initializable {
+    function initialize(bytes memory e, bytes memory n) public initializer {
+      _setSigner(e, n);
+    }
+}
+```
+
+IMPORTANT: Failing to call {_setSigner} either during construction (if used standalone)
+or during initialization (if used as a clone) may leave the signer either front-runnable or unusable.
+
+[.contract-index]
+.Functions
+--
+* {xref-SignerRSA-constructor-bytes-bytes-}[`++constructor(e, n)++`]
+* {xref-SignerRSA-_setSigner-bytes-bytes-}[`++_setSigner(e, n)++`]
+* {xref-SignerRSA-signer--}[`++signer()++`]
+* {xref-SignerRSA-_rawSignatureValidation-bytes32-bytes-}[`++_rawSignatureValidation(hash, signature)++`]
+
+[.contract-subindex-inherited]
+.AbstractSigner
+
+--
+
+[.contract-item]
+[[SignerRSA-constructor-bytes-bytes-]]
+==== `[.contract-item-name]#++constructor++#++(bytes e, bytes n)++` [.item-kind]#internal#
+
+[.contract-item]
+[[SignerRSA-_setSigner-bytes-bytes-]]
+==== `[.contract-item-name]#++_setSigner++#++(bytes e, bytes n)++` [.item-kind]#internal#
+
+Sets the signer with a RSA public key. This function should be called during construction
+or through an initializer.
+
+[.contract-item]
+[[SignerRSA-signer--]]
+==== `[.contract-item-name]#++signer++#++() → bytes e, bytes n++` [.item-kind]#public#
+
+Return the signer's RSA public key.
+
+[.contract-item]
+[[SignerRSA-_rawSignatureValidation-bytes32-bytes-]]
+==== `[.contract-item-name]#++_rawSignatureValidation++#++(bytes32 hash, bytes signature) → bool++` [.item-kind]#internal#
+
+See {AbstractSigner-_rawSignatureValidation}. Verifies a PKCSv1.5 signature by calling
+xref:api:utils/cryptography.adoc#RSA-pkcs1Sha256-bytes-bytes-bytes-bytes-[RSA.pkcs1Sha256].
+
+IMPORTANT: Following the RSASSA-PKCS1-V1_5-VERIFY procedure outlined in RFC8017 (section 8.2.2), the
+provided `hash` is used as the `M` (message) and rehashed using SHA256 according to EMSA-PKCS1-v1_5
+encoding as per section 9.2 (step 1) of the RFC.
+
+:_rawSignatureValidation: pass:normal[xref:#SignerERC7702-_rawSignatureValidation-bytes32-bytes-[`++_rawSignatureValidation++`]]
+
+:_rawSignatureValidation-bytes32-bytes: pass:normal[xref:#SignerERC7702-_rawSignatureValidation-bytes32-bytes-[`++_rawSignatureValidation++`]]
+
+[.contract]
+[[SignerERC7702]]
+=== `++SignerERC7702++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/utils/cryptography/signers/SignerERC7702.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/utils/cryptography/signers/SignerERC7702.sol";
+```
+
+Implementation of {AbstractSigner} for implementation for an EOA. Useful for ERC-7702 accounts.
+
+@custom:stateless
+
+[.contract-index]
+.Functions
+--
+* {xref-SignerERC7702-_rawSignatureValidation-bytes32-bytes-}[`++_rawSignatureValidation(hash, signature)++`]
+
+[.contract-subindex-inherited]
+.AbstractSigner
+
+--
+
+[.contract-item]
+[[SignerERC7702-_rawSignatureValidation-bytes32-bytes-]]
+==== `[.contract-item-name]#++_rawSignatureValidation++#++(bytes32 hash, bytes signature) → bool++` [.item-kind]#internal#
+
+Validates the signature using the EOA's address (i.e. `address(this)`).
+
+:constructor: pass:normal[xref:#SignerERC7913-constructor-bytes-[`++constructor++`]]
+:signer: pass:normal[xref:#SignerERC7913-signer--[`++signer++`]]
+:_setSigner: pass:normal[xref:#SignerERC7913-_setSigner-bytes-[`++_setSigner++`]]
+:_rawSignatureValidation: pass:normal[xref:#SignerERC7913-_rawSignatureValidation-bytes32-bytes-[`++_rawSignatureValidation++`]]
+
+:constructor-bytes: pass:normal[xref:#SignerERC7913-constructor-bytes-[`++constructor++`]]
+:signer-: pass:normal[xref:#SignerERC7913-signer--[`++signer++`]]
+:_setSigner-bytes: pass:normal[xref:#SignerERC7913-_setSigner-bytes-[`++_setSigner++`]]
+:_rawSignatureValidation-bytes32-bytes: pass:normal[xref:#SignerERC7913-_rawSignatureValidation-bytes32-bytes-[`++_rawSignatureValidation++`]]
+
+[.contract]
+[[SignerERC7913]]
+=== `++SignerERC7913++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/utils/cryptography/signers/SignerERC7913.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/utils/cryptography/signers/SignerERC7913.sol";
+```
+
+Implementation of {AbstractSigner} using
+https://eips.ethereum.org/EIPS/eip-7913[ERC-7913] signature verification.
+
+For {Account} usage, a {_setSigner} function is provided to set the ERC-7913 formatted {signer}.
+Doing so is easier for a factory, who is likely to use initializable clones of this contract.
+
+The signer is a `bytes` object that concatenates a verifier address and a key: `verifier || key`.
+
+Example of usage:
+
+```solidity
+contract MyAccountERC7913 is Account, SignerERC7913, Initializable {
+    function initialize(bytes memory signer_) public initializer {
+      _setSigner(signer_);
+    }
+
+    function setSigner(bytes memory signer_) public onlyEntryPointOrSelf {
+      _setSigner(signer_);
+    }
+}
+```
+
+IMPORTANT: Failing to call {_setSigner} either during construction (if used standalone)
+or during initialization (if used as a clone) may leave the signer either front-runnable or unusable.
+
+[.contract-index]
+.Functions
+--
+* {xref-SignerERC7913-constructor-bytes-}[`++constructor(signer_)++`]
+* {xref-SignerERC7913-signer--}[`++signer()++`]
+* {xref-SignerERC7913-_setSigner-bytes-}[`++_setSigner(signer_)++`]
+* {xref-SignerERC7913-_rawSignatureValidation-bytes32-bytes-}[`++_rawSignatureValidation(hash, signature)++`]
+
+[.contract-subindex-inherited]
+.AbstractSigner
+
+--
+
+[.contract-item]
+[[SignerERC7913-constructor-bytes-]]
+==== `[.contract-item-name]#++constructor++#++(bytes signer_)++` [.item-kind]#internal#
+
+[.contract-item]
+[[SignerERC7913-signer--]]
+==== `[.contract-item-name]#++signer++#++() → bytes++` [.item-kind]#public#
+
+Return the ERC-7913 signer (i.e. `verifier || key`).
+
+[.contract-item]
+[[SignerERC7913-_setSigner-bytes-]]
+==== `[.contract-item-name]#++_setSigner++#++(bytes signer_)++` [.item-kind]#internal#
+
+Sets the signer (i.e. `verifier || key`) with an ERC-7913 formatted signer.
+
+[.contract-item]
+[[SignerERC7913-_rawSignatureValidation-bytes32-bytes-]]
+==== `[.contract-item-name]#++_rawSignatureValidation++#++(bytes32 hash, bytes signature) → bool++` [.item-kind]#internal#
+
+Verifies a signature using {SignatureChecker-isValidSignatureNow-bytes-bytes32-bytes-}
+with {signer}, `hash` and `signature`.
+
+:ERC7913SignerAdded: pass:normal[xref:#MultiSignerERC7913-ERC7913SignerAdded-bytes-[`++ERC7913SignerAdded++`]]
+:ERC7913SignerRemoved: pass:normal[xref:#MultiSignerERC7913-ERC7913SignerRemoved-bytes-[`++ERC7913SignerRemoved++`]]
+:ERC7913ThresholdSet: pass:normal[xref:#MultiSignerERC7913-ERC7913ThresholdSet-uint64-[`++ERC7913ThresholdSet++`]]
+:MultiSignerERC7913AlreadyExists: pass:normal[xref:#MultiSignerERC7913-MultiSignerERC7913AlreadyExists-bytes-[`++MultiSignerERC7913AlreadyExists++`]]
+:MultiSignerERC7913NonexistentSigner: pass:normal[xref:#MultiSignerERC7913-MultiSignerERC7913NonexistentSigner-bytes-[`++MultiSignerERC7913NonexistentSigner++`]]
+:MultiSignerERC7913InvalidSigner: pass:normal[xref:#MultiSignerERC7913-MultiSignerERC7913InvalidSigner-bytes-[`++MultiSignerERC7913InvalidSigner++`]]
+:MultiSignerERC7913ZeroThreshold: pass:normal[xref:#MultiSignerERC7913-MultiSignerERC7913ZeroThreshold--[`++MultiSignerERC7913ZeroThreshold++`]]
+:MultiSignerERC7913UnreachableThreshold: pass:normal[xref:#MultiSignerERC7913-MultiSignerERC7913UnreachableThreshold-uint64-uint64-[`++MultiSignerERC7913UnreachableThreshold++`]]
+:constructor: pass:normal[xref:#MultiSignerERC7913-constructor-bytes---uint64-[`++constructor++`]]
+:getSigners: pass:normal[xref:#MultiSignerERC7913-getSigners-uint64-uint64-[`++getSigners++`]]
+:getSignerCount: pass:normal[xref:#MultiSignerERC7913-getSignerCount--[`++getSignerCount++`]]
+:isSigner: pass:normal[xref:#MultiSignerERC7913-isSigner-bytes-[`++isSigner++`]]
+:threshold: pass:normal[xref:#MultiSignerERC7913-threshold--[`++threshold++`]]
+:_addSigners: pass:normal[xref:#MultiSignerERC7913-_addSigners-bytes---[`++_addSigners++`]]
+:_removeSigners: pass:normal[xref:#MultiSignerERC7913-_removeSigners-bytes---[`++_removeSigners++`]]
+:_setThreshold: pass:normal[xref:#MultiSignerERC7913-_setThreshold-uint64-[`++_setThreshold++`]]
+:_validateReachableThreshold: pass:normal[xref:#MultiSignerERC7913-_validateReachableThreshold--[`++_validateReachableThreshold++`]]
+:_rawSignatureValidation: pass:normal[xref:#MultiSignerERC7913-_rawSignatureValidation-bytes32-bytes-[`++_rawSignatureValidation++`]]
+:_validateSignatures: pass:normal[xref:#MultiSignerERC7913-_validateSignatures-bytes32-bytes---bytes---[`++_validateSignatures++`]]
+:_validateThreshold: pass:normal[xref:#MultiSignerERC7913-_validateThreshold-bytes---[`++_validateThreshold++`]]
+
+:constructor-bytes---uint64: pass:normal[xref:#MultiSignerERC7913-constructor-bytes---uint64-[`++constructor++`]]
+:getSigners-uint64-uint64: pass:normal[xref:#MultiSignerERC7913-getSigners-uint64-uint64-[`++getSigners++`]]
+:getSignerCount-: pass:normal[xref:#MultiSignerERC7913-getSignerCount--[`++getSignerCount++`]]
+:isSigner-bytes: pass:normal[xref:#MultiSignerERC7913-isSigner-bytes-[`++isSigner++`]]
+:threshold-: pass:normal[xref:#MultiSignerERC7913-threshold--[`++threshold++`]]
+:_addSigners-bytes--: pass:normal[xref:#MultiSignerERC7913-_addSigners-bytes---[`++_addSigners++`]]
+:_removeSigners-bytes--: pass:normal[xref:#MultiSignerERC7913-_removeSigners-bytes---[`++_removeSigners++`]]
+:_setThreshold-uint64: pass:normal[xref:#MultiSignerERC7913-_setThreshold-uint64-[`++_setThreshold++`]]
+:_validateReachableThreshold-: pass:normal[xref:#MultiSignerERC7913-_validateReachableThreshold--[`++_validateReachableThreshold++`]]
+:_rawSignatureValidation-bytes32-bytes: pass:normal[xref:#MultiSignerERC7913-_rawSignatureValidation-bytes32-bytes-[`++_rawSignatureValidation++`]]
+:_validateSignatures-bytes32-bytes---bytes--: pass:normal[xref:#MultiSignerERC7913-_validateSignatures-bytes32-bytes---bytes---[`++_validateSignatures++`]]
+:_validateThreshold-bytes--: pass:normal[xref:#MultiSignerERC7913-_validateThreshold-bytes---[`++_validateThreshold++`]]
+
+[.contract]
+[[MultiSignerERC7913]]
+=== `++MultiSignerERC7913++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/utils/cryptography/signers/MultiSignerERC7913.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/utils/cryptography/signers/MultiSignerERC7913.sol";
+```
+
+Implementation of {AbstractSigner} using multiple ERC-7913 signers with a threshold-based
+signature verification system.
+
+This contract allows managing a set of authorized signers and requires a minimum number of
+signatures (threshold) to approve operations. It uses ERC-7913 formatted signers, which
+makes it natively compatible with ECDSA and ERC-1271 signers.
+
+Example of usage:
+
+```solidity
+contract MyMultiSignerAccount is Account, MultiSignerERC7913, Initializable {
+    function initialize(bytes[] memory signers, uint64 threshold) public initializer {
+        _addSigners(signers);
+        _setThreshold(threshold);
+    }
+
+    function addSigners(bytes[] memory signers) public onlyEntryPointOrSelf {
+        _addSigners(signers);
+    }
+
+    function removeSigners(bytes[] memory signers) public onlyEntryPointOrSelf {
+        _removeSigners(signers);
+    }
+
+    function setThreshold(uint64 threshold) public onlyEntryPointOrSelf {
+        _setThreshold(threshold);
+    }
+}
+```
+
+IMPORTANT: Failing to properly initialize the signers and threshold either during construction
+(if used standalone) or during initialization (if used as a clone) may leave the contract
+either front-runnable or unusable.
+
+[.contract-index]
+.Functions
+--
+* {xref-MultiSignerERC7913-constructor-bytes---uint64-}[`++constructor(signers_, threshold_)++`]
+* {xref-MultiSignerERC7913-getSigners-uint64-uint64-}[`++getSigners(start, end)++`]
+* {xref-MultiSignerERC7913-getSignerCount--}[`++getSignerCount()++`]
+* {xref-MultiSignerERC7913-isSigner-bytes-}[`++isSigner(signer)++`]
+* {xref-MultiSignerERC7913-threshold--}[`++threshold()++`]
+* {xref-MultiSignerERC7913-_addSigners-bytes---}[`++_addSigners(newSigners)++`]
+* {xref-MultiSignerERC7913-_removeSigners-bytes---}[`++_removeSigners(oldSigners)++`]
+* {xref-MultiSignerERC7913-_setThreshold-uint64-}[`++_setThreshold(newThreshold)++`]
+* {xref-MultiSignerERC7913-_validateReachableThreshold--}[`++_validateReachableThreshold()++`]
+* {xref-MultiSignerERC7913-_rawSignatureValidation-bytes32-bytes-}[`++_rawSignatureValidation(hash, signature)++`]
+* {xref-MultiSignerERC7913-_validateSignatures-bytes32-bytes---bytes---}[`++_validateSignatures(hash, signers, signatures)++`]
+* {xref-MultiSignerERC7913-_validateThreshold-bytes---}[`++_validateThreshold(validatingSigners)++`]
+
+[.contract-subindex-inherited]
+.AbstractSigner
+
+--
+
+[.contract-index]
+.Events
+--
+* {xref-MultiSignerERC7913-ERC7913SignerAdded-bytes-}[`++ERC7913SignerAdded(signers)++`]
+* {xref-MultiSignerERC7913-ERC7913SignerRemoved-bytes-}[`++ERC7913SignerRemoved(signers)++`]
+* {xref-MultiSignerERC7913-ERC7913ThresholdSet-uint64-}[`++ERC7913ThresholdSet(threshold)++`]
+
+[.contract-subindex-inherited]
+.AbstractSigner
+
+--
+
+[.contract-index]
+.Errors
+--
+* {xref-MultiSignerERC7913-MultiSignerERC7913AlreadyExists-bytes-}[`++MultiSignerERC7913AlreadyExists(signer)++`]
+* {xref-MultiSignerERC7913-MultiSignerERC7913NonexistentSigner-bytes-}[`++MultiSignerERC7913NonexistentSigner(signer)++`]
+* {xref-MultiSignerERC7913-MultiSignerERC7913InvalidSigner-bytes-}[`++MultiSignerERC7913InvalidSigner(signer)++`]
+* {xref-MultiSignerERC7913-MultiSignerERC7913ZeroThreshold--}[`++MultiSignerERC7913ZeroThreshold()++`]
+* {xref-MultiSignerERC7913-MultiSignerERC7913UnreachableThreshold-uint64-uint64-}[`++MultiSignerERC7913UnreachableThreshold(signers, threshold)++`]
+
+[.contract-subindex-inherited]
+.AbstractSigner
+
+--
+
+[.contract-item]
+[[MultiSignerERC7913-constructor-bytes---uint64-]]
+==== `[.contract-item-name]#++constructor++#++(bytes[] signers_, uint64 threshold_)++` [.item-kind]#internal#
+
+[.contract-item]
+[[MultiSignerERC7913-getSigners-uint64-uint64-]]
+==== `[.contract-item-name]#++getSigners++#++(uint64 start, uint64 end) → bytes[]++` [.item-kind]#public#
+
+Returns a slice of the set of authorized signers.
+
+Using `start = 0` and `end = type(uint64).max` will return the entire set of signers.
+
+WARNING: Depending on the `start` and `end`, this operation can copy a large amount of data to memory, which
+can be expensive. This is designed for view accessors queried without gas fees. Using it in state-changing
+functions may become uncallable if the slice grows too large.
+
+[.contract-item]
+[[MultiSignerERC7913-getSignerCount--]]
+==== `[.contract-item-name]#++getSignerCount++#++() → uint256++` [.item-kind]#public#
+
+Returns the number of authorized signers
+
+[.contract-item]
+[[MultiSignerERC7913-isSigner-bytes-]]
+==== `[.contract-item-name]#++isSigner++#++(bytes signer) → bool++` [.item-kind]#public#
+
+Returns whether the `signer` is an authorized signer.
+
+[.contract-item]
+[[MultiSignerERC7913-threshold--]]
+==== `[.contract-item-name]#++threshold++#++() → uint64++` [.item-kind]#public#
+
+Returns the minimum number of signers required to approve a multisignature operation.
+
+[.contract-item]
+[[MultiSignerERC7913-_addSigners-bytes---]]
+==== `[.contract-item-name]#++_addSigners++#++(bytes[] newSigners)++` [.item-kind]#internal#
+
+Adds the `newSigners` to those allowed to sign on behalf of this contract.
+Internal version without access control.
+
+Requirements:
+
+* Each of `newSigners` must be at least 20 bytes long. Reverts with {MultiSignerERC7913InvalidSigner} if not.
+* Each of `newSigners` must not be authorized. See {isSigner}. Reverts with {MultiSignerERC7913AlreadyExists} if so.
+
+[.contract-item]
+[[MultiSignerERC7913-_removeSigners-bytes---]]
+==== `[.contract-item-name]#++_removeSigners++#++(bytes[] oldSigners)++` [.item-kind]#internal#
+
+Removes the `oldSigners` from the authorized signers. Internal version without access control.
+
+Requirements:
+
+* Each of `oldSigners` must be authorized. See {isSigner}. Otherwise {MultiSignerERC7913NonexistentSigner} is thrown.
+* See {_validateReachableThreshold} for the threshold validation.
+
+[.contract-item]
+[[MultiSignerERC7913-_setThreshold-uint64-]]
+==== `[.contract-item-name]#++_setThreshold++#++(uint64 newThreshold)++` [.item-kind]#internal#
+
+Sets the signatures `threshold` required to approve a multisignature operation.
+Internal version without access control.
+
+Requirements:
+
+* See {_validateReachableThreshold} for the threshold validation.
+
+[.contract-item]
+[[MultiSignerERC7913-_validateReachableThreshold--]]
+==== `[.contract-item-name]#++_validateReachableThreshold++#++()++` [.item-kind]#internal#
+
+Validates the current threshold is reachable.
+
+Requirements:
+
+* The {getSignerCount} must be greater or equal than to the {threshold}. Throws
+{MultiSignerERC7913UnreachableThreshold} if not.
+
+[.contract-item]
+[[MultiSignerERC7913-_rawSignatureValidation-bytes32-bytes-]]
+==== `[.contract-item-name]#++_rawSignatureValidation++#++(bytes32 hash, bytes signature) → bool++` [.item-kind]#internal#
+
+Decodes, validates the signature and checks the signers are authorized.
+See {_validateSignatures} and {_validateThreshold} for more details.
+
+Example of signature encoding:
+
+```solidity
+// Encode signers (verifier || key)
+bytes memory signer1 = abi.encodePacked(verifier1, key1);
+bytes memory signer2 = abi.encodePacked(verifier2, key2);
+
+// Order signers by their id
+if (keccak256(signer1) > keccak256(signer2)) {
+    (signer1, signer2) = (signer2, signer1);
+    (signature1, signature2) = (signature2, signature1);
+}
+
+// Assign ordered signers and signatures
+bytes[] memory signers = new bytes[](2);
+bytes[] memory signatures = new bytes[](2);
+signers[0] = signer1;
+signatures[0] = signature1;
+signers[1] = signer2;
+signatures[1] = signature2;
+
+// Encode the multi signature
+bytes memory signature = abi.encode(signers, signatures);
+```
+
+Requirements:
+
+* The `signature` must be encoded as `abi.encode(signers, signatures)`.
+
+[.contract-item]
+[[MultiSignerERC7913-_validateSignatures-bytes32-bytes---bytes---]]
+==== `[.contract-item-name]#++_validateSignatures++#++(bytes32 hash, bytes[] signers, bytes[] signatures) → bool valid++` [.item-kind]#internal#
+
+Validates the signatures using the signers and their corresponding signatures.
+Returns whether the signers are authorized and the signatures are valid for the given hash.
+
+IMPORTANT: Sorting the signers by their `keccak256` hash will improve the gas efficiency of this function.
+See {SignatureChecker-areValidSignaturesNow-bytes32-bytes[]-bytes[]} for more details.
+
+Requirements:
+
+* The `signatures` and `signers` arrays must be equal in length. Returns false otherwise.
+
+[.contract-item]
+[[MultiSignerERC7913-_validateThreshold-bytes---]]
+==== `[.contract-item-name]#++_validateThreshold++#++(bytes[] validatingSigners) → bool++` [.item-kind]#internal#
+
+Validates that the number of signers meets the {threshold} requirement.
+Assumes the signers were already validated. See {_validateSignatures} for more details.
+
+[.contract-item]
+[[MultiSignerERC7913-ERC7913SignerAdded-bytes-]]
+==== `[.contract-item-name]#++ERC7913SignerAdded++#++(bytes indexed signers)++` [.item-kind]#event#
+
+Emitted when a signer is added.
+
+[.contract-item]
+[[MultiSignerERC7913-ERC7913SignerRemoved-bytes-]]
+==== `[.contract-item-name]#++ERC7913SignerRemoved++#++(bytes indexed signers)++` [.item-kind]#event#
+
+Emitted when a signers is removed.
+
+[.contract-item]
+[[MultiSignerERC7913-ERC7913ThresholdSet-uint64-]]
+==== `[.contract-item-name]#++ERC7913ThresholdSet++#++(uint64 threshold)++` [.item-kind]#event#
+
+Emitted when the threshold is updated.
+
+[.contract-item]
+[[MultiSignerERC7913-MultiSignerERC7913AlreadyExists-bytes-]]
+==== `[.contract-item-name]#++MultiSignerERC7913AlreadyExists++#++(bytes signer)++` [.item-kind]#error#
+
+The `signer` already exists.
+
+[.contract-item]
+[[MultiSignerERC7913-MultiSignerERC7913NonexistentSigner-bytes-]]
+==== `[.contract-item-name]#++MultiSignerERC7913NonexistentSigner++#++(bytes signer)++` [.item-kind]#error#
+
+The `signer` does not exist.
+
+[.contract-item]
+[[MultiSignerERC7913-MultiSignerERC7913InvalidSigner-bytes-]]
+==== `[.contract-item-name]#++MultiSignerERC7913InvalidSigner++#++(bytes signer)++` [.item-kind]#error#
+
+The `signer` is less than 20 bytes long.
+
+[.contract-item]
+[[MultiSignerERC7913-MultiSignerERC7913ZeroThreshold--]]
+==== `[.contract-item-name]#++MultiSignerERC7913ZeroThreshold++#++()++` [.item-kind]#error#
+
+The `threshold` is zero.
+
+[.contract-item]
+[[MultiSignerERC7913-MultiSignerERC7913UnreachableThreshold-uint64-uint64-]]
+==== `[.contract-item-name]#++MultiSignerERC7913UnreachableThreshold++#++(uint64 signers, uint64 threshold)++` [.item-kind]#error#
+
+The `threshold` is unreachable given the number of `signers`.
+
+:ERC7913SignerWeightChanged: pass:normal[xref:#MultiSignerERC7913Weighted-ERC7913SignerWeightChanged-bytes-uint64-[`++ERC7913SignerWeightChanged++`]]
+:MultiSignerERC7913WeightedInvalidWeight: pass:normal[xref:#MultiSignerERC7913Weighted-MultiSignerERC7913WeightedInvalidWeight-bytes-uint64-[`++MultiSignerERC7913WeightedInvalidWeight++`]]
+:MultiSignerERC7913WeightedMismatchedLength: pass:normal[xref:#MultiSignerERC7913Weighted-MultiSignerERC7913WeightedMismatchedLength--[`++MultiSignerERC7913WeightedMismatchedLength++`]]
+:constructor: pass:normal[xref:#MultiSignerERC7913Weighted-constructor-bytes---uint64---uint64-[`++constructor++`]]
+:signerWeight: pass:normal[xref:#MultiSignerERC7913Weighted-signerWeight-bytes-[`++signerWeight++`]]
+:totalWeight: pass:normal[xref:#MultiSignerERC7913Weighted-totalWeight--[`++totalWeight++`]]
+:_setSignerWeights: pass:normal[xref:#MultiSignerERC7913Weighted-_setSignerWeights-bytes---uint64---[`++_setSignerWeights++`]]
+:_addSigners: pass:normal[xref:#MultiSignerERC7913Weighted-_addSigners-bytes---[`++_addSigners++`]]
+:_removeSigners: pass:normal[xref:#MultiSignerERC7913Weighted-_removeSigners-bytes---[`++_removeSigners++`]]
+:_validateReachableThreshold: pass:normal[xref:#MultiSignerERC7913Weighted-_validateReachableThreshold--[`++_validateReachableThreshold++`]]
+:_validateThreshold: pass:normal[xref:#MultiSignerERC7913Weighted-_validateThreshold-bytes---[`++_validateThreshold++`]]
+
+:constructor-bytes---uint64---uint64: pass:normal[xref:#MultiSignerERC7913Weighted-constructor-bytes---uint64---uint64-[`++constructor++`]]
+:signerWeight-bytes: pass:normal[xref:#MultiSignerERC7913Weighted-signerWeight-bytes-[`++signerWeight++`]]
+:totalWeight-: pass:normal[xref:#MultiSignerERC7913Weighted-totalWeight--[`++totalWeight++`]]
+:_setSignerWeights-bytes---uint64--: pass:normal[xref:#MultiSignerERC7913Weighted-_setSignerWeights-bytes---uint64---[`++_setSignerWeights++`]]
+:_addSigners-bytes--: pass:normal[xref:#MultiSignerERC7913Weighted-_addSigners-bytes---[`++_addSigners++`]]
+:_removeSigners-bytes--: pass:normal[xref:#MultiSignerERC7913Weighted-_removeSigners-bytes---[`++_removeSigners++`]]
+:_validateReachableThreshold-: pass:normal[xref:#MultiSignerERC7913Weighted-_validateReachableThreshold--[`++_validateReachableThreshold++`]]
+:_validateThreshold-bytes--: pass:normal[xref:#MultiSignerERC7913Weighted-_validateThreshold-bytes---[`++_validateThreshold++`]]
+
+[.contract]
+[[MultiSignerERC7913Weighted]]
+=== `++MultiSignerERC7913Weighted++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/utils/cryptography/signers/MultiSignerERC7913Weighted.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/utils/cryptography/signers/MultiSignerERC7913Weighted.sol";
+```
+
+Extension of {MultiSignerERC7913} that supports weighted signatures.
+
+This contract allows assigning different weights to each signer, enabling more
+flexible governance schemes. For example, some signers could have higher weight
+than others, allowing for weighted voting or prioritized authorization.
+
+Example of usage:
+
+```solidity
+contract MyWeightedMultiSignerAccount is Account, MultiSignerERC7913Weighted, Initializable {
+    function initialize(bytes[] memory signers, uint64[] memory weights, uint64 threshold) public initializer {
+        _addSigners(signers);
+        _setSignerWeights(signers, weights);
+        _setThreshold(threshold);
+    }
+
+    function addSigners(bytes[] memory signers) public onlyEntryPointOrSelf {
+        _addSigners(signers);
+    }
+
+    function removeSigners(bytes[] memory signers) public onlyEntryPointOrSelf {
+        _removeSigners(signers);
+    }
+
+    function setThreshold(uint64 threshold) public onlyEntryPointOrSelf {
+        _setThreshold(threshold);
+    }
+
+    function setSignerWeights(bytes[] memory signers, uint64[] memory weights) public onlyEntryPointOrSelf {
+        _setSignerWeights(signers, weights);
+    }
+}
+```
+
+IMPORTANT: When setting a threshold value, ensure it matches the scale used for signer weights.
+For example, if signers have weights like 1, 2, or 3, then a threshold of 4 would require at
+least two signers (e.g., one with weight 1 and one with weight 3). See {signerWeight}.
+
+[.contract-index]
+.Functions
+--
+* {xref-MultiSignerERC7913Weighted-constructor-bytes---uint64---uint64-}[`++constructor(signers_, weights_, threshold_)++`]
+* {xref-MultiSignerERC7913Weighted-signerWeight-bytes-}[`++signerWeight(signer)++`]
+* {xref-MultiSignerERC7913Weighted-totalWeight--}[`++totalWeight()++`]
+* {xref-MultiSignerERC7913Weighted-_setSignerWeights-bytes---uint64---}[`++_setSignerWeights(signers, weights)++`]
+* {xref-MultiSignerERC7913Weighted-_addSigners-bytes---}[`++_addSigners(newSigners)++`]
+* {xref-MultiSignerERC7913Weighted-_removeSigners-bytes---}[`++_removeSigners(signers)++`]
+* {xref-MultiSignerERC7913Weighted-_validateReachableThreshold--}[`++_validateReachableThreshold()++`]
+* {xref-MultiSignerERC7913Weighted-_validateThreshold-bytes---}[`++_validateThreshold(signers)++`]
+
+[.contract-subindex-inherited]
+.MultiSignerERC7913
+* {xref-MultiSignerERC7913-getSigners-uint64-uint64-}[`++getSigners(start, end)++`]
+* {xref-MultiSignerERC7913-getSignerCount--}[`++getSignerCount()++`]
+* {xref-MultiSignerERC7913-isSigner-bytes-}[`++isSigner(signer)++`]
+* {xref-MultiSignerERC7913-threshold--}[`++threshold()++`]
+* {xref-MultiSignerERC7913-_setThreshold-uint64-}[`++_setThreshold(newThreshold)++`]
+* {xref-MultiSignerERC7913-_rawSignatureValidation-bytes32-bytes-}[`++_rawSignatureValidation(hash, signature)++`]
+* {xref-MultiSignerERC7913-_validateSignatures-bytes32-bytes---bytes---}[`++_validateSignatures(hash, signers, signatures)++`]
+
+[.contract-subindex-inherited]
+.AbstractSigner
+
+--
+
+[.contract-index]
+.Events
+--
+* {xref-MultiSignerERC7913Weighted-ERC7913SignerWeightChanged-bytes-uint64-}[`++ERC7913SignerWeightChanged(signer, weight)++`]
+
+[.contract-subindex-inherited]
+.MultiSignerERC7913
+* {xref-MultiSignerERC7913-ERC7913SignerAdded-bytes-}[`++ERC7913SignerAdded(signers)++`]
+* {xref-MultiSignerERC7913-ERC7913SignerRemoved-bytes-}[`++ERC7913SignerRemoved(signers)++`]
+* {xref-MultiSignerERC7913-ERC7913ThresholdSet-uint64-}[`++ERC7913ThresholdSet(threshold)++`]
+
+[.contract-subindex-inherited]
+.AbstractSigner
+
+--
+
+[.contract-index]
+.Errors
+--
+* {xref-MultiSignerERC7913Weighted-MultiSignerERC7913WeightedInvalidWeight-bytes-uint64-}[`++MultiSignerERC7913WeightedInvalidWeight(signer, weight)++`]
+* {xref-MultiSignerERC7913Weighted-MultiSignerERC7913WeightedMismatchedLength--}[`++MultiSignerERC7913WeightedMismatchedLength()++`]
+
+[.contract-subindex-inherited]
+.MultiSignerERC7913
+* {xref-MultiSignerERC7913-MultiSignerERC7913AlreadyExists-bytes-}[`++MultiSignerERC7913AlreadyExists(signer)++`]
+* {xref-MultiSignerERC7913-MultiSignerERC7913NonexistentSigner-bytes-}[`++MultiSignerERC7913NonexistentSigner(signer)++`]
+* {xref-MultiSignerERC7913-MultiSignerERC7913InvalidSigner-bytes-}[`++MultiSignerERC7913InvalidSigner(signer)++`]
+* {xref-MultiSignerERC7913-MultiSignerERC7913ZeroThreshold--}[`++MultiSignerERC7913ZeroThreshold()++`]
+* {xref-MultiSignerERC7913-MultiSignerERC7913UnreachableThreshold-uint64-uint64-}[`++MultiSignerERC7913UnreachableThreshold(signers, threshold)++`]
+
+[.contract-subindex-inherited]
+.AbstractSigner
+
+--
+
+[.contract-item]
+[[MultiSignerERC7913Weighted-constructor-bytes---uint64---uint64-]]
+==== `[.contract-item-name]#++constructor++#++(bytes[] signers_, uint64[] weights_, uint64 threshold_)++` [.item-kind]#internal#
+
+[.contract-item]
+[[MultiSignerERC7913Weighted-signerWeight-bytes-]]
+==== `[.contract-item-name]#++signerWeight++#++(bytes signer) → uint64++` [.item-kind]#public#
+
+Gets the weight of a signer. Returns 0 if the signer is not authorized.
+
+[.contract-item]
+[[MultiSignerERC7913Weighted-totalWeight--]]
+==== `[.contract-item-name]#++totalWeight++#++() → uint64++` [.item-kind]#public#
+
+Gets the total weight of all signers.
+
+[.contract-item]
+[[MultiSignerERC7913Weighted-_setSignerWeights-bytes---uint64---]]
+==== `[.contract-item-name]#++_setSignerWeights++#++(bytes[] signers, uint64[] weights)++` [.item-kind]#internal#
+
+Sets weights for multiple signers at once. Internal version without access control.
+
+Requirements:
+
+* `signers` and `weights` arrays must have the same length. Reverts with {MultiSignerERC7913WeightedMismatchedLength} on mismatch.
+* Each signer must exist in the set of authorized signers. Otherwise reverts with {MultiSignerERC7913NonexistentSigner}
+* Each weight must be greater than 0. Otherwise reverts with {MultiSignerERC7913WeightedInvalidWeight}
+* See {_validateReachableThreshold} for the threshold validation.
+
+Emits {ERC7913SignerWeightChanged} for each signer.
+
+[.contract-item]
+[[MultiSignerERC7913Weighted-_addSigners-bytes---]]
+==== `[.contract-item-name]#++_addSigners++#++(bytes[] newSigners)++` [.item-kind]#internal#
+
+See {MultiSignerERC7913-_addSigners}.
+
+In cases where {totalWeight} is almost `type(uint64).max` (due to a large `_totalExtraWeight`), adding new
+signers could cause the {totalWeight} computation to overflow. Adding a {totalWeight} calls after the new
+signers are added ensures no such overflow happens.
+
+[.contract-item]
+[[MultiSignerERC7913Weighted-_removeSigners-bytes---]]
+==== `[.contract-item-name]#++_removeSigners++#++(bytes[] signers)++` [.item-kind]#internal#
+
+See {MultiSignerERC7913-_removeSigners}.
+
+Just like {_addSigners}, this function does not emit {ERC7913SignerWeightChanged} events. The
+{ERC7913SignerRemoved} event emitted by {MultiSignerERC7913-_removeSigners} is enough to track weights here.
+
+[.contract-item]
+[[MultiSignerERC7913Weighted-_validateReachableThreshold--]]
+==== `[.contract-item-name]#++_validateReachableThreshold++#++()++` [.item-kind]#internal#
+
+Sets the threshold for the multisignature operation. Internal version without access control.
+
+Requirements:
+
+* The {totalWeight} must be `>=` the {threshold}. Otherwise reverts with {MultiSignerERC7913UnreachableThreshold}
+
+NOTE: This function intentionally does not call `super._validateReachableThreshold` because the base implementation
+assumes each signer has a weight of 1, which is a subset of this weighted implementation. Consider that multiple
+implementations of this function may exist in the contract, so important side effects may be missed
+depending on the linearization order.
+
+[.contract-item]
+[[MultiSignerERC7913Weighted-_validateThreshold-bytes---]]
+==== `[.contract-item-name]#++_validateThreshold++#++(bytes[] signers) → bool++` [.item-kind]#internal#
+
+Validates that the total weight of signers meets the threshold requirement.
+
+NOTE: This function intentionally does not call `super._validateThreshold` because the base implementation
+assumes each signer has a weight of 1, which is a subset of this weighted implementation. Consider that multiple
+implementations of this function may exist in the contract, so important side effects may be missed
+depending on the linearization order.
+
+[.contract-item]
+[[MultiSignerERC7913Weighted-ERC7913SignerWeightChanged-bytes-uint64-]]
+==== `[.contract-item-name]#++ERC7913SignerWeightChanged++#++(bytes indexed signer, uint64 weight)++` [.item-kind]#event#
+
+Emitted when a signer's weight is changed.
+
+NOTE: Not emitted in {_addSigners} or {_removeSigners}. Indexers must rely on {ERC7913SignerAdded}
+and {ERC7913SignerRemoved} to index a default weight of 1. See {signerWeight}.
+
+[.contract-item]
+[[MultiSignerERC7913Weighted-MultiSignerERC7913WeightedInvalidWeight-bytes-uint64-]]
+==== `[.contract-item-name]#++MultiSignerERC7913WeightedInvalidWeight++#++(bytes signer, uint64 weight)++` [.item-kind]#error#
+
+Thrown when a signer's weight is invalid.
+
+[.contract-item]
+[[MultiSignerERC7913Weighted-MultiSignerERC7913WeightedMismatchedLength--]]
+==== `[.contract-item-name]#++MultiSignerERC7913WeightedMismatchedLength++#++()++` [.item-kind]#error#
+
+Thrown when the arrays lengths don't match. See {_setSignerWeights}.
+
+== Verifiers
+
+:verify: pass:normal[xref:#ERC7913P256Verifier-verify-bytes-bytes32-bytes-[`++verify++`]]
+
+:verify-bytes-bytes32-bytes: pass:normal[xref:#ERC7913P256Verifier-verify-bytes-bytes32-bytes-[`++verify++`]]
+
+[.contract]
+[[ERC7913P256Verifier]]
+=== `++ERC7913P256Verifier++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/utils/cryptography/verifiers/ERC7913P256Verifier.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/utils/cryptography/verifiers/ERC7913P256Verifier.sol";
+```
+
+ERC-7913 signature verifier that support P256 (secp256r1) keys.
+
+@custom:stateless
+
+[.contract-index]
+.Functions
+--
+* {xref-ERC7913P256Verifier-verify-bytes-bytes32-bytes-}[`++verify(key, hash, signature)++`]
+
+[.contract-subindex-inherited]
+.IERC7913SignatureVerifier
+
+--
+
+[.contract-item]
+[[ERC7913P256Verifier-verify-bytes-bytes32-bytes-]]
+==== `[.contract-item-name]#++verify++#++(bytes key, bytes32 hash, bytes signature) → bytes4++` [.item-kind]#public#
+
+Verifies `signature` as a valid signature of `hash` by `key`.
+
+MUST return the bytes4 magic value IERC7913SignatureVerifier.verify.selector if the signature is valid.
+SHOULD return 0xffffffff or revert if the signature is not valid.
+SHOULD return 0xffffffff or revert if the key is empty
+
+:verify: pass:normal[xref:#ERC7913RSAVerifier-verify-bytes-bytes32-bytes-[`++verify++`]]
+
+:verify-bytes-bytes32-bytes: pass:normal[xref:#ERC7913RSAVerifier-verify-bytes-bytes32-bytes-[`++verify++`]]
+
+[.contract]
+[[ERC7913RSAVerifier]]
+=== `++ERC7913RSAVerifier++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/utils/cryptography/verifiers/ERC7913RSAVerifier.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/utils/cryptography/verifiers/ERC7913RSAVerifier.sol";
+```
+
+ERC-7913 signature verifier that support RSA keys.
+
+@custom:stateless
+
+[.contract-index]
+.Functions
+--
+* {xref-ERC7913RSAVerifier-verify-bytes-bytes32-bytes-}[`++verify(key, hash, signature)++`]
+
+[.contract-subindex-inherited]
+.IERC7913SignatureVerifier
+
+--
+
+[.contract-item]
+[[ERC7913RSAVerifier-verify-bytes-bytes32-bytes-]]
+==== `[.contract-item-name]#++verify++#++(bytes key, bytes32 hash, bytes signature) → bytes4++` [.item-kind]#public#
+
+Verifies `signature` as a valid signature of `hash` by `key`.
+
+MUST return the bytes4 magic value IERC7913SignatureVerifier.verify.selector if the signature is valid.
+SHOULD return 0xffffffff or revert if the signature is not valid.
+SHOULD return 0xffffffff or revert if the key is empty
+

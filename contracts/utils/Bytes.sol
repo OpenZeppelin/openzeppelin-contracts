@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.2.0) (utils/Bytes.sol)
+// OpenZeppelin Contracts (last updated v5.4.0) (utils/Bytes.sol)
 
 pragma solidity ^0.8.24;
 
@@ -58,8 +58,7 @@ library Bytes {
     function lastIndexOf(bytes memory buffer, bytes1 s, uint256 pos) internal pure returns (uint256) {
         unchecked {
             uint256 length = buffer.length;
-            // NOTE here we cannot do `i = Math.min(pos + 1, length)` because `pos + 1` could overflow
-            for (uint256 i = Math.min(pos, length - 1) + 1; i > 0; --i) {
+            for (uint256 i = Math.min(Math.saturatingAdd(pos, 1), length); i > 0; --i) {
                 if (bytes1(_unsafeReadBytesOffset(buffer, i - 1)) == s) {
                     return i - 1;
                 }
@@ -93,7 +92,7 @@ library Bytes {
         // allocate and copy
         bytes memory result = new bytes(end - start);
         assembly ("memory-safe") {
-            mcopy(add(result, 0x20), add(buffer, add(start, 0x20)), sub(end, start))
+            mcopy(add(result, 0x20), add(add(buffer, 0x20), start), sub(end, start))
         }
 
         return result;
@@ -108,7 +107,7 @@ library Bytes {
     function _unsafeReadBytesOffset(bytes memory buffer, uint256 offset) private pure returns (bytes32 value) {
         // This is not memory safe in the general case, but all calls to this private function are within bounds.
         assembly ("memory-safe") {
-            value := mload(add(buffer, add(0x20, offset)))
+            value := mload(add(add(buffer, 0x20), offset))
         }
     }
 }

@@ -2,6 +2,7 @@
 
 | Date          | Version | Commit                                                                           | Auditor      | Scope                | Links                                                       |
 | ------------- | ------- | -------------------------------------------------------------------------------- | ------------ | -------------------- | ----------------------------------------------------------- |
+| April 2025    | v5.3.0  | [`d4b2e98`](https://github.com/openzeppelin/openzeppelin-contracts/tree/d4b2e98) | OpenZeppelin | v5.3 Changes         | [🔗](./2025-04-v5.3.pdf)                                    |
 | December 2024 | v5.2.0  | [`98d28f9`](https://github.com/openzeppelin/openzeppelin-contracts/tree/98d28f9) | OpenZeppelin | v5.2 Changes         | [🔗](./2024-12-v5.2.pdf)                                    |
 | October 2024  | v5.1.0  | [`aba9ff6`](https://github.com/openzeppelin/openzeppelin-contracts/tree/aba9ff6) | OpenZeppelin | v5.1 Changes         | [🔗](./2024-10-v5.1.pdf)                                    |
 | October 2023  | v5.0.0  | [`b5a3e69`](https://github.com/openzeppelin/openzeppelin-contracts/tree/b5a3e69) | OpenZeppelin | v5.0 Changes         | [🔗](./2023-10-v5.0.pdf)                                    |

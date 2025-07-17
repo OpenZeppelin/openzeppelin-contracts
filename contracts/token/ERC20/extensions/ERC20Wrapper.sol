@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.1.0) (token/ERC20/extensions/ERC20Wrapper.sol)
+// OpenZeppelin Contracts (last updated v5.4.0) (token/ERC20/extensions/ERC20Wrapper.sol)
 
 pragma solidity ^0.8.20;
 
@@ -33,9 +33,7 @@ abstract contract ERC20Wrapper is ERC20 {
         _underlying = underlyingToken;
     }
 
-    /**
-     * @dev See {ERC20-decimals}.
-     */
+    /// @inheritdoc IERC20Metadata
     function decimals() public view virtual override returns (uint8) {
         try IERC20Metadata(address(_underlying)).decimals() returns (uint8 value) {
             return value;

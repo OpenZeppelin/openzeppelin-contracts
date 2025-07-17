@@ -174,7 +174,7 @@ Implementations are provided for each of the 4 interfaces defined in the ERC.
 
 [.contract]
 [[ERC6909]]
-=== `++ERC6909++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/token/ERC6909/draft-ERC6909.sol[{github-icon},role=heading-link]
+=== `++ERC6909++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/token/ERC6909/draft-ERC6909.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -444,7 +444,7 @@ Does not emit an {Approval} event.
 
 [.contract]
 [[ERC6909ContentURI]]
-=== `++ERC6909ContentURI++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/token/ERC6909/extensions/draft-ERC6909ContentURI.sol[{github-icon},role=heading-link]
+=== `++ERC6909ContentURI++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/token/ERC6909/extensions/draft-ERC6909ContentURI.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -606,7 +606,7 @@ See {IERC1155-URI}
 
 [.contract]
 [[ERC6909Metadata]]
-=== `++ERC6909Metadata++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/token/ERC6909/extensions/draft-ERC6909Metadata.sol[{github-icon},role=heading-link]
+=== `++ERC6909Metadata++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/token/ERC6909/extensions/draft-ERC6909Metadata.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -779,7 +779,7 @@ The decimals value for token of type `id` was updated to `newDecimals`.
 
 [.contract]
 [[ERC6909TokenSupply]]
-=== `++ERC6909TokenSupply++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/token/ERC6909/extensions/draft-ERC6909TokenSupply.sol[{github-icon},role=heading-link]
+=== `++ERC6909TokenSupply++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/token/ERC6909/extensions/draft-ERC6909TokenSupply.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity

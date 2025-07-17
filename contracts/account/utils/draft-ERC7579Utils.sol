@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.3.0) (account/utils/draft-ERC7579Utils.sol)
+// OpenZeppelin Contracts (last updated v5.4.0) (account/utils/draft-ERC7579Utils.sol)
 
 pragma solidity ^0.8.20;
 
@@ -204,7 +204,7 @@ library ERC7579Utils {
                 revert ERC7579DecodingError();
 
             assembly ("memory-safe") {
-                executionBatch.offset := add(add(executionCalldata.offset, arrayLengthOffset), 32)
+                executionBatch.offset := add(add(executionCalldata.offset, arrayLengthOffset), 0x20)
                 executionBatch.length := arrayLength
             }
         }

@@ -19,6 +19,8 @@
 :GovernorProposalGuardian: pass:normal[xref:governance.adoc#GovernorProposalGuardian[`GovernorProposalGuardian`]]
 :GovernorSuperQuorum: pass:normal[xref:governance.adoc#GovernorSuperQuorum[`GovernorSuperQuorum`]]
 :Governor: pass:normal[xref:governance.adoc#Governor[`Governor`]]
+:GovernorNoncesKeyed: pass:normal[xref:governance.adoc#GovernorNoncesKeyed[`GovernorNoncesKeyed`]]
+:Governor: pass:normal[xref:governance.adoc#Governor[`Governor`]]
 :Governor-_cancel: pass:normal[xref:governance.adoc#Governor-_cancel-address---uint256---bytes---bytes32-[`Governor._cancel`]]
 :Governor: pass:normal[xref:governance.adoc#Governor[`Governor`]]
 :xref-IGovernor-name--: xref:governance.adoc#IGovernor-name--
@@ -117,6 +119,8 @@
 :xref-Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-: xref:governance.adoc#Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-
 :xref-Governor-castVoteBySig-uint256-uint8-address-bytes-: xref:governance.adoc#Governor-castVoteBySig-uint256-uint8-address-bytes-
 :xref-Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-: xref:governance.adoc#Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-
+:xref-Governor-_validateVoteSig-uint256-uint8-address-bytes-: xref:governance.adoc#Governor-_validateVoteSig-uint256-uint8-address-bytes-
+:xref-Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-: xref:governance.adoc#Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-
 :xref-Governor-_castVote-uint256-address-uint8-string-: xref:governance.adoc#Governor-_castVote-uint256-address-uint8-string-
 :xref-Governor-_castVote-uint256-address-uint8-string-bytes-: xref:governance.adoc#Governor-_castVote-uint256-address-uint8-string-bytes-
 :xref-Governor-relay-address-uint256-bytes-: xref:governance.adoc#Governor-relay-address-uint256-bytes-
@@ -140,11 +144,11 @@
 :xref-Nonces-nonces-address-: xref:utils.adoc#Nonces-nonces-address-
 :xref-Nonces-_useNonce-address-: xref:utils.adoc#Nonces-_useNonce-address-
 :xref-Nonces-_useCheckedNonce-address-uint256-: xref:utils.adoc#Nonces-_useCheckedNonce-address-uint256-
-:xref-EIP712-_domainSeparatorV4--: xref:utils.adoc#EIP712-_domainSeparatorV4--
-:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils.adoc#EIP712-_hashTypedDataV4-bytes32-
-:xref-EIP712-eip712Domain--: xref:utils.adoc#EIP712-eip712Domain--
-:xref-EIP712-_EIP712Name--: xref:utils.adoc#EIP712-_EIP712Name--
-:xref-EIP712-_EIP712Version--: xref:utils.adoc#EIP712-_EIP712Version--
+:xref-EIP712-_domainSeparatorV4--: xref:utils/cryptography.adoc#EIP712-_domainSeparatorV4--
+:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils/cryptography.adoc#EIP712-_hashTypedDataV4-bytes32-
+:xref-EIP712-eip712Domain--: xref:utils/cryptography.adoc#EIP712-eip712Domain--
+:xref-EIP712-_EIP712Name--: xref:utils/cryptography.adoc#EIP712-_EIP712Name--
+:xref-EIP712-_EIP712Version--: xref:utils/cryptography.adoc#EIP712-_EIP712Version--
 :xref-IGovernor-ProposalCreated-uint256-address-address---uint256---string---bytes---uint256-uint256-string-: xref:governance.adoc#IGovernor-ProposalCreated-uint256-address-address---uint256---string---bytes---uint256-uint256-string-
 :xref-IGovernor-ProposalQueued-uint256-uint256-: xref:governance.adoc#IGovernor-ProposalQueued-uint256-uint256-
 :xref-IGovernor-ProposalExecuted-uint256-: xref:governance.adoc#IGovernor-ProposalExecuted-uint256-
@@ -170,31 +174,11 @@
 :xref-IGovernor-GovernorUnableToCancel-uint256-address-: xref:governance.adoc#IGovernor-GovernorUnableToCancel-uint256-address-
 :xref-Nonces-InvalidAccountNonce-address-uint256-: xref:utils.adoc#Nonces-InvalidAccountNonce-address-uint256-
 :GovernorSettings: pass:normal[xref:governance.adoc#GovernorSettings[`GovernorSettings`]]
-:IERC165-supportsInterface: pass:normal[xref:utils.adoc#IERC165-supportsInterface-bytes4-[`IERC165.supportsInterface`]]
-:IGovernor-name: pass:normal[xref:governance.adoc#IGovernor-name--[`IGovernor.name`]]
-:IGovernor-version: pass:normal[xref:governance.adoc#IGovernor-version--[`IGovernor.version`]]
 :IGovernor-hashProposal: pass:normal[xref:governance.adoc#IGovernor-hashProposal-address---uint256---bytes---bytes32-[`IGovernor.hashProposal`]]
-:IGovernor-getProposalId: pass:normal[xref:governance.adoc#IGovernor-getProposalId-address---uint256---bytes---bytes32-[`IGovernor.getProposalId`]]
-:IGovernor-state: pass:normal[xref:governance.adoc#IGovernor-state-uint256-[`IGovernor.state`]]
-:IGovernor-proposalThreshold: pass:normal[xref:governance.adoc#IGovernor-proposalThreshold--[`IGovernor.proposalThreshold`]]
-:IGovernor-proposalSnapshot: pass:normal[xref:governance.adoc#IGovernor-proposalSnapshot-uint256-[`IGovernor.proposalSnapshot`]]
-:IGovernor-proposalDeadline: pass:normal[xref:governance.adoc#IGovernor-proposalDeadline-uint256-[`IGovernor.proposalDeadline`]]
-:IGovernor-proposalProposer: pass:normal[xref:governance.adoc#IGovernor-proposalProposer-uint256-[`IGovernor.proposalProposer`]]
-:IGovernor-proposalEta: pass:normal[xref:governance.adoc#IGovernor-proposalEta-uint256-[`IGovernor.proposalEta`]]
-:IGovernor-proposalNeedsQueuing: pass:normal[xref:governance.adoc#IGovernor-proposalNeedsQueuing-uint256-[`IGovernor.proposalNeedsQueuing`]]
 :IGovernor-propose: pass:normal[xref:governance.adoc#IGovernor-propose-address---uint256---bytes---string-[`IGovernor.propose`]]
 :IGovernor-ProposalCreated: pass:normal[xref:governance.adoc#IGovernor-ProposalCreated-uint256-address-address---uint256---string---bytes---uint256-uint256-string-[`IGovernor.ProposalCreated`]]
-:IGovernor-queue: pass:normal[xref:governance.adoc#IGovernor-queue-address---uint256---bytes---bytes32-[`IGovernor.queue`]]
-:IGovernor-execute: pass:normal[xref:governance.adoc#IGovernor-execute-address---uint256---bytes---bytes32-[`IGovernor.execute`]]
-:IGovernor-cancel: pass:normal[xref:governance.adoc#IGovernor-cancel-address---uint256---bytes---bytes32-[`IGovernor.cancel`]]
 :IGovernor-ProposalCanceled: pass:normal[xref:governance.adoc#IGovernor-ProposalCanceled-uint256-[`IGovernor.ProposalCanceled`]]
-:IGovernor-getVotes: pass:normal[xref:governance.adoc#IGovernor-getVotes-address-uint256-[`IGovernor.getVotes`]]
-:IGovernor-getVotesWithParams: pass:normal[xref:governance.adoc#IGovernor-getVotesWithParams-address-uint256-bytes-[`IGovernor.getVotesWithParams`]]
-:IGovernor-castVote: pass:normal[xref:governance.adoc#IGovernor-castVote-uint256-uint8-[`IGovernor.castVote`]]
-:IGovernor-castVoteWithReason: pass:normal[xref:governance.adoc#IGovernor-castVoteWithReason-uint256-uint8-string-[`IGovernor.castVoteWithReason`]]
-:IGovernor-castVoteWithReasonAndParams: pass:normal[xref:governance.adoc#IGovernor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-[`IGovernor.castVoteWithReasonAndParams`]]
-:IGovernor-castVoteBySig: pass:normal[xref:governance.adoc#IGovernor-castVoteBySig-uint256-uint8-address-bytes-[`IGovernor.castVoteBySig`]]
-:IGovernor-castVoteWithReasonAndParamsBySig: pass:normal[xref:governance.adoc#IGovernor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-[`IGovernor.castVoteWithReasonAndParamsBySig`]]
+:ERC20Votes: pass:normal[xref:token/ERC20.adoc#ERC20Votes[`ERC20Votes`]]
 :IGovernor-getVotes: pass:normal[xref:governance.adoc#IGovernor-getVotes-address-uint256-[`IGovernor.getVotes`]]
 :IGovernor-VoteCast: pass:normal[xref:governance.adoc#IGovernor-VoteCast-address-uint256-uint8-uint256-string-[`IGovernor.VoteCast`]]
 :IGovernor-getVotes: pass:normal[xref:governance.adoc#IGovernor-getVotes-address-uint256-[`IGovernor.getVotes`]]
@@ -243,6 +227,8 @@
 :xref-Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-: xref:governance.adoc#Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-
 :xref-Governor-castVoteBySig-uint256-uint8-address-bytes-: xref:governance.adoc#Governor-castVoteBySig-uint256-uint8-address-bytes-
 :xref-Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-: xref:governance.adoc#Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-
+:xref-Governor-_validateVoteSig-uint256-uint8-address-bytes-: xref:governance.adoc#Governor-_validateVoteSig-uint256-uint8-address-bytes-
+:xref-Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-: xref:governance.adoc#Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-
 :xref-Governor-_castVote-uint256-address-uint8-string-: xref:governance.adoc#Governor-_castVote-uint256-address-uint8-string-
 :xref-Governor-_castVote-uint256-address-uint8-string-bytes-: xref:governance.adoc#Governor-_castVote-uint256-address-uint8-string-bytes-
 :xref-Governor-relay-address-uint256-bytes-: xref:governance.adoc#Governor-relay-address-uint256-bytes-
@@ -264,11 +250,11 @@
 :xref-Nonces-nonces-address-: xref:utils.adoc#Nonces-nonces-address-
 :xref-Nonces-_useNonce-address-: xref:utils.adoc#Nonces-_useNonce-address-
 :xref-Nonces-_useCheckedNonce-address-uint256-: xref:utils.adoc#Nonces-_useCheckedNonce-address-uint256-
-:xref-EIP712-_domainSeparatorV4--: xref:utils.adoc#EIP712-_domainSeparatorV4--
-:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils.adoc#EIP712-_hashTypedDataV4-bytes32-
-:xref-EIP712-eip712Domain--: xref:utils.adoc#EIP712-eip712Domain--
-:xref-EIP712-_EIP712Name--: xref:utils.adoc#EIP712-_EIP712Name--
-:xref-EIP712-_EIP712Version--: xref:utils.adoc#EIP712-_EIP712Version--
+:xref-EIP712-_domainSeparatorV4--: xref:utils/cryptography.adoc#EIP712-_domainSeparatorV4--
+:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils/cryptography.adoc#EIP712-_hashTypedDataV4-bytes32-
+:xref-EIP712-eip712Domain--: xref:utils/cryptography.adoc#EIP712-eip712Domain--
+:xref-EIP712-_EIP712Name--: xref:utils/cryptography.adoc#EIP712-_EIP712Name--
+:xref-EIP712-_EIP712Version--: xref:utils/cryptography.adoc#EIP712-_EIP712Version--
 :xref-IGovernor-ProposalCreated-uint256-address-address---uint256---string---bytes---uint256-uint256-string-: xref:governance.adoc#IGovernor-ProposalCreated-uint256-address-address---uint256---string---bytes---uint256-uint256-string-
 :xref-IGovernor-ProposalQueued-uint256-uint256-: xref:governance.adoc#IGovernor-ProposalQueued-uint256-uint256-
 :xref-IGovernor-ProposalExecuted-uint256-: xref:governance.adoc#IGovernor-ProposalExecuted-uint256-
@@ -293,9 +279,6 @@
 :xref-IGovernor-GovernorInvalidSignature-address-: xref:governance.adoc#IGovernor-GovernorInvalidSignature-address-
 :xref-IGovernor-GovernorUnableToCancel-uint256-address-: xref:governance.adoc#IGovernor-GovernorUnableToCancel-uint256-address-
 :xref-Nonces-InvalidAccountNonce-address-uint256-: xref:utils.adoc#Nonces-InvalidAccountNonce-address-uint256-
-:IGovernor-COUNTING_MODE: pass:normal[xref:governance.adoc#IGovernor-COUNTING_MODE--[`IGovernor.COUNTING_MODE`]]
-:IGovernor-hasVoted: pass:normal[xref:governance.adoc#IGovernor-hasVoted-uint256-address-[`IGovernor.hasVoted`]]
-:Governor-_quorumReached: pass:normal[xref:governance.adoc#Governor-_quorumReached-uint256-[`Governor._quorumReached`]]
 :Governor-_voteSucceeded: pass:normal[xref:governance.adoc#Governor-_voteSucceeded-uint256-[`Governor._voteSucceeded`]]
 :Governor-_countVote: pass:normal[xref:governance.adoc#Governor-_countVote-uint256-address-uint8-uint256-bytes-[`Governor._countVote`]]
 :Governor: pass:normal[xref:governance.adoc#Governor[`Governor`]]
@@ -340,6 +323,8 @@
 :xref-Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-: xref:governance.adoc#Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-
 :xref-Governor-castVoteBySig-uint256-uint8-address-bytes-: xref:governance.adoc#Governor-castVoteBySig-uint256-uint8-address-bytes-
 :xref-Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-: xref:governance.adoc#Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-
+:xref-Governor-_validateVoteSig-uint256-uint8-address-bytes-: xref:governance.adoc#Governor-_validateVoteSig-uint256-uint8-address-bytes-
+:xref-Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-: xref:governance.adoc#Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-
 :xref-Governor-_castVote-uint256-address-uint8-string-: xref:governance.adoc#Governor-_castVote-uint256-address-uint8-string-
 :xref-Governor-_castVote-uint256-address-uint8-string-bytes-: xref:governance.adoc#Governor-_castVote-uint256-address-uint8-string-bytes-
 :xref-Governor-relay-address-uint256-bytes-: xref:governance.adoc#Governor-relay-address-uint256-bytes-
@@ -361,11 +346,11 @@
 :xref-Nonces-nonces-address-: xref:utils.adoc#Nonces-nonces-address-
 :xref-Nonces-_useNonce-address-: xref:utils.adoc#Nonces-_useNonce-address-
 :xref-Nonces-_useCheckedNonce-address-uint256-: xref:utils.adoc#Nonces-_useCheckedNonce-address-uint256-
-:xref-EIP712-_domainSeparatorV4--: xref:utils.adoc#EIP712-_domainSeparatorV4--
-:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils.adoc#EIP712-_hashTypedDataV4-bytes32-
-:xref-EIP712-eip712Domain--: xref:utils.adoc#EIP712-eip712Domain--
-:xref-EIP712-_EIP712Name--: xref:utils.adoc#EIP712-_EIP712Name--
-:xref-EIP712-_EIP712Version--: xref:utils.adoc#EIP712-_EIP712Version--
+:xref-EIP712-_domainSeparatorV4--: xref:utils/cryptography.adoc#EIP712-_domainSeparatorV4--
+:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils/cryptography.adoc#EIP712-_hashTypedDataV4-bytes32-
+:xref-EIP712-eip712Domain--: xref:utils/cryptography.adoc#EIP712-eip712Domain--
+:xref-EIP712-_EIP712Name--: xref:utils/cryptography.adoc#EIP712-_EIP712Name--
+:xref-EIP712-_EIP712Version--: xref:utils/cryptography.adoc#EIP712-_EIP712Version--
 :xref-IGovernor-ProposalCreated-uint256-address-address---uint256---string---bytes---uint256-uint256-string-: xref:governance.adoc#IGovernor-ProposalCreated-uint256-address-address---uint256---string---bytes---uint256-uint256-string-
 :xref-IGovernor-ProposalQueued-uint256-uint256-: xref:governance.adoc#IGovernor-ProposalQueued-uint256-uint256-
 :xref-IGovernor-ProposalExecuted-uint256-: xref:governance.adoc#IGovernor-ProposalExecuted-uint256-
@@ -392,9 +377,6 @@
 :xref-IGovernor-GovernorUnableToCancel-uint256-address-: xref:governance.adoc#IGovernor-GovernorUnableToCancel-uint256-address-
 :xref-Nonces-InvalidAccountNonce-address-uint256-: xref:utils.adoc#Nonces-InvalidAccountNonce-address-uint256-
 :xref-GovernorCountingFractional-VOTE_TYPE_FRACTIONAL-uint8: xref:governance.adoc#GovernorCountingFractional-VOTE_TYPE_FRACTIONAL-uint8
-:IGovernor-COUNTING_MODE: pass:normal[xref:governance.adoc#IGovernor-COUNTING_MODE--[`IGovernor.COUNTING_MODE`]]
-:IGovernor-hasVoted: pass:normal[xref:governance.adoc#IGovernor-hasVoted-uint256-address-[`IGovernor.hasVoted`]]
-:Governor-_quorumReached: pass:normal[xref:governance.adoc#Governor-_quorumReached-uint256-[`Governor._quorumReached`]]
 :Governor-_voteSucceeded: pass:normal[xref:governance.adoc#Governor-_voteSucceeded-uint256-[`Governor._voteSucceeded`]]
 :Governor-_countVote: pass:normal[xref:governance.adoc#Governor-_countVote-uint256-address-uint8-uint256-bytes-[`Governor._countVote`]]
 :GovernorCountingSimple: pass:normal[xref:governance.adoc#GovernorCountingSimple[`GovernorCountingSimple`]]
@@ -447,6 +429,8 @@
 :xref-Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-: xref:governance.adoc#Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-
 :xref-Governor-castVoteBySig-uint256-uint8-address-bytes-: xref:governance.adoc#Governor-castVoteBySig-uint256-uint8-address-bytes-
 :xref-Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-: xref:governance.adoc#Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-
+:xref-Governor-_validateVoteSig-uint256-uint8-address-bytes-: xref:governance.adoc#Governor-_validateVoteSig-uint256-uint8-address-bytes-
+:xref-Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-: xref:governance.adoc#Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-
 :xref-Governor-_castVote-uint256-address-uint8-string-: xref:governance.adoc#Governor-_castVote-uint256-address-uint8-string-
 :xref-Governor-_castVote-uint256-address-uint8-string-bytes-: xref:governance.adoc#Governor-_castVote-uint256-address-uint8-string-bytes-
 :xref-Governor-relay-address-uint256-bytes-: xref:governance.adoc#Governor-relay-address-uint256-bytes-
@@ -466,11 +450,11 @@
 :xref-Nonces-nonces-address-: xref:utils.adoc#Nonces-nonces-address-
 :xref-Nonces-_useNonce-address-: xref:utils.adoc#Nonces-_useNonce-address-
 :xref-Nonces-_useCheckedNonce-address-uint256-: xref:utils.adoc#Nonces-_useCheckedNonce-address-uint256-
-:xref-EIP712-_domainSeparatorV4--: xref:utils.adoc#EIP712-_domainSeparatorV4--
-:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils.adoc#EIP712-_hashTypedDataV4-bytes32-
-:xref-EIP712-eip712Domain--: xref:utils.adoc#EIP712-eip712Domain--
-:xref-EIP712-_EIP712Name--: xref:utils.adoc#EIP712-_EIP712Name--
-:xref-EIP712-_EIP712Version--: xref:utils.adoc#EIP712-_EIP712Version--
+:xref-EIP712-_domainSeparatorV4--: xref:utils/cryptography.adoc#EIP712-_domainSeparatorV4--
+:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils/cryptography.adoc#EIP712-_hashTypedDataV4-bytes32-
+:xref-EIP712-eip712Domain--: xref:utils/cryptography.adoc#EIP712-eip712Domain--
+:xref-EIP712-_EIP712Name--: xref:utils/cryptography.adoc#EIP712-_EIP712Name--
+:xref-EIP712-_EIP712Version--: xref:utils/cryptography.adoc#EIP712-_EIP712Version--
 :xref-GovernorCountingOverridable-VoteReduced-address-uint256-uint8-uint256-: xref:governance.adoc#GovernorCountingOverridable-VoteReduced-address-uint256-uint8-uint256-
 :xref-GovernorCountingOverridable-OverrideVoteCast-address-uint256-uint8-uint256-string-: xref:governance.adoc#GovernorCountingOverridable-OverrideVoteCast-address-uint256-uint8-uint256-string-
 :xref-IGovernor-ProposalCreated-uint256-address-address---uint256---string---bytes---uint256-uint256-string-: xref:governance.adoc#IGovernor-ProposalCreated-uint256-address-address---uint256---string---bytes---uint256-uint256-string-
@@ -498,9 +482,7 @@
 :xref-IGovernor-GovernorInvalidSignature-address-: xref:governance.adoc#IGovernor-GovernorInvalidSignature-address-
 :xref-IGovernor-GovernorUnableToCancel-uint256-address-: xref:governance.adoc#IGovernor-GovernorUnableToCancel-uint256-address-
 :xref-Nonces-InvalidAccountNonce-address-uint256-: xref:utils.adoc#Nonces-InvalidAccountNonce-address-uint256-
-:IGovernor-COUNTING_MODE: pass:normal[xref:governance.adoc#IGovernor-COUNTING_MODE--[`IGovernor.COUNTING_MODE`]]
 :IGovernor-hasVoted: pass:normal[xref:governance.adoc#IGovernor-hasVoted-uint256-address-[`IGovernor.hasVoted`]]
-:Governor-_quorumReached: pass:normal[xref:governance.adoc#Governor-_quorumReached-uint256-[`Governor._quorumReached`]]
 :Governor-_voteSucceeded: pass:normal[xref:governance.adoc#Governor-_voteSucceeded-uint256-[`Governor._voteSucceeded`]]
 :Governor-_countVote: pass:normal[xref:governance.adoc#Governor-_countVote-uint256-address-uint8-uint256-bytes-[`Governor._countVote`]]
 :Governor-_castVote: pass:normal[xref:governance.adoc#Governor-_castVote-uint256-address-uint8-string-bytes-[`Governor._castVote`]]
@@ -550,6 +532,8 @@
 :xref-Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-: xref:governance.adoc#Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-
 :xref-Governor-castVoteBySig-uint256-uint8-address-bytes-: xref:governance.adoc#Governor-castVoteBySig-uint256-uint8-address-bytes-
 :xref-Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-: xref:governance.adoc#Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-
+:xref-Governor-_validateVoteSig-uint256-uint8-address-bytes-: xref:governance.adoc#Governor-_validateVoteSig-uint256-uint8-address-bytes-
+:xref-Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-: xref:governance.adoc#Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-
 :xref-Governor-_castVote-uint256-address-uint8-string-: xref:governance.adoc#Governor-_castVote-uint256-address-uint8-string-
 :xref-Governor-_castVote-uint256-address-uint8-string-bytes-: xref:governance.adoc#Governor-_castVote-uint256-address-uint8-string-bytes-
 :xref-Governor-relay-address-uint256-bytes-: xref:governance.adoc#Governor-relay-address-uint256-bytes-
@@ -571,11 +555,11 @@
 :xref-Nonces-nonces-address-: xref:utils.adoc#Nonces-nonces-address-
 :xref-Nonces-_useNonce-address-: xref:utils.adoc#Nonces-_useNonce-address-
 :xref-Nonces-_useCheckedNonce-address-uint256-: xref:utils.adoc#Nonces-_useCheckedNonce-address-uint256-
-:xref-EIP712-_domainSeparatorV4--: xref:utils.adoc#EIP712-_domainSeparatorV4--
-:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils.adoc#EIP712-_hashTypedDataV4-bytes32-
-:xref-EIP712-eip712Domain--: xref:utils.adoc#EIP712-eip712Domain--
-:xref-EIP712-_EIP712Name--: xref:utils.adoc#EIP712-_EIP712Name--
-:xref-EIP712-_EIP712Version--: xref:utils.adoc#EIP712-_EIP712Version--
+:xref-EIP712-_domainSeparatorV4--: xref:utils/cryptography.adoc#EIP712-_domainSeparatorV4--
+:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils/cryptography.adoc#EIP712-_hashTypedDataV4-bytes32-
+:xref-EIP712-eip712Domain--: xref:utils/cryptography.adoc#EIP712-eip712Domain--
+:xref-EIP712-_EIP712Name--: xref:utils/cryptography.adoc#EIP712-_EIP712Name--
+:xref-EIP712-_EIP712Version--: xref:utils/cryptography.adoc#EIP712-_EIP712Version--
 :xref-IGovernor-ProposalCreated-uint256-address-address---uint256---string---bytes---uint256-uint256-string-: xref:governance.adoc#IGovernor-ProposalCreated-uint256-address-address---uint256---string---bytes---uint256-uint256-string-
 :xref-IGovernor-ProposalQueued-uint256-uint256-: xref:governance.adoc#IGovernor-ProposalQueued-uint256-uint256-
 :xref-IGovernor-ProposalExecuted-uint256-: xref:governance.adoc#IGovernor-ProposalExecuted-uint256-
@@ -648,6 +632,8 @@
 :xref-Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-: xref:governance.adoc#Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-
 :xref-Governor-castVoteBySig-uint256-uint8-address-bytes-: xref:governance.adoc#Governor-castVoteBySig-uint256-uint8-address-bytes-
 :xref-Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-: xref:governance.adoc#Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-
+:xref-Governor-_validateVoteSig-uint256-uint8-address-bytes-: xref:governance.adoc#Governor-_validateVoteSig-uint256-uint8-address-bytes-
+:xref-Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-: xref:governance.adoc#Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-
 :xref-Governor-_castVote-uint256-address-uint8-string-: xref:governance.adoc#Governor-_castVote-uint256-address-uint8-string-
 :xref-Governor-_castVote-uint256-address-uint8-string-bytes-: xref:governance.adoc#Governor-_castVote-uint256-address-uint8-string-bytes-
 :xref-Governor-relay-address-uint256-bytes-: xref:governance.adoc#Governor-relay-address-uint256-bytes-
@@ -668,11 +654,11 @@
 :xref-Nonces-nonces-address-: xref:utils.adoc#Nonces-nonces-address-
 :xref-Nonces-_useNonce-address-: xref:utils.adoc#Nonces-_useNonce-address-
 :xref-Nonces-_useCheckedNonce-address-uint256-: xref:utils.adoc#Nonces-_useCheckedNonce-address-uint256-
-:xref-EIP712-_domainSeparatorV4--: xref:utils.adoc#EIP712-_domainSeparatorV4--
-:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils.adoc#EIP712-_hashTypedDataV4-bytes32-
-:xref-EIP712-eip712Domain--: xref:utils.adoc#EIP712-eip712Domain--
-:xref-EIP712-_EIP712Name--: xref:utils.adoc#EIP712-_EIP712Name--
-:xref-EIP712-_EIP712Version--: xref:utils.adoc#EIP712-_EIP712Version--
+:xref-EIP712-_domainSeparatorV4--: xref:utils/cryptography.adoc#EIP712-_domainSeparatorV4--
+:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils/cryptography.adoc#EIP712-_hashTypedDataV4-bytes32-
+:xref-EIP712-eip712Domain--: xref:utils/cryptography.adoc#EIP712-eip712Domain--
+:xref-EIP712-_EIP712Name--: xref:utils/cryptography.adoc#EIP712-_EIP712Name--
+:xref-EIP712-_EIP712Version--: xref:utils/cryptography.adoc#EIP712-_EIP712Version--
 :xref-GovernorVotesQuorumFraction-QuorumNumeratorUpdated-uint256-uint256-: xref:governance.adoc#GovernorVotesQuorumFraction-QuorumNumeratorUpdated-uint256-uint256-
 :xref-IGovernor-ProposalCreated-uint256-address-address---uint256---string---bytes---uint256-uint256-string-: xref:governance.adoc#IGovernor-ProposalCreated-uint256-address-address---uint256---string---bytes---uint256-uint256-string-
 :xref-IGovernor-ProposalQueued-uint256-uint256-: xref:governance.adoc#IGovernor-ProposalQueued-uint256-uint256-
@@ -752,6 +738,8 @@
 :xref-Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-: xref:governance.adoc#Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-
 :xref-Governor-castVoteBySig-uint256-uint8-address-bytes-: xref:governance.adoc#Governor-castVoteBySig-uint256-uint8-address-bytes-
 :xref-Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-: xref:governance.adoc#Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-
+:xref-Governor-_validateVoteSig-uint256-uint8-address-bytes-: xref:governance.adoc#Governor-_validateVoteSig-uint256-uint8-address-bytes-
+:xref-Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-: xref:governance.adoc#Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-
 :xref-Governor-_castVote-uint256-address-uint8-string-: xref:governance.adoc#Governor-_castVote-uint256-address-uint8-string-
 :xref-Governor-_castVote-uint256-address-uint8-string-bytes-: xref:governance.adoc#Governor-_castVote-uint256-address-uint8-string-bytes-
 :xref-Governor-relay-address-uint256-bytes-: xref:governance.adoc#Governor-relay-address-uint256-bytes-
@@ -772,11 +760,11 @@
 :xref-Nonces-nonces-address-: xref:utils.adoc#Nonces-nonces-address-
 :xref-Nonces-_useNonce-address-: xref:utils.adoc#Nonces-_useNonce-address-
 :xref-Nonces-_useCheckedNonce-address-uint256-: xref:utils.adoc#Nonces-_useCheckedNonce-address-uint256-
-:xref-EIP712-_domainSeparatorV4--: xref:utils.adoc#EIP712-_domainSeparatorV4--
-:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils.adoc#EIP712-_hashTypedDataV4-bytes32-
-:xref-EIP712-eip712Domain--: xref:utils.adoc#EIP712-eip712Domain--
-:xref-EIP712-_EIP712Name--: xref:utils.adoc#EIP712-_EIP712Name--
-:xref-EIP712-_EIP712Version--: xref:utils.adoc#EIP712-_EIP712Version--
+:xref-EIP712-_domainSeparatorV4--: xref:utils/cryptography.adoc#EIP712-_domainSeparatorV4--
+:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils/cryptography.adoc#EIP712-_hashTypedDataV4-bytes32-
+:xref-EIP712-eip712Domain--: xref:utils/cryptography.adoc#EIP712-eip712Domain--
+:xref-EIP712-_EIP712Name--: xref:utils/cryptography.adoc#EIP712-_EIP712Name--
+:xref-EIP712-_EIP712Version--: xref:utils/cryptography.adoc#EIP712-_EIP712Version--
 :xref-GovernorVotesSuperQuorumFraction-SuperQuorumNumeratorUpdated-uint256-uint256-: xref:governance.adoc#GovernorVotesSuperQuorumFraction-SuperQuorumNumeratorUpdated-uint256-uint256-
 :xref-GovernorVotesQuorumFraction-QuorumNumeratorUpdated-uint256-uint256-: xref:governance.adoc#GovernorVotesQuorumFraction-QuorumNumeratorUpdated-uint256-uint256-
 :xref-IGovernor-ProposalCreated-uint256-address-address---uint256---string---bytes---uint256-uint256-string-: xref:governance.adoc#IGovernor-ProposalCreated-uint256-address-address---uint256---string---bytes---uint256-uint256-string-
@@ -860,6 +848,8 @@
 :xref-Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-: xref:governance.adoc#Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-
 :xref-Governor-castVoteBySig-uint256-uint8-address-bytes-: xref:governance.adoc#Governor-castVoteBySig-uint256-uint8-address-bytes-
 :xref-Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-: xref:governance.adoc#Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-
+:xref-Governor-_validateVoteSig-uint256-uint8-address-bytes-: xref:governance.adoc#Governor-_validateVoteSig-uint256-uint8-address-bytes-
+:xref-Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-: xref:governance.adoc#Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-
 :xref-Governor-_castVote-uint256-address-uint8-string-: xref:governance.adoc#Governor-_castVote-uint256-address-uint8-string-
 :xref-Governor-_castVote-uint256-address-uint8-string-bytes-: xref:governance.adoc#Governor-_castVote-uint256-address-uint8-string-bytes-
 :xref-Governor-relay-address-uint256-bytes-: xref:governance.adoc#Governor-relay-address-uint256-bytes-
@@ -883,11 +873,11 @@
 :xref-Nonces-nonces-address-: xref:utils.adoc#Nonces-nonces-address-
 :xref-Nonces-_useNonce-address-: xref:utils.adoc#Nonces-_useNonce-address-
 :xref-Nonces-_useCheckedNonce-address-uint256-: xref:utils.adoc#Nonces-_useCheckedNonce-address-uint256-
-:xref-EIP712-_domainSeparatorV4--: xref:utils.adoc#EIP712-_domainSeparatorV4--
-:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils.adoc#EIP712-_hashTypedDataV4-bytes32-
-:xref-EIP712-eip712Domain--: xref:utils.adoc#EIP712-eip712Domain--
-:xref-EIP712-_EIP712Name--: xref:utils.adoc#EIP712-_EIP712Name--
-:xref-EIP712-_EIP712Version--: xref:utils.adoc#EIP712-_EIP712Version--
+:xref-EIP712-_domainSeparatorV4--: xref:utils/cryptography.adoc#EIP712-_domainSeparatorV4--
+:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils/cryptography.adoc#EIP712-_hashTypedDataV4-bytes32-
+:xref-EIP712-eip712Domain--: xref:utils/cryptography.adoc#EIP712-eip712Domain--
+:xref-EIP712-_EIP712Name--: xref:utils/cryptography.adoc#EIP712-_EIP712Name--
+:xref-EIP712-_EIP712Version--: xref:utils/cryptography.adoc#EIP712-_EIP712Version--
 :xref-GovernorTimelockAccess-BaseDelaySet-uint32-uint32-: xref:governance.adoc#GovernorTimelockAccess-BaseDelaySet-uint32-uint32-
 :xref-GovernorTimelockAccess-AccessManagerIgnoredSet-address-bytes4-bool-: xref:governance.adoc#GovernorTimelockAccess-AccessManagerIgnoredSet-address-bytes4-bool-
 :xref-IGovernor-ProposalCreated-uint256-address-address---uint256---string---bytes---uint256-uint256-string-: xref:governance.adoc#IGovernor-ProposalCreated-uint256-address-address---uint256---string---bytes---uint256-uint256-string-
@@ -922,10 +912,8 @@
 :AccessManager: pass:normal[xref:access.adoc#AccessManager[`AccessManager`]]
 :AccessManager: pass:normal[xref:access.adoc#AccessManager[`AccessManager`]]
 :AccessManager: pass:normal[xref:access.adoc#AccessManager[`AccessManager`]]
-:IGovernor-proposalNeedsQueuing: pass:normal[xref:governance.adoc#IGovernor-proposalNeedsQueuing-uint256-[`IGovernor.proposalNeedsQueuing`]]
-:IGovernor-propose: pass:normal[xref:governance.adoc#IGovernor-propose-address---uint256---bytes---string-[`IGovernor.propose`]]
 :AccessManager-execute: pass:normal[xref:access.adoc#AccessManager-execute-address-bytes-[`AccessManager.execute`]]
-:Governor-_cancel: pass:normal[xref:governance.adoc#Governor-_cancel-address---uint256---bytes---bytes32-[`Governor._cancel`]]
+:IGovernor-ProposalCanceled: pass:normal[xref:governance.adoc#IGovernor-ProposalCanceled-uint256-[`IGovernor.ProposalCanceled`]]
 :Governor: pass:normal[xref:governance.adoc#Governor[`Governor`]]
 :TimelockController: pass:normal[xref:governance.adoc#TimelockController[`TimelockController`]]
 :TimelockController: pass:normal[xref:governance.adoc#TimelockController[`TimelockController`]]
@@ -975,6 +963,8 @@
 :xref-Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-: xref:governance.adoc#Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-
 :xref-Governor-castVoteBySig-uint256-uint8-address-bytes-: xref:governance.adoc#Governor-castVoteBySig-uint256-uint8-address-bytes-
 :xref-Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-: xref:governance.adoc#Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-
+:xref-Governor-_validateVoteSig-uint256-uint8-address-bytes-: xref:governance.adoc#Governor-_validateVoteSig-uint256-uint8-address-bytes-
+:xref-Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-: xref:governance.adoc#Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-
 :xref-Governor-_castVote-uint256-address-uint8-string-: xref:governance.adoc#Governor-_castVote-uint256-address-uint8-string-
 :xref-Governor-_castVote-uint256-address-uint8-string-bytes-: xref:governance.adoc#Governor-_castVote-uint256-address-uint8-string-bytes-
 :xref-Governor-relay-address-uint256-bytes-: xref:governance.adoc#Governor-relay-address-uint256-bytes-
@@ -997,11 +987,11 @@
 :xref-Nonces-nonces-address-: xref:utils.adoc#Nonces-nonces-address-
 :xref-Nonces-_useNonce-address-: xref:utils.adoc#Nonces-_useNonce-address-
 :xref-Nonces-_useCheckedNonce-address-uint256-: xref:utils.adoc#Nonces-_useCheckedNonce-address-uint256-
-:xref-EIP712-_domainSeparatorV4--: xref:utils.adoc#EIP712-_domainSeparatorV4--
-:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils.adoc#EIP712-_hashTypedDataV4-bytes32-
-:xref-EIP712-eip712Domain--: xref:utils.adoc#EIP712-eip712Domain--
-:xref-EIP712-_EIP712Name--: xref:utils.adoc#EIP712-_EIP712Name--
-:xref-EIP712-_EIP712Version--: xref:utils.adoc#EIP712-_EIP712Version--
+:xref-EIP712-_domainSeparatorV4--: xref:utils/cryptography.adoc#EIP712-_domainSeparatorV4--
+:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils/cryptography.adoc#EIP712-_hashTypedDataV4-bytes32-
+:xref-EIP712-eip712Domain--: xref:utils/cryptography.adoc#EIP712-eip712Domain--
+:xref-EIP712-_EIP712Name--: xref:utils/cryptography.adoc#EIP712-_EIP712Name--
+:xref-EIP712-_EIP712Version--: xref:utils/cryptography.adoc#EIP712-_EIP712Version--
 :xref-GovernorTimelockControl-TimelockChange-address-address-: xref:governance.adoc#GovernorTimelockControl-TimelockChange-address-address-
 :xref-IGovernor-ProposalCreated-uint256-address-address---uint256---string---bytes---uint256-uint256-string-: xref:governance.adoc#IGovernor-ProposalCreated-uint256-address-address---uint256---string---bytes---uint256-uint256-string-
 :xref-IGovernor-ProposalQueued-uint256-uint256-: xref:governance.adoc#IGovernor-ProposalQueued-uint256-uint256-
@@ -1028,7 +1018,6 @@
 :xref-IGovernor-GovernorUnableToCancel-uint256-address-: xref:governance.adoc#IGovernor-GovernorUnableToCancel-uint256-address-
 :xref-Nonces-InvalidAccountNonce-address-uint256-: xref:utils.adoc#Nonces-InvalidAccountNonce-address-uint256-
 :Governor-state: pass:normal[xref:governance.adoc#Governor-state-uint256-[`Governor.state`]]
-:IGovernor-proposalNeedsQueuing: pass:normal[xref:governance.adoc#IGovernor-proposalNeedsQueuing-uint256-[`IGovernor.proposalNeedsQueuing`]]
 :Governor-_executeOperations: pass:normal[xref:governance.adoc#Governor-_executeOperations-uint256-address---uint256---bytes---bytes32-[`Governor._executeOperations`]]
 :Governor-_cancel: pass:normal[xref:governance.adoc#Governor-_cancel-address---uint256---bytes---bytes32-[`Governor._cancel`]]
 :Governor: pass:normal[xref:governance.adoc#Governor[`Governor`]]
@@ -1079,6 +1068,8 @@
 :xref-Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-: xref:governance.adoc#Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-
 :xref-Governor-castVoteBySig-uint256-uint8-address-bytes-: xref:governance.adoc#Governor-castVoteBySig-uint256-uint8-address-bytes-
 :xref-Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-: xref:governance.adoc#Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-
+:xref-Governor-_validateVoteSig-uint256-uint8-address-bytes-: xref:governance.adoc#Governor-_validateVoteSig-uint256-uint8-address-bytes-
+:xref-Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-: xref:governance.adoc#Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-
 :xref-Governor-_castVote-uint256-address-uint8-string-: xref:governance.adoc#Governor-_castVote-uint256-address-uint8-string-
 :xref-Governor-_castVote-uint256-address-uint8-string-bytes-: xref:governance.adoc#Governor-_castVote-uint256-address-uint8-string-bytes-
 :xref-Governor-relay-address-uint256-bytes-: xref:governance.adoc#Governor-relay-address-uint256-bytes-
@@ -1101,11 +1092,11 @@
 :xref-Nonces-nonces-address-: xref:utils.adoc#Nonces-nonces-address-
 :xref-Nonces-_useNonce-address-: xref:utils.adoc#Nonces-_useNonce-address-
 :xref-Nonces-_useCheckedNonce-address-uint256-: xref:utils.adoc#Nonces-_useCheckedNonce-address-uint256-
-:xref-EIP712-_domainSeparatorV4--: xref:utils.adoc#EIP712-_domainSeparatorV4--
-:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils.adoc#EIP712-_hashTypedDataV4-bytes32-
-:xref-EIP712-eip712Domain--: xref:utils.adoc#EIP712-eip712Domain--
-:xref-EIP712-_EIP712Name--: xref:utils.adoc#EIP712-_EIP712Name--
-:xref-EIP712-_EIP712Version--: xref:utils.adoc#EIP712-_EIP712Version--
+:xref-EIP712-_domainSeparatorV4--: xref:utils/cryptography.adoc#EIP712-_domainSeparatorV4--
+:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils/cryptography.adoc#EIP712-_hashTypedDataV4-bytes32-
+:xref-EIP712-eip712Domain--: xref:utils/cryptography.adoc#EIP712-eip712Domain--
+:xref-EIP712-_EIP712Name--: xref:utils/cryptography.adoc#EIP712-_EIP712Name--
+:xref-EIP712-_EIP712Version--: xref:utils/cryptography.adoc#EIP712-_EIP712Version--
 :xref-GovernorTimelockCompound-TimelockChange-address-address-: xref:governance.adoc#GovernorTimelockCompound-TimelockChange-address-address-
 :xref-IGovernor-ProposalCreated-uint256-address-address---uint256---string---bytes---uint256-uint256-string-: xref:governance.adoc#IGovernor-ProposalCreated-uint256-address-address---uint256---string---bytes---uint256-uint256-string-
 :xref-IGovernor-ProposalQueued-uint256-uint256-: xref:governance.adoc#IGovernor-ProposalQueued-uint256-uint256-
@@ -1132,7 +1123,6 @@
 :xref-IGovernor-GovernorUnableToCancel-uint256-address-: xref:governance.adoc#IGovernor-GovernorUnableToCancel-uint256-address-
 :xref-Nonces-InvalidAccountNonce-address-uint256-: xref:utils.adoc#Nonces-InvalidAccountNonce-address-uint256-
 :Governor-state: pass:normal[xref:governance.adoc#Governor-state-uint256-[`Governor.state`]]
-:IGovernor-proposalNeedsQueuing: pass:normal[xref:governance.adoc#IGovernor-proposalNeedsQueuing-uint256-[`IGovernor.proposalNeedsQueuing`]]
 :Governor-_executeOperations: pass:normal[xref:governance.adoc#Governor-_executeOperations-uint256-address---uint256---bytes---bytes32-[`Governor._executeOperations`]]
 :Governor-_cancel: pass:normal[xref:governance.adoc#Governor-_cancel-address---uint256---bytes---bytes32-[`Governor._cancel`]]
 :Governor: pass:normal[xref:governance.adoc#Governor[`Governor`]]
@@ -1180,6 +1170,8 @@
 :xref-Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-: xref:governance.adoc#Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-
 :xref-Governor-castVoteBySig-uint256-uint8-address-bytes-: xref:governance.adoc#Governor-castVoteBySig-uint256-uint8-address-bytes-
 :xref-Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-: xref:governance.adoc#Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-
+:xref-Governor-_validateVoteSig-uint256-uint8-address-bytes-: xref:governance.adoc#Governor-_validateVoteSig-uint256-uint8-address-bytes-
+:xref-Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-: xref:governance.adoc#Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-
 :xref-Governor-_castVote-uint256-address-uint8-string-: xref:governance.adoc#Governor-_castVote-uint256-address-uint8-string-
 :xref-Governor-_castVote-uint256-address-uint8-string-bytes-: xref:governance.adoc#Governor-_castVote-uint256-address-uint8-string-bytes-
 :xref-Governor-relay-address-uint256-bytes-: xref:governance.adoc#Governor-relay-address-uint256-bytes-
@@ -1201,11 +1193,11 @@
 :xref-Nonces-nonces-address-: xref:utils.adoc#Nonces-nonces-address-
 :xref-Nonces-_useNonce-address-: xref:utils.adoc#Nonces-_useNonce-address-
 :xref-Nonces-_useCheckedNonce-address-uint256-: xref:utils.adoc#Nonces-_useCheckedNonce-address-uint256-
-:xref-EIP712-_domainSeparatorV4--: xref:utils.adoc#EIP712-_domainSeparatorV4--
-:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils.adoc#EIP712-_hashTypedDataV4-bytes32-
-:xref-EIP712-eip712Domain--: xref:utils.adoc#EIP712-eip712Domain--
-:xref-EIP712-_EIP712Name--: xref:utils.adoc#EIP712-_EIP712Name--
-:xref-EIP712-_EIP712Version--: xref:utils.adoc#EIP712-_EIP712Version--
+:xref-EIP712-_domainSeparatorV4--: xref:utils/cryptography.adoc#EIP712-_domainSeparatorV4--
+:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils/cryptography.adoc#EIP712-_hashTypedDataV4-bytes32-
+:xref-EIP712-eip712Domain--: xref:utils/cryptography.adoc#EIP712-eip712Domain--
+:xref-EIP712-_EIP712Name--: xref:utils/cryptography.adoc#EIP712-_EIP712Name--
+:xref-EIP712-_EIP712Version--: xref:utils/cryptography.adoc#EIP712-_EIP712Version--
 :xref-GovernorSettings-VotingDelaySet-uint256-uint256-: xref:governance.adoc#GovernorSettings-VotingDelaySet-uint256-uint256-
 :xref-GovernorSettings-VotingPeriodSet-uint256-uint256-: xref:governance.adoc#GovernorSettings-VotingPeriodSet-uint256-uint256-
 :xref-GovernorSettings-ProposalThresholdSet-uint256-uint256-: xref:governance.adoc#GovernorSettings-ProposalThresholdSet-uint256-uint256-
@@ -1233,9 +1225,6 @@
 :xref-IGovernor-GovernorInvalidSignature-address-: xref:governance.adoc#IGovernor-GovernorInvalidSignature-address-
 :xref-IGovernor-GovernorUnableToCancel-uint256-address-: xref:governance.adoc#IGovernor-GovernorUnableToCancel-uint256-address-
 :xref-Nonces-InvalidAccountNonce-address-uint256-: xref:utils.adoc#Nonces-InvalidAccountNonce-address-uint256-
-:IGovernor-votingDelay: pass:normal[xref:governance.adoc#IGovernor-votingDelay--[`IGovernor.votingDelay`]]
-:IGovernor-votingPeriod: pass:normal[xref:governance.adoc#IGovernor-votingPeriod--[`IGovernor.votingPeriod`]]
-:Governor-proposalThreshold: pass:normal[xref:governance.adoc#Governor-proposalThreshold--[`Governor.proposalThreshold`]]
 :xref-GovernorPreventLateQuorum-constructor-uint48-: xref:governance.adoc#GovernorPreventLateQuorum-constructor-uint48-
 :xref-GovernorPreventLateQuorum-proposalDeadline-uint256-: xref:governance.adoc#GovernorPreventLateQuorum-proposalDeadline-uint256-
 :xref-GovernorPreventLateQuorum-_tallyUpdated-uint256-: xref:governance.adoc#GovernorPreventLateQuorum-_tallyUpdated-uint256-
@@ -1275,6 +1264,8 @@
 :xref-Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-: xref:governance.adoc#Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-
 :xref-Governor-castVoteBySig-uint256-uint8-address-bytes-: xref:governance.adoc#Governor-castVoteBySig-uint256-uint8-address-bytes-
 :xref-Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-: xref:governance.adoc#Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-
+:xref-Governor-_validateVoteSig-uint256-uint8-address-bytes-: xref:governance.adoc#Governor-_validateVoteSig-uint256-uint8-address-bytes-
+:xref-Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-: xref:governance.adoc#Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-
 :xref-Governor-_castVote-uint256-address-uint8-string-: xref:governance.adoc#Governor-_castVote-uint256-address-uint8-string-
 :xref-Governor-_castVote-uint256-address-uint8-string-bytes-: xref:governance.adoc#Governor-_castVote-uint256-address-uint8-string-bytes-
 :xref-Governor-relay-address-uint256-bytes-: xref:governance.adoc#Governor-relay-address-uint256-bytes-
@@ -1298,11 +1289,11 @@
 :xref-Nonces-nonces-address-: xref:utils.adoc#Nonces-nonces-address-
 :xref-Nonces-_useNonce-address-: xref:utils.adoc#Nonces-_useNonce-address-
 :xref-Nonces-_useCheckedNonce-address-uint256-: xref:utils.adoc#Nonces-_useCheckedNonce-address-uint256-
-:xref-EIP712-_domainSeparatorV4--: xref:utils.adoc#EIP712-_domainSeparatorV4--
-:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils.adoc#EIP712-_hashTypedDataV4-bytes32-
-:xref-EIP712-eip712Domain--: xref:utils.adoc#EIP712-eip712Domain--
-:xref-EIP712-_EIP712Name--: xref:utils.adoc#EIP712-_EIP712Name--
-:xref-EIP712-_EIP712Version--: xref:utils.adoc#EIP712-_EIP712Version--
+:xref-EIP712-_domainSeparatorV4--: xref:utils/cryptography.adoc#EIP712-_domainSeparatorV4--
+:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils/cryptography.adoc#EIP712-_hashTypedDataV4-bytes32-
+:xref-EIP712-eip712Domain--: xref:utils/cryptography.adoc#EIP712-eip712Domain--
+:xref-EIP712-_EIP712Name--: xref:utils/cryptography.adoc#EIP712-_EIP712Name--
+:xref-EIP712-_EIP712Version--: xref:utils/cryptography.adoc#EIP712-_EIP712Version--
 :xref-GovernorPreventLateQuorum-ProposalExtended-uint256-uint64-: xref:governance.adoc#GovernorPreventLateQuorum-ProposalExtended-uint256-uint64-
 :xref-GovernorPreventLateQuorum-LateQuorumVoteExtensionSet-uint64-uint64-: xref:governance.adoc#GovernorPreventLateQuorum-LateQuorumVoteExtensionSet-uint64-uint64-
 :xref-IGovernor-ProposalCreated-uint256-address-address---uint256---string---bytes---uint256-uint256-string-: xref:governance.adoc#IGovernor-ProposalCreated-uint256-address-address---uint256---string---bytes---uint256-uint256-string-
@@ -1374,6 +1365,8 @@
 :xref-Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-: xref:governance.adoc#Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-
 :xref-Governor-castVoteBySig-uint256-uint8-address-bytes-: xref:governance.adoc#Governor-castVoteBySig-uint256-uint8-address-bytes-
 :xref-Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-: xref:governance.adoc#Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-
+:xref-Governor-_validateVoteSig-uint256-uint8-address-bytes-: xref:governance.adoc#Governor-_validateVoteSig-uint256-uint8-address-bytes-
+:xref-Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-: xref:governance.adoc#Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-
 :xref-Governor-_castVote-uint256-address-uint8-string-: xref:governance.adoc#Governor-_castVote-uint256-address-uint8-string-
 :xref-Governor-_castVote-uint256-address-uint8-string-bytes-: xref:governance.adoc#Governor-_castVote-uint256-address-uint8-string-bytes-
 :xref-Governor-relay-address-uint256-bytes-: xref:governance.adoc#Governor-relay-address-uint256-bytes-
@@ -1397,11 +1390,11 @@
 :xref-Nonces-nonces-address-: xref:utils.adoc#Nonces-nonces-address-
 :xref-Nonces-_useNonce-address-: xref:utils.adoc#Nonces-_useNonce-address-
 :xref-Nonces-_useCheckedNonce-address-uint256-: xref:utils.adoc#Nonces-_useCheckedNonce-address-uint256-
-:xref-EIP712-_domainSeparatorV4--: xref:utils.adoc#EIP712-_domainSeparatorV4--
-:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils.adoc#EIP712-_hashTypedDataV4-bytes32-
-:xref-EIP712-eip712Domain--: xref:utils.adoc#EIP712-eip712Domain--
-:xref-EIP712-_EIP712Name--: xref:utils.adoc#EIP712-_EIP712Name--
-:xref-EIP712-_EIP712Version--: xref:utils.adoc#EIP712-_EIP712Version--
+:xref-EIP712-_domainSeparatorV4--: xref:utils/cryptography.adoc#EIP712-_domainSeparatorV4--
+:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils/cryptography.adoc#EIP712-_hashTypedDataV4-bytes32-
+:xref-EIP712-eip712Domain--: xref:utils/cryptography.adoc#EIP712-eip712Domain--
+:xref-EIP712-_EIP712Name--: xref:utils/cryptography.adoc#EIP712-_EIP712Name--
+:xref-EIP712-_EIP712Version--: xref:utils/cryptography.adoc#EIP712-_EIP712Version--
 :xref-IGovernor-ProposalCreated-uint256-address-address---uint256---string---bytes---uint256-uint256-string-: xref:governance.adoc#IGovernor-ProposalCreated-uint256-address-address---uint256---string---bytes---uint256-uint256-string-
 :xref-IGovernor-ProposalQueued-uint256-uint256-: xref:governance.adoc#IGovernor-ProposalQueued-uint256-uint256-
 :xref-IGovernor-ProposalExecuted-uint256-: xref:governance.adoc#IGovernor-ProposalExecuted-uint256-
@@ -1469,6 +1462,8 @@
 :xref-Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-: xref:governance.adoc#Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-
 :xref-Governor-castVoteBySig-uint256-uint8-address-bytes-: xref:governance.adoc#Governor-castVoteBySig-uint256-uint8-address-bytes-
 :xref-Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-: xref:governance.adoc#Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-
+:xref-Governor-_validateVoteSig-uint256-uint8-address-bytes-: xref:governance.adoc#Governor-_validateVoteSig-uint256-uint8-address-bytes-
+:xref-Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-: xref:governance.adoc#Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-
 :xref-Governor-_castVote-uint256-address-uint8-string-: xref:governance.adoc#Governor-_castVote-uint256-address-uint8-string-
 :xref-Governor-_castVote-uint256-address-uint8-string-bytes-: xref:governance.adoc#Governor-_castVote-uint256-address-uint8-string-bytes-
 :xref-Governor-relay-address-uint256-bytes-: xref:governance.adoc#Governor-relay-address-uint256-bytes-
@@ -1491,11 +1486,11 @@
 :xref-Nonces-nonces-address-: xref:utils.adoc#Nonces-nonces-address-
 :xref-Nonces-_useNonce-address-: xref:utils.adoc#Nonces-_useNonce-address-
 :xref-Nonces-_useCheckedNonce-address-uint256-: xref:utils.adoc#Nonces-_useCheckedNonce-address-uint256-
-:xref-EIP712-_domainSeparatorV4--: xref:utils.adoc#EIP712-_domainSeparatorV4--
-:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils.adoc#EIP712-_hashTypedDataV4-bytes32-
-:xref-EIP712-eip712Domain--: xref:utils.adoc#EIP712-eip712Domain--
-:xref-EIP712-_EIP712Name--: xref:utils.adoc#EIP712-_EIP712Name--
-:xref-EIP712-_EIP712Version--: xref:utils.adoc#EIP712-_EIP712Version--
+:xref-EIP712-_domainSeparatorV4--: xref:utils/cryptography.adoc#EIP712-_domainSeparatorV4--
+:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils/cryptography.adoc#EIP712-_hashTypedDataV4-bytes32-
+:xref-EIP712-eip712Domain--: xref:utils/cryptography.adoc#EIP712-eip712Domain--
+:xref-EIP712-_EIP712Name--: xref:utils/cryptography.adoc#EIP712-_EIP712Name--
+:xref-EIP712-_EIP712Version--: xref:utils/cryptography.adoc#EIP712-_EIP712Version--
 :xref-GovernorProposalGuardian-ProposalGuardianSet-address-address-: xref:governance.adoc#GovernorProposalGuardian-ProposalGuardianSet-address-address-
 :xref-IGovernor-ProposalCreated-uint256-address-address---uint256---string---bytes---uint256-uint256-string-: xref:governance.adoc#IGovernor-ProposalCreated-uint256-address-address---uint256---string---bytes---uint256-uint256-string-
 :xref-IGovernor-ProposalQueued-uint256-uint256-: xref:governance.adoc#IGovernor-ProposalQueued-uint256-uint256-
@@ -1562,6 +1557,8 @@
 :xref-Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-: xref:governance.adoc#Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-
 :xref-Governor-castVoteBySig-uint256-uint8-address-bytes-: xref:governance.adoc#Governor-castVoteBySig-uint256-uint8-address-bytes-
 :xref-Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-: xref:governance.adoc#Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-
+:xref-Governor-_validateVoteSig-uint256-uint8-address-bytes-: xref:governance.adoc#Governor-_validateVoteSig-uint256-uint8-address-bytes-
+:xref-Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-: xref:governance.adoc#Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-
 :xref-Governor-_castVote-uint256-address-uint8-string-: xref:governance.adoc#Governor-_castVote-uint256-address-uint8-string-
 :xref-Governor-_castVote-uint256-address-uint8-string-bytes-: xref:governance.adoc#Governor-_castVote-uint256-address-uint8-string-bytes-
 :xref-Governor-relay-address-uint256-bytes-: xref:governance.adoc#Governor-relay-address-uint256-bytes-
@@ -1585,11 +1582,11 @@
 :xref-Nonces-nonces-address-: xref:utils.adoc#Nonces-nonces-address-
 :xref-Nonces-_useNonce-address-: xref:utils.adoc#Nonces-_useNonce-address-
 :xref-Nonces-_useCheckedNonce-address-uint256-: xref:utils.adoc#Nonces-_useCheckedNonce-address-uint256-
-:xref-EIP712-_domainSeparatorV4--: xref:utils.adoc#EIP712-_domainSeparatorV4--
-:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils.adoc#EIP712-_hashTypedDataV4-bytes32-
-:xref-EIP712-eip712Domain--: xref:utils.adoc#EIP712-eip712Domain--
-:xref-EIP712-_EIP712Name--: xref:utils.adoc#EIP712-_EIP712Name--
-:xref-EIP712-_EIP712Version--: xref:utils.adoc#EIP712-_EIP712Version--
+:xref-EIP712-_domainSeparatorV4--: xref:utils/cryptography.adoc#EIP712-_domainSeparatorV4--
+:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils/cryptography.adoc#EIP712-_hashTypedDataV4-bytes32-
+:xref-EIP712-eip712Domain--: xref:utils/cryptography.adoc#EIP712-eip712Domain--
+:xref-EIP712-_EIP712Name--: xref:utils/cryptography.adoc#EIP712-_EIP712Name--
+:xref-EIP712-_EIP712Version--: xref:utils/cryptography.adoc#EIP712-_EIP712Version--
 :xref-IGovernor-ProposalCreated-uint256-address-address---uint256---string---bytes---uint256-uint256-string-: xref:governance.adoc#IGovernor-ProposalCreated-uint256-address-address---uint256---string---bytes---uint256-uint256-string-
 :xref-IGovernor-ProposalQueued-uint256-uint256-: xref:governance.adoc#IGovernor-ProposalQueued-uint256-uint256-
 :xref-IGovernor-ProposalExecuted-uint256-: xref:governance.adoc#IGovernor-ProposalExecuted-uint256-
@@ -1616,6 +1613,100 @@
 :xref-Nonces-InvalidAccountNonce-address-uint256-: xref:utils.adoc#Nonces-InvalidAccountNonce-address-uint256-
 :ERC20Votes: pass:normal[xref:token/ERC20.adoc#ERC20Votes[`ERC20Votes`]]
 :Governor-state: pass:normal[xref:governance.adoc#Governor-state-uint256-[`Governor.state`]]
+:Governor: pass:normal[xref:governance.adoc#Governor[`Governor`]]
+:NoncesKeyed: pass:normal[xref:utils.adoc#NoncesKeyed[`NoncesKeyed`]]
+:xref-GovernorNoncesKeyed-_useCheckedNonce-address-uint256-: xref:governance.adoc#GovernorNoncesKeyed-_useCheckedNonce-address-uint256-
+:xref-GovernorNoncesKeyed-_validateVoteSig-uint256-uint8-address-bytes-: xref:governance.adoc#GovernorNoncesKeyed-_validateVoteSig-uint256-uint8-address-bytes-
+:xref-GovernorNoncesKeyed-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-: xref:governance.adoc#GovernorNoncesKeyed-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-
+:xref-NoncesKeyed-nonces-address-uint192-: xref:utils.adoc#NoncesKeyed-nonces-address-uint192-
+:xref-NoncesKeyed-_useNonce-address-uint192-: xref:utils.adoc#NoncesKeyed-_useNonce-address-uint192-
+:xref-NoncesKeyed-_useCheckedNonce-address-uint192-uint64-: xref:utils.adoc#NoncesKeyed-_useCheckedNonce-address-uint192-uint64-
+:xref-Governor-receive--: xref:governance.adoc#Governor-receive--
+:xref-Governor-supportsInterface-bytes4-: xref:governance.adoc#Governor-supportsInterface-bytes4-
+:xref-Governor-name--: xref:governance.adoc#Governor-name--
+:xref-Governor-version--: xref:governance.adoc#Governor-version--
+:xref-Governor-hashProposal-address---uint256---bytes---bytes32-: xref:governance.adoc#Governor-hashProposal-address---uint256---bytes---bytes32-
+:xref-Governor-getProposalId-address---uint256---bytes---bytes32-: xref:governance.adoc#Governor-getProposalId-address---uint256---bytes---bytes32-
+:xref-Governor-state-uint256-: xref:governance.adoc#Governor-state-uint256-
+:xref-Governor-proposalThreshold--: xref:governance.adoc#Governor-proposalThreshold--
+:xref-Governor-proposalSnapshot-uint256-: xref:governance.adoc#Governor-proposalSnapshot-uint256-
+:xref-Governor-proposalDeadline-uint256-: xref:governance.adoc#Governor-proposalDeadline-uint256-
+:xref-Governor-proposalProposer-uint256-: xref:governance.adoc#Governor-proposalProposer-uint256-
+:xref-Governor-proposalEta-uint256-: xref:governance.adoc#Governor-proposalEta-uint256-
+:xref-Governor-proposalNeedsQueuing-uint256-: xref:governance.adoc#Governor-proposalNeedsQueuing-uint256-
+:xref-Governor-_checkGovernance--: xref:governance.adoc#Governor-_checkGovernance--
+:xref-Governor-_quorumReached-uint256-: xref:governance.adoc#Governor-_quorumReached-uint256-
+:xref-Governor-_voteSucceeded-uint256-: xref:governance.adoc#Governor-_voteSucceeded-uint256-
+:xref-Governor-_getVotes-address-uint256-bytes-: xref:governance.adoc#Governor-_getVotes-address-uint256-bytes-
+:xref-Governor-_countVote-uint256-address-uint8-uint256-bytes-: xref:governance.adoc#Governor-_countVote-uint256-address-uint8-uint256-bytes-
+:xref-Governor-_tallyUpdated-uint256-: xref:governance.adoc#Governor-_tallyUpdated-uint256-
+:xref-Governor-_defaultParams--: xref:governance.adoc#Governor-_defaultParams--
+:xref-Governor-propose-address---uint256---bytes---string-: xref:governance.adoc#Governor-propose-address---uint256---bytes---string-
+:xref-Governor-_propose-address---uint256---bytes---string-address-: xref:governance.adoc#Governor-_propose-address---uint256---bytes---string-address-
+:xref-Governor-queue-address---uint256---bytes---bytes32-: xref:governance.adoc#Governor-queue-address---uint256---bytes---bytes32-
+:xref-Governor-_queueOperations-uint256-address---uint256---bytes---bytes32-: xref:governance.adoc#Governor-_queueOperations-uint256-address---uint256---bytes---bytes32-
+:xref-Governor-execute-address---uint256---bytes---bytes32-: xref:governance.adoc#Governor-execute-address---uint256---bytes---bytes32-
+:xref-Governor-_executeOperations-uint256-address---uint256---bytes---bytes32-: xref:governance.adoc#Governor-_executeOperations-uint256-address---uint256---bytes---bytes32-
+:xref-Governor-cancel-address---uint256---bytes---bytes32-: xref:governance.adoc#Governor-cancel-address---uint256---bytes---bytes32-
+:xref-Governor-_cancel-address---uint256---bytes---bytes32-: xref:governance.adoc#Governor-_cancel-address---uint256---bytes---bytes32-
+:xref-Governor-getVotes-address-uint256-: xref:governance.adoc#Governor-getVotes-address-uint256-
+:xref-Governor-getVotesWithParams-address-uint256-bytes-: xref:governance.adoc#Governor-getVotesWithParams-address-uint256-bytes-
+:xref-Governor-castVote-uint256-uint8-: xref:governance.adoc#Governor-castVote-uint256-uint8-
+:xref-Governor-castVoteWithReason-uint256-uint8-string-: xref:governance.adoc#Governor-castVoteWithReason-uint256-uint8-string-
+:xref-Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-: xref:governance.adoc#Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-
+:xref-Governor-castVoteBySig-uint256-uint8-address-bytes-: xref:governance.adoc#Governor-castVoteBySig-uint256-uint8-address-bytes-
+:xref-Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-: xref:governance.adoc#Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-
+:xref-Governor-_castVote-uint256-address-uint8-string-: xref:governance.adoc#Governor-_castVote-uint256-address-uint8-string-
+:xref-Governor-_castVote-uint256-address-uint8-string-bytes-: xref:governance.adoc#Governor-_castVote-uint256-address-uint8-string-bytes-
+:xref-Governor-relay-address-uint256-bytes-: xref:governance.adoc#Governor-relay-address-uint256-bytes-
+:xref-Governor-_executor--: xref:governance.adoc#Governor-_executor--
+:xref-Governor-onERC721Received-address-address-uint256-bytes-: xref:governance.adoc#Governor-onERC721Received-address-address-uint256-bytes-
+:xref-Governor-onERC1155Received-address-address-uint256-uint256-bytes-: xref:governance.adoc#Governor-onERC1155Received-address-address-uint256-uint256-bytes-
+:xref-Governor-onERC1155BatchReceived-address-address-uint256---uint256---bytes-: xref:governance.adoc#Governor-onERC1155BatchReceived-address-address-uint256---uint256---bytes-
+:xref-Governor-_encodeStateBitmap-enum-IGovernor-ProposalState-: xref:governance.adoc#Governor-_encodeStateBitmap-enum-IGovernor-ProposalState-
+:xref-Governor-_validateStateBitmap-uint256-bytes32-: xref:governance.adoc#Governor-_validateStateBitmap-uint256-bytes32-
+:xref-Governor-_isValidDescriptionForProposer-address-string-: xref:governance.adoc#Governor-_isValidDescriptionForProposer-address-string-
+:xref-Governor-_validateCancel-uint256-address-: xref:governance.adoc#Governor-_validateCancel-uint256-address-
+:xref-Governor-clock--: xref:governance.adoc#Governor-clock--
+:xref-Governor-CLOCK_MODE--: xref:governance.adoc#Governor-CLOCK_MODE--
+:xref-Governor-votingDelay--: xref:governance.adoc#Governor-votingDelay--
+:xref-Governor-votingPeriod--: xref:governance.adoc#Governor-votingPeriod--
+:xref-Governor-quorum-uint256-: xref:governance.adoc#Governor-quorum-uint256-
+:xref-Governor-BALLOT_TYPEHASH-bytes32: xref:governance.adoc#Governor-BALLOT_TYPEHASH-bytes32
+:xref-Governor-EXTENDED_BALLOT_TYPEHASH-bytes32: xref:governance.adoc#Governor-EXTENDED_BALLOT_TYPEHASH-bytes32
+:xref-IGovernor-COUNTING_MODE--: xref:governance.adoc#IGovernor-COUNTING_MODE--
+:xref-IGovernor-hasVoted-uint256-address-: xref:governance.adoc#IGovernor-hasVoted-uint256-address-
+:xref-Nonces-nonces-address-: xref:utils.adoc#Nonces-nonces-address-
+:xref-Nonces-_useNonce-address-: xref:utils.adoc#Nonces-_useNonce-address-
+:xref-EIP712-_domainSeparatorV4--: xref:utils/cryptography.adoc#EIP712-_domainSeparatorV4--
+:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils/cryptography.adoc#EIP712-_hashTypedDataV4-bytes32-
+:xref-EIP712-eip712Domain--: xref:utils/cryptography.adoc#EIP712-eip712Domain--
+:xref-EIP712-_EIP712Name--: xref:utils/cryptography.adoc#EIP712-_EIP712Name--
+:xref-EIP712-_EIP712Version--: xref:utils/cryptography.adoc#EIP712-_EIP712Version--
+:xref-IGovernor-ProposalCreated-uint256-address-address---uint256---string---bytes---uint256-uint256-string-: xref:governance.adoc#IGovernor-ProposalCreated-uint256-address-address---uint256---string---bytes---uint256-uint256-string-
+:xref-IGovernor-ProposalQueued-uint256-uint256-: xref:governance.adoc#IGovernor-ProposalQueued-uint256-uint256-
+:xref-IGovernor-ProposalExecuted-uint256-: xref:governance.adoc#IGovernor-ProposalExecuted-uint256-
+:xref-IGovernor-ProposalCanceled-uint256-: xref:governance.adoc#IGovernor-ProposalCanceled-uint256-
+:xref-IGovernor-VoteCast-address-uint256-uint8-uint256-string-: xref:governance.adoc#IGovernor-VoteCast-address-uint256-uint8-uint256-string-
+:xref-IGovernor-VoteCastWithParams-address-uint256-uint8-uint256-string-bytes-: xref:governance.adoc#IGovernor-VoteCastWithParams-address-uint256-uint8-uint256-string-bytes-
+:xref-IERC5267-EIP712DomainChanged--: xref:interfaces.adoc#IERC5267-EIP712DomainChanged--
+:xref-IGovernor-GovernorInvalidProposalLength-uint256-uint256-uint256-: xref:governance.adoc#IGovernor-GovernorInvalidProposalLength-uint256-uint256-uint256-
+:xref-IGovernor-GovernorAlreadyCastVote-address-: xref:governance.adoc#IGovernor-GovernorAlreadyCastVote-address-
+:xref-IGovernor-GovernorDisabledDeposit--: xref:governance.adoc#IGovernor-GovernorDisabledDeposit--
+:xref-IGovernor-GovernorOnlyExecutor-address-: xref:governance.adoc#IGovernor-GovernorOnlyExecutor-address-
+:xref-IGovernor-GovernorNonexistentProposal-uint256-: xref:governance.adoc#IGovernor-GovernorNonexistentProposal-uint256-
+:xref-IGovernor-GovernorUnexpectedProposalState-uint256-enum-IGovernor-ProposalState-bytes32-: xref:governance.adoc#IGovernor-GovernorUnexpectedProposalState-uint256-enum-IGovernor-ProposalState-bytes32-
+:xref-IGovernor-GovernorInvalidVotingPeriod-uint256-: xref:governance.adoc#IGovernor-GovernorInvalidVotingPeriod-uint256-
+:xref-IGovernor-GovernorInsufficientProposerVotes-address-uint256-uint256-: xref:governance.adoc#IGovernor-GovernorInsufficientProposerVotes-address-uint256-uint256-
+:xref-IGovernor-GovernorRestrictedProposer-address-: xref:governance.adoc#IGovernor-GovernorRestrictedProposer-address-
+:xref-IGovernor-GovernorInvalidVoteType--: xref:governance.adoc#IGovernor-GovernorInvalidVoteType--
+:xref-IGovernor-GovernorInvalidVoteParams--: xref:governance.adoc#IGovernor-GovernorInvalidVoteParams--
+:xref-IGovernor-GovernorQueueNotImplemented--: xref:governance.adoc#IGovernor-GovernorQueueNotImplemented--
+:xref-IGovernor-GovernorNotQueuedProposal-uint256-: xref:governance.adoc#IGovernor-GovernorNotQueuedProposal-uint256-
+:xref-IGovernor-GovernorAlreadyQueuedProposal-uint256-: xref:governance.adoc#IGovernor-GovernorAlreadyQueuedProposal-uint256-
+:xref-IGovernor-GovernorInvalidSignature-address-: xref:governance.adoc#IGovernor-GovernorInvalidSignature-address-
+:xref-IGovernor-GovernorUnableToCancel-uint256-address-: xref:governance.adoc#IGovernor-GovernorUnableToCancel-uint256-address-
+:xref-Nonces-InvalidAccountNonce-address-uint256-: xref:utils.adoc#Nonces-InvalidAccountNonce-address-uint256-
 :ERC721Votes: pass:normal[xref:token/ERC721.adoc#ERC721Votes[`ERC721Votes`]]
 :ERC721-balanceOf: pass:normal[xref:token/ERC721.adoc#ERC721-balanceOf-address-[`ERC721.balanceOf`]]
 :ERC721-_update: pass:normal[xref:token/ERC721.adoc#ERC721-_update-address-uint256-address-[`ERC721._update`]]
@@ -1638,11 +1729,11 @@
 :xref-Nonces-nonces-address-: xref:utils.adoc#Nonces-nonces-address-
 :xref-Nonces-_useNonce-address-: xref:utils.adoc#Nonces-_useNonce-address-
 :xref-Nonces-_useCheckedNonce-address-uint256-: xref:utils.adoc#Nonces-_useCheckedNonce-address-uint256-
-:xref-EIP712-_domainSeparatorV4--: xref:utils.adoc#EIP712-_domainSeparatorV4--
-:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils.adoc#EIP712-_hashTypedDataV4-bytes32-
-:xref-EIP712-eip712Domain--: xref:utils.adoc#EIP712-eip712Domain--
-:xref-EIP712-_EIP712Name--: xref:utils.adoc#EIP712-_EIP712Name--
-:xref-EIP712-_EIP712Version--: xref:utils.adoc#EIP712-_EIP712Version--
+:xref-EIP712-_domainSeparatorV4--: xref:utils/cryptography.adoc#EIP712-_domainSeparatorV4--
+:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils/cryptography.adoc#EIP712-_hashTypedDataV4-bytes32-
+:xref-EIP712-eip712Domain--: xref:utils/cryptography.adoc#EIP712-eip712Domain--
+:xref-EIP712-_EIP712Name--: xref:utils/cryptography.adoc#EIP712-_EIP712Name--
+:xref-EIP712-_EIP712Version--: xref:utils/cryptography.adoc#EIP712-_EIP712Version--
 :xref-IVotes-DelegateChanged-address-address-address-: xref:governance.adoc#IVotes-DelegateChanged-address-address-address-
 :xref-IVotes-DelegateVotesChanged-address-uint256-uint256-: xref:governance.adoc#IVotes-DelegateVotesChanged-address-uint256-uint256-
 :xref-IERC5267-EIP712DomainChanged--: xref:interfaces.adoc#IERC5267-EIP712DomainChanged--
@@ -1681,11 +1772,11 @@
 :xref-Nonces-nonces-address-: xref:utils.adoc#Nonces-nonces-address-
 :xref-Nonces-_useNonce-address-: xref:utils.adoc#Nonces-_useNonce-address-
 :xref-Nonces-_useCheckedNonce-address-uint256-: xref:utils.adoc#Nonces-_useCheckedNonce-address-uint256-
-:xref-EIP712-_domainSeparatorV4--: xref:utils.adoc#EIP712-_domainSeparatorV4--
-:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils.adoc#EIP712-_hashTypedDataV4-bytes32-
-:xref-EIP712-eip712Domain--: xref:utils.adoc#EIP712-eip712Domain--
-:xref-EIP712-_EIP712Name--: xref:utils.adoc#EIP712-_EIP712Name--
-:xref-EIP712-_EIP712Version--: xref:utils.adoc#EIP712-_EIP712Version--
+:xref-EIP712-_domainSeparatorV4--: xref:utils/cryptography.adoc#EIP712-_domainSeparatorV4--
+:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils/cryptography.adoc#EIP712-_hashTypedDataV4-bytes32-
+:xref-EIP712-eip712Domain--: xref:utils/cryptography.adoc#EIP712-eip712Domain--
+:xref-EIP712-_EIP712Name--: xref:utils/cryptography.adoc#EIP712-_EIP712Name--
+:xref-EIP712-_EIP712Version--: xref:utils/cryptography.adoc#EIP712-_EIP712Version--
 :xref-IVotes-DelegateChanged-address-address-address-: xref:governance.adoc#IVotes-DelegateChanged-address-address-address-
 :xref-IVotes-DelegateVotesChanged-address-uint256-uint256-: xref:governance.adoc#IVotes-DelegateVotesChanged-address-uint256-uint256-
 :xref-IERC5267-EIP712DomainChanged--: xref:interfaces.adoc#IERC5267-EIP712DomainChanged--
@@ -1752,7 +1843,6 @@
 :xref-IAccessControl-AccessControlUnauthorizedAccount-address-bytes32-: xref:access.adoc#IAccessControl-AccessControlUnauthorizedAccount-address-bytes32-
 :xref-IAccessControl-AccessControlBadConfirmation--: xref:access.adoc#IAccessControl-AccessControlBadConfirmation--
 :xref-TimelockController-_DONE_TIMESTAMP-uint256: xref:governance.adoc#TimelockController-_DONE_TIMESTAMP-uint256
-:IERC165-supportsInterface: pass:normal[xref:utils.adoc#IERC165-supportsInterface-bytes4-[`IERC165.supportsInterface`]]
 :AccessControl: pass:normal[xref:access.adoc#AccessControl[`AccessControl`]]
 = Governance
 
@@ -1809,6 +1899,8 @@ Other extensions can customize the behavior or interface in multiple ways.
 * {GovernorProposalGuardian}: Adds a proposal guardian that can cancel proposals at any stage in their lifecycle--this permission is passed on to the proposers if the guardian is not set.
 
 * {GovernorSuperQuorum}: Extension of {Governor} with a super quorum. Proposals that meet the super quorum (and have a majority of for votes) advance to the `Succeeded` state before the proposal deadline.
+
+* {GovernorNoncesKeyed}: An extension of {Governor} with support for keyed nonces in addition to traditional nonces when voting by signature.
 
 In addition to modules and extensions, the core contract requires a few virtual functions to be implemented to your particular specifications:
 
@@ -1901,7 +1993,7 @@ NOTE: Functions of the `Governor` contract do not include access control. If you
 
 [.contract]
 [[IGovernor]]
-=== `++IGovernor++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/governance/IGovernor.sol[{github-icon},role=heading-link]
+=== `++IGovernor++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/governance/IGovernor.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2427,6 +2519,8 @@ The given `account` is unable to cancel the proposal with given `proposalId`.
 :castVoteWithReasonAndParams: pass:normal[xref:#Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-[`++castVoteWithReasonAndParams++`]]
 :castVoteBySig: pass:normal[xref:#Governor-castVoteBySig-uint256-uint8-address-bytes-[`++castVoteBySig++`]]
 :castVoteWithReasonAndParamsBySig: pass:normal[xref:#Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-[`++castVoteWithReasonAndParamsBySig++`]]
+:_validateVoteSig: pass:normal[xref:#Governor-_validateVoteSig-uint256-uint8-address-bytes-[`++_validateVoteSig++`]]
+:_validateExtendedVoteSig: pass:normal[xref:#Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-[`++_validateExtendedVoteSig++`]]
 :_castVote: pass:normal[xref:#Governor-_castVote-uint256-address-uint8-string-[`++_castVote++`]]
 :_castVote: pass:normal[xref:#Governor-_castVote-uint256-address-uint8-string-bytes-[`++_castVote++`]]
 :relay: pass:normal[xref:#Governor-relay-address-uint256-bytes-[`++relay++`]]
@@ -2480,6 +2574,8 @@ The given `account` is unable to cancel the proposal with given `proposalId`.
 :castVoteWithReasonAndParams-uint256-uint8-string-bytes: pass:normal[xref:#Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-[`++castVoteWithReasonAndParams++`]]
 :castVoteBySig-uint256-uint8-address-bytes: pass:normal[xref:#Governor-castVoteBySig-uint256-uint8-address-bytes-[`++castVoteBySig++`]]
 :castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes: pass:normal[xref:#Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-[`++castVoteWithReasonAndParamsBySig++`]]
+:_validateVoteSig-uint256-uint8-address-bytes: pass:normal[xref:#Governor-_validateVoteSig-uint256-uint8-address-bytes-[`++_validateVoteSig++`]]
+:_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes: pass:normal[xref:#Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-[`++_validateExtendedVoteSig++`]]
 :_castVote-uint256-address-uint8-string: pass:normal[xref:#Governor-_castVote-uint256-address-uint8-string-[`++_castVote++`]]
 :_castVote-uint256-address-uint8-string-bytes: pass:normal[xref:#Governor-_castVote-uint256-address-uint8-string-bytes-[`++_castVote++`]]
 :relay-address-uint256-bytes: pass:normal[xref:#Governor-relay-address-uint256-bytes-[`++relay++`]]
@@ -2501,7 +2597,7 @@ The given `account` is unable to cancel the proposal with given `proposalId`.
 
 [.contract]
 [[Governor]]
-=== `++Governor++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/governance/Governor.sol[{github-icon},role=heading-link]
+=== `++Governor++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/governance/Governor.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2561,6 +2657,8 @@ This contract is abstract and requires several functions to be implemented in va
 * {xref-Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-}[`++castVoteWithReasonAndParams(proposalId, support, reason, params)++`]
 * {xref-Governor-castVoteBySig-uint256-uint8-address-bytes-}[`++castVoteBySig(proposalId, support, voter, signature)++`]
 * {xref-Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-}[`++castVoteWithReasonAndParamsBySig(proposalId, support, voter, reason, params, signature)++`]
+* {xref-Governor-_validateVoteSig-uint256-uint8-address-bytes-}[`++_validateVoteSig(proposalId, support, voter, signature)++`]
+* {xref-Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-}[`++_validateExtendedVoteSig(proposalId, support, voter, reason, params, signature)++`]
 * {xref-Governor-_castVote-uint256-address-uint8-string-}[`++_castVote(proposalId, account, support, reason)++`]
 * {xref-Governor-_castVote-uint256-address-uint8-string-bytes-}[`++_castVote(proposalId, account, support, reason, params)++`]
 * {xref-Governor-relay-address-uint256-bytes-}[`++relay(target, value, data)++`]
@@ -2738,19 +2836,24 @@ Function to receive ETH that will be handled by the governor (disabled if execut
 [[Governor-supportsInterface-bytes4-]]
 ==== `[.contract-item-name]#++supportsInterface++#++(bytes4 interfaceId) → bool++` [.item-kind]#public#
 
-See {IERC165-supportsInterface}.
+Returns true if this contract implements the interface defined by
+`interfaceId`. See the corresponding
+https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section]
+to learn more about how these ids are created.
+
+This function call must use less than 30 000 gas.
 
 [.contract-item]
 [[Governor-name--]]
 ==== `[.contract-item-name]#++name++#++() → string++` [.item-kind]#public#
 
-See {IGovernor-name}.
+Name of the governor instance (used in building the EIP-712 domain separator).
 
 [.contract-item]
 [[Governor-version--]]
 ==== `[.contract-item-name]#++version++#++() → string++` [.item-kind]#public#
 
-See {IGovernor-version}.
+Version of the governor instance (used in building the EIP-712 domain separator). Default: "1"
 
 [.contract-item]
 [[Governor-hashProposal-address---uint256---bytes---bytes32-]]
@@ -2772,49 +2875,54 @@ governor) the proposer will have to change the description in order to avoid pro
 [[Governor-getProposalId-address---uint256---bytes---bytes32-]]
 ==== `[.contract-item-name]#++getProposalId++#++(address[] targets, uint256[] values, bytes[] calldatas, bytes32 descriptionHash) → uint256++` [.item-kind]#public#
 
-See {IGovernor-getProposalId}.
+Function used to get the proposal id from the proposal details.
 
 [.contract-item]
 [[Governor-state-uint256-]]
 ==== `[.contract-item-name]#++state++#++(uint256 proposalId) → enum IGovernor.ProposalState++` [.item-kind]#public#
 
-See {IGovernor-state}.
+Current state of a proposal, following Compound's convention
 
 [.contract-item]
 [[Governor-proposalThreshold--]]
 ==== `[.contract-item-name]#++proposalThreshold++#++() → uint256++` [.item-kind]#public#
 
-See {IGovernor-proposalThreshold}.
+The number of votes required in order for a voter to become a proposer.
 
 [.contract-item]
 [[Governor-proposalSnapshot-uint256-]]
 ==== `[.contract-item-name]#++proposalSnapshot++#++(uint256 proposalId) → uint256++` [.item-kind]#public#
 
-See {IGovernor-proposalSnapshot}.
+Timepoint used to retrieve user's votes and quorum. If using block number (as per Compound's Comp), the
+snapshot is performed at the end of this block. Hence, voting for this proposal starts at the beginning of the
+following block.
 
 [.contract-item]
 [[Governor-proposalDeadline-uint256-]]
 ==== `[.contract-item-name]#++proposalDeadline++#++(uint256 proposalId) → uint256++` [.item-kind]#public#
 
-See {IGovernor-proposalDeadline}.
+Timepoint at which votes close. If using block number, votes close at the end of this block, so it is
+possible to cast a vote during this block.
 
 [.contract-item]
 [[Governor-proposalProposer-uint256-]]
 ==== `[.contract-item-name]#++proposalProposer++#++(uint256 proposalId) → address++` [.item-kind]#public#
 
-See {IGovernor-proposalProposer}.
+The account that created a proposal.
 
 [.contract-item]
 [[Governor-proposalEta-uint256-]]
 ==== `[.contract-item-name]#++proposalEta++#++(uint256 proposalId) → uint256++` [.item-kind]#public#
 
-See {IGovernor-proposalEta}.
+The time when a queued proposal becomes executable ("ETA"). Unlike {proposalSnapshot} and
+{proposalDeadline}, this doesn't use the governor clock, and instead relies on the executor's clock which may be
+different. In most cases this will be a timestamp.
 
 [.contract-item]
 [[Governor-proposalNeedsQueuing-uint256-]]
 ==== `[.contract-item-name]#++proposalNeedsQueuing++#++(uint256) → bool++` [.item-kind]#public#
 
-See {IGovernor-proposalNeedsQueuing}.
+Whether a proposal needs to be queued before execution.
 
 [.contract-item]
 [[Governor-_checkGovernance--]]
@@ -2885,7 +2993,11 @@ Emits a {IGovernor-ProposalCreated} event.
 [[Governor-queue-address---uint256---bytes---bytes32-]]
 ==== `[.contract-item-name]#++queue++#++(address[] targets, uint256[] values, bytes[] calldatas, bytes32 descriptionHash) → uint256++` [.item-kind]#public#
 
-See {IGovernor-queue}.
+Queue a proposal. Some governors require this step to be performed before execution can happen. If queuing
+is not necessary, this function may revert.
+Queuing a proposal requires the quorum to be reached, the vote to be successful, and the deadline to be reached.
+
+Emits a {ProposalQueued} event.
 
 [.contract-item]
 [[Governor-_queueOperations-uint256-address---uint256---bytes---bytes32-]]
@@ -2907,7 +3019,13 @@ NOTE: Calling this function directly will NOT check the current state of the pro
 [[Governor-execute-address---uint256---bytes---bytes32-]]
 ==== `[.contract-item-name]#++execute++#++(address[] targets, uint256[] values, bytes[] calldatas, bytes32 descriptionHash) → uint256++` [.item-kind]#public#
 
-See {IGovernor-execute}.
+Execute a successful proposal. This requires the quorum to be reached, the vote to be successful, and the
+deadline to be reached. Depending on the governor it might also be required that the proposal was queued and
+that some delay passed.
+
+Emits a {ProposalExecuted} event.
+
+NOTE: Some modules can modify the requirements for execution, for example by adding an additional timelock.
 
 [.contract-item]
 [[Governor-_executeOperations-uint256-address---uint256---bytes---bytes32-]]
@@ -2923,7 +3041,10 @@ true or emit the `ProposalExecuted` event. Executing a proposal should be done u
 [[Governor-cancel-address---uint256---bytes---bytes32-]]
 ==== `[.contract-item-name]#++cancel++#++(address[] targets, uint256[] values, bytes[] calldatas, bytes32 descriptionHash) → uint256++` [.item-kind]#public#
 
-See {IGovernor-cancel}.
+Cancel a proposal. A proposal is cancellable by the proposer, but only while it is Pending state, i.e.
+before the vote starts.
+
+Emits a {ProposalCanceled} event.
 
 [.contract-item]
 [[Governor-_cancel-address---uint256---bytes---bytes32-]]
@@ -2938,43 +3059,69 @@ Emits a {IGovernor-ProposalCanceled} event.
 [[Governor-getVotes-address-uint256-]]
 ==== `[.contract-item-name]#++getVotes++#++(address account, uint256 timepoint) → uint256++` [.item-kind]#public#
 
-See {IGovernor-getVotes}.
+Voting power of an `account` at a specific `timepoint`.
+
+Note: this can be implemented in a number of ways, for example by reading the delegated balance from one (or
+multiple), {ERC20Votes} tokens.
 
 [.contract-item]
 [[Governor-getVotesWithParams-address-uint256-bytes-]]
 ==== `[.contract-item-name]#++getVotesWithParams++#++(address account, uint256 timepoint, bytes params) → uint256++` [.item-kind]#public#
 
-See {IGovernor-getVotesWithParams}.
+Voting power of an `account` at a specific `timepoint` given additional encoded parameters.
 
 [.contract-item]
 [[Governor-castVote-uint256-uint8-]]
 ==== `[.contract-item-name]#++castVote++#++(uint256 proposalId, uint8 support) → uint256++` [.item-kind]#public#
 
-See {IGovernor-castVote}.
+Cast a vote
+
+Emits a {VoteCast} event.
 
 [.contract-item]
 [[Governor-castVoteWithReason-uint256-uint8-string-]]
 ==== `[.contract-item-name]#++castVoteWithReason++#++(uint256 proposalId, uint8 support, string reason) → uint256++` [.item-kind]#public#
 
-See {IGovernor-castVoteWithReason}.
+Cast a vote with a reason
+
+Emits a {VoteCast} event.
 
 [.contract-item]
 [[Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-]]
 ==== `[.contract-item-name]#++castVoteWithReasonAndParams++#++(uint256 proposalId, uint8 support, string reason, bytes params) → uint256++` [.item-kind]#public#
 
-See {IGovernor-castVoteWithReasonAndParams}.
+Cast a vote with a reason and additional encoded parameters
+
+Emits a {VoteCast} or {VoteCastWithParams} event depending on the length of params.
 
 [.contract-item]
 [[Governor-castVoteBySig-uint256-uint8-address-bytes-]]
 ==== `[.contract-item-name]#++castVoteBySig++#++(uint256 proposalId, uint8 support, address voter, bytes signature) → uint256++` [.item-kind]#public#
 
-See {IGovernor-castVoteBySig}.
+Cast a vote using the voter's signature, including ERC-1271 signature support.
+
+Emits a {VoteCast} event.
 
 [.contract-item]
 [[Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-]]
 ==== `[.contract-item-name]#++castVoteWithReasonAndParamsBySig++#++(uint256 proposalId, uint8 support, address voter, string reason, bytes params, bytes signature) → uint256++` [.item-kind]#public#
 
-See {IGovernor-castVoteWithReasonAndParamsBySig}.
+Cast a vote with a reason and additional encoded parameters using the voter's signature,
+including ERC-1271 signature support.
+
+Emits a {VoteCast} or {VoteCastWithParams} event depending on the length of params.
+
+[.contract-item]
+[[Governor-_validateVoteSig-uint256-uint8-address-bytes-]]
+==== `[.contract-item-name]#++_validateVoteSig++#++(uint256 proposalId, uint8 support, address voter, bytes signature) → bool++` [.item-kind]#internal#
+
+Validate the `signature` used in {castVoteBySig} function.
+
+[.contract-item]
+[[Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-]]
+==== `[.contract-item-name]#++_validateExtendedVoteSig++#++(uint256 proposalId, uint8 support, address voter, string reason, bytes params, bytes signature) → bool++` [.item-kind]#internal#
+
+Validate the `signature` used in {castVoteWithReasonAndParamsBySig} function.
 
 [.contract-item]
 [[Governor-_castVote-uint256-address-uint8-string-]]
@@ -3143,7 +3290,7 @@ quorum depending on values such as the totalSupply of a token at this timepoint 
 
 [.contract]
 [[GovernorCountingSimple]]
-=== `++GovernorCountingSimple++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/governance/extensions/GovernorCountingSimple.sol[{github-icon},role=heading-link]
+=== `++GovernorCountingSimple++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/governance/extensions/GovernorCountingSimple.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3196,6 +3343,8 @@ Extension of {Governor} for simple, 3 options, vote counting.
 * {xref-Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-}[`++castVoteWithReasonAndParams(proposalId, support, reason, params)++`]
 * {xref-Governor-castVoteBySig-uint256-uint8-address-bytes-}[`++castVoteBySig(proposalId, support, voter, signature)++`]
 * {xref-Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-}[`++castVoteWithReasonAndParamsBySig(proposalId, support, voter, reason, params, signature)++`]
+* {xref-Governor-_validateVoteSig-uint256-uint8-address-bytes-}[`++_validateVoteSig(proposalId, support, voter, signature)++`]
+* {xref-Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-}[`++_validateExtendedVoteSig(proposalId, support, voter, reason, params, signature)++`]
 * {xref-Governor-_castVote-uint256-address-uint8-string-}[`++_castVote(proposalId, account, support, reason)++`]
 * {xref-Governor-_castVote-uint256-address-uint8-string-bytes-}[`++_castVote(proposalId, account, support, reason, params)++`]
 * {xref-Governor-relay-address-uint256-bytes-}[`++relay(target, value, data)++`]
@@ -3352,13 +3501,31 @@ Extension of {Governor} for simple, 3 options, vote counting.
 [[GovernorCountingSimple-COUNTING_MODE--]]
 ==== `[.contract-item-name]#++COUNTING_MODE++#++() → string++` [.item-kind]#public#
 
-See {IGovernor-COUNTING_MODE}.
+A description of the possible `support` values for {castVote} and the way these votes are counted, meant to
+be consumed by UIs to show correct vote options and interpret the results. The string is a URL-encoded sequence of
+key-value pairs that each describe one aspect, for example `support=bravo&quorum=for,abstain`.
+
+There are 2 standard keys: `support` and `quorum`.
+
+- `support=bravo` refers to the vote options 0 = Against, 1 = For, 2 = Abstain, as in `GovernorBravo`.
+- `quorum=bravo` means that only For votes are counted towards quorum.
+- `quorum=for,abstain` means that both For and Abstain votes are counted towards quorum.
+
+If a counting module makes use of encoded `params`, it should  include this under a `params` key with a unique
+name that describes the behavior. For example:
+
+- `params=fractional` might refer to a scheme where votes are divided fractionally between for/against/abstain.
+- `params=erc721` might refer to a scheme where specific NFTs are delegated to vote.
+
+NOTE: The string can be decoded by the standard
+https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams[`URLSearchParams`]
+JavaScript class.
 
 [.contract-item]
 [[GovernorCountingSimple-hasVoted-uint256-address-]]
 ==== `[.contract-item-name]#++hasVoted++#++(uint256 proposalId, address account) → bool++` [.item-kind]#public#
 
-See {IGovernor-hasVoted}.
+Returns whether `account` has cast a vote on `proposalId`.
 
 [.contract-item]
 [[GovernorCountingSimple-proposalVotes-uint256-]]
@@ -3370,7 +3537,7 @@ Accessor to the internal vote counts.
 [[GovernorCountingSimple-_quorumReached-uint256-]]
 ==== `[.contract-item-name]#++_quorumReached++#++(uint256 proposalId) → bool++` [.item-kind]#internal#
 
-See {Governor-_quorumReached}.
+Amount of votes already cast passes the threshold limit.
 
 [.contract-item]
 [[GovernorCountingSimple-_voteSucceeded-uint256-]]
@@ -3405,7 +3572,7 @@ See {Governor-_countVote}. In this module, the support follows the `VoteType` en
 
 [.contract]
 [[GovernorCountingFractional]]
-=== `++GovernorCountingFractional++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/governance/extensions/GovernorCountingFractional.sol[{github-icon},role=heading-link]
+=== `++GovernorCountingFractional++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/governance/extensions/GovernorCountingFractional.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3480,6 +3647,8 @@ _Available since v5.1._
 * {xref-Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-}[`++castVoteWithReasonAndParams(proposalId, support, reason, params)++`]
 * {xref-Governor-castVoteBySig-uint256-uint8-address-bytes-}[`++castVoteBySig(proposalId, support, voter, signature)++`]
 * {xref-Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-}[`++castVoteWithReasonAndParamsBySig(proposalId, support, voter, reason, params, signature)++`]
+* {xref-Governor-_validateVoteSig-uint256-uint8-address-bytes-}[`++_validateVoteSig(proposalId, support, voter, signature)++`]
+* {xref-Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-}[`++_validateExtendedVoteSig(proposalId, support, voter, reason, params, signature)++`]
 * {xref-Governor-_castVote-uint256-address-uint8-string-}[`++_castVote(proposalId, account, support, reason)++`]
 * {xref-Governor-_castVote-uint256-address-uint8-string-bytes-}[`++_castVote(proposalId, account, support, reason, params)++`]
 * {xref-Governor-relay-address-uint256-bytes-}[`++relay(target, value, data)++`]
@@ -3674,13 +3843,31 @@ _Available since v5.1._
 [[GovernorCountingFractional-COUNTING_MODE--]]
 ==== `[.contract-item-name]#++COUNTING_MODE++#++() → string++` [.item-kind]#public#
 
-See {IGovernor-COUNTING_MODE}.
+A description of the possible `support` values for {castVote} and the way these votes are counted, meant to
+be consumed by UIs to show correct vote options and interpret the results. The string is a URL-encoded sequence of
+key-value pairs that each describe one aspect, for example `support=bravo&quorum=for,abstain`.
+
+There are 2 standard keys: `support` and `quorum`.
+
+- `support=bravo` refers to the vote options 0 = Against, 1 = For, 2 = Abstain, as in `GovernorBravo`.
+- `quorum=bravo` means that only For votes are counted towards quorum.
+- `quorum=for,abstain` means that both For and Abstain votes are counted towards quorum.
+
+If a counting module makes use of encoded `params`, it should  include this under a `params` key with a unique
+name that describes the behavior. For example:
+
+- `params=fractional` might refer to a scheme where votes are divided fractionally between for/against/abstain.
+- `params=erc721` might refer to a scheme where specific NFTs are delegated to vote.
+
+NOTE: The string can be decoded by the standard
+https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams[`URLSearchParams`]
+JavaScript class.
 
 [.contract-item]
 [[GovernorCountingFractional-hasVoted-uint256-address-]]
 ==== `[.contract-item-name]#++hasVoted++#++(uint256 proposalId, address account) → bool++` [.item-kind]#public#
 
-See {IGovernor-hasVoted}.
+Returns whether `account` has cast a vote on `proposalId`.
 
 [.contract-item]
 [[GovernorCountingFractional-usedVotes-uint256-address-]]
@@ -3699,7 +3886,7 @@ Get current distribution of votes for a given proposal.
 [[GovernorCountingFractional-_quorumReached-uint256-]]
 ==== `[.contract-item-name]#++_quorumReached++#++(uint256 proposalId) → bool++` [.item-kind]#internal#
 
-See {Governor-_quorumReached}.
+Amount of votes already cast passes the threshold limit.
 
 [.contract-item]
 [[GovernorCountingFractional-_voteSucceeded-uint256-]]
@@ -3783,7 +3970,7 @@ A fractional vote params uses more votes than are available for that user.
 
 [.contract]
 [[GovernorCountingOverridable]]
-=== `++GovernorCountingOverridable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/governance/extensions/GovernorCountingOverridable.sol[{github-icon},role=heading-link]
+=== `++GovernorCountingOverridable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/governance/extensions/GovernorCountingOverridable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3849,6 +4036,8 @@ token that inherits {VotesExtended}.
 * {xref-Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-}[`++castVoteWithReasonAndParams(proposalId, support, reason, params)++`]
 * {xref-Governor-castVoteBySig-uint256-uint8-address-bytes-}[`++castVoteBySig(proposalId, support, voter, signature)++`]
 * {xref-Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-}[`++castVoteWithReasonAndParamsBySig(proposalId, support, voter, reason, params, signature)++`]
+* {xref-Governor-_validateVoteSig-uint256-uint8-address-bytes-}[`++_validateVoteSig(proposalId, support, voter, signature)++`]
+* {xref-Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-}[`++_validateExtendedVoteSig(proposalId, support, voter, reason, params, signature)++`]
 * {xref-Governor-_castVote-uint256-address-uint8-string-}[`++_castVote(proposalId, account, support, reason)++`]
 * {xref-Governor-_castVote-uint256-address-uint8-string-bytes-}[`++_castVote(proposalId, account, support, reason, params)++`]
 * {xref-Governor-relay-address-uint256-bytes-}[`++relay(target, value, data)++`]
@@ -4012,7 +4201,25 @@ token that inherits {VotesExtended}.
 [[GovernorCountingOverridable-COUNTING_MODE--]]
 ==== `[.contract-item-name]#++COUNTING_MODE++#++() → string++` [.item-kind]#public#
 
-See {IGovernor-COUNTING_MODE}.
+A description of the possible `support` values for {castVote} and the way these votes are counted, meant to
+be consumed by UIs to show correct vote options and interpret the results. The string is a URL-encoded sequence of
+key-value pairs that each describe one aspect, for example `support=bravo&quorum=for,abstain`.
+
+There are 2 standard keys: `support` and `quorum`.
+
+- `support=bravo` refers to the vote options 0 = Against, 1 = For, 2 = Abstain, as in `GovernorBravo`.
+- `quorum=bravo` means that only For votes are counted towards quorum.
+- `quorum=for,abstain` means that both For and Abstain votes are counted towards quorum.
+
+If a counting module makes use of encoded `params`, it should  include this under a `params` key with a unique
+name that describes the behavior. For example:
+
+- `params=fractional` might refer to a scheme where votes are divided fractionally between for/against/abstain.
+- `params=erc721` might refer to a scheme where specific NFTs are delegated to vote.
+
+NOTE: The string can be decoded by the standard
+https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams[`URLSearchParams`]
+JavaScript class.
 
 [.contract-item]
 [[GovernorCountingOverridable-hasVoted-uint256-address-]]
@@ -4041,7 +4248,7 @@ Accessor to the internal vote counts.
 [[GovernorCountingOverridable-_quorumReached-uint256-]]
 ==== `[.contract-item-name]#++_quorumReached++#++(uint256 proposalId) → bool++` [.item-kind]#internal#
 
-See {Governor-_quorumReached}.
+Amount of votes already cast passes the threshold limit.
 
 [.contract-item]
 [[GovernorCountingOverridable-_voteSucceeded-uint256-]]
@@ -4118,7 +4325,7 @@ A delegated vote on `proposalId` was overridden by `weight`
 
 [.contract]
 [[GovernorVotes]]
-=== `++GovernorVotes++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/governance/extensions/GovernorVotes.sol[{github-icon},role=heading-link]
+=== `++GovernorVotes++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/governance/extensions/GovernorVotes.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -4173,6 +4380,8 @@ token.
 * {xref-Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-}[`++castVoteWithReasonAndParams(proposalId, support, reason, params)++`]
 * {xref-Governor-castVoteBySig-uint256-uint8-address-bytes-}[`++castVoteBySig(proposalId, support, voter, signature)++`]
 * {xref-Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-}[`++castVoteWithReasonAndParamsBySig(proposalId, support, voter, reason, params, signature)++`]
+* {xref-Governor-_validateVoteSig-uint256-uint8-address-bytes-}[`++_validateVoteSig(proposalId, support, voter, signature)++`]
+* {xref-Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-}[`++_validateExtendedVoteSig(proposalId, support, voter, reason, params, signature)++`]
 * {xref-Governor-_castVote-uint256-address-uint8-string-}[`++_castVote(proposalId, account, support, reason)++`]
 * {xref-Governor-_castVote-uint256-address-uint8-string-bytes-}[`++_castVote(proposalId, account, support, reason, params)++`]
 * {xref-Governor-relay-address-uint256-bytes-}[`++relay(target, value, data)++`]
@@ -4374,7 +4583,7 @@ Machine-readable description of the clock as specified in ERC-6372.
 
 [.contract]
 [[GovernorVotesQuorumFraction]]
-=== `++GovernorVotesQuorumFraction++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/governance/extensions/GovernorVotesQuorumFraction.sol[{github-icon},role=heading-link]
+=== `++GovernorVotesQuorumFraction++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/governance/extensions/GovernorVotesQuorumFraction.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -4439,6 +4648,8 @@ fraction of the total supply.
 * {xref-Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-}[`++castVoteWithReasonAndParams(proposalId, support, reason, params)++`]
 * {xref-Governor-castVoteBySig-uint256-uint8-address-bytes-}[`++castVoteBySig(proposalId, support, voter, signature)++`]
 * {xref-Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-}[`++castVoteWithReasonAndParamsBySig(proposalId, support, voter, reason, params, signature)++`]
+* {xref-Governor-_validateVoteSig-uint256-uint8-address-bytes-}[`++_validateVoteSig(proposalId, support, voter, signature)++`]
+* {xref-Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-}[`++_validateExtendedVoteSig(proposalId, support, voter, reason, params, signature)++`]
 * {xref-Governor-_castVote-uint256-address-uint8-string-}[`++_castVote(proposalId, account, support, reason)++`]
 * {xref-Governor-_castVote-uint256-address-uint8-string-bytes-}[`++_castVote(proposalId, account, support, reason, params)++`]
 * {xref-Governor-relay-address-uint256-bytes-}[`++relay(target, value, data)++`]
@@ -4697,7 +4908,7 @@ The quorum set is not a valid fraction.
 
 [.contract]
 [[GovernorVotesSuperQuorumFraction]]
-=== `++GovernorVotesSuperQuorumFraction++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/governance/extensions/GovernorVotesSuperQuorumFraction.sol[{github-icon},role=heading-link]
+=== `++GovernorVotesSuperQuorumFraction++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/governance/extensions/GovernorVotesSuperQuorumFraction.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -4775,6 +4986,8 @@ the `Succeeded` state before the proposal deadline.
 * {xref-Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-}[`++castVoteWithReasonAndParams(proposalId, support, reason, params)++`]
 * {xref-Governor-castVoteBySig-uint256-uint8-address-bytes-}[`++castVoteBySig(proposalId, support, voter, signature)++`]
 * {xref-Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-}[`++castVoteWithReasonAndParamsBySig(proposalId, support, voter, reason, params, signature)++`]
+* {xref-Governor-_validateVoteSig-uint256-uint8-address-bytes-}[`++_validateVoteSig(proposalId, support, voter, signature)++`]
+* {xref-Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-}[`++_validateExtendedVoteSig(proposalId, support, voter, reason, params, signature)++`]
 * {xref-Governor-_castVote-uint256-address-uint8-string-}[`++_castVote(proposalId, account, support, reason)++`]
 * {xref-Governor-_castVote-uint256-address-uint8-string-bytes-}[`++_castVote(proposalId, account, support, reason, params)++`]
 * {xref-Governor-relay-address-uint256-bytes-}[`++relay(target, value, data)++`]
@@ -5088,7 +5301,7 @@ The quorum set is not valid as it exceeds the super quorum.
 
 [.contract]
 [[GovernorTimelockAccess]]
-=== `++GovernorTimelockAccess++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/governance/extensions/GovernorTimelockAccess.sol[{github-icon},role=heading-link]
+=== `++GovernorTimelockAccess++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/governance/extensions/GovernorTimelockAccess.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -5172,6 +5385,8 @@ the same time. See {AccessManager-schedule} for a workaround.
 * {xref-Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-}[`++castVoteWithReasonAndParams(proposalId, support, reason, params)++`]
 * {xref-Governor-castVoteBySig-uint256-uint8-address-bytes-}[`++castVoteBySig(proposalId, support, voter, signature)++`]
 * {xref-Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-}[`++castVoteWithReasonAndParamsBySig(proposalId, support, voter, reason, params, signature)++`]
+* {xref-Governor-_validateVoteSig-uint256-uint8-address-bytes-}[`++_validateVoteSig(proposalId, support, voter, signature)++`]
+* {xref-Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-}[`++_validateExtendedVoteSig(proposalId, support, voter, reason, params, signature)++`]
 * {xref-Governor-_castVote-uint256-address-uint8-string-}[`++_castVote(proposalId, account, support, reason)++`]
 * {xref-Governor-_castVote-uint256-address-uint8-string-bytes-}[`++_castVote(proposalId, account, support, reason, params)++`]
 * {xref-Governor-relay-address-uint256-bytes-}[`++relay(target, value, data)++`]
@@ -5400,13 +5615,9 @@ those that must be scheduled are cancellable by `AccessManager` guardians.
 [[GovernorTimelockAccess-proposalNeedsQueuing-uint256-]]
 ==== `[.contract-item-name]#++proposalNeedsQueuing++#++(uint256 proposalId) → bool++` [.item-kind]#public#
 
-See {IGovernor-proposalNeedsQueuing}.
-
 [.contract-item]
 [[GovernorTimelockAccess-propose-address---uint256---bytes---string-]]
 ==== `[.contract-item-name]#++propose++#++(address[] targets, uint256[] values, bytes[] calldatas, string description) → uint256++` [.item-kind]#public#
-
-See {IGovernor-propose}
 
 [.contract-item]
 [[GovernorTimelockAccess-_queueOperations-uint256-address---uint256---bytes---bytes32-]]
@@ -5427,7 +5638,10 @@ Mechanism to execute a proposal, potentially going through {AccessManager-execut
 [[GovernorTimelockAccess-_cancel-address---uint256---bytes---bytes32-]]
 ==== `[.contract-item-name]#++_cancel++#++(address[] targets, uint256[] values, bytes[] calldatas, bytes32 descriptionHash) → uint256++` [.item-kind]#internal#
 
-See {Governor-_cancel}
+Internal cancel mechanism with minimal restrictions. A proposal can be cancelled in any state other than
+Canceled, Expired, or Executed. Once cancelled a proposal can't be re-submitted.
+
+Emits a {IGovernor-ProposalCanceled} event.
 
 [.contract-item]
 [[GovernorTimelockAccess-BaseDelaySet-uint32-uint32-]]
@@ -5472,7 +5686,7 @@ See {Governor-_cancel}
 
 [.contract]
 [[GovernorTimelockControl]]
-=== `++GovernorTimelockControl++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/governance/extensions/GovernorTimelockControl.sol[{github-icon},role=heading-link]
+=== `++GovernorTimelockControl++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/governance/extensions/GovernorTimelockControl.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -5537,6 +5751,8 @@ proposals that have been approved by the voters, effectively executing a Denial 
 * {xref-Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-}[`++castVoteWithReasonAndParams(proposalId, support, reason, params)++`]
 * {xref-Governor-castVoteBySig-uint256-uint8-address-bytes-}[`++castVoteBySig(proposalId, support, voter, signature)++`]
 * {xref-Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-}[`++castVoteWithReasonAndParamsBySig(proposalId, support, voter, reason, params, signature)++`]
+* {xref-Governor-_validateVoteSig-uint256-uint8-address-bytes-}[`++_validateVoteSig(proposalId, support, voter, signature)++`]
+* {xref-Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-}[`++_validateExtendedVoteSig(proposalId, support, voter, reason, params, signature)++`]
 * {xref-Governor-_castVote-uint256-address-uint8-string-}[`++_castVote(proposalId, account, support, reason)++`]
 * {xref-Governor-_castVote-uint256-address-uint8-string-bytes-}[`++_castVote(proposalId, account, support, reason, params)++`]
 * {xref-Governor-relay-address-uint256-bytes-}[`++relay(target, value, data)++`]
@@ -5713,8 +5929,6 @@ Public accessor to check the address of the timelock
 [[GovernorTimelockControl-proposalNeedsQueuing-uint256-]]
 ==== `[.contract-item-name]#++proposalNeedsQueuing++#++(uint256) → bool++` [.item-kind]#public#
 
-See {IGovernor-proposalNeedsQueuing}.
-
 [.contract-item]
 [[GovernorTimelockControl-_queueOperations-uint256-address---uint256---bytes---bytes32-]]
 ==== `[.contract-item-name]#++_queueOperations++#++(uint256 proposalId, address[] targets, uint256[] values, bytes[] calldatas, bytes32 descriptionHash) → uint48++` [.item-kind]#internal#
@@ -5781,7 +5995,7 @@ Emitted when the timelock controller used for proposal execution is modified.
 
 [.contract]
 [[GovernorTimelockCompound]]
-=== `++GovernorTimelockCompound++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/governance/extensions/GovernorTimelockCompound.sol[{github-icon},role=heading-link]
+=== `++GovernorTimelockCompound++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/governance/extensions/GovernorTimelockCompound.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -5843,6 +6057,8 @@ inaccessible from a proposal, unless executed via {Governor-relay}.
 * {xref-Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-}[`++castVoteWithReasonAndParams(proposalId, support, reason, params)++`]
 * {xref-Governor-castVoteBySig-uint256-uint8-address-bytes-}[`++castVoteBySig(proposalId, support, voter, signature)++`]
 * {xref-Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-}[`++castVoteWithReasonAndParamsBySig(proposalId, support, voter, reason, params, signature)++`]
+* {xref-Governor-_validateVoteSig-uint256-uint8-address-bytes-}[`++_validateVoteSig(proposalId, support, voter, signature)++`]
+* {xref-Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-}[`++_validateExtendedVoteSig(proposalId, support, voter, reason, params, signature)++`]
 * {xref-Governor-_castVote-uint256-address-uint8-string-}[`++_castVote(proposalId, account, support, reason)++`]
 * {xref-Governor-_castVote-uint256-address-uint8-string-bytes-}[`++_castVote(proposalId, account, support, reason, params)++`]
 * {xref-Governor-relay-address-uint256-bytes-}[`++relay(target, value, data)++`]
@@ -6019,8 +6235,6 @@ Public accessor to check the address of the timelock
 [[GovernorTimelockCompound-proposalNeedsQueuing-uint256-]]
 ==== `[.contract-item-name]#++proposalNeedsQueuing++#++(uint256) → bool++` [.item-kind]#public#
 
-See {IGovernor-proposalNeedsQueuing}.
-
 [.contract-item]
 [[GovernorTimelockCompound-_queueOperations-uint256-address---uint256---bytes---bytes32-]]
 ==== `[.contract-item-name]#++_queueOperations++#++(uint256 proposalId, address[] targets, uint256[] values, bytes[] calldatas, bytes32) → uint48++` [.item-kind]#internal#
@@ -6102,7 +6316,7 @@ Emitted when the timelock controller used for proposal execution is modified.
 
 [.contract]
 [[GovernorSettings]]
-=== `++GovernorSettings++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/governance/extensions/GovernorSettings.sol[{github-icon},role=heading-link]
+=== `++GovernorSettings++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/governance/extensions/GovernorSettings.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -6161,6 +6375,8 @@ Extension of {Governor} for settings updatable through governance.
 * {xref-Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-}[`++castVoteWithReasonAndParams(proposalId, support, reason, params)++`]
 * {xref-Governor-castVoteBySig-uint256-uint8-address-bytes-}[`++castVoteBySig(proposalId, support, voter, signature)++`]
 * {xref-Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-}[`++castVoteWithReasonAndParamsBySig(proposalId, support, voter, reason, params, signature)++`]
+* {xref-Governor-_validateVoteSig-uint256-uint8-address-bytes-}[`++_validateVoteSig(proposalId, support, voter, signature)++`]
+* {xref-Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-}[`++_validateExtendedVoteSig(proposalId, support, voter, reason, params, signature)++`]
 * {xref-Governor-_castVote-uint256-address-uint8-string-}[`++_castVote(proposalId, account, support, reason)++`]
 * {xref-Governor-_castVote-uint256-address-uint8-string-bytes-}[`++_castVote(proposalId, account, support, reason, params)++`]
 * {xref-Governor-relay-address-uint256-bytes-}[`++relay(target, value, data)++`]
@@ -6326,19 +6542,15 @@ Initialize the governance parameters.
 [[GovernorSettings-votingDelay--]]
 ==== `[.contract-item-name]#++votingDelay++#++() → uint256++` [.item-kind]#public#
 
-See {IGovernor-votingDelay}.
-
 [.contract-item]
 [[GovernorSettings-votingPeriod--]]
 ==== `[.contract-item-name]#++votingPeriod++#++() → uint256++` [.item-kind]#public#
-
-See {IGovernor-votingPeriod}.
 
 [.contract-item]
 [[GovernorSettings-proposalThreshold--]]
 ==== `[.contract-item-name]#++proposalThreshold++#++() → uint256++` [.item-kind]#public#
 
-See {Governor-proposalThreshold}.
+The number of votes required in order for a voter to become a proposer.
 
 [.contract-item]
 [[GovernorSettings-setVotingDelay-uint48-]]
@@ -6418,7 +6630,7 @@ Emits a {ProposalThresholdSet} event.
 
 [.contract]
 [[GovernorPreventLateQuorum]]
-=== `++GovernorPreventLateQuorum++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/governance/extensions/GovernorPreventLateQuorum.sol[{github-icon},role=heading-link]
+=== `++GovernorPreventLateQuorum++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/governance/extensions/GovernorPreventLateQuorum.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -6478,6 +6690,8 @@ proposal.
 * {xref-Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-}[`++castVoteWithReasonAndParams(proposalId, support, reason, params)++`]
 * {xref-Governor-castVoteBySig-uint256-uint8-address-bytes-}[`++castVoteBySig(proposalId, support, voter, signature)++`]
 * {xref-Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-}[`++castVoteWithReasonAndParamsBySig(proposalId, support, voter, reason, params, signature)++`]
+* {xref-Governor-_validateVoteSig-uint256-uint8-address-bytes-}[`++_validateVoteSig(proposalId, support, voter, signature)++`]
+* {xref-Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-}[`++_validateExtendedVoteSig(proposalId, support, voter, reason, params, signature)++`]
 * {xref-Governor-_castVote-uint256-address-uint8-string-}[`++_castVote(proposalId, account, support, reason)++`]
 * {xref-Governor-_castVote-uint256-address-uint8-string-bytes-}[`++_castVote(proposalId, account, support, reason, params)++`]
 * {xref-Governor-relay-address-uint256-bytes-}[`++relay(target, value, data)++`]
@@ -6713,7 +6927,7 @@ Emitted when the {lateQuorumVoteExtension} parameter is changed.
 
 [.contract]
 [[GovernorStorage]]
-=== `++GovernorStorage++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/governance/extensions/GovernorStorage.sol[{github-icon},role=heading-link]
+=== `++GovernorStorage++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/governance/extensions/GovernorStorage.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -6775,6 +6989,8 @@ Use cases for this module include:
 * {xref-Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-}[`++castVoteWithReasonAndParams(proposalId, support, reason, params)++`]
 * {xref-Governor-castVoteBySig-uint256-uint8-address-bytes-}[`++castVoteBySig(proposalId, support, voter, signature)++`]
 * {xref-Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-}[`++castVoteWithReasonAndParamsBySig(proposalId, support, voter, reason, params, signature)++`]
+* {xref-Governor-_validateVoteSig-uint256-uint8-address-bytes-}[`++_validateVoteSig(proposalId, support, voter, signature)++`]
+* {xref-Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-}[`++_validateExtendedVoteSig(proposalId, support, voter, reason, params, signature)++`]
 * {xref-Governor-_castVote-uint256-address-uint8-string-}[`++_castVote(proposalId, account, support, reason)++`]
 * {xref-Governor-_castVote-uint256-address-uint8-string-bytes-}[`++_castVote(proposalId, account, support, reason, params)++`]
 * {xref-Governor-relay-address-uint256-bytes-}[`++relay(target, value, data)++`]
@@ -6984,7 +7200,7 @@ Returns the details (including the proposalId) of a proposal given its sequentia
 
 [.contract]
 [[GovernorProposalGuardian]]
-=== `++GovernorProposalGuardian++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/governance/extensions/GovernorProposalGuardian.sol[{github-icon},role=heading-link]
+=== `++GovernorProposalGuardian++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/governance/extensions/GovernorProposalGuardian.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -7040,6 +7256,8 @@ NOTE: if the proposal guardian is not configured, then proposers take this role 
 * {xref-Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-}[`++castVoteWithReasonAndParams(proposalId, support, reason, params)++`]
 * {xref-Governor-castVoteBySig-uint256-uint8-address-bytes-}[`++castVoteBySig(proposalId, support, voter, signature)++`]
 * {xref-Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-}[`++castVoteWithReasonAndParamsBySig(proposalId, support, voter, reason, params, signature)++`]
+* {xref-Governor-_validateVoteSig-uint256-uint8-address-bytes-}[`++_validateVoteSig(proposalId, support, voter, signature)++`]
+* {xref-Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-}[`++_validateExtendedVoteSig(proposalId, support, voter, reason, params, signature)++`]
 * {xref-Governor-_castVote-uint256-address-uint8-string-}[`++_castVote(proposalId, account, support, reason)++`]
 * {xref-Governor-_castVote-uint256-address-uint8-string-bytes-}[`++_castVote(proposalId, account, support, reason, params)++`]
 * {xref-Governor-relay-address-uint256-bytes-}[`++relay(target, value, data)++`]
@@ -7240,7 +7458,7 @@ Override {Governor-_validateCancel} to implement the extended cancellation logic
 
 [.contract]
 [[GovernorSuperQuorum]]
-=== `++GovernorSuperQuorum++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/governance/extensions/GovernorSuperQuorum.sol[{github-icon},role=heading-link]
+=== `++GovernorSuperQuorum++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/governance/extensions/GovernorSuperQuorum.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -7294,6 +7512,8 @@ extension must implement {proposalVotes}.
 * {xref-Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-}[`++castVoteWithReasonAndParams(proposalId, support, reason, params)++`]
 * {xref-Governor-castVoteBySig-uint256-uint8-address-bytes-}[`++castVoteBySig(proposalId, support, voter, signature)++`]
 * {xref-Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-}[`++castVoteWithReasonAndParamsBySig(proposalId, support, voter, reason, params, signature)++`]
+* {xref-Governor-_validateVoteSig-uint256-uint8-address-bytes-}[`++_validateVoteSig(proposalId, support, voter, signature)++`]
+* {xref-Governor-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-}[`++_validateExtendedVoteSig(proposalId, support, voter, reason, params, signature)++`]
 * {xref-Governor-_castVote-uint256-address-uint8-string-}[`++_castVote(proposalId, account, support, reason)++`]
 * {xref-Governor-_castVote-uint256-address-uint8-string-bytes-}[`++_castVote(proposalId, account, support, reason, params)++`]
 * {xref-Governor-relay-address-uint256-bytes-}[`++relay(target, value, data)++`]
@@ -7483,6 +7703,259 @@ This means that with a low super quorum it is also possible that a vote can succ
 AGAINST voters have a chance to vote. Hence, it is recommended to set a high enough super quorum to avoid these
 types of scenarios.
 
+:_useCheckedNonce: pass:normal[xref:#GovernorNoncesKeyed-_useCheckedNonce-address-uint256-[`++_useCheckedNonce++`]]
+:_validateVoteSig: pass:normal[xref:#GovernorNoncesKeyed-_validateVoteSig-uint256-uint8-address-bytes-[`++_validateVoteSig++`]]
+:_validateExtendedVoteSig: pass:normal[xref:#GovernorNoncesKeyed-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-[`++_validateExtendedVoteSig++`]]
+
+:_useCheckedNonce-address-uint256: pass:normal[xref:#GovernorNoncesKeyed-_useCheckedNonce-address-uint256-[`++_useCheckedNonce++`]]
+:_validateVoteSig-uint256-uint8-address-bytes: pass:normal[xref:#GovernorNoncesKeyed-_validateVoteSig-uint256-uint8-address-bytes-[`++_validateVoteSig++`]]
+:_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes: pass:normal[xref:#GovernorNoncesKeyed-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-[`++_validateExtendedVoteSig++`]]
+
+[.contract]
+[[GovernorNoncesKeyed]]
+=== `++GovernorNoncesKeyed++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/governance/extensions/GovernorNoncesKeyed.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/governance/extensions/GovernorNoncesKeyed.sol";
+```
+
+An extension of {Governor} that extends existing nonce management to use {NoncesKeyed}, where the key is the low-order 192 bits of the `proposalId`.
+This is useful for voting by signature while maintaining separate sequences of nonces for each proposal.
+
+NOTE: Traditional (un-keyed) nonces are still supported and can continue to be used as if this extension was not present.
+
+[.contract-index]
+.Functions
+--
+* {xref-GovernorNoncesKeyed-_useCheckedNonce-address-uint256-}[`++_useCheckedNonce(owner, nonce)++`]
+* {xref-GovernorNoncesKeyed-_validateVoteSig-uint256-uint8-address-bytes-}[`++_validateVoteSig(proposalId, support, voter, signature)++`]
+* {xref-GovernorNoncesKeyed-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-}[`++_validateExtendedVoteSig(proposalId, support, voter, reason, params, signature)++`]
+
+[.contract-subindex-inherited]
+.NoncesKeyed
+* {xref-NoncesKeyed-nonces-address-uint192-}[`++nonces(owner, key)++`]
+* {xref-NoncesKeyed-_useNonce-address-uint192-}[`++_useNonce(owner, key)++`]
+* {xref-NoncesKeyed-_useCheckedNonce-address-uint192-uint64-}[`++_useCheckedNonce(owner, key, nonce)++`]
+
+[.contract-subindex-inherited]
+.Governor
+* {xref-Governor-receive--}[`++receive()++`]
+* {xref-Governor-supportsInterface-bytes4-}[`++supportsInterface(interfaceId)++`]
+* {xref-Governor-name--}[`++name()++`]
+* {xref-Governor-version--}[`++version()++`]
+* {xref-Governor-hashProposal-address---uint256---bytes---bytes32-}[`++hashProposal(targets, values, calldatas, descriptionHash)++`]
+* {xref-Governor-getProposalId-address---uint256---bytes---bytes32-}[`++getProposalId(targets, values, calldatas, descriptionHash)++`]
+* {xref-Governor-state-uint256-}[`++state(proposalId)++`]
+* {xref-Governor-proposalThreshold--}[`++proposalThreshold()++`]
+* {xref-Governor-proposalSnapshot-uint256-}[`++proposalSnapshot(proposalId)++`]
+* {xref-Governor-proposalDeadline-uint256-}[`++proposalDeadline(proposalId)++`]
+* {xref-Governor-proposalProposer-uint256-}[`++proposalProposer(proposalId)++`]
+* {xref-Governor-proposalEta-uint256-}[`++proposalEta(proposalId)++`]
+* {xref-Governor-proposalNeedsQueuing-uint256-}[`++proposalNeedsQueuing()++`]
+* {xref-Governor-_checkGovernance--}[`++_checkGovernance()++`]
+* {xref-Governor-_quorumReached-uint256-}[`++_quorumReached(proposalId)++`]
+* {xref-Governor-_voteSucceeded-uint256-}[`++_voteSucceeded(proposalId)++`]
+* {xref-Governor-_getVotes-address-uint256-bytes-}[`++_getVotes(account, timepoint, params)++`]
+* {xref-Governor-_countVote-uint256-address-uint8-uint256-bytes-}[`++_countVote(proposalId, account, support, totalWeight, params)++`]
+* {xref-Governor-_tallyUpdated-uint256-}[`++_tallyUpdated(proposalId)++`]
+* {xref-Governor-_defaultParams--}[`++_defaultParams()++`]
+* {xref-Governor-propose-address---uint256---bytes---string-}[`++propose(targets, values, calldatas, description)++`]
+* {xref-Governor-_propose-address---uint256---bytes---string-address-}[`++_propose(targets, values, calldatas, description, proposer)++`]
+* {xref-Governor-queue-address---uint256---bytes---bytes32-}[`++queue(targets, values, calldatas, descriptionHash)++`]
+* {xref-Governor-_queueOperations-uint256-address---uint256---bytes---bytes32-}[`++_queueOperations(, , , , )++`]
+* {xref-Governor-execute-address---uint256---bytes---bytes32-}[`++execute(targets, values, calldatas, descriptionHash)++`]
+* {xref-Governor-_executeOperations-uint256-address---uint256---bytes---bytes32-}[`++_executeOperations(, targets, values, calldatas, )++`]
+* {xref-Governor-cancel-address---uint256---bytes---bytes32-}[`++cancel(targets, values, calldatas, descriptionHash)++`]
+* {xref-Governor-_cancel-address---uint256---bytes---bytes32-}[`++_cancel(targets, values, calldatas, descriptionHash)++`]
+* {xref-Governor-getVotes-address-uint256-}[`++getVotes(account, timepoint)++`]
+* {xref-Governor-getVotesWithParams-address-uint256-bytes-}[`++getVotesWithParams(account, timepoint, params)++`]
+* {xref-Governor-castVote-uint256-uint8-}[`++castVote(proposalId, support)++`]
+* {xref-Governor-castVoteWithReason-uint256-uint8-string-}[`++castVoteWithReason(proposalId, support, reason)++`]
+* {xref-Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-}[`++castVoteWithReasonAndParams(proposalId, support, reason, params)++`]
+* {xref-Governor-castVoteBySig-uint256-uint8-address-bytes-}[`++castVoteBySig(proposalId, support, voter, signature)++`]
+* {xref-Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-address-string-bytes-bytes-}[`++castVoteWithReasonAndParamsBySig(proposalId, support, voter, reason, params, signature)++`]
+* {xref-Governor-_castVote-uint256-address-uint8-string-}[`++_castVote(proposalId, account, support, reason)++`]
+* {xref-Governor-_castVote-uint256-address-uint8-string-bytes-}[`++_castVote(proposalId, account, support, reason, params)++`]
+* {xref-Governor-relay-address-uint256-bytes-}[`++relay(target, value, data)++`]
+* {xref-Governor-_executor--}[`++_executor()++`]
+* {xref-Governor-onERC721Received-address-address-uint256-bytes-}[`++onERC721Received(, , , )++`]
+* {xref-Governor-onERC1155Received-address-address-uint256-uint256-bytes-}[`++onERC1155Received(, , , , )++`]
+* {xref-Governor-onERC1155BatchReceived-address-address-uint256---uint256---bytes-}[`++onERC1155BatchReceived(, , , , )++`]
+* {xref-Governor-_encodeStateBitmap-enum-IGovernor-ProposalState-}[`++_encodeStateBitmap(proposalState)++`]
+* {xref-Governor-_validateStateBitmap-uint256-bytes32-}[`++_validateStateBitmap(proposalId, allowedStates)++`]
+* {xref-Governor-_isValidDescriptionForProposer-address-string-}[`++_isValidDescriptionForProposer(proposer, description)++`]
+* {xref-Governor-_validateCancel-uint256-address-}[`++_validateCancel(proposalId, caller)++`]
+* {xref-Governor-clock--}[`++clock()++`]
+* {xref-Governor-CLOCK_MODE--}[`++CLOCK_MODE()++`]
+* {xref-Governor-votingDelay--}[`++votingDelay()++`]
+* {xref-Governor-votingPeriod--}[`++votingPeriod()++`]
+* {xref-Governor-quorum-uint256-}[`++quorum(timepoint)++`]
+* {xref-Governor-BALLOT_TYPEHASH-bytes32}[`++BALLOT_TYPEHASH()++`]
+* {xref-Governor-EXTENDED_BALLOT_TYPEHASH-bytes32}[`++EXTENDED_BALLOT_TYPEHASH()++`]
+
+[.contract-subindex-inherited]
+.IERC1155Receiver
+
+[.contract-subindex-inherited]
+.IERC721Receiver
+
+[.contract-subindex-inherited]
+.IGovernor
+* {xref-IGovernor-COUNTING_MODE--}[`++COUNTING_MODE()++`]
+* {xref-IGovernor-hasVoted-uint256-address-}[`++hasVoted(proposalId, account)++`]
+
+[.contract-subindex-inherited]
+.IERC6372
+
+[.contract-subindex-inherited]
+.Nonces
+* {xref-Nonces-nonces-address-}[`++nonces(owner)++`]
+* {xref-Nonces-_useNonce-address-}[`++_useNonce(owner)++`]
+
+[.contract-subindex-inherited]
+.EIP712
+* {xref-EIP712-_domainSeparatorV4--}[`++_domainSeparatorV4()++`]
+* {xref-EIP712-_hashTypedDataV4-bytes32-}[`++_hashTypedDataV4(structHash)++`]
+* {xref-EIP712-eip712Domain--}[`++eip712Domain()++`]
+* {xref-EIP712-_EIP712Name--}[`++_EIP712Name()++`]
+* {xref-EIP712-_EIP712Version--}[`++_EIP712Version()++`]
+
+[.contract-subindex-inherited]
+.IERC5267
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-index]
+.Events
+--
+
+[.contract-subindex-inherited]
+.NoncesKeyed
+
+[.contract-subindex-inherited]
+.Governor
+
+[.contract-subindex-inherited]
+.IERC1155Receiver
+
+[.contract-subindex-inherited]
+.IERC721Receiver
+
+[.contract-subindex-inherited]
+.IGovernor
+* {xref-IGovernor-ProposalCreated-uint256-address-address---uint256---string---bytes---uint256-uint256-string-}[`++ProposalCreated(proposalId, proposer, targets, values, signatures, calldatas, voteStart, voteEnd, description)++`]
+* {xref-IGovernor-ProposalQueued-uint256-uint256-}[`++ProposalQueued(proposalId, etaSeconds)++`]
+* {xref-IGovernor-ProposalExecuted-uint256-}[`++ProposalExecuted(proposalId)++`]
+* {xref-IGovernor-ProposalCanceled-uint256-}[`++ProposalCanceled(proposalId)++`]
+* {xref-IGovernor-VoteCast-address-uint256-uint8-uint256-string-}[`++VoteCast(voter, proposalId, support, weight, reason)++`]
+* {xref-IGovernor-VoteCastWithParams-address-uint256-uint8-uint256-string-bytes-}[`++VoteCastWithParams(voter, proposalId, support, weight, reason, params)++`]
+
+[.contract-subindex-inherited]
+.IERC6372
+
+[.contract-subindex-inherited]
+.Nonces
+
+[.contract-subindex-inherited]
+.EIP712
+
+[.contract-subindex-inherited]
+.IERC5267
+* {xref-IERC5267-EIP712DomainChanged--}[`++EIP712DomainChanged()++`]
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-index]
+.Errors
+--
+
+[.contract-subindex-inherited]
+.NoncesKeyed
+
+[.contract-subindex-inherited]
+.Governor
+
+[.contract-subindex-inherited]
+.IERC1155Receiver
+
+[.contract-subindex-inherited]
+.IERC721Receiver
+
+[.contract-subindex-inherited]
+.IGovernor
+* {xref-IGovernor-GovernorInvalidProposalLength-uint256-uint256-uint256-}[`++GovernorInvalidProposalLength(targets, calldatas, values)++`]
+* {xref-IGovernor-GovernorAlreadyCastVote-address-}[`++GovernorAlreadyCastVote(voter)++`]
+* {xref-IGovernor-GovernorDisabledDeposit--}[`++GovernorDisabledDeposit()++`]
+* {xref-IGovernor-GovernorOnlyExecutor-address-}[`++GovernorOnlyExecutor(account)++`]
+* {xref-IGovernor-GovernorNonexistentProposal-uint256-}[`++GovernorNonexistentProposal(proposalId)++`]
+* {xref-IGovernor-GovernorUnexpectedProposalState-uint256-enum-IGovernor-ProposalState-bytes32-}[`++GovernorUnexpectedProposalState(proposalId, current, expectedStates)++`]
+* {xref-IGovernor-GovernorInvalidVotingPeriod-uint256-}[`++GovernorInvalidVotingPeriod(votingPeriod)++`]
+* {xref-IGovernor-GovernorInsufficientProposerVotes-address-uint256-uint256-}[`++GovernorInsufficientProposerVotes(proposer, votes, threshold)++`]
+* {xref-IGovernor-GovernorRestrictedProposer-address-}[`++GovernorRestrictedProposer(proposer)++`]
+* {xref-IGovernor-GovernorInvalidVoteType--}[`++GovernorInvalidVoteType()++`]
+* {xref-IGovernor-GovernorInvalidVoteParams--}[`++GovernorInvalidVoteParams()++`]
+* {xref-IGovernor-GovernorQueueNotImplemented--}[`++GovernorQueueNotImplemented()++`]
+* {xref-IGovernor-GovernorNotQueuedProposal-uint256-}[`++GovernorNotQueuedProposal(proposalId)++`]
+* {xref-IGovernor-GovernorAlreadyQueuedProposal-uint256-}[`++GovernorAlreadyQueuedProposal(proposalId)++`]
+* {xref-IGovernor-GovernorInvalidSignature-address-}[`++GovernorInvalidSignature(voter)++`]
+* {xref-IGovernor-GovernorUnableToCancel-uint256-address-}[`++GovernorUnableToCancel(proposalId, account)++`]
+
+[.contract-subindex-inherited]
+.IERC6372
+
+[.contract-subindex-inherited]
+.Nonces
+* {xref-Nonces-InvalidAccountNonce-address-uint256-}[`++InvalidAccountNonce(account, currentNonce)++`]
+
+[.contract-subindex-inherited]
+.EIP712
+
+[.contract-subindex-inherited]
+.IERC5267
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-item]
+[[GovernorNoncesKeyed-_useCheckedNonce-address-uint256-]]
+==== `[.contract-item-name]#++_useCheckedNonce++#++(address owner, uint256 nonce)++` [.item-kind]#internal#
+
+[.contract-item]
+[[GovernorNoncesKeyed-_validateVoteSig-uint256-uint8-address-bytes-]]
+==== `[.contract-item-name]#++_validateVoteSig++#++(uint256 proposalId, uint8 support, address voter, bytes signature) → bool++` [.item-kind]#internal#
+
+Check the signature against keyed nonce and falls back to the traditional nonce.
+
+NOTE: This function won't call `super._validateVoteSig` if the keyed nonce is valid.
+Side effects may be skipped depending on the linearization of the function.
+
+[.contract-item]
+[[GovernorNoncesKeyed-_validateExtendedVoteSig-uint256-uint8-address-string-bytes-bytes-]]
+==== `[.contract-item-name]#++_validateExtendedVoteSig++#++(uint256 proposalId, uint8 support, address voter, string reason, bytes params, bytes signature) → bool++` [.item-kind]#internal#
+
+Check the signature against keyed nonce and falls back to the traditional nonce.
+
+NOTE: This function won't call `super._validateExtendedVoteSig` if the keyed nonce is valid.
+Side effects may be skipped depending on the linearization of the function.
+
 == Utils
 
 :ERC6372InconsistentClock: pass:normal[xref:#Votes-ERC6372InconsistentClock--[`++ERC6372InconsistentClock++`]]
@@ -7523,7 +7996,7 @@ types of scenarios.
 
 [.contract]
 [[Votes]]
-=== `++Votes++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/governance/utils/Votes.sol[{github-icon},role=heading-link]
+=== `++Votes++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/governance/utils/Votes.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -7788,7 +8261,7 @@ Lookup to future votes is not available.
 
 [.contract]
 [[VotesExtended]]
-=== `++VotesExtended++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/governance/utils/VotesExtended.sol[{github-icon},role=heading-link]
+=== `++VotesExtended++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/governance/utils/VotesExtended.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -8037,7 +8510,7 @@ In a governance system, the {TimelockController} contract is in charge of introd
 
 [.contract]
 [[TimelockController]]
-=== `++TimelockController++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/governance/TimelockController.sol[{github-icon},role=heading-link]
+=== `++TimelockController++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/governance/TimelockController.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -8269,8 +8742,6 @@ Contract might receive/hold ETH as part of the maintenance process.
 [.contract-item]
 [[TimelockController-supportsInterface-bytes4-]]
 ==== `[.contract-item-name]#++supportsInterface++#++(bytes4 interfaceId) → bool++` [.item-kind]#public#
-
-See {IERC165-supportsInterface}.
 
 [.contract-item]
 [[TimelockController-isOperation-bytes32-]]

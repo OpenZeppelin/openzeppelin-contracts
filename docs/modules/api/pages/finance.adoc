@@ -73,7 +73,7 @@ This directory includes primitives for financial systems:
 
 [.contract]
 [[VestingWallet]]
-=== `++VestingWallet++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/finance/VestingWallet.sol[{github-icon},role=heading-link]
+=== `++VestingWallet++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/finance/VestingWallet.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity

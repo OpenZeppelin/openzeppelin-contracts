@@ -12,7 +12,6 @@
 :xref-ERC2981-ERC2981InvalidDefaultRoyaltyReceiver-address-: xref:token/common.adoc#ERC2981-ERC2981InvalidDefaultRoyaltyReceiver-address-
 :xref-ERC2981-ERC2981InvalidTokenRoyalty-uint256-uint256-uint256-: xref:token/common.adoc#ERC2981-ERC2981InvalidTokenRoyalty-uint256-uint256-uint256-
 :xref-ERC2981-ERC2981InvalidTokenRoyaltyReceiver-uint256-address-: xref:token/common.adoc#ERC2981-ERC2981InvalidTokenRoyaltyReceiver-uint256-address-
-:IERC165-supportsInterface: pass:normal[xref:utils.adoc#IERC165-supportsInterface-bytes4-[`IERC165.supportsInterface`]]
 = Common (Tokens)
 
 Functionality that is common to multiple token standards.
@@ -45,7 +44,7 @@ Functionality that is common to multiple token standards.
 
 [.contract]
 [[ERC2981]]
-=== `++ERC2981++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/token/common/ERC2981.sol[{github-icon},role=heading-link]
+=== `++ERC2981++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/token/common/ERC2981.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -109,7 +108,12 @@ voluntarily pay royalties together with sales, but note that this standard is no
 [[ERC2981-supportsInterface-bytes4-]]
 ==== `[.contract-item-name]#++supportsInterface++#++(bytes4 interfaceId) → bool++` [.item-kind]#public#
 
-See {IERC165-supportsInterface}.
+Returns true if this contract implements the interface defined by
+`interfaceId`. See the corresponding
+https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section]
+to learn more about how these ids are created.
+
+This function call must use less than 30 000 gas.
 
 [.contract-item]
 [[ERC2981-royaltyInfo-uint256-uint256-]]

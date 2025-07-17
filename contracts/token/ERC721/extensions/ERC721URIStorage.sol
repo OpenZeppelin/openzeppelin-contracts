@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.3.0) (token/ERC721/extensions/ERC721URIStorage.sol)
+// OpenZeppelin Contracts (last updated v5.4.0) (token/ERC721/extensions/ERC721URIStorage.sol)
 
 pragma solidity ^0.8.20;
 
 import {ERC721} from "../ERC721.sol";
+import {IERC721Metadata} from "./IERC721Metadata.sol";
 import {Strings} from "../../../utils/Strings.sol";
 import {IERC4906} from "../../../interfaces/IERC4906.sol";
 import {IERC165} from "../../../interfaces/IERC165.sol";
@@ -21,16 +22,12 @@ abstract contract ERC721URIStorage is IERC4906, ERC721 {
     // Optional mapping for token URIs
     mapping(uint256 tokenId => string) private _tokenURIs;
 
-    /**
-     * @dev See {IERC165-supportsInterface}
-     */
+    /// @inheritdoc IERC165
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, IERC165) returns (bool) {
         return interfaceId == ERC4906_INTERFACE_ID || super.supportsInterface(interfaceId);
     }
 
-    /**
-     * @dev See {IERC721Metadata-tokenURI}.
-     */
+    /// @inheritdoc IERC721Metadata
     function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
         _requireOwned(tokenId);
 

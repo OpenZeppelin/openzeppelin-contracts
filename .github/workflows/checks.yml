@@ -87,7 +87,7 @@ jobs:
       - name: Set up environment
         uses: ./.github/actions/setup
       - name: Run tests
-        run: forge test -vv
+        run: forge test -vvv
 
   coverage:
     runs-on: ubuntu-latest
@@ -118,7 +118,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Set up environment
         uses: ./.github/actions/setup
-      - uses: crytic/slither-action@v0.4.0
+      - uses: crytic/slither-action@v0.4.1
 
   codespell:
     runs-on: ubuntu-latest
