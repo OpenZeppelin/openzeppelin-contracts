@@ -84,7 +84,7 @@ module.exports = [
 
   class extends Base {
     static ruleId = 'no-external-virtual';
-  
+
     FunctionDefinition(node) {
       if (node.visibility == 'external' && node.isVirtual) {
         this.error(node, 'Functions should not be external and virtual');
