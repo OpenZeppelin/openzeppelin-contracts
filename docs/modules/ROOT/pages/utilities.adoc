@@ -461,6 +461,49 @@ await instance.multicall([
 ]);
 ----
 
+=== Low-level Calls
+
+The xref:api:utils.adoc#LowLevelCall[`LowLevelCall`] library provides low-level external calls with fixed-size return data handling, protecting against return bombing attacks where callees allocate excessive memory.
+
+The library efficiently handles return data up to 64 bytes, allowing you to ignore it entirely or extract 1-2 `bytes32` values:
+
+[source,solidity]
+----
+using LowLevelCall for address;
+
+function example(address target, bytes memory data) internal {
+    bool success;
+    bytes32 result1;
+    bytes32 result2;
+
+    // Ignore return data
+    success = target.callNoReturn(data);
+
+    // Extract single 32-byte value
+    (success, result1, ) = target.callReturn64Bytes(data);
+
+    // Extract two 32-byte values
+    (success, result1, result2) = target.callReturn64Bytes(data);
+}
+----
+
+You can also check return data size before processing:
+
+[source,solidity]
+----
+function checkReturnSize(address target, bytes memory data) internal returns (uint256 value, uint256 otherValue) {
+    (bool success, bytes32 result1, bytes32 result2) = target.callReturn64Bytes(data);
+
+    if (!success || LowLevelCall.returnDataSize() < 32) {
+        return (0, 0);
+    } else if (LowLevelCall.returnDataSize() < 64) {
+        return (uint256(result1), 0);
+    } else {
+        return (uint256(result1), uint256(result2));
+    }
+}
+----
+
 === Memory
 
 The xref:api:utils.adoc#Memory[`Memory`] library provides functions for advanced use cases that require granular memory management. A common use case is to avoid unnecessary memory expansion costs when performing repeated operations that allocate memory in a loop. Consider the following example:
