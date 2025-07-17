@@ -1,11 +1,7 @@
 # Changelog
 
 
-## 5.4.0-rc.1 (2025-06-20)
-
-- Add constructors to the different signers.
-
-## 5.4.0-rc.0 (2025-06-18)
+## 5.4.0 (2025-07-17)
 
 ### Breaking changes
 
@@ -64,6 +60,7 @@
 
 - `Arrays`: Add `unsafeAccess`, `unsafeMemoryAccess` and `unsafeSetLength` for `bytes[]` and `string[]`. ([#5568](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5568))
 - `Blockhash`: Add a library that provides access to historical block hashes using EIP-2935's history storage, extending the standard 256-block limit to 8191 blocks. ([#5642](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5642))
+- `Bytes`: Fix `lastIndexOf(bytes,byte,uint256)` with empty buffers and finite position to correctly return `type(uint256).max` instead of accessing uninitialized memory sections. ([#5797](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5797))
 
 ## 5.3.0 (2025-04-09)
 
