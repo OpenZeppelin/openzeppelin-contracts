@@ -1,11 +1,15 @@
 # Changelog
 
 
+### Breaking changes
+
+- Update minimum pragma to 0.8.24 in `SignatureChecker`, `Votes`, `VotesExtended`, `ERC20Votes`, `Strings`, `ERC1155URIStorage`, `MessageHashUtils`, `ERC721URIStorage`, `ERC721Votes`, `ERC721Wrapper`, `ERC721Burnable`, `ERC721Consecutive`, `ERC721Enumerable`, `ERC721Pausable`, `ERC721Royalty`, `ERC721Wrapper`, `EIP712`, `ERC7739`, `Governor` and its extensions. ([#5716](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5716)), ([#5680](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5680))
+
 ## 5.4.0 (2025-07-17)
 
 ### Breaking changes
 
-- Update minimum pragma to 0.8.24 in `SignatureChecker`, `Votes`, `VotesExtended`, `ERC20Votes`, `Strings`, `ERC1155URIStorage`, `MessageHashUtils`, `ERC721URIStorage`, `ERC721Votes`, `ERC721Wrapper`, `ERC721Burnable`, `ERC721Consecutive`, `ERC721Enumerable`, `ERC721Pausable`, `ERC721Royalty`, `ERC721Wrapper`, `EIP712`, `ERC7739`, `Governor` and its extensions. ([#5716](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5716)), ([#5680](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5680))
+- Update minimum pragma to 0.8.24 in `SignatureChecker`, `Governor` and Governor's extensions. ([#5716](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5716)).
 
 ### Pragma changes
 
