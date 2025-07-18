@@ -23,11 +23,11 @@ class Base {
 
 module.exports = [
   class extends Base {
-    static ruleId = 'interface-names';
+    static ruleId = 'interface-only-external-functions';
 
-    ContractDefinition(node) {
-      if (node.kind === 'interface' && !/^I[A-Z]/.test(node.name)) {
-        this.error(node, 'Interface names should have a capital I prefix');
+    FunctionDefinition(node) {
+      if (node.parent.kind === 'interface' && node.visibility !== 'external') {
+        this.error(node, 'Interface functions must be external');
       }
     }
   },
@@ -36,8 +36,7 @@ module.exports = [
     static ruleId = 'private-variables';
 
     VariableDeclaration(node) {
-      const constantOrImmutable = node.isDeclaredConst || node.isImmutable;
-      if (node.isStateVar && !constantOrImmutable && node.visibility !== 'private') {
+      if (node.isStateVar && !node.isDeclaredConst && !node.isImmutable && node.visibility !== 'private') {
         this.error(node, 'State variables must be private');
       }
     }
@@ -47,38 +46,49 @@ module.exports = [
     static ruleId = 'leading-underscore';
 
     VariableDeclaration(node) {
-      if (node.isDeclaredConst) {
-        // TODO: expand visibility and fix
-        if (node.visibility === 'private' && /^_/.test(node.name)) {
-          this.error(node, 'Constant variables should not have leading underscore');
-        }
-      } else if (node.visibility === 'private' && !/^_/.test(node.name)) {
-        this.error(node, 'Non-constant private variables must have leading underscore');
+      if (node.isDeclaredConst && node.name.startsWith('_')) {
+        this.error(node, 'Constant variables should not have leading underscore');
+      }
+      if (node.isImmutable && node.name.startsWith('_')) {
+        this.error(node, 'Immutable variables should not have leading underscore');
+      }
+      if (node.isStateVar && node.visibility === 'private' && !node.name.startsWith('_')) {
+        this.error(node, 'Private state variables must have leading underscore');
+      }
+      if (node.isStateVar && node.visibility === 'internal' && !node.name.startsWith('_')) {
+        this.error(node, 'Internal state variables must have leading underscore');
+      }
+      if (node.isStateVar && node.visibility === 'public' && node.name.startsWith('_')) {
+        this.error(node, 'Public state variables should not have leading underscore');
       }
     }
 
     FunctionDefinition(node) {
-      if (node.visibility === 'private' || (node.visibility === 'internal' && node.parent.kind !== 'library')) {
-        if (!/^_/.test(node.name)) {
-          this.error(node, 'Private and internal functions must have leading underscore');
-        }
+      if (node.visibility === 'private' && !node.name.startsWith('_')) {
+        this.error(node, 'Private functions must have leading underscore');
       }
-      if (node.visibility === 'internal' && node.parent.kind === 'library') {
-        if (/^_/.test(node.name)) {
-          this.error(node, 'Library internal functions should not have leading underscore');
-        }
+      if (node.visibility === 'internal' && node.parent.kind !== 'library' && !node.name.startsWith('_')) {
+        this.error(node, 'Non-library internal functions must have leading underscore');
+      }
+      if (node.visibility === 'internal' && node.parent.kind === 'library' && node.name.startsWith('_')) {
+        this.error(node, 'Library internal functions should not have leading underscore');
+      }
+      if (node.visibility === 'public' && node.name.startsWith('_')) {
+        this.error(node, 'Public functions should not have leading underscore');
+      }
+      if (node.visibility === 'external' && node.name.startsWith('_')) {
+        this.error(node, 'External functions should not have leading underscore');
       }
     }
   },
 
-  // TODO: re-enable and fix
-  // class extends Base {
-  //   static ruleId = 'no-external-virtual';
-  //
-  //   FunctionDefinition(node) {
-  //     if (node.visibility == 'external' && node.isVirtual) {
-  //       this.error(node, 'Functions should not be external and virtual');
-  //     }
-  //   }
-  // },
+  class extends Base {
+    static ruleId = 'no-external-virtual';
+
+    FunctionDefinition(node) {
+      if (node.visibility == 'external' && node.isVirtual) {
+        this.error(node, 'Functions should not be external and virtual');
+      }
+    }
+  },
 ];
