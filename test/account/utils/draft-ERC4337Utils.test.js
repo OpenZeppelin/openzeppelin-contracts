@@ -1,4 +1,4 @@
-const { ethers, entrypoint } = require('hardhat');
+const { ethers, predeploy } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
@@ -22,11 +22,11 @@ describe('ERC4337Utils', function () {
 
   describe('entrypoint', function () {
     it('v0.7.0', async function () {
-      await expect(this.utils.$ENTRYPOINT_V07()).to.eventually.equal(entrypoint.v07);
+      await expect(this.utils.$ENTRYPOINT_V07()).to.eventually.equal(predeploy.entrypoint.v07);
     });
 
     it('v0.8.0', async function () {
-      await expect(this.utils.$ENTRYPOINT_V08()).to.eventually.equal(entrypoint.v08);
+      await expect(this.utils.$ENTRYPOINT_V08()).to.eventually.equal(predeploy.entrypoint.v08);
     });
   });
 
@@ -176,7 +176,7 @@ describe('ERC4337Utils', function () {
   });
 
   describe('hash', function () {
-    for (const [version, instance] of Object.entries(entrypoint)) {
+    for (const [version, instance] of Object.entries(predeploy.entrypoint)) {
       it(`returns the operation hash for entrypoint ${version}`, async function () {
         const userOp = new UserOperation({ sender: this.sender, nonce: 1 });
         const expected = await userOp.hash(instance);

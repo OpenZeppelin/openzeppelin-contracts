@@ -1,4 +1,4 @@
-const { ethers, entrypoint } = require('hardhat');
+const { ethers, predeploy } = require('hardhat');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { getDomain } = require('../../helpers/eip712');
@@ -29,7 +29,7 @@ async function fixture() {
   ]);
 
   // ERC-4337 Entrypoint domain
-  const entrypointDomain = await getDomain(entrypoint.v08);
+  const entrypointDomain = await getDomain(predeploy.entrypoint.v08);
 
   return { helper, validator, mock, entrypointDomain, signer, target, anotherTarget, other };
 }
