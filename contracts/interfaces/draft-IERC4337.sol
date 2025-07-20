@@ -99,30 +99,6 @@ interface IEntryPointNonces {
 }
 
 /**
- * @dev Handle stake management for entities (i.e. accounts, paymasters, factories).
- *
- * The EntryPoint must implement the following API to let entities like paymasters have a stake,
- * and thus have more flexibility in their storage access
- * (see https://eips.ethereum.org/EIPS/eip-4337#reputation-scoring-and-throttlingbanning-for-global-entities[reputation, throttling and banning.])
- */
-interface IEntryPointStake {
-    /**
-     * @dev Adds stake to the account with an unstake delay of `unstakeDelaySec`.
-     */
-    function addStake(uint32 unstakeDelaySec) external payable;
-
-    /**
-     * @dev Unlocks the stake of the account.
-     */
-    function unlockStake() external;
-
-    /**
-     * @dev Withdraws the stake of the account to `withdrawAddress`.
-     */
-    function withdrawStake(address payable withdrawAddress) external;
-}
-
-/**
  * @dev Handle deposit management for entities (i.e. accounts, paymasters).
  *
  * The paymaster must have a deposit, which the EntryPoint will charge UserOperation costs from.
@@ -151,6 +127,30 @@ interface IEntryPointDeposit {
      * @dev Add to the deposit of the calling account
      */
     receive() external payable;
+}
+
+/**
+ * @dev Handle stake management for entities (i.e. accounts, paymasters, factories).
+ *
+ * The EntryPoint must implement the following API to let entities like paymasters have a stake,
+ * and thus have more flexibility in their storage access
+ * (see https://eips.ethereum.org/EIPS/eip-4337#reputation-scoring-and-throttlingbanning-for-global-entities[reputation, throttling and banning.])
+ */
+interface IEntryPointStake {
+    /**
+     * @dev Adds stake to the account with an unstake delay of `unstakeDelaySec`.
+     */
+    function addStake(uint32 unstakeDelaySec) external payable;
+
+    /**
+     * @dev Unlocks the stake of the account.
+     */
+    function unlockStake() external;
+
+    /**
+     * @dev Withdraws the stake of the account to `withdrawAddress`.
+     */
+    function withdrawStake(address payable withdrawAddress) external;
 }
 
 /**
