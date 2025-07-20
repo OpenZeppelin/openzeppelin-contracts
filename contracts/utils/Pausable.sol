@@ -4,8 +4,7 @@
 pragma solidity ^0.8.20;
 
 import {Context} from "../utils/Context.sol";
-import { IPausable } from "./IPausable.sol";
-
+import {IPausable} from "./IPausable.sol";
 
 /**
  * @dev Contract module which allows children to implement an emergency stop
@@ -15,11 +14,12 @@ import { IPausable } from "./IPausable.sol";
  * modifiers `whenNotPaused` and `whenPaused`, which can be applied to
  * the functions of your contract. Note that they will not be pausable by
  * simply including this module, only once the modifiers are put in place.
+ *
+ * Note: The `Paused` and `Unpaused` events were removed from IPausable.sol
+ * and are defined directly here.
  */
 abstract contract Pausable is Context, IPausable {
     bool private _paused;
-
-   // Deleted event Paused  adn event Unpaused from IPausable.sol , importing them directly here from IPausable.sol
 
     /**
      * @dev The operation failed because the contract is paused.
