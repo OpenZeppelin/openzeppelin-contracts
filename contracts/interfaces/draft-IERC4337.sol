@@ -122,11 +122,6 @@ interface IEntryPointDeposit {
      * @dev Withdraws `withdrawAmount` from the account to `withdrawAddress`.
      */
     function withdrawTo(address payable withdrawAddress, uint256 withdrawAmount) external;
-
-    /**
-     * @dev Add to the deposit of the calling account
-     */
-    receive() external payable;
 }
 
 /**
