@@ -107,21 +107,6 @@ interface IEntryPointNonces {
  */
 interface IEntryPointStake {
     /**
-     * @dev Returns the balance of the account.
-     */
-    function balanceOf(address account) external view returns (uint256);
-
-    /**
-     * @dev Deposits `msg.value` to the account.
-     */
-    function depositTo(address account) external payable;
-
-    /**
-     * @dev Withdraws `withdrawAmount` from the account to `withdrawAddress`.
-     */
-    function withdrawTo(address payable withdrawAddress, uint256 withdrawAmount) external;
-
-    /**
      * @dev Adds stake to the account with an unstake delay of `unstakeDelaySec`.
      */
     function addStake(uint32 unstakeDelaySec) external payable;
@@ -138,11 +123,42 @@ interface IEntryPointStake {
 }
 
 /**
+ * @dev Handle deposit management for entities (i.e. accounts, paymasters).
+ *
+ * The paymaster must have a deposit, which the EntryPoint will charge UserOperation costs from.
+ * The deposit (for paying gas fees) is separate from the stake (which is locked).
+ *
+ * The EntryPoint must implement the following interface to allow Paymasters (and optionally Accounts)
+ * to manage their deposit.
+ */
+interface IEntryPointDeposit {
+    /**
+     * @dev Returns the balance of the account.
+     */
+    function balanceOf(address account) external view returns (uint256);
+
+    /**
+     * @dev Deposits `msg.value` to the account.
+     */
+    function depositTo(address account) external payable;
+
+    /**
+     * @dev Withdraws `withdrawAmount` from the account to `withdrawAddress`.
+     */
+    function withdrawTo(address payable withdrawAddress, uint256 withdrawAmount) external;
+
+    /**
+     * @dev Add to the deposit of the calling account
+     */
+    receive() external payable;
+}
+
+/**
  * @dev Entry point for user operations.
  *
  * User operations are validated and executed by this contract.
  */
-interface IEntryPoint is IEntryPointNonces, IEntryPointStake {
+interface IEntryPoint is IEntryPointNonces, IEntryPointStake, IEntryPointDeposit {
     /**
      * @dev A user operation at `opIndex` failed with `reason`.
      */
