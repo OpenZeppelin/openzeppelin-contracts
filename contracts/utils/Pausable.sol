@@ -4,7 +4,7 @@
 pragma solidity ^0.8.20;
 
 import {Context} from "../utils/Context.sol";
-import "./IPausable.sol";
+import { IPausable } from "./IPausable.sol";
 
 
 /**
