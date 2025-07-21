@@ -746,4 +746,11 @@ library Math {
     function unsignedRoundsUp(Rounding rounding) internal pure returns (bool) {
         return uint8(rounding) % 2 == 1;
     }
+
+    /**
+     * @dev Counts the number of leading zeros in a uint256.
+     */
+    function clz(uint256 x) internal pure returns (uint256) {
+        return ternary(x == 0, 32, 31 - log256(x));
+    }
 }

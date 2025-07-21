@@ -168,22 +168,6 @@ contract BytesTest is Test {
         assertEq(Bytes.equal(a, b), Bytes.equal(a, b));
     }
 
-    function testSymbolicCountLeadingZeroes(uint256 x) public pure {
-        uint256 result = Bytes.clz(x);
-        assertLe(result, 32); // [0, 32]
-
-        if (x != 0) {
-            uint256 firstNonZeroBytePos = 32 - result - 1;
-            uint256 byteValue = (x >> (firstNonZeroBytePos * 8)) & 0xff;
-            assertNotEq(byteValue, 0);
-
-            // x != 0 implies result < 32
-            // most significant byte should be non-zero
-            uint256 msbValue = (x >> (248 - result * 8)) & 0xff;
-            assertNotEq(msbValue, 0);
-        }
-    }
-
     // REVERSE BITS
     function testSymbolicReverseBytes32(bytes32 value) public pure {
         assertEq(Bytes.reverseBytes32(Bytes.reverseBytes32(value)), value);
