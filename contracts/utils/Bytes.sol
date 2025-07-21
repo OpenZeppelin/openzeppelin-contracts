@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.2.0) (utils/Bytes.sol)
+// OpenZeppelin Contracts (last updated v5.4.0) (utils/Bytes.sol)
 
 pragma solidity ^0.8.24;
 
@@ -58,8 +58,7 @@ library Bytes {
     function lastIndexOf(bytes memory buffer, bytes1 s, uint256 pos) internal pure returns (uint256) {
         unchecked {
             uint256 length = buffer.length;
-            // NOTE here we cannot do `i = Math.min(pos + 1, length)` because `pos + 1` could overflow
-            for (uint256 i = Math.min(pos, length - 1) + 1; i > 0; --i) {
+            for (uint256 i = Math.min(Math.saturatingAdd(pos, 1), length); i > 0; --i) {
                 if (bytes1(_unsafeReadBytesOffset(buffer, i - 1)) == s) {
                     return i - 1;
                 }
@@ -152,6 +151,13 @@ library Bytes {
     }
 
     /*
+     * @dev Returns true if the two byte buffers are equal.
+     */
+    function equal(bytes memory a, bytes memory b) internal pure returns (bool) {
+        return a.length == b.length && keccak256(a) == keccak256(b);
+    }
+
+    /**
      * @dev Reverses the byte order of a bytes32 value, converting between little-endian and big-endian.
      * Inspired in https://graphics.stanford.edu/~seander/bithacks.html#ReverseParallel[Reverse Parallel]
      */
