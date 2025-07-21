@@ -141,38 +141,6 @@ describe('Bytes', function () {
     });
   });
 
-  describe('equal', function () {
-    it('identical arrays', async function () {
-      await expect(this.mock.$equal(lorem, lorem)).to.eventually.be.true;
-    });
-
-    it('same content', async function () {
-      const copy = new Uint8Array(lorem);
-      await expect(this.mock.$equal(lorem, copy)).to.eventually.be.true;
-    });
-
-    it('different content', async function () {
-      const different = ethers.toUtf8Bytes('Different content');
-      await expect(this.mock.$equal(lorem, different)).to.eventually.be.false;
-    });
-
-    it('different lengths', async function () {
-      const shorter = lorem.slice(0, 10);
-      await expect(this.mock.$equal(lorem, shorter)).to.eventually.be.false;
-    });
-
-    it('empty arrays', async function () {
-      const empty1 = new Uint8Array(0);
-      const empty2 = new Uint8Array(0);
-      await expect(this.mock.$equal(empty1, empty2)).to.eventually.be.true;
-    });
-
-    it('one empty one not', async function () {
-      const empty = new Uint8Array(0);
-      await expect(this.mock.$equal(lorem, empty)).to.eventually.be.false;
-    });
-  });
-
   describe('clz bytes', function () {
     it('empty buffer', async function () {
       await expect(this.mock['$clz(bytes)']('0x')).to.eventually.equal(0);
@@ -223,6 +191,38 @@ describe('Bytes', function () {
       await expect(this.mock['$clz(bytes)']('0x' + '00'.repeat(32) + '01' + '00'.repeat(31))).to.eventually.equal(32);
       await expect(this.mock['$clz(bytes)']('0x' + '00'.repeat(48) + '01' + '00'.repeat(47))).to.eventually.equal(48);
       await expect(this.mock['$clz(bytes)']('0x' + '00'.repeat(64) + '01' + '00'.repeat(63))).to.eventually.equal(64);
+    });
+  });
+
+  describe('equal', function () {
+    it('identical buffers', async function () {
+      await expect(this.mock.$equal(lorem, lorem)).to.eventually.be.true;
+    });
+
+    it('same content', async function () {
+      const copy = new Uint8Array(lorem);
+      await expect(this.mock.$equal(lorem, copy)).to.eventually.be.true;
+    });
+
+    it('different content', async function () {
+      const different = ethers.toUtf8Bytes('Different content');
+      await expect(this.mock.$equal(lorem, different)).to.eventually.be.false;
+    });
+
+    it('different lengths', async function () {
+      const shorter = lorem.slice(0, 10);
+      await expect(this.mock.$equal(lorem, shorter)).to.eventually.be.false;
+    });
+
+    it('empty buffers', async function () {
+      const empty1 = new Uint8Array(0);
+      const empty2 = new Uint8Array(0);
+      await expect(this.mock.$equal(empty1, empty2)).to.eventually.be.true;
+    });
+
+    it('one empty one not', async function () {
+      const empty = new Uint8Array(0);
+      await expect(this.mock.$equal(lorem, empty)).to.eventually.be.false;
     });
   });
 

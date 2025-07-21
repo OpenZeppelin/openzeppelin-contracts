@@ -109,13 +109,6 @@ library Bytes {
     }
 
     /**
-     * @dev Returns true if the two byte buffers are equal.
-     */
-    function equal(bytes memory a, bytes memory b) internal pure returns (bool) {
-        return a.length == b.length && keccak256(a) == keccak256(b);
-    }
-
-    /**
      * @dev Moves the content of `buffer`, from `start` (included) to the end of `buffer` to the start of that buffer.
      *
      * NOTE: This function modifies the provided buffer in place. If you need to preserve the original buffer, use {slice} instead
@@ -143,6 +136,13 @@ library Bytes {
         }
 
         return buffer;
+    }
+
+    /**
+     * @dev Returns true if the two byte buffers are equal.
+     */
+    function equal(bytes memory a, bytes memory b) internal pure returns (bool) {
+        return a.length == b.length && keccak256(a) == keccak256(b);
     }
 
     /**
