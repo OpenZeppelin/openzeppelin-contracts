@@ -209,6 +209,47 @@ contract BytesTest is Test {
         assertEq(Bytes.reverseBytes2(_dirtyBytes2(Bytes.reverseBytes2(value))), value);
     }
 
+    // CLZ (Count Leading Zeros)
+    function testClz(bytes memory buffer) public pure {
+        uint256 result = Bytes.clz(buffer);
+
+        // Result should never exceed buffer length
+        assertLe(result, buffer.length);
+
+        if (buffer.length == 0) {
+            // Empty buffer should return 0
+            assertEq(result, 0);
+        } else if (result == buffer.length) {
+            // If result equals buffer length, all bytes must be zero
+            for (uint256 i = 0; i < buffer.length; ++i) {
+                assertEq(buffer[i], 0);
+            }
+        } else {
+            // If result < buffer.length, byte at result position must be non-zero
+            assertNotEq(buffer[result], 0);
+
+            // All bytes before result position must be zero
+            for (uint256 i = 0; i < result; ++i) {
+                assertEq(buffer[i], 0);
+            }
+        }
+    }
+
+    function testClzConsistentWithByteByByteCount(bytes memory buffer) public pure {
+        uint256 result = Bytes.clz(buffer);
+
+        // Manually count leading zeros byte by byte
+        uint256 manualCount = 0;
+        for (uint256 i = 0; i < buffer.length; ++i) {
+            if (buffer[i] != 0) {
+                break;
+            }
+            manualCount++;
+        }
+
+        assertEq(result, manualCount);
+    }
+
     // Helpers
     function _dirtyBytes16(bytes16 value) private pure returns (bytes16 dirty) {
         assembly ("memory-safe") {

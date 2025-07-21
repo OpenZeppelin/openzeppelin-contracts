@@ -198,6 +198,32 @@ library Bytes {
     }
 
     /**
+     * @dev Counts the number of leading zeros in a bytes array. Returns `buffer.length`
+     * if the buffer is all zeros.
+     */
+    function clz(bytes memory buffer) internal pure returns (uint256) {
+        for (uint256 i = 0; i < buffer.length; i += 32) {
+            uint256 value = uint256(_unsafeReadBytesOffset(buffer, i));
+            unchecked {
+                // Mask out bytes beyond buffer length
+                // left is buffer.length at most, can't overflow at realistic size
+                uint256 left = buffer.length - i;
+                if (left < 32) {
+                    // left is less than 32, can't overflow
+                    uint256 shift = (32 - left) * 8;
+                    value = (value >> shift) << shift; // Clear the lower bits for the last iteration
+                }
+            }
+            if (value != 0) {
+                uint256 leadingZeros = Math.clz(value);
+                return Math.min(i + leadingZeros, buffer.length);
+            }
+        }
+
+        return buffer.length;
+    }
+
+    /**
      * @dev Reads a bytes32 from a bytes array without bounds checking.
      *
      * NOTE: making this function internal would mean it could be used with memory unsafe offset, and marking the

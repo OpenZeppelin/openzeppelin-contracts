@@ -173,36 +173,56 @@ describe('Bytes', function () {
     });
   });
 
-  describe('clz', function () {
-    it('zero value', async function () {
-      await expect(this.mock.$clz(0)).to.eventually.equal(32);
+  describe('clz bytes', function () {
+    it('empty buffer', async function () {
+      await expect(this.mock['$clz(bytes)']('0x')).to.eventually.equal(0);
     });
 
-    it('small values', async function () {
-      await expect(this.mock.$clz(1)).to.eventually.equal(31);
-      await expect(this.mock.$clz(255)).to.eventually.equal(31);
+    it('single zero byte', async function () {
+      await expect(this.mock['$clz(bytes)']('0x00')).to.eventually.equal(1);
     });
 
-    it('larger values', async function () {
-      await expect(this.mock.$clz(256)).to.eventually.equal(30);
-      await expect(this.mock.$clz(0xff00)).to.eventually.equal(30);
-      await expect(this.mock.$clz(0x10000)).to.eventually.equal(29);
+    it('single non-zero byte', async function () {
+      await expect(this.mock['$clz(bytes)']('0x01')).to.eventually.equal(0);
+      await expect(this.mock['$clz(bytes)']('0xff')).to.eventually.equal(0);
     });
 
-    it('max value', async function () {
-      await expect(this.mock.$clz(ethers.MaxUint256)).to.eventually.equal(0);
-    });
-
-    it('specific patterns', async function () {
+    it('multiple leading zeros', async function () {
+      await expect(this.mock['$clz(bytes)']('0x0000000001')).to.eventually.equal(4);
       await expect(
-        this.mock.$clz('0x0000000000000000000000000000000000000000000000000000000000000100'),
-      ).to.eventually.equal(30);
+        this.mock['$clz(bytes)']('0x0000000000000000000000000000000000000000000000000000000000000001'),
+      ).to.eventually.equal(31);
+    });
+
+    it('all zeros of various lengths', async function () {
+      await expect(this.mock['$clz(bytes)']('0x00000000')).to.eventually.equal(4);
       await expect(
-        this.mock.$clz('0x0000000000000000000000000000000000000000000000000000000000010000'),
-      ).to.eventually.equal(29);
-      await expect(
-        this.mock.$clz('0x0000000000000000000000000000000000000000000000000000000001000000'),
-      ).to.eventually.equal(28);
+        this.mock['$clz(bytes)']('0x0000000000000000000000000000000000000000000000000000000000000000'),
+      ).to.eventually.equal(32);
+
+      // Complete chunks
+      await expect(this.mock['$clz(bytes)']('0x' + '00'.repeat(32) + '01')).to.eventually.equal(32);
+      await expect(this.mock['$clz(bytes)']('0x' + '00'.repeat(64) + '01')).to.eventually.equal(64);
+
+      // Partial last chunk
+      await expect(this.mock['$clz(bytes)']('0x' + '00'.repeat(33) + '01')).to.eventually.equal(33);
+      await expect(this.mock['$clz(bytes)']('0x' + '00'.repeat(34) + '01')).to.eventually.equal(34);
+      await expect(this.mock['$clz(bytes)']('0x' + '00'.repeat(40) + '01' + '00'.repeat(9))).to.eventually.equal(40);
+      await expect(this.mock['$clz(bytes)']('0x' + '00'.repeat(50))).to.eventually.equal(50);
+
+      // First byte of each chunk non-zero
+      await expect(this.mock['$clz(bytes)']('0x01' + '00'.repeat(31))).to.eventually.equal(0);
+      await expect(this.mock['$clz(bytes)']('0x' + '00'.repeat(32) + '01' + '00'.repeat(31))).to.eventually.equal(32);
+
+      // Last byte of each chunk non-zero
+      await expect(this.mock['$clz(bytes)']('0x' + '00'.repeat(31) + '01')).to.eventually.equal(31);
+      await expect(this.mock['$clz(bytes)']('0x' + '00'.repeat(63) + '01')).to.eventually.equal(63);
+
+      // Middle byte of each chunk non-zero
+      await expect(this.mock['$clz(bytes)']('0x' + '00'.repeat(16) + '01' + '00'.repeat(15))).to.eventually.equal(16);
+      await expect(this.mock['$clz(bytes)']('0x' + '00'.repeat(32) + '01' + '00'.repeat(31))).to.eventually.equal(32);
+      await expect(this.mock['$clz(bytes)']('0x' + '00'.repeat(48) + '01' + '00'.repeat(47))).to.eventually.equal(48);
+      await expect(this.mock['$clz(bytes)']('0x' + '00'.repeat(64) + '01' + '00'.repeat(63))).to.eventually.equal(64);
     });
   });
 

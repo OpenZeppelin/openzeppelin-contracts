@@ -710,4 +710,37 @@ describe('Math', function () {
       });
     });
   });
+
+  describe('clz', function () {
+    it('zero value', async function () {
+      await expect(this.mock.$clz(0)).to.eventually.equal(32);
+    });
+
+    it('small values', async function () {
+      await expect(this.mock.$clz(1)).to.eventually.equal(31);
+      await expect(this.mock.$clz(255)).to.eventually.equal(31);
+    });
+
+    it('larger values', async function () {
+      await expect(this.mock.$clz(256)).to.eventually.equal(30);
+      await expect(this.mock.$clz(0xff00)).to.eventually.equal(30);
+      await expect(this.mock.$clz(0x10000)).to.eventually.equal(29);
+    });
+
+    it('max value', async function () {
+      await expect(this.mock.$clz(ethers.MaxUint256)).to.eventually.equal(0);
+    });
+
+    it('specific patterns', async function () {
+      await expect(
+        this.mock.$clz('0x0000000000000000000000000000000000000000000000000000000000000100'),
+      ).to.eventually.equal(30);
+      await expect(
+        this.mock.$clz('0x0000000000000000000000000000000000000000000000000000000000010000'),
+      ).to.eventually.equal(29);
+      await expect(
+        this.mock.$clz('0x0000000000000000000000000000000000000000000000000000000001000000'),
+      ).to.eventually.equal(28);
+    });
+  });
 });
