@@ -9,10 +9,6 @@ import {Bytes} from "@openzeppelin/contracts/utils/Bytes.sol";
 contract BytesTest is Test {
     using Bytes for bytes;
 
-    function testSymbolicEqual(bytes memory a) public pure {
-        assertTrue(Bytes.equal(a, a));
-    }
-
     // INDEX OF
     function testIndexOf(bytes memory buffer, bytes1 s) public pure {
         uint256 result = Bytes.indexOf(buffer, s);
@@ -153,31 +149,6 @@ contract BytesTest is Test {
         for (uint256 i = 0; i < result.length; ++i) {
             assertEq(result[i], originalBuffer[sanitizedStart + i]);
         }
-    }
-
-    function testIndexOf(bytes memory buffer, bytes1 s) public pure {
-        testIndexOf(buffer, s, 0);
-    }
-
-    function testIndexOf(bytes memory buffer, bytes1 s, uint256 pos) public pure {
-        uint256 result = Bytes.indexOf(buffer, s, pos);
-
-        // Should not be found before result
-        for (uint256 i = pos; result != type(uint256).max && i < result; i++) assertNotEq(buffer[i], s);
-        if (result != type(uint256).max) assertEq(buffer[result], s);
-    }
-
-    function testLastIndexOf(bytes memory buffer, bytes1 s) public pure {
-        testLastIndexOf(buffer, s, 0);
-    }
-
-    function testLastIndexOf(bytes memory buffer, bytes1 s, uint256 pos) public pure {
-        pos = bound(pos, 0, buffer.length);
-        uint256 result = Bytes.lastIndexOf(buffer, s, pos);
-
-        // Should not be found before result
-        for (uint256 i = pos; result != type(uint256).max && i < result; i++) assertNotEq(buffer[i], s);
-        if (result != type(uint256).max) assertEq(buffer[result], s);
     }
 
     function testNibbles(bytes memory value) public pure {

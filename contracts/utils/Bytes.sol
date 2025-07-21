@@ -150,13 +150,6 @@ library Bytes {
         return buffer;
     }
 
-    /*
-     * @dev Returns true if the two byte buffers are equal.
-     */
-    function equal(bytes memory a, bytes memory b) internal pure returns (bool) {
-        return a.length == b.length && keccak256(a) == keccak256(b);
-    }
-
     /**
      * @dev Reverses the byte order of a bytes32 value, converting between little-endian and big-endian.
      * Inspired in https://graphics.stanford.edu/~seander/bithacks.html#ReverseParallel[Reverse Parallel]
