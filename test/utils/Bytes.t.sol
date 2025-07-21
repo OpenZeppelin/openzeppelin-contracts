@@ -9,6 +9,10 @@ import {Bytes} from "@openzeppelin/contracts/utils/Bytes.sol";
 contract BytesTest is Test {
     using Bytes for bytes;
 
+    function testSymbolicEqual(bytes memory a) public pure {
+        assertTrue(Bytes.equal(a, a));
+    }
+
     // INDEX OF
     function testIndexOf(bytes memory buffer, bytes1 s) public pure {
         uint256 result = Bytes.indexOf(buffer, s);
@@ -162,10 +166,6 @@ contract BytesTest is Test {
             assertEq(highNibble, originalByte & 0xf0);
             assertEq(lowNibble, originalByte & 0x0f);
         }
-    }
-
-    function testSymbolicEqual(bytes memory a, bytes memory b) public pure {
-        assertEq(Bytes.equal(a, b), Bytes.equal(a, b));
     }
 
     // REVERSE BITS
