@@ -748,9 +748,9 @@ library Math {
     }
 
     /**
-     * @dev Counts the number of leading zeros in a uint256.
+     * @dev Counts the number of leading zeros bits in a uint256.
      */
     function clz(uint256 x) internal pure returns (uint256) {
-        return ternary(x == 0, 32, 31 - log256(x));
+        return ternary(x == 0, 256, 255 - log2(x));
     }
 }

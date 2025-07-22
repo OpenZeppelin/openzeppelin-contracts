@@ -206,24 +206,12 @@ library Bytes {
      */
     function clz(bytes memory buffer) internal pure returns (uint256) {
         for (uint256 i = 0; i < buffer.length; i += 32) {
-            uint256 value = uint256(_unsafeReadBytesOffset(buffer, i));
-            unchecked {
-                // Mask out bytes beyond buffer length
-                // left is buffer.length at most, can't overflow at realistic size
-                uint256 left = buffer.length - i;
-                if (left < 32) {
-                    // left is less than 32, can't overflow
-                    uint256 shift = (32 - left) * 8;
-                    value = (value >> shift) << shift; // Clear the lower bits for the last iteration
-                }
-            }
-            if (value != 0) {
-                uint256 leadingZeros = Math.clz(value);
-                return Math.min(i + leadingZeros, buffer.length);
+            bytes32 chunk = _unsafeReadBytesOffset(buffer, i);
+            if (chunk != bytes32(0)) {
+                return Math.min(8 * i + Math.clz(uint256(chunk)), 8 * buffer.length);
             }
         }
-
-        return buffer.length;
+        return 8 * buffer.length;
     }
 
     /**
