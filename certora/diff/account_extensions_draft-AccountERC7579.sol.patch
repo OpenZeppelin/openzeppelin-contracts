@@ -1,5 +1,16 @@
---- account/extensions/draft-AccountERC7579.sol	2025-07-07 12:07:22.042739166 +0200
-+++ account/extensions/draft-AccountERC7579.sol	2025-07-08 18:43:59.413714889 +0200
+--- account/extensions/draft-AccountERC7579.sol	2025-07-22 11:18:42.944504471 +0200
++++ account/extensions/draft-AccountERC7579.sol	2025-07-22 13:57:03.670277084 +0200
+@@ -60,8 +60,8 @@
+     using EnumerableSet for *;
+     using Packing for bytes32;
+ 
+-    EnumerableSet.AddressSet private _validators;
+-    EnumerableSet.AddressSet private _executors;
++    EnumerableSet.AddressSet internal _validators; // private → internal for FV
++    EnumerableSet.AddressSet internal _executors; // private → internal for FV
+     mapping(bytes4 selector => address) private _fallbacks;
+ 
+     /// @dev The account's {fallback} was called with a selector that doesn't have an installed handler.
 @@ -308,8 +308,9 @@
       * the ERC-2771 format.
       */
