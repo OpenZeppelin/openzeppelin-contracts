@@ -3,18 +3,22 @@ const {
   AbstractSigner,
   Signature,
   TypedDataEncoder,
+  ZeroHash,
   assert,
   assertArgument,
   concat,
   dataLength,
   decodeBase64,
+  encodeBase64,
   getBytes,
   getBytesCopy,
   hashMessage,
   hexlify,
-  sha256,
-  toBeHex,
   keccak256,
+  sha256,
+  solidityPacked,
+  toBeHex,
+  toUtf8Bytes,
 } = require('ethers');
 const { secp256r1 } = require('@noble/curves/p256');
 const { generateKeyPairSync, privateEncrypt } = require('crypto');
@@ -146,6 +150,37 @@ class RSASHA256SigningKey extends RSASigningKey {
   }
 }
 
+class WebAuthnSigningKey extends P256SigningKey {
+  sign(digest /*: BytesLike*/) /*: { serialized: string } */ {
+    assertArgument(dataLength(digest) === 32, 'invalid digest length', 'digest', digest);
+
+    const clientDataJSON = JSON.stringify({
+      type: 'webauthn.get',
+      challenge: encodeBase64(digest).replaceAll('+', '-').replaceAll('/', '_').replaceAll('=', ''),
+    });
+
+    // Flags 0x05 = AUTH_DATA_FLAGS_UP | AUTH_DATA_FLAGS_UV
+    const authenticatorData = solidityPacked(['bytes32', 'bytes1', 'bytes4'], [ZeroHash, '0x05', '0x00000000']);
+
+    // Regular P256 signature
+    const { r, s } = super.sign(sha256(concat([authenticatorData, sha256(toUtf8Bytes(clientDataJSON))])));
+
+    const serialized = AbiCoder.defaultAbiCoder().encode(
+      ['bytes32', 'bytes32', 'uint256', 'uint256', 'bytes', 'string'],
+      [
+        r,
+        s,
+        clientDataJSON.indexOf('"challenge"'),
+        clientDataJSON.indexOf('"type"'),
+        authenticatorData,
+        clientDataJSON,
+      ],
+    );
+
+    return { serialized };
+  }
+}
+
 class MultiERC7913SigningKey {
   // this is a sorted array of objects that contain {signer, weight}
   #signers;
@@ -181,4 +216,11 @@ class MultiERC7913SigningKey {
   }
 }
 
-module.exports = { NonNativeSigner, P256SigningKey, RSASigningKey, RSASHA256SigningKey, MultiERC7913SigningKey };
+module.exports = {
+  NonNativeSigner,
+  P256SigningKey,
+  RSASigningKey,
+  RSASHA256SigningKey,
+  WebAuthnSigningKey,
+  MultiERC7913SigningKey,
+};

@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.20;
 
-import {RSA} from "../../../utils/cryptography/RSA.sol";
+import {RSA} from "../RSA.sol";
 import {IERC7913SignatureVerifier} from "../../../interfaces/IERC7913.sol";
 
 /**
