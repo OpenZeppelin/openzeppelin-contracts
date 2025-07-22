@@ -206,11 +206,11 @@ rule uninstallModuleRule(env e, uint256 moduleTypeId, address module, bytes init
 │                                                     CALL OPCODE                                                     │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-ghost bool    call;
-ghost address call_target;
-ghost uint32  call_selector;
-ghost uint256 call_value;
-ghost uint256 call_argsLength;
+persistent ghost bool    call;
+persistent ghost address call_target;
+persistent ghost uint32  call_selector;
+persistent ghost uint256 call_value;
+persistent ghost uint256 call_argsLength;
 
 hook CALL(uint256 gas, address target, uint256 value, uint256 argsOffset, uint256 argsLength, uint256 retOffset, uint256 retLength) uint256 rc {
     if (executingContract == currentContract) {
@@ -303,10 +303,10 @@ rule callUninstallModule(env e, uint256 moduleTypeId, address module, bytes deIn
 │                                                 DELEGATECALL OPCODE                                                 │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-ghost bool    delegatecall;
-ghost address delegatecall_target;
-ghost uint32  delegatecall_selector;
-ghost uint256 delegatecall_argsLength;
+persistent ghost bool    delegatecall;
+persistent ghost address delegatecall_target;
+persistent ghost uint32  delegatecall_selector;
+persistent ghost uint256 delegatecall_argsLength;
 
 hook DELEGATECALL(uint256 gas, address target, uint256 argsOffset, uint256 argsLength, uint256 retOffset, uint256 retLength) uint256 rc {
     if (executingContract == currentContract) {
