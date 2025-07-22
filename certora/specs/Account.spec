@@ -180,3 +180,20 @@ rule delegatecallOpcodeRule(
         )
     );
 }
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                      ERC-4337                                                       │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule validateUserOpPayment(env e){
+    Account.PackedUserOperation userOp;
+    bytes32 userOpHash;
+    uint256 missingAccountFunds;
+
+    uint256 balanceBefore = nativeBalances[currentContract];
+    validateUserOp(e, userOp, userOpHash, missingAccountFunds);
+    uint256 balanceAfter = nativeBalances[currentContract];
+
+    assert balanceAfter >= balanceBefore - missingAccountFunds;
+}
