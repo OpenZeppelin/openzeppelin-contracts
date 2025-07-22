@@ -57,7 +57,7 @@ library IndirectCall {
         // 0x001a | 11          | gt             | (cds>0x13) access
         // 0x001b | 16          | and            | (cds>0x13 && access)
         // 0x001c | 6022        | push1 0x22     | 0x22 (cds>0x13 && access)
-        // 0x001e | 57          | jumpi          | 0x22 (cds>0x13 && access)
+        // 0x001e | 57          | jumpi          |
         // 0x001f | 5f          | push0          | 0
         // 0x0020 | 5f          | push0          | 0 0
         // 0x0021 | fd          | revert         |
