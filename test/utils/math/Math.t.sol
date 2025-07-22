@@ -310,17 +310,20 @@ contract MathTest is Test {
 
     function testSymbolicCountLeadingZeroes(uint256 x) public pure {
         uint256 result = Math.clz(x);
-        assertLe(result, 32); // [0, 32]
 
-        if (x != 0) {
-            uint256 firstNonZeroBytePos = 32 - result - 1;
-            uint256 byteValue = (x >> (firstNonZeroBytePos * 8)) & 0xff;
-            assertNotEq(byteValue, 0);
+        if (x == 0) {
+            assertEq(result, 256);
+        } else {
+            // result in [0, 255]
+            assertLe(result, 255);
 
-            // x != 0 implies result < 32
-            // most significant byte should be non-zero
-            uint256 msbValue = (x >> (248 - result * 8)) & 0xff;
-            assertNotEq(msbValue, 0);
+            // bit at position offset must be non zero
+            uint256 singleBitMask = uint256(1) << (255 - result);
+            assertEq(x & singleBitMask, singleBitMask);
+
+            // all bits before offset must be zero
+            uint256 multiBitsMask = type(uint256).max << (256 - result);
+            assertEq(x & multiBitsMask, 0);
         }
     }
 
