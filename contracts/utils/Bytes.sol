@@ -103,7 +103,10 @@ library Bytes {
         uint256 length = value.length;
         bytes memory nibbles_ = new bytes(length * 2);
         for (uint256 i = 0; i < length; i++) {
-            (nibbles_[i * 2], nibbles_[i * 2 + 1]) = (value[i] & 0xf0, value[i] & 0x0f);
+            unchecked {
+                // Bounded to the array length, can't overflow realistically
+                (nibbles_[i * 2], nibbles_[i * 2 + 1]) = (value[i] & 0xf0, value[i] & 0x0f);
+            }
         }
         return nibbles_;
     }
