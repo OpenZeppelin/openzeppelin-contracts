@@ -117,5 +117,11 @@ describe('ERC721URIStorage', function () {
       await this.token.$_mint(this.owner, tokenId);
       expect(await this.token.tokenURI(tokenId)).to.equal(sampleUri);
     });
+
+    it('returns the pure base URI', async function () {
+      await this.token.setBaseURI(baseURI);
+
+      expect(await this.token.$_baseURI()).to.be.equal(baseURI);
+    });
   });
 });
