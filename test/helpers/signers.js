@@ -159,19 +159,17 @@ class WebAuthnSigningKey extends P256SigningKey {
       ethers.sha256(ethers.concat([authenticatorData, ethers.sha256(ethers.toUtf8Bytes(clientDataJSON))])),
     );
 
-    const serialized = ethers.AbiCoder.defaultethers
-      .AbiCoder()
-      .encode(
-        ['bytes32', 'bytes32', 'uint256', 'uint256', 'bytes', 'string'],
-        [
-          r,
-          s,
-          clientDataJSON.indexOf('"challenge"'),
-          clientDataJSON.indexOf('"type"'),
-          authenticatorData,
-          clientDataJSON,
-        ],
-      );
+    const serialized = ethers.AbiCoder.defaultAbiCoder().encode(
+      ['bytes32', 'bytes32', 'uint256', 'uint256', 'bytes', 'string'],
+      [
+        r,
+        s,
+        clientDataJSON.indexOf('"challenge"'),
+        clientDataJSON.indexOf('"type"'),
+        authenticatorData,
+        clientDataJSON,
+      ],
+    );
 
     return { serialized };
   }
@@ -203,15 +201,13 @@ class MultiERC7913SigningKey {
     ethers.assertArgument(ethers.dataLength(digest) === 32, 'invalid digest length', 'digest', digest);
 
     return {
-      serialized: ethers.AbiCoder.defaultethers
-        .AbiCoder()
-        .encode(
-          ['bytes[]', 'bytes[]'],
-          [
-            this.#signers.map(signer => signer.bytes ?? signer.address),
-            this.#signers.map(signer => signer.signingKey.sign(digest).serialized),
-          ],
-        ),
+      serialized: ethers.AbiCoder.defaultAbiCoder().encode(
+        ['bytes[]', 'bytes[]'],
+        [
+          this.#signers.map(signer => signer.bytes ?? signer.address),
+          this.#signers.map(signer => signer.signingKey.sign(digest).serialized),
+        ],
+      ),
     };
   }
 }
