@@ -248,14 +248,16 @@ rule callOpcodeRule(
             f.selector == sig:executeFromExecutor(bytes32,bytes).selector &&
             isExecutionModule
         ) || (
-            // Can only call a module without any value. This is verified by `callInstallModule`.
+            // Can only call a module without any value. Target is verified by `callInstallModule`.
             f.selector == sig:installModule(uint256,address,bytes).selector &&
             isEntryPointOrSelf &&
+            call_selector == 0x6d61fe70 && // onInstall(bytes)
             call_value == 0
         ) || (
-            // Can only call a module without any value. This is verified by `callInstallModule`.
+            // Can only call a module without any value. Target is verified by `callInstallModule`.
             f.selector == sig:uninstallModule(uint256,address,bytes).selector &&
             isEntryPointOrSelf &&
+            call_selector == 0x8a91b0e3 && // onUninstall(bytes)
             call_value == 0
         ) || (
             // Can send payment to the entrypoint or perform an external signature verification.
@@ -270,6 +272,7 @@ rule callOpcodeRule(
                 ) || (
                     // isValidSignatureWithSender (target is as validation module)
                     isModuleInstalled(1, call_target, context) &&
+                    call_selector == 0x97003203 && // validateUserOp(Account.PackedUserOperation,bytes32)
                     call_value == 0
                 )
             )
@@ -285,17 +288,19 @@ rule callOpcodeRule(
 rule callInstallModule(env e, uint256 moduleTypeId, address module, bytes initData) {
     installModule(e, moduleTypeId, module, initData);
 
-    assert call        == true;
-    assert call_target == module;
-    assert call_value  == 0;
+    assert call          == true;
+    assert call_target   == module;
+    assert call_selector == 0x6d61fe70; // onInstall(bytes)
+    assert call_value    == 0;
 }
 
 rule callUninstallModule(env e, uint256 moduleTypeId, address module, bytes deInitData) {
     uninstallModule(e, moduleTypeId, module, deInitData);
 
-    assert call        == true;
-    assert call_target == module;
-    assert call_value  == 0;
+    assert call          == true;
+    assert call_target   == module;
+    assert call_selector == 0x8a91b0e3; // onUninstall(bytes)
+    assert call_value    == 0;
 }
 
 /*
