@@ -18,31 +18,75 @@ methods {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Helpers - Proven in EnumerableSet.specs                                                                             │
+│                                Storage consistency - Copied from EnumerableSet.specs                                │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 definition moduleLengthSanity() returns bool =
     _validatorLength() < max_uint256 && _executorLength() < max_uint256;
 
-definition validatorConsistencyKey(address module) returns bool =
-    _validatorContains(module) => (
+invariant validatorAtUniquenessInvariant(uint256 index1, uint256 index2)
+    index1 == index2 <=> _validatorAt(index1) == _validatorAt(index2)
+    filtered { f -> f.selector != sig:execute(bytes32,bytes).selector  && f.selector != sig:executeFromExecutor(bytes32,bytes).selector }
+    {
+        preserved uninstallModule(uint256 moduleTypeId, address module, bytes deInitData) with (env e) {
+            requireInvariant validatorAtUniquenessInvariant(index1, require_uint256(_validatorLength() - 1));
+            requireInvariant validatorAtUniquenessInvariant(index2, require_uint256(_validatorLength() - 1));
+        }
+    }
+
+invariant validatorConsistencyKeyInvariant(address module)
+    _validatorContains(module) <=> (
         _validatorPositionOf(module) > 0 &&
         _validatorPositionOf(module) <= _validatorLength() &&
         _validatorAt(require_uint256(_validatorPositionOf(module) - 1)) == module
-    );
+    )
+    filtered { f -> f.selector != sig:execute(bytes32,bytes).selector  && f.selector != sig:executeFromExecutor(bytes32,bytes).selector }
+    {
+        preserved uninstallModule(uint256 moduleTypeId, address otherModule, bytes deInitData) with (env e) {
+            requireInvariant validatorConsistencyKeyInvariant(otherModule);
+            requireInvariant validatorAtUniquenessInvariant(
+                require_uint256(_validatorPositionOf(module) - 1),
+                require_uint256(_validatorPositionOf(otherModule) - 1)
+            );
+        }
+    }
 
-definition executorConsistencyKey(address module) returns bool =
-    _executorContains(module) => (
+invariant executorAtUniquenessInvariant(uint256 index1, uint256 index2)
+    index1 == index2 <=> _executorAt(index1) == _executorAt(index2)
+    filtered { f -> f.selector != sig:execute(bytes32,bytes).selector  && f.selector != sig:executeFromExecutor(bytes32,bytes).selector }
+    {
+        preserved uninstallModule(uint256 moduleTypeId, address module, bytes deInitData) with (env e) {
+            requireInvariant executorAtUniquenessInvariant(index1, require_uint256(_executorLength() - 1));
+            requireInvariant executorAtUniquenessInvariant(index2, require_uint256(_executorLength() - 1));
+        }
+    }
+
+invariant executorConsistencyKeyInvariant(address module)
+    _executorContains(module) <=> (
         _executorPositionOf(module) > 0 &&
         _executorPositionOf(module) <= _executorLength() &&
         _executorAt(require_uint256(_executorPositionOf(module) - 1)) == module
-    );
+    )
+    filtered { f -> f.selector != sig:execute(bytes32,bytes).selector  && f.selector != sig:executeFromExecutor(bytes32,bytes).selector }
+    {
+        preserved uninstallModule(uint256 moduleTypeId, address otherModule, bytes deInitData) with (env e) {
+            requireInvariant executorConsistencyKeyInvariant(otherModule);
+            requireInvariant executorAtUniquenessInvariant(
+                require_uint256(_executorPositionOf(module) - 1),
+                require_uint256(_executorPositionOf(otherModule) - 1)
+            );
+        }
+    }
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │                                                  Module management                                                  │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
+// This guarantees that at most one fallback module is active for a given initData (i.e. selector)
+invariant fallbackModule(env e, address module, bytes initData)
+    isModuleInstalled(3, module, initData) <=> getFallbackHandler(getDataSelector(initData)) == module;
+
 rule moduleManagementRule(
     env e,
     method f,
@@ -81,59 +125,24 @@ rule moduleManagementRule(
     );
 }
 
-rule fallbackHandlerChangeRule(
-    env e,
-    method f,
-    calldataarg args,
-    bytes4 selector
-) filtered { f -> !f.isView } {
-    bytes context;
-    require context.length == 0;
-
-    bool isEntryPoint = e.msg.sender == entryPoint();
-    bool isEntryPointOrSelf = e.msg.sender == entryPoint() || e.msg.sender == currentContract;
-    bool isExecutionModule = isModuleInstalled(2, e.msg.sender, context);
-
-    address handlerBefore = getFallbackHandler(selector);
-    f(e, args);
-    address handlerAfter = getFallbackHandler(selector);
-
-    assert (
-        handlerBefore != handlerAfter
-    ) => (
-        (
-            f.selector == sig:execute(bytes32,bytes).selector  &&
-            isEntryPointOrSelf
-        ) || (
-            f.selector == sig:executeFromExecutor(bytes32,bytes).selector &&
-            isExecutionModule
-        ) || (
-            f.selector == sig:installModule(uint256,address,bytes).selector &&
-            isEntryPointOrSelf
-        ) || (
-            f.selector == sig:uninstallModule(uint256,address,bytes).selector &&
-            isEntryPointOrSelf
-        )
-    );
-}
-
 rule installModuleRule(env e, uint256 moduleTypeId, address module, bytes initData) {
     uint256 otherModuleTypeId;
     address otherModule;
+    bytes otherInitData;
 
     require moduleLengthSanity();
-    require executorConsistencyKey(module);
-    require validatorConsistencyKey(module);
-    require executorConsistencyKey(otherModule);
-    require validatorConsistencyKey(otherModule);
+    requireInvariant executorConsistencyKeyInvariant(module);
+    requireInvariant validatorConsistencyKeyInvariant(module);
+    requireInvariant executorConsistencyKeyInvariant(otherModule);
+    requireInvariant validatorConsistencyKeyInvariant(otherModule);
 
     bool isModuleInstalledBefore = isModuleInstalled(moduleTypeId, module, initData);
-    bool isOtherModuleInstalledBefore = isModuleInstalled(otherModuleTypeId, otherModule, initData);
+    bool isOtherModuleInstalledBefore = isModuleInstalled(otherModuleTypeId, otherModule, otherInitData);
 
     installModule(e, moduleTypeId, module, initData);
 
     bool isModuleInstalledAfter = isModuleInstalled(moduleTypeId, module, initData);
-    bool isOtherModuleInstalledAfter = isModuleInstalled(otherModuleTypeId, otherModule, initData);
+    bool isOtherModuleInstalledAfter = isModuleInstalled(otherModuleTypeId, otherModule, otherInitData);
 
     // Module is installed correctly
     assert !isModuleInstalledBefore && isModuleInstalledAfter;
@@ -147,6 +156,7 @@ rule installModuleRule(env e, uint256 moduleTypeId, address module, bytes initDa
             // when a fallback module is installed, the 0 module is "removed" for that selector
             otherModuleTypeId == 3 && // fallback
             otherModule == 0 &&
+            getDataSelector(otherInitData) == getDataSelector(initData) &&
             isOtherModuleInstalledBefore &&
             !isOtherModuleInstalledAfter
         )
@@ -156,20 +166,21 @@ rule installModuleRule(env e, uint256 moduleTypeId, address module, bytes initDa
 rule uninstallModuleRule(env e, uint256 moduleTypeId, address module, bytes initData) {
     uint256 otherModuleTypeId;
     address otherModule;
+    bytes otherInitData;
 
     require moduleLengthSanity();
-    require executorConsistencyKey(module);
-    require validatorConsistencyKey(module);
-    require executorConsistencyKey(otherModule);
-    require validatorConsistencyKey(otherModule);
+    requireInvariant executorConsistencyKeyInvariant(module);
+    requireInvariant validatorConsistencyKeyInvariant(module);
+    requireInvariant executorConsistencyKeyInvariant(otherModule);
+    requireInvariant validatorConsistencyKeyInvariant(otherModule);
 
     bool isModuleInstalledBefore = isModuleInstalled(moduleTypeId, module, initData);
-    bool isOtherModuleInstalledBefore = isModuleInstalled(otherModuleTypeId, otherModule, initData);
+    bool isOtherModuleInstalledBefore = isModuleInstalled(otherModuleTypeId, otherModule, otherInitData);
 
     uninstallModule(e, moduleTypeId, module, initData);
 
     bool isModuleInstalledAfter = isModuleInstalled(moduleTypeId, module, initData);
-    bool isOtherModuleInstalledAfter = isModuleInstalled(otherModuleTypeId, otherModule, initData);
+    bool isOtherModuleInstalledAfter = isModuleInstalled(otherModuleTypeId, otherModule, otherInitData);
 
     // Module is installed correctly
     assert isModuleInstalledBefore && !isModuleInstalledAfter;
@@ -183,29 +194,11 @@ rule uninstallModuleRule(env e, uint256 moduleTypeId, address module, bytes init
             // when a fallback module is uninstalled, the 0 module is "added" for that selector
             otherModuleTypeId == 3 && // fallback
             otherModule == 0 &&
+            getDataSelector(otherInitData) == getDataSelector(initData) &&
             !isOtherModuleInstalledBefore &&
             isOtherModuleInstalledAfter
         )
     );
-}
-
-rule installFallbackModuleRule(env e, address module, bytes initData) {
-    bytes4 selector = getDataSelector(initData);
-    bytes4 otherSelector;
-
-    address handlerBefore = getFallbackHandler(selector);
-    address otherHandlerBefore = getFallbackHandler(otherSelector);
-
-    installModule(e, 3, module, initData);
-
-    address handlerAfter = getFallbackHandler(selector);
-    address otherHandlerAfter = getFallbackHandler(otherSelector);
-
-    // Handler is set correctly
-    assert handlerBefore == 0 && handlerAfter == module;
-
-    // No side effect to other selector's handles
-    assert otherHandlerBefore != otherHandlerAfter => selector == otherSelector;
 }
 
 /*
