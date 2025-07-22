@@ -201,7 +201,7 @@ library Bytes {
     }
 
     /**
-     * @dev Counts the number of leading zeros in a bytes array. Returns `buffer.length`
+     * @dev Counts the number of leading zeros in bits a bytes array. Returns `8 * buffer.length`
      * if the buffer is all zeros.
      */
     function clz(bytes memory buffer) internal pure returns (uint256) {
