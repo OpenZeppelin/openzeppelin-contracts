@@ -47,10 +47,10 @@ abstract contract GovernorTimelockControl is Governor {
             return currentState;
         }
 
-        bytes32 queueid = _timelockIds[proposalId];
-        if (_timelock.isOperationPending(queueid)) {
+        bytes32 queued = _timelockIds[proposalId];
+        if (_timelock.isOperationPending(queued)) {
             return ProposalState.Queued;
-        } else if (_timelock.isOperationDone(queueid)) {
+        } else if (_timelock.isOperationDone(queued)) {
             // This can happen if the proposal is executed directly on the timelock.
             return ProposalState.Executed;
         } else {
