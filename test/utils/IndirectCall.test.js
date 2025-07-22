@@ -1,18 +1,29 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+const { impersonate } = require('../helpers/account');
 
 async function fixture() {
-  const [admin, receiver] = await ethers.getSigners();
+  const [admin, receiver, other] = await ethers.getSigners();
 
   const mock = await ethers.deployContract('$IndirectCall');
   const computeRelayerAddress = (salt = ethers.ZeroHash) =>
-    ethers.getCreate2Address(mock.target, salt, '0x7bc0ea09c689dc0a6de3865d8789dae51a081efcf6569589ddae4b677df5dd3f');
+    ethers.getCreate2Address(
+      mock.target,
+      salt,
+      ethers.keccak256(
+        ethers.concat([
+          '0x5f604780600a5f3981f373',
+          mock.target,
+          '0x331460133611166022575f5ffd5b6014360360145f375f5f601436035f345f3560601c5af13d5f5f3e5f3d91604557fd5bf3',
+        ]),
+      ),
+    );
 
   const authority = await ethers.deployContract('$AccessManager', [admin]);
   const target = await ethers.deployContract('$AccessManagedTarget', [authority]);
 
-  return { mock, target, receiver, computeRelayerAddress };
+  return { mock, target, receiver, other, computeRelayerAddress };
 }
 
 describe('IndirectCall', function () {
@@ -80,18 +91,31 @@ describe('IndirectCall', function () {
       // deploy relayer
       await this.mock.$getRelayer();
 
+      // unauthorized caller
+      await expect(
+        this.other.sendTransaction({ to: this.relayer, data: '0x7859821024E633C5dC8a4FcF86fC52e7720Ce525' }),
+      ).to.be.revertedWithoutReason();
+    });
+
+    it('input format', async function () {
+      // deploy relayer
+      await this.mock.$getRelayer();
+
+      // impersonate mock to pass caller checks
+      const mockAsWallet = await impersonate(this.mock.target);
+
       // 20 bytes (address + empty data) - OK
       await expect(
-        this.mock.runner.sendTransaction({ to: this.relayer, data: '0x7859821024E633C5dC8a4FcF86fC52e7720Ce525' }),
+        mockAsWallet.sendTransaction({ to: this.relayer, data: '0x7859821024E633C5dC8a4FcF86fC52e7720Ce525' }),
       ).to.not.be.reverted;
 
       // 19 bytes (not enough for an address) - REVERT
       await expect(
-        this.mock.runner.sendTransaction({ to: this.relayer, data: '0x7859821024E633C5dC8a4FcF86fC52e7720Ce5' }),
+        mockAsWallet.sendTransaction({ to: this.relayer, data: '0x7859821024E633C5dC8a4FcF86fC52e7720Ce5' }),
       ).to.be.revertedWithoutReason();
 
       // 0 bytes (not enough for an address) - REVERT
-      await expect(this.mock.runner.sendTransaction({ to: this.relayer, data: '0x' })).to.be.revertedWithoutReason();
+      await expect(mockAsWallet.sendTransaction({ to: this.relayer, data: '0x' })).to.be.revertedWithoutReason();
     });
   });
 
@@ -163,18 +187,31 @@ describe('IndirectCall', function () {
       // deploy relayer
       await this.mock.$getRelayer(ethers.Typed.bytes32(this.salt));
 
+      // unauthorized caller
+      await expect(
+        this.other.sendTransaction({ to: this.relayer, data: '0x7859821024E633C5dC8a4FcF86fC52e7720Ce525' }),
+      ).to.be.revertedWithoutReason();
+    });
+
+    it('input format', async function () {
+      // deploy relayer
+      await this.mock.$getRelayer(ethers.Typed.bytes32(this.salt));
+
+      // impersonate mock to pass caller checks
+      const mockAsWallet = await impersonate(this.mock.target);
+
       // 20 bytes (address + empty data) - OK
       await expect(
-        this.mock.runner.sendTransaction({ to: this.relayer, data: '0x7859821024E633C5dC8a4FcF86fC52e7720Ce525' }),
+        mockAsWallet.sendTransaction({ to: this.relayer, data: '0x7859821024E633C5dC8a4FcF86fC52e7720Ce525' }),
       ).to.not.be.reverted;
 
       // 19 bytes (not enough for an address) - REVERT
       await expect(
-        this.mock.runner.sendTransaction({ to: this.relayer, data: '0x7859821024E633C5dC8a4FcF86fC52e7720Ce5' }),
+        mockAsWallet.sendTransaction({ to: this.relayer, data: '0x7859821024E633C5dC8a4FcF86fC52e7720Ce5' }),
       ).to.be.revertedWithoutReason();
 
       // 0 bytes (not enough for an address) - REVERT
-      await expect(this.mock.runner.sendTransaction({ to: this.relayer, data: '0x' })).to.be.revertedWithoutReason();
+      await expect(mockAsWallet.sendTransaction({ to: this.relayer, data: '0x' })).to.be.revertedWithoutReason();
     });
   });
 });

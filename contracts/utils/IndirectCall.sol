@@ -44,71 +44,94 @@ library IndirectCall {
         return getRelayer(salt).call{value: value}(abi.encodePacked(target, data));
     }
 
-    function getRelayer(bytes32 salt) internal returns (address) {
+    function getRelayer(bytes32 salt) internal returns (address relayer) {
         // [Relayer details]
         //
-        // deployment prefix: 3d602f80600a3d3981f3
-        // deployed bytecode: 60133611600a575f5ffd5b6014360360145f375f5f601436035f345f3560601c5af13d5f5f3e5f3d91602d57fd5bf3
-        // bytecode hash: 7bc0ea09c689dc0a6de3865d8789dae51a081efcf6569589ddae4b677df5dd3f
+        // deployment prefix: 5f604780600a5f3981f3
+        // deployed bytecode: 73<addr>331460133611166022575f5ffd5b6014360360145f375f5f601436035f345f3560601c5af13d5f5f3e5f3d91604557fd5bf3
         //
-        // offset | bytecode | opcode         | stack
-        // -------|----------|----------------|--------
-        // 0x0000 | 6013     | push1 0x13     | 0x13
-        // 0x0002 | 36       | calldatasize   | cds 0x13
-        // 0x0003 | 11       | gt             | (cds>0x13)
-        // 0x0004 | 600a     | push1 0x0a     | 0x0a (cds>0x13)
-        // 0x0006 | 57       | jumpi          | 0x0a (cds>0x13)
-        // 0x0007 | 5f       | push0          | 0
-        // 0x0008 | 5f       | push0          | 0 0
-        // 0x0009 | fd       | revert         |
-        // 0x000a | 5b       | jumpdest       |
-        // 0x000b | 6014     | push1 0x14     | 0x14
-        // 0x000d | 36       | calldatasize   | cds 0x14
-        // 0x000e | 03       | sub            | (cds-0x14)
-        // 0x000f | 6014     | push1 0x14     | 0x14 (cds-0x14)
-        // 0x0011 | 5f       | push0          | 0 0x14 (cds-0x14)
-        // 0x0012 | 37       | calldatacopy   |
-        // 0x0013 | 5f       | push0          | 0
-        // 0x0014 | 5f       | push0          | 0 0
-        // 0x0015 | 6014     | push1 0x14     | 0x14 0 0
-        // 0x0017 | 36       | calldatasize   | cds 0x14 0 0
-        // 0x0018 | 03       | sub            | (cds-0x14) 0 0
-        // 0x0019 | 5f       | push0          | 0 (cds-0x14) 0 0
-        // 0x001a | 34       | callvalue      | value 0 (cds-0x14) 0 0
-        // 0x001b | 5f       | push0          | 0 value 0 (cds-0x14) 0 0
-        // 0x001c | 35       | calldataload   | cd[0] value 0 (cds-0x14) 0 0
-        // 0x001d | 6060     | push1 0x60     | 0x60 cd[0] value 0 (cds-0x14) 0 0
-        // 0x001f | 1c       | shr            | target value 0 (cds-0x14) 0 0
-        // 0x0020 | 5a       | gas            | gas target value 0 (cds-0x14) 0 0
-        // 0x0021 | f1       | call           | suc
-        // 0x0022 | 3d       | returndatasize | rds suc
-        // 0x0023 | 5f       | push0          | 0 rds suc
-        // 0x0024 | 5f       | push0          | 0 0 rds suc
-        // 0x0025 | 3e       | returndatacopy | suc
-        // 0x0026 | 5f       | push0          | 0 suc
-        // 0x0027 | 3d       | returndatasize | rds 0 suc
-        // 0x0028 | 91       | swap2          | suc 0 rds
-        // 0x0029 | 602d     | push1 0x2d     | 0x2d suc 0 rds
-        // 0x002b | 57       | jumpi          | 0 rds
-        // 0x002c | fd       | revert         |
-        // 0x002d | 5b       | jumpdest       | 0 rds
-        // 0x002e | f3       | return         |
+        // offset | bytecode    | opcode         | stack
+        // -------|-------------|----------------|--------
+        // 0x0000 | 73<factory> | push20 <addr>  | <factory>
+        // 0x0015 | 33          | address        | <caller> <factory>
+        // 0x0016 | 14          | eq             | access
+        // 0x0017 | 6013        | push1 0x13     | 0x13 access
+        // 0x0019 | 36          | calldatasize   | cds 0x13 access
+        // 0x001a | 11          | gt             | (cds>0x13) access
+        // 0x001b | 16          | and            | (cds>0x13 && access)
+        // 0x001c | 6022        | push1 0x22     | 0x22 (cds>0x13 && access)
+        // 0x001e | 57          | jumpi          | 0x22 (cds>0x13 && access)
+        // 0x001f | 5f          | push0          | 0
+        // 0x0020 | 5f          | push0          | 0 0
+        // 0x0021 | fd          | revert         |
+        // 0x0022 | 5b          | jumpdest       |
+        // 0x0023 | 6014        | push1 0x14     | 0x14
+        // 0x0025 | 36          | calldatasize   | cds 0x14
+        // 0x0026 | 03          | sub            | (cds-0x14)
+        // 0x0027 | 6014        | push1 0x14     | 0x14 (cds-0x14)
+        // 0x0029 | 5f          | push0          | 0 0x14 (cds-0x14)
+        // 0x002a | 37          | calldatacopy   |
+        // 0x002b | 5f          | push0          | 0
+        // 0x002c | 5f          | push0          | 0 0
+        // 0x002d | 6014        | push1 0x14     | 0x14 0 0
+        // 0x002f | 36          | calldatasize   | cds 0x14 0 0
+        // 0x0030 | 03          | sub            | (cds-0x14) 0 0
+        // 0x0031 | 5f          | push0          | 0 (cds-0x14) 0 0
+        // 0x0032 | 34          | callvalue      | value 0 (cds-0x14) 0 0
+        // 0x0033 | 5f          | push0          | 0 value 0 (cds-0x14) 0 0
+        // 0x0034 | 35          | calldataload   | cd[0] value 0 (cds-0x14) 0 0
+        // 0x0035 | 6060        | push1 0x60     | 0x60 cd[0] value 0 (cds-0x14) 0 0
+        // 0x0037 | 1c          | shr            | target value 0 (cds-0x14) 0 0
+        // 0x0038 | 5a          | gas            | gas target value 0 (cds-0x14) 0 0
+        // 0x0039 | f1          | call           | suc
+        // 0x003a | 3d          | returndatasize | rds suc
+        // 0x003b | 5f          | push0          | 0 rds suc
+        // 0x003c | 5f          | push0          | 0 0 rds suc
+        // 0x003d | 3e          | returndatacopy | suc
+        // 0x003e | 5f          | push0          | 0 suc
+        // 0x003f | 3d          | returndatasize | rds 0 suc
+        // 0x0040 | 91          | swap2          | suc 0 rds
+        // 0x0041 | 6045        | push1 0x45     | 0x45 suc 0 rds
+        // 0x0043 | 57          | jumpi          | 0 rds
+        // 0x0044 | fd          | revert         |
+        // 0x0045 | 5b          | jumpdest       | 0 rds
+        // 0x0046 | f3          | return         |
 
-        // Create2 address computation, and deploy it if not yet available
-        address relayer = Create2.computeAddress(
-            salt,
-            0x7bc0ea09c689dc0a6de3865d8789dae51a081efcf6569589ddae4b677df5dd3f
-        );
-        if (relayer.code.length == 0) {
-            assembly ("memory-safe") {
-                mstore(0x19, 0x1436035f345f3560601c5af13d5f5f3e5f3d91602d57fd5bf3)
-                mstore(0x00, 0x3d602f80600a3d3981f360133611600a575f5ffd5b6014360360145f375f5f60)
-                if iszero(create2(0, 0, 0x39, salt)) {
-                    returndatacopy(0, 0, returndatasize())
-                    revert(0, returndatasize())
+        assembly ("memory-safe") {
+            let fmp := mload(0x40)
+
+            // build initcode at FMP
+            mstore(add(fmp, 0x46), 0x60145f375f5f601436035f345f3560601c5af13d5f5f3e5f3d91604557fd5bf3)
+            mstore(add(fmp, 0x26), 0x331460133611166022575f5ffd5b60143603)
+            mstore(add(fmp, 0x14), address())
+            mstore(add(fmp, 0), 0x5f604780600a5f3981f373)
+            let initcodehash := keccak256(add(fmp, 0x15), 0x51)
+
+            // compute create2 address
+            mstore(0x40, initcodehash)
+            mstore(0x20, salt)
+            mstore(0x00, address())
+            mstore8(0x0b, 0xff)
+            relayer := and(keccak256(0x0b, 0x55), shr(96, not(0)))
+
+            // is relayer not yet deployed, deploy it
+            if iszero(extcodesize(relayer)) {
+                if iszero(create2(0, add(fmp, 0x15), 0x51, salt)) {
+                    returndatacopy(fmp, 0, returndatasize())
+                    revert(fmp, returndatasize())
                 }
             }
+
+            // cleanup fmp space used as scratch
+            mstore(0x40, fmp)
         }
-        return relayer;
+
+        // For reference: equivalent in solidity
+        // bytes memory initcode = abi.encodePacked(hex"5f604780600a5f3981f373", address(this), hex"331460133611166022575f5ffd5b6014360360145f375f5f601436035f345f3560601c5af13d5f5f3e5f3d91604557fd5bf3");
+        // address relayer = Create2.computeAddress(salt, keccak256(initcode));
+        // if (relayer.code.length == 0) {
+        //     Create2.deploy(0, salt, initcode);
+        // }
+        // return relayer;
     }
 }
