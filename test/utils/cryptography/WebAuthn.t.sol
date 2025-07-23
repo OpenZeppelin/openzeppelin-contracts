@@ -173,6 +173,119 @@ contract WebAuthnTest is Test {
             );
     }
 
+    function testTryDecodeAuthValid(
+        bytes32 r,
+        bytes32 s,
+        uint256 challengeIndex,
+        uint256 typeIndex,
+        bytes memory authenticatorData,
+        string memory clientDataJSON
+    ) public view {
+        (bool success, WebAuthn.WebAuthnAuth memory auth) = this.tryDecodeAuth(
+            abi.encode(r, s, challengeIndex, typeIndex, authenticatorData, clientDataJSON)
+        );
+        assertTrue(success);
+        assertEq(auth.r, r);
+        assertEq(auth.s, s);
+        assertEq(auth.challengeIndex, challengeIndex);
+        assertEq(auth.typeIndex, typeIndex);
+        assertEq(auth.authenticatorData, authenticatorData);
+        assertEq(auth.clientDataJSON, clientDataJSON);
+    }
+
+    function testTryDecodeAuthInvalid() public view {
+        bytes32 r = keccak256("r");
+        bytes32 s = keccak256("s");
+        uint256 challengeIndex = 17;
+        uint256 typeIndex = 1;
+
+        // too short
+        assertFalse(this.tryDecodeAuthDrop(abi.encodePacked(r, s, challengeIndex, typeIndex)));
+
+        // offset out of bound
+        assertFalse(
+            this.tryDecodeAuthDrop(abi.encodePacked(r, s, challengeIndex, typeIndex, uint256(0xc0), uint256(0)))
+        );
+        assertFalse(
+            this.tryDecodeAuthDrop(abi.encodePacked(r, s, challengeIndex, typeIndex, uint256(0), uint256(0xc0)))
+        );
+
+        // minimal valid (bytes and string both length 0, at the same position)
+        assertTrue(
+            this.tryDecodeAuthDrop(
+                abi.encodePacked(r, s, challengeIndex, typeIndex, uint256(0xc0), uint256(0xc0), uint256(0))
+            )
+        );
+
+        // length out of bound
+        assertTrue(
+            this.tryDecodeAuthDrop(
+                abi.encodePacked(
+                    r,
+                    s,
+                    challengeIndex,
+                    typeIndex,
+                    uint256(0xc0),
+                    uint256(0xe0),
+                    uint256(0x20),
+                    uint256(0)
+                )
+            )
+        );
+        assertFalse(
+            this.tryDecodeAuthDrop(
+                abi.encodePacked(
+                    r,
+                    s,
+                    challengeIndex,
+                    typeIndex,
+                    uint256(0xc0),
+                    uint256(0xe0),
+                    uint256(0x21),
+                    uint256(0)
+                )
+            )
+        );
+        assertTrue(
+            this.tryDecodeAuthDrop(
+                abi.encodePacked(
+                    r,
+                    s,
+                    challengeIndex,
+                    typeIndex,
+                    uint256(0xc0),
+                    uint256(0xe0),
+                    uint256(0),
+                    uint256(0x00)
+                )
+            )
+        );
+        assertFalse(
+            this.tryDecodeAuthDrop(
+                abi.encodePacked(
+                    r,
+                    s,
+                    challengeIndex,
+                    typeIndex,
+                    uint256(0xc0),
+                    uint256(0xe0),
+                    uint256(0),
+                    uint256(0x01)
+                )
+            )
+        );
+    }
+
+    function tryDecodeAuth(
+        bytes calldata encoded
+    ) public pure returns (bool success, WebAuthn.WebAuthnAuth calldata auth) {
+        (success, auth) = WebAuthn.tryDecodeAuth(encoded);
+    }
+
+    function tryDecodeAuthDrop(bytes calldata encoded) public pure returns (bool success) {
+        (success, ) = WebAuthn.tryDecodeAuth(encoded);
+    }
+
     function _encodeAuthenticatorData(bytes1 flags) private pure returns (bytes memory) {
         return abi.encodePacked(bytes32(0), flags, bytes4(0));
     }
