@@ -6,7 +6,7 @@ import {Test} from "forge-std/Test.sol";
 import {P256} from "@openzeppelin/contracts/utils/cryptography/P256.sol";
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
-import {WebAuthn} from "../../../contracts/utils/cryptography/WebAuthn.sol";
+import {WebAuthn} from "@openzeppelin/contracts/utils/cryptography/WebAuthn.sol";
 
 contract WebAuthnTest is Test {
     /// forge-config: default.fuzz.runs = 512
