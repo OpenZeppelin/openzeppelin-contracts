@@ -202,26 +202,26 @@ rule uninstallModuleRule(env e, uint256 moduleTypeId, address module, bytes init
 │                                                     CALL OPCODE                                                     │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-persistent ghost bool    call;
-persistent ghost address call_target;
-persistent ghost uint32  call_selector;
-persistent ghost uint256 call_value;
-persistent ghost uint256 call_argsLength;
+persistent ghost mathint calls;
+persistent ghost address lastcall_target;
+persistent ghost uint32  lastcall_selector;
+persistent ghost uint256 lastcall_value;
+persistent ghost uint256 lastcall_argsLength;
 
 hook CALL(uint256 gas, address target, uint256 value, uint256 argsOffset, uint256 argsLength, uint256 retOffset, uint256 retLength) uint256 rc {
     if (executingContract == currentContract) {
-        call            = true;
-        call_target     = target;
-        call_selector   = selector;
-        call_value      = value;
-        call_argsLength = argsLength;
+        calls = calls + 1;
+        lastcall_target     = target;
+        lastcall_selector   = selector;
+        lastcall_value      = value;
+        lastcall_argsLength = argsLength;
     }
 }
 
 rule callOpcodeRule(env e, method f, calldataarg args)
     filtered { f -> !f.isView }
 {
-    require !call;
+    require calls == 0;
 
     bytes context;
     require context.length == 0;
@@ -232,7 +232,7 @@ rule callOpcodeRule(env e, method f, calldataarg args)
 
     f(e, args);
 
-    assert call => (
+    assert calls > 0 => (
         (
             // Can call any target with any data and value
             f.selector == sig:execute(bytes32,bytes).selector &&
@@ -245,56 +245,64 @@ rule callOpcodeRule(env e, method f, calldataarg args)
             // Can only call a module without any value. Target is verified by `callInstallModule`.
             f.selector == sig:installModule(uint256,address,bytes).selector &&
             isEntryPointOrSelf &&
-            call_selector == 0x6d61fe70 && // onInstall(bytes)
-            call_value == 0
+            calls == 1 &&
+            lastcall_selector == 0x6d61fe70 && // onInstall(bytes)
+            lastcall_value == 0
         ) || (
             // Can only call a module without any value. Target is verified by `callInstallModule`.
             f.selector == sig:uninstallModule(uint256,address,bytes).selector &&
             isEntryPointOrSelf &&
-            call_selector == 0x8a91b0e3 && // onUninstall(bytes)
-            call_value == 0
+            calls == 1 &&
+            lastcall_selector == 0x8a91b0e3 && // onUninstall(bytes)
+            lastcall_value == 0
         ) || (
             // Can send payment to the entrypoint or perform an external signature verification.
             f.selector == sig:validateUserOp(Account.PackedUserOperation,bytes32,uint256).selector &&
             isEntryPoint &&
+            calls <= 2 &&
             (
                 (
                     // payPrefund (target is entryPoint and argsLength is 0)
-                    call_target == entryPoint() &&
-                    call_value > 0 &&
-                    call_argsLength == 0
+                    lastcall_target == entryPoint() &&
+                    lastcall_value > 0 &&
+                    lastcall_argsLength == 0
                 ) || (
                     // isValidSignatureWithSender (target is as validation module)
-                    isModuleInstalled(1, call_target, context) &&
-                    call_selector == 0x97003203 && // validateUserOp(Account.PackedUserOperation,bytes32)
-                    call_value == 0
+                    isModuleInstalled(1, lastcall_target, context) &&
+                    lastcall_selector == 0x97003203 && // validateUserOp(Account.PackedUserOperation,bytes32)
+                    lastcall_value == 0
                 )
             )
         ) || (
             // Arbitrary fallback, to the correct fallback handler
             f.isFallback &&
-            call_target == getFallbackHandler(to_bytes4(call_selector)) &&
-            call_value == e.msg.value
+            calls == 1 &&
+            lastcall_target == getFallbackHandler(to_bytes4(lastcall_selector)) &&
+            lastcall_value == e.msg.value
         )
     );
 }
 
 rule callInstallModule(env e, uint256 moduleTypeId, address module, bytes initData) {
+    require calls == 0;
+
     installModule(e, moduleTypeId, module, initData);
 
-    assert call          == true;
-    assert call_target   == module;
-    assert call_selector == 0x6d61fe70; // onInstall(bytes)
-    assert call_value    == 0;
+    assert calls             == 1;
+    assert lastcall_target   == module;
+    assert lastcall_selector == 0x6d61fe70; // onInstall(bytes)
+    assert lastcall_value    == 0;
 }
 
 rule callUninstallModule(env e, uint256 moduleTypeId, address module, bytes deInitData) {
+    require calls == 0;
+
     uninstallModule(e, moduleTypeId, module, deInitData);
 
-    assert call          == true;
-    assert call_target   == module;
-    assert call_selector == 0x8a91b0e3; // onUninstall(bytes)
-    assert call_value    == 0;
+    assert calls             == 1;
+    assert lastcall_target   == module;
+    assert lastcall_selector == 0x8a91b0e3; // onUninstall(bytes)
+    assert lastcall_value    == 0;
 }
 
 /*
@@ -302,24 +310,24 @@ rule callUninstallModule(env e, uint256 moduleTypeId, address module, bytes deIn
 │                                                 DELEGATECALL OPCODE                                                 │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-persistent ghost bool    delegatecall;
-persistent ghost address delegatecall_target;
-persistent ghost uint32  delegatecall_selector;
-persistent ghost uint256 delegatecall_argsLength;
+persistent ghost mathint delegatecalls;
+persistent ghost address lastdelegatecall_target;
+persistent ghost uint32  lastdelegatecall_selector;
+persistent ghost uint256 lastdelegatecall_argsLength;
 
 hook DELEGATECALL(uint256 gas, address target, uint256 argsOffset, uint256 argsLength, uint256 retOffset, uint256 retLength) uint256 rc {
     if (executingContract == currentContract) {
-        delegatecall = true;
-        delegatecall_target     = target;
-        delegatecall_selector   = selector;
-        delegatecall_argsLength = argsLength;
+        delegatecalls = delegatecalls + 1;
+        lastdelegatecall_target     = target;
+        lastdelegatecall_selector   = selector;
+        lastdelegatecall_argsLength = argsLength;
     }
 }
 
 rule delegatecallOpcodeRule(env e, method f, calldataarg args)
     filtered { f -> !f.isView }
 {
-    require !delegatecall;
+    require delegatecalls == 0;
 
     bytes context;
     require context.length == 0;
@@ -330,7 +338,7 @@ rule delegatecallOpcodeRule(env e, method f, calldataarg args)
 
     f(e, args);
 
-    assert delegatecall => (
+    assert delegatecalls > 0 => (
         (
             // Can delegatecall to target with any data
             f.selector == sig:execute(bytes32,bytes).selector &&
