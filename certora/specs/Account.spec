@@ -84,17 +84,12 @@ invariant executorConsistencyKeyInvariant(address module)
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 // This guarantees that at most one fallback module is active for a given initData (i.e. selector)
-invariant fallbackModule(env e, address module, bytes initData)
+invariant fallbackModule(address module, bytes initData)
     isModuleInstalled(3, module, initData) <=> getFallbackHandler(getDataSelector(initData)) == module;
 
-rule moduleManagementRule(
-    env e,
-    method f,
-    calldataarg args,
-    uint256 moduleTypeId,
-    address module,
-    bytes additionalContext
-) filtered { f -> !f.isView } {
+rule moduleManagementRule(env e, method f, calldataarg args, uint256 moduleTypeId, address module, bytes additionalContext)
+    filtered { f -> !f.isView }
+{
     bytes context;
     require context.length == 0;
 
@@ -154,6 +149,7 @@ rule installModuleRule(env e, uint256 moduleTypeId, address module, bytes initDa
             module == otherModule
         ) || (
             // when a fallback module is installed, the 0 module is "removed" for that selector
+            moduleTypeId == 3 && // fallback
             otherModuleTypeId == 3 && // fallback
             otherModule == 0 &&
             getDataSelector(otherInitData) == getDataSelector(initData) &&
@@ -168,7 +164,6 @@ rule uninstallModuleRule(env e, uint256 moduleTypeId, address module, bytes init
     address otherModule;
     bytes otherInitData;
 
-    require moduleLengthSanity();
     requireInvariant executorConsistencyKeyInvariant(module);
     requireInvariant validatorConsistencyKeyInvariant(module);
     requireInvariant executorConsistencyKeyInvariant(otherModule);
@@ -192,6 +187,7 @@ rule uninstallModuleRule(env e, uint256 moduleTypeId, address module, bytes init
             module == otherModule
         ) || (
             // when a fallback module is uninstalled, the 0 module is "added" for that selector
+            moduleTypeId == 3 && // fallback
             otherModuleTypeId == 3 && // fallback
             otherModule == 0 &&
             getDataSelector(otherInitData) == getDataSelector(initData) &&
@@ -222,11 +218,9 @@ hook CALL(uint256 gas, address target, uint256 value, uint256 argsOffset, uint25
     }
 }
 
-rule callOpcodeRule(
-    env e,
-    method f,
-    calldataarg args
-) filtered { f -> !f.isView } {
+rule callOpcodeRule(env e, method f, calldataarg args)
+    filtered { f -> !f.isView }
+{
     require !call;
 
     bytes context;
@@ -322,11 +316,9 @@ hook DELEGATECALL(uint256 gas, address target, uint256 argsOffset, uint256 argsL
     }
 }
 
-rule delegatecallOpcodeRule(
-    env e,
-    method f,
-    calldataarg args
-) filtered { f -> !f.isView } {
+rule delegatecallOpcodeRule(env e, method f, calldataarg args)
+    filtered { f -> !f.isView }
+{
     require !delegatecall;
 
     bytes context;
@@ -365,5 +357,5 @@ rule validateUserOpPayment(env e){
     validateUserOp(e, userOp, userOpHash, missingAccountFunds);
     uint256 balanceAfter = nativeBalances[currentContract];
 
-    assert balanceAfter >= balanceBefore - missingAccountFunds;
+    assert balanceBefore - balanceAfter <= missingAccountFunds;
 }
