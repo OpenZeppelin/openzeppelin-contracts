@@ -197,6 +197,63 @@ library ECDSA {
     }
 
     /**
+     * @dev Parse a signature into its `v`, `r` and `s` components. Supports both 65 bytes and 64 bytes (eip-2098)
+     * signature formats. Returns 0, 0, 0 is the signature is not in a proper format.
+     */
+    function parse(bytes memory signature) internal pure returns (int8 v, bytes32 r, bytes32 s) {
+        assembly ("memory-safe") {
+            // Check the signature length
+            switch mload(signature)
+            // - case 65: r,s,v signature (standard)
+            case 65 {
+                r := mload(add(signature, 0x20))
+                s := mload(add(signature, 0x40))
+                v := byte(0, mload(add(signature, 0x60)))
+            }
+            // - case 64: r,vs signature (cf https://eips.ethereum.org/EIPS/eip-2098)
+            case 64 {
+                let vs := mload(add(signature, 0x40))
+                r := mload(add(signature, 0x20))
+                s := and(vs, shr(1, not(0)))
+                v := add(shr(255, vs), 27)
+            }
+            default {
+                r := 0
+                s := 0
+                v := 0
+            }
+        }
+    }
+
+    /**
+     * @dev Variant of {parse} that takes a signature in calldata
+     */
+    function parseCalldata(bytes calldata signature) internal pure returns (int8 v, bytes32 r, bytes32 s) {
+        assembly ("memory-safe") {
+            // Check the signature length
+            switch signature.length
+            // - case 65: r,s,v signature (standard)
+            case 65 {
+                r := calldataload(signature.offset)
+                s := calldataload(add(signature.offset, 0x20))
+                v := byte(0, calldataload(add(signature.offset, 0x40)))
+            }
+            // - case 64: r,vs signature (cf https://eips.ethereum.org/EIPS/eip-2098)
+            case 64 {
+                let vs := calldataload(add(signature.offset, 0x20))
+                r := calldataload(signature.offset)
+                s := and(vs, shr(1, not(0)))
+                v := add(shr(255, vs), 27)
+            }
+            default {
+                r := 0
+                s := 0
+                v := 0
+            }
+        }
+    }
+
+    /**
      * @dev Optionally reverts with the corresponding custom error according to the `error` argument provided.
      */
     function _throwError(RecoverError error, bytes32 errorArg) private pure {
