@@ -16,6 +16,7 @@ import {AbstractSigner} from "../../utils/cryptography/signers/AbstractSigner.so
 import {SignerECDSA} from "../../utils/cryptography/signers/SignerECDSA.sol";
 import {SignerP256} from "../../utils/cryptography/signers/SignerP256.sol";
 import {SignerRSA} from "../../utils/cryptography/signers/SignerRSA.sol";
+import {SignerWebAuthn} from "../../utils/cryptography/signers/SignerWebAuthn.sol";
 import {SignerERC7702} from "../../utils/cryptography/signers/SignerERC7702.sol";
 import {SignerERC7913} from "../../utils/cryptography/signers/SignerERC7913.sol";
 import {MultiSignerERC7913} from "../../utils/cryptography/signers/MultiSignerERC7913.sol";
@@ -60,6 +61,17 @@ abstract contract AccountP256Mock is Account, SignerP256, ERC7739, ERC7821, ERC7
 }
 
 abstract contract AccountRSAMock is Account, SignerRSA, ERC7739, ERC7821, ERC721Holder, ERC1155Holder {
+    /// @inheritdoc ERC7821
+    function _erc7821AuthorizedExecutor(
+        address caller,
+        bytes32 mode,
+        bytes calldata executionData
+    ) internal view virtual override returns (bool) {
+        return caller == address(entryPoint()) || super._erc7821AuthorizedExecutor(caller, mode, executionData);
+    }
+}
+
+abstract contract AccountWebAuthnMock is Account, SignerWebAuthn, ERC7739, ERC7821, ERC721Holder, ERC1155Holder {
     /// @inheritdoc ERC7821
     function _erc7821AuthorizedExecutor(
         address caller,
