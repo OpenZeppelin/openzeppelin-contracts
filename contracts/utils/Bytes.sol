@@ -98,19 +98,6 @@ library Bytes {
         return result;
     }
 
-    /// @dev Split each byte in `value` into two nibbles (4 bits each).
-    function nibbles(bytes memory value) internal pure returns (bytes memory) {
-        uint256 length = value.length;
-        bytes memory nibbles_ = new bytes(length * 2);
-        for (uint256 i = 0; i < length; i++) {
-            unchecked {
-                // Bounded to the array length, can't overflow realistically
-                (nibbles_[i * 2], nibbles_[i * 2 + 1]) = (value[i] & 0xf0, value[i] & 0x0f);
-            }
-        }
-        return nibbles_;
-    }
-
     /**
      * @dev Moves the content of `buffer`, from `start` (included) to the end of `buffer` to the start of that buffer.
      *

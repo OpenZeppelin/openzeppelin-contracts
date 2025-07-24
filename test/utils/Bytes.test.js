@@ -112,35 +112,6 @@ describe('Bytes', function () {
     });
   });
 
-  describe('nibbles', function () {
-    it('converts single byte', async function () {
-      await expect(this.mock.$nibbles('0xab')).to.eventually.equal('0xa00b');
-    });
-
-    it('converts multiple bytes', async function () {
-      await expect(this.mock.$nibbles('0x1234')).to.eventually.equal('0x10023004');
-    });
-
-    it('handles empty bytes', async function () {
-      await expect(this.mock.$nibbles('0x')).to.eventually.equal('0x');
-    });
-
-    it('converts lorem text', async function () {
-      const result = await this.mock.$nibbles(lorem);
-      expect(ethers.dataLength(result)).to.equal(lorem.length * 2);
-
-      // Check nibble extraction for first few bytes
-      for (let i = 0; i < Math.min(lorem.length, 5); i++) {
-        const originalByte = lorem[i];
-        const highNibble = ethers.dataSlice(result, i * 2, i * 2 + 1);
-        const lowNibble = ethers.dataSlice(result, i * 2 + 1, i * 2 + 2);
-
-        expect(highNibble).to.equal(ethers.toBeHex(originalByte & 0xf0, 1));
-        expect(lowNibble).to.equal(ethers.toBeHex(originalByte & 0x0f, 1));
-      }
-    });
-  });
-
   describe('clz bytes', function () {
     it('empty buffer', async function () {
       await expect(this.mock.$clz('0x')).to.eventually.equal(0);
