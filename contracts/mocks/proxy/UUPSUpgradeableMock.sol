@@ -29,7 +29,7 @@ contract UUPSUpgradeableUnsafeMock is UUPSUpgradeableMock {
 }
 
 contract UUPSUnsupportedProxiableUUID is UUPSUpgradeableMock {
-    function proxiableUUID() external pure override returns (bytes32) {
+    function proxiableUUID() public pure override returns (bytes32) {
         return keccak256("invalid UUID");
     }
 }

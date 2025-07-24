@@ -50,10 +50,13 @@ module.exports = [
     static ruleId = 'leading-underscore';
 
     VariableDeclaration(node) {
+      // TODO: do we want that rule ? Should no immutable variable have a prefix regardless of visibility ?
+      //
+      // else if (node.isImmutable) {
+      //   this.require(!node.name.startsWith('_'), node, 'Immutable variables should not have leading underscore');
+      // }
       if (node.isDeclaredConst) {
         this.require(!node.name.startsWith('_'), node, 'Constant variables should not have leading underscore');
-      } else if (node.isImmutable) {
-        this.require(!node.name.startsWith('_'), node, 'Immutable variables should not have leading underscore');
       } else if (node.isStateVar) {
         switch (node.visibility) {
           case 'private':
