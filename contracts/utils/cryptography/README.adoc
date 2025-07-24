@@ -11,6 +11,7 @@ A collection of contracts and libraries that implement various signature validat
  * {SignatureChecker}: A library helper to support regular ECDSA from EOAs as well as ERC-1271 signatures for smart contracts.
  * {Hashes}: Commonly used hash functions.
  * {MerkleProof}: Functions for verifying https://en.wikipedia.org/wiki/Merkle_tree[Merkle Tree] proofs.
+ * {TrieProof}: Library for verifying Ethereum Merkle-Patricia trie inclusion proofs.
  * {EIP712}: Contract with functions to allow processing signed typed structure data according to https://eips.ethereum.org/EIPS/eip-712[EIP-712].
  * {ERC7739Utils}: Utilities library that implements a defensive rehashing mechanism to prevent replayability of smart contract signatures based on ERC-7739.
  * {WebAuthn}: Library for verifying WebAuthn Authentication Assertions.
@@ -37,6 +38,8 @@ A collection of contracts and libraries that implement various signature validat
 {{Hashes}}
 
 {{MerkleProof}}
+
+{{TrieProof}}
 
 {{EIP712}}
 
