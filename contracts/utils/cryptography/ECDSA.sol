@@ -43,6 +43,13 @@ library ECDSA {
      * this function rejects them by requiring the `s` value to be in the lower
      * half order, and the `v` value to be either 27 or 28.
      *
+     * NOTE: This function also prevents signature malleability by only supporting 65 bytes long signature, and
+     * rejecting eip-2098 short signature. While this guarantee is still present, it is DEPRECATED and will be removed
+     * in the next major release (v6.0). Developers SHOULD NOT use signatures as unique identifier. If an operation
+     * must me marked as consumed to prevent replayability, either the `hash` (or the `hash`/`recovered` pair if
+     * multiple accounts are to sign the same hash) should be invalidated. Nonces are also a viable solution. Marking
+     * signatures as consumed is very strongly discouraged.
+     *
      * IMPORTANT: `hash` _must_ be the result of a hash operation for the
      * verification to be secure: it is possible to craft signatures that
      * recover to arbitrary addresses for non-hashed data. A safe way to ensure
@@ -105,6 +112,13 @@ library ECDSA {
      * The `ecrecover` EVM precompile allows for malleable (non-unique) signatures:
      * this function rejects them by requiring the `s` value to be in the lower
      * half order, and the `v` value to be either 27 or 28.
+     *
+     * NOTE: This function also prevents signature malleability by only supporting 65 bytes long signature, and
+     * rejecting eip-2098 short signature. While this guarantee is still present, it is DEPRECATED and will be removed
+     * in the next major release (v6.0). Developers SHOULD NOT use signatures as unique identifier. If an operation
+     * must me marked as consumed to prevent replayability, either the `hash` (or the `hash`/`recovered` pair if
+     * multiple accounts are to sign the same hash) should be invalidated. Nonces are also a viable solution. Marking
+     * signatures as consumed is very strongly discouraged.
      *
      * IMPORTANT: `hash` _must_ be the result of a hash operation for the
      * verification to be secure: it is possible to craft signatures that
