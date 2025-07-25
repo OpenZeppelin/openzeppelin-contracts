@@ -43,6 +43,12 @@ library ECDSA {
      * this function rejects them by requiring the `s` value to be in the lower
      * half order, and the `v` value to be either 27 or 28.
      *
+     * NOTE: This function protects against malleability by only supporting 65 bytes long signatures, and rejecting
+     * EIP-2098 short signatures. This guarantee is DEPRECATED and will be removed in the next major release (v6.0).
+     * Developers SHOULD NOT use signatures as unique identifiers. If an operation must be marked as consumed to
+     * prevent replayability, either the `hash` (or the `hash`/`recovered` pair if multiple accounts are to sign the
+     * same hash) should be invalidated. Nonces are also a viable solution.
+     *
      * IMPORTANT: `hash` _must_ be the result of a hash operation for the
      * verification to be secure: it is possible to craft signatures that
      * recover to arbitrary addresses for non-hashed data. A safe way to ensure
@@ -105,6 +111,12 @@ library ECDSA {
      * The `ecrecover` EVM precompile allows for malleable (non-unique) signatures:
      * this function rejects them by requiring the `s` value to be in the lower
      * half order, and the `v` value to be either 27 or 28.
+     *
+     * NOTE: This function protects against malleability by only supporting 65 bytes long signatures, and rejecting
+     * EIP-2098 short signatures. This guarantee is DEPRECATED and will be removed in the next major release (v6.0).
+     * Developers SHOULD NOT use signatures as unique identifiers. If an operation must be marked as consumed to
+     * prevent replayability, either the `hash` (or the `hash`/`recovered` pair if multiple accounts are to sign the
+     * same hash) should be invalidated. Nonces are also a viable solution.
      *
      * IMPORTANT: `hash` _must_ be the result of a hash operation for the
      * verification to be secure: it is possible to craft signatures that
@@ -194,6 +206,63 @@ library ECDSA {
         (address recovered, RecoverError error, bytes32 errorArg) = tryRecover(hash, v, r, s);
         _throwError(error, errorArg);
         return recovered;
+    }
+
+    /**
+     * @dev Parse a signature into its `v`, `r` and `s` components. Supports both 65 bytes and 64 bytes (eip-2098)
+     * signature formats. Returns 0, 0, 0 is the signature is not in a proper format.
+     */
+    function parse(bytes memory signature) internal pure returns (int8 v, bytes32 r, bytes32 s) {
+        assembly ("memory-safe") {
+            // Check the signature length
+            switch mload(signature)
+            // - case 65: r,s,v signature (standard)
+            case 65 {
+                r := mload(add(signature, 0x20))
+                s := mload(add(signature, 0x40))
+                v := byte(0, mload(add(signature, 0x60)))
+            }
+            // - case 64: r,vs signature (cf https://eips.ethereum.org/EIPS/eip-2098)
+            case 64 {
+                let vs := mload(add(signature, 0x40))
+                r := mload(add(signature, 0x20))
+                s := and(vs, shr(1, not(0)))
+                v := add(shr(255, vs), 27)
+            }
+            default {
+                r := 0
+                s := 0
+                v := 0
+            }
+        }
+    }
+
+    /**
+     * @dev Variant of {parse} that takes a signature in calldata
+     */
+    function parseCalldata(bytes calldata signature) internal pure returns (int8 v, bytes32 r, bytes32 s) {
+        assembly ("memory-safe") {
+            // Check the signature length
+            switch signature.length
+            // - case 65: r,s,v signature (standard)
+            case 65 {
+                r := calldataload(signature.offset)
+                s := calldataload(add(signature.offset, 0x20))
+                v := byte(0, calldataload(add(signature.offset, 0x40)))
+            }
+            // - case 64: r,vs signature (cf https://eips.ethereum.org/EIPS/eip-2098)
+            case 64 {
+                let vs := calldataload(add(signature.offset, 0x20))
+                r := calldataload(signature.offset)
+                s := and(vs, shr(1, not(0)))
+                v := add(shr(255, vs), 27)
+            }
+            default {
+                r := 0
+                s := 0
+                v := 0
+            }
+        }
     }
 
     /**
