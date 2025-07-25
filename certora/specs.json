@@ -106,5 +106,11 @@
     "spec": "Nonces",
     "contract": "NoncesHarness",
     "files": ["certora/harnesses/NoncesHarness.sol"]
+  },
+  {
+    "spec": "Account",
+    "contract": "AccountHarness",
+    "files": ["certora/harnesses/AccountHarness.sol"],
+    "options": ["--optimistic_loop"]
   }
 ]
