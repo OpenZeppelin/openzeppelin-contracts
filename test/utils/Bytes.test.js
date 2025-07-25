@@ -112,6 +112,93 @@ describe('Bytes', function () {
     });
   });
 
+  describe('clz bytes', function () {
+    it('empty buffer', async function () {
+      await expect(this.mock.$clz('0x')).to.eventually.equal(0);
+    });
+
+    it('single zero byte', async function () {
+      await expect(this.mock.$clz('0x00')).to.eventually.equal(8);
+    });
+
+    it('single non-zero byte', async function () {
+      await expect(this.mock.$clz('0x01')).to.eventually.equal(7);
+      await expect(this.mock.$clz('0xff')).to.eventually.equal(0);
+    });
+
+    it('multiple leading zeros', async function () {
+      await expect(this.mock.$clz('0x0000000001')).to.eventually.equal(39);
+      await expect(
+        this.mock.$clz('0x0000000000000000000000000000000000000000000000000000000000000001'),
+      ).to.eventually.equal(255);
+    });
+
+    it('all zeros of various lengths', async function () {
+      await expect(this.mock.$clz('0x00000000')).to.eventually.equal(32);
+      await expect(
+        this.mock.$clz('0x0000000000000000000000000000000000000000000000000000000000000000'),
+      ).to.eventually.equal(256);
+
+      // Complete chunks
+      await expect(this.mock.$clz('0x' + '00'.repeat(32) + '01')).to.eventually.equal(263); // 32*8+7
+      await expect(this.mock.$clz('0x' + '00'.repeat(64) + '01')).to.eventually.equal(519); // 64*8+7
+
+      // Partial last chunk
+      await expect(this.mock.$clz('0x' + '00'.repeat(33) + '01')).to.eventually.equal(271); // 33*8+7
+      await expect(this.mock.$clz('0x' + '00'.repeat(34) + '01')).to.eventually.equal(279); // 34*8+7
+      await expect(this.mock.$clz('0x' + '00'.repeat(40) + '01' + '00'.repeat(9))).to.eventually.equal(327); // 40*8+7
+      await expect(this.mock.$clz('0x' + '00'.repeat(50))).to.eventually.equal(400); // 50*8
+
+      // First byte of each chunk non-zero
+      await expect(this.mock.$clz('0x80' + '00'.repeat(31))).to.eventually.equal(0);
+      await expect(this.mock.$clz('0x01' + '00'.repeat(31))).to.eventually.equal(7);
+      await expect(this.mock.$clz('0x' + '00'.repeat(32) + '80' + '00'.repeat(31))).to.eventually.equal(256); // 32*8
+      await expect(this.mock.$clz('0x' + '00'.repeat(32) + '01' + '00'.repeat(31))).to.eventually.equal(263); // 32*8+7
+
+      // Last byte of each chunk non-zero
+      await expect(this.mock.$clz('0x' + '00'.repeat(31) + '01')).to.eventually.equal(255); // 31*8+7
+      await expect(this.mock.$clz('0x' + '00'.repeat(63) + '01')).to.eventually.equal(511); // 63*8+7
+
+      // Middle byte of each chunk non-zero
+      await expect(this.mock.$clz('0x' + '00'.repeat(16) + '01' + '00'.repeat(15))).to.eventually.equal(135); // 16*8+7
+      await expect(this.mock.$clz('0x' + '00'.repeat(32) + '01' + '00'.repeat(31))).to.eventually.equal(263); // 32*8+7
+      await expect(this.mock.$clz('0x' + '00'.repeat(48) + '01' + '00'.repeat(47))).to.eventually.equal(391); // 48*8+7
+      await expect(this.mock.$clz('0x' + '00'.repeat(64) + '01' + '00'.repeat(63))).to.eventually.equal(519); // 64*8+7
+    });
+  });
+
+  describe('equal', function () {
+    it('identical buffers', async function () {
+      await expect(this.mock.$equal(lorem, lorem)).to.eventually.be.true;
+    });
+
+    it('same content', async function () {
+      const copy = new Uint8Array(lorem);
+      await expect(this.mock.$equal(lorem, copy)).to.eventually.be.true;
+    });
+
+    it('different content', async function () {
+      const different = ethers.toUtf8Bytes('Different content');
+      await expect(this.mock.$equal(lorem, different)).to.eventually.be.false;
+    });
+
+    it('different lengths', async function () {
+      const shorter = lorem.slice(0, 10);
+      await expect(this.mock.$equal(lorem, shorter)).to.eventually.be.false;
+    });
+
+    it('empty buffers', async function () {
+      const empty1 = new Uint8Array(0);
+      const empty2 = new Uint8Array(0);
+      await expect(this.mock.$equal(empty1, empty2)).to.eventually.be.true;
+    });
+
+    it('one empty one not', async function () {
+      const empty = new Uint8Array(0);
+      await expect(this.mock.$equal(lorem, empty)).to.eventually.be.false;
+    });
+  });
+
   describe('reverseBits', function () {
     describe('reverseBytes32', function () {
       it('reverses bytes correctly', async function () {
