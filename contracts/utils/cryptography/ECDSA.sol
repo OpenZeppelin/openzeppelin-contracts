@@ -45,7 +45,7 @@ library ECDSA {
      *
      * NOTE: This function also prevents signature malleability by only supporting 65 bytes long signature, and
      * rejecting eip-2098 short signature. While this guarantee is still present, it is DEPRECATED and will be removed
-     * in the next major release (v6.0). Developers SHOULD NOT use signatures as unique identifier. If an operation
+     * in the next major release (v6.0). Developers SHOULD NOT use signatures as unique identifiers. If an operation
      * must me marked as consumed to prevent replayability, either the `hash` (or the `hash`/`recovered` pair if
      * multiple accounts are to sign the same hash) should be invalidated. Nonces are also a viable solution. Marking
      * signatures as consumed is very strongly discouraged.
@@ -115,7 +115,7 @@ library ECDSA {
      *
      * NOTE: This function also prevents signature malleability by only supporting 65 bytes long signature, and
      * rejecting eip-2098 short signature. While this guarantee is still present, it is DEPRECATED and will be removed
-     * in the next major release (v6.0). Developers SHOULD NOT use signatures as unique identifier. If an operation
+     * in the next major release (v6.0). Developers SHOULD NOT use signatures as unique identifiers. If an operation
      * must me marked as consumed to prevent replayability, either the `hash` (or the `hash`/`recovered` pair if
      * multiple accounts are to sign the same hash) should be invalidated. Nonces are also a viable solution. Marking
      * signatures as consumed is very strongly discouraged.
