@@ -128,7 +128,7 @@ library Bytes {
         return buffer;
     }
 
-    /*
+    /**
      * @dev Returns true if the two byte buffers are equal.
      */
     function equal(bytes memory a, bytes memory b) internal pure returns (bool) {
@@ -185,6 +185,20 @@ library Bytes {
     /// @dev Same as {reverseBytes32} but optimized for 16-bit values.
     function reverseBytes2(bytes2 value) internal pure returns (bytes2) {
         return (value >> 8) | (value << 8);
+    }
+
+    /**
+     * @dev Counts the number of leading zero bits a bytes array. Returns `8 * buffer.length`
+     * if the buffer is all zeros.
+     */
+    function clz(bytes memory buffer) internal pure returns (uint256) {
+        for (uint256 i = 0; i < buffer.length; i += 32) {
+            bytes32 chunk = _unsafeReadBytesOffset(buffer, i);
+            if (chunk != bytes32(0)) {
+                return Math.min(8 * i + Math.clz(uint256(chunk)), 8 * buffer.length);
+            }
+        }
+        return 8 * buffer.length;
     }
 
     /**
