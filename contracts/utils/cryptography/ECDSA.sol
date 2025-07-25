@@ -43,12 +43,11 @@ library ECDSA {
      * this function rejects them by requiring the `s` value to be in the lower
      * half order, and the `v` value to be either 27 or 28.
      *
-     * NOTE: This function also prevents signature malleability by only supporting 65 bytes long signatures, and
-     * rejecting eip-2098 short signatures. While this guarantee is still present, it is DEPRECATED and will be
-     * removed in the next major release (v6.0). Developers SHOULD NOT use signatures as unique identifiers. If an
-     * operation must me marked as consumed to prevent replayability, either the `hash` (or the `hash`/`recovered`
-     * pair if multiple accounts are to sign the same hash) should be invalidated. Nonces are also a viable solution.
-     * Marking the signatures as consumed is very strongly discouraged.
+     * NOTE: This function protects against malleability by only supporting 65 bytes long signatures, and rejecting
+     * EIP-2098 short signatures. This guarantee is DEPRECATED and will be removed in the next major release (v6.0).
+     * Developers SHOULD NOT use signatures as unique identifiers. If an operation must be marked as consumed to
+     * prevent replayability, either the `hash` (or the `hash`/`recovered` pair if multiple accounts are to sign the
+     * same hash) should be invalidated. Nonces are also a viable solution.
      *
      * IMPORTANT: `hash` _must_ be the result of a hash operation for the
      * verification to be secure: it is possible to craft signatures that
@@ -113,12 +112,11 @@ library ECDSA {
      * this function rejects them by requiring the `s` value to be in the lower
      * half order, and the `v` value to be either 27 or 28.
      *
-     * NOTE: This function also prevents signature malleability by only supporting 65 bytes long signatures, and
-     * rejecting eip-2098 short signatures. While this guarantee is still present, it is DEPRECATED and will be
-     * removed in the next major release (v6.0). Developers SHOULD NOT use signatures as unique identifiers. If an
-     * operation must me marked as consumed to prevent replayability, either the `hash` (or the `hash`/`recovered`
-     * pair if multiple accounts are to sign the same hash) should be invalidated. Nonces are also a viable solution.
-     * Marking the signatures as consumed is very strongly discouraged.
+     * NOTE: This function protects against malleability by only supporting 65 bytes long signatures, and rejecting
+     * EIP-2098 short signatures. This guarantee is DEPRECATED and will be removed in the next major release (v6.0).
+     * Developers SHOULD NOT use signatures as unique identifiers. If an operation must be marked as consumed to
+     * prevent replayability, either the `hash` (or the `hash`/`recovered` pair if multiple accounts are to sign the
+     * same hash) should be invalidated. Nonces are also a viable solution.
      *
      * IMPORTANT: `hash` _must_ be the result of a hash operation for the
      * verification to be secure: it is possible to craft signatures that
