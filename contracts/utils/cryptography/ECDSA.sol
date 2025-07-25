@@ -43,7 +43,7 @@ library ECDSA {
      * this function rejects them by requiring the `s` value to be in the lower
      * half order, and the `v` value to be either 27 or 28.
      *
-     * NOTE: This function also prevents signature malleability by only supporting 65 bytes long signature, and
+     * NOTE: This function also prevents signature malleability by only supporting 65 bytes long signatures, and
      * rejecting eip-2098 short signature. While this guarantee is still present, it is DEPRECATED and will be removed
      * in the next major release (v6.0). Developers SHOULD NOT use signatures as unique identifiers. If an operation
      * must me marked as consumed to prevent replayability, either the `hash` (or the `hash`/`recovered` pair if
@@ -113,7 +113,7 @@ library ECDSA {
      * this function rejects them by requiring the `s` value to be in the lower
      * half order, and the `v` value to be either 27 or 28.
      *
-     * NOTE: This function also prevents signature malleability by only supporting 65 bytes long signature, and
+     * NOTE: This function also prevents signature malleability by only supporting 65 bytes long signatures, and
      * rejecting eip-2098 short signature. While this guarantee is still present, it is DEPRECATED and will be removed
      * in the next major release (v6.0). Developers SHOULD NOT use signatures as unique identifiers. If an operation
      * must me marked as consumed to prevent replayability, either the `hash` (or the `hash`/`recovered` pair if
