@@ -20,7 +20,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Set up environment
         uses: ./.github/actions/setup
       - run: npm run lint
@@ -34,7 +34,7 @@ jobs:
       CI: true
       GAS: true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Set up environment
         uses: ./.github/actions/setup
       - name: Run tests and generate gas report
@@ -55,7 +55,7 @@ jobs:
     env:
       FORCE_COLOR: 1
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0 # Include history so patch conflicts are resolved automatically
       - name: Set up environment
@@ -81,7 +81,7 @@ jobs:
   tests-foundry:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           submodules: recursive
       - name: Set up environment
@@ -92,19 +92,19 @@ jobs:
   coverage:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Set up environment
         uses: ./.github/actions/setup
       - name: Run coverage
         run: npm run coverage
-      - uses: codecov/codecov-action@v5
+      - uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   harnesses:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Set up environment
         uses: ./.github/actions/setup
       - name: Compile harnesses
@@ -115,17 +115,17 @@ jobs:
   slither:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Set up environment
         uses: ./.github/actions/setup
-      - uses: crytic/slither-action@v0.4.1
+      - uses: crytic/slither-action@4fd765aeef19915d04ddf0be90c2930036a774d8 # v0.4.1
 
   codespell:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Run CodeSpell
-        uses: codespell-project/actions-codespell@v2.1
+        uses: codespell-project/actions-codespell@406322ec52dd7b488e48c1c4b82e2a8b3a1bf630 # v2.1
         with:
           check_hidden: true
           check_filenames: true
