@@ -63,7 +63,7 @@ abstract contract ReentrancyGuard {
 
     /**
      * @dev View variant of the `nonReentrant` modifier. Can be used to prevent view functions from being called
-     * while the internal state of the contract is inconsistent, and invariants do not hold.
+     * while the internal state of the contract is inconsistent and invariants do not hold.
      *
      * This being a "view" version of the modifier, it will not set the reentrancy status. This modifier should only
      * be used in view functions. Payable and non-payable function should use the standard "nonReentrant" modifier.
