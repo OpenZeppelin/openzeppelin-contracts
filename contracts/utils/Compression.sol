@@ -4,9 +4,11 @@ pragma solidity ^0.8.20;
 
 /**
  * @dev Library for compressing and decompressing buffers. Supported compression algorithm:
- * * FastLZ (level1): WIP
- * * Calldata optimized: todo
- * * ZIP: todo
+ * * FastLZ (level1): (WIP) Do we want this? We should have an NodeJS implementation.
+ * * Other LZ77/LZSS/LZ4: Do we want this?
+ * * Deflate: Do we want this? The Huffman part is probably going to be a pain, and not worth it for "small" inputs.
+ * * Brotli, bzip, gzip: Same as Deflate?
+ * * Calldata optimized: Do we want this?
  */
 library Compression {
     /**
