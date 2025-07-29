@@ -43,11 +43,9 @@ library ECDSA {
      * this function rejects them by requiring the `s` value to be in the lower
      * half order, and the `v` value to be either 27 or 28.
      *
-     * NOTE: This function protects against malleability by only supporting 65 bytes long signatures, and rejecting
-     * EIP-2098 short signatures. This guarantee is DEPRECATED and will be removed in the next major release (v6.0).
-     * Developers SHOULD NOT use signatures as unique identifiers. If an operation must be marked as consumed to
-     * prevent replayability, either the `hash` (or the `hash`/`recovered` pair if multiple accounts are to sign the
-     * same hash) should be invalidated. Nonces are also a viable solution.
+     * NOTE: This function only supports 65-byte signatures. ERC-2098 short signatures are rejected. This restriction
+     * is DEPRECATED and will be removed in v6.0. Developers SHOULD NOT use signatures as unique identifiers; use hash
+     * invalidation or nonces for replay protection.
      *
      * IMPORTANT: `hash` _must_ be the result of a hash operation for the
      * verification to be secure: it is possible to craft signatures that
@@ -112,11 +110,9 @@ library ECDSA {
      * this function rejects them by requiring the `s` value to be in the lower
      * half order, and the `v` value to be either 27 or 28.
      *
-     * NOTE: This function protects against malleability by only supporting 65 bytes long signatures, and rejecting
-     * EIP-2098 short signatures. This guarantee is DEPRECATED and will be removed in the next major release (v6.0).
-     * Developers SHOULD NOT use signatures as unique identifiers. If an operation must be marked as consumed to
-     * prevent replayability, either the `hash` (or the `hash`/`recovered` pair if multiple accounts are to sign the
-     * same hash) should be invalidated. Nonces are also a viable solution.
+     * NOTE: This function only supports 65-byte signatures. ERC-2098 short signatures are rejected. This restriction
+     * is DEPRECATED and will be removed in v6.0. Developers SHOULD NOT use signatures as unique identifiers; use hash
+     * invalidation or nonces for replay protection.
      *
      * IMPORTANT: `hash` _must_ be the result of a hash operation for the
      * verification to be secure: it is possible to craft signatures that
@@ -209,7 +205,7 @@ library ECDSA {
     }
 
     /**
-     * @dev Parse a signature into its `v`, `r` and `s` components. Supports both 65 bytes and 64 bytes (eip-2098)
+     * @dev Parse a signature into its `v`, `r` and `s` components. Supports both 65 bytes and 64 bytes (erc-2098)
      * signature formats. Returns 0, 0, 0 is the signature is not in a proper format.
      */
     function parse(bytes memory signature) internal pure returns (uint8 v, bytes32 r, bytes32 s) {
