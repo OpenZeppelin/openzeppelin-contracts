@@ -205,8 +205,8 @@ library ECDSA {
     }
 
     /**
-     * @dev Parse a signature into its `v`, `r` and `s` components. Supports both 65 bytes and 64 bytes (erc-2098)
-     * signature formats. Returns 0, 0, 0 is the signature is not in a proper format.
+     * @dev Parse a signature into its `v`, `r` and `s` components. Supports 65-byte and 64-byte (ERC-2098)
+     * formats. Returns (0,0,0) for invalid signatures. Consider skipping {tryRecover} or {recover} if so.
      */
     function parse(bytes memory signature) internal pure returns (uint8 v, bytes32 r, bytes32 s) {
         assembly ("memory-safe") {
