@@ -212,7 +212,7 @@ library ECDSA {
      * @dev Parse a signature into its `v`, `r` and `s` components. Supports both 65 bytes and 64 bytes (eip-2098)
      * signature formats. Returns 0, 0, 0 is the signature is not in a proper format.
      */
-    function parse(bytes memory signature) internal pure returns (int8 v, bytes32 r, bytes32 s) {
+    function parse(bytes memory signature) internal pure returns (uint8 v, bytes32 r, bytes32 s) {
         assembly ("memory-safe") {
             // Check the signature length
             switch mload(signature)
@@ -240,7 +240,7 @@ library ECDSA {
     /**
      * @dev Variant of {parse} that takes a signature in calldata
      */
-    function parseCalldata(bytes calldata signature) internal pure returns (int8 v, bytes32 r, bytes32 s) {
+    function parseCalldata(bytes calldata signature) internal pure returns (uint8 v, bytes32 r, bytes32 s) {
         assembly ("memory-safe") {
             // Check the signature length
             switch signature.length
