@@ -28,12 +28,6 @@ Note that even with the use of this module, one important difference with Compou
 
 When using a timelock with your Governor contract, you can use either OpenZeppelin’s TimelockController or Compound’s Timelock. Based on the choice of timelock, you should choose the corresponding Governor module: GovernorTimelockControl or GovernorTimelockCompound respectively. This allows you to migrate an existing GovernorAlpha instance to an OpenZeppelin-based Governor without changing the timelock in use.
 
-=== Tally
-
-https://www.tally.xyz[Tally] is a full-fledged application for user owned on-chain governance. It comprises a voting dashboard, proposal creation wizard, real time research and analysis, and educational content.
-
-For all of these options, the Governor will be compatible with Tally: users will be able to create proposals, see voting periods and delays following xref:api:interfaces.adoc#IERC6372[IERC6372], visualize voting power and advocates, navigate proposals, and cast votes. For proposal creation in particular, projects can also use https://docs.openzeppelin.com/defender/module/actions#transaction-proposals-reference[Defender Transaction Proposals] as an alternative interface.
-
 In the rest of this guide, we will focus on a fresh deploy of the vanilla OpenZeppelin Governor features without concern for compatibility with GovernorAlpha or Bravo.
 
 == Setup
@@ -237,3 +231,17 @@ contract MyGovernor is Governor, GovernorCountingSimple, GovernorVotes, Governor
 Timestamp based voting is a recent feature that was formalized in ERC-6372 and ERC-5805, and introduced in v4.9. At the time this feature is released, some governance tooling may not support it yet. Users can expect invalid reporting of deadlines & durations if the tool is not able to interpret the ERC6372 clock. This invalid reporting by offchain tools does not affect the onchain security and functionality of the governance contract.
 
 Governors with timestamp support (v4.9 and above) are compatible with old tokens (before v4.9) and will operate in "block number" mode (which is the mode all old tokens operate on). On the other hand, old Governor instances (before v4.9) are not compatible with new tokens operating using timestamps. If you update your token code to use timestamps, make sure to also update your Governor code.
+
+== Applications
+
+=== Tally
+
+https://www.tally.xyz[Tally] is a full-fledged application for user owned on-chain governance. It comprises a voting dashboard, proposal creation wizard, real time research and analysis, and educational content.
+
+For all of these options, the Governor will be compatible with Tally: users will be able to create proposals, see voting periods and delays following xref:api:interfaces.adoc#IERC6372[IERC6372], visualize voting power and advocates, navigate proposals, and cast votes. For proposal creation in particular, projects can also use https://docs.openzeppelin.com/defender/module/actions#transaction-proposals-reference[Defender Transaction Proposals] as an alternative interface.
+
+=== DeGov.AI
+
+https://apps.degov.ai[DeGov.AI] is an open-source, AI-powered governance platform built on Governor contracts. Similar to Tally, it is designed to enhance the DAO governance experience for users with features like proposal creation and management, and real-time analytics. As an open-source platform, it allows DAO maintainers to deploy or customize their own instance of DeGov.AI to suit their specific governance needs.
+
+It provides a unique user experience with AI agent governance, where agents in the DAO can receive voting power delegation from DAO members and vote on their behalf during the voting period, this can enhance the efficiency and responsiveness of governance processes. 
