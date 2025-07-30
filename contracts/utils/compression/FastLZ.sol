@@ -3,21 +3,16 @@
 pragma solidity ^0.8.20;
 
 /**
- * @dev Library for compressing and decompressing buffers. Supported compression algorithm:
- * * FastLZ (level1): (WIP) Do we want this? We should have an NodeJS implementation.
- * * Other LZ77/LZSS/LZ4: Do we want this?
- * * Deflate: Do we want this? The Huffman part is probably going to be a pain, and not worth it for "small" inputs.
- * * Brotli, bzip, gzip: Same as Deflate?
- * * Calldata optimized: Do we want this?
+ * @dev Library for compressing and decompressing buffers using FastLZ.
  */
-library Compression {
+library FastLZ {
     /**
      * @dev FastLZ level 1 decompression.
      *
      * Based on the reference implementation available here:
      * https://github.com/ariya/FastLZ?tab=readme-ov-file#decompressor-reference-implementation
      */
-    function flzDecompress(bytes memory input) internal pure returns (bytes memory output) {
+    function decompress(bytes memory input) internal pure returns (bytes memory output) {
         assembly ("memory-safe") {
             // Use new memory allocate at the FMP
             output := mload(0x40)

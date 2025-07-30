@@ -3,13 +3,11 @@
 pragma solidity ^0.8.20;
 
 import {Test} from "forge-std/Test.sol";
-import {Compression} from "@openzeppelin/contracts/utils/Compression.sol";
+import {FastLZ} from "@openzeppelin/contracts/utils/compression/FastLZ.sol";
 
-contract CompressionTest is Test {
-    using Compression for bytes;
-
+contract FastLZTest is Test {
     function testEncodeDecode(bytes memory input) external pure {
-        assertEq(_flzCompress(input).flzDecompress(), input);
+        assertEq(FastLZ.decompress(_flzCompress(input)), input);
     }
 
     /// Copied from solady
