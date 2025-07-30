@@ -72,7 +72,7 @@ library FastLZ {
         }
     }
 
-    function decompressCallinputPtr(bytes calldata input) internal pure returns (bytes memory output) {
+    function decompressCalldata(bytes calldata input) internal pure returns (bytes memory output) {
         assembly ("memory-safe") {
             // Use new memory allocate at the FMP
             output := mload(0x40)
