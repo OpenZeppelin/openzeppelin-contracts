@@ -63,7 +63,7 @@ library Snappy {
                 let c := byte(0, w)
 
                 // consider different cases based on the lower 2 bits of c
-                // - 0: litteral
+                // - 0: literal
                 // - 1,2,3: offset copy
                 switch and(c, 0x3)
                 case 0 {
@@ -179,7 +179,7 @@ library Snappy {
                 let c := byte(0, w)
 
                 // consider different cases based on the lower 2 bits of c
-                // - 0: litteral
+                // - 0: literal
                 // - 1,2,3: offset copy
                 switch and(c, 0x3)
                 case 0 {
