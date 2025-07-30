@@ -5,7 +5,7 @@ pragma solidity ^0.8.20;
 /**
  * @dev Library for decompressing data using FastLZ.
  *
- * See https://fr.wikipedia.org/wiki/FastLZ
+ * See https://ariya.github.io/FastLZ/
  */
 library FastLZ {
     /**
