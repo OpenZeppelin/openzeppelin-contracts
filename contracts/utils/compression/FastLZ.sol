@@ -3,7 +3,9 @@
 pragma solidity ^0.8.20;
 
 /**
- * @dev Library for compressing and decompressing buffers using FastLZ.
+ * @dev Library for decompressing data using FastLZ.
+ *
+ * See https://fr.wikipedia.org/wiki/FastLZ
  */
 library FastLZ {
     /**

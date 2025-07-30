@@ -3,7 +3,7 @@
 pragma solidity ^0.8.20;
 
 /**
- * @dev Library for compressing and decompressing buffers using Snappy.
+ * @dev Library for decompressing data using Snappy.
  *
  * See https://github.com/google/snappy
  */
