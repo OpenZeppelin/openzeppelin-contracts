@@ -11,7 +11,9 @@ library Snappy {
     error DecodingFailure();
 
     /**
-     * @dev Implementation of Snappy's uncompress function
+     * @dev Implementation of Snappy's uncompress function.
+     *
+     * Based on https://github.com/zhipeng-jia/snappyjs/blob/v0.7.0/snappy_decompressor.js[snappyjs javascript implementation].
      */
     function uncompress(bytes memory input) internal pure returns (bytes memory output) {
         bytes4 errorSelector = DecodingFailure.selector;
