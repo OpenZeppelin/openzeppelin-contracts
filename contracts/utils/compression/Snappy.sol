@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
 /**
  * @dev Library for decompressing data using Snappy.
@@ -76,14 +76,7 @@ library Snappy {
                         inputPtr := add(inputPtr, smallLen)
                     }
                     assert(not(gt(add(inputPtr, len), inputEnd)), errorSelector)
-                    // copy len bytes from input to output in chunks of 32 bytes
-                    for {
-                        let i := 0
-                    } lt(i, len) {
-                        i := add(i, 0x20)
-                    } {
-                        mstore(add(outputPtr, i), mload(add(inputPtr, i)))
-                    }
+                    mcopy(outputPtr, inputPtr, len)
                     inputPtr := add(inputPtr, len)
                     outputPtr := add(outputPtr, len)
 
@@ -110,17 +103,18 @@ library Snappy {
                 }
                 assert(and(iszero(iszero(offset)), not(gt(offset, sub(outputPtr, add(output, 0x20))))), errorSelector)
 
-                // copying in chunks will not work if the offset is larger than the chunk length, so we compute
-                // `step = Math.min(0x20, offset)` and use it for the memory copy
-                let step := xor(0x20, mul(lt(offset, 0x20), xor(0x20, offset)))
+                // copying in will not work if the offset is larger than the len being copied, so we compute
+                // `step = Math.min(len, offset)` and use it for the memory copy in chunks
+                let step := xor(offset, mul(lt(len, offset), xor(len, offset))) // min(len, offset)
 
                 // copy len bytes from output to itself.
                 for {
-                    let i := 0
-                } lt(i, len) {
-                    i := add(i, step)
+                    let ptr := outputPtr
+                    let end := add(outputPtr, len)
+                } lt(ptr, end) {
+                    ptr := add(ptr, step)
                 } {
-                    mstore(add(outputPtr, i), mload(sub(add(outputPtr, i), offset)))
+                    mcopy(ptr, sub(ptr, offset), step)
                 }
                 outputPtr := add(outputPtr, len)
             }
@@ -220,17 +214,18 @@ library Snappy {
                 }
                 assert(and(iszero(iszero(offset)), not(gt(offset, sub(outputPtr, add(output, 0x20))))), errorSelector)
 
-                // copying in chunks will not work if the offset is larger than the chunk length, so we compute
-                // `step = Math.min(0x20, offset)` and use it for the memory copy
-                let step := xor(0x20, mul(lt(offset, 0x20), xor(0x20, offset)))
+                // copying in will not work if the offset is larger than the len being copied, so we compute
+                // `step = Math.min(len, offset)` and use it for the memory copy in chunks
+                let step := xor(offset, mul(lt(len, offset), xor(len, offset))) // min(len, offset)
 
                 // copy len bytes from output to itself.
                 for {
-                    let i := 0
-                } lt(i, len) {
-                    i := add(i, step)
+                    let ptr := outputPtr
+                    let end := add(outputPtr, len)
+                } lt(ptr, end) {
+                    ptr := add(ptr, step)
                 } {
-                    mstore(add(outputPtr, i), mload(sub(add(outputPtr, i), offset)))
+                    mcopy(ptr, sub(ptr, offset), step)
                 }
                 outputPtr := add(outputPtr, len)
             }
