@@ -109,14 +109,14 @@ library Snappy {
                 assert(and(iszero(iszero(offset)), not(gt(offset, sub(outputPtr, add(output, 0x20))))), errorSelector)
 
                 // copying in chunks will not work if the offset is larger than the chunk length, so we compute
-                // `chunkSize = Math.min(0x20, offset)` and use it for the memory copy
-                let chunkSize := xor(0x20, mul(lt(offset, 0x20), xor(0x20, offset)))
+                // `step = Math.min(0x20, offset)` and use it for the memory copy
+                let step := xor(0x20, mul(lt(offset, 0x20), xor(0x20, offset)))
 
                 // copy len bytes from output to itself.
                 for {
                     let i := 0
                 } lt(i, len) {
-                    i := add(i, chunkSize)
+                    i := add(i, step)
                 } {
                     mstore(add(outputPtr, i), mload(sub(add(outputPtr, i), offset)))
                 }
@@ -219,14 +219,14 @@ library Snappy {
                 assert(and(iszero(iszero(offset)), not(gt(offset, sub(outputPtr, add(output, 0x20))))), errorSelector)
 
                 // copying in chunks will not work if the offset is larger than the chunk length, so we compute
-                // `chunkSize = Math.min(0x20, offset)` and use it for the memory copy
-                let chunkSize := xor(0x20, mul(lt(offset, 0x20), xor(0x20, offset)))
+                // `step = Math.min(0x20, offset)` and use it for the memory copy
+                let step := xor(0x20, mul(lt(offset, 0x20), xor(0x20, offset)))
 
                 // copy len bytes from output to itself.
                 for {
                     let i := 0
                 } lt(i, len) {
-                    i := add(i, chunkSize)
+                    i := add(i, step)
                 } {
                     mstore(add(outputPtr, i), mload(sub(add(outputPtr, i), offset)))
                 }

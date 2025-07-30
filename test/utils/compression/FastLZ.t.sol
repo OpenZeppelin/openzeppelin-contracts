@@ -10,6 +10,14 @@ contract FastLZTest is Test {
         assertEq(FastLZ.decompress(_flzCompress(input)), input);
     }
 
+    function testEncodeDecodeCalldata(bytes memory input) external view {
+        assertEq(this.decompressCalldata(_flzCompress(input)), input);
+    }
+
+    function decompressCalldata(bytes calldata input) external pure returns (bytes memory) {
+        return FastLZ.decompress(input);
+    }
+
     /// Copied from solady
     function _flzCompress(bytes memory input) private pure returns (bytes memory output) {
         assembly ("memory-safe") {
