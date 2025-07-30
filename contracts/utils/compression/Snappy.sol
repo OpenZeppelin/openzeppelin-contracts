@@ -26,11 +26,9 @@ library Snappy {
                     revert(0, 0x04)
                 }
             }
-
             // input buffer bounds
             let inputBegin := add(input, 0x20)
             let inputEnd := add(inputBegin, mload(input))
-
             // input traversal pointer
             let inputPtr := inputBegin
             // read length of the decompressed buffer
@@ -45,13 +43,11 @@ library Snappy {
                 }
             }
             inputPtr := add(inputPtr, 1)
-
             // allocated output buffer
             output := mload(0x40)
             let outputPtr := add(output, 0x20)
             mstore(output, outputLength)
             mstore(0x40, add(outputPtr, outputLength))
-
             // decompress input buffer into output buffer
             for {
                 let len, offset
@@ -59,9 +55,7 @@ library Snappy {
                 // get next (compressed) word -- used as a cache for further reads
                 let w := mload(inputPtr)
                 inputPtr := add(inputPtr, 1)
-
                 let c := byte(0, w)
-
                 // consider different cases based on the lower 2 bits of c
                 // - 0: literal
                 // - 1,2,3: offset copy
@@ -79,7 +73,6 @@ library Snappy {
                     mcopy(outputPtr, inputPtr, len)
                     inputPtr := add(inputPtr, len)
                     outputPtr := add(outputPtr, len)
-
                     // continue to skip the offset copy logic that is shared by the other 3 cases
                     continue
                 }
@@ -102,15 +95,12 @@ library Snappy {
                     inputPtr := add(inputPtr, 4)
                 }
                 assert(and(iszero(iszero(offset)), not(gt(offset, sub(outputPtr, add(output, 0x20))))), errorSelector)
-
                 // copying in will not work if the offset is larger than the len being copied, so we compute
                 // `step = Math.min(len, offset)` and use it for the memory copy in chunks
-                let step := xor(offset, mul(lt(len, offset), xor(len, offset))) // min(len, offset)
-
-                // copy len bytes from output to itself.
                 for {
                     let ptr := outputPtr
                     let end := add(outputPtr, len)
+                    let step := xor(offset, mul(lt(len, offset), xor(len, offset))) // min(len, offset)
                 } lt(ptr, end) {
                     ptr := add(ptr, step)
                 } {
@@ -118,7 +108,6 @@ library Snappy {
                 }
                 outputPtr := add(outputPtr, len)
             }
-
             // sanity check, FMP is at the right location
             assert(eq(outputPtr, mload(0x40)), errorSelector)
         }
@@ -136,11 +125,9 @@ library Snappy {
                     revert(0, 0x04)
                 }
             }
-
             // input buffer bounds
             let inputBegin := input.offset
             let inputEnd := add(inputBegin, input.length)
-
             // input traversal pointer
             let inputPtr := inputBegin
             // read length of the decompressed buffer
@@ -155,13 +142,11 @@ library Snappy {
                 }
             }
             inputPtr := add(inputPtr, 1)
-
             // allocated output buffer
             output := mload(0x40)
             let outputPtr := add(output, 0x20)
             mstore(output, outputLength)
             mstore(0x40, add(outputPtr, outputLength))
-
             // decompress input buffer into output buffer
             for {
                 let len, offset
@@ -169,12 +154,10 @@ library Snappy {
                 // get next (compressed) word -- used as a cache for further reads
                 let w := calldataload(inputPtr)
                 inputPtr := add(inputPtr, 1)
-
                 let c := byte(0, w)
-
                 // consider different cases based on the lower 2 bits of c
                 // - 0: literal
-                // - 1,2,3: offset copy
+                // - 1, 2, 3: offset copy
                 switch and(c, 0x3)
                 case 0 {
                     len := add(shr(2, c), 1)
@@ -190,7 +173,6 @@ library Snappy {
                     calldatacopy(outputPtr, inputPtr, len)
                     inputPtr := add(inputPtr, len)
                     outputPtr := add(outputPtr, len)
-
                     // continue to skip the offset copy logic that is shared by the other 3 cases
                     continue
                 }
@@ -213,15 +195,12 @@ library Snappy {
                     inputPtr := add(inputPtr, 4)
                 }
                 assert(and(iszero(iszero(offset)), not(gt(offset, sub(outputPtr, add(output, 0x20))))), errorSelector)
-
                 // copying in will not work if the offset is larger than the len being copied, so we compute
                 // `step = Math.min(len, offset)` and use it for the memory copy in chunks
-                let step := xor(offset, mul(lt(len, offset), xor(len, offset))) // min(len, offset)
-
-                // copy len bytes from output to itself.
                 for {
                     let ptr := outputPtr
                     let end := add(outputPtr, len)
+                    let step := xor(offset, mul(lt(len, offset), xor(len, offset))) // min(len, offset)
                 } lt(ptr, end) {
                     ptr := add(ptr, step)
                 } {
@@ -229,7 +208,6 @@ library Snappy {
                 }
                 outputPtr := add(outputPtr, len)
             }
-
             // sanity check, FMP is at the right location
             assert(eq(outputPtr, mload(0x40)), errorSelector)
         }
