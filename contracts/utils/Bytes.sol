@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.2.0) (utils/Bytes.sol)
+// OpenZeppelin Contracts (last updated v5.4.0) (utils/Bytes.sol)
 
 pragma solidity ^0.8.24;
 
@@ -58,8 +58,7 @@ library Bytes {
     function lastIndexOf(bytes memory buffer, bytes1 s, uint256 pos) internal pure returns (uint256) {
         unchecked {
             uint256 length = buffer.length;
-            // NOTE here we cannot do `i = Math.min(pos + 1, length)` because `pos + 1` could overflow
-            for (uint256 i = Math.min(pos, length - 1) + 1; i > 0; --i) {
+            for (uint256 i = Math.min(Math.saturatingAdd(pos, 1), length); i > 0; --i) {
                 if (bytes1(_unsafeReadBytesOffset(buffer, i - 1)) == s) {
                     return i - 1;
                 }
@@ -80,7 +79,7 @@ library Bytes {
 
     /**
      * @dev Copies the content of `buffer`, from `start` (included) to `end` (excluded) into a new bytes object in
-     * memory.
+     * memory. The `end` argument is truncated to the length of the `buffer`.
      *
      * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice[Javascript's `Array.slice`]
      */
@@ -97,6 +96,109 @@ library Bytes {
         }
 
         return result;
+    }
+
+    /**
+     * @dev Moves the content of `buffer`, from `start` (included) to the end of `buffer` to the start of that buffer.
+     *
+     * NOTE: This function modifies the provided buffer in place. If you need to preserve the original buffer, use {slice} instead
+     */
+    function splice(bytes memory buffer, uint256 start) internal pure returns (bytes memory) {
+        return splice(buffer, start, buffer.length);
+    }
+
+    /**
+     * @dev Moves the content of `buffer`, from `start` (included) to end (excluded) to the start of that buffer. The
+     * `end` argument is truncated to the length of the `buffer`.
+     *
+     * NOTE: This function modifies the provided buffer in place. If you need to preserve the original buffer, use {slice} instead
+     */
+    function splice(bytes memory buffer, uint256 start, uint256 end) internal pure returns (bytes memory) {
+        // sanitize
+        uint256 length = buffer.length;
+        end = Math.min(end, length);
+        start = Math.min(start, end);
+
+        // allocate and copy
+        assembly ("memory-safe") {
+            mcopy(add(buffer, 0x20), add(add(buffer, 0x20), start), sub(end, start))
+            mstore(buffer, sub(end, start))
+        }
+
+        return buffer;
+    }
+
+    /**
+     * @dev Returns true if the two byte buffers are equal.
+     */
+    function equal(bytes memory a, bytes memory b) internal pure returns (bool) {
+        return a.length == b.length && keccak256(a) == keccak256(b);
+    }
+
+    /**
+     * @dev Reverses the byte order of a bytes32 value, converting between little-endian and big-endian.
+     * Inspired in https://graphics.stanford.edu/~seander/bithacks.html#ReverseParallel[Reverse Parallel]
+     */
+    function reverseBytes32(bytes32 value) internal pure returns (bytes32) {
+        value = // swap bytes
+            ((value >> 8) & 0x00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF) |
+            ((value & 0x00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF) << 8);
+        value = // swap 2-byte long pairs
+            ((value >> 16) & 0x0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF) |
+            ((value & 0x0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF) << 16);
+        value = // swap 4-byte long pairs
+            ((value >> 32) & 0x00000000FFFFFFFF00000000FFFFFFFF00000000FFFFFFFF00000000FFFFFFFF) |
+            ((value & 0x00000000FFFFFFFF00000000FFFFFFFF00000000FFFFFFFF00000000FFFFFFFF) << 32);
+        value = // swap 8-byte long pairs
+            ((value >> 64) & 0x0000000000000000FFFFFFFFFFFFFFFF0000000000000000FFFFFFFFFFFFFFFF) |
+            ((value & 0x0000000000000000FFFFFFFFFFFFFFFF0000000000000000FFFFFFFFFFFFFFFF) << 64);
+        return (value >> 128) | (value << 128); // swap 16-byte long pairs
+    }
+
+    /// @dev Same as {reverseBytes32} but optimized for 128-bit values.
+    function reverseBytes16(bytes16 value) internal pure returns (bytes16) {
+        value = // swap bytes
+            ((value & 0xFF00FF00FF00FF00FF00FF00FF00FF00) >> 8) |
+            ((value & 0x00FF00FF00FF00FF00FF00FF00FF00FF) << 8);
+        value = // swap 2-byte long pairs
+            ((value & 0xFFFF0000FFFF0000FFFF0000FFFF0000) >> 16) |
+            ((value & 0x0000FFFF0000FFFF0000FFFF0000FFFF) << 16);
+        value = // swap 4-byte long pairs
+            ((value & 0xFFFFFFFF00000000FFFFFFFF00000000) >> 32) |
+            ((value & 0x00000000FFFFFFFF00000000FFFFFFFF) << 32);
+        return (value >> 64) | (value << 64); // swap 8-byte long pairs
+    }
+
+    /// @dev Same as {reverseBytes32} but optimized for 64-bit values.
+    function reverseBytes8(bytes8 value) internal pure returns (bytes8) {
+        value = ((value & 0xFF00FF00FF00FF00) >> 8) | ((value & 0x00FF00FF00FF00FF) << 8); // swap bytes
+        value = ((value & 0xFFFF0000FFFF0000) >> 16) | ((value & 0x0000FFFF0000FFFF) << 16); // swap 2-byte long pairs
+        return (value >> 32) | (value << 32); // swap 4-byte long pairs
+    }
+
+    /// @dev Same as {reverseBytes32} but optimized for 32-bit values.
+    function reverseBytes4(bytes4 value) internal pure returns (bytes4) {
+        value = ((value & 0xFF00FF00) >> 8) | ((value & 0x00FF00FF) << 8); // swap bytes
+        return (value >> 16) | (value << 16); // swap 2-byte long pairs
+    }
+
+    /// @dev Same as {reverseBytes32} but optimized for 16-bit values.
+    function reverseBytes2(bytes2 value) internal pure returns (bytes2) {
+        return (value >> 8) | (value << 8);
+    }
+
+    /**
+     * @dev Counts the number of leading zero bits a bytes array. Returns `8 * buffer.length`
+     * if the buffer is all zeros.
+     */
+    function clz(bytes memory buffer) internal pure returns (uint256) {
+        for (uint256 i = 0; i < buffer.length; i += 32) {
+            bytes32 chunk = _unsafeReadBytesOffset(buffer, i);
+            if (chunk != bytes32(0)) {
+                return Math.min(8 * i + Math.clz(uint256(chunk)), 8 * buffer.length);
+            }
+        }
+        return 8 * buffer.length;
     }
 
     /**
