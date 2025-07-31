@@ -1,4 +1,4 @@
-const { ethers, eip2935 } = require('hardhat');
+const { ethers, predeploy } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture, mineUpTo, setCode } = require('@nomicfoundation/hardhat-network-helpers');
 const { impersonate } = require('../helpers/account');
@@ -24,9 +24,9 @@ describe('Blockhash', function () {
     describe(`${supported ? 'supported' : 'unsupported'} chain`, function () {
       beforeEach(async function () {
         if (supported) {
-          await this.systemSigner.sendTransaction({ to: eip2935, data: this.latestBlock.hash });
+          await this.systemSigner.sendTransaction({ to: predeploy.eip2935, data: this.latestBlock.hash });
         } else {
-          await setCode(eip2935.target, '0x');
+          await setCode(predeploy.eip2935.target, '0x');
         }
       });
 
