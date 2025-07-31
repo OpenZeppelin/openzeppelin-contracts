@@ -308,6 +308,25 @@ contract MathTest is Test {
         }
     }
 
+    function testSymbolicCountLeadingZeroes(uint256 x) public pure {
+        uint256 result = Math.clz(x);
+
+        if (x == 0) {
+            assertEq(result, 256);
+        } else {
+            // result in [0, 255]
+            assertLe(result, 255);
+
+            // bit at position offset must be non zero
+            uint256 singleBitMask = uint256(1) << (255 - result);
+            assertEq(x & singleBitMask, singleBitMask);
+
+            // all bits before offset must be zero
+            uint256 multiBitsMask = type(uint256).max << (256 - result);
+            assertEq(x & multiBitsMask, 0);
+        }
+    }
+
     // Helpers
     function _asRounding(uint8 r) private pure returns (Math.Rounding) {
         vm.assume(r < uint8(type(Math.Rounding).max));
