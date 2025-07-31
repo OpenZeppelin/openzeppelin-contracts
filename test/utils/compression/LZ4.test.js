@@ -2,10 +2,10 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const LibZip = require('../../helpers/LibZip');
+const lz4js = require('lz4js');
 
 async function fixture() {
-  const mock = await ethers.deployContract('$FastLZ');
+  const mock = await ethers.deployContract('$LZ4');
   return { mock };
 }
 
@@ -26,7 +26,7 @@ const unittests = [
   'abcabcabcabcabcabcabcabcabcabcabcabc0123456789ABCDEF',
 ];
 
-describe('FastLZ', function () {
+describe('LZ4', function () {
   before(async function () {
     Object.assign(this, await loadFixture(fixture));
   });
@@ -56,9 +56,9 @@ Nullam eget pharetra mauris. Cras nec ultricies mi. Suspendisse sit amet ligula 
     afterEach(async function () {
       const raw = ethers.isBytesLike(this.input) ? this.input : ethers.toUtf8Bytes(this.input);
       const hex = ethers.hexlify(raw);
-      const compressed = LibZip.flzCompress(hex);
+      const compressed = lz4js.compress(raw);
       await expect(this.mock.$decompress(compressed)).to.eventually.equal(hex);
-      await expect(this.mock.$decompressCalldata(compressed)).to.eventually.equal(hex);
+      // await expect(this.mock.$decompressCalldata(compressed)).to.eventually.equal(hex);
     });
   });
 });

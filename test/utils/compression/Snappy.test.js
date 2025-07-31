@@ -31,7 +31,7 @@ describe('Snappy', function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
-  describe("uncompress", function () {
+  describe('uncompress', function () {
     for (const [i, str] of Object.entries(unittests)) {
       it(`Google's unit tests #${i}: length ${str.length}`, async function () {
         this.input = str;
@@ -40,7 +40,7 @@ describe('Snappy', function () {
 
     it('Lorem ipsum...', async function () {
       this.input =
-'\
+        '\
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas ligula urna, bibendum sagittis eleifend non, rutrum sit amet lectus. Donec eu pellentesque dolor, varius lobortis erat. In viverra diam in nunc porta, at pretium orci hendrerit. Duis suscipit lacus eu sodales imperdiet. Donec rhoncus tincidunt sem sed laoreet. Suspendisse potenti. Suspendisse a dictum diam, a porttitor augue. Praesent sodales quis nisi sed auctor. Nullam efficitur est eros, a tincidunt velit faucibus consequat. Praesent urna leo, imperdiet ut mi eu, pellentesque mattis ante. Suspendisse cursus lacus ac urna egestas, vitae ultricies ante porttitor. In sed risus vitae nunc faucibus tristique.\
 Quisque aliquet bibendum augue, et tristique lorem pellentesque quis. Nulla rhoncus erat sed velit luctus, in cursus neque suscipit. Quisque sit amet mauris nec enim congue sagittis eu nec diam. Quisque a enim a leo aliquam vestibulum a ut risus. In hendrerit cursus nisl, et porttitor dolor volutpat non. Donec rhoncus, nisl ut blandit porta, libero felis vulputate ante, et pharetra ex risus et enim. Vestibulum eu ultricies ipsum, quis auctor odio. Morbi ornare metus nec purus elementum, eu interdum magna dapibus. Aliquam odio ipsum, semper in nisl tristique, fermentum porta risus. Curabitur facilisis felis a molestie dignissim. Pellentesque aliquet sagittis sodales. Fusce at dignissim mi. Nulla a tempus quam.\
 Nam et egestas quam. Aliquam bibendum iaculis mauris a sagittis. Suspendisse tincidunt, magna vitae scelerisque pharetra, orci nisi venenatis est, sit amet consequat ligula dolor eu felis. Nulla suscipit eleifend augue, et commodo elit lobortis eget. Integer pharetra commodo metus, at accumsan arcu porttitor sed. Ut eu nulla sit amet diam imperdiet fermentum id in erat. Curabitur at neque ornare neque dictum malesuada a nec enim. Ut ac aliquam mauris, eu pretium urna. Donec vitae leo eros. Phasellus et purus rhoncus, accumsan ligula vel, sagittis lectus. Mauris sed lectus elementum, porta nisl eget, convallis ligula. Aenean pellentesque arcu ac lacus scelerisque sollicitudin. Nunc vitae enim egestas, sollicitudin ipsum vulputate, fringilla urna. Aenean eget libero sollicitudin, sagittis lorem in, convallis nibh.\
@@ -54,8 +54,9 @@ Nullam eget pharetra mauris. Cras nec ultricies mi. Suspendisse sit amet ligula 
     });
 
     afterEach(async function () {
-      const compressed = snappy.compressSync(this.input);
-      const hex = ethers.hexlify(ethers.isBytesLike(this.input) ? this.input : ethers.toUtf8Bytes(this.input));
+      const raw = ethers.isBytesLike(this.input) ? this.input : ethers.toUtf8Bytes(this.input);
+      const hex = ethers.hexlify(raw);
+      const compressed = snappy.compressSync(raw);
       await expect(this.mock.$uncompress(compressed)).to.eventually.equal(hex);
       await expect(this.mock.$uncompressCalldata(compressed)).to.eventually.equal(hex);
     });
