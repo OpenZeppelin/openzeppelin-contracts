@@ -243,7 +243,7 @@ library TrieProof {
     }
 
     /// @dev Split each byte in `value` into two nibbles (4 bits each).
-    function _nibbles(bytes memory value) internal pure returns (bytes memory) {
+    function _nibbles(bytes memory value) private pure returns (bytes memory) {
         uint256 length = value.length;
         bytes memory nibbles_ = new bytes(length * 2);
         for (uint256 i = 0; i < length; i++) {
