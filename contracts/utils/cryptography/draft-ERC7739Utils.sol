@@ -58,7 +58,7 @@ library ERC7739Utils {
      * - `APP_DOMAIN_SEPARATOR` is the EIP-712 {EIP712-_domainSeparatorV4} of the application smart contract that is
      *   requesting the signature verification (though ERC-1271).
      * - `contentsHash` is the hash of the underlying data structure or message.
-     * - `contentsDescr` is a descriptor of the "contents" part of the the EIP-712 type of the nested signature.
+     * - `contentsDescr` is a descriptor of the "contents" part of the EIP-712 type of the nested signature.
      *
      * NOTE: This function returns empty if the input format is invalid instead of reverting.
      * data instead.
