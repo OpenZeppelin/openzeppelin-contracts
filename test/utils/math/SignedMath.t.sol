@@ -47,7 +47,7 @@ contract SignedMathTest is Test {
         assertEq(result, (a + b) / 2);
     }
 
-    // 2. more complex test, full int256 range
+    // 2. more complex test, full int256 range (solver timeout 0 = no timeout)
     /// @custom:halmos --solver-timeout-assertion 0
     function testSymbolicAverage2(int256 a, int256 b) public pure {
         (int256 result, int256 min, int256 max) = (
