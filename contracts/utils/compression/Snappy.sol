@@ -16,16 +16,7 @@ library Snappy {
      * Based on https://github.com/zhipeng-jia/snappyjs/blob/v0.7.0/snappy_decompressor.js[snappyjs javascript implementation].
      */
     function uncompress(bytes memory input) internal pure returns (bytes memory output) {
-        bytes4 errorSelector = DecodingFailure.selector;
-
         assembly ("memory-safe") {
-            // helper: revert with custom error (without args) if boolean isn't true
-            function assert(b, e) {
-                if iszero(b) {
-                    mstore(0, e)
-                    revert(0, 0x04)
-                }
-            }
             // input buffer bounds
             let inputBegin := add(input, 0x20)
             let inputEnd := add(inputBegin, mload(input))
@@ -63,13 +54,11 @@ library Snappy {
                 case 0 {
                     len := add(shr(2, c), 1)
                     if gt(len, 60) {
-                        assert(lt(add(inputPtr, 3), inputEnd), errorSelector)
                         let smallLen := sub(len, 60)
                         len := or(or(byte(1, w), shl(8, byte(2, w))), or(shl(16, byte(3, w)), shl(24, byte(4, w))))
                         len := add(and(len, shr(sub(256, mul(8, smallLen)), not(0))), 1)
                         inputPtr := add(inputPtr, smallLen)
                     }
-                    assert(not(gt(add(inputPtr, len), inputEnd)), errorSelector)
                     mcopy(outputPtr, inputPtr, len)
                     inputPtr := add(inputPtr, len)
                     outputPtr := add(outputPtr, len)
@@ -77,24 +66,20 @@ library Snappy {
                     continue
                 }
                 case 1 {
-                    assert(lt(inputPtr, inputEnd), errorSelector)
                     len := add(and(shr(2, c), 0x7), 4)
                     offset := add(byte(1, w), shl(8, shr(5, c)))
                     inputPtr := add(inputPtr, 1)
                 }
                 case 2 {
-                    assert(lt(add(inputPtr, 1), inputEnd), errorSelector)
                     len := add(shr(2, c), 1)
                     offset := add(byte(1, w), shl(8, byte(2, w)))
                     inputPtr := add(inputPtr, 2)
                 }
                 case 3 {
-                    assert(lt(add(inputPtr, 3), inputEnd), errorSelector)
                     len := add(shr(2, c), 1)
                     offset := add(add(byte(1, w), shl(8, byte(2, w))), add(shl(16, byte(3, w)), shl(24, byte(4, w))))
                     inputPtr := add(inputPtr, 4)
                 }
-                assert(and(iszero(iszero(offset)), not(gt(offset, sub(outputPtr, add(output, 0x20))))), errorSelector)
                 // copying in will not work if the offset is larger than the len being copied, so we compute
                 // `step = Math.min(len, offset)` and use it for the memory copy in chunks
                 for {
@@ -108,23 +93,16 @@ library Snappy {
                 }
                 outputPtr := add(outputPtr, len)
             }
-            // sanity check, FMP is at the right location
-            assert(eq(outputPtr, mload(0x40)), errorSelector)
+            // sanity check, we did not read more than the input and FMP is at the right location
+            if iszero(and(eq(inputPtr, inputEnd), eq(outputPtr, mload(0x40)))) {
+                revert(0, 0)
+            }
         }
     }
 
     /// @dev Variant of {uncompress} that takes a buffer from calldata.
     function uncompressCalldata(bytes calldata input) internal pure returns (bytes memory output) {
-        bytes4 errorSelector = DecodingFailure.selector;
-
         assembly ("memory-safe") {
-            // helper: revert with custom error (without args) if boolean isn't true
-            function assert(b, e) {
-                if iszero(b) {
-                    mstore(0, e)
-                    revert(0, 0x04)
-                }
-            }
             // input buffer bounds
             let inputBegin := input.offset
             let inputEnd := add(inputBegin, input.length)
@@ -162,13 +140,11 @@ library Snappy {
                 case 0 {
                     len := add(shr(2, c), 1)
                     if gt(len, 60) {
-                        assert(lt(add(inputPtr, 3), inputEnd), errorSelector)
                         let smallLen := sub(len, 60)
                         len := or(or(byte(1, w), shl(8, byte(2, w))), or(shl(16, byte(3, w)), shl(24, byte(4, w))))
                         len := add(and(len, shr(sub(256, mul(8, smallLen)), not(0))), 1)
                         inputPtr := add(inputPtr, smallLen)
                     }
-                    assert(not(gt(add(inputPtr, len), inputEnd)), errorSelector)
                     // copy len bytes from input to output in chunks of 32 bytes
                     calldatacopy(outputPtr, inputPtr, len)
                     inputPtr := add(inputPtr, len)
@@ -177,24 +153,21 @@ library Snappy {
                     continue
                 }
                 case 1 {
-                    assert(lt(inputPtr, inputEnd), errorSelector)
                     len := add(and(shr(2, c), 0x7), 4)
                     offset := add(byte(1, w), shl(8, shr(5, c)))
                     inputPtr := add(inputPtr, 1)
                 }
                 case 2 {
-                    assert(lt(add(inputPtr, 1), inputEnd), errorSelector)
                     len := add(shr(2, c), 1)
                     offset := add(byte(1, w), shl(8, byte(2, w)))
                     inputPtr := add(inputPtr, 2)
                 }
                 case 3 {
-                    assert(lt(add(inputPtr, 3), inputEnd), errorSelector)
+                    len := add(shr(2, c), 1)
                     len := add(shr(2, c), 1)
                     offset := add(add(byte(1, w), shl(8, byte(2, w))), add(shl(16, byte(3, w)), shl(24, byte(4, w))))
                     inputPtr := add(inputPtr, 4)
                 }
-                assert(and(iszero(iszero(offset)), not(gt(offset, sub(outputPtr, add(output, 0x20))))), errorSelector)
                 // copying in will not work if the offset is larger than the len being copied, so we compute
                 // `step = Math.min(len, offset)` and use it for the memory copy in chunks
                 for {
@@ -208,8 +181,10 @@ library Snappy {
                 }
                 outputPtr := add(outputPtr, len)
             }
-            // sanity check, FMP is at the right location
-            assert(eq(outputPtr, mload(0x40)), errorSelector)
+            // sanity check, we did not read more than the input and FMP is at the right location
+            if iszero(and(eq(inputPtr, inputEnd), eq(outputPtr, mload(0x40)))) {
+                revert(0, 0)
+            }
         }
     }
 }

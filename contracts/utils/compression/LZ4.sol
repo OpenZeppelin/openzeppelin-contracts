@@ -43,13 +43,6 @@ library LZ4 {
                     revert(0, 4)
                 }
             }
-            function adv(ptr, end, l, e) -> ptr_ {
-                ptr_ := add(ptr, l)
-                if gt(ptr_, end) {
-                    mstore(0, e)
-                    revert(0, 4)
-                }
-            }
             // input buffer
             let inputPtr := add(input, 0x20)
             let inputEnd := add(inputPtr, mload(input))
@@ -72,7 +65,7 @@ library LZ4 {
             let bsIdx := and(shr(BS_SHIFT, byte(5, header)), BS_MASK)
             assert(and(gt(bsIdx, 3), lt(bsIdx, 8)), decodingFailureCode)
             // move forward 7 or 15 bytes depending on "useContentSize"
-            inputPtr := adv(inputPtr, inputEnd, add(7, mul(useContentSize, 8)), decodingFailureCode)
+            inputPtr := add(inputPtr, add(7, mul(useContentSize, 8)))
             // read blocks
             for {} 1 {} {
                 let chunk := mload(inputPtr)
@@ -81,14 +74,14 @@ library LZ4 {
                     or(byte(0, chunk), shl(8, byte(1, chunk))),
                     or(shl(16, byte(2, chunk)), shl(24, byte(3, chunk)))
                 )
-                inputPtr := adv(inputPtr, inputEnd, 4, decodingFailureCode)
+                inputPtr := add(inputPtr, 4)
                 // empty block means we are done with decoding
                 if iszero(blockLength) {
                     break
                 }
                 // read block checksum if "useBlockSum" (from chunk) ?
                 if useBlockSum {
-                    inputPtr := adv(inputPtr, inputEnd, 4, decodingFailureCode)
+                    inputPtr := add(inputPtr, 4)
                 }
                 // check if block is compressed
                 switch iszero(and(blockLength, BS_UNCOMPRESSED))
@@ -98,7 +91,7 @@ library LZ4 {
                     blockLength := and(blockLength, not(BS_UNCOMPRESSED))
                     // copy uncompressed data to the output buffer
                     mcopy(outputPtr, inputPtr, blockLength)
-                    inputPtr := adv(inputPtr, inputEnd, blockLength, decodingFailureCode)
+                    inputPtr := add(inputPtr, blockLength)
                     outputPtr := add(outputPtr, blockLength)
                 }
                 // compressed block case
@@ -106,7 +99,7 @@ library LZ4 {
                     let blockEnd := add(inputPtr, blockLength)
                     for {} lt(inputPtr, blockEnd) {} {
                         let token := byte(0, mload(inputPtr))
-                        inputPtr := adv(inputPtr, blockEnd, 1, decodingFailureCode)
+                        inputPtr := add(inputPtr, 1)
                         // literals to copy
                         let literalLength := shr(4, token)
                         if literalLength {
@@ -114,7 +107,7 @@ library LZ4 {
                             if eq(literalLength, 0xf) {
                                 for {} 1 {} {
                                     let count := byte(0, mload(inputPtr))
-                                    inputPtr := adv(inputPtr, blockEnd, 1, decodingFailureCode)
+                                    inputPtr := add(inputPtr, 1)
                                     literalLength := add(literalLength, count)
                                     if lt(count, 0xff) {
                                         break
@@ -122,7 +115,7 @@ library LZ4 {
                                 }
                             }
                             mcopy(outputPtr, inputPtr, literalLength)
-                            inputPtr := adv(inputPtr, blockEnd, literalLength, decodingFailureCode)
+                            inputPtr := add(inputPtr, literalLength)
                             outputPtr := add(outputPtr, literalLength)
                         }
                         // if we are done reading the block, break the switch (continue the loop)
@@ -132,13 +125,13 @@ library LZ4 {
                         // read offset (32 bits = 4 bytes reverse endianness)
                         chunk := mload(inputPtr)
                         let offset := or(byte(0, chunk), shl(8, byte(1, chunk)))
-                        inputPtr := adv(inputPtr, blockEnd, 2, decodingFailureCode)
+                        inputPtr := add(inputPtr, 2)
                         // parse length of the copy section
                         let copyLength := and(token, 0xf)
                         if eq(copyLength, 0xf) {
                             for {} 1 {} {
                                 let count := byte(0, mload(inputPtr))
-                                inputPtr := adv(inputPtr, blockEnd, 1, decodingFailureCode)
+                                inputPtr := add(inputPtr, 1)
                                 copyLength := add(copyLength, count)
                                 if lt(count, 0xff) {
                                     break
@@ -161,7 +154,8 @@ library LZ4 {
                     assert(eq(inputPtr, blockEnd), decodingFailureCode)
                 }
             }
-            // reserve used memory
+            assert(eq(inputPtr, inputEnd), decodingFailureCode)
+            // allocate used memory
             mstore(output, sub(outputPtr, add(output, 0x20)))
             mstore(0x40, outputPtr)
         }
@@ -175,13 +169,6 @@ library LZ4 {
         assembly ("memory-safe") {
             function assert(b, e) {
                 if iszero(b) {
-                    mstore(0, e)
-                    revert(0, 4)
-                }
-            }
-            function adv(ptr, end, l, e) -> ptr_ {
-                ptr_ := add(ptr, l)
-                if gt(ptr_, end) {
                     mstore(0, e)
                     revert(0, 4)
                 }
@@ -208,7 +195,7 @@ library LZ4 {
             let bsIdx := and(shr(BS_SHIFT, byte(5, header)), BS_MASK)
             assert(and(gt(bsIdx, 3), lt(bsIdx, 8)), decodingFailureCode)
             // move forward 7 or 15 bytes depending on "useContentSize"
-            inputPtr := adv(inputPtr, inputEnd, add(7, mul(useContentSize, 8)), decodingFailureCode)
+            inputPtr := add(inputPtr, add(7, mul(useContentSize, 8)))
             // read blocks
             for {} 1 {} {
                 let chunk := calldataload(inputPtr)
@@ -217,14 +204,14 @@ library LZ4 {
                     or(byte(0, chunk), shl(8, byte(1, chunk))),
                     or(shl(16, byte(2, chunk)), shl(24, byte(3, chunk)))
                 )
-                inputPtr := adv(inputPtr, inputEnd, 4, decodingFailureCode)
+                inputPtr := add(inputPtr, 4)
                 // empty block means we are done with decoding
                 if iszero(blockLength) {
                     break
                 }
                 // read block checksum if "useBlockSum" (from chunk) ?
                 if useBlockSum {
-                    inputPtr := adv(inputPtr, inputEnd, 4, decodingFailureCode)
+                    inputPtr := add(inputPtr, 4)
                 }
                 // check if block is compressed
                 switch iszero(and(blockLength, BS_UNCOMPRESSED))
@@ -234,7 +221,7 @@ library LZ4 {
                     blockLength := and(blockLength, not(BS_UNCOMPRESSED))
                     // copy uncompressed data to the output buffer
                     calldatacopy(outputPtr, inputPtr, blockLength)
-                    inputPtr := adv(inputPtr, inputEnd, blockLength, decodingFailureCode)
+                    inputPtr := add(inputPtr, blockLength)
                     outputPtr := add(outputPtr, blockLength)
                 }
                 // compressed block case
@@ -242,7 +229,7 @@ library LZ4 {
                     let blockEnd := add(inputPtr, blockLength)
                     for {} lt(inputPtr, blockEnd) {} {
                         let token := byte(0, calldataload(inputPtr))
-                        inputPtr := adv(inputPtr, blockEnd, 1, decodingFailureCode)
+                        inputPtr := add(inputPtr, 1)
                         // literals to copy
                         let literalLength := shr(4, token)
                         if literalLength {
@@ -250,7 +237,7 @@ library LZ4 {
                             if eq(literalLength, 0xf) {
                                 for {} 1 {} {
                                     let count := byte(0, calldataload(inputPtr))
-                                    inputPtr := adv(inputPtr, blockEnd, 1, decodingFailureCode)
+                                    inputPtr := add(inputPtr, 1)
                                     literalLength := add(literalLength, count)
                                     if lt(count, 0xff) {
                                         break
@@ -258,7 +245,7 @@ library LZ4 {
                                 }
                             }
                             calldatacopy(outputPtr, inputPtr, literalLength)
-                            inputPtr := adv(inputPtr, blockEnd, literalLength, decodingFailureCode)
+                            inputPtr := add(inputPtr, literalLength)
                             outputPtr := add(outputPtr, literalLength)
                         }
                         // if we are done reading the block, break the switch (continue the loop)
@@ -268,13 +255,13 @@ library LZ4 {
                         // read offset (32 bits = 4 bytes reverse endianness)
                         chunk := calldataload(inputPtr)
                         let offset := or(byte(0, chunk), shl(8, byte(1, chunk)))
-                        inputPtr := adv(inputPtr, blockEnd, 2, decodingFailureCode)
+                        inputPtr := add(inputPtr, 2)
                         // parse length of the copy section
                         let copyLength := and(token, 0xf)
                         if eq(copyLength, 0xf) {
                             for {} 1 {} {
                                 let count := byte(0, calldataload(inputPtr))
-                                inputPtr := adv(inputPtr, blockEnd, 1, decodingFailureCode)
+                                inputPtr := add(inputPtr, 1)
                                 copyLength := add(copyLength, count)
                                 if lt(count, 0xff) {
                                     break
@@ -297,7 +284,8 @@ library LZ4 {
                     assert(eq(inputPtr, blockEnd), decodingFailureCode)
                 }
             }
-            // reserve used memory
+            assert(eq(inputPtr, inputEnd), decodingFailureCode)
+            // allocate used memory
             mstore(output, sub(outputPtr, add(output, 0x20)))
             mstore(0x40, outputPtr)
         }
