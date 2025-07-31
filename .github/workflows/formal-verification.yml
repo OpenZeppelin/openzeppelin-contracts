@@ -84,3 +84,5 @@ jobs:
         run: pip install -r fv-requirements.txt
       - name: Run Halmos
         run: halmos --match-test '^symbolic|^testSymbolic' -vv
+        env:
+          HALMOS_ALLOW_DOWNLOAD: 1
