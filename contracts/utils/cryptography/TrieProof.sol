@@ -93,7 +93,7 @@ library TrieProof {
     ) internal pure returns (bytes memory value, ProofError) {
         if (key.length == 0) return ("", ProofError.EMPTY_KEY);
         // Convert key to nibbles (4-bit values) and begin processing from the root
-        return _processInclusionProof(_decodeProof(proof), key.nibbles(), bytes.concat(root), 0, radix);
+        return _processInclusionProof(_decodeProof(proof), _nibbles(key), bytes.concat(root), 0, radix);
     }
 
     /// @dev Main recursive function that traverses the trie using the provided proof.
@@ -226,7 +226,7 @@ library TrieProof {
      * The path is stored as the first element in the node's decoded array.
      */
     function _path(Node memory node) private pure returns (bytes memory) {
-        return node.decoded[0].readBytes().nibbles();
+        return _nibbles(node.decoded[0].readBytes());
     }
 
     /**
@@ -240,5 +240,15 @@ library TrieProof {
             length++;
         }
         return length;
+    }
+
+    /// @dev Split each byte in `value` into two nibbles (4 bits each).
+    function _nibbles(bytes memory value) internal pure returns (bytes memory) {
+        uint256 length = value.length;
+        bytes memory nibbles_ = new bytes(length * 2);
+        for (uint256 i = 0; i < length; i++) {
+            (nibbles_[i * 2], nibbles_[i * 2 + 1]) = (value[i] & 0xf0, value[i] & 0x0f);
+        }
+        return nibbles_;
     }
 }
