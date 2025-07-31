@@ -73,9 +73,9 @@ Nullam eget pharetra mauris. Cras nec ultricies mi. Suspendisse sit amet ligula 
 
       this.results.push({
         lowest,
-        extraGasUsedPercentageFastlz: (100 * (gasUsedFastlz - lowest)) / lowest,
-        extraGasUsedPercentageSnappy: (100 * (gasUsedSnappy - lowest)) / lowest,
-        extraGasUsedPercentageLz4: (100 * (gasUsedLz4 - lowest)) / lowest,
+        extraGasUsedPercentageFastlz: `+${((100 * (gasUsedFastlz - lowest)) / lowest).toFixed(2)}%`,
+        extraGasUsedPercentageSnappy: `+${((100 * (gasUsedSnappy - lowest)) / lowest).toFixed(2)}%`,
+        extraGasUsedPercentageLz4: `+${((100 * (gasUsedLz4 - lowest)) / lowest).toFixed(2)}%`,
       });
     });
 
