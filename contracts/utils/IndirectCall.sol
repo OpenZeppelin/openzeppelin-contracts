@@ -124,6 +124,5 @@ library IndirectCall {
             // cleanup fmp space used as scratch
             mstore(0x40, fmp)
         }
-
     }
 }
