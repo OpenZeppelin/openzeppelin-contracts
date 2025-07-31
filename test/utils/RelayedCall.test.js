@@ -13,7 +13,7 @@ async function fixture() {
       salt,
       ethers.keccak256(
         ethers.concat([
-          '0x5f604780600a5f3981f373',
+          '0x60475f8160095f39f373',
           mock.target,
           '0x331460133611166022575f5ffd5b6014360360145f375f5f601436035f345f3560601c5af13d5f5f3e5f3d91604557fd5bf3',
         ]),

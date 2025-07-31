@@ -46,7 +46,7 @@ library RelayedCall {
     function getRelayer(bytes32 salt) internal returns (address relayer) {
         // [Relayer details]
         //
-        // deployment prefix: 5f604780600a5f3981f3
+        // deployment prefix: 60475f8160095f39f3
         // deployed bytecode: 73<addr>331460133611166022575f5ffd5b6014360360145f375f5f601436035f345f3560601c5af13d5f5f3e5f3d91604557fd5bf3
         //
         // offset | bytecode    | opcode         | stack
@@ -103,8 +103,8 @@ library RelayedCall {
             mstore(add(fmp, 0x46), 0x60145f375f5f601436035f345f3560601c5af13d5f5f3e5f3d91604557fd5bf3)
             mstore(add(fmp, 0x26), 0x331460133611166022575f5ffd5b60143603)
             mstore(add(fmp, 0x14), address())
-            mstore(add(fmp, 0), 0x5f604780600a5f3981f373)
-            let initcodehash := keccak256(add(fmp, 0x15), 0x51)
+            mstore(add(fmp, 0), 0x60475f8160095f39f373)
+            let initcodehash := keccak256(add(fmp, 0x16), 0x50)
 
             // compute create2 address
             mstore(0x40, initcodehash)
@@ -115,7 +115,7 @@ library RelayedCall {
 
             // is relayer not yet deployed, deploy it
             if iszero(extcodesize(relayer)) {
-                if iszero(create2(0, add(fmp, 0x15), 0x51, salt)) {
+                if iszero(create2(0, add(fmp, 0x16), 0x50, salt)) {
                     returndatacopy(fmp, 0, returndatasize())
                     revert(fmp, returndatasize())
                 }
