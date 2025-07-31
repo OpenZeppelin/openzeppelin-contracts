@@ -4,32 +4,34 @@ pragma solidity ^0.8.20;
 
 /**
  * @dev Library for performing external calls through dynamically deployed relay contracts that hide the original
- * caller's address.
+ * caller's address from the target contract. This pattern is used in ERC-4337's EntryPoint for account factory
+ * calls and ERC-6942 for safe factory interactions.
  *
- * Some contracts need to make arbitrary external calls controlled by user input. When these contracts have special
- * permissions or hold valuable assets, making such calls directly can be risky because the target contract sees
- * the privileged contract as `msg.sender`. Using a relay contract isolates the original caller by changing the
- * `msg.sender` of the outgoing call to an unprivileged relay address.
+ * When privileged contracts need to make arbitrary external calls based on user input, calling the target directly
+ * can be risky because the target sees the privileged contract as `msg.sender` and could exploit this trust
+ * relationship. This library solves this by deploying minimal relay contracts that act as intermediaries, ensuring
+ * the target only sees the unprivileged relay address as `msg.sender`.
  *
- * For example, this pattern is used in ERC-4337's EntryPoint which relies on a "senderCreator" helper
- * for account factory calls, and ERC-6942 for safe factory interactions.
- *
- * The library dynamically deploys minimal relay contracts using CREATE2 and routes calls through them, ensuring
- * that target contracts only see the relay (not the original caller) as msg.sender.
+ * For example, instead of `target.call(data)` where the target sees this contract as `msg.sender`, use
+ * {relayCall} where the target sees a relay address as `msg.sender`.
  */
 library RelayedCall {
+    /// @dev Relays a call to the target contract through a dynamically deployed relay contract.
     function relayCall(address target, bytes memory data) internal returns (bool, bytes memory) {
         return relayCall(target, 0, data);
     }
 
+    /// @dev Same as {relayCall} but with a value.
     function relayCall(address target, uint256 value, bytes memory data) internal returns (bool, bytes memory) {
         return relayCall(target, value, data, bytes32(0));
     }
 
+    /// @dev Same as {relayCall} but with a salt.
     function relayCall(address target, bytes memory data, bytes32 salt) internal returns (bool, bytes memory) {
         return relayCall(target, 0, data, salt);
     }
 
+    /// @dev Same as {relayCall} but with a salt and a value.
     function relayCall(
         address target,
         uint256 value,
@@ -39,10 +41,12 @@ library RelayedCall {
         return getRelayer(salt).call{value: value}(abi.encodePacked(target, data));
     }
 
+    /// @dev Same as {getRelayer} but with a `bytes32(0)` default salt.
     function getRelayer() internal returns (address) {
         return getRelayer(bytes32(0));
     }
 
+    /// @dev Returns the relayer address for a given salt.
     function getRelayer(bytes32 salt) internal returns (address relayer) {
         // [Relayer details]
         //
