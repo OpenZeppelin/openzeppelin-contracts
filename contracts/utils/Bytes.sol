@@ -108,11 +108,6 @@ library Bytes {
         return nibbles_;
     }
 
-    /// @dev Counts the number of leading zeros in a uint256.
-    function clz(uint256 x) internal pure returns (uint256) {
-        return Math.ternary(x == 0, 32, 31 - Math.log256(x));
-    }
-
     /**
      * @dev Moves the content of `buffer`, from `start` (included) to the end of `buffer` to the start of that buffer.
      *
