@@ -3,17 +3,19 @@
 pragma solidity ^0.8.20;
 
 /**
- * @dev Helper contract for performing potentially dangerous calls through a relay the hide the address of the
- * original sender.
+ * @dev Library for performing external calls through dynamically deployed relay contracts that hide the original
+ * caller's address.
  *
- * Some contract are required to perform arbitrary action controlled by user input. This is dangerous if the contract
- * has special permissions, or holds assets. In such cases, using a relay contract can be useful to change the
- * msg.sender of the outgoing call. This pattern is used in the ERC-4337 entrypoint that relies on a helper called the
- * "senderCreator" when calling account factories. Similarly ERC-6942 does factory calls that could be dangerous if
- * performed directly.
+ * Some contracts need to make arbitrary external calls controlled by user input. When these contracts have special
+ * permissions or hold valuable assets, making such calls directly can be risky because the target contract sees
+ * the privileged contract as `msg.sender`. Using a relay contract isolates the original caller by changing the
+ * `msg.sender` of the outgoing call to an unprivileged relay address.
+ * 
+ * For example, this pattern is used in ERC-4337's EntryPoint which relies on a "senderCreator" helper
+ * for account factory calls, and ERC-6942 for safe factory interactions.
  *
- * This contract provides a `indirectCall` that can be used to perform dangerous calls. These calls are indirect
- * through a minimal relayer.
+ * The library dynamically deploys minimal relay contracts using CREATE2 and routes calls through them, ensuring
+ * that target contracts only see the relay (not the original caller) as msg.sender.
  */
 library IndirectCall {
     function indirectCall(address target, bytes memory data) internal returns (bool, bytes memory) {
@@ -123,12 +125,5 @@ library IndirectCall {
             mstore(0x40, fmp)
         }
 
-        // For reference: equivalent in solidity
-        // bytes memory initcode = abi.encodePacked(hex"5f604780600a5f3981f373", address(this), hex"331460133611166022575f5ffd5b6014360360145f375f5f601436035f345f3560601c5af13d5f5f3e5f3d91604557fd5bf3");
-        // address relayer = Create2.computeAddress(salt, keccak256(initcode));
-        // if (relayer.code.length == 0) {
-        //     Create2.deploy(0, salt, initcode);
-        // }
-        // return relayer;
     }
 }
