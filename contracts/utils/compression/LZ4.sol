@@ -108,6 +108,7 @@ library LZ4 {
                         let blockEnd := add(inputPtr, compSize)
                     } lt(inputPtr, blockEnd) {} {
                         let token := byte(0, mload(inputPtr))
+                        inputPtr := add(inputPtr, 1)
 
                         // copy literals.
                         let literalCount := shr(4, token)
@@ -124,10 +125,9 @@ library LZ4 {
                                 }
                             }
                             mcopy(outputPtr, inputPtr, literalCount)
+                            inputPtr := add(inputPtr, literalCount)
                             outputPtr := add(outputPtr, literalCount)
                         }
-                        // 1 for the token + literalCount (possibly 0) read bytes
-                        inputPtr := add(inputPtr, add(literalCount, 1))
 
                         if lt(inputPtr, blockEnd) {
                             // Copy match.
