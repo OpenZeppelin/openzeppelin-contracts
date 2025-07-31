@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.2.0) (utils/Bytes.sol)
+// OpenZeppelin Contracts (last updated v5.4.0) (utils/Bytes.sol)
 
 pragma solidity ^0.8.24;
 
@@ -58,8 +58,7 @@ library Bytes {
     function lastIndexOf(bytes memory buffer, bytes1 s, uint256 pos) internal pure returns (uint256) {
         unchecked {
             uint256 length = buffer.length;
-            // NOTE here we cannot do `i = Math.min(pos + 1, length)` because `pos + 1` could overflow
-            for (uint256 i = Math.min(pos, length - 1) + 1; i > 0; --i) {
+            for (uint256 i = Math.min(Math.saturatingAdd(pos, 1), length); i > 0; --i) {
                 if (bytes1(_unsafeReadBytesOffset(buffer, i - 1)) == s) {
                     return i - 1;
                 }
@@ -151,7 +150,14 @@ library Bytes {
         return buffer;
     }
 
-    /*
+    /**
+     * @dev Returns true if the two byte buffers are equal.
+     */
+    function equal(bytes memory a, bytes memory b) internal pure returns (bool) {
+        return a.length == b.length && keccak256(a) == keccak256(b);
+    }
+
+    /**
      * @dev Reverses the byte order of a bytes32 value, converting between little-endian and big-endian.
      * Inspired in https://graphics.stanford.edu/~seander/bithacks.html#ReverseParallel[Reverse Parallel]
      */
@@ -201,6 +207,20 @@ library Bytes {
     /// @dev Same as {reverseBytes32} but optimized for 16-bit values.
     function reverseBytes2(bytes2 value) internal pure returns (bytes2) {
         return (value >> 8) | (value << 8);
+    }
+
+    /**
+     * @dev Counts the number of leading zero bits a bytes array. Returns `8 * buffer.length`
+     * if the buffer is all zeros.
+     */
+    function clz(bytes memory buffer) internal pure returns (uint256) {
+        for (uint256 i = 0; i < buffer.length; i += 32) {
+            bytes32 chunk = _unsafeReadBytesOffset(buffer, i);
+            if (chunk != bytes32(0)) {
+                return Math.min(8 * i + Math.clz(uint256(chunk)), 8 * buffer.length);
+            }
+        }
+        return 8 * buffer.length;
     }
 
     /**

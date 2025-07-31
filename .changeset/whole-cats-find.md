@@ -2,4 +2,4 @@
 'openzeppelin-solidity': minor
 ---
 
-`Bytes`: Add a `clz` function to count the leading zero bytes in a `uint256` value.
+`Math`: Add a `clz` function to count the leading zero bits in a `uint256` value.

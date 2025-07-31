@@ -28,39 +28,55 @@ describe('Bytes', function () {
 
   describe('indexOf', function () {
     it('first', async function () {
-      expect(await this.mock.$indexOf(lorem, ethers.toBeHex(present))).to.equal(lorem.indexOf(present));
+      await expect(this.mock.$indexOf(lorem, ethers.toBeHex(present))).to.eventually.equal(lorem.indexOf(present));
     });
 
     it('from index', async function () {
       for (const start in Array(lorem.length + 10).fill()) {
         const index = lorem.indexOf(present, start);
         const result = index === -1 ? ethers.MaxUint256 : index;
-        expect(await this.mock.$indexOf(lorem, ethers.toBeHex(present), ethers.Typed.uint256(start))).to.equal(result);
+        await expect(
+          this.mock.$indexOf(lorem, ethers.toBeHex(present), ethers.Typed.uint256(start)),
+        ).to.eventually.equal(result);
       }
     });
 
     it('absent', async function () {
-      expect(await this.mock.$indexOf(lorem, ethers.toBeHex(absent))).to.equal(ethers.MaxUint256);
+      await expect(this.mock.$indexOf(lorem, ethers.toBeHex(absent))).to.eventually.equal(ethers.MaxUint256);
+    });
+
+    it('empty buffer', async function () {
+      await expect(this.mock.$indexOf('0x', '0x00')).to.eventually.equal(ethers.MaxUint256);
+      await expect(this.mock.$indexOf('0x', '0x00', ethers.Typed.uint256(17))).to.eventually.equal(ethers.MaxUint256);
     });
   });
 
   describe('lastIndexOf', function () {
     it('first', async function () {
-      expect(await this.mock.$lastIndexOf(lorem, ethers.toBeHex(present))).to.equal(lorem.lastIndexOf(present));
+      await expect(this.mock.$lastIndexOf(lorem, ethers.toBeHex(present))).to.eventually.equal(
+        lorem.lastIndexOf(present),
+      );
     });
 
     it('from index', async function () {
       for (const start in Array(lorem.length + 10).fill()) {
         const index = lorem.lastIndexOf(present, start);
         const result = index === -1 ? ethers.MaxUint256 : index;
-        expect(await this.mock.$lastIndexOf(lorem, ethers.toBeHex(present), ethers.Typed.uint256(start))).to.equal(
-          result,
-        );
+        await expect(
+          this.mock.$lastIndexOf(lorem, ethers.toBeHex(present), ethers.Typed.uint256(start)),
+        ).to.eventually.equal(result);
       }
     });
 
     it('absent', async function () {
-      expect(await this.mock.$lastIndexOf(lorem, ethers.toBeHex(absent))).to.equal(ethers.MaxUint256);
+      await expect(this.mock.$lastIndexOf(lorem, ethers.toBeHex(absent))).to.eventually.equal(ethers.MaxUint256);
+    });
+
+    it('empty buffer', async function () {
+      await expect(this.mock.$lastIndexOf('0x', '0x00')).to.eventually.equal(ethers.MaxUint256);
+      await expect(this.mock.$lastIndexOf('0x', '0x00', ethers.Typed.uint256(17))).to.eventually.equal(
+        ethers.MaxUint256,
+      );
     });
   });
 
@@ -73,8 +89,8 @@ describe('Bytes', function () {
       })) {
         it(descr, async function () {
           const result = ethers.hexlify(lorem.slice(start));
-          expect(await this.mock.$slice(lorem, start)).to.equal(result);
-          expect(await this.mock.$splice(lorem, start)).to.equal(result);
+          await expect(this.mock.$slice(lorem, start)).to.eventually.equal(result);
+          await expect(this.mock.$splice(lorem, start)).to.eventually.equal(result);
         });
       }
     });
@@ -89,72 +105,97 @@ describe('Bytes', function () {
       })) {
         it(descr, async function () {
           const result = ethers.hexlify(lorem.slice(start, end));
-          expect(await this.mock.$slice(lorem, start, ethers.Typed.uint256(end))).to.equal(result);
-          expect(await this.mock.$splice(lorem, start, ethers.Typed.uint256(end))).to.equal(result);
+          await expect(this.mock.$slice(lorem, start, ethers.Typed.uint256(end))).to.eventually.equal(result);
+          await expect(this.mock.$splice(lorem, start, ethers.Typed.uint256(end))).to.eventually.equal(result);
         });
       }
     });
   });
 
-  describe('nibbles', function () {
-    it('converts single byte', async function () {
-      await expect(this.mock.$nibbles('0xab')).to.eventually.equal('0xa00b');
+  describe('clz bytes', function () {
+    it('empty buffer', async function () {
+      await expect(this.mock.$clz('0x')).to.eventually.equal(0);
     });
 
-    it('converts multiple bytes', async function () {
-      await expect(this.mock.$nibbles('0x1234')).to.eventually.equal('0x10023004');
+    it('single zero byte', async function () {
+      await expect(this.mock.$clz('0x00')).to.eventually.equal(8);
     });
 
-    it('handles empty bytes', async function () {
-      await expect(this.mock.$nibbles('0x')).to.eventually.equal('0x');
+    it('single non-zero byte', async function () {
+      await expect(this.mock.$clz('0x01')).to.eventually.equal(7);
+      await expect(this.mock.$clz('0xff')).to.eventually.equal(0);
     });
 
-    it('converts lorem text', async function () {
-      const result = await this.mock.$nibbles(lorem);
-      expect(ethers.dataLength(result)).to.equal(lorem.length * 2);
+    it('multiple leading zeros', async function () {
+      await expect(this.mock.$clz('0x0000000001')).to.eventually.equal(39);
+      await expect(
+        this.mock.$clz('0x0000000000000000000000000000000000000000000000000000000000000001'),
+      ).to.eventually.equal(255);
+    });
 
-      // Check nibble extraction for first few bytes
-      for (let i = 0; i < Math.min(lorem.length, 5); i++) {
-        const originalByte = lorem[i];
-        const highNibble = ethers.dataSlice(result, i * 2, i * 2 + 1);
-        const lowNibble = ethers.dataSlice(result, i * 2 + 1, i * 2 + 2);
+    it('all zeros of various lengths', async function () {
+      await expect(this.mock.$clz('0x00000000')).to.eventually.equal(32);
+      await expect(
+        this.mock.$clz('0x0000000000000000000000000000000000000000000000000000000000000000'),
+      ).to.eventually.equal(256);
 
-        expect(highNibble).to.equal(ethers.toBeHex(originalByte & 0xf0, 1));
-        expect(lowNibble).to.equal(ethers.toBeHex(originalByte & 0x0f, 1));
-      }
+      // Complete chunks
+      await expect(this.mock.$clz('0x' + '00'.repeat(32) + '01')).to.eventually.equal(263); // 32*8+7
+      await expect(this.mock.$clz('0x' + '00'.repeat(64) + '01')).to.eventually.equal(519); // 64*8+7
+
+      // Partial last chunk
+      await expect(this.mock.$clz('0x' + '00'.repeat(33) + '01')).to.eventually.equal(271); // 33*8+7
+      await expect(this.mock.$clz('0x' + '00'.repeat(34) + '01')).to.eventually.equal(279); // 34*8+7
+      await expect(this.mock.$clz('0x' + '00'.repeat(40) + '01' + '00'.repeat(9))).to.eventually.equal(327); // 40*8+7
+      await expect(this.mock.$clz('0x' + '00'.repeat(50))).to.eventually.equal(400); // 50*8
+
+      // First byte of each chunk non-zero
+      await expect(this.mock.$clz('0x80' + '00'.repeat(31))).to.eventually.equal(0);
+      await expect(this.mock.$clz('0x01' + '00'.repeat(31))).to.eventually.equal(7);
+      await expect(this.mock.$clz('0x' + '00'.repeat(32) + '80' + '00'.repeat(31))).to.eventually.equal(256); // 32*8
+      await expect(this.mock.$clz('0x' + '00'.repeat(32) + '01' + '00'.repeat(31))).to.eventually.equal(263); // 32*8+7
+
+      // Last byte of each chunk non-zero
+      await expect(this.mock.$clz('0x' + '00'.repeat(31) + '01')).to.eventually.equal(255); // 31*8+7
+      await expect(this.mock.$clz('0x' + '00'.repeat(63) + '01')).to.eventually.equal(511); // 63*8+7
+
+      // Middle byte of each chunk non-zero
+      await expect(this.mock.$clz('0x' + '00'.repeat(16) + '01' + '00'.repeat(15))).to.eventually.equal(135); // 16*8+7
+      await expect(this.mock.$clz('0x' + '00'.repeat(32) + '01' + '00'.repeat(31))).to.eventually.equal(263); // 32*8+7
+      await expect(this.mock.$clz('0x' + '00'.repeat(48) + '01' + '00'.repeat(47))).to.eventually.equal(391); // 48*8+7
+      await expect(this.mock.$clz('0x' + '00'.repeat(64) + '01' + '00'.repeat(63))).to.eventually.equal(519); // 64*8+7
     });
   });
 
-  describe('clz', function () {
-    it('zero value', async function () {
-      await expect(this.mock.$clz(0)).to.eventually.equal(32);
+  describe('equal', function () {
+    it('identical buffers', async function () {
+      await expect(this.mock.$equal(lorem, lorem)).to.eventually.be.true;
     });
 
-    it('small values', async function () {
-      await expect(this.mock.$clz(1)).to.eventually.equal(31);
-      await expect(this.mock.$clz(255)).to.eventually.equal(31);
+    it('same content', async function () {
+      const copy = new Uint8Array(lorem);
+      await expect(this.mock.$equal(lorem, copy)).to.eventually.be.true;
     });
 
-    it('larger values', async function () {
-      await expect(this.mock.$clz(256)).to.eventually.equal(30);
-      await expect(this.mock.$clz(0xff00)).to.eventually.equal(30);
-      await expect(this.mock.$clz(0x10000)).to.eventually.equal(29);
+    it('different content', async function () {
+      const different = ethers.toUtf8Bytes('Different content');
+      await expect(this.mock.$equal(lorem, different)).to.eventually.be.false;
     });
 
-    it('max value', async function () {
-      await expect(this.mock.$clz(ethers.MaxUint256)).to.eventually.equal(0);
+    it('different lengths', async function () {
+      const shorter = lorem.slice(0, 10);
+      await expect(this.mock.$equal(lorem, shorter)).to.eventually.be.false;
     });
 
-    it('specific patterns', async function () {
-      await expect(
-        this.mock.$clz('0x0000000000000000000000000000000000000000000000000000000000000100'),
-      ).to.eventually.equal(30);
-      await expect(
-        this.mock.$clz('0x0000000000000000000000000000000000000000000000000000000000010000'),
-      ).to.eventually.equal(29);
-      await expect(
-        this.mock.$clz('0x0000000000000000000000000000000000000000000000000000000001000000'),
-      ).to.eventually.equal(28);
+    it('empty buffers', async function () {
+      const empty1 = new Uint8Array(0);
+      const empty2 = new Uint8Array(0);
+      await expect(this.mock.$equal(empty1, empty2)).to.eventually.be.true;
+    });
+
+    it('one empty one not', async function () {
+      const empty = new Uint8Array(0);
+      await expect(this.mock.$equal(lorem, empty)).to.eventually.be.false;
     });
   });
 
