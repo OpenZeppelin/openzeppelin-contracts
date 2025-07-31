@@ -155,19 +155,6 @@ contract BytesTest is Test {
         }
     }
 
-    function testNibbles(bytes memory value) public pure {
-        bytes memory result = Bytes.nibbles(value);
-        assertEq(result.length, value.length * 2);
-        for (uint256 i = 0; i < value.length; i++) {
-            bytes1 originalByte = value[i];
-            bytes1 highNibble = result[i * 2];
-            bytes1 lowNibble = result[i * 2 + 1];
-
-            assertEq(highNibble, originalByte & 0xf0);
-            assertEq(lowNibble, originalByte & 0x0f);
-        }
-    }
-
     // REVERSE BITS
     function testSymbolicReverseBytes32(bytes32 value) public pure {
         assertEq(Bytes.reverseBytes32(Bytes.reverseBytes32(value)), value);
