@@ -6,7 +6,7 @@ const { impersonate } = require('../helpers/account');
 async function fixture() {
   const [admin, receiver, other] = await ethers.getSigners();
 
-  const mock = await ethers.deployContract('$IndirectCall');
+  const mock = await ethers.deployContract('$RelayedCall');
   const computeRelayerAddress = (salt = ethers.ZeroHash) =>
     ethers.getCreate2Address(
       mock.target,
@@ -26,7 +26,7 @@ async function fixture() {
   return { mock, target, receiver, other, computeRelayerAddress };
 }
 
-describe('IndirectCall', function () {
+describe('RelayedCall', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });
@@ -50,21 +50,21 @@ describe('IndirectCall', function () {
 
     describe('relayed call', function () {
       it('target success', async function () {
-        const tx = this.mock.$indirectCall(
+        const tx = this.mock.$relayCall(
           ethers.Typed.address(this.target),
           ethers.Typed.bytes(this.target.interface.encodeFunctionData('fnUnrestricted', [])),
         );
         await expect(tx)
           .to.emit(this.target, 'CalledUnrestricted')
           .withArgs(this.relayer)
-          .to.emit(this.mock, 'return$indirectCall_address_bytes')
+          .to.emit(this.mock, 'return$relayCall_address_bytes')
           .withArgs(true, '0x');
       });
 
       it('target success (with value)', async function () {
         const value = 42n;
 
-        const tx = this.mock.$indirectCall(
+        const tx = this.mock.$relayCall(
           ethers.Typed.address(this.receiver),
           ethers.Typed.uint256(value),
           ethers.Typed.bytes('0x'),
@@ -72,17 +72,17 @@ describe('IndirectCall', function () {
         );
 
         await expect(tx).to.changeEtherBalances([this.mock, this.relayer, this.receiver], [0n, 0n, value]);
-        await expect(tx).to.emit(this.mock, 'return$indirectCall_address_uint256_bytes').withArgs(true, '0x');
+        await expect(tx).to.emit(this.mock, 'return$relayCall_address_uint256_bytes').withArgs(true, '0x');
       });
 
       it('target revert', async function () {
-        const tx = this.mock.$indirectCall(
+        const tx = this.mock.$relayCall(
           ethers.Typed.address(this.target),
           ethers.Typed.bytes(this.target.interface.encodeFunctionData('fnRestricted', [])),
         );
 
         await expect(tx)
-          .to.emit(this.mock, 'return$indirectCall_address_bytes')
+          .to.emit(this.mock, 'return$relayCall_address_bytes')
           .withArgs(false, this.target.interface.encodeErrorResult('AccessManagedUnauthorized', [this.relayer]));
       });
     });
@@ -143,7 +143,7 @@ describe('IndirectCall', function () {
 
     describe('relayed call', function () {
       it('target success', async function () {
-        const tx = this.mock.$indirectCall(
+        const tx = this.mock.$relayCall(
           ethers.Typed.address(this.target),
           ethers.Typed.bytes(this.target.interface.encodeFunctionData('fnUnrestricted', [])),
           ethers.Typed.bytes32(this.salt),
@@ -151,14 +151,14 @@ describe('IndirectCall', function () {
         await expect(tx)
           .to.emit(this.target, 'CalledUnrestricted')
           .withArgs(this.relayer)
-          .to.emit(this.mock, 'return$indirectCall_address_bytes_bytes32')
+          .to.emit(this.mock, 'return$relayCall_address_bytes_bytes32')
           .withArgs(true, '0x');
       });
 
       it('target success (with value)', async function () {
         const value = 42n;
 
-        const tx = this.mock.$indirectCall(
+        const tx = this.mock.$relayCall(
           ethers.Typed.address(this.receiver),
           ethers.Typed.uint256(value),
           ethers.Typed.bytes('0x'),
@@ -167,18 +167,18 @@ describe('IndirectCall', function () {
         );
 
         await expect(tx).to.changeEtherBalances([this.mock, this.relayer, this.receiver], [0n, 0n, value]);
-        await expect(tx).to.emit(this.mock, 'return$indirectCall_address_uint256_bytes_bytes32').withArgs(true, '0x');
+        await expect(tx).to.emit(this.mock, 'return$relayCall_address_uint256_bytes_bytes32').withArgs(true, '0x');
       });
 
       it('target revert', async function () {
-        const tx = this.mock.$indirectCall(
+        const tx = this.mock.$relayCall(
           ethers.Typed.address(this.target),
           ethers.Typed.bytes(this.target.interface.encodeFunctionData('fnRestricted', [])),
           ethers.Typed.bytes32(this.salt),
         );
 
         await expect(tx)
-          .to.emit(this.mock, 'return$indirectCall_address_bytes_bytes32')
+          .to.emit(this.mock, 'return$relayCall_address_bytes_bytes32')
           .withArgs(false, this.target.interface.encodeErrorResult('AccessManagedUnauthorized', [this.relayer]));
       });
     });

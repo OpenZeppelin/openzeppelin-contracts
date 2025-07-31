@@ -10,27 +10,27 @@ pragma solidity ^0.8.20;
  * permissions or hold valuable assets, making such calls directly can be risky because the target contract sees
  * the privileged contract as `msg.sender`. Using a relay contract isolates the original caller by changing the
  * `msg.sender` of the outgoing call to an unprivileged relay address.
- * 
+ *
  * For example, this pattern is used in ERC-4337's EntryPoint which relies on a "senderCreator" helper
  * for account factory calls, and ERC-6942 for safe factory interactions.
  *
  * The library dynamically deploys minimal relay contracts using CREATE2 and routes calls through them, ensuring
  * that target contracts only see the relay (not the original caller) as msg.sender.
  */
-library IndirectCall {
-    function indirectCall(address target, bytes memory data) internal returns (bool, bytes memory) {
-        return indirectCall(target, 0, data);
+library RelayedCall {
+    function relayCall(address target, bytes memory data) internal returns (bool, bytes memory) {
+        return relayCall(target, 0, data);
     }
 
-    function indirectCall(address target, uint256 value, bytes memory data) internal returns (bool, bytes memory) {
-        return indirectCall(target, value, data, bytes32(0));
+    function relayCall(address target, uint256 value, bytes memory data) internal returns (bool, bytes memory) {
+        return relayCall(target, value, data, bytes32(0));
     }
 
-    function indirectCall(address target, bytes memory data, bytes32 salt) internal returns (bool, bytes memory) {
-        return indirectCall(target, 0, data, salt);
+    function relayCall(address target, bytes memory data, bytes32 salt) internal returns (bool, bytes memory) {
+        return relayCall(target, 0, data, salt);
     }
 
-    function indirectCall(
+    function relayCall(
         address target,
         uint256 value,
         bytes memory data,
