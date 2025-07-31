@@ -466,7 +466,7 @@ library Strings {
         bytes memory output = new bytes(2 * buffer.length); // worst case scenario
         uint256 outputLength = 0;
 
-        for (uint256 i; i < buffer.length; ++i) {
+        for (uint256 i = 0; i < buffer.length; ++i) {
             bytes1 char = bytes1(_unsafeReadBytesOffset(buffer, i));
             if (((SPECIAL_CHARS_LOOKUP & (1 << uint8(char))) != 0)) {
                 output[outputLength++] = "\\";
