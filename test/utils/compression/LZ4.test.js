@@ -58,7 +58,7 @@ Nullam eget pharetra mauris. Cras nec ultricies mi. Suspendisse sit amet ligula 
       const hex = ethers.hexlify(raw);
       const compressed = lz4js.compress(raw);
       await expect(this.mock.$decompress(compressed)).to.eventually.equal(hex);
-      // await expect(this.mock.$decompressCalldata(compressed)).to.eventually.equal(hex);
+      await expect(this.mock.$decompressCalldata(compressed)).to.eventually.equal(hex);
     });
   });
 });
