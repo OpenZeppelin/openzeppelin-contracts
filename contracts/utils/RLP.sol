@@ -209,7 +209,7 @@ library RLP {
 
     /// @dev Converts a uint256 to minimal binary representation, removing leading zeros.
     function _binaryBuffer(uint256 value) private pure returns (bytes memory) {
-        return abi.encodePacked(value).slice(value.clz());
+        return abi.encodePacked(value).slice(Math.clz(value));
     }
 
     /// @dev Concatenates all byte arrays in the `list` sequentially. Returns a flattened buffer.
