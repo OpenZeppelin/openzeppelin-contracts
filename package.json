@@ -87,6 +87,7 @@
     "rimraf": "^6.0.0",
     "semver": "^7.3.5",
     "snappy": "^7.3.0",
+    "solady": "^0.1.24",
     "solhint": "^6.0.0",
     "solhint-plugin-openzeppelin": "file:scripts/solhint-custom",
     "solidity-ast": "^0.4.50",

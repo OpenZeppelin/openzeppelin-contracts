@@ -3,7 +3,7 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const lz4js = require('lz4js');
 const snappy = require('snappy');
-const LibZip = require('../../helpers/LibZip');
+const { LibZip } = require('solady/js/solady');
 const { min } = require('../../helpers/math');
 
 async function fixture() {

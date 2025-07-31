@@ -2,7 +2,7 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const LibZip = require('../../helpers/LibZip');
+const { LibZip } = require('solady/js/solady');
 
 async function fixture() {
   const mock = await ethers.deployContract('$FastLZ');
