@@ -33,8 +33,8 @@ library RLP {
     }
 
     enum ItemType {
-        DATA_ITEM, // Single data value
-        LIST_ITEM // List of RLP encoded items
+        Data, // Single data value
+        List // List of RLP encoded items
     }
 
     /**
@@ -62,7 +62,7 @@ library RLP {
 
     /**
      * @dev Encodes an array of bytes using RLP (as a list).
-     * First it {_flatten}s the list of byte arrays, then encodes it with the list prefix.
+     * First it {_flatten}s the list of encoded items, then encodes it with the list prefix.
      */
     function encode(bytes[] memory list) internal pure returns (bytes memory) {
         bytes memory flattened = _flatten(list);
@@ -120,9 +120,9 @@ library RLP {
     }
 
     /// @dev Decodes an RLP encoded list into an array of RLP Items. See {_decodeLength}
-    function readList(Item memory item) internal pure returns (Item[] memory) {
+    function decodeList(Item memory item) internal pure returns (Item[] memory) {
         (uint256 listOffset, uint256 listLength, ItemType itemType) = _decodeLength(item);
-        require(itemType == ItemType.LIST_ITEM, RLPUnexpectedType(ItemType.LIST_ITEM, itemType));
+        require(itemType == ItemType.List, RLPUnexpectedType(ItemType.List, itemType));
         uint256 expectedLength = listOffset + listLength;
         require(expectedLength == item.length, RLPContentLengthMismatch(expectedLength, item.length));
         Item[] memory items = new Item[](32);
@@ -144,15 +144,15 @@ library RLP {
         return items;
     }
 
-    /// @dev Same as {readList} but for `bytes`. See {toItem}.
-    function readList(bytes memory value) internal pure returns (Item[] memory) {
-        return readList(toItem(value));
+    /// @dev Same as {decodeList} but for `bytes`. See {toItem}.
+    function decodeList(bytes memory value) internal pure returns (Item[] memory) {
+        return decodeList(toItem(value));
     }
 
     /// @dev Decodes an RLP encoded item.
-    function readBytes(Item memory item) internal pure returns (bytes memory) {
+    function decodeBytes(Item memory item) internal pure returns (bytes memory) {
         (uint256 itemOffset, uint256 itemLength, ItemType itemType) = _decodeLength(item);
-        require(itemType == ItemType.DATA_ITEM, RLPUnexpectedType(ItemType.DATA_ITEM, itemType));
+        require(itemType == ItemType.Data, RLPUnexpectedType(ItemType.Data, itemType));
         uint256 expectedLength = itemOffset + itemLength;
         require(expectedLength == item.length, RLPContentLengthMismatch(expectedLength, item.length));
 
@@ -162,13 +162,13 @@ library RLP {
         return result;
     }
 
-    /// @dev Same as {readBytes} but for `bytes`. See {toItem}.
-    function readBytes(bytes memory item) internal pure returns (bytes memory) {
-        return readBytes(toItem(item));
+    /// @dev Same as {decodeBytes} but for `bytes`. See {toItem}.
+    function decodeBytes(bytes memory item) internal pure returns (bytes memory) {
+        return decodeBytes(toItem(item));
     }
 
     /// @dev Reads the raw bytes of an RLP item without decoding the content. Includes prefix bytes.
-    function readRawBytes(Item memory item) internal pure returns (bytes memory) {
+    function decodeRawBytes(Item memory item) internal pure returns (bytes memory) {
         uint256 itemLength = item.length;
         bytes memory result = new bytes(itemLength);
         _copy(_addOffset(_asPointer(result), 32), item.ptr, itemLength);
@@ -203,13 +203,13 @@ library RLP {
         return
             abi.encodePacked(
                 bytes1(uint8(bytesLength) + uint8(offset) + SHORT_THRESHOLD),
-                bytes32(length).reverseBytes32() // to big-endian
+                _binaryBuffer(length) // already in big-endian, minimal representation
             );
     }
 
     /// @dev Converts a uint256 to minimal binary representation, removing leading zeros.
     function _binaryBuffer(uint256 value) private pure returns (bytes memory) {
-        return abi.encodePacked(value).slice(value.clz());
+        return abi.encodePacked(value).slice(value.clz() / 8);
     }
 
     /// @dev Concatenates all byte arrays in the `list` sequentially. Returns a flattened buffer.
@@ -220,7 +220,7 @@ library RLP {
         for (uint256 i = 0; i < list.length; i++) {
             bytes memory item = list[i];
             uint256 length = item.length;
-            _copy(dataPtr, _asPointer(item), length);
+            _copy(dataPtr, _addOffset(_asPointer(item), 32), length);
             dataPtr = _addOffset(dataPtr, length);
         }
         return flattened;
@@ -245,7 +245,7 @@ library RLP {
         uint256 prefix = uint8(_loadByte(item.ptr, 0));
 
         // Single byte below 128
-        if (prefix < SHORT_OFFSET) return (0, 1, ItemType.DATA_ITEM);
+        if (prefix < SHORT_OFFSET) return (0, 1, ItemType.Data);
 
         // Short string (0-55 bytes)
         if (prefix < LONG_LENGTH_OFFSET) return _decodeShortString(prefix - SHORT_OFFSET, item);
@@ -253,7 +253,7 @@ library RLP {
         // Long string (>55 bytes)
         if (prefix < LONG_OFFSET) {
             (offset, length) = _decodeLong(prefix - LONG_LENGTH_OFFSET, item);
-            return (offset, length, ItemType.DATA_ITEM);
+            return (offset, length, ItemType.Data);
         }
 
         // Short list
@@ -261,7 +261,7 @@ library RLP {
 
         // Long list
         (offset, length) = _decodeLong(prefix - SHORT_LIST_OFFSET, item);
-        return (offset, length, ItemType.LIST_ITEM);
+        return (offset, length, ItemType.List);
     }
 
     /// @dev Decodes a short string (0-55 bytes). The first byte contains the length, and the rest is the payload.
@@ -271,7 +271,7 @@ library RLP {
     ) private pure returns (uint256 offset, uint256 length, ItemType) {
         require(item.length > strLength, RLPInvalidDataRemainder(strLength, item.length));
         require(strLength != 1 || _loadByte(_addOffset(item.ptr, 1), 0) >= bytes1(SHORT_OFFSET));
-        return (1, strLength, ItemType.DATA_ITEM);
+        return (1, strLength, ItemType.Data);
     }
 
     /// @dev Decodes a short list (0-55 bytes). The first byte contains the length of the entire list.
@@ -280,7 +280,7 @@ library RLP {
         Item memory item
     ) private pure returns (uint256 offset, uint256 length, ItemType) {
         require(item.length > listLength, RLPInvalidDataRemainder(listLength, item.length));
-        return (1, listLength, ItemType.LIST_ITEM);
+        return (1, listLength, ItemType.List);
     }
 
     /// @dev Decodes a long string or list (>55 bytes). The first byte indicates the length of the length, followed by the length itself.
