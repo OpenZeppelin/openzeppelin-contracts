@@ -95,6 +95,6 @@ To process a bundle of `UserOperations`, bundlers call xref:api:account.adoc#Acc
 
 These rules outline the requirements for operations to be processed by the canonical mempool.
 
-Accounts can access its own storage during the validation phase, they might easily violate ERC-7562 storage access rules in undirect ways. For example, most accounts access their public keys from storage when validating a signature, limiting the ability of having accounts that validate operations for other accounts (e.g. via ERC-1271)
+Accounts can access its own storage during the validation phase, they might easily violate ERC-7562 storage access rules in undirect ways. For example, most accounts access their public keys from storage when validating a signature, limiting the ability of having accounts that validate operations for other accounts (e.g. via https://eips.ethereum.org/EIPS/eip-1271[ERC-1271])
 
 TIP: Although any Account that breaks such rules may still be processed by a private bundler, developers should keep in mind the centralization tradeoffs of relying on private infrastructure instead of _permissionless_ execution.
