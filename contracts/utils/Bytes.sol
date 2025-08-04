@@ -92,7 +92,13 @@ library Bytes {
         // allocate and copy
         bytes memory result = new bytes(end - start);
         assembly ("memory-safe") {
-            mcopy(add(result, 0x20), add(add(buffer, 0x20), start), sub(end, start))
+            for {
+                let i := start
+            } lt(i, end) {
+                i := add(i, 0x20)
+            } {
+                mstore(add(add(result, 0x20), sub(i, start)), mload(add(add(buffer, 0x20), i)))
+            }
         }
 
         return result;
@@ -121,7 +127,13 @@ library Bytes {
 
         // allocate and copy
         assembly ("memory-safe") {
-            mcopy(add(buffer, 0x20), add(add(buffer, 0x20), start), sub(end, start))
+            for {
+                let i := start
+            } lt(i, end) {
+                i := add(i, 0x20)
+            } {
+                mstore(add(add(buffer, 0x20), sub(i, start)), mload(add(add(buffer, 0x20), i)))
+            }
             mstore(buffer, sub(end, start))
         }
 
