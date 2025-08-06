@@ -32,9 +32,10 @@ function getAllLinks(items) {
   const res = {};
   linksCache.set(items, res);
   for (const item of items) {
-    // Generate markdown links directly
-    res[`xref-${item.anchor}`] = `[${item.anchor}](${item.__item_context.page}#${item.anchor})`;
-    res[slug(item.fullName)] = `[\`${item.fullName}\`](${item.__item_context.page}#${item.anchor})`;
+    // Remove .md extension from page path
+    const pagePath = item.__item_context.page.replace(/\.md$/, '');
+    res[`xref-${item.anchor}`] = `[${item.anchor}](${pagePath}#${item.anchor})`;
+    res[slug(item.fullName)] = `[\`${item.fullName}\`](${pagePath}#${item.anchor})`;
   }
   return res;
 }
