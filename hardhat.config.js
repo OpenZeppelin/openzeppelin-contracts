@@ -121,5 +121,5 @@ module.exports = {
   paths: {
     sources: argv.src,
   },
-  docgen: require('./docs/config-markdown'),
+  docgen: require('./docs/config-md'),
 };

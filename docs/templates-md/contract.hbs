@@ -1,0 +1,96 @@
+{{#each items}}
+[{{{name}}}]: #{{{anchor}}}
+{{/each}}
+
+{{#each functions}}
+[{{{fullname}}}]: #{{{anchor}}}
+{{/each}}
+
+## `{{{name}}}` [📁](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v{{oz-version}}/{{__item_context.file.absolutePath}})
+
+```solidity
+import "@openzeppelin/{{__item_context.file.absolutePath}}";
+```
+
+{{{natspec.dev}}}
+
+{{#if modifiers}}
+### Modifiers
+{{#each modifiers}}
+- [{{{name}}}({{names params}})](#{{anchor}})
+{{/each}}
+{{/if}}
+
+{{#if has-functions}}
+### Functions
+{{#each inherited-functions}}
+{{#unless @first}}
+#### {{contract.name}}
+{{/unless}}
+{{#each functions}}
+- [{{{name}}}({{names params}})](#{{anchor}})
+{{/each}}
+
+{{/each}}
+{{/if}}
+
+{{#if has-events}}
+### Events
+{{#each inheritance}}
+{{#unless @first}}
+#### {{name}}
+{{/unless}}
+{{#each events}}
+- [{{{name}}}({{names params}})](#{{anchor}})
+{{/each}}
+
+{{/each}}
+{{/if}}
+
+{{#if has-errors}}
+### Errors
+{{#each inheritance}}
+{{#unless @first}}
+#### {{name}}
+{{/unless}}
+{{#each errors}}
+- [{{{name}}}({{names params}})](#{{anchor}})
+{{/each}}
+
+{{/each}}
+{{/if}}
+
+{{#each modifiers}}
+<a id="{{anchor}}"></a>
+### `{{{name}}}({{typed-params params}})`
+
+{{{natspec.dev}}}
+
+{{/each}}
+
+{{#each functions}}
+<a id="{{anchor}}"></a>
+### `{{{name}}}({{typed-params params}}){{#if returns2}} → {{typed-params returns2}}{{/if}}`
+*{{visibility}}*
+
+{{{natspec.dev}}}
+
+{{/each}}
+
+{{#each events}}
+<a id="{{anchor}}"></a>
+### `{{{name}}}({{typed-params params}})`
+*event*
+
+{{{natspec.dev}}}
+
+{{/each}}
+
+{{#each errors}}
+<a id="{{anchor}}"></a>
+### `{{{name}}}({{typed-params params}})`
+*error*
+
+{{{natspec.dev}}}
+
+{{/each}}
