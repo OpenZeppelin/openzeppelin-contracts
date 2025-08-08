@@ -3,26 +3,27 @@
 
 pragma solidity ^0.8.20;
 
-import {Ownable} from "./Ownable.sol";
+import {OwnableRenounceable} from "./OwnableRenounceable.sol";
 
 /**
  * @dev Contract module which provides access control mechanism, where
  * there is an account (an owner) that can be granted exclusive access to
  * specific functions.
  *
- * This extension of the {Ownable} contract includes a two-step mechanism to transfer
- * ownership, where the new owner must call {acceptOwnership} in order to replace the
- * old one. This can help prevent common mistakes, such as transfers of ownership to
- * incorrect accounts, or to contracts that are unable to interact with the
- * permission system.
+ * This extension of the {OwnableRenounceable} contract includes a two-step mechanism
+ * to transfer ownership, where the new owner must call {acceptOwnership} in order to
+ * replace the old one. This can help prevent common mistakes, such as transfers of
+ * ownership to incorrect accounts, or to contracts that are unable to interact with
+ * the permission system.
  *
- * The initial owner is specified at deployment time in the constructor for `Ownable`. This
- * can later be changed with {transferOwnership} and {acceptOwnership}.
+ * The initial owner is specified at deployment time in the constructor for
+ * `OwnableRenounceable`. This can later be changed with {transferOwnership} and
+ * {acceptOwnership}.
  *
  * This module is used through inheritance. It will make available all functions
- * from parent (Ownable).
+ * from parent (OwnableRenounceable).
  */
-abstract contract Ownable2Step is Ownable {
+abstract contract Ownable2Step is OwnableRenounceable {
     address private _pendingOwner;
 
     event OwnershipTransferStarted(address indexed previousOwner, address indexed newOwner);
