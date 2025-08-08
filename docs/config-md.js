@@ -6,7 +6,7 @@ module.exports = {
   outputDir: 'docs/modules/api/pages',
   templates: 'docs/templates-md',
   exclude: ['mocks'],
-  pageExtension: '.md',
+  pageExtension: '.mdx',
   pages: (_, file, config) => {
     const sourcesDir = path.resolve(config.root, config.sourcesDir);
     let dir = path.resolve(config.root, file.absolutePath);

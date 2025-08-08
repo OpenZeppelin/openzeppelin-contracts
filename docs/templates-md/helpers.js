@@ -5,7 +5,7 @@ module.exports['oz-version'] = () => version;
 module.exports['readme-path'] = opts => {
   const pageId = opts.data.root.id;
   // Remove both .adoc and .md extensions
-  const basePath = pageId.replace(/\.(adoc|md)$/, '');
+  const basePath = pageId.replace(/\.(adoc|mdx)$/, '');
   return 'contracts/' + basePath + '/README.adoc';
 };
 
@@ -33,7 +33,7 @@ function getAllLinks(items) {
   linksCache.set(items, res);
   for (const item of items) {
     // Remove .md extension from page path
-    const pagePath = item.__item_context.page.replace(/\.md$/, '');
+    const pagePath = item.__item_context.page.replace(/\.mdx$/, '');
     res[`xref-${item.anchor}`] = `[${item.anchor}](${pagePath}#${item.anchor})`;
     res[slug(item.fullName)] = `[\`${item.fullName}\`](${pagePath}#${item.anchor})`;
   }
