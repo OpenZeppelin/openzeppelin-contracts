@@ -2,4 +2,4 @@
 'openzeppelin-solidity': minor
 ---
 
-`ERC173`: An Ownable contract according to ERC-173
+`OwnableRenounceable`: A variant of `Ownable` that guards against unadvertently renouncing ownership by calling `renounceOwnership`. It provides a `renounceOwnership` function instead.
