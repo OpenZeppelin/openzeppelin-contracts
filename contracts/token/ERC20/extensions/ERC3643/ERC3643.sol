@@ -57,45 +57,45 @@ abstract contract ERC3643 is Context, ERC20, Ownable, Pausable, IERC3643, IAgent
         _emitUpdatedTokenInformation();
     }
 
-    function addAgent(address account) public override onlyOwner {
+    function addAgent(address account) public virtual onlyOwner {
         _addAgent(account);
     }
 
-    function removeAgent(address account) public override onlyOwner {
+    function removeAgent(address account) public virtual onlyOwner {
         _removeAgent(account);
     }
 
-    function isAgent(address account) public view override returns (bool) {
+    function isAgent(address account) public view virtual returns (bool) {
         return _agents[account];
     }
 
     /// @inheritdoc IERC3643
-    function onchainID() public view returns (address) {
+    function onchainID() public view virtual returns (address) {
         return _onchainID;
     }
 
     /// @inheritdoc IERC3643
-    function version() public pure returns (string memory) {
+    function version() public pure virtual returns (string memory) {
         return "5.5.0"; // TODO: Can we validate the version against package.json?
     }
 
     /// @inheritdoc IERC3643
-    function identityRegistry() public view returns (IIdentityRegistry) {
+    function identityRegistry() public view virtual returns (IIdentityRegistry) {
         return _identityRegistry;
     }
 
     /// @inheritdoc IERC3643
-    function compliance() public view returns (ICompliance) {
+    function compliance() public view virtual returns (ICompliance) {
         return _compliance;
     }
 
     /// @inheritdoc IERC3643
-    function isFrozen(address account) public view returns (bool) {
+    function isFrozen(address account) public view virtual returns (bool) {
         return _frozen[account];
     }
 
     /// @inheritdoc IERC3643
-    function getFrozenTokens(address account) public view returns (uint256) {
+    function getFrozenTokens(address account) public view virtual returns (uint256) {
         return _frozenTokens[account];
     }
 
@@ -174,7 +174,7 @@ abstract contract ERC3643 is Context, ERC20, Ownable, Pausable, IERC3643, IAgent
     }
 
     /// @inheritdoc IERC3643
-    function batchTransfer(address[] calldata toList, uint256[] calldata values) public {
+    function batchTransfer(address[] calldata toList, uint256[] calldata values) public virtual {
         for (uint256 i; i < toList.length; ++i) {
             transfer(toList[i], values[i]);
         }
@@ -185,41 +185,41 @@ abstract contract ERC3643 is Context, ERC20, Ownable, Pausable, IERC3643, IAgent
         address[] calldata fromList,
         address[] calldata toList,
         uint256[] calldata values
-    ) public {
+    ) public virtual {
         for (uint256 i; i < fromList.length; ++i) {
             forcedTransfer(fromList[i], toList[i], values[i]);
         }
     }
 
     /// @inheritdoc IERC3643
-    function batchMint(address[] calldata toList, uint256[] calldata values) public {
+    function batchMint(address[] calldata toList, uint256[] calldata values) public virtual {
         for (uint256 i; i < toList.length; ++i) {
             mint(toList[i], values[i]);
         }
     }
     /// @inheritdoc IERC3643
-    function batchBurn(address[] calldata fromList, uint256[] calldata values) public {
+    function batchBurn(address[] calldata fromList, uint256[] calldata values) public virtual {
         for (uint256 i; i < fromList.length; ++i) {
             burn(fromList[i], values[i]);
         }
     }
 
     /// @inheritdoc IERC3643
-    function batchSetAddressFrozen(address[] calldata accounts, bool[] calldata frozen) public {
+    function batchSetAddressFrozen(address[] calldata accounts, bool[] calldata frozen) public virtual {
         for (uint256 i; i < accounts.length; ++i) {
             setAddressFrozen(accounts[i], frozen[i]);
         }
     }
 
     /// @inheritdoc IERC3643
-    function batchFreezePartialTokens(address[] calldata accounts, uint256[] calldata values) public {
+    function batchFreezePartialTokens(address[] calldata accounts, uint256[] calldata values) public virtual {
         for (uint256 i; i < accounts.length; ++i) {
             freezePartialTokens(accounts[i], values[i]);
         }
     }
 
     /// @inheritdoc IERC3643
-    function batchUnfreezePartialTokens(address[] calldata accounts, uint256[] calldata values) public {
+    function batchUnfreezePartialTokens(address[] calldata accounts, uint256[] calldata values) public virtual {
         for (uint256 i; i < accounts.length; ++i) {
             unfreezePartialTokens(accounts[i], values[i]);
         }
@@ -300,7 +300,11 @@ abstract contract ERC3643 is Context, ERC20, Ownable, Pausable, IERC3643, IAgent
 
     // Can reenter, but it's not a risk since the identity registry is considered a trusted contract
     // slither-disable-next-line reentrancy-no-eth
-    function _recoveryAddress(address lost, address updated, address investorOnchainID) internal returns (bool) {
+    function _recoveryAddress(
+        address lost,
+        address updated,
+        address investorOnchainID
+    ) internal virtual returns (bool) {
         IIdentity oid = IIdentity(investorOnchainID);
         // TODO: keyHasPurpose is not defined in IERC734. Wat do?
         if (oid.keyHasPurpose(keccak256(abi.encode(updated)), IIdentity.KeyPurpose.Execution)) {
