@@ -25,7 +25,7 @@ describe('OwnableRenounceable', function () {
   });
 
   it('rejects zero address for initialOwner', async function () {
-    await expect(ethers.deployContract('$Ownable', [ethers.ZeroAddress]))
+    await expect(ethers.deployContract('$OwnableRenounceable', [ethers.ZeroAddress]))
       .to.be.revertedWithCustomError({ interface: this.mock.interface }, 'OwnableInvalidOwner')
       .withArgs(ethers.ZeroAddress);
   });

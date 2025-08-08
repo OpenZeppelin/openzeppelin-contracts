@@ -12,8 +12,6 @@ import {Ownable} from "./Ownable.sol";
  * a replacement.
  */
 abstract contract OwnableRenounceable is Context, Ownable {
-    constructor(address initialOwner) Ownable(initialOwner) {}
-
     /**
      * @dev Leaves the contract without owner. It will not be possible to call
      * `onlyOwner` functions. Can only be called by the current owner.
