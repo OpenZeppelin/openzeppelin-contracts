@@ -1,11 +1,12 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+const { shouldBehaveLikeERC173 } = require('./ERC173.behavior');
 
 async function fixture() {
   const [owner, other] = await ethers.getSigners();
-  const ownable = await ethers.deployContract('$Ownable', [owner]);
-  return { owner, other, ownable };
+  const mock = await ethers.deployContract('$Ownable', [owner]);
+  return { owner, other, mock };
 }
 
 describe('Ownable', function () {
@@ -13,67 +14,51 @@ describe('Ownable', function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
+  describe('ERC173', function () {
+    shouldBehaveLikeERC173();
+  });
+
   it('emits ownership transfer events during construction', async function () {
-    await expect(this.ownable.deploymentTransaction())
-      .to.emit(this.ownable, 'OwnershipTransferred')
+    await expect(this.mock.deploymentTransaction())
+      .to.emit(this.mock, 'OwnershipTransferred')
       .withArgs(ethers.ZeroAddress, this.owner);
   });
 
   it('rejects zero address for initialOwner', async function () {
     await expect(ethers.deployContract('$Ownable', [ethers.ZeroAddress]))
-      .to.be.revertedWithCustomError({ interface: this.ownable.interface }, 'OwnableInvalidOwner')
+      .to.be.revertedWithCustomError({ interface: this.mock.interface }, 'OwnableInvalidOwner')
       .withArgs(ethers.ZeroAddress);
   });
 
-  it('has an owner', async function () {
-    expect(await this.ownable.owner()).to.equal(this.owner);
-  });
-
-  describe('transfer ownership', function () {
-    it('changes owner after transfer', async function () {
-      await expect(this.ownable.connect(this.owner).transferOwnership(this.other))
-        .to.emit(this.ownable, 'OwnershipTransferred')
-        .withArgs(this.owner, this.other);
-
-      expect(await this.ownable.owner()).to.equal(this.other);
-    });
-
-    it('prevents non-owners from transferring', async function () {
-      await expect(this.ownable.connect(this.other).transferOwnership(this.other))
-        .to.be.revertedWithCustomError(this.ownable, 'OwnableUnauthorizedAccount')
-        .withArgs(this.other);
-    });
-
-    it('guards ownership against stuck state', async function () {
-      await expect(this.ownable.connect(this.owner).transferOwnership(ethers.ZeroAddress))
-        .to.be.revertedWithCustomError(this.ownable, 'OwnableInvalidOwner')
-        .withArgs(ethers.ZeroAddress);
-    });
+  it('guards ownership against stuck state', async function () {
+    await expect(this.mock.connect(this.owner).transferOwnership(ethers.ZeroAddress))
+      .to.be.revertedWithCustomError(this.mock, 'OwnableInvalidOwner')
+      .withArgs(ethers.ZeroAddress);
   });
 
   describe('renounce ownership', function () {
     it('loses ownership after renouncement', async function () {
-      await expect(this.ownable.connect(this.owner).renounceOwnership())
-        .to.emit(this.ownable, 'OwnershipTransferred')
+      await expect(this.mock.connect(this.owner).renounceOwnership())
+        .to.emit(this.mock, 'OwnershipTransferred')
         .withArgs(this.owner, ethers.ZeroAddress);
 
-      expect(await this.ownable.owner()).to.equal(ethers.ZeroAddress);
+      await expect(this.mock.owner()).to.eventually.equal(ethers.ZeroAddress);
     });
 
     it('prevents non-owners from renouncement', async function () {
-      await expect(this.ownable.connect(this.other).renounceOwnership())
-        .to.be.revertedWithCustomError(this.ownable, 'OwnableUnauthorizedAccount')
+      await expect(this.mock.connect(this.other).renounceOwnership())
+        .to.be.revertedWithCustomError(this.mock, 'OwnableUnauthorizedAccount')
         .withArgs(this.other);
     });
 
     it('allows to recover access using the internal _transferOwnership', async function () {
-      await this.ownable.connect(this.owner).renounceOwnership();
+      await this.mock.connect(this.owner).renounceOwnership();
 
-      await expect(this.ownable.$_transferOwnership(this.other))
-        .to.emit(this.ownable, 'OwnershipTransferred')
+      await expect(this.mock.$_transferOwnership(this.other))
+        .to.emit(this.mock, 'OwnershipTransferred')
         .withArgs(ethers.ZeroAddress, this.other);
 
-      expect(await this.ownable.owner()).to.equal(this.other);
+      await expect(this.mock.owner()).to.eventually.equal(this.other);
     });
   });
 });

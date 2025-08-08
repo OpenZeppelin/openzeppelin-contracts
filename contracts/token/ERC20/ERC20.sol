@@ -147,6 +147,20 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
     }
 
     /**
+     * @dev Sets the name of the token.
+     */
+    function _setName(string memory name_) internal virtual {
+        _name = name_;
+    }
+
+    /**
+     * @dev Sets the symbol of the token.
+     */
+    function _setSymbol(string memory symbol_) internal virtual {
+        _symbol = symbol_;
+    }
+
+    /**
      * @dev Moves a `value` amount of tokens from `from` to `to`.
      *
      * This internal function is equivalent to {transfer}, and can be used to
