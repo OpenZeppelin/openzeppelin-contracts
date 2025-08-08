@@ -29,6 +29,57 @@ module.exports.names = params => params?.map(p => p.name).join(', ');
 
 module.exports.eq = (a, b) => a === b;
 
+module.exports['starts-with'] = (str, prefix) => str && str.startsWith(prefix);
+
+// Helper to process natspec content with link replacement
+module.exports['process-natspec'] = function (natspec, opts) {
+  if (!natspec) return '';
+
+  // Get links from the site data
+  const links = getAllLinks(opts.data.site.items);
+
+  // Apply the same link replacement logic as in with-prelude
+  let content = natspec;
+
+  // Replace all {link-key} placeholders with actual markdown links
+  content = content.replace(/\{([-._a-z0-9]+)\}/gi, (match, key) => {
+    let replacement = links[key];
+
+    // If not found, try various matching strategies
+    if (!replacement) {
+      // Strategy 1: Look for keys that end with this key (for function references without contract prefix)
+      let matchingKeys = Object.keys(links).filter(linkKey => {
+        const parts = linkKey.split('-');
+        return parts.length >= 2 && parts[parts.length - 1] === key;
+      });
+
+      // Strategy 2: Try with different separators (dot notation to dash)
+      if (matchingKeys.length === 0) {
+        const keyWithDashes = key.replace(/\./g, '-');
+        matchingKeys = Object.keys(links).filter(linkKey => linkKey.includes(keyWithDashes));
+      }
+
+      // Strategy 3: Try exact match with different prefixes
+      if (matchingKeys.length === 0) {
+        matchingKeys = Object.keys(links).filter(linkKey => {
+          return linkKey === key || linkKey.endsWith('-' + key) || linkKey.includes(key);
+        });
+      }
+
+      if (matchingKeys.length > 0) {
+        // Prefer non-xref versions
+        const nonXrefMatches = matchingKeys.filter(k => !k.startsWith('xref-'));
+        const bestMatch = nonXrefMatches.length > 0 ? nonXrefMatches[0] : matchingKeys[0];
+        replacement = links[bestMatch];
+      }
+    }
+
+    return replacement || match; // Keep original if no replacement found
+  });
+
+  return content;
+};
+
 module.exports['typed-params'] = params => {
   return params?.map(p => `${p.type}${p.indexed ? ' indexed' : ''}${p.name ? ' ' + p.name : ''}`).join(', ');
 };
@@ -185,7 +236,38 @@ module.exports['with-prelude'] = opts => {
 
   // Replace all {link-key} placeholders with actual markdown links
   contents = contents.replace(/\{([-._a-z0-9]+)\}/gi, (match, key) => {
-    return links[key] || match; // Keep original if no replacement found
+    let replacement = links[key];
+
+    // If not found, try various matching strategies
+    if (!replacement) {
+      // Strategy 1: Look for keys that end with this key (for function references without contract prefix)
+      let matchingKeys = Object.keys(links).filter(linkKey => {
+        const parts = linkKey.split('-');
+        return parts.length >= 2 && parts[parts.length - 1] === key;
+      });
+
+      // Strategy 2: Try with different separators (dot notation to dash)
+      if (matchingKeys.length === 0) {
+        const keyWithDashes = key.replace(/\./g, '-');
+        matchingKeys = Object.keys(links).filter(linkKey => linkKey.includes(keyWithDashes));
+      }
+
+      // Strategy 3: Try exact match with different prefixes
+      if (matchingKeys.length === 0) {
+        matchingKeys = Object.keys(links).filter(linkKey => {
+          return linkKey === key || linkKey.endsWith('-' + key) || linkKey.includes(key);
+        });
+      }
+
+      if (matchingKeys.length > 0) {
+        // Prefer non-xref versions
+        const nonXrefMatches = matchingKeys.filter(k => !k.startsWith('xref-'));
+        const bestMatch = nonXrefMatches.length > 0 ? nonXrefMatches[0] : matchingKeys[0];
+        replacement = links[bestMatch];
+      }
+    }
+
+    return replacement || match; // Keep original if no replacement found
   });
 
   // Fix HTML entities that may have been introduced
