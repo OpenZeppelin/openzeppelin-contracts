@@ -35,7 +35,8 @@ module.exports.fullname = function fullname({ item }) {
 
 module.exports.inheritance = function ({ item, build }) {
   if (!isNodeType('ContractDefinition', item)) {
-    throw new Error('used inherited-items on non-contract');
+    // For interfaces and libraries, return just the item itself
+    return [item];
   }
 
   return item.linearizedBaseContracts

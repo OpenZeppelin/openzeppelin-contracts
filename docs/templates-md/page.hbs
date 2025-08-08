@@ -3,7 +3,11 @@ title: "{{title}}"
 description: "{{description}}"
 ---
 
-:github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
 {{#with-prelude}}
 {{readme (readme-path)}}
 {{/with-prelude}}
+
+{{#each items}}
+{{>contract}}
+
+{{/each}}
