@@ -7,9 +7,9 @@ import {Pausable} from "../../../../utils/Pausable.sol";
 import {IERC3643, IIdentityRegistry, ICompliance, IIdentity, IAgentRole} from "../../../../interfaces/IERC3643.sol";
 import {ERC20} from "../../ERC20.sol";
 import {Math} from "../../../../utils/math/Math.sol";
-import {ERC173} from "../../../../access/ERC173.sol";
+import {Ownable} from "../../../../access/Ownable.sol";
 
-abstract contract ERC3643 is Context, ERC20, ERC173, Pausable, IERC3643, IAgentRole {
+abstract contract ERC3643 is Context, ERC20, Ownable, Pausable, IERC3643, IAgentRole {
     mapping(address => bool) private _frozen;
     mapping(address => uint256) private _frozenTokens;
     mapping(address => bool) private _agents;
