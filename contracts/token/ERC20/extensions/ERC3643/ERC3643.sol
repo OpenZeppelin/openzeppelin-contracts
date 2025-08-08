@@ -299,7 +299,7 @@ abstract contract ERC3643 is Context, ERC20, ERC173, Pausable, IERC3643, IAgentR
     }
 
     // Can reenter, but it's not a risk since the identity registry is considered a trusted contract
-    // slither-disable-next-line reentrancy-eth
+    // slither-disable-next-line reentrancy-no-eth
     function _recoveryAddress(address lost, address updated, address investorOnchainID) internal returns (bool) {
         IIdentity oid = IIdentity(investorOnchainID);
         // TODO: keyHasPurpose is not defined in IERC734. Wat do?
