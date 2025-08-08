@@ -5,11 +5,11 @@ const { shouldBehaveLikeERC173 } = require('./ERC173.behavior');
 
 async function fixture() {
   const [owner, other] = await ethers.getSigners();
-  const mock = await ethers.deployContract('$Ownable', [owner]);
+  const mock = await ethers.deployContract('$OwnableRenounceable', [owner]);
   return { owner, other, mock };
 }
 
-describe('Ownable', function () {
+describe('OwnableRenounceable', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });
