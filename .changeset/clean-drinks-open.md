@@ -2,4 +2,4 @@
 'openzeppelin-solidity': minor
 ---
 
-`Ownable`: Add `supportsInterface(bytes4)` for `ERC165` compliance.
+`Ownable`, `OwnableRenounceable`, `Ownable2Step`: Add `supportsInterface(bytes4)` for `ERC165` compliance.
