@@ -27,6 +27,25 @@ module.exports.readme = readmePath => {
 
 module.exports.names = params => params?.map(p => p.name).join(', ');
 
+// Create a context for tracking function names across the current contract
+const functionNameCounts = {};
+
+module.exports['simple-id'] = function (name) {
+  // Keep track of how many times we've seen this function name
+  if (!functionNameCounts[name]) {
+    functionNameCounts[name] = 1;
+    return name;
+  } else {
+    functionNameCounts[name]++;
+    return `${name}-${functionNameCounts[name]}`;
+  }
+};
+
+module.exports['reset-function-counts'] = function () {
+  Object.keys(functionNameCounts).forEach(key => delete functionNameCounts[key]);
+  return '';
+};
+
 module.exports.eq = (a, b) => a === b;
 
 module.exports['starts-with'] = (str, prefix) => str && str.startsWith(prefix);
@@ -100,11 +119,25 @@ function getAllLinks(items) {
   }
   const res = {};
   linksCache.set(items, res);
+
   for (const item of items) {
-    // Remove .md extension from page path
+    // Remove .mdx extension from page path
     const pagePath = item.__item_context.page.replace(/\.mdx$/, '');
-    res[`xref-${item.anchor}`] = `[${item.anchor}](${pagePath}#${item.anchor})`;
-    res[slug(item.fullName)] = `[\`${item.fullName}\`](${pagePath}#${item.anchor})`;
+
+    // Use simple name-based anchors instead of complex ones
+    const simpleId = item.name;
+
+    // Create link entries - map old complex keys to simple anchors
+    res[`xref-${item.anchor}`] = `[${item.anchor}](${pagePath}#${simpleId})`;
+    res[slug(item.fullName)] = `[\`${item.fullName}\`](${pagePath}#${simpleId})`;
+    res[item.anchor] = `[\`${item.fullName}\`](${pagePath}#${simpleId})`;
+    res[item.name] = `[\`${item.name}\`](${pagePath}#${simpleId})`;
+
+    // Also handle the contract-function format for cross-references
+    if (item.__item_context?.contract?.name) {
+      const contractDotFunction = `${item.__item_context.contract.name}.${item.name}`;
+      res[contractDotFunction] = `[\`${contractDotFunction}\`](${pagePath}#${simpleId})`;
+    }
   }
   return res;
 }

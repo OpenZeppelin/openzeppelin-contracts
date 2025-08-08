@@ -1,12 +1,5 @@
-{{#each items}}
-[{{{name}}}]: #{{{anchor}}}
-{{/each}}
 
-{{#each functions}}
-[{{{fullname}}}]: #{{{anchor}}}
-{{/each}}
-
-## `{{{name}}}` [📁](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v{{oz-version}}/{{__item_context.file.absolutePath}})
+{{reset-function-counts}}## `{{{name}}}` [📁](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v{{oz-version}}/{{__item_context.file.absolutePath}})
 
 ```solidity
 import "@openzeppelin/{{__item_context.file.absolutePath}}";
@@ -17,7 +10,7 @@ import "@openzeppelin/{{__item_context.file.absolutePath}}";
 {{#if modifiers}}
 ### Modifiers
 {{#each modifiers}}
-- [{{{name}}}({{names params}})](#{{anchor}})
+- [{{{name}}}({{names params}})](#{{name}})
 {{/each}}
 {{/if}}
 
@@ -28,7 +21,7 @@ import "@openzeppelin/{{__item_context.file.absolutePath}}";
 #### {{contract.name}}
 {{/unless}}
 {{#each functions}}
-- [{{{name}}}({{names params}})](#{{anchor}})
+- [{{{name}}}({{names params}})](#{{name}})
 {{/each}}
 
 {{/each}}
@@ -41,7 +34,7 @@ import "@openzeppelin/{{__item_context.file.absolutePath}}";
 #### {{name}}
 {{/unless}}
 {{#each events}}
-- [{{{name}}}({{names params}})](#{{anchor}})
+- [{{{name}}}({{names params}})](#{{name}})
 {{/each}}
 
 {{/each}}
@@ -54,7 +47,7 @@ import "@openzeppelin/{{__item_context.file.absolutePath}}";
 #### {{name}}
 {{/unless}}
 {{#each errors}}
-- [{{{name}}}({{names params}})](#{{anchor}})
+- [{{{name}}}({{names params}})](#{{name}})
 {{/each}}
 
 {{/each}}
