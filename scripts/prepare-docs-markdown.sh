@@ -3,7 +3,7 @@
 set -euo pipefail
 shopt -s globstar
 
-OUTDIR="$(node -p 'require("./docs/config-markdown.js").outputDir')"
+OUTDIR="$(node -p 'require("./docs/config-md.js").outputDir')"
 
 if [ ! -d node_modules ]; then
   npm ci
@@ -12,7 +12,7 @@ fi
 rm -rf "$OUTDIR"
 
 # Generate markdown docs using the markdown config
-npx hardhat docgen
+hardhat docgen
 
 # Copy examples and adjust imports (same as original but to markdown output dir)
 examples_source_dir="contracts/mocks/docs"
