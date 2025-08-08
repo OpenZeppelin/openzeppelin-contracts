@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.0.0) (access/Ownable.sol)
 
 pragma solidity ^0.8.20;
 
@@ -53,7 +54,12 @@ abstract contract Ownable is Context, IERC173, ERC165 {
         return _owner;
     }
 
-    /// @inheritdoc IERC173
+    /**
+     * @dev See {IERC173-transferOwnership}.
+     *
+     * NOTE: Renouncing ownership will leave the contract without an owner,
+     * thereby disabling any functionality that is only available to the owner.
+     */
     function transferOwnership(address newOwner) public virtual override onlyOwner {
         _transferOwnership(newOwner);
     }
