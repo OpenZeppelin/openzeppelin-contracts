@@ -40,6 +40,27 @@ function getAllLinks(items) {
   return res;
 }
 
+module.exports.title = opts => {
+  const pageId = opts.data.root.id;
+  // Extract directory name from page path and format as title
+  const basePath = pageId.replace(/\.(adoc|mdx)$/, '');
+  const parts = basePath.split('/');
+  const dirName = parts[parts.length - 1] || 'Contracts';
+  // Convert from kebab-case to Title Case
+  return dirName
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
+
+module.exports.description = opts => {
+  const pageId = opts.data.root.id;
+  const basePath = pageId.replace(/\.(adoc|mdx)$/, '');
+  const parts = basePath.split('/');
+  const dirName = parts[parts.length - 1] || 'contracts';
+  return `Smart contract ${dirName.replace('-', ' ')} utilities and implementations`;
+};
+
 module.exports['with-prelude'] = opts => {
   // For markdown, we'll replace the placeholders inline
   const links = getAllLinks(opts.data.site.items);
