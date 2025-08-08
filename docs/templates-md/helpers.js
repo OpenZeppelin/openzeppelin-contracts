@@ -106,6 +106,8 @@ function processAdocContent(content) {
       .replace(/&quot;/g, '"')
       .replace(/&#x27;/g, "'")
       .replace(/&#x2F;/g, '/')
+      .replace(/&#x60;/g, '`') // Decode backticks
+      .replace(/&#x3D;/g, '=') // Decode equals signs
       .replace(/&amp;/g, '&'); // Decode &amp; last to avoid double-decoding
 
     // Convert api: links to contracts/v5.x/api/ and change .adoc to .mdx
@@ -116,6 +118,23 @@ function processAdocContent(content) {
 
     // Fix curly brace placeholders that got incorrectly converted
     mdContent = mdContent.replace(/\{(\[`[^`]+`\]\([^)]+\))\}/g, '$1');
+
+    // Convert HTML definition list callouts to proper Callout components
+    mdContent = mdContent.replace(
+      /<dl><dt><strong>💡 TIP<\/strong><\/dt><dd>\s*([\s\S]*?)\s*<\/dd><\/dl>/g,
+      '<Callout>\n$1\n</Callout>',
+    );
+
+    mdContent = mdContent.replace(
+      /<dl><dt><strong>📌 NOTE<\/strong><\/dt><dd>\s*([\s\S]*?)\s*<\/dd><\/dl>/g,
+      '<Callout>\n$1\n</Callout>',
+    );
+
+    // Handle other callout patterns that might have different icons or text
+    mdContent = mdContent.replace(
+      /<dl><dt><strong>(?:💡|📌|ℹ️)?\s*(TIP|NOTE|INFO)<\/strong><\/dt><dd>\s*([\s\S]*?)\s*<\/dd><\/dl>/g,
+      '<Callout>\n$2\n</Callout>',
+    );
 
     // Remove the first H1 from content (since the template will add its own title)
     const contentWithoutFirstH1 = mdContent.replace(/^#+\s+.+$/m, '').replace(/^\n+/, '');
@@ -176,10 +195,29 @@ module.exports['with-prelude'] = opts => {
     .replace(/&quot;/g, '"')
     .replace(/&#x27;/g, "'")
     .replace(/&#x2F;/g, '/')
+    .replace(/&#x60;/g, '`') // Decode backticks
+    .replace(/&#x3D;/g, '=') // Decode equals signs
     .replace(/&amp;/g, '&'); // Decode &amp; last to avoid double-decoding
 
   // Fix curly brace placeholders that may have been incorrectly added by link replacement
   contents = contents.replace(/\{(\[`[^`]+`\]\([^)]+\))\}/g, '$1');
+
+  // Convert HTML definition list callouts to proper Callout components
+  contents = contents.replace(
+    /<dl><dt><strong>💡 TIP<\/strong><\/dt><dd>\s*([\s\S]*?)\s*<\/dd><\/dl>/g,
+    '<Callout>\n$1\n</Callout>',
+  );
+
+  contents = contents.replace(
+    /<dl><dt><strong>📌 NOTE<\/strong><\/dt><dd>\s*([\s\S]*?)\s*<\/dd><\/dl>/g,
+    '<Callout>\n$1\n</Callout>',
+  );
+
+  // Handle other callout patterns that might have different icons or text
+  contents = contents.replace(
+    /<dl><dt><strong>(?:💡|📌|ℹ️)?\s*(TIP|NOTE|INFO)<\/strong><\/dt><dd>\s*([\s\S]*?)\s*<\/dd><\/dl>/g,
+    '<Callout>\n$2\n</Callout>',
+  );
 
   return contents;
 };
