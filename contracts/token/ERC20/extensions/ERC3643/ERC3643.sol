@@ -43,8 +43,8 @@ abstract contract ERC3643 is Context, ERC20, Ownable, Pausable, IERC3643, IAgent
     /// @dev A call to {IERC3643-forcedTransfer} returned false during a transfer
     error ERC3643FailedForcedTransfer(address from, address to, uint256 value);
 
-    modifier onlyAgent() {
-        _checkAgent(msg.sender);
+    modifier onlyAgentOrOwner() {
+        _checkAgentOrOwner(_msgSender());
         _;
     }
 
@@ -115,27 +115,27 @@ abstract contract ERC3643 is Context, ERC20, Ownable, Pausable, IERC3643, IAgent
     }
 
     /// @inheritdoc IERC3643
-    function pause() public virtual onlyAgent {
+    function pause() public virtual onlyAgentOrOwner {
         _pause();
     }
 
     /// @inheritdoc IERC3643
-    function unpause() public virtual onlyAgent {
+    function unpause() public virtual onlyAgentOrOwner {
         _unpause();
     }
 
     // /// @inheritdoc IERC3643
-    function setAddressFrozen(address account, bool frozen) public virtual onlyAgent {
-        _setAddressFrozen(account, frozen, msg.sender);
+    function setAddressFrozen(address account, bool frozen) public virtual onlyAgentOrOwner {
+        _setAddressFrozen(account, frozen, _msgSender());
     }
 
     /// @inheritdoc IERC3643
-    function freezePartialTokens(address account, uint256 value) public virtual onlyAgent {
+    function freezePartialTokens(address account, uint256 value) public virtual onlyAgentOrOwner {
         _freezePartialTokens(account, value);
     }
 
     /// @inheritdoc IERC3643
-    function unfreezePartialTokens(address account, uint256 value) public virtual onlyAgent {
+    function unfreezePartialTokens(address account, uint256 value) public virtual onlyAgentOrOwner {
         _unfreezePartialTokens(account, value);
     }
 
@@ -150,17 +150,17 @@ abstract contract ERC3643 is Context, ERC20, Ownable, Pausable, IERC3643, IAgent
     }
 
     /// @inheritdoc IERC3643
-    function forcedTransfer(address from, address to, uint256 value) public virtual onlyAgent returns (bool) {
+    function forcedTransfer(address from, address to, uint256 value) public virtual onlyAgentOrOwner returns (bool) {
         return _forcedTransfer(from, to, value);
     }
 
     /// @inheritdoc IERC3643
-    function mint(address to, uint256 value) public virtual onlyAgent {
+    function mint(address to, uint256 value) public virtual onlyAgentOrOwner {
         _mint(to, value);
     }
 
     /// @inheritdoc IERC3643
-    function burn(address from, uint256 value) public virtual onlyAgent {
+    function burn(address from, uint256 value) public virtual onlyAgentOrOwner {
         _burn(from, value);
     }
 
@@ -169,7 +169,7 @@ abstract contract ERC3643 is Context, ERC20, Ownable, Pausable, IERC3643, IAgent
         address lost,
         address updated,
         address investorOnchainID
-    ) public virtual onlyAgent returns (bool) {
+    ) public virtual onlyAgentOrOwner returns (bool) {
         return _recoveryAddress(lost, updated, investorOnchainID);
     }
 
@@ -265,12 +265,14 @@ abstract contract ERC3643 is Context, ERC20, Ownable, Pausable, IERC3643, IAgent
     }
 
     function _freezePartialTokens(address account, uint256 value) internal virtual {
+        // TODO: Unchecked block?
         uint256 toFreeze = Math.min(value, balanceOf(account) - getFrozenTokens(account));
         _frozenTokens[account] += toFreeze;
         emit TokensFrozen(account, toFreeze);
     }
 
     function _unfreezePartialTokens(address account, uint256 value) internal virtual {
+        // TODO: Unchecked block?
         _frozenTokens[account] -= value;
         emit TokensUnfrozen(account, value);
     }
@@ -287,10 +289,12 @@ abstract contract ERC3643 is Context, ERC20, Ownable, Pausable, IERC3643, IAgent
 
     function _forcedTransfer(address from, address to, uint256 value) internal virtual returns (bool) {
         if (identityRegistry().isVerified(to)) {
+            // TODO: Unchecked block?
             uint256 freeBalance = balanceOf(from) - getFrozenTokens(from);
             if (value > freeBalance) {
                 _unfreezePartialTokens(from, value - freeBalance);
             }
+
             ERC20._update(from, to, value); // Bypasses the freezing mechanism
             compliance().transferred(from, to, value); // Checks the compliance
             return true;
@@ -341,8 +345,8 @@ abstract contract ERC3643 is Context, ERC20, Ownable, Pausable, IERC3643, IAgent
         compliance_.transferred(from, to, value);
     }
 
-    function _checkAgent(address account) internal virtual {
-        require(isAgent(account), ERC3643NotAnAgent(account));
+    function _checkAgentOrOwner(address account) internal virtual {
+        require(isAgent(account) || owner() == account, OwnableUnauthorizedAccount(account));
     }
 
     function _emitUpdatedTokenInformation() internal virtual {
