@@ -4,15 +4,14 @@ pragma solidity ^0.8.26;
 
 import {Context} from "../../../../utils/Context.sol";
 import {Pausable} from "../../../../utils/Pausable.sol";
-import {IERC3643, IIdentityRegistry, ICompliance, IIdentity, IAgentRole} from "../../../../interfaces/IERC3643.sol";
+import {IERC3643, IIdentityRegistry, ICompliance, IIdentity} from "../../../../interfaces/IERC3643.sol";
 import {ERC20} from "../../ERC20.sol";
 import {Math} from "../../../../utils/math/Math.sol";
 import {Ownable} from "../../../../access/Ownable.sol";
 
-abstract contract ERC3643 is Context, ERC20, Ownable, Pausable, IERC3643, IAgentRole {
+abstract contract ERC3643 is Context, ERC20, Ownable, Pausable, IERC3643 {
     mapping(address => bool) private _frozen;
     mapping(address => uint256) private _frozenTokens;
-    mapping(address => bool) private _agents;
 
     IIdentityRegistry private _identityRegistry;
     ICompliance private _compliance;
@@ -37,9 +36,6 @@ abstract contract ERC3643 is Context, ERC20, Ownable, Pausable, IERC3643, IAgent
     /// @dev A call to {ICompliance-canTransfer} returned false during a transfer
     error ERC3643ComplianceViolation(address from, address to, uint256 value);
 
-    /// @dev The caller is not an agent
-    error ERC3643NotAnAgent(address account);
-
     /// @dev A call to {IERC3643-forcedTransfer} returned false during a transfer
     error ERC3643FailedForcedTransfer(address from, address to, uint256 value);
 
@@ -57,17 +53,7 @@ abstract contract ERC3643 is Context, ERC20, Ownable, Pausable, IERC3643, IAgent
         _emitUpdatedTokenInformation();
     }
 
-    function addAgent(address account) public virtual onlyOwner {
-        _addAgent(account);
-    }
-
-    function removeAgent(address account) public virtual onlyOwner {
-        _removeAgent(account);
-    }
-
-    function isAgent(address account) public view virtual returns (bool) {
-        return _agents[account];
-    }
+    function isAgent(address account) public view virtual returns (bool);
 
     /// @inheritdoc IERC3643
     function onchainID() public view virtual returns (address) {
@@ -223,20 +209,6 @@ abstract contract ERC3643 is Context, ERC20, Ownable, Pausable, IERC3643, IAgent
         for (uint256 i; i < accounts.length; ++i) {
             unfreezePartialTokens(accounts[i], values[i]);
         }
-    }
-
-    function _addAgent(address agent) internal virtual {
-        if (!isAgent(agent)) {
-            _agents[agent] = true;
-            emit AgentAdded(agent);
-        } // no-op if already an agent
-    }
-
-    function _removeAgent(address agent) internal virtual {
-        if (isAgent(agent)) {
-            _agents[agent] = false;
-            emit AgentRemoved(agent);
-        } // no-op if not an agent
     }
 
     /// @inheritdoc ERC20
