@@ -40,6 +40,9 @@ abstract contract ERC3643 is Context, ERC20, ERC173, Pausable, IERC3643, IAgentR
     /// @dev The caller is not an agent
     error ERC3643NotAnAgent(address account);
 
+    /// @dev A call to {IERC3643-forcedTransfer} returned false during a transfer
+    error ERC3643FailedForcedTransfer(address from, address to, uint256 value);
+
     modifier onlyAgent() {
         _checkAgent(msg.sender);
         _;
@@ -171,68 +174,68 @@ abstract contract ERC3643 is Context, ERC20, ERC173, Pausable, IERC3643, IAgentR
     }
 
     /// @inheritdoc IERC3643
-    function batchTransfer(address[] calldata tos, uint256[] calldata values) public {
-        for (uint256 i; i < tos.length; ++i) {
-            transfer(tos[i], values[i]);
+    function batchTransfer(address[] calldata toList, uint256[] calldata values) public {
+        for (uint256 i; i < toList.length; ++i) {
+            transfer(toList[i], values[i]);
         }
     }
 
     /// @inheritdoc IERC3643
     function batchForcedTransfer(
-        address[] calldata _fromList,
-        address[] calldata _toList,
+        address[] calldata fromList,
+        address[] calldata toList,
         uint256[] calldata values
     ) public {
-        for (uint256 i; i < _fromList.length; ++i) {
-            forcedTransfer(_fromList[i], _toList[i], values[i]);
+        for (uint256 i; i < fromList.length; ++i) {
+            forcedTransfer(fromList[i], toList[i], values[i]);
         }
     }
 
     /// @inheritdoc IERC3643
-    function batchMint(address[] calldata tos, uint256[] calldata values) public {
-        for (uint256 i; i < tos.length; ++i) {
-            mint(tos[i], values[i]);
+    function batchMint(address[] calldata toList, uint256[] calldata values) public {
+        for (uint256 i; i < toList.length; ++i) {
+            mint(toList[i], values[i]);
         }
     }
     /// @inheritdoc IERC3643
-    function batchBurn(address[] calldata froms, uint256[] calldata values) public {
-        for (uint256 i; i < froms.length; ++i) {
-            burn(froms[i], values[i]);
+    function batchBurn(address[] calldata fromList, uint256[] calldata values) public {
+        for (uint256 i; i < fromList.length; ++i) {
+            burn(fromList[i], values[i]);
         }
     }
 
     /// @inheritdoc IERC3643
-    function batchSetAddressFrozen(address[] calldata _userAddresses, bool[] calldata _freeze) public {
-        for (uint256 i; i < _userAddresses.length; ++i) {
-            setAddressFrozen(_userAddresses[i], _freeze[i]);
+    function batchSetAddressFrozen(address[] calldata accounts, bool[] calldata frozen) public {
+        for (uint256 i; i < accounts.length; ++i) {
+            setAddressFrozen(accounts[i], frozen[i]);
         }
     }
 
     /// @inheritdoc IERC3643
-    function batchFreezePartialTokens(address[] calldata _userAddresses, uint256[] calldata values) public {
-        for (uint256 i; i < _userAddresses.length; ++i) {
-            freezePartialTokens(_userAddresses[i], values[i]);
+    function batchFreezePartialTokens(address[] calldata accounts, uint256[] calldata values) public {
+        for (uint256 i; i < accounts.length; ++i) {
+            freezePartialTokens(accounts[i], values[i]);
         }
     }
 
     /// @inheritdoc IERC3643
-    function batchUnfreezePartialTokens(address[] calldata _userAddresses, uint256[] calldata values) public {
-        for (uint256 i; i < _userAddresses.length; ++i) {
-            unfreezePartialTokens(_userAddresses[i], values[i]);
+    function batchUnfreezePartialTokens(address[] calldata accounts, uint256[] calldata values) public {
+        for (uint256 i; i < accounts.length; ++i) {
+            unfreezePartialTokens(accounts[i], values[i]);
         }
     }
 
-    function _addAgent(address _agent) internal virtual {
-        if (!isAgent(_agent)) {
-            _agents[_agent] = true;
-            emit AgentAdded(_agent);
+    function _addAgent(address agent) internal virtual {
+        if (!isAgent(agent)) {
+            _agents[agent] = true;
+            emit AgentAdded(agent);
         } // no-op if already an agent
     }
 
-    function _removeAgent(address _agent) internal virtual {
-        if (isAgent(_agent)) {
-            _agents[_agent] = false;
-            emit AgentRemoved(_agent);
+    function _removeAgent(address agent) internal virtual {
+        if (isAgent(agent)) {
+            _agents[agent] = false;
+            emit AgentRemoved(agent);
         } // no-op if not an agent
     }
 
@@ -295,6 +298,8 @@ abstract contract ERC3643 is Context, ERC20, ERC173, Pausable, IERC3643, IAgentR
         return false;
     }
 
+    // Can reenter, but it's not a risk since the identity registry is considered a trusted contract
+    // slither-disable-next-line reentrancy-eth
     function _recoveryAddress(address lost, address updated, address investorOnchainID) internal returns (bool) {
         IIdentity oid = IIdentity(investorOnchainID);
         // TODO: keyHasPurpose is not defined in IERC734. Wat do?
@@ -302,8 +307,11 @@ abstract contract ERC3643 is Context, ERC20, ERC173, Pausable, IERC3643, IAgentR
             uint256 investorTokens = balanceOf(lost);
             uint256 frozenTokens = getFrozenTokens(lost);
             IIdentityRegistry idRegistry = identityRegistry();
-            idRegistry.registerIdentity(updated, oid, idRegistry.investorCountry(lost)); // Can reenter?
-            forcedTransfer(lost, updated, investorTokens);
+            idRegistry.registerIdentity(updated, oid, idRegistry.investorCountry(lost));
+            require(
+                forcedTransfer(lost, updated, investorTokens),
+                ERC3643FailedForcedTransfer(lost, updated, investorTokens)
+            );
             if (frozenTokens > 0) {
                 freezePartialTokens(updated, frozenTokens);
             } // TODO: Unfreeze partial tokens from lost?
