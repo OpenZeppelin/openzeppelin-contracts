@@ -46,6 +46,51 @@ module.exports['reset-function-counts'] = function () {
   return '';
 };
 
+module.exports['function-anchor'] = function (name, params, returns) {
+  // Generate anchor that matches what markdown would create from the full function header
+  let anchor = name;
+
+  if (params && params.length > 0) {
+    // Add parameter types and names (type + name for each param)
+    const paramParts = params
+      .map(p => {
+        let part = p.type;
+        if (p.name) {
+          part += '-' + p.name;
+        }
+        return part;
+      })
+      .join('-');
+    anchor += paramParts
+      .toLowerCase()
+      .replace(/\s+/g, '-')
+      .replace(/[^\w-]/g, '-')
+      .replace(/-+/g, '-');
+  }
+
+  if (returns && returns.length > 0) {
+    // Add return types and names
+    const returnParts = returns
+      .map(r => {
+        let part = r.type;
+        if (r.name) {
+          part += '-' + r.name;
+        }
+        return part;
+      })
+      .join('-');
+    anchor +=
+      '--' +
+      returnParts
+        .toLowerCase()
+        .replace(/\s+/g, '-')
+        .replace(/[^\w-]/g, '-')
+        .replace(/-+/g, '-');
+  }
+
+  return anchor;
+};
+
 module.exports.eq = (a, b) => a === b;
 
 module.exports['starts-with'] = (str, prefix) => str && str.startsWith(prefix);
@@ -124,19 +169,57 @@ function getAllLinks(items) {
     // Remove .mdx extension from page path
     const pagePath = item.__item_context.page.replace(/\.mdx$/, '');
 
-    // Use simple name-based anchors instead of complex ones
-    const simpleId = item.name;
+    // Generate anchor with parameter and return types for uniqueness
+    let anchor = item.name;
 
-    // Create link entries - map old complex keys to simple anchors
-    res[`xref-${item.anchor}`] = `[${item.anchor}](${pagePath}#${simpleId})`;
-    res[slug(item.fullName)] = `[\`${item.fullName}\`](${pagePath}#${simpleId})`;
-    res[item.anchor] = `[\`${item.fullName}\`](${pagePath}#${simpleId})`;
-    res[item.name] = `[\`${item.name}\`](${pagePath}#${simpleId})`;
+    // Add parameter types and names if available
+    if (item.parameters && item.parameters.parameters && item.parameters.parameters.length > 0) {
+      const paramParts = item.parameters.parameters
+        .map(p => {
+          let part = p.typeName.typeDescriptions.typeString;
+          if (p.name) {
+            part += '-' + p.name;
+          }
+          return part;
+        })
+        .join('-');
+      anchor += paramParts
+        .toLowerCase()
+        .replace(/\s+/g, '-')
+        .replace(/[^\w-]/g, '-')
+        .replace(/-+/g, '-');
+    }
+
+    // Add return types and names if available
+    if (item.returns && item.returns.length > 0) {
+      const returnParts = item.returns
+        .map(r => {
+          let part = r.type;
+          if (r.name) {
+            part += '-' + r.name;
+          }
+          return part;
+        })
+        .join('-');
+      anchor +=
+        '--' +
+        returnParts
+          .toLowerCase()
+          .replace(/\s+/g, '-')
+          .replace(/[^\w-]/g, '-')
+          .replace(/-+/g, '-');
+    }
+
+    // Create link entries - map old complex keys to new type-based anchors
+    res[`xref-${item.anchor}`] = `[${item.anchor}](${pagePath}#${anchor})`;
+    res[slug(item.fullName)] = `[\`${item.fullName}\`](${pagePath}#${anchor})`;
+    res[item.anchor] = `[\`${item.fullName}\`](${pagePath}#${anchor})`;
+    res[item.name] = `[\`${item.name}\`](${pagePath}#${anchor})`;
 
     // Also handle the contract-function format for cross-references
     if (item.__item_context?.contract?.name) {
       const contractDotFunction = `${item.__item_context.contract.name}.${item.name}`;
-      res[contractDotFunction] = `[\`${contractDotFunction}\`](${pagePath}#${simpleId})`;
+      res[contractDotFunction] = `[\`${contractDotFunction}\`](${pagePath}#${anchor})`;
     }
   }
   return res;
