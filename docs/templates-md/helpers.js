@@ -48,7 +48,7 @@ module.exports['reset-function-counts'] = function () {
 
 module.exports['function-anchor'] = function (name, params, returns) {
   // Generate anchor that matches what markdown would create from the full function header
-  let anchor = name;
+  let anchor = name.toLowerCase();
 
   if (params && params.length > 0) {
     // Add parameter types and names (type + name for each param)
