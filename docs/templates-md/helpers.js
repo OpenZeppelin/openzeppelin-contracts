@@ -47,48 +47,29 @@ module.exports['reset-function-counts'] = function () {
 };
 
 module.exports['function-anchor'] = function (name, params, returns) {
-  // Generate anchor that matches what markdown would create from the full function header
-  let anchor = name.toLowerCase();
+  // Generate anchor that matches what markdown would create from the actual header
+  // Header format: `name(typed-params) → typed-params` becomes name + typed-params + returns
+
+  let headerText = name;
 
   if (params && params.length > 0) {
-    // Add parameter types and names (type + name for each param)
-    const paramParts = params
-      .map(p => {
-        let part = p.type;
-        if (p.name) {
-          part += '-' + p.name;
-        }
-        return part;
-      })
-      .join('-');
-    anchor += paramParts
-      .toLowerCase()
-      .replace(/\s+/g, '-')
-      .replace(/[^\w-]/g, '-')
-      .replace(/-+/g, '-');
+    const typedParams = module.exports['typed-params'](params);
+    headerText += typedParams;
   }
 
   if (returns && returns.length > 0) {
-    // Add return types and names
-    const returnParts = returns
-      .map(r => {
-        let part = r.type;
-        if (r.name) {
-          part += '-' + r.name;
-        }
-        return part;
-      })
-      .join('-');
-    anchor +=
-      '--' +
-      returnParts
-        .toLowerCase()
-        .replace(/\s+/g, '-')
-        .replace(/[^\w-]/g, '-')
-        .replace(/-+/g, '-');
+    const typedReturns = module.exports['typed-params'](returns);
+    headerText += ' → ' + typedReturns;
   }
 
-  return anchor;
+  // Convert to lowercase and replace non-word characters with dashes
+  // This mimics what markdown renderers do for anchor generation
+  return headerText
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '-') // Replace special chars with dashes
+    .replace(/\s+/g, '-') // Replace spaces with dashes
+    .replace(/-+/g, '-') // Collapse multiple dashes
+    .replace(/^-+|-+$/g, ''); // Remove leading/trailing dashes
 };
 
 module.exports.eq = (a, b) => a === b;
