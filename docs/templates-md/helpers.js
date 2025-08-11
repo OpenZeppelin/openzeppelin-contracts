@@ -99,8 +99,9 @@ module.exports['starts-with'] = (str, prefix) => str && str.startsWith(prefix);
 module.exports['process-natspec'] = function (natspec, opts) {
   if (!natspec) return '';
 
-  // Get links from the site data
-  const links = getAllLinks(opts.data.site.items);
+  // Get links from the site data, passing current page context
+  const currentPage = opts.data.root.__item_context?.page || opts.data.root.id;
+  const links = getAllLinks(opts.data.site.items, currentPage);
 
   // Apply the same link replacement logic as in with-prelude
   let content = natspec;
@@ -158,70 +159,81 @@ const slug = (module.exports.slug = str => {
 // Markdown-specific link generation
 const linksCache = new WeakMap();
 
-function getAllLinks(items) {
-  if (linksCache.has(items)) {
-    return linksCache.get(items);
+function getAllLinks(items, currentPage) {
+  // Only use cache for specific pages, not for undefined currentPage
+  if (currentPage) {
+    const cacheKey = currentPage;
+    let cache = linksCache.get(items);
+    if (!cache) {
+      cache = new Map();
+      linksCache.set(items, cache);
+    }
+
+    if (cache.has(cacheKey)) {
+      return cache.get(cacheKey);
+    }
   }
+
   const res = {};
-  linksCache.set(items, res);
+  const currentPagePath = currentPage ? currentPage.replace(/\.mdx$/, '') : '';
 
   for (const item of items) {
     // Remove .mdx extension from page path
     const pagePath = item.__item_context.page.replace(/\.mdx$/, '');
 
-    // Generate anchor with parameter and return types for uniqueness
-    let anchor = item.name;
+    let linkPath;
+    // Normalize paths for comparison - remove leading directories if they match
+    const currentBaseName = currentPagePath.split('/').pop();
+    const targetBaseName = pagePath.split('/').pop();
 
-    // Add parameter types and names if available
-    if (item.parameters && item.parameters.parameters && item.parameters.parameters.length > 0) {
-      const paramParts = item.parameters.parameters
-        .map(p => {
-          let part = p.typeName.typeDescriptions.typeString;
-          if (p.name) {
-            part += '-' + p.name;
-          }
-          return part;
-        })
-        .join('-');
-      anchor += paramParts
-        .toLowerCase()
-        .replace(/\s+/g, '-')
-        .replace(/[^\w-]/g, '-')
-        .replace(/-+/g, '-');
+    if (currentPagePath && (pagePath === currentPagePath || currentBaseName === targetBaseName)) {
+      // Same page - just use anchor fragment
+      linkPath = `#${item.anchor}`;
+    } else if (currentPagePath) {
+      // Different page - use relative path
+      const currentParts = currentPagePath.split('/');
+      const targetParts = pagePath.split('/');
+
+      // Find common base and create relative path
+      let i = 0;
+      while (i < currentParts.length && i < targetParts.length && currentParts[i] === targetParts[i]) {
+        i++;
+      }
+
+      const upLevels = Math.max(0, currentParts.length - 1 - i);
+      const downPath = targetParts.slice(i);
+
+      if (upLevels === 0 && downPath.length === 1) {
+        // Same directory - just filename
+        linkPath = `${downPath[0]}#${item.anchor}`;
+      } else if (upLevels === 0) {
+        // Going deeper into subdirectories
+        linkPath = `${downPath.join('/')}#${item.anchor}`;
+      } else {
+        // Need to go up directory structure
+        const relativePath = '../'.repeat(upLevels) + downPath.join('/');
+        linkPath = `${relativePath}#${item.anchor}`;
+      }
+    } else {
+      // Fallback to absolute path
+      linkPath = `${pagePath}#${item.anchor}`;
     }
 
-    // Add return types and names if available
-    if (item.returns && item.returns.length > 0) {
-      const returnParts = item.returns
-        .map(r => {
-          let part = r.type;
-          if (r.name) {
-            part += '-' + r.name;
-          }
-          return part;
-        })
-        .join('-');
-      anchor +=
-        '--' +
-        returnParts
-          .toLowerCase()
-          .replace(/\s+/g, '-')
-          .replace(/[^\w-]/g, '-')
-          .replace(/-+/g, '-');
-    }
-
-    // Create link entries - map old complex keys to new type-based anchors
-    res[`xref-${item.anchor}`] = `[${item.anchor}](${pagePath}#${anchor})`;
-    res[slug(item.fullName)] = `[\`${item.fullName}\`](${pagePath}#${anchor})`;
-    res[item.anchor] = `[\`${item.fullName}\`](${pagePath}#${anchor})`;
-    res[item.name] = `[\`${item.name}\`](${pagePath}#${anchor})`;
-
-    // Also handle the contract-function format for cross-references
-    if (item.__item_context?.contract?.name) {
-      const contractDotFunction = `${item.__item_context.contract.name}.${item.name}`;
-      res[contractDotFunction] = `[\`${contractDotFunction}\`](${pagePath}#${anchor})`;
-    }
+    // Follow the original pattern: just use item.anchor and item.fullName as-is
+    res[`xref-${item.anchor}`] = `[${item.anchor}](${linkPath})`;
+    res[slug(item.fullName)] = `[\`${item.fullName}\`](${linkPath})`;
   }
+
+  // Only cache if we have a specific currentPage
+  if (currentPage) {
+    let cache = linksCache.get(items);
+    if (!cache) {
+      cache = new Map();
+      linksCache.set(items, cache);
+    }
+    cache.set(currentPage, res);
+  }
+
   return res;
 }
 
@@ -347,7 +359,8 @@ module.exports.description = opts => {
 
 module.exports['with-prelude'] = opts => {
   // For markdown, we'll replace the placeholders inline
-  const links = getAllLinks(opts.data.site.items);
+  const currentPage = opts.data.root.id;
+  const links = getAllLinks(opts.data.site.items, currentPage);
   let contents = opts.fn();
 
   // Replace all {link-key} placeholders with actual markdown links
