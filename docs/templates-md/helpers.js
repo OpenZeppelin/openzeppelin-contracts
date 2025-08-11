@@ -188,7 +188,7 @@ function getAllLinks(items, currentPage) {
 
     if (currentPagePath && (pagePath === currentPagePath || currentBaseName === targetBaseName)) {
       // Same page - just use anchor fragment
-      linkPath = `#${item.anchor}`;
+      linkPath = `#${item.anchor.toLowerCase()}`;
     } else if (currentPagePath) {
       // Different page - use relative path
       const currentParts = currentPagePath.split('/');
@@ -205,18 +205,18 @@ function getAllLinks(items, currentPage) {
 
       if (upLevels === 0 && downPath.length === 1) {
         // Same directory - just filename
-        linkPath = `${downPath[0]}#${item.anchor}`;
+        linkPath = `${downPath[0]}#${item.anchor.toLowerCase()}`;
       } else if (upLevels === 0) {
         // Going deeper into subdirectories
-        linkPath = `${downPath.join('/')}#${item.anchor}`;
+        linkPath = `${downPath.join('/')}#${item.anchor.toLowerCase()}`;
       } else {
         // Need to go up directory structure
         const relativePath = '../'.repeat(upLevels) + downPath.join('/');
-        linkPath = `${relativePath}#${item.anchor}`;
+        linkPath = `${relativePath}#${item.anchor.toLowerCase()}`;
       }
     } else {
       // Fallback to absolute path
-      linkPath = `${pagePath}#${item.anchor}`;
+      linkPath = `${pagePath}#${item.anchor.toLowerCase()}`;
     }
 
     // Follow the original pattern: just use item.anchor and item.fullName as-is
