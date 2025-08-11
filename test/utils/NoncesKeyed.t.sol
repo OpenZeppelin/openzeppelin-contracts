@@ -32,26 +32,20 @@ contract NoncesKeyedTest is Test {
 
     function testSymbolicUseCheckedNonceLiveness(address owner, uint192 key) public {
         uint256 currNonce = _mock.nonces(owner, key);
-        (, uint64 unpackedNonce) = _unpack(currNonce);
 
         // Does not revert
-        _mock.useCheckedNonce(owner, key, unpackedNonce);
+        _mock.useCheckedNonce(owner, key, uint64(currNonce));
         assertEq(currNonce + 1, _mock.nonces(owner, key));
     }
 
     function testUseCheckedNonce(address owner, uint192 key, uint64 nonce) public {
         uint256 currNonce = _mock.nonces(owner, key);
-        (, uint64 unpackedNonce) = _unpack(currNonce);
 
-        if (unpackedNonce == nonce) {
+        if (uint64(currNonce) == nonce) {
             _mock.useCheckedNonce(owner, key, nonce);
         } else {
             vm.expectRevert(abi.encodeWithSelector(Nonces.InvalidAccountNonce.selector, owner, currNonce));
             _mock.useCheckedNonce(owner, key, nonce);
         }
-    }
-
-    function _unpack(uint256 keyNonce) private pure returns (uint192 key, uint64 nonce) {
-        return (uint192(keyNonce >> 64), uint64(keyNonce));
     }
 }
