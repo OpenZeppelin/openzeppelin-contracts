@@ -6,7 +6,7 @@ shopt -s globstar
 OUTDIR="$(node -p 'require("./docs/config-md.js").outputDir')"
 
 if [ ! -d node_modules ]; then
-  bun ci
+  bun i
 fi
 
 rm -rf "$OUTDIR"
