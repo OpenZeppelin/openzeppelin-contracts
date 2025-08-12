@@ -24,35 +24,6 @@ definition authSanity(env e) returns bool = e.msg.sender != 0;
 // Could be broken in theory, but not in practice
 definition balanceLimited(address account) returns bool = balanceOf(account) < max_uint256;
 
-function helperTransferWithRevert(env e, method f, address from, address to, uint256 tokenId) {
-    if (f.selector == sig:transferFrom(address,address,uint256).selector) {
-        transferFrom@withrevert(e, from, to, tokenId);
-    } else if (f.selector == sig:safeTransferFrom(address,address,uint256).selector) {
-        safeTransferFrom@withrevert(e, from, to, tokenId);
-    } else if (f.selector == sig:safeTransferFrom(address,address,uint256,bytes).selector) {
-        bytes params;
-        require params.length < 0xffff;
-        safeTransferFrom@withrevert(e, from, to, tokenId, params);
-    } else {
-        calldataarg args;
-        f@withrevert(e, args);
-    }
-}
-
-function helperMintWithRevert(env e, method f, address to, uint256 tokenId) {
-    if (f.selector == sig:mint(address,uint256).selector) {
-        mint@withrevert(e, to, tokenId);
-    } else if (f.selector == sig:safeMint(address,uint256).selector) {
-        safeMint@withrevert(e, to, tokenId);
-    } else if (f.selector == sig:safeMint(address,uint256,bytes).selector) {
-        bytes params;
-        require params.length < 0xffff;
-        safeMint@withrevert(e, to, tokenId, params);
-    } else {
-        require false;
-    }
-}
-
 function helperSoundFnCall(env e, method f) {
     if (f.selector == sig:mint(address,uint256).selector) {
         address to; uint256 tokenId;
@@ -113,7 +84,7 @@ ghost mapping(address => mathint) _ownedByUser {
     init_state axiom forall address a. _ownedByUser[a] == 0;
 }
 
-hook Sstore _owners[KEY uint256 tokenId] address newOwner (address oldOwner) STORAGE {
+hook Sstore _owners[KEY uint256 tokenId] address newOwner (address oldOwner) {
     _ownedByUser[newOwner] = _ownedByUser[newOwner] + to_mathint(newOwner != 0 ? 1 : 0);
     _ownedByUser[oldOwner] = _ownedByUser[oldOwner] - to_mathint(oldOwner != 0 ? 1 : 0);
     _ownedTotal = _ownedTotal + to_mathint(newOwner != 0 ? 1 : 0) - to_mathint(oldOwner != 0 ? 1 : 0);
@@ -132,13 +103,13 @@ ghost mapping(address => mathint) _balances {
     init_state axiom forall address a. _balances[a] == 0;
 }
 
-hook Sstore _balances[KEY address addr] uint256 newValue (uint256 oldValue) STORAGE {
+hook Sstore _balances[KEY address addr] uint256 newValue (uint256 oldValue) {
     _supply = _supply - oldValue + newValue;
 }
 
 // TODO: This used to not be necessary. We should try to remove it. In order to do so, we will probably need to add
 // many "preserved" directive that require the "balanceOfConsistency" invariant on the accounts involved.
-hook Sload uint256 value _balances[KEY address user] STORAGE {
+hook Sload uint256 value _balances[KEY address user] {
     require _balances[user] == to_mathint(value);
 }
 
@@ -466,7 +437,18 @@ rule safeTransferFrom(env e, method f, address from, address to, uint256 tokenId
     address approvalBefore       = unsafeGetApproved(tokenId);
     address otherApprovalBefore  = unsafeGetApproved(otherTokenId);
 
-    helperTransferWithRevert(e, f, from, to, tokenId);
+    if (f.selector == sig:transferFrom(address,address,uint256).selector) {
+        transferFrom@withrevert(e, from, to, tokenId);
+    } else if (f.selector == sig:safeTransferFrom(address,address,uint256).selector) {
+        safeTransferFrom@withrevert(e, from, to, tokenId);
+    } else if (f.selector == sig:safeTransferFrom(address,address,uint256,bytes).selector) {
+        bytes params;
+        require params.length < 0xffff;
+        safeTransferFrom@withrevert(e, from, to, tokenId, params);
+    } else {
+        calldataarg args;
+        f@withrevert(e, args);
+    }
     bool success = !lastReverted;
 
     assert success <=> (
@@ -554,7 +536,18 @@ rule safeMint(env e, method f, address to, uint256 tokenId) filtered { f ->
     address ownerBefore          = unsafeOwnerOf(tokenId);
     address otherOwnerBefore     = unsafeOwnerOf(otherTokenId);
 
-    helperMintWithRevert(e, f, to, tokenId);
+    if (f.selector == sig:mint(address,uint256).selector) {
+        mint@withrevert(e, to, tokenId);
+    } else if (f.selector == sig:safeMint(address,uint256).selector) {
+        safeMint@withrevert(e, to, tokenId);
+    } else if (f.selector == sig:safeMint(address,uint256,bytes).selector) {
+        bytes params;
+        require params.length < 0xffff;
+        safeMint@withrevert(e, to, tokenId, params);
+    } else {
+        calldataarg args;
+        f@withrevert(e, args);
+    }
     bool success = !lastReverted;
 
     assert success <=> (

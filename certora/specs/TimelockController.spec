@@ -26,43 +26,6 @@ methods {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Helpers                                                                                                             │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
-// Uniformly handle scheduling of batched and non-batched operations.
-function helperScheduleWithRevert(env e, method f, bytes32 id, uint256 delay) {
-    if (f.selector == sig:schedule(address, uint256, bytes, bytes32, bytes32, uint256).selector) {
-        address target; uint256 value; bytes data; bytes32 predecessor; bytes32 salt;
-        require hashOperation(target, value, data, predecessor, salt) == id; // Correlation
-        schedule@withrevert(e, target, value, data, predecessor, salt, delay);
-    } else if (f.selector == sig:scheduleBatch(address[], uint256[], bytes[], bytes32, bytes32, uint256).selector) {
-        address[] targets; uint256[] values; bytes[] payloads; bytes32 predecessor; bytes32 salt;
-        require hashOperationBatch(targets, values, payloads, predecessor, salt) == id; // Correlation
-        scheduleBatch@withrevert(e, targets, values, payloads, predecessor, salt, delay);
-    } else {
-        calldataarg args;
-        f@withrevert(e, args);
-    }
-}
-
-// Uniformly handle execution of batched and non-batched operations.
-function helperExecuteWithRevert(env e, method f, bytes32 id, bytes32 predecessor) {
-    if (f.selector == sig:execute(address, uint256, bytes, bytes32, bytes32).selector) {
-        address target; uint256 value; bytes data; bytes32 salt;
-        require hashOperation(target, value, data, predecessor, salt) == id; // Correlation
-        execute@withrevert(e, target, value, data, predecessor, salt);
-    } else if (f.selector == sig:executeBatch(address[], uint256[], bytes[], bytes32, bytes32).selector) {
-        address[] targets; uint256[] values; bytes[] payloads; bytes32 salt;
-        require hashOperationBatch(targets, values, payloads, predecessor, salt) == id; // Correlation
-        executeBatch@withrevert(e, targets, values, payloads, predecessor, salt);
-    } else {
-        calldataarg args;
-        f@withrevert(e, args);
-    }
-}
-
-/*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Definitions                                                                                                         │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
@@ -187,7 +150,18 @@ rule schedule(env e, method f, bytes32 id, uint256 delay) filtered { f ->
     bool  isDelaySufficient = delay >= getMinDelay();
     bool  isProposerBefore  = hasRole(PROPOSER_ROLE(), e.msg.sender);
 
-    helperScheduleWithRevert(e, f, id, delay);
+    if (f.selector == sig:schedule(address, uint256, bytes, bytes32, bytes32, uint256).selector) {
+        address target; uint256 value; bytes data; bytes32 predecessor; bytes32 salt;
+        require hashOperation(target, value, data, predecessor, salt) == id; // Correlation
+        schedule@withrevert(e, target, value, data, predecessor, salt, delay);
+    } else if (f.selector == sig:scheduleBatch(address[], uint256[], bytes[], bytes32, bytes32, uint256).selector) {
+        address[] targets; uint256[] values; bytes[] payloads; bytes32 predecessor; bytes32 salt;
+        require hashOperationBatch(targets, values, payloads, predecessor, salt) == id; // Correlation
+        scheduleBatch@withrevert(e, targets, values, payloads, predecessor, salt, delay);
+    } else {
+        calldataarg args;
+        f@withrevert(e, args);
+    }
     bool success = !lastReverted;
 
     // liveness
@@ -221,7 +195,18 @@ rule execute(env e, method f, bytes32 id, bytes32 predecessor) filtered { f ->
     bool  isExecutorOrOpen       = hasRole(EXECUTOR_ROLE(), e.msg.sender) || hasRole(EXECUTOR_ROLE(), 0);
     bool  predecessorDependency  = predecessor == to_bytes32(0) || isDone(e, predecessor);
 
-    helperExecuteWithRevert(e, f, id, predecessor);
+    if (f.selector == sig:execute(address, uint256, bytes, bytes32, bytes32).selector) {
+        address target; uint256 value; bytes data; bytes32 salt;
+        require hashOperation(target, value, data, predecessor, salt) == id; // Correlation
+        execute@withrevert(e, target, value, data, predecessor, salt);
+    } else if (f.selector == sig:executeBatch(address[], uint256[], bytes[], bytes32, bytes32).selector) {
+        address[] targets; uint256[] values; bytes[] payloads; bytes32 salt;
+        require hashOperationBatch(targets, values, payloads, predecessor, salt) == id; // Correlation
+        executeBatch@withrevert(e, targets, values, payloads, predecessor, salt);
+    } else {
+        calldataarg args;
+        f@withrevert(e, args);
+    }
     bool success = !lastReverted;
 
     // The underlying transaction can revert, and that would cause the execution to revert. We can check that all non

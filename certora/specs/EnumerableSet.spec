@@ -17,7 +17,7 @@ methods {
 │ Helpers                                                                                                             │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-definition sanity() returns bool =
+definition lengthSanity() returns bool =
     length() < max_uint256;
 
 /*
@@ -87,7 +87,7 @@ invariant consistencyKey(bytes32 key)
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule stateChange(env e, bytes32 key) {
-    require sanity();
+    require lengthSanity();
     requireInvariant consistencyKey(key);
 
     uint256 lengthBefore   = length();
@@ -142,7 +142,7 @@ rule liveness_2(uint256 index) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule add(bytes32 key, bytes32 otherKey) {
-    require sanity();
+    require lengthSanity();
 
     uint256 lengthBefore        = length();
     bool    containsBefore      = contains(key);
@@ -202,7 +202,7 @@ rule remove(bytes32 key, bytes32 otherKey) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule addEnumerability(bytes32 key, uint256 index) {
-    require sanity();
+    require lengthSanity();
 
     bytes32 atBefore = at_(index);
     add(key);
