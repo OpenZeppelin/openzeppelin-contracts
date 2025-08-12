@@ -14,7 +14,7 @@ module.exports.anchor = function anchor({ item, contract }) {
   if (isNodeType('VariableDeclaration', item)) {
     res += '-' + slug(item.typeName.typeDescriptions.typeString);
   }
-  return res;
+  return res.toLowerCase(); // Convert to lowercase for markdown
 };
 
 module.exports.fullname = function fullname({ item }) {
@@ -35,8 +35,8 @@ module.exports.fullname = function fullname({ item }) {
 
 module.exports.inheritance = function ({ item, build }) {
   if (!isNodeType('ContractDefinition', item)) {
-    // For interfaces and libraries, return just the item itself
-    return [item];
+    // Return empty array for non-contracts (interfaces, libraries)
+    return [];
   }
 
   return item.linearizedBaseContracts
@@ -45,19 +45,19 @@ module.exports.inheritance = function ({ item, build }) {
 };
 
 module.exports['has-functions'] = function ({ item }) {
-  return item.inheritance.some(c => c.functions.length > 0);
+  return item.inheritance && item.inheritance.some(c => c.functions.length > 0);
 };
 
 module.exports['has-events'] = function ({ item }) {
-  return item.inheritance.some(c => c.events.length > 0);
+  return item.inheritance && item.inheritance.some(c => c.events.length > 0);
 };
 
 module.exports['has-errors'] = function ({ item }) {
-  return item.inheritance.some(c => c.errors.length > 0);
+  return item.inheritance && item.inheritance.some(c => c.errors.length > 0);
 };
 
 module.exports['internal-variables'] = function ({ item }) {
-  return item.variables.filter(({ visibility }) => visibility === 'internal');
+  return item.variables ? item.variables.filter(({ visibility }) => visibility === 'internal') : [];
 };
 
 module.exports['has-internal-variables'] = function ({ item }) {
@@ -81,6 +81,8 @@ module.exports.returns2 = function ({ item }) {
 
 module.exports['inherited-functions'] = function ({ item }) {
   const { inheritance } = item;
+  if (!inheritance) return [];
+
   const baseFunctions = new Set(inheritance.flatMap(c => c.functions.flatMap(f => f.baseFunctions ?? [])));
   return inheritance.map((contract, i) => ({
     contract,

@@ -10,7 +10,7 @@ import "@openzeppelin/{{__item_context.file.absolutePath}}";
 {{#if modifiers}}
 ### Modifiers
 {{#each modifiers}}
-- [{{{name}}}({{names params}})](#{{function-anchor name params}})
+- [{{{name}}}({{names params}})](#{{anchor}})
 {{/each}}
 {{/if}}
 
@@ -21,7 +21,7 @@ import "@openzeppelin/{{__item_context.file.absolutePath}}";
 #### {{contract.name}}
 {{/unless}}
 {{#each functions}}
-- [{{{name}}}({{names params}})](#{{function-anchor name params returns2}})
+- [{{{name}}}({{names params}})](#{{anchor}})
 {{/each}}
 
 {{/each}}
@@ -34,7 +34,7 @@ import "@openzeppelin/{{__item_context.file.absolutePath}}";
 #### {{name}}
 {{/unless}}
 {{#each events}}
-- [{{{name}}}({{names params}})](#{{function-anchor name params}})
+- [{{{name}}}({{names params}})](#{{anchor}})
 {{/each}}
 
 {{/each}}
@@ -47,13 +47,15 @@ import "@openzeppelin/{{__item_context.file.absolutePath}}";
 #### {{name}}
 {{/unless}}
 {{#each errors}}
-- [{{{name}}}({{names params}})](#{{function-anchor name params}})
+- [{{{name}}}({{names params}})](#{{anchor}})
 {{/each}}
 
 {{/each}}
 {{/if}}
 
 {{#each modifiers}}
+<a id="{{anchor}}"></a>
+
 ### `{{{name}}}({{typed-params params}})`
 
 {{{process-natspec natspec.dev}}}
@@ -61,6 +63,8 @@ import "@openzeppelin/{{__item_context.file.absolutePath}}";
 {{/each}}
 
 {{#each functions}}
+<a id="{{anchor}}"></a>
+
 ### `{{{name}}}({{typed-params params}}){{#if returns2}} → {{typed-params returns2}}{{/if}}`
 *{{visibility}}*
 
@@ -69,6 +73,8 @@ import "@openzeppelin/{{__item_context.file.absolutePath}}";
 {{/each}}
 
 {{#each events}}
+<a id="{{anchor}}"></a>
+
 ### `{{{name}}}({{typed-params params}})`
 *event*
 
@@ -77,6 +83,8 @@ import "@openzeppelin/{{__item_context.file.absolutePath}}";
 {{/each}}
 
 {{#each errors}}
+<a id="{{anchor}}"></a>
+
 ### `{{{name}}}({{typed-params params}})`
 *error*
 

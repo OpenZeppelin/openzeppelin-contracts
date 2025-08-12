@@ -46,32 +46,6 @@ module.exports['reset-function-counts'] = function () {
   return '';
 };
 
-module.exports['function-anchor'] = function (name, params, returns) {
-  // Generate anchor that matches what markdown would create from the actual header
-  // Header format: `name(typed-params) → typed-params` becomes name + typed-params + returns
-
-  let headerText = name;
-
-  if (params && params.length > 0) {
-    const typedParams = module.exports['typed-params'](params);
-    headerText += typedParams;
-  }
-
-  if (returns && returns.length > 0) {
-    const typedReturns = module.exports['typed-params'](returns);
-    headerText += ' → ' + typedReturns;
-  }
-
-  // Convert to lowercase and replace non-word characters with dashes
-  // This mimics what markdown renderers do for anchor generation
-  return headerText
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, '-') // Replace special chars with dashes
-    .replace(/\s+/g, '-') // Replace spaces with dashes
-    .replace(/-+/g, '-') // Collapse multiple dashes
-    .replace(/^-+|-+$/g, ''); // Remove leading/trailing dashes
-};
-
 module.exports.eq = (a, b) => a === b;
 
 module.exports['starts-with'] = (str, prefix) => str && str.startsWith(prefix);
@@ -86,6 +60,15 @@ module.exports['process-natspec'] = function (natspec, opts) {
 
   // Apply the same link replacement logic as in with-prelude
   let content = natspec;
+
+  // First handle AsciiDoc-style {xref-...}[text] patterns
+  content = content.replace(/\{(xref-[-._a-z0-9]+)\}\[([^\]]*)\]/gi, (match, key, linkText) => {
+    const replacement = links[key];
+    if (replacement) {
+      return `[${linkText}](${replacement})`;
+    }
+    return match;
+  });
 
   // Replace all {link-key} placeholders with actual markdown links
   content = content.replace(/\{([-._a-z0-9]+)\}/gi, (match, key) => {
@@ -200,8 +183,22 @@ function getAllLinks(items, currentPage) {
       linkPath = `${pagePath}#${item.anchor.toLowerCase()}`;
     }
 
-    // Follow the original pattern: just use item.anchor and item.fullName as-is
-    res[`xref-${item.anchor}`] = `[${item.anchor}](${linkPath})`;
+    // Generate xref keys to match legacy natspec content patterns
+    // xref patterns should just be the link URL without text (text comes from surrounding content)
+    res[`xref-${item.anchor}`] = linkPath;
+
+    // Reconstruct the original AsciiDoc anchor format (with original case) for xref key
+    // but link to our lowercase anchor. This handles natspec like {xref-ERC721-_safeMint-address-uint256-}
+    if (item.__item_context && item.__item_context.contract) {
+      let originalAnchor = item.__item_context.contract.name + '-' + item.name;
+      if ('parameters' in item) {
+        const signature = item.parameters.parameters.map(v => v.typeName.typeDescriptions.typeString).join(',');
+        originalAnchor += slug('(' + signature + ')');
+      }
+      // Add original case xref key that maps to lowercase anchor (just URL, no text)
+      res[`xref-${originalAnchor}`] = linkPath;
+    }
+
     res[slug(item.fullName)] = `[\`${item.fullName}\`](${linkPath})`;
   }
 
@@ -343,6 +340,15 @@ module.exports['with-prelude'] = opts => {
   const currentPage = opts.data.root.id;
   const links = getAllLinks(opts.data.site.items, currentPage);
   let contents = opts.fn();
+
+  // First handle AsciiDoc-style {xref-...}[text] patterns
+  contents = contents.replace(/\{(xref-[-._a-z0-9]+)\}\[([^\]]*)\]/gi, (match, key, linkText) => {
+    const replacement = links[key];
+    if (replacement) {
+      return `[${linkText}](${replacement})`;
+    }
+    return match;
+  });
 
   // Replace all {link-key} placeholders with actual markdown links
   contents = contents.replace(/\{([-._a-z0-9]+)\}/gi, (match, key) => {
