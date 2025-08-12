@@ -162,7 +162,7 @@ function getAllLinks(items, currentPage) {
 
     if (currentPagePath && (pagePath === currentPagePath || currentBaseName === targetBaseName)) {
       // Same page - just use anchor fragment
-      linkPath = `#${item.anchor.toLowerCase()}`;
+      linkPath = `#${item.anchor}`;
     } else if (currentPagePath) {
       // Different page - use relative path
       const currentParts = currentPagePath.split('/');
@@ -179,18 +179,18 @@ function getAllLinks(items, currentPage) {
 
       if (upLevels === 0 && downPath.length === 1) {
         // Same directory - just filename
-        linkPath = `${downPath[0]}#${item.anchor.toLowerCase()}`;
+        linkPath = `${downPath[0]}#${item.anchor}`;
       } else if (upLevels === 0) {
         // Going deeper into subdirectories
-        linkPath = `${downPath.join('/')}#${item.anchor.toLowerCase()}`;
+        linkPath = `${downPath.join('/')}#${item.anchor}`;
       } else {
         // Need to go up directory structure
         const relativePath = '../'.repeat(upLevels) + downPath.join('/');
-        linkPath = `${relativePath}#${item.anchor.toLowerCase()}`;
+        linkPath = `${relativePath}#${item.anchor}`;
       }
     } else {
       // Fallback to absolute path
-      linkPath = `${pagePath}#${item.anchor.toLowerCase()}`;
+      linkPath = `${pagePath}#${item.anchor}`;
     }
 
     // Generate xref keys to match legacy natspec content patterns

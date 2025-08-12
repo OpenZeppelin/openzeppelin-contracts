@@ -14,7 +14,7 @@ module.exports.anchor = function anchor({ item, contract }) {
   if (isNodeType('VariableDeclaration', item)) {
     res += '-' + slug(item.typeName.typeDescriptions.typeString);
   }
-  return res.toLowerCase(); // Convert to lowercase for markdown
+  return res;
 };
 
 module.exports.fullname = function fullname({ item }) {
