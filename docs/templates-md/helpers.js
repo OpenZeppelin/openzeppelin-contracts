@@ -106,6 +106,16 @@ module.exports['process-natspec'] = function (natspec, opts) {
     return replacement || match; // Keep original if no replacement found
   });
 
+  // Fix AsciiDoc-style URL links that weren't converted: url[text] -> [text](url)
+  content = content.replace(/https?:\/\/[^\s[]+\[[^\]]+\]/g, match => {
+    const urlMatch = match.match(/^(https?:\/\/[^[]+)\[([^\]]+)\]$/);
+    if (urlMatch) {
+      const [, url, linkText] = urlMatch;
+      return `[${linkText}](${url})`;
+    }
+    return match;
+  });
+
   return content;
 };
 
@@ -276,6 +286,16 @@ function processAdocContent(content) {
     // Fix curly brace placeholders that got incorrectly converted
     mdContent = mdContent.replace(/\{(\[`[^`]+`\]\([^)]+\))\}/g, '$1');
 
+    // Fix AsciiDoc-style URL links that weren't converted: url[text] -> [text](url)
+    mdContent = mdContent.replace(/https?:\/\/[^\s[]+\[[^\]]+\]/g, match => {
+      const urlMatch = match.match(/^(https?:\/\/[^[]+)\[([^\]]+)\]$/);
+      if (urlMatch) {
+        const [, url, linkText] = urlMatch;
+        return `[${linkText}](${url})`;
+      }
+      return match;
+    });
+
     // Convert HTML definition list callouts to proper Callout components
     mdContent = mdContent.replace(
       /<dl><dt><strong>💡 TIP<\/strong><\/dt><dd>\s*([\s\S]*?)\s*<\/dd><\/dl>/g,
@@ -399,6 +419,16 @@ module.exports['with-prelude'] = opts => {
 
   // Fix curly brace placeholders that may have been incorrectly added by link replacement
   contents = contents.replace(/\{(\[`[^`]+`\]\([^)]+\))\}/g, '$1');
+
+  // Fix AsciiDoc-style URL links that weren't converted: url[text] -> [text](url)
+  contents = contents.replace(/https?:\/\/[^\s[]+\[[^\]]+\]/g, match => {
+    const urlMatch = match.match(/^(https?:\/\/[^[]+)\[([^\]]+)\]$/);
+    if (urlMatch) {
+      const [, url, linkText] = urlMatch;
+      return `[${linkText}](${url})`;
+    }
+    return match;
+  });
 
   // Convert HTML definition list callouts to proper Callout components
   contents = contents.replace(
