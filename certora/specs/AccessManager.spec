@@ -138,7 +138,7 @@ rule getAdminRestrictions(env e, bytes data) {
             (restricted && selector == to_bytes4(sig:grantRole(uint64,address,uint32).selector)) ||
             (restricted && selector == to_bytes4(sig:revokeRole(uint64,address).selector      ))
             ? getRoleAdmin(getFirstArgumentAsUint64(data))
-            : ADMIN_ROLE()
+            : (restricted ? ADMIN_ROLE() : getTargetFunctionRole(currentContract, selector))
         );
 
         assert delay == (
@@ -219,11 +219,14 @@ rule canCallExtended(env e) {
     bool   inRole         = hasRole_isMember(e, roleId, caller);
     uint32 executionDelay = hasRole_executionDelay(e, roleId, caller);
 
-    if (target == currentContract) {
+    if (data.length < 4) {
+        assert immediate == false;
+        assert delay     == 0;
+    } else if (target == currentContract) {
         // Can only execute without delay in the specific cases:
         // - caller is the AccessManager and the executionId is set
         // or
-        // - data matches an admin restricted function
+        // - data matches an admin restricted function OR non-admin restricted function on open target
         // - caller has the necessary role
         // - operation delay is not set
         // - execution delay is not set
@@ -234,7 +237,7 @@ rule canCallExtended(env e) {
                 executionId()  == hashExecutionId(target, selector)
             ) || (
                 caller         != currentContract &&
-                enabled                           &&
+                (enabled || !isTargetClosed(currentContract)) &&
                 inRole                            &&
                 operationDelay == 0               &&
                 executionDelay == 0
@@ -247,21 +250,18 @@ rule canCallExtended(env e) {
 
         // Can only execute with delay in specific cases:
         // - caller is a third party
-        // - data matches an admin restricted function
+        // - data matches an admin restricted function OR non-admin restricted function on open target
         // - caller has the necessary role
-        // -operation delay or execution delay is set
+        // - operation delay or execution delay is set
         assert delay > 0 <=> (
             caller != currentContract &&
-            enabled                   &&
+            (enabled || !isTargetClosed(currentContract)) &&
             inRole                    &&
             (operationDelay > 0 || executionDelay > 0)
         );
 
         // If there is a delay, then it must be the maximum of caller's execution delay and the operation delay
         assert delay > 0 => to_mathint(delay) == max(operationDelay, executionDelay);
-    } else if (data.length < 4) {
-        assert immediate == false;
-        assert delay     == 0;
     } else {
         // results are equivalent when targeting third party contracts
         assert immediate == canCall_immediate(e, caller, target, selector);
