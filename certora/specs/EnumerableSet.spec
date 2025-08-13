@@ -40,8 +40,13 @@ invariant indexedContained(uint256 index)
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant atUniqueness(uint256 index1, uint256 index2)
-    index1 == index2 <=> at_(index1) == at_(index2)
+    (index1 < length() && index2 < length()) =>
+    (index1 == index2 <=> at_(index1) == at_(index2))
     {
+        preserved {
+            requireInvariant consistencyIndex(index1);
+            requireInvariant consistencyIndex(index2);
+        }
         preserved remove(bytes32 key) {
             requireInvariant atUniqueness(index1, require_uint256(length() - 1));
             requireInvariant atUniqueness(index2, require_uint256(length() - 1));
@@ -72,6 +77,9 @@ invariant consistencyKey(bytes32 key)
         at_(require_uint256(_positionOf(key) - 1)) == key
     )
     {
+        preserved {
+            require lengthSanity();
+        }
         preserved remove(bytes32 otherKey) {
             requireInvariant consistencyKey(otherKey);
             requireInvariant atUniqueness(
@@ -89,6 +97,12 @@ invariant consistencyKey(bytes32 key)
 rule stateChange(env e, bytes32 key) {
     require lengthSanity();
     requireInvariant consistencyKey(key);
+    
+    // Prevent inconsistent states where key appears at last position but isn't within the set's
+    // available keys. In EnumerableSet, when removing any element, the last element moves to fill
+    // the gap. If key is at last position with contains(key) == false, removing another key would
+    // move this key and make contains(key) == true, violating our state change assumptions.
+    require !contains(key) && length() > 0 => key != at_(require_uint256(length() - 1));
 
     uint256 lengthBefore   = length();
     bool    containsBefore = contains(key);
@@ -175,6 +189,7 @@ rule add(bytes32 key, bytes32 otherKey) {
 rule remove(bytes32 key, bytes32 otherKey) {
     requireInvariant consistencyKey(key);
     requireInvariant consistencyKey(otherKey);
+    requireInvariant indexedContained(require_uint256(length() - 1));
 
     uint256 lengthBefore        = length();
     bool    containsBefore      = contains(key);
@@ -224,6 +239,10 @@ rule removeEnumerability(bytes32 key, uint256 index) {
     requireInvariant consistencyKey(key);
     requireInvariant consistencyIndex(index);
     requireInvariant consistencyIndex(last);
+    requireInvariant indexedContained(index);
+    
+    // Ensure the key is actually in the set
+    require contains(key);
 
     bytes32 atBefore = at_(index);
     bytes32 lastBefore = at_(last);
