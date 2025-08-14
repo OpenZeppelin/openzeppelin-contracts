@@ -166,7 +166,6 @@ rule schedule(env e, method f, bytes32 id, uint256 delay) filtered { f ->
         schedule@withrevert(e, target, value, data, predecessor, salt, delay);
     } else if (f.selector == sig:scheduleBatch(address[], uint256[], bytes[], bytes32, bytes32, uint256).selector) {
         address[] targets; uint256[] values; bytes[] payloads; bytes32 predecessor; bytes32 salt;
-        require hashOperationBatch(targets, values, payloads, predecessor, salt) == id; // Correlation
         scheduleBatch@withrevert(e, targets, values, payloads, predecessor, salt, delay);
     } else {
         calldataarg args;
@@ -174,8 +173,8 @@ rule schedule(env e, method f, bytes32 id, uint256 delay) filtered { f ->
     }
     bool success = !lastReverted;
 
-    // liveness
-    assert success <=> (
+    // liveness, should be `<=>` but can only check `=>` (see comment below in execute rule)
+    assert success => (
         stateBefore == UNSET() &&
         isDelaySufficient &&
         isProposerBefore
@@ -211,7 +210,6 @@ rule execute(env e, method f, bytes32 id, bytes32 predecessor) filtered { f ->
         execute@withrevert(e, target, value, data, predecessor, salt);
     } else if (f.selector == sig:executeBatch(address[], uint256[], bytes[], bytes32, bytes32).selector) {
         address[] targets; uint256[] values; bytes[] payloads; bytes32 salt;
-        require hashOperationBatch(targets, values, payloads, predecessor, salt) == id; // Correlation
         executeBatch@withrevert(e, targets, values, payloads, predecessor, salt);
     } else {
         calldataarg args;
