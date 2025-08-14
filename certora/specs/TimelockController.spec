@@ -167,9 +167,6 @@ rule schedule(env e, method f, bytes32 id, uint256 delay) filtered { f ->
     } else if (f.selector == sig:scheduleBatch(address[], uint256[], bytes[], bytes32, bytes32, uint256).selector) {
         address[] targets; uint256[] values; bytes[] payloads; bytes32 predecessor; bytes32 salt;
         scheduleBatch@withrevert(e, targets, values, payloads, predecessor, salt, delay);
-    } else {
-        calldataarg args;
-        f@withrevert(e, args);
     }
     bool success = !lastReverted;
 
@@ -211,9 +208,6 @@ rule execute(env e, method f, bytes32 id, bytes32 predecessor) filtered { f ->
     } else if (f.selector == sig:executeBatch(address[], uint256[], bytes[], bytes32, bytes32).selector) {
         address[] targets; uint256[] values; bytes[] payloads; bytes32 salt;
         executeBatch@withrevert(e, targets, values, payloads, predecessor, salt);
-    } else {
-        calldataarg args;
-        f@withrevert(e, args);
     }
     bool success = !lastReverted;
 
