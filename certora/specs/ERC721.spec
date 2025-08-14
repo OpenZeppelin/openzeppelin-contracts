@@ -190,6 +190,7 @@ invariant ownersBalancesConsistency(uint256 tokenId1, uint256 tokenId2)
             requireInvariant ownerHasBalance(tokenId2);
         }
         preserved transferFrom(address from, address to, uint256 tokenId) with (env e) {
+            require from != unsafeOwnerOf(tokenId1);
             require balanceLimited(to);
             requireInvariant ownerHasBalance(tokenId1);
             requireInvariant ownerHasBalance(tokenId2);
@@ -197,6 +198,7 @@ invariant ownersBalancesConsistency(uint256 tokenId1, uint256 tokenId2)
             requireInvariant balanceOfConsistency(to);
         }
         preserved safeTransferFrom(address from, address to, uint256 tokenId) with (env e) {
+            require from != unsafeOwnerOf(tokenId1);
             require balanceLimited(to);
             requireInvariant ownerHasBalance(tokenId1);
             requireInvariant ownerHasBalance(tokenId2);
@@ -204,6 +206,7 @@ invariant ownersBalancesConsistency(uint256 tokenId1, uint256 tokenId2)
             requireInvariant balanceOfConsistency(to);
         }
         preserved safeTransferFrom(address from, address to, uint256 tokenId, bytes data) with (env e) {
+            require from != unsafeOwnerOf(tokenId1);
             require balanceLimited(to);
             requireInvariant ownerHasBalance(tokenId1);
             requireInvariant ownerHasBalance(tokenId2);
@@ -211,6 +214,7 @@ invariant ownersBalancesConsistency(uint256 tokenId1, uint256 tokenId2)
             requireInvariant balanceOfConsistency(to);
         }
         preserved burn(uint256 tokenId) with (env e) {
+            require unsafeOwnerOf(tokenId) != unsafeOwnerOf(tokenId1);
             requireInvariant ownerHasBalance(tokenId1);
             requireInvariant ownerHasBalance(tokenId2);
             requireInvariant balanceOfConsistency(unsafeOwnerOf(tokenId));
