@@ -44,30 +44,40 @@ definition state(env e, bytes32 id)     returns uint8 = (isUnset(e, id) ? UNSET(
 │ Invariants: consistency of accessors                                                                                │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-invariant isOperationCheck(env e, bytes32 id)
-    isOperation(e, id) <=> getTimestamp(id) > 0
-    filtered { f -> !f.isView }
+rule isOperationCheck(method f, env e, bytes32 id) filtered {
+    f -> !f.isView 
+} {
+    assert isOperation(e, id) <=> getTimestamp(id) > 0;
+}
 
-invariant isOperationPendingCheck(env e, bytes32 id)
-    isOperationPending(e, id) <=> getTimestamp(id) > DONE_TIMESTAMP()
-    filtered { f -> !f.isView }
+rule isOperationPendingCheck(method f,  env e, bytes32 id) filtered {
+    f -> !f.isView 
+} {
+    assert isOperationPending(e, id) <=> getTimestamp(id) > DONE_TIMESTAMP();
+}
 
-invariant isOperationDoneCheck(env e, bytes32 id)
-    isOperationDone(e, id) <=> getTimestamp(id) == DONE_TIMESTAMP()
-    filtered { f -> !f.isView }
+rule isOperationDoneCheck(method f, env e, bytes32 id) filtered {
+    f -> !f.isView 
+} {
+    assert isOperationDone(e, id) <=> getTimestamp(id) == DONE_TIMESTAMP();
+}
 
-invariant isOperationReadyCheck(env e, bytes32 id)
-    isOperationReady(e, id) <=> (isOperationPending(e, id) && getTimestamp(id) <= e.block.timestamp)
-    filtered { f -> !f.isView }
+rule isOperationReadyCheck(method f, env e, bytes32 id) filtered {
+    f -> !f.isView 
+} {
+    assert isOperationReady(e, id) <=> (isOperationPending(e, id) && getTimestamp(id) <= e.block.timestamp);
+}
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Invariant: a proposal id is either unset, pending or done                                                           │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-invariant stateConsistency(bytes32 id, env e)
+rule stateConsistency(method f, bytes32 id, env e) filtered { 
+    f -> !f.isView 
+} {
     // Check states are mutually exclusive
-    (isUnset(e, id)   <=> (!isPending(e, id) && !isDone(e, id)   )) &&
+    assert (isUnset(e, id)   <=> (!isPending(e, id) && !isDone(e, id)   )) &&
     (isPending(e, id) <=> (!isUnset(e, id)   && !isDone(e, id)   )) &&
     (isDone(e, id)    <=> (!isUnset(e, id)   && !isPending(e, id))) &&
     // Check that the state helper behaves as expected:
@@ -75,8 +85,8 @@ invariant stateConsistency(bytes32 id, env e)
     (isPending(e, id) <=> state(e, id) == PENDING()            ) &&
     (isDone(e, id)    <=> state(e, id) == DONE()               ) &&
     // Check substate
-    isOperationReady(e, id) => isPending(e, id)
-    filtered { f -> !f.isView }
+    isOperationReady(e, id) => isPending(e, id);
+}
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
