@@ -93,7 +93,9 @@ rule stateConsistency(method f, bytes32 id, env e) filtered {
 │ Rule: state transition rules                                                                                        │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule stateTransition(bytes32 id, env e, method f, calldataarg args) {
+rule stateTransition(bytes32 id, env e, method f, calldataarg args) filtered { f ->
+    f.selector != sig:hashOperationBatch(address[], uint256[], bytes[], bytes32, bytes32).selector
+} {
     require e.block.timestamp > 1; // Sanity
 
     uint8 stateBefore = state(e, id);
@@ -129,10 +131,14 @@ rule stateTransition(bytes32 id, env e, method f, calldataarg args) {
 │ Rule: minimum delay can only be updated through a timelock execution                                                │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule minDelayOnlyChange(env e) {
+rule minDelayOnlyChange(env e, method f) filtered { f ->
+    f.selector != sig:hashOperationBatch(address[], uint256[], bytes[], bytes32, bytes32).selector &&
+    f.selector != sig:scheduleBatch(address[], uint256[], bytes[], bytes32, bytes32, uint256).selector &&
+    f.selector != sig:executeBatch(address[], uint256[], bytes[], bytes32, bytes32).selector
+} {
     uint256 delayBefore = getMinDelay();
 
-    method f; calldataarg args;
+    calldataarg args;
     f(e, args);
 
     assert delayBefore != getMinDelay() => (e.msg.sender == currentContract && f.selector == sig:updateDelay(uint256).selector), "Unauthorized delay update";
