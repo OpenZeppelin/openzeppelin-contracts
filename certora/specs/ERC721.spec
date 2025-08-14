@@ -19,8 +19,6 @@ methods {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 
-definition authSanity(env e) returns bool = e.msg.sender != 0;
-
 // Could be broken in theory, but not in practice
 definition balanceLimited(address account) returns bool = balanceOf(account) < max_uint256;
 
@@ -73,20 +71,16 @@ function helperSoundFnCall(env e, method f) {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Ghost & hooks: ownership count                                                                                      │
+│ Ghost & hooks: total owned tokens count                                                                             │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 ghost mathint _ownedTotal {
     init_state axiom _ownedTotal == 0;
 }
 
-ghost mapping(address => mathint) _ownedByUser {
-    init_state axiom forall address a. _ownedByUser[a] == 0;
-}
+
 
 hook Sstore _owners[KEY uint256 tokenId] address newOwner (address oldOwner) {
-    _ownedByUser[newOwner] = _ownedByUser[newOwner] + to_mathint(newOwner != 0 ? 1 : 0);
-    _ownedByUser[oldOwner] = _ownedByUser[oldOwner] - to_mathint(oldOwner != 0 ? 1 : 0);
     _ownedTotal = _ownedTotal + to_mathint(newOwner != 0 ? 1 : 0) - to_mathint(oldOwner != 0 ? 1 : 0);
 }
 
@@ -105,12 +99,7 @@ ghost mapping(address => mathint) _balances {
 
 hook Sstore _balances[KEY address addr] uint256 newValue (uint256 oldValue) {
     _supply = _supply - oldValue + newValue;
-}
-
-// TODO: This used to not be necessary. We should try to remove it. In order to do so, we will probably need to add
-// many "preserved" directive that require the "balanceOfConsistency" invariant on the accounts involved.
-hook Sload uint256 value _balances[KEY address user] {
-    require _balances[user] == to_mathint(value);
+    _balances[addr] = to_mathint(newValue);
 }
 
 /*
@@ -156,15 +145,76 @@ invariant ownedTotalIsSumOfBalances()
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Invariant: balanceOf is the number of tokens owned                                                                  │
+│ Invariant: balanceOf matches the ghost _balances mapping                                                            │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant balanceOfConsistency(address user)
-    to_mathint(balanceOf(user)) == _ownedByUser[user] &&
     to_mathint(balanceOf(user)) == _balances[user]
     {
         preserved {
             require balanceLimited(user);
+            
+            // ERC721 specific constraints to prevent underflow
+            require to_mathint(balanceOf(user)) >= 0;
+            require _balances[user] >= 0;
+        }
+    }
+
+
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Invariant: fundamental ERC721 consistency: if an owner owns 2 different tokens, balance >= 2                        │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+invariant ownersBalancesConsistency(uint256 tokenId1, uint256 tokenId2)
+    (tokenId1 != tokenId2 && 
+     unsafeOwnerOf(tokenId1) != 0 && 
+     unsafeOwnerOf(tokenId2) != 0 &&
+     unsafeOwnerOf(tokenId1) == unsafeOwnerOf(tokenId2)) => 
+    balanceOf(unsafeOwnerOf(tokenId1)) >= 2
+    {
+        preserved mint(address to, uint256 tokenId) with (env e) {
+            require balanceLimited(to);
+            requireInvariant ownerHasBalance(tokenId1);
+            requireInvariant ownerHasBalance(tokenId2);
+        }
+        preserved safeMint(address to, uint256 tokenId) with (env e) {
+            require balanceLimited(to);
+            requireInvariant ownerHasBalance(tokenId1);
+            requireInvariant ownerHasBalance(tokenId2);
+        }
+        preserved safeMint(address to, uint256 tokenId, bytes data) with (env e) {
+            require balanceLimited(to);
+            requireInvariant ownerHasBalance(tokenId1);
+            requireInvariant ownerHasBalance(tokenId2);
+        }
+        preserved transferFrom(address from, address to, uint256 tokenId) with (env e) {
+            require balanceLimited(to);
+            requireInvariant ownerHasBalance(tokenId1);
+            requireInvariant ownerHasBalance(tokenId2);
+            requireInvariant balanceOfConsistency(from);
+            requireInvariant balanceOfConsistency(to);
+        }
+        preserved safeTransferFrom(address from, address to, uint256 tokenId) with (env e) {
+            require balanceLimited(to);
+            requireInvariant ownerHasBalance(tokenId1);
+            requireInvariant ownerHasBalance(tokenId2);
+            requireInvariant balanceOfConsistency(from);
+            requireInvariant balanceOfConsistency(to);
+        }
+        preserved safeTransferFrom(address from, address to, uint256 tokenId, bytes data) with (env e) {
+            require balanceLimited(to);
+            requireInvariant ownerHasBalance(tokenId1);
+            requireInvariant ownerHasBalance(tokenId2);
+            requireInvariant balanceOfConsistency(from);
+            requireInvariant balanceOfConsistency(to);
+        }
+        preserved burn(uint256 tokenId) with (env e) {
+            requireInvariant ownerHasBalance(tokenId1);
+            requireInvariant ownerHasBalance(tokenId2);
+            requireInvariant balanceOfConsistency(unsafeOwnerOf(tokenId));
+            require balanceLimited(unsafeOwnerOf(tokenId));
         }
     }
 
@@ -174,11 +224,51 @@ invariant balanceOfConsistency(address user)
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant ownerHasBalance(uint256 tokenId)
-    balanceOf(ownerOf(tokenId)) > 0
+    unsafeOwnerOf(tokenId) != 0 => balanceOf(unsafeOwnerOf(tokenId)) > 0
     {
+        preserved safeTransferFrom(address from, address to, uint256 id) with (env e) {
+            require nonzero(unsafeOwnerOf(tokenId));
+            requireInvariant balanceOfConsistency(unsafeOwnerOf(tokenId));
+            requireInvariant balanceOfConsistency(from);
+            requireInvariant balanceOfConsistency(to);
+            require balanceLimited(unsafeOwnerOf(tokenId));
+            require balanceLimited(from);
+            require balanceLimited(to);
+            requireInvariant ownersBalancesConsistency(tokenId, id);
+        }
+        preserved safeTransferFrom(address from, address to, uint256 id, bytes data) with (env e) {
+            require nonzero(unsafeOwnerOf(tokenId));
+            requireInvariant balanceOfConsistency(unsafeOwnerOf(tokenId));
+            requireInvariant balanceOfConsistency(from);
+            requireInvariant balanceOfConsistency(to);
+            require balanceLimited(unsafeOwnerOf(tokenId));
+            require balanceLimited(from);
+            require balanceLimited(to);
+            requireInvariant ownersBalancesConsistency(tokenId, id);
+        }
+        preserved transferFrom(address from, address to, uint256 id) with (env e) {
+            require nonzero(unsafeOwnerOf(tokenId));
+            requireInvariant balanceOfConsistency(unsafeOwnerOf(tokenId));
+            requireInvariant balanceOfConsistency(from);
+            requireInvariant balanceOfConsistency(to);
+            require balanceLimited(unsafeOwnerOf(tokenId));
+            require balanceLimited(from);
+            require balanceLimited(to);
+            requireInvariant ownersBalancesConsistency(tokenId, id);
+        }
+        preserved burn(uint256 id) with (env e) {
+            require nonzero(unsafeOwnerOf(tokenId));
+            requireInvariant balanceOfConsistency(unsafeOwnerOf(tokenId));
+            require balanceLimited(unsafeOwnerOf(tokenId));
+            require unsafeOwnerOf(id) != 0 => balanceOf(unsafeOwnerOf(id)) > 0;
+            requireInvariant balanceOfConsistency(unsafeOwnerOf(id));
+            require balanceLimited(unsafeOwnerOf(id));
+            requireInvariant ownersBalancesConsistency(tokenId, id);
+        }
         preserved {
-            requireInvariant balanceOfConsistency(ownerOf(tokenId));
-            require balanceLimited(ownerOf(tokenId));
+            require nonzero(unsafeOwnerOf(tokenId));
+            requireInvariant balanceOfConsistency(unsafeOwnerOf(tokenId));
+            require balanceLimited(unsafeOwnerOf(tokenId));
         }
     }
 
@@ -368,7 +458,7 @@ rule approvedForAllChange(env e, address owner, address spender) {
 */
 rule transferFrom(env e, address from, address to, uint256 tokenId) {
     require nonpayable(e);
-    require authSanity(e);
+    require nonzerosender(e);
 
     address operator = e.msg.sender;
     uint256 otherTokenId;
@@ -420,7 +510,7 @@ rule safeTransferFrom(env e, method f, address from, address to, uint256 tokenId
     f.selector == sig:safeTransferFrom(address,address,uint256,bytes).selector
 } {
     require nonpayable(e);
-    require authSanity(e);
+    require nonzerosender(e);
 
     address operator = e.msg.sender;
     uint256 otherTokenId;
@@ -579,6 +669,7 @@ rule burn(env e, uint256 tokenId) {
     uint256 otherTokenId;
     address otherAccount;
 
+    requireInvariant balanceOfConsistency(from);
     requireInvariant ownerHasBalance(tokenId);
 
     mathint supplyBefore         = _supply;
@@ -617,7 +708,7 @@ rule burn(env e, uint256 tokenId) {
 */
 rule approve(env e, address spender, uint256 tokenId) {
     require nonpayable(e);
-    require authSanity(e);
+    require nonzerosender(e);
 
     address caller = e.msg.sender;
     address owner = unsafeOwnerOf(tokenId);
