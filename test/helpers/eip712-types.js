@@ -23,6 +23,7 @@ module.exports = mapValues(
     },
     OverrideBallot: { proposalId: 'uint256', support: 'uint8', voter: 'address', nonce: 'uint256', reason: 'string' },
     Delegation: { delegatee: 'address', nonce: 'uint256', expiry: 'uint256' },
+    MultiDelegation: {delegatees: 'address[]', units: 'uint256[]', nonce: 'uint256', expiry: 'uint256' },
     ForwardRequest: {
       from: 'address',
       to: 'address',

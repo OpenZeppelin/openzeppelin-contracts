@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.20;
 
-import {Votes} from "../governance/utils/Votes.sol";
+import {MultiVotes} from "../governance/utils/MultiVotes.sol";
 
-abstract contract VotesMock is Votes {
+abstract contract MultiVotesMock is MultiVotes {
+
     mapping(address voter => uint256) private _votingUnits;
 
     function getTotalSupply() public view returns (uint256) {
@@ -28,9 +29,11 @@ abstract contract VotesMock is Votes {
         _transferVotingUnits(account, address(0), votes);
         _votingUnits[account] -= votes;
     }
+    
 }
 
-abstract contract VotesTimestampMock is VotesMock {
+abstract contract MultiVotesTimestampMock is MultiVotesMock {
+
     function clock() public view override returns (uint48) {
         return uint48(block.timestamp);
     }

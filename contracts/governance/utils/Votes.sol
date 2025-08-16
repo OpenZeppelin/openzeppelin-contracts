@@ -162,7 +162,7 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
     }
 
     /**
-     * @dev Delegate all of `account`'s voting units to `delegatee`.
+     * @dev Delegate all avaiable `account`'s voting units to `delegatee`.
      *
      * Emits events {IVotes-DelegateChanged} and {IVotes-DelegateVotesChanged}.
      */
@@ -172,6 +172,13 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
 
         emit DelegateChanged(account, oldDelegate, delegatee);
         _moveDelegateVotes(oldDelegate, delegatee, _getVotingUnits(account));
+    }
+
+    /**
+     @dev Setter of _delegatee for inheriting contracts
+     */
+    function _setDelegate(address account, address delegatee) internal virtual {
+        _delegatee[account] = delegatee;
     }
 
     /**
