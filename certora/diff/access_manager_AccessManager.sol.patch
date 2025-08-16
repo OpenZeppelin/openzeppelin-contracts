@@ -1,5 +1,5 @@
---- access/manager/AccessManager.sol	2025-08-16 15:14:43
-+++ access/manager/AccessManager.sol	2025-08-16 15:14:48
+--- access/manager/AccessManager.sol	2025-08-16 15:15:34
++++ access/manager/AccessManager.sol	2025-08-16 15:17:51
 @@ -7,7 +7,6 @@
  import {IAccessManaged} from "./IAccessManaged.sol";
  import {Address} from "../../utils/Address.sol";
@@ -7,8 +7,8 @@
 -import {Multicall} from "../../utils/Multicall.sol";
  import {Math} from "../../utils/math/Math.sol";
  import {Time} from "../../utils/types/Time.sol";
- 
-@@ -58,7 +57,8 @@
+ import {Hashes} from "../../utils/cryptography/Hashes.sol";
+@@ -59,7 +58,8 @@
   * mindful of the danger associated with functions such as {Ownable-renounceOwnership} or
   * {AccessControl-renounceRole}.
   */
@@ -18,7 +18,7 @@
      using Time for *;
  
      // Structure that stores the details for a target contract.
-@@ -114,7 +114,7 @@
+@@ -115,7 +115,7 @@
  
      // Used to identify operations that are currently being executed via {execute}.
      // This should be transient storage when supported by the EVM.
@@ -27,7 +27,7 @@
  
      /**
       * @dev Check that the caller is authorized to perform the operation.
-@@ -262,6 +262,11 @@
+@@ -263,6 +263,11 @@
          _setGrantDelay(roleId, newDelay);
      }
  
@@ -39,7 +39,7 @@
      /**
       * @dev Internal version of {grantRole} without access control. Returns true if the role was newly granted.
       *
-@@ -294,6 +299,11 @@
+@@ -295,6 +300,11 @@
  
          emit RoleGranted(roleId, account, executionDelay, since, newMember);
          return newMember;
@@ -51,7 +51,7 @@
      }
  
      /**
-@@ -595,7 +605,7 @@
+@@ -596,7 +606,7 @@
       *
       * WARNING: Carefully review the considerations of {AccessManaged-restricted} since they apply to this modifier.
       */
@@ -60,7 +60,7 @@
          address caller = _msgSender();
          (bool immediate, uint32 delay) = _canCallSelf(caller, _msgData());
          if (!immediate) {
-@@ -618,7 +628,7 @@
+@@ -619,7 +629,7 @@
       */
      function _getAdminRestrictions(
          bytes calldata data
@@ -69,7 +69,7 @@
          if (data.length < 4) {
              return (false, 0, 0);
          }
-@@ -671,7 +681,7 @@
+@@ -672,7 +682,7 @@
          address caller,
          address target,
          bytes calldata data
@@ -78,7 +78,7 @@
          if (target == address(this)) {
              return _canCallSelf(caller, data);
          } else {
-@@ -727,14 +737,14 @@
+@@ -728,14 +738,14 @@
      /**
       * @dev Extracts the selector from calldata. Panics if data is not at least 4 bytes
       */
@@ -92,6 +92,6 @@
       */
 -    function _hashExecutionId(address target, bytes4 selector) private pure returns (bytes32) {
 +    function _hashExecutionId(address target, bytes4 selector) internal pure returns (bytes32) { // private → internal for FV
-         return keccak256(abi.encode(target, selector));
+         return Hashes.efficientKeccak256(bytes32(uint256(uint160(target))), selector);
      }
  }
