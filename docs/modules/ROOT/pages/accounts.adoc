@@ -33,7 +33,7 @@ TIP: Given xref:api:utils/cryptography.adoc#SignerERC7913[`SignerERC7913`] provi
 
 ==== Accounts factory
 
-The first time you send an user operation, your account will be created deterministically (i.e. its code and address can be predicted) using the the `initCode` field in the UserOperation. This field contains both the address of a smart contract (the factory) and the data required to call it and create your smart account.
+The first time you send an user operation, your account will be created deterministically (i.e. its code and address can be predicted) using the `initCode` field in the UserOperation. This field contains both the address of a smart contract (the factory) and the data required to call it and create your smart account.
 
 Suggestively, you can create your own account factory using the xref:api:proxy.adoc#Clones[Clones library], taking advantage of decreased deployment costs and account address predictability.
 
