@@ -14,7 +14,7 @@ import path from 'path';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import pLimit from 'p-limit';
-import fs from 'fs/promises';
+import fs from 'fs';
 
 const argv = yargs(hideBin(process.argv))
   .env('')
