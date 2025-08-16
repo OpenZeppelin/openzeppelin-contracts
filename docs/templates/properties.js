@@ -35,7 +35,7 @@ module.exports.fullname = function fullname({ item }) {
 
 module.exports.inheritance = function ({ item, build }) {
   if (!isNodeType('ContractDefinition', item)) {
-    throw new Error('used inherited-items on non-contract');
+    throw new Error('inheritance modifier used on non-contract');
   }
 
   return item.linearizedBaseContracts
@@ -65,14 +65,14 @@ module.exports['has-internal-variables'] = function ({ item }) {
 
 module.exports.functions = function ({ item }) {
   return [
-    ...[...findAll('FunctionDefinition', item)].filter(f => f.visibility !== 'private'),
-    ...[...findAll('VariableDeclaration', item)].filter(f => f.visibility === 'public'),
+    ...findAll('FunctionDefinition', item).filter(f => f.visibility !== 'private'),
+    ...findAll('VariableDeclaration', item).filter(f => f.visibility === 'public'),
   ];
 };
 
 module.exports.returns2 = function ({ item }) {
   if (isNodeType('VariableDeclaration', item)) {
-    return [{ type: item.typeDescriptions.typeString }];
+    return [{ type: item.typeName.typeDescriptions.typeString }];
   } else {
     return item.returns;
   }
