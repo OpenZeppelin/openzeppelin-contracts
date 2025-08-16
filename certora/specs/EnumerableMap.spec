@@ -21,7 +21,7 @@ methods {
 │ Helpers                                                                                                             │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-definition sanity() returns bool =
+definition lengthSanity() returns bool =
     length() < max_uint256;
 
 /*
@@ -33,7 +33,7 @@ invariant noValueIfNotContained(bytes32 key)
     !contains(key) => tryGet_value(key) == to_bytes32(0)
     {
         preserved set(bytes32 otherKey, bytes32 someValue) {
-            require sanity();
+            require lengthSanity();
         }
     }
 
@@ -104,7 +104,7 @@ invariant consistencyKey(bytes32 key)
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule stateChange(env e, bytes32 key) {
-    require sanity();
+    require lengthSanity();
     requireInvariant consistencyKey(key);
 
     uint256 lengthBefore   = length();
@@ -200,7 +200,7 @@ rule getAndTryGet(bytes32 key) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule set(bytes32 key, bytes32 value, bytes32 otherKey) {
-    require sanity();
+    require lengthSanity();
 
     uint256 lengthBefore        = length();
     bool    containsBefore      = contains(key);
@@ -268,7 +268,7 @@ rule remove(bytes32 key, bytes32 otherKey) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule setEnumerability(bytes32 key, bytes32 value, uint256 index) {
-    require sanity();
+    require lengthSanity();
 
     bytes32 atKeyBefore = key_at(index);
     bytes32 atValueBefore = value_at(index);
