@@ -61,6 +61,25 @@ abstract contract ReentrancyGuard {
         _nonReentrantAfter();
     }
 
+    /**
+     * @dev A `view` only version of {nonReentrant}. Use to block view functions
+     * from being called, preventing reading from inconsistent contract state.
+     *
+     * CAUTION: This is a "view" modifier and does not change the reentrancy
+     * status. Use it only on view functions. For payable or non-payable functions,
+     * use the standard {nonReentrant} modifier instead.
+     */
+    modifier nonReentrantView() {
+        _nonReentrantBeforeView();
+        _;
+    }
+
+    function _nonReentrantBeforeView() private view {
+        if (_status == ENTERED) {
+            revert ReentrancyGuardReentrantCall();
+        }
+    }
+
     function _nonReentrantBefore() private {
         // On the first call to nonReentrant, _status will be NOT_ENTERED
         if (_status == ENTERED) {
