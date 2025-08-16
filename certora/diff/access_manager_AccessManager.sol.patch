@@ -1,5 +1,5 @@
---- access/manager/AccessManager.sol	2025-08-16 15:10:54
-+++ access/manager/AccessManager.sol	2025-08-16 15:11:25
+--- access/manager/AccessManager.sol	2025-08-16 15:14:43
++++ access/manager/AccessManager.sol	2025-08-16 15:14:48
 @@ -7,7 +7,6 @@
  import {IAccessManaged} from "./IAccessManaged.sol";
  import {Address} from "../../utils/Address.sol";
@@ -39,29 +39,28 @@
      /**
       * @dev Internal version of {grantRole} without access control. Returns true if the role was newly granted.
       *
-@@ -296,6 +301,11 @@
-         return newMember;
-     }
+@@ -294,6 +299,11 @@
  
+         emit RoleGranted(roleId, account, executionDelay, since, newMember);
+         return newMember;
++    }
++
 +    // Exposed for FV
 +    function _getRoleGrantDelayFull(uint64 roleId) internal view virtual returns (uint32, uint32, uint48) {
 +        return _roles[roleId].grantDelay.getFull();
-+    }
-+
+     }
+ 
      /**
-      * @dev Internal version of {revokeRole} without access control. This logic is also used by {renounceRole}.
-      * Returns true if the role was previously granted.
-@@ -595,7 +605,8 @@
+@@ -595,7 +605,7 @@
       *
       * WARNING: Carefully review the considerations of {AccessManaged-restricted} since they apply to this modifier.
       */
 -    function _checkAuthorized() private {
 +    function _checkAuthorized() internal virtual { // private → internal virtual for FV
-+        // private → internal virtual for FV
          address caller = _msgSender();
          (bool immediate, uint32 delay) = _canCallSelf(caller, _msgData());
          if (!immediate) {
-@@ -618,7 +629,7 @@
+@@ -618,7 +628,7 @@
       */
      function _getAdminRestrictions(
          bytes calldata data
@@ -70,7 +69,7 @@
          if (data.length < 4) {
              return (false, 0, 0);
          }
-@@ -671,7 +682,7 @@
+@@ -671,7 +681,7 @@
          address caller,
          address target,
          bytes calldata data
@@ -79,7 +78,7 @@
          if (target == address(this)) {
              return _canCallSelf(caller, data);
          } else {
-@@ -727,14 +738,14 @@
+@@ -727,14 +737,14 @@
      /**
       * @dev Extracts the selector from calldata. Panics if data is not at least 4 bytes
       */
