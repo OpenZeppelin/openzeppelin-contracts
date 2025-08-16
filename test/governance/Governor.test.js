@@ -682,7 +682,7 @@ describe('Governor', function () {
 
           await expect(this.helper.propose())
             .to.be.revertedWithCustomError(this.mock, 'GovernorInvalidProposalLength')
-            .withArgs(0, 0, 0);
+            .withArgs(0n, 0n, 0n);
         });
 
         it('mismatch #1', async function () {
@@ -696,7 +696,7 @@ describe('Governor', function () {
           );
           await expect(this.helper.propose())
             .to.be.revertedWithCustomError(this.mock, 'GovernorInvalidProposalLength')
-            .withArgs(0, 1, 1);
+            .withArgs(0n, 1n, 1n);
         });
 
         it('mismatch #2', async function () {
@@ -710,7 +710,7 @@ describe('Governor', function () {
           );
           await expect(this.helper.propose())
             .to.be.revertedWithCustomError(this.mock, 'GovernorInvalidProposalLength')
-            .withArgs(1, 1, 0);
+            .withArgs(1n, 1n, 0n);
         });
 
         it('mismatch #3', async function () {
@@ -724,7 +724,7 @@ describe('Governor', function () {
           );
           await expect(this.helper.propose())
             .to.be.revertedWithCustomError(this.mock, 'GovernorInvalidProposalLength')
-            .withArgs(1, 0, 1);
+            .withArgs(1n, 0n, 1n);
         });
       });
 
