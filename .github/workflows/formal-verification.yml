@@ -12,7 +12,7 @@ on:
 env:
   PIP_VERSION: '3.11'
   JAVA_VERSION: '11'
-  SOLC_VERSION: '0.8.20'
+  SOLC_VERSION: '0.8.27'
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
