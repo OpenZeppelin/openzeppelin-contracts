@@ -19,8 +19,6 @@ methods {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 
-definition authSanity(env e) returns bool = e.msg.sender != 0;
-
 // Could be broken in theory, but not in practice
 definition balanceLimited(address account) returns bool = balanceOf(account) < max_uint256;
 
@@ -399,7 +397,7 @@ rule approvedForAllChange(env e, address owner, address spender) {
 */
 rule transferFrom(env e, address from, address to, uint256 tokenId) {
     require nonpayable(e);
-    require authSanity(e);
+    require nonzerosender(e);
 
     address operator = e.msg.sender;
     uint256 otherTokenId;
@@ -451,7 +449,7 @@ rule safeTransferFrom(env e, method f, address from, address to, uint256 tokenId
     f.selector == sig:safeTransferFrom(address,address,uint256,bytes).selector
 } {
     require nonpayable(e);
-    require authSanity(e);
+    require nonzerosender(e);
 
     address operator = e.msg.sender;
     uint256 otherTokenId;
@@ -624,7 +622,7 @@ rule burn(env e, uint256 tokenId) {
 */
 rule approve(env e, address spender, uint256 tokenId) {
     require nonpayable(e);
-    require authSanity(e);
+    require nonzerosender(e);
 
     address caller = e.msg.sender;
     address owner = unsafeOwnerOf(tokenId);
