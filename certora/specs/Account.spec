@@ -34,15 +34,21 @@ invariant validatorAtUniquenessInvariant(uint256 index1, uint256 index2)
         }
     }
 
-invariant validatorConsistencyKeyInvariant(address module)
-    _validatorContains(module) <=> (
-        _validatorPositionOf(module) > 0 &&
-        _validatorPositionOf(module) <= _validatorLength() &&
-        _validatorAt(require_uint256(_validatorPositionOf(module) - 1)) == module
-    )
+invariant validatorConsistencyIndexInvariant(uint256 index)
+    index < _validatorLength() <=> _validatorPositionOf(_validatorAt(index)) == require_uint256(index + 1)
     filtered { f -> f.selector != sig:execute(bytes32,bytes).selector  && f.selector != sig:executeFromExecutor(bytes32,bytes).selector }
     {
         preserved uninstallModule(uint256 moduleTypeId, address otherModule, bytes deInitData) with (env e) {
+            requireInvariant validatorConsistencyIndexInvariant(require_uint256(_validatorLength() - 1));
+        }
+    }
+
+invariant validatorConsistencyKeyInvariant(address module)
+    (_validatorContains(module) <=> _validatorAt(require_uint256(_validatorPositionOf(module) - 1)) == module) && _validatorPositionOf(module) <= _validatorLength()
+    filtered { f -> f.selector != sig:execute(bytes32,bytes).selector  && f.selector != sig:executeFromExecutor(bytes32,bytes).selector }
+    {
+        preserved uninstallModule(uint256 moduleTypeId, address otherModule, bytes deInitData) with (env e) {
+            requireInvariant validatorConsistencyIndexInvariant(require_uint256(_validatorLength() - 1));
             requireInvariant validatorConsistencyKeyInvariant(otherModule);
             requireInvariant validatorAtUniquenessInvariant(
                 require_uint256(_validatorPositionOf(module) - 1),
@@ -61,15 +67,21 @@ invariant executorAtUniquenessInvariant(uint256 index1, uint256 index2)
         }
     }
 
-invariant executorConsistencyKeyInvariant(address module)
-    _executorContains(module) <=> (
-        _executorPositionOf(module) > 0 &&
-        _executorPositionOf(module) <= _executorLength() &&
-        _executorAt(require_uint256(_executorPositionOf(module) - 1)) == module
-    )
+invariant executorConsistencyIndexInvariant(uint256 index)
+    index < _executorLength() <=> _executorPositionOf(_executorAt(index)) == require_uint256(index + 1)
     filtered { f -> f.selector != sig:execute(bytes32,bytes).selector  && f.selector != sig:executeFromExecutor(bytes32,bytes).selector }
     {
         preserved uninstallModule(uint256 moduleTypeId, address otherModule, bytes deInitData) with (env e) {
+            requireInvariant executorConsistencyIndexInvariant(require_uint256(_executorLength() - 1));
+        }
+    }
+
+invariant executorConsistencyKeyInvariant(address module)
+    (_executorContains(module) <=> _executorAt(require_uint256(_executorPositionOf(module) - 1)) == module) && _executorPositionOf(module) <= _executorLength()
+    filtered { f -> f.selector != sig:execute(bytes32,bytes).selector  && f.selector != sig:executeFromExecutor(bytes32,bytes).selector }
+    {
+        preserved uninstallModule(uint256 moduleTypeId, address otherModule, bytes deInitData) with (env e) {
+            requireInvariant executorConsistencyIndexInvariant(require_uint256(_executorLength() - 1));
             requireInvariant executorConsistencyKeyInvariant(otherModule);
             requireInvariant executorAtUniquenessInvariant(
                 require_uint256(_executorPositionOf(module) - 1),
@@ -84,8 +96,9 @@ invariant executorConsistencyKeyInvariant(address module)
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 // This guarantees that at most one fallback module is active for a given initData (i.e. selector)
-invariant fallbackModule(address module, bytes initData)
-    isModuleInstalled(3, module, initData) <=> getFallbackHandler(getDataSelector(initData)) == module;
+rule fallbackModule(address module, bytes initData) {
+    assert isModuleInstalled(3, module, initData) <=> getFallbackHandler(getDataSelector(initData)) == module;
+}
 
 rule moduleManagementRule(env e, method f, calldataarg args, uint256 moduleTypeId, address module, bytes additionalContext)
     filtered { f -> !f.isView }
@@ -168,6 +181,8 @@ rule uninstallModuleRule(env e, uint256 moduleTypeId, address module, bytes init
     requireInvariant validatorConsistencyKeyInvariant(module);
     requireInvariant executorConsistencyKeyInvariant(otherModule);
     requireInvariant validatorConsistencyKeyInvariant(otherModule);
+    requireInvariant executorConsistencyIndexInvariant(require_uint256(_executorLength() - 1));
+    requireInvariant validatorConsistencyIndexInvariant(require_uint256(_validatorLength() - 1));
 
     bool isModuleInstalledBefore = isModuleInstalled(moduleTypeId, module, initData);
     bool isOtherModuleInstalledBefore = isModuleInstalled(otherModuleTypeId, otherModule, otherInitData);

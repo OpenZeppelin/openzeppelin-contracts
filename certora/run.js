@@ -83,7 +83,14 @@ for (const { spec, contract, files, options = [] } of specs) {
 
 // Run certora, aggregate the output and print it at the end
 async function runCertora(spec, contract, files, options = []) {
-  const args = [...files, '--verify', `${contract}:certora/specs/${spec}.spec`, ...options];
+  const args = [
+    ...files,
+    '--verify',
+    `${contract}:certora/specs/${spec}.spec`,
+    '--url_visibility',
+    'public',
+    ...options,
+  ];
   if (argv.verbose) {
     console.log('Running:', args.join(' '));
   }
