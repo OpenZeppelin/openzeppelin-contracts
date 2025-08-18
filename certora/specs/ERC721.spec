@@ -69,6 +69,37 @@ function helperSoundFnCall(env e, method f) {
     }
 }
 
+function helperTransferWithRevert(env e, method f, address from, address to, uint256 tokenId) returns bool {
+    if (f.selector == sig:transferFrom(address,address,uint256).selector) {
+        transferFrom@withrevert(e, from, to, tokenId);
+    } else if (f.selector == sig:safeTransferFrom(address,address,uint256).selector) {
+        safeTransferFrom@withrevert(e, from, to, tokenId);
+    } else if (f.selector == sig:safeTransferFrom(address,address,uint256,bytes).selector) {
+        bytes params;
+        require params.length < 0xffff;
+        safeTransferFrom@withrevert(e, from, to, tokenId, params);
+    } else {
+        calldataarg args;
+        f@withrevert(e, args);
+    }
+    return !lastReverted;
+}
+
+function helperMintWithRevert(env e, method f, address to, uint256 tokenId) returns bool {
+    if (f.selector == sig:mint(address,uint256).selector) {
+        mint@withrevert(e, to, tokenId);
+    } else if (f.selector == sig:safeMint(address,uint256).selector) {
+        safeMint@withrevert(e, to, tokenId);
+    } else if (f.selector == sig:safeMint(address,uint256,bytes).selector) {
+        bytes params;
+        require params.length < 0xffff;
+        safeMint@withrevert(e, to, tokenId, params);
+    } else {
+        require false;
+    }
+    return !lastReverted;
+}
+
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Ghost & hooks: total owned tokens count                                                                             │
@@ -531,19 +562,7 @@ rule safeTransferFrom(env e, method f, address from, address to, uint256 tokenId
     address approvalBefore       = unsafeGetApproved(tokenId);
     address otherApprovalBefore  = unsafeGetApproved(otherTokenId);
 
-    if (f.selector == sig:transferFrom(address,address,uint256).selector) {
-        transferFrom@withrevert(e, from, to, tokenId);
-    } else if (f.selector == sig:safeTransferFrom(address,address,uint256).selector) {
-        safeTransferFrom@withrevert(e, from, to, tokenId);
-    } else if (f.selector == sig:safeTransferFrom(address,address,uint256,bytes).selector) {
-        bytes params;
-        require params.length < 0xffff;
-        safeTransferFrom@withrevert(e, from, to, tokenId, params);
-    } else {
-        calldataarg args;
-        f@withrevert(e, args);
-    }
-    bool success = !lastReverted;
+    bool success = helperTransferWithRevert(e, f, from, to, tokenId);
 
     assert success <=> (
         from == ownerBefore &&
@@ -630,19 +649,7 @@ rule safeMint(env e, method f, address to, uint256 tokenId) filtered { f ->
     address ownerBefore          = unsafeOwnerOf(tokenId);
     address otherOwnerBefore     = unsafeOwnerOf(otherTokenId);
 
-    if (f.selector == sig:mint(address,uint256).selector) {
-        mint@withrevert(e, to, tokenId);
-    } else if (f.selector == sig:safeMint(address,uint256).selector) {
-        safeMint@withrevert(e, to, tokenId);
-    } else if (f.selector == sig:safeMint(address,uint256,bytes).selector) {
-        bytes params;
-        require params.length < 0xffff;
-        safeMint@withrevert(e, to, tokenId, params);
-    } else {
-        calldataarg args;
-        f@withrevert(e, args);
-    }
-    bool success = !lastReverted;
+    bool success = helperMintWithRevert(e, f, to, tokenId);
 
     assert success <=> (
         ownerBefore == 0 &&
