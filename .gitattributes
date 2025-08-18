@@ -1,3 +1,1 @@
 *.spec linguist-language=Solidity
-*.conf linguist-detectable
-*.conf linguist-language=JSON5
