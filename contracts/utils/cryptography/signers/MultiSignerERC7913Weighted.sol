@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.4.0) (utils/cryptography/signers/MultiSignerERC7913Weighted.sol)
 
 pragma solidity ^0.8.26;
 
@@ -126,6 +127,20 @@ abstract contract MultiSignerERC7913Weighted is MultiSignerERC7913 {
             // and weight values are bounded by uint64 and economic constraints
             _totalExtraWeight = (uint256(_totalExtraWeight) + extraWeightAdded - extraWeightRemoved).toUint64();
         }
+        _validateReachableThreshold();
+    }
+
+    /**
+     * @dev See {MultiSignerERC7913-_addSigners}.
+     *
+     * In cases where {totalWeight} is almost `type(uint64).max` (due to a large `_totalExtraWeight`), adding new
+     * signers could cause the {totalWeight} computation to overflow. Adding a {totalWeight} calls after the new
+     * signers are added ensures no such overflow happens.
+     */
+    function _addSigners(bytes[] memory newSigners) internal virtual override {
+        super._addSigners(newSigners);
+
+        // This will revert if the new signers cause an overflow
         _validateReachableThreshold();
     }
 

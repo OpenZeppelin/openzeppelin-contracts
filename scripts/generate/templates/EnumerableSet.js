@@ -130,8 +130,9 @@ function _remove(Set storage set, bytes32 value) private returns (bool) {
 /**
  * @dev Removes all the values from a set. O(n).
  *
- * WARNING: Developers should keep in mind that this function has an unbounded cost and using it may render the
- * function uncallable if the set grows to the point where clearing it consumes too much gas to fit in a block.
+ * WARNING: This function has an unbounded cost that scales with set size. Developers should keep in mind that
+ * using it may render the function uncallable if the set grows to the point where clearing it consumes too much
+ * gas to fit in a block.
  */
 function _clear(Set storage set) private {
     uint256 len = _length(set);

@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.1.0) (utils/cryptography/SignatureChecker.sol)
+// OpenZeppelin Contracts (last updated v5.4.0) (utils/cryptography/SignatureChecker.sol)
 
 pragma solidity ^0.8.24;
 
 import {ECDSA} from "./ECDSA.sol";
 import {IERC1271} from "../../interfaces/IERC1271.sol";
 import {IERC7913SignatureVerifier} from "../../interfaces/IERC7913.sol";
-import {Bytes} from "../../utils/Bytes.sol";
+import {Bytes} from "../Bytes.sol";
 
 /**
  * @dev Signature verification helper that can be used instead of `ECDSA.recover` to seamlessly support:
@@ -39,6 +39,22 @@ library SignatureChecker {
     }
 
     /**
+     * @dev Variant of {isValidSignatureNow} that takes a signature in calldata
+     */
+    function isValidSignatureNowCalldata(
+        address signer,
+        bytes32 hash,
+        bytes calldata signature
+    ) internal view returns (bool) {
+        if (signer.code.length == 0) {
+            (address recovered, ECDSA.RecoverError err, ) = ECDSA.tryRecoverCalldata(hash, signature);
+            return err == ECDSA.RecoverError.NoError && recovered == signer;
+        } else {
+            return isValidERC1271SignatureNow(signer, hash, signature);
+        }
+    }
+
+    /**
      * @dev Checks if a signature is valid for a given signer and data hash. The signature is validated
      * against the signer smart contract using ERC-1271.
      *
@@ -49,13 +65,26 @@ library SignatureChecker {
         address signer,
         bytes32 hash,
         bytes memory signature
-    ) internal view returns (bool) {
-        (bool success, bytes memory result) = signer.staticcall(
-            abi.encodeCall(IERC1271.isValidSignature, (hash, signature))
-        );
-        return (success &&
-            result.length >= 32 &&
-            abi.decode(result, (bytes32)) == bytes32(IERC1271.isValidSignature.selector));
+    ) internal view returns (bool result) {
+        bytes4 selector = IERC1271.isValidSignature.selector;
+        uint256 length = signature.length;
+
+        assembly ("memory-safe") {
+            // Encoded calldata is :
+            // [ 0x00 - 0x03 ] <selector>
+            // [ 0x04 - 0x23 ] <hash>
+            // [ 0x24 - 0x44 ] <signature offset> (0x40)
+            // [ 0x44 - 0x64 ] <signature length>
+            // [ 0x64 - ...  ] <signature data>
+            let ptr := mload(0x40)
+            mstore(ptr, selector)
+            mstore(add(ptr, 0x04), hash)
+            mstore(add(ptr, 0x24), 0x40)
+            mcopy(add(ptr, 0x44), signature, add(length, 0x20))
+
+            let success := staticcall(gas(), signer, ptr, add(length, 0x64), 0, 0x20)
+            result := and(success, and(gt(returndatasize(), 0x19), eq(mload(0x00), selector)))
+        }
     }
 
     /**

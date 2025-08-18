@@ -1,4 +1,4 @@
-const { ethers, entrypoint } = require('hardhat');
+const { ethers, predeploy } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
@@ -6,6 +6,7 @@ const { getDomain } = require('../helpers/eip712');
 const { ERC4337Helper } = require('../helpers/erc4337');
 const { NonNativeSigner, P256SigningKey, RSASHA256SigningKey, MultiERC7913SigningKey } = require('../helpers/signers');
 const { PackedUserOperation } = require('../helpers/eip712-types');
+const { MAX_UINT64 } = require('../helpers/constants');
 
 const { shouldBehaveLikeAccountCore, shouldBehaveLikeAccountHolder } = require('./Account.behavior');
 const { shouldBehaveLikeERC1271 } = require('../utils/cryptography/ERC1271.behavior');
@@ -32,7 +33,7 @@ async function fixture() {
   // ERC-4337 env
   const helper = new ERC4337Helper();
   await helper.wait();
-  const entrypointDomain = await getDomain(entrypoint.v08);
+  const entrypointDomain = await getDomain(predeploy.entrypoint.v08);
   const domain = { name: 'AccountMultiSignerWeighted', version: '1', chainId: entrypointDomain.chainId }; // Missing verifyingContract
 
   const makeMock = (signers, weights, threshold) =>
@@ -291,6 +292,21 @@ describe('AccountMultiSignerWeighted', function () {
         .to.emit(this.mock, 'ERC7913SignerRemoved')
         .withArgs(signer1)
         .to.not.emit(this.mock, 'ERC7913SignerWeightChanged');
+    });
+
+    it('should revert if total weight to overflow (_setSignerWeights)', async function () {
+      await expect(this.mock.$_setSignerWeights([signer1, signer2, signer3], [1n, 1n, MAX_UINT64 - 1n]))
+        .to.be.revertedWithCustomError(this.mock, 'SafeCastOverflowedUintDowncast')
+        .withArgs(64, MAX_UINT64 + 1n);
+    });
+
+    it('should revert if total weight to overflow (_addSigner)', async function () {
+      await this.mock.$_setSignerWeights([signer1, signer2, signer3], [1n, 1n, MAX_UINT64 - 2n]);
+      await expect(this.mock.totalWeight()).to.eventually.equal(MAX_UINT64);
+
+      await expect(this.mock.$_addSigners([signer4]))
+        .to.be.revertedWithCustomError(this.mock, 'SafeCastOverflowedUintDowncast')
+        .withArgs(64, MAX_UINT64 + 1n);
     });
   });
 });

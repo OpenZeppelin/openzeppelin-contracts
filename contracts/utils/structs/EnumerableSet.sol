@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.3.0) (utils/structs/EnumerableSet.sol)
+// OpenZeppelin Contracts (last updated v5.4.0) (utils/structs/EnumerableSet.sol)
 // This file was procedurally generated from scripts/generate/templates/EnumerableSet.js.
 
 pragma solidity ^0.8.20;
@@ -126,8 +126,9 @@ library EnumerableSet {
     /**
      * @dev Removes all the values from a set. O(n).
      *
-     * WARNING: Developers should keep in mind that this function has an unbounded cost and using it may render the
-     * function uncallable if the set grows to the point where clearing it consumes too much gas to fit in a block.
+     * WARNING: This function has an unbounded cost that scales with set size. Developers should keep in mind that
+     * using it may render the function uncallable if the set grows to the point where clearing it consumes too much
+     * gas to fit in a block.
      */
     function _clear(Set storage set) private {
         uint256 len = _length(set);

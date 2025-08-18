@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.3.0) (token/ERC1155/IERC1155.sol)
+// OpenZeppelin Contracts (last updated v5.4.0) (token/ERC1155/IERC1155.sol)
 
 pragma solidity >=0.6.2;
 
