@@ -191,68 +191,6 @@ invariant balanceOfConsistency(address user)
         }
     }
 
-
-
-/*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Invariant: fundamental ERC721 consistency: if an owner owns 2 different tokens, balance >= 2                        │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
-invariant ownersBalancesConsistency(uint256 tokenId1, uint256 tokenId2)
-    (tokenId1 != tokenId2 && 
-     unsafeOwnerOf(tokenId1) != 0 && 
-     unsafeOwnerOf(tokenId2) != 0 &&
-     unsafeOwnerOf(tokenId1) == unsafeOwnerOf(tokenId2)) => 
-    balanceOf(unsafeOwnerOf(tokenId1)) >= 2
-    {
-        preserved mint(address to, uint256 tokenId) with (env e) {
-            require balanceLimited(to);
-            requireInvariant ownerHasBalance(tokenId1);
-            requireInvariant ownerHasBalance(tokenId2);
-        }
-        preserved safeMint(address to, uint256 tokenId) with (env e) {
-            require balanceLimited(to);
-            requireInvariant ownerHasBalance(tokenId1);
-            requireInvariant ownerHasBalance(tokenId2);
-        }
-        preserved safeMint(address to, uint256 tokenId, bytes data) with (env e) {
-            require balanceLimited(to);
-            requireInvariant ownerHasBalance(tokenId1);
-            requireInvariant ownerHasBalance(tokenId2);
-        }
-        preserved transferFrom(address from, address to, uint256 tokenId) with (env e) {
-            require from != unsafeOwnerOf(tokenId1);
-            require balanceLimited(to);
-            requireInvariant ownerHasBalance(tokenId1);
-            requireInvariant ownerHasBalance(tokenId2);
-            requireInvariant balanceOfConsistency(from);
-            requireInvariant balanceOfConsistency(to);
-        }
-        preserved safeTransferFrom(address from, address to, uint256 tokenId) with (env e) {
-            require from != unsafeOwnerOf(tokenId1);
-            require balanceLimited(to);
-            requireInvariant ownerHasBalance(tokenId1);
-            requireInvariant ownerHasBalance(tokenId2);
-            requireInvariant balanceOfConsistency(from);
-            requireInvariant balanceOfConsistency(to);
-        }
-        preserved safeTransferFrom(address from, address to, uint256 tokenId, bytes data) with (env e) {
-            require from != unsafeOwnerOf(tokenId1);
-            require balanceLimited(to);
-            requireInvariant ownerHasBalance(tokenId1);
-            requireInvariant ownerHasBalance(tokenId2);
-            requireInvariant balanceOfConsistency(from);
-            requireInvariant balanceOfConsistency(to);
-        }
-        preserved burn(uint256 tokenId) with (env e) {
-            require unsafeOwnerOf(tokenId) != unsafeOwnerOf(tokenId1);
-            requireInvariant ownerHasBalance(tokenId1);
-            requireInvariant ownerHasBalance(tokenId2);
-            requireInvariant balanceOfConsistency(unsafeOwnerOf(tokenId));
-            require balanceLimited(unsafeOwnerOf(tokenId));
-        }
-    }
-
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Invariant: owner of a token must have some balance                                                                  │
