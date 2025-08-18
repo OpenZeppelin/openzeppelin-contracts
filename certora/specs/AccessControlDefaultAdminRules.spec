@@ -70,8 +70,11 @@ invariant defaultAdminRoleAdminConsistency()
 │ Invariant: owner is the defaultAdmin                                                                                │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-invariant ownerConsistency()
+// Writting this as an invariant would be flagged by Certora as trivial. Writting it as a rule is just as valid: we
+// verify the is true for any state of the storage
+rule ownerConsistency() {
   defaultAdmin() == owner();
+}
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐

@@ -30,7 +30,7 @@ methods {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 // Uniformly handle scheduling of batched and non-batched operations.
-function helperScheduleWithRevert(env e, method f, bytes32 id, uint256 delay) {
+function helperScheduleWithRevert(env e, method f, bytes32 id, uint256 delay) returns bool {
     if (f.selector == sig:schedule(address, uint256, bytes, bytes32, bytes32, uint256).selector) {
         address target; uint256 value; bytes data; bytes32 predecessor; bytes32 salt;
         require hashOperation(target, value, data, predecessor, salt) == id; // Correlation
@@ -43,10 +43,11 @@ function helperScheduleWithRevert(env e, method f, bytes32 id, uint256 delay) {
         calldataarg args;
         f@withrevert(e, args);
     }
+    return !lastReverted;
 }
 
 // Uniformly handle execution of batched and non-batched operations.
-function helperExecuteWithRevert(env e, method f, bytes32 id, bytes32 predecessor) {
+function helperExecuteWithRevert(env e, method f, bytes32 id, bytes32 predecessor) returns bool {
     if (f.selector == sig:execute(address, uint256, bytes, bytes32, bytes32).selector) {
         address target; uint256 value; bytes data; bytes32 salt;
         require hashOperation(target, value, data, predecessor, salt) == id; // Correlation
@@ -59,6 +60,7 @@ function helperExecuteWithRevert(env e, method f, bytes32 id, bytes32 predecesso
         calldataarg args;
         f@withrevert(e, args);
     }
+    return !lastReverted;
 }
 
 /*
@@ -187,8 +189,7 @@ rule schedule(env e, method f, bytes32 id, uint256 delay) filtered { f ->
     bool  isDelaySufficient = delay >= getMinDelay();
     bool  isProposerBefore  = hasRole(PROPOSER_ROLE(), e.msg.sender);
 
-    helperScheduleWithRevert(e, f, id, delay);
-    bool success = !lastReverted;
+    bool success = helperScheduleWithRevert(e, f, id, delay);
 
     // liveness
     assert success <=> (
@@ -221,8 +222,7 @@ rule execute(env e, method f, bytes32 id, bytes32 predecessor) filtered { f ->
     bool  isExecutorOrOpen       = hasRole(EXECUTOR_ROLE(), e.msg.sender) || hasRole(EXECUTOR_ROLE(), 0);
     bool  predecessorDependency  = predecessor == to_bytes32(0) || isDone(e, predecessor);
 
-    helperExecuteWithRevert(e, f, id, predecessor);
-    bool success = !lastReverted;
+    bool success = helperExecuteWithRevert(e, f, id, predecessor);
 
     // The underlying transaction can revert, and that would cause the execution to revert. We can check that all non
     // reverting calls meet the requirements in terms of proposal readiness, access control and predecessor dependency.

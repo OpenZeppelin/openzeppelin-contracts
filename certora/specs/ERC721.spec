@@ -24,7 +24,7 @@ definition authSanity(env e) returns bool = e.msg.sender != 0;
 // Could be broken in theory, but not in practice
 definition balanceLimited(address account) returns bool = balanceOf(account) < max_uint256;
 
-function helperTransferWithRevert(env e, method f, address from, address to, uint256 tokenId) {
+function helperTransferWithRevert(env e, method f, address from, address to, uint256 tokenId) returns bool {
     if (f.selector == sig:transferFrom(address,address,uint256).selector) {
         transferFrom@withrevert(e, from, to, tokenId);
     } else if (f.selector == sig:safeTransferFrom(address,address,uint256).selector) {
@@ -37,9 +37,10 @@ function helperTransferWithRevert(env e, method f, address from, address to, uin
         calldataarg args;
         f@withrevert(e, args);
     }
+    return !lastReverted;
 }
 
-function helperMintWithRevert(env e, method f, address to, uint256 tokenId) {
+function helperMintWithRevert(env e, method f, address to, uint256 tokenId) returns bool {
     if (f.selector == sig:mint(address,uint256).selector) {
         mint@withrevert(e, to, tokenId);
     } else if (f.selector == sig:safeMint(address,uint256).selector) {
@@ -51,6 +52,7 @@ function helperMintWithRevert(env e, method f, address to, uint256 tokenId) {
     } else {
         require false;
     }
+    return !lastReverted;
 }
 
 function helperSoundFnCall(env e, method f) {
@@ -466,8 +468,7 @@ rule safeTransferFrom(env e, method f, address from, address to, uint256 tokenId
     address approvalBefore       = unsafeGetApproved(tokenId);
     address otherApprovalBefore  = unsafeGetApproved(otherTokenId);
 
-    helperTransferWithRevert(e, f, from, to, tokenId);
-    bool success = !lastReverted;
+    bool success = helperTransferWithRevert(e, f, from, to, tokenId);
 
     assert success <=> (
         from == ownerBefore &&
@@ -554,8 +555,7 @@ rule safeMint(env e, method f, address to, uint256 tokenId) filtered { f ->
     address ownerBefore          = unsafeOwnerOf(tokenId);
     address otherOwnerBefore     = unsafeOwnerOf(otherTokenId);
 
-    helperMintWithRevert(e, f, to, tokenId);
-    bool success = !lastReverted;
+    bool success = helperMintWithRevert(e, f, to, tokenId);
 
     assert success <=> (
         ownerBefore == 0 &&
