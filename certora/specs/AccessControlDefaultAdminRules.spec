@@ -67,7 +67,7 @@ invariant defaultAdminRoleAdminConsistency()
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Invariant: owner is the defaultAdmin                                                                                │
+│ Rule: owner is the defaultAdmin                                                                                     │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 // Writing this as an invariant would be flagged by Certora as trivial. Writing it as a rule is just as valid: we

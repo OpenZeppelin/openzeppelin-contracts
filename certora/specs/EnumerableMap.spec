@@ -24,6 +24,9 @@ methods {
 definition lengthSanity() returns bool =
     length() < max_uint256;
 
+definition indexSanity(uint256 index) returns bool =
+    index < length();
+
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Invariant: the value mapping is empty for keys that are not in the EnumerableMap.                                   │
@@ -43,7 +46,7 @@ invariant noValueIfNotContained(bytes32 key)
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant indexedContained(uint256 index)
-    index < length() => contains(key_at(index))
+    indexSanity(index) => contains(key_at(index))
     {
         preserved {
             requireInvariant consistencyIndex(index);
@@ -57,8 +60,13 @@ invariant indexedContained(uint256 index)
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant atUniqueness(uint256 index1, uint256 index2)
-    index1 == index2 <=> key_at(index1) == key_at(index2)
+    (indexSanity(index1) && indexSanity(index2)) =>
+    (index1 == index2 <=> key_at(index1) == key_at(index2))
     {
+        preserved {
+            requireInvariant consistencyIndex(index1);
+            requireInvariant consistencyIndex(index2);
+        }
         preserved remove(bytes32 key) {
             requireInvariant atUniqueness(index1, require_uint256(length() - 1));
             requireInvariant atUniqueness(index2, require_uint256(length() - 1));
@@ -75,7 +83,7 @@ invariant atUniqueness(uint256 index1, uint256 index2)
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant consistencyIndex(uint256 index)
-    index < length() <=> to_mathint(_positionOf(key_at(index))) == index + 1
+    indexSanity(index) => to_mathint(_positionOf(key_at(index))) == index + 1
     {
         preserved remove(bytes32 key) {
             requireInvariant consistencyIndex(require_uint256(length() - 1));
@@ -83,8 +91,11 @@ invariant consistencyIndex(uint256 index)
     }
 
 invariant consistencyKey(bytes32 key)
-    (contains(key) <=> key_at(require_uint256(_positionOf(key) - 1)) == key) && _positionOf(key) <= length()
+    (contains(key) => key_at(require_uint256(_positionOf(key) - 1)) == key) && _positionOf(key) <= length()
     {
+        preserved {
+            require lengthSanity();
+        }
         preserved remove(bytes32 otherKey) {
             requireInvariant consistencyKey(otherKey);
             requireInvariant atUniqueness(
@@ -102,6 +113,13 @@ invariant consistencyKey(bytes32 key)
 rule stateChange(env e, bytes32 key) {
     require lengthSanity();
     requireInvariant consistencyKey(key);
+    requireInvariant noValueIfNotContained(key);
+
+    // Prevent inconsistent states where key appears at last position but isn't within the map's
+    // available keys. In EnumerableSet, when removing any element, the last element moves to fill
+    // the gap. If key is at last position with contains(key) == false, removing another key would
+    // move this key and make contains(key) == true, violating our state change assumptions.
+    require !contains(key) && length() > 0 => key != key_at(require_uint256(length() - 1));
 
     uint256 lengthBefore   = length();
     bool    containsBefore = contains(key);
@@ -138,6 +156,7 @@ rule stateChange(env e, bytes32 key) {
 */
 rule liveness_1(bytes32 key) {
     requireInvariant consistencyKey(key);
+    requireInvariant noValueIfNotContained(key);
 
     // contains never revert
     bool contains = contains@withrevert(key);
@@ -151,7 +170,7 @@ rule liveness_1(bytes32 key) {
     tryGet_value@withrevert(key);
     assert !lastReverted;
 
-    // get reverts iff  the key is not in the map
+    // get reverts iff the key is not in the map
     get@withrevert(key);
     assert !lastReverted <=> contains;
 }
@@ -233,6 +252,7 @@ rule set(bytes32 key, bytes32 value, bytes32 otherKey) {
 rule remove(bytes32 key, bytes32 otherKey) {
     requireInvariant consistencyKey(key);
     requireInvariant consistencyKey(otherKey);
+    requireInvariant indexedContained(require_uint256(length() - 1));
 
     uint256 lengthBefore        = length();
     bool    containsBefore      = contains(key);
@@ -295,6 +315,10 @@ rule removeEnumerability(bytes32 key, uint256 index) {
     requireInvariant consistencyKey(key);
     requireInvariant consistencyIndex(index);
     requireInvariant consistencyIndex(last);
+    requireInvariant indexedContained(index);
+    
+    // Ensure the key is actually in the map
+    require contains(key);
 
     bytes32 atKeyBefore     = key_at(index);
     bytes32 atValueBefore   = value_at(index);

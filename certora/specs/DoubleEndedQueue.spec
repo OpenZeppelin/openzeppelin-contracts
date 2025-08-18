@@ -23,7 +23,7 @@ definition full() returns bool = length() == max_uint128;
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Invariant: empty() is length 0 and no element exists                                                                │
+│ Rule: front points to the first index and back points to the last one                                               │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule emptiness() {

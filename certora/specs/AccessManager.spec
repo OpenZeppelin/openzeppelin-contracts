@@ -238,6 +238,7 @@ rule canCallExtended(env e) {
         // Can only execute without delay in the specific cases:
         // - caller is the AccessManager and the executionId is set
         // or
+        // - data matches an admin restricted function OR non-admin restricted function on open target
         // - caller has the necessary role
         // - operation delay is not set
         // - execution delay is not set
@@ -247,8 +248,8 @@ rule canCallExtended(env e) {
                 executionId()  == hashExecutionId(target, selector)
             ) || (
                 caller         != currentContract &&
-                inRole         == true            &&
-                (restricted || !closed)           &&
+                inRole                            &&
+                (restricted || !closed)           &&
                 operationDelay == 0               &&
                 executionDelay == 0
             )
@@ -260,11 +261,12 @@ rule canCallExtended(env e) {
 
         // Can only execute with delay in specific cases:
         // - caller is a third party
+        // - data matches an admin restricted function OR non-admin restricted function on open target
         // - caller has the necessary role
-        // -operation delay or execution delay is set
+        // - operation delay or execution delay is set
         assert delay > 0 <=> (
             caller != currentContract &&
-            inRole == true            &&
+            inRole                    &&
             (restricted || !closed)   &&
             (operationDelay > 0 || executionDelay > 0)
         );
