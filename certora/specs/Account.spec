@@ -16,6 +16,15 @@ methods {
     function _executorPositionOf(address)  external returns (uint256) envfree;
 }
 
+definition isEntryPoint(env e) returns bool =
+    e.msg.sender == entryPoint();
+
+definition isEntryPointOrSelf(env e) returns bool =
+    e.msg.sender == entryPoint() || e.msg.sender == currentContract;
+
+definition isExecutionModule(env e, bytes context) returns bool =
+    isModuleInstalled(2, e.msg.sender, context);
+
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │                                Storage consistency - Copied from EnumerableSet.specs                                │
@@ -106,9 +115,9 @@ rule moduleManagementRule(env e, method f, calldataarg args, uint256 moduleTypeI
     bytes context;
     require context.length == 0;
 
-    bool isEntryPoint = e.msg.sender == entryPoint();
-    bool isEntryPointOrSelf = e.msg.sender == entryPoint() || e.msg.sender == currentContract;
-    bool isExecutionModule = isModuleInstalled(2, e.msg.sender, context);
+    bool isEntryPoint = isEntryPoint(e);
+    bool isEntryPointOrSelf = isEntryPointOrSelf(e);
+    bool isExecutionModule = isExecutionModule(e, context);
 
     bool isModuleInstalledBefore = isModuleInstalled(moduleTypeId, module, additionalContext);
     f(e, args);
@@ -241,9 +250,9 @@ rule callOpcodeRule(env e, method f, calldataarg args)
     bytes context;
     require context.length == 0;
 
-    bool isEntryPoint = e.msg.sender == entryPoint();
-    bool isEntryPointOrSelf = e.msg.sender == entryPoint() || e.msg.sender == currentContract;
-    bool isExecutionModule = isModuleInstalled(2, e.msg.sender, context);
+    bool isEntryPoint = isEntryPoint(e);
+    bool isEntryPointOrSelf = isEntryPointOrSelf(e);
+    bool isExecutionModule = isExecutionModule(e, context);
 
     f(e, args);
 
@@ -347,9 +356,9 @@ rule delegatecallOpcodeRule(env e, method f, calldataarg args)
     bytes context;
     require context.length == 0;
 
-    bool isEntryPoint = e.msg.sender == entryPoint();
-    bool isEntryPointOrSelf = e.msg.sender == entryPoint() || e.msg.sender == currentContract;
-    bool isExecutionModule = isModuleInstalled(2, e.msg.sender, context);
+    bool isEntryPoint = isEntryPoint(e);
+    bool isEntryPointOrSelf = isEntryPointOrSelf(e);
+    bool isExecutionModule = isExecutionModule(e, context);
 
     f(e, args);
 
