@@ -23,9 +23,8 @@ abstract contract ReentrancyGuardTransient {
      * @dev Pre-computed BooleanSlot type wrapper for the reentrancy guard storage slot.
      * This optimization avoids the overhead of repeatedly calling asBoolean() which performs
      * a bytes32.wrap() operation on each invocation. By pre-computing the wrapped type at compile-time,
-     * this eliminates redundant type casting operations in _nonReentrantBefore(), _nonReentrantAfter(),
-     * and _reentrancyGuardEntered(), reducing gas consumption by 10 gas per call
-     * to asBoolean() (30 gas total per nonReentrant modifier execution).
+     * this eliminates 3 redundant type casting operations per nonReentrant modifier execution,
+     * reducing gas consumption by 19 gas.
      */
     TransientSlot.BooleanSlot private constant REENTRANCY_SLOT =
         TransientSlot.BooleanSlot.wrap(REENTRANCY_GUARD_STORAGE);
@@ -48,11 +47,28 @@ abstract contract ReentrancyGuardTransient {
         _nonReentrantAfter();
     }
 
-    function _nonReentrantBefore() private {
-        // On the first call to nonReentrant, REENTRANCY_SLOT.tload() will be false
+    /**
+     * @dev A `view` only version of {nonReentrant}. Use to block view functions
+     * from being called, preventing reading from inconsistent contract state.
+     *
+     * CAUTION: This is a "view" modifier and does not change the reentrancy
+     * status. Use it only on view functions. For payable or non-payable functions,
+     * use the standard {nonReentrant} modifier instead.
+     */
+    modifier nonReentrantView() {
+        _nonReentrantBeforeView();
+        _;
+    }
+
+    function _nonReentrantBeforeView() private view {
         if (_reentrancyGuardEntered()) {
             revert ReentrancyGuardReentrantCall();
         }
+    }
+
+    function _nonReentrantBefore() private {
+        // On the first call to nonReentrant, REENTRANCY_SLOT.tload() will be false
+        _nonReentrantBeforeView();
 
         // Any calls to nonReentrant after this point will fail
         REENTRANCY_SLOT.tstore(true);
