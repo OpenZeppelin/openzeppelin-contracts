@@ -83,7 +83,7 @@ invariant consistencyIndex(uint256 index)
     }
 
 invariant consistencyKey(bytes32 key)
-    (contains(key) <=> key_at(require_uint256(_positionOf(key) - 1)) == key) && _positionOf(key) <= length()
+    (contains(key) => key_at(require_uint256(_positionOf(key) - 1)) == key) && _positionOf(key) <= length()
     {
         preserved remove(bytes32 otherKey) {
             requireInvariant consistencyKey(otherKey);
