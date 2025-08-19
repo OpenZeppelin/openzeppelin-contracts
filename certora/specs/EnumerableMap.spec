@@ -88,7 +88,11 @@ invariant consistencyIndex(uint256 index)
     }
 
 invariant consistencyKey(bytes32 key)
-    contains(key) => (_positionOf(key) > 0 && _positionOf(key) <= length() && key_at(require_uint256(_positionOf(key) - 1)) == key)
+    contains(key) => (
+        _positionOf(key) > 0 &&
+        _positionOf(key) <= length()
+        && key_at(require_uint256(_positionOf(key) - 1)) == key
+    )
     {
         preserved {
             require lengthSanity();
@@ -319,37 +323,40 @@ rule removeEnumerability(bytes32 key, uint256 index) {
     requireInvariant consistencyIndex(last);
     requireInvariant indexedContained(index);
 
-    // Ensure the key is actually in the map
-    require contains(key);
-
     bytes32 atKeyBefore     = key_at(index);
     bytes32 atValueBefore   = value_at(index);
     bytes32 lastKeyBefore   = key_at(last);
     bytes32 lastValueBefore = value_at(last);
 
-    remove(key);
+    bool removed = remove(key);
 
     // can't read last value & keys (length decreased)
     bytes32 atKeyAfter = key_at@withrevert(index);
-    assert lastReverted <=> index == last;
+    assert lastReverted <=> (removed && index == last);
 
     bytes32 atValueAfter = value_at@withrevert(index);
-    assert lastReverted <=> index == last;
+    assert lastReverted <=> (removed && index == last);
 
     // One value that is allowed to change is if previous value was removed,
     // in that case the last value before took its place.
-    assert (
-        index != last &&
-        atKeyBefore != atKeyAfter
-    ) => (
-        atKeyBefore == key &&
-        atKeyAfter == lastKeyBefore
+    assert atKeyBefore != atKeyAfter => (
+        (
+            removed &&
+            index == last
+        ) || (
+            removed &&
+            atKeyBefore == key &&
+            atKeyAfter == lastKeyBefore
+        )
     );
 
-    assert (
-        index != last &&
-        atValueBefore != atValueAfter
-    ) => (
-        atValueAfter == lastValueBefore
+    assert atValueBefore != atValueAfter => (
+        (
+            removed &&
+            index == last
+        ) || (
+            removed &&
+            atValueAfter == lastValueBefore
+        )
     );
 }

@@ -71,7 +71,11 @@ invariant consistencyIndex(uint256 index)
     }
 
 invariant consistencyKey(bytes32 key)
-    contains(key) => (_positionOf(key) > 0 && _positionOf(key) <= length() && at_(require_uint256(_positionOf(key) - 1)) == key)
+    contains(key) => (
+        _positionOf(key) > 0 &&
+        _positionOf(key) <= length() &&
+        at_(require_uint256(_positionOf(key) - 1)) == key
+    )
     {
         preserved {
             require lengthSanity();
@@ -242,25 +246,27 @@ rule removeEnumerability(bytes32 key, uint256 index) {
     requireInvariant consistencyIndex(last);
     requireInvariant indexedContained(index);
 
-    // Ensure the key is actually in the set
-    require contains(key);
-
     bytes32 atBefore = at_(index);
     bytes32 lastBefore = at_(last);
 
-    remove(key);
+    bool removed = remove(key);
 
-    // can't read last value (length decreased)
+    // can't read last value (length decreased) if an item was removed
     bytes32 atAfter = at_@withrevert(index);
-    assert lastReverted <=> index == last;
+    assert lastReverted <=> (removed && index == last);
 
-    // One value that is allowed to change is if previous value was removed,
-    // in that case the last value before took its place.
-    assert (
-        index != last &&
-        atBefore != atAfter
-    ) => (
-        atBefore == key &&
-        atAfter == lastBefore
+    // Cases where a value can change are:
+    // 1. an item was removed and we are looking at the old last index. In that case the reading reverted.
+    // 2. an item was removed and we are looking at its old position. In that case the new value is the old lastValue.
+    // This rule implies that if no item was removed, then atBefore and atAfter must be equal
+    assert atBefore != atAfter => (
+        (
+            removed &&
+            index == last
+        ) || (
+            removed &&
+            atBefore == key &&
+            atAfter == lastBefore
+        )
     );
 }
