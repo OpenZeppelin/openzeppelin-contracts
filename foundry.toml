@@ -13,3 +13,6 @@ fs_permissions = [{ access = "read", path = "./node_modules/hardhat-predeploy/bi
 [fuzz]
 runs = 5000
 max_test_rejects = 150000
+
+[lint]
+lint_on_build = false
