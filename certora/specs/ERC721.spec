@@ -9,6 +9,7 @@ methods {
     function safeMint(address,uint256,bytes) external;
     function burn(uint256) external;
 
+    function unsafeBalanceOf(address) external returns (uint256) envfree;
     function unsafeOwnerOf(uint256) external returns (address) envfree;
     function unsafeGetApproved(uint256) external returns (address) envfree;
 }
@@ -20,7 +21,7 @@ methods {
 */
 
 // Could be broken in theory, but not in practice
-definition balanceLimited(address account) returns bool = balanceOf(account) < max_uint256;
+definition balanceLimited(address account) returns bool = unsafeBalanceOf(account) < max_uint256;
 
 function helperTransferWithRevert(env e, method f, address from, address to, uint256 tokenId) returns bool {
     if (f.selector == sig:transferFrom(address,address,uint256).selector) {
@@ -102,16 +103,31 @@ function helperSoundFnCall(env e, method f) {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Ghost & hooks: total owned tokens count                                                                             │
+│ Helper: check that unsafe getter match their unsafe counterpart                                                     │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule unsafeConsistency(address user, uint256 tokenId) {
+    assert user                   != 0 => unsafeBalanceOf(user)      == balanceOf(user);
+    assert unsafeOwnerOf(tokenId) != 0 => unsafeOwnerOf(tokenId)     == ownerOf(tokenId);
+    assert unsafeOwnerOf(tokenId) != 0 => unsafeGetApproved(tokenId) == getApproved(tokenId);
+}
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Ghost & hooks: ownership count                                                                                      │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 ghost mathint _ownedTotal {
     init_state axiom _ownedTotal == 0;
 }
 
-
+ghost mapping(address => mathint) _ownedByUser {
+    init_state axiom forall address a. _ownedByUser[a] == 0;
+}
 
 hook Sstore _owners[KEY uint256 tokenId] address newOwner (address oldOwner) {
+    _ownedByUser[newOwner] = _ownedByUser[newOwner] + to_mathint(newOwner != 0 ? 1 : 0);
+    _ownedByUser[oldOwner] = _ownedByUser[oldOwner] - to_mathint(oldOwner != 0 ? 1 : 0);
     _ownedTotal = _ownedTotal + to_mathint(newOwner != 0 ? 1 : 0) - to_mathint(oldOwner != 0 ? 1 : 0);
 }
 
@@ -130,7 +146,12 @@ ghost mapping(address => mathint) _balances {
 
 hook Sstore _balances[KEY address addr] uint256 newValue (uint256 oldValue) {
     _supply = _supply - oldValue + newValue;
-    _balances[addr] = to_mathint(newValue);
+}
+
+// TODO: This used to not be necessary. We should try to remove it. In order to do so, we will probably need to add
+// many "preserved" directive that require the "balanceOfConsistency" invariant on the accounts involved.
+hook Sload uint256 value _balances[KEY address user] {
+    require _balances[user] == to_mathint(value);
 }
 
 /*
@@ -176,21 +197,17 @@ invariant ownedTotalIsSumOfBalances()
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Invariant: balanceOf matches the ghost _balances mapping                                                            │
+│ Invariant: balanceOf is the number of tokens owned                                                                  │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant balanceOfConsistency(address user)
-    to_mathint(balanceOf(user)) == _balances[user]
+    to_mathint(unsafeBalanceOf(user)) == _ownedByUser[user] &&
+    to_mathint(unsafeBalanceOf(user)) == _balances[user]
     {
         preserved {
             require balanceLimited(user);
-            
-            // ERC721 specific constraints to prevent underflow
-            require to_mathint(balanceOf(user)) >= 0;
-            require _balances[user] >= 0;
         }
     }
-
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -198,51 +215,11 @@ invariant balanceOfConsistency(address user)
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant ownerHasBalance(uint256 tokenId)
-    unsafeOwnerOf(tokenId) != 0 => balanceOf(unsafeOwnerOf(tokenId)) > 0
+    unsafeOwnerOf(tokenId) == 0 || unsafeBalanceOf(unsafeOwnerOf(tokenId)) > 0
     {
-        preserved safeTransferFrom(address from, address to, uint256 id) with (env e) {
-            require nonzero(unsafeOwnerOf(tokenId));
-            requireInvariant balanceOfConsistency(unsafeOwnerOf(tokenId));
-            requireInvariant balanceOfConsistency(from);
-            requireInvariant balanceOfConsistency(to);
-            require balanceLimited(unsafeOwnerOf(tokenId));
-            require balanceLimited(from);
-            require balanceLimited(to);
-            requireInvariant ownersBalancesConsistency(tokenId, id);
-        }
-        preserved safeTransferFrom(address from, address to, uint256 id, bytes data) with (env e) {
-            require nonzero(unsafeOwnerOf(tokenId));
-            requireInvariant balanceOfConsistency(unsafeOwnerOf(tokenId));
-            requireInvariant balanceOfConsistency(from);
-            requireInvariant balanceOfConsistency(to);
-            require balanceLimited(unsafeOwnerOf(tokenId));
-            require balanceLimited(from);
-            require balanceLimited(to);
-            requireInvariant ownersBalancesConsistency(tokenId, id);
-        }
-        preserved transferFrom(address from, address to, uint256 id) with (env e) {
-            require nonzero(unsafeOwnerOf(tokenId));
-            requireInvariant balanceOfConsistency(unsafeOwnerOf(tokenId));
-            requireInvariant balanceOfConsistency(from);
-            requireInvariant balanceOfConsistency(to);
-            require balanceLimited(unsafeOwnerOf(tokenId));
-            require balanceLimited(from);
-            require balanceLimited(to);
-            requireInvariant ownersBalancesConsistency(tokenId, id);
-        }
-        preserved burn(uint256 id) with (env e) {
-            require nonzero(unsafeOwnerOf(tokenId));
-            requireInvariant balanceOfConsistency(unsafeOwnerOf(tokenId));
-            require balanceLimited(unsafeOwnerOf(tokenId));
-            require unsafeOwnerOf(id) != 0 => balanceOf(unsafeOwnerOf(id)) > 0;
-            requireInvariant balanceOfConsistency(unsafeOwnerOf(id));
-            require balanceLimited(unsafeOwnerOf(id));
-            requireInvariant ownersBalancesConsistency(tokenId, id);
-        }
         preserved {
-            require nonzero(unsafeOwnerOf(tokenId));
-            requireInvariant balanceOfConsistency(unsafeOwnerOf(tokenId));
-            require balanceLimited(unsafeOwnerOf(tokenId));
+            requireInvariant balanceOfConsistency(ownerOf(tokenId));
+            require balanceLimited(ownerOf(tokenId));
         }
     }
 
@@ -251,6 +228,9 @@ invariant ownerHasBalance(uint256 tokenId)
 │ Rule: balance of address(0) is 0                                                                                    │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
+invariant zeroAddressUnsafeBalanceIsZero()
+    unsafeBalanceOf(0) == 0;
+
 rule zeroAddressBalanceRevert() {
     balanceOf@withrevert(0);
     assert lastReverted;
@@ -336,9 +316,9 @@ rule balanceChange(env e, address account) {
     requireInvariant balanceOfConsistency(account);
     require balanceLimited(account);
 
-    mathint balanceBefore = balanceOf(account);
+    mathint balanceBefore = unsafeBalanceOf(account);
     method f; helperSoundFnCall(e, f);
-    mathint balanceAfter  = balanceOf(account);
+    mathint balanceAfter  = unsafeBalanceOf(account);
 
     // balance can change by at most 1
     assert balanceBefore != balanceAfter => (
@@ -438,12 +418,14 @@ rule transferFrom(env e, address from, address to, uint256 tokenId) {
     uint256 otherTokenId;
     address otherAccount;
 
+    requireInvariant zeroAddressHasNoApprovedOperator(operator);
+    requireInvariant notMintedUnset(tokenId);
     requireInvariant ownerHasBalance(tokenId);
     require balanceLimited(to);
 
-    uint256 balanceOfFromBefore  = balanceOf(from);
-    uint256 balanceOfToBefore    = balanceOf(to);
-    uint256 balanceOfOtherBefore = balanceOf(otherAccount);
+    uint256 balanceOfFromBefore  = unsafeBalanceOf(from);
+    uint256 balanceOfToBefore    = unsafeBalanceOf(to);
+    uint256 balanceOfOtherBefore = unsafeBalanceOf(otherAccount);
     address ownerBefore          = unsafeOwnerOf(tokenId);
     address otherOwnerBefore     = unsafeOwnerOf(otherTokenId);
     address approvalBefore       = unsafeGetApproved(tokenId);
@@ -462,14 +444,14 @@ rule transferFrom(env e, address from, address to, uint256 tokenId) {
 
     // effect
     assert success => (
-        to_mathint(balanceOf(from))            == balanceOfFromBefore - assert_uint256(from != to ? 1 : 0) &&
-        to_mathint(balanceOf(to))              == balanceOfToBefore   + assert_uint256(from != to ? 1 : 0) &&
-        unsafeOwnerOf(tokenId)                 == to &&
-        unsafeGetApproved(tokenId)             == 0
+        to_mathint(unsafeBalanceOf(from)) == balanceOfFromBefore - assert_uint256(from != to ? 1 : 0) &&
+        to_mathint(unsafeBalanceOf(to))   == balanceOfToBefore   + assert_uint256(from != to ? 1 : 0) &&
+        unsafeOwnerOf(tokenId)            == to &&
+        unsafeGetApproved(tokenId)        == 0
     );
 
     // no side effect
-    assert balanceOf(otherAccount)         != balanceOfOtherBefore => (otherAccount == from || otherAccount == to);
+    assert unsafeBalanceOf(otherAccount)   != balanceOfOtherBefore => (otherAccount == from || otherAccount == to);
     assert unsafeOwnerOf(otherTokenId)     != otherOwnerBefore     => otherTokenId == tokenId;
     assert unsafeGetApproved(otherTokenId) != otherApprovalBefore  => otherTokenId == tokenId;
 }
@@ -490,12 +472,14 @@ rule safeTransferFrom(env e, method f, address from, address to, uint256 tokenId
     uint256 otherTokenId;
     address otherAccount;
 
+    requireInvariant zeroAddressHasNoApprovedOperator(operator);
+    requireInvariant notMintedUnset(tokenId);
     requireInvariant ownerHasBalance(tokenId);
     require balanceLimited(to);
 
-    uint256 balanceOfFromBefore  = balanceOf(from);
-    uint256 balanceOfToBefore    = balanceOf(to);
-    uint256 balanceOfOtherBefore = balanceOf(otherAccount);
+    uint256 balanceOfFromBefore  = unsafeBalanceOf(from);
+    uint256 balanceOfToBefore    = unsafeBalanceOf(to);
+    uint256 balanceOfOtherBefore = unsafeBalanceOf(otherAccount);
     address ownerBefore          = unsafeOwnerOf(tokenId);
     address otherOwnerBefore     = unsafeOwnerOf(otherTokenId);
     address approvalBefore       = unsafeGetApproved(tokenId);
@@ -512,14 +496,14 @@ rule safeTransferFrom(env e, method f, address from, address to, uint256 tokenId
 
     // effect
     assert success => (
-        to_mathint(balanceOf(from)) == balanceOfFromBefore - assert_uint256(from != to ? 1: 0) &&
-        to_mathint(balanceOf(to))   == balanceOfToBefore   + assert_uint256(from != to ? 1: 0) &&
-        unsafeOwnerOf(tokenId)      == to &&
-        unsafeGetApproved(tokenId)  == 0
+        to_mathint(unsafeBalanceOf(from)) == balanceOfFromBefore - assert_uint256(from != to ? 1: 0) &&
+        to_mathint(unsafeBalanceOf(to))   == balanceOfToBefore   + assert_uint256(from != to ? 1: 0) &&
+        unsafeOwnerOf(tokenId)            == to &&
+        unsafeGetApproved(tokenId)        == 0
     );
 
     // no side effect
-    assert balanceOf(otherAccount)         != balanceOfOtherBefore => (otherAccount == from || otherAccount == to);
+    assert unsafeBalanceOf(otherAccount)   != balanceOfOtherBefore => (otherAccount == from || otherAccount == to);
     assert unsafeOwnerOf(otherTokenId)     != otherOwnerBefore     => otherTokenId == tokenId;
     assert unsafeGetApproved(otherTokenId) != otherApprovalBefore  => otherTokenId == tokenId;
 }
@@ -539,8 +523,8 @@ rule mint(env e, address to, uint256 tokenId) {
     require balanceLimited(to);
 
     mathint supplyBefore         = _supply;
-    uint256 balanceOfToBefore    = balanceOf(to);
-    uint256 balanceOfOtherBefore = balanceOf(otherAccount);
+    uint256 balanceOfToBefore    = unsafeBalanceOf(to);
+    uint256 balanceOfOtherBefore = unsafeBalanceOf(otherAccount);
     address ownerBefore          = unsafeOwnerOf(tokenId);
     address otherOwnerBefore     = unsafeOwnerOf(otherTokenId);
 
@@ -555,14 +539,14 @@ rule mint(env e, address to, uint256 tokenId) {
 
     // effect
     assert success => (
-        _supply                   == supplyBefore + 1 &&
-        to_mathint(balanceOf(to)) == balanceOfToBefore + 1 &&
-        unsafeOwnerOf(tokenId)    == to
+        _supply                         == supplyBefore + 1 &&
+        to_mathint(unsafeBalanceOf(to)) == balanceOfToBefore + 1 &&
+        unsafeOwnerOf(tokenId)          == to
     );
 
     // no side effect
-    assert balanceOf(otherAccount)     != balanceOfOtherBefore => otherAccount == to;
-    assert unsafeOwnerOf(otherTokenId) != otherOwnerBefore     => otherTokenId == tokenId;
+    assert unsafeBalanceOf(otherAccount) != balanceOfOtherBefore => otherAccount == to;
+    assert unsafeOwnerOf(otherTokenId)   != otherOwnerBefore     => otherTokenId == tokenId;
 }
 
 /*
@@ -583,8 +567,8 @@ rule safeMint(env e, method f, address to, uint256 tokenId) filtered { f ->
     require balanceLimited(to);
 
     mathint supplyBefore         = _supply;
-    uint256 balanceOfToBefore    = balanceOf(to);
-    uint256 balanceOfOtherBefore = balanceOf(otherAccount);
+    uint256 balanceOfToBefore    = unsafeBalanceOf(to);
+    uint256 balanceOfOtherBefore = unsafeBalanceOf(otherAccount);
     address ownerBefore          = unsafeOwnerOf(tokenId);
     address otherOwnerBefore     = unsafeOwnerOf(otherTokenId);
 
@@ -597,14 +581,14 @@ rule safeMint(env e, method f, address to, uint256 tokenId) filtered { f ->
 
     // effect
     assert success => (
-        _supply                   == supplyBefore + 1 &&
-        to_mathint(balanceOf(to)) == balanceOfToBefore + 1 &&
-        unsafeOwnerOf(tokenId)    == to
+        _supply                         == supplyBefore + 1 &&
+        to_mathint(unsafeBalanceOf(to)) == balanceOfToBefore + 1 &&
+        unsafeOwnerOf(tokenId)          == to
     );
 
     // no side effect
-    assert balanceOf(otherAccount)     != balanceOfOtherBefore => otherAccount == to;
-    assert unsafeOwnerOf(otherTokenId) != otherOwnerBefore     => otherTokenId == tokenId;
+    assert unsafeBalanceOf(otherAccount) != balanceOfOtherBefore => otherAccount == to;
+    assert unsafeOwnerOf(otherTokenId)   != otherOwnerBefore     => otherTokenId == tokenId;
 }
 
 /*
@@ -615,18 +599,16 @@ rule safeMint(env e, method f, address to, uint256 tokenId) filtered { f ->
 rule burn(env e, uint256 tokenId) {
     require nonpayable(e);
 
-    address from = unsafeOwnerOf(tokenId);
     uint256 otherTokenId;
     address otherAccount;
 
-    requireInvariant balanceOfConsistency(from);
     requireInvariant ownerHasBalance(tokenId);
 
     mathint supplyBefore         = _supply;
-    uint256 balanceOfFromBefore  = balanceOf(from);
-    uint256 balanceOfOtherBefore = balanceOf(otherAccount);
-    address ownerBefore          = unsafeOwnerOf(tokenId);
+    address ownerBefore          = unsafeOwnerOf(tokenId); // from
     address otherOwnerBefore     = unsafeOwnerOf(otherTokenId);
+    uint256 balanceOfOwnerBefore = unsafeBalanceOf(ownerBefore);
+    uint256 balanceOfOtherBefore = unsafeBalanceOf(otherAccount);
     address otherApprovalBefore  = unsafeGetApproved(otherTokenId);
 
     burn@withrevert(e, tokenId);
@@ -640,13 +622,13 @@ rule burn(env e, uint256 tokenId) {
     // effect
     assert success => (
         _supply                     == supplyBefore - 1 &&
-        to_mathint(balanceOf(from)) == balanceOfFromBefore - 1 &&
+        to_mathint(unsafeBalanceOf(ownerBefore)) == balanceOfOwnerBefore - 1 &&
         unsafeOwnerOf(tokenId)      == 0 &&
         unsafeGetApproved(tokenId)  == 0
     );
 
     // no side effect
-    assert balanceOf(otherAccount)         != balanceOfOtherBefore => otherAccount == from;
+    assert unsafeBalanceOf(otherAccount)   != balanceOfOtherBefore => otherAccount == ownerBefore;
     assert unsafeOwnerOf(otherTokenId)     != otherOwnerBefore     => otherTokenId == tokenId;
     assert unsafeGetApproved(otherTokenId) != otherApprovalBefore  => otherTokenId == tokenId;
 }
