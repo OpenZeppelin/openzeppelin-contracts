@@ -13,6 +13,7 @@ fs_permissions = [{ access = "read", path = "./node_modules/hardhat-predeploy/bi
 [lint]
 exclude_lints = ["mixed-case-function", "asm-keccak256", "screaming-snake-case-immutable", "incorrect-shift", "mixed-case-variable"]
 ignore = ["./contracts/interfaces/**/*.sol", "./contracts/mocks/Stateless.sol"]
+lint_on_build = false
 
 [fuzz]
 runs = 5000
