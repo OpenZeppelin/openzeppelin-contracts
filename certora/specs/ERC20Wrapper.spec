@@ -12,6 +12,11 @@ methods {
     function underlying.totalSupply()              external returns (uint256) envfree;
     function underlying.balanceOf(address)         external returns (uint256) envfree;
     function underlying.allowance(address,address) external returns (uint256) envfree;
+
+    unresolved external in _._ => DISPATCH(optimistic=true) [
+        underlying.transferFrom(address, address, uint256),
+        underlying.transfer(address, uint256)
+    ];
 }
 
 use invariant totalSupplyIsSumOfBalances;
