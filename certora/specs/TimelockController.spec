@@ -236,6 +236,8 @@ rule execute(env e, method f, bytes32 id, bytes32 predecessor) filtered { f ->
     // reverting calls meet the requirements in terms of proposal readiness, access control and predecessor dependency.
     // We can't however guarantee that these requirements being meet ensure liveness of the proposal, because the
     // proposal can revert for reasons beyond our control.
+
+    // liveness, should be `<=>` but can only check `=>` (see comment above)
     assert success => (
         stateBefore == PENDING() &&
         isOperationReadyBefore &&
