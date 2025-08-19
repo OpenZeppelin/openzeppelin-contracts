@@ -199,11 +199,8 @@ rule schedule(env e, method f, bytes32 id, uint256 delay) filtered { f ->
 
     bool success = helperScheduleWithRevert(e, f, id, delay);
 
-    // The underlying transaction can revert, and that would cause the execution to revert. We can check that all non
-    // reverting calls meet the requirements in terms of proposal readiness, access control and predecessor dependency.
-    // We can't however guarantee that these requirements being meet ensure liveness of the proposal, because the
-    // proposal can revert for reasons beyond our control.
-    assert success => (
+    // liveness
+    assert success <=> (
         stateBefore == UNSET() &&
         isDelaySufficient &&
         isProposerBefore
