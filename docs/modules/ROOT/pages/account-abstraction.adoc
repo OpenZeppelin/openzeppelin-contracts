@@ -28,7 +28,7 @@ struct PackedUserOperation {
 
 This process of bundling user operations involves several costs that the bundler must cover, including base transaction fees, calldata serialization, entrypoint execution, and paymaster context costs. To compensate for these expenses, bundlers use the `preVerificationGas` and `gasFees` fields to charge users appropriately.
 
-NOTE: Estimating `preVerificationGas` is not standardized as it varies based on network conditions such as gas prices and the size of the operation bundle.
+NOTE: Estimating `preVerificationGas` is not standardized as it varies based on factors like calldata size, signature complexity, and bundler-specific serialization costs.
 
 TIP: Use xref:api:account.adoc#ERC4337Utils[`ERC4337Utils`] to manipulate the `UserOperation` struct and other ERC-4337 related values.
 
@@ -95,6 +95,6 @@ To process a bundle of `UserOperations`, bundlers call xref:api:account.adoc#Acc
 
 These rules outline the requirements for operations to be processed by the canonical mempool.
 
-Accounts can access their own storage during the validation phase, they might easily violate ERC-7562 storage access rules in indirect ways. For example, most accounts access their public keys from storage when validating a signature, limiting the ability of having accounts that validate operations for other accounts (e.g. via ERC-1271)
+Accounts can access their own storage during the validation phase, they might easily violate ERC-7562 storage access rules in indirect ways. For example, most accounts access their public keys from storage when validating a signature, limiting the ability of having accounts that validate operations for other accounts (e.g. via https://eips.ethereum.org/EIPS/eip-1271[ERC-1271]))
 
 TIP: Although any Account that breaks such rules may still be processed by a private bundler, developers should keep in mind the centralization tradeoffs of relying on private infrastructure instead of _permissionless_ execution.
