@@ -24,7 +24,44 @@ methods {
     function updateDelay(uint256) external;
 }
 
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Helpers                                                                                                             │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+// Uniformly handle scheduling of batched and non-batched operations.
+function helperScheduleWithRevert(env e, method f, bytes32 id, uint256 delay) returns bool {
+    if (f.selector == sig:schedule(address, uint256, bytes, bytes32, bytes32, uint256).selector) {
+        address target; uint256 value; bytes data; bytes32 predecessor; bytes32 salt;
+        require hashOperation(target, value, data, predecessor, salt) == id; // Correlation
+        schedule@withrevert(e, target, value, data, predecessor, salt, delay);
+    } else if (f.selector == sig:scheduleBatch(address[], uint256[], bytes[], bytes32, bytes32, uint256).selector) {
+        address[] targets; uint256[] values; bytes[] payloads; bytes32 predecessor; bytes32 salt;
+        require hashOperationBatch(targets, values, payloads, predecessor, salt) == id; // Correlation
+        scheduleBatch@withrevert(e, targets, values, payloads, predecessor, salt, delay);
+    } else {
+        calldataarg args;
+        f@withrevert(e, args);
+    }
+    return !lastReverted;
+}
 
+// Uniformly handle execution of batched and non-batched operations.
+function helperExecuteWithRevert(env e, method f, bytes32 id, bytes32 predecessor) returns bool {
+    if (f.selector == sig:execute(address, uint256, bytes, bytes32, bytes32).selector) {
+        address target; uint256 value; bytes data; bytes32 salt;
+        require hashOperation(target, value, data, predecessor, salt) == id; // Correlation
+        execute@withrevert(e, target, value, data, predecessor, salt);
+    } else if (f.selector == sig:executeBatch(address[], uint256[], bytes[], bytes32, bytes32).selector) {
+        address[] targets; uint256[] values; bytes[] payloads; bytes32 salt;
+        require hashOperationBatch(targets, values, payloads, predecessor, salt) == id; // Correlation
+        executeBatch@withrevert(e, targets, values, payloads, predecessor, salt);
+    } else {
+        calldataarg args;
+        f@withrevert(e, args);
+    }
+    return !lastReverted;
+}
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -69,15 +106,17 @@ rule isOperationReadyCheck(env e, bytes32 id) {
 */
 rule stateConsistency(env e, bytes32 id) {
     // Check states are mutually exclusive
-    assert (isUnset(e, id)   <=> (!isPending(e, id) && !isDone(e, id)   )) &&
-    (isPending(e, id) <=> (!isUnset(e, id)   && !isDone(e, id)   )) &&
-    (isDone(e, id)    <=> (!isUnset(e, id)   && !isPending(e, id))) &&
+    assert isUnset(e, id)   <=> (!isPending(e, id) && !isDone(e, id)   );
+    assert isPending(e, id) <=> (!isUnset(e, id)   && !isDone(e, id)   );
+    assert isDone(e, id)    <=> (!isUnset(e, id)   && !isPending(e, id));
+
     // Check that the state helper behaves as expected:
-    (isUnset(e, id)   <=> state(e, id) == UNSET()              ) &&
-    (isPending(e, id) <=> state(e, id) == PENDING()            ) &&
-    (isDone(e, id)    <=> state(e, id) == DONE()               ) &&
+    assert isUnset(e, id)   <=> state(e, id) == UNSET();
+    assert isPending(e, id) <=> state(e, id) == PENDING();
+    assert isDone(e, id)    <=> state(e, id) == DONE();
+
     // Check substate
-    isOperationReady(e, id) => isPending(e, id);
+    assert isOperationReady(e, id) => isPending(e, id);
 }
 
 /*
@@ -158,17 +197,12 @@ rule schedule(env e, method f, bytes32 id, uint256 delay) filtered { f ->
     bool  isDelaySufficient = delay >= getMinDelay();
     bool  isProposerBefore  = hasRole(PROPOSER_ROLE(), e.msg.sender);
 
-    if (f.selector == sig:schedule(address, uint256, bytes, bytes32, bytes32, uint256).selector) {
-        address target; uint256 value; bytes data; bytes32 predecessor; bytes32 salt;
-        require hashOperation(target, value, data, predecessor, salt) == id; // Correlation
-        schedule@withrevert(e, target, value, data, predecessor, salt, delay);
-    } else if (f.selector == sig:scheduleBatch(address[], uint256[], bytes[], bytes32, bytes32, uint256).selector) {
-        address[] targets; uint256[] values; bytes[] payloads; bytes32 predecessor; bytes32 salt;
-        scheduleBatch@withrevert(e, targets, values, payloads, predecessor, salt, delay);
-    }
-    bool success = !lastReverted;
+    bool success = helperScheduleWithRevert(e, f, id, delay);
 
-    // liveness, should be `<=>` but can only check `=>` (see comment below in execute rule)
+    // The underlying transaction can revert, and that would cause the execution to revert. We can check that all non
+    // reverting calls meet the requirements in terms of proposal readiness, access control and predecessor dependency.
+    // We can't however guarantee that these requirements being meet ensure liveness of the proposal, because the
+    // proposal can revert for reasons beyond our control.
     assert success => (
         stateBefore == UNSET() &&
         isDelaySufficient &&
@@ -199,22 +233,12 @@ rule execute(env e, method f, bytes32 id, bytes32 predecessor) filtered { f ->
     bool  isExecutorOrOpen       = hasRole(EXECUTOR_ROLE(), e.msg.sender) || hasRole(EXECUTOR_ROLE(), 0);
     bool  predecessorDependency  = predecessor == to_bytes32(0) || isDone(e, predecessor);
 
-    if (f.selector == sig:execute(address, uint256, bytes, bytes32, bytes32).selector) {
-        address target; uint256 value; bytes data; bytes32 salt;
-        require hashOperation(target, value, data, predecessor, salt) == id; // Correlation
-        execute@withrevert(e, target, value, data, predecessor, salt);
-    } else if (f.selector == sig:executeBatch(address[], uint256[], bytes[], bytes32, bytes32).selector) {
-        address[] targets; uint256[] values; bytes[] payloads; bytes32 salt;
-        executeBatch@withrevert(e, targets, values, payloads, predecessor, salt);
-    }
-    bool success = !lastReverted;
+    bool success = helperExecuteWithRevert(e, f, id, predecessor);
 
     // The underlying transaction can revert, and that would cause the execution to revert. We can check that all non
     // reverting calls meet the requirements in terms of proposal readiness, access control and predecessor dependency.
     // We can't however guarantee that these requirements being meet ensure liveness of the proposal, because the
     // proposal can revert for reasons beyond our control.
-
-    // liveness, should be `<=>` but can only check `=>` (see comment above)
     assert success => (
         stateBefore == PENDING() &&
         isOperationReadyBefore &&
