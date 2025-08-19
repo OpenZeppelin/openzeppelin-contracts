@@ -24,9 +24,6 @@ methods {
 definition lengthSanity() returns bool =
     length() < max_uint256;
 
-definition indexSanity(uint256 index) returns bool =
-    index < length();
-
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Invariant: the value mapping is empty for keys that are not in the EnumerableMap.                                   │
@@ -46,7 +43,7 @@ invariant noValueIfNotContained(bytes32 key)
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant indexedContained(uint256 index)
-    indexSanity(index) => contains(key_at(index))
+    index < length() => contains(key_at(index))
     {
         preserved {
             requireInvariant consistencyIndex(index);
@@ -60,7 +57,7 @@ invariant indexedContained(uint256 index)
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant atUniqueness(uint256 index1, uint256 index2)
-    (indexSanity(index1) && indexSanity(index2)) =>
+    (index1 < length() && index2 < length()) =>
     (index1 == index2 <=> key_at(index1) == key_at(index2))
     {
         preserved {
@@ -83,7 +80,7 @@ invariant atUniqueness(uint256 index1, uint256 index2)
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant consistencyIndex(uint256 index)
-    indexSanity(index) => to_mathint(_positionOf(key_at(index))) == index + 1
+    index < length() => to_mathint(_positionOf(key_at(index))) == index + 1
     {
         preserved remove(bytes32 key) {
             requireInvariant consistencyIndex(require_uint256(length() - 1));
@@ -91,7 +88,7 @@ invariant consistencyIndex(uint256 index)
     }
 
 invariant consistencyKey(bytes32 key)
-    (contains(key) => key_at(require_uint256(_positionOf(key) - 1)) == key) && _positionOf(key) <= length()
+    contains(key) => (_positionOf(key) > 0 && _positionOf(key) <= length() && key_at(require_uint256(_positionOf(key) - 1)) == key)
     {
         preserved {
             require lengthSanity();
@@ -105,6 +102,16 @@ invariant consistencyKey(bytes32 key)
         }
     }
 
+invariant absentKeyIsNotStored(bytes32 key, uint256 index)
+    index < length() => (!contains(key) => key_at(index) != key)
+    {
+        preserved remove(bytes32 otherKey) {
+            requireInvariant consistencyIndex(index);
+            requireInvariant consistencyKey(key);
+            requireInvariant atUniqueness(index, require_uint256(length() - 1));
+        }
+    }
+
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Rule: state only changes by setting or removing elements                                                            │
@@ -113,13 +120,8 @@ invariant consistencyKey(bytes32 key)
 rule stateChange(env e, bytes32 key) {
     require lengthSanity();
     requireInvariant consistencyKey(key);
+    requireInvariant absentKeyIsNotStored(key, require_uint256(length() - 1));
     requireInvariant noValueIfNotContained(key);
-
-    // Prevent inconsistent states where key appears at last position but isn't within the map's
-    // available keys. In EnumerableSet, when removing any element, the last element moves to fill
-    // the gap. If key is at last position with contains(key) == false, removing another key would
-    // move this key and make contains(key) == true, violating our state change assumptions.
-    require !contains(key) && length() > 0 => key != key_at(require_uint256(length() - 1));
 
     uint256 lengthBefore   = length();
     bool    containsBefore = contains(key);
@@ -316,7 +318,7 @@ rule removeEnumerability(bytes32 key, uint256 index) {
     requireInvariant consistencyIndex(index);
     requireInvariant consistencyIndex(last);
     requireInvariant indexedContained(index);
-    
+
     // Ensure the key is actually in the map
     require contains(key);
 

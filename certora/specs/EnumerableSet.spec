@@ -85,6 +85,16 @@ invariant consistencyKey(bytes32 key)
         }
     }
 
+invariant absentKeyIsNotStored(bytes32 key, uint256 index)
+    index < length() => (!contains(key) => at_(index) != key)
+    {
+        preserved remove(bytes32 otherKey) {
+            requireInvariant consistencyIndex(index);
+            requireInvariant consistencyKey(key);
+            requireInvariant atUniqueness(index, require_uint256(length() - 1));
+        }
+    }
+
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Rule: state only changes by adding or removing elements                                                             │
@@ -93,12 +103,7 @@ invariant consistencyKey(bytes32 key)
 rule stateChange(env e, bytes32 key) {
     require lengthSanity();
     requireInvariant consistencyKey(key);
-    
-    // Prevent inconsistent states where key appears at last position but isn't within the set's
-    // available keys. In EnumerableSet, when removing any element, the last element moves to fill
-    // the gap. If key is at last position with contains(key) == false, removing another key would
-    // move this key and make contains(key) == true, violating our state change assumptions.
-    require !contains(key) && length() > 0 => key != at_(require_uint256(length() - 1));
+    requireInvariant absentKeyIsNotStored(key, require_uint256(length() - 1));
 
     uint256 lengthBefore   = length();
     bool    containsBefore = contains(key);
@@ -236,7 +241,7 @@ rule removeEnumerability(bytes32 key, uint256 index) {
     requireInvariant consistencyIndex(index);
     requireInvariant consistencyIndex(last);
     requireInvariant indexedContained(index);
-    
+
     // Ensure the key is actually in the set
     require contains(key);
 
