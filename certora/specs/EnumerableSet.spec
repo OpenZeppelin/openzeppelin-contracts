@@ -58,7 +58,7 @@ invariant atUniqueness(uint256 index1, uint256 index2)
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant consistencyIndex(uint256 index)
-    index < length() <=> _positionOf(at_(index)) == require_uint256(index + 1)
+    index < length() => _positionOf(at_(index)) == require_uint256(index + 1)
     {
         preserved remove(bytes32 key) {
             requireInvariant consistencyIndex(require_uint256(length() - 1));
@@ -66,7 +66,7 @@ invariant consistencyIndex(uint256 index)
     }
 
 invariant consistencyKey(bytes32 key)
-    (contains(key) <=> at_(require_uint256(_positionOf(key) - 1)) == key) && _positionOf(key) <= length()
+    (contains(key) => at_(require_uint256(_positionOf(key) - 1)) == key) && _positionOf(key) <= length()
     {
         preserved remove(bytes32 otherKey) {
             requireInvariant consistencyKey(otherKey);
