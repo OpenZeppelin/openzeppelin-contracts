@@ -24,6 +24,9 @@ methods {
 definition lengthSanity() returns bool =
     length() < max_uint256;
 
+definition indexSanity(uint256 index) returns bool =
+    index < length();
+
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Invariant: the value mapping is empty for keys that are not in the EnumerableMap.                                   │
@@ -43,7 +46,7 @@ invariant noValueIfNotContained(bytes32 key)
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant indexedContained(uint256 index)
-    index < length() => contains(key_at(index))
+    indexSanity(index) => contains(key_at(index))
     {
         preserved {
             requireInvariant consistencyIndex(index);
@@ -57,7 +60,7 @@ invariant indexedContained(uint256 index)
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant atUniqueness(uint256 index1, uint256 index2)
-    (index1 < length() && index2 < length()) =>
+    (indexSanity(index1) && indexSanity(index2)) =>
     (index1 == index2 <=> key_at(index1) == key_at(index2))
     {
         preserved {
@@ -80,7 +83,7 @@ invariant atUniqueness(uint256 index1, uint256 index2)
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant consistencyIndex(uint256 index)
-    index < length() => to_mathint(_positionOf(key_at(index))) == index + 1
+    indexSanity(index) => to_mathint(_positionOf(key_at(index))) == index + 1
     {
         preserved remove(bytes32 key) {
             requireInvariant consistencyIndex(require_uint256(length() - 1));
@@ -88,11 +91,7 @@ invariant consistencyIndex(uint256 index)
     }
 
 invariant consistencyKey(bytes32 key)
-    contains(key) => (
-        _positionOf(key) > 0 &&
-        _positionOf(key) <= length() &&
-        key_at(require_uint256(_positionOf(key) - 1)) == key
-    )
+    (contains(key) => key_at(require_uint256(_positionOf(key) - 1)) == key) && _positionOf(key) <= length()
     {
         preserved {
             require lengthSanity();

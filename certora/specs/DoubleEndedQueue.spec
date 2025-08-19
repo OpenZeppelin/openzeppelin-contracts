@@ -23,16 +23,23 @@ definition full() returns bool = length() == max_uint128;
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: front points to the first index and back points to the last one                                          │
+│ Rule: front points to the first index and back points to the last one                                               │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule queueFrontDefinition() {
-    require length() > 0;
+rule emptiness() {
+    assert empty() <=> length() == 0;
+}
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Invariant: front points to the first index and back points to the last one                                          │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule queueFront() {
     assert at_(0) == front();
 }
 
-rule queueBackDefinition() {
-    require length() > 0;
+rule queueBack() {
     assert at_(require_uint256(length() - 1)) == back();
 }
 

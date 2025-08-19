@@ -19,8 +19,8 @@ ghost mathint sumOfBalances {
 
 // Because `balance` has a uint256 type, any balance addition in CVL1 behaved as a `require_uint256()` casting,
 // leaving out the possibility of overflow. This is not the case in CVL2 where casting became more explicit.
-// A counterexample in CVL2 is having an initial state where Alice initial balance is larger than totalSupply, which 
-// overflows Alice's balance when receiving a transfer. This is not possible unless the contract is deployed into an 
+// A counterexample in CVL2 is having an initial state where Alice initial balance is larger than totalSupply, which
+// overflows Alice's balance when receiving a transfer. This is not possible unless the contract is deployed into an
 // already used address (or upgraded from corrupted state).
 // We restrict such behavior by making sure no balance is greater than the sum of balances.
 hook Sload uint256 balance _balances[KEY address addr] {

@@ -130,24 +130,35 @@ rule getAdminRestrictions(env e, bytes data) {
         assert restricted == false;
         assert roleId     == 0;
         assert delay      == 0;
+    } else if (
+        selector == to_bytes4(sig:labelRole(uint64,string).selector) ||
+        selector == to_bytes4(sig:setRoleAdmin(uint64,uint64).selector) ||
+        selector == to_bytes4(sig:setRoleGuardian(uint64,uint64).selector) ||
+        selector == to_bytes4(sig:setGrantDelay(uint64,uint32).selector) ||
+        selector == to_bytes4(sig:setTargetAdminDelay(address,uint32).selector)
+    ) {
+        assert restricted == true;
+        assert roleId     == ADMIN_ROLE();
+        assert delay      == 0;
+    } else if (
+        selector == to_bytes4(sig:updateAuthority(address,address).selector) ||
+        selector == to_bytes4(sig:setTargetClosed(address,bool).selector) ||
+        selector == to_bytes4(sig:setTargetFunctionRole(address,bytes4[],uint64).selector)
+    ) {
+        assert restricted == true;
+        assert roleId     == ADMIN_ROLE();
+        assert delay      == getTargetAdminDelay(e, getFirstArgumentAsAddress(data));
+    } else if (
+        selector == to_bytes4(sig:grantRole(uint64,address,uint32).selector) ||
+        selector == to_bytes4(sig:revokeRole(uint64,address).selector)
+    ) {
+        assert restricted == true;
+        assert roleId     == getRoleAdmin(getFirstArgumentAsUint64(data));
+        assert delay      == 0;
     } else {
-        assert restricted ==
-            isOnlyAuthorized(selector);
-
-        assert roleId == (
-            (restricted && selector == to_bytes4(sig:grantRole(uint64,address,uint32).selector)) ||
-            (restricted && selector == to_bytes4(sig:revokeRole(uint64,address).selector      ))
-            ? getRoleAdmin(getFirstArgumentAsUint64(data))
-            : (restricted ? ADMIN_ROLE() : getTargetFunctionRole(currentContract, selector))
-        );
-
-        assert delay == (
-            (restricted && selector == to_bytes4(sig:updateAuthority(address,address).selector              )) ||
-            (restricted && selector == to_bytes4(sig:setTargetClosed(address,bool).selector                 )) ||
-            (restricted && selector == to_bytes4(sig:setTargetFunctionRole(address,bytes4[],uint64).selector))
-            ? getTargetAdminDelay(e, getFirstArgumentAsAddress(data))
-            : 0
-        );
+        assert restricted == false;
+        assert roleId     == getTargetFunctionRole(currentContract, selector);
+        assert delay      == 0;
     }
 }
 
@@ -213,7 +224,8 @@ rule canCallExtended(env e) {
 
     bool   immediate      = canCallExtended_immediate(e, caller, target, data);
     uint32 delay          = canCallExtended_delay(e, caller, target, data);
-    bool   enabled        = getAdminRestrictions_restricted(e, data);
+    bool   restricted     = getAdminRestrictions_restricted(e, data);
+    bool   closed         = isTargetClosed(target);
     uint64 roleId         = getAdminRestrictions_roleAdminId(e, data);
     uint32 operationDelay = getAdminRestrictions_executionDelay(e, data);
     bool   inRole         = hasRole_isMember(e, roleId, caller);
@@ -233,12 +245,11 @@ rule canCallExtended(env e) {
         assert immediate <=> (
             (
                 caller         == currentContract &&
-                data.length    >= 4               &&
                 executionId()  == hashExecutionId(target, selector)
             ) || (
                 caller         != currentContract &&
-                (enabled || !isTargetClosed(currentContract)) &&
                 inRole                            &&
+                (restricted || !closed)           &&
                 operationDelay == 0               &&
                 executionDelay == 0
             )
@@ -255,8 +266,8 @@ rule canCallExtended(env e) {
         // - operation delay or execution delay is set
         assert delay > 0 <=> (
             caller != currentContract &&
-            (enabled || !isTargetClosed(currentContract)) &&
             inRole                    &&
+            (restricted || !closed)   &&
             (operationDelay > 0 || executionDelay > 0)
         );
 

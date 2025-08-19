@@ -22,6 +22,37 @@ methods {
 // Could be broken in theory, but not in practice
 definition balanceLimited(address account) returns bool = balanceOf(account) < max_uint256;
 
+function helperTransferWithRevert(env e, method f, address from, address to, uint256 tokenId) returns bool {
+    if (f.selector == sig:transferFrom(address,address,uint256).selector) {
+        transferFrom@withrevert(e, from, to, tokenId);
+    } else if (f.selector == sig:safeTransferFrom(address,address,uint256).selector) {
+        safeTransferFrom@withrevert(e, from, to, tokenId);
+    } else if (f.selector == sig:safeTransferFrom(address,address,uint256,bytes).selector) {
+        bytes params;
+        require params.length < 0xffff;
+        safeTransferFrom@withrevert(e, from, to, tokenId, params);
+    } else {
+        calldataarg args;
+        f@withrevert(e, args);
+    }
+    return !lastReverted;
+}
+
+function helperMintWithRevert(env e, method f, address to, uint256 tokenId) returns bool {
+    if (f.selector == sig:mint(address,uint256).selector) {
+        mint@withrevert(e, to, tokenId);
+    } else if (f.selector == sig:safeMint(address,uint256).selector) {
+        safeMint@withrevert(e, to, tokenId);
+    } else if (f.selector == sig:safeMint(address,uint256,bytes).selector) {
+        bytes params;
+        require params.length < 0xffff;
+        safeMint@withrevert(e, to, tokenId, params);
+    } else {
+        require false;
+    }
+    return !lastReverted;
+}
+
 function helperSoundFnCall(env e, method f) {
     if (f.selector == sig:mint(address,uint256).selector) {
         address to; uint256 tokenId;
@@ -67,37 +98,6 @@ function helperSoundFnCall(env e, method f) {
         calldataarg args;
         f(e, args);
     }
-}
-
-function helperTransferWithRevert(env e, method f, address from, address to, uint256 tokenId) returns bool {
-    if (f.selector == sig:transferFrom(address,address,uint256).selector) {
-        transferFrom@withrevert(e, from, to, tokenId);
-    } else if (f.selector == sig:safeTransferFrom(address,address,uint256).selector) {
-        safeTransferFrom@withrevert(e, from, to, tokenId);
-    } else if (f.selector == sig:safeTransferFrom(address,address,uint256,bytes).selector) {
-        bytes params;
-        require params.length < 0xffff;
-        safeTransferFrom@withrevert(e, from, to, tokenId, params);
-    } else {
-        calldataarg args;
-        f@withrevert(e, args);
-    }
-    return !lastReverted;
-}
-
-function helperMintWithRevert(env e, method f, address to, uint256 tokenId) returns bool {
-    if (f.selector == sig:mint(address,uint256).selector) {
-        mint@withrevert(e, to, tokenId);
-    } else if (f.selector == sig:safeMint(address,uint256).selector) {
-        safeMint@withrevert(e, to, tokenId);
-    } else if (f.selector == sig:safeMint(address,uint256,bytes).selector) {
-        bytes params;
-        require params.length < 0xffff;
-        safeMint@withrevert(e, to, tokenId, params);
-    } else {
-        require false;
-    }
-    return !lastReverted;
 }
 
 /*
@@ -190,6 +190,7 @@ invariant balanceOfConsistency(address user)
             require _balances[user] >= 0;
         }
     }
+
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐

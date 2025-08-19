@@ -71,11 +71,7 @@ invariant consistencyIndex(uint256 index)
     }
 
 invariant consistencyKey(bytes32 key)
-    contains(key) => (
-        _positionOf(key) > 0 &&
-        _positionOf(key) <= length() &&
-        at_(require_uint256(_positionOf(key) - 1)) == key
-    )
+    contains(key) => (_positionOf(key) > 0 && _positionOf(key) <= length() && at_(require_uint256(_positionOf(key) - 1)) == key)
     {
         preserved {
             require lengthSanity();
