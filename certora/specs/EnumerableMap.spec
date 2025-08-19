@@ -337,8 +337,10 @@ rule removeEnumerability(bytes32 key, uint256 index) {
     bytes32 atValueAfter = value_at@withrevert(index);
     assert lastReverted <=> (removed && index == last);
 
-    // One value that is allowed to change is if previous value was removed,
-    // in that case the last value before took its place.
+    // Cases where a key or value can change are:
+    // 1. an item was removed and we are looking at the old last index. In that case the reading reverted.
+    // 2. an item was removed and we are looking at its old position. In that case the new value is the old lastValue.
+    // This rule implies that if no item was removed, then keys and values cannot change.
     assert atKeyBefore != atKeyAfter => (
         (
             removed &&
