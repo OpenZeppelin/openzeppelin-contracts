@@ -71,8 +71,9 @@ invariant totalSupplyIsSmallerThanUnderlyingBalance()
         }
     }
 
-invariant noSelfWrap()
-    currentContract != underlying();
+rule noSelfWrap() {
+    assert currentContract != underlying();
+}
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -88,7 +89,7 @@ rule depositFor(env e) {
     uint256 amount;
 
     // sanity
-    requireInvariant noSelfWrap;
+    require currentContract != underlying();
     requireInvariant totalSupplyIsSumOfBalances;
     requireInvariant totalSupplyIsSmallerThanUnderlyingBalance;
     require sumOfUnderlyingBalancesLowerThanUnderlyingSupply(currentContract, sender);
@@ -144,7 +145,7 @@ rule withdrawTo(env e) {
     uint256 amount;
 
     // sanity
-    requireInvariant noSelfWrap;
+    require currentContract != underlying();
     requireInvariant totalSupplyIsSumOfBalances;
     requireInvariant totalSupplyIsSmallerThanUnderlyingBalance;
     require sumOfUnderlyingBalancesLowerThanUnderlyingSupply(currentContract, receiver);
@@ -195,7 +196,7 @@ rule recover(env e) {
     address other;
 
     // sanity
-    requireInvariant noSelfWrap;
+    require currentContract != underlying();
     requireInvariant totalSupplyIsSumOfBalances;
     requireInvariant totalSupplyIsSmallerThanUnderlyingBalance;
 
