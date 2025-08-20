@@ -58,9 +58,7 @@ abstract contract ReentrancyGuardTransient {
 
     function _nonReentrantBefore() private {
         // On the first call to nonReentrant, REENTRANCY_GUARD_STORAGE.asBoolean().tload() will be false
-        if (_reentrancyGuardEntered()) {
-            revert ReentrancyGuardReentrantCall();
-        }
+        _nonReentrantBeforeView();
 
         // Any calls to nonReentrant after this point will fail
         REENTRANCY_GUARD_STORAGE.asBoolean().tstore(true);
