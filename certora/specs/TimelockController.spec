@@ -36,6 +36,14 @@ function helperScheduleWithRevert(env e, method f, bytes32 id, uint256 delay) re
         require hashOperation(target, value, data, predecessor, salt) == id; // Correlation
         schedule@withrevert(e, target, value, data, predecessor, salt, delay);
     } else if (f.selector == sig:scheduleBatch(address[], uint256[], bytes[], bytes32, bytes32, uint256).selector) {
+
+        // NOTE: while the "single" correlation requirement works, the prover is not able to deal with the the "batch"
+        // correlation requirement. This requirement is necessary to ensure that the call arguments correspond to the
+        // operation ID that we are observing. This failure, from the prover, to "identify" a set of arguments that
+        // correspond to the operation ID causes vacuity.
+        //
+        // Therefore, this path should not be used for now. Using it will cause the sanity check to fail.
+
         address[] targets; uint256[] values; bytes[] payloads; bytes32 predecessor; bytes32 salt;
         require hashOperationBatch(targets, values, payloads, predecessor, salt) == id; // Correlation
         scheduleBatch@withrevert(e, targets, values, payloads, predecessor, salt, delay);
@@ -53,6 +61,14 @@ function helperExecuteWithRevert(env e, method f, bytes32 id, bytes32 predecesso
         require hashOperation(target, value, data, predecessor, salt) == id; // Correlation
         execute@withrevert(e, target, value, data, predecessor, salt);
     } else if (f.selector == sig:executeBatch(address[], uint256[], bytes[], bytes32, bytes32).selector) {
+
+        // NOTE: while the "single" correlation requirement works, the prover is not able to deal with the the "batch"
+        // correlation requirement. This requirement is necessary to ensure that the call arguments correspond to the
+        // operation ID that we are observing. This failure, from the prover, to "identify" a set of arguments that
+        // correspond to the operation ID causes vacuity.
+        //
+        // Therefore, this path should not be used for now. Using it will cause the sanity check to fail.
+
         address[] targets; uint256[] values; bytes[] payloads; bytes32 salt;
         require hashOperationBatch(targets, values, payloads, predecessor, salt) == id; // Correlation
         executeBatch@withrevert(e, targets, values, payloads, predecessor, salt);
@@ -125,7 +141,9 @@ rule stateConsistency(env e, bytes32 id) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule stateTransition(bytes32 id, env e, method f, calldataarg args) filtered { f ->
-    f.selector != sig:hashOperationBatch(address[], uint256[], bytes[], bytes32, bytes32).selector
+    f.selector != sig:hashOperationBatch(address[], uint256[], bytes[], bytes32, bytes32).selector &&
+    f.selector != sig:scheduleBatch(address[], uint256[], bytes[], bytes32, bytes32, uint256).selector &&
+    f.selector != sig:executeBatch(address[], uint256[], bytes[], bytes32, bytes32).selector
 } {
     require e.block.timestamp > 1; // Sanity
 
@@ -180,8 +198,8 @@ rule minDelayOnlyChange(env e, method f, calldataarg args) filtered { f ->
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule schedule(env e, method f, bytes32 id, uint256 delay) filtered { f ->
-    f.selector == sig:schedule(address, uint256, bytes, bytes32, bytes32, uint256).selector ||
-    f.selector == sig:scheduleBatch(address[], uint256[], bytes[], bytes32, bytes32, uint256).selector
+    f.selector == sig:schedule(address, uint256, bytes, bytes32, bytes32, uint256).selector
+// || f.selector == sig:scheduleBatch(address[], uint256[], bytes[], bytes32, bytes32, uint256).selector
 } {
     require nonpayable(e);
 
@@ -219,8 +237,8 @@ rule schedule(env e, method f, bytes32 id, uint256 delay) filtered { f ->
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule execute(env e, method f, bytes32 id, bytes32 predecessor) filtered { f ->
-    f.selector == sig:execute(address, uint256, bytes, bytes32, bytes32).selector ||
-    f.selector == sig:executeBatch(address[], uint256[], bytes[], bytes32, bytes32).selector
+    f.selector == sig:execute(address, uint256, bytes, bytes32, bytes32).selector
+// || f.selector == sig:executeBatch(address[], uint256[], bytes[], bytes32, bytes32).selector
 } {
     bytes32 otherId; uint256 otherTimestamp = getTimestamp(otherId);
 
