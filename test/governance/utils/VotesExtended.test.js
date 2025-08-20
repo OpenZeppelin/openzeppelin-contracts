@@ -143,7 +143,7 @@ describe('VotesExtended', function () {
         const tx = await this.votes.$_mint(this.accounts[0].address, 100n);
         const timepoint = await time.clockFromReceipt[mode](tx);
 
-        await expect(this.votes.getPastBalanceOf(this.accounts[0].address, timepoint + 1n))
+        await expect(this.votes.getPastBalanceOf(this.accounts[0], timepoint + 1n))
           .to.be.revertedWithCustomError(this.votes, 'ERC5805FutureLookup')
           .withArgs(timepoint + 1n, timepoint);
       });
