@@ -31,7 +31,7 @@ library Base64 {
     /**
      * @dev Converts a Base64 `string` to the `bytes` it represents.
      *
-     * * Supports padded an unpadded inputs.
+     * * Supports padded and unpadded inputs.
      * * Supports both encoding ({encode} and {encodeURL}) seamlessly.
      * * Does NOT revert if the input is not a valid Base64 string.
      */
