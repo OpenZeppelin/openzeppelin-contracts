@@ -9,7 +9,7 @@ import {SafeCast} from "../../utils/math/SafeCast.sol";
 
 /**
  * @dev Extension of {Governor} that binds the execution process to an instance of {TimelockController}. This adds a
- * delay, enforced by the {TimelockController} to all successful proposal (in addition to the voting duration). The
+ * delay, enforced by the {TimelockController} to all successful proposals (in addition to the voting duration). The
  * {Governor} needs the proposer (and ideally the executor and canceller) roles for the {Governor} to work properly.
  *
  * Using this model means the proposal will be operated by the {TimelockController} and not by the {Governor}. Thus,
