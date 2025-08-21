@@ -30,6 +30,10 @@ contract AccountHarness is AccountERC7702WithModulesMock {
         return _validators.at(index);
     }
 
+    function _validatorAtFull(uint256 index) external view returns (bytes32) {
+        return _validators._inner._values[index];
+    }
+
     function _validatorPositionOf(address module) external view returns (uint256) {
         return _validators._inner._positions[bytes32(uint256(uint160(module)))];
     }
@@ -44,6 +48,10 @@ contract AccountHarness is AccountERC7702WithModulesMock {
 
     function _executorAt(uint256 index) external view returns (address) {
         return _executors.at(index);
+    }
+
+    function _executorAtFull(uint256 index) external view returns (bytes32) {
+        return _executors._inner._values[index];
     }
 
     function _executorPositionOf(address module) external view returns (uint256) {

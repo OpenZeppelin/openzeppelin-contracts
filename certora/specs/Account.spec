@@ -8,12 +8,17 @@ methods {
     function _validatorLength()            external returns (uint256) envfree;
     function _validatorContains(address)   external returns (bool)    envfree;
     function _validatorAt(uint256)         external returns (address) envfree;
+    function _validatorAtFull(uint256)     external returns (bytes32) envfree;
     function _validatorPositionOf(address) external returns (uint256) envfree;
 
     function _executorLength()             external returns (uint256) envfree;
     function _executorContains(address)    external returns (bool)    envfree;
     function _executorAt(uint256)          external returns (address) envfree;
+    function _executorAtFull(uint256)      external returns (bytes32) envfree;
     function _executorPositionOf(address)  external returns (uint256) envfree;
+
+    function _.onInstall(bytes)            external => NONDET;
+    function _.onUninstall(bytes)          external => NONDET;
 }
 
 definition isEntryPoint(env e) returns bool =
@@ -27,75 +32,165 @@ definition isExecutionModule(env e, bytes context) returns bool =
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│                                Storage consistency - Copied from EnumerableSet.specs                                │
+│                                                 Storage consistency                                                 │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 definition moduleLengthSanity() returns bool =
     _validatorLength() < max_uint256 && _executorLength() < max_uint256;
 
-invariant validatorAtUniquenessInvariant(uint256 index1, uint256 index2)
+// Dirty upper bits could cause issues. We need to prove stored values are clean
+invariant cleanStorageValidator(uint256 index)
+    index < _validatorLength() => to_bytes32(_validatorAt(index)) == _validatorAtFull(index)
+    filtered { f -> f.selector != sig:execute(bytes32,bytes).selector  && f.selector != sig:executeFromExecutor(bytes32,bytes).selector }
+    {
+        preserved {
+            requireInvariant cleanStorageValidator(require_uint256(_validatorLength() - 1));
+        }
+    }
+
+// Dirty upper bits could cause issues. We need to prove stored values are clean
+invariant cleanStorageExecutor(uint256 index)
+    index < _executorLength() => to_bytes32(_executorAt(index)) == _executorAtFull(index)
+    filtered { f -> f.selector != sig:execute(bytes32,bytes).selector  && f.selector != sig:executeFromExecutor(bytes32,bytes).selector }
+    {
+        preserved {
+            requireInvariant cleanStorageExecutor(require_uint256(_executorLength() - 1));
+        }
+    }
+
+invariant indexedContainedValidator(uint256 index)
+    index < _validatorLength() => _validatorContains(_validatorAt(index))
+    filtered { f -> f.selector != sig:execute(bytes32,bytes).selector  && f.selector != sig:executeFromExecutor(bytes32,bytes).selector }
+    {
+        preserved {
+            requireInvariant consistencyIndexValidator(index);
+            requireInvariant consistencyIndexValidator(require_uint256(_validatorLength() - 1));
+        }
+    }
+
+invariant indexedContainedExecutor(uint256 index)
+    index < _executorLength() => _executorContains(_executorAt(index))
+    filtered { f -> f.selector != sig:execute(bytes32,bytes).selector  && f.selector != sig:executeFromExecutor(bytes32,bytes).selector }
+    {
+        preserved {
+            requireInvariant consistencyIndexExecutor(index);
+            requireInvariant consistencyIndexExecutor(require_uint256(_executorLength() - 1));
+        }
+    }
+
+invariant atUniquenessValidator(uint256 index1, uint256 index2)
+    (index1 < _validatorLength() && index2 < _validatorLength()) =>
     index1 == index2 <=> _validatorAt(index1) == _validatorAt(index2)
     filtered { f -> f.selector != sig:execute(bytes32,bytes).selector  && f.selector != sig:executeFromExecutor(bytes32,bytes).selector }
     {
+        preserved {
+            requireInvariant consistencyIndexValidator(index1);
+            requireInvariant consistencyIndexValidator(index2);
+        }
         preserved uninstallModule(uint256 moduleTypeId, address module, bytes deInitData) with (env e) {
-            requireInvariant validatorAtUniquenessInvariant(index1, require_uint256(_validatorLength() - 1));
-            requireInvariant validatorAtUniquenessInvariant(index2, require_uint256(_validatorLength() - 1));
+            requireInvariant atUniquenessValidator(index1, require_uint256(_validatorLength() - 1));
+            requireInvariant atUniquenessValidator(index2, require_uint256(_validatorLength() - 1));
         }
     }
 
-invariant validatorConsistencyIndexInvariant(uint256 index)
-    index < _validatorLength() <=> _validatorPositionOf(_validatorAt(index)) == require_uint256(index + 1)
-    filtered { f -> f.selector != sig:execute(bytes32,bytes).selector  && f.selector != sig:executeFromExecutor(bytes32,bytes).selector }
-    {
-        preserved uninstallModule(uint256 moduleTypeId, address otherModule, bytes deInitData) with (env e) {
-            requireInvariant validatorConsistencyIndexInvariant(require_uint256(_validatorLength() - 1));
-        }
-    }
-
-invariant validatorConsistencyKeyInvariant(address module)
-    (_validatorContains(module) <=> _validatorAt(require_uint256(_validatorPositionOf(module) - 1)) == module) && _validatorPositionOf(module) <= _validatorLength()
-    filtered { f -> f.selector != sig:execute(bytes32,bytes).selector  && f.selector != sig:executeFromExecutor(bytes32,bytes).selector }
-    {
-        preserved uninstallModule(uint256 moduleTypeId, address otherModule, bytes deInitData) with (env e) {
-            requireInvariant validatorConsistencyIndexInvariant(require_uint256(_validatorLength() - 1));
-            requireInvariant validatorConsistencyKeyInvariant(otherModule);
-            requireInvariant validatorAtUniquenessInvariant(
-                require_uint256(_validatorPositionOf(module) - 1),
-                require_uint256(_validatorPositionOf(otherModule) - 1)
-            );
-        }
-    }
-
-invariant executorAtUniquenessInvariant(uint256 index1, uint256 index2)
+invariant atUniquenessExecutor(uint256 index1, uint256 index2)
+    (index1 < _executorLength() && index2 < _executorLength()) =>
     index1 == index2 <=> _executorAt(index1) == _executorAt(index2)
     filtered { f -> f.selector != sig:execute(bytes32,bytes).selector  && f.selector != sig:executeFromExecutor(bytes32,bytes).selector }
     {
+        preserved {
+            requireInvariant consistencyIndexExecutor(index1);
+            requireInvariant consistencyIndexExecutor(index2);
+        }
         preserved uninstallModule(uint256 moduleTypeId, address module, bytes deInitData) with (env e) {
-            requireInvariant executorAtUniquenessInvariant(index1, require_uint256(_executorLength() - 1));
-            requireInvariant executorAtUniquenessInvariant(index2, require_uint256(_executorLength() - 1));
+            requireInvariant atUniquenessExecutor(index1, require_uint256(_executorLength() - 1));
+            requireInvariant atUniquenessExecutor(index2, require_uint256(_executorLength() - 1));
         }
     }
 
-invariant executorConsistencyIndexInvariant(uint256 index)
-    index < _executorLength() <=> _executorPositionOf(_executorAt(index)) == require_uint256(index + 1)
+invariant consistencyIndexValidator(uint256 index)
+    index < _validatorLength() => _validatorPositionOf(_validatorAt(index)) == require_uint256(index + 1)
     filtered { f -> f.selector != sig:execute(bytes32,bytes).selector  && f.selector != sig:executeFromExecutor(bytes32,bytes).selector }
     {
         preserved uninstallModule(uint256 moduleTypeId, address otherModule, bytes deInitData) with (env e) {
-            requireInvariant executorConsistencyIndexInvariant(require_uint256(_executorLength() - 1));
+            requireInvariant consistencyIndexValidator(require_uint256(_validatorLength() - 1));
+            requireInvariant cleanStorageValidator(require_uint256(_validatorLength() - 1));
         }
     }
 
-invariant executorConsistencyKeyInvariant(address module)
-    (_executorContains(module) <=> _executorAt(require_uint256(_executorPositionOf(module) - 1)) == module) && _executorPositionOf(module) <= _executorLength()
+invariant consistencyIndexExecutor(uint256 index)
+    index < _executorLength() => _executorPositionOf(_executorAt(index)) == require_uint256(index + 1)
     filtered { f -> f.selector != sig:execute(bytes32,bytes).selector  && f.selector != sig:executeFromExecutor(bytes32,bytes).selector }
     {
         preserved uninstallModule(uint256 moduleTypeId, address otherModule, bytes deInitData) with (env e) {
-            requireInvariant executorConsistencyIndexInvariant(require_uint256(_executorLength() - 1));
-            requireInvariant executorConsistencyKeyInvariant(otherModule);
-            requireInvariant executorAtUniquenessInvariant(
+            requireInvariant consistencyIndexExecutor(require_uint256(_executorLength() - 1));
+            requireInvariant cleanStorageExecutor(require_uint256(_executorLength() - 1));
+        }
+    }
+
+invariant consistencyKeyValidator(address module)
+    _validatorContains(module) => (
+         _validatorPositionOf(module) > 0 &&
+         _validatorPositionOf(module) <= _validatorLength() &&
+        _validatorAt(require_uint256(_validatorPositionOf(module) - 1)) == module
+    )
+    filtered { f -> f.selector != sig:execute(bytes32,bytes).selector  && f.selector != sig:executeFromExecutor(bytes32,bytes).selector }
+    {
+        preserved {
+            require moduleLengthSanity();
+        }
+        preserved uninstallModule(uint256 moduleTypeId, address otherModule, bytes deInitData) with (env e) {
+            requireInvariant consistencyKeyValidator(otherModule);
+            requireInvariant atUniquenessValidator(
+                require_uint256(_validatorPositionOf(module) - 1),
+                require_uint256(_validatorPositionOf(otherModule) - 1)
+            );
+            requireInvariant cleanStorageValidator(require_uint256(_validatorLength() - 1));
+        }
+    }
+
+invariant consistencyKeyExecutor(address module)
+    _executorContains(module) => (
+         _executorPositionOf(module) > 0 &&
+         _executorPositionOf(module) <= _executorLength() &&
+        _executorAt(require_uint256(_executorPositionOf(module) - 1)) == module
+    )
+    filtered { f -> f.selector != sig:execute(bytes32,bytes).selector  && f.selector != sig:executeFromExecutor(bytes32,bytes).selector }
+    {
+        preserved {
+            require moduleLengthSanity();
+        }
+        preserved uninstallModule(uint256 moduleTypeId, address otherModule, bytes deInitData) with (env e) {
+            requireInvariant consistencyKeyExecutor(otherModule);
+            requireInvariant atUniquenessExecutor(
                 require_uint256(_executorPositionOf(module) - 1),
                 require_uint256(_executorPositionOf(otherModule) - 1)
             );
+            requireInvariant cleanStorageExecutor(require_uint256(_executorLength() - 1));
+        }
+    }
+
+invariant absentValidatorIsNotStored(address module, uint256 index)
+    index < _validatorLength() => (!_validatorContains(module) => _validatorAt(index) != module)
+    filtered { f -> f.selector != sig:execute(bytes32,bytes).selector  && f.selector != sig:executeFromExecutor(bytes32,bytes).selector }
+    {
+        preserved uninstallModule(uint256 moduleTypeId, address otherModule, bytes deInitData) with (env e) {
+            requireInvariant consistencyIndexValidator(index);
+            requireInvariant consistencyKeyValidator(module);
+            requireInvariant atUniquenessValidator(index, require_uint256(_validatorLength() - 1));
+            requireInvariant cleanStorageValidator(require_uint256(_validatorLength() - 1));
+        }
+    }
+
+invariant absentExecutorIsNotStored(address module, uint256 index)
+    index < _executorLength() => (!_executorContains(module) => _executorAt(index) != module)
+    filtered { f -> f.selector != sig:execute(bytes32,bytes).selector  && f.selector != sig:executeFromExecutor(bytes32,bytes).selector }
+    {
+        preserved uninstallModule(uint256 moduleTypeId, address otherModule, bytes deInitData) with (env e) {
+            requireInvariant consistencyIndexExecutor(index);
+            requireInvariant consistencyKeyExecutor(module);
+            requireInvariant atUniquenessExecutor(index, require_uint256(_executorLength() - 1));
+            requireInvariant cleanStorageExecutor(require_uint256(_executorLength() - 1));
         }
     }
 
@@ -148,10 +243,10 @@ rule installModuleRule(env e, uint256 moduleTypeId, address module, bytes initDa
     bytes otherInitData;
 
     require moduleLengthSanity();
-    requireInvariant executorConsistencyKeyInvariant(module);
-    requireInvariant validatorConsistencyKeyInvariant(module);
-    requireInvariant executorConsistencyKeyInvariant(otherModule);
-    requireInvariant validatorConsistencyKeyInvariant(otherModule);
+    requireInvariant consistencyKeyExecutor(module);
+    requireInvariant consistencyKeyValidator(module);
+    requireInvariant consistencyKeyExecutor(otherModule);
+    requireInvariant consistencyKeyValidator(otherModule);
 
     bool isModuleInstalledBefore = isModuleInstalled(moduleTypeId, module, initData);
     bool isOtherModuleInstalledBefore = isModuleInstalled(otherModuleTypeId, otherModule, otherInitData);
@@ -186,12 +281,12 @@ rule uninstallModuleRule(env e, uint256 moduleTypeId, address module, bytes init
     address otherModule;
     bytes otherInitData;
 
-    requireInvariant executorConsistencyKeyInvariant(module);
-    requireInvariant validatorConsistencyKeyInvariant(module);
-    requireInvariant executorConsistencyKeyInvariant(otherModule);
-    requireInvariant validatorConsistencyKeyInvariant(otherModule);
-    requireInvariant executorConsistencyIndexInvariant(require_uint256(_executorLength() - 1));
-    requireInvariant validatorConsistencyIndexInvariant(require_uint256(_validatorLength() - 1));
+    requireInvariant consistencyKeyExecutor(module);
+    requireInvariant consistencyKeyValidator(module);
+    requireInvariant consistencyKeyExecutor(otherModule);
+    requireInvariant consistencyKeyValidator(otherModule);
+    requireInvariant consistencyIndexExecutor(require_uint256(_executorLength() - 1));
+    requireInvariant consistencyIndexValidator(require_uint256(_validatorLength() - 1));
 
     bool isModuleInstalledBefore = isModuleInstalled(moduleTypeId, module, initData);
     bool isOtherModuleInstalledBefore = isModuleInstalled(otherModuleTypeId, otherModule, otherInitData);
