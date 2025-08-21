@@ -130,24 +130,35 @@ rule getAdminRestrictions(env e, bytes data) {
         assert restricted == false;
         assert roleId     == 0;
         assert delay      == 0;
+    } else if (
+        selector == to_bytes4(sig:labelRole(uint64,string).selector) ||
+        selector == to_bytes4(sig:setRoleAdmin(uint64,uint64).selector) ||
+        selector == to_bytes4(sig:setRoleGuardian(uint64,uint64).selector) ||
+        selector == to_bytes4(sig:setGrantDelay(uint64,uint32).selector) ||
+        selector == to_bytes4(sig:setTargetAdminDelay(address,uint32).selector)
+    ) {
+        assert restricted == true;
+        assert roleId     == ADMIN_ROLE();
+        assert delay      == 0;
+    } else if (
+        selector == to_bytes4(sig:updateAuthority(address,address).selector) ||
+        selector == to_bytes4(sig:setTargetClosed(address,bool).selector) ||
+        selector == to_bytes4(sig:setTargetFunctionRole(address,bytes4[],uint64).selector)
+    ) {
+        assert restricted == true;
+        assert roleId     == ADMIN_ROLE();
+        assert delay      == getTargetAdminDelay(e, getFirstArgumentAsAddress(data));
+    } else if (
+        selector == to_bytes4(sig:grantRole(uint64,address,uint32).selector) ||
+        selector == to_bytes4(sig:revokeRole(uint64,address).selector)
+    ) {
+        assert restricted == true;
+        assert roleId     == getRoleAdmin(getFirstArgumentAsUint64(data));
+        assert delay      == 0;
     } else {
-        assert restricted ==
-            isOnlyAuthorized(selector);
-
-        assert roleId == (
-            (restricted && selector == to_bytes4(sig:grantRole(uint64,address,uint32).selector)) ||
-            (restricted && selector == to_bytes4(sig:revokeRole(uint64,address).selector      ))
-            ? getRoleAdmin(getFirstArgumentAsUint64(data))
-            : ADMIN_ROLE()
-        );
-
-        assert delay == (
-            (restricted && selector == to_bytes4(sig:updateAuthority(address,address).selector              )) ||
-            (restricted && selector == to_bytes4(sig:setTargetClosed(address,bool).selector                 )) ||
-            (restricted && selector == to_bytes4(sig:setTargetFunctionRole(address,bytes4[],uint64).selector))
-            ? getTargetAdminDelay(e, getFirstArgumentAsAddress(data))
-            : 0
-        );
+        assert restricted == false;
+        assert roleId     == getTargetFunctionRole(currentContract, selector);
+        assert delay      == 0;
     }
 }
 
@@ -213,29 +224,32 @@ rule canCallExtended(env e) {
 
     bool   immediate      = canCallExtended_immediate(e, caller, target, data);
     uint32 delay          = canCallExtended_delay(e, caller, target, data);
-    bool   enabled        = getAdminRestrictions_restricted(e, data);
+    bool   restricted     = getAdminRestrictions_restricted(e, data);
+    bool   closed         = isTargetClosed(target);
     uint64 roleId         = getAdminRestrictions_roleAdminId(e, data);
     uint32 operationDelay = getAdminRestrictions_executionDelay(e, data);
     bool   inRole         = hasRole_isMember(e, roleId, caller);
     uint32 executionDelay = hasRole_executionDelay(e, roleId, caller);
 
-    if (target == currentContract) {
+    if (data.length < 4) {
+        assert immediate == false;
+        assert delay     == 0;
+    } else if (target == currentContract) {
         // Can only execute without delay in the specific cases:
         // - caller is the AccessManager and the executionId is set
         // or
-        // - data matches an admin restricted function
+        // - data matches an admin restricted function OR non-admin restricted function on open target
         // - caller has the necessary role
         // - operation delay is not set
         // - execution delay is not set
         assert immediate <=> (
             (
                 caller         == currentContract &&
-                data.length    >= 4               &&
                 executionId()  == hashExecutionId(target, selector)
             ) || (
                 caller         != currentContract &&
-                enabled                           &&
                 inRole                            &&
+                (restricted || !closed)           &&
                 operationDelay == 0               &&
                 executionDelay == 0
             )
@@ -247,21 +261,18 @@ rule canCallExtended(env e) {
 
         // Can only execute with delay in specific cases:
         // - caller is a third party
-        // - data matches an admin restricted function
+        // - data matches an admin restricted function OR non-admin restricted function on open target
         // - caller has the necessary role
-        // -operation delay or execution delay is set
+        // - operation delay or execution delay is set
         assert delay > 0 <=> (
             caller != currentContract &&
-            enabled                   &&
             inRole                    &&
+            (restricted || !closed)   &&
             (operationDelay > 0 || executionDelay > 0)
         );
 
         // If there is a delay, then it must be the maximum of caller's execution delay and the operation delay
         assert delay > 0 => to_mathint(delay) == max(operationDelay, executionDelay);
-    } else if (data.length < 4) {
-        assert immediate == false;
-        assert delay     == 0;
     } else {
         // results are equivalent when targeting third party contracts
         assert immediate == canCall_immediate(e, caller, target, selector);
