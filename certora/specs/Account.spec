@@ -21,14 +21,18 @@ methods {
     function _.onUninstall(bytes)          external => NONDET;
 }
 
+definition VALIDATOR_TYPE returns uint256 = 1;
+definition EXECUTOR_TYPE returns uint256 = 2;
+definition FALLBACK_TYPE returns uint256 = 3;
+
 definition isEntryPoint(env e) returns bool =
     e.msg.sender == entryPoint();
 
 definition isEntryPointOrSelf(env e) returns bool =
-    e.msg.sender == entryPoint() || e.msg.sender == currentContract;
+    isEntryPoint(e) || e.msg.sender == currentContract;
 
 definition isExecutionModule(env e, bytes context) returns bool =
-    isModuleInstalled(2, e.msg.sender, context);
+    isModuleInstalled(EXECUTOR_TYPE(), e.msg.sender, context);
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -201,7 +205,7 @@ invariant absentExecutorIsNotStored(address module, uint256 index)
 */
 // This guarantees that at most one fallback module is active for a given initData (i.e. selector)
 rule fallbackModule(address module, bytes initData) {
-    assert isModuleInstalled(3, module, initData) <=> getFallbackHandler(getDataSelector(initData)) == module;
+    assert isModuleInstalled(FALLBACK_TYPE(), module, initData) <=> getFallbackHandler(getDataSelector(initData)) == module;
 }
 
 rule moduleManagementRule(env e, method f, calldataarg args, uint256 moduleTypeId, address module, bytes additionalContext)
@@ -265,10 +269,9 @@ rule installModuleRule(env e, uint256 moduleTypeId, address module, bytes initDa
             moduleTypeId == otherModuleTypeId &&
             module == otherModule
         ) || (
-            // when a fallback module is installed, the 0 module is "removed" for that selector
-            moduleTypeId == 3 && // fallback
-            otherModuleTypeId == 3 && // fallback
-            otherModule == 0 &&
+            moduleTypeId == FALLBACK_TYPE() &&
+            otherModuleTypeId == FALLBACK_TYPE() &&
+            otherModule == 0 && // when a fallback module is installed, the 0 module is "removed" for that selector
             getDataSelector(otherInitData) == getDataSelector(initData) &&
             isOtherModuleInstalledBefore &&
             !isOtherModuleInstalledAfter
@@ -305,10 +308,9 @@ rule uninstallModuleRule(env e, uint256 moduleTypeId, address module, bytes init
             moduleTypeId == otherModuleTypeId &&
             module == otherModule
         ) || (
-            // when a fallback module is uninstalled, the 0 module is "added" for that selector
-            moduleTypeId == 3 && // fallback
-            otherModuleTypeId == 3 && // fallback
-            otherModule == 0 &&
+            moduleTypeId == FALLBACK_TYPE() &&
+            otherModuleTypeId == FALLBACK_TYPE() &&
+            otherModule == 0 && // when a fallback module is uninstalled, the 0 module is "added" for that selector
             getDataSelector(otherInitData) == getDataSelector(initData) &&
             !isOtherModuleInstalledBefore &&
             isOtherModuleInstalledAfter
@@ -387,7 +389,7 @@ rule callOpcodeRule(env e, method f, calldataarg args)
                     lastcall_argsLength == 0
                 ) || (
                     // isValidSignatureWithSender (target is as validation module)
-                    isModuleInstalled(1, lastcall_target, context) &&
+                    isModuleInstalled(VALIDATOR_TYPE(), lastcall_target, context) &&
                     lastcall_selector == 0x97003203 && // validateUserOp(Account.PackedUserOperation,bytes32)
                     lastcall_value == 0
                 )
