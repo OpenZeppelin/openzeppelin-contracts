@@ -130,8 +130,8 @@ invariant consistencyIndexExecutor(uint256 index)
 
 invariant consistencyKeyValidator(address module)
     _validatorContains(module) => (
-         _validatorPositionOf(module) > 0 &&
-         _validatorPositionOf(module) <= _validatorLength() &&
+        _validatorPositionOf(module) > 0 &&
+        _validatorPositionOf(module) <= _validatorLength() &&
         _validatorAt(require_uint256(_validatorPositionOf(module) - 1)) == module
     )
     filtered { f -> f.selector != sig:execute(bytes32,bytes).selector  && f.selector != sig:executeFromExecutor(bytes32,bytes).selector }
@@ -151,8 +151,8 @@ invariant consistencyKeyValidator(address module)
 
 invariant consistencyKeyExecutor(address module)
     _executorContains(module) => (
-         _executorPositionOf(module) > 0 &&
-         _executorPositionOf(module) <= _executorLength() &&
+        _executorPositionOf(module) > 0 &&
+        _executorPositionOf(module) <= _executorLength() &&
         _executorAt(require_uint256(_executorPositionOf(module) - 1)) == module
     )
     filtered { f -> f.selector != sig:execute(bytes32,bytes).selector  && f.selector != sig:executeFromExecutor(bytes32,bytes).selector }
