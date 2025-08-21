@@ -21,7 +21,7 @@ methods {
 │ Helpers                                                                                                             │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-definition sanity() returns bool =
+definition lengthSanity() returns bool =
     length() < max_uint256;
 
 /*
@@ -33,7 +33,7 @@ invariant noValueIfNotContained(bytes32 key)
     !contains(key) => tryGet_value(key) == to_bytes32(0)
     {
         preserved set(bytes32 otherKey, bytes32 someValue) {
-            require sanity();
+            require lengthSanity();
         }
     }
 
@@ -57,8 +57,13 @@ invariant indexedContained(uint256 index)
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant atUniqueness(uint256 index1, uint256 index2)
-    index1 == index2 <=> key_at(index1) == key_at(index2)
+    (index1 < length() && index2 < length()) =>
+    (index1 == index2 <=> key_at(index1) == key_at(index2))
     {
+        preserved {
+            requireInvariant consistencyIndex(index1);
+            requireInvariant consistencyIndex(index2);
+        }
         preserved remove(bytes32 key) {
             requireInvariant atUniqueness(index1, require_uint256(length() - 1));
             requireInvariant atUniqueness(index2, require_uint256(length() - 1));
@@ -89,6 +94,9 @@ invariant consistencyKey(bytes32 key)
         key_at(require_uint256(_positionOf(key) - 1)) == key
     )
     {
+        preserved {
+            require lengthSanity();
+        }
         preserved remove(bytes32 otherKey) {
             requireInvariant consistencyKey(otherKey);
             requireInvariant atUniqueness(
@@ -98,14 +106,26 @@ invariant consistencyKey(bytes32 key)
         }
     }
 
+invariant absentKeyIsNotStored(bytes32 key, uint256 index)
+    index < length() => (!contains(key) => key_at(index) != key)
+    {
+        preserved remove(bytes32 otherKey) {
+            requireInvariant consistencyIndex(index);
+            requireInvariant consistencyKey(key);
+            requireInvariant atUniqueness(index, require_uint256(length() - 1));
+        }
+    }
+
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Rule: state only changes by setting or removing elements                                                            │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule stateChange(env e, bytes32 key) {
-    require sanity();
+    require lengthSanity();
     requireInvariant consistencyKey(key);
+    requireInvariant absentKeyIsNotStored(key, require_uint256(length() - 1));
+    requireInvariant noValueIfNotContained(key);
 
     uint256 lengthBefore   = length();
     bool    containsBefore = contains(key);
@@ -142,6 +162,7 @@ rule stateChange(env e, bytes32 key) {
 */
 rule liveness_1(bytes32 key) {
     requireInvariant consistencyKey(key);
+    requireInvariant noValueIfNotContained(key);
 
     // contains never revert
     bool contains = contains@withrevert(key);
@@ -155,7 +176,7 @@ rule liveness_1(bytes32 key) {
     tryGet_value@withrevert(key);
     assert !lastReverted;
 
-    // get reverts iff  the key is not in the map
+    // get reverts iff the key is not in the map
     get@withrevert(key);
     assert !lastReverted <=> contains;
 }
@@ -200,7 +221,7 @@ rule getAndTryGet(bytes32 key) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule set(bytes32 key, bytes32 value, bytes32 otherKey) {
-    require sanity();
+    require lengthSanity();
 
     uint256 lengthBefore        = length();
     bool    containsBefore      = contains(key);
@@ -237,6 +258,7 @@ rule set(bytes32 key, bytes32 value, bytes32 otherKey) {
 rule remove(bytes32 key, bytes32 otherKey) {
     requireInvariant consistencyKey(key);
     requireInvariant consistencyKey(otherKey);
+    requireInvariant indexedContained(require_uint256(length() - 1));
 
     uint256 lengthBefore        = length();
     bool    containsBefore      = contains(key);
@@ -268,7 +290,7 @@ rule remove(bytes32 key, bytes32 otherKey) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule setEnumerability(bytes32 key, bytes32 value, uint256 index) {
-    require sanity();
+    require lengthSanity();
 
     bytes32 atKeyBefore = key_at(index);
     bytes32 atValueBefore = value_at(index);
@@ -299,35 +321,44 @@ rule removeEnumerability(bytes32 key, uint256 index) {
     requireInvariant consistencyKey(key);
     requireInvariant consistencyIndex(index);
     requireInvariant consistencyIndex(last);
+    requireInvariant indexedContained(index);
 
     bytes32 atKeyBefore     = key_at(index);
     bytes32 atValueBefore   = value_at(index);
     bytes32 lastKeyBefore   = key_at(last);
     bytes32 lastValueBefore = value_at(last);
 
-    remove(key);
+    bool removed = remove(key);
 
     // can't read last value & keys (length decreased)
     bytes32 atKeyAfter = key_at@withrevert(index);
-    assert lastReverted <=> index == last;
+    assert lastReverted <=> (removed && index == last);
 
     bytes32 atValueAfter = value_at@withrevert(index);
-    assert lastReverted <=> index == last;
+    assert lastReverted <=> (removed && index == last);
 
-    // One value that is allowed to change is if previous value was removed,
-    // in that case the last value before took its place.
-    assert (
-        index != last &&
-        atKeyBefore != atKeyAfter
-    ) => (
-        atKeyBefore == key &&
-        atKeyAfter == lastKeyBefore
+    // Cases where a key or value can change are:
+    // 1. an item was removed and we are looking at the old last index. In that case the reading reverted.
+    // 2. an item was removed and we are looking at its old position. In that case the new value is the old lastValue.
+    // This rule implies that if no item was removed, then keys and values cannot change.
+    assert atKeyBefore != atKeyAfter => (
+        (
+            removed &&
+            index == last
+        ) || (
+            removed &&
+            atKeyBefore == key &&
+            atKeyAfter == lastKeyBefore
+        )
     );
 
-    assert (
-        index != last &&
-        atValueBefore != atValueAfter
-    ) => (
-        atValueAfter == lastValueBefore
+    assert atValueBefore != atValueAfter => (
+        (
+            removed &&
+            index == last
+        ) || (
+            removed &&
+            atValueAfter == lastValueBefore
+        )
     );
 }
