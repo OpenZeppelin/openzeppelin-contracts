@@ -84,6 +84,7 @@ library Base64 {
 
             // Prepare result pointer, jump over length
             let resultPtr := add(result, 0x20)
+            let resultEnd := add(resultPtr, resultLength)
             let dataPtr := data
             let endPtr := add(data, mload(data))
 
@@ -133,7 +134,7 @@ library Base64 {
 
             // Store result length and update FMP to reserve allocated space
             mstore(result, resultLength)
-            mstore(0x40, resultPtr)
+            mstore(0x40, resultEnd)
         }
     }
 
