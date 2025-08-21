@@ -1,0 +1,25 @@
+--- account/extensions/draft-AccountERC7579.sol	2025-07-22 11:18:42.944504471 +0200
++++ account/extensions/draft-AccountERC7579.sol	2025-07-22 13:57:03.670277084 +0200
+@@ -60,8 +60,8 @@
+     using EnumerableSet for *;
+     using Packing for bytes32;
+ 
+-    EnumerableSet.AddressSet private _validators;
+-    EnumerableSet.AddressSet private _executors;
++    EnumerableSet.AddressSet internal _validators; // private → internal for FV
++    EnumerableSet.AddressSet internal _executors; // private → internal for FV
+     mapping(bytes4 selector => address) private _fallbacks;
+ 
+     /// @dev The account's {fallback} was called with a selector that doesn't have an installed handler.
+@@ -308,8 +308,9 @@
+      * the ERC-2771 format.
+      */
+     function _fallback() internal virtual returns (bytes memory) {
+-        address handler = _fallbackHandler(msg.sig);
+-        require(handler != address(0), ERC7579MissingFallbackHandler(msg.sig));
++        bytes4 selector = bytes4(msg.data[0:4]);
++        address handler = _fallbackHandler(selector);
++        require(handler != address(0), ERC7579MissingFallbackHandler(selector));
+ 
+         // From https://eips.ethereum.org/EIPS/eip-7579#fallback[ERC-7579 specifications]:
+         // - MUST utilize ERC-2771 to add the original msg.sender to the calldata sent to the fallback handler
