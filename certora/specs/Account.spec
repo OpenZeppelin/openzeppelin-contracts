@@ -80,7 +80,7 @@ invariant indexedContainedExecutor(uint256 index)
 
 invariant atUniquenessValidator(uint256 index1, uint256 index2)
     (index1 < _validatorLength() && index2 < _validatorLength()) =>
-    index1 == index2 <=> _validatorAt(index1) == _validatorAt(index2)
+    (index1 == index2 <=> _validatorAt(index1) == _validatorAt(index2))
     filtered { f -> f.selector != sig:execute(bytes32,bytes).selector  && f.selector != sig:executeFromExecutor(bytes32,bytes).selector }
     {
         preserved {
@@ -95,7 +95,7 @@ invariant atUniquenessValidator(uint256 index1, uint256 index2)
 
 invariant atUniquenessExecutor(uint256 index1, uint256 index2)
     (index1 < _executorLength() && index2 < _executorLength()) =>
-    index1 == index2 <=> _executorAt(index1) == _executorAt(index2)
+    (index1 == index2 <=> _executorAt(index1) == _executorAt(index2))
     filtered { f -> f.selector != sig:execute(bytes32,bytes).selector  && f.selector != sig:executeFromExecutor(bytes32,bytes).selector }
     {
         preserved {
