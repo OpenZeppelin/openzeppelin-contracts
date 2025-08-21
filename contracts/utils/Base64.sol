@@ -125,11 +125,9 @@ library Base64 {
                 case 1 {
                     mstore8(sub(resultPtr, 1), 0x3d)
                     mstore8(sub(resultPtr, 2), 0x3d)
-                    resultPtr := add(resultPtr, 2)
                 }
                 case 2 {
                     mstore8(sub(resultPtr, 1), 0x3d)
-                    resultPtr := add(resultPtr, 1)
                 }
             }
 
