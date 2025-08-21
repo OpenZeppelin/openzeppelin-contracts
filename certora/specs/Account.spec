@@ -2,7 +2,7 @@ import "helpers/helpers.spec";
 import "methods/IAccount.spec";
 
 methods {
-    function getDataSelector(bytes)        external returns (bytes4) envfree;
+    function getDataSelector(bytes)        external returns (bytes4)  envfree;
     function getFallbackHandler(bytes4)    external returns (address) envfree;
 
     function _validatorLength()            external returns (uint256) envfree;
