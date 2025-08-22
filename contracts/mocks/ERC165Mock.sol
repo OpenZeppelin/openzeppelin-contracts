@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.20;
 
-import {IERC165} from "../../utils/introspection/IERC165.sol";
+import {IERC165} from "../utils/introspection/IERC165.sol";
 
 /**
  * https://eips.ethereum.org/EIPS/eip-214#specification
@@ -54,5 +54,42 @@ contract ERC165InterfacesSupported is SupportsInterfaceWithLookupMock {
         for (uint256 i = 0; i < interfaceIds.length; i++) {
             _registerInterface(interfaceIds[i]);
         }
+    }
+}
+
+contract ERC165MaliciousData {
+    function supportsInterface(bytes4) public pure returns (bool) {
+        assembly {
+            mstore(0, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff)
+            return(0, 32)
+        }
+    }
+}
+
+contract ERC165MissingData {
+    function supportsInterface(bytes4 interfaceId) public view {} // missing return
+}
+
+contract ERC165NotSupported {}
+
+contract ERC165ReturnBombMock is IERC165 {
+    function supportsInterface(bytes4 interfaceId) public pure override returns (bool) {
+        if (interfaceId == type(IERC165).interfaceId) {
+            assembly {
+                mstore(0, 1)
+            }
+        }
+        assembly {
+            return(0, 101500)
+        }
+    }
+}
+
+contract ERC165RevertInvalid is IERC165 {
+    function supportsInterface(bytes4 interfaceId) public view virtual returns (bool) {
+        if (interfaceId == 0xffffffff) {
+            revert();
+        }
+        return interfaceId == type(IERC165).interfaceId; // 0x01ffc9a7
     }
 }
