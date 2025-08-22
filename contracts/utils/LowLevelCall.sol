@@ -112,8 +112,9 @@ library LowLevelCall {
     /// @dev Revert with the return data from the last call.
     function bubbleRevert() internal pure {
         assembly ("memory-safe") {
-            returndatacopy(0, 0, returndatasize())
-            revert(0, returndatasize())
+            let fmp := mload(0x40)
+            returndatacopy(fmp, 0, returndatasize())
+            revert(fmp, returndatasize())
         }
     }
 
