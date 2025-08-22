@@ -11,7 +11,7 @@ import {SafeCast} from "./math/SafeCast.sol";
 library Base64 {
     using SafeCast for bool;
 
-    error InvalidBase64Digit(uint8);
+    error InvalidBase64Digit(bytes1);
 
     /**
      * @dev Converts a `bytes` to its Bytes64 `string` representation.
@@ -187,21 +187,21 @@ library Base64 {
                 // slither-disable-next-line incorrect-shift
                 if iszero(and(shl(a, 1), 0xffffffd0ffffffc47ff5)) {
                     mstore(0, errorSelector)
-                    mstore(4, add(a, 43))
+                    mstore(4, shl(248, add(a, 43)))
                     revert(0, 0x24)
                 }
                 let b := sub(byte(29, input), 43)
                 // slither-disable-next-line incorrect-shift
                 if iszero(and(shl(b, 1), 0xffffffd0ffffffc47ff5)) {
                     mstore(0, errorSelector)
-                    mstore(4, add(b, 43))
+                    mstore(4, shl(248, add(b, 43)))
                     revert(0, 0x24)
                 }
                 let c := sub(byte(30, input), 43)
                 // slither-disable-next-line incorrect-shift
                 if iszero(and(shl(c, 1), 0xffffffd0ffffffc47ff5)) {
                     mstore(0, errorSelector)
-                    mstore(4, add(c, 43))
+                    mstore(4, shl(248, add(c, 43)))
                     revert(0, 0x24)
                 }
                 let d := sub(byte(31, input), 43)

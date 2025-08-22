@@ -51,20 +51,20 @@ describe('Base64', function () {
   });
 
   it('Decode invalid base64 string', async function () {
-    const helper = { interface: ethers.Interface.from(['error InvalidBase64Digit(uint8)']) };
+    const helper = { interface: ethers.Interface.from(['error InvalidBase64Digit(bytes1)']) };
 
     // ord('$') < 43
     await expect(this.mock.$decode('dGVzd$=='))
       .to.be.revertedWithCustomError(helper, 'InvalidBase64Digit')
-      .withArgs('$'.charCodeAt(0));
+      .withArgs(`0x${'$'.charCodeAt(0).toString(16)}`);
     // ord('~') > 122
     await expect(this.mock.$decode('dGVzd~=='))
       .to.be.revertedWithCustomError(helper, 'InvalidBase64Digit')
-      .withArgs('~'.charCodeAt(0));
+      .withArgs(`0x${'~'.charCodeAt(0).toString(16)}`);
     // ord('@') in range, but '@' not in the dictionary
     await expect(this.mock.$decode('dGVzd@=='))
       .to.be.revertedWithCustomError(helper, 'InvalidBase64Digit')
-      .withArgs('@'.charCodeAt(0));
+      .withArgs(`0x${'@'.charCodeAt(0).toString(16)}`);
   });
 
   it('Encode reads beyond the input buffer into dirty memory', async function () {
