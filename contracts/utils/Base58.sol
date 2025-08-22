@@ -9,7 +9,7 @@ pragma solidity ^0.8.20;
  * Based on the updated and improved https://github.com/Vectorized/solady/blob/main/src/utils/Base58.sol[Vectorized version] (MIT).
  */
 library Base58 {
-    error InvalidBase56Digit(uint8);
+    error InvalidBase58Digit(bytes1);
 
     /**
      * @dev Encode a `bytes` buffer as a Base58 `string`.
@@ -117,7 +117,7 @@ library Base58 {
     }
 
     function _decode(bytes memory input) private pure returns (bytes memory output) {
-        bytes4 errorSelector = InvalidBase56Digit.selector;
+        bytes4 errorSelector = InvalidBase58Digit.selector;
 
         uint256 inputLength = input.length;
         if (inputLength == 0) return "";
@@ -157,7 +157,7 @@ library Base58 {
                 // slither-disable-next-line incorrect-shift
                 if iszero(and(shl(c, 1), 0x3fff7ff03ffbeff01ff)) {
                     mstore(0, errorSelector)
-                    mstore(4, add(c, 49))
+                    mstore(4, shl(248, add(c, 49)))
                     revert(0, 0x24)
                 }
                 let carry := byte(0, mload(c))
