@@ -38,10 +38,10 @@ library Address {
         if (LowLevelCall.callNoReturn(recipient, amount, "")) {
             // call successful, nothing to do
             return;
-        } else if (LowLevelCall.returnDataSize() == 0) {
-            revert Errors.FailedCall();
-        } else {
+        } else if (LowLevelCall.returnDataSize() > 0) {
             LowLevelCall.bubbleRevert();
+        } else {
+            revert Errors.FailedCall();
         }
     }
 
