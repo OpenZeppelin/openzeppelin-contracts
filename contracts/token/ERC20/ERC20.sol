@@ -294,9 +294,14 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
     function _spendAllowance(address owner, address spender, uint256 value) internal virtual {
         uint256 currentAllowance = allowance(owner, spender);
         if (currentAllowance < type(uint256).max) {
+            if(value == 0){
+                revert ERC20ZeroTransferFromNotAllowed(spender);
+            }
+            
             if (currentAllowance < value) {
                 revert ERC20InsufficientAllowance(spender, currentAllowance, value);
             }
+            
             unchecked {
                 _approve(owner, spender, currentAllowance - value, false);
             }

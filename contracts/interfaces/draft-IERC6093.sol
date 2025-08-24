@@ -37,6 +37,14 @@ interface IERC20Errors {
     error ERC20InsufficientAllowance(address spender, uint256 allowance, uint256 needed);
 
     /**
+     * @dev Indicates that a `transferFrom` call attempted to move zero tokens.
+     * This implementation disallows zero-value transfers via {transferFrom} to prevent
+     * unsolicited event emissions.
+     * @param spender Address that attempted to spend on behalf of the token owner.
+     */
+    error ERC20ZeroTransferFromNotAllowed(address spender);
+
+    /**
      * @dev Indicates a failure with the `approver` of a token to be approved. Used in approvals.
      * @param approver Address initiating an approval operation.
      */
