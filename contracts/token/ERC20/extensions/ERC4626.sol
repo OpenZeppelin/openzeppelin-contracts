@@ -139,7 +139,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
 
     /// @inheritdoc IERC4626
     function maxWithdraw(address owner) public view virtual returns (uint256) {
-        return _convertToAssets(balanceOf(owner), Math.Rounding.Floor);
+        return previewRedeem(maxRedeem(owner));
     }
 
     /// @inheritdoc IERC4626
