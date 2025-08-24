@@ -44,13 +44,13 @@ interface IMultiVotes is IVotes {
     /**
      * @dev Set delegates list with units assigned for each one
      */
-    function multiDelegate(address[] calldata delegatess, uint256[] calldata units) external;
+    function multiDelegate(address[] calldata delegatees, uint256[] calldata units) external;
 
     /**
-     * @dev Multi delegate votes from signer to `delegatess`.
+     * @dev Multi delegate votes from signer to `delegatees`.
      */
     function multiDelegateBySig(
-        address[] calldata delegatess,
+        address[] calldata delegatees,
         uint256[] calldata units,
         uint256 nonce,
         uint256 expiry,
