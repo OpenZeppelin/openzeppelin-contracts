@@ -2,6 +2,7 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { MAX_UINT128, MAX_UINT64, MAX_UINT32, MAX_UINT16 } = require('../helpers/constants');
+const { generators } = require('../helpers/random');
 
 // Helper functions for fixed bytes types
 const bytes32 = value => ethers.toBeHex(value, 32);
@@ -109,6 +110,47 @@ describe('Bytes', function () {
           await expect(this.mock.$splice(lorem, start, ethers.Typed.uint256(end))).to.eventually.equal(result);
         });
       }
+    });
+  });
+
+  describe('concat', function () {
+    it('empty list', async function () {
+      await expect(this.mock.$concat([])).to.eventually.equal(generators.bytes.zero);
+    });
+
+    it('single item', async function () {
+      const item = generators.bytes();
+      await expect(this.mock.$concat([item])).to.eventually.equal(item);
+    });
+
+    it('multiple (non-empty) items', async function () {
+      const items = Array.from({ length: 17 }, generators.bytes);
+      await expect(this.mock.$concat(items)).to.eventually.equal(ethers.concat(items));
+    });
+
+    it('multiple (empty) items', async function () {
+      const items = Array.from({ length: 17 }).fill(generators.bytes.zero);
+      await expect(this.mock.$concat(items)).to.eventually.equal(ethers.concat(items));
+    });
+
+    it('multiple (variable length) items', async function () {
+      const items = [
+        generators.bytes.zero,
+        generators.bytes(17),
+        generators.bytes.zero,
+        generators.bytes(42),
+        generators.bytes(1),
+        generators.bytes(256),
+        generators.bytes(1024),
+        generators.bytes.zero,
+        generators.bytes(7),
+        generators.bytes(15),
+        generators.bytes(63),
+        generators.bytes.zero,
+        generators.bytes.zero,
+      ];
+
+      await expect(this.mock.$concat(items)).to.eventually.equal(ethers.concat(items));
     });
   });
 
