@@ -132,7 +132,7 @@ library Bytes {
      * @dev Concatenate an array of bytes into a single bytes object.
      *
      * For fixed bytes types, we recommend using the solidity built-in `bytes.concat` or (equivalent)
-     *`abi.encodePacked`.
+     * `abi.encodePacked`.
      *
      * NOTE: this could be done in assembly with a single loop that expands starting at the FMP, but that would be
      * significantly less readable. It might be work benchmarking the saving of the full-assembly approach.
