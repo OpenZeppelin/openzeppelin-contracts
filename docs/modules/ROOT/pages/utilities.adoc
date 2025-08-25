@@ -8,7 +8,7 @@ Here are some of the more popular ones.
 
 === Checking Signatures On-Chain
 
-At a high level, signatures are a set of cryptographic algorithms that allow for a _signer_ to prove they are the owner of a _private key_ used to authorize a piece of information (generally a transaction or `UserOperation`). Natively, the EVM supports the Elliptic Curve Digital Signature Algorithm (https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm[ECDSA]) using the secp256k1 curve, however, other signature algorithms such as P256 and RSA are supported.
+At a high level, signatures are a set of cryptographic algorithms that allow for a _signer_ to prove they have access to the _private key_ used to authorize a piece of information (generally a transaction or `UserOperation`). Natively, the EVM supports the Elliptic Curve Digital Signature Algorithm (https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm[ECDSA]) using the secp256k1 curve, however, other signature algorithms such as P256 and RSA are supported.
 
 ==== Ethereum Signatures (secp256k1)
 
