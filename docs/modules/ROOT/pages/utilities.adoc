@@ -34,7 +34,7 @@ WARNING: Getting signature verification right is not trivial: make sure you full
 
 P256, also known as secp256r1, is one of the most used signature schemes. P256 signatures are standardized by the National Institute of Standards and Technology (NIST) and it's widely available in consumer hardware and software.
 
-These signatures are different to regular Ethereum Signatures (secp256k1) in that they use different elliptic curve to perform operations but have similar security guarantees.
+These signatures are different to regular Ethereum Signatures (secp256k1) in that they use different elliptic curves to perform operations but have similar security guarantees.
 
 [source,solidity]
 ----
