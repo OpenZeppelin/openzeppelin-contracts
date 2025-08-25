@@ -135,19 +135,19 @@ describe('Bytes', function () {
 
     it('multiple (variable length) items', async function () {
       const items = [
-         generators.bytes.zero,
-         generators.bytes(17),
-         generators.bytes.zero,
-         generators.bytes(42),
-         generators.bytes(1),
-         generators.bytes(256),
-         generators.bytes(1024),
-         generators.bytes.zero,
-         generators.bytes(7),
-         generators.bytes(15),
-         generators.bytes(63),
-         generators.bytes.zero,
-         generators.bytes.zero,
+        generators.bytes.zero,
+        generators.bytes(17),
+        generators.bytes.zero,
+        generators.bytes(42),
+        generators.bytes(1),
+        generators.bytes(256),
+        generators.bytes(1024),
+        generators.bytes.zero,
+        generators.bytes(7),
+        generators.bytes(15),
+        generators.bytes(63),
+        generators.bytes.zero,
+        generators.bytes.zero,
       ];
 
       await expect(this.mock.$concat(items)).to.eventually.equal(ethers.concat(items));
