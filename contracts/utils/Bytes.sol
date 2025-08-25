@@ -151,7 +151,9 @@ library Bytes {
             assembly ("memory-safe") {
                 mcopy(add(result, offset), add(input, 0x20), mload(input))
             }
-            offset += input.length;
+            unchecked {
+                offset += input.length;
+            }
         }
 
         return result;

@@ -123,8 +123,24 @@ describe('Bytes', function () {
       await expect(this.mock.$concat([item])).to.eventually.equal(item);
     });
 
-    it('multiple items', async function () {
+    it('multiple (non-empty) items', async function () {
       const items = Array.from({ length: 17 }, generators.bytes);
+      await expect(this.mock.$concat(items)).to.eventually.equal(ethers.concat(items));
+    });
+
+    it('multiple (empty) items', async function () {
+      const items = Array.from({ length: 17 }).fill(generators.bytes.zero);
+      await expect(this.mock.$concat(items)).to.eventually.equal(ethers.concat(items));
+    });
+
+    it('multiple (variable length) items', async function () {
+      const items = Array.from({ length: 17 }, generators.bytes);
+      items[5] = generators.bytes.zero;
+      items[7] = generators.bytes.zero;
+      items[9] = generators.bytes.bytes(42);
+      items[10] = generators.bytes.bytes(128);
+      items[11] = generators.bytes.zero;
+
       await expect(this.mock.$concat(items)).to.eventually.equal(ethers.concat(items));
     });
   });
