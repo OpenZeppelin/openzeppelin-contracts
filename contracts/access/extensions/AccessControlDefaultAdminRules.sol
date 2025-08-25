@@ -357,14 +357,14 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     ///
 
     /**
-     * @dev Defines if an `schedule` is considered set. For consistency purposes.
+     * @dev Defines if a `schedule` is considered set. For consistency purposes.
      */
     function _isScheduleSet(uint48 schedule) private pure returns (bool) {
         return schedule != 0;
     }
 
     /**
-     * @dev Defines if an `schedule` is considered passed. For consistency purposes.
+     * @dev Defines if a `schedule` is considered passed. For consistency purposes.
      */
     function _hasSchedulePassed(uint48 schedule) private view returns (bool) {
         return schedule < block.timestamp;
