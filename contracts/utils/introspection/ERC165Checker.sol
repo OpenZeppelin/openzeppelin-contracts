@@ -22,9 +22,12 @@ library ERC165Checker {
     function supportsERC165(address account) internal view returns (bool) {
         // Any contract that implements ERC-165 must explicitly indicate support of
         // InterfaceId_ERC165 and explicitly indicate non-support of InterfaceId_Invalid
-        if (!supportsERC165InterfaceUnchecked(account, type(IERC165).interfaceId)) return false;
-        (bool success, bool supported) = trySupportsInterface(account, INTERFACE_ID_INVALID);
-        return success && !supported;
+        if (supportsERC165InterfaceUnchecked(account, type(IERC165).interfaceId)) {
+            (bool success, bool supported) = trySupportsInterface(account, INTERFACE_ID_INVALID);
+            return success && !supported;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -124,14 +127,16 @@ library ERC165Checker {
         address account,
         bytes4 interfaceId
     ) internal view returns (bool success, bool supported) {
-        uint256 returnSize;
-        uint256 returnValue;
-        bytes memory encodedParams = abi.encodeCall(IERC165.supportsInterface, (interfaceId));
+        bytes4 selector = IERC165.supportsInterface.selector;
+
         assembly ("memory-safe") {
-            success := staticcall(30000, account, add(encodedParams, 0x20), mload(encodedParams), 0x00, 0x20)
-            returnSize := returndatasize()
-            returnValue := mload(0x00)
+            mstore(0x00, selector)
+            mstore(0x04, interfaceId)
+            success := staticcall(30000, account, 0x00, 0x24, 0x00, 0x20)
+            supported := and(
+                gt(returndatasize(), 0x1F), // we have at least 20 bytes of returndata
+                mload(0x00) // the first 20 bytes of returndata are non-zero
+            )
         }
-        return (success, returnSize >= 0x20 && returnValue > 0);
     }
 }
