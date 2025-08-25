@@ -135,7 +135,7 @@ library ERC165Checker {
             success := staticcall(30000, account, 0x00, 0x24, 0x00, 0x20)
             supported := and(
                 gt(returndatasize(), 0x1F), // we have at least 20 bytes of returndata
-                mload(0x00) // the first 20 bytes of returndata are non-zero
+                iszero(iszero(mload(0x00))) // the first 20 bytes of returndata are non-zero
             )
         }
     }
