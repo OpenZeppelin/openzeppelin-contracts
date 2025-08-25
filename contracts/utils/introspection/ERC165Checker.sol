@@ -23,7 +23,7 @@ library ERC165Checker {
         // Any contract that implements ERC-165 must explicitly indicate support of
         // InterfaceId_ERC165 and explicitly indicate non-support of InterfaceId_Invalid
         if (supportsERC165InterfaceUnchecked(account, type(IERC165).interfaceId)) {
-            (bool success, bool supported) = trySupportsInterface(account, INTERFACE_ID_INVALID);
+            (bool success, bool supported) = _trySupportsInterface(account, INTERFACE_ID_INVALID);
             return success && !supported;
         } else {
             return false;
@@ -109,7 +109,7 @@ library ERC165Checker {
      * Interface identification is specified in ERC-165.
      */
     function supportsERC165InterfaceUnchecked(address account, bytes4 interfaceId) internal view returns (bool) {
-        (bool success, bool supported) = trySupportsInterface(account, interfaceId);
+        (bool success, bool supported) = _trySupportsInterface(account, interfaceId);
         return success && supported;
     }
 
@@ -123,10 +123,10 @@ library ERC165Checker {
      * * `success`: true if the call didn't revert, false if it did
      * * `supported`: true if the call succeeded AND returned data indicating the interface is supported
      */
-    function trySupportsInterface(
+    function _trySupportsInterface(
         address account,
         bytes4 interfaceId
-    ) internal view returns (bool success, bool supported) {
+    ) private view returns (bool success, bool supported) {
         bytes4 selector = IERC165.supportsInterface.selector;
 
         assembly ("memory-safe") {
