@@ -418,7 +418,7 @@ describe('TimelockController', function () {
                 reentrantOperation.predecessor,
                 reentrantOperation.salt,
               ]);
-              await reentrant.enableRentrancy(this.mock, data);
+              await reentrant.enableReentrancy(this.mock, data);
 
               // Expect to fail
               await expect(
@@ -811,7 +811,7 @@ describe('TimelockController', function () {
                 reentrantBatchOperation.predecessor,
                 reentrantBatchOperation.salt,
               ]);
-              await reentrant.enableRentrancy(this.mock, data);
+              await reentrant.enableReentrancy(this.mock, data);
 
               // Expect to fail
               await expect(
