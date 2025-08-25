@@ -135,7 +135,7 @@ library Bytes {
      * `abi.encodePacked`.
      *
      * NOTE: this could be done in assembly with a single loop that expands starting at the FMP, but that would be
-     * significantly less readable. It might be work benchmarking the saving of the full-assembly approach.
+     * significantly less readable. It might be worth benchmarking the savings of the full-assembly approach.
      */
     function concat(bytes[] memory buffers) internal pure returns (bytes memory) {
         uint256 length = 0;
