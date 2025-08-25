@@ -72,7 +72,7 @@ describe('ERC165Checker', function () {
 
   describe('ERC165 revert on invalid interface', function () {
     beforeEach(async function () {
-      this.target = await ethers.deployContract('ERC165RevertInvalid');
+      this.target = await ethers.deployContract('ERC165RevertInvalid', [[DUMMY_ID]]);
     });
 
     it('does not support ERC165', async function () {
@@ -91,8 +91,9 @@ describe('ERC165Checker', function () {
       await expect(this.mock.$getSupportedInterfaces(this.target, [DUMMY_ID])).to.eventually.deep.equal([false]);
     });
 
-    it('does not support mock interface via supportsERC165InterfaceUnchecked', async function () {
-      await expect(this.mock.$supportsERC165InterfaceUnchecked(this.target, DUMMY_ID)).to.eventually.be.false;
+    it('support mock interface via supportsERC165InterfaceUnchecked', async function () {
+      await expect(this.mock.$supportsERC165InterfaceUnchecked(this.target, '0xffffffff')).to.eventually.be.false;
+      await expect(this.mock.$supportsERC165InterfaceUnchecked(this.target, DUMMY_ID)).to.eventually.be.true;
     });
   });
 

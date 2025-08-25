@@ -36,7 +36,7 @@ contract SupportsInterfaceWithLookupMock is IERC165 {
     /**
      * @dev Implement supportsInterface(bytes4) using a lookup table.
      */
-    function supportsInterface(bytes4 interfaceId) public view override returns (bool) {
+    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
         return _supportedInterfaces[interfaceId];
     }
 
@@ -54,6 +54,20 @@ contract ERC165InterfacesSupported is SupportsInterfaceWithLookupMock {
         for (uint256 i = 0; i < interfaceIds.length; i++) {
             _registerInterface(interfaceIds[i]);
         }
+    }
+}
+
+// Similar to ERC165InterfacesSupported, but revert (without reason) when an interface is not supported
+contract ERC165RevertInvalid is SupportsInterfaceWithLookupMock {
+    constructor(bytes4[] memory interfaceIds) {
+        for (uint256 i = 0; i < interfaceIds.length; i++) {
+            _registerInterface(interfaceIds[i]);
+        }
+    }
+
+    function supportsInterface(bytes4 interfaceId) public view override returns (bool) {
+        require(super.supportsInterface(interfaceId));
+        return true;
     }
 }
 
@@ -82,14 +96,5 @@ contract ERC165ReturnBombMock is IERC165 {
         assembly {
             return(0, 101500)
         }
-    }
-}
-
-contract ERC165RevertInvalid is IERC165 {
-    function supportsInterface(bytes4 interfaceId) public view virtual returns (bool) {
-        if (interfaceId == 0xffffffff) {
-            revert();
-        }
-        return interfaceId == type(IERC165).interfaceId; // 0x01ffc9a7
     }
 }
