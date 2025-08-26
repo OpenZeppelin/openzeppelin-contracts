@@ -14,7 +14,7 @@ contract BytesTest is Test {
     }
 
     // INDEX OF
-    function testIndexOf(bytes memory buffer, bytes1 s) public pure {
+    function testSymbolicIndexOf(bytes memory buffer, bytes1 s) public pure {
         uint256 result = Bytes.indexOf(buffer, s);
 
         if (buffer.length == 0) {
@@ -48,7 +48,7 @@ contract BytesTest is Test {
         }
     }
 
-    function testLastIndexOf(bytes memory buffer, bytes1 s) public pure {
+    function testSymbolicLastIndexOf(bytes memory buffer, bytes1 s) public pure {
         uint256 result = Bytes.lastIndexOf(buffer, s);
 
         if (buffer.length == 0) {
