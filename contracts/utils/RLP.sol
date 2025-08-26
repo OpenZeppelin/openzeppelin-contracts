@@ -4,6 +4,7 @@ pragma solidity ^0.8.27;
 import {Math} from "./math/Math.sol";
 import {Bytes} from "./Bytes.sol";
 import {Memory} from "./Memory.sol";
+import {SafeCast} from "./math/SafeCast.sol";
 
 /**
  * @dev Library for encoding and decoding data in RLP format.
@@ -11,7 +12,8 @@ import {Memory} from "./Memory.sol";
  * It's used for encoding everything from transactions to blocks to Patricia-Merkle tries.
  */
 library RLP {
-    using Math for uint256;
+    using Math for *;
+    using SafeCast for bool;
     using Bytes for *;
     using Memory for *;
 
@@ -62,10 +64,10 @@ library RLP {
 
     /**
      * @dev Encodes an array of bytes using RLP (as a list).
-     * First it {_flatten}s the list of encoded items, then encodes it with the list prefix.
+     * First it {Bytes-concat}s the list of encoded items, then encodes it with the list prefix.
      */
     function encode(bytes[] memory list) internal pure returns (bytes memory) {
-        bytes memory flattened = _flatten(list);
+        bytes memory flattened = list.concat();
         return bytes.concat(_encodeLength(flattened.length, LONG_OFFSET), flattened);
     }
 
@@ -99,7 +101,7 @@ library RLP {
      * Use this for ecosystem compatibility; use {encodeStrict} for strict RLP spec compliance.
      */
     function encode(bool value) internal pure returns (bytes memory) {
-        return encode(value ? uint256(1) : uint256(0));
+        return encode(value.toUint());
     }
 
     /**
@@ -184,56 +186,23 @@ library RLP {
     /**
      * @dev Encodes a length with appropriate RLP prefix.
      *
-     * Uses short encoding for lengths <= 55 bytes (i.e. `abi.encodePacked(bytes1(uint8(length) + uint8(offset)))`).
-     * Uses long encoding for lengths > 55 bytes See {_encodeLongLength}.
+     * * For lengths <= 55 bytes, uses short encoding: [ length (1 byte) ++ offset (1 byte) ].
+     * * For lengths > 55 bytes, uses long encoding using a length-of-length prefix:
+     * [ prefix ++ length of the length ++ length in big-endian ].
      */
     function _encodeLength(uint256 length, uint256 offset) private pure returns (bytes memory) {
         return
             length <= SHORT_THRESHOLD
                 ? abi.encodePacked(bytes1(uint8(length) + uint8(offset)))
-                : _encodeLongLength(length, offset);
-    }
-
-    /**
-     * @dev Encodes a long length value (>55 bytes) with a length-of-length prefix.
-     * Format: [prefix + length of the length] + [length in big-endian]
-     */
-    function _encodeLongLength(uint256 length, uint256 offset) private pure returns (bytes memory) {
-        uint256 bytesLength = length.log256() + 1; // Result is floored
-        return
-            abi.encodePacked(
-                bytes1(uint8(bytesLength) + uint8(offset) + SHORT_THRESHOLD),
-                _binaryBuffer(length) // already in big-endian, minimal representation
-            );
+                : abi.encodePacked(
+                    bytes1(uint8(length.log256() + 1) + uint8(offset) + SHORT_THRESHOLD),
+                    _binaryBuffer(length) // already in big-endian, minimal representation
+                );
     }
 
     /// @dev Converts a uint256 to minimal binary representation, removing leading zeros.
     function _binaryBuffer(uint256 value) private pure returns (bytes memory) {
         return abi.encodePacked(value).slice(value.clz() / 8);
-    }
-
-    /// @dev Concatenates all byte arrays in the `list` sequentially. Returns a flattened buffer.
-    function _flatten(bytes[] memory list) private pure returns (bytes memory) {
-        // TODO: Move to Arrays.sol
-        bytes memory flattened = new bytes(_totalLength(list));
-        Memory.Pointer dataPtr = _addOffset(_asPointer(flattened), 32);
-        for (uint256 i = 0; i < list.length; i++) {
-            bytes memory item = list[i];
-            uint256 length = item.length;
-            _copy(dataPtr, _addOffset(_asPointer(item), 32), length);
-            dataPtr = _addOffset(dataPtr, length);
-        }
-        return flattened;
-    }
-
-    /// @dev Sums up the length of each array in the list.
-    function _totalLength(bytes[] memory list) private pure returns (uint256) {
-        // TODO: Move to Arrays.sol
-        uint256 totalLength;
-        for (uint256 i = 0; i < list.length; i++) {
-            totalLength += list[i].length;
-        }
-        return totalLength;
     }
 
     /**
