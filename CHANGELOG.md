@@ -1,5 +1,8 @@
 # Changelog
 
+### Bug fixes
+
+- `ERC165Checker`: Ensure the `supportsERC165` function returns false if the second underlying call to `supportsInterface` while detecting ERC-165 reverts. ([#5810](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5880))
 
 ### Breaking changes
 
