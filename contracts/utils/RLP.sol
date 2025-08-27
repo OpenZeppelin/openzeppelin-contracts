@@ -112,7 +112,7 @@ library RLP {
      * Use this for strict RLP spec compliance; use {encode} for ecosystem compatibility.
      */
     function encodeStrict(bool value) internal pure returns (bytes memory) {
-        return value ? abi.encodePacked(bytes1(0x01)) : encode(new bytes(0));
+        return abi.encodePacked(bytes1(bytes32(value.ternary(0x01, 0x80))[31]));
     }
 
     /// @dev Creates an RLP Item from a bytes array.
