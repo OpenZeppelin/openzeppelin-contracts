@@ -1,4 +1,4 @@
-const { ethers, config, entrypoint, senderCreator } = require('hardhat');
+const { ethers, config, predeploy } = require('hardhat');
 
 const SIG_VALIDATION_SUCCESS = '0x0000000000000000000000000000000000000000';
 const SIG_VALIDATION_FAILURE = '0x0000000000000000000000000000000000000001';
@@ -101,8 +101,8 @@ class ERC4337Helper {
 
   async newAccount(name, extraArgs = [], params = {}) {
     const env = {
-      entrypoint: params.entrypoint ?? entrypoint.v08,
-      senderCreator: params.senderCreator ?? senderCreator.v08,
+      entrypoint: params.entrypoint ?? predeploy.entrypoint.v08,
+      senderCreator: params.senderCreator ?? predeploy.senderCreator.v08,
     };
 
     const { factory } = await this.wait();

@@ -48,8 +48,18 @@ contract AccountERC7702Test is Test {
         vm.signAndAttachDelegation(address(new AccountERC7702MockConstructor()), _signerPrivateKey);
 
         // Setup entrypoint
-        vm.deal(address(ERC4337Utils.ENTRYPOINT_V08), MAX_ETH);
-        vm.etch(address(ERC4337Utils.ENTRYPOINT_V08), vm.readFileBinary("test/bin/EntryPoint070.bytecode"));
+        address entrypoint = address(ERC4337Utils.ENTRYPOINT_V08);
+        vm.deal(entrypoint, MAX_ETH);
+        vm.etch(
+            entrypoint,
+            vm.readFileBinary(
+                string.concat(
+                    "node_modules/hardhat-predeploy/bin/",
+                    Strings.toChecksumHexString(entrypoint),
+                    ".bytecode"
+                )
+            )
+        );
     }
 
     function testExecuteBatch(uint256 argA, uint256 argB) public {

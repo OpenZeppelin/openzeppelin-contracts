@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.4.0) (utils/cryptography/signers/draft-ERC7739.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
 import {AbstractSigner} from "./AbstractSigner.sol";
 import {EIP712} from "../EIP712.sol";
 import {ERC7739Utils} from "../draft-ERC7739Utils.sol";
 import {IERC1271} from "../../../interfaces/IERC1271.sol";
 import {MessageHashUtils} from "../MessageHashUtils.sol";
-import {ShortStrings} from "../../ShortStrings.sol";
 
 /**
  * @dev Validates signatures wrapping the message hash in a nested EIP712 type. See {ERC7739Utils}.

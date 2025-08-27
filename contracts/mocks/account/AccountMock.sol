@@ -7,7 +7,6 @@ import {AccountERC7579} from "../../account/extensions/draft-AccountERC7579.sol"
 import {AccountERC7579Hooked} from "../../account/extensions/draft-AccountERC7579Hooked.sol";
 import {ERC721Holder} from "../../token/ERC721/utils/ERC721Holder.sol";
 import {ERC1155Holder} from "../../token/ERC1155/utils/ERC1155Holder.sol";
-import {ERC4337Utils} from "../../account/utils/draft-ERC4337Utils.sol";
 import {ERC7739} from "../../utils/cryptography/signers/draft-ERC7739.sol";
 import {ERC7821} from "../../account/extensions/draft-ERC7821.sol";
 import {MODULE_TYPE_VALIDATOR} from "../../interfaces/draft-IERC7579.sol";
@@ -16,6 +15,7 @@ import {AbstractSigner} from "../../utils/cryptography/signers/AbstractSigner.so
 import {SignerECDSA} from "../../utils/cryptography/signers/SignerECDSA.sol";
 import {SignerP256} from "../../utils/cryptography/signers/SignerP256.sol";
 import {SignerRSA} from "../../utils/cryptography/signers/SignerRSA.sol";
+import {SignerWebAuthn} from "../../utils/cryptography/signers/SignerWebAuthn.sol";
 import {SignerERC7702} from "../../utils/cryptography/signers/SignerERC7702.sol";
 import {SignerERC7913} from "../../utils/cryptography/signers/SignerERC7913.sol";
 import {MultiSignerERC7913} from "../../utils/cryptography/signers/MultiSignerERC7913.sol";
@@ -60,6 +60,17 @@ abstract contract AccountP256Mock is Account, SignerP256, ERC7739, ERC7821, ERC7
 }
 
 abstract contract AccountRSAMock is Account, SignerRSA, ERC7739, ERC7821, ERC721Holder, ERC1155Holder {
+    /// @inheritdoc ERC7821
+    function _erc7821AuthorizedExecutor(
+        address caller,
+        bytes32 mode,
+        bytes calldata executionData
+    ) internal view virtual override returns (bool) {
+        return caller == address(entryPoint()) || super._erc7821AuthorizedExecutor(caller, mode, executionData);
+    }
+}
+
+abstract contract AccountWebAuthnMock is Account, SignerWebAuthn, ERC7739, ERC7821, ERC721Holder, ERC1155Holder {
     /// @inheritdoc ERC7821
     function _erc7821AuthorizedExecutor(
         address caller,

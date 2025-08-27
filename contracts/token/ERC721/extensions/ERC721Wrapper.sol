@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.1.0) (token/ERC721/extensions/ERC721Wrapper.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
 import {IERC721, ERC721} from "../ERC721.sol";
 import {IERC721Receiver} from "../IERC721Receiver.sol";
@@ -36,7 +36,7 @@ abstract contract ERC721Wrapper is ERC721, IERC721Receiver {
             // This is an "unsafe" transfer that doesn't call any hook on the receiver. With underlying() being trusted
             // (by design of this contract) and no other contracts expected to be called from there, we are safe.
             // slither-disable-next-line reentrancy-no-eth
-            underlying().transferFrom(_msgSender(), address(this), tokenId);
+            underlying().transferFrom(_msgSender(), address(this), tokenId); // forge-lint: disable-line(erc20-unchecked-transfer)
             _safeMint(account, tokenId);
         }
 

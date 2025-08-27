@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.2.0) (utils/Bytes.sol)
+// OpenZeppelin Contracts (last updated v5.4.0) (utils/Bytes.sol)
 
 pragma solidity ^0.8.24;
 
@@ -58,8 +58,7 @@ library Bytes {
     function lastIndexOf(bytes memory buffer, bytes1 s, uint256 pos) internal pure returns (uint256) {
         unchecked {
             uint256 length = buffer.length;
-            // NOTE here we cannot do `i = Math.min(pos + 1, length)` because `pos + 1` could overflow
-            for (uint256 i = Math.min(pos, length - 1) + 1; i > 0; --i) {
+            for (uint256 i = Math.min(Math.saturatingAdd(pos, 1), length); i > 0; --i) {
                 if (bytes1(_unsafeReadBytesOffset(buffer, i - 1)) == s) {
                     return i - 1;
                 }
@@ -80,7 +79,7 @@ library Bytes {
 
     /**
      * @dev Copies the content of `buffer`, from `start` (included) to `end` (excluded) into a new bytes object in
-     * memory.
+     * memory. The `end` argument is truncated to the length of the `buffer`.
      *
      * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice[Javascript's `Array.slice`]
      */
@@ -97,6 +96,74 @@ library Bytes {
         }
 
         return result;
+    }
+
+    /**
+     * @dev Moves the content of `buffer`, from `start` (included) to the end of `buffer` to the start of that buffer.
+     *
+     * NOTE: This function modifies the provided buffer in place. If you need to preserve the original buffer, use {slice} instead
+     */
+    function splice(bytes memory buffer, uint256 start) internal pure returns (bytes memory) {
+        return splice(buffer, start, buffer.length);
+    }
+
+    /**
+     * @dev Moves the content of `buffer`, from `start` (included) to end (excluded) to the start of that buffer. The
+     * `end` argument is truncated to the length of the `buffer`.
+     *
+     * NOTE: This function modifies the provided buffer in place. If you need to preserve the original buffer, use {slice} instead
+     */
+    function splice(bytes memory buffer, uint256 start, uint256 end) internal pure returns (bytes memory) {
+        // sanitize
+        uint256 length = buffer.length;
+        end = Math.min(end, length);
+        start = Math.min(start, end);
+
+        // allocate and copy
+        assembly ("memory-safe") {
+            mcopy(add(buffer, 0x20), add(add(buffer, 0x20), start), sub(end, start))
+            mstore(buffer, sub(end, start))
+        }
+
+        return buffer;
+    }
+
+    /**
+     * @dev Concatenate an array of bytes into a single bytes object.
+     *
+     * For fixed bytes types, we recommend using the solidity built-in `bytes.concat` or (equivalent)
+     * `abi.encodePacked`.
+     *
+     * NOTE: this could be done in assembly with a single loop that expands starting at the FMP, but that would be
+     * significantly less readable. It might be worth benchmarking the savings of the full-assembly approach.
+     */
+    function concat(bytes[] memory buffers) internal pure returns (bytes memory) {
+        uint256 length = 0;
+        for (uint256 i = 0; i < buffers.length; ++i) {
+            length += buffers[i].length;
+        }
+
+        bytes memory result = new bytes(length);
+
+        uint256 offset = 0x20;
+        for (uint256 i = 0; i < buffers.length; ++i) {
+            bytes memory input = buffers[i];
+            assembly ("memory-safe") {
+                mcopy(add(result, offset), add(input, 0x20), mload(input))
+            }
+            unchecked {
+                offset += input.length;
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * @dev Returns true if the two byte buffers are equal.
+     */
+    function equal(bytes memory a, bytes memory b) internal pure returns (bool) {
+        return a.length == b.length && keccak256(a) == keccak256(b);
     }
 
     /**
@@ -149,6 +216,20 @@ library Bytes {
     /// @dev Same as {reverseBytes32} but optimized for 16-bit values.
     function reverseBytes2(bytes2 value) internal pure returns (bytes2) {
         return (value >> 8) | (value << 8);
+    }
+
+    /**
+     * @dev Counts the number of leading zero bits a bytes array. Returns `8 * buffer.length`
+     * if the buffer is all zeros.
+     */
+    function clz(bytes memory buffer) internal pure returns (uint256) {
+        for (uint256 i = 0; i < buffer.length; i += 32) {
+            bytes32 chunk = _unsafeReadBytesOffset(buffer, i);
+            if (chunk != bytes32(0)) {
+                return Math.min(8 * i + Math.clz(uint256(chunk)), 8 * buffer.length);
+            }
+        }
+        return 8 * buffer.length;
     }
 
     /**
