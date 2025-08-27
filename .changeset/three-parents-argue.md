@@ -2,4 +2,4 @@
 'openzeppelin-solidity': patch
 ---
 
-Add `_reentrancyGuardStorageSlot()` to `ReentrancyGuardTransient` as a `pure virtual` function to allow slot overrides for diamond-compatible modular usage. Related to #5681.
+`ReentrancyGuard` and `ReentrancyGuardTransient`: Add `_reentrancyGuardStorageSlot()`, a `pure virtual` function, that can be overriden to allow slot customization.
