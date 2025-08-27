@@ -134,8 +134,8 @@ library ERC165Checker {
             mstore(0x04, interfaceId)
             success := staticcall(30000, account, 0x00, 0x24, 0x00, 0x20)
             supported := and(
-                gt(returndatasize(), 0x1F), // we have at least 20 bytes of returndata
-                iszero(iszero(mload(0x00))) // the first 20 bytes of returndata are non-zero
+                gt(returndatasize(), 0x1F), // we have at least 32 bytes of returndata
+                iszero(iszero(mload(0x00))) // the first 32 bytes of returndata are non-zero
             )
         }
     }
