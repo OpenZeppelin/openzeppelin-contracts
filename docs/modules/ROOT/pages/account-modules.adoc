@@ -12,7 +12,21 @@ OpenZeppelin offers an implementation of an xref:api:account.adoc#AccountERC7579
 
 [source,solidity]
 ----
-include::api:example$account/MyAccountERC7579.sol[]
+// contracts/MyAccountERC7579.sol
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.27;
+
+import {AccountERC7579} from "@openzeppelin/contracts/account/extensions/draft-AccountERC7579.sol";
+import {IERC1271} from "@openzeppelin/contracts/interfaces/IERC1271.sol";
+import {MODULE_TYPE_VALIDATOR} from "@openzeppelin/contracts/interfaces/draft-IERC7579.sol";
+import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+
+contract MyAccountERC7579 is Initializable, AccountERC7579 {
+    function initializeAccount(address validator, bytes calldata validatorData) public initializer {
+        // Install a validator module to handle signature verification
+        _installModule(MODULE_TYPE_VALIDATOR, validator, validatorData);
+    }
+}
 ----
 
 NOTE: For simplicity, the xref:api:account.adoc#AccountERC7579Hooked[`AccountERC7579Hooked`] only supports a single hook. A common workaround is to install a https://github.com/rhinestonewtf/core-modules/blob/7afffccb44d73dbaca2481e7b92bce0621ea6449/src/HookMultiPlexer/HookMultiPlexer.sol[single hook with a multiplexer pattern] to extend the functionality to multiple hooks.
