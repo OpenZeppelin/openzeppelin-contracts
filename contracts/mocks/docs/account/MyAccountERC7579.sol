@@ -2,8 +2,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.27;
 
-import {AccountERC7579} from "../../../account/extensions/draft-AccountERC7579.sol";
-import {IERC1271} from "../../../interfaces/IERC1271.sol";
+import {AccountERC7579, IERC1271} from "../../../account/extensions/draft-AccountERC7579.sol";
 import {MODULE_TYPE_VALIDATOR} from "../../../interfaces/draft-IERC7579.sol";
 import {Initializable} from "../../../proxy/utils/Initializable.sol";
 
