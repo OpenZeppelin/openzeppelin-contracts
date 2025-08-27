@@ -11,4 +11,5 @@ module.exports = {
   Rounding: EnumTyped('Floor', 'Ceil', 'Trunc', 'Expand'),
   OperationState: Enum('Unset', 'Waiting', 'Ready', 'Done'),
   RevertType: EnumTyped('None', 'RevertWithoutMessage', 'RevertWithMessage', 'RevertWithCustomError', 'Panic'),
+  ERC7579OperationState: Enum('Unknown', 'Scheduled', 'Ready', 'Expired', 'Executed', 'Canceled'),
 };
