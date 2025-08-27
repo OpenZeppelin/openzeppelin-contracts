@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.28;
+pragma solidity ^0.8.20;
 
 contract ReentrancyGuardHybrid {
     mapping(bytes32 => bool) private _status;

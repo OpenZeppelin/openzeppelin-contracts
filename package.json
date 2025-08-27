@@ -70,7 +70,7 @@
     "glob": "^11.0.0",
     "globals": "^16.0.0",
     "graphlib": "^2.1.8",
-    "hardhat": "^2.24.0",
+    "hardhat": "^2.26.3",
     "hardhat-exposed": "^0.3.15",
     "hardhat-gas-reporter": "^2.1.0",
     "hardhat-ignore-warnings": "^0.2.11",
