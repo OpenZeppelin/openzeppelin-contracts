@@ -128,7 +128,38 @@ library Bytes {
         return buffer;
     }
 
-    /*
+    /**
+     * @dev Concatenate an array of bytes into a single bytes object.
+     *
+     * For fixed bytes types, we recommend using the solidity built-in `bytes.concat` or (equivalent)
+     * `abi.encodePacked`.
+     *
+     * NOTE: this could be done in assembly with a single loop that expands starting at the FMP, but that would be
+     * significantly less readable. It might be worth benchmarking the savings of the full-assembly approach.
+     */
+    function concat(bytes[] memory buffers) internal pure returns (bytes memory) {
+        uint256 length = 0;
+        for (uint256 i = 0; i < buffers.length; ++i) {
+            length += buffers[i].length;
+        }
+
+        bytes memory result = new bytes(length);
+
+        uint256 offset = 0x20;
+        for (uint256 i = 0; i < buffers.length; ++i) {
+            bytes memory input = buffers[i];
+            assembly ("memory-safe") {
+                mcopy(add(result, offset), add(input, 0x20), mload(input))
+            }
+            unchecked {
+                offset += input.length;
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * @dev Returns true if the two byte buffers are equal.
      */
     function equal(bytes memory a, bytes memory b) internal pure returns (bool) {
@@ -185,6 +216,20 @@ library Bytes {
     /// @dev Same as {reverseBytes32} but optimized for 16-bit values.
     function reverseBytes2(bytes2 value) internal pure returns (bytes2) {
         return (value >> 8) | (value << 8);
+    }
+
+    /**
+     * @dev Counts the number of leading zero bits a bytes array. Returns `8 * buffer.length`
+     * if the buffer is all zeros.
+     */
+    function clz(bytes memory buffer) internal pure returns (uint256) {
+        for (uint256 i = 0; i < buffer.length; i += 32) {
+            bytes32 chunk = _unsafeReadBytesOffset(buffer, i);
+            if (chunk != bytes32(0)) {
+                return Math.min(8 * i + Math.clz(uint256(chunk)), 8 * buffer.length);
+            }
+        }
+        return 8 * buffer.length;
     }
 
     /**

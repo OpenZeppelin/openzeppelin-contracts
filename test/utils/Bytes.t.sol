@@ -14,7 +14,7 @@ contract BytesTest is Test {
     }
 
     // INDEX OF
-    function testIndexOf(bytes memory buffer, bytes1 s) public pure {
+    function testSymbolicIndexOf(bytes memory buffer, bytes1 s) public pure {
         uint256 result = Bytes.indexOf(buffer, s);
 
         if (buffer.length == 0) {
@@ -48,7 +48,7 @@ contract BytesTest is Test {
         }
     }
 
-    function testLastIndexOf(bytes memory buffer, bytes1 s) public pure {
+    function testSymbolicLastIndexOf(bytes memory buffer, bytes1 s) public pure {
         uint256 result = Bytes.lastIndexOf(buffer, s);
 
         if (buffer.length == 0) {
@@ -194,6 +194,34 @@ contract BytesTest is Test {
     function testSymbolicReverseBytes2Dirty(bytes2 value) public pure {
         assertEq(Bytes.reverseBytes2(Bytes.reverseBytes2(_dirtyBytes2(value))), value);
         assertEq(Bytes.reverseBytes2(_dirtyBytes2(Bytes.reverseBytes2(value))), value);
+    }
+
+    // CLZ (Count Leading Zeros)
+    function testClz(bytes memory buffer) public pure {
+        uint256 result = Bytes.clz(buffer);
+
+        // index and offset of the first non zero bit
+        uint256 index = result / 8;
+        uint256 offset = result % 8;
+
+        // Result should never exceed buffer length
+        assertLe(index, buffer.length);
+
+        // All bytes before index position must be zero
+        for (uint256 i = 0; i < index; ++i) {
+            assertEq(buffer[i], 0);
+        }
+
+        // If index < buffer.length, byte at index position must be non-zero
+        if (index < buffer.length) {
+            // bit at position offset must be non zero
+            bytes1 singleBitMask = bytes1(0x80) >> offset;
+            assertEq(buffer[index] & singleBitMask, singleBitMask);
+
+            // all bits before offset must be zero
+            bytes1 multiBitsMask = bytes1(0xff) << (8 - offset);
+            assertEq(buffer[index] & multiBitsMask, 0);
+        }
     }
 
     // Helpers

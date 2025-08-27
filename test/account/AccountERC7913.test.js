@@ -1,4 +1,4 @@
-const { ethers, entrypoint } = require('hardhat');
+const { ethers, predeploy } = require('hardhat');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { getDomain } = require('../helpers/eip712');
@@ -30,7 +30,7 @@ async function fixture() {
   // ERC-4337 env
   const helper = new ERC4337Helper();
   await helper.wait();
-  const entrypointDomain = await getDomain(entrypoint.v08);
+  const entrypointDomain = await getDomain(predeploy.entrypoint.v08);
   const domain = { name: 'AccountERC7913', version: '1', chainId: entrypointDomain.chainId }; // Missing verifyingContract,
 
   const makeMock = signer =>
