@@ -31,9 +31,12 @@ import {ERC4337Utils} from "../account/utils/draft-ERC4337Utils.sol";
 import {ERC7579Utils} from "../account/utils/draft-ERC7579Utils.sol";
 import {ERC7913P256Verifier} from "../utils/cryptography/verifiers/ERC7913P256Verifier.sol";
 import {ERC7913RSAVerifier} from "../utils/cryptography/verifiers/ERC7913RSAVerifier.sol";
+import {FastLZ} from "../utils/compression/FastLZ.sol";
 import {Heap} from "../utils/structs/Heap.sol";
 import {InteroperableAddress} from "../utils/draft-InteroperableAddress.sol";
+import {LZ4} from "../utils/compression/LZ4.sol";
 import {Math} from "../utils/math/Math.sol";
+import {Memory} from "../utils/Memory.sol";
 import {MerkleProof} from "../utils/cryptography/MerkleProof.sol";
 import {MessageHashUtils} from "../utils/cryptography/MessageHashUtils.sol";
 import {Nonces} from "../utils/Nonces.sol";
@@ -47,9 +50,9 @@ import {SafeERC20} from "../token/ERC20/utils/SafeERC20.sol";
 import {ShortStrings} from "../utils/ShortStrings.sol";
 import {SignatureChecker} from "../utils/cryptography/SignatureChecker.sol";
 import {SignedMath} from "../utils/math/SignedMath.sol";
+import {Snappy} from "../utils/compression/Snappy.sol";
 import {StorageSlot} from "../utils/StorageSlot.sol";
 import {Strings} from "../utils/Strings.sol";
-import {Memory} from "../utils/Memory.sol";
 import {Time} from "../utils/types/Time.sol";
 
 contract Dummy1234 {}
