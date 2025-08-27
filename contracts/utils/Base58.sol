@@ -31,7 +31,7 @@ library Base58 {
 
         assembly ("memory-safe") {
             // Count number of zero bytes at the beginning of `input`. These are encoded using the same number of '1's
-            // at then beginning of the encoded string.
+            // at the beginning of the encoded string.
             let inputLeadingZeros := 0
             for {} lt(byte(0, mload(add(add(input, 0x20), inputLeadingZeros))), lt(inputLeadingZeros, inputLength)) {} {
                 inputLeadingZeros := add(inputLeadingZeros, 1)
