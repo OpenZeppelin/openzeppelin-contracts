@@ -59,10 +59,10 @@ index ff596b0c3..000000000
 -<!-- Make sure that you have reviewed the OpenZeppelin Contracts Contributor Guidelines. -->
 -<!-- https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/CONTRIBUTING.md -->
 diff --git a/README.md b/README.md
-index 2f92281b3..a0e46695d 100644
+index 60d0a430a..0e4f91a6d 100644
 --- a/README.md
 +++ b/README.md
-@@ -20,6 +20,9 @@
+@@ -19,6 +19,9 @@
  > [!IMPORTANT]
  > OpenZeppelin Contracts uses semantic versioning to communicate backwards compatibility of its API and storage layout. For upgradeable contracts, the storage layout of different major versions should be assumed incompatible, for example, it is unsafe to upgrade from 4.9.3 to 5.0.0. Learn more at [Backwards Compatibility](https://docs.openzeppelin.com/contracts/backwards-compatibility).
  
@@ -72,7 +72,7 @@ index 2f92281b3..a0e46695d 100644
  ## Overview
  
  ### Installation
-@@ -27,7 +30,7 @@
+@@ -26,7 +29,7 @@
  #### Hardhat (npm)
  
  ```
@@ -81,7 +81,7 @@ index 2f92281b3..a0e46695d 100644
  ```
  
  #### Foundry (git)
-@@ -39,10 +42,10 @@ $ npm install @openzeppelin/contracts
+@@ -38,10 +41,10 @@ $ npm install @openzeppelin/contracts
  > Foundry installs the latest version initially, but subsequent `forge update` commands will use the `master` branch.
  
  ```
@@ -94,7 +94,7 @@ index 2f92281b3..a0e46695d 100644
  
  ### Usage
  
-@@ -51,10 +54,11 @@ Once installed, you can use the contracts in the library by importing them:
+@@ -50,10 +53,11 @@ Once installed, you can use the contracts in the library by importing them:
  ```solidity
  pragma solidity ^0.8.20;
  
@@ -109,21 +109,8 @@ index 2f92281b3..a0e46695d 100644
      }
  }
  ```
-diff --git a/contracts/mocks/docs/account/MyAccountERC7579.sol b/contracts/mocks/docs/account/MyAccountERC7579.sol
-index acc9e5c99..5356c9735 100644
---- a/contracts/mocks/docs/account/MyAccountERC7579.sol
-+++ b/contracts/mocks/docs/account/MyAccountERC7579.sol
-@@ -3,7 +3,7 @@
- pragma solidity ^0.8.27;
- 
- import {AccountERC7579} from "../../../account/extensions/draft-AccountERC7579.sol";
--import {IERC1271} from "../../../interfaces/IERC1271.sol";
-+import {IERC1271} from "@openzeppelin/contracts/interfaces/IERC1271.sol";
- import {MODULE_TYPE_VALIDATOR} from "../../../interfaces/draft-IERC7579.sol";
- import {Initializable} from "../../../proxy/utils/Initializable.sol";
- 
 diff --git a/contracts/package.json b/contracts/package.json
-index 8ccb9465e..509cd7f05 100644
+index 70ae73bc2..ef659873f 100644
 --- a/contracts/package.json
 +++ b/contracts/package.json
 @@ -1,5 +1,5 @@
@@ -131,7 +118,7 @@ index 8ccb9465e..509cd7f05 100644
 -  "name": "@openzeppelin/contracts",
 +  "name": "@openzeppelin/contracts-upgradeable",
    "description": "Secure Smart Contract library for Solidity",
-   "version": "5.4.0",
+   "version": "5.3.0",
    "files": [
 @@ -13,7 +13,7 @@
    },
@@ -153,11 +140,11 @@ index 8ccb9465e..509cd7f05 100644
 +  }
  }
 diff --git a/contracts/utils/cryptography/EIP712.sol b/contracts/utils/cryptography/EIP712.sol
-index 0eaef9d27..01f1b5f58 100644
+index c39954e35..fe681f87a 100644
 --- a/contracts/utils/cryptography/EIP712.sol
 +++ b/contracts/utils/cryptography/EIP712.sol
 @@ -4,7 +4,6 @@
- pragma solidity ^0.8.24;
+ pragma solidity ^0.8.20;
  
  import {MessageHashUtils} from "./MessageHashUtils.sol";
 -import {ShortStrings, ShortString} from "../ShortStrings.sol";
@@ -327,10 +314,10 @@ index 0eaef9d27..01f1b5f58 100644
      }
  }
 diff --git a/package.json b/package.json
-index 285a074ed..d48cc8e4b 100644
+index eeeaf0bcd..65581c544 100644
 --- a/package.json
 +++ b/package.json
-@@ -35,7 +35,7 @@
+@@ -34,7 +34,7 @@
    },
    "repository": {
      "type": "git",
@@ -348,7 +335,7 @@ index 304d1386a..a1cd63bee 100644
 +@openzeppelin/contracts-upgradeable/=contracts/
 +@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
 diff --git a/test/account/AccountERC7702.test.js b/test/account/AccountERC7702.test.js
-index f442d49af..8f22dc926 100644
+index d08a52209..7a44bccfe 100644
 --- a/test/account/AccountERC7702.test.js
 +++ b/test/account/AccountERC7702.test.js
 @@ -26,8 +26,8 @@ async function fixture() {
@@ -363,7 +350,7 @@ index f442d49af..8f22dc926 100644
      verifyingContract: mock.address,
    };
 diff --git a/test/account/examples/AccountERC7702WithModulesMock.test.js b/test/account/examples/AccountERC7702WithModulesMock.test.js
-index 8ceab19d1..c3f4194a6 100644
+index 9ee5f9177..f6106bcc7 100644
 --- a/test/account/examples/AccountERC7702WithModulesMock.test.js
 +++ b/test/account/examples/AccountERC7702WithModulesMock.test.js
 @@ -36,8 +36,8 @@ async function fixture() {
