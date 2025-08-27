@@ -136,7 +136,7 @@ abstract contract GovernorTimelockCompound is Governor {
     /**
      * @dev Accept admin right over the timelock.
      */
-    // solhint-disable-next-line private-vars-leading-underscore
+    // solhint-disable-next-line openzeppelin/leading-underscore
     function __acceptAdmin() public {
         _timelock.acceptAdmin();
     }
@@ -154,7 +154,7 @@ abstract contract GovernorTimelockCompound is Governor {
 
      * CAUTION: It is not recommended to change the timelock while there are other queued governance proposals.
      */
-    function updateTimelock(ICompoundTimelock newTimelock) external virtual onlyGovernance {
+    function updateTimelock(ICompoundTimelock newTimelock) public virtual onlyGovernance {
         _updateTimelock(newTimelock);
     }
 
