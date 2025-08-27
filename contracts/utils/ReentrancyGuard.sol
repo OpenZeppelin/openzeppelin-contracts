@@ -3,6 +3,8 @@
 
 pragma solidity ^0.8.20;
 
+import {StorageSlot} from "./StorageSlot.sol";
+
 /**
  * @dev Contract module that helps prevent reentrant calls to a function.
  *
@@ -21,8 +23,19 @@ pragma solidity ^0.8.20;
  * TIP: If you would like to learn more about reentrancy and alternative ways
  * to protect against it, check out our blog post
  * https://blog.openzeppelin.com/reentrancy-after-istanbul/[Reentrancy After Istanbul].
+ *
+ * As of v5.5, this storage-based version of the reentrancy guard is DEPRECATED. In the
+ * next major release (v6.0), {ReentrancyGuardTransient} will be removed, and its logic
+ * moved to this contract, making transient storage the standard storage option for
+ * reentrancy guards.
  */
 abstract contract ReentrancyGuard {
+    using StorageSlot for bytes32;
+
+    // keccak256(abi.encode(uint256(keccak256("openzeppelin.storage.ReentrancyGuard")) - 1)) & ~bytes32(uint256(0xff))
+    bytes32 private constant REENTRANCY_GUARD_STORAGE =
+        0x9b779b17422d0df92223018b32b4d1fa46e071723d6817e2486d003becc55f00;
+
     // Booleans are more expensive than uint256 or any type that takes up a full
     // word because each write operation emits an extra SLOAD to first read the
     // slot's contents, replace the bits taken up by the boolean, and then write
@@ -37,15 +50,13 @@ abstract contract ReentrancyGuard {
     uint256 private constant NOT_ENTERED = 1;
     uint256 private constant ENTERED = 2;
 
-    uint256 private _status;
-
     /**
      * @dev Unauthorized reentrant call.
      */
     error ReentrancyGuardReentrantCall();
 
     constructor() {
-        _status = NOT_ENTERED;
+        _reentrancyGuardStorageSlot().getUint256Slot().value = NOT_ENTERED;
     }
 
     /**
@@ -62,19 +73,19 @@ abstract contract ReentrancyGuard {
     }
 
     function _nonReentrantBefore() private {
-        // On the first call to nonReentrant, _status will be NOT_ENTERED
-        if (_status == ENTERED) {
+        // On the first call to nonReentrant, REENTRANCY_GUARD_STORAGE.getUint256Slot().value will be NOT_ENTERED
+        if (_reentrancyGuardEntered()) {
             revert ReentrancyGuardReentrantCall();
         }
 
         // Any calls to nonReentrant after this point will fail
-        _status = ENTERED;
+        _reentrancyGuardStorageSlot().getUint256Slot().value = ENTERED;
     }
 
     function _nonReentrantAfter() private {
         // By storing the original value once again, a refund is triggered (see
         // https://eips.ethereum.org/EIPS/eip-2200)
-        _status = NOT_ENTERED;
+        _reentrancyGuardStorageSlot().getUint256Slot().value = NOT_ENTERED;
     }
 
     /**
@@ -82,6 +93,10 @@ abstract contract ReentrancyGuard {
      * `nonReentrant` function in the call stack.
      */
     function _reentrancyGuardEntered() internal view returns (bool) {
-        return _status == ENTERED;
+        return _reentrancyGuardStorageSlot().getUint256Slot().value == ENTERED;
+    }
+
+    function _reentrancyGuardStorageSlot() internal pure virtual returns (bytes32) {
+        return REENTRANCY_GUARD_STORAGE;
     }
 }
