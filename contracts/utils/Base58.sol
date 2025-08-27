@@ -40,7 +40,7 @@ library Base58 {
             // Start the output offset by an over-estimate of the length.
             let outputLengthEstim := add(inputLeadingZeros, div(mul(sub(inputLength, inputLeadingZeros), 8351), 6115))
 
-            // This is going to be our "scratch" workspace. Be leave enough room on the left to store length + encoded input.
+            // This is going to be our "scratch" workspace. We leave enough room after FMP to later store length + encoded output.
             let scratch := add(mload(0x40), add(outputLengthEstim, 0x21))
 
             // Cut the input buffer in section (limbs) of 31 bytes (248 bits). Store in scratch.
@@ -57,7 +57,7 @@ library Base58 {
                 ptr := add(ptr, 0x20) // next limb
                 i := add(i, 31) // move in buffer
             } {
-                // Load 32 bytes from the input buffer and shift to only keep the 31 leftmost.
+                // Load 31 bytes from the input buffer and store then in scratch (at ptr) in a dedicated 32 bytes space.
                 mstore(ptr, shr(8, mload(add(add(input, 0x20), i))))
             }
 
