@@ -73,7 +73,7 @@ function upperLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} k
  * @dev Returns the value in the last (most recent) checkpoint with key lower or equal than the search key, or zero
  * if there is none.
  *
- * NOTE: This is a variant of {upperLookup} that is optimised to find "recent" checkpoint (checkpoints with high
+ * NOTE: This is a variant of {upperLookup} that is optimized to find "recent" checkpoint (checkpoints with high
  * keys).
  */
 function upperLookupRecent(${opts.historyTypeName} storage self, ${opts.keyTypeName} key) internal view returns (${opts.valueTypeName}) {
@@ -223,7 +223,7 @@ function _unsafeAccess(
 ) private pure returns (${opts.checkpointTypeName} storage result) {
     assembly {
         mstore(0, self.slot)
-        result.slot := add(keccak256(0, 0x20), pos)
+        result.slot := add(keccak256(0, 0x20), ${opts.checkpointSize === 1 ? 'pos' : `mul(pos, ${opts.checkpointSize})`})
     }
 }
 `;

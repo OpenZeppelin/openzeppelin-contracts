@@ -1,0 +1,354 @@
+= Smart Accounts
+
+OpenZeppelin provides a simple xref:api:account.adoc#Account[`Account`] implementation including only the basic logic to handle user operations in compliance with ERC-4337. Developers who want to build their own account can leverage it to bootstrap custom implementations.
+
+User operations are validated using an xref:api:utils.adoc#AbstractSigner[`AbstractSigner`], which requires to implement the internal xref:api:utils.adoc#AbstractSigner-_rawSignatureValidation-bytes32-bytes-[`_rawSignatureValidation`] function, of which we offer a set of implementations to cover a wide customization range. This is the lowest-level signature validation layer and is used to wrap other validation methods like the Account's xref:api:account.adoc#Account-validateUserOp-struct-PackedUserOperation-bytes32-uint256-[`validateUserOp`].
+
+== Setting up an account
+
+To setup an account, you can either start configuring it using our Wizard and selecting a predefined validation scheme, or bring your own logic and start by inheriting xref:api:account.adoc#Account[`Account`] from scratch. 
+
+++++
+<script async src="https://wizard.openzeppelin.com/build/embed.js"></script>
+
+<oz-wizard data-tab="Account" style="display: block; min-height: 40rem;"></oz-wizard>
+++++
+
+NOTE: Accounts don't support xref:erc721.adoc[ERC-721] and xref:erc1155.adoc[ERC-1155] tokens natively since these require the receiving address to implement an acceptance check. It is recommended to inherit xref:api:token/ERC721.adoc#ERC721Holder[ERC721Holder], xref:api:token/ERC1155.adoc#ERC1155Holder[ERC1155Holder] to include these checks in your account.
+
+=== Selecting a signer
+
+Since the minimum requirement of xref:api:account.adoc#Account[`Account`] is to provide an implementation of xref:api:utils/cryptography.adoc#AbstractSigner-_rawSignatureValidation-bytes32-bytes-[`_rawSignatureValidation`], the library includes specializations of the `AbstractSigner` contract that use custom digital signature verification algorithms. Some examples that you can select from include:
+
+* xref:api:utils/cryptography.adoc#SignerECDSA[`SignerECDSA`]: Verifies signatures produced by regular EVM Externally Owned Accounts (EOAs).
+* xref:api:utils/cryptography.adoc#SignerP256[`SignerP256`]: Validates signatures using the secp256r1 curve, common for World Wide Web Consortium (W3C) standards such as FIDO keys, passkeys or secure enclaves.
+* xref:api:utils/cryptography.adoc#SignerRSA[`SignerRSA`]: Verifies signatures of traditional PKI systems and X.509 certificates.
+* xref:api:utils/cryptography.adoc#SignerERC7702[`SignerERC7702`]: Checks EOA signatures delegated to this signer using https://eips.ethereum.org/EIPS/eip-7702#set-code-transaction[EIP-7702 authorizations]
+* xref:api:utils/cryptography.adoc#SignerERC7913[`SignerERC7913`]: Verifies generalized signatures following https://eips.ethereum.org/EIPS/eip-7913[ERC-7913].
+* https://docs.openzeppelin.com/community-contracts/0.0.1/api/utils#SignerZKEmail[`SignerZKEmail`]: Enables email-based authentication for smart contracts using zero knowledge proofs of email authority signatures.
+* xref:api:utils/cryptography.adoc#MultiSignerERC7913[`MultiSignerERC7913`]: Allows using multiple ERC-7913 signers with a threshold-based signature verification system.
+* xref:api:utils/cryptography.adoc#MultiSignerERC7913Weighted[`MultiSignerERC7913Weighted`]: Overrides the threshold mechanism of xref:api:utils/cryptography.adoc#MultiSignerERC7913[`MultiSignerERC7913`], offering different weights per signer.
+
+TIP: Given xref:api:utils/cryptography.adoc#SignerERC7913[`SignerERC7913`] provides a generalized standard for signature validation, you don't need to implement your own xref:api:utils/cryptography.adoc#AbstractSigner[`AbstractSigner`] for different signature schemes, consider bringing your own ERC-7913 verifier instead.
+
+==== Accounts factory
+
+The first time you send an user operation, your account will be created deterministically (i.e. its code and address can be predicted) using the the `initCode` field in the UserOperation. This field contains both the address of a smart contract (the factory) and the data required to call it and create your smart account.
+
+Suggestively, you can create your own account factory using the xref:api:proxy.adoc#Clones[Clones library], taking advantage of decreased deployment costs and account address predictability.
+
+[source,solidity]
+----
+include::api:example$account/MyFactoryAccount.sol[]
+----
+
+Account factories should be carefully implemented to ensure the account address is deterministically tied to the initial owners. This prevents frontrunning attacks where a malicious actor could deploy the account with their own owners before the intended owner does. The factory should include the owner's address in the salt used for address calculation.
+
+==== Handling initialization
+
+Most smart accounts are deployed by a factory, the best practice is to create xref:api:proxy.adoc#minimal_clones[minimal clones] of initializable contracts. These signer implementations provide an initializable design by default so that the factory can interact with the account to set it up right after deployment in a single transaction.
+
+[source,solidity]
+----
+import {Account} from "@openzeppelin/community-contracts/account/Account.sol";
+import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+import {SignerECDSA} from "@openzeppelin/community-contracts/utils/cryptography/SignerECDSA.sol";
+
+contract MyAccount is Initializable, Account, SignerECDSA, ... {
+    // ...
+
+    function initializeECDSA(address signer) public initializer {
+        _setSigner(signer);
+    }
+}
+----
+
+Note that some account implementations may be deployed directly and therefore, won't require a factory.
+
+WARNING: Leaving an account uninitialized may leave it unusable since no public key was associated with it.
+
+=== Signature validation
+
+Regularly, accounts implement https://eips.ethereum.org/EIPS/eip-1271[ERC-1271] to enable smart contract signature verification given its wide adoption. To be compliant means that smart contract exposes an xref:api:interfaces.adoc#IERC1271-isValidSignature-bytes32-bytes-[`isValidSignature(bytes32 hash, bytes memory signature)`] method that returns `0x1626ba7e` to identify whether the signature is valid.
+
+The benefit of this standard is that it allows to receive any format of `signature` for a given `hash`. This generalized mechanism fits very well with the account abstraction principle of _bringing your own validation mechanism_.
+
+This is how you enable ERC-1271 using an xref:api:utils/cryptography.adoc#AbstractSigner[`AbstractSigner`]:
+
+[source,solidity]
+----
+function isValidSignature(bytes32 hash, bytes calldata signature) public view override returns (bytes4) {
+    return _rawSignatureValidation(hash, signature) ? IERC1271.isValidSignature.selector : bytes4(0xffffffff);
+}
+----
+
+IMPORTANT: We recommend using xref:api:utils/cryptography.adoc#ERC7739[ERC7739] to avoid replayability across accounts. This defensive rehashing mechanism that prevents signatures for this account to be replayed in another account controlled by the same signer. See xref:accounts.adoc#erc_7739_signatures[ERC-7739 signatures].
+
+=== Batched execution
+
+Batched execution allows accounts to execute multiple calls in a single transaction, which is particularly useful for bundling operations that need to be atomic. This is especially valuable in the context of account abstraction where you want to minimize the number of user operations and associated gas costs. xref:api:account.adoc#ERC7821[`ERC-7821`] standard provides a minimal interface for batched execution. 
+
+The library implementation supports a single batch mode (`0x01000000000000000000`) and allows accounts to execute multiple calls atomically. The standard includes access control through the xref:api:account.adoc#ERC7821-_erc7821AuthorizedExecutor-address-bytes32-bytes-[`_erc7821AuthorizedExecutor`] function, which by default only allows the contract itself to execute batches.
+
+Here's an example of how to use batched execution using EIP-7702:
+
+[source,solidity]
+----
+import {Account} from "@openzeppelin/community-contracts/account/Account.sol";
+import {ERC7821} from "@openzeppelin/community-contracts/account/extensions/draft-ERC7821.sol";
+import {SignerERC7702} from "@openzeppelin/community-contracts/utils/cryptography/SignerERC7702.sol";
+
+contract MyAccount is Account, SignerERC7702, ERC7821 {
+    // Override to allow the entrypoint to execute batches
+    function _erc7821AuthorizedExecutor(
+        address caller,
+        bytes32 mode,
+        bytes calldata executionData
+    ) internal view virtual override returns (bool) {
+        return caller == address(entryPoint()) || super._erc7821AuthorizedExecutor(caller, mode, executionData);
+    }
+}
+----
+
+The batched execution data follows a specific format that includes the calls to be executed. This format follows the same format as https://eips.ethereum.org/EIPS/eip-7579#execution-behavior[ERC-7579 execution] but only supports `0x01` call type (i.e. batched `call`) and default execution type (i.e. reverts if at least one subcall does).
+
+To encode an ERC-7821 batch, you can use https://viem.sh/[viem]'s utilities:
+
+[source,typescript]
+----
+// CALL_TYPE_BATCH, EXEC_TYPE_DEFAULT, ..., selector, payload 
+const mode = encodePacked(
+  ["bytes1", "bytes1", "bytes4", "bytes4", "bytes22"],
+  ["0x01", "0x00", "0x00000000", "0x00000000", "0x00000000000000000000000000000000000000000000"]
+);
+
+const entries = [
+  {
+    target: "0x000...0001",
+    value: 0n,
+    data: "0x000...000",
+  },
+  {
+    target: "0x000...0002",
+    value: 0n,
+    data: "0x000...000",
+  }
+];
+
+const batch = encodeAbiParameters(
+  [parseAbiParameter("(address,uint256,bytes)[]")],
+  [
+    entries.map<[Address, bigint, Hex]>((entry) =>
+      [entry.target, entry.value ?? 0n, entry.data ?? "0x"]
+    ),
+  ]
+);
+
+const userOpData = encodeFunctionData({
+    abi: account.abi,
+    functionName: "execute",
+    args: [mode, batch]
+});
+----
+
+== Bundle a `UserOperation`
+
+xref:account-abstraction.adoc#useroperation[UserOperations] are a powerful abstraction layer that enable more sophisticated transaction capabilities compared to traditional Ethereum transactions. To get started, you'll need to an account, which you can get by xref:accounts.adoc#accounts_factory[deploying a factory] for your implementation.
+
+=== Preparing a UserOp
+
+A UserOperation is a struct that contains all the necessary information for the EntryPoint to execute your transaction. You'll need the `sender`, `nonce`, `accountGasLimits` and `callData` fields to construct a `PackedUserOperation` that can be signed later (to populate the `signature` field).
+
+TIP: Specify `paymasterAndData` with the address of a paymaster contract concatenated to `data` that will be passed to the paymaster's validatePaymasterUserOp function to support sponsorship as part of your user operation.
+
+Here's how to prepare one using https://viem.sh/[viem]:
+
+[source,typescript]
+----
+import { getContract, createWalletClient, http, Hex } from 'viem';
+
+const walletClient = createWalletClient({
+  account, // See Viem's `privateKeyToAccount`
+  chain, // import { ... } from 'viem/chains';
+  transport: http(),
+})
+
+const entrypoint = getContract({
+  abi: [/* ENTRYPOINT ABI */],
+  address: '0x<ENTRYPOINT_ADDRESS>',
+  client: walletClient,
+});
+
+const userOp = {
+  sender: '0x<YOUR_ACCOUNT_ADDRESS>',
+  nonce: await entrypoint.read.getNonce([sender, 0n]),
+  initCode: "0x" as Hex,
+  callData: '0x<CALLDATA_TO_EXECUTE_IN_THE_ACCOUNT>',
+  accountGasLimits: encodePacked(
+    ["uint128", "uint128"],
+    [
+      100_000n, // verificationGasLimit
+      300_000n, // callGasLimit
+    ]
+  ),
+  preVerificationGas: 50_000n,
+  gasFees: encodePacked(
+    ["uint128", "uint128"],
+    [
+      0n, // maxPriorityFeePerGas
+      0n, // maxFeePerGas
+    ]
+  ),
+  paymasterAndData: "0x" as Hex,
+  signature: "0x" as Hex,
+};
+----
+
+In case your account hasn't been deployed yet, make sure to provide the `initCode` field as `abi.encodePacked(factory, factoryData)` to deploy the account within the same UserOp:
+
+[source,typescript]
+----
+const deployed = await publicClient.getCode({ address: predictedAddress });
+
+if (!deployed) {
+  userOp.initCode = encodePacked(
+    ["address", "bytes"],
+    [
+      '0x<ACCOUNT_FACTORY_ADDRESS>',
+      encodeFunctionData({
+        abi: [/* ACCOUNT ABI */],
+        functionName: "<FUNCTION NAME>",
+        args: [...],
+      }),
+    ]
+  );
+}
+----
+
+==== Estimating gas
+
+To calculate gas parameters of a `UserOperation`, developers should carefully consider the following fields:
+
+* `verificationGasLimit`: This covers the gas costs for signature verification, paymaster validation (if used), and account validation logic. While a typical value is around 100,000 gas units, this can vary significantly based on the complexity of your signature validation scheme in both the account and paymaster contracts.
+
+* `callGasLimit`: This parameter accounts for the actual execution of your account's logic. It's recommended to use `eth_estimateGas` for each subcall and add additional buffer for computational overhead.
+
+* `preVerificationGas`: This compensates for the EntryPoint's execution overhead. While 50,000 gas is a reasonable starting point, you may need to increase this value based on your UserOperation's size and specific bundler requirements.
+
+NOTE: The `maxFeePerGas` and `maxPriorityFeePerGas` values are typically provided by your bundler service, either through their SDK or a custom RPC method.
+
+IMPORTANT: A penalty of 10% (`UNUSED_GAS_PENALTY_PERCENT`) is applied on the amounts of `callGasLimit` and `paymasterPostOpGasLimit` gas that remains unused if the amount of remaining unused gas is greater than or equal to 40,000 (`PENALTY_GAS_THRESHOLD`).
+
+=== Signing the UserOp
+
+To sign a UserOperation, you'll need to first calculate its hash as an EIP-712 typed data structure using the EntryPoint's domain, then sign this hash using your account's signature scheme, and finally encode the resulting signature in the format that your account contract expects for verification.
+
+[source,typescript]
+----
+import { signTypedData } from 'viem/actions';
+
+// EntryPoint v0.8 EIP-712 domain
+const domain = {
+  name: 'ERC4337',
+  version: '1',
+  chainId: 1, // Your target chain ID
+  verifyingContract: '0x4337084D9E255Ff0702461CF8895CE9E3b5Ff108', // v08
+};
+
+// EIP-712 types for PackedUserOperation
+const types = {
+  PackedUserOperation: [
+    { name: 'sender', type: 'address' },
+    { name: 'nonce', type: 'uint256' },
+    { name: 'initCode', type: 'bytes' },
+    { name: 'callData', type: 'bytes' },
+    { name: 'accountGasLimits', type: 'bytes32' },
+    { name: 'preVerificationGas', type: 'uint256' },
+    { name: 'gasFees', type: 'bytes32' },
+    { name: 'paymasterAndData', type: 'bytes' },
+  ],
+} as const;
+
+// Sign the UserOperation using EIP-712
+userOp.signature = await eoa.signTypedData({
+  domain,
+  types,
+  primaryType: 'PackedUserOperation',
+  message: {
+    sender: userOp.sender,
+    nonce: userOp.nonce,
+    initCode: userOp.initCode,
+    callData: userOp.callData,
+    accountGasLimits: userOp.accountGasLimits,
+    preVerificationGas: userOp.preVerificationGas,
+    gasFees: userOp.gasFees,
+    paymasterAndData: userOp.paymasterAndData,
+  },
+});
+----
+
+Alternatively, developers can get the raw user operation hash by using the Entrypoint's `getUserOpHash` function:
+
+[source,typescript]
+----
+const userOpHash = await entrypoint.read.getUserOpHash([userOp]);
+userOp.signature = await eoa.sign({ hash: userOpHash });
+----
+
+IMPORTANT: Using `getUserOpHash` directly may provide a poorer user experience as users see an opaque hash rather than structured transaction data. In many cases, offchain signers won't have an option to sign a raw hash.
+
+=== Sending the UserOp
+
+Finally, to send the user operation you can call `handleOps` on the Entrypoint contract and set yourself as the `beneficiary`. 
+
+[source,typescript]
+----
+// Send the UserOperation
+const userOpReceipt = await walletClient
+  .writeContract({
+    abi: [/* ENTRYPOINT ABI */],
+    address: '0x<ENTRYPOINT_ADDRESS>',
+    functionName: "handleOps",
+    args: [[userOp], eoa.address],
+  })
+  .then((txHash) =>
+    publicClient.waitForTransactionReceipt({
+      hash: txHash,
+    })
+  );
+
+// Print receipt
+console.log(userOpReceipt);
+----
+
+TIP: Since you're bundling your user operations yourself, you can safely specify `preVerificationGas` and `maxFeePerGas` in 0.
+
+=== Using a Bundler
+
+For better reliability, consider using a bundler service. Bundlers provide several key benefits: they automatically handle gas estimation, manage transaction ordering, support bundling multiple operations together, and generally offer higher transaction success rates compared to self-bundling.
+
+== Further notes
+
+=== ERC-7739 Signatures
+
+A common security practice to prevent user operation https://mirror.xyz/curiousapple.eth/pFqAdW2LiJ-6S4sg_u1z08k4vK6BCJ33LcyXpnNb8yU[replayability across smart contract accounts controlled by the same private key] (i.e. multiple accounts for the same signer) is to link the signature to the `address` and `chainId` of the account. This can be done by asking the user to sign a hash that includes these values.
+
+The problem with this approach is that the user might be prompted by the wallet provider to sign an https://x.com/howydev/status/1780353754333634738[obfuscated message], which is a phishing vector that may lead to a user losing its assets.
+
+To prevent this, developers may use xref:api:account#ERC7739Signer[`ERC7739Signer`], a utility that implements xref:api:interfaces#IERC1271[`IERC1271`] for smart contract signatures with a defensive rehashing mechanism based on a https://github.com/frangio/eip712-wrapper-for-eip1271[nested EIP-712 approach] to wrap the signature request in a context where there's clearer information for the end user.
+
+=== EIP-7702 Delegation
+
+https://eips.ethereum.org/EIPS/eip-7702[EIP-7702] lets EOAs delegate to smart contracts while keeping their original signing key. This creates a hybrid account that works like an EOA for signing but has smart contract features. Protocols don't need major changes to support EIP-7702 since they already handle both EOAs and smart contracts (see xref:api:utils/cryptography.adoc#SignatureChecker[SignatureChecker]).
+
+The signature verification stays compatible: delegated EOAs are treated as contracts using ERC-1271, making it easy to redelegate to a contract with ERC-1271 support with little overhead by reusing the validation mechanism of the account. 
+
+TIP: Learn more about delegating to an ERC-7702 account in our xref:eoa-delegation.adoc[EOA Delegation] section.
+
+=== ERC-7579 Modules
+
+Smart accounts have evolved to embrace modularity as a design principle, with popular implementations like https://erc7579.com/#supporters[Safe, Pimlico, Rhinestone, Etherspot and many others] agreeing on ERC-7579 as the standard for module interoperability. This standardization enables accounts to extend their functionality through external contracts while maintaining compatibility across different implementations.
+
+OpenZeppelin Contracts provides both the building blocks for creating ERC-7579-compliant modules and an xref:api:account.adoc#AccountERC7579[`AccountERC7579`] implementation that supports installing and managing these modules. 
+
+TIP: Learn more in our https://docs.openzeppelin.com/community-contracts/0.0.1/account-modules[account modules] section.
