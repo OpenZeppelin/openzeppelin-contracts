@@ -67,24 +67,28 @@ library Base58 {
             mstore(0x3f, "Zabcdefghijkmnopqrstuvwxyz")
 
             // Encoding the "input" part of the result.
-            // `output` point the the left part of the encoded string. we start from scratch, which means we have
-            // outputLengthEstim bytes to work with before hitting the FMP
+            // - `data` points to the first (highest) non-empty limb. As limb get nullified by the successive
+            //   divisions by 58, we don't need to reprocess the highest ones. Algorithm ends when all limbs are zeroed
+            //   i.e. when the `data` pointer reaches the `ptr` pointer that correspond to the last limb.
+            // - `output` point the the left part of the encoded string. We start from scratch, which means we have
+            //   outputLengthEstim bytes to work with before hitting the FMP
             for {
+                let data := scratch
                 output := scratch
             } 1 {} {
-                // check if there are non-zero limbs remaining
-                let i := scratch
-                for {} and(iszero(mload(i)), lt(i, ptr)) {
-                    i := add(i, 0x20)
+                // move past the fisrt (highest) zero limbs.
+                for {} and(iszero(mload(data)), lt(data, ptr)) {
+                    data := add(data, 0x20)
                 } {}
-                if eq(i, ptr) {
+                // if all limbs are zeroed, we are done with this part of encoding
+                if eq(data, ptr) {
                     break
                 }
 
                 // base 58 arithmetic on the 248bits limbs
                 let carry := 0
                 for {
-                    i := scratch
+                    let i := content
                 } lt(i, ptr) {
                     i := add(i, 0x20)
                 } {
