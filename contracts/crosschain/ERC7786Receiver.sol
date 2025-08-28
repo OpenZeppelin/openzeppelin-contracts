@@ -10,13 +10,13 @@ import {IERC7786Receiver} from "../interfaces/draft-IERC7786.sol";
  * This abstract contract exposes the `receiveMessage` function that is used for communication with (one or multiple)
  * destination gateways. This contract leaves two functions unimplemented:
  *
- * {_isKnownGateway}, an internal getter used to verify whether an address is recognised by the contract as a valid
+ * * {_isKnownGateway}, an internal getter used to verify whether an address is recognised by the contract as a valid
  * ERC-7786 destination gateway. One or multiple gateway can be supported. Note that any malicious address for which
  * this function returns true would be able to impersonate any account on any other chain sending any message.
  *
- * {_processMessage}, the internal function that will be called with any message that has been validated.
+ * * {_processMessage}, the internal function that will be called with any message that has been validated.
  */
-abstract contract ERC7786Receiver is IERC7786Receiver {
+abstract contract ERC7786Recipient is IERC7786Recipient {
     error ERC7786ReceiverInvalidGateway(address gateway);
 
     /// @inheritdoc IERC7786Receiver

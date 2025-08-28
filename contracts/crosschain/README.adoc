@@ -5,7 +5,7 @@ NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/
 
 This directory contains contracts for sending and receiving cross chain messages that follows the ERC-7786 standard.
 
-- {ERC7786Receiver} is a boilerplate contract for receiving crosschain messages through a ERC-7786 gateway.
+- {ERC7786Receiver}: generic ERC-7786 crosschain contract that receives messages from a trusted gateway
 
 == Helpers
 
