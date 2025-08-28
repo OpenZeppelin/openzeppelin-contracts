@@ -24,7 +24,10 @@ contract ERC1967Proxy is Proxy {
      * - If `data` is empty, `msg.value` must be zero.
      */
     constructor(address implementation, bytes memory _data) payable {
-        ERC1967Utils.upgradeToAndCall(implementation, _data);
+        require(
+            _unsafeAllowUninitialized() || ERC1967Utils.upgradeToAndCall(implementation, _data),
+            ERC1967Utils.ERC1967ProxyUninitialized()
+        );
     }
 
     /**
@@ -36,5 +39,16 @@ contract ERC1967Proxy is Proxy {
      */
     function _implementation() internal view virtual override returns (address) {
         return ERC1967Utils.getImplementation();
+    }
+
+    /**
+     * @dev Returns whether the proxy can be left uninitialized.
+     *
+     * NOTE: Override this function to allow the proxy to be left uninitialized.
+     * Consider uninitialized proxies might be susceptible to man-in-the-middle threats
+     * where the proxy is replaced with a malicious one.
+     */
+    function _unsafeAllowUninitialized() internal pure virtual returns (bool) {
+        return false;
     }
 }
