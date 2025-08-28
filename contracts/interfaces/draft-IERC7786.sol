@@ -15,7 +15,7 @@ interface IERC7786GatewaySource {
     event MessageSent(
         bytes32 indexed sendId,
         bytes sender, // Binary Interoperable Address
-        bytes receiver, // Binary Interoperable Address
+        bytes recipient, // Binary Interoperable Address
         bytes payload,
         uint256 value,
         bytes[] attributes
