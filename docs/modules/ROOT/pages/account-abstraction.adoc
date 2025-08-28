@@ -1,6 +1,6 @@
 = Account Abstraction
 
-Unlike Externally Owned Accounts (EOAs), smart contracts may contain arbitrary verification logic based on authentication mechanisms different to Ethereum's native xref:api:utils.adoc#ECDSA[ECDSA] and have execution advantages such as batching or gas sponsorship. To leverage these properties of smart contracts, the community has widely adopted https://eips.ethereum.org/EIPS/eip-4337[ERC-4337], a standard to process user operations through an alternative mempool.
+Unlike Externally Owned Accounts (EOAs), smart contracts may contain arbitrary verification logic based on authentication mechanisms different from Ethereum's native xref:api:utils.adoc#ECDSA[ECDSA] and have execution advantages such as batching or gas sponsorship. To leverage these properties of smart contracts, the community has widely adopted https://eips.ethereum.org/EIPS/eip-4337[ERC-4337], a standard to process user operations through an alternative mempool.
 
 The library provides multiple contracts for Account Abstraction following this standard as it enables more flexible and user-friendly interactions with applications. Account Abstraction use cases include wallets in novel contexts (e.g. embedded wallets), more granular configuration of accounts, and recovery mechanisms. 
 
