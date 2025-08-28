@@ -82,7 +82,7 @@ function isValidSignature(bytes32 hash, bytes calldata signature) public view ov
 }
 ----
 
-IMPORTANT: We recommend using xref:api:utils/cryptography.adoc#ERC7739[ERC7739] to avoid replayability across accounts. This defensive rehashing mechanism that prevents signatures for this account to be replayed in another account controlled by the same signer. See xref:accounts.adoc#erc_7739_signatures[ERC-7739 signatures].
+IMPORTANT: We recommend using xref:api:utils/cryptography.adoc#ERC7739[ERC7739] to avoid replayability across accounts. This defensive rehashing mechanism prevents signatures for this account from being replayed in another account controlled by the same signer. See xref:accounts.adoc#erc_7739_signatures[ERC-7739 signatures].
 
 === Batched execution
 
