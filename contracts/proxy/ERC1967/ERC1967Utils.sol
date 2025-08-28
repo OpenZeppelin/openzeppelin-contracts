@@ -41,6 +41,11 @@ library ERC1967Utils {
     error ERC1967NonPayable();
 
     /**
+     * @dev The proxy is left uninitialized.
+     */
+    error ERC1967ProxyUninitialized();
+
+    /**
      * @dev Returns the current implementation address.
      */
     function getImplementation() internal view returns (address) {
@@ -64,15 +69,18 @@ library ERC1967Utils {
      *
      * Emits an {IERC1967-Upgraded} event.
      */
-    function upgradeToAndCall(address newImplementation, bytes memory data) internal {
+    function upgradeToAndCall(address newImplementation, bytes memory data) internal returns (bool) {
         _setImplementation(newImplementation);
         emit IERC1967.Upgraded(newImplementation);
+        bool called = data.length > 0;
 
-        if (data.length > 0) {
+        if (called) {
             Address.functionDelegateCall(newImplementation, data);
         } else {
             _checkNonPayable();
         }
+
+        return called;
     }
 
     /**
