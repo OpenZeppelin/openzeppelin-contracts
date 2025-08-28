@@ -33,7 +33,7 @@ TIP: Given xref:api:utils/cryptography.adoc#SignerERC7913[`SignerERC7913`] provi
 
 ==== Accounts factory
 
-The first time you send an user operation, your account will be created deterministically (i.e. its code and address can be predicted) using the the `initCode` field in the UserOperation. This field contains both the address of a smart contract (the factory) and the data required to call it and create your smart account.
+The first time you send an user operation, your account will be created deterministically (i.e. its code and address can be predicted) using the `initCode` field in the UserOperation. This field contains both the address of a smart contract (the factory) and the data required to call it and create your smart account.
 
 Suggestively, you can create your own account factory using the xref:api:proxy.adoc#Clones[Clones library], taking advantage of decreased deployment costs and account address predictability.
 
@@ -71,7 +71,7 @@ WARNING: Leaving an account uninitialized may leave it unusable since no public 
 
 Regularly, accounts implement https://eips.ethereum.org/EIPS/eip-1271[ERC-1271] to enable smart contract signature verification given its wide adoption. To be compliant means that smart contract exposes an xref:api:interfaces.adoc#IERC1271-isValidSignature-bytes32-bytes-[`isValidSignature(bytes32 hash, bytes memory signature)`] method that returns `0x1626ba7e` to identify whether the signature is valid.
 
-The benefit of this standard is that it allows to receive any format of `signature` for a given `hash`. This generalized mechanism fits very well with the account abstraction principle of _bringing your own validation mechanism_.
+The benefit of this standard is that it allows receiving any format of `signature` for a given `hash`. This generalized mechanism fits very well with the account abstraction principle of _bringing your own validation mechanism_.
 
 This is how you enable ERC-1271 using an xref:api:utils/cryptography.adoc#AbstractSigner[`AbstractSigner`]:
 
