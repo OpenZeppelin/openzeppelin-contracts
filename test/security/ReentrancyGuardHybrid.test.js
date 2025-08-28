@@ -1,26 +1,43 @@
 const { expect } = require("chai");
+const { ethers } = require("hardhat");
 
 describe("ReentrancyGuardHybrid", function () {
-  let ReentrancyTarget, target;
+  let target;
+  let owner, other;
 
   beforeEach(async function () {
-    const ReentrancyTargetFactory = await ethers.getContractFactory(`
-      // SPDX-License-Identifier: MIT
-      pragma solidity ^0.8.20;
+    [owner, other] = await ethers.getSigners();
 
-      import {ReentrancyGuardHybrid} from "../../contracts/security/ReentrancyGuardHybrid.sol";
-
-      contract ReentrancyTarget is ReentrancyGuardHybrid {
-          function callAgain() public nonReentrant {
-              this.callAgain();
-          }
-      }
-    `);
-    target = await ReentrancyTargetFactory.deploy();
+    const Target = await ethers.getContractFactory("ReentrancyTarget");
+    target = await Target.deploy();
+    await target.waitForDeployment();
   });
 
-  it("should revert on direct reentrancy", async function () {
-    await expect(target.callAgain())
-      .to.be.revertedWith("ReentrancyGuardHybrid: reentrant call");
+  describe("nonReentrant", function () {
+    it("should allow a single call", async function () {
+      await expect(target.callMe()).to.not.be.reverted;
+    });
+
+    it("should block reentrant call", async function () {
+      await expect(target.callMe()).to.not.be.reverted;
+
+      await expect(target.callAgain()).to.be.revertedWith(
+        "ReentrancyGuardHybrid: reentrant call"
+      );
+    });
+  });
+
+  describe("nonReentrantNS", function () {
+    it("should allow a single call", async function () {
+      await expect(target.callMeNS()).to.not.be.reverted;
+    });
+
+    it("should block reentrant call in namespace", async function () {
+      await expect(target.callMeNS()).to.not.be.reverted;
+
+      await expect(target.callAgainNS()).to.be.revertedWith(
+        "ReentrancyGuardHybrid: reentrant call (namespace)"
+      );
+    });
   });
 });
