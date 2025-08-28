@@ -2,9 +2,9 @@
 
 pragma solidity ^0.8.27;
 
-import {ERC7786Receiver} from "../../crosschain/ERC7786Receiver.sol";
+import {ERC7786Recipient} from "../../crosschain/ERC7786Recipient.sol";
 
-contract ERC7786ReceiverMock is ERC7786Receiver {
+contract ERC7786RecipientMock is ERC7786Recipient {
     address private immutable _gateway;
 
     event MessageReceived(address gateway, bytes32 receiveId, bytes sender, bytes payload, uint256 value);

@@ -49,7 +49,7 @@ interface IERC7786GatewaySource {
  *
  * See ERC-7786 for more details
  */
-interface IERC7786Receiver {
+interface IERC7786Recipient {
     /**
      * @dev Endpoint for receiving cross-chain message.
      *

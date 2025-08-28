@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.27;
 
-import {IERC7786GatewaySource, IERC7786Receiver} from "../../interfaces/draft-IERC7786.sol";
+import {IERC7786GatewaySource, IERC7786Recipient} from "../../interfaces/draft-IERC7786.sol";
 import {InteroperableAddress} from "../../utils/draft-InteroperableAddress.sol";
 
 abstract contract ERC7786GatewayMock is IERC7786GatewaySource {
@@ -34,12 +34,12 @@ abstract contract ERC7786GatewayMock is IERC7786GatewaySource {
         require(success && chainid == block.chainid, InvalidDestination());
 
         // perform call
-        bytes4 magic = IERC7786Receiver(target).receiveMessage{value: msg.value}(
+        bytes4 magic = IERC7786Recipient(target).receiveMessage{value: msg.value}(
             bytes32(++_lastReceiveId),
             InteroperableAddress.formatEvmV1(block.chainid, msg.sender),
             payload
         );
-        require(magic == IERC7786Receiver.receiveMessage.selector, ReceiverError());
+        require(magic == IERC7786Recipient.receiveMessage.selector, ReceiverError());
 
         // emit standard event
         emit MessageSent(

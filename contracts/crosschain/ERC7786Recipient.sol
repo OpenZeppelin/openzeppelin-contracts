@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.27;
 
-import {IERC7786Receiver} from "../interfaces/draft-IERC7786.sol";
+import {IERC7786Recipient} from "../interfaces/draft-IERC7786.sol";
 
 /**
  * @dev Base implementation of an ERC-7786 compliant cross-chain message receiver.
@@ -17,17 +17,17 @@ import {IERC7786Receiver} from "../interfaces/draft-IERC7786.sol";
  * * {_processMessage}, the internal function that will be called with any message that has been validated.
  */
 abstract contract ERC7786Recipient is IERC7786Recipient {
-    error ERC7786ReceiverInvalidGateway(address gateway);
+    error ERC7786RecipientInvalidGateway(address gateway);
 
-    /// @inheritdoc IERC7786Receiver
+    /// @inheritdoc IERC7786Recipient
     function receiveMessage(
         bytes32 receiveId,
         bytes calldata sender, // Binary Interoperable Address
         bytes calldata payload
     ) public payable virtual returns (bytes4) {
-        require(_isKnownGateway(msg.sender), ERC7786ReceiverInvalidGateway(msg.sender));
+        require(_isKnownGateway(msg.sender), ERC7786RecipientInvalidGateway(msg.sender));
         _processMessage(msg.sender, receiveId, sender, payload);
-        return IERC7786Receiver.receiveMessage.selector;
+        return IERC7786Recipient.receiveMessage.selector;
     }
 
     /// @dev Virtual getter that returns whether an address is a valid ERC-7786 gateway.
