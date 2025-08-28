@@ -3,7 +3,7 @@
 [.readme-notice]
 NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/crosschain
 
-This directory provides ways to contracts related to the sending and receiving of crosschain messages following the ERC-7786 standard.
+This directory contains contracts for sending and receiving cross chain messages that follows the ERC-7786 standard.
 
 - {ERC7786Receiver} is a boilerplate contract for receiving crosschain messages through a ERC-7786 gateway.
 
