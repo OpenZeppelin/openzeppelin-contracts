@@ -22,9 +22,12 @@ library ERC165Checker {
     function supportsERC165(address account) internal view returns (bool) {
         // Any contract that implements ERC-165 must explicitly indicate support of
         // InterfaceId_ERC165 and explicitly indicate non-support of InterfaceId_Invalid
-        return
-            supportsERC165InterfaceUnchecked(account, type(IERC165).interfaceId) &&
-            !supportsERC165InterfaceUnchecked(account, INTERFACE_ID_INVALID);
+        if (supportsERC165InterfaceUnchecked(account, type(IERC165).interfaceId)) {
+            (bool success, bool supported) = _trySupportsInterface(account, INTERFACE_ID_INVALID);
+            return success && !supported;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -106,19 +109,34 @@ library ERC165Checker {
      * Interface identification is specified in ERC-165.
      */
     function supportsERC165InterfaceUnchecked(address account, bytes4 interfaceId) internal view returns (bool) {
-        // prepare call
-        bytes memory encodedParams = abi.encodeCall(IERC165.supportsInterface, (interfaceId));
+        (bool success, bool supported) = _trySupportsInterface(account, interfaceId);
+        return success && supported;
+    }
 
-        // perform static call
-        bool success;
-        uint256 returnSize;
-        uint256 returnValue;
+    /**
+     * @dev Attempts to call `supportsInterface` on a contract and returns both the call
+     * success status and the interface support result.
+     *
+     * This function performs a low-level static call to the contract's `supportsInterface`
+     * function. It returns:
+     *
+     * * `success`: true if the call didn't revert, false if it did
+     * * `supported`: true if the call succeeded AND returned data indicating the interface is supported
+     */
+    function _trySupportsInterface(
+        address account,
+        bytes4 interfaceId
+    ) private view returns (bool success, bool supported) {
+        bytes4 selector = IERC165.supportsInterface.selector;
+
         assembly ("memory-safe") {
-            success := staticcall(30000, account, add(encodedParams, 0x20), mload(encodedParams), 0x00, 0x20)
-            returnSize := returndatasize()
-            returnValue := mload(0x00)
+            mstore(0x00, selector)
+            mstore(0x04, interfaceId)
+            success := staticcall(30000, account, 0x00, 0x24, 0x00, 0x20)
+            supported := and(
+                gt(returndatasize(), 0x1F), // we have at least 32 bytes of returndata
+                iszero(iszero(mload(0x00))) // the first 32 bytes of returndata are non-zero
+            )
         }
-
-        return success && returnSize >= 0x20 && returnValue > 0;
     }
 }

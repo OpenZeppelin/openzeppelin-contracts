@@ -129,6 +129,37 @@ library Bytes {
     }
 
     /**
+     * @dev Concatenate an array of bytes into a single bytes object.
+     *
+     * For fixed bytes types, we recommend using the solidity built-in `bytes.concat` or (equivalent)
+     * `abi.encodePacked`.
+     *
+     * NOTE: this could be done in assembly with a single loop that expands starting at the FMP, but that would be
+     * significantly less readable. It might be worth benchmarking the savings of the full-assembly approach.
+     */
+    function concat(bytes[] memory buffers) internal pure returns (bytes memory) {
+        uint256 length = 0;
+        for (uint256 i = 0; i < buffers.length; ++i) {
+            length += buffers[i].length;
+        }
+
+        bytes memory result = new bytes(length);
+
+        uint256 offset = 0x20;
+        for (uint256 i = 0; i < buffers.length; ++i) {
+            bytes memory input = buffers[i];
+            assembly ("memory-safe") {
+                mcopy(add(result, offset), add(input, 0x20), mload(input))
+            }
+            unchecked {
+                offset += input.length;
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * @dev Returns true if the two byte buffers are equal.
      */
     function equal(bytes memory a, bytes memory b) internal pure returns (bool) {
