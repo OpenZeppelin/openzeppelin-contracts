@@ -134,10 +134,10 @@ library Math {
     }
 
     /**
-     * @dev Branchless ternary evaluation for `a ? b : c`. Gas costs are constant.
+     * @dev Branchless ternary evaluation for `condition ? a : b`. Gas costs are constant.
      *
      * IMPORTANT: This function may reduce bytecode size and consume less gas when used standalone.
-     * However, the compiler may optimize Solidity ternary operations (i.e. `a ? b : c`) to only compute
+     * However, the compiler may optimize Solidity ternary operations (i.e. `condition ? a : b`) to only compute
      * one branch when needed, making this function more expensive.
      */
     function ternary(bool condition, uint256 a, uint256 b) internal pure returns (uint256) {

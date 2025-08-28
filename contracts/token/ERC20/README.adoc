@@ -21,7 +21,7 @@ Additionally there are multiple custom extensions, including:
 * {ERC20Capped}: enforcement of a cap to the total supply when minting tokens.
 * {ERC20Pausable}: ability to pause token transfers.
 * {ERC20FlashMint}: token level support for flash loans through the minting and burning of ephemeral tokens (standardized as ERC-3156).
-* {ERC20Votes}: support for voting and vote delegation.
+* {ERC20Votes}: support for voting and vote delegation. xref:governance.adoc#token[See the governance guide for a minimal example (with the required overrides when combining ERC20 + ERC20Permit + ERC20Votes)].
 * {ERC20Wrapper}: wrapper to create an ERC-20 backed by another ERC-20, with deposit and withdraw methods. Useful in conjunction with {ERC20Votes}.
 * {ERC20TemporaryApproval}: support for approvals lasting for only one transaction, as defined in ERC-7674.
 * {ERC1363}: support for calling the target of a transfer or approval, enabling code execution on the receiver within a single transaction.
