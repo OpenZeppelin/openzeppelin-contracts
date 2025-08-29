@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.3.0) (interfaces/draft-IERC4337.sol)
+// OpenZeppelin Contracts (last updated v5.4.0) (interfaces/draft-IERC4337.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity >=0.8.4;
 
 /**
  * @dev A https://github.com/ethereum/ercs/blob/master/ERCS/erc-4337.md#useroperation[user operation] is composed of the following elements:

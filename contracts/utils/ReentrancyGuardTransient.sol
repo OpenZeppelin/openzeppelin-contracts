@@ -37,11 +37,28 @@ abstract contract ReentrancyGuardTransient {
         _nonReentrantAfter();
     }
 
-    function _nonReentrantBefore() private {
-        // On the first call to nonReentrant, REENTRANCY_GUARD_STORAGE.asBoolean().tload() will be false
+    /**
+     * @dev A `view` only version of {nonReentrant}. Use to block view functions
+     * from being called, preventing reading from inconsistent contract state.
+     *
+     * CAUTION: This is a "view" modifier and does not change the reentrancy
+     * status. Use it only on view functions. For payable or non-payable functions,
+     * use the standard {nonReentrant} modifier instead.
+     */
+    modifier nonReentrantView() {
+        _nonReentrantBeforeView();
+        _;
+    }
+
+    function _nonReentrantBeforeView() private view {
         if (_reentrancyGuardEntered()) {
             revert ReentrancyGuardReentrantCall();
         }
+    }
+
+    function _nonReentrantBefore() private {
+        // On the first call to nonReentrant, REENTRANCY_GUARD_STORAGE.asBoolean().tload() will be false
+        _nonReentrantBeforeView();
 
         // Any calls to nonReentrant after this point will fail
         _reentrancyGuardStorageSlot().asBoolean().tstore(true);
