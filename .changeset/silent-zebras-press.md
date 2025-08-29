@@ -2,4 +2,4 @@
 'openzeppelin-solidity': minor
 ---
 
-`ERC7786Receiver`: ERC-7786 generic crosschain message receiver contract.
+`ERC7786Recipient`: Generic ERC-7786 cross-chain message recipient contract.
