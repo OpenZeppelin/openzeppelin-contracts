@@ -6,7 +6,8 @@ import {IERC20, SafeERC20} from "../../token/ERC20/utils/SafeERC20.sol";
 import {BridgeERC20} from "./BridgeERC20.sol";
 
 /**
- * @dev This is a variant of {BridgeERC20} that implements the bridge logic for existing ERC-20 tokens.
+ * @dev This is a variant of {BridgeERC20} that implements the bridge logic for ERC-20 tokens that do not expose mint
+ * and burn mechanism. Instead it takes custody of bridged assets.
  */
 abstract contract BridgeERC20Custodial is BridgeERC20 {
     using SafeERC20 for IERC20;

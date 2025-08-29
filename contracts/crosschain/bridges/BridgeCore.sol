@@ -7,6 +7,16 @@ import {InteroperableAddress} from "../../utils/draft-InteroperableAddress.sol";
 import {BitMaps} from "../../utils/structs/BitMaps.sol";
 import {Bytes} from "../../utils/Bytes.sol";
 
+/**
+ * @dev Core bridging mechanism.
+ *
+ * This contract contains the logic to register and send messages to counterparts on remote chains using an ERC-7786
+ * gateway. It ensure received message originate from for a counterpart. This is the code of token bridges such as
+ * {BridgeERC20}.
+ *
+ * Contract that inherit from this contract can use the internal {_senMessage} to send messages to their conterpart
+ * on a foreign chain. They must implement the {_processMessage} to handle the message that have been verified.
+ */
 abstract contract BridgeCore is IERC7786Recipient {
     using BitMaps for BitMaps.BitMap;
     using InteroperableAddress for bytes;
@@ -75,7 +85,7 @@ abstract contract BridgeCore is IERC7786Recipient {
     /// @inheritdoc IERC7786Recipient
     function receiveMessage(
         bytes32 receiveId,
-        bytes calldata sender, // Binary Interoperable Address
+        bytes calldata sender,
         bytes calldata payload
     ) public payable virtual returns (bytes4) {
         // Security restriction:
@@ -91,7 +101,11 @@ abstract contract BridgeCore is IERC7786Recipient {
         return IERC7786Recipient.receiveMessage.selector;
     }
 
-    /// @dev Virtual function that should contain the logic to execute when a cross-chain message is received.
+    /**
+     * @dev Virtual function that should contain the logic to execute when a cross-chain message is received.
+     *
+     * Replay protection is already enabled in {receiveMessage}.
+     */
     function _processMessage(bytes32 receiveId, bytes calldata payload) internal virtual;
 
     function _extractChain(bytes memory self) private pure returns (bytes memory) {
