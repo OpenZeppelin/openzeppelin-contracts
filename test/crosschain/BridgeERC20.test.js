@@ -18,20 +18,20 @@ async function fixture() {
 
   // Chain A: legacy ERC20 with bridge
   const tokenA = await ethers.deployContract('$ERC20', ['Token1', 'T1']);
-  const bridgeA = await ethers.deployContract('$CrosschainBridgeERC20Custodial', [tokenA, gateway, []]);
+  const bridgeA = await ethers.deployContract('$BridgeERC20Custodial', [gateway, [], tokenA]);
 
   // Chain B: ERC7802 with bridge
   const tokenB = await ethers.deployContract('$ERC20BridgeableMock', ['Token2', 'T2', ethers.ZeroAddress]);
-  const bridgeB = await ethers.deployContract('$CrosschainBridgeERC20Bridgeable', [tokenB, gateway, []]);
+  const bridgeB = await ethers.deployContract('$BridgeERC20Bridgeable', [gateway, [], tokenB]);
 
   // deployment check + remote setup
   await expect(bridgeA.deploymentTransaction()).to.emit(bridgeA, 'GatewayChange').withArgs(ethers.ZeroAddress, gateway);
   await expect(bridgeB.deploymentTransaction()).to.emit(bridgeB, 'GatewayChange').withArgs(ethers.ZeroAddress, gateway);
   await expect(bridgeA.$_registerRemote(chain.toErc7930(bridgeB), false))
-    .to.emit(bridgeA, 'RemoteTokenRegistered')
+    .to.emit(bridgeA, 'RemoteRegistered')
     .withArgs(chain.toErc7930(bridgeB));
   await expect(bridgeB.$_registerRemote(chain.toErc7930(bridgeA), false))
-    .to.emit(bridgeB, 'RemoteTokenRegistered')
+    .to.emit(bridgeB, 'RemoteRegistered')
     .withArgs(chain.toErc7930(bridgeA));
   await tokenB.$_setBridge(bridgeB);
 
@@ -136,7 +136,7 @@ describe('CrosschainBridgeERC20', function () {
             this.encodePayload(notGateway, notGateway, amount),
           ),
       )
-        .to.be.revertedWithCustomError(this.bridgeA, 'ERC7786RecipientInvalidGateway')
+        .to.be.revertedWithCustomError(this.bridgeA, 'InvalidGateway')
         .withArgs(notGateway);
     });
 
@@ -187,7 +187,7 @@ describe('CrosschainBridgeERC20', function () {
       const newRemote = this.chain.toErc7930(this.accounts[0]);
 
       await expect(this.bridgeA.$_registerRemote(newRemote, true))
-        .to.emit(this.bridgeA, 'RemoteTokenRegistered')
+        .to.emit(this.bridgeA, 'RemoteRegistered')
         .withArgs(newRemote);
 
       await expect(this.bridgeA.remote(this.chain.erc7930)).to.eventually.equal(newRemote);
