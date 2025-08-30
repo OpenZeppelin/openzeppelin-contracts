@@ -4,6 +4,7 @@
 pragma solidity ^0.8.24;
 
 import {Strings} from "../Strings.sol";
+import {Memory} from "../Memory.sol";
 
 /**
  * @dev Signature message hash utilities for producing digests to be consumed by {ECDSA} recovery or signing.
@@ -94,6 +95,161 @@ library MessageHashUtils {
             mstore(add(ptr, 0x02), domainSeparator)
             mstore(add(ptr, 0x22), structHash)
             digest := keccak256(ptr, 0x42)
+        }
+    }
+
+    /**
+     * @dev Returns the keccak256 digest of an EIP-712 domain separator constructed from an `eip712Domain` function. See {IERC5267-eip712Domain}
+     *
+     * This function dynamically constructs the domain separator based on which fields are present in the
+     * `eip712Domain` return value. The `fields` parameter uses bit flags to indicate which domain fields
+     * are present:
+     *
+     * * Bit 0 (0x01): name
+     * * Bit 1 (0x02): version
+     * * Bit 2 (0x04): chainId
+     * * Bit 3 (0x08): verifyingContract
+     * * Bit 4 (0x10): salt
+     *
+     * NOTE: This allows for flexible domain construction and is particularly useful for cross-chain signatures
+     * where certain fields may be omitted or set to specific values (e.g., chainId: 0 for universal validity).
+     * See https://eips.ethereum.org/EIPS/eip-7964[ERC-7964].
+     */
+    function toDomainSeparator(
+        function()
+            view
+            returns (bytes1, string memory, string memory, uint256, address, bytes32, uint256[] memory) eip712Domain
+    ) internal view returns (bytes32) {
+        bytes32 ptr = Memory.Pointer.unwrap(Memory.getFreeMemoryPointer());
+        (
+            bytes1 fields,
+            string memory name,
+            string memory version,
+            uint256 chainId,
+            address verifyingContract,
+            bytes32 salt,
+            uint256[] memory extensions
+        ) = eip712Domain();
+        (bytes32 typePtr, bytes32 typeHash) = _buildDynamicTypeHash(ptr, fields);
+        bytes32 hash = _buildDynamicDomainSeparatorHash(
+            ptr,
+            typePtr,
+            typeHash,
+            fields,
+            name,
+            version,
+            chainId,
+            verifyingContract,
+            salt,
+            extensions
+        );
+        Memory.setFreeMemoryPointer(Memory.asPointer(ptr)); // Reset cached pointer
+        return hash;
+    }
+
+    /// @dev Builds an EIP-712 type hash depending on the `fields` provided, following https://eips.ethereum.org/EIPS/eip-5267[ERC-5267]
+    function _buildDynamicTypeHash(bytes32 ptr, bytes1 fields) private pure returns (bytes32 typePtr, bytes32 hash) {
+        assembly ("memory-safe") {
+            mstore(ptr, "EIP712Domain(")
+            typePtr := add(ptr, 0x0d) // Skip "EIP712Domain("
+            let firstField := true
+            if and(fields, 0x01) {
+                firstField := false
+                mstore(typePtr, "string name") // 0x0b bytes
+                typePtr := add(typePtr, 0x0b) // Skip "string name"
+            }
+            if and(fields, 0x02) {
+                if iszero(firstField) {
+                    mstore(typePtr, ",")
+                    typePtr := add(typePtr, 0x01)
+                    firstField := false
+                }
+                mstore(typePtr, "string version") // 0x0e bytes
+                typePtr := add(typePtr, 0x0e) // Skip "string version"
+            }
+            if and(fields, 0x04) {
+                if iszero(firstField) {
+                    mstore(typePtr, ",")
+                    typePtr := add(typePtr, 0x01)
+                    firstField := false
+                }
+                mstore(typePtr, "uint256 chainId") // 0x0f bytes
+                typePtr := add(typePtr, 0x0f) // Skip "uint256 chainId"
+            }
+            if and(fields, 0x08) {
+                if iszero(firstField) {
+                    mstore(typePtr, ",")
+                    typePtr := add(typePtr, 0x01)
+                    firstField := false
+                }
+                mstore(typePtr, "address verifyingContract") // 0x19 bytes
+                typePtr := add(typePtr, 0x19) // Skip "address verifyingContract"
+            }
+            if and(fields, 0x10) {
+                if iszero(firstField) {
+                    mstore(typePtr, ",")
+                    typePtr := add(typePtr, 0x01)
+                    firstField := false
+                }
+                mstore(typePtr, "bytes32 salt") // 0x0c bytes
+                typePtr := add(typePtr, 0x0c) // Skip "bytes32 salt"
+            }
+            if and(fields, 0x20) {
+                if iszero(firstField) {
+                    mstore(typePtr, ",")
+                    typePtr := add(typePtr, 0x01)
+                    firstField := false
+                }
+                mstore(typePtr, "uint256[] extensions") // 0x14 bytes
+                typePtr := add(typePtr, 0x14) // Skip "uint256[] extensions"
+            }
+            mstore8(typePtr, 0x29) // Add ")"
+            typePtr := add(typePtr, 0x01) // Skip ")"
+            hash := keccak256(ptr, sub(typePtr, ptr)) // sub(typePtr, ptr) is the length of the type string
+        }
+    }
+
+    /// @dev Builds an EIP-712 domain separator hash depending on the `fields` provided, following https://eips.ethereum.org/EIPS/eip-5267[ERC-5267]
+    function _buildDynamicDomainSeparatorHash(
+        bytes32 ptr,
+        bytes32 typePtr,
+        bytes32 typeHash,
+        bytes1 fields,
+        string memory name,
+        string memory version,
+        uint256 chainId,
+        address verifyingContract,
+        bytes32 salt,
+        uint256[] memory extensions
+    ) private pure returns (bytes32 hash) {
+        assembly ("memory-safe") {
+            mstore(typePtr, typeHash)
+            typePtr := add(typePtr, 0x20)
+            if and(fields, 0x01) {
+                mstore(typePtr, keccak256(name, mload(name)))
+                typePtr := add(typePtr, 0x20)
+            }
+            if and(fields, 0x02) {
+                mstore(typePtr, keccak256(version, mload(version)))
+                typePtr := add(typePtr, 0x20)
+            }
+            if and(fields, 0x04) {
+                mstore(typePtr, chainId)
+                typePtr := add(typePtr, 0x20)
+            }
+            if and(fields, 0x08) {
+                mstore(typePtr, verifyingContract)
+                typePtr := add(typePtr, 0x20)
+            }
+            if and(fields, 0x10) {
+                mstore(typePtr, salt)
+                typePtr := add(typePtr, 0x20)
+            }
+            if and(fields, 0x20) {
+                mstore(typePtr, extensions)
+                typePtr := add(typePtr, 0x20)
+            }
+            hash := keccak256(ptr, sub(typePtr, ptr))
         }
     }
 }
