@@ -96,7 +96,7 @@ describe('MessageHashUtils', function () {
     });
   });
 
-  describe.only('ERC-5267', function () {
+  describe('ERC-5267', function () {
     const fullDomain = {
       name: generators.string(),
       version: generators.string(),
