@@ -71,7 +71,7 @@ WARNING: Leaving an account uninitialized may leave it unusable since no public 
 
 Regularly, accounts implement https://eips.ethereum.org/EIPS/eip-1271[ERC-1271] to enable smart contract signature verification given its wide adoption. To be compliant means that smart contract exposes an xref:api:interfaces.adoc#IERC1271-isValidSignature-bytes32-bytes-[`isValidSignature(bytes32 hash, bytes memory signature)`] method that returns `0x1626ba7e` to identify whether the signature is valid.
 
-The benefit of this standard is that it allows to receive any format of `signature` for a given `hash`. This generalized mechanism fits very well with the account abstraction principle of _bringing your own validation mechanism_.
+The benefit of this standard is that it allows receiving any format of `signature` for a given `hash`. This generalized mechanism fits very well with the account abstraction principle of _bringing your own validation mechanism_.
 
 This is how you enable ERC-1271 using an xref:api:utils/cryptography.adoc#AbstractSigner[`AbstractSigner`]:
 
