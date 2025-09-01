@@ -10,8 +10,8 @@ import {Bytes} from "../../utils/Bytes.sol";
 /**
  * @dev Core bridging mechanism.
  *
- * This contract contains the logic to register and send messages to counterparts on remote chains using an ERC-7786
- * gateway. It ensure received message originate from for a counterpart. This is the code of token bridges such as
+ * This contract contains the logic to register and send messages to counterparts on remote chains using ERC-7786
+ * gateways. It ensure received message originate from for a counterpart. This is the code of token bridges such as
  * {BridgeERC20}.
  *
  * Contract that inherit from this contract can use the internal {_senMessage} to send messages to their conterpart
@@ -19,57 +19,47 @@ import {Bytes} from "../../utils/Bytes.sol";
  */
 abstract contract BridgeCore is IERC7786Recipient {
     using BitMaps for BitMaps.BitMap;
+    using Bytes for bytes;
     using InteroperableAddress for bytes;
 
-    address private _gateway;
-    mapping(bytes chain => bytes) private _remotes;
+    struct Link {
+        address gateway;
+        bytes remote;
+    }
+    mapping(bytes chain => Link) private _links;
     mapping(address gateway => BitMaps.BitMap) private _received;
 
-    event GatewayChange(address oldGateway, address newGateway);
-    event RemoteRegistered(bytes remote);
+    event RemoteRegistered(address gateway, bytes remote);
 
-    error InvalidGateway(address gateway);
-    error InvalidSender(bytes sender);
+    error InvalidGatewayForChain(address gateway, bytes chain);
+    error InvalidRemoteForChain(bytes remote, bytes chain);
+    error RemoteAlreadyRegistered(bytes chain);
     error MessageAlreadyProcessed(address gateway, bytes32 receiveId);
-    error RemoteAlreadyRegistered(bytes remote);
 
-    constructor(address initialGateway, bytes[] memory initialRemotes) {
-        _setGateway(initialGateway);
-        for (uint256 i = 0; i < initialRemotes.length; ++i) {
-            _registerRemote(initialRemotes[i], false);
+    constructor(Link[] memory links) {
+        for (uint256 i = 0; i < links.length; ++i) {
+            _setLink(links[0].gateway, links[0].remote, false);
         }
     }
 
-    /// @dev Returns the ERC-7786 gateway used for sending and receiving cross-chain messages
-    function gateway() public view virtual returns (address) {
-        return _gateway;
+    /// @dev Returns the ERC-7786 gateway used for sending and receiving cross-chain messages to a given chain
+    function link(bytes memory chain) public view virtual returns (address gateway, bytes memory remote) {
+        Link storage self = _links[chain];
+        return (self.gateway, self.remote);
     }
 
-    /// @dev Returns the interoperable address of the corresponding token on a given chain
-    function remote(bytes memory chain) public view virtual returns (bytes memory) {
-        return _remotes[chain];
-    }
-
-    /// @dev Internal setter to change the ERC-7786 gateway. Called at construction.
-    function _setGateway(address newGateway) internal virtual {
-        // Sanity check, this should revert if newGateway is not an ERC-7786 implementation. Note that since
+    /// @dev Internal setter to change the ERC-7786 gateway and remote for a given chain. Called at construction.
+    function _setLink(address gateway, bytes memory remote, bool allowOverride) internal virtual {
+        // Sanity check, this should revert if gateway is not an ERC-7786 implementation. Note that since
         // supportsAttribute returns data, an EOA would fail that test (nothing returned).
-        IERC7786GatewaySource(newGateway).supportsAttribute(bytes4(0));
+        IERC7786GatewaySource(gateway).supportsAttribute(bytes4(0));
 
-        address oldGateway = _gateway;
-        _gateway = newGateway;
-
-        emit GatewayChange(oldGateway, newGateway);
-    }
-
-    /// @dev Internal setter to change the ERC-7786 gateway. Called at construction.
-    function _registerRemote(bytes memory remoteToken, bool allowOverride) internal virtual {
-        bytes memory chain = _extractChain(remoteToken);
-        if (allowOverride || _remotes[chain].length == 0) {
-            _remotes[chain] = remoteToken;
-            emit RemoteRegistered(remoteToken);
+        bytes memory chain = _extractChain(remote);
+        if (allowOverride || _links[chain].gateway == address(0)) {
+            _links[chain] = Link(gateway, remote);
+            emit RemoteRegistered(gateway, remote);
         } else {
-            revert RemoteAlreadyRegistered(_remotes[chain]);
+            revert RemoteAlreadyRegistered(chain);
         }
     }
 
@@ -79,7 +69,8 @@ abstract contract BridgeCore is IERC7786Recipient {
         bytes memory payload,
         bytes[] memory attributes
     ) internal virtual returns (bytes32) {
-        return IERC7786GatewaySource(gateway()).sendMessage(remote(chain), payload, attributes);
+        (address gateway, bytes memory remote) = link(chain);
+        return IERC7786GatewaySource(gateway).sendMessage(remote, payload, attributes);
     }
 
     /// @inheritdoc IERC7786Recipient
@@ -88,11 +79,14 @@ abstract contract BridgeCore is IERC7786Recipient {
         bytes calldata sender,
         bytes calldata payload
     ) public payable virtual returns (bytes4) {
+        bytes memory chain = _extractChain(sender);
+        (address gateway, bytes memory router) = link(chain);
+
         // Security restriction:
         // - sender must be the remote for that chain
         // - message was not processed yet
-        require(msg.sender == gateway(), InvalidGateway(msg.sender));
-        require(Bytes.equal(remote(_extractChain(sender)), sender), InvalidSender(sender));
+        require(msg.sender == gateway, InvalidGatewayForChain(msg.sender, chain));
+        require(sender.equal(router), InvalidRemoteForChain(sender, chain));
         require(!_received[msg.sender].get(uint256(receiveId)), MessageAlreadyProcessed(msg.sender, receiveId));
         _received[msg.sender].set(uint256(receiveId));
 
