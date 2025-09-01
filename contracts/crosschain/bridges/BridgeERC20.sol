@@ -22,34 +22,13 @@ abstract contract BridgeERC20 is BridgeCore {
     event CrossChainTransferSent(bytes32 indexed sendId, address indexed from, bytes to, uint256 amount);
     event CrossChainTransferReceived(bytes32 indexed receiveId, bytes from, address indexed to, uint256 amount);
 
-    /**
-     * @dev Transfer `amount` tokens to a crosschain receiver.
-     *
-     * This is a variant of {crosschainTransfer-bytes-uint256-bytes[]} with an empty attribute list.
-     *
-     * NOTE: This function is not virtual and should not be overriden. Consider overriding
-     * {crosschainTransfer-bytes-uint256-bytes[]} instead.
-     */
-    function crosschainTransfer(bytes memory to, uint256 amount) public returns (bytes32) {
-        return crosschainTransfer(to, amount, new bytes[](0));
-    }
-
     /// @dev Transfer `amount` tokens to a crosschain receiver.
-    function crosschainTransfer(
-        bytes memory to,
-        uint256 amount,
-        bytes[] memory attributes
-    ) public virtual returns (bytes32) {
-        return _crosschainTransfer(msg.sender, to, amount, attributes);
+    function crosschainTransfer(bytes memory to, uint256 amount) public virtual returns (bytes32) {
+        return _crosschainTransfer(msg.sender, to, amount);
     }
 
     /// @dev Internal crosschain transfer function.
-    function _crosschainTransfer(
-        address from,
-        bytes memory to,
-        uint256 amount,
-        bytes[] memory attributes
-    ) internal virtual returns (bytes32) {
+    function _crosschainTransfer(address from, bytes memory to, uint256 amount) internal virtual returns (bytes32) {
         _lock(from, amount);
 
         (bytes2 chainType, bytes memory chainReference, bytes memory addr) = to.parseV1();
@@ -58,7 +37,7 @@ abstract contract BridgeERC20 is BridgeCore {
         bytes32 sendId = _sendMessage(
             chain,
             abi.encode(InteroperableAddress.formatEvmV1(block.chainid, from), addr, amount),
-            attributes
+            new bytes[](0)
         );
 
         emit CrossChainTransferSent(sendId, from, to, amount);
