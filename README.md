@@ -40,7 +40,7 @@ $ npm install @openzeppelin/contracts
 $ forge install OpenZeppelin/openzeppelin-contracts
 ```
 
-Add `@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/` in `remappings.txt.`
+Add `@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/` in `remappings.txt`.
 
 ### Usage
 
