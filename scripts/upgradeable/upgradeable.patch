@@ -89,8 +89,8 @@ index 60d0a430a..0e4f91a6d 100644
 +$ forge install OpenZeppelin/openzeppelin-contracts-upgradeable
  ```
  
--Add `@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/` in `remappings.txt.`
-+Add `@openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/` in `remappings.txt.`
+-Add `@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/` in `remappings.txt`.
++Add `@openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/` in `remappings.txt`.
  
  ### Usage
  
