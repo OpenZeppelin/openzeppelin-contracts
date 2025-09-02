@@ -103,13 +103,33 @@ describe('LowLevelCall', function () {
       });
 
       it('calls the requested function and returns false if the subcall reverts', async function () {
-        const tx = this.mock.$callReturn64Bytes(
-          this.target,
-          this.target.interface.encodeFunctionData('mockFunctionRevertsNoReason'),
-        );
-        await expect(tx)
+        await expect(
+          this.mock.$callReturn64Bytes(
+            this.target,
+            this.target.interface.encodeFunctionData('mockFunctionRevertsNoReason'),
+          ),
+        )
           .to.emit(this.mock, 'return$callReturn64Bytes_address_bytes')
           .withArgs(false, ethers.ZeroHash, ethers.ZeroHash);
+      });
+
+      it('returns the first 64 bytes of the revert reason or custom error if the subcall reverts', async function () {
+        const encoded = ethers.Interface.from(['error Error(string)']).encodeErrorResult('Error', [
+          'CallReceiverMock: reverting',
+        ]);
+
+        await expect(
+          this.mock.$callReturn64Bytes(
+            this.target,
+            this.target.interface.encodeFunctionData('mockFunctionRevertsReason'),
+          ),
+        )
+          .to.emit(this.mock, 'return$callReturn64Bytes_address_bytes')
+          .withArgs(
+            false,
+            ethers.hexlify(ethers.getBytes(encoded).slice(0x00, 0x20)),
+            ethers.hexlify(ethers.getBytes(encoded).slice(0x20, 0x40)),
+          );
       });
     });
   });
@@ -149,6 +169,23 @@ describe('LowLevelCall', function () {
             this.target.interface.encodeFunctionData('mockFunctionRevertsNoReason'),
           ),
         ).to.eventually.deep.equal([false, ethers.ZeroHash, ethers.ZeroHash]);
+      });
+
+      it('returns the first 64 bytes of the revert reason or custom error if the subcall reverts', async function () {
+        const encoded = ethers.Interface.from(['error Error(string)']).encodeErrorResult('Error', [
+          'CallReceiverMock: reverting',
+        ]);
+
+        await expect(
+          this.mock.$staticcallReturn64Bytes(
+            this.target,
+            this.target.interface.encodeFunctionData('mockFunctionRevertsReason'),
+          ),
+        ).to.eventually.deep.equal([
+          false,
+          ethers.hexlify(ethers.getBytes(encoded).slice(0x00, 0x20)),
+          ethers.hexlify(ethers.getBytes(encoded).slice(0x20, 0x40)),
+        ]);
       });
     });
   });
