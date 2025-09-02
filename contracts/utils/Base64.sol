@@ -42,7 +42,7 @@ library Base64 {
     /**
      * @dev Internal table-agnostic encoding
      *
-     * If padding is enabled, uses the Base64 table, otherwise use the Base64Url table.
+     * Padding is enabled when using the Base64 table, and disabled when using the Base64Url table.
      * See sections 4 and 5 of https://datatracker.ietf.org/doc/html/rfc4648
      */
     function _encode(bytes memory data, bool urlAndFilenameSafe) private pure returns (bytes memory result) {
