@@ -131,7 +131,7 @@ library Address {
      * was not a contract or bubbling up the revert reason (falling back to {Errors.FailedCall}) in case
      * of an unsuccessful call.
      *
-     * NOTE: This function is DEPRECATED and may be remove in the next major release.
+     * NOTE: This function is DEPRECATED and may be removed in the next major release.
      */
     function verifyCallResultFromTarget(
         address target,
