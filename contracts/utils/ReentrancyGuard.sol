@@ -24,10 +24,8 @@ import {StorageSlot} from "./StorageSlot.sol";
  * to protect against it, check out our blog post
  * https://blog.openzeppelin.com/reentrancy-after-istanbul/[Reentrancy After Istanbul].
  *
- * As of v5.5, this storage-based version of the reentrancy guard is DEPRECATED. In the
- * next major release (v6.0), {ReentrancyGuardTransient} will be removed, and its logic
- * moved to this contract, making transient storage the standard storage option for
- * reentrancy guards.
+ * IMPORTANT: Deprecated. This storage-based reentrancy guard will be removed and replaced
+ * by the {ReentrancyGuardTransient} variant in v6.0.
  */
 abstract contract ReentrancyGuard {
     using StorageSlot for bytes32;
