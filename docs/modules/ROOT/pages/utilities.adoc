@@ -73,7 +73,7 @@ IMPORTANT: The P256 library only allows for `s` values in the lower order of the
 
 ==== RSA
 
-RSA is a public-key cryptosystem that was popularized by corporate and governmental public key infrastructures (https://en.wikipedia.org/wiki/Public_key_infrastructure[PKIs]) and https://en.wikipedia.org/wiki/Domain_Name_System_Security_Extensions[DNSSEC]. 
+RSA is a public-key cryptosystem that was popularized by corporate and governmental public key infrastructures (https://en.wikipedia.org/wiki/Public_key_infrastructure[PKIs]) and https://en.wikipedia.org/wiki/Domain_Name_System_Security_Extensions[DNSSEC].
 
 This cryptosystem consists of using a private key that's the product of 2 large prime numbers. The message is signed by applying a modular exponentiation to its hash (commonly SHA256), where both the exponent and modulus compose the public key of the signer.
 
@@ -310,10 +310,10 @@ function push(bytes32 leaf) public /* onlyOwner */ {
 
 function _hashFn(bytes32 a, bytes32 b) internal view returns(bytes32) {
     // Custom hash function implementation
-    // Kept as an internal implementation detail to 
+    // Kept as an internal implementation detail to
     // guarantee the same function is always used
 }
----- 
+----
 
 === Using a Heap
 
@@ -494,7 +494,7 @@ You can also check return data size before processing:
 function checkReturnSize(address target, bytes memory data) internal returns (uint256 value, uint256 otherValue) {
     (bool success, bytes32 result1, bytes32 result2) = target.callReturn64Bytes(data);
 
-    if (!success || LowLevelCall.returnDataSize() < 32) {
+    if (!success || LowLevelCall.returnDataSize() < 32) {
         return (0, 0);
     } else if (LowLevelCall.returnDataSize() < 64) {
         return (uint256(result1), 0);
@@ -561,7 +561,7 @@ The xref:api:utils.adoc#Time[`Time`] library provides helpers for manipulating t
 
 One of its key features is the `Delay` type, which represents a duration that can automatically change its value at a specified point in the future while maintaining delay guarantees. For example, when reducing a delay value (e.g., from 7 days to 1 day), the change only takes effect after the difference between the old and new delay (i.e. a 6 days) or a minimum setback period, preventing an attacker who gains admin access from immediately reducing security timeouts and executing sensitive operations. This is particularly useful for governance and security mechanisms where timelock periods need to be enforced.
 
-Consider this example for using and safely updating Delays:   
+Consider this example for using and safely updating Delays:
 [source,solidity]
 ----
 // SPDX-License-Identifier: MIT
@@ -571,7 +571,7 @@ import {Time} from "contracts/utils/types/Time.sol";
 
 contract MyDelayedContract {
     using Time for *;
-    
+
     Time.Delay private _delay;
 
     constructor() {
@@ -582,10 +582,10 @@ contract MyDelayedContract {
         // Get the current `_delay` value, respecting any pending delay changes if they've taken effect
         uint32 currentDelay = _delay.get();
         uint48 executionTime = Time.timestamp() + currentDelay;
-        
+
         // ... schedule the operation at `executionTime`
     }
-    
+
     function execute(bytes32 operationId) external {
         uint48 executionTime = getExecutionTime(operationId);
         require(executionTime > 0, "Operation not scheduled");
@@ -593,19 +593,19 @@ contract MyDelayedContract {
 
         // ... execute the operation
     }
-    
+
     // Update the delay with `Time`'s safety mechanism
     function updateDelay(uint32 newDelay) external {
         (Time.Delay updatedDelay, uint48 effect) = _delay.withUpdate(
             newDelay,    // The new delay value
             5 days       // Minimum setback if reducing the delay
         );
-        
+
         _delay = updatedDelay;
 
         // ... emit events
     }
-    
+
     // Get complete delay details including pending changes
     function getDelayDetails() external view returns (
         uint32 currentValue, // The current delay value
