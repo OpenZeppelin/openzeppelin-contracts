@@ -54,14 +54,14 @@ describe('Base64', function () {
     const getHexCode = str => ethers.hexlify(ethers.toUtf8Bytes(str));
     const helper = { interface: ethers.Interface.from(['error InvalidBase64Digit(bytes1)']) };
 
-    // ord('$') < 43
-    await expect(this.mock.$decode('dGVzd$=='))
+    // ord('*') < 43
+    await expect(this.mock.$decode('dGVzd*=='))
       .to.be.revertedWithCustomError(helper, 'InvalidBase64Digit')
-      .withArgs(getHexCode('$'));
-    // ord('~') > 122
-    await expect(this.mock.$decode('dGVzd~=='))
+      .withArgs(getHexCode('*'));
+    // ord('{') > 122
+    await expect(this.mock.$decode('dGVzd{=='))
       .to.be.revertedWithCustomError(helper, 'InvalidBase64Digit')
-      .withArgs(getHexCode('~'));
+      .withArgs(getHexCode('{'));
     // ord('@') in range, but '@' not in the dictionary
     await expect(this.mock.$decode('dGVzd@=='))
       .to.be.revertedWithCustomError(helper, 'InvalidBase64Digit')
