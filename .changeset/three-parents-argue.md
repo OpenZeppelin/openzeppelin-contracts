@@ -2,4 +2,4 @@
 'openzeppelin-solidity': patch
 ---
 
-`ReentrancyGuard` and `ReentrancyGuardTransient`: Add `_reentrancyGuardStorageSlot()`, a `pure virtual` function, that can be overriden to allow slot customization.
+`ReentrancyGuard`, `ReentrancyGuardTransient`: Add an internal `_reentrancyGuardStorageSlot` function allowing slot customization via override.
