@@ -15,7 +15,7 @@ import {Context} from "../utils/Context.sol";
  * simply including this module, only once the modifiers are put in place.
  */
 abstract contract Pausable is Context {
-    bool private _paused;
+    uint256 private _paused;
 
     /**
      * @dev Emitted when the pause is triggered by `account`.
@@ -65,7 +65,7 @@ abstract contract Pausable is Context {
      * @dev Returns true if the contract is paused, and false otherwise.
      */
     function paused() public view virtual returns (bool) {
-        return _paused;
+        return _paused == 2 ? true : false;
     }
 
     /**
@@ -94,7 +94,7 @@ abstract contract Pausable is Context {
      * - The contract must not be paused.
      */
     function _pause() internal virtual whenNotPaused {
-        _paused = true;
+        _paused = 2;
         emit Paused(_msgSender());
     }
 
@@ -106,7 +106,7 @@ abstract contract Pausable is Context {
      * - The contract must be paused.
      */
     function _unpause() internal virtual whenPaused {
-        _paused = false;
+        _paused = 1;
         emit Unpaused(_msgSender());
     }
 }
