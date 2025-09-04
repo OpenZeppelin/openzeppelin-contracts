@@ -5,6 +5,9 @@ const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
 
 const coder = ethers.AbiCoder.defaultAbiCoder();
 
+const fakeContract = { interface: ethers.Interface.from(['error SomeCustomErrorWithoutArgs()']) };
+const returndata = fakeContract.interface.encodeErrorResult('SomeCustomErrorWithoutArgs');
+
 async function fixture() {
   const [recipient, other] = await ethers.getSigners();
 
@@ -274,8 +277,56 @@ describe('Address', function () {
 
   describe('verifyCallResult', function () {
     it('returns returndata on success', async function () {
-      const returndata = '0x123abc';
-      expect(await this.mock.$verifyCallResult(true, returndata)).to.equal(returndata);
+      await expect(this.mock.$verifyCallResult(true, returndata)).to.eventually.equal(returndata);
+    });
+
+    it('bubble returndata on failure', async function () {
+      await expect(this.mock.$verifyCallResult(false, returndata)).to.be.revertedWithCustomError(
+        fakeContract,
+        'SomeCustomErrorWithoutArgs',
+      );
+    });
+
+    it('standard error on failure without returndata', async function () {
+      await expect(this.mock.$verifyCallResult(false, '0x')).to.be.revertedWithCustomError(this.mock, 'FailedCall');
+    });
+  });
+
+  describe('verifyCallResultFromTarget', function () {
+    it('success with non-empty returndata', async function () {
+      await expect(this.mock.$verifyCallResultFromTarget(this.mock, true, returndata)).to.eventually.equal(returndata);
+      await expect(this.mock.$verifyCallResultFromTarget(this.recipient, true, returndata)).to.eventually.equal(
+        returndata,
+      );
+    });
+
+    it('success with empty returndata', async function () {
+      await expect(this.mock.$verifyCallResultFromTarget(this.mock, true, '0x')).to.eventually.equal('0x');
+      await expect(this.mock.$verifyCallResultFromTarget(this.recipient, true, '0x'))
+        .to.be.revertedWithCustomError(this.mock, 'AddressEmptyCode')
+        .withArgs(this.recipient);
+    });
+
+    it('failure with non-empty returndata', async function () {
+      await expect(this.mock.$verifyCallResultFromTarget(this.mock, false, returndata)).to.revertedWithCustomError(
+        fakeContract,
+        'SomeCustomErrorWithoutArgs',
+      );
+      await expect(this.mock.$verifyCallResultFromTarget(this.recipient, false, returndata)).to.revertedWithCustomError(
+        fakeContract,
+        'SomeCustomErrorWithoutArgs',
+      );
+    });
+
+    it('failure with empty returndata', async function () {
+      await expect(this.mock.$verifyCallResultFromTarget(this.mock, false, '0x')).to.be.revertedWithCustomError(
+        this.mock,
+        'FailedCall',
+      );
+      await expect(this.mock.$verifyCallResultFromTarget(this.recipient, false, '0x')).to.be.revertedWithCustomError(
+        this.mock,
+        'FailedCall',
+      );
     });
   });
 });

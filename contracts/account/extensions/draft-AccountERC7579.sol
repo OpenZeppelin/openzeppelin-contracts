@@ -17,6 +17,7 @@ import {
 } from "../../interfaces/draft-IERC7579.sol";
 import {ERC7579Utils, Mode, CallType, ExecType} from "../../account/utils/draft-ERC7579Utils.sol";
 import {EnumerableSet} from "../../utils/structs/EnumerableSet.sol";
+import {LowLevelCall} from "../../utils/LowLevelCall.sol";
 import {Bytes} from "../../utils/Bytes.sol";
 import {Packing} from "../../utils/Packing.sol";
 import {Calldata} from "../../utils/Calldata.sol";
@@ -314,14 +315,10 @@ abstract contract AccountERC7579 is Account, IERC1271, IERC7579Execution, IERC75
         // From https://eips.ethereum.org/EIPS/eip-7579#fallback[ERC-7579 specifications]:
         // - MUST utilize ERC-2771 to add the original msg.sender to the calldata sent to the fallback handler
         // - MUST use call to invoke the fallback handler
-        (bool success, bytes memory returndata) = handler.call{value: msg.value}(
-            abi.encodePacked(msg.data, msg.sender)
-        );
-
-        if (success) return returndata;
-
-        assembly ("memory-safe") {
-            revert(add(returndata, 0x20), mload(returndata))
+        if (LowLevelCall.callNoReturn(handler, msg.value, abi.encodePacked(msg.data, msg.sender))) {
+            return LowLevelCall.returnData();
+        } else {
+            LowLevelCall.bubbleRevert();
         }
     }
 
