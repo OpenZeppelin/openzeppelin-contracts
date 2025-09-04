@@ -6,7 +6,7 @@ ERC-721 is a more complex standard than ERC-20, with multiple optional extension
 
 == Constructing an ERC-721 Token Contract
 
-We'll use ERC-721 to track items in our game, which will each have their own unique attributes. Whenever one is to be awarded to a player, it will be minted and sent to them. Players are free to keep their token or trade it with other people as they see fit, as they would any other asset on the blockchain!  Please note any account can call `awardItem` to mint items.  To restrict what accounts can mint items we can add xref:access-control.adoc[Access Control].
+We'll use ERC-721 to track items in our game, which will each have their own unique attributes. Whenever one is to be awarded to a player, it will be minted and sent to them. Players are free to keep their token or trade it with other people as they see fit, as they would any other asset on the blockchain!  Please note that any account can call `awardItem` to mint items.  To restrict what accounts can mint items we can add xref:access-control.adoc[Access Control].
 
 Here's what a contract for tokenized items might look like:
 

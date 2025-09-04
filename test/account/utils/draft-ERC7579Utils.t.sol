@@ -372,7 +372,7 @@ contract ERC7579UtilsTest is Test {
         // <missing data>
         bytes memory invalidDeeply = abi.encode(32, 1, 32, _recipient1, 42, 96);
         this.callDecodeBatch(invalidDeeply);
-        // Note that this is ok because we don't return the value. Returning it would introduce a check that would fails.
+        // Note that this is ok because we don't return the value. Returning it would introduce a check that would fail.
         this.callDecodeBatchAndGetFirst(invalidDeeply);
         vm.expectRevert();
         this.callDecodeBatchAndGetFirstBytes(invalidDeeply);
