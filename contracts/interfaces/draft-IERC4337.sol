@@ -99,13 +99,15 @@ interface IEntryPointNonces {
 }
 
 /**
- * @dev Handle stake management for entities (i.e. accounts, paymasters, factories).
+ * @dev Handle deposit management for entities (i.e. accounts, paymasters).
  *
- * The EntryPoint must implement the following API to let entities like paymasters have a stake,
- * and thus have more flexibility in their storage access
- * (see https://eips.ethereum.org/EIPS/eip-4337#reputation-scoring-and-throttlingbanning-for-global-entities[reputation, throttling and banning.])
+ * The paymaster must have a deposit, which the EntryPoint will charge UserOperation costs from.
+ * The deposit (for paying gas fees) is separate from the stake (which is locked).
+ *
+ * The EntryPoint must implement the following interface to allow Paymasters (and optionally Accounts)
+ * to manage their deposit.
  */
-interface IEntryPointStake {
+interface IEntryPointDeposit {
     /**
      * @dev Returns the balance of the account.
      */
@@ -120,7 +122,16 @@ interface IEntryPointStake {
      * @dev Withdraws `withdrawAmount` from the account to `withdrawAddress`.
      */
     function withdrawTo(address payable withdrawAddress, uint256 withdrawAmount) external;
+}
 
+/**
+ * @dev Handle stake management for entities (i.e. accounts, paymasters, factories).
+ *
+ * The EntryPoint must implement the following API to let entities like paymasters have a stake,
+ * and thus have more flexibility in their storage access
+ * (see https://eips.ethereum.org/EIPS/eip-4337#reputation-scoring-and-throttlingbanning-for-global-entities[reputation, throttling and banning.])
+ */
+interface IEntryPointStake {
     /**
      * @dev Adds stake to the account with an unstake delay of `unstakeDelaySec`.
      */
@@ -142,7 +153,7 @@ interface IEntryPointStake {
  *
  * User operations are validated and executed by this contract.
  */
-interface IEntryPoint is IEntryPointNonces, IEntryPointStake {
+interface IEntryPoint is IEntryPointNonces, IEntryPointStake, IEntryPointDeposit {
     /**
      * @dev A user operation at `opIndex` failed with `reason`.
      */
