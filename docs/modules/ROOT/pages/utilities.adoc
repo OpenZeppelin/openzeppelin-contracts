@@ -8,7 +8,7 @@ Here are some of the more popular ones.
 
 === Checking Signatures On-Chain
 
-At a high level, signatures are a set of cryptographic algorithms that allow for a _signer_ to prove himself the owner of a _private key_ used to authorize a piece of information (generally a transaction or `UserOperation`). Natively, the EVM supports the Elliptic Curve Digital Signature Algorithm (https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm[ECDSA]) using the secp256k1 curve, however other signature algorithms such as P256 and RSA are supported.
+At a high level, signatures are a set of cryptographic algorithms that allow for a _signer_ to prove himself as the owner of a _private key_ used to authorize a piece of information (generally a transaction or `UserOperation`). Natively, the EVM supports the Elliptic Curve Digital Signature Algorithm (https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm[ECDSA]) using the secp256k1 curve, however other signature algorithms such as P256 and RSA are supported.
 
 ==== Ethereum Signatures (secp256k1)
 
@@ -188,7 +188,7 @@ For an on-chain Merkle Tree, see the xref:api:utils.adoc#MerkleTree[`MerkleTree`
 [[introspection]]
 == Introspection
 
-In Solidity, it's frequently helpful to know whether or not a contract supports an interface you'd like to use. ERC-165 is a standard that helps to do runtime interface detection. Contracts provide helpers both for implementing ERC-165 in your contracts and querying other contracts:
+In Solidity, it's frequently helpful to know whether or not a contract supports an interface you'd like to use. ERC-165 is a standard that enables runtime interface detection. Contracts provide helpers both for implementing ERC-165 in your contracts and querying other contracts:
 
 * xref:api:utils.adoc#IERC165[`IERC165`] — this is the ERC-165 interface that defines xref:api:utils.adoc#IERC165-supportsInterface-bytes4-[`supportsInterface`]. When implementing ERC-165, you'll conform to this interface.
 * xref:api:utils.adoc#ERC165[`ERC165`] — inherit this contract if you'd like to support interface detection using a lookup table in contract storage. You can register interfaces using xref:api:utils.adoc#ERC165-_registerInterface-bytes4-[`_registerInterface(bytes4)`]: check out example usage as part of the ERC-721 implementation.
@@ -255,7 +255,7 @@ TIP: While working with different data types that might require casting, you can
 [[structures]]
 == Structures
 
-Some use cases require more powerful data structures than arrays and mappings offered natively in Solidity. Contracts provide these libraries for enhanced data structure management:
+Some use cases require more powerful data structures than arrays and mappings offered natively in Solidity. Contracts provides these libraries for enhanced data structure management:
 
 - xref:api:utils.adoc#BitMaps[`BitMaps`]: Store packed booleans in storage.
 - xref:api:utils.adoc#Checkpoints[`Checkpoints`]: Checkpoint values with built-in lookups.
