@@ -2,17 +2,19 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
+const { generators } = require('../helpers/random');
+
 async function fixture() {
   const mock = await ethers.deployContract('$RLP');
 
   // Resolve function overload ambiguities like in Math.test.js
-  mock.$encode_bytes = mock['$encode(bytes)'];
-  mock.$encode_list = mock['$encode(bytes[])'];
-  mock.$encode_string = mock['$encode(string)'];
+  mock.$encode_bool = mock['$encode(bool)'];
   mock.$encode_address = mock['$encode(address)'];
   mock.$encode_uint256 = mock['$encode(uint256)'];
   mock.$encode_bytes32 = mock['$encode(bytes32)'];
-  mock.$encode_bool = mock['$encode(bool)'];
+  mock.$encode_bytes = mock['$encode(bytes)'];
+  mock.$encode_string = mock['$encode(string)'];
+  mock.$encode_list = mock['$encode(bytes[])'];
   mock.$decodeBytes_item = mock['$decodeBytes((uint256,bytes32))'];
   mock.$decodeBytes_bytes = mock['$decodeBytes(bytes)'];
   mock.$decodeList_item = mock['$decodeList((uint256,bytes32))'];
@@ -27,69 +29,20 @@ describe('RLP', function () {
   });
 
   describe('encoding', function () {
-    it('encodes zero', async function () {
-      await expect(this.mock.$encode_uint256(0)).to.eventually.equal('0x80');
-    });
-
-    it('encodes single byte < 128', async function () {
-      await expect(this.mock.$encode_bytes('0x00')).to.eventually.equal('0x00');
-      await expect(this.mock.$encode_bytes('0x01')).to.eventually.equal('0x01');
-      await expect(this.mock.$encode_bytes('0x7f')).to.eventually.equal('0x7f');
-    });
-
-    it('encodes single byte >= 128', async function () {
-      await expect(this.mock.$encode_bytes('0x80')).to.eventually.equal('0x8180');
-      await expect(this.mock.$encode_bytes('0xff')).to.eventually.equal('0x81ff');
-    });
-
-    it('encodes short strings (0-55 bytes)', async function () {
-      // 1 byte
-      await expect(this.mock.$encode_bytes('0xab')).to.eventually.equal('0x81ab');
-
-      // 2 bytes
-      await expect(this.mock.$encode_bytes('0x1234')).to.eventually.equal('0x821234');
-
-      // 55 bytes (maximum for short encoding)
-      const fiftyFiveBytes = '0x' + '00'.repeat(55);
-      const expectedShort = '0xb7' + '00'.repeat(55);
-      await expect(this.mock.$encode_bytes(fiftyFiveBytes)).to.eventually.equal(expectedShort);
-    });
-
-    it('encodes long strings (>55 bytes)', async function () {
-      // 56 bytes (minimum for long encoding)
-      const fiftySixBytes = '0x' + '00'.repeat(56);
-      const expectedLong = '0xb838' + '00'.repeat(56);
-      await expect(this.mock.$encode_bytes(fiftySixBytes)).to.eventually.equal(expectedLong);
-
-      // 100 bytes
-      const hundredBytes = '0x' + '00'.repeat(100);
-      const expectedHundred = '0xb864' + '00'.repeat(100);
-      await expect(this.mock.$encode_bytes(hundredBytes)).to.eventually.equal(expectedHundred);
-    });
-
-    it('encodes strings', async function () {
-      await expect(this.mock.$encode_string('')).to.eventually.equal('0x80');
-      await expect(this.mock.$encode_string('dog')).to.eventually.equal('0x83646f67');
-      await expect(
-        this.mock.$encode_string('Lorem ipsum dolor sit amet, consectetur adipisicing elit'),
-      ).to.eventually.equal(
-        '0xb8384c6f72656d20697073756d20646f6c6f722073697420616d65742c20636f6e7365637465747572206164697069736963696e6720656c6974',
-      );
+    it('encodes booleans', async function () {
+      await expect(this.mock.$encode_bool(false)).to.eventually.equal('0x80'); // 0
+      await expect(this.mock.$encode_bool(true)).to.eventually.equal('0x01'); // 1
     });
 
     it('encodes addresses', async function () {
-      const addr = '0x1234567890123456789012345678901234567890';
-      await expect(this.mock.$encode_address(addr)).to.eventually.equal('0x941234567890123456789012345678901234567890');
+      const addr = generators.address();
+      await expect(this.mock.$encode_address(addr)).to.eventually.equal(ethers.encodeRlp(addr));
     });
 
     it('encodes uint256', async function () {
-      await expect(this.mock.$encode_uint256(0)).to.eventually.equal('0x80');
-      await expect(this.mock.$encode_uint256(1)).to.eventually.equal('0x01');
-      await expect(this.mock.$encode_uint256(127)).to.eventually.equal('0x7f');
-      await expect(this.mock.$encode_uint256(128)).to.eventually.equal('0x8180');
-      await expect(this.mock.$encode_uint256(256)).to.eventually.equal('0x820100');
-      await expect(this.mock.$encode_uint256(1024)).to.eventually.equal('0x820400');
-      await expect(this.mock.$encode_uint256(0xffffff)).to.eventually.equal('0x83ffffff');
+      for (const input of [0, 1, 127, 128, 256, 1024, 0xffffff, ethers.MaxUint256]) {
+        await expect(this.mock.$encode_uint256(input)).to.eventually.equal(ethers.encodeRlp(ethers.toBeArray(input)));
+      }
     });
 
     it('encodes bytes32', async function () {
@@ -104,57 +57,62 @@ describe('RLP', function () {
       ).to.eventually.equal('0xa01000000000000000000000000000000000000000000000000000000000000000');
     });
 
-    it('encodes booleans', async function () {
-      await expect(this.mock.$encode_bool(false)).to.eventually.equal('0x80'); // 0
-      await expect(this.mock.$encode_bool(true)).to.eventually.equal('0x01'); // 1
+    it('encodes empty byte', async function () {
+      const input = '0x';
+      await expect(this.mock.$encode_bytes(input)).to.eventually.equal(ethers.encodeRlp(input));
     });
 
-    const validTests = [
-      // Basic string encoding
-      { name: 'empty string', input: '' },
-      { name: 'dog', input: 'dog' },
-      {
-        name: 'Lorem ipsum',
-        input: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit',
-      },
+    it('encodes single byte < 128', async function () {
+      for (const input of ['0x00', '0x01', '0x7f']) {
+        await expect(this.mock.$encode_bytes(input)).to.eventually.equal(ethers.encodeRlp(input));
+      }
+    });
 
-      // Numeric encoding
-      { name: 'small integer 1', input: 1 },
-      { name: 'small integer 16', input: 16 },
-      { name: 'small integer 79', input: 79 },
-      { name: 'small integer 127', input: 127 },
-      { name: 'medium integer 128', input: 128 },
-      { name: 'medium integer 1000', input: 1000 },
-      { name: 'medium integer 100000', input: 100000 },
+    it('encodes single byte >= 128', async function () {
+      for (const input of ['0x80', '0xff']) {
+        await expect(this.mock.$encode_bytes(input)).to.eventually.equal(ethers.encodeRlp(input));
+      }
+    });
 
-      // List encoding
-      { name: 'empty list', input: [] },
-      { name: 'list of strings', input: ['dog', 'god', 'cat'] },
-    ];
+    it('encodes short buffers (1-55 bytes)', async function () {
+      for (const input of [
+        '0xab', // 1 byte
+        '0x1234', // 2 bytes
+        generators.bytes(55), // 55 bytes (maximum for short encoding)
+      ]) {
+        await expect(this.mock.$encode_bytes(input)).to.eventually.equal(ethers.encodeRlp(input));
+      }
+    });
 
-    validTests.forEach(({ name, input }) => {
-      it(`encodes ${name}`, async function () {
-        let encoded;
-        let expected;
+    it('encodes long buffers (>55 bytes)', async function () {
+      for (const input of [
+        generators.bytes(56), // 56 bytes (minimum for long encoding)
+        generators.bytes(128), // 128 bytes
+      ]) {
+        await expect(this.mock.$encode_bytes(input)).to.eventually.equal(ethers.encodeRlp(input));
+      }
+    });
 
-        if (typeof input === 'string') {
-          encoded = await this.mock.$encode_string(input);
-          expected = ethers.encodeRlp(ethers.toUtf8Bytes(input));
-        } else if (typeof input === 'number') {
-          encoded = await this.mock.$encode_uint256(input);
-          expected = ethers.encodeRlp(ethers.toBeHex(input));
-        } else if (Array.isArray(input)) {
-          if (input.length === 0) {
-            encoded = await this.mock.$encode_list(input);
-          } else {
-            const encodedItems = input.map(item => ethers.encodeRlp(ethers.toUtf8Bytes(item)));
-            encoded = await this.mock.$encode_list(encodedItems);
-          }
-          expected = ethers.encodeRlp(input.map(item => ethers.toUtf8Bytes(item)));
-        }
+    it('encodes strings', async function () {
+      for (const input of [
+        '', // empty string
+        'dog',
+        'Lorem ipsum dolor sit amet, consectetur adipisicing elit',
+      ]) {
+        await expect(this.mock.$encode_string(input)).to.eventually.equal(ethers.encodeRlp(ethers.toUtf8Bytes(input)));
+      }
+    });
 
-        expect(encoded).to.equal(expected);
-      });
+    it('encode(bytes[])', async function () {
+      for (const input of [
+        [],
+        ['0x'],
+        ['0x00'],
+        ['0x17', '0x42'],
+        ['0x17', '0x', '0x42', '0x0123456789abcdef', '0x'],
+      ]) {
+        await expect(this.mock.$encode_list(input.map(ethers.encodeRlp))).to.eventually.equal(ethers.encodeRlp(input));
+      }
     });
 
     // const invalidTests = [
