@@ -41,9 +41,9 @@ library RLP {
     function encode(bool input) internal pure returns (bytes memory result) {
         assembly ("memory-safe") {
             result := mload(0x40)
-            mstore(result, 0x01)
-            mstore(add(result, 0x20), shl(add(248, mul(7, iszero(input))), 1))
-            mstore(0x40, add(result, 0x21))
+            mstore(result, 0x01) // length of the encoded data: 1 byte
+            mstore8(add(result, 0x20), shl(mul(7, iszero(input)), 1)) // input
+            mstore(0x40, add(result, 0x21)) // reserve memory
         }
     }
 
@@ -51,9 +51,9 @@ library RLP {
     function encode(address input) internal pure returns (bytes memory result) {
         assembly ("memory-safe") {
             result := mload(0x40)
-            mstore(result, 0x15)
-            mstore(add(result, 0x20), or(shl(248, 0x94), shl(88, input)))
-            mstore(0x40, add(result, 0x35))
+            mstore(result, 0x15) // length of the encoded data: 1 (prefix) + 14 (address)
+            mstore(add(result, 0x20), or(shl(248, 0x94), shl(88, input))) // prefix (0x94 = SHORT_OFFSET + 14) + input
+            mstore(0x40, add(result, 0x35)) // reserve memory
         }
     }
 
@@ -62,18 +62,18 @@ library RLP {
         if (input < SHORT_OFFSET) {
             assembly ("memory-safe") {
                 result := mload(0x40)
-                mstore(result, 1)
-                mstore(add(result, 0x20), shl(248, or(input, mul(0x80, iszero(input))))) // zero is encoded as 0x80
-                mstore(0x40, add(result, 0x21))
+                mstore(result, 1) // length of the encoded data: 1 byte
+                mstore8(add(result, 0x20), or(input, mul(0x80, iszero(input)))) // input (zero is encoded as 0x80)
+                mstore(0x40, add(result, 0x21)) // reserve memory
             }
         } else {
             uint256 length = Math.log256(input) + 1;
             assembly ("memory-safe") {
                 result := mload(0x40)
-                mstore(result, add(length, 1))
-                mstore8(add(result, 0x20), add(length, SHORT_OFFSET))
-                mstore(add(result, 0x21), shl(sub(256, mul(8, length)), input))
-                mstore(0x40, add(result, add(length, 0x21)))
+                mstore(result, add(length, 1)) // length of the encoded data: 1 (prefix) + length
+                mstore8(add(result, 0x20), add(length, SHORT_OFFSET)) // prefix: SHORT_OFFSET + length
+                mstore(add(result, 0x21), shl(sub(256, mul(8, length)), input)) // input (aligned left)
+                mstore(0x40, add(result, add(length, 0x21))) // reserve memory
             }
         }
     }
@@ -111,10 +111,10 @@ library RLP {
             // [ offset + input.length | input ]
             assembly ("memory-safe") {
                 result := mload(0x40)
-                mstore(result, add(length, 1))
-                mstore8(add(result, 0x20), add(length, offset))
-                mcopy(add(result, 0x21), add(input, 0x20), length)
-                mstore(0x40, add(result, add(length, 0x21)))
+                mstore(result, add(length, 1)) // length of the encoded data: 1 (prefix) + input.length
+                mstore8(add(result, 0x20), add(length, offset)) // prefix: offset + input.length
+                mcopy(add(result, 0x21), add(input, 0x20), length) // input
+                mstore(0x40, add(result, add(length, 0x21))) // reserve memory
             }
         } else {
             // Encode "long-bytes" as
@@ -122,11 +122,11 @@ library RLP {
             uint256 lenlength = Math.log256(length) + 1;
             assembly ("memory-safe") {
                 result := mload(0x40)
-                mstore(result, add(add(length, lenlength), 1))
-                mstore8(add(result, 0x20), add(add(lenlength, offset), SHORT_THRESHOLD))
-                mstore(add(result, 0x21), shl(sub(256, mul(8, lenlength)), length))
-                mcopy(add(result, add(lenlength, 0x21)), add(input, 0x20), length)
-                mstore(0x40, add(result, add(add(length, lenlength), 0x21)))
+                mstore(result, add(add(length, lenlength), 1)) // length of the encoded data: 1 (prefix) + input.length.length + input.length
+                mstore8(add(result, 0x20), add(add(lenlength, offset), SHORT_THRESHOLD)) // prefix: SHORT_THRESHOLD + offset + input.length.length
+                mstore(add(result, 0x21), shl(sub(256, mul(8, lenlength)), length)) // input.length
+                mcopy(add(result, add(lenlength, 0x21)), add(input, 0x20), length) // input
+                mstore(0x40, add(result, add(add(length, lenlength), 0x21))) // reserve memory
             }
         }
     }
