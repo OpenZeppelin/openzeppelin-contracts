@@ -31,7 +31,7 @@ abstract contract ERC7786Recipient is IERC7786Recipient {
     }
 
     /// @dev Virtual getter that returns whether an address is a valid ERC-7786 gateway for a given sender.
-    function _isAuthorizedGateway(address instance, bytes memory sender) internal view virtual returns (bool);
+    function _isAuthorizedGateway(address instance, bytes calldata sender) internal view virtual returns (bool);
 
     /// @dev Virtual function that should contain the logic to execute when a cross-chain message is received.
     function _processMessage(
