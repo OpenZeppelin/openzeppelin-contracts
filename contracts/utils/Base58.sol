@@ -76,7 +76,7 @@ library Base58 {
                 let data := scratch
                 output := scratch
             } 1 {} {
-                // move past the fisrt (highest) zero limbs.
+                // move past the first (highest) zero limbs.
                 for {} and(iszero(mload(data)), lt(data, ptr)) {
                     data := add(data, 0x20)
                 } {}
