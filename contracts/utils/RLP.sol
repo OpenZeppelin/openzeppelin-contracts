@@ -71,7 +71,7 @@ library RLP {
             assembly ("memory-safe") {
                 result := mload(0x40)
                 mstore(result, add(length, 1))
-                mstore8(add(result, 0x20), add(length, 0x80))
+                mstore8(add(result, 0x20), add(length, SHORT_OFFSET))
                 mstore(add(result, 0x21), shl(sub(256, mul(8, length)), input))
                 mstore(0x40, add(result, add(length, 0x21)))
             }
@@ -108,7 +108,7 @@ library RLP {
         uint256 length = input.length;
         if (length <= SHORT_THRESHOLD) {
             // Encode "short-bytes" as
-            // [ 0x80 + input.length | input ]
+            // [ offset + input.length | input ]
             assembly ("memory-safe") {
                 result := mload(0x40)
                 mstore(result, add(length, 1))
@@ -118,7 +118,7 @@ library RLP {
             }
         } else {
             // Encode "long-bytes" as
-            // [ 0xb7 + input.length.length | input.length | input ]
+            // [ SHORT_THRESHOLD + offset + input.length.length | input.length | input ]
             uint256 lenlength = Math.log256(length) + 1;
             assembly ("memory-safe") {
                 result := mload(0x40)
