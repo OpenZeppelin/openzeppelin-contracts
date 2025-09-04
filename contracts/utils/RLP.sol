@@ -4,7 +4,6 @@ pragma solidity ^0.8.27;
 import {Math} from "./math/Math.sol";
 import {Bytes} from "./Bytes.sol";
 import {Memory} from "./Memory.sol";
-import {SafeCast} from "./math/SafeCast.sol";
 
 /**
  * @dev Library for encoding and decoding data in RLP format.
@@ -12,10 +11,129 @@ import {SafeCast} from "./math/SafeCast.sol";
  * It's used for encoding everything from transactions to blocks to Patricia-Merkle tries.
  */
 library RLP {
-    using Math for *;
-    using SafeCast for bool;
-    using Bytes for *;
     using Memory for *;
+
+    /**
+     * @dev Maximum length for data that will be encoded using the short format.
+     * If `data.length <= 55 bytes`, it will be encoded as: `[0x80 + length]` + data.
+     */
+    uint8 internal constant SHORT_THRESHOLD = 55;
+    /// @dev Single byte prefix for short strings (0-55 bytes)
+    uint8 internal constant SHORT_OFFSET = 0x80;
+    /// @dev Prefix for list items (0xC0)
+    uint8 internal constant LONG_OFFSET = 0xC0;
+
+    /// @dev Prefix for long string length (0xB8)
+    uint8 internal constant LONG_LENGTH_OFFSET = SHORT_OFFSET + SHORT_THRESHOLD + 1; // 184
+    /// @dev Prefix for long list length (0xF8)
+    uint8 internal constant SHORT_LIST_OFFSET = LONG_OFFSET + SHORT_THRESHOLD + 1; // 248
+
+    /****************************************************************************************************************
+     *                                                   ENCODING                                                   *
+     ****************************************************************************************************************/
+
+    /**
+     * @dev Convenience method to encode a boolean as RLP.
+     *
+     * Boolean `true` is encoded as 0x01, `false` as 0x80 (equivalent to encoding integers 1 and 0).
+     * This follows the de facto ecosystem standard where booleans are treated as 0/1 integers.
+     */
+    function encode(bool input) internal pure returns (bytes memory result) {
+        assembly ("memory-safe") {
+            result := mload(0x40)
+            mstore(result, 0x01)
+            mstore(add(result, 0x20), shl(add(248, mul(7, iszero(input))), 1))
+            mstore(0x40, add(result, 0x21))
+        }
+    }
+
+    /// @dev Convenience method to encode an address as RLP bytes (i.e. encoded as packed 20 bytes).
+    function encode(address input) internal pure returns (bytes memory result) {
+        assembly ("memory-safe") {
+            result := mload(0x40)
+            mstore(result, 0x15)
+            mstore(add(result, 0x20), or(shl(248, 0x94), shl(88, input)))
+            mstore(0x40, add(result, 0x35))
+        }
+    }
+
+    /// @dev Convenience method to encode a uint256 as RLP.
+    function encode(uint256 input) internal pure returns (bytes memory result) {
+        if (input < SHORT_OFFSET) {
+            assembly ("memory-safe") {
+                result := mload(0x40)
+                mstore(result, 1)
+                mstore(add(result, 0x20), shl(248, or(input, mul(0x80, iszero(input))))) // zero is encoded as 0x80
+                mstore(0x40, add(result, 0x21))
+            }
+        } else {
+            uint256 length = Math.log256(input) + 1;
+            assembly ("memory-safe") {
+                result := mload(0x40)
+                mstore(result, add(length, 1))
+                mstore8(add(result, 0x20), add(length, 0x80))
+                mstore(add(result, 0x21), shl(sub(256, mul(8, length)), input))
+                mstore(0x40, add(result, add(length, 0x21)))
+            }
+        }
+    }
+
+    /// @dev Same as {encode-uint256-}, but for bytes32.
+    function encode(bytes32 input) internal pure returns (bytes memory) {
+        return encode(uint256(input));
+    }
+
+    /**
+     * @dev Encodes a bytes array using RLP rules.
+     * Single bytes below 128 are encoded as themselves, otherwise as length prefix + data.
+     */
+    function encode(bytes memory input) internal pure returns (bytes memory) {
+        return (input.length == 1 && uint8(input[0]) < SHORT_OFFSET) ? input : _encode(input, SHORT_OFFSET);
+    }
+
+    /// @dev Convenience method to encode a string as RLP.
+    function encode(string memory str) internal pure returns (bytes memory) {
+        return encode(bytes(str));
+    }
+
+    /**
+     * @dev Encodes an array of bytes using RLP (as a list).
+     * First it {Bytes-concat}s the list of encoded items, then encodes it with the list prefix.
+     */
+    function encode(bytes[] memory input) internal pure returns (bytes memory) {
+        return _encode(Bytes.concat(input), LONG_OFFSET);
+    }
+
+    function _encode(bytes memory input, uint256 offset) private pure returns (bytes memory result) {
+        uint256 length = input.length;
+        if (length <= SHORT_THRESHOLD) {
+            // Encode "short-bytes" as
+            // [ 0x80 + input.length | input ]
+            assembly ("memory-safe") {
+                result := mload(0x40)
+                mstore(result, add(length, 1))
+                mstore8(add(result, 0x20), add(length, offset))
+                mcopy(add(result, 0x21), add(input, 0x20), length)
+                mstore(0x40, add(result, add(length, 0x21)))
+            }
+        } else {
+            // Encode "long-bytes" as
+            // [ 0xb7 + input.length.length | input.length | input ]
+            uint256 lenlength = Math.log256(length) + 1;
+            assembly ("memory-safe") {
+                result := mload(0x40)
+                mstore(result, add(add(length, lenlength), 1))
+                mstore8(add(result, 0x20), add(add(lenlength, offset), SHORT_THRESHOLD))
+                mstore(add(result, 0x21), shl(sub(256, mul(8, lenlength)), length))
+                mcopy(add(result, add(lenlength, 0x21)), add(input, 0x20), length)
+                mstore(0x40, add(result, add(add(length, lenlength), 0x21)))
+            }
+        }
+    }
+
+    /****************************************************************************************************************
+     *                                                   DECODING                                                   *
+     ****************************************************************************************************************/
 
     /// @dev Items with length 0 are not RLP items.
     error RLPEmptyItem();
@@ -37,82 +155,6 @@ library RLP {
     enum ItemType {
         Data, // Single data value
         List // List of RLP encoded items
-    }
-
-    /**
-     * @dev Maximum length for data that will be encoded using the short format.
-     * If `data.length <= 55 bytes`, it will be encoded as: `[0x80 + length]` + data.
-     */
-    uint8 internal constant SHORT_THRESHOLD = 55;
-
-    /// @dev Single byte prefix for short strings (0-55 bytes)
-    uint8 internal constant SHORT_OFFSET = 128;
-    /// @dev Prefix for long string length (0xB8)
-    uint8 internal constant LONG_LENGTH_OFFSET = SHORT_OFFSET + SHORT_THRESHOLD + 1; // 184
-    /// @dev Prefix for list items (0xC0)
-    uint8 internal constant LONG_OFFSET = LONG_LENGTH_OFFSET + 8; // 192
-    /// @dev Prefix for long list length (0xF8)
-    uint8 internal constant SHORT_LIST_OFFSET = LONG_OFFSET + SHORT_THRESHOLD + 1; // 248
-
-    /**
-     * @dev Encodes a bytes array using RLP rules.
-     * Single bytes below 128 are encoded as themselves, otherwise as length prefix + data.
-     */
-    function encode(bytes memory buffer) internal pure returns (bytes memory) {
-        return _isSingleByte(buffer) ? buffer : bytes.concat(_encodeLength(buffer.length, SHORT_OFFSET), buffer);
-    }
-
-    /**
-     * @dev Encodes an array of bytes using RLP (as a list).
-     * First it {Bytes-concat}s the list of encoded items, then encodes it with the list prefix.
-     */
-    function encode(bytes[] memory list) internal pure returns (bytes memory) {
-        bytes memory flattened = list.concat();
-        return bytes.concat(_encodeLength(flattened.length, LONG_OFFSET), flattened);
-    }
-
-    /// @dev Convenience method to encode a string as RLP.
-    function encode(string memory str) internal pure returns (bytes memory) {
-        return encode(bytes(str));
-    }
-
-    /// @dev Convenience method to encode an address as RLP bytes (i.e. encoded as packed 20 bytes).
-    function encode(address addr) internal pure returns (bytes memory) {
-        return encode(abi.encodePacked(addr));
-    }
-
-    /// @dev Convenience method to encode a uint256 as RLP. See {_binaryBuffer}.
-    function encode(uint256 value) internal pure returns (bytes memory) {
-        return encode(_binaryBuffer(value));
-    }
-
-    /// @dev Same as {encode-uint256-}, but for bytes32.
-    function encode(bytes32 value) internal pure returns (bytes memory) {
-        return encode(uint256(value));
-    }
-
-    /**
-     * @dev Convenience method to encode a boolean as RLP.
-     *
-     * Boolean `true` is encoded as 0x01, `false` as 0x80 (equivalent to encoding integers 1 and 0).
-     * This follows the de facto ecosystem standard where booleans are treated as 0/1 integers.
-     *
-     * NOTE: Both this and {encodeStrict} produce identical encoded bytes at the output level.
-     * Use this for ecosystem compatibility; use {encodeStrict} for strict RLP spec compliance.
-     */
-    function encode(bool value) internal pure returns (bytes memory) {
-        return encode(value.toUint());
-    }
-
-    /**
-     * @dev Strict RLP encoding of a boolean following literal spec interpretation.
-     * Boolean `true` is encoded as 0x01, `false` as empty bytes (0x80).
-     *
-     * NOTE: This is the strict RLP spec interpretation where false represents "empty".
-     * Use this for strict RLP spec compliance; use {encode} for ecosystem compatibility.
-     */
-    function encodeStrict(bool value) internal pure returns (bytes memory) {
-        return abi.encodePacked(bytes1(bytes32(value.ternary(0x01, 0x80))[31]));
     }
 
     /// @dev Creates an RLP Item from a bytes array.
@@ -176,33 +218,6 @@ library RLP {
         _copy(_addOffset(_asPointer(result), 32), item.ptr, itemLength);
 
         return result;
-    }
-
-    /// @dev Checks if a buffer is a single byte below 128 (0x80). Encoded as-is in RLP.
-    function _isSingleByte(bytes memory buffer) private pure returns (bool) {
-        return buffer.length == 1 && uint8(buffer[0]) < SHORT_OFFSET;
-    }
-
-    /**
-     * @dev Encodes a length with appropriate RLP prefix.
-     *
-     * * For lengths <= 55 bytes, uses short encoding: [ length (1 byte) ++ offset (1 byte) ].
-     * * For lengths > 55 bytes, uses long encoding using a length-of-length prefix:
-     * [ prefix ++ length of the length ++ length in big-endian ].
-     */
-    function _encodeLength(uint256 length, uint256 offset) private pure returns (bytes memory) {
-        return
-            length <= SHORT_THRESHOLD
-                ? abi.encodePacked(bytes1(uint8(length) + uint8(offset)))
-                : abi.encodePacked(
-                    bytes1(uint8(length.log256() + 1) + uint8(offset) + SHORT_THRESHOLD),
-                    _binaryBuffer(length) // already in big-endian, minimal representation
-                );
-    }
-
-    /// @dev Converts a uint256 to minimal binary representation, removing leading zeros.
-    function _binaryBuffer(uint256 value) private pure returns (bytes memory) {
-        return abi.encodePacked(value).slice(value.clz() / 8);
     }
 
     /**

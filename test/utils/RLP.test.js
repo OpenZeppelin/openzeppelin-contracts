@@ -109,11 +109,6 @@ describe('RLP', function () {
       await expect(this.mock.$encode_bool(true)).to.eventually.equal('0x01'); // 1
     });
 
-    it('encodes strict booleans', async function () {
-      await expect(this.mock.$encodeStrict(false)).to.eventually.equal('0x80'); // empty
-      await expect(this.mock.$encodeStrict(true)).to.eventually.equal('0x01'); // 0x01
-    });
-
     const validTests = [
       // Basic string encoding
       { name: 'empty string', input: '' },
