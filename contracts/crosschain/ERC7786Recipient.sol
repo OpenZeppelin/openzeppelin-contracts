@@ -3,6 +3,7 @@
 pragma solidity ^0.8.27;
 
 import {IERC7786Recipient} from "../interfaces/draft-IERC7786.sol";
+import {BitMaps} from "../utils/structs/BitMaps.sol";
 
 /**
  * @dev Base implementation of an ERC-7786 compliant cross-chain message receiver.
@@ -15,9 +16,17 @@ import {IERC7786Recipient} from "../interfaces/draft-IERC7786.sol";
  * which this function returns true would be able to impersonate any account on any other chain sending any message.
  *
  * * {_processMessage}, the internal function that will be called with any message that has been validated.
+ *
+ * This contract implements replay protection, manning that if two messages are received from the same gateway with the
+ * same `receiveId`, then the second one will NOT be executed, regardless of the result of {_isAuthorizedGateway}.
  */
 abstract contract ERC7786Recipient is IERC7786Recipient {
+    using BitMaps for BitMaps.BitMap;
+
+    mapping(address gateway => BitMaps.BitMap) private _received;
+
     error ERC7786RecipientInvalidGateway(address gateway);
+    error ERC7786RecipientMessageAlreadyProcessed(address gateway, bytes32 receiveId);
 
     /// @inheritdoc IERC7786Recipient
     function receiveMessage(
@@ -26,7 +35,14 @@ abstract contract ERC7786Recipient is IERC7786Recipient {
         bytes calldata payload
     ) external payable returns (bytes4) {
         require(_isAuthorizedGateway(msg.sender, sender), ERC7786RecipientInvalidGateway(msg.sender));
+        require(
+            !_received[msg.sender].get(uint256(receiveId)),
+            ERC7786RecipientMessageAlreadyProcessed(msg.sender, receiveId)
+        );
+        _received[msg.sender].set(uint256(receiveId));
+
         _processMessage(msg.sender, receiveId, sender, payload);
+
         return IERC7786Recipient.receiveMessage.selector;
     }
 
