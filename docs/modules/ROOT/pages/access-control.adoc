@@ -43,7 +43,7 @@ Most software uses access control systems that are role-based: some users are re
 OpenZeppelin Contracts provides xref:api:access.adoc#AccessControl[`AccessControl`] for implementing role-based access control. Its usage is straightforward: for each role that you want to define,
 you will create a new _role identifier_ that is used to grant, revoke, and check if an account has that role.
 
-Here's a simple example of using `AccessControl` in an xref:erc20.adoc[ERC-20 token] to define a 'minter' role, which allows accounts that have it create new tokens:
+Here's a simple example of using `AccessControl` in an xref:erc20.adoc[ERC-20 token] to define a 'minter' role, which allows accounts that have it to create new tokens:
 
 [source,solidity]
 ----
