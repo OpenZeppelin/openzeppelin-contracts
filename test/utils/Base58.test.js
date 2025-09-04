@@ -54,10 +54,10 @@ describe('Base58', function () {
       for (const chr of ['I', '-', '~'])
         it(`Invalid base58 char ${chr}`, async function () {
           const getHexCode = str => ethers.hexlify(ethers.toUtf8Bytes(str));
-          const helper = { interface: ethers.Interface.from(['error InvalidBase58Digit(bytes1)']) };
+          const helper = { interface: ethers.Interface.from(['error InvalidBase58Char(bytes1)']) };
 
           await expect(this.mock.$decode(`VYRWKp${chr}pnN7`))
-            .to.be.revertedWithCustomError(helper, 'InvalidBase58Digit')
+            .to.be.revertedWithCustomError(helper, 'InvalidBase58Char')
             .withArgs(getHexCode(chr));
         });
     });

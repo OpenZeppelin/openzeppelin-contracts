@@ -9,7 +9,7 @@ pragma solidity ^0.8.20;
  * Based on the updated and improved https://github.com/Vectorized/solady/blob/main/src/utils/Base58.sol[Vectorized version] (MIT).
  */
 library Base58 {
-    error InvalidBase58Digit(bytes1);
+    error InvalidBase58Char(bytes1);
 
     /**
      * @dev Encode a `bytes` buffer as a Base58 `string`.
@@ -88,7 +88,7 @@ library Base58 {
                 // base 58 arithmetic on the 248bits limbs
                 let carry := 0
                 for {
-                    let i := content
+                    let i := data
                 } lt(i, ptr) {
                     i := add(i, 0x20)
                 } {
@@ -121,7 +121,7 @@ library Base58 {
     }
 
     function _decode(bytes memory input) private pure returns (bytes memory output) {
-        bytes4 errorSelector = InvalidBase58Digit.selector;
+        bytes4 errorSelector = InvalidBase58Char.selector;
 
         uint256 inputLength = input.length;
         if (inputLength == 0) return "";

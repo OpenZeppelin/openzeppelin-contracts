@@ -11,7 +11,7 @@ import {SafeCast} from "./math/SafeCast.sol";
 library Base64 {
     using SafeCast for bool;
 
-    error InvalidBase64Digit(bytes1);
+    error InvalidBase64Char(bytes1);
 
     /**
      * @dev Converts a `bytes` to its Base64 `string` representation.
@@ -142,7 +142,7 @@ library Base64 {
      * @dev Internal decoding
      */
     function _decode(bytes memory data) private pure returns (bytes memory result) {
-        bytes4 errorSelector = InvalidBase64Digit.selector;
+        bytes4 errorSelector = InvalidBase64Char.selector;
 
         uint256 dataLength = data.length;
         if (dataLength == 0) return "";
