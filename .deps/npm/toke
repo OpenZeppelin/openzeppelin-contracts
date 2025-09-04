@@ -1,0 +1,8 @@
+/**
+ * Minified by jsDelivr using Terser v5.39.0.
+ * Original file: /npm/toke@0.0.3/build/src/toke.js
+ *
+ * Do NOT use SRI with dynamically generated files! More information: https://www.jsdelivr.com/using-sri-with-dynamic-files
+ */
+"use strict";Object.defineProperty(exports,"__esModule",{value:!0});var _createClass=function(){function e(e,r){for(var t=0;t<r.length;t++){var i=r[t];i.enumerable=i.enumerable||!1,i.configurable=!0,"value"in i&&(i.writable=!0),Object.defineProperty(e,i.key,i)}}return function(r,t,i){return t&&e(r.prototype,t),i&&e(r,i),r}}();function _interopRequireDefault(e){return e&&e.__esModule?e:{default:e}}function _interopRequireWildcard(e){if(e&&e.__esModule)return e;var r={};if(null!=e)for(var t in e)Object.prototype.hasOwnProperty.call(e,t)&&(r[t]=e[t]);return r.default=e,r}function _classCallCheck(e,r){if(!(e instanceof r))throw new TypeError("Cannot call a class as a function")}var _utils=require("./utils"),utils=_interopRequireWildcard(_utils),_libLexicon=require("../lib/lexicon"),_libLexicon2=_interopRequireDefault(_libLexicon),_libGrammar=require("../lib/grammar"),_libGrammar2=_interopRequireDefault(_libGrammar),_default=function(){function e(r){_classCallCheck(this,e);r=r||{};this.grammar=r.grammar||_libGrammar2.default,this.lexicon=r.lexicon||_libLexicon2.default}return _createClass(e,[{key:"mk",value:function(e){return utils.mk(e,this.grammar,this.lexicon)}},{key:"compileToken",value:function(e,r){return utils.compileToken(e,r)}}]),e}();exports.default=_default,module.exports=exports.default;
+//# sourceMappingURL=/sm/669e91b95b4b628d5b7dbdcd73dae7cf887446c0d37562a7b23e1a1ead42e289.map

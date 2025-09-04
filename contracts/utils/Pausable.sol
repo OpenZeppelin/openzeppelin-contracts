@@ -65,7 +65,7 @@ abstract contract Pausable is Context {
      * @dev Returns true if the contract is paused, and false otherwise.
      */
     function paused() public view virtual returns (bool) {
-        return _paused == 2 ? true : false;
+        return _paused == 2;
     }
 
     /**

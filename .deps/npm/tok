@@ -1,0 +1,8 @@
+/**
+ * Minified by jsDelivr using Terser v5.39.0.
+ * Original file: /npm/tok@0.1.0/index.js
+ *
+ * Do NOT use SRI with dynamically generated files! More information: https://www.jsdelivr.com/using-sri-with-dynamic-files
+ */
+var _=require("underscore"),crypto=require("crypto"),moment=require("moment");module.exports=function(e){if(_.defaults(e,{expiration:36e5,hashAlgorithm:"sha1",method:"hash"}),!e.secretKey)throw"must provide a secretKey";if("hash"!==e.method){if(!e.load)throw"must provide a load() function";if(!e.save)throw"must provide a save() function"}var t=function(t,a,n){a=a||[],_.isArray(t)||(t=_.isObject(t)?_.values(t):[t]),_.isArray(a)||(a=_.isObject(a)?_.values(a):[a]);var r=_.chain(t).concat(a).push(n).join("").value();return crypto.createHmac(e.hashAlgorithm,e.secretKey).update(r).digest("hex")};return{check:function(a,n,r){var o=function(t){return!!e.expiration&&moment().diff(parseInt(t.date,10))>e.expiration};if("hash"===e.method)return o(n)?r("token expired"):r(n.hash===t(a,n.value,n.date)?null:"token invalid");arguments.length<3&&(r=n,n=null),e.load(a,(function(e,i){return e?r(e):i?o(i)?r("token expired"):n.hash?r(i.hash===n.hash?null:"token invalid"):r(i.hash===t(a,n.value,n.date)?null:"token invalid"):r("token not found")}))},create:function(a,n,r){var o=+new Date,i=t(a,n,o),h={date:o,hash:i},u={date:o,hash:i};if(n&&(h.value=n),"hash"===e.method)return r(null,h);e.save(a,u,(function(e){n&&delete h.hash,r(e,h)}))}}};
+//# sourceMappingURL=/sm/9b61580e56715ffcd364f1a70a4f7eb5885b8874b3f0b881759d385f3df968fe.map
