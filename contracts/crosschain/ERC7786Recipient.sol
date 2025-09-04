@@ -25,7 +25,7 @@ abstract contract ERC7786Recipient is IERC7786Recipient {
 
     mapping(address gateway => BitMaps.BitMap) private _received;
 
-    error ERC7786RecipientInvalidGateway(address gateway);
+    error ERC7786RecipientUnauthorizedGateway(address gateway, bytes sender);
     error ERC7786RecipientMessageAlreadyProcessed(address gateway, bytes32 receiveId);
 
     /// @inheritdoc IERC7786Recipient
@@ -34,11 +34,15 @@ abstract contract ERC7786Recipient is IERC7786Recipient {
         bytes calldata sender, // Binary Interoperable Address
         bytes calldata payload
     ) external payable returns (bytes4) {
-        require(_isAuthorizedGateway(msg.sender, sender), ERC7786RecipientInvalidGateway(msg.sender));
-        require(
-            !_received[msg.sender].get(uint256(receiveId)),
-            ERC7786RecipientMessageAlreadyProcessed(msg.sender, receiveId)
-        );
+        // Check authorization
+        if (!_isAuthorizedGateway(msg.sender, sender)) {
+            revert ERC7786RecipientUnauthorizedGateway(msg.sender, sender);
+        }
+
+        // Prevent duplicate execution
+        if (_received[msg.sender].get(uint256(receiveId))) {
+            revert ERC7786RecipientMessageAlreadyProcessed(msg.sender, receiveId);
+        }
         _received[msg.sender].set(uint256(receiveId));
 
         _processMessage(msg.sender, receiveId, sender, payload);
