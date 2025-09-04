@@ -1,4 +1,4 @@
-const { ethers, entrypoint } = require('hardhat');
+const { ethers, predeploy } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
@@ -6,6 +6,7 @@ const { getDomain } = require('../helpers/eip712');
 const { ERC4337Helper } = require('../helpers/erc4337');
 const { NonNativeSigner, P256SigningKey, RSASHA256SigningKey, MultiERC7913SigningKey } = require('../helpers/signers');
 const { PackedUserOperation } = require('../helpers/eip712-types');
+const { MAX_UINT64 } = require('../helpers/constants');
 
 const { shouldBehaveLikeAccountCore, shouldBehaveLikeAccountHolder } = require('./Account.behavior');
 const { shouldBehaveLikeERC1271 } = require('../utils/cryptography/ERC1271.behavior');
@@ -32,7 +33,7 @@ async function fixture() {
   // ERC-4337 env
   const helper = new ERC4337Helper();
   await helper.wait();
-  const entrypointDomain = await getDomain(entrypoint.v08);
+  const entrypointDomain = await getDomain(predeploy.entrypoint.v08);
   const domain = { name: 'AccountMultiSignerWeighted', version: '1', chainId: entrypointDomain.chainId }; // Missing verifyingContract
 
   const makeMock = (signers, weights, threshold) =>
@@ -158,6 +159,10 @@ describe('AccountMultiSignerWeighted', function () {
       await expect(this.mock.signerWeight(signer3)).to.eventually.equal(3); // unchanged
     });
 
+    it("no-op doesn't emit an event", async function () {
+      await expect(this.mock.$_setSignerWeights([signer1], [1])).to.not.emit(this.mock, 'ERC7913SignerWeightChanged');
+    });
+
     it('cannot set weight to non-existent signer', async function () {
       // Reverts when setting weight for non-existent signer
       await expect(this.mock.$_setSignerWeights([signer4], [1]))
@@ -186,28 +191,28 @@ describe('AccountMultiSignerWeighted', function () {
     });
 
     it('validates threshold is reachable when updating weights', async function () {
-      // First, lower the weights so the sum is exactly 6 (just enough for threshold=6)
-      await expect(this.mock.$_setSignerWeights([signer1, signer2, signer3], [1, 2, 3]))
+      // First, lower the weights so the sum is exactly 9 (just enough for threshold=9)
+      await expect(this.mock.$_setSignerWeights([signer1, signer2, signer3], [2, 3, 4]))
         .to.emit(this.mock, 'ERC7913SignerWeightChanged')
-        .withArgs(signer1, 1)
+        .withArgs(signer1, 2)
         .to.emit(this.mock, 'ERC7913SignerWeightChanged')
-        .withArgs(signer2, 2)
+        .withArgs(signer2, 3)
         .to.emit(this.mock, 'ERC7913SignerWeightChanged')
-        .withArgs(signer3, 3);
+        .withArgs(signer3, 4);
 
-      // Increase threshold to 6
-      await expect(this.mock.$_setThreshold(6)).to.emit(this.mock, 'ERC7913ThresholdSet').withArgs(6);
+      // Increase threshold to 9
+      await expect(this.mock.$_setThreshold(9)).to.emit(this.mock, 'ERC7913ThresholdSet').withArgs(9);
 
       // Now try to lower weights so their sum is less than the threshold
-      await expect(this.mock.$_setSignerWeights([signer1, signer2, signer3], [1, 1, 1])).to.be.revertedWithCustomError(
+      await expect(this.mock.$_setSignerWeights([signer1, signer2, signer3], [2, 2, 2])).to.be.revertedWithCustomError(
         this.mock,
         'MultiSignerERC7913UnreachableThreshold',
       );
 
       // Try to increase threshold to be larger than the total weight
-      await expect(this.mock.$_setThreshold(7))
+      await expect(this.mock.$_setThreshold(10))
         .to.be.revertedWithCustomError(this.mock, 'MultiSignerERC7913UnreachableThreshold')
-        .withArgs(6, 7);
+        .withArgs(9, 10);
     });
 
     it('reports default weight of 1 for signers without explicit weight', async function () {
@@ -287,6 +292,21 @@ describe('AccountMultiSignerWeighted', function () {
         .to.emit(this.mock, 'ERC7913SignerRemoved')
         .withArgs(signer1)
         .to.not.emit(this.mock, 'ERC7913SignerWeightChanged');
+    });
+
+    it('should revert if total weight to overflow (_setSignerWeights)', async function () {
+      await expect(this.mock.$_setSignerWeights([signer1, signer2, signer3], [1n, 1n, MAX_UINT64 - 1n]))
+        .to.be.revertedWithCustomError(this.mock, 'SafeCastOverflowedUintDowncast')
+        .withArgs(64, MAX_UINT64 + 1n);
+    });
+
+    it('should revert if total weight to overflow (_addSigner)', async function () {
+      await this.mock.$_setSignerWeights([signer1, signer2, signer3], [1n, 1n, MAX_UINT64 - 2n]);
+      await expect(this.mock.totalWeight()).to.eventually.equal(MAX_UINT64);
+
+      await expect(this.mock.$_addSigners([signer4]))
+        .to.be.revertedWithCustomError(this.mock, 'SafeCastOverflowedUintDowncast')
+        .withArgs(64, MAX_UINT64 + 1n);
     });
   });
 });

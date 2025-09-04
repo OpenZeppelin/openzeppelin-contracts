@@ -1,4 +1,4 @@
-const { ethers, entrypoint } = require('hardhat');
+const { ethers, predeploy } = require('hardhat');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { getDomain } = require('../helpers/eip712');
@@ -22,7 +22,7 @@ async function fixture() {
   const mock = await helper.newAccount('$AccountECDSAMock', [signer, 'AccountECDSA', '1']);
 
   // ERC-4337 Entrypoint domain
-  const entrypointDomain = await getDomain(entrypoint.v08);
+  const entrypointDomain = await getDomain(predeploy.entrypoint.v08);
 
   // domain cannot be fetched using getDomain(mock) before the mock is deployed
   const domain = {

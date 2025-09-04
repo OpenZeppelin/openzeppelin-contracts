@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.4.0) (utils/cryptography/signers/SignerERC7913.sol)
 
 pragma solidity ^0.8.24;
 
@@ -19,6 +20,10 @@ import {SignatureChecker} from "../SignatureChecker.sol";
  * ```solidity
  * contract MyAccountERC7913 is Account, SignerERC7913, Initializable {
  *     function initialize(bytes memory signer_) public initializer {
+ *       _setSigner(signer_);
+ *     }
+ *
+ *     function setSigner(bytes memory signer_) public onlyEntryPointOrSelf {
  *       _setSigner(signer_);
  *     }
  * }

@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.4.0) (account/extensions/draft-AccountERC7579.sol)
 
 pragma solidity ^0.8.26;
 
@@ -18,7 +19,6 @@ import {ERC7579Utils, Mode, CallType, ExecType} from "../../account/utils/draft-
 import {EnumerableSet} from "../../utils/structs/EnumerableSet.sol";
 import {Bytes} from "../../utils/Bytes.sol";
 import {Packing} from "../../utils/Packing.sol";
-import {Address} from "../../utils/Address.sol";
 import {Calldata} from "../../utils/Calldata.sol";
 import {Account} from "../Account.sol";
 
@@ -237,11 +237,11 @@ abstract contract AccountERC7579 is Account, IERC1271, IERC7579Execution, IERC75
      *
      * Requirements:
      *
-     * * Module type must be supported. See {supportsModule}. Reverts with {ERC7579UnsupportedModuleType}.
-     * * Module must be of the given type. Reverts with {ERC7579MismatchedModuleTypeId}.
-     * * Module must not be already installed. Reverts with {ERC7579AlreadyInstalledModule}.
+     * * Module type must be supported. See {supportsModule}. Reverts with {ERC7579Utils-ERC7579UnsupportedModuleType}.
+     * * Module must be of the given type. Reverts with {ERC7579Utils-ERC7579MismatchedModuleTypeId}.
+     * * Module must not be already installed. Reverts with {ERC7579Utils-ERC7579AlreadyInstalledModule}.
      *
-     * Emits a {ModuleInstalled} event.
+     * Emits a {IERC7579ModuleConfig-ModuleInstalled} event.
      */
     function _installModule(uint256 moduleTypeId, address module, bytes memory initData) internal virtual {
         require(supportsModule(moduleTypeId), ERC7579Utils.ERC7579UnsupportedModuleType(moduleTypeId));
@@ -276,7 +276,7 @@ abstract contract AccountERC7579 is Account, IERC1271, IERC7579Execution, IERC75
      *
      * Requirements:
      *
-     * * Module must be already installed. Reverts with {ERC7579UninstalledModule} otherwise.
+     * * Module must be already installed. Reverts with {ERC7579Utils-ERC7579UninstalledModule} otherwise.
      */
     function _uninstallModule(uint256 moduleTypeId, address module, bytes memory deInitData) internal virtual {
         require(supportsModule(moduleTypeId), ERC7579Utils.ERC7579UnsupportedModuleType(moduleTypeId));

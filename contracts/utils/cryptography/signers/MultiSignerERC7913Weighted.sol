@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.4.0) (utils/cryptography/signers/MultiSignerERC7913Weighted.sol)
 
-pragma solidity ^0.8.27;
+pragma solidity ^0.8.26;
 
 import {SafeCast} from "../../math/SafeCast.sol";
 import {MultiSignerERC7913} from "./MultiSignerERC7913.sol";
@@ -104,24 +105,42 @@ abstract contract MultiSignerERC7913Weighted is MultiSignerERC7913 {
         uint256 extraWeightRemoved = 0;
         for (uint256 i = 0; i < signers.length; ++i) {
             bytes memory signer = signers[i];
-            uint64 weight = weights[i];
-
             require(isSigner(signer), MultiSignerERC7913NonexistentSigner(signer));
+
+            uint64 weight = weights[i];
             require(weight > 0, MultiSignerERC7913WeightedInvalidWeight(signer, weight));
 
             unchecked {
-                // Overflow impossible: weight values are bounded by uint64 and economic constraints
-                extraWeightRemoved += _extraWeights[signer];
-                extraWeightAdded += _extraWeights[signer] = weight - 1;
-            }
+                uint64 oldExtraWeight = _extraWeights[signer];
+                uint64 newExtraWeight = weight - 1;
 
-            emit ERC7913SignerWeightChanged(signer, weight);
+                if (oldExtraWeight != newExtraWeight) {
+                    // Overflow impossible: weight values are bounded by uint64 and economic constraints
+                    extraWeightRemoved += oldExtraWeight;
+                    extraWeightAdded += _extraWeights[signer] = newExtraWeight;
+                    emit ERC7913SignerWeightChanged(signer, weight);
+                }
+            }
         }
         unchecked {
             // Safe from underflow: `extraWeightRemoved` is bounded by `_totalExtraWeight` by construction
             // and weight values are bounded by uint64 and economic constraints
             _totalExtraWeight = (uint256(_totalExtraWeight) + extraWeightAdded - extraWeightRemoved).toUint64();
         }
+        _validateReachableThreshold();
+    }
+
+    /**
+     * @dev See {MultiSignerERC7913-_addSigners}.
+     *
+     * In cases where {totalWeight} is almost `type(uint64).max` (due to a large `_totalExtraWeight`), adding new
+     * signers could cause the {totalWeight} computation to overflow. Adding a {totalWeight} calls after the new
+     * signers are added ensures no such overflow happens.
+     */
+    function _addSigners(bytes[] memory newSigners) internal virtual override {
+        super._addSigners(newSigners);
+
+        // This will revert if the new signers cause an overflow
         _validateReachableThreshold();
     }
 

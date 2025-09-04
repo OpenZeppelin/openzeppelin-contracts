@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.4.0) (utils/cryptography/signers/MultiSignerERC7913.sol)
 
 pragma solidity ^0.8.26;
 
@@ -65,6 +66,9 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
 
     /// @dev The `signer` is less than 20 bytes long.
     error MultiSignerERC7913InvalidSigner(bytes signer);
+
+    /// @dev The `threshold` is zero.
+    error MultiSignerERC7913ZeroThreshold();
 
     /// @dev The `threshold` is unreachable given the number of `signers`.
     error MultiSignerERC7913UnreachableThreshold(uint64 signers, uint64 threshold);
@@ -146,6 +150,7 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
      * * See {_validateReachableThreshold} for the threshold validation.
      */
     function _setThreshold(uint64 newThreshold) internal virtual {
+        require(newThreshold > 0, MultiSignerERC7913ZeroThreshold());
         _threshold = newThreshold;
         _validateReachableThreshold();
         emit ERC7913ThresholdSet(newThreshold);
@@ -156,7 +161,8 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
      *
      * Requirements:
      *
-     * * The {signers}'s length must be `>=` to the {threshold}. Throws {MultiSignerERC7913UnreachableThreshold} if not.
+     * * The {getSignerCount} must be greater or equal than to the {threshold}. Throws
+     * {MultiSignerERC7913UnreachableThreshold} if not.
      */
     function _validateReachableThreshold() internal view virtual {
         uint256 signersLength = _signers.length();
@@ -214,14 +220,14 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
 
     /**
      * @dev Validates the signatures using the signers and their corresponding signatures.
-     * Returns whether whether the signers are authorized and the signatures are valid for the given hash.
+     * Returns whether the signers are authorized and the signatures are valid for the given hash.
      *
      * IMPORTANT: Sorting the signers by their `keccak256` hash will improve the gas efficiency of this function.
      * See {SignatureChecker-areValidSignaturesNow-bytes32-bytes[]-bytes[]} for more details.
      *
      * Requirements:
      *
-     * * The `signatures` arrays must be at least as large as the `signers` arrays. Panics otherwise.
+     * * The `signatures` and `signers` arrays must be equal in length. Returns false otherwise.
      */
     function _validateSignatures(
         bytes32 hash,

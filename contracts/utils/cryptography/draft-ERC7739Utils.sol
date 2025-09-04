@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.4.0) (utils/cryptography/draft-ERC7739Utils.sol)
 
 pragma solidity ^0.8.20;
 
 import {Calldata} from "../Calldata.sol";
+import {Hashes} from "./Hashes.sol";
 
 /**
  * @dev Utilities to process https://ercs.ethereum.org/ERCS/erc-7739[ERC-7739] typed data signatures
@@ -100,7 +102,7 @@ library ERC7739Utils {
      * This is used to simulates the `personal_sign` RPC method in the context of smart contracts.
      */
     function personalSignStructHash(bytes32 contents) internal pure returns (bytes32) {
-        return keccak256(abi.encode(PERSONAL_SIGN_TYPEHASH, contents));
+        return Hashes.efficientKeccak256(PERSONAL_SIGN_TYPEHASH, contents);
     }
 
     /**

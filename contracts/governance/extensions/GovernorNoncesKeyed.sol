@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.4.0) (governance/extensions/GovernorNoncesKeyed.sol)
 
 pragma solidity ^0.8.24;
 
@@ -8,7 +9,7 @@ import {NoncesKeyed} from "../../utils/NoncesKeyed.sol";
 import {SignatureChecker} from "../../utils/cryptography/SignatureChecker.sol";
 
 /**
- * @dev An extension of {Governor} that extends existing nonce management to use {NoncesKeyed}, where the key is the first 192 bits of the `proposalId`.
+ * @dev An extension of {Governor} that extends existing nonce management to use {NoncesKeyed}, where the key is the low-order 192 bits of the `proposalId`.
  * This is useful for voting by signature while maintaining separate sequences of nonces for each proposal.
  *
  * NOTE: Traditional (un-keyed) nonces are still supported and can continue to be used as if this extension was not present.
