@@ -2,10 +2,10 @@
 
 pragma solidity ^0.8.24;
 
-import {IERC7786GatewaySource, IERC7786Recipient} from "../../interfaces/draft-IERC7786.sol";
+import {IERC7786GatewaySource} from "../../interfaces/draft-IERC7786.sol";
 import {InteroperableAddress} from "../../utils/draft-InteroperableAddress.sol";
-import {BitMaps} from "../../utils/structs/BitMaps.sol";
 import {Bytes} from "../../utils/Bytes.sol";
+import {ERC7786Recipient} from "../ERC7786Recipient.sol";
 
 /**
  * @dev Core bridging mechanism.
@@ -15,10 +15,9 @@ import {Bytes} from "../../utils/Bytes.sol";
  * {BridgeERC20}.
  *
  * Contract that inherit from this contract can use the internal {_senMessage} to send messages to their conterpart
- * on a foreign chain. They must implement the {_processMessage} to handle the message that have been verified.
+ * on a foreign chain. They must override the {_processMessage} function to handle the message that have been verified.
  */
-abstract contract BridgeCore is IERC7786Recipient {
-    using BitMaps for BitMaps.BitMap;
+abstract contract BridgeCore is ERC7786Recipient {
     using Bytes for bytes;
     using InteroperableAddress for bytes;
 
@@ -27,14 +26,10 @@ abstract contract BridgeCore is IERC7786Recipient {
         bytes remote;
     }
     mapping(bytes chain => Link) private _links;
-    mapping(address gateway => BitMaps.BitMap) private _received;
 
     event RemoteRegistered(address gateway, bytes remote);
 
-    error InvalidGatewayForChain(address gateway, bytes chain);
-    error InvalidRemoteForChain(bytes remote, bytes chain);
     error RemoteAlreadyRegistered(bytes chain);
-    error MessageAlreadyProcessed(address gateway, bytes32 receiveId);
 
     constructor(Link[] memory links) {
         for (uint256 i = 0; i < links.length; ++i) {
@@ -73,34 +68,14 @@ abstract contract BridgeCore is IERC7786Recipient {
         return IERC7786GatewaySource(gateway).sendMessage(remote, payload, attributes);
     }
 
-    /// @inheritdoc IERC7786Recipient
-    function receiveMessage(
-        bytes32 receiveId,
-        bytes calldata sender,
-        bytes calldata payload
-    ) public payable virtual returns (bytes4) {
-        bytes memory chain = _extractChain(sender);
-        (address gateway, bytes memory router) = link(chain);
-
-        // Security restriction:
-        // - sender must be the remote for that chain
-        // - message was not processed yet
-        require(msg.sender == gateway, InvalidGatewayForChain(msg.sender, chain));
-        require(sender.equal(router), InvalidRemoteForChain(sender, chain));
-        require(!_received[msg.sender].get(uint256(receiveId)), MessageAlreadyProcessed(msg.sender, receiveId));
-        _received[msg.sender].set(uint256(receiveId));
-
-        _processMessage(receiveId, payload);
-
-        return IERC7786Recipient.receiveMessage.selector;
+    /// @inheritdoc ERC7786Recipient
+    function _isAuthorizedGateway(
+        address instance,
+        bytes calldata sender
+    ) internal view virtual override returns (bool) {
+        (address gateway, bytes memory router) = link(_extractChain(sender));
+        return instance == gateway && sender.equal(router);
     }
-
-    /**
-     * @dev Virtual function that should contain the logic to execute when a cross-chain message is received.
-     *
-     * Replay protection is already enabled in {receiveMessage}.
-     */
-    function _processMessage(bytes32 receiveId, bytes calldata payload) internal virtual;
 
     function _extractChain(bytes memory self) private pure returns (bytes memory) {
         (bytes2 chainType, bytes memory chainReference, ) = self.parseV1();

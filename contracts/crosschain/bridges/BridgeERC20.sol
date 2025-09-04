@@ -3,6 +3,7 @@
 pragma solidity ^0.8.24;
 
 import {InteroperableAddress} from "../../utils/draft-InteroperableAddress.sol";
+import {ERC7786Recipient} from "../ERC7786Recipient.sol";
 import {BridgeCore} from "./BridgeCore.sol";
 
 /**
@@ -45,8 +46,13 @@ abstract contract BridgeERC20 is BridgeCore {
         return sendId;
     }
 
-    /// @inheritdoc BridgeCore
-    function _processMessage(bytes32 receiveId, bytes calldata payload) internal virtual override {
+    /// @inheritdoc ERC7786Recipient
+    function _processMessage(
+        address /*gateway*/,
+        bytes32 receiveId,
+        bytes calldata /*sender*/,
+        bytes calldata payload
+    ) internal virtual override {
         // split payload
         (bytes memory from, bytes memory toBinary, uint256 amount) = abi.decode(payload, (bytes, bytes, uint256));
         address to = address(bytes20(toBinary));
