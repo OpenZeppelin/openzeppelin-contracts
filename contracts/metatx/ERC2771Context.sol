@@ -8,7 +8,7 @@ import {Context} from "../utils/Context.sol";
 /**
  * @dev Context variant with ERC-2771 support.
  *
- * WARNING: Avoid using this pattern in contracts that rely in a specific calldata length as they'll
+ * WARNING: Avoid using this pattern in contracts that rely on a specific calldata length as they'll
  * be affected by any forwarder whose `msg.data` is suffixed with the `from` address according to the ERC-2771
  * specification adding the address size in bytes (20) to the calldata size. An example of an unexpected
  * behavior could be an unintended fallback (or another function) invocation while trying to invoke the `receive`

@@ -334,7 +334,7 @@ interface IGovernor is IERC165, IERC6372 {
     function hasVoted(uint256 proposalId, address account) external view returns (bool);
 
     /**
-     * @dev Create a new proposal. Vote start after a delay specified by {IGovernor-votingDelay} and lasts for a
+     * @dev Create a new proposal. Vote starts after a delay specified by {IGovernor-votingDelay} and lasts for a
      * duration specified by {IGovernor-votingPeriod}.
      *
      * Emits a {ProposalCreated} event.

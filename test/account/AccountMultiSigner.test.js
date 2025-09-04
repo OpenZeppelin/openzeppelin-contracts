@@ -177,11 +177,11 @@ describe('AccountMultiSigner', function () {
 
       // Unreachable threshold reverts
       await expect(this.mock.$_setThreshold(3))
-        .to.revertedWithCustomError(this.mock, 'MultiSignerERC7913UnreachableThreshold')
+        .to.be.revertedWithCustomError(this.mock, 'MultiSignerERC7913UnreachableThreshold')
         .withArgs(2, 3);
 
       // Zero threshold reverts
-      await expect(this.mock.$_setThreshold(0)).to.revertedWithCustomError(
+      await expect(this.mock.$_setThreshold(0)).to.be.revertedWithCustomError(
         this.mock,
         'MultiSignerERC7913ZeroThreshold',
       );
