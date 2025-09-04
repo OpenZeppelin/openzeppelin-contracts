@@ -122,7 +122,7 @@ library Bytes {
     }
 
     /**
-     * @dev In place slice: moves the content of `buffer`, from `start` (included) to the end of `buffer` to the start of that buffer.
+     * @dev In place slice: moves the content of `buffer`, from `start` (inclusive) to the end of `buffer` to the start of `buffer`.
      *
      * NOTE: This function modifies the provided buffer in place. If you need to preserve the original buffer, use {slice} instead
      */
@@ -131,7 +131,7 @@ library Bytes {
     }
 
     /**
-     * @dev In place slice: moves the content of `buffer`, from `start` (included) to end (excluded) to the start of that buffer.
+     * @dev In place slice: moves the content of `buffer`, from `start` (inclusive) to end (exclusive) to the start of `buffer`.
      *
      * NOTE: This function modifies the provided buffer in place. If you need to preserve the original buffer, use {slice} instead
      */
