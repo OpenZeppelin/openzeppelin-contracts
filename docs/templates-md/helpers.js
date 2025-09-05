@@ -294,7 +294,8 @@ function processAdocContent(content) {
         '<Callout>\n$2\n</Callout>',
       )
       .replace(/^#+\s+.+$/m, '')
-      .replace(/^\n+/, '');
+      .replace(/^\n+/, '')
+      .replace(/^(.+?)\n<\/Callout>/m, '<Callout>\n$1\n</Callout>');
 
     // Cleanup temp files
     try {
