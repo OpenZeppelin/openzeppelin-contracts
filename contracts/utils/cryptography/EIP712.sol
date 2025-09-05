@@ -144,6 +144,7 @@ abstract contract EIP712 is IERC5267 {
      */
     // solhint-disable-next-line func-name-mixedcase
     function _EIP712Name() internal view returns (string memory) {
+        // slippy-disable-previous-line naming-convention
         return _name.toStringWithFallback(_nameFallback);
     }
 
@@ -155,6 +156,7 @@ abstract contract EIP712 is IERC5267 {
      */
     // solhint-disable-next-line func-name-mixedcase
     function _EIP712Version() internal view returns (string memory) {
+        // slippy-disable-previous-line naming-convention
         return _version.toStringWithFallback(_versionFallback);
     }
 }

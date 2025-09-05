@@ -18,7 +18,7 @@ import {ERC1967Utils} from "../ERC1967/ERC1967Utils.sol";
  */
 abstract contract UUPSUpgradeable is IERC1822Proxiable {
     /// @custom:oz-upgrades-unsafe-allow state-variable-immutable
-    address private immutable __self = address(this);
+    address private immutable __self = address(this); // slippy-disable-line naming-convention
 
     /**
      * @dev The version of the upgrade interface of the contract. If this getter is missing, both `upgradeTo(address)`
