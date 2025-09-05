@@ -103,7 +103,7 @@ interface IEntryPointNonces {
  *
  * The EntryPoint must implement the following API to let entities like paymasters have a stake,
  * and thus have more flexibility in their storage access
- * (see https://eips.ethereum.org/EIPS/eip-4337#reputation-scoring-and-throttling-banning-for-global-entities[reputation, throttling and banning.])
+ * (see https://eips.ethereum.org/EIPS/eip-4337#reputation-scoring-and-throttlingbanning-for-global-entities[reputation, throttling and banning.])
  */
 interface IEntryPointStake {
     /**
