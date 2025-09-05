@@ -295,7 +295,8 @@ function processAdocContent(content) {
       )
       .replace(/^#+\s+.+$/m, '')
       .replace(/^\n+/, '')
-      .replace(/(?<!<Callout>\n)^((?!<Callout>).+?)\n<\/Callout>/m, '<Callout>\n$1\n</Callout>');
+      .replace(/(?<!<Callout>\n)^((?!<Callout>).+?)\n<\/Callout>/m, '<Callout>\n$1\n</Callout>')
+      .replace(/<Callout>\nThis document is better viewed at [^\n]*\n<\/Callout>\n?/g, '');
 
     // Cleanup temp files
     try {
