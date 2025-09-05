@@ -44,11 +44,13 @@ contract GovernorHandler is GovernorVotesSuperQuorumFractionMock {
 
     // solhint-disable-next-line func-name-mixedcase
     function $_updateSuperQuorumNumerator(uint256 newSuperQuorumNumerator) public {
+        // slippy-disable-previous-line naming-convention
         _updateSuperQuorumNumerator(newSuperQuorumNumerator);
     }
 
     // solhint-disable-next-line func-name-mixedcase
     function $_updateQuorumNumerator(uint256 newQuorumNumerator) public {
+        // slippy-disable-previous-line naming-convention
         _updateQuorumNumerator(newQuorumNumerator);
     }
 }
@@ -78,6 +80,7 @@ contract GovernorSuperQuorumGreaterThanQuorum is Test {
 
     // solhint-disable-next-line func-name-mixedcase
     function invariant_superQuorumGreaterThanQuorum() external view {
+        // slippy-disable-previous-line naming-convention
         assertGe(_governorHandler.superQuorumNumerator(), _governorHandler.quorumNumerator());
     }
 }

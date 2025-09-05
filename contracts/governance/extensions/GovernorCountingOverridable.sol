@@ -50,6 +50,7 @@ abstract contract GovernorCountingOverridable is GovernorVotes {
     /// @inheritdoc IGovernor
     // solhint-disable-next-line func-name-mixedcase
     function COUNTING_MODE() public pure virtual override returns (string memory) {
+        // slippy-disable-previous-line naming-convention
         return "support=bravo,override&quorum=for,abstain&overridable=true";
     }
 

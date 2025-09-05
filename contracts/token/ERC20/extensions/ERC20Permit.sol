@@ -72,6 +72,7 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712, Nonces {
     /// @inheritdoc IERC20Permit
     // solhint-disable-next-line func-name-mixedcase
     function DOMAIN_SEPARATOR() external view virtual returns (bytes32) {
+        // slippy-disable-previous-line naming-convention
         return _domainSeparatorV4();
     }
 }

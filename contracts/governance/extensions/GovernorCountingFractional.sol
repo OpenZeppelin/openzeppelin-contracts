@@ -56,6 +56,7 @@ abstract contract GovernorCountingFractional is Governor {
     /// @inheritdoc IGovernor
     // solhint-disable-next-line func-name-mixedcase
     function COUNTING_MODE() public pure virtual override returns (string memory) {
+        // slippy-disable-previous-line naming-convention
         return "support=bravo,fractional&quorum=for,abstain&params=fractional";
     }
 

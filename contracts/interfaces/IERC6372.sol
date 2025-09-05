@@ -13,5 +13,5 @@ interface IERC6372 {
      * @dev Description of the clock
      */
     // solhint-disable-next-line func-name-mixedcase
-    function CLOCK_MODE() external view returns (string memory);
+    function CLOCK_MODE() external view returns (string memory); // slippy-disable-line naming-convention
 }

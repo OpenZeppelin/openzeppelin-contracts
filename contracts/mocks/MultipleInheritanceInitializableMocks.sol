@@ -27,11 +27,13 @@ contract SampleHuman is Initializable {
 
     // solhint-disable-next-line func-name-mixedcase
     function __SampleHuman_init() internal onlyInitializing {
+        // slippy-disable-previous-line naming-convention
         __SampleHuman_init_unchained();
     }
 
     // solhint-disable-next-line func-name-mixedcase
     function __SampleHuman_init_unchained() internal onlyInitializing {
+        // slippy-disable-previous-line naming-convention
         isHuman = true;
     }
 }
@@ -48,12 +50,14 @@ contract SampleMother is Initializable, SampleHuman {
 
     // solhint-disable-next-line func-name-mixedcase
     function __SampleMother_init(uint256 value) internal onlyInitializing {
+        // slippy-disable-previous-line naming-convention
         __SampleHuman_init();
         __SampleMother_init_unchained(value);
     }
 
     // solhint-disable-next-line func-name-mixedcase
     function __SampleMother_init_unchained(uint256 value) internal onlyInitializing {
+        // slippy-disable-previous-line naming-convention
         mother = value;
     }
 }
@@ -70,12 +74,14 @@ contract SampleGramps is Initializable, SampleHuman {
 
     // solhint-disable-next-line func-name-mixedcase
     function __SampleGramps_init(string memory value) internal onlyInitializing {
+        // slippy-disable-previous-line naming-convention
         __SampleHuman_init();
         __SampleGramps_init_unchained(value);
     }
 
     // solhint-disable-next-line func-name-mixedcase
     function __SampleGramps_init_unchained(string memory value) internal onlyInitializing {
+        // slippy-disable-previous-line naming-convention
         gramps = value;
     }
 }
@@ -92,12 +98,14 @@ contract SampleFather is Initializable, SampleGramps {
 
     // solhint-disable-next-line func-name-mixedcase
     function __SampleFather_init(string memory _gramps, uint256 _father) internal onlyInitializing {
+        // slippy-disable-previous-line naming-convention
         __SampleGramps_init(_gramps);
         __SampleFather_init_unchained(_father);
     }
 
     // solhint-disable-next-line func-name-mixedcase
     function __SampleFather_init_unchained(uint256 _father) internal onlyInitializing {
+        // slippy-disable-previous-line naming-convention
         father = _father;
     }
 }
@@ -114,6 +122,7 @@ contract SampleChild is Initializable, SampleMother, SampleFather {
 
     // solhint-disable-next-line func-name-mixedcase
     function __SampleChild_init(
+        // slippy-disable-previous-line naming-convention
         uint256 _mother,
         string memory _gramps,
         uint256 _father,
@@ -126,6 +135,7 @@ contract SampleChild is Initializable, SampleMother, SampleFather {
 
     // solhint-disable-next-line func-name-mixedcase
     function __SampleChild_init_unchained(uint256 _child) internal onlyInitializing {
+        // slippy-disable-previous-line naming-convention
         child = _child;
     }
 }

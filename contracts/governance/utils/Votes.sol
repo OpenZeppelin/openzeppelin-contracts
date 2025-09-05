@@ -64,6 +64,7 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
      */
     // solhint-disable-next-line func-name-mixedcase
     function CLOCK_MODE() public view virtual returns (string memory) {
+        // slippy-disable-previous-line naming-convention
         // Check that the clock was not modified
         if (clock() != Time.blockNumber()) {
             revert ERC6372InconsistentClock();

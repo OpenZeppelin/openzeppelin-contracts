@@ -36,10 +36,10 @@ contract GovernorInternalTest is Test, Governor {
     function clock() public pure override returns (uint48) {}
 
     // solhint-disable-next-line func-name-mixedcase
-    function CLOCK_MODE() public pure override returns (string memory) {}
+    function CLOCK_MODE() public pure override returns (string memory) {} // slippy-disable-line naming-convention
 
     // solhint-disable-next-line func-name-mixedcase
-    function COUNTING_MODE() public pure virtual override returns (string memory) {}
+    function COUNTING_MODE() public pure virtual override returns (string memory) {} // slippy-disable-line naming-convention
 
     function votingDelay() public pure virtual override returns (uint256) {}
 

@@ -17,6 +17,7 @@ contract MyTokenTimestampBased is ERC20, ERC20Permit, ERC20Votes {
 
     // solhint-disable-next-line func-name-mixedcase
     function CLOCK_MODE() public pure override returns (string memory) {
+        // slippy-disable-previous-line naming-convention
         return "mode=timestamp";
     }
 
