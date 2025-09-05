@@ -64,6 +64,7 @@
     "@openzeppelin/merkle-tree": "^1.0.7",
     "@openzeppelin/upgrade-safe-transpiler": "^0.3.32",
     "@openzeppelin/upgrades-core": "^1.20.6",
+    "@slippy-lint/slippy": "^0.1.2",
     "chai": "^4.2.0",
     "eslint": "^9.0.0",
     "eslint-config-prettier": "^10.0.0",

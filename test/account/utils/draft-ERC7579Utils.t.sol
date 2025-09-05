@@ -5,6 +5,7 @@ pragma solidity ^0.8.24;
 // https://github.com/adamegyed/erc7579-execute-vulnerability/tree/4589a30ff139e143d6c57183ac62b5c029217a90
 //
 // solhint-disable no-console
+// slippy-disable no-console
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
