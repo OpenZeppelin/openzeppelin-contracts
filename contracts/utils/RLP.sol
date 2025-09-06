@@ -4,6 +4,7 @@ pragma solidity ^0.8.27;
 import {Math} from "./math/Math.sol";
 import {Bytes} from "./Bytes.sol";
 import {Memory} from "./Memory.sol";
+import {Panic} from "./Panic.sol";
 
 /**
  * @dev Library for encoding and decoding data in RLP format.
@@ -147,7 +148,8 @@ library RLP {
     /// @dev The content length does not match the expected length.
     error RLPContentLengthMismatch(uint256 expectedLength, uint256 actualLength);
 
-    struct Item {
+    // Memory slice (equivalent of a calldata slice in memory)
+    struct Decoder {
         uint256 length; // Total length of the item in bytes
         Memory.Pointer ptr; // Memory pointer to the start of the item
     }
@@ -157,155 +159,144 @@ library RLP {
         List // List of RLP encoded items
     }
 
-    /// @dev Creates an RLP Item from a bytes array.
-    function toItem(bytes memory value) internal pure returns (Item memory) {
-        require(value.length != 0, RLPEmptyItem()); // Empty arrays are not RLP items.
-        return Item(value.length, _addOffset(_asPointer(value), 32));
+    function decoder(bytes memory self) internal pure returns (Decoder memory result) {
+        require(self.length != 0, RLPEmptyItem()); // Empty arrays are not RLP items.
+
+        assembly ("memory-safe") {
+            mstore(result, mload(self))
+            mstore(add(result, 0x20), add(self, 0x20))
+        }
+    }
+
+    function _toBytes(Decoder memory self) private pure returns (bytes memory result) {
+        return _toBytes(self, 0, self.length);
+    }
+
+    function _toBytes(Decoder memory self, uint256 offset, uint256 length) private pure returns (bytes memory result) {
+        // TODO: do we want to emit RLPContentLengthMismatch instead?
+        // Do we want to check equality?
+        if (self.length < offset + length) Panic.panic(Panic.ARRAY_OUT_OF_BOUNDS);
+
+        Memory.Pointer ptr = self.ptr;
+        assembly ("memory-safe") {
+            result := mload(0x40)
+            mstore(result, length)
+            mcopy(add(result, 0x20), add(ptr, offset), length)
+            mstore(0x40, add(result, add(0x20, length)))
+        }
+    }
+
+    /// @dev Reads the raw bytes of an RLP item without decoding the content. Includes prefix bytes.
+    // TODO: is there a usecase for that?
+    function readRawBytes(Decoder memory item) internal pure returns (bytes memory) {
+        return _toBytes(item);
+    }
+
+    /// @dev Decodes an RLP encoded item.
+    function readBytes(Decoder memory item) internal pure returns (bytes memory) {
+        (uint256 itemOffset, uint256 itemLength, ItemType itemType) = _decodeLength(item);
+        require(itemType == ItemType.Data, RLPUnexpectedType(ItemType.Data, itemType));
+
+        // Length is checked by {toBytes}
+        return _toBytes(item, itemOffset, itemLength);
+    }
+
+    function readList(Decoder memory item) internal pure returns (Decoder[] memory) {
+        return readList(item, 32);
     }
 
     /// @dev Decodes an RLP encoded list into an array of RLP Items. See {_decodeLength}
-    function decodeList(Item memory item) internal pure returns (Item[] memory) {
+    function readList(Decoder memory item, uint256 maxListLength) internal pure returns (Decoder[] memory) {
         (uint256 listOffset, uint256 listLength, ItemType itemType) = _decodeLength(item);
         require(itemType == ItemType.List, RLPUnexpectedType(ItemType.List, itemType));
-        uint256 expectedLength = listOffset + listLength;
-        require(expectedLength == item.length, RLPContentLengthMismatch(expectedLength, item.length));
-        Item[] memory items = new Item[](32);
+        require(item.length == listOffset + listLength, RLPContentLengthMismatch(listOffset + listLength, item.length));
+
+        Decoder[] memory list = new Decoder[](maxListLength);
 
         uint256 itemCount;
-
         for (uint256 currentOffset = listOffset; currentOffset < item.length; ++itemCount) {
             (uint256 itemOffset, uint256 itemLength, ) = _decodeLength(
-                Item(item.length - currentOffset, _addOffset(item.ptr, currentOffset))
+                Decoder(item.length - currentOffset, _addOffset(item.ptr, currentOffset))
             );
-            items[itemCount] = Item(itemLength + itemOffset, _addOffset(item.ptr, currentOffset));
+            list[itemCount] = Decoder(itemLength + itemOffset, _addOffset(item.ptr, currentOffset));
             currentOffset += itemOffset + itemLength;
         }
 
         // Decrease the array size to match the actual item count.
         assembly ("memory-safe") {
-            mstore(items, itemCount)
+            mstore(list, itemCount)
         }
-        return items;
+        return list;
     }
 
-    /// @dev Same as {decodeList} but for `bytes`. See {toItem}.
-    function decodeList(bytes memory value) internal pure returns (Item[] memory) {
-        return decodeList(toItem(value));
-    }
-
-    /// @dev Decodes an RLP encoded item.
-    function decodeBytes(Item memory item) internal pure returns (bytes memory) {
-        (uint256 itemOffset, uint256 itemLength, ItemType itemType) = _decodeLength(item);
-        require(itemType == ItemType.Data, RLPUnexpectedType(ItemType.Data, itemType));
-        uint256 expectedLength = itemOffset + itemLength;
-        require(expectedLength == item.length, RLPContentLengthMismatch(expectedLength, item.length));
-
-        bytes memory result = new bytes(itemLength);
-        _copy(_addOffset(_asPointer(result), 32), _addOffset(item.ptr, itemOffset), itemLength);
-
-        return result;
-    }
-
-    /// @dev Same as {decodeBytes} but for `bytes`. See {toItem}.
+    /// @dev Same as {decodeBytes} but for `bytes`. See {decode}.
     function decodeBytes(bytes memory item) internal pure returns (bytes memory) {
-        return decodeBytes(toItem(item));
+        return readBytes(decoder(item));
     }
 
-    /// @dev Reads the raw bytes of an RLP item without decoding the content. Includes prefix bytes.
-    function decodeRawBytes(Item memory item) internal pure returns (bytes memory) {
-        uint256 itemLength = item.length;
-        bytes memory result = new bytes(itemLength);
-        _copy(_addOffset(_asPointer(result), 32), item.ptr, itemLength);
-
-        return result;
+    /// @dev Same as {decodeList} but for `bytes`. See {decode}.
+    function decodeList(bytes memory value) internal pure returns (Decoder[] memory) {
+        return readList(decoder(value));
     }
 
     /**
      * @dev Decodes an RLP `item`'s `length and type from its prefix.
      * Returns the offset, length, and type of the RLP item based on the encoding rules.
      */
-    function _decodeLength(Item memory item) private pure returns (uint256 offset, uint256 length, ItemType) {
+    function _decodeLength(Decoder memory item) private pure returns (uint256 offset, uint256 length, ItemType) {
         require(item.length != 0, RLPEmptyItem());
-        uint256 prefix = uint8(_loadByte(item.ptr, 0));
+        uint8 prefix = uint8(bytes1(_load(item.ptr, 0)));
 
-        // Single byte below 128
-        if (prefix < SHORT_OFFSET) return (0, 1, ItemType.Data);
+        if (prefix < SHORT_OFFSET) {
+            // Case: Single byte below 128
+            return (0, 1, ItemType.Data);
+        } else if (prefix < LONG_LENGTH_OFFSET) {
+            // Case: Short string (0-55 bytes)
+            uint256 strLength = prefix - SHORT_OFFSET;
+            require(item.length > strLength, RLPInvalidDataRemainder(strLength, item.length));
+            if (strLength == 1) {
+                require(bytes1(_load(item.ptr, 1)) >= bytes1(SHORT_OFFSET));
+            }
+            return (1, strLength, ItemType.Data);
+        } else if (prefix < LONG_OFFSET) {
+            // Case: Long string (>55 bytes)
+            uint256 lengthLength = prefix - 0xb7;
 
-        // Short string (0-55 bytes)
-        if (prefix < LONG_LENGTH_OFFSET) return _decodeShortString(prefix - SHORT_OFFSET, item);
+            require(item.length > lengthLength, RLPInvalidDataRemainder(lengthLength, item.length));
+            require(bytes1(_load(item.ptr, 0)) != 0x00);
 
-        // Long string (>55 bytes)
-        if (prefix < LONG_OFFSET) {
-            (offset, length) = _decodeLong(prefix - LONG_LENGTH_OFFSET, item);
-            return (offset, length, ItemType.Data);
+            uint256 len = uint256(_load(item.ptr, 1)) >> (256 - 8 * lengthLength);
+            require(len > SHORT_THRESHOLD, RLPInvalidDataRemainder(SHORT_THRESHOLD, len));
+            require(item.length > lengthLength + len, RLPContentLengthMismatch(lengthLength + len, item.length));
+
+            return (lengthLength + 1, len, ItemType.Data);
+        } else if (prefix < SHORT_LIST_OFFSET) {
+            // Case: Short list
+            uint256 listLength = prefix - LONG_OFFSET;
+            require(item.length > listLength, RLPInvalidDataRemainder(listLength, item.length));
+            return (1, listLength, ItemType.List);
+        } else {
+            // Case: Long list
+            uint256 lengthLength = prefix - 0xf7;
+
+            require(item.length > lengthLength, RLPInvalidDataRemainder(lengthLength, item.length));
+            require(bytes1(_load(item.ptr, 0)) != 0x00);
+
+            uint256 len = uint256(_load(item.ptr, 1)) >> (256 - 8 * lengthLength);
+            require(len > SHORT_THRESHOLD, RLPInvalidDataRemainder(SHORT_THRESHOLD, len));
+            require(item.length > lengthLength + len, RLPContentLengthMismatch(lengthLength + len, item.length));
+
+            return (lengthLength + 1, len, ItemType.List);
         }
-
-        // Short list
-        if (prefix < SHORT_LIST_OFFSET) return _decodeShortList(prefix - LONG_OFFSET, item);
-
-        // Long list
-        (offset, length) = _decodeLong(prefix - SHORT_LIST_OFFSET, item);
-        return (offset, length, ItemType.List);
-    }
-
-    /// @dev Decodes a short string (0-55 bytes). The first byte contains the length, and the rest is the payload.
-    function _decodeShortString(
-        uint256 strLength,
-        Item memory item
-    ) private pure returns (uint256 offset, uint256 length, ItemType) {
-        require(item.length > strLength, RLPInvalidDataRemainder(strLength, item.length));
-        require(strLength != 1 || _loadByte(_addOffset(item.ptr, 1), 0) >= bytes1(SHORT_OFFSET));
-        return (1, strLength, ItemType.Data);
-    }
-
-    /// @dev Decodes a short list (0-55 bytes). The first byte contains the length of the entire list.
-    function _decodeShortList(
-        uint256 listLength,
-        Item memory item
-    ) private pure returns (uint256 offset, uint256 length, ItemType) {
-        require(item.length > listLength, RLPInvalidDataRemainder(listLength, item.length));
-        return (1, listLength, ItemType.List);
-    }
-
-    /// @dev Decodes a long string or list (>55 bytes). The first byte indicates the length of the length, followed by the length itself.
-    function _decodeLong(uint256 lengthLength, Item memory item) private pure returns (uint256 offset, uint256 length) {
-        lengthLength += 1; // 1 byte for the length itself
-        require(item.length > lengthLength, RLPInvalidDataRemainder(lengthLength, item.length));
-        require(_loadByte(item.ptr, 0) != 0x00);
-
-        // Extract the length value from the next bytes
-        uint256 len = uint256(_load(_addOffset(item.ptr, 1)) >> (256 - 8 * lengthLength));
-        require(len > SHORT_THRESHOLD, RLPInvalidDataRemainder(SHORT_THRESHOLD, len));
-        uint256 expectedLength = lengthLength + len;
-        require(item.length <= expectedLength, RLPContentLengthMismatch(expectedLength, item.length));
-        return (lengthLength + 1, len);
     }
 
     function _addOffset(Memory.Pointer ptr, uint256 offset) private pure returns (Memory.Pointer) {
         return bytes32(uint256(ptr.asBytes32()) + offset).asPointer();
     }
 
-    function _copy(Memory.Pointer destPtr, Memory.Pointer srcPtr, uint256 length) private pure {
+    function _load(Memory.Pointer ptr, uint256 offset) private pure returns (bytes32 v) {
         assembly ("memory-safe") {
-            mcopy(destPtr, srcPtr, length)
-        }
-    }
-
-    function _loadByte(Memory.Pointer ptr, uint256 offset) private pure returns (bytes1 v) {
-        assembly ("memory-safe") {
-            v := byte(offset, mload(ptr))
-        }
-    }
-
-    function _load(Memory.Pointer ptr) private pure returns (bytes32 v) {
-        assembly ("memory-safe") {
-            v := mload(ptr)
-        }
-    }
-
-    function _asPointer(bytes memory value) private pure returns (Memory.Pointer ptr) {
-        assembly ("memory-safe") {
-            ptr := value
+            v := mload(add(ptr, offset))
         }
     }
 }
