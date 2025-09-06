@@ -3,11 +3,23 @@
 pragma solidity ^0.8.20;
 
 import {Test} from "forge-std/Test.sol";
-
 import {RLP} from "@openzeppelin/contracts/utils/RLP.sol";
+import {Memory} from "@openzeppelin/contracts/utils/Memory.sol";
 
 contract RLPTest is Test {
     using RLP for *;
+
+    function testEncodeDecodeAddress(address input) external pure {
+        assertEq(input.encode().decodeAddress(), input);
+    }
+
+    function testEncodeDecodeUint256(uint256 input) external pure {
+        assertEq(input.encode().decodeUint256(), input);
+    }
+
+    function testEncodeDecodeBytes32(bytes32 input) external pure {
+        assertEq(input.encode().decodeBytes32(), input);
+    }
 
     function testEncodeDecodeBytes(bytes memory input) external pure {
         assertEq(input.encode().decodeBytes(), input);
@@ -23,7 +35,7 @@ contract RLPTest is Test {
         }
 
         // encode list + decode as list of RLP items
-        RLP.Decoder[] memory list = encoded.encode().decodeList();
+        Memory.Slice[] memory list = encoded.encode().decodeList();
 
         assertEq(list.length, input.length);
         for (uint256 i = 0; i < input.length; ++i) {
