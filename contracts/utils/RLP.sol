@@ -11,6 +11,10 @@ import {Packing} from "./Packing.sol";
  * @dev Library for encoding and decoding data in RLP format.
  * Recursive Length Prefix (RLP) is the main encoding method used to serialize objects in Ethereum.
  * It's used for encoding everything from transactions to blocks to Patricia-Merkle tries.
+ *
+ * Inspired by
+ * * https://github.com/succinctlabs/optimism-bedrock-contracts/blob/main/rlp/RLPWriter.sol
+ * * https://github.com/succinctlabs/optimism-bedrock-contracts/blob/main/rlp/RLPReader.sol
  */
 library RLP {
     using Memory for *;
@@ -131,6 +135,7 @@ library RLP {
     /****************************************************************************************************************
      *                                                   DECODING                                                   *
      ****************************************************************************************************************/
+
     /// @dev Items with length 0 are not RLP items.
     error RLPEmptyItem();
 
