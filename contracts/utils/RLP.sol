@@ -4,8 +4,6 @@ pragma solidity ^0.8.27;
 import {Math} from "./math/Math.sol";
 import {Bytes} from "./Bytes.sol";
 import {Memory} from "./Memory.sol";
-import {Panic} from "./Panic.sol";
-import {Packing} from "./Packing.sol";
 
 /**
  * @dev Library for encoding and decoding data in RLP format.
