@@ -25,11 +25,6 @@ library RLP {
     /// @dev Prefix for list items (0xC0)
     uint8 internal constant LONG_OFFSET = 0xC0;
 
-    /// @dev Prefix for long string length (0xB8)
-    uint8 internal constant LONG_LENGTH_OFFSET = SHORT_OFFSET + SHORT_THRESHOLD + 1; // 184
-    /// @dev Prefix for long list length (0xF8)
-    uint8 internal constant SHORT_LIST_OFFSET = LONG_OFFSET + SHORT_THRESHOLD + 1; // 248
-
     /****************************************************************************************************************
      *                                                   ENCODING                                                   *
      ****************************************************************************************************************/
@@ -235,12 +230,10 @@ library RLP {
         return readBytes32(item.asSlice());
     }
 
-    /// @dev Same as {decodeBytes} but for `bytes`. See {decode}.
     function decodeBytes(bytes memory item) internal pure returns (bytes memory) {
         return readBytes(item.asSlice());
     }
 
-    /// @dev Same as {decodeList} but for `bytes`. See {decode}.
     function decodeList(bytes memory value) internal pure returns (Memory.Slice[] memory) {
         return readList(value.asSlice());
     }
@@ -262,20 +255,20 @@ library RLP {
             if (prefix < SHORT_OFFSET) {
                 // Case: Single byte below 128
                 return (0, 1, ItemType.Data);
-            } else if (prefix < LONG_LENGTH_OFFSET) {
+            } else if (prefix <= SHORT_OFFSET + SHORT_THRESHOLD) {
                 // Case: Short string (0-55 bytes)
                 uint256 strLength = prefix - SHORT_OFFSET;
                 require(itemLength > strLength, RLPInvalidDataRemainder(strLength, itemLength));
                 if (strLength == 1) {
-                    require(bytes1(item.load(1)) >= bytes1(SHORT_OFFSET));
+                    require(bytes1(item.load(1)) >= bytes1(SHORT_OFFSET)); // TODO: custom error for sanity checks
                 }
                 return (1, strLength, ItemType.Data);
             } else {
                 // Case: Long string (>55 bytes)
-                uint256 lengthLength = prefix - 0xb7;
+                uint256 lengthLength = prefix - SHORT_OFFSET - SHORT_THRESHOLD;
 
                 require(itemLength > lengthLength, RLPInvalidDataRemainder(lengthLength, itemLength));
-                require(bytes1(item.load(0)) != 0x00);
+                require(bytes1(item.load(0)) != 0x00); // TODO: custom error for sanity checks
 
                 uint256 len = uint256(item.load(1)) >> (256 - 8 * lengthLength);
                 require(len > SHORT_THRESHOLD, RLPInvalidDataRemainder(SHORT_THRESHOLD, len));
@@ -285,14 +278,14 @@ library RLP {
             }
         } else {
             // Case: list
-            if (prefix < SHORT_LIST_OFFSET) {
+            if (prefix <= LONG_OFFSET + SHORT_THRESHOLD) {
                 // Case: Short list
                 uint256 listLength = prefix - LONG_OFFSET;
                 require(item.length() > listLength, RLPInvalidDataRemainder(listLength, itemLength));
                 return (1, listLength, ItemType.List);
             } else {
                 // Case: Long list
-                uint256 lengthLength = prefix - 0xf7;
+                uint256 lengthLength = prefix - LONG_OFFSET - SHORT_THRESHOLD;
 
                 require(itemLength > lengthLength, RLPInvalidDataRemainder(lengthLength, itemLength));
                 require(bytes1(item.load(0)) != 0x00);
