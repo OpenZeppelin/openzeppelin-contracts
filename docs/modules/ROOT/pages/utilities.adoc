@@ -589,3 +589,24 @@ function _setTargetAdminDelay(address target, uint32 newDelay) internal virtual 
     emit TargetAdminDelayUpdated(target, newDelay, effect);
 }
 ----
+
+=== ERC-7786 Remote Executor
+
+The `RemoteExecutor` contract implements [ERC-7786](https://eips.ethereum.org/EIPS/eip-7786), 
+a proposed standard for forwarding execution calls to other contracts.
+
+It provides a simple `execute(address target, bytes calldata data)` function that allows
+the contract owner to execute arbitrary function calls on a target contract.
+
+IMPORTANT: Only the contract owner can call the `execute` function. The contract inherits from `Ownable` for access control.
+
+[source,solidity]
+----
+import {RemoteExecutor} from "@openzeppelin/contracts/utils/execution/ERC7786/RemoteExecutor.sol";
+
+RemoteExecutor executor = new RemoteExecutor(msg.sender);
+executor.execute(target, abi.encodeWithSignature("setValue(uint256)", 42));
+----
+
+The `execute` function returns a tuple `(bool success, bytes memory result)` containing
+the success status and return data from the target contract call.
