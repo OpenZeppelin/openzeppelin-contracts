@@ -22,11 +22,11 @@ contract RemoteExecutor is IERC7786, Ownable {
      * Requirements:
      * - The caller must be the contract owner
      * - `target` must not be the zero address
-     * - The call to `target` must succeed
+     * - The call to `target` must succeed (otherwise this function reverts and bubbles the target's revert reason when available)
      *
      * @param target The address of the contract to call
      * @param data The call data to send
-     * @return success Whether the call succeeded
+     * @return success Whether the call succeeded (always true if function returns)
      * @return result The return data from the call
      */
     function execute(address target, bytes calldata data)
@@ -37,6 +37,17 @@ contract RemoteExecutor is IERC7786, Ownable {
     {
         require(target != address(0), "RemoteExecutor: target is zero address");
         (success, result) = target.call(data);
-        require(success, "RemoteExecutor: call failed");
+        if (!success) {
+            // Bubble up revert reason from target contract if present
+            if (result.length > 0) {
+                // The easiest way to bubble the revert reason is using assembly
+                assembly {
+                    let returndata_size := mload(result)
+                    revert(add(result, 32), returndata_size)
+                }
+            } else {
+                revert("RemoteExecutor: call failed");
+            }
+        }
     }
 }
