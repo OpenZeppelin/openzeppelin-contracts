@@ -17,7 +17,7 @@ import {BitMaps} from "../utils/structs/BitMaps.sol";
  *
  * * {_processMessage}, the internal function that will be called with any message that has been validated.
  *
- * This contract implements replay protection, manning that if two messages are received from the same gateway with the
+ * This contract implements replay protection, meaning that if two messages are received from the same gateway with the
  * same `receiveId`, then the second one will NOT be executed, regardless of the result of {_isAuthorizedGateway}.
  */
 abstract contract ERC7786Recipient is IERC7786Recipient {
@@ -51,7 +51,7 @@ abstract contract ERC7786Recipient is IERC7786Recipient {
     }
 
     /// @dev Virtual getter that returns whether an address is a valid ERC-7786 gateway for a given sender.
-    function _isAuthorizedGateway(address instance, bytes calldata sender) internal view virtual returns (bool);
+    function _isAuthorizedGateway(address gateway, bytes calldata sender) internal view virtual returns (bool);
 
     /// @dev Virtual function that should contain the logic to execute when a cross-chain message is received.
     function _processMessage(
