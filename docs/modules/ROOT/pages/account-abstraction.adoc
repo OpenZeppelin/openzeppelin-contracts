@@ -55,7 +55,7 @@ function handleOps(
 
 === Account Contract
 
-The Account Contract is a smart contract that implements the logic required to validate a `UserOperation` in the context of ERC-4337. Any smart contract account should conform with the `IAccount` interface to validate operations.
+The Account Contract is a smart contract that implements the logic required to validate a `UserOperation` in the context of ERC-4337. Any smart contract account should confirm with the `IAccount` interface to validate operations.
 
 ```solidity
 interface IAccount {
