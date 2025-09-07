@@ -157,20 +157,9 @@ library RLP {
         return item.toBytes();
     }
 
-    /// @dev Decode an RLP encoded bytes32. See {encode-bytes32}
-    function readBytes32(Memory.Slice item) internal pure returns (bytes32) {
-        uint256 length = item.length();
-        require(length <= 33, RLPContentLengthMismatch(32, length));
-
-        (uint256 itemOffset, uint256 itemLength, ItemType itemType) = _decodeLength(item);
-        require(itemType == ItemType.Data, RLPUnexpectedType(ItemType.Data, itemType));
-
-        return item.load(itemOffset) >> (256 - 8 * itemLength);
-    }
-
-    /// @dev Decode an RLP encoded uint256. See {encode-uint256}
-    function readUint256(Memory.Slice item) internal pure returns (uint256) {
-        return uint256(readBytes32(item));
+    /// @dev Decode an RLP encoded bool. See {encode-bool}
+    function readBool(Memory.Slice item) internal pure returns (bool) {
+        return readUint256(item) != 0;
     }
 
     /// @dev Decode an RLP encoded address. See {encode-address}
@@ -180,6 +169,22 @@ library RLP {
         return address(uint160(readUint256(item)));
     }
 
+    /// @dev Decode an RLP encoded uint256. See {encode-uint256}
+    function readUint256(Memory.Slice item) internal pure returns (uint256) {
+        uint256 length = item.length();
+        require(length <= 33, RLPContentLengthMismatch(32, length));
+
+        (uint256 itemOffset, uint256 itemLength, ItemType itemType) = _decodeLength(item);
+        require(itemType == ItemType.Data, RLPUnexpectedType(ItemType.Data, itemType));
+
+        return uint256(item.load(itemOffset)) >> (256 - 8 * itemLength);
+    }
+
+    /// @dev Decode an RLP encoded bytes32. See {encode-bytes32}
+    function readBytes32(Memory.Slice item) internal pure returns (bytes32) {
+        return bytes32(readUint256(item));
+    }
+
     /// @dev Decodes an RLP encoded bytes. See {encode-bytes}
     function readBytes(Memory.Slice item) internal pure returns (bytes memory) {
         (uint256 offset, uint256 length, ItemType itemType) = _decodeLength(item);
@@ -187,6 +192,10 @@ library RLP {
 
         // Length is checked by {toBytes}
         return item.slice(offset, length).toBytes();
+    }
+
+    function readString(Memory.Slice item) internal pure returns (string memory) {
+        return string(readBytes(item));
     }
 
     /// @dev Decodes an RLP encoded list into an array of RLP Items. This function supports list up to 32 elements
@@ -221,6 +230,10 @@ library RLP {
         return list;
     }
 
+    function decodeBool(bytes memory item) internal pure returns (bool) {
+        return readBool(item.asSlice());
+    }
+
     function decodeAddress(bytes memory item) internal pure returns (address) {
         return readAddress(item.asSlice());
     }
@@ -235,6 +248,10 @@ library RLP {
 
     function decodeBytes(bytes memory item) internal pure returns (bytes memory) {
         return readBytes(item.asSlice());
+    }
+
+    function decodeString(bytes memory item) internal pure returns (string memory) {
+        return readString(item.asSlice());
     }
 
     function decodeList(bytes memory value) internal pure returns (Memory.Slice[] memory) {

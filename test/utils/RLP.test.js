@@ -24,9 +24,12 @@ describe('RLP', function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
-  it('encode booleans', async function () {
+  it('encode/decode booleans', async function () {
     await expect(this.mock.$encode_bool(false)).to.eventually.equal('0x80'); // 0
     await expect(this.mock.$encode_bool(true)).to.eventually.equal('0x01'); // 1
+
+    await expect(this.mock.$decodeBool('0x80')).to.eventually.equal(false); // 0
+    await expect(this.mock.$decodeBool('0x01')).to.eventually.equal(true); // 1
   });
 
   it('encode/decode addresses', async function () {
@@ -111,13 +114,16 @@ describe('RLP', function () {
     }
   });
 
-  it('encodes strings', async function () {
+  it('encode/decode strings', async function () {
     for (const input of [
       '', // empty string
       'dog',
       'Lorem ipsum dolor sit amet, consectetur adipisicing elit',
     ]) {
-      await expect(this.mock.$encode_string(input)).to.eventually.equal(ethers.encodeRlp(ethers.toUtf8Bytes(input)));
+      const expected = ethers.encodeRlp(ethers.toUtf8Bytes(input));
+
+      await expect(this.mock.$encode_string(input)).to.eventually.equal(expected);
+      await expect(this.mock.$decodeString(expected)).to.eventually.equal(input);
     }
   });
 
