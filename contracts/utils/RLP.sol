@@ -15,6 +15,7 @@ import {Memory} from "./Memory.sol";
  * * https://github.com/succinctlabs/optimism-bedrock-contracts/blob/main/rlp/RLPReader.sol
  */
 library RLP {
+    using Bytes for *;
     using Memory for *;
 
     /**
@@ -28,11 +29,72 @@ library RLP {
     uint8 internal constant LONG_OFFSET = 0xC0;
 
     /****************************************************************************************************************
-     *                                                   ENCODING                                                   *
+     *                                              ENCODING - ENCODER                                              *
+     ****************************************************************************************************************/
+
+    struct Encoder {
+        Bytes.Accumulator acc;
+    }
+
+    /// @dev Create an empty RLP Encoder.
+    function encoder() internal pure returns (Encoder memory enc) {
+        enc.acc = Bytes.accumulator();
+    }
+
+    /// @dev Add a boolean to a given RLP Encoder.
+    function push(Encoder memory self, bool input) internal pure returns (Encoder memory) {
+        self.acc.push(encode(input));
+        return self;
+    }
+
+    /// @dev Add an address to a given RLP Encoder.
+    function push(Encoder memory self, address input) internal pure returns (Encoder memory) {
+        self.acc.push(encode(input));
+        return self;
+    }
+
+    /// @dev Add a uint256 to a given RLP Encoder.
+    function push(Encoder memory self, uint256 input) internal pure returns (Encoder memory) {
+        self.acc.push(encode(input));
+        return self;
+    }
+
+    /// @dev Add a bytes32 to a given RLP Encoder.
+    function push(Encoder memory self, bytes32 input) internal pure returns (Encoder memory) {
+        self.acc.push(encode(input));
+        return self;
+    }
+
+    /// @dev Add a bytes buffer to a given RLP Encoder.
+    function push(Encoder memory self, bytes memory input) internal pure returns (Encoder memory) {
+        self.acc.push(encode(input));
+        return self;
+    }
+
+    /// @dev Add a string to a given RLP Encoder.
+    function push(Encoder memory self, string memory input) internal pure returns (Encoder memory) {
+        self.acc.push(encode(input));
+        return self;
+    }
+
+    /// @dev Add an array of bytes to a given RLP Encoder.
+    function push(Encoder memory self, bytes[] memory input) internal pure returns (Encoder memory) {
+        self.acc.push(encode(input));
+        return self;
+    }
+
+    /// @dev Add an (input) Encoder to a (target) Encoder. The input is RLP encoded as a list of bytes, and added to the target Encoder.
+    function push(Encoder memory self, Encoder memory input) internal pure returns (Encoder memory) {
+        self.acc.push(encode(input));
+        return self;
+    }
+
+    /****************************************************************************************************************
+     *                                             ENCODING - TO BYTES                                              *
      ****************************************************************************************************************/
 
     /**
-     * @dev Convenience method to encode a boolean as RLP.
+     * @dev Encode a boolean as RLP.
      *
      * Boolean `true` is encoded as 0x01, `false` as 0x80 (equivalent to encoding integers 1 and 0).
      * This follows the de facto ecosystem standard where booleans are treated as 0/1 integers.
@@ -46,7 +108,7 @@ library RLP {
         }
     }
 
-    /// @dev Convenience method to encode an address as RLP bytes (i.e. encoded as packed 20 bytes).
+    /// @dev Encode an address as RLP.
     function encode(address input) internal pure returns (bytes memory result) {
         assembly ("memory-safe") {
             result := mload(0x40)
@@ -56,7 +118,7 @@ library RLP {
         }
     }
 
-    /// @dev Convenience method to encode a uint256 as RLP.
+    /// @dev Encode a uint256 as RLP.
     function encode(uint256 input) internal pure returns (bytes memory result) {
         if (input < SHORT_OFFSET) {
             assembly ("memory-safe") {
@@ -77,30 +139,29 @@ library RLP {
         }
     }
 
-    /// @dev Same as {encode-uint256-}, but for bytes32.
+    /// @dev Encode a bytes32 as RLP. Type alias for {encode-uint256-}.
     function encode(bytes32 input) internal pure returns (bytes memory) {
         return encode(uint256(input));
     }
 
-    /**
-     * @dev Encodes a bytes array using RLP rules.
-     * Single bytes below 128 are encoded as themselves, otherwise as length prefix + data.
-     */
+    /// @dev Encode a bytes buffer as RLP.
     function encode(bytes memory input) internal pure returns (bytes memory) {
         return (input.length == 1 && uint8(input[0]) < SHORT_OFFSET) ? input : _encode(input, SHORT_OFFSET);
     }
 
-    /// @dev Convenience method to encode a string as RLP.
-    function encode(string memory str) internal pure returns (bytes memory) {
-        return encode(bytes(str));
+    /// @dev Encode a string as RLP. Type alias for {encode-bytes-}.
+    function encode(string memory input) internal pure returns (bytes memory) {
+        return encode(bytes(input));
     }
 
-    /**
-     * @dev Encodes an array of bytes using RLP (as a list).
-     * First it {Bytes-concat}s the list of encoded items, then encodes it with the list prefix.
-     */
+    /// @dev Encode an array of bytes as RLP.
     function encode(bytes[] memory input) internal pure returns (bytes memory) {
-        return _encode(Bytes.concat(input), LONG_OFFSET);
+        return _encode(input.concat(), LONG_OFFSET);
+    }
+
+    /// @dev Encode an encoder (list of bytes) as RLP
+    function encode(Encoder memory self) internal pure returns (bytes memory result) {
+        return _encode(self.acc.concat(), LONG_OFFSET);
     }
 
     function _encode(bytes memory input, uint256 offset) private pure returns (bytes memory result) {

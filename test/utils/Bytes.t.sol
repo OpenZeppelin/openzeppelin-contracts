@@ -7,7 +7,7 @@ import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 import {Bytes} from "@openzeppelin/contracts/utils/Bytes.sol";
 
 contract BytesTest is Test {
-    using Bytes for bytes;
+    using Bytes for *;
 
     function testSymbolicEqual(bytes memory a) public pure {
         assertTrue(Bytes.equal(a, a));
@@ -222,6 +222,16 @@ contract BytesTest is Test {
             bytes1 multiBitsMask = bytes1(0xff) << (8 - offset);
             assertEq(buffer[index] & multiBitsMask, 0);
         }
+    }
+
+    // Accumulator
+    function testAccumulator(bytes[] calldata input) public {
+        Bytes.Accumulator memory acc = Bytes.accumulator();
+
+        for (uint256 i = 0; i < input.length; ++i) {
+            acc.push(input[i]);
+        }
+        assertEq(acc.concat(), input.concat());
     }
 
     // Helpers

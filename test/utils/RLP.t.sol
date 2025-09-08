@@ -9,6 +9,8 @@ import {Memory} from "@openzeppelin/contracts/utils/Memory.sol";
 contract RLPTest is Test {
     using RLP for *;
 
+    // To bytes
+
     function testEncodeDecodeAddress(address input) external pure {
         assertEq(input.encode().decodeAddress(), input);
     }
@@ -25,6 +27,11 @@ contract RLPTest is Test {
         assertEq(input.encode().decodeBytes(), input);
     }
 
+    function testEncodeDecodeString(string memory input) external pure {
+        assertEq(input.encode().decodeString(), input);
+    }
+
+    /// forge-config: default.fuzz.runs = 512
     function testEncodeDecodeList(bytes[] memory input) external pure {
         // max length for list decoding by default
         vm.assume(input.length <= 32);
@@ -43,57 +50,66 @@ contract RLPTest is Test {
         }
     }
 
-    // function testEncodeEmpty() external pure {
-    //     assertEq(RLP.encoder().encode(), hex"c0");
-    // }
+    // Encoder
 
-    // function testEncodeUint256(uint256 input) external pure {
-    //     bytes[] memory list = new bytes[](1);
-    //     list[0] = RLP.encode(input);
+    function testEncodeEmpty() external pure {
+        assertEq(RLP.encoder().encode(), hex"c0");
+    }
 
-    //     assertEq(RLP.encoder().push(input).encode(), RLP.encode(list));
-    // }
+    function testEncodeAddress(address input) external pure {
+        bytes[] memory list = new bytes[](1);
+        list[0] = RLP.encode(input);
 
-    // function testEncodeAddress(address input) external pure {
-    //     bytes[] memory list = new bytes[](1);
-    //     list[0] = RLP.encode(input);
+        assertEq(RLP.encoder().push(input).encode(), RLP.encode(list));
+    }
 
-    //     assertEq(RLP.encoder().push(input).encode(), RLP.encode(list));
-    // }
+    function testEncodeUint256(uint256 input) external pure {
+        bytes[] memory list = new bytes[](1);
+        list[0] = RLP.encode(input);
 
-    // function testEncodeBytes(bytes memory input) external pure {
-    //     bytes[] memory list = new bytes[](1);
-    //     list[0] = RLP.encode(input);
+        assertEq(RLP.encoder().push(input).encode(), RLP.encode(list));
+    }
 
-    //     assertEq(RLP.encoder().push(input).encode(), RLP.encode(list));
-    // }
+    function testEncodeBytes(bytes memory input) external pure {
+        bytes[] memory list = new bytes[](1);
+        list[0] = RLP.encode(input);
 
-    // /// forge-config: default.fuzz.runs = 512
-    // function testEncodeBytesArray(bytes[] memory input) external pure {
-    //     bytes[] memory list = new bytes[](input.length);
-    //     for (uint256 i = 0; i < input.length; ++i) {
-    //         list[i] = RLP.encode(input[i]);
-    //     }
+        assertEq(RLP.encoder().push(input).encode(), RLP.encode(list));
+    }
 
-    //     RLP.Encoder memory enc = RLP.encoder();
-    //     for (uint256 i = 0; i < input.length; ++i) {
-    //         enc.push(input[i]);
-    //     }
-    //     assertEq(enc.encode(), RLP.encode(list));
-    // }
+    function testEncodeString(string memory input) external pure {
+        bytes[] memory list = new bytes[](1);
+        list[0] = RLP.encode(input);
 
-    // function testEncodeMultiType(uint256 u, bytes memory b, address a) external pure {
-    //     bytes[] memory list = new bytes[](3);
-    //     list[0] = RLP.encode(u);
-    //     list[1] = RLP.encode(b);
-    //     list[2] = RLP.encode(a);
+        assertEq(RLP.encoder().push(input).encode(), RLP.encode(list));
+    }
 
-    //     assertEq(RLP.encoder().push(u).push(b).push(a).encode(), RLP.encode(list));
+    /// forge-config: default.fuzz.runs = 512
+    function testEncodeBytesArray(bytes[] memory input) external pure {
+        bytes[] memory list = new bytes[](input.length);
+        for (uint256 i = 0; i < input.length; ++i) {
+            list[i] = RLP.encode(input[i]);
+        }
 
-    //     list[0] = RLP.encode(b);
-    //     list[1] = RLP.encode(a);
-    //     list[2] = RLP.encode(u);
+        RLP.Encoder memory enc = RLP.encoder();
+        for (uint256 i = 0; i < input.length; ++i) {
+            enc.push(input[i]);
+        }
+        assertEq(enc.encode(), RLP.encode(list));
+    }
 
-    //     assertEq(RLP.encoder().push(b).push(a).push(u).encode(), RLP.encode(list));
-    // }
+    function testEncodeMultiType(uint256 u, bytes memory b, address a) external pure {
+        bytes[] memory list = new bytes[](3);
+        list[0] = RLP.encode(u);
+        list[1] = RLP.encode(b);
+        list[2] = RLP.encode(a);
+
+        assertEq(RLP.encoder().push(u).push(b).push(a).encode(), RLP.encode(list));
+
+        list[0] = RLP.encode(b);
+        list[1] = RLP.encode(a);
+        list[2] = RLP.encode(u);
+
+        assertEq(RLP.encoder().push(b).push(a).push(u).encode(), RLP.encode(list));
+    }
 }
