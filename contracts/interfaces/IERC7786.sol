@@ -10,7 +10,5 @@ interface IERC7786 {
      * @dev Executes a call to `target` with `data`.
      * Returns the success status and return data.
      */
-    function execute(address target, bytes calldata data) 
-        external 
-        returns (bool success, bytes memory result);
+    function execute(address target, bytes calldata data) external returns (bool success, bytes memory result);
 }

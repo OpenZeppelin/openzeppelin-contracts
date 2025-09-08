@@ -7,7 +7,7 @@ import {IERC7786} from "../../../interfaces/IERC7786.sol";
 /**
  * @title RemoteExecutor
  * @dev Implementation of ERC-7786 that allows the owner to execute arbitrary calls on other contracts.
- * 
+ *
  * This contract provides a simple interface for forwarding execution calls to other contracts.
  * Only the contract owner can execute calls for security reasons.
  *
@@ -18,7 +18,7 @@ contract RemoteExecutor is IERC7786, Ownable {
 
     /**
      * @dev Executes a call to `target` with `data`.
-     * 
+     *
      * Requirements:
      * - The caller must be the contract owner
      * - `target` must not be the zero address
@@ -29,12 +29,10 @@ contract RemoteExecutor is IERC7786, Ownable {
      * @return success Whether the call succeeded (always true if function returns)
      * @return result The return data from the call
      */
-    function execute(address target, bytes calldata data)
-        external
-        override
-        onlyOwner
-        returns (bool success, bytes memory result)
-    {
+    function execute(
+        address target,
+        bytes calldata data
+    ) external override onlyOwner returns (bool success, bytes memory result) {
         require(target != address(0), "RemoteExecutor: target is zero address");
         (success, result) = target.call(data);
         if (!success) {
