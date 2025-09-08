@@ -18,6 +18,23 @@ library RLP {
     using Bytes for *;
     using Memory for *;
 
+    /// @dev Items with length 0 are not RLP items.
+    error RLPEmptyItem();
+
+    /// @dev The `item` is not of the `expected` type.
+    error RLPUnexpectedType(ItemType expected, ItemType actual);
+
+    /// @dev The item is not long enough to contain the data.
+    error RLPInvalidDataRemainder(uint256 minLength, uint256 actualLength);
+
+    /// @dev The content length does not match the expected length.
+    error RLPContentLengthMismatch(uint256 expectedLength, uint256 actualLength);
+
+    enum ItemType {
+        Data, // Single data value
+        List // List of RLP encoded items
+    }
+
     /**
      * @dev Maximum length for data that will be encoded using the short format.
      * If `data.length <= 55 bytes`, it will be encoded as: `[0x80 + length]` + data.
@@ -192,25 +209,8 @@ library RLP {
     }
 
     /****************************************************************************************************************
-     *                                                   DECODING                                                   *
+     *                               DECODING - READ FROM AN RLP ENCODED MEMORY SLICE                               *
      ****************************************************************************************************************/
-
-    /// @dev Items with length 0 are not RLP items.
-    error RLPEmptyItem();
-
-    /// @dev The `item` is not of the `expected` type.
-    error RLPUnexpectedType(ItemType expected, ItemType actual);
-
-    /// @dev The item is not long enough to contain the data.
-    error RLPInvalidDataRemainder(uint256 minLength, uint256 actualLength);
-
-    /// @dev The content length does not match the expected length.
-    error RLPContentLengthMismatch(uint256 expectedLength, uint256 actualLength);
-
-    enum ItemType {
-        Data, // Single data value
-        List // List of RLP encoded items
-    }
 
     /// @dev Reads the raw bytes of an RLP item without decoding the content. Includes prefix bytes.
     // TODO: is there a usecase for that?
@@ -290,6 +290,10 @@ library RLP {
         }
         return list;
     }
+
+    /****************************************************************************************************************
+     *                                            DECODING - FROM BYTES                                             *
+     ****************************************************************************************************************/
 
     function decodeBool(bytes memory item) internal pure returns (bool) {
         return readBool(item.asSlice());
