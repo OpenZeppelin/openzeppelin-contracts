@@ -12,7 +12,7 @@ pragma solidity ^0.8.20;
  * guidelines for https://docs.soliditylang.org/en/v0.8.20/assembly.html#memory-safety[Memory Safety].
  */
 library Memory {
-    type Pointer is bytes32;
+    type Pointer is bytes8;
 
     /// @dev Returns a `Pointer` to the current free `Pointer`.
     function getFreeMemoryPointer() internal pure returns (Pointer ptr) {
@@ -32,13 +32,13 @@ library Memory {
         }
     }
 
-    /// @dev `Pointer` to `bytes32`. Expects a pointer to a properly ABI-encoded `bytes` object.
-    function asBytes32(Pointer ptr) internal pure returns (bytes32) {
+    /// @dev `Pointer` to `bytes8`. Expects a pointer to a properly ABI-encoded `bytes` object.
+    function asBytes8(Pointer ptr) internal pure returns (bytes8) {
         return Pointer.unwrap(ptr);
     }
 
-    /// @dev `bytes32` to `Pointer`. Expects a pointer to a properly ABI-encoded `bytes` object.
-    function asPointer(bytes32 value) internal pure returns (Pointer) {
+    /// @dev `bytes8` to `Pointer`. Expects a pointer to a properly ABI-encoded `bytes` object.
+    function asPointer(bytes8 value) internal pure returns (Pointer) {
         return Pointer.wrap(value);
     }
 }
