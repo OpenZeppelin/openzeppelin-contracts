@@ -168,8 +168,9 @@ contract ERC2771Forwarder is EIP712, Nonces {
 
         uint256 requestsValue;
         uint256 refundValue;
+        uint256 requestsLength = requests.length;
 
-        for (uint256 i; i < requests.length; ++i) {
+        for (uint256 i; i < requestsLength; ++i) {
             requestsValue += requests[i].value;
             bool success = _execute(requests[i], atomic);
             if (!success) {
