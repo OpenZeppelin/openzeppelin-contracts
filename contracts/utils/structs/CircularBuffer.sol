@@ -21,7 +21,7 @@ import {Panic} from "../Panic.sol";
  * - inclusion ({includes}): O(N) (worst case)
  * - reset ({clear}): O(1)
  *
- * * The struct is called `Bytes32CircularBuffer`. Other types can be cast to and from `bytes32`. This data structure
+ * The struct is called `Bytes32CircularBuffer`. Other types can be cast to and from `bytes32`. This data structure
  * can only be used in storage, and not in memory.
  *
  * Example usage:
