@@ -50,7 +50,13 @@ abstract contract ERC7786Recipient is IERC7786Recipient {
         return IERC7786Recipient.receiveMessage.selector;
     }
 
-    /// @dev Virtual getter that returns whether an address is a valid ERC-7786 gateway for a given sender.
+    /**
+     * @dev Virtual getter that returns whether an address is a valid ERC-7786 gateway for a given sender.
+     *
+     * The `sender` parameter is an interoperable address that include the source chain. The chain part can be
+     * extracted using the {InteroperableAddress} library to selectively authorize gateways based on the origin chain
+     * of a message.
+     */
     function _isAuthorizedGateway(address gateway, bytes calldata sender) internal view virtual returns (bool);
 
     /// @dev Virtual function that should contain the logic to execute when a cross-chain message is received.
