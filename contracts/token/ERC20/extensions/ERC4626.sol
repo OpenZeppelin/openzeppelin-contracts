@@ -49,7 +49,7 @@ import {Math} from "../../../utils/math/Math.sol";
  * ====
  * When overriding this contract, some elements must to be considered:
  *
- * * When overriding the behavior of the deposit or withdraw mechanism, it is recommended to override the internal
+ * * When overriding the behavior of the deposit or withdraw mechanisms, it is recommended to override the internal
  * functions. Overriding {_deposit} automatically affects both {deposit} and {mint}. Similarly, overriding {_withdraw}
  * automatically affects both {withdraw} and {redeem}. Overall it is not recommended to override the public facing
  * functions since that could lead to inconsistent behaviors between the {deposit} and {mint} or between {withdraw} and
