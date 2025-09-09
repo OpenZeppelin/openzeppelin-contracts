@@ -14,7 +14,7 @@ import {ERC7786Recipient} from "../ERC7786Recipient.sol";
  * gateways. It ensure received message originate from for a counterpart. This is the code of token bridges such as
  * {BridgeERC20}.
  *
- * Contract that inherit from this contract can use the internal {_senMessage} to send messages to their conterpart
+ * Contract that inherit from this contract can use the internal {_senMessage} to send messages to their counterpart
  * on a foreign chain. They must override the {_processMessage} function to handle the message that have been verified.
  */
 abstract contract BridgeCore is ERC7786Recipient {
