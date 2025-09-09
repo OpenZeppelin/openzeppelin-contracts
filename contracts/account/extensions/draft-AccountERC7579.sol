@@ -205,9 +205,10 @@ abstract contract AccountERC7579 is Account, IERC1271, IERC7579Execution, IERC75
      * if the module specified by the first 20 bytes of the nonce key is installed. Falls back to
      * {Account-_validateUserOp} otherwise.
      *
-     * Note: this contract disables raw signature validation (see {_rawSignatureValidation}), so unless
-     * overridden or complemented via multiple inheritance, the fallback path to {Account-_validateUserOp}
-     * will not succeed by itself.
+     * Note: if no installed validation module is extracted from the user operation, this function
+     * defers to {Account-_validateUserOp}, which performs a {_rawSignatureValidation} check. This contract
+     * overrides {_rawSignatureValidation} to always return `false`. Projects that require native/raw
+     * validation should override {_rawSignatureValidation} or compose with another extension that provides it.
      *
      * See {_extractUserOpValidator} for the module extraction logic.
      */
