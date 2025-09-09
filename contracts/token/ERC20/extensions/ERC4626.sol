@@ -61,7 +61,7 @@ import {Math} from "../../../utils/math/Math.sol";
  * overriding {maxWithdraw} only would have no effect on {maxRedeem}, and could create an inconsistency between the two
  * functions.
  *
- * * If {previewRedeem} is overriden to revert, {maxWithdraw} must be overridden as necessary to ensure it
+ * * If {previewRedeem} is overridden to revert, {maxWithdraw} must be overridden as necessary to ensure it
  * always return successfully.
  * ====
  */
