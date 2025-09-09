@@ -191,7 +191,8 @@ library EnumerableSet {
             end = Math.min(end, _length(set));
             start = Math.min(start, end);
 
-            uint256 len = end - start;
+            // Prevent underflow when start > end
+            uint256 len = start <= end ? end - start : 0;
             bytes32[] memory result = new bytes32[](len);
             for (uint256 i = 0; i < len; ++i) {
                 result[i] = Arrays.unsafeAccess(set._values, start + i).value;
@@ -639,7 +640,8 @@ library EnumerableSet {
             end = Math.min(end, length(set));
             start = Math.min(start, end);
 
-            uint256 len = end - start;
+            // Prevent underflow when start > end
+            uint256 len = start <= end ? end - start : 0;
             string[] memory result = new string[](len);
             for (uint256 i = 0; i < len; ++i) {
                 result[i] = Arrays.unsafeAccess(set._values, start + i).value;
@@ -781,7 +783,8 @@ library EnumerableSet {
             end = Math.min(end, length(set));
             start = Math.min(start, end);
 
-            uint256 len = end - start;
+            // Prevent underflow when start > end
+            uint256 len = start <= end ? end - start : 0;
             bytes[] memory result = new bytes[](len);
             for (uint256 i = 0; i < len; ++i) {
                 result[i] = Arrays.unsafeAccess(set._values, start + i).value;
