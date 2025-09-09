@@ -47,11 +47,11 @@ import {Math} from "../../../utils/math/Math.sol";
  *
  * Note: When overriding this contract, some elements have to be considered
  *
- * * When overriding the behavior of the deposit or withdraw mechanism, one should override the internal functions.
- * Overriding {_deposit} automatically affects both {deposit} and {mint}. Similarly, overriding {_withdraw}
- * automatically affects both {withdraw} and {redeem}. Having inconsistent behavior between the {deposit} and {mint}
- * or between {withdraw} and {redeem} can lead to bugs. Overall it is not recommended to override the public facing
- * functions.
+ * * When overriding the behavior of the deposit or withdraw mechanisms, it is recommended to override the internal
+ * functions. Overriding {_deposit} automatically affects both {deposit} and {mint}. Similarly, overriding {_withdraw}
+ * automatically affects both {withdraw} and {redeem}. Overall it is not recommended to override the public facing
+ * functions since that could lead to inconsistent behaviors between the {deposit} and {mint} or between {withdraw} and
+ * {redeem}, which is documented to have lead to loss of funds.
  *
  * * {maxWithdraw} depends on {maxRedeem}. Therefore, overriding {maxRedeem} only is enough. On the other hand,
  * overriding {maxWithdraw} only would have no effect on {maxRedeem}, and could create an inconsistency between the two
