@@ -44,6 +44,18 @@ import {Math} from "../../../utils/math/Math.sol";
  *
  * To learn more, check out our xref:ROOT:erc4626.adoc[ERC-4626 guide].
  * ====
+ *
+ * Note: When overriding this contract, some elements have to be considered
+ *
+ * * When overriding the behavior of the deposit or withdraw mechanism, one should override the internal functions.
+ * Overriding {_deposit} automatically affects both {deposit} and {mint}. Similarly, overriding {_withdraw}
+ * automatically affects both {withdraw} and {redeem}. Having inconsistent behavior between the {deposit} and {mint}
+ * or between {withdraw} and {redeem} can lead to bugs. Overall it is not recommended to override the public facing
+ * functions.
+ *
+ * * {maxWithdraw} depends on {maxRedeem}. Therefore, overriding {maxRedeem} only is enough. On the other hand,
+ * overriding {maxWithdraw} only would have no effect on {maxRedeem}, and could create an inconsistency between the two
+ * functions.
  */
 abstract contract ERC4626 is ERC20, IERC4626 {
     using Math for uint256;
