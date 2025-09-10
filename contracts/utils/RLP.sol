@@ -178,7 +178,7 @@ library RLP {
 
     /// @dev Encode an encoder (list of bytes) as RLP
     function encode(Encoder memory self) internal pure returns (bytes memory result) {
-        return _encode(self.acc.concat(), LONG_OFFSET);
+        return _encode(self.acc.flatten(), LONG_OFFSET);
     }
 
     function _encode(bytes memory input, uint256 offset) private pure returns (bytes memory result) {
