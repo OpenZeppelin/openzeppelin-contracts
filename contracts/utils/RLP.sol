@@ -238,7 +238,7 @@ library RLP {
         (uint256 itemOffset, uint256 itemLength, ItemType itemType) = _decodeLength(item);
         require(itemType == ItemType.Data, RLPUnexpectedType(ItemType.Data, itemType));
 
-        return uint256(item.load(itemOffset)) >> (256 - 8 * itemLength);
+        return itemLength == 0 ? 0 : uint256(item.load(itemOffset)) >> (256 - 8 * itemLength);
     }
 
     /// @dev Decode an RLP encoded bytes32. See {encode-bytes32}
