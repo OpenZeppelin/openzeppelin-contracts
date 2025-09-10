@@ -1,0 +1,79 @@
+{
+	"deploy": {
+		"VM:-": {
+			"linkReferences": {},
+			"autoDeployLib": true
+		},
+		"main:1": {
+			"linkReferences": {},
+			"autoDeployLib": true
+		},
+		"ropsten:3": {
+			"linkReferences": {},
+			"autoDeployLib": true
+		},
+		"rinkeby:4": {
+			"linkReferences": {},
+			"autoDeployLib": true
+		},
+		"kovan:42": {
+			"linkReferences": {},
+			"autoDeployLib": true
+		},
+		"goerli:5": {
+			"linkReferences": {},
+			"autoDeployLib": true
+		},
+		"Custom": {
+			"linkReferences": {},
+			"autoDeployLib": true
+		}
+	},
+	"data": {
+		"bytecode": {
+			"functionDebugData": {},
+			"generatedSources": [],
+			"linkReferences": {},
+			"object": "6055604b600b8282823980515f1a607314603f577f4e487b71000000000000000000000000000000000000000000000000000000005f525f60045260245ffd5b305f52607381538281f3fe730000000000000000000000000000000000000000301460806040525f5ffdfea2646970667358221220bea14b5d3f32cfc824efbffb710ae2a700b7fc7954b845a818482733861cb37c64736f6c634300081e0033",
+			"opcodes": "PUSH1 0x55 PUSH1 0x4B PUSH1 0xB DUP3 DUP3 DUP3 CODECOPY DUP1 MLOAD PUSH0 BYTE PUSH1 0x73 EQ PUSH1 0x3F JUMPI PUSH32 0x4E487B7100000000000000000000000000000000000000000000000000000000 PUSH0 MSTORE PUSH0 PUSH1 0x4 MSTORE PUSH1 0x24 PUSH0 REVERT JUMPDEST ADDRESS PUSH0 MSTORE PUSH1 0x73 DUP2 MSTORE8 DUP3 DUP2 RETURN INVALID PUSH20 0x0 ADDRESS EQ PUSH1 0x80 PUSH1 0x40 MSTORE PUSH0 PUSH0 REVERT INVALID LOG2 PUSH5 0x6970667358 0x22 SLT KECCAK256 0xBE LOG1 0x4B TSTORE EXTCODEHASH ORIGIN 0xCF 0xC8 0x24 0xEF 0xBF EXTSTATICCALL PUSH18 0xAE2A700B7FC7954B845A818482733861CB3 PUSH29 0x64736F6C634300081E0033000000000000000000000000000000000000 ",
+			"sourceMap": "198:10883:0:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;"
+		},
+		"deployedBytecode": {
+			"functionDebugData": {},
+			"generatedSources": [],
+			"immutableReferences": {},
+			"linkReferences": {},
+			"object": "730000000000000000000000000000000000000000301460806040525f5ffdfea2646970667358221220bea14b5d3f32cfc824efbffb710ae2a700b7fc7954b845a818482733861cb37c64736f6c634300081e0033",
+			"opcodes": "PUSH20 0x0 ADDRESS EQ PUSH1 0x80 PUSH1 0x40 MSTORE PUSH0 PUSH0 REVERT INVALID LOG2 PUSH5 0x6970667358 0x22 SLT KECCAK256 0xBE LOG1 0x4B TSTORE EXTCODEHASH ORIGIN 0xCF 0xC8 0x24 0xEF 0xBF EXTSTATICCALL PUSH18 0xAE2A700B7FC7954B845A818482733861CB3 PUSH29 0x64736F6C634300081E0033000000000000000000000000000000000000 ",
+			"sourceMap": "198:10883:0:-:0;;;;;;;;"
+		},
+		"gasEstimates": {
+			"creation": {
+				"codeDepositCost": "17000",
+				"executionCost": "92",
+				"totalCost": "17092"
+			},
+			"internal": {
+				"_unsafeReadBytesOffset(bytes memory,uint256)": "infinite",
+				"clz(bytes memory)": "infinite",
+				"concat(bytes memory[] memory)": "infinite",
+				"equal(bytes memory,bytes memory)": "infinite",
+				"indexOf(bytes memory,bytes1)": "infinite",
+				"indexOf(bytes memory,bytes1,uint256)": "infinite",
+				"lastIndexOf(bytes memory,bytes1)": "infinite",
+				"lastIndexOf(bytes memory,bytes1,uint256)": "infinite",
+				"reverseBytes16(bytes16)": "infinite",
+				"reverseBytes2(bytes2)": "infinite",
+				"reverseBytes32(bytes32)": "infinite",
+				"reverseBytes4(bytes4)": "infinite",
+				"reverseBytes8(bytes8)": "infinite",
+				"slice(bytes memory,uint256)": "infinite",
+				"slice(bytes memory,uint256,uint256)": "infinite",
+				"splice(bytes memory,uint256)": "infinite",
+				"splice(bytes memory,uint256,uint256)": "infinite"
+			}
+		},
+		"methodIdentifiers": {}
+	},
+	"abi": []
+}
