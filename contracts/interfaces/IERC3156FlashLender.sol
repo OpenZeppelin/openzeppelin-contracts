@@ -11,7 +11,7 @@ import {IERC3156FlashBorrower} from "./IERC3156FlashBorrower.sol";
  */
 interface IERC3156FlashLender {
     /**
-     * @dev The amount of currency available to be lended.
+     * @dev The amount of currency available to be lent.
      * @param token The loan currency.
      * @return The amount of `token` that can be borrowed.
      */

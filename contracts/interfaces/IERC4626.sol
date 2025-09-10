@@ -96,7 +96,7 @@ interface IERC4626 is IERC20, IERC20Metadata {
     function previewDeposit(uint256 assets) external view returns (uint256 shares);
 
     /**
-     * @dev Mints shares Vault shares to receiver by depositing exactly amount of underlying tokens.
+     * @dev Deposit `assets` underlying tokens and send the corresponding number of vault shares (`shares`) to `receiver`.
      *
      * - MUST emit the Deposit event.
      * - MAY support an additional flow in which the underlying tokens are owned by the Vault contract before the
@@ -134,7 +134,7 @@ interface IERC4626 is IERC20, IERC20Metadata {
     function previewMint(uint256 shares) external view returns (uint256 assets);
 
     /**
-     * @dev Mints exactly shares Vault shares to receiver by depositing amount of underlying tokens.
+     * @dev Mints exactly `shares` vault shares to `receiver` in exchange for `assets` underlying tokens.
      *
      * - MUST emit the Deposit event.
      * - MAY support an additional flow in which the underlying tokens are owned by the Vault contract before the mint

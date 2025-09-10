@@ -20,7 +20,7 @@ import {Checkpoints} from "../../../utils/structs/Checkpoints.sol";
  * regained after construction. During construction, only batch minting is allowed.
  *
  * IMPORTANT: This extension does not call the {_update} function for tokens minted in batch. Any logic added to this
- * function through overrides will not be triggered when token are minted in batch. You may want to also override
+ * function through overrides will not be triggered when tokens are minted in batch. You may want to also override
  * {_increaseBalance} or {_mintConsecutive} to account for these mints.
  *
  * IMPORTANT: When overriding {_mintConsecutive}, be careful about call ordering. {ownerOf} may return invalid
