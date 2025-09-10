@@ -2,6 +2,8 @@
 
 pragma solidity ^0.8.24;
 
+import {Panic} from "./Panic.sol";
+
 /**
  * @dev Utilities to manipulate memory.
  *
@@ -44,61 +46,68 @@ library Memory {
 
     type Slice is bytes32;
 
+    /// @dev Get a slice representation of a bytes object in memory
     function asSlice(bytes memory self) internal pure returns (Slice result) {
         assembly ("memory-safe") {
             result := or(shl(128, mload(self)), add(self, 0x20))
         }
     }
 
-    function asSlice(uint256 len, Memory.Pointer ptr) internal pure returns (Slice result) {
+    /// @dev Private helper: create a slice from raw values (length and pointer)
+    function _asSlice(uint256 len, Memory.Pointer ptr) private pure returns (Slice result) {
         // TODO: Fail if len or ptr  is larger than type(uint128).max ?
         assembly ("memory-safe") {
             result := or(shl(128, len), ptr)
         }
     }
 
-    /// @dev Private helper: extract the data corresponding to a Slice (allocate new memory)
-    function toBytes(Slice self) internal pure returns (bytes memory result) {
-        uint256 len = length(self);
-        Memory.Pointer ptr = pointer(self);
+    /// @dev Returns the memory location of a given slice (equiv to self.offset for calldata slices)
+    function _pointer(Slice self) private pure returns (Memory.Pointer result) {
         assembly ("memory-safe") {
-            result := mload(0x40)
-            mstore(result, len)
-            mcopy(add(result, 0x20), ptr, len)
-            mstore(0x40, add(add(result, len), 0x20))
+            result := and(self, shr(128, not(0)))
         }
     }
 
-    /// @dev Private helper: length of a given Slice (equiv to self.length for calldata slices)
+    /// @dev Returns the length of a given slice (equiv to self.length for calldata slices)
     function length(Slice self) internal pure returns (uint256 result) {
         assembly ("memory-safe") {
             result := shr(128, self)
         }
     }
 
-    /// @dev Private helper: memory location of a given Slice (equiv to self.offset for calldata slices)
-    function pointer(Slice self) internal pure returns (Memory.Pointer result) {
-        assembly ("memory-safe") {
-            result := and(self, shr(128, not(0)))
-        }
+    /// @dev Offset a memory slice (equivalent to self[start:] for calldata slices)
+    function slice(Slice self, uint256 offset) internal pure returns (Slice) {
+        if (offset > length(self)) Panic.panic(Panic.ARRAY_OUT_OF_BOUNDS);
+        return _asSlice(length(self) - offset, asPointer(bytes32(uint256(asBytes32(_pointer(self))) + offset)));
     }
 
-    /// @dev Private helper: read a bytes32 buffer from a given Slice at a specific offset
+    /// @dev Offset and cut a Slice (equivalent to self[start:start+length] for calldata slices)
+    function slice(Slice self, uint256 offset, uint256 len) internal pure returns (Slice) {
+        if (offset + len > length(self)) Panic.panic(Panic.ARRAY_OUT_OF_BOUNDS);
+        return _asSlice(len, asPointer(bytes32(uint256(asBytes32(_pointer(self))) + offset)));
+    }
+
+    /**
+     * @dev Read a bytes32 buffer from a given Slice at a specific offset
+     *
+     * Note:If offset > length(slice) - 32, part of the return value will be out of bound and should be ignored.
+     */
     function load(Slice self, uint256 offset) internal pure returns (bytes32 value) {
+        if (offset >= length(self)) Panic.panic(Panic.ARRAY_OUT_OF_BOUNDS);
         assembly ("memory-safe") {
             value := mload(add(and(self, shr(128, not(0))), offset))
         }
     }
 
-    /// @dev Private helper: slice a Slice (equivalent to self[start:] for calldata slices)
-    function slice(Slice self, uint256 start) internal pure returns (Slice) {
-        // TODO: check start < _len(self) ?
-        return asSlice(length(self) - start, asPointer(bytes32(uint256(asBytes32(pointer(self))) + start)));
-    }
-
-    /// @dev Private helper: slice a Slice (equivalent to self[start:start+length] for calldata slices)
-    function slice(Slice self, uint256 start, uint256 len) internal pure returns (Slice) {
-        // TODO: check start + length < _len(self) ?
-        return asSlice(len, asPointer(bytes32(uint256(asBytes32(pointer(self))) + start)));
+    /// @dev Extract the data corresponding to a Slice (allocate new memory)
+    function toBytes(Slice self) internal pure returns (bytes memory result) {
+        uint256 len = length(self);
+        Memory.Pointer ptr = _pointer(self);
+        assembly ("memory-safe") {
+            result := mload(0x40)
+            mstore(result, len)
+            mcopy(add(result, 0x20), ptr, len)
+            mstore(0x40, add(add(result, len), 0x20))
+        }
     }
 }
