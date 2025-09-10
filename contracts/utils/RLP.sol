@@ -120,7 +120,7 @@ library RLP {
         assembly ("memory-safe") {
             result := mload(0x40)
             mstore(result, 0x01) // length of the encoded data: 1 byte
-            mstore8(add(result, 0x20), shl(mul(7, iszero(input)), 1)) // input
+            mstore8(add(result, 0x20), add(mul(iszero(input), 0x7f), 1)) // input
             mstore(0x40, add(result, 0x21)) // reserve memory
         }
     }
