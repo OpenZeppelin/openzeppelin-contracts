@@ -1,0 +1,12 @@
+= Cross chain interoperability
+
+[.readme-notice]
+NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/crosschain
+
+This directory contains contracts for sending and receiving cross chain messages that follows the ERC-7786 standard.
+
+- {ERC7786Recipient}: generic ERC-7786 crosschain contract that receives messages from a trusted gateway
+
+== Helpers
+
+{{ERC7786Recipient}}
