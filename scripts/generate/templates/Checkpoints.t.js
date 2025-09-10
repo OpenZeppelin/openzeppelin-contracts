@@ -14,7 +14,7 @@ import {Checkpoints} from "@openzeppelin/contracts/utils/structs/Checkpoints.sol
 const template = opts => `\
 using Checkpoints for Checkpoints.${opts.historyTypeName};
 
-// Maximum gap between keys used during the fuzzing tests: the \`_prepareKeys\` function with make sure that
+// Maximum gap between keys used during the fuzzing tests: the \`_prepareKeys\` function will make sure that
 // key#n+1 is in the [key#n, key#n + _KEY_MAX_GAP] range.
 uint8 internal constant _KEY_MAX_GAP = 64;
 
@@ -24,7 +24,11 @@ Checkpoints.${opts.historyTypeName} internal _ckpts;
 function _bound${capitalize(opts.keyTypeName)}(${opts.keyTypeName} x, ${opts.keyTypeName} min, ${
   opts.keyTypeName
 } max) internal pure returns (${opts.keyTypeName}) {
-    return SafeCast.to${capitalize(opts.keyTypeName)}(bound(uint256(x), uint256(min), uint256(max)));
+    return ${
+      opts.keyTypeName === 'uint256'
+        ? 'bound(x, min, max)'
+        : `SafeCast.to${capitalize(opts.keyTypeName)}(bound(uint256(x), uint256(min), uint256(max)))`
+    };
 }
 
 function _prepareKeys(${opts.keyTypeName}[] memory keys, ${opts.keyTypeName} maxSpread) internal pure {

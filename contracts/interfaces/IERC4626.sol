@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.1.0) (interfaces/IERC4626.sol)
+// OpenZeppelin Contracts (last updated v5.4.0) (interfaces/IERC4626.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity >=0.6.2;
 
 import {IERC20} from "../token/ERC20/IERC20.sol";
 import {IERC20Metadata} from "../token/ERC20/extensions/IERC20Metadata.sol";
@@ -198,7 +198,7 @@ interface IERC4626 is IERC20, IERC20Metadata {
     function maxRedeem(address owner) external view returns (uint256 maxShares);
 
     /**
-     * @dev Allows an on-chain or off-chain user to simulate the effects of their redeemption at the current block,
+     * @dev Allows an on-chain or off-chain user to simulate the effects of their redemption at the current block,
      * given current on-chain conditions.
      *
      * - MUST return as close to and no more than the exact amount of assets that would be withdrawn in a redeem call

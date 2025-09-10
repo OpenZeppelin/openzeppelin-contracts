@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.1.0) (utils/SlotDerivation.sol)
+// OpenZeppelin Contracts (last updated v5.3.0) (utils/SlotDerivation.sol)
 // This file was procedurally generated from scripts/generate/templates/SlotDerivation.js.
 
 pragma solidity ^0.8.20;
@@ -19,7 +19,7 @@ pragma solidity ^0.8.20;
  *     using SlotDerivation for bytes32;
  *
  *     // Declare a namespace
- *     string private constant _NAMESPACE = "<namespace>" // eg. OpenZeppelin.Slot
+ *     string private constant _NAMESPACE = "<namespace>"; // eg. OpenZeppelin.Slot
  *
  *     function setValueInNamespace(uint256 key, address newValue) internal {
  *         _NAMESPACE.erc7201Slot().deriveMapping(key).getAddressSlot().value = newValue;

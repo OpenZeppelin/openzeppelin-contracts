@@ -172,8 +172,12 @@ function shouldBehaveLikeMap() {
 
       it('missing value', async function () {
         await expect(this.methods.get(this.keyB))
-          .to.be.revertedWithCustomError(this.mock, 'EnumerableMapNonexistentKey')
-          .withArgs(ethers.AbiCoder.defaultAbiCoder().encode([this.keyType], [this.keyB]));
+          .to.be.revertedWithCustomError(this.mock, this.error ?? 'EnumerableMapNonexistentKey')
+          .withArgs(
+            this.key?.memory || this.value?.memory
+              ? this.keyB
+              : ethers.AbiCoder.defaultAbiCoder().encode([this.key.type], [this.keyB]),
+          );
       });
     });
 
@@ -186,6 +190,22 @@ function shouldBehaveLikeMap() {
         expect(await this.methods.tryGet(this.keyB)).to.have.ordered.members([false, this.zeroValue]);
       });
     });
+  });
+
+  it('keys (full & paginated)', async function () {
+    const keys = [this.keyA, this.keyB, this.keyC];
+    await this.methods.set(this.keyA, this.valueA);
+    await this.methods.set(this.keyB, this.valueB);
+    await this.methods.set(this.keyC, this.valueC);
+
+    // get all values
+    expect([...(await this.methods.keys())]).to.deep.equal(keys);
+
+    // try pagination
+    for (const begin of [0, 1, 2, 3, 4])
+      for (const end of [0, 1, 2, 3, 4]) {
+        expect([...(await this.methods.keysPage(begin, end))]).to.deep.equal(keys.slice(begin, end));
+      }
   });
 }
 

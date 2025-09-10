@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.1.0) (token/ERC20/extensions/draft-ERC20TemporaryApproval.sol)
+// OpenZeppelin Contracts (last updated v5.3.0) (token/ERC20/extensions/draft-ERC20TemporaryApproval.sol)
 
 pragma solidity ^0.8.24;
 
@@ -61,7 +61,7 @@ abstract contract ERC20TemporaryApproval is ERC20, IERC7674 {
     }
 
     /**
-     * @dev Sets `value` as the temporary allowance of `spender` over the `owner` s tokens.
+     * @dev Sets `value` as the temporary allowance of `spender` over the `owner`'s tokens.
      *
      * This internal function is equivalent to `temporaryApprove`, and can be used to e.g. set automatic allowances
      * for certain subsystems, etc.

@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.2.0) (utils/Strings.sol)
+// OpenZeppelin Contracts (last updated v5.4.0) (utils/Strings.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
 import {Math} from "./math/Math.sol";
 import {SafeCast} from "./math/SafeCast.sol";
 import {SignedMath} from "./math/SignedMath.sol";
+import {Bytes} from "./Bytes.sol";
 
 /**
  * @dev String operations.
@@ -15,6 +16,14 @@ library Strings {
 
     bytes16 private constant HEX_DIGITS = "0123456789abcdef";
     uint8 private constant ADDRESS_LENGTH = 20;
+    uint256 private constant SPECIAL_CHARS_LOOKUP =
+        (1 << 0x08) | // backspace
+            (1 << 0x09) | // tab
+            (1 << 0x0a) | // newline
+            (1 << 0x0c) | // form feed
+            (1 << 0x0d) | // carriage return
+            (1 << 0x22) | // double quote
+            (1 << 0x5c); // backslash
 
     /**
      * @dev The `value` string doesn't fit in the specified `length`.
@@ -40,7 +49,7 @@ library Strings {
             string memory buffer = new string(length);
             uint256 ptr;
             assembly ("memory-safe") {
-                ptr := add(buffer, add(32, length))
+                ptr := add(add(buffer, 0x20), length)
             }
             while (true) {
                 ptr--;
@@ -121,10 +130,27 @@ library Strings {
     }
 
     /**
+     * @dev Converts a `bytes` buffer to its ASCII `string` hexadecimal representation.
+     */
+    function toHexString(bytes memory input) internal pure returns (string memory) {
+        unchecked {
+            bytes memory buffer = new bytes(2 * input.length + 2);
+            buffer[0] = "0";
+            buffer[1] = "x";
+            for (uint256 i = 0; i < input.length; ++i) {
+                uint8 v = uint8(input[i]);
+                buffer[2 * i + 2] = HEX_DIGITS[v >> 4];
+                buffer[2 * i + 3] = HEX_DIGITS[v & 0xf];
+            }
+            return string(buffer);
+        }
+    }
+
+    /**
      * @dev Returns true if the two strings are equal.
      */
     function equal(string memory a, string memory b) internal pure returns (bool) {
-        return bytes(a).length == bytes(b).length && keccak256(bytes(a)) == keccak256(bytes(b));
+        return Bytes.equal(bytes(a), bytes(b));
     }
 
     /**
@@ -427,6 +453,47 @@ library Strings {
     }
 
     /**
+     * @dev Escape special characters in JSON strings. This can be useful to prevent JSON injection in NFT metadata.
+     *
+     * WARNING: This function should only be used in double quoted JSON strings. Single quotes are not escaped.
+     *
+     * NOTE: This function escapes all unicode characters, and not just the ones in ranges defined in section 2.5 of
+     * RFC-4627 (U+0000 to U+001F, U+0022 and U+005C). ECMAScript's `JSON.parse` does recover escaped unicode
+     * characters that are not in this range, but other tooling may provide different results.
+     */
+    function escapeJSON(string memory input) internal pure returns (string memory) {
+        bytes memory buffer = bytes(input);
+        bytes memory output = new bytes(2 * buffer.length); // worst case scenario
+        uint256 outputLength = 0;
+
+        for (uint256 i; i < buffer.length; ++i) {
+            bytes1 char = bytes1(_unsafeReadBytesOffset(buffer, i));
+            if (((SPECIAL_CHARS_LOOKUP & (1 << uint8(char))) != 0)) {
+                output[outputLength++] = "\\";
+                if (char == 0x08) output[outputLength++] = "b";
+                else if (char == 0x09) output[outputLength++] = "t";
+                else if (char == 0x0a) output[outputLength++] = "n";
+                else if (char == 0x0c) output[outputLength++] = "f";
+                else if (char == 0x0d) output[outputLength++] = "r";
+                else if (char == 0x5c) output[outputLength++] = "\\";
+                else if (char == 0x22) {
+                    // solhint-disable-next-line quotes
+                    output[outputLength++] = '"';
+                }
+            } else {
+                output[outputLength++] = char;
+            }
+        }
+        // write the actual length and deallocate unused memory
+        assembly ("memory-safe") {
+            mstore(output, outputLength)
+            mstore(0x40, add(output, shl(5, shr(5, add(outputLength, 63)))))
+        }
+
+        return string(output);
+    }
+
+    /**
      * @dev Reads a bytes32 from a bytes array without bounds checking.
      *
      * NOTE: making this function internal would mean it could be used with memory unsafe offset, and marking the
@@ -435,7 +502,7 @@ library Strings {
     function _unsafeReadBytesOffset(bytes memory buffer, uint256 offset) private pure returns (bytes32 value) {
         // This is not memory safe in the general case, but all calls to this private function are within bounds.
         assembly ("memory-safe") {
-            value := mload(add(buffer, add(0x20, offset)))
+            value := mload(add(add(buffer, 0x20), offset))
         }
     }
 }

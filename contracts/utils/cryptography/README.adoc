@@ -1,0 +1,73 @@
+= Cryptography
+
+[.readme-notice]
+NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/utils/cryptography
+
+A collection of contracts and libraries that implement various signature validation schemes and cryptographic primitives. These utilities enable secure authentication, multisignature operations, and advanced cryptographic operations in smart contracts.
+
+ * {ECDSA}, {MessageHashUtils}: Libraries for interacting with ECDSA signatures.
+ * {P256}: Library for verifying and recovering public keys from secp256r1 signatures.
+ * {RSA}: Library with RSA PKCS#1 v1.5 signature verification utilities.
+ * {SignatureChecker}: A library helper to support regular ECDSA from EOAs as well as ERC-1271 signatures for smart contracts.
+ * {Hashes}: Commonly used hash functions.
+ * {MerkleProof}: Functions for verifying https://en.wikipedia.org/wiki/Merkle_tree[Merkle Tree] proofs.
+ * {EIP712}: Contract with functions to allow processing signed typed structure data according to https://eips.ethereum.org/EIPS/eip-712[EIP-712].
+ * {ERC7739Utils}: Utilities library that implements a defensive rehashing mechanism to prevent replayability of smart contract signatures based on ERC-7739.
+ * {WebAuthn}: Library for verifying WebAuthn Authentication Assertions.
+ * {AbstractSigner}: Abstract contract for internal signature validation in smart contracts.
+ * {ERC7739}: An abstract contract to validate signatures following the rehashing scheme from {ERC7739Utils}.
+ * {SignerECDSA}, {SignerP256}, {SignerRSA}: Implementations of an {AbstractSigner} with specific signature validation algorithms.
+ * {SignerERC7702}: Implementation of {AbstractSigner} that validates signatures using the contract's own address as the signer, useful for delegated accounts following EIP-7702.
+ * {SignerWebAuthn}: Implementation of {SignerP256} that supports WebAuthn
+ * {SignerERC7913}, {MultiSignerERC7913}, {MultiSignerERC7913Weighted}: Implementations of {AbstractSigner} that validate signatures based on ERC-7913. Including a simple and weighted multisignature scheme.
+ * {ERC7913P256Verifier}, {ERC7913RSAVerifier}, {ERC7913WebAuthnVerifier}: Ready to use ERC-7913 signature verifiers for P256, RSA keys and WebAuthn.
+
+== Utils
+
+{{ECDSA}}
+
+{{MessageHashUtils}}
+
+{{P256}}
+
+{{RSA}}
+
+{{SignatureChecker}}
+
+{{Hashes}}
+
+{{MerkleProof}}
+
+{{EIP712}}
+
+{{ERC7739Utils}}
+
+{{WebAuthn}}
+
+== Abstract Signers
+
+{{AbstractSigner}}
+
+{{ERC7739}}
+
+{{SignerECDSA}}
+
+{{SignerP256}}
+
+{{SignerRSA}}
+
+{{SignerERC7702}}
+
+{{SignerERC7913}}
+
+{{MultiSignerERC7913}}
+
+{{MultiSignerERC7913Weighted}}
+
+== Verifiers
+
+{{ERC7913P256Verifier}}
+
+{{ERC7913RSAVerifier}}
+
+{{ERC7913WebAuthnVerifier}}

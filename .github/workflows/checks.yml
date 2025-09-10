@@ -20,7 +20,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up environment
         uses: ./.github/actions/setup
       - run: npm run lint
@@ -34,16 +34,16 @@ jobs:
       CI: true
       GAS: true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up environment
         uses: ./.github/actions/setup
       - name: Run tests and generate gas report
         run: npm run test
       - name: Check linearisation of the inheritance graph
         run: npm run test:inheritance
-      - name: Check pragma consistency between files
-        run: npm run test:pragma
-      - name: Check proceduraly generated contracts are up-to-date
+      - name: Check pragma validity
+        run: npm run test:pragma -- --concurrency 1
+      - name: Check procedurally generated contracts are up-to-date
         run: npm run test:generation
       - name: Compare gas costs
         uses: ./.github/actions/gas-compare
@@ -55,7 +55,7 @@ jobs:
     env:
       FORCE_COLOR: 1
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0 # Include history so patch conflicts are resolved automatically
       - name: Set up environment
@@ -70,8 +70,8 @@ jobs:
         run: npm run test
       - name: Check linearisation of the inheritance graph
         run: npm run test:inheritance
-      - name: Check pragma consistency between files
-        run: npm run test:pragma
+      - name: Check pragma validity
+        run: npm run test:pragma -- --concurrency 1
       - name: Check storage layout
         uses: ./.github/actions/storage-layout
         continue-on-error: ${{ contains(github.event.pull_request.labels.*.name, 'breaking change') }}
@@ -81,18 +81,18 @@ jobs:
   tests-foundry:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
       - name: Set up environment
         uses: ./.github/actions/setup
       - name: Run tests
-        run: forge test -vv
+        run: forge test -vvv
 
   coverage:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up environment
         uses: ./.github/actions/setup
       - name: Run coverage
@@ -104,7 +104,7 @@ jobs:
   harnesses:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up environment
         uses: ./.github/actions/setup
       - name: Compile harnesses
@@ -115,15 +115,15 @@ jobs:
   slither:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up environment
         uses: ./.github/actions/setup
-      - uses: crytic/slither-action@v0.4.0
+      - uses: crytic/slither-action@v0.4.1
 
   codespell:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Run CodeSpell
         uses: codespell-project/actions-codespell@v2.1
         with:

@@ -168,6 +168,62 @@ describe('Math', function () {
     });
   });
 
+  describe('saturatingAdd', function () {
+    it('adds correctly', async function () {
+      const a = 5678n;
+      const b = 1234n;
+      await testCommutative(this.mock.$saturatingAdd, a, b, a + b);
+      await testCommutative(this.mock.$saturatingAdd, a, 0n, a);
+      await testCommutative(this.mock.$saturatingAdd, ethers.MaxUint256, 0n, ethers.MaxUint256);
+    });
+
+    it('bounds on addition overflow', async function () {
+      await testCommutative(this.mock.$saturatingAdd, ethers.MaxUint256, 1n, ethers.MaxUint256);
+      await expect(this.mock.$saturatingAdd(ethers.MaxUint256, ethers.MaxUint256)).to.eventually.equal(
+        ethers.MaxUint256,
+      );
+    });
+  });
+
+  describe('saturatingSub', function () {
+    it('subtracts correctly', async function () {
+      const a = 5678n;
+      const b = 1234n;
+      await expect(this.mock.$saturatingSub(a, b)).to.eventually.equal(a - b);
+      await expect(this.mock.$saturatingSub(a, a)).to.eventually.equal(0n);
+      await expect(this.mock.$saturatingSub(a, 0n)).to.eventually.equal(a);
+      await expect(this.mock.$saturatingSub(0n, a)).to.eventually.equal(0n);
+      await expect(this.mock.$saturatingSub(ethers.MaxUint256, 1n)).to.eventually.equal(ethers.MaxUint256 - 1n);
+    });
+
+    it('bounds on subtraction overflow', async function () {
+      await expect(this.mock.$saturatingSub(0n, 1n)).to.eventually.equal(0n);
+      await expect(this.mock.$saturatingSub(1n, 2n)).to.eventually.equal(0n);
+      await expect(this.mock.$saturatingSub(1n, ethers.MaxUint256)).to.eventually.equal(0n);
+      await expect(this.mock.$saturatingSub(ethers.MaxUint256 - 1n, ethers.MaxUint256)).to.eventually.equal(0n);
+    });
+  });
+
+  describe('saturatingMul', function () {
+    it('multiplies correctly', async function () {
+      const a = 1234n;
+      const b = 5678n;
+      await testCommutative(this.mock.$saturatingMul, a, b, a * b);
+    });
+
+    it('multiplies by zero correctly', async function () {
+      const a = 0n;
+      const b = 5678n;
+      await testCommutative(this.mock.$saturatingMul, a, b, 0n);
+    });
+
+    it('bounds on multiplication overflow', async function () {
+      const a = ethers.MaxUint256;
+      const b = 2n;
+      await testCommutative(this.mock.$saturatingMul, a, b, ethers.MaxUint256);
+    });
+  });
+
   describe('max', function () {
     it('is correctly detected in both position', async function () {
       await testCommutative(this.mock.$max, 1234n, 5678n, max(1234n, 5678n));
@@ -652,6 +708,39 @@ describe('Math', function () {
           await expect(this.mock.$log256(ethers.MaxUint256, rounding)).to.eventually.equal(32n);
         }
       });
+    });
+  });
+
+  describe('clz', function () {
+    it('zero value', async function () {
+      await expect(this.mock.$clz(0)).to.eventually.equal(256);
+    });
+
+    it('small values', async function () {
+      await expect(this.mock.$clz(1)).to.eventually.equal(255);
+      await expect(this.mock.$clz(255)).to.eventually.equal(248);
+    });
+
+    it('larger values', async function () {
+      await expect(this.mock.$clz(256)).to.eventually.equal(247);
+      await expect(this.mock.$clz(0xff00)).to.eventually.equal(240);
+      await expect(this.mock.$clz(0x10000)).to.eventually.equal(239);
+    });
+
+    it('max value', async function () {
+      await expect(this.mock.$clz(ethers.MaxUint256)).to.eventually.equal(0);
+    });
+
+    it('specific patterns', async function () {
+      await expect(
+        this.mock.$clz('0x0000000000000000000000000000000000000000000000000000000000000100'),
+      ).to.eventually.equal(247);
+      await expect(
+        this.mock.$clz('0x0000000000000000000000000000000000000000000000000000000000010000'),
+      ).to.eventually.equal(239);
+      await expect(
+        this.mock.$clz('0x0000000000000000000000000000000000000000000000000000000001000000'),
+      ).to.eventually.equal(231);
     });
   });
 });

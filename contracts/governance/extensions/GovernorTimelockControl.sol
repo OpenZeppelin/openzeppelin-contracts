@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.1.0) (governance/extensions/GovernorTimelockControl.sol)
+// OpenZeppelin Contracts (last updated v5.4.0) (governance/extensions/GovernorTimelockControl.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
 import {IGovernor, Governor} from "../Governor.sol";
 import {TimelockController} from "../TimelockController.sol";
-import {IERC165} from "../../interfaces/IERC165.sol";
 import {SafeCast} from "../../utils/math/SafeCast.sol";
 
 /**
@@ -17,7 +16,7 @@ import {SafeCast} from "../../utils/math/SafeCast.sol";
  * the assets and permissions must be attached to the {TimelockController}. Any asset sent to the {Governor} will be
  * inaccessible from a proposal, unless executed via {Governor-relay}.
  *
- * WARNING: Setting up the TimelockController to have additional proposers or cancellers besides the governor is very
+ * WARNING: Setting up the TimelockController to have additional proposers or cancelers besides the governor is very
  * risky, as it grants them the ability to: 1) execute operations as the timelock, and thus possibly performing
  * operations or accessing funds that are expected to only be accessible through a vote, and 2) block governance
  * proposals that have been approved by the voters, effectively executing a Denial of Service attack.
@@ -67,9 +66,7 @@ abstract contract GovernorTimelockControl is Governor {
         return address(_timelock);
     }
 
-    /**
-     * @dev See {IGovernor-proposalNeedsQueuing}.
-     */
+    /// @inheritdoc IGovernor
     function proposalNeedsQueuing(uint256) public view virtual override returns (bool) {
         return true;
     }

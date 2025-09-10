@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.1.0) (metatx/ERC2771Context.sol)
+// OpenZeppelin Contracts (last updated v5.4.0) (metatx/ERC2771Context.sol)
 
 pragma solidity ^0.8.20;
 
@@ -55,8 +55,10 @@ abstract contract ERC2771Context is Context {
     function _msgSender() internal view virtual override returns (address) {
         uint256 calldataLength = msg.data.length;
         uint256 contextSuffixLength = _contextSuffixLength();
-        if (isTrustedForwarder(msg.sender) && calldataLength >= contextSuffixLength) {
-            return address(bytes20(msg.data[calldataLength - contextSuffixLength:]));
+        if (calldataLength >= contextSuffixLength && isTrustedForwarder(msg.sender)) {
+            unchecked {
+                return address(bytes20(msg.data[calldataLength - contextSuffixLength:]));
+            }
         } else {
             return super._msgSender();
         }
@@ -70,8 +72,10 @@ abstract contract ERC2771Context is Context {
     function _msgData() internal view virtual override returns (bytes calldata) {
         uint256 calldataLength = msg.data.length;
         uint256 contextSuffixLength = _contextSuffixLength();
-        if (isTrustedForwarder(msg.sender) && calldataLength >= contextSuffixLength) {
-            return msg.data[:calldataLength - contextSuffixLength];
+        if (calldataLength >= contextSuffixLength && isTrustedForwarder(msg.sender)) {
+            unchecked {
+                return msg.data[:calldataLength - contextSuffixLength];
+            }
         } else {
             return super._msgData();
         }

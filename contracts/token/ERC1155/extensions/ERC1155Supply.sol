@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.1.0) (token/ERC1155/extensions/ERC1155Supply.sol)
+// OpenZeppelin Contracts (last updated v5.4.0) (token/ERC1155/extensions/ERC1155Supply.sol)
 
 pragma solidity ^0.8.20;
 
@@ -46,9 +46,7 @@ abstract contract ERC1155Supply is ERC1155 {
         return totalSupply(id) > 0;
     }
 
-    /**
-     * @dev See {ERC1155-_update}.
-     */
+    /// @inheritdoc ERC1155
     function _update(
         address from,
         address to,

@@ -7,15 +7,16 @@ This set of interfaces, contracts, and utilities are all related to the https://
 
 TIP: For an overview of ERC-20 tokens and a walk through on how to create a token contract read our xref:ROOT:erc20.adoc[ERC-20 guide].
 
-There are a few core contracts that implement the behavior specified in the ERC:
+There are a few core contracts that implement the behavior specified in the ERC-20 standard:
 
 * {IERC20}: the interface all ERC-20 implementations should conform to.
-* {IERC20Metadata}: the extended ERC-20 interface including the <<ERC20-name,`name`>>, <<ERC20-symbol,`symbol`>> and <<ERC20-decimals,`decimals`>> functions.
-* {ERC20}: the implementation of the ERC-20 interface, including the <<ERC20-name,`name`>>, <<ERC20-symbol,`symbol`>> and <<ERC20-decimals,`decimals`>> optional standard extension to the base interface.
+* {IERC20Metadata}: the extended ERC-20 interface including the <<ERC20-name--,`name`>>, <<ERC20-symbol--,`symbol`>> and <<ERC20-decimals--,`decimals`>> functions.
+* {ERC20}: the implementation of the ERC-20 interface, including the <<ERC20-name--,`name`>>, <<ERC20-symbol--,`symbol`>> and <<ERC20-decimals--,`decimals`>> optional extensions to the standard interface.
 
 Additionally there are multiple custom extensions, including:
 
 * {ERC20Permit}: gasless approval of tokens (standardized as ERC-2612).
+* {ERC20Bridgeable}: compatibility with crosschain bridges through ERC-7802.
 * {ERC20Burnable}: destruction of own tokens.
 * {ERC20Capped}: enforcement of a cap to the total supply when minting tokens.
 * {ERC20Pausable}: ability to pause token transfers.
@@ -30,9 +31,9 @@ Finally, there are some utilities to interact with ERC-20 contracts in various w
 
 * {SafeERC20}: a wrapper around the interface that eliminates the need to handle boolean return values.
 
-Other utilities that support ERC-20 assets can be found in codebase:
+Other utilities that support ERC-20 assets can be found in the codebase:
 
-* ERC-20 tokens can be timelocked (held tokens for a beneficiary until a specified time) or vested (released following a given schedule) using a {VestingWallet}.
+* ERC-20 tokens can be timelocked (held for a beneficiary until a specified time) or vested (released following a given schedule) using a {VestingWallet}.
 
 NOTE: This core set of contracts is designed to be unopinionated, allowing developers to access the internal functions in ERC-20 (such as <<ERC20-_mint-address-uint256-,`_mint`>>) and expose them as external functions in the way they prefer.
 
@@ -49,6 +50,8 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 {{IERC20Permit}}
 
 {{ERC20Permit}}
+
+{{ERC20Bridgeable}}
 
 {{ERC20Burnable}}
 

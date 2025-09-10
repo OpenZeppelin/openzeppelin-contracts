@@ -59,10 +59,10 @@ index ff596b0c3..000000000
 -<!-- Make sure that you have reviewed the OpenZeppelin Contracts Contributor Guidelines. -->
 -<!-- https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/CONTRIBUTING.md -->
 diff --git a/README.md b/README.md
-index 60d0a430a..0e4f91a6d 100644
+index 2f92281b3..a0e46695d 100644
 --- a/README.md
 +++ b/README.md
-@@ -19,6 +19,9 @@
+@@ -20,6 +20,9 @@
  > [!IMPORTANT]
  > OpenZeppelin Contracts uses semantic versioning to communicate backwards compatibility of its API and storage layout. For upgradeable contracts, the storage layout of different major versions should be assumed incompatible, for example, it is unsafe to upgrade from 4.9.3 to 5.0.0. Learn more at [Backwards Compatibility](https://docs.openzeppelin.com/contracts/backwards-compatibility).
  
@@ -72,7 +72,7 @@ index 60d0a430a..0e4f91a6d 100644
  ## Overview
  
  ### Installation
-@@ -26,7 +29,7 @@
+@@ -27,7 +30,7 @@
  #### Hardhat (npm)
  
  ```
@@ -81,7 +81,7 @@ index 60d0a430a..0e4f91a6d 100644
  ```
  
  #### Foundry (git)
-@@ -38,10 +41,10 @@ $ npm install @openzeppelin/contracts
+@@ -39,10 +42,10 @@ $ npm install @openzeppelin/contracts
  > Foundry installs the latest version initially, but subsequent `forge update` commands will use the `master` branch.
  
  ```
@@ -94,7 +94,7 @@ index 60d0a430a..0e4f91a6d 100644
  
  ### Usage
  
-@@ -50,10 +53,11 @@ Once installed, you can use the contracts in the library by importing them:
+@@ -51,10 +54,11 @@ Once installed, you can use the contracts in the library by importing them:
  ```solidity
  pragma solidity ^0.8.20;
  
@@ -110,7 +110,7 @@ index 60d0a430a..0e4f91a6d 100644
  }
  ```
 diff --git a/contracts/package.json b/contracts/package.json
-index 3682eadeb..4f870d094 100644
+index 8ccb9465e..509cd7f05 100644
 --- a/contracts/package.json
 +++ b/contracts/package.json
 @@ -1,5 +1,5 @@
@@ -118,7 +118,7 @@ index 3682eadeb..4f870d094 100644
 -  "name": "@openzeppelin/contracts",
 +  "name": "@openzeppelin/contracts-upgradeable",
    "description": "Secure Smart Contract library for Solidity",
-   "version": "5.2.0",
+   "version": "5.4.0",
    "files": [
 @@ -13,7 +13,7 @@
    },
@@ -139,24 +139,45 @@ index 3682eadeb..4f870d094 100644
 +    "@openzeppelin/contracts": "<package-version>"
 +  }
  }
+diff --git a/contracts/utils/ReentrancyGuard.sol b/contracts/utils/ReentrancyGuard.sol
+index f958d5e8f..845209bc8 100644
+--- a/contracts/utils/ReentrancyGuard.sol
++++ b/contracts/utils/ReentrancyGuard.sol
+@@ -36,6 +36,11 @@ abstract contract ReentrancyGuard {
+     bytes32 private constant REENTRANCY_GUARD_STORAGE =
+         0x9b779b17422d0df92223018b32b4d1fa46e071723d6817e2486d003becc55f00;
+ 
++    /// @custom:storage-location erc7201:openzeppelin.storage.ReentrancyGuard
++    struct ReentrancyGuardStorage {
++        uint256 _status;
++    }
++
+     // Booleans are more expensive than uint256 or any type that takes up a full
+     // word because each write operation emits an extra SLOAD to first read the
+     // slot's contents, replace the bits taken up by the boolean, and then write
 diff --git a/contracts/utils/cryptography/EIP712.sol b/contracts/utils/cryptography/EIP712.sol
-index bcb67c87a..7195c3bbd 100644
+index 0eaef9d27..01f1b5f58 100644
 --- a/contracts/utils/cryptography/EIP712.sol
 +++ b/contracts/utils/cryptography/EIP712.sol
 @@ -4,7 +4,6 @@
- pragma solidity ^0.8.20;
+ pragma solidity ^0.8.24;
  
  import {MessageHashUtils} from "./MessageHashUtils.sol";
 -import {ShortStrings, ShortString} from "../ShortStrings.sol";
  import {IERC5267} from "../../interfaces/IERC5267.sol";
  
  /**
-@@ -28,30 +27,18 @@ import {IERC5267} from "../../interfaces/IERC5267.sol";
-  * NOTE: In the upgradeable version of this contract, the cached values will correspond to the address, and the domain
-  * separator of the implementation contract. This will cause the {_domainSeparatorV4} function to always rebuild the
-  * separator from the immutable values, which is cheaper than accessing a cached version in cold storage.
+@@ -25,33 +24,20 @@ import {IERC5267} from "../../interfaces/IERC5267.sol";
+  * NOTE: This contract implements the version of the encoding known as "v4", as implemented by the JSON RPC method
+  * https://docs.metamask.io/guide/signing-data.html[`eth_signTypedDataV4` in MetaMask].
+  *
+- * NOTE: In the upgradeable version of this contract, the cached values will correspond to the address, and the domain
+- * separator of the implementation contract. This will cause the {_domainSeparatorV4} function to always rebuild the
+- * separator from the immutable values, which is cheaper than accessing a cached version in cold storage.
 - *
 - * @custom:oz-upgrades-unsafe-allow state-variable-immutable
++ * NOTE: The upgradeable version of this contract does not use an immutable cache and recomputes the domain separator
++ * each time {_domainSeparatorV4} is called. That is cheaper than accessing a cached version in cold storage.
   */
  abstract contract EIP712 is IERC5267 {
 -    using ShortStrings for *;
@@ -186,7 +207,7 @@ index bcb67c87a..7195c3bbd 100644
  
      /**
       * @dev Initializes the domain separator and parameter caches.
-@@ -66,29 +53,23 @@ abstract contract EIP712 is IERC5267 {
+@@ -66,29 +52,23 @@ abstract contract EIP712 is IERC5267 {
       * contract upgrade].
       */
      constructor(string memory name, string memory version) {
@@ -224,7 +245,7 @@ index bcb67c87a..7195c3bbd 100644
      }
  
      /**
-@@ -127,6 +108,10 @@ abstract contract EIP712 is IERC5267 {
+@@ -125,6 +105,10 @@ abstract contract EIP712 is IERC5267 {
              uint256[] memory extensions
          )
      {
@@ -235,7 +256,7 @@ index bcb67c87a..7195c3bbd 100644
          return (
              hex"0f", // 01111
              _EIP712Name(),
-@@ -141,22 +126,62 @@ abstract contract EIP712 is IERC5267 {
+@@ -139,22 +123,62 @@ abstract contract EIP712 is IERC5267 {
      /**
       * @dev The name parameter for the EIP712 domain.
       *
@@ -309,10 +330,10 @@ index bcb67c87a..7195c3bbd 100644
      }
  }
 diff --git a/package.json b/package.json
-index f9e7d9205..c35020d51 100644
+index 285a074ed..d48cc8e4b 100644
 --- a/package.json
 +++ b/package.json
-@@ -34,7 +34,7 @@
+@@ -35,7 +35,7 @@
    },
    "repository": {
      "type": "git",
@@ -329,6 +350,36 @@ index 304d1386a..a1cd63bee 100644
 -@openzeppelin/contracts/=contracts/
 +@openzeppelin/contracts-upgradeable/=contracts/
 +@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
+diff --git a/test/account/AccountERC7702.test.js b/test/account/AccountERC7702.test.js
+index f442d49af..8f22dc926 100644
+--- a/test/account/AccountERC7702.test.js
++++ b/test/account/AccountERC7702.test.js
+@@ -26,8 +26,8 @@ async function fixture() {
+ 
+   // domain cannot be fetched using getDomain(mock) before the mock is deployed
+   const domain = {
+-    name: 'AccountERC7702Mock',
+-    version: '1',
++    name: '', // Not initialized in the context of signer
++    version: '', // Not initialized in the context of signer
+     chainId: entrypointDomain.chainId,
+     verifyingContract: mock.address,
+   };
+diff --git a/test/account/examples/AccountERC7702WithModulesMock.test.js b/test/account/examples/AccountERC7702WithModulesMock.test.js
+index 8ceab19d1..c3f4194a6 100644
+--- a/test/account/examples/AccountERC7702WithModulesMock.test.js
++++ b/test/account/examples/AccountERC7702WithModulesMock.test.js
+@@ -36,8 +36,8 @@ async function fixture() {
+ 
+   // domain cannot be fetched using getDomain(mock) before the mock is deployed
+   const domain = {
+-    name: 'AccountERC7702WithModulesMock',
+-    version: '1',
++    name: '', // Not initialized in the context of signer
++    version: '', // Not initialized in the context of signer
+     chainId: entrypointDomain.chainId,
+     verifyingContract: mock.address,
+   };
 diff --git a/test/utils/cryptography/EIP712.test.js b/test/utils/cryptography/EIP712.test.js
 index 2b6e7fa97..268e0d29d 100644
 --- a/test/utils/cryptography/EIP712.test.js

@@ -198,31 +198,35 @@ describe('Governor', function () {
       });
 
       describe('vote with signature', function () {
-        it('votes with an EOA signature', async function () {
+        it('votes with an EOA signature on two proposals', async function () {
           await this.token.connect(this.voter1).delegate(this.userEOA);
 
-          const nonce = await this.mock.nonces(this.userEOA);
+          for (let i = 0; i < 2; i++) {
+            const nonce = await this.mock.nonces(this.userEOA);
 
-          // Run proposal
-          await this.helper.propose();
-          await this.helper.waitForSnapshot();
-          await expect(
-            this.helper.vote({
-              support: VoteType.For,
-              voter: this.userEOA.address,
-              nonce,
-              signature: signBallot(this.userEOA),
-            }),
-          )
-            .to.emit(this.mock, 'VoteCast')
-            .withArgs(this.userEOA, this.proposal.id, VoteType.For, ethers.parseEther('10'), '');
+            // Run proposal
+            await this.helper.propose();
+            await this.helper.waitForSnapshot();
+            await expect(
+              this.helper.vote({
+                support: VoteType.For,
+                voter: this.userEOA.address,
+                nonce,
+                signature: signBallot(this.userEOA),
+              }),
+            )
+              .to.emit(this.mock, 'VoteCast')
+              .withArgs(this.userEOA, this.proposal.id, VoteType.For, ethers.parseEther('10'), '');
 
-          await this.helper.waitForDeadline();
-          await this.helper.execute();
+            // After
+            expect(await this.mock.hasVoted(this.proposal.id, this.userEOA)).to.be.true;
+            expect(await this.mock.nonces(this.userEOA)).to.equal(nonce + 1n);
 
-          // After
-          expect(await this.mock.hasVoted(this.proposal.id, this.userEOA)).to.be.true;
-          expect(await this.mock.nonces(this.userEOA)).to.equal(nonce + 1n);
+            // Update proposal to allow for re-propose
+            this.helper.description += ' - updated';
+          }
+
+          await expect(this.mock.nonces(this.userEOA)).to.eventually.equal(2n);
         });
 
         it('votes with a valid EIP-1271 signature', async function () {
@@ -678,7 +682,7 @@ describe('Governor', function () {
 
           await expect(this.helper.propose())
             .to.be.revertedWithCustomError(this.mock, 'GovernorInvalidProposalLength')
-            .withArgs(0, 0, 0);
+            .withArgs(0n, 0n, 0n);
         });
 
         it('mismatch #1', async function () {
@@ -692,7 +696,7 @@ describe('Governor', function () {
           );
           await expect(this.helper.propose())
             .to.be.revertedWithCustomError(this.mock, 'GovernorInvalidProposalLength')
-            .withArgs(0, 1, 1);
+            .withArgs(0n, 1n, 1n);
         });
 
         it('mismatch #2', async function () {
@@ -706,7 +710,7 @@ describe('Governor', function () {
           );
           await expect(this.helper.propose())
             .to.be.revertedWithCustomError(this.mock, 'GovernorInvalidProposalLength')
-            .withArgs(1, 1, 0);
+            .withArgs(1n, 1n, 0n);
         });
 
         it('mismatch #3', async function () {
@@ -720,7 +724,7 @@ describe('Governor', function () {
           );
           await expect(this.helper.propose())
             .to.be.revertedWithCustomError(this.mock, 'GovernorInvalidProposalLength')
-            .withArgs(1, 0, 1);
+            .withArgs(1n, 0n, 1n);
         });
       });
 
