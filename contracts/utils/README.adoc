@@ -32,6 +32,7 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {Context}: A utility for abstracting the sender and calldata in the current execution context.
  * {Create2}: Wrapper around the https://blog.openzeppelin.com/getting-the-most-out-of-create2/[`CREATE2` EVM opcode] for safe use without having to deal with low-level assembly.
  * {InteroperableAddress}: Library for formatting and parsing ERC-7930 interoperable addresses.
+ * {LowLevelCall}: Collection of functions to perform calls with low-level assembly.
  * {Memory}: A utility library to manipulate memory.
  * {Multicall}: Abstract contract with a utility to allow batching together multiple calls in a single transaction. Useful for allowing EOAs to perform multiple operations at once.
  * {Packing}: A library for packing and unpacking multiple values into bytes32.
@@ -124,6 +125,8 @@ Ethereum contracts have no native concept of an interface, so applications must 
 {{Create2}}
 
 {{InteroperableAddress}}
+
+{{LowLevelCall}}
 
 {{Memory}}
 
