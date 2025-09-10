@@ -2,6 +2,7 @@
 
 pragma solidity ^0.8.26;
 
+// slippy-disable no-unused-vars
 // We keep these imports and a dummy contract just to we can run the test suite after transpilation.
 
 import {Address} from "../utils/Address.sol";
