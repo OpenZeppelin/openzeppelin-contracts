@@ -4,7 +4,7 @@
 pragma solidity ^0.8.20;
 
 import {ERC6909} from "../ERC6909.sol";
-import {IERC6909TokenSupply} from "../../../interfaces/draft-IERC6909.sol";
+import {IERC6909TokenSupply} from "../../../interfaces/IERC6909.sol";
 
 /**
  * @dev Implementation of the Token Supply extension defined in ERC6909.
