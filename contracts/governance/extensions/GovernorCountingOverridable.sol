@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.3.0) (governance/extensions/GovernorCountingOverridable.sol)
+// OpenZeppelin Contracts (last updated v5.4.0) (governance/extensions/GovernorCountingOverridable.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
 import {SignatureChecker} from "../../utils/cryptography/SignatureChecker.sol";
 import {SafeCast} from "../../utils/math/SafeCast.sol";
 import {VotesExtended} from "../utils/VotesExtended.sol";
 import {GovernorVotes} from "./GovernorVotes.sol";
+import {IGovernor, Governor} from "../Governor.sol";
 
 /**
  * @dev Extension of {Governor} which enables delegators to override the vote of their delegates. This module requires a
@@ -46,9 +47,7 @@ abstract contract GovernorCountingOverridable is GovernorVotes {
 
     mapping(uint256 proposalId => ProposalVote) private _proposalVotes;
 
-    /**
-     * @dev See {IGovernor-COUNTING_MODE}.
-     */
+    /// @inheritdoc IGovernor
     // solhint-disable-next-line func-name-mixedcase
     function COUNTING_MODE() public pure virtual override returns (string memory) {
         return "support=bravo,override&quorum=for,abstain&overridable=true";
@@ -83,9 +82,7 @@ abstract contract GovernorCountingOverridable is GovernorVotes {
         return (votes[uint8(VoteType.Against)], votes[uint8(VoteType.For)], votes[uint8(VoteType.Abstain)]);
     }
 
-    /**
-     * @dev See {Governor-_quorumReached}.
-     */
+    /// @inheritdoc Governor
     function _quorumReached(uint256 proposalId) internal view virtual override returns (bool) {
         uint256[3] storage votes = _proposalVotes[proposalId].votes;
         return quorum(proposalSnapshot(proposalId)) <= votes[uint8(VoteType.For)] + votes[uint8(VoteType.Abstain)];

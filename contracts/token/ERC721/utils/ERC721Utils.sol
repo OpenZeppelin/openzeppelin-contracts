@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.3.0) (token/ERC721/utils/ERC721Utils.sol)
+// OpenZeppelin Contracts (last updated v5.4.0) (token/ERC721/utils/ERC721Utils.sol)
 
 pragma solidity ^0.8.20;
 
@@ -41,7 +41,7 @@ library ERC721Utils {
                     revert IERC721Errors.ERC721InvalidReceiver(to);
                 } else {
                     assembly ("memory-safe") {
-                        revert(add(32, reason), mload(reason))
+                        revert(add(reason, 0x20), mload(reason))
                     }
                 }
             }

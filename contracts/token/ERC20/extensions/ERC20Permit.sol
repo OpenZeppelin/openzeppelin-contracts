@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.1.0) (token/ERC20/extensions/ERC20Permit.sol)
+// OpenZeppelin Contracts (last updated v5.4.0) (token/ERC20/extensions/ERC20Permit.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
 import {IERC20Permit} from "./IERC20Permit.sol";
 import {ERC20} from "../ERC20.sol";
@@ -38,9 +38,7 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712, Nonces {
      */
     constructor(string memory name) EIP712(name, "1") {}
 
-    /**
-     * @inheritdoc IERC20Permit
-     */
+    /// @inheritdoc IERC20Permit
     function permit(
         address owner,
         address spender,
@@ -66,16 +64,12 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712, Nonces {
         _approve(owner, spender, value);
     }
 
-    /**
-     * @inheritdoc IERC20Permit
-     */
+    /// @inheritdoc IERC20Permit
     function nonces(address owner) public view virtual override(IERC20Permit, Nonces) returns (uint256) {
         return super.nonces(owner);
     }
 
-    /**
-     * @inheritdoc IERC20Permit
-     */
+    /// @inheritdoc IERC20Permit
     // solhint-disable-next-line func-name-mixedcase
     function DOMAIN_SEPARATOR() external view virtual returns (bytes32) {
         return _domainSeparatorV4();

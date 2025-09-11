@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.3.0) (governance/extensions/GovernorCountingFractional.sol)
+// OpenZeppelin Contracts (last updated v5.4.0) (governance/extensions/GovernorCountingFractional.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
-import {Governor} from "../Governor.sol";
+import {IGovernor, Governor} from "../Governor.sol";
 import {GovernorCountingSimple} from "./GovernorCountingSimple.sol";
 import {Math} from "../../utils/math/Math.sol";
 
@@ -53,17 +53,13 @@ abstract contract GovernorCountingFractional is Governor {
      */
     error GovernorExceedRemainingWeight(address voter, uint256 usedVotes, uint256 remainingWeight);
 
-    /**
-     * @dev See {IGovernor-COUNTING_MODE}.
-     */
+    /// @inheritdoc IGovernor
     // solhint-disable-next-line func-name-mixedcase
     function COUNTING_MODE() public pure virtual override returns (string memory) {
         return "support=bravo,fractional&quorum=for,abstain&params=fractional";
     }
 
-    /**
-     * @dev See {IGovernor-hasVoted}.
-     */
+    /// @inheritdoc IGovernor
     function hasVoted(uint256 proposalId, address account) public view virtual override returns (bool) {
         return usedVotes(proposalId, account) > 0;
     }
@@ -86,9 +82,7 @@ abstract contract GovernorCountingFractional is Governor {
         return (proposalVote.againstVotes, proposalVote.forVotes, proposalVote.abstainVotes);
     }
 
-    /**
-     * @dev See {Governor-_quorumReached}.
-     */
+    /// @inheritdoc Governor
     function _quorumReached(uint256 proposalId) internal view virtual override returns (bool) {
         ProposalVote storage proposalVote = _proposalVotes[proposalId];
         return quorum(proposalSnapshot(proposalId)) <= proposalVote.forVotes + proposalVote.abstainVotes;

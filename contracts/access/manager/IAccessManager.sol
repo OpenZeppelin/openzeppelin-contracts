@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.1.0) (access/manager/IAccessManager.sol)
+// OpenZeppelin Contracts (last updated v5.4.0) (access/manager/IAccessManager.sol)
 
-pragma solidity ^0.8.20;
-
-import {Time} from "../../utils/types/Time.sol";
+pragma solidity >=0.8.4;
 
 interface IAccessManager {
     /**
@@ -99,7 +97,7 @@ interface IAccessManager {
      * previously set delay (not zero), then the function should return false and the caller should schedule the operation
      * for future execution.
      *
-     * If `immediate` is true, the delay can be disregarded and the operation can be immediately executed, otherwise
+     * If `allowed` is true, the delay can be disregarded and the operation can be immediately executed, otherwise
      * the operation can be executed if and only if delay is greater than 0.
      *
      * NOTE: The IAuthority interface does not include the `uint32` delay. This is an extension of that interface that
