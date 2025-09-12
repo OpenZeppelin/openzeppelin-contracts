@@ -11,7 +11,7 @@ import {ECDSA} from "../ECDSA.sol";
  *
  * @custom:stateless
  */
-abstract contract SignerERC7702 is AbstractSigner {
+abstract contract SignerEIP7702 is AbstractSigner {
     /**
      * @dev Validates the signature using the EOA's address (i.e. `address(this)`).
      */
