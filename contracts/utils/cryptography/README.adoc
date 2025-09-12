@@ -56,7 +56,7 @@ A collection of contracts and libraries that implement various signature validat
 
 {{SignerRSA}}
 
-{{SignerERC7702}}
+{{SignerEIP7702}}
 
 {{SignerERC7913}}
 

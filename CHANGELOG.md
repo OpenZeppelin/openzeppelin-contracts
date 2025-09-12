@@ -45,7 +45,7 @@
 ##### Signers
 
 - `AbstractSigner`, `SignerECDSA`, `SignerP256`, and `SignerRSA`: Add an abstract contract and various implementations for contracts that deal with signature verification. ([#5657](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5657))
-- `SignerERC7702`: Implementation of `AbstractSigner` for Externally Owned Accounts (EOAs). Useful with ERC-7702. ([#5657](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5657))
+- `SignerEIP7702`: Implementation of `AbstractSigner` for Externally Owned Accounts (EOAs). Useful with ERC-7702. ([#5657](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5657))
 - `SignerERC7913`: Abstract signer that verifies signatures using the ERC-7913 workflow. ([#5659](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5659))
 - `MultiSignerERC7913`: Implementation of `AbstractSigner` that supports multiple ERC-7913 signers with a threshold-based signature verification system. ([#5659](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5659))
 - `MultiSignerERC7913Weighted`: Extension of `MultiSignerERC7913` that supports assigning different weights to each signer, enabling more flexible governance schemes. ([#5741](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5741))
