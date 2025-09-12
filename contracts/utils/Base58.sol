@@ -38,6 +38,8 @@ library Base58 {
             }
 
             // Start the output offset by an over-estimate of the length.
+            // This is an (over) estimation of the length ratio between bytes (base 256) and base58
+            // 8351 / 6115 = 1.365658217497956 > 1.365658237309761 = Math.log(256) / Math.log(58)
             let outputLengthEstim := add(inputLeadingZeros, div(mul(sub(inputLength, inputLeadingZeros), 8351), 6115))
 
             // This is going to be our "scratch" workspace. We leave enough room after FMP to later store length + encoded output.
@@ -126,8 +128,7 @@ library Base58 {
         uint256 inputLength = input.length;
         if (inputLength == 0) return "";
 
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             let inputLeadingZeros := 0 // Number of leading '1' in `input`.
             // Count leading zeros. In base58, zeros are represented using '1' (chr(49)).
             for {} and(
@@ -148,7 +149,7 @@ library Base58 {
             mstore(0x20, 0x1718191a1b1c1d1e1f20ffffffffffff2122232425262728292a2bff2c2d2e2f)
             mstore(0x00, 0x000102030405060708ffffffffffffff090a0b0c0d0e0f10ff1112131415ff16)
 
-            // Decode each char of the input string, and stored that in section (limbs) of 31 bytes. Store in scratch.
+            // Decode each char of the input string, and store it in sections (limbs) of 31 bytes. Store in scratch.
             let ptr := scratch
             let mask := shr(8, not(0))
             for {
