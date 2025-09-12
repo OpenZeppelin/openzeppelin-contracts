@@ -105,7 +105,7 @@ library Base58 {
             }
 
             // Write the input leading zeros at the left of the encoded.
-            // This will spill to the left into the "length" of the buffer.
+            // This may spill to the left into the "length" of the buffer.
             for {
                 let i := 0
             } lt(i, inputLeadingZeros) {} {
