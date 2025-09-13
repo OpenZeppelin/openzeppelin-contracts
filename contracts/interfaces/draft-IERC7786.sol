@@ -55,10 +55,9 @@ interface IERC7786Receiver {
      *
      * This function may be called directly by the gateway.
      */
-    function executeMessage(
+    function receiveMessage(
         bytes32 receiveId,
         bytes calldata sender, // Binary Interoperable Address
-        bytes calldata payload,
-        bytes[] calldata attributes
+        bytes calldata payload
     ) external payable returns (bytes4);
 }

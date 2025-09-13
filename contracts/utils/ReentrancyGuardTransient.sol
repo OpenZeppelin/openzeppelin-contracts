@@ -85,4 +85,8 @@ abstract contract ReentrancyGuardTransient {
     function _reentrancyGuardEntered() internal view returns (bool) {
         return REENTRANCY_SLOT.tload();
     }
+
+    function _reentrancyGuardStorageSlot() internal pure virtual returns (bytes32) {
+        return REENTRANCY_GUARD_STORAGE;
+    }
 }
