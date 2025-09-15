@@ -38,8 +38,8 @@ library Base58 {
             }
 
             // Start the output offset by an over-estimate of the length.
-            // This is an (over) estimation of the length ratio between bytes (base 256) and base58
-            // 8351 / 6115 = 1.365658217497956 > 1.365658237309761 = Math.log(256) / Math.log(58)
+            // This is an estimation of the length ratio between bytes (base 256) and base58
+            // 8351 / 6115 = 1.365658217497956 ~= 1.365658237309761 = Math.log(256) / Math.log(58)
             let outputLengthEstim := add(inputLeadingZeros, div(mul(sub(inputLength, inputLeadingZeros), 8351), 6115))
 
             // This is going to be our "scratch" workspace. We leave enough room after FMP to later store length + encoded output.
@@ -139,6 +139,8 @@ library Base58 {
             }
 
             // Start the output offset by an over-estimate of the length.
+            // This is an estimation of the length ratio between base58 and bytes (base 256)
+            // 6115 / 8351 = 0.7322476350137708 ~= 0.7322476243909465 = Math.log(58) / Math.log(256)
             let outputLengthEstim := add(inputLeadingZeros, div(mul(sub(inputLength, inputLeadingZeros), 6115), 8351))
 
             // This is going to be our "scratch" workspace. Be leave enough room on the left to store length + encoded input.
