@@ -7,7 +7,7 @@ import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 import {Bytes} from "@openzeppelin/contracts/utils/Bytes.sol";
 
 contract BytesTest is Test {
-    using Bytes for *;
+    using Bytes for bytes;
 
     function testSymbolicEqual(bytes memory a) public pure {
         assertTrue(Bytes.equal(a, a));
