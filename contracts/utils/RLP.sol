@@ -212,12 +212,6 @@ library RLP {
      *                               DECODING - READ FROM AN RLP ENCODED MEMORY SLICE                               *
      ****************************************************************************************************************/
 
-    /// @dev Reads the raw bytes of an RLP item without decoding the content. Includes prefix bytes.
-    // TODO: is there a usecase for that?
-    function readRawBytes(Memory.Slice item) internal pure returns (bytes memory) {
-        return item.toBytes();
-    }
-
     /// @dev Decode an RLP encoded bool. See {encode-bool}
     function readBool(Memory.Slice item) internal pure returns (bool) {
         return readUint256(item) != 0;
