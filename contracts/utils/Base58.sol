@@ -39,11 +39,11 @@ library Base58 {
 
             // Start the output offset by an over-estimate of the length.
             // This is an estimation of the length ratio between bytes (base 256) and base58
-            // 8351 / 6115 = 1.365658217497956 ~= 1.365658237309761 = Math.log(256) / Math.log(58)
-            let outputLengthEstim := add(inputLeadingZeros, div(mul(sub(inputLength, inputLeadingZeros), 8351), 6115))
+            // 8350 / 6114 = 1.3657180242067386 > 1.365658237309761 = Math.log(256) / Math.log(58)
+            let outputLengthEstim := add(inputLeadingZeros, div(mul(sub(inputLength, inputLeadingZeros), 8350), 6114))
 
             // This is going to be our "scratch" workspace. We leave enough room after FMP to later store length + encoded output.
-            let scratch := add(mload(0x40), add(outputLengthEstim, 0x21))
+            let scratch := add(mload(0x40), add(outputLengthEstim, 0x20))
 
             // Cut the input buffer in section (limbs) of 31 bytes (248 bits). Store in scratch.
             let ptr := scratch
@@ -140,11 +140,11 @@ library Base58 {
 
             // Start the output offset by an over-estimate of the length.
             // This is an estimation of the length ratio between base58 and bytes (base 256)
-            // 6115 / 8351 = 0.7322476350137708 ~= 0.7322476243909465 = Math.log(58) / Math.log(256)
+            // 6115 / 8351 = 0.7322476350137708 > 0.7322476243909465 = Math.log(58) / Math.log(256)
             let outputLengthEstim := add(inputLeadingZeros, div(mul(sub(inputLength, inputLeadingZeros), 6115), 8351))
 
             // This is going to be our "scratch" workspace. Be leave enough room on the left to store length + encoded input.
-            let scratch := add(mload(0x40), add(outputLengthEstim, 0x21))
+            let scratch := add(mload(0x40), add(outputLengthEstim, 0x20))
 
             // Store the decoding table. This overlaps with the FMP that we are going to reset later anyway.
             mstore(0x2a, 0x30313233343536373839)
