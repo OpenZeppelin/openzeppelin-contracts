@@ -92,7 +92,14 @@ Dynamic role allocation is often a desirable property, for example in systems wh
 
 Because accounts might <<granting-and-revoking, grant and revoke roles>> dynamically, it is not always possible to determine which accounts hold a particular role. This is important as it allows proving certain properties about a system, such as that an administrative account is a multisig or a DAO, or that a certain role has been removed from all users, effectively disabling any associated functionality.
 
-Under the hood, `AccessControl` uses `EnumerableSet`, a more powerful variant of Solidity's `mapping` type, which allows for key enumeration. `getRoleMemberCount` can be used to retrieve the number of accounts that have a particular role, and `getRoleMember` can then be called to get the address of each of these accounts.
+The base `AccessControl` contract provides role-based access control, but it does not support on-chain enumeration of role members. To track which accounts hold a role, you should instead rely on the {IAccessControl-RoleGranted} and {IAccessControl-RoleRevoked} events, which can be processed off-chain. If on-chain enumeration is required, use the {AccessControlEnumerable} extension.
+
+This contract uses `EnumerableSet` internally and provides the following functions:
+
+* {AccessControlEnumerable-getRoleMemberCount}
+* {AccessControlEnumerable-getRoleMember}
+
+These can be used to iterate over the accounts that have been granted a role:
 
 ```javascript
 const minterCount = await myToken.getRoleMemberCount(MINTER_ROLE);
@@ -101,7 +108,6 @@ const members = [];
 for (let i = 0; i < minterCount; ++i) {
     members.push(await myToken.getRoleMember(MINTER_ROLE, i));
 }
-```
 
 == Delayed operation
 
