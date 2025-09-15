@@ -2,6 +2,7 @@
 pragma solidity ^0.8.27;
 
 import {Math} from "./math/Math.sol";
+import {Accumulators} from "./structs/Accumulators.sol";
 import {Bytes} from "./Bytes.sol";
 import {Memory} from "./Memory.sol";
 
@@ -15,6 +16,7 @@ import {Memory} from "./Memory.sol";
  * * https://github.com/succinctlabs/optimism-bedrock-contracts/blob/main/rlp/RLPReader.sol
  */
 library RLP {
+    using Accumulators for *;
     using Bytes for *;
     using Memory for *;
 
@@ -50,12 +52,12 @@ library RLP {
      ****************************************************************************************************************/
 
     struct Encoder {
-        Bytes.Accumulator acc;
+        Accumulators.Accumulator acc;
     }
 
     /// @dev Create an empty RLP Encoder.
     function encoder() internal pure returns (Encoder memory enc) {
-        enc.acc = Bytes.accumulator();
+        enc.acc = Accumulators.accumulator();
     }
 
     /// @dev Add a boolean to a given RLP Encoder.
