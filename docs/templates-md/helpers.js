@@ -4,6 +4,8 @@ const path = require('path');
 const { execSync } = require('child_process');
 const os = require('os');
 
+const API_DOCS_PATH = 'contracts/5.x/api';
+
 module.exports['oz-version'] = () => version;
 
 module.exports['readme-path'] = opts => {
@@ -252,6 +254,9 @@ function cleanupContent(content) {
     .replace(/https?:\/\/[^\s[]+\[[^\]]+\]/g, match => {
       const urlMatch = match.match(/^(https?:\/\/[^[]+)\[([^\]]+)\]$/);
       return urlMatch ? `[${urlMatch[2]}](${urlMatch[1]})` : match;
+    })
+    .replace(/```[\s\S]*?```|[{}]/g, match => {
+      return match.includes('\n') || match.startsWith('```') ? match : '';
     });
 }
 
@@ -285,7 +290,7 @@ function processAdocContent(content) {
 
     // Clean up and transform markdown
     mdContent = cleanupContent(mdContent)
-      .replace(/\(api:([^)]+)\.adoc([^)]*)\)/g, '(contracts/v5.x/api/$1.mdx$2)')
+      .replace(/\(api:([^)]+)\.adoc([^)]*)\)/g, `(${API_DOCS_PATH}/$1.mdx$2)`)
       .replace(/!\[([^\]]*)\]\(([^/)][^)]*\.(png|jpg|jpeg|gif|svg|webp))\)/g, '![$1](/$2)')
       .replace(/<dl><dt><strong>💡 TIP<\/strong><\/dt><dd>\s*([\s\S]*?)\s*<\/dd><\/dl>/g, '<Callout>\n$1\n</Callout>')
       .replace(/<dl><dt><strong>📌 NOTE<\/strong><\/dt><dd>\s*([\s\S]*?)\s*<\/dd><\/dl>/g, '<Callout>\n$1\n</Callout>')
