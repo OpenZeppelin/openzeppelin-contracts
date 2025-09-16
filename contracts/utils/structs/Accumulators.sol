@@ -32,7 +32,12 @@ library Accumulators {
 
     /// @dev Add a bytes buffer to (the end of) an Accumulator
     function push(Accumulator memory self, bytes memory data) internal pure returns (Accumulator memory) {
-        Memory.Pointer ptr = _asPtr(AccumulatorEntry({next: Memory.asPointer(0x00), data: Memory.asSlice(data)}));
+        return push(self, Memory.asSlice(data));
+    }
+
+    /// @dev Add a memory slice to (the end of) an Accumulator
+    function push(Accumulator memory self, Memory.Slice data) internal pure returns (Accumulator memory) {
+        Memory.Pointer ptr = _asPtr(AccumulatorEntry({next: Memory.asPointer(0x00), data: data}));
 
         if (Memory.asBytes32(self.head) == 0x00) {
             self.head = ptr;
@@ -47,7 +52,12 @@ library Accumulators {
 
     /// @dev Add a bytes buffer to (the beginning of) an Accumulator
     function shift(Accumulator memory self, bytes memory data) internal pure returns (Accumulator memory) {
-        Memory.Pointer ptr = _asPtr(AccumulatorEntry({next: self.head, data: Memory.asSlice(data)}));
+        return shift(self, Memory.asSlice(data));
+    }
+
+    /// @dev Add a memory slice to (the beginning of) an Accumulator
+    function shift(Accumulator memory self, Memory.Slice data) internal pure returns (Accumulator memory) {
+        Memory.Pointer ptr = _asPtr(AccumulatorEntry({next: self.head, data: data}));
 
         if (Memory.asBytes32(self.head) == 0x00) {
             self.head = ptr;
