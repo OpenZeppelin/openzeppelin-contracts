@@ -108,6 +108,7 @@ const members = [];
 for (let i = 0; i < minterCount; ++i) {
     members.push(await myToken.getRoleMember(MINTER_ROLE, i));
 }
+```
 
 == Delayed operation
 
