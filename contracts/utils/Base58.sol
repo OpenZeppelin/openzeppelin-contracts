@@ -43,7 +43,7 @@ library Base58 {
             let outputLengthEstim := add(inputLeadingZeros, div(mul(sub(inputLength, inputLeadingZeros), 9886), 7239))
 
             // This is going to be our "scratch" workspace. We leave enough room after FMP to later store length + encoded output.
-            let scratch := add(mload(0x40), add(outputLengthEstim, 0x20))
+            let scratch := add(mload(0x40), add(outputLengthEstim, 0x21))
 
             // Cut the input buffer in section (limbs) of 31 bytes (248 bits). Store in scratch.
             let ptr := scratch
@@ -144,7 +144,7 @@ library Base58 {
             let outputLengthEstim := add(inputLeadingZeros, div(mul(sub(inputLength, inputLeadingZeros), 6115), 8351))
 
             // This is going to be our "scratch" workspace. Be leave enough room on the left to store length + encoded input.
-            let scratch := add(mload(0x40), add(outputLengthEstim, 0x20))
+            let scratch := add(mload(0x40), add(outputLengthEstim, 0x21))
 
             // Store the decoding table. This overlaps with the FMP that we are going to reset later anyway.
             mstore(0x2a, 0x30313233343536373839)
