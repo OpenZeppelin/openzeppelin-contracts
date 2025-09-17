@@ -63,7 +63,7 @@ library LowLevelCall {
         bytes memory data
     ) internal view returns (bool success, bytes32 result1, bytes32 result2) {
         assembly ("memory-safe") {
-            success := staticcall(gas(), target, add(data, 0x20), mload(data), 0, 0x40)
+            success := staticcall(gas(), target, add(data, 0x20), mload(data), 0x00, 0x40)
             result1 := mload(0x00)
             result2 := mload(0x20)
         }
@@ -72,7 +72,7 @@ library LowLevelCall {
     /// @dev Performs a Solidity function call using a low level `delegatecall` and ignoring the return data.
     function delegatecallNoReturn(address target, bytes memory data) internal returns (bool success) {
         assembly ("memory-safe") {
-            success := delegatecall(gas(), target, add(data, 0x20), mload(data), 0, 0)
+            success := delegatecall(gas(), target, add(data, 0x20), mload(data), 0x00, 0x00)
         }
     }
 
@@ -86,7 +86,7 @@ library LowLevelCall {
         bytes memory data
     ) internal returns (bool success, bytes32 result1, bytes32 result2) {
         assembly ("memory-safe") {
-            success := delegatecall(gas(), target, add(data, 0x20), mload(data), 0, 0x40)
+            success := delegatecall(gas(), target, add(data, 0x20), mload(data), 0x00, 0x40)
             result1 := mload(0x00)
             result2 := mload(0x20)
         }
@@ -104,7 +104,7 @@ library LowLevelCall {
         assembly ("memory-safe") {
             result := mload(0x40)
             mstore(result, returndatasize())
-            returndatacopy(add(result, 0x20), 0, returndatasize())
+            returndatacopy(add(result, 0x20), 0x00, returndatasize())
             mstore(0x40, add(result, add(0x20, returndatasize())))
         }
     }
@@ -113,7 +113,7 @@ library LowLevelCall {
     function bubbleRevert() internal pure {
         assembly ("memory-safe") {
             let fmp := mload(0x40)
-            returndatacopy(fmp, 0, returndatasize())
+            returndatacopy(fmp, 0x00, returndatasize())
             revert(fmp, returndatasize())
         }
     }

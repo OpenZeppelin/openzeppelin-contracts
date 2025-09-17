@@ -223,7 +223,7 @@ library Bytes {
      * if the buffer is all zeros.
      */
     function clz(bytes memory buffer) internal pure returns (uint256) {
-        for (uint256 i = 0; i < buffer.length; i += 32) {
+        for (uint256 i = 0; i < buffer.length; i += 0x20) {
             bytes32 chunk = _unsafeReadBytesOffset(buffer, i);
             if (chunk != bytes32(0)) {
                 return Math.min(8 * i + Math.clz(uint256(chunk)), 8 * buffer.length);
