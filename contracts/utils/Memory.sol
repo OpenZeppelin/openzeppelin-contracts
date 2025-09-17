@@ -97,7 +97,7 @@ library Memory {
     /**
      * @dev Read a bytes32 buffer from a given Slice at a specific offset
      *
-     * Note: If offset > length(slice) - 32, part of the return value will be out of bound of the slice. These bytes are zeroed.
+     * NOTE: If offset > length(slice) - 0x20, part of the return value will be out of bound of the slice. These bytes are zeroed.
      */
     function load(Slice self, uint256 offset) internal pure returns (bytes32 value) {
         uint256 outOfBoundBytes = Math.saturatingSub(0x20 + offset, length(self));

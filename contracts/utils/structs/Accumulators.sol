@@ -6,12 +6,31 @@ import {Memory} from "../Memory.sol";
 
 /**
  * @dev Structure concatenating an arbitrary number of bytes buffers with limited memory allocation.
+ *
+ * The Accumulators library provides a memory-efficient alternative to repeated concatenation of bytes.
+ * Instead of copying data on each concatenation (O(n**2) complexity), it builds a linked list of references
+ * to existing data and performs a single memory allocation during flattening (O(n) complexity).
+ *
+ * Uses 0x00 as sentinel value for empty state (i.e. null pointers)
+ *
+ * == How it works
+ *
+ * 1. Create an empty accumulator with null head/tail pointers
+ * 2. Add data using {push} (append) or {shift} (prepend). It creates linked list nodes
+ * 3. Each node stores a reference to existing data (no copying)
+ * 4. Call {flatten} to materialize the final concatenated result in a single operation
+ *
+ * == Performance
+ *
+ * * Addition: O(1) per operation (just pointer manipulation)
+ * * Flattening: O(n) single pass with one memory allocation
+ * * Memory: Minimal overhead until flattening (only stores references)
  */
 library Accumulators {
     /**
      * @dev Bytes accumulator: a linked list of `bytes`.
      *
-     * Note: This is a memory structure that SHOULD not be put in storage.
+     * NOTE: This is a memory structure that SHOULD not be put in storage.
      */
     struct Accumulator {
         Memory.Pointer head;
@@ -26,8 +45,8 @@ library Accumulators {
 
     /// @dev Create a new (empty) accumulator
     function accumulator() internal pure returns (Accumulator memory self) {
-        self.head = Memory.asPointer(0x00);
-        self.tail = Memory.asPointer(0x00);
+        self.head = _nullPtr();
+        self.tail = _nullPtr();
     }
 
     /// @dev Add a bytes buffer to (the end of) an Accumulator
@@ -37,9 +56,9 @@ library Accumulators {
 
     /// @dev Add a memory slice to (the end of) an Accumulator
     function push(Accumulator memory self, Memory.Slice data) internal pure returns (Accumulator memory) {
-        Memory.Pointer ptr = _asPtr(AccumulatorEntry({next: Memory.asPointer(0x00), data: data}));
+        Memory.Pointer ptr = _asPtr(AccumulatorEntry({next: _nullPtr(), data: data}));
 
-        if (Memory.asBytes32(self.head) == 0x00) {
+        if (Memory.asBytes32(self.head) == Memory.asBytes32(_nullPtr())) {
             self.head = ptr;
             self.tail = ptr;
         } else {
@@ -59,7 +78,7 @@ library Accumulators {
     function shift(Accumulator memory self, Memory.Slice data) internal pure returns (Accumulator memory) {
         Memory.Pointer ptr = _asPtr(AccumulatorEntry({next: self.head, data: data}));
 
-        if (Memory.asBytes32(self.head) == 0x00) {
+        if (Memory.asBytes32(self.head) == Memory.asBytes32(_nullPtr())) {
             self.head = ptr;
             self.tail = ptr;
         } else {
@@ -100,5 +119,9 @@ library Accumulators {
         assembly ("memory-safe") {
             item := ptr
         }
+    }
+
+    function _nullPtr() private pure returns (Memory.Pointer) {
+        return Memory.asPointer(0x00);
     }
 }
