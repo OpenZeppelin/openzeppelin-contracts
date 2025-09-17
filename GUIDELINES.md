@@ -154,16 +154,17 @@ In addition to the official Solidity Style Guide we have a number of other conve
 
   * Custom error names should not be declared twice along the library to avoid duplicated identifier declarations when inheriting from multiple contracts.
 
-* In some cases arithmetics value should be written in specific formats
+* Numeric literals should use appropriate formats based on their purpose to improve code readability:
 
-  * Memory locations should be written in hex format: `mload(64)` → `mload(0x40)`
+  **Memory-related operations (use hexadecimal):**
+  * Memory locations: `mload(64)` → `mload(0x40)`
+  * Memory offsets: `mstore(add(ptr, 32), value)` → `mstore(add(ptr, 0x20), value)`
+  * Memory lengths: `keccak256(ptr, 85)` → `keccak256(ptr, 0x55)`
 
-  * Memory offset should be written in hex format: `mstore(add(ptr, 32), value)` → `mstore(add(ptr, 0x20), value)`
+  **Bit operations (use decimal):**
+  * Shift amounts: `shl(0x80, value)` → `shl(128, value)`
+  * Bit masks and positions should use decimal when representing bit counts
 
-  * [Exception] for trivially small values, such as 1 or 2, decimal format can be accepted `ptr := add(ptr, 1)`
-
-  * Memory length should be written in hex format: `keccak(ptr, 85)` → `keccak(ptr, 0x55)`
-
-  * [Exception] in call/staticcall/delegatecall, decimal zero can be used if both the location and the length are zero.
-
-  * Bits offset used in shifts should be written in decimal format: `shl(0x80, value)` → `shl(128, value)`
+  **Exceptions:**
+  * Trivially small values (1, 2) may use decimal even in memory operations: `ptr := add(ptr, 1)`
+  * In `call`/`staticcall`/`delegatecall`, decimal zero is acceptable when both location and length are zero
