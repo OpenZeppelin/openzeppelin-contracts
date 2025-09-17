@@ -79,7 +79,7 @@ import "@openzeppelin/{{__item_context.file.absolutePath}}";
 {{#each modifiers}}
 <a id="{{anchor}}"></a>
 
-<div className="border rounded-md">
+<div className="border rounded-md mb-4">
 <div className="bg-secondary flex w-full justify-between px-4">
 <p className="font-bold text-sm font-mono">{{{name}}}({{typed-params params}})</p>
 <div className="flex flex-row items-center gap-2">
@@ -100,7 +100,7 @@ import "@openzeppelin/{{__item_context.file.absolutePath}}";
 {{#each functions}}
 <a id="{{anchor}}"></a>
 
-<div className="border rounded-md">
+<div className="border rounded-md mb-4">
 <div className="bg-secondary flex w-full justify-between px-4">
 <p className="font-bold text-sm font-mono">{{{name}}}({{typed-params params}}){{#if returns2}} → {{typed-params returns2}}{{/if}}</p>
 <div className="flex flex-row items-center gap-2">
@@ -120,7 +120,7 @@ import "@openzeppelin/{{__item_context.file.absolutePath}}";
 {{#each events}}
 <a id="{{anchor}}"></a>
 
-<div className="border rounded-md">
+<div className="border rounded-md mb-4">
 <div className="bg-secondary flex w-full justify-between px-4">
 <p className="font-bold text-sm font-mono">{{{name}}}({{typed-params params}})</p>
 <div className="flex flex-row items-center gap-2">
@@ -140,7 +140,7 @@ import "@openzeppelin/{{__item_context.file.absolutePath}}";
 {{#each errors}}
 <a id="{{anchor}}"></a>
 
-<div className="border rounded-md">
+<div className="border rounded-md mb-4">
 <div className="bg-secondary flex w-full justify-between px-4">
 <p className="font-bold text-sm font-mono">{{{name}}}({{typed-params params}})</p>
 <div className="flex flex-row items-center gap-2">

@@ -178,6 +178,10 @@ function processReferences(content, links) {
     return replacement || `\`${key}\``;
   });
 
+  // Convert AsciiDoc admonitions to Callout components
+  result = result.replace(/^\[NOTE\]\s*\n====\s*\n([\s\S]*?)\n====$/gm, '<Callout>\n$1\n</Callout>');
+  result = result.replace(/^(WARNING|IMPORTANT):\s*(.+)$/gm, '<Callout type="warn">\n$2\n</Callout>');
+
   return cleanupContent(result);
 }
 
