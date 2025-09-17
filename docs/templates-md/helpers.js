@@ -172,6 +172,48 @@ function processReferences(content, links) {
     return replacement ? `[${linkText}](${replacement})` : match;
   });
 
+  // Handle cross-references in format {Contract-function-parameters}
+  result = result.replace(
+    /\{([A-Z][a-zA-Z0-9]*)-([a-zA-Z_][a-zA-Z0-9]*)-([^-}]+)\}/g,
+    (match, contract, func, params) => {
+      // Convert dash-separated params to comma-separated, then slugify to match anchor format
+      const commaParams = params
+        .replace(/-bytes\[\]/g, ',bytes[]')
+        .replace(/-uint[0-9]*/g, ',uint$1')
+        .replace(/-address/g, ',address')
+        .replace(/-bool/g, ',bool')
+        .replace(/-string/g, ',string');
+      const slugifiedParams = commaParams.replace(/\W/g, '-');
+      const xrefKey = `xref-${contract}-${func}-${slugifiedParams}`;
+      const replacement = links[xrefKey];
+      if (replacement) {
+        return `[\`${contract}.${func}\`](${replacement})`;
+      }
+      return match;
+    },
+  );
+
+  // Handle cross-references in format {Contract-function-parameters}
+  result = result.replace(
+    /\{([A-Z][a-zA-Z0-9]*)-([a-zA-Z_][a-zA-Z0-9]*)-([^}]+)\}/g,
+    (match, contract, func, params) => {
+      // Convert dash-separated params to comma-separated, then slugify with parentheses to match anchor format
+      const commaParams = params
+        .replace(/-bytes\[\]/g, ',bytes[]')
+        .replace(/-uint[0-9]*/g, ',uint$1')
+        .replace(/-address/g, ',address')
+        .replace(/-bool/g, ',bool')
+        .replace(/-string/g, ',string');
+      const slugifiedParams = `(${commaParams})`.replace(/\W/g, '-');
+      const xrefKey = `xref-${contract}-${func}${slugifiedParams}`;
+      const replacement = links[xrefKey];
+      if (replacement) {
+        return `[\`${contract}.${func}\`](${replacement})`;
+      }
+      return match;
+    },
+  );
+
   // Replace {link-key} placeholders with markdown links
   result = result.replace(/\{([-._a-z0-9]+)\}/gi, (match, key) => {
     const replacement = findBestMatch(key, links);
