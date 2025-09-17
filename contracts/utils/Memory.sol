@@ -54,9 +54,15 @@ library Memory {
         }
     }
 
-    /// @dev Private helper: create a slice from raw values (length and pointer)
+    /**
+     * @dev Private helper: create a slice from raw values (length and pointer)
+     *
+     * NOTE: this function MUST NOT be called with `len` or `ptr` that exceed `2**128-1`. This should never be
+     * the case of slices produced by `asSlice(bytes)`, and function that reduce the scope of slices
+     * (`slice(Slice,uint256)` and `slice(Slice,uint256, uint256)`) should not cause this issue if the parent slice is
+     * correct.
+     */
     function _asSlice(uint256 len, Memory.Pointer ptr) private pure returns (Slice result) {
-        // TODO: Fail if len or ptr  is larger than type(uint128).max ?
         assembly ("memory-safe") {
             result := or(shl(128, len), ptr)
         }
