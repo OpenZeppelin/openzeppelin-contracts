@@ -175,7 +175,7 @@ function processReferences(content, links) {
   // Replace {link-key} placeholders with markdown links
   result = result.replace(/\{([-._a-z0-9]+)\}/gi, (match, key) => {
     const replacement = findBestMatch(key, links);
-    return replacement || match;
+    return replacement || `\`${key}\``;
   });
 
   return cleanupContent(result);
@@ -254,9 +254,6 @@ function cleanupContent(content) {
     .replace(/https?:\/\/[^\s[]+\[[^\]]+\]/g, match => {
       const urlMatch = match.match(/^(https?:\/\/[^[]+)\[([^\]]+)\]$/);
       return urlMatch ? `[${urlMatch[2]}](${urlMatch[1]})` : match;
-    })
-    .replace(/```[\s\S]*?```|[{}]/g, match => {
-      return match.includes('\n') || match.startsWith('```') ? match : '';
     });
 }
 
@@ -281,7 +278,7 @@ function processAdocContent(content) {
 
     fs.writeFileSync(tempAdocFile, processedContent, 'utf8');
 
-    execSync(`bunx downdoc "${tempAdocFile}"`, {
+    execSync(`npx downdoc "${tempAdocFile}"`, {
       stdio: 'pipe',
       cwd: process.cwd(),
     });
