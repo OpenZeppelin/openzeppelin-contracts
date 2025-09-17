@@ -3,6 +3,7 @@
 pragma solidity ^0.8.24;
 
 import {Panic} from "./Panic.sol";
+import {Math} from "./math/Math.sol";
 
 /**
  * @dev Utilities to manipulate memory.
@@ -90,12 +91,13 @@ library Memory {
     /**
      * @dev Read a bytes32 buffer from a given Slice at a specific offset
      *
-     * Note:If offset > length(slice) - 32, part of the return value will be out of bound and should be ignored.
+     * Note: If offset > length(slice) - 32, part of the return value will be out of bound of the slice. These bytes are zeroed.
      */
     function load(Slice self, uint256 offset) internal pure returns (bytes32 value) {
-        if (offset >= length(self)) Panic.panic(Panic.ARRAY_OUT_OF_BOUNDS);
+        uint256 outOfBoundBytes = Math.saturatingSub(32 + offset, length(self));
+        if (outOfBoundBytes > 31) Panic.panic(Panic.ARRAY_OUT_OF_BOUNDS);
         assembly ("memory-safe") {
-            value := mload(add(and(self, shr(128, not(0))), offset))
+            value := and(mload(add(and(self, shr(128, not(0))), offset)), shl(mul(8, outOfBoundBytes), not(0)))
         }
     }
 
