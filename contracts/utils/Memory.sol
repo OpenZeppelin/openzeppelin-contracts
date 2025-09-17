@@ -100,8 +100,9 @@ library Memory {
      * Note: If offset > length(slice) - 32, part of the return value will be out of bound of the slice. These bytes are zeroed.
      */
     function load(Slice self, uint256 offset) internal pure returns (bytes32 value) {
-        uint256 outOfBoundBytes = Math.saturatingSub(32 + offset, length(self));
-        if (outOfBoundBytes > 31) Panic.panic(Panic.ARRAY_OUT_OF_BOUNDS);
+        uint256 outOfBoundBytes = Math.saturatingSub(0x20 + offset, length(self));
+        if (outOfBoundBytes > 0x1f) Panic.panic(Panic.ARRAY_OUT_OF_BOUNDS);
+
         assembly ("memory-safe") {
             value := and(mload(add(and(self, shr(128, not(0))), offset)), shl(mul(8, outOfBoundBytes), not(0)))
         }
