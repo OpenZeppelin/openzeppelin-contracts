@@ -252,38 +252,42 @@ library RLP {
         return item.slice(offset, length).toBytes();
     }
 
+    /// @dev Decodes an RLP encoded string. See {encode-string}
     function readString(Memory.Slice item) internal pure returns (string memory) {
         return string(readBytes(item));
     }
 
-    /// @dev Decodes an RLP encoded list into an array of RLP Items. This function supports list up to 32 elements
-    function readList(Memory.Slice item) internal pure returns (Memory.Slice[] memory) {
-        return readList(item, 32);
-    }
-
-    /**
-     * @dev Variant of {readList-bytes32} that supports long lists up to `maxListLength`. Setting `maxListLength` to
-     * a high value will cause important, and costly, memory expansion.
-     */
-    function readList(Memory.Slice item, uint256 maxListLength) internal pure returns (Memory.Slice[] memory) {
+    /// @dev Decodes an RLP encoded list into an array of RLP Items.
+    function readList(Memory.Slice item) internal pure returns (Memory.Slice[] memory list) {
         uint256 itemLength = item.length();
 
         (uint256 listOffset, uint256 listLength, ItemType itemType) = _decodeLength(item);
         require(itemType == ItemType.List, RLPUnexpectedType(ItemType.List, itemType));
         require(itemLength == listOffset + listLength, RLPContentLengthMismatch(listOffset + listLength, itemLength));
 
-        Memory.Slice[] memory list = new Memory.Slice[](maxListLength);
-
-        uint256 itemCount;
-        for (uint256 currentOffset = listOffset; currentOffset < itemLength; ++itemCount) {
-            (uint256 elementOffset, uint256 elementLength, ) = _decodeLength(item.slice(currentOffset));
-            list[itemCount] = item.slice(currentOffset, elementLength + elementOffset);
-            currentOffset += elementOffset + elementLength;
+        // Start a buffer in the unallocated space
+        uint256 ptr;
+        assembly ("memory-safe") {
+            list := mload(0x40)
+            ptr := add(list, 0x20)
         }
 
-        // Decrease the array size to match the actual item count.
+        // Get all items in order, and push them to the buffer
+        for (uint256 currentOffset = listOffset; currentOffset < itemLength; ptr += 0x20) {
+            (uint256 elementOffset, uint256 elementLength, ) = _decodeLength(item.slice(currentOffset));
+            Memory.Slice element = item.slice(currentOffset, elementLength + elementOffset);
+            currentOffset += elementOffset + elementLength;
+
+            // Write item to the buffer
+            assembly ("memory-safe") {
+                mstore(ptr, element)
+            }
+        }
+
+        // write list length and reserve space
         assembly ("memory-safe") {
-            mstore(list, itemCount)
+            mstore(list, div(sub(ptr, add(list, 0x20)), 0x20))
+            mstore(0x40, ptr)
         }
         return list;
     }
@@ -325,11 +329,6 @@ library RLP {
     /// @dev Decode an RLP encoded list from bytes. See {readList}
     function decodeList(bytes memory value) internal pure returns (Memory.Slice[] memory) {
         return readList(value.asSlice());
-    }
-
-    /// @dev Decode an RLP encoded list from bytes with custom maxListLength. See {readList-Memory-Slice-uint256-}
-    function decodeList(bytes memory value, uint256 maxListLength) internal pure returns (Memory.Slice[] memory) {
-        return readList(value.asSlice(), maxListLength);
     }
 
     /**

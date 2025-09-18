@@ -133,19 +133,6 @@ describe('RLP', function () {
     }
   });
 
-  it('decodes list with custom maxListLength', async function () {
-    const input = ['0x17', '0x42', '0x0123', '0xabcdef'];
-    const encoded = ethers.encodeRlp(input);
-
-    // Correct lengths
-    await expect(this.mock['$decodeList(bytes,uint256)'](encoded, 4)).to.eventually.have.length(4);
-    await expect(this.mock['$decodeList(bytes,uint256)'](encoded, 10)).to.eventually.have.length(4);
-    await expect(this.mock['$decodeList(bytes)'](encoded)).to.eventually.have.length(4);
-
-    // Insufficient maxListLength
-    await expect(this.mock['$decodeList(bytes,uint256)'](encoded, 3)).to.be.reverted;
-  });
-
   const invalidTests = [
     { name: 'short string with invalid length', input: '0x8100' },
     { name: 'long string with invalid length prefix', input: '0xb800' },
