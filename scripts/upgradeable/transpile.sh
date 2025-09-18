@@ -43,7 +43,7 @@ npx @openzeppelin/upgrade-safe-transpiler -D \
   -q '@openzeppelin/'
 
 # Fix import from initializable mocks (skipped by the transpiler)
-sed -i -e 's/..\/proxy\/utils\/Initializable.sol/@openzeppelin\/contracts\/proxy\/utils\/Initializable.sol/g' contracts/**/*.sol
+find contracts/mocks -type f -print0 | xargs -0 sed -i 's/\.\.\/proxy\/utils\/Initializable.sol/@openzeppelin\/contracts\/proxy\/utils\/Initializable.sol/g'
 
 # delete compilation artifacts of vanilla code
 npm run clean
