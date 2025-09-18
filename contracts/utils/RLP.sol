@@ -12,6 +12,7 @@ import {Memory} from "./Memory.sol";
  * It's used for encoding everything from transactions to blocks to Patricia-Merkle tries.
  *
  * Inspired by
+ *
  * * https://github.com/succinctlabs/optimism-bedrock-contracts/blob/main/rlp/RLPWriter.sol
  * * https://github.com/succinctlabs/optimism-bedrock-contracts/blob/main/rlp/RLPReader.sol
  */
@@ -131,8 +132,8 @@ library RLP {
     function encode(address input) internal pure returns (bytes memory result) {
         assembly ("memory-safe") {
             result := mload(0x40)
-            mstore(result, 0x15) // length of the encoded data: 1 (prefix) + 14 (address)
-            mstore(add(result, 0x20), or(shl(248, 0x94), shl(88, input))) // prefix (0x94 = SHORT_OFFSET + 14) + input
+            mstore(result, 0x15) // length of the encoded data: 1 (prefix) + 0x14 (address)
+            mstore(add(result, 0x20), or(shl(248, 0x94), shl(88, input))) // prefix (0x94 = SHORT_OFFSET + 0x14) + input
             mstore(0x40, add(result, 0x35)) // reserve memory
         }
     }
@@ -291,32 +292,44 @@ library RLP {
      *                                            DECODING - FROM BYTES                                             *
      ****************************************************************************************************************/
 
+    /// @dev Decode an RLP encoded bool from bytes. See {readBool}
     function decodeBool(bytes memory item) internal pure returns (bool) {
         return readBool(item.asSlice());
     }
 
+    /// @dev Decode an RLP encoded address from bytes. See {readAddress}
     function decodeAddress(bytes memory item) internal pure returns (address) {
         return readAddress(item.asSlice());
     }
 
+    /// @dev Decode an RLP encoded uint256 from bytes. See {readUint256}
     function decodeUint256(bytes memory item) internal pure returns (uint256) {
         return readUint256(item.asSlice());
     }
 
+    /// @dev Decode an RLP encoded bytes32 from bytes. See {readBytes32}
     function decodeBytes32(bytes memory item) internal pure returns (bytes32) {
         return readBytes32(item.asSlice());
     }
 
+    /// @dev Decode an RLP encoded bytes from bytes. See {readBytes}
     function decodeBytes(bytes memory item) internal pure returns (bytes memory) {
         return readBytes(item.asSlice());
     }
 
+    /// @dev Decode an RLP encoded string from bytes. See {readString}
     function decodeString(bytes memory item) internal pure returns (string memory) {
         return readString(item.asSlice());
     }
 
+    /// @dev Decode an RLP encoded list from bytes. See {readList}
     function decodeList(bytes memory value) internal pure returns (Memory.Slice[] memory) {
         return readList(value.asSlice());
+    }
+
+    /// @dev Decode an RLP encoded list from bytes with custom maxListLength. See {readList-Memory-Slice-uint256-}
+    function decodeList(bytes memory value, uint256 maxListLength) internal pure returns (Memory.Slice[] memory) {
+        return readList(value.asSlice(), maxListLength);
     }
 
     /**
