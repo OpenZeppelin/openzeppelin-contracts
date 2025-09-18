@@ -54,27 +54,6 @@ library Memory {
         }
     }
 
-    /**
-     * @dev Private helper: create a slice from raw values (length and pointer)
-     *
-     * NOTE: this function MUST NOT be called with `len` or `ptr` that exceed `2**128-1`. This should never be
-     * the case of slices produced by `asSlice(bytes)`, and function that reduce the scope of slices
-     * (`slice(Slice,uint256)` and `slice(Slice,uint256, uint256)`) should not cause this issue if the parent slice is
-     * correct.
-     */
-    function _asSlice(uint256 len, Memory.Pointer ptr) private pure returns (Slice result) {
-        assembly ("memory-safe") {
-            result := or(shl(128, len), ptr)
-        }
-    }
-
-    /// @dev Returns the memory location of a given slice (equiv to self.offset for calldata slices)
-    function _pointer(Slice self) private pure returns (Memory.Pointer result) {
-        assembly ("memory-safe") {
-            result := and(self, shr(128, not(0)))
-        }
-    }
-
     /// @dev Returns the length of a given slice (equiv to self.length for calldata slices)
     function length(Slice self) internal pure returns (uint256 result) {
         assembly ("memory-safe") {
@@ -117,6 +96,27 @@ library Memory {
             mstore(result, len)
             mcopy(add(result, 0x20), ptr, len)
             mstore(0x40, add(add(result, len), 0x20))
+        }
+    }
+
+    /**
+     * @dev Private helper: create a slice from raw values (length and pointer)
+     *
+     * NOTE: this function MUST NOT be called with `len` or `ptr` that exceed `2**128-1`. This should never be
+     * the case of slices produced by `asSlice(bytes)`, and function that reduce the scope of slices
+     * (`slice(Slice,uint256)` and `slice(Slice,uint256, uint256)`) should not cause this issue if the parent slice is
+     * correct.
+     */
+    function _asSlice(uint256 len, Memory.Pointer ptr) private pure returns (Slice result) {
+        assembly ("memory-safe") {
+            result := or(shl(128, len), ptr)
+        }
+    }
+
+    /// @dev Returns the memory location of a given slice (equiv to self.offset for calldata slices)
+    function _pointer(Slice self) private pure returns (Memory.Pointer result) {
+        assembly ("memory-safe") {
+            result := and(self, shr(128, not(0)))
         }
     }
 }
