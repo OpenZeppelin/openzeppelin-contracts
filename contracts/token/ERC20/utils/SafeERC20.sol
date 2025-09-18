@@ -181,13 +181,13 @@ library SafeERC20 {
             mstore(0x00, selector)
             mstore(0x04, and(to, shr(96, not(0))))
             mstore(0x24, value)
-            success := call(gas(), token, 0, 0, 0x44, 0, 0x20)
+            success := call(gas(), token, 0, 0x00, 0x44, 0x00, 0x20)
             // if call success and return is true, all is good.
             // otherwise (not success or return is not true), we need to perform further checks
             if iszero(and(success, eq(mload(0x00), 1))) {
                 // if the call was a failure and bubble is enabled, bubble the error
                 if and(iszero(success), bubble) {
-                    returndatacopy(fmp, 0, returndatasize())
+                    returndatacopy(fmp, 0x00, returndatasize())
                     revert(fmp, returndatasize())
                 }
                 // if the return value is not true, then the call is only successful if:
@@ -224,13 +224,13 @@ library SafeERC20 {
             mstore(0x04, and(from, shr(96, not(0))))
             mstore(0x24, and(to, shr(96, not(0))))
             mstore(0x44, value)
-            success := call(gas(), token, 0, 0, 0x64, 0, 0x20)
+            success := call(gas(), token, 0, 0x00, 0x64, 0x00, 0x20)
             // if call success and return is true, all is good.
             // otherwise (not success or return is not true), we need to perform further checks
             if iszero(and(success, eq(mload(0x00), 1))) {
                 // if the call was a failure and bubble is enabled, bubble the error
                 if and(iszero(success), bubble) {
-                    returndatacopy(fmp, 0, returndatasize())
+                    returndatacopy(fmp, 0x00, returndatasize())
                     revert(fmp, returndatasize())
                 }
                 // if the return value is not true, then the call is only successful if:
@@ -260,13 +260,13 @@ library SafeERC20 {
             mstore(0x00, selector)
             mstore(0x04, and(spender, shr(96, not(0))))
             mstore(0x24, value)
-            success := call(gas(), token, 0, 0, 0x44, 0, 0x20)
+            success := call(gas(), token, 0, 0x00, 0x44, 0x00, 0x20)
             // if call success and return is true, all is good.
             // otherwise (not success or return is not true), we need to perform further checks
             if iszero(and(success, eq(mload(0x00), 1))) {
                 // if the call was a failure and bubble is enabled, bubble the error
                 if and(iszero(success), bubble) {
-                    returndatacopy(fmp, 0, returndatasize())
+                    returndatacopy(fmp, 0x00, returndatasize())
                     revert(fmp, returndatasize())
                 }
                 // if the return value is not true, then the call is only successful if:

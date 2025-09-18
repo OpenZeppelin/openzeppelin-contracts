@@ -82,7 +82,7 @@ library SignatureChecker {
             mstore(add(ptr, 0x24), 0x40)
             mcopy(add(ptr, 0x44), signature, add(length, 0x20))
 
-            let success := staticcall(gas(), signer, ptr, add(length, 0x64), 0, 0x20)
+            let success := staticcall(gas(), signer, ptr, add(length, 0x64), 0x00, 0x20)
             result := and(success, and(gt(returndatasize(), 0x19), eq(mload(0x00), selector)))
         }
     }
