@@ -42,8 +42,8 @@ npx @openzeppelin/upgrade-safe-transpiler -D \
   -N 'contracts/mocks/**/*' \
   -q '@openzeppelin/'
 
-# create alias to initializable and uups upgradeable
-git apply -3 "$DIRNAME/alias.patch"
+# create alias to Initializable and UUPSUpgradeable
+cp $DIRNAME/alias/*.sol contracts/proxy/utils/.
 
 # delete compilation artifacts of vanilla code
 npm run clean
