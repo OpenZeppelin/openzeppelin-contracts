@@ -77,7 +77,7 @@ abstract contract ERC7579FallbackHandlerMock is ERC7579ModuleMock(MODULE_TYPE_FA
         emit ERC7579FallbackHandlerMockCalled(_msgAccount(), _msgSender(), msg.value, _msgData());
     }
 
-    function callView() public view returns (address, address) {
+    function callView() public view returns (address account, address sender) {
         return (_msgAccount(), _msgSender());
     }
 

@@ -43,6 +43,7 @@ abstract contract GovernorVotes is Governor {
      */
     // solhint-disable-next-line func-name-mixedcase
     function CLOCK_MODE() public view virtual override returns (string memory) {
+        // slippy-disable-previous-line naming-convention
         try token().CLOCK_MODE() returns (string memory clockmode) {
             return clockmode;
         } catch {

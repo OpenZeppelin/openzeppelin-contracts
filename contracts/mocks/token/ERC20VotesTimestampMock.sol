@@ -13,6 +13,7 @@ abstract contract ERC20VotesTimestampMock is ERC20Votes {
 
     // solhint-disable-next-line func-name-mixedcase
     function CLOCK_MODE() public view virtual override returns (string memory) {
+        // slippy-disable-previous-line naming-convention
         return "mode=timestamp";
     }
 }
@@ -24,6 +25,7 @@ abstract contract ERC721VotesTimestampMock is ERC721Votes {
 
     // solhint-disable-next-line func-name-mixedcase
     function CLOCK_MODE() public view virtual override returns (string memory) {
+        // slippy-disable-previous-line naming-convention
         return "mode=timestamp";
     }
 }
