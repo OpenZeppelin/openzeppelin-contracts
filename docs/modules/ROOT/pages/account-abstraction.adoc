@@ -1,6 +1,6 @@
 = Account Abstraction
 
-Unlike Externally Owned Accounts (EOAs), smart contracts may contain arbitrary verification logic based on authentication mechanisms different to Ethereum's native xref:api:utils.adoc#ECDSA[ECDSA] and have execution advantages such as batching or gas sponsorship. To leverage these properties of smart contracts, the community has widely adopted https://eips.ethereum.org/EIPS/eip-4337[ERC-4337], a standard to process user operations through an alternative mempool.
+Unlike Externally Owned Accounts (EOAs), smart contracts may contain arbitrary verification logic based on authentication mechanisms different from Ethereum's native xref:api:utils.adoc#ECDSA[ECDSA] and have execution advantages such as batching or gas sponsorship. To leverage these properties of smart contracts, the community has widely adopted https://eips.ethereum.org/EIPS/eip-4337[ERC-4337], a standard to process user operations through an alternative mempool.
 
 The library provides multiple contracts for Account Abstraction following this standard as it enables more flexible and user-friendly interactions with applications. Account Abstraction use cases include wallets in novel contexts (e.g. embedded wallets), more granular configuration of accounts, and recovery mechanisms. 
 
@@ -28,7 +28,7 @@ struct PackedUserOperation {
 
 This process of bundling user operations involves several costs that the bundler must cover, including base transaction fees, calldata serialization, entrypoint execution, and paymaster context costs. To compensate for these expenses, bundlers use the `preVerificationGas` and `gasFees` fields to charge users appropriately.
 
-NOTE: Estimating `preVerificationGas` is not standardized as it varies based on network conditions such as gas prices and the size of the operation bundle.
+NOTE: Estimating `preVerificationGas` is not standardized as it varies based on factors like calldata size, signature complexity, and bundler-specific serialization costs.
 
 TIP: Use xref:api:account.adoc#ERC4337Utils[`ERC4337Utils`] to manipulate the `UserOperation` struct and other ERC-4337 related values.
 
@@ -36,7 +36,7 @@ TIP: Use xref:api:account.adoc#ERC4337Utils[`ERC4337Utils`] to manipulate the `U
 
 Each `UserOperation` is executed through a contract known as the https://etherscan.io/address/0x4337084D9E255Ff0702461CF8895CE9E3b5Ff108#code[`EntryPoint`]. This contract is a singleton deployed across multiple networks at the same address although other custom implementations may be used.
 
-The Entrypoint contracts is considered a trusted entity by the account.
+The Entrypoint contract is considered a trusted entity by the account.
 
 === Bundlers
 
@@ -83,7 +83,7 @@ To build your own factory, see xref:accounts.adoc#accounts_factory[account facto
 
 === Paymaster Contract
 
-A Paymaster is an optional entity that can sponsor gas fees for Accounts, or allow them to pay for those fees in ERC-20 instead of native currency. This abstracts gas away of the user experience in the same way that computational costs of cloud servers are abstracted away from end-users.
+A Paymaster is an optional entity that can sponsor gas fees for Accounts, or allow them to pay for those fees in ERC-20 instead of native currency. This abstracts gas away from the user experience in the same way that computational costs of cloud servers are abstracted away from end-users.
 
 To build your own paymaster, see https://docs.openzeppelin.com/community-contracts/0.0.1/paymasters[paymasters].
 
@@ -95,6 +95,6 @@ To process a bundle of `UserOperations`, bundlers call xref:api:account.adoc#Acc
 
 These rules outline the requirements for operations to be processed by the canonical mempool.
 
-Accounts can access its own storage during the validation phase, they might easily violate ERC-7562 storage access rules in undirect ways. For example, most accounts access their public keys from storage when validating a signature, limiting the ability of having accounts that validate operations for other accounts (e.g. via ERC-1271)
+Accounts can access their own storage during the validation phase, they might easily violate ERC-7562 storage access rules in indirect ways. For example, most accounts access their public keys from storage when validating a signature, limiting the ability of having accounts that validate operations for other accounts (e.g. via https://eips.ethereum.org/EIPS/eip-1271[ERC-1271]))
 
 TIP: Although any Account that breaks such rules may still be processed by a private bundler, developers should keep in mind the centralization tradeoffs of relying on private infrastructure instead of _permissionless_ execution.

@@ -42,7 +42,7 @@ function shouldBehaveLikeDelayedAdminOperation() {
               .to.be.revertedWithCustomError(this.target, 'AccessManagerUnauthorizedAccount')
               .withArgs(
                 this.caller,
-                this.roles.ADMIN.id, // Although PUBLIC is required, target function role doesn't apply to admin ops
+                this.roles.ADMIN.id, // Although PUBLIC_ROLE is required, target function role doesn't apply to admin ops
               );
           });
         },

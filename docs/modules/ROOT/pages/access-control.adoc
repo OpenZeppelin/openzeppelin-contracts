@@ -43,7 +43,7 @@ Most software uses access control systems that are role-based: some users are re
 OpenZeppelin Contracts provides xref:api:access.adoc#AccessControl[`AccessControl`] for implementing role-based access control. Its usage is straightforward: for each role that you want to define,
 you will create a new _role identifier_ that is used to grant, revoke, and check if an account has that role.
 
-Here's a simple example of using `AccessControl` in an xref:erc20.adoc[ERC-20 token] to define a 'minter' role, which allows accounts that have it create new tokens:
+Here's a simple example of using `AccessControl` in an xref:erc20.adoc[ERC-20 token] to define a 'minter' role, which allows accounts that have it to create new tokens:
 
 [source,solidity]
 ----
@@ -123,7 +123,7 @@ There is an additional feature built on top of `AccessControl`: giving the execu
 
 At this point, with both a proposer and an executor assigned, the timelock can perform operations.
 
-An optional next step is for the deployer to renounce its administrative privileges and leave the timelock self-administered. If the deployer decides to do so, all further maintenance, including assigning new proposers/schedulers or changing the timelock duration will have to follow the timelock workflow. This links the governance of the timelock to the governance of contracts attached to the timelock, and enforce a delay on timelock maintenance operations.
+An optional next step is for the deployer to renounce its administrative privileges and leave the timelock self-administered. If the deployer decides to do so, all further maintenance, including assigning new proposers/schedulers or changing the timelock duration will have to follow the timelock workflow. This links the governance of the timelock to the governance of contracts attached to the timelock, and enforces a delay on timelock maintenance operations.
 
 WARNING: If the deployer renounces administrative rights in favour of timelock itself, assigning new proposers or executors will require a timelocked operation. This means that if the accounts in charge of any of these two roles become unavailable, then the entire contract (and any contract it controls) becomes locked indefinitely.
 
