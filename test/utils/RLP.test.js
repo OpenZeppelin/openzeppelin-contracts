@@ -133,18 +133,17 @@ describe('RLP', function () {
     }
   });
 
-  // const invalidTests = [
-  //   { name: 'short string with invalid length', input: '0x8100' },
-  //   { name: 'long string with invalid length prefix', input: '0xb800' },
-  //   { name: 'list with invalid length', input: '0xc100' },
-  //   { name: 'truncated long string', input: '0xb838' },
-  //   { name: 'invalid single byte encoding (non-minimal)', input: '0x8100' },
-  // ];
+  const invalidTests = [
+    { name: 'short string with invalid length', input: '0x8100' },
+    { name: 'long string with invalid length prefix', input: '0xb800' },
+    { name: 'list with invalid length', input: '0xc100' },
+    { name: 'truncated long string', input: '0xb838' },
+    { name: 'invalid single byte encoding (non-minimal)', input: '0x8100' },
+  ];
 
-  // invalidTests.forEach(({ name, input }) => {
-  //   it(`encodes ${name} into invalid RLP`, async function () {
-  //     const item = await this.mock.$toItem(input);
-  //     await expect(this.mock.$decodeBytes_bytes(item)).to.be.reverted;
-  //   });
-  // });
+  invalidTests.forEach(({ name, input }) => {
+    it(`rejects ${name}`, async function () {
+      await expect(this.mock.$decodeBytes(input)).to.be.reverted;
+    });
+  });
 });
