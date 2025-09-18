@@ -42,8 +42,8 @@ npx @openzeppelin/upgrade-safe-transpiler -D \
   -N 'contracts/mocks/**/*' \
   -q '@openzeppelin/'
 
-# Fix import from initializable mocks (skipped by the transpiler)
-find contracts/mocks -type f -print0 | xargs -0 sed -i 's/\.\.\/proxy\/utils\/Initializable.sol/@openzeppelin\/contracts\/proxy\/utils\/Initializable.sol/g'
+# create alias to initializable and uups upgradeable
+git apply -3 "$DIRNAME/alias.patch"
 
 # delete compilation artifacts of vanilla code
 npm run clean
