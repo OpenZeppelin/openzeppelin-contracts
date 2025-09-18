@@ -32,12 +32,8 @@ npx @openzeppelin/upgrade-safe-transpiler -D \
   -b "$build_info" \
   -i contracts/proxy/utils/Initializable.sol \
   -x 'contracts-exposed/**/*' \
-  -x 'contracts/proxy/beacon/BeaconProxy.sol' \
+  -x 'contracts/proxy/**/*Proxy*.sol' \
   -x 'contracts/proxy/beacon/UpgradeableBeacon.sol' \
-  -x 'contracts/proxy/ERC1967/ERC1967Proxy.sol' \
-  -x 'contracts/proxy/Proxy.sol' \
-  -x 'contracts/proxy/transparent/ProxyAdmin.sol' \
-  -x 'contracts/proxy/transparent/TransparentUpgradeableProxy.sol' \
   -p 'contracts/access/manager/AccessManager.sol' \
   -p 'contracts/finance/VestingWallet.sol' \
   -p 'contracts/governance/TimelockController.sol' \
