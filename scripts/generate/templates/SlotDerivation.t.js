@@ -73,10 +73,12 @@ function testSymbolicDeriveMapping${name}Dirty(bytes32 dirtyKey) public view {
 }
 `;
 
-const boundedMapping = ({ type, name }) => `\
+const boundedMapping = ({ type, name, isValueType }) => {
+  const mem = isValueType ? '' : ' memory';
+  return `\
 mapping(${type} => bytes) private _${type}Mapping;
 
-function testDeriveMapping${name}(${type} memory key) public view {
+function testDeriveMapping${name}(${type}${mem} key) public view {
     _assertDeriveMapping${name}(key);
 }
 
@@ -84,7 +86,7 @@ function symbolicDeriveMapping${name}() public view {
     _assertDeriveMapping${name}(svm.create${name}(256, "DeriveMapping${name}Input"));
 }
 
-function _assertDeriveMapping${name}(${type} memory key) internal view {
+function _assertDeriveMapping${name}(${type}${mem} key) internal view {
     bytes32 baseSlot;
     assembly {
         baseSlot := _${type}Mapping.slot
@@ -99,6 +101,7 @@ function _assertDeriveMapping${name}(${type} memory key) internal view {
     assertEq(baseSlot.deriveMapping(key), derivedSlot);
 }
 `;
+};
 
 // GENERATE
 module.exports = format(
@@ -109,18 +112,18 @@ module.exports = format(
       'using SlotDerivation for bytes32;',
       '',
       array,
-      TYPES.flatMap(type =>
+      TYPES.flatMap(typeObj =>
         [].concat(
-          type,
-          (type.variants ?? []).map(variant => ({
+          { type: typeObj.type, name: capitalize(typeObj.type), isValueType: typeObj.isValueType },
+          (typeObj.variants ?? []).map(variant => ({
             type: variant,
             name: capitalize(variant),
-            isValueType: type.isValueType,
+            isValueType: typeObj.isValueType,
           })),
         ),
       ).map(type => (type.isValueType ? mapping(type) : boundedMapping(type))),
-      mappingDirty(TYPES.bool),
-      mappingDirty(TYPES.address),
+      mappingDirty({ type: TYPES.bool.type, name: capitalize(TYPES.bool.type) }),
+      mappingDirty({ type: TYPES.address.type, name: capitalize(TYPES.address.type) }),
     ),
   ).trimEnd(),
   '}',
