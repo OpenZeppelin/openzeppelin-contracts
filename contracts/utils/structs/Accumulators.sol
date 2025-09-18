@@ -27,6 +27,8 @@ import {Memory} from "../Memory.sol";
  * * Memory: Minimal overhead until flattening (only stores references)
  */
 library Accumulators {
+    using Memory for *;
+
     /**
      * @dev Bytes accumulator: a linked list of `bytes`.
      *
@@ -51,14 +53,14 @@ library Accumulators {
 
     /// @dev Add a bytes buffer to (the end of) an Accumulator
     function push(Accumulator memory self, bytes memory data) internal pure returns (Accumulator memory) {
-        return push(self, Memory.asSlice(data));
+        return push(self, data.asSlice());
     }
 
     /// @dev Add a memory slice to (the end of) an Accumulator
     function push(Accumulator memory self, Memory.Slice data) internal pure returns (Accumulator memory) {
         Memory.Pointer ptr = _asPtr(AccumulatorEntry({next: _nullPtr(), data: data}));
 
-        if (Memory.asBytes32(self.head) == Memory.asBytes32(_nullPtr())) {
+        if (_nullPtr().equal(self.head)) {
             self.head = ptr;
             self.tail = ptr;
         } else {
@@ -71,14 +73,14 @@ library Accumulators {
 
     /// @dev Add a bytes buffer to (the beginning of) an Accumulator
     function shift(Accumulator memory self, bytes memory data) internal pure returns (Accumulator memory) {
-        return shift(self, Memory.asSlice(data));
+        return shift(self, data.asSlice());
     }
 
     /// @dev Add a memory slice to (the beginning of) an Accumulator
     function shift(Accumulator memory self, Memory.Slice data) internal pure returns (Accumulator memory) {
         Memory.Pointer ptr = _asPtr(AccumulatorEntry({next: self.head, data: data}));
 
-        if (Memory.asBytes32(self.head) == Memory.asBytes32(_nullPtr())) {
+        if (_nullPtr().equal(self.head)) {
             self.head = ptr;
             self.tail = ptr;
         } else {

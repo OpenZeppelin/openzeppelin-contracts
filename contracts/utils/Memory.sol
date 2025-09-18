@@ -47,6 +47,11 @@ library Memory {
         return Pointer.wrap(value);
     }
 
+    /// @dev Equality comparator for memory pointers.
+    function equal(Pointer ptr1, Pointer ptr2) internal pure returns (bool) {
+        return Pointer.unwrap(ptr1) == Pointer.unwrap(ptr2);
+    }
+
     type Slice is bytes32;
 
     /// @dev Get a slice representation of a bytes object in memory
