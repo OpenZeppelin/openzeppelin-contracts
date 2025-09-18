@@ -143,7 +143,7 @@ describe('RLP', function () {
 
   invalidTests.forEach(({ name, input }) => {
     it(`rejects ${name}`, async function () {
-      await expect(this.mock.$decodeBytes(input)).to.be.reverted;
+      await expect(this.mock.$decodeBytes(input)).to.be.revertedWithCustomError(this.mock, 'RLPInvalidEncoding');
     });
   });
 });

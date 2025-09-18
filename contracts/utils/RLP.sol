@@ -21,17 +21,8 @@ library RLP {
     using Bytes for *;
     using Memory for *;
 
-    /// @dev Items with length 0 are not RLP items.
-    error RLPEmptyItem();
-
-    /// @dev The `item` is not of the `expected` type.
-    error RLPUnexpectedType(ItemType expected, ItemType actual);
-
-    /// @dev The item is not long enough to contain the data.
-    error RLPInvalidDataRemainder(uint256 minLength, uint256 actualLength);
-
-    /// @dev The content length does not match the expected length.
-    error RLPContentLengthMismatch(uint256 expectedLength, uint256 actualLength);
+    /// @dev The item is not properly formatted and cannot de decoded.
+    error RLPInvalidEncoding();
 
     enum ItemType {
         Data, // Single data value
@@ -223,17 +214,17 @@ library RLP {
     /// @dev Decode an RLP encoded address. See {encode-address}
     function readAddress(Memory.Slice item) internal pure returns (address) {
         uint256 length = item.length();
-        require(length == 1 || length == 21, RLPContentLengthMismatch(21, length));
+        require(length == 1 || length == 21, RLPInvalidEncoding());
         return address(uint160(readUint256(item)));
     }
 
     /// @dev Decode an RLP encoded uint256. See {encode-uint256}
     function readUint256(Memory.Slice item) internal pure returns (uint256) {
         uint256 length = item.length();
-        require(length <= 33, RLPContentLengthMismatch(32, length));
+        require(length <= 33, RLPInvalidEncoding());
 
         (uint256 itemOffset, uint256 itemLength, ItemType itemType) = _decodeLength(item);
-        require(itemType == ItemType.Data, RLPUnexpectedType(ItemType.Data, itemType));
+        require(itemType == ItemType.Data, RLPInvalidEncoding());
 
         return itemLength == 0 ? 0 : uint256(item.load(itemOffset)) >> (256 - 8 * itemLength);
     }
@@ -246,7 +237,7 @@ library RLP {
     /// @dev Decodes an RLP encoded bytes. See {encode-bytes}
     function readBytes(Memory.Slice item) internal pure returns (bytes memory) {
         (uint256 offset, uint256 length, ItemType itemType) = _decodeLength(item);
-        require(itemType == ItemType.Data, RLPUnexpectedType(ItemType.Data, itemType));
+        require(itemType == ItemType.Data, RLPInvalidEncoding());
 
         // Length is checked by {toBytes}
         return item.slice(offset, length).toBytes();
@@ -262,8 +253,7 @@ library RLP {
         uint256 itemLength = item.length();
 
         (uint256 listOffset, uint256 listLength, ItemType itemType) = _decodeLength(item);
-        require(itemType == ItemType.List, RLPUnexpectedType(ItemType.List, itemType));
-        require(itemLength == listOffset + listLength, RLPContentLengthMismatch(listOffset + listLength, itemLength));
+        require(itemType == ItemType.List && itemLength == listOffset + listLength, RLPInvalidEncoding());
 
         // Start a buffer in the unallocated space
         uint256 ptr;
@@ -340,7 +330,7 @@ library RLP {
     ) private pure returns (uint256 _offset, uint256 _length, ItemType _itemtype) {
         uint256 itemLength = item.length();
 
-        require(itemLength != 0, RLPEmptyItem());
+        require(itemLength != 0, RLPInvalidEncoding());
         uint8 prefix = uint8(bytes1(item.load(0)));
 
         if (prefix < LONG_OFFSET) {
@@ -351,21 +341,19 @@ library RLP {
             } else if (prefix <= SHORT_OFFSET + SHORT_THRESHOLD) {
                 // Case: Short string (0-55 bytes)
                 uint256 strLength = prefix - SHORT_OFFSET;
-                require(itemLength > strLength, RLPInvalidDataRemainder(strLength, itemLength));
-                if (strLength == 1) {
-                    require(bytes1(item.load(1)) >= bytes1(SHORT_OFFSET)); // TODO: custom error for sanity checks
-                }
+                require(
+                    itemLength > strLength && (strLength != 1 || bytes1(item.load(1)) >= bytes1(SHORT_OFFSET)),
+                    RLPInvalidEncoding()
+                );
                 return (1, strLength, ItemType.Data);
             } else {
                 // Case: Long string (>55 bytes)
                 uint256 lengthLength = prefix - SHORT_OFFSET - SHORT_THRESHOLD;
 
-                require(itemLength > lengthLength, RLPInvalidDataRemainder(lengthLength, itemLength));
-                require(bytes1(item.load(0)) != 0x00); // TODO: custom error for sanity checks
+                require(itemLength > lengthLength && bytes1(item.load(0)) != 0x00, RLPInvalidEncoding());
 
                 uint256 len = uint256(item.load(1)) >> (256 - 8 * lengthLength);
-                require(len > SHORT_THRESHOLD, RLPInvalidDataRemainder(SHORT_THRESHOLD, len));
-                require(itemLength > lengthLength + len, RLPContentLengthMismatch(lengthLength + len, itemLength));
+                require(len > SHORT_THRESHOLD && itemLength > lengthLength + len, RLPInvalidEncoding());
 
                 return (lengthLength + 1, len, ItemType.Data);
             }
@@ -374,18 +362,17 @@ library RLP {
             if (prefix <= LONG_OFFSET + SHORT_THRESHOLD) {
                 // Case: Short list
                 uint256 listLength = prefix - LONG_OFFSET;
-                require(item.length() > listLength, RLPInvalidDataRemainder(listLength, itemLength));
+                require(item.length() > listLength, RLPInvalidEncoding());
                 return (1, listLength, ItemType.List);
             } else {
                 // Case: Long list
                 uint256 lengthLength = prefix - LONG_OFFSET - SHORT_THRESHOLD;
 
-                require(itemLength > lengthLength, RLPInvalidDataRemainder(lengthLength, itemLength));
+                require(itemLength > lengthLength, RLPInvalidEncoding());
                 require(bytes1(item.load(0)) != 0x00);
 
                 uint256 len = uint256(item.load(1)) >> (256 - 8 * lengthLength);
-                require(len > SHORT_THRESHOLD, RLPInvalidDataRemainder(SHORT_THRESHOLD, len));
-                require(itemLength > lengthLength + len, RLPContentLengthMismatch(lengthLength + len, itemLength));
+                require(len > SHORT_THRESHOLD && itemLength > lengthLength + len, RLPInvalidEncoding());
 
                 return (lengthLength + 1, len, ItemType.List);
             }
