@@ -117,7 +117,7 @@ In addition to the official Solidity Style Guide we have a number of other conve
 
   Some standards (e.g. ERC-20) use present tense, and in those cases the
   standard specification is used.
-  
+
 * Interface names should have a capital I prefix.
 
   ```solidity
@@ -141,7 +141,7 @@ In addition to the official Solidity Style Guide we have a number of other conve
 * Unchecked arithmetic blocks should contain comments explaining why overflow is guaranteed not to happen. If the reason is immediately apparent from the line above the unchecked block, the comment may be omitted.
 
 * Custom errors should be declared following the [EIP-6093](https://eips.ethereum.org/EIPS/eip-6093) rationale whenever reasonable. Also, consider the following:
-  
+
   * The domain prefix should be picked in the following order:
     1. Use `ERC<number>` if the error is a violation of an ERC specification.
     2. Use the name of the underlying component where it belongs (eg. `Governor`, `ECDSA`, or `Timelock`).
@@ -153,3 +153,18 @@ In addition to the official Solidity Style Guide we have a number of other conve
     4. Declare the error in an extension if the error only happens in such extension or child contracts.
 
   * Custom error names should not be declared twice along the library to avoid duplicated identifier declarations when inheriting from multiple contracts.
+
+* Numeric literals should use appropriate formats based on their purpose to improve code readability:
+
+  **Memory-related operations (use hexadecimal):**
+  * Memory locations: `mload(64)` → `mload(0x40)`
+  * Memory offsets: `mstore(add(ptr, 32), value)` → `mstore(add(ptr, 0x20), value)`
+  * Memory lengths: `keccak256(ptr, 85)` → `keccak256(ptr, 0x55)`
+
+  **Bit operations (use decimal):**
+  * Shift amounts: `shl(0x80, value)` → `shl(128, value)`
+  * Bit masks and positions should use decimal when representing bit counts
+
+  **Exceptions:**
+  * Trivially small values (1, 2) may use decimal even in memory operations: `ptr := add(ptr, 1)`
+  * In `call`/`staticcall`/`delegatecall`, decimal zero is acceptable when both location and length are zero

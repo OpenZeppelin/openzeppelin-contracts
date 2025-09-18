@@ -51,7 +51,7 @@ library ShortStrings {
      */
     function toShortString(string memory str) internal pure returns (ShortString) {
         bytes memory bstr = bytes(str);
-        if (bstr.length > 31) {
+        if (bstr.length > 0x1f) {
             revert StringTooLong(str);
         }
         return ShortString.wrap(bytes32(uint256(bytes32(bstr)) | bstr.length));
@@ -63,7 +63,7 @@ library ShortStrings {
     function toString(ShortString sstr) internal pure returns (string memory) {
         uint256 len = byteLength(sstr);
         // using `new string(len)` would work locally but is not memory safe.
-        string memory str = new string(32);
+        string memory str = new string(0x20);
         assembly ("memory-safe") {
             mstore(str, len)
             mstore(add(str, 0x20), sstr)
@@ -76,7 +76,7 @@ library ShortStrings {
      */
     function byteLength(ShortString sstr) internal pure returns (uint256) {
         uint256 result = uint256(ShortString.unwrap(sstr)) & 0xFF;
-        if (result > 31) {
+        if (result > 0x1f) {
             revert InvalidShortString();
         }
         return result;
@@ -86,7 +86,7 @@ library ShortStrings {
      * @dev Encode a string into a `ShortString`, or write it to storage if it is too long.
      */
     function toShortStringWithFallback(string memory value, string storage store) internal returns (ShortString) {
-        if (bytes(value).length < 32) {
+        if (bytes(value).length < 0x20) {
             return toShortString(value);
         } else {
             StorageSlot.getStringSlot(store).value = value;

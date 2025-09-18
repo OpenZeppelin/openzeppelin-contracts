@@ -23,7 +23,7 @@ Since the minimum requirement of xref:api:account.adoc#Account[`Account`] is to 
 * xref:api:utils/cryptography.adoc#SignerECDSA[`SignerECDSA`]: Verifies signatures produced by regular EVM Externally Owned Accounts (EOAs).
 * xref:api:utils/cryptography.adoc#SignerP256[`SignerP256`]: Validates signatures using the secp256r1 curve, common for World Wide Web Consortium (W3C) standards such as FIDO keys, passkeys or secure enclaves.
 * xref:api:utils/cryptography.adoc#SignerRSA[`SignerRSA`]: Verifies signatures of traditional PKI systems and X.509 certificates.
-* xref:api:utils/cryptography.adoc#SignerERC7702[`SignerERC7702`]: Checks EOA signatures delegated to this signer using https://eips.ethereum.org/EIPS/eip-7702#set-code-transaction[EIP-7702 authorizations]
+* xref:api:utils/cryptography.adoc#SignerEIP7702[`SignerEIP7702`]: Checks EOA signatures delegated to this signer using https://eips.ethereum.org/EIPS/eip-7702#set-code-transaction[EIP-7702 authorizations]
 * xref:api:utils/cryptography.adoc#SignerERC7913[`SignerERC7913`]: Verifies generalized signatures following https://eips.ethereum.org/EIPS/eip-7913[ERC-7913].
 * https://docs.openzeppelin.com/community-contracts/0.0.1/api/utils#SignerZKEmail[`SignerZKEmail`]: Enables email-based authentication for smart contracts using zero knowledge proofs of email authority signatures.
 * xref:api:utils/cryptography.adoc#MultiSignerERC7913[`MultiSignerERC7913`]: Allows using multiple ERC-7913 signers with a threshold-based signature verification system.
@@ -96,9 +96,9 @@ Here's an example of how to use batched execution using EIP-7702:
 ----
 import {Account} from "@openzeppelin/community-contracts/account/Account.sol";
 import {ERC7821} from "@openzeppelin/community-contracts/account/extensions/draft-ERC7821.sol";
-import {SignerERC7702} from "@openzeppelin/community-contracts/utils/cryptography/SignerERC7702.sol";
+import {SignerEIP7702} from "@openzeppelin/community-contracts/utils/cryptography/SignerEIP7702.sol";
 
-contract MyAccount is Account, SignerERC7702, ERC7821 {
+contract MyAccount is Account, SignerEIP7702, ERC7821 {
     // Override to allow the entrypoint to execute batches
     function _erc7821AuthorizedExecutor(
         address caller,

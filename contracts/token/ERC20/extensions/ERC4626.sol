@@ -46,6 +46,26 @@ import {Math} from "../../../utils/math/Math.sol";
  *
  * To learn more, check out our xref:ROOT:erc4626.adoc[ERC-4626 guide].
  * ====
+ *
+ * [NOTE]
+ * ====
+ * When overriding this contract, some elements must to be considered:
+ *
+ * * When overriding the behavior of the deposit or withdraw mechanisms, it is recommended to override the internal
+ * functions. Overriding {_deposit} automatically affects both {deposit} and {mint}. Similarly, overriding {_withdraw}
+ * automatically affects both {withdraw} and {redeem}. Overall it is not recommended to override the public facing
+ * functions since that could lead to inconsistent behaviors between the {deposit} and {mint} or between {withdraw} and
+ * {redeem}, which is documented to have lead to loss of funds.
+ *
+ * * Overrides to the deposit or withdraw mechanism must be reflected in the preview functions as well.
+ *
+ * * {maxWithdraw} depends on {maxRedeem}. Therefore, overriding {maxRedeem} only is enough. On the other hand,
+ * overriding {maxWithdraw} only would have no effect on {maxRedeem}, and could create an inconsistency between the two
+ * functions.
+ *
+ * * If {previewRedeem} is overridden to revert, {maxWithdraw} must be overridden as necessary to ensure it
+ * always return successfully.
+ * ====
  */
 abstract contract ERC4626 is ERC20, IERC4626 {
     using Math for uint256;
@@ -142,7 +162,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
 
     /// @inheritdoc IERC4626
     function maxWithdraw(address owner) public view virtual returns (uint256) {
-        return _convertToAssets(balanceOf(owner), Math.Rounding.Floor);
+        return previewRedeem(maxRedeem(owner));
     }
 
     /// @inheritdoc IERC4626

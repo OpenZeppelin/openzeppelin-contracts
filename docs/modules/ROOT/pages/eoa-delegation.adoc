@@ -10,7 +10,7 @@ This section walks you through the process of delegating an EOA to a contract fo
 
 == Delegating execution
 
-EIP-7702 enables EOAs to delegate their execution capabilities to smart contracts, effectively bridging the gap between traditional and xref:accounts.adoc[Smart Accounts]. The xref:api:utils/cryptography.adoc#[`SignerERC7702`] utility facilitates this delegation by verifying signatures against the EOA's address (`address(this)`), making it easier to implement EIP-7702 in smart contract accounts.
+EIP-7702 enables EOAs to delegate their execution capabilities to smart contracts, effectively bridging the gap between traditional and xref:accounts.adoc[Smart Accounts]. The xref:api:utils/cryptography.adoc#[`SignerEIP7702`] utility facilitates this delegation by verifying signatures against the EOA's address (`address(this)`), making it easier to implement EIP-7702 in smart contract accounts.
 
 [source,solidity]
 ----
@@ -86,7 +86,7 @@ WARNING: Updating the delegation designator may render your EOA unusable due to 
 
 == Using with ERC-4337
 
-The ability to set code to execute logic on an EOA allows users to leverage ERC-4337 infrastructure to process user operations. Developers only need to combine an xref:api:account.adoc#Account[`Account`] contract with an xref:api:utils/cryptography.adoc#SignerERC7702[`SignerERC7702`] to accomplish ERC-4337 compliance out of the box.
+The ability to set code to execute logic on an EOA allows users to leverage ERC-4337 infrastructure to process user operations. Developers only need to combine an xref:api:account.adoc#Account[`Account`] contract with an xref:api:utils/cryptography.adoc#SignerEIP7702[`SignerEIP7702`] to accomplish ERC-4337 compliance out of the box.
 
 === Sending a UserOp
 
