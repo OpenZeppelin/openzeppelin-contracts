@@ -23,7 +23,7 @@ fi
 # -D: delete original and excluded files
 # -b: use this build info file
 # -i: use included Initializable
-# -x: exclude proxy-related contracts with a few exceptions
+# -x: exclude some proxy-related contracts
 # -p: emit public initializer
 # -n: use namespaces
 # -N: exclude from namespaces transformation
@@ -32,12 +32,8 @@ npx @openzeppelin/upgrade-safe-transpiler -D \
   -b "$build_info" \
   -i contracts/proxy/utils/Initializable.sol \
   -x 'contracts-exposed/**/*' \
-  -x 'contracts/proxy/**/*' \
-  -x '!contracts/proxy/Clones.sol' \
-  -x '!contracts/proxy/ERC1967/ERC1967Storage.sol' \
-  -x '!contracts/proxy/ERC1967/ERC1967Utils.sol' \
-  -x '!contracts/proxy/utils/UUPSUpgradeable.sol' \
-  -x '!contracts/proxy/beacon/IBeacon.sol' \
+  -x 'contracts/proxy/**/*Proxy*.sol' \
+  -x 'contracts/proxy/beacon/UpgradeableBeacon.sol' \
   -p 'contracts/access/manager/AccessManager.sol' \
   -p 'contracts/finance/VestingWallet.sol' \
   -p 'contracts/governance/TimelockController.sol' \
@@ -45,6 +41,9 @@ npx @openzeppelin/upgrade-safe-transpiler -D \
   -n \
   -N 'contracts/mocks/**/*' \
   -q '@openzeppelin/'
+
+# create alias to Initializable and UUPSUpgradeable
+cp $DIRNAME/alias/*.sol contracts/proxy/utils/.
 
 # delete compilation artifacts of vanilla code
 npm run clean
