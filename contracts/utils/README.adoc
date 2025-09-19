@@ -24,6 +24,7 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {MerkleTree}: A library with https://wikipedia.org/wiki/Merkle_Tree[Merkle Tree] data structures and helper functions.
  * {Address}: Collection of functions for overloading Solidity's https://docs.soliditylang.org/en/latest/types.html#address[`address`] type.
  * {Arrays}: Collection of functions that operate on https://docs.soliditylang.org/en/latest/types.html#arrays[`arrays`].
+ * {Base58}: On-chain base58 encoding and decoding.
  * {Base64}: On-chain base64 and base64URL encoding according to https://datatracker.ietf.org/doc/html/rfc4648[RFC-4648].
  * {Blockhash}: A library for accessing historical block hashes beyond the standard 256 block limit utilizing EIP-2935's historical blockhash functionality.
  * {Bytes}: Common operations on bytes objects.
@@ -109,6 +110,8 @@ Ethereum contracts have no native concept of an interface, so applications must 
 {{Address}}
 
 {{Arrays}}
+
+{{Base58}}
 
 {{Base64}}
 

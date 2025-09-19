@@ -8,6 +8,7 @@ import {Accumulators} from "../utils/structs/Accumulators.sol";
 import {Address} from "../utils/Address.sol";
 import {Arrays} from "../utils/Arrays.sol";
 import {AuthorityUtils} from "../access/manager/AuthorityUtils.sol";
+import {Base58} from "../utils/Base58.sol";
 import {Base64} from "../utils/Base64.sol";
 import {BitMaps} from "../utils/structs/BitMaps.sol";
 import {Blockhash} from "../utils/Blockhash.sol";
