@@ -13,14 +13,14 @@ import {Memory} from "../Memory.sol";
  *
  * Uses 0x00 as sentinel value for empty state (i.e. null pointers)
  *
- * == How it works
+ * ==== How it works
  *
  * 1. Create an empty accumulator with null head/tail pointers
  * 2. Add data using {push} (append) or {shift} (prepend). It creates linked list nodes
  * 3. Each node stores a reference to existing data (no copying)
  * 4. Call {flatten} to materialize the final concatenated result in a single operation
  *
- * == Performance
+ * ==== Performance
  *
  * * Addition: O(1) per operation (just pointer manipulation)
  * * Flattening: O(n) single pass with one memory allocation
