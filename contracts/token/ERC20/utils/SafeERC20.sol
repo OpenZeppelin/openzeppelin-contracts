@@ -151,7 +151,7 @@ library SafeERC20 {
      * targeting contracts.
      *
      * NOTE: When the recipient address (`to`) has no code (i.e. is an EOA), this function behaves as {forceApprove}.
-     * Opposedly, when the recipient address (`to`) has code, this function only attempts to call {ERC1363-approveAndCall}
+     * Oppositely, when the recipient address (`to`) has code, this function only attempts to call {ERC1363-approveAndCall}
      * once without retrying, and relies on the returned value to be true.
      *
      * Reverts if the returned value is other than `true`.

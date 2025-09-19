@@ -45,7 +45,7 @@ interface IERC20Permit {
      * given ``owner``'s signed approval.
      *
      * IMPORTANT: The same issues {IERC20-approve} has related to transaction
-     * ordering also apply here.
+     * ordering also applies here.
      *
      * Emits an {Approval} event.
      *

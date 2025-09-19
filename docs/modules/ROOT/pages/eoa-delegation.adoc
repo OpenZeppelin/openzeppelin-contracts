@@ -1,6 +1,6 @@
 = EOA Delegation
 
-https://eips.ethereum.org/EIPS/eip-7702[EIP-7702] introduces a new transaction type (`0x4`) that grants https://ethereum.org/en/developers/docs/accounts/[Externally Owned Accounts (EOAs)] the ability to delegate execution to an smart contract. This is particularly useful to enable traditional EVM accounts to:
+https://eips.ethereum.org/EIPS/eip-7702[EIP-7702] introduces a new transaction type (`0x4`) that grants https://ethereum.org/en/developers/docs/accounts/[Externally Owned Accounts (EOAs)] the ability to delegate execution to a smart contract. This is particularly useful to enable traditional EVM accounts to:
 
 * Batch multiple operations in a single transaction (e.g. xref:api:token/ERC20.adoc#IERC20-approve-address-uint256-[`approve`] + xref:api:token/ERC20.adoc#IERC20-transfer-address-uint256-[`transfer`], yey!)
 * Sponsoring transactions for other users.
