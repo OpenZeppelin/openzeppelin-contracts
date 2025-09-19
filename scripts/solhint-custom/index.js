@@ -91,11 +91,7 @@ module.exports = [
 
     FunctionDefinition(node) {
       if (node.visibility == 'external' && node.isVirtual) {
-        this.require(
-          node.isReceiveEther || node.isFallback,
-          node,
-          'Functions should not be external and virtual',
-        );
+        this.require(node.isReceiveEther || node.isFallback, node, 'Functions should not be external and virtual');
       }
     }
   },
