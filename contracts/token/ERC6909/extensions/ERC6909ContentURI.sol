@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.3.0) (token/ERC6909/extensions/draft-ERC6909ContentURI.sol)
+// OpenZeppelin Contracts (last updated v5.3.0) (token/ERC6909/extensions/ERC6909ContentURI.sol)
 
 pragma solidity ^0.8.20;
 
-import {ERC6909} from "../draft-ERC6909.sol";
-import {IERC6909ContentURI} from "../../../interfaces/draft-IERC6909.sol";
+import {ERC6909} from "../ERC6909.sol";
+import {IERC6909ContentURI} from "../../../interfaces/IERC6909.sol";
 
 /**
  * @dev Implementation of the Content URI extension defined in ERC6909.
