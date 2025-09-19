@@ -173,8 +173,13 @@ abstract contract AccountERC7579 is Account, IERC1271, IERC7579Execution, IERC75
     }
 
     /**
-     * @dev Implement ERC-1271 through IERC7579Validator modules. If module based validation fails, fallback to
-     * "native" validation by the abstract signer.
+     * @dev Implements ERC-1271 by delegating validation to installed {IERC7579Validator} modules via
+     * {IERC7579Validator-isValidSignatureWithSender}. If no installed module validates the signature, this
+     * function returns `0xffffffff`.
+     *
+     * This extension does not perform native/raw signature validation by default. Developers who require
+     * native/raw validation should either override this function to include it or compose with other
+     * extensions (e.g. {ERC7739}) and resolve multiple inheritance explicitly.
      *
      * NOTE: when combined with {ERC7739}, resolution ordering may have an impact ({ERC7739} does not call super).
      * Manual resolution might be necessary.
@@ -200,6 +205,11 @@ abstract contract AccountERC7579 is Account, IERC1271, IERC7579Execution, IERC75
      * @dev Validates a user operation with {_signableUserOpHash} and returns the validation data
      * if the module specified by the first 20 bytes of the nonce key is installed. Falls back to
      * {Account-_validateUserOp} otherwise.
+     *
+     * Note: if no installed validation module is extracted from the user operation, this function
+     * defers to {Account-_validateUserOp}, which performs a {_rawSignatureValidation} check. This contract
+     * overrides {_rawSignatureValidation} to always return `false`. Projects that require native/raw
+     * validation should override {_rawSignatureValidation} or compose with another extension that provides it.
      *
      * See {_extractUserOpValidator} for the module extraction logic.
      */
