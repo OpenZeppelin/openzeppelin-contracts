@@ -7,7 +7,7 @@ import {IERC721Receiver} from "../IERC721Receiver.sol";
 import {IERC721Errors} from "../../../interfaces/draft-IERC6093.sol";
 
 /**
- * @dev Library that provide common ERC-721 utility functions.
+ * @dev Library that provides common ERC-721 utility functions.
  *
  * See https://eips.ethereum.org/EIPS/eip-721[ERC-721].
  *
