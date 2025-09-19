@@ -95,4 +95,18 @@ module.exports = [
       }
     }
   },
+
+  class extends Base {
+    static ruleId = 'no-public-library';
+
+    FunctionDefinition(node) {
+      if (node.parent.kind === 'library') {
+        this.require(
+          node.visibility === 'internal' || node.visibility === 'private',
+          node,
+          'Library functions should not be internal or private',
+        );
+      }
+    }
+  },
 ];
