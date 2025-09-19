@@ -23,16 +23,6 @@ class Base {
 
 module.exports = [
   class extends Base {
-    static ruleId = 'interface-only-external-functions';
-
-    FunctionDefinition(node) {
-      if (node.parent.kind === 'interface') {
-        this.require(node.visibility === 'external', node, 'Interface functions must be external');
-      }
-    }
-  },
-
-  class extends Base {
     static ruleId = 'private-variables';
 
     VariableDeclaration(node) {
