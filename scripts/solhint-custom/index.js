@@ -110,7 +110,7 @@ module.exports = [
         this.require(
           node.visibility === 'internal' || node.visibility === 'private',
           node,
-          'Library functions should not be internal or private',
+          'Library functions should be internal or private',
         );
       }
     }
