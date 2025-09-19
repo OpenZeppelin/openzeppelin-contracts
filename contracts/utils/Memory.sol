@@ -47,6 +47,11 @@ library Memory {
         return Pointer.wrap(value);
     }
 
+    /// @dev Move a pointer forward by a given offset.
+    function forward(Pointer ptr, uint256 offset) internal pure returns (Pointer) {
+        return Pointer.wrap(bytes32(uint256(Pointer.unwrap(ptr)) + offset));
+    }
+
     /// @dev Equality comparator for memory pointers.
     function equal(Pointer ptr1, Pointer ptr2) internal pure returns (bool) {
         return Pointer.unwrap(ptr1) == Pointer.unwrap(ptr2);
@@ -71,13 +76,13 @@ library Memory {
     /// @dev Offset a memory slice (equivalent to self[start:] for calldata slices)
     function slice(Slice self, uint256 offset) internal pure returns (Slice) {
         if (offset > length(self)) Panic.panic(Panic.ARRAY_OUT_OF_BOUNDS);
-        return _asSlice(length(self) - offset, asPointer(bytes32(uint256(asBytes32(_pointer(self))) + offset)));
+        return _asSlice(length(self) - offset, forward(_pointer(self), offset));
     }
 
     /// @dev Offset and cut a Slice (equivalent to self[start:start+length] for calldata slices)
     function slice(Slice self, uint256 offset, uint256 len) internal pure returns (Slice) {
         if (offset + len > length(self)) Panic.panic(Panic.ARRAY_OUT_OF_BOUNDS);
-        return _asSlice(len, asPointer(bytes32(uint256(asBytes32(_pointer(self))) + offset)));
+        return _asSlice(len, forward(_pointer(self), offset));
     }
 
     /**
