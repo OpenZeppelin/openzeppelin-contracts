@@ -1,6 +1,9 @@
 const path = require('path');
 const minimatch = require('minimatch');
 
+const { isFallbackFunction } = require('solhint/lib/common/ast-types');
+const { hasLeadingUnderscore } = require('solhint/lib/common/identifier-naming');
+
 // Files matching these patterns will be ignored unless a rule has `static global = true`
 const ignore = ['contracts/mocks/**/*', 'test/**/*'];
 
@@ -40,23 +43,26 @@ module.exports = [
     static ruleId = 'leading-underscore';
 
     VariableDeclaration(node) {
-      // TODO: do we want that rule ? Should no immutable variable have a prefix regardless of visibility ?
-      //
-      // else if (node.isImmutable) {
-      //   this.require(!node.name.startsWith('_'), node, 'Immutable variables should not have leading underscore');
-      // }
       if (node.isDeclaredConst) {
-        this.require(!node.name.startsWith('_'), node, 'Constant variables should not have leading underscore');
+        this.require(!hasLeadingUnderscore(node.name), node, 'Constant variables should not have leading underscore');
       } else if (node.isStateVar) {
         switch (node.visibility) {
           case 'private':
-            this.require(node.name.startsWith('_'), node, 'Private state variables must have leading underscore');
+            this.require(hasLeadingUnderscore(node.name), node, 'Private state variables must have leading underscore');
             break;
           case 'internal':
-            this.require(node.name.startsWith('_'), node, 'Internal state variables must have leading underscore');
+            this.require(
+              hasLeadingUnderscore(node.name),
+              node,
+              'Internal state variables must have leading underscore',
+            );
             break;
           case 'public':
-            this.require(!node.name.startsWith('_'), node, 'Public state variables should not have leading underscore');
+            this.require(
+              !hasLeadingUnderscore(node.name),
+              node,
+              'Public state variables should not have leading underscore',
+            );
             break;
         }
       }
@@ -65,14 +71,14 @@ module.exports = [
     FunctionDefinition(node) {
       switch (node.visibility) {
         case 'external':
-          this.require(!node.name.startsWith('_'), node, 'External functions should not have leading underscore');
+          this.require(!hasLeadingUnderscore(node.name), node, 'External functions should not have leading underscore');
           break;
         case 'public':
-          this.require(!node.name.startsWith('_'), node, 'Public functions should not have leading underscore');
+          this.require(!hasLeadingUnderscore(node.name), node, 'Public functions should not have leading underscore');
           break;
         case 'internal':
           this.require(
-            node.name.startsWith('_') !== (node.parent.kind === 'library'),
+            hasLeadingUnderscore(node.name) !== (node.parent.kind === 'library'),
             node,
             node.parent.kind === 'library'
               ? 'Library internal functions should not have leading underscore'
@@ -80,7 +86,7 @@ module.exports = [
           );
           break;
         case 'private':
-          this.require(node.name.startsWith('_'), node, 'Private functions must have leading underscore');
+          this.require(hasLeadingUnderscore(node.name), node, 'Private functions must have leading underscore');
           break;
       }
     }
@@ -91,7 +97,7 @@ module.exports = [
 
     FunctionDefinition(node) {
       if (node.visibility == 'external' && node.isVirtual) {
-        this.require(node.isReceiveEther || node.isFallback, node, 'Functions should not be external and virtual');
+        this.require(isFallbackFunction(node), node, 'Functions should not be external and virtual');
       }
     }
   },
