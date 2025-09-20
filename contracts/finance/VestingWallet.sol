@@ -135,7 +135,7 @@ contract VestingWallet is Context, Ownable {
     function vestedAmount(uint64 timestamp) public view virtual returns (uint256) {
         uint256 balance = address(this).balance;
         uint256 releasedAmount = released();
-        
+
         // Check for overflow and cap at type(uint256).max
         uint256 totalAllocation = balance;
         if (totalAllocation <= type(uint256).max - releasedAmount) {
@@ -143,7 +143,7 @@ contract VestingWallet is Context, Ownable {
         } else {
             totalAllocation = type(uint256).max;
         }
-        
+
         return _vestingSchedule(totalAllocation, timestamp);
     }
 
@@ -153,7 +153,7 @@ contract VestingWallet is Context, Ownable {
     function vestedAmount(address token, uint64 timestamp) public view virtual returns (uint256) {
         uint256 balance = IERC20(token).balanceOf(address(this));
         uint256 releasedAmount = released(token);
-        
+
         // Check for overflow and cap at type(uint256).max
         uint256 totalAllocation = balance;
         if (totalAllocation <= type(uint256).max - releasedAmount) {
@@ -161,7 +161,7 @@ contract VestingWallet is Context, Ownable {
         } else {
             totalAllocation = type(uint256).max;
         }
-        
+
         return _vestingSchedule(totalAllocation, timestamp);
     }
 
@@ -177,20 +177,23 @@ contract VestingWallet is Context, Ownable {
         } else {
             uint256 timeElapsed = timestamp - start();
             uint256 durationValue = duration();
-            
+
             // Handle edge case where timeElapsed is 0
             if (timeElapsed == 0) {
                 return 0;
             }
-            
+
             // Check for overflow in multiplication
             if (totalAllocation <= type(uint256).max / timeElapsed) {
                 return (totalAllocation * timeElapsed) / durationValue;
             } else {
                 // If multiplication would overflow, use a different approach
                 // Calculate the ratio first to avoid overflow
-                return (totalAllocation / durationValue) * timeElapsed + 
-                       ((totalAllocation % durationValue) * timeElapsed) / durationValue;
+                return
+                    (totalAllocation / durationValue) *
+                    timeElapsed +
+                    ((totalAllocation % durationValue) * timeElapsed) /
+                    durationValue;
             }
         }
     }
