@@ -26,7 +26,7 @@ const upgradeableSlot = (contractName, offset) => {
     // Try to get the artifact paths, will throw if it doesn't exist
     artifacts._getArtifactPathSync(`${contractName}Upgradeable`);
     return offset + ethers.toBigInt(erc7201Slot(erc7201format(contractName)));
-  } catch (_) {
+  } catch {
     return offset;
   }
 };

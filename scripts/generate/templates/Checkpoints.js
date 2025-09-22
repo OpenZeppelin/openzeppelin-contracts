@@ -17,10 +17,10 @@ import {Math} from "../math/Math.sol";
 `;
 
 const errors = `\
-    /**
-     * @dev A value was attempted to be inserted on a past checkpoint.
-     */
-    error CheckpointUnorderedInsertion();
+/**
+ * @dev A value was attempted to be inserted on a past checkpoint.
+ */
+error CheckpointUnorderedInsertion();
 `;
 
 const template = opts => `\
@@ -37,7 +37,7 @@ struct ${opts.checkpointTypeName} {
  * @dev Pushes a (\`key\`, \`value\`) pair into a ${opts.historyTypeName} so that it is stored as the checkpoint.
  *
  * Returns previous value and new value.
- * 
+ *
  * IMPORTANT: Never accept \`key\` as a user input, since an arbitrary \`type(${opts.keyTypeName}).max\` key set will disable the
  * library.
  */
@@ -45,7 +45,7 @@ function push(
     ${opts.historyTypeName} storage self,
     ${opts.keyTypeName} key,
     ${opts.valueTypeName} value
-) internal returns (${opts.valueTypeName}, ${opts.valueTypeName}) {
+) internal returns (${opts.valueTypeName} oldValue, ${opts.valueTypeName} newValue) {
     return _insert(self.${opts.checkpointFieldName}, key, value);
 }
 
@@ -73,7 +73,7 @@ function upperLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} k
  * @dev Returns the value in the last (most recent) checkpoint with key lower or equal than the search key, or zero
  * if there is none.
  *
- * NOTE: This is a variant of {upperLookup} that is optimised to find "recent" checkpoint (checkpoints with high
+ * NOTE: This is a variant of {upperLookup} that is optimized to find "recent" checkpoint (checkpoints with high
  * keys).
  */
 function upperLookupRecent(${opts.historyTypeName} storage self, ${opts.keyTypeName} key) internal view returns (${opts.valueTypeName}) {
@@ -108,15 +108,7 @@ function latest(${opts.historyTypeName} storage self) internal view returns (${o
  * @dev Returns whether there is a checkpoint in the structure (i.e. it is not empty), and if so the key and value
  * in the most recent checkpoint.
  */
-function latestCheckpoint(${opts.historyTypeName} storage self)
-    internal
-    view
-    returns (
-        bool exists,
-        ${opts.keyTypeName} ${opts.keyFieldName},
-        ${opts.valueTypeName} ${opts.valueFieldName}
-    )
-{
+function latestCheckpoint(${opts.historyTypeName} storage self) internal view returns (bool exists, ${opts.keyTypeName} ${opts.keyFieldName}, ${opts.valueTypeName} ${opts.valueFieldName}) {
     uint256 pos = self.${opts.checkpointFieldName}.length;
     if (pos == 0) {
         return (false, 0, 0);
@@ -127,7 +119,7 @@ function latestCheckpoint(${opts.historyTypeName} storage self)
 }
 
 /**
- * @dev Returns the number of checkpoint.
+ * @dev Returns the number of checkpoints.
  */
 function length(${opts.historyTypeName} storage self) internal view returns (uint256) {
     return self.${opts.checkpointFieldName}.length;
@@ -148,7 +140,7 @@ function _insert(
     ${opts.checkpointTypeName}[] storage self,
     ${opts.keyTypeName} key,
     ${opts.valueTypeName} value
-) private returns (${opts.valueTypeName}, ${opts.valueTypeName}) {
+) private returns (${opts.valueTypeName} oldValue, ${opts.valueTypeName} newValue) {
     uint256 pos = self.length;
 
     if (pos > 0) {
@@ -163,7 +155,7 @@ function _insert(
 
         // Update or push new checkpoint
         if (lastKey == key) {
-            _unsafeAccess(self, pos - 1).${opts.valueFieldName} = value;
+            last.${opts.valueFieldName} = value;
         } else {
             self.push(${opts.checkpointTypeName}({${opts.keyFieldName}: key, ${opts.valueFieldName}: value}));
         }
@@ -175,7 +167,7 @@ function _insert(
 }
 
 /**
- * @dev Return the index of the last (most recent) checkpoint with key lower or equal than the search key, or \`high\`
+ * @dev Return the index of the first (oldest) checkpoint with key strictly bigger than the search key, or \`high\`
  * if there is none. \`low\` and \`high\` define a section where to do the search, with inclusive \`low\` and exclusive
  * \`high\`.
  *
@@ -199,9 +191,9 @@ function _upperBinaryLookup(
 }
 
 /**
- * @dev Return the index of the first (oldest) checkpoint with key is greater or equal than the search key, or
- * \`high\` if there is none. \`low\` and \`high\` define a section where to do the search, with inclusive \`low\` and
- * exclusive \`high\`.
+ * @dev Return the index of the first (oldest) checkpoint with key greater or equal than the search key, or \`high\`
+ * if there is none. \`low\` and \`high\` define a section where to do the search, with inclusive \`low\` and exclusive
+ * \`high\`.
  *
  * WARNING: \`high\` should not be greater than the array's length.
  */
@@ -225,24 +217,26 @@ function _lowerBinaryLookup(
 /**
  * @dev Access an element of the array without performing bounds check. The position is assumed to be within bounds.
  */
-function _unsafeAccess(${opts.checkpointTypeName}[] storage self, uint256 pos)
-    private
-    pure
-    returns (${opts.checkpointTypeName} storage result)
-{
+function _unsafeAccess(
+    ${opts.checkpointTypeName}[] storage self,
+    uint256 pos
+) private pure returns (${opts.checkpointTypeName} storage result) {
     assembly {
-        mstore(0, self.slot)
-        result.slot := add(keccak256(0, 0x20), pos)
+        mstore(0x00, self.slot)
+        result.slot := add(keccak256(0x00, 0x20), ${opts.checkpointSize === 1 ? 'pos' : `mul(pos, ${opts.checkpointSize})`})
     }
 }
 `;
-/* eslint-enable max-len */
 
 // GENERATE
 module.exports = format(
   header.trimEnd(),
   'library Checkpoints {',
-  errors,
-  OPTS.flatMap(opts => template(opts)),
+  format(
+    [].concat(
+      errors,
+      OPTS.map(opts => template(opts)),
+    ),
+  ).trimEnd(),
   '}',
 );

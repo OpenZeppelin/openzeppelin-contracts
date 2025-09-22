@@ -1,16 +1,19 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.3.0) (utils/ReentrancyGuardTransient.sol)
 
 pragma solidity ^0.8.24;
 
-import {StorageSlot} from "./StorageSlot.sol";
+import {TransientSlot} from "./TransientSlot.sol";
 
 /**
  * @dev Variant of {ReentrancyGuard} that uses transient storage.
  *
  * NOTE: This variant only works on networks where EIP-1153 is available.
+ *
+ * _Available since v5.1._
  */
 abstract contract ReentrancyGuardTransient {
-    using StorageSlot for *;
+    using TransientSlot for *;
 
     // keccak256(abi.encode(uint256(keccak256("openzeppelin.storage.ReentrancyGuard")) - 1)) & ~bytes32(uint256(0xff))
     bytes32 private constant REENTRANCY_GUARD_STORAGE =
@@ -34,18 +37,35 @@ abstract contract ReentrancyGuardTransient {
         _nonReentrantAfter();
     }
 
-    function _nonReentrantBefore() private {
-        // On the first call to nonReentrant, _status will be NOT_ENTERED
+    /**
+     * @dev A `view` only version of {nonReentrant}. Use to block view functions
+     * from being called, preventing reading from inconsistent contract state.
+     *
+     * CAUTION: This is a "view" modifier and does not change the reentrancy
+     * status. Use it only on view functions. For payable or non-payable functions,
+     * use the standard {nonReentrant} modifier instead.
+     */
+    modifier nonReentrantView() {
+        _nonReentrantBeforeView();
+        _;
+    }
+
+    function _nonReentrantBeforeView() private view {
         if (_reentrancyGuardEntered()) {
             revert ReentrancyGuardReentrantCall();
         }
+    }
+
+    function _nonReentrantBefore() private {
+        // On the first call to nonReentrant, REENTRANCY_GUARD_STORAGE.asBoolean().tload() will be false
+        _nonReentrantBeforeView();
 
         // Any calls to nonReentrant after this point will fail
-        REENTRANCY_GUARD_STORAGE.asBoolean().tstore(true);
+        _reentrancyGuardStorageSlot().asBoolean().tstore(true);
     }
 
     function _nonReentrantAfter() private {
-        REENTRANCY_GUARD_STORAGE.asBoolean().tstore(false);
+        _reentrancyGuardStorageSlot().asBoolean().tstore(false);
     }
 
     /**
@@ -53,6 +73,10 @@ abstract contract ReentrancyGuardTransient {
      * `nonReentrant` function in the call stack.
      */
     function _reentrancyGuardEntered() internal view returns (bool) {
-        return REENTRANCY_GUARD_STORAGE.asBoolean().tload();
+        return _reentrancyGuardStorageSlot().asBoolean().tload();
+    }
+
+    function _reentrancyGuardStorageSlot() internal pure virtual returns (bytes32) {
+        return REENTRANCY_GUARD_STORAGE;
     }
 }

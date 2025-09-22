@@ -28,7 +28,7 @@ describe('GovernorPreventLateQuorum', function () {
       const [owner, proposer, voter1, voter2, voter3, voter4] = await ethers.getSigners();
       const receiver = await ethers.deployContract('CallReceiverMock');
 
-      const token = await ethers.deployContract(Token, [tokenName, tokenSymbol, version]);
+      const token = await ethers.deployContract(Token, [tokenName, tokenSymbol, tokenName, version]);
       const mock = await ethers.deployContract('$GovernorPreventLateQuorumMock', [
         name, // name
         votingDelay, // initialVotingDelay

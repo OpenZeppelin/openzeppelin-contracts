@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (utils/cryptography/EIP712.sol)
+// OpenZeppelin Contracts (last updated v5.4.0) (utils/cryptography/EIP712.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
 import {MessageHashUtils} from "./MessageHashUtils.sol";
 import {ShortStrings, ShortString} from "../ShortStrings.sol";
@@ -48,7 +48,9 @@ abstract contract EIP712 is IERC5267 {
 
     ShortString private immutable _name;
     ShortString private immutable _version;
+    // slither-disable-next-line constable-states
     string private _nameFallback;
+    // slither-disable-next-line constable-states
     string private _versionFallback;
 
     /**
@@ -108,9 +110,7 @@ abstract contract EIP712 is IERC5267 {
         return MessageHashUtils.toTypedDataHash(_domainSeparatorV4(), structHash);
     }
 
-    /**
-     * @dev See {IERC-5267}.
-     */
+    /// @inheritdoc IERC5267
     function eip712Domain()
         public
         view

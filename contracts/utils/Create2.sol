@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (utils/Create2.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (utils/Create2.sol)
 
 pragma solidity ^0.8.20;
 
 import {Errors} from "./Errors.sol";
+import {LowLevelCall} from "./LowLevelCall.sol";
 
 /**
  * @dev Helper to make usage of the `CREATE2` EVM opcode easier and safer.
@@ -41,12 +42,15 @@ library Create2 {
         if (bytecode.length == 0) {
             revert Create2EmptyBytecode();
         }
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             addr := create2(amount, add(bytecode, 0x20), mload(bytecode), salt)
         }
         if (addr == address(0)) {
-            revert Errors.FailedDeployment();
+            if (LowLevelCall.returnDataSize() == 0) {
+                revert Errors.FailedDeployment();
+            } else {
+                LowLevelCall.bubbleRevert();
+            }
         }
     }
 
@@ -63,26 +67,25 @@ library Create2 {
      * `deployer`. If `deployer` is this contract's address, returns the same value as {computeAddress}.
      */
     function computeAddress(bytes32 salt, bytes32 bytecodeHash, address deployer) internal pure returns (address addr) {
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             let ptr := mload(0x40) // Get free memory pointer
 
-            // |                   | ↓ ptr ...  ↓ ptr + 0x0B (start) ...  ↓ ptr + 0x20 ...  ↓ ptr + 0x40 ...   |
-            // |-------------------|---------------------------------------------------------------------------|
-            // | bytecodeHash      |                                                        CCCCCCCCCCCCC...CC |
-            // | salt              |                                      BBBBBBBBBBBBB...BB                   |
-            // | deployer          | 000000...0000AAAAAAAAAAAAAAAAAAA...AA                                     |
-            // | 0xFF              |            FF                                                             |
-            // |-------------------|---------------------------------------------------------------------------|
-            // | memory            | 000000...00FFAAAAAAAAAAAAAAAAAAA...AABBBBBBBBBBBBB...BBCCCCCCCCCCCCC...CC |
-            // | keccak(start, 85) |            ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑ |
+            // |                     | ↓ ptr ...  ↓ ptr + 0x0B (start) ...  ↓ ptr + 0x20 ...  ↓ ptr + 0x40 ...   |
+            // |---------------------|---------------------------------------------------------------------------|
+            // | bytecodeHash        |                                                        CCCCCCCCCCCCC...CC |
+            // | salt                |                                      BBBBBBBBBBBBB...BB                   |
+            // | deployer            | 000000...0000AAAAAAAAAAAAAAAAAAA...AA                                     |
+            // | 0xFF                |            FF                                                             |
+            // |---------------------|---------------------------------------------------------------------------|
+            // | memory              | 000000...00FFAAAAAAAAAAAAAAAAAAA...AABBBBBBBBBBBBB...BBCCCCCCCCCCCCC...CC |
+            // | keccak(start, 0x55) |            ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑ |
 
             mstore(add(ptr, 0x40), bytecodeHash)
             mstore(add(ptr, 0x20), salt)
             mstore(ptr, deployer) // Right-aligned with 12 preceding garbage bytes
             let start := add(ptr, 0x0b) // The hashed data starts at the final garbage byte which we will set to 0xff
             mstore8(start, 0xff)
-            addr := and(keccak256(start, 85), 0xffffffffffffffffffffffffffffffffffffffff)
+            addr := and(keccak256(start, 0x55), 0xffffffffffffffffffffffffffffffffffffffff)
         }
     }
 }

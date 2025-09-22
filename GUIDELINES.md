@@ -6,7 +6,7 @@ Code must be thoroughly tested with quality unit tests.
 
 We defer to the [Moloch Testing Guide](https://github.com/MolochVentures/moloch/tree/master/test#readme) for specific recommendations, though not all of it is relevant here. Note the introduction:
 
-> Tests should be written, not only to verify correctness of the target code, but to be comprehensively reviewed by other programmers. Therefore, for mission critical Solidity code, the quality of the tests are just as important (if not more so) than the code itself, and should be written with the highest standards of clarity and elegance.
+> Tests should be written, not only to verify correctness of the target code, but to be comprehensively reviewed by other programmers. Therefore, for mission critical Solidity code, the quality of the tests is just as important (if not more so) than the code itself, and should be written to the highest standards of clarity and elegance.
 
 Every addition or change to the code must come with relevant and comprehensive tests.
 
@@ -55,7 +55,7 @@ External contributions must be reviewed separately by multiple maintainers.
 
 Automation should be used as much as possible to reduce the possibility of human error and forgetfulness.
 
-Automations that make use of sensitive credentials must use secure secret management, and must be strengthened against attacks such as [those on GitHub Actions worklows](https://github.com/nikitastupin/pwnhub).
+Automations that make use of sensitive credentials must use secure secret management, and must be strengthened against attacks such as [those on GitHub Actions workflows](https://github.com/nikitastupin/pwnhub).
 
 Some other examples of automation are:
 
@@ -117,7 +117,7 @@ In addition to the official Solidity Style Guide we have a number of other conve
 
   Some standards (e.g. ERC-20) use present tense, and in those cases the
   standard specification is used.
-  
+
 * Interface names should have a capital I prefix.
 
   ```solidity
@@ -131,10 +131,17 @@ In addition to the official Solidity Style Guide we have a number of other conve
   abstract contract AccessControl is ..., {
   ```
 
+* Return values are generally not named, unless they are not immediately clear or there are multiple return values.
+
+  ```solidity
+  function expiration() public view returns (uint256) { // Good
+  function hasRole() public view returns (bool isMember, uint32 currentDelay) { // Good
+  ```
+
 * Unchecked arithmetic blocks should contain comments explaining why overflow is guaranteed not to happen. If the reason is immediately apparent from the line above the unchecked block, the comment may be omitted.
 
 * Custom errors should be declared following the [EIP-6093](https://eips.ethereum.org/EIPS/eip-6093) rationale whenever reasonable. Also, consider the following:
-  
+
   * The domain prefix should be picked in the following order:
     1. Use `ERC<number>` if the error is a violation of an ERC specification.
     2. Use the name of the underlying component where it belongs (eg. `Governor`, `ECDSA`, or `Timelock`).
@@ -146,3 +153,18 @@ In addition to the official Solidity Style Guide we have a number of other conve
     4. Declare the error in an extension if the error only happens in such extension or child contracts.
 
   * Custom error names should not be declared twice along the library to avoid duplicated identifier declarations when inheriting from multiple contracts.
+
+* Numeric literals should use appropriate formats based on their purpose to improve code readability:
+
+  **Memory-related operations (use hexadecimal):**
+  * Memory locations: `mload(64)` → `mload(0x40)`
+  * Memory offsets: `mstore(add(ptr, 32), value)` → `mstore(add(ptr, 0x20), value)`
+  * Memory lengths: `keccak256(ptr, 85)` → `keccak256(ptr, 0x55)`
+
+  **Bit operations (use decimal):**
+  * Shift amounts: `shl(0x80, value)` → `shl(128, value)`
+  * Bit masks and positions should use decimal when representing bit counts
+
+  **Exceptions:**
+  * Trivially small values (1, 2) may use decimal even in memory operations: `ptr := add(ptr, 1)`
+  * In `call`/`staticcall`/`delegatecall`, decimal zero is acceptable when both location and length are zero

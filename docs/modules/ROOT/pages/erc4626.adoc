@@ -29,7 +29,7 @@ image::erc4626-rate-loglogext.png[More exchange rates in logarithmic scale]
 
 === The attack
 
-When depositing tokens, the number of shares a user gets is rounded towards zero. This rounding takes away value from the user in favor or the vault (i.e. in favor of all the current share holders). This rounding is often negligible because of the amount at stake. If you deposit 1e9 shares worth of tokens, the rounding will have you lose at most 0.0000001% of your deposit. However if you deposit 10 shares worth of tokens, you could lose 10% of your deposit. Even worse, if you deposit <1 share worth of tokens, then you get 0 shares, and you basically made a donation.
+When depositing tokens, the number of shares a user gets is rounded towards zero. This rounding takes away value from the user in favor of the vault (i.e. in favor of all the current shareholders). This rounding is often negligible because of the amount at stake. If you deposit 1e9 shares worth of tokens, the rounding will have you lose at most 0.0000001% of your deposit. However if you deposit 10 shares worth of tokens, you could lose 10% of your deposit. Even worse, if you deposit <1 share worth of tokens, then you get 0 shares, and you basically made a donation.
 
 For a given amount of assets, the more shares you receive the safer you are. If you want to limit your losses to at most 1%, you need to receive at least 100 shares.
 
@@ -41,13 +41,13 @@ image::erc4626-mint.png[Minting shares]
 
 Symmetrically, if we focus on limiting our losses to a maximum of 0.5%, we need to get at least 200 shares. With the green exchange rate that requires just 20 tokens, but with the orange rate that requires 200000 tokens.
 
-We can clearly see that that the blue and green curves correspond to vaults that are safer than the yellow and orange curves.
+We can clearly see that the blue and green curves correspond to vaults that are safer than the yellow and orange curves.
 
 The idea of an inflation attack is that an attacker can donate assets to the vault to move the rate curve to the right, and make the vault unsafe.
 
 image::erc4626-attack.png[Inflation attack without protection]
 
-Figure 6 shows how an attacker can manipulate the rate of an empty vault. First the attacker must deposit a small amount of tokens (1 token) and follow up with a donation of 1e5 tokens directly to the vault to move the exchange rate "right". This puts the vault in a state where any deposit smaller than 1e5 would be completely lost to the vault. Given that the attacker is the only share holder (from their donation), the attacker would steal all the tokens deposited.
+Figure 6 shows how an attacker can manipulate the rate of an empty vault. First the attacker must deposit a small amount of tokens (1 token) and follow up with a donation of 1e5 tokens directly to the vault to move the exchange rate "right". This puts the vault in a state where any deposit smaller than 1e5 would be completely lost to the vault. Given that the attacker is the only shareholder (from their donation), the attacker would steal all the tokens deposited.
 
 An attacker would typically wait for a user to do the first deposit into the vault, and would frontrun that operation with the attack described above. The risk is low, and the size of the "donation" required to manipulate the vault is equivalent to the size of the deposit that is being attacked.
 

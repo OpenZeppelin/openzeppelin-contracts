@@ -117,6 +117,49 @@ function shouldBehaveLikeMap() {
     });
   });
 
+  describe('clear', function () {
+    it('clears a single entry', async function () {
+      await this.methods.set(this.keyA, this.valueA);
+
+      await this.methods.clear();
+
+      expect(await this.methods.contains(this.keyA)).to.be.false;
+      await expectMembersMatch(this.methods, [], []);
+    });
+
+    it('clears multiple entries', async function () {
+      await this.methods.set(this.keyA, this.valueA);
+      await this.methods.set(this.keyB, this.valueB);
+      await this.methods.set(this.keyC, this.valueC);
+
+      await this.methods.clear();
+
+      expect(await this.methods.contains(this.keyA)).to.be.false;
+      expect(await this.methods.contains(this.keyB)).to.be.false;
+      expect(await this.methods.contains(this.keyC)).to.be.false;
+      await expectMembersMatch(this.methods, [], []);
+    });
+
+    it('does not revert on empty map', async function () {
+      await this.methods.clear();
+    });
+
+    it('clear then add entry', async function () {
+      await this.methods.set(this.keyA, this.valueA);
+      await this.methods.set(this.keyB, this.valueB);
+      await this.methods.set(this.keyC, this.valueC);
+
+      await this.methods.clear();
+
+      await this.methods.set(this.keyA, this.valueA);
+
+      expect(await this.methods.contains(this.keyA)).to.be.true;
+      expect(await this.methods.contains(this.keyB)).to.be.false;
+      expect(await this.methods.contains(this.keyC)).to.be.false;
+      await expectMembersMatch(this.methods, [this.keyA], [this.valueA]);
+    });
+  });
+
   describe('read', function () {
     beforeEach(async function () {
       await this.methods.set(this.keyA, this.valueA);
@@ -129,8 +172,12 @@ function shouldBehaveLikeMap() {
 
       it('missing value', async function () {
         await expect(this.methods.get(this.keyB))
-          .to.be.revertedWithCustomError(this.mock, 'EnumerableMapNonexistentKey')
-          .withArgs(ethers.AbiCoder.defaultAbiCoder().encode([this.keyType], [this.keyB]));
+          .to.be.revertedWithCustomError(this.mock, this.error ?? 'EnumerableMapNonexistentKey')
+          .withArgs(
+            this.key?.memory || this.value?.memory
+              ? this.keyB
+              : ethers.AbiCoder.defaultAbiCoder().encode([this.key.type], [this.keyB]),
+          );
       });
     });
 
@@ -143,6 +190,22 @@ function shouldBehaveLikeMap() {
         expect(await this.methods.tryGet(this.keyB)).to.have.ordered.members([false, this.zeroValue]);
       });
     });
+  });
+
+  it('keys (full & paginated)', async function () {
+    const keys = [this.keyA, this.keyB, this.keyC];
+    await this.methods.set(this.keyA, this.valueA);
+    await this.methods.set(this.keyB, this.valueB);
+    await this.methods.set(this.keyC, this.valueC);
+
+    // get all values
+    expect([...(await this.methods.keys())]).to.deep.equal(keys);
+
+    // try pagination
+    for (const begin of [0, 1, 2, 3, 4])
+      for (const end of [0, 1, 2, 3, 4]) {
+        expect([...(await this.methods.keysPage(begin, end))]).to.deep.equal(keys.slice(begin, end));
+      }
   });
 }
 

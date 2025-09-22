@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (interfaces/IERC1271.sol)
+// OpenZeppelin Contracts (last updated v5.4.0) (interfaces/IERC1271.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity >=0.5.0;
 
 /**
  * @dev Interface of the ERC-1271 standard signature validation method for
@@ -11,7 +11,7 @@ interface IERC1271 {
     /**
      * @dev Should return whether the signature provided is valid for the provided data
      * @param hash      Hash of the data to be signed
-     * @param signature Signature byte array associated with _data
+     * @param signature Signature byte array associated with `hash`
      */
-    function isValidSignature(bytes32 hash, bytes memory signature) external view returns (bytes4 magicValue);
+    function isValidSignature(bytes32 hash, bytes calldata signature) external view returns (bytes4 magicValue);
 }

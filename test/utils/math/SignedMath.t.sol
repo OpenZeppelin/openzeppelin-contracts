@@ -8,18 +8,18 @@ import {Math} from "../../../contracts/utils/math/Math.sol";
 import {SignedMath} from "../../../contracts/utils/math/SignedMath.sol";
 
 contract SignedMathTest is Test {
-    function testSelect(bool f, int256 a, int256 b) public {
+    function testSymbolicTernary(bool f, int256 a, int256 b) public pure {
         assertEq(SignedMath.ternary(f, a, b), f ? a : b);
     }
 
     // MIN & MAX
-    function testMinMax(int256 a, int256 b) public {
+    function testSymbolicMinMax(int256 a, int256 b) public pure {
         assertEq(SignedMath.min(a, b), a < b ? a : b);
         assertEq(SignedMath.max(a, b), a > b ? a : b);
     }
 
     // MIN
-    function testMin(int256 a, int256 b) public {
+    function testSymbolicMin(int256 a, int256 b) public pure {
         int256 result = SignedMath.min(a, b);
 
         assertLe(result, a);
@@ -28,7 +28,7 @@ contract SignedMathTest is Test {
     }
 
     // MAX
-    function testMax(int256 a, int256 b) public {
+    function testSymbolicMax(int256 a, int256 b) public pure {
         int256 result = SignedMath.max(a, b);
 
         assertGe(result, a);
@@ -38,7 +38,7 @@ contract SignedMathTest is Test {
 
     // AVERAGE
     // 1. simple test, not full int256 range
-    function testAverage1(int256 a, int256 b) public {
+    function testAverage1(int256 a, int256 b) public pure {
         a = bound(a, type(int256).min / 2, type(int256).max / 2);
         b = bound(b, type(int256).min / 2, type(int256).max / 2);
 
@@ -47,8 +47,9 @@ contract SignedMathTest is Test {
         assertEq(result, (a + b) / 2);
     }
 
-    // 2. more complex test, full int256 range
-    function testAverage2(int256 a, int256 b) public {
+    // 2. more complex test, full int256 range (solver timeout 0 = no timeout)
+    /// @custom:halmos --solver-timeout-assertion 0
+    function testSymbolicAverage2(int256 a, int256 b) public pure {
         (int256 result, int256 min, int256 max) = (
             SignedMath.average(a, b),
             SignedMath.min(a, b),
@@ -69,7 +70,7 @@ contract SignedMathTest is Test {
     }
 
     // ABS
-    function testAbs(int256 a) public {
+    function testSymbolicAbs(int256 a) public pure {
         uint256 result = SignedMath.abs(a);
 
         unchecked {

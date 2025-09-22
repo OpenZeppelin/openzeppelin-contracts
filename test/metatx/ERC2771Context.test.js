@@ -11,7 +11,7 @@ const { shouldBehaveLikeRegularContext } = require('../utils/Context.behavior');
 async function fixture() {
   const [sender, other] = await ethers.getSigners();
 
-  const forwarder = await ethers.deployContract('ERC2771Forwarder', []);
+  const forwarder = await ethers.deployContract('ERC2771Forwarder', ['ERC2771Forwarder']);
   const forwarderAsSigner = await impersonate(forwarder.target);
   const context = await ethers.deployContract('ERC2771ContextMock', [forwarder]);
   const domain = await getDomain(forwarder);
@@ -109,7 +109,7 @@ describe('ERC2771Context', function () {
     const nonce = await this.forwarder.nonces(this.sender);
     const data = this.context.interface.encodeFunctionData('multicall', [
       [
-        // poisonned call to 'msgSender()'
+        // poisoned call to 'msgSender()'
         ethers.concat([this.context.interface.encodeFunctionData('msgSender'), this.other.address]),
       ],
     ]);
