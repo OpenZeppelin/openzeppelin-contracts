@@ -6,6 +6,7 @@
 
 ### Breaking changes
 
+- `ERC6909` and the its extensions (`ERC6909ContentURI`, `ERC6909Metadata` and `ERC6909TokenSupply`) are no longer marked as draft since [EIP-6909](https://eips.ethereum.org/EIPS/eip-6909) is now final. Developers must update the import paths. Contracts behavior is not modified.
 - `SignerERC7702` is renamed as `SignerEIP7702`. Imports and inheritance must be updated to that new name and path. Behavior is unmodified.
 - `ERC721Holder` and `ERC1155Holder` are flagged as stateless and are no longer transpiled. Developers using their upgradeable variants from `@openzeppelin/contracts-upgradeable` (i.e. `ERC712HolderUpgradeable` and `ERC1155HolderUpgradeable`) must update their imports to use the equivalent version available in `@openzeppelin/contracts`.
 - Update minimum pragma to 0.8.24 in `Votes`, `VotesExtended`, `ERC20Votes`, `Strings`, `ERC1155URIStorage`, `MessageHashUtils`, `ERC721URIStorage`, `ERC721Votes`, `ERC721Wrapper`, `ERC721Burnable`, `ERC721Consecutive`, `ERC721Enumerable`, `ERC721Pausable`, `ERC721Royalty`, `ERC721Wrapper`, `EIP712`, `ERC4626` and `ERC7739`. ([#5726](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5726))
