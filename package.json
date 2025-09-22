@@ -62,7 +62,7 @@
     "@nomicfoundation/hardhat-network-helpers": "^1.0.13",
     "@openzeppelin/docs-utils": "^0.1.5",
     "@openzeppelin/merkle-tree": "^1.0.7",
-    "@openzeppelin/upgrade-safe-transpiler": "^0.3.32",
+    "@openzeppelin/upgrade-safe-transpiler": "^0.4.1",
     "@openzeppelin/upgrades-core": "^1.20.6",
     "chai": "^4.2.0",
     "eslint": "^9.0.0",

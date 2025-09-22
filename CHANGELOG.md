@@ -6,10 +6,13 @@
 
 ### Breaking changes
 
-- Update minimum pragma to 0.8.24 in `Votes`, `VotesExtended`, `ERC20Votes`, `Strings`, `ERC1155URIStorage`, `MessageHashUtils`, `ERC721URIStorage`, `ERC721Votes`, `ERC721Wrapper`, `ERC721Burnable`, `ERC721Consecutive`, `ERC721Enumerable`, `ERC721Pausable`, `ERC721Royalty`, `ERC721Wrapper`, `EIP712`, and `ERC7739`. ([#5726](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5726))
+- `SignerERC7702` is renamed as `SignerEIP7702`. Imports and inheritance must be updated to that new name and path. Behavior is unmodified.
+- `ERC721Holder` and `ERC1155Holder` are flagged as stateless and are no longer transpiled. Developers using their upgradeable variants from `@openzeppelin/contracts-upgradeable` (i.e. `ERC712HolderUpgradeable` and `ERC1155HolderUpgradeable`) must update their imports to use the equivalent version available in `@openzeppelin/contracts`.
+- Update minimum pragma to 0.8.24 in `Votes`, `VotesExtended`, `ERC20Votes`, `Strings`, `ERC1155URIStorage`, `MessageHashUtils`, `ERC721URIStorage`, `ERC721Votes`, `ERC721Wrapper`, `ERC721Burnable`, `ERC721Consecutive`, `ERC721Enumerable`, `ERC721Pausable`, `ERC721Royalty`, `ERC721Wrapper`, `EIP712`, `ERC4626` and `ERC7739`. ([#5726](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5726))
 
 ### Deprecation
 
+- `Initializable` and `UUPSUpgradeable` are no longer transpiled. An alias is present in the `@openzeppelin/contracts-upgradeable` package that redirect to the corresponding file in `@openzeppelin/contracts`. These alias will be removed in the next major release. Developers are advised to update their imports to get these files directly from the `@openzeppelin/contracts` package.
 - `ECDSA` signature malleability protection is partly deprecated. See documentation for more details.
 
 ## 5.4.0 (2025-07-17)

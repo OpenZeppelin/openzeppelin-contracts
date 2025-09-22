@@ -51,9 +51,9 @@ library Clones {
         assembly ("memory-safe") {
             // Cleans the upper 96 bits of the `implementation` word, then packs the first 3 bytes
             // of the `implementation` address with the bytecode before the address.
-            mstore(0x00, or(shr(0xe8, shl(0x60, implementation)), 0x3d602d80600a3d3981f3363d3d373d3d3d363d73000000))
+            mstore(0x00, or(shr(232, shl(96, implementation)), 0x3d602d80600a3d3981f3363d3d373d3d3d363d73000000))
             // Packs the remaining 17 bytes of `implementation` with the bytecode after the address.
-            mstore(0x20, or(shl(0x78, implementation), 0x5af43d82803e903d91602b57fd5bf3))
+            mstore(0x20, or(shl(120, implementation), 0x5af43d82803e903d91602b57fd5bf3))
             instance := create(value, 0x09, 0x37)
         }
         if (instance == address(0)) {
@@ -98,9 +98,9 @@ library Clones {
         assembly ("memory-safe") {
             // Cleans the upper 96 bits of the `implementation` word, then packs the first 3 bytes
             // of the `implementation` address with the bytecode before the address.
-            mstore(0x00, or(shr(0xe8, shl(0x60, implementation)), 0x3d602d80600a3d3981f3363d3d373d3d3d363d73000000))
+            mstore(0x00, or(shr(232, shl(96, implementation)), 0x3d602d80600a3d3981f3363d3d373d3d3d363d73000000))
             // Packs the remaining 17 bytes of `implementation` with the bytecode after the address.
-            mstore(0x20, or(shl(0x78, implementation), 0x5af43d82803e903d91602b57fd5bf3))
+            mstore(0x20, or(shl(120, implementation), 0x5af43d82803e903d91602b57fd5bf3))
             instance := create2(value, 0x09, 0x37, salt)
         }
         if (instance == address(0)) {
@@ -259,9 +259,9 @@ library Clones {
      *   function should only be used to check addresses that are known to be clones.
      */
     function fetchCloneArgs(address instance) internal view returns (bytes memory) {
-        bytes memory result = new bytes(instance.code.length - 45); // revert if length is too short
+        bytes memory result = new bytes(instance.code.length - 0x2d); // revert if length is too short
         assembly ("memory-safe") {
-            extcodecopy(instance, add(result, 32), 45, mload(result))
+            extcodecopy(instance, add(result, 0x20), 0x2d, mload(result))
         }
         return result;
     }
@@ -280,11 +280,11 @@ library Clones {
         address implementation,
         bytes memory args
     ) private pure returns (bytes memory) {
-        if (args.length > 24531) revert CloneArgumentsTooLong();
+        if (args.length > 0x5fd3) revert CloneArgumentsTooLong();
         return
             abi.encodePacked(
                 hex"61",
-                uint16(args.length + 45),
+                uint16(args.length + 0x2d),
                 hex"3d81600a3d39f3363d3d373d3d3d363d73",
                 implementation,
                 hex"5af43d82803e903d91602b57fd5bf3",
