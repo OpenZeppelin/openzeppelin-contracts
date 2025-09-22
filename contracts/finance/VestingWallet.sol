@@ -133,18 +133,7 @@ contract VestingWallet is Context, Ownable {
      * @dev Calculates the amount of ether that has already vested. Default implementation is a linear vesting curve.
      */
     function vestedAmount(uint64 timestamp) public view virtual returns (uint256) {
-        uint256 balance = address(this).balance;
-        uint256 releasedAmount = released();
-
-        // Check for overflow and cap at type(uint256).max
-        uint256 totalAllocation = balance;
-        if (totalAllocation <= type(uint256).max - releasedAmount) {
-            totalAllocation += releasedAmount;
-        } else {
-            totalAllocation = type(uint256).max;
-        }
-
-        return _vestingSchedule(totalAllocation, timestamp);
+        return _vestingSchedule(address(this).balance.saturatingAdd(released()), timestamp);
     }
 
     /**
