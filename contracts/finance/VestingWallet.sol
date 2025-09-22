@@ -153,26 +153,7 @@ contract VestingWallet is Context, Ownable {
         } else if (timestamp >= end()) {
             return totalAllocation;
         } else {
-            uint256 timeElapsed = timestamp - start();
-            uint256 durationValue = duration();
-
-            // Handle edge case where timeElapsed is 0
-            if (timeElapsed == 0) {
-                return 0;
-            }
-
-            // Check for overflow in multiplication
-            if (totalAllocation <= type(uint256).max / timeElapsed) {
-                return (totalAllocation * timeElapsed) / durationValue;
-            } else {
-                // If multiplication would overflow, use a different approach
-                // Calculate the ratio first to avoid overflow
-                return
-                    (totalAllocation / durationValue) *
-                    timeElapsed +
-                    ((totalAllocation % durationValue) * timeElapsed) /
-                    durationValue;
-            }
+            return totalAllocation.mulDiv(timestamp - start(), duration());
         }
     }
 }
