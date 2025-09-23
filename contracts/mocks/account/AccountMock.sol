@@ -7,7 +7,6 @@ import {AccountERC7579} from "../../account/extensions/draft-AccountERC7579.sol"
 import {AccountERC7579Hooked} from "../../account/extensions/draft-AccountERC7579Hooked.sol";
 import {ERC721Holder} from "../../token/ERC721/utils/ERC721Holder.sol";
 import {ERC1155Holder} from "../../token/ERC1155/utils/ERC1155Holder.sol";
-import {ERC4337Utils} from "../../account/utils/draft-ERC4337Utils.sol";
 import {ERC7739} from "../../utils/cryptography/signers/draft-ERC7739.sol";
 import {ERC7821} from "../../account/extensions/draft-ERC7821.sol";
 import {MODULE_TYPE_VALIDATOR} from "../../interfaces/draft-IERC7579.sol";
@@ -17,7 +16,7 @@ import {SignerECDSA} from "../../utils/cryptography/signers/SignerECDSA.sol";
 import {SignerP256} from "../../utils/cryptography/signers/SignerP256.sol";
 import {SignerRSA} from "../../utils/cryptography/signers/SignerRSA.sol";
 import {SignerWebAuthn} from "../../utils/cryptography/signers/SignerWebAuthn.sol";
-import {SignerERC7702} from "../../utils/cryptography/signers/SignerERC7702.sol";
+import {SignerEIP7702} from "../../utils/cryptography/signers/SignerEIP7702.sol";
 import {SignerERC7913} from "../../utils/cryptography/signers/SignerERC7913.sol";
 import {MultiSignerERC7913} from "../../utils/cryptography/signers/MultiSignerERC7913.sol";
 import {MultiSignerERC7913Weighted} from "../../utils/cryptography/signers/MultiSignerERC7913Weighted.sol";
@@ -82,7 +81,7 @@ abstract contract AccountWebAuthnMock is Account, SignerWebAuthn, ERC7739, ERC78
     }
 }
 
-abstract contract AccountERC7702Mock is Account, SignerERC7702, ERC7739, ERC7821, ERC721Holder, ERC1155Holder {
+abstract contract AccountERC7702Mock is Account, SignerEIP7702, ERC7739, ERC7821, ERC721Holder, ERC1155Holder {
     /// @inheritdoc ERC7821
     function _erc7821AuthorizedExecutor(
         address caller,
@@ -96,7 +95,7 @@ abstract contract AccountERC7702Mock is Account, SignerERC7702, ERC7739, ERC7821
 abstract contract AccountERC7702WithModulesMock is
     Account,
     AccountERC7579,
-    SignerERC7702,
+    SignerEIP7702,
     ERC7739,
     ERC721Holder,
     ERC1155Holder
@@ -123,8 +122,8 @@ abstract contract AccountERC7702WithModulesMock is
     function _rawSignatureValidation(
         bytes32 hash,
         bytes calldata signature
-    ) internal view virtual override(AbstractSigner, AccountERC7579, SignerERC7702) returns (bool) {
-        return SignerERC7702._rawSignatureValidation(hash, signature);
+    ) internal view virtual override(AbstractSigner, AccountERC7579, SignerEIP7702) returns (bool) {
+        return SignerEIP7702._rawSignatureValidation(hash, signature);
     }
 }
 

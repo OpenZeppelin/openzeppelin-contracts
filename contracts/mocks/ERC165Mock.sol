@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.20;
 
-import {IERC165} from "../../utils/introspection/IERC165.sol";
+import {IERC165} from "../utils/introspection/IERC165.sol";
 
 /**
  * https://eips.ethereum.org/EIPS/eip-214#specification
@@ -36,7 +36,7 @@ contract SupportsInterfaceWithLookupMock is IERC165 {
     /**
      * @dev Implement supportsInterface(bytes4) using a lookup table.
      */
-    function supportsInterface(bytes4 interfaceId) public view override returns (bool) {
+    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
         return _supportedInterfaces[interfaceId];
     }
 
@@ -53,6 +53,48 @@ contract ERC165InterfacesSupported is SupportsInterfaceWithLookupMock {
     constructor(bytes4[] memory interfaceIds) {
         for (uint256 i = 0; i < interfaceIds.length; i++) {
             _registerInterface(interfaceIds[i]);
+        }
+    }
+}
+
+// Similar to ERC165InterfacesSupported, but revert (without reason) when an interface is not supported
+contract ERC165RevertInvalid is SupportsInterfaceWithLookupMock {
+    constructor(bytes4[] memory interfaceIds) {
+        for (uint256 i = 0; i < interfaceIds.length; i++) {
+            _registerInterface(interfaceIds[i]);
+        }
+    }
+
+    function supportsInterface(bytes4 interfaceId) public view override returns (bool) {
+        require(super.supportsInterface(interfaceId));
+        return true;
+    }
+}
+
+contract ERC165MaliciousData {
+    function supportsInterface(bytes4) public pure returns (bool) {
+        assembly {
+            mstore(0, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff)
+            return(0, 32)
+        }
+    }
+}
+
+contract ERC165MissingData {
+    function supportsInterface(bytes4 interfaceId) public view {} // missing return
+}
+
+contract ERC165NotSupported {}
+
+contract ERC165ReturnBombMock is IERC165 {
+    function supportsInterface(bytes4 interfaceId) public pure override returns (bool) {
+        if (interfaceId == type(IERC165).interfaceId) {
+            assembly {
+                mstore(0, 1)
+            }
+        }
+        assembly {
+            return(0, 101500)
         }
     }
 }
