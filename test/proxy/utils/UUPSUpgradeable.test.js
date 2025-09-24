@@ -9,7 +9,7 @@ async function fixture() {
   const implUpgradeOk = await ethers.deployContract('UUPSUpgradeableMock');
   const implUpgradeUnsafe = await ethers.deployContract('UUPSUpgradeableUnsafeMock');
   const implUpgradeNonUUPS = await ethers.deployContract('NonUpgradeableMock');
-  const implUnsupportedUUID = await ethers.deployContract('UUPSUnsupportedProxiableUUID');
+  const implUnsupportedUUID = await ethers.deployContract('UUPSUnsupportedProxiableUUIDMock');
   // Used for testing non ERC1967 compliant proxies (clones are proxies that don't use the ERC1967 implementation slot)
   const cloneFactory = await ethers.deployContract('$Clones');
 
