@@ -47,7 +47,7 @@ library Base64 {
      */
     function _encode(bytes memory data, bool urlAndFilenameSafe) private pure returns (bytes memory result) {
         /**
-         * Inspired by Brecht Devos (Brechtpd) implementation - MIT licence
+         * Inspired by Brecht Devos (Brechtpd) implementation - MIT license
          * https://github.com/Brechtpd/base64/blob/e78d9fd951e7b0977ddca77d92dc85183770daf4/base64.sol
          */
         if (data.length == 0) return "";
