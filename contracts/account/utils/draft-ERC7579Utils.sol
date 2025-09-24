@@ -218,9 +218,8 @@ library ERC7579Utils {
         uint256 value,
         bytes calldata data
     ) private returns (bytes memory) {
-        (bool success, bytes memory returndata) = (target == address(0) ? address(this) : target).call{value: value}(
-            data
-        );
+        // Do not rewrite zero address to self; preserve EVM semantics for value transfers
+        (bool success, bytes memory returndata) = target.call{value: value}(data);
         return _validateExecutionMode(index, execType, success, returndata);
     }
 
@@ -231,7 +230,8 @@ library ERC7579Utils {
         address target,
         bytes calldata data
     ) private returns (bytes memory) {
-        (bool success, bytes memory returndata) = (target == address(0) ? address(this) : target).delegatecall(data);
+        // Do not rewrite zero address to self; preserve EVM semantics; let delegatecall fail naturally
+        (bool success, bytes memory returndata) = target.delegatecall(data);
         return _validateExecutionMode(index, execType, success, returndata);
     }
 
