@@ -53,7 +53,7 @@ library Base58 {
             // sufficient memory allocation. (ln = natural logarithm)
             let outputLengthEstim := add(inputLeadingZeros, div(mul(sub(inputLength, inputLeadingZeros), 9886), 7239))
 
-            // This is going to be our "scratch" workspace. We leave enough room before FMP to later store length + encoded output.
+            // This is going to be our "scratch" workspace. We leave enough room so that we can store length + encoded output at the FMP location.
             // 0x21 = 0x20 (32 bytes for result length prefix) + 0x1 (safety buffer for division truncation)
             let scratch := add(mload(0x40), add(outputLengthEstim, 0x21))
 
