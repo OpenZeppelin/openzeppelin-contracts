@@ -153,21 +153,26 @@ library Base58 {
                 inputLeadingZeros := add(inputLeadingZeros, 1)
             }
 
-            // Start the output offset by an over-estimate of the length.
+            // Estimate the output length using the base conversion ratio.
             // When converting from base-58 to base-256 (bytes), the theoretical length ratio is ln(58)/ln(256).
             // We use 6115/8351 ≈ 0.7322 as a rational approximation that slightly over-estimates to ensure
             // sufficient memory allocation. (ln = natural logarithm)
             let outputLengthEstim := add(inputLeadingZeros, div(mul(sub(inputLength, inputLeadingZeros), 6115), 8351))
 
-            // This is going to be our "scratch" workspace. Be leave enough room on the left to store length + encoded input.
+            // Reserve memory: [result space][workspace]. We leave enough room before FMP for the final decoded output.
+            // 0x21 = 0x20 (32 bytes for result length prefix) + 0x1 (safety buffer for division truncation)
             let scratch := add(mload(0x40), add(outputLengthEstim, 0x21))
 
-            // Store the decoding table. This overlaps with the FMP that we are going to reset later anyway.
+            // Store the decoding table for character-to-value lookup. This overlaps with the FMP that we are going to reset later anyway.
+            // Maps ASCII characters (minus 49) to their Base58 numeric values (0-57), with 0xff for invalid characters
             mstore(0x2a, 0x30313233343536373839)
             mstore(0x20, 0x1718191a1b1c1d1e1f20ffffffffffff2122232425262728292a2bff2c2d2e2f)
             mstore(0x00, 0x000102030405060708ffffffffffffff090a0b0c0d0e0f10ff1112131415ff16)
 
-            // Decode each char of the input string, and store it in sections (limbs) of 31 bytes. Store in scratch.
+            // Core Base58 decoding: process each character and accumulate into 31-byte limbs
+            // Memory layout: [output bytes] [limb₁(248 bits)][limb₂(248 bits)][limb₃(248 bits)]...
+            //                               ↑ scratch
+            //                               ↑ ptr (moves right as limbs are added)
             let ptr := scratch
             let mask := shr(8, not(0))
             for {
@@ -175,30 +180,34 @@ library Base58 {
             } lt(j, inputLength) {
                 j := add(j, 1)
             } {
-                // for each char, decode it ...
-                let c := sub(byte(0, mload(add(add(input, 0x20), j))), 49)
+                // Decode each character: convert from ASCII to Base58 numeric value (0-57)
+                let c := sub(byte(0, mload(add(add(input, 0x20), j))), 49) // Offset from '1' (ASCII 49)
+
+                // Validate character using bit manipulation: each bit in the bitmask represents a valid character offset
+                // 0x3fff7ff03ffbeff01ff has bits set for all valid Base58 characters (excludes 0, O, I, l)
+                // shl(c, 1) creates a single bit at position c, AND with bitmask checks if character is valid
                 // slither-disable-next-line incorrect-shift
                 if iszero(and(shl(c, 1), 0x3fff7ff03ffbeff01ff)) {
                     mstore(0, errorSelector)
                     mstore(4, shl(248, add(c, 49)))
                     revert(0, 0x24)
                 }
-                let carry := byte(0, mload(c))
+                let carry := byte(0, mload(c)) // Look up Base58 numeric value from decoding table
 
-                // ... and add it to the limbs starting a `scratch`
+                // Multiplication by 58 and addition across all existing limbs
                 for {
                     let i := scratch
                 } lt(i, ptr) {
                     i := add(i, 0x20)
                 } {
-                    let acc := add(carry, mul(58, mload(i)))
-                    mstore(i, and(mask, acc))
-                    carry := shr(248, acc)
+                    let acc := add(carry, mul(58, mload(i))) // Multiply limb by 58 and add carry
+                    mstore(i, and(mask, acc)) // Store lower 248 bits back in limb
+                    carry := shr(248, acc) // Upper bits become carry for next limb
                 }
-                // If the char just read result in a leftover carry, extend the limbs with the new value
+                // If carry remains, we need a new limb to store the overflow
                 if carry {
                     mstore(ptr, carry)
-                    ptr := add(ptr, 0x20)
+                    ptr := add(ptr, 0x20) // Extend limbs array
                 }
             }
 
