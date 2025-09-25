@@ -20,8 +20,8 @@ abstract contract Pausable is Context {
     // amount. Since refunds are capped to a percentage of the total
     // transaction's gas, it is best to keep them low in cases like this one, to
     // increase the likelihood of the full refund coming into effect.
-    uint256 private constant NOT_PAUSED = 1;
-    uint256 private constant PAUSED = 2;
+    uint256 private constant PAUSED = 1;
+    uint256 private constant NOT_PAUSED = 2;
 
     uint256 private _paused;
 
