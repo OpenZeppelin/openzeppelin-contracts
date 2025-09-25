@@ -5,10 +5,20 @@ pragma solidity ^0.8.20;
 /**
  * @dev Provides a set of functions to operate with Base58 strings.
  *
+ * Base58 is an encoding scheme that converts binary data into a human-readable text format.
+ * Similar to {Base64} but specifically designed for better human usability.
+ *
+ * 1. Human-friendly alphabet: Excludes visually similar characters to reduce human error:
+ *    * No 0 (zero) vs O (capital O) confusion
+ *    * No I (capital i) vs l (lowercase L) confusion
+ *    * No non-alphanumeric characters like + or =
+ * 2. URL-safe: Contains only alphanumeric characters, making it safe for URLs without encoding.
+ *
  * Initially based on https://github.com/storyicon/base58-solidity/commit/807428e5174e61867e4c606bdb26cba58a8c5cb1[storyicon's implementation] (MIT).
- * Based on the updated and improved https://github.com/Vectorized/solady/blob/main/src/utils/Base58.sol[Vectorized version] (MIT).
+ * Based on the updated and improved https://github.com/Vectorized/solady/blob/208e4f31cfae26e4983eb95c3488a14fdc497ad7/src/utils/Base58.sol[Vectorized version] (MIT).
  */
 library Base58 {
+    /// @dev Unrecognized Base58 character on decoding.
     error InvalidBase58Char(bytes1);
 
     /**
@@ -38,68 +48,73 @@ library Base58 {
             }
 
             // Start the output offset by an over-estimate of the length.
-            // This is an estimation of the length ratio between bytes (base 256) and base58
-            // 9886 / 7239 = 1.36565824008841 > 1.365658237309761 = Math.log(256) / Math.log(58)
+            // When converting from base-256 (bytes) to base-58, the theoretical length ratio is ln(256)/ln(58).
+            // We use 9886/7239 ≈ 1.3657 as a rational approximation that slightly over-estimates to ensure
+            // sufficient memory allocation. (ln = natural logarithm)
             let outputLengthEstim := add(inputLeadingZeros, div(mul(sub(inputLength, inputLeadingZeros), 9886), 7239))
 
-            // This is going to be our "scratch" workspace. We leave enough room after FMP to later store length + encoded output.
+            // This is going to be our "scratch" workspace. We leave enough room before FMP to later store length + encoded output.
+            // 0x21 = 0x20 (32 bytes for result length prefix) + 0x1 (safety buffer for division truncation)
             let scratch := add(mload(0x40), add(outputLengthEstim, 0x21))
 
-            // Cut the input buffer in section (limbs) of 31 bytes (248 bits). Store in scratch.
+            // Chunk input into 31-byte limbs (248 bits) for efficient batch processing.
+            // Each limb fits safely in a 256-bit word with 8-bit overflow protection.
+            // Memory layout: [output chars] [limb₁(248 bits)][limb₂(248 bits)][limb₃(248 bits)]...
+            //                               ↑ scratch
+            //                               ↑ ptr (moves right)
             let ptr := scratch
             for {
-                // first section is possibly smaller than 31 bytes
+                // Handle partial first limb if input length isn't divisible by 31
                 let i := mod(inputLength, 31)
-                // unfold first loop, with a different shift.
                 if i {
+                    // Right-shift to align partial limb in high bits of 256-bit word
                     mstore(ptr, shr(mul(sub(32, i), 8), mload(add(input, 0x20))))
-                    ptr := add(ptr, 0x20)
+                    ptr := add(ptr, 0x20) // next limb
                 }
             } lt(i, inputLength) {
                 ptr := add(ptr, 0x20) // next limb
                 i := add(i, 31) // move in buffer
             } {
-                // Load 31 bytes from the input buffer and store then in scratch (at ptr) in a dedicated 32 bytes space.
+                // Load 31 bytes from input, right-shift by 8 bits to leave 1 zero byte in low bits
                 mstore(ptr, shr(8, mload(add(add(input, 0x20), i))))
             }
 
             // Store the encoding table. This overlaps with the FMP that we are going to reset later anyway.
-            // See sections 2 of https://inputtracker.ietf.org/doc/html/draft-msporny-base58-03
+            // See https://datatracker.ietf.org/doc/html/draft-msporny-base58-03#section-2
             mstore(0x1f, "123456789ABCDEFGHJKLMNPQRSTUVWXY")
             mstore(0x3f, "Zabcdefghijkmnopqrstuvwxyz")
 
-            // Encoding the "input" part of the result.
-            // - `data` points to the first (highest) non-empty limb. As limb get nullified by the successive
-            //   divisions by 58, we don't need to reprocess the highest ones. Algorithm ends when all limbs are zeroed
-            //   i.e. when the `data` pointer reaches the `ptr` pointer that correspond to the last limb.
-            // - `output` point the the left part of the encoded string. We start from scratch, which means we have
-            //   outputLengthEstim bytes to work with before hitting the FMP
+            // Core Base58 encoding: repeated division by 58 on input limbs
+            // Memory layout: [output chars] [limb₁(248 bits)][limb₂(248 bits)][limb₃(248 bits)]...
+            //                               ↑ scratch                          ↑ ptr
+            //                               ↑ output (moves left)
+            //                               ↑ data (moves right)
             for {
-                let data := scratch
-                output := scratch
+                let data := scratch // Points to first non-zero limb
+                output := scratch // Builds result right-to-left from scratch
             } 1 {} {
-                // move past the first (highest) zero limbs.
+                // Skip zero limbs at the beginning (limbs become 0 after repeated divisions)
                 for {} and(iszero(mload(data)), lt(data, ptr)) {
                     data := add(data, 0x20)
                 } {}
-                // if all limbs are zeroed, we are done with this part of encoding
+                // Exit when all limbs are zero (conversion complete)
                 if eq(data, ptr) {
                     break
                 }
 
-                // base 58 arithmetic on the 248bits limbs
+                // Division by 58 across all remaining limbs
                 let carry := 0
                 for {
                     let i := data
                 } lt(i, ptr) {
                     i := add(i, 0x20)
                 } {
-                    let acc := add(shl(248, carry), mload(i))
-                    mstore(i, div(acc, 58))
-                    carry := mod(acc, 58)
+                    let acc := add(shl(248, carry), mload(i)) // Combine carry from previous limb with current limb
+                    mstore(i, div(acc, 58)) // Store quotient back in limb
+                    carry := mod(acc, 58) // Remainder becomes next carry
                 }
 
-                // encode carry using base58 table, and add it to the output
+                // Convert remainder (0-57) to Base58 character and store right-to-left
                 output := sub(output, 1)
                 mstore8(output, mload(carry))
             }
@@ -117,7 +132,7 @@ library Base58 {
             output := sub(output, add(inputLeadingZeros, 0x20))
 
             // Store length and allocate (reserve) memory up to scratch.
-            mstore(output, sub(scratch, add(output, 0x20)))
+            mstore(output, sub(scratch, add(output, 0x20))) // Overwrite spilled bytes
             mstore(0x40, scratch)
         }
     }
@@ -139,9 +154,10 @@ library Base58 {
             }
 
             // Start the output offset by an over-estimate of the length.
-            // This is an estimation of the length ratio between base58 and bytes (base 256)
-            // 6115 / 8351 = 0.7322476350137708 > 0.7322476243909465 = Math.log(58) / Math.log(256)
-            let outputLengthEstim := add(inputLeadingZeros, div(mul(sub(inputLength, inputLeadingZeros), 6115), 8351))
+            // When converting from base-58 to base-256 (bytes), the theoretical length ratio is ln(58)/ln(256).
+            // We use 6115/8351 ≈ 0.7322 as a rational approximation that slightly over-estimates to ensure
+            // sufficient memory allocation. (ln = natural logarithm)
+            let outputLengthEstim := add(inputLeadingZeros, div(mul(sub(inputLength, inputLeadingZeros), 7239), 9886))
 
             // This is going to be our "scratch" workspace. Be leave enough room on the left to store length + encoded input.
             let scratch := add(mload(0x40), add(outputLengthEstim, 0x21))
