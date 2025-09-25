@@ -23,6 +23,7 @@ abstract contract Pausable is Context {
     uint256 private constant PAUSED = 1;
     uint256 private constant NOT_PAUSED = 2;
 
+    /// @custom:oz-retyped-from bool
     uint256 private _paused;
 
     /**
