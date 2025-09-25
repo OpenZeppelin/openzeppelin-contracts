@@ -1,16 +1,24 @@
+#!/usr/bin/env node
+
 const fs = require('fs');
 const { getStorageUpgradeReport } = require('@openzeppelin/upgrades-core/dist/storage');
 
-const { ref, head } = require('yargs').argv;
+const { hideBin } = require('yargs/helpers');
+const { argv } = require('yargs/yargs')(hideBin(process.argv))
+  .env('')
+  .options({
+    ref: { type: 'string', required: true },
+    head: { type: 'string', required: true },
+  });
 
-const oldLayout = JSON.parse(fs.readFileSync(ref));
-const newLayout = JSON.parse(fs.readFileSync(head));
+const oldLayout = JSON.parse(fs.readFileSync(argv.ref));
+const newLayout = JSON.parse(fs.readFileSync(argv.head));
 
 for (const name in oldLayout) {
   if (name in newLayout) {
     const report = getStorageUpgradeReport(oldLayout[name], newLayout[name], {});
     if (!report.ok) {
-      console.log(`Storage layout incompatilibity found in ${name}:`);
+      console.log(`Storage layout incompatibility found in ${name}:`);
       console.log(report.explain());
       process.exitCode = 1;
     }

@@ -1,18 +1,18 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.8.0) (token/ERC721/extensions/ERC721Enumerable.sol)
+// OpenZeppelin Contracts (last updated v5.4.0) (token/ERC721/extensions/ERC721Enumerable.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
 import {ERC721} from "../ERC721.sol";
 import {IERC721Enumerable} from "./IERC721Enumerable.sol";
 import {IERC165} from "../../../utils/introspection/ERC165.sol";
 
 /**
- * @dev This implements an optional extension of {ERC721} defined in the EIP that adds enumerability
+ * @dev This implements an optional extension of {ERC721} defined in the ERC that adds enumerability
  * of all the token ids in the contract as well as all token ids owned by each account.
  *
- * CAUTION: `ERC721` extensions that implement custom `balanceOf` logic, such as `ERC721Consecutive`,
- * interfere with enumerability and should not be used together with `ERC721Enumerable`.
+ * CAUTION: {ERC721} extensions that implement custom `balanceOf` logic, such as {ERC721Consecutive},
+ * interfere with enumerability and should not be used together with {ERC721Enumerable}.
  */
 abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
     mapping(address owner => mapping(uint256 index => uint256)) private _ownedTokens;
@@ -33,16 +33,12 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
      */
     error ERC721EnumerableForbiddenBatchMint();
 
-    /**
-     * @dev See {IERC165-supportsInterface}.
-     */
+    /// @inheritdoc IERC165
     function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, ERC721) returns (bool) {
         return interfaceId == type(IERC721Enumerable).interfaceId || super.supportsInterface(interfaceId);
     }
 
-    /**
-     * @dev See {IERC721Enumerable-tokenOfOwnerByIndex}.
-     */
+    /// @inheritdoc IERC721Enumerable
     function tokenOfOwnerByIndex(address owner, uint256 index) public view virtual returns (uint256) {
         if (index >= balanceOf(owner)) {
             revert ERC721OutOfBoundsIndex(owner, index);
@@ -50,16 +46,12 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
         return _ownedTokens[owner][index];
     }
 
-    /**
-     * @dev See {IERC721Enumerable-totalSupply}.
-     */
+    /// @inheritdoc IERC721Enumerable
     function totalSupply() public view virtual returns (uint256) {
         return _allTokens.length;
     }
 
-    /**
-     * @dev See {IERC721Enumerable-tokenByIndex}.
-     */
+    /// @inheritdoc IERC721Enumerable
     function tokenByIndex(uint256 index) public view virtual returns (uint256) {
         if (index >= totalSupply()) {
             revert ERC721OutOfBoundsIndex(address(0), index);
@@ -67,9 +59,7 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
         return _allTokens[index];
     }
 
-    /**
-     * @dev See {ERC721-_update}.
-     */
+    /// @inheritdoc ERC721
     function _update(address to, uint256 tokenId, address auth) internal virtual override returns (address) {
         address previousOwner = super._update(to, tokenId, auth);
 
@@ -122,17 +112,19 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
         uint256 lastTokenIndex = balanceOf(from);
         uint256 tokenIndex = _ownedTokensIndex[tokenId];
 
+        mapping(uint256 index => uint256) storage _ownedTokensByOwner = _ownedTokens[from];
+
         // When the token to delete is the last token, the swap operation is unnecessary
         if (tokenIndex != lastTokenIndex) {
-            uint256 lastTokenId = _ownedTokens[from][lastTokenIndex];
+            uint256 lastTokenId = _ownedTokensByOwner[lastTokenIndex];
 
-            _ownedTokens[from][tokenIndex] = lastTokenId; // Move the last token to the slot of the to-delete token
+            _ownedTokensByOwner[tokenIndex] = lastTokenId; // Move the last token to the slot of the to-delete token
             _ownedTokensIndex[lastTokenId] = tokenIndex; // Update the moved token's index
         }
 
         // This also deletes the contents at the last position of the array
         delete _ownedTokensIndex[tokenId];
-        delete _ownedTokens[from][lastTokenIndex];
+        delete _ownedTokensByOwner[lastTokenIndex];
     }
 
     /**

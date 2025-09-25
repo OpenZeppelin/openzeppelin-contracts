@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC1155/ERC1155.sol)
+// OpenZeppelin Contracts (last updated v5.4.0) (token/ERC1155/ERC1155.sol)
 
 pragma solidity ^0.8.20;
 
 import {IERC1155} from "./IERC1155.sol";
-import {IERC1155Receiver} from "./IERC1155Receiver.sol";
 import {IERC1155MetadataURI} from "./extensions/IERC1155MetadataURI.sol";
+import {ERC1155Utils} from "./utils/ERC1155Utils.sol";
 import {Context} from "../../utils/Context.sol";
 import {IERC165, ERC165} from "../../utils/introspection/ERC165.sol";
 import {Arrays} from "../../utils/Arrays.sol";
@@ -34,9 +34,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
         _setURI(uri_);
     }
 
-    /**
-     * @dev See {IERC165-supportsInterface}.
-     */
+    /// @inheritdoc IERC165
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IERC165) returns (bool) {
         return
             interfaceId == type(IERC1155).interfaceId ||
@@ -49,7 +47,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
      *
      * This implementation returns the same URI for *all* token types. It relies
      * on the token type ID substitution mechanism
-     * https://eips.ethereum.org/EIPS/eip-1155#metadata[defined in the EIP].
+     * https://eips.ethereum.org/EIPS/eip-1155#metadata[defined in the ERC].
      *
      * Clients calling this function must replace the `\{id\}` substring with the
      * actual token type ID.
@@ -58,9 +56,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
         return _uri;
     }
 
-    /**
-     * @dev See {IERC1155-balanceOf}.
-     */
+    /// @inheritdoc IERC1155
     function balanceOf(address account, uint256 id) public view virtual returns (uint256) {
         return _balances[id][account];
     }
@@ -89,23 +85,17 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
         return batchBalances;
     }
 
-    /**
-     * @dev See {IERC1155-setApprovalForAll}.
-     */
+    /// @inheritdoc IERC1155
     function setApprovalForAll(address operator, bool approved) public virtual {
         _setApprovalForAll(_msgSender(), operator, approved);
     }
 
-    /**
-     * @dev See {IERC1155-isApprovedForAll}.
-     */
+    /// @inheritdoc IERC1155
     function isApprovedForAll(address account, address operator) public view virtual returns (bool) {
         return _operatorApprovals[account][operator];
     }
 
-    /**
-     * @dev See {IERC1155-safeTransferFrom}.
-     */
+    /// @inheritdoc IERC1155
     function safeTransferFrom(address from, address to, uint256 id, uint256 value, bytes memory data) public virtual {
         address sender = _msgSender();
         if (from != sender && !isApprovedForAll(from, sender)) {
@@ -114,9 +104,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
         _safeTransferFrom(from, to, id, value, data);
     }
 
-    /**
-     * @dev See {IERC1155-safeBatchTransferFrom}.
-     */
+    /// @inheritdoc IERC1155
     function safeBatchTransferFrom(
         address from,
         address to,
@@ -203,9 +191,9 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
             if (ids.length == 1) {
                 uint256 id = ids.unsafeMemoryAccess(0);
                 uint256 value = values.unsafeMemoryAccess(0);
-                _doSafeTransferAcceptanceCheck(operator, from, to, id, value, data);
+                ERC1155Utils.checkOnERC1155Received(operator, from, to, id, value, data);
             } else {
-                _doSafeBatchTransferAcceptanceCheck(operator, from, to, ids, values, data);
+                ERC1155Utils.checkOnERC1155BatchReceived(operator, from, to, ids, values, data);
             }
         }
     }
@@ -263,7 +251,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
     /**
      * @dev Sets a new URI for all token types, by relying on the token type ID
      * substitution mechanism
-     * https://eips.ethereum.org/EIPS/eip-1155#metadata[defined in the EIP].
+     * https://eips.ethereum.org/EIPS/eip-1155#metadata[defined in the ERC].
      *
      * By this mechanism, any occurrence of the `\{id\}` substring in either the
      * URI or any of the values in the JSON file at said URI will be replaced by
@@ -375,80 +363,13 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
     }
 
     /**
-     * @dev Performs an acceptance check by calling {IERC1155-onERC1155Received} on the `to` address
-     * if it contains code at the moment of execution.
-     */
-    function _doSafeTransferAcceptanceCheck(
-        address operator,
-        address from,
-        address to,
-        uint256 id,
-        uint256 value,
-        bytes memory data
-    ) private {
-        if (to.code.length > 0) {
-            try IERC1155Receiver(to).onERC1155Received(operator, from, id, value, data) returns (bytes4 response) {
-                if (response != IERC1155Receiver.onERC1155Received.selector) {
-                    // Tokens rejected
-                    revert ERC1155InvalidReceiver(to);
-                }
-            } catch (bytes memory reason) {
-                if (reason.length == 0) {
-                    // non-ERC1155Receiver implementer
-                    revert ERC1155InvalidReceiver(to);
-                } else {
-                    /// @solidity memory-safe-assembly
-                    assembly {
-                        revert(add(32, reason), mload(reason))
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * @dev Performs a batch acceptance check by calling {IERC1155-onERC1155BatchReceived} on the `to` address
-     * if it contains code at the moment of execution.
-     */
-    function _doSafeBatchTransferAcceptanceCheck(
-        address operator,
-        address from,
-        address to,
-        uint256[] memory ids,
-        uint256[] memory values,
-        bytes memory data
-    ) private {
-        if (to.code.length > 0) {
-            try IERC1155Receiver(to).onERC1155BatchReceived(operator, from, ids, values, data) returns (
-                bytes4 response
-            ) {
-                if (response != IERC1155Receiver.onERC1155BatchReceived.selector) {
-                    // Tokens rejected
-                    revert ERC1155InvalidReceiver(to);
-                }
-            } catch (bytes memory reason) {
-                if (reason.length == 0) {
-                    // non-ERC1155Receiver implementer
-                    revert ERC1155InvalidReceiver(to);
-                } else {
-                    /// @solidity memory-safe-assembly
-                    assembly {
-                        revert(add(32, reason), mload(reason))
-                    }
-                }
-            }
-        }
-    }
-
-    /**
      * @dev Creates an array in memory with only one value for each of the elements provided.
      */
     function _asSingletonArrays(
         uint256 element1,
         uint256 element2
     ) private pure returns (uint256[] memory array1, uint256[] memory array2) {
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             // Load the free memory pointer
             array1 := mload(0x40)
             // Set array length to 1

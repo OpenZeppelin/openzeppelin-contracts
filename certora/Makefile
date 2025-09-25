@@ -17,7 +17,7 @@ $(DST): FORCE
 	@cp -r $(SRC) $@
 
 # Update a solidity file in the $DST directory using the corresponding patch
-$(DST)/%.sol: FORCE
+$(DST)/%.sol: FORCE | $(DST)
 	@echo Applying patch to $@
 	@patch -p0 -d $(DST) < $(patsubst $(DST)_%,$(DIFF)/%.patch,$(subst /,_,$@))
 
@@ -31,7 +31,7 @@ $(DIFF): FORCE
 	@mkdir $@
 
 # Create the patch file by comparing the source and the destination
-$(DIFF)/%.patch: FORCE
+$(DIFF)/%.patch: FORCE | $(DIFF)
 	@echo Generating patch $@
 	@diff -ruN \
 		$(patsubst $(DIFF)/%.patch,$(SRC)/%,$(subst _,/,$@)) \

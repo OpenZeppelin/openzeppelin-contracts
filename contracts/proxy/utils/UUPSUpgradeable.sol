@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.9.0) (proxy/utils/UUPSUpgradeable.sol)
+// OpenZeppelin Contracts (last updated v5.3.0) (proxy/utils/UUPSUpgradeable.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.22;
 
 import {IERC1822Proxiable} from "../../interfaces/draft-IERC1822.sol";
 import {ERC1967Utils} from "../ERC1967/ERC1967Utils.sol";
@@ -15,6 +15,8 @@ import {ERC1967Utils} from "../ERC1967/ERC1967Utils.sol";
  * `UUPSUpgradeable` with a custom implementation of upgrades.
  *
  * The {_authorizeUpgrade} function must be overridden to include access restriction to the upgrade mechanism.
+ *
+ * @custom:stateless
  */
 abstract contract UUPSUpgradeable is IERC1822Proxiable {
     /// @custom:oz-upgrades-unsafe-allow state-variable-immutable
@@ -42,9 +44,9 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable {
 
     /**
      * @dev Check that the execution is being performed through a delegatecall call and that the execution context is
-     * a proxy contract with an implementation (as defined in ERC1967) pointing to self. This should only be the case
+     * a proxy contract with an implementation (as defined in ERC-1967) pointing to self. This should only be the case
      * for UUPS and transparent proxies that are using the current contract as their implementation. Execution of a
-     * function through ERC1167 minimal proxies (clones) would not normally pass this test, but is not guaranteed to
+     * function through ERC-1167 minimal proxies (clones) would not normally pass this test, but is not guaranteed to
      * fail.
      */
     modifier onlyProxy() {
@@ -62,14 +64,14 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable {
     }
 
     /**
-     * @dev Implementation of the ERC1822 {proxiableUUID} function. This returns the storage slot used by the
+     * @dev Implementation of the ERC-1822 {proxiableUUID} function. This returns the storage slot used by the
      * implementation. It is used to validate the implementation's compatibility when performing an upgrade.
      *
      * IMPORTANT: A proxy pointing at a proxiable contract should not be considered proxiable itself, because this risks
      * bricking a proxy that upgrades to it, by delegating to itself until out of gas. Thus it is critical that this
      * function revert if invoked through a proxy. This is guaranteed by the `notDelegated` modifier.
      */
-    function proxiableUUID() external view virtual notDelegated returns (bytes32) {
+    function proxiableUUID() external view notDelegated returns (bytes32) {
         return ERC1967Utils.IMPLEMENTATION_SLOT;
     }
 
@@ -90,8 +92,7 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable {
 
     /**
      * @dev Reverts if the execution is not performed via delegatecall or the execution
-     * context is not of a proxy with an ERC1967-compliant implementation pointing to self.
-     * See {_onlyProxy}.
+     * context is not of a proxy with an ERC-1967 compliant implementation pointing to self.
      */
     function _checkProxy() internal view virtual {
         if (
@@ -129,7 +130,7 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable {
      * @dev Performs an implementation upgrade with a security check for UUPS proxies, and additional setup call.
      *
      * As a security check, {proxiableUUID} is invoked in the new implementation, and the return value
-     * is expected to be the implementation slot in ERC1967.
+     * is expected to be the implementation slot in ERC-1967.
      *
      * Emits an {IERC1967-Upgraded} event.
      */

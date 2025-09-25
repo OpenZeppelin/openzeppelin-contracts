@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.22;
 
 import {UUPSUpgradeable} from "../../proxy/utils/UUPSUpgradeable.sol";
 import {ERC1967Utils} from "../../proxy/ERC1967/ERC1967Utils.sol";
@@ -28,8 +28,8 @@ contract UUPSUpgradeableUnsafeMock is UUPSUpgradeableMock {
     }
 }
 
-contract UUPSUnsupportedProxiableUUID is UUPSUpgradeableMock {
-    function proxiableUUID() external pure override returns (bytes32) {
+contract UUPSUnsupportedProxiableUUIDMock is NonUpgradeableMock {
+    function proxiableUUID() external pure returns (bytes32) {
         return keccak256("invalid UUID");
     }
 }

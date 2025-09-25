@@ -1,23 +1,23 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC721/extensions/ERC721Wrapper.sol)
+// OpenZeppelin Contracts (last updated v5.1.0) (token/ERC721/extensions/ERC721Wrapper.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
 import {IERC721, ERC721} from "../ERC721.sol";
 import {IERC721Receiver} from "../IERC721Receiver.sol";
 
 /**
- * @dev Extension of the ERC721 token contract to support token wrapping.
+ * @dev Extension of the ERC-721 token contract to support token wrapping.
  *
  * Users can deposit and withdraw an "underlying token" and receive a "wrapped token" with a matching tokenId. This is
  * useful in conjunction with other modules. For example, combining this wrapping mechanism with {ERC721Votes} will allow
- * the wrapping of an existing "basic" ERC721 into a governance token.
+ * the wrapping of an existing "basic" ERC-721 into a governance token.
  */
 abstract contract ERC721Wrapper is ERC721, IERC721Receiver {
     IERC721 private immutable _underlying;
 
     /**
-     * @dev The received ERC721 token couldn't be wrapped.
+     * @dev The received ERC-721 token couldn't be wrapped.
      */
     error ERC721UnsupportedToken(address token);
 
@@ -36,7 +36,7 @@ abstract contract ERC721Wrapper is ERC721, IERC721Receiver {
             // This is an "unsafe" transfer that doesn't call any hook on the receiver. With underlying() being trusted
             // (by design of this contract) and no other contracts expected to be called from there, we are safe.
             // slither-disable-next-line reentrancy-no-eth
-            underlying().transferFrom(_msgSender(), address(this), tokenId);
+            underlying().transferFrom(_msgSender(), address(this), tokenId); // forge-lint: disable-line(erc20-unchecked-transfer)
             _safeMint(account, tokenId);
         }
 
@@ -63,7 +63,7 @@ abstract contract ERC721Wrapper is ERC721, IERC721Receiver {
     }
 
     /**
-     * @dev Overrides {IERC721Receiver-onERC721Received} to allow minting on direct ERC721 transfers to
+     * @dev Overrides {IERC721Receiver-onERC721Received} to allow minting on direct ERC-721 transfers to
      * this contract.
      *
      * In case there's data attached, it validates that the operator is this contract, so only trusted data

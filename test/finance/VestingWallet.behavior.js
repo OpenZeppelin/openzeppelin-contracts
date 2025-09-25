@@ -1,59 +1,87 @@
-const { time } = require('@nomicfoundation/hardhat-network-helpers');
-const { expectEvent } = require('@openzeppelin/test-helpers');
+const { ethers } = require('hardhat');
 const { expect } = require('chai');
+const time = require('../helpers/time');
 
-function releasedEvent(token, amount) {
-  return token ? ['ERC20Released', { token: token.address, amount }] : ['EtherReleased', { amount }];
+async function envSetup(mock, beneficiary, token) {
+  return {
+    eth: {
+      checkRelease: async (tx, amount) => {
+        await expect(tx).to.changeEtherBalances([mock, beneficiary], [-amount, amount]);
+      },
+      setupFailure: async () => {
+        const beneficiaryMock = await ethers.deployContract('EtherReceiverMock');
+        await beneficiaryMock.setAcceptEther(false);
+        await mock.connect(beneficiary).transferOwnership(beneficiaryMock);
+        return { args: [], error: [mock, 'FailedCall'] };
+      },
+      releasedEvent: 'EtherReleased',
+      args: [],
+    },
+    token: {
+      checkRelease: async (tx, amount) => {
+        await expect(tx).to.emit(token, 'Transfer').withArgs(mock, beneficiary, amount);
+        await expect(tx).to.changeTokenBalances(token, [mock, beneficiary], [-amount, amount]);
+      },
+      setupFailure: async () => {
+        const pausableToken = await ethers.deployContract('$ERC20Pausable', ['Name', 'Symbol']);
+        await pausableToken.$_pause();
+        return {
+          args: [ethers.Typed.address(pausableToken)],
+          error: [pausableToken, 'EnforcedPause'],
+        };
+      },
+      releasedEvent: 'ERC20Released',
+      args: [ethers.Typed.address(token)],
+    },
+  };
 }
 
-function shouldBehaveLikeVesting(beneficiary) {
+function shouldBehaveLikeVesting() {
   it('check vesting schedule', async function () {
-    const [vestedAmount, releasable, ...args] = this.token
-      ? ['vestedAmount(address,uint64)', 'releasable(address)', this.token.address]
-      : ['vestedAmount(uint64)', 'releasable()'];
-
     for (const timestamp of this.schedule) {
-      await time.increaseTo(timestamp);
+      await time.increaseTo.timestamp(timestamp);
       const vesting = this.vestingFn(timestamp);
 
-      expect(await this.mock.methods[vestedAmount](...args, timestamp)).to.be.bignumber.equal(vesting);
-
-      expect(await this.mock.methods[releasable](...args)).to.be.bignumber.equal(vesting);
+      expect(await this.mock.vestedAmount(...this.args, timestamp)).to.equal(vesting);
+      expect(await this.mock.releasable(...this.args)).to.equal(vesting);
     }
   });
 
   it('execute vesting schedule', async function () {
-    const [release, ...args] = this.token ? ['release(address)', this.token.address] : ['release()'];
-
-    let released = web3.utils.toBN(0);
-    const before = await this.getBalance(beneficiary);
-
+    let released = 0n;
     {
-      const receipt = await this.mock.methods[release](...args);
+      const tx = await this.mock.release(...this.args);
+      await expect(tx)
+        .to.emit(this.mock, this.releasedEvent)
+        .withArgs(...this.args, 0);
 
-      await expectEvent.inTransaction(receipt.tx, this.mock, ...releasedEvent(this.token, '0'));
-
-      await this.checkRelease(receipt, beneficiary, '0');
-
-      expect(await this.getBalance(beneficiary)).to.be.bignumber.equal(before);
+      await this.checkRelease(tx, 0n);
     }
 
     for (const timestamp of this.schedule) {
-      await time.setNextBlockTimestamp(timestamp);
+      await time.increaseTo.timestamp(timestamp, false);
       const vested = this.vestingFn(timestamp);
 
-      const receipt = await this.mock.methods[release](...args);
-      await expectEvent.inTransaction(receipt.tx, this.mock, ...releasedEvent(this.token, vested.sub(released)));
+      const tx = await this.mock.release(...this.args);
+      await expect(tx).to.emit(this.mock, this.releasedEvent);
 
-      await this.checkRelease(receipt, beneficiary, vested.sub(released));
-
-      expect(await this.getBalance(beneficiary)).to.be.bignumber.equal(before.add(vested));
-
+      await this.checkRelease(tx, vested - released);
       released = vested;
+    }
+  });
+
+  it('should revert on transaction failure', async function () {
+    const { args, error } = await this.setupFailure();
+
+    for (const timestamp of this.schedule) {
+      await time.increaseTo.timestamp(timestamp);
+
+      await expect(this.mock.release(...args)).to.be.revertedWithCustomError(...error);
     }
   });
 }
 
 module.exports = {
+  envSetup,
   shouldBehaveLikeVesting,
 };

@@ -1,21 +1,21 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.9.0) (utils/cryptography/EIP712.sol)
+// OpenZeppelin Contracts (last updated v5.4.0) (utils/cryptography/EIP712.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
 import {MessageHashUtils} from "./MessageHashUtils.sol";
 import {ShortStrings, ShortString} from "../ShortStrings.sol";
 import {IERC5267} from "../../interfaces/IERC5267.sol";
 
 /**
- * @dev https://eips.ethereum.org/EIPS/eip-712[EIP 712] is a standard for hashing and signing of typed structured data.
+ * @dev https://eips.ethereum.org/EIPS/eip-712[EIP-712] is a standard for hashing and signing of typed structured data.
  *
  * The encoding scheme specified in the EIP requires a domain separator and a hash of the typed structured data, whose
  * encoding is very generic and therefore its implementation in Solidity is not feasible, thus this contract
  * does not implement the encoding itself. Protocols need to implement the type-specific encoding they need in order to
  * produce the hash of their typed data using a combination of `abi.encode` and `keccak256`.
  *
- * This contract implements the EIP 712 domain separator ({_domainSeparatorV4}) that is used as part of the encoding
+ * This contract implements the EIP-712 domain separator ({_domainSeparatorV4}) that is used as part of the encoding
  * scheme, and the final step of the encoding to obtain the message digest that is then signed via ECDSA
  * ({_hashTypedDataV4}).
  *
@@ -48,14 +48,16 @@ abstract contract EIP712 is IERC5267 {
 
     ShortString private immutable _name;
     ShortString private immutable _version;
+    // slither-disable-next-line constable-states
     string private _nameFallback;
+    // slither-disable-next-line constable-states
     string private _versionFallback;
 
     /**
      * @dev Initializes the domain separator and parameter caches.
      *
      * The meaning of `name` and `version` is specified in
-     * https://eips.ethereum.org/EIPS/eip-712#definition-of-domainseparator[EIP 712]:
+     * https://eips.ethereum.org/EIPS/eip-712#definition-of-domainseparator[EIP-712]:
      *
      * - `name`: the user readable name of the signing domain, i.e. the name of the DApp or the protocol.
      * - `version`: the current major version of the signing domain.
@@ -108,9 +110,7 @@ abstract contract EIP712 is IERC5267 {
         return MessageHashUtils.toTypedDataHash(_domainSeparatorV4(), structHash);
     }
 
-    /**
-     * @dev See {IERC-5267}.
-     */
+    /// @inheritdoc IERC5267
     function eip712Domain()
         public
         view

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.1 (proxy/beacon/IBeacon.sol)
+// OpenZeppelin Contracts (last updated v5.4.0) (proxy/beacon/IBeacon.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity >=0.4.16;
 
 /**
  * @dev This is the interface that {BeaconProxy} expects of its beacon.

@@ -1,149 +1,83 @@
-const { BN, constants } = require('@openzeppelin/test-helpers');
-const { mapValues } = require('../../helpers/iterate');
+const { ethers } = require('hardhat');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const EnumerableMap = artifacts.require('$EnumerableMap');
+const { mapValues } = require('../../helpers/iterate');
+const { generators } = require('../../helpers/random');
+const { MAP_TYPES, typeDescr, toMapTypeDescr } = require('../../../scripts/generate/templates/Enumerable.opts');
 
 const { shouldBehaveLikeMap } = require('./EnumerableMap.behavior');
 
-const getMethods = ms => {
-  return mapValues(
-    ms,
-    m =>
-      (self, ...args) =>
-        self.methods[m](0, ...args),
+// Add Bytes32ToBytes32Map that must be tested but is not part of the generated types.
+MAP_TYPES.unshift(toMapTypeDescr({ key: typeDescr({ type: 'bytes32' }), value: typeDescr({ type: 'bytes32' }) }));
+
+async function fixture() {
+  const mock = await ethers.deployContract('$EnumerableMap');
+
+  const env = Object.fromEntries(
+    MAP_TYPES.map(({ name, key, value }) => [
+      name,
+      {
+        key,
+        value,
+        keys: Array.from({ length: 3 }, generators[key.type]),
+        values: Array.from({ length: 3 }, generators[value.type]),
+        zeroValue: generators[value.type].zero,
+        methods: mapValues(
+          MAP_TYPES.filter(map => map.key.name == key.name).length == 1
+            ? {
+                set: `$set(uint256,${key.type},${value.type})`,
+                get: `$get(uint256,${key.type})`,
+                tryGet: `$tryGet(uint256,${key.type})`,
+                remove: `$remove(uint256,${key.type})`,
+                contains: `$contains(uint256,${key.type})`,
+                clear: `$clear_EnumerableMap_${name}(uint256)`,
+                length: `$length_EnumerableMap_${name}(uint256)`,
+                at: `$at_EnumerableMap_${name}(uint256,uint256)`,
+                keys: `$keys_EnumerableMap_${name}(uint256)`,
+                keysPage: `$keys_EnumerableMap_${name}(uint256,uint256,uint256)`,
+              }
+            : {
+                set: `$set(uint256,${key.type},${value.type})`,
+                get: `$get_EnumerableMap_${name}(uint256,${key.type})`,
+                tryGet: `$tryGet_EnumerableMap_${name}(uint256,${key.type})`,
+                remove: `$remove_EnumerableMap_${name}(uint256,${key.type})`,
+                contains: `$contains_EnumerableMap_${name}(uint256,${key.type})`,
+                clear: `$clear_EnumerableMap_${name}(uint256)`,
+                length: `$length_EnumerableMap_${name}(uint256)`,
+                at: `$at_EnumerableMap_${name}(uint256,uint256)`,
+                keys: `$keys_EnumerableMap_${name}(uint256)`,
+                keysPage: `$keys_EnumerableMap_${name}(uint256,uint256,uint256)`,
+              },
+          fnSig =>
+            (...args) =>
+              mock.getFunction(fnSig)(0, ...args),
+        ),
+        events: {
+          setReturn: `return$set_EnumerableMap_${name}_${key.type}_${value.type}`,
+          removeReturn: `return$remove_EnumerableMap_${name}_${key.type}`,
+        },
+        error: key.memory || value.memory ? `EnumerableMapNonexistent${key.name}Key` : `EnumerableMapNonexistentKey`,
+      },
+    ]),
   );
-};
 
-// Get the name of the library. In the transpiled code it will be EnumerableMapUpgradeable.
-const library = EnumerableMap._json.contractName.replace(/^\$/, '');
+  return { mock, env };
+}
 
-contract('EnumerableMap', function (accounts) {
-  const [accountA, accountB, accountC] = accounts;
-
-  const keyA = new BN('7891');
-  const keyB = new BN('451');
-  const keyC = new BN('9592328');
-
-  const bytesA = '0xdeadbeef'.padEnd(66, '0');
-  const bytesB = '0x0123456789'.padEnd(66, '0');
-  const bytesC = '0x42424242'.padEnd(66, '0');
-
+describe('EnumerableMap', function () {
   beforeEach(async function () {
-    this.map = await EnumerableMap.new();
+    Object.assign(this, await loadFixture(fixture));
   });
 
-  // AddressToUintMap
-  describe('AddressToUintMap', function () {
-    shouldBehaveLikeMap(
-      [accountA, accountB, accountC],
-      [keyA, keyB, keyC],
-      new BN('0'),
-      getMethods({
-        set: '$set(uint256,address,uint256)',
-        get: '$get(uint256,address)',
-        tryGet: '$tryGet(uint256,address)',
-        remove: '$remove(uint256,address)',
-        length: `$length_${library}_AddressToUintMap(uint256)`,
-        at: `$at_${library}_AddressToUintMap(uint256,uint256)`,
-        contains: '$contains(uint256,address)',
-        keys: `$keys_${library}_AddressToUintMap(uint256)`,
-      }),
-      {
-        setReturn: `return$set_${library}_AddressToUintMap_address_uint256`,
-        removeReturn: `return$remove_${library}_AddressToUintMap_address`,
-      },
-    );
-  });
+  for (const { name, key, value } of MAP_TYPES) {
+    describe(`${name} (enumerable map from ${key.type} to ${value.type})`, function () {
+      beforeEach(async function () {
+        Object.assign(this, this.env[name]);
+        [this.keyA, this.keyB, this.keyC] = this.keys;
+        [this.valueA, this.valueB, this.valueC] = this.values;
+      });
 
-  // UintToAddressMap
-  describe('UintToAddressMap', function () {
-    shouldBehaveLikeMap(
-      [keyA, keyB, keyC],
-      [accountA, accountB, accountC],
-      constants.ZERO_ADDRESS,
-      getMethods({
-        set: '$set(uint256,uint256,address)',
-        get: `$get_${library}_UintToAddressMap(uint256,uint256)`,
-        tryGet: `$tryGet_${library}_UintToAddressMap(uint256,uint256)`,
-        remove: `$remove_${library}_UintToAddressMap(uint256,uint256)`,
-        length: `$length_${library}_UintToAddressMap(uint256)`,
-        at: `$at_${library}_UintToAddressMap(uint256,uint256)`,
-        contains: `$contains_${library}_UintToAddressMap(uint256,uint256)`,
-        keys: `$keys_${library}_UintToAddressMap(uint256)`,
-      }),
-      {
-        setReturn: `return$set_${library}_UintToAddressMap_uint256_address`,
-        removeReturn: `return$remove_${library}_UintToAddressMap_uint256`,
-      },
-    );
-  });
-
-  // Bytes32ToBytes32Map
-  describe('Bytes32ToBytes32Map', function () {
-    shouldBehaveLikeMap(
-      [keyA, keyB, keyC].map(k => '0x' + k.toString(16).padEnd(64, '0')),
-      [bytesA, bytesB, bytesC],
-      constants.ZERO_BYTES32,
-      getMethods({
-        set: '$set(uint256,bytes32,bytes32)',
-        get: `$get_${library}_Bytes32ToBytes32Map(uint256,bytes32)`,
-        tryGet: `$tryGet_${library}_Bytes32ToBytes32Map(uint256,bytes32)`,
-        remove: `$remove_${library}_Bytes32ToBytes32Map(uint256,bytes32)`,
-        length: `$length_${library}_Bytes32ToBytes32Map(uint256)`,
-        at: `$at_${library}_Bytes32ToBytes32Map(uint256,uint256)`,
-        contains: `$contains_${library}_Bytes32ToBytes32Map(uint256,bytes32)`,
-        keys: `$keys_${library}_Bytes32ToBytes32Map(uint256)`,
-      }),
-      {
-        setReturn: `return$set_${library}_Bytes32ToBytes32Map_bytes32_bytes32`,
-        removeReturn: `return$remove_${library}_Bytes32ToBytes32Map_bytes32`,
-      },
-    );
-  });
-
-  // UintToUintMap
-  describe('UintToUintMap', function () {
-    shouldBehaveLikeMap(
-      [keyA, keyB, keyC],
-      [keyA, keyB, keyC].map(k => k.add(new BN('1332'))),
-      new BN('0'),
-      getMethods({
-        set: '$set(uint256,uint256,uint256)',
-        get: `$get_${library}_UintToUintMap(uint256,uint256)`,
-        tryGet: `$tryGet_${library}_UintToUintMap(uint256,uint256)`,
-        remove: `$remove_${library}_UintToUintMap(uint256,uint256)`,
-        length: `$length_${library}_UintToUintMap(uint256)`,
-        at: `$at_${library}_UintToUintMap(uint256,uint256)`,
-        contains: `$contains_${library}_UintToUintMap(uint256,uint256)`,
-        keys: `$keys_${library}_UintToUintMap(uint256)`,
-      }),
-      {
-        setReturn: `return$set_${library}_UintToUintMap_uint256_uint256`,
-        removeReturn: `return$remove_${library}_UintToUintMap_uint256`,
-      },
-    );
-  });
-
-  // Bytes32ToUintMap
-  describe('Bytes32ToUintMap', function () {
-    shouldBehaveLikeMap(
-      [bytesA, bytesB, bytesC],
-      [keyA, keyB, keyC],
-      new BN('0'),
-      getMethods({
-        set: '$set(uint256,bytes32,uint256)',
-        get: `$get_${library}_Bytes32ToUintMap(uint256,bytes32)`,
-        tryGet: `$tryGet_${library}_Bytes32ToUintMap(uint256,bytes32)`,
-        remove: `$remove_${library}_Bytes32ToUintMap(uint256,bytes32)`,
-        length: `$length_${library}_Bytes32ToUintMap(uint256)`,
-        at: `$at_${library}_Bytes32ToUintMap(uint256,uint256)`,
-        contains: `$contains_${library}_Bytes32ToUintMap(uint256,bytes32)`,
-        keys: `$keys_${library}_Bytes32ToUintMap(uint256)`,
-      }),
-      {
-        setReturn: `return$set_${library}_Bytes32ToUintMap_bytes32_uint256`,
-        removeReturn: `return$remove_${library}_Bytes32ToUintMap_bytes32`,
-      },
-    );
-  });
+      shouldBehaveLikeMap();
+    });
+  }
 });

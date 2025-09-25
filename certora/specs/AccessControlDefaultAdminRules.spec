@@ -67,11 +67,14 @@ invariant defaultAdminRoleAdminConsistency()
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Invariant: owner is the defaultAdmin                                                                                │
+│ Rule: owner is the defaultAdmin                                                                                     │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-invariant ownerConsistency()
-  defaultAdmin() == owner();
+// Writing this as an invariant would be flagged by Certora as trivial. Writing it as a rule is just as valid: we
+// verify the is true for any state of the storage
+rule ownerConsistency() {
+  assert defaultAdmin() == owner();
+}
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -176,7 +179,7 @@ rule renounceRoleEffect(env e, bytes32 role) {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: defaultAdmin is only affected by accepting an admin transfer or renoucing                                     │
+│ Rule: defaultAdmin is only affected by accepting an admin transfer or renouncing                                    │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule noDefaultAdminChange(env e, method f, calldataarg args) {
@@ -188,7 +191,7 @@ rule noDefaultAdminChange(env e, method f, calldataarg args) {
     f.selector == sig:acceptDefaultAdminTransfer().selector ||
     f.selector == sig:renounceRole(bytes32,address).selector
   ),
-    "default admin is only affected by accepting an admin transfer or renoucing";
+    "default admin is only affected by accepting an admin transfer or renouncing";
 }
 
 /*
