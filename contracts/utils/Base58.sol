@@ -157,7 +157,7 @@ library Base58 {
             // When converting from base-58 to base-256 (bytes), the theoretical length ratio is ln(58)/ln(256).
             // We use 6115/8351 ≈ 0.7322 as a rational approximation that slightly over-estimates to ensure
             // sufficient memory allocation. (ln = natural logarithm)
-            let outputLengthEstim := add(inputLeadingZeros, div(mul(sub(inputLength, inputLeadingZeros), 7239), 9886))
+            let outputLengthEstim := add(inputLeadingZeros, div(mul(sub(inputLength, inputLeadingZeros), 6115), 8351))
 
             // This is going to be our "scratch" workspace. Be leave enough room on the left to store length + encoded input.
             let scratch := add(mload(0x40), add(outputLengthEstim, 0x21))
