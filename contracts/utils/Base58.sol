@@ -75,7 +75,7 @@ library Base58 {
                 ptr := add(ptr, 0x20) // next limb
                 i := add(i, 31) // move in buffer
             } {
-                // Load 31 bytes from input, right-shift by 8 bits to leave 1 zero byte in low bits
+                // Load 31 bytes from input, right-shift by 8 bits to leave 1 zero byte on the left.
                 mstore(ptr, shr(8, mload(add(add(input, 0x20), i))))
             }
 
