@@ -45,10 +45,6 @@ abstract contract Pausable is Context {
      */
     error ExpectedPause();
 
-    constructor() {
-        _paused = NOT_PAUSED;
-    }
-
     /**
      * @dev Modifier to make a function callable only when the contract is not paused.
      *
