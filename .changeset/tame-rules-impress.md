@@ -2,4 +2,4 @@
 'openzeppelin-solidity': minor
 ---
 
-Add a gas optimization in `Pausable` similar to the one used in the `ReentrancyGuard`
+`Pausable`: Add a gas optimization similar to the one used in the `ReentrancyGuard`
