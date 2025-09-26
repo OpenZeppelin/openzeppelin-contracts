@@ -15,9 +15,20 @@ async function fixture() {
   const forwarderAsSigner = await impersonate(forwarder.target);
   const context = await ethers.deployContract('ERC2771ContextMock', [forwarder]);
   const domain = await getDomain(forwarder);
-  const types = { ForwardRequest };
 
-  return { sender, other, forwarder, forwarderAsSigner, context, domain, types };
+  const prepareAndSignRequest = async (signer, request) => {
+    // request.to is mandatory
+    request.from ??= signer.address;
+    request.value ??= 0n;
+    request.data ??= '0x';
+    request.gas ??= 100000n;
+    request.nonce ??= await forwarder.nonces(signer);
+    request.deadline ??= MAX_UINT48;
+    request.signature = await signer.signTypedData(domain, { ForwardRequest }, request);
+    return request;
+  };
+
+  return { sender, other, forwarder, forwarderAsSigner, context, prepareAndSignRequest };
 }
 
 describe('ERC2771Context', function () {
@@ -26,11 +37,11 @@ describe('ERC2771Context', function () {
   });
 
   it('recognize trusted forwarder', async function () {
-    expect(await this.context.isTrustedForwarder(this.forwarder)).to.be.true;
+    await expect(this.context.isTrustedForwarder(this.forwarder)).to.eventually.be.true;
   });
 
   it('returns the trusted forwarder', async function () {
-    expect(await this.context.trustedForwarder()).to.equal(this.forwarder);
+    await expect(this.context.trustedForwarder()).to.eventually.equal(this.forwarder);
   });
 
   describe('when called directly', function () {
@@ -40,23 +51,12 @@ describe('ERC2771Context', function () {
   describe('when receiving a relayed call', function () {
     describe('msgSender', function () {
       it('returns the relayed transaction original sender', async function () {
-        const nonce = await this.forwarder.nonces(this.sender);
-        const data = this.context.interface.encodeFunctionData('msgSender');
+        const req = await this.prepareAndSignRequest(this.sender, {
+          to: this.context.target,
+          data: this.context.interface.encodeFunctionData('msgSender'),
+        });
 
-        const req = {
-          from: await this.sender.getAddress(),
-          to: await this.context.getAddress(),
-          value: 0n,
-          data,
-          gas: 100000n,
-          nonce,
-          deadline: MAX_UINT48,
-        };
-
-        req.signature = await this.sender.signTypedData(this.domain, this.types, req);
-
-        expect(await this.forwarder.verify(req)).to.be.true;
-
+        await expect(this.forwarder.verify(req)).to.eventually.be.true;
         await expect(this.forwarder.execute(req)).to.emit(this.context, 'Sender').withArgs(this.sender);
       });
 
@@ -72,26 +72,15 @@ describe('ERC2771Context', function () {
       it('returns the relayed transaction original data', async function () {
         const args = [42n, 'OpenZeppelin'];
 
-        const nonce = await this.forwarder.nonces(this.sender);
-        const data = this.context.interface.encodeFunctionData('msgData', args);
+        const req = await this.prepareAndSignRequest(this.sender, {
+          to: this.context.target,
+          data: this.context.interface.encodeFunctionData('msgData', args),
+        });
 
-        const req = {
-          from: await this.sender.getAddress(),
-          to: await this.context.getAddress(),
-          value: 0n,
-          data,
-          gas: 100000n,
-          nonce,
-          deadline: MAX_UINT48,
-        };
-
-        req.signature = this.sender.signTypedData(this.domain, this.types, req);
-
-        expect(await this.forwarder.verify(req)).to.be.true;
-
+        await expect(this.forwarder.verify(req)).to.eventually.be.true;
         await expect(this.forwarder.execute(req))
           .to.emit(this.context, 'Data')
-          .withArgs(data, ...args);
+          .withArgs(req.data, ...args);
       });
     });
 
@@ -99,35 +88,22 @@ describe('ERC2771Context', function () {
       const data = this.context.interface.encodeFunctionData('msgDataShort');
 
       // The forwarder doesn't produce calls with calldata length less than 20 bytes so `this.forwarderAsSigner` is used instead.
-      await expect(await this.context.connect(this.forwarderAsSigner).msgDataShort())
+      await expect(this.context.connect(this.forwarderAsSigner).msgDataShort())
         .to.emit(this.context, 'DataShort')
         .withArgs(data);
     });
   });
 
   it('multicall poison attack', async function () {
-    const nonce = await this.forwarder.nonces(this.sender);
-    const data = this.context.interface.encodeFunctionData('multicall', [
-      [
-        // poisoned call to 'msgSender()'
-        ethers.concat([this.context.interface.encodeFunctionData('msgSender'), this.other.address]),
-      ],
-    ]);
+    const req = await this.prepareAndSignRequest(this.sender, {
+      to: this.context.target,
+      data: this.context.interface.encodeFunctionData('multicall', [
+        // poisonned call to 'msgSender()'
+        [ethers.concat([this.context.interface.encodeFunctionData('msgSender'), this.other.address])],
+      ]),
+    });
 
-    const req = {
-      from: await this.sender.getAddress(),
-      to: await this.context.getAddress(),
-      value: 0n,
-      data,
-      gas: 100000n,
-      nonce,
-      deadline: MAX_UINT48,
-    };
-
-    req.signature = await this.sender.signTypedData(this.domain, this.types, req);
-
-    expect(await this.forwarder.verify(req)).to.be.true;
-
+    await expect(this.forwarder.verify(req)).to.eventually.be.true;
     await expect(this.forwarder.execute(req)).to.emit(this.context, 'Sender').withArgs(this.sender);
   });
 });
