@@ -8,7 +8,7 @@ import {AccessControl, IAccessControl} from "../AccessControl.sol";
 import {SafeCast} from "../../utils/math/SafeCast.sol";
 import {Math} from "../../utils/math/Math.sol";
 import {IERC5313} from "../../interfaces/IERC5313.sol";
-import {IERC165} from "../../utils/introspection/ERC165.sol";
+import {IERC165} from "../../utils/introspection/IERC165.sol";
 
 /**
  * @dev Extension of {AccessControl} that allows specifying special rules to manage
@@ -357,14 +357,14 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     ///
 
     /**
-     * @dev Defines if an `schedule` is considered set. For consistency purposes.
+     * @dev Defines if a `schedule` is considered set. For consistency purposes.
      */
     function _isScheduleSet(uint48 schedule) private pure returns (bool) {
         return schedule != 0;
     }
 
     /**
-     * @dev Defines if an `schedule` is considered passed. For consistency purposes.
+     * @dev Defines if a `schedule` is considered passed. For consistency purposes.
      */
     function _hasSchedulePassed(uint48 schedule) private view returns (bool) {
         return schedule < block.timestamp;

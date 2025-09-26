@@ -111,7 +111,7 @@ library SafeERC20 {
 
     /**
      * @dev Performs an {ERC1363} transferAndCall, with a fallback to the simple {ERC20} transfer if the target has no
-     * code. This can be used to implement an {ERC721}-like safe transfer that rely on {ERC1363} checks when
+     * code. This can be used to implement an {ERC721}-like safe transfer that relies on {ERC1363} checks when
      * targeting contracts.
      *
      * Reverts if the returned value is other than `true`.
@@ -126,7 +126,7 @@ library SafeERC20 {
 
     /**
      * @dev Performs an {ERC1363} transferFromAndCall, with a fallback to the simple {ERC20} transferFrom if the target
-     * has no code. This can be used to implement an {ERC721}-like safe transfer that rely on {ERC1363} checks when
+     * has no code. This can be used to implement an {ERC721}-like safe transfer that relies on {ERC1363} checks when
      * targeting contracts.
      *
      * Reverts if the returned value is other than `true`.
@@ -151,7 +151,7 @@ library SafeERC20 {
      * targeting contracts.
      *
      * NOTE: When the recipient address (`to`) has no code (i.e. is an EOA), this function behaves as {forceApprove}.
-     * Opposedly, when the recipient address (`to`) has code, this function only attempts to call {ERC1363-approveAndCall}
+     * Oppositely, when the recipient address (`to`) has code, this function only attempts to call {ERC1363-approveAndCall}
      * once without retrying, and relies on the returned value to be true.
      *
      * Reverts if the returned value is other than `true`.

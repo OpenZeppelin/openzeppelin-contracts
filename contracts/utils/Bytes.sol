@@ -168,7 +168,7 @@ library Bytes {
 
     /**
      * @dev Reverses the byte order of a bytes32 value, converting between little-endian and big-endian.
-     * Inspired in https://graphics.stanford.edu/~seander/bithacks.html#ReverseParallel[Reverse Parallel]
+     * Inspired by https://graphics.stanford.edu/~seander/bithacks.html#ReverseParallel[Reverse Parallel]
      */
     function reverseBytes32(bytes32 value) internal pure returns (bytes32) {
         value = // swap bytes
