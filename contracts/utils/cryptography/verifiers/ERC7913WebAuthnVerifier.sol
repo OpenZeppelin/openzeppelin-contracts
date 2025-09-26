@@ -16,6 +16,8 @@ import {IERC7913SignatureVerifier} from "../../../interfaces/IERC7913.sol";
  * WebAuthn checks: type validation, challenge matching, and cryptographic signature verification.
  *
  * NOTE: Wallets that may require default P256 validation may install a P256 verifier separately.
+ *
+ * @custom:stateless
  */
 contract ERC7913WebAuthnVerifier is IERC7913SignatureVerifier {
     /// @inheritdoc IERC7913SignatureVerifier
