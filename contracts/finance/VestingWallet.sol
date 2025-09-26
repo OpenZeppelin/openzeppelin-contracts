@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 
 import {IERC20} from "../token/ERC20/IERC20.sol";
 import {SafeERC20} from "../token/ERC20/utils/SafeERC20.sol";
+import {Math} from "../utils/math/Math.sol";
 import {Address} from "../utils/Address.sol";
 import {Context} from "../utils/Context.sol";
 import {Ownable} from "../access/Ownable.sol";
@@ -33,6 +34,8 @@ import {Ownable} from "../access/Ownable.sol";
  * Consider disabling one of the withdrawal methods.
  */
 contract VestingWallet is Context, Ownable {
+    using Math for uint256;
+
     event EtherReleased(uint256 amount);
     event ERC20Released(address indexed token, uint256 amount);
 
@@ -133,14 +136,14 @@ contract VestingWallet is Context, Ownable {
      * @dev Calculates the amount of ether that has already vested. Default implementation is a linear vesting curve.
      */
     function vestedAmount(uint64 timestamp) public view virtual returns (uint256) {
-        return _vestingSchedule(address(this).balance + released(), timestamp);
+        return _vestingSchedule(address(this).balance.saturatingAdd(released()), timestamp);
     }
 
     /**
      * @dev Calculates the amount of tokens that has already vested. Default implementation is a linear vesting curve.
      */
     function vestedAmount(address token, uint64 timestamp) public view virtual returns (uint256) {
-        return _vestingSchedule(IERC20(token).balanceOf(address(this)) + released(token), timestamp);
+        return _vestingSchedule(IERC20(token).balanceOf(address(this)).saturatingAdd(released(token)), timestamp);
     }
 
     /**
@@ -153,7 +156,7 @@ contract VestingWallet is Context, Ownable {
         } else if (timestamp >= end()) {
             return totalAllocation;
         } else {
-            return (totalAllocation * (timestamp - start())) / duration();
+            return totalAllocation.mulDiv(timestamp - start(), duration());
         }
     }
 }
