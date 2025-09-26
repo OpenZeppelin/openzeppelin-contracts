@@ -111,7 +111,7 @@ library SafeERC20 {
 
     /**
      * @dev Performs an {ERC1363} transferAndCall, with a fallback to the simple {ERC20} transfer if the target has no
-     * code. This can be used to implement an {ERC721}-like safe transfer that rely on {ERC1363} checks when
+     * code. This can be used to implement an {ERC721}-like safe transfer that relies on {ERC1363} checks when
      * targeting contracts.
      *
      * Reverts if the returned value is other than `true`.
@@ -126,7 +126,7 @@ library SafeERC20 {
 
     /**
      * @dev Performs an {ERC1363} transferFromAndCall, with a fallback to the simple {ERC20} transferFrom if the target
-     * has no code. This can be used to implement an {ERC721}-like safe transfer that rely on {ERC1363} checks when
+     * has no code. This can be used to implement an {ERC721}-like safe transfer that relies on {ERC1363} checks when
      * targeting contracts.
      *
      * Reverts if the returned value is other than `true`.

@@ -259,7 +259,7 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
      * `_spendAllowance` during the `transferFrom` operation sets the flag to false. This saves gas by not emitting any
      * `Approval` event during `transferFrom` operations.
      *
-     * Anyone who wishes to continue emitting `Approval` events on the`transferFrom` operation can force the flag to
+     * Anyone who wishes to continue emitting `Approval` events on the `transferFrom` operation can force the flag to
      * true using the following override:
      *
      * ```solidity
