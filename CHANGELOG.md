@@ -19,6 +19,8 @@
 - `Initializable` and `UUPSUpgradeable` are no longer transpiled. An alias is present in the `@openzeppelin/contracts-upgradeable` package that redirect to the corresponding file in `@openzeppelin/contracts`. These alias will be removed in the next major release. Developers are advised to update their imports to get these files directly from the `@openzeppelin/contracts` package.
 - `ECDSA` signature malleability protection is partly deprecated. See documentation for more details.
 
+### Changes by category
+
 #### Tokens
 
 - `ERC4626`: compute `maxWithdraw` using `maxRedeem` and `previewRedeem` so that changes to the preview functions affect the max functions. ([#5130](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5130))
