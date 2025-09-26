@@ -4,5 +4,39 @@
   "initialVersions": {
     "openzeppelin-solidity": "5.4.0"
   },
-  "changesets": []
+  "changesets": [
+    "afraid-chicken-attack",
+    "all-geese-stand",
+    "angry-waves-film",
+    "clear-tools-refuse",
+    "dull-students-eat",
+    "eight-radios-check",
+    "fast-beans-pull",
+    "funny-donuts-follow",
+    "itchy-turkeys-allow",
+    "loose-lamps-bake",
+    "major-feet-write",
+    "modern-moments-raise",
+    "new-days-tease",
+    "old-memes-dress",
+    "petite-seas-shake",
+    "plain-times-itch",
+    "public-crabs-heal",
+    "quick-pianos-press",
+    "rich-cows-repair",
+    "ripe-bears-hide",
+    "sharp-scissors-drum",
+    "shiny-dolphins-lick",
+    "silent-zebras-press",
+    "solid-cobras-talk",
+    "ten-steaks-try",
+    "tender-dolls-nail",
+    "three-parents-argue",
+    "violet-turtles-like",
+    "whole-cats-find",
+    "whole-plums-speak",
+    "wild-baths-buy",
+    "wise-webs-fly",
+    "witty-hats-flow"
+  ]
 }
