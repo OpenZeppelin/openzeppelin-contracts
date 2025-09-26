@@ -69,7 +69,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         bool closed;
     }
 
-    // Structure that stores the details for a role/account pair. This structures fit into a single slot.
+    // Structure that stores the details for a role/account pair. This structure fits into a single slot.
     struct Access {
         // Timepoint at which the user gets the permission.
         // If this is either 0 or in the future, then the role permission is not available.
