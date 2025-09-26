@@ -100,7 +100,7 @@
 
 #### Tokens
 
-- `ERC20Bridgeable`: Implementation of ERC-7802 that makes an ERC-20 compatible with crosschain bridges. ([#5739](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5739))
+- `ERC20Bridgeable`: Implementation of ERC-7802 that makes an ERC-20 compatible with crosschain bridges. ([#5735](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5735))
 
 #### Cryptography
 
