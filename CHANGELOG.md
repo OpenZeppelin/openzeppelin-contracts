@@ -5,7 +5,6 @@
 
 #### Tokens
 
-- `ERC20Bridgeable`: Implementation of ERC-7802 that makes an ERC-20 compatible with crosschain bridges. ([#5735](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5735))'
 - `ERC4626`: compute `maxWithdraw` using `maxRedeem` and `previewRedeem` so that changes to the preview functions affect the max functions. ([#5130](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5130))
 
 #### Cross-chain
