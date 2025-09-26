@@ -38,6 +38,7 @@
 
 #### Utils
 
+- `IERC7751`: Add the interface for custom error wrapping of bubbled up reverts. ([#5816](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5816))
 - `Bytes`: Add `splice(bytes,uint256)` and `splice(bytes,uint256,uint256)` functions that move a specified range of bytes to the start of the buffer and truncate it in place, as an alternative to `slice`. ([#5733](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5733))
 - `RelayedCall`: Add a library to perform indirect calls through minimal and predictable relayers. ([#5630](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5630))
 - `Memory`: Add library with utilities to manipulate memory ([#5189](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5189))
@@ -55,7 +56,6 @@
 - `Math`: Add a `clz` function to count the leading zero bits in a `uint256` value. ([#5725](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5725))
 - `ReentrancyGuard`, `ReentrancyGuardTransient`: Add an internal `_reentrancyGuardStorageSlot` function allowing slot customization via override. ([#5892](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5892))
 - `Bytes`: Fix `lastIndexOf(bytes,byte,uint256)` with empty buffers and finite position to correctly return `type(uint256).max` instead of accessing uninitialized memory sections. ([#5797](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5797))
-- `IERC7751`: Add the interface for custom error wrapping of bubbled up reverts. ([#5816](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5816))
 
 ### Bug fixes
 
