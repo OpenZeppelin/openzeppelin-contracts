@@ -9,7 +9,7 @@ pragma solidity ^0.8.20;
  * Similar to {Base64} but specifically designed for better human usability.
  *
  * 1. Human-friendly alphabet: Excludes visually similar characters to reduce human error:
- *    * No 0 (zero) vs O (capital O) confusion
+ *    * No 0 (zero) vs O (capital o) confusion
  *    * No I (capital i) vs l (lowercase L) confusion
  *    * No non-alphanumeric characters like + or =
  * 2. URL-safe: Contains only alphanumeric characters, making it safe for URLs without encoding.
@@ -48,9 +48,9 @@ library Base58 {
             }
 
             // Start the output offset by an over-estimate of the length.
-            // When converting from base-256 (bytes) to base-58, the theoretical length ratio is ln(256)/ln(58).
+            // When converting from base-256 (bytes) to base-58, the theoretical length ratio is log(256)/log(58).
             // We use 9886/7239 ≈ 1.3657 as a rational approximation that slightly over-estimates to ensure
-            // sufficient memory allocation. (ln = natural logarithm)
+            // sufficient memory allocation.
             let outputLengthEstim := add(inputLeadingZeros, div(mul(sub(inputLength, inputLeadingZeros), 9886), 7239))
 
             // This is going to be our "scratch" workspace. We leave enough room so that we can store length + encoded output at the FMP location.
@@ -114,7 +114,7 @@ library Base58 {
                     carry := mod(acc, 58) // Remainder becomes next carry
                 }
 
-                // Convert remainder (0-57) to Base58 character and store right-to-left
+                // Convert remainder (0-57) to Base58 character and store right-to-left in the output space
                 output := sub(output, 1)
                 mstore8(output, mload(carry))
             }
@@ -154,12 +154,12 @@ library Base58 {
             }
 
             // Estimate the output length using the base conversion ratio.
-            // When converting from base-58 to base-256 (bytes), the theoretical length ratio is ln(58)/ln(256).
+            // When converting from base-58 to base-256 (bytes), the theoretical length ratio is log(58)/log(256).
             // We use 6115/8351 ≈ 0.7322 as a rational approximation that slightly over-estimates to ensure
-            // sufficient memory allocation. (ln = natural logarithm)
+            // sufficient memory allocation.
             let outputLengthEstim := add(inputLeadingZeros, div(mul(sub(inputLength, inputLeadingZeros), 6115), 8351))
 
-            // Reserve memory: [result space][workspace]. We leave enough room before FMP for the final decoded output.
+            // This is going to be our "scratch" workspace. We leave enough room so that we can store length + decoded output at the FMP location.
             // 0x21 = 0x20 (32 bytes for result length prefix) + 0x1 (safety buffer for division truncation)
             let scratch := add(mload(0x40), add(outputLengthEstim, 0x21))
 
