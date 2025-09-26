@@ -39,6 +39,7 @@
 #### Utils
 
 - `IERC7751`: Add the interface for custom error wrapping of bubbled up reverts. ([#5816](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5816))
+- `IERC7751`: Add the interface for custom error wrapping of bubbled up reverts. ([#5816](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5816))
 - `Bytes`: Add `splice(bytes,uint256)` and `splice(bytes,uint256,uint256)` functions that move a specified range of bytes to the start of the buffer and truncate it in place, as an alternative to `slice`. ([#5733](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5733))
 - `RelayedCall`: Add a library to perform indirect calls through minimal and predictable relayers. ([#5630](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5630))
 - `Memory`: Add library with utilities to manipulate memory ([#5189](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5189))
