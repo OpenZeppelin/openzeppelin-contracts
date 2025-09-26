@@ -92,7 +92,7 @@ Dynamic role allocation is often a desirable property, for example in systems wh
 
 Because accounts might <<granting-and-revoking, grant and revoke roles>> dynamically, it is not always possible to determine which accounts hold a particular role. This is important as it allows proving certain properties about a system, such as that an administrative account is a multisig or a DAO, or that a certain role has been removed from all users, effectively disabling any associated functionality.
 
-The base `AccessControl` contract provides role-based access control, but it does not support on-chain enumeration of role members. To track which accounts hold a role, you should instead rely on the {IAccessControl-RoleGranted} and {IAccessControl-RoleRevoked} events, which can be processed off-chain. If on-chain enumeration is required, use the {AccessControlEnumerable} extension.
+The base `AccessControl` contract provides role-based access control, but it does not support on-chain enumeration of role members. To track which accounts hold a role, you should instead rely on the xref:api:access.adoc#RoleRevoked[RoleRevoked] and xref:api:access.adoc#RoleRevoked[RoleRevoked] events, which can be processed off-chain. If on-chain enumeration is required, use the xref:api:access.adoc#AccessControlEnumerable[AccessControlEnumerable] extension.
 
 This contract uses `EnumerableSet` internally and provides the following functions:
 
