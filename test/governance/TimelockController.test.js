@@ -418,7 +418,7 @@ describe('TimelockController', function () {
                 reentrantOperation.predecessor,
                 reentrantOperation.salt,
               ]);
-              await reentrant.enableRentrancy(this.mock, data);
+              await reentrant.enableReentrancy(this.mock, data);
 
               // Expect to fail
               await expect(
@@ -739,7 +739,7 @@ describe('TimelockController', function () {
                   ),
               )
                 .to.be.revertedWithCustomError(this.mock, 'TimelockInvalidOperationLength')
-                .withArgs(0, this.operation.payloads.length, this.operation.values.length);
+                .withArgs(0n, this.operation.payloads.length, this.operation.values.length);
             });
 
             it('length mismatch #2', async function () {
@@ -811,7 +811,7 @@ describe('TimelockController', function () {
                 reentrantBatchOperation.predecessor,
                 reentrantBatchOperation.salt,
               ]);
-              await reentrant.enableRentrancy(this.mock, data);
+              await reentrant.enableReentrancy(this.mock, data);
 
               // Expect to fail
               await expect(
@@ -1152,7 +1152,7 @@ describe('TimelockController', function () {
     it('call payable with eth', async function () {
       const operation = genOperation(
         this.callreceivermock,
-        1,
+        1n,
         this.callreceivermock.interface.encodeFunctionData('mockFunction'),
         ethers.ZeroHash,
         '0x5ab73cd33477dcd36c1e05e28362719d0ed59a7b9ff14939de63a43073dc1f44',
@@ -1170,7 +1170,7 @@ describe('TimelockController', function () {
       await this.mock
         .connect(this.executor)
         .execute(operation.target, operation.value, operation.data, operation.predecessor, operation.salt, {
-          value: 1,
+          value: 1n,
         });
 
       expect(await ethers.provider.getBalance(this.mock)).to.equal(0n);
@@ -1264,7 +1264,7 @@ describe('TimelockController', function () {
         await this.token.connect(this.other).safeTransferFrom(
           this.other,
           this.mock,
-          ...Object.entries(tokenIds)[0n], // id + amount
+          ...Object.entries(tokenIds)[0], // id + amount
           '0x',
         );
       });

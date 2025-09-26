@@ -106,7 +106,7 @@ contract VestingWallet is Context, Ownable {
     }
 
     /**
-     * @dev Release the native token (ether) that have already vested.
+     * @dev Release the native tokens (ether) that have already vested.
      *
      * Emits a {EtherReleased} event.
      */

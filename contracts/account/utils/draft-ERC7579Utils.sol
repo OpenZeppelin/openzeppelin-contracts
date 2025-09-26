@@ -126,10 +126,10 @@ library ERC7579Utils {
         Mode mode
     ) internal pure returns (CallType callType, ExecType execType, ModeSelector selector, ModePayload payload) {
         return (
-            CallType.wrap(Packing.extract_32_1(Mode.unwrap(mode), 0)),
-            ExecType.wrap(Packing.extract_32_1(Mode.unwrap(mode), 1)),
-            ModeSelector.wrap(Packing.extract_32_4(Mode.unwrap(mode), 6)),
-            ModePayload.wrap(Packing.extract_32_22(Mode.unwrap(mode), 10))
+            CallType.wrap(Packing.extract_32_1(Mode.unwrap(mode), 0x00)),
+            ExecType.wrap(Packing.extract_32_1(Mode.unwrap(mode), 0x01)),
+            ModeSelector.wrap(Packing.extract_32_4(Mode.unwrap(mode), 0x06)),
+            ModePayload.wrap(Packing.extract_32_22(Mode.unwrap(mode), 0x0a))
         );
     }
 
@@ -146,9 +146,9 @@ library ERC7579Utils {
     function decodeSingle(
         bytes calldata executionCalldata
     ) internal pure returns (address target, uint256 value, bytes calldata callData) {
-        target = address(bytes20(executionCalldata[0:20]));
-        value = uint256(bytes32(executionCalldata[20:52]));
-        callData = executionCalldata[52:];
+        target = address(bytes20(executionCalldata[0x00:0x14]));
+        value = uint256(bytes32(executionCalldata[0x14:0x34]));
+        callData = executionCalldata[0x34:];
     }
 
     /// @dev Encodes a delegate call execution. See {decodeDelegate}.
@@ -163,8 +163,8 @@ library ERC7579Utils {
     function decodeDelegate(
         bytes calldata executionCalldata
     ) internal pure returns (address target, bytes calldata callData) {
-        target = address(bytes20(executionCalldata[0:20]));
-        callData = executionCalldata[20:];
+        target = address(bytes20(executionCalldata[0:0x14]));
+        callData = executionCalldata[0x14:];
     }
 
     /// @dev Encodes a batch of executions. See {decodeBatch}.
@@ -180,17 +180,17 @@ library ERC7579Utils {
             uint256 bufferLength = executionCalldata.length;
 
             // Check executionCalldata is not empty.
-            if (bufferLength < 32) revert ERC7579DecodingError();
+            if (bufferLength < 0x20) revert ERC7579DecodingError();
 
             // Get the offset of the array (pointer to the array length).
-            uint256 arrayLengthOffset = uint256(bytes32(executionCalldata[0:32]));
+            uint256 arrayLengthOffset = uint256(bytes32(executionCalldata[0x00:0x20]));
 
             // The array length (at arrayLengthOffset) should be 32 bytes long. We check that this is within the
             // buffer bounds. Since we know bufferLength is at least 32, we can subtract with no overflow risk.
-            if (arrayLengthOffset > bufferLength - 32) revert ERC7579DecodingError();
+            if (arrayLengthOffset > bufferLength - 0x20) revert ERC7579DecodingError();
 
             // Get the array length. arrayLengthOffset + 32 is bounded by bufferLength so it does not overflow.
-            uint256 arrayLength = uint256(bytes32(executionCalldata[arrayLengthOffset:arrayLengthOffset + 32]));
+            uint256 arrayLength = uint256(bytes32(executionCalldata[arrayLengthOffset:arrayLengthOffset + 0x20]));
 
             // Check that the buffer is long enough to store the array elements as "offset pointer":
             // - each element of the array is an "offset pointer" to the data.
@@ -200,7 +200,7 @@ library ERC7579Utils {
             //
             // Since we know bufferLength is at least arrayLengthOffset + 32, we can subtract with no overflow risk.
             // Solidity limits length of such arrays to 2**64-1, this guarantees `arrayLength * 32` does not overflow.
-            if (arrayLength > type(uint64).max || bufferLength - arrayLengthOffset - 32 < arrayLength * 32)
+            if (arrayLength > type(uint64).max || bufferLength - arrayLengthOffset - 0x20 < arrayLength * 0x20)
                 revert ERC7579DecodingError();
 
             assembly ("memory-safe") {

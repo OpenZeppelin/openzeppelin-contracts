@@ -10,6 +10,7 @@ import {Context} from "../../utils/Context.sol";
 import {Multicall} from "../../utils/Multicall.sol";
 import {Math} from "../../utils/math/Math.sol";
 import {Time} from "../../utils/types/Time.sol";
+import {Hashes} from "../../utils/cryptography/Hashes.sol";
 
 /**
  * @dev AccessManager is a central contract to store the permissions of a system.
@@ -68,7 +69,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         bool closed;
     }
 
-    // Structure that stores the details for a role/account pair. This structures fit into a single slot.
+    // Structure that stores the details for a role/account pair. This structure fits into a single slot.
     struct Access {
         // Timepoint at which the user gets the permission.
         // If this is either 0 or in the future, then the role permission is not available.
@@ -735,6 +736,6 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * @dev Hashing function for execute protection
      */
     function _hashExecutionId(address target, bytes4 selector) private pure returns (bytes32) {
-        return keccak256(abi.encode(target, selector));
+        return Hashes.efficientKeccak256(bytes32(uint256(uint160(target))), selector);
     }
 }
