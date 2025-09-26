@@ -11,7 +11,6 @@
 #### Cross-chain
 
 - `InteroperableAddress`: Add a library for formatting and parsing ERC-7930 interoperable addresses. ([#5736](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5736))
-- `IERC7751`: Add the interface for custom error wrapping of bubbled up reverts. ([#5816](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5816))
 - `ERC7786Recipient`: Generic ERC-7786 cross-chain message recipient contract. ([#5904](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5904))
 - `IERC7786`: Add the (draft) interface for ERC-7786 "Cross-Chain Messaging Gateway" ([#5737](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5737))
 
@@ -58,6 +57,7 @@
 - `Math`: Add a `clz` function to count the leading zero bits in a `uint256` value. ([#5725](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5725))
 - `ReentrancyGuard`, `ReentrancyGuardTransient`: Add an internal `_reentrancyGuardStorageSlot` function allowing slot customization via override. ([#5892](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5892))
 - `Bytes`: Fix `lastIndexOf(bytes,byte,uint256)` with empty buffers and finite position to correctly return `type(uint256).max` instead of accessing uninitialized memory sections. ([#5797](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5797))
+- `IERC7751`: Add the interface for custom error wrapping of bubbled up reverts. ([#5816](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5816))
 
 ### Bug fixes
 
