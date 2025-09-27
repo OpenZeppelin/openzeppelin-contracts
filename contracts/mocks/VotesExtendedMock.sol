@@ -37,6 +37,7 @@ abstract contract VotesExtendedTimestampMock is VotesExtendedMock {
 
     // solhint-disable-next-line func-name-mixedcase
     function CLOCK_MODE() public view virtual override returns (string memory) {
+        // slippy-disable-previous-line naming-convention
         return "mode=timestamp";
     }
 }

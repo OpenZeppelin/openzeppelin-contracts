@@ -199,7 +199,7 @@ interface IGovernor is IERC165, IERC6372 {
      * JavaScript class.
      */
     // solhint-disable-next-line func-name-mixedcase
-    function COUNTING_MODE() external view returns (string memory);
+    function COUNTING_MODE() external view returns (string memory); // slippy-disable-line naming-convention
 
     /**
      * @notice module:core
