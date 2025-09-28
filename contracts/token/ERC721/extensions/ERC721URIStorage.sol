@@ -55,4 +55,11 @@ abstract contract ERC721URIStorage is IERC4906, ERC721 {
         _tokenURIs[tokenId] = _tokenURI;
         emit MetadataUpdate(tokenId);
     }
+
+    /**
+     * @dev Returns the tokenURI of `tokenId`.
+     */
+    function _getTokenURI(uint256 tokenId) internal view virtual returns (string memory) {
+        return _tokenURIs[tokenId];
+    }
 }
