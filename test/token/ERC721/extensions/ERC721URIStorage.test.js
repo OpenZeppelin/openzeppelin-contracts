@@ -45,6 +45,11 @@ describe('ERC721URIStorage', function () {
       expect(await this.token.tokenURI(tokenId)).to.equal(sampleUri);
     });
 
+    it('can get token URI internally', async function () {
+      await this.token.$_setTokenURI(tokenId, sampleUri);
+      expect(await this.token.$_getTokenURI(tokenId)).to.equal(sampleUri);
+    });
+
     it('setting the uri emits an event', async function () {
       await expect(this.token.$_setTokenURI(tokenId, sampleUri))
         .to.emit(this.token, 'MetadataUpdate')
