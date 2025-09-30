@@ -8,7 +8,7 @@ Here are some of the more popular ones.
 
 === Checking Signatures On-Chain
 
-At a high level, signatures are a set of cryptographic algorithms that allow for a _signer_ to prove himself owner of a _private key_ used to authorize a piece of information (generally a transaction or `UserOperation`). Natively, the EVM supports the Elliptic Curve Digital Signature Algorithm (https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm[ECDSA]) using the secp256k1 curve, however other signature algorithms such as P256 and RSA are supported.
+At a high level, signatures are a set of cryptographic algorithms that allow for a _signer_ to prove himself as the owner of a _private key_ used to authorize a piece of information (generally a transaction or `UserOperation`). Natively, the EVM supports the Elliptic Curve Digital Signature Algorithm (https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm[ECDSA]) using the secp256k1 curve, however other signature algorithms such as P256 and RSA are supported.
 
 ==== Ethereum Signatures (secp256k1)
 
@@ -73,7 +73,7 @@ IMPORTANT: The P256 library only allows for `s` values in the lower order of the
 
 ==== RSA
 
-RSA is a public-key cryptosystem that was popularized by corporate and governmental public key infrastructures (https://en.wikipedia.org/wiki/Public_key_infrastructure[PKIs]) and https://en.wikipedia.org/wiki/Domain_Name_System_Security_Extensions[DNSSEC]. 
+RSA is a public-key cryptosystem that was popularized by corporate and governmental public key infrastructures (https://en.wikipedia.org/wiki/Public_key_infrastructure[PKIs]) and https://en.wikipedia.org/wiki/Domain_Name_System_Security_Extensions[DNSSEC].
 
 This cryptosystem consists of using a private key that's the product of 2 large prime numbers. The message is signed by applying a modular exponentiation to its hash (commonly SHA256), where both the exponent and modulus compose the public key of the signer.
 
@@ -188,7 +188,7 @@ For an on-chain Merkle Tree, see the xref:api:utils.adoc#MerkleTree[`MerkleTree`
 [[introspection]]
 == Introspection
 
-In Solidity, it's frequently helpful to know whether or not a contract supports an interface you'd like to use. ERC-165 is a standard that helps do runtime interface detection. Contracts provide helpers both for implementing ERC-165 in your contracts and querying other contracts:
+In Solidity, it's frequently helpful to know whether or not a contract supports an interface you'd like to use. ERC-165 is a standard that enables runtime interface detection. Contracts provide helpers both for implementing ERC-165 in your contracts and querying other contracts:
 
 * xref:api:utils.adoc#IERC165[`IERC165`] — this is the ERC-165 interface that defines xref:api:utils.adoc#IERC165-supportsInterface-bytes4-[`supportsInterface`]. When implementing ERC-165, you'll conform to this interface.
 * xref:api:utils.adoc#ERC165[`ERC165`] — inherit this contract if you'd like to support interface detection using a lookup table in contract storage. You can register interfaces using xref:api:utils.adoc#ERC165-_registerInterface-bytes4-[`_registerInterface(bytes4)`]: check out example usage as part of the ERC-721 implementation.
@@ -263,7 +263,7 @@ Some use cases require more powerful data structures than arrays and mappings of
 - xref:api:utils.adoc#EnumerableSet[`EnumerableSet`]: A https://en.wikipedia.org/wiki/Set_(abstract_data_type)[set] with enumeration capabilities.
 - xref:api:utils.adoc#EnumerableMap[`EnumerableMap`]: A `mapping` variant with enumeration capabilities.
 - xref:api:utils.adoc#MerkleTree[`MerkleTree`]: An on-chain https://wikipedia.org/wiki/Merkle_Tree[Merkle Tree] with helper functions.
-- xref:api:utils.adoc#Heap.sol[`Heap`]: A https://en.wikipedia.org/wiki/Binary_heap[binary heap] to store elements with priority defined by a compartor function.
+- xref:api:utils.adoc#Heap.sol[`Heap`]: A https://en.wikipedia.org/wiki/Binary_heap[binary heap] to store elements with priority defined by a comparator function.
 
 The `Enumerable*` structures are similar to mappings in that they store and remove elements in constant time and don't allow for repeated entries, but they also support _enumeration_, which means you can easily query all stored entries both on and off-chain.
 
@@ -310,10 +310,10 @@ function push(bytes32 leaf) public /* onlyOwner */ {
 
 function _hashFn(bytes32 a, bytes32 b) internal view returns(bytes32) {
     // Custom hash function implementation
-    // Kept as an internal implementation detail to 
+    // Kept as an internal implementation detail to
     // guarantee the same function is always used
 }
----- 
+----
 
 === Using a Heap
 
@@ -461,6 +461,49 @@ await instance.multicall([
 ]);
 ----
 
+=== Low-level Calls
+
+The xref:api:utils.adoc#LowLevelCall[`LowLevelCall`] library provides low-level external calls with fixed-size return data handling, protecting against return bombing attacks where callees allocate excessive memory.
+
+The library efficiently handles return data up to 64 bytes, allowing you to ignore it entirely or extract 1-2 `bytes32` values:
+
+[source,solidity]
+----
+using LowLevelCall for address;
+
+function example(address target, bytes memory data) internal {
+    bool success;
+    bytes32 result1;
+    bytes32 result2;
+
+    // Ignore return data
+    success = target.callNoReturn(data);
+
+    // Extract single 32-byte value
+    (success, result1, ) = target.callReturn64Bytes(data);
+
+    // Extract two 32-byte values
+    (success, result1, result2) = target.callReturn64Bytes(data);
+}
+----
+
+You can also check return data size before processing:
+
+[source,solidity]
+----
+function checkReturnSize(address target, bytes memory data) internal returns (uint256 value, uint256 otherValue) {
+    (bool success, bytes32 result1, bytes32 result2) = target.callReturn64Bytes(data);
+
+    if (!success || LowLevelCall.returnDataSize() < 32) {
+        return (0, 0);
+    } else if (LowLevelCall.returnDataSize() < 64) {
+        return (uint256(result1), 0);
+    } else {
+        return (uint256(result1), uint256(result2));
+    }
+}
+----
+
 === Memory
 
 The xref:api:utils.adoc#Memory[`Memory`] library provides functions for advanced use cases that require granular memory management. A common use case is to avoid unnecessary memory expansion costs when performing repeated operations that allocate memory in a loop. Consider the following example:
@@ -518,7 +561,7 @@ The xref:api:utils.adoc#Time[`Time`] library provides helpers for manipulating t
 
 One of its key features is the `Delay` type, which represents a duration that can automatically change its value at a specified point in the future while maintaining delay guarantees. For example, when reducing a delay value (e.g., from 7 days to 1 day), the change only takes effect after the difference between the old and new delay (i.e. a 6 days) or a minimum setback period, preventing an attacker who gains admin access from immediately reducing security timeouts and executing sensitive operations. This is particularly useful for governance and security mechanisms where timelock periods need to be enforced.
 
-Consider this example for using and safely updating Delays:   
+Consider this example for using and safely updating Delays:
 [source,solidity]
 ----
 // SPDX-License-Identifier: MIT
@@ -528,7 +571,7 @@ import {Time} from "contracts/utils/types/Time.sol";
 
 contract MyDelayedContract {
     using Time for *;
-    
+
     Time.Delay private _delay;
 
     constructor() {
@@ -539,10 +582,10 @@ contract MyDelayedContract {
         // Get the current `_delay` value, respecting any pending delay changes if they've taken effect
         uint32 currentDelay = _delay.get();
         uint48 executionTime = Time.timestamp() + currentDelay;
-        
+
         // ... schedule the operation at `executionTime`
     }
-    
+
     function execute(bytes32 operationId) external {
         uint48 executionTime = getExecutionTime(operationId);
         require(executionTime > 0, "Operation not scheduled");
@@ -550,19 +593,19 @@ contract MyDelayedContract {
 
         // ... execute the operation
     }
-    
+
     // Update the delay with `Time`'s safety mechanism
     function updateDelay(uint32 newDelay) external {
         (Time.Delay updatedDelay, uint48 effect) = _delay.withUpdate(
             newDelay,    // The new delay value
             5 days       // Minimum setback if reducing the delay
         );
-        
+
         _delay = updatedDelay;
 
         // ... emit events
     }
-    
+
     // Get complete delay details including pending changes
     function getDelayDetails() external view returns (
         uint32 currentValue, // The current delay value

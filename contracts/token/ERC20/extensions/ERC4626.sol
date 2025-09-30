@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.4.0) (token/ERC20/extensions/ERC4626.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
 import {IERC20, IERC20Metadata, ERC20} from "../ERC20.sol";
 import {SafeERC20} from "../utils/SafeERC20.sol";
 import {IERC4626} from "../../../interfaces/IERC4626.sol";
+import {LowLevelCall} from "../../../utils/LowLevelCall.sol";
+import {Memory} from "../../../utils/Memory.sol";
 import {Math} from "../../../utils/math/Math.sol";
 
 /**
@@ -43,6 +45,26 @@ import {Math} from "../../../utils/math/Math.sol";
  * `_convertToShares` and `_convertToAssets` functions.
  *
  * To learn more, check out our xref:ROOT:erc4626.adoc[ERC-4626 guide].
+ * ====
+ *
+ * [NOTE]
+ * ====
+ * When overriding this contract, some elements must be considered:
+ *
+ * * When overriding the behavior of the deposit or withdraw mechanisms, it is recommended to override the internal
+ * functions. Overriding {_deposit} automatically affects both {deposit} and {mint}. Similarly, overriding {_withdraw}
+ * automatically affects both {withdraw} and {redeem}. Overall it is not recommended to override the public facing
+ * functions since that could lead to inconsistent behaviors between the {deposit} and {mint} or between {withdraw} and
+ * {redeem}, which is documented to have lead to loss of funds.
+ *
+ * * Overrides to the deposit or withdraw mechanism must be reflected in the preview functions as well.
+ *
+ * * {maxWithdraw} depends on {maxRedeem}. Therefore, overriding {maxRedeem} only is enough. On the other hand,
+ * overriding {maxWithdraw} only would have no effect on {maxRedeem}, and could create an inconsistency between the two
+ * functions.
+ *
+ * * If {previewRedeem} is overridden to revert, {maxWithdraw} must be overridden as necessary to ensure it
+ * always return successfully.
  * ====
  */
 abstract contract ERC4626 is ERC20, IERC4626 {
@@ -84,16 +106,17 @@ abstract contract ERC4626 is ERC20, IERC4626 {
      * @dev Attempts to fetch the asset decimals. A return value of false indicates that the attempt failed in some way.
      */
     function _tryGetAssetDecimals(IERC20 asset_) private view returns (bool ok, uint8 assetDecimals) {
-        (bool success, bytes memory encodedDecimals) = address(asset_).staticcall(
+        Memory.Pointer ptr = Memory.getFreeMemoryPointer();
+        (bool success, bytes32 returnedDecimals, ) = LowLevelCall.staticcallReturn64Bytes(
+            address(asset_),
             abi.encodeCall(IERC20Metadata.decimals, ())
         );
-        if (success && encodedDecimals.length >= 32) {
-            uint256 returnedDecimals = abi.decode(encodedDecimals, (uint256));
-            if (returnedDecimals <= type(uint8).max) {
-                return (true, uint8(returnedDecimals));
-            }
-        }
-        return (false, 0);
+        Memory.setFreeMemoryPointer(ptr);
+
+        return
+            (success && LowLevelCall.returnDataSize() >= 32 && uint256(returnedDecimals) <= type(uint8).max)
+                ? (true, uint8(uint256(returnedDecimals)))
+                : (false, 0);
     }
 
     /**
@@ -139,7 +162,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
 
     /// @inheritdoc IERC4626
     function maxWithdraw(address owner) public view virtual returns (uint256) {
-        return _convertToAssets(balanceOf(owner), Math.Rounding.Floor);
+        return previewRedeem(maxRedeem(owner));
     }
 
     /// @inheritdoc IERC4626

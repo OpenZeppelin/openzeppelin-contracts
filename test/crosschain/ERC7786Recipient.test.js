@@ -67,7 +67,7 @@ describe('ERC7786Recipient', function () {
     await expect(
       this.receiver.connect(this.notAGateway).receiveMessage(ethers.ZeroHash, this.toErc7930(this.sender), payload),
     )
-      .to.be.revertedWithCustomError(this.receiver, 'ERC7786RecipientInvalidGateway')
-      .withArgs(this.notAGateway);
+      .to.be.revertedWithCustomError(this.receiver, 'ERC7786RecipientUnauthorizedGateway')
+      .withArgs(this.notAGateway, this.toErc7930(this.sender));
   });
 });

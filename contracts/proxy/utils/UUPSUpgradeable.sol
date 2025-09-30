@@ -15,6 +15,8 @@ import {ERC1967Utils} from "../ERC1967/ERC1967Utils.sol";
  * `UUPSUpgradeable` with a custom implementation of upgrades.
  *
  * The {_authorizeUpgrade} function must be overridden to include access restriction to the upgrade mechanism.
+ *
+ * @custom:stateless
  */
 abstract contract UUPSUpgradeable is IERC1822Proxiable {
     /// @custom:oz-upgrades-unsafe-allow state-variable-immutable
@@ -69,7 +71,7 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable {
      * bricking a proxy that upgrades to it, by delegating to itself until out of gas. Thus it is critical that this
      * function revert if invoked through a proxy. This is guaranteed by the `notDelegated` modifier.
      */
-    function proxiableUUID() external view virtual notDelegated returns (bytes32) {
+    function proxiableUUID() external view notDelegated returns (bytes32) {
         return ERC1967Utils.IMPLEMENTATION_SLOT;
     }
 
