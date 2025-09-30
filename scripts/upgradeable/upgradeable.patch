@@ -89,8 +89,8 @@ index 2f92281b3..a0e46695d 100644
 +$ forge install OpenZeppelin/openzeppelin-contracts-upgradeable
  ```
  
--Add `@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/` in `remappings.txt.`
-+Add `@openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/` in `remappings.txt.`
+-Add `@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/` in `remappings.txt`.
++Add `@openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/` in `remappings.txt`.
  
  ### Usage
  
@@ -140,7 +140,7 @@ index 8ccb9465e..509cd7f05 100644
 +  }
  }
 diff --git a/contracts/utils/ReentrancyGuard.sol b/contracts/utils/ReentrancyGuard.sol
-index f958d5e8f..845209bc8 100644
+index 6e44894dc..7b076aaa7 100644
 --- a/contracts/utils/ReentrancyGuard.sol
 +++ b/contracts/utils/ReentrancyGuard.sol
 @@ -36,6 +36,11 @@ abstract contract ReentrancyGuard {
@@ -155,6 +155,17 @@ index f958d5e8f..845209bc8 100644
      // Booleans are more expensive than uint256 or any type that takes up a full
      // word because each write operation emits an extra SLOAD to first read the
      // slot's contents, replace the bits taken up by the boolean, and then write
+@@ -55,10 +60,6 @@ abstract contract ReentrancyGuard {
+      */
+     error ReentrancyGuardReentrantCall();
+ 
+-    constructor() {
+-        _reentrancyGuardStorageSlot().getUint256Slot().value = NOT_ENTERED;
+-    }
+-
+     /**
+      * @dev Prevents a contract from calling itself, directly or indirectly.
+      * Calling a `nonReentrant` function from another `nonReentrant`
 diff --git a/contracts/utils/cryptography/EIP712.sol b/contracts/utils/cryptography/EIP712.sol
 index 0eaef9d27..01f1b5f58 100644
 --- a/contracts/utils/cryptography/EIP712.sol
@@ -330,7 +341,7 @@ index 0eaef9d27..01f1b5f58 100644
      }
  }
 diff --git a/package.json b/package.json
-index 285a074ed..d48cc8e4b 100644
+index f6960972a..369e2e1e6 100644
 --- a/package.json
 +++ b/package.json
 @@ -35,7 +35,7 @@

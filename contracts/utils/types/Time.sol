@@ -37,7 +37,7 @@ library Time {
     // ==================================================== Delay =====================================================
     /**
      * @dev A `Delay` is a uint32 duration that can be programmed to change value automatically at a given point in the
-     * future. The "effect" timepoint describes when the transitions happens from the "old" value to the "new" value.
+     * future. The "effect" timepoint describes when the transition happens from the "old" value to the "new" value.
      * This allows updating the delay applied to some operation while keeping some guarantees.
      *
      * In particular, the {update} function guarantees that if the delay is reduced, the old delay still applies for
