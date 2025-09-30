@@ -149,13 +149,8 @@ abstract contract AccountERC7579 is Account, IERC1271, IERC7579Execution, IERC75
     ) public view virtual returns (bool) {
         if (moduleTypeId == MODULE_TYPE_VALIDATOR) return _validators.contains(module);
         if (moduleTypeId == MODULE_TYPE_EXECUTOR) return _executors.contains(module);
-        if (moduleTypeId == MODULE_TYPE_FALLBACK) {
-            // For fallback modules, the additionalContext is expected to start with a 4-byte selector.
-            // Per IERC7579ModuleConfig spec, this function MUST return true/false and not revert.
-            // Treat malformed context (< 4 bytes) as "not installed" to avoid out-of-bounds slice reverts.
-            if (additionalContext.length < 4) return false;
-            return _fallbacks[bytes4(additionalContext[0:4])] == module;
-        }
+        if (moduleTypeId == MODULE_TYPE_FALLBACK)
+            return additionalContext.length > 3 && _fallbacks[bytes4(additionalContext[0:4])] == module;
         return false;
     }
 
