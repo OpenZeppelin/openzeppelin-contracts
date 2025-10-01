@@ -150,6 +150,7 @@ abstract contract AccountERC7579 is Account, IERC1271, IERC7579Execution, IERC75
         if (moduleTypeId == MODULE_TYPE_VALIDATOR) return _validators.contains(module);
         if (moduleTypeId == MODULE_TYPE_EXECUTOR) return _executors.contains(module);
         if (moduleTypeId == MODULE_TYPE_FALLBACK)
+            // ERC-7579 requires this function to return bool, never revert. Check length to avoid out-of-bounds access.
             return additionalContext.length > 3 && _fallbacks[bytes4(additionalContext[0:4])] == module;
         return false;
     }
