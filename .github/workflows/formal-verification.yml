@@ -38,7 +38,11 @@ jobs:
         run: |
           if [[ ${{ github.event_name }} = 'pull_request' ]];
           then
-            RESULT=$(git diff ${{ github.event.pull_request.head.sha }}..${{ github.event.pull_request.base.sha }} --name-only certora/specs/*.spec | while IFS= read -r file; do [[ -f $file ]] && basename "${file%.spec}"; done | tr "\n" " ")
+            RESULT=$(git diff ${{ github.event.pull_request.head.sha }}..${{ github.event.pull_request.base.sha }} --name-only -- ':(glob)certora/specs/**/*.spec' | while IFS= read -r file; do [[ -f "$file" ]] && basename "${file%.spec}"; done | tr "\n" " ")
+            if [[ -z "$RESULT" ]]; then
+              echo "No .spec changes detected under certora/specs/**; running all specs." >> "$GITHUB_STEP_SUMMARY"
+              RESULT='--all'
+            fi
           else
             RESULT='--all'
           fi
