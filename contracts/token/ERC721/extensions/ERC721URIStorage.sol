@@ -20,7 +20,12 @@ abstract contract ERC721URIStorage is IERC4906, ERC721 {
     bytes4 private constant ERC4906_INTERFACE_ID = bytes4(0x49064906);
 
     // Optional mapping for token URIs
-    mapping(uint256 tokenId => string) private _tokenURIs;
+    mapping(uint256 tokenId => string) internal _tokenURIs;
+
+// returns whether a token URI is set for `tokenId`
+    function _hasTokenURI(uint256 tokenId) internal view virtual returns(bool){
+        return bytes(_tokenURIs[tokenId]).length > 0;
+    }
 
     /// @inheritdoc IERC165
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, IERC165) returns (bool) {
@@ -55,4 +60,25 @@ abstract contract ERC721URIStorage is IERC4906, ERC721 {
         _tokenURIs[tokenId] = _tokenURI;
         emit MetadataUpdate(tokenId);
     }
+
+
+    /**
+ * @dev Destroys `tokenId`.
+ * The approval is cleared when the token is burned.
+ * This is an internal function that does not check if the sender is authorized to operate on the token.
+ *
+ * Requirements:
+ *
+ * - `tokenId` must exist.
+ *
+ * Emits a {MetadataUpdate} event. 
+ */
+function _burn(uint256 tokenId) internal virtual override {
+    super._burn(tokenId);
+
+    if (_hasTokenURI(tokenId)) {
+        delete _tokenURIs[tokenId];
+        emit MetadataUpdate(tokenId);
+    }
+}
 }
