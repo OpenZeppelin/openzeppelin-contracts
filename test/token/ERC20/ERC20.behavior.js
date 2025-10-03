@@ -78,7 +78,7 @@ function shouldBehaveLikeERC20(initialSupply, opts = {}) {
             const value = initialSupply;
             await this.token.connect(this.holder).transfer(this.other, 1n);
             await expect(this.token.connect(this.recipient).transferFrom(this.holder, this.other, value))
-              .to.revertedWithCustomError(this.token, 'ERC20InsufficientBalance')
+              .to.be.revertedWithCustomError(this.token, 'ERC20InsufficientBalance')
               .withArgs(this.holder, value - 1n, value);
           });
         });

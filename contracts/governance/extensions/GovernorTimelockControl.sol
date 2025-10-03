@@ -9,7 +9,7 @@ import {SafeCast} from "../../utils/math/SafeCast.sol";
 
 /**
  * @dev Extension of {Governor} that binds the execution process to an instance of {TimelockController}. This adds a
- * delay, enforced by the {TimelockController} to all successful proposal (in addition to the voting duration). The
+ * delay, enforced by the {TimelockController} to all successful proposals (in addition to the voting duration). The
  * {Governor} needs the proposer (and ideally the executor and canceller) roles for the {Governor} to work properly.
  *
  * Using this model means the proposal will be operated by the {TimelockController} and not by the {Governor}. Thus,
@@ -47,10 +47,10 @@ abstract contract GovernorTimelockControl is Governor {
             return currentState;
         }
 
-        bytes32 queueid = _timelockIds[proposalId];
-        if (_timelock.isOperationPending(queueid)) {
+        bytes32 queueId = _timelockIds[proposalId];
+        if (_timelock.isOperationPending(queueId)) {
             return ProposalState.Queued;
-        } else if (_timelock.isOperationDone(queueid)) {
+        } else if (_timelock.isOperationDone(queueId)) {
             // This can happen if the proposal is executed directly on the timelock.
             return ProposalState.Executed;
         } else {
@@ -146,7 +146,7 @@ abstract contract GovernorTimelockControl is Governor {
      *
      * CAUTION: It is not recommended to change the timelock while there are other queued governance proposals.
      */
-    function updateTimelock(TimelockController newTimelock) external virtual onlyGovernance {
+    function updateTimelock(TimelockController newTimelock) public virtual onlyGovernance {
         _updateTimelock(newTimelock);
     }
 
