@@ -11,10 +11,10 @@ import {ERC7786Recipient} from "../ERC7786Recipient.sol";
  * @dev Core bridging mechanism.
  *
  * This contract contains the logic to register and send messages to counterparts on remote chains using ERC-7786
- * gateways. It ensure received message originate from for a counterpart. This is the code of token bridges such as
+ * gateways. It ensure received messages originate from a counterpart. This is the base of token bridges such as```
  * {BridgeERC20}.
  *
- * Contract that inherit from this contract can use the internal {_senMessage} to send messages to their counterpart
+ * Contract that inherit from this contract can use the internal {_sendMessage} to send messages to their counterpart```
  * on a foreign chain. They must override the {_processMessage} function to handle the message that have been verified.
  */
 abstract contract BridgeCore is ERC7786Recipient {
@@ -33,7 +33,7 @@ abstract contract BridgeCore is ERC7786Recipient {
 
     constructor(Link[] memory links) {
         for (uint256 i = 0; i < links.length; ++i) {
-            _setLink(links[0].gateway, links[0].remote, false);
+            _setLink(links[i].gateway, links[i].remote, false);
         }
     }
 

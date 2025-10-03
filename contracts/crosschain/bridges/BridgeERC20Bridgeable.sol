@@ -25,7 +25,7 @@ abstract contract BridgeERC20Bridgeable is BridgeERC20 {
         token().crosschainBurn(from, amount);
     }
 
-    /// @dev "Unlocking" tokens using an ERC-7802 crosschain burn
+    /// @dev "Unlocking" tokens using an ERC-7802 crosschain mint
     function _unlock(address to, uint256 amount) internal virtual override {
         token().crosschainMint(to, amount);
     }
