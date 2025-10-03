@@ -89,8 +89,8 @@ function shouldBehaveLikeBridgeERC20({ chainAIsCustodial = false, chainBIsCustod
             this.encodePayload(notGateway, notGateway, amount),
           ),
       )
-        .to.be.revertedWithCustomError(this.bridgeA, 'ERC7786RecipientInvalidGateway')
-        .withArgs(notGateway);
+        .to.be.revertedWithCustomError(this.bridgeA, 'ERC7786RecipientUnauthorizedGateway')
+        .withArgs(notGateway, this.chain.toErc7930(this.tokenB));
     });
 
     it('only remote can send a crosschain message', async function () {
@@ -101,8 +101,8 @@ function shouldBehaveLikeBridgeERC20({ chainAIsCustodial = false, chainBIsCustod
           .connect(notRemote)
           .sendMessage(this.chain.toErc7930(this.bridgeA), this.encodePayload(notRemote, notRemote, amount), []),
       )
-        .to.be.revertedWithCustomError(this.bridgeA, 'ERC7786RecipientInvalidGateway')
-        .withArgs(this.gateway);
+        .to.be.revertedWithCustomError(this.bridgeA, 'ERC7786RecipientUnauthorizedGateway')
+        .withArgs(this.gateway, this.chain.toErc7930(notRemote));
     });
 
     it('cannot replay message', async function () {
