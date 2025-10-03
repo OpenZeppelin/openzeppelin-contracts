@@ -118,4 +118,16 @@ describe('ERC721URIStorage', function () {
       expect(await this.token.tokenURI(tokenId)).to.equal(sampleUri);
     });
   });
+
+  describe('_hasTokenURI', function () {
+  it('returns false when token URI is not set', async function () {
+    // You'll need to create a test contract that exposes _hasTokenURI
+    expect(await this.token.hasTokenURI(firstTokenId)).to.be.false;
+  });
+
+  it('returns true when token URI is set', async function () {
+    await this.token.setTokenURI(firstTokenId, sampleUri);
+    expect(await this.token.hasTokenURI(firstTokenId)).to.be.true;
+  });
+});
 });
