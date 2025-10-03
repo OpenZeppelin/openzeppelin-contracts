@@ -148,8 +148,9 @@ hook Sstore _balances[KEY address addr] uint256 newValue (uint256 oldValue) {
     _supply = _supply - oldValue + newValue;
 }
 
-// TODO: This used to not be necessary. We should try to remove it. In order to do so, we will probably need to add
-// many "preserved" directive that require the "balanceOfConsistency" invariant on the accounts involved.
+// NOTE: This Sload hook enforces that the ghost _balances mapping matches storage reads.
+// Once sufficient "preserved" requirements for balanceOfConsistency are present for affected accounts,
+// this hook can be removed to reduce specification overhead.
 hook Sload uint256 value _balances[KEY address user] {
     require _balances[user] == to_mathint(value);
 }
