@@ -98,20 +98,20 @@ describe('Arrays', function () {
             it('[deprecated] findUpperBound', async function () {
               // findUpperBound does not support duplicated
               if (hasDuplicates(array)) {
-                expect(await this.instance.findUpperBound(input)).to.equal(upperBound(array, input) - 1);
+                await expect(this.instance.findUpperBound(input)).to.eventually.equal(upperBound(array, input) - 1);
               } else {
-                expect(await this.instance.findUpperBound(input)).to.equal(lowerBound(array, input));
+                await expect(this.instance.findUpperBound(input)).to.eventually.equal(lowerBound(array, input));
               }
             });
 
             it('lowerBound', async function () {
-              expect(await this.instance.lowerBound(input)).to.equal(lowerBound(array, input));
-              expect(await this.instance.lowerBoundMemory(array, input)).to.equal(lowerBound(array, input));
+              await expect(this.instance.lowerBound(input)).to.eventually.equal(lowerBound(array, input));
+              await expect(this.instance.lowerBoundMemory(array, input)).to.eventually.equal(lowerBound(array, input));
             });
 
             it('upperBound', async function () {
-              expect(await this.instance.upperBound(input)).to.equal(upperBound(array, input));
-              expect(await this.instance.upperBoundMemory(array, input)).to.equal(upperBound(array, input));
+              await expect(this.instance.upperBound(input)).to.eventually.equal(upperBound(array, input));
+              await expect(this.instance.upperBoundMemory(array, input)).to.eventually.equal(upperBound(array, input));
             });
           });
         }
@@ -142,8 +142,8 @@ describe('Arrays', function () {
               afterEach(async function () {
                 const expected = Array.from(this.array).sort(comparator);
                 const reversed = Array.from(expected).reverse();
-                expect(await this.instance.sort(this.array)).to.deep.equal(expected);
-                expect(await this.instance.sortReverse(this.array)).to.deep.equal(reversed);
+                await expect(this.instance.sort(this.array)).to.eventually.deep.equal(expected);
+                await expect(this.instance.sortReverse(this.array)).to.eventually.deep.equal(reversed);
               });
 
               it('sort array', async function () {
@@ -175,13 +175,140 @@ describe('Arrays', function () {
             });
           }
         });
+
+        describe('slice', function () {
+          const testArray = Array.from({ length: 10 }, generators[name]);
+          const sliceFragment = `$slice(${name}[] arr, uint256 start)`;
+          const sliceRangeFragment = `$slice(${name}[] arr, uint256 start, uint256 end)`;
+
+          it('slice from start to end', async function () {
+            const start = 2;
+            const end = 7;
+            const expected = testArray.slice(start, end);
+            await expect(this.mock[sliceRangeFragment](testArray, start, end)).to.eventually.deep.equal(expected);
+          });
+
+          it('slice from start to end of array', async function () {
+            const start = 3;
+            const expected = testArray.slice(start);
+            await expect(this.mock[sliceFragment](testArray, start)).to.eventually.deep.equal(expected);
+          });
+
+          it('slice entire array', async function () {
+            const expected = testArray.slice();
+            await expect(this.mock[sliceFragment](testArray, 0)).to.eventually.deep.equal(expected);
+            await expect(this.mock[sliceRangeFragment](testArray, 0, testArray.length)).to.eventually.deep.equal(
+              expected,
+            );
+          });
+
+          it('slice empty range', async function () {
+            await expect(this.mock[sliceRangeFragment](testArray, 5, 5)).to.eventually.deep.equal([]);
+            await expect(this.mock[sliceRangeFragment](testArray, 7, 3)).to.eventually.deep.equal([]);
+          });
+
+          it('slice with out of bounds indices', async function () {
+            // start beyond array length
+            await expect(this.mock[sliceFragment](testArray, testArray.length + 5)).to.eventually.deep.equal([]);
+
+            // end beyond array length (should be truncated)
+            const start = 5;
+            const expected = testArray.slice(start);
+            await expect(
+              this.mock[sliceRangeFragment](testArray, start, testArray.length + 10),
+            ).to.eventually.deep.equal(expected);
+          });
+
+          it('slice empty array', async function () {
+            const emptyArray = [];
+            await expect(this.mock[sliceFragment](emptyArray, 0)).to.eventually.deep.equal([]);
+            await expect(this.mock[sliceFragment](emptyArray, 5)).to.eventually.deep.equal([]);
+            await expect(this.mock[sliceRangeFragment](emptyArray, 0, 5)).to.eventually.deep.equal([]);
+          });
+
+          it('slice single element', async function () {
+            const singleArray = [testArray[0]];
+            await expect(this.mock[sliceFragment](singleArray, 0)).to.eventually.deep.equal(singleArray);
+            await expect(this.mock[sliceFragment](singleArray, 1)).to.eventually.deep.equal([]);
+            await expect(this.mock[sliceRangeFragment](singleArray, 0, 1)).to.eventually.deep.equal(singleArray);
+          });
+        });
+
+        describe('splice', function () {
+          const spliceFragment = `$splice(${name}[] arr, uint256 start)`;
+          const spliceRangeFragment = `$splice(${name}[] arr, uint256 start, uint256 end)`;
+
+          it('splice from start to end', async function () {
+            const testArray = Array.from({ length: 10 }, generators[name]);
+            const start = 2;
+            const end = 7;
+            const expected = testArray.slice(start, end);
+
+            await expect(this.mock[spliceRangeFragment](testArray, start, end)).to.eventually.deep.equal(expected);
+          });
+
+          it('splice from start to end of array', async function () {
+            const testArray = Array.from({ length: 10 }, generators[name]);
+            const start = 3;
+            const expected = testArray.slice(start);
+
+            await expect(this.mock[spliceFragment](testArray, start)).to.eventually.deep.equal(expected);
+          });
+
+          it('splice entire array', async function () {
+            const testArray = Array.from({ length: 10 }, generators[name]);
+            const expected = testArray.slice();
+
+            await expect(this.mock[spliceFragment](testArray, 0)).to.eventually.deep.equal(expected);
+            await expect(this.mock[spliceRangeFragment](testArray, 0, testArray.length)).to.eventually.deep.equal(
+              expected,
+            );
+          });
+
+          it('splice empty range', async function () {
+            const testArray = Array.from({ length: 10 }, generators[name]);
+
+            await expect(this.mock[spliceRangeFragment](testArray, 5, 5)).to.eventually.deep.equal([]);
+            await expect(this.mock[spliceRangeFragment](testArray, 7, 3)).to.eventually.deep.equal([]);
+          });
+
+          it('splice with out of bounds indices', async function () {
+            const testArray = Array.from({ length: 10 }, generators[name]);
+
+            // start beyond array length
+            await expect(this.mock[spliceFragment](testArray, testArray.length + 5)).to.eventually.deep.equal([]);
+
+            // end beyond array length (should be truncated)
+            const start = 5;
+            const expected = testArray.slice(start);
+            await expect(
+              this.mock[spliceRangeFragment](testArray, start, testArray.length + 10),
+            ).to.eventually.deep.equal(expected);
+          });
+
+          it('splice empty array', async function () {
+            const emptyArray = [];
+
+            await expect(this.mock[spliceFragment](emptyArray, 0)).to.eventually.deep.equal([]);
+            await expect(this.mock[spliceFragment](emptyArray, 5)).to.eventually.deep.equal([]);
+            await expect(this.mock[spliceRangeFragment](emptyArray, 0, 5)).to.eventually.deep.equal([]);
+          });
+
+          it('splice single element', async function () {
+            const singleArray = [Array.from({ length: 1 }, generators[name])[0]];
+
+            await expect(this.mock[spliceFragment](singleArray, 0)).to.eventually.deep.equal(singleArray);
+            await expect(this.mock[spliceFragment](singleArray, 1)).to.eventually.deep.equal([]);
+            await expect(this.mock[spliceRangeFragment](singleArray, 0, 1)).to.eventually.deep.equal(singleArray);
+          });
+        });
       }
 
       describe('unsafeAccess', function () {
         describe('storage', function () {
           for (const i in elements) {
             it(`unsafeAccess within bounds #${i}`, async function () {
-              expect(await this.instance.unsafeAccess(i)).to.equal(elements[i]);
+              await expect(this.instance.unsafeAccess(i)).to.eventually.equal(elements[i]);
             });
           }
 
@@ -192,9 +319,9 @@ describe('Arrays', function () {
           it('unsafeSetLength changes the length or the array', async function () {
             const newLength = generators.uint256();
 
-            expect(await this.instance.length()).to.equal(elements.length);
+            await expect(this.instance.length()).to.eventually.equal(elements.length);
             await expect(this.instance.unsafeSetLength(newLength)).to.not.be.rejected;
-            expect(await this.instance.length()).to.equal(newLength);
+            await expect(this.instance.length()).to.eventually.equal(newLength);
           });
         });
 
@@ -203,7 +330,7 @@ describe('Arrays', function () {
 
           for (const i in elements) {
             it(`unsafeMemoryAccess within bounds #${i}`, async function () {
-              expect(await this.mock[fragment](elements, i)).to.equal(elements[i]);
+              await expect(this.mock[fragment](elements, i)).to.eventually.equal(elements[i]);
             });
           }
 
@@ -213,11 +340,11 @@ describe('Arrays', function () {
 
           it('unsafeMemoryAccess loop around', async function () {
             for (let i = 251n; i < 256n; ++i) {
-              expect(await this.mock[fragment](elements, 2n ** i - 1n)).to.equal(
+              await expect(this.mock[fragment](elements, 2n ** i - 1n)).to.eventually.equal(
                 isValueType ? BigInt(elements.length) : generators[name].zero,
               );
-              expect(await this.mock[fragment](elements, 2n ** i + 0n)).to.equal(elements[0]);
-              expect(await this.mock[fragment](elements, 2n ** i + 1n)).to.equal(elements[1]);
+              await expect(this.mock[fragment](elements, 2n ** i + 0n)).to.eventually.equal(elements[0]);
+              await expect(this.mock[fragment](elements, 2n ** i + 1n)).to.eventually.equal(elements[1]);
             }
           });
         });
