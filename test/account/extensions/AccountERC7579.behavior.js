@@ -91,6 +91,22 @@ function shouldBehaveLikeAccountERC7579({ withHooks = false } = {}) {
       });
     });
 
+    describe('isModuleInstalled', function () {
+      it('should not revert if calldata is empty or too short', async function () {
+        await expect(
+          this.mock.isModuleInstalled(MODULE_TYPE_FALLBACK, this.modules[MODULE_TYPE_FALLBACK], '0x'),
+        ).to.eventually.equal(false);
+
+        await expect(
+          this.mock.isModuleInstalled(MODULE_TYPE_FALLBACK, this.modules[MODULE_TYPE_FALLBACK], '0x123456'),
+        ).to.eventually.equal(false);
+
+        await expect(
+          this.mock.isModuleInstalled(MODULE_TYPE_FALLBACK, this.modules[MODULE_TYPE_FALLBACK], '0x12345678'),
+        ).to.eventually.equal(false);
+      });
+    });
+
     describe('module installation', function () {
       it('should revert if the caller is not the canonical entrypoint or the account itself', async function () {
         await expect(this.mock.connect(this.other).installModule(MODULE_TYPE_VALIDATOR, this.mock, '0x'))
