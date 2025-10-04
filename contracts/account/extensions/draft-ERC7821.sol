@@ -35,7 +35,7 @@ abstract contract ERC7821 is IERC7821 {
     }
 
     /// @inheritdoc IERC7821
-    function supportsExecutionMode(bytes32 mode) public view virtual returns (bool result) {
+    function supportsExecutionMode(bytes32 mode) public view virtual returns (bool) {
         (CallType callType, ExecType execType, ModeSelector modeSelector, ) = Mode.wrap(mode).decodeMode();
         return
             callType == ERC7579Utils.CALLTYPE_BATCH &&
