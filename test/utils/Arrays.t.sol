@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
 import {Test} from "forge-std/Test.sol";
 import {SymTest} from "halmos-cheatcodes/SymTest.sol";
 import {Arrays} from "@openzeppelin/contracts/utils/Arrays.sol";
+import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 
 contract ArraysTest is Test, SymTest {
     function testSort(uint256[] memory values) public pure {
@@ -23,96 +24,162 @@ contract ArraysTest is Test, SymTest {
 
     /// Slice
 
-    function testSliceUint256(uint256[] memory values, uint256 start) public pure {
-        uint256[] memory result = Arrays.slice(values, start);
-        _assertSliceUint256(values, result, start, values.length);
-    }
-
-    function testSliceUint256Range(uint256[] memory values, uint256 start, uint256 end) public pure {
-        uint256[] memory result = Arrays.slice(values, start, end);
-        _assertSliceUint256(values, result, start, end);
-    }
-
-    function testSliceBytes32(bytes32[] memory values, uint256 start) public pure {
-        bytes32[] memory result = Arrays.slice(values, start);
-        _assertSliceBytes32(values, result, start, values.length);
-    }
-
-    function testSliceBytes32Range(bytes32[] memory values, uint256 start, uint256 end) public pure {
-        bytes32[] memory result = Arrays.slice(values, start, end);
-        _assertSliceBytes32(values, result, start, end);
-    }
-
-    function testSliceAddress(address[] memory values, uint256 start) public pure {
+    function testSliceAddressWithStartOnly(address[] memory values, uint256 start) public pure {
+        address[] memory originalValues = _copyArray(values);
         address[] memory result = Arrays.slice(values, start);
-        _assertSliceAddress(values, result, start, values.length);
+
+        // Original buffer was not modified
+        assertEq(values, originalValues);
+
+        // Result should match originalValues over the specified slice
+        uint256 expectedLength = Math.saturatingSub(values.length, start);
+        _assertSliceOf(result, originalValues, start, expectedLength);
     }
 
-    function testSliceAddressRange(address[] memory values, uint256 start, uint256 end) public pure {
+    function testSliceAddress(address[] memory values, uint256 start, uint256 end) public pure {
+        address[] memory originalValues = _copyArray(values);
         address[] memory result = Arrays.slice(values, start, end);
-        _assertSliceAddress(values, result, start, end);
+
+        // Original buffer was not modified
+        assertEq(values, originalValues);
+
+        // Calculate expected bounds after sanitization
+        uint256 sanitizedEnd = Math.min(end, values.length);
+        uint256 sanitizedStart = Math.min(start, sanitizedEnd);
+        uint256 expectedLength = sanitizedEnd - sanitizedStart;
+        _assertSliceOf(result, originalValues, sanitizedStart, expectedLength);
+    }
+
+    function testSliceBytes32WithStartOnly(bytes32[] memory values, uint256 start) public pure {
+        bytes32[] memory originalValues = _copyArray(values);
+        bytes32[] memory result = Arrays.slice(values, start);
+
+        // Original buffer was not modified
+        assertEq(values, originalValues);
+
+        // Result should match originalValues over the specified slice
+        uint256 expectedLength = Math.saturatingSub(values.length, start);
+        _assertSliceOf(result, originalValues, start, expectedLength);
+    }
+
+    function testSliceBytes32(bytes32[] memory values, uint256 start, uint256 end) public pure {
+        bytes32[] memory originalValues = _copyArray(values);
+        bytes32[] memory result = Arrays.slice(values, start, end);
+
+        // Original buffer was not modified
+        assertEq(values, originalValues);
+
+        // Calculate expected bounds after sanitization
+        uint256 sanitizedEnd = Math.min(end, values.length);
+        uint256 sanitizedStart = Math.min(start, sanitizedEnd);
+        uint256 expectedLength = sanitizedEnd - sanitizedStart;
+        _assertSliceOf(result, originalValues, sanitizedStart, expectedLength);
+    }
+
+    function testSliceUint256WithStartOnly(uint256[] memory values, uint256 start) public pure {
+        uint256[] memory originalValues = _copyArray(values);
+        uint256[] memory result = Arrays.slice(values, start);
+
+        // Original buffer was not modified
+        assertEq(values, originalValues);
+
+        // Result should match originalValues over the specified slice
+        uint256 expectedLength = Math.saturatingSub(values.length, start);
+        _assertSliceOf(result, originalValues, start, expectedLength);
+    }
+
+    function testSliceUint256(uint256[] memory values, uint256 start, uint256 end) public pure {
+        uint256[] memory originalValues = _copyArray(values);
+        uint256[] memory result = Arrays.slice(values, start, end);
+
+        // Original buffer was not modified
+        assertEq(values, originalValues);
+
+        // Calculate expected bounds after sanitization
+        uint256 sanitizedEnd = Math.min(end, values.length);
+        uint256 sanitizedStart = Math.min(start, sanitizedEnd);
+        uint256 expectedLength = sanitizedEnd - sanitizedStart;
+        _assertSliceOf(result, originalValues, sanitizedStart, expectedLength);
     }
 
     /// Splice
 
-    function testSpliceUint256(uint256[] memory values, uint256 start) public pure {
-        uint256[] memory original = new uint256[](values.length);
-        for (uint256 i = 0; i < values.length; i++) {
-            original[i] = values[i];
-        }
-
-        uint256[] memory result = Arrays.splice(values, start);
-        _assertSpliceUint256(original, result, start, original.length);
-    }
-
-    function testSpliceUint256Range(uint256[] memory values, uint256 start, uint256 end) public pure {
-        uint256[] memory original = new uint256[](values.length);
-        for (uint256 i = 0; i < values.length; i++) {
-            original[i] = values[i];
-        }
-
-        uint256[] memory result = Arrays.splice(values, start, end);
-        _assertSpliceUint256(original, result, start, end);
-    }
-
-    function testSpliceBytes32(bytes32[] memory values, uint256 start) public pure {
-        bytes32[] memory original = new bytes32[](values.length);
-        for (uint256 i = 0; i < values.length; i++) {
-            original[i] = values[i];
-        }
-
-        bytes32[] memory result = Arrays.splice(values, start);
-        _assertSpliceBytes32(original, result, start, original.length);
-    }
-
-    function testSpliceBytes32Range(bytes32[] memory values, uint256 start, uint256 end) public pure {
-        bytes32[] memory original = new bytes32[](values.length);
-        for (uint256 i = 0; i < values.length; i++) {
-            original[i] = values[i];
-        }
-
-        bytes32[] memory result = Arrays.splice(values, start, end);
-        _assertSpliceBytes32(original, result, start, end);
-    }
-
-    function testSpliceAddress(address[] memory values, uint256 start) public pure {
-        address[] memory original = new address[](values.length);
-        for (uint256 i = 0; i < values.length; i++) {
-            original[i] = values[i];
-        }
-
+    function testSpliceAddressWithStartOnly(address[] memory values, uint256 start) public pure {
+        address[] memory originalValues = _copyArray(values);
         address[] memory result = Arrays.splice(values, start);
-        _assertSpliceAddress(original, result, start, original.length);
+
+        // Result should be the same object as input (modified in place)
+        assertEq(result, values);
+
+        // Result should match originalValues over the specified slice
+        uint256 expectedLength = Math.saturatingSub(originalValues.length, start);
+        _assertSliceOf(result, originalValues, start, expectedLength);
     }
 
-    function testSpliceAddressRange(address[] memory values, uint256 start, uint256 end) public pure {
-        address[] memory original = new address[](values.length);
-        for (uint256 i = 0; i < values.length; i++) {
-            original[i] = values[i];
-        }
-
+    function testSpliceAddress(address[] memory values, uint256 start, uint256 end) public pure {
+        address[] memory originalValues = _copyArray(values);
         address[] memory result = Arrays.splice(values, start, end);
-        _assertSpliceAddress(original, result, start, end);
+
+        // Result should be the same object as input (modified in place)
+        assertEq(result, values);
+
+        // Calculate expected bounds after sanitization
+        uint256 sanitizedEnd = Math.min(end, originalValues.length);
+        uint256 sanitizedStart = Math.min(start, sanitizedEnd);
+        uint256 expectedLength = sanitizedEnd - sanitizedStart;
+        _assertSliceOf(result, originalValues, sanitizedStart, expectedLength);
+    }
+
+    function testSpliceBytes32WithStartOnly(bytes32[] memory values, uint256 start) public pure {
+        bytes32[] memory originalValues = _copyArray(values);
+        bytes32[] memory result = Arrays.splice(values, start);
+
+        // Result should be the same object as input (modified in place)
+        assertEq(result, values);
+
+        // Result should match originalValues over the specified slice
+        uint256 expectedLength = Math.saturatingSub(originalValues.length, start);
+        _assertSliceOf(result, originalValues, start, expectedLength);
+    }
+
+    function testSpliceBytes32(bytes32[] memory values, uint256 start, uint256 end) public pure {
+        bytes32[] memory originalValues = _copyArray(values);
+        bytes32[] memory result = Arrays.splice(values, start, end);
+
+        // Result should be the same object as input (modified in place)
+        assertEq(result, values);
+
+        // Calculate expected bounds after sanitization
+        uint256 sanitizedEnd = Math.min(end, originalValues.length);
+        uint256 sanitizedStart = Math.min(start, sanitizedEnd);
+        uint256 expectedLength = sanitizedEnd - sanitizedStart;
+        _assertSliceOf(result, originalValues, sanitizedStart, expectedLength);
+    }
+
+    function testSpliceUint256WithStartOnly(uint256[] memory values, uint256 start) public pure {
+        uint256[] memory originalValues = _copyArray(values);
+        uint256[] memory result = Arrays.splice(values, start);
+
+        // Result should be the same object as input (modified in place)
+        assertEq(result, values);
+
+        // Result should match originalValues over the specified slice
+        uint256 expectedLength = Math.saturatingSub(originalValues.length, start);
+        _assertSliceOf(result, originalValues, start, expectedLength);
+    }
+
+    function testSpliceUint256(uint256[] memory values, uint256 start, uint256 end) public pure {
+        uint256[] memory originalValues = _copyArray(values);
+        uint256[] memory result = Arrays.splice(values, start, end);
+
+        // Result should be the same object as input (modified in place)
+        assertEq(result, values);
+
+        // Calculate expected bounds after sanitization
+        uint256 sanitizedEnd = Math.min(end, originalValues.length);
+        uint256 sanitizedStart = Math.min(start, sanitizedEnd);
+        uint256 expectedLength = sanitizedEnd - sanitizedStart;
+        _assertSliceOf(result, originalValues, sanitizedStart, expectedLength);
     }
 
     /// Asserts
@@ -123,104 +190,59 @@ contract ArraysTest is Test, SymTest {
         }
     }
 
-    function _assertSliceUint256(
-        uint256[] memory original,
-        uint256[] memory result,
-        uint256 start,
-        uint256 end
-    ) internal pure {
-        uint256 length = original.length;
-        end = end > length ? length : end;
-        start = start > end ? end : start;
-
-        assertEq(result.length, end - start);
-
-        for (uint256 i = 0; i < result.length; i++) {
-            assertEq(result[i], original[start + i]);
-        }
-    }
-
-    function _assertSliceBytes32(
-        bytes32[] memory original,
-        bytes32[] memory result,
-        uint256 start,
-        uint256 end
-    ) internal pure {
-        uint256 length = original.length;
-        end = end > length ? length : end;
-        start = start > end ? end : start;
-
-        assertEq(result.length, end - start);
-
-        for (uint256 i = 0; i < result.length; i++) {
-            assertEq(result[i], original[start + i]);
-        }
-    }
-    function _assertSliceAddress(
-        address[] memory original,
+    function _assertSliceOf(
         address[] memory result,
-        uint256 start,
-        uint256 end
-    ) internal pure {
-        uint256 length = original.length;
-        end = end > length ? length : end;
-        start = start > end ? end : start;
-
-        assertEq(result.length, end - start);
-
-        for (uint256 i = 0; i < result.length; i++) {
-            assertEq(result[i], original[start + i]);
-        }
-    }
-
-    function _assertSpliceUint256(
-        uint256[] memory original,
-        uint256[] memory result,
-        uint256 start,
-        uint256 end
-    ) internal pure {
-        uint256 length = original.length;
-        end = end > length ? length : end;
-        start = start > end ? end : start;
-
-        assertEq(result.length, end - start);
-
-        for (uint256 i = 0; i < result.length; i++) {
-            assertEq(result[i], original[start + i]);
-        }
-    }
-
-    function _assertSpliceBytes32(
-        bytes32[] memory original,
-        bytes32[] memory result,
-        uint256 start,
-        uint256 end
-    ) internal pure {
-        uint256 length = original.length;
-        end = end > length ? length : end;
-        start = start > end ? end : start;
-
-        assertEq(result.length, end - start);
-
-        for (uint256 i = 0; i < result.length; i++) {
-            assertEq(result[i], original[start + i]);
-        }
-    }
-
-    function _assertSpliceAddress(
         address[] memory original,
-        address[] memory result,
-        uint256 start,
-        uint256 end
+        uint256 offset,
+        uint256 expectedLength
     ) internal pure {
-        uint256 length = original.length;
-        end = end > length ? length : end;
-        start = start > end ? end : start;
-
-        assertEq(result.length, end - start);
-
-        for (uint256 i = 0; i < result.length; i++) {
-            assertEq(result[i], original[start + i]);
+        assertEq(result.length, expectedLength);
+        for (uint256 i = 0; i < expectedLength; ++i) {
+            assertEq(result[i], original[offset + i]);
         }
+    }
+
+    function _assertSliceOf(
+        bytes32[] memory result,
+        bytes32[] memory original,
+        uint256 offset,
+        uint256 expectedLength
+    ) internal pure {
+        assertEq(result.length, expectedLength);
+        for (uint256 i = 0; i < expectedLength; ++i) {
+            assertEq(result[i], original[offset + i]);
+        }
+    }
+
+    function _assertSliceOf(
+        uint256[] memory result,
+        uint256[] memory original,
+        uint256 offset,
+        uint256 expectedLength
+    ) internal pure {
+        assertEq(result.length, expectedLength);
+        for (uint256 i = 0; i < expectedLength; ++i) {
+            assertEq(result[i], original[offset + i]);
+        }
+    }
+
+    /// Helpers
+
+    function _copyArray(uint256[] memory values) internal pure returns (uint256[] memory) {
+        uint256[] memory copy = new uint256[](values.length);
+        for (uint256 i = 0; i < values.length; ++i) copy[i] = values[i];
+        return copy;
+    }
+
+    function _copyArray(bytes32[] memory values) internal pure returns (bytes32[] memory) {
+        bytes32[] memory copy = new bytes32[](values.length);
+        for (uint256 i = 0; i < values.length; ++i) copy[i] = values[i];
+        return copy;
+    }
+
+    function _copyArray(address[] memory values) internal pure returns (address[] memory) {
+        address[] memory copy = new address[](values.length);
+        for (uint256 i = 0; i < values.length; ++i) copy[i] = values[i];
+        return copy;
     }
 }
