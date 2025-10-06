@@ -3,6 +3,7 @@
 ### Bug fixes
 
 - `ERC165Checker`: Ensure the `supportsERC165` function returns false if the target reverts during the `supportsInterface(0xffffffff)` call. ([#5810](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5880))
+- `AccountERC7579`: Prevent revert in `isModuleInstalled` for fallback modules when `additionalContext` has fewer than 4 bytes. The function now returns `false` instead of reverting, ensuring ERC-7579 compliance. ([#5961](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5961))
 
 ### Breaking changes
 
