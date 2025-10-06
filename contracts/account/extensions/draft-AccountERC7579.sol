@@ -71,9 +71,6 @@ abstract contract AccountERC7579 is Account, IERC1271, IERC7579Execution, IERC75
     /// @dev The provided initData/deInitData for a fallback module is too short to extract a selector.
     error ERC7579CannotDecodeFallbackData();
 
-    /// @dev The provided signature is not long enough to be parsed as a module signature.
-    error ERC7579InvalidModuleSignature();
-
     /// @dev Modifier that checks if the caller is an installed module of the given type.
     modifier onlyModule(uint256 moduleTypeId, bytes calldata additionalContext) {
         _checkModule(moduleTypeId, msg.sender, additionalContext);
