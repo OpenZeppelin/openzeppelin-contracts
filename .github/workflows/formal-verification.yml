@@ -26,7 +26,7 @@ jobs:
 
   verify:
     runs-on: ubuntu-latest
-    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'formal-verification')
+    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'formal-verification') || contains(github.event.pull_request.labels.*.name, 'formal-verification-force-all')
     steps:
       - uses: actions/checkout@v5
         with:
@@ -36,7 +36,7 @@ jobs:
       - name: identify specs that need to be run
         id: arguments
         run: |
-          if [[ ${{ github.event_name }} = 'pull_request' ]];
+          if [[ ${{ github.event_name }} = 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'formal-verification-force-all') ]];
           then
             RESULT=$(git diff ${{ github.event.pull_request.head.sha }}..${{ github.event.pull_request.base.sha }} --name-only certora/specs/*.spec | while IFS= read -r file; do [[ -f $file ]] && basename "${file%.spec}"; done | tr "\n" " ")
           else
