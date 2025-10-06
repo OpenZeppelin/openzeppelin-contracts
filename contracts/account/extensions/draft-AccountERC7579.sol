@@ -386,12 +386,13 @@ abstract contract AccountERC7579 is Account, IERC1271, IERC7579Execution, IERC75
      * https://github.com/erc7579/erc7579-implementation/blob/16138d1afd4e9711f6c1425133538837bd7787b5/src/MSAAdvanced.sol#L296[ERC7579 reference implementation].
      *
      * This is not standardized in ERC-7579 (or in any follow-up ERC). Some accounts may want to override these internal functions.
+     *
+     * NOTE: This function expects the signature to be at least 20 bytes long. Panics with {Panic-ARRAY_OUT_OF_BOUNDS} (0x32) otherwise.
      */
     function _extractSignatureValidator(
         bytes calldata signature
     ) internal pure virtual returns (address module, bytes calldata innerSignature) {
-        require(signature.length > 19, ERC7579InvalidModuleSignature());
-        return (address(bytes20(signature)), signature[20:]);
+        return (address(bytes20(signature[0:20])), signature[20:]);
     }
 
     /**
