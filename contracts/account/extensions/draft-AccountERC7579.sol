@@ -68,6 +68,12 @@ abstract contract AccountERC7579 is Account, IERC1271, IERC7579Execution, IERC75
     /// @dev The account's {fallback} was called with a selector that doesn't have an installed handler.
     error ERC7579MissingFallbackHandler(bytes4 selector);
 
+    /// @dev The provided initData/deInitData for a fallback module is too short to extract a selector.
+    error ERC7579CannotDecodeFallbackData();
+
+    /// @dev The provided signature is not long enough to be parsed as a module signature.
+    error ERC7579InvalidModuleSignature();
+
     /// @dev Modifier that checks if the caller is an installed module of the given type.
     modifier onlyModule(uint256 moduleTypeId, bytes calldata additionalContext) {
         _checkModule(moduleTypeId, msg.sender, additionalContext);
@@ -380,6 +386,8 @@ abstract contract AccountERC7579 is Account, IERC1271, IERC7579Execution, IERC75
      * https://github.com/erc7579/erc7579-implementation/blob/16138d1afd4e9711f6c1425133538837bd7787b5/src/MSAAdvanced.sol#L296[ERC7579 reference implementation].
      *
      * This is not standardized in ERC-7579 (or in any follow-up ERC). Some accounts may want to override these internal functions.
+     *
+     * NOTE: This function expects the signature to be at least 20 bytes long. Panics with {Panic-ARRAY_OUT_OF_BOUNDS} (0x32) otherwise.
      */
     function _extractSignatureValidator(
         bytes calldata signature
@@ -399,6 +407,7 @@ abstract contract AccountERC7579 is Account, IERC1271, IERC7579Execution, IERC75
     function _decodeFallbackData(
         bytes memory data
     ) internal pure virtual returns (bytes4 selector, bytes memory remaining) {
+        require(data.length > 3, ERC7579CannotDecodeFallbackData());
         return (bytes4(data), data.slice(4));
     }
 
