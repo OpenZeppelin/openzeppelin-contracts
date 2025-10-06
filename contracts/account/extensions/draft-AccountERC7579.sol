@@ -68,6 +68,12 @@ abstract contract AccountERC7579 is Account, IERC1271, IERC7579Execution, IERC75
     /// @dev The account's {fallback} was called with a selector that doesn't have an installed handler.
     error ERC7579MissingFallbackHandler(bytes4 selector);
 
+    /// @dev The provided initData/deInitData for a fallback module is too short to extract a selector.
+    error ERC7579CannotDecodeFallbackData();
+
+    /// @dev The provided signature is not long enough to be parsed as a module signature.
+    error ERC7579InvalidModuleSignature();
+
     /// @dev Modifier that checks if the caller is an installed module of the given type.
     modifier onlyModule(uint256 moduleTypeId, bytes calldata additionalContext) {
         _checkModule(moduleTypeId, msg.sender, additionalContext);
@@ -384,7 +390,8 @@ abstract contract AccountERC7579 is Account, IERC1271, IERC7579Execution, IERC75
     function _extractSignatureValidator(
         bytes calldata signature
     ) internal pure virtual returns (address module, bytes calldata innerSignature) {
-        return (address(bytes20(signature[0:20])), signature[20:]);
+        require(signature.length > 19, ERC7579InvalidModuleSignature());
+        return (address(bytes20(signature)), signature[20:]);
     }
 
     /**
@@ -399,6 +406,7 @@ abstract contract AccountERC7579 is Account, IERC1271, IERC7579Execution, IERC75
     function _decodeFallbackData(
         bytes memory data
     ) internal pure virtual returns (bytes4 selector, bytes memory remaining) {
+        require(data.length > 3, ERC7579CannotDecodeFallbackData());
         return (bytes4(data), data.slice(4));
     }
 
