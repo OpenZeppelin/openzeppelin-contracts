@@ -38,7 +38,13 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy() {
   });
 
   beforeEach(async function () {
-    Object.assign(this, await this.createProxyWithImpersonatedProxyAdmin(this.implementationV0, '0x'));
+    Object.assign(
+      this,
+      await this.createProxyWithImpersonatedProxyAdmin(
+        this.implementationV0,
+        this.implementation.interface.encodeFunctionData('initialize', [100n, 'test', [1, 2, 3]]),
+      ),
+    );
   });
 
   describe('implementation', function () {
@@ -239,7 +245,13 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy() {
       this.clashingImplV0 = await ethers.deployContract('ClashingImplementation');
       this.clashingImplV1 = await ethers.deployContract('ClashingImplementation');
 
-      Object.assign(this, await this.createProxyWithImpersonatedProxyAdmin(this.clashingImplV0, '0x'));
+      Object.assign(
+        this,
+        await this.createProxyWithImpersonatedProxyAdmin(
+          this.clashingImplV0,
+          this.clashingImplV0.interface.encodeFunctionData('initialize'),
+        ),
+      );
     });
 
     it('proxy admin cannot call delegated functions', async function () {
@@ -267,91 +279,87 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy() {
   });
 
   describe('regression', function () {
-    const initializeData = '0x';
+    beforeEach(async function () {
+      this.impl1 = await ethers.deployContract('Implementation1');
+      this.impl2 = await ethers.deployContract('Implementation2');
+      this.impl3 = await ethers.deployContract('Implementation3');
+      this.impl4 = await ethers.deployContract('Implementation4');
+      this.initializeData = this.impl1.interface.encodeFunctionData('initialize');
+    });
 
     it('should add new function', async function () {
-      const impl1 = await ethers.deployContract('Implementation1');
-      const impl2 = await ethers.deployContract('Implementation2');
       const { instance, proxy, proxyAdminAsSigner } = await this.createProxyWithImpersonatedProxyAdmin(
-        impl1,
-        initializeData,
+        this.impl1,
+        this.initializeData,
       );
 
       await instance.setValue(42n);
 
       // `getValue` is not available in impl1
-      await expect(impl2.attach(instance).getValue()).to.be.reverted;
+      await expect(this.impl2.attach(instance).getValue()).to.be.reverted;
 
       // do upgrade
-      await proxy.connect(proxyAdminAsSigner).upgradeToAndCall(impl2, '0x');
+      await proxy.connect(proxyAdminAsSigner).upgradeToAndCall(this.impl2, '0x');
 
       // `getValue` is available in impl2
-      expect(await impl2.attach(instance).getValue()).to.equal(42n);
+      expect(await this.impl2.attach(instance).getValue()).to.equal(42n);
     });
 
     it('should remove function', async function () {
-      const impl1 = await ethers.deployContract('Implementation1');
-      const impl2 = await ethers.deployContract('Implementation2');
       const { instance, proxy, proxyAdminAsSigner } = await this.createProxyWithImpersonatedProxyAdmin(
-        impl2,
-        initializeData,
+        this.impl2,
+        this.initializeData,
       );
 
       await instance.setValue(42n);
 
       // `getValue` is available in impl2
-      expect(await impl2.attach(instance).getValue()).to.equal(42n);
+      expect(await this.impl2.attach(instance).getValue()).to.equal(42n);
 
       // do downgrade
-      await proxy.connect(proxyAdminAsSigner).upgradeToAndCall(impl1, '0x');
+      await proxy.connect(proxyAdminAsSigner).upgradeToAndCall(this.impl1, '0x');
 
       // `getValue` is not available in impl1
-      await expect(impl2.attach(instance).getValue()).to.be.reverted;
+      await expect(this.impl2.attach(instance).getValue()).to.be.reverted;
     });
 
     it('should change function signature', async function () {
-      const impl1 = await ethers.deployContract('Implementation1');
-      const impl3 = await ethers.deployContract('Implementation3');
       const { instance, proxy, proxyAdminAsSigner } = await this.createProxyWithImpersonatedProxyAdmin(
-        impl1,
-        initializeData,
+        this.impl1,
+        this.initializeData,
       );
 
       await instance.setValue(42n);
 
-      await proxy.connect(proxyAdminAsSigner).upgradeToAndCall(impl3, '0x');
+      await proxy.connect(proxyAdminAsSigner).upgradeToAndCall(this.impl3, '0x');
 
-      expect(await impl3.attach(instance).getValue(8n)).to.equal(50n);
+      expect(await this.impl3.attach(instance).getValue(8n)).to.equal(50n);
     });
 
     it('should add fallback function', async function () {
-      const impl1 = await ethers.deployContract('Implementation1');
-      const impl4 = await ethers.deployContract('Implementation4');
       const { instance, proxy, proxyAdminAsSigner } = await this.createProxyWithImpersonatedProxyAdmin(
-        impl1,
-        initializeData,
+        this.impl1,
+        this.initializeData,
       );
 
-      await proxy.connect(proxyAdminAsSigner).upgradeToAndCall(impl4, '0x');
+      await proxy.connect(proxyAdminAsSigner).upgradeToAndCall(this.impl4, '0x');
 
       await this.other.sendTransaction({ to: proxy });
 
-      expect(await impl4.attach(instance).getValue()).to.equal(1n);
+      expect(await this.impl4.attach(instance).getValue()).to.equal(1n);
     });
 
     it('should remove fallback function', async function () {
-      const impl2 = await ethers.deployContract('Implementation2');
-      const impl4 = await ethers.deployContract('Implementation4');
       const { instance, proxy, proxyAdminAsSigner } = await this.createProxyWithImpersonatedProxyAdmin(
-        impl4,
-        initializeData,
+        this.impl4,
+        this.initializeData,
       );
 
-      await proxy.connect(proxyAdminAsSigner).upgradeToAndCall(impl2, '0x');
+      await proxy.connect(proxyAdminAsSigner).upgradeToAndCall(this.impl2, '0x');
 
       await expect(this.other.sendTransaction({ to: proxy })).to.be.reverted;
 
-      expect(await impl2.attach(instance).getValue()).to.equal(0n);
+      expect(await this.impl2.attach(instance).getValue()).to.equal(0n);
     });
   });
 };
