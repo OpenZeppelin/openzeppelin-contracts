@@ -14,6 +14,7 @@
 - `SignerERC7702` is renamed as `SignerEIP7702`. Imports and inheritance must be updated to that new name and path. Behavior is unmodified. ([#5932](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5932))
 - `ERC721Holder`, `ERC1155Holder`, `ReentrancyGuard` and `ReentrancyGuardTransient` are flagged as stateless and are no longer transpiled. Developers using their upgradeable variants from `@openzeppelin/contracts-upgradeable` must update their imports to use the equivalent version available in `@openzeppelin/contracts`. ([#5944](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5944), [#5942](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5942))
 - Update minimum pragma to 0.8.24 in `Votes`, `VotesExtended`, `ERC20Votes`, `Strings`, `ERC1155URIStorage`, `MessageHashUtils`, `ERC721URIStorage`, `ERC721Votes`, `ERC721Wrapper`, `ERC721Burnable`, `ERC721Consecutive`, `ERC721Enumerable`, `ERC721Pausable`, `ERC721Royalty`, `ERC721Wrapper`, `EIP712`, `ERC4626` and `ERC7739`. ([#5726](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5726))
+- `AccountERC7579`: Installing and uninstalling fallback modules now require the corresponding `initData` and `deInitData` arguments to be at least 4 bytes long (matching the selector to which the fallback module is registered). It now reverts with `ERC7579CannotDecodeFallbackData` instead of treating the missing bytes as `0x00`.
 
 ### Deprecation
 
