@@ -389,7 +389,7 @@ abstract contract AccountERC7579 is Account, IERC1271, IERC7579Execution, IERC75
     function _extractSignatureValidator(
         bytes calldata signature
     ) internal pure virtual returns (address module, bytes calldata innerSignature) {
-        return (address(bytes20(signature[0:20])), signature[20:]);
+        return (address(bytes20(signature)), signature[20:]);
     }
 
     /**
