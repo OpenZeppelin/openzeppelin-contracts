@@ -30,7 +30,7 @@ const unittests = [
   'abcabcabcabcabcabcabcabcabcabcabcabc0123456789ABCDEF',
 ];
 
-describe('Gas comparaison of decompression algorithms', function () {
+describe('Gas comparison of decompression algorithms', function () {
   before(async function () {
     Object.assign(this, await loadFixture(fixture));
     this.results = [];
