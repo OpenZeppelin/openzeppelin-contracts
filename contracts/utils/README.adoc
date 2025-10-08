@@ -13,6 +13,7 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {ReentrancyGuard}: A modifier that can prevent reentrancy during certain functions.
  * {ReentrancyGuardTransient}: Variant of {ReentrancyGuard} that uses transient storage (https://eips.ethereum.org/EIPS/eip-1153[EIP-1153]).
  * {ERC165}, {ERC165Checker}: Utilities for inspecting interfaces supported by contracts.
+ * {Accumulators}: A library for merging an arbitrary dynamic number of bytes buffers.
  * {BitMaps}: A simple library to manage boolean value mapped to a numerical index in an efficient way.
  * {Checkpoints}: A data structure to store values mapped to a strictly increasing key. Can be used for storing and accessing values over time.
  * {CircularBuffer}: A data structure to store the last N values pushed to it.
@@ -23,6 +24,7 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {MerkleTree}: A library with https://wikipedia.org/wiki/Merkle_Tree[Merkle Tree] data structures and helper functions.
  * {Address}: Collection of functions for overloading Solidity's https://docs.soliditylang.org/en/latest/types.html#address[`address`] type.
  * {Arrays}: Collection of functions that operate on https://docs.soliditylang.org/en/latest/types.html#arrays[`arrays`].
+ * {Base58}: On-chain base58 encoding and decoding.
  * {Base64}: On-chain base64 and base64URL encoding according to https://datatracker.ietf.org/doc/html/rfc4648[RFC-4648].
  * {Blockhash}: A library for accessing historical block hashes beyond the standard 256 block limit utilizing EIP-2935's historical blockhash functionality.
  * {Bytes}: Common operations on bytes objects.
@@ -38,6 +40,7 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {Packing}: A library for packing and unpacking multiple values into bytes32.
  * {Panic}: A library to revert with https://docs.soliditylang.org/en/v0.8.20/control-structures.html#panic-via-assert-and-error-via-require[Solidity panic codes].
  * {RelayedCall}: A library for performing calls that use minimal and predictable relayers to hide the sender.
+ * {RLP}: Library for encoding and decoding data in Ethereum's Recursive Length Prefix format.
  * {ShortStrings}: Library to encode (and decode) short strings into (or from) a single bytes32 slot for optimizing costs. Short strings are limited to 31 characters.
  * {SlotDerivation}: Methods for deriving storage slot from ERC-7201 namespaces as well as from constructions such as mapping and arrays.
  * {StorageSlot}: Methods for accessing specific storage slots formatted as common primitive types.
@@ -84,6 +87,8 @@ Ethereum contracts have no native concept of an interface, so applications must 
 
 == Data Structures
 
+{{Accumulators}}
+
 {{BitMaps}}
 
 {{Checkpoints}}
@@ -105,6 +110,8 @@ Ethereum contracts have no native concept of an interface, so applications must 
 {{Address}}
 
 {{Arrays}}
+
+{{Base58}}
 
 {{Base64}}
 
@@ -137,6 +144,8 @@ Ethereum contracts have no native concept of an interface, so applications must 
 {{Panic}}
 
 {{RelayedCall}}
+
+{{RLP}}
 
 {{ShortStrings}}
 

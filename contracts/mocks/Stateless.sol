@@ -4,9 +4,11 @@ pragma solidity ^0.8.26;
 
 // We keep these imports and a dummy contract just to we can run the test suite after transpilation.
 
+import {Accumulators} from "../utils/structs/Accumulators.sol";
 import {Address} from "../utils/Address.sol";
 import {Arrays} from "../utils/Arrays.sol";
 import {AuthorityUtils} from "../access/manager/AuthorityUtils.sol";
+import {Base58} from "../utils/Base58.sol";
 import {Base64} from "../utils/Base64.sol";
 import {BitMaps} from "../utils/structs/BitMaps.sol";
 import {Blockhash} from "../utils/Blockhash.sol";
@@ -31,6 +33,7 @@ import {ERC4337Utils} from "../account/utils/draft-ERC4337Utils.sol";
 import {ERC7579Utils} from "../account/utils/draft-ERC7579Utils.sol";
 import {ERC7913P256Verifier} from "../utils/cryptography/verifiers/ERC7913P256Verifier.sol";
 import {ERC7913RSAVerifier} from "../utils/cryptography/verifiers/ERC7913RSAVerifier.sol";
+import {ERC7913WebAuthnVerifier} from "../utils/cryptography/verifiers/ERC7913WebAuthnVerifier.sol";
 import {FastLZ} from "../utils/compression/FastLZ.sol";
 import {Heap} from "../utils/structs/Heap.sol";
 import {InteroperableAddress} from "../utils/draft-InteroperableAddress.sol";
@@ -46,6 +49,7 @@ import {P256} from "../utils/cryptography/P256.sol";
 import {Packing} from "../utils/Packing.sol";
 import {Panic} from "../utils/Panic.sol";
 import {RelayedCall} from "../utils/RelayedCall.sol";
+import {RLP} from "../utils/RLP.sol";
 import {RSA} from "../utils/cryptography/RSA.sol";
 import {SafeCast} from "../utils/math/SafeCast.sol";
 import {SafeERC20} from "../token/ERC20/utils/SafeERC20.sol";

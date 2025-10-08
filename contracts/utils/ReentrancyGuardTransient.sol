@@ -11,6 +11,8 @@ import {TransientSlot} from "./TransientSlot.sol";
  * NOTE: This variant only works on networks where EIP-1153 is available.
  *
  * _Available since v5.1._
+ *
+ * @custom:stateless
  */
 abstract contract ReentrancyGuardTransient {
     using TransientSlot for *;

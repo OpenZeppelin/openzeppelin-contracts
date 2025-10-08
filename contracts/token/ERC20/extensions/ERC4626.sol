@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.4.0) (token/ERC20/extensions/ERC4626.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
 import {IERC20, IERC20Metadata, ERC20} from "../ERC20.sol";
 import {SafeERC20} from "../utils/SafeERC20.sol";
@@ -49,7 +49,7 @@ import {Math} from "../../../utils/math/Math.sol";
  *
  * [NOTE]
  * ====
- * When overriding this contract, some elements must to be considered:
+ * When overriding this contract, some elements must be considered:
  *
  * * When overriding the behavior of the deposit or withdraw mechanisms, it is recommended to override the internal
  * functions. Overriding {_deposit} automatically affects both {deposit} and {mint}. Similarly, overriding {_withdraw}

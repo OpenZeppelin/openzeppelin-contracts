@@ -91,6 +91,22 @@ function shouldBehaveLikeAccountERC7579({ withHooks = false } = {}) {
       });
     });
 
+    describe('isModuleInstalled', function () {
+      it('should not revert if calldata is empty or too short', async function () {
+        await expect(
+          this.mock.isModuleInstalled(MODULE_TYPE_FALLBACK, this.modules[MODULE_TYPE_FALLBACK], '0x'),
+        ).to.eventually.equal(false);
+
+        await expect(
+          this.mock.isModuleInstalled(MODULE_TYPE_FALLBACK, this.modules[MODULE_TYPE_FALLBACK], '0x123456'),
+        ).to.eventually.equal(false);
+
+        await expect(
+          this.mock.isModuleInstalled(MODULE_TYPE_FALLBACK, this.modules[MODULE_TYPE_FALLBACK], '0x12345678'),
+        ).to.eventually.equal(false);
+      });
+    });
+
     describe('module installation', function () {
       it('should revert if the caller is not the canonical entrypoint or the account itself', async function () {
         await expect(this.mock.connect(this.other).installModule(MODULE_TYPE_VALIDATOR, this.mock, '0x'))
@@ -150,6 +166,17 @@ function shouldBehaveLikeAccountERC7579({ withHooks = false } = {}) {
             .withArgs(...[moduleTypeId != MODULE_TYPE_HOOK && moduleTypeId, instance].filter(Boolean));
         });
       }
+
+      it('should revert when installing a fallback module with an initData that is not long enough to encode a function selector', async function () {
+        const instance = this.modules[MODULE_TYPE_FALLBACK];
+        await expect(
+          this.mockFromEntrypoint.installModule(MODULE_TYPE_FALLBACK, instance, '0x'),
+        ).to.be.revertedWithCustomError(this.mock, 'ERC7579CannotDecodeFallbackData');
+
+        await expect(
+          this.mockFromEntrypoint.installModule(MODULE_TYPE_FALLBACK, instance, '0x123456'),
+        ).to.be.revertedWithCustomError(this.mock, 'ERC7579CannotDecodeFallbackData');
+      });
 
       withHooks &&
         describe('with hook', function () {
@@ -223,6 +250,17 @@ function shouldBehaveLikeAccountERC7579({ withHooks = false } = {}) {
             .withArgs(moduleTypeId, instance);
         });
       }
+
+      it('should revert when uninstalling a fallback module with an initData that is not long enough to encode a function selector', async function () {
+        const instance = this.modules[MODULE_TYPE_FALLBACK];
+        await expect(
+          this.mockFromEntrypoint.uninstallModule(MODULE_TYPE_FALLBACK, instance, '0x'),
+        ).to.be.revertedWithCustomError(this.mock, 'ERC7579CannotDecodeFallbackData');
+
+        await expect(
+          this.mockFromEntrypoint.uninstallModule(MODULE_TYPE_FALLBACK, instance, '0x123456'),
+        ).to.be.revertedWithCustomError(this.mock, 'ERC7579CannotDecodeFallbackData');
+      });
 
       it('should revert uninstalling a module of type MODULE_TYPE_FALLBACK if a different module was installed for the provided selector', async function () {
         const instance = this.modules[MODULE_TYPE_FALLBACK];

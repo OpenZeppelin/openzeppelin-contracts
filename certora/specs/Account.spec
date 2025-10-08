@@ -205,7 +205,7 @@ invariant absentExecutorIsNotStored(address module, uint256 index)
 */
 // This guarantees that at most one fallback module is active for a given initData (i.e. selector)
 rule fallbackModule(address module, bytes initData) {
-    assert isModuleInstalled(FALLBACK_TYPE(), module, initData) <=> getFallbackHandler(getDataSelector(initData)) == module;
+    assert isModuleInstalled(FALLBACK_TYPE(), module, initData) <=> (initData.length >= 4 && getFallbackHandler(getDataSelector(initData)) == module);
 }
 
 rule moduleManagementRule(env e, method f, calldataarg args, uint256 moduleTypeId, address module, bytes additionalContext)
