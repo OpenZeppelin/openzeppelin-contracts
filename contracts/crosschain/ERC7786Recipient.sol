@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.5.0-rc.0) (crosschain/ERC7786Recipient.sol)
 
-pragma solidity ^0.8.27;
+pragma solidity ^0.8.20;
 
 import {IERC7786Recipient} from "../interfaces/draft-IERC7786.sol";
 import {BitMaps} from "../utils/structs/BitMaps.sol";
