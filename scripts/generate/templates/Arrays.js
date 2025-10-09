@@ -3,7 +3,7 @@ const { capitalize } = require('../../helpers');
 const { TYPES } = require('./Arrays.opts');
 
 const header = `\
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
 import {Comparators} from "./Comparators.sol";
 import {SlotDerivation} from "./SlotDerivation.sol";
@@ -359,6 +359,71 @@ function unsafeSetLength(${type.name}[] storage array, uint256 len) internal {
 }
 `;
 
+const slice = type => `\
+/**
+ * @dev Copies the content of \`array\`, from \`start\` (included) to the end of \`array\` into a new ${type.name} array in
+ * memory.
+ *
+ * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice[Javascript's \`Array.slice\`]
+ */
+function slice(${type.name}[] memory array, uint256 start) internal pure returns (${type.name}[] memory) {
+    return slice(array, start, array.length);
+}
+
+/**
+ * @dev Copies the content of \`array\`, from \`start\` (included) to \`end\` (excluded) into a new ${type.name} array in
+ * memory. The \`end\` argument is truncated to the length of the \`array\`.
+ *
+ * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice[Javascript's \`Array.slice\`]
+ */
+function slice(${type.name}[] memory array, uint256 start, uint256 end) internal pure returns (${type.name}[] memory) {
+    // sanitize
+    end = Math.min(end, array.length);
+    start = Math.min(start, end);
+
+    // allocate and copy
+    ${type.name}[] memory result = new ${type.name}[](end - start);
+    assembly ("memory-safe") {
+        mcopy(add(result, 0x20), add(add(array, 0x20), mul(start, 0x20)), mul(sub(end, start), 0x20))
+    }
+
+    return result;
+}
+`;
+
+const splice = type => `\
+/**
+ * @dev Moves the content of \`array\`, from \`start\` (included) to the end of \`array\` to the start of that array.
+ *
+ * NOTE: This function modifies the provided array in place. If you need to preserve the original array, use {slice} instead.
+ * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice[Javascript's \`Array.splice\`]
+ */
+function splice(${type.name}[] memory array, uint256 start) internal pure returns (${type.name}[] memory) {
+    return splice(array, start, array.length);
+}
+
+/**
+ * @dev Moves the content of \`array\`, from \`start\` (included) to \`end\` (excluded) to the start of that array. The
+ * \`end\` argument is truncated to the length of the \`array\`.
+ *
+ * NOTE: This function modifies the provided array in place. If you need to preserve the original array, use {slice} instead.
+ * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice[Javascript's \`Array.splice\`]
+ */
+function splice(${type.name}[] memory array, uint256 start, uint256 end) internal pure returns (${type.name}[] memory) {
+    // sanitize
+    end = Math.min(end, array.length);
+    start = Math.min(start, end);
+
+    // move and resize
+    assembly ("memory-safe") {
+        mcopy(add(array, 0x20), add(add(array, 0x20), mul(start, 0x20)), mul(sub(end, start), 0x20))
+        mstore(array, sub(end, start))
+    }
+
+    return array;
+}
+`;
+
 // GENERATE
 module.exports = format(
   header.trimEnd(),
@@ -376,6 +441,9 @@ module.exports = format(
       TYPES.filter(type => type.isValueType && type.name !== 'uint256').map(castComparator),
       // lookup
       search,
+      // slice and splice for value types only
+      TYPES.filter(type => type.isValueType).map(slice),
+      TYPES.filter(type => type.isValueType).map(splice),
       // unsafe (direct) storage and memory access
       TYPES.map(unsafeAccessStorage),
       TYPES.map(unsafeAccessMemory),
