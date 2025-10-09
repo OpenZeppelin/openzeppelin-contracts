@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.26;
 
 import {IERC7802} from "../../interfaces/draft-IERC7802.sol";
 import {BridgeERC20} from "./BridgeERC20.sol";

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.26;
 
 import {InteroperableAddress} from "../../utils/draft-InteroperableAddress.sol";
 import {ERC7786Recipient} from "../ERC7786Recipient.sol";
