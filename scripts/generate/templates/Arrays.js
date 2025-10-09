@@ -378,8 +378,7 @@ function slice(${type.name}[] memory array, uint256 start) internal pure returns
  */
 function slice(${type.name}[] memory array, uint256 start, uint256 end) internal pure returns (${type.name}[] memory) {
     // sanitize
-    uint256 length = array.length;
-    end = Math.min(end, length);
+    end = Math.min(end, array.length);
     start = Math.min(start, end);
 
     // allocate and copy
@@ -412,8 +411,7 @@ function splice(${type.name}[] memory array, uint256 start) internal pure return
  */
 function splice(${type.name}[] memory array, uint256 start, uint256 end) internal pure returns (${type.name}[] memory) {
     // sanitize
-    uint256 length = array.length;
-    end = Math.min(end, length);
+    end = Math.min(end, array.length);
     start = Math.min(start, end);
 
     // move and resize

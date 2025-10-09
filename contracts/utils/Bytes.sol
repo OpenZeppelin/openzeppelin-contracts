@@ -85,8 +85,7 @@ library Bytes {
      */
     function slice(bytes memory buffer, uint256 start, uint256 end) internal pure returns (bytes memory) {
         // sanitize
-        uint256 length = buffer.length;
-        end = Math.min(end, length);
+        end = Math.min(end, buffer.length);
         start = Math.min(start, end);
 
         // allocate and copy
@@ -117,8 +116,7 @@ library Bytes {
      */
     function splice(bytes memory buffer, uint256 start, uint256 end) internal pure returns (bytes memory) {
         // sanitize
-        uint256 length = buffer.length;
-        end = Math.min(end, length);
+        end = Math.min(end, buffer.length);
         start = Math.min(start, end);
 
         // allocate and copy

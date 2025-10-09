@@ -393,8 +393,7 @@ library Arrays {
      */
     function slice(address[] memory array, uint256 start, uint256 end) internal pure returns (address[] memory) {
         // sanitize
-        uint256 length = array.length;
-        end = Math.min(end, length);
+        end = Math.min(end, array.length);
         start = Math.min(start, end);
 
         // allocate and copy
@@ -424,8 +423,7 @@ library Arrays {
      */
     function slice(bytes32[] memory array, uint256 start, uint256 end) internal pure returns (bytes32[] memory) {
         // sanitize
-        uint256 length = array.length;
-        end = Math.min(end, length);
+        end = Math.min(end, array.length);
         start = Math.min(start, end);
 
         // allocate and copy
@@ -455,8 +453,7 @@ library Arrays {
      */
     function slice(uint256[] memory array, uint256 start, uint256 end) internal pure returns (uint256[] memory) {
         // sanitize
-        uint256 length = array.length;
-        end = Math.min(end, length);
+        end = Math.min(end, array.length);
         start = Math.min(start, end);
 
         // allocate and copy
@@ -487,8 +484,7 @@ library Arrays {
      */
     function splice(address[] memory array, uint256 start, uint256 end) internal pure returns (address[] memory) {
         // sanitize
-        uint256 length = array.length;
-        end = Math.min(end, length);
+        end = Math.min(end, array.length);
         start = Math.min(start, end);
 
         // move and resize
@@ -519,8 +515,7 @@ library Arrays {
      */
     function splice(bytes32[] memory array, uint256 start, uint256 end) internal pure returns (bytes32[] memory) {
         // sanitize
-        uint256 length = array.length;
-        end = Math.min(end, length);
+        end = Math.min(end, array.length);
         start = Math.min(start, end);
 
         // move and resize
@@ -551,8 +546,7 @@ library Arrays {
      */
     function splice(uint256[] memory array, uint256 start, uint256 end) internal pure returns (uint256[] memory) {
         // sanitize
-        uint256 length = array.length;
-        end = Math.min(end, length);
+        end = Math.min(end, array.length);
         start = Math.min(start, end);
 
         // move and resize
