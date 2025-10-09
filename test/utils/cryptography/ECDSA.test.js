@@ -240,6 +240,7 @@ describe('ECDSA', function () {
 
       const r = ethers.dataSlice(highSSignature, 0, 32);
       const s = ethers.dataSlice(highSSignature, 32, 64);
+      console.log(s);
       const v = ethers.dataSlice(highSSignature, 64, 65);
 
       await expect(this.mock.$recover(message, highSSignature))
@@ -253,7 +254,8 @@ describe('ECDSA', function () {
         .withArgs(s);
       // In ethers v6.15.0+, the library no longer throws 'non-canonical s' error for high-s signatures,
       // but the canonical check is still enforced. This assertion verifies s is in the lower half of the curve order.
-      expect(s[0] & 0x80).to.eq(0);
+      const sBytes = ethers.getBytes(s);
+      expect(sBytes[0] & 0x80).to.not.eq(0);
     });
   });
 
