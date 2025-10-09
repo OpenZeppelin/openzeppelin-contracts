@@ -1,6 +1,10 @@
 # Changelog
 
 
+## 5.5.0-rc.1 (2025-10-09)
+
+- `Arrays`: Add `slice` and `splice` functions for value types (`uint256[]`, `bytes32[]`, `address[]`). ([#5983](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5983))
+
 ## 5.5.0-rc.0 (2025-09-26)
 
 ### Bug fixes
