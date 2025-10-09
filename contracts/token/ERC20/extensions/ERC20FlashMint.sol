@@ -72,7 +72,7 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
      * @param value The amount of tokens to be loaned.
      * @return The fees applied to the corresponding flash loan.
      */
-    function _flashFee(address, uint256) internal view virtual returns (uint256) {
+    function _flashFee(address /*token*/, uint256 /*value*/) internal view virtual returns (uint256) {
         return 0;
     }
 
