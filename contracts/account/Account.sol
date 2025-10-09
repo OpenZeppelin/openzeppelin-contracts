@@ -75,7 +75,7 @@ abstract contract Account is AbstractSigner, IAccount {
         bytes32 userOpHash,
         uint256 missingAccountFunds
     ) public virtual onlyEntryPoint returns (uint256) {
-        uint256 validationData = _validateUserOp(userOp, userOpHash);
+        uint256 validationData = _validateUserOp(userOp, userOpHash, userOp.signature);
         _payPrefund(missingAccountFunds);
         return validationData;
     }
@@ -84,15 +84,21 @@ abstract contract Account is AbstractSigner, IAccount {
      * @dev Returns the validationData for a given user operation. By default, this checks the signature of the
      * signable hash (produced by {_signableUserOpHash}) using the abstract signer ({AbstractSigner-_rawSignatureValidation}).
      *
+     * The `signature` parameter is taken directly from the user operation's `signature` field.
+     * This design enables derived contracts to implement custom signature handling logic,
+     * such as embedding additional data within the signature and processing it by overriding this function
+     * and optionally invoking `super`.
+     *
      * NOTE: The userOpHash is assumed to be correct. Calling this function with a userOpHash that does not match the
      * userOp will result in undefined behavior.
      */
     function _validateUserOp(
         PackedUserOperation calldata userOp,
-        bytes32 userOpHash
+        bytes32 userOpHash,
+        bytes calldata signature
     ) internal virtual returns (uint256) {
         return
-            _rawSignatureValidation(_signableUserOpHash(userOp, userOpHash), userOp.signature)
+            _rawSignatureValidation(_signableUserOpHash(userOp, userOpHash), signature)
                 ? ERC4337Utils.SIG_VALIDATION_SUCCESS
                 : ERC4337Utils.SIG_VALIDATION_FAILED;
     }
