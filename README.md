@@ -15,8 +15,6 @@
 
 :mage: **Not sure how to get started?** Check out [Contracts Wizard](https://wizard.openzeppelin.com/) — an interactive smart contract generator.
 
-:building_construction: **Want to scale your decentralized application?** Check out [OpenZeppelin Defender](https://openzeppelin.com/defender) — a mission-critical developer security platform to code, audit, deploy, monitor, and operate with confidence.
-
 > [!IMPORTANT]
 > OpenZeppelin Contracts uses semantic versioning to communicate backwards compatibility of its API and storage layout. For upgradeable contracts, the storage layout of different major versions should be assumed incompatible, for example, it is unsafe to upgrade from 4.9.3 to 5.0.0. Learn more at [Backwards Compatibility](https://docs.openzeppelin.com/contracts/backwards-compatibility).
 
@@ -42,7 +40,7 @@ $ npm install @openzeppelin/contracts
 $ forge install OpenZeppelin/openzeppelin-contracts
 ```
 
-Add `@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/` in `remappings.txt.`
+Add `@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/` in `remappings.txt`.
 
 ### Usage
 
@@ -68,7 +66,7 @@ To keep your system secure, you should **always** use the installed code as-is, 
 The guides in the [documentation site](https://docs.openzeppelin.com/contracts) will teach about different concepts, and how to use the related contracts that OpenZeppelin Contracts provides:
 
 * [Access Control](https://docs.openzeppelin.com/contracts/access-control): decide who can perform each of the actions on your system.
-* [Tokens](https://docs.openzeppelin.com/contracts/tokens): create tradeable assets or collectives, and distribute them via [Crowdsales](https://docs.openzeppelin.com/contracts/crowdsales).
+* [Tokens](https://docs.openzeppelin.com/contracts/tokens): create tradeable assets or collectibles for popular ERC standards like ERC-20, ERC-721, ERC-1155, and ERC-6909.
 * [Utilities](https://docs.openzeppelin.com/contracts/utilities): generic useful tools including non-overflowing math, signature verification, and trustless paying systems.
 
 The [full API](https://docs.openzeppelin.com/contracts/api/token/ERC20) is also thoroughly documented, and serves as a great reference when developing your smart contract application. You can also ask for help or follow Contracts' development in the [community forum](https://forum.openzeppelin.com).

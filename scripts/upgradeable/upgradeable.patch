@@ -59,10 +59,10 @@ index ff596b0c3..000000000
 -<!-- Make sure that you have reviewed the OpenZeppelin Contracts Contributor Guidelines. -->
 -<!-- https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/CONTRIBUTING.md -->
 diff --git a/README.md b/README.md
-index 60d0a430a..0e4f91a6d 100644
+index 2f92281b3..a0e46695d 100644
 --- a/README.md
 +++ b/README.md
-@@ -19,6 +19,9 @@
+@@ -20,6 +20,9 @@
  > [!IMPORTANT]
  > OpenZeppelin Contracts uses semantic versioning to communicate backwards compatibility of its API and storage layout. For upgradeable contracts, the storage layout of different major versions should be assumed incompatible, for example, it is unsafe to upgrade from 4.9.3 to 5.0.0. Learn more at [Backwards Compatibility](https://docs.openzeppelin.com/contracts/backwards-compatibility).
  
@@ -72,7 +72,7 @@ index 60d0a430a..0e4f91a6d 100644
  ## Overview
  
  ### Installation
-@@ -26,7 +29,7 @@
+@@ -27,7 +30,7 @@
  #### Hardhat (npm)
  
  ```
@@ -81,7 +81,7 @@ index 60d0a430a..0e4f91a6d 100644
  ```
  
  #### Foundry (git)
-@@ -38,10 +41,10 @@ $ npm install @openzeppelin/contracts
+@@ -39,10 +42,10 @@ $ npm install @openzeppelin/contracts
  > Foundry installs the latest version initially, but subsequent `forge update` commands will use the `master` branch.
  
  ```
@@ -89,12 +89,12 @@ index 60d0a430a..0e4f91a6d 100644
 +$ forge install OpenZeppelin/openzeppelin-contracts-upgradeable
  ```
  
--Add `@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/` in `remappings.txt.`
-+Add `@openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/` in `remappings.txt.`
+-Add `@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/` in `remappings.txt`.
++Add `@openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/` in `remappings.txt`.
  
  ### Usage
  
-@@ -50,10 +53,11 @@ Once installed, you can use the contracts in the library by importing them:
+@@ -51,10 +54,11 @@ Once installed, you can use the contracts in the library by importing them:
  ```solidity
  pragma solidity ^0.8.20;
  
@@ -110,7 +110,7 @@ index 60d0a430a..0e4f91a6d 100644
  }
  ```
 diff --git a/contracts/package.json b/contracts/package.json
-index 70ae73bc2..ef659873f 100644
+index 8ccb9465e..509cd7f05 100644
 --- a/contracts/package.json
 +++ b/contracts/package.json
 @@ -1,5 +1,5 @@
@@ -118,7 +118,7 @@ index 70ae73bc2..ef659873f 100644
 -  "name": "@openzeppelin/contracts",
 +  "name": "@openzeppelin/contracts-upgradeable",
    "description": "Secure Smart Contract library for Solidity",
-   "version": "5.3.0",
+   "version": "5.4.0",
    "files": [
 @@ -13,7 +13,7 @@
    },
@@ -139,12 +139,39 @@ index 70ae73bc2..ef659873f 100644
 +    "@openzeppelin/contracts": "<package-version>"
 +  }
  }
+diff --git a/contracts/utils/ReentrancyGuard.sol b/contracts/utils/ReentrancyGuard.sol
+index 6e44894dc..7b076aaa7 100644
+--- a/contracts/utils/ReentrancyGuard.sol
++++ b/contracts/utils/ReentrancyGuard.sol
+@@ -36,6 +36,11 @@ abstract contract ReentrancyGuard {
+     bytes32 private constant REENTRANCY_GUARD_STORAGE =
+         0x9b779b17422d0df92223018b32b4d1fa46e071723d6817e2486d003becc55f00;
+ 
++    /// @custom:storage-location erc7201:openzeppelin.storage.ReentrancyGuard
++    struct ReentrancyGuardStorage {
++        uint256 _status;
++    }
++
+     // Booleans are more expensive than uint256 or any type that takes up a full
+     // word because each write operation emits an extra SLOAD to first read the
+     // slot's contents, replace the bits taken up by the boolean, and then write
+@@ -55,10 +60,6 @@ abstract contract ReentrancyGuard {
+      */
+     error ReentrancyGuardReentrantCall();
+ 
+-    constructor() {
+-        _reentrancyGuardStorageSlot().getUint256Slot().value = NOT_ENTERED;
+-    }
+-
+     /**
+      * @dev Prevents a contract from calling itself, directly or indirectly.
+      * Calling a `nonReentrant` function from another `nonReentrant`
 diff --git a/contracts/utils/cryptography/EIP712.sol b/contracts/utils/cryptography/EIP712.sol
-index c39954e35..fe681f87a 100644
+index 0eaef9d27..01f1b5f58 100644
 --- a/contracts/utils/cryptography/EIP712.sol
 +++ b/contracts/utils/cryptography/EIP712.sol
 @@ -4,7 +4,6 @@
- pragma solidity ^0.8.20;
+ pragma solidity ^0.8.24;
  
  import {MessageHashUtils} from "./MessageHashUtils.sol";
 -import {ShortStrings, ShortString} from "../ShortStrings.sol";
@@ -314,10 +341,10 @@ index c39954e35..fe681f87a 100644
      }
  }
 diff --git a/package.json b/package.json
-index eeeaf0bcd..65581c544 100644
+index f6960972a..369e2e1e6 100644
 --- a/package.json
 +++ b/package.json
-@@ -34,7 +34,7 @@
+@@ -35,7 +35,7 @@
    },
    "repository": {
      "type": "git",
@@ -335,7 +362,7 @@ index 304d1386a..a1cd63bee 100644
 +@openzeppelin/contracts-upgradeable/=contracts/
 +@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
 diff --git a/test/account/AccountERC7702.test.js b/test/account/AccountERC7702.test.js
-index d08a52209..7a44bccfe 100644
+index f442d49af..8f22dc926 100644
 --- a/test/account/AccountERC7702.test.js
 +++ b/test/account/AccountERC7702.test.js
 @@ -26,8 +26,8 @@ async function fixture() {
@@ -350,7 +377,7 @@ index d08a52209..7a44bccfe 100644
      verifyingContract: mock.address,
    };
 diff --git a/test/account/examples/AccountERC7702WithModulesMock.test.js b/test/account/examples/AccountERC7702WithModulesMock.test.js
-index 9ee5f9177..f6106bcc7 100644
+index 8ceab19d1..c3f4194a6 100644
 --- a/test/account/examples/AccountERC7702WithModulesMock.test.js
 +++ b/test/account/examples/AccountERC7702WithModulesMock.test.js
 @@ -36,8 +36,8 @@ async function fixture() {

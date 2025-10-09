@@ -217,8 +217,8 @@ library Checkpoints {
         uint256 pos
     ) private pure returns (Checkpoint256 storage result) {
         assembly {
-            mstore(0, self.slot)
-            result.slot := add(keccak256(0, 0x20), mul(pos, 2))
+            mstore(0x00, self.slot)
+            result.slot := add(keccak256(0x00, 0x20), mul(pos, 2))
         }
     }
 
@@ -420,8 +420,8 @@ library Checkpoints {
         uint256 pos
     ) private pure returns (Checkpoint224 storage result) {
         assembly {
-            mstore(0, self.slot)
-            result.slot := add(keccak256(0, 0x20), pos)
+            mstore(0x00, self.slot)
+            result.slot := add(keccak256(0x00, 0x20), pos)
         }
     }
 
@@ -623,8 +623,8 @@ library Checkpoints {
         uint256 pos
     ) private pure returns (Checkpoint208 storage result) {
         assembly {
-            mstore(0, self.slot)
-            result.slot := add(keccak256(0, 0x20), pos)
+            mstore(0x00, self.slot)
+            result.slot := add(keccak256(0x00, 0x20), pos)
         }
     }
 
@@ -826,8 +826,8 @@ library Checkpoints {
         uint256 pos
     ) private pure returns (Checkpoint160 storage result) {
         assembly {
-            mstore(0, self.slot)
-            result.slot := add(keccak256(0, 0x20), pos)
+            mstore(0x00, self.slot)
+            result.slot := add(keccak256(0x00, 0x20), pos)
         }
     }
 }

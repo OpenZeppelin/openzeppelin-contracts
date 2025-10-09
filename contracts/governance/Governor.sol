@@ -653,13 +653,13 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
      * in a governance proposal to recover tokens or Ether that was sent to the governor contract by mistake.
      * Note that if the executor is simply the governor itself, use of `relay` is redundant.
      */
-    function relay(address target, uint256 value, bytes calldata data) external payable virtual onlyGovernance {
+    function relay(address target, uint256 value, bytes calldata data) public payable virtual onlyGovernance {
         (bool success, bytes memory returndata) = target.call{value: value}(data);
         Address.verifyCallResult(success, returndata);
     }
 
     /**
-     * @dev Address through which the governor executes action. Will be overloaded by module that execute actions
+     * @dev Address through which the governor executes action. Will be overloaded by module that executes actions
      * through another contract such as a timelock.
      */
     function _executor() internal view virtual returns (address) {
