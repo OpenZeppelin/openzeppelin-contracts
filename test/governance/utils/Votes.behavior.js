@@ -9,13 +9,34 @@ const { shouldBehaveLikeERC6372 } = require('./ERC6372.behavior');
 
 function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }) {
   beforeEach(async function () {
-    [this.delegator, this.delegatee, this.alice, this.bob, this.other] = this.accounts;
+    [
+      this.delegator, 
+      this.delegatee, 
+      this.alice, 
+      this.bob, 
+      this.other,
+      this.charlie, 
+      this.dave
+    ] = this.accounts;
     this.domain = await getDomain(this.votes);
+    
+    // Mock metadata registry for NFT weight calculation
+    if (!fungible) {
+      this.metadata = {};
+      tokens.forEach(tokenId => {
+        this.metadata[tokenId] = { 
+          weight: (tokenId % 10n) + 1n, // Example: weight based on token ID
+          rarity: ['common', 'uncommon', 'rare', 'legendary'][Number(tokenId % 4n)] // Example metadata
+        };
+      });
+      
+      this.getNFTWeight = (tokenId) => this.metadata[tokenId]?.weight || 1n;
+    }
   });
 
   shouldBehaveLikeERC6372(mode);
 
-  const getWeight = token => (fungible ? token : 1n);
+  const getWeight = token => (fungible ? token : (this.getNFTWeight ? this.getNFTWeight(token) : 1n));
 
   describe('run votes workflow', function () {
     it('initial nonce is 0', async function () {
@@ -211,6 +232,74 @@ function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }
       });
     });
 
+    // Add NFT-specific tests
+    if (!fungible) {
+      describe('NFT-specific voting behavior', function () {
+        it('uses dynamic NFT weights based on metadata', async function () {
+          const token = tokens[0];
+          const weight = getWeight(token);
+          
+          await this.votes.$_mint(this.alice, token);
+          await this.votes.connect(this.alice).delegate(this.bob);
+          
+          expect(await this.votes.getVotes(this.bob)).to.equal(weight);
+        });
+
+        it('handles metadata changes affecting vote weight', async function () {
+          const token = tokens[0];
+          await this.votes.$_mint(this.alice, token);
+          await this.votes.connect(this.alice).delegate(this.bob);
+          
+          const initialWeight = getWeight(token);
+          expect(await this.votes.getVotes(this.bob)).to.equal(initialWeight);
+          
+          // Update metadata
+          this.metadata[token] = { ...this.metadata[token], weight: initialWeight * 2n };
+          const newWeight = getWeight(token);
+          
+          // Weight change should be reflected
+          expect(await this.votes.getVotes(this.bob)).to.equal(newWeight);
+        });
+
+        it('maintains delegation after metadata update', async function () {
+          const token = tokens[0];
+          await this.votes.$_mint(this.alice, token);
+          await this.votes.connect(this.alice).delegate(this.bob);
+          
+          // Update metadata
+          const originalWeight = getWeight(token);
+          this.metadata[token].weight = originalWeight * 3n;
+          
+          // Delegation should persist
+          expect(await this.votes.delegates(this.alice)).to.equal(this.bob);
+          expect(await this.votes.getVotes(this.bob)).to.equal(getWeight(token));
+        });
+      });
+    }
+
+    // Add batch operations test
+    it('handles batch minting and delegation', async function () {
+      const batchSize = 10;
+      const batchTokens = Array.from({ length: batchSize }, (_, i) => 
+        fungible ? 1000n * BigInt(i + 1) : tokens[0] + BigInt(i)
+      );
+      
+      // Mint batch
+      for (const token of batchTokens) {
+        await this.votes.$_mint(this.alice, token);
+      }
+      
+      // Calculate total weight
+      const totalWeight = batchTokens.reduce(
+        (sum, token) => sum + getWeight(token), 
+        0n
+      );
+      
+      // Delegate and verify
+      await this.votes.connect(this.alice).delegate(this.bob);
+      expect(await this.votes.getVotes(this.bob)).to.equal(totalWeight);
+    });
+
     describe('getPastTotalSupply', function () {
       beforeEach(async function () {
         await this.votes.connect(this.alice).delegate(this.alice);
@@ -273,6 +362,64 @@ function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }
           .to.be.revertedWithCustomError(this.votes, 'ERC5805FutureLookup')
           .withArgs(t5.timepoint + 1n, t5.timepoint + 1n);
       });
+    });
+
+    // New section for transfer tests
+    describe('transfer behavior', function () {
+      const token = tokens[0];
+      
+      it('updates delegation when token is transferred', async function () {
+        const weight = getWeight(token);
+        
+        // Setup initial state
+        await this.votes.$_mint(this.alice, token);
+        await this.votes.connect(this.alice).delegate(this.bob);
+        expect(await this.votes.getVotes(this.bob)).to.equal(weight);
+        
+        // Transfer token
+        await this.votes.$_transfer(this.alice, this.charlie, token);
+        
+        // Verify delegation updates
+        expect(await this.votes.getVotes(this.bob)).to.equal(0n);
+        expect(await this.votes.getVotes(this.alice)).to.equal(0n);
+        
+        // New owner delegates
+        await this.votes.connect(this.charlie).delegate(this.dave);
+        expect(await this.votes.getVotes(this.dave)).to.equal(weight);
+      });
+      
+      it('clears delegation when transferred to non-delegated account', async function () {
+        const weight = getWeight(token);
+        
+        // Setup initial state
+        await this.votes.$_mint(this.alice, token);
+        await this.votes.connect(this.alice).delegate(this.bob);
+        
+        // Transfer to non-delegated account
+        await this.votes.$_transfer(this.alice, this.charlie, token);
+        
+        // Verify votes are cleared
+        expect(await this.votes.getVotes(this.bob)).to.equal(0n);
+        expect(await this.votes.getVotes(this.charlie)).to.equal(0n);
+      });
+
+      if (!fungible) {
+        it('handles NFT transfer with metadata changes', async function () {
+          const token = tokens[0];
+          await this.votes.$_mint(this.alice, token);
+          await this.votes.connect(this.alice).delegate(this.bob);
+          
+          const initialWeight = getWeight(token);
+          
+          // Transfer and update metadata
+          await this.votes.$_transfer(this.alice, this.charlie, token);
+          this.metadata[token].weight = initialWeight * 2n;
+          
+          // New owner delegates
+          await this.votes.connect(this.charlie).delegate(this.dave);
+          expect(await this.votes.getVotes(this.dave)).to.equal(getWeight(token));
+        });
+      }
     });
 
     // The following tests are an adaptation of
