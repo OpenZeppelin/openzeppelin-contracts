@@ -6,8 +6,8 @@ const fs = require('fs');
 const path = require('path');
 const match = require('micromatch');
 
-function readJSON(path) {
-  return JSON.parse(fs.readFileSync(path));
+unction readJSON(filePath) {
+  return JSON.parse(fs.readFileSync(filePath));
 }
 
 const pkgFiles = readJSON('package.json').files;
