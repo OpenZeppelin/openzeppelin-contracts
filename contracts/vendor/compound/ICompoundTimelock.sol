@@ -38,13 +38,13 @@ interface ICompoundTimelock {
     receive() external payable;
 
     // solhint-disable-next-line func-name-mixedcase
-    function GRACE_PERIOD() external view returns (uint256);
+    function GRACE_PERIOD() external view returns (uint256); // slippy-disable-line naming-convention
 
     // solhint-disable-next-line func-name-mixedcase
-    function MINIMUM_DELAY() external view returns (uint256);
+    function MINIMUM_DELAY() external view returns (uint256); // slippy-disable-line naming-convention
 
     // solhint-disable-next-line func-name-mixedcase
-    function MAXIMUM_DELAY() external view returns (uint256);
+    function MAXIMUM_DELAY() external view returns (uint256); // slippy-disable-line naming-convention
 
     function admin() external view returns (address);
 

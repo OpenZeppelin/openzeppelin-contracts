@@ -792,7 +792,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
 
     /// @inheritdoc IERC6372
     // solhint-disable-next-line func-name-mixedcase
-    function CLOCK_MODE() public view virtual returns (string memory);
+    function CLOCK_MODE() public view virtual returns (string memory); // slippy-disable-line naming-convention
 
     /// @inheritdoc IGovernor
     function votingDelay() public view virtual returns (uint256);
