@@ -39,9 +39,9 @@ for (const artifact of artifacts) {
       .forEach(y => {
         console.log(`Conflict between ${names[x]} and ${names[y]} detected in the following dependency chains:`);
         linearized
-          .filter(chain => chain.includes(parseInt(x)) && chain.includes(parseInt(y)))
+          .filter(chain => chain.includes(parseInt(x, 10)) && chain.includes(parseInt(y, 10)))
           .forEach(chain => {
-            const comp = chain.indexOf(parseInt(x)) < chain.indexOf(parseInt(y)) ? '>' : '<';
+            const comp = chain.indexOf(parseInt(x, 10)) < chain.indexOf(parseInt(y, 10)) ? '>' : '<';
             console.log(`- ${names[x]} ${comp} ${names[y]} in ${names[chain.find(Boolean)]}`);
             // console.log(`- ${names[x]} ${comp} ${names[y]}: ${chain.reverse().map(id => names[id]).join(', ')}`);
           });
