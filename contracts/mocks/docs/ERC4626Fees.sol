@@ -57,7 +57,7 @@ abstract contract ERC4626Fees is ERC4626 {
         }
     }
 
-    /// @dev Send exit fee to {_exitFeeRecipient}. See {IERC4626-_deposit}.
+    /// @dev Send exit fee to {_exitFeeRecipient}. See {IERC4626-_withdraw}.
     function _withdraw(
         address caller,
         address receiver,
