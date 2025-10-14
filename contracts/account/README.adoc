@@ -8,7 +8,6 @@ This directory includes contracts to build accounts for ERC-4337. These include:
  * {AccountERC7579}: An extension of `Account` that implements support for ERC-7579 modules.
  * {AccountERC7579Hooked}: An extension of `AccountERC7579` with support for a single hook module (type 4).
  * {ERC7579Validator}: Abstract validator module for ERC-7579 accounts that provides base implementation for signature validation.
- * {ERC7579Signature}: Implementation of {ERC7579Validator} using ERC-7913 signature verification for address-less cryptographic keys and account signatures.
  * {ERC7821}: Minimal batch executor implementation contracts. Useful to enable easy batch execution for smart contracts.
  * {ERC4337Utils}: Utility functions for working with ERC-4337 user operations.
  * {ERC7579Utils}: Utility functions for working with ERC-7579 modules and account modularity.
@@ -28,8 +27,6 @@ This directory includes contracts to build accounts for ERC-4337. These include:
 === Validators
 
 {{ERC7579Validator}}
-
-{{ERC7579Signature}}
 
 == Utilities
 
