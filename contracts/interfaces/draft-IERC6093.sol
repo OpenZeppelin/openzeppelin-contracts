@@ -141,7 +141,8 @@ interface IERC1155Errors {
     error ERC1155MissingApprovalForAll(address operator, address owner);
 
     /**
-     * @dev Indicates a failure with the `approver` of a token to be approved. Used in approvals.
+     * @dev Non-standard for ERC-1155. ERC-1155 only defines operator-wide approvals via {setApprovalForAll}.
+     * @deprecated Non-standard for ERC-1155; use {ERC1155InvalidOperator} or {ERC1155MissingApprovalForAll} instead.
      * @param approver Address initiating an approval operation.
      */
     error ERC1155InvalidApprover(address approver);
