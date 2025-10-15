@@ -422,6 +422,40 @@ function splice(${type.name}[] memory array, uint256 start, uint256 end) interna
 
     return array;
 }
+
+/**
+ * @dev Replaces the content of \`array\` with the content of \`replacement\`. The replacement is truncated to fit within the bounds of the array.
+ *
+ * NOTE: This function modifies the provided array in place. If you need to preserve the original array, use {slice} instead
+ * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice[Javascript's \`Array.splice\`]
+ */
+function splice(${type.name}[] memory array, ${type.name}[] memory replacement) internal pure returns (${type.name}[] memory) {
+    return splice(array, 0, replacement);
+}
+
+/**
+ * @dev Replaces the content of \`array\` starting at position \`start\` with the content of \`replacement\`. The
+ * replacement is truncated to fit within the bounds of the array.
+ *
+ * NOTE: This function modifies the provided array in place. If you need to preserve the original array, use {slice} instead
+ * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice[Javascript's \`Array.splice\`]
+ */
+function splice(
+    ${type.name}[] memory array,
+    uint256 start,
+    ${type.name}[] memory replacement
+) internal pure returns (${type.name}[] memory) {
+    // sanitize
+    start = Math.min(start, array.length);
+    uint256 copyLength = Math.min(replacement.length, array.length - start);
+
+    // allocate and copy
+    assembly ("memory-safe") {
+        mcopy(add(add(array, 0x20), mul(start, 0x20)), add(replacement, 0x20), mul(copyLength, 0x20))
+    }
+
+    return array;
+}
 `;
 
 // GENERATE

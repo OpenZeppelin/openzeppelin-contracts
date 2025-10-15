@@ -182,6 +182,189 @@ contract ArraysTest is Test, SymTest {
         _assertSliceOf(result, originalValues, sanitizedStart, expectedLength);
     }
 
+    function testSpliceAddressWithReplacementFromStart(
+        address[] memory values,
+        address[] memory replacement
+    ) public pure {
+        address[] memory originalValues = _copyArray(values);
+        address[] memory result = Arrays.splice(values, replacement);
+
+        // Result should be the same object as input (modified in place)
+        assertEq(result, values);
+
+        // Array length should remain unchanged
+        assertEq(result.length, originalValues.length);
+
+        // Calculate copy length (replacement is applied from start=0)
+        uint256 copyLength = Math.min(replacement.length, originalValues.length);
+
+        // Verify replacement content was copied correctly from start
+        for (uint256 i = 0; i < copyLength; ++i) {
+            assertEq(result[i], replacement[i]);
+        }
+
+        // Verify content after replacement is unchanged
+        for (uint256 i = copyLength; i < result.length; ++i) {
+            assertEq(result[i], originalValues[i]);
+        }
+    }
+
+    function testSpliceAddressWithReplacement(
+        address[] memory values,
+        uint256 start,
+        address[] memory replacement
+    ) public pure {
+        address[] memory originalValues = _copyArray(values);
+        address[] memory result = Arrays.splice(values, start, replacement);
+
+        // Result should be the same object as input (modified in place)
+        assertEq(result, values);
+
+        // Array length should remain unchanged
+        assertEq(result.length, originalValues.length);
+
+        // Calculate expected bounds after sanitization
+        uint256 sanitizedStart = Math.min(start, originalValues.length);
+        uint256 copyLength = Math.min(replacement.length, originalValues.length - sanitizedStart);
+
+        // Verify content before start position is unchanged
+        for (uint256 i = 0; i < sanitizedStart; ++i) {
+            assertEq(result[i], originalValues[i]);
+        }
+
+        // Verify replacement content was copied correctly
+        for (uint256 i = 0; i < copyLength; ++i) {
+            assertEq(result[sanitizedStart + i], replacement[i]);
+        }
+
+        // Verify content after replacement is unchanged
+        for (uint256 i = sanitizedStart + copyLength; i < result.length; ++i) {
+            assertEq(result[i], originalValues[i]);
+        }
+    }
+
+    function testSpliceBytes32WithReplacementFromStart(
+        bytes32[] memory values,
+        bytes32[] memory replacement
+    ) public pure {
+        bytes32[] memory originalValues = _copyArray(values);
+        bytes32[] memory result = Arrays.splice(values, replacement);
+
+        // Result should be the same object as input (modified in place)
+        assertEq(result, values);
+
+        // Array length should remain unchanged
+        assertEq(result.length, originalValues.length);
+
+        // Calculate copy length (replacement is applied from start=0)
+        uint256 copyLength = Math.min(replacement.length, originalValues.length);
+
+        // Verify replacement content was copied correctly from start
+        for (uint256 i = 0; i < copyLength; ++i) {
+            assertEq(result[i], replacement[i]);
+        }
+
+        // Verify content after replacement is unchanged
+        for (uint256 i = copyLength; i < result.length; ++i) {
+            assertEq(result[i], originalValues[i]);
+        }
+    }
+
+    function testSpliceBytes32WithReplacement(
+        bytes32[] memory values,
+        uint256 start,
+        bytes32[] memory replacement
+    ) public pure {
+        bytes32[] memory originalValues = _copyArray(values);
+        bytes32[] memory result = Arrays.splice(values, start, replacement);
+
+        // Result should be the same object as input (modified in place)
+        assertEq(result, values);
+
+        // Array length should remain unchanged
+        assertEq(result.length, originalValues.length);
+
+        // Calculate expected bounds after sanitization
+        uint256 sanitizedStart = Math.min(start, originalValues.length);
+        uint256 copyLength = Math.min(replacement.length, originalValues.length - sanitizedStart);
+
+        // Verify content before start position is unchanged
+        for (uint256 i = 0; i < sanitizedStart; ++i) {
+            assertEq(result[i], originalValues[i]);
+        }
+
+        // Verify replacement content was copied correctly
+        for (uint256 i = 0; i < copyLength; ++i) {
+            assertEq(result[sanitizedStart + i], replacement[i]);
+        }
+
+        // Verify content after replacement is unchanged
+        for (uint256 i = sanitizedStart + copyLength; i < result.length; ++i) {
+            assertEq(result[i], originalValues[i]);
+        }
+    }
+
+    function testSpliceUint256WithReplacementFromStart(
+        uint256[] memory values,
+        uint256[] memory replacement
+    ) public pure {
+        uint256[] memory originalValues = _copyArray(values);
+        uint256[] memory result = Arrays.splice(values, replacement);
+
+        // Result should be the same object as input (modified in place)
+        assertEq(result, values);
+
+        // Array length should remain unchanged
+        assertEq(result.length, originalValues.length);
+
+        // Calculate copy length (replacement is applied from start=0)
+        uint256 copyLength = Math.min(replacement.length, originalValues.length);
+
+        // Verify replacement content was copied correctly from start
+        for (uint256 i = 0; i < copyLength; ++i) {
+            assertEq(result[i], replacement[i]);
+        }
+
+        // Verify content after replacement is unchanged
+        for (uint256 i = copyLength; i < result.length; ++i) {
+            assertEq(result[i], originalValues[i]);
+        }
+    }
+
+    function testSpliceUint256WithReplacement(
+        uint256[] memory values,
+        uint256 start,
+        uint256[] memory replacement
+    ) public pure {
+        uint256[] memory originalValues = _copyArray(values);
+        uint256[] memory result = Arrays.splice(values, start, replacement);
+
+        // Result should be the same object as input (modified in place)
+        assertEq(result, values);
+
+        // Array length should remain unchanged
+        assertEq(result.length, originalValues.length);
+
+        // Calculate expected bounds after sanitization
+        uint256 sanitizedStart = Math.min(start, originalValues.length);
+        uint256 copyLength = Math.min(replacement.length, originalValues.length - sanitizedStart);
+
+        // Verify content before start position is unchanged
+        for (uint256 i = 0; i < sanitizedStart; ++i) {
+            assertEq(result[i], originalValues[i]);
+        }
+
+        // Verify replacement content was copied correctly
+        for (uint256 i = 0; i < copyLength; ++i) {
+            assertEq(result[sanitizedStart + i], replacement[i]);
+        }
+
+        // Verify content after replacement is unchanged
+        for (uint256 i = sanitizedStart + copyLength; i < result.length; ++i) {
+            assertEq(result[i], originalValues[i]);
+        }
+    }
+
     /// Asserts
 
     function _assertSort(uint256[] memory values) internal pure {

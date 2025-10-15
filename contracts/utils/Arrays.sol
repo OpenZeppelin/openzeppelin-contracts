@@ -497,6 +497,40 @@ library Arrays {
     }
 
     /**
+     * @dev Replaces the content of `array` with the content of `replacement`. The replacement is truncated to fit within the bounds of the array.
+     *
+     * NOTE: This function modifies the provided array in place. If you need to preserve the original array, use {slice} instead
+     * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice[Javascript's `Array.splice`]
+     */
+    function splice(address[] memory array, address[] memory replacement) internal pure returns (address[] memory) {
+        return splice(array, 0, replacement);
+    }
+
+    /**
+     * @dev Replaces the content of `array` starting at position `start` with the content of `replacement`. The
+     * replacement is truncated to fit within the bounds of the array.
+     *
+     * NOTE: This function modifies the provided array in place. If you need to preserve the original array, use {slice} instead
+     * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice[Javascript's `Array.splice`]
+     */
+    function splice(
+        address[] memory array,
+        uint256 start,
+        address[] memory replacement
+    ) internal pure returns (address[] memory) {
+        // sanitize
+        start = Math.min(start, array.length);
+        uint256 copyLength = Math.min(replacement.length, array.length - start);
+
+        // allocate and copy
+        assembly ("memory-safe") {
+            mcopy(add(add(array, 0x20), mul(start, 0x20)), add(replacement, 0x20), mul(copyLength, 0x20))
+        }
+
+        return array;
+    }
+
+    /**
      * @dev Moves the content of `array`, from `start` (included) to the end of `array` to the start of that array.
      *
      * NOTE: This function modifies the provided array in place. If you need to preserve the original array, use {slice} instead.
@@ -528,6 +562,40 @@ library Arrays {
     }
 
     /**
+     * @dev Replaces the content of `array` with the content of `replacement`. The replacement is truncated to fit within the bounds of the array.
+     *
+     * NOTE: This function modifies the provided array in place. If you need to preserve the original array, use {slice} instead
+     * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice[Javascript's `Array.splice`]
+     */
+    function splice(bytes32[] memory array, bytes32[] memory replacement) internal pure returns (bytes32[] memory) {
+        return splice(array, 0, replacement);
+    }
+
+    /**
+     * @dev Replaces the content of `array` starting at position `start` with the content of `replacement`. The
+     * replacement is truncated to fit within the bounds of the array.
+     *
+     * NOTE: This function modifies the provided array in place. If you need to preserve the original array, use {slice} instead
+     * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice[Javascript's `Array.splice`]
+     */
+    function splice(
+        bytes32[] memory array,
+        uint256 start,
+        bytes32[] memory replacement
+    ) internal pure returns (bytes32[] memory) {
+        // sanitize
+        start = Math.min(start, array.length);
+        uint256 copyLength = Math.min(replacement.length, array.length - start);
+
+        // allocate and copy
+        assembly ("memory-safe") {
+            mcopy(add(add(array, 0x20), mul(start, 0x20)), add(replacement, 0x20), mul(copyLength, 0x20))
+        }
+
+        return array;
+    }
+
+    /**
      * @dev Moves the content of `array`, from `start` (included) to the end of `array` to the start of that array.
      *
      * NOTE: This function modifies the provided array in place. If you need to preserve the original array, use {slice} instead.
@@ -553,6 +621,40 @@ library Arrays {
         assembly ("memory-safe") {
             mcopy(add(array, 0x20), add(add(array, 0x20), mul(start, 0x20)), mul(sub(end, start), 0x20))
             mstore(array, sub(end, start))
+        }
+
+        return array;
+    }
+
+    /**
+     * @dev Replaces the content of `array` with the content of `replacement`. The replacement is truncated to fit within the bounds of the array.
+     *
+     * NOTE: This function modifies the provided array in place. If you need to preserve the original array, use {slice} instead
+     * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice[Javascript's `Array.splice`]
+     */
+    function splice(uint256[] memory array, uint256[] memory replacement) internal pure returns (uint256[] memory) {
+        return splice(array, 0, replacement);
+    }
+
+    /**
+     * @dev Replaces the content of `array` starting at position `start` with the content of `replacement`. The
+     * replacement is truncated to fit within the bounds of the array.
+     *
+     * NOTE: This function modifies the provided array in place. If you need to preserve the original array, use {slice} instead
+     * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice[Javascript's `Array.splice`]
+     */
+    function splice(
+        uint256[] memory array,
+        uint256 start,
+        uint256[] memory replacement
+    ) internal pure returns (uint256[] memory) {
+        // sanitize
+        start = Math.min(start, array.length);
+        uint256 copyLength = Math.min(replacement.length, array.length - start);
+
+        // allocate and copy
+        assembly ("memory-safe") {
+            mcopy(add(add(array, 0x20), mul(start, 0x20)), add(replacement, 0x20), mul(copyLength, 0x20))
         }
 
         return array;

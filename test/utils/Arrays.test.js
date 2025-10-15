@@ -232,6 +232,162 @@ describe('Arrays', function () {
             });
           });
         }
+
+        describe('splice with replacement from start', function () {
+          const array = Array.from({ length: 10 }, generators[name]);
+          const replacement = Array.from({ length: 3 }, generators[name]);
+          const replacementFromStartFragment = `$splice(${name}[] arr, ${name}[] replacement)`;
+
+          it('replace from start', async function () {
+            const expected = [...array];
+            const copyLength = Math.min(replacement.length, array.length);
+            for (let i = 0; i < copyLength; i++) {
+              expected[i] = replacement[i];
+            }
+            await expect(this.mock[replacementFromStartFragment](array, replacement)).to.eventually.deep.equal(
+              expected,
+            );
+          });
+
+          it('replacement longer than array', async function () {
+            const longReplacement = Array.from({ length: 15 }, generators[name]);
+            const expected = [...array];
+            const copyLength = Math.min(longReplacement.length, array.length);
+            for (let i = 0; i < copyLength; i++) {
+              expected[i] = longReplacement[i];
+            }
+            await expect(this.mock[replacementFromStartFragment](array, longReplacement)).to.eventually.deep.equal(
+              expected,
+            );
+          });
+
+          it('replacement shorter than array', async function () {
+            const shortReplacement = Array.from({ length: 3 }, generators[name]);
+            const expected = [...array];
+            for (let i = 0; i < shortReplacement.length; i++) {
+              expected[i] = shortReplacement[i];
+            }
+            await expect(this.mock[replacementFromStartFragment](array, shortReplacement)).to.eventually.deep.equal(
+              expected,
+            );
+          });
+
+          it('empty replacement', async function () {
+            const emptyReplacement = [];
+            await expect(this.mock[replacementFromStartFragment](array, emptyReplacement)).to.eventually.deep.equal(
+              array,
+            );
+          });
+
+          it('replace entire array with same size', async function () {
+            const sameSize = Array.from({ length: array.length }, generators[name]);
+            const expected = [...sameSize];
+            await expect(this.mock[replacementFromStartFragment](array, sameSize)).to.eventually.deep.equal(expected);
+          });
+
+          it('single element replacement', async function () {
+            const singleReplacement = [generators[name]()];
+            const expected = [...array];
+            expected[0] = singleReplacement[0];
+            await expect(this.mock[replacementFromStartFragment](array, singleReplacement)).to.eventually.deep.equal(
+              expected,
+            );
+          });
+
+          it('empty array', async function () {
+            const emptyArray = [];
+            const replacement = Array.from({ length: 3 }, generators[name]);
+            await expect(this.mock[replacementFromStartFragment](emptyArray, replacement)).to.eventually.deep.equal(
+              emptyArray,
+            );
+          });
+        });
+
+        describe('splice with replacement', function () {
+          const array = Array.from({ length: 10 }, generators[name]);
+          const replacement = Array.from({ length: 3 }, generators[name]);
+          const replacementFragment = `$splice(${name}[] arr, uint256 start, ${name}[] replacement)`;
+
+          it('replace at start', async function () {
+            const start = 0;
+            const expected = [...array];
+            const copyLength = Math.min(replacement.length, array.length - start);
+            for (let i = 0; i < copyLength; i++) {
+              expected[start + i] = replacement[i];
+            }
+            await expect(this.mock[replacementFragment](array, start, replacement)).to.eventually.deep.equal(expected);
+          });
+
+          it('replace in middle', async function () {
+            const start = 3;
+            const expected = [...array];
+            const copyLength = Math.min(replacement.length, array.length - start);
+            for (let i = 0; i < copyLength; i++) {
+              expected[start + i] = replacement[i];
+            }
+            await expect(this.mock[replacementFragment](array, start, replacement)).to.eventually.deep.equal(expected);
+          });
+
+          it('replace at end', async function () {
+            const start = array.length - 2;
+            const expected = [...array];
+            const copyLength = Math.min(replacement.length, array.length - start);
+            for (let i = 0; i < copyLength; i++) {
+              expected[start + i] = replacement[i];
+            }
+            await expect(this.mock[replacementFragment](array, start, replacement)).to.eventually.deep.equal(expected);
+          });
+
+          it('start out of bounds', async function () {
+            const start = array.length + 5;
+            await expect(this.mock[replacementFragment](array, start, replacement)).to.eventually.deep.equal(array);
+          });
+
+          it('replacement longer than remaining space', async function () {
+            const longReplacement = Array.from({ length: 8 }, generators[name]);
+            const start = array.length - 3;
+            const expected = [...array];
+            const copyLength = Math.min(longReplacement.length, array.length - start);
+            for (let i = 0; i < copyLength; i++) {
+              expected[start + i] = longReplacement[i];
+            }
+            const longReplacementFragment = `$splice(${name}[] arr, uint256 start, ${name}[] replacement)`;
+            await expect(this.mock[longReplacementFragment](array, start, longReplacement)).to.eventually.deep.equal(
+              expected,
+            );
+          });
+
+          it('empty replacement', async function () {
+            const emptyReplacement = [];
+            const start = 3;
+            await expect(this.mock[replacementFragment](array, start, emptyReplacement)).to.eventually.deep.equal(
+              array,
+            );
+          });
+
+          it('replace entire array', async function () {
+            const shortArray = Array.from({ length: 2 }, generators[name]);
+            const longReplacement = Array.from({ length: 5 }, generators[name]);
+            const expected = [...shortArray];
+            const copyLength = Math.min(longReplacement.length, shortArray.length);
+            for (let i = 0; i < copyLength; i++) {
+              expected[i] = longReplacement[i];
+            }
+            await expect(this.mock[replacementFragment](shortArray, 0, longReplacement)).to.eventually.deep.equal(
+              expected,
+            );
+          });
+
+          it('single element replacement', async function () {
+            const singleReplacement = [generators[name]()];
+            const start = 2;
+            const expected = [...array];
+            expected[start] = singleReplacement[0];
+            await expect(this.mock[replacementFragment](array, start, singleReplacement)).to.eventually.deep.equal(
+              expected,
+            );
+          });
+        });
       }
 
       describe('unsafeAccess', function () {

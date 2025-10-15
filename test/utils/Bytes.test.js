@@ -91,7 +91,7 @@ describe('Bytes', function () {
         it(descr, async function () {
           const result = ethers.hexlify(lorem.slice(start));
           await expect(this.mock.$slice(lorem, start)).to.eventually.equal(result);
-          await expect(this.mock.$splice(lorem, start)).to.eventually.equal(result);
+          await expect(this.mock.$splice(lorem, ethers.Typed.uint256(start))).to.eventually.equal(result);
         });
       }
     });
@@ -110,6 +110,174 @@ describe('Bytes', function () {
           await expect(this.mock.$splice(lorem, start, ethers.Typed.uint256(end))).to.eventually.equal(result);
         });
       }
+    });
+
+    describe('splice(bytes, bytes)', function () {
+      const replacement = ethers.toUtf8Bytes('REPLACEMENT');
+
+      it('replace from start', async function () {
+        const buffer = new Uint8Array(lorem);
+        const expected = new Uint8Array(buffer.length);
+        expected.set(replacement.slice(0, Math.min(replacement.length, buffer.length)), 0);
+        expected.set(
+          buffer.slice(Math.min(replacement.length, buffer.length)),
+          Math.min(replacement.length, buffer.length),
+        );
+
+        await expect(this.mock.$splice(lorem, ethers.Typed.bytes(replacement))).to.eventually.equal(
+          ethers.hexlify(expected),
+        );
+      });
+
+      it('replacement longer than buffer', async function () {
+        const longReplacement = ethers.toUtf8Bytes('THIS IS A VERY LONG REPLACEMENT THAT EXCEEDS THE BUFFER SIZE');
+        const buffer = new Uint8Array(lorem);
+        const expected = new Uint8Array(buffer);
+        expected.set(longReplacement.slice(0, Math.min(longReplacement.length, buffer.length)), 0);
+
+        await expect(this.mock.$splice(lorem, ethers.Typed.bytes(longReplacement))).to.eventually.equal(
+          ethers.hexlify(expected),
+        );
+      });
+
+      it('replacement shorter than buffer', async function () {
+        const shortReplacement = ethers.toUtf8Bytes('SHORT');
+        const buffer = new Uint8Array(lorem);
+        const expected = new Uint8Array(buffer);
+        expected.set(shortReplacement, 0);
+
+        await expect(this.mock.$splice(lorem, ethers.Typed.bytes(shortReplacement))).to.eventually.equal(
+          ethers.hexlify(expected),
+        );
+      });
+
+      it('empty replacement', async function () {
+        const emptyReplacement = new Uint8Array(0);
+        await expect(this.mock.$splice(lorem, ethers.Typed.bytes(emptyReplacement))).to.eventually.equal(
+          ethers.hexlify(lorem),
+        );
+      });
+
+      it('replace entire buffer with same size', async function () {
+        const sameSize = ethers.toUtf8Bytes('A'.repeat(lorem.length));
+        const expected = new Uint8Array(sameSize);
+
+        await expect(this.mock.$splice(lorem, ethers.Typed.bytes(sameSize))).to.eventually.equal(
+          ethers.hexlify(expected),
+        );
+      });
+
+      it('single byte replacement', async function () {
+        const singleByte = new Uint8Array([0xff]);
+        const buffer = new Uint8Array(lorem);
+        const expected = new Uint8Array(buffer);
+        expected[0] = 0xff;
+
+        await expect(this.mock.$splice(lorem, ethers.Typed.bytes(singleByte))).to.eventually.equal(
+          ethers.hexlify(expected),
+        );
+      });
+
+      it('empty buffer', async function () {
+        const emptyBuffer = new Uint8Array(0);
+        const replacement = ethers.toUtf8Bytes('REPLACEMENT');
+
+        await expect(this.mock.$splice(emptyBuffer, ethers.Typed.bytes(replacement))).to.eventually.equal(
+          ethers.hexlify(emptyBuffer),
+        );
+      });
+    });
+
+    describe('splice(bytes, uint256, bytes)', function () {
+      const replacement = ethers.toUtf8Bytes('REPLACEMENT');
+
+      it('replace at start', async function () {
+        const buffer = new Uint8Array(lorem);
+        const expected = new Uint8Array(buffer.length);
+        expected.set(replacement.slice(0, Math.min(replacement.length, buffer.length)), 0);
+        expected.set(
+          buffer.slice(Math.min(replacement.length, buffer.length)),
+          Math.min(replacement.length, buffer.length),
+        );
+
+        await expect(this.mock.$splice(lorem, 0, ethers.Typed.bytes(replacement))).to.eventually.equal(
+          ethers.hexlify(expected),
+        );
+      });
+
+      it('replace in middle', async function () {
+        const start = 10;
+        const buffer = new Uint8Array(lorem);
+        const copyLength = Math.min(replacement.length, buffer.length - start);
+        const expected = new Uint8Array(buffer);
+        expected.set(replacement.slice(0, copyLength), start);
+
+        await expect(this.mock.$splice(lorem, start, ethers.Typed.bytes(replacement))).to.eventually.equal(
+          ethers.hexlify(expected),
+        );
+      });
+
+      it('replace at end', async function () {
+        const start = lorem.length - 5;
+        const buffer = new Uint8Array(lorem);
+        const copyLength = Math.min(replacement.length, buffer.length - start);
+        const expected = new Uint8Array(buffer);
+        expected.set(replacement.slice(0, copyLength), start);
+
+        await expect(this.mock.$splice(lorem, start, ethers.Typed.bytes(replacement))).to.eventually.equal(
+          ethers.hexlify(expected),
+        );
+      });
+
+      it('start out of bounds', async function () {
+        const start = lorem.length + 10;
+        await expect(this.mock.$splice(lorem, start, ethers.Typed.bytes(replacement))).to.eventually.equal(
+          ethers.hexlify(lorem),
+        );
+      });
+
+      it('replacement longer than remaining buffer', async function () {
+        const longReplacement = ethers.toUtf8Bytes('THIS IS A VERY LONG REPLACEMENT THAT EXCEEDS THE BUFFER SIZE');
+        const start = lorem.length - 5;
+        const buffer = new Uint8Array(lorem);
+        const copyLength = Math.min(longReplacement.length, buffer.length - start);
+        const expected = new Uint8Array(buffer);
+        expected.set(longReplacement.slice(0, copyLength), start);
+
+        await expect(this.mock.$splice(lorem, start, ethers.Typed.bytes(longReplacement))).to.eventually.equal(
+          ethers.hexlify(expected),
+        );
+      });
+
+      it('empty replacement', async function () {
+        const emptyReplacement = new Uint8Array(0);
+        await expect(this.mock.$splice(lorem, 10, ethers.Typed.bytes(emptyReplacement))).to.eventually.equal(
+          ethers.hexlify(lorem),
+        );
+      });
+
+      it('replace entire buffer', async function () {
+        const shortBuffer = ethers.toUtf8Bytes('SHORT');
+        const longReplacement = ethers.toUtf8Bytes('LONGER_REPLACEMENT');
+        const expected = new Uint8Array(shortBuffer);
+        expected.set(longReplacement.slice(0, Math.min(longReplacement.length, shortBuffer.length)), 0);
+
+        await expect(this.mock.$splice(shortBuffer, 0, ethers.Typed.bytes(longReplacement))).to.eventually.equal(
+          ethers.hexlify(expected),
+        );
+      });
+
+      it('single byte replacement', async function () {
+        const singleByte = new Uint8Array([0xff]);
+        const start = 5;
+        const buffer = new Uint8Array(lorem);
+        const expected = new Uint8Array(buffer);
+        expected[start] = 0xff;
+
+        await expect(this.mock.$splice(lorem, start, ethers.Typed.bytes(singleByte))).to.eventually.equal(
+          ethers.hexlify(expected),
+        );
+      });
     });
   });
 
