@@ -185,7 +185,7 @@ abstract contract ERC7579DelayedExecutor is ERC7579Executor {
      * @dev Sets up the module's initial configuration when installed by an account.
      * The account calling this function becomes registered with the module.
      *
-     * The `initData` may be `abi.encode(uint32(initialDelay), uint32(initialExpiration))`.
+     * The `initData` may be `abi.encodePacked(uint32(initialDelay), uint32(initialExpiration))`.
      * The delay will be set to the maximum of this value and the minimum delay if provided.
      * Otherwise, the delay will be set to {minSetback} and {defaultExpiration} respectively.
      *
@@ -199,9 +199,7 @@ abstract contract ERC7579DelayedExecutor is ERC7579Executor {
     function onInstall(bytes calldata initData) public virtual {
         if (!_config[msg.sender].installed) {
             _config[msg.sender].installed = true;
-            (uint32 initialDelay, uint32 initialExpiration) = initData.length > 0
-                ? abi.decode(initData, (uint32, uint32))
-                : (minSetback(), defaultExpiration());
+            (uint32 initialDelay, uint32 initialExpiration) = _decodeInitData(initData);
             // An old delay might be still present
             // So we set 0 for the minimum setback relying on any old value as the minimum delay
             _setDelay(msg.sender, initialDelay, 0);
@@ -243,7 +241,7 @@ abstract contract ERC7579DelayedExecutor is ERC7579Executor {
      */
     function cancel(address account, bytes32 salt, bytes32 mode, bytes calldata data) public virtual {
         _validateCancel(account, salt, mode, data);
-        _cancel(account, mode, data, salt); // Prioritize errors thrown in _cancel
+        _cancel(account, salt, mode, data); // Prioritize errors thrown in _cancel
     }
 
     /**
@@ -398,7 +396,7 @@ abstract contract ERC7579DelayedExecutor is ERC7579Executor {
      *
      * Canceled operations can't be rescheduled. Emits an {ERC7579ExecutorOperationCanceled} event.
      */
-    function _cancel(address account, bytes32 mode, bytes calldata executionCalldata, bytes32 salt) internal virtual {
+    function _cancel(address account, bytes32 salt, bytes32 mode, bytes calldata executionCalldata) internal virtual {
         bytes32 id = hashOperation(account, salt, mode, executionCalldata);
         bytes32 allowedStates = _encodeStateBitmap(OperationState.Scheduled) | _encodeStateBitmap(OperationState.Ready);
         _validateStateBitmap(id, allowedStates);
@@ -406,6 +404,14 @@ abstract contract ERC7579DelayedExecutor is ERC7579Executor {
         _schedules[id].canceled = true;
 
         emit ERC7579ExecutorOperationCanceled(account, id);
+    }
+
+    /// @dev Decodes the init data into a delay and expiration.
+    function _decodeInitData(bytes calldata initData) internal virtual returns (uint32 delay, uint32 expiration) {
+        return
+            initData.length > 7
+                ? (uint32(bytes4(initData[:4])), uint32(bytes4(initData[4:8])))
+                : (minSetback(), defaultExpiration());
     }
 
     /**

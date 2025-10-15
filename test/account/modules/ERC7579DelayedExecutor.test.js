@@ -14,6 +14,7 @@ const {
 const { ERC7579OperationState } = require('../../helpers/enums');
 
 const { shouldBehaveLikeERC7579Module } = require('./ERC7579Module.behavior');
+const { solidityPacked } = require('ethers');
 
 async function fixture() {
   const [other] = await ethers.getSigners();
@@ -29,7 +30,7 @@ async function fixture() {
   // Prepare module installation data
   const delay = time.duration.days(10);
   const expiration = time.duration.years(1);
-  const installData = ethers.AbiCoder.defaultAbiCoder().encode(['uint32', 'uint32'], [delay, expiration]);
+  const installData = solidityPacked(['uint32', 'uint32'], [delay, expiration]);
 
   // ERC-7579 account
   const mockAccount = await helper.newAccount('$AccountERC7579');
