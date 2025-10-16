@@ -199,7 +199,7 @@ abstract contract ERC7579DelayedExecutor is ERC7579Executor {
     function onInstall(bytes calldata initData) public virtual {
         if (!_config[msg.sender].installed) {
             _config[msg.sender].installed = true;
-            (uint32 initialDelay, uint32 initialExpiration) = _decodeInitData(initData);
+            (uint32 initialDelay, uint32 initialExpiration) = _decodeDelayedExecutorInitData(initData);
             // An old delay might be still present
             // So we set 0 for the minimum setback relying on any old value as the minimum delay
             _setDelay(msg.sender, initialDelay, 0);
@@ -407,7 +407,9 @@ abstract contract ERC7579DelayedExecutor is ERC7579Executor {
     }
 
     /// @dev Decodes the init data into a delay and expiration.
-    function _decodeInitData(bytes calldata initData) internal virtual returns (uint32 delay, uint32 expiration) {
+    function _decodeDelayedExecutorInitData(
+        bytes calldata initData
+    ) internal virtual returns (uint32 delay, uint32 expiration) {
         return
             initData.length > 7
                 ? (uint32(bytes4(initData[:4])), uint32(bytes4(initData[4:8])))
