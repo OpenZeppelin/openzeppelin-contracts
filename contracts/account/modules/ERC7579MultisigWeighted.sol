@@ -64,7 +64,7 @@ abstract contract ERC7579MultisigWeighted is ERC7579Multisig {
         bool installed = getSignerCount(msg.sender) > 0;
         super.onInstall(initData);
         if (initData.length > 96 && !installed) {
-            (bytes[] memory signers, , uint64[] memory weights) = abi.decode(initData, (bytes[], uint64, uint64[]));
+            (bytes[] calldata signers, , uint64[] calldata weights) = _decodeMultisigWeightedInitData(initData);
             _setSignerWeights(msg.sender, signers, weights);
         }
     }
@@ -108,6 +108,32 @@ abstract contract ERC7579MultisigWeighted is ERC7579Multisig {
      */
     function setSignerWeights(bytes[] memory signers, uint64[] memory weights) public virtual {
         _setSignerWeights(msg.sender, signers, weights);
+    }
+
+    function _decodeMultisigWeightedInitData(
+        bytes calldata initData
+    ) internal pure virtual returns (bytes[] calldata signers, uint64 threshold_, uint64[] calldata weights) {
+        (signers, threshold_) = _decodeMultisigInitData(initData);
+
+        // Get offset to the weights array (third 32 bytes)
+        uint256 weightsOffset = uint256(bytes32(initData[0x40:0x60]));
+
+        // Get the weights array length
+        uint256 weightsLength = uint256(bytes32(initData[weightsOffset:weightsOffset + 0x20]));
+
+        // The weights data starts after the length field
+        uint256 weightsDataOffset = weightsOffset + 0x20;
+
+        // Validate offset is within bounds and has space for array length
+        require(weightsOffset > 0x3f && weightsDataOffset <= initData.length, ERC7579MultisigInvalidInitData());
+
+        // Set up the calldata slice for the weights array
+        assembly ("memory-safe") {
+            weights.offset := add(initData.offset, weightsDataOffset)
+            weights.length := weightsLength
+        }
+
+        return (signers, threshold_, weights);
     }
 
     /**
@@ -218,7 +244,7 @@ abstract contract ERC7579MultisigWeighted is ERC7579Multisig {
      */
     function _validateThreshold(
         address account,
-        bytes[] memory validatingSigners
+        bytes[] calldata validatingSigners
     ) internal view virtual override returns (bool) {
         unchecked {
             uint64 weight = 0;

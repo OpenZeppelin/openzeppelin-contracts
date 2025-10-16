@@ -30,6 +30,12 @@ abstract contract ERC7579Multisig is ERC7579Validator {
     /// @dev Emitted when signers are removed.
     event ERC7913SignerRemoved(address indexed account, bytes signer);
 
+    /// @dev The `initData` is invalid.
+    error ERC7579MultisigInvalidInitData();
+
+    /// @dev The signature format for the signature provided to `_rawERC7579Validation` is invalid.
+    error ERC7579MultisigInvalidValidation();
+
     /// @dev Emitted when the threshold is updated.
     event ERC7913ThresholdSet(address indexed account, uint64 threshold);
 
@@ -56,8 +62,7 @@ abstract contract ERC7579Multisig is ERC7579Validator {
      * See {ERC7579DelayedExecutor-onInstall}. Besides the delay setup, the `initdata` can
      * include `signers` and `threshold`.
      *
-     * The initData should be encoded as:
-     * `abi.encode(bytes[] signers, uint64 threshold)`
+     * See {_decodeMultisigInitData} for the encoding details.
      *
      * If no signers or threshold are provided, the multisignature functionality will be
      * disabled until they are added later.
@@ -68,7 +73,7 @@ abstract contract ERC7579Multisig is ERC7579Validator {
     function onInstall(bytes calldata initData) public virtual {
         if (initData.length > 32 && getSignerCount(msg.sender) == 0) {
             // More than just delay parameter
-            (bytes[] memory signers_, uint64 threshold_) = abi.decode(initData, (bytes[], uint64));
+            (bytes[] calldata signers_, uint64 threshold_) = _decodeMultisigInitData(initData);
             _addSigners(msg.sender, signers_);
             _setThreshold(msg.sender, threshold_);
         }
@@ -161,8 +166,7 @@ abstract contract ERC7579Multisig is ERC7579Validator {
      * @dev Returns whether the number of valid signatures meets or exceeds the
      * threshold set for the target account.
      *
-     * The signature should be encoded as:
-     * `abi.encode(bytes[] signingSigners, bytes[] signatures)`
+     * See {_decodeValidationSignature} for the encoding details.
      *
      * Where `signingSigners` are the authorized signers and signatures are their corresponding
      * signatures of the operation `hash`.
@@ -172,10 +176,116 @@ abstract contract ERC7579Multisig is ERC7579Validator {
         bytes32 hash,
         bytes calldata signature
     ) internal view virtual override returns (bool) {
-        (bytes[] memory signingSigners, bytes[] memory signatures) = abi.decode(signature, (bytes[], bytes[]));
+        (bytes[] calldata signingSigners, bytes[] calldata signatures) = _decodeValidationSignature(signature);
         return
             _validateThreshold(account, signingSigners) &&
             _validateSignatures(account, hash, signingSigners, signatures);
+    }
+
+    /**
+     * @dev Decodes multisig initialization data from calldata without memory allocation.
+     *
+     * The initData should be encoded as:
+     * `abi.encode(bytes[] signers, uint64 threshold)`
+     *
+     * Requirements:
+     *
+     * * The `initData` must be at least 96 bytes long to contain the minimum ABI-encoded structure.
+     * * The signers array offset must be properly aligned and within bounds.
+     * * The array length field must be accessible within the provided data.
+     */
+    function _decodeMultisigInitData(
+        bytes calldata initData
+    ) internal pure virtual returns (bytes[] calldata signers, uint64 threshold_) {
+        // Minimum length: offset(32) + threshold(32) + array_length(32) = 96 bytes
+        require(initData.length > 0x5f, ERC7579MultisigInvalidInitData());
+
+        // Get offset to the signers array (first 32 bytes)
+        uint256 signersOffset = uint256(bytes32(initData[:0x20]));
+
+        // Get the threshold (second 32 bytes, but only use the last 8 bytes as uint64)
+        threshold_ = uint64(uint256(bytes32(initData[0x20:0x40])));
+
+        // The signers data starts after the length field
+        uint256 signersDataOffset = signersOffset + 0x20;
+
+        // Validate offset is within bounds and has space for array length
+        require(signersOffset > 0x3f && signersDataOffset <= initData.length, ERC7579MultisigInvalidInitData());
+        uint256 signersLength = uint256(bytes32(initData[signersOffset:signersDataOffset]));
+
+        // Set up the calldata slice for the signers array
+        assembly ("memory-safe") {
+            signers.offset := add(initData.offset, signersDataOffset)
+            signers.length := signersLength
+        }
+
+        return (signers, threshold_);
+    }
+
+    /**
+     * @dev Decodes validation signature data from calldata without memory allocation.
+     *
+     * The signature should be encoded as:
+     * `abi.encode(bytes[] signingSigners, bytes[] signatures)`
+     *
+     * Where `signingSigners` are the authorized signers and `signatures` are their corresponding
+     * signatures of the operation hash. This function is equivalent to
+     * `abi.decode(signature, (bytes[], bytes[]))` but operates directly on calldata to avoid
+     * memory allocation, improving gas efficiency during signature validation.
+     *
+     * Requirements:
+     *
+     * * The `signature` must be at least 128 bytes long to contain the minimum ABI-encoded structure.
+     * * Both array offsets must be properly aligned and within bounds.
+     * * Both array length fields must be accessible within the provided data.
+     * * The arrays should have the same length for proper signature validation.
+     */
+    function _decodeValidationSignature(
+        bytes calldata signature
+    ) internal pure virtual returns (bytes[] calldata signingSigners, bytes[] calldata signatures) {
+        // Minimum length: offset1(32) + offset2(32) + array1_length(32) + array2_length(32) = 128 bytes
+        require(signature.length > 0x7f, ERC7579MultisigInvalidValidation());
+
+        // Get offset to the first array (signingSigners)
+        uint256 signersOffset = uint256(bytes32(signature[:0x20]));
+
+        // Get offset to the second array (signatures)
+        uint256 signaturesOffset = uint256(bytes32(signature[0x20:0x40]));
+
+        // Validate offsets are within bounds and properly aligned
+        require(
+            signersOffset > 0x3f &&
+                signersOffset + 0x1f < signature.length &&
+                signaturesOffset > 0x3f &&
+                signaturesOffset + 0x1f < signature.length,
+            ERC7579MultisigInvalidValidation()
+        );
+
+        // Get the signers array length
+        uint256 signersLength = uint256(bytes32(signature[signersOffset:signersOffset + 0x20]));
+
+        // Get the signatures array length
+        uint256 signaturesLength = uint256(bytes32(signature[signaturesOffset:signaturesOffset + 0x20]));
+
+        // The array data starts after the length field
+        uint256 signersDataOffset = signersOffset + 0x20;
+        uint256 signaturesDataOffset = signaturesOffset + 0x20;
+
+        // Validate data offsets are within bounds
+        require(
+            signersDataOffset <= signature.length && signaturesDataOffset <= signature.length,
+            ERC7579MultisigInvalidValidation()
+        );
+
+        // Set up the calldata slices for both arrays
+        assembly ("memory-safe") {
+            signingSigners.offset := add(signature.offset, signersDataOffset)
+            signingSigners.length := signersLength
+            signatures.offset := add(signature.offset, signaturesDataOffset)
+            signatures.length := signaturesLength
+        }
+
+        return (signingSigners, signatures);
     }
 
     /**
@@ -261,15 +371,15 @@ abstract contract ERC7579Multisig is ERC7579Validator {
     function _validateSignatures(
         address account,
         bytes32 hash,
-        bytes[] memory signingSigners,
-        bytes[] memory signatures
+        bytes[] calldata signingSigners,
+        bytes[] calldata signatures
     ) internal view virtual returns (bool valid) {
         for (uint256 i = 0; i < signingSigners.length; ++i) {
             if (!isSigner(account, signingSigners[i])) {
                 return false;
             }
         }
-        return hash.areValidSignaturesNow(signingSigners, signatures);
+        return hash.areValidSignaturesNowCalldata(signingSigners, signatures);
     }
 
     /**
@@ -278,7 +388,7 @@ abstract contract ERC7579Multisig is ERC7579Validator {
      */
     function _validateThreshold(
         address account,
-        bytes[] memory validatingSigners
+        bytes[] calldata validatingSigners
     ) internal view virtual returns (bool) {
         return validatingSigners.length >= threshold(account);
     }
