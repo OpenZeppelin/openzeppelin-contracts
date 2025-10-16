@@ -59,7 +59,7 @@ abstract contract ERC7579Multisig is ERC7579Validator {
 
     /**
      * @dev Sets up the module's initial configuration when installed by an account.
-     * See {ERC7579DelayedExecutor-onInstall}. Besides the delay setup, the `initdata` can
+     * See {ERC7579Validator-onInstall}. Besides the delay setup, the `initdata` can
      * include `signers` and `threshold`.
      *
      * See {_decodeMultisigInitData} for the encoding details.
@@ -72,7 +72,6 @@ abstract contract ERC7579Multisig is ERC7579Validator {
      */
     function onInstall(bytes calldata initData) public virtual {
         if (initData.length > 32 && getSignerCount(msg.sender) == 0) {
-            // More than just delay parameter
             (bytes[] calldata signers_, uint64 threshold_) = _decodeMultisigInitData(initData);
             _addSigners(msg.sender, signers_);
             _setThreshold(msg.sender, threshold_);
@@ -83,7 +82,7 @@ abstract contract ERC7579Multisig is ERC7579Validator {
      * @dev Cleans up module's configuration when uninstalled from an account.
      * Clears all signers and resets the threshold.
      *
-     * See {ERC7579DelayedExecutor-onUninstall}.
+     * See {ERC7579Validator-onUninstall}.
      *
      * WARNING: This function has unbounded gas costs and may become uncallable if the set grows too large.
      * See {EnumerableSet-clear}.
