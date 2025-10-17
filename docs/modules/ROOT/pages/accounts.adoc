@@ -153,7 +153,7 @@ const userOpData = encodeFunctionData({
 
 == Bundle a `UserOperation`
 
-xref:account-abstraction.adoc#useroperation[UserOperations] are a powerful abstraction layer that enable more sophisticated transaction capabilities compared to traditional Ethereum transactions. To get started, you'll need to an account, which you can get by xref:accounts.adoc#accounts_factory[deploying a factory] for your implementation.
+xref:account-abstraction.adoc#useroperation[UserOperations] are a powerful abstraction layer that enable more sophisticated transaction capabilities compared to traditional Ethereum transactions. To get started, you'll need an account, which you can get by xref:accounts.adoc#accounts_factory[deploying a factory] for your implementation.
 
 === Preparing a UserOp
 
