@@ -23,13 +23,17 @@ contract AccumulatorsTest is Test {
 
     function testAccumulatorPush(bytes[] calldata input) public pure {
         Accumulators.Accumulator memory acc = Accumulators.accumulator();
-        for (uint256 i = 0; i < input.length; ++i) acc.push(input[i]);
+        for (uint256 i = 0; i < input.length; ++i) {
+            acc.push(input[i]);
+        }
         assertEq(acc.flatten(), Bytes.concat(input));
     }
 
     function testAccumulatorShift(bytes[] calldata input) public pure {
         Accumulators.Accumulator memory acc = Accumulators.accumulator();
-        for (uint256 i = input.length; i > 0; --i) acc.shift(input[i - 1]);
+        for (uint256 i = input.length; i > 0; --i) {
+            acc.shift(input[i - 1]);
+        }
         assertEq(acc.flatten(), Bytes.concat(input));
     }
 }

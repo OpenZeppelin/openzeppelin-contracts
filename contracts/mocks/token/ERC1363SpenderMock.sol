@@ -17,6 +17,7 @@ contract ERC1363SpenderMock is IERC1363Spender {
     RevertType private _error;
 
     event Approved(address owner, uint256 value, bytes data);
+
     error CustomError(bytes4);
 
     constructor() {

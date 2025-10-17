@@ -108,8 +108,8 @@ abstract contract Account is AbstractSigner, IAccount {
      * `userOpHash` is an EIP-712 hash that can be signed directly.
      */
     function _signableUserOpHash(
-        PackedUserOperation calldata /*userOp*/,
-        bytes32 userOpHash
+        PackedUserOperation calldata,
+        /*userOp*/ bytes32 userOpHash
     ) internal view virtual returns (bytes32) {
         return userOpHash;
     }

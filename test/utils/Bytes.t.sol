@@ -22,12 +22,16 @@ contract BytesTest is Test {
             assertEq(result, type(uint256).max);
         } else if (result == type(uint256).max) {
             // Case 1: search value could not be found
-            for (uint256 i = 0; i < buffer.length; ++i) assertNotEq(buffer[i], s);
+            for (uint256 i = 0; i < buffer.length; ++i) {
+                assertNotEq(buffer[i], s);
+            }
         } else {
             // Case 2: search value was found
             assertEq(buffer[result], s);
             // search value is not present anywhere before the found location
-            for (uint256 i = 0; i < result; ++i) assertNotEq(buffer[i], s);
+            for (uint256 i = 0; i < result; ++i) {
+                assertNotEq(buffer[i], s);
+            }
         }
     }
 
@@ -39,12 +43,16 @@ contract BytesTest is Test {
             assertEq(result, type(uint256).max);
         } else if (result == type(uint256).max) {
             // Case 1: search value could not be found
-            for (uint256 i = pos; i < buffer.length; ++i) assertNotEq(buffer[i], s);
+            for (uint256 i = pos; i < buffer.length; ++i) {
+                assertNotEq(buffer[i], s);
+            }
         } else {
             // Case 2: search value was found
             assertEq(buffer[result], s);
             // search value is not present anywhere before the found location
-            for (uint256 i = pos; i < result; ++i) assertNotEq(buffer[i], s);
+            for (uint256 i = pos; i < result; ++i) {
+                assertNotEq(buffer[i], s);
+            }
         }
     }
 
@@ -56,12 +64,16 @@ contract BytesTest is Test {
             assertEq(result, type(uint256).max);
         } else if (result == type(uint256).max) {
             // Case 1: search value could not be found
-            for (uint256 i = 0; i < buffer.length; ++i) assertNotEq(buffer[i], s);
+            for (uint256 i = 0; i < buffer.length; ++i) {
+                assertNotEq(buffer[i], s);
+            }
         } else {
             // Case 2: search value was found
             assertEq(buffer[result], s);
             // search value is not present anywhere after the found location
-            for (uint256 i = result + 1; i < buffer.length; ++i) assertNotEq(buffer[i], s);
+            for (uint256 i = result + 1; i < buffer.length; ++i) {
+                assertNotEq(buffer[i], s);
+            }
         }
     }
 
@@ -73,12 +85,16 @@ contract BytesTest is Test {
             assertEq(result, type(uint256).max);
         } else if (result == type(uint256).max) {
             // Case 1: search value could not be found
-            for (uint256 i = 0; i <= Math.min(pos, buffer.length - 1); ++i) assertNotEq(buffer[i], s);
+            for (uint256 i = 0; i <= Math.min(pos, buffer.length - 1); ++i) {
+                assertNotEq(buffer[i], s);
+            }
         } else {
             // Case 2: search value was found
             assertEq(buffer[result], s);
             // search value is not present anywhere after the found location
-            for (uint256 i = result + 1; i <= Math.min(pos, buffer.length - 1); ++i) assertNotEq(buffer[i], s);
+            for (uint256 i = result + 1; i <= Math.min(pos, buffer.length - 1); ++i) {
+                assertNotEq(buffer[i], s);
+            }
         }
     }
 

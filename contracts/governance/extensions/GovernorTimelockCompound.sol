@@ -151,7 +151,7 @@ abstract contract GovernorTimelockCompound is Governor {
      * Note that if the timelock admin has been handed over in a previous operation, we refuse updates made through the
      * timelock if admin of the timelock has already been accepted and the operation is executed outside the scope of
      * governance.
-
+     *
      * CAUTION: It is not recommended to change the timelock while there are other queued governance proposals.
      */
     function updateTimelock(ICompoundTimelock newTimelock) public virtual onlyGovernance {

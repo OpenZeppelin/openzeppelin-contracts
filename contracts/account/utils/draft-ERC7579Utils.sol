@@ -8,9 +8,13 @@ import {Packing} from "../../utils/Packing.sol";
 import {Address} from "../../utils/Address.sol";
 
 type Mode is bytes32;
+
 type CallType is bytes1;
+
 type ExecType is bytes1;
+
 type ModeSelector is bytes4;
+
 type ModePayload is bytes22;
 
 /**
@@ -200,8 +204,9 @@ library ERC7579Utils {
             //
             // Since we know bufferLength is at least arrayLengthOffset + 32, we can subtract with no overflow risk.
             // Solidity limits length of such arrays to 2**64-1, this guarantees `arrayLength * 32` does not overflow.
-            if (arrayLength > type(uint64).max || bufferLength - arrayLengthOffset - 0x20 < arrayLength * 0x20)
+            if (arrayLength > type(uint64).max || bufferLength - arrayLengthOffset - 0x20 < arrayLength * 0x20) {
                 revert ERC7579DecodingError();
+            }
 
             assembly ("memory-safe") {
                 executionBatch.offset := add(add(executionCalldata.offset, arrayLengthOffset), 0x20)

@@ -298,7 +298,9 @@ library Strings {
             return (true, negativeSign ? -int256(absValue) : int256(absValue));
         } else if (absSuccess && negativeSign && absValue == ABS_MIN_INT256) {
             return (true, type(int256).min);
-        } else return (false, 0);
+        } else {
+            return (false, 0);
+        }
     }
 
     /**
@@ -470,13 +472,19 @@ library Strings {
             bytes1 char = bytes1(_unsafeReadBytesOffset(buffer, i));
             if (((SPECIAL_CHARS_LOOKUP & (1 << uint8(char))) != 0)) {
                 output[outputLength++] = "\\";
-                if (char == 0x08) output[outputLength++] = "b";
-                else if (char == 0x09) output[outputLength++] = "t";
-                else if (char == 0x0a) output[outputLength++] = "n";
-                else if (char == 0x0c) output[outputLength++] = "f";
-                else if (char == 0x0d) output[outputLength++] = "r";
-                else if (char == 0x5c) output[outputLength++] = "\\";
-                else if (char == 0x22) {
+                if (char == 0x08) {
+                    output[outputLength++] = "b";
+                } else if (char == 0x09) {
+                    output[outputLength++] = "t";
+                } else if (char == 0x0a) {
+                    output[outputLength++] = "n";
+                } else if (char == 0x0c) {
+                    output[outputLength++] = "f";
+                } else if (char == 0x0d) {
+                    output[outputLength++] = "r";
+                } else if (char == 0x5c) {
+                    output[outputLength++] = "\\";
+                } else if (char == 0x22) {
                     // solhint-disable-next-line quotes
                     output[outputLength++] = '"';
                 }

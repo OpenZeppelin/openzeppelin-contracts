@@ -230,19 +230,25 @@ contract ArraysTest is Test, SymTest {
 
     function _copyArray(uint256[] memory values) internal pure returns (uint256[] memory) {
         uint256[] memory copy = new uint256[](values.length);
-        for (uint256 i = 0; i < values.length; ++i) copy[i] = values[i];
+        for (uint256 i = 0; i < values.length; ++i) {
+            copy[i] = values[i];
+        }
         return copy;
     }
 
     function _copyArray(bytes32[] memory values) internal pure returns (bytes32[] memory) {
         bytes32[] memory copy = new bytes32[](values.length);
-        for (uint256 i = 0; i < values.length; ++i) copy[i] = values[i];
+        for (uint256 i = 0; i < values.length; ++i) {
+            copy[i] = values[i];
+        }
         return copy;
     }
 
     function _copyArray(address[] memory values) internal pure returns (address[] memory) {
         address[] memory copy = new address[](values.length);
-        for (uint256 i = 0; i < values.length; ++i) copy[i] = values[i];
+        for (uint256 i = 0; i < values.length; ++i) {
+            copy[i] = values[i];
+        }
         return copy;
     }
 }

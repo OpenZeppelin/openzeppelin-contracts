@@ -32,7 +32,6 @@ import {SignatureChecker} from "../SignatureChecker.sol";
  * IMPORTANT: Failing to call {_setSigner} either during construction (if used standalone)
  * or during initialization (if used as a clone) may leave the signer either front-runnable or unusable.
  */
-
 abstract contract SignerERC7913 is AbstractSigner {
     bytes private _signer;
 

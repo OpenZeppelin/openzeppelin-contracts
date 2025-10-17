@@ -17,6 +17,7 @@ contract ERC1363ReceiverMock is IERC1363Receiver {
     RevertType private _error;
 
     event Received(address operator, address from, uint256 value, bytes data);
+
     error CustomError(bytes4);
 
     constructor() {

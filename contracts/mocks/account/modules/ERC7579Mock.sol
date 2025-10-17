@@ -110,8 +110,8 @@ abstract contract ERC7579ValidatorMock is ERC7579ModuleMock(MODULE_TYPE_VALIDATO
     }
 
     function isValidSignatureWithSender(
-        address /*sender*/,
-        bytes32 hash,
+        address,
+        /*sender*/ bytes32 hash,
         bytes calldata signature
     ) public view virtual returns (bytes4) {
         return

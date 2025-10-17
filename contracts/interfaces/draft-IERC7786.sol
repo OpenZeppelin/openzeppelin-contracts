@@ -12,10 +12,13 @@ interface IERC7786GatewaySource {
      * @dev Event emitted when a message is created. If `sendId` is zero, no further processing is necessary. If
      * `sendId` is not zero, then further (gateway specific, and non-standardized) action is required.
      */
-    event MessageSent(
+    event MessageSent(// Binary Interoperable Address
+
+
+        // Binary Interoperable Address
         bytes32 indexed sendId,
-        bytes sender, // Binary Interoperable Address
-        bytes recipient, // Binary Interoperable Address
+        bytes sender,
+        bytes recipient,
         bytes payload,
         uint256 value,
         bytes[] attributes

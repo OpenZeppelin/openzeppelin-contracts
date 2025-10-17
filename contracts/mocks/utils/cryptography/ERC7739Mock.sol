@@ -8,5 +8,7 @@ import {SignerP256} from "../../../utils/cryptography/signers/SignerP256.sol";
 import {SignerRSA} from "../../../utils/cryptography/signers/SignerRSA.sol";
 
 abstract contract ERC7739ECDSAMock is ERC7739, SignerECDSA {}
+
 abstract contract ERC7739P256Mock is ERC7739, SignerP256 {}
+
 abstract contract ERC7739RSAMock is ERC7739, SignerRSA {}

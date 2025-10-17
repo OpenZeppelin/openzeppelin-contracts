@@ -39,10 +39,14 @@ import {Strings} from "../Strings.sol";
  */
 library WebAuthn {
     struct WebAuthnAuth {
-        bytes32 r; /// The r value of secp256r1 signature
-        bytes32 s; /// The s value of secp256r1 signature
-        uint256 challengeIndex; /// The index at which "challenge":"..." occurs in `clientDataJSON`.
-        uint256 typeIndex; /// The index at which "type":"..." occurs in `clientDataJSON`.
+        bytes32 r;
+        /// The r value of secp256r1 signature
+        bytes32 s;
+        /// The s value of secp256r1 signature
+        uint256 challengeIndex;
+        /// The index at which "challenge":"..." occurs in `clientDataJSON`.
+        uint256 typeIndex;
+        /// The index at which "type":"..." occurs in `clientDataJSON`.
         /// The WebAuthn authenticator data.
         /// https://www.w3.org/TR/webauthn-2/#dom-authenticatorassertionresponse-authenticatordata
         bytes authenticatorData;
@@ -241,8 +245,9 @@ library WebAuthn {
 
         // The elements length (at the offset) should be 32 bytes long. We check that this is within the
         // buffer bounds. Since we know input.length is at least 32, we can subtract with no overflow risk.
-        if (input.length - 0x20 < authenticatorDataOffset || input.length - 0x20 < clientDataJSONOffset)
+        if (input.length - 0x20 < authenticatorDataOffset || input.length - 0x20 < clientDataJSONOffset) {
             return (false, auth);
+        }
 
         // Get the lengths. offset + 32 is bounded by input.length so it does not overflow.
         uint256 authenticatorDataLength = uint256(bytes32(input[authenticatorDataOffset:]));

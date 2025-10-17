@@ -152,9 +152,10 @@ abstract contract AccountERC7579 is Account, IERC1271, IERC7579Execution, IERC75
     ) public view virtual returns (bool) {
         if (moduleTypeId == MODULE_TYPE_VALIDATOR) return _validators.contains(module);
         if (moduleTypeId == MODULE_TYPE_EXECUTOR) return _executors.contains(module);
-        if (moduleTypeId == MODULE_TYPE_FALLBACK)
+        if (moduleTypeId == MODULE_TYPE_FALLBACK) {
             // ERC-7579 requires this function to return bool, never revert. Check length to avoid out-of-bounds access.
             return additionalContext.length > 3 && _fallbacks[bytes4(additionalContext[0:4])] == module;
+        }
         return false;
     }
 
@@ -411,8 +412,8 @@ abstract contract AccountERC7579 is Account, IERC1271, IERC7579Execution, IERC75
 
     /// @dev By default, only use the modules for validation of userOp and signature. Disable raw signatures.
     function _rawSignatureValidation(
-        bytes32 /*hash*/,
-        bytes calldata /*signature*/
+        bytes32,
+        /*hash*/ bytes calldata /*signature*/
     ) internal view virtual override returns (bool) {
         return false;
     }
