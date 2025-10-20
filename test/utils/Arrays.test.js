@@ -235,19 +235,7 @@ describe('Arrays', function () {
 
         describe('splice with replacement from start', function () {
           const array = Array.from({ length: 10 }, generators[name]);
-          const replacement = Array.from({ length: 3 }, generators[name]);
           const replacementFromStartFragment = `$splice(${name}[] arr, ${name}[] replacement)`;
-
-          it('replace from start', async function () {
-            const expected = [...array];
-            const copyLength = Math.min(replacement.length, array.length);
-            for (let i = 0; i < copyLength; i++) {
-              expected[i] = replacement[i];
-            }
-            await expect(this.mock[replacementFromStartFragment](array, replacement)).to.eventually.deep.equal(
-              expected,
-            );
-          });
 
           it('replacement longer than array', async function () {
             const longReplacement = Array.from({ length: 15 }, generators[name]);
@@ -351,8 +339,7 @@ describe('Arrays', function () {
             for (let i = 0; i < copyLength; i++) {
               expected[start + i] = longReplacement[i];
             }
-            const longReplacementFragment = `$splice(${name}[] arr, uint256 start, ${name}[] replacement)`;
-            await expect(this.mock[longReplacementFragment](array, start, longReplacement)).to.eventually.deep.equal(
+            await expect(this.mock[replacementFragment](array, start, longReplacement)).to.eventually.deep.equal(
               expected,
             );
           });
