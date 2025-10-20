@@ -130,7 +130,9 @@ describe('Bytes', function () {
       });
 
       it('replacement longer than buffer', async function () {
-        const longReplacement = ethers.toUtf8Bytes('Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi placerat elit non felis scelerisque faucibus. Donec eget blandit.');
+        const longReplacement = ethers.toUtf8Bytes(
+          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi placerat elit non felis scelerisque faucibus. Donec eget blandit.',
+        );
         const buffer = new Uint8Array(lorem);
         const expected = new Uint8Array(buffer);
         expected.set(longReplacement.slice(0, Math.min(longReplacement.length, buffer.length)), 0);
