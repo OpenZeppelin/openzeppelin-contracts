@@ -7,6 +7,7 @@ import {ECDSA} from "./ECDSA.sol";
 import {IERC1271} from "../../interfaces/IERC1271.sol";
 import {IERC7913SignatureVerifier} from "../../interfaces/IERC7913.sol";
 import {Bytes} from "../Bytes.sol";
+import {Memory} from "../Memory.sol";
 
 /**
  * @dev Signature verification helper that can be used instead of `ECDSA.recover` to seamlessly support:
@@ -138,6 +139,7 @@ library SignatureChecker {
     ) internal view returns (bool) {
         if (signers.length != signatures.length) return false;
 
+        Memory.Pointer memory ptr = Memory.getFreeMemoryPointer();
         bytes32 lastId = bytes32(0);
 
         for (uint256 i = 0; i < signers.length; ++i) {
@@ -145,6 +147,7 @@ library SignatureChecker {
 
             // If one of the signatures is invalid, reject the batch
             if (!isValidSignatureNow(signer, hash, signatures[i])) return false;
+            Memory.setFreeMemoryPointer(ptr);
 
             bytes32 id = keccak256(signer);
             // If the current signer ID is greater than all previous IDs, then this is a new signer.
