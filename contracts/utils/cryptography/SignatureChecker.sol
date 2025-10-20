@@ -139,7 +139,7 @@ library SignatureChecker {
     ) internal view returns (bool) {
         if (signers.length != signatures.length) return false;
 
-        Memory.Pointer memory ptr = Memory.getFreeMemoryPointer();
+        Memory.Pointer ptr = Memory.getFreeMemoryPointer();
         bytes32 lastId = bytes32(0);
 
         for (uint256 i = 0; i < signers.length; ++i) {
