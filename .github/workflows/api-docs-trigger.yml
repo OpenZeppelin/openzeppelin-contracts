@@ -1,0 +1,30 @@
+# This goes in SOURCE repositories (openzeppelin-contracts, etc.)
+# .github/workflows/trigger-docs-generation.yml
+
+name: Trigger API Documentation Generation
+
+on:
+  push:
+    tags:
+      - 'release-v*'
+
+jobs:
+  trigger-docs-update:
+    # Only run when a tag is created with release-v prefix
+    if: github.ref_type == 'tag' && startsWith(github.ref_name, 'release-v')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger documentation generation
+        env:
+          GH_TOKEN: ${{ secrets.DOCS_REPO_TOKEN }}
+        run: |
+          gh workflow run generate-api-docs.yml \
+            --repo OpenZeppelin/docs \
+            --field repository_name="${{ github.repository }}" \
+            --field tag_name="${{ github.ref_name }}" \
+            --field source_repo_url="${{ github.server_url }}/${{ github.repository }}"
+
+          echo "✅ Triggered documentation generation for ${{ github.ref_name }}"
+          echo "📍 Repository: ${{ github.repository }}"
+          echo "🏷️  Tag: ${{ github.ref_name }}"
