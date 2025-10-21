@@ -56,7 +56,8 @@ module.exports['process-natspec'] = function (natspec, opts) {
   const currentPage = opts.data.root.__item_context?.page || opts.data.root.id;
   const links = getAllLinks(opts.data.site.items, currentPage);
 
-  return processReferences(natspec, links);
+  const processed = processReferences(natspec, links);
+  return processCallouts(processed); // Add callout processing at the end
 };
 
 module.exports['typed-params'] = params => {
@@ -176,7 +177,6 @@ function processReferences(content, links) {
   result = result.replace(
     /\{([A-Z][a-zA-Z0-9]*)-([a-zA-Z_][a-zA-Z0-9]*)-([^-}]+)\}/g,
     (match, contract, func, params) => {
-      // Convert dash-separated params to comma-separated, then slugify to match anchor format
       const commaParams = params
         .replace(/-bytes\[\]/g, ',bytes[]')
         .replace(/-uint[0-9]*/g, ',uint$1')
@@ -197,7 +197,6 @@ function processReferences(content, links) {
   result = result.replace(
     /\{([A-Z][a-zA-Z0-9]*)-([a-zA-Z_][a-zA-Z0-9]*)-([^}]+)\}/g,
     (match, contract, func, params) => {
-      // Convert dash-separated params to comma-separated, then slugify with parentheses to match anchor format
       const commaParams = params
         .replace(/-bytes\[\]/g, ',bytes[]')
         .replace(/-uint[0-9]*/g, ',uint$1')
@@ -219,10 +218,6 @@ function processReferences(content, links) {
     const replacement = findBestMatch(key, links);
     return replacement || `\`${key}\``;
   });
-
-  // Convert AsciiDoc admonitions to Callout components
-  result = result.replace(/^\[NOTE\]\s*\n====\s*\n([\s\S]*?)\n====$/gm, '<Callout>\n$1\n</Callout>');
-  result = result.replace(/^(WARNING|IMPORTANT):\s*(.+)$/gm, '<Callout type="warn">\n$2\n</Callout>');
 
   return cleanupContent(result);
 }
@@ -309,8 +304,8 @@ function processAdocContent(content) {
     const tempAdocFile = path.join(tempDir, 'temp.adoc');
     const tempMdFile = path.join(tempDir, 'temp.md');
 
-    // Preprocess AsciiDoc content
-    let processedContent = content
+    // Preprocess AsciiDoc content - only handle non-admonition transformations here
+    const processedContent = content
       .replace(
         /```solidity\s*\ninclude::api:example\$([^[\]]+)\[\]\s*\n```/g,
         "<include cwd lang='solidity'>./examples/$1</include>",
@@ -318,9 +313,7 @@ function processAdocContent(content) {
       .replace(
         /\[source,solidity\]\s*\n----\s*\ninclude::api:example\$([^[\]]+)\[\]\s*\n----/g,
         "<include cwd lang='solidity'>./examples/$1</include>",
-      )
-      .replace(/^(TIP|NOTE):\s*(.+)$/gm, '<Callout>\n$2\n</Callout>')
-      .replace(/^(IMPORTANT|WARNING):\s*(.+)$/gm, "<Callout type='warn'>\n$2\n</Callout>");
+      );
 
     fs.writeFileSync(tempAdocFile, processedContent, 'utf8');
 
@@ -331,20 +324,15 @@ function processAdocContent(content) {
 
     let mdContent = fs.readFileSync(tempMdFile, 'utf8');
 
-    // Clean up and transform markdown
+    // Clean up and transform markdown, then process callouts once at the end
     mdContent = cleanupContent(mdContent)
       .replace(/\(api:([^)]+)\.adoc([^)]*)\)/g, `(${API_DOCS_PATH}/$1.mdx$2)`)
       .replace(/!\[([^\]]*)\]\(([^/)][^)]*\.(png|jpg|jpeg|gif|svg|webp))\)/g, '![$1](/$2)')
-      .replace(/<dl><dt><strong>💡 TIP<\/strong><\/dt><dd>\s*([\s\S]*?)\s*<\/dd><\/dl>/g, '<Callout>\n$1\n</Callout>')
-      .replace(/<dl><dt><strong>📌 NOTE<\/strong><\/dt><dd>\s*([\s\S]*?)\s*<\/dd><\/dl>/g, '<Callout>\n$1\n</Callout>')
-      .replace(
-        /<dl><dt><strong>(?:💡|📌|ℹ️)?\s*(TIP|NOTE|INFO)<\/strong><\/dt><dd>\s*([\s\S]*?)\s*<\/dd><\/dl>/g,
-        '<Callout>\n$2\n</Callout>',
-      )
       .replace(/^#+\s+.+$/m, '')
-      .replace(/^\n+/, '')
-      .replace(/(?<!<Callout>\n)^((?!<Callout>).+?)\n<\/Callout>/m, '<Callout>\n$1\n</Callout>')
-      .replace(/<Callout>\nThis document is better viewed at [^\n]*\n<\/Callout>\n?/g, '');
+      .replace(/^\n+/, '');
+
+    // Process callouts once at the very end
+    mdContent = processCallouts(mdContent);
 
     // Cleanup temp files
     try {
@@ -360,6 +348,66 @@ function processAdocContent(content) {
     console.warn('Warning: Failed to process AsciiDoc content:', error.message);
     return content;
   }
+}
+
+function processCallouts(content) {
+  // First, normalize whitespace around block delimiters to make patterns more consistent
+  let result = content.replace(/\s*\n====\s*\n/g, '\n====\n').replace(/\n====\s*\n/g, '\n====\n');
+
+  // Handle AsciiDoc block admonitions (with ====)
+  result = result.replace(/^\[(NOTE|TIP)\]\s*\n====\s*\n([\s\S]*?)\n====$/gm, '<Callout>\n$2\n</Callout>');
+  result = result.replace(
+    /^\[(IMPORTANT|WARNING|CAUTION)\]\s*\n====\s*\n([\s\S]*?)\n====$/gm,
+    '<Callout type="warn">\n$2\n</Callout>',
+  );
+
+  // Handle simple single-line admonitions
+  result = result.replace(/^(NOTE|TIP):\s*(.+)$/gm, '<Callout>\n$2\n</Callout>');
+  result = result.replace(/^(IMPORTANT|WARNING):\s*(.+)$/gm, '<Callout type="warn">\n$2\n</Callout>');
+
+  // Handle markdown-style bold admonitions (the ones you're seeing)
+  result = result.replace(
+    /^\*\*⚠️ WARNING\*\*\\\s*\n([\s\S]*?)(?=\n\n|\n\*\*|$)/gm,
+    '<Callout type="warn">\n$1\n</Callout>',
+  );
+  result = result.replace(
+    /^\*\*❗ IMPORTANT\*\*\\\s*\n([\s\S]*?)(?=\n\n|\n\*\*|$)/gm,
+    '<Callout type="warn">\n$1\n</Callout>',
+  );
+  result = result.replace(/^\*\*📌 NOTE\*\*\\\s*\n([\s\S]*?)(?=\n\n|\n\*\*|$)/gm, '<Callout>\n$1\n</Callout>');
+  result = result.replace(/^\*\*💡 TIP\*\*\\\s*\n([\s\S]*?)(?=\n\n|\n\*\*|$)/gm, '<Callout>\n$1\n</Callout>');
+
+  // Handle any remaining HTML-style admonitions from downdoc conversion
+  result = result.replace(
+    /<dl><dt><strong>(?:💡|📌|ℹ️)?\s*(TIP|NOTE|INFO)<\/strong><\/dt><dd>\s*([\s\S]*?)\s*<\/dd><\/dl>/g,
+    '<Callout>\n$2\n</Callout>',
+  );
+  result = result.replace(
+    /<dl><dt><strong>(?:⚠️|❗)?\s*(WARNING|IMPORTANT)<\/strong><\/dt><dd>\s*([\s\S]*?)\s*<\/dd><\/dl>/g,
+    '<Callout type="warn">\n$2\n</Callout>',
+  );
+
+  // Fix prematurely closed callouts - move </Callout> to after all paragraph text
+  // This handles cases where </Callout> was inserted after the first line but there's more text
+  result = result.replace(/(<Callout[^>]*>\n[^<]+)\n<\/Callout>\n([^<\n]+(?:\n[^<\n]+)*)/g, '$1\n$2\n</Callout>');
+
+  // Clean up "better viewed at" notices (keep these at the end)
+  result = result.replace(/^\*\*📌 NOTE\*\*\\\s*\nThis document is better viewed at [^\n]*\n*/gm, '');
+  result = result.replace(/^\*\*⚠️ WARNING\*\*\\\s*\nThis document is better viewed at [^\n]*\n*/gm, '');
+  result = result.replace(/^\*\*❗ IMPORTANT\*\*\\\s*\nThis document is better viewed at [^\n]*\n*/gm, '');
+  result = result.replace(/^\*\*💡 TIP\*\*\\\s*\nThis document is better viewed at [^\n]*\n*/gm, '');
+
+  // More generic cleanup for "better viewed at" notices
+  result = result.replace(/This document is better viewed at https:\/\/docs\.openzeppelin\.com[^\n]*\n*/g, '');
+
+  // Remove any resulting callouts that only contain the "better viewed at" message
+  result = result.replace(/<Callout[^>]*>\s*This document is better viewed at [^\n]*\s*<\/Callout>\s*/g, '');
+  result = result.replace(/<Callout[^>]*>\s*<\/Callout>/g, '');
+
+  // Remove callouts that only contain whitespace/newlines
+  result = result.replace(/<Callout[^>]*>\s*\n\s*<\/Callout>/g, '');
+
+  return result;
 }
 
 module.exports.title = opts => {
@@ -386,5 +434,6 @@ module.exports['with-prelude'] = opts => {
   const links = getAllLinks(opts.data.site.items, currentPage);
   const contents = opts.fn();
 
-  return processReferences(contents, links);
+  const processed = processReferences(contents, links);
+  return processCallouts(processed); // Add callout processing here too
 };

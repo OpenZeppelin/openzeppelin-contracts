@@ -34,7 +34,7 @@ import "@openzeppelin/{{__item_context.file.absolutePath}}";
 <div className="font-mono">
 {{#each inherited-functions}}
 {{#unless @first}}
-#### {{contract.name}}
+#### {{contract.name}} [!toc]
 {{/unless}}
 {{#each functions}}
 - [{{{name}}}({{names params}})](#{{anchor}})
@@ -50,7 +50,7 @@ import "@openzeppelin/{{__item_context.file.absolutePath}}";
 <div className="font-mono">
 {{#each inheritance}}
 {{#unless @first}}
-#### {{name}}
+#### {{name}} [!toc]
 {{/unless}}
 {{#each events}}
 - [{{{name}}}({{names params}})](#{{anchor}})
@@ -66,7 +66,7 @@ import "@openzeppelin/{{__item_context.file.absolutePath}}";
 <div className="font-mono">
 {{#each inheritance}}
 {{#unless @first}}
-#### {{name}}
+#### {{name}} [!toc]
 {{/unless}}
 {{#each errors}}
 - [{{{name}}}({{names params}})](#{{anchor}})
