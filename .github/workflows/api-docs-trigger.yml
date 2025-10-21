@@ -20,7 +20,7 @@ jobs:
           GH_TOKEN: ${{ secrets.DOCS_REPO_TOKEN }}
         run: |
           gh workflow run generate-api-docs.yml \
-            --repo OpenZeppelin/docs \
+            --repo stevedylandev/ozdocs \
             --field repository_name="${{ github.repository }}" \
             --field tag_name="${{ github.ref_name }}" \
             --field source_repo_url="${{ github.server_url }}/${{ github.repository }}"
