@@ -3,13 +3,16 @@
 ### Bug fixes
 
 - `ERC165Checker`: Ensure the `supportsERC165` function returns false if the target reverts during the `supportsInterface(0xffffffff)` call. ([#5810](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5880))
+- `AccountERC7579`: Prevent revert in `isModuleInstalled` for fallback modules when `additionalContext` has fewer than 4 bytes. The function now returns `false` instead of reverting, ensuring ERC-7579 compliance. ([#5961](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5961))
 
 ### Breaking changes
 
 - `ERC6909` and the its extensions (`ERC6909ContentURI`, `ERC6909Metadata` and `ERC6909TokenSupply`) are no longer marked as draft since [EIP-6909](https://eips.ethereum.org/EIPS/eip-6909) is now final. Developers must update the import paths. Contracts behavior is not modified.
 - `SignerERC7702` is renamed as `SignerEIP7702`. Imports and inheritance must be updated to that new name and path. Behavior is unmodified.
 - `ERC721Holder`, `ERC1155Holder`, `ReentrancyGuard` and `ReentrancyGuardTransient` are flagged as stateless and are no longer transpiled. Developers using their upgradeable variants from `@openzeppelin/contracts-upgradeable` must update their imports to use the equivalent version available in `@openzeppelin/contracts`.
-- Update minimum pragma to 0.8.24 in `Votes`, `VotesExtended`, `ERC20Votes`, `Strings`, `ERC1155URIStorage`, `MessageHashUtils`, `ERC721URIStorage`, `ERC721Votes`, `ERC721Wrapper`, `ERC721Burnable`, `ERC721Consecutive`, `ERC721Enumerable`, `ERC721Pausable`, `ERC721Royalty`, `ERC721Wrapper`, `EIP712`, `ERC4626` and `ERC7739`. ([#5726](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5726))
+- Update minimum pragma to 0.8.24 in `AccessControlEnumerable`, `Arrays`, `CircularBuffer`, `EIP712`, `EnumerableMap`, `EnumerableSet`, `ERC1155`, `ERC1155Burnable`, `ERC1155Pausable`, `ERC1155Supply`, `ERC1155URIStorage`, `ERC20Votes`, `ERC4626`,`ERC721Burnable`, `ERC721Consecutive`, `ERC721Enumerable`, `ERC721Pausable`, `ERC721Royalty`, `ERC721URIStorage`, `ERC721Votes`, `ERC721Wrapper`, `ERC7739`, `Heap`, `MerkleTree`, `MessageHashUtils`, `Strings`, `Votes` and `VotesExtended`. ([#5723](https://github.com/OpenZeppelin/openzeppelin-contracts/issues/5723), [#5726](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5726), [#5965](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5965))
+- `Account`: Add `signature` argument to the internal `_validateUserOp` function for custom signature handling logic. Developers overriding it must now provide the signature from the user operation (i.e. `userOp.signature`) to keep compatibility. ([#5976](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5976))
+- `AccountERC7579`: Installing and uninstalling fallback modules now require the corresponding `initData` and `deInitData` arguments to be at least 4 bytes long (matching the selector to which the fallback module is registered). It now reverts with `ERC7579CannotDecodeFallbackData` instead of treating the missing bytes as `0x00`. ([#5974](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5974))
 
 ### Deprecation
 

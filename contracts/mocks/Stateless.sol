@@ -33,6 +33,7 @@ import {ERC4337Utils} from "../account/utils/draft-ERC4337Utils.sol";
 import {ERC7579Utils} from "../account/utils/draft-ERC7579Utils.sol";
 import {ERC7913P256Verifier} from "../utils/cryptography/verifiers/ERC7913P256Verifier.sol";
 import {ERC7913RSAVerifier} from "../utils/cryptography/verifiers/ERC7913RSAVerifier.sol";
+import {ERC7913WebAuthnVerifier} from "../utils/cryptography/verifiers/ERC7913WebAuthnVerifier.sol";
 import {Heap} from "../utils/structs/Heap.sol";
 import {InteroperableAddress} from "../utils/draft-InteroperableAddress.sol";
 import {LowLevelCall} from "../utils/LowLevelCall.sol";
