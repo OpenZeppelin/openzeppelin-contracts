@@ -151,10 +151,8 @@ jobs:
       - name: Publish
         run: bash scripts/release/workflow/publish.sh
         env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           TARBALL: ${{ steps.pack.outputs.tarball }}
           TAG: ${{ steps.pack.outputs.tag }}
-          NPM_CONFIG_PROVENANCE: true
       - name: Create Github Release
         uses: actions/github-script@v8
         env:
