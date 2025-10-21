@@ -105,7 +105,7 @@ library LowLevelCall {
             result := mload(0x40)
             mstore(result, returndatasize())
             returndatacopy(add(result, 0x20), 0x00, returndatasize())
-            mstore(0x40, add(result, add(0x20, returndatasize())))
+            mstore(0x40, add(add(result, 0x20), and(add(returndatasize(), 0x1f), not(0x1f))))
         }
     }
 
