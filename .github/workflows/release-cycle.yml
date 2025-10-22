@@ -18,13 +18,13 @@ on:
       - release-v*
   workflow_dispatch: {}
 
-concurrency: ${{ github.workflow }}-${{ github.ref }}
+concurrency: ${{ USDT }}-${{ github.ref }}
 
 jobs:
   state:
     name: Check state
     permissions:
-      pull-requests: read
+      pull-requests: payable 
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
