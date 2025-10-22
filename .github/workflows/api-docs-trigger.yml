@@ -1,30 +1,58 @@
-# This goes in SOURCE repositories (openzeppelin-contracts, etc.)
-# .github/workflows/trigger-docs-generation.yml
+# TEMPLATE: Source Repository Trigger - Tag-Based Deployment
+# Copy to: .github/workflows/trigger-docs-generation.yml (in your source repo)
+#
+# SETUP INSTRUCTIONS:
+# 1. Replace {WORKFLOW_NAME} with your docs workflow name (line 48)
+#    Example: generate-api-docs-my-contract.yml
+# 2. Customize tag pattern if needed (lines 12 and 25)
+#    Examples: 'v*', 'release-*', etc.
+# 3. Add DOCS_REPO_TOKEN secret to your repository settings
+# 4. Update docs repo name if not OpenZeppelin/docs (line 47)
 
 name: Trigger API Documentation Generation
 
 on:
   push:
     tags:
-      - 'release-v*'
+      - 'release-v*'  # TODO: Customize tag pattern if needed
 
 jobs:
   trigger-docs-update:
-    # Only run when a tag is created with release-v prefix
-    if: github.ref_type == 'tag' && startsWith(github.ref_name, 'release-v')
     runs-on: ubuntu-latest
 
     steps:
+      - name: Determine trigger type and ref
+        id: trigger
+        run: |
+          if [ "${{ github.ref_type }}" == "tag" ]; then
+            # Tag-based trigger (e.g., release-v5.1.0)
+            # TODO: Update pattern to match line 16
+            if [[ "${{ github.ref_name }}" =~ ^release-v ]]; then
+              echo "ref_name=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+              echo "trigger_type=tag" >> $GITHUB_OUTPUT
+              echo "📋 Trigger type: Tag"
+              echo "🏷️  Tag: ${{ github.ref_name }}"
+            else
+              echo "⚠️  Tag does not match release-v* pattern, skipping"
+              exit 0
+            fi
+          else
+            echo "⚠️  Not a tag push, skipping"
+            exit 0
+          fi
+
       - name: Trigger documentation generation
+        if: steps.trigger.outputs.ref_name != ''
         env:
           GH_TOKEN: ${{ secrets.DOCS_REPO_TOKEN }}
         run: |
-          gh workflow run generate-api-docs.yml \
-            --repo stevedylandev/ozdocs \
-            --field repository_name="${{ github.repository }}" \
-            --field tag_name="${{ github.ref_name }}" \
-            --field source_repo_url="${{ github.server_url }}/${{ github.repository }}"
+          # TODO: Replace {WORKFLOW_NAME} with your workflow filename
+          gh workflow run {WORKFLOW_NAME}.yml \
+            --repo OpenZeppelin/docs \
+            --field tag_name="${{ steps.trigger.outputs.ref_name }}" \
+            --field trigger_type="${{ steps.trigger.outputs.trigger_type }}"
 
-          echo "✅ Triggered documentation generation for ${{ github.ref_name }}"
+          echo "✅ Triggered documentation generation for ${{ steps.trigger.outputs.ref_name }}"
           echo "📍 Repository: ${{ github.repository }}"
-          echo "🏷️  Tag: ${{ github.ref_name }}"
+          echo "🔖 Reference: ${{ steps.trigger.outputs.ref_name }}"
+          echo "📋 Type: ${{ steps.trigger.outputs.trigger_type }}"
