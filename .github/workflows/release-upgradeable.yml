@@ -18,7 +18,7 @@ jobs:
           ref: ${{ github.ref }}
       - name: Get vanilla commit
         run: |
-          echo "VANILLA_COMMIT=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+          echo "VANILLA_COMMIT=$(git rev-parse --short HEAD)" >> "$GITHUB_ENV"
       - uses: actions/checkout@v5
         with:
           repository: ${{ env.UPGRADEABLE_REPO }}
@@ -28,8 +28,9 @@ jobs:
           ref: ${{ github.ref }}
       - name: Run
         run: |
-          if ! $(git log -1 --pretty=%B | grep -q "Transpile ${VANILLA_COMMIT}"); then
+          if ! git log -1 --pretty=%B | grep -q "Transpile ${VANILLA_COMMIT}"; then
             echo "Expected 'Transpile ${VANILLA_COMMIT}' but found '$(git log -1 --pretty=%B)'"
+            exit 1
           fi
           VERSION="$(jq -r .version package.json)"
           GIT_TAG="v${VERSION}"
@@ -41,23 +42,23 @@ jobs:
           elif [[ "${GIT_TAG}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-rc.[0-9]+$ ]]; then
             NPM_TAG="next"
           fi
-          echo "ADDITIONAL_OPTION_IF_PRERELEASE=${ADDITIONAL_OPTION_IF_PRERELEASE}" >> $GITHUB_ENV
+          echo "ADDITIONAL_OPTION_IF_PRERELEASE=${ADDITIONAL_OPTION_IF_PRERELEASE}" >> "$GITHUB_ENV"
           ### [START BLOCK] TODO: Remove block before merging
           TIMESTAMPED_VERSION="${VERSION}-$(date +%s)"
-          OLD_GIT_TAG="${GIT_TAG}"
+          echo "OLD_GIT_TAG=${GIT_TAG}" >> "$GITHUB_ENV"
           GIT_TAG="${GIT_TAG}-$(date +%s)" # incremental git tag for testing
           sed -i'' -e 's/openzeppelin\/contracts-upgradeable/james-toussaint\/contracts-upgradeable/g' contracts/package.json # custom scope for testing
           sed -i'' -e "s/${VERSION}/${TIMESTAMPED_VERSION}/g" contracts/package.json && head contracts/package.json # incremental npm package version for testing
           ### [END BLOCK]
           npm ci
           bash scripts/git-user-config.sh
-          git tag -m {,}${GIT_TAG}
-          CI=true git push origin tag ${GIT_TAG}
-          cd contracts
+          git tag -m {,}"${GIT_TAG}"
+          CI=true git push origin tag "${GIT_TAG}"
+          cd "contracts/"
           # Intentionally escape $ to avoid interpolation and writing the token to disk
           echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
-          npm publish --tag ${NPM_TAG}
-          echo "GIT_TAG=${GIT_TAG}" >> $GITHUB_ENV
+          npm publish --tag "${NPM_TAG}"
+          echo "GIT_TAG=${GIT_TAG}" >> "$GITHUB_ENV"
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Create Github Release Note
@@ -68,4 +69,4 @@ jobs:
             --repo="${UPGRADEABLE_REPO}" \
             --title="${GIT_TAG}" \
             --notes="$(gh release view ${OLD_GIT_TAG} --repo="${VANILLA_REPO}" --json body -q .body)" `#TODO: Update tag before merging` \
-            ${ADDITIONAL_OPTION_IF_PRERELEASE}
+            "${ADDITIONAL_OPTION_IF_PRERELEASE}"
