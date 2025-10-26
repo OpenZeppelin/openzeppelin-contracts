@@ -36,6 +36,32 @@ describe('DoubleEndedQueue', function () {
       await expect(this.mock.$back(0)).to.be.revertedWithPanic(PANIC_CODES.ARRAY_ACCESS_OUT_OF_BOUNDS);
       await expect(this.mock.$front(0)).to.be.revertedWithPanic(PANIC_CODES.ARRAY_ACCESS_OUT_OF_BOUNDS);
     });
+
+    it('try getters return false/zero on empty', async function () {
+      const [sf, vf] = await this.mock.$tryFront(0);
+      expect(sf).to.equal(false);
+      expect(vf).to.equal(ethers.ZeroHash);
+
+      const [sb, vb] = await this.mock.$tryBack(0);
+      expect(sb).to.equal(false);
+      expect(vb).to.equal(ethers.ZeroHash);
+
+      const [sa, va] = await this.mock.$tryAt(0, 0);
+      expect(sa).to.equal(false);
+      expect(va).to.equal(ethers.ZeroHash);
+    });
+
+    it('try pops return false/zero on empty', async function () {
+      await expect(this.mock.$tryPopFront(0)).to.emit(this.mock, 'return$tryPopFront').withArgs(false, ethers.ZeroHash);
+      await expect(this.mock.$tryPopBack(0)).to.emit(this.mock, 'return$tryPopBack').withArgs(false, ethers.ZeroHash);
+    });
+
+    it('try pushes succeed on empty', async function () {
+      await expect(this.mock.$tryPushFront(0, bytesA)).to.emit(this.mock, 'return$tryPushFront').withArgs(true);
+      await expect(this.mock.$tryPushBack(0, bytesB)).to.emit(this.mock, 'return$tryPushBack').withArgs(true);
+
+      expect(await this.getContent()).to.have.ordered.members([bytesA, bytesB]);
+    });
   });
 
   describe('when not empty', function () {
@@ -58,6 +84,26 @@ describe('DoubleEndedQueue', function () {
       await expect(this.mock.$at(0, this.content.length)).to.be.revertedWithPanic(
         PANIC_CODES.ARRAY_ACCESS_OUT_OF_BOUNDS,
       );
+    });
+
+    it('try getters return true/value when not empty', async function () {
+      const [sf, vf] = await this.mock.$tryFront(0);
+      expect(sf).to.equal(true);
+      expect(vf).to.equal(this.content[0]);
+
+      const [sb, vb] = await this.mock.$tryBack(0);
+      expect(sb).to.equal(true);
+      expect(vb).to.equal(this.content[this.content.length - 1]);
+
+      const [sa, va] = await this.mock.$tryAt(0, 1);
+      expect(sa).to.equal(true);
+      expect(va).to.equal(this.content[1]);
+    });
+
+    it('tryAt returns false/zero on out of bounds', async function () {
+      const [s, v] = await this.mock.$tryAt(0, this.content.length);
+      expect(s).to.equal(false);
+      expect(v).to.equal(ethers.ZeroHash);
     });
 
     describe('push', function () {
@@ -87,6 +133,20 @@ describe('DoubleEndedQueue', function () {
       it('back', async function () {
         const value = this.content.pop(); // remove last element
         await expect(this.mock.$popBack(0)).to.emit(this.mock, 'return$popBack').withArgs(value);
+
+        expect(await this.getContent()).to.have.ordered.members(this.content);
+      });
+
+      it('try front', async function () {
+        const value = this.content.shift();
+        await expect(this.mock.$tryPopFront(0)).to.emit(this.mock, 'return$tryPopFront').withArgs(true, value);
+
+        expect(await this.getContent()).to.have.ordered.members(this.content);
+      });
+
+      it('try back', async function () {
+        const value = this.content.pop();
+        await expect(this.mock.$tryPopBack(0)).to.emit(this.mock, 'return$tryPopBack').withArgs(true, value);
 
         expect(await this.getContent()).to.have.ordered.members(this.content);
       });
