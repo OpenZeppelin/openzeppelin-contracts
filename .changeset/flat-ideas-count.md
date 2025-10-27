@@ -2,4 +2,4 @@
 'openzeppelin-solidity': minor
 ---
 
-`DoubleEndedQueue`: add non-reverting `try` functions
+`DoubleEndedQueue`: Add `tryPushBack`, `tryPopBack`, `tryPushFront`, `tryPopFront`, `tryFront`, `tryBack`, and `tryAt` function variants that do not revert.
