@@ -293,3 +293,5 @@ await accessControl.connect(admin).grantRole(DEFAULT_ADMIN_ROLE, accessManager);
 
 await accessControl.connect(admin).renounceRole(DEFAULT_ADMIN_ROLE, admin);
 ```
+
+NOTE: After migrating to AccessManager, the `msg.sender` in restricted functions will be the AccessManager contract itself through the xref:api:access.adoc#AccessManager-execute-address-bytes-[`execute`] function, not the original caller. This is a fundamental change in how access control works and may require updates to your contract logic or frontend integration.
