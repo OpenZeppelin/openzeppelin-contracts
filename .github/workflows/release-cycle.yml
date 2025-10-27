@@ -155,6 +155,8 @@ jobs:
           TARBALL: ${{ steps.pack.outputs.tarball }}
           TAG: ${{ steps.pack.outputs.tag }}
           NPM_CONFIG_PROVENANCE: true
+      - name: Add release commit to env
+        run: echo "RELEASE_COMMIT=$(git log -1 --format=%H)" >> "${GITHUB_ENV}"
       - name: Create Github Release
         uses: actions/github-script@v8
         env:
