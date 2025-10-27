@@ -276,19 +276,13 @@ The delayed admin actions are:
 
 Contracts already inheriting from xref:api:access.adoc#Ownable[`Ownable`] can migrate to AccessManager by transferring ownership to the manager. After that, all calls to functions with the `onlyOwner` modifier should be called through the manager's xref:api:access.adoc#AccessManager-execute-address-bytes-[`execute`] function, even if the caller doesn't require a delay.
 
-WARNING: When migrating from `Ownable` to `AccessManager`, be very mindful of the danger associated with functions such as `renounceOwnership`. If the owner renounces ownership before transferring it to the AccessManager, the contract will become permanently locked with no way to recover administrative control.
-
 ```javascript
 await ownable.connect(owner).transferOwnership(accessManager);
 ```
 
-IMPORTANT: After migration, the `msg.sender` in restricted functions will be the AccessManager contract itself, not the original caller. This is a fundamental change in how access control works and may require updates to your contract logic or frontend integration.
-
 === Using with AccessControl
 
 For systems already using xref:api:access.adoc#AccessControl[`AccessControl`], the `DEFAULT_ADMIN_ROLE` can be granted to the `AccessManager` after revoking every other role. Subsequent calls should be made through the manager's xref:api:access.adoc#AccessManager-execute-address-bytes-[`execute`] method, similar to the Ownable case.
-
-WARNING: When migrating from `AccessControl` to `AccessManager`, be very mindful of the danger associated with functions such as `renounceRole`. If an admin renounces their role before transferring it to the AccessManager, the contract may become permanently locked with no way to recover administrative control.
 
 ```javascript
 // Revoke old roles
@@ -300,4 +294,4 @@ await accessControl.connect(admin).grantRole(DEFAULT_ADMIN_ROLE, accessManager);
 await accessControl.connect(admin).renounceRole(DEFAULT_ADMIN_ROLE, admin);
 ```
 
-IMPORTANT: After migration, the `msg.sender` in restricted functions will be the AccessManager contract itself, not the original caller. This is a fundamental change in how access control works and may require updates to your contract logic or frontend integration.
+NOTE: After migrating to AccessManager, the `msg.sender` in restricted functions will be the AccessManager contract itself through the xref:api:access.adoc#AccessManager-execute-address-bytes-[`execute`] function, not the original caller. This is a fundamental change in how access control works and may require updates to your contract logic or frontend integration.
