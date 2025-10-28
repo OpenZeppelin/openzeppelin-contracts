@@ -1,6 +1,7 @@
 = Account
+
 [.readme-notice]
-NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/account
+NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/5.x/api/account#account
 
 This directory includes contracts to build accounts for ERC-4337. These include:
 
