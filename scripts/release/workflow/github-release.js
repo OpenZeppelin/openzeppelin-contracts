@@ -5,17 +5,11 @@ const { version } = require(join(__dirname, '../../../package.json'));
 module.exports = async ({ github, context }) => {
   const changelog = readFileSync('CHANGELOG.md', 'utf8');
 
-  const releaseCommit = process.env.RELEASE_COMMIT;
-  if (!releaseCommit) {
-    console.error('`RELEASE_COMMIT` env var is required.');
-    process.exit(1);
-  }
-
   await github.rest.repos.createRelease({
     owner: context.repo.owner,
     repo: context.repo.repo,
     tag_name: `v${version}`,
-    target_commitish: releaseCommit,
+    target_commitish: context.sha,
     body: extractSection(changelog, version),
     prerelease: process.env.PRERELEASE === 'true',
   });
