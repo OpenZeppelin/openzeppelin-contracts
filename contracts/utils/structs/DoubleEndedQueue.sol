@@ -38,8 +38,12 @@ library DoubleEndedQueue {
      * Reverts with {Panic-RESOURCE_ERROR} if the queue is full.
      */
     function pushBack(Bytes32Deque storage deque, bytes32 value) internal {
-        bool success = tryPushBack(deque, value);
-        if (!success) Panic.panic(Panic.RESOURCE_ERROR);
+        unchecked {
+            uint128 backIndex = deque._end;
+            if (backIndex + 1 == deque._begin) Panic.panic(Panic.RESOURCE_ERROR);
+            deque._data[backIndex] = value;
+            deque._end = backIndex + 1;
+        }
     }
 
     /**
@@ -63,9 +67,14 @@ library DoubleEndedQueue {
      * Reverts with {Panic-EMPTY_ARRAY_POP} if the queue is empty.
      */
     function popBack(Bytes32Deque storage deque) internal returns (bytes32 value) {
-        bool success;
-        (success, value) = tryPopBack(deque);
-        if (!success) Panic.panic(Panic.EMPTY_ARRAY_POP);
+        unchecked {
+            uint128 backIndex = deque._end;
+            if (backIndex == deque._begin) Panic.panic(Panic.EMPTY_ARRAY_POP);
+            --backIndex;
+            value = deque._data[backIndex];
+            delete deque._data[backIndex];
+            deque._end = backIndex;
+        }
     }
 
     /**
@@ -91,8 +100,12 @@ library DoubleEndedQueue {
      * Reverts with {Panic-RESOURCE_ERROR} if the queue is full.
      */
     function pushFront(Bytes32Deque storage deque, bytes32 value) internal {
-        bool success = tryPushFront(deque, value);
-        if (!success) Panic.panic(Panic.RESOURCE_ERROR);
+        unchecked {
+            uint128 frontIndex = deque._begin - 1;
+            if (frontIndex == deque._end) Panic.panic(Panic.RESOURCE_ERROR);
+            deque._data[frontIndex] = value;
+            deque._begin = frontIndex;
+        }
     }
 
     /**
@@ -116,9 +129,13 @@ library DoubleEndedQueue {
      * Reverts with {Panic-EMPTY_ARRAY_POP} if the queue is empty.
      */
     function popFront(Bytes32Deque storage deque) internal returns (bytes32 value) {
-        bool success;
-        (success, value) = tryPopFront(deque);
-        if (!success) Panic.panic(Panic.EMPTY_ARRAY_POP);
+        unchecked {
+            uint128 frontIndex = deque._begin;
+            if (frontIndex == deque._end) Panic.panic(Panic.EMPTY_ARRAY_POP);
+            value = deque._data[frontIndex];
+            delete deque._data[frontIndex];
+            deque._begin = frontIndex + 1;
+        }
     }
 
     /**
@@ -144,9 +161,8 @@ library DoubleEndedQueue {
      * Reverts with {Panic-ARRAY_OUT_OF_BOUNDS} if the queue is empty.
      */
     function front(Bytes32Deque storage deque) internal view returns (bytes32 value) {
-        bool success;
-        (success, value) = tryFront(deque);
-        if (!success) Panic.panic(Panic.ARRAY_OUT_OF_BOUNDS);
+        if (empty(deque)) Panic.panic(Panic.ARRAY_OUT_OF_BOUNDS);
+        return deque._data[deque._begin];
     }
 
     /**
@@ -165,9 +181,10 @@ library DoubleEndedQueue {
      * Reverts with {Panic-ARRAY_OUT_OF_BOUNDS} if the queue is empty.
      */
     function back(Bytes32Deque storage deque) internal view returns (bytes32 value) {
-        bool success;
-        (success, value) = tryBack(deque);
-        if (!success) Panic.panic(Panic.ARRAY_OUT_OF_BOUNDS);
+        if (empty(deque)) Panic.panic(Panic.ARRAY_OUT_OF_BOUNDS);
+        unchecked {
+            return deque._data[deque._end - 1];
+        }
     }
 
     /**
@@ -189,9 +206,11 @@ library DoubleEndedQueue {
      * Reverts with {Panic-ARRAY_OUT_OF_BOUNDS} if the index is out of bounds.
      */
     function at(Bytes32Deque storage deque, uint256 index) internal view returns (bytes32 value) {
-        bool success;
-        (success, value) = tryAt(deque, index);
-        if (!success) Panic.panic(Panic.ARRAY_OUT_OF_BOUNDS);
+        if (index >= length(deque)) Panic.panic(Panic.ARRAY_OUT_OF_BOUNDS);
+        // By construction, length is a uint128, so the check above ensures that index can be safely downcast to uint128
+        unchecked {
+            return deque._data[deque._begin + uint128(index)];
+        }
     }
 
     /**
