@@ -84,12 +84,12 @@ abstract contract ERC4626 is ERC20, IERC4626 {
     error ERC4626ExceededMaxMint(address receiver, uint256 shares, uint256 max);
 
     /**
-     * @dev Attempted to withdraw more assets than the max amount for `receiver`.
+     * @dev Attempted to withdraw more assets than the max amount for `owner`.
      */
     error ERC4626ExceededMaxWithdraw(address owner, uint256 assets, uint256 max);
 
     /**
-     * @dev Attempted to redeem more shares than the max amount for `receiver`.
+     * @dev Attempted to redeem more shares than the max amount for `owner`.
      */
     error ERC4626ExceededMaxRedeem(address owner, uint256 shares, uint256 max);
 
