@@ -26,8 +26,8 @@ describe('DoubleEndedQueue', function () {
 
   describe('when empty', function () {
     it('getters', async function () {
-      expect(await this.mock.$empty(0)).to.be.true;
-      expect(await this.getContent()).to.have.ordered.members([]);
+      await expect(this.mock.$empty(0)).to.eventually.be.true;
+      await expect(this.getContent()).to.eventually.have.ordered.members([]);
     });
 
     it('reverts on accesses', async function () {
@@ -60,7 +60,7 @@ describe('DoubleEndedQueue', function () {
       await expect(this.mock.$tryPushFront(0, bytesA)).to.emit(this.mock, 'return$tryPushFront').withArgs(true);
       await expect(this.mock.$tryPushBack(0, bytesB)).to.emit(this.mock, 'return$tryPushBack').withArgs(true);
 
-      expect(await this.getContent()).to.have.ordered.members([bytesA, bytesB]);
+      await expect(this.getContent()).to.eventually.have.ordered.members([bytesA, bytesB]);
     });
   });
 
@@ -73,11 +73,11 @@ describe('DoubleEndedQueue', function () {
     });
 
     it('getters', async function () {
-      expect(await this.mock.$empty(0)).to.be.false;
-      expect(await this.mock.$length(0)).to.equal(this.content.length);
-      expect(await this.mock.$front(0)).to.equal(this.content[0]);
-      expect(await this.mock.$back(0)).to.equal(this.content[this.content.length - 1]);
-      expect(await this.getContent()).to.have.ordered.members(this.content);
+      await expect(this.mock.$empty(0)).to.eventually.be.false;
+      await expect(this.mock.$length(0)).to.eventually.equal(this.content.length);
+      await expect(this.mock.$front(0)).to.eventually.equal(this.content[0]);
+      await expect(this.mock.$back(0)).to.eventually.equal(this.content[this.content.length - 1]);
+      await expect(this.getContent()).to.eventually.have.ordered.members(this.content);
     });
 
     it('out of bounds access', async function () {
@@ -111,14 +111,14 @@ describe('DoubleEndedQueue', function () {
         await this.mock.$pushFront(0, bytesD);
         this.content.unshift(bytesD); // add element at the beginning
 
-        expect(await this.getContent()).to.have.ordered.members(this.content);
+        await expect(this.getContent()).to.eventually.have.ordered.members(this.content);
       });
 
       it('back', async function () {
         await this.mock.$pushBack(0, bytesD);
         this.content.push(bytesD); // add element at the end
 
-        expect(await this.getContent()).to.have.ordered.members(this.content);
+        await expect(this.getContent()).to.eventually.have.ordered.members(this.content);
       });
     });
 
@@ -127,36 +127,36 @@ describe('DoubleEndedQueue', function () {
         const value = this.content.shift(); // remove first element
         await expect(this.mock.$popFront(0)).to.emit(this.mock, 'return$popFront').withArgs(value);
 
-        expect(await this.getContent()).to.have.ordered.members(this.content);
+        await expect(this.getContent()).to.eventually.have.ordered.members(this.content);
       });
 
       it('back', async function () {
         const value = this.content.pop(); // remove last element
         await expect(this.mock.$popBack(0)).to.emit(this.mock, 'return$popBack').withArgs(value);
 
-        expect(await this.getContent()).to.have.ordered.members(this.content);
+        await expect(this.getContent()).to.eventually.have.ordered.members(this.content);
       });
 
       it('try front', async function () {
         const value = this.content.shift();
         await expect(this.mock.$tryPopFront(0)).to.emit(this.mock, 'return$tryPopFront').withArgs(true, value);
 
-        expect(await this.getContent()).to.have.ordered.members(this.content);
+        await expect(this.getContent()).to.eventually.have.ordered.members(this.content);
       });
 
       it('try back', async function () {
         const value = this.content.pop();
         await expect(this.mock.$tryPopBack(0)).to.emit(this.mock, 'return$tryPopBack').withArgs(true, value);
 
-        expect(await this.getContent()).to.have.ordered.members(this.content);
+        await expect(this.getContent()).to.eventually.have.ordered.members(this.content);
       });
     });
 
     it('clear', async function () {
       await this.mock.$clear(0);
 
-      expect(await this.mock.$empty(0)).to.be.true;
-      expect(await this.getContent()).to.have.ordered.members([]);
+      await expect(this.mock.$empty(0)).to.eventually.be.true;
+      await expect(this.getContent()).to.eventually.have.ordered.members([]);
     });
   });
 });
