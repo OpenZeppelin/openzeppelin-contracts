@@ -124,7 +124,7 @@ By default, the address that deployed the xref:api:governance.adoc#TimelockContr
 
 The first step in configuring the xref:api:governance.adoc#TimelockController[`TimelockController`] is to assign at least one proposer and one executor. These can be assigned during construction or later by anyone with the administrator role. These roles are not exclusive, meaning an account can have both roles.
 
-Roles are managed using the xref:api:access.adoc#AccessControl[`AccessControl`] interface and the `bytes32` values for each role are accessible through the `ADMIN_ROLE`, `PROPOSER_ROLE` and `EXECUTOR_ROLE` constants.
+Roles are managed using the xref:api:access.adoc#AccessControl[`AccessControl`] interface and the `bytes32` values for each role are accessible through the `DEFAULT_ADMIN_ROLE`, `PROPOSER_ROLE`, `EXECUTOR_ROLE`, and `CANCELLER_ROLE` constants.
 
 There is an additional feature built on top of `AccessControl`: giving the executor role to `address(0)` opens access to anyone to execute a proposal once the timelock has expired. This feature, while useful, should be used with caution.
 
