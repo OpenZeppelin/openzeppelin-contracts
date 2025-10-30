@@ -38,17 +38,9 @@ describe('DoubleEndedQueue', function () {
     });
 
     it('try getters return false/zero on empty', async function () {
-      const [sf, vf] = await this.mock.$tryFront(0);
-      expect(sf).to.equal(false);
-      expect(vf).to.equal(ethers.ZeroHash);
-
-      const [sb, vb] = await this.mock.$tryBack(0);
-      expect(sb).to.equal(false);
-      expect(vb).to.equal(ethers.ZeroHash);
-
-      const [sa, va] = await this.mock.$tryAt(0, 0);
-      expect(sa).to.equal(false);
-      expect(va).to.equal(ethers.ZeroHash);
+      await expect(this.mock.$tryFront(0)).to.eventually.deep.equal([false, ethers.ZeroHash]);
+      await expect(this.mock.$tryBack(0)).to.eventually.deep.equal([false, ethers.ZeroHash]);
+      await expect(this.mock.$tryAt(0, 0)).to.eventually.deep.equal([false, ethers.ZeroHash]);
     });
 
     it('try pops return false/zero on empty', async function () {
@@ -87,23 +79,13 @@ describe('DoubleEndedQueue', function () {
     });
 
     it('try getters return true/value when not empty', async function () {
-      const [sf, vf] = await this.mock.$tryFront(0);
-      expect(sf).to.equal(true);
-      expect(vf).to.equal(this.content[0]);
-
-      const [sb, vb] = await this.mock.$tryBack(0);
-      expect(sb).to.equal(true);
-      expect(vb).to.equal(this.content[this.content.length - 1]);
-
-      const [sa, va] = await this.mock.$tryAt(0, 1);
-      expect(sa).to.equal(true);
-      expect(va).to.equal(this.content[1]);
+      await expect(this.mock.$tryFront(0)).to.eventually.deep.equal([true, this.content[0]]);
+      await expect(this.mock.$tryBack(0)).to.eventually.deep.equal([true, this.content[this.content.length - 1]]);
+      await expect(this.mock.$tryAt(0, 1)).to.eventually.deep.equal([true, this.content[1]]);
     });
 
     it('tryAt returns false/zero on out of bounds', async function () {
-      const [s, v] = await this.mock.$tryAt(0, this.content.length);
-      expect(s).to.equal(false);
-      expect(v).to.equal(ethers.ZeroHash);
+      await expect(this.mock.$tryAt(0, this.content.length)).to.eventually.deep.equal([false, ethers.ZeroHash]);
     });
 
     describe('push', function () {
