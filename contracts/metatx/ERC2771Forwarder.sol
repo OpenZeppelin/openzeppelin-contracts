@@ -195,7 +195,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
 
     /**
      * @dev Validates if the provided request can be executed at current block timestamp with
-     * the given `request.signature` on behalf of `request.signer`.
+     * the given `request.signature` on behalf of `request.from`.
      */
     function _validate(
         ForwardRequestData calldata request
