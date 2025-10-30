@@ -32,7 +32,7 @@ jobs:
             echo "Expected 'Transpile ${VANILLA_COMMIT}' but found '$(git log -1 --pretty=%B)'"
             exit 1
           fi
-          VERSION="$(jq -r .version package.json)"
+          VERSION="$(jq -r .version contracts/package.json)"
           GIT_TAG="v${VERSION}"
           NPM_TAG="tmp"
           ADDITIONAL_OPTION_IF_PRERELEASE="--prerelease"
