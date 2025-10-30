@@ -6,65 +6,41 @@ on:
 jobs:
   release-upgradeable:
     environment: push-upgradeable
+    permissions:
+      id-token: write # Required for OIDC
+      contents: read
     runs-on: ubuntu-latest
     env:
       VANILLA_REPO: OpenZeppelin/openzeppelin-contracts
       UPGRADEABLE_REPO: james-toussaint/openzeppelin-contracts-upgradeable # TODO: Update repo before merging
     steps:
+      - run: echo "UPGRADEABLE_DIR=${GITHUB_WORKSPACE}/upgradeable" >> "$GITHUB_ENV"
       - uses: actions/checkout@v5
         with:
           repository: ${{ env.VANILLA_REPO }}
           ref: ${{ github.ref }}
-      - name: Get vanilla commit
-        run: |
-          echo "VANILLA_COMMIT=$(git rev-parse --short HEAD)" >> "$GITHUB_ENV"
+      - id: vanilla
+        name: Get vanilla commit
+        run: echo "commit=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v5 # TODO: Remove this before merging (used to get node 24.x from setup action)
+      - name: Set up environment
+        uses: ./.github/actions/setup
       - uses: actions/checkout@v5
         with:
           repository: ${{ env.UPGRADEABLE_REPO }}
           submodules: true
           token: ${{ secrets.GH_TOKEN_UPGRADEABLE }}
           ref: ${{ github.ref }}
-      - name: Run
-        run: |
-          if ! git log -1 --pretty=%B | grep -q "Transpile ${VANILLA_COMMIT}"; then
-            echo "Expected 'Transpile ${VANILLA_COMMIT}' but found '$(git log -1 --pretty=%B)'"
-            exit 1
-          fi
-          VERSION="$(jq -r .version contracts/package.json)"
-          GIT_TAG="v${VERSION}"
-          NPM_TAG="tmp"
-          ADDITIONAL_OPTION_IF_PRERELEASE="--prerelease"
-          if [[ "${GIT_TAG}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            NPM_TAG="dev"
-            ADDITIONAL_OPTION_IF_PRERELEASE=""
-          elif [[ "${GIT_TAG}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-rc.[0-9]+$ ]]; then
-            NPM_TAG="next"
-          fi
-          echo "ADDITIONAL_OPTION_IF_PRERELEASE=${ADDITIONAL_OPTION_IF_PRERELEASE}" >> "$GITHUB_ENV"
-          ### [START BLOCK] TODO: Remove block before merging
-          TIMESTAMPED_VERSION="${VERSION}-$(date +%s)"
-          echo "OLD_GIT_TAG=${GIT_TAG}" >> "$GITHUB_ENV"
-          GIT_TAG="${GIT_TAG}-$(date +%s)" # incremental git tag for testing
-          sed -i'' -e 's/openzeppelin\/contracts-upgradeable/james-toussaint\/contracts-upgradeable/g' contracts/package.json # custom scope for testing
-          sed -i'' -e "s/${VERSION}/${TIMESTAMPED_VERSION}/g" contracts/package.json && head contracts/package.json # incremental npm package version for testing
-          ### [END BLOCK]
-          npm ci
-          bash scripts/git-user-config.sh
-          git tag -m {,}"${GIT_TAG}"
-          CI=true git push origin tag "${GIT_TAG}"
-          cd "contracts/"
-          # Intentionally escape $ to avoid interpolation and writing the token to disk
-          echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
-          npm publish --tag "${NPM_TAG}"
-          echo "GIT_TAG=${GIT_TAG}" >> "$GITHUB_ENV"
+          path: upgradeable
+      - run: cd "${UPGRADEABLE_DIR}" && bash ${{ github.workspace }}/scripts/git-user-config.sh
+      - id: publish
+        name: Publish
+        run: bash scripts/release/workflow/publish-upgradeable.sh
         env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          VANILLA_COMMIT: ${{ steps.vanilla.outputs.commit }}
       - name: Create Github Release Note
+        run: bash scripts/release/workflow/github-release-upgradeable.sh
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN_UPGRADEABLE }}
-        run: |
-          gh release create "${GIT_TAG}" \
-            --repo="${UPGRADEABLE_REPO}" \
-            --title="${GIT_TAG}" \
-            --notes="$(gh release view "${OLD_GIT_TAG}" --repo="${VANILLA_REPO}" --json body -q .body)" `# TODO: Update tag before merging` \
-            "${ADDITIONAL_OPTION_IF_PRERELEASE}"
+          GIT_TAG: ${{ steps.publish.outputs.git_tag }}
+          ADDITIONAL_OPTION_IF_PRERELEASE: ${{ steps.publish.outputs.additional_option_if_prerelease }}
