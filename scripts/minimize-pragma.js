@@ -37,7 +37,9 @@ const limit = pLimit(concurrency);
 const updatePragma = (file, pragma) =>
   fs.writeFileSync(
     file,
-    fs.readFileSync(file, 'utf8').replace(/pragma solidity [><=^]*[0-9]+.[0-9]+.[0-9]+;/, `pragma solidity ${pragma};`),
+    fs
+      .readFileSync(file, 'utf8')
+      .replace(/pragma solidity [><=^]*[0-9]+\.[0-9]+\.[0-9]+;/, `pragma solidity ${pragma};`),
     'utf8',
   );
 
