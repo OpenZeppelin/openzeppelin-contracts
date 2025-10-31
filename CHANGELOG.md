@@ -1,61 +1,11 @@
 # Changelog
 
-
 ## 5.5.0 (2025-10-31)
-
-- `Bytes`: Add `splice(bytes,uint256)` and `splice(bytes,uint256,uint256)` functions that move a specified range of bytes to the start of the buffer and truncate it in place, as an alternative to `slice`. ([#5733](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5733))
-- `WebAuthn`: Add a library for verifying WebAuthn Authentication Assertions. ([#5809](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5809))
-- `RelayedCall`: Add a library to perform indirect calls through minimal and predictable relayers. ([#5630](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5630))
-- `Memory`: Add library with utilities to manipulate memory ([#5189](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5189))
-- `Checkpoints`: Add a new checkpoint variant `Checkpoint256` using `uint256` type for the value and key. ([#5748](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5748))
-- `Bytes`: Add a `clz` function to count the leading zero bits in a `bytes` buffer. ([#5725](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5725))
-- `IERC7751`: Add the interface for custom error wrapping of bubbled up reverts. ([#5816](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5816))
-- `RLP`: Add a library for encoding and decoding data in Ethereum's Recursive Length Prefix format. ([#5680](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5680))
-- `Base58`: Add a library for encoding and decoding bytes buffers into base58 strings. ([#5762](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5762))
-- `Bytes`: Add `reverseBytes32`, `reverseBytes16`, `reverseBytes8`, `reverseBytes4`, and `reverseBytes2` functions to reverse byte order for converting between little-endian and big-endian representations. ([#5724](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5724))
-- `Memory`: Add a UDVT for handling slices on memory space similarly to calldata slices. ([#5680](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5680))
-- `Strings`: Add `toHexString(bytes)`. ([#5761](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5761))
-- `Bytes`: Add `concat` that merges a `bytes[]` array of buffers into a single `bytes` buffer. ([#5882](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5882))
-- `SignerWebAuthn`: Add an abstract signer that verifies WebAuthn signatures, with a P256 fallback. ([#5809](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5809))
-- `ECDSA`: Add `parse` and `parseCalldata` to parse bytes signatures of length 65 or 64 (erc-2098) into its v,r,s components. ([#5814](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5814))
-- `MultiSignerERC7913Weighted`: Extension of `MultiSignerERC7913` that supports assigning different weights to each signer, enabling more flexible governance schemes. ([#5718](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5718))
-- `ReentrancyGuard` and `ReentrancyGuardTransient`: Add `nonReentrantView`, a read-only version of the `nonReentrant` modifier. ([#5800](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5800))
-- `InteroperableAddress`: Add a library for formatting and parsing ERC-7930 interoperable addresses. ([#5736](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5736))
-- `ERC20Bridgeable`: Implementation of ERC-7802 that makes an ERC-20 compatible with crosschain bridges. ([#5735](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5735))
-- `LowLevelCall`: Add a library to perform low-level calls and deal with the `returndata` more granularly. ([#5094](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5094))
-- `ERC4626`: compute `maxWithdraw` using `maxRedeem` and `previewRedeem` so that changes to the preview functions affect the max functions. ([#5130](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5130))
-- `ERC7786Recipient`: Generic ERC-7786 cross-chain message recipient contract. ([#5904](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5904))
-- `Base64`: Add a new `decode` function that parses base64 encoded strings. ([#5765](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5765))
-- `Arrays`: Add `slice` and `splice` functions for value types (`uint256[]`, `bytes32[]`, `address[]`).
-- `Bytes`: Add an `equal` function to compare byte buffers. ([#5726](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5726))
-- `ERC7913WebAuthnVerifier`: Add an ERC-7913 verifier that verifies WebAuthn Authentication Assertions for P256 identities. ([#5809](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5809))
-- `ECDSA`: Add `recoverCalldata` and `tryRecoverCalldata`, variants of `recover` and `tryRecover` that are more efficient when signatures are in calldata. ([#5788](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5788))
-- `Math`: Add a `clz` function to count the leading zero bits in a `uint256` value. ([#5725](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5725))
-- `SignatureChecker`: Add `isValidSignatureNowCalldata(address,bytes32,bytes calldata)` for efficient processing of calldata signatures. ([#5788](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5788))
-- `IERC7786`: Add the (draft) interface for ERC-7786 "Cross-Chain Messaging Gateway" ([#5737](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5737))
-- `Accumulators`: A library for merging an arbitrary dynamic number of bytes buffers. ([#5680](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5680))
-- Add constructors to the different signers. ([#5757](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5757))
-- `ReentrancyGuard`, `ReentrancyGuardTransient`: Add an internal `_reentrancyGuardStorageSlot` function allowing slot customization via override. ([#5892](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5892))
-- `Bytes`: Fix `lastIndexOf(bytes,byte,uint256)` with empty buffers and finite position to correctly return `type(uint256).max` instead of accessing uninitialized memory sections. ([#5797](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5797))
-
-### Bug fixes
-
-- `AccountERC7579`: Prevent revert in `isModuleInstalled` for fallback modules when `additionalContext` has fewer than 4 bytes. The function now returns `false` instead of reverting, ensuring ERC-7579 compliance. ([#5961](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5961))
-
-### Breaking changes
-
-- `Account`: Add `signature` argument to the internal `_validateUserOp` function for custom signature handling logic. Developers overriding it must now provide the signature from the user operation (i.e. `userOp.signature`) to keep compatibility. ([#5976](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5976))
-- `AccountERC7579`: Installing and uninstalling fallback modules now require the corresponding `initData` and `deInitData` arguments to be at least 4 bytes long (matching the selector to which the fallback module is registered). It now reverts with `ERC7579CannotDecodeFallbackData` instead of treating the missing bytes as `0x00`. ([#5974](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5974))
-
-### Changes by category
-
-#### Utils
-
-- `Arrays`: Add `slice` and `splice` functions for value types (`uint256[]`, `bytes32[]`, `address[]`). ([#5983](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5983))
 
 ### Bug fixes
 
 - `ERC165Checker`: Ensure the `supportsERC165` function returns false if the target reverts during the `supportsInterface(0xffffffff)` call. ([#5810](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5880))
+- `AccountERC7579`: Prevent revert in `isModuleInstalled` for fallback modules when `additionalContext` has fewer than 4 bytes. The function now returns `false` instead of reverting, ensuring ERC-7579 compliance. ([#5961](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5961))
 
 ### Breaking changes
 
@@ -63,6 +13,8 @@
 - `SignerERC7702` is renamed as `SignerEIP7702`. Imports and inheritance must be updated to that new name and path. Behavior is unmodified. ([#5932](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5932))
 - `ERC721Holder`, `ERC1155Holder`, `ReentrancyGuard` and `ReentrancyGuardTransient` are flagged as stateless and are no longer transpiled. Developers using their upgradeable variants from `@openzeppelin/contracts-upgradeable` must update their imports to use the equivalent version available in `@openzeppelin/contracts`. ([#5944](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5944), [#5942](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5942))
 - Update minimum pragma to 0.8.24 in `AccessControlEnumerable`, `Arrays`, `CircularBuffer`, `EIP712`, `EnumerableMap`, `EnumerableSet`, `ERC1155`, `ERC1155Burnable`, `ERC1155Pausable`, `ERC1155Supply`, `ERC1155URIStorage`, `ERC20Votes`, `ERC4626`,`ERC721Burnable`, `ERC721Consecutive`, `ERC721Enumerable`, `ERC721Pausable`, `ERC721Royalty`, `ERC721URIStorage`, `ERC721Votes`, `ERC721Wrapper`, `ERC7739`, `Heap`, `MerkleTree`, `MessageHashUtils`, `Strings`, `Votes` and `VotesExtended`. ([#5723](https://github.com/OpenZeppelin/openzeppelin-contracts/issues/5723), [#5726](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5726), [#5965](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5965))
+- `Account`: Add `signature` argument to the internal `_validateUserOp` function for custom signature handling logic. Developers overriding it must now provide the signature from the user operation (i.e. `userOp.signature`) to keep compatibility. ([#5976](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5976))
+- `AccountERC7579`: Installing and uninstalling fallback modules now require the corresponding `initData` and `deInitData` arguments to be at least 4 bytes long (matching the selector to which the fallback module is registered). It now reverts with `ERC7579CannotDecodeFallbackData` instead of treating the missing bytes as `0x00`. ([#5974](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5974))
 
 ### Deprecation
 
@@ -124,6 +76,7 @@
 - `RelayedCall`: Add a library to perform indirect calls through minimal and predictable relayers. ([#5630](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5630))
 - `RLP`: Add a library for encoding and decoding data in Ethereum's Recursive Length Prefix format. ([#5680](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5680))
 - `Strings`: Add `toHexString(bytes)`. ([#5761](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5761))
+- `Arrays`: Add `slice` and `splice` functions for value types (`uint256[]`, `bytes32[]`, `address[]`). ([#5983](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5983))
 
 ## 5.4.0 (2025-07-17)
 
