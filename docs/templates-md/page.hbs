@@ -1,0 +1,13 @@
+---
+title: "{{title}}"
+description: "{{description}}"
+---
+
+{{#with-prelude}}
+{{readme (readme-path)}}
+{{/with-prelude}}
+
+{{#each items}}
+{{>contract}}
+
+{{/each}}
