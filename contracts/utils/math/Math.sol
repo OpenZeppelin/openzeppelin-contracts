@@ -474,13 +474,13 @@ library Math {
      * @dev Returns whether the provided byte array is zero.
      */
     function _zeroBytes(bytes memory buffer) private pure returns (bool) {
+        uint256 chunk;
         for (uint256 i = 0; i < buffer.length; i += 0x20) {
             // See _unsafeReadBytesOffset from utils/Bytes.sol
-            uint256 value;
             assembly ("memory-safe") {
-                value := mload(add(add(buffer, 0x20), i))
+                chunk := mload(add(add(buffer, 0x20), i))
             }
-            if (value >> (8 * saturatingSub(i + 0x20, buffer.length)) != 0) {
+            if (chunk >> (8 * saturatingSub(i + 0x20, buffer.length)) != 0) {
                 return false;
             }
         }
