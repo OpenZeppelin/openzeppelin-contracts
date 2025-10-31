@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.5.0-rc.0) (governance/utils/VotesExtended.sol)
+// OpenZeppelin Contracts (last updated v5.5.0) (governance/utils/VotesExtended.sol)
 pragma solidity ^0.8.24;
 
 import {Checkpoints} from "../../utils/structs/Checkpoints.sol";

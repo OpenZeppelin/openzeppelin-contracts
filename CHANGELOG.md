@@ -1,31 +1,16 @@
 # Changelog
 
-
-## 5.5.0-rc.1 (2025-10-09)
+## 5.5.0 (2025-10-31)
 
 ### Bug fixes
 
 - `AccountERC7579`: Prevent revert in `isModuleInstalled` for fallback modules when `additionalContext` has fewer than 4 bytes. The function now returns `false` instead of reverting, ensuring ERC-7579 compliance. ([#5961](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5961))
+- `ERC165Checker`: Ensure the `supportsERC165` function returns false if the target reverts during the `supportsInterface(0xffffffff)` call. ([#5810](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5880))
 
 ### Breaking changes
 
 - `Account`: Add `signature` argument to the internal `_validateUserOp` function for custom signature handling logic. Developers overriding it must now provide the signature from the user operation (i.e. `userOp.signature`) to keep compatibility. ([#5976](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5976))
 - `AccountERC7579`: Installing and uninstalling fallback modules now require the corresponding `initData` and `deInitData` arguments to be at least 4 bytes long (matching the selector to which the fallback module is registered). It now reverts with `ERC7579CannotDecodeFallbackData` instead of treating the missing bytes as `0x00`. ([#5974](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5974))
-
-### Changes by category
-
-#### Utils
-
-- `Arrays`: Add `slice` and `splice` functions for value types (`uint256[]`, `bytes32[]`, `address[]`). ([#5983](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5983))
-
-## 5.5.0-rc.0 (2025-09-26)
-
-### Bug fixes
-
-- `ERC165Checker`: Ensure the `supportsERC165` function returns false if the target reverts during the `supportsInterface(0xffffffff)` call. ([#5810](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5880))
-
-### Breaking changes
-
 - `ERC6909` and its extensions (`ERC6909ContentURI`, `ERC6909Metadata` and `ERC6909TokenSupply`) are no longer marked as draft since [EIP-6909](https://eips.ethereum.org/EIPS/eip-6909) is now final. Developers must update the import paths. Contracts behavior is not modified. ([#5929](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5929))
 - `SignerERC7702` is renamed as `SignerEIP7702`. Imports and inheritance must be updated to that new name and path. Behavior is unmodified. ([#5932](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5932))
 - `ERC721Holder`, `ERC1155Holder`, `ReentrancyGuard` and `ReentrancyGuardTransient` are flagged as stateless and are no longer transpiled. Developers using their upgradeable variants from `@openzeppelin/contracts-upgradeable` must update their imports to use the equivalent version available in `@openzeppelin/contracts`. ([#5944](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5944), [#5942](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5942))
@@ -73,6 +58,7 @@
 
 #### Utils
 
+- `Arrays`: Add `slice` and `splice` functions for value types (`uint256[]`, `bytes32[]`, `address[]`). ([#5983](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5983))
 - `Base58`: Add a library for encoding and decoding bytes buffers into base58 strings. ([#5762](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5762))
 - `Base64`: Add a new `decode` function that parses base64 encoded strings. ([#5765](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5765))
 - `Bytes`: Add `concat` that merges a `bytes[]` array of buffers into a single `bytes` buffer. ([#5882](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5882))
