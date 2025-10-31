@@ -2,7 +2,6 @@
 
 set -euo pipefail
 
-eval $GO_TO_UPGRADEABLE_DIR
 echo "release_commit=$(git log -1 --pretty=%H)" >> "$GITHUB_OUTPUT"
 if ! git log -1 --pretty=%B | grep -q "Transpile ${VANILLA_COMMIT}"; then
   echo "Expected 'Transpile ${VANILLA_COMMIT}' but found '$(git log -1 --pretty=%B)'"
