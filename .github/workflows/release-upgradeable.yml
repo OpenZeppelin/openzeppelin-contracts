@@ -13,8 +13,8 @@ jobs:
     env:
       VANILLA_REPO: OpenZeppelin/openzeppelin-contracts
       UPGRADEABLE_REPO: james-toussaint/openzeppelin-contracts-upgradeable # TODO: Update repo before merging
+      GO_TO_UPGRADEABLE_DIR: cd ${GITHUB_WORKSPACE}/upgradeable
     steps:
-      - run: echo "UPGRADEABLE_DIR=${GITHUB_WORKSPACE}/upgradeable" >> "$GITHUB_ENV"
       - uses: actions/checkout@v5
         with:
           repository: ${{ env.VANILLA_REPO }}
@@ -22,7 +22,7 @@ jobs:
       - id: vanilla
         name: Get vanilla commit
         run: echo "commit=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
-      - uses: actions/checkout@v5 # TODO: Remove this before merging (used to get node 24.x from setup action)
+      - uses: actions/checkout@v5 # TODO: Remove this before merging (used to get scripts added in this PR)
       - name: Set up environment
         uses: ./.github/actions/setup
       - uses: actions/checkout@v5
@@ -32,15 +32,20 @@ jobs:
           token: ${{ secrets.GH_TOKEN_UPGRADEABLE }}
           ref: ${{ github.ref }}
           path: upgradeable
-      - run: cd "${UPGRADEABLE_DIR}" && bash ${{ github.workspace }}/scripts/git-user-config.sh
+      - id: check-upgradeable
+        name: Check upgradeable
+        run: bash scripts/release/workflow/check-upgradeable.sh
+        env:
+          VANILLA_COMMIT: ${{ steps.vanilla.outputs.commit }}
       - id: publish
         name: Publish
         run: bash scripts/release/workflow/publish-upgradeable.sh
         env:
-          VANILLA_COMMIT: ${{ steps.vanilla.outputs.commit }}
+          NPM_TAG: ${{ steps.check-upgradeable.outputs.npm_tag }}
       - name: Create Github Release Note
         run: bash scripts/release/workflow/github-release-upgradeable.sh
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN_UPGRADEABLE }}
-          GIT_TAG: ${{ steps.publish.outputs.git_tag }}
-          ADDITIONAL_OPTION_IF_PRERELEASE: ${{ steps.publish.outputs.additional_option_if_prerelease }}
+          GIT_TAG: ${{ steps.check-upgradeable.outputs.git_tag }}
+          RELEASE_COMMIT: ${{ steps.check-upgradeable.outputs.release_commit }}
+          PRERELEASE: ${{ steps.check-upgradeable.outputs.prerelease }}
