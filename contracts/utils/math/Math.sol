@@ -473,27 +473,14 @@ library Math {
     /**
      * @dev Returns whether the provided byte array is zero.
      */
-    function _zeroBytes(bytes memory byteArray) private pure returns (bool) {
-        // Fast path: scan 32-byte words first to reduce gas on large inputs.
-        uint256 len = byteArray.length;
-        uint256 offset = 0;
-
-        while (len >= 32) {
-            bytes32 word;
+    function _zeroBytes(bytes memory buffer) private pure returns (bool) {
+        for (uint256 i = 0; i < buffer.length; i += 0x20) {
+            // See _unsafeReadBytesOffset from utils/Bytes.sol
+            uint256 value;
             assembly ("memory-safe") {
-                // Load a full 32-byte word starting at current offset
-                word := mload(add(add(byteArray, 0x20), offset))
+                value := mload(add(add(buffer, 0x20), i))
             }
-            if (word != 0) {
-                return false;
-            }
-            offset += 32;
-            len -= 32;
-        }
-
-        // Tail check (< 32 bytes)
-        for (uint256 i = 0; i < len; ++i) {
-            if (byteArray[offset + i] != 0) {
+            if (value >> (8 * saturatingSub(i + 0x20, buffer.length)) != 0) {
                 return false;
             }
         }
