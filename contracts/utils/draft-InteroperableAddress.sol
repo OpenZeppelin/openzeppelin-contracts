@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.5.0) (utils/draft-InteroperableAddress.sol)
 
 pragma solidity ^0.8.26;
 
@@ -46,23 +45,21 @@ library InteroperableAddress {
      * address (version 1) for a given chainid and ethereum address.
      */
     function formatEvmV1(uint256 chainid, address addr) internal pure returns (bytes memory) {
-        bytes memory chainReference = _toChainReference(chainid);
-        return abi.encodePacked(bytes4(0x00010000), uint8(chainReference.length), chainReference, uint8(20), addr);
+        return formatV1(0x0000, _toChainReference(chainid), abi.encodePacked(addr));
     }
 
     /**
      * @dev Variant of {formatV1-bytes2-bytes-bytes-} that specifies an EVM chain without an address.
      */
     function formatEvmV1(uint256 chainid) internal pure returns (bytes memory) {
-        bytes memory chainReference = _toChainReference(chainid);
-        return abi.encodePacked(bytes4(0x00010000), uint8(chainReference.length), chainReference, uint8(0));
+        return formatV1(0x0000, _toChainReference(chainid), new bytes(0));
     }
 
     /**
      * @dev Variant of {formatV1-bytes2-bytes-bytes-} that specifies an EVM address without a chain reference.
      */
     function formatEvmV1(address addr) internal pure returns (bytes memory) {
-        return abi.encodePacked(bytes6(0x000100000014), addr);
+        return formatV1(0x0000, new bytes(0), abi.encodePacked(addr));
     }
 
     /**
