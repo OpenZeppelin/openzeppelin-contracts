@@ -6,13 +6,7 @@ pragma solidity ^0.8.20;
 import {Context} from "../utils/Context.sol";
 
 /**
- * @dev Context variant with ERC-2771 support.
- *
- * NOTE: For ERC-2771 meta-transactions to work correctly, forwarded calls must have
- * calldata length of at least 20 bytes (the address length). Calls with calldata
- * shorter than 20 bytes from a trusted forwarder will fall back to returning
- * the forwarder's address as `_msgSender()` rather than attempting to extract
- * the original signer address from the calldata suffix.
+ * @dev Context variant with ERC-2771 support. See {_msgSender} for the calldata format.
  *
  * WARNING: Avoid using this pattern in contracts that rely on a specific calldata length as they'll
  * be affected by any forwarder whose `msg.data` is suffixed with the `from` address according to the ERC-2771
