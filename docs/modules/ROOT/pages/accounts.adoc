@@ -343,7 +343,7 @@ https://eips.ethereum.org/EIPS/eip-7702[EIP-7702] lets EOAs delegate to smart co
 
 The signature verification stays compatible: delegated EOAs are treated as contracts using ERC-1271, making it easy to redelegate to a contract with ERC-1271 support with little overhead by reusing the validation mechanism of the account. 
 
-TIP: Learn more about delegating to an ERC-7702 account in our xref:eoa-delegation.adoc[EOA Delegation] section.
+TIP: Learn more about delegating to an EIP-7702 account in our xref:eoa-delegation.adoc[EOA Delegation] section.
 
 === ERC-7579 Modules
 

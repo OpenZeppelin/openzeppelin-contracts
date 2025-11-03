@@ -6,7 +6,7 @@ https://eips.ethereum.org/EIPS/eip-7702[EIP-7702] introduces a new transaction t
 * Sponsoring transactions for other users.
 * Implementing privilege de-escalation (e.g., sub-keys with limited permissions)
 
-This section walks you through the process of delegating an EOA to a contract following https://eips.ethereum.org/EIPS/eip-7702[ERC-7702]. This allows you to use your EOA's private key to sign and execute operations with custom execution logic. Combined with https://eips.ethereum.org/EIPS/eip-4337[ERC-4337] infrastructure, users can achieve gas sponsoring through https://docs.openzeppelin.com/community-contracts/paymasters[paymasters].
+This section walks you through the process of delegating an EOA to a contract following https://eips.ethereum.org/EIPS/eip-7702[EIP-7702]. This allows you to use your EOA's private key to sign and execute operations with custom execution logic. Combined with https://eips.ethereum.org/EIPS/eip-4337[ERC-4337] infrastructure, users can achieve gas sponsoring through https://docs.openzeppelin.com/community-contracts/paymasters[paymasters].
 
 == Delegating execution
 

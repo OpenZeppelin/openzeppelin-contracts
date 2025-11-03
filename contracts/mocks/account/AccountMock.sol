@@ -119,7 +119,7 @@ abstract contract AccountEIP7702WithModulesMock is
         return erc7739magic == bytes4(0xffffffff) ? AccountERC7579.isValidSignature(hash, signature) : erc7739magic;
     }
 
-    /// @dev Enable signature using the ERC-7702 signer.
+    /// @dev Enable signature using the EIP-7702 signer.
     function _rawSignatureValidation(
         bytes32 hash,
         bytes calldata signature

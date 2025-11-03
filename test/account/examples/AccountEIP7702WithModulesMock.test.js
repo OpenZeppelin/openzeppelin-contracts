@@ -86,7 +86,7 @@ describe('AccountEIP7702WithModules: EIP-7702 account with ERC-7579 modules supp
       // Use the first 20 bytes from the nonce key (24 bytes) to identify the validator module
       this.userOp = { nonce: ethers.zeroPadBytes(ethers.hexlify(this.validator.target), 32) };
 
-      // Deploy (using ERC-7702) and add the validator module using EOA
+      // Deploy (using EIP-7702) and add the validator module using EOA
       await this.mock.deploy();
       await this.mock.connect(this.eoa).installModule(MODULE_TYPE_VALIDATOR, this.validator, this.signer.address);
     });

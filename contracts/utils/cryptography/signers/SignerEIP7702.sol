@@ -7,7 +7,7 @@ import {AbstractSigner} from "./AbstractSigner.sol";
 import {ECDSA} from "../ECDSA.sol";
 
 /**
- * @dev Implementation of {AbstractSigner} for implementation for an EOA. Useful for ERC-7702 accounts.
+ * @dev Implementation of {AbstractSigner} for implementation for an EOA. Useful for EIP-7702 accounts.
  *
  * @custom:stateless
  */
