@@ -14,7 +14,7 @@ EIP-7702 enables EOAs to delegate their execution capabilities to smart contract
 
 [source,solidity]
 ----
-include::api:example$account/MyAccountERC7702.sol[]
+include::api:example$account/MyAccountEIP7702.sol[]
 ----
 
 TIP: Users can delegate to an instance of xref:api:account.adoc#ERC7821[`ERC-7821`] for a minimal batch executor that does not use ERC-4337 related code.

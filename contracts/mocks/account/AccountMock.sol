@@ -81,7 +81,7 @@ abstract contract AccountWebAuthnMock is Account, SignerWebAuthn, ERC7739, ERC78
     }
 }
 
-abstract contract AccountERC7702Mock is Account, SignerEIP7702, ERC7739, ERC7821, ERC721Holder, ERC1155Holder {
+abstract contract AccountEIP7702Mock is Account, SignerEIP7702, ERC7739, ERC7821, ERC721Holder, ERC1155Holder {
     /// @inheritdoc ERC7821
     function _erc7821AuthorizedExecutor(
         address caller,
@@ -92,7 +92,7 @@ abstract contract AccountERC7702Mock is Account, SignerEIP7702, ERC7739, ERC7821
     }
 }
 
-abstract contract AccountERC7702WithModulesMock is
+abstract contract AccountEIP7702WithModulesMock is
     Account,
     AccountERC7579,
     SignerEIP7702,
