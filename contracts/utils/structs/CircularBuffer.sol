@@ -45,6 +45,8 @@ import {Panic} from "../Panic.sol";
  * }
  * ```
  *
+ * NOTE: Make sure to call {setup} on your buffer during construction/initialization
+ *
  * _Available since v5.1._
  */
 library CircularBuffer {
