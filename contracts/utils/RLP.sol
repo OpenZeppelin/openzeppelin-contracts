@@ -351,7 +351,7 @@ library RLP {
                 // Case: Long string (>55 bytes)
                 uint256 lengthLength = prefix - SHORT_OFFSET - SHORT_THRESHOLD;
 
-                require(itemLength > lengthLength && bytes1(item.load(0)) != 0x00, RLPInvalidEncoding());
+                require(itemLength > lengthLength && bytes1(item.load(1)) != 0x00, RLPInvalidEncoding());
 
                 uint256 len = uint256(item.load(1)) >> (256 - 8 * lengthLength);
                 require(len > SHORT_THRESHOLD && itemLength > lengthLength + len, RLPInvalidEncoding());
@@ -369,8 +369,7 @@ library RLP {
                 // Case: Long list
                 uint256 lengthLength = prefix - LONG_OFFSET - SHORT_THRESHOLD;
 
-                require(itemLength > lengthLength, RLPInvalidEncoding());
-                require(bytes1(item.load(0)) != 0x00);
+                require(itemLength > lengthLength && bytes1(item.load(1)) != 0x00, RLPInvalidEncoding());
 
                 uint256 len = uint256(item.load(1)) >> (256 - 8 * lengthLength);
                 require(len > SHORT_THRESHOLD && itemLength > lengthLength + len, RLPInvalidEncoding());
