@@ -139,10 +139,10 @@ abstract contract GovernorCountingFractional is Governor {
             revert GovernorAlreadyCastVote(account);
         }
 
-        uint256 againstVotes = 0;
-        uint256 forVotes = 0;
-        uint256 abstainVotes = 0;
-        uint256 usedWeight = 0;
+        uint256 againstVotes;
+        uint256 forVotes;
+        uint256 abstainVotes;
+        uint256 usedWeight;
 
         // For clarity of event indexing, fractional voting must be clearly advertised in the "support" field.
         //
