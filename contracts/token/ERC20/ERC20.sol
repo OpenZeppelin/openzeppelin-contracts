@@ -39,7 +39,10 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
     /**
      * @dev Sets the values for {name} and {symbol}.
      *
-     * Both values are immutable: they can only be set once during construction.
+     * Both of these values are set during construction and cannot be changed
+     * afterwards because there are no public setter functions. However, they are not
+     * declared as immutable storage variables, allowing derived contracts to customize
+     * their behavior if needed.
      */
     constructor(string memory name_, string memory symbol_) {
         _name = name_;
