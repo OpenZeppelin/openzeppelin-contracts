@@ -19,7 +19,7 @@ import {Errors} from "../utils/Errors.sol";
  * * `to`: The address that should be called.
  * * `value`: The amount of native token to attach with the requested call.
  * * `gas`: The amount of gas limit that will be forwarded with the requested call.
- * * `nonce`: A unique transaction ordering identifier to avoid replayability and request invalidation.
+ * * `nonce` (implicit): Taken from {Nonces} for `from` and included in the signed typed data.
  * * `deadline`: A timestamp after which the request is not executable anymore.
  * * `data`: Encoded `msg.data` to send with the requested call.
  *
@@ -195,7 +195,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
 
     /**
      * @dev Validates if the provided request can be executed at current block timestamp with
-     * the given `request.signature` on behalf of `request.signer`.
+     * the given `request.signature` on behalf of `request.from`.
      */
     function _validate(
         ForwardRequestData calldata request
@@ -232,7 +232,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
                     keccak256(request.data)
                 )
             )
-        ).tryRecover(request.signature);
+        ).tryRecoverCalldata(request.signature);
 
         return (err == ECDSA.RecoverError.NoError, recovered);
     }
