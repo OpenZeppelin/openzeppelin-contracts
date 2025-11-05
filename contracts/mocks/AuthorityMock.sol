@@ -63,7 +63,7 @@ contract AuthorityObserveIsConsuming {
         return (false, 1);
     }
 
-    function consumeScheduledOp(address caller, bytes memory data) public {
+    function consumeScheduledOp(address caller, bytes calldata data) external {
         emit ConsumeScheduledOpCalled(caller, data, IAccessManaged(msg.sender).isConsumingScheduledOp());
     }
 }
