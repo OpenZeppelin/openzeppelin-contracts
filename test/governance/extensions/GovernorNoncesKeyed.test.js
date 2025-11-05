@@ -92,9 +92,9 @@ describe('GovernorNoncesKeyed', function () {
           const maskedProposalId = BigInt(this.helper.id) & (2n ** 192n - 1n);
 
           this.getNonce = async address => {
-            return await (nonceType === 'default'
+            return nonceType === 'default'
               ? this.mock.nonces(address)
-              : this.mock['nonces(address,uint192)'](address, maskedProposalId));
+              : this.mock['nonces(address,uint192)'](address, maskedProposalId);
           };
         });
 
