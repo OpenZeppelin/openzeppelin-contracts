@@ -19,7 +19,7 @@ abstract contract SignerEIP7702 is AbstractSigner {
         bytes32 hash,
         bytes calldata signature
     ) internal view virtual override returns (bool) {
-        (address recovered, ECDSA.RecoverError err, ) = ECDSA.tryRecover(hash, signature);
+        (address recovered, ECDSA.RecoverError err, ) = ECDSA.tryRecoverCalldata(hash, signature);
         return address(this) == recovered && err == ECDSA.RecoverError.NoError;
     }
 }

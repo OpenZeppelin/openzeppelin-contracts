@@ -232,7 +232,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
                     keccak256(request.data)
                 )
             )
-        ).tryRecover(request.signature);
+        ).tryRecoverCalldata(request.signature);
 
         return (err == ECDSA.RecoverError.NoError, recovered);
     }
