@@ -3,8 +3,6 @@
 
 pragma solidity ^0.8.24;
 
-import {Math} from "../math/Math.sol";
-import {SafeCast} from "../math/SafeCast.sol";
 import {Comparators} from "../Comparators.sol";
 import {Arrays} from "../Arrays.sol";
 import {Panic} from "../Panic.sol";
@@ -39,8 +37,6 @@ import {StorageSlot} from "../StorageSlot.sol";
  */
 library Heap {
     using Arrays for *;
-    using Math for *;
-    using SafeCast for *;
 
     /**
      * @dev Binary heap that supports values of type uint256.
