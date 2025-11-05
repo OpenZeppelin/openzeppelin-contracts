@@ -1,6 +1,6 @@
 # Running formal verification tool
 
-These instructions detail the process for running Certora Verification Tool on OpenZeppelin Contracts.
+These instructions detail the process for running Formal Verification Tool on OpenZeppelin Contracts.
 
 Documentation for CVT and the specification language is available [here](https://certora.atlassian.net/wiki/spaces/CPD/overview).
 
@@ -13,7 +13,7 @@ Follow the [Certora installation guide](https://docs.certora.com/en/latest/docs/
 
 ## Running the verification
 
-The Certora Verification Tool proves specs for contracts, which are defined by the `./specs.json` file along with their pre-configured options.
+The Formal Verification Tool proves specs for contracts, which are defined by the `./specs.json` file along with their pre-configured options.
 
 The verification script `./run.js` is used to submit verification jobs to the Certora Verification service.
 
