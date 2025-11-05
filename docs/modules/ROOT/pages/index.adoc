@@ -11,6 +11,7 @@ IMPORTANT: OpenZeppelin Contracts uses semantic versioning to communicate backwa
 == Overview
 
 [[release-tags]]
+=== Release Tags
 
 We use NPM tags to clearly distinguish between audited and non-audited versions of our package:
 
