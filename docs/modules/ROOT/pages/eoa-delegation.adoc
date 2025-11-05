@@ -80,7 +80,7 @@ console.log(userOpReceipt);
 
 To remove the delegation and restore your EOA to its original state, you can send a `SET_CODE_TX_TYPE` transaction with an authorization tuple that points to the zero address (`0x0000000000000000000000000000000000000000`). This will clear the account's code and reset its code hash to the empty hash, however, be aware that it will not automatically clean the EOA storage.
 
-When changing an account's delegation, ensure the newly delegated code is purposely designed and tested as an upgrade to the old one. To ensure safe migration between delegate contracts, namespaced storage that avoids accidental collisions following ERC-7201. 
+When changing an account's delegation, ensure the newly delegated code is purposely designed and tested as an upgrade to the old one. To ensure safe migration between delegate contracts, use namespaced storage that avoids accidental collisions following ERC-7201. 
 
 WARNING: Updating the delegation designator may render your EOA unusable due to potential storage collisions. We recommend following similar practices to those of https://docs.openzeppelin.com/upgrades-plugins/writing-upgradeable[writing upgradeable smart contracts].
 
