@@ -40,7 +40,7 @@ node fv/run.js AccessControl # Run the AccessControl spec against every contract
 
 ## Adapting to changes in the contracts
 
-Some of our rules require the code to be simplified in various ways. Our primary tool for performing these simplifications is to run verification on a contract that extends the original contracts and overrides some of the methods. These "harness" contracts can be found in the `fv/harness` directory.
+Some of our rules require the code to be simplified in various ways. Our primary tool for performing these simplifications is to run verification on a contract that extends the original contracts and overrides some of the methods. These "harness" contracts can be found in the `fv/harnesses` directory.
 
 This pattern does require some modifications to the original code: some methods need to be made virtual or public, for example. These changes are handled by applying a patch
 to the code before verification by running:
