@@ -2,10 +2,10 @@
 
 pragma solidity ^0.8.26;
 
-import {IERC7786GatewaySource} from "../../interfaces/draft-IERC7786.sol";
-import {InteroperableAddress} from "../../utils/draft-InteroperableAddress.sol";
-import {Bytes} from "../../utils/Bytes.sol";
-import {ERC7786Recipient} from "../ERC7786Recipient.sol";
+import {IERC7786GatewaySource} from "../interfaces/draft-IERC7786.sol";
+import {InteroperableAddress} from "../utils/draft-InteroperableAddress.sol";
+import {Bytes} from "../utils/Bytes.sol";
+import {ERC7786Recipient} from "./ERC7786Recipient.sol";
 
 /**
  * @dev Core bridging mechanism.
@@ -18,7 +18,7 @@ import {ERC7786Recipient} from "../ERC7786Recipient.sol";
  * counterpart on a foreign chain. They must override the {_processMessage} function to handle the message that have
  * been verified.
  */
-abstract contract BridgeCore is ERC7786Recipient {
+abstract contract CrosschainLinks is ERC7786Recipient {
     using Bytes for bytes;
     using InteroperableAddress for bytes;
 
