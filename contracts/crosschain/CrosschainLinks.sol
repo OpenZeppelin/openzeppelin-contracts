@@ -24,12 +24,22 @@ abstract contract CrosschainLinks is ERC7786Recipient {
 
     struct Link {
         address gateway;
-        bytes counterpart;
+        bytes counterpart; // Full InteroperableAddress (chain ref + address)
     }
     mapping(bytes chain => Link) private _links;
 
+    /**
+     * @dev Emitted when a new link is registered.
+     *
+     * Note: the `counterpart` argument is a full InteroperableAddress (chain ref + address).
+     */
     event LinkRegistered(address gateway, bytes counterpart);
 
+    /**
+     * @dev Reverted when trying to register a link for a chain that is already registered.
+     *
+     * Note: the `chain` argument is a "chain-only" InteroperableAddress (empty address).
+     */
     error LinkAlreadyRegistered(bytes chain);
 
     constructor(Link[] memory links) {
@@ -38,13 +48,22 @@ abstract contract CrosschainLinks is ERC7786Recipient {
         }
     }
 
-    /// @dev Returns the ERC-7786 gateway used for sending and receiving cross-chain messages to a given chain
+    /**
+     * @dev Returns the ERC-7786 gateway used for sending and receiving cross-chain messages to a given chain
+     *
+     * Note: The `chain` parameter is a "chain-only" InteroperableAddress (empty address) and the `counterpart` return
+     * the full InteroperableAddress (chain ref + address) that is on `chain`.
+     */
     function getLink(bytes memory chain) public view virtual returns (address gateway, bytes memory counterpart) {
         Link storage self = _links[chain];
         return (self.gateway, self.counterpart);
     }
 
-    /// @dev Internal setter to change the ERC-7786 gateway and counterpart for a given chain. Called at construction.
+    /**
+     * @dev Internal setter to change the ERC-7786 gateway and counterpart for a given chain. Called at construction.
+     *
+     * Note: The `counterpart` parameter is the full InteroperableAddress (chain ref + address).
+     */
     function _setLink(address gateway, bytes memory counterpart, bool allowOverride) internal virtual {
         // Sanity check, this should revert if gateway is not an ERC-7786 implementation. Note that since
         // supportsAttribute returns data, an EOA would fail that test (nothing returned).
@@ -59,7 +78,11 @@ abstract contract CrosschainLinks is ERC7786Recipient {
         }
     }
 
-    /// @dev Internal messaging function.
+    /**
+     * @dev Internal messaging function
+     *
+     * Note: The `chain` parameter is a"chain-only" InteroperableAddress (empty address).
+     */
     function _sendMessageToCounterpart(
         bytes memory chain,
         bytes memory payload,

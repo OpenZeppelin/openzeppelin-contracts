@@ -23,12 +23,20 @@ abstract contract BridgeERC20Core is CrosschainLinks {
     event CrossChainTransferSent(bytes32 indexed sendId, address indexed from, bytes to, uint256 amount);
     event CrossChainTransferReceived(bytes32 indexed receiveId, bytes from, address indexed to, uint256 amount);
 
-    /// @dev Transfer `amount` tokens to a crosschain receiver.
+    /**
+     * @dev Transfer `amount` tokens to a crosschain receiver.
+     *
+     * Note: The `to` parameter is the full InteroperableAddress (chain ref + address).
+     */
     function crosschainTransfer(bytes memory to, uint256 amount) public virtual returns (bytes32) {
         return _crosschainTransfer(msg.sender, to, amount);
     }
 
-    /// @dev Internal crosschain transfer function.
+    /**
+     * @dev Internal crosschain transfer function.
+     *
+     * Note: The `to` parameter is the full InteroperableAddress (chain ref + address).
+     */
     function _crosschainTransfer(address from, bytes memory to, uint256 amount) internal virtual returns (bytes32) {
         _onSend(from, amount);
 
