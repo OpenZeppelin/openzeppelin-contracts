@@ -1,7 +1,7 @@
 = Cross chain interoperability
 
 [.readme-notice]
-NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/crosschain
+NOTE: This document is better viewed at https://docs.openzeppelin.com/community-contracts/api/crosschain
 
 This directory contains contracts for sending and receiving cross chain messages that follows the ERC-7786 standard.
 
