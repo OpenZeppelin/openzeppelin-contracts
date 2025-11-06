@@ -93,16 +93,16 @@ function shouldBehaveLikeBridgeERC20({ chainAIsCustodial = false, chainBIsCustod
         .withArgs(notGateway, this.chain.toErc7930(this.tokenB));
     });
 
-    it('only remote can send a crosschain message', async function () {
-      const [notRemote] = this.accounts;
+    it('only counterpart can send a crosschain message', async function () {
+      const [invalid] = this.accounts;
 
       await expect(
         this.gateway
-          .connect(notRemote)
-          .sendMessage(this.chain.toErc7930(this.bridgeA), this.encodePayload(notRemote, notRemote, amount), []),
+          .connect(invalid)
+          .sendMessage(this.chain.toErc7930(this.bridgeA), this.encodePayload(invalid, invalid, amount), []),
       )
         .to.be.revertedWithCustomError(this.bridgeA, 'ERC7786RecipientUnauthorizedGateway')
-        .withArgs(this.gateway, this.chain.toErc7930(notRemote));
+        .withArgs(this.gateway, this.chain.toErc7930(invalid));
     });
 
     it('cannot replay message', async function () {
@@ -128,29 +128,32 @@ function shouldBehaveLikeBridgeERC20({ chainAIsCustodial = false, chainBIsCustod
   describe('reconfiguration', function () {
     it('updating a link emits an event', async function () {
       const newGateway = await ethers.deployContract('$ERC7786GatewayMock');
-      const newRemote = this.chain.toErc7930(this.accounts[0]);
+      const newCounterpart = this.chain.toErc7930(this.accounts[0]);
 
-      await expect(this.bridgeA.$_setLink(newGateway, newRemote, true))
-        .to.emit(this.bridgeA, 'RemoteRegistered')
-        .withArgs(newGateway, newRemote);
+      await expect(this.bridgeA.$_setLink(newGateway, newCounterpart, true))
+        .to.emit(this.bridgeA, 'LinkRegistered')
+        .withArgs(newGateway, newCounterpart);
 
-      await expect(this.bridgeA.getLink(this.chain.erc7930)).to.eventually.deep.equal([newGateway.target, newRemote]);
+      await expect(this.bridgeA.getLink(this.chain.erc7930)).to.eventually.deep.equal([
+        newGateway.target,
+        newCounterpart,
+      ]);
     });
 
     it('cannot override configuration is "allowOverride" is false', async function () {
       const newGateway = await ethers.deployContract('$ERC7786GatewayMock');
-      const newRemote = this.chain.toErc7930(this.accounts[0]);
+      const newCounterpart = this.chain.toErc7930(this.accounts[0]);
 
-      await expect(this.bridgeA.$_setLink(newGateway, newRemote, false))
-        .to.be.revertedWithCustomError(this.bridgeA, 'RemoteAlreadyRegistered')
+      await expect(this.bridgeA.$_setLink(newGateway, newCounterpart, false))
+        .to.be.revertedWithCustomError(this.bridgeA, 'LinkAlreadyRegistered')
         .withArgs(this.chain.erc7930);
     });
 
     it('reject invalid gateway', async function () {
       const notAGateway = this.accounts[0];
-      const newRemote = this.chain.toErc7930(this.accounts[0]);
+      const newCounterpart = this.chain.toErc7930(this.accounts[0]);
 
-      await expect(this.bridgeA.$_setLink(notAGateway, newRemote, false)).to.be.revertedWithoutReason();
+      await expect(this.bridgeA.$_setLink(notAGateway, newCounterpart, false)).to.be.revertedWithoutReason();
     });
   });
 }

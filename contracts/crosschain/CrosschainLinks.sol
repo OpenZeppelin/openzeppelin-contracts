@@ -14,7 +14,7 @@ import {ERC7786Recipient} from "./ERC7786Recipient.sol";
  * gateways. It ensure received messages originate from a counterpart. This is the base of token bridges such as
  * {BridgeERC20Core}.
  *
- * Contract that inherit from this contract can use the internal {_sendMessageToRemote} to send messages to their
+ * Contract that inherit from this contract can use the internal {_sendMessageToCounterpart} to send messages to their
  * counterpart on a foreign chain. They must override the {_processMessage} function to handle the message that have
  * been verified.
  */
@@ -24,49 +24,49 @@ abstract contract CrosschainLinks is ERC7786Recipient {
 
     struct Link {
         address gateway;
-        bytes remote;
+        bytes counterpart;
     }
     mapping(bytes chain => Link) private _links;
 
-    event RemoteRegistered(address gateway, bytes remote);
+    event LinkRegistered(address gateway, bytes counterpart);
 
-    error RemoteAlreadyRegistered(bytes chain);
+    error LinkAlreadyRegistered(bytes chain);
 
     constructor(Link[] memory links) {
         for (uint256 i = 0; i < links.length; ++i) {
-            _setLink(links[i].gateway, links[i].remote, false);
+            _setLink(links[i].gateway, links[i].counterpart, false);
         }
     }
 
     /// @dev Returns the ERC-7786 gateway used for sending and receiving cross-chain messages to a given chain
-    function getLink(bytes memory chain) public view virtual returns (address gateway, bytes memory remote) {
+    function getLink(bytes memory chain) public view virtual returns (address gateway, bytes memory counterpart) {
         Link storage self = _links[chain];
-        return (self.gateway, self.remote);
+        return (self.gateway, self.counterpart);
     }
 
-    /// @dev Internal setter to change the ERC-7786 gateway and remote for a given chain. Called at construction.
-    function _setLink(address gateway, bytes memory remote, bool allowOverride) internal virtual {
+    /// @dev Internal setter to change the ERC-7786 gateway and counterpart for a given chain. Called at construction.
+    function _setLink(address gateway, bytes memory counterpart, bool allowOverride) internal virtual {
         // Sanity check, this should revert if gateway is not an ERC-7786 implementation. Note that since
         // supportsAttribute returns data, an EOA would fail that test (nothing returned).
         IERC7786GatewaySource(gateway).supportsAttribute(bytes4(0));
 
-        bytes memory chain = _extractChain(remote);
+        bytes memory chain = _extractChain(counterpart);
         if (allowOverride || _links[chain].gateway == address(0)) {
-            _links[chain] = Link(gateway, remote);
-            emit RemoteRegistered(gateway, remote);
+            _links[chain] = Link(gateway, counterpart);
+            emit LinkRegistered(gateway, counterpart);
         } else {
-            revert RemoteAlreadyRegistered(chain);
+            revert LinkAlreadyRegistered(chain);
         }
     }
 
     /// @dev Internal messaging function.
-    function _sendMessageToRemote(
+    function _sendMessageToCounterpart(
         bytes memory chain,
         bytes memory payload,
         bytes[] memory attributes
     ) internal virtual returns (bytes32) {
-        (address gateway, bytes memory remote) = getLink(chain);
-        return IERC7786GatewaySource(gateway).sendMessage(remote, payload, attributes);
+        (address gateway, bytes memory counterpart) = getLink(chain);
+        return IERC7786GatewaySource(gateway).sendMessage(counterpart, payload, attributes);
     }
 
     /// @inheritdoc ERC7786Recipient
