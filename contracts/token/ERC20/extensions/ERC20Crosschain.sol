@@ -18,6 +18,7 @@ import {BridgeERC20Core} from "../../../crosschain/bridges/BridgeERC20Core.sol";
  * * `token` (on the {BridgeERC7802} side) is `address(this)`,
  * * `_checkTokenBridge` (on the {ERC20Bridgeable} side) is implemented such that it only accepts calls self-calls.
  */
+// slither-disable-next-line locked-ether
 abstract contract ERC20Crosschain is ERC20, BridgeERC20Core {
     /// @dev TransferFrom variant of {crosschainTransferFrom}, using ERC20 allowance from the sender to the caller.
     function crosschainTransferFrom(address from, bytes memory to, uint256 amount) public virtual returns (bytes32) {
