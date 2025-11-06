@@ -35,7 +35,7 @@ abstract contract BridgeERC20 is BridgeCore {
         (bytes2 chainType, bytes memory chainReference, bytes memory addr) = to.parseV1();
         bytes memory chain = InteroperableAddress.formatV1(chainType, chainReference, hex"");
 
-        bytes32 sendId = _sendMessage(
+        bytes32 sendId = _sendMessageToRemote(
             chain,
             abi.encode(InteroperableAddress.formatEvmV1(block.chainid, from), addr, amount),
             new bytes[](0)
