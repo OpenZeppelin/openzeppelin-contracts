@@ -3,12 +3,12 @@
 pragma solidity ^0.8.26;
 
 import {IERC7802} from "../../interfaces/draft-IERC7802.sol";
-import {BridgeERC20} from "./BridgeERC20.sol";
+import {BridgeERC20Core} from "./BridgeERC20Core.sol";
 
 /**
- * @dev This is a variant of {BridgeERC20} that implements the bridge logic for ERC-7802 compliant tokens.
+ * @dev This is a variant of {BridgeERC20Core} that implements the bridge logic for ERC-7802 compliant tokens.
  */
-abstract contract BridgeERC7802 is BridgeERC20 {
+abstract contract BridgeERC7802 is BridgeERC20Core {
     IERC7802 private immutable _token;
 
     constructor(IERC7802 token_) {

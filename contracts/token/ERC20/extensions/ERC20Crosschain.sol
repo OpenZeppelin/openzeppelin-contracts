@@ -3,9 +3,9 @@
 pragma solidity ^0.8.26;
 
 import {ERC20} from "../ERC20.sol";
-import {BridgeERC20} from "../../../crosschain/bridges/BridgeERC20.sol";
+import {BridgeERC20Core} from "../../../crosschain/bridges/BridgeERC20Core.sol";
 
-abstract contract ERC20Crosschain is ERC20, BridgeERC20 {
+abstract contract ERC20Crosschain is ERC20, BridgeERC20Core {
     /// @dev TransferFrom variant of {crosschainTransferFrom}, using ERC20 allowance from the sender to the caller.
     function crosschainTransferFrom(address from, bytes memory to, uint256 amount) public virtual returns (bytes32) {
         _spendAllowance(from, msg.sender, amount);

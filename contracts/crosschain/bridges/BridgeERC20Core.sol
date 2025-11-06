@@ -17,7 +17,7 @@ import {CrosschainLinks} from "../CrosschainLinks.sol";
  * {BridgeERC7802}, which interface with ERC-7802 to provide an approve-free user experience. It is also used
  * by the {ERC20Crosschain} extension, which embeds the bridge logic directly in the token contract.
  */
-abstract contract BridgeERC20 is CrosschainLinks {
+abstract contract BridgeERC20Core is CrosschainLinks {
     using InteroperableAddress for bytes;
 
     event CrossChainTransferSent(bytes32 indexed sendId, address indexed from, bytes to, uint256 amount);
