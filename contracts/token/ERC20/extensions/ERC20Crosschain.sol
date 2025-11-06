@@ -5,6 +5,19 @@ pragma solidity ^0.8.26;
 import {ERC20} from "../ERC20.sol";
 import {BridgeERC20Core} from "../../../crosschain/bridges/BridgeERC20Core.sol";
 
+/**
+ * @dev Extension of {ERC20} that makes it natively cross-chain using the ERC-7786 based {BridgeERC20Core}.
+ *
+ * This extension makes the token compatible with:
+ * * {ERC20Crosschain} instances on other chains,
+ * * {ERC20} instances on other chains that are bridged using {BridgeERC20},
+ * * {ERC20Bridgeable} instances on other chains that are bridged using {BridgeERC7802}.
+ *
+ * It is mostly equivalent to inheriting from both {ERC20Bridgeable} and {BridgeERC7802}, and configuring then such
+ * that:
+ * * `token` (on the {BridgeERC7802} side) is `address(this)`,
+ * * `_checkTokenBridge` (on the {ERC20Bridgeable} side) is implemented such that it only accepts calls self-calls.
+ */
 abstract contract ERC20Crosschain is ERC20, BridgeERC20Core {
     /// @dev TransferFrom variant of {crosschainTransferFrom}, using ERC20 allowance from the sender to the caller.
     function crosschainTransferFrom(address from, bytes memory to, uint256 amount) public virtual returns (bytes32) {
