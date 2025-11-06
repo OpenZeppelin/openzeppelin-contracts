@@ -1,5 +1,6 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
+const { anyValue } = require('@nomicfoundation/hardhat-chai-matchers/withArgs');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { impersonate } = require('../../../helpers/account');
@@ -41,4 +42,45 @@ describe('ERC20Crosschain', function () {
   });
 
   shouldBehaveLikeBridgeERC20();
+
+  describe('crosschainTransferFrom', function () {
+    it('with allowance: success', async function () {
+      const [alice, bruce, chris] = this.accounts;
+      const amount = 100n;
+
+      await this.tokenA.$_mint(alice, amount);
+      await this.tokenA.connect(alice).approve(chris, ethers.MaxUint256);
+
+      // Alice sends tokens from chain A to Bruce on chain B.
+      await expect(this.tokenA.connect(chris).crosschainTransferFrom(alice, this.chain.toErc7930(bruce), amount))
+        // bridge on chain A takes custody of the funds
+        .to.emit(this.tokenA, 'Transfer')
+        .withArgs(alice, ethers.ZeroAddress, amount)
+        // crosschain transfer sent
+        .to.emit(this.tokenA, 'CrossChainTransferSent')
+        .withArgs(anyValue, alice, this.chain.toErc7930(bruce), amount)
+        // ERC-7786 event
+        .to.emit(this.gateway, 'MessageSent')
+        // crosschain transfer received
+        .to.emit(this.bridgeB, 'CrossChainTransferReceived')
+        .withArgs(anyValue, this.chain.toErc7930(alice), bruce, amount)
+        // crosschain mint event
+        .to.emit(this.tokenB, 'CrosschainMint')
+        .withArgs(bruce, amount, this.bridgeB)
+        // tokens are minted on chain B
+        .to.emit(this.tokenB, 'Transfer')
+        .withArgs(ethers.ZeroAddress, bruce, amount);
+    });
+
+    it('without allowance: revert', async function () {
+      const [alice, bruce, chris] = this.accounts;
+      const amount = 100n;
+
+      await this.tokenA.$_mint(alice, amount);
+
+      await expect(this.tokenA.connect(chris).crosschainTransferFrom(alice, this.chain.toErc7930(bruce), amount))
+        .to.be.revertedWithCustomError(this.tokenA, 'ERC20InsufficientAllowance')
+        .withArgs(chris, 0n, amount);
+    });
+  });
 });
