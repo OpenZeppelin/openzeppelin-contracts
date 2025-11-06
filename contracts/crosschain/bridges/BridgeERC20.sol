@@ -14,7 +14,7 @@ import {CrosschainLinks} from "../CrosschainLinks.sol";
  * * {_unlock}: called when a crosschain transfer is coming it. Must give tokens to the receiver.
  *
  * This base contract is used by the {BridgeERC20Custodial}, which interfaces with legacy ERC-20 tokens, and
- * {BridgeERC20Bridgeable}, which interface with ERC-7802 to provide an approve-free user experience. It is also used
+ * {BridgeERC7802}, which interface with ERC-7802 to provide an approve-free user experience. It is also used
  * by the {ERC20Crosschain} extension, which embeds the bridge logic directly in the token contract.
  */
 abstract contract BridgeERC20 is CrosschainLinks {

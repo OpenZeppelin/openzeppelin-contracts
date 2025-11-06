@@ -21,7 +21,7 @@ async function fixture() {
 
   // Chain B: ERC7802 with bridge
   const tokenB = await ethers.deployContract('$ERC20BridgeableMock', ['Token2', 'T2', ethers.ZeroAddress]);
-  const bridgeB = await ethers.deployContract('$BridgeERC20Bridgeable', [[], tokenB]);
+  const bridgeB = await ethers.deployContract('$BridgeERC7802', [[], tokenB]);
 
   // deployment check + remote setup
   await expect(bridgeA.$_setLink(gateway, chain.toErc7930(bridgeB), false))

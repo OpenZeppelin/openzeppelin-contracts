@@ -8,7 +8,7 @@ import {BridgeERC20} from "./BridgeERC20.sol";
 /**
  * @dev This is a variant of {BridgeERC20} that implements the bridge logic for ERC-7802 compliant tokens.
  */
-abstract contract BridgeERC20Bridgeable is BridgeERC20 {
+abstract contract BridgeERC7802 is BridgeERC20 {
     IERC7802 private immutable _token;
 
     constructor(IERC7802 token_) {
