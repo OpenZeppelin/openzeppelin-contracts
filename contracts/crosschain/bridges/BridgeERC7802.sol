@@ -21,12 +21,12 @@ abstract contract BridgeERC7802 is BridgeERC20Core {
     }
 
     /// @dev "Locking" tokens using an ERC-7802 crosschain burn
-    function _lock(address from, uint256 amount) internal virtual override {
+    function _onSend(address from, uint256 amount) internal virtual override {
         token().crosschainBurn(from, amount);
     }
 
     /// @dev "Unlocking" tokens using an ERC-7802 crosschain mint
-    function _unlock(address to, uint256 amount) internal virtual override {
+    function _onReceive(address to, uint256 amount) internal virtual override {
         token().crosschainMint(to, amount);
     }
 }

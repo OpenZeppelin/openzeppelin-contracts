@@ -24,12 +24,12 @@ abstract contract BridgeERC20 is BridgeERC20Core {
     }
 
     /// @dev "Locking" tokens is done by taking custody
-    function _lock(address from, uint256 amount) internal virtual override {
+    function _onSend(address from, uint256 amount) internal virtual override {
         token().safeTransferFrom(from, address(this), amount);
     }
 
     /// @dev "Unlocking" tokens is done by releasing custody
-    function _unlock(address to, uint256 amount) internal virtual override {
+    function _onReceive(address to, uint256 amount) internal virtual override {
         token().safeTransfer(to, amount);
     }
 }

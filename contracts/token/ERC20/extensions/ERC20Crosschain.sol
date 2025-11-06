@@ -13,12 +13,12 @@ abstract contract ERC20Crosschain is ERC20, BridgeERC20Core {
     }
 
     /// @dev "Locking" tokens is achieved through burning
-    function _lock(address from, uint256 amount) internal virtual override {
+    function _onSend(address from, uint256 amount) internal virtual override {
         _burn(from, amount);
     }
 
     /// @dev "Unlocking" tokens is achieved through minting
-    function _unlock(address to, uint256 amount) internal virtual override {
+    function _onReceive(address to, uint256 amount) internal virtual override {
         _mint(to, amount);
     }
 }

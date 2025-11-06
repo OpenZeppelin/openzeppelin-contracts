@@ -10,8 +10,8 @@ import {CrosschainLinks} from "../CrosschainLinks.sol";
  * @dev Base contract for bridging ERC-20 between chains using an ERC-7786 gateway.
  *
  * In order to use this contract, two functions must be implemented to link it to the token:
- * * {_lock}: called when a crosschain transfer is going out. Must take the sender tokens or revert.
- * * {_unlock}: called when a crosschain transfer is coming it. Must give tokens to the receiver.
+ * * {_onSend}: called when a crosschain transfer is going out. Must take the sender tokens or revert.
+ * * {_onReceive}: called when a crosschain transfer is coming it. Must give tokens to the receiver.
  *
  * This base contract is used by the {BridgeERC20}, which interfaces with legacy ERC-20 tokens, and {BridgeERC7802},
  * which interface with ERC-7802 to provide an approve-free user experience. It is also used by the {ERC20Crosschain}
@@ -30,7 +30,7 @@ abstract contract BridgeERC20Core is CrosschainLinks {
 
     /// @dev Internal crosschain transfer function.
     function _crosschainTransfer(address from, bytes memory to, uint256 amount) internal virtual returns (bytes32) {
-        _lock(from, amount);
+        _onSend(from, amount);
 
         (bytes2 chainType, bytes memory chainReference, bytes memory addr) = to.parseV1();
         bytes memory chain = InteroperableAddress.formatV1(chainType, chainReference, hex"");
@@ -57,14 +57,14 @@ abstract contract BridgeERC20Core is CrosschainLinks {
         (bytes memory from, bytes memory toBinary, uint256 amount) = abi.decode(payload, (bytes, bytes, uint256));
         address to = address(bytes20(toBinary));
 
-        _unlock(to, amount);
+        _onReceive(to, amount);
 
         emit CrossChainTransferReceived(receiveId, from, to, amount);
     }
 
     /// @dev Virtual function: implementation is required to handle token being burnt or locked on the source chain.
-    function _lock(address from, uint256 amount) internal virtual;
+    function _onSend(address from, uint256 amount) internal virtual;
 
     /// @dev Virtual function: implementation is required to handle token being minted or unlocked on the destination chain.
-    function _unlock(address to, uint256 amount) internal virtual;
+    function _onReceive(address to, uint256 amount) internal virtual;
 }
