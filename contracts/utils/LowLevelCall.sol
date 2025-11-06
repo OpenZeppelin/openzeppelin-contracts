@@ -34,7 +34,7 @@ library LowLevelCall {
         return callReturn64Bytes(target, 0, data);
     }
 
-    /// @dev Same as {callReturnBytes32Pair}, but allows to specify the value to be sent in the call.
+    /// @dev Same as the {callReturn64Bytes(address,bytes)} overload, but allows to specify the value to be sent in the call.
     function callReturn64Bytes(
         address target,
         uint256 value,
