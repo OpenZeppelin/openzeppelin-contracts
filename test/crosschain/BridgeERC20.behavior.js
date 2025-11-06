@@ -15,11 +15,11 @@ function shouldBehaveLikeBridgeERC20({ chainAIsCustodial = false, chainBIsCustod
   });
 
   it('bridge setup', async function () {
-    await expect(this.bridgeA.link(this.chain.erc7930)).to.eventually.deep.equal([
+    await expect(this.bridgeA.getLink(this.chain.erc7930)).to.eventually.deep.equal([
       this.gateway.target,
       this.chain.toErc7930(this.bridgeB),
     ]);
-    await expect(this.bridgeB.link(this.chain.erc7930)).to.eventually.deep.equal([
+    await expect(this.bridgeB.getLink(this.chain.erc7930)).to.eventually.deep.equal([
       this.gateway.target,
       this.chain.toErc7930(this.bridgeA),
     ]);
@@ -134,7 +134,7 @@ function shouldBehaveLikeBridgeERC20({ chainAIsCustodial = false, chainBIsCustod
         .to.emit(this.bridgeA, 'RemoteRegistered')
         .withArgs(newGateway, newRemote);
 
-      await expect(this.bridgeA.link(this.chain.erc7930)).to.eventually.deep.equal([newGateway.target, newRemote]);
+      await expect(this.bridgeA.getLink(this.chain.erc7930)).to.eventually.deep.equal([newGateway.target, newRemote]);
     });
 
     it('cannot override configuration is "allowOverride" is false', async function () {

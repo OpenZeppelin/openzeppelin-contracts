@@ -38,7 +38,7 @@ abstract contract BridgeCore is ERC7786Recipient {
     }
 
     /// @dev Returns the ERC-7786 gateway used for sending and receiving cross-chain messages to a given chain
-    function link(bytes memory chain) public view virtual returns (address gateway, bytes memory remote) {
+    function getLink(bytes memory chain) public view virtual returns (address gateway, bytes memory remote) {
         Link storage self = _links[chain];
         return (self.gateway, self.remote);
     }
@@ -64,7 +64,7 @@ abstract contract BridgeCore is ERC7786Recipient {
         bytes memory payload,
         bytes[] memory attributes
     ) internal virtual returns (bytes32) {
-        (address gateway, bytes memory remote) = link(chain);
+        (address gateway, bytes memory remote) = getLink(chain);
         return IERC7786GatewaySource(gateway).sendMessage(remote, payload, attributes);
     }
 
@@ -73,7 +73,7 @@ abstract contract BridgeCore is ERC7786Recipient {
         address instance,
         bytes calldata sender
     ) internal view virtual override returns (bool) {
-        (address gateway, bytes memory router) = link(_extractChain(sender));
+        (address gateway, bytes memory router) = getLink(_extractChain(sender));
         return instance == gateway && sender.equal(router);
     }
 
