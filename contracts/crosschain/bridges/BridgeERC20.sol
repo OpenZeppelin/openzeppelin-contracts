@@ -9,7 +9,7 @@ import {BridgeERC20Core} from "./BridgeERC20Core.sol";
  * @dev This is a variant of {BridgeERC20Core} that implements the bridge logic for ERC-20 tokens that do not expose mint
  * and burn mechanism. Instead it takes custody of bridged assets.
  */
-abstract contract BridgeERC20Custodial is BridgeERC20Core {
+abstract contract BridgeERC20 is BridgeERC20Core {
     using SafeERC20 for IERC20;
 
     IERC20 private immutable _token;

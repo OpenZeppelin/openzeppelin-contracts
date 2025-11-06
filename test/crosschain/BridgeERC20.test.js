@@ -17,7 +17,7 @@ async function fixture() {
 
   // Chain A: legacy ERC20 with bridge
   const tokenA = await ethers.deployContract('$ERC20', ['Token1', 'T1']);
-  const bridgeA = await ethers.deployContract('$BridgeERC20Custodial', [[], tokenA]);
+  const bridgeA = await ethers.deployContract('$BridgeERC20', [[], tokenA]);
 
   // Chain B: ERC7802 with bridge
   const tokenB = await ethers.deployContract('$ERC20BridgeableMock', ['Token2', 'T2', ethers.ZeroAddress]);
