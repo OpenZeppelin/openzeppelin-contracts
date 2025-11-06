@@ -9,12 +9,12 @@ import {BridgeCore} from "./BridgeCore.sol";
 /**
  * @dev Base contract for bridging ERC-20 between chains using an ERC-7786 gateway.
  *
- * In order to use this contract, two function must be implemented to link it to the token:
- * * {lock}: called when a crosschain transfer is going out. Must take the sender tokens or revert.
- * * {unlock}: called when a crosschain transfer is coming it. Must give tokens to the receiver.
+ * In order to use this contract, two functions must be implemented to link it to the token:
+ * * {_lock}: called when a crosschain transfer is going out. Must take the sender tokens or revert.
+ * * {_unlock}: called when a crosschain transfer is coming it. Must give tokens to the receiver.
  *
  * This base contract is used by the {BridgeERC20Custodial}, which interfaces with legacy ERC-20 tokens, and
- * {BridgeERC20Bridgeable}, which interface with ERC-7802 to provide an approve-free user experience. It is also used```
+ * {BridgeERC20Bridgeable}, which interface with ERC-7802 to provide an approve-free user experience. It is also used
  * by the {ERC20Crosschain} extension, which embeds the bridge logic directly in the token contract.
  */
 abstract contract BridgeERC20 is BridgeCore {
