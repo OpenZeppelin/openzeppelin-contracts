@@ -9,6 +9,11 @@ import {IERC7913SignatureVerifier} from "../../../interfaces/IERC7913.sol";
 /**
  * @dev ERC-7913 signature verifier that support P256 (secp256r1) keys.
  *
+ * Key format:
+ * - The `key` MUST be a 64-byte concatenation of the P256 public key coordinates `qx || qy`.
+ * - Each coordinate is a 32-byte big-endian value (`bytes32`).
+ * - SEC1 prefixes are not accepted and compressed keys are not supported.
+ *
  * @custom:stateless
  */
 contract ERC7913P256Verifier is IERC7913SignatureVerifier {
