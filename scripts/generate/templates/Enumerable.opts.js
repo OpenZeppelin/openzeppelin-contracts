@@ -24,6 +24,7 @@ const toMapTypeDescr = ({ key, value }) => ({
 
 const SET_TYPES = [
   { type: 'bytes32' },
+  { type: 'bytes4' },
   { type: 'address' },
   { type: 'uint256' },
   { type: 'string', memory: true },
@@ -35,7 +36,7 @@ const SET_TYPES = [
 const MAP_TYPES = []
   .concat(
     // value type maps
-    ['uint256', 'address', 'bytes32']
+    ['uint256', 'address', 'bytes4', 'bytes32']
       .flatMap((keyType, _, array) => array.map(valueType => ({ key: { type: keyType }, value: { type: valueType } })))
       .slice(0, -1), // remove bytes32 → bytes32 (last one) that is already defined
     // non-value type maps
