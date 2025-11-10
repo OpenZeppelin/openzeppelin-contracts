@@ -96,8 +96,8 @@ The base `AccessControl` contract provides role-based access control, but it doe
 
 This contract uses `EnumerableSet` internally and provides the following functions:
 
-* {AccessControlEnumerable-getRoleMemberCount}
-* {AccessControlEnumerable-getRoleMember}
+* xref:api:access.adoc#AccessControl-getRoleMemberCount[`getRoleMemberCount`]
+* xref:api:access.adoc#AccessControl-getRoleMember[`getRoleMember`]
 
 These can be used to iterate over the accounts that have been granted a role:
 
@@ -280,15 +280,15 @@ The base `AccessManager` contract provides comprehensive role-based access contr
 
 If on-chain enumeration is required, you can use the xref:api:access.adoc#AccessManagerEnumerable[`AccessManagerEnumerable`] extension. This extension uses `EnumerableSet` internally and provides the following functions for role members:
 
-* {AccessManagerEnumerable-getRoleMemberCount}
-* {AccessManagerEnumerable-getRoleMember}
-* {AccessManagerEnumerable-getRoleMembers}
+* xref:api:access.adoc#AccessManager-getRoleMemberCount[`getRoleMemberCount`]
+* xref:api:access.adoc#AccessManager-getRoleMember[`getRoleMember`]
+* xref:api:access.adoc#AccessManager-getRoleMembers[`getRoleMembers`]
 
 And these functions for target function permissions:
 
-* {AccessManagerEnumerable-getRoleTargetFunctionCount}
-* {AccessManagerEnumerable-getRoleTargetFunction}
-* {AccessManagerEnumerable-getRoleTargetFunctions}
+* xref:api:access.adoc#AccessManagerEnumerable-getRoleTargetFunctionCount[`getRoleTargetFunctionCount`]
+* xref:api:access.adoc#AccessManagerEnumerable-getRoleTargetFunction[`getRoleTargetFunction`]
+* xref:api:access.adoc#AccessManagerEnumerable-getRoleTargetFunctions[`getRoleTargetFunctions`]
 
 These can be used to iterate over the accounts that have been granted a role and the functions that a role is allowed to call on specific targets:
 
