@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
 import {IAccessManagerEnumerable} from "./IAccessManagerEnumerable.sol";
 import {AccessManager} from "../AccessManager.sol";
@@ -99,7 +99,8 @@ abstract contract AccessManagerEnumerable is IAccessManagerEnumerable, AccessMan
      * Since the target functions for the {ADMIN_ROLE} can't be tracked exhaustively (i.e. by default, all
      * restricted functions), any function that is granted to the {ADMIN_ROLE} will not be tracked by this
      * extension. Developers may opt in for tracking the functions for the {ADMIN_ROLE} by overriding,
-     * though, the tracking would not be exhaustive.
+     * though, the tracking would not be exhaustive unless {setTargetFunctionRole} is explicitly called
+     * for the {ADMIN_ROLE} for each function:
      *
      * ```solidity
      * function _setTargetFunctionRole(address target, bytes4 selector, uint64 roleId) internal virtual override {
