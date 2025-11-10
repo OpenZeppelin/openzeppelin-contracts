@@ -81,7 +81,7 @@ abstract contract CrosschainLinks is ERC7786Recipient {
     /**
      * @dev Internal messaging function
      *
-     * Note: The `chain` parameter is a"chain-only" InteroperableAddress (empty address).
+     * Note: The `chain` parameter is a "chain-only" InteroperableAddress (empty address).
      */
     function _sendMessageToCounterpart(
         bytes memory chain,
