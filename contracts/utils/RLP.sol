@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.5.0) (utils/RLP.sol)
+
 pragma solidity ^0.8.26;
 
 import {Math} from "./math/Math.sol";
@@ -349,9 +351,10 @@ library RLP {
                 // Case: Long string (>55 bytes)
                 uint256 lengthLength = prefix - SHORT_OFFSET - SHORT_THRESHOLD;
 
-                require(itemLength > lengthLength && bytes1(item.load(0)) != 0x00, RLPInvalidEncoding());
+                bytes32 lenChunk = item.load(1);
+                require(itemLength > lengthLength && bytes1(lenChunk) != 0x00, RLPInvalidEncoding());
 
-                uint256 len = uint256(item.load(1)) >> (256 - 8 * lengthLength);
+                uint256 len = uint256(lenChunk) >> (256 - 8 * lengthLength);
                 require(len > SHORT_THRESHOLD && itemLength > lengthLength + len, RLPInvalidEncoding());
 
                 return (lengthLength + 1, len, ItemType.Data);
@@ -367,10 +370,10 @@ library RLP {
                 // Case: Long list
                 uint256 lengthLength = prefix - LONG_OFFSET - SHORT_THRESHOLD;
 
-                require(itemLength > lengthLength, RLPInvalidEncoding());
-                require(bytes1(item.load(0)) != 0x00);
+                bytes32 lenChunk = item.load(1);
+                require(itemLength > lengthLength && bytes1(lenChunk) != 0x00, RLPInvalidEncoding());
 
-                uint256 len = uint256(item.load(1)) >> (256 - 8 * lengthLength);
+                uint256 len = uint256(lenChunk) >> (256 - 8 * lengthLength);
                 require(len > SHORT_THRESHOLD && itemLength > lengthLength + len, RLPInvalidEncoding());
 
                 return (lengthLength + 1, len, ItemType.List);
