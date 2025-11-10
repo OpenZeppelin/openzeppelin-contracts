@@ -12,7 +12,6 @@ import {IERC165} from "../../../interfaces/IERC165.sol";
  * @dev ERC-721 token with storage based token URI management.
  */
 abstract contract ERC721URIStorage is IERC4906, ERC721 {
-
     // Interface ID as defined in ERC-4906. This does not correspond to a traditional interface ID as ERC-4906 only
     // defines events and does not include any external function.
     bytes4 private constant ERC4906_INTERFACE_ID = bytes4(0x49064906);
