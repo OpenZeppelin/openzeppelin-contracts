@@ -39,12 +39,14 @@ This directory provides ways to restrict who can access the functions of a contr
 
 {{AccessManager}}
 
-{{IAccessManagerEnumerable}}
-
-{{AccessManagerEnumerable}}
-
 {{IAccessManaged}}
 
 {{AccessManaged}}
 
 {{AuthorityUtils}}
+
+=== Extensions
+
+{{IAccessManagerEnumerable}}
+
+{{AccessManagerEnumerable}}

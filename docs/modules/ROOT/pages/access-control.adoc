@@ -96,8 +96,9 @@ The base `AccessControl` contract provides role-based access control, but it doe
 
 This contract uses `EnumerableSet` internally and provides the following functions:
 
-* xref:api:access.adoc#AccessControl-getRoleMemberCount[`getRoleMemberCount`]
-* xref:api:access.adoc#AccessControl-getRoleMember[`getRoleMember`]
+* xref:api:access.adoc#AccessControlEnumerable-getRoleMemberCount-bytes32-[`getRoleMemberCount`]
+* xref:api:access.adoc#AccessControlEnumerable-getRoleMember-bytes32-uint256-[`getRoleMember`]
+* xref:api:access.adoc#AccessControlEnumerable-getRoleMembers-bytes32-[`getRoleMembers`]
 
 These can be used to iterate over the accounts that have been granted a role:
 
@@ -280,15 +281,15 @@ The base `AccessManager` contract provides comprehensive role-based access contr
 
 If on-chain enumeration is required, you can use the xref:api:access.adoc#AccessManagerEnumerable[`AccessManagerEnumerable`] extension. This extension uses `EnumerableSet` internally and provides the following functions for role members:
 
-* xref:api:access.adoc#AccessManager-getRoleMemberCount[`getRoleMemberCount`]
-* xref:api:access.adoc#AccessManager-getRoleMember[`getRoleMember`]
-* xref:api:access.adoc#AccessManager-getRoleMembers[`getRoleMembers`]
+* xref:api:access.adoc#AccessManagerEnumerable-getRoleTargetFunctionCount-uint64-address-[`getRoleMemberCount`]
+* xref:api:access.adoc#AccessManagerEnumerable-getRoleMember-uint64-uint256-[`getRoleMember`]
+* xref:api:access.adoc#AccessManagerEnumerable-getRoleMembers-uint64-uint256-uint256-[`getRoleMembers`]
 
 And these functions for target function permissions:
 
-* xref:api:access.adoc#AccessManagerEnumerable-getRoleTargetFunctionCount[`getRoleTargetFunctionCount`]
-* xref:api:access.adoc#AccessManagerEnumerable-getRoleTargetFunction[`getRoleTargetFunction`]
-* xref:api:access.adoc#AccessManagerEnumerable-getRoleTargetFunctions[`getRoleTargetFunctions`]
+* xref:api:access.adoc#AccessManagerEnumerable-getRoleTargetFunctionCount-uint64-address-[`getRoleTargetFunctionCount`]
+* xref:api:access.adoc#AccessManagerEnumerable-getRoleTargetFunction-uint64-address-uint256-[`getRoleTargetFunction`]
+* xref:api:access.adoc#AccessManagerEnumerable-getRoleTargetFunctions-uint64-address-uint256-uint256-[`getRoleTargetFunctions`]
 
 These can be used to iterate over the accounts that have been granted a role and the functions that a role is allowed to call on specific targets:
 
