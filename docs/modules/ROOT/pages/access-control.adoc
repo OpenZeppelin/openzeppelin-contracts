@@ -272,6 +272,53 @@ The delayed admin actions are:
 * Closing or opening a target via xref:api:access.adoc#AccessManager-setTargetClosed-address-bool-[`setTargetClosed`].
 * Changing permissions of whether a role can call a target function with xref:api:access.adoc#AccessManager-setTargetFunctionRole-address-bytes4---uint64-[`setTargetFunctionRole`].
 
+=== Querying Privileged Accounts
+
+Similar to `AccessControl`, accounts might be granted and revoked roles dynamically in an `AccessManager`, making it challenging to determine which accounts hold a particular role at any given time. This capability is essential for proving certain properties about a system, such as verifying that an administrative role is held by a multisig or DAO, or that a certain role has been completely removed to disable associated functionality.
+
+The base `AccessManager` contract provides comprehensive role-based access control but does not support on-chain enumeration of role members or target function permissions by default. To track which accounts hold roles and which functions are assigned to roles, you should rely on the xref:api:access.adoc#AccessManager-RoleGranted-uint64-address-uint32-uint48-bool-[RoleGranted], xref:api:access.adoc#AccessManager-RoleRevoked-uint64-address-[RoleRevoked], and xref:api:access.adoc#AccessManager-TargetFunctionRoleUpdated-address-bytes4-uint64-[TargetFunctionRoleUpdated] events, which can be processed off-chain.
+
+If on-chain enumeration is required, you can use the xref:api:access.adoc#AccessManagerEnumerable[`AccessManagerEnumerable`] extension. This extension uses `EnumerableSet` internally and provides the following functions for role members:
+
+* {AccessManagerEnumerable-getRoleMemberCount}
+* {AccessManagerEnumerable-getRoleMember}
+* {AccessManagerEnumerable-getRoleMembers}
+
+And these functions for target function permissions:
+
+* {AccessManagerEnumerable-getRoleTargetFunctionCount}
+* {AccessManagerEnumerable-getRoleTargetFunction}
+* {AccessManagerEnumerable-getRoleTargetFunctions}
+
+These can be used to iterate over the accounts that have been granted a role and the functions that a role is allowed to call on specific targets:
+
+```javascript
+// Enumerate role members
+const minterCount = await accessManager.getRoleMemberCount(MINTER_ROLE);
+
+const members = [];
+for (let i = 0; i < minterCount; ++i) {
+    members.push(await accessManager.getRoleMember(MINTER_ROLE, i));
+}
+
+// Or get all members at once
+const allMembers = await accessManager.getRoleMembers(MINTER_ROLE, 0, minterCount);
+
+// Enumerate target functions for a role
+const target = await myToken.getAddress();
+const functionCount = await accessManager.getRoleTargetFunctionCount(MINTER_ROLE, target);
+
+const functions = [];
+for (let i = 0; i < functionCount; ++i) {
+    functions.push(await accessManager.getRoleTargetFunction(MINTER_ROLE, target, i));
+}
+
+// Or get all functions at once
+const allFunctions = await accessManager.getRoleTargetFunctions(MINTER_ROLE, target, 0, functionCount);
+```
+
+Note that target function enumeration is organized per target contract, allowing you to query which functions a role can access on each specific target separately. This provides fine-grained visibility into the permission structure across your entire system of managed contracts.
+
 === Using with Ownable
 
 Contracts already inheriting from xref:api:access.adoc#Ownable[`Ownable`] can migrate to AccessManager by transferring ownership to the manager. After that, all calls to functions with the `onlyOwner` modifier should be called through the manager's xref:api:access.adoc#AccessManager-execute-address-bytes-[`execute`] function, even if the caller doesn't require a delay.
