@@ -19,6 +19,7 @@ async function fixture() {
 
   const manager = await ethers.deployContract('$AccessManagerEnumerableMock', [admin]);
   const target = await ethers.deployContract('$AccessManagedTarget', [manager]);
+  const target2 = await ethers.deployContract('$AccessManagedTarget', [manager]);
 
   for (const { id: roleId, admin, guardian, members } of Object.values(roles)) {
     if (roleId === roles.PUBLIC.id) continue; // Every address belong to public and is locked
@@ -50,6 +51,7 @@ async function fixture() {
     roles,
     manager,
     target,
+    target2,
   };
 }
 

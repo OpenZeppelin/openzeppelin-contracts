@@ -43,8 +43,8 @@ interface IAccessManagerEnumerable is IAccessManager {
     function getRoleMemberCount(uint64 roleId) external view returns (uint256);
 
     /**
-     * @dev Returns one of the target function selectors that require `roleId`. `index` must be a
-     * value between 0 and {getRoleTargetFunctionCount}, non-inclusive.
+     * @dev Returns one of the target function selectors that require `roleId` for the given `target`.
+     * `index` must be a value between 0 and {getRoleTargetFunctionCount}, non-inclusive.
      *
      * Target function selectors are not sorted in any particular way, and their ordering may
      * change at any point.
@@ -54,11 +54,11 @@ interface IAccessManagerEnumerable is IAccessManager {
      * https://forum.openzeppelin.com/t/iterating-over-elements-on-enumerableset-in-openzeppelin-contracts/2296[forum post]
      * for more information.
      */
-    function getRoleTargetFunction(uint64 roleId, uint256 index) external view returns (bytes4);
+    function getRoleTargetFunction(uint64 roleId, address target, uint256 index) external view returns (bytes4);
 
     /**
-     * @dev Returns a range of target function selectors that require `roleId`. `start` and `end` define the range bounds.
-     * `start` is inclusive and `end` is exclusive.
+     * @dev Returns a range of target function selectors that require `roleId` for the given `target`.
+     * `start` and `end` define the range bounds. `start` is inclusive and `end` is exclusive.
      *
      * Target function selectors are not sorted in any particular way, and their ordering may
      * change at any point.
@@ -68,11 +68,16 @@ interface IAccessManagerEnumerable is IAccessManager {
      * this function has an unbounded cost, and using it as part of a state-changing function may render the function
      * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
      */
-    function getRoleTargetFunctions(uint64 roleId, uint256 start, uint256 end) external view returns (bytes4[] memory);
+    function getRoleTargetFunctions(
+        uint64 roleId,
+        address target,
+        uint256 start,
+        uint256 end
+    ) external view returns (bytes4[] memory);
 
     /**
-     * @dev Returns the number of target function selectors that require `roleId`. Can be used
-     * together with {getRoleTargetFunction} to enumerate all target functions for a role.
+     * @dev Returns the number of target function selectors that require `roleId` for the given `target`.
+     * Can be used together with {getRoleTargetFunction} to enumerate all target functions for a role on a specific target.
      */
-    function getRoleTargetFunctionCount(uint64 roleId) external view returns (uint256);
+    function getRoleTargetFunctionCount(uint64 roleId, address target) external view returns (uint256);
 }

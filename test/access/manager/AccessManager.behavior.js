@@ -327,85 +327,118 @@ function shouldBehaveLikeAccessManagerEnumerable() {
     describe('target functions', function () {
       it('target functions can be enumerated', async function () {
         const roleId = this.roles.SOME.id;
+        const target = this.target;
         const selectors = [
           selector('someFunction()'),
           selector('anotherFunction(uint256)'),
           selector('thirdFunction(address,bool)'),
         ];
 
-        await this.manager.connect(this.admin).setTargetFunctionRole(this.manager, selectors, roleId);
+        await this.manager.connect(this.admin).setTargetFunctionRole(target, selectors, roleId);
 
-        const functionCount = await this.manager.getRoleTargetFunctionCount(roleId);
+        const functionCount = await this.manager.getRoleTargetFunctionCount(roleId, target);
         expect(functionCount).to.equal(selectors.length);
 
         // Test individual enumeration
         const functions = [];
         for (let i = 0; i < functionCount; ++i) {
-          functions.push(this.manager.getRoleTargetFunction(roleId, i));
+          functions.push(this.manager.getRoleTargetFunction(roleId, target, i));
         }
         await expect(Promise.all(functions)).to.eventually.have.members(selectors);
 
         // Test batch enumeration
-        const batchFunctions = await this.manager.getRoleTargetFunctions(roleId, 0, functionCount);
+        const batchFunctions = await this.manager.getRoleTargetFunctions(roleId, target, 0, functionCount);
         expect([...batchFunctions]).to.have.members(selectors);
       });
 
       it('target function enumeration updates when roles change', async function () {
         const roleId1 = this.roles.SOME.id;
         const roleId2 = this.roles.SOME_ADMIN.id;
+        const target = this.target;
         const sel = selector('testFunction()');
 
         // Initially assign to roleId1
-        await this.manager.connect(this.admin).setTargetFunctionRole(this.manager, [sel], roleId1);
+        await this.manager.connect(this.admin).setTargetFunctionRole(target, [sel], roleId1);
 
-        await expect(this.manager.getRoleTargetFunctionCount(roleId1)).to.eventually.equal(1);
-        await expect(this.manager.getRoleTargetFunctionCount(roleId2)).to.eventually.equal(0);
-        await expect(this.manager.getRoleTargetFunction(roleId1, 0)).to.eventually.equal(sel);
+        await expect(this.manager.getRoleTargetFunctionCount(roleId1, target)).to.eventually.equal(1);
+        await expect(this.manager.getRoleTargetFunctionCount(roleId2, target)).to.eventually.equal(0);
+        await expect(this.manager.getRoleTargetFunction(roleId1, target, 0)).to.eventually.equal(sel);
 
         // Reassign to roleId2
-        await this.manager.connect(this.admin).setTargetFunctionRole(this.manager, [sel], roleId2);
+        await this.manager.connect(this.admin).setTargetFunctionRole(target, [sel], roleId2);
 
-        await expect(this.manager.getRoleTargetFunctionCount(roleId1)).to.eventually.equal(0);
-        await expect(this.manager.getRoleTargetFunctionCount(roleId2)).to.eventually.equal(1);
-        await expect(this.manager.getRoleTargetFunction(roleId2, 0)).to.eventually.equal(sel);
+        await expect(this.manager.getRoleTargetFunctionCount(roleId1, target)).to.eventually.equal(0);
+        await expect(this.manager.getRoleTargetFunctionCount(roleId2, target)).to.eventually.equal(1);
+        await expect(this.manager.getRoleTargetFunction(roleId2, target, 0)).to.eventually.equal(sel);
       });
 
       it('returns empty for ADMIN_ROLE target functions', async function () {
+        const target = this.target;
         const sel = selector('adminFunction()');
 
         // Set function to ADMIN_ROLE (default behavior)
-        await this.manager.connect(this.admin).setTargetFunctionRole(this.manager, [sel], this.roles.ADMIN.id);
+        await this.manager.connect(this.admin).setTargetFunctionRole(target, [sel], this.roles.ADMIN.id);
 
         // ADMIN_ROLE functions are not tracked
-        await expect(this.manager.getRoleTargetFunctionCount(this.roles.ADMIN.id)).to.eventually.equal(0);
-        await expect(this.manager.getRoleTargetFunctions(this.roles.ADMIN.id, 0, 10)).to.eventually.deep.equal([]);
+        await expect(this.manager.getRoleTargetFunctionCount(this.roles.ADMIN.id, target)).to.eventually.equal(0);
+        await expect(this.manager.getRoleTargetFunctions(this.roles.ADMIN.id, target, 0, 10)).to.eventually.deep.equal(
+          [],
+        );
       });
 
       it('returns empty for roles with no target functions', async function () {
         const roleId = 888n; // Role with no functions
+        const target = this.target;
 
-        await expect(this.manager.getRoleTargetFunctionCount(roleId)).to.eventually.equal(0);
-        await expect(this.manager.getRoleTargetFunctions(roleId, 0, 10)).to.eventually.deep.equal([]);
+        await expect(this.manager.getRoleTargetFunctionCount(roleId, target)).to.eventually.equal(0);
+        await expect(this.manager.getRoleTargetFunctions(roleId, target, 0, 10)).to.eventually.deep.equal([]);
       });
 
       it('supports partial enumeration of target functions', async function () {
         const roleId = this.roles.SOME.id;
+        const target = this.target;
         const selectors = [selector('func1()'), selector('func2()'), selector('func3()'), selector('func4()')];
 
-        await this.manager.connect(this.admin).setTargetFunctionRole(this.manager, selectors, roleId);
+        await this.manager.connect(this.admin).setTargetFunctionRole(target, selectors, roleId);
 
-        await expect(this.manager.getRoleTargetFunctionCount(roleId)).to.eventually.equal(4);
+        await expect(this.manager.getRoleTargetFunctionCount(roleId, target)).to.eventually.equal(4);
 
         // Test partial enumeration
-        const firstTwo = await this.manager.getRoleTargetFunctions(roleId, 0, 2);
+        const firstTwo = await this.manager.getRoleTargetFunctions(roleId, target, 0, 2);
         expect(firstTwo).to.have.lengthOf(2);
 
-        const lastTwo = await this.manager.getRoleTargetFunctions(roleId, 2, 4);
+        const lastTwo = await this.manager.getRoleTargetFunctions(roleId, target, 2, 4);
         expect(lastTwo).to.have.lengthOf(2);
 
         // Verify no overlap and complete coverage
         const allFunctions = [...firstTwo, ...lastTwo];
         expect(allFunctions).to.have.members(selectors);
+      });
+
+      it('distinguishes between different targets', async function () {
+        const roleId = this.roles.SOME.id;
+        const target1 = this.target;
+        const target2 = this.target2;
+        const sel1 = selector('target1Function()');
+        const sel2 = selector('target2Function()');
+
+        // Set different functions for the same role on different targets
+        await this.manager.connect(this.admin).setTargetFunctionRole(target1, [sel1], roleId);
+        await this.manager.connect(this.admin).setTargetFunctionRole(target2, [sel2], roleId);
+
+        // Each target should have its own function tracked
+        await expect(this.manager.getRoleTargetFunctionCount(roleId, target1)).to.eventually.equal(1);
+        await expect(this.manager.getRoleTargetFunctionCount(roleId, target2)).to.eventually.equal(1);
+
+        await expect(this.manager.getRoleTargetFunction(roleId, target1, 0)).to.eventually.equal(sel1);
+        await expect(this.manager.getRoleTargetFunction(roleId, target2, 0)).to.eventually.equal(sel2);
+
+        // Functions should be isolated per target
+        const target1Functions = await this.manager.getRoleTargetFunctions(roleId, target1, 0, 1);
+        const target2Functions = await this.manager.getRoleTargetFunctions(roleId, target2, 0, 1);
+
+        expect(target1Functions).to.deep.equal([sel1]);
+        expect(target2Functions).to.deep.equal([sel2]);
       });
     });
   });

@@ -19,7 +19,7 @@ abstract contract AccessManagerEnumerable is IAccessManagerEnumerable, AccessMan
     using EnumerableSet for EnumerableSet.Bytes32Set;
 
     mapping(uint64 roleId => EnumerableSet.AddressSet) private _roleMembers;
-    mapping(uint64 roleId => EnumerableSet.Bytes32Set) private _roleTargetFunctions;
+    mapping(uint64 roleId => mapping(address target => EnumerableSet.Bytes32Set)) private _roleTargetFunctions;
 
     /// @inheritdoc IAccessManagerEnumerable
     function getRoleMember(uint64 roleId, uint256 index) public view virtual returns (address) {
@@ -37,8 +37,8 @@ abstract contract AccessManagerEnumerable is IAccessManagerEnumerable, AccessMan
     }
 
     /// @inheritdoc IAccessManagerEnumerable
-    function getRoleTargetFunction(uint64 roleId, uint256 index) public view virtual returns (bytes4) {
-        return bytes4(_roleTargetFunctions[roleId].at(index));
+    function getRoleTargetFunction(uint64 roleId, address target, uint256 index) public view virtual returns (bytes4) {
+        return bytes4(_roleTargetFunctions[roleId][target].at(index));
     }
 
     /*
@@ -49,10 +49,11 @@ abstract contract AccessManagerEnumerable is IAccessManagerEnumerable, AccessMan
      */
     function getRoleTargetFunctions(
         uint64 roleId,
+        address target,
         uint256 start,
         uint256 end
     ) public view virtual returns (bytes4[] memory) {
-        bytes32[] memory targetFunctions = _roleTargetFunctions[roleId].values(start, end);
+        bytes32[] memory targetFunctions = _roleTargetFunctions[roleId][target].values(start, end);
         bytes4[] memory targetFunctionSelectors;
         assembly ("memory-safe") {
             targetFunctionSelectors := targetFunctions
@@ -66,8 +67,8 @@ abstract contract AccessManagerEnumerable is IAccessManagerEnumerable, AccessMan
      * NOTE: Given {ADMIN_ROLE} is the default role for every restricted function, passing {ADMIN_ROLE} as `roleId` will
      * return 0. See {_setTargetFunctionRole} for more details.
      */
-    function getRoleTargetFunctionCount(uint64 roleId) public view virtual returns (uint256) {
-        return _roleTargetFunctions[roleId].length();
+    function getRoleTargetFunctionCount(uint64 roleId, address target) public view virtual returns (uint256) {
+        return _roleTargetFunctions[roleId][target].length();
     }
 
     /// @dev See {AccessManager-_grantRole}. Adds the account to the role members set.
@@ -107,10 +108,10 @@ abstract contract AccessManagerEnumerable is IAccessManagerEnumerable, AccessMan
      *     uint64 oldRoleId = getTargetFunctionRole(target, selector);
      *     super._setTargetFunctionRole(target, selector, roleId);
      *     if (oldRoleId == ADMIN_ROLE) {
-     *         _roleTargetFunctions[oldRoleId].remove(bytes32(selector));
+     *         _roleTargetFunctions[oldRoleId][target].remove(bytes32(selector));
      *     }
      *     if (roleId == ADMIN_ROLE) {
-     *         _roleTargetFunctions[roleId].add(bytes32(selector));
+     *         _roleTargetFunctions[roleId][target].add(bytes32(selector));
      *     }
      * }
      * ```
@@ -119,10 +120,10 @@ abstract contract AccessManagerEnumerable is IAccessManagerEnumerable, AccessMan
         uint64 oldRoleId = getTargetFunctionRole(target, selector);
         super._setTargetFunctionRole(target, selector, roleId);
         if (oldRoleId != ADMIN_ROLE) {
-            _roleTargetFunctions[oldRoleId].remove(bytes32(selector));
+            _roleTargetFunctions[oldRoleId][target].remove(bytes32(selector));
         }
         if (roleId != ADMIN_ROLE) {
-            _roleTargetFunctions[roleId].add(bytes32(selector));
+            _roleTargetFunctions[roleId][target].add(bytes32(selector));
         }
     }
 }
