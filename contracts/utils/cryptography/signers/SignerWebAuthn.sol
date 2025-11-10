@@ -40,12 +40,12 @@ abstract contract SignerWebAuthn is SignerP256 {
         bytes32 hash,
         bytes calldata signature
     ) internal view virtual override returns (bool) {
-        (bytes32 qx, bytes32 qy) = signer();
         (bool decodeSuccess, WebAuthn.WebAuthnAuth calldata auth) = WebAuthn.tryDecodeAuth(signature);
-
-        return
-            decodeSuccess
-                ? WebAuthn.verify(abi.encodePacked(hash), auth, qx, qy)
-                : super._rawSignatureValidation(hash, signature);
+        if (decodeSuccess) {
+            (bytes32 qx, bytes32 qy) = signer();
+            return WebAuthn.verify(abi.encodePacked(hash), auth, qx, qy);
+        } else {
+            return super._rawSignatureValidation(hash, signature);
+        }
     }
 }

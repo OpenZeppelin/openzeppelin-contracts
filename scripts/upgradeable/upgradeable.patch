@@ -59,10 +59,10 @@ index ff596b0c3..000000000
 -<!-- Make sure that you have reviewed the OpenZeppelin Contracts Contributor Guidelines. -->
 -<!-- https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/CONTRIBUTING.md -->
 diff --git a/README.md b/README.md
-index 2f92281b3..a0e46695d 100644
+index 6a01f5616..168b74aa7 100644
 --- a/README.md
 +++ b/README.md
-@@ -20,6 +20,9 @@
+@@ -18,6 +18,9 @@
  > [!IMPORTANT]
  > OpenZeppelin Contracts uses semantic versioning to communicate backwards compatibility of its API and storage layout. For upgradeable contracts, the storage layout of different major versions should be assumed incompatible, for example, it is unsafe to upgrade from 4.9.3 to 5.0.0. Learn more at [Backwards Compatibility](https://docs.openzeppelin.com/contracts/backwards-compatibility).
  
@@ -71,17 +71,23 @@ index 2f92281b3..a0e46695d 100644
 ++
  ## Overview
  
- ### Installation
-@@ -27,7 +30,7 @@
+ ### Release tags
+@@ -35,12 +38,12 @@ We use NPM tags to clearly distinguish between audited and non-audited versions
  #### Hardhat (npm)
  
  ```
 -$ npm install @openzeppelin/contracts
 +$ npm install @openzeppelin/contracts-upgradeable
  ```
+ → Installs the latest audited release (`latest`).
  
- #### Foundry (git)
-@@ -39,10 +42,10 @@ $ npm install @openzeppelin/contracts
+ ```
+-$ npm install @openzeppelin/contracts@dev
++$ npm install @openzeppelin/contracts-upgradeable@dev
+ ```
+ → Installs the latest unaudited release (`dev`).
+ 
+@@ -53,10 +56,10 @@ $ npm install @openzeppelin/contracts@dev
  > Foundry installs the latest version initially, but subsequent `forge update` commands will use the `master` branch.
  
  ```
@@ -94,7 +100,7 @@ index 2f92281b3..a0e46695d 100644
  
  ### Usage
  
-@@ -51,10 +54,11 @@ Once installed, you can use the contracts in the library by importing them:
+@@ -65,10 +68,11 @@ Once installed, you can use the contracts in the library by importing them:
  ```solidity
  pragma solidity ^0.8.20;
  
@@ -110,7 +116,7 @@ index 2f92281b3..a0e46695d 100644
  }
  ```
 diff --git a/contracts/package.json b/contracts/package.json
-index 8ccb9465e..509cd7f05 100644
+index 3535a2f56..9a73abc22 100644
 --- a/contracts/package.json
 +++ b/contracts/package.json
 @@ -1,5 +1,5 @@
@@ -118,7 +124,7 @@ index 8ccb9465e..509cd7f05 100644
 -  "name": "@openzeppelin/contracts",
 +  "name": "@openzeppelin/contracts-upgradeable",
    "description": "Secure Smart Contract library for Solidity",
-   "version": "5.4.0",
+   "version": "5.5.0",
    "files": [
 @@ -13,7 +13,7 @@
    },
@@ -140,7 +146,7 @@ index 8ccb9465e..509cd7f05 100644
 +  }
  }
 diff --git a/contracts/utils/ReentrancyGuard.sol b/contracts/utils/ReentrancyGuard.sol
-index 6e44894dc..7b076aaa7 100644
+index c156fa1cc..895e39342 100644
 --- a/contracts/utils/ReentrancyGuard.sol
 +++ b/contracts/utils/ReentrancyGuard.sol
 @@ -36,6 +36,11 @@ abstract contract ReentrancyGuard {
@@ -167,7 +173,7 @@ index 6e44894dc..7b076aaa7 100644
       * @dev Prevents a contract from calling itself, directly or indirectly.
       * Calling a `nonReentrant` function from another `nonReentrant`
 diff --git a/contracts/utils/cryptography/EIP712.sol b/contracts/utils/cryptography/EIP712.sol
-index 0eaef9d27..01f1b5f58 100644
+index 2bc45a4b2..09e84815e 100644
 --- a/contracts/utils/cryptography/EIP712.sol
 +++ b/contracts/utils/cryptography/EIP712.sol
 @@ -4,7 +4,6 @@
@@ -341,7 +347,7 @@ index 0eaef9d27..01f1b5f58 100644
      }
  }
 diff --git a/package.json b/package.json
-index f6960972a..369e2e1e6 100644
+index 0e387a8e7..4f2a6bea6 100644
 --- a/package.json
 +++ b/package.json
 @@ -35,7 +35,7 @@
