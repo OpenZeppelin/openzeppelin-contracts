@@ -10,7 +10,6 @@ import {ERC1155} from "../ERC1155.sol";
  * Inspired by the {ERC721URIStorage} extension
  */
 abstract contract ERC1155URIStorage is ERC1155 {
-
     // Optional base URI
     string private _baseURI = "";
 
