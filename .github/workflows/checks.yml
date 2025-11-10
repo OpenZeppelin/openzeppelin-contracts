@@ -109,7 +109,7 @@ jobs:
         uses: ./.github/actions/setup
       - name: Compile harnesses
         run: |
-          make -C certora apply
+          make -C fv apply
           npm run compile:harnesses
 
   slither:
@@ -125,7 +125,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - name: Run CodeSpell
-        uses: codespell-project/actions-codespell@v2.1
+        uses: codespell-project/actions-codespell@v2.2
         with:
           check_hidden: true
           check_filenames: true

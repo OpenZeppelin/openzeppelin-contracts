@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "compile": "hardhat compile",
-    "compile:harnesses": "env SRC=./certora/harnesses hardhat compile",
+    "compile:harnesses": "env SRC=./fv/harnesses hardhat compile",
     "coverage": "scripts/checks/coverage.sh",
     "docs": "npm run prepare-docs && oz-docs",
     "docs:watch": "oz-docs watch contracts docs/templates docs/config.js",

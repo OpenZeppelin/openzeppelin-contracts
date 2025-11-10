@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
 // USAGE:
-//    node certora/run.js [CONFIG]* [--all]
+//    node fv/run.js [CONFIG]* [--all]
 // EXAMPLES:
-//    node certora/run.js --all
-//    node certora/run.js ERC721
-//    node certora/run.js certora/specs/ERC721.conf
+//    node fv/run.js --all
+//    node fv/run.js ERC721
+//    node fv/run.js fv/specs/ERC721.conf
 
 const glob = require('glob');
 const fs = require('fs');
@@ -32,7 +32,7 @@ const { argv } = yargs(hideBin(process.argv))
     },
   });
 
-const pattern = 'certora/specs/*.conf';
+const pattern = 'fv/specs/*.conf';
 const limit = pLimit(argv.parallel);
 
 if (argv._.length == 0 && !argv.all) {

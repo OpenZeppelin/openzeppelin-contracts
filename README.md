@@ -20,6 +20,16 @@
 
 ## Overview
 
+### Release tags
+
+We use NPM tags to clearly distinguish between audited and non-audited versions of our package:
+
+| Tag        | Purpose                  | Description                                                                                                                                                                   |
+| :--------- | :----------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **latest** | ✅ Audited releases      | Stable, audited versions of the package. This is the **default** version installed when users run `npm install @openzeppelin/contracts`.                                      |
+| **dev**    | 🧪 Final but not audited | Versions that are finalized and feature-complete but have **not yet been audited**. This version is fully tested, can be used in production and is covered by the bug bounty. |
+| **next**   | 🚧 Release candidates    | Pre-release versions that are **not final**. Used for testing and validation before the version becomes a final `dev` or `latest` release.                                    |
+
 ### Installation
 
 #### Hardhat (npm)
@@ -27,6 +37,12 @@
 ```
 $ npm install @openzeppelin/contracts
 ```
+→ Installs the latest audited release (`latest`).
+
+```
+$ npm install @openzeppelin/contracts@dev
+```
+→ Installs the latest unaudited release (`dev`).
 
 #### Foundry (git)
 
