@@ -295,8 +295,17 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         // shares are burned and after the assets are transferred, which is a valid state.
         _burn(owner, shares);
         _transferOut(receiver, assets);
+        uint256 withdrawnAssets = assets;
+        if (totalSupply() == 0) {
+            uint256 remainingAssets = IERC20(asset()).balanceOf(address(this));
+            if (remainingAssets > 0) {
+                // Sweep residual assets so a donation or rounding remainder does not strand funds in the vault.
+                _transferOut(receiver, remainingAssets);
+                withdrawnAssets += remainingAssets;
+            }
+        }
 
-        emit Withdraw(caller, receiver, owner, assets, shares);
+        emit Withdraw(caller, receiver, owner, withdrawnAssets, shares);
     }
 
     /// @dev Performs a transfer in of underlying assets. The default implementation uses `SafeERC20`. Used by {_deposit}.
