@@ -41,6 +41,13 @@ import {EnumerableSet} from "./EnumerableSet.sol";
  * - \`address -> bytes32\` (\`AddressToBytes32Map\`) since v5.1.0
  * - \`bytes32 -> address\` (\`Bytes32ToAddressMap\`) since v5.1.0
  * - \`bytes -> bytes\` (\`BytesToBytesMap\`) since v5.4.0
+ * - \`uint256 -> bytes4\` (\`UintToBytes4Map\`) since v5.6.0
+ * - \`address -> bytes4\` (\`AddressToBytes4Map\`) since v5.6.0
+ * - \`bytes4 -> uint256\` (\`Bytes4ToUintMap\`) since v5.6.0
+ * - \`bytes4 -> address\` (\`Bytes4ToAddressMap\`) since v5.6.0
+ * - \`bytes4 -> bytes4\` (\`Bytes4ToBytes4Map\`) since v5.6.0
+ * - \`bytes4 -> bytes32\` (\`Bytes4ToBytes32Map\`) since v5.6.0
+ * - \`bytes32 -> bytes4\` (\`Bytes32ToBytes4Map\`) since v5.6.0
  *
  * [WARNING]
  * ====
