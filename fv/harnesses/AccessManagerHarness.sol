@@ -16,75 +16,83 @@ contract AccessManagerHarness is AccessManager {
     }
 
     function canCall_immediate(address caller, address target, bytes4 selector) external view returns (bool result) {
-        (result,) = canCall(caller, target, selector);
+        (result, ) = canCall(caller, target, selector);
     }
 
     function canCall_delay(address caller, address target, bytes4 selector) external view returns (uint32 result) {
-        (,result) = canCall(caller, target, selector);
+        (, result) = canCall(caller, target, selector);
     }
 
     function canCallExtended(address caller, address target, bytes calldata data) external view returns (bool, uint32) {
         return _canCallExtended(caller, target, data);
     }
 
-    function canCallExtended_immediate(address caller, address target, bytes calldata data) external view returns (bool result) {
-        (result,) = _canCallExtended(caller, target, data);
+    function canCallExtended_immediate(
+        address caller,
+        address target,
+        bytes calldata data
+    ) external view returns (bool result) {
+        (result, ) = _canCallExtended(caller, target, data);
     }
 
-    function canCallExtended_delay(address caller, address target, bytes calldata data) external view returns (uint32 result) {
-        (,result) = _canCallExtended(caller, target, data);
+    function canCallExtended_delay(
+        address caller,
+        address target,
+        bytes calldata data
+    ) external view returns (uint32 result) {
+        (, result) = _canCallExtended(caller, target, data);
     }
 
     function getAdminRestrictions_restricted(bytes calldata data) external view returns (bool result) {
-        (result,,) = _getAdminRestrictions(data);
+        (result, , ) = _getAdminRestrictions(data);
     }
 
     function getAdminRestrictions_roleAdminId(bytes calldata data) external view returns (uint64 result) {
-        (,result,) = _getAdminRestrictions(data);
+        (, result, ) = _getAdminRestrictions(data);
     }
 
     function getAdminRestrictions_executionDelay(bytes calldata data) external view returns (uint32 result) {
-        (,,result) = _getAdminRestrictions(data);
+        (, , result) = _getAdminRestrictions(data);
     }
 
     function hasRole_isMember(uint64 roleId, address account) external view returns (bool result) {
-        (result,) = hasRole(roleId, account);
+        (result, ) = hasRole(roleId, account);
     }
 
     function hasRole_executionDelay(uint64 roleId, address account) external view returns (uint32 result) {
-        (,result) = hasRole(roleId, account);
+        (, result) = hasRole(roleId, account);
     }
 
     function getAccess_since(uint64 roleId, address account) external view returns (uint48 result) {
-        (result,,,) = getAccess(roleId, account);
+        (result, , , ) = getAccess(roleId, account);
     }
 
     function getAccess_currentDelay(uint64 roleId, address account) external view returns (uint32 result) {
-        (,result,,) = getAccess(roleId, account);
+        (, result, , ) = getAccess(roleId, account);
     }
 
     function getAccess_pendingDelay(uint64 roleId, address account) external view returns (uint32 result) {
-        (,,result,) = getAccess(roleId, account);
+        (, , result, ) = getAccess(roleId, account);
     }
 
     function getAccess_effect(uint64 roleId, address account) external view returns (uint48 result) {
-        (,,,result) = getAccess(roleId, account);
+        (, , , result) = getAccess(roleId, account);
     }
 
     function getTargetAdminDelay_after(address target) public view virtual returns (uint32 result) {
-        (,result,) = _getTargetAdminDelayFull(target);
+        (, result, ) = _getTargetAdminDelayFull(target);
     }
 
     function getTargetAdminDelay_effect(address target) public view virtual returns (uint48 result) {
-        (,,result) = _getTargetAdminDelayFull(target);
+        (, , result) = _getTargetAdminDelayFull(target);
     }
 
     function getRoleGrantDelay_after(uint64 roleId) public view virtual returns (uint32 result) {
-        (,result,) = _getRoleGrantDelayFull(roleId);
+        (, result, ) = _getRoleGrantDelayFull(roleId);
     }
 
     function getRoleGrantDelay_effect(uint64 roleId) public view virtual returns (uint48 result) {
-        (,,result) = _getRoleGrantDelayFull(roleId);
+        (, , result) = _getRoleGrantDelayFull(roleId);
     }
 
     function hashExecutionId(address target, bytes4 selector) external pure returns (bytes32) {
@@ -97,7 +105,15 @@ contract AccessManagerHarness is AccessManager {
 
     // Pad with zeros (and don't revert) if data is too short.
     function getSelector(bytes calldata data) external pure returns (bytes4) {
-        return bytes4(data);
+        if (data.length >= 4) {
+            return bytes4(data);
+        }
+        // Pad with zeros if data is too short
+        bytes memory padded = new bytes(4);
+        for (uint256 i = 0; i < data.length; i++) {
+            padded[i] = data[i];
+        }
+        return bytes4(padded);
     }
 
     function getFirstArgumentAsAddress(bytes calldata data) external pure returns (address) {
