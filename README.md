@@ -119,4 +119,7 @@ OpenZeppelin Contracts is released under the [MIT License](LICENSE).
 
 ## Legal
 
-Your use of this Project is governed by the terms found at www.openzeppelin.com/tos (the "Terms").
+Your use of this Project is governed by the terms found at www.openzeppelin.com/tos (the "Terms").> Note: When using AccessControl with upgradeable contracts, role admin
+> relationships must be reinitialized after proxy deployment. Failing to do so
+> may leave roles without a valid admin.
+
