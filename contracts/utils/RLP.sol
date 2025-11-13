@@ -121,14 +121,11 @@ library RLP {
         }
     }
 
-    /// @dev Encode an address as RLP.
+    /// @dev Encode an address as RLP. The address is encoded as an uint256 to avoid leading zeros.
     function encode(address input) internal pure returns (bytes memory result) {
-        assembly ("memory-safe") {
-            result := mload(0x40)
-            mstore(result, 0x15) // length of the encoded data: 1 (prefix) + 0x14 (address)
-            mstore(add(result, 0x20), or(shl(248, 0x94), shl(88, input))) // prefix (0x94 = SHORT_OFFSET + 0x14) + input
-            mstore(0x40, add(result, 0x35)) // reserve memory
-        }
+        uint256 inputAsScalar = uint256(uint160(input));
+
+        return encode(inputAsScalar);
     }
 
     /// @dev Encode a uint256 as RLP.
@@ -215,8 +212,6 @@ library RLP {
 
     /// @dev Decode an RLP encoded address. See {encode-address}
     function readAddress(Memory.Slice item) internal pure returns (address) {
-        uint256 length = item.length();
-        require(length == 1 || length == 21, RLPInvalidEncoding());
         return address(uint160(readUint256(item)));
     }
 
