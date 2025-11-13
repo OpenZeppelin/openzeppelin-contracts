@@ -62,7 +62,6 @@ library ERC7739Utils {
      * - `contentsDescr` is a descriptor of the "contents" part of the EIP-712 type of the nested signature.
      *
      * NOTE: This function returns empty if the input format is invalid instead of reverting.
-     * data instead.
      */
     function decodeTypedDataSig(
         bytes calldata encodedSignature
@@ -99,7 +98,7 @@ library ERC7739Utils {
      * This struct hash must be combined with a domain separator, using {MessageHashUtils-toTypedDataHash} before
      * being verified/recovered.
      *
-     * This is used to simulates the `personal_sign` RPC method in the context of smart contracts.
+     * This is used to simulate the `personal_sign` RPC method in the context of smart contracts.
      */
     function personalSignStructHash(bytes32 contents) internal pure returns (bytes32) {
         return Hashes.efficientKeccak256(PERSONAL_SIGN_TYPEHASH, contents);

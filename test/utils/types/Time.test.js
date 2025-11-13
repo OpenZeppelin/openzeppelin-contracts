@@ -6,8 +6,8 @@ const { product } = require('../../helpers/iterate');
 const { max } = require('../../helpers/math');
 const time = require('../../helpers/time');
 
-const MAX_UINT32 = 1n << (32n - 1n);
-const MAX_UINT48 = 1n << (48n - 1n);
+const MAX_UINT32 = (1n << 32n) - 1n;
+const MAX_UINT48 = (1n << 48n) - 1n;
 const SOME_VALUES = [0n, 1n, 2n, 15n, 16n, 17n, 42n];
 
 const asUint = (value, size) => {

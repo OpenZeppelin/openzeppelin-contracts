@@ -6,7 +6,7 @@ https://eips.ethereum.org/EIPS/eip-7702[EIP-7702] introduces a new transaction t
 * Sponsoring transactions for other users.
 * Implementing privilege de-escalation (e.g., sub-keys with limited permissions)
 
-This section walks you through the process of delegating an EOA to a contract following https://eips.ethereum.org/EIPS/eip-7702[ERC-7702]. This allows you to use your EOA's private key to sign and execute operations with custom execution logic. Combined with https://eips.ethereum.org/EIPS/eip-4337[ERC-4337] infrastructure, users can achieve gas sponsoring through https://docs.openzeppelin.com/community-contracts/paymasters[paymasters].
+This section walks you through the process of delegating an EOA to a contract following https://eips.ethereum.org/EIPS/eip-7702[EIP-7702]. This allows you to use your EOA's private key to sign and execute operations with custom execution logic. Combined with https://eips.ethereum.org/EIPS/eip-4337[ERC-4337] infrastructure, users can achieve gas sponsoring through https://docs.openzeppelin.com/community-contracts/paymasters[paymasters].
 
 == Delegating execution
 
@@ -14,7 +14,7 @@ EIP-7702 enables EOAs to delegate their execution capabilities to smart contract
 
 [source,solidity]
 ----
-include::api:example$account/MyAccountERC7702.sol[]
+include::api:example$account/MyAccountEIP7702.sol[]
 ----
 
 TIP: Users can delegate to an instance of xref:api:account.adoc#ERC7821[`ERC-7821`] for a minimal batch executor that does not use ERC-4337 related code.
@@ -52,7 +52,7 @@ const authorization = await eoaClient.signAuthorization({
 });
 ----
 
-NOTE: When implementing delegate contracts, ensure they require signatures that avoids replayability (e.g. a domain separator, nonce).
+NOTE: When implementing delegate contracts, ensure they require signatures that avoid replayability (e.g. a domain separator, nonce).
 A poorly implemented delegate can allow a malicious actor to take near complete control over a signer's EOA.
 
 === Send a Set Code Transaction
@@ -80,7 +80,7 @@ console.log(userOpReceipt);
 
 To remove the delegation and restore your EOA to its original state, you can send a `SET_CODE_TX_TYPE` transaction with an authorization tuple that points to the zero address (`0x0000000000000000000000000000000000000000`). This will clear the account's code and reset its code hash to the empty hash, however, be aware that it will not automatically clean the EOA storage.
 
-When changing an account's delegation, ensure the newly delegated code is purposely designed and tested as an upgrade to the old one. To ensure safe migration between delegate contracts, namespaced storage that avoids accidental collisions following ERC-7201. 
+When changing an account's delegation, ensure the newly delegated code is purposely designed and tested as an upgrade to the old one. To ensure safe migration between delegate contracts, use namespaced storage that avoids accidental collisions following ERC-7201. 
 
 WARNING: Updating the delegation designator may render your EOA unusable due to potential storage collisions. We recommend following similar practices to those of https://docs.openzeppelin.com/upgrades-plugins/writing-upgradeable[writing upgradeable smart contracts].
 
