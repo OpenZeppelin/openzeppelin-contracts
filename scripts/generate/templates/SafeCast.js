@@ -22,12 +22,12 @@ pragma solidity ^0.8.20;
 
 const errors = `\
 /**
- * @dev Value doesn't fit in an uint of \`bits\` size.
+ * @dev Value doesn't fit in a uint of \`bits\` size.
  */
 error SafeCastOverflowedUintDowncast(uint8 bits, uint256 value);
 
 /**
- * @dev An int value doesn't fit in an uint of \`bits\` size.
+ * @dev An int value doesn't fit in a uint of \`bits\` size.
  */
 error SafeCastOverflowedIntToUint(int256 value);
 
@@ -37,7 +37,7 @@ error SafeCastOverflowedIntToUint(int256 value);
 error SafeCastOverflowedIntDowncast(uint8 bits, int256 value);
 
 /**
- * @dev An uint value doesn't fit in an int of \`bits\` size.
+ * @dev A uint value doesn't fit in an int of \`bits\` size.
  */
 error SafeCastOverflowedUintToInt(uint256 value);
 `;
