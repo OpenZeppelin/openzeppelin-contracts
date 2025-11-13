@@ -217,9 +217,9 @@ library MerkleProof {
             revert MerkleProofInvalidMultiproof();
         }
 
-        // The xxxPos values are "pointers" to the next value to consume in each array. All accesses are done using
-        // `xxx[xxxPos++]`, which return the current value and increment the pointer, thus mimicking a queue's "pop".
         if (proofFlagsLen > 0) {
+            // The xxxPos values are "pointers" to the next value to consume in each array. All accesses are done using
+            // `xxx[xxxPos++]`, which return the current value and increment the pointer, thus mimicking a queue's "pop".
             bytes32[] memory hashes = new bytes32[](proofFlagsLen);
             uint256 leafPos = 0;
             uint256 hashPos = 0;
@@ -304,9 +304,9 @@ library MerkleProof {
             revert MerkleProofInvalidMultiproof();
         }
 
-        // The xxxPos values are "pointers" to the next value to consume in each array. All accesses are done using
-        // `xxx[xxxPos++]`, which return the current value and increment the pointer, thus mimicking a queue's "pop".
         if (proofFlagsLen > 0) {
+            // The xxxPos values are "pointers" to the next value to consume in each array. All accesses are done using
+            // `xxx[xxxPos++]`, which return the current value and increment the pointer, thus mimicking a queue's "pop".
             bytes32[] memory hashes = new bytes32[](proofFlagsLen);
             uint256 leafPos = 0;
             uint256 hashPos = 0;
@@ -389,9 +389,9 @@ library MerkleProof {
             revert MerkleProofInvalidMultiproof();
         }
 
-        // The xxxPos values are "pointers" to the next value to consume in each array. All accesses are done using
-        // `xxx[xxxPos++]`, which return the current value and increment the pointer, thus mimicking a queue's "pop".
         if (proofFlagsLen > 0) {
+            // The xxxPos values are "pointers" to the next value to consume in each array. All accesses are done using
+            // `xxx[xxxPos++]`, which return the current value and increment the pointer, thus mimicking a queue's "pop".
             bytes32[] memory hashes = new bytes32[](proofFlagsLen);
             uint256 leafPos = 0;
             uint256 hashPos = 0;
@@ -476,9 +476,9 @@ library MerkleProof {
             revert MerkleProofInvalidMultiproof();
         }
 
-        // The xxxPos values are "pointers" to the next value to consume in each array. All accesses are done using
-        // `xxx[xxxPos++]`, which return the current value and increment the pointer, thus mimicking a queue's "pop".
         if (proofFlagsLen > 0) {
+            // The xxxPos values are "pointers" to the next value to consume in each array. All accesses are done using
+            // `xxx[xxxPos++]`, which return the current value and increment the pointer, thus mimicking a queue's "pop".
             bytes32[] memory hashes = new bytes32[](proofFlagsLen);
             uint256 leafPos = 0;
             uint256 hashPos = 0;
