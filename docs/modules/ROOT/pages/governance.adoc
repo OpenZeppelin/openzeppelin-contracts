@@ -201,7 +201,7 @@ The Governor will automatically detect the clock mode used by the token and adap
 pragma solidity ^0.8.20;
 
 import {Governor} from "@openzeppelin/contracts/governance/Governor.sol";
-import {GovernorCountingSimple} from "@openzeppelin/contracts/governance/compatibility/GovernorCountingSimple.sol";
+import {GovernorCountingSimple} from "@openzeppelin/contracts/governance/extensions/GovernorCountingSimple.sol";
 import {GovernorVotes} from "@openzeppelin/contracts/governance/extensions/GovernorVotes.sol";
 import {GovernorVotesQuorumFraction} from "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
 import {GovernorTimelockControl} from "@openzeppelin/contracts/governance/extensions/GovernorTimelockControl.sol";
