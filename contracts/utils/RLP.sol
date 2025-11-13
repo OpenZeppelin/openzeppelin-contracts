@@ -164,7 +164,11 @@ library RLP {
         return encode(bytes(input));
     }
 
-    /// @dev Encode an array of bytes as RLP.
+    /**
+     * @dev Encode an array of bytes as RLP.
+     * This function expects an array of already encoded bytes, not raw bytes.
+     * Users should call {encode} on each element of the array before calling it.
+     */
     function encode(bytes[] memory input) internal pure returns (bytes memory) {
         return _encode(input.concat(), LONG_OFFSET);
     }
