@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.4.0) (account/Account.sol)
+// OpenZeppelin Contracts (last updated v5.5.0) (account/Account.sol)
 
 pragma solidity ^0.8.20;
 
 import {PackedUserOperation, IAccount, IEntryPoint} from "../interfaces/draft-IERC4337.sol";
 import {ERC4337Utils} from "./utils/draft-ERC4337Utils.sol";
 import {AbstractSigner} from "../utils/cryptography/signers/AbstractSigner.sol";
+import {LowLevelCall} from "../utils/LowLevelCall.sol";
 
 /**
  * @dev A simple ERC4337 account implementation. This base implementation only includes the minimal logic to process
@@ -74,7 +75,7 @@ abstract contract Account is AbstractSigner, IAccount {
         bytes32 userOpHash,
         uint256 missingAccountFunds
     ) public virtual onlyEntryPoint returns (uint256) {
-        uint256 validationData = _validateUserOp(userOp, userOpHash);
+        uint256 validationData = _validateUserOp(userOp, userOpHash, userOp.signature);
         _payPrefund(missingAccountFunds);
         return validationData;
     }
@@ -83,15 +84,21 @@ abstract contract Account is AbstractSigner, IAccount {
      * @dev Returns the validationData for a given user operation. By default, this checks the signature of the
      * signable hash (produced by {_signableUserOpHash}) using the abstract signer ({AbstractSigner-_rawSignatureValidation}).
      *
+     * The `signature` parameter is taken directly from the user operation's `signature` field.
+     * This design enables derived contracts to implement custom signature handling logic,
+     * such as embedding additional data within the signature and processing it by overriding this function
+     * and optionally invoking `super`.
+     *
      * NOTE: The userOpHash is assumed to be correct. Calling this function with a userOpHash that does not match the
      * userOp will result in undefined behavior.
      */
     function _validateUserOp(
         PackedUserOperation calldata userOp,
-        bytes32 userOpHash
+        bytes32 userOpHash,
+        bytes calldata signature
     ) internal virtual returns (uint256) {
         return
-            _rawSignatureValidation(_signableUserOpHash(userOp, userOpHash), userOp.signature)
+            _rawSignatureValidation(_signableUserOpHash(userOp, userOpHash), signature)
                 ? ERC4337Utils.SIG_VALIDATION_SUCCESS
                 : ERC4337Utils.SIG_VALIDATION_FAILED;
     }
@@ -113,8 +120,7 @@ abstract contract Account is AbstractSigner, IAccount {
      */
     function _payPrefund(uint256 missingAccountFunds) internal virtual {
         if (missingAccountFunds > 0) {
-            (bool success, ) = payable(msg.sender).call{value: missingAccountFunds}("");
-            success; // Silence warning. The entrypoint should validate the result.
+            LowLevelCall.callNoReturn(msg.sender, missingAccountFunds, ""); // The entrypoint should validate the result.
         }
     }
 

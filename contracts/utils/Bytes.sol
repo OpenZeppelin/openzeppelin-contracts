@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.4.0) (utils/Bytes.sol)
+// OpenZeppelin Contracts (last updated v5.5.0) (utils/Bytes.sol)
 
 pragma solidity ^0.8.24;
 
@@ -85,8 +85,7 @@ library Bytes {
      */
     function slice(bytes memory buffer, uint256 start, uint256 end) internal pure returns (bytes memory) {
         // sanitize
-        uint256 length = buffer.length;
-        end = Math.min(end, length);
+        end = Math.min(end, buffer.length);
         start = Math.min(start, end);
 
         // allocate and copy
@@ -102,6 +101,7 @@ library Bytes {
      * @dev Moves the content of `buffer`, from `start` (included) to the end of `buffer` to the start of that buffer.
      *
      * NOTE: This function modifies the provided buffer in place. If you need to preserve the original buffer, use {slice} instead
+     * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice[Javascript's `Array.splice`]
      */
     function splice(bytes memory buffer, uint256 start) internal pure returns (bytes memory) {
         return splice(buffer, start, buffer.length);
@@ -112,11 +112,11 @@ library Bytes {
      * `end` argument is truncated to the length of the `buffer`.
      *
      * NOTE: This function modifies the provided buffer in place. If you need to preserve the original buffer, use {slice} instead
+     * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice[Javascript's `Array.splice`]
      */
     function splice(bytes memory buffer, uint256 start, uint256 end) internal pure returns (bytes memory) {
         // sanitize
-        uint256 length = buffer.length;
-        end = Math.min(end, length);
+        end = Math.min(end, buffer.length);
         start = Math.min(start, end);
 
         // allocate and copy
@@ -129,6 +129,37 @@ library Bytes {
     }
 
     /**
+     * @dev Concatenate an array of bytes into a single bytes object.
+     *
+     * For fixed bytes types, we recommend using the solidity built-in `bytes.concat` or (equivalent)
+     * `abi.encodePacked`.
+     *
+     * NOTE: this could be done in assembly with a single loop that expands starting at the FMP, but that would be
+     * significantly less readable. It might be worth benchmarking the savings of the full-assembly approach.
+     */
+    function concat(bytes[] memory buffers) internal pure returns (bytes memory) {
+        uint256 length = 0;
+        for (uint256 i = 0; i < buffers.length; ++i) {
+            length += buffers[i].length;
+        }
+
+        bytes memory result = new bytes(length);
+
+        uint256 offset = 0x20;
+        for (uint256 i = 0; i < buffers.length; ++i) {
+            bytes memory input = buffers[i];
+            assembly ("memory-safe") {
+                mcopy(add(result, offset), add(input, 0x20), mload(input))
+            }
+            unchecked {
+                offset += input.length;
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * @dev Returns true if the two byte buffers are equal.
      */
     function equal(bytes memory a, bytes memory b) internal pure returns (bool) {
@@ -137,7 +168,7 @@ library Bytes {
 
     /**
      * @dev Reverses the byte order of a bytes32 value, converting between little-endian and big-endian.
-     * Inspired in https://graphics.stanford.edu/~seander/bithacks.html#ReverseParallel[Reverse Parallel]
+     * Inspired by https://graphics.stanford.edu/~seander/bithacks.html#ReverseParallel[Reverse Parallel]
      */
     function reverseBytes32(bytes32 value) internal pure returns (bytes32) {
         value = // swap bytes
@@ -192,7 +223,7 @@ library Bytes {
      * if the buffer is all zeros.
      */
     function clz(bytes memory buffer) internal pure returns (uint256) {
-        for (uint256 i = 0; i < buffer.length; i += 32) {
+        for (uint256 i = 0; i < buffer.length; i += 0x20) {
             bytes32 chunk = _unsafeReadBytesOffset(buffer, i);
             if (chunk != bytes32(0)) {
                 return Math.min(8 * i + Math.clz(uint256(chunk)), 8 * buffer.length);

@@ -1,4 +1,4 @@
-const { ethers, entrypoint } = require('hardhat');
+const { ethers, predeploy } = require('hardhat');
 const { expect } = require('chai');
 const { impersonate } = require('../../helpers/account');
 const { selector } = require('../../helpers/methods');
@@ -37,7 +37,7 @@ function shouldBehaveLikeAccountERC7579({ withHooks = false } = {}) {
       this.modules[MODULE_TYPE_FALLBACK] = await ethers.deployContract('$ERC7579ModuleMock', [MODULE_TYPE_FALLBACK]);
       this.modules[MODULE_TYPE_HOOK] = await ethers.deployContract('$ERC7579HookMock');
 
-      this.mockFromEntrypoint = this.mock.connect(await impersonate(entrypoint.v08.target));
+      this.mockFromEntrypoint = this.mock.connect(await impersonate(predeploy.entrypoint.v08.target));
       this.mockFromExecutor = this.mock.connect(await impersonate(this.modules[MODULE_TYPE_EXECUTOR].target));
     });
 
@@ -88,6 +88,22 @@ function shouldBehaveLikeAccountERC7579({ withHooks = false } = {}) {
 
       it('does not support invalid module type', async function () {
         await expect(this.mock.supportsModule(MODULE_TYPE_INVALID)).to.eventually.equal(false);
+      });
+    });
+
+    describe('isModuleInstalled', function () {
+      it('should not revert if calldata is empty or too short', async function () {
+        await expect(
+          this.mock.isModuleInstalled(MODULE_TYPE_FALLBACK, this.modules[MODULE_TYPE_FALLBACK], '0x'),
+        ).to.eventually.equal(false);
+
+        await expect(
+          this.mock.isModuleInstalled(MODULE_TYPE_FALLBACK, this.modules[MODULE_TYPE_FALLBACK], '0x123456'),
+        ).to.eventually.equal(false);
+
+        await expect(
+          this.mock.isModuleInstalled(MODULE_TYPE_FALLBACK, this.modules[MODULE_TYPE_FALLBACK], '0x12345678'),
+        ).to.eventually.equal(false);
       });
     });
 
@@ -151,6 +167,17 @@ function shouldBehaveLikeAccountERC7579({ withHooks = false } = {}) {
         });
       }
 
+      it('should revert when installing a fallback module with an initData that is not long enough to encode a function selector', async function () {
+        const instance = this.modules[MODULE_TYPE_FALLBACK];
+        await expect(
+          this.mockFromEntrypoint.installModule(MODULE_TYPE_FALLBACK, instance, '0x'),
+        ).to.be.revertedWithCustomError(this.mock, 'ERC7579CannotDecodeFallbackData');
+
+        await expect(
+          this.mockFromEntrypoint.installModule(MODULE_TYPE_FALLBACK, instance, '0x123456'),
+        ).to.be.revertedWithCustomError(this.mock, 'ERC7579CannotDecodeFallbackData');
+      });
+
       withHooks &&
         describe('with hook', function () {
           beforeEach(async function () {
@@ -169,7 +196,7 @@ function shouldBehaveLikeAccountERC7579({ withHooks = false } = {}) {
 
             await expect(this.mockFromEntrypoint.installModule(MODULE_TYPE_EXECUTOR, instance, initData))
               .to.emit(this.modules[MODULE_TYPE_HOOK], 'PreCheck')
-              .withArgs(entrypoint.v08, 0n, precheckData)
+              .withArgs(predeploy.entrypoint.v08, 0n, precheckData)
               .to.emit(this.modules[MODULE_TYPE_HOOK], 'PostCheck')
               .withArgs(precheckData);
           });
@@ -224,6 +251,17 @@ function shouldBehaveLikeAccountERC7579({ withHooks = false } = {}) {
         });
       }
 
+      it('should revert when uninstalling a fallback module with an initData that is not long enough to encode a function selector', async function () {
+        const instance = this.modules[MODULE_TYPE_FALLBACK];
+        await expect(
+          this.mockFromEntrypoint.uninstallModule(MODULE_TYPE_FALLBACK, instance, '0x'),
+        ).to.be.revertedWithCustomError(this.mock, 'ERC7579CannotDecodeFallbackData');
+
+        await expect(
+          this.mockFromEntrypoint.uninstallModule(MODULE_TYPE_FALLBACK, instance, '0x123456'),
+        ).to.be.revertedWithCustomError(this.mock, 'ERC7579CannotDecodeFallbackData');
+      });
+
       it('should revert uninstalling a module of type MODULE_TYPE_FALLBACK if a different module was installed for the provided selector', async function () {
         const instance = this.modules[MODULE_TYPE_FALLBACK];
         const anotherInstance = await ethers.deployContract('$ERC7579ModuleMock', [MODULE_TYPE_FALLBACK]);
@@ -254,7 +292,7 @@ function shouldBehaveLikeAccountERC7579({ withHooks = false } = {}) {
             await this.mock.$_installModule(MODULE_TYPE_EXECUTOR, instance, initData);
             await expect(this.mockFromEntrypoint.uninstallModule(MODULE_TYPE_EXECUTOR, instance, initData))
               .to.emit(this.modules[MODULE_TYPE_HOOK], 'PreCheck')
-              .withArgs(entrypoint.v08, 0n, precheckData)
+              .withArgs(predeploy.entrypoint.v08, 0n, precheckData)
               .to.emit(this.modules[MODULE_TYPE_HOOK], 'PostCheck')
               .withArgs(precheckData);
           });
@@ -461,7 +499,7 @@ function shouldBehaveLikeAccountERC7579({ withHooks = false } = {}) {
               });
 
               it(`should call the hook of the installed module when executing ${execFn}`, async function () {
-                const caller = execFn === 'execute' ? entrypoint.v08 : this.modules[MODULE_TYPE_EXECUTOR];
+                const caller = execFn === 'execute' ? predeploy.entrypoint.v08 : this.modules[MODULE_TYPE_EXECUTOR];
                 const value = 17;
                 const data = this.target.interface.encodeFunctionData('mockFunctionWithArgs', [42, '0x1234']);
 

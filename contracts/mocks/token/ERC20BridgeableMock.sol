@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.20;
 
-import {ERC20, ERC20Bridgeable} from "../../token/ERC20/extensions/draft-ERC20Bridgeable.sol";
+import {ERC20Bridgeable} from "../../token/ERC20/extensions/draft-ERC20Bridgeable.sol";
 
 abstract contract ERC20BridgeableMock is ERC20Bridgeable {
     address private _bridge;

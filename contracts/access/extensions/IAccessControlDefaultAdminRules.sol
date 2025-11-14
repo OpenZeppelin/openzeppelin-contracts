@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.4.0) (access/extensions/IAccessControlDefaultAdminRules.sol)
+// OpenZeppelin Contracts (last updated v5.5.0) (access/extensions/IAccessControlDefaultAdminRules.sol)
 
 pragma solidity >=0.8.4;
 
@@ -182,7 +182,7 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
      * When the {defaultAdminDelay} is scheduled to be increased, it goes into effect after the new delay has passed with
      * the purpose of giving enough time for reverting any accidental change (i.e. using milliseconds instead of seconds)
      * that may lock the contract. However, to avoid excessive schedules, the wait is capped by this function and it can
-     * be overrode for a custom {defaultAdminDelay} increase scheduling.
+     * be overridden for a custom {defaultAdminDelay} increase scheduling.
      *
      * IMPORTANT: Make sure to add a reasonable amount of time while overriding this value, otherwise,
      * there's a risk of setting a high new delay that goes into effect almost immediately without the

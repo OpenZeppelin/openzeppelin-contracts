@@ -1,4 +1,4 @@
-const { ethers, entrypoint } = require('hardhat');
+const { ethers, predeploy } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
@@ -33,7 +33,7 @@ async function fixture() {
   // ERC-4337 env
   const helper = new ERC4337Helper();
   await helper.wait();
-  const entrypointDomain = await getDomain(entrypoint.v08);
+  const entrypointDomain = await getDomain(predeploy.entrypoint.v08);
   const domain = { name: 'AccountMultiSigner', version: '1', chainId: entrypointDomain.chainId }; // Missing verifyingContract
 
   const makeMock = (signers, threshold) =>
@@ -177,11 +177,11 @@ describe('AccountMultiSigner', function () {
 
       // Unreachable threshold reverts
       await expect(this.mock.$_setThreshold(3))
-        .to.revertedWithCustomError(this.mock, 'MultiSignerERC7913UnreachableThreshold')
+        .to.be.revertedWithCustomError(this.mock, 'MultiSignerERC7913UnreachableThreshold')
         .withArgs(2, 3);
 
       // Zero threshold reverts
-      await expect(this.mock.$_setThreshold(0)).to.revertedWithCustomError(
+      await expect(this.mock.$_setThreshold(0)).to.be.revertedWithCustomError(
         this.mock,
         'MultiSignerERC7913ZeroThreshold',
       );

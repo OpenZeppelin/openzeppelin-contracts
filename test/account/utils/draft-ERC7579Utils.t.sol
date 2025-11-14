@@ -119,8 +119,16 @@ contract ERC7579UtilsTest is Test {
     address private _recipient2;
 
     constructor() {
-        vm.etch(0x0000000071727De22E5E9d8BAf0edAc6f37da032, vm.readFileBinary("test/bin/EntryPoint070.bytecode"));
-        vm.etch(0xEFC2c1444eBCC4Db75e7613d20C6a62fF67A167C, vm.readFileBinary("test/bin/SenderCreator070.bytecode"));
+        // EntryPoint070
+        vm.etch(
+            0x0000000071727De22E5E9d8BAf0edAc6f37da032,
+            vm.readFileBinary("node_modules/hardhat-predeploy/bin/0x0000000071727De22E5E9d8BAf0edAc6f37da032.bytecode")
+        );
+        // SenderCreator070
+        vm.etch(
+            0xEFC2c1444eBCC4Db75e7613d20C6a62fF67A167C,
+            vm.readFileBinary("node_modules/hardhat-predeploy/bin/0xEFC2c1444eBCC4Db75e7613d20C6a62fF67A167C.bytecode")
+        );
 
         // signing key
         (_owner, _ownerKey) = makeAddrAndKey("owner");
@@ -364,7 +372,7 @@ contract ERC7579UtilsTest is Test {
         // <missing data>
         bytes memory invalidDeeply = abi.encode(32, 1, 32, _recipient1, 42, 96);
         this.callDecodeBatch(invalidDeeply);
-        // Note that this is ok because we don't return the value. Returning it would introduce a check that would fails.
+        // Note that this is ok because we don't return the value. Returning it would introduce a check that would fail.
         this.callDecodeBatchAndGetFirst(invalidDeeply);
         vm.expectRevert();
         this.callDecodeBatchAndGetFirstBytes(invalidDeeply);

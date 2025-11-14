@@ -161,7 +161,7 @@ await governor.queue(
 
 This will cause the Governor to interact with the timelock contract and queue the actions for execution after the required delay.
 
-After enough time has passed (according to the timelock parameters), the proposal can be executed. If there was no timelock to begin with, this step can be ran immediately after the proposal succeeds.
+After enough time has passed (according to the timelock parameters), the proposal can be executed. If there was no timelock to begin with, this step can be run immediately after the proposal succeeds.
 
 ```javascript
 await governor.execute(
