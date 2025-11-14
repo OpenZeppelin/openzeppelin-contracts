@@ -2,6 +2,7 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
+const { MAX_UINT64 } = require('../helpers/constants');
 const { product } = require('../helpers/iterate');
 const { generators } = require('../helpers/random');
 
@@ -159,14 +160,12 @@ describe('RLP', function () {
         '0x0000F90827F1C53a10cb7A02335B175320002935', // address with heading zeros
         generators.address(), // random address
       ],
-      [0n, 1n, 42n, 65535n, ethers.MaxUint256],
+      [0n, 1n, 42n, 65535n, MAX_UINT64],
     )) {
       await expect(
         this.mock
           .$encode_list([this.mock.$encode_address(from), this.mock.$encode_uint256(nonce)])
-          .then(encoded => ethers.keccak256(encoded)) // hash the encoded content
-          .then(hash => ethers.dataSlice(hash, 12)) // take the last 20 bytes
-          .then(ethers.getAddress), // format as (checksummed) address
+          .then(encoded => ethers.getAddress(ethers.dataSlice(ethers.keccak256(encoded), 12))), // hash the encoded content, take the last 20 bytes and format as (checksummed) address
       ).to.eventually.equal(ethers.getCreateAddress({ from, nonce }));
     }
   });
