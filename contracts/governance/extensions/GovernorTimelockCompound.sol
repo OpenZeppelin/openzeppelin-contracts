@@ -6,6 +6,7 @@ pragma solidity ^0.8.24;
 import {IGovernor, Governor} from "../Governor.sol";
 import {ICompoundTimelock} from "../../vendor/compound/ICompoundTimelock.sol";
 import {Address} from "../../utils/Address.sol";
+import {Memory} from "../../utils/Memory.sol";
 import {SafeCast} from "../../utils/math/SafeCast.sol";
 
 /**
@@ -70,12 +71,14 @@ abstract contract GovernorTimelockCompound is Governor {
     ) internal virtual override returns (uint48) {
         uint48 etaSeconds = SafeCast.toUint48(block.timestamp + _timelock.delay());
 
+        Memory.Pointer ptr = Memory.getFreeMemoryPointer(); 
         for (uint256 i = 0; i < targets.length; ++i) {
             if (
                 _timelock.queuedTransactions(keccak256(abi.encode(targets[i], values[i], "", calldatas[i], etaSeconds)))
             ) {
                 revert GovernorAlreadyQueuedProposal(proposalId);
             }
+            Memory.setFreeMemoryPointer(ptr); // dealocate the memory that was reserved by "abi.encode".
             _timelock.queueTransaction(targets[i], values[i], "", calldatas[i], etaSeconds);
         }
 
