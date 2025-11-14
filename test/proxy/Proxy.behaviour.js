@@ -12,6 +12,14 @@ module.exports = function shouldBehaveLikeProxy() {
       .withArgs(this.nonContractAddress);
   });
 
+  it('reverts without initialization', async function () {
+    const contractFactory = await ethers.getContractFactory('ERC1967Proxy');
+    await expect(this.createProxy(this.implementation, '0x')).to.be.revertedWithCustomError(
+      contractFactory,
+      'ERC1967ProxyUninitialized',
+    );
+  });
+
   const assertProxyInitialization = function ({ value, balance }) {
     it('sets the implementation address', async function () {
       expect(await getAddressInSlot(this.proxy, ImplementationSlot)).to.equal(this.implementation);
@@ -26,26 +34,6 @@ module.exports = function shouldBehaveLikeProxy() {
       expect(await ethers.provider.getBalance(this.proxy)).to.equal(balance);
     });
   };
-
-  describe('without initialization', function () {
-    const initializeData = '0x';
-
-    describe('when not sending balance', function () {
-      beforeEach('creating proxy', async function () {
-        this.proxy = await this.createProxy(this.implementation, initializeData);
-      });
-
-      assertProxyInitialization({ value: 0n, balance: 0n });
-    });
-
-    describe('when sending some balance', function () {
-      const value = 10n ** 5n;
-
-      it('reverts', async function () {
-        await expect(this.createProxy(this.implementation, initializeData, { value })).to.be.reverted;
-      });
-    });
-  });
 
   describe('initialization without parameters', function () {
     describe('non payable', function () {
