@@ -78,7 +78,7 @@ abstract contract GovernorTimelockCompound is Governor {
             ) {
                 revert GovernorAlreadyQueuedProposal(proposalId);
             }
-            Memory.setFreeMemoryPointer(ptr); // dealocate the memory that was reserved by "abi.encode".
+            Memory.setFreeMemoryPointer(ptr); // deallocate the memory that was reserved by "abi.encode".
             _timelock.queueTransaction(targets[i], values[i], "", calldatas[i], etaSeconds);
         }
 
