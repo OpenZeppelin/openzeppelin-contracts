@@ -36,7 +36,7 @@ describe('RLP', function () {
   it('encode/decode addresses', async function () {
     for (const addr of [
       ethers.ZeroAddress, // zero address
-      '0x0000F90827F1C53a10cb7A02335B175320002935', // address with heading zeros
+      '0x0000F90827F1C53a10cb7A02335B175320002935', // address with leading zeros
       generators.address(), // random address
     ]) {
       const expected = ethers.encodeRlp(addr);
