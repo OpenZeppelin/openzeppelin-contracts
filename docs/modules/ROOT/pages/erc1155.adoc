@@ -94,7 +94,7 @@ For more information about the metadata JSON Schema, check out the https://githu
 
 NOTE: You'll notice that the item's information is included in the metadata, but that information isn't on-chain! So a game developer could change the underlying metadata, changing the rules of the game!
 
-TIP: If you'd like to put all item information on-chain, you can extend ERC-721 to do so (though it will be rather costly) by providing a xref:utilities.adoc#base64[`Base64`] Data URI with the JSON schema encoded. You could also leverage IPFS to store the URI information, but these techniques are out of the scope of this overview guide
+TIP: If you'd like to put all item information on-chain, you can override the `uri()` function in your ERC-1155 contract (or use xref:api:token/ERC1155.adoc#ERC1155URIStorage[`ERC1155URIStorage`]) to return a xref:utilities.adoc#base64[`Base64`] Data URI with the JSON schema encoded, though it will be rather costly. You could also leverage IPFS to store the URI information, but these techniques are out of the scope of this overview guide
 
 [[sending-to-contracts]]
 == Sending Tokens to Contracts
