@@ -45,6 +45,8 @@ abstract contract GovernorCountingOverridable is GovernorVotes {
 
     error GovernorAlreadyOverriddenVote(address account);
 
+    error GovernorInsufficientDelegateVotes(uint256 available, uint256 required);
+
     mapping(uint256 proposalId => ProposalVote) private _proposalVotes;
 
     /// @inheritdoc IGovernor
@@ -153,7 +155,11 @@ abstract contract GovernorCountingOverridable is GovernorVotes {
             proposalVote.voteReceipt[delegate].overriddenWeight += SafeCast.toUint208(overriddenWeight);
         } else {
             uint8 delegateSupport = delegateCasted - 1;
-            proposalVote.votes[delegateSupport] -= overriddenWeight;
+            uint256 currentVotes = proposalVote.votes[delegateSupport];
+            if (currentVotes < overriddenWeight) {
+                revert GovernorInsufficientDelegateVotes(currentVotes, overriddenWeight);
+            }
+            proposalVote.votes[delegateSupport] = currentVotes - overriddenWeight;
             emit VoteReduced(delegate, proposalId, delegateSupport, overriddenWeight);
         }
 
