@@ -172,7 +172,7 @@ For the attacker to dilute that deposit to 0 shares, causing the user to lose al
 
 [stem]
 ++++
-\iff 10^\delta \times u \le \mathit{loss}
+\iff 10^\delta \times u < 1 + \mathit{loss}
 ++++
 
 - If the offset is 0, the attacker's loss is at least equal to the user's deposit.
