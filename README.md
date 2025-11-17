@@ -7,7 +7,7 @@
 [![Docs](https://img.shields.io/badge/docs-%F0%9F%93%84-yellow)](https://docs.openzeppelin.com/contracts)
 [![Forum](https://img.shields.io/badge/forum-%F0%9F%92%AC-yellow)](https://forum.openzeppelin.com/)
 
-**A library for secure smart contract development.** Build on a solid foundation of community-vetted code.
+**A library for secure smart contract development.** Built on a solid foundation of community-vetted code.
 
  * Implementations of standards like [ERC20](https://docs.openzeppelin.com/contracts/erc20) and [ERC721](https://docs.openzeppelin.com/contracts/erc721).
  * Flexible [role-based permissioning](https://docs.openzeppelin.com/contracts/access-control) scheme.
