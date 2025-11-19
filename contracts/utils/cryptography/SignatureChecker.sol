@@ -73,8 +73,8 @@ library SignatureChecker {
             // Encoded calldata is :
             // [ 0x00 - 0x03 ] <selector>
             // [ 0x04 - 0x23 ] <hash>
-            // [ 0x24 - 0x44 ] <signature offset> (0x40)
-            // [ 0x44 - 0x64 ] <signature length>
+            // [ 0x24 - 0x43 ] <signature offset> (0x40)
+            // [ 0x44 - 0x63 ] <signature length>
             // [ 0x64 - ...  ] <signature data>
             let ptr := mload(0x40)
             mstore(ptr, selector)

@@ -116,7 +116,7 @@ struct Execution {
 interface IERC7579Execution {
     /**
      * @dev Executes a transaction on behalf of the account.
-     * @param mode The encoded execution mode of the transaction. See ModeLib.sol for details
+     * @param mode The encoded execution mode of the transaction. See account/utils/draft-ERC7579Utils.sol (Mode encoding via encodeMode/decodeMode) for details
      * @param executionCalldata The encoded execution call data
      *
      * MUST ensure adequate authorization control: e.g. onlyEntryPointOrSelf if used with ERC-4337
@@ -127,7 +127,7 @@ interface IERC7579Execution {
     /**
      * @dev Executes a transaction on behalf of the account.
      *         This function is intended to be called by Executor Modules
-     * @param mode The encoded execution mode of the transaction. See ModeLib.sol for details
+     * @param mode The encoded execution mode of the transaction. See account/utils/draft-ERC7579Utils.sol (Mode encoding via encodeMode/decodeMode) for details
      * @param executionCalldata The encoded execution call data
      * @return returnData An array with the returned data of each executed subcall
      *
