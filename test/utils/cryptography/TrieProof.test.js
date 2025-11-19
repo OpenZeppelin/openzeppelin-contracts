@@ -2,6 +2,8 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { spawn } = require('child_process');
 
+const hardhat = 'hardhat';
+const anvil = 'anvil';
 const anvilPort = 8546;
 const ProofError = {
   NO_ERROR: 0,
@@ -20,26 +22,44 @@ const ProofError = {
 };
 
 async function fixture() {
-  const anvil = spawn('anvil', ['--port', anvilPort], {
+  const anvilProcess = spawn('anvil', ['--port', anvilPort], {
     timeout: 30000,
   }); // Method eth_getProof is not supported with default Hardhat Network
   await new Promise(resolve => {
-    anvil.stdout.once('data', resolve);
+    anvilProcess.stdout.once('data', resolve);
   });
   if (process.env.ANVIL_LOGS === 'true') {
-    anvil.stdout.on('data', function (data) {
+    anvilProcess.stdout.on('data', function (data) {
       console.log(data.toString());
     });
   }
-  const provider = new ethers.JsonRpcProvider(`http://localhost:${anvilPort}`);
-  const account = await provider.getSigner(0);
-  const mock = (await ethers.deployContract('$TrieProof', account)).connect(account);
-  const storage = (await ethers.deployContract('StorageSlotMock', account)).connect(account);
+  const [provider, account, storage] = [{}, {}, {}];
+  for (const providerType of [hardhat, anvil]) {
+    provider[providerType] =
+      providerType === anvil ? new ethers.JsonRpcProvider(`http://localhost:${anvilPort}`) : ethers.provider;
+    account[providerType] = await provider[providerType].getSigner(0);
+    storage[providerType] = (await ethers.deployContract('StorageSlotMock', account[providerType])).connect(
+      account[providerType],
+    );
+  }
+  const mock = (await ethers.deployContract('$TrieProof', account[hardhat])).connect(account[hardhat]); // only required on hardhat network
+  const getProof = async function (contract, slot, tx) {
+    const { storageHash, storageProof } = await this.provider[anvil].send('eth_getProof', [
+      contract[anvil].target,
+      [slot],
+      tx ? ethers.toBeHex(tx[anvil].blockNumber) : 'latest',
+    ]);
+    const { key, value, proof } = storageProof[0];
+    return { key, value, proof, storageHash };
+  };
+
   return {
-    anvil,
+    anvilProcess,
     provider,
-    mock,
+    account,
     storage,
+    mock,
+    getProof,
   };
 }
 
@@ -49,20 +69,14 @@ describe('TrieProof', function () {
   });
 
   afterEach(async function () {
-    this.anvil.kill();
+    this.anvilProcess.kill();
   });
 
   describe('verify', function () {
     it('returns true for a valid proof with leaf', async function () {
       const slot = ethers.ZeroHash;
-      const tx = await this.storage.setUint256Slot(slot, 42);
-      const response = await this.provider.send('eth_getProof', [
-        this.storage.target,
-        [slot],
-        ethers.toBeHex(tx.blockNumber),
-      ]);
-      const { storageHash, storageProof } = response;
-      const { key, value, proof } = storageProof[0];
+      const tx = await call(this.storage, 'setUint256Slot', [slot, 42]);
+      const { key, value, proof, storageHash } = await this.getProof(this.storage, slot, tx);
       const result = await this.mock.$verify(key, value, proof, storageHash);
       expect(result).is.true;
     });
@@ -70,15 +84,9 @@ describe('TrieProof', function () {
     it('returns true for a valid proof with extension', async function () {
       const slot0 = ethers.ZeroHash;
       const slot1 = '0x0000000000000000000000000000000000000000000000000000000000000001';
-      await this.storage.setUint256Slot(slot0, 42);
-      const tx = await this.storage.setUint256Slot(slot1, 43);
-      const response = await this.provider.send('eth_getProof', [
-        this.storage.target,
-        [slot1],
-        ethers.toBeHex(tx.blockNumber),
-      ]);
-      const { storageHash, storageProof } = response;
-      const { key, value, proof } = storageProof[0];
+      await call(this.storage, 'setUint256Slot', [slot0, 42]);
+      const tx = await call(this.storage, 'setUint256Slot', [slot1, 43]);
+      const { key, value, proof, storageHash } = await this.getProof(this.storage, slot1, tx);
       const result = await this.mock.$verify(key, value, proof, storageHash);
       expect(result).is.true;
     });
@@ -93,13 +101,8 @@ describe('TrieProof', function () {
 
     it('fails to process proof with invalid root hash', async function () {
       const slot = ethers.ZeroHash;
-      const tx = await this.storage.setUint256Slot(slot, 42);
-      const { storageHash, storageProof } = await this.provider.send('eth_getProof', [
-        this.storage.target,
-        [slot],
-        ethers.toBeHex(tx.blockNumber),
-      ]);
-      const { key, proof } = storageProof[0];
+      const tx = await call(this.storage, 'setUint256Slot', [slot, 42]);
+      const { key, proof, storageHash } = await this.getProof(this.storage, slot, tx);
       const [processedValue, error] = await this.mock.$processProof(key, proof, ethers.keccak256(storageHash)); // Corrupt root hash
       expect(processedValue).to.equal('0x');
       expect(error).to.equal(ProofError.INVALID_ROOT_HASH);
@@ -108,14 +111,9 @@ describe('TrieProof', function () {
     it('fails to process proof with invalid internal large hash', async function () {
       const slot0 = ethers.ZeroHash;
       const slot1 = '0x0000000000000000000000000000000000000000000000000000000000000001';
-      await this.storage.setUint256Slot(slot0, 42);
-      const tx = await this.storage.setUint256Slot(slot1, 43);
-      const { storageHash, storageProof } = await this.provider.send('eth_getProof', [
-        this.storage.target,
-        [slot1],
-        ethers.toBeHex(tx.blockNumber),
-      ]);
-      const { key, proof } = storageProof[0];
+      await call(this.storage, 'setUint256Slot', [slot0, 42]);
+      const tx = await call(this.storage, 'setUint256Slot', [slot1, 43]);
+      const { key, proof, storageHash } = await this.getProof(this.storage, slot1, tx);
       proof[1] = ethers.toBeHex(BigInt(proof[1]) + 1n); // Corrupt internal large node hash
       const [processedValue, error] = await this.mock.$processProof(key, proof, storageHash);
       expect(processedValue).to.equal('0x');
@@ -133,13 +131,8 @@ describe('TrieProof', function () {
 
     it('fails to process proof with invalid extra proof', async function () {
       const slot0 = ethers.ZeroHash;
-      const tx = await this.storage.setUint256Slot(slot0, 42);
-      const { storageHash, storageProof } = await this.provider.send('eth_getProof', [
-        this.storage.target,
-        [slot0],
-        ethers.toBeHex(tx.blockNumber),
-      ]);
-      const { key, proof } = storageProof[0];
+      const tx = await call(this.storage, 'setUint256Slot', [slot0, 42]);
+      const { key, proof, storageHash } = await this.getProof(this.storage, slot0, tx);
       proof[1] = ethers.encodeRlp([]); // extra proof element
       const [processedValue, error] = await this.mock.$processProof(key, proof, storageHash);
       expect(processedValue).to.equal('0x');
@@ -176,3 +169,16 @@ describe('TrieProof', function () {
     });
   });
 });
+
+/**
+ * Call a method on both Hardhat and Anvil networks
+ * @returns txs on both networks
+ */
+async function call(contract, method, args) {
+  const hardhatTx = await contract[hardhat][method](...args);
+  const anvilTx = await contract[anvil][method](...args);
+  return {
+    [hardhat]: hardhatTx,
+    [anvil]: anvilTx,
+  };
+}
