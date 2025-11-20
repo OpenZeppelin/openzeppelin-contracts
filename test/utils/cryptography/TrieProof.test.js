@@ -14,11 +14,12 @@ const ProofError = {
   INVALID_INTERNAL_NODE_HASH: 5,
   EMPTY_VALUE: 6,
   INVALID_EXTRA_PROOF_ELEMENT: 7,
-  INVALID_PATH_REMAINDER: 8,
-  INVALID_KEY_REMAINDER: 9,
-  UNKNOWN_NODE_PREFIX: 10,
-  UNPARSEABLE_NODE: 11,
-  INVALID_PROOF: 12,
+  MISMATCH_LEAF_PATH_KEY_REMAINDERS: 8,
+  INVALID_PATH_REMAINDER: 9,
+  INVALID_KEY_REMAINDER: 10,
+  UNKNOWN_NODE_PREFIX: 11,
+  UNPARSEABLE_NODE: 12,
+  INVALID_PROOF: 13,
 };
 
 // Method eth_getProof is not supported with default Hardhat Network, so Anvil is used for that.
@@ -80,7 +81,7 @@ describe('TrieProof', function () {
       const slot = ethers.ZeroHash;
       const tx = await call(this.storage, 'setUint256Slot', [slot, 42]);
       const { key, value, proof, storageHash } = await this.getProof(this.storage, slot, tx);
-      const result = await this.mock.$verify(key, value, proof, storageHash);
+      const result = await this.mock.$verify(ethers.keccak256(key), value, proof, storageHash);
       expect(result).is.true;
     });
 
@@ -90,7 +91,7 @@ describe('TrieProof', function () {
       await call(this.storage, 'setUint256Slot', [slot0, 42]);
       const tx = await call(this.storage, 'setUint256Slot', [slot1, 43]);
       const { key, value, proof, storageHash } = await this.getProof(this.storage, slot1, tx);
-      const result = await this.mock.$verify(key, value, proof, storageHash);
+      const result = await this.mock.$verify(ethers.keccak256(key), value, proof, storageHash);
       expect(result).is.true;
     });
 
@@ -126,7 +127,7 @@ describe('TrieProof', function () {
     it.skip('fails to process proof with invalid internal short node', async function () {}); // TODO: INVALID_INTERNAL_NODE_HASH
 
     it('fails to process proof with empty value', async function () {
-      const proof = [ethers.encodeRlp(['0x20', '0x'])]; // Corrupt proof to yield empty value
+      const proof = [ethers.encodeRlp(['0x2000', '0x'])]; // Corrupt proof to yield empty value
       const [processedValue, error] = await this.mock.$processProof('0x00', proof, ethers.keccak256(proof[0]));
       expect(processedValue).to.equal('0x');
       expect(error).to.equal(ProofError.EMPTY_VALUE);
@@ -137,9 +138,24 @@ describe('TrieProof', function () {
       const tx = await call(this.storage, 'setUint256Slot', [slot0, 42]);
       const { key, proof, storageHash } = await this.getProof(this.storage, slot0, tx);
       proof[1] = ethers.encodeRlp([]); // extra proof element
-      const [processedValue, error] = await this.mock.$processProof(key, proof, storageHash);
+      const [processedValue, error] = await this.mock.$processProof(ethers.keccak256(key), proof, storageHash);
       expect(processedValue).to.equal('0x');
       expect(error).to.equal(ProofError.INVALID_EXTRA_PROOF_ELEMENT);
+    });
+
+    it('fails to process proof with mismatched leaf path and key remainders', async function () {
+      const slot = ethers.ZeroHash;
+      const key = ethers.keccak256(slot);
+      const value = '0x2a';
+      const proof = [
+        ethers.encodeRlp([
+          '0x20' + ethers.toBeHex(BigInt(key) + 1n).replace('0x', ''), // corrupt end of leaf path
+          value,
+        ]),
+      ];
+      const [processedValue, error] = await this.mock.$processProof(key, proof, ethers.keccak256(proof[0]));
+      expect(processedValue).to.equal('0x');
+      expect(error).to.equal(ProofError.MISMATCH_LEAF_PATH_KEY_REMAINDERS);
     });
 
     it('fails to process proof with invalid path remainder', async function () {

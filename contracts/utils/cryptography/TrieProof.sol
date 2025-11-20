@@ -35,6 +35,7 @@ library TrieProof {
         INVALID_INTERNAL_NODE_HASH, // Internal node hash doesn't match expected value
         EMPTY_VALUE, // The value to verify is empty
         INVALID_EXTRA_PROOF_ELEMENT, // Proof contains unexpected additional elements
+        MISMATCH_LEAF_PATH_KEY_REMAINDERS, // Leaf path remainder doesn't match key remainder
         INVALID_PATH_REMAINDER, // Path remainder doesn't match expected value
         INVALID_KEY_REMAINDER, // Key remainder doesn't match expected value
         UNKNOWN_NODE_PREFIX, // Node prefix is not recognized
@@ -129,7 +130,6 @@ library TrieProof {
                 // Otherwise, continue down the branch specified by the next nibble in the key
                 uint8 branchKey = uint8(key[keyIndex]);
                 (nodeId, keyIndex) = (_id(node.decoded[branchKey]), keyIndex + 1);
-                nodeId = node.decoded[11].readBytes(); // test
             } else if (nodeLength == LEAF_OR_EXTENSION_NODE_LENGTH) {
                 return _processLeafOrExtension(node, trieProof, key, nodeId, keyIndex, i);
             }
@@ -172,7 +172,7 @@ library TrieProof {
         uint256 i
     ) private pure returns (bytes memory value, ProofError err) {
         bytes memory path = _path(node);
-        uint8 prefix = uint8(path[0] >> 4);
+        uint8 prefix = uint8(path[0]);
         uint8 offset = 2 - (prefix % 2); // Calculate offset based on even/odd path length
         bytes memory pathRemainder = Bytes.slice(path, offset); // Path after the prefix
         bytes memory keyRemainder = Bytes.slice(key, keyIndex); // Remaining key to match
@@ -180,6 +180,8 @@ library TrieProof {
 
         // Leaf node (terminal) - return its value if key matches completely
         if (Prefix(prefix) == Prefix.LEAF_EVEN || Prefix(prefix) == Prefix.LEAF_ODD) {
+            if (!string(pathRemainder).equal(string(keyRemainder)))
+                return ("", ProofError.MISMATCH_LEAF_PATH_KEY_REMAINDERS);
             if (keyRemainder.length == 0) return ("", ProofError.INVALID_KEY_REMAINDER);
             return _validateLastItem(node.decoded[1], trieProof, i);
         }
@@ -227,7 +229,7 @@ library TrieProof {
      */
     function _id(Memory.Slice node) private pure returns (bytes memory) {
         bytes memory raw = node.readBytes();
-        return raw.length < 32 ? raw : bytes.concat(keccak256(raw));
+        return raw.length <= 32 ? raw : bytes.concat(keccak256(raw));
     }
 
     /**
@@ -256,7 +258,7 @@ library TrieProof {
         uint256 length = value.length;
         bytes memory nibbles_ = new bytes(length * 2);
         for (uint256 i = 0; i < length; i++) {
-            (nibbles_[i * 2], nibbles_[i * 2 + 1]) = (value[i] & 0xf0, value[i] & 0x0f);
+            (nibbles_[i * 2], nibbles_[i * 2 + 1]) = ((value[i] & 0xf0) >> 4, value[i] & 0x0f);
         }
         return nibbles_;
     }
