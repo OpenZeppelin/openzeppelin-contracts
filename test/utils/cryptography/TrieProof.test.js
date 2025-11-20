@@ -21,19 +21,19 @@ const ProofError = {
   INVALID_PROOF: 12,
 };
 
-async function fixture() {
-  const anvilProcess = spawn('anvil', ['--port', anvilPort], {
-    timeout: 30000,
-  }); // Method eth_getProof is not supported with default Hardhat Network
+// Method eth_getProof is not supported with default Hardhat Network, so Anvil is used for that.
+async function fixture(anvilProcess) {
+  // Wait for Anvil to be ready
   await new Promise(resolve => {
     anvilProcess.stdout.once('data', resolve);
   });
   if (process.env.ANVIL_LOGS === 'true') {
     anvilProcess.stdout.on('data', function (data) {
-      console.log(data.toString());
+      console.log(data.toString()); // optional logging
     });
   }
   const [provider, account, storage] = [{}, {}, {}];
+  // Setup and deploy contracts on both Hardhat and Anvil networks.
   for (const providerType of [hardhat, anvil]) {
     provider[providerType] =
       providerType === anvil ? new ethers.JsonRpcProvider(`http://localhost:${anvilPort}`) : ethers.provider;
@@ -65,11 +65,14 @@ async function fixture() {
 
 describe('TrieProof', function () {
   beforeEach(async function () {
-    Object.assign(this, await fixture());
+    this.anvilProcess = await startAnvil(); // assign as soon as possible to allow killing in case fixture fails
+    Object.assign(this, await fixture(this.anvilProcess));
   });
 
   afterEach(async function () {
-    this.anvilProcess.kill();
+    if (this.anvilProcess) {
+      this.anvilProcess.kill();
+    }
   });
 
   describe('verify', function () {
@@ -171,7 +174,17 @@ describe('TrieProof', function () {
 });
 
 /**
- * Call a method on both Hardhat and Anvil networks
+ * Start an Anvil process.
+ * @returns Anvil process
+ */
+async function startAnvil() {
+  return spawn('anvil', ['--port', anvilPort], {
+    timeout: 30000,
+  });
+}
+
+/**
+ * Call a method on both Hardhat and Anvil networks.
  * @returns txs on both networks
  */
 async function call(contract, method, args) {
