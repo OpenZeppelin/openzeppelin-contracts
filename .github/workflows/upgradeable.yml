@@ -11,7 +11,7 @@ jobs:
     environment: push-upgradeable
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           repository: OpenZeppelin/openzeppelin-contracts-upgradeable
           fetch-depth: 0

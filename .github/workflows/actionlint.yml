@@ -9,7 +9,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Add problem matchers
         run: |
           # https://github.com/rhysd/actionlint/blob/3a2f2c7/docs/usage.md#problem-matchers
