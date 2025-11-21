@@ -43,7 +43,7 @@ import {ERC7821} from "@openzeppelin/community-contracts/account/extensions/ERC7
 import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import {SignerERC7913} from "@openzeppelin/community-contracts/utils/cryptography/signers/SignerERC7913.sol";
 
-contract MyAccountERC7913 is Account, SignerERC7913, ERC7739, ERC7821, ERC721Holder, ERC1155Holder, Initializable {
+contract MyAccountERC7913 is Account, EIP712, SignerERC7913, ERC7739, ERC7821, ERC721Holder, ERC1155Holder, Initializable {
     constructor() EIP712("MyAccount7913", "1") {}
 
     function initialize(bytes memory signer) public initializer {
@@ -89,6 +89,7 @@ import {MultiSignerERC7913} from "@openzeppelin/community-contracts/utils/crypto
 
 contract MyAccountMultiSigner is
     Account,
+    EIP712,
     MultiSignerERC7913,
     ERC7739,
     ERC7821,
@@ -156,6 +157,7 @@ import {MultiSignerERC7913Weighted} from "@openzeppelin/community-contracts/util
 
 contract MyAccountMultiSignerWeighted is
     Account,
+    EIP712,
     MultiSignerERC7913Weighted,
     ERC7739,
     ERC7821,
