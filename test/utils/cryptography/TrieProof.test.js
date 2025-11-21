@@ -76,25 +76,63 @@ describe('TrieProof', function () {
     }
   });
 
-  describe('verify', function () {
-    it('returns true for a valid proof with leaf', async function () {
+  describe('verify proof', function () {
+    it('returns true with proof size 1 (even leaf [0x20])', async function () {
       const slot = ethers.ZeroHash;
-      const tx = await call(this.storage, 'setUint256Slot', [slot, 42]);
-      const { key, value, proof, storageHash } = await this.getProof(this.storage, slot, tx);
+      await call(this.storage, 'setUint256Slot', [slot, 42]);
+      const { key, value, proof, storageHash } = await this.getProof(this.storage, slot);
       const result = await this.mock.$verify(ethers.keccak256(key), value, proof, storageHash);
       expect(result).is.true;
     });
 
-    it('returns true for a valid proof with extension', async function () {
+    it('returns true with proof size 2 (branch then odd leaf [0x3])', async function () {
       const slot0 = ethers.ZeroHash;
       const slot1 = '0x0000000000000000000000000000000000000000000000000000000000000001';
       await call(this.storage, 'setUint256Slot', [slot0, 42]);
-      const tx = await call(this.storage, 'setUint256Slot', [slot1, 43]);
-      const { key, value, proof, storageHash } = await this.getProof(this.storage, slot1, tx);
+      await call(this.storage, 'setUint256Slot', [slot1, 43]);
+      const { key, value, proof, storageHash } = await this.getProof(this.storage, slot1);
       const result = await this.mock.$verify(ethers.keccak256(key), value, proof, storageHash);
       expect(result).is.true;
     });
 
+    it('returns true with proof size 3 (even extension [0x00], branch then leaf)', async function () {
+      const slots = [
+        '0x0000000000000000000000000000000000000000000000000000000000001889', // 0xabc4243e220df4927f4d7b432d2d718dadbba652f6cee6a45bb90c077fa4e158
+        '0x0000000000000000000000000000000000000000000000000000000000008b23', // 0xabd5ef9a39144905d28bd8554745ebae050359cf7e89079f49b66a6c06bd2bf9
+        '0x0000000000000000000000000000000000000000000000000000000000002383', // 0xabe87cb73c1e15a89cfb0daa7fd0cc3eb1a762345fe15d668f5061a4900b22fa
+      ];
+      await call(this.storage, 'setUint256Slot', [slots[0], 42]);
+      await call(this.storage, 'setUint256Slot', [slots[1], 43]);
+      await call(this.storage, 'setUint256Slot', [slots[2], 44]);
+      for (let slot of slots) {
+        const { key, value, proof, storageHash } = await this.getProof(this.storage, slot);
+        const result = await this.mock.$verify(ethers.keccak256(key), value, proof, storageHash);
+        expect(result).is.true;
+      }
+    });
+
+    it('returns true with proof size 3 (odd extension [0x1], branch then leaf)', async function () {
+      const slots = [
+        '0x0000000000000000000000000000000000000000000000000000000000004616', // 0xabcd2ce29d227a0aaaa2ea425df9d5c96a569b416fd0bb7e018b8c9ce9b9d15d
+        '0x0000000000000000000000000000000000000000000000000000000000012dd3', // 0xabce7718834e2932319fc4642268a27405261f7d3826b19811d044bf2b56ebb1
+        '0x000000000000000000000000000000000000000000000000000000000000ce8f', // 0xabcf8b375ce20d03da20a3f5efeb8f3666810beca66f729f995953f51559a4ff
+      ];
+      await call(this.storage, 'setUint256Slot', [slots[0], 42]);
+      await call(this.storage, 'setUint256Slot', [slots[1], 43]);
+      await call(this.storage, 'setUint256Slot', [slots[2], 44]);
+      for (let slot of slots) {
+        const { key, value, proof, storageHash } = await this.getProof(this.storage, slot);
+        const result = await this.mock.$verify(ethers.keccak256(key), value, proof, storageHash);
+        expect(result).is.true;
+      }
+    });
+
+    it('returns false for invalid proof', async function () {
+      await expect(this.mock.$verify('0x', '0x', [], ethers.ZeroHash)).to.eventually.be.false;
+    });
+  });
+
+  describe('process invalid proof', function () {
     it('fails to process proof with empty key', async function () {
       const [value, error] = await this.mock.$processProof('0x', [], ethers.ZeroHash);
       expect(value).to.equal('0x');
@@ -116,8 +154,8 @@ describe('TrieProof', function () {
       const slot0 = ethers.ZeroHash;
       const slot1 = '0x0000000000000000000000000000000000000000000000000000000000000001';
       await call(this.storage, 'setUint256Slot', [slot0, 42]);
-      const tx = await call(this.storage, 'setUint256Slot', [slot1, 43]);
-      const { key, proof, storageHash } = await this.getProof(this.storage, slot1, tx);
+      await call(this.storage, 'setUint256Slot', [slot1, 43]);
+      const { key, proof, storageHash } = await this.getProof(this.storage, slot1);
       proof[1] = ethers.toBeHex(BigInt(proof[1]) + 1n); // Corrupt internal large node hash
       const [processedValue, error] = await this.mock.$processProof(key, proof, storageHash);
       expect(processedValue).to.equal('0x');
@@ -127,7 +165,7 @@ describe('TrieProof', function () {
     it.skip('fails to process proof with invalid internal short node', async function () {}); // TODO: INVALID_INTERNAL_NODE_HASH
 
     it('fails to process proof with empty value', async function () {
-      const proof = [ethers.encodeRlp(['0x2000', '0x'])]; // Corrupt proof to yield empty value
+      const proof = [ethers.encodeRlp(['0x2000', '0x'])];
       const [processedValue, error] = await this.mock.$processProof('0x00', proof, ethers.keccak256(proof[0]));
       expect(processedValue).to.equal('0x');
       expect(error).to.equal(ProofError.EMPTY_VALUE);
@@ -159,7 +197,7 @@ describe('TrieProof', function () {
     });
 
     it('fails to process proof with invalid path remainder', async function () {
-      const proof = [ethers.encodeRlp(['0x0011', '0x'])]; // Corrupt proof to yield invalid path remainder
+      const proof = [ethers.encodeRlp(['0x0011', '0x'])];
       const [processedValue, error] = await this.mock.$processProof(ethers.ZeroHash, proof, ethers.keccak256(proof[0]));
       expect(processedValue).to.equal('0x');
       expect(error).to.equal(ProofError.INVALID_PATH_REMAINDER);

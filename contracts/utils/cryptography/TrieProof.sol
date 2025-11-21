@@ -125,13 +125,27 @@ library TrieProof {
 
             if (nodeLength == branchNodeLength) {
                 // If we've consumed the entire key, the value must be in the last slot
-                if (keyIndex == key.length) return _validateLastItem(node.decoded[radix], trieProof, i);
+                if (keyIndex == key.length) return _validateLastItem(node.decoded[radix], trieProof.length, i);
 
                 // Otherwise, continue down the branch specified by the next nibble in the key
                 uint8 branchKey = uint8(key[keyIndex]);
                 (nodeId, keyIndex) = (_id(node.decoded[branchKey]), keyIndex + 1);
             } else if (nodeLength == LEAF_OR_EXTENSION_NODE_LENGTH) {
-                return _processLeafOrExtension(node, trieProof, key, nodeId, keyIndex, i);
+                (uint8 prefix, bytes memory pathRemainder, bytes memory keyRemainder) = _extract(node, key, keyIndex);
+                if (prefix == type(uint8).max) return ("", ProofError.UNKNOWN_NODE_PREFIX);
+                // Leaf node (terminal) - return its value if key matches completely
+                if (Prefix(prefix) == Prefix.LEAF_EVEN || Prefix(prefix) == Prefix.LEAF_ODD) {
+                    if (!string(pathRemainder).equal(string(keyRemainder)))
+                        return ("", ProofError.MISMATCH_LEAF_PATH_KEY_REMAINDERS);
+                    if (keyRemainder.length == 0) return ("", ProofError.INVALID_KEY_REMAINDER);
+                    return _validateLastItem(node.decoded[1], trieProof.length, i);
+                }
+                // Extension node (non-terminal) - validate shared path & continue to next node
+                uint256 sharedNibbleLength = _sharedNibbleLength(pathRemainder, keyRemainder);
+                // Path must match at least partially with our key
+                if (sharedNibbleLength == 0) return ("", ProofError.INVALID_PATH_REMAINDER);
+                // Increment keyIndex by the number of nibbles consumed and continue traversal
+                (nodeId, keyIndex) = (_id(node.decoded[1]), keyIndex + sharedNibbleLength);
             }
         }
 
@@ -157,43 +171,19 @@ library TrieProof {
         return ProofError.NO_ERROR; // No error
     }
 
-    /**
-     * @dev Processes a leaf or extension node in the trie proof.
-     *
-     * For leaf nodes, validates that the key matches completely and returns the value.
-     * For extension nodes, continues traversal by updating the node ID and key index.
-     */
-    function _processLeafOrExtension(
+    /// @dev Extract prefix, path remainder, and key remainder from a leaf or extension node.
+    function _extract(
         Node memory node,
-        Node[] memory trieProof,
         bytes memory key,
-        bytes memory nodeId,
-        uint256 keyIndex,
-        uint256 i
-    ) private pure returns (bytes memory value, ProofError err) {
+        uint256 keyIndex
+    ) private pure returns (uint8 prefix, bytes memory pathRemainder, bytes memory keyRemainder) {
         bytes memory path = _path(node);
-        uint8 prefix = uint8(path[0]);
+        prefix = uint8(path[0]);
+        if (prefix > uint8(type(Prefix).max)) return (type(uint8).max, "", "");
         uint8 offset = 2 - (prefix % 2); // Calculate offset based on even/odd path length
-        bytes memory pathRemainder = Bytes.slice(path, offset); // Path after the prefix
-        bytes memory keyRemainder = Bytes.slice(key, keyIndex); // Remaining key to match
-        if (prefix > uint8(type(Prefix).max)) return ("", ProofError.UNKNOWN_NODE_PREFIX);
-
-        // Leaf node (terminal) - return its value if key matches completely
-        if (Prefix(prefix) == Prefix.LEAF_EVEN || Prefix(prefix) == Prefix.LEAF_ODD) {
-            if (!string(pathRemainder).equal(string(keyRemainder)))
-                return ("", ProofError.MISMATCH_LEAF_PATH_KEY_REMAINDERS);
-            if (keyRemainder.length == 0) return ("", ProofError.INVALID_KEY_REMAINDER);
-            return _validateLastItem(node.decoded[1], trieProof, i);
-        }
-
-        // Extension node (non-terminal) - validate shared path & continue to next node
-        uint256 sharedNibbleLength = _sharedNibbleLength(pathRemainder, keyRemainder);
-        if (Prefix(prefix) == Prefix.EXTENSION_EVEN || Prefix(prefix) == Prefix.EXTENSION_ODD) {
-            // Path must match at least partially with our key
-            if (sharedNibbleLength == 0) return ("", ProofError.INVALID_PATH_REMAINDER);
-        }
-        // Increment keyIndex by the number of nibbles consumed
-        (nodeId, keyIndex) = (_id(node.decoded[1]), keyIndex + sharedNibbleLength);
+        pathRemainder = Bytes.slice(path, offset); // Path after the prefix
+        keyRemainder = Bytes.slice(key, keyIndex); // Remaining key to match
+        return (prefix, pathRemainder, keyRemainder);
     }
 
     /**
@@ -202,12 +192,12 @@ library TrieProof {
      */
     function _validateLastItem(
         Memory.Slice item,
-        Node[] memory trieProof,
+        uint256 trieProofLength,
         uint256 i
     ) private pure returns (bytes memory value, ProofError) {
         bytes memory value_ = item.readBytes();
         if (value_.length == 0) return ("", ProofError.EMPTY_VALUE);
-        if (i != trieProof.length - 1) return ("", ProofError.INVALID_EXTRA_PROOF_ELEMENT);
+        if (i != trieProofLength - 1) return ("", ProofError.INVALID_EXTRA_PROOF_ELEMENT);
         return (value_, ProofError.NO_ERROR);
     }
 
@@ -245,9 +235,9 @@ library TrieProof {
      * Used to determine how much of a path matches a key during trie traversal.
      */
     function _sharedNibbleLength(bytes memory _a, bytes memory _b) private pure returns (uint256 shared_) {
-        uint256 max = Math.max(_a.length, _b.length);
+        uint256 min = Math.min(_a.length, _b.length);
         uint256 length;
-        while (length < max && _a[length] == _b[length]) {
+        while (length < min && _a[length] == _b[length]) {
             length++;
         }
         return length;
