@@ -22,7 +22,7 @@ async function fixture() {
   const mock = await helper.newAccount('$AccountERC7702Mock', ['AccountERC7702Mock', '1'], { erc7702signer: signer });
 
   // ERC-4337 Entrypoint domain
-  const entrypointDomain = await getDomain(predeploy.entrypoint.v08);
+  const entrypointDomain = await getDomain(predeploy.entrypoint.v09);
 
   // domain cannot be fetched using getDomain(mock) before the mock is deployed
   const domain = {

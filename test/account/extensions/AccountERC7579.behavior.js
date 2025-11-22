@@ -37,7 +37,7 @@ function shouldBehaveLikeAccountERC7579({ withHooks = false } = {}) {
       this.modules[MODULE_TYPE_FALLBACK] = await ethers.deployContract('$ERC7579ModuleMock', [MODULE_TYPE_FALLBACK]);
       this.modules[MODULE_TYPE_HOOK] = await ethers.deployContract('$ERC7579HookMock');
 
-      this.mockFromEntrypoint = this.mock.connect(await impersonate(predeploy.entrypoint.v08.target));
+      this.mockFromEntrypoint = this.mock.connect(await impersonate(predeploy.entrypoint.v09.target));
       this.mockFromExecutor = this.mock.connect(await impersonate(this.modules[MODULE_TYPE_EXECUTOR].target));
     });
 
@@ -196,7 +196,7 @@ function shouldBehaveLikeAccountERC7579({ withHooks = false } = {}) {
 
             await expect(this.mockFromEntrypoint.installModule(MODULE_TYPE_EXECUTOR, instance, initData))
               .to.emit(this.modules[MODULE_TYPE_HOOK], 'PreCheck')
-              .withArgs(predeploy.entrypoint.v08, 0n, precheckData)
+              .withArgs(predeploy.entrypoint.v09, 0n, precheckData)
               .to.emit(this.modules[MODULE_TYPE_HOOK], 'PostCheck')
               .withArgs(precheckData);
           });
@@ -292,7 +292,7 @@ function shouldBehaveLikeAccountERC7579({ withHooks = false } = {}) {
             await this.mock.$_installModule(MODULE_TYPE_EXECUTOR, instance, initData);
             await expect(this.mockFromEntrypoint.uninstallModule(MODULE_TYPE_EXECUTOR, instance, initData))
               .to.emit(this.modules[MODULE_TYPE_HOOK], 'PreCheck')
-              .withArgs(predeploy.entrypoint.v08, 0n, precheckData)
+              .withArgs(predeploy.entrypoint.v09, 0n, precheckData)
               .to.emit(this.modules[MODULE_TYPE_HOOK], 'PostCheck')
               .withArgs(precheckData);
           });
@@ -499,7 +499,7 @@ function shouldBehaveLikeAccountERC7579({ withHooks = false } = {}) {
               });
 
               it(`should call the hook of the installed module when executing ${execFn}`, async function () {
-                const caller = execFn === 'execute' ? predeploy.entrypoint.v08 : this.modules[MODULE_TYPE_EXECUTOR];
+                const caller = execFn === 'execute' ? predeploy.entrypoint.v09 : this.modules[MODULE_TYPE_EXECUTOR];
                 const value = 17;
                 const data = this.target.interface.encodeFunctionData('mockFunctionWithArgs', [42, '0x1234']);
 

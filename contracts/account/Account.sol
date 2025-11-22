@@ -50,7 +50,7 @@ abstract contract Account is AbstractSigner, IAccount {
      * @dev Canonical entry point for the account that forwards and validates user operations.
      */
     function entryPoint() public view virtual returns (IEntryPoint) {
-        return ERC4337Utils.ENTRYPOINT_V08;
+        return ERC4337Utils.ENTRYPOINT_V09;
     }
 
     /**
