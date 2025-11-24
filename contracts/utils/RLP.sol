@@ -115,7 +115,7 @@ library RLP {
     function encode(bool input) internal pure returns (bytes memory result) {
         assembly ("memory-safe") {
             result := mload(0x40)
-            mstore(result, 1) // length of the encoded data: 1 byte
+            mstore(result, 0x01) // length of the encoded data: 1 byte
             mstore8(add(result, 0x20), add(mul(iszero(input), 0x7f), 1)) // input
             mstore(0x40, add(result, 0x21)) // reserve memory
         }
@@ -130,7 +130,7 @@ library RLP {
     function encode(address input) internal pure returns (bytes memory result) {
         assembly ("memory-safe") {
             result := mload(0x40)
-            mstore(result, 21) // length of the encoded data: 1 (prefix) + 0x14 (address)
+            mstore(result, 0x15) // length of the encoded data: 1 (prefix) + 0x14 (address)
             mstore(add(result, 0x20), or(shl(248, 0x94), shl(88, input))) // prefix (0x94 = SHORT_OFFSET + 0x14) + input
             mstore(0x40, add(result, 0x35)) // reserve memory
         }
