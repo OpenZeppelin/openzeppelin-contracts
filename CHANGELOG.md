@@ -87,7 +87,7 @@
 
 ### Pragma changes
 
-- Reduced pragma requirement of interface files
+- Reduced pragma requirement of interface files.
 
 ### Changes by category
 
