@@ -1,3 +1,3 @@
-certora/specs/*.spec linguist-language=Solidity
-certora/specs/*.conf linguist-detectable
-certora/specs/*.conf linguist-language=JSON5
+fv/specs/*.spec linguist-language=Solidity
+fv/specs/*.conf linguist-detectable
+fv/specs/*.conf linguist-language=JSON5
