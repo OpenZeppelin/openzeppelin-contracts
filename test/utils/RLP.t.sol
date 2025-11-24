@@ -132,4 +132,13 @@ contract RLPTest is Test {
 
         assertEq(RLP.encoder().push(b).push(a).push(u).encode(), RLP.encode(list));
     }
+
+    function testComputeCreateAddress(address deployer, uint256 nonce) external pure {
+        nonce = bound(nonce, 0, type(uint64).max);
+
+        assertEq(
+            address(uint160(uint256(keccak256(RLP.encoder().push(deployer).push(nonce).encode())))),
+            vm.computeCreateAddress(deployer, nonce)
+        );
+    }
 }
