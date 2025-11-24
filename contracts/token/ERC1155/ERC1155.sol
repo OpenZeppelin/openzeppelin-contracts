@@ -95,13 +95,6 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
         return _operatorApprovals[account][operator];
     }
 
-    function _checkAuthorized(address from) internal view {
-        address sender = _msgSender();
-        if (from != sender && !isApprovedForAll(from, sender)) {
-            revert ERC1155MissingApprovalForAll(sender, from);
-        }
-    }
-
     /// @inheritdoc IERC1155
     function safeTransferFrom(address from, address to, uint256 id, uint256 value, bytes memory data) public virtual {
         _checkAuthorized(from);
@@ -119,6 +112,15 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
         _checkAuthorized(from);
         _safeBatchTransferFrom(from, to, ids, values, data);
     }
+
+    /// @dev Checks if the caller is authorized to transfer tokens from the given address. Reverts with {ERC1155MissingApprovalForAll} if not.
+    function _checkAuthorized(address from) internal view virtual {
+        address sender = _msgSender();
+        if (from != sender && !isApprovedForAll(from, sender)) {
+            revert ERC1155MissingApprovalForAll(sender, from);
+        }
+    }
+
     /**
      * @dev Transfers a `value` amount of tokens of type `id` from `from` to `to`. Will mint (or burn) if `from`
      * (or `to`) is the zero address.
