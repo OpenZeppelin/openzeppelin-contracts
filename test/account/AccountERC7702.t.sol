@@ -12,7 +12,11 @@ import {
     ModeSelector,
     ModePayload
 } from "@openzeppelin/contracts/account/utils/draft-ERC7579Utils.sol";
-import {ERC4337Utils, IEntryPointExtra} from "@openzeppelin/contracts/account/utils/draft-ERC4337Utils.sol";
+import {
+    ERC4337Utils,
+    IEntryPoint,
+    IEntryPointExtra
+} from "@openzeppelin/contracts/account/utils/draft-ERC4337Utils.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {PackedUserOperation} from "@openzeppelin/contracts/interfaces/draft-IERC4337.sol";
 import {ERC7821} from "@openzeppelin/contracts/account/extensions/draft-ERC7821.sol";
@@ -62,7 +66,9 @@ contract AccountERC7702Test is Test {
         );
     }
 
-    function testExecuteBatch(uint256 argA, uint256 argB) public {
+    function testExecuteBatch(address bundler, uint256 argA, uint256 argB) public {
+        vm.assume(bundler.code.length == 0);
+
         // Create the mode for batch execution
         Mode mode = ERC7579Utils.CALLTYPE_BATCH.encodeMode(
             ERC7579Utils.EXECTYPE_DEFAULT,
@@ -108,6 +114,8 @@ contract AccountERC7702Test is Test {
         emit CallReceiverMock.MockFunctionCalledWithArgs(argA, argB);
 
         // Execute the batch
-        _signer.entryPoint().handleOps(ops, payable(makeAddr("beneficiary")));
+        IEntryPoint entrypoint = _signer.entryPoint();
+        vm.prank(bundler, bundler);
+        entrypoint.handleOps(ops, payable(makeAddr("beneficiary")));
     }
 }
