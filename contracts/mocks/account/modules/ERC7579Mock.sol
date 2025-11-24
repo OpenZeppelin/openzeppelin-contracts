@@ -3,9 +3,10 @@
 pragma solidity ^0.8.24;
 
 import {
-    MODULE_TYPE_HOOK,
-    MODULE_TYPE_FALLBACK,
     MODULE_TYPE_VALIDATOR,
+    MODULE_TYPE_EXECUTOR,
+    MODULE_TYPE_FALLBACK,
+    MODULE_TYPE_HOOK,
     IERC7579Hook,
     IERC7579Module,
     IERC7579Validator
@@ -118,5 +119,11 @@ abstract contract ERC7579ValidatorMock is ERC7579ModuleMock(MODULE_TYPE_VALIDATO
             SignatureChecker.isValidSignatureNow(_associatedSigners[msg.sender], hash, signature)
                 ? IERC1271.isValidSignature.selector
                 : bytes4(0xffffffff);
+    }
+}
+
+abstract contract ERC7579ModuleMaliciousMock is ERC7579ModuleMock(MODULE_TYPE_EXECUTOR) {
+    function onUninstall(bytes calldata /*data*/) public virtual override {
+        revert("uninstall reverts");
     }
 }

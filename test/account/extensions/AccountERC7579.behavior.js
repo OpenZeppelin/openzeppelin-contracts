@@ -273,6 +273,26 @@ function shouldBehaveLikeAccountERC7579({ withHooks = false } = {}) {
           .withArgs(MODULE_TYPE_FALLBACK, anotherInstance);
       });
 
+      it('should uninstall a module even if its onUninstall hook reverts', async function () {
+        const maliciousModule = await ethers.deployContract('$ERC7579ModuleMaliciousMock', []);
+
+        // Install the malicious module
+        await this.mock.$_installModule(MODULE_TYPE_EXECUTOR, maliciousModule, '0x');
+
+        await expect(this.mock.isModuleInstalled(MODULE_TYPE_EXECUTOR, maliciousModule, '0x')).to.eventually.equal(
+          true,
+        );
+
+        // Uninstall the malicious module
+        await expect(this.mockFromEntrypoint.uninstallModule(MODULE_TYPE_EXECUTOR, maliciousModule, '0x'))
+          .to.emit(this.mock, 'ModuleUninstalled')
+          .withArgs(MODULE_TYPE_EXECUTOR, maliciousModule);
+
+        await expect(this.mock.isModuleInstalled(MODULE_TYPE_EXECUTOR, maliciousModule, '0x')).to.eventually.equal(
+          false,
+        );
+      });
+
       withHooks &&
         describe('with hook', function () {
           beforeEach(async function () {
