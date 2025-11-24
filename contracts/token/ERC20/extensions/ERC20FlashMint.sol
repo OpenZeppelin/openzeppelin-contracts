@@ -68,14 +68,10 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
      * @dev Returns the fee applied when doing flash loans. By default this
      * implementation has 0 fees. This function can be overloaded to make
      * the flash loan mechanism deflationary.
-     * @param token The token to be flash loaned.
-     * @param value The amount of tokens to be loaned.
+     *
      * @return The fees applied to the corresponding flash loan.
      */
-    function _flashFee(address token, uint256 value) internal view virtual returns (uint256) {
-        // silence warning about unused variable without the addition of bytecode.
-        token;
-        value;
+    function _flashFee(address /*token*/, uint256 /*value*/) internal view virtual returns (uint256) {
         return 0;
     }
 
