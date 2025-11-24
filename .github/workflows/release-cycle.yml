@@ -27,7 +27,7 @@ jobs:
       pull-requests: read
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Set up environment
         uses: ./.github/actions/setup
       - id: state
@@ -58,7 +58,7 @@ jobs:
     if: needs.state.outputs.start == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Set up environment
         uses: ./.github/actions/setup
       - run: bash scripts/git-user-config.sh
@@ -81,7 +81,7 @@ jobs:
     if: needs.state.outputs.promote == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Set up environment
         uses: ./.github/actions/setup
       - run: bash scripts/git-user-config.sh
@@ -102,7 +102,7 @@ jobs:
     if: needs.state.outputs.changesets == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0 # To get all tags
       - name: Set up environment
@@ -135,7 +135,7 @@ jobs:
     if: needs.state.outputs.publish == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Set up environment
         uses: ./.github/actions/setup
       - id: pack
@@ -167,7 +167,7 @@ jobs:
     name: Tarball Integrity Check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Download tarball artifact
         id: artifact
         uses: actions/download-artifact@v6
@@ -189,7 +189,7 @@ jobs:
     env:
       MERGE_BRANCH: merge/${{ github.ref_name }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0 # All branches
       - name: Set up environment
