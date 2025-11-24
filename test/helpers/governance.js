@@ -2,6 +2,7 @@ const { ethers } = require('hardhat');
 const { ProposalState } = require('./enums');
 const { unique } = require('./iterate');
 const time = require('./time');
+const { expect } = require('chai');
 
 const timelockSalt = (address, descriptionHash) =>
   ethers.toBeHex((ethers.toBigInt(address) << 96n) ^ ethers.toBigInt(descriptionHash), 32);
