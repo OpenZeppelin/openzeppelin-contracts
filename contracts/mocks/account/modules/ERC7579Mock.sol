@@ -39,6 +39,12 @@ abstract contract ERC7579ModuleMock is IERC7579Module {
     }
 }
 
+abstract contract ERC7579ModuleMaliciousMock is ERC7579ModuleMock {
+    function onUninstall(bytes calldata /*data*/) public virtual override {
+        revert("uninstall reverts");
+    }
+}
+
 abstract contract ERC7579HookMock is ERC7579ModuleMock(MODULE_TYPE_HOOK), IERC7579Hook {
     event PreCheck(address sender, uint256 value, bytes data);
     event PostCheck(bytes hookData);
@@ -119,11 +125,5 @@ abstract contract ERC7579ValidatorMock is ERC7579ModuleMock(MODULE_TYPE_VALIDATO
             SignatureChecker.isValidSignatureNow(_associatedSigners[msg.sender], hash, signature)
                 ? IERC1271.isValidSignature.selector
                 : bytes4(0xffffffff);
-    }
-}
-
-abstract contract ERC7579ModuleMaliciousMock is ERC7579ModuleMock(MODULE_TYPE_EXECUTOR) {
-    function onUninstall(bytes calldata /*data*/) public virtual override {
-        revert("uninstall reverts");
     }
 }

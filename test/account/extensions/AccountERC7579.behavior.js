@@ -274,7 +274,7 @@ function shouldBehaveLikeAccountERC7579({ withHooks = false } = {}) {
       });
 
       it('should uninstall a module even if its onUninstall hook reverts', async function () {
-        const maliciousModule = await ethers.deployContract('$ERC7579ModuleMaliciousMock', []);
+        const maliciousModule = await ethers.deployContract('$ERC7579ModuleMaliciousMock', [MODULE_TYPE_EXECUTOR]);
 
         // Install the malicious module
         await this.mock.$_installModule(MODULE_TYPE_EXECUTOR, maliciousModule, '0x');
