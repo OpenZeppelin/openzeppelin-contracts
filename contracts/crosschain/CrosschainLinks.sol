@@ -18,7 +18,7 @@ import {ERC7786Recipient} from "./ERC7786Recipient.sol";
  * counterpart on a foreign chain. They must override the {_processMessage} function to handle the message that have
  * been verified.
  */
-abstract contract CrosschainLinks is ERC7786Recipient {
+abstract contract CrosschainLinked is ERC7786Recipient {
     using Bytes for bytes;
     using InteroperableAddress for bytes;
 

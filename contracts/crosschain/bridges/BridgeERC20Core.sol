@@ -4,7 +4,7 @@ pragma solidity ^0.8.26;
 
 import {InteroperableAddress} from "../../utils/draft-InteroperableAddress.sol";
 import {ERC7786Recipient} from "../ERC7786Recipient.sol";
-import {CrosschainLinks} from "../CrosschainLinks.sol";
+import {CrosschainLinked} from "../CrosschainLinked.sol";
 
 /**
  * @dev Base contract for bridging ERC-20 between chains using an ERC-7786 gateway.
@@ -17,7 +17,7 @@ import {CrosschainLinks} from "../CrosschainLinks.sol";
  * which interface with ERC-7802 to provide an approve-free user experience. It is also used by the {ERC20Crosschain}
  * extension, which embeds the bridge logic directly in the token contract.
  */
-abstract contract BridgeERC20Core is CrosschainLinks {
+abstract contract BridgeERC20Core is CrosschainLinked {
     using InteroperableAddress for bytes;
 
     event CrossChainTransferSent(bytes32 indexed sendId, address indexed from, bytes to, uint256 amount);
