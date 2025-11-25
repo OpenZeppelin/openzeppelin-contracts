@@ -2,6 +2,8 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
+const { MAX_UINT64 } = require('../helpers/constants');
+const { product } = require('../helpers/iterate');
 const { generators } = require('../helpers/random');
 
 async function fixture() {
@@ -33,11 +35,15 @@ describe('RLP', function () {
   });
 
   it('encode/decode addresses', async function () {
-    const addr = generators.address();
-    const expected = ethers.encodeRlp(addr);
-
-    await expect(this.mock.$encode_address(addr)).to.eventually.equal(expected);
-    await expect(this.mock.$decodeAddress(expected)).to.eventually.equal(addr);
+    for (const addr of [
+      ethers.ZeroAddress, // zero address
+      '0x0000F90827F1C53a10cb7A02335B175320002935', // address with leading zeros
+      generators.address(), // random address
+    ]) {
+      const expected = ethers.encodeRlp(addr);
+      await expect(this.mock.$encode_address(addr)).to.eventually.equal(expected);
+      await expect(this.mock.$decodeAddress(expected)).to.eventually.equal(addr);
+    }
   });
 
   it('encode/decode uint256', async function () {
@@ -145,5 +151,22 @@ describe('RLP', function () {
     it(`rejects ${name}`, async function () {
       await expect(this.mock.$decodeBytes(input)).to.be.revertedWithCustomError(this.mock, 'RLPInvalidEncoding');
     });
+  });
+
+  it('RLP encoder predict create addresses', async function () {
+    for (const [from, nonce] of product(
+      [
+        ethers.ZeroAddress, // zero address
+        '0x0000F90827F1C53a10cb7A02335B175320002935', // address with heading zeros
+        generators.address(), // random address
+      ],
+      [0n, 1n, 42n, 65535n, MAX_UINT64],
+    )) {
+      await expect(
+        this.mock
+          .$encode_list([this.mock.$encode_address(from), this.mock.$encode_uint256(nonce)])
+          .then(encoded => ethers.getAddress(ethers.dataSlice(ethers.keccak256(encoded), 12))), // hash the encoded content, take the last 20 bytes and format as (checksummed) address
+      ).to.eventually.equal(ethers.getCreateAddress({ from, nonce }));
+    }
   });
 });
