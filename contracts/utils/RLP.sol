@@ -141,7 +141,7 @@ library RLP {
         if (input < SHORT_OFFSET) {
             assembly ("memory-safe") {
                 result := mload(0x40)
-                mstore(result, 1) // length of the encoded data: 1 byte
+                mstore(result, 0x01) // length of the encoded data: 1 byte
                 mstore8(add(result, 0x20), or(input, mul(0x80, iszero(input)))) // input (zero is encoded as 0x80)
                 mstore(0x40, add(result, 0x21)) // reserve memory
             }
