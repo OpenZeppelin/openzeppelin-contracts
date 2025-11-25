@@ -16,7 +16,6 @@ are useful to interact with third party contracts that implement them.
 - {IERC721Enumerable}
 - {IERC721Metadata}
 - {IERC721Errors}
-- {IERC2309}
 - {IERC777}
 - {IERC777Recipient}
 - {IERC777Sender}
@@ -32,6 +31,7 @@ are useful to interact with third party contracts that implement them.
 - {IERC1820Registry}
 - {IERC1822Proxiable}
 - {IERC1967}
+- {IERC2309}
 - {IERC2612}
 - {IERC2981}
 - {IERC3156}
