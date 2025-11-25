@@ -34,7 +34,6 @@ are useful to interact with third party contracts that implement them.
 - {IERC2309}
 - {IERC2612}
 - {IERC2981}
-- {IERC3156}
 - {IERC3156FlashLender}
 - {IERC3156FlashBorrower}
 - {IERC4626}
