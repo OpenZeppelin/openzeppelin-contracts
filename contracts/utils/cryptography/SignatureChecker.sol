@@ -93,6 +93,7 @@ library SignatureChecker {
         bytes calldata signature
     ) internal view returns (bool result) {
         bytes4 selector = IERC1271.isValidSignature.selector;
+        uint256 length = signature.length;
 
         assembly ("memory-safe") {
             // Encoded calldata is :
@@ -105,7 +106,6 @@ library SignatureChecker {
             mstore(ptr, selector)
             mstore(add(ptr, 0x04), hash)
             mstore(add(ptr, 0x24), 0x40)
-            let length := signature.length
             mstore(add(ptr, 0x44), length)
             calldatacopy(add(ptr, 0x64), signature.offset, length)
 
