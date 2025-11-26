@@ -155,6 +155,60 @@ contract BytesTest is Test {
         }
     }
 
+    function testSpliceWithReplacementFromStart(bytes memory buffer, bytes memory replacement) public pure {
+        bytes memory originalBuffer = bytes.concat(buffer);
+        bytes memory result = buffer.splice(replacement);
+
+        // Result should be the same object as input (modified in place)
+        assertEq(result, buffer);
+
+        // Buffer length should remain unchanged
+        assertEq(result.length, originalBuffer.length);
+
+        // Calculate copy length (replacement is applied from start=0)
+        uint256 copyLength = Math.min(replacement.length, originalBuffer.length);
+
+        // Verify replacement content was copied correctly from start
+        for (uint256 i = 0; i < copyLength; ++i) {
+            assertEq(result[i], replacement[i]);
+        }
+
+        // Verify content after replacement is unchanged
+        for (uint256 i = copyLength; i < result.length; ++i) {
+            assertEq(result[i], originalBuffer[i]);
+        }
+    }
+
+    function testSpliceWithReplacement(bytes memory buffer, uint256 start, bytes memory replacement) public pure {
+        bytes memory originalBuffer = bytes.concat(buffer);
+        bytes memory result = buffer.splice(start, replacement);
+
+        // Result should be the same object as input (modified in place)
+        assertEq(result, buffer);
+
+        // Buffer length should remain unchanged
+        assertEq(result.length, originalBuffer.length);
+
+        // Calculate expected bounds after sanitization
+        uint256 sanitizedStart = Math.min(start, originalBuffer.length);
+        uint256 copyLength = Math.min(replacement.length, originalBuffer.length - sanitizedStart);
+
+        // Verify content before start position is unchanged
+        for (uint256 i = 0; i < sanitizedStart; ++i) {
+            assertEq(result[i], originalBuffer[i]);
+        }
+
+        // Verify replacement content was copied correctly
+        for (uint256 i = 0; i < copyLength; ++i) {
+            assertEq(result[sanitizedStart + i], replacement[i]);
+        }
+
+        // Verify content after replacement is unchanged
+        for (uint256 i = sanitizedStart + copyLength; i < result.length; ++i) {
+            assertEq(result[i], originalBuffer[i]);
+        }
+    }
+
     // REVERSE BITS
     function testSymbolicReverseBytes32(bytes32 value) public pure {
         assertEq(Bytes.reverseBytes32(Bytes.reverseBytes32(value)), value);
