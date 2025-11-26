@@ -589,7 +589,7 @@ rule getRoleGrantDelayChangeCall(uint64 roleId) {
         delayEffectBefore  != delayEffectAfter
     ) => (
         (
-            // ... it was the consequence of a call to setTargetAdminDelay
+            // ... it was the consequence of a call to setGrantDelay
             f.selector == sig:setGrantDelay(uint64,uint32).selector
         ) && (
             // ... delay cannot decrease instantly
