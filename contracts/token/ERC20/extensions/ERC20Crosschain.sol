@@ -13,10 +13,10 @@ import {BridgeERC20Core} from "../../../crosschain/bridges/BridgeERC20Core.sol";
  * * {ERC20} instances on other chains that are bridged using {BridgeERC20},
  * * {ERC20Bridgeable} instances on other chains that are bridged using {BridgeERC7802}.
  *
- * It is mostly equivalent to inheriting from both {ERC20Bridgeable} and {BridgeERC7802}, and configuring then such
+ * It is mostly equivalent to inheriting from both {ERC20Bridgeable} and {BridgeERC7802}, and configuring them such
  * that:
  * * `token` (on the {BridgeERC7802} side) is `address(this)`,
- * * `_checkTokenBridge` (on the {ERC20Bridgeable} side) is implemented such that it only accepts calls self-calls.
+ * * `_checkTokenBridge` (on the {ERC20Bridgeable} side) is implemented such that it only accepts self-calls.
  */
 // slither-disable-next-line locked-ether
 abstract contract ERC20Crosschain is ERC20, BridgeERC20Core {

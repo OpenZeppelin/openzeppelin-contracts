@@ -11,7 +11,7 @@ import {CrosschainLinked} from "../CrosschainLinked.sol";
  *
  * In order to use this contract, two functions must be implemented to link it to the token:
  * * {_onSend}: called when a crosschain transfer is going out. Must take the sender tokens or revert.
- * * {_onReceive}: called when a crosschain transfer is coming it. Must give tokens to the receiver.
+ * * {_onReceive}: called when a crosschain transfer is coming in. Must give tokens to the receiver.
  *
  * This base contract is used by the {BridgeERC20}, which interfaces with legacy ERC-20 tokens, and {BridgeERC7802},
  * which interface with ERC-7802 to provide an approve-free user experience. It is also used by the {ERC20Crosschain}

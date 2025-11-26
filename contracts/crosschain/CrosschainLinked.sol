@@ -14,7 +14,7 @@ import {ERC7786Recipient} from "./ERC7786Recipient.sol";
  * gateways. It ensure received messages originate from a counterpart. This is the base of token bridges such as
  * {BridgeERC20Core}.
  *
- * Contract that inherit from this contract can use the internal {_sendMessageToCounterpart} to send messages to their
+ * Contracts that inherit from this contract can use the internal {_sendMessageToCounterpart} to send messages to their
  * counterpart on a foreign chain. They must override the {_processMessage} function to handle the message that have
  * been verified.
  */
@@ -49,9 +49,9 @@ abstract contract CrosschainLinked is ERC7786Recipient {
     }
 
     /**
-     * @dev Returns the ERC-7786 gateway used for sending and receiving cross-chain messages to a given chain
+     * @dev Returns the ERC-7786 gateway used for sending and receiving cross-chain messages to a given chain.
      *
-     * Note: The `chain` parameter is a "chain-only" InteroperableAddress (empty address) and the `counterpart` return
+     * Note: The `chain` parameter is a "chain-only" InteroperableAddress (empty address) and the `counterpart` returns
      * the full InteroperableAddress (chain ref + address) that is on `chain`.
      */
     function getLink(bytes memory chain) public view virtual returns (address gateway, bytes memory counterpart) {

@@ -6,8 +6,8 @@ import {IERC20, SafeERC20} from "../../token/ERC20/utils/SafeERC20.sol";
 import {BridgeERC20Core} from "./BridgeERC20Core.sol";
 
 /**
- * @dev This is a variant of {BridgeERC20Core} that implements the bridge logic for ERC-20 tokens that do not expose mint
- * and burn mechanism. Instead it takes custody of bridged assets.
+ * @dev This is a variant of {BridgeERC20Core} that implements the bridge logic for ERC-20 tokens that do not expose a
+ * crosschain mint and burn mechanism. Instead, it takes custody of bridged assets.
  */
 // slither-disable-next-line locked-ether
 abstract contract BridgeERC20 is BridgeERC20Core {
