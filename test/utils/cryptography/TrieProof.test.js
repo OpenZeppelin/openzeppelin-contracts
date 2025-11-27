@@ -2,25 +2,27 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { spawn } = require('child_process');
 
+const { Enum } = require('../../helpers/enums');
+
 const hardhat = 'hardhat';
 const anvil = 'anvil';
 const anvilPort = 8546;
-const ProofError = {
-  NO_ERROR: 0,
-  EMPTY_KEY: 1,
-  INDEX_OUT_OF_BOUNDS: 2,
-  INVALID_ROOT_HASH: 3,
-  INVALID_LARGE_INTERNAL_HASH: 4,
-  INVALID_INTERNAL_NODE_HASH: 5,
-  EMPTY_VALUE: 6,
-  INVALID_EXTRA_PROOF_ELEMENT: 7,
-  MISMATCH_LEAF_PATH_KEY_REMAINDERS: 8,
-  INVALID_PATH_REMAINDER: 9,
-  INVALID_KEY_REMAINDER: 10,
-  UNKNOWN_NODE_PREFIX: 11,
-  UNPARSEABLE_NODE: 12,
-  INVALID_PROOF: 13,
-};
+const ProofError = Enum(
+  'NO_ERROR',
+  'EMPTY_KEY',
+  'INDEX_OUT_OF_BOUNDS',
+  'INVALID_ROOT_HASH',
+  'INVALID_LARGE_INTERNAL_HASH',
+  'INVALID_INTERNAL_NODE_HASH',
+  'EMPTY_VALUE',
+  'INVALID_EXTRA_PROOF_ELEMENT',
+  'MISMATCH_LEAF_PATH_KEY_REMAINDERS',
+  'INVALID_PATH_REMAINDER',
+  'INVALID_KEY_REMAINDER',
+  'UNKNOWN_NODE_PREFIX',
+  'UNPARSEABLE_NODE',
+  'INVALID_PROOF',
+);
 
 // Method eth_getProof is not supported with default Hardhat Network, so Anvil is used for that.
 async function fixture(anvilProcess) {
@@ -39,11 +41,11 @@ async function fixture(anvilProcess) {
     provider[providerType] =
       providerType === anvil ? new ethers.JsonRpcProvider(`http://localhost:${anvilPort}`) : ethers.provider;
     account[providerType] = await provider[providerType].getSigner(0);
-    storage[providerType] = (await ethers.deployContract('StorageSlotMock', account[providerType])).connect(
-      account[providerType],
-    );
+    storage[providerType] = await ethers.deployContract('StorageSlotMock', account[providerType]);
   }
-  const mock = (await ethers.deployContract('$TrieProof', account[hardhat])).connect(account[hardhat]); // only required on hardhat network
+
+  const mock = await ethers.deployContract('$TrieProof', account[hardhat]); // only required on hardhat network
+
   const getProof = async function (contract, slot, tx) {
     const { storageHash, storageProof } = await this.provider[anvil].send('eth_getProof', [
       contract[anvil].target,
@@ -81,8 +83,8 @@ describe('TrieProof', function () {
       const slot = ethers.ZeroHash;
       await call(this.storage, 'setUint256Slot', [slot, 42]);
       const { key, value, proof, storageHash } = await this.getProof(this.storage, slot);
-      const result = await this.mock.$verify(ethers.keccak256(key), value, proof, storageHash);
-      expect(result).is.true;
+
+      await expect(this.mock.$verify(ethers.keccak256(key), value, proof, storageHash)).to.eventually.be.true;
     });
 
     it('returns true with proof size 2 (branch then odd leaf [0x3])', async function () {
@@ -91,8 +93,8 @@ describe('TrieProof', function () {
       await call(this.storage, 'setUint256Slot', [slot0, 42]);
       await call(this.storage, 'setUint256Slot', [slot1, 43]);
       const { key, value, proof, storageHash } = await this.getProof(this.storage, slot1);
-      const result = await this.mock.$verify(ethers.keccak256(key), value, proof, storageHash);
-      expect(result).is.true;
+
+      await expect(this.mock.$verify(ethers.keccak256(key), value, proof, storageHash)).to.eventually.be.true;
     });
 
     it('returns true with proof size 3 (even extension [0x00], branch then leaf)', async function () {
@@ -106,8 +108,7 @@ describe('TrieProof', function () {
       await call(this.storage, 'setUint256Slot', [slots[2], 44]);
       for (let slot of slots) {
         const { key, value, proof, storageHash } = await this.getProof(this.storage, slot);
-        const result = await this.mock.$verify(ethers.keccak256(key), value, proof, storageHash);
-        expect(result).is.true;
+        await expect(this.mock.$verify(ethers.keccak256(key), value, proof, storageHash)).to.eventually.be.true;
       }
     });
 
@@ -122,8 +123,7 @@ describe('TrieProof', function () {
       await call(this.storage, 'setUint256Slot', [slots[2], 44]);
       for (let slot of slots) {
         const { key, value, proof, storageHash } = await this.getProof(this.storage, slot);
-        const result = await this.mock.$verify(ethers.keccak256(key), value, proof, storageHash);
-        expect(result).is.true;
+        await expect(this.mock.$verify(ethers.keccak256(key), value, proof, storageHash)).to.eventually.be.true;
       }
     });
 
@@ -134,9 +134,10 @@ describe('TrieProof', function () {
 
   describe('process invalid proof', function () {
     it('fails to process proof with empty key', async function () {
-      const [value, error] = await this.mock.$processProof('0x', [], ethers.ZeroHash);
-      expect(value).to.equal('0x');
-      expect(error).to.equal(ProofError.EMPTY_KEY);
+      await expect(this.mock.$processProof('0x', [], ethers.ZeroHash)).to.eventually.deep.equal([
+        '0x',
+        ProofError.EMPTY_KEY,
+      ]);
     });
 
     it.skip('fails to process proof with key index out of bounds', async function () {}); // TODO: INDEX_OUT_OF_BOUNDS
@@ -145,9 +146,12 @@ describe('TrieProof', function () {
       const slot = ethers.ZeroHash;
       const tx = await call(this.storage, 'setUint256Slot', [slot, 42]);
       const { key, proof, storageHash } = await this.getProof(this.storage, slot, tx);
-      const [processedValue, error] = await this.mock.$processProof(key, proof, ethers.keccak256(storageHash)); // Corrupt root hash
-      expect(processedValue).to.equal('0x');
-      expect(error).to.equal(ProofError.INVALID_ROOT_HASH);
+
+      // Corrupt root hash
+      await expect(this.mock.$processProof(key, proof, ethers.keccak256(storageHash))).to.eventually.deep.equal([
+        '0x',
+        ProofError.INVALID_ROOT_HASH,
+      ]);
     });
 
     it('fails to process proof with invalid internal large hash', async function () {
@@ -155,20 +159,25 @@ describe('TrieProof', function () {
       const slot1 = '0x0000000000000000000000000000000000000000000000000000000000000001';
       await call(this.storage, 'setUint256Slot', [slot0, 42]);
       await call(this.storage, 'setUint256Slot', [slot1, 43]);
+
       const { key, proof, storageHash } = await this.getProof(this.storage, slot1);
       proof[1] = ethers.toBeHex(BigInt(proof[1]) + 1n); // Corrupt internal large node hash
-      const [processedValue, error] = await this.mock.$processProof(key, proof, storageHash);
-      expect(processedValue).to.equal('0x');
-      expect(error).to.equal(ProofError.INVALID_LARGE_INTERNAL_HASH);
+
+      await expect(this.mock.$processProof(key, proof, storageHash)).to.eventually.deep.equal([
+        '0x',
+        ProofError.INVALID_LARGE_INTERNAL_HASH,
+      ]);
     });
 
     it.skip('fails to process proof with invalid internal short node', async function () {}); // TODO: INVALID_INTERNAL_NODE_HASH
 
     it('fails to process proof with empty value', async function () {
       const proof = [ethers.encodeRlp(['0x2000', '0x'])];
-      const [processedValue, error] = await this.mock.$processProof('0x00', proof, ethers.keccak256(proof[0]));
-      expect(processedValue).to.equal('0x');
-      expect(error).to.equal(ProofError.EMPTY_VALUE);
+
+      await expect(this.mock.$processProof('0x00', proof, ethers.keccak256(proof[0]))).to.eventually.deep.equal([
+        '0x',
+        ProofError.EMPTY_VALUE,
+      ]);
     });
 
     it('fails to process proof with invalid extra proof', async function () {
@@ -176,9 +185,11 @@ describe('TrieProof', function () {
       const tx = await call(this.storage, 'setUint256Slot', [slot0, 42]);
       const { key, proof, storageHash } = await this.getProof(this.storage, slot0, tx);
       proof[1] = ethers.encodeRlp([]); // extra proof element
-      const [processedValue, error] = await this.mock.$processProof(ethers.keccak256(key), proof, storageHash);
-      expect(processedValue).to.equal('0x');
-      expect(error).to.equal(ProofError.INVALID_EXTRA_PROOF_ELEMENT);
+
+      await expect(this.mock.$processProof(ethers.keccak256(key), proof, storageHash)).to.eventually.deep.equal([
+        '0x',
+        ProofError.INVALID_EXTRA_PROOF_ELEMENT,
+      ]);
     });
 
     it('fails to process proof with mismatched leaf path and key remainders', async function () {
@@ -191,38 +202,46 @@ describe('TrieProof', function () {
           value,
         ]),
       ];
-      const [processedValue, error] = await this.mock.$processProof(key, proof, ethers.keccak256(proof[0]));
-      expect(processedValue).to.equal('0x');
-      expect(error).to.equal(ProofError.MISMATCH_LEAF_PATH_KEY_REMAINDERS);
+
+      await expect(this.mock.$processProof(key, proof, ethers.keccak256(proof[0]))).to.eventually.deep.equal([
+        '0x',
+        ProofError.MISMATCH_LEAF_PATH_KEY_REMAINDERS,
+      ]);
     });
 
     it('fails to process proof with invalid path remainder', async function () {
       const proof = [ethers.encodeRlp(['0x0011', '0x'])];
-      const [processedValue, error] = await this.mock.$processProof(ethers.ZeroHash, proof, ethers.keccak256(proof[0]));
-      expect(processedValue).to.equal('0x');
-      expect(error).to.equal(ProofError.INVALID_PATH_REMAINDER);
+
+      await expect(
+        this.mock.$processProof(ethers.ZeroHash, proof, ethers.keccak256(proof[0])),
+      ).to.eventually.deep.equal(['0x', ProofError.INVALID_PATH_REMAINDER]);
     });
 
     it.skip('fails to process proof with invalid key remainder', async function () {}); // TODO: INVALID_KEY_REMAINDER
 
     it('fails to process proof with unknown node prefix', async function () {
       const proof = [ethers.encodeRlp(['0x40', '0x'])];
-      const [processedValue, error] = await this.mock.$processProof('0x00', proof, ethers.keccak256(proof[0]));
-      expect(processedValue).to.equal('0x');
-      expect(error).to.equal(ProofError.UNKNOWN_NODE_PREFIX);
+
+      await expect(this.mock.$processProof('0x00', proof, ethers.keccak256(proof[0]))).to.eventually.deep.equal([
+        '0x',
+        ProofError.UNKNOWN_NODE_PREFIX,
+      ]);
     });
 
     it('fails to process proof with unparsable node', async function () {
       const proof = [ethers.encodeRlp(['0x00', '0x00', '0x00'])];
-      const [processedValue, error] = await this.mock.$processProof('0x00', proof, ethers.keccak256(proof[0]));
-      expect(processedValue).to.equal('0x');
-      expect(error).to.equal(ProofError.UNPARSEABLE_NODE);
+
+      await expect(this.mock.$processProof('0x00', proof, ethers.keccak256(proof[0]))).to.eventually.deep.equal([
+        '0x',
+        ProofError.UNPARSEABLE_NODE,
+      ]);
     });
 
     it('fails to process proof with invalid proof', async function () {
-      const [processedValue, error] = await this.mock.$processProof('0x00', [], ethers.ZeroHash);
-      expect(processedValue).to.equal('0x');
-      expect(error).to.equal(ProofError.INVALID_PROOF);
+      await expect(this.mock.$processProof('0x00', [], ethers.ZeroHash)).to.eventually.deep.equal([
+        '0x',
+        ProofError.INVALID_PROOF,
+      ]);
     });
   });
 });
