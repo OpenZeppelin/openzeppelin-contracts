@@ -35,4 +35,10 @@ contract MemoryTest is Test {
         length = bound(length, 0, input.length - offset);
         assertEq(input.asSlice().slice(offset, length).toBytes(), input.slice(offset, offset + length));
     }
+
+    function testHash(bytes memory input, uint256 offset, uint256 length) public pure {
+        offset = bound(offset, 0, input.length);
+        length = bound(length, 0, input.length - offset);
+        assertEq(input.asSlice().slice(offset, length).getHash(), keccak256(input.slice(offset, offset + length)));
+    }
 }
