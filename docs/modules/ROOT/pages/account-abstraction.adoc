@@ -18,9 +18,9 @@ struct PackedUserOperation {
     uint256 nonce;
     bytes initCode; // concatenation of factory address and factoryData (or empty)
     bytes callData;
-    bytes32 accountGasLimits; // concatenation of verificationGas (16 bytes) and callGas (16 bytes)
+    bytes32 accountGasLimits; // concatenation of verificationGasLimit (16 bytes) and callGasLimit (16 bytes)
     uint256 preVerificationGas;
-    bytes32 gasFees; // concatenation of maxPriorityFee (16 bytes) and maxFeePerGas (16 bytes)
+    bytes32 gasFees; // concatenation of maxPriorityFeePerGas (16 bytes) and maxFeePerGas (16 bytes)
     bytes paymasterAndData; // concatenation of paymaster fields (or empty)
     bytes signature;
 }

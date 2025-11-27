@@ -2,7 +2,7 @@
 solc_version = '0.8.27'
 evm_version = 'prague'
 optimizer = true
-optimizer-runs = 200
+optimizer_runs = 200
 src = 'contracts'
 out = 'out'
 libs = ['node_modules', 'lib']

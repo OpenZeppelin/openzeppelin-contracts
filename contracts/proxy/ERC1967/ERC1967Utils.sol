@@ -86,7 +86,7 @@ library ERC1967Utils {
      * @dev Returns the current admin.
      *
      * TIP: To get this value clients can read directly from the storage slot shown below (specified by ERC-1967) using
-     * the https://eth.wiki/json-rpc/API#eth_getstorageat[`eth_getStorageAt`] RPC call.
+     * the https://ethereum.org/developers/docs/apis/json-rpc/#eth_getstorageat[`eth_getStorageAt`] RPC call.
      * `0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103`
      */
     function getAdmin() internal view returns (address) {

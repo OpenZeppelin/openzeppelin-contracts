@@ -13,7 +13,7 @@ import {IERC7913SignatureVerifier} from "../../../interfaces/IERC7913.sol";
  * The key is expected to be a 64-byte concatenation of the P256 public key coordinates (qx || qy).
  * The signature is expected to be an abi-encoded {WebAuthn-WebAuthnAuth} struct.
  *
- * Uses {WebAuthn-verifyMinimal} for signature verification, which performs the essential
+ * Uses {WebAuthn-verify} for signature verification, which performs the essential
  * WebAuthn checks: type validation, challenge matching, and cryptographic signature verification.
  *
  * NOTE: Wallets that may require default P256 validation may install a P256 verifier separately.
