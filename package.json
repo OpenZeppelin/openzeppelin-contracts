@@ -95,11 +95,11 @@
     "yargs": "^18.0.0"
   },
   "lint-staged": {
-    "*.{js,ts}": [
+    "**/*.{js,ts}": [
       "prettier --log-level warn --ignore-path .gitignore --check",
       "eslint"
     ],
-    "*.sol": [
+    "{contracts,test}/**/*.sol": [
       "prettier --log-level warn --ignore-path .gitignore --check",
       "solhint --config solhint.config.js --noPoster"
     ]
