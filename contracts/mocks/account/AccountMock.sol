@@ -81,7 +81,7 @@ abstract contract AccountWebAuthnMock is Account, SignerWebAuthn, ERC7739, ERC78
     }
 }
 
-abstract contract AccountERC7702Mock is Account, SignerEIP7702, ERC7739, ERC7821, ERC721Holder, ERC1155Holder {
+abstract contract AccountEIP7702Mock is Account, SignerEIP7702, ERC7739, ERC7821, ERC721Holder, ERC1155Holder {
     /// @inheritdoc ERC7821
     function _erc7821AuthorizedExecutor(
         address caller,
@@ -92,7 +92,7 @@ abstract contract AccountERC7702Mock is Account, SignerEIP7702, ERC7739, ERC7821
     }
 }
 
-abstract contract AccountERC7702WithModulesMock is
+abstract contract AccountEIP7702WithModulesMock is
     Account,
     AccountERC7579,
     SignerEIP7702,
@@ -119,7 +119,7 @@ abstract contract AccountERC7702WithModulesMock is
         return erc7739magic == bytes4(0xffffffff) ? AccountERC7579.isValidSignature(hash, signature) : erc7739magic;
     }
 
-    /// @dev Enable signature using the ERC-7702 signer.
+    /// @dev Enable signature using the EIP-7702 signer.
     function _rawSignatureValidation(
         bytes32 hash,
         bytes calldata signature
