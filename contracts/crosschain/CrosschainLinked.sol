@@ -15,7 +15,7 @@ import {ERC7786Recipient} from "./ERC7786Recipient.sol";
  * {BridgeERC20Core}.
  *
  * Contracts that inherit from this contract can use the internal {_sendMessageToCounterpart} to send messages to their
- * counterpart on a foreign chain. They must override the {_processMessage} function to handle the message that have
+ * counterpart on a foreign chain. They must override the {_processMessage} function to handle messages that have
  * been verified.
  */
 abstract contract CrosschainLinked is ERC7786Recipient {
