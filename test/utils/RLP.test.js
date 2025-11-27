@@ -123,6 +123,7 @@ describe('RLP', function () {
   it('encode/decode strings', async function () {
     for (const input of [
       '', // empty string
+      '000000000cat', // string with leading zeros
       'dog',
       'Lorem ipsum dolor sit amet, consectetur adipisicing elit',
     ]) {

@@ -121,7 +121,12 @@ library RLP {
         }
     }
 
-    /// @dev Encode an address as RLP.
+    /**
+     * @dev Encode an address as RLP.
+     *
+     * The address is encoded with its leading zeros (if it has any). If someone wants to encode the address as a scalar,
+     * they can cast it to an uint256 and then call the corresponding {encode} function.
+     */
     function encode(address input) internal pure returns (bytes memory result) {
         assembly ("memory-safe") {
             result := mload(0x40)
@@ -136,7 +141,7 @@ library RLP {
         if (input < SHORT_OFFSET) {
             assembly ("memory-safe") {
                 result := mload(0x40)
-                mstore(result, 1) // length of the encoded data: 1 byte
+                mstore(result, 0x01) // length of the encoded data: 1 byte
                 mstore8(add(result, 0x20), or(input, mul(0x80, iszero(input)))) // input (zero is encoded as 0x80)
                 mstore(0x40, add(result, 0x21)) // reserve memory
             }
@@ -167,13 +172,17 @@ library RLP {
         return encode(bytes(input));
     }
 
-    /// @dev Encode an array of bytes as RLP.
+    /**
+     * @dev Encode an array of bytes as RLP.
+     * This function expects an array of already encoded bytes, not raw bytes.
+     * Users should call {encode} on each element of the array before calling it.
+     */
     function encode(bytes[] memory input) internal pure returns (bytes memory) {
         return _encode(input.concat(), LONG_OFFSET);
     }
 
     /// @dev Encode an encoder (list of bytes) as RLP
-    function encode(Encoder memory self) internal pure returns (bytes memory result) {
+    function encode(Encoder memory self) internal pure returns (bytes memory) {
         return _encode(self.acc.flatten(), LONG_OFFSET);
     }
 
@@ -241,7 +250,7 @@ library RLP {
         (uint256 offset, uint256 length, ItemType itemType) = _decodeLength(item);
         require(itemType == ItemType.Data, RLPInvalidEncoding());
 
-        // Length is checked by {toBytes}
+        // Length is checked by {slice}
         return item.slice(offset, length).toBytes();
     }
 
@@ -326,9 +335,7 @@ library RLP {
      * @dev Decodes an RLP `item`'s `length and type from its prefix.
      * Returns the offset, length, and type of the RLP item based on the encoding rules.
      */
-    function _decodeLength(
-        Memory.Slice item
-    ) private pure returns (uint256 _offset, uint256 _length, ItemType _itemtype) {
+    function _decodeLength(Memory.Slice item) private pure returns (uint256, uint256, ItemType) {
         uint256 itemLength = item.length();
 
         require(itemLength != 0, RLPInvalidEncoding());
