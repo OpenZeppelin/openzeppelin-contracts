@@ -11,8 +11,8 @@ This directory contains contracts for sending and receiving cross chain messages
 Additionally there are multiple bridge constructions:
 
 * {BridgeERC20Core}: Core bridging logic for crosschain ERC-20 transfer. Used by {BridgeERC20}, {BridgeERC7802} and {ERC20Crosschain},
-* {BridgeERC20}: Standalone bridge contract to connect an ERC-20 token contract with other tokens on remote chains,
-* {BridgeERC7802}: Standalone bridge contract to connect an ERC-7802 token contract with other tokens on remote chains.
+* {BridgeERC20}: Standalone bridge contract to connect an ERC-20 token contract with counterparts on remote chains,
+* {BridgeERC7802}: Standalone bridge contract to connect an ERC-7802 token contract with counterparts on remote chains.
 
 == Helpers
 
