@@ -112,6 +112,16 @@ library Memory {
         }
     }
 
+    /// @dev Return the keccak256 hash of the memory section represented by the slice.
+    /// Equivalent to keccak256(toBytes(self)).
+    function getHash(Slice self) internal pure returns (bytes32 result) {
+        uint256 len = length(self);
+        Memory.Pointer ptr = _pointer(self);
+        assembly ("memory-safe") {
+            result := keccak256(ptr, len)
+        }
+    }
+
     /**
      * @dev Private helper: create a slice from raw values (length and pointer)
      *

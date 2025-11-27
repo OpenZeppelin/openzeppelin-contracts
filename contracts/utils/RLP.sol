@@ -245,6 +245,16 @@ library RLP {
         return item.slice(offset, length).toBytes();
     }
 
+    /// @dev Gets the hash of the underlying bytes without allocating memory
+    /// Equivalent to `keccak256(readBytes(item))`
+    function readBytesHash(Memory.Slice item) internal pure returns (bytes32) {
+        (uint256 offset, uint256 length, ItemType itemType) = _decodeLength(item);
+        require(itemType == ItemType.Data, RLPInvalidEncoding());
+
+        // Length is checked by {getHash}
+        return item.slice(offset, length).getHash();
+    }
+
     /// @dev Decodes an RLP encoded string. See {encode-string}
     function readString(Memory.Slice item) internal pure returns (string memory) {
         return string(readBytes(item));

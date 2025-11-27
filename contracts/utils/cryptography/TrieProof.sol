@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.27;
 
-import {Bytes} from "../Bytes.sol";
-import {RLP} from "../RLP.sol";
 import {Math} from "../math/Math.sol";
 import {Memory} from "../Memory.sol";
+import {RLP} from "../RLP.sol";
 
 /**
  * @dev Library for verifying Ethereum Merkle-Patricia trie inclusion proofs.
@@ -13,9 +12,8 @@ import {Memory} from "../Memory.sol";
  * See https://ethereum.org/en/developers/docs/data-structures-and-encoding/patricia-merkle-trie[Merkle-Patricia trie]
  */
 library TrieProof {
-    using Bytes for bytes;
     using RLP for *;
-    using Memory for Memory.Slice;
+    using Memory for *;
 
     enum Prefix {
         EXTENSION_EVEN, // 0 - Extension node with even length path
@@ -56,25 +54,9 @@ library TrieProof {
      * @dev Verifies a `proof` against a given `key`, `value`, `and root` hash
      * using the default Ethereum radix (16).
      */
-    function verify(
-        bytes memory key,
-        bytes memory value,
-        bytes[] memory proof,
-        bytes32 root
-    ) internal pure returns (bool) {
-        return verify(key, value, proof, root, EVM_TREE_RADIX);
-    }
-
-    /// @dev Same as {verify} but with a custom radix.
-    function verify(
-        bytes memory key,
-        bytes memory value,
-        bytes[] memory proof,
-        bytes32 root,
-        uint256 radix
-    ) internal pure returns (bool) {
-        (bytes memory processedValue, ProofError err) = processProof(key, proof, root, radix);
-        return processedValue.equal(value) && err == ProofError.NO_ERROR;
+    function verify(bytes memory key, bytes32 value, bytes[] memory proof, bytes32 root) internal pure returns (bool) {
+        (bytes32 processedValue, ProofError err) = processProof(key, proof, root);
+        return processedValue == value && err == ProofError.NO_ERROR;
     }
 
     /// @dev Processes a proof for a given key using default Ethereum radix (16) and returns the processed value.
@@ -82,104 +64,85 @@ library TrieProof {
         bytes memory key,
         bytes[] memory proof,
         bytes32 root
-    ) internal pure returns (bytes memory value, ProofError) {
-        return processProof(key, proof, root, EVM_TREE_RADIX);
-    }
+    ) internal pure returns (bytes32 value, ProofError err) {
+        if (key.length == 0) return (bytes32(0), ProofError.EMPTY_KEY);
 
-    /// @dev Same as {processProof} but with a custom radix.
-    function processProof(
-        bytes memory key,
-        bytes[] memory proof,
-        bytes32 root,
-        uint256 radix
-    ) internal pure returns (bytes memory value, ProofError) {
-        if (key.length == 0) return ("", ProofError.EMPTY_KEY);
-        // Convert key to nibbles (4-bit values) and begin processing from the root
-        return _processInclusionProof(_decodeProof(proof), _nibbles(key), bytes.concat(root), 0, radix);
-    }
+        // Expand the key
+        bytes memory keyExpanded = _nibbles(key);
 
-    /// @dev Main recursive function that traverses the trie using the provided proof.
-    function _processInclusionProof(
-        Node[] memory trieProof,
-        bytes memory key,
-        bytes memory nodeId,
-        uint256 keyIndex,
-        uint256 radix
-    ) private pure returns (bytes memory value, ProofError err) {
-        uint256 branchNodeLength = radix + 1; // Branch nodes have radix+1 items (values + 1 for stored value)
+        // Free memory pointer cache
+        Memory.Pointer fmp = Memory.getFreeMemoryPointer();
 
-        for (uint256 i = 0; i < trieProof.length; i++) {
-            Node memory node = trieProof[i];
+        // Process proof
+        uint256 keyIndex = 0;
+        for (uint256 i = 0; i < proof.length; ++i) {
+            Node memory node = Node(proof[i], proof[i].decodeList());
 
             // ensure we haven't overshot the key
-            if (keyIndex > key.length) return ("", ProofError.INDEX_OUT_OF_BOUNDS);
-            err = _validateNodeHashes(nodeId, node, keyIndex);
-            if (err != ProofError.NO_ERROR) return ("", err);
+            if (keyIndex > keyExpanded.length) {
+                return (bytes32(0), ProofError.INDEX_OUT_OF_BOUNDS);
+            }
+
+            // validates the node hashes at different levels of the proof.
+            if (keyIndex == 0) {
+                // Root node must match root hash
+                if (keccak256(node.encoded) != root) return (bytes32(0), ProofError.INVALID_ROOT_HASH);
+            } else if (node.encoded.length >= 32) {
+                // Large nodes are stored as hashes
+                if (keccak256(node.encoded) != root) return (bytes32(0), ProofError.INVALID_LARGE_INTERNAL_HASH);
+            } else {
+                // Small nodes must match directly
+                if (bytes32(node.encoded) != root) return (bytes32(0), ProofError.INVALID_INTERNAL_NODE_HASH);
+            }
 
             uint256 nodeLength = node.decoded.length;
-
-            // must be either a branch or leaf/extension node
-            if (nodeLength != branchNodeLength && nodeLength != LEAF_OR_EXTENSION_NODE_LENGTH)
-                return ("", ProofError.UNPARSEABLE_NODE);
-
-            if (nodeLength == branchNodeLength) {
+            if (nodeLength == EVM_TREE_RADIX + 1) {
                 // If we've consumed the entire key, the value must be in the last slot
-                if (keyIndex == key.length) return _validateLastItem(node.decoded[radix], trieProof.length, i);
-
                 // Otherwise, continue down the branch specified by the next nibble in the key
-                uint8 branchKey = uint8(key[keyIndex]);
-                (nodeId, keyIndex) = (_id(node.decoded[branchKey]), keyIndex + 1);
-            } else if (nodeLength == LEAF_OR_EXTENSION_NODE_LENGTH) {
-                (uint8 prefix, bytes memory pathRemainder, bytes memory keyRemainder) = _extract(node, key, keyIndex);
-                if (prefix == type(uint8).max) return ("", ProofError.UNKNOWN_NODE_PREFIX);
-                // Leaf node (terminal) - return its value if key matches completely
-                if (Prefix(prefix) == Prefix.LEAF_EVEN || Prefix(prefix) == Prefix.LEAF_ODD) {
-                    if (!pathRemainder.equal(keyRemainder)) return ("", ProofError.MISMATCH_LEAF_PATH_KEY_REMAINDERS);
-                    if (keyRemainder.length == 0) return ("", ProofError.INVALID_KEY_REMAINDER);
-                    return _validateLastItem(node.decoded[1], trieProof.length, i);
+                if (keyIndex == keyExpanded.length) {
+                    return _validateLastItem(node.decoded[EVM_TREE_RADIX], proof.length, i);
+                } else {
+                    root = _getNodeId(node.decoded[uint8(keyExpanded[keyIndex])]);
+                    keyIndex += 1;
                 }
-                // Extension node (non-terminal) - validate shared path & continue to next node
-                uint256 sharedNibbleLength = _sharedNibbleLength(pathRemainder, keyRemainder);
-                // Path must match at least partially with our key
-                if (sharedNibbleLength == 0) return ("", ProofError.INVALID_PATH_REMAINDER);
-                // Increment keyIndex by the number of nibbles consumed and continue traversal
-                (nodeId, keyIndex) = (_id(node.decoded[1]), keyIndex + sharedNibbleLength);
+            } else if (nodeLength == LEAF_OR_EXTENSION_NODE_LENGTH) {
+                bytes memory path = _nibbles(node.decoded[0].readBytes());
+                uint8 prefix = uint8(path[0]);
+                Memory.Slice pathRemainder = path.asSlice().slice(2 - (prefix % 2)); // Path after the prefix
+                Memory.Slice keyRemainder = keyExpanded.asSlice().slice(keyIndex); // Remaining key to match
+
+                if (prefix == uint8(Prefix.EXTENSION_EVEN) || prefix == uint8(Prefix.EXTENSION_ODD)) {
+                    // Extension node (non-terminal) - validate shared path & continue to next node
+                    uint256 shared = _commonPrefixLength(pathRemainder, keyRemainder);
+
+                    // Path must match at least partially with our key
+                    if (shared == 0) return (bytes32(0), ProofError.INVALID_PATH_REMAINDER);
+
+                    // Increment keyIndex by the number of nibbles consumed and continue traversal
+                    root = _getNodeId(node.decoded[1]);
+                    keyIndex += shared;
+                } else if (prefix == uint8(Prefix.LEAF_EVEN) || prefix == uint8(Prefix.LEAF_ODD)) {
+                    // Leaf node (terminal) - return its value if key matches completely
+                    if (pathRemainder.getHash() != keyRemainder.getHash()) {
+                        return (bytes32(0), ProofError.MISMATCH_LEAF_PATH_KEY_REMAINDERS);
+                    } else if (keyRemainder.length() == 0) {
+                        return (bytes32(0), ProofError.INVALID_KEY_REMAINDER);
+                    } else {
+                        return _validateLastItem(node.decoded[1], proof.length, i);
+                    }
+                } else {
+                    return (bytes32(0), ProofError.UNKNOWN_NODE_PREFIX);
+                }
+            } else {
+                return (bytes32(0), ProofError.UNPARSEABLE_NODE);
             }
+
+            // Reset memory before next iteration. Deallocates `node` and `path`.
+            Memory.setFreeMemoryPointer(fmp);
         }
 
         // If we've gone through all proof elements without finding a value, the proof is invalid
-        return ("", ProofError.INVALID_PROOF);
-    }
-
-    /// @dev Validates the node hashes at different levels of the proof.
-    function _validateNodeHashes(
-        bytes memory nodeId,
-        Node memory node,
-        uint256 keyIndex
-    ) private pure returns (ProofError) {
-        if (keyIndex == 0) {
-            if (!bytes.concat(keccak256(node.encoded)).equal(nodeId)) return ProofError.INVALID_ROOT_HASH; // Root node must match root hash
-        } else if (node.encoded.length >= 32) {
-            if (!bytes.concat(keccak256(node.encoded)).equal(nodeId)) return ProofError.INVALID_LARGE_INTERNAL_HASH; // Large nodes are stored as hashes
-        } else if (!node.encoded.equal(nodeId)) {
-            return ProofError.INVALID_INTERNAL_NODE_HASH; // Small nodes must match directly
-        }
-        return ProofError.NO_ERROR; // No error
-    }
-
-    /// @dev Extract prefix, path remainder, and key remainder from a leaf or extension node.
-    function _extract(
-        Node memory node,
-        bytes memory key,
-        uint256 keyIndex
-    ) private pure returns (uint8 prefix, bytes memory pathRemainder, bytes memory keyRemainder) {
-        bytes memory path = _path(node);
-        prefix = uint8(path[0]);
-        if (prefix > uint8(type(Prefix).max)) return (type(uint8).max, "", "");
-        uint8 offset = 2 - (prefix % 2); // Calculate offset based on even/odd path length
-        pathRemainder = Bytes.slice(path, offset); // Path after the prefix
-        keyRemainder = Bytes.slice(key, keyIndex); // Remaining key to match
-        return (prefix, pathRemainder, keyRemainder);
+        return (bytes32(0), ProofError.INVALID_PROOF);
     }
 
     /**
@@ -190,22 +153,17 @@ library TrieProof {
         Memory.Slice item,
         uint256 trieProofLength,
         uint256 i
-    ) private pure returns (bytes memory value, ProofError) {
-        bytes memory value_ = item.readBytes();
-        if (value_.length == 0) return ("", ProofError.EMPTY_VALUE);
-        if (i != trieProofLength - 1) return ("", ProofError.INVALID_EXTRA_PROOF_ELEMENT);
-        return (value_, ProofError.NO_ERROR);
-    }
-
-    /**
-     * @dev Converts raw proof bytes into structured Node objects with RLP parsing.
-     * Transforms each proof element into a Node with both encoded and decoded forms.
-     */
-    function _decodeProof(bytes[] memory proof) private pure returns (Node[] memory proof_) {
-        uint256 length = proof.length;
-        proof_ = new Node[](length);
-        for (uint256 i = 0; i < length; i++) {
-            proof_[i] = Node(proof[i], proof[i].decodeList());
+    ) private pure returns (bytes32, ProofError) {
+        bytes memory value = item.readBytes();
+        if (i != trieProofLength - 1) {
+            return (bytes32(0), ProofError.INVALID_EXTRA_PROOF_ELEMENT);
+        } else if (value.length == 0) {
+            return (bytes32(0), ProofError.EMPTY_VALUE);
+        } else if (value.length > 32) {
+            // TODO: check length is <= 32 ? What error ?
+            return (bytes32(0), ProofError.EMPTY_VALUE);
+        } else {
+            return (bytes32(value), ProofError.NO_ERROR);
         }
     }
 
@@ -213,28 +171,23 @@ library TrieProof {
      * @dev Extracts the node ID (hash or raw data based on size).
      * For small nodes (<32 bytes), returns the raw bytes; for large nodes, returns the hash.
      */
-    function _id(Memory.Slice node) private pure returns (bytes memory) {
-        bytes memory raw = node.readBytes();
-        return raw.length <= 32 ? raw : bytes.concat(keccak256(raw));
+    function _getNodeId(Memory.Slice node) private pure returns (bytes32) {
+        // TODO: for some values of length, we should use `node.readBytesHash()`
+        // The "long" case is currently not covered by tests
+        return node.length() <= 33 ? node.readBytes32() : node.readBytesHash();
     }
 
     /**
-     * @dev Extracts the path from a leaf or extension node.
-     * The path is stored as the first element in the node's decoded array.
-     */
-    function _path(Node memory node) private pure returns (bytes memory) {
-        return _nibbles(node.decoded[0].readBytes());
-    }
-
-    /**
-     * @dev Calculates the number of shared nibbles between two byte arrays.
+     * @dev Calculates the length of the longest common prefix between two memory slices.
      * Used to determine how much of a path matches a key during trie traversal.
      */
-    function _sharedNibbleLength(bytes memory _a, bytes memory _b) private pure returns (uint256 shared_) {
-        uint256 min = Math.min(_a.length, _b.length);
-        uint256 length;
-        while (length < min && _a[length] == _b[length]) {
-            length++;
+    function _commonPrefixLength(Memory.Slice a, Memory.Slice b) private pure returns (uint256) {
+        uint256 length = Math.min(a.length(), b.length());
+        for (uint256 i; i < length; i += 32) {
+            bytes32 chunk = a.load(i) ^ b.load(i);
+            if (chunk != bytes32(0)) {
+                return Math.min(length, i + Math.clz(uint256(chunk)) / 8);
+            }
         }
         return length;
     }
