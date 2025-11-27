@@ -8,10 +8,10 @@ import {BridgeERC20Core} from "../../../crosschain/bridges/BridgeERC20Core.sol";
 /**
  * @dev Extension of {ERC20} that makes it natively cross-chain using the ERC-7786 based {BridgeERC20Core}.
  *
- * This extension makes the token compatible with:
- * * {ERC20Crosschain} instances on other chains,
- * * {ERC20} instances on other chains that are bridged using {BridgeERC20},
- * * {ERC20Bridgeable} instances on other chains that are bridged using {BridgeERC7802}.
+ * This extension makes the token compatible with counterparts on other chains, which can be:
+ * * {ERC20Crosschain} instances,
+ * * {ERC20} instances that are bridged using {BridgeERC20},
+ * * {ERC20Bridgeable} instances that are bridged using {BridgeERC7802}.
  *
  * It is mostly equivalent to inheriting from both {ERC20Bridgeable} and {BridgeERC7802}, and configuring them such
  * that:
@@ -20,7 +20,7 @@ import {BridgeERC20Core} from "../../../crosschain/bridges/BridgeERC20Core.sol";
  */
 // slither-disable-next-line locked-ether
 abstract contract ERC20Crosschain is ERC20, BridgeERC20Core {
-    /// @dev TransferFrom variant of {crosschainTransferFrom}, using ERC20 allowance from the sender to the caller.
+    /// @dev Variant of {crosschainTransfer} that allows an authorized account (using ERC20 allowance) to operate on `from`'s assets.
     function crosschainTransferFrom(address from, bytes memory to, uint256 amount) public virtual returns (bytes32) {
         _spendAllowance(from, msg.sender, amount);
         return _crosschainTransfer(from, to, amount);
