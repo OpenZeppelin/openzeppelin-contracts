@@ -208,6 +208,12 @@ library RLP {
      *                               DECODING - READ FROM AN RLP ENCODED MEMORY SLICE                               *
      ****************************************************************************************************************/
 
+    /// @dev Get length of the encoded object
+    function readLength(Memory.Slice item) internal pure returns (uint256) {
+        (, uint256 length, ) = _decodeLength(item);
+        return length;
+    }
+
     /// @dev Decode an RLP encoded bool. See {encode-bool}
     function readBool(Memory.Slice item) internal pure returns (bool) {
         return readUint256(item) != 0;

@@ -171,7 +171,7 @@ library TrieProof {
     function _getNodeId(Memory.Slice node) private pure returns (bytes32) {
         // TODO: for some values of length, we should use `node.readBytesHash()`
         // The "long" case is currently not covered by tests
-        return node.length() <= 33 ? node.readBytes32() : node.readBytesHash();
+        return node.readLength() <= 32 ? node.readBytes32() : node.readBytesHash();
     }
 
     /**
