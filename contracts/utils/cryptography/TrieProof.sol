@@ -2,7 +2,6 @@
 pragma solidity ^0.8.27;
 
 import {Bytes} from "../Bytes.sol";
-import {Strings} from "../Strings.sol";
 import {RLP} from "../RLP.sol";
 import {Math} from "../math/Math.sol";
 import {Memory} from "../Memory.sol";
@@ -17,7 +16,6 @@ library TrieProof {
     using Bytes for bytes;
     using RLP for *;
     using Memory for Memory.Slice;
-    using Strings for string;
 
     enum Prefix {
         EXTENSION_EVEN, // 0 - Extension node with even length path
@@ -50,6 +48,7 @@ library TrieProof {
 
     /// @dev The radix of the Ethereum trie (hexadecimal = 16)
     uint256 internal constant EVM_TREE_RADIX = 16;
+
     /// @dev Number of items in leaf or extension nodes (always 2)
     uint256 internal constant LEAF_OR_EXTENSION_NODE_LENGTH = 2;
 
@@ -75,7 +74,7 @@ library TrieProof {
         uint256 radix
     ) internal pure returns (bool) {
         (bytes memory processedValue, ProofError err) = processProof(key, proof, root, radix);
-        return string(processedValue).equal(string(value)) && err == ProofError.NO_ERROR;
+        return processedValue.equal(value) && err == ProofError.NO_ERROR;
     }
 
     /// @dev Processes a proof for a given key using default Ethereum radix (16) and returns the processed value.
@@ -135,8 +134,7 @@ library TrieProof {
                 if (prefix == type(uint8).max) return ("", ProofError.UNKNOWN_NODE_PREFIX);
                 // Leaf node (terminal) - return its value if key matches completely
                 if (Prefix(prefix) == Prefix.LEAF_EVEN || Prefix(prefix) == Prefix.LEAF_ODD) {
-                    if (!string(pathRemainder).equal(string(keyRemainder)))
-                        return ("", ProofError.MISMATCH_LEAF_PATH_KEY_REMAINDERS);
+                    if (!pathRemainder.equal(keyRemainder)) return ("", ProofError.MISMATCH_LEAF_PATH_KEY_REMAINDERS);
                     if (keyRemainder.length == 0) return ("", ProofError.INVALID_KEY_REMAINDER);
                     return _validateLastItem(node.decoded[1], trieProof.length, i);
                 }
@@ -160,12 +158,10 @@ library TrieProof {
         uint256 keyIndex
     ) private pure returns (ProofError) {
         if (keyIndex == 0) {
-            if (!string(bytes.concat(keccak256(node.encoded))).equal(string(nodeId)))
-                return ProofError.INVALID_ROOT_HASH; // Root node must match root hash
+            if (!bytes.concat(keccak256(node.encoded)).equal(nodeId)) return ProofError.INVALID_ROOT_HASH; // Root node must match root hash
         } else if (node.encoded.length >= 32) {
-            if (!string(bytes.concat(keccak256(node.encoded))).equal(string(nodeId)))
-                return ProofError.INVALID_LARGE_INTERNAL_HASH; // Large nodes are stored as hashes
-        } else if (!string(node.encoded).equal(string(nodeId))) {
+            if (!bytes.concat(keccak256(node.encoded)).equal(nodeId)) return ProofError.INVALID_LARGE_INTERNAL_HASH; // Large nodes are stored as hashes
+        } else if (!node.encoded.equal(nodeId)) {
             return ProofError.INVALID_INTERNAL_NODE_HASH; // Small nodes must match directly
         }
         return ProofError.NO_ERROR; // No error
