@@ -20,8 +20,8 @@ import {CrosschainLinked} from "../CrosschainLinked.sol";
 abstract contract BridgeERC20Core is CrosschainLinked {
     using InteroperableAddress for bytes;
 
-    event CrossChainTransferSent(bytes32 indexed sendId, address indexed from, bytes to, uint256 amount);
-    event CrossChainTransferReceived(bytes32 indexed receiveId, bytes from, address indexed to, uint256 amount);
+    event CrosschainERC20TransferSent(bytes32 indexed sendId, address indexed from, bytes to, uint256 amount);
+    event CrosschainERC20TransferReceived(bytes32 indexed receiveId, bytes from, address indexed to, uint256 amount);
 
     /**
      * @dev Transfer `amount` tokens to a crosschain receiver.
@@ -49,7 +49,7 @@ abstract contract BridgeERC20Core is CrosschainLinked {
             new bytes[](0)
         );
 
-        emit CrossChainTransferSent(sendId, from, to, amount);
+        emit CrosschainERC20TransferSent(sendId, from, to, amount);
 
         return sendId;
     }
@@ -67,7 +67,7 @@ abstract contract BridgeERC20Core is CrosschainLinked {
 
         _onReceive(to, amount);
 
-        emit CrossChainTransferReceived(receiveId, from, to, amount);
+        emit CrosschainERC20TransferReceived(receiveId, from, to, amount);
     }
 
     /// @dev Virtual function: implementation is required to handle token being burnt or locked on the source chain.

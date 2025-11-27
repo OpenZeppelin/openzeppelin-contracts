@@ -37,12 +37,12 @@ function shouldBehaveLikeBridgeERC20({ chainAIsCustodial = false, chainBIsCustod
       .to.emit(this.tokenA, 'Transfer')
       .withArgs(alice, chainAIsCustodial ? this.bridgeA : ethers.ZeroAddress, amount)
       // crosschain transfer sent
-      .to.emit(this.bridgeA, 'CrossChainTransferSent')
+      .to.emit(this.bridgeA, 'CrosschainERC20TransferSent')
       .withArgs(anyValue, alice, this.chain.toErc7930(bruce), amount)
       // ERC-7786 event
       .to.emit(this.gateway, 'MessageSent')
       // crosschain transfer received
-      .to.emit(this.bridgeB, 'CrossChainTransferReceived')
+      .to.emit(this.bridgeB, 'CrosschainERC20TransferReceived')
       .withArgs(anyValue, this.chain.toErc7930(alice), bruce, amount)
       // crosschain mint event
       .to.emit(this.tokenB, 'CrosschainMint')
@@ -60,12 +60,12 @@ function shouldBehaveLikeBridgeERC20({ chainAIsCustodial = false, chainBIsCustod
       .to.emit(this.tokenB, 'CrosschainBurn')
       .withArgs(bruce, amount, this.bridgeB)
       // crosschain transfer sent
-      .to.emit(this.bridgeB, 'CrossChainTransferSent')
+      .to.emit(this.bridgeB, 'CrosschainERC20TransferSent')
       .withArgs(anyValue, bruce, this.chain.toErc7930(chris), amount)
       // ERC-7786 event
       .to.emit(this.gateway, 'MessageSent')
       // crosschain transfer received
-      .to.emit(this.bridgeA, 'CrossChainTransferReceived')
+      .to.emit(this.bridgeA, 'CrosschainERC20TransferReceived')
       .withArgs(anyValue, this.chain.toErc7930(bruce), chris, amount)
       // bridge on chain A releases custody of the funds
       .to.emit(this.tokenA, 'Transfer')
@@ -114,7 +114,7 @@ function shouldBehaveLikeBridgeERC20({ chainAIsCustodial = false, chainBIsCustod
       // first time works
       await expect(
         this.bridgeA.connect(this.gatewayAsEOA).receiveMessage(id, this.chain.toErc7930(this.bridgeB), payload),
-      ).to.emit(this.bridgeA, 'CrossChainTransferReceived');
+      ).to.emit(this.bridgeA, 'CrosschainERC20TransferReceived');
 
       // second time fails
       await expect(
