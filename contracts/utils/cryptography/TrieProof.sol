@@ -50,16 +50,13 @@ library TrieProof {
     /// @dev Number of items in leaf or extension nodes (always 2)
     uint256 internal constant LEAF_OR_EXTENSION_NODE_LENGTH = 2;
 
-    /**
-     * @dev Verifies a `proof` against a given `key`, `value`, `and root` hash
-     * using the default Ethereum radix (16).
-     */
+    /// @dev Verifies a `proof` against a given `key`, `value`, `and root` hash.
     function verify(bytes memory key, bytes32 value, bytes[] memory proof, bytes32 root) internal pure returns (bool) {
         (bytes32 processedValue, ProofError err) = processProof(key, proof, root);
         return processedValue == value && err == ProofError.NO_ERROR;
     }
 
-    /// @dev Processes a proof for a given key using default Ethereum radix (16) and returns the processed value.
+    /// @dev Processes a proof for a given key and returns the processed value.
     function processProof(
         bytes memory key,
         bytes[] memory proof,
@@ -169,7 +166,7 @@ library TrieProof {
 
     /**
      * @dev Extracts the node ID (hash or raw data based on size).
-     * For small nodes (<32 bytes), returns the raw bytes; for large nodes, returns the hash.
+     * For small nodes (<=32 bytes), returns the raw bytes; for large nodes, returns the hash.
      */
     function _getNodeId(Memory.Slice node) private pure returns (bytes32) {
         // TODO: for some values of length, we should use `node.readBytesHash()`
