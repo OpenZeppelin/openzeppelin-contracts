@@ -54,7 +54,7 @@ async function fixture(anvilProcess) {
       tx ? ethers.toBeHex(tx[anvil].blockNumber) : 'latest',
     ]);
     const { key, value, proof } = storageProof[0];
-    return { key, value: ethers.zeroPadBytes(value, 32), proof, storageHash };
+    return { key, value: ethers.zeroPadValue(value, 32), proof, storageHash };
   };
 
   return {

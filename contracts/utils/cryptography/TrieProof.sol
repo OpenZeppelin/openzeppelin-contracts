@@ -100,7 +100,8 @@ library TrieProof {
                 if (keyIndex == keyExpanded.length) {
                     return _validateLastItem(node.decoded[EVM_TREE_RADIX], proof.length, i);
                 } else {
-                    root = node.decoded[uint8(keyExpanded[keyIndex])].readBytes32();
+                    bytes1 branchKey = keyExpanded[keyIndex];
+                    root = node.decoded[uint8(branchKey)].readBytes32();
                     keyIndex += 1;
                 }
             } else if (nodeLength == LEAF_OR_EXTENSION_NODE_LENGTH) {
@@ -152,15 +153,16 @@ library TrieProof {
         uint256 trieProofLength,
         uint256 i
     ) private pure returns (bytes32, ProofError) {
-        bytes memory value = item.readBytes();
+        uint256 length = item.readLength();
         if (i != trieProofLength - 1) {
             return (bytes32(0), ProofError.INVALID_EXTRA_PROOF_ELEMENT);
-        } else if (value.length == 0) {
+        } else if (length == 0) {
             return (bytes32(0), ProofError.EMPTY_VALUE);
-        } else if (value.length > 32) {
+        } else if (length > 32) {
             return (bytes32(0), ProofError.TOO_LARGE_VALUE);
         } else {
-            return (bytes32(value), ProofError.NO_ERROR);
+            // TODO: if length is between 1 and 31, how should the result be aligned ?
+            return (item.readBytes32(), ProofError.NO_ERROR);
         }
     }
 
