@@ -83,22 +83,16 @@ library Heap {
             uint256 size = length(self);
             if (size == 0) Panic.panic(Panic.EMPTY_ARRAY_POP);
 
-            // fast path: single element, avoid redundant write and sifting
-            if (size == 1) {
-                uint256 rootValueSingle = self.tree.unsafeAccess(0).value;
-                self.tree.pop();
-                return rootValueSingle;
-            }
-
             // cache
             uint256 rootValue = self.tree.unsafeAccess(0).value;
-            uint256 lastValue = self.tree.unsafeAccess(size - 1).value;
-
-            // swap last leaf with root, shrink tree and re-heapify
-            self.tree.pop();
-            self.tree.unsafeAccess(0).value = lastValue;
-            _siftDown(self, size - 1, 0, lastValue, comp);
-
+            if (size == 1) {
+                self.tree.pop();
+            } else {
+                // swap last leaf with root, shrink tree and re-heapify
+                uint256 lastValue = self.tree.unsafeAccess(0).value = self.tree.unsafeAccess(size - 1).value;
+                self.tree.pop();
+                _siftDown(self, size - 1, 0, lastValue, comp);
+            }
             return rootValue;
         }
     }
