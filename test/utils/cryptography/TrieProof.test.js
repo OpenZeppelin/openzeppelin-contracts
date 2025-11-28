@@ -54,7 +54,7 @@ async function fixture(anvilProcess) {
       tx ? ethers.toBeHex(tx[anvil].blockNumber) : 'latest',
     ]);
     const { key, value, proof } = storageProof[0];
-    return { key, value: ethers.zeroPadValue(value, 32), proof, storageHash };
+    return { key, value: ethers.zeroPadBytes(value, 32), proof, storageHash };
   };
 
   return {
@@ -266,6 +266,30 @@ describe('TrieProof', function () {
         ProofError.INVALID_PROOF,
       ]);
     });
+  });
+
+  describe('Optimism contract-bedrock unit tests', function () {
+    for (const { title, root, key, value, proof, error } of [
+      {
+        title: 'validProof1',
+        root: '0xd582f99275e227a1cf4284899e5ff06ee56da8859be71b553397c69151bc942f',
+        key: '0x6b6579326262',
+        value: '0x6176616c32',
+        proof: [
+          '0xe68416b65793a03101b4447781f1e6c51ce76c709274fc80bd064f3a58ff981b6015348a826386',
+          '0xf84580a0582eed8dd051b823d13f8648cdcd08aa2d8dac239f458863c4620e8c4d605debca83206262856176616c32ca83206363856176616c3380808080808080808080808080',
+          '0xca83206262856176616c32',
+        ],
+        error: ProofError.NO_ERROR,
+      },
+    ]) {
+      it(title, async function () {
+        await expect(this.mock.$processProof(key, proof, root)).to.eventually.deep.equal([
+          ethers.zeroPadBytes(value, 32),
+          error,
+        ]);
+      });
+    }
   });
 });
 

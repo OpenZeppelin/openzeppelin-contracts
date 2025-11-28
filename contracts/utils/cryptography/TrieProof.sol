@@ -101,7 +101,7 @@ library TrieProof {
                     return _validateLastItem(node.decoded[EVM_TREE_RADIX], proof.length, i);
                 } else {
                     bytes1 branchKey = keyExpanded[keyIndex];
-                    root = node.decoded[uint8(branchKey)].readBytes32();
+                    root = _getNodeId(node.decoded[uint8(branchKey)]);
                     keyIndex += 1;
                 }
             } else if (nodeLength == LEAF_OR_EXTENSION_NODE_LENGTH) {
@@ -118,7 +118,7 @@ library TrieProof {
                     if (shared == 0) return (bytes32(0), ProofError.INVALID_PATH_REMAINDER);
 
                     // Increment keyIndex by the number of nibbles consumed and continue traversal
-                    root = node.decoded[1].readBytes32();
+                    root = _getNodeId(node.decoded[1]);
                     keyIndex += shared;
                 } else if (prefix == uint8(Prefix.LEAF_EVEN) || prefix == uint8(Prefix.LEAF_ODD)) {
                     // Leaf node (terminal) - return its value if key matches completely
@@ -153,17 +153,27 @@ library TrieProof {
         uint256 trieProofLength,
         uint256 i
     ) private pure returns (bytes32, ProofError) {
-        uint256 length = item.readLength();
+        bytes memory value = item.readBytes();
+
         if (i != trieProofLength - 1) {
             return (bytes32(0), ProofError.INVALID_EXTRA_PROOF_ELEMENT);
-        } else if (length == 0) {
+        } else if (value.length == 0) {
             return (bytes32(0), ProofError.EMPTY_VALUE);
-        } else if (length > 32) {
+        } else if (value.length > 32) {
             return (bytes32(0), ProofError.TOO_LARGE_VALUE);
         } else {
-            // TODO: if length is between 1 and 31, how should the result be aligned ?
-            return (item.readBytes32(), ProofError.NO_ERROR);
+            return (bytes32(value), ProofError.NO_ERROR);
         }
+    }
+
+    /**
+     * @dev Extracts the node ID (hash or raw data based on size)
+     *
+     * For small nodes (encoded length <= 32 bytes) the node ID is the node content itself,
+     * For larger nodes, the node ID is the hash of the encoded node data.
+     */
+    function _getNodeId(Memory.Slice node) private pure returns (bytes32) {
+        return node.length() < 32 ? node.load(0) : node.readBytes32();
     }
 
     /**
