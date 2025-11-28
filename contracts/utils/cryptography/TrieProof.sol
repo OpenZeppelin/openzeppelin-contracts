@@ -169,9 +169,8 @@ library TrieProof {
      * For small nodes (<=32 bytes), returns the raw bytes; for large nodes, returns the hash.
      */
     function _getNodeId(Memory.Slice node) private pure returns (bytes32) {
-        // TODO: for some values of length, we should use `node.readBytesHash()`
-        // The "long" case is currently not covered by tests
-        return node.readLength() <= 32 ? node.readBytes32() : node.readBytesHash();
+        // TODO: in most cases length will be 33, and encode a bytes32. Anything longer than that is not supported. Is it needed ?
+        return node.length() < 32 ? node.load(0) : node.readBytes32();
     }
 
     /**
