@@ -268,10 +268,11 @@ describe('TrieProof', function () {
     });
   });
 
+  // Unit tests from https://github.com/ethereum-optimism/optimism/blob/ef970556e668b271a152124023a8d6bb5159bacf/packages/contracts-bedrock/test/libraries/trie/MerkleTrie.t.sol
   describe('Optimism contract-bedrock unit tests', function () {
     for (const { title, root, key, value, proof, error } of [
       {
-        title: 'validProof1',
+        title: 'test_get_validProof1_succeeds',
         root: '0xd582f99275e227a1cf4284899e5ff06ee56da8859be71b553397c69151bc942f',
         key: '0x6b6579326262',
         value: '0x6176616c32',
@@ -280,13 +281,103 @@ describe('TrieProof', function () {
           '0xf84580a0582eed8dd051b823d13f8648cdcd08aa2d8dac239f458863c4620e8c4d605debca83206262856176616c32ca83206363856176616c3380808080808080808080808080',
           '0xca83206262856176616c32',
         ],
-        error: ProofError.NO_ERROR,
       },
+      // test_get_validProof2_succeeds
+      // test_get_validProof3_succeeds
+      {
+        title: 'test_get_validProof4_succeeds',
+        root: '0x37956bab6bba472308146808d5311ac19cb4a7daae5df7efcc0f32badc97f55e',
+        key: '0x6b6579316161',
+        value: '0x3031323334',
+        proof: ['0xce87206b6579316161853031323334'],
+      },
+      // test_get_validProof5_succeeds
+      {
+        title: 'test_get_validProof6_succeeds',
+        root: '0xcb65032e2f76c48b82b5c24b3db8f670ce73982869d38cd39a624f23d62a9e89',
+        key: '0x6b657932',
+        value: '0x73686f7274',
+        proof: [
+          '0xe68416b65793a0f3f387240403976788281c0a6ee5b3fc08360d276039d635bb824ea7e6fed779',
+          '0xf87180a034d14ccc7685aa2beb64f78b11ee2a335eae82047ef97c79b7dda7f0732b9f4ca05fb052b64e23d177131d9f32e9c5b942209eb7229e9a07c99a5d93245f53af18a09a137197a43a880648d5887cce656a5e6bbbe5e44ecb4f264395ccaddbe1acca80808080808080808080808080',
+          '0xdf808080808080c9823262856176616c338080808080808080808573686f7274',
+        ],
+      },
+      {
+        title: 'test_get_validProof7_succeeds',
+        root: '0xcb65032e2f76c48b82b5c24b3db8f670ce73982869d38cd39a624f23d62a9e89',
+        key: '0x6b657933',
+        value: '0x31323334353637383930313233343536373839303132333435363738393031',
+        proof: [
+          '0xe68416b65793a0f3f387240403976788281c0a6ee5b3fc08360d276039d635bb824ea7e6fed779',
+          '0xf87180a034d14ccc7685aa2beb64f78b11ee2a335eae82047ef97c79b7dda7f0732b9f4ca05fb052b64e23d177131d9f32e9c5b942209eb7229e9a07c99a5d93245f53af18a09a137197a43a880648d5887cce656a5e6bbbe5e44ecb4f264395ccaddbe1acca80808080808080808080808080',
+          '0xf839808080808080c9823363856176616c338080808080808080809f31323334353637383930313233343536373839303132333435363738393031',
+        ],
+      },
+      // test_get_validProof8_succeeds
+      // test_get_validProof9_succeeds
+      // test_get_validProof10_succeeds
+      {
+        title: 'test_get_nonexistentKey1_reverts',
+        root: '0xd582f99275e227a1cf4284899e5ff06ee56da8859be71b553397c69151bc942f',
+        key: '0x6b657932',
+        proof: [
+          '0xe68416b65793a03101b4447781f1e6c51ce76c709274fc80bd064f3a58ff981b6015348a826386',
+          '0xf84580a0582eed8dd051b823d13f8648cdcd08aa2d8dac239f458863c4620e8c4d605debca83206262856176616c32ca83206363856176616c3380808080808080808080808080',
+          '0xca83206262856176616c32',
+        ],
+        error: ProofError.MISMATCH_LEAF_PATH_KEY_REMAINDERS,
+      },
+      // test_get_nonexistentKey2_reverts
+      {
+        title: 'test_get_wrongKeyProof_reverts',
+        root: '0x2858eebfa9d96c8a9e6a0cae9d86ec9189127110f132d63f07d3544c2a75a696',
+        key: '0x6b6579316161',
+        proof: [
+          '0xe216a04892c039d654f1be9af20e88ae53e9ab5fa5520190e0fb2f805823e45ebad22f',
+          '0xf84780d687206e6f746865728d33343938683472697568677765808080808080808080a0854405b57aa6dc458bc41899a761cbbb1f66a4998af6dd0e8601c1b845395ae38080808080',
+          '0xd687206e6f746865728d33343938683472697568677765',
+        ],
+        error: ProofError.INVALID_INTERNAL_NODE_HASH,
+      },
+      // test_get_corruptedProof_reverts
+      // test_get_invalidDataRemainder_reverts
+      // test_get_invalidInternalNodeHash_reverts
+      {
+        title: 'test_get_zeroBranchValueLength_reverts',
+        root: '0xe04b3589eef96b237cd49ccb5dcf6e654a47682bfa0961d563ab843f7ad1e035',
+        key: '0xaa',
+        proof: [
+          '0xdd8200aad98080808080808080808080c43b82aabbc43c82aacc80808080',
+          '0xd98080808080808080808080c43b82aabbc43c82aacc80808080',
+        ],
+        error: ProofError.EMPTY_VALUE,
+      },
+      {
+        title: 'test_get_zeroLengthKey_reverts',
+        root: '0x54157fd62cdf2f474e7bfec2d3cd581e807bee38488c9590cb887add98936b73',
+        key: '0x',
+        proof: ['0xc78320f00082b443'],
+        error: ProofError.EMPTY_KEY,
+      },
+      {
+        title: 'test_get_smallerPathThanKey1_reverts',
+        root: '0xa513ba530659356fb7588a2c831944e80fd8aedaa5a4dc36f918152be2be0605',
+        key: '0x01',
+        proof: [
+          '0xdb10d9c32081bbc582202381aa808080808080808080808080808080',
+          '0xd9c32081bbc582202381aa808080808080808080808080808080',
+          '0xc582202381aa',
+        ],
+        error: ProofError.MISMATCH_LEAF_PATH_KEY_REMAINDERS,
+      },
+      // test_get_smallerPathThanKey2_reverts
+      // test_get_extraProofElements_reverts
     ]) {
       it(title, async function () {
         await expect(this.mock.$processProof(key, proof, root)).to.eventually.deep.equal([
-          ethers.zeroPadBytes(value, 32),
-          error,
+          ethers.zeroPadBytes(value ?? ethers.ZeroHash, 32),
+          error ?? ProofError.NO_ERROR,
         ]);
       });
     }
