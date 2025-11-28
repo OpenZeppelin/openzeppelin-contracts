@@ -88,9 +88,12 @@ library Heap {
             if (size == 1) {
                 self.tree.pop();
             } else {
-                // swap last leaf with root, shrink tree and re-heapify
-                uint256 lastValue = self.tree.unsafeAccess(0).value = self.tree.unsafeAccess(size - 1).value;
+                // swap last leaf with root ...
+                uint256 lastValue = self.tree.unsafeAccess(size - 1).value;
+                self.tree.unsafeAccess(0).value = lastValue;
+                // ... shrink tree ...
                 self.tree.pop();
+                // ... re-heapify
                 _siftDown(self, size - 1, 0, lastValue, comp);
             }
             return rootValue;
