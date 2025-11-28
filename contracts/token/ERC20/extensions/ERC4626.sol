@@ -55,7 +55,7 @@ import {Math} from "../../../utils/math/Math.sol";
  * functions. Overriding {_deposit} automatically affects both {deposit} and {mint}. Similarly, overriding {_withdraw}
  * automatically affects both {withdraw} and {redeem}. Overall it is not recommended to override the public facing
  * functions since that could lead to inconsistent behaviors between the {deposit} and {mint} or between {withdraw} and
- * {redeem}, which is documented to have lead to loss of funds.
+ * {redeem}, which is documented to have led to loss of funds.
  *
  * * Overrides to the deposit or withdraw mechanism must be reflected in the preview functions as well.
  *
