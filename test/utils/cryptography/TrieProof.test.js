@@ -355,9 +355,15 @@ describe('TrieProof', function () {
           '0xf84580a0582eed8dd051b823d13f8648cdcd08aa2d8dac239f458863c4620e8c4d605debca83206262856176616c32ca83206363856176616c3380808080808080808080808080',
           '0xca83206262856176616c32',
         ],
-        error: ProofError.MISMATCH_LEAF_PATH_KEY_REMAINDERS,
+        error: ProofError.INVALID_PATH_REMAINDER,
       },
-      // test_get_nonexistentKey2_reverts
+      {
+        title: 'test_get_nonexistentKey2_reverts',
+        root: '0xd582f99275e227a1cf4284899e5ff06ee56da8859be71b553397c69151bc942f',
+        key: '0x616e7972616e646f6d6b6579',
+        proof: ['0xe68416b65793a03101b4447781f1e6c51ce76c709274fc80bd064f3a58ff981b6015348a826386'],
+        error: ProofError.INVALID_PATH_REMAINDER,
+      },
       {
         title: 'test_get_wrongKeyProof_reverts',
         root: '0x2858eebfa9d96c8a9e6a0cae9d86ec9189127110f132d63f07d3544c2a75a696',
@@ -369,9 +375,9 @@ describe('TrieProof', function () {
         ],
         error: ProofError.INVALID_INTERNAL_NODE_HASH,
       },
-      // test_get_corruptedProof_reverts
-      // test_get_invalidDataRemainder_reverts
-      // test_get_invalidInternalNodeHash_reverts
+      // test_get_corruptedProof_reverts - RLP Encoding
+      // test_get_invalidDataRemainder_reverts - RLP Encoding
+      // test_get_invalidInternalNodeHash_reverts - Error with ignored trailing zeros
       {
         title: 'test_get_zeroBranchValueLength_reverts',
         root: '0xe04b3589eef96b237cd49ccb5dcf6e654a47682bfa0961d563ab843f7ad1e035',
@@ -398,10 +404,31 @@ describe('TrieProof', function () {
           '0xd9c32081bbc582202381aa808080808080808080808080808080',
           '0xc582202381aa',
         ],
-        error: ProofError.MISMATCH_LEAF_PATH_KEY_REMAINDERS,
+        error: ProofError.INVALID_PATH_REMAINDER,
       },
-      // test_get_smallerPathThanKey2_reverts
-      // test_get_extraProofElements_reverts
+      {
+        title: 'test_get_smallerPathThanKey2_reverts',
+        root: '0xa06abffaec4ebe8ccde595f4547b864b4421b21c1fc699973f94710c9bc17979',
+        key: '0xaa',
+        proof: [
+          '0xe21aa07ea462226a3dc0a46afb4ded39306d7a84d311ada3557dfc75a909fd25530905',
+          '0xf380808080808080808080a027f11bd3af96d137b9287632f44dd00fea1ca1bd70386c30985ede8cc287476e808080c220338080',
+          '0xe48200bba0a6911545ed01c2d3f4e15b8b27c7bfba97738bd5e6dd674dd07033428a4c53af',
+        ],
+        error: ProofError.INVALID_PATH_REMAINDER,
+      },
+      {
+        title: 'test_get_smallerPathThanKey2_reverts',
+        root: '0x278c88eb59beba4f8b94f940c41614bb0dd80c305859ebffcd6ce07c93ca3749',
+        key: '0xaa',
+        proof: [
+          '0xd91ad780808080808080808080c32081aac32081ab8080808080',
+          '0xd780808080808080808080c32081aac32081ab8080808080',
+          '0xc32081aa',
+          '0xc32081aa',
+        ],
+        error: ProofError.INVALID_EXTRA_PROOF_ELEMENT,
+      },
     ]) {
       it(title, async function () {
         await expect(this.mock.$processProof(key, proof, root)).to.eventually.deep.equal([

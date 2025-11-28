@@ -72,7 +72,8 @@ library TrieProof {
 
         // Process proof
         uint256 keyIndex = 0;
-        for (uint256 i = 0; i < proof.length; ++i) {
+        uint256 proofLength = proof.length;
+        for (uint256 i = 0; i < proofLength; ++i) {
             Node memory node = Node(proof[i], proof[i].decodeList());
 
             // ensure we haven't overshot the key
@@ -97,7 +98,7 @@ library TrieProof {
                 // If we've consumed the entire key, the value must be in the last slot
                 // Otherwise, continue down the branch specified by the next nibble in the key
                 if (keyIndex == keyExpanded.length) {
-                    return _validateLastItem(node.decoded[EVM_TREE_RADIX], proof.length, i);
+                    return _validateLastItem(node.decoded[EVM_TREE_RADIX], proofLength, i);
                 } else {
                     bytes1 branchKey = keyExpanded[keyIndex];
                     root = _getNodeId(node.decoded[uint8(branchKey)]);
@@ -109,22 +110,25 @@ library TrieProof {
                 Memory.Slice pathRemainder = path.asSlice().slice(2 - (prefix % 2)); // Path after the prefix
                 Memory.Slice keyRemainder = keyExpanded.asSlice().slice(keyIndex); // Remaining key to match
 
+                // pathRemainder must not be longer than keyRemainder, and it must be a prefix of it
+                if (
+                    pathRemainder.length() > keyRemainder.length() ||
+                    pathRemainder.getHash() != keyRemainder.slice(0, pathRemainder.length()).getHash()
+                ) {
+                    return (bytes32(0), ProofError.INVALID_PATH_REMAINDER);
+                }
+
                 if (prefix == uint8(Prefix.EXTENSION_EVEN) || prefix == uint8(Prefix.EXTENSION_ODD)) {
-                    // Extension node (non-terminal) - validate shared path & continue to next node
-                    uint256 shared = _commonPrefixLength(pathRemainder, keyRemainder);
-
-                    // Path must match at least partially with our key
-                    if (shared == 0) return (bytes32(0), ProofError.INVALID_PATH_REMAINDER);
-
                     // Increment keyIndex by the number of nibbles consumed and continue traversal
                     root = _getNodeId(node.decoded[1]);
-                    keyIndex += shared;
+                    keyIndex += pathRemainder.length();
                 } else if (prefix == uint8(Prefix.LEAF_EVEN) || prefix == uint8(Prefix.LEAF_ODD)) {
                     // Leaf node (terminal) - return its value if key matches completely
-                    if (pathRemainder.getHash() != keyRemainder.getHash()) {
+                    // we already knwo that pathRemainder is a prefix of keyRemainder, so checking the length sufficient
+                    if (pathRemainder.length() != keyRemainder.length()) {
                         return (bytes32(0), ProofError.MISMATCH_LEAF_PATH_KEY_REMAINDERS);
                     } else {
-                        return _validateLastItem(node.decoded[1], proof.length, i);
+                        return _validateLastItem(node.decoded[1], proofLength, i);
                     }
                 } else {
                     return (bytes32(0), ProofError.UNKNOWN_NODE_PREFIX);
@@ -166,7 +170,7 @@ library TrieProof {
     /**
      * @dev Extracts the node ID (hash or raw data based on size)
      *
-     * For small nodes (encoded length <= 32 bytes) the node ID is the node content itself,
+     * For small nodes (encoded length < 32 bytes) the node ID is the node content itself,
      * For larger nodes, the node ID is the hash of the encoded node data.
      */
     function _getNodeId(Memory.Slice node) private pure returns (bytes32) {
