@@ -112,7 +112,7 @@ library MessageHashUtils {
      * * Bit 4 (0x10): salt
      *
      * Arguments that correspond to fields which are not present in `fields` are ignored. For example, if `fields` is
-     * `0x0f` (`0x01111`), then the `salt` parameter is ignored.
+     * `0x0f` (`0b01111`), then the `salt` parameter is ignored.
      */
     function toDomainSeparator(
         bytes1 fields,
