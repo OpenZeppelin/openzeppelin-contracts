@@ -100,7 +100,7 @@ library TrieProof {
                 if (keyIndex == keyExpanded.length) {
                     return _validateLastItem(node.decoded[EVM_TREE_RADIX], proof.length, i);
                 } else {
-                    root = _getNodeId(node.decoded[uint8(keyExpanded[keyIndex])]);
+                    root = node.decoded[uint8(keyExpanded[keyIndex])].readBytes32();
                     keyIndex += 1;
                 }
             } else if (nodeLength == LEAF_OR_EXTENSION_NODE_LENGTH) {
@@ -117,7 +117,7 @@ library TrieProof {
                     if (shared == 0) return (bytes32(0), ProofError.INVALID_PATH_REMAINDER);
 
                     // Increment keyIndex by the number of nibbles consumed and continue traversal
-                    root = _getNodeId(node.decoded[1]);
+                    root = node.decoded[1].readBytes32();
                     keyIndex += shared;
                 } else if (prefix == uint8(Prefix.LEAF_EVEN) || prefix == uint8(Prefix.LEAF_ODD)) {
                     // Leaf node (terminal) - return its value if key matches completely
@@ -162,15 +162,6 @@ library TrieProof {
         } else {
             return (bytes32(value), ProofError.NO_ERROR);
         }
-    }
-
-    /**
-     * @dev Extracts the node ID (hash or raw data based on size).
-     * For small nodes (<=32 bytes), returns the raw bytes; for large nodes, returns the hash.
-     */
-    function _getNodeId(Memory.Slice node) private pure returns (bytes32) {
-        // TODO: in most cases length will be 33, and encode a bytes32. Anything longer than that is not supported. Is it needed ?
-        return node.length() < 32 ? node.load(0) : node.readBytes32();
     }
 
     /**
