@@ -15,6 +15,7 @@ const ProofError = Enum(
   'INVALID_LARGE_INTERNAL_HASH',
   'INVALID_INTERNAL_NODE_HASH',
   'EMPTY_VALUE',
+  'TOO_LARGE_VALUE',
   'INVALID_EXTRA_PROOF_ELEMENT',
   'MISMATCH_LEAF_PATH_KEY_REMAINDERS',
   'INVALID_PATH_REMAINDER',
@@ -177,6 +178,20 @@ describe('TrieProof', function () {
       await expect(this.mock.$processProof('0x00', proof, ethers.keccak256(proof[0]))).to.eventually.deep.equal([
         ethers.ZeroHash,
         ProofError.EMPTY_VALUE,
+      ]);
+    });
+
+    it('fails to process proof with too large value', async function () {
+      const proof = [
+        ethers.encodeRlp([
+          '0x2000',
+          ethers.id('valid value') + '2bad', // value length > 32 bytes
+        ]),
+      ];
+
+      await expect(this.mock.$processProof('0x00', proof, ethers.keccak256(proof[0]))).to.eventually.deep.equal([
+        ethers.ZeroHash,
+        ProofError.TOO_LARGE_VALUE,
       ]);
     });
 

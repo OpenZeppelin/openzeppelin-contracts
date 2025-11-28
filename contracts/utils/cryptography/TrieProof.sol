@@ -30,6 +30,7 @@ library TrieProof {
         INVALID_LARGE_INTERNAL_HASH, // Internal node hash exceeds expected size
         INVALID_INTERNAL_NODE_HASH, // Internal node hash doesn't match expected value
         EMPTY_VALUE, // The value to verify is empty
+        TOO_LARGE_VALUE, // The value to verify is too large
         INVALID_EXTRA_PROOF_ELEMENT, // Proof contains unexpected additional elements
         MISMATCH_LEAF_PATH_KEY_REMAINDERS, // Leaf path remainder doesn't match key remainder
         INVALID_PATH_REMAINDER, // Path remainder doesn't match expected value
@@ -157,8 +158,7 @@ library TrieProof {
         } else if (value.length == 0) {
             return (bytes32(0), ProofError.EMPTY_VALUE);
         } else if (value.length > 32) {
-            // TODO: check length is <= 32 ? What error ?
-            return (bytes32(0), ProofError.EMPTY_VALUE);
+            return (bytes32(0), ProofError.TOO_LARGE_VALUE);
         } else {
             return (bytes32(value), ProofError.NO_ERROR);
         }
