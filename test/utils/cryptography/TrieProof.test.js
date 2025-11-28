@@ -170,7 +170,17 @@ describe('TrieProof', function () {
       ]);
     });
 
-    it.skip('fails to process proof with invalid internal short node', async function () {}); // TODO: INVALID_INTERNAL_NODE_HASH
+    it('fails to process proof with invalid internal short node', async function () {
+      const proof = [
+        ethers.encodeRlp(['0x0000', '0x2bad']), // corrupt internal short node
+        ethers.encodeRlp(['0x2000', '0x']),
+      ];
+
+      await expect(this.mock.$processProof('0x00', proof, ethers.keccak256(proof[0]))).to.eventually.deep.equal([
+        ethers.ZeroHash,
+        ProofError.INVALID_INTERNAL_NODE_HASH,
+      ]);
+    });
 
     it('fails to process proof with empty value', async function () {
       const proof = [ethers.encodeRlp(['0x2000', '0x'])];
@@ -196,12 +206,10 @@ describe('TrieProof', function () {
     });
 
     it('fails to process proof with invalid extra proof', async function () {
-      const slot0 = ethers.ZeroHash;
-      const tx = await call(this.storage, 'setUint256Slot', [slot0, 42]);
-      const { key, proof, storageHash } = await this.getProof(this.storage, slot0, tx);
+      const proof = [ethers.encodeRlp(['0x2000', '0x'])];
       proof[1] = ethers.encodeRlp([]); // extra proof element
 
-      await expect(this.mock.$processProof(ethers.keccak256(key), proof, storageHash)).to.eventually.deep.equal([
+      await expect(this.mock.$processProof('0x00', proof, ethers.keccak256(proof[0]))).to.eventually.deep.equal([
         ethers.ZeroHash,
         ProofError.INVALID_EXTRA_PROOF_ELEMENT,
       ]);
