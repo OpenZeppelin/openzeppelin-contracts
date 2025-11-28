@@ -29,7 +29,7 @@ async function fixture() {
   ]);
 
   // ERC-4337 Entrypoint domain
-  const entrypointDomain = await getDomain(predeploy.entrypoint.v08);
+  const entrypointDomain = await getDomain(predeploy.entrypoint.v09);
 
   return { helper, validator, mock, entrypointDomain, signer, target, anotherTarget, other };
 }

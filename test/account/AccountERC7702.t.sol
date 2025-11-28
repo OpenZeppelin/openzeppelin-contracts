@@ -48,7 +48,7 @@ contract AccountERC7702Test is Test {
         vm.signAndAttachDelegation(address(new AccountERC7702MockConstructor()), _signerPrivateKey);
 
         // Setup entrypoint
-        address entrypoint = address(ERC4337Utils.ENTRYPOINT_V08);
+        address entrypoint = address(ERC4337Utils.ENTRYPOINT_V09);
         vm.deal(entrypoint, MAX_ETH);
         vm.etch(
             entrypoint,
@@ -62,7 +62,10 @@ contract AccountERC7702Test is Test {
         );
     }
 
-    function testExecuteBatch(uint256 argA, uint256 argB) public {
+    function testExecuteBatch(address bundler, uint256 argA, uint256 argB) public {
+        vm.assume(bundler.code.length == 0);
+        vm.startPrank(bundler, bundler);
+
         // Create the mode for batch execution
         Mode mode = ERC7579Utils.CALLTYPE_BATCH.encodeMode(
             ERC7579Utils.EXECTYPE_DEFAULT,
@@ -97,7 +100,7 @@ contract AccountERC7702Test is Test {
         });
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(
             _signerPrivateKey,
-            IEntryPointExtra(address(ERC4337Utils.ENTRYPOINT_V08)).getUserOpHash(ops[0])
+            IEntryPointExtra(address(ERC4337Utils.ENTRYPOINT_V09)).getUserOpHash(ops[0])
         );
         ops[0].signature = abi.encodePacked(r, s, v);
 
