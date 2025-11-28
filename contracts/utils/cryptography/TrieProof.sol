@@ -124,7 +124,7 @@ library TrieProof {
                     keyIndex += pathRemainder.length();
                 } else if (prefix == uint8(Prefix.LEAF_EVEN) || prefix == uint8(Prefix.LEAF_ODD)) {
                     // Leaf node (terminal) - return its value if key matches completely
-                    // we already knwo that pathRemainder is a prefix of keyRemainder, so checking the length sufficient
+                    // we already know that pathRemainder is a prefix of keyRemainder, so checking the length sufficient
                     if (pathRemainder.length() != keyRemainder.length()) {
                         return (bytes32(0), ProofError.MISMATCH_LEAF_PATH_KEY_REMAINDERS);
                     } else {
