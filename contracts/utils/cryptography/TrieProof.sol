@@ -34,7 +34,6 @@ library TrieProof {
         INVALID_EXTRA_PROOF_ELEMENT, // Proof contains unexpected additional elements
         MISMATCH_LEAF_PATH_KEY_REMAINDERS, // Leaf path remainder doesn't match key remainder
         INVALID_PATH_REMAINDER, // Path remainder doesn't match expected value
-        INVALID_KEY_REMAINDER, // Key remainder doesn't match expected value
         UNKNOWN_NODE_PREFIX, // Node prefix is not recognized
         UNPARSEABLE_NODE, // Node cannot be parsed from RLP encoding
         INVALID_PROOF // General proof validation failure
@@ -124,8 +123,6 @@ library TrieProof {
                     // Leaf node (terminal) - return its value if key matches completely
                     if (pathRemainder.getHash() != keyRemainder.getHash()) {
                         return (bytes32(0), ProofError.MISMATCH_LEAF_PATH_KEY_REMAINDERS);
-                    } else if (keyRemainder.length() == 0) {
-                        return (bytes32(0), ProofError.INVALID_KEY_REMAINDER);
                     } else {
                         return _validateLastItem(node.decoded[1], proof.length, i);
                     }

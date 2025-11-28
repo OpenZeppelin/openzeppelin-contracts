@@ -19,7 +19,6 @@ const ProofError = Enum(
   'INVALID_EXTRA_PROOF_ELEMENT',
   'MISMATCH_LEAF_PATH_KEY_REMAINDERS',
   'INVALID_PATH_REMAINDER',
-  'INVALID_KEY_REMAINDER',
   'UNKNOWN_NODE_PREFIX',
   'UNPARSEABLE_NODE',
   'INVALID_PROOF',
@@ -282,8 +281,8 @@ describe('TrieProof', function () {
           '0xca83206262856176616c32',
         ],
       },
-      // test_get_validProof2_succeeds
-      // test_get_validProof3_succeeds
+      // test_get_validProof2_succeeds - TOO_LARGE_VALUE
+      // test_get_validProof3_succeeds - TOO_LARGE_VALUE
       {
         title: 'test_get_validProof4_succeeds',
         root: '0x37956bab6bba472308146808d5311ac19cb4a7daae5df7efcc0f32badc97f55e',
@@ -291,7 +290,7 @@ describe('TrieProof', function () {
         value: '0x3031323334',
         proof: ['0xce87206b6579316161853031323334'],
       },
-      // test_get_validProof5_succeeds
+      // test_get_validProof5_succeeds - TOO_LARGE_VALUE
       {
         title: 'test_get_validProof6_succeeds',
         root: '0xcb65032e2f76c48b82b5c24b3db8f670ce73982869d38cd39a624f23d62a9e89',
@@ -314,9 +313,39 @@ describe('TrieProof', function () {
           '0xf839808080808080c9823363856176616c338080808080808080809f31323334353637383930313233343536373839303132333435363738393031',
         ],
       },
-      // test_get_validProof8_succeeds
-      // test_get_validProof9_succeeds
-      // test_get_validProof10_succeeds
+      {
+        title: 'test_get_validProof8_succeeds',
+        root: '0x72e6c01ad0c9a7b517d4bc68a5b323287fe80f0e68f5415b4b95ecbc8ad83978',
+        key: '0x61',
+        value: '0x61',
+        proof: [
+          '0xd916d780c22061c22062c2206380808080808080808080808080',
+          '0xd780c22061c22062c2206380808080808080808080808080',
+          '0xc22061',
+        ],
+      },
+      {
+        title: 'test_get_validProof9_succeeds',
+        root: '0x72e6c01ad0c9a7b517d4bc68a5b323287fe80f0e68f5415b4b95ecbc8ad83978',
+        key: '0x62',
+        value: '0x62',
+        proof: [
+          '0xd916d780c22061c22062c2206380808080808080808080808080',
+          '0xd780c22061c22062c2206380808080808080808080808080',
+          '0xc22062',
+        ],
+      },
+      {
+        title: 'test_get_validProof10_succeeds',
+        root: '0x72e6c01ad0c9a7b517d4bc68a5b323287fe80f0e68f5415b4b95ecbc8ad83978',
+        key: '0x63',
+        value: '0x63',
+        proof: [
+          '0xd916d780c22061c22062c2206380808080808080808080808080',
+          '0xd780c22061c22062c2206380808080808080808080808080',
+          '0xc22063',
+        ],
+      },
       {
         title: 'test_get_nonexistentKey1_reverts',
         root: '0xd582f99275e227a1cf4284899e5ff06ee56da8859be71b553397c69151bc942f',
