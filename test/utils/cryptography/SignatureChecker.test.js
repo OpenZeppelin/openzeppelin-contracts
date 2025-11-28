@@ -58,7 +58,12 @@ describe('SignatureChecker (ERC1271)', function () {
   });
 
   describe('ERC1271 wallet', function () {
-    for (const fn of ['isValidERC1271SignatureNow', 'isValidSignatureNow', 'isValidSignatureNowCalldata']) {
+    for (const fn of [
+      'isValidERC1271SignatureNow',
+      'isValidERC1271SignatureNowCalldata',
+      'isValidSignatureNow',
+      'isValidSignatureNowCalldata',
+    ]) {
       describe(fn, function () {
         it('with matching signer and signature', async function () {
           await expect(
