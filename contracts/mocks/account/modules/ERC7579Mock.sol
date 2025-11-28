@@ -3,9 +3,10 @@
 pragma solidity ^0.8.24;
 
 import {
-    MODULE_TYPE_HOOK,
-    MODULE_TYPE_FALLBACK,
     MODULE_TYPE_VALIDATOR,
+    MODULE_TYPE_EXECUTOR,
+    MODULE_TYPE_FALLBACK,
+    MODULE_TYPE_HOOK,
     IERC7579Hook,
     IERC7579Module,
     IERC7579Validator
@@ -35,6 +36,12 @@ abstract contract ERC7579ModuleMock is IERC7579Module {
 
     function isModuleType(uint256 moduleTypeId) external view returns (bool) {
         return moduleTypeId == _moduleTypeId;
+    }
+}
+
+abstract contract ERC7579ModuleMaliciousMock is ERC7579ModuleMock {
+    function onUninstall(bytes calldata /*data*/) public virtual override {
+        revert("uninstall reverts");
     }
 }
 
