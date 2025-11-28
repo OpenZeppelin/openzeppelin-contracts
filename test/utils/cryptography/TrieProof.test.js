@@ -170,27 +170,30 @@ describe('TrieProof', function () {
     });
 
     it('fails to process proof with invalid internal short node', async function () {
+      const key = '0x00';
       const proof = [
         ethers.encodeRlp(['0x0000', '0x2bad']), // corrupt internal short node
         ethers.encodeRlp(['0x2000', '0x']),
       ];
 
-      await expect(this.mock.$processProof('0x00', proof, ethers.keccak256(proof[0]))).to.eventually.deep.equal([
+      await expect(this.mock.$processProof(key, proof, ethers.keccak256(proof[0]))).to.eventually.deep.equal([
         ethers.ZeroHash,
         ProofError.INVALID_INTERNAL_NODE_HASH,
       ]);
     });
 
     it('fails to process proof with empty value', async function () {
+      const key = '0x00';
       const proof = [ethers.encodeRlp(['0x2000', '0x'])];
 
-      await expect(this.mock.$processProof('0x00', proof, ethers.keccak256(proof[0]))).to.eventually.deep.equal([
+      await expect(this.mock.$processProof(key, proof, ethers.keccak256(proof[0]))).to.eventually.deep.equal([
         ethers.ZeroHash,
         ProofError.EMPTY_VALUE,
       ]);
     });
 
     it('fails to process proof with too large value', async function () {
+      const key = '0x00';
       const proof = [
         ethers.encodeRlp([
           '0x2000',
@@ -198,62 +201,87 @@ describe('TrieProof', function () {
         ]),
       ];
 
-      await expect(this.mock.$processProof('0x00', proof, ethers.keccak256(proof[0]))).to.eventually.deep.equal([
+      await expect(this.mock.$processProof(key, proof, ethers.keccak256(proof[0]))).to.eventually.deep.equal([
         ethers.ZeroHash,
         ProofError.TOO_LARGE_VALUE,
       ]);
     });
 
     it('fails to process proof with invalid extra proof', async function () {
-      const proof = [ethers.encodeRlp(['0x2000', '0x'])];
-      proof[1] = ethers.encodeRlp([]); // extra proof element
+      const key = '0x00';
+      const proof = [
+        ethers.encodeRlp(['0x2000', '0x']),
+        ethers.encodeRlp([]), // extra proof element
+      ];
 
-      await expect(this.mock.$processProof('0x00', proof, ethers.keccak256(proof[0]))).to.eventually.deep.equal([
+      await expect(this.mock.$processProof(key, proof, ethers.keccak256(proof[0]))).to.eventually.deep.equal([
         ethers.ZeroHash,
         ProofError.INVALID_EXTRA_PROOF_ELEMENT,
       ]);
     });
 
-    it('fails to process proof with mismatched leaf path and key remainders', async function () {
-      const slot = ethers.ZeroHash;
-      const key = ethers.keccak256(slot);
-      const value = '0x2a';
-      const proof = [
-        ethers.encodeRlp([
-          '0x20' + ethers.toBeHex(BigInt(key) + 1n).replace('0x', ''), // corrupt end of leaf path
-          value,
-        ]),
-      ];
+    describe('fails to process proof with mismatched leaf path and key remainders', function () {
+      it('path is not a prefix of key', async function () {
+        const key = '0xabcd';
+        const proof = [
+          ethers.encodeRlp([
+            '0x02abce', // Prefix.LEAF_EVEN + '0xabce' (not a prefix of 'abcd')
+            '0x2a', // value
+          ]),
+        ];
 
-      await expect(this.mock.$processProof(key, proof, ethers.keccak256(proof[0]))).to.eventually.deep.equal([
-        ethers.ZeroHash,
-        ProofError.MISMATCH_LEAF_PATH_KEY_REMAINDERS,
-      ]);
+        await expect(this.mock.$processProof(key, proof, ethers.keccak256(proof[0]))).to.eventually.deep.equal([
+          ethers.ZeroHash,
+          ProofError.INVALID_PATH_REMAINDER,
+        ]);
+      });
+
+      it('path is longer than key', async function () {
+        const key = '0xabcd';
+        const proof = [
+          ethers.encodeRlp([
+            '0x030abcde', // Prefix.LEAF_ODD + '0xabcde' (not a prefix of 'abcd')
+            '0x2a', // value
+          ]),
+        ];
+
+        await expect(this.mock.$processProof(key, proof, ethers.keccak256(proof[0]))).to.eventually.deep.equal([
+          ethers.ZeroHash,
+          ProofError.INVALID_PATH_REMAINDER,
+        ]);
+      });
+
+      it('key not fully consumed', async function () {
+        const key = '0xabcd';
+        const proof = [
+          ethers.encodeRlp([
+            '0x3abc', // Prefix.LEAF_ODD + '0xabc' (a prefix of 'abcd' that doesn't consume the d)
+            '0x2a', // value
+          ]),
+        ];
+
+        await expect(this.mock.$processProof(key, proof, ethers.keccak256(proof[0]))).to.eventually.deep.equal([
+          ethers.ZeroHash,
+          ProofError.MISMATCH_LEAF_PATH_KEY_REMAINDERS,
+        ]);
+      });
     });
-
-    it('fails to process proof with invalid path remainder', async function () {
-      const proof = [ethers.encodeRlp(['0x0011', '0x'])];
-
-      await expect(
-        this.mock.$processProof(ethers.ZeroHash, proof, ethers.keccak256(proof[0])),
-      ).to.eventually.deep.equal([ethers.ZeroHash, ProofError.INVALID_PATH_REMAINDER]);
-    });
-
-    it.skip('fails to process proof with invalid key remainder', async function () {}); // TODO: INVALID_KEY_REMAINDER
 
     it('fails to process proof with unknown node prefix', async function () {
+      const key = '0x00';
       const proof = [ethers.encodeRlp(['0x40', '0x'])];
 
-      await expect(this.mock.$processProof('0x00', proof, ethers.keccak256(proof[0]))).to.eventually.deep.equal([
+      await expect(this.mock.$processProof(key, proof, ethers.keccak256(proof[0]))).to.eventually.deep.equal([
         ethers.ZeroHash,
         ProofError.UNKNOWN_NODE_PREFIX,
       ]);
     });
 
     it('fails to process proof with unparsable node', async function () {
+      const key = '0x00';
       const proof = [ethers.encodeRlp(['0x00', '0x00', '0x00'])];
 
-      await expect(this.mock.$processProof('0x00', proof, ethers.keccak256(proof[0]))).to.eventually.deep.equal([
+      await expect(this.mock.$processProof(key, proof, ethers.keccak256(proof[0]))).to.eventually.deep.equal([
         ethers.ZeroHash,
         ProofError.UNPARSEABLE_NODE,
       ]);
@@ -280,6 +308,17 @@ describe('TrieProof', function () {
           '0xf84580a0582eed8dd051b823d13f8648cdcd08aa2d8dac239f458863c4620e8c4d605debca83206262856176616c32ca83206363856176616c3380808080808080808080808080',
           '0xca83206262856176616c32',
         ],
+      },
+      {
+        title: 'test_get_validProof1_succeeds - modified with invalid short node',
+        root: '0xd582f99275e227a1cf4284899e5ff06ee56da8859be71b553397c69151bc942f',
+        key: '0x6b6579326262',
+        proof: [
+          '0xe68416b65793a03101b4447781f1e6c51ce76c709274fc80bd064f3a58ff981b6015348a826386',
+          '0xf84580a0582eed8dd051b823d13f8648cdcd08aa2d8dac239f458863c4620e8c4d605debca83206262856176616c32ca83206363856176616c3380808080808080808080808080',
+          '0xca83206262856176616c33',
+        ],
+        error: ProofError.INVALID_INTERNAL_NODE_HASH,
       },
       // test_get_validProof2_succeeds - TOO_LARGE_VALUE
       // test_get_validProof3_succeeds - TOO_LARGE_VALUE
