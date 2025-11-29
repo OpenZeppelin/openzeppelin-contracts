@@ -72,6 +72,9 @@ library TrieProof {
         // Expand the key
         bytes memory keyExpanded = _nibbles(key);
 
+        bytes32 currentNodeId = root;
+        uint256 currentNodeIdLength = 32;
+
         // Free memory pointer cache
         Memory.Pointer fmp = Memory.getFreeMemoryPointer();
 
@@ -89,13 +92,16 @@ library TrieProof {
             // validates the node hashes at different levels of the proof.
             if (keyIndex == 0) {
                 // Root node must match root hash
-                if (keccak256(node.encoded) != root) return ("", ProofError.INVALID_ROOT_HASH);
+                if (currentNodeIdLength != 32 || keccak256(node.encoded) != currentNodeId)
+                    return ("", ProofError.INVALID_ROOT_HASH);
             } else if (node.encoded.length >= 32) {
                 // Large nodes are stored as hashes
-                if (keccak256(node.encoded) != root) return ("", ProofError.INVALID_LARGE_INTERNAL_HASH);
+                if (currentNodeIdLength != 32 || keccak256(node.encoded) != currentNodeId)
+                    return ("", ProofError.INVALID_LARGE_INTERNAL_HASH);
             } else {
                 // Small nodes must match directly
-                if (bytes32(node.encoded) != root) return ("", ProofError.INVALID_INTERNAL_NODE_HASH);
+                if (currentNodeIdLength != node.encoded.length || bytes32(node.encoded) != currentNodeId)
+                    return ("", ProofError.INVALID_INTERNAL_NODE_HASH);
             }
 
             uint256 nodeLength = node.decoded.length;
@@ -106,7 +112,7 @@ library TrieProof {
                     return _validateLastItem(node.decoded[EVM_TREE_RADIX], proofLength, i);
                 } else {
                     bytes1 branchKey = keyExpanded[keyIndex];
-                    root = _getNodeId(node.decoded[uint8(branchKey)]);
+                    (currentNodeId, currentNodeIdLength) = _getNodeId(node.decoded[uint8(branchKey)]);
                     keyIndex += 1;
                 }
             } else if (nodeLength == LEAF_OR_EXTENSION_NODE_LENGTH) {
@@ -125,7 +131,7 @@ library TrieProof {
 
                 if (prefix == uint8(Prefix.EXTENSION_EVEN) || prefix == uint8(Prefix.EXTENSION_ODD)) {
                     // Increment keyIndex by the number of nibbles consumed and continue traversal
-                    root = _getNodeId(node.decoded[1]);
+                    (currentNodeId, currentNodeIdLength) = _getNodeId(node.decoded[1]);
                     keyIndex += pathRemainder.length();
                 } else if (prefix == uint8(Prefix.LEAF_EVEN) || prefix == uint8(Prefix.LEAF_ODD)) {
                     // Leaf node (terminal) - return its value if key matches completely
@@ -176,8 +182,9 @@ library TrieProof {
      * For small nodes (encoded length < 32 bytes) the node ID is the node content itself,
      * For larger nodes, the node ID is the hash of the encoded node data.
      */
-    function _getNodeId(Memory.Slice node) private pure returns (bytes32) {
-        return node.length() < 32 ? node.load(0) : node.readBytes32();
+    function _getNodeId(Memory.Slice node) private pure returns (bytes32 nodeId, uint256 nodeIdLength) {
+        nodeIdLength = Math.min(node.length(), 32);
+        nodeId = nodeIdLength < 32 ? node.load(0) : node.readBytes32();
     }
 
     /**

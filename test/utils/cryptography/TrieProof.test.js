@@ -296,18 +296,25 @@ describe('TrieProof', function () {
         ],
       },
       {
-        title: 'test_get_validProof1_succeeds - modified with invalid short node',
+        title: 'test_get_validProof2_succeeds',
         root: '0xd582f99275e227a1cf4284899e5ff06ee56da8859be71b553397c69151bc942f',
-        key: '0x6b6579326262',
+        key: '0x6b6579316161',
+        value: '0x303132333435363738393031323334353637383930313233343536373839303132333435363738397878',
         proof: [
           '0xe68416b65793a03101b4447781f1e6c51ce76c709274fc80bd064f3a58ff981b6015348a826386',
           '0xf84580a0582eed8dd051b823d13f8648cdcd08aa2d8dac239f458863c4620e8c4d605debca83206262856176616c32ca83206363856176616c3380808080808080808080808080',
-          '0xca83206262856176616c33',
+          '0xef83206161aa303132333435363738393031323334353637383930313233343536373839303132333435363738397878',
         ],
-        error: ProofError.INVALID_INTERNAL_NODE_HASH,
       },
-      // test_get_validProof2_succeeds - TOO_LARGE_VALUE
-      // test_get_validProof3_succeeds - TOO_LARGE_VALUE
+      {
+        title: 'test_get_validProof3_succeeds',
+        root: '0xf838216fa749aefa91e0b672a9c06d3e6e983f913d7107b5dab4af60b5f5abed',
+        key: '0x6b6579316161',
+        value: '0x303132333435363738393031323334353637383930313233343536373839303132333435363738397878',
+        proof: [
+          '0xf387206b6579316161aa303132333435363738393031323334353637383930313233343536373839303132333435363738397878',
+        ],
+      },
       {
         title: 'test_get_validProof4_succeeds',
         root: '0x37956bab6bba472308146808d5311ac19cb4a7daae5df7efcc0f32badc97f55e',
@@ -315,7 +322,17 @@ describe('TrieProof', function () {
         value: '0x3031323334',
         proof: ['0xce87206b6579316161853031323334'],
       },
-      // test_get_validProof5_succeeds - TOO_LARGE_VALUE
+      {
+        title: 'test_get_validProof5_succeeds',
+        root: '0xcb65032e2f76c48b82b5c24b3db8f670ce73982869d38cd39a624f23d62a9e89',
+        key: '0x6b657931',
+        value: '0x30313233343536373839303132333435363738393031323334353637383930313233343536373839566572795f4c6f6e67',
+        proof: [
+          '0xe68416b65793a0f3f387240403976788281c0a6ee5b3fc08360d276039d635bb824ea7e6fed779',
+          '0xf87180a034d14ccc7685aa2beb64f78b11ee2a335eae82047ef97c79b7dda7f0732b9f4ca05fb052b64e23d177131d9f32e9c5b942209eb7229e9a07c99a5d93245f53af18a09a137197a43a880648d5887cce656a5e6bbbe5e44ecb4f264395ccaddbe1acca80808080808080808080808080',
+          '0xf862808080808080a057895fdbd71e2c67c2f9274a56811ff5cf458720a7fa713a135e3890f8cafcf8808080808080808080b130313233343536373839303132333435363738393031323334353637383930313233343536373839566572795f4c6f6e67',
+        ],
+      },
       {
         title: 'test_get_validProof6_succeeds',
         root: '0xcb65032e2f76c48b82b5c24b3db8f670ce73982869d38cd39a624f23d62a9e89',
@@ -402,7 +419,17 @@ describe('TrieProof', function () {
       },
       // test_get_corruptedProof_reverts - RLP Encoding
       // test_get_invalidDataRemainder_reverts - RLP Encoding
-      // test_get_invalidInternalNodeHash_reverts - Error with ignored trailing zeros
+      {
+        title: 'test_get_invalidInternalNodeHash_reverts',
+        root: '0xa827dff1a657bb9bb9a1c3abe9db173e2f1359f15eb06f1647ea21ac7c95d8fa',
+        key: '0xaa',
+        proof: [
+          '0xe21aa09862c6b113008c4204c13755693cbb868acc25ebaa98db11df8c89a0c0dd3157',
+          '0xf380808080808080808080a0de2a9c6a46b6ea71ab9e881c8420570cf19e833c85df6026b04f085016e78f00c220118080808080',
+          '0xde2a9c6a46b6ea71ab9e881c8420570cf19e833c85df6026b04f085016e78f',
+        ],
+        error: ProofError.INVALID_INTERNAL_NODE_HASH,
+      },
       {
         title: 'test_get_zeroBranchValueLength_reverts',
         root: '0xe04b3589eef96b237cd49ccb5dcf6e654a47682bfa0961d563ab843f7ad1e035',
