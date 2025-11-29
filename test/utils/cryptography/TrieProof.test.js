@@ -3,10 +3,8 @@ const { expect } = require('chai');
 const { spawn } = require('child_process');
 
 const { Enum } = require('../../helpers/enums');
+const { generators } = require('../../helpers/random');
 
-const hardhat = 'hardhat';
-const anvil = 'anvil';
-const anvilPort = 8546;
 const ProofError = Enum(
   'NO_ERROR',
   'EMPTY_KEY',
@@ -23,109 +21,74 @@ const ProofError = Enum(
   'INVALID_PROOF',
 );
 
-const ZeroBytes = '0x';
-
-// Method eth_getProof is not supported with default Hardhat Network, so Anvil is used for that.
-async function fixture(anvilProcess) {
-  // Wait for Anvil to be ready
-  await new Promise(resolve => {
-    anvilProcess.stdout.once('data', resolve);
-  });
-  if (process.env.ANVIL_LOGS === 'true') {
-    anvilProcess.stdout.on('data', function (data) {
-      console.log(data.toString()); // optional logging
-    });
-  }
-  const [provider, account, storage] = [{}, {}, {}];
-  // Setup and deploy contracts on both Hardhat and Anvil networks.
-  for (const providerType of [hardhat, anvil]) {
-    provider[providerType] =
-      providerType === anvil ? new ethers.JsonRpcProvider(`http://localhost:${anvilPort}`) : ethers.provider;
-    account[providerType] = await provider[providerType].getSigner(0);
-    storage[providerType] = await ethers.deployContract('StorageSlotMock', account[providerType]);
-  }
-
-  const mock = await ethers.deployContract('$TrieProof', account[hardhat]); // only required on hardhat network
-
-  const getProof = async function (contract, slot, tx) {
-    const { storageHash, storageProof } = await this.provider[anvil].send('eth_getProof', [
-      contract[anvil].target,
-      [slot],
-      tx ? ethers.toBeHex(tx[anvil].blockNumber) : 'latest',
-    ]);
-    const { key, value, proof } = storageProof[0];
-    return { key, value, proof, storageHash };
-  };
-
-  return {
-    anvilProcess,
-    provider,
-    account,
-    storage,
-    mock,
-    getProof,
-  };
-}
+const ZeroBytes = generators.bytes.zero;
 
 describe('TrieProof', function () {
-  beforeEach(async function () {
-    this.anvilProcess = await startAnvil(); // assign as soon as possible to allow killing in case fixture fails
-    Object.assign(this, await fixture(this.anvilProcess));
+  before('start anvil node', async function () {
+    const port = 8546;
+
+    // start process
+    this.process = await spawn('anvil', ['--port', port], { timeout: 30000 });
+    await new Promise(resolve => this.process.stdout.once('data', resolve));
+
+    // get anvil provider, and deploy storage helper
+    const anvilProvider = new ethers.JsonRpcProvider(`http://localhost:${port}`);
+    this.storage = await anvilProvider.getSigner(0).then(signer => ethers.deployContract('StorageSlotMock', signer));
+    this.getProof = ({ provider = anvilProvider, address = this.storage.target, slot, blockNumber = 'latest' }) =>
+      provider
+        .send('eth_getProof', [address, [slot], blockNumber])
+        .then(({ storageHash, storageProof: [{ key, value, proof }] }) => ({ storageHash, key, value, proof }));
+
+    // deploy mock on the hardhat network
+    this.mock = await ethers.deployContract('$TrieProof');
   });
 
-  afterEach(async function () {
-    if (this.anvilProcess) {
-      this.anvilProcess.kill();
-    }
+  after('stop anvil node', async function () {
+    this.process.kill();
   });
 
-  describe('verify proof', function () {
-    it('returns true with proof size 1 (even leaf [0x20])', async function () {
-      const slot = ethers.ZeroHash;
-      await call(this.storage, 'setUint256Slot', [slot, 42]);
-      const { key, value, proof, storageHash } = await this.getProof(this.storage, slot);
+  describe('verify', function () {
+    describe('returns true for valid storage proof', function () {
+      it('returns true with proof size 1 (even leaf [0x20])', async function () {
+        this.slots = {
+          '0x0000000000000000000000000000000000000000000000000000000000000000': 42n, // 0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e563
+        };
+      });
 
-      await expect(this.mock.$verify(ethers.keccak256(key), value, proof, storageHash)).to.eventually.be.true;
-    });
+      it('returns true with proof size 2 (branch then odd leaf [0x3])', async function () {
+        this.slots = {
+          '0x0000000000000000000000000000000000000000000000000000000000000000': 42n, // 0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e563
+          '0x0000000000000000000000000000000000000000000000000000000000000001': 43n, // 0xb10e2d527612073b26eecdfd717e6a320cf44b4afac2b0732d9fcbe2b7fa0cf6
+        };
+      });
 
-    it('returns true with proof size 2 (branch then odd leaf [0x3])', async function () {
-      const slot0 = ethers.ZeroHash;
-      const slot1 = '0x0000000000000000000000000000000000000000000000000000000000000001';
-      await call(this.storage, 'setUint256Slot', [slot0, 42]);
-      await call(this.storage, 'setUint256Slot', [slot1, 43]);
-      const { key, value, proof, storageHash } = await this.getProof(this.storage, slot1);
+      it('returns true with proof size 3 (even extension [0x00], branch then leaf)', async function () {
+        this.slots = {
+          '0x0000000000000000000000000000000000000000000000000000000000001889': 42n, // 0xabc4243e220df4927f4d7b432d2d718dadbba652f6cee6a45bb90c077fa4e158
+          '0x0000000000000000000000000000000000000000000000000000000000008b23': 43n, // 0xabd5ef9a39144905d28bd8554745ebae050359cf7e89079f49b66a6c06bd2bf9
+          '0x0000000000000000000000000000000000000000000000000000000000002383': 44n, // 0xabe87cb73c1e15a89cfb0daa7fd0cc3eb1a762345fe15d668f5061a4900b22fa
+        };
+      });
 
-      await expect(this.mock.$verify(ethers.keccak256(key), value, proof, storageHash)).to.eventually.be.true;
-    });
+      it('returns true with proof size 3 (odd extension [0x1], branch then leaf)', async function () {
+        this.slots = {
+          '0x0000000000000000000000000000000000000000000000000000000000004616': 42n, // 0xabcd2ce29d227a0aaaa2ea425df9d5c96a569b416fd0bb7e018b8c9ce9b9d15d
+          '0x0000000000000000000000000000000000000000000000000000000000012dd3': 43n, // 0xabce7718834e2932319fc4642268a27405261f7d3826b19811d044bf2b56ebb1
+          '0x000000000000000000000000000000000000000000000000000000000000ce8f': 44n, // 0xabcf8b375ce20d03da20a3f5efeb8f3666810beca66f729f995953f51559a4ff
+        };
+      });
 
-    it('returns true with proof size 3 (even extension [0x00], branch then leaf)', async function () {
-      const slots = [
-        '0x0000000000000000000000000000000000000000000000000000000000001889', // 0xabc4243e220df4927f4d7b432d2d718dadbba652f6cee6a45bb90c077fa4e158
-        '0x0000000000000000000000000000000000000000000000000000000000008b23', // 0xabd5ef9a39144905d28bd8554745ebae050359cf7e89079f49b66a6c06bd2bf9
-        '0x0000000000000000000000000000000000000000000000000000000000002383', // 0xabe87cb73c1e15a89cfb0daa7fd0cc3eb1a762345fe15d668f5061a4900b22fa
-      ];
-      await call(this.storage, 'setUint256Slot', [slots[0], 42]);
-      await call(this.storage, 'setUint256Slot', [slots[1], 43]);
-      await call(this.storage, 'setUint256Slot', [slots[2], 44]);
-      for (let slot of slots) {
-        const { key, value, proof, storageHash } = await this.getProof(this.storage, slot);
-        await expect(this.mock.$verify(ethers.keccak256(key), value, proof, storageHash)).to.eventually.be.true;
-      }
-    });
+      afterEach(async function () {
+        // set storage state
+        await Promise.all(Object.entries(this.slots).map(([slot, value]) => this.storage.setUint256Slot(slot, value)));
 
-    it('returns true with proof size 3 (odd extension [0x1], branch then leaf)', async function () {
-      const slots = [
-        '0x0000000000000000000000000000000000000000000000000000000000004616', // 0xabcd2ce29d227a0aaaa2ea425df9d5c96a569b416fd0bb7e018b8c9ce9b9d15d
-        '0x0000000000000000000000000000000000000000000000000000000000012dd3', // 0xabce7718834e2932319fc4642268a27405261f7d3826b19811d044bf2b56ebb1
-        '0x000000000000000000000000000000000000000000000000000000000000ce8f', // 0xabcf8b375ce20d03da20a3f5efeb8f3666810beca66f729f995953f51559a4ff
-      ];
-      await call(this.storage, 'setUint256Slot', [slots[0], 42]);
-      await call(this.storage, 'setUint256Slot', [slots[1], 43]);
-      await call(this.storage, 'setUint256Slot', [slots[2], 44]);
-      for (let slot of slots) {
-        const { key, value, proof, storageHash } = await this.getProof(this.storage, slot);
-        await expect(this.mock.$verify(ethers.keccak256(key), value, proof, storageHash)).to.eventually.be.true;
-      }
+        // check each slots is provable
+        for (const [slot, value] of Object.entries(this.slots)) {
+          const { storageHash, proof } = await this.getProof({ slot });
+          await expect(this.mock.$verify(ethers.keccak256(slot), ethers.toBeHex(value), proof, storageHash)).to
+            .eventually.be.true;
+        }
+      });
     });
 
     it('returns false for invalid proof', async function () {
@@ -133,7 +96,7 @@ describe('TrieProof', function () {
     });
   });
 
-  describe('process invalid proof', function () {
+  describe('process invalid proofs', function () {
     it('fails to process proof with empty key', async function () {
       await expect(this.mock.$processProof('0x', [], ethers.ZeroHash)).to.eventually.deep.equal([
         ZeroBytes,
@@ -144,27 +107,50 @@ describe('TrieProof', function () {
     it.skip('fails to process proof with key index out of bounds', async function () {}); // TODO: INDEX_OUT_OF_BOUNDS
 
     it('fails to process proof with invalid root hash', async function () {
-      const slot = ethers.ZeroHash;
-      const tx = await call(this.storage, 'setUint256Slot', [slot, 42]);
-      const { key, proof, storageHash } = await this.getProof(this.storage, slot, tx);
+      const slot = generators.bytes32();
+      const value = 42n;
+      await this.storage.setUint256Slot(slot, value);
+      const { storageHash, proof } = await this.getProof({ slot });
+
+      // Correct root hash
+      await expect(this.mock.$verify(ethers.keccak256(slot), ethers.toBeHex(value), proof, storageHash)).to.eventually
+        .be.true;
+      await expect(this.mock.$processProof(ethers.keccak256(slot), proof, storageHash)).to.eventually.deep.equal([
+        ethers.toBeHex(value),
+        ProofError.NO_ERROR,
+      ]);
 
       // Corrupt root hash
-      await expect(this.mock.$processProof(key, proof, ethers.keccak256(storageHash))).to.eventually.deep.equal([
+      const invalidHash = generators.bytes(32);
+
+      await expect(this.mock.$verify(ethers.keccak256(slot), ethers.toBeHex(value), proof, invalidHash)).to.eventually
+        .be.false;
+      await expect(this.mock.$processProof(ethers.keccak256(slot), proof, invalidHash)).to.eventually.deep.equal([
         ZeroBytes,
         ProofError.INVALID_ROOT_HASH,
       ]);
     });
 
     it('fails to process proof with invalid internal large hash', async function () {
-      const slot0 = ethers.ZeroHash;
-      const slot1 = '0x0000000000000000000000000000000000000000000000000000000000000001';
-      await call(this.storage, 'setUint256Slot', [slot0, 42]);
-      await call(this.storage, 'setUint256Slot', [slot1, 43]);
+      const slot = generators.bytes32();
+      const value = 42n;
+      await this.storage.setUint256Slot(slot, value);
+      const { storageHash, proof } = await this.getProof({ slot });
 
-      const { key, proof, storageHash } = await this.getProof(this.storage, slot1);
-      proof[1] = ethers.toBeHex(BigInt(proof[1]) + 1n); // Corrupt internal large node hash
+      // Correct proof
+      await expect(this.mock.$verify(ethers.keccak256(slot), ethers.toBeHex(value), proof, storageHash)).to.eventually
+        .be.true;
+      await expect(this.mock.$processProof(ethers.keccak256(slot), proof, storageHash)).to.eventually.deep.equal([
+        ethers.toBeHex(value),
+        ProofError.NO_ERROR,
+      ]);
 
-      await expect(this.mock.$processProof(key, proof, storageHash)).to.eventually.deep.equal([
+      // Corrupt proof
+      proof[1] = ethers.toBeHex(ethers.toBigInt(proof[1]) + 1n); // Corrupt internal large node hash
+
+      await expect(this.mock.$verify(ethers.keccak256(slot), ethers.toBeHex(value), proof, storageHash)).to.eventually
+        .be.false;
+      await expect(this.mock.$processProof(ethers.keccak256(slot), proof, storageHash)).to.eventually.deep.equal([
         ZeroBytes,
         ProofError.INVALID_LARGE_INTERNAL_HASH,
       ]);
@@ -491,26 +477,3 @@ describe('TrieProof', function () {
     }
   });
 });
-
-/**
- * Start an Anvil process.
- * @returns Anvil process
- */
-async function startAnvil() {
-  return spawn('anvil', ['--port', anvilPort], {
-    timeout: 30000,
-  });
-}
-
-/**
- * Call a method on both Hardhat and Anvil networks.
- * @returns txs on both networks
- */
-async function call(contract, method, args) {
-  const hardhatTx = await contract[hardhat][method](...args);
-  const anvilTx = await contract[anvil][method](...args);
-  return {
-    [hardhat]: hardhatTx,
-    [anvil]: anvilTx,
-  };
-}
