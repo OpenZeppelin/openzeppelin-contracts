@@ -646,7 +646,7 @@ library Math {
         // |    1110    |   14    |        table[14] = 3        |
         // |    1111    |   15    |        table[15] = 3        |
         //
-        // The lookup table is represented as a 32-byte value with the MSB positions for 0-15 in the last 16 bytes.
+        // The lookup table is represented as a 32-byte value with the MSB positions for 0-15 in the first 16 bytes (most significant half).
         assembly ("memory-safe") {
             r := or(r, byte(shr(r, x), 0x0000010102020202030303030303030300000000000000000000000000000000))
         }
