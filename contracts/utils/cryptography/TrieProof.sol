@@ -2,6 +2,7 @@
 pragma solidity ^0.8.27;
 
 import {Math} from "../math/Math.sol";
+import {Bytes} from "../Bytes.sol";
 import {Memory} from "../Memory.sol";
 import {RLP} from "../RLP.sol";
 
@@ -30,7 +31,6 @@ library TrieProof {
         INVALID_LARGE_INTERNAL_HASH, // Internal node hash exceeds expected size
         INVALID_INTERNAL_NODE_HASH, // Internal node hash doesn't match expected value
         EMPTY_VALUE, // The value to verify is empty
-        TOO_LARGE_VALUE, // The value to verify is too large
         INVALID_EXTRA_PROOF_ELEMENT, // Proof contains unexpected additional elements
         MISMATCH_LEAF_PATH_KEY_REMAINDERS, // Leaf path remainder doesn't match key remainder
         INVALID_PATH_REMAINDER, // Path remainder doesn't match expected value
@@ -51,9 +51,14 @@ library TrieProof {
     uint256 internal constant LEAF_OR_EXTENSION_NODE_LENGTH = 2;
 
     /// @dev Verifies a `proof` against a given `key`, `value`, `and root` hash.
-    function verify(bytes memory key, bytes32 value, bytes[] memory proof, bytes32 root) internal pure returns (bool) {
-        (bytes32 processedValue, ProofError err) = processProof(key, proof, root);
-        return processedValue == value && err == ProofError.NO_ERROR;
+    function verify(
+        bytes memory key,
+        bytes memory value,
+        bytes[] memory proof,
+        bytes32 root
+    ) internal pure returns (bool) {
+        (bytes memory processedValue, ProofError err) = processProof(key, proof, root);
+        return Bytes.equal(processedValue, value) && err == ProofError.NO_ERROR;
     }
 
     /// @dev Processes a proof for a given key and returns the processed value.
@@ -61,8 +66,8 @@ library TrieProof {
         bytes memory key,
         bytes[] memory proof,
         bytes32 root
-    ) internal pure returns (bytes32 value, ProofError err) {
-        if (key.length == 0) return (bytes32(0), ProofError.EMPTY_KEY);
+    ) internal pure returns (bytes memory value, ProofError err) {
+        if (key.length == 0) return ("", ProofError.EMPTY_KEY);
 
         // Expand the key
         bytes memory keyExpanded = _nibbles(key);
@@ -78,19 +83,19 @@ library TrieProof {
 
             // ensure we haven't overshot the key
             if (keyIndex > keyExpanded.length) {
-                return (bytes32(0), ProofError.INDEX_OUT_OF_BOUNDS);
+                return ("", ProofError.INDEX_OUT_OF_BOUNDS);
             }
 
             // validates the node hashes at different levels of the proof.
             if (keyIndex == 0) {
                 // Root node must match root hash
-                if (keccak256(node.encoded) != root) return (bytes32(0), ProofError.INVALID_ROOT_HASH);
+                if (keccak256(node.encoded) != root) return ("", ProofError.INVALID_ROOT_HASH);
             } else if (node.encoded.length >= 32) {
                 // Large nodes are stored as hashes
-                if (keccak256(node.encoded) != root) return (bytes32(0), ProofError.INVALID_LARGE_INTERNAL_HASH);
+                if (keccak256(node.encoded) != root) return ("", ProofError.INVALID_LARGE_INTERNAL_HASH);
             } else {
                 // Small nodes must match directly
-                if (bytes32(node.encoded) != root) return (bytes32(0), ProofError.INVALID_INTERNAL_NODE_HASH);
+                if (bytes32(node.encoded) != root) return ("", ProofError.INVALID_INTERNAL_NODE_HASH);
             }
 
             uint256 nodeLength = node.decoded.length;
@@ -115,7 +120,7 @@ library TrieProof {
                     pathRemainder.length() > keyRemainder.length() ||
                     pathRemainder.getHash() != keyRemainder.slice(0, pathRemainder.length()).getHash()
                 ) {
-                    return (bytes32(0), ProofError.INVALID_PATH_REMAINDER);
+                    return ("", ProofError.INVALID_PATH_REMAINDER);
                 }
 
                 if (prefix == uint8(Prefix.EXTENSION_EVEN) || prefix == uint8(Prefix.EXTENSION_ODD)) {
@@ -126,15 +131,15 @@ library TrieProof {
                     // Leaf node (terminal) - return its value if key matches completely
                     // we already know that pathRemainder is a prefix of keyRemainder, so checking the length sufficient
                     if (pathRemainder.length() != keyRemainder.length()) {
-                        return (bytes32(0), ProofError.MISMATCH_LEAF_PATH_KEY_REMAINDERS);
+                        return ("", ProofError.MISMATCH_LEAF_PATH_KEY_REMAINDERS);
                     } else {
                         return _validateLastItem(node.decoded[1], proofLength, i);
                     }
                 } else {
-                    return (bytes32(0), ProofError.UNKNOWN_NODE_PREFIX);
+                    return ("", ProofError.UNKNOWN_NODE_PREFIX);
                 }
             } else {
-                return (bytes32(0), ProofError.UNPARSEABLE_NODE);
+                return ("", ProofError.UNPARSEABLE_NODE);
             }
 
             // Reset memory before next iteration. Deallocates `node` and `path`.
@@ -142,7 +147,7 @@ library TrieProof {
         }
 
         // If we've gone through all proof elements without finding a value, the proof is invalid
-        return (bytes32(0), ProofError.INVALID_PROOF);
+        return ("", ProofError.INVALID_PROOF);
     }
 
     /**
@@ -153,17 +158,15 @@ library TrieProof {
         Memory.Slice item,
         uint256 trieProofLength,
         uint256 i
-    ) private pure returns (bytes32, ProofError) {
+    ) private pure returns (bytes memory, ProofError) {
         bytes memory value = item.readBytes();
 
         if (i != trieProofLength - 1) {
-            return (bytes32(0), ProofError.INVALID_EXTRA_PROOF_ELEMENT);
+            return ("", ProofError.INVALID_EXTRA_PROOF_ELEMENT);
         } else if (value.length == 0) {
-            return (bytes32(0), ProofError.EMPTY_VALUE);
-        } else if (value.length > 32) {
-            return (bytes32(0), ProofError.TOO_LARGE_VALUE);
+            return ("", ProofError.EMPTY_VALUE);
         } else {
-            return (bytes32(value), ProofError.NO_ERROR);
+            return (value, ProofError.NO_ERROR);
         }
     }
 

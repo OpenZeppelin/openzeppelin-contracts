@@ -15,7 +15,6 @@ const ProofError = Enum(
   'INVALID_LARGE_INTERNAL_HASH',
   'INVALID_INTERNAL_NODE_HASH',
   'EMPTY_VALUE',
-  'TOO_LARGE_VALUE',
   'INVALID_EXTRA_PROOF_ELEMENT',
   'MISMATCH_LEAF_PATH_KEY_REMAINDERS',
   'INVALID_PATH_REMAINDER',
@@ -23,6 +22,8 @@ const ProofError = Enum(
   'UNPARSEABLE_NODE',
   'INVALID_PROOF',
 );
+
+const ZeroBytes = '0x';
 
 // Method eth_getProof is not supported with default Hardhat Network, so Anvil is used for that.
 async function fixture(anvilProcess) {
@@ -53,7 +54,7 @@ async function fixture(anvilProcess) {
       tx ? ethers.toBeHex(tx[anvil].blockNumber) : 'latest',
     ]);
     const { key, value, proof } = storageProof[0];
-    return { key, value: ethers.zeroPadBytes(value, 32), proof, storageHash };
+    return { key, value, proof, storageHash };
   };
 
   return {
@@ -128,14 +129,14 @@ describe('TrieProof', function () {
     });
 
     it('returns false for invalid proof', async function () {
-      await expect(this.mock.$verify('0x', ethers.ZeroHash, [], ethers.ZeroHash)).to.eventually.be.false;
+      await expect(this.mock.$verify('0x', ZeroBytes, [], ethers.ZeroHash)).to.eventually.be.false;
     });
   });
 
   describe('process invalid proof', function () {
     it('fails to process proof with empty key', async function () {
       await expect(this.mock.$processProof('0x', [], ethers.ZeroHash)).to.eventually.deep.equal([
-        ethers.ZeroHash,
+        ZeroBytes,
         ProofError.EMPTY_KEY,
       ]);
     });
@@ -149,7 +150,7 @@ describe('TrieProof', function () {
 
       // Corrupt root hash
       await expect(this.mock.$processProof(key, proof, ethers.keccak256(storageHash))).to.eventually.deep.equal([
-        ethers.ZeroHash,
+        ZeroBytes,
         ProofError.INVALID_ROOT_HASH,
       ]);
     });
@@ -164,7 +165,7 @@ describe('TrieProof', function () {
       proof[1] = ethers.toBeHex(BigInt(proof[1]) + 1n); // Corrupt internal large node hash
 
       await expect(this.mock.$processProof(key, proof, storageHash)).to.eventually.deep.equal([
-        ethers.ZeroHash,
+        ZeroBytes,
         ProofError.INVALID_LARGE_INTERNAL_HASH,
       ]);
     });
@@ -177,7 +178,7 @@ describe('TrieProof', function () {
       ];
 
       await expect(this.mock.$processProof(key, proof, ethers.keccak256(proof[0]))).to.eventually.deep.equal([
-        ethers.ZeroHash,
+        ZeroBytes,
         ProofError.INVALID_INTERNAL_NODE_HASH,
       ]);
     });
@@ -187,23 +188,8 @@ describe('TrieProof', function () {
       const proof = [ethers.encodeRlp(['0x2000', '0x'])];
 
       await expect(this.mock.$processProof(key, proof, ethers.keccak256(proof[0]))).to.eventually.deep.equal([
-        ethers.ZeroHash,
+        ZeroBytes,
         ProofError.EMPTY_VALUE,
-      ]);
-    });
-
-    it('fails to process proof with too large value', async function () {
-      const key = '0x00';
-      const proof = [
-        ethers.encodeRlp([
-          '0x2000',
-          ethers.id('valid value') + '2bad', // value length > 32 bytes
-        ]),
-      ];
-
-      await expect(this.mock.$processProof(key, proof, ethers.keccak256(proof[0]))).to.eventually.deep.equal([
-        ethers.ZeroHash,
-        ProofError.TOO_LARGE_VALUE,
       ]);
     });
 
@@ -215,7 +201,7 @@ describe('TrieProof', function () {
       ];
 
       await expect(this.mock.$processProof(key, proof, ethers.keccak256(proof[0]))).to.eventually.deep.equal([
-        ethers.ZeroHash,
+        ZeroBytes,
         ProofError.INVALID_EXTRA_PROOF_ELEMENT,
       ]);
     });
@@ -231,7 +217,7 @@ describe('TrieProof', function () {
         ];
 
         await expect(this.mock.$processProof(key, proof, ethers.keccak256(proof[0]))).to.eventually.deep.equal([
-          ethers.ZeroHash,
+          ZeroBytes,
           ProofError.INVALID_PATH_REMAINDER,
         ]);
       });
@@ -246,7 +232,7 @@ describe('TrieProof', function () {
         ];
 
         await expect(this.mock.$processProof(key, proof, ethers.keccak256(proof[0]))).to.eventually.deep.equal([
-          ethers.ZeroHash,
+          ZeroBytes,
           ProofError.INVALID_PATH_REMAINDER,
         ]);
       });
@@ -261,7 +247,7 @@ describe('TrieProof', function () {
         ];
 
         await expect(this.mock.$processProof(key, proof, ethers.keccak256(proof[0]))).to.eventually.deep.equal([
-          ethers.ZeroHash,
+          ZeroBytes,
           ProofError.MISMATCH_LEAF_PATH_KEY_REMAINDERS,
         ]);
       });
@@ -272,7 +258,7 @@ describe('TrieProof', function () {
       const proof = [ethers.encodeRlp(['0x40', '0x'])];
 
       await expect(this.mock.$processProof(key, proof, ethers.keccak256(proof[0]))).to.eventually.deep.equal([
-        ethers.ZeroHash,
+        ZeroBytes,
         ProofError.UNKNOWN_NODE_PREFIX,
       ]);
     });
@@ -282,14 +268,14 @@ describe('TrieProof', function () {
       const proof = [ethers.encodeRlp(['0x00', '0x00', '0x00'])];
 
       await expect(this.mock.$processProof(key, proof, ethers.keccak256(proof[0]))).to.eventually.deep.equal([
-        ethers.ZeroHash,
+        ZeroBytes,
         ProofError.UNPARSEABLE_NODE,
       ]);
     });
 
     it('fails to process proof with invalid proof', async function () {
       await expect(this.mock.$processProof('0x00', [], ethers.ZeroHash)).to.eventually.deep.equal([
-        ethers.ZeroHash,
+        ZeroBytes,
         ProofError.INVALID_PROOF,
       ]);
     });
@@ -471,7 +457,7 @@ describe('TrieProof', function () {
     ]) {
       it(title, async function () {
         await expect(this.mock.$processProof(key, proof, root)).to.eventually.deep.equal([
-          ethers.zeroPadBytes(value ?? ethers.ZeroHash, 32),
+          value ?? ZeroBytes,
           error ?? ProofError.NO_ERROR,
         ]);
       });
