@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.5.0) (utils/RelayedCall.sol)
 
 pragma solidity ^0.8.20;
 
@@ -107,7 +108,7 @@ library RelayedCall {
             mstore(add(fmp, 0x46), 0x60145f375f5f601436035f345f3560601c5af13d5f5f3e5f3d91604557fd5bf3)
             mstore(add(fmp, 0x26), 0x331460133611166022575f5ffd5b60143603)
             mstore(add(fmp, 0x14), address())
-            mstore(add(fmp, 0), 0x60475f8160095f39f373)
+            mstore(add(fmp, 0x00), 0x60475f8160095f39f373)
             let initcodehash := keccak256(add(fmp, 0x16), 0x50)
 
             // compute create2 address
@@ -120,7 +121,7 @@ library RelayedCall {
             // is relayer not yet deployed, deploy it
             if iszero(extcodesize(relayer)) {
                 if iszero(create2(0, add(fmp, 0x16), 0x50, salt)) {
-                    returndatacopy(fmp, 0, returndatasize())
+                    returndatacopy(fmp, 0x00, returndatasize())
                     revert(fmp, returndatasize())
                 }
             }

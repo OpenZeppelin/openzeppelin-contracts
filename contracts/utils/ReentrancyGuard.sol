@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.1.0) (utils/ReentrancyGuard.sol)
+// OpenZeppelin Contracts (last updated v5.5.0) (utils/ReentrancyGuard.sol)
 
 pragma solidity ^0.8.20;
 
@@ -26,6 +26,8 @@ import {StorageSlot} from "./StorageSlot.sol";
  *
  * IMPORTANT: Deprecated. This storage-based reentrancy guard will be removed and replaced
  * by the {ReentrancyGuardTransient} variant in v6.0.
+ *
+ * @custom:stateless
  */
 abstract contract ReentrancyGuard {
     using StorageSlot for bytes32;

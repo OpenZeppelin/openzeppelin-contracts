@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.3.0) (utils/ReentrancyGuardTransient.sol)
+// OpenZeppelin Contracts (last updated v5.5.0) (utils/ReentrancyGuardTransient.sol)
 
 pragma solidity ^0.8.24;
 
@@ -11,6 +11,8 @@ import {TransientSlot} from "./TransientSlot.sol";
  * NOTE: This variant only works on networks where EIP-1153 is available.
  *
  * _Available since v5.1._
+ *
+ * @custom:stateless
  */
 abstract contract ReentrancyGuardTransient {
     using TransientSlot for *;

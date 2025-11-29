@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.3.0) (utils/math/Math.sol)
+// OpenZeppelin Contracts (last updated v5.5.0) (utils/math/Math.sol)
 
 pragma solidity ^0.8.20;
 
@@ -134,10 +134,10 @@ library Math {
     }
 
     /**
-     * @dev Branchless ternary evaluation for `a ? b : c`. Gas costs are constant.
+     * @dev Branchless ternary evaluation for `condition ? a : b`. Gas costs are constant.
      *
      * IMPORTANT: This function may reduce bytecode size and consume less gas when used standalone.
-     * However, the compiler may optimize Solidity ternary operations (i.e. `a ? b : c`) to only compute
+     * However, the compiler may optimize Solidity ternary operations (i.e. `condition ? a : b`) to only compute
      * one branch when needed, making this function more expensive.
      */
     function ternary(bool condition, uint256 a, uint256 b) internal pure returns (uint256) {
@@ -168,8 +168,10 @@ library Math {
      * zero.
      */
     function average(uint256 a, uint256 b) internal pure returns (uint256) {
-        // (a + b) / 2 can overflow.
-        return (a & b) + (a ^ b) / 2;
+        unchecked {
+            // (a + b) / 2 can overflow.
+            return (a & b) + (a ^ b) / 2;
+        }
     }
 
     /**

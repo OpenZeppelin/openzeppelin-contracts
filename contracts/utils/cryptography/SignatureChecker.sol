@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.4.0) (utils/cryptography/SignatureChecker.sol)
+// OpenZeppelin Contracts (last updated v5.5.0) (utils/cryptography/SignatureChecker.sol)
 
 pragma solidity ^0.8.24;
 
@@ -82,8 +82,8 @@ library SignatureChecker {
             mstore(add(ptr, 0x24), 0x40)
             mcopy(add(ptr, 0x44), signature, add(length, 0x20))
 
-            let success := staticcall(gas(), signer, ptr, add(length, 0x64), 0, 0x20)
-            result := and(success, and(gt(returndatasize(), 0x19), eq(mload(0x00), selector)))
+            let success := staticcall(gas(), signer, ptr, add(length, 0x64), 0x00, 0x20)
+            result := and(success, and(gt(returndatasize(), 0x1f), eq(mload(0x00), selector)))
         }
     }
 

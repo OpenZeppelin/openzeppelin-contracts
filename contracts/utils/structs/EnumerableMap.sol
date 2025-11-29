@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.4.0) (utils/structs/EnumerableMap.sol)
+// OpenZeppelin Contracts (last updated v5.5.0) (utils/structs/EnumerableMap.sol)
 // This file was procedurally generated from scripts/generate/templates/EnumerableMap.js.
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
 import {EnumerableSet} from "./EnumerableSet.sol";
 
