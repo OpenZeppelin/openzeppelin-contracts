@@ -51,6 +51,7 @@ contract RLPTest is Test {
         assertEq(list.length, input.length);
         for (uint256 i = 0; i < input.length; ++i) {
             assertEq(list[i].readBytes(), input[i]);
+            assertEq(list[i].readBytesHash(), keccak256(input[i]));
         }
     }
 
