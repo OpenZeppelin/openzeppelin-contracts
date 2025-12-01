@@ -59,7 +59,7 @@ describe('TrieProof', function () {
   });
 
   describe('verify', function () {
-    describe('processes valid accounts and storage proof', function () {
+    describe('processes valid account and storage proofs', function () {
       for (const { title, slots } of [
         {
           title: 'returns true with proof size 1 (even leaf [0x20])',
