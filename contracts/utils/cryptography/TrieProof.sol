@@ -72,8 +72,8 @@ library TrieProof {
         // Expand the key
         bytes memory keyExpanded = _nibbles(key);
 
-        bytes32 currentNodeId = root;
-        uint256 currentNodeIdLength = 32;
+        bytes32 currentNodeId;
+        uint256 currentNodeIdLength;
 
         // Free memory pointer cache
         Memory.Pointer fmp = Memory.getFreeMemoryPointer();
@@ -92,8 +92,7 @@ library TrieProof {
             // validates the node hashes at different levels of the proof.
             if (keyIndex == 0) {
                 // Root node must match root hash
-                if (currentNodeIdLength != 32 || keccak256(node.encoded) != currentNodeId)
-                    return ("", ProofError.INVALID_ROOT_HASH);
+                if (keccak256(node.encoded) != root) return ("", ProofError.INVALID_ROOT_HASH);
             } else if (node.encoded.length >= 32) {
                 // Large nodes are stored as hashes
                 if (currentNodeIdLength != 32 || keccak256(node.encoded) != currentNodeId)
