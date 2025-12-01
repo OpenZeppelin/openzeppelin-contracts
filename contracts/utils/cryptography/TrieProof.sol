@@ -186,21 +186,6 @@ library TrieProof {
         nodeId = nodeIdLength < 32 ? node.load(0) : node.readBytes32();
     }
 
-    /**
-     * @dev Calculates the length of the longest common prefix between two memory slices.
-     * Used to determine how much of a path matches a key during trie traversal.
-     */
-    function _commonPrefixLength(Memory.Slice a, Memory.Slice b) private pure returns (uint256) {
-        uint256 length = Math.min(a.length(), b.length());
-        for (uint256 i; i < length; i += 32) {
-            bytes32 chunk = a.load(i) ^ b.load(i);
-            if (chunk != bytes32(0)) {
-                return Math.min(length, i + Math.clz(uint256(chunk)) / 8);
-            }
-        }
-        return length;
-    }
-
     /// @dev Split each byte in `value` into two nibbles (4 bits each).
     function _nibbles(bytes memory value) private pure returns (bytes memory) {
         uint256 length = value.length;
