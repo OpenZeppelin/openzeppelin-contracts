@@ -735,7 +735,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         return currentState;
     }
 
-    /*
+    /**
      * @dev Check if the proposer is authorized to submit a proposal with the given description.
      *
      * If the proposal description ends with `#proposer=0x???`, where `0x???` is an address written as a hex string
