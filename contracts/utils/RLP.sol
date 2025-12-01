@@ -208,12 +208,6 @@ library RLP {
      *                               DECODING - READ FROM AN RLP ENCODED MEMORY SLICE                               *
      ****************************************************************************************************************/
 
-    /// @dev Get length of the encoded object
-    function readLength(Memory.Slice item) internal pure returns (uint256) {
-        (, uint256 length, ) = _decodeLength(item);
-        return length;
-    }
-
     /// @dev Decode an RLP encoded bool. See {encode-bool}
     function readBool(Memory.Slice item) internal pure returns (bool) {
         return readUint256(item) != 0;
@@ -249,16 +243,6 @@ library RLP {
 
         // Length is checked by {toBytes}
         return item.slice(offset, length).toBytes();
-    }
-
-    /// @dev Gets the hash of the underlying bytes without allocating memory
-    /// Equivalent to `keccak256(readBytes(item))`
-    function readBytesHash(Memory.Slice item) internal pure returns (bytes32) {
-        (uint256 offset, uint256 length, ItemType itemType) = _decodeLength(item);
-        require(itemType == ItemType.Data, RLPInvalidEncoding());
-
-        // Length is checked by {getHash}
-        return item.slice(offset, length).getHash();
     }
 
     /// @dev Decodes an RLP encoded string. See {encode-string}
