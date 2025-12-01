@@ -3,6 +3,8 @@ const { expect } = require('chai');
 const { spawn } = require('child_process');
 
 const { Enum } = require('../../helpers/enums');
+const { zip } = require('../../helpers/iterate');
+const { max } = require('../../helpers/math');
 const { generators } = require('../../helpers/random');
 
 const ProofError = Enum(
@@ -27,20 +29,29 @@ describe('TrieProof', function () {
   before('start anvil node', async function () {
     const port = 8546;
 
-    // start process
+    // start process and create provider
     this.process = await spawn('anvil', ['--port', port], { timeout: 30000 });
     await new Promise(resolve => this.process.stdout.once('data', resolve));
-
-    // get anvil provider, and deploy storage helper
-    const anvilProvider = new ethers.JsonRpcProvider(`http://localhost:${port}`);
-    this.storage = await anvilProvider.getSigner(0).then(signer => ethers.deployContract('StorageSlotMock', signer));
-    this.getProof = ({ provider = anvilProvider, address = this.storage.target, slot, blockNumber = 'latest' }) =>
-      provider
-        .send('eth_getProof', [address, [slot], blockNumber])
-        .then(({ storageHash, storageProof: [{ key, value, proof }] }) => ({ storageHash, key, value, proof }));
+    this.provider = new ethers.JsonRpcProvider(`http://localhost:${port}`);
 
     // deploy mock on the hardhat network
     this.mock = await ethers.deployContract('$TrieProof');
+  });
+
+  beforeEach('use fresh storage contract with empty state for each test', async function () {
+    this.storage = await this.provider.getSigner(0).then(signer => ethers.deployContract('StorageSlotMock', signer));
+
+    this.getProof = ({
+      provider = this.provider,
+      address = this.storage.target,
+      storageKeys = [],
+      blockNumber = 'latest',
+    }) =>
+      provider.send('eth_getProof', [
+        address,
+        ethers.isHexString(storageKeys) ? [storageKeys] : storageKeys,
+        blockNumber,
+      ]);
   });
 
   after('stop anvil node', async function () {
@@ -48,47 +59,73 @@ describe('TrieProof', function () {
   });
 
   describe('verify', function () {
-    describe('returns true for valid storage proof', function () {
-      it('returns true with proof size 1 (even leaf [0x20])', async function () {
-        this.slots = {
-          '0x0000000000000000000000000000000000000000000000000000000000000000': 42n, // 0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e563
-        };
-      });
+    describe('processes valid accounts and storage proof', function () {
+      for (const { title, slots } of [
+        {
+          title: 'returns true with proof size 1 (even leaf [0x20])',
+          slots: {
+            '0x0000000000000000000000000000000000000000000000000000000000000000': generators.bytes32(), // 0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e563
+          },
+        },
+        {
+          title: 'returns true with proof size 2 (branch then odd leaf [0x3])',
+          slots: {
+            '0x0000000000000000000000000000000000000000000000000000000000000000': generators.bytes32(), // 0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e563
+            '0x0000000000000000000000000000000000000000000000000000000000000001': generators.bytes32(), // 0xb10e2d527612073b26eecdfd717e6a320cf44b4afac2b0732d9fcbe2b7fa0cf6
+          },
+        },
+        {
+          title: 'returns true with proof size 3 (even extension [0x00], branch then leaf)',
+          slots: {
+            '0x0000000000000000000000000000000000000000000000000000000000001889': generators.bytes32(), // 0xabc4243e220df4927f4d7b432d2d718dadbba652f6cee6a45bb90c077fa4e158
+            '0x0000000000000000000000000000000000000000000000000000000000008b23': generators.bytes32(), // 0xabd5ef9a39144905d28bd8554745ebae050359cf7e89079f49b66a6c06bd2bf9
+            '0x0000000000000000000000000000000000000000000000000000000000002383': generators.bytes32(), // 0xabe87cb73c1e15a89cfb0daa7fd0cc3eb1a762345fe15d668f5061a4900b22fa
+          },
+        },
+        {
+          title: 'returns true with proof size 3 (odd extension [0x1], branch then leaf)',
+          slots: {
+            '0x0000000000000000000000000000000000000000000000000000000000004616': generators.bytes32(), // 0xabcd2ce29d227a0aaaa2ea425df9d5c96a569b416fd0bb7e018b8c9ce9b9d15d
+            '0x0000000000000000000000000000000000000000000000000000000000012dd3': generators.bytes32(), // 0xabce7718834e2932319fc4642268a27405261f7d3826b19811d044bf2b56ebb1
+            '0x000000000000000000000000000000000000000000000000000000000000ce8f': generators.bytes32(), // 0xabcf8b375ce20d03da20a3f5efeb8f3666810beca66f729f995953f51559a4ff
+          },
+        },
+      ]) {
+        it(title, async function () {
+          // set storage state
+          const txs = await Promise.all(
+            Object.entries(slots).map(([slot, value]) => this.storage.setBytes32Slot(slot, value)),
+          );
+          const blockNumber = ethers.toBeHex(max(...txs.map(({ blockNumber }) => blockNumber)));
 
-      it('returns true with proof size 2 (branch then odd leaf [0x3])', async function () {
-        this.slots = {
-          '0x0000000000000000000000000000000000000000000000000000000000000000': 42n, // 0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e563
-          '0x0000000000000000000000000000000000000000000000000000000000000001': 43n, // 0xb10e2d527612073b26eecdfd717e6a320cf44b4afac2b0732d9fcbe2b7fa0cf6
-        };
-      });
+          const { stateRoot } = await this.provider.getBlock(blockNumber);
+          const { accountProof, storageHash, storageProof, codeHash } = await this.getProof({
+            storageKeys: Object.keys(slots),
+            blockNumber,
+          });
 
-      it('returns true with proof size 3 (even extension [0x00], branch then leaf)', async function () {
-        this.slots = {
-          '0x0000000000000000000000000000000000000000000000000000000000001889': 42n, // 0xabc4243e220df4927f4d7b432d2d718dadbba652f6cee6a45bb90c077fa4e158
-          '0x0000000000000000000000000000000000000000000000000000000000008b23': 43n, // 0xabd5ef9a39144905d28bd8554745ebae050359cf7e89079f49b66a6c06bd2bf9
-          '0x0000000000000000000000000000000000000000000000000000000000002383': 44n, // 0xabe87cb73c1e15a89cfb0daa7fd0cc3eb1a762345fe15d668f5061a4900b22fa
-        };
-      });
+          // Account proof
+          await expect(
+            this.mock.$verify(
+              ethers.keccak256(this.storage.target),
+              ethers.encodeRlp([
+                '0x01', // nonce
+                '0x', // balance
+                storageHash,
+                codeHash,
+              ]),
+              accountProof,
+              stateRoot,
+            ),
+          ).to.eventually.be.true;
 
-      it('returns true with proof size 3 (odd extension [0x1], branch then leaf)', async function () {
-        this.slots = {
-          '0x0000000000000000000000000000000000000000000000000000000000004616': 42n, // 0xabcd2ce29d227a0aaaa2ea425df9d5c96a569b416fd0bb7e018b8c9ce9b9d15d
-          '0x0000000000000000000000000000000000000000000000000000000000012dd3': 43n, // 0xabce7718834e2932319fc4642268a27405261f7d3826b19811d044bf2b56ebb1
-          '0x000000000000000000000000000000000000000000000000000000000000ce8f': 44n, // 0xabcf8b375ce20d03da20a3f5efeb8f3666810beca66f729f995953f51559a4ff
-        };
-      });
-
-      afterEach(async function () {
-        // set storage state
-        await Promise.all(Object.entries(this.slots).map(([slot, value]) => this.storage.setUint256Slot(slot, value)));
-
-        // check each slots is provable
-        for (const [slot, value] of Object.entries(this.slots)) {
-          const { storageHash, proof } = await this.getProof({ slot });
-          await expect(this.mock.$verify(ethers.keccak256(slot), ethers.toBeHex(value), proof, storageHash)).to
-            .eventually.be.true;
-        }
-      });
+          // Storage proof within the account
+          for (const [[slot, value], { proof }] of zip(Object.entries(slots), storageProof)) {
+            await expect(this.mock.$verify(ethers.keccak256(slot), ethers.encodeRlp(value), proof, storageHash)).to
+              .eventually.be.true;
+          }
+        });
+      }
     });
 
     it('returns false for invalid proof', async function () {
@@ -108,22 +145,25 @@ describe('TrieProof', function () {
 
     it('fails to process proof with invalid root hash', async function () {
       const slot = generators.bytes32();
-      const value = 42n;
-      await this.storage.setUint256Slot(slot, value);
-      const { storageHash, proof } = await this.getProof({ slot });
+      const value = generators.bytes32();
+      await this.storage.setBytes32Slot(slot, value);
+      const {
+        storageHash,
+        storageProof: [{ proof }],
+      } = await this.getProof({ storageKeys: [slot] });
 
       // Correct root hash
-      await expect(this.mock.$verify(ethers.keccak256(slot), ethers.toBeHex(value), proof, storageHash)).to.eventually
+      await expect(this.mock.$verify(ethers.keccak256(slot), ethers.encodeRlp(value), proof, storageHash)).to.eventually
         .be.true;
       await expect(this.mock.$processProof(ethers.keccak256(slot), proof, storageHash)).to.eventually.deep.equal([
-        ethers.toBeHex(value),
+        ethers.encodeRlp(value),
         ProofError.NO_ERROR,
       ]);
 
       // Corrupt root hash
       const invalidHash = generators.bytes(32);
 
-      await expect(this.mock.$verify(ethers.keccak256(slot), ethers.toBeHex(value), proof, invalidHash)).to.eventually
+      await expect(this.mock.$verify(ethers.keccak256(slot), ethers.encodeRlp(value), proof, invalidHash)).to.eventually
         .be.false;
       await expect(this.mock.$processProof(ethers.keccak256(slot), proof, invalidHash)).to.eventually.deep.equal([
         ZeroBytes,
@@ -132,23 +172,30 @@ describe('TrieProof', function () {
     });
 
     it('fails to process proof with invalid internal large hash', async function () {
+      // insert multiple values
       const slot = generators.bytes32();
-      const value = 42n;
-      await this.storage.setUint256Slot(slot, value);
-      const { storageHash, proof } = await this.getProof({ slot });
+      const value = generators.bytes32();
+      await this.storage.setBytes32Slot(slot, value);
+      await this.storage.setBytes32Slot(generators.bytes32(), generators.bytes32());
+      await this.storage.setBytes32Slot(generators.bytes32(), generators.bytes32());
+
+      const {
+        storageHash,
+        storageProof: [{ proof }],
+      } = await this.getProof({ storageKeys: [slot] });
 
       // Correct proof
-      await expect(this.mock.$verify(ethers.keccak256(slot), ethers.toBeHex(value), proof, storageHash)).to.eventually
+      await expect(this.mock.$verify(ethers.keccak256(slot), ethers.encodeRlp(value), proof, storageHash)).to.eventually
         .be.true;
       await expect(this.mock.$processProof(ethers.keccak256(slot), proof, storageHash)).to.eventually.deep.equal([
-        ethers.toBeHex(value),
+        ethers.encodeRlp(value),
         ProofError.NO_ERROR,
       ]);
 
       // Corrupt proof
       proof[1] = ethers.toBeHex(ethers.toBigInt(proof[1]) + 1n); // Corrupt internal large node hash
 
-      await expect(this.mock.$verify(ethers.keccak256(slot), ethers.toBeHex(value), proof, storageHash)).to.eventually
+      await expect(this.mock.$verify(ethers.keccak256(slot), ethers.encodeRlp(value), proof, storageHash)).to.eventually
         .be.false;
       await expect(this.mock.$processProof(ethers.keccak256(slot), proof, storageHash)).to.eventually.deep.equal([
         ZeroBytes,
