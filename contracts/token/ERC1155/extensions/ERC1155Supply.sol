@@ -26,7 +26,7 @@ abstract contract ERC1155Supply is ERC1155 {
     uint256 private _totalSupplyAll;
 
     /**
-     * @dev Total value of tokens in with a given id.
+     * @dev Total value of tokens with a given id.
      */
     function totalSupply(uint256 id) public view virtual returns (uint256) {
         return _totalSupply[id];
