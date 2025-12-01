@@ -67,7 +67,7 @@ library TrieProof {
         bytes[] memory proof,
         bytes32 root
     ) internal pure returns (bytes memory value, ProofError err) {
-        if (key.length == 0) return ("", ProofError.EMPTY_KEY);
+        if (key.length == 0) return (_emptyBytesMemory(), ProofError.EMPTY_KEY);
 
         // Expand the key
         bytes memory keyExpanded = _nibbles(key);
@@ -86,21 +86,21 @@ library TrieProof {
 
             // ensure we haven't overshot the key
             if (keyIndex > keyExpanded.length) {
-                return ("", ProofError.INDEX_OUT_OF_BOUNDS);
+                return (_emptyBytesMemory(), ProofError.INDEX_OUT_OF_BOUNDS);
             }
 
             // validates the node hashes at different levels of the proof.
             if (keyIndex == 0) {
                 // Root node must match root hash
-                if (keccak256(node.encoded) != root) return ("", ProofError.INVALID_ROOT_HASH);
+                if (keccak256(node.encoded) != root) return (_emptyBytesMemory(), ProofError.INVALID_ROOT_HASH);
             } else if (node.encoded.length >= 32) {
                 // Large nodes are stored as hashes
                 if (currentNodeIdLength != 32 || keccak256(node.encoded) != currentNodeId)
-                    return ("", ProofError.INVALID_LARGE_INTERNAL_HASH);
+                    return (_emptyBytesMemory(), ProofError.INVALID_LARGE_INTERNAL_HASH);
             } else {
                 // Small nodes must match directly
                 if (currentNodeIdLength != node.encoded.length || bytes32(node.encoded) != currentNodeId)
-                    return ("", ProofError.INVALID_INTERNAL_NODE_HASH);
+                    return (_emptyBytesMemory(), ProofError.INVALID_INTERNAL_NODE_HASH);
             }
 
             uint256 nodeLength = node.decoded.length;
@@ -125,7 +125,7 @@ library TrieProof {
                     pathRemainder.length() > keyRemainder.length() ||
                     pathRemainder.getHash() != keyRemainder.slice(0, pathRemainder.length()).getHash()
                 ) {
-                    return ("", ProofError.INVALID_PATH_REMAINDER);
+                    return (_emptyBytesMemory(), ProofError.INVALID_PATH_REMAINDER);
                 }
 
                 if (prefix == uint8(Prefix.EXTENSION_EVEN) || prefix == uint8(Prefix.EXTENSION_ODD)) {
@@ -136,15 +136,15 @@ library TrieProof {
                     // Leaf node (terminal) - return its value if key matches completely
                     // we already know that pathRemainder is a prefix of keyRemainder, so checking the length sufficient
                     if (pathRemainder.length() != keyRemainder.length()) {
-                        return ("", ProofError.MISMATCH_LEAF_PATH_KEY_REMAINDERS);
+                        return (_emptyBytesMemory(), ProofError.MISMATCH_LEAF_PATH_KEY_REMAINDERS);
                     } else {
                         return _validateLastItem(node.decoded[1], proofLength, i);
                     }
                 } else {
-                    return ("", ProofError.UNKNOWN_NODE_PREFIX);
+                    return (_emptyBytesMemory(), ProofError.UNKNOWN_NODE_PREFIX);
                 }
             } else {
-                return ("", ProofError.UNPARSEABLE_NODE);
+                return (_emptyBytesMemory(), ProofError.UNPARSEABLE_NODE);
             }
 
             // Reset memory before next iteration. Deallocates `node` and `path`.
@@ -152,7 +152,7 @@ library TrieProof {
         }
 
         // If we've gone through all proof elements without finding a value, the proof is invalid
-        return ("", ProofError.INVALID_PROOF);
+        return (_emptyBytesMemory(), ProofError.INVALID_PROOF);
     }
 
     /**
@@ -167,9 +167,9 @@ library TrieProof {
         bytes memory value = item.readBytes();
 
         if (i != trieProofLength - 1) {
-            return ("", ProofError.INVALID_EXTRA_PROOF_ELEMENT);
+            return (_emptyBytesMemory(), ProofError.INVALID_EXTRA_PROOF_ELEMENT);
         } else if (value.length == 0) {
-            return ("", ProofError.EMPTY_VALUE);
+            return (_emptyBytesMemory(), ProofError.EMPTY_VALUE);
         } else {
             return (value, ProofError.NO_ERROR);
         }
@@ -186,13 +186,47 @@ library TrieProof {
         nodeId = nodeIdLength < 32 ? node.load(0) : node.readBytes32();
     }
 
-    /// @dev Split each byte in `value` into two nibbles (4 bits each).
-    function _nibbles(bytes memory value) private pure returns (bytes memory) {
-        uint256 length = value.length;
-        bytes memory nibbles_ = new bytes(length * 2);
-        for (uint256 i = 0; i < length; i++) {
-            (nibbles_[i * 2], nibbles_[i * 2 + 1]) = ((value[i] & 0xf0) >> 4, value[i] & 0x0f);
+    /// @dev Split each byte in `input` into two nibbles (4 bits each).
+    function _nibbles(bytes memory input) private pure returns (bytes memory output) {
+        assembly ("memory-safe") {
+            let length := mload(input)
+            output := mload(0x40)
+            mstore(0x40, add(add(output, 0x20), mul(length, 2)))
+            mstore(output, mul(length, 2))
+            for {
+                let i := 0
+            } lt(i, length) {
+                i := add(i, 0x10)
+            } {
+                let chunk := shr(128, mload(add(add(input, 0x20), i)))
+                chunk := and(
+                    0x0000000000000000ffffffffffffffff0000000000000000ffffffffffffffff,
+                    or(shl(64, chunk), chunk)
+                )
+                chunk := and(
+                    0x00000000ffffffff00000000ffffffff00000000ffffffff00000000ffffffff,
+                    or(shl(32, chunk), chunk)
+                )
+                chunk := and(
+                    0x0000ffff0000ffff0000ffff0000ffff0000ffff0000ffff0000ffff0000ffff,
+                    or(shl(16, chunk), chunk)
+                )
+                chunk := and(
+                    0x00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff,
+                    or(shl(8, chunk), chunk)
+                )
+                chunk := and(
+                    0x0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f,
+                    or(shl(4, chunk), chunk)
+                )
+                mstore(add(add(output, 0x20), mul(i, 2)), chunk)
+            }
         }
-        return nibbles_;
+    }
+
+    function _emptyBytesMemory() private pure returns (bytes memory result) {
+        assembly ("memory-safe") {
+            result := 0x60 // mload(0x60) is always 0
+        }
     }
 }
