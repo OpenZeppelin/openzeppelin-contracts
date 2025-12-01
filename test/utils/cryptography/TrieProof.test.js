@@ -503,7 +503,7 @@ describe('TrieProof', function () {
         error: ProofError.INVALID_PATH_REMAINDER,
       },
       {
-        title: 'test_get_smallerPathThanKey2_reverts',
+        title: 'test_get_extraProofElements_reverts',
         root: '0x278c88eb59beba4f8b94f940c41614bb0dd80c305859ebffcd6ce07c93ca3749',
         key: '0xaa',
         proof: [
