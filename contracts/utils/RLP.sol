@@ -165,7 +165,7 @@ library RLP {
         }
     }
 
-    /// @dev Encode a uint256 as RLP.
+    /// @dev Encode a uint256 as RLP. Unlike {encode-bytes32-}, this DOES remove prefix zeros to minimize the output.
     function encode(uint256 input) internal pure returns (bytes memory result) {
         if (input < SHORT_OFFSET) {
             assembly ("memory-safe") {
@@ -186,9 +186,15 @@ library RLP {
         }
     }
 
-    /// @dev Encode a bytes32 as RLP. Type alias for {encode-uint256-}.
-    function encode(bytes32 input) internal pure returns (bytes memory) {
-        return encode(uint256(input));
+    /// @dev Encode a bytes32 as RLP. Unlike {encode-uint256-}, this DOES NOT remove prefix zeros.
+    function encode(bytes32 input) internal pure returns (bytes memory result) {
+        assembly ("memory-safe") {
+            result := mload(0x40)
+            mstore(result, 0x21) // length of the encoded data: 1 (prefix) + 0x20
+            mstore8(add(result, 0x20), 0xa0) // prefix: SHORT_OFFSET + 0x20
+            mstore(add(result, 0x21), input)
+            mstore(0x40, add(result, 0x41)) // reserve memory
+        }
     }
 
     /// @dev Encode a bytes buffer as RLP.
