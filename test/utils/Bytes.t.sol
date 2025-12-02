@@ -159,16 +159,15 @@ contract BytesTest is Test {
     function testSymbolictoNibbles(bytes memory input) public pure {
         bytes memory nibbles = Bytes.toNibbles(input);
         assertEq(nibbles.length, input.length * 2);
-        bytes memory reconstructed = new bytes(input.length);
+
         // reconstruct input by traversing nibbles
-        for (uint256 i = 0; i < nibbles.length; i += 2) {
-            bytes1 nible0 = nibbles[i];
-            bytes1 nible1 = nibbles[i + 1];
+        for (uint256 i = 0; i < input.length; ++i) {
+            bytes1 nible0 = nibbles[2 * i];
+            bytes1 nible1 = nibbles[2 * i + 1];
             assertEq(uint8(nible0) >> 4, 0);
             assertEq(uint8(nible1) >> 4, 0);
-            reconstructed[i / 2] = bytes1((uint8(nible0) << 4) | uint8(nible1));
+            assertEq(input[i], bytes1((uint8(nible0) << 4) | uint8(nible1)));
         }
-        assertEq(reconstructed, input);
     }
 
     // REVERSE BITS
