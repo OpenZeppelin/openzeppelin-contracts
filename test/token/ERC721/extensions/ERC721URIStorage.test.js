@@ -118,4 +118,39 @@ describe('ERC721URIStorage', function () {
       expect(await this.token.tokenURI(tokenId)).to.equal(sampleUri);
     });
   });
+
+  describe('_getTokenURI', function () {
+    beforeEach(async function () {
+      await this.token.$_mint(this.owner, tokenId);
+    });
+
+    it('returns empty string for token without URI', async function () {
+      expect(await this.token.$_getTokenURI(tokenId)).to.equal('');
+    });
+
+    it('returns the stored URI for token with URI', async function () {
+      await this.token.$_setTokenURI(tokenId, sampleUri);
+      expect(await this.token.$_getTokenURI(tokenId)).to.equal(sampleUri);
+    });
+
+    it('returns stored URI without base URI concatenation', async function () {
+      await this.token.setBaseURI(baseURI);
+      await this.token.$_setTokenURI(tokenId, sampleUri);
+
+      expect(await this.token.$_getTokenURI(tokenId)).to.equal(sampleUri);
+      expect(await this.token.tokenURI(tokenId)).to.equal(baseURI + sampleUri);
+    });
+
+    it('returns stored URI even for non-existent token', async function () {
+      await this.token.$_setTokenURI(nonExistentTokenId, sampleUri);
+      expect(await this.token.$_getTokenURI(nonExistentTokenId)).to.equal(sampleUri);
+    });
+
+    it('returns stored URI even after token is burnt', async function () {
+      await this.token.$_setTokenURI(tokenId, sampleUri);
+      await this.token.$_burn(tokenId);
+
+      expect(await this.token.$_getTokenURI(tokenId)).to.equal(sampleUri);
+    });
+  });
 });
