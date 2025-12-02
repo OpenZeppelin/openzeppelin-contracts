@@ -9,10 +9,23 @@ import {RLP} from "../RLP.sol";
 /**
  * @dev Library for verifying Ethereum Merkle-Patricia trie inclusion proofs.
  *
- * Ethereum's State Trie state layout is a 4-item array of `[nonce, balance, storageRoot, codeHash]`
+ * The {processProof} and {verify} functions can be used to prove the following value:
+ *
+ * * Transaction against the transactionsRoot of a block.
+ * * Event against receiptsRoot of a block.
+ * * Account details (RLP encoding of [nonce, balance, storageRoot, codeHash]) against the stateRoot of a block.
+ * * Storage slot (RLP encoding of the value) against the storageRoot of a account.
+ *
+ * Proving a storage slot is usually done in 3 steps:
+ *
+ * * From the stateRoot of a block, process the account proof (see `eth_getProof`) to get the account details.
+ * * RLP decode the account details to extract the storageRoot.
+ * * Use storageRoot of that account to process the storageProof (again, see `eth_getProof`).
+ *
  * See https://ethereum.org/en/developers/docs/data-structures-and-encoding/patricia-merkle-trie[Merkle-Patricia trie]
  */
 library TrieProof {
+    using Bytes for *;
     using RLP for *;
     using Memory for *;
 
@@ -58,7 +71,7 @@ library TrieProof {
         bytes32 root
     ) internal pure returns (bool) {
         (bytes memory processedValue, ProofError err) = processProof(key, proof, root);
-        return Bytes.equal(processedValue, value) && err == ProofError.NO_ERROR;
+        return processedValue.equal(value) && err == ProofError.NO_ERROR;
     }
 
     /// @dev Processes a proof for a given key and returns the processed value.
@@ -70,7 +83,7 @@ library TrieProof {
         if (key.length == 0) return (_emptyBytesMemory(), ProofError.EMPTY_KEY);
 
         // Expand the key
-        bytes memory keyExpanded = _nibbles(key);
+        bytes memory keyExpanded = key.toNibbles();
 
         bytes32 currentNodeId;
         uint256 currentNodeIdLength;
@@ -115,7 +128,7 @@ library TrieProof {
                     keyIndex += 1;
                 }
             } else if (nodeLength == LEAF_OR_EXTENSION_NODE_LENGTH) {
-                bytes memory path = _nibbles(node.decoded[0].readBytes());
+                bytes memory path = node.decoded[0].readBytes().toNibbles();
                 uint8 prefix = uint8(path[0]);
                 Memory.Slice pathRemainder = path.asSlice().slice(2 - (prefix % 2)); // Path after the prefix
                 Memory.Slice keyRemainder = keyExpanded.asSlice().slice(keyIndex); // Remaining key to match
@@ -184,44 +197,6 @@ library TrieProof {
     function _getNodeId(Memory.Slice node) private pure returns (bytes32 nodeId, uint256 nodeIdLength) {
         nodeIdLength = Math.min(node.length(), 32);
         nodeId = nodeIdLength < 32 ? node.load(0) : node.readBytes32();
-    }
-
-    /// @dev Split each byte in `input` into two nibbles (4 bits each).
-    function _nibbles(bytes memory input) private pure returns (bytes memory output) {
-        assembly ("memory-safe") {
-            let length := mload(input)
-            output := mload(0x40)
-            mstore(0x40, add(add(output, 0x20), mul(length, 2)))
-            mstore(output, mul(length, 2))
-            for {
-                let i := 0
-            } lt(i, length) {
-                i := add(i, 0x10)
-            } {
-                let chunk := shr(128, mload(add(add(input, 0x20), i)))
-                chunk := and(
-                    0x0000000000000000ffffffffffffffff0000000000000000ffffffffffffffff,
-                    or(shl(64, chunk), chunk)
-                )
-                chunk := and(
-                    0x00000000ffffffff00000000ffffffff00000000ffffffff00000000ffffffff,
-                    or(shl(32, chunk), chunk)
-                )
-                chunk := and(
-                    0x0000ffff0000ffff0000ffff0000ffff0000ffff0000ffff0000ffff0000ffff,
-                    or(shl(16, chunk), chunk)
-                )
-                chunk := and(
-                    0x00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff,
-                    or(shl(8, chunk), chunk)
-                )
-                chunk := and(
-                    0x0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f,
-                    or(shl(4, chunk), chunk)
-                )
-                mstore(add(add(output, 0x20), mul(i, 2)), chunk)
-            }
-        }
     }
 
     function _emptyBytesMemory() private pure returns (bytes memory result) {
