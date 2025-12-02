@@ -130,13 +130,14 @@ library TrieProof {
             } else if (nodeLength == LEAF_OR_EXTENSION_NODE_LENGTH) {
                 bytes memory path = node.decoded[0].readBytes().toNibbles();
                 uint8 prefix = uint8(path[0]);
-                Memory.Slice pathRemainder = path.asSlice().slice(2 - (prefix % 2)); // Path after the prefix
                 Memory.Slice keyRemainder = keyExpanded.asSlice().slice(keyIndex); // Remaining key to match
+                Memory.Slice pathRemainder = path.asSlice().slice(2 - (prefix % 2)); // Path after the prefix
+                uint256 pathRemainderLength = pathRemainder.length();
 
                 // pathRemainder must not be longer than keyRemainder, and it must be a prefix of it
                 if (
-                    pathRemainder.length() > keyRemainder.length() ||
-                    pathRemainder.getHash() != keyRemainder.slice(0, pathRemainder.length()).getHash()
+                    pathRemainderLength > keyRemainder.length() ||
+                    pathRemainder.getHash() != keyRemainder.slice(0, pathRemainderLength).getHash()
                 ) {
                     return (_emptyBytesMemory(), ProofError.INVALID_PATH_REMAINDER);
                 }
@@ -144,11 +145,11 @@ library TrieProof {
                 if (prefix == uint8(Prefix.EXTENSION_EVEN) || prefix == uint8(Prefix.EXTENSION_ODD)) {
                     // Increment keyIndex by the number of nibbles consumed and continue traversal
                     (currentNodeId, currentNodeIdLength) = _getNodeId(node.decoded[1]);
-                    keyIndex += pathRemainder.length();
+                    keyIndex += pathRemainderLength;
                 } else if (prefix == uint8(Prefix.LEAF_EVEN) || prefix == uint8(Prefix.LEAF_ODD)) {
                     // Leaf node (terminal) - return its value if key matches completely
                     // we already know that pathRemainder is a prefix of keyRemainder, so checking the length sufficient
-                    if (pathRemainder.length() != keyRemainder.length()) {
+                    if (pathRemainderLength != keyRemainder.length()) {
                         return (_emptyBytesMemory(), ProofError.MISMATCH_LEAF_PATH_KEY_REMAINDERS);
                     } else {
                         return _validateLastItem(node.decoded[1], proofLength, i);
