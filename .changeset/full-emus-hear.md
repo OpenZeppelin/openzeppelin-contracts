@@ -2,4 +2,4 @@
 'openzeppelin-solidity': minor
 ---
 
-`Account`: Use entrypoint v0.9's address by default.
+`Account`: Update default version of the ERC-4337 entrypoint to v0.9.
