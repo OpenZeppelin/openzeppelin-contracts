@@ -177,7 +177,6 @@ describe('TrieProof', function () {
       const value = generators.bytes32();
       await this.storage.setBytes32Slot(slot, value);
       await this.storage.setBytes32Slot(generators.bytes32(), generators.bytes32());
-      await this.storage.setBytes32Slot(generators.bytes32(), generators.bytes32());
 
       const {
         storageHash,
@@ -192,8 +191,9 @@ describe('TrieProof', function () {
         ProofError.NO_ERROR,
       ]);
 
-      // Corrupt proof
-      proof[1] = ethers.toBeHex(ethers.toBigInt(proof[1]) + 1n); // Corrupt internal large node hash
+      // Corrupt proof - replace the value part with a random hash
+      const [p] = ethers.decodeRlp(proof[1]);
+      proof[1] = ethers.encodeRlp([p, ethers.encodeRlp(generators.bytes32())]);
 
       await expect(this.mock.$verify(ethers.keccak256(slot), ethers.encodeRlp(value), proof, storageHash)).to.eventually
         .be.false;
