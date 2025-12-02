@@ -28,7 +28,7 @@ abstract contract ERC721Wrapper is ERC721, IERC721Receiver {
     /**
      * @dev Allow a user to deposit underlying tokens and mint the corresponding tokenIds.
      */
-    function depositFor(address account, uint256[] memory tokenIds) public virtual returns (bool) {
+    function depositFor(address account, uint256[] calldata tokenIds) public virtual returns (bool) {
         uint256 length = tokenIds.length;
         for (uint256 i = 0; i < length; ++i) {
             uint256 tokenId = tokenIds[i];
@@ -46,7 +46,7 @@ abstract contract ERC721Wrapper is ERC721, IERC721Receiver {
     /**
      * @dev Allow a user to burn wrapped tokens and withdraw the corresponding tokenIds of the underlying tokens.
      */
-    function withdrawTo(address account, uint256[] memory tokenIds) public virtual returns (bool) {
+    function withdrawTo(address account, uint256[] calldata tokenIds) public virtual returns (bool) {
         uint256 length = tokenIds.length;
         for (uint256 i = 0; i < length; ++i) {
             uint256 tokenId = tokenIds[i];
