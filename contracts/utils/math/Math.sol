@@ -646,7 +646,7 @@ library Math {
         // |    1110    |   14    |        table[14] = 3        |
         // |    1111    |   15    |        table[15] = 3        |
         //
-        // The lookup table is represented as a 32-byte value with the MSB positions for 0-15 in the last 16 bytes.
+        // The lookup table is represented as a 32-byte value with the MSB positions for 0-15 in the first 16 bytes (most significant half).
         assembly ("memory-safe") {
             r := or(r, byte(shr(r, x), 0x0000010102020202030303030303030300000000000000000000000000000000))
         }
@@ -719,15 +719,16 @@ library Math {
      * Adding one to the result gives the number of pairs of hex symbols needed to represent `value` as a hex string.
      */
     function log256(uint256 x) internal pure returns (uint256 r) {
+        // Since log256(x) = log2(x) / 8, we first compute log2(x) and then divide by 8 (>> 3).
         // If value has upper 128 bits set, log2 result is at least 128
         r = SafeCast.toUint(x > 0xffffffffffffffffffffffffffffffff) << 7;
-        // If upper 64 bits of 128-bit half set, add 64 to result
+        // If upper 64 bits of 128-bit half set, add 64 to log2 result
         r |= SafeCast.toUint((x >> r) > 0xffffffffffffffff) << 6;
-        // If upper 32 bits of 64-bit half set, add 32 to result
+        // If upper 32 bits of 64-bit half set, add 32 to log2 result
         r |= SafeCast.toUint((x >> r) > 0xffffffff) << 5;
-        // If upper 16 bits of 32-bit half set, add 16 to result
+        // If upper 16 bits of 32-bit half set, add 16 to log2 result
         r |= SafeCast.toUint((x >> r) > 0xffff) << 4;
-        // Add 1 if upper 8 bits of 16-bit half set, and divide accumulated result by 8
+        // Add 1 if upper 8 bits of 16-bit half set, and divide accumulated log2 result by 8 to get log256
         return (r >> 3) | SafeCast.toUint((x >> r) > 0xff);
     }
 
