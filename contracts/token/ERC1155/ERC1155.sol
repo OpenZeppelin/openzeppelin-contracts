@@ -178,6 +178,9 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
      * IMPORTANT: Overriding this function is discouraged because it poses a reentrancy risk from the receiver. So any
      * update to the contract state after this function would break the check-effect-interaction pattern. Consider
      * overriding {_update} instead.
+     *
+     * NOTE: this version is kept for backward compatibility. we recommend calling the alternate version with a boolean
+     * flag to achieve better control over which hook to call.
      */
     function _updateWithAcceptanceCheck(
         address from,
@@ -186,10 +189,30 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
         uint256[] memory values,
         bytes memory data
     ) internal virtual {
+        _updateWithAcceptanceCheck(from, to, ids, values, data, ids.length == 1);
+    }
+
+    /**
+     * @dev Version of {_update} that performs the token acceptance check by calling
+     * {IERC1155Receiver-onERC1155Received} or {IERC1155Receiver-onERC1155BatchReceived} on the receiver address if it
+     * contains code (eg. is a smart contract at the moment of execution).
+     *
+     * IMPORTANT: Overriding this function is discouraged because it poses a reentrancy risk from the receiver. So any
+     * update to the contract state after this function would break the check-effect-interaction pattern. Consider
+     * overriding {_update} instead.
+     */
+    function _updateWithAcceptanceCheck(
+        address from,
+        address to,
+        uint256[] memory ids,
+        uint256[] memory values,
+        bytes memory data,
+        bool single
+    ) internal virtual {
         _update(from, to, ids, values);
         if (to != address(0)) {
             address operator = _msgSender();
-            if (ids.length == 1) {
+            if (single) {
                 uint256 id = ids.unsafeMemoryAccess(0);
                 uint256 value = values.unsafeMemoryAccess(0);
                 ERC1155Utils.checkOnERC1155Received(operator, from, to, id, value, data);
@@ -219,7 +242,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
             revert ERC1155InvalidSender(address(0));
         }
         (uint256[] memory ids, uint256[] memory values) = _asSingletonArrays(id, value);
-        _updateWithAcceptanceCheck(from, to, ids, values, data);
+        _updateWithAcceptanceCheck(from, to, ids, values, data, true);
     }
 
     /**
@@ -246,7 +269,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
         if (from == address(0)) {
             revert ERC1155InvalidSender(address(0));
         }
-        _updateWithAcceptanceCheck(from, to, ids, values, data);
+        _updateWithAcceptanceCheck(from, to, ids, values, data, false);
     }
 
     /**
@@ -288,7 +311,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
             revert ERC1155InvalidReceiver(address(0));
         }
         (uint256[] memory ids, uint256[] memory values) = _asSingletonArrays(id, value);
-        _updateWithAcceptanceCheck(address(0), to, ids, values, data);
+        _updateWithAcceptanceCheck(address(0), to, ids, values, data, true);
     }
 
     /**
@@ -307,7 +330,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
         if (to == address(0)) {
             revert ERC1155InvalidReceiver(address(0));
         }
-        _updateWithAcceptanceCheck(address(0), to, ids, values, data);
+        _updateWithAcceptanceCheck(address(0), to, ids, values, data, false);
     }
 
     /**
@@ -325,7 +348,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
             revert ERC1155InvalidSender(address(0));
         }
         (uint256[] memory ids, uint256[] memory values) = _asSingletonArrays(id, value);
-        _updateWithAcceptanceCheck(from, address(0), ids, values, "");
+        _updateWithAcceptanceCheck(from, address(0), ids, values, "", true);
     }
 
     /**
@@ -343,7 +366,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
         if (from == address(0)) {
             revert ERC1155InvalidSender(address(0));
         }
-        _updateWithAcceptanceCheck(from, address(0), ids, values, "");
+        _updateWithAcceptanceCheck(from, address(0), ids, values, "", false);
     }
 
     /**
