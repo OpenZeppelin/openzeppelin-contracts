@@ -3,9 +3,9 @@
 pragma solidity ^0.8.24;
 
 import {
-    MODULE_TYPE_VALIDATOR,
-    MODULE_TYPE_FALLBACK,
     MODULE_TYPE_HOOK,
+    MODULE_TYPE_FALLBACK,
+    MODULE_TYPE_VALIDATOR,
     IERC7579Hook,
     IERC7579Module,
     IERC7579Validator
