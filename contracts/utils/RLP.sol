@@ -191,7 +191,7 @@ library RLP {
     }
 
     /**
-     * @dev Encode a bytes32 as an RLP array of sized size (32 bytes).
+     * @dev Encode a bytes32 as an RLP array of fixed size (32 bytes).
      *
      * Unlike {encode-uint256-}, this function uses array encoding that preserves the prefix zeros.
      */
