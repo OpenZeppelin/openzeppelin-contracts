@@ -166,7 +166,7 @@ library RLP {
     }
 
     /**
-     * @dev Encode a uint256 as an RLP scalar.
+     * @dev Encode an uint256 as an RLP scalar.
      *
      * Unlike {encode-bytes32-}, this function uses scalar encoding that removes the prefix zeros.
      */
