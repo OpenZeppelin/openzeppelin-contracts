@@ -151,7 +151,7 @@ library RLP {
     }
 
     /**
-     * @dev Encode an address as an RLP array of fixed size (20 bytes).
+     * @dev Encode an address as an RLP item of fixed size (20 bytes).
      *
      * The address is encoded with its leading zeros (if it has any). If someone wants to encode the address as a scalar,
      * they can cast it to an uint256 and then call the corresponding {encode} function.
@@ -191,7 +191,7 @@ library RLP {
     }
 
     /**
-     * @dev Encode a bytes32 as an RLP array of fixed size (32 bytes).
+     * @dev Encode a bytes32 as an RLP item of fixed size (32 bytes).
      *
      * Unlike {encode-uint256-}, this function uses array encoding that preserves the prefix zeros.
      */
