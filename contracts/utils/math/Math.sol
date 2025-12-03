@@ -475,9 +475,14 @@ library Math {
     /**
      * @dev Returns whether the provided byte array is zero.
      */
-    function _zeroBytes(bytes memory byteArray) private pure returns (bool) {
-        for (uint256 i = 0; i < byteArray.length; ++i) {
-            if (byteArray[i] != 0) {
+    function _zeroBytes(bytes memory buffer) private pure returns (bool) {
+        uint256 chunk;
+        for (uint256 i = 0; i < buffer.length; i += 0x20) {
+            // See _unsafeReadBytesOffset from utils/Bytes.sol
+            assembly ("memory-safe") {
+                chunk := mload(add(add(buffer, 0x20), i))
+            }
+            if (chunk >> (8 * saturatingSub(i + 0x20, buffer.length)) != 0) {
                 return false;
             }
         }
