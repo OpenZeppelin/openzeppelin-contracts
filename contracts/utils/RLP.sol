@@ -151,7 +151,7 @@ library RLP {
     }
 
     /**
-     * @dev Encode an address as RLP.
+     * @dev Encode an address as an RLP array of fixed size (20 bytes).
      *
      * The address is encoded with its leading zeros (if it has any). If someone wants to encode the address as a scalar,
      * they can cast it to an uint256 and then call the corresponding {encode} function.
@@ -165,7 +165,11 @@ library RLP {
         }
     }
 
-    /// @dev Encode a uint256 as RLP. Unlike {encode-bytes32-}, this DOES remove prefix zeros to minimize the output.
+    /**
+     * @dev Encode a uint256 as an RLP scalar.
+     *
+     * Unlike {encode-bytes32-}, this function uses scalar encoding that removes the prefix zeros.
+     */
     function encode(uint256 input) internal pure returns (bytes memory result) {
         if (input < SHORT_OFFSET) {
             assembly ("memory-safe") {
@@ -186,7 +190,11 @@ library RLP {
         }
     }
 
-    /// @dev Encode a bytes32 as RLP. Unlike {encode-uint256-}, this DOES NOT remove prefix zeros.
+    /**
+     * @dev Encode a bytes32 as an RLP array of sized size (32 bytes).
+     *
+     * Unlike {encode-uint256-}, this function uses array encoding that preserves the prefix zeros.
+     */
     function encode(bytes32 input) internal pure returns (bytes memory result) {
         assembly ("memory-safe") {
             result := mload(0x40)
