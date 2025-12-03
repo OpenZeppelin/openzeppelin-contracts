@@ -27,7 +27,7 @@ jobs:
       pull-requests: read
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Set up environment
         uses: ./.github/actions/setup
       - id: state
@@ -58,7 +58,7 @@ jobs:
     if: needs.state.outputs.start == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Set up environment
         uses: ./.github/actions/setup
       - run: bash scripts/git-user-config.sh
@@ -81,7 +81,7 @@ jobs:
     if: needs.state.outputs.promote == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Set up environment
         uses: ./.github/actions/setup
       - run: bash scripts/git-user-config.sh
@@ -102,7 +102,7 @@ jobs:
     if: needs.state.outputs.changesets == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0 # To get all tags
       - name: Set up environment
@@ -135,7 +135,7 @@ jobs:
     if: needs.state.outputs.publish == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Set up environment
         uses: ./.github/actions/setup
       - id: pack
@@ -144,17 +144,15 @@ jobs:
         env:
           PRERELEASE: ${{ needs.state.outputs.is_prerelease }}
       - name: Upload tarball artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: ${{ github.ref_name }}
           path: ${{ steps.pack.outputs.tarball }}
       - name: Publish
         run: bash scripts/release/workflow/publish.sh
         env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           TARBALL: ${{ steps.pack.outputs.tarball }}
           TAG: ${{ steps.pack.outputs.tag }}
-          NPM_CONFIG_PROVENANCE: true
       - name: Create Github Release
         uses: actions/github-script@v8
         env:
@@ -169,10 +167,10 @@ jobs:
     name: Tarball Integrity Check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Download tarball artifact
         id: artifact
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: ${{ github.ref_name }}
       - name: Check integrity
@@ -191,7 +189,7 @@ jobs:
     env:
       MERGE_BRANCH: merge/${{ github.ref_name }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0 # All branches
       - name: Set up environment

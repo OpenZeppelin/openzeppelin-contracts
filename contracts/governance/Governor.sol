@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.4.0) (governance/Governor.sol)
+// OpenZeppelin Contracts (last updated v5.5.0) (governance/Governor.sol)
 
 pragma solidity ^0.8.24;
 
@@ -659,7 +659,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
     }
 
     /**
-     * @dev Address through which the governor executes action. Will be overloaded by module that execute actions
+     * @dev Address through which the governor executes action. Will be overloaded by module that executes actions
      * through another contract such as a timelock.
      */
     function _executor() internal view virtual returns (address) {

@@ -20,7 +20,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Set up environment
         uses: ./.github/actions/setup
       - run: npm run lint
@@ -34,7 +34,7 @@ jobs:
       CI: true
       GAS: true
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Set up environment
         uses: ./.github/actions/setup
       - name: Run tests and generate gas report
@@ -55,7 +55,7 @@ jobs:
     env:
       FORCE_COLOR: 1
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0 # Include history so patch conflicts are resolved automatically
       - name: Set up environment
@@ -81,7 +81,7 @@ jobs:
   tests-foundry:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: recursive
       - name: Set up environment
@@ -92,7 +92,7 @@ jobs:
   coverage:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Set up environment
         uses: ./.github/actions/setup
       - name: Run coverage
@@ -104,18 +104,18 @@ jobs:
   harnesses:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Set up environment
         uses: ./.github/actions/setup
       - name: Compile harnesses
         run: |
-          make -C certora apply
+          make -C fv apply
           npm run compile:harnesses
 
   slither:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Set up environment
         uses: ./.github/actions/setup
       - uses: crytic/slither-action@v0.4.1
@@ -123,9 +123,9 @@ jobs:
   codespell:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Run CodeSpell
-        uses: codespell-project/actions-codespell@v2.1
+        uses: codespell-project/actions-codespell@v2.2
         with:
           check_hidden: true
           check_filenames: true

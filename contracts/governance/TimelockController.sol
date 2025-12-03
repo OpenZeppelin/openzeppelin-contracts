@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.4.0) (governance/TimelockController.sol)
+// OpenZeppelin Contracts (last updated v5.5.0) (governance/TimelockController.sol)
 
 pragma solidity ^0.8.20;
 
@@ -343,7 +343,7 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
     }
 
     /**
-     * @dev Execute an (ready) operation containing a single transaction.
+     * @dev Execute a ready operation containing a single transaction.
      *
      * Emits a {CallExecuted} event.
      *
@@ -370,7 +370,7 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
     }
 
     /**
-     * @dev Execute an (ready) operation containing a batch of transactions.
+     * @dev Execute a ready operation containing a batch of transactions.
      *
      * Emits one {CallExecuted} event per transaction in the batch.
      *

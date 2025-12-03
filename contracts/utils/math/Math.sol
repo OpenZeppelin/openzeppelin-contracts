@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.3.0) (utils/math/Math.sol)
+// OpenZeppelin Contracts (last updated v5.5.0) (utils/math/Math.sol)
 
 pragma solidity ^0.8.20;
 
@@ -134,10 +134,10 @@ library Math {
     }
 
     /**
-     * @dev Branchless ternary evaluation for `a ? b : c`. Gas costs are constant.
+     * @dev Branchless ternary evaluation for `condition ? a : b`. Gas costs are constant.
      *
      * IMPORTANT: This function may reduce bytecode size and consume less gas when used standalone.
-     * However, the compiler may optimize Solidity ternary operations (i.e. `a ? b : c`) to only compute
+     * However, the compiler may optimize Solidity ternary operations (i.e. `condition ? a : b`) to only compute
      * one branch when needed, making this function more expensive.
      */
     function ternary(bool condition, uint256 a, uint256 b) internal pure returns (uint256) {
@@ -168,8 +168,10 @@ library Math {
      * zero.
      */
     function average(uint256 a, uint256 b) internal pure returns (uint256) {
-        // (a + b) / 2 can overflow.
-        return (a & b) + (a ^ b) / 2;
+        unchecked {
+            // (a + b) / 2 can overflow.
+            return (a & b) + (a ^ b) / 2;
+        }
     }
 
     /**
@@ -473,9 +475,14 @@ library Math {
     /**
      * @dev Returns whether the provided byte array is zero.
      */
-    function _zeroBytes(bytes memory byteArray) private pure returns (bool) {
-        for (uint256 i = 0; i < byteArray.length; ++i) {
-            if (byteArray[i] != 0) {
+    function _zeroBytes(bytes memory buffer) private pure returns (bool) {
+        uint256 chunk;
+        for (uint256 i = 0; i < buffer.length; i += 0x20) {
+            // See _unsafeReadBytesOffset from utils/Bytes.sol
+            assembly ("memory-safe") {
+                chunk := mload(add(add(buffer, 0x20), i))
+            }
+            if (chunk >> (8 * saturatingSub(i + 0x20, buffer.length)) != 0) {
                 return false;
             }
         }

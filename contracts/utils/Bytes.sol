@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.4.0) (utils/Bytes.sol)
+// OpenZeppelin Contracts (last updated v5.5.0) (utils/Bytes.sol)
 
 pragma solidity ^0.8.24;
 
@@ -85,8 +85,7 @@ library Bytes {
      */
     function slice(bytes memory buffer, uint256 start, uint256 end) internal pure returns (bytes memory) {
         // sanitize
-        uint256 length = buffer.length;
-        end = Math.min(end, length);
+        end = Math.min(end, buffer.length);
         start = Math.min(start, end);
 
         // allocate and copy
@@ -102,6 +101,7 @@ library Bytes {
      * @dev Moves the content of `buffer`, from `start` (included) to the end of `buffer` to the start of that buffer.
      *
      * NOTE: This function modifies the provided buffer in place. If you need to preserve the original buffer, use {slice} instead
+     * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice[Javascript's `Array.splice`]
      */
     function splice(bytes memory buffer, uint256 start) internal pure returns (bytes memory) {
         return splice(buffer, start, buffer.length);
@@ -112,11 +112,11 @@ library Bytes {
      * `end` argument is truncated to the length of the `buffer`.
      *
      * NOTE: This function modifies the provided buffer in place. If you need to preserve the original buffer, use {slice} instead
+     * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice[Javascript's `Array.splice`]
      */
     function splice(bytes memory buffer, uint256 start, uint256 end) internal pure returns (bytes memory) {
         // sanitize
-        uint256 length = buffer.length;
-        end = Math.min(end, length);
+        end = Math.min(end, buffer.length);
         start = Math.min(start, end);
 
         // allocate and copy
@@ -168,7 +168,7 @@ library Bytes {
 
     /**
      * @dev Reverses the byte order of a bytes32 value, converting between little-endian and big-endian.
-     * Inspired in https://graphics.stanford.edu/~seander/bithacks.html#ReverseParallel[Reverse Parallel]
+     * Inspired by https://graphics.stanford.edu/~seander/bithacks.html#ReverseParallel[Reverse Parallel]
      */
     function reverseBytes32(bytes32 value) internal pure returns (bytes32) {
         value = // swap bytes

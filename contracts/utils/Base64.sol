@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.4.0) (utils/Base64.sol)
+// OpenZeppelin Contracts (last updated v5.5.0) (utils/Base64.sol)
 
 pragma solidity ^0.8.20;
 
@@ -11,17 +11,17 @@ import {SafeCast} from "./math/SafeCast.sol";
 library Base64 {
     using SafeCast for bool;
 
-    error InvalidBase64Digit(bytes1);
+    error InvalidBase64Char(bytes1);
 
     /**
-     * @dev Converts a `bytes` to its Bytes64 `string` representation.
+     * @dev Converts a `bytes` to its Base64 `string` representation.
      */
     function encode(bytes memory data) internal pure returns (string memory) {
         return string(_encode(data, false));
     }
 
     /**
-     * @dev Converts a `bytes` to its Bytes64Url `string` representation.
+     * @dev Converts a `bytes` to its Base64Url `string` representation.
      * Output is not padded with `=` as specified in https://www.rfc-editor.org/rfc/rfc4648[rfc4648].
      */
     function encodeURL(bytes memory data) internal pure returns (string memory) {
@@ -47,7 +47,7 @@ library Base64 {
      */
     function _encode(bytes memory data, bool urlAndFilenameSafe) private pure returns (bytes memory result) {
         /**
-         * Inspired by Brecht Devos (Brechtpd) implementation - MIT licence
+         * Inspired by Brecht Devos (Brechtpd) implementation - MIT license
          * https://github.com/Brechtpd/base64/blob/e78d9fd951e7b0977ddca77d92dc85183770daf4/base64.sol
          */
         if (data.length == 0) return "";
@@ -142,7 +142,7 @@ library Base64 {
      * @dev Internal decoding
      */
     function _decode(bytes memory data) private pure returns (bytes memory result) {
-        bytes4 errorSelector = InvalidBase64Digit.selector;
+        bytes4 errorSelector = InvalidBase64Char.selector;
 
         uint256 dataLength = data.length;
         if (dataLength == 0) return "";

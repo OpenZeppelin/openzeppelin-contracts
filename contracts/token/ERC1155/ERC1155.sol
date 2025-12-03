@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.4.0) (token/ERC1155/ERC1155.sol)
+// OpenZeppelin Contracts (last updated v5.5.0) (token/ERC1155/ERC1155.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
 import {IERC1155} from "./IERC1155.sol";
 import {IERC1155MetadataURI} from "./extensions/IERC1155MetadataURI.sol";
@@ -97,10 +97,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
 
     /// @inheritdoc IERC1155
     function safeTransferFrom(address from, address to, uint256 id, uint256 value, bytes memory data) public virtual {
-        address sender = _msgSender();
-        if (from != sender && !isApprovedForAll(from, sender)) {
-            revert ERC1155MissingApprovalForAll(sender, from);
-        }
+        _checkAuthorized(_msgSender(), from);
         _safeTransferFrom(from, to, id, value, data);
     }
 
@@ -112,11 +109,15 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
         uint256[] memory values,
         bytes memory data
     ) public virtual {
-        address sender = _msgSender();
-        if (from != sender && !isApprovedForAll(from, sender)) {
-            revert ERC1155MissingApprovalForAll(sender, from);
-        }
+        _checkAuthorized(_msgSender(), from);
         _safeBatchTransferFrom(from, to, ids, values, data);
+    }
+
+    /// @dev Checks if `operator` is authorized to transfer tokens owned by `owner`. Reverts with {ERC1155MissingApprovalForAll} if not.
+    function _checkAuthorized(address operator, address owner) internal view virtual {
+        if (owner != operator && !isApprovedForAll(owner, operator)) {
+            revert ERC1155MissingApprovalForAll(operator, owner);
+        }
     }
 
     /**

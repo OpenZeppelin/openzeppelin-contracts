@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.3.0) (finance/VestingWallet.sol)
+// OpenZeppelin Contracts (last updated v5.5.0) (finance/VestingWallet.sol)
+
 pragma solidity ^0.8.20;
 
 import {IERC20} from "../token/ERC20/IERC20.sol";
@@ -106,7 +107,7 @@ contract VestingWallet is Context, Ownable {
     }
 
     /**
-     * @dev Release the native token (ether) that have already vested.
+     * @dev Release the native tokens (ether) that have already vested.
      *
      * Emits a {EtherReleased} event.
      */

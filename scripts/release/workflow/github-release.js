@@ -9,7 +9,7 @@ module.exports = async ({ github, context }) => {
     owner: context.repo.owner,
     repo: context.repo.repo,
     tag_name: `v${version}`,
-    target_commitish: github.ref_name,
+    target_commitish: context.sha,
     body: extractSection(changelog, version),
     prerelease: process.env.PRERELEASE === 'true',
   });

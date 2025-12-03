@@ -38,6 +38,12 @@ abstract contract ERC7579ModuleMock is IERC7579Module {
     }
 }
 
+abstract contract ERC7579ModuleMaliciousMock is ERC7579ModuleMock {
+    function onUninstall(bytes calldata /*data*/) public virtual override {
+        revert("uninstall reverts");
+    }
+}
+
 abstract contract ERC7579HookMock is ERC7579ModuleMock(MODULE_TYPE_HOOK), IERC7579Hook {
     event PreCheck(address sender, uint256 value, bytes data);
     event PostCheck(bytes hookData);
