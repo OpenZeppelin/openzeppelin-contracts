@@ -13,21 +13,21 @@ Follow the [Certora installation guide](https://docs.certora.com/en/latest/docs/
 
 ## Running the verification
 
-The Formal Verification Tool proves specs for contracts, which are defined by the `./specs.json` file along with their pre-configured options.
+The Formal Verification Tool proves specs for contracts, which are defined by per-spec `.conf` files located under `fv/specs/` along with their pre-configured options.
 
 The verification script `./run.js` is used to submit verification jobs to the Certora Verification service.
 
 You can run it from the root of the repository with the following command:
 
 ```bash
-node fv/run.js [[CONTRACT_NAME:]SPEC_NAME] [OPTIONS...]
+node fv/run.js [SPEC_NAME | fv/specs/NAME.conf] [--all] [-p N] [-v]
 ```
 
 Where:
 
-- `CONTRACT_NAME` matches the `contract` key in the `./spec.json` file and may be empty. It will run all matching contracts if not provided.
-- `SPEC_NAME` refers to a `spec` key from the `./specs.json` file. It will run every spec if not provided.
-- `OPTIONS` extend the [Certora Prover CLI options](https://docs.certora.com/en/latest/docs/prover/cli/options.html#certora-prover-cli-options) and will respect the preconfigured options in the `specs.json` file.
+- `SPEC_NAME` is the base name of a configuration file in `fv/specs/` without extension. For example, `AccessControl` maps to `fv/specs/AccessControl.conf`.
+- Alternatively, you may pass an explicit path to a `.conf` file under `fv/specs/`.
+- Supported script options are `--all`, `--parallel/-p`, and `--verbose/-v`.
 
 > **Note**
 > A single spec may be configured to run for multiple contracts, whereas a single contract may run multiple specs.
@@ -35,7 +35,7 @@ Where:
 Example usage:
 
 ```bash
-node fv/run.js AccessControl # Run the AccessControl spec against every contract implementing it
+node fv/run.js AccessControl # Run the AccessControl configuration (fv/specs/AccessControl.conf) using its harness and spec
 ```
 
 ## Adapting to changes in the contracts

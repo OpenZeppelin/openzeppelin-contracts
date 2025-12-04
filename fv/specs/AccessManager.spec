@@ -337,7 +337,7 @@ rule getAccessChangeCall(uint64 roleId, address account) {
     // arbitrary function call
     method f; calldataarg args; f(e, args);
 
-    // values before
+    // values after
     mathint getAccess1After = getAccess_since(e, roleId, account);
     mathint getAccess2After = getAccess_currentDelay(e, roleId, account);
     mathint getAccess3After = getAccess_pendingDelay(e, roleId, account);
@@ -589,7 +589,7 @@ rule getRoleGrantDelayChangeCall(uint64 roleId) {
         delayEffectBefore  != delayEffectAfter
     ) => (
         (
-            // ... it was the consequence of a call to setTargetAdminDelay
+            // ... it was the consequence of a call to setGrantDelay
             f.selector == sig:setGrantDelay(uint64,uint32).selector
         ) && (
             // ... delay cannot decrease instantly

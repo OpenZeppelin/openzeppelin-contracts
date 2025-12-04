@@ -38,7 +38,7 @@ import {Hashes} from "./Hashes.sol";
 
 const errors = `\
 /**
- *@dev The multiproof provided is not valid.
+ * @dev The multiproof provided is not valid.
  */
 error MerkleProofInvalidMultiproof();
 `;
