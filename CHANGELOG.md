@@ -1,6 +1,6 @@
 # Changelog
 
-## Breaking changes
+### Breaking changes
 
 - `RLP`: The `encode(bytes32)` function now encodes `bytes32` as a fixed size item and not as a scalar in `encode(uint256)`. Users must replace calls to `encode(bytes32)` with `encode(uint256(bytes32))` to preserve the same behavior.
 
