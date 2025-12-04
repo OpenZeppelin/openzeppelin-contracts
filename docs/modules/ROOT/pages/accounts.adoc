@@ -2,7 +2,7 @@
 
 OpenZeppelin provides a simple xref:api:account.adoc#Account[`Account`] implementation including only the basic logic to handle user operations in compliance with ERC-4337. Developers who want to build their own account can leverage it to bootstrap custom implementations.
 
-User operations are validated using an xref:api:utils.adoc#AbstractSigner[`AbstractSigner`], which requires implementing the internal xref:api:utils.adoc#AbstractSigner-_rawSignatureValidation-bytes32-bytes-[`_rawSignatureValidation`] function, of which we offer a set of implementations to cover a wide customization range. This is the lowest-level signature validation layer and is used to wrap other validation methods like the Account's xref:api:account.adoc#Account-validateUserOp-struct-PackedUserOperation-bytes32-uint256-[`validateUserOp`].
+User operations are validated using an xref:api:utils/cryptography.adoc#AbstractSigner[`AbstractSigner`], which requires implementing the internal xref:api:utils/cryptography.adoc#AbstractSigner-_rawSignatureValidation-bytes32-bytes-[`_rawSignatureValidation`] function, of which we offer a set of implementations to cover a wide customization range. This is the lowest-level signature validation layer and is used to wrap other validation methods like the Account's xref:api:account.adoc#Account-validateUserOp-struct-PackedUserOperation-bytes32-uint256-[`validateUserOp`].
 
 == Setting up an account
 
