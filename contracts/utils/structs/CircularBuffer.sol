@@ -34,8 +34,18 @@ import {Panic} from "../Panic.sol";
  *
  *     // Declare a buffer storage variable
  *     CircularBuffer.Bytes32CircularBuffer private myBuffer;
+ *
+ *     constructor() {
+ *         myBuffer.setup(16); // Initialize the buffer with a non-zero fixed size (e.g., 16)
+ *     }
+ *
+ *     function pushValue(bytes32 value) external {
+ *         myBuffer.push(value); // Safe to push because the buffer was initialized in the constructor
+ *     }
  * }
  * ```
+ *
+ * NOTE: Make sure to call {setup} on your buffer during construction/initialization
  *
  * _Available since v5.1._
  */

@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
-import {AccountERC7702WithModulesMock} from "../patched/mocks/account/AccountMock.sol";
+import {AccountEIP7702WithModulesMock} from "../patched/mocks/account/AccountMock.sol";
 import {EIP712} from "../patched/utils/cryptography/EIP712.sol";
 import {EnumerableSet} from "../patched/utils/structs/EnumerableSet.sol";
 
-contract AccountHarness is AccountERC7702WithModulesMock {
+contract AccountHarness is AccountEIP7702WithModulesMock {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     constructor(string memory name, string memory version) EIP712(name, version) {}
