@@ -182,148 +182,173 @@ contract ArraysTest is Test, SymTest {
         _assertSliceOf(result, originalValues, sanitizedStart, expectedLength);
     }
 
-    // function testSpliceAddressWithReplacementFromStart(
-    //     address[] memory values,
-    //     address[] memory replacement
-    // ) public pure {
-    //     address[] memory originalValues = _copyArray(values);
-    //     address[] memory result = Arrays.splice(values, replacement);
+    function testReplaceAddress(address[] memory buffer, uint256 pos, address[] memory replacement) public pure {
+        address[] memory originalBuffer = _copyArray(buffer);
+        address[] memory originalReplacement = _copyArray(replacement);
+        address[] memory result = Arrays.replace(buffer, pos, replacement);
 
-    //     bytes32[] memory valuesBytes;
-    //     bytes32[] memory originalValuesBytes;
-    //     bytes32[] memory replacementBytes;
-    //     bytes32[] memory resultBytes;
+        // Result should be the same object as input (modified in place)
+        assertEq(result, buffer);
 
-    //     assembly {
-    //         valuesBytes := values
-    //         originalValuesBytes := originalValues
-    //         replacementBytes := replacement
-    //         resultBytes := result
-    //     }
+        // Buffer length should remain unchanged
+        assertEq(result.length, originalBuffer.length);
 
-    //     _validateSplice(valuesBytes, originalValuesBytes, 0, replacementBytes, resultBytes);
-    // }
+        // The replacement is not modified
+        assertEq(replacement, originalReplacement);
 
-    // function testSpliceAddressWithReplacement(
-    //     address[] memory values,
-    //     uint256 start,
-    //     address[] memory replacement
-    // ) public pure {
-    //     address[] memory originalValues = _copyArray(values);
-    //     address[] memory result = Arrays.splice(values, start, replacement);
+        for (uint256 i = 0; i < buffer.length; ++i) {
+            if (i < pos) {
+                assertEq(result[i], originalBuffer[i]);
+            } else if (i < pos + replacement.length) {
+                assertEq(result[i], replacement[i - pos]);
+            } else {
+                assertEq(result[i], originalBuffer[i]);
+            }
+        }
+    }
 
-    //     bytes32[] memory valuesBytes;
-    //     bytes32[] memory originalValuesBytes;
-    //     bytes32[] memory replacementBytes;
-    //     bytes32[] memory resultBytes;
+    function testReplaceAddressFull(
+        address[] memory buffer,
+        uint256 pos,
+        address[] memory replacement,
+        uint256 offset,
+        uint256 length
+    ) public pure {
+        address[] memory originalBuffer = _copyArray(buffer);
+        address[] memory originalReplacement = _copyArray(replacement);
+        address[] memory result = Arrays.replace(buffer, pos, replacement, offset, length);
 
-    //     assembly {
-    //         valuesBytes := values
-    //         originalValuesBytes := originalValues
-    //         replacementBytes := replacement
-    //         resultBytes := result
-    //     }
+        // Result should be the same object as input (modified in place)
+        assertEq(result, buffer);
 
-    //     _validateSplice(valuesBytes, originalValuesBytes, start, replacementBytes, resultBytes);
-    // }
+        // Buffer length should remain unchanged
+        assertEq(result.length, originalBuffer.length);
 
-    // function testSpliceBytes32WithReplacementFromStart(
-    //     bytes32[] memory values,
-    //     bytes32[] memory replacement
-    // ) public pure {
-    //     bytes32[] memory originalValues = _copyArray(values);
-    //     bytes32[] memory result = Arrays.splice(values, replacement);
+        // The replacement is not modified
+        assertEq(replacement, originalReplacement);
 
-    //     _validateSplice(values, originalValues, 0, replacement, result);
-    // }
+        for (uint256 i = 0; i < buffer.length; ++i) {
+            if (i < pos) {
+                assertEq(result[i], originalBuffer[i]);
+            } else if (i < pos + Math.min(Math.saturatingSub(replacement.length, offset), length)) {
+                assertEq(result[i], replacement[i - pos + offset]);
+            } else {
+                assertEq(result[i], originalBuffer[i]);
+            }
+        }
+    }
 
-    // function testSpliceBytes32WithReplacement(
-    //     bytes32[] memory values,
-    //     uint256 start,
-    //     bytes32[] memory replacement
-    // ) public pure {
-    //     bytes32[] memory originalValues = _copyArray(values);
-    //     bytes32[] memory result = Arrays.splice(values, start, replacement);
+    function testReplaceBytes32(bytes32[] memory buffer, uint256 pos, bytes32[] memory replacement) public pure {
+        bytes32[] memory originalBuffer = _copyArray(buffer);
+        bytes32[] memory originalReplacement = _copyArray(replacement);
+        bytes32[] memory result = Arrays.replace(buffer, pos, replacement);
 
-    //     _validateSplice(values, originalValues, start, replacement, result);
-    // }
+        // Result should be the same object as input (modified in place)
+        assertEq(result, buffer);
 
-    // function testSpliceUint256WithReplacementFromStart(
-    //     uint256[] memory values,
-    //     uint256[] memory replacement
-    // ) public pure {
-    //     uint256[] memory originalValues = _copyArray(values);
-    //     uint256[] memory result = Arrays.splice(values, replacement);
+        // Buffer length should remain unchanged
+        assertEq(result.length, originalBuffer.length);
 
-    //     bytes32[] memory valuesBytes;
-    //     bytes32[] memory originalValuesBytes;
-    //     bytes32[] memory replacementBytes;
-    //     bytes32[] memory resultBytes;
+        // The replacement is not modified
+        assertEq(replacement, originalReplacement);
 
-    //     assembly {
-    //         valuesBytes := values
-    //         originalValuesBytes := originalValues
-    //         replacementBytes := replacement
-    //         resultBytes := result
-    //     }
+        for (uint256 i = 0; i < buffer.length; ++i) {
+            if (i < pos) {
+                assertEq(result[i], originalBuffer[i]);
+            } else if (i < pos + replacement.length) {
+                assertEq(result[i], replacement[i - pos]);
+            } else {
+                assertEq(result[i], originalBuffer[i]);
+            }
+        }
+    }
 
-    //     _validateSplice(valuesBytes, originalValuesBytes, 0, replacementBytes, resultBytes);
-    // }
+    function testReplaceBytes32Full(
+        bytes32[] memory buffer,
+        uint256 pos,
+        bytes32[] memory replacement,
+        uint256 offset,
+        uint256 length
+    ) public pure {
+        bytes32[] memory originalBuffer = _copyArray(buffer);
+        bytes32[] memory originalReplacement = _copyArray(replacement);
+        bytes32[] memory result = Arrays.replace(buffer, pos, replacement, offset, length);
 
-    // function testSpliceUint256WithReplacement(
-    //     uint256[] memory values,
-    //     uint256 start,
-    //     uint256[] memory replacement
-    // ) public pure {
-    //     uint256[] memory originalValues = _copyArray(values);
-    //     uint256[] memory result = Arrays.splice(values, start, replacement);
+        // Result should be the same object as input (modified in place)
+        assertEq(result, buffer);
 
-    //     bytes32[] memory valuesBytes;
-    //     bytes32[] memory originalValuesBytes;
-    //     bytes32[] memory replacementBytes;
-    //     bytes32[] memory resultBytes;
-    //     assembly {
-    //         valuesBytes := values
-    //         originalValuesBytes := originalValues
-    //         replacementBytes := replacement
-    //         resultBytes := result
-    //     }
+        // Buffer length should remain unchanged
+        assertEq(result.length, originalBuffer.length);
 
-    //     _validateSplice(valuesBytes, originalValuesBytes, start, replacementBytes, resultBytes);
-    // }
+        // The replacement is not modified
+        assertEq(replacement, originalReplacement);
 
-    // function _validateSplice(
-    //     bytes32[] memory values,
-    //     bytes32[] memory originalValues,
-    //     uint256 start,
-    //     bytes32[] memory replacement,
-    //     bytes32[] memory result
-    // ) internal pure {
-    //     // Result should be the same object as input (modified in place)
-    //     assertEq(result, values);
+        for (uint256 i = 0; i < buffer.length; ++i) {
+            if (i < pos) {
+                assertEq(result[i], originalBuffer[i]);
+            } else if (i < pos + Math.min(Math.saturatingSub(replacement.length, offset), length)) {
+                assertEq(result[i], replacement[i - pos + offset]);
+            } else {
+                assertEq(result[i], originalBuffer[i]);
+            }
+        }
+    }
 
-    //     // Array length should remain unchanged
-    //     assertEq(result.length, originalValues.length);
+    function testReplaceUint256(uint256[] memory buffer, uint256 pos, uint256[] memory replacement) public pure {
+        uint256[] memory originalBuffer = _copyArray(buffer);
+        uint256[] memory originalReplacement = _copyArray(replacement);
+        uint256[] memory result = Arrays.replace(buffer, pos, replacement);
 
-    //     // Calculate expected bounds after sanitization
-    //     uint256 sanitizedStart = Math.min(start, originalValues.length);
-    //     uint256 copyLength = Math.min(replacement.length, originalValues.length - sanitizedStart);
+        // Result should be the same object as input (modified in place)
+        assertEq(result, buffer);
 
-    //     // Verify content before start position is unchanged
-    //     for (uint256 i = 0; i < sanitizedStart; ++i) {
-    //         assertEq(result[i], originalValues[i]);
-    //     }
+        // Buffer length should remain unchanged
+        assertEq(result.length, originalBuffer.length);
 
-    //     // Verify replacement content was copied correctly
-    //     for (uint256 i = 0; i < copyLength; ++i) {
-    //         assertEq(result[sanitizedStart + i], replacement[i]);
-    //     }
+        // The replacement is not modified
+        assertEq(replacement, originalReplacement);
 
-    //     // Verify content after replacement is unchanged
-    //     for (uint256 i = sanitizedStart + copyLength; i < result.length; ++i) {
-    //         assertEq(result[i], originalValues[i]);
-    //     }
-    // }
+        for (uint256 i = 0; i < buffer.length; ++i) {
+            if (i < pos) {
+                assertEq(result[i], originalBuffer[i]);
+            } else if (i < pos + replacement.length) {
+                assertEq(result[i], replacement[i - pos]);
+            } else {
+                assertEq(result[i], originalBuffer[i]);
+            }
+        }
+    }
+
+    function testReplaceUint256Full(
+        uint256[] memory buffer,
+        uint256 pos,
+        uint256[] memory replacement,
+        uint256 offset,
+        uint256 length
+    ) public pure {
+        uint256[] memory originalBuffer = _copyArray(buffer);
+        uint256[] memory originalReplacement = _copyArray(replacement);
+        uint256[] memory result = Arrays.replace(buffer, pos, replacement, offset, length);
+
+        // Result should be the same object as input (modified in place)
+        assertEq(result, buffer);
+
+        // Buffer length should remain unchanged
+        assertEq(result.length, originalBuffer.length);
+
+        // The replacement is not modified
+        assertEq(replacement, originalReplacement);
+
+        for (uint256 i = 0; i < buffer.length; ++i) {
+            if (i < pos) {
+                assertEq(result[i], originalBuffer[i]);
+            } else if (i < pos + Math.min(Math.saturatingSub(replacement.length, offset), length)) {
+                assertEq(result[i], replacement[i - pos + offset]);
+            } else {
+                assertEq(result[i], originalBuffer[i]);
+            }
+        }
+    }
 
     /// Asserts
 

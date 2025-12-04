@@ -155,7 +155,7 @@ contract BytesTest is Test {
         }
     }
 
-    function testReplacement(bytes memory buffer, uint256 pos, bytes memory replacement) public pure {
+    function testReplace(bytes memory buffer, uint256 pos, bytes memory replacement) public pure {
         bytes memory originalBuffer = bytes.concat(buffer);
         bytes memory originalReplacement = bytes.concat(replacement);
         bytes memory result = Bytes.replace(buffer, pos, replacement);
@@ -180,7 +180,7 @@ contract BytesTest is Test {
         }
     }
 
-    function testReplacementExtra(
+    function testReplaceFull(
         bytes memory buffer,
         uint256 pos,
         bytes memory replacement,
