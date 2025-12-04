@@ -91,7 +91,7 @@ describe('Bytes', function () {
         it(descr, async function () {
           const result = ethers.hexlify(lorem.slice(start));
           await expect(this.mock.$slice(lorem, start)).to.eventually.equal(result);
-          await expect(this.mock.$splice(lorem, ethers.Typed.uint256(start))).to.eventually.equal(result);
+          await expect(this.mock.$splice(lorem, start)).to.eventually.equal(result);
         });
       }
     });
