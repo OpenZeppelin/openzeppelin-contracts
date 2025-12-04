@@ -424,34 +424,44 @@ function splice(${type.name}[] memory array, uint256 start, uint256 end) interna
 }
 
 /**
- * @dev Replaces the content of \`array\` with the content of \`replacement\`. The replacement is truncated to fit within the bounds of the array.
+ * @dev Replaces the content of \`array\` starting at position \`pos\` with the content of \`replacement\`. The
+ * replacement is truncated to fit within the bounds of the array.
  *
- * NOTE: This function modifies the provided array in place. If you need to preserve the original array, use {slice} instead
- * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice[Javascript's \`Array.splice\`]
+ * NOTE: This function modifies the provided array in place.
  */
-function splice(${type.name}[] memory array, ${type.name}[] memory replacement) internal pure returns (${type.name}[] memory) {
-    return splice(array, 0, replacement);
+function replace(
+    ${type.name}[] memory array,
+    uint256 pos,
+    ${type.name}[] memory replacement
+) internal pure returns (${type.name}[] memory) {
+    return replace(array, pos, replacement, 0, replacement.length);
 }
 
 /**
- * @dev Replaces the content of \`array\` starting at position \`start\` with the content of \`replacement\`. The
- * replacement is truncated to fit within the bounds of the array.
+ * @dev Replaces the content of \`array\` starting at position \`pos\` with the content located in \`replacement\`
+ * between \`offset\` and \`offset + length\`. The replacement is truncated to fit within the bounds of the array.
  *
- * NOTE: This function modifies the provided array in place. If you need to preserve the original array, use {slice} instead
- * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice[Javascript's \`Array.splice\`]
+ * NOTE: This function modifies the provided array in place.
  */
-function splice(
+function replace(
     ${type.name}[] memory array,
-    uint256 start,
-    ${type.name}[] memory replacement
+    uint256 pos,
+    ${type.name}[] memory replacement,
+    uint256 offset,
+    uint256 length
 ) internal pure returns (${type.name}[] memory) {
     // sanitize
-    start = Math.min(start, array.length);
-    uint256 copyLength = Math.min(replacement.length, array.length - start);
+    pos = Math.min(pos, array.length);
+    offset = Math.min(offset, replacement.length);
+    length = Math.min(length, Math.min(replacement.length - offset, array.length - pos));
 
     // allocate and copy
     assembly ("memory-safe") {
-        mcopy(add(add(array, 0x20), mul(start, 0x20)), add(replacement, 0x20), mul(copyLength, 0x20))
+        mcopy(
+            add(add(array, 0x20), mul(pos, 0x20)),
+            add(add(replacement, 0x20), mul(offset, 0x20)),
+            mul(length, 0x20)
+        )
     }
 
     return array;
