@@ -129,30 +129,36 @@ library Bytes {
     }
 
     /**
-     * @dev Replaces the content of `buffer` with the content of `replacement`. The replacement is truncated to fit within the bounds of the buffer.
+     * @dev Replaces the content of `buffer` starting at position `pos` with the content of `buffer`. The
+     * replacement is truncated to fit within the bounds of the buffer.
      *
-     * NOTE: This function modifies the provided buffer in place. If you need to preserve the original buffer, use {slice} instead
-     * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice[Javascript's `Array.splice`]
+     * NOTE: This function modifies the provided buffer in place.
      */
-    function splice(bytes memory buffer, bytes memory replacement) internal pure returns (bytes memory) {
-        return splice(buffer, 0, replacement);
+    function replace(bytes memory buffer, uint256 pos, bytes memory replacement) internal pure returns (bytes memory) {
+        return replace(buffer, pos, replacement, 0, replacement.length);
     }
 
     /**
-     * @dev Replaces the content of `buffer` starting at position `start` with the content of `replacement`. The
-     * replacement is truncated to fit within the bounds of the buffer.
+     * @dev Replaces the content of `buffer` starting at position `pos` with the content located in `replacement`
+     * between `offset` and `offset + length`. The replacement is truncated to fit within the bounds of the buffer.
      *
-     * NOTE: This function modifies the provided buffer in place. If you need to preserve the original buffer, use {slice} instead
-     * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice[Javascript's `Array.splice`]
+     * NOTE: This function modifies the provided buffer in place.
      */
-    function splice(bytes memory buffer, uint256 start, bytes memory replacement) internal pure returns (bytes memory) {
+    function replace(
+        bytes memory buffer,
+        uint256 pos,
+        bytes memory replacement,
+        uint256 offset,
+        uint256 length
+    ) internal pure returns (bytes memory) {
         // sanitize
-        start = Math.min(start, buffer.length);
-        uint256 copyLength = Math.min(replacement.length, buffer.length - start);
+        pos = Math.min(pos, buffer.length);
+        offset = Math.min(offset, replacement.length);
+        length = Math.min(length, Math.min(replacement.length - offset, buffer.length - pos));
 
         // allocate and copy
         assembly ("memory-safe") {
-            mcopy(add(add(buffer, 0x20), start), add(replacement, 0x20), copyLength)
+            mcopy(add(add(buffer, 0x20), pos), add(add(replacement, 0x20), offset), length)
         }
 
         return buffer;

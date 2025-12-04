@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.24;
 
-import {Test} from "forge-std/Test.sol";
+import {Test, console} from "forge-std/Test.sol";
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 import {Bytes} from "@openzeppelin/contracts/utils/Bytes.sol";
 
@@ -155,9 +155,10 @@ contract BytesTest is Test {
         }
     }
 
-    function testSpliceWithReplacementFromStart(bytes memory buffer, bytes memory replacement) public pure {
+    function testReplacement(bytes memory buffer, uint256 pos, bytes memory replacement) public pure {
         bytes memory originalBuffer = bytes.concat(buffer);
-        bytes memory result = buffer.splice(replacement);
+        bytes memory originalReplacement = bytes.concat(replacement);
+        bytes memory result = Bytes.replace(buffer, pos, replacement);
 
         // Result should be the same object as input (modified in place)
         assertEq(result, buffer);
@@ -165,23 +166,30 @@ contract BytesTest is Test {
         // Buffer length should remain unchanged
         assertEq(result.length, originalBuffer.length);
 
-        // Calculate copy length (replacement is applied from start=0)
-        uint256 copyLength = Math.min(replacement.length, originalBuffer.length);
+        // The replacement is not modified
+        assertEq(replacement, originalReplacement);
 
-        // Verify replacement content was copied correctly from start
-        for (uint256 i = 0; i < copyLength; ++i) {
-            assertEq(result[i], replacement[i]);
-        }
-
-        // Verify content after replacement is unchanged
-        for (uint256 i = copyLength; i < result.length; ++i) {
-            assertEq(result[i], originalBuffer[i]);
+        for (uint256 i = 0; i < buffer.length; ++i) {
+            if (i < pos) {
+                assertEq(result[i], originalBuffer[i]);
+            } else if (i < pos + replacement.length) {
+                assertEq(result[i], replacement[i - pos]);
+            } else {
+                assertEq(result[i], originalBuffer[i]);
+            }
         }
     }
 
-    function testSpliceWithReplacement(bytes memory buffer, uint256 start, bytes memory replacement) public pure {
+    function testReplacementExtra(
+        bytes memory buffer,
+        uint256 pos,
+        bytes memory replacement,
+        uint256 offset,
+        uint256 length
+    ) public pure {
         bytes memory originalBuffer = bytes.concat(buffer);
-        bytes memory result = buffer.splice(start, replacement);
+        bytes memory originalReplacement = bytes.concat(replacement);
+        bytes memory result = Bytes.replace(buffer, pos, replacement, offset, length);
 
         // Result should be the same object as input (modified in place)
         assertEq(result, buffer);
@@ -189,23 +197,17 @@ contract BytesTest is Test {
         // Buffer length should remain unchanged
         assertEq(result.length, originalBuffer.length);
 
-        // Calculate expected bounds after sanitization
-        uint256 sanitizedStart = Math.min(start, originalBuffer.length);
-        uint256 copyLength = Math.min(replacement.length, originalBuffer.length - sanitizedStart);
+        // The replacement is not modified
+        assertEq(replacement, originalReplacement);
 
-        // Verify content before start position is unchanged
-        for (uint256 i = 0; i < sanitizedStart; ++i) {
-            assertEq(result[i], originalBuffer[i]);
-        }
-
-        // Verify replacement content was copied correctly
-        for (uint256 i = 0; i < copyLength; ++i) {
-            assertEq(result[sanitizedStart + i], replacement[i]);
-        }
-
-        // Verify content after replacement is unchanged
-        for (uint256 i = sanitizedStart + copyLength; i < result.length; ++i) {
-            assertEq(result[i], originalBuffer[i]);
+        for (uint256 i = 0; i < buffer.length; ++i) {
+            if (i < pos) {
+                assertEq(result[i], originalBuffer[i]);
+            } else if (i < pos + Math.min(Math.saturatingSub(replacement.length, offset), length)) {
+                assertEq(result[i], replacement[i - pos + offset]);
+            } else {
+                assertEq(result[i], originalBuffer[i]);
+            }
         }
     }
 

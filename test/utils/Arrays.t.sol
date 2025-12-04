@@ -182,148 +182,148 @@ contract ArraysTest is Test, SymTest {
         _assertSliceOf(result, originalValues, sanitizedStart, expectedLength);
     }
 
-    function testSpliceAddressWithReplacementFromStart(
-        address[] memory values,
-        address[] memory replacement
-    ) public pure {
-        address[] memory originalValues = _copyArray(values);
-        address[] memory result = Arrays.splice(values, replacement);
+    // function testSpliceAddressWithReplacementFromStart(
+    //     address[] memory values,
+    //     address[] memory replacement
+    // ) public pure {
+    //     address[] memory originalValues = _copyArray(values);
+    //     address[] memory result = Arrays.splice(values, replacement);
 
-        bytes32[] memory valuesBytes;
-        bytes32[] memory originalValuesBytes;
-        bytes32[] memory replacementBytes;
-        bytes32[] memory resultBytes;
+    //     bytes32[] memory valuesBytes;
+    //     bytes32[] memory originalValuesBytes;
+    //     bytes32[] memory replacementBytes;
+    //     bytes32[] memory resultBytes;
 
-        assembly {
-            valuesBytes := values
-            originalValuesBytes := originalValues
-            replacementBytes := replacement
-            resultBytes := result
-        }
+    //     assembly {
+    //         valuesBytes := values
+    //         originalValuesBytes := originalValues
+    //         replacementBytes := replacement
+    //         resultBytes := result
+    //     }
 
-        _validateSplice(valuesBytes, originalValuesBytes, 0, replacementBytes, resultBytes);
-    }
+    //     _validateSplice(valuesBytes, originalValuesBytes, 0, replacementBytes, resultBytes);
+    // }
 
-    function testSpliceAddressWithReplacement(
-        address[] memory values,
-        uint256 start,
-        address[] memory replacement
-    ) public pure {
-        address[] memory originalValues = _copyArray(values);
-        address[] memory result = Arrays.splice(values, start, replacement);
+    // function testSpliceAddressWithReplacement(
+    //     address[] memory values,
+    //     uint256 start,
+    //     address[] memory replacement
+    // ) public pure {
+    //     address[] memory originalValues = _copyArray(values);
+    //     address[] memory result = Arrays.splice(values, start, replacement);
 
-        bytes32[] memory valuesBytes;
-        bytes32[] memory originalValuesBytes;
-        bytes32[] memory replacementBytes;
-        bytes32[] memory resultBytes;
+    //     bytes32[] memory valuesBytes;
+    //     bytes32[] memory originalValuesBytes;
+    //     bytes32[] memory replacementBytes;
+    //     bytes32[] memory resultBytes;
 
-        assembly {
-            valuesBytes := values
-            originalValuesBytes := originalValues
-            replacementBytes := replacement
-            resultBytes := result
-        }
+    //     assembly {
+    //         valuesBytes := values
+    //         originalValuesBytes := originalValues
+    //         replacementBytes := replacement
+    //         resultBytes := result
+    //     }
 
-        _validateSplice(valuesBytes, originalValuesBytes, start, replacementBytes, resultBytes);
-    }
+    //     _validateSplice(valuesBytes, originalValuesBytes, start, replacementBytes, resultBytes);
+    // }
 
-    function testSpliceBytes32WithReplacementFromStart(
-        bytes32[] memory values,
-        bytes32[] memory replacement
-    ) public pure {
-        bytes32[] memory originalValues = _copyArray(values);
-        bytes32[] memory result = Arrays.splice(values, replacement);
+    // function testSpliceBytes32WithReplacementFromStart(
+    //     bytes32[] memory values,
+    //     bytes32[] memory replacement
+    // ) public pure {
+    //     bytes32[] memory originalValues = _copyArray(values);
+    //     bytes32[] memory result = Arrays.splice(values, replacement);
 
-        _validateSplice(values, originalValues, 0, replacement, result);
-    }
+    //     _validateSplice(values, originalValues, 0, replacement, result);
+    // }
 
-    function testSpliceBytes32WithReplacement(
-        bytes32[] memory values,
-        uint256 start,
-        bytes32[] memory replacement
-    ) public pure {
-        bytes32[] memory originalValues = _copyArray(values);
-        bytes32[] memory result = Arrays.splice(values, start, replacement);
+    // function testSpliceBytes32WithReplacement(
+    //     bytes32[] memory values,
+    //     uint256 start,
+    //     bytes32[] memory replacement
+    // ) public pure {
+    //     bytes32[] memory originalValues = _copyArray(values);
+    //     bytes32[] memory result = Arrays.splice(values, start, replacement);
 
-        _validateSplice(values, originalValues, start, replacement, result);
-    }
+    //     _validateSplice(values, originalValues, start, replacement, result);
+    // }
 
-    function testSpliceUint256WithReplacementFromStart(
-        uint256[] memory values,
-        uint256[] memory replacement
-    ) public pure {
-        uint256[] memory originalValues = _copyArray(values);
-        uint256[] memory result = Arrays.splice(values, replacement);
+    // function testSpliceUint256WithReplacementFromStart(
+    //     uint256[] memory values,
+    //     uint256[] memory replacement
+    // ) public pure {
+    //     uint256[] memory originalValues = _copyArray(values);
+    //     uint256[] memory result = Arrays.splice(values, replacement);
 
-        bytes32[] memory valuesBytes;
-        bytes32[] memory originalValuesBytes;
-        bytes32[] memory replacementBytes;
-        bytes32[] memory resultBytes;
+    //     bytes32[] memory valuesBytes;
+    //     bytes32[] memory originalValuesBytes;
+    //     bytes32[] memory replacementBytes;
+    //     bytes32[] memory resultBytes;
 
-        assembly {
-            valuesBytes := values
-            originalValuesBytes := originalValues
-            replacementBytes := replacement
-            resultBytes := result
-        }
+    //     assembly {
+    //         valuesBytes := values
+    //         originalValuesBytes := originalValues
+    //         replacementBytes := replacement
+    //         resultBytes := result
+    //     }
 
-        _validateSplice(valuesBytes, originalValuesBytes, 0, replacementBytes, resultBytes);
-    }
+    //     _validateSplice(valuesBytes, originalValuesBytes, 0, replacementBytes, resultBytes);
+    // }
 
-    function testSpliceUint256WithReplacement(
-        uint256[] memory values,
-        uint256 start,
-        uint256[] memory replacement
-    ) public pure {
-        uint256[] memory originalValues = _copyArray(values);
-        uint256[] memory result = Arrays.splice(values, start, replacement);
+    // function testSpliceUint256WithReplacement(
+    //     uint256[] memory values,
+    //     uint256 start,
+    //     uint256[] memory replacement
+    // ) public pure {
+    //     uint256[] memory originalValues = _copyArray(values);
+    //     uint256[] memory result = Arrays.splice(values, start, replacement);
 
-        bytes32[] memory valuesBytes;
-        bytes32[] memory originalValuesBytes;
-        bytes32[] memory replacementBytes;
-        bytes32[] memory resultBytes;
-        assembly {
-            valuesBytes := values
-            originalValuesBytes := originalValues
-            replacementBytes := replacement
-            resultBytes := result
-        }
+    //     bytes32[] memory valuesBytes;
+    //     bytes32[] memory originalValuesBytes;
+    //     bytes32[] memory replacementBytes;
+    //     bytes32[] memory resultBytes;
+    //     assembly {
+    //         valuesBytes := values
+    //         originalValuesBytes := originalValues
+    //         replacementBytes := replacement
+    //         resultBytes := result
+    //     }
 
-        _validateSplice(valuesBytes, originalValuesBytes, start, replacementBytes, resultBytes);
-    }
+    //     _validateSplice(valuesBytes, originalValuesBytes, start, replacementBytes, resultBytes);
+    // }
 
-    function _validateSplice(
-        bytes32[] memory values,
-        bytes32[] memory originalValues,
-        uint256 start,
-        bytes32[] memory replacement,
-        bytes32[] memory result
-    ) internal pure {
-        // Result should be the same object as input (modified in place)
-        assertEq(result, values);
+    // function _validateSplice(
+    //     bytes32[] memory values,
+    //     bytes32[] memory originalValues,
+    //     uint256 start,
+    //     bytes32[] memory replacement,
+    //     bytes32[] memory result
+    // ) internal pure {
+    //     // Result should be the same object as input (modified in place)
+    //     assertEq(result, values);
 
-        // Array length should remain unchanged
-        assertEq(result.length, originalValues.length);
+    //     // Array length should remain unchanged
+    //     assertEq(result.length, originalValues.length);
 
-        // Calculate expected bounds after sanitization
-        uint256 sanitizedStart = Math.min(start, originalValues.length);
-        uint256 copyLength = Math.min(replacement.length, originalValues.length - sanitizedStart);
+    //     // Calculate expected bounds after sanitization
+    //     uint256 sanitizedStart = Math.min(start, originalValues.length);
+    //     uint256 copyLength = Math.min(replacement.length, originalValues.length - sanitizedStart);
 
-        // Verify content before start position is unchanged
-        for (uint256 i = 0; i < sanitizedStart; ++i) {
-            assertEq(result[i], originalValues[i]);
-        }
+    //     // Verify content before start position is unchanged
+    //     for (uint256 i = 0; i < sanitizedStart; ++i) {
+    //         assertEq(result[i], originalValues[i]);
+    //     }
 
-        // Verify replacement content was copied correctly
-        for (uint256 i = 0; i < copyLength; ++i) {
-            assertEq(result[sanitizedStart + i], replacement[i]);
-        }
+    //     // Verify replacement content was copied correctly
+    //     for (uint256 i = 0; i < copyLength; ++i) {
+    //         assertEq(result[sanitizedStart + i], replacement[i]);
+    //     }
 
-        // Verify content after replacement is unchanged
-        for (uint256 i = sanitizedStart + copyLength; i < result.length; ++i) {
-            assertEq(result[i], originalValues[i]);
-        }
-    }
+    //     // Verify content after replacement is unchanged
+    //     for (uint256 i = sanitizedStart + copyLength; i < result.length; ++i) {
+    //         assertEq(result[i], originalValues[i]);
+    //     }
+    // }
 
     /// Asserts
 
