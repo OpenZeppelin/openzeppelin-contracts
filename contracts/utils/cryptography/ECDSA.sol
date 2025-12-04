@@ -18,7 +18,7 @@ library ECDSA {
     }
 
     /**
-     * @dev The signature derives the `address(0)`.
+     * @dev The signature is invalid.
      */
     error ECDSAInvalidSignature();
 
