@@ -27,6 +27,9 @@ library ERC4337Utils {
     /// @dev Address of the entrypoint v0.8.0
     IEntryPoint internal constant ENTRYPOINT_V08 = IEntryPoint(0x4337084D9E255Ff0702461CF8895CE9E3b5Ff108);
 
+    /// @dev Address of the entrypoint v0.9.0
+    IEntryPoint internal constant ENTRYPOINT_V09 = IEntryPoint(0x433709009B8330FDa32311DF1C2AFA402eD8D009);
+
     /// @dev For simulation purposes, validateUserOp (and validatePaymasterUserOp) return this value on success.
     uint256 internal constant SIG_VALIDATION_SUCCESS = 0;
 

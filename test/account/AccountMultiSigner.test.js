@@ -33,7 +33,7 @@ async function fixture() {
   // ERC-4337 env
   const helper = new ERC4337Helper();
   await helper.wait();
-  const entrypointDomain = await getDomain(predeploy.entrypoint.v08);
+  const entrypointDomain = await getDomain(predeploy.entrypoint.v09);
   const domain = { name: 'AccountMultiSigner', version: '1', chainId: entrypointDomain.chainId }; // Missing verifyingContract
 
   const makeMock = (signers, threshold) =>
