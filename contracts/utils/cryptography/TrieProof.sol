@@ -24,7 +24,7 @@ import {RLP} from "../RLP.sol";
  *
  * See https://ethereum.org/en/developers/docs/data-structures-and-encoding/patricia-merkle-trie[Merkle-Patricia trie]
  *
- * Based on https://github.com/ethereum-optimism/optimism/blob/ef970556e668b271a152124023a8d6bb5159bacf/packages/contracts-bedrock/src/libraries/trie/MerkleTrie.sol[this implementation from by optimism].
+ * Based on https://github.com/ethereum-optimism/optimism/blob/ef970556e668b271a152124023a8d6bb5159bacf/packages/contracts-bedrock/src/libraries/trie/MerkleTrie.sol[this implementation from optimism].
  */
 library TrieProof {
     using Bytes for *;
