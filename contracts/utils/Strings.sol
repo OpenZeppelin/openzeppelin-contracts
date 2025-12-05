@@ -457,9 +457,9 @@ library Strings {
      *
      * WARNING: This function should only be used in double quoted JSON strings. Single quotes are not escaped.
      *
-     * NOTE: This function escapes all unicode characters, and not just the ones in ranges defined in section 2.5 of
-     * RFC-4627 (U+0000 to U+001F, U+0022 and U+005C). ECMAScript's `JSON.parse` does recover escaped unicode
-     * characters that are not in this range, but other tooling may provide different results.
+     * NOTE: This function escapes only the JSON special characters (U+0008, U+0009, U+000A, U+000C, U+000D, U+0022, U+005C),
+     * and does not escape arbitrary Unicode code points. This mirrors ECMAScript's `JSON.stringify` behavior for
+     * string contents.
      */
     function escapeJSON(string memory input) internal pure returns (string memory) {
         bytes memory buffer = bytes(input);
