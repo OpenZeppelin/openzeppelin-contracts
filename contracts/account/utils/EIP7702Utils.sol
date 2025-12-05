@@ -6,7 +6,7 @@ pragma solidity ^0.8.20;
 /**
  * @dev Library with common EIP-7702 utility functions.
  *
- * See https://eips.ethereum.org/EIPS/eip-7702[ERC-7702].
+ * See https://eips.ethereum.org/EIPS/eip-7702[EIP-7702].
  */
 library EIP7702Utils {
     bytes3 internal constant EIP7702_PREFIX = 0xef0100;

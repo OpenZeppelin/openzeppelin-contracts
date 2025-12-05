@@ -135,7 +135,7 @@ In a governance system, the {TimelockController} contract is in charge of introd
 [[timelock-operation]]
 ==== Operation structure
 
-Operation executed by the xref:api:governance.adoc#TimelockController[`TimelockController`] can contain one or multiple subsequent calls. Depending on whether you need to multiple calls to be executed atomically, you can either use simple or batched operations.
+Operation executed by the xref:api:governance.adoc#TimelockController[`TimelockController`] can contain one or multiple subsequent calls. Depending on whether you need multiple calls to be executed atomically, you can either use simple or batched operations.
 
 Both operations contain:
 

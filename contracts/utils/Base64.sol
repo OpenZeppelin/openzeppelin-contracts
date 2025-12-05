@@ -33,7 +33,7 @@ library Base64 {
      *
      * * Supports padded and unpadded inputs.
      * * Supports both encoding ({encode} and {encodeURL}) seamlessly.
-     * * Does NOT revert if the input is not a valid Base64 string.
+     * * Reverts with {InvalidBase64Char} if the input contains an invalid character.
      */
     function decode(string memory data) internal pure returns (bytes memory) {
         return _decode(bytes(data));

@@ -350,7 +350,7 @@ const unsafeSetLength = type => `\
 /**
  * @dev Helper to set the length of a dynamic array. Directly writing to \`.length\` is forbidden.
  *
- * WARNING: this does not clear elements if length is reduced, of initialize elements if length is increased.
+ * WARNING: this does not clear elements if length is reduced, or initialize elements if length is increased.
  */
 function unsafeSetLength(${type.name}[] storage array, uint256 len) internal {
     assembly ("memory-safe") {
