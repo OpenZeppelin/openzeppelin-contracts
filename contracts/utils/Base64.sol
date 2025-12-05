@@ -208,7 +208,7 @@ library Base64 {
                 // slither-disable-next-line incorrect-shift
                 if iszero(and(shl(d, 1), 0xffffffd0ffffffc47ff5)) {
                     mstore(0, errorSelector)
-                    mstore(4, add(d, 43))
+                    mstore(4, shl(248, add(d, 43)))
                     revert(0, 0x24)
                 }
 
