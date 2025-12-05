@@ -497,6 +497,50 @@ library Arrays {
     }
 
     /**
+     * @dev Replaces the content of `array` starting at position `pos` with the content of `replacement`. The
+     * replacement is truncated to fit within the bounds of the array.
+     *
+     * NOTE: This function modifies the provided array in place.
+     */
+    function replace(
+        address[] memory array,
+        uint256 pos,
+        address[] memory replacement
+    ) internal pure returns (address[] memory) {
+        return replace(array, pos, replacement, 0, replacement.length);
+    }
+
+    /**
+     * @dev Replaces the content of `array` starting at position `pos` with the content located in `replacement`
+     * between `offset` and `offset + length`. The replacement is truncated to fit within the bounds of the array.
+     *
+     * NOTE: This function modifies the provided array in place.
+     */
+    function replace(
+        address[] memory array,
+        uint256 pos,
+        address[] memory replacement,
+        uint256 offset,
+        uint256 length
+    ) internal pure returns (address[] memory) {
+        // sanitize
+        pos = Math.min(pos, array.length);
+        offset = Math.min(offset, replacement.length);
+        length = Math.min(length, Math.min(replacement.length - offset, array.length - pos));
+
+        // allocate and copy
+        assembly ("memory-safe") {
+            mcopy(
+                add(add(array, 0x20), mul(pos, 0x20)),
+                add(add(replacement, 0x20), mul(offset, 0x20)),
+                mul(length, 0x20)
+            )
+        }
+
+        return array;
+    }
+
+    /**
      * @dev Moves the content of `array`, from `start` (included) to the end of `array` to the start of that array.
      *
      * NOTE: This function modifies the provided array in place. If you need to preserve the original array, use {slice} instead.
@@ -528,6 +572,50 @@ library Arrays {
     }
 
     /**
+     * @dev Replaces the content of `array` starting at position `pos` with the content of `replacement`. The
+     * replacement is truncated to fit within the bounds of the array.
+     *
+     * NOTE: This function modifies the provided array in place.
+     */
+    function replace(
+        bytes32[] memory array,
+        uint256 pos,
+        bytes32[] memory replacement
+    ) internal pure returns (bytes32[] memory) {
+        return replace(array, pos, replacement, 0, replacement.length);
+    }
+
+    /**
+     * @dev Replaces the content of `array` starting at position `pos` with the content located in `replacement`
+     * between `offset` and `offset + length`. The replacement is truncated to fit within the bounds of the array.
+     *
+     * NOTE: This function modifies the provided array in place.
+     */
+    function replace(
+        bytes32[] memory array,
+        uint256 pos,
+        bytes32[] memory replacement,
+        uint256 offset,
+        uint256 length
+    ) internal pure returns (bytes32[] memory) {
+        // sanitize
+        pos = Math.min(pos, array.length);
+        offset = Math.min(offset, replacement.length);
+        length = Math.min(length, Math.min(replacement.length - offset, array.length - pos));
+
+        // allocate and copy
+        assembly ("memory-safe") {
+            mcopy(
+                add(add(array, 0x20), mul(pos, 0x20)),
+                add(add(replacement, 0x20), mul(offset, 0x20)),
+                mul(length, 0x20)
+            )
+        }
+
+        return array;
+    }
+
+    /**
      * @dev Moves the content of `array`, from `start` (included) to the end of `array` to the start of that array.
      *
      * NOTE: This function modifies the provided array in place. If you need to preserve the original array, use {slice} instead.
@@ -553,6 +641,50 @@ library Arrays {
         assembly ("memory-safe") {
             mcopy(add(array, 0x20), add(add(array, 0x20), mul(start, 0x20)), mul(sub(end, start), 0x20))
             mstore(array, sub(end, start))
+        }
+
+        return array;
+    }
+
+    /**
+     * @dev Replaces the content of `array` starting at position `pos` with the content of `replacement`. The
+     * replacement is truncated to fit within the bounds of the array.
+     *
+     * NOTE: This function modifies the provided array in place.
+     */
+    function replace(
+        uint256[] memory array,
+        uint256 pos,
+        uint256[] memory replacement
+    ) internal pure returns (uint256[] memory) {
+        return replace(array, pos, replacement, 0, replacement.length);
+    }
+
+    /**
+     * @dev Replaces the content of `array` starting at position `pos` with the content located in `replacement`
+     * between `offset` and `offset + length`. The replacement is truncated to fit within the bounds of the array.
+     *
+     * NOTE: This function modifies the provided array in place.
+     */
+    function replace(
+        uint256[] memory array,
+        uint256 pos,
+        uint256[] memory replacement,
+        uint256 offset,
+        uint256 length
+    ) internal pure returns (uint256[] memory) {
+        // sanitize
+        pos = Math.min(pos, array.length);
+        offset = Math.min(offset, replacement.length);
+        length = Math.min(length, Math.min(replacement.length - offset, array.length - pos));
+
+        // allocate and copy
+        assembly ("memory-safe") {
+            mcopy(
+                add(add(array, 0x20), mul(pos, 0x20)),
+                add(add(replacement, 0x20), mul(offset, 0x20)),
+                mul(length, 0x20)
+            )
         }
 
         return array;

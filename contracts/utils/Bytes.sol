@@ -129,6 +129,42 @@ library Bytes {
     }
 
     /**
+     * @dev Replaces the content of `buffer` starting at position `pos` with the content of `buffer`. The
+     * replacement is truncated to fit within the bounds of the buffer.
+     *
+     * NOTE: This function modifies the provided buffer in place.
+     */
+    function replace(bytes memory buffer, uint256 pos, bytes memory replacement) internal pure returns (bytes memory) {
+        return replace(buffer, pos, replacement, 0, replacement.length);
+    }
+
+    /**
+     * @dev Replaces the content of `buffer` starting at position `pos` with the content located in `replacement`
+     * between `offset` and `offset + length`. The replacement is truncated to fit within the bounds of the buffer.
+     *
+     * NOTE: This function modifies the provided buffer in place.
+     */
+    function replace(
+        bytes memory buffer,
+        uint256 pos,
+        bytes memory replacement,
+        uint256 offset,
+        uint256 length
+    ) internal pure returns (bytes memory) {
+        // sanitize
+        pos = Math.min(pos, buffer.length);
+        offset = Math.min(offset, replacement.length);
+        length = Math.min(length, Math.min(replacement.length - offset, buffer.length - pos));
+
+        // allocate and copy
+        assembly ("memory-safe") {
+            mcopy(add(add(buffer, 0x20), pos), add(add(replacement, 0x20), offset), length)
+        }
+
+        return buffer;
+    }
+
+    /**
      * @dev Concatenate an array of bytes into a single bytes object.
      *
      * For fixed bytes types, we recommend using the solidity built-in `bytes.concat` or (equivalent)

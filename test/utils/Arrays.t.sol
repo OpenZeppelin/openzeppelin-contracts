@@ -182,6 +182,174 @@ contract ArraysTest is Test, SymTest {
         _assertSliceOf(result, originalValues, sanitizedStart, expectedLength);
     }
 
+    function testReplaceAddress(address[] memory buffer, uint256 pos, address[] memory replacement) public pure {
+        address[] memory originalBuffer = _copyArray(buffer);
+        address[] memory originalReplacement = _copyArray(replacement);
+        address[] memory result = Arrays.replace(buffer, pos, replacement);
+
+        // Result should be the same object as input (modified in place)
+        assertEq(result, buffer);
+
+        // Buffer length should remain unchanged
+        assertEq(result.length, originalBuffer.length);
+
+        // The replacement is not modified
+        assertEq(replacement, originalReplacement);
+
+        for (uint256 i = 0; i < buffer.length; ++i) {
+            if (i < pos) {
+                assertEq(result[i], originalBuffer[i]);
+            } else if (i < pos + replacement.length) {
+                assertEq(result[i], replacement[i - pos]);
+            } else {
+                assertEq(result[i], originalBuffer[i]);
+            }
+        }
+    }
+
+    function testReplaceAddressFull(
+        address[] memory buffer,
+        uint256 pos,
+        address[] memory replacement,
+        uint256 offset,
+        uint256 length
+    ) public pure {
+        address[] memory originalBuffer = _copyArray(buffer);
+        address[] memory originalReplacement = _copyArray(replacement);
+        address[] memory result = Arrays.replace(buffer, pos, replacement, offset, length);
+
+        // Result should be the same object as input (modified in place)
+        assertEq(result, buffer);
+
+        // Buffer length should remain unchanged
+        assertEq(result.length, originalBuffer.length);
+
+        // The replacement is not modified
+        assertEq(replacement, originalReplacement);
+
+        for (uint256 i = 0; i < buffer.length; ++i) {
+            if (i < pos) {
+                assertEq(result[i], originalBuffer[i]);
+            } else if (i < pos + Math.min(Math.saturatingSub(replacement.length, offset), length)) {
+                assertEq(result[i], replacement[i - pos + offset]);
+            } else {
+                assertEq(result[i], originalBuffer[i]);
+            }
+        }
+    }
+
+    function testReplaceBytes32(bytes32[] memory buffer, uint256 pos, bytes32[] memory replacement) public pure {
+        bytes32[] memory originalBuffer = _copyArray(buffer);
+        bytes32[] memory originalReplacement = _copyArray(replacement);
+        bytes32[] memory result = Arrays.replace(buffer, pos, replacement);
+
+        // Result should be the same object as input (modified in place)
+        assertEq(result, buffer);
+
+        // Buffer length should remain unchanged
+        assertEq(result.length, originalBuffer.length);
+
+        // The replacement is not modified
+        assertEq(replacement, originalReplacement);
+
+        for (uint256 i = 0; i < buffer.length; ++i) {
+            if (i < pos) {
+                assertEq(result[i], originalBuffer[i]);
+            } else if (i < pos + replacement.length) {
+                assertEq(result[i], replacement[i - pos]);
+            } else {
+                assertEq(result[i], originalBuffer[i]);
+            }
+        }
+    }
+
+    function testReplaceBytes32Full(
+        bytes32[] memory buffer,
+        uint256 pos,
+        bytes32[] memory replacement,
+        uint256 offset,
+        uint256 length
+    ) public pure {
+        bytes32[] memory originalBuffer = _copyArray(buffer);
+        bytes32[] memory originalReplacement = _copyArray(replacement);
+        bytes32[] memory result = Arrays.replace(buffer, pos, replacement, offset, length);
+
+        // Result should be the same object as input (modified in place)
+        assertEq(result, buffer);
+
+        // Buffer length should remain unchanged
+        assertEq(result.length, originalBuffer.length);
+
+        // The replacement is not modified
+        assertEq(replacement, originalReplacement);
+
+        for (uint256 i = 0; i < buffer.length; ++i) {
+            if (i < pos) {
+                assertEq(result[i], originalBuffer[i]);
+            } else if (i < pos + Math.min(Math.saturatingSub(replacement.length, offset), length)) {
+                assertEq(result[i], replacement[i - pos + offset]);
+            } else {
+                assertEq(result[i], originalBuffer[i]);
+            }
+        }
+    }
+
+    function testReplaceUint256(uint256[] memory buffer, uint256 pos, uint256[] memory replacement) public pure {
+        uint256[] memory originalBuffer = _copyArray(buffer);
+        uint256[] memory originalReplacement = _copyArray(replacement);
+        uint256[] memory result = Arrays.replace(buffer, pos, replacement);
+
+        // Result should be the same object as input (modified in place)
+        assertEq(result, buffer);
+
+        // Buffer length should remain unchanged
+        assertEq(result.length, originalBuffer.length);
+
+        // The replacement is not modified
+        assertEq(replacement, originalReplacement);
+
+        for (uint256 i = 0; i < buffer.length; ++i) {
+            if (i < pos) {
+                assertEq(result[i], originalBuffer[i]);
+            } else if (i < pos + replacement.length) {
+                assertEq(result[i], replacement[i - pos]);
+            } else {
+                assertEq(result[i], originalBuffer[i]);
+            }
+        }
+    }
+
+    function testReplaceUint256Full(
+        uint256[] memory buffer,
+        uint256 pos,
+        uint256[] memory replacement,
+        uint256 offset,
+        uint256 length
+    ) public pure {
+        uint256[] memory originalBuffer = _copyArray(buffer);
+        uint256[] memory originalReplacement = _copyArray(replacement);
+        uint256[] memory result = Arrays.replace(buffer, pos, replacement, offset, length);
+
+        // Result should be the same object as input (modified in place)
+        assertEq(result, buffer);
+
+        // Buffer length should remain unchanged
+        assertEq(result.length, originalBuffer.length);
+
+        // The replacement is not modified
+        assertEq(replacement, originalReplacement);
+
+        for (uint256 i = 0; i < buffer.length; ++i) {
+            if (i < pos) {
+                assertEq(result[i], originalBuffer[i]);
+            } else if (i < pos + Math.min(Math.saturatingSub(replacement.length, offset), length)) {
+                assertEq(result[i], replacement[i - pos + offset]);
+            } else {
+                assertEq(result[i], originalBuffer[i]);
+            }
+        }
+    }
+
     /// Asserts
 
     function _assertSort(uint256[] memory values) internal pure {
