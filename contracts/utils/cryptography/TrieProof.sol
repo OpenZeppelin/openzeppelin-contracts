@@ -23,6 +23,8 @@ import {RLP} from "../RLP.sol";
  * * Use storageRoot of that account to process the storageProof (again, see `eth_getProof`).
  *
  * See https://ethereum.org/en/developers/docs/data-structures-and-encoding/patricia-merkle-trie[Merkle-Patricia trie]
+ *
+ * Based on https://github.com/ethereum-optimism/optimism/blob/ef970556e668b271a152124023a8d6bb5159bacf/packages/contracts-bedrock/src/libraries/trie/MerkleTrie.sol[this implementation from by optimism].
  */
 library TrieProof {
     using Bytes for *;
@@ -57,8 +59,11 @@ library TrieProof {
         Memory.Slice[] decoded; // Decoded RLP items
     }
 
-    /// @dev The radix of the Ethereum trie (hexadecimal = 16)
+    /// @dev The radix of the Ethereum trie
     uint256 internal constant EVM_TREE_RADIX = 16;
+
+    /// @dev Number of items in a branch node (16 children + 1 value)
+    uint256 internal constant BRANCH_NODE_LENGTH = EVM_TREE_RADIX + 1;
 
     /// @dev Number of items in leaf or extension nodes (always 2)
     uint256 internal constant LEAF_OR_EXTENSION_NODE_LENGTH = 2;
@@ -117,7 +122,7 @@ library TrieProof {
             }
 
             uint256 nodeLength = node.decoded.length;
-            if (nodeLength == EVM_TREE_RADIX + 1) {
+            if (nodeLength == BRANCH_NODE_LENGTH) {
                 // If we've consumed the entire key, the value must be in the last slot
                 // Otherwise, continue down the branch specified by the next nibble in the key
                 if (keyIndex == keyExpanded.length) {
@@ -142,18 +147,21 @@ library TrieProof {
                     return (_emptyBytesMemory(), ProofError.INVALID_PATH_REMAINDER);
                 }
 
-                if (prefix == uint8(Prefix.EXTENSION_EVEN) || prefix == uint8(Prefix.EXTENSION_ODD)) {
+                if (prefix <= uint8(Prefix.EXTENSION_ODD)) {
+                    // Eq to: prefix == EXTENSION_EVEN || prefix == EXTENSION_ODD
+                    //
                     // Increment keyIndex by the number of nibbles consumed and continue traversal
                     (currentNodeId, currentNodeIdLength) = _getNodeId(node.decoded[1]);
                     keyIndex += pathRemainderLength;
-                } else if (prefix == uint8(Prefix.LEAF_EVEN) || prefix == uint8(Prefix.LEAF_ODD)) {
+                } else if (prefix <= uint8(Prefix.LEAF_ODD)) {
+                    // Eq to: prefix == LEAF_EVEN || prefix == LEAF_ODD
+                    //
                     // Leaf node (terminal) - return its value if key matches completely
                     // we already know that pathRemainder is a prefix of keyRemainder, so checking the length sufficient
-                    if (pathRemainderLength != keyRemainder.length()) {
-                        return (_emptyBytesMemory(), ProofError.MISMATCH_LEAF_PATH_KEY_REMAINDERS);
-                    } else {
-                        return _validateLastItem(node.decoded[1], proofLength, i);
-                    }
+                    return
+                        pathRemainderLength == keyRemainder.length()
+                            ? _validateLastItem(node.decoded[1], proofLength, i)
+                            : (_emptyBytesMemory(), ProofError.MISMATCH_LEAF_PATH_KEY_REMAINDERS);
                 } else {
                     return (_emptyBytesMemory(), ProofError.UNKNOWN_NODE_PREFIX);
                 }
