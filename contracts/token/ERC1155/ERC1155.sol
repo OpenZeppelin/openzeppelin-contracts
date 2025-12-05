@@ -356,6 +356,9 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
      * - `operator` cannot be the zero address.
      */
     function _setApprovalForAll(address owner, address operator, bool approved) internal virtual {
+        if (owner == address(0)) {
+            revert ERC1155InvalidApprover(address(0));
+        }
         if (operator == address(0)) {
             revert ERC1155InvalidOperator(address(0));
         }
