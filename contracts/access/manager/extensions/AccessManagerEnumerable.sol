@@ -16,10 +16,10 @@ import {EnumerableSet} from "../../../utils/structs/EnumerableSet.sol";
  */
 abstract contract AccessManagerEnumerable is IAccessManagerEnumerable, AccessManager {
     using EnumerableSet for EnumerableSet.AddressSet;
-    using EnumerableSet for EnumerableSet.Bytes32Set;
+    using EnumerableSet for EnumerableSet.Bytes4Set;
 
     mapping(uint64 roleId => EnumerableSet.AddressSet) private _roleMembers;
-    mapping(uint64 roleId => mapping(address target => EnumerableSet.Bytes32Set)) private _roleTargetFunctions;
+    mapping(uint64 roleId => mapping(address target => EnumerableSet.Bytes4Set)) private _roleTargetFunctions;
 
     /// @inheritdoc IAccessManagerEnumerable
     function getRoleMember(uint64 roleId, uint256 index) public view virtual returns (address) {
@@ -38,7 +38,7 @@ abstract contract AccessManagerEnumerable is IAccessManagerEnumerable, AccessMan
 
     /// @inheritdoc IAccessManagerEnumerable
     function getRoleTargetFunction(uint64 roleId, address target, uint256 index) public view virtual returns (bytes4) {
-        return bytes4(_roleTargetFunctions[roleId][target].at(index));
+        return _roleTargetFunctions[roleId][target].at(index);
     }
 
     /*
@@ -53,12 +53,7 @@ abstract contract AccessManagerEnumerable is IAccessManagerEnumerable, AccessMan
         uint256 start,
         uint256 end
     ) public view virtual returns (bytes4[] memory) {
-        bytes32[] memory targetFunctions = _roleTargetFunctions[roleId][target].values(start, end);
-        bytes4[] memory targetFunctionSelectors;
-        assembly ("memory-safe") {
-            targetFunctionSelectors := targetFunctions
-        }
-        return targetFunctionSelectors;
+        return _roleTargetFunctions[roleId][target].values(start, end);
     }
 
     /*
@@ -108,10 +103,10 @@ abstract contract AccessManagerEnumerable is IAccessManagerEnumerable, AccessMan
      *     uint64 oldRoleId = getTargetFunctionRole(target, selector);
      *     super._setTargetFunctionRole(target, selector, roleId);
      *     if (oldRoleId == ADMIN_ROLE) {
-     *         _roleTargetFunctions[oldRoleId][target].remove(bytes32(selector));
+     *         _roleTargetFunctions[oldRoleId][target].remove(selector);
      *     }
      *     if (roleId == ADMIN_ROLE) {
-     *         _roleTargetFunctions[roleId][target].add(bytes32(selector));
+     *         _roleTargetFunctions[roleId][target].add(selector);
      *     }
      * }
      * ```
@@ -120,10 +115,10 @@ abstract contract AccessManagerEnumerable is IAccessManagerEnumerable, AccessMan
         uint64 oldRoleId = getTargetFunctionRole(target, selector);
         super._setTargetFunctionRole(target, selector, roleId);
         if (oldRoleId != ADMIN_ROLE) {
-            _roleTargetFunctions[oldRoleId][target].remove(bytes32(selector));
+            _roleTargetFunctions[oldRoleId][target].remove(selector);
         }
         if (roleId != ADMIN_ROLE) {
-            _roleTargetFunctions[roleId][target].add(bytes32(selector));
+            _roleTargetFunctions[roleId][target].add(selector);
         }
     }
 }
