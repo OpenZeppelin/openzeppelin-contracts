@@ -3,6 +3,7 @@ const { ethers } = require('hardhat');
 const generators = {
   address: () => ethers.Wallet.createRandom().address,
   bytes32: () => ethers.hexlify(ethers.randomBytes(32)),
+  bytes4: () => ethers.hexlify(ethers.randomBytes(4)),
   uint256: () => ethers.toBigInt(ethers.randomBytes(32)),
   int256: () => ethers.toBigInt(ethers.randomBytes(32)) + ethers.MinInt256,
   bytes: (length = 32) => ethers.hexlify(ethers.randomBytes(length)),
@@ -11,6 +12,7 @@ const generators = {
 
 generators.address.zero = ethers.ZeroAddress;
 generators.bytes32.zero = ethers.ZeroHash;
+generators.bytes4.zero = ethers.zeroPadBytes('0x', 4);
 generators.uint256.zero = 0n;
 generators.int256.zero = 0n;
 generators.bytes.zero = '0x';

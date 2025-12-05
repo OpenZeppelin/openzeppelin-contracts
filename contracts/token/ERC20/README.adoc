@@ -19,6 +19,7 @@ Additionally there are multiple custom extensions, including:
 * {ERC20Bridgeable}: compatibility with crosschain bridges through ERC-7802.
 * {ERC20Burnable}: destruction of own tokens.
 * {ERC20Capped}: enforcement of a cap to the total supply when minting tokens.
+* {ERC20Crosschain}: embedded {BridgeERC20Core} bridge, making the token crosschain through the use of ERC-7786 gateways.
 * {ERC20Pausable}: ability to pause token transfers.
 * {ERC20FlashMint}: token level support for flash loans through the minting and burning of ephemeral tokens (standardized as ERC-3156).
 * {ERC20Votes}: support for voting and vote delegation. xref:governance.adoc#token[See the governance guide for a minimal example (with the required overrides when combining ERC20 + ERC20Permit + ERC20Votes)].
@@ -56,6 +57,8 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 {{ERC20Burnable}}
 
 {{ERC20Capped}}
+
+{{ERC20Crosschain}}
 
 {{ERC20Pausable}}
 
