@@ -484,9 +484,15 @@ function shouldBehaveLikeERC1155() {
         });
 
         it('emits a TransferBatch log', async function () {
-          await expect(this.tx)
-            .to.emit(this.token, 'TransferBatch')
-            .withArgs(this.args.operator, this.args.from, this.args.to, this.args.ids, this.args.values);
+          if (this.args.ids.length == 1) {
+            await expect(this.tx)
+              .to.emit(this.token, 'TransferSingle')
+              .withArgs(this.args.operator, this.args.from, this.args.to, this.args.ids[0], this.args.values[0]);
+          } else {
+            await expect(this.tx)
+              .to.emit(this.token, 'TransferBatch')
+              .withArgs(this.args.operator, this.args.from, this.args.to, this.args.ids, this.args.values);
+          }
         });
       }
 
@@ -566,7 +572,31 @@ function shouldBehaveLikeERC1155() {
           ]);
         });
 
-        describe('without data', function () {
+        describe('without data (batch of size = 1)', function () {
+          beforeEach(async function () {
+            this.args = {
+              operator: this.holder,
+              from: this.holder,
+              to: this.receiver,
+              ids: [firstTokenId],
+              values: [firstTokenValue],
+              data: '0x',
+            };
+            this.tx = await this.token
+              .connect(this.args.operator)
+              .safeBatchTransferFrom(this.args.from, this.args.to, this.args.ids, this.args.values, this.args.data);
+          });
+
+          batchTransferWasSuccessful();
+
+          it('calls onERC1155BatchReceived', async function () {
+            await expect(this.tx)
+              .to.emit(this.receiver, 'BatchReceived')
+              .withArgs(this.holder, this.holder, this.args.ids, this.args.values, this.args.data, anyValue);
+          });
+        });
+
+        describe('without data (batch of size > 1)', function () {
           beforeEach(async function () {
             this.args = {
               operator: this.holder,
@@ -590,7 +620,31 @@ function shouldBehaveLikeERC1155() {
           });
         });
 
-        describe('with data', function () {
+        describe('with data (batch of size = 1)', function () {
+          beforeEach(async function () {
+            this.args = {
+              operator: this.holder,
+              from: this.holder,
+              to: this.receiver,
+              ids: [firstTokenId],
+              values: [firstTokenValue],
+              data: '0xf00dd00d',
+            };
+            this.tx = await this.token
+              .connect(this.args.operator)
+              .safeBatchTransferFrom(this.args.from, this.args.to, this.args.ids, this.args.values, this.args.data);
+          });
+
+          batchTransferWasSuccessful();
+
+          it('calls onERC1155Received', async function () {
+            await expect(this.tx)
+              .to.emit(this.receiver, 'BatchReceived')
+              .withArgs(this.holder, this.holder, this.args.ids, this.args.values, this.args.data, anyValue);
+          });
+        });
+
+        describe('with data  (batch of size > 1)', function () {
           beforeEach(async function () {
             this.args = {
               operator: this.holder,
