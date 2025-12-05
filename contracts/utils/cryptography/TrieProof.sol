@@ -9,7 +9,7 @@ import {RLP} from "../RLP.sol";
 /**
  * @dev Library for verifying Ethereum Merkle-Patricia trie inclusion proofs.
  *
- * The {processProof} and {verify} functions can be used to prove the following value:
+ * The {traverse} and {verify} functions can be used to prove the following value:
  *
  * * Transaction against the transactionsRoot of a block.
  * * Event against receiptsRoot of a block.
@@ -65,20 +65,20 @@ library TrieProof {
 
     /// @dev Verifies a `proof` against a given `key`, `value`, `and root` hash.
     function verify(
-        bytes memory key,
         bytes memory value,
-        bytes[] memory proof,
-        bytes32 root
+        bytes32 root,
+        bytes memory key,
+        bytes[] memory proof
     ) internal pure returns (bool) {
-        (bytes memory processedValue, ProofError err) = processProof(key, proof, root);
+        (bytes memory processedValue, ProofError err) = traverse(root, key, proof);
         return processedValue.equal(value) && err == ProofError.NO_ERROR;
     }
 
     /// @dev Processes a proof for a given key and returns the processed value.
-    function processProof(
+    function traverse(
+        bytes32 root,
         bytes memory key,
-        bytes[] memory proof,
-        bytes32 root
+        bytes[] memory proof
     ) internal pure returns (bytes memory value, ProofError err) {
         if (key.length == 0) return (_emptyBytesMemory(), ProofError.EMPTY_KEY);
 
