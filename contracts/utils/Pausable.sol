@@ -89,11 +89,10 @@ abstract contract Pausable is Context {
     /**
      * @dev Triggers stopped state.
      *
-     * Requirements:
-     *
-     * - The contract must not be paused.
+     * This function can be called even when the contract is already paused, which
+     * can be useful in emergency scenarios to prevent denial of service.
      */
-    function _pause() internal virtual whenNotPaused {
+    function _pause() internal virtual {
         _paused = true;
         emit Paused(_msgSender());
     }
