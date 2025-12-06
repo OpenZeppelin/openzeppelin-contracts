@@ -51,8 +51,10 @@ describe('Pausable', function () {
         expect(await this.mock.drasticMeasureTaken()).to.be.true;
       });
 
-      it('reverts when re-pausing', async function () {
-        await expect(this.mock.pause()).to.be.revertedWithCustomError(this.mock, 'EnforcedPause');
+      it('allows re-pausing when already paused', async function () {
+        const tx = await this.mock.pause();
+        await expect(tx).to.emit(this.mock, 'Paused').withArgs(this.pauser);
+        expect(await this.mock.paused()).to.be.true;
       });
 
       describe('unpausing', function () {

@@ -23,11 +23,11 @@ rule pause(env e) {
 
     bool pausedAfter = paused();
 
-    // liveness
-    assert success <=> !pausedBefore, "works if and only if the contract was not paused before";
+    // liveness - pause() can be called even when already paused to prevent DOS
+    assert success, "pause() always succeeds, even when already paused";
 
     // effect
-    assert success => pausedAfter, "contract must be paused after a successful call";
+    assert pausedAfter, "contract must be paused after a successful call";
 }
 
 /*
