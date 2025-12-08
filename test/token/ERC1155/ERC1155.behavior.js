@@ -637,7 +637,7 @@ function shouldBehaveLikeERC1155() {
 
           batchTransferWasSuccessful();
 
-          it('calls onERC1155Received', async function () {
+          it('calls onERC1155BatchReceived', async function () {
             await expect(this.tx)
               .to.emit(this.receiver, 'BatchReceived')
               .withArgs(this.holder, this.holder, this.args.ids, this.args.values, this.args.data, anyValue);
