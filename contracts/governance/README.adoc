@@ -183,7 +183,7 @@ The admins are in charge of managing proposers and executors. For the timelock t
 
 The proposers are in charge of scheduling (and cancelling) operations. This is a critical role, that should be given to governing entities. This could be an EOA, a multisig, or a DAO.
 
-WARNING: *Proposer fight:* Having multiple proposers, while providing redundancy in case one becomes unavailable, can be dangerous. As proposer have their say on all operations, they could cancel operations they disagree with, including operations to remove them for the proposers.
+WARNING: *Proposer fight:* Having multiple proposers, while providing redundancy in case one becomes unavailable, can be dangerous. As proposers have their say on all operations, they could cancel operations they disagree with, including operations to remove them from the list of proposers.
 
 This role is identified by the *PROPOSER_ROLE* value: `0xb09aa5aeb3702cfd50b6b62bc4532604938f21248a27a1d5ca736082b6819cc1`
 
