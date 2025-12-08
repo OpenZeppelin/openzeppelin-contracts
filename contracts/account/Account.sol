@@ -31,6 +31,11 @@ abstract contract Account is AbstractSigner, IAccount {
     error AccountUnauthorized(address sender);
 
     /**
+     * @dev Prefund transfer to the entry point failed.
+     */
+    error AccountPrefundPaymentFailed();
+
+    /**
      * @dev Revert if the caller is not the entry point or the account itself.
      */
     modifier onlyEntryPointOrSelf() {
@@ -120,7 +125,11 @@ abstract contract Account is AbstractSigner, IAccount {
      */
     function _payPrefund(uint256 missingAccountFunds) internal virtual {
         if (missingAccountFunds > 0) {
-            LowLevelCall.callNoReturn(msg.sender, missingAccountFunds, ""); // The entrypoint should validate the result.
+            bool success = LowLevelCall.callNoReturn(msg.sender, missingAccountFunds, ""); // The entrypoint should validate the result.
+            if (!success) {
+                // Propagate failures so the user operation is not validated without funding the entry point.
+                revert AccountPrefundPaymentFailed();
+            }
         }
     }
 
