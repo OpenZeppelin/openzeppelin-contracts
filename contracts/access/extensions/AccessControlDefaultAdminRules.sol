@@ -277,20 +277,20 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
         // Use >= to match original behavior: schedule >= block.timestamp means pending
         (, , uint48 oldEffect) = _delay.getFull();
         bool hasPendingChange = oldEffect != 0 && oldEffect >= Time.timestamp();
-        
+
         uint32 newDelay32 = SafeCast.toUint32(newDelay);
         uint32 minSetback = SafeCast.toUint32(_delayChangeWait(newDelay));
-        
+
         uint48 effect;
         (_delay, effect) = _delay.withUpdate(newDelay32, minSetback);
-        
+
         // Emit cancellation event if a pending change was overwritten
         // Emit when oldEffect >= Time.timestamp() (pending or exactly at current time)
         // This matches the original behavior where !_hasSchedulePassed means schedule >= block.timestamp
         if (hasPendingChange) {
             emit DefaultAdminDelayChangeCanceled();
         }
-        
+
         emit DefaultAdminDelayChangeScheduled(newDelay, effect);
     }
 
