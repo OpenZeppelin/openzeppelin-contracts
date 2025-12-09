@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.1.0) (utils/structs/Heap.sol)
+// OpenZeppelin Contracts (last updated v5.5.0) (utils/structs/Heap.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
 import {Math} from "../math/Math.sol";
 import {SafeCast} from "../math/SafeCast.sol";
@@ -85,13 +85,17 @@ library Heap {
 
             // cache
             uint256 rootValue = self.tree.unsafeAccess(0).value;
-            uint256 lastValue = self.tree.unsafeAccess(size - 1).value;
-
-            // swap last leaf with root, shrink tree and re-heapify
-            self.tree.pop();
-            self.tree.unsafeAccess(0).value = lastValue;
-            _siftDown(self, size - 1, 0, lastValue, comp);
-
+            if (size == 1) {
+                self.tree.pop();
+            } else {
+                // swap last leaf with root ...
+                uint256 lastValue = self.tree.unsafeAccess(size - 1).value;
+                self.tree.unsafeAccess(0).value = lastValue;
+                // ... shrink tree ...
+                self.tree.pop();
+                // ... re-heapify
+                _siftDown(self, size - 1, 0, lastValue, comp);
+            }
             return rootValue;
         }
     }

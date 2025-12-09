@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.2.0) (proxy/transparent/TransparentUpgradeableProxy.sol)
+// OpenZeppelin Contracts (last updated v5.5.0) (proxy/transparent/TransparentUpgradeableProxy.sol)
 
 pragma solidity ^0.8.22;
 
@@ -29,7 +29,7 @@ interface ITransparentUpgradeableProxy is IERC1967 {
  *
  * 1. If any account other than the admin calls the proxy, the call will be forwarded to the implementation, even if
  * that call matches the {ITransparentUpgradeableProxy-upgradeToAndCall} function exposed by the proxy itself.
- * 2. If the admin calls the proxy, it can call the `upgradeToAndCall` function but any other call won't be forwarded to
+ * 2. If the admin calls the proxy, it can call the `upgradeToAndCall` function, but any other call won't be forwarded to
  * the implementation. If the admin tries to call a function on the implementation it will fail with an error indicating
  * the proxy admin cannot fallback to the target implementation.
  *

@@ -20,15 +20,15 @@ jobs:
   apply-diff:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Apply patches
-        run: make -C certora apply
+        run: make -C fv apply
 
   verify:
     runs-on: ubuntu-latest
     if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'formal-verification')
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Set up environment
@@ -36,15 +36,15 @@ jobs:
       - name: identify specs that need to be run
         id: arguments
         run: |
-          if [[ ${{ github.event_name }} = 'pull_request' ]];
+          if [[ ${{ github.event_name }} = 'pull_request' && ${{ contains(github.event.pull_request.labels.*.name, 'formal-verification-force-all') }} = 'false' ]];
           then
-            RESULT=$(git diff ${{ github.event.pull_request.head.sha }}..${{ github.event.pull_request.base.sha }} --name-only certora/specs/*.spec | while IFS= read -r file; do [[ -f $file ]] && basename "${file%.spec}"; done | tr "\n" " ")
+            RESULT=$(git diff ${{ github.event.pull_request.head.sha }}..${{ github.event.pull_request.base.sha }} --name-only fv/specs/*.spec | while IFS= read -r file; do [[ -f $file ]] && basename "${file%.spec}"; done | tr "\n" " ")
           else
             RESULT='--all'
           fi
           echo "result=$RESULT" >> "$GITHUB_OUTPUT"
       - name: Install python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PIP_VERSION }}
           cache: 'pip'
@@ -63,19 +63,19 @@ jobs:
           chmod +x /usr/local/bin/solc
       - name: Verify specification
         run: |
-          make -C certora apply
-          node certora/run.js ${{ steps.arguments.outputs.result }} -p 1 -v >> "$GITHUB_STEP_SUMMARY"
+          make -C fv apply
+          node fv/run.js ${{ steps.arguments.outputs.result }} -p 1 -v >> "$GITHUB_STEP_SUMMARY"
         env:
           CERTORAKEY: ${{ secrets.CERTORAKEY }}
 
   halmos:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Set up environment
         uses: ./.github/actions/setup
       - name: Install python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PIP_VERSION }}
           cache: 'pip'

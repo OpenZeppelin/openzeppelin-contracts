@@ -16,7 +16,7 @@ import {SignerECDSA} from "../../utils/cryptography/signers/SignerECDSA.sol";
 import {SignerP256} from "../../utils/cryptography/signers/SignerP256.sol";
 import {SignerRSA} from "../../utils/cryptography/signers/SignerRSA.sol";
 import {SignerWebAuthn} from "../../utils/cryptography/signers/SignerWebAuthn.sol";
-import {SignerERC7702} from "../../utils/cryptography/signers/SignerERC7702.sol";
+import {SignerEIP7702} from "../../utils/cryptography/signers/SignerEIP7702.sol";
 import {SignerERC7913} from "../../utils/cryptography/signers/SignerERC7913.sol";
 import {MultiSignerERC7913} from "../../utils/cryptography/signers/MultiSignerERC7913.sol";
 import {MultiSignerERC7913Weighted} from "../../utils/cryptography/signers/MultiSignerERC7913Weighted.sol";
@@ -81,7 +81,7 @@ abstract contract AccountWebAuthnMock is Account, SignerWebAuthn, ERC7739, ERC78
     }
 }
 
-abstract contract AccountERC7702Mock is Account, SignerERC7702, ERC7739, ERC7821, ERC721Holder, ERC1155Holder {
+abstract contract AccountERC7702Mock is Account, SignerEIP7702, ERC7739, ERC7821, ERC721Holder, ERC1155Holder {
     /// @inheritdoc ERC7821
     function _erc7821AuthorizedExecutor(
         address caller,
@@ -95,16 +95,17 @@ abstract contract AccountERC7702Mock is Account, SignerERC7702, ERC7739, ERC7821
 abstract contract AccountERC7702WithModulesMock is
     Account,
     AccountERC7579,
-    SignerERC7702,
+    SignerEIP7702,
     ERC7739,
     ERC721Holder,
     ERC1155Holder
 {
     function _validateUserOp(
         PackedUserOperation calldata userOp,
-        bytes32 userOpHash
+        bytes32 userOpHash,
+        bytes calldata signature
     ) internal virtual override(Account, AccountERC7579) returns (uint256) {
-        return super._validateUserOp(userOp, userOpHash);
+        return super._validateUserOp(userOp, userOpHash, signature);
     }
 
     /// @dev Resolve implementation of ERC-1271 by both ERC7739 and AccountERC7579 to support both schemes.
@@ -122,8 +123,8 @@ abstract contract AccountERC7702WithModulesMock is
     function _rawSignatureValidation(
         bytes32 hash,
         bytes calldata signature
-    ) internal view virtual override(AbstractSigner, AccountERC7579, SignerERC7702) returns (bool) {
-        return SignerERC7702._rawSignatureValidation(hash, signature);
+    ) internal view virtual override(AbstractSigner, AccountERC7579, SignerEIP7702) returns (bool) {
+        return SignerEIP7702._rawSignatureValidation(hash, signature);
     }
 }
 

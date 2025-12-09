@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.5.0) (utils/draft-InteroperableAddress.sol)
 
 pragma solidity ^0.8.26;
 
@@ -21,7 +22,7 @@ library InteroperableAddress {
     /**
      * @dev Format an ERC-7930 interoperable address (version 1) from its components `chainType`, `chainReference`
      * and `addr`. This is a generic function that supports any chain type, chain reference and address supported by
-     * ERC-7390, including interoperable addresses with empty chain reference or empty address.
+     * ERC-7930, including interoperable addresses with empty chain reference or empty address.
      */
     function formatV1(
         bytes2 chainType,

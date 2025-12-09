@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.1.0) (utils/cryptography/ECDSA.sol)
+// OpenZeppelin Contracts (last updated v5.5.0) (utils/cryptography/ECDSA.sol)
 
 pragma solidity ^0.8.20;
 
@@ -54,6 +54,7 @@ library ECDSA {
      * be too long), and then calling {MessageHashUtils-toEthSignedMessageHash} on it.
      *
      * Documentation for signature generation:
+     *
      * - with https://web3js.readthedocs.io/en/v1.3.4/web3-eth-accounts.html#sign[Web3.js]
      * - with https://docs.ethers.io/v5/api/signer/#Signer-signMessage[ethers]
      */
@@ -206,7 +207,12 @@ library ECDSA {
 
     /**
      * @dev Parse a signature into its `v`, `r` and `s` components. Supports 65-byte and 64-byte (ERC-2098)
-     * formats. Returns (0,0,0) for invalid signatures. Consider skipping {tryRecover} or {recover} if so.
+     * formats. Returns (0,0,0) for invalid signatures.
+     *
+     * For 64-byte signatures, `v` is automatically normalized to 27 or 28.
+     * For 65-byte signatures, `v` is returned as-is and MUST already be 27 or 28 for use with ecrecover.
+     *
+     * Consider validating the result before use, or use {tryRecover}/{recover} which perform full validation.
      */
     function parse(bytes memory signature) internal pure returns (uint8 v, bytes32 r, bytes32 s) {
         assembly ("memory-safe") {
