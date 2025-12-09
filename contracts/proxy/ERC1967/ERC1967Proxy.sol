@@ -21,12 +21,11 @@ contract ERC1967Proxy is Proxy {
     /**
      * @dev Initializes the upgradeable proxy with an initial implementation specified by `implementation`.
      *
-     * If `_data` is nonempty, it's used as data in a delegate call to `implementation`. This will typically be an
-     * encoded function call, and allows initializing the storage of the proxy like a Solidity constructor.
-     *
-     * Requirements:
-     *
-     * - If `data` is empty, `msg.value` must be zero.
+     * Provided `_data` is passed in a delegate call to `implementation`. This will typically be an encoded function
+     * call, and allows initializing the storage of the proxy like a Solidity constructor. By default construction
+     * will fail if `_data` is empty. This behavior can be overriden using a custom {_unsafeAllowUninitialized} that
+     * returns true. In that case, empty `_data` is ignored and no delegate call to the implementation is performed
+     * during construction.
      */
     constructor(address implementation, bytes memory _data) payable {
         if (!_unsafeAllowUninitialized() && _data.length == 0) {
