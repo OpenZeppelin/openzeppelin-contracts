@@ -195,12 +195,12 @@ library TrieProof {
     ) private pure returns (bytes memory, ProofError) {
         if (i != trieProofLength - 1) {
             return (_emptyBytesMemory(), ProofError.INVALID_EXTRA_PROOF_ELEMENT);
-        }
-        bytes memory value = item.readBytes();
-        if (value.length == 0) {
-            return (_emptyBytesMemory(), ProofError.EMPTY_VALUE);
         } else {
-            return (value, ProofError.NO_ERROR);
+            bytes memory value = item.readBytes();
+            return 
+                value.length == 0
+                    ? (_emptyBytesMemory(), ProofError.EMPTY_VALUE)
+                    : (value, ProofError.NO_ERROR);
         }
     }
 
