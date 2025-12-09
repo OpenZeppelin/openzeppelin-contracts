@@ -11,15 +11,15 @@ const ProofError = Enum(
   'NO_ERROR',
   'EMPTY_KEY',
   'INDEX_OUT_OF_BOUNDS',
-  'INVALID_ROOT_HASH',
-  'INVALID_LARGE_INTERNAL_HASH',
-  'INVALID_INTERNAL_NODE_HASH',
-  'EMPTY_VALUE',
-  'INVALID_EXTRA_PROOF_ELEMENT',
-  'MISMATCH_LEAF_PATH_KEY_REMAINDERS',
+  'INVALID_ROOT',
+  'INVALID_LARGE_NODE',
+  'INVALID_SHORT_NODE',
   'EMPTY_PATH',
   'INVALID_PATH_REMAINDER',
   'EMPTY_EXTENSION_PATH_REMAINDER',
+  'INVALID_EXTRA_PROOF_ELEMENT',
+  'EMPTY_VALUE',
+  'MISMATCH_LEAF_PATH_KEY_REMAINDER',
   'UNKNOWN_NODE_PREFIX',
   'UNPARSEABLE_NODE',
   'INVALID_PROOF',
@@ -169,7 +169,7 @@ describe('TrieProof', function () {
         .be.false;
       await expect(this.mock.$traverse(invalidHash, ethers.keccak256(slot), proof)).to.eventually.deep.equal([
         ZeroBytes,
-        ProofError.INVALID_ROOT_HASH,
+        ProofError.INVALID_ROOT,
       ]);
     });
 
@@ -201,7 +201,7 @@ describe('TrieProof', function () {
         .be.false;
       await expect(this.mock.$traverse(storageHash, ethers.keccak256(slot), proof)).to.eventually.deep.equal([
         ZeroBytes,
-        ProofError.INVALID_LARGE_INTERNAL_HASH,
+        ProofError.INVALID_LARGE_NODE,
       ]);
     });
 
@@ -214,7 +214,7 @@ describe('TrieProof', function () {
 
       await expect(this.mock.$traverse(ethers.keccak256(proof[0]), key, proof)).to.eventually.deep.equal([
         ZeroBytes,
-        ProofError.INVALID_INTERNAL_NODE_HASH,
+        ProofError.INVALID_SHORT_NODE,
       ]);
     });
 
@@ -307,7 +307,7 @@ describe('TrieProof', function () {
 
         await expect(this.mock.$traverse(ethers.keccak256(proof[0]), key, proof)).to.eventually.deep.equal([
           ZeroBytes,
-          ProofError.MISMATCH_LEAF_PATH_KEY_REMAINDERS,
+          ProofError.MISMATCH_LEAF_PATH_KEY_REMAINDER,
         ]);
       });
     });
@@ -474,7 +474,7 @@ describe('TrieProof', function () {
           '0xf84780d687206e6f746865728d33343938683472697568677765808080808080808080a0854405b57aa6dc458bc41899a761cbbb1f66a4998af6dd0e8601c1b845395ae38080808080',
           '0xd687206e6f746865728d33343938683472697568677765',
         ],
-        error: ProofError.INVALID_INTERNAL_NODE_HASH,
+        error: ProofError.INVALID_SHORT_NODE,
       },
       // test_get_corruptedProof_reverts - RLP Encoding
       // test_get_invalidDataRemainder_reverts - RLP Encoding
@@ -487,7 +487,7 @@ describe('TrieProof', function () {
           '0xf380808080808080808080a0de2a9c6a46b6ea71ab9e881c8420570cf19e833c85df6026b04f085016e78f00c220118080808080',
           '0xde2a9c6a46b6ea71ab9e881c8420570cf19e833c85df6026b04f085016e78f',
         ],
-        error: ProofError.INVALID_INTERNAL_NODE_HASH,
+        error: ProofError.INVALID_SHORT_NODE,
       },
       {
         title: 'test_get_zeroBranchValueLength_reverts',

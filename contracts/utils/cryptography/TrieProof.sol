@@ -39,21 +39,21 @@ library TrieProof {
     }
 
     enum ProofError {
-        NO_ERROR, // No error occurred during proof verification
+        NO_ERROR, // No error occurred during proof traversal
         EMPTY_KEY, // The provided key is empty
         INDEX_OUT_OF_BOUNDS, // Array index access is out of bounds
-        INVALID_ROOT_HASH, // The provided root hash doesn't match the proof
-        INVALID_LARGE_INTERNAL_HASH, // Internal node hash exceeds expected size
-        INVALID_INTERNAL_NODE_HASH, // Internal node hash doesn't match expected value
-        EMPTY_VALUE, // The value to verify is empty
-        INVALID_EXTRA_PROOF_ELEMENT, // Proof contains unexpected additional elements
-        MISMATCH_LEAF_PATH_KEY_REMAINDERS, // Leaf path remainder doesn't match key remainder
-        EMPTY_PATH, // The path in a node is empty
-        INVALID_PATH_REMAINDER, // Path remainder doesn't match expected value
-        EMPTY_EXTENSION_PATH_REMAINDER, // Extension node has an empty path remainder
-        UNKNOWN_NODE_PREFIX, // Node prefix is not recognized
-        UNPARSEABLE_NODE, // Node cannot be parsed from RLP encoding
-        INVALID_PROOF // General proof validation failure
+        INVALID_ROOT, // The validation of the root node failed
+        INVALID_LARGE_NODE, // The validation of a large node failed
+        INVALID_SHORT_NODE, // The validation of a short node failed
+        EMPTY_PATH, // The path in a leaf or extension node is empty
+        INVALID_PATH_REMAINDER, // The path remainder in a leaf or extension node is invalid
+        EMPTY_EXTENSION_PATH_REMAINDER, // The path remainder in an extension node is empty
+        INVALID_EXTRA_PROOF_ELEMENT, // A leaf value should be the last proof element
+        EMPTY_VALUE, // The leaf value is empty
+        MISMATCH_LEAF_PATH_KEY_REMAINDER, // The path remainder in a leaf node doesn't match the key remainder
+        UNKNOWN_NODE_PREFIX, // The node prefix is unknown
+        UNPARSEABLE_NODE, // The node cannot be parsed from RLP encoding
+        INVALID_PROOF // General failure during proof traversal
     }
 
     struct Node {
@@ -112,15 +112,15 @@ library TrieProof {
             // validates the node hashes at different levels of the proof.
             if (keyIndex == 0) {
                 // Root node must match root hash
-                if (keccak256(node.encoded) != root) return (_emptyBytesMemory(), ProofError.INVALID_ROOT_HASH);
+                if (keccak256(node.encoded) != root) return (_emptyBytesMemory(), ProofError.INVALID_ROOT);
             } else if (node.encoded.length >= 32) {
                 // Large nodes are stored as hashes
                 if (currentNodeIdLength != 32 || keccak256(node.encoded) != currentNodeId)
-                    return (_emptyBytesMemory(), ProofError.INVALID_LARGE_INTERNAL_HASH);
+                    return (_emptyBytesMemory(), ProofError.INVALID_LARGE_NODE);
             } else {
                 // Small nodes must match directly
                 if (currentNodeIdLength != node.encoded.length || bytes32(node.encoded) != currentNodeId)
-                    return (_emptyBytesMemory(), ProofError.INVALID_INTERNAL_NODE_HASH);
+                    return (_emptyBytesMemory(), ProofError.INVALID_SHORT_NODE);
             }
 
             uint256 nodeLength = node.decoded.length;
@@ -168,7 +168,7 @@ library TrieProof {
                     return
                         pathRemainderLength == keyRemainder.length()
                             ? _validateLastItem(node.decoded[1], proofLength, i)
-                            : (_emptyBytesMemory(), ProofError.MISMATCH_LEAF_PATH_KEY_REMAINDERS);
+                            : (_emptyBytesMemory(), ProofError.MISMATCH_LEAF_PATH_KEY_REMAINDER);
                 } else {
                     return (_emptyBytesMemory(), ProofError.UNKNOWN_NODE_PREFIX);
                 }
