@@ -146,8 +146,6 @@ describe('TrieProof', function () {
       ]);
     });
 
-    it.skip('fails to process proof with key index out of bounds', async function () {}); // TODO: INDEX_OUT_OF_BOUNDS
-
     it('fails to process proof with invalid root hash', async function () {
       const slot = generators.bytes32();
       const value = generators.bytes32();
