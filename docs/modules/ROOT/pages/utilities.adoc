@@ -47,7 +47,7 @@ function _verify(
     bytes32 qx,
     bytes32 qy
 ) internal view returns (bool) {
-    return data.verify(data, r, s, qx, qy);
+    return data.verify(r, s, qx, qy);
 }
 ----
 
@@ -65,7 +65,7 @@ function _verify(
     bytes32 qy
 ) internal view returns (bool) {
     // Will only call the precompile at address(0x100)
-    return data.verifyNative(data, r, s, qx, qy);
+    return data.verifyNative(r, s, qx, qy);
 }
 ----
 
