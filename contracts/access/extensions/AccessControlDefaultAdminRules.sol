@@ -56,6 +56,8 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
         if (initialDefaultAdmin == address(0)) {
             revert AccessControlInvalidDefaultAdmin(address(0));
         }
+        // Time.Delay uses uint32 internally, so we need to cast from uint48
+        // SafeCast will revert with a clear error if initialDelay > type(uint32).max
         _delay = SafeCast.toUint32(initialDelay).toDelay();
         _grantRole(DEFAULT_ADMIN_ROLE, initialDefaultAdmin);
     }
@@ -277,10 +279,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
         bool hasPendingChange = oldEffect != 0 && oldEffect >= Time.timestamp();
         
         uint32 newDelay32 = SafeCast.toUint32(newDelay);
-        uint32 currentDelay = _delay.get();
-        uint32 minSetback = newDelay32 > currentDelay
-            ? SafeCast.toUint32(Math.min(newDelay, defaultAdminDelayIncreaseWait()))
-            : currentDelay - newDelay32;
+        uint32 minSetback = SafeCast.toUint32(_delayChangeWait(newDelay));
         
         uint48 effect;
         (_delay, effect) = _delay.withUpdate(newDelay32, minSetback);
