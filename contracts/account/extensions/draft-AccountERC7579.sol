@@ -302,7 +302,8 @@ abstract contract AccountERC7579 is Account, IERC1271, IERC7579Execution, IERC75
             delete _fallbacks[selector];
         }
 
-        IERC7579Module(module).onUninstall(deInitData);
+        // Ignores success purposely to avoid modules that revert on uninstall
+        LowLevelCall.callNoReturn(module, abi.encodeCall(IERC7579Module.onUninstall, (deInitData)));
         emit ModuleUninstalled(moduleTypeId, module);
     }
 
