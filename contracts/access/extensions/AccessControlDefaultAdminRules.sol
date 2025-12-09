@@ -173,7 +173,9 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
 
     /// @inheritdoc IAccessControlDefaultAdminRules
     function defaultAdminDelay() public view virtual returns (uint48) {
-        (uint32 valueBefore, uint32 valueAfter, uint48 effect) = _delay.getFull();
+        // Need to unpack directly to get the original effect value, as getFull() returns (valueAfter, 0, 0)
+        // when effect == Time.timestamp(), which would make us return valueAfter instead of valueBefore
+        (uint32 valueBefore, uint32 valueAfter, uint48 effect) = _delay.unpack();
         // Use strict comparison: new delay takes effect only after (not at) the effect timepoint
         // This matches the original behavior where schedule < block.timestamp was used
         // So when effect == block.timestamp, we still use valueBefore
@@ -182,12 +184,14 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
 
     /// @inheritdoc IAccessControlDefaultAdminRules
     function pendingDefaultAdminDelay() public view virtual returns (uint48 newDelay, uint48 schedule) {
-        (, uint32 pendingValue, uint48 effect) = _delay.getFull();
-        // Use strict comparison: pending delay is only pending if effect is in the future or at current time
-        // This matches the original behavior where !_hasSchedulePassed(schedule) was used
-        // _hasSchedulePassed = schedule < block.timestamp, so !_hasSchedulePassed = schedule >= block.timestamp
+        // Need to unpack directly to get the original effect and valueAfter, as getFull() returns (valueAfter, 0, 0)
+        // when effect == Time.timestamp(), which would make effect = 0
+        (, uint32 valueAfter, uint48 effect) = _delay.unpack();
+        // Pending delay is shown when effect >= Time.timestamp()
+        // When effect == Time.timestamp(), the delay hasn't taken effect yet (defaultAdminDelay still returns old value)
+        // So pending should still be shown at that exact moment
         if (effect != 0 && effect >= Time.timestamp()) {
-            return (SafeCast.toUint48(pendingValue), effect);
+            return (SafeCast.toUint48(valueAfter), effect);
         }
         return (0, 0);
     }
@@ -274,8 +278,10 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      */
     function _changeDefaultAdminDelay(uint48 newDelay) internal virtual {
         // Check if there's a pending delay change that will be canceled
-        // Use >= to match original behavior: schedule >= block.timestamp means pending
-        (, , uint48 oldEffect) = _delay.getFull();
+        // Need to unpack directly to get the original effect value, as getFull() returns (valueAfter, 0, 0)
+        // when effect == Time.timestamp(), which would make oldEffect = 0
+        (, , uint48 oldEffect) = _delay.unpack();
+        // A pending change exists if oldEffect != 0 and oldEffect >= Time.timestamp()
         bool hasPendingChange = oldEffect != 0 && oldEffect >= Time.timestamp();
 
         uint32 newDelay32 = SafeCast.toUint32(newDelay);
@@ -285,8 +291,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
         (_delay, effect) = _delay.withUpdate(newDelay32, minSetback);
 
         // Emit cancellation event if a pending change was overwritten
-        // Emit when oldEffect >= Time.timestamp() (pending or exactly at current time)
-        // This matches the original behavior where !_hasSchedulePassed means schedule >= block.timestamp
+        // Emit when there was a pending change (oldEffect >= Time.timestamp())
         if (hasPendingChange) {
             emit DefaultAdminDelayChangeCanceled();
         }
@@ -305,10 +310,11 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * Internal function without access restriction.
      */
     function _rollbackDefaultAdminDelay() internal virtual {
-        (, , uint48 effect) = _delay.getFull();
+        // Need to unpack directly to get the original effect value, as getFull() returns (valueAfter, 0, 0)
+        // when effect == Time.timestamp(), which would make effect = 0
+        (, , uint48 effect) = _delay.unpack();
         // Only emit cancellation if there's a pending change that hasn't taken effect yet
         // Emit when effect >= Time.timestamp() (pending or exactly at current time)
-        // This matches the original behavior where !_hasSchedulePassed means schedule >= block.timestamp
         if (effect != 0 && effect >= Time.timestamp()) {
             // Cancel pending delay change by resetting to current value
             uint32 currentDelay = _delay.get();
