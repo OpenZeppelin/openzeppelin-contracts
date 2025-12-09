@@ -14,6 +14,11 @@ import {ERC1967Utils} from "./ERC1967Utils.sol";
  */
 contract ERC1967Proxy is Proxy {
     /**
+     * @dev The proxy is left uninitialized.
+     */
+    error ERC1967ProxyUninitialized();
+
+    /**
      * @dev Initializes the upgradeable proxy with an initial implementation specified by `implementation`.
      *
      * If `_data` is nonempty, it's used as data in a delegate call to `implementation`. This will typically be an
@@ -24,10 +29,10 @@ contract ERC1967Proxy is Proxy {
      * - If `data` is empty, `msg.value` must be zero.
      */
     constructor(address implementation, bytes memory _data) payable {
-        require(
-            _unsafeAllowUninitialized() || ERC1967Utils.upgradeToAndCall(implementation, _data),
-            ERC1967Utils.ERC1967ProxyUninitialized()
-        );
+        if (!_unsafeAllowUninitialized() && _data.length == 0) {
+            revert ERC1967ProxyUninitialized();
+        }
+        ERC1967Utils.upgradeToAndCall(implementation, _data);
     }
 
     /**
