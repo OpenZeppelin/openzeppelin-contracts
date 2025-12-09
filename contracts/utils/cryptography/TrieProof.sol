@@ -183,7 +183,7 @@ library TrieProof {
                 return (_emptyBytesMemory(), ProofError.UNPARSEABLE_NODE);
             }
 
-            // Reset memory before next iteration. Deallocates `node` and `path`.
+            // Reset memory before next iteration. Deallocates `decoded` and `path`.
             Memory.setFreeMemoryPointer(fmp);
         }
 
