@@ -39,6 +39,7 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {Multicall}: Abstract contract with a utility to allow batching together multiple calls in a single transaction. Useful for allowing EOAs to perform multiple operations at once.
  * {Packing}: A library for packing and unpacking multiple values into bytes32.
  * {Panic}: A library to revert with https://docs.soliditylang.org/en/v0.8.20/control-structures.html#panic-via-assert-and-error-via-require[Solidity panic codes].
+ * {Errors}: Collection of common custom errors used in multiple contracts.
  * {RelayedCall}: A library for performing calls that use minimal and predictable relayers to hide the sender.
  * {RLP}: Library for encoding and decoding data in Ethereum's Recursive Length Prefix format.
  * {ShortStrings}: Library to encode (and decode) short strings into (or from) a single bytes32 slot for optimizing costs. Short strings are limited to 31 characters.
@@ -142,6 +143,8 @@ Ethereum contracts have no native concept of an interface, so applications must 
 {{Packing}}
 
 {{Panic}}
+
+{{Errors}}
 
 {{RelayedCall}}
 
