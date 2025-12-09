@@ -17,7 +17,9 @@ const ProofError = Enum(
   'EMPTY_VALUE',
   'INVALID_EXTRA_PROOF_ELEMENT',
   'MISMATCH_LEAF_PATH_KEY_REMAINDERS',
+  'EMPTY_PATH',
   'INVALID_PATH_REMAINDER',
+  'EMPTY_EXTENSION_PATH_REMAINDER',
   'UNKNOWN_NODE_PREFIX',
   'UNPARSEABLE_NODE',
   'INVALID_PROOF',
@@ -255,6 +257,17 @@ describe('TrieProof', function () {
         ]);
       });
 
+      it('fails to process proof with empty path', async function () {
+        const proof = [
+          ethers.encodeRlp(['0x', []]), // empty path
+        ];
+
+        await expect(this.mock.$traverse(ethers.keccak256(proof[0]), '0x00', proof)).to.eventually.deep.equal([
+          ZeroBytes,
+          ProofError.EMPTY_PATH,
+        ]);
+      });
+
       it('path is longer than key', async function () {
         const key = '0xabcd';
         const proof = [
@@ -267,6 +280,19 @@ describe('TrieProof', function () {
         await expect(this.mock.$traverse(ethers.keccak256(proof[0]), key, proof)).to.eventually.deep.equal([
           ZeroBytes,
           ProofError.INVALID_PATH_REMAINDER,
+        ]);
+      });
+
+      it('fails to process proof with empty extension path remainder', async function () {
+        const key = '0x00';
+        const node2 = ['0x00', '0x'];
+        const node1 = [node2].concat(Array(16).fill('0x'));
+        const node0 = [node1].concat(Array(16).fill('0x'));
+        const proof = [ethers.encodeRlp(node0), ethers.encodeRlp(node1), ethers.encodeRlp(node2)];
+
+        await expect(this.mock.$traverse(ethers.keccak256(proof[0]), key, proof)).to.eventually.deep.equal([
+          ZeroBytes,
+          ProofError.EMPTY_EXTENSION_PATH_REMAINDER,
         ]);
       });
 

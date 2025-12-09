@@ -48,7 +48,9 @@ library TrieProof {
         EMPTY_VALUE, // The value to verify is empty
         INVALID_EXTRA_PROOF_ELEMENT, // Proof contains unexpected additional elements
         MISMATCH_LEAF_PATH_KEY_REMAINDERS, // Leaf path remainder doesn't match key remainder
+        EMPTY_PATH, // The path in a node is empty
         INVALID_PATH_REMAINDER, // Path remainder doesn't match expected value
+        EMPTY_EXTENSION_PATH_REMAINDER, // Extension node has an empty path remainder
         UNKNOWN_NODE_PREFIX, // Node prefix is not recognized
         UNPARSEABLE_NODE, // Node cannot be parsed from RLP encoding
         INVALID_PROOF // General proof validation failure
@@ -133,7 +135,10 @@ library TrieProof {
                     keyIndex += 1;
                 }
             } else if (nodeLength == LEAF_OR_EXTENSION_NODE_LENGTH) {
-                bytes memory path = node.decoded[0].readBytes().toNibbles();
+                bytes memory path = node.decoded[0].readBytes().toNibbles(); // expanded path
+                if (path.length == 0) {
+                    return (_emptyBytesMemory(), ProofError.EMPTY_PATH);
+                }
                 uint8 prefix = uint8(path[0]);
                 Memory.Slice keyRemainder = keyExpanded.asSlice().slice(keyIndex); // Remaining key to match
                 Memory.Slice pathRemainder = path.asSlice().slice(2 - (prefix % 2)); // Path after the prefix
@@ -149,7 +154,9 @@ library TrieProof {
 
                 if (prefix <= uint8(Prefix.EXTENSION_ODD)) {
                     // Eq to: prefix == EXTENSION_EVEN || prefix == EXTENSION_ODD
-                    //
+                    if (pathRemainderLength == 0) {
+                        return (_emptyBytesMemory(), ProofError.EMPTY_EXTENSION_PATH_REMAINDER);
+                    }
                     // Increment keyIndex by the number of nibbles consumed and continue traversal
                     (currentNodeId, currentNodeIdLength) = _getNodeId(node.decoded[1]);
                     keyIndex += pathRemainderLength;
