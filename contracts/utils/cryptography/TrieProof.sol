@@ -193,11 +193,11 @@ library TrieProof {
         uint256 trieProofLength,
         uint256 i
     ) private pure returns (bytes memory, ProofError) {
-        bytes memory value = item.readBytes();
-
         if (i != trieProofLength - 1) {
             return (_emptyBytesMemory(), ProofError.INVALID_EXTRA_PROOF_ELEMENT);
-        } else if (value.length == 0) {
+        }
+        bytes memory value = item.readBytes();
+        if (value.length == 0) {
             return (_emptyBytesMemory(), ProofError.EMPTY_VALUE);
         } else {
             return (value, ProofError.NO_ERROR);
