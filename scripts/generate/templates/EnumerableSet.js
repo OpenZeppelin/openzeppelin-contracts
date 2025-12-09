@@ -37,6 +37,7 @@ import {Math} from "../math/Math.sol";
  * - \`uint256\` (\`UintSet\`) since v3.3.0
  * - \`string\` (\`StringSet\`) since v5.4.0
  * - \`bytes\` (\`BytesSet\`) since v5.4.0
+ * - \`bytes4\` (\`Bytes4Set\`) since v5.6.0
  *
  * [WARNING]
  * ====
