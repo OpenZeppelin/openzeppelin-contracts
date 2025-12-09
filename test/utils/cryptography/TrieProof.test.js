@@ -137,7 +137,11 @@ describe('TrieProof', function () {
 
   describe('process invalid proofs', function () {
     it('fails to process proof with empty key', async function () {
-      await expect(this.mock.$traverse(ethers.ZeroHash, '0x', [])).to.eventually.deep.equal([
+      await expect(this.mock.$traverse(ethers.ZeroHash, '0x', []))
+        .to.revertedWithCustomError(this.mock, 'TrieProofTraversalError')
+        .withArgs(ProofError.EMPTY_KEY);
+
+      await expect(this.mock.$tryTraverse(ethers.ZeroHash, '0x', [])).to.eventually.deep.equal([
         ZeroBytes,
         ProofError.EMPTY_KEY,
       ]);
@@ -157,7 +161,10 @@ describe('TrieProof', function () {
       // Correct root hash
       await expect(this.mock.$verify(ethers.encodeRlp(value), storageHash, ethers.keccak256(slot), proof)).to.eventually
         .be.true;
-      await expect(this.mock.$traverse(storageHash, ethers.keccak256(slot), proof)).to.eventually.deep.equal([
+      await expect(this.mock.$traverse(storageHash, ethers.keccak256(slot), proof)).to.eventually.equal(
+        ethers.encodeRlp(value),
+      );
+      await expect(this.mock.$tryTraverse(storageHash, ethers.keccak256(slot), proof)).to.eventually.deep.equal([
         ethers.encodeRlp(value),
         ProofError.NO_ERROR,
       ]);
@@ -167,7 +174,10 @@ describe('TrieProof', function () {
 
       await expect(this.mock.$verify(ethers.encodeRlp(value), invalidHash, ethers.keccak256(slot), proof)).to.eventually
         .be.false;
-      await expect(this.mock.$traverse(invalidHash, ethers.keccak256(slot), proof)).to.eventually.deep.equal([
+      await expect(this.mock.$traverse(invalidHash, ethers.keccak256(slot), proof))
+        .to.revertedWithCustomError(this.mock, 'TrieProofTraversalError')
+        .withArgs(ProofError.INVALID_ROOT);
+      await expect(this.mock.$tryTraverse(invalidHash, ethers.keccak256(slot), proof)).to.eventually.deep.equal([
         ZeroBytes,
         ProofError.INVALID_ROOT,
       ]);
@@ -188,7 +198,10 @@ describe('TrieProof', function () {
       // Correct proof
       await expect(this.mock.$verify(ethers.encodeRlp(value), storageHash, ethers.keccak256(slot), proof)).to.eventually
         .be.true;
-      await expect(this.mock.$traverse(storageHash, ethers.keccak256(slot), proof)).to.eventually.deep.equal([
+      await expect(this.mock.$traverse(storageHash, ethers.keccak256(slot), proof)).to.eventually.equal(
+        ethers.encodeRlp(value),
+      );
+      await expect(this.mock.$tryTraverse(storageHash, ethers.keccak256(slot), proof)).to.eventually.deep.equal([
         ethers.encodeRlp(value),
         ProofError.NO_ERROR,
       ]);
@@ -199,7 +212,10 @@ describe('TrieProof', function () {
 
       await expect(this.mock.$verify(ethers.encodeRlp(value), storageHash, ethers.keccak256(slot), proof)).to.eventually
         .be.false;
-      await expect(this.mock.$traverse(storageHash, ethers.keccak256(slot), proof)).to.eventually.deep.equal([
+      await expect(this.mock.$traverse(storageHash, ethers.keccak256(slot), proof))
+        .to.revertedWithCustomError(this.mock, 'TrieProofTraversalError')
+        .withArgs(ProofError.INVALID_LARGE_NODE);
+      await expect(this.mock.$tryTraverse(storageHash, ethers.keccak256(slot), proof)).to.eventually.deep.equal([
         ZeroBytes,
         ProofError.INVALID_LARGE_NODE,
       ]);
@@ -212,7 +228,10 @@ describe('TrieProof', function () {
         ethers.encodeRlp(['0x2000', '0x']),
       ];
 
-      await expect(this.mock.$traverse(ethers.keccak256(proof[0]), key, proof)).to.eventually.deep.equal([
+      await expect(this.mock.$traverse(ethers.keccak256(proof[0]), key, proof))
+        .to.revertedWithCustomError(this.mock, 'TrieProofTraversalError')
+        .withArgs(ProofError.INVALID_SHORT_NODE);
+      await expect(this.mock.$tryTraverse(ethers.keccak256(proof[0]), key, proof)).to.eventually.deep.equal([
         ZeroBytes,
         ProofError.INVALID_SHORT_NODE,
       ]);
@@ -222,7 +241,10 @@ describe('TrieProof', function () {
       const key = '0x00';
       const proof = [ethers.encodeRlp(['0x2000', '0x'])];
 
-      await expect(this.mock.$traverse(ethers.keccak256(proof[0]), key, proof)).to.eventually.deep.equal([
+      await expect(this.mock.$traverse(ethers.keccak256(proof[0]), key, proof))
+        .to.revertedWithCustomError(this.mock, 'TrieProofTraversalError')
+        .withArgs(ProofError.EMPTY_VALUE);
+      await expect(this.mock.$tryTraverse(ethers.keccak256(proof[0]), key, proof)).to.eventually.deep.equal([
         ZeroBytes,
         ProofError.EMPTY_VALUE,
       ]);
@@ -235,7 +257,10 @@ describe('TrieProof', function () {
         ethers.encodeRlp([]), // extra proof element
       ];
 
-      await expect(this.mock.$traverse(ethers.keccak256(proof[0]), key, proof)).to.eventually.deep.equal([
+      await expect(this.mock.$traverse(ethers.keccak256(proof[0]), key, proof))
+        .to.revertedWithCustomError(this.mock, 'TrieProofTraversalError')
+        .withArgs(ProofError.INVALID_EXTRA_PROOF_ELEMENT);
+      await expect(this.mock.$tryTraverse(ethers.keccak256(proof[0]), key, proof)).to.eventually.deep.equal([
         ZeroBytes,
         ProofError.INVALID_EXTRA_PROOF_ELEMENT,
       ]);
@@ -251,7 +276,10 @@ describe('TrieProof', function () {
           ]),
         ];
 
-        await expect(this.mock.$traverse(ethers.keccak256(proof[0]), key, proof)).to.eventually.deep.equal([
+        await expect(this.mock.$traverse(ethers.keccak256(proof[0]), key, proof))
+          .to.revertedWithCustomError(this.mock, 'TrieProofTraversalError')
+          .withArgs(ProofError.INVALID_PATH_REMAINDER);
+        await expect(this.mock.$tryTraverse(ethers.keccak256(proof[0]), key, proof)).to.eventually.deep.equal([
           ZeroBytes,
           ProofError.INVALID_PATH_REMAINDER,
         ]);
@@ -262,7 +290,10 @@ describe('TrieProof', function () {
           ethers.encodeRlp(['0x', []]), // empty path
         ];
 
-        await expect(this.mock.$traverse(ethers.keccak256(proof[0]), '0x00', proof)).to.eventually.deep.equal([
+        await expect(this.mock.$traverse(ethers.keccak256(proof[0]), '0x00', proof))
+          .to.revertedWithCustomError(this.mock, 'TrieProofTraversalError')
+          .withArgs(ProofError.EMPTY_PATH);
+        await expect(this.mock.$tryTraverse(ethers.keccak256(proof[0]), '0x00', proof)).to.eventually.deep.equal([
           ZeroBytes,
           ProofError.EMPTY_PATH,
         ]);
@@ -277,7 +308,10 @@ describe('TrieProof', function () {
           ]),
         ];
 
-        await expect(this.mock.$traverse(ethers.keccak256(proof[0]), key, proof)).to.eventually.deep.equal([
+        await expect(this.mock.$traverse(ethers.keccak256(proof[0]), key, proof))
+          .to.revertedWithCustomError(this.mock, 'TrieProofTraversalError')
+          .withArgs(ProofError.INVALID_PATH_REMAINDER);
+        await expect(this.mock.$tryTraverse(ethers.keccak256(proof[0]), key, proof)).to.eventually.deep.equal([
           ZeroBytes,
           ProofError.INVALID_PATH_REMAINDER,
         ]);
@@ -290,7 +324,10 @@ describe('TrieProof', function () {
         const node0 = [node1].concat(Array(16).fill('0x'));
         const proof = [ethers.encodeRlp(node0), ethers.encodeRlp(node1), ethers.encodeRlp(node2)];
 
-        await expect(this.mock.$traverse(ethers.keccak256(proof[0]), key, proof)).to.eventually.deep.equal([
+        await expect(this.mock.$traverse(ethers.keccak256(proof[0]), key, proof))
+          .to.revertedWithCustomError(this.mock, 'TrieProofTraversalError')
+          .withArgs(ProofError.EMPTY_EXTENSION_PATH_REMAINDER);
+        await expect(this.mock.$tryTraverse(ethers.keccak256(proof[0]), key, proof)).to.eventually.deep.equal([
           ZeroBytes,
           ProofError.EMPTY_EXTENSION_PATH_REMAINDER,
         ]);
@@ -305,7 +342,10 @@ describe('TrieProof', function () {
           ]),
         ];
 
-        await expect(this.mock.$traverse(ethers.keccak256(proof[0]), key, proof)).to.eventually.deep.equal([
+        await expect(this.mock.$traverse(ethers.keccak256(proof[0]), key, proof))
+          .to.revertedWithCustomError(this.mock, 'TrieProofTraversalError')
+          .withArgs(ProofError.MISMATCH_LEAF_PATH_KEY_REMAINDER);
+        await expect(this.mock.$tryTraverse(ethers.keccak256(proof[0]), key, proof)).to.eventually.deep.equal([
           ZeroBytes,
           ProofError.MISMATCH_LEAF_PATH_KEY_REMAINDER,
         ]);
@@ -316,7 +356,10 @@ describe('TrieProof', function () {
       const key = '0x00';
       const proof = [ethers.encodeRlp(['0x40', '0x'])];
 
-      await expect(this.mock.$traverse(ethers.keccak256(proof[0]), key, proof)).to.eventually.deep.equal([
+      await expect(this.mock.$traverse(ethers.keccak256(proof[0]), key, proof))
+        .to.revertedWithCustomError(this.mock, 'TrieProofTraversalError')
+        .withArgs(ProofError.UNKNOWN_NODE_PREFIX);
+      await expect(this.mock.$tryTraverse(ethers.keccak256(proof[0]), key, proof)).to.eventually.deep.equal([
         ZeroBytes,
         ProofError.UNKNOWN_NODE_PREFIX,
       ]);
@@ -326,14 +369,20 @@ describe('TrieProof', function () {
       const key = '0x00';
       const proof = [ethers.encodeRlp(['0x00', '0x00', '0x00'])];
 
-      await expect(this.mock.$traverse(ethers.keccak256(proof[0]), key, proof)).to.eventually.deep.equal([
+      await expect(this.mock.$traverse(ethers.keccak256(proof[0]), key, proof))
+        .to.revertedWithCustomError(this.mock, 'TrieProofTraversalError')
+        .withArgs(ProofError.UNPARSEABLE_NODE);
+      await expect(this.mock.$tryTraverse(ethers.keccak256(proof[0]), key, proof)).to.eventually.deep.equal([
         ZeroBytes,
         ProofError.UNPARSEABLE_NODE,
       ]);
     });
 
     it('fails to process proof with invalid proof', async function () {
-      await expect(this.mock.$traverse(ethers.ZeroHash, '0x00', [])).to.eventually.deep.equal([
+      await expect(this.mock.$traverse(ethers.ZeroHash, '0x00', []))
+        .to.revertedWithCustomError(this.mock, 'TrieProofTraversalError')
+        .withArgs(ProofError.INVALID_PROOF);
+      await expect(this.mock.$tryTraverse(ethers.ZeroHash, '0x00', [])).to.eventually.deep.equal([
         ZeroBytes,
         ProofError.INVALID_PROOF,
       ]);
@@ -542,7 +591,15 @@ describe('TrieProof', function () {
       },
     ]) {
       it(title, async function () {
-        await expect(this.mock.$traverse(root, key, proof)).to.eventually.deep.equal([
+        if (error === undefined) {
+          await expect(this.mock.$traverse(root, key, proof)).to.eventually.equal(value);
+        } else {
+          await expect(this.mock.$traverse(root, key, proof))
+            .to.revertedWithCustomError(this.mock, 'TrieProofTraversalError')
+            .withArgs(error);
+        }
+
+        await expect(this.mock.$tryTraverse(root, key, proof)).to.eventually.deep.equal([
           value ?? ZeroBytes,
           error ?? ProofError.NO_ERROR,
         ]);

@@ -56,6 +56,8 @@ library TrieProof {
         INVALID_PROOF // General failure during proof traversal
     }
 
+    error TrieProofTraversalError(ProofError err);
+
     struct Node {
         bytes encoded; // Raw RLP encoded node
         Memory.Slice[] decoded; // Decoded RLP items
@@ -77,12 +79,28 @@ library TrieProof {
         bytes memory key,
         bytes[] memory proof
     ) internal pure returns (bool) {
-        (bytes memory processedValue, ProofError err) = traverse(root, key, proof);
+        (bytes memory processedValue, ProofError err) = tryTraverse(root, key, proof);
         return processedValue.equal(value) && err == ProofError.NO_ERROR;
     }
 
-    /// @dev Processes a proof for a given key and returns the processed value.
-    function traverse(
+    /**
+     * @dev Processes a proof for a given key and returns the processed value.
+     *
+     * Reverts with {TrieProofTraversalError} if proof is invalid.
+     */
+    function traverse(bytes32 root, bytes memory key, bytes[] memory proof) internal pure returns (bytes memory) {
+        (bytes memory value, ProofError err) = tryTraverse(root, key, proof);
+        require(err == ProofError.NO_ERROR, TrieProofTraversalError(err));
+        return value;
+    }
+
+    /**
+     * @dev Processes a proof for a given key and returns the processed value.
+     *
+     * Return an error flag instead of reverting if the proof is invalid. This function may still if malformed input
+     * leads to RLP decoding errors.
+     */
+    function tryTraverse(
         bytes32 root,
         bytes memory key,
         bytes[] memory proof
