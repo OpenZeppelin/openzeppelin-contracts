@@ -197,10 +197,7 @@ library TrieProof {
             return (_emptyBytesMemory(), ProofError.INVALID_EXTRA_PROOF_ELEMENT);
         } else {
             bytes memory value = item.readBytes();
-            return 
-                value.length == 0
-                    ? (_emptyBytesMemory(), ProofError.EMPTY_VALUE)
-                    : (value, ProofError.NO_ERROR);
+            return value.length == 0 ? (_emptyBytesMemory(), ProofError.EMPTY_VALUE) : (value, ProofError.NO_ERROR);
         }
     }
 
