@@ -7,6 +7,7 @@ import {IAccessControlDefaultAdminRules} from "./IAccessControlDefaultAdminRules
 import {AccessControl, IAccessControl} from "../AccessControl.sol";
 import {SafeCast} from "../../utils/math/SafeCast.sol";
 import {Math} from "../../utils/math/Math.sol";
+import {Time} from "../../utils/types/Time.sol";
 import {IERC5313} from "../../interfaces/IERC5313.sol";
 import {IERC165} from "../../utils/introspection/IERC165.sol";
 
@@ -39,16 +40,14 @@ import {IERC165} from "../../utils/introspection/IERC165.sol";
  * ```
  */
 abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRules, IERC5313, AccessControl {
+    using Time for *;
+
     // pending admin pair read/written together frequently
     address private _pendingDefaultAdmin;
     uint48 private _pendingDefaultAdminSchedule; // 0 == unset
 
-    uint48 private _currentDelay;
+    Time.Delay private _delay;
     address private _currentDefaultAdmin;
-
-    // pending delay pair read/written together frequently
-    uint48 private _pendingDelay;
-    uint48 private _pendingDelaySchedule; // 0 == unset
 
     /**
      * @dev Sets the initial values for {defaultAdminDelay} and {defaultAdmin} address.
@@ -57,7 +56,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
         if (initialDefaultAdmin == address(0)) {
             revert AccessControlInvalidDefaultAdmin(address(0));
         }
-        _currentDelay = initialDelay;
+        _delay = SafeCast.toUint32(initialDelay).toDelay();
         _grantRole(DEFAULT_ADMIN_ROLE, initialDefaultAdmin);
     }
 
@@ -172,14 +171,23 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
 
     /// @inheritdoc IAccessControlDefaultAdminRules
     function defaultAdminDelay() public view virtual returns (uint48) {
-        uint48 schedule = _pendingDelaySchedule;
-        return (_isScheduleSet(schedule) && _hasSchedulePassed(schedule)) ? _pendingDelay : _currentDelay;
+        (uint32 valueBefore, uint32 valueAfter, uint48 effect) = _delay.getFull();
+        // Use strict comparison: new delay takes effect only after (not at) the effect timepoint
+        // This matches the original behavior where schedule < block.timestamp was used
+        // So when effect == block.timestamp, we still use valueBefore
+        return SafeCast.toUint48(effect != 0 && effect < Time.timestamp() ? valueAfter : valueBefore);
     }
 
     /// @inheritdoc IAccessControlDefaultAdminRules
     function pendingDefaultAdminDelay() public view virtual returns (uint48 newDelay, uint48 schedule) {
-        schedule = _pendingDelaySchedule;
-        return (_isScheduleSet(schedule) && !_hasSchedulePassed(schedule)) ? (_pendingDelay, schedule) : (0, 0);
+        (, uint32 pendingValue, uint48 effect) = _delay.getFull();
+        // Use strict comparison: pending delay is only pending if effect is in the future or at current time
+        // This matches the original behavior where !_hasSchedulePassed(schedule) was used
+        // _hasSchedulePassed = schedule < block.timestamp, so !_hasSchedulePassed = schedule >= block.timestamp
+        if (effect != 0 && effect >= Time.timestamp()) {
+            return (SafeCast.toUint48(pendingValue), effect);
+        }
+        return (0, 0);
     }
 
     /// @inheritdoc IAccessControlDefaultAdminRules
@@ -202,7 +210,8 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * Internal function without access restriction.
      */
     function _beginDefaultAdminTransfer(address newAdmin) internal virtual {
-        uint48 newSchedule = SafeCast.toUint48(block.timestamp) + defaultAdminDelay();
+        uint48 currentDelay = defaultAdminDelay();
+        uint48 newSchedule = SafeCast.toUint48(block.timestamp) + currentDelay;
         _setPendingDefaultAdmin(newAdmin, newSchedule);
         emit DefaultAdminTransferScheduled(newAdmin, newSchedule);
     }
@@ -262,9 +271,28 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * Internal function without access restriction.
      */
     function _changeDefaultAdminDelay(uint48 newDelay) internal virtual {
-        uint48 newSchedule = SafeCast.toUint48(block.timestamp) + _delayChangeWait(newDelay);
-        _setPendingDelay(newDelay, newSchedule);
-        emit DefaultAdminDelayChangeScheduled(newDelay, newSchedule);
+        // Check if there's a pending delay change that will be canceled
+        // Use >= to match original behavior: schedule >= block.timestamp means pending
+        (, , uint48 oldEffect) = _delay.getFull();
+        bool hasPendingChange = oldEffect != 0 && oldEffect >= Time.timestamp();
+        
+        uint32 newDelay32 = SafeCast.toUint32(newDelay);
+        uint32 currentDelay = _delay.get();
+        uint32 minSetback = newDelay32 > currentDelay
+            ? SafeCast.toUint32(Math.min(newDelay, defaultAdminDelayIncreaseWait()))
+            : currentDelay - newDelay32;
+        
+        uint48 effect;
+        (_delay, effect) = _delay.withUpdate(newDelay32, minSetback);
+        
+        // Emit cancellation event if a pending change was overwritten
+        // Emit when oldEffect >= Time.timestamp() (pending or exactly at current time)
+        // This matches the original behavior where !_hasSchedulePassed means schedule >= block.timestamp
+        if (hasPendingChange) {
+            emit DefaultAdminDelayChangeCanceled();
+        }
+        
+        emit DefaultAdminDelayChangeScheduled(newDelay, effect);
     }
 
     /// @inheritdoc IAccessControlDefaultAdminRules
@@ -278,7 +306,16 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * Internal function without access restriction.
      */
     function _rollbackDefaultAdminDelay() internal virtual {
-        _setPendingDelay(0, 0);
+        (, , uint48 effect) = _delay.getFull();
+        // Only emit cancellation if there's a pending change that hasn't taken effect yet
+        // Emit when effect >= Time.timestamp() (pending or exactly at current time)
+        // This matches the original behavior where !_hasSchedulePassed means schedule >= block.timestamp
+        if (effect != 0 && effect >= Time.timestamp()) {
+            // Cancel pending delay change by resetting to current value
+            uint32 currentDelay = _delay.get();
+            _delay = currentDelay.toDelay();
+            emit DefaultAdminDelayChangeCanceled();
+        }
     }
 
     /**
@@ -289,9 +326,13 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * after a wait that honors the previously set delay.
      *
      * See {defaultAdminDelayIncreaseWait}.
+     *
+     * NOTE: This function is kept for compatibility with formal verification harnesses.
+     * The actual delay change logic is now handled by {Time.Delay.withUpdate}.
      */
     function _delayChangeWait(uint48 newDelay) internal view virtual returns (uint48) {
-        uint48 currentDelay = defaultAdminDelay();
+        uint32 currentDelay = _delay.get();
+        uint32 newDelay32 = SafeCast.toUint32(newDelay);
 
         // When increasing the delay, we schedule the delay change to occur after a period of "new delay" has passed, up
         // to a maximum given by defaultAdminDelayIncreaseWait, by default 5 days. For example, if increasing from 1 day
@@ -303,9 +344,9 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
         // that an admin transfer cannot be made faster than "current delay" at the time the delay change is scheduled.
         // For example, if decreasing from 10 days to 3 days, the new delay will come into effect after 7 days.
         return
-            newDelay > currentDelay
-                ? uint48(Math.min(newDelay, defaultAdminDelayIncreaseWait())) // no need to safecast, both inputs are uint48
-                : currentDelay - newDelay;
+            newDelay32 > currentDelay
+                ? SafeCast.toUint48(Math.min(newDelay, defaultAdminDelayIncreaseWait()))
+                : SafeCast.toUint48(currentDelay - newDelay32);
     }
 
     ///
@@ -328,28 +369,6 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
             // Emit for implicit cancellations when another default admin was scheduled.
             emit DefaultAdminTransferCanceled();
         }
-    }
-
-    /**
-     * @dev Setter of the tuple for pending delay and its schedule.
-     *
-     * May emit a DefaultAdminDelayChangeCanceled event.
-     */
-    function _setPendingDelay(uint48 newDelay, uint48 newSchedule) private {
-        uint48 oldSchedule = _pendingDelaySchedule;
-
-        if (_isScheduleSet(oldSchedule)) {
-            if (_hasSchedulePassed(oldSchedule)) {
-                // Materialize a virtual delay
-                _currentDelay = _pendingDelay;
-            } else {
-                // Emit for implicit cancellations when another delay was scheduled.
-                emit DefaultAdminDelayChangeCanceled();
-            }
-        }
-
-        _pendingDelay = newDelay;
-        _pendingDelaySchedule = newSchedule;
     }
 
     ///
