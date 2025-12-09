@@ -3,21 +3,14 @@ const { expect } = require('chai');
 
 const { getAddressInSlot, ImplementationSlot } = require('../helpers/storage');
 
-module.exports = function shouldBehaveLikeProxy() {
+module.exports = function shouldBehaveLikeProxy(allowUninitialized = false) {
   it('cannot be initialized with a non-contract address', async function () {
-    const initializeData = '0x';
+    const initializeData = '0x00'; // non empty data to avoid uninitialized error
     const contractFactory = await ethers.getContractFactory('ERC1967Proxy');
+
     await expect(this.createProxy(this.nonContractAddress, initializeData))
       .to.be.revertedWithCustomError(contractFactory, 'ERC1967InvalidImplementation')
       .withArgs(this.nonContractAddress);
-  });
-
-  it('reverts without initialization', async function () {
-    const contractFactory = await ethers.getContractFactory('ERC1967Proxy');
-    await expect(this.createProxy(this.implementation, '0x')).to.be.revertedWithCustomError(
-      contractFactory,
-      'ERC1967ProxyUninitialized',
-    );
   });
 
   const assertProxyInitialization = function ({ value, balance }) {
@@ -34,6 +27,38 @@ module.exports = function shouldBehaveLikeProxy() {
       expect(await ethers.provider.getBalance(this.proxy)).to.equal(balance);
     });
   };
+
+  describe('without initialization', function () {
+    if (allowUninitialized) {
+      const initializeData = '0x';
+
+      describe('when not sending balance', function () {
+        beforeEach('creating proxy', async function () {
+          this.proxy = await this.createProxy(this.implementation, initializeData);
+        });
+
+        assertProxyInitialization({ value: 0n, balance: 0n });
+      });
+
+      describe('when sending some balance', function () {
+        const value = 10n ** 5n;
+
+        it('reverts', async function () {
+          await expect(this.createProxy(this.implementation, initializeData, { value })).to.be.reverted;
+        });
+      });
+    } else {
+      it('reverts without initialization', async function () {
+        const initializeData = '0x'; // empty data causes uninitialized error
+        const contractFactory = await ethers.getContractFactory('ERC1967Proxy');
+
+        await expect(this.createProxy(this.implementation, initializeData)).to.be.revertedWithCustomError(
+          contractFactory,
+          'ERC1967ProxyUninitialized',
+        );
+      });
+    }
+  });
 
   describe('initialization without parameters', function () {
     describe('non payable', function () {

@@ -9,10 +9,6 @@ pragma solidity ^0.8.20;
 contract ClashingImplementation {
     event ClashingImplementationCall();
 
-    function initialize() external payable {
-        // placeholder
-    }
-
     function upgradeToAndCall(address, bytes calldata) external payable {
         emit ClashingImplementationCall();
     }

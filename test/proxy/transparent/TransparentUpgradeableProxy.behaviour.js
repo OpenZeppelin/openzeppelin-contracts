@@ -42,7 +42,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy() {
       this,
       await this.createProxyWithImpersonatedProxyAdmin(
         this.implementationV0,
-        this.implementation.interface.encodeFunctionData('initialize', [100n, 'test', [1, 2, 3]]),
+        this.implementationV0.interface.encodeFunctionData('initializeNonPayable'),
       ),
     );
   });
@@ -249,7 +249,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy() {
         this,
         await this.createProxyWithImpersonatedProxyAdmin(
           this.clashingImplV0,
-          this.clashingImplV0.interface.encodeFunctionData('initialize'),
+          this.clashingImplV0.interface.encodeFunctionData('delegatedFunction'), // use a pure function with no state change as dummy initializer.
         ),
       );
     });
@@ -279,87 +279,89 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy() {
   });
 
   describe('regression', function () {
-    beforeEach(async function () {
-      this.impl1 = await ethers.deployContract('Implementation1');
-      this.impl2 = await ethers.deployContract('Implementation2');
-      this.impl3 = await ethers.deployContract('Implementation3');
-      this.impl4 = await ethers.deployContract('Implementation4');
-      this.initializeData = this.impl1.interface.encodeFunctionData('initialize');
-    });
-
     it('should add new function', async function () {
+      const impl1 = await ethers.deployContract('Implementation1');
+      const impl2 = await ethers.deployContract('Implementation2');
       const { instance, proxy, proxyAdminAsSigner } = await this.createProxyWithImpersonatedProxyAdmin(
-        this.impl1,
-        this.initializeData,
+        impl1,
+        impl1.interface.encodeFunctionData('initialize'),
       );
 
       await instance.setValue(42n);
 
       // `getValue` is not available in impl1
-      await expect(this.impl2.attach(instance).getValue()).to.be.reverted;
+      await expect(impl2.attach(instance).getValue()).to.be.reverted;
 
       // do upgrade
-      await proxy.connect(proxyAdminAsSigner).upgradeToAndCall(this.impl2, '0x');
+      await proxy.connect(proxyAdminAsSigner).upgradeToAndCall(impl2, '0x');
 
       // `getValue` is available in impl2
-      expect(await this.impl2.attach(instance).getValue()).to.equal(42n);
+      expect(await impl2.attach(instance).getValue()).to.equal(42n);
     });
 
     it('should remove function', async function () {
+      const impl1 = await ethers.deployContract('Implementation1');
+      const impl2 = await ethers.deployContract('Implementation2');
       const { instance, proxy, proxyAdminAsSigner } = await this.createProxyWithImpersonatedProxyAdmin(
-        this.impl2,
-        this.initializeData,
+        impl2,
+        impl2.interface.encodeFunctionData('initialize'),
       );
 
       await instance.setValue(42n);
 
       // `getValue` is available in impl2
-      expect(await this.impl2.attach(instance).getValue()).to.equal(42n);
+      expect(await impl2.attach(instance).getValue()).to.equal(42n);
 
       // do downgrade
-      await proxy.connect(proxyAdminAsSigner).upgradeToAndCall(this.impl1, '0x');
+      await proxy.connect(proxyAdminAsSigner).upgradeToAndCall(impl1, '0x');
 
       // `getValue` is not available in impl1
-      await expect(this.impl2.attach(instance).getValue()).to.be.reverted;
+      await expect(impl2.attach(instance).getValue()).to.be.reverted;
     });
 
     it('should change function signature', async function () {
+      const impl1 = await ethers.deployContract('Implementation1');
+      const impl3 = await ethers.deployContract('Implementation3');
       const { instance, proxy, proxyAdminAsSigner } = await this.createProxyWithImpersonatedProxyAdmin(
-        this.impl1,
-        this.initializeData,
+        impl1,
+        impl1.interface.encodeFunctionData('initialize'),
       );
 
       await instance.setValue(42n);
 
-      await proxy.connect(proxyAdminAsSigner).upgradeToAndCall(this.impl3, '0x');
+      await proxy.connect(proxyAdminAsSigner).upgradeToAndCall(impl3, '0x');
 
-      expect(await this.impl3.attach(instance).getValue(8n)).to.equal(50n);
+      expect(await impl3.attach(instance).getValue(8n)).to.equal(50n);
     });
 
     it('should add fallback function', async function () {
+      const impl1 = await ethers.deployContract('Implementation1');
+      const impl4 = await ethers.deployContract('Implementation4');
       const { instance, proxy, proxyAdminAsSigner } = await this.createProxyWithImpersonatedProxyAdmin(
-        this.impl1,
-        this.initializeData,
+        impl1,
+        impl1.interface.encodeFunctionData('initialize'),
       );
 
-      await proxy.connect(proxyAdminAsSigner).upgradeToAndCall(this.impl4, '0x');
+      await proxy.connect(proxyAdminAsSigner).upgradeToAndCall(impl4, '0x');
 
       await this.other.sendTransaction({ to: proxy });
 
-      expect(await this.impl4.attach(instance).getValue()).to.equal(1n);
+      expect(await impl4.attach(instance).getValue()).to.equal(1n);
     });
 
     it('should remove fallback function', async function () {
+      const impl2 = await ethers.deployContract('Implementation2');
+      const impl4 = await ethers.deployContract('Implementation4');
       const { instance, proxy, proxyAdminAsSigner } = await this.createProxyWithImpersonatedProxyAdmin(
-        this.impl4,
-        this.initializeData,
+        impl4,
+        impl4.interface.encodeFunctionData('initialize'),
       );
 
-      await proxy.connect(proxyAdminAsSigner).upgradeToAndCall(this.impl2, '0x');
+      await proxy.connect(proxyAdminAsSigner).upgradeToAndCall(impl2, '0x');
 
       await expect(this.other.sendTransaction({ to: proxy })).to.be.reverted;
 
-      expect(await this.impl2.attach(instance).getValue()).to.equal(0n);
+      expect(await impl2.attach(instance).getValue()).to.equal(0n);
     });
   });
 };
