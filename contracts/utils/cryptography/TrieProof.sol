@@ -57,11 +57,6 @@ library TrieProof {
 
     error TrieProofTraversalError(ProofError err);
 
-    struct Node {
-        bytes encoded; // Raw RLP encoded node
-        Memory.Slice[] decoded; // Decoded RLP items
-    }
-
     /// @dev The radix of the Ethereum trie
     uint256 internal constant EVM_TREE_RADIX = 16;
 
@@ -119,35 +114,35 @@ library TrieProof {
         uint256 keyIndex = 0;
         uint256 proofLength = proof.length;
         for (uint256 i = 0; i < proofLength; ++i) {
-            Node memory node = Node(proof[i], proof[i].decodeList());
-
-            // validates the node hashes at different levels of the proof.
+            // validates the encoded node matches the expected node id
+            bytes memory encoded = proof[i];
             if (keyIndex == 0) {
                 // Root node must match root hash
-                if (keccak256(node.encoded) != root) return (_emptyBytesMemory(), ProofError.INVALID_ROOT);
-            } else if (node.encoded.length >= 32) {
+                if (keccak256(encoded) != root) return (_emptyBytesMemory(), ProofError.INVALID_ROOT);
+            } else if (encoded.length >= 32) {
                 // Large nodes are stored as hashes
-                if (currentNodeIdLength != 32 || keccak256(node.encoded) != currentNodeId)
+                if (currentNodeIdLength != 32 || keccak256(encoded) != currentNodeId)
                     return (_emptyBytesMemory(), ProofError.INVALID_LARGE_NODE);
             } else {
                 // Small nodes must match directly
-                if (currentNodeIdLength != node.encoded.length || bytes32(node.encoded) != currentNodeId)
+                if (currentNodeIdLength != encoded.length || bytes32(encoded) != currentNodeId)
                     return (_emptyBytesMemory(), ProofError.INVALID_SHORT_NODE);
             }
 
-            uint256 nodeLength = node.decoded.length;
-            if (nodeLength == BRANCH_NODE_LENGTH) {
+            // decode the current node as an RLP list, and process it
+            Memory.Slice[] memory decoded = encoded.decodeList();
+            if (decoded.length == BRANCH_NODE_LENGTH) {
                 // If we've consumed the entire key, the value must be in the last slot
                 // Otherwise, continue down the branch specified by the next nibble in the key
                 if (keyIndex == keyExpanded.length) {
-                    return _validateLastItem(node.decoded[EVM_TREE_RADIX], proofLength, i);
+                    return _validateLastItem(decoded[EVM_TREE_RADIX], proofLength, i);
                 } else {
                     bytes1 branchKey = keyExpanded[keyIndex];
-                    (currentNodeId, currentNodeIdLength) = _getNodeId(node.decoded[uint8(branchKey)]);
+                    (currentNodeId, currentNodeIdLength) = _getNodeId(decoded[uint8(branchKey)]);
                     keyIndex += 1;
                 }
-            } else if (nodeLength == LEAF_OR_EXTENSION_NODE_LENGTH) {
-                bytes memory path = node.decoded[0].readBytes().toNibbles(); // expanded path
+            } else if (decoded.length == LEAF_OR_EXTENSION_NODE_LENGTH) {
+                bytes memory path = decoded[0].readBytes().toNibbles(); // expanded path
                 if (path.length == 0) {
                     return (_emptyBytesMemory(), ProofError.EMPTY_PATH);
                 }
@@ -170,7 +165,7 @@ library TrieProof {
                         return (_emptyBytesMemory(), ProofError.EMPTY_EXTENSION_PATH_REMAINDER);
                     }
                     // Increment keyIndex by the number of nibbles consumed and continue traversal
-                    (currentNodeId, currentNodeIdLength) = _getNodeId(node.decoded[1]);
+                    (currentNodeId, currentNodeIdLength) = _getNodeId(decoded[1]);
                     keyIndex += pathRemainderLength;
                 } else if (prefix <= uint8(Prefix.LEAF_ODD)) {
                     // Eq to: prefix == LEAF_EVEN || prefix == LEAF_ODD
@@ -179,7 +174,7 @@ library TrieProof {
                     // we already know that pathRemainder is a prefix of keyRemainder, so checking the length sufficient
                     return
                         pathRemainderLength == keyRemainder.length()
-                            ? _validateLastItem(node.decoded[1], proofLength, i)
+                            ? _validateLastItem(decoded[1], proofLength, i)
                             : (_emptyBytesMemory(), ProofError.MISMATCH_LEAF_PATH_KEY_REMAINDER);
                 } else {
                     return (_emptyBytesMemory(), ProofError.UNKNOWN_NODE_PREFIX);
