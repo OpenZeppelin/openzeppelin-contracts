@@ -27,7 +27,7 @@ abstract contract ERC6909Pausable is ERC6909, Pausable {
      *
      * - the contract must not be paused.
      */
-    function _update(address from, address to, uint256 ids, uint256 values) internal virtual override whenNotPaused {
-        super._update(from, to, ids, values);
+    function _update(address from, address to, uint256 id, uint256 amount) internal virtual override whenNotPaused {
+        super._update(from, to, id, amount);
     }
 }
