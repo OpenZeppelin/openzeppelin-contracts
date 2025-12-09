@@ -173,13 +173,17 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
 
     /// @inheritdoc IAccessControlDefaultAdminRules
     function defaultAdminDelay() public view virtual returns (uint48) {
-        // Need to unpack directly to get the original effect value, as getFull() returns (valueAfter, 0, 0)
-        // when effect == Time.timestamp(), which would make us return valueAfter instead of valueBefore
         (uint32 valueBefore, uint32 valueAfter, uint48 effect) = _delay.unpack();
-        // Use strict comparison: new delay takes effect only after (not at) the effect timepoint
-        // This matches the original behavior where schedule < block.timestamp was used
-        // So when effect == block.timestamp, we still use valueBefore
-        return SafeCast.toUint48(effect != 0 && effect < Time.timestamp() ? valueAfter : valueBefore);
+        // When effect == 0, there's no pending change, unpack() returns (0, currentValue, 0)
+        // When effect != 0, we need strict comparison: effect < Time.timestamp()
+        // This matches original behavior where schedule < block.timestamp means passed
+        // So when effect == Time.timestamp(), we still return valueBefore (old value)
+        if (effect == 0) {
+            // No pending change, return current value (which is in valueAfter when effect == 0)
+            return SafeCast.toUint48(valueAfter);
+        }
+        // When effect != 0, use strict comparison: only return valueAfter if effect < Time.timestamp()
+        return SafeCast.toUint48(effect < Time.timestamp() ? valueAfter : valueBefore);
     }
 
     /// @inheritdoc IAccessControlDefaultAdminRules
