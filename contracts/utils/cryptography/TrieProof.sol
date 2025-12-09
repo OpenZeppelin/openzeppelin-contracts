@@ -78,7 +78,7 @@ library TrieProof {
     }
 
     /**
-     * @dev Processes a proof for a given key and returns the processed value.
+     * @dev Traverses a proof with a given key and returns the value.
      *
      * Reverts with {TrieProofTraversalError} if proof is invalid.
      */
@@ -89,10 +89,9 @@ library TrieProof {
     }
 
     /**
-     * @dev Processes a proof for a given key and returns the processed value.
-     *
-     * Return an error flag instead of reverting if the proof is invalid. This function may still if malformed input
-     * leads to RLP decoding errors.
+     * @dev Traverses a proof with a given key and returns the value and an error flag
+     * instead of reverting if the proof is invalid. This function may still revert if
+     * malformed input leads to RLP decoding errors.
      */
     function tryTraverse(
         bytes32 root,
@@ -110,7 +109,7 @@ library TrieProof {
         // Free memory pointer cache
         Memory.Pointer fmp = Memory.getFreeMemoryPointer();
 
-        // Process proof
+        // Traverse proof
         uint256 keyIndex = 0;
         uint256 proofLength = proof.length;
         for (uint256 i = 0; i < proofLength; ++i) {
