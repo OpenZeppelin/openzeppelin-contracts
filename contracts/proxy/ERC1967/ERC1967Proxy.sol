@@ -26,6 +26,10 @@ contract ERC1967Proxy is Proxy {
      * will fail if `_data` is empty. This behavior can be overriden using a custom {_unsafeAllowUninitialized} that
      * returns true. In that case, empty `_data` is ignored and no delegate call to the implementation is performed
      * during construction.
+     *
+     * Requirements:
+     *
+     * - If `data` is empty, `msg.value` must be zero.
      */
     constructor(address implementation, bytes memory _data) payable {
         if (!_unsafeAllowUninitialized() && _data.length == 0) {
