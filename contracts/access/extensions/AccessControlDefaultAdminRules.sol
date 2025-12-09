@@ -46,6 +46,13 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     address private _pendingDefaultAdmin;
     uint48 private _pendingDefaultAdminSchedule; // 0 == unset
 
+    // Storage layout compatibility: keep old variables for upgradeable contracts
+    // These are synchronized with _delay internally
+    uint48 private _currentDelay;
+    uint48 private _pendingDelay;
+    uint48 private _pendingDelaySchedule; // 0 == unset
+
+    // Internal delay state using Time.Delay library
     Time.Delay private _delay;
     address private _currentDefaultAdmin;
 
@@ -59,6 +66,8 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
         // Time.Delay uses uint32 internally, so we need to cast from uint48
         // SafeCast will revert with a clear error if initialDelay > type(uint32).max
         _delay = SafeCast.toUint32(initialDelay).toDelay();
+        // Synchronize with old variables for storage layout compatibility
+        _currentDelay = initialDelay;
         _grantRole(DEFAULT_ADMIN_ROLE, initialDefaultAdmin);
     }
 
@@ -284,15 +293,24 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
         // Check if there's a pending delay change that will be canceled
         // Need to unpack directly to get the original effect value, as getFull() returns (valueAfter, 0, 0)
         // when effect == Time.timestamp(), which would make oldEffect = 0
-        (, , uint48 oldEffect) = _delay.unpack();
+        (uint32 oldValueBefore, uint32 oldValueAfter, uint48 oldEffect) = _delay.unpack();
         // A pending change exists if oldEffect != 0 and oldEffect >= Time.timestamp()
         bool hasPendingChange = oldEffect != 0 && oldEffect >= Time.timestamp();
+        
+        // If old pending delay has taken effect, update _currentDelay
+        if (oldEffect != 0 && oldEffect < Time.timestamp()) {
+            _currentDelay = SafeCast.toUint48(oldValueAfter);
+        }
 
         uint32 newDelay32 = SafeCast.toUint32(newDelay);
         uint32 minSetback = SafeCast.toUint32(_delayChangeWait(newDelay));
 
         uint48 effect;
         (_delay, effect) = _delay.withUpdate(newDelay32, minSetback);
+
+        // Synchronize with old variables for storage layout compatibility
+        _pendingDelay = newDelay;
+        _pendingDelaySchedule = effect;
 
         // Emit cancellation event if a pending change was overwritten
         // Emit when there was a pending change (oldEffect >= Time.timestamp())
@@ -323,6 +341,9 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
             // Cancel pending delay change by resetting to current value
             uint32 currentDelay = _delay.get();
             _delay = currentDelay.toDelay();
+            // Synchronize with old variables for storage layout compatibility
+            _pendingDelay = 0;
+            _pendingDelaySchedule = 0;
             emit DefaultAdminDelayChangeCanceled();
         }
     }
