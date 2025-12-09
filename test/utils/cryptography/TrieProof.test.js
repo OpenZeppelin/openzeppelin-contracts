@@ -8,21 +8,20 @@ const { max } = require('../../helpers/math');
 const { generators } = require('../../helpers/random');
 
 const ProofError = Enum(
-  'NO_ERROR',
-  'EMPTY_KEY',
-  'INDEX_OUT_OF_BOUNDS',
-  'INVALID_ROOT',
-  'INVALID_LARGE_NODE',
-  'INVALID_SHORT_NODE',
-  'EMPTY_PATH',
-  'INVALID_PATH_REMAINDER',
-  'EMPTY_EXTENSION_PATH_REMAINDER',
-  'INVALID_EXTRA_PROOF_ELEMENT',
-  'EMPTY_VALUE',
-  'MISMATCH_LEAF_PATH_KEY_REMAINDER',
-  'UNKNOWN_NODE_PREFIX',
-  'UNPARSEABLE_NODE',
-  'INVALID_PROOF',
+  'NO_ERROR', // No error occurred during proof traversal
+  'EMPTY_KEY', // The provided key is empty
+  'INVALID_ROOT', // The validation of the root node failed
+  'INVALID_LARGE_NODE', // The validation of a large node failed
+  'INVALID_SHORT_NODE', // The validation of a short node failed
+  'EMPTY_PATH', // The path in a leaf or extension node is empty
+  'INVALID_PATH_REMAINDER', // The path remainder in a leaf or extension node is invalid
+  'EMPTY_EXTENSION_PATH_REMAINDER', // The path remainder in an extension node is empty
+  'INVALID_EXTRA_PROOF_ELEMENT', // A leaf value should be the last proof element
+  'EMPTY_VALUE', // The leaf value is empty
+  'MISMATCH_LEAF_PATH_KEY_REMAINDER', // The path remainder in a leaf node doesn't match the key remainder
+  'UNKNOWN_NODE_PREFIX', // The node prefix is unknown
+  'UNPARSEABLE_NODE', // The node cannot be parsed from RLP encoding
+  'INVALID_PROOF', // General failure during proof traversal
 );
 
 const ZeroBytes = generators.bytes.zero;

@@ -41,7 +41,6 @@ library TrieProof {
     enum ProofError {
         NO_ERROR, // No error occurred during proof traversal
         EMPTY_KEY, // The provided key is empty
-        INDEX_OUT_OF_BOUNDS, // Array index access is out of bounds
         INVALID_ROOT, // The validation of the root node failed
         INVALID_LARGE_NODE, // The validation of a large node failed
         INVALID_SHORT_NODE, // The validation of a short node failed
@@ -121,11 +120,6 @@ library TrieProof {
         uint256 proofLength = proof.length;
         for (uint256 i = 0; i < proofLength; ++i) {
             Node memory node = Node(proof[i], proof[i].decodeList());
-
-            // ensure we haven't overshot the key
-            if (keyIndex > keyExpanded.length) {
-                return (_emptyBytesMemory(), ProofError.INDEX_OUT_OF_BOUNDS);
-            }
 
             // validates the node hashes at different levels of the proof.
             if (keyIndex == 0) {
