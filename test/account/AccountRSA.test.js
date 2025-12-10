@@ -28,7 +28,7 @@ async function fixture() {
   ]);
 
   // ERC-4337 Entrypoint domain
-  const entrypointDomain = await getDomain(predeploy.entrypoint.v08);
+  const entrypointDomain = await getDomain(predeploy.entrypoint.v09);
 
   // domain cannot be fetched using getDomain(mock) before the mock is deployed
   const domain = {

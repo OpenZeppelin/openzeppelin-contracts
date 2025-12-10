@@ -28,6 +28,10 @@ describe('ERC4337Utils', function () {
     it('v0.8.0', async function () {
       await expect(this.utils.$ENTRYPOINT_V08()).to.eventually.equal(predeploy.entrypoint.v08);
     });
+
+    it('v0.9.0', async function () {
+      await expect(this.utils.$ENTRYPOINT_V09()).to.eventually.equal(predeploy.entrypoint.v09);
+    });
   });
 
   describe('parseValidationData', function () {
