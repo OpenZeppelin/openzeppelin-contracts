@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.5.0) (access/extensions/AccessControlDefaultAdminRules.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity >0.8.30;
 
 import {IAccessControlDefaultAdminRules} from "./IAccessControlDefaultAdminRules.sol";
 import {AccessControl, IAccessControl} from "../AccessControl.sol";

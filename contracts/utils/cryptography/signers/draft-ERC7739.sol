@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.5.0) (utils/cryptography/signers/draft-ERC7739.sol)
 
-pragma solidity ^0.8.24;
+pragma solidity >0.8.30;
 
 import {AbstractSigner} from "./AbstractSigner.sol";
 import {EIP712} from "../EIP712.sol";

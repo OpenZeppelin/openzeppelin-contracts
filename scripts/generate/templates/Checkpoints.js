@@ -3,7 +3,7 @@ const { OPTS } = require('./Checkpoints.opts');
 
 // TEMPLATE
 const header = `\
-pragma solidity ^0.8.20;
+pragma solidity >0.8.30;
 
 import {Math} from "../math/Math.sol";
 
