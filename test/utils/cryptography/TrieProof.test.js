@@ -26,6 +26,7 @@ const ProofError = Enum(
 
 const ZeroBytes = generators.bytes.zero;
 
+const sanifyHexString = value => (value.length % 2 ? '0x0' : '0x') + value.replace(/0x/, '');
 const encodeStorageLeaf = value => ethers.encodeRlp(ethers.stripZerosLeft(value));
 
 describe('TrieProof', function () {
@@ -123,7 +124,12 @@ describe('TrieProof', function () {
           ).to.eventually.be.true;
 
           // Storage proof within the account
-          for (const [[slot, value], { proof }] of zip(Object.entries(slots), storageProof)) {
+          for (const [[slot, value], { proof, value: proofValue, key }] of zip(Object.entries(slots), storageProof)) {
+            // proof sanity check
+            expect(sanifyHexString(proofValue)).to.equal(ethers.stripZerosLeft(value), proofValue);
+            expect(sanifyHexString(key)).to.equal(slot, key);
+
+            // verify storage slot
             await expect(this.mock.$verify(encodeStorageLeaf(value), storageHash, ethers.keccak256(slot), proof)).to
               .eventually.be.true;
           }
