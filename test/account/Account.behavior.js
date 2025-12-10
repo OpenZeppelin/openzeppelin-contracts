@@ -8,7 +8,7 @@ function shouldBehaveLikeAccountCore() {
   describe('entryPoint', function () {
     it('should return the canonical entrypoint', async function () {
       await this.mock.deploy();
-      await expect(this.mock.entryPoint()).to.eventually.equal(predeploy.entrypoint.v08);
+      await expect(this.mock.entryPoint()).to.eventually.equal(predeploy.entrypoint.v09);
     });
   });
 
@@ -30,7 +30,7 @@ function shouldBehaveLikeAccountCore() {
 
     describe('when the caller is the canonical entrypoint', function () {
       beforeEach(async function () {
-        this.mockFromEntrypoint = this.mock.connect(await impersonate(predeploy.entrypoint.v08.target));
+        this.mockFromEntrypoint = this.mock.connect(await impersonate(predeploy.entrypoint.v09.target));
       });
 
       it('should return SIG_VALIDATION_SUCCESS if the signature is valid', async function () {
@@ -59,7 +59,7 @@ function shouldBehaveLikeAccountCore() {
 
         await expect(
           this.mockFromEntrypoint.validateUserOp(operation.packed, operation.hash(), value),
-        ).to.changeEtherBalances([this.mock, predeploy.entrypoint.v08], [-value, value]);
+        ).to.changeEtherBalances([this.mock, predeploy.entrypoint.v09], [-value, value]);
       });
     });
   });

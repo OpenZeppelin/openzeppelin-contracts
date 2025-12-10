@@ -422,6 +422,57 @@ function splice(${type.name}[] memory array, uint256 start, uint256 end) interna
 
     return array;
 }
+
+/**
+ * @dev Replaces elements in \`array\` starting at \`pos\` with all elements from \`replacement\`.
+ *
+ * Parameters are clamped to valid ranges (i.e. \`pos\` is clamped to \`[0, array.length]\`).
+ * If \`pos >= array.length\`, no replacement occurs and the array is returned unchanged.
+ *
+ * NOTE: This function modifies the provided array in place.
+ */
+function replace(
+    ${type.name}[] memory array,
+    uint256 pos,
+    ${type.name}[] memory replacement
+) internal pure returns (${type.name}[] memory) {
+    return replace(array, pos, replacement, 0, replacement.length);
+}
+
+/**
+ * @dev Replaces elements in \`array\` starting at \`pos\` with elements from \`replacement\` starting at \`offset\`.
+ * Copies at most \`length\` elements from \`replacement\` to \`array\`.
+ *
+ * Parameters are clamped to valid ranges (i.e. \`pos\` is clamped to \`[0, array.length]\`, \`offset\` is
+ * clamped to \`[0, replacement.length]\`, and \`length\` is clamped to \`min(length, replacement.length - offset,
+ * array.length - pos)\`). If \`pos >= array.length\` or \`offset >= replacement.length\`, no replacement occurs
+ * and the array is returned unchanged.
+ *
+ * NOTE: This function modifies the provided array in place.
+ */
+function replace(
+    ${type.name}[] memory array,
+    uint256 pos,
+    ${type.name}[] memory replacement,
+    uint256 offset,
+    uint256 length
+) internal pure returns (${type.name}[] memory) {
+    // sanitize
+    pos = Math.min(pos, array.length);
+    offset = Math.min(offset, replacement.length);
+    length = Math.min(length, Math.min(replacement.length - offset, array.length - pos));
+
+    // allocate and copy
+    assembly ("memory-safe") {
+        mcopy(
+            add(add(array, 0x20), mul(pos, 0x20)),
+            add(add(replacement, 0x20), mul(offset, 0x20)),
+            mul(length, 0x20)
+        )
+    }
+
+    return array;
+}
 `;
 
 // GENERATE

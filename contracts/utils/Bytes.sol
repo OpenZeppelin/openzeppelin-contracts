@@ -129,6 +129,49 @@ library Bytes {
     }
 
     /**
+     * @dev Replaces bytes in `buffer` starting at `pos` with all bytes from `replacement`.
+     *
+     * Parameters are clamped to valid ranges (i.e. `pos` is clamped to `[0, buffer.length]`).
+     * If `pos >= buffer.length`, no replacement occurs and the buffer is returned unchanged.
+     *
+     * NOTE: This function modifies the provided buffer in place.
+     */
+    function replace(bytes memory buffer, uint256 pos, bytes memory replacement) internal pure returns (bytes memory) {
+        return replace(buffer, pos, replacement, 0, replacement.length);
+    }
+
+    /**
+     * @dev Replaces bytes in `buffer` starting at `pos` with bytes from `replacement` starting at `offset`.
+     * Copies at most `length` bytes from `replacement` to `buffer`.
+     *
+     * Parameters are clamped to valid ranges (i.e. `pos` is clamped to `[0, buffer.length]`, `offset` is
+     * clamped to `[0, replacement.length]`, and `length` is clamped to `min(length, replacement.length - offset,
+     * buffer.length - pos))`. If `pos >= buffer.length` or `offset >= replacement.length`, no replacement occurs
+     * and the buffer is returned unchanged.
+     *
+     * NOTE: This function modifies the provided buffer in place.
+     */
+    function replace(
+        bytes memory buffer,
+        uint256 pos,
+        bytes memory replacement,
+        uint256 offset,
+        uint256 length
+    ) internal pure returns (bytes memory) {
+        // sanitize
+        pos = Math.min(pos, buffer.length);
+        offset = Math.min(offset, replacement.length);
+        length = Math.min(length, Math.min(replacement.length - offset, buffer.length - pos));
+
+        // allocate and copy
+        assembly ("memory-safe") {
+            mcopy(add(add(buffer, 0x20), pos), add(add(replacement, 0x20), offset), length)
+        }
+
+        return buffer;
+    }
+
+    /**
      * @dev Concatenate an array of bytes into a single bytes object.
      *
      * For fixed bytes types, we recommend using the solidity built-in `bytes.concat` or (equivalent)

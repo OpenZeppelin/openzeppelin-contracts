@@ -170,6 +170,62 @@ contract BytesTest is Test {
         }
     }
 
+    function testReplace(bytes memory buffer, uint256 pos, bytes memory replacement) public pure {
+        bytes memory originalBuffer = bytes.concat(buffer);
+        bytes memory originalReplacement = bytes.concat(replacement);
+        bytes memory result = Bytes.replace(buffer, pos, replacement);
+
+        // Result should be the same object as input (modified in place)
+        assertEq(result, buffer);
+
+        // Buffer length should remain unchanged
+        assertEq(result.length, originalBuffer.length);
+
+        // The replacement is not modified
+        assertEq(replacement, originalReplacement);
+
+        for (uint256 i = 0; i < buffer.length; ++i) {
+            if (i < pos) {
+                assertEq(result[i], originalBuffer[i]);
+            } else if (i < pos + replacement.length) {
+                assertEq(result[i], replacement[i - pos]);
+            } else {
+                assertEq(result[i], originalBuffer[i]);
+            }
+        }
+    }
+
+    function testReplaceFull(
+        bytes memory buffer,
+        uint256 pos,
+        bytes memory replacement,
+        uint256 offset,
+        uint256 length
+    ) public pure {
+        bytes memory originalBuffer = bytes.concat(buffer);
+        bytes memory originalReplacement = bytes.concat(replacement);
+        bytes memory result = Bytes.replace(buffer, pos, replacement, offset, length);
+
+        // Result should be the same object as input (modified in place)
+        assertEq(result, buffer);
+
+        // Buffer length should remain unchanged
+        assertEq(result.length, originalBuffer.length);
+
+        // The replacement is not modified
+        assertEq(replacement, originalReplacement);
+
+        for (uint256 i = 0; i < buffer.length; ++i) {
+            if (i < pos) {
+                assertEq(result[i], originalBuffer[i]);
+            } else if (i < pos + Math.min(Math.saturatingSub(replacement.length, offset), length)) {
+                assertEq(result[i], replacement[i - pos + offset]);
+            } else {
+                assertEq(result[i], originalBuffer[i]);
+            }
+        }
+    }
+
     // REVERSE BITS
     function testSymbolicReverseBytes32(bytes32 value) public pure {
         assertEq(Bytes.reverseBytes32(Bytes.reverseBytes32(value)), value);
