@@ -147,6 +147,24 @@ function shouldBehaveLikeERC1155() {
           .withArgs(this.holder, firstTokenValue, firstTokenValue + 1n, firstTokenId);
       });
 
+      it('reverts when transferring from zero address', async function () {
+        await expect(
+          this.token
+            .connect(this.holder)
+            .safeTransferFrom(ethers.ZeroAddress, this.holder, firstTokenId, firstTokenValue, '0x'),
+        )
+          .to.be.revertedWithCustomError(this.token, 'ERC1155MissingApprovalForAll')
+          .withArgs(this.holder, ethers.ZeroAddress);
+
+        await expect(
+          this.token
+            .connect(this.holder)
+            .$_safeTransferFrom(ethers.ZeroAddress, this.holder, firstTokenId, firstTokenValue, '0x'),
+        )
+          .to.be.revertedWithCustomError(this.token, 'ERC1155InvalidSender')
+          .withArgs(ethers.ZeroAddress);
+      });
+
       it('reverts when transferring to zero address', async function () {
         await expect(
           this.token
@@ -440,6 +458,36 @@ function shouldBehaveLikeERC1155() {
         )
           .to.be.revertedWithCustomError(this.token, 'ERC1155InvalidArrayLength')
           .withArgs(ids2.length, tokenValues2.length);
+      });
+
+      it('reverts when transferring from zero address', async function () {
+        await expect(
+          this.token
+            .connect(this.holder)
+            .safeBatchTransferFrom(
+              ethers.ZeroAddress,
+              this.holder,
+              [firstTokenId, secondTokenId],
+              [firstTokenValue, secondTokenValue],
+              '0x',
+            ),
+        )
+          .to.be.revertedWithCustomError(this.token, 'ERC1155MissingApprovalForAll')
+          .withArgs(this.holder, ethers.ZeroAddress);
+
+        await expect(
+          this.token
+            .connect(this.holder)
+            .$_safeBatchTransferFrom(
+              ethers.ZeroAddress,
+              this.holder,
+              [firstTokenId, secondTokenId],
+              [firstTokenValue, secondTokenValue],
+              '0x',
+            ),
+        )
+          .to.be.revertedWithCustomError(this.token, 'ERC1155InvalidSender')
+          .withArgs(ethers.ZeroAddress);
       });
 
       it('reverts when transferring to zero address', async function () {
