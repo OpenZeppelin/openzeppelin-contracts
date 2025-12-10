@@ -189,11 +189,14 @@ library Bytes {
     /// @dev Same as {reverseBytes32} but optimized for 128-bit values.
     function reverseBytes16(bytes16 value) internal pure returns (bytes16) {
         value = // swap bytes
-            ((value & 0xFF00FF00FF00FF00FF00FF00FF00FF00) >> 8) | ((value & 0x00FF00FF00FF00FF00FF00FF00FF00FF) << 8);
+            ((value & 0xFF00FF00FF00FF00FF00FF00FF00FF00) >> 8) |
+            ((value & 0x00FF00FF00FF00FF00FF00FF00FF00FF) << 8);
         value = // swap 2-byte long pairs
-            ((value & 0xFFFF0000FFFF0000FFFF0000FFFF0000) >> 16) | ((value & 0x0000FFFF0000FFFF0000FFFF0000FFFF) << 16);
+            ((value & 0xFFFF0000FFFF0000FFFF0000FFFF0000) >> 16) |
+            ((value & 0x0000FFFF0000FFFF0000FFFF0000FFFF) << 16);
         value = // swap 4-byte long pairs
-            ((value & 0xFFFFFFFF00000000FFFFFFFF00000000) >> 32) | ((value & 0x00000000FFFFFFFF00000000FFFFFFFF) << 32);
+            ((value & 0xFFFFFFFF00000000FFFFFFFF00000000) >> 32) |
+            ((value & 0x00000000FFFFFFFF00000000FFFFFFFF) << 32);
         return (value >> 64) | (value << 64); // swap 8-byte long pairs
     }
 
