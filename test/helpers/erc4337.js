@@ -101,8 +101,8 @@ class ERC4337Helper {
 
   async newAccount(name, extraArgs = [], params = {}) {
     const env = {
-      entrypoint: params.entrypoint ?? predeploy.entrypoint.v08,
-      senderCreator: params.senderCreator ?? predeploy.senderCreator.v08,
+      entrypoint: params.entrypoint ?? predeploy.entrypoint.v09,
+      senderCreator: params.senderCreator ?? predeploy.senderCreator.v09,
     };
 
     const { factory } = await this.wait();
