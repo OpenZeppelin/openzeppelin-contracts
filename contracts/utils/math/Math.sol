@@ -191,8 +191,11 @@ library Math {
         // The largest possible result occurs when (a - 1) / b is type(uint256).max,
         // but the largest value we can obtain is type(uint256).max - 1, which happens
         // when a = type(uint256).max and b = 1.
+        if (a == 0) {
+            return 0;
+        }
         unchecked {
-            return SafeCast.toUint(a > 0) * ((a - 1) / b + 1);
+            return (a - 1) / b + 1;
         }
     }
 
