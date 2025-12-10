@@ -30,7 +30,7 @@ import {Hashes} from "./Hashes.sol";
  */
 library MerkleProof {
     /**
-     *@dev The multiproof provided is not valid.
+     * @dev The multiproof provided is not valid.
      */
     error MerkleProofInvalidMultiproof();
 
