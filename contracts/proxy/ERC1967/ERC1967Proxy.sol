@@ -14,16 +14,27 @@ import {ERC1967Utils} from "./ERC1967Utils.sol";
  */
 contract ERC1967Proxy is Proxy {
     /**
+     * @dev The proxy is left uninitialized.
+     */
+    error ERC1967ProxyUninitialized();
+
+    /**
      * @dev Initializes the upgradeable proxy with an initial implementation specified by `implementation`.
      *
-     * If `_data` is nonempty, it's used as data in a delegate call to `implementation`. This will typically be an
-     * encoded function call, and allows initializing the storage of the proxy like a Solidity constructor.
+     * Provided `_data` is passed in a delegate call to `implementation`. This will typically be an encoded function
+     * call, and allows initializing the storage of the proxy like a Solidity constructor. By default construction
+     * will fail if `_data` is empty. This behavior can be overridden using a custom {_unsafeAllowUninitialized} that
+     * returns true. In that case, empty `_data` is ignored and no delegate call to the implementation is performed
+     * during construction.
      *
      * Requirements:
      *
      * - If `data` is empty, `msg.value` must be zero.
      */
     constructor(address implementation, bytes memory _data) payable {
+        if (!_unsafeAllowUninitialized() && _data.length == 0) {
+            revert ERC1967ProxyUninitialized();
+        }
         ERC1967Utils.upgradeToAndCall(implementation, _data);
     }
 
@@ -36,5 +47,16 @@ contract ERC1967Proxy is Proxy {
      */
     function _implementation() internal view virtual override returns (address) {
         return ERC1967Utils.getImplementation();
+    }
+
+    /**
+     * @dev Returns whether the proxy can be left uninitialized.
+     *
+     * NOTE: Override this function to allow the proxy to be left uninitialized.
+     * Consider uninitialized proxies might be susceptible to man-in-the-middle threats
+     * where the proxy is replaced with a malicious one.
+     */
+    function _unsafeAllowUninitialized() internal pure virtual returns (bool) {
+        return false;
     }
 }
