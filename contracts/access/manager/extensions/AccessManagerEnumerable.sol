@@ -92,33 +92,45 @@ abstract contract AccessManagerEnumerable is IAccessManagerEnumerable, AccessMan
     /**
      * @dev See {AccessManager-_setTargetFunctionRole}. Adds the selector to the role target functions set.
      *
-     * Since the target functions for the {ADMIN_ROLE} can't be tracked exhaustively (i.e. by default, all
-     * restricted functions), any function that is granted to the {ADMIN_ROLE} will not be tracked by this
-     * extension. Developers may opt in for tracking the functions for the {ADMIN_ROLE} by overriding,
-     * though, the tracking would not be exhaustive unless {setTargetFunctionRole} is explicitly called
-     * for the {ADMIN_ROLE} for each function:
-     *
-     * ```solidity
-     * function _setTargetFunctionRole(address target, bytes4 selector, uint64 roleId) internal virtual override {
-     *     uint64 oldRoleId = getTargetFunctionRole(target, selector);
-     *     super._setTargetFunctionRole(target, selector, roleId);
-     *     if (oldRoleId == ADMIN_ROLE) {
-     *         _roleTargetFunctions[oldRoleId][target].remove(selector);
-     *     }
-     *     if (roleId == ADMIN_ROLE) {
-     *         _roleTargetFunctions[roleId][target].add(selector);
-     *     }
-     * }
-     * ```
+     * NOTE: Does not track function selectors for the {ADMIN_ROLE}. See {_updateRoleTargetFunction}.
      */
     function _setTargetFunctionRole(address target, bytes4 selector, uint64 roleId) internal virtual override {
         uint64 oldRoleId = getTargetFunctionRole(target, selector);
         super._setTargetFunctionRole(target, selector, roleId);
+        _updateRoleTargetFunction(target, selector, oldRoleId, roleId);
+    }
+
+    /**
+     * @dev Updates the role target functions sets when a function's role is changed.
+     *
+     * This function does not track function selectors for the {ADMIN_ROLE}, since exhaustively tracking
+     * all restricted/admin functions is impractical (by default, all restricted functions are assigned to {ADMIN_ROLE}).
+     * Therefore, roles assigned as {ADMIN_ROLE} will not have their selectors included in this extension's tracking.
+     *
+     * Developers who wish to explicitly track {ADMIN_ROLE} can override this function. For example:
+     *
+     * ```solidity
+     * function _updateRoleTargetFunction(address target, bytes4 selector, uint64 oldRoleId, uint64 newRoleId) internal virtual override {
+     *     if (oldRoleId != 0) {
+     *         _roleTargetFunctions[oldRoleId][target].remove(selector);
+     *     }
+     *     if (newRoleId != 0) {
+     *         _roleTargetFunctions[newRoleId][target].add(selector);
+     *     }
+     * }
+     * ```
+     */
+    function _updateRoleTargetFunction(
+        address target,
+        bytes4 selector,
+        uint64 oldRoleId,
+        uint64 newRoleId
+    ) internal virtual {
         if (oldRoleId != ADMIN_ROLE) {
             _roleTargetFunctions[oldRoleId][target].remove(selector);
         }
-        if (roleId != ADMIN_ROLE) {
-            _roleTargetFunctions[roleId][target].add(selector);
+        if (newRoleId != ADMIN_ROLE) {
+            _roleTargetFunctions[newRoleId][target].add(selector);
         }
     }
 }
