@@ -45,7 +45,7 @@ abstract contract AccessManagerEnumerable is IAccessManagerEnumerable, AccessMan
      * @dev See {IAccessManagerEnumerable-getRoleTargetFunctions}
      *
      * NOTE: Given {ADMIN_ROLE} is the default role for every restricted function, passing {ADMIN_ROLE} as `roleId` will
-     * return an empty array. See {_setTargetFunctionRole} for more details.
+     * return an empty array. See {_updateRoleTargetFunction} for more details.
      */
     function getRoleTargetFunctions(
         uint64 roleId,
@@ -60,7 +60,7 @@ abstract contract AccessManagerEnumerable is IAccessManagerEnumerable, AccessMan
      * @dev See {IAccessManagerEnumerable-getRoleTargetFunctionCount}
      *
      * NOTE: Given {ADMIN_ROLE} is the default role for every restricted function, passing {ADMIN_ROLE} as `roleId` will
-     * return 0. See {_setTargetFunctionRole} for more details.
+     * return 0. See {_updateRoleTargetFunction} for more details.
      */
     function getRoleTargetFunctionCount(uint64 roleId, address target) public view virtual returns (uint256) {
         return _roleTargetFunctions[roleId][target].length();
