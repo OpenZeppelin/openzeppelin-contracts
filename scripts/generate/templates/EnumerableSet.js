@@ -3,7 +3,7 @@ const { fromBytes32, toBytes32 } = require('./conversion');
 const { SET_TYPES } = require('./Enumerable.opts');
 
 const header = `\
-pragma solidity ^0.8.24;
+pragma solidity >0.8.30;
 
 import {Arrays} from "../Arrays.sol";
 import {Math} from "../math/Math.sol";

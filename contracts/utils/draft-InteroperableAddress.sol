@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.5.0) (utils/draft-InteroperableAddress.sol)
 
-pragma solidity ^0.8.26;
+pragma solidity >0.8.30;
 
 import {Math} from "./math/Math.sol";
 import {SafeCast} from "./math/SafeCast.sol";
