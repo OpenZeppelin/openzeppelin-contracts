@@ -26,6 +26,8 @@ const ProofError = Enum(
 
 const ZeroBytes = generators.bytes.zero;
 
+const encodeStorageLeaf = value => ethers.encodeRlp(ethers.stripZerosLeft(value));
+
 describe('TrieProof', function () {
   before('start anvil node', async function () {
     const port = 8546;
@@ -122,7 +124,7 @@ describe('TrieProof', function () {
 
           // Storage proof within the account
           for (const [[slot, value], { proof }] of zip(Object.entries(slots), storageProof)) {
-            await expect(this.mock.$verify(ethers.encodeRlp(value), storageHash, ethers.keccak256(slot), proof)).to
+            await expect(this.mock.$verify(encodeStorageLeaf(value), storageHash, ethers.keccak256(slot), proof)).to
               .eventually.be.true;
           }
         });
@@ -156,21 +158,21 @@ describe('TrieProof', function () {
       } = await this.getProof({ storageKeys: [slot] });
 
       // Correct root hash
-      await expect(this.mock.$verify(ethers.encodeRlp(value), storageHash, ethers.keccak256(slot), proof)).to.eventually
-        .be.true;
+      await expect(this.mock.$verify(encodeStorageLeaf(value), storageHash, ethers.keccak256(slot), proof)).to
+        .eventually.be.true;
       await expect(this.mock.$traverse(storageHash, ethers.keccak256(slot), proof)).to.eventually.equal(
-        ethers.encodeRlp(value),
+        encodeStorageLeaf(value),
       );
       await expect(this.mock.$tryTraverse(storageHash, ethers.keccak256(slot), proof)).to.eventually.deep.equal([
-        ethers.encodeRlp(value),
+        encodeStorageLeaf(value),
         ProofError.NO_ERROR,
       ]);
 
       // Corrupt root hash
       const invalidHash = generators.bytes(32);
 
-      await expect(this.mock.$verify(ethers.encodeRlp(value), invalidHash, ethers.keccak256(slot), proof)).to.eventually
-        .be.false;
+      await expect(this.mock.$verify(encodeStorageLeaf(value), invalidHash, ethers.keccak256(slot), proof)).to
+        .eventually.be.false;
       await expect(this.mock.$traverse(invalidHash, ethers.keccak256(slot), proof))
         .to.revertedWithCustomError(this.mock, 'TrieProofTraversalError')
         .withArgs(ProofError.INVALID_ROOT);
@@ -193,13 +195,13 @@ describe('TrieProof', function () {
       } = await this.getProof({ storageKeys: [slot] });
 
       // Correct proof
-      await expect(this.mock.$verify(ethers.encodeRlp(value), storageHash, ethers.keccak256(slot), proof)).to.eventually
-        .be.true;
+      await expect(this.mock.$verify(encodeStorageLeaf(value), storageHash, ethers.keccak256(slot), proof)).to
+        .eventually.be.true;
       await expect(this.mock.$traverse(storageHash, ethers.keccak256(slot), proof)).to.eventually.equal(
-        ethers.encodeRlp(value),
+        encodeStorageLeaf(value),
       );
       await expect(this.mock.$tryTraverse(storageHash, ethers.keccak256(slot), proof)).to.eventually.deep.equal([
-        ethers.encodeRlp(value),
+        encodeStorageLeaf(value),
         ProofError.NO_ERROR,
       ]);
 
@@ -207,8 +209,8 @@ describe('TrieProof', function () {
       const [p] = ethers.decodeRlp(proof[1]);
       proof[1] = ethers.encodeRlp([p, ethers.encodeRlp(generators.bytes32())]);
 
-      await expect(this.mock.$verify(ethers.encodeRlp(value), storageHash, ethers.keccak256(slot), proof)).to.eventually
-        .be.false;
+      await expect(this.mock.$verify(encodeStorageLeaf(value), storageHash, ethers.keccak256(slot), proof)).to
+        .eventually.be.false;
       await expect(this.mock.$traverse(storageHash, ethers.keccak256(slot), proof))
         .to.revertedWithCustomError(this.mock, 'TrieProofTraversalError')
         .withArgs(ProofError.INVALID_LARGE_NODE);
