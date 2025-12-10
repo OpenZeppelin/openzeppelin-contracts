@@ -28,16 +28,16 @@ abstract contract ERC721URIStorage is IERC4906, ERC721 {
     function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
         _requireOwned(tokenId);
 
-        string memory _tokenURI = _tokenURIs[tokenId];
         string memory base = _baseURI();
+        string memory suffix = _suffixURI(tokenId);
 
         // If there is no base URI, return the token URI.
         if (bytes(base).length == 0) {
-            return _tokenURI;
+            return suffix;
         }
         // If both are set, concatenate the baseURI and tokenURI (via string.concat).
-        if (bytes(_tokenURI).length > 0) {
-            return string.concat(base, _tokenURI);
+        if (bytes(suffix).length > 0) {
+            return string.concat(base, suffix);
         }
 
         return super.tokenURI(tokenId);
@@ -51,5 +51,12 @@ abstract contract ERC721URIStorage is IERC4906, ERC721 {
     function _setTokenURI(uint256 tokenId, string memory _tokenURI) internal virtual {
         _tokenURIs[tokenId] = _tokenURI;
         emit MetadataUpdate(tokenId);
+    }
+
+    /**
+     * @dev Returns the suffix part of the tokenURI for `tokenId`.
+     */
+    function _suffixURI(uint256 tokenId) internal view virtual returns (string memory) {
+        return _tokenURIs[tokenId];
     }
 }

@@ -91,36 +91,33 @@ describe('RLP', function () {
   });
 
   it('encode/decode bytes32', async function () {
-    for (const { input, expected } of [
-      { input: '0x0000000000000000000000000000000000000000000000000000000000000000', expected: '0x80' },
-      { input: '0x0000000000000000000000000000000000000000000000000000000000000001', expected: '0x01' },
-      {
-        input: '0x1000000000000000000000000000000000000000000000000000000000000000',
-        expected: '0xa01000000000000000000000000000000000000000000000000000000000000000',
-      },
+    for (const input of [
+      '0x0000000000000000000000000000000000000000000000000000000000000000',
+      '0x0000000000000000000000000000000000000000000000000000000000000001',
+      '0x1000000000000000000000000000000000000000000000000000000000000000',
+      generators.bytes32(),
     ]) {
-      await expect(this.mock.$encode_bytes32(input)).to.eventually.equal(expected);
-      await expect(this.mock.$decodeBytes32(expected)).to.eventually.equal(input);
+      const encoded = ethers.encodeRlp(input);
+      await expect(this.mock.$encode_bytes32(input)).to.eventually.equal(encoded);
+      await expect(this.mock.$decodeBytes32(encoded)).to.eventually.equal(input);
     }
 
+    // Compact encoding for 1234
     await expect(this.mock.$decodeBytes32('0x8204d2')).to.eventually.equal(
       '0x00000000000000000000000000000000000000000000000000000000000004d2',
-    ); // Canonical encoding for 1234
+    );
+    // Encoding with one leading zero
     await expect(this.mock.$decodeBytes32('0x830004d2')).to.eventually.equal(
       '0x00000000000000000000000000000000000000000000000000000000000004d2',
-    ); // Non-canonical encoding with leading zero
+    );
+    // Encoding with two leading zeros
     await expect(this.mock.$decodeBytes32('0x84000004d2')).to.eventually.equal(
       '0x00000000000000000000000000000000000000000000000000000000000004d2',
-    ); // Non-canonical encoding with two leading zeros
-
-    // Canonical encoding for zero and non-canonical encodings with leading zeros
-    await expect(this.mock.$decodeBytes32('0x80')).to.eventually.equal(
-      '0x0000000000000000000000000000000000000000000000000000000000000000',
     );
-    // 1 leading zero is not allowed for single bytes less than 0x80, they must be encoded as themselves
-    await expect(this.mock.$decodeBytes32('0x820000')).to.eventually.equal(
-      '0x0000000000000000000000000000000000000000000000000000000000000000',
-    ); // Non-canonical encoding with two leading zeros
+    // Encoding for the value
+    await expect(this.mock.$decodeBytes32('0x80')).to.eventually.equal(ethers.ZeroHash);
+    // Encoding for two zeros (and nothing else)
+    await expect(this.mock.$decodeBytes32('0x820000')).to.eventually.equal(ethers.ZeroHash);
   });
 
   it('encode/decode empty byte', async function () {
