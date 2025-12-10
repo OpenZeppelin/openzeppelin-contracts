@@ -129,8 +129,10 @@ library Bytes {
     }
 
     /**
-     * @dev Replaces the content of `buffer` starting at position `pos` with the content of `buffer`. The
-     * replacement is truncated to fit within the bounds of the buffer.
+     * @dev Replaces bytes in `buffer` starting at `pos` with all bytes from `replacement`.
+     *
+     * Parameters are clamped to valid ranges (i.e. `pos` is clamped to `[0, buffer.length]`).
+     * If `pos >= buffer.length`, no replacement occurs and the buffer is returned unchanged.
      *
      * NOTE: This function modifies the provided buffer in place.
      */
@@ -139,8 +141,13 @@ library Bytes {
     }
 
     /**
-     * @dev Replaces the content of `buffer` starting at position `pos` with the content located in `replacement`
-     * between `offset` and `offset + length`. The replacement is truncated to fit within the bounds of the buffer.
+     * @dev Replaces bytes in `buffer` starting at `pos` with bytes from `replacement` starting at `offset`.
+     * Copies at most `length` bytes from `replacement` to `buffer`.
+     *
+     * Parameters are clamped to valid ranges (i.e. `pos` is clamped to `[0, buffer.length]`, `offset` is
+     * clamped to `[0, replacement.length]`, and `length` is clamped to `min(length, replacement.length - offset,
+     * buffer.length - pos))`. If `pos >= buffer.length` or `offset >= replacement.length`, no replacement occurs
+     * and the buffer is returned unchanged.
      *
      * NOTE: This function modifies the provided buffer in place.
      */

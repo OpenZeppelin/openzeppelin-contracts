@@ -424,8 +424,10 @@ function splice(${type.name}[] memory array, uint256 start, uint256 end) interna
 }
 
 /**
- * @dev Replaces the content of \`array\` starting at position \`pos\` with the content of \`replacement\`. The
- * replacement is truncated to fit within the bounds of the array.
+ * @dev Replaces elements in \`array\` starting at \`pos\` with all elements from \`replacement\`.
+ *
+ * Parameters are clamped to valid ranges (i.e. \`pos\` is clamped to \`[0, array.length]\`).
+ * If \`pos >= array.length\`, no replacement occurs and the array is returned unchanged.
  *
  * NOTE: This function modifies the provided array in place.
  */
@@ -438,8 +440,13 @@ function replace(
 }
 
 /**
- * @dev Replaces the content of \`array\` starting at position \`pos\` with the content located in \`replacement\`
- * between \`offset\` and \`offset + length\`. The replacement is truncated to fit within the bounds of the array.
+ * @dev Replaces elements in \`array\` starting at \`pos\` with elements from \`replacement\` starting at \`offset\`.
+ * Copies at most \`length\` elements from \`replacement\` to \`array\`.
+ *
+ * Parameters are clamped to valid ranges (i.e. \`pos\` is clamped to \`[0, array.length]\`, \`offset\` is
+ * clamped to \`[0, replacement.length]\`, and \`length\` is clamped to \`min(length, replacement.length - offset,
+ * array.length - pos)\`). If \`pos >= array.length\` or \`offset >= replacement.length\`, no replacement occurs
+ * and the array is returned unchanged.
  *
  * NOTE: This function modifies the provided array in place.
  */
