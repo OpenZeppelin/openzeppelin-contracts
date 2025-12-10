@@ -103,7 +103,7 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
      *
      * - Only can be called by the current {defaultAdmin}.
      *
-     * Emits a DefaultAdminRoleChangeStarted event.
+     * Emits a DefaultAdminTransferScheduled event.
      */
     function beginDefaultAdminTransfer(address newAdmin) external;
 
