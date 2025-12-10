@@ -38,6 +38,7 @@ contract WebAuthnTest is Test {
 
     /// forge-config: default.fuzz.runs = 512
     function testVerifyInvalidChallenge(bytes memory challenge, uint256 seed) public view {
+        vm.assume(keccak256(challenge) != keccak256(bytes("invalid_challenge")));
         assertFalse(
             _runVerify(
                 seed,

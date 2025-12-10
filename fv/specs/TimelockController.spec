@@ -37,7 +37,7 @@ function helperScheduleWithRevert(env e, method f, bytes32 id, uint256 delay) re
         schedule@withrevert(e, target, value, data, predecessor, salt, delay);
     } else if (f.selector == sig:scheduleBatch(address[], uint256[], bytes[], bytes32, bytes32, uint256).selector) {
 
-        // NOTE: while the "single" correlation requirement works, the prover is not able to deal with the the "batch"
+        // NOTE: while the "single" correlation requirement works, the prover is not able to deal with the "batch"
         // correlation requirement. This requirement is necessary to ensure that the call arguments correspond to the
         // operation ID that we are observing. This failure, from the prover, to "identify" a set of arguments that
         // correspond to the operation ID causes vacuity.
@@ -62,7 +62,7 @@ function helperExecuteWithRevert(env e, method f, bytes32 id, bytes32 predecesso
         execute@withrevert(e, target, value, data, predecessor, salt);
     } else if (f.selector == sig:executeBatch(address[], uint256[], bytes[], bytes32, bytes32).selector) {
 
-        // NOTE: while the "single" correlation requirement works, the prover is not able to deal with the the "batch"
+        // NOTE: while the "single" correlation requirement works, the prover is not able to deal with the "batch"
         // correlation requirement. This requirement is necessary to ensure that the call arguments correspond to the
         // operation ID that we are observing. This failure, from the prover, to "identify" a set of arguments that
         // correspond to the operation ID causes vacuity.
