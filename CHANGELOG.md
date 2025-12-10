@@ -25,7 +25,7 @@
 
 ### Deprecation
 
-- `Initializable` and `UUPSUpgradeable` are no longer transpiled. Alias are present in the `@openzeppelin/contracts-upgradeable` package that redirect to the corresponding file in `@openzeppelin/contracts`. These alias will be removed in the next major release. Developers are advised to update their imports to get these files directly from the `@openzeppelin/contracts` package. [#5941](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5941)
+- `Initializable` and `UUPSUpgradeable` are no longer transpiled. Alias are present in the `@openzeppelin/contracts-upgradeable` package that redirect to the corresponding file in `@openzeppelin/contracts`. These aliases will be removed in the next major release. Developers are advised to update their imports to get these files directly from the `@openzeppelin/contracts` package. [#5941](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5941)
 - `ECDSA` signature malleability protection is partly deprecated. See documentation for more details. [#5814](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5814)
 
 ### Changes by category
