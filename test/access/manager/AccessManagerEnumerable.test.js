@@ -1,7 +1,8 @@
 const { ethers } = require('hardhat');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+
 const { buildBaseRoles } = require('../../helpers/access-manager');
-const { shouldBehaveLikeAccessManager } = require('./AccessManager.behavior');
+const { shouldBehaveLikeAccessManagerEnumerable, shouldBehaveLikeAccessManager } = require('./AccessManager.behavior');
 
 async function fixture() {
   const [admin, roleAdmin, roleGuardian, member, user, other] = await ethers.getSigners();
@@ -16,8 +17,9 @@ async function fixture() {
   roles.SOME.members = [member];
   roles.PUBLIC.members = [admin, roleAdmin, roleGuardian, member, user, other];
 
-  const manager = await ethers.deployContract('$AccessManagerMock', [admin]);
+  const manager = await ethers.deployContract('$AccessManagerEnumerableMock', [admin]);
   const target = await ethers.deployContract('$AccessManagedTarget', [manager]);
+  const target2 = await ethers.deployContract('$AccessManagedTarget', [manager]);
 
   for (const { id: roleId, admin, guardian, members } of Object.values(roles)) {
     if (roleId === roles.PUBLIC.id) continue; // Every address belong to public and is locked
@@ -47,13 +49,15 @@ async function fixture() {
     roles,
     manager,
     target,
+    target2,
   };
 }
 
-describe('AccessManager', function () {
+describe('AccessManagerEnumerable', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
   shouldBehaveLikeAccessManager();
+  shouldBehaveLikeAccessManagerEnumerable();
 });
