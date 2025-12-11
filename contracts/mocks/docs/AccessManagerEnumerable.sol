@@ -2,8 +2,8 @@
 
 pragma solidity ^0.8.24;
 
-import {AccessManager} from "../AccessManager.sol";
-import {EnumerableSet} from "../../../utils/structs/EnumerableSet.sol";
+import {AccessManager} from "../../access/manager/AccessManager.sol";
+import {EnumerableSet} from "../../utils/structs/EnumerableSet.sol";
 
 /**
  * @dev Extension of {AccessManager} that allows enumerating the members of each role
