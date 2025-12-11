@@ -34,7 +34,7 @@ library LowLevelCall {
         return callReturn64Bytes(target, 0, data);
     }
 
-    /// @dev Same as {xref-LowLevelCall-callReturn64Bytes-address-uint256-bytes-}[`callReturn64Bytes`], but allows to specify the value to be sent in the call.
+    /// @dev Same as {callReturn64Bytes-address-bytes}, but allows specifying the value to be sent in the call.
     function callReturn64Bytes(
         address target,
         uint256 value,
