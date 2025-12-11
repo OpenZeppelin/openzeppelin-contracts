@@ -32,6 +32,7 @@ npx @openzeppelin/upgrade-safe-transpiler -D \
   -b "$build_info" \
   -i contracts/proxy/utils/Initializable.sol \
   -x 'contracts-exposed/**/*' \
+  -x 'contracts/mocks/**/*Proxy*.sol' \
   -x 'contracts/proxy/**/*Proxy*.sol' \
   -x 'contracts/proxy/beacon/UpgradeableBeacon.sol' \
   -p 'contracts/access/manager/AccessManager.sol' \
