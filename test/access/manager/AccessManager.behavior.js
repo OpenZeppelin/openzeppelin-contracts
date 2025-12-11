@@ -11,6 +11,7 @@ const {
   testAsCanCall,
   testAsHasRole,
 } = require('./AccessManager.predicate');
+const { ethers } = require('hardhat');
 
 // ============ ADMIN OPERATION ============
 
@@ -272,16 +273,15 @@ function shouldBehaveLikeAccessManagerEnumerable() {
 
         // Test individual enumeration
         const memberCount = await this.manager.getRoleMemberCount(ANOTHER_ROLE);
-        const members = [];
-        for (let i = 0; i < memberCount; ++i) {
-          members.push(await this.manager.getRoleMember(ANOTHER_ROLE, i));
-        }
+        const members = Array.from({ length: Number(memberCount) }, (_, i) =>
+          this.manager.getRoleMember(ANOTHER_ROLE, i),
+        );
 
         expect(memberCount).to.equal(expectedMembers.length);
-        expect(members).to.deep.equal(expectedMembers);
+        await expect(Promise.all(members)).to.eventually.deep.equal(expectedMembers);
 
         // Test batch enumeration
-        await expect(this.manager.getRoleMembers(ANOTHER_ROLE, 0, memberCount)).to.eventually.deep.equal(
+        await expect(this.manager.getRoleMembers(ANOTHER_ROLE, 0, ethers.MaxUint256)).to.eventually.deep.equal(
           expectedMembers,
         );
       });
@@ -328,27 +328,22 @@ function shouldBehaveLikeAccessManagerEnumerable() {
       it('target functions can be enumerated', async function () {
         const roleId = this.roles.SOME.id;
         const target = this.target;
-        const selectors = [
-          selector('someFunction()'),
-          selector('anotherFunction(uint256)'),
-          selector('thirdFunction(address,bool)'),
-        ];
+        const selectors = ['someFunction()', 'anotherFunction(uint256)', 'thirdFunction(address,bool)'].map(selector);
 
         await this.manager.connect(this.admin).setTargetFunctionRole(target, selectors, roleId);
 
         const functionCount = await this.manager.getRoleTargetFunctionCount(roleId, target);
-        expect(functionCount).to.equal(selectors.length);
+        const functions = Array.from({ length: Number(functionCount) }, (_, i) =>
+          this.manager.getRoleTargetFunction(roleId, target, i),
+        );
 
-        // Test individual enumeration
-        const functions = [];
-        for (let i = 0; i < functionCount; ++i) {
-          functions.push(this.manager.getRoleTargetFunction(roleId, target, i));
-        }
+        expect(functionCount).to.equal(selectors.length);
         await expect(Promise.all(functions)).to.eventually.have.members(selectors);
 
         // Test batch enumeration
-        const batchFunctions = await this.manager.getRoleTargetFunctions(roleId, target, 0, functionCount);
-        expect([...batchFunctions]).to.have.members(selectors);
+        await expect(
+          this.manager.getRoleTargetFunctions(roleId, target, 0, ethers.MaxUint256),
+        ).to.eventually.deep.equal(selectors);
       });
 
       it('target function enumeration updates when roles change', async function () {
@@ -381,9 +376,9 @@ function shouldBehaveLikeAccessManagerEnumerable() {
 
         // ADMIN_ROLE functions are not tracked
         await expect(this.manager.getRoleTargetFunctionCount(this.roles.ADMIN.id, target)).to.eventually.equal(0);
-        await expect(this.manager.getRoleTargetFunctions(this.roles.ADMIN.id, target, 0, 10)).to.eventually.deep.equal(
-          [],
-        );
+        await expect(
+          this.manager.getRoleTargetFunctions(this.roles.ADMIN.id, target, 0, ethers.MaxUint256),
+        ).to.eventually.deep.equal([]);
       });
 
       it('returns empty for roles with no target functions', async function () {
@@ -391,13 +386,15 @@ function shouldBehaveLikeAccessManagerEnumerable() {
         const target = this.target;
 
         await expect(this.manager.getRoleTargetFunctionCount(roleId, target)).to.eventually.equal(0);
-        await expect(this.manager.getRoleTargetFunctions(roleId, target, 0, 10)).to.eventually.deep.equal([]);
+        await expect(
+          this.manager.getRoleTargetFunctions(roleId, target, 0, ethers.MaxUint256),
+        ).to.eventually.deep.equal([]);
       });
 
       it('supports partial enumeration of target functions', async function () {
         const roleId = this.roles.SOME.id;
         const target = this.target;
-        const selectors = [selector('func1()'), selector('func2()'), selector('func3()'), selector('func4()')];
+        const selectors = ['func1()', 'func2()', 'func3()', 'func4()'].map(selector);
 
         await this.manager.connect(this.admin).setTargetFunctionRole(target, selectors, roleId);
 
@@ -406,13 +403,14 @@ function shouldBehaveLikeAccessManagerEnumerable() {
         // Test partial enumeration
         const firstTwo = await this.manager.getRoleTargetFunctions(roleId, target, 0, 2);
         expect(firstTwo).to.have.lengthOf(2);
+        expect(selectors).to.include.members(firstTwo);
 
         const lastTwo = await this.manager.getRoleTargetFunctions(roleId, target, 2, 4);
         expect(lastTwo).to.have.lengthOf(2);
+        expect(selectors).to.include.members(firstTwo);
 
         // Verify no overlap and complete coverage
-        const allFunctions = [...firstTwo, ...lastTwo];
-        expect(allFunctions).to.have.members(selectors);
+        expect([].concat(firstTwo, lastTwo)).to.have.members(selectors);
       });
 
       it('distinguishes between different targets', async function () {
@@ -434,11 +432,12 @@ function shouldBehaveLikeAccessManagerEnumerable() {
         await expect(this.manager.getRoleTargetFunction(roleId, target2, 0)).to.eventually.equal(sel2);
 
         // Functions should be isolated per target
-        const target1Functions = await this.manager.getRoleTargetFunctions(roleId, target1, 0, 1);
-        const target2Functions = await this.manager.getRoleTargetFunctions(roleId, target2, 0, 1);
-
-        expect(target1Functions).to.deep.equal([sel1]);
-        expect(target2Functions).to.deep.equal([sel2]);
+        await expect(
+          this.manager.getRoleTargetFunctions(roleId, target1, 0, ethers.MaxUint256),
+        ).to.eventually.deep.equal([sel1]);
+        await expect(
+          this.manager.getRoleTargetFunctions(roleId, target2, 0, ethers.MaxUint256),
+        ).to.eventually.deep.equal([sel2]);
       });
     });
   });
