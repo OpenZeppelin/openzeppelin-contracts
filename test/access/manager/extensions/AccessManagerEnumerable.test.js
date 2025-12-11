@@ -2,7 +2,7 @@ const { ethers } = require('hardhat');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { buildBaseRoles } = require('../../../helpers/access-manager');
-const { shouldBehaveLikeAccessManagerEnumerable } = require('../AccessManager.behavior');
+const { shouldBehaveLikeAccessManagerEnumerable, shouldBehaveLikeAccessManager } = require('../AccessManager.behavior');
 
 async function fixture() {
   const [admin, roleAdmin, roleGuardian, member, user, other] = await ethers.getSigners();
@@ -44,8 +44,6 @@ async function fixture() {
   return {
     admin,
     roleAdmin,
-    roleGuardian,
-    member,
     user,
     other,
     roles,
@@ -60,5 +58,6 @@ describe('AccessManagerEnumerable', function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
+  shouldBehaveLikeAccessManager();
   shouldBehaveLikeAccessManagerEnumerable();
 });
