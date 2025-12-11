@@ -15,7 +15,7 @@ library LowLevelCall {
         return callNoReturn(target, 0, data);
     }
 
-    /// @dev Same as {xref-LowLevelCall-callNoReturn-address-uint256-bytes-}[`callNoReturn`], but allows to specify the value to be sent in the call.
+    /// @dev Same as {callNoReturn-address-bytes}, but allows specifying the value to be sent in the call.
     function callNoReturn(address target, uint256 value, bytes memory data) internal returns (bool success) {
         assembly ("memory-safe") {
             success := call(gas(), target, value, add(data, 0x20), mload(data), 0x00, 0x00)
