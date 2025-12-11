@@ -303,7 +303,7 @@ for (let i = 0; i < minterCount; ++i) {
 }
 
 // Or get all members at once
-const allMembers = await accessManager.getRoleMembers(MINTER_ROLE, 0, minterCount);
+const allMembers = await accessManager.getRoleMembers(MINTER_ROLE, 0, ethers.MaxUint256);
 
 // Enumerate target functions for a role
 const target = await myToken.getAddress();
@@ -315,7 +315,7 @@ for (let i = 0; i < functionCount; ++i) {
 }
 
 // Or get all functions at once
-const allFunctions = await accessManager.getRoleTargetFunctions(MINTER_ROLE, target, 0, functionCount);
+const allFunctions = await accessManager.getRoleTargetFunctions(MINTER_ROLE, target, 0, ethers.MaxUint256);
 ```
 
 Note that target function enumeration is organized per target contract, allowing you to query which functions a role can access on each specific target separately. This provides fine-grained visibility into the permission structure across your entire system of managed contracts.
