@@ -21,11 +21,18 @@ abstract contract AccessManagerEnumerable is AccessManager {
     mapping(uint64 roleId => mapping(address target => EnumerableSet.Bytes4Set)) private _roleTargetFunctions;
 
     /**
+     * @dev Returns the number of accounts that have `roleId`. Can be used
+     * together with {getRoleMember} to enumerate all bearers of a role.
+     */
+    function getRoleMemberCount(uint64 roleId) public view virtual returns (uint256) {
+        return _roleMembers[roleId].length();
+    }
+
+    /**
      * @dev Returns one of the accounts that have `roleId`. `index` must be a
      * value between 0 and {getRoleMemberCount}, non-inclusive.
      *
-     * Role bearers are not sorted in any particular way, and their ordering may
-     * change at any point.
+     * Role bearers are not sorted in any particular way, and their ordering may change at any point.
      *
      * WARNING: When using {getRoleMember} and {getRoleMemberCount}, make sure
      * you perform all queries on the same block. See the following
@@ -40,8 +47,10 @@ abstract contract AccessManagerEnumerable is AccessManager {
      * @dev Returns a range of accounts that have `roleId`. `start` and `end` define the range bounds.
      * `start` is inclusive and `end` is exclusive.
      *
-     * Role bearers are not sorted in any particular way, and their ordering may
-     * change at any point.
+     * Role bearers are not sorted in any particular way, and their ordering may change at any point.
+     *
+     * It is not necessary to call {getRoleMemberCount} before calling this function. Using `start = 0` and
+     * `end = type(uint256).max` will return every member of `roleId`.
      *
      * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
      * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
@@ -53,19 +62,21 @@ abstract contract AccessManagerEnumerable is AccessManager {
     }
 
     /**
-     * @dev Returns the number of accounts that have `roleId`. Can be used
-     * together with {getRoleMember} to enumerate all bearers of a role.
+     * @dev Returns the number of target function selectors that require `roleId` for the given `target`.
+     * Can be used together with {getRoleTargetFunction} to enumerate all target functions for a role on a specific target.
+     *
+     * NOTE: Given {ADMIN_ROLE} is the default role for every restricted function, passing {ADMIN_ROLE} as `roleId` will
+     * return 0. See {_updateRoleTargetFunction} for more details.
      */
-    function getRoleMemberCount(uint64 roleId) public view virtual returns (uint256) {
-        return _roleMembers[roleId].length();
+    function getRoleTargetFunctionCount(uint64 roleId, address target) public view virtual returns (uint256) {
+        return _roleTargetFunctions[roleId][target].length();
     }
 
     /**
      * @dev Returns one of the target function selectors that require `roleId` for the given `target`.
      * `index` must be a value between 0 and {getRoleTargetFunctionCount}, non-inclusive.
      *
-     * Target function selectors are not sorted in any particular way, and their ordering may
-     * change at any point.
+     * Target function selectors are not sorted in any particular way, and their ordering may change at any point.
      *
      * WARNING: When using {getRoleTargetFunction} and {getRoleTargetFunctionCount}, make sure
      * you perform all queries on the same block. See the following
@@ -80,8 +91,10 @@ abstract contract AccessManagerEnumerable is AccessManager {
      * @dev Returns a range of target function selectors that require `roleId` for the given `target`.
      * `start` and `end` define the range bounds. `start` is inclusive and `end` is exclusive.
      *
-     * Target function selectors are not sorted in any particular way, and their ordering may
-     * change at any point.
+     * Target function selectors are not sorted in any particular way, and their ordering may change at any point.
+     *
+     * It is not necessary to call {getRoleTargetFunctionCount} before calling this function. Using `start = 0` and
+     * `end = type(uint256).max` will return every function selector that `roleId` is allowed to call on `target`.
      *
      * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
      * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
@@ -98,17 +111,6 @@ abstract contract AccessManagerEnumerable is AccessManager {
         uint256 end
     ) public view virtual returns (bytes4[] memory) {
         return _roleTargetFunctions[roleId][target].values(start, end);
-    }
-
-    /**
-     * @dev Returns the number of target function selectors that require `roleId` for the given `target`.
-     * Can be used together with {getRoleTargetFunction} to enumerate all target functions for a role on a specific target.
-     *
-     * NOTE: Given {ADMIN_ROLE} is the default role for every restricted function, passing {ADMIN_ROLE} as `roleId` will
-     * return 0. See {_updateRoleTargetFunction} for more details.
-     */
-    function getRoleTargetFunctionCount(uint64 roleId, address target) public view virtual returns (uint256) {
-        return _roleTargetFunctions[roleId][target].length();
     }
 
     /// @dev See {AccessManager-_grantRole}. Adds the account to the role members set.
@@ -137,45 +139,23 @@ abstract contract AccessManagerEnumerable is AccessManager {
     /**
      * @dev See {AccessManager-_setTargetFunctionRole}. Adds the selector to the role target functions set.
      *
-     * NOTE: Does not track function selectors for the {ADMIN_ROLE}. See {_updateRoleTargetFunction}.
-     */
-    function _setTargetFunctionRole(address target, bytes4 selector, uint64 roleId) internal virtual override {
-        uint64 oldRoleId = getTargetFunctionRole(target, selector);
-        super._setTargetFunctionRole(target, selector, roleId);
-        _updateRoleTargetFunction(target, selector, oldRoleId, roleId);
-    }
-
-    /**
-     * @dev Updates the role target functions sets when a function's role is changed.
-     *
-     * This function does not track function selectors for the {ADMIN_ROLE}, since exhaustively tracking
+     * NOTE: This function does not track function selectors for the {ADMIN_ROLE}, since exhaustively tracking
      * all restricted/admin functions is impractical (by default, all restricted functions are assigned to {ADMIN_ROLE}).
      * Therefore, roles assigned as {ADMIN_ROLE} will not have their selectors included in this extension's tracking.
-     *
-     * Developers who wish to explicitly track {ADMIN_ROLE} can override this function. For example:
-     *
-     * ```solidity
-     * function _updateRoleTargetFunction(address target, bytes4 selector, uint64 oldRoleId, uint64 newRoleId) internal virtual override {
-     *     if (oldRoleId != 0) {
-     *         _roleTargetFunctions[oldRoleId][target].remove(selector);
-     *     }
-     *     if (newRoleId != 0) {
-     *         _roleTargetFunctions[newRoleId][target].add(selector);
-     *     }
-     * }
-     * ```
      */
-    function _updateRoleTargetFunction(
-        address target,
-        bytes4 selector,
-        uint64 oldRoleId,
-        uint64 newRoleId
-    ) internal virtual {
+    function _setTargetFunctionRole(address target, bytes4 selector, uint64 roleId) internal virtual override {
+        // cache old role ID
+        uint64 oldRoleId = getTargetFunctionRole(target, selector);
+
+        // call super
+        super._setTargetFunctionRole(target, selector, roleId);
+
+        // update enumerable sets
         if (oldRoleId != ADMIN_ROLE) {
             _roleTargetFunctions[oldRoleId][target].remove(selector);
         }
-        if (newRoleId != ADMIN_ROLE) {
-            _roleTargetFunctions[newRoleId][target].add(selector);
+        if (roleId != ADMIN_ROLE) {
+            _roleTargetFunctions[roleId][target].add(selector);
         }
     }
 }
