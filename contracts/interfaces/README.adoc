@@ -74,6 +74,10 @@ are useful to interact with third party contracts that implement them.
 
 {{IERC1822Proxiable}}
 
+{{IERC1967}}
+
+{{IERC2309}}
+
 {{IERC2612}}
 
 {{IERC2981}}
