@@ -242,7 +242,8 @@ interface IPaymaster {
     /**
      * @dev Verifies the sender is the entrypoint.
      * @param actualGasCost the actual amount paid (by account or paymaster) for this UserOperation
-     * @param actualUserOpFeePerGas total gas used by this UserOperation (including preVerification, creation, validation and execution)
+     * @param actualUserOpFeePerGas the effective gas price (wei per gas) paid by this UserOperation, equal to
+     * min(maxFeePerGas, maxPriorityFeePerGas + basefee)
      */
     function postOp(
         PostOpMode mode,
