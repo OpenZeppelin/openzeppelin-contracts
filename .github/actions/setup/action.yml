@@ -7,7 +7,7 @@ runs:
     - uses: actions/setup-node@v6
       with:
         node-version: 24.x
-    - uses: actions/cache@v4
+    - uses: actions/cache@v5
       id: cache
       with:
         path: '**/node_modules'
