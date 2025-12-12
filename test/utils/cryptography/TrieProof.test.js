@@ -2,6 +2,9 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { spawn } = require('child_process');
 
+const { MerklePatriciaTrie, createMerkleProof } = require('@ethereumjs/mpt');
+const { RLP } = require('@ethereumjs/rlp');
+
 const { Enum } = require('../../helpers/enums');
 const { zip } = require('../../helpers/iterate');
 const { max } = require('../../helpers/math');
@@ -102,13 +105,17 @@ describe('TrieProof', function () {
           );
           const blockNumber = ethers.toBeHex(max(...txs.map(({ blockNumber }) => blockNumber)));
 
-          const { stateRoot } = await this.provider.getBlock(blockNumber);
+          // for some reason ethers doesn't expose the transactionsRoot in blocks, so we fetch the block details via RPC instead.
+          const { stateRoot, transactionsRoot } = await this.provider.send('eth_getBlockByNumber', [
+            blockNumber,
+            false,
+          ]);
           const { accountProof, storageHash, storageProof, codeHash } = await this.getProof({
             storageKeys: Object.keys(slots),
             blockNumber,
           });
 
-          // Account proof
+          // Verify account details in the block's state trie
           await expect(
             this.mock.$verify(
               ethers.encodeRlp([
@@ -123,7 +130,7 @@ describe('TrieProof', function () {
             ),
           ).to.eventually.be.true;
 
-          // Storage proof within the account
+          // Verify storage proof in the account's storage trie
           for (const [[slot, value], { proof, value: proofValue, key }] of zip(Object.entries(slots), storageProof)) {
             // proof sanity check
             expect(sanitizeHexString(proofValue)).to.equal(ethers.stripZerosLeft(value), proofValue);
@@ -132,6 +139,22 @@ describe('TrieProof', function () {
             // verify storage slot
             await expect(this.mock.$verify(encodeStorageLeaf(value), storageHash, ethers.keccak256(slot), proof)).to
               .eventually.be.true;
+          }
+
+          // Verify transaction inclusion in the block's transaction trie
+          const transactionTrie = new MerklePatriciaTrie();
+          const transactions = txs.map(tx => ({
+            key: RLP.encode(tx.index),
+            value: ethers.Transaction.from(tx).serialized,
+          }));
+
+          await Promise.all(transactions.map(({ key, value }) => transactionTrie.put(key, value)));
+          expect(ethers.hexlify(transactionTrie.root())).to.equal(transactionsRoot);
+
+          for (const { key, value } of transactions) {
+            const proof = await createMerkleProof(transactionTrie, key);
+
+            await expect(this.mock.$verify(value, transactionsRoot, key, proof)).to.eventually.be.true;
           }
         });
       }

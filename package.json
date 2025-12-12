@@ -57,6 +57,7 @@
     "@changesets/pre": "^2.0.0",
     "@changesets/read": "^0.6.0",
     "@eslint/compat": "^1.2.1",
+    "@ethereumjs/mpt": "^10.1.0",
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.6",
     "@nomicfoundation/hardhat-ethers": "^3.0.9",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.13",
