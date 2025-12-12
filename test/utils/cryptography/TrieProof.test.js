@@ -1,9 +1,7 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { spawn } = require('child_process');
-
 const { MerklePatriciaTrie, createMerkleProof } = require('@ethereumjs/mpt');
-const { RLP } = require('@ethereumjs/rlp');
 
 const { Enum } = require('../../helpers/enums');
 const { zip } = require('../../helpers/iterate');
@@ -144,15 +142,15 @@ describe('TrieProof', function () {
           // Verify transaction inclusion in the block's transaction trie
           const transactionTrie = new MerklePatriciaTrie();
           const transactions = txs.map(tx => ({
-            key: RLP.encode(tx.index),
+            key: ethers.encodeRlp(ethers.stripZerosLeft(ethers.toBeHex(tx.index))),
             value: ethers.Transaction.from(tx).serialized,
           }));
 
-          await Promise.all(transactions.map(({ key, value }) => transactionTrie.put(key, value)));
+          await Promise.all(transactions.map(({ key, value }) => transactionTrie.put(ethers.getBytes(key), value)));
           expect(ethers.hexlify(transactionTrie.root())).to.equal(transactionsRoot);
 
           for (const { key, value } of transactions) {
-            const proof = await createMerkleProof(transactionTrie, key);
+            const proof = await createMerkleProof(transactionTrie, ethers.getBytes(key));
 
             await expect(this.mock.$verify(value, transactionsRoot, key, proof)).to.eventually.be.true;
           }
