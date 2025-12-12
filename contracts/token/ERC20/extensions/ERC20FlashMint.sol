@@ -42,6 +42,7 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
      * NOTE: This function will not automatically detect any supply cap
      * added by other extensions, such as {ERC20Capped}. If necessary,
      * override this function to take a supply cap into account.
+     *
      * @param token The address of the token that is requested.
      * @return The amount of token that can be loaned.
      */
