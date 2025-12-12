@@ -52,7 +52,7 @@ Most smart accounts are deployed by a factory, the best practice is to create xr
 ----
 import {Account} from "@openzeppelin/community-contracts/account/Account.sol";
 import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
-import {SignerECDSA} from "@openzeppelin/community/utils/cryptography/signers/SignerECDSA.sol";
+import {SignerECDSA} from "@openzeppelin/contracts/utils/cryptography/signers/SignerECDSA.sol";
 
 contract MyAccount is Initializable, Account, SignerECDSA, ... {
     // ...
