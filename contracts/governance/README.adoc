@@ -56,6 +56,8 @@ Other extensions can customize the behavior or interface in multiple ways.
 
 * {GovernorNoncesKeyed}: An extension of {Governor} with support for keyed nonces in addition to traditional nonces when voting by signature.
 
+* {GovernorSequentialProposalId}: An extension of {Governor} that changes the numbering of proposal ids from the default hash-based approach to sequential ids.
+
 In addition to modules and extensions, the core contract requires a few virtual functions to be implemented to your particular specifications:
 
 * <<Governor-votingDelay-,`votingDelay()`>>: Delay (in ERC-6372 clock) since the proposal is submitted until voting power is fixed and voting starts. This can be used to enforce a delay after a proposal is published for users to buy tokens, or delegate their votes.
@@ -104,7 +106,11 @@ NOTE: Functions of the `Governor` contract do not include access control. If you
 
 {{GovernorNoncesKeyed}}
 
+{{GovernorSequentialProposalId}}
+
 == Utils
+
+{{IVotes}}
 
 {{Votes}}
 
