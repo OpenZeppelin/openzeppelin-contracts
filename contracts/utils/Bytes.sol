@@ -203,6 +203,48 @@ library Bytes {
     }
 
     /**
+     * @dev Split each byte in `input` into two nibbles (4 bits each)
+     *
+     * Example: hex"01234567" → hex"0001020304050607"
+     */
+    function toNibbles(bytes memory input) internal pure returns (bytes memory output) {
+        assembly ("memory-safe") {
+            let length := mload(input)
+            output := mload(0x40)
+            mstore(0x40, add(add(output, 0x20), mul(length, 2)))
+            mstore(output, mul(length, 2))
+            for {
+                let i := 0
+            } lt(i, length) {
+                i := add(i, 0x10)
+            } {
+                let chunk := shr(128, mload(add(add(input, 0x20), i)))
+                chunk := and(
+                    0x0000000000000000ffffffffffffffff0000000000000000ffffffffffffffff,
+                    or(shl(64, chunk), chunk)
+                )
+                chunk := and(
+                    0x00000000ffffffff00000000ffffffff00000000ffffffff00000000ffffffff,
+                    or(shl(32, chunk), chunk)
+                )
+                chunk := and(
+                    0x0000ffff0000ffff0000ffff0000ffff0000ffff0000ffff0000ffff0000ffff,
+                    or(shl(16, chunk), chunk)
+                )
+                chunk := and(
+                    0x00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff,
+                    or(shl(8, chunk), chunk)
+                )
+                chunk := and(
+                    0x0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f,
+                    or(shl(4, chunk), chunk)
+                )
+                mstore(add(add(output, 0x20), mul(i, 2)), chunk)
+            }
+        }
+    }
+
+    /**
      * @dev Returns true if the two byte buffers are equal.
      */
     function equal(bytes memory a, bytes memory b) internal pure returns (bool) {

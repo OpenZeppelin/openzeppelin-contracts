@@ -209,6 +209,18 @@ describe('Bytes', function () {
     });
   });
 
+  describe('nibbles', function () {
+    it('full input', async function () {
+      await expect(this.mock.$toNibbles('0x0123456789abcdef')).to.eventually.equal(
+        '0x000102030405060708090a0b0c0d0e0f',
+      );
+    });
+
+    it('empty input', async function () {
+      await expect(this.mock.$toNibbles('0x')).to.eventually.equal('0x');
+    });
+  });
+
   describe('equal', function () {
     it('identical buffers', async function () {
       await expect(this.mock.$equal(lorem, lorem)).to.eventually.be.true;
