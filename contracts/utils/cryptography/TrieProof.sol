@@ -213,14 +213,16 @@ library TrieProof {
      * For small nodes (encoded length < 32 bytes) the node ID is the node content itself,
      * For larger nodes, the node ID is the hash of the encoded node data.
      *
-     * NOTE: For exactly 32-byte inputs, this function attempts to RLP decode the value. If the RLP encoding
-     * is invalid, decoding will revert with {RLP-RLPInvalidEncoding}. If the RLP encoding is valid,
-     * the decoded value is used as the node ID for the next traversal step, where verification will
-     * fail with {INVALID_LARGE_NODE} if the node ID doesn't match the expected hash.
+     * NOTE: Under normal operation, the input should never be exactly 32-byte inputs. If such an input is provided, 
+     * it will be used directly, similarly to how small nodes are processed. The following traversal check whether 
+     * the next node is a large one, and whether its hash matches the raw 32 bytes we have here. If that is the case,
+     * the value will be accepted. Otherwise, the next step will return an {INVALID_LARGE_NODE} error.
      */
     function _getNodeId(Memory.Slice node) private pure returns (bytes32 nodeId, uint256 nodeIdLength) {
-        nodeIdLength = Math.min(node.length(), 32);
-        nodeId = nodeIdLength < 32 ? node.load(0) : node.readBytes32();
+        uint256 nodeLength = node.length();
+        return nodeLength < 33
+            ? (node.load(0), nodeLength)
+            : (node.readBytes32(), 32);
     }
 
     function _emptyBytesMemory() private pure returns (bytes memory result) {
