@@ -36,6 +36,7 @@ import {Math} from "../math/Math.sol";
  * - `uint256` (`UintSet`) since v3.3.0
  * - `string` (`StringSet`) since v5.4.0
  * - `bytes` (`BytesSet`) since v5.4.0
+ * - `bytes4` (`Bytes4Set`) since v5.6.0
  *
  * [WARNING]
  * ====
@@ -294,6 +295,108 @@ library EnumerableSet {
     function values(Bytes32Set storage set, uint256 start, uint256 end) internal view returns (bytes32[] memory) {
         bytes32[] memory store = _values(set._inner, start, end);
         bytes32[] memory result;
+
+        assembly ("memory-safe") {
+            result := store
+        }
+
+        return result;
+    }
+
+    // Bytes4Set
+
+    struct Bytes4Set {
+        Set _inner;
+    }
+
+    /**
+     * @dev Add a value to a set. O(1).
+     *
+     * Returns true if the value was added to the set, that is if it was not
+     * already present.
+     */
+    function add(Bytes4Set storage set, bytes4 value) internal returns (bool) {
+        return _add(set._inner, bytes32(value));
+    }
+
+    /**
+     * @dev Removes a value from a set. O(1).
+     *
+     * Returns true if the value was removed from the set, that is if it was
+     * present.
+     */
+    function remove(Bytes4Set storage set, bytes4 value) internal returns (bool) {
+        return _remove(set._inner, bytes32(value));
+    }
+
+    /**
+     * @dev Removes all the values from a set. O(n).
+     *
+     * WARNING: Developers should keep in mind that this function has an unbounded cost and using it may render the
+     * function uncallable if the set grows to the point where clearing it consumes too much gas to fit in a block.
+     */
+    function clear(Bytes4Set storage set) internal {
+        _clear(set._inner);
+    }
+
+    /**
+     * @dev Returns true if the value is in the set. O(1).
+     */
+    function contains(Bytes4Set storage set, bytes4 value) internal view returns (bool) {
+        return _contains(set._inner, bytes32(value));
+    }
+
+    /**
+     * @dev Returns the number of values in the set. O(1).
+     */
+    function length(Bytes4Set storage set) internal view returns (uint256) {
+        return _length(set._inner);
+    }
+
+    /**
+     * @dev Returns the value stored at position `index` in the set. O(1).
+     *
+     * Note that there are no guarantees on the ordering of values inside the
+     * array, and it may change when more values are added or removed.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     */
+    function at(Bytes4Set storage set, uint256 index) internal view returns (bytes4) {
+        return bytes4(_at(set._inner, index));
+    }
+
+    /**
+     * @dev Return the entire set in an array
+     *
+     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+     * this function has an unbounded cost, and using it as part of a state-changing function may render the function
+     * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
+     */
+    function values(Bytes4Set storage set) internal view returns (bytes4[] memory) {
+        bytes32[] memory store = _values(set._inner);
+        bytes4[] memory result;
+
+        assembly ("memory-safe") {
+            result := store
+        }
+
+        return result;
+    }
+
+    /**
+     * @dev Return a slice of the set in an array
+     *
+     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+     * this function has an unbounded cost, and using it as part of a state-changing function may render the function
+     * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
+     */
+    function values(Bytes4Set storage set, uint256 start, uint256 end) internal view returns (bytes4[] memory) {
+        bytes32[] memory store = _values(set._inner, start, end);
+        bytes4[] memory result;
 
         assembly ("memory-safe") {
             result := store

@@ -217,6 +217,14 @@ describe('ERC1155', function () {
         ).to.emit(this.receiver, 'BatchReceived');
       });
     });
+
+    describe('_setApprovalForAll', function () {
+      it("reverts when adding an operator over the zero account's tokens", async function () {
+        await expect(this.token.$_setApprovalForAll(ethers.ZeroAddress, this.operator, true))
+          .to.be.revertedWithCustomError(this.token, 'ERC1155InvalidApprover')
+          .withArgs(ethers.ZeroAddress);
+      });
+    });
   });
 
   describe('ERC1155MetadataURI', function () {
