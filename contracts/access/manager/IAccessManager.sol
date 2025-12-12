@@ -269,9 +269,6 @@ interface IAccessManager {
      * - the caller must be a global admin
      * - `roleId` must not be the `ADMIN_ROLE` or `PUBLIC_ROLE`
      *
-     * NOTE: Setting `guardian` to the `PUBLIC_ROLE` is allowed, but the target `roleId` itself
-     * must not be a locked role (`ADMIN_ROLE` or `PUBLIC_ROLE`).
-     *
      * Emits a {RoleGuardianChanged} event
      */
     function setRoleGuardian(uint64 roleId, uint64 guardian) external;
