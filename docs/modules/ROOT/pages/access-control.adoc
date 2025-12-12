@@ -273,7 +273,7 @@ The delayed admin actions are:
 * Closing or opening a target via xref:api:access.adoc#AccessManager-setTargetClosed-address-bool-[`setTargetClosed`].
 * Changing permissions of whether a role can call a target function with xref:api:access.adoc#AccessManager-setTargetFunctionRole-address-bytes4---uint64-[`setTargetFunctionRole`].
 
-=== Querying Privileged Accounts
+=== Manager Enumerability
 
 Similar to `AccessControl`, accounts might be granted and revoked roles dynamically in an `AccessManager`, making it challenging to determine which accounts hold a particular role at any given time. This capability is essential for proving certain properties about a system, such as verifying that an administrative role is held by a multisig or DAO, or that a certain role has been completely removed to disable associated functionality.
 
@@ -284,6 +284,8 @@ If on-chain enumeration is required, it can be added implemented on top of the e
 ```solidity
 include::api:example$AccessManagerEnumerable.sol[]
 ```
+
+NOTE: The enumerable example only enumerates members of a role and functions that each role can call. Yet, it's possible to enumerate roles active (i.e. roles granted to at least 1 member), guardians and admins.
 
 This adds function that can be queried to iterate over the accounts that have been granted a role and the functions that a role is allowed to call on specific targets:
 
