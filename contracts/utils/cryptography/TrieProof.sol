@@ -154,7 +154,7 @@ library TrieProof {
                 // pathRemainder must not be longer than keyRemainder, and it must be a prefix of it
                 if (
                     pathRemainderLength > keyRemainder.length() ||
-                    pathRemainder.getHash() != keyRemainder.slice(0, pathRemainderLength).getHash()
+                    !pathRemainder.equal(keyRemainder.slice(0, pathRemainderLength))
                 ) {
                     return (_emptyBytesMemory(), ProofError.INVALID_PATH_REMAINDER);
                 }

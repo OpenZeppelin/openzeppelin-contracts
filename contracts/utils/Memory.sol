@@ -112,13 +112,14 @@ library Memory {
         }
     }
 
-    /// @dev Return the keccak256 hash of the memory section represented by the slice.
-    /// Equivalent to keccak256(toBytes(self)).
-    function getHash(Slice self) internal pure returns (bytes32 result) {
-        uint256 len = length(self);
-        Memory.Pointer ptr = _pointer(self);
+    /// @dev Returns true if the two slices contain the same data.
+    function equal(Slice a, Slice b) internal pure returns (bool result) {
+        Memory.Pointer ptrA = _pointer(a);
+        Memory.Pointer ptrB = _pointer(b);
+        uint256 lenA = length(a);
+        uint256 lenB = length(b);
         assembly ("memory-safe") {
-            result := keccak256(ptr, len)
+            result := eq(keccak256(ptrA, lenA), keccak256(ptrB, lenB))
         }
     }
 
