@@ -212,6 +212,11 @@ library TrieProof {
      *
      * For small nodes (encoded length < 32 bytes) the node ID is the node content itself,
      * For larger nodes, the node ID is the hash of the encoded node data.
+     *
+     * NOTE: For exactly 32-byte inputs, this function attempts to RLP decode the value. Standard
+     * RLP encodings will revert with {RLP-RLPInvalidEncoding}. Non-standard encodings that decode
+     * to fewer than 32 bytes will produce a zero-padded bytes32 value. While this could theoretically
+     * match a hash starting with 0x00, verification would fail in subsequent proof traversal steps.
      */
     function _getNodeId(Memory.Slice node) private pure returns (bytes32 nodeId, uint256 nodeIdLength) {
         nodeIdLength = Math.min(node.length(), 32);
