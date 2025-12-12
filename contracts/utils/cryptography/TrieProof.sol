@@ -142,6 +142,7 @@ library TrieProof {
                 }
             } else if (decoded.length == LEAF_OR_EXTENSION_NODE_LENGTH) {
                 bytes memory path = decoded[0].readBytes().toNibbles(); // expanded path
+                // The following is equivalent to path.length < 2 because toNibbles can't return odd-length buffers
                 if (path.length == 0) {
                     return (_emptyBytesMemory(), ProofError.EMPTY_PATH);
                 }
@@ -201,10 +202,9 @@ library TrieProof {
     ) private pure returns (bytes memory, ProofError) {
         if (i != trieProofLength - 1) {
             return (_emptyBytesMemory(), ProofError.INVALID_EXTRA_PROOF_ELEMENT);
-        } else {
-            bytes memory value = item.readBytes();
-            return (value, value.length == 0 ? ProofError.EMPTY_VALUE : ProofError.NO_ERROR);
         }
+        bytes memory value = item.readBytes();
+        return (value, value.length == 0 ? ProofError.EMPTY_VALUE : ProofError.NO_ERROR);
     }
 
     /**
