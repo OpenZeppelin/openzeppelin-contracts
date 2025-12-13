@@ -18,7 +18,7 @@ library ECDSA {
     }
 
     /**
-     * @dev The signature derives the `address(0)`.
+     * @dev The signature is invalid.
      */
     error ECDSAInvalidSignature();
 
@@ -155,7 +155,7 @@ library ECDSA {
     }
 
     /**
-     * @dev Overload of {ECDSA-recover} that receives the `r and `vs` short-signature fields separately.
+     * @dev Overload of {ECDSA-recover} that receives the `r` and `vs` short-signature fields separately.
      */
     function recover(bytes32 hash, bytes32 r, bytes32 vs) internal pure returns (address) {
         (address recovered, RecoverError error, bytes32 errorArg) = tryRecover(hash, r, vs);

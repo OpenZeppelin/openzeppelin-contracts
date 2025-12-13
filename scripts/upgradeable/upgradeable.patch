@@ -66,9 +66,9 @@ index 6a01f5616..168b74aa7 100644
  > [!IMPORTANT]
  > OpenZeppelin Contracts uses semantic versioning to communicate backwards compatibility of its API and storage layout. For upgradeable contracts, the storage layout of different major versions should be assumed incompatible, for example, it is unsafe to upgrade from 4.9.3 to 5.0.0. Learn more at [Backwards Compatibility](https://docs.openzeppelin.com/contracts/backwards-compatibility).
  
-++> [!NOTE]
-++> You are looking at the upgradeable variant of OpenZeppelin Contracts. Be sure to review the documentation on [Using OpenZeppelin Contracts with Upgrades](https://docs.openzeppelin.com/contracts/upgradeable).
-++
++> [!NOTE]
++> You are looking at the upgradeable variant of OpenZeppelin Contracts. Be sure to review the documentation on [Using OpenZeppelin Contracts with Upgrades](https://docs.openzeppelin.com/contracts/upgradeable).
++
  ## Overview
  
  ### Release tags
@@ -367,30 +367,30 @@ index 304d1386a..a1cd63bee 100644
 -@openzeppelin/contracts/=contracts/
 +@openzeppelin/contracts-upgradeable/=contracts/
 +@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
-diff --git a/test/account/AccountERC7702.test.js b/test/account/AccountERC7702.test.js
+diff --git a/test/account/AccountEIP7702.test.js b/test/account/AccountEIP7702.test.js
 index f442d49af..8f22dc926 100644
---- a/test/account/AccountERC7702.test.js
-+++ b/test/account/AccountERC7702.test.js
+--- a/test/account/AccountEIP7702.test.js
++++ b/test/account/AccountEIP7702.test.js
 @@ -26,8 +26,8 @@ async function fixture() {
  
    // domain cannot be fetched using getDomain(mock) before the mock is deployed
    const domain = {
--    name: 'AccountERC7702Mock',
+-    name: 'AccountEIP7702Mock',
 -    version: '1',
 +    name: '', // Not initialized in the context of signer
 +    version: '', // Not initialized in the context of signer
      chainId: entrypointDomain.chainId,
      verifyingContract: mock.address,
    };
-diff --git a/test/account/examples/AccountERC7702WithModulesMock.test.js b/test/account/examples/AccountERC7702WithModulesMock.test.js
+diff --git a/test/account/examples/AccountEIP7702WithModulesMock.test.js b/test/account/examples/AccountEIP7702WithModulesMock.test.js
 index 8ceab19d1..c3f4194a6 100644
---- a/test/account/examples/AccountERC7702WithModulesMock.test.js
-+++ b/test/account/examples/AccountERC7702WithModulesMock.test.js
+--- a/test/account/examples/AccountEIP7702WithModulesMock.test.js
++++ b/test/account/examples/AccountEIP7702WithModulesMock.test.js
 @@ -36,8 +36,8 @@ async function fixture() {
  
    // domain cannot be fetched using getDomain(mock) before the mock is deployed
    const domain = {
--    name: 'AccountERC7702WithModulesMock',
+-    name: 'AccountEIP7702WithModulesMock',
 -    version: '1',
 +    name: '', // Not initialized in the context of signer
 +    version: '', // Not initialized in the context of signer

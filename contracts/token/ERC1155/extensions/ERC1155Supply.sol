@@ -10,9 +10,9 @@ import {Arrays} from "../../../utils/Arrays.sol";
  * @dev Extension of ERC-1155 that adds tracking of total supply per id.
  *
  * Useful for scenarios where Fungible and Non-fungible tokens have to be
- * clearly identified. Note: While a totalSupply of 1 might mean the
- * corresponding is an NFT, there is no guarantees that no other token with the
- * same id are not going to be minted.
+ * clearly identified. Note: While a `totalSupply` of 1 may mean the
+ * corresponding token is an NFT, there are no inherent guarantees that
+ * no more tokens with the same id will be minted in future.
  *
  * NOTE: This contract implies a global limit of 2**256 - 1 to the number of tokens
  * that can be minted.
@@ -26,7 +26,7 @@ abstract contract ERC1155Supply is ERC1155 {
     uint256 private _totalSupplyAll;
 
     /**
-     * @dev Total value of tokens in with a given id.
+     * @dev Total value of tokens with a given id.
      */
     function totalSupply(uint256 id) public view virtual returns (uint256) {
         return _totalSupply[id];
@@ -40,7 +40,7 @@ abstract contract ERC1155Supply is ERC1155 {
     }
 
     /**
-     * @dev Indicates whether any token exist with a given id, or not.
+     * @dev Indicates whether any tokens exist with a given id, or not.
      */
     function exists(uint256 id) public view virtual returns (bool) {
         return totalSupply(id) > 0;
