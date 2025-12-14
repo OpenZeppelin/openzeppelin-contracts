@@ -65,9 +65,7 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
      * no specified format.
      */
     function transferAndCall(address to, uint256 value, bytes memory data) public virtual returns (bool) {
-        if (!transfer(to, value)) {
-            revert ERC1363TransferFailed(to, value);
-        }
+        transfer(to, value);
         ERC1363Utils.checkOnERC1363TransferReceived(_msgSender(), _msgSender(), to, value, data);
         return true;
     }
@@ -98,9 +96,7 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
         uint256 value,
         bytes memory data
     ) public virtual returns (bool) {
-        if (!transferFrom(from, to, value)) {
-            revert ERC1363TransferFromFailed(from, to, value);
-        }
+        transferFrom(from, to, value);
         ERC1363Utils.checkOnERC1363TransferReceived(_msgSender(), from, to, value, data);
         return true;
     }
@@ -126,9 +122,7 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
      * no specified format.
      */
     function approveAndCall(address spender, uint256 value, bytes memory data) public virtual returns (bool) {
-        if (!approve(spender, value)) {
-            revert ERC1363ApproveFailed(spender, value);
-        }
+        approve(spender, value);
         ERC1363Utils.checkOnERC1363ApprovalReceived(_msgSender(), spender, value, data);
         return true;
     }
