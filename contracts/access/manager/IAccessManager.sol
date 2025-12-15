@@ -36,7 +36,7 @@ interface IAccessManager {
      *
      * NOTE: The meaning of the `since` argument depends on the `newMember` argument.
      * If the role is granted to a new member, the `since` argument indicates when the account becomes a member of the role,
-     * otherwise it indicates the execution delay for this account and roleId is updated.
+     * otherwise it indicates the timestamp when the execution delay update takes effect for this account and roleId.
      */
     event RoleGranted(uint64 indexed roleId, address indexed account, uint32 delay, uint48 since, bool newMember);
 
@@ -196,6 +196,7 @@ interface IAccessManager {
      * Requirements:
      *
      * - the caller must be a global admin
+     * - `roleId` must not be the `ADMIN_ROLE` or `PUBLIC_ROLE`
      *
      * Emits a {RoleLabel} event.
      */
@@ -254,6 +255,7 @@ interface IAccessManager {
      * Requirements:
      *
      * - the caller must be a global admin
+     * - `roleId` must not be the `ADMIN_ROLE` or `PUBLIC_ROLE`
      *
      * Emits a {RoleAdminChanged} event
      */
@@ -265,6 +267,7 @@ interface IAccessManager {
      * Requirements:
      *
      * - the caller must be a global admin
+     * - `roleId` must not be the `ADMIN_ROLE` or `PUBLIC_ROLE`
      *
      * Emits a {RoleGuardianChanged} event
      */
@@ -276,6 +279,7 @@ interface IAccessManager {
      * Requirements:
      *
      * - the caller must be a global admin
+     * - `roleId` must not be the `PUBLIC_ROLE`
      *
      * Emits a {RoleGrantDelayChanged} event.
      */

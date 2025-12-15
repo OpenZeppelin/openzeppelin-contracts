@@ -125,7 +125,7 @@ In addition to the official Solidity Style Guide we have a number of other conve
   ```
 
 * Contracts not intended to be used standalone should be marked abstract
-  so they are required to be inherited to other contracts.
+  so they are required to be inherited by other contracts.
 
   ```solidity
   abstract contract AccessControl is ..., {
