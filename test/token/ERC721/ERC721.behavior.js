@@ -486,9 +486,7 @@ function shouldBehaveLikeERC721() {
 
       const itEmitsApprovalEvent = function () {
         it('emits an approval event', async function () {
-          await expect(this.tx)
-            .to.emit(this.token, 'Approval')
-            .withArgs(this.owner, this.approved, tokenId);
+          await expect(this.tx).to.emit(this.token, 'Approval').withArgs(this.owner, this.approved, tokenId);
         });
       };
 
