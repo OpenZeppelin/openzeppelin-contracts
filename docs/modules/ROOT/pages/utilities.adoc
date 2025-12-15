@@ -255,7 +255,7 @@ TIP: While working with different data types that might require casting, you can
 [[structures]]
 == Structures
 
-Some use cases require more powerful data structures than arrays and mappings offered natively in Solidity. Contracts provide these libraries for enhanced data structure management:
+Some use cases require more powerful data structures than the arrays and mappings offered natively in Solidity. These contracts provide libraries for enhanced data structure management:
 
 - xref:api:utils.adoc#BitMaps[`BitMaps`]: Store packed booleans in storage.
 - xref:api:utils.adoc#Checkpoints[`Checkpoints`]: Checkpoint values with built-in lookups.
@@ -346,7 +346,7 @@ function replace(Uint256Heap storage self, uint256 newValue) internal returns (u
 
 === Packing
 
-The storage in the EVM is shaped in chunks of 32 bytes, each of these chunks is known as a _slot_, and can hold multiple values together as long as these values don't exceed its size. These properties of the storage allow for a technique known as _packing_, that consists of placing values together on a single storage slot to reduce the costs associated to reading and writing to multiple slots instead of just one.
+The storage in the EVM is shaped in chunks of 32 bytes, each of these chunks is known as a _slot_, and can hold multiple values together as long as these values don't exceed 32 bytes. This property allows for a technique known as _packing_--placing values together in a single storage slot to reduce the costs associated with reading and writing these values.
 
 Commonly, developers pack values using structs that place values together so they fit better in storage. However, this approach requires loading such struct from either calldata or memory. Although sometimes necessary, it may be useful to pack values in a single slot and treat it as a packed value without involving calldata or memory.
 
