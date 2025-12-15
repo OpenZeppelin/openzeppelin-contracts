@@ -2,11 +2,11 @@
 
 OpenZeppelin provides a simple xref:api:account.adoc#Account[`Account`] implementation including only the basic logic to handle user operations in compliance with ERC-4337. Developers who want to build their own account can leverage it to bootstrap custom implementations.
 
-User operations are validated using an xref:api:utils.adoc#AbstractSigner[`AbstractSigner`], which requires to implement the internal xref:api:utils.adoc#AbstractSigner-_rawSignatureValidation-bytes32-bytes-[`_rawSignatureValidation`] function, of which we offer a set of implementations to cover a wide customization range. This is the lowest-level signature validation layer and is used to wrap other validation methods like the Account's xref:api:account.adoc#Account-validateUserOp-struct-PackedUserOperation-bytes32-uint256-[`validateUserOp`].
+User operations are validated using an xref:api:utils/cryptography.adoc#AbstractSigner[`AbstractSigner`], which requires implementing the internal xref:api:utils/cryptography.adoc#AbstractSigner-_rawSignatureValidation-bytes32-bytes-[`_rawSignatureValidation`] function, of which we offer a set of implementations to cover a wide customization range. This is the lowest-level signature validation layer and is used to wrap other validation methods like the Account's xref:api:account.adoc#Account-validateUserOp-struct-PackedUserOperation-bytes32-uint256-[`validateUserOp`].
 
 == Setting up an account
 
-To setup an account, you can either start configuring it using our Wizard and selecting a predefined validation scheme, or bring your own logic and start by inheriting xref:api:account.adoc#Account[`Account`] from scratch. 
+To set up an account, you can either start configuring it using our Wizard and selecting a predefined validation scheme, or bring your own logic and start by inheriting xref:api:account.adoc#Account[`Account`] from scratch. 
 
 ++++
 <script async src="https://wizard.openzeppelin.com/build/embed.js"></script>
@@ -25,7 +25,7 @@ Since the minimum requirement of xref:api:account.adoc#Account[`Account`] is to 
 * xref:api:utils/cryptography.adoc#SignerRSA[`SignerRSA`]: Verifies signatures of traditional PKI systems and X.509 certificates.
 * xref:api:utils/cryptography.adoc#SignerEIP7702[`SignerEIP7702`]: Checks EOA signatures delegated to this signer using https://eips.ethereum.org/EIPS/eip-7702#set-code-transaction[EIP-7702 authorizations]
 * xref:api:utils/cryptography.adoc#SignerERC7913[`SignerERC7913`]: Verifies generalized signatures following https://eips.ethereum.org/EIPS/eip-7913[ERC-7913].
-* https://docs.openzeppelin.com/community-contracts/0.0.1/api/utils#SignerZKEmail[`SignerZKEmail`]: Enables email-based authentication for smart contracts using zero knowledge proofs of email authority signatures.
+* https://docs.openzeppelin.com/community-contracts/0.0.1/api/utils/cryptography#SignerZKEmail[`SignerZKEmail`]: Enables email-based authentication for smart contracts using zero-knowledge proofs of email authority signatures.
 * xref:api:utils/cryptography.adoc#MultiSignerERC7913[`MultiSignerERC7913`]: Allows using multiple ERC-7913 signers with a threshold-based signature verification system.
 * xref:api:utils/cryptography.adoc#MultiSignerERC7913Weighted[`MultiSignerERC7913Weighted`]: Overrides the threshold mechanism of xref:api:utils/cryptography.adoc#MultiSignerERC7913[`MultiSignerERC7913`], offering different weights per signer.
 
@@ -52,7 +52,7 @@ Most smart accounts are deployed by a factory, the best practice is to create xr
 ----
 import {Account} from "@openzeppelin/community-contracts/account/Account.sol";
 import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
-import {SignerECDSA} from "@openzeppelin/community-contracts/utils/cryptography/SignerECDSA.sol";
+import {SignerECDSA} from "@openzeppelin/contracts/utils/cryptography/signers/SignerECDSA.sol";
 
 contract MyAccount is Initializable, Account, SignerECDSA, ... {
     // ...
@@ -96,7 +96,7 @@ Here's an example of how to use batched execution using EIP-7702:
 ----
 import {Account} from "@openzeppelin/community-contracts/account/Account.sol";
 import {ERC7821} from "@openzeppelin/community-contracts/account/extensions/draft-ERC7821.sol";
-import {SignerEIP7702} from "@openzeppelin/community-contracts/utils/cryptography/SignerEIP7702.sol";
+import {SignerEIP7702} from "@openzeppelin/contracts/utils/cryptography/signers/SignerEIP7702.sol";
 
 contract MyAccount is Account, SignerEIP7702, ERC7821 {
     // Override to allow the entrypoint to execute batches
@@ -153,7 +153,7 @@ const userOpData = encodeFunctionData({
 
 == Bundle a `UserOperation`
 
-xref:account-abstraction.adoc#useroperation[UserOperations] are a powerful abstraction layer that enable more sophisticated transaction capabilities compared to traditional Ethereum transactions. To get started, you'll need to an account, which you can get by xref:accounts.adoc#accounts_factory[deploying a factory] for your implementation.
+xref:account-abstraction.adoc#useroperation[UserOperations] are a powerful abstraction layer that enable more sophisticated transaction capabilities compared to traditional Ethereum transactions. To get started, you'll need an account, which you can get by xref:accounts.adoc#accounts_factory[deploying a factory] for your implementation.
 
 === Preparing a UserOp
 
@@ -343,7 +343,7 @@ https://eips.ethereum.org/EIPS/eip-7702[EIP-7702] lets EOAs delegate to smart co
 
 The signature verification stays compatible: delegated EOAs are treated as contracts using ERC-1271, making it easy to redelegate to a contract with ERC-1271 support with little overhead by reusing the validation mechanism of the account. 
 
-TIP: Learn more about delegating to an ERC-7702 account in our xref:eoa-delegation.adoc[EOA Delegation] section.
+TIP: Learn more about delegating to an EIP-7702 account in our xref:eoa-delegation.adoc[EOA Delegation] section.
 
 === ERC-7579 Modules
 
