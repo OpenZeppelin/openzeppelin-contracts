@@ -179,8 +179,8 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
      * update to the contract state after this function would break the check-effect-interaction pattern. Consider
      * overriding {_update} instead.
      *
-     * NOTE: this version is kept for backward compatibility. we recommend calling the alternate version with a boolean
-     * flag to achieve better control over which hook to call.
+     * NOTE: This version is kept for backward compatibility. We recommend calling the alternative version with a boolean
+     * flag in order to achieve better control over which hook to call.
      */
     function _updateWithAcceptanceCheck(
         address from,
