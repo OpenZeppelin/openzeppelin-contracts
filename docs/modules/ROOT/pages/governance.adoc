@@ -93,7 +93,7 @@ TimelockController uses an AccessControl setup that we need to understand in ord
 - The Canceller role can cancel queued operations in the timelock: the Governor should hold this role for proposal cancellations to work after queuing. If the Governor is set as a proposer at deployment, it will automatically receive the Canceller role as well.
 - Lastly, there is the Admin role, which can grant and revoke the two previous roles: this is a very sensitive role that will be granted automatically to the timelock itself, and optionally to a second account, which can be used for ease of setup but should promptly renounce the role.
 
-WARNING: Granting additional proposers or cancellers besides the Governor is risky. They can execute operations as the timelock (bypassing governance) and cancel approved proposals, potentially causing a denial of service against governance.
+WARNING: Granting additional proposers or cancellers besides the Governor is risky. They can execute operations as the timelock (bypassing governance) and cancel approved proposals, potentially causing a denial of service attack against governance.
 
 == Proposal Lifecycle
 
