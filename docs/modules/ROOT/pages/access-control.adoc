@@ -96,8 +96,9 @@ The base `AccessControl` contract provides role-based access control, but it doe
 
 This contract uses `EnumerableSet` internally and provides the following functions:
 
-* {AccessControlEnumerable-getRoleMemberCount}
-* {AccessControlEnumerable-getRoleMember}
+* xref:api:access.adoc#AccessControlEnumerable-getRoleMemberCount-bytes32-[`getRoleMemberCount`]
+* xref:api:access.adoc#AccessControlEnumerable-getRoleMember-bytes32-uint256-[`getRoleMember`]
+* xref:api:access.adoc#AccessControlEnumerable-getRoleMembers-bytes32-[`getRoleMembers`]
 
 These can be used to iterate over the accounts that have been granted a role:
 
@@ -160,7 +161,7 @@ image::access-manager.svg[AccessManager]
 The AccessManager is designed around the concept of role and target functions:
 
 * Roles are granted to accounts (addresses) following a many-to-many approach for flexibility. This means that each user can have one or multiple roles and multiple users can have the same role.
-* Access to a restricted target function is limited to one role. A target function is defined by one https://docs.soliditylang.org/en/v0.8.20/abi-spec.html#function-selector[function selector] on one contract (called target). 
+* Access to a restricted target function is limited to one role. A target function is defined by one https://docs.soliditylang.org/en/v0.8.20/abi-spec.html#function-selector[function selector] on one contract (called target).
 
 For a call to be authorized, the caller must bear the role that is assigned to the current target function (contract address + function selector).
 
@@ -209,11 +210,11 @@ const HOUR = 60 * 60;
 const GRANT_DELAY = 24 * HOUR;
 const EXECUTION_DELAY = 5 * HOUR;
 const ACCOUNT = "0x...";
-    
+
 await manager.connect(initialAdmin).setGrantDelay(MINTER, GRANT_DELAY);
 
 // The role will go into effect after the GRANT_DELAY passes
-await manager.connect(initialAdmin).grantRole(MINTER, ACCOUNT, EXECUTION_DELAY); 
+await manager.connect(initialAdmin).grantRole(MINTER, ACCOUNT, EXECUTION_DELAY);
 ```
 
 Note that roles do not define a name. As opposed to the xref:api:access.adoc#AccessControl[`AccessControl`] case, roles are identified as numeric values instead of being hardcoded in the contract as `bytes32` values. It is still possible to allow for tooling discovery (e.g. for role exploration) using role labeling with the xref:api:access.adoc#AccessManager-labelRole-uint64-string-[`labelRole`] function.
@@ -271,6 +272,47 @@ The delayed admin actions are:
 * Updating an `AccessManaged` contract xref:api:access.adoc#AccessManaged-authority--[authority] using xref:api:access.adoc#AccessManager-updateAuthority-address-address-[`updateAuthority`].
 * Closing or opening a target via xref:api:access.adoc#AccessManager-setTargetClosed-address-bool-[`setTargetClosed`].
 * Changing permissions of whether a role can call a target function with xref:api:access.adoc#AccessManager-setTargetFunctionRole-address-bytes4---uint64-[`setTargetFunctionRole`].
+
+=== Manager Enumerability
+
+Similar to `AccessControl`, accounts might be granted and revoked roles dynamically in an `AccessManager`, making it challenging to determine which accounts hold a particular role at any given time. This capability is essential for proving certain properties about a system, such as verifying that an administrative role is held by a multisig or DAO, or that a certain role has been completely removed to disable associated functionality.
+
+The base `AccessManager` contract provides comprehensive role-based access control but does not support on-chain enumeration of role members or target function permissions by default. To track which accounts hold roles and which functions are assigned to roles, you should rely on the xref:api:access.adoc#AccessManager-RoleGranted-uint64-address-uint32-uint48-bool-[RoleGranted], xref:api:access.adoc#AccessManager-RoleRevoked-uint64-address-[RoleRevoked], and xref:api:access.adoc#AccessManager-TargetFunctionRoleUpdated-address-bytes4-uint64-[TargetFunctionRoleUpdated] events, which can be processed off-chain.
+
+If on-chain enumeration is required, it can be added implemented on top of the existing logic:
+
+```solidity
+include::api:example$AccessManagerEnumerable.sol[]
+```
+
+NOTE: The enumerable example only enumerates members of a role and functions that each role can call. Yet, it's possible to enumerate roles active (i.e. roles granted to at least 1 member), guardians and admins.
+
+This adds function that can be queried to iterate over the accounts that have been granted a role and the functions that a role is allowed to call on specific targets:
+
+```javascript
+// Enumerate role members
+const minterCount = await accessManager.getRoleMemberCount(MINTER_ROLE);
+
+const members = [];
+for (let i = 0; i < minterCount; ++i) {
+    members.push(await accessManager.getRoleMember(MINTER_ROLE, i));
+}
+
+// Or get all members at once
+const allMembers = await accessManager.getRoleMembers(MINTER_ROLE, 0, ethers.MaxUint256);
+
+// Enumerate target functions for a role
+const target = await myToken.getAddress();
+const functionCount = await accessManager.getRoleTargetFunctionCount(MINTER_ROLE, target);
+
+const functions = [];
+for (let i = 0; i < functionCount; ++i) {
+    functions.push(await accessManager.getRoleTargetFunction(MINTER_ROLE, target, i));
+}
+
+// Or get all functions at once
+const allFunctions = await accessManager.getRoleTargetFunctions(MINTER_ROLE, target, 0, ethers.MaxUint256);
+```
 
 === Using with Ownable
 
