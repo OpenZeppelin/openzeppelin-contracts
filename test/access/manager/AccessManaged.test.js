@@ -65,7 +65,7 @@ describe('AccessManaged', function () {
 
     describe('when role is granted with execution delay', function () {
       beforeEach(async function () {
-        const executionDelay = 911n; // Arbitrary delay for testing execution delay functionality
+        const executionDelay = 911n;
         await this.authority.$_grantRole(this.role, this.roleMember, 0, executionDelay);
       });
 
