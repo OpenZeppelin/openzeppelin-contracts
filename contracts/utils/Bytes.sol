@@ -129,6 +129,49 @@ library Bytes {
     }
 
     /**
+     * @dev Replaces bytes in `buffer` starting at `pos` with all bytes from `replacement`.
+     *
+     * Parameters are clamped to valid ranges (i.e. `pos` is clamped to `[0, buffer.length]`).
+     * If `pos >= buffer.length`, no replacement occurs and the buffer is returned unchanged.
+     *
+     * NOTE: This function modifies the provided buffer in place.
+     */
+    function replace(bytes memory buffer, uint256 pos, bytes memory replacement) internal pure returns (bytes memory) {
+        return replace(buffer, pos, replacement, 0, replacement.length);
+    }
+
+    /**
+     * @dev Replaces bytes in `buffer` starting at `pos` with bytes from `replacement` starting at `offset`.
+     * Copies at most `length` bytes from `replacement` to `buffer`.
+     *
+     * Parameters are clamped to valid ranges (i.e. `pos` is clamped to `[0, buffer.length]`, `offset` is
+     * clamped to `[0, replacement.length]`, and `length` is clamped to `min(length, replacement.length - offset,
+     * buffer.length - pos))`. If `pos >= buffer.length` or `offset >= replacement.length`, no replacement occurs
+     * and the buffer is returned unchanged.
+     *
+     * NOTE: This function modifies the provided buffer in place.
+     */
+    function replace(
+        bytes memory buffer,
+        uint256 pos,
+        bytes memory replacement,
+        uint256 offset,
+        uint256 length
+    ) internal pure returns (bytes memory) {
+        // sanitize
+        pos = Math.min(pos, buffer.length);
+        offset = Math.min(offset, replacement.length);
+        length = Math.min(length, Math.min(replacement.length - offset, buffer.length - pos));
+
+        // allocate and copy
+        assembly ("memory-safe") {
+            mcopy(add(add(buffer, 0x20), pos), add(add(replacement, 0x20), offset), length)
+        }
+
+        return buffer;
+    }
+
+    /**
      * @dev Concatenate an array of bytes into a single bytes object.
      *
      * For fixed bytes types, we recommend using the solidity built-in `bytes.concat` or (equivalent)
@@ -157,6 +200,48 @@ library Bytes {
         }
 
         return result;
+    }
+
+    /**
+     * @dev Split each byte in `input` into two nibbles (4 bits each)
+     *
+     * Example: hex"01234567" → hex"0001020304050607"
+     */
+    function toNibbles(bytes memory input) internal pure returns (bytes memory output) {
+        assembly ("memory-safe") {
+            let length := mload(input)
+            output := mload(0x40)
+            mstore(0x40, add(add(output, 0x20), mul(length, 2)))
+            mstore(output, mul(length, 2))
+            for {
+                let i := 0
+            } lt(i, length) {
+                i := add(i, 0x10)
+            } {
+                let chunk := shr(128, mload(add(add(input, 0x20), i)))
+                chunk := and(
+                    0x0000000000000000ffffffffffffffff0000000000000000ffffffffffffffff,
+                    or(shl(64, chunk), chunk)
+                )
+                chunk := and(
+                    0x00000000ffffffff00000000ffffffff00000000ffffffff00000000ffffffff,
+                    or(shl(32, chunk), chunk)
+                )
+                chunk := and(
+                    0x0000ffff0000ffff0000ffff0000ffff0000ffff0000ffff0000ffff0000ffff,
+                    or(shl(16, chunk), chunk)
+                )
+                chunk := and(
+                    0x00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff,
+                    or(shl(8, chunk), chunk)
+                )
+                chunk := and(
+                    0x0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f,
+                    or(shl(4, chunk), chunk)
+                )
+                mstore(add(add(output, 0x20), mul(i, 2)), chunk)
+            }
+        }
     }
 
     /**

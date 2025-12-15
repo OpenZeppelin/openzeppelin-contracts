@@ -97,10 +97,7 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
 
     /// @inheritdoc IERC1155
     function safeTransferFrom(address from, address to, uint256 id, uint256 value, bytes memory data) public virtual {
-        address sender = _msgSender();
-        if (from != sender && !isApprovedForAll(from, sender)) {
-            revert ERC1155MissingApprovalForAll(sender, from);
-        }
+        _checkAuthorized(_msgSender(), from);
         _safeTransferFrom(from, to, id, value, data);
     }
 
@@ -112,11 +109,15 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
         uint256[] memory values,
         bytes memory data
     ) public virtual {
-        address sender = _msgSender();
-        if (from != sender && !isApprovedForAll(from, sender)) {
-            revert ERC1155MissingApprovalForAll(sender, from);
-        }
+        _checkAuthorized(_msgSender(), from);
         _safeBatchTransferFrom(from, to, ids, values, data);
+    }
+
+    /// @dev Checks if `operator` is authorized to transfer tokens owned by `owner`. Reverts with {ERC1155MissingApprovalForAll} if not.
+    function _checkAuthorized(address operator, address owner) internal view virtual {
+        if (owner != operator && !isApprovedForAll(owner, operator)) {
+            revert ERC1155MissingApprovalForAll(operator, owner);
+        }
     }
 
     /**
@@ -355,6 +356,9 @@ abstract contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IER
      * - `operator` cannot be the zero address.
      */
     function _setApprovalForAll(address owner, address operator, bool approved) internal virtual {
+        if (owner == address(0)) {
+            revert ERC1155InvalidApprover(address(0));
+        }
         if (operator == address(0)) {
             revert ERC1155InvalidOperator(address(0));
         }

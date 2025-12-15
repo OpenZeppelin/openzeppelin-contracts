@@ -31,7 +31,7 @@ In this way, you can use _composability_ to add additional layers of access cont
 [[role-based-access-control]]
 == Role-Based Access Control
 
-While the simplicity of _ownership_ can be useful for simple systems or quick prototyping, different levels of authorization are often needed. You may want for an account to have permission to ban users from a system, but not create new tokens. https://en.wikipedia.org/wiki/Role-based_access_control[_Role-Based Access Control (RBAC)_] offers flexibility in this regard.
+While the simplicity of _ownership_ can be useful for simple systems or quick prototyping, different levels of authorization are often needed. You may want an account to have permission to ban users from a system, but not create new tokens. https://en.wikipedia.org/wiki/Role-based_access_control[_Role-Based Access Control (RBAC)_] offers flexibility in this regard.
 
 In essence, we will be defining multiple _roles_, each allowed to perform different sets of actions. An account may have, for example, 'moderator', 'minter' or 'admin' roles, which you will then check for instead of simply using `onlyOwner`. This check can be enforced through the `onlyRole` modifier. Separately, you will be able to define rules for how accounts can be granted a role, have it revoked, and more.
 
@@ -74,7 +74,7 @@ Every role has an associated admin role, which grants permission to call the `gr
 
 This mechanism can be used to create complex permissioning structures resembling organizational charts, but it also provides an easy way to manage simpler applications. `AccessControl` includes a special role, called `DEFAULT_ADMIN_ROLE`, which acts as the **default admin role for all roles**. An account with this role will be able to manage any other role, unless `_setRoleAdmin` is used to select a new admin role.
 
-Since it is the admin for all roles by default, and in fact it is also its own admin, this role carries significant risk. To mitigate this risk we provide xref:api:access.adoc#AccessControlDefaultAdminRules[`AccessControlDefaultAdminRules`], a recommended extension of `AccessControl` that adds a number of enforced security measures for this role: the admin is restricted to a single account, with a 2-step transfer procedure with a delay in between steps.
+Since it is the admin for all roles by default, and in fact it is also its own admin, this role carries significant risk. To mitigate this risk we provide xref:api:access.adoc#AccessControlDefaultAdminRules[`AccessControlDefaultAdminRules`], a recommended extension of `AccessControl` that adds a number of enforced security measures for this role: the admin is restricted to a single account, with a 2-step transfer procedure with a delay between steps.
 
 Let's take a look at the ERC-20 token example, this time taking advantage of the default admin role:
 
@@ -96,8 +96,9 @@ The base `AccessControl` contract provides role-based access control, but it doe
 
 This contract uses `EnumerableSet` internally and provides the following functions:
 
-* {AccessControlEnumerable-getRoleMemberCount}
-* {AccessControlEnumerable-getRoleMember}
+* xref:api:access.adoc#AccessControlEnumerable-getRoleMemberCount-bytes32-[`getRoleMemberCount`]
+* xref:api:access.adoc#AccessControlEnumerable-getRoleMember-bytes32-uint256-[`getRoleMember`]
+* xref:api:access.adoc#AccessControlEnumerable-getRoleMembers-bytes32-[`getRoleMembers`]
 
 These can be used to iterate over the accounts that have been granted a role:
 
@@ -124,7 +125,7 @@ By default, the address that deployed the xref:api:governance.adoc#TimelockContr
 
 The first step in configuring the xref:api:governance.adoc#TimelockController[`TimelockController`] is to assign at least one proposer and one executor. These can be assigned during construction or later by anyone with the administrator role. These roles are not exclusive, meaning an account can have both roles.
 
-Roles are managed using the xref:api:access.adoc#AccessControl[`AccessControl`] interface and the `bytes32` values for each role are accessible through the `ADMIN_ROLE`, `PROPOSER_ROLE` and `EXECUTOR_ROLE` constants.
+Roles are managed using the xref:api:access.adoc#AccessControl[`AccessControl`] interface and the `bytes32` values for each role are accessible through the `DEFAULT_ADMIN_ROLE`, `PROPOSER_ROLE`, `EXECUTOR_ROLE`, and `CANCELLER_ROLE` constants.
 
 There is an additional feature built on top of `AccessControl`: giving the executor role to `address(0)` opens access to anyone to execute a proposal once the timelock has expired. This feature, while useful, should be used with caution.
 
@@ -160,7 +161,7 @@ image::access-manager.svg[AccessManager]
 The AccessManager is designed around the concept of role and target functions:
 
 * Roles are granted to accounts (addresses) following a many-to-many approach for flexibility. This means that each user can have one or multiple roles and multiple users can have the same role.
-* Access to a restricted target function is limited to one role. A target function is defined by one https://docs.soliditylang.org/en/v0.8.20/abi-spec.html#function-selector[function selector] on one contract (called target). 
+* Access to a restricted target function is limited to one role. A target function is defined by one https://docs.soliditylang.org/en/v0.8.20/abi-spec.html#function-selector[function selector] on one contract (called target).
 
 For a call to be authorized, the caller must bear the role that is assigned to the current target function (contract address + function selector).
 
@@ -199,7 +200,7 @@ await manager.setTargetFunctionRole(
 );
 ```
 
-Even though each role has its own list of function permissions, each role member (`address`) has an execution delay that will dictate how long the account should wait to execute a function that requires its role. Delayed operations must have the xref:api:access.adoc#AccessManager-schedule-address-bytes-uint48-[`schedule`] function called on them first in the AccessManager before they can be executed, either by calling to the target function or using the AccessManager's xref:api:access.adoc#AccessManager-execute-address-bytes-[`execute`] function.
+Even though each role has its own list of function permissions, each role member (`address`) has an execution delay that will dictate how long the account should wait to execute a function that requires its role. Delayed operations must have the xref:api:access.adoc#AccessManager-schedule-address-bytes-uint48-[`schedule`] function called on them first in the AccessManager before they can be executed, either by calling the target function or using the AccessManager's xref:api:access.adoc#AccessManager-execute-address-bytes-[`execute`] function.
 
 Additionally, roles can have a granting delay that prevents adding members immediately. The AccessManager admins can set this grant delay as follows:
 
@@ -209,11 +210,11 @@ const HOUR = 60 * 60;
 const GRANT_DELAY = 24 * HOUR;
 const EXECUTION_DELAY = 5 * HOUR;
 const ACCOUNT = "0x...";
-    
+
 await manager.connect(initialAdmin).setGrantDelay(MINTER, GRANT_DELAY);
 
 // The role will go into effect after the GRANT_DELAY passes
-await manager.connect(initialAdmin).grantRole(MINTER, ACCOUNT, EXECUTION_DELAY); 
+await manager.connect(initialAdmin).grantRole(MINTER, ACCOUNT, EXECUTION_DELAY);
 ```
 
 Note that roles do not define a name. As opposed to the xref:api:access.adoc#AccessControl[`AccessControl`] case, roles are identified as numeric values instead of being hardcoded in the contract as `bytes32` values. It is still possible to allow for tooling discovery (e.g. for role exploration) using role labeling with the xref:api:access.adoc#AccessManager-labelRole-uint64-string-[`labelRole`] function.
@@ -272,6 +273,47 @@ The delayed admin actions are:
 * Closing or opening a target via xref:api:access.adoc#AccessManager-setTargetClosed-address-bool-[`setTargetClosed`].
 * Changing permissions of whether a role can call a target function with xref:api:access.adoc#AccessManager-setTargetFunctionRole-address-bytes4---uint64-[`setTargetFunctionRole`].
 
+=== Manager Enumerability
+
+Similar to `AccessControl`, accounts might be granted and revoked roles dynamically in an `AccessManager`, making it challenging to determine which accounts hold a particular role at any given time. This capability is essential for proving certain properties about a system, such as verifying that an administrative role is held by a multisig or DAO, or that a certain role has been completely removed to disable associated functionality.
+
+The base `AccessManager` contract provides comprehensive role-based access control but does not support on-chain enumeration of role members or target function permissions by default. To track which accounts hold roles and which functions are assigned to roles, you should rely on the xref:api:access.adoc#AccessManager-RoleGranted-uint64-address-uint32-uint48-bool-[RoleGranted], xref:api:access.adoc#AccessManager-RoleRevoked-uint64-address-[RoleRevoked], and xref:api:access.adoc#AccessManager-TargetFunctionRoleUpdated-address-bytes4-uint64-[TargetFunctionRoleUpdated] events, which can be processed off-chain.
+
+If on-chain enumeration is required, it can be added implemented on top of the existing logic:
+
+```solidity
+include::api:example$AccessManagerEnumerable.sol[]
+```
+
+NOTE: The enumerable example only enumerates members of a role and functions that each role can call. Yet, it's possible to enumerate roles active (i.e. roles granted to at least 1 member), guardians and admins.
+
+This adds function that can be queried to iterate over the accounts that have been granted a role and the functions that a role is allowed to call on specific targets:
+
+```javascript
+// Enumerate role members
+const minterCount = await accessManager.getRoleMemberCount(MINTER_ROLE);
+
+const members = [];
+for (let i = 0; i < minterCount; ++i) {
+    members.push(await accessManager.getRoleMember(MINTER_ROLE, i));
+}
+
+// Or get all members at once
+const allMembers = await accessManager.getRoleMembers(MINTER_ROLE, 0, ethers.MaxUint256);
+
+// Enumerate target functions for a role
+const target = await myToken.getAddress();
+const functionCount = await accessManager.getRoleTargetFunctionCount(MINTER_ROLE, target);
+
+const functions = [];
+for (let i = 0; i < functionCount; ++i) {
+    functions.push(await accessManager.getRoleTargetFunction(MINTER_ROLE, target, i));
+}
+
+// Or get all functions at once
+const allFunctions = await accessManager.getRoleTargetFunctions(MINTER_ROLE, target, 0, ethers.MaxUint256);
+```
+
 === Using with Ownable
 
 Contracts already inheriting from xref:api:access.adoc#Ownable[`Ownable`] can migrate to AccessManager by transferring ownership to the manager. After that, all calls to functions with the `onlyOwner` modifier should be called through the manager's xref:api:access.adoc#AccessManager-execute-address-bytes-[`execute`] function, even if the caller doesn't require a delay.
@@ -293,3 +335,5 @@ await accessControl.connect(admin).grantRole(DEFAULT_ADMIN_ROLE, accessManager);
 
 await accessControl.connect(admin).renounceRole(DEFAULT_ADMIN_ROLE, admin);
 ```
+
+NOTE: After migrating to AccessManager, the `msg.sender` in restricted functions will be the AccessManager contract itself through the xref:api:access.adoc#AccessManager-execute-address-bytes-[`execute`] function, not the original caller. This is a fundamental change in how access control works and may require updates to your contract logic or frontend integration.

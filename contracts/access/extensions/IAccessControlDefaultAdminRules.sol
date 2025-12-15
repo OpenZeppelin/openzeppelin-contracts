@@ -103,7 +103,7 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
      *
      * - Only can be called by the current {defaultAdmin}.
      *
-     * Emits a DefaultAdminRoleChangeStarted event.
+     * Emits a {DefaultAdminTransferScheduled} event.
      */
     function beginDefaultAdminTransfer(address newAdmin) external;
 
@@ -116,7 +116,7 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
      *
      * - Only can be called by the current {defaultAdmin}.
      *
-     * May emit a DefaultAdminTransferCanceled event.
+     * May emit a {DefaultAdminTransferCanceled} event.
      */
     function cancelDefaultAdminTransfer() external;
 
@@ -160,7 +160,7 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
      *
      * - Only can be called by the current {defaultAdmin}.
      *
-     * Emits a DefaultAdminDelayChangeScheduled event and may emit a DefaultAdminDelayChangeCanceled event.
+     * Emits a {DefaultAdminDelayChangeScheduled} event and may emit a {DefaultAdminDelayChangeCanceled} event.
      */
     function changeDefaultAdminDelay(uint48 newDelay) external;
 
@@ -171,7 +171,7 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
      *
      * - Only can be called by the current {defaultAdmin}.
      *
-     * May emit a DefaultAdminDelayChangeCanceled event.
+     * May emit a {DefaultAdminDelayChangeCanceled} event.
      */
     function rollbackDefaultAdminDelay() external;
 
