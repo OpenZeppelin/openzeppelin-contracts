@@ -17,6 +17,7 @@ import {Panic} from "../Panic.sol";
  * Elements can't be removed but the data structure can be cleared. See {clear}.
  *
  * Complexity:
+ *
  * - insertion ({push}): O(1)
  * - lookup ({last}): O(1)
  * - inclusion ({includes}): O(N) (worst case)
