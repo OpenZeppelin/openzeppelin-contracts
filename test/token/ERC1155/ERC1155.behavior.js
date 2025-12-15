@@ -692,7 +692,7 @@ function shouldBehaveLikeERC1155() {
           });
         });
 
-        describe('with data  (batch of size > 1)', function () {
+        describe('with data (batch of size > 1)', function () {
           beforeEach(async function () {
             this.args = {
               operator: this.holder,
