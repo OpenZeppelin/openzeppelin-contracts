@@ -2,6 +2,8 @@
 
 ### Breaking changes
 
+- `ERC1967Proxy` and `TransparentUpgradeableProxy`: Mandate initialization during construction. Deployment now reverts with `ERC1967ProxyUninitialized` if an initialize call is not provided. Developers that rely on the previous behavior and want to disable this check can do so by overriding the internal `_unsafeAllowUninitialized` function to return true.
+- `ERC721` and `ERC1155`: Prevent setting an operator for `address(0)`. In the case of `ERC721` this type of operator allowance could lead to obfuscated mint permission.
 - `RLP`: The `encode(bytes32)` function now encodes `bytes32` as a fixed size item and not as a scalar in `encode(uint256)`. Users must replace calls to `encode(bytes32)` with `encode(uint256(bytes32))` to preserve the same behavior.
 
 ## 5.5.0 (2025-10-31)
@@ -23,7 +25,7 @@
 
 ### Deprecation
 
-- `Initializable` and `UUPSUpgradeable` are no longer transpiled. An alias is present in the `@openzeppelin/contracts-upgradeable` package that redirect to the corresponding file in `@openzeppelin/contracts`. These alias will be removed in the next major release. Developers are advised to update their imports to get these files directly from the `@openzeppelin/contracts` package. [#5941](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5941)
+- `Initializable` and `UUPSUpgradeable` are no longer transpiled. Aliases are present in the `@openzeppelin/contracts-upgradeable` package that redirect to the corresponding files in `@openzeppelin/contracts`. These aliases will be removed in the next major release. Developers are advised to update their imports to get these files directly from the `@openzeppelin/contracts` package. [#5941](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5941)
 - `ECDSA` signature malleability protection is partly deprecated. See documentation for more details. [#5814](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5814)
 
 ### Changes by category
@@ -91,7 +93,7 @@
 
 ### Pragma changes
 
-- Reduced pragma requirement of interface files
+- Reduced pragma requirement of interface files.
 
 ### Changes by category
 

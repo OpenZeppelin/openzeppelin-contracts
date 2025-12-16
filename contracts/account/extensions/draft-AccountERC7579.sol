@@ -401,7 +401,7 @@ abstract contract AccountERC7579 is Account, IERC1271, IERC7579Execution, IERC75
      * actual copy. However, this would require `_installModule` to get a calldata bytes object instead of a memory
      * bytes object. This would prevent calling `_installModule` from a contract constructor and would force the use
      * of external initializers. That may change in the future, as most accounts will probably be deployed as
-     * clones/proxy/ERC-7702 delegates and therefore rely on initializers anyway.
+     * clones/proxy/EIP-7702 delegates and therefore rely on initializers anyway.
      */
     function _decodeFallbackData(
         bytes memory data

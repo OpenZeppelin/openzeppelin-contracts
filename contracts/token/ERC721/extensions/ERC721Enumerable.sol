@@ -153,7 +153,8 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
     }
 
     /**
-     * See {ERC721-_increaseBalance}. We need that to account tokens that were minted in batch
+     * See {ERC721-_increaseBalance}. We need to forbid batch minting because the enumeration
+     * extension does not support it.
      */
     function _increaseBalance(address account, uint128 amount) internal virtual override {
         if (amount > 0) {

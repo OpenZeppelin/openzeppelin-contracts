@@ -101,19 +101,19 @@ class ERC4337Helper {
 
   async newAccount(name, extraArgs = [], params = {}) {
     const env = {
-      entrypoint: params.entrypoint ?? predeploy.entrypoint.v08,
-      senderCreator: params.senderCreator ?? predeploy.senderCreator.v08,
+      entrypoint: params.entrypoint ?? predeploy.entrypoint.v09,
+      senderCreator: params.senderCreator ?? predeploy.senderCreator.v09,
     };
 
     const { factory } = await this.wait();
 
     const accountFactory = await ethers.getContractFactory(name);
 
-    if (params.erc7702signer) {
+    if (params.eip7702signer) {
       const delegate = await accountFactory.deploy(...extraArgs);
-      const instance = await params.erc7702signer.getAddress().then(address => accountFactory.attach(address));
-      const authorization = await params.erc7702signer.authorize({ address: delegate.target });
-      return new ERC7702SmartAccount(instance, authorization, env);
+      const instance = await params.eip7702signer.getAddress().then(address => accountFactory.attach(address));
+      const authorization = await params.eip7702signer.authorize({ address: delegate.target });
+      return new EIP7702SmartAccount(instance, authorization, env);
     } else {
       const initCode = await accountFactory
         .getDeployTransaction(...extraArgs)
@@ -163,7 +163,7 @@ class SmartAccount extends ethers.BaseContract {
   }
 }
 
-class ERC7702SmartAccount extends SmartAccount {
+class EIP7702SmartAccount extends SmartAccount {
   constructor(instance, authorization, env) {
     super(instance, undefined, env);
     this.authorization = authorization;

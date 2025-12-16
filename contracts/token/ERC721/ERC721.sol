@@ -407,6 +407,9 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      * Emits an {ApprovalForAll} event.
      */
     function _setApprovalForAll(address owner, address operator, bool approved) internal virtual {
+        if (owner == address(0)) {
+            revert ERC721InvalidApprover(address(0));
+        }
         if (operator == address(0)) {
             revert ERC721InvalidOperator(operator);
         }

@@ -3,7 +3,7 @@
 pragma solidity >0.8.30;
 
 import {Test} from "forge-std/Test.sol";
-import {AccountERC7702Mock} from "@openzeppelin/contracts/mocks/account/AccountMock.sol";
+import {AccountEIP7702Mock} from "@openzeppelin/contracts/mocks/account/AccountMock.sol";
 import {CallReceiverMock} from "@openzeppelin/contracts/mocks/CallReceiverMock.sol";
 import {EIP712} from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import {
@@ -18,11 +18,11 @@ import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {PackedUserOperation} from "@openzeppelin/contracts/interfaces/draft-IERC4337.sol";
 import {ERC7821} from "@openzeppelin/contracts/account/extensions/draft-ERC7821.sol";
 
-contract AccountERC7702MockConstructor is AccountERC7702Mock {
+contract AccountEIP7702MockConstructor is AccountEIP7702Mock {
     constructor() EIP712("MyAccount", "1") {}
 }
 
-contract AccountERC7702Test is Test {
+contract AccountEIP7702Test is Test {
     using ERC7579Utils for *;
     using ERC4337Utils for PackedUserOperation;
     using Strings for *;
@@ -34,7 +34,7 @@ contract AccountERC7702Test is Test {
 
     // ERC-4337 signer
     uint256 private _signerPrivateKey;
-    AccountERC7702MockConstructor private _signer;
+    AccountEIP7702MockConstructor private _signer;
 
     function setUp() public {
         // Deploy target contract
@@ -42,14 +42,14 @@ contract AccountERC7702Test is Test {
 
         // Setup signer
         _signerPrivateKey = 0x1234;
-        _signer = AccountERC7702MockConstructor(payable(vm.addr(_signerPrivateKey)));
+        _signer = AccountEIP7702MockConstructor(payable(vm.addr(_signerPrivateKey)));
         vm.deal(address(_signer), MAX_ETH);
 
         // Sign and attach delegation
-        vm.signAndAttachDelegation(address(new AccountERC7702MockConstructor()), _signerPrivateKey);
+        vm.signAndAttachDelegation(address(new AccountEIP7702MockConstructor()), _signerPrivateKey);
 
         // Setup entrypoint
-        address entrypoint = address(ERC4337Utils.ENTRYPOINT_V08);
+        address entrypoint = address(ERC4337Utils.ENTRYPOINT_V09);
         vm.deal(entrypoint, MAX_ETH);
         vm.etch(
             entrypoint,
@@ -63,7 +63,10 @@ contract AccountERC7702Test is Test {
         );
     }
 
-    function testExecuteBatch(uint256 argA, uint256 argB) public {
+    function testExecuteBatch(address bundler, uint256 argA, uint256 argB) public {
+        vm.assume(bundler.code.length == 0);
+        vm.startPrank(bundler, bundler);
+
         // Create the mode for batch execution
         Mode mode = ERC7579Utils.CALLTYPE_BATCH.encodeMode(
             ERC7579Utils.EXECTYPE_DEFAULT,
@@ -98,7 +101,7 @@ contract AccountERC7702Test is Test {
         });
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(
             _signerPrivateKey,
-            IEntryPointExtra(address(ERC4337Utils.ENTRYPOINT_V08)).getUserOpHash(ops[0])
+            IEntryPointExtra(address(ERC4337Utils.ENTRYPOINT_V09)).getUserOpHash(ops[0])
         );
         ops[0].signature = abi.encodePacked(r, s, v);
 

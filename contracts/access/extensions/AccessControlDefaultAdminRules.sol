@@ -315,7 +315,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     /**
      * @dev Setter of the tuple for pending admin and its schedule.
      *
-     * May emit a DefaultAdminTransferCanceled event.
+     * May emit a {DefaultAdminTransferCanceled} event.
      */
     function _setPendingDefaultAdmin(address newAdmin, uint48 newSchedule) private {
         (, uint48 oldSchedule) = pendingDefaultAdmin();
@@ -333,7 +333,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     /**
      * @dev Setter of the tuple for pending delay and its schedule.
      *
-     * May emit a DefaultAdminDelayChangeCanceled event.
+     * May emit a {DefaultAdminDelayChangeCanceled} event.
      */
     function _setPendingDelay(uint48 newDelay, uint48 newSchedule) private {
         uint48 oldSchedule = _pendingDelaySchedule;

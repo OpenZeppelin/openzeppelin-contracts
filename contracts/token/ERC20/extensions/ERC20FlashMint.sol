@@ -38,12 +38,13 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
 
     /**
      * @dev Returns the maximum amount of tokens available for loan.
+     *
+     * NOTE: This function will not automatically detect any supply cap
+     * added by other extensions, such as {ERC20Capped}. If necessary,
+     * override this function to take a supply cap into account.
+     *
      * @param token The address of the token that is requested.
      * @return The amount of token that can be loaned.
-     *
-     * NOTE: This function does not consider any form of supply cap, so in case
-     * it's used in a token with a cap like {ERC20Capped}, make sure to override this
-     * function to integrate the cap instead of `type(uint256).max`.
      */
     function maxFlashLoan(address token) public view virtual returns (uint256) {
         return token == address(this) ? type(uint256).max - totalSupply() : 0;
@@ -68,14 +69,9 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
      * @dev Returns the fee applied when doing flash loans. By default this
      * implementation has 0 fees. This function can be overloaded to make
      * the flash loan mechanism deflationary.
-     * @param token The token to be flash loaned.
-     * @param value The amount of tokens to be loaned.
      * @return The fees applied to the corresponding flash loan.
      */
-    function _flashFee(address token, uint256 value) internal view virtual returns (uint256) {
-        // silence warning about unused variable without the addition of bytecode.
-        token;
-        value;
+    function _flashFee(address /*token*/, uint256 /*value*/) internal view virtual returns (uint256) {
         return 0;
     }
 
