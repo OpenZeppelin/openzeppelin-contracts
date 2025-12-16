@@ -104,7 +104,6 @@ module.exports = {
       allowUnlimitedContractSize: true,
       initialBaseFeePerGas: argv.coverage ? 0 : undefined,
       enableRip7212: true,
-      blockGasLimit: 16_000_000,
     },
   },
   exposed: {

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.5.0) (token/ERC1155/extensions/ERC1155URIStorage.sol)
 
-pragma solidity >0.8.30;
+pragma solidity ^0.8.31;
 
 import {ERC1155} from "../ERC1155.sol";
 

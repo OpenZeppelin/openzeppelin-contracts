@@ -27,7 +27,7 @@ abstract contract ERC20Wrapper is ERC20 {
     error ERC20InvalidUnderlying(address token);
 
     constructor(IERC20 underlyingToken) {
-        if (underlyingToken == this) {
+        if (address(underlyingToken) == address(this)) {
             revert ERC20InvalidUnderlying(address(this));
         }
         _underlying = underlyingToken;

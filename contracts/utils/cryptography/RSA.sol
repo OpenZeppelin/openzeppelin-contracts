@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.1.0) (utils/cryptography/RSA.sol)
 
-pragma solidity >0.8.30;
+pragma solidity ^0.8.31;
 
 import {Math} from "../math/Math.sol";
 
