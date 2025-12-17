@@ -141,7 +141,7 @@ library ERC4337Utils {
         (address aggregator_, uint48 validAfter, uint48 validUntil, ValidationRange range) = parseValidationData(
             validationData
         );
-        uint256 current = range == ValidationRange.TIMESTAMP ? block.timestamp : block.number;
+        uint256 current = Math.ternary(range == ValidationRange.TIMESTAMP, block.timestamp, block.number);
         return (aggregator_, current < validAfter || validUntil < current);
     }
 
