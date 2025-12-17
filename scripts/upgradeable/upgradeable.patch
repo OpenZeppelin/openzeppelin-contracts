@@ -173,7 +173,7 @@ index c156fa1cc..895e39342 100644
       * @dev Prevents a contract from calling itself, directly or indirectly.
       * Calling a `nonReentrant` function from another `nonReentrant`
 diff --git a/contracts/utils/cryptography/EIP712.sol b/contracts/utils/cryptography/EIP712.sol
-index 2bc45a4b2..08fb3b489 100644
+index 2bc45a4b2..826a7059a 100644
 --- a/contracts/utils/cryptography/EIP712.sol
 +++ b/contracts/utils/cryptography/EIP712.sol
 @@ -4,7 +4,6 @@
@@ -222,7 +222,7 @@ index 2bc45a4b2..08fb3b489 100644
  
      /**
       * @dev Initializes the domain separator and parameter caches.
-@@ -66,29 +50,23 @@ abstract contract EIP712 is IERC5267 {
+@@ -66,29 +50,19 @@ abstract contract EIP712 is IERC5267 {
       * contract upgrade].
       */
      constructor(string memory name, string memory version) {
@@ -236,10 +236,6 @@ index 2bc45a4b2..08fb3b489 100644
 -        _cachedThis = address(this);
 +        _name = name;
 +        _version = version;
-+
-+        // Reset prior values in storage if upgrading
-+        _hashedName = 0;
-+        _hashedVersion = 0;
      }
  
      /**
@@ -260,18 +256,7 @@ index 2bc45a4b2..08fb3b489 100644
      }
  
      /**
-@@ -125,6 +103,10 @@ abstract contract EIP712 is IERC5267 {
-             uint256[] memory extensions
-         )
-     {
-+        // If the hashed name and version in storage are non-zero, the contract hasn't been properly initialized
-+        // and the EIP712 domain is not reliable, as it will be missing name and version.
-+        require(_hashedName == 0 && _hashedVersion == 0, "EIP712: Uninitialized");
-+
-         return (
-             hex"0f", // 01111
-             _EIP712Name(),
-@@ -139,22 +121,62 @@ abstract contract EIP712 is IERC5267 {
+@@ -139,22 +113,38 @@ abstract contract EIP712 is IERC5267 {
      /**
       * @dev The name parameter for the EIP712 domain.
       *
@@ -294,10 +279,7 @@ index 2bc45a4b2..08fb3b489 100644
 -     * It only reads from storage if necessary (in case the value is too large to fit in a ShortString).
 +     * NOTE: This function reads from storage by default, but can be redefined to return a constant value if gas costs
 +     * are a concern.
-      */
--    // solhint-disable-next-line func-name-mixedcase
--    function _EIP712Version() internal view returns (string memory) {
--        return _version.toStringWithFallback(_versionFallback);
++     */
 +    function _EIP712Version() internal view virtual returns (string memory) {
 +        return _version;
 +    }
@@ -308,40 +290,19 @@ index 2bc45a4b2..08fb3b489 100644
 +     * NOTE: In previous versions this function was virtual. In this version you should override `_EIP712Name` instead.
 +     */
 +    function _EIP712NameHash() internal view returns (bytes32) {
-+        string memory name = _EIP712Name();
-+        if (bytes(name).length > 0) {
-+            return keccak256(bytes(name));
-+        } else {
-+            // If the name is empty, the contract may have been upgraded without initializing the new storage.
-+            // We return the name hash in storage if non-zero, otherwise we assume the name is empty by design.
-+            bytes32 hashedName = _hashedName;
-+            if (hashedName != 0) {
-+                return hashedName;
-+            } else {
-+                return keccak256("");
-+            }
-+        }
++        return keccak256(bytes(_EIP712Name()));
 +    }
 +
 +    /**
 +     * @dev The hash of the version parameter for the EIP712 domain.
 +     *
 +     * NOTE: In previous versions this function was virtual. In this version you should override `_EIP712Version` instead.
-+     */
+      */
+-    // solhint-disable-next-line func-name-mixedcase
+-    function _EIP712Version() internal view returns (string memory) {
+-        return _version.toStringWithFallback(_versionFallback);
 +    function _EIP712VersionHash() internal view returns (bytes32) {
-+        string memory version = _EIP712Version();
-+        if (bytes(version).length > 0) {
-+            return keccak256(bytes(version));
-+        } else {
-+            // If the version is empty, the contract may have been upgraded without initializing the new storage.
-+            // We return the version hash in storage if non-zero, otherwise we assume the version is empty by design.
-+            bytes32 hashedVersion = _hashedVersion;
-+            if (hashedVersion != 0) {
-+                return hashedVersion;
-+            } else {
-+                return keccak256("");
-+            }
-+        }
++        return keccak256(bytes(_EIP712Version()));
      }
  }
 diff --git a/package.json b/package.json
