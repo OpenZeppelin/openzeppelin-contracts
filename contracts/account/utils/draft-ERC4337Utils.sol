@@ -125,13 +125,15 @@ library ERC4337Utils {
             validationData2
         );
 
-        if (range1 != range2) return packValidationData(false, 0, 0, range1);
-
-        bool success = aggregator1 == address(uint160(SIG_VALIDATION_SUCCESS)) &&
-            aggregator2 == address(uint160(SIG_VALIDATION_SUCCESS));
-        uint48 validAfter = uint48(Math.max(validAfter1, validAfter2));
-        uint48 validUntil = uint48(Math.min(validUntil1, validUntil2));
-        return packValidationData(success, validAfter, validUntil, range1);
+        if (range1 == range2) {
+            bool success = aggregator1 == address(uint160(SIG_VALIDATION_SUCCESS)) &&
+                aggregator2 == address(uint160(SIG_VALIDATION_SUCCESS));
+            uint48 validAfter = uint48(Math.max(validAfter1, validAfter2));
+            uint48 validUntil = uint48(Math.min(validUntil1, validUntil2));
+            return packValidationData(success, validAfter, validUntil, range1);
+        } else {
+            return SIG_VALIDATION_FAILED;
+        }
     }
 
     /// @dev Returns the aggregator of the `validationData` and whether it is out of time range.
