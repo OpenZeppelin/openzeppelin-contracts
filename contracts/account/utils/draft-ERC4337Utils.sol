@@ -7,7 +7,6 @@ import {IEntryPoint, PackedUserOperation} from "../../interfaces/draft-IERC4337.
 import {Math} from "../../utils/math/Math.sol";
 import {Calldata} from "../../utils/Calldata.sol";
 import {Packing} from "../../utils/Packing.sol";
-import {SafeCast} from "../../utils/math/SafeCast.sol";
 
 /// @dev This is available on all entrypoint since v0.4.0, but is not formally part of the ERC.
 interface IEntryPointExtra {
@@ -21,7 +20,6 @@ interface IEntryPointExtra {
  */
 library ERC4337Utils {
     using Packing for *;
-    using SafeCast for bool;
 
     /// @dev Address of the entrypoint v0.7.0
     IEntryPoint internal constant ENTRYPOINT_V07 = IEntryPoint(0x0000000071727De22E5E9d8BAf0edAc6f37da032);
