@@ -5,19 +5,16 @@ on:
 
 env:
   MAIN_REPO: OpenZeppelin/openzeppelin-contracts
-  UPGRADEABLE_REPO: OpenZeppelin/openzeppelin-contracts-upgradeable
 
 jobs:
   state:
-    if: ${{ github.repository == 'OpenZeppelin/openzeppelin-contracts' }} # Only run on the main repo
+    if: ${{ github.repository == 'OpenZeppelin/openzeppelin-contracts-upgradeable' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-        with:
-          repository: ${{ env.UPGRADEABLE_REPO }}
-          ref: ${{ github.ref }}
       - uses: actions/checkout@v6
         with:
+          repository: ${{ env.MAIN_REPO }}
           ref: ${{ github.ref }}
           path: lib/openzeppelin-contracts
       - name: Set up environment
@@ -46,11 +43,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+      - uses: actions/checkout@v6 # Note: added
         with:
-          repository: ${{ env.UPGRADEABLE_REPO }}
-          ref: ${{ github.ref }}
-      - uses: actions/checkout@v6
-        with:
+          repository: ${{ env.MAIN_REPO }}
           ref: ${{ github.ref }}
           path: lib/openzeppelin-contracts
       - name: Set up environment
