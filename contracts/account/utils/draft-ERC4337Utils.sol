@@ -37,7 +37,7 @@ library ERC4337Utils {
     uint256 internal constant SIG_VALIDATION_FAILED = 1;
 
     /// @dev Magic value used in EntryPoint v0.9+ to detect the presence of a paymaster signature in `paymasterAndData`.
-    bytes8 internal constant PAYMASTER_SIG_MAGIC = 0x22e325a297439656;
+    bytes8 internal constant PAYMASTER_SIG_MAGIC = 0x22e325a297439656; // keccak256("PaymasterSignature")[:8]
 
     /// @dev Highest bit set to 1 in a 6-bytes field.
     uint48 internal constant BLOCK_RANGE_MASK = 0x800000000000;
@@ -48,25 +48,30 @@ library ERC4337Utils {
         BLOCK
     }
 
-    /// @dev Parses the validation data into its components and the validity range. See {packValidationData}.
+    /**
+     * @dev Parses the validation data into its components and the validity range. See {packValidationData}.
+     * Strips away the highest bit flag from the `validAfter` and `validUntil` fields.
+     */
     function parseValidationData(
         uint256 validationData
     ) internal pure returns (address aggregator, uint48 validAfter, uint48 validUntil, ValidationRange range) {
         validAfter = uint48(bytes32(validationData).extract_32_6(0));
         validUntil = uint48(bytes32(validationData).extract_32_6(6));
         aggregator = address(bytes32(validationData).extract_32_20(12));
-        range = ValidationRange.TIMESTAMP;
+        range = ((validAfter & validUntil & BLOCK_RANGE_MASK) == 0) ? ValidationRange.TIMESTAMP : ValidationRange.BLOCK;
 
-        if (validAfter >= BLOCK_RANGE_MASK && validUntil >= BLOCK_RANGE_MASK) {
-            validAfter &= ~BLOCK_RANGE_MASK;
-            validUntil &= ~BLOCK_RANGE_MASK;
-            range = ValidationRange.BLOCK;
-        }
+        validAfter &= ~BLOCK_RANGE_MASK;
+        validUntil &= ~BLOCK_RANGE_MASK;
 
         if (validUntil == 0) validUntil = type(uint48).max & ~BLOCK_RANGE_MASK;
     }
 
-    /// @dev Packs the validation data into a single uint256. See {parseValidationData}.
+    /**
+     * @dev Packs the validation data into a single uint256. See {parseValidationData}.
+     *
+     * Returns `SIG_VALIDATION_FAILED` if the validity is timestamp but the highest bit flag
+     * of both `validAfter` and `validUntil` is set.
+     */
     function packValidationData(
         address aggregator,
         uint48 validAfter,
@@ -82,7 +87,13 @@ library ERC4337Utils {
         uint48 validUntil,
         ValidationRange range
     ) internal pure returns (uint256) {
-        if (range == ValidationRange.BLOCK) {
+        if (range == ValidationRange.TIMESTAMP) {
+            if ((validAfter & validUntil & BLOCK_RANGE_MASK) != 0) {
+                return SIG_VALIDATION_FAILED;
+            }
+            validAfter &= ~BLOCK_RANGE_MASK;
+            validUntil &= ~BLOCK_RANGE_MASK;
+        } else if (range == ValidationRange.BLOCK) {
             validAfter |= BLOCK_RANGE_MASK;
             validUntil |= BLOCK_RANGE_MASK;
         }
@@ -116,7 +127,7 @@ library ERC4337Utils {
      * The `aggregator` is set to {SIG_VALIDATION_SUCCESS} if both are successful, while
      * the `validAfter` is the maximum and the `validUntil` is the minimum of both.
      *
-     * NOTE: Returns {packValidationData} with arguments `(false, 0, 0, range1)` if the validation ranges differ.
+     * NOTE: Returns `SIG_VALIDATION_FAILED` if the validation ranges differ.
      */
     function combineValidationData(uint256 validationData1, uint256 validationData2) internal pure returns (uint256) {
         (address aggregator1, uint48 validAfter1, uint48 validUntil1, ValidationRange range1) = parseValidationData(
@@ -143,7 +154,7 @@ library ERC4337Utils {
             validationData
         );
         uint256 current = Math.ternary(range == ValidationRange.TIMESTAMP, block.timestamp, block.number);
-        return (aggregator_, current < validAfter || validUntil < current);
+        return (aggregator_, current <= validAfter || validUntil < current);
     }
 
     /// @dev Get the hash of a user operation for a given entrypoint

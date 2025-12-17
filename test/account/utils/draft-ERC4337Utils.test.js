@@ -52,6 +52,20 @@ describe('ERC4337Utils', function () {
       ]);
     });
 
+    it('strips away the highest bit flag from the `validAfter` and `validUntil` fields', async function () {
+      const authorizer = this.authorizer;
+      const validUntil = 0x12345678n | 0x800000000000n;
+      const validAfter = 0x23456789n | 0x800000000000n;
+      const validationData = packValidationData(validAfter, validUntil, authorizer, ValidationRange.Block);
+
+      await expect(this.utils.$parseValidationData(validationData)).to.eventually.deep.equal([
+        authorizer.address,
+        validAfter & ~0x800000000000n,
+        validUntil & ~0x800000000000n,
+        ValidationRange.Block,
+      ]);
+    });
+
     it('parses the validation data (block number)', async function () {
       const authorizer = this.authorizer;
       const validUntil = 0x12345678n;
@@ -194,6 +208,23 @@ describe('ERC4337Utils', function () {
           ethers.Typed.uint8(ValidationRange.Block),
         ),
       ).to.eventually.equal(validationData);
+    });
+
+    it('returns SIG_VALIDATION_FAILED if the validity is timestamp but the highest bit flag of both `validAfter` and `validUntil` is set', async function () {
+      const validUntil = 0x12345678n | 0x800000000000n;
+      const validAfter = 0x23456789n | 0x800000000000n;
+
+      await expect(
+        this.utils.$packValidationData(ethers.Typed.address(this.authorizer), validAfter, validUntil),
+      ).to.eventually.equal(this.SIG_VALIDATION_FAILED);
+      await expect(
+        this.utils.$packValidationData(
+          ethers.Typed.address(this.authorizer),
+          validAfter,
+          validUntil,
+          ethers.Typed.uint8(ValidationRange.Timestamp),
+        ),
+      ).to.eventually.equal(this.SIG_VALIDATION_FAILED);
     });
 
     it('packing reproduced canonical values', async function () {
@@ -365,6 +396,16 @@ describe('ERC4337Utils', function () {
       const validAfter = MAX_UINT48;
       const validUntil = MAX_UINT48;
       const validationData = packValidationData(validAfter, validUntil, aggregator, ValidationRange.Block);
+
+      await expect(this.utils.$getValidationData(validationData)).to.eventually.deep.equal([aggregator.address, true]);
+    });
+
+    it('returns the validation data with invalid validity range (current == validAfter)', async function () {
+      const aggregator = this.authorizer;
+      const currentTimestamp = await ethers.provider.getBlock('latest').then(block => BigInt(block.timestamp));
+      const validAfter = currentTimestamp;
+      const validUntil = currentTimestamp + 100n;
+      const validationData = packValidationData(validAfter, validUntil, aggregator);
 
       await expect(this.utils.$getValidationData(validationData)).to.eventually.deep.equal([aggregator.address, true]);
     });
