@@ -2,7 +2,6 @@
 
 set -euo pipefail
 
-echo "release_commit=$(git log -1 --pretty=%H)" >> "$GITHUB_OUTPUT"
 if ! git log -1 --pretty=%B | grep -q "Transpile ${REFERENCE_COMMIT}"; then
   echo "Expected 'Transpile ${REFERENCE_COMMIT}' but found '$(git log -1 --pretty=%B)'"
   exit 1
