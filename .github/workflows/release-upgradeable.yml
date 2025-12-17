@@ -11,7 +11,7 @@ jobs:
       contents: read
     runs-on: ubuntu-latest
     env:
-      VANILLA_REPO: OpenZeppelin/openzeppelin-contracts
+      REFERENCE_REPO: OpenZeppelin/openzeppelin-contracts
       UPGRADEABLE_REPO: james-toussaint/openzeppelin-contracts-upgradeable # TODO: Update repo before merging
     steps:
       - uses: actions/checkout@v5
@@ -22,29 +22,29 @@ jobs:
           ref: ${{ github.ref }}
       - uses: actions/checkout@v5
         with:
-          repository: ${{ env.VANILLA_REPO }}
+          repository: ${{ env.REFERENCE_REPO }}
           ref: ${{ github.ref }}
-          path: vanilla
-      - id: vanilla
-        name: Get vanilla commit
-        run: cd vanilla && echo "commit=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+          path: reference
+      - name: Get reference commit
+        id: get-reference-commit
+        run: cd reference && echo "commit=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
       - uses: actions/checkout@v5 # TODO: Remove this before merging (used to get scripts added in this PR)
         with:
-          path: vanilla
+          path: reference
       - name: Set up environment
-        uses: ./vanilla/.github/actions/setup
-      - id: check-upgradeable
-        name: Check upgradeable
-        run: bash vanilla/scripts/release/workflow/check-upgradeable.sh
+        uses: ./reference/.github/actions/setup
+      - name: Check upgradeable
+        id: check-upgradeable
+        run: bash reference/scripts/release/workflow/check-upgradeable.sh
         env:
-          VANILLA_COMMIT: ${{ steps.vanilla.outputs.commit }}
-      - id: publish
-        name: Publish
-        run: bash vanilla/scripts/release/workflow/publish-upgradeable.sh
+          REFERENCE_COMMIT: ${{ steps.get-reference-commit.outputs.commit }}
+      - name: Publish upgradeable contracts
+        id: publish
+        run: bash reference/scripts/release/workflow/publish-upgradeable.sh
         env:
           NPM_TAG: ${{ steps.check-upgradeable.outputs.npm_tag }}
       - name: Create Github Release Note
-        run: bash vanilla/scripts/release/workflow/github-release-upgradeable.sh
+        run: bash reference/scripts/release/workflow/github-release-upgradeable.sh
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN_UPGRADEABLE }}
           GIT_TAG: ${{ steps.check-upgradeable.outputs.git_tag }}
