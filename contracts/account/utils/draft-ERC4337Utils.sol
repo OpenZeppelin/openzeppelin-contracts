@@ -229,9 +229,9 @@ library ERC4337Utils {
         return
             self.paymasterAndData.length < Math.ternary(hasSignature, 62, 52)
                 ? Calldata.emptyBytes()
-                : hasSignature
-                    ? self.paymasterAndData[52:self.paymasterAndData.length - _paymasterSignatureSize(self) - 2 - 8]
-                    : self.paymasterAndData[52:];
+                : self.paymasterAndData[
+                    52:self.paymasterAndData.length - Math.ternary(hasSignature, _paymasterSignatureSize(self) + 10, 0)
+                ];
     }
 
     /**
