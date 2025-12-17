@@ -11,7 +11,7 @@ fi
 VERSION="$(jq -r .version contracts/package.json)"
 if [[ "${VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
   PRERELEASE="false"
-elif [[ "${VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+-rc.[0-9]+$ ]]; then
+elif [[ "${VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+-rc\.[0-9]+$ ]]; then
   PRERELEASE="true"
 else
   echo "Invalid version"
