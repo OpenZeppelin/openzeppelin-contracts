@@ -45,8 +45,8 @@ function shouldBehaveLikeAccountERC7579({ withHooks = false } = {}) {
       it('should return the account ID', async function () {
         await expect(this.mock.accountId()).to.eventually.equal(
           withHooks
-            ? '@openzeppelin/community-contracts.AccountERC7579Hooked.v0.0.0'
-            : '@openzeppelin/community-contracts.AccountERC7579.v0.0.0',
+            ? '@openzeppelin/contracts.AccountERC7579Hooked.v1.0.0'
+            : '@openzeppelin/contracts.AccountERC7579.v1.0.0',
         );
       });
     });
