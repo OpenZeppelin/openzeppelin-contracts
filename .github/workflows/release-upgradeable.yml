@@ -4,7 +4,6 @@ on:
   workflow_dispatch: {}
 
 env:
-  MAIN_REPO: OpenZeppelin/openzeppelin-contracts
   UPGRADEABLE_REPO: OpenZeppelin/openzeppelin-contracts-upgradeable
 
 jobs:
@@ -80,7 +79,8 @@ jobs:
         env:
           PRERELEASE: ${{ needs.state.outputs.is_prerelease }}
         with:
-          script: await require('./scripts/release/workflow/github-release.js')({ github, context }, '${{ env.UPGRADEABLE_REPO }}')
+          github-token: ${{ secrets.GH_TOKEN_UPGRADEABLE }}
+          script: await require('./lib/openzeppelin-contracts/scripts/release/workflow/github-release.js')({ github, context }, '${{ env.UPGRADEABLE_REPO }}')
     outputs:
       tarball_name: ${{ steps.pack.outputs.tarball_name }}
 
