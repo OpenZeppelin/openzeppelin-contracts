@@ -74,7 +74,7 @@ describe('ERC4337Utils', function () {
       await expect(this.utils.$parseValidationData(validationData)).to.eventually.deep.equal([
         authorizer.address,
         validAfter,
-        MAX_UINT48,
+        MAX_UINT48 & ~0x800000000000n,
         ValidationRange.Timestamp,
       ]);
     });
@@ -87,7 +87,7 @@ describe('ERC4337Utils', function () {
       await expect(this.utils.$parseValidationData(validationData)).to.eventually.deep.equal([
         authorizer.address,
         validAfter,
-        MAX_UINT48,
+        MAX_UINT48 & ~0x800000000000n,
         ValidationRange.Block,
       ]);
     });
@@ -96,14 +96,14 @@ describe('ERC4337Utils', function () {
       await expect(this.utils.$parseValidationData(this.SIG_VALIDATION_SUCCESS)).to.eventually.deep.equal([
         ethers.ZeroAddress,
         0n,
-        MAX_UINT48,
+        MAX_UINT48 & ~0x800000000000n,
         ValidationRange.Timestamp,
       ]);
 
       await expect(this.utils.$parseValidationData(this.SIG_VALIDATION_FAILED)).to.eventually.deep.equal([
         ADDRESS_ONE,
         0n,
-        MAX_UINT48,
+        MAX_UINT48 & ~0x800000000000n,
         ValidationRange.Timestamp,
       ]);
     });

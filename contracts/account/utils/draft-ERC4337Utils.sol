@@ -63,7 +63,7 @@ library ERC4337Utils {
             range = ValidationRange.BLOCK;
         }
 
-        if (validUntil == 0) validUntil = type(uint48).max;
+        if (validUntil == 0) validUntil = type(uint48).max & ~BLOCK_RANGE_MASK;
     }
 
     /// @dev Packs the validation data into a single uint256. See {parseValidationData}.
