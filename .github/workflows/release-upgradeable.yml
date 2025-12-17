@@ -8,6 +8,9 @@ env:
 
 jobs:
   state:
+    name: Check state
+    permissions:
+      pull-requests: read
     if: ${{ github.repository == 'OpenZeppelin/openzeppelin-contracts-upgradeable' }}
     runs-on: ubuntu-latest
     steps:
@@ -36,6 +39,8 @@ jobs:
   # copied from release-cycle.yml
   publish:
     needs: state
+    name: Publish to npm
+    environment: npm
     permissions:
       contents: write
       id-token: write
