@@ -1,7 +1,9 @@
 const { ethers, config, predeploy } = require('hardhat');
+const { ValidationRange } = require('./enums');
 
 const SIG_VALIDATION_SUCCESS = '0x0000000000000000000000000000000000000000';
 const SIG_VALIDATION_FAILURE = '0x0000000000000000000000000000000000000001';
+const PAYMASTER_SIG_MAGIC = '0x22e325a297439656';
 
 function getAddress(account) {
   return account.target ?? account.address ?? account;
@@ -11,12 +13,12 @@ function pack(left, right) {
   return ethers.solidityPacked(['uint128', 'uint128'], [left, right]);
 }
 
-function packValidationData(validAfter, validUntil, authorizer) {
+function packValidationData(validAfter, validUntil, authorizer, range = ValidationRange.Timestamp) {
   return ethers.solidityPacked(
     ['uint48', 'uint48', 'address'],
     [
-      validAfter,
-      validUntil,
+      range > ValidationRange.Timestamp ? BigInt(validAfter) | 0x800000000000n : validAfter,
+      range > ValidationRange.Timestamp ? BigInt(validUntil) | 0x800000000000n : validUntil,
       typeof authorizer == 'boolean'
         ? authorizer
           ? SIG_VALIDATION_SUCCESS
@@ -30,11 +32,26 @@ function packInitCode(factory, factoryData) {
   return ethers.solidityPacked(['address', 'bytes'], [getAddress(factory), factoryData]);
 }
 
-function packPaymasterAndData(paymaster, paymasterVerificationGasLimit, paymasterPostOpGasLimit, paymasterData) {
-  return ethers.solidityPacked(
+function packPaymasterAndData(
+  paymaster,
+  paymasterVerificationGasLimit,
+  paymasterPostOpGasLimit,
+  paymasterData,
+  signature = undefined,
+) {
+  const result = ethers.solidityPacked(
     ['address', 'uint128', 'uint128', 'bytes'],
-    [getAddress(paymaster), paymasterVerificationGasLimit, paymasterPostOpGasLimit, paymasterData],
+    [getAddress(paymaster), BigInt(paymasterVerificationGasLimit), BigInt(paymasterPostOpGasLimit), paymasterData],
   );
+  const hexSignature = signature ? ethers.toBeHex(signature) : '0x';
+  if (ethers.dataLength(hexSignature) == 0) return result;
+  return ethers.concat([
+    result,
+    ethers.solidityPacked(
+      ['bytes', 'uint16', 'bytes8'],
+      [hexSignature, BigInt(ethers.dataLength(hexSignature)), PAYMASTER_SIG_MAGIC],
+    ),
+  ]);
 }
 
 /// Represent one user operation
@@ -54,6 +71,7 @@ class UserOperation {
     this.paymasterVerificationGasLimit = params.paymasterVerificationGasLimit ?? 0n;
     this.paymasterPostOpGasLimit = params.paymasterPostOpGasLimit ?? 0n;
     this.paymasterData = params.paymasterData ?? '0x';
+    this.paymasterSignature = params.paymasterSignature ?? undefined;
     this.signature = params.signature ?? '0x';
   }
 
@@ -72,6 +90,7 @@ class UserOperation {
             this.paymasterVerificationGasLimit,
             this.paymasterPostOpGasLimit,
             this.paymasterData,
+            this.paymasterSignature,
           )
         : '0x',
       signature: this.signature,
