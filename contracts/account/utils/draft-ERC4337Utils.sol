@@ -81,9 +81,9 @@ library ERC4337Utils {
         uint48 validUntil,
         ValidationRange range
     ) internal pure returns (uint256) {
-        if (range > ValidationRange.TIMESTAMP) {
-            validAfter = validAfter | 0x800000000000;
-            validUntil = validUntil | 0x800000000000;
+        if (range == ValidationRange.BLOCK) {
+            validAfter |= 0x800000000000;
+            validUntil |= 0x800000000000;
         }
         return uint256(bytes6(validAfter).pack_6_6(bytes6(validUntil)).pack_12_20(bytes20(aggregator)));
     }
