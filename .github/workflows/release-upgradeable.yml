@@ -31,7 +31,7 @@ jobs:
           echo "commit=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
       - name: Check upgradeable
         id: check-upgradeable
-        run: bash scripts/release/workflow/check-upgradeable.sh
+        run: bash lib/openzeppelin/scripts/release/workflow/check-upgradeable.sh # TODO: remove path prefix when this is merged and the change are transpiled
         env:
           REFERENCE_COMMIT: ${{ steps.get-reference-commit.outputs.commit }}
     outputs:
@@ -80,7 +80,7 @@ jobs:
           PRERELEASE: ${{ needs.state.outputs.is_prerelease }}
         with:
           github-token: ${{ secrets.GH_TOKEN_UPGRADEABLE }}
-          script: await require('./lib/openzeppelin-contracts/scripts/release/workflow/github-release.js')({ github, context }, '${{ env.UPGRADEABLE_REPO }}')
+          script: await require('./lib/openzeppelin-contracts/scripts/release/workflow/github-release.js')({ github, context }, '${{ env.UPGRADEABLE_REPO }}') # TODO: remove path prefix when this is merged and the change are transpiled
     outputs:
       tarball_name: ${{ steps.pack.outputs.tarball_name }}
 
