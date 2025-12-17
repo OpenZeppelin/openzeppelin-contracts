@@ -39,6 +39,9 @@ library ERC4337Utils {
     /// @dev Magic value used in EntryPoint v0.9+ to detect the presence of a paymaster signature in `paymasterAndData`.
     bytes8 internal constant PAYMASTER_SIG_MAGIC = 0x22e325a297439656;
 
+    /// @dev Highest bit set to 1 in a 6-bytes field.
+    uint48 internal constant BLOCK_RANGE_MASK = 0x800000000000;
+
     /// @dev Validity range of the validation data.
     enum ValidationRange {
         TIMESTAMP,
@@ -54,9 +57,9 @@ library ERC4337Utils {
         aggregator = address(bytes32(validationData).extract_32_20(12));
         range = ValidationRange.TIMESTAMP;
 
-        if (validAfter >= 0x800000000000 && validUntil >= 0x800000000000) {
-            validAfter = validAfter & 0x7FFFFFFFFFFF;
-            validUntil = validUntil & 0x7FFFFFFFFFFF;
+        if (validAfter >= BLOCK_RANGE_MASK && validUntil >= BLOCK_RANGE_MASK) {
+            validAfter &= ~BLOCK_RANGE_MASK;
+            validUntil &= ~BLOCK_RANGE_MASK;
             range = ValidationRange.BLOCK;
         }
 
@@ -80,8 +83,8 @@ library ERC4337Utils {
         ValidationRange range
     ) internal pure returns (uint256) {
         if (range == ValidationRange.BLOCK) {
-            validAfter |= 0x800000000000;
-            validUntil |= 0x800000000000;
+            validAfter |= BLOCK_RANGE_MASK;
+            validUntil |= BLOCK_RANGE_MASK;
         }
         return uint256(bytes6(validAfter).pack_6_6(bytes6(validUntil)).pack_12_20(bytes20(aggregator)));
     }
@@ -236,12 +239,14 @@ library ERC4337Utils {
      * Returns empty bytes if no paymaster signature is present.
      */
     function paymasterSignature(PackedUserOperation calldata self) internal pure returns (bytes calldata) {
-        if (bytes8(self.paymasterAndData[self.paymasterAndData.length - 8:]) != PAYMASTER_SIG_MAGIC)
-            return Calldata.emptyBytes();
+        if (
+            self.paymasterAndData.length < 10 ||
+            bytes8(self.paymasterAndData[self.paymasterAndData.length - 8:]) != PAYMASTER_SIG_MAGIC
+        ) return Calldata.emptyBytes();
 
         uint256 sigSize = _paymasterSignatureSize(self);
-        uint256 sigStart = self.paymasterAndData.length - sigSize - 2 - 8;
-        return self.paymasterAndData[sigStart:sigStart + sigSize];
+        uint256 sigEnd = self.paymasterAndData.length - 10;
+        return sigSize > sigEnd ? Calldata.emptyBytes() : self.paymasterAndData[sigEnd - sigSize:sigEnd];
     }
 
     /**

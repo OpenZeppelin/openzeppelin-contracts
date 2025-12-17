@@ -269,10 +269,10 @@ describe('ERC4337Utils', function () {
 
       // check symmetry
       await expect(this.utils.$combineValidationData(validationData1, validationData2)).to.eventually.equal(
-        packValidationData(0n, 0n, false, ValidationRange.Timestamp), // First validation range is used
+        this.SIG_VALIDATION_FAILED,
       );
       await expect(this.utils.$combineValidationData(validationData2, validationData1)).to.eventually.equal(
-        packValidationData(0n, 0n, false, ValidationRange.Block), // First validation range is used
+        this.SIG_VALIDATION_FAILED,
       );
     });
 
