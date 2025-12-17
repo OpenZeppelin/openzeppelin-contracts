@@ -573,6 +573,11 @@ describe('ERC4337Utils', function () {
       it('returns empty signature when magic is not present', async function () {
         await expect(this.utils.$paymasterSignature(this.userOp.packed)).to.eventually.equal('0x');
       });
+
+      it('returns empty signature when paymasterAndData length is less than 10', async function () {
+        this.userOp.paymasterAndData = '0x1234567890abcdef12'; // 9 bytes. Minimum is 10 bytes (minimum needed for magic + size)
+        await expect(this.utils.$paymasterSignature(this.userOp.packed)).to.eventually.equal('0x');
+      });
     });
   });
 });
