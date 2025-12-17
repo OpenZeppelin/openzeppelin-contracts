@@ -1,0 +1,92 @@
+name: Release Upgradeable
+
+on:
+  workflow_dispatch: {}
+
+env:
+  REFERENCE_REPO: OpenZeppelin/openzeppelin-contracts
+  UPGRADEABLE_REPO: OpenZeppelin/openzeppelin-contracts-upgradeable
+
+jobs:
+  state:
+    if: ${{ github.repository }} == $UPGRADEABLE_REPO
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6
+        with:
+          repository: ${{ env.REFERENCE_REPO }}
+          ref: ${{ github.ref }}
+          path: lib/openzeppelin-contracts
+      - name: Set up environment
+        uses: ./.github/actions/setup
+      - name: Get reference commit
+        id: get-reference-commit
+        run: |
+          cd lib/openzeppelin-contracts
+          echo "commit=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+      - name: Check upgradeable
+        id: check-upgradeable
+        run: bash scripts/release/workflow/check-upgradeable.sh
+        env:
+          REFERENCE_COMMIT: ${{ steps.get-reference-commit.outputs.commit }}
+    outputs:
+      publish: ${{ steps.check-upgradeable.outcome }}
+      is_prerelease: ${{ steps.check-upgradeable.outputs.is_prerelease }}
+
+  # copied from release-cycle.yml
+  publish:
+    needs: state
+    permissions:
+      contents: write
+      id-token: write
+    if: needs.state.outputs.publish == 'success' # Note: changed from 'true' to 'success' to support the way publish is computed
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6 # Note: added
+        with:
+          repository: ${{ env.REFERENCE_REPO }}
+          ref: ${{ github.ref }}
+          path: lib/openzeppelin-contracts
+      - name: Set up environment
+        uses: ./.github/actions/setup
+      - id: pack
+        name: Pack
+        run: bash scripts/release/workflow/pack.sh
+        env:
+          PRERELEASE: ${{ needs.state.outputs.is_prerelease }}
+      - name: Upload tarball artifact
+        uses: actions/upload-artifact@v5
+        with:
+          name: ${{ github.ref_name }}
+          path: ${{ steps.pack.outputs.tarball }}
+      - name: Publish
+        run: bash scripts/release/workflow/publish.sh
+        env:
+          TARBALL: ${{ steps.pack.outputs.tarball }}
+          TAG: ${{ steps.pack.outputs.tag }}
+      - name: Create Github Release
+        uses: actions/github-script@v8
+        env:
+          PRERELEASE: ${{ needs.state.outputs.is_prerelease }}
+        with:
+          script: await require('./scripts/release/workflow/github-release.js')({ github, context })
+    outputs:
+      tarball_name: ${{ steps.pack.outputs.tarball_name }}
+
+  integrity_check:
+    needs: publish
+    name: Tarball Integrity Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Download tarball artifact
+        id: artifact
+        uses: actions/download-artifact@v6
+        with:
+          name: ${{ github.ref_name }}
+      - name: Check integrity
+        run: bash scripts/release/workflow/integrity-check.sh
+        env:
+          TARBALL: ${{ steps.artifact.outputs.download-path }}/${{ needs.publish.outputs.tarball_name }}
