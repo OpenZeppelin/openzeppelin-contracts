@@ -1,6 +1,6 @@
 [profile.default]
-solc_version = '0.8.27'
-evm_version = 'prague'
+solc_version = '0.8.31'
+evm_version = 'osaka'
 optimizer = true
 optimizer_runs = 200
 src = 'contracts'
