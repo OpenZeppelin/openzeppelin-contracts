@@ -226,7 +226,7 @@ library ERC4337Utils {
         bool hasSignature
     ) internal pure returns (bytes calldata) {
         return
-            self.paymasterAndData.length < (52 + hasSignature.toUint() * 10)
+            self.paymasterAndData.length < Math.ternary(hasSignature, 62, 52)
                 ? Calldata.emptyBytes()
                 : hasSignature
                     ? self.paymasterAndData[52:self.paymasterAndData.length - _paymasterSignatureSize(self) - 2 - 8]
