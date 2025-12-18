@@ -123,7 +123,7 @@ library Checkpoints {
     /**
      * @dev Returns checkpoint at given position.
      */
-    function at(Trace256 storage self, uint32 pos) internal view returns (Checkpoint256 memory) {
+    function at(Trace256 storage self, uint256 pos) internal view returns (Checkpoint256 memory) {
         return self._checkpoints[pos];
     }
 
@@ -326,7 +326,7 @@ library Checkpoints {
     /**
      * @dev Returns checkpoint at given position.
      */
-    function at(Trace224 storage self, uint32 pos) internal view returns (Checkpoint224 memory) {
+    function at(Trace224 storage self, uint256 pos) internal view returns (Checkpoint224 memory) {
         return self._checkpoints[pos];
     }
 
@@ -529,7 +529,7 @@ library Checkpoints {
     /**
      * @dev Returns checkpoint at given position.
      */
-    function at(Trace208 storage self, uint32 pos) internal view returns (Checkpoint208 memory) {
+    function at(Trace208 storage self, uint256 pos) internal view returns (Checkpoint208 memory) {
         return self._checkpoints[pos];
     }
 
@@ -732,7 +732,7 @@ library Checkpoints {
     /**
      * @dev Returns checkpoint at given position.
      */
-    function at(Trace160 storage self, uint32 pos) internal view returns (Checkpoint160 memory) {
+    function at(Trace160 storage self, uint256 pos) internal view returns (Checkpoint160 memory) {
         return self._checkpoints[pos];
     }
 
