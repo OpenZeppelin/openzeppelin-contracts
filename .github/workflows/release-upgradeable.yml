@@ -66,11 +66,11 @@ jobs:
         with:
           name: ${{ github.ref_name }}
           path: ${{ steps.pack.outputs.tarball }}
-      # - name: Publish
-      #   run: bash scripts/release/workflow/publish.sh
-      #   env:
-      #     TARBALL: ${{ steps.pack.outputs.tarball }}
-      #     TAG: ${{ steps.pack.outputs.tag }}
+      - name: Publish
+        run: bash scripts/release/workflow/publish.sh
+        env:
+          TARBALL: ${{ steps.pack.outputs.tarball }}
+          TAG: ${{ steps.pack.outputs.tag }}
       - name: Create Github Release
         uses: actions/github-script@v8
         env:
