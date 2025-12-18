@@ -17,8 +17,8 @@ function packValidationData(validAfter, validUntil, authorizer, range = Validati
   return ethers.solidityPacked(
     ['uint48', 'uint48', 'address'],
     [
-      range > ValidationRange.Timestamp ? BigInt(validAfter) | 0x800000000000n : validAfter,
-      range > ValidationRange.Timestamp ? BigInt(validUntil) | 0x800000000000n : validUntil,
+      BigInt(validAfter) | (range << 47n),
+      BigInt(validUntil) | (range << 47n),
       typeof authorizer == 'boolean'
         ? authorizer
           ? SIG_VALIDATION_SUCCESS
@@ -39,18 +39,17 @@ function packPaymasterAndData(
   paymasterData,
   signature = undefined,
 ) {
-  const result = ethers.solidityPacked(
-    ['address', 'uint128', 'uint128', 'bytes'],
-    [getAddress(paymaster), BigInt(paymasterVerificationGasLimit), BigInt(paymasterPostOpGasLimit), paymasterData],
-  );
-  const hexSignature = signature ? ethers.toBeHex(signature) : '0x';
-  if (ethers.dataLength(hexSignature) == 0) return result;
   return ethers.concat([
-    result,
     ethers.solidityPacked(
-      ['bytes', 'uint16', 'bytes8'],
-      [hexSignature, BigInt(ethers.dataLength(hexSignature)), PAYMASTER_SIG_MAGIC],
+      ['address', 'uint128', 'uint128', 'bytes'],
+      [getAddress(paymaster), paymasterVerificationGasLimit, paymasterPostOpGasLimit, paymasterData],
     ),
+    signature === undefined
+      ? '0x'
+      : ethers.solidityPacked(
+          ['bytes', 'uint16', 'bytes8'],
+          [signature, ethers.dataLength(signature), PAYMASTER_SIG_MAGIC],
+        ),
   ]);
 }
 
