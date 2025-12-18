@@ -7,8 +7,6 @@ const { MAX_UINT48 } = require('../../helpers/constants');
 const { ValidationRange } = require('../../helpers/enums');
 const ADDRESS_ONE = '0x0000000000000000000000000000000000000001';
 
-const PAYMASTER_SIG_MAGIC = '0x22e325a297439656';
-
 const fixture = async () => {
   const [authorizer, sender, factory, paymaster] = await ethers.getSigners();
   const utils = await ethers.deployContract('$ERC4337Utils');
@@ -88,7 +86,7 @@ describe('ERC4337Utils', function () {
       await expect(this.utils.$parseValidationData(validationData)).to.eventually.deep.equal([
         authorizer.address,
         validAfter,
-        MAX_UINT48 & ~0x800000000000n,
+        0x7fffffffffffn,
         ValidationRange.Timestamp,
       ]);
     });
@@ -101,7 +99,7 @@ describe('ERC4337Utils', function () {
       await expect(this.utils.$parseValidationData(validationData)).to.eventually.deep.equal([
         authorizer.address,
         validAfter,
-        MAX_UINT48 & ~0x800000000000n,
+        0x7fffffffffffn,
         ValidationRange.Block,
       ]);
     });
@@ -110,14 +108,14 @@ describe('ERC4337Utils', function () {
       await expect(this.utils.$parseValidationData(this.SIG_VALIDATION_SUCCESS)).to.eventually.deep.equal([
         ethers.ZeroAddress,
         0n,
-        MAX_UINT48 & ~0x800000000000n,
+        0x7fffffffffffn,
         ValidationRange.Timestamp,
       ]);
 
       await expect(this.utils.$parseValidationData(this.SIG_VALIDATION_FAILED)).to.eventually.deep.equal([
         ADDRESS_ONE,
         0n,
-        MAX_UINT48 & ~0x800000000000n,
+        0x7fffffffffffn,
         ValidationRange.Timestamp,
       ]);
     });
@@ -525,41 +523,10 @@ describe('ERC4337Utils', function () {
         await expect(this.utils.$paymasterData(this.emptyUserOp.packed)).to.eventually.equal('0x');
       });
 
-      it('returns data with hasSignature = false', async function () {
-        await expect(this.utils.$paymasterData(this.userOp.packed, ethers.Typed.bool(false))).to.eventually.equal(
-          this.userOp.paymasterData,
-        );
-        await expect(this.utils.$paymasterData(this.emptyUserOp.packed, ethers.Typed.bool(false))).to.eventually.equal(
-          '0x',
-        );
-      });
-
-      it('returns data with hasSignature = true (no signature present, too short)', async function () {
-        const packed = this.userOp.packed;
-        packed.paymasterAndData = ethers.zeroPadBytes('0x', 61);
-        await expect(this.utils.$paymasterData(this.userOp.packed, ethers.Typed.bool(true))).to.eventually.equal('0x');
-      });
-
-      it('returns data with hasSignature = false (includes signature)', async function () {
+      it('returns data without signature', async function () {
         this.userOp.paymasterSignature =
           '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef12';
-        const sigSize = ethers.dataLength(ethers.toBeHex(this.userOp.paymasterSignature));
-        const fullData = ethers.solidityPacked(
-          ['bytes', 'bytes', 'uint16', 'bytes8'],
-          [this.userOp.paymasterData, this.userOp.paymasterSignature, BigInt(sigSize), PAYMASTER_SIG_MAGIC],
-        );
-        await expect(this.utils.$paymasterData(this.userOp.packed, ethers.Typed.bool(false))).to.eventually.equal(
-          fullData,
-        );
-      });
-
-      it('returns data with hasSignature = true (ignores signature)', async function () {
-        this.userOp.paymasterSignature =
-          '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef12';
-        // When hasSignature is true, it should exclude the signature portion
-        await expect(this.utils.$paymasterData(this.userOp.packed, ethers.Typed.bool(true))).to.eventually.equal(
-          this.userOp.paymasterData,
-        );
+        await expect(this.utils.$paymasterData(this.userOp.packed)).to.eventually.equal(this.userOp.paymasterData);
       });
 
       it('returns paymaster signature', async function () {

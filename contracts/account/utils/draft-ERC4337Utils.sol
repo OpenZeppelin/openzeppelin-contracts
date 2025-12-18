@@ -227,25 +227,18 @@ library ERC4337Utils {
         return self.paymasterAndData.length < 52 ? 0 : uint128(bytes16(self.paymasterAndData[36:52]));
     }
 
-    /// @dev Returns the fourth section of `paymasterAndData` from the {PackedUserOperation}.
-    function paymasterData(PackedUserOperation calldata self) internal pure returns (bytes calldata) {
-        return paymasterData(self, false);
-    }
-
     /**
      * @dev Returns the fourth section of `paymasterAndData` from the {PackedUserOperation}.
      * If a paymaster signature is present, it is excluded from the returned data.
      */
-    function paymasterData(
-        PackedUserOperation calldata self,
-        bool hasSignature
-    ) internal pure returns (bytes calldata) {
+    function paymasterData(PackedUserOperation calldata self) internal pure returns (bytes calldata) {
+        bool hasSignature = self.paymasterAndData.length > 9 &&
+            bytes8(self.paymasterAndData[self.paymasterAndData.length - 8:]) == PAYMASTER_SIG_MAGIC;
+        uint256 suffixLength = hasSignature ? _paymasterSignatureSize(self) + 10 : 0;
         return
-            self.paymasterAndData.length < Math.ternary(hasSignature, 62, 52)
+            self.paymasterAndData.length < 52 + suffixLength
                 ? Calldata.emptyBytes()
-                : self.paymasterAndData[
-                    52:self.paymasterAndData.length - Math.ternary(hasSignature, _paymasterSignatureSize(self) + 10, 0)
-                ];
+                : self.paymasterAndData[52:self.paymasterAndData.length - suffixLength];
     }
 
     /**
