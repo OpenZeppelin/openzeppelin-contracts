@@ -17,8 +17,8 @@ function packValidationData(validAfter, validUntil, authorizer, range = Validati
   return ethers.solidityPacked(
     ['uint48', 'uint48', 'address'],
     [
-      BigInt(validAfter) | (range == ValidationRange.Block ? 0x800000000000n : 0n),
-      BigInt(validUntil) | (range == ValidationRange.Block ? 0x800000000000n : 0n),
+      BigInt(validAfter) | (range << 47n),
+      BigInt(validUntil) | (range << 47n),
       typeof authorizer == 'boolean'
         ? authorizer
           ? SIG_VALIDATION_SUCCESS
