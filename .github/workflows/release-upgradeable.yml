@@ -3,20 +3,17 @@ name: Release Upgradeable
 on:
   workflow_dispatch: {}
 
-env:
-  UPGRADEABLE_REPO: OpenZeppelin/openzeppelin-contracts-upgradeable
-
 jobs:
   state:
     name: Check state
     permissions:
       pull-requests: read
-    if: ${{ github.repository == 'OpenZeppelin/openzeppelin-contracts' }}
+    if: ${{ !endsWith(github.repository, '-upgradeable') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
         with:
-          repository: ${{ env.UPGRADEABLE_REPO }}
+          repository: ${{ github.repository }}-upgradeable
           ref: ${{ github.ref }}
       - uses: actions/checkout@v6
         with:
@@ -31,7 +28,7 @@ jobs:
           echo "commit=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
       - name: Check upgradeable
         id: check-upgradeable
-        run: bash lib/openzeppelin/scripts/release/workflow/check-upgradeable.sh # TODO: remove path prefix when this is merged and the change are transpiled
+        run: bash scripts/release/workflow/check-upgradeable.sh
         env:
           REFERENCE_COMMIT: ${{ steps.get-reference-commit.outputs.commit }}
     outputs:
@@ -51,7 +48,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          repository: ${{ env.UPGRADEABLE_REPO }}
+          repository: ${{ github.repository }}-upgradeable
           ref: ${{ github.ref }}
       - uses: actions/checkout@v6
         with:
@@ -69,18 +66,20 @@ jobs:
         with:
           name: ${{ github.ref_name }}
           path: ${{ steps.pack.outputs.tarball }}
-      - name: Publish
-        run: bash scripts/release/workflow/publish.sh
-        env:
-          TARBALL: ${{ steps.pack.outputs.tarball }}
-          TAG: ${{ steps.pack.outputs.tag }}
+      # - name: Publish
+      #   run: bash scripts/release/workflow/publish.sh
+      #   env:
+      #     TARBALL: ${{ steps.pack.outputs.tarball }}
+      #     TAG: ${{ steps.pack.outputs.tag }}
       - name: Create Github Release
         uses: actions/github-script@v8
         env:
           PRERELEASE: ${{ needs.state.outputs.is_prerelease }}
+          TARGET_COMMIT: ${{ github.ref }}
+          REPO_SUFFIX: -upgradeable
         with:
           github-token: ${{ secrets.GH_TOKEN_UPGRADEABLE }}
-          script: await require('./lib/openzeppelin-contracts/scripts/release/workflow/github-release.js')({ github, context }, '${{ env.UPGRADEABLE_REPO }}') # TODO: remove path prefix when this is merged and the change are transpiled
+          script: await require('./scripts/release/workflow/github-release.js')({ github, context })
     outputs:
       tarball_name: ${{ steps.pack.outputs.tarball_name }}
 
@@ -90,6 +89,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          repository: ${{ github.repository }}-upgradeable
+          ref: ${{ github.ref }}
       - name: Download tarball artifact
         id: artifact
         uses: actions/download-artifact@v6
