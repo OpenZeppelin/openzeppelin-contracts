@@ -40,7 +40,10 @@ library ERC4337Utils {
     bytes8 internal constant PAYMASTER_SIG_MAGIC = 0x22e325a297439656; // keccak256("PaymasterSignature")[:8]
 
     /// @dev Highest bit set to 1 in a 6-bytes field.
-    uint48 internal constant BLOCK_RANGE_MASK = 0x800000000000;
+    uint48 internal constant BLOCK_RANGE_FLAG = 0x800000000000;
+
+    /// @dev Mask for the lower 47 bits of a 6-bytes field (equivalent to uint48(~BLOCK_RANGE_FLAG)).
+    uint48 internal constant BLOCK_RANGE_MASK = 0x7fffffffffff;
 
     /// @dev Validity range of the validation data.
     enum ValidationRange {
@@ -58,12 +61,12 @@ library ERC4337Utils {
         validAfter = uint48(bytes32(validationData).extract_32_6(0));
         validUntil = uint48(bytes32(validationData).extract_32_6(6));
         aggregator = address(bytes32(validationData).extract_32_20(12));
-        range = ((validAfter & validUntil & BLOCK_RANGE_MASK) == 0) ? ValidationRange.TIMESTAMP : ValidationRange.BLOCK;
+        range = ((validAfter & validUntil & BLOCK_RANGE_FLAG) == 0) ? ValidationRange.TIMESTAMP : ValidationRange.BLOCK;
 
-        validAfter &= ~BLOCK_RANGE_MASK;
-        validUntil &= ~BLOCK_RANGE_MASK;
+        validAfter &= BLOCK_RANGE_MASK;
+        validUntil &= BLOCK_RANGE_MASK;
 
-        if (validUntil == 0) validUntil = type(uint48).max & ~BLOCK_RANGE_MASK;
+        if (validUntil == 0) validUntil = BLOCK_RANGE_MASK;
     }
 
     /**
@@ -88,14 +91,14 @@ library ERC4337Utils {
         ValidationRange range
     ) internal pure returns (uint256) {
         if (range == ValidationRange.TIMESTAMP) {
-            if ((validAfter & validUntil & BLOCK_RANGE_MASK) != 0) {
+            if ((validAfter & validUntil & BLOCK_RANGE_FLAG) != 0) {
                 return SIG_VALIDATION_FAILED;
             }
-            validAfter &= ~BLOCK_RANGE_MASK;
-            validUntil &= ~BLOCK_RANGE_MASK;
+            validAfter &= BLOCK_RANGE_MASK;
+            validUntil &= BLOCK_RANGE_MASK;
         } else if (range == ValidationRange.BLOCK) {
-            validAfter |= BLOCK_RANGE_MASK;
-            validUntil |= BLOCK_RANGE_MASK;
+            validAfter |= BLOCK_RANGE_FLAG;
+            validUntil |= BLOCK_RANGE_FLAG;
         }
         return uint256(bytes6(validAfter).pack_6_6(bytes6(validUntil)).pack_12_20(bytes20(aggregator)));
     }
