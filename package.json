@@ -61,7 +61,7 @@
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.6",
     "@nomicfoundation/hardhat-ethers": "^3.0.9",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.13",
-    "@openzeppelin/docs-utils": "^0.1.5",
+    "@openzeppelin/docs-utils": "^0.1.6",
     "@openzeppelin/merkle-tree": "^1.0.7",
     "@openzeppelin/upgrade-safe-transpiler": "^0.4.1",
     "@openzeppelin/upgrades-core": "^1.20.6",
