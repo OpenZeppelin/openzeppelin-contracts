@@ -136,3 +136,5 @@ are useful to interact with third party contracts that implement them.
 {{IERC7802}}
 
 {{IERC7913SignatureVerifier}}
+
+{{IERC7246}}

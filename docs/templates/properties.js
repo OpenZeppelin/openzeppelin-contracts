@@ -20,15 +20,30 @@ module.exports.anchor = function anchor({ item, contract }) {
 module.exports.fullname = function fullname({ item }) {
   let res = '';
   res += item.name;
+
+  if(item.nodeType == "EventDefinition") {
+    console.log("EVENT DEF");
+  }
   if ('parameters' in item) {
     const signature = item.parameters.parameters.map(v => v.typeName.typeDescriptions.typeString).join(',');
     res += slug('(' + signature + ')');
   }
+   if(item.nodeType == "EventDefinition") {
+    console.log("EVENT DEF2");
+  }
   if (isNodeType('VariableDeclaration', item)) {
     res += '-' + slug(item.typeName.typeDescriptions.typeString);
   }
+   if(item.nodeType == "EventDefinition") {
+    console.log("EVENT DEF3");
+    console.log(res);
+  }
   if (res.charAt(res.length - 1) === '-') {
     return res.slice(0, -1);
+  }
+  if(item.nodeType == "EventDefinition") {
+    console.log("EVENT DEF4");
+    console.log(res);
   }
   return res;
 };
@@ -65,8 +80,8 @@ module.exports['has-internal-variables'] = function ({ item }) {
 
 module.exports.functions = function ({ item }) {
   return [
-    ...findAll('FunctionDefinition', item).filter(f => f.visibility !== 'private'),
-    ...findAll('VariableDeclaration', item).filter(f => f.visibility === 'public'),
+    ...[...findAll('FunctionDefinition', item)].filter(f => f.visibility !== 'private'),
+    ...[...findAll('VariableDeclaration', item)].filter(f => f.visibility === 'public'),
   ];
 };
 

@@ -152,7 +152,7 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
      * This internal function is equivalent to {transfer}, and can be used to
      * e.g. implement automatic token fees, slashing mechanisms, etc.
      *
-     * Emits a {Transfer} event.
+     * Emits a {Transfer-address-address-uint256} event.
      *
      * NOTE: This function is not virtual, {_update} should be overridden instead.
      */
@@ -171,7 +171,7 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
      * (or `to`) is the zero address. All customizations to transfers, mints, and burns should be done by overriding
      * this function.
      *
-     * Emits a {Transfer} event.
+     * Emits a {Transfer-address-address-uint256} event.
      */
     function _update(address from, address to, uint256 value) internal virtual {
         if (from == address(0)) {
