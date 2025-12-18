@@ -39,7 +39,7 @@ jobs:
   publish:
     needs: state
     name: Publish to npm
-    environment: npm
+    environment: push-upgradeable
     permissions:
       contents: write
       id-token: write
