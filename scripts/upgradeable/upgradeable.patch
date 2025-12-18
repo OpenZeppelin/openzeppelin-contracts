@@ -173,7 +173,7 @@ index c156fa1cc..895e39342 100644
       * @dev Prevents a contract from calling itself, directly or indirectly.
       * Calling a `nonReentrant` function from another `nonReentrant`
 diff --git a/contracts/utils/cryptography/EIP712.sol b/contracts/utils/cryptography/EIP712.sol
-index 2bc45a4b2..826a7059a 100644
+index 2bc45a4b2..a5aa41d21 100644
 --- a/contracts/utils/cryptography/EIP712.sol
 +++ b/contracts/utils/cryptography/EIP712.sol
 @@ -4,7 +4,6 @@
@@ -194,7 +194,7 @@ index 2bc45a4b2..826a7059a 100644
 - *
 - * @custom:oz-upgrades-unsafe-allow state-variable-immutable
 + * NOTE: The upgradeable version of this contract does not use an immutable cache and recomputes the domain separator
-+ * each time {_domainSeparatorV4} is called. That is cheaper than accessing a cached version in cold storage.
++ * each time {_domainSeparatorV4} is called. This is cheaper than accessing a cached version in cold storage.
   */
  abstract contract EIP712 is IERC5267 {
 -    using ShortStrings for *;
