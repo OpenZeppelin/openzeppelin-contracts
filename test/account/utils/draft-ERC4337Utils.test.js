@@ -1,10 +1,11 @@
 const { ethers, predeploy } = require('hardhat');
 const { expect } = require('chai');
-const { loadFixture, mineUpTo } = require('@nomicfoundation/hardhat-network-helpers');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { packValidationData, UserOperation } = require('../../helpers/erc4337');
 const { MAX_UINT48 } = require('../../helpers/constants');
+const { packValidationData, UserOperation } = require('../../helpers/erc4337');
 const { ValidationRange } = require('../../helpers/enums');
+const { clock, increaseTo } = require('../../helpers/time');
 const ADDRESS_ONE = '0x0000000000000000000000000000000000000001';
 
 const fixture = async () => {
@@ -365,71 +366,74 @@ describe('ERC4337Utils', function () {
   });
 
   describe('getValidationData', function () {
-    it('returns the validation data with valid validity range', async function () {
-      const aggregator = this.authorizer;
-      const validAfter = 0;
-      const validUntil = MAX_UINT48;
-      const validationData = packValidationData(validAfter, validUntil, aggregator);
+    for (const [name, range] of Object.entries({
+      timestamp: ValidationRange.Timestamp,
+      blocknumber: ValidationRange.Block,
+    })) {
+      describe(`using ${name}`, function () {
+        it('returns the validation data with valid validity range', async function () {
+          const aggregator = this.authorizer;
+          const validAfter = 0;
+          const validUntil = MAX_UINT48;
+          const validationData = packValidationData(validAfter, validUntil, aggregator, range);
 
-      await expect(this.utils.$getValidationData(validationData)).to.eventually.deep.equal([aggregator.address, false]);
-    });
+          await expect(this.utils.$getValidationData(validationData)).to.eventually.deep.equal([
+            aggregator.address,
+            false,
+          ]);
+        });
 
-    it('returns the validation data with valid validity range (block number)', async function () {
-      const aggregator = this.authorizer;
-      const validAfter = 0;
-      const validUntil = MAX_UINT48;
-      const validationData = packValidationData(validAfter, validUntil, aggregator, ValidationRange.Block);
+        it('returns the validation data with invalid validity range (expired)', async function () {
+          const aggregator = this.authorizer;
+          const validAfter = await clock[name]();
+          const validUntil = validAfter + 10n;
+          const validationData = packValidationData(validAfter, validUntil, aggregator, range);
 
-      await expect(this.utils.$getValidationData(validationData)).to.eventually.deep.equal([aggregator.address, false]);
-    });
+          await increaseTo[name](validUntil + 1n);
+          await expect(this.utils.$getValidationData(validationData)).to.eventually.deep.equal([
+            aggregator.address,
+            true,
+          ]);
+        });
 
-    it('returns the validation data with invalid validity range (expired)', async function () {
-      const aggregator = this.authorizer;
-      const validAfter = 0;
-      const validUntil = 1;
-      const validationData = packValidationData(validAfter, validUntil, aggregator);
+        it('returns the validation data with invalid validity range (not yet valid)', async function () {
+          const aggregator = this.authorizer;
+          const validAfter = (await clock[name]()) + 1n;
+          const validUntil = validAfter + 10n;
+          const validationData = packValidationData(validAfter, validUntil, aggregator, range);
 
-      await expect(this.utils.$getValidationData(validationData)).to.eventually.deep.equal([aggregator.address, true]);
-    });
+          await expect(this.utils.$getValidationData(validationData)).to.eventually.deep.equal([
+            aggregator.address,
+            true,
+          ]);
+        });
 
-    it('returns the validation data with invalid validity range (expired) (block number)', async function () {
-      const aggregator = this.authorizer;
-      const blockNumber = await ethers.provider.getBlockNumber();
-      const validAfter = blockNumber;
-      const validUntil = blockNumber + 10;
-      const validationData = packValidationData(validAfter, validUntil, aggregator, ValidationRange.Block);
+        it('returns the validation data with invalid validity range (current == validAfter)', async function () {
+          const aggregator = this.authorizer;
+          const validAfter = await clock[name]();
+          const validUntil = validAfter + 10n;
+          const validationData = packValidationData(validAfter, validUntil, aggregator, range);
 
-      await mineUpTo(validUntil + 1);
-      await expect(this.utils.$getValidationData(validationData)).to.eventually.deep.equal([aggregator.address, true]);
-    });
+          await expect(this.utils.$getValidationData(validationData)).to.eventually.deep.equal([
+            aggregator.address,
+            true,
+          ]);
+        });
 
-    it('returns the validation data with invalid validity range (not yet valid)', async function () {
-      const aggregator = this.authorizer;
-      const validAfter = MAX_UINT48;
-      const validUntil = MAX_UINT48;
-      const validationData = packValidationData(validAfter, validUntil, aggregator);
+        it('returns the validation data with valid validity range (current == validUntil)', async function () {
+          const aggregator = this.authorizer;
+          const validAfter = await clock[name]();
+          const validUntil = validAfter + 10n;
+          const validationData = packValidationData(validAfter, validUntil, aggregator, range);
 
-      await expect(this.utils.$getValidationData(validationData)).to.eventually.deep.equal([aggregator.address, true]);
-    });
-
-    it('returns the validation data with invalid validity range (not yet valid) (block number)', async function () {
-      const aggregator = this.authorizer;
-      const validAfter = MAX_UINT48;
-      const validUntil = MAX_UINT48;
-      const validationData = packValidationData(validAfter, validUntil, aggregator, ValidationRange.Block);
-
-      await expect(this.utils.$getValidationData(validationData)).to.eventually.deep.equal([aggregator.address, true]);
-    });
-
-    it('returns the validation data with invalid validity range (current == validAfter)', async function () {
-      const aggregator = this.authorizer;
-      const currentTimestamp = await ethers.provider.getBlock('latest').then(block => BigInt(block.timestamp));
-      const validAfter = currentTimestamp;
-      const validUntil = currentTimestamp + 100n;
-      const validationData = packValidationData(validAfter, validUntil, aggregator);
-
-      await expect(this.utils.$getValidationData(validationData)).to.eventually.deep.equal([aggregator.address, true]);
-    });
+          await increaseTo[name](validUntil);
+          await expect(this.utils.$getValidationData(validationData)).to.eventually.deep.equal([
+            aggregator.address,
+            false,
+          ]);
+        });
+      });
+    }
 
     it('returns address(0) and false for validationData = 0', async function () {
       await expect(this.utils.$getValidationData(0n)).to.eventually.deep.equal([ethers.ZeroAddress, false]);
