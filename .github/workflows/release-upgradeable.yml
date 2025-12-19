@@ -1,0 +1,52 @@
+name: Release Upgradeable
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  release-upgradeable:
+    environment: push-upgradeable
+    permissions:
+      id-token: write # Required for OIDC
+      contents: read
+    runs-on: ubuntu-latest
+    env:
+      REFERENCE_REPO: OpenZeppelin/openzeppelin-contracts
+      UPGRADEABLE_REPO: james-toussaint/openzeppelin-contracts-upgradeable # TODO: Update repo before merging
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          repository: ${{ env.UPGRADEABLE_REPO }}
+          submodules: true
+          token: ${{ secrets.GH_TOKEN_UPGRADEABLE }}
+          ref: ${{ github.ref }}
+      - uses: actions/checkout@v5
+        with:
+          repository: ${{ env.REFERENCE_REPO }}
+          ref: ${{ github.ref }}
+          path: reference
+      - name: Get reference commit
+        id: get-reference-commit
+        run: cd reference && echo "commit=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v5 # TODO: Remove this before merging (used to get scripts added in this PR)
+        with:
+          path: reference
+      - name: Set up environment
+        uses: ./reference/.github/actions/setup
+      - name: Check upgradeable
+        id: check-upgradeable
+        run: bash reference/scripts/release/workflow/check-upgradeable.sh
+        env:
+          REFERENCE_COMMIT: ${{ steps.get-reference-commit.outputs.commit }}
+      - name: Publish upgradeable contracts
+        id: publish
+        run: bash reference/scripts/release/workflow/publish-upgradeable.sh
+        env:
+          NPM_TAG: ${{ steps.check-upgradeable.outputs.npm_tag }}
+      - name: Create Github Release Note
+        run: bash reference/scripts/release/workflow/github-release-upgradeable.sh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN_UPGRADEABLE }}
+          GIT_TAG: ${{ steps.check-upgradeable.outputs.git_tag }}
+          RELEASE_COMMIT: ${{ steps.check-upgradeable.outputs.release_commit }}
+          PRERELEASE: ${{ steps.check-upgradeable.outputs.prerelease }}
