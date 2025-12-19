@@ -5,6 +5,9 @@ const SIG_VALIDATION_SUCCESS = '0x0000000000000000000000000000000000000000';
 const SIG_VALIDATION_FAILURE = '0x0000000000000000000000000000000000000001';
 const PAYMASTER_SIG_MAGIC = '0x22e325a297439656';
 
+const BLOCK_RANGE_FLAG = 0x800000000000n;
+const BLOCK_RANGE_MASK = 0x7fffffffffffn;
+
 function getAddress(account) {
   return account.target ?? account.address ?? account;
 }
@@ -13,12 +16,18 @@ function pack(left, right) {
   return ethers.solidityPacked(['uint128', 'uint128'], [left, right]);
 }
 
-function packValidationData(validAfter, validUntil, authorizer, range = ValidationRange.Timestamp) {
+function packValidationData(validAfter, validUntil, authorizer, range = undefined) {
+  // if range is not specified, use the value as provided,
+  // otherwise, clean the values (& BLOCK_RANGE_MASK) and set the flag if corresponding to the range.
   return ethers.solidityPacked(
     ['uint48', 'uint48', 'address'],
     [
-      BigInt(validAfter) | (range << 47n),
-      BigInt(validUntil) | (range << 47n),
+      range === undefined
+        ? BigInt(validAfter)
+        : (BigInt(validAfter) & BLOCK_RANGE_MASK) | (range == ValidationRange.Block ? BLOCK_RANGE_FLAG : 0n),
+      range === undefined
+        ? BigInt(validUntil)
+        : (BigInt(validUntil) & BLOCK_RANGE_MASK) | (range == ValidationRange.Block ? BLOCK_RANGE_FLAG : 0n),
       typeof authorizer == 'boolean'
         ? authorizer
           ? SIG_VALIDATION_SUCCESS

@@ -69,21 +69,25 @@ library ERC4337Utils {
         if (validUntil == 0) validUntil = BLOCK_RANGE_MASK;
     }
 
-    /**
-     * @dev Packs the validation data into a single uint256. See {parseValidationData}.
-     *
-     * Returns `SIG_VALIDATION_FAILED` if the validity is timestamp but the highest bit flag
-     * of both `validAfter` and `validUntil` is set.
-     */
+    /// @dev Packs the validation data into a single uint256. See {parseValidationData}.
     function packValidationData(
         address aggregator,
         uint48 validAfter,
         uint48 validUntil
     ) internal pure returns (uint256) {
-        return packValidationData(aggregator, validAfter, validUntil, ValidationRange.TIMESTAMP);
+        return
+            packValidationData(
+                aggregator,
+                validAfter,
+                validUntil,
+                (validAfter & validUntil & BLOCK_RANGE_FLAG) == 0 ? ValidationRange.TIMESTAMP : ValidationRange.BLOCK
+            );
     }
 
-    /// @dev Same as {packValidationData}, but with a validity range.
+    /**
+     * @dev Variant of {packValidationData} that forces which validity range to use. This overwrites the presence of
+     * flags in `validAfter` and `validUntil`).
+     */
     function packValidationData(
         address aggregator,
         uint48 validAfter,
@@ -91,9 +95,6 @@ library ERC4337Utils {
         ValidationRange range
     ) internal pure returns (uint256) {
         if (range == ValidationRange.TIMESTAMP) {
-            if ((validAfter & validUntil & BLOCK_RANGE_FLAG) != 0) {
-                return SIG_VALIDATION_FAILED;
-            }
             validAfter &= BLOCK_RANGE_MASK;
             validUntil &= BLOCK_RANGE_MASK;
         } else if (range == ValidationRange.BLOCK) {
@@ -103,12 +104,20 @@ library ERC4337Utils {
         return uint256(bytes6(validAfter).pack_6_6(bytes6(validUntil)).pack_12_20(bytes20(aggregator)));
     }
 
-    /// @dev Same as {packValidationData}, but with a boolean signature success flag.
+    /// @dev Variant of {packValidationData} that uses a boolean success flag instead of an aggregator address.
     function packValidationData(bool sigSuccess, uint48 validAfter, uint48 validUntil) internal pure returns (uint256) {
-        return packValidationData(sigSuccess, validAfter, validUntil, ValidationRange.TIMESTAMP);
+        return
+            packValidationData(
+                address(uint160(Math.ternary(sigSuccess, SIG_VALIDATION_SUCCESS, SIG_VALIDATION_FAILED))),
+                validAfter,
+                validUntil
+            );
     }
 
-    /// @dev Same as {packValidationData}, but with a boolean signature success flag and validity range.
+    /**
+     * @dev Variant of {packValidationData} that uses a boolean success flag instead of an aggregator address and that
+     * forces which validity range to use. This overwrites the presence of flags in `validAfter` and `validUntil`).
+     */
     function packValidationData(
         bool sigSuccess,
         uint48 validAfter,
