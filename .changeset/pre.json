@@ -4,5 +4,29 @@
   "initialVersions": {
     "openzeppelin-solidity": "5.5.0"
   },
-  "changesets": []
+  "changesets": [
+    "blue-mirrors-agree",
+    "bright-webs-create",
+    "clean-worlds-end",
+    "flat-ideas-count",
+    "fluffy-facts-brake",
+    "forty-ads-design",
+    "full-emus-hear",
+    "fuzzy-lizards-do",
+    "grumpy-cats-brake",
+    "khaki-crews-join",
+    "new-socks-deny",
+    "shaky-phones-mix",
+    "social-tools-sniff",
+    "spotty-plums-brush",
+    "stale-lizards-cheat",
+    "swift-planets-juggle",
+    "tame-monkeys-make",
+    "tender-pans-yawn",
+    "thick-banks-relate",
+    "vast-worlds-pull",
+    "whole-turkeys-swim",
+    "yellow-clowns-mate",
+    "young-corners-help"
+  ]
 }
