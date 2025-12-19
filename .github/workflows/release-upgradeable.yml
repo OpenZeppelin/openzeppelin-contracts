@@ -21,16 +21,9 @@ jobs:
           path: lib/openzeppelin-contracts
       - name: Set up environment
         uses: ./.github/actions/setup
-      - name: Get reference commit
-        id: get-reference-commit
-        run: |
-          cd lib/openzeppelin-contracts
-          echo "commit=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
       - name: Check upgradeable
         id: check-upgradeable
         run: bash scripts/release/workflow/check-upgradeable.sh
-        env:
-          REFERENCE_COMMIT: ${{ steps.get-reference-commit.outputs.commit }}
     outputs:
       publish: ${{ steps.check-upgradeable.outcome }}
       is_prerelease: ${{ steps.check-upgradeable.outputs.is_prerelease }}
@@ -41,7 +34,6 @@ jobs:
     name: Publish to npm
     environment: push-upgradeable
     permissions:
-      contents: write
       id-token: write
     if: needs.state.outputs.publish == 'success' # Note: changed from 'true' to 'success' to support the way publish is computed
     runs-on: ubuntu-latest

@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 
 set -euo pipefail
+cd lib/openzeppelin-contracts
+REFERENCE_COMMIT="$(git rev-parse --short HEAD)"
 
+cd ../..
 if ! git log -1 --pretty=%B | grep -q "Transpile ${REFERENCE_COMMIT}"; then
   echo "Expected 'Transpile ${REFERENCE_COMMIT}' but found '$(git log -1 --pretty=%B)'"
   exit 1
