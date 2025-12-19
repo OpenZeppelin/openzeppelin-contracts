@@ -568,7 +568,7 @@ describe('ERC4337Utils', function () {
         await expect(this.utils.$paymasterSignature(this.userOp.packed)).to.eventually.equal('0x');
       });
 
-      it('returns empty signature when paymasterAndData has an usage length (<10 bytes)', async function () {
+      it('returns empty signature when paymasterAndData has an unsafe length (<10 bytes)', async function () {
         const packedUserOp = this.userOp.packed;
 
         packedUserOp.paymasterAndData = '0xe325a297439656'; // part of the magic value (7 bytes)
