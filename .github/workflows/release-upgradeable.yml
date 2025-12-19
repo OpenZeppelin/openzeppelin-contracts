@@ -64,6 +64,7 @@ jobs:
           TARBALL: ${{ steps.pack.outputs.tarball }}
           TAG: ${{ steps.pack.outputs.tag }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: false
       - name: Create Github Release
         uses: actions/github-script@v8
         env:
