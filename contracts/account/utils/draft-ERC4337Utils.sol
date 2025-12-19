@@ -262,7 +262,10 @@ library ERC4337Utils {
 
         uint256 sigSize = _paymasterSignatureSize(self);
         uint256 sigEnd = self.paymasterAndData.length - 10;
-        return sigSize > sigEnd ? Calldata.emptyBytes() : self.paymasterAndData[sigEnd - sigSize:sigEnd];
+        return
+            self.paymasterAndData.length < 62 + sigSize
+                ? Calldata.emptyBytes()
+                : self.paymasterAndData[sigEnd - sigSize:sigEnd];
     }
 
     /**

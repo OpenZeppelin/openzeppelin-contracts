@@ -568,9 +568,25 @@ describe('ERC4337Utils', function () {
         await expect(this.utils.$paymasterSignature(this.userOp.packed)).to.eventually.equal('0x');
       });
 
-      it('returns empty signature when paymasterAndData length is less than 10', async function () {
+      it('returns empty signature when paymasterAndData has an usage length (<10 bytes)', async function () {
         const packedUserOp = this.userOp.packed;
-        packedUserOp.paymasterAndData = '0x1234567890abcdef12'; // 9 bytes. Minimum is 10 bytes (minimum needed for magic + size)
+
+        packedUserOp.paymasterAndData = '0xe325a297439656'; // part of the magic value (7 bytes)
+        await expect(this.utils.$paymasterSignature(packedUserOp)).to.eventually.equal('0x');
+
+        packedUserOp.paymasterAndData = '0x0022e325a297439656'; // 00 + magic value (9 bytes)
+        await expect(this.utils.$paymasterSignature(packedUserOp)).to.eventually.equal('0x');
+      });
+
+      it('returns empty signature when paymasterAndData length is less than 62 + signature length', async function () {
+        const packedUserOp = this.userOp.packed;
+        packedUserOp.paymasterAndData = ethers.concat([
+          '0x437d871626ffaa4f2a3d24eb54fbc9af36c4c75fbf1b69c2d109b1ce43ab3eaa50b8aba09d395e08a8687c940be78d6533536a78', // 52 random bytes
+          // Missing signature
+          '0x0001', // Non zero signature length
+          '0x22e325a297439656', // magic value
+        ]);
+
         await expect(this.utils.$paymasterSignature(packedUserOp)).to.eventually.equal('0x');
       });
     });
