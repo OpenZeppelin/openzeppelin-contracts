@@ -28,12 +28,12 @@
 
 #### Cross-chain
 
+- `BridgeERC20Core`, `BridgeERC20` and `BridgeERC7802`: Added bridge contracts to handle crosschain movements of ERC-20 (and ERC-7802) tokens. ([#5914](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5914))
 - `CrosschainLinked`: Added a new helper contract to facilitate communication between a contract on one chain and counterparts on remote chains through ERC-7786 gateways. ([#5914](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5914))
 - `ERC20Crosschain`: Added an ERC-20 extension to embed an ERC-7786 based crosschain bridge directly in the token contract. ([#5914](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5914))
 
 #### Cryptography
 
-- `BridgeERC20Core`, `BridgeERC20` and `BridgeERC7802`: Added bridge contracts to handle crosschain movements of ERC-20 (and ERC-7802) tokens. ([#5914](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5914))
 - `MessageHashUtils`: Add helper functions to build EIP-712 domain typehash and separator with fields selectively enabled/disabled. ([#5908](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5908))
 - `SignatureChecker`: Add `isValidERC1271SignatureNowCalldata`, a variant of `isValidERC1271SignatureNow` that takes the signature from calldata. ([#6123](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6123))
 - `TrieProof`: Add library for verifying Ethereum Merkle-Patricia trie inclusion proofs. ([#5826](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5826))
