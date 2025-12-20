@@ -9,6 +9,7 @@ import {Math} from "../../../utils/math/Math.sol";
 abstract contract ERC7246 is ERC20, IERC7246 {
     error ERC7246InsufficientAvailableBalance(uint256 available, uint256 required);
     error ERC7246InsufficientEncumbrance(uint256 encumbered, uint256 required);
+    error ERC7246SelfEncumbrance();
 
     mapping(address owner => mapping(address spender => uint256)) private _encumbrances;
     mapping(address owner => uint256) private _encumberedBalances;
@@ -41,18 +42,16 @@ abstract contract ERC7246 is ERC20, IERC7246 {
 
     /// @inheritdoc IERC7246
     function release(address owner, uint256 amount) public {
-        uint256 encumbered = encumbrances(owner, msg.sender);
-        require(encumbered >= amount, ERC7246InsufficientEncumbrance(encumbered, amount));
-
-        unchecked {
-            _encumbrances[owner][msg.sender] -= amount;
-            _encumberedBalances[owner] -= amount;
-        }
-
-        emit Release(owner, msg.sender, amount);
+        _releaseEncumbrance(owner, msg.sender, amount);
     }
 
+    /**
+     * @dev Encumber `amount` of tokens from `owner` to `spender`. Encumbering tokens grants an exclusive right
+     * to transfer the tokens without removing them from the owner's balance. Release the tokens by calling
+     * {release} or transfer them by calling {transferFrom}.
+     */
     function _encumber(address owner, address spender, uint256 amount) internal virtual {
+        require(owner != spender, ERC7246SelfEncumbrance());
         uint256 availableBalance = availableBalanceOf(owner);
         require(availableBalance >= amount, ERC7246InsufficientAvailableBalance(availableBalance, amount));
 
@@ -67,16 +66,36 @@ abstract contract ERC7246 is ERC20, IERC7246 {
         emit Encumber(owner, spender, amount);
     }
 
-    /// @inheritdoc ERC20
+    /**
+     * @dev Release `amount` of encumbered tokens from `owner` to `spender`.
+     * 
+     * - Will revert if there are insufficient encumbered tokens.
+     * - Emits the {Release} event.
+     */
+    function _releaseEncumbrance(address owner, address spender, uint256 amount) internal virtual {
+        uint256 encumbered = encumbrances(owner, spender);
+        require(encumbered >= amount, ERC7246InsufficientEncumbrance(encumbered, amount));
+
+        unchecked {
+            _encumbrances[owner][spender] -= amount;
+            _encumberedBalances[owner] -= amount;
+        }
+
+        emit Release(owner, spender, amount);
+    }
+
+    /**
+     * @dev See {ERC20-_spendAllowance}. Encumbrances are spent first, then the remaining amount
+     * is passed to `super._spendAllowance`.
+     */
     function _spendAllowance(address owner, address spender, uint256 amount) internal virtual override {
         uint256 amountEncumbered = encumbrances(owner, spender);
         uint256 remainingAllowance = amount;
 
         if (amountEncumbered != 0) {
             uint256 encumberedToUse = Math.min(amount, amountEncumbered);
+            _releaseEncumbrance(owner, spender, encumberedToUse);
             unchecked {
-                _encumbrances[owner][spender] -= encumberedToUse;
-                _encumberedBalances[owner] -= encumberedToUse;
                 remainingAllowance -= encumberedToUse;
             }
         }
@@ -86,8 +105,10 @@ abstract contract ERC7246 is ERC20, IERC7246 {
 
     /// @inheritdoc ERC20
     function _update(address from, address to, uint256 amount) internal virtual override {
-        uint256 availableBalance = availableBalanceOf(from);
-        require(availableBalance >= amount, ERC7246InsufficientAvailableBalance(availableBalance, amount));
+        if (from != address(0)) {
+            uint256 availableBalance = availableBalanceOf(from);
+            require(availableBalance >= amount, ERC7246InsufficientAvailableBalance(availableBalance, amount));
+        }
         super._update(from, to, amount);
     }
 }
