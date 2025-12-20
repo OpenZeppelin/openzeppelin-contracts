@@ -2,7 +2,7 @@
 
 ### Breaking changes
 
-- `ERC1155`: Performing batch transfers with exactly one id/value in the batch no-longer calls `IERC1155Receiver.onERC1155Received`. `IERC1155Receiver.onERC1155BatchReceived` is called instead (with arrays of length one). ([#6170](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6170))
+- `ERC1155`: Performing batch transfers with exactly one id/value in the batch no longer calls `IERC1155Receiver.onERC1155Received`. `IERC1155Receiver.onERC1155BatchReceived` is called instead (with arrays of length one). ([#6170](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6170))
 - `ERC1967Proxy` and `TransparentUpgradeableProxy`: Mandate initialization during construction. Deployment now reverts with `ERC1967ProxyUninitialized` if an initialize call is not provided. Developers that rely on the previous behavior and want to disable this check can do so by overriding the internal `_unsafeAllowUninitialized` function to return true. ([#5906](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5906))
 - `ERC721` and `ERC1155`: Prevent setting an operator for `address(0)`. In the case of `ERC721` this type of operator allowance could lead to obfuscated mint permission. ([#6171](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6171))
 - `RLP`: The `encode(bytes32)` function now encodes `bytes32` as a fixed size item and not as a scalar in `encode(uint256)`. Users must replace calls to `encode(bytes32)` with `encode(uint256(bytes32))` to preserve the same behavior. ([#6167](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6167))
@@ -14,7 +14,6 @@
 
 - `AccountERC7579`: Prevent revert in `isModuleInstalled` for fallback modules when `additionalContext` has fewer than 4 bytes. The function now returns `false` instead of reverting, ensuring ERC-7579 compliance. ([#5961](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5961))
 - `ERC165Checker`: Ensure the `supportsERC165` function returns false if the target reverts during the `supportsInterface(0xffffffff)` call. ([#5880](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5880))
-- `AccountERC7579`: Prevent revert in `isModuleInstalled` for fallback modules when `additionalContext` has fewer than 4 bytes. The function now returns `false` instead of reverting, ensuring ERC-7579 compliance. ([#5961](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5961))
 
 ### Breaking changes
 
