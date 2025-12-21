@@ -29,7 +29,7 @@ abstract contract ERC20Burnable is Context, ERC20 {
      *
      * Requirements:
      *
-     * - the caller must have allowance for ``accounts``'s tokens of at least
+     * - the caller must have allowance for `account`'s tokens of at least
      * `value`.
      */
     function burnFrom(address account, uint256 value) public virtual {
