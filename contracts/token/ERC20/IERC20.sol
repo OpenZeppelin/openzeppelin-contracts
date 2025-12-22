@@ -36,7 +36,7 @@ interface IERC20 {
      *
      * Returns a boolean value indicating whether the operation succeeded.
      *
-     * Emits a {Transfer} event.
+     * Emits a {IERC20-Transfer} event.
      */
     function transfer(address to, uint256 value) external returns (bool);
 
@@ -62,7 +62,7 @@ interface IERC20 {
      * desired value afterwards:
      * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
      *
-     * Emits an {Approval} event.
+     * Emits an {IERC20-Approval} event.
      */
     function approve(address spender, uint256 value) external returns (bool);
 
@@ -73,7 +73,7 @@ interface IERC20 {
      *
      * Returns a boolean value indicating whether the operation succeeded.
      *
-     * Emits a {Transfer} event.
+     * Emits a {IERC20-Transfer} event.
      */
     function transferFrom(address from, address to, uint256 value) external returns (bool);
 }

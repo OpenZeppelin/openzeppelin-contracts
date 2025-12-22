@@ -46,6 +46,7 @@ are useful to interact with third party contracts that implement them.
 - {IERC6909ContentURI}
 - {IERC6909Metadata}
 - {IERC6909TokenSupply}
+- {IERC7246}
 - {IERC7579Module}
 - {IERC7579Validator}
 - {IERC7579Hook}
@@ -113,6 +114,8 @@ are useful to interact with third party contracts that implement them.
 
 {{IERC6909TokenSupply}}
 
+{{IERC7246}}
+
 {{IERC7579Module}}
 
 {{IERC7579Validator}}
@@ -136,5 +139,3 @@ are useful to interact with third party contracts that implement them.
 {{IERC7802}}
 
 {{IERC7913SignatureVerifier}}
-
-{{IERC7246}}

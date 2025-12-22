@@ -7,8 +7,13 @@ import {IERC7246} from "../../../interfaces/draft-IERC7246.sol";
 import {Math} from "../../../utils/math/Math.sol";
 
 abstract contract ERC7246 is ERC20, IERC7246 {
+    /// @dev Thrown when the result of an {_update} or {_encumber} call would result in negative {availableBalanceOf}.
     error ERC7246InsufficientAvailableBalance(uint256 available, uint256 required);
+
+    /// @dev Thrown when an account tries to release more encumbered tokens than it has.
     error ERC7246InsufficientEncumbrance(uint256 encumbered, uint256 required);
+
+    /// @dev Thrown when an account tries to encumber tokens to itself.
     error ERC7246SelfEncumbrance();
 
     mapping(address owner => mapping(address spender => uint256)) private _encumbrances;
@@ -70,7 +75,7 @@ abstract contract ERC7246 is ERC20, IERC7246 {
      * @dev Release `amount` of encumbered tokens from `owner` to `spender`.
      * 
      * - Will revert if there are insufficient encumbered tokens.
-     * - Emits the {Release} event.
+     * - Emits the {ERC7246-Release} event.
      */
     function _releaseEncumbrance(address owner, address spender, uint256 amount) internal virtual {
         uint256 encumbered = encumbrances(owner, spender);

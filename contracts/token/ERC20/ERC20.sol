@@ -171,7 +171,7 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
      * (or `to`) is the zero address. All customizations to transfers, mints, and burns should be done by overriding
      * this function.
      *
-     * Emits a {Transfer-address-address-uint256} event.
+     * Emits a {IERC20-Transfer} event.
      */
     function _update(address from, address to, uint256 value) internal virtual {
         if (from == address(0)) {
@@ -207,7 +207,7 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
      * @dev Creates a `value` amount of tokens and assigns them to `account`, by transferring it from address(0).
      * Relies on the `_update` mechanism
      *
-     * Emits a {Transfer} event with `from` set to the zero address.
+     * Emits a {IERC20-Transfer} event with `from` set to the zero address.
      *
      * NOTE: This function is not virtual, {_update} should be overridden instead.
      */
@@ -239,7 +239,7 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
      * This internal function is equivalent to `approve`, and can be used to
      * e.g. set automatic allowances for certain subsystems, etc.
      *
-     * Emits an {Approval} event.
+     * Emits an {IERC20-Approval} event.
      *
      * Requirements:
      *

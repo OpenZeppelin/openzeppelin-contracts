@@ -39,7 +39,7 @@ interface IERC7246 is IERC20 {
      *
      * - MUST revert if caller does not have `amount` tokens available
      *  (e.g. if `balanceOf(caller) - encumbrances(caller) < amount`).
-     * - Emits an {Encumber-address-address-uint256} event.
+     * - Emits an {IERC7246-Encumber} event.
      */
     function encumber(address spender, uint256 amount) external;
 
@@ -52,14 +52,14 @@ interface IERC7246 is IERC20 {
      * MUST revert if `owner` does not have `amount` tokens available
      * (e.g. if `balanceOf(owner) - encumbrances(owner) < amount`).
      *
-     * Emits an {Encumber-address-address-uint256} event.
+     * Emits an {IERC7246-Encumber} event.
      */
     function encumberFrom(address owner, address spender, uint256 amount) external;
 
     /**
      * @dev Reduces amount of tokens encumbered from `owner` to caller by `amount`
      *
-     * Emits a {Release-address-address-uint256} event.
+     * Emits a {IERC7246-Release} event.
      */
     function release(address owner, uint256 amount) external;
 }
