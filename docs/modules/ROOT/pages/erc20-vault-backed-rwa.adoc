@@ -1,0 +1,42 @@
+= Vault-Backed ERC20 Tokens (RWA Pattern)
+
+This page describes a Real-World Asset (RWA) pattern where an ERC20 token represents a physical asset, such as silver, held in an off-chain vault.
+
+For example, 1 token may represent 1 gram of vaulted silver
+
+== Motivation
+
+For real-world assets, it is essential that tokens are minted only after the underlying asset is secured in custody. This prevents unbacked issuance for the users and builds trust in custodial or regulated environments.
+
+== High-Level Flow
+
+1. User pays off-chain, either with fiat or through bank transfer.  
+2. Platform acquires the physical asset.  
+3. Asset is deposited into a secure vault.  
+4. Custody is verified off-chain by the platform.  
+5. Tokens are minted to the user after payment verification.  
+6. Tokens are burned when the asset is redeemed.
+
+== Example Contract
+
+[source,solidity]
+----
+contract VaultBackedERC20 is ERC20, Ownable {
+  
+    constructor() ERC20("Digital Silver", "DSLV") {}
+
+    function mint(address to, uint256 amount) external onlyOwner {
+        _mint(to, amount);
+    }
+
+    function burn(address from, uint256 amount) external onlyOwner {
+        _burn(from, amount);
+    }
+}
+----
+
+== Notes
+
+* Minting and burning are reserved for a trusted admin.  
+* Users cannot mint tokens themselves.  
+* This pattern is often used for commodity-backed and custodial RWAs.
