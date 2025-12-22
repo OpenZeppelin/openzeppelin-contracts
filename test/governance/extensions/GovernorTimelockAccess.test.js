@@ -350,6 +350,13 @@ describe('GovernorTimelockAccess', function () {
             ]);
           }
         });
+
+        it('reverts for non-existing proposal', async function () {
+          const nonExistentProposalId = 999n;
+          await expect(this.mock.proposalExecutionPlan(nonExistentProposalId))
+            .to.be.revertedWithCustomError(this.mock, 'GovernorNonexistentProposal')
+            .withArgs(nonExistentProposalId);
+        });
       });
 
       describe('base delay only', function () {
