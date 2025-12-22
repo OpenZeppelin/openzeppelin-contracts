@@ -16,6 +16,7 @@ contract P256Test is Test {
         (bytes32 r, bytes32 s) = vm.signP256(privateKey, digest);
         s = _ensureLowerS(s);
         assertTrue(P256.verify(digest, r, s, bytes32(x), bytes32(y)));
+        assertTrue(P256.verifyNative(digest, r, s, bytes32(x), bytes32(y)));
         assertTrue(P256.verifySolidity(digest, r, s, bytes32(x), bytes32(y)));
     }
 
@@ -29,22 +30,6 @@ contract P256Test is Test {
         (bytes32 qx0, bytes32 qy0) = P256.recovery(digest, 0, r, s);
         (bytes32 qx1, bytes32 qy1) = P256.recovery(digest, 1, r, s);
         assertTrue((qx0 == bytes32(x) && qy0 == bytes32(y)) || (qx1 == bytes32(x) && qy1 == bytes32(y)));
-    }
-
-    function testVerifyNativeUnsupportedRIP7212(bytes32 digest, uint256 seed) public {
-        // By default, the precompile at address 0x100 is not supported.
-
-        uint256 privateKey = _asPrivateKey(seed);
-
-        (uint256 x, uint256 y) = vm.publicKeyP256(privateKey);
-        (bytes32 r, bytes32 s) = vm.signP256(privateKey, digest);
-        s = _ensureLowerS(s);
-
-        (bool success, bytes memory returndata) = address(this).call(
-            abi.encodeCall(P256Test.verifyNative, (digest, r, s, bytes32(x), bytes32(y)))
-        );
-        assertFalse(success);
-        assertEq(returndata, abi.encodeWithSelector(Errors.MissingPrecompile.selector, address(0x100)));
     }
 
     function _asPrivateKey(uint256 seed) private pure returns (uint256) {
