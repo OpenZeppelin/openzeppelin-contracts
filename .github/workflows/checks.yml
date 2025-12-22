@@ -86,6 +86,8 @@ jobs:
           submodules: recursive
       - name: Set up environment
         uses: ./.github/actions/setup
+      - name: Check foundry version
+        run: forge --version
       - name: Run tests
         run: forge test -vvv
 
