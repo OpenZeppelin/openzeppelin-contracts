@@ -20,6 +20,11 @@ Our contracts are often used via https://solidity.readthedocs.io/en/latest/contr
 
 TIP: For a more complete discussion of ERC-20 supply mechanisms, see xref:erc20-supply.adoc[Creating ERC-20 Supply].
 
+In some cases, like custodial or real-world asset (RWA) systems, token supply is managed off-chain. Tokens are minted only after verifying the underlying asset.
+
+For an example of this pattern, see
+xref:erc20-vault-backed-rwa.adoc[Vault-Backed ERC20 Tokens].
+
 That's it! Once deployed, we will be able to query the deployer's balance:
 
 [source,javascript]
