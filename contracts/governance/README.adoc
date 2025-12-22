@@ -106,6 +106,8 @@ NOTE: Functions of the `Governor` contract do not include access control. If you
 
 == Utils
 
+{{IVotes}}
+
 {{Votes}}
 
 {{VotesExtended}}
