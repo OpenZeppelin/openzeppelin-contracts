@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.27;
 
-import {Math} from "../math/Math.sol";
 import {Bytes} from "../Bytes.sol";
 import {Memory} from "../Memory.sol";
 import {RLP} from "../RLP.sol";
