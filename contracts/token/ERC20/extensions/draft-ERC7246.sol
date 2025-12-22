@@ -20,33 +20,33 @@ abstract contract ERC7246 is ERC20, IERC7246 {
     mapping(address owner => uint256) private _encumberedBalances;
 
     /// @inheritdoc IERC7246
-    function encumberedBalanceOf(address owner) public view returns (uint256) {
+    function encumberedBalanceOf(address owner) public view virtual returns (uint256) {
         return _encumberedBalances[owner];
     }
 
     /// @inheritdoc IERC7246
-    function availableBalanceOf(address owner) public view returns (uint256) {
+    function availableBalanceOf(address owner) public view virtual returns (uint256) {
         return balanceOf(owner) - encumberedBalanceOf(owner);
     }
 
     /// @inheritdoc IERC7246
-    function encumbrances(address owner, address spender) public view returns (uint256) {
+    function encumbrances(address owner, address spender) public view virtual returns (uint256) {
         return _encumbrances[owner][spender];
     }
 
     /// @inheritdoc IERC7246
-    function encumber(address spender, uint256 amount) public {
+    function encumber(address spender, uint256 amount) public virtual {
         _encumber(msg.sender, spender, amount);
     }
 
     /// @inheritdoc IERC7246
-    function encumberFrom(address owner, address spender, uint256 amount) public {
+    function encumberFrom(address owner, address spender, uint256 amount) public virtual {
         _spendAllowance(owner, msg.sender, amount);
         _encumber(owner, spender, amount);
     }
 
     /// @inheritdoc IERC7246
-    function release(address owner, uint256 amount) public {
+    function release(address owner, uint256 amount) public virtual {
         _releaseEncumbrance(owner, msg.sender, amount);
     }
 
@@ -73,7 +73,7 @@ abstract contract ERC7246 is ERC20, IERC7246 {
 
     /**
      * @dev Release `amount` of encumbered tokens from `owner` to `spender`.
-     * 
+     *
      * - Will revert if there are insufficient encumbered tokens.
      * - Emits the {ERC7246-Release} event.
      */
