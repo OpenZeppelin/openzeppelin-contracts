@@ -48,7 +48,7 @@ class BlockTries {
 
   static from(block) {
     const instance = new BlockTries(block);
-    return instance.ready().then(() => instance);
+    return instance.ready();
   }
 
   // Serialize a transaction into its RLP encoded form
