@@ -682,7 +682,7 @@ rule setApprovalForAll(env e, address operator, bool approved) {
     bool success = !lastReverted;
 
     // liveness
-    assert success <=> operator != 0;
+    assert success <=> (owner != 0 && operator != 0);
 
     // effect
     assert success => isApprovedForAll(owner, operator) == approved;

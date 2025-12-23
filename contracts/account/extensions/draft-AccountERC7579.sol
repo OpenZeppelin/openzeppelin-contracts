@@ -85,7 +85,7 @@ abstract contract AccountERC7579 is Account, IERC1271, IERC7579Execution, IERC75
     /// @inheritdoc IERC7579AccountConfig
     function accountId() public view virtual returns (string memory) {
         // vendorname.accountname.semver
-        return "@openzeppelin/community-contracts.AccountERC7579.v0.0.0";
+        return "@openzeppelin/contracts.AccountERC7579.v1.0.0";
     }
 
     /**

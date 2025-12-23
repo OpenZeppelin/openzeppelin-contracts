@@ -42,7 +42,7 @@ abstract contract AccountERC7579Hooked is AccountERC7579 {
     /// @inheritdoc AccountERC7579
     function accountId() public view virtual override returns (string memory) {
         // vendorname.accountname.semver
-        return "@openzeppelin/community-contracts.AccountERC7579Hooked.v0.0.0";
+        return "@openzeppelin/contracts.AccountERC7579Hooked.v1.0.0";
     }
 
     /// @dev Returns the hook module address if installed, or `address(0)` otherwise.
