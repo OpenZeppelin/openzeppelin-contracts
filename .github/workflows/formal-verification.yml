@@ -27,9 +27,10 @@ jobs:
       - name: Set up environment
         uses: ./.github/actions/setup
         with:
+          withSolc: 'true'
           withJava: 'true'
           withPython: 'true'
-          withSolc: 'true'
+          pythonRequirements: 'fv-requirements.txt'
       - name: identify specs that need to be run
         id: arguments
         run: |
@@ -55,6 +56,7 @@ jobs:
         uses: ./.github/actions/setup
         with:
           withPython: 'true'
+          pythonRequirements: 'fv-requirements.txt'
       - name: Run Halmos
         run: halmos --match-test '^symbolic|^testSymbolic' -vv
         env:

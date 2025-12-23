@@ -1,77 +1,101 @@
 name: Setup
 description: Common environment setup
 inputs:
-  withNpm:
-    description: Whether to set up Node.js and npm
+  withNode:
+    description: Whether to set up node
     required: false
     default: 'true'
+  nodeVersion:
+    description: Version of node to install (if withNode is true)
+    required: false
+    default: '24.x'
   withFoundry:
     description: Whether to set up Foundry
     required: false
     default: 'true'
+  foundryVersion:
+    description: Version of Foundry to install (if withFoundry is true)
+    required: false
+    default: 'stable'
   withJava:
     description: Whether to set up Java
     required: false
     default: 'false'
+  javaVersion:
+    description: Version of Java to install (if withJava is true)
+    required: false
+    default: '21'
   withPython:
     description: Whether to set up Python
     required: false
     default: 'false'
+  pythonVersion:
+    description: Version of Python to install (if withPython is true)
+    required: false
+    default: '3.13'
+  pythonRequirements:
+    description: Path to Python requirements file (if withPython is true)
+    required: false
+    default: 'requirements.txt'
   withSolc:
     description: Whether to set up solc
     required: false
     default: 'false'
+  solcVersion:
+    description: Version of solc to install (if withSolc is true)
+    required: false
+    default: '0.8.27'
 
 runs:
   using: composite
   steps:
     # Node & npm setup
-    - name: Install Node.js (24.x)
-      if: inputs.withNpm == 'true'
+    - name: Install Node (${{ inputs.nodeVersion }})
+      if: inputs.withNode == 'true'
       uses: actions/setup-node@v6
       with:
-        node-version: 24.x
+        node-version: ${{ inputs.nodeVersion }}
     - name: Try fetch node modules from cache
       id: cache
-      if: inputs.withNpm == 'true'
+      if: inputs.withNode == 'true'
       uses: actions/cache@v5
       with:
         path: '**/node_modules'
-        key: npm-24.x-${{ hashFiles('**/package-lock.json') }}
+        key: npm-${{ inputs.nodeVersion }}-${{ hashFiles('**/package-lock.json') }}
     - name: Install dependencies
-      if: inputs.withNpm == 'true' && steps.cache.outputs.cache-hit != 'true'
+      if: inputs.withNode == 'true' && steps.cache.outputs.cache-hit != 'true'
       shell: bash
       run: npm ci
     # Foundry setup
-    - name: Install Foundry (stable)
+    - name: Install Foundry (${{ inputs.foundryVersion }})
       if: inputs.withFoundry == 'true'
       uses: foundry-rs/foundry-toolchain@v1
       with:
-        version: stable
+        version: ${{ inputs.foundryVersion }}
     # Java setup
-    - name: Install java 21
+    - name: Install java (${{ inputs.javaVersion }})
       if: ${{ inputs.withJava == 'true' }}
       uses: actions/setup-java@v5
       with:
         distribution: temurin
-        java-version: 21
+        java-version: ${{ inputs.javaVersion }}
     # Python setup
-    - name: Install python (3.13)
+    - name: Install python (${{ inputs.pythonVersion }})
       if: inputs.withPython == 'true'
       uses: actions/setup-python@v6
       with:
-        python-version: 3.13
+        python-version: ${{ inputs.pythonVersion }}
         cache: 'pip'
-        cache-dependency-path: 'fv-requirements.txt'
+        cache-dependency-path: ${{ inputs.pythonRequirements }}
     - name: Install python packages
       if: inputs.withPython == 'true'
       shell: bash
-      run: pip install -r fv-requirements.txt
+      run: pip install -r ${{ inputs.pythonRequirements }}
     # Solc setup
-    - name: Install solc (0.8.27)
+    - name: Install solc (${{ inputs.solcVersion }})
       if: inputs.withSolc == 'true'
       shell: bash
       run: |
-        wget -q https://github.com/argotorg/solidity/releases/download/v0.8.27/solc-static-linux
+        wget -q https://github.com/argotorg/solidity/releases/download/v${{ inputs.solcVersion }}/solc-static-linux
         chmod +x solc-static-linux
         sudo mv solc-static-linux /usr/local/bin/solc
