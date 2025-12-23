@@ -27,24 +27,24 @@ runs:
   steps:
     # Node & npm setup
     - name: Install Node.js (24.x)
-      if: ${{ inputs.withNpm == 'true' }}
+      if: inputs.withNpm == 'true'
       uses: actions/setup-node@v6
       with:
         node-version: 24.x
     - name: Try fetch node modules from cache
       id: cache
-      if: ${{ inputs.withNpm == 'true' }}
+      if: inputs.withNpm == 'true'
       uses: actions/cache@v5
       with:
         path: '**/node_modules'
         key: npm-24.x-${{ hashFiles('**/package-lock.json') }}
     - name: Install dependencies
-      if: ${{ inputs.withNpm == 'true' && steps.cache.outputs.cache-hit != 'true' }}
+      if: inputs.withNpm == 'true' && steps.cache.outputs.cache-hit != 'true'
       shell: bash
       run: npm ci
     # Foundry setup
     - name: Install Foundry (stable)
-      if: ${{ inputs.withFoundry == 'true' }}
+      if: inputs.withFoundry == 'true'
       uses: foundry-rs/foundry-toolchain@v1
       with:
         version: stable
@@ -57,19 +57,19 @@ runs:
         java-version: 21
     # Python setup
     - name: Install python (3.13)
-      if: ${{ inputs.withPython == 'true' }}
+      if: inputs.withPython == 'true'
       uses: actions/setup-python@v6
       with:
         python-version: 3.13
         cache: 'pip'
         cache-dependency-path: 'fv-requirements.txt'
     - name: Install python packages
-      if: ${{ inputs.withPython == 'true' }}
+      if: inputs.withPython == 'true'
       shell: bash
       run: pip install -r fv-requirements.txt
     # Solc setup
     - name: Install solc (0.8.27)
-      if: ${{ inputs.withSolc == 'true' }}
+      if: inputs.withSolc == 'true'
       shell: bash
       run: |
         wget -q https://github.com/argotorg/solidity/releases/download/v0.8.27/solc-static-linux
