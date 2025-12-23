@@ -144,7 +144,7 @@ jobs:
         env:
           PRERELEASE: ${{ needs.state.outputs.is_prerelease }}
       - name: Upload tarball artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ github.ref_name }}
           path: ${{ steps.pack.outputs.tarball }}
@@ -170,7 +170,7 @@ jobs:
       - uses: actions/checkout@v6
       - name: Download tarball artifact
         id: artifact
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: ${{ github.ref_name }}
       - name: Check integrity

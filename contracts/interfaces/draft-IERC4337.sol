@@ -30,6 +30,8 @@ pragma solidity >=0.8.4;
  * - `preVerificationGas` (`uint256`)
  * - `gasFees` (`bytes32`): concatenation of maxPriorityFeePerGas (16 bytes) and maxFeePerGas (16 bytes)
  * - `paymasterAndData` (`bytes`): concatenation of paymaster fields (or empty)
+ *   For EntryPoint v0.9+, may optionally include `paymasterSignature` at the end:
+ *   `paymaster || paymasterVerificationGasLimit || paymasterPostOpGasLimit || paymasterData || paymasterSignature || paymasterSignatureSize || PAYMASTER_SIG_MAGIC`
  * - `signature` (`bytes`)
  */
 struct PackedUserOperation {
@@ -40,7 +42,7 @@ struct PackedUserOperation {
     bytes32 accountGasLimits; // `abi.encodePacked(verificationGasLimit, callGasLimit)` 16 bytes each
     uint256 preVerificationGas;
     bytes32 gasFees; // `abi.encodePacked(maxPriorityFeePerGas, maxFeePerGas)` 16 bytes each
-    bytes paymasterAndData; // `abi.encodePacked(paymaster, paymasterVerificationGasLimit, paymasterPostOpGasLimit, paymasterData)` (20 bytes, 16 bytes, 16 bytes, dynamic)
+    bytes paymasterAndData; // `abi.encodePacked(paymaster, paymasterVerificationGasLimit, paymasterPostOpGasLimit, paymasterData[, paymasterSignature, paymasterSignatureSize, PAYMASTER_SIG_MAGIC])` (20 bytes, 16 bytes, 16 bytes, dynamic[, dynamic, 2 bytes, 8 bytes])
     bytes signature;
 }
 
