@@ -31,13 +31,13 @@ runs:
       uses: actions/setup-node@v6
       with:
         node-version: 24.x
-    - name: Cache node modules
+    - name: Try fetch node modules from cache
       id: cache
       if: ${{ inputs.withNpm == 'true' }}
       uses: actions/cache@v5
       with:
         path: '**/node_modules'
-        key: npm-v3-${{ hashFiles('**/package-lock.json') }}
+        key: npm-24.x-${{ hashFiles('**/package-lock.json') }}
     - name: Install dependencies
       if: ${{ inputs.withNpm == 'true' && steps.cache.outputs.cache-hit != 'true' }}
       shell: bash
