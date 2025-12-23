@@ -68,7 +68,7 @@ runs:
       shell: bash
       run: pip install -r fv-requirements.txt
     # Solc setup
-    - name: Install solc (0.8.31)
+    - name: Install solc (0.8.27)
       if: ${{ inputs.withSolc == 'true' }}
       shell: bash
       run: |
