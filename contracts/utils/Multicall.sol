@@ -28,9 +28,13 @@ abstract contract Multicall is Context {
             ? new bytes(0)
             : msg.data[msg.data.length - _contextSuffixLength():];
 
-        results = new bytes[](data.length);
-        for (uint256 i = 0; i < data.length; i++) {
+        uint256 length = data.length;
+        results = new bytes[](length);
+        for (uint256 i = 0; i < length;) {
             results[i] = Address.functionDelegateCall(address(this), bytes.concat(data[i], context));
+            unchecked {
+                ++i;
+            }
         }
         return results;
     }
