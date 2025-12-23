@@ -1,22 +1,77 @@
 name: Setup
 description: Common environment setup
+inputs:
+  withNpm:
+    description: Whether to set up Node.js and npm
+    required: false
+    default: 'true'
+  withFoundry:
+    description: Whether to set up Foundry
+    required: false
+    default: 'true'
+  withJava:
+    description: Whether to set up Java
+    required: false
+    default: 'false'
+  withPython:
+    description: Whether to set up Python
+    required: false
+    default: 'false'
+  withSolc:
+    description: Whether to set up solc
+    required: false
+    default: 'false'
 
 runs:
   using: composite
   steps:
-    - uses: actions/setup-node@v6
+    # Node & npm setup
+    - name: Install Node.js (24.x)
+      if: ${{ inputs.withNpm == 'true' }}
+      uses: actions/setup-node@v6
       with:
         node-version: 24.x
-    - uses: actions/cache@v5
+    - name: Cache node modules
       id: cache
+      if: ${{ inputs.withNpm == 'true' }}
+      uses: actions/cache@v5
       with:
         path: '**/node_modules'
         key: npm-v3-${{ hashFiles('**/package-lock.json') }}
     - name: Install dependencies
-      run: npm ci
+      if: ${{ inputs.withNpm == 'true' && steps.cache.outputs.cache-hit != 'true' }}
       shell: bash
-      if: steps.cache.outputs.cache-hit != 'true'
-    - name: Install Foundry
+      run: npm ci
+    # Foundry setup
+    - name: Install Foundry (stable)
+      if: ${{ inputs.withFoundry == 'true' }}
       uses: foundry-rs/foundry-toolchain@v1
       with:
         version: stable
+    # Java setup
+    - name: Install java 21
+      if: ${{ inputs.withJava == 'true' }}
+      uses: actions/setup-java@v5
+      with:
+        distribution: temurin
+        java-version: 21
+    # Python setup
+    - name: Install python (3.13)
+      if: ${{ inputs.withPython == 'true' }}
+      uses: actions/setup-python@v6
+      with:
+        python-version: 3.13
+        cache: 'pip'
+        cache-dependency-path: 'fv-requirements.txt'
+    - name: Install python packages
+      if: ${{ inputs.withPython == 'true' }}
+      shell: bash
+      run: pip install -r fv-requirements.txt
+    # Solc setup
+    - name: Install solc (0.8.31)
+      if: ${{ inputs.withSolc == 'true' }}
+      shell: bash
+      run: |
+        wget https://github.com/ethereum/solidity/releases/download/v0.8.31/solc-static-linux
+        sudo mv solc-static-linux /usr/local/bin/solc
+        chmod +x /usr/local/bin/solc
