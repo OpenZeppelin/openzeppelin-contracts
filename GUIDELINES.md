@@ -20,7 +20,7 @@ The test suite coverage must be kept as close to 100% as possible, enforced in p
 
 In some cases unit tests may be insufficient and complementary techniques should be used:
 
-1. Property-based tests (aka. fuzzing) for math-heavy code.
+1. Property-based tests (aka fuzzing) for math-heavy code.
 2. Formal verification for state machines.
 
 ## Code style
@@ -59,7 +59,7 @@ Automations that make use of sensitive credentials must use secure secret manage
 
 Some other examples of automation are:
 
-- Looking for common security vulnerabilities or errors in our code (eg. reentrancy analysis).
+- Looking for common security vulnerabilities or errors in our code (e.g. reentrancy analysis).
 - Keeping dependencies up to date and monitoring for vulnerable dependencies.
 
 ## Pull requests
@@ -144,15 +144,15 @@ In addition to the official Solidity Style Guide we have a number of other conve
 
   * The domain prefix should be picked in the following order:
     1. Use `ERC<number>` if the error is a violation of an ERC specification.
-    2. Use the name of the underlying component where it belongs (eg. `Governor`, `ECDSA`, or `Timelock`).
+    2. Use the name of the underlying component where it belongs (e.g. `Governor`, `ECDSA`, or `Timelock`).
 
   * The location of custom errors should be decided in the following order:
     1. Take the errors from their underlying ERCs if they're already defined.
     2. Declare the errors in the underlying interface/library if the error makes sense in its context.
-    3. Declare the error in the implementation if the underlying interface/library is not suitable to do so (eg. interface/library already specified in an ERC).
+    3. Declare the error in the implementation if the underlying interface/library is not suitable to do so (e.g. interface/library already specified in an ERC).
     4. Declare the error in an extension if the error only happens in such extension or child contracts.
 
-  * Custom error names should not be declared twice along the library to avoid duplicated identifier declarations when inheriting from multiple contracts.
+  * Custom error names should not be declared twice within the library to avoid duplicated identifier declarations when inheriting from multiple contracts.
 
 * Numeric literals should use appropriate formats based on their purpose to improve code readability:
 
