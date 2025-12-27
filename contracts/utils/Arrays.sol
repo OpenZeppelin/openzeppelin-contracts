@@ -286,7 +286,7 @@ library Arrays {
     /**
      * @dev Searches an `array` sorted in ascending order and returns the first
      * index that contains a value strictly greater than `element`. If no such index
-     * exists (i.e. all values in the array are strictly less than `element`), the array
+     * exists (i.e. all values in the array are less than or equal to `element`), the array
      * length is returned. Time complexity O(log n).
      *
      * See C++'s https://en.cppreference.com/w/cpp/algorithm/upper_bound[upper_bound].
