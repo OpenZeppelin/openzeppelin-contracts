@@ -34,7 +34,7 @@ interface IERC1155Receiver is IERC165 {
     ) external returns (bytes4);
 
     /**
-     * @dev Handles the receipt of a multiple ERC-1155 token types. This function
+     * @dev Handles the receipt of multiple ERC-1155 token types. This function
      * is called at the end of a `safeBatchTransferFrom` after the balances have
      * been updated.
      *
