@@ -2,16 +2,16 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { anyValue } = require('@nomicfoundation/hardhat-chai-matchers/withArgs');
 
-const amount = 100n;
+const tokenId = 42n;
 
-function shouldBehaveLikeBridgeERC20({ chainAIsCustodial = false, chainBIsCustodial = false } = {}) {
-  describe('bridge ERC20 like', function () {
+function shouldBehaveLikeBridgeERC721({ chainAIsCustodial = false, chainBIsCustodial = false } = {}) {
+  describe('bridge ERC721 like', function () {
     beforeEach(function () {
       // helper
-      this.encodePayload = (from, to, amount) =>
+      this.encodePayload = (from, to, tokenId) =>
         ethers.AbiCoder.defaultAbiCoder().encode(
           ['bytes', 'bytes', 'uint256'],
-          [this.chain.toErc7930(from), to.target ?? to.address ?? to, amount],
+          [this.chain.toErc7930(from), to.target ?? to.address ?? to, tokenId],
         );
     });
 
@@ -29,48 +29,42 @@ function shouldBehaveLikeBridgeERC20({ chainAIsCustodial = false, chainBIsCustod
     it('crosschain send (both direction)', async function () {
       const [alice, bruce, chris] = this.accounts;
 
-      await this.tokenA.$_mint(alice, amount);
-      await this.tokenA.connect(alice).approve(this.bridgeA, ethers.MaxUint256);
+      await this.tokenA.$_mint(alice, tokenId);
+      await this.tokenA.connect(alice).setApprovalForAll(this.bridgeA, true);
 
       // Alice sends tokens from chain A to Bruce on chain B.
-      await expect(this.bridgeA.connect(alice).crosschainTransfer(this.chain.toErc7930(bruce), amount))
-        // bridge on chain A takes custody of the funds
+      await expect(this.bridgeA.connect(alice).crosschainTransfer(this.chain.toErc7930(bruce), tokenId))
+        // bridge on chain A takes custody of the token
         .to.emit(this.tokenA, 'Transfer')
-        .withArgs(alice, chainAIsCustodial ? this.bridgeA : ethers.ZeroAddress, amount)
+        .withArgs(alice, chainAIsCustodial ? this.bridgeA : ethers.ZeroAddress, tokenId)
         // crosschain transfer sent
-        .to.emit(this.bridgeA, 'CrosschainERC20TransferSent')
-        .withArgs(anyValue, alice, this.chain.toErc7930(bruce), amount)
+        .to.emit(this.bridgeA, 'CrosschainERC721TransferSent')
+        .withArgs(anyValue, alice, this.chain.toErc7930(bruce), tokenId)
         // ERC-7786 event
         .to.emit(this.gateway, 'MessageSent')
         // crosschain transfer received
-        .to.emit(this.bridgeB, 'CrosschainERC20TransferReceived')
-        .withArgs(anyValue, this.chain.toErc7930(alice), bruce, amount)
-        // crosschain mint event
-        .to.emit(this.tokenB, 'CrosschainMint')
-        .withArgs(bruce, amount, this.bridgeB)
+        .to.emit(this.bridgeB, 'CrosschainERC721TransferReceived')
+        .withArgs(anyValue, this.chain.toErc7930(alice), bruce, tokenId)
         // tokens are minted on chain B
         .to.emit(this.tokenB, 'Transfer')
-        .withArgs(chainBIsCustodial ? this.bridgeB : ethers.ZeroAddress, bruce, amount);
+        .withArgs(chainBIsCustodial ? this.bridgeB : ethers.ZeroAddress, bruce, tokenId);
 
       // Bruce sends tokens from chain B to Chris on chain A.
-      await expect(this.bridgeB.connect(bruce).crosschainTransfer(this.chain.toErc7930(chris), amount))
+      await expect(this.bridgeB.connect(bruce).crosschainTransfer(this.chain.toErc7930(chris), tokenId))
         // tokens are burned on chain B
         .to.emit(this.tokenB, 'Transfer')
-        .withArgs(bruce, chainBIsCustodial ? this.bridgeB : ethers.ZeroAddress, amount)
-        // crosschain burn event
-        .to.emit(this.tokenB, 'CrosschainBurn')
-        .withArgs(bruce, amount, this.bridgeB)
+        .withArgs(bruce, chainBIsCustodial ? this.bridgeB : ethers.ZeroAddress, tokenId)
         // crosschain transfer sent
-        .to.emit(this.bridgeB, 'CrosschainERC20TransferSent')
-        .withArgs(anyValue, bruce, this.chain.toErc7930(chris), amount)
+        .to.emit(this.bridgeB, 'CrosschainERC721TransferSent')
+        .withArgs(anyValue, bruce, this.chain.toErc7930(chris), tokenId)
         // ERC-7786 event
         .to.emit(this.gateway, 'MessageSent')
         // crosschain transfer received
-        .to.emit(this.bridgeA, 'CrosschainERC20TransferReceived')
-        .withArgs(anyValue, this.chain.toErc7930(bruce), chris, amount)
-        // bridge on chain A releases custody of the funds
+        .to.emit(this.bridgeA, 'CrosschainERC721TransferReceived')
+        .withArgs(anyValue, this.chain.toErc7930(bruce), chris, tokenId)
+        // bridge on chain A releases custody of the token
         .to.emit(this.tokenA, 'Transfer')
-        .withArgs(chainAIsCustodial ? this.bridgeA : ethers.ZeroAddress, chris, amount);
+        .withArgs(chainAIsCustodial ? this.bridgeA : ethers.ZeroAddress, chris, tokenId);
     });
 
     describe('restrictions', function () {
@@ -87,7 +81,7 @@ function shouldBehaveLikeBridgeERC20({ chainAIsCustodial = false, chainBIsCustod
             .receiveMessage(
               ethers.ZeroHash,
               this.chain.toErc7930(this.tokenB),
-              this.encodePayload(notGateway, notGateway, amount),
+              this.encodePayload(notGateway, notGateway, tokenId),
             ),
         )
           .to.be.revertedWithCustomError(this.bridgeA, 'ERC7786RecipientUnauthorizedGateway')
@@ -100,7 +94,7 @@ function shouldBehaveLikeBridgeERC20({ chainAIsCustodial = false, chainBIsCustod
         await expect(
           this.gateway
             .connect(invalid)
-            .sendMessage(this.chain.toErc7930(this.bridgeA), this.encodePayload(invalid, invalid, amount), []),
+            .sendMessage(this.chain.toErc7930(this.bridgeA), this.encodePayload(invalid, invalid, tokenId), []),
         )
           .to.be.revertedWithCustomError(this.bridgeA, 'ERC7786RecipientUnauthorizedGateway')
           .withArgs(this.gateway, this.chain.toErc7930(invalid));
@@ -110,12 +104,16 @@ function shouldBehaveLikeBridgeERC20({ chainAIsCustodial = false, chainBIsCustod
         const [from, to] = this.accounts;
 
         const id = ethers.ZeroHash;
-        const payload = this.encodePayload(from, to, amount);
+        const payload = this.encodePayload(from, to, tokenId);
+
+        if (chainAIsCustodial) {
+          await this.tokenA.$_mint(this.bridgeA, tokenId);
+        }
 
         // first time works
         await expect(
           this.bridgeA.connect(this.gatewayAsEOA).receiveMessage(id, this.chain.toErc7930(this.bridgeB), payload),
-        ).to.emit(this.bridgeA, 'CrosschainERC20TransferReceived');
+        ).to.emit(this.bridgeA, 'CrosschainERC721TransferReceived');
 
         // second time fails
         await expect(
@@ -161,5 +159,5 @@ function shouldBehaveLikeBridgeERC20({ chainAIsCustodial = false, chainBIsCustod
 }
 
 module.exports = {
-  shouldBehaveLikeBridgeERC20,
+  shouldBehaveLikeBridgeERC721,
 };
