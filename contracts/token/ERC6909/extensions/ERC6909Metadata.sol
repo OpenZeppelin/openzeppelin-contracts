@@ -5,6 +5,7 @@ pragma solidity ^0.8.20;
 
 import {ERC6909} from "../ERC6909.sol";
 import {IERC6909Metadata} from "../../../interfaces/IERC6909.sol";
+import {IERC165} from "../../../utils/introspection/IERC165.sol";
 
 /**
  * @dev Implementation of the Metadata extension defined in ERC6909. Exposes the name, symbol, and decimals of each token id.
@@ -40,6 +41,11 @@ contract ERC6909Metadata is ERC6909, IERC6909Metadata {
     /// @inheritdoc IERC6909Metadata
     function decimals(uint256 id) public view virtual override returns (uint8) {
         return _tokenMetadata[id].decimals;
+    }
+
+    /// @inheritdoc IERC165
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC6909, IERC165) returns (bool) {
+        return interfaceId == type(IERC6909Metadata).interfaceId || super.supportsInterface(interfaceId);
     }
 
     /**
