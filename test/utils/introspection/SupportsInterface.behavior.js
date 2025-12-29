@@ -99,6 +99,10 @@ const SIGNATURES = {
     'approve(address,uint256,uint256)',
     'setOperator(address,bool)',
   ],
+  ERC6909ContentURI: [
+    'contractURI()',
+    'tokenURI(uint256)',
+  ],
 };
 
 const INTERFACE_IDS = mapValues(SIGNATURES, interfaceId);
