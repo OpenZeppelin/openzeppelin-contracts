@@ -6,6 +6,13 @@ import {ERC20} from "../ERC20.sol";
 import {IERC7246} from "../../../interfaces/draft-IERC7246.sol";
 import {Math} from "../../../utils/math/Math.sol";
 
+/**
+ * @title ERC7246
+ * @dev An extension of {ERC20} that adds support for encumbrances of token balances. Encumbrances are a
+ * stronger version of allowances: they grant the `spender` an exclusive right to transfer tokens from the
+ * `owner`'s balance without reducing the `owner`'s balance until the tokens are transferred or the
+ * encumbrance is released.
+ */
 abstract contract ERC7246 is ERC20, IERC7246 {
     /// @dev Thrown when the result of an {_update} or {_encumber} call would result in negative {availableBalanceOf}.
     error ERC7246InsufficientAvailableBalance(uint256 available, uint256 required);
@@ -52,7 +59,7 @@ abstract contract ERC7246 is ERC20, IERC7246 {
 
     /**
      * @dev Encumber `amount` of tokens from `owner` to `spender`. Encumbering tokens grants an exclusive right
-     * to transfer the tokens without removing them from the owner's balance. Release the tokens by calling
+     * to transfer the tokens without removing them from `owner`'s balance. Release the tokens by calling
      * {release} or transfer them by calling {transferFrom}.
      */
     function _encumber(address owner, address spender, uint256 amount) internal virtual {
@@ -75,7 +82,7 @@ abstract contract ERC7246 is ERC20, IERC7246 {
      * @dev Release `amount` of encumbered tokens from `owner` to `spender`.
      *
      * - Will revert if there are insufficient encumbered tokens.
-     * - Emits the {ERC7246-Release} event.
+     * - Emits the {IERC7246-Release} event.
      */
     function _releaseEncumbrance(address owner, address spender, uint256 amount) internal virtual {
         uint256 encumbered = encumbrances(owner, spender);
@@ -90,7 +97,7 @@ abstract contract ERC7246 is ERC20, IERC7246 {
     }
 
     /**
-     * @dev See {ERC20-_spendAllowance}. Encumbrances are spent first, then the remaining amount
+     * @dev See {ERC20-_spendAllowance}. Encumbrances are consumed first, then the remaining amount
      * is passed to `super._spendAllowance`.
      */
     function _spendAllowance(address owner, address spender, uint256 amount) internal virtual override {
@@ -108,8 +115,10 @@ abstract contract ERC7246 is ERC20, IERC7246 {
         super._spendAllowance(owner, spender, remainingAllowance);
     }
 
-    /// @inheritdoc ERC20
+    /// @dev See {ERC20-_update}. Ensures that `from` has sufficient {availableBalanceOf} to cover the `amount` being transferred.
     function _update(address from, address to, uint256 amount) internal virtual override {
+        // TODO: Open question: should we keep the same revert message for normal insufficient balance? If so call super first.
+        // Would require some changes in the calculations to work properly (update changes balance)
         if (from != address(0)) {
             uint256 availableBalance = availableBalanceOf(from);
             require(availableBalance >= amount, ERC7246InsufficientAvailableBalance(availableBalance, amount));

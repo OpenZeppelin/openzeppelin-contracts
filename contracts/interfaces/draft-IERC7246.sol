@@ -47,19 +47,17 @@ interface IERC7246 is IERC20 {
      * @dev Increases the amount of tokens that `owner` has encumbered to `spender` by `amount`.
      * Grants `spender` a guaranteed right to transfer `amount` from `owner` using transferFrom.
      *
-     * The function SHOULD revert unless the owner account has deliberately authorized the sender of the message via some mechanism.
-     *
-     * MUST revert if `owner` does not have `amount` tokens available
-     * (e.g. if `balanceOf(owner) - encumbrances(owner) < amount`).
-     *
-     * Emits an {IERC7246-Encumber} event.
+     * - The function SHOULD revert unless the owner account has deliberately authorized the sender of the message via some mechanism.
+     * - MUST revert if `owner` does not have `amount` tokens available
+     *  (e.g. if `balanceOf(owner) - encumbrances(owner) < amount`).
+     * - Emits an {IERC7246-Encumber} event.
      */
     function encumberFrom(address owner, address spender, uint256 amount) external;
 
     /**
      * @dev Reduces amount of tokens encumbered from `owner` to caller by `amount`
      *
-     * Emits a {IERC7246-Release} event.
+     * - Emits a {IERC7246-Release} event.
      */
     function release(address owner, uint256 amount) external;
 }
