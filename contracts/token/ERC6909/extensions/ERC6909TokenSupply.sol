@@ -5,6 +5,7 @@ pragma solidity ^0.8.20;
 
 import {ERC6909} from "../ERC6909.sol";
 import {IERC6909TokenSupply} from "../../../interfaces/IERC6909.sol";
+import {IERC165} from "../../../utils/introspection/IERC165.sol";
 
 /**
  * @dev Implementation of the Token Supply extension defined in ERC6909.
@@ -16,6 +17,11 @@ contract ERC6909TokenSupply is ERC6909, IERC6909TokenSupply {
     /// @inheritdoc IERC6909TokenSupply
     function totalSupply(uint256 id) public view virtual override returns (uint256) {
         return _totalSupplies[id];
+    }
+
+    /// @inheritdoc IERC165
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC6909, IERC165) returns (bool) {
+        return interfaceId == type(IERC6909TokenSupply).interfaceId || super.supportsInterface(interfaceId);
     }
 
     /// @dev Override the `_update` function to update the total supply of each token id as necessary.
