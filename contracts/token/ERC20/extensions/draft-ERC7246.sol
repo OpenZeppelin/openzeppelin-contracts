@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.26;
 
 import {ERC20} from "../ERC20.sol";
 import {IERC7246} from "../../../interfaces/draft-IERC7246.sol";
