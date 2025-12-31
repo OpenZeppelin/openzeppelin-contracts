@@ -7,7 +7,7 @@ This directory includes primitives for on-chain governance.
 
 == Governor
 
-This modular system of Governor contracts allows the deployment on-chain voting protocols similar to https://compound.finance/docs/governance[Compound's Governor Alpha & Bravo] and beyond, through the ability to easily customize multiple aspects of the protocol.
+This modular system of Governor contracts allows the deployment of on-chain voting protocols similar to https://compound.finance/docs/governance[Compound's Governor Alpha & Bravo] and beyond, through the ability to easily customize multiple aspects of the protocol.
 
 [TIP]
 ====
