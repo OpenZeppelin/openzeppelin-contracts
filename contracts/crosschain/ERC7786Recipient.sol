@@ -13,7 +13,7 @@ import {BitMaps} from "../utils/structs/BitMaps.sol";
  * destination gateways. This contract leaves two functions unimplemented:
  *
  * * {_isAuthorizedGateway}, an internal getter used to verify whether an address is recognised by the contract as a
- * valid ERC-7786 destination gateway. One or multiple gateway can be supported. Note that any malicious address for
+ * valid ERC-7786 destination gateway. One or multiple gateways can be supported. Note that any malicious address for
  * which this function returns true would be able to impersonate any account on any other chain sending any message.
  *
  * * {_processMessage}, the internal function that will be called with any message that has been validated.
