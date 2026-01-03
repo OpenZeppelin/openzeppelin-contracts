@@ -30,7 +30,7 @@ abstract contract ERC20Bridgeable is ERC20, ERC165, IERC7802 {
      */
     function crosschainMint(address to, uint256 value) public virtual override onlyTokenBridge {
         _mint(to, value);
-        emit CrosschainMint(to, value, _msgSender());
+        emit CrosschainMint(to, value, msg.sender);
     }
 
     /**
@@ -38,7 +38,7 @@ abstract contract ERC20Bridgeable is ERC20, ERC165, IERC7802 {
      */
     function crosschainBurn(address from, uint256 value) public virtual override onlyTokenBridge {
         _burn(from, value);
-        emit CrosschainBurn(from, value, _msgSender());
+        emit CrosschainBurn(from, value, msg.sender);
     }
 
     /**
