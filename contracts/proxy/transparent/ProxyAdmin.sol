@@ -12,6 +12,11 @@ import {Ownable} from "../../access/Ownable.sol";
  */
 contract ProxyAdmin is Ownable {
     /**
+     * @dev The `proxy` address is invalid (e.g. `address(0)`).
+     */
+    error ProxyAdminInvalidProxy(address proxy);
+
+    /**
      * @dev The version of the upgrade interface of the contract. If this getter is missing, both `upgrade(address,address)`
      * and `upgradeAndCall(address,address,bytes)` are present, and `upgrade` must be used if no function should be called,
      * while `upgradeAndCall` will invoke the `receive` function if the third argument is the empty byte string.
@@ -32,6 +37,7 @@ contract ProxyAdmin is Ownable {
      *
      * Requirements:
      *
+     * - `proxy` must not be the zero address.
      * - This contract must be the admin of `proxy`.
      * - If `data` is empty, `msg.value` must be zero.
      */
@@ -40,6 +46,9 @@ contract ProxyAdmin is Ownable {
         address implementation,
         bytes memory data
     ) public payable virtual onlyOwner {
+        if (address(proxy) == address(0)) {
+            revert ProxyAdminInvalidProxy(address(0));
+        }
         proxy.upgradeToAndCall{value: msg.value}(implementation, data);
     }
 }
