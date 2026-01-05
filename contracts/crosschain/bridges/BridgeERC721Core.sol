@@ -15,7 +15,7 @@ import {CrosschainLinked} from "../CrosschainLinked.sol";
  * * {_onReceive}: called when a crosschain transfer is coming in. Must give tokens to the receiver.
  *
  * This base contract is used by the {BridgeERC721}, which interfaces with legacy ERC-721 tokens. It is also used by
- * the {ERC721Crosschain}extension, which embeds the bridge logic directly in the token contract.
+ * the {ERC721Crosschain} extension, which embeds the bridge logic directly in the token contract.
  */
 abstract contract BridgeERC721Core is Context, CrosschainLinked {
     using InteroperableAddress for bytes;

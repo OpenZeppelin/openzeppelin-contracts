@@ -195,7 +195,7 @@ function shouldBehaveLikeBridgeERC721({ chainAIsCustodial = false, chainBIsCusto
         ]);
       });
 
-      it('cannot override configuration is "allowOverride" is false', async function () {
+      it('cannot override configuration if "allowOverride" is false', async function () {
         const newGateway = await ethers.deployContract('$ERC7786GatewayMock');
         const newCounterpart = this.chain.toErc7930(this.accounts[0]);
 

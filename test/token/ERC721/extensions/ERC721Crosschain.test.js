@@ -35,7 +35,7 @@ async function fixture() {
   return { chain, accounts, gateway, gatewayAsEOA, tokenA, tokenB, bridgeA, bridgeB };
 }
 
-describe('CrosschainBridgeERC20', function () {
+describe('ERC721Crosschain', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });
