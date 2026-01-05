@@ -39,8 +39,11 @@ abstract contract BridgeERC721 is IERC721Receiver, BridgeERC721Core {
             IERC721Errors.ERC721InsufficientApproval(spender, tokenId)
         );
 
-        // This call verifies that `from` is the owner of `tokenId`
-        // Note: do not use safeTransferFrom here! Using it would trigger the `onERC721Received` which we don't want.
+        // This call verifies that `from` is the owner of `tokenId`, and the previous checks ensure that `spender` is
+        // allowed to move tokenId on behalf of `from`. Note: do not use safeTransferFrom here! Using it would trigger
+        // the `onERC721Received` which we don't want.
+        //
+        // slither-disable-next-line arbitrary-from-in-transferfrom
         token().transferFrom(from, address(this), tokenId);
 
         // Perform the crosschain transfer and return the handler
