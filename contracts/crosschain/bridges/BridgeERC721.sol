@@ -4,6 +4,7 @@ pragma solidity ^0.8.26;
 
 import {IERC721} from "../../interfaces/IERC721.sol";
 import {IERC721Receiver} from "../../interfaces/IERC721Receiver.sol";
+import {IERC721Errors} from "../../interfaces/draft-IERC6093.sol";
 import {BridgeERC721Core} from "./BridgeERC721Core.sol";
 
 /**
@@ -13,6 +14,8 @@ import {BridgeERC721Core} from "./BridgeERC721Core.sol";
 // slither-disable-next-line locked-ether
 abstract contract BridgeERC721 is IERC721Receiver, BridgeERC721Core {
     IERC721 private immutable _token;
+
+    error BridgeERC721Unauthorized(address caller);
 
     constructor(IERC721 token_) {
         _token = token_;
@@ -28,10 +31,20 @@ abstract contract BridgeERC721 is IERC721Receiver, BridgeERC721Core {
      *
      * Note: The `to` parameter is the full InteroperableAddress (chain ref + address).
      */
-    function crosschainTransfer(bytes memory to, uint256 tokenId) public virtual returns (bytes32) {
+    function crosschainTransferFrom(address from, bytes memory to, uint256 tokenId) public virtual returns (bytes32) {
+        // Permission is handeled using the ERC721's allowance system. This check replicates `ERC721._isAuthorized`.
+        address spender = _msgSender();
+        require(
+            from == spender || token().isApprovedForAll(from, spender) || token().getApproved(tokenId) == spender,
+            IERC721Errors.ERC721InsufficientApproval(spender, tokenId)
+        );
+
+        // This call verifies that `from` is the owner of `tokenId`
         // Note: do not use safeTransferFrom here! Using it would trigger the `onERC721Received` which we don't want.
-        token().transferFrom(msg.sender, address(this), tokenId);
-        return _crosschainTransfer(msg.sender, to, tokenId);
+        token().transferFrom(from, address(this), tokenId);
+
+        // Perform the crosschain transfer and return the handler
+        return _crosschainTransfer(from, to, tokenId);
     }
 
     /**
@@ -45,7 +58,8 @@ abstract contract BridgeERC721 is IERC721Receiver, BridgeERC721Core {
         uint256 tokenId,
         bytes calldata data // this is the to
     ) public virtual override returns (bytes4) {
-        require(msg.sender == address(_token)); // TODO
+        // TODO: should this consider _msgSender() ?
+        require(msg.sender == address(_token), BridgeERC721Unauthorized(msg.sender));
         _crosschainTransfer(from, data, tokenId);
         return IERC721Receiver.onERC721Received.selector;
     }

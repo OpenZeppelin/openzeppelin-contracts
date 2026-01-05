@@ -3,6 +3,7 @@
 pragma solidity ^0.8.26;
 
 import {InteroperableAddress} from "../../utils/draft-InteroperableAddress.sol";
+import {Context} from "../../utils/Context.sol";
 import {ERC7786Recipient} from "../ERC7786Recipient.sol";
 import {CrosschainLinked} from "../CrosschainLinked.sol";
 
@@ -16,7 +17,7 @@ import {CrosschainLinked} from "../CrosschainLinked.sol";
  * This base contract is used by the {BridgeERC721}, which interfaces with legacy ERC-721 tokens. It is also used by
  * the {ERC721Crosschain}extension, which embeds the bridge logic directly in the token contract.
  */
-abstract contract BridgeERC721Core is CrosschainLinked {
+abstract contract BridgeERC721Core is Context, CrosschainLinked {
     using InteroperableAddress for bytes;
 
     event CrosschainERC721TransferSent(bytes32 indexed sendId, address indexed from, bytes to, uint256 tokenId);

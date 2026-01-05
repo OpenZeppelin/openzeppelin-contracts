@@ -33,7 +33,7 @@ function shouldBehaveLikeBridgeERC721({ chainAIsCustodial = false, chainBIsCusto
       await this.tokenA.connect(alice).setApprovalForAll(this.bridgeA, true);
 
       // Alice sends tokens from chain A to Bruce on chain B.
-      await expect(this.bridgeA.connect(alice).crosschainTransfer(this.chain.toErc7930(bruce), tokenId))
+      await expect(this.bridgeA.connect(alice).crosschainTransferFrom(alice, this.chain.toErc7930(bruce), tokenId))
         // bridge on chain A takes custody of the token
         .to.emit(this.tokenA, 'Transfer')
         .withArgs(alice, chainAIsCustodial ? this.bridgeA : ethers.ZeroAddress, tokenId)
@@ -50,7 +50,7 @@ function shouldBehaveLikeBridgeERC721({ chainAIsCustodial = false, chainBIsCusto
         .withArgs(chainBIsCustodial ? this.bridgeB : ethers.ZeroAddress, bruce, tokenId);
 
       // Bruce sends tokens from chain B to Chris on chain A.
-      await expect(this.bridgeB.connect(bruce).crosschainTransfer(this.chain.toErc7930(chris), tokenId))
+      await expect(this.bridgeB.connect(bruce).crosschainTransferFrom(bruce, this.chain.toErc7930(chris), tokenId))
         // tokens are burned on chain B
         .to.emit(this.tokenB, 'Transfer')
         .withArgs(bruce, chainBIsCustodial ? this.bridgeB : ethers.ZeroAddress, tokenId)
@@ -65,6 +65,62 @@ function shouldBehaveLikeBridgeERC721({ chainAIsCustodial = false, chainBIsCusto
         // bridge on chain A releases custody of the token
         .to.emit(this.tokenA, 'Transfer')
         .withArgs(chainAIsCustodial ? this.bridgeA : ethers.ZeroAddress, chris, tokenId);
+    });
+
+    describe('transfer with allowance', function () {
+      it('spender is owner', async function () {
+        const [alice, bruce] = this.accounts;
+        const tokenId = 17n;
+
+        await this.tokenA.$_mint(alice, tokenId);
+        await this.tokenA.connect(alice).setApprovalForAll(this.bridgeA, true);
+
+        await expect(this.bridgeA.connect(alice).crosschainTransferFrom(alice, this.chain.toErc7930(bruce), tokenId))
+          .to.emit(this.bridgeA, 'CrosschainERC721TransferSent')
+          .withArgs(anyValue, alice, this.chain.toErc7930(bruce), tokenId);
+      });
+
+      it('spender is allowed for all', async function () {
+        const [alice, bruce, chris, david] = this.accounts;
+        const tokenId = 17n;
+
+        await this.tokenA.$_mint(alice, tokenId);
+        await this.tokenA.connect(alice).setApprovalForAll(this.bridgeA, true);
+        await this.tokenA.connect(alice).setApprovalForAll(chris, true);
+
+        // david is not allowed
+        await expect(this.bridgeA.connect(david).crosschainTransferFrom(alice, this.chain.toErc7930(bruce), tokenId))
+          .to.be.revertedWithCustomError(this.tokenA, 'ERC721InsufficientApproval')
+          .withArgs(david, tokenId);
+
+        // chris is allowed
+        await expect(this.bridgeA.connect(chris).crosschainTransferFrom(alice, this.chain.toErc7930(bruce), tokenId))
+          .to.emit(this.bridgeA, 'CrosschainERC721TransferSent')
+          .withArgs(anyValue, alice, this.chain.toErc7930(bruce), tokenId);
+      });
+
+      it('spender is allowed for specific token', async function () {
+        const [alice, bruce, chris] = this.accounts;
+        const tokenId = 17n;
+        const otherTokenId = 42n;
+
+        await this.tokenA.$_mint(alice, tokenId);
+        await this.tokenA.$_mint(alice, otherTokenId);
+        await this.tokenA.connect(alice).setApprovalForAll(this.bridgeA, true);
+        await this.tokenA.connect(alice).approve(chris, tokenId);
+
+        // chris is not allowed to transfer otherTokenId
+        await expect(
+          this.bridgeA.connect(chris).crosschainTransferFrom(alice, this.chain.toErc7930(bruce), otherTokenId),
+        )
+          .to.be.revertedWithCustomError(this.tokenA, 'ERC721InsufficientApproval')
+          .withArgs(chris, otherTokenId);
+
+        // chris is allowed to transfer tokenId
+        await expect(this.bridgeA.connect(chris).crosschainTransferFrom(alice, this.chain.toErc7930(bruce), tokenId))
+          .to.emit(this.bridgeA, 'CrosschainERC721TransferSent')
+          .withArgs(anyValue, alice, this.chain.toErc7930(bruce), tokenId);
+      });
     });
 
     describe('restrictions', function () {
