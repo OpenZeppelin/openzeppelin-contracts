@@ -43,7 +43,7 @@ abstract contract BridgeERC721 is IERC721Receiver, BridgeERC721Core {
         // allowed to move tokenId on behalf of `from`. Note: do not use safeTransferFrom here! Using it would trigger
         // the `onERC721Received` which we don't want.
         //
-        // slither-disable-next-line arbitrary-from-in-transferfrom
+        // slither-disable-next-line arbitrary-send-erc20
         token().transferFrom(from, address(this), tokenId);
 
         // Perform the crosschain transfer and return the handler
