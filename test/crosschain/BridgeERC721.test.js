@@ -36,7 +36,7 @@ async function fixture() {
   return { chain, accounts, gateway, gatewayAsEOA, tokenA, tokenB, bridgeA, bridgeB };
 }
 
-describe('CrosschainBridgeERC20', function () {
+describe('CrosschainBridgeERC721', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });
@@ -68,7 +68,7 @@ describe('CrosschainBridgeERC20', function () {
       // crosschain transfer received
       .to.emit(this.tokenB, 'CrosschainERC721TransferReceived')
       .withArgs(anyValue, this.chain.toErc7930(alice), bruce, tokenId)
-      // bridge on custodial chain releases mints the token
+      // bridge on destination chain mints the token
       .to.emit(this.tokenB, 'Transfer')
       .withArgs(ethers.ZeroAddress, bruce, tokenId);
   });
