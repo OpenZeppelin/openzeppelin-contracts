@@ -66,7 +66,7 @@ describe('TrieProof', function () {
 
   describe('verify', function () {
     it('verify transaction and receipt inclusion in block', async function () {
-      // Multiple transactions/events in a block
+      // Multiple transactions/receipts in a block
       const txs = await batchInBlock(
         [
           () => this.target.mockFunction({ gasLimit: 100000 }),

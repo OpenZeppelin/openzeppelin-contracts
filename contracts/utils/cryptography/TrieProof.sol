@@ -11,7 +11,7 @@ import {RLP} from "../RLP.sol";
  * The {traverse} and {verify} functions can be used to prove the following value:
  *
  * * Transaction against the transactionsRoot of a block.
- * * Event against receiptsRoot of a block.
+ * * Receipt against receiptsRoot of a block.
  * * Account details (RLP encoding of [nonce, balance, storageRoot, codeHash]) against the stateRoot of a block.
  * * Storage slot (RLP encoding of the value) against the storageRoot of a account.
  *
