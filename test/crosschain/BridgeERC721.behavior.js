@@ -123,11 +123,33 @@ function shouldBehaveLikeBridgeERC721({ chainAIsCustodial = false, chainBIsCusto
       });
     });
 
-    describe('restrictions', function () {
-      beforeEach(async function () {
-        await this.tokenA.$_mint(this.bridgeA, 1_000_000_000n);
+    describe('invalid transfer', function () {
+      it('token not minted', async function () {
+        const [alice, bruce] = this.accounts;
+        const tokenId = 17n;
+
+        await expect(
+          this.bridgeA.connect(alice).crosschainTransferFrom(ethers.ZeroAddress, this.chain.toErc7930(bruce), tokenId),
+        )
+          .to.be.revertedWithCustomError(this.tokenA, 'ERC721NonexistentToken')
+          .withArgs(tokenId);
       });
 
+      it('incorrect from argument', async function () {
+        const [alice, bruce] = this.accounts;
+        const tokenId = 17n;
+
+        await this.tokenA.$_mint(alice, tokenId);
+        await this.tokenA.connect(alice).setApprovalForAll(this.bridgeA, true);
+        await this.tokenA.connect(alice).setApprovalForAll(bruce, true);
+
+        await expect(this.bridgeA.connect(bruce).crosschainTransferFrom(bruce, this.chain.toErc7930(bruce), tokenId))
+          .to.be.revertedWithCustomError(this.tokenA, 'ERC721IncorrectOwner')
+          .withArgs(bruce, tokenId, alice);
+      });
+    });
+
+    describe('restrictions', function () {
       it('only gateway can relay messages', async function () {
         const [notGateway] = this.accounts;
 
