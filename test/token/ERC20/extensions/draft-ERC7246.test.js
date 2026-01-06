@@ -2,11 +2,7 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const {
-  shouldBehaveLikeERC20,
-  shouldBehaveLikeERC20Transfer,
-  shouldBehaveLikeERC20Approve,
-} = require('../ERC20.behavior.js');
+const { shouldBehaveLikeERC20 } = require('../ERC20.behavior.js');
 
 const name = 'My Token';
 const symbol = 'MTKN';
@@ -190,5 +186,5 @@ describe('ERC7246', function () {
     });
   });
 
-  // shouldBehaveLikeERC20(value);
+  shouldBehaveLikeERC20(value);
 });

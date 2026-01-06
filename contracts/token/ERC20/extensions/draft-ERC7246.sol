@@ -117,12 +117,14 @@ abstract contract ERC7246 is ERC20, IERC7246 {
 
     /// @dev See {ERC20-_update}. Ensures that `from` has sufficient {availableBalanceOf} to cover the `amount` being transferred.
     function _update(address from, address to, uint256 amount) internal virtual override {
-        // TODO: Open question: should we keep the same revert message for normal insufficient balance? If so call super first.
-        // Would require some changes in the calculations to work properly (update changes balance)
-        if (from != address(0)) {
-            uint256 availableBalance = availableBalanceOf(from);
-            require(availableBalance >= amount, ERC7246InsufficientAvailableBalance(availableBalance, amount));
-        }
         super._update(from, to, amount);
+        if (from != address(0)) {
+            uint256 balanceOfFrom = balanceOf(from);
+            uint256 encumberedBalanceOfFrom = encumberedBalanceOf(from);
+            require(
+                balanceOfFrom >= encumberedBalanceOfFrom,
+                ERC7246InsufficientAvailableBalance(balanceOfFrom + amount - encumberedBalanceOfFrom, amount)
+            );
+        }
     }
 }
