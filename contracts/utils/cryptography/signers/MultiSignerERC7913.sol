@@ -118,7 +118,7 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
      * NOTE: This function does not validate that signers are controlled or represent appropriate entities. Integrators
      * must ensure signers are properly validated before adding them. Problematic signers can compromise
      * the multisig's security or functionality. Examples include uncontrolled addresses (e.g., `address(0)`),
-     * the contract's own address (which may cause recursive validation loops), or contracts that may unintentionally
+     * the account's own address (which may cause recursive validation loops), or contracts that may unintentionally
      * allow arbitrary validation (e.g. using the identity precompile at `address(0x04)`, which would return the
      * ERC-1271 magic value for any `isValidSignature` call).
      */
