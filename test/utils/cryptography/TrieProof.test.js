@@ -82,7 +82,9 @@ describe('TrieProof', function () {
         false,
       ]);
 
-      const blockTries = await this.provider.getBlock(txs.at(0).blockNumber).then(BlockTries.from);
+      const blockTries = await this.provider
+        .getBlock(txs.at(0).blockNumber)
+        .then(block => BlockTries.from(block).ready());
 
       // Sanity check trie roots
       expect(blockTries.transactionTrieRoot).to.equal(transactionsRoot);

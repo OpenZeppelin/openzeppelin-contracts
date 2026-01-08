@@ -31,11 +31,11 @@ class BlockTries {
   }
 
   getTransactionProof(index) {
-    return this.ready().then(() => createMerkleProof(this.transactionTrie, BlockTries.indexToKeyBytes(index)));
+    return createMerkleProof(this.transactionTrie, BlockTries.indexToKeyBytes(index));
   }
 
   getReceiptProof(index) {
-    return this.ready().then(() => createMerkleProof(this.receiptTrie, BlockTries.indexToKeyBytes(index)));
+    return createMerkleProof(this.receiptTrie, BlockTries.indexToKeyBytes(index));
   }
 
   get transactionTrieRoot() {
@@ -47,8 +47,7 @@ class BlockTries {
   }
 
   static from(block) {
-    const instance = new BlockTries(block);
-    return instance.ready();
+    return new BlockTries(block);
   }
 
   // Serialize a transaction into its RLP encoded form
