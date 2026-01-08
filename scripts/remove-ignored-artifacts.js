@@ -6,8 +6,8 @@ const fs = require('fs');
 const path = require('path');
 const match = require('micromatch');
 
-function readJSON(path) {
-  return JSON.parse(fs.readFileSync(path));
+function readJSON(filePath) {
+  return JSON.parse(fs.readFileSync(filePath, 'utf8'));
 }
 
 const pkgFiles = readJSON('package.json').files;
@@ -35,11 +35,16 @@ for (const filename of filenames) {
     const ignore = match.any(sourcePath, ignorePatternsSubtrees);
     if (ignore) {
       for (const contract in solcOutput.contracts[sourcePath]) {
-        fs.unlinkSync(path.join(artifactsDir, contract + '.json'));
-        n += 1;
+        const filePath = path.join(artifactsDir, contract + '.json');
+        try {
+          fs.unlinkSync(filePath);
+          n += 1;
+        } catch (error) {
+          console.error(`Error removing file: ${filePath}`);
+        }
       }
     }
   }
 }
 
-console.error(`Removed ${n} mock artifacts`);
+console.error(`Removed ${n} build artifacts`);
