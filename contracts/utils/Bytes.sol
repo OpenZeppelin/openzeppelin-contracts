@@ -210,8 +210,10 @@ library Bytes {
     function toNibbles(bytes memory input) internal pure returns (bytes memory output) {
         assembly ("memory-safe") {
             let length := mload(input)
+            let chunks := shr(4, add(length, 0x0f))
+            let dataBytes := shl(5, chunks)
             output := mload(0x40)
-            mstore(0x40, add(add(output, 0x20), mul(length, 2)))
+            mstore(0x40, add(add(output, 0x20), dataBytes))
             mstore(output, mul(length, 2))
             for {
                 let i := 0
