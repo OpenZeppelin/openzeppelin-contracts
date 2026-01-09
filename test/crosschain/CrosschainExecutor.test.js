@@ -159,7 +159,7 @@ describe('CrosschainRemoteController & CrosschainRemoteExecutor', function () {
   describe('reconfigure', function () {
     beforeEach(async function () {
       this.newGateway = await ethers.deployContract('$ERC7786GatewayMock');
-      this.newController = await ethers.deployContract('$CrosschainRemoteControllerMock', [[]]);
+      this.newController = await ethers.deployContract('$CrosschainRemoteController');
     });
 
     it('through a crosschain call: success', async function () {
