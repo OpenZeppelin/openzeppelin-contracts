@@ -2,8 +2,6 @@
 
 pragma solidity ^0.8.26;
 
-import {CrosschainLinked} from "./CrosschainLinked.sol";
-
 import {IERC7786GatewaySource} from "../interfaces/draft-IERC7786.sol";
 import {InteroperableAddress} from "../utils/draft-InteroperableAddress.sol";
 import {Bytes} from "../utils/Bytes.sol";
@@ -15,9 +13,27 @@ abstract contract CrosschainRemoteController {
     using Bytes for bytes;
     using InteroperableAddress for bytes;
 
-    mapping(bytes chain => CrosschainLinked.Link) private _links;
+    struct Link {
+        address gateway;
+        bytes counterpart; // Full InteroperableAddress (chain ref + address)
+    }
+    mapping(bytes chain => Link) private _links;
 
-    constructor(CrosschainLinked.Link[] memory links) {
+    /**
+     * @dev Emitted when a new link is registered.
+     *
+     * Note: the `counterpart` argument is a full InteroperableAddress (chain ref + address).
+     */
+    event LinkRegistered(address gateway, bytes counterpart);
+
+    /**
+     * @dev Reverted when trying to register a link for a chain that is already registered.
+     *
+     * Note: the `chain` argument is a "chain-only" InteroperableAddress (empty address).
+     */
+    error LinkAlreadyRegistered(bytes chain);
+
+    constructor(Link[] memory links) {
         for (uint256 i = 0; i < links.length; ++i) {
             _setLink(links[i].gateway, links[i].counterpart, false);
         }
@@ -39,7 +55,7 @@ abstract contract CrosschainRemoteController {
      * the full InteroperableAddress (chain ref + address) that is on `chain`.
      */
     function getLink(bytes memory chain) public view virtual returns (address gateway, bytes memory counterpart) {
-        CrosschainLinked.Link storage self = _links[chain];
+        Link storage self = _links[chain];
         return (self.gateway, self.counterpart);
     }
 
@@ -56,10 +72,10 @@ abstract contract CrosschainRemoteController {
         (bytes2 chainType, bytes memory chainReference, ) = counterpart.parseV1();
         bytes memory chain = InteroperableAddress.formatV1(chainType, chainReference, hex"");
         if (allowOverride || _links[chain].gateway == address(0)) {
-            _links[chain] = CrosschainLinked.Link(gateway, counterpart);
-            emit CrosschainLinked.LinkRegistered(gateway, counterpart);
+            _links[chain] = Link(gateway, counterpart);
+            emit LinkRegistered(gateway, counterpart);
         } else {
-            revert CrosschainLinked.LinkAlreadyRegistered(chain);
+            revert LinkAlreadyRegistered(chain);
         }
     }
 }
