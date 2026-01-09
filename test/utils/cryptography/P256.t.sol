@@ -42,9 +42,4 @@ contract P256Test is Test {
             return _s > P256.N / 2 ? bytes32(P256.N - _s) : s;
         }
     }
-
-    // See https://github.com/foundry-rs/foundry/issues/10237
-    function verifyNative(bytes32 digest, bytes32 r, bytes32 s, bytes32 x, bytes32 y) external view {
-        P256.verifyNative(digest, r, s, x, y);
-    }
 }
