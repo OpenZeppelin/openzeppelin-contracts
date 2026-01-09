@@ -13,39 +13,46 @@ abstract contract CrosschainRemoteController {
     using Bytes for bytes;
     using InteroperableAddress for bytes;
 
-    struct Link {
+    struct ExecutorDetails {
         address gateway;
-        bytes counterpart; // Full InteroperableAddress (chain ref + address)
+        bytes executor;
     }
-    mapping(bytes chain => Link) private _links;
+    mapping(bytes chain => ExecutorDetails) private _remoteExecutors;
 
     /**
-     * @dev Emitted when a new link is registered.
+     * @dev Emitted when a new remote executor is registered.
      *
-     * Note: the `counterpart` argument is a full InteroperableAddress (chain ref + address).
+     * Note: the `executor` argument is a full InteroperableAddress (chain ref + address).
      */
-    event LinkRegistered(address gateway, bytes counterpart);
+    event RemoteExecutorRegistered(address gateway, bytes executor);
 
     /**
      * @dev Reverted when trying to register a link for a chain that is already registered.
      *
      * Note: the `chain` argument is a "chain-only" InteroperableAddress (empty address).
      */
-    error LinkAlreadyRegistered(bytes chain);
+    error RemoteExecutorAlreadyRegistered(bytes chain);
 
-    constructor(Link[] memory links) {
-        for (uint256 i = 0; i < links.length; ++i) {
-            _setLink(links[i].gateway, links[i].counterpart, false);
-        }
+    /**
+     * @dev Reverted when trying to send a crosschain instruction to a chain with no registered executor.
+     */
+    error NoExecutorRegistered(bytes chain);
+
+    /// @dev Send crosschain instruction to a the canonical remote executor of a given chain.
+    function _crosschainExecute(bytes memory chain, Mode mode, bytes memory executionCalldata) internal virtual {
+        (address gateway, bytes memory executor) = getRemoteExecutor(chain);
+        require(gateway != address(0), NoExecutorRegistered(chain));
+        _crosschainExecute(gateway, executor, mode, executionCalldata);
     }
 
-    function _crosschainExecute(bytes memory chain, Mode mode, bytes memory executionCalldata) internal virtual {
-        (address gateway, bytes memory counterpart) = getLink(chain);
-        IERC7786GatewaySource(gateway).sendMessage(
-            counterpart,
-            abi.encodePacked(mode, executionCalldata),
-            new bytes[](0)
-        );
+    /// @dev Send crosschain instruction to an arbitrary remote executor via an arbitrary ERC-7786 gateway.
+    function _crosschainExecute(
+        address gateway,
+        bytes memory executor,
+        Mode mode,
+        bytes memory executionCalldata
+    ) internal virtual {
+        IERC7786GatewaySource(gateway).sendMessage(executor, abi.encodePacked(mode, executionCalldata), new bytes[](0));
     }
 
     /**
@@ -54,28 +61,30 @@ abstract contract CrosschainRemoteController {
      * Note: The `chain` parameter is a "chain-only" InteroperableAddress (empty address) and the `counterpart` returns
      * the full InteroperableAddress (chain ref + address) that is on `chain`.
      */
-    function getLink(bytes memory chain) public view virtual returns (address gateway, bytes memory counterpart) {
-        Link storage self = _links[chain];
-        return (self.gateway, self.counterpart);
+    function getRemoteExecutor(
+        bytes memory chain
+    ) public view virtual returns (address gateway, bytes memory executor) {
+        ExecutorDetails storage self = _remoteExecutors[chain];
+        return (self.gateway, self.executor);
     }
 
     /**
-     * @dev Internal setter to change the ERC-7786 gateway and counterpart for a given chain. Called at construction.
+     * @dev Internal setter to change the ERC-7786 gateway and executor for a given chain. Called at construction.
      *
-     * Note: The `counterpart` parameter is the full InteroperableAddress (chain ref + address).
+     * Note: The `executor` parameter is the full InteroperableAddress (chain ref + address).
      */
-    function _setLink(address gateway, bytes memory counterpart, bool allowOverride) internal virtual {
+    function _registerRemoteExecutor(address gateway, bytes memory executor, bool allowOverride) internal virtual {
         // Sanity check, this should revert if gateway is not an ERC-7786 implementation. Note that since
         // supportsAttribute returns data, an EOA would fail that test (nothing returned).
         IERC7786GatewaySource(gateway).supportsAttribute(bytes4(0));
 
-        (bytes2 chainType, bytes memory chainReference, ) = counterpart.parseV1();
+        (bytes2 chainType, bytes memory chainReference, ) = executor.parseV1();
         bytes memory chain = InteroperableAddress.formatV1(chainType, chainReference, hex"");
-        if (allowOverride || _links[chain].gateway == address(0)) {
-            _links[chain] = Link(gateway, counterpart);
-            emit LinkRegistered(gateway, counterpart);
+        if (allowOverride || _remoteExecutors[chain].gateway == address(0)) {
+            _remoteExecutors[chain] = ExecutorDetails(gateway, executor);
+            emit RemoteExecutorRegistered(gateway, executor);
         } else {
-            revert LinkAlreadyRegistered(chain);
+            revert RemoteExecutorAlreadyRegistered(chain);
         }
     }
 }
