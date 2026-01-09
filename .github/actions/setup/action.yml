@@ -55,7 +55,7 @@ runs:
         FOUNDRY_DEFAULT_VERSION: "stable"
         JAVA_DEFAULT_VERSION: "21"
         PYTHON_DEFAULT_VERSION: "3.13"
-        SOLC_DEFAULT_VERSION: "0.8.27"
+        SOLC_DEFAULT_VERSION: "0.8.31"
     # Node & npm setup
     - name: Install Node (${{ steps.versions.outputs.node }})
       if: inputs.node != 'off'
