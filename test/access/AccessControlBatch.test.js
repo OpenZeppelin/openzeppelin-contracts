@@ -48,6 +48,11 @@ describe('AccessControlBatch', function () {
       'AccessControlBatch: invalid account',
     );
   });
+  it('reverts when roles and accounts length mismatch', async function () {
+    await expect(contract.connect(admin).grantRoles([ROLE_A, ROLE_B], [user1.address])).to.be.revertedWith(
+      'AccessControlBatch: length mismatch',
+    );
+  });
 
   it('reverts when caller is not admin', async function () {
     await expect(contract.connect(user1).grantRoles([ROLE_A], [user1.address])).to.be.reverted;
