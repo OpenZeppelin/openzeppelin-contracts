@@ -31,8 +31,14 @@ describe('AccessControlBatch', function () {
     expect(await contract.hasRole(ROLE_B, user2.address)).to.equal(false);
   });
 
-  it('reverts on length mismatch', async function () {
+  it('reverts on length mismatch when granting roles', async function () {
     await expect(contract.connect(admin).grantRoles([ROLE_A], [user1.address, user2.address])).to.be.revertedWith(
+      'AccessControlBatch: length mismatch',
+    );
+  });
+
+  it('reverts on length mismatch when revoking roles', async function () {
+    await expect(contract.connect(admin).revokeRoles([ROLE_A, ROLE_B], [user1.address])).to.be.revertedWith(
       'AccessControlBatch: length mismatch',
     );
   });
@@ -48,18 +54,8 @@ describe('AccessControlBatch', function () {
       'AccessControlBatch: invalid account',
     );
   });
-  it('reverts when roles and accounts length mismatch', async function () {
-    await expect(contract.connect(admin).grantRoles([ROLE_A, ROLE_B], [user1.address])).to.be.revertedWith(
-      'AccessControlBatch: length mismatch',
-    );
-  });
 
   it('reverts when caller is not admin', async function () {
     await expect(contract.connect(user1).grantRoles([ROLE_A], [user1.address])).to.be.reverted;
-  });
-  it('reverts when revoking roles with length mismatch', async function () {
-    await expect(contract.connect(admin).revokeRoles([ROLE_A, ROLE_B], [user1.address])).to.be.revertedWith(
-      'AccessControlBatch: length mismatch',
-    );
   });
 });
