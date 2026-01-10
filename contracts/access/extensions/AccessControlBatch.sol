@@ -22,7 +22,11 @@ abstract contract AccessControlBatch is AccessControl {
         }
 
         for (uint256 i = 0; i < roles.length; ++i) {
-            _grantRole(roles[i], accounts[i]);
+            address account = accounts[i];
+            if (account == address(0)) {
+                revert("AccessControlBatch: invalid account");
+            }
+            _grantRole(roles[i], account);
         }
     }
 
@@ -39,7 +43,11 @@ abstract contract AccessControlBatch is AccessControl {
         }
 
         for (uint256 i = 0; i < roles.length; ++i) {
-            _revokeRole(roles[i], accounts[i]);
+            address account = accounts[i];
+            if (account == address(0)) {
+                revert("AccessControlBatch: invalid account");
+            }
+            _revokeRole(roles[i], account);
         }
     }
 }
