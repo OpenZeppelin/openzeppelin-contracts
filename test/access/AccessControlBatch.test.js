@@ -37,6 +37,18 @@ describe('AccessControlBatch', function () {
     );
   });
 
+  it('reverts when granting a role to the zero address', async function () {
+    await expect(contract.connect(admin).grantRoles([ROLE_A], [ethers.ZeroAddress])).to.be.revertedWith(
+      'AccessControlBatch: invalid account',
+    );
+  });
+
+  it('reverts when revoking a role from the zero address', async function () {
+    await expect(contract.connect(admin).revokeRoles([ROLE_A], [ethers.ZeroAddress])).to.be.revertedWith(
+      'AccessControlBatch: invalid account',
+    );
+  });
+
   it('reverts when caller is not admin', async function () {
     await expect(contract.connect(user1).grantRoles([ROLE_A], [user1.address])).to.be.reverted;
   });
