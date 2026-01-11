@@ -29,13 +29,13 @@ contract AuthorityNoDelayMock is IAuthority {
 
 contract AuthorityDelayMock {
     bool private _immediate;
-    uint256 private _delay;
+    uint32 private _delay;
 
     function canCall(
         address /* caller */,
         address /* target */,
         bytes4 /* selector */
-    ) external view returns (bool immediate, uint256 delay) {
+    ) external view returns (bool immediate, uint32 delay) {
         return (_immediate, _delay);
     }
 
@@ -43,12 +43,15 @@ contract AuthorityDelayMock {
         _immediate = immediate;
     }
 
-    function _setDelay(uint256 delay) external {
+    function _setDelay(uint32 delay) external {
         _delay = delay;
     }
 }
 
 contract AuthorityNoResponse {
+    // This mock intentionally returns no data from canCall.
+    // It is used to test robustness when an authority does not
+    // respond with the expected return values.
     function canCall(address /* caller */, address /* target */, bytes4 /* selector */) external view {}
 }
 

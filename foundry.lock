@@ -1,0 +1,14 @@
+{
+  "lib/erc4626-tests": {
+    "rev": "232ff9ba8194e406967f52ecc5cb52ed764209e9"
+  },
+  "lib/forge-std": {
+    "branch": {
+      "name": "v1",
+      "rev": "3b20d60d14b343ee4f908cb8079495c07f5e8981"
+    }
+  },
+  "lib/halmos-cheatcodes": {
+    "rev": "7328abe100445fc53885c21d0e713b95293cf14c"
+  }
+}
