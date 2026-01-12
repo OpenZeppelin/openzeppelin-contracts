@@ -3,7 +3,6 @@
 pragma solidity ^0.8.26;
 
 import {IERC721} from "../../interfaces/IERC721.sol";
-import {IERC721Receiver} from "../../interfaces/IERC721Receiver.sol";
 import {IERC721Errors} from "../../interfaces/draft-IERC6093.sol";
 import {BridgeERC721Core} from "./BridgeERC721Core.sol";
 
@@ -12,7 +11,7 @@ import {BridgeERC721Core} from "./BridgeERC721Core.sol";
  * a crosschain mint and burn mechanism. Instead, it takes custody of bridged assets.
  */
 // slither-disable-next-line locked-ether
-abstract contract BridgeERC721 is IERC721Receiver, BridgeERC721Core {
+abstract contract BridgeERC721 is BridgeERC721Core {
     IERC721 private immutable _token;
 
     error BridgeERC721Unauthorized(address caller);
@@ -39,40 +38,17 @@ abstract contract BridgeERC721 is IERC721Receiver, BridgeERC721Core {
             IERC721Errors.ERC721InsufficientApproval(spender, tokenId)
         );
 
-        // This call verifies that `from` is the owner of `tokenId`, and the previous checks ensure that `spender` is
-        // allowed to move tokenId on behalf of `from`.
-        token().safeTransferFrom(from, address(this), tokenId, to);
-
+        // This call verifies that `from` is the owner of `tokenId` (in `_onSend`), and the previous checks ensure
+        // that `spender` is allowed to move tokenId on behalf of `from`.
+        //
         // Perform the crosschain transfer and return the handler
         return _crosschainTransfer(from, to, tokenId);
     }
 
-    /**
-     * @dev Transfer a token received using an ERC-721 safeTransferFrom
-     *
-     * Note: The `data` must contain the `to` as a full InteroperableAddress (chain ref + address).
-     */
-    function onERC721Received(
-        address operator,
-        address from,
-        uint256 tokenId,
-        bytes calldata data // this is the to
-    ) public virtual override returns (bytes4) {
-        // TODO: should this consider _msgSender() ?
-        require(msg.sender == address(_token), BridgeERC721Unauthorized(msg.sender));
-
-        // If the operator is not this contract, it means the transfer was not initiated by
-        // `crosschainTransferFrom`, so we need to perform the crosschain send here.
-        if (operator != address(this)) {
-            _crosschainTransfer(from, data, tokenId);
-        }
-
-        return IERC721Receiver.onERC721Received.selector;
-    }
-
     /// @dev "Locking" tokens is done by taking custody
     function _onSend(address from, uint256 tokenId) internal virtual override {
-        // Do nothing, token movement is handled by `crosschainTransfer` and `onERC721Received`
+        // slither-disable-next-line arbitrary-send-erc20
+        token().transferFrom(from, address(this), tokenId);
     }
 
     /**
