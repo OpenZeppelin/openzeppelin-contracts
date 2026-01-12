@@ -14,7 +14,7 @@ import {BridgeERC721Core} from "../../../crosschain/bridges/BridgeERC721Core.sol
  */
 // slither-disable-next-line locked-ether
 abstract contract ERC721Crosschain is ERC721, BridgeERC721Core {
-    /// @dev TransferFrom variant of {crosschainTransferFrom}, using ERC721 allowance from the sender to the caller.
+    /// @dev Crosschain variant of {transferFrom}, using the allowance system from the underlying ERC-721 token.
     function crosschainTransferFrom(address from, bytes memory to, uint256 tokenId) public virtual returns (bytes32) {
         // operator (_msgSender) permission over `from` is checked in `_onSend`
         return _crosschainTransfer(from, to, tokenId);
