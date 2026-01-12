@@ -28,7 +28,7 @@ abstract contract VestingWalletCliff is VestingWallet {
         if (cliffSeconds > vestingDuration) {
             revert InvalidCliffDuration(cliffSeconds, vestingDuration);
         }
-        _cliff = super.start().toUint64() + cliffSeconds;
+        _cliff = start().toUint64() + cliffSeconds;
     }
 
     /**
