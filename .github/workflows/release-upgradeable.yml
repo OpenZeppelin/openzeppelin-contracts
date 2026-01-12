@@ -32,7 +32,7 @@ jobs:
   publish:
     needs: state
     name: Publish to npm
-    environment: push-upgradeable
+    environment: npm
     permissions:
       id-token: write
     if: needs.state.outputs.publish == 'success' # Note: changed from 'true' to 'success' to support the way publish is computed
