@@ -51,13 +51,9 @@ abstract contract BridgeERC721 is BridgeERC721Core {
         token().transferFrom(from, address(this), tokenId);
     }
 
-    /**
-     * @dev "Unlocking" tokens is done by releasing custody
-     *
-     * NOTE: `safeTransferFrom` will revert if the receiver is a contract that doesn't implement {IERC721Receiver}
-     * This can be retried by at the ERC-7786 gateway level.
-     */
+    /// @dev "Unlocking" tokens is done by releasing custody
     function _onReceive(address to, uint256 tokenId) internal virtual override {
-        token().safeTransferFrom(address(this), to, tokenId);
+        // slither-disable-next-line arbitrary-send-erc20
+        token().transferFrom(address(this), to, tokenId);
     }
 }
