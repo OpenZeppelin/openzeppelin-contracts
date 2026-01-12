@@ -24,9 +24,9 @@ abstract contract VestingWalletCliff is VestingWallet {
      * constructor) and ends `cliffSeconds` later.
      */
     constructor(uint64 cliffSeconds) {
-        uint64 vestingDuration = duration().toUint64();
+        uint256 vestingDuration = duration();
         if (cliffSeconds > vestingDuration) {
-            revert InvalidCliffDuration(cliffSeconds, vestingDuration);
+            revert InvalidCliffDuration(cliffSeconds, vestingDuration.toUint64());
         }
         _cliff = start().toUint64() + cliffSeconds;
     }
