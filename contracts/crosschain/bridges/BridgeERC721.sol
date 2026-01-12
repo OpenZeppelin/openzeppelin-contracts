@@ -26,7 +26,7 @@ abstract contract BridgeERC721 is BridgeERC721Core {
     }
 
     /**
-     * @dev Transfer `amount` tokens to a crosschain receiver.
+     * @dev Transfer `tokenId` token to a crosschain receiver.
      *
      * Note: The `to` parameter is the full InteroperableAddress (chain ref + address).
      */
@@ -41,7 +41,7 @@ abstract contract BridgeERC721 is BridgeERC721Core {
         // This call verifies that `from` is the owner of `tokenId` (in `_onSend`), and the previous checks ensure
         // that `spender` is allowed to move tokenId on behalf of `from`.
         //
-        // Perform the crosschain transfer and return the handler
+        // Perform the crosschain transfer and return the send id
         return _crosschainTransfer(from, to, tokenId);
     }
 
