@@ -40,11 +40,8 @@ abstract contract BridgeERC721 is IERC721Receiver, BridgeERC721Core {
         );
 
         // This call verifies that `from` is the owner of `tokenId`, and the previous checks ensure that `spender` is
-        // allowed to move tokenId on behalf of `from`. Note: do not use safeTransferFrom here! Using it would trigger
-        // the `onERC721Received` which we don't want.
-        //
-        // slither-disable-next-line arbitrary-send-erc20
-        token().transferFrom(from, address(this), tokenId);
+        // allowed to move tokenId on behalf of `from`.
+        token().safeTransferFrom(from, address(this), tokenId, to);
 
         // Perform the crosschain transfer and return the handler
         return _crosschainTransfer(from, to, tokenId);
@@ -56,14 +53,20 @@ abstract contract BridgeERC721 is IERC721Receiver, BridgeERC721Core {
      * Note: The `data` must contain the `to` as a full InteroperableAddress (chain ref + address).
      */
     function onERC721Received(
-        address /*operator*/,
+        address operator,
         address from,
         uint256 tokenId,
         bytes calldata data // this is the to
     ) public virtual override returns (bytes4) {
         // TODO: should this consider _msgSender() ?
         require(msg.sender == address(_token), BridgeERC721Unauthorized(msg.sender));
-        _crosschainTransfer(from, data, tokenId);
+
+        // If the operator is not this contract, it means the transfer was not initiated by
+        // `crosschainTransferFrom`, so we need to perform the crosschain send here.
+        if (operator != address(this)) {
+            _crosschainTransfer(from, data, tokenId);
+        }
+
         return IERC721Receiver.onERC721Received.selector;
     }
 
