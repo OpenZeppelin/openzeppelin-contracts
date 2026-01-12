@@ -1,5 +1,10 @@
 # Changelog
 
+
+## 5.6.0-rc.1 (2026-01-09)
+
+- Add ERC-165 detection for the `IERC6909ContentURI`, `IERC6909TokenSupply` and `IERC6909Metadata` interfaces in the `ERC6909ContentURI`, `ERC6909TokenSupply` and `ERC6909Metadata` contracts respectively. ([#6246](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6246)) and ([#6247](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6247))
+
 ## 5.6.0-rc.0 (2025-12-19)
 
 ### Breaking changes
