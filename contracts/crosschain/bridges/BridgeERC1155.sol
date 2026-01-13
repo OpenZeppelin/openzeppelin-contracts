@@ -73,11 +73,7 @@ abstract contract BridgeERC1155 is BridgeERC1155Core, ERC1155Holder {
         token().safeBatchTransferFrom(address(this), to, ids, values, "");
     }
 
-    /**
-     * @dev Transfer a token received using an ERC-1155 safeTransferFrom
-     *
-     * Note: The `data` must contain the `to` as a full InteroperableAddress (chain ref + address).
-     */
+    /// @dev Support receiving tokens only if the transfer was initiated by the bridge itself.
     function onERC1155Received(
         address operator,
         address /* from */,
@@ -91,11 +87,7 @@ abstract contract BridgeERC1155 is BridgeERC1155Core, ERC1155Holder {
                 : bytes4(0xffffffff);
     }
 
-    /**
-     * @dev Transfer a batch of tokens received using an ERC-1155 safeBatchTransferFrom
-     *
-     * Note: The `data` must contain the `to` as a full InteroperableAddress (chain ref + address).
-     */
+    /// @dev Support receiving tokens only if the transfer was initiated by the bridge itself.
     function onERC1155BatchReceived(
         address operator,
         address /* from */,
