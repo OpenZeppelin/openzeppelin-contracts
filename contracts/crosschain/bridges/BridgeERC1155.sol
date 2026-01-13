@@ -5,6 +5,7 @@ pragma solidity ^0.8.26;
 import {IERC1155} from "../../interfaces/IERC1155.sol";
 import {IERC1155Receiver} from "../../interfaces/IERC1155Receiver.sol";
 import {IERC1155Errors} from "../../interfaces/draft-IERC6093.sol";
+import {ERC1155Holder} from "../../token/ERC1155/utils/ERC1155Holder.sol";
 import {BridgeERC1155Core} from "./BridgeERC1155Core.sol";
 
 /**
@@ -12,7 +13,7 @@ import {BridgeERC1155Core} from "./BridgeERC1155Core.sol";
  * a crosschain mint and burn mechanism. Instead, it takes custody of bridged assets.
  */
 // slither-disable-next-line locked-ether
-abstract contract BridgeERC1155 is IERC1155Receiver, BridgeERC1155Core {
+abstract contract BridgeERC1155 is BridgeERC1155Core, ERC1155Holder {
     IERC1155 private immutable _token;
 
     error BridgeERC1155Unauthorized(address caller);
@@ -87,10 +88,10 @@ abstract contract BridgeERC1155 is IERC1155Receiver, BridgeERC1155Core {
         address /* from */,
         uint256 /* id */,
         uint256 /* value */,
-        bytes calldata /* data */
+        bytes memory /* data */
     ) public virtual override returns (bytes4) {
         return
-            (msg.sender == address(_token) && operator == address(this))
+            msg.sender == address(_token) && operator == address(this)
                 ? IERC1155Receiver.onERC1155Received.selector
                 : bytes4(0xffffffff);
     }
@@ -103,12 +104,12 @@ abstract contract BridgeERC1155 is IERC1155Receiver, BridgeERC1155Core {
     function onERC1155BatchReceived(
         address operator,
         address /* from */,
-        uint256[] calldata /* ids */,
-        uint256[] calldata /* values */,
-        bytes calldata /* data */
+        uint256[] memory /* ids */,
+        uint256[] memory /* values */,
+        bytes memory /* data */
     ) public virtual override returns (bytes4) {
         return
-            (msg.sender == address(_token) && operator == address(this))
+            msg.sender == address(_token) && operator == address(this)
                 ? IERC1155Receiver.onERC1155BatchReceived.selector
                 : bytes4(0xffffffff);
     }
