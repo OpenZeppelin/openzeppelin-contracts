@@ -15,7 +15,6 @@ const setDelegation = (account, target, relayer = account) =>
       relayer.sendTransaction({
         to: ethers.ZeroAddress,
         authorizationList: [authorization],
-        gasLimit: 46_000n,
       }),
     );
 

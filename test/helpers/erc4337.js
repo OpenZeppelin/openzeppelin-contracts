@@ -200,7 +200,6 @@ class EIP7702SmartAccount extends SmartAccount {
     await relayer.sendTransaction({
       to: ethers.ZeroAddress,
       authorizationList: [this.authorization],
-      gasLimit: 46_000n, // 21,000 base + PER_EMPTY_ACCOUNT_COST
     });
 
     return this;
