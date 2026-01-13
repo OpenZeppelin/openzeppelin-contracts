@@ -1,11 +1,11 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { spawn } = require('child_process');
-const { MerklePatriciaTrie, createMerkleProof } = require('@ethereumjs/mpt');
 
 const { Enum } = require('../../helpers/enums');
 const { zip } = require('../../helpers/iterate');
 const { generators } = require('../../helpers/random');
+const { BlockTries } = require('../../helpers/trie');
 const { batchInBlock } = require('../../helpers/txpool');
 
 const ProofError = Enum(
@@ -82,44 +82,27 @@ describe('TrieProof', function () {
         false,
       ]);
 
-      // Rebuild tries
-      const transactionTrie = new MerklePatriciaTrie();
-      const receiptTrie = new MerklePatriciaTrie();
-
-      for (const tx of txs) {
-        const key = ethers.encodeRlp(ethers.stripZerosLeft(ethers.toBeHex(tx.index)));
-
-        // Transaction
-        const encodedTransaction = await tx.getTransaction().then(tx => ethers.Transaction.from(tx).serialized);
-        await transactionTrie.put(ethers.getBytes(key), encodedTransaction);
-
-        // Receipt
-        const encodedReceipt = ethers.concat([
-          tx.type === 0 ? '0x' : ethers.toBeHex(tx.type),
-          ethers.encodeRlp([
-            tx.status === 0 ? '0x' : '0x01',
-            ethers.toBeHex(tx.cumulativeGasUsed),
-            tx.logsBloom,
-            tx.logs.map(log => [log.address, log.topics, log.data]),
-          ]),
-        ]);
-        await receiptTrie.put(ethers.getBytes(key), encodedReceipt);
-
-        Object.assign(tx, { key, encodedTransaction, encodedReceipt });
-      }
+      const blockTries = await this.provider
+        .getBlock(txs.at(0).blockNumber)
+        .then(block => BlockTries.from(block).ready());
 
       // Sanity check trie roots
-      expect(ethers.hexlify(transactionTrie.root())).to.equal(transactionsRoot);
-      expect(ethers.hexlify(receiptTrie.root())).to.equal(receiptsRoot);
+      expect(blockTries.transactionTrieRoot).to.equal(transactionsRoot);
+      expect(blockTries.receiptTrieRoot).to.equal(receiptsRoot);
 
-      // Verify transaction inclusion in the block's transaction trie
-      for (const { key, encodedTransaction, encodedReceipt } of txs) {
-        const transactionProof = await createMerkleProof(transactionTrie, ethers.getBytes(key));
-        await expect(this.mock.$verify(encodedTransaction, transactionsRoot, key, transactionProof)).to.eventually.be
-          .true;
+      for (const tx of txs) {
+        // verify transaction inclusion in the block's transaction trie
+        const transaction = await tx.getTransaction().then(BlockTries.serializeTransaction);
+        const transactionProof = await blockTries.getTransactionProof(tx.index);
+        await expect(
+          this.mock.$verify(transaction, transactionsRoot, BlockTries.indexToKey(tx.index), transactionProof),
+        ).to.eventually.be.true;
 
-        const receiptProof = await createMerkleProof(receiptTrie, ethers.getBytes(key));
-        await expect(this.mock.$verify(encodedReceipt, receiptsRoot, key, receiptProof)).to.eventually.be.true;
+        // verify receipt inclusion in the block's receipt trie
+        const receipt = BlockTries.serializeReceipt(tx);
+        const receiptProof = await blockTries.getReceiptProof(tx.index);
+        await expect(this.mock.$verify(receipt, receiptsRoot, BlockTries.indexToKey(tx.index), receiptProof)).to
+          .eventually.be.true;
       }
     });
 
