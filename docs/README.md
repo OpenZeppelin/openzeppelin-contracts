@@ -12,5 +12,4 @@ The [`docs.openzeppelin.com`](https://github.com/OpenZeppelin/docs.openzeppelin.
 repository hosts the configuration for the entire site, which includes
 documentation for all of the OpenZeppelin projects.
 
-To run the docs locally you should run `npm run docs:watch` on this
-repository.
+To run the docs locally you should run `npm run docs:watch` on this repository.
