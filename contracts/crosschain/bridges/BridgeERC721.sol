@@ -26,9 +26,13 @@ abstract contract BridgeERC721 is BridgeERC721Core {
     }
 
     /**
-     * @dev Transfer `tokenId` token to a crosschain receiver.
+     * @dev Transfer `tokenId` from `from` (on this chain) to `to` (on a different chain).
      *
-     * Note: The `to` parameter is the full InteroperableAddress (chain ref + address).
+     * The `to` parameter is the full InteroperableAddress that references both the destination chain and the account
+     . on that chain. Similarly to the underlying token's {ERC721-transferFrom} function, this function can be called
+     * either by the token holder or by anyone that is approved by the token holder. It reuses the token's allowance
+     * system, meaning that an account that is "approved for all" or "approved for tokenId" can perform the crosschain
+     * transfer directly without having to take temporary custody of the token.
      */
     function crosschainTransferFrom(address from, bytes memory to, uint256 tokenId) public virtual returns (bytes32) {
         // Permission is handled using the ERC721's allowance system. This check replicates `ERC721._isAuthorized`.
