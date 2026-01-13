@@ -68,12 +68,7 @@ abstract contract BridgeERC1155 is BridgeERC1155Core, ERC1155Holder {
         token().safeBatchTransferFrom(from, address(this), ids, values, "");
     }
 
-    /**
-     * @dev "Unlocking" tokens is done by releasing custody
-     *
-     * NOTE: `safeTransferFrom` will revert if the receiver is a contract that doesn't implement {IERC721Receiver}
-     * This can be retried by at the ERC-7786 gateway level.
-     */
+    /// @dev "Unlocking" tokens is done by releasing custody
     function _onReceive(address to, uint256[] memory ids, uint256[] memory values) internal virtual override {
         token().safeBatchTransferFrom(address(this), to, ids, values, "");
     }
