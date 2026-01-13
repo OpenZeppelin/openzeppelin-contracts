@@ -130,7 +130,7 @@ class GovernorHelper {
       args.push(vote.reason);
     }
 
-    return await this.governor[method](...args);
+    return this.governor[method](...args);
   }
 
   async overrideVote(vote = {}) {
@@ -145,7 +145,7 @@ class GovernorHelper {
       args.push(vote.voter, vote.reason ?? '', sign);
     }
 
-    return await this.governor[method](...args);
+    return this.governor[method](...args);
   }
 
   /// Clock helpers
