@@ -1,26 +1,21 @@
-const { ethers } = require('hardhat');
+const { ethers, config } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const setDelegation = (account, target, relayer = account) =>
-  account
-    .getNonce()
-    .then(nonce =>
-      account.authorize({
-        address: target,
-        nonce: nonce + (relayer?.address == account.address ? 1 : 0),
-      }),
-    )
-    .then(authorization =>
-      relayer.sendTransaction({
-        to: ethers.ZeroAddress,
-        authorizationList: [authorization],
-        gasLimit: 46_000n,
-      }),
-    );
+// [NOTE]
+//
+// ethers.getSigners() returns object than cannot currently send type-4 transaction, or sign authorization. Therefore,
+// we have to instantiate the eoa AND the relayer manually using ethers 6.14.0 wallets. This can be improved when
+// @nomicfoundation/hardhat-ethers starts instantiating signers with 7702 support.
+const relayAuthorization = authorization =>
+  ethers.Wallet.fromPhrase(config.networks.hardhat.accounts.mnemonic, ethers.provider).sendTransaction({
+    to: ethers.ZeroAddress,
+    authorizationList: [authorization],
+    gasLimit: 46_000n,
+  });
 
 const fixture = async () => {
-  const [eoa] = await ethers.getSigners();
+  const eoa = ethers.Wallet.createRandom(ethers.provider);
   const mock = await ethers.deployContract('$EIP7702Utils');
   return { eoa, mock };
 };
@@ -37,16 +32,16 @@ describe('EIP7702Utils', function () {
 
     it('EOA with delegation', async function () {
       // set delegation
-      await setDelegation(this.eoa, this.mock);
+      await this.eoa.authorize({ address: this.mock }).then(relayAuthorization);
 
       await expect(this.mock.$fetchDelegate(this.eoa)).to.eventually.equal(this.mock);
     });
 
     it('EOA with revoked delegation', async function () {
       // set delegation
-      await setDelegation(this.eoa, this.mock);
+      await this.eoa.authorize({ address: this.mock }).then(relayAuthorization);
       // reset delegation
-      await setDelegation(this.eoa, ethers.ZeroAddress);
+      await this.eoa.authorize({ address: ethers.ZeroAddress }).then(relayAuthorization);
 
       await expect(this.mock.$fetchDelegate(this.eoa)).to.eventually.equal(ethers.ZeroAddress);
     });
