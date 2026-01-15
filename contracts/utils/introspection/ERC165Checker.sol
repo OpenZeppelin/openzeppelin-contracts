@@ -121,7 +121,7 @@ library ERC165Checker {
      * function. It returns:
      *
      * * `success`: true if the call didn't revert, false if it did
-     * * `supported`: true if the call succeeded AND returned data indicating the interface is supported
+     * * `supported`: true if the returned data indicates the interface is supported (independent of `success`)
      */
     function _trySupportsInterface(
         address account,
