@@ -124,6 +124,116 @@ library SignatureChecker {
         }
     }
 
+    function isValidERC6492SignatureNow(address signer, bytes32 hash, bytes memory signature) internal returns (bool) {
+        bool hasCode = signer.code.length > 0;
+        bytes32 suffix;
+        assembly ("memory-safe") {
+            // Extracts the suffix word without allocating extra memory
+            suffix := mload(add(signature, mload(signature)))
+        }
+        bool isValid;
+
+        // Behaves as a switch statement
+        while (true) {
+            // Case 1: Standard ERC-1271 signature validation
+            if (suffix != ERC6492_SUFFIX) {
+                if (hasCode) isValid = isValidERC1271SignatureNow(signer, hash, signature);
+                break;
+            }
+
+            // Case 2: ERC-6492 signature validation with a contract already deployed
+            // Assumes the signature is always encoded as (factoryOrPrepareTo, factoryOrPrepareCalldata, signature, suffix)
+            // since the contract might had been deployed before the signature was submitted.
+            bool decodable;
+            address factoryOrPrepareTo;
+            bytes memory factoryOrPrepareCalldata;
+            (decodable, factoryOrPrepareTo, factoryOrPrepareCalldata, signature) = _tryDecodeERC6492Signature(
+                signature.splice(0, signature.length - 32) // Remove the suffix
+            );
+            if (!decodable) return false; // Suffixed. Can't decode. Just return false.
+            if (hasCode) {
+                isValid = isValidERC1271SignatureNow(signer, hash, signature);
+                if (isValid) break;
+            }
+
+            // Case 3: ERC-6492 signature validation with a contract not yet deployed or preparation failed
+            // Either has no code or the signature was invalid. We need to try to deploy/prepare the contract.
+
+            // Use a dedicated relayer for ERC-6492 signatures so that the caller
+            // can't be arbitrarily used if it has special permissions on a target contract
+            (bool success, ) = RelayedCall.relayRevertingCall(
+                factoryOrPrepareTo,
+                factoryOrPrepareCalldata,
+                ERC6492_SUFFIX
+            );
+            isValid = success && isValidERC1271SignatureNow(signer, hash, signature); // Short-circuit validation if the call failed
+            break;
+        }
+
+        // Fallback to ECDSA signature validation
+        if (!hasCode && !isValid) {
+            (address recovered, ECDSA.RecoverError err, ) = ECDSA.tryRecover(hash, signature);
+            isValid = err == ECDSA.RecoverError.NoError && recovered == signer;
+        }
+
+        return isValid;
+    }
+
+    function isValidERC6492SignatureNowCalldata(
+        address signer,
+        bytes32 hash,
+        bytes calldata signature
+    ) internal returns (bool) {
+        bool hasCode = signer.code.length > 0;
+        bytes32 suffix = bytes32(signature[signature.length - 32:]);
+        bool isValid;
+
+        // Behaves as a switch statement
+        while (true) {
+            // Case 1: Standard ERC-1271 signature validation
+            if (suffix != ERC6492_SUFFIX) {
+                if (hasCode) isValid = isValidERC1271SignatureNowCalldata(signer, hash, signature);
+                break;
+            }
+
+            // Case 2: ERC-6492 signature validation with a contract already deployed
+            // Assumes the signature is always encoded as (factoryOrPrepareTo, factoryOrPrepareCalldata, signature, suffix)
+            // since the contract might had been deployed before the signature was submitted.
+            bool decodable;
+            address factoryOrPrepareTo;
+            bytes calldata factoryOrPrepareCalldata;
+            (decodable, factoryOrPrepareTo, factoryOrPrepareCalldata, signature) = _tryDecodeERC6492SignatureCalldata(
+                signature[0:signature.length - 32] // Avoid the suffix
+            );
+            if (!decodable) return false; // Suffixed. Can't decode. Just return false.
+            if (hasCode) {
+                isValid = isValidERC1271SignatureNow(signer, hash, signature);
+                if (isValid) break;
+            }
+
+            // Case 3: ERC-6492 signature validation with a contract not yet deployed or preparation failed
+            // Either has no code or the signature was invalid. We need to try to deploy/prepare the contract.
+
+            // Use a dedicated relayer for ERC-6492 signatures so that the caller
+            // can't be arbitrarily used if it has special permissions on a target contract
+            (bool success, ) = RelayedCall.relayRevertingCall(
+                factoryOrPrepareTo,
+                factoryOrPrepareCalldata,
+                ERC6492_SUFFIX
+            );
+            isValid = success && isValidERC1271SignatureNow(signer, hash, signature); // Short-circuit validation if the call failed
+            break;
+        }
+
+        // Fallback to ECDSA signature validation
+        if (!hasCode && !isValid) {
+            (address recovered, ECDSA.RecoverError err, ) = ECDSA.tryRecover(hash, signature);
+            isValid = err == ECDSA.RecoverError.NoError && recovered == signer;
+        }
+
+        return isValid;
+    }
+
     function isValidERC6492SignatureNowAllowSideEffects(
         address signer,
         bytes32 hash,
@@ -328,38 +438,41 @@ library SignatureChecker {
         )
     {
         // Minimum length of a valid ERC-6492 signature is 160 bytes
-        // [32 bytes: address]
-        // [32 bytes: factoryOrPrepareCalldataOffset]
-        // [32 bytes: signatureOffset]
-        // [32 bytes: factoryOrPrepareCalldataLength]
-        // [32 bytes: signatureLength]
-        if (signature.length < 160) return (false, address(0), bytes(""), bytes(""));
+        // address(32) + factoryOrPrepareCalldataOffset(32) + innerSignatureOffset(32) + factoryOrPrepareCalldataLength(32) + innerSignatureLength(32)
+        if (signature.length < 0xa0) return (false, address(0), bytes(""), bytes(""));
 
         uint256 factoryOrPrepareCalldataOffset;
-        uint256 signatureOffset;
+        uint256 innerSignatureOffset;
         bytes32 ptr;
         assembly ("memory-safe") {
             ptr := add(signature, 0x20)
             factoryOrPrepareTo := mload(ptr)
             factoryOrPrepareCalldataOffset := mload(add(ptr, 0x20))
-            signatureOffset := mload(add(ptr, 0x40))
+            innerSignatureOffset := mload(add(ptr, 0x40))
         }
-        if (factoryOrPrepareCalldataOffset > signature.length || signatureOffset > signature.length)
+        if (
+            factoryOrPrepareCalldataOffset < 0x60 ||
+            factoryOrPrepareCalldataOffset > signature.length ||
+            innerSignatureOffset < 0x80 ||
+            innerSignatureOffset > signature.length
+        ) {
             // Validate bounds
             return (false, address(0), bytes(""), bytes(""));
+        }
 
         uint256 factoryOrPrepareCalldataLength;
-        uint256 signatureLength;
+        uint256 innerSignatureLength;
         assembly ("memory-safe") {
             factoryOrPrepareCalldataLength := mload(add(ptr, factoryOrPrepareCalldataOffset))
-            signatureLength := mload(add(ptr, signatureOffset))
+            innerSignatureLength := mload(add(ptr, innerSignatureOffset))
         }
         if (
             factoryOrPrepareCalldataOffset + factoryOrPrepareCalldataLength > signature.length - 32 ||
-            signatureOffset + signatureLength > signature.length - 32
-        )
+            innerSignatureOffset + innerSignatureLength > signature.length - 32
+        ) {
             // Validate bounds
             return (false, address(0), bytes(""), bytes(""));
+        }
 
         return (
             true,
@@ -368,7 +481,7 @@ library SignatureChecker {
                 factoryOrPrepareCalldataOffset,
                 factoryOrPrepareCalldataOffset + factoryOrPrepareCalldataLength
             ),
-            signature.slice(signatureOffset, signatureOffset + signatureLength)
+            signature.splice(innerSignatureOffset, innerSignatureOffset + innerSignatureLength)
         );
     }
 
@@ -385,36 +498,39 @@ library SignatureChecker {
         )
     {
         // Minimum length of a valid ERC-6492 signature is 160 bytes
-        // [32 bytes: address]
-        // [32 bytes: factoryOrPrepareCalldataOffset]
-        // [32 bytes: signatureOffset]
-        // [32 bytes: factoryOrPrepareCalldataLength]
-        // [32 bytes: signatureLength]
-        if (signature.length < 160) return (false, address(0), Calldata.emptyBytes(), Calldata.emptyBytes());
+        // address(32) + factoryOrPrepareCalldataOffset(32) + innerSignatureOffset(32) + factoryOrPrepareCalldataLength(32) + innerSignatureLength(32)
+        if (signature.length < 0xa0) return (false, address(0), Calldata.emptyBytes(), Calldata.emptyBytes());
 
-        factoryOrPrepareTo = address(bytes20(signature[12:32]));
-        uint256 factoryOrPrepareCalldataOffset = uint256(bytes32(signature[32:64]));
-        uint256 signatureOffset = uint256(bytes32(signature[64:96]));
-        if (factoryOrPrepareCalldataOffset > signature.length || signatureOffset > signature.length)
+        factoryOrPrepareTo = address(bytes20(signature[12:0x20]));
+        uint256 factoryOrPrepareCalldataOffset = uint256(bytes32(signature[0x20:0x40]));
+        uint256 innerSignatureOffset = uint256(bytes32(signature[0x40:0x60]));
+        if (
+            factoryOrPrepareCalldataOffset < 0x60 ||
+            factoryOrPrepareCalldataOffset > signature.length ||
+            innerSignatureOffset < 0x80 ||
+            innerSignatureOffset > signature.length
+        ) {
             // Validate bounds
             return (false, address(0), Calldata.emptyBytes(), Calldata.emptyBytes());
+        }
 
         uint256 factoryOrPrepareCalldataLength = uint256(
             bytes32(signature[factoryOrPrepareCalldataOffset:factoryOrPrepareCalldataOffset + 32])
         );
-        uint256 signatureLength = uint256(bytes32(signature[signatureOffset:signatureOffset + 32]));
+        uint256 innerSignatureLength = uint256(bytes32(signature[innerSignatureOffset:innerSignatureOffset + 32]));
         if (
-            factoryOrPrepareCalldataOffset + factoryOrPrepareCalldataLength > signature.length - 32 ||
-            signatureOffset + signatureLength > signature.length - 32
-        )
+            factoryOrPrepareCalldataOffset + factoryOrPrepareCalldataLength > signature.length ||
+            innerSignatureOffset + innerSignatureLength > signature.length
+        ) {
             // Validate bounds
             return (false, address(0), Calldata.emptyBytes(), Calldata.emptyBytes());
+        }
 
         return (
             true,
             factoryOrPrepareTo,
             signature[factoryOrPrepareCalldataOffset:factoryOrPrepareCalldataOffset + factoryOrPrepareCalldataLength],
-            signature[signatureOffset:signatureOffset + signatureLength]
+            signature[innerSignatureOffset:innerSignatureOffset + innerSignatureLength]
         );
     }
 }
