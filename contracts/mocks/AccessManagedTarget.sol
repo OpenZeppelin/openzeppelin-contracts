@@ -14,8 +14,9 @@ abstract contract AccessManagedTarget is AccessManaged {
         emit CalledRestricted(msg.sender);
     }
 
-    function fnUnrestricted() public {
+    function fnUnrestricted() public returns (uint256) {
         emit CalledUnrestricted(msg.sender);
+        return 42;
     }
 
     function setIsConsumingScheduledOp(bool isConsuming, bytes32 slot) external {

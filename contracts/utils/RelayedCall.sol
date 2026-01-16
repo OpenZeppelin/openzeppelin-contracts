@@ -3,6 +3,8 @@
 
 pragma solidity ^0.8.20;
 
+import {LowLevelCall} from "./LowLevelCall.sol";
+
 /**
  * @dev Library for performing external calls through dynamically deployed relay contracts that hide the original
  * caller's address from the target contract. This pattern is used in ERC-4337's EntryPoint for account factory
@@ -18,27 +20,35 @@ pragma solidity ^0.8.20;
  */
 library RelayedCall {
     /// @dev Relays a call to the target contract through a dynamically deployed relay contract.
-    function relayCall(address target, bytes memory data) internal returns (bool, bytes memory) {
+    function relayCall(address target, bytes memory data) internal returns (bool success, bytes memory retData) {
         return relayCall(target, 0, data);
     }
 
-    /// @dev Same as {relayCall} but with a value.
-    function relayCall(address target, uint256 value, bytes memory data) internal returns (bool, bytes memory) {
+    /// @dev Same as {relayCall-address-bytes} but with a value.
+    function relayCall(
+        address target,
+        uint256 value,
+        bytes memory data
+    ) internal returns (bool success, bytes memory retData) {
         return relayCall(target, value, data, bytes32(0));
     }
 
-    /// @dev Same as {relayCall} but with a salt.
-    function relayCall(address target, bytes memory data, bytes32 salt) internal returns (bool, bytes memory) {
+    /// @dev Same as {relayCall-address-bytes} but with a salt.
+    function relayCall(
+        address target,
+        bytes memory data,
+        bytes32 salt
+    ) internal returns (bool success, bytes memory retData) {
         return relayCall(target, 0, data, salt);
     }
 
-    /// @dev Same as {relayCall} but with a salt and a value.
+    /// @dev Same as {relayCall-address-bytes} but with a salt and a value.
     function relayCall(
         address target,
         uint256 value,
         bytes memory data,
         bytes32 salt
-    ) internal returns (bool, bytes memory) {
+    ) internal returns (bool success, bytes memory retData) {
         return getRelayer(salt).call{value: value}(abi.encodePacked(target, data));
     }
 
@@ -121,6 +131,138 @@ library RelayedCall {
             // is relayer not yet deployed, deploy it
             if iszero(extcodesize(relayer)) {
                 if iszero(create2(0, add(fmp, 0x16), 0x50, salt)) {
+                    returndatacopy(fmp, 0x00, returndatasize())
+                    revert(fmp, returndatasize())
+                }
+            }
+
+            // cleanup fmp space used as scratch
+            mstore(0x40, fmp)
+        }
+    }
+
+    /// @dev Relays a call through a reverting relayer that reverts with the return data, allowing inspection
+    function relayRevertingCall(
+        address target,
+        bytes memory data
+    ) internal returns (bool success, bytes memory retData) {
+        return relayRevertingCall(target, 0, data, bytes32(0));
+    }
+
+    /// @dev Same as {relayRevertingCall-address-bytes} but with a salt for deterministic relayer address.
+    function relayRevertingCall(
+        address target,
+        bytes memory data,
+        bytes32 salt
+    ) internal returns (bool success, bytes memory retData) {
+        return relayRevertingCall(target, 0, data, salt);
+    }
+
+    /// @dev Same as {relayRevertingCall-address-bytes} but with a value.
+    function relayRevertingCall(
+        address target,
+        uint256 value,
+        bytes memory data
+    ) internal returns (bool success, bytes memory retData) {
+        return relayRevertingCall(target, value, data, bytes32(0));
+    }
+
+    /// @dev Same as {relayRevertingCall-address-bytes} but with a salt and a value.
+    function relayRevertingCall(
+        address target,
+        uint256 value,
+        bytes memory data,
+        bytes32 salt
+    ) internal returns (bool success, bytes memory retData) {
+        LowLevelCall.callNoReturn(getRevertingRelayer(salt), value, abi.encodePacked(target, data));
+        retData = LowLevelCall.returnData();
+        uint256 retDataSize = LowLevelCall.returnDataSize();
+        bytes1 result = retData[retDataSize - 1];
+        assembly ("memory-safe") {
+            success := result
+            mstore(retData, sub(retDataSize, 1))
+        }
+        return (success, retData);
+    }
+
+    /// @dev Same as {getRelayer} but with a `bytes32(0)` default salt.
+    function getRevertingRelayer() internal returns (address) {
+        return getRevertingRelayer(bytes32(0));
+    }
+
+    /// @dev Returns the reverting relayer address for a given salt.
+    function getRevertingRelayer(bytes32 salt) internal returns (address relayer) {
+        // [Reverting Relayer details]
+        //
+        // deployment prefix: 60465f8160095f39f3
+        // deployed bytecode: 73<addr>331460133611166022575f5ffd5b6014360360145f375f5f601436035f345f3560601c5af13d5f5f3e3d533d6001015ffd
+        //
+        // offset | bytecode    | opcode         | stack
+        // -------|-------------|----------------|--------
+        // 0x0000 | 73<factory> | push20 <addr>  | <factory>
+        // 0x0015 | 33          | address        | <caller> <factory>
+        // 0x0016 | 14          | eq             | access
+        // 0x0017 | 6013        | push1 0x13     | 0x13 access
+        // 0x0019 | 36          | calldatasize   | cds 0x13 access
+        // 0x001a | 11          | gt             | (cds>0x13) access
+        // 0x001b | 16          | and            | (cds>0x13 && access)
+        // 0x001c | 6022        | push1 0x22     | 0x22 (cds>0x13 && access)
+        // 0x001e | 57          | jumpi          |
+        // 0x001f | 5f          | push0          | 0
+        // 0x0020 | 5f          | push0          | 0 0
+        // 0x0021 | fd          | revert         |
+        // 0x0022 | 5b          | jumpdest       |
+        // 0x0023 | 6014        | push1 0x14     | 0x14
+        // 0x0025 | 36          | calldatasize   | cds 0x14
+        // 0x0026 | 03          | sub            | (cds-0x14)
+        // 0x0027 | 6014        | push1 0x14     | 0x14 (cds-0x14)
+        // 0x0029 | 5f          | push0          | 0 0x14 (cds-0x14)
+        // 0x002a | 37          | calldatacopy   |
+        // 0x002b | 5f          | push0          | 0
+        // 0x002c | 5f          | push0          | 0 0
+        // 0x002d | 6014        | push1 0x14     | 0x14 0 0
+        // 0x002f | 36          | calldatasize   | cds 0x14 0 0
+        // 0x0030 | 03          | sub            | (cds-0x14) 0 0
+        // 0x0031 | 5f          | push0          | 0 (cds-0x14) 0 0
+        // 0x0032 | 34          | callvalue      | value 0 (cds-0x14) 0 0
+        // 0x0033 | 5f          | push0          | 0 value 0 (cds-0x14) 0 0
+        // 0x0034 | 35          | calldataload   | cd[0] value 0 (cds-0x14) 0 0
+        // 0x0035 | 6060        | push1 0x60     | 0x60 cd[0] value 0 (cds-0x14) 0 0
+        // 0x0037 | 1c          | shr            | target value 0 (cds-0x14) 0 0
+        // 0x0038 | 5a          | gas            | gas target value 0 (cds-0x14) 0 0
+        // 0x0039 | f1          | call           | suc
+        // 0x003a | 3d          | returndatasize | rds suc
+        // 0x003b | 5f          | push0          | 0 rds suc
+        // 0x003c | 5f          | push0          | 0 0 rds suc
+        // 0x003d | 3e          | returndatacopy | suc
+        // 0x003e | 3d          | returndatasize | rds suc
+        // 0x003f | 53          | mstore8        |
+        // 0x0040 | 3d          | returndatasize | rds
+        // 0x0041 | 6001        | push1 0x01     | 0x01 rds
+        // 0x0043 | 01          | add            | (rds+0x01)
+        // 0x0044 | 5f          | push0          | 0 (rds+0x01)
+        // 0x0045 | fd          | revert         |
+
+        assembly ("memory-safe") {
+            let fmp := mload(0x40)
+
+            // build initcode at FMP
+            mstore(add(fmp, 0x45), 0x0360145f375f5f601436035f345f3560601c5af13d5f5f3e3d533d6001015ffd)
+            mstore(add(fmp, 0x25), 0x331460133611166022575f5ffd5b601436)
+            mstore(add(fmp, 0x14), address())
+            mstore(add(fmp, 0x00), 0x60465f8160095f39f373)
+            let initcodehash := keccak256(add(fmp, 0x16), 0x4f)
+
+            // compute create2 address
+            mstore(0x40, initcodehash)
+            mstore(0x20, salt)
+            mstore(0x00, address())
+            mstore8(0x0b, 0xff)
+            relayer := and(keccak256(0x0b, 0x55), shr(96, not(0)))
+
+            // is relayer not yet deployed, deploy it
+            if iszero(extcodesize(relayer)) {
+                if iszero(create2(0, add(fmp, 0x16), 0x4f, salt)) {
                     returndatacopy(fmp, 0x00, returndatasize())
                     revert(fmp, returndatasize())
                 }
