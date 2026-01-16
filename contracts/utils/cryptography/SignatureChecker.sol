@@ -7,18 +7,26 @@ import {ECDSA} from "./ECDSA.sol";
 import {IERC1271} from "../../interfaces/IERC1271.sol";
 import {IERC7913SignatureVerifier} from "../../interfaces/IERC7913.sol";
 import {Bytes} from "../Bytes.sol";
+import {LowLevelCall} from "../LowLevelCall.sol";
+import {RelayedCall} from "../RelayedCall.sol";
+import {Calldata} from "../Calldata.sol";
 
 /**
  * @dev Signature verification helper that can be used instead of `ECDSA.recover` to seamlessly support:
  *
  * * ECDSA signatures from externally owned accounts (EOAs)
  * * ERC-1271 signatures from smart contract wallets like Argent and Safe Wallet (previously Gnosis Safe)
+ * * ERC-6492 signatures from smart contracts that have not been deployed yet
  * * ERC-7913 signatures from keys that do not have an Ethereum address of their own
  *
- * See https://eips.ethereum.org/EIPS/eip-1271[ERC-1271] and https://eips.ethereum.org/EIPS/eip-7913[ERC-7913].
+ * See https://eips.ethereum.org/EIPS/eip-1271[ERC-1271], https://eips.ethereum.org/EIPS/eip-6492[ERC-6492],
+ * and https://eips.ethereum.org/EIPS/eip-7913[ERC-7913].
  */
 library SignatureChecker {
     using Bytes for bytes;
+    using RelayedCall for address;
+
+    bytes32 private constant ERC6492_SUFFIX = 0x6492649264926492649264926492649264926492649264926492649264926492;
 
     /**
      * @dev Checks if a signature is valid for a given signer and data hash. If the signer has code, the
@@ -26,6 +34,9 @@ library SignatureChecker {
      *
      * NOTE: Unlike ECDSA signatures, contract signatures are revocable, and the outcome of this function can thus
      * change through time. It could return true at block N and false at block N+1 (or the opposite).
+     *
+     * NOTE: For ERC-6492 signature validation (signatures from contracts that have not been deployed yet),
+     * see {isValidERC6492SignatureNow}.
      *
      * NOTE: For an extended version of this function that supports ERC-7913 signatures, see {isValidSignatureNow-bytes-bytes32-bytes-}.
      */
@@ -114,6 +125,224 @@ library SignatureChecker {
         }
     }
 
+    function isValidERC6492SignatureNow(address signer, bytes32 hash, bytes memory signature) internal returns (bool) {
+        bool hasCode = signer.code.length > 0;
+        bytes32 suffix;
+        assembly ("memory-safe") {
+            // Extracts the suffix word without allocating extra memory
+            suffix := mload(add(signature, mload(signature)))
+        }
+        bool isValid;
+
+        // Behaves as a switch statement
+        while (true) {
+            // Case 1: Standard ERC-1271 signature validation
+            if (suffix != ERC6492_SUFFIX) {
+                if (hasCode) isValid = isValidERC1271SignatureNow(signer, hash, signature);
+                break;
+            }
+
+            // Case 2: ERC-6492 signature validation with a contract already deployed
+            // Assumes the signature is always encoded as (factoryOrPrepareTo, factoryOrPrepareCalldata, signature, suffix)
+            // since the contract might had been deployed before the signature was submitted.
+            bool decodable;
+            address factoryOrPrepareTo;
+            bytes memory factoryOrPrepareCalldata;
+            (decodable, factoryOrPrepareTo, factoryOrPrepareCalldata, signature) = _tryDecodeERC6492Signature(
+                signature.splice(0, signature.length - 32) // Remove the suffix
+            );
+            if (!decodable) return false; // Suffixed. Can't decode. Just return false.
+            if (hasCode) {
+                isValid = isValidERC1271SignatureNow(signer, hash, signature);
+                if (isValid) break;
+            }
+
+            // Case 3: ERC-6492 signature validation with a contract not yet deployed or preparation failed
+            // Either has no code or the signature was invalid. We need to try to deploy/prepare the contract.
+
+            // Use a dedicated relayer for ERC-6492 signatures so that the caller
+            // can't be arbitrarily used if it has special permissions on a target contract
+            (bool success, ) = factoryOrPrepareTo.relayRevertingCall(factoryOrPrepareCalldata, ERC6492_SUFFIX);
+            isValid = success && isValidERC1271SignatureNow(signer, hash, signature); // Short-circuit validation if the call failed
+            break;
+        }
+
+        // Fallback to ECDSA signature validation
+        if (!hasCode && !isValid) {
+            (address recovered, ECDSA.RecoverError err, ) = ECDSA.tryRecover(hash, signature);
+            isValid = err == ECDSA.RecoverError.NoError && recovered == signer;
+        }
+
+        return isValid;
+    }
+
+    function isValidERC6492SignatureNowCalldata(
+        address signer,
+        bytes32 hash,
+        bytes calldata signature
+    ) internal returns (bool) {
+        bool hasCode = signer.code.length > 0;
+        bytes32 suffix = bytes32(signature[signature.length - 32:]);
+        bool isValid;
+
+        // Behaves as a switch statement
+        while (true) {
+            // Case 1: Standard ERC-1271 signature validation
+            if (suffix != ERC6492_SUFFIX) {
+                if (hasCode) isValid = isValidERC1271SignatureNowCalldata(signer, hash, signature);
+                break;
+            }
+
+            // Case 2: ERC-6492 signature validation with a contract already deployed
+            // Assumes the signature is always encoded as (factoryOrPrepareTo, factoryOrPrepareCalldata, signature, suffix)
+            // since the contract might had been deployed before the signature was submitted.
+            bool decodable;
+            address factoryOrPrepareTo;
+            bytes calldata factoryOrPrepareCalldata;
+            (decodable, factoryOrPrepareTo, factoryOrPrepareCalldata, signature) = _tryDecodeERC6492SignatureCalldata(
+                signature[0:signature.length - 32] // Avoid the suffix
+            );
+            if (!decodable) return false; // Suffixed. Can't decode. Just return false.
+            if (hasCode) {
+                isValid = isValidERC1271SignatureNow(signer, hash, signature);
+                if (isValid) break;
+            }
+
+            // Case 3: ERC-6492 signature validation with a contract not yet deployed or preparation failed
+            // Either has no code or the signature was invalid. We need to try to deploy/prepare the contract.
+
+            // Use a dedicated relayer for ERC-6492 signatures so that the caller
+            // can't be arbitrarily used if it has special permissions on a target contract
+            (bool success, ) = factoryOrPrepareTo.relayRevertingCall(factoryOrPrepareCalldata, ERC6492_SUFFIX);
+            isValid = success && isValidERC1271SignatureNow(signer, hash, signature); // Short-circuit validation if the call failed
+            break;
+        }
+
+        // Fallback to ECDSA signature validation
+        if (!hasCode && !isValid) {
+            (address recovered, ECDSA.RecoverError err, ) = ECDSA.tryRecover(hash, signature);
+            isValid = err == ECDSA.RecoverError.NoError && recovered == signer;
+        }
+
+        return isValid;
+    }
+
+    function isValidERC6492SignatureNowAllowSideEffects(
+        address signer,
+        bytes32 hash,
+        bytes memory signature
+    ) internal returns (bool) {
+        bool hasCode = signer.code.length > 0;
+        bytes32 suffix;
+        assembly ("memory-safe") {
+            // Extracts the suffix word without allocating extra memory
+            suffix := mload(add(signature, mload(signature)))
+        }
+        bool isValid;
+
+        // Behaves as a switch statement
+        while (true) {
+            // Case 1: Standard ERC-1271 signature validation
+            if (suffix != ERC6492_SUFFIX) {
+                if (hasCode) isValid = isValidERC1271SignatureNow(signer, hash, signature);
+                break;
+            }
+
+            // Case 2: ERC-6492 signature validation with a contract already deployed
+            // Assumes the signature is always encoded as (factoryOrPrepareTo, factoryOrPrepareCalldata, signature, suffix)
+            // since the contract might had been deployed before the signature was submitted.
+            bool decodable;
+            address factoryOrPrepareTo;
+            bytes memory factoryOrPrepareCalldata;
+            (decodable, factoryOrPrepareTo, factoryOrPrepareCalldata, signature) = _tryDecodeERC6492Signature(
+                signature.splice(0, signature.length - 32) // Remove the suffix
+            );
+            if (!decodable) return false; // Suffixed. Can't decode. Just return false.
+            if (hasCode) {
+                isValid = isValidERC1271SignatureNow(signer, hash, signature);
+                if (isValid) break;
+            }
+
+            // Case 3: ERC-6492 signature validation with a contract not yet deployed or preparation failed
+            // Either has no code or the signature was invalid. We need to try to deploy/prepare the contract.
+            if (
+                LowLevelCall.callNoReturn(
+                    // Use a dedicated relayer for ERC-6492 signatures so that the caller
+                    // can't be arbitrarily used if it has special permissions on a target contract
+                    RelayedCall.getRelayer(ERC6492_SUFFIX),
+                    abi.encodePacked(factoryOrPrepareTo, factoryOrPrepareCalldata)
+                )
+            ) {
+                isValid = isValidERC1271SignatureNow(signer, hash, signature);
+            } // Do not attempt validation if the call failed
+            break;
+        }
+
+        // Fallback to ECDSA signature validation
+        if (!hasCode && !isValid) {
+            (address recovered, ECDSA.RecoverError err, ) = ECDSA.tryRecover(hash, signature);
+            isValid = err == ECDSA.RecoverError.NoError && recovered == signer;
+        }
+
+        return isValid;
+    }
+
+    function isValidERC6492SignatureNowAllowSideEffectsCalldata(
+        address signer,
+        bytes32 hash,
+        bytes calldata signature
+    ) internal returns (bool) {
+        bool hasCode = signer.code.length > 0;
+        bytes32 suffix = bytes32(signature[signature.length - 32:]);
+        bool isValid;
+
+        // Behaves as a switch statement
+        while (true) {
+            // Case 1: Standard ERC-1271 signature validation
+            if (suffix != ERC6492_SUFFIX) {
+                if (hasCode) isValid = isValidERC1271SignatureNowCalldata(signer, hash, signature);
+                break;
+            }
+
+            // Case 2: ERC-6492 signature validation with a contract already deployed
+            // Assumes the signature is always encoded as (factoryOrPrepareTo, factoryOrPrepareCalldata, signature, suffix)
+            // since the contract might had been deployed before the signature was submitted.
+            bool decodable;
+            address factoryOrPrepareTo;
+            bytes calldata factoryOrPrepareCalldata;
+            (decodable, factoryOrPrepareTo, factoryOrPrepareCalldata, signature) = _tryDecodeERC6492SignatureCalldata(
+                signature[0:signature.length - 32] // Avoid the suffix
+            );
+            if (!decodable) return false; // Suffixed. Can't decode. Just return false.
+            if (hasCode) {
+                isValid = isValidERC1271SignatureNow(signer, hash, signature);
+                if (isValid) break;
+            }
+
+            // Case 3: ERC-6492 signature validation with a contract not yet deployed or preparation failed
+            // Either has no code or the signature was invalid. We need to try to deploy/prepare the contract.
+            if (
+                LowLevelCall.callNoReturn(
+                    // Use a dedicated relayer for ERC-6492 signatures so that the caller
+                    // can't be arbitrarily used if it has special permissions on a target contract
+                    RelayedCall.getRelayer(ERC6492_SUFFIX),
+                    abi.encodePacked(factoryOrPrepareTo, factoryOrPrepareCalldata)
+                )
+            ) {
+                isValid = isValidERC1271SignatureNow(signer, hash, signature);
+            } // Do not attempt validation if the call failed
+            break;
+        }
+
+        // Fallback to ECDSA signature validation
+        if (!hasCode && !isValid) {
+            (address recovered, ECDSA.RecoverError err, ) = ECDSA.tryRecover(hash, signature);
+            isValid = err == ECDSA.RecoverError.NoError && recovered == signer;
+        }
+
+        return isValid;
+    }
+
     /**
      * @dev Verifies a signature for a given ERC-7913 signer and hash.
      *
@@ -187,5 +416,114 @@ library SignatureChecker {
         }
 
         return true;
+    }
+
+    function _tryDecodeERC6492Signature(
+        bytes memory signature
+    )
+        private
+        pure
+        returns (
+            bool decodable,
+            address factoryOrPrepareTo,
+            bytes memory factoryOrPrepareCalldata,
+            bytes memory innerSignature
+        )
+    {
+        // Minimum length of a valid ERC-6492 signature is 160 bytes
+        // address(32) + factoryOrPrepareCalldataOffset(32) + innerSignatureOffset(32) + factoryOrPrepareCalldataLength(32) + innerSignatureLength(32)
+        if (signature.length < 0xa0) return (false, address(0), bytes(""), bytes(""));
+
+        uint256 factoryOrPrepareCalldataOffset;
+        uint256 innerSignatureOffset;
+        bytes32 ptr;
+        assembly ("memory-safe") {
+            ptr := add(signature, 0x20)
+            factoryOrPrepareTo := mload(ptr)
+            factoryOrPrepareCalldataOffset := mload(add(ptr, 0x20))
+            innerSignatureOffset := mload(add(ptr, 0x40))
+        }
+        if (
+            factoryOrPrepareCalldataOffset < 0x60 ||
+            factoryOrPrepareCalldataOffset > signature.length ||
+            innerSignatureOffset < 0x80 ||
+            innerSignatureOffset > signature.length
+        ) {
+            // Validate bounds
+            return (false, address(0), bytes(""), bytes(""));
+        }
+
+        uint256 factoryOrPrepareCalldataLength;
+        uint256 innerSignatureLength;
+        assembly ("memory-safe") {
+            factoryOrPrepareCalldataLength := mload(add(ptr, factoryOrPrepareCalldataOffset))
+            innerSignatureLength := mload(add(ptr, innerSignatureOffset))
+        }
+        if (
+            factoryOrPrepareCalldataOffset + factoryOrPrepareCalldataLength > signature.length - 32 ||
+            innerSignatureOffset + innerSignatureLength > signature.length - 32
+        ) {
+            // Validate bounds
+            return (false, address(0), bytes(""), bytes(""));
+        }
+
+        return (
+            true,
+            factoryOrPrepareTo,
+            signature.slice(
+                factoryOrPrepareCalldataOffset,
+                factoryOrPrepareCalldataOffset + factoryOrPrepareCalldataLength
+            ),
+            signature.splice(innerSignatureOffset, innerSignatureOffset + innerSignatureLength)
+        );
+    }
+
+    function _tryDecodeERC6492SignatureCalldata(
+        bytes calldata signature
+    )
+        private
+        pure
+        returns (
+            bool decodable,
+            address factoryOrPrepareTo,
+            bytes calldata factoryOrPrepareCalldata,
+            bytes calldata innerSignature
+        )
+    {
+        // Minimum length of a valid ERC-6492 signature is 160 bytes
+        // address(32) + factoryOrPrepareCalldataOffset(32) + innerSignatureOffset(32) + factoryOrPrepareCalldataLength(32) + innerSignatureLength(32)
+        if (signature.length < 0xa0) return (false, address(0), Calldata.emptyBytes(), Calldata.emptyBytes());
+
+        factoryOrPrepareTo = address(bytes20(signature[12:0x20]));
+        uint256 factoryOrPrepareCalldataOffset = uint256(bytes32(signature[0x20:0x40]));
+        uint256 innerSignatureOffset = uint256(bytes32(signature[0x40:0x60]));
+        if (
+            factoryOrPrepareCalldataOffset < 0x60 ||
+            factoryOrPrepareCalldataOffset > signature.length ||
+            innerSignatureOffset < 0x80 ||
+            innerSignatureOffset > signature.length
+        ) {
+            // Validate bounds
+            return (false, address(0), Calldata.emptyBytes(), Calldata.emptyBytes());
+        }
+
+        uint256 factoryOrPrepareCalldataLength = uint256(
+            bytes32(signature[factoryOrPrepareCalldataOffset:factoryOrPrepareCalldataOffset + 32])
+        );
+        uint256 innerSignatureLength = uint256(bytes32(signature[innerSignatureOffset:innerSignatureOffset + 32]));
+        if (
+            factoryOrPrepareCalldataOffset + factoryOrPrepareCalldataLength > signature.length ||
+            innerSignatureOffset + innerSignatureLength > signature.length
+        ) {
+            // Validate bounds
+            return (false, address(0), Calldata.emptyBytes(), Calldata.emptyBytes());
+        }
+
+        return (
+            true,
+            factoryOrPrepareTo,
+            signature[factoryOrPrepareCalldataOffset:factoryOrPrepareCalldataOffset + factoryOrPrepareCalldataLength],
+            signature[innerSignatureOffset:innerSignatureOffset + innerSignatureLength]
+        );
     }
 }
