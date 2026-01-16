@@ -1,7 +1,12 @@
 const { ethers, config, predeploy } = require('hardhat');
+const { ValidationRange } = require('./enums');
 
 const SIG_VALIDATION_SUCCESS = '0x0000000000000000000000000000000000000000';
 const SIG_VALIDATION_FAILURE = '0x0000000000000000000000000000000000000001';
+const PAYMASTER_SIG_MAGIC = '0x22e325a297439656';
+
+const BLOCK_RANGE_FLAG = 0x800000000000n;
+const BLOCK_RANGE_MASK = 0x7fffffffffffn;
 
 function getAddress(account) {
   return account.target ?? account.address ?? account;
@@ -11,12 +16,18 @@ function pack(left, right) {
   return ethers.solidityPacked(['uint128', 'uint128'], [left, right]);
 }
 
-function packValidationData(validAfter, validUntil, authorizer) {
+function packValidationData(validAfter, validUntil, authorizer, range = undefined) {
+  // if range is not specified, use the value as provided,
+  // otherwise, clean the values (& BLOCK_RANGE_MASK) and set the flag if corresponding to the range.
   return ethers.solidityPacked(
     ['uint48', 'uint48', 'address'],
     [
-      validAfter,
-      validUntil,
+      range === undefined
+        ? BigInt(validAfter)
+        : (BigInt(validAfter) & BLOCK_RANGE_MASK) | (range == ValidationRange.Block ? BLOCK_RANGE_FLAG : 0n),
+      range === undefined
+        ? BigInt(validUntil)
+        : (BigInt(validUntil) & BLOCK_RANGE_MASK) | (range == ValidationRange.Block ? BLOCK_RANGE_FLAG : 0n),
       typeof authorizer == 'boolean'
         ? authorizer
           ? SIG_VALIDATION_SUCCESS
@@ -30,11 +41,25 @@ function packInitCode(factory, factoryData) {
   return ethers.solidityPacked(['address', 'bytes'], [getAddress(factory), factoryData]);
 }
 
-function packPaymasterAndData(paymaster, paymasterVerificationGasLimit, paymasterPostOpGasLimit, paymasterData) {
-  return ethers.solidityPacked(
-    ['address', 'uint128', 'uint128', 'bytes'],
-    [getAddress(paymaster), paymasterVerificationGasLimit, paymasterPostOpGasLimit, paymasterData],
-  );
+function packPaymasterAndData(
+  paymaster,
+  paymasterVerificationGasLimit,
+  paymasterPostOpGasLimit,
+  paymasterData,
+  signature = undefined,
+) {
+  return ethers.concat([
+    ethers.solidityPacked(
+      ['address', 'uint128', 'uint128', 'bytes'],
+      [getAddress(paymaster), paymasterVerificationGasLimit, paymasterPostOpGasLimit, paymasterData],
+    ),
+    signature === undefined
+      ? '0x'
+      : ethers.solidityPacked(
+          ['bytes', 'uint16', 'bytes8'],
+          [signature, ethers.dataLength(signature), PAYMASTER_SIG_MAGIC],
+        ),
+  ]);
 }
 
 /// Represent one user operation
@@ -54,6 +79,7 @@ class UserOperation {
     this.paymasterVerificationGasLimit = params.paymasterVerificationGasLimit ?? 0n;
     this.paymasterPostOpGasLimit = params.paymasterPostOpGasLimit ?? 0n;
     this.paymasterData = params.paymasterData ?? '0x';
+    this.paymasterSignature = params.paymasterSignature ?? undefined;
     this.signature = params.signature ?? '0x';
   }
 
@@ -72,6 +98,7 @@ class UserOperation {
             this.paymasterVerificationGasLimit,
             this.paymasterPostOpGasLimit,
             this.paymasterData,
+            this.paymasterSignature,
           )
         : '0x',
       signature: this.signature,
@@ -101,19 +128,19 @@ class ERC4337Helper {
 
   async newAccount(name, extraArgs = [], params = {}) {
     const env = {
-      entrypoint: params.entrypoint ?? predeploy.entrypoint.v08,
-      senderCreator: params.senderCreator ?? predeploy.senderCreator.v08,
+      entrypoint: params.entrypoint ?? predeploy.entrypoint.v09,
+      senderCreator: params.senderCreator ?? predeploy.senderCreator.v09,
     };
 
     const { factory } = await this.wait();
 
     const accountFactory = await ethers.getContractFactory(name);
 
-    if (params.erc7702signer) {
+    if (params.eip7702signer) {
       const delegate = await accountFactory.deploy(...extraArgs);
-      const instance = await params.erc7702signer.getAddress().then(address => accountFactory.attach(address));
-      const authorization = await params.erc7702signer.authorize({ address: delegate.target });
-      return new ERC7702SmartAccount(instance, authorization, env);
+      const instance = await params.eip7702signer.getAddress().then(address => accountFactory.attach(address));
+      const authorization = await params.eip7702signer.authorize({ address: delegate.target });
+      return new EIP7702SmartAccount(instance, authorization, env);
     } else {
       const initCode = await accountFactory
         .getDeployTransaction(...extraArgs)
@@ -163,7 +190,7 @@ class SmartAccount extends ethers.BaseContract {
   }
 }
 
-class ERC7702SmartAccount extends SmartAccount {
+class EIP7702SmartAccount extends SmartAccount {
   constructor(instance, authorization, env) {
     super(instance, undefined, env);
     this.authorization = authorization;

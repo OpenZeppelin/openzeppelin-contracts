@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.3.0) (utils/math/Math.sol)
+// OpenZeppelin Contracts (last updated v5.5.0) (utils/math/Math.sol)
 
 pragma solidity ^0.8.20;
 
@@ -168,8 +168,10 @@ library Math {
      * zero.
      */
     function average(uint256 a, uint256 b) internal pure returns (uint256) {
-        // (a + b) / 2 can overflow.
-        return (a & b) + (a ^ b) / 2;
+        unchecked {
+            // (a + b) / 2 can overflow.
+            return (a & b) + (a ^ b) / 2;
+        }
     }
 
     /**
@@ -473,9 +475,14 @@ library Math {
     /**
      * @dev Returns whether the provided byte array is zero.
      */
-    function _zeroBytes(bytes memory byteArray) private pure returns (bool) {
-        for (uint256 i = 0; i < byteArray.length; ++i) {
-            if (byteArray[i] != 0) {
+    function _zeroBytes(bytes memory buffer) private pure returns (bool) {
+        uint256 chunk;
+        for (uint256 i = 0; i < buffer.length; i += 0x20) {
+            // See _unsafeReadBytesOffset from utils/Bytes.sol
+            assembly ("memory-safe") {
+                chunk := mload(add(add(buffer, 0x20), i))
+            }
+            if (chunk >> (8 * saturatingSub(i + 0x20, buffer.length)) != 0) {
                 return false;
             }
         }
@@ -644,7 +651,7 @@ library Math {
         // |    1110    |   14    |        table[14] = 3        |
         // |    1111    |   15    |        table[15] = 3        |
         //
-        // The lookup table is represented as a 32-byte value with the MSB positions for 0-15 in the last 16 bytes.
+        // The lookup table is represented as a 32-byte value with the MSB positions for 0-15 in the first 16 bytes (most significant half).
         assembly ("memory-safe") {
             r := or(r, byte(shr(r, x), 0x0000010102020202030303030303030300000000000000000000000000000000))
         }

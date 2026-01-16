@@ -14,7 +14,7 @@ async function fixture() {
   const cloneFactory = await ethers.deployContract('$Clones');
 
   const instance = await ethers
-    .deployContract('ERC1967Proxy', [implInitial, '0x'])
+    .deployContract('ERC1967ProxyUnsafe', [implInitial, '0x'])
     .then(proxy => implInitial.attach(proxy.target));
 
   return {
@@ -110,7 +110,7 @@ describe('UUPSUpgradeable', function () {
 
   it('reject proxy address as implementation', async function () {
     const otherInstance = await ethers
-      .deployContract('ERC1967Proxy', [this.implInitial, '0x'])
+      .deployContract('ERC1967ProxyUnsafe', [this.implInitial, '0x'])
       .then(proxy => this.implInitial.attach(proxy.target));
 
     await expect(this.instance.upgradeToAndCall(otherInstance, '0x'))

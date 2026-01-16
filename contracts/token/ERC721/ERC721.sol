@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.4.0) (token/ERC721/ERC721.sol)
+// OpenZeppelin Contracts (last updated v5.5.0) (token/ERC721/ERC721.sol)
 
 pragma solidity ^0.8.24;
 
@@ -407,6 +407,9 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      * Emits an {ApprovalForAll} event.
      */
     function _setApprovalForAll(address owner, address operator, bool approved) internal virtual {
+        if (owner == address(0)) {
+            revert ERC721InvalidApprover(address(0));
+        }
         if (operator == address(0)) {
             revert ERC721InvalidOperator(operator);
         }

@@ -59,29 +59,35 @@ index ff596b0c3..000000000
 -<!-- Make sure that you have reviewed the OpenZeppelin Contracts Contributor Guidelines. -->
 -<!-- https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/CONTRIBUTING.md -->
 diff --git a/README.md b/README.md
-index 2f92281b3..a0e46695d 100644
+index 6a01f5616..b01c6e88f 100644
 --- a/README.md
 +++ b/README.md
-@@ -20,6 +20,9 @@
+@@ -18,6 +18,9 @@
  > [!IMPORTANT]
  > OpenZeppelin Contracts uses semantic versioning to communicate backwards compatibility of its API and storage layout. For upgradeable contracts, the storage layout of different major versions should be assumed incompatible, for example, it is unsafe to upgrade from 4.9.3 to 5.0.0. Learn more at [Backwards Compatibility](https://docs.openzeppelin.com/contracts/backwards-compatibility).
  
-++> [!NOTE]
-++> You are looking at the upgradeable variant of OpenZeppelin Contracts. Be sure to review the documentation on [Using OpenZeppelin Contracts with Upgrades](https://docs.openzeppelin.com/contracts/upgradeable).
-++
++> [!NOTE]
++> You are looking at the upgradeable variant of OpenZeppelin Contracts. Be sure to review the documentation on [Using OpenZeppelin Contracts with Upgrades](https://docs.openzeppelin.com/contracts/upgradeable).
++
  ## Overview
  
- ### Installation
-@@ -27,7 +30,7 @@
+ ### Release tags
+@@ -35,12 +38,12 @@ We use NPM tags to clearly distinguish between audited and non-audited versions
  #### Hardhat (npm)
  
  ```
 -$ npm install @openzeppelin/contracts
 +$ npm install @openzeppelin/contracts-upgradeable
  ```
+ → Installs the latest audited release (`latest`).
  
- #### Foundry (git)
-@@ -39,10 +42,10 @@ $ npm install @openzeppelin/contracts
+ ```
+-$ npm install @openzeppelin/contracts@dev
++$ npm install @openzeppelin/contracts-upgradeable@dev
+ ```
+ → Installs the latest unaudited release (`dev`).
+ 
+@@ -53,10 +56,10 @@ $ npm install @openzeppelin/contracts@dev
  > Foundry installs the latest version initially, but subsequent `forge update` commands will use the `master` branch.
  
  ```
@@ -94,7 +100,7 @@ index 2f92281b3..a0e46695d 100644
  
  ### Usage
  
-@@ -51,10 +54,11 @@ Once installed, you can use the contracts in the library by importing them:
+@@ -65,10 +68,11 @@ Once installed, you can use the contracts in the library by importing them:
  ```solidity
  pragma solidity ^0.8.20;
  
@@ -110,7 +116,7 @@ index 2f92281b3..a0e46695d 100644
  }
  ```
 diff --git a/contracts/package.json b/contracts/package.json
-index 8ccb9465e..509cd7f05 100644
+index 3535a2f56..9a73abc22 100644
 --- a/contracts/package.json
 +++ b/contracts/package.json
 @@ -1,5 +1,5 @@
@@ -118,7 +124,7 @@ index 8ccb9465e..509cd7f05 100644
 -  "name": "@openzeppelin/contracts",
 +  "name": "@openzeppelin/contracts-upgradeable",
    "description": "Secure Smart Contract library for Solidity",
-   "version": "5.4.0",
+   "version": "5.5.0",
    "files": [
 @@ -13,7 +13,7 @@
    },
@@ -140,7 +146,7 @@ index 8ccb9465e..509cd7f05 100644
 +  }
  }
 diff --git a/contracts/utils/ReentrancyGuard.sol b/contracts/utils/ReentrancyGuard.sol
-index 6e44894dc..7b076aaa7 100644
+index c156fa1cc..895e39342 100644
 --- a/contracts/utils/ReentrancyGuard.sol
 +++ b/contracts/utils/ReentrancyGuard.sol
 @@ -36,6 +36,11 @@ abstract contract ReentrancyGuard {
@@ -167,7 +173,7 @@ index 6e44894dc..7b076aaa7 100644
       * @dev Prevents a contract from calling itself, directly or indirectly.
       * Calling a `nonReentrant` function from another `nonReentrant`
 diff --git a/contracts/utils/cryptography/EIP712.sol b/contracts/utils/cryptography/EIP712.sol
-index 0eaef9d27..01f1b5f58 100644
+index 2bc45a4b2..a5aa41d21 100644
 --- a/contracts/utils/cryptography/EIP712.sol
 +++ b/contracts/utils/cryptography/EIP712.sol
 @@ -4,7 +4,6 @@
@@ -178,7 +184,7 @@ index 0eaef9d27..01f1b5f58 100644
  import {IERC5267} from "../../interfaces/IERC5267.sol";
  
  /**
-@@ -25,33 +24,20 @@ import {IERC5267} from "../../interfaces/IERC5267.sol";
+@@ -25,33 +24,18 @@ import {IERC5267} from "../../interfaces/IERC5267.sol";
   * NOTE: This contract implements the version of the encoding known as "v4", as implemented by the JSON RPC method
   * https://docs.metamask.io/guide/signing-data.html[`eth_signTypedDataV4` in MetaMask].
   *
@@ -188,7 +194,7 @@ index 0eaef9d27..01f1b5f58 100644
 - *
 - * @custom:oz-upgrades-unsafe-allow state-variable-immutable
 + * NOTE: The upgradeable version of this contract does not use an immutable cache and recomputes the domain separator
-+ * each time {_domainSeparatorV4} is called. That is cheaper than accessing a cached version in cold storage.
++ * each time {_domainSeparatorV4} is called. This is cheaper than accessing a cached version in cold storage.
   */
  abstract contract EIP712 is IERC5267 {
 -    using ShortStrings for *;
@@ -202,9 +208,7 @@ index 0eaef9d27..01f1b5f58 100644
 -    uint256 private immutable _cachedChainId;
 -    address private immutable _cachedThis;
 -
-+    /// @custom:oz-renamed-from _HASHED_NAME
      bytes32 private immutable _hashedName;
-+    /// @custom:oz-renamed-from _HASHED_VERSION
      bytes32 private immutable _hashedVersion;
  
 -    ShortString private immutable _name;
@@ -218,7 +222,7 @@ index 0eaef9d27..01f1b5f58 100644
  
      /**
       * @dev Initializes the domain separator and parameter caches.
-@@ -66,29 +52,23 @@ abstract contract EIP712 is IERC5267 {
+@@ -66,29 +50,19 @@ abstract contract EIP712 is IERC5267 {
       * contract upgrade].
       */
      constructor(string memory name, string memory version) {
@@ -232,10 +236,6 @@ index 0eaef9d27..01f1b5f58 100644
 -        _cachedThis = address(this);
 +        _name = name;
 +        _version = version;
-+
-+        // Reset prior values in storage if upgrading
-+        _hashedName = 0;
-+        _hashedVersion = 0;
      }
  
      /**
@@ -256,18 +256,7 @@ index 0eaef9d27..01f1b5f58 100644
      }
  
      /**
-@@ -125,6 +105,10 @@ abstract contract EIP712 is IERC5267 {
-             uint256[] memory extensions
-         )
-     {
-+        // If the hashed name and version in storage are non-zero, the contract hasn't been properly initialized
-+        // and the EIP712 domain is not reliable, as it will be missing name and version.
-+        require(_hashedName == 0 && _hashedVersion == 0, "EIP712: Uninitialized");
-+
-         return (
-             hex"0f", // 01111
-             _EIP712Name(),
-@@ -139,22 +123,62 @@ abstract contract EIP712 is IERC5267 {
+@@ -139,22 +113,38 @@ abstract contract EIP712 is IERC5267 {
      /**
       * @dev The name parameter for the EIP712 domain.
       *
@@ -290,10 +279,7 @@ index 0eaef9d27..01f1b5f58 100644
 -     * It only reads from storage if necessary (in case the value is too large to fit in a ShortString).
 +     * NOTE: This function reads from storage by default, but can be redefined to return a constant value if gas costs
 +     * are a concern.
-      */
--    // solhint-disable-next-line func-name-mixedcase
--    function _EIP712Version() internal view returns (string memory) {
--        return _version.toStringWithFallback(_versionFallback);
++     */
 +    function _EIP712Version() internal view virtual returns (string memory) {
 +        return _version;
 +    }
@@ -304,44 +290,23 @@ index 0eaef9d27..01f1b5f58 100644
 +     * NOTE: In previous versions this function was virtual. In this version you should override `_EIP712Name` instead.
 +     */
 +    function _EIP712NameHash() internal view returns (bytes32) {
-+        string memory name = _EIP712Name();
-+        if (bytes(name).length > 0) {
-+            return keccak256(bytes(name));
-+        } else {
-+            // If the name is empty, the contract may have been upgraded without initializing the new storage.
-+            // We return the name hash in storage if non-zero, otherwise we assume the name is empty by design.
-+            bytes32 hashedName = _hashedName;
-+            if (hashedName != 0) {
-+                return hashedName;
-+            } else {
-+                return keccak256("");
-+            }
-+        }
++        return keccak256(bytes(_EIP712Name()));
 +    }
 +
 +    /**
 +     * @dev The hash of the version parameter for the EIP712 domain.
 +     *
 +     * NOTE: In previous versions this function was virtual. In this version you should override `_EIP712Version` instead.
-+     */
+      */
+-    // solhint-disable-next-line func-name-mixedcase
+-    function _EIP712Version() internal view returns (string memory) {
+-        return _version.toStringWithFallback(_versionFallback);
 +    function _EIP712VersionHash() internal view returns (bytes32) {
-+        string memory version = _EIP712Version();
-+        if (bytes(version).length > 0) {
-+            return keccak256(bytes(version));
-+        } else {
-+            // If the version is empty, the contract may have been upgraded without initializing the new storage.
-+            // We return the version hash in storage if non-zero, otherwise we assume the version is empty by design.
-+            bytes32 hashedVersion = _hashedVersion;
-+            if (hashedVersion != 0) {
-+                return hashedVersion;
-+            } else {
-+                return keccak256("");
-+            }
-+        }
++        return keccak256(bytes(_EIP712Version()));
      }
  }
 diff --git a/package.json b/package.json
-index f6960972a..369e2e1e6 100644
+index 6f2d411dd..956933f33 100644
 --- a/package.json
 +++ b/package.json
 @@ -35,7 +35,7 @@
@@ -361,30 +326,30 @@ index 304d1386a..a1cd63bee 100644
 -@openzeppelin/contracts/=contracts/
 +@openzeppelin/contracts-upgradeable/=contracts/
 +@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
-diff --git a/test/account/AccountERC7702.test.js b/test/account/AccountERC7702.test.js
-index f442d49af..8f22dc926 100644
---- a/test/account/AccountERC7702.test.js
-+++ b/test/account/AccountERC7702.test.js
+diff --git a/test/account/AccountEIP7702.test.js b/test/account/AccountEIP7702.test.js
+index d832e6877..6a0ab4a53 100644
+--- a/test/account/AccountEIP7702.test.js
++++ b/test/account/AccountEIP7702.test.js
 @@ -26,8 +26,8 @@ async function fixture() {
  
    // domain cannot be fetched using getDomain(mock) before the mock is deployed
    const domain = {
--    name: 'AccountERC7702Mock',
+-    name: 'AccountEIP7702Mock',
 -    version: '1',
 +    name: '', // Not initialized in the context of signer
 +    version: '', // Not initialized in the context of signer
      chainId: entrypointDomain.chainId,
      verifyingContract: mock.address,
    };
-diff --git a/test/account/examples/AccountERC7702WithModulesMock.test.js b/test/account/examples/AccountERC7702WithModulesMock.test.js
-index 8ceab19d1..c3f4194a6 100644
---- a/test/account/examples/AccountERC7702WithModulesMock.test.js
-+++ b/test/account/examples/AccountERC7702WithModulesMock.test.js
+diff --git a/test/account/examples/AccountEIP7702WithModulesMock.test.js b/test/account/examples/AccountEIP7702WithModulesMock.test.js
+index 86816e55e..de6adc2c5 100644
+--- a/test/account/examples/AccountEIP7702WithModulesMock.test.js
++++ b/test/account/examples/AccountEIP7702WithModulesMock.test.js
 @@ -36,8 +36,8 @@ async function fixture() {
  
    // domain cannot be fetched using getDomain(mock) before the mock is deployed
    const domain = {
--    name: 'AccountERC7702WithModulesMock',
+-    name: 'AccountEIP7702WithModulesMock',
 -    version: '1',
 +    name: '', // Not initialized in the context of signer
 +    version: '', // Not initialized in the context of signer

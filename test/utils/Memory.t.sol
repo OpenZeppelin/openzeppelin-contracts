@@ -35,4 +35,29 @@ contract MemoryTest is Test {
         length = bound(length, 0, input.length - offset);
         assertEq(input.asSlice().slice(offset, length).toBytes(), input.slice(offset, offset + length));
     }
+
+    function testSymbolicEqual(bytes memory a, bytes memory b) public pure {
+        Memory.Slice sliceA = a.asSlice();
+        Memory.Slice sliceB = b.asSlice();
+        bool expected = keccak256(a) == keccak256(b);
+        assertEq(Memory.equal(sliceA, sliceB), expected);
+    }
+
+    function testEqual(
+        bytes memory a,
+        uint256 offsetA,
+        uint256 lengthA,
+        bytes memory b,
+        uint256 offsetB,
+        uint256 lengthB
+    ) public pure {
+        offsetA = bound(offsetA, 0, a.length);
+        offsetB = bound(offsetB, 0, b.length);
+        lengthA = bound(lengthA, 0, a.length - offsetA);
+        lengthB = bound(lengthB, 0, b.length - offsetB);
+        assertEq(
+            a.asSlice().slice(offsetA, lengthA).equal(b.asSlice().slice(offsetB, lengthB)),
+            keccak256(a.slice(offsetA, offsetA + lengthA)) == keccak256(b.slice(offsetB, offsetB + lengthB))
+        );
+    }
 }

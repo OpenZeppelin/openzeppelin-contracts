@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.4.0) (utils/Base64.sol)
+// OpenZeppelin Contracts (last updated v5.5.0) (utils/Base64.sol)
 
 pragma solidity ^0.8.20;
 
@@ -33,7 +33,7 @@ library Base64 {
      *
      * * Supports padded and unpadded inputs.
      * * Supports both encoding ({encode} and {encodeURL}) seamlessly.
-     * * Does NOT revert if the input is not a valid Base64 string.
+     * * Reverts with {InvalidBase64Char} if the input contains an invalid character.
      */
     function decode(string memory data) internal pure returns (bytes memory) {
         return _decode(bytes(data));
@@ -208,7 +208,7 @@ library Base64 {
                 // slither-disable-next-line incorrect-shift
                 if iszero(and(shl(d, 1), 0xffffffd0ffffffc47ff5)) {
                     mstore(0, errorSelector)
-                    mstore(4, add(d, 43))
+                    mstore(4, shl(248, add(d, 43)))
                     revert(0, 0x24)
                 }
 

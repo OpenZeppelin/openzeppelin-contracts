@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.5.0) (utils/Memory.sol)
 
 pragma solidity ^0.8.24;
 
@@ -108,6 +109,17 @@ library Memory {
             mstore(result, len)
             mcopy(add(result, 0x20), ptr, len)
             mstore(0x40, add(add(result, len), 0x20))
+        }
+    }
+
+    /// @dev Returns true if the two slices contain the same data.
+    function equal(Slice a, Slice b) internal pure returns (bool result) {
+        Memory.Pointer ptrA = _pointer(a);
+        Memory.Pointer ptrB = _pointer(b);
+        uint256 lenA = length(a);
+        uint256 lenB = length(b);
+        assembly ("memory-safe") {
+            result := eq(keccak256(ptrA, lenA), keccak256(ptrB, lenB))
         }
     }
 

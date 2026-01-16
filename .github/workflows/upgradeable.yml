@@ -1,4 +1,4 @@
-name: transpile upgradeable
+name: Transpile upgradeable
 
 on:
   push:
@@ -9,11 +9,12 @@ on:
 jobs:
   transpile:
     environment: push-upgradeable
+    if: ${{ !endsWith(github.repository, '-upgradeable') }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
-          repository: OpenZeppelin/openzeppelin-contracts-upgradeable
+          repository: ${{ github.repository }}-upgradeable
           fetch-depth: 0
           token: ${{ secrets.GH_TOKEN_UPGRADEABLE }}
       - name: Fetch current non-upgradeable branch

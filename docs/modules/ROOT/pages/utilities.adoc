@@ -46,8 +46,8 @@ function _verify(
     bytes32 s,
     bytes32 qx,
     bytes32 qy
-) internal pure returns (bool) {
-    return data.verify(data, r, s, qx, qy);
+) internal view returns (bool) {
+    return data.verify(r, s, qx, qy);
 }
 ----
 
@@ -63,9 +63,9 @@ function _verify(
     bytes32 s,
     bytes32 qx,
     bytes32 qy
-) internal pure returns (bool) {
+) internal view returns (bool) {
     // Will only call the precompile at address(0x100)
-    return data.verifyNative(data, r, s, qx, qy);
+    return data.verifyNative(r, s, qx, qy);
 }
 ----
 
@@ -255,7 +255,7 @@ TIP: While working with different data types that might require casting, you can
 [[structures]]
 == Structures
 
-Some use cases require more powerful data structures than arrays and mappings offered natively in Solidity. Contracts provides these libraries for enhanced data structure management:
+Some use cases require more powerful data structures than the arrays and mappings offered natively in Solidity. These contracts provide libraries for enhanced data structure management:
 
 - xref:api:utils.adoc#BitMaps[`BitMaps`]: Store packed booleans in storage.
 - xref:api:utils.adoc#Checkpoints[`Checkpoints`]: Checkpoint values with built-in lookups.
@@ -292,7 +292,7 @@ function push(bytes32 leaf) public /* onlyOwner */ {
 
 The library also supports custom hashing functions, which can be passed as an extra parameter to the xref:api:utils.adoc#MerkleTree-push-struct-MerkleTree-Bytes32PushTree-bytes32-[`push`] and xref:api:utils.adoc#MerkleTree-setup-struct-MerkleTree-Bytes32PushTree-uint8-bytes32-[`setup`] functions.
 
-Using custom hashing functions is a sensitive operation. After setup, it requires to keep using the same hashing function for every new value pushed to the tree to avoid corrupting the tree. For this reason, it's a good practice to keep your hashing function static in your implementation contract as follows:
+Using custom hashing functions is a sensitive operation. After setup, it requires continuing to use the same hashing function for every new value pushed to the tree to avoid corrupting the tree. For this reason, it's a good practice to keep your hashing function static in your implementation contract as follows:
 
 [source,solidity]
 ----
@@ -346,9 +346,9 @@ function replace(Uint256Heap storage self, uint256 newValue) internal returns (u
 
 === Packing
 
-The storage in the EVM is shaped in chunks of 32 bytes, each of this chunks is known as a _slot_, and can hold multiple values together as long as these values don't exceed its size. These properties of the storage allow for a technique known as _packing_, that consists of placing values together on a single storage slot to reduce the costs associated to reading and writing to multiple slots instead of just one.
+The storage in the EVM is shaped in chunks of 32 bytes, each of these chunks is known as a _slot_, and can hold multiple values together as long as these values don't exceed 32 bytes. This property allows for a technique known as _packing_--placing values together in a single storage slot to reduce the costs associated with reading and writing these values.
 
-Commonly, developers pack values using structs that place values together so they fit better in storage. However, this approach requires to load such struct from either calldata or memory. Although sometimes necessary, it may be useful to pack values in a single slot and treat it as a packed value without involving calldata or memory.
+Commonly, developers pack values using structs that place values together so they fit better in storage. However, this approach requires loading such struct from either calldata or memory. Although sometimes necessary, it may be useful to pack values in a single slot and treat it as a packed value without involving calldata or memory.
 
 The xref:api:utils.adoc#Packing[`Packing`] library is a set of utilities for packing values that fit in 32 bytes. The library includes 3 main functionalities:
 

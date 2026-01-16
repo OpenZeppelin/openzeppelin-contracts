@@ -57,5 +57,6 @@ import {SignedMath} from "../utils/math/SignedMath.sol";
 import {StorageSlot} from "../utils/StorageSlot.sol";
 import {Strings} from "../utils/Strings.sol";
 import {Time} from "../utils/types/Time.sol";
+import {TrieProof} from "../utils/cryptography/TrieProof.sol";
 
 contract Dummy1234 {}

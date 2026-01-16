@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.4.0) (governance/extensions/GovernorStorage.sol)
+// OpenZeppelin Contracts (last updated v5.5.0) (governance/extensions/GovernorStorage.sol)
 
 pragma solidity ^0.8.24;
 
@@ -55,6 +55,9 @@ abstract contract GovernorStorage is Governor {
     function queue(uint256 proposalId) public virtual {
         // here, using storage is more efficient than memory
         ProposalDetails storage details = _proposalDetails[proposalId];
+        if (details.descriptionHash == 0) {
+            revert GovernorNonexistentProposal(proposalId);
+        }
         queue(details.targets, details.values, details.calldatas, details.descriptionHash);
     }
 
@@ -64,6 +67,9 @@ abstract contract GovernorStorage is Governor {
     function execute(uint256 proposalId) public payable virtual {
         // here, using storage is more efficient than memory
         ProposalDetails storage details = _proposalDetails[proposalId];
+        if (details.descriptionHash == 0) {
+            revert GovernorNonexistentProposal(proposalId);
+        }
         execute(details.targets, details.values, details.calldatas, details.descriptionHash);
     }
 
@@ -73,6 +79,9 @@ abstract contract GovernorStorage is Governor {
     function cancel(uint256 proposalId) public virtual {
         // here, using storage is more efficient than memory
         ProposalDetails storage details = _proposalDetails[proposalId];
+        if (details.descriptionHash == 0) {
+            revert GovernorNonexistentProposal(proposalId);
+        }
         cancel(details.targets, details.values, details.calldatas, details.descriptionHash);
     }
 

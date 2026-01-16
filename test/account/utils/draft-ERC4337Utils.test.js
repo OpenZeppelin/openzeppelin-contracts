@@ -2,8 +2,10 @@ const { ethers, predeploy } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { packValidationData, UserOperation } = require('../../helpers/erc4337');
 const { MAX_UINT48 } = require('../../helpers/constants');
+const { packValidationData, UserOperation } = require('../../helpers/erc4337');
+const { ValidationRange } = require('../../helpers/enums');
+const { clock, increaseTo } = require('../../helpers/time');
 const ADDRESS_ONE = '0x0000000000000000000000000000000000000001';
 
 const fixture = async () => {
@@ -28,31 +30,80 @@ describe('ERC4337Utils', function () {
     it('v0.8.0', async function () {
       await expect(this.utils.$ENTRYPOINT_V08()).to.eventually.equal(predeploy.entrypoint.v08);
     });
+
+    it('v0.9.0', async function () {
+      await expect(this.utils.$ENTRYPOINT_V09()).to.eventually.equal(predeploy.entrypoint.v09);
+    });
   });
 
   describe('parseValidationData', function () {
     it('parses the validation data', async function () {
       const authorizer = this.authorizer;
-      const validUntil = 0x12345678n;
-      const validAfter = 0x9abcdef0n;
+      const validAfter = 0x12345678n;
+      const validUntil = 0x23456789n;
       const validationData = packValidationData(validAfter, validUntil, authorizer);
 
       await expect(this.utils.$parseValidationData(validationData)).to.eventually.deep.equal([
         authorizer.address,
         validAfter,
         validUntil,
+        ValidationRange.Timestamp,
       ]);
     });
 
-    it('returns an type(uint48).max if until is 0', async function () {
+    it('strips away the highest bit flag from the `validAfter` and `validUntil` fields', async function () {
+      const authorizer = this.authorizer;
+      const validAfter = 0x12345678n | 0x800000000000n;
+      const validUntil = 0x23456789n | 0x800000000000n;
+      const validationData = packValidationData(validAfter, validUntil, authorizer);
+
+      await expect(this.utils.$parseValidationData(validationData)).to.eventually.deep.equal([
+        authorizer.address,
+        validAfter & ~0x800000000000n,
+        validUntil & ~0x800000000000n,
+        ValidationRange.Block,
+      ]);
+    });
+
+    it('parses the validation data (block number)', async function () {
       const authorizer = this.authorizer;
       const validAfter = 0x12345678n;
-      const validationData = packValidationData(validAfter, 0, authorizer);
+      const validUntil = 0x23456789n;
+      const validationData = packValidationData(validAfter, validUntil, authorizer, ValidationRange.Block);
 
       await expect(this.utils.$parseValidationData(validationData)).to.eventually.deep.equal([
         authorizer.address,
         validAfter,
-        MAX_UINT48,
+        validUntil,
+        ValidationRange.Block,
+      ]);
+    });
+
+    it('returns a type(uint48).max if until is 0', async function () {
+      const authorizer = this.authorizer;
+      const validAfter = 0x12345678n;
+      const validUntil = 0n;
+      const validationData = packValidationData(validAfter, validUntil, authorizer);
+
+      await expect(this.utils.$parseValidationData(validationData)).to.eventually.deep.equal([
+        authorizer.address,
+        validAfter,
+        0x7fffffffffffn,
+        ValidationRange.Timestamp,
+      ]);
+    });
+
+    it('returns a type(uint48).max if until is 0 (block number)', async function () {
+      const authorizer = this.authorizer;
+      const validAfter = 0x12345678n;
+      const validUntil = 0n;
+      const validationData = packValidationData(validAfter, validUntil, authorizer, ValidationRange.Block);
+
+      await expect(this.utils.$parseValidationData(validationData)).to.eventually.deep.equal([
+        authorizer.address,
+        validAfter,
+        0x7fffffffffffn,
+        ValidationRange.Block,
       ]);
     });
 
@@ -60,22 +111,43 @@ describe('ERC4337Utils', function () {
       await expect(this.utils.$parseValidationData(this.SIG_VALIDATION_SUCCESS)).to.eventually.deep.equal([
         ethers.ZeroAddress,
         0n,
-        MAX_UINT48,
+        0x7fffffffffffn,
+        ValidationRange.Timestamp,
       ]);
 
       await expect(this.utils.$parseValidationData(this.SIG_VALIDATION_FAILED)).to.eventually.deep.equal([
         ADDRESS_ONE,
         0n,
-        MAX_UINT48,
+        0x7fffffffffffn,
+        ValidationRange.Timestamp,
       ]);
     });
   });
 
   describe('packValidationData', function () {
-    it('packs the validation data', async function () {
+    it('packs the validation data with implicit timestamp', async function () {
       const authorizer = this.authorizer;
-      const validUntil = 0x12345678n;
-      const validAfter = 0x9abcdef0n;
+      const validAfter = 0x12345678n;
+      const validUntil = 0x23456789n;
+      const validationData = packValidationData(validAfter, validUntil, authorizer);
+
+      await expect(
+        this.utils.$packValidationData(ethers.Typed.address(authorizer), validAfter, validUntil),
+      ).to.eventually.equal(validationData);
+
+      await expect(
+        this.utils.$packValidationData(ethers.Typed.address(authorizer), validAfter | 0x800000000000n, validUntil),
+      ).to.eventually.equal(validationData);
+
+      await expect(
+        this.utils.$packValidationData(ethers.Typed.address(authorizer), validAfter, validUntil | 0x800000000000n),
+      ).to.eventually.equal(validationData);
+    });
+
+    it('packs the validation data with implicit block number', async function () {
+      const authorizer = this.authorizer;
+      const validAfter = 0x12345678n | 0x800000000000n;
+      const validUntil = 0x23456789n | 0x800000000000n;
       const validationData = packValidationData(validAfter, validUntil, authorizer);
 
       await expect(
@@ -83,10 +155,61 @@ describe('ERC4337Utils', function () {
       ).to.eventually.equal(validationData);
     });
 
-    it('packs the validation data (bool)', async function () {
+    it('packs the validation data with explicit timestamp', async function () {
+      const authorizer = this.authorizer;
+      const validAfter = 0x12345678n | 0x800000000000n; // extra flag will be cleaned up
+      const validUntil = 0x23456789n | 0x800000000000n; // extra flag will be cleaned up
+      const validationData = packValidationData(validAfter, validUntil, authorizer, ValidationRange.Timestamp);
+
+      await expect(
+        this.utils.$packValidationData(
+          ethers.Typed.address(authorizer),
+          validAfter,
+          validUntil,
+          ethers.Typed.uint8(ValidationRange.Timestamp),
+        ),
+      ).to.eventually.equal(validationData);
+    });
+
+    it('packs the validation data with explicit block number', async function () {
+      const authorizer = this.authorizer;
+      const validAfter = 0x12345678n; // missing flag will be added
+      const validUntil = 0x23456789n; // missing flag will be added
+      const validationData = packValidationData(validAfter, validUntil, authorizer, ValidationRange.Block);
+
+      await expect(
+        this.utils.$packValidationData(
+          ethers.Typed.address(authorizer),
+          validAfter,
+          validUntil,
+          ethers.Typed.uint8(ValidationRange.Block),
+        ),
+      ).to.eventually.equal(validationData);
+    });
+
+    it('packs the validation data (bool) with implicit timestamp', async function () {
       const success = false;
-      const validUntil = 0x12345678n;
-      const validAfter = 0x9abcdef0n;
+      const validAfter = 0x12345678n;
+      const validUntil = 0x23456789n;
+      const validationData = packValidationData(validAfter, validUntil, false);
+
+      await expect(
+        this.utils.$packValidationData(ethers.Typed.bool(success), validAfter, validUntil),
+      ).to.eventually.equal(validationData);
+
+      await expect(
+        this.utils.$packValidationData(ethers.Typed.bool(success), validAfter | 0x800000000000n, validUntil),
+      ).to.eventually.equal(validationData);
+
+      await expect(
+        this.utils.$packValidationData(ethers.Typed.bool(success), validAfter, validUntil | 0x800000000000n),
+      ).to.eventually.equal(validationData);
+    });
+
+    it('packs the validation data (bool) with implicit block number', async function () {
+      const success = false;
+      const validAfter = 0x12345678n | 0x800000000000n;
+      const validUntil = 0x23456789n | 0x800000000000n;
       const validationData = packValidationData(validAfter, validUntil, false);
 
       await expect(
@@ -94,27 +217,59 @@ describe('ERC4337Utils', function () {
       ).to.eventually.equal(validationData);
     });
 
-    it('packing reproduced canonical values', async function () {
+    it('packs the validation data (bool) with explicit timestamp', async function () {
+      const success = false;
+      const validAfter = 0x12345678n | 0x800000000000n; // extra flag will be cleaned up
+      const validUntil = 0x23456789n | 0x800000000000n; // extra flag will be cleaned up
+      const validationData = packValidationData(validAfter, validUntil, false, ValidationRange.Timestamp);
+
       await expect(
-        this.utils.$packValidationData(ethers.Typed.address(ethers.ZeroAddress), 0n, 0n),
-      ).to.eventually.equal(this.SIG_VALIDATION_SUCCESS);
+        this.utils.$packValidationData(
+          ethers.Typed.bool(success),
+          validAfter,
+          validUntil,
+          ethers.Typed.uint8(ValidationRange.Timestamp),
+        ),
+      ).to.eventually.equal(validationData);
+    });
+
+    it('packs the validation data (bool) with block number', async function () {
+      const success = false;
+      const validAfter = 0x12345678n; // missing flag will be added
+      const validUntil = 0x23456789n; // missing flag will be added
+      const validationData = packValidationData(validAfter, validUntil, false, ValidationRange.Block);
+
+      await expect(
+        this.utils.$packValidationData(
+          ethers.Typed.bool(success),
+          validAfter,
+          validUntil,
+          ethers.Typed.uint8(ValidationRange.Block),
+        ),
+      ).to.eventually.equal(validationData);
+    });
+
+    it('packing reproduced canonical values', async function () {
       await expect(this.utils.$packValidationData(ethers.Typed.bool(true), 0n, 0n)).to.eventually.equal(
         this.SIG_VALIDATION_SUCCESS,
       );
-      await expect(this.utils.$packValidationData(ethers.Typed.address(ADDRESS_ONE), 0n, 0n)).to.eventually.equal(
+      await expect(this.utils.$packValidationData(ethers.Typed.bool(false), 0n, 0n)).to.eventually.equal(
         this.SIG_VALIDATION_FAILED,
       );
-      await expect(this.utils.$packValidationData(ethers.Typed.bool(false), 0n, 0n)).to.eventually.equal(
+      await expect(
+        this.utils.$packValidationData(ethers.Typed.address(ethers.ZeroAddress), 0n, 0n),
+      ).to.eventually.equal(this.SIG_VALIDATION_SUCCESS);
+      await expect(this.utils.$packValidationData(ethers.Typed.address(ADDRESS_ONE), 0n, 0n)).to.eventually.equal(
         this.SIG_VALIDATION_FAILED,
       );
     });
   });
 
   describe('combineValidationData', function () {
-    const validUntil1 = 0x12345678n;
-    const validAfter1 = 0x9abcdef0n;
-    const validUntil2 = 0x87654321n;
-    const validAfter2 = 0xabcdef90n;
+    const validUntil1 = 0x01234567n;
+    const validAfter1 = 0x09abcdefn;
+    const validUntil2 = 0x08765432n;
+    const validAfter2 = 0x0abcdef9n;
 
     it('combines the validation data', async function () {
       const validationData1 = packValidationData(validAfter1, validUntil1, ethers.ZeroAddress);
@@ -124,6 +279,54 @@ describe('ERC4337Utils', function () {
       // check symmetry
       await expect(this.utils.$combineValidationData(validationData1, validationData2)).to.eventually.equal(expected);
       await expect(this.utils.$combineValidationData(validationData2, validationData1)).to.eventually.equal(expected);
+    });
+
+    it('combines the validation data with explicit timestamp', async function () {
+      const validationData1 = packValidationData(
+        validAfter1,
+        validUntil1,
+        ethers.ZeroAddress,
+        ValidationRange.Timestamp,
+      );
+      const validationData2 = packValidationData(
+        validAfter2,
+        validUntil2,
+        ethers.ZeroAddress,
+        ValidationRange.Timestamp,
+      );
+      const expected = packValidationData(validAfter2, validUntil1, true, ValidationRange.Timestamp);
+
+      // check symmetry
+      await expect(this.utils.$combineValidationData(validationData1, validationData2)).to.eventually.equal(expected);
+      await expect(this.utils.$combineValidationData(validationData2, validationData1)).to.eventually.equal(expected);
+    });
+
+    it('combines the validation data with block number', async function () {
+      const validationData1 = packValidationData(validAfter1, validUntil1, ethers.ZeroAddress, ValidationRange.Block);
+      const validationData2 = packValidationData(validAfter2, validUntil2, ethers.ZeroAddress, ValidationRange.Block);
+      const expected = packValidationData(validAfter2, validUntil1, true, ValidationRange.Block);
+
+      // check symmetry
+      await expect(this.utils.$combineValidationData(validationData1, validationData2)).to.eventually.equal(expected);
+      await expect(this.utils.$combineValidationData(validationData2, validationData1)).to.eventually.equal(expected);
+    });
+
+    it('returns SIG_VALIDATION_FAILURE if the validation ranges differ', async function () {
+      const validationData1 = packValidationData(
+        validAfter1,
+        validUntil1,
+        ethers.ZeroAddress,
+        ValidationRange.Timestamp,
+      );
+      const validationData2 = packValidationData(validAfter2, validUntil2, ethers.ZeroAddress, ValidationRange.Block);
+
+      // check symmetry
+      await expect(this.utils.$combineValidationData(validationData1, validationData2)).to.eventually.equal(
+        this.SIG_VALIDATION_FAILED,
+      );
+      await expect(this.utils.$combineValidationData(validationData2, validationData1)).to.eventually.equal(
+        this.SIG_VALIDATION_FAILED,
+      );
     });
 
     for (const [authorizer1, authorizer2] of [
@@ -139,36 +342,98 @@ describe('ERC4337Utils', function () {
         await expect(this.utils.$combineValidationData(validationData1, validationData2)).to.eventually.equal(expected);
         await expect(this.utils.$combineValidationData(validationData2, validationData1)).to.eventually.equal(expected);
       });
+
+      it('returns SIG_VALIDATION_FAILURE if one of the authorizers is not address(0) with explicit timestamp', async function () {
+        const validationData1 = packValidationData(validAfter1, validUntil1, authorizer1, ValidationRange.Timestamp);
+        const validationData2 = packValidationData(validAfter2, validUntil2, authorizer2, ValidationRange.Timestamp);
+        const expected = packValidationData(validAfter2, validUntil1, false, ValidationRange.Timestamp);
+
+        // check symmetry
+        await expect(this.utils.$combineValidationData(validationData1, validationData2)).to.eventually.equal(expected);
+        await expect(this.utils.$combineValidationData(validationData2, validationData1)).to.eventually.equal(expected);
+      });
+
+      it('returns SIG_VALIDATION_FAILURE if one of the authorizers is not address(0) with block number', async function () {
+        const validationData1 = packValidationData(validAfter1, validUntil1, authorizer1, ValidationRange.Block);
+        const validationData2 = packValidationData(validAfter2, validUntil2, authorizer2, ValidationRange.Block);
+        const expected = packValidationData(validAfter2, validUntil1, false, ValidationRange.Block);
+
+        // check symmetry
+        await expect(this.utils.$combineValidationData(validationData1, validationData2)).to.eventually.equal(expected);
+        await expect(this.utils.$combineValidationData(validationData2, validationData1)).to.eventually.equal(expected);
+      });
     }
   });
 
   describe('getValidationData', function () {
-    it('returns the validation data with valid validity range', async function () {
-      const aggregator = this.authorizer;
-      const validAfter = 0;
-      const validUntil = MAX_UINT48;
-      const validationData = packValidationData(validAfter, validUntil, aggregator);
+    for (const [name, range] of Object.entries({
+      timestamp: ValidationRange.Timestamp,
+      blocknumber: ValidationRange.Block,
+    })) {
+      describe(`using ${name}`, function () {
+        it('returns the validation data with valid validity range', async function () {
+          const aggregator = this.authorizer;
+          const validAfter = 0;
+          const validUntil = MAX_UINT48;
+          const validationData = packValidationData(validAfter, validUntil, aggregator, range);
 
-      await expect(this.utils.$getValidationData(validationData)).to.eventually.deep.equal([aggregator.address, false]);
-    });
+          await expect(this.utils.$getValidationData(validationData)).to.eventually.deep.equal([
+            aggregator.address,
+            false,
+          ]);
+        });
 
-    it('returns the validation data with invalid validity range (expired)', async function () {
-      const aggregator = this.authorizer;
-      const validAfter = 0;
-      const validUntil = 1;
-      const validationData = packValidationData(validAfter, validUntil, aggregator);
+        it('returns the validation data with invalid validity range (expired)', async function () {
+          const aggregator = this.authorizer;
+          const validAfter = await clock[name]();
+          const validUntil = validAfter + 10n;
+          const validationData = packValidationData(validAfter, validUntil, aggregator, range);
 
-      await expect(this.utils.$getValidationData(validationData)).to.eventually.deep.equal([aggregator.address, true]);
-    });
+          await increaseTo[name](validUntil + 1n);
+          await expect(this.utils.$getValidationData(validationData)).to.eventually.deep.equal([
+            aggregator.address,
+            true,
+          ]);
+        });
 
-    it('returns the validation data with invalid validity range (not yet valid)', async function () {
-      const aggregator = this.authorizer;
-      const validAfter = MAX_UINT48;
-      const validUntil = MAX_UINT48;
-      const validationData = packValidationData(validAfter, validUntil, aggregator);
+        it('returns the validation data with invalid validity range (not yet valid)', async function () {
+          const aggregator = this.authorizer;
+          const validAfter = (await clock[name]()) + 1n;
+          const validUntil = validAfter + 10n;
+          const validationData = packValidationData(validAfter, validUntil, aggregator, range);
 
-      await expect(this.utils.$getValidationData(validationData)).to.eventually.deep.equal([aggregator.address, true]);
-    });
+          await expect(this.utils.$getValidationData(validationData)).to.eventually.deep.equal([
+            aggregator.address,
+            true,
+          ]);
+        });
+
+        it('returns the validation data with invalid validity range (current == validAfter)', async function () {
+          const aggregator = this.authorizer;
+          const validAfter = await clock[name]();
+          const validUntil = validAfter + 10n;
+          const validationData = packValidationData(validAfter, validUntil, aggregator, range);
+
+          await expect(this.utils.$getValidationData(validationData)).to.eventually.deep.equal([
+            aggregator.address,
+            true,
+          ]);
+        });
+
+        it('returns the validation data with valid validity range (current == validUntil)', async function () {
+          const aggregator = this.authorizer;
+          const validAfter = await clock[name]();
+          const validUntil = validAfter + 10n;
+          const validationData = packValidationData(validAfter, validUntil, aggregator, range);
+
+          await increaseTo[name](validUntil);
+          await expect(this.utils.$getValidationData(validationData)).to.eventually.deep.equal([
+            aggregator.address,
+            false,
+          ]);
+        });
+      });
+    }
 
     it('returns address(0) and false for validationData = 0', async function () {
       await expect(this.utils.$getValidationData(0n)).to.eventually.deep.equal([ethers.ZeroAddress, false]);
@@ -283,6 +548,46 @@ describe('ERC4337Utils', function () {
       it('returns data', async function () {
         await expect(this.utils.$paymasterData(this.userOp.packed)).to.eventually.equal(this.userOp.paymasterData);
         await expect(this.utils.$paymasterData(this.emptyUserOp.packed)).to.eventually.equal('0x');
+      });
+
+      it('returns data without signature', async function () {
+        this.userOp.paymasterSignature =
+          '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef12';
+        await expect(this.utils.$paymasterData(this.userOp.packed)).to.eventually.equal(this.userOp.paymasterData);
+      });
+
+      it('returns paymaster signature', async function () {
+        this.userOp.paymasterSignature =
+          '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef12';
+        await expect(this.utils.$paymasterSignature(this.userOp.packed)).to.eventually.equal(
+          this.userOp.paymasterSignature,
+        );
+      });
+
+      it('returns empty signature when magic is not present', async function () {
+        await expect(this.utils.$paymasterSignature(this.userOp.packed)).to.eventually.equal('0x');
+      });
+
+      it('returns empty signature when paymasterAndData has an unsafe length (<10 bytes)', async function () {
+        const packedUserOp = this.userOp.packed;
+
+        packedUserOp.paymasterAndData = '0xe325a297439656'; // part of the magic value (7 bytes)
+        await expect(this.utils.$paymasterSignature(packedUserOp)).to.eventually.equal('0x');
+
+        packedUserOp.paymasterAndData = '0x0022e325a297439656'; // 00 + magic value (9 bytes)
+        await expect(this.utils.$paymasterSignature(packedUserOp)).to.eventually.equal('0x');
+      });
+
+      it('returns empty signature when paymasterAndData length is less than 62 + signature length', async function () {
+        const packedUserOp = this.userOp.packed;
+        packedUserOp.paymasterAndData = ethers.concat([
+          '0x437d871626ffaa4f2a3d24eb54fbc9af36c4c75fbf1b69c2d109b1ce43ab3eaa50b8aba09d395e08a8687c940be78d6533536a78', // 52 random bytes
+          // Missing signature
+          '0x0001', // Non zero signature length
+          '0x22e325a297439656', // magic value
+        ]);
+
+        await expect(this.utils.$paymasterSignature(packedUserOp)).to.eventually.equal('0x');
       });
     });
   });
