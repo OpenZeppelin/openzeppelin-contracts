@@ -24,6 +24,7 @@ import {Calldata} from "../Calldata.sol";
  */
 library SignatureChecker {
     using Bytes for bytes;
+    using RelayedCall for address;
 
     bytes32 private constant ERC6492_SUFFIX = 0x6492649264926492649264926492649264926492649264926492649264926492;
 
@@ -161,11 +162,7 @@ library SignatureChecker {
 
             // Use a dedicated relayer for ERC-6492 signatures so that the caller
             // can't be arbitrarily used if it has special permissions on a target contract
-            (bool success, ) = RelayedCall.relayRevertingCall(
-                factoryOrPrepareTo,
-                factoryOrPrepareCalldata,
-                ERC6492_SUFFIX
-            );
+            (bool success, ) = factoryOrPrepareTo.relayRevertingCall(factoryOrPrepareCalldata, ERC6492_SUFFIX);
             isValid = success && isValidERC1271SignatureNow(signer, hash, signature); // Short-circuit validation if the call failed
             break;
         }
@@ -216,11 +213,7 @@ library SignatureChecker {
 
             // Use a dedicated relayer for ERC-6492 signatures so that the caller
             // can't be arbitrarily used if it has special permissions on a target contract
-            (bool success, ) = RelayedCall.relayRevertingCall(
-                factoryOrPrepareTo,
-                factoryOrPrepareCalldata,
-                ERC6492_SUFFIX
-            );
+            (bool success, ) = factoryOrPrepareTo.relayRevertingCall(factoryOrPrepareCalldata, ERC6492_SUFFIX);
             isValid = success && isValidERC1271SignatureNow(signer, hash, signature); // Short-circuit validation if the call failed
             break;
         }
