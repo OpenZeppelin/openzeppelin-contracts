@@ -113,6 +113,23 @@ OpenZeppelin Contracts is made available under the MIT License, which disclaims 
 
 OpenZeppelin Contracts exists thanks to its contributors. There are many ways you can participate and help build high quality software. Check out the [contribution guide](CONTRIBUTING.md)!
 
+## Simple Ownable Contract Example
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract OwnableExample is Ownable {
+    uint256 public value;
+
+    function setValue(uint256 _value) external onlyOwner {
+        value = _value;
+    }
+}
+
+
 ## License
 
 OpenZeppelin Contracts is released under the [MIT License](LICENSE).
