@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.24;
 
-import {Test, console} from "forge-std/Test.sol";
+import {Test} from "forge-std/Test.sol";
 import {Arrays} from "@openzeppelin/contracts/utils/Arrays.sol";
 
 /**
@@ -21,12 +21,12 @@ contract ArraysStackOverflowReproductionTest is Test {
      * @dev This test should PASS with current implementation (169 items)
      *      but would FAIL with 170 items due to stack overflow
      */
-    function test_CurrentImplementationLimitation() public pure {
-        uint256 N = 169; // Current limit before stack overflow
+    function testCurrentImplementationLimitation() public pure {
+        uint256 arraySize = 169; // Current limit before stack overflow
 
         // Create a reverse-sorted array (worst case for quicksort)
-        uint256[] memory array = new uint256[](N);
-        for (uint256 i = 0; i < N; i++) {
+        uint256[] memory array = new uint256[](arraySize);
+        for (uint256 i = 0; i < arraySize; i++) {
             array[i] = 1000 - i; // Reverse sorted: [1000, 999, 998, ...]
         }
 
@@ -34,7 +34,7 @@ contract ArraysStackOverflowReproductionTest is Test {
         Arrays.sort(array);
 
         // Verify it's sorted correctly
-        for (uint256 i = 1; i < N; i++) {
+        for (uint256 i = 1; i < arraySize; i++) {
             assertLe(array[i - 1], array[i], "Array should be sorted");
         }
     }
@@ -45,12 +45,12 @@ contract ArraysStackOverflowReproductionTest is Test {
      *      With the OLD recursive implementation, this would FAIL with: EvmError: StackOverflow
      *      The fact that it passes proves the fix works!
      */
-    function test_StackOverflowAt170() public pure {
-        uint256 N = 170; // This would cause stack overflow with old implementation
+    function testStackOverflowAt170() public pure {
+        uint256 arraySize = 170; // This would cause stack overflow with old implementation
 
         // Create a reverse-sorted array (worst case)
-        uint256[] memory array = new uint256[](N);
-        for (uint256 i = 0; i < N; i++) {
+        uint256[] memory array = new uint256[](arraySize);
+        for (uint256 i = 0; i < arraySize; i++) {
             array[i] = 1000 - i;
         }
 
@@ -59,7 +59,7 @@ contract ArraysStackOverflowReproductionTest is Test {
         Arrays.sort(array);
 
         // Verify it's sorted correctly
-        for (uint256 i = 1; i < N; i++) {
+        for (uint256 i = 1; i < arraySize; i++) {
             assertLe(array[i - 1], array[i], "Array should be sorted");
         }
     }
@@ -69,12 +69,12 @@ contract ArraysStackOverflowReproductionTest is Test {
      * @dev This test PASSES with the optimized implementation (after fix)
      *      With the OLD recursive implementation, this would FAIL with stack overflow
      */
-    function test_LargerArrayShouldWorkAfterFix() public pure {
-        uint256 N = 200; // Should work after optimization
+    function testLargerArrayShouldWorkAfterFix() public pure {
+        uint256 arraySize = 200; // Should work after optimization
 
         // Create a reverse-sorted array (worst case)
-        uint256[] memory array = new uint256[](N);
-        for (uint256 i = 0; i < N; i++) {
+        uint256[] memory array = new uint256[](arraySize);
+        for (uint256 i = 0; i < arraySize; i++) {
             array[i] = 10000 - i;
         }
 
@@ -82,7 +82,7 @@ contract ArraysStackOverflowReproductionTest is Test {
         Arrays.sort(array);
 
         // Verify it's sorted correctly
-        for (uint256 i = 1; i < N; i++) {
+        for (uint256 i = 1; i < arraySize; i++) {
             assertLe(array[i - 1], array[i], "Array should be sorted");
         }
     }
@@ -92,12 +92,12 @@ contract ArraysStackOverflowReproductionTest is Test {
      * @dev This test PASSES with the optimized implementation (after fix)
      *      With the OLD recursive implementation, this would FAIL with stack overflow
      */
-    function test_VeryLargeArrayShouldWorkAfterFix() public pure {
-        uint256 N = 1000; // Should work after optimization
+    function testVeryLargeArrayShouldWorkAfterFix() public pure {
+        uint256 arraySize = 1000; // Should work after optimization
 
         // Create a reverse-sorted array (worst case)
-        uint256[] memory array = new uint256[](N);
-        for (uint256 i = 0; i < N; i++) {
+        uint256[] memory array = new uint256[](arraySize);
+        for (uint256 i = 0; i < arraySize; i++) {
             array[i] = 100000 - i;
         }
 
@@ -105,7 +105,7 @@ contract ArraysStackOverflowReproductionTest is Test {
         Arrays.sort(array);
 
         // Verify it's sorted correctly
-        for (uint256 i = 1; i < N; i++) {
+        for (uint256 i = 1; i < arraySize; i++) {
             assertLe(array[i - 1], array[i], "Array should be sorted");
         }
     }
@@ -113,19 +113,19 @@ contract ArraysStackOverflowReproductionTest is Test {
     /**
      * @notice Test with already sorted array (best case, but still tests recursion)
      */
-    function test_AlreadySortedArray() public pure {
-        uint256 N = 200;
+    function testAlreadySortedArray() public pure {
+        uint256 arraySize = 200;
 
         // Create an already sorted array
-        uint256[] memory array = new uint256[](N);
-        for (uint256 i = 0; i < N; i++) {
+        uint256[] memory array = new uint256[](arraySize);
+        for (uint256 i = 0; i < arraySize; i++) {
             array[i] = i;
         }
 
         Arrays.sort(array);
 
         // Verify it's still sorted
-        for (uint256 i = 1; i < N; i++) {
+        for (uint256 i = 1; i < arraySize; i++) {
             assertLe(array[i - 1], array[i], "Array should be sorted");
         }
     }
@@ -133,19 +133,19 @@ contract ArraysStackOverflowReproductionTest is Test {
     /**
      * @notice Test with random order array
      */
-    function test_RandomOrderArray() public pure {
-        uint256 N = 200;
+    function testRandomOrderArray() public pure {
+        uint256 arraySize = 200;
 
         // Create an array with values in random order
-        uint256[] memory array = new uint256[](N);
-        for (uint256 i = 0; i < N; i++) {
+        uint256[] memory array = new uint256[](arraySize);
+        for (uint256 i = 0; i < arraySize; i++) {
             array[i] = (i * 7 + 13) % 1000; // Pseudo-random pattern
         }
 
         Arrays.sort(array);
 
         // Verify it's sorted correctly
-        for (uint256 i = 1; i < N; i++) {
+        for (uint256 i = 1; i < arraySize; i++) {
             assertLe(array[i - 1], array[i], "Array should be sorted");
         }
     }
@@ -153,23 +153,23 @@ contract ArraysStackOverflowReproductionTest is Test {
     /**
      * @notice Gas comparison test (for benchmarking after fix)
      * @dev This test can be used to compare gas usage before/after optimization
+     *      Gas usage can be checked via forge test --gas-report
      */
-    function test_GasUsageComparison() public view {
-        uint256 N = 169; // Current safe limit
+    function testGasUsageComparison() public pure {
+        uint256 arraySize = 169; // Current safe limit
 
-        uint256[] memory array = new uint256[](N);
-        for (uint256 i = 0; i < N; i++) {
+        uint256[] memory array = new uint256[](arraySize);
+        for (uint256 i = 0; i < arraySize; i++) {
             array[i] = 1000 - i; // Reverse sorted (worst case)
         }
 
-        uint256 gasBefore = gasleft();
         Arrays.sort(array);
-        uint256 gasUsed = gasBefore - gasleft();
 
-        console.log("Gas used for sorting %d elements (reverse sorted):", N);
-        console.log(gasUsed);
+        // Verify it's sorted correctly
+        for (uint256 i = 1; i < arraySize; i++) {
+            assertLe(array[i - 1], array[i], "Array should be sorted");
+        }
 
-        // This test mainly serves as a benchmark
-        // The actual gas usage will be logged
+        // Gas usage can be checked via forge test --gas-report
     }
 }
