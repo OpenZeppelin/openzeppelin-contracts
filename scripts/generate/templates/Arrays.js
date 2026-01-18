@@ -55,32 +55,47 @@ const quickSort = `\
  * @dev Performs a quick sort of a segment of memory. The segment sorted starts at \`begin\` (inclusive), and stops
  * at end (exclusive). Sorting follows the \`comp\` comparator.
  *
- * Invariant: \`begin <= end\`. This is the case when initially called by {sort} and is preserved in subcalls.
+ * This implementation uses a hybrid recursive-iterative approach: the smaller partition is sorted recursively
+ * while the larger partition is processed iteratively. This reduces maximum recursion depth from O(n) to O(log n),
+ * allowing the function to handle much larger arrays without hitting Solidity's stack depth limit.
+ *
+ * Invariant: \`begin <= end\`. This is the case when initially called by {sort} and is preserved in recursive calls
+ * and iterative iterations.
  *
  * IMPORTANT: Memory locations between \`begin\` and \`end\` are not validated/zeroed. This function should
  * be used only if the limits are within a memory array.
  */
 function _quickSort(uint256 begin, uint256 end, function(uint256, uint256) pure returns (bool) comp) private pure {
     unchecked {
-        if (end - begin < 0x40) return;
+        while (true) {
+            if (end - begin < 0x40) return;
 
-        // Use first element as pivot
-        uint256 pivot = _mload(begin);
-        // Position where the pivot should be at the end of the loop
-        uint256 pos = begin;
+            // Use first element as pivot
+            uint256 pivot = _mload(begin);
+            // Position where the pivot should be at the end of the loop
+            uint256 pos = begin;
 
-        for (uint256 it = begin + 0x20; it < end; it += 0x20) {
-            if (comp(_mload(it), pivot)) {
-                // If the value stored at the iterator's position comes before the pivot, we increment the
-                // position of the pivot and move the value there.
-                pos += 0x20;
-                _swap(pos, it);
+            for (uint256 it = begin + 0x20; it < end; it += 0x20) {
+                if (comp(_mload(it), pivot)) {
+                    // If the value stored at the iterator's position comes before the pivot, we increment the
+                    // position of the pivot and move the value there.
+                    pos += 0x20;
+                    _swap(pos, it);
+                }
+            }
+
+            _swap(begin, pos); // Swap pivot into place
+            
+            // Sort the smaller partition recursively, and the larger partition iteratively
+            // This reduces maximum recursion depth from O(n) to O(log n)
+            if (pos - begin < end - (pos + 0x20)) {
+                _quickSort(begin, pos, comp); // Sort the left side of the pivot (smaller partition)
+                begin = pos + 0x20; // Continue with the right side iteratively
+            } else {
+                _quickSort(pos + 0x20, end, comp); // Sort the right side of the pivot (smaller partition)
+                end = pos; // Continue with the left side iteratively
             }
         }
-
-        _swap(begin, pos); // Swap pivot into place
-        _quickSort(begin, pos, comp); // Sort the left side of the pivot
-        _quickSort(pos + 0x20, end, comp); // Sort the right side of the pivot
     }
 }
 
