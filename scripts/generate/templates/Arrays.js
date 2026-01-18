@@ -85,7 +85,7 @@ function _quickSort(uint256 begin, uint256 end, function(uint256, uint256) pure 
             }
 
             _swap(begin, pos); // Swap pivot into place
-            
+
             // Sort the smaller partition recursively, and the larger partition iteratively
             // This reduces maximum recursion depth from O(n) to O(log n)
             if (pos - begin < end - (pos + 0x20)) {
