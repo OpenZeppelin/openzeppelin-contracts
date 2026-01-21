@@ -3,8 +3,6 @@
 
 pragma solidity ^0.8.20;
 
-import {LowLevelCall} from "./LowLevelCall.sol";
-
 /**
  * @dev Library for performing external calls through dynamically deployed relay contracts that hide the original
  * caller's address from the target contract. This pattern is used in ERC-4337's EntryPoint for account factory
@@ -174,15 +172,19 @@ library RelayedCall {
         bytes memory data,
         bytes32 salt
     ) internal returns (bool success, bytes memory retData) {
-        LowLevelCall.callNoReturn(getRevertingRelayer(salt), value, abi.encodePacked(target, data));
-        retData = LowLevelCall.returnData();
-        uint256 retDataSize = LowLevelCall.returnDataSize();
-        bytes1 result = retData[retDataSize - 1];
+        // Calls to a reverting relayer always revert. No need to check the success flag.
+        (, retData) = getRevertingRelayer(salt).call{value: value}(abi.encodePacked(target, data));
+
         assembly ("memory-safe") {
-            success := result
-            mstore(retData, sub(retDataSize, 1))
+            // length of the returned buffer (result/reason + success byte)
+            let length := mload(retData)
+
+            // extract the success byte (last byte of the returned buffer)
+            success := and(mload(add(retData, length)), 0xff)
+
+            // shrink retData to exclude the success byte
+            mstore(retData, sub(length, 1))
         }
-        return (success, retData);
     }
 
     /// @dev Same as {getRelayer} but with a `bytes32(0)` default salt.
