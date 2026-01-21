@@ -149,15 +149,6 @@ library RelayedCall {
         return relayRevertingCall(target, 0, data, bytes32(0));
     }
 
-    /// @dev Same as {relayRevertingCall-address-bytes} but with a salt for deterministic relayer address.
-    function relayRevertingCall(
-        address target,
-        bytes memory data,
-        bytes32 salt
-    ) internal returns (bool success, bytes memory retData) {
-        return relayRevertingCall(target, 0, data, salt);
-    }
-
     /// @dev Same as {relayRevertingCall-address-bytes} but with a value.
     function relayRevertingCall(
         address target,
@@ -165,6 +156,15 @@ library RelayedCall {
         bytes memory data
     ) internal returns (bool success, bytes memory retData) {
         return relayRevertingCall(target, value, data, bytes32(0));
+    }
+
+    /// @dev Same as {relayRevertingCall-address-bytes} but with a salt for deterministic relayer address.
+    function relayRevertingCall(
+        address target,
+        bytes memory data,
+        bytes32 salt
+    ) internal returns (bool success, bytes memory retData) {
+        return relayRevertingCall(target, 0, data, salt);
     }
 
     /// @dev Same as {relayRevertingCall-address-bytes} but with a salt and a value.
