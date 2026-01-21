@@ -21,7 +21,7 @@ import {LowLevelCall} from "./LowLevelCall.sol";
 library RelayedCall {
     /// @dev Relays a call to the target contract through a dynamically deployed relay contract.
     function relayCall(address target, bytes memory data) internal returns (bool success, bytes memory retData) {
-        return relayCall(target, 0, data);
+        return relayCall(target, 0, data, bytes32(0));
     }
 
     /// @dev Same as {relayCall-address-bytes} but with a value.
