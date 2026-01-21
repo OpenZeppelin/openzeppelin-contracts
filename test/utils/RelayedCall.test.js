@@ -93,14 +93,17 @@ describe('RelayedCall', function () {
       it('target success (with value)', async function () {
         const value = 42n;
 
+        // fund the mock
+        await this.other.sendTransaction({ to: this.mock.target, value });
+
+        // perform relayed call
         const tx = this.mock.$relayCall(
           ethers.Typed.address(this.receiver),
           ethers.Typed.uint256(value),
           ethers.Typed.bytes('0x'),
-          ethers.Typed.overrides({ value }),
         );
 
-        await expect(tx).to.changeEtherBalances([this.mock, this.relayer, this.receiver], [0n, 0n, value]);
+        await expect(tx).to.changeEtherBalances([this.mock, this.relayer, this.receiver], [-value, 0n, value]);
         await expect(tx).to.emit(this.mock, 'return$relayCall_address_uint256_bytes').withArgs(true, '0x');
       });
 
@@ -131,14 +134,17 @@ describe('RelayedCall', function () {
       it('target success (with value)', async function () {
         const value = 42n;
 
+        // fund the mock
+        await this.other.sendTransaction({ to: this.mock.target, value });
+
+        // perform relayed call
         const tx = this.mock.$relayRevertingCall(
           ethers.Typed.address(this.receiver),
           ethers.Typed.uint256(value),
           ethers.Typed.bytes('0x'),
-          ethers.Typed.overrides({ value }),
         );
 
-        await expect(tx).to.not.changeEtherBalances([this.mock, this.revertingRelayer, this.receiver], [0n, 0n, value]);
+        await expect(tx).to.changeEtherBalances([this.mock, this.revertingRelayer, this.receiver], [0n, 0n, 0n]);
         await expect(tx).to.emit(this.mock, 'return$relayRevertingCall_address_uint256_bytes').withArgs(true, '0x');
       });
 
@@ -205,7 +211,7 @@ describe('RelayedCall', function () {
       // impersonate mock to pass caller checks
       const mockAsWallet = await impersonate(this.mock.target);
 
-      // 20 bytes (address + empty data) - OK
+      // 20 bytes (address + empty data) - valid input - REVERT
       await expect(
         mockAsWallet.sendTransaction({
           to: this.revertingRelayer,
@@ -281,15 +287,18 @@ describe('RelayedCall', function () {
       it('target success (with value)', async function () {
         const value = 42n;
 
+        // fund the mock
+        await this.other.sendTransaction({ to: this.mock.target, value });
+
+        // perform relayed call
         const tx = this.mock.$relayCall(
           ethers.Typed.address(this.receiver),
           ethers.Typed.uint256(value),
           ethers.Typed.bytes('0x'),
           ethers.Typed.bytes32(this.salt),
-          ethers.Typed.overrides({ value }),
         );
 
-        await expect(tx).to.changeEtherBalances([this.mock, this.relayer, this.receiver], [0n, 0n, value]);
+        await expect(tx).to.changeEtherBalances([this.mock, this.relayer, this.receiver], [-value, 0n, value]);
         await expect(tx).to.emit(this.mock, 'return$relayCall_address_uint256_bytes_bytes32').withArgs(true, '0x');
       });
 
@@ -322,15 +331,18 @@ describe('RelayedCall', function () {
       it('target success (with value)', async function () {
         const value = 42n;
 
+        // fund the mock
+        await this.other.sendTransaction({ to: this.mock.target, value });
+
+        // perform relayed call
         const tx = this.mock.$relayRevertingCall(
           ethers.Typed.address(this.receiver),
           ethers.Typed.uint256(value),
           ethers.Typed.bytes('0x'),
           ethers.Typed.bytes32(this.salt),
-          ethers.Typed.overrides({ value }),
         );
 
-        await expect(tx).to.not.changeEtherBalances([this.mock, this.revertingRelayer, this.receiver], [0n, 0n, value]);
+        await expect(tx).to.changeEtherBalances([this.mock, this.revertingRelayer, this.receiver], [0n, 0n, 0n]);
         await expect(tx)
           .to.emit(this.mock, 'return$relayRevertingCall_address_uint256_bytes_bytes32')
           .withArgs(true, '0x');
@@ -400,7 +412,7 @@ describe('RelayedCall', function () {
       // impersonate mock to pass caller checks
       const mockAsWallet = await impersonate(this.mock.target);
 
-      // 20 bytes (address + empty data) - OK
+      // 20 bytes (address + empty data) - valid input - REVERT
       await expect(
         mockAsWallet.sendTransaction({
           to: this.revertingRelayer,
