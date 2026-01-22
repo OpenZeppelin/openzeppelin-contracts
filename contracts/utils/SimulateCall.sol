@@ -3,7 +3,7 @@
 pragma solidity ^0.8.20;
 
 /**
- * @dev Library for simulating external calls and inspecting the result of the call while reverting any state changes 
+ * @dev Library for simulating external calls and inspecting the result of the call while reverting any state changes
  * of events the call may have produced.
  *
  * This pattern is useful when you need to simulate the result of a call without actually executing it on-chain. Since
