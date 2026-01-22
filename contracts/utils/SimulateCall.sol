@@ -3,11 +3,12 @@
 pragma solidity ^0.8.20;
 
 /**
- * @dev Library for simulating external calls through dynamically deployed simulator contracts that revert with
- * the return data, allowing inspection of call results without state changes.
+ * @dev Library for simulating external calls and inspecting the result of the call while reverting any state changes 
+ * of events the call may have produced.
  *
- * This pattern is useful when you need to simulate the result of a call without actually executing it on-chain,
- * or when you need to isolate the caller's address from the target contract.
+ * This pattern is useful when you need to simulate the result of a call without actually executing it on-chain. Since
+ * the addess of the sender is preserved, this supports simulating calls that perform token swap that use the caller's
+ * balance, or any operation that is restricted to the caller.
  */
 library SimulateCall {
     /// @dev Simulates a call to the target contract through a dynamically deployed simulator.
