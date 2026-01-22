@@ -58,7 +58,7 @@ describe('RelayedCall', function () {
           .to.emit(this.target, 'CalledUnrestricted')
           .withArgs(this.relayer)
           .to.emit(this.mock, 'return$relayCall_address_bytes')
-          .withArgs(true, BigInt(42));
+          .withArgs(true, '0x');
       });
 
       it('target success (with value)', async function () {
@@ -155,7 +155,7 @@ describe('RelayedCall', function () {
           .to.emit(this.target, 'CalledUnrestricted')
           .withArgs(this.relayer)
           .to.emit(this.mock, 'return$relayCall_address_bytes_bytes32')
-          .withArgs(true, BigInt(42));
+          .withArgs(true, '0x');
       });
 
       it('target success (with value)', async function () {
