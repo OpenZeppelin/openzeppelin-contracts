@@ -49,7 +49,7 @@ export default defineConfig({
     hardhatNetworkHelpers,
     hardhatPredeploy,
     // Local plugins
-    // hardhatExposed,
+    hardhatExposed,
     // Additional hooks
     {
       id: '@openzeppelin/contracts',
