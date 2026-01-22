@@ -7,7 +7,7 @@ pragma solidity ^0.8.20;
  * of events the call may have produced.
  *
  * This pattern is useful when you need to simulate the result of a call without actually executing it on-chain. Since
- * the addess of the sender is preserved, this supports simulating calls that perform token swap that use the caller's
+ * the address of the sender is preserved, this supports simulating calls that perform token swap that use the caller's
  * balance, or any operation that is restricted to the caller.
  */
 library SimulateCall {
