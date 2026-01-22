@@ -75,23 +75,23 @@ library SimulateCall {
         // 0x002f | 5b          | jumpdest       | 0 rds
         // 0x0030 | fd          | revert         |
         assembly ("memory-safe") {
-            // build initcode at scratch space
-            mstore(0x20, 0x5f375f5f603436035f6014355f3560601c5af13d5f5f3e5f3d91602f57f35bfd)
-            mstore(0x00, 0x60315f8160095f39f360333611600a575f5ffd5b603436036034)
-            let initcodehash := keccak256(0x06, 0x3a)
+            let fmp := mload(0x40)
 
-            let fmp := mload(0x40) // cache free memory pointer
+            // build initcode at FMP
+            mstore(add(fmp, 0x20), 0x5f375f5f603436035f6014355f3560601c5af13d5f5f3e5f3d91602f57f35bfd)
+            mstore(add(fmp, 0x00), 0x60315f8160095f39f360333611600a575f5ffd5b603436036034)
+            let initcodehash := keccak256(add(fmp, 0x06), 0x3a)
 
             // compute create2 address
-            mstore(add(fmp, 0x40), initcodehash)
-            mstore(add(fmp, 0x20), 0)
-            mstore(add(fmp, 0x00), address())
-            mstore8(add(fmp, 0x0b), 0xff)
-            instance := and(keccak256(add(fmp, 0x0b), 0x55), shr(96, not(0)))
+            mstore(0x40, initcodehash)
+            mstore(0x20, 0)
+            mstore(0x00, address())
+            mstore8(0x0b, 0xff)
+            instance := and(keccak256(0x0b, 0x55), shr(96, not(0)))
 
             // if simulator not yet deployed, deploy it
             if iszero(extcodesize(instance)) {
-                if iszero(create2(0, 0x06, 0x3a, 0)) {
+                if iszero(create2(0, add(fmp, 0x06), 0x3a, 0)) {
                     returndatacopy(fmp, 0x00, returndatasize())
                     revert(fmp, returndatasize())
                 }
