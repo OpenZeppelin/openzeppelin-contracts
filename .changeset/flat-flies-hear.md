@@ -2,4 +2,4 @@
 'openzeppelin-solidity': minor
 ---
 
-`SimulateCall`: Add new library with simulator functions (`getSimulator`, `simulateCall`) that allow inspection of return data by reverting with the call result without making state changes.
+`SimulateCall`: Add a new call simulation utilities that allow inspecting return data from contract calls by executing them in a non-mutating, revert-based context.
