@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.5.0) (utils/SimulateCall.sol)
 
 pragma solidity ^0.8.20;
 
