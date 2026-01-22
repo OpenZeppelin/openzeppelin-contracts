@@ -19,23 +19,11 @@ async function fixture() {
         ]),
       ),
     );
-  const computeRevertingRelayerAddress = (salt = ethers.ZeroHash) =>
-    ethers.getCreate2Address(
-      mock.target,
-      salt,
-      ethers.keccak256(
-        ethers.concat([
-          '0x60465f8160095f39f373',
-          mock.target,
-          '0x331460133611166022575f5ffd5b6014360360145f375f5f601436035f345f3560601c5af13d5f5f3e3d533d6001015ffd',
-        ]),
-      ),
-    );
 
   const authority = await ethers.deployContract('$AccessManager', [admin]);
   const target = await ethers.deployContract('$AccessManagedTarget', [authority]);
 
-  return { mock, target, receiver, other, computeRelayerAddress, computeRevertingRelayerAddress };
+  return { mock, target, receiver, other, computeRelayerAddress };
 }
 
 describe('RelayedCall', function () {
@@ -46,7 +34,6 @@ describe('RelayedCall', function () {
   describe('default (zero) salt', function () {
     beforeEach(async function () {
       this.relayer = await this.computeRelayerAddress();
-      this.revertingRelayer = await this.computeRevertingRelayerAddress();
     });
 
     it('automatic relayer deployment', async function () {
@@ -59,22 +46,6 @@ describe('RelayedCall', function () {
 
       // Following calls use the same relayer
       await expect(this.mock.$getRelayer()).to.emit(this.mock, 'return$getRelayer').withArgs(this.relayer);
-    });
-
-    it('automatic reverting relayer deployment', async function () {
-      await expect(ethers.provider.getCode(this.revertingRelayer)).to.eventually.equal('0x');
-
-      // First call performs deployment
-      await expect(this.mock.$getRevertingRelayer())
-        .to.emit(this.mock, 'return$getRevertingRelayer')
-        .withArgs(this.revertingRelayer);
-
-      await expect(ethers.provider.getCode(this.revertingRelayer)).to.eventually.not.equal('0x');
-
-      // Following calls use the same reverting relayer
-      await expect(this.mock.$getRevertingRelayer())
-        .to.emit(this.mock, 'return$getRevertingRelayer')
-        .withArgs(this.revertingRelayer);
     });
 
     describe('relayed call', function () {
@@ -119,50 +90,6 @@ describe('RelayedCall', function () {
       });
     });
 
-    describe('relayed reverting call', function () {
-      it('target success', async function () {
-        const tx = this.mock.$relayRevertingCall(
-          ethers.Typed.address(this.target),
-          ethers.Typed.bytes(this.target.interface.encodeFunctionData('fnUnrestricted', [])),
-        );
-        await expect(tx)
-          .to.emit(this.mock, 'return$relayRevertingCall_address_bytes')
-          .withArgs(true, BigInt(42))
-          .to.not.emit(this.target, 'CalledUnrestricted');
-      });
-
-      it('target success (with value)', async function () {
-        const value = 42n;
-
-        // fund the mock
-        await this.other.sendTransaction({ to: this.mock.target, value });
-
-        // perform relayed call
-        const tx = this.mock.$relayRevertingCall(
-          ethers.Typed.address(this.receiver),
-          ethers.Typed.uint256(value),
-          ethers.Typed.bytes('0x'),
-        );
-
-        await expect(tx).to.changeEtherBalances([this.mock, this.revertingRelayer, this.receiver], [0n, 0n, 0n]);
-        await expect(tx).to.emit(this.mock, 'return$relayRevertingCall_address_uint256_bytes').withArgs(true, '0x');
-      });
-
-      it('target revert', async function () {
-        const tx = this.mock.$relayRevertingCall(
-          ethers.Typed.address(this.target),
-          ethers.Typed.bytes(this.target.interface.encodeFunctionData('fnRestricted', [])),
-        );
-
-        await expect(tx)
-          .to.emit(this.mock, 'return$relayRevertingCall_address_bytes')
-          .withArgs(
-            false,
-            this.target.interface.encodeErrorResult('AccessManagedUnauthorized', [this.revertingRelayer]),
-          );
-      });
-    });
-
     it('direct call to the relayer', async function () {
       // deploy relayer
       await this.mock.$getRelayer();
@@ -170,16 +97,6 @@ describe('RelayedCall', function () {
       // unauthorized caller
       await expect(
         this.other.sendTransaction({ to: this.relayer, data: '0x7859821024E633C5dC8a4FcF86fC52e7720Ce525' }),
-      ).to.be.revertedWithoutReason();
-    });
-
-    it('direct call to the reverting relayer', async function () {
-      // deploy reverting relayer
-      await this.mock.$getRevertingRelayer();
-
-      // unauthorized caller
-      await expect(
-        this.other.sendTransaction({ to: this.revertingRelayer, data: '0x7859821024E633C5dC8a4FcF86fC52e7720Ce525' }),
       ).to.be.revertedWithoutReason();
     });
 
@@ -203,39 +120,12 @@ describe('RelayedCall', function () {
       // 0 bytes (not enough for an address) - REVERT
       await expect(mockAsWallet.sendTransaction({ to: this.relayer, data: '0x' })).to.be.revertedWithoutReason();
     });
-
-    it('reverting relayer input format', async function () {
-      // deploy reverting relayer
-      await this.mock.$getRevertingRelayer();
-
-      // impersonate mock to pass caller checks
-      const mockAsWallet = await impersonate(this.mock.target);
-
-      // 20 bytes (address + empty data) - valid input - REVERT
-      await expect(
-        mockAsWallet.sendTransaction({
-          to: this.revertingRelayer,
-          data: '0x7859821024E633C5dC8a4FcF86fC52e7720Ce525',
-        }),
-      ).to.be.reverted;
-
-      // 19 bytes (not enough for an address) - REVERT
-      await expect(
-        mockAsWallet.sendTransaction({ to: this.revertingRelayer, data: '0x7859821024E633C5dC8a4FcF86fC52e7720Ce5' }),
-      ).to.be.revertedWithoutReason();
-
-      // 0 bytes (not enough for an address) - REVERT
-      await expect(
-        mockAsWallet.sendTransaction({ to: this.revertingRelayer, data: '0x' }),
-      ).to.be.revertedWithoutReason();
-    });
   });
 
   describe('random salt', function () {
     beforeEach(async function () {
       this.salt = ethers.hexlify(ethers.randomBytes(32));
       this.relayer = await this.computeRelayerAddress(this.salt);
-      this.revertingRelayer = await this.computeRevertingRelayerAddress(this.salt);
     });
 
     it('automatic relayer deployment', async function () {
@@ -252,22 +142,6 @@ describe('RelayedCall', function () {
       await expect(this.mock.$getRelayer(ethers.Typed.bytes32(this.salt)))
         .to.emit(this.mock, 'return$getRelayer_bytes32')
         .withArgs(this.relayer);
-    });
-
-    it('automatic reverting relayer deployment', async function () {
-      await expect(ethers.provider.getCode(this.revertingRelayer)).to.eventually.equal('0x');
-
-      // First call performs deployment
-      await expect(this.mock.$getRevertingRelayer(ethers.Typed.bytes32(this.salt)))
-        .to.emit(this.mock, 'return$getRevertingRelayer_bytes32')
-        .withArgs(this.revertingRelayer);
-
-      await expect(ethers.provider.getCode(this.revertingRelayer)).to.eventually.not.equal('0x');
-
-      // Following calls use the same reverting relayer
-      await expect(this.mock.$getRevertingRelayer(ethers.Typed.bytes32(this.salt)))
-        .to.emit(this.mock, 'return$getRevertingRelayer_bytes32')
-        .withArgs(this.revertingRelayer);
     });
 
     describe('relayed call', function () {
@@ -315,55 +189,6 @@ describe('RelayedCall', function () {
       });
     });
 
-    describe('relayed reverting call', function () {
-      it('target success', async function () {
-        const tx = this.mock.$relayRevertingCall(
-          ethers.Typed.address(this.target),
-          ethers.Typed.bytes(this.target.interface.encodeFunctionData('fnUnrestricted', [])),
-          ethers.Typed.bytes32(this.salt),
-        );
-        await expect(tx)
-          .to.emit(this.mock, 'return$relayRevertingCall_address_bytes_bytes32')
-          .withArgs(true, BigInt(42))
-          .to.not.emit(this.target, 'CalledUnrestricted');
-      });
-
-      it('target success (with value)', async function () {
-        const value = 42n;
-
-        // fund the mock
-        await this.other.sendTransaction({ to: this.mock.target, value });
-
-        // perform relayed call
-        const tx = this.mock.$relayRevertingCall(
-          ethers.Typed.address(this.receiver),
-          ethers.Typed.uint256(value),
-          ethers.Typed.bytes('0x'),
-          ethers.Typed.bytes32(this.salt),
-        );
-
-        await expect(tx).to.changeEtherBalances([this.mock, this.revertingRelayer, this.receiver], [0n, 0n, 0n]);
-        await expect(tx)
-          .to.emit(this.mock, 'return$relayRevertingCall_address_uint256_bytes_bytes32')
-          .withArgs(true, '0x');
-      });
-
-      it('target revert', async function () {
-        const tx = this.mock.$relayRevertingCall(
-          ethers.Typed.address(this.target),
-          ethers.Typed.bytes(this.target.interface.encodeFunctionData('fnRestricted', [])),
-          ethers.Typed.bytes32(this.salt),
-        );
-
-        await expect(tx)
-          .to.emit(this.mock, 'return$relayRevertingCall_address_bytes_bytes32')
-          .withArgs(
-            false,
-            this.target.interface.encodeErrorResult('AccessManagedUnauthorized', [this.revertingRelayer]),
-          );
-      });
-    });
-
     it('direct call to the relayer', async function () {
       // deploy relayer
       await this.mock.$getRelayer(ethers.Typed.bytes32(this.salt));
@@ -371,16 +196,6 @@ describe('RelayedCall', function () {
       // unauthorized caller
       await expect(
         this.other.sendTransaction({ to: this.relayer, data: '0x7859821024E633C5dC8a4FcF86fC52e7720Ce525' }),
-      ).to.be.revertedWithoutReason();
-    });
-
-    it('direct call to the reverting relayer', async function () {
-      // deploy reverting relayer
-      await this.mock.$getRevertingRelayer(ethers.Typed.bytes32(this.salt));
-
-      // unauthorized caller
-      await expect(
-        this.other.sendTransaction({ to: this.revertingRelayer, data: '0x7859821024E633C5dC8a4FcF86fC52e7720Ce525' }),
       ).to.be.revertedWithoutReason();
     });
 
@@ -403,32 +218,6 @@ describe('RelayedCall', function () {
 
       // 0 bytes (not enough for an address) - REVERT
       await expect(mockAsWallet.sendTransaction({ to: this.relayer, data: '0x' })).to.be.revertedWithoutReason();
-    });
-
-    it('reverting relayer input format', async function () {
-      // deploy reverting relayer
-      await this.mock.$getRevertingRelayer(ethers.Typed.bytes32(this.salt));
-
-      // impersonate mock to pass caller checks
-      const mockAsWallet = await impersonate(this.mock.target);
-
-      // 20 bytes (address + empty data) - valid input - REVERT
-      await expect(
-        mockAsWallet.sendTransaction({
-          to: this.revertingRelayer,
-          data: '0x7859821024E633C5dC8a4FcF86fC52e7720Ce525',
-        }),
-      ).to.be.reverted;
-
-      // 19 bytes (not enough for an address) - REVERT
-      await expect(
-        mockAsWallet.sendTransaction({ to: this.revertingRelayer, data: '0x7859821024E633C5dC8a4FcF86fC52e7720Ce5' }),
-      ).to.be.revertedWithoutReason();
-
-      // 0 bytes (not enough for an address) - REVERT
-      await expect(
-        mockAsWallet.sendTransaction({ to: this.revertingRelayer, data: '0x' }),
-      ).to.be.revertedWithoutReason();
     });
   });
 });
