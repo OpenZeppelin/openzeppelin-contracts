@@ -80,7 +80,7 @@ library SimulateCall {
 
             // build initcode at FMP
             mstore(add(fmp, 0x20), 0x5f375f5f603436035f6014355f3560601c5af13d5f5f3e5f3d91602f57f35bfd)
-            mstore(add(fmp, 0x00), 0x60315f8160095f39f360333611600a575f5ffd5b603436036034)
+            mstore(fmp, 0x60315f8160095f39f360333611600a575f5ffd5b603436036034)
             let initcodehash := keccak256(add(fmp, 0x06), 0x3a)
 
             // compute create2 address
