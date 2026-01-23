@@ -1,4 +1,3 @@
-import path from 'path';
 import micromatch from 'micromatch';
 
 import type { HardhatRuntimeEnvironmentHooks, HookContext } from 'hardhat/types/hooks';
@@ -6,7 +5,7 @@ import type { HardhatRuntimeEnvironment } from 'hardhat/types/hre';
 import type { BuildOptions, SolidityBuildSystem } from 'hardhat/types/solidity';
 import { createSpinner } from '@nomicfoundation/hardhat-utils/spinner';
 
-import { getExposed, getExposedPath, writeExposed } from '../core';
+import { getExposed, writeExposed } from '../core';
 
 const overrideBuild =
   (context: HookContext, runSuper: SolidityBuildSystem['build']) =>
@@ -18,15 +17,12 @@ const overrideBuild =
         if ('reason' in compilationJobsResult) break;
 
         // Determine which files to include
-        const include = (sourceName: string): boolean =>
-          sourceName.startsWith('project/') &&
-          compilationJobsResult.compilationJobsPerFile.has(path.relative('project/', sourceName)) &&
-          context.config.exposed.include.some((p: string) =>
-            micromatch.isMatch(path.relative('project/', sourceName), p),
-          ) &&
-          !context.config.exposed.exclude.some((p: string) =>
-            micromatch.isMatch(path.relative('project/', sourceName), p),
-          );
+        const include = (sourceName: string): boolean => {
+          const file = sourceName.replace(/^project\//g, '');
+          return compilationJobsResult.compilationJobsPerFile.has(file) &&
+            context.config.exposed.include.some((p: string) => micromatch.isMatch(file, p)) &&
+            !context.config.exposed.exclude.some((p: string) => micromatch.isMatch(file, p));
+        }
 
         const spinner = createSpinner({
           text: `Generation of exposed contracts...`,
@@ -76,7 +72,6 @@ const overrideBuild =
 
 export default async (): Promise<Partial<HardhatRuntimeEnvironmentHooks>> => ({
   created: async (context: HookContext, hre: HardhatRuntimeEnvironment): Promise<void> => {
-    hre.config.paths.sources.solidity.push(getExposedPath(hre.config));
     hre.solidity.build = overrideBuild(context, hre.solidity.build.bind(hre.solidity));
   },
 });
