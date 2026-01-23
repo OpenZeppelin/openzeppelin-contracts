@@ -2,6 +2,8 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
+const value = 42n;
+
 async function fixture() {
   const [receiver, other] = await ethers.getSigners();
 
@@ -18,6 +20,9 @@ async function fixture() {
   );
 
   const target = await ethers.deployContract('$CallReceiverMock');
+
+  // fund the mock contract (for tests that use value)
+  await other.sendTransaction({ to: mock, value });
 
   return { mock, target, receiver, other, simulator };
 }
@@ -54,11 +59,6 @@ describe('SimulateCall', function () {
     });
 
     it('target success (with value)', async function () {
-      const value = 42n;
-
-      // fund the mock
-      await this.other.sendTransaction({ to: this.mock.target, value });
-
       // perform simulated call
       const txPromise = this.mock.$simulateCall(
         ethers.Typed.address(this.target),
@@ -82,6 +82,19 @@ describe('SimulateCall', function () {
       await expect(txPromise).to.changeEtherBalances([this.mock, this.simulator, this.target], [0n, 0n, 0n]);
       await expect(txPromise)
         .to.emit(this.mock, 'return$simulateCall_address_bytes')
+        .withArgs(false, this.target.interface.encodeErrorResult('Error', ['CallReceiverMock: reverting']));
+    });
+
+    it('target revert (with value)', async function () {
+      const txPromise = this.mock.$simulateCall(
+        ethers.Typed.address(this.target),
+        ethers.Typed.uint256(value),
+        ethers.Typed.bytes(this.target.interface.encodeFunctionData('mockFunctionRevertsReason')),
+      );
+
+      await expect(txPromise).to.changeEtherBalances([this.mock, this.simulator, this.target], [0n, 0n, 0n]);
+      await expect(txPromise)
+        .to.emit(this.mock, 'return$simulateCall_address_uint256_bytes')
         .withArgs(false, this.target.interface.encodeErrorResult('Error', ['CallReceiverMock: reverting']));
     });
   });
