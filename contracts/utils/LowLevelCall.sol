@@ -103,10 +103,14 @@ library LowLevelCall {
     /// @dev Returns a buffer containing the return data from the last call.
     function returnData() internal pure returns (bytes memory result) {
         assembly ("memory-safe") {
-            result := mload(0x40)
-            mstore(result, returndatasize())
-            returndatacopy(add(result, 0x20), 0x00, returndatasize())
-            mstore(0x40, add(result, add(0x20, returndatasize())))
+            let size := returndatasize()
+            /// Align the allocation pointer to 32 bytes (Solidity convention).
+            result := and(add(mload(0x40), 0x1f), not(0x1f))
+            mstore(result, size)
+            returndatacopy(add(result, 0x20), 0x00, size)
+            /// Advance the free memory pointer, rounding up to the next 32-byte word.
+            /// Total bytes used = 0x20 (length) + size (data), padded to 32 bytes.
+            mstore(0x40, add(result, and(add(add(size, 0x20), 0x1f), not(0x1f))))
         }
     }
 
