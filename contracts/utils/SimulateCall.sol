@@ -23,10 +23,18 @@ library SimulateCall {
         bytes memory data
     ) internal returns (bool success, bytes memory retData) {
         (success, retData) = getSimulator().delegatecall(abi.encodePacked(target, value, data));
-        success = !success;
+        success = !success; // getSimulator() returns the success value inverted
     }
 
-    /// @dev Returns the simulator address.
+    /**
+     * @dev Returns the simulator address.
+     *
+     * The simulator REVERTs on success and RETURNs on failure, preserving the return data in both cases.
+     *
+     * * A failed target call returns the return data and succeeds in our context (no state changes).
+     * * A successful target call causes a revert in our context (undoing all state changes) while still
+     * capturing the return data.
+     */
     function getSimulator() internal returns (address instance) {
         // [Simulator details]
         // deployment prefix: 60315f8160095f39f3
