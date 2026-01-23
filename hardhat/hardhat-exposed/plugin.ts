@@ -7,7 +7,7 @@ const hardhatExposedPlugin: HardhatPlugin = {
   id: 'hardhat-exposed',
   hookHandlers: {
     config: () => import('./hook-handlers/config.js'),
-    solidity: () => import('./hook-handlers/solidity.js'),
+    hre: () => import('./hook-handlers/hre.js'),
   },
   tasks: [
     overrideTask('clean')

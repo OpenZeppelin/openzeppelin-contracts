@@ -65,7 +65,7 @@ export function getExposed(
 }
 
 // Helpers
-function getExposedPath(config: HardhatConfig) {
+export function getExposedPath(config: HardhatConfig) {
   return path.join(config.paths.root, config.exposed.outDir);
 }
 
