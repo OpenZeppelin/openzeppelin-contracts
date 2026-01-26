@@ -165,6 +165,8 @@ library ERC7579Utils {
     function decodeDelegate(
         bytes calldata executionCalldata
     ) internal pure returns (address target, bytes calldata callData) {
+        // executionCalldata = <target (20 bytes)> | <callData (N bytes)>
+        if (executionCalldata.length < 0x14) revert ERC7579DecodingError();
         target = address(bytes20(executionCalldata[0:0x14]));
         callData = executionCalldata[0x14:];
     }
