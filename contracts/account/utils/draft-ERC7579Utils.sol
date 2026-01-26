@@ -146,6 +146,8 @@ library ERC7579Utils {
     function decodeSingle(
         bytes calldata executionCalldata
     ) internal pure returns (address target, uint256 value, bytes calldata callData) {
+        // executionCalldata = <target (20 bytes)> | <value (32 bytes)> | <callData (N bytes)>
+        if (executionCalldata.length < 0x34) revert ERC7579DecodingError();
         target = address(bytes20(executionCalldata[0x00:0x14]));
         value = uint256(bytes32(executionCalldata[0x14:0x34]));
         callData = executionCalldata[0x34:];
