@@ -74,7 +74,7 @@ export default defineConfig({
       hardfork: argv.evm,
       // Exposed contracts often exceed the maximum contract size. For normal contract,
       // we rely on the `code-size` compiler warning, that will cause a compilation error.
-      // allowUnlimitedContractSize: true,
+      allowUnlimitedContractSize: true,
       // initialBaseFeePerGas: argv.coverage ? 0 : undefined,
     },
   },
