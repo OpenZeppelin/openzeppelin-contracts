@@ -10,7 +10,6 @@
   "scripts": {
     "compile": "hardhat compile",
     "compile:harnesses": "env SRC=./fv/harnesses hardhat compile",
-    "coverage": "scripts/checks/coverage.sh",
     "docs": "npm run prepare-docs && oz-docs",
     "docs:watch": "oz-docs watch contracts docs/templates docs/config.js",
     "prepare": "husky",
@@ -26,11 +25,12 @@
     "generate": "scripts/generate/run.js",
     "pragma": "npm run compile && scripts/minimize-pragma.js artifacts/build-info/*",
     "version": "scripts/release/version.sh",
-    "test": ". scripts/set-max-old-space-size.sh && hardhat test",
+    "test": "hardhat test",
     "test:generation": "scripts/checks/generation.sh",
     "test:inheritance": "npm run compile && scripts/checks/inheritance-ordering.js artifacts/build-info/*",
     "test:pragma": "npm run compile && scripts/checks/pragma-validity.js artifacts/build-info/*",
-    "gas-report": "env ENABLE_GAS_REPORT=true npm run test",
+    "coverage": "hardhat test --coverage",
+    "gas-report": "hardhat test --gas-stats",
     "slither": "npm run clean && slither ."
   },
   "repository": {

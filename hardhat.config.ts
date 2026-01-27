@@ -1,4 +1,4 @@
-import { defineConfig, overrideTask } from 'hardhat/config';
+import { defineConfig } from 'hardhat/config';
 
 // Plugins
 import hardhatEthers from '@nomicfoundation/hardhat-ethers';
@@ -9,33 +9,18 @@ import hardhatNetworkHelpers from '@nomicfoundation/hardhat-network-helpers';
 import hardhatPredeploy from 'hardhat-predeploy';
 import hardhatExposed from './hardhat/hardhat-exposed/plugin.js';
 import hardhatOzContractsHelpers from './hardhat/hardhat-oz-contracts-helpers/plugin.js';
+import './hardhat/async-test-sanity.js';
 
 // Parameters
 import yargs from 'yargs/yargs';
 const argv = await yargs()
   .env('')
   .options({
-    // Compilation settings
-    compiler: {
-      type: 'string',
-      default: '0.8.31',
-    },
-    src: {
-      type: 'string',
-      default: 'contracts',
-    },
-    runs: {
-      type: 'number',
-      default: 200,
-    },
-    ir: {
-      type: 'boolean',
-      default: false,
-    },
-    evm: {
-      type: 'string',
-      default: 'osaka',
-    },
+    compiler: { type: 'string', default: '0.8.31' },
+    src: { type: 'string', default: 'contracts' },
+    runs: { type: 'number', default: 200 },
+    ir: { type: 'boolean', default: false },
+    evm: { type: 'string', default: 'osaka' },
   })
   .parse();
 
@@ -75,7 +60,6 @@ export default defineConfig({
       // Exposed contracts often exceed the maximum contract size. For normal contract,
       // we rely on the `code-size` compiler warning, that will cause a compilation error.
       allowUnlimitedContractSize: true,
-      // initialBaseFeePerGas: argv.coverage ? 0 : undefined,
     },
   },
   test: {
