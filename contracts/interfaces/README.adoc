@@ -53,7 +53,7 @@ are useful to interact with third party contracts that implement them.
 - {IERC7579AccountConfig}
 - {IERC7579ModuleConfig}
 - {IERC7674}
-- {IERC7751}
+- {IERC7751}
 - {IERC7786GatewaySource}
 - {IERC7786Recipient}
 - {IERC7802}
