@@ -8,6 +8,7 @@ import hardhatMocha from '@nomicfoundation/hardhat-mocha';
 import hardhatNetworkHelpers from '@nomicfoundation/hardhat-network-helpers';
 import hardhatPredeploy from 'hardhat-predeploy';
 import hardhatExposed from './hardhat/hardhat-exposed/plugin.js';
+import hardhatOzContractsHelpers from './hardhat/hardhat-oz-contracts-helpers/plugin.js';
 
 // Parameters
 import yargs from 'yargs/yargs';
@@ -50,13 +51,7 @@ export default defineConfig({
     hardhatPredeploy,
     // Local plugins
     hardhatExposed,
-    // Additional hooks
-    {
-      id: '@openzeppelin/contracts',
-      hookHandlers: {
-        hre: () => import('./hardhat/hook-handlers/hre.js'),
-      },
-    },
+    hardhatOzContractsHelpers,
   ],
   paths: {
     sources: argv.src,
@@ -95,11 +90,12 @@ export default defineConfig({
     },
   },
   warnings: {
+    'npm/**/*': 'off',
+    'test/**/*': 'off',
     'contracts-exposed/**/*': {
       'code-size': 'off',
       'initcode-size': 'off',
     },
-    'test/**/*': 'off',
     '*': {
       'transient-storage': 'off',
       default: 'error',

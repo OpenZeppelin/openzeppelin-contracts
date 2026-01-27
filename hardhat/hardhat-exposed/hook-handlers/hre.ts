@@ -19,10 +19,12 @@ const overrideBuild =
         // Determine which files to include
         const include = (sourceName: string): boolean => {
           const file = sourceName.replace(/^project\//g, '');
-          return compilationJobsResult.compilationJobsPerFile.has(file) &&
+          return (
+            compilationJobsResult.compilationJobsPerFile.has(file) &&
             context.config.exposed.include.some((p: string) => micromatch.isMatch(file, p)) &&
-            !context.config.exposed.exclude.some((p: string) => micromatch.isMatch(file, p));
-        }
+            !context.config.exposed.exclude.some((p: string) => micromatch.isMatch(file, p))
+          );
+        };
 
         const spinner = createSpinner({
           text: `Generation of exposed contracts...`,
@@ -59,6 +61,9 @@ const overrideBuild =
           // Add exposed files to rootFilePaths for actual compilation
           rootFilePaths.push(...exposed.keys());
         }
+
+        // Remove duplicates
+        rootFilePaths = rootFilePaths.filter((value, index, array) => array.indexOf(value) === index);
 
         spinner.stop();
         break;

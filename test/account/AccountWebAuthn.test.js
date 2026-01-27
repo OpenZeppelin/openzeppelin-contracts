@@ -1,14 +1,17 @@
-const { ethers, predeploy } = require('hardhat');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { getDomain } from '../helpers/eip712';
+import { ERC4337Helper } from '../helpers/erc4337';
+import { PackedUserOperation } from '../helpers/eip712-types';
+import { NonNativeSigner, P256SigningKey, WebAuthnSigningKey } from '../helpers/signers';
+import { shouldBehaveLikeAccountCore, shouldBehaveLikeAccountHolder } from './Account.behavior';
+import { shouldBehaveLikeERC1271 } from '../utils/cryptography/ERC1271.behavior';
+import { shouldBehaveLikeERC7821 } from './extensions/ERC7821.behavior';
 
-const { getDomain } = require('../helpers/eip712');
-const { ERC4337Helper } = require('../helpers/erc4337');
-const { NonNativeSigner, P256SigningKey, WebAuthnSigningKey } = require('../helpers/signers');
-const { PackedUserOperation } = require('../helpers/eip712-types');
-
-const { shouldBehaveLikeAccountCore, shouldBehaveLikeAccountHolder } = require('./Account.behavior');
-const { shouldBehaveLikeERC1271 } = require('../utils/cryptography/ERC1271.behavior');
-const { shouldBehaveLikeERC7821 } = require('./extensions/ERC7821.behavior');
+const connection = await network.connect();
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = connection;
 
 const webAuthnSigner = new NonNativeSigner(WebAuthnSigningKey.random());
 const p256Signer = new NonNativeSigner(P256SigningKey.random());
@@ -19,7 +22,7 @@ async function fixture() {
   const target = await ethers.deployContract('CallReceiverMock');
 
   // ERC-4337 account
-  const helper = new ERC4337Helper();
+  const helper = new ERC4337Helper(connection);
 
   const webAuthnMock = await helper.newAccount('$AccountWebAuthnMock', [
     webAuthnSigner.signingKey.publicKey.qx,
@@ -36,7 +39,7 @@ async function fixture() {
   ]);
 
   // ERC-4337 Entrypoint domain
-  const entrypointDomain = await getDomain(predeploy.entrypoint.v09);
+  const entrypointDomain = await getDomain(ethers.predeploy.entrypoint.v09);
 
   // domain cannot be fetched using getDomain(mock) before the mock is deployed
   const domain = {
@@ -57,7 +60,7 @@ async function fixture() {
 
 describe('AccountWebAuthn', function () {
   beforeEach(async function () {
-    Object.assign(this, await loadFixture(fixture));
+    Object.assign(this, connection, await loadFixture(fixture));
   });
 
   describe('WebAuthn Assertions', function () {

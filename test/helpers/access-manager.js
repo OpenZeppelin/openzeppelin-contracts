@@ -1,10 +1,8 @@
-const { ethers } = require('hardhat');
+import { ethers } from 'ethers';
+import { MAX_UINT64 } from './constants';
+import { upgradeableSlot } from './storage';
 
-const { MAX_UINT64 } = require('./constants');
-const time = require('./time');
-const { upgradeableSlot } = require('./storage');
-
-function buildBaseRoles() {
+export function buildBaseRoles() {
   const roles = {
     ADMIN: {
       id: 0n,
@@ -41,20 +39,20 @@ function buildBaseRoles() {
   return roles;
 }
 
-const formatAccess = access => [access[0], access[1].toString()];
+export const formatAccess = access => [access[0], access[1].toString()];
 
-const MINSETBACK = time.duration.days(5);
-const EXPIRATION = time.duration.weeks(1);
+export const MINSETBACK = 432000n; // time.duration.days(5);
+export const EXPIRATION = 604800n; // time.duration.weeks(1);
 
-const EXECUTION_ID_STORAGE_SLOT = upgradeableSlot('AccessManager', 3n);
-const CONSUMING_SCHEDULE_STORAGE_SLOT = upgradeableSlot('AccessManaged', 0n);
+export const EXECUTION_ID_STORAGE_SLOT = await upgradeableSlot('AccessManager', 3n);
+export const CONSUMING_SCHEDULE_STORAGE_SLOT = await upgradeableSlot('AccessManaged', 0n);
 
 /**
  * @requires this.{manager, caller, target, calldata}
  */
-async function prepareOperation(manager, { caller, target, calldata, delay }) {
-  const scheduledAt = (await time.clock.timestamp()) + 1n;
-  await time.increaseTo.timestamp(scheduledAt, false); // Fix next block timestamp for predictability
+export async function prepareOperation(manager, { caller, target, calldata, delay }) {
+  const scheduledAt = (await this.helpers.time.clock.timestamp()) + 1n;
+  await this.helpers.time.increaseTo.timestamp(scheduledAt, false); // Fix next block timestamp for predictability
 
   return {
     schedule: () => manager.connect(caller).schedule(target, calldata, scheduledAt + delay),
@@ -65,21 +63,10 @@ async function prepareOperation(manager, { caller, target, calldata, delay }) {
 
 const lazyGetAddress = addressable => addressable.address ?? addressable.target ?? addressable;
 
-const hashOperation = (caller, target, data) =>
+export const hashOperation = (caller, target, data) =>
   ethers.keccak256(
     ethers.AbiCoder.defaultAbiCoder().encode(
       ['address', 'address', 'bytes'],
       [lazyGetAddress(caller), lazyGetAddress(target), data],
     ),
   );
-
-module.exports = {
-  buildBaseRoles,
-  formatAccess,
-  MINSETBACK,
-  EXPIRATION,
-  EXECUTION_ID_STORAGE_SLOT,
-  CONSUMING_SCHEDULE_STORAGE_SLOT,
-  prepareOperation,
-  hashOperation,
-};

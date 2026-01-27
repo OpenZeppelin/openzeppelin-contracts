@@ -1,5 +1,7 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+
+const { ethers } = await network.connect();
 
 const name = 'Non Fungible Token';
 const symbol = 'NFT';

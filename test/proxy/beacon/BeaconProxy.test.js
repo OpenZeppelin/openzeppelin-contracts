@@ -1,8 +1,12 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { BeaconLabel } from '../../helpers/storage';
 
-const { getAddressInSlot, BeaconSlot } = require('../../helpers/storage');
+const {
+  ethers,
+  helpers: { storage },
+  networkHelpers: { loadFixture },
+} = await network.connect();
 
 async function fixture() {
   const [admin, other] = await ethers.getSigners();
@@ -36,7 +40,7 @@ describe('BeaconProxy', function () {
 
       // BadBeaconNoImpl does not provide `implementation()` and has no fallback.
       // This causes ERC1967Utils._setBeacon to revert.
-      await expect(this.newBeaconProxy(badBeacon, '0x')).to.be.revertedWithoutReason();
+      await expect(this.newBeaconProxy(badBeacon, '0x')).to.be.revertedWithoutReason(ethers);
     });
 
     it('non-contract implementation', async function () {
@@ -50,7 +54,7 @@ describe('BeaconProxy', function () {
 
   describe('initialization', function () {
     async function assertInitialized({ value, balance }) {
-      const beaconAddress = await getAddressInSlot(this.proxy, BeaconSlot);
+      const beaconAddress = await storage.getAddressInSlot(this.proxy, BeaconLabel);
       expect(beaconAddress).to.equal(this.beacon);
 
       const dummy = this.v1.attach(this.proxy);

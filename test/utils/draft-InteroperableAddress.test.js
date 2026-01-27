@@ -1,14 +1,16 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { addressCoder, nameCoder } = require('interoperable-addresses');
-const { CAIP350, chainTypeCoder } = require('interoperable-addresses/dist/CAIP350');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { addressCoder, nameCoder } from 'interoperable-addresses';
+import { CAIP350, chainTypeCoder } from 'interoperable-addresses/dist/CAIP350';
 
-const { getLocalChain } = require('../helpers/chains');
+const {
+  ethers,
+  helpers: { chain },
+  networkHelpers: { loadFixture },
+} = await network.connect();
 
 async function fixture() {
-  const mock = await ethers.deployContract('$InteroperableAddress');
-  return { mock };
+  return { mock: await ethers.deployContract('$InteroperableAddress') };
 }
 
 describe('ERC7390', function () {
@@ -17,10 +19,9 @@ describe('ERC7390', function () {
   });
 
   it('formatEvmV1 address on the local chain', async function () {
-    const { reference: chainid, toErc7930 } = await getLocalChain();
     await expect(
-      this.mock.$formatEvmV1(ethers.Typed.uint256(chainid), ethers.Typed.address(this.mock)),
-    ).to.eventually.equal(toErc7930(this.mock));
+      this.mock.$formatEvmV1(ethers.Typed.uint256(chain.reference), ethers.Typed.address(this.mock)),
+    ).to.eventually.equal(chain.toErc7930(this.mock));
   });
 
   it('formatV1 fails if both reference and address are empty', async function () {

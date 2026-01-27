@@ -1,7 +1,10 @@
 import { network } from 'hardhat';
 import { expect } from 'chai';
 
-const { ethers, networkHelpers } = await network.connect();
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.connect();
 
 async function fixture() {
   const [owner, other] = await ethers.getSigners();
@@ -11,7 +14,7 @@ async function fixture() {
 
 describe('Ownable', function () {
   beforeEach(async function () {
-    Object.assign(this, await networkHelpers.loadFixture(fixture));
+    Object.assign(this, await loadFixture(fixture));
   });
 
   it('emits ownership transfer events during construction', async function () {

@@ -85,7 +85,12 @@ function getExposedFile(
   const dirname = path.dirname(fsPath);
 
   const relativizePath = (p: string) =>
-    (p.startsWith('project/') ? path.relative(dirname, path.relative('project', p)) : p).replace(/\\/g, '/');
+    (p.startsWith('project/')
+      ? path.relative(dirname, path.relative('project', p))
+      : p.startsWith('npm/')
+        ? path.relative('npm', p).replace(/@[a-zA-Z0-9\.-]+/, '')
+        : p
+    ).replace(/\\/g, '/');
 
   const content = getExposedContent(
     ast,
@@ -670,10 +675,7 @@ function* getNeededImports(ast: SourceUnit, deref: ASTDereferencer): Iterable<So
   const needed = new Set<SourceUnit>(
     [ast].concat(
       [...findAll('ContractDefinition', ast)].flatMap(c =>
-        c.linearizedBaseContracts.map(p => {
-          const { sourceUnit } = deref.withSourceUnit('ContractDefinition', p);
-          return sourceUnit;
-        }),
+        c.linearizedBaseContracts.map(p => deref.withSourceUnit('ContractDefinition', p).sourceUnit),
       ),
     ),
   );

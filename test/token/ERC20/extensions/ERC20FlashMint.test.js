@@ -1,6 +1,10 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.connect();
 
 const name = 'My Token';
 const symbol = 'MTKN';
@@ -63,7 +67,7 @@ describe('ERC20FlashMint', function () {
         .withArgs(this.token, receiver, loanValue)
         .to.emit(receiver, 'TotalSupply')
         .withArgs(this.token, initialSupply + loanValue);
-      await expect(tx).to.changeTokenBalance(this.token, receiver, 0);
+      await expect(tx).to.changeTokenBalance(ethers, this.token, receiver, 0);
 
       expect(await this.token.totalSupply()).to.equal(initialSupply);
       expect(await this.token.allowance(receiver, this.token)).to.equal(0n);
@@ -110,7 +114,7 @@ describe('ERC20FlashMint', function () {
         await expect(tx)
           .to.emit(this.token, 'Transfer')
           .withArgs(ethers.ZeroAddress, this.receiver, receiverInitialBalance);
-        await expect(tx).to.changeTokenBalance(this.token, this.receiver, receiverInitialBalance);
+        await expect(tx).to.changeTokenBalance(ethers, this.token, this.receiver, receiverInitialBalance);
 
         await this.token.setFlashFee(flashFee);
         expect(await this.token.flashFee(this.token, loanValue)).to.equal(flashFee);
@@ -127,7 +131,12 @@ describe('ERC20FlashMint', function () {
           .withArgs(this.token, this.receiver, receiverInitialBalance + loanValue)
           .to.emit(this.receiver, 'TotalSupply')
           .withArgs(this.token, initialSupply + receiverInitialBalance + loanValue);
-        await expect(tx).to.changeTokenBalances(this.token, [this.receiver, ethers.ZeroAddress], [-flashFee, 0]);
+        await expect(tx).to.changeTokenBalances(
+          ethers,
+          this.token,
+          [this.receiver, ethers.ZeroAddress],
+          [-flashFee, 0],
+        );
 
         expect(await this.token.totalSupply()).to.equal(initialSupply + receiverInitialBalance - flashFee);
         expect(await this.token.allowance(this.receiver, this.token)).to.equal(0n);
@@ -151,6 +160,7 @@ describe('ERC20FlashMint', function () {
           .to.emit(this.receiver, 'TotalSupply')
           .withArgs(this.token, initialSupply + receiverInitialBalance + loanValue);
         await expect(tx).to.changeTokenBalances(
+          ethers,
           this.token,
           [this.receiver, flashFeeReceiverAddress],
           [-flashFee, flashFee],

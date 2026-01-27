@@ -1,14 +1,14 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { shouldBehaveLikeERC20, shouldBehaveLikeERC20Transfer, shouldBehaveLikeERC20Approve } from '../ERC20.behavior';
+import { shouldSupportInterfaces } from '../../../utils/introspection/SupportsInterface.behavior';
+import { RevertType } from '../../../helpers/enums';
 
+const connection = await network.connect();
 const {
-  shouldBehaveLikeERC20,
-  shouldBehaveLikeERC20Transfer,
-  shouldBehaveLikeERC20Approve,
-} = require('../ERC20.behavior.js');
-const { shouldSupportInterfaces } = require('../../../utils/introspection/SupportsInterface.behavior');
-const { RevertType } = require('../../../helpers/enums.js');
+  ethers,
+  networkHelpers: { loadFixture },
+} = connection;
 
 const name = 'My Token';
 const symbol = 'MTKN';
@@ -42,7 +42,7 @@ async function fixture() {
 
 describe('ERC1363', function () {
   beforeEach(async function () {
-    Object.assign(this, await loadFixture(fixture));
+    Object.assign(this, connection, await loadFixture(fixture));
   });
 
   shouldSupportInterfaces(['ERC165', 'ERC1363']);

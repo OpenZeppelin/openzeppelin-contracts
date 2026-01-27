@@ -1,8 +1,12 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { erc7201Slot } = require('../helpers/storage');
-const { generators } = require('../helpers/random');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { erc7201Slot } from '../helpers/storage';
+import { generators } from '../helpers/random';
+
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.connect();
 
 async function fixture() {
   const [account] = await ethers.getSigners();

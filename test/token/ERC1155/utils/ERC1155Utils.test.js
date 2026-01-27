@@ -1,8 +1,12 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { RevertType } = require('../../../helpers/enums');
-const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { PANIC_CODES } from '@nomicfoundation/hardhat-ethers-chai-matchers/panic';
+import { RevertType } from '../../../helpers/enums';
+
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.connect();
 
 const firstTokenId = 1n;
 const secondTokenId = 2n;
@@ -52,7 +56,7 @@ describe('ERC1155Utils', function () {
           firstTokenValue,
           '0x',
         ),
-      ).to.not.be.reverted;
+      ).to.not.be.revert(ethers);
     });
 
     it('succeeds when data is passed', async function () {
@@ -66,7 +70,7 @@ describe('ERC1155Utils', function () {
           firstTokenValue,
           data,
         ),
-      ).to.not.be.reverted;
+      ).to.not.be.revert(ethers);
     });
 
     it('succeeds when data is empty', async function () {
@@ -79,7 +83,7 @@ describe('ERC1155Utils', function () {
           firstTokenValue,
           '0x',
         ),
-      ).to.not.be.reverted;
+      ).to.not.be.revert(ethers);
     });
 
     it('reverts when receiver returns invalid value', async function () {
@@ -180,7 +184,7 @@ describe('ERC1155Utils', function () {
           [firstTokenValue, secondTokenValue],
           '0x',
         ),
-      ).to.not.be.reverted;
+      ).to.not.be.revert(ethers);
     });
 
     it('succeeds when data is passed', async function () {
@@ -194,7 +198,7 @@ describe('ERC1155Utils', function () {
           [firstTokenValue, secondTokenValue],
           data,
         ),
-      ).to.not.be.reverted;
+      ).to.not.be.revert(ethers);
     });
 
     it('succeeds when data is empty', async function () {
@@ -207,7 +211,7 @@ describe('ERC1155Utils', function () {
           [firstTokenValue, secondTokenValue],
           '0x',
         ),
-      ).to.not.be.reverted;
+      ).to.not.be.revert(ethers);
     });
 
     it('reverts when receiver returns invalid value', async function () {

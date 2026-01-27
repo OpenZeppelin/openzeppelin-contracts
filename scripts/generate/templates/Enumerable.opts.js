@@ -1,6 +1,6 @@
-const { capitalize, mapValues } = require('../../helpers');
+import { capitalize, mapValues } from '../../helpers';
 
-const typeDescr = ({ type, size = 0, memory = false }) => {
+export const typeDescr = ({ type, size = 0, memory = false }) => {
   memory |= size > 0;
 
   const name = [type == 'uint256' ? 'Uint' : capitalize(type), size].filter(Boolean).join('x');
@@ -10,19 +10,19 @@ const typeDescr = ({ type, size = 0, memory = false }) => {
   return { name, type: typeFull, typeLoc, base, size, memory };
 };
 
-const toSetTypeDescr = value => ({
+export const toSetTypeDescr = value => ({
   name: value.name + 'Set',
   value,
 });
 
-const toMapTypeDescr = ({ key, value }) => ({
+export const toMapTypeDescr = ({ key, value }) => ({
   name: `${key.name}To${value.name}Map`,
   keySet: toSetTypeDescr(key),
   key,
   value,
 });
 
-const SET_TYPES = [
+export const SET_TYPES = [
   { type: 'bytes32' },
   { type: 'bytes4' },
   { type: 'address' },
@@ -33,7 +33,7 @@ const SET_TYPES = [
   .map(typeDescr)
   .map(toSetTypeDescr);
 
-const MAP_TYPES = []
+export const MAP_TYPES = []
   .concat(
     // value type maps
     ['uint256', 'address', 'bytes32']
@@ -46,11 +46,3 @@ const MAP_TYPES = []
   )
   .map(entry => mapValues(entry, typeDescr))
   .map(toMapTypeDescr);
-
-module.exports = {
-  SET_TYPES,
-  MAP_TYPES,
-  typeDescr,
-  toSetTypeDescr,
-  toMapTypeDescr,
-};

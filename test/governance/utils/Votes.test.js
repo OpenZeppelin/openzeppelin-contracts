@@ -1,12 +1,15 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { zip } from '../../helpers/iterate';
+import { sum } from '../../helpers/math';
+import { shouldBehaveLikeVotes } from './Votes.behavior';
 
-const { sum } = require('../../helpers/math');
-const { zip } = require('../../helpers/iterate');
-const time = require('../../helpers/time');
-
-const { shouldBehaveLikeVotes } = require('./Votes.behavior');
+const connection = await network.connect();
+const {
+  ethers,
+  helpers: { time },
+  networkHelpers: { loadFixture },
+} = connection;
 
 const MODES = {
   blocknumber: '$VotesMock',
@@ -36,7 +39,7 @@ describe('Votes', function () {
 
     describe(`vote with ${mode}`, function () {
       beforeEach(async function () {
-        Object.assign(this, await loadFixture(fixture));
+        Object.assign(this, connection, await loadFixture(fixture));
       });
 
       shouldBehaveLikeVotes(AMOUNTS, { mode, fungible: true });

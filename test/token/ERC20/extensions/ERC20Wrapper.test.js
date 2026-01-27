@@ -1,8 +1,12 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { shouldBehaveLikeERC20 } from '../ERC20.behavior';
 
-const { shouldBehaveLikeERC20 } = require('../ERC20.behavior');
+const connection = await network.connect();
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = connection;
 
 const name = 'My Token';
 const symbol = 'MTKN';
@@ -24,7 +28,7 @@ async function fixture() {
 
 describe('ERC20Wrapper', function () {
   beforeEach(async function () {
-    Object.assign(this, await loadFixture(fixture));
+    Object.assign(this, connection, await loadFixture(fixture));
   });
 
   afterEach('Underlying balance', async function () {
@@ -64,11 +68,12 @@ describe('ERC20Wrapper', function () {
         .to.emit(this.token, 'Transfer')
         .withArgs(ethers.ZeroAddress, this.holder, initialSupply);
       await expect(tx).to.changeTokenBalances(
+        ethers,
         this.underlying,
         [this.holder, this.token],
         [-initialSupply, initialSupply],
       );
-      await expect(tx).to.changeTokenBalance(this.token, this.holder, initialSupply);
+      await expect(tx).to.changeTokenBalance(ethers, this.token, this.holder, initialSupply);
     });
 
     it('reverts when missing approval', async function () {
@@ -95,11 +100,12 @@ describe('ERC20Wrapper', function () {
         .to.emit(this.token, 'Transfer')
         .withArgs(ethers.ZeroAddress, this.recipient, initialSupply);
       await expect(tx).to.changeTokenBalances(
+        ethers,
         this.underlying,
         [this.holder, this.token],
         [-initialSupply, initialSupply],
       );
-      await expect(tx).to.changeTokenBalances(this.token, [this.holder, this.recipient], [0, initialSupply]);
+      await expect(tx).to.changeTokenBalances(ethers, this.token, [this.holder, this.recipient], [0, initialSupply]);
     });
 
     it('reverts minting to the wrapper contract', async function () {
@@ -132,8 +138,8 @@ describe('ERC20Wrapper', function () {
         .withArgs(this.token.target, this.holder, value)
         .to.emit(this.token, 'Transfer')
         .withArgs(this.holder, ethers.ZeroAddress, value);
-      await expect(tx).to.changeTokenBalances(this.underlying, [this.token, this.holder], [-value, value]);
-      await expect(tx).to.changeTokenBalance(this.token, this.holder, -value);
+      await expect(tx).to.changeTokenBalances(ethers, this.underlying, [this.token, this.holder], [-value, value]);
+      await expect(tx).to.changeTokenBalance(ethers, this.token, this.holder, -value);
     });
 
     it('entire balance', async function () {
@@ -144,11 +150,12 @@ describe('ERC20Wrapper', function () {
         .to.emit(this.token, 'Transfer')
         .withArgs(this.holder, ethers.ZeroAddress, initialSupply);
       await expect(tx).to.changeTokenBalances(
+        ethers,
         this.underlying,
         [this.token, this.holder],
         [-initialSupply, initialSupply],
       );
-      await expect(tx).to.changeTokenBalance(this.token, this.holder, -initialSupply);
+      await expect(tx).to.changeTokenBalance(ethers, this.token, this.holder, -initialSupply);
     });
 
     it('to other account', async function () {
@@ -159,11 +166,12 @@ describe('ERC20Wrapper', function () {
         .to.emit(this.token, 'Transfer')
         .withArgs(this.holder, ethers.ZeroAddress, initialSupply);
       await expect(tx).to.changeTokenBalances(
+        ethers,
         this.underlying,
         [this.token, this.holder, this.recipient],
         [-initialSupply, 0, initialSupply],
       );
-      await expect(tx).to.changeTokenBalance(this.token, this.holder, -initialSupply);
+      await expect(tx).to.changeTokenBalance(ethers, this.token, this.holder, -initialSupply);
     });
 
     it('reverts withdrawing to the wrapper contract', async function () {
@@ -180,7 +188,7 @@ describe('ERC20Wrapper', function () {
 
       const tx = await this.token.$_recover(this.recipient);
       await expect(tx).to.emit(this.token, 'Transfer').withArgs(ethers.ZeroAddress, this.recipient, 0n);
-      await expect(tx).to.changeTokenBalance(this.token, this.recipient, 0);
+      await expect(tx).to.changeTokenBalance(ethers, this.token, this.recipient, 0);
     });
 
     it('something to recover', async function () {
@@ -188,7 +196,7 @@ describe('ERC20Wrapper', function () {
 
       const tx = await this.token.$_recover(this.recipient);
       await expect(tx).to.emit(this.token, 'Transfer').withArgs(ethers.ZeroAddress, this.recipient, initialSupply);
-      await expect(tx).to.changeTokenBalance(this.token, this.recipient, initialSupply);
+      await expect(tx).to.changeTokenBalance(ethers, this.token, this.recipient, initialSupply);
     });
   });
 

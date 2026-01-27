@@ -1,6 +1,10 @@
-const { ethers, config } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network, config } from 'hardhat';
+import { expect } from 'chai';
+
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.connect();
 
 // [NOTE]
 //
@@ -8,11 +12,13 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 // we have to instantiate the eoa AND the relayer manually using ethers 6.14.0 wallets. This can be improved when
 // @nomicfoundation/hardhat-ethers starts instantiating signers with 7702 support.
 const relayAuthorization = authorization =>
-  ethers.Wallet.fromPhrase(config.networks.hardhat.accounts.mnemonic, ethers.provider).sendTransaction({
-    to: ethers.ZeroAddress,
-    authorizationList: [authorization],
-    gasLimit: 46_000n,
-  });
+  config.networks.default.accounts.mnemonic.get().then(mnemonic =>
+    ethers.Wallet.fromPhrase(mnemonic, ethers.provider).sendTransaction({
+      to: ethers.ZeroAddress,
+      authorizationList: [authorization],
+      gasLimit: 46_000n,
+    }),
+  );
 
 const fixture = async () => {
   const eoa = ethers.Wallet.createRandom(ethers.provider);
