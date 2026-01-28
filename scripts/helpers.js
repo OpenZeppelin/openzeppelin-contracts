@@ -1,2 +1,2 @@
-export * from '../test/helpers/iterate';
-export * from '../test/helpers/strings';
+export * from '../test/helpers/iterate.js';
+export * from '../test/helpers/strings.js';

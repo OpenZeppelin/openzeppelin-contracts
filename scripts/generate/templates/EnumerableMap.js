@@ -1,6 +1,6 @@
-const format = require('../format-lines');
-const { fromBytes32, toBytes32 } = require('./conversion');
-const { MAP_TYPES } = require('./Enumerable.opts');
+import format from '../format-lines.js';
+import { fromBytes32, toBytes32 } from './conversion.js';
+import { MAP_TYPES } from './Enumerable.opts.js';
 
 const header = `\
 pragma solidity ^0.8.24;
@@ -448,7 +448,7 @@ function keys(${name} storage map, uint256 start, uint256 end) internal view ret
 `;
 
 // GENERATE
-module.exports = format(
+export default format(
   header.trimEnd(),
   'library EnumerableMap {',
   format(

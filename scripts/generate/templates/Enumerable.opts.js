@@ -1,4 +1,4 @@
-import { capitalize, mapValues } from '../../helpers';
+import { capitalize, mapValues } from '../../helpers.js';
 
 export const typeDescr = ({ type, size = 0, memory = false }) => {
   memory |= size > 0;
