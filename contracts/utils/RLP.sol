@@ -207,7 +207,8 @@ library RLP {
 
     /// @dev Encode a bytes buffer as RLP.
     function encode(bytes memory input) internal pure returns (bytes memory) {
-        return (input.length == 1 && uint8(input[0]) < SHORT_OFFSET) ? input : _encode(input, SHORT_OFFSET);
+        return
+            (input.length == 1 && uint8(input[0]) < SHORT_OFFSET) ? bytes.concat(input) : _encode(input, SHORT_OFFSET);
     }
 
     /// @dev Encode a string as RLP. Type alias for {encode-bytes-}.
