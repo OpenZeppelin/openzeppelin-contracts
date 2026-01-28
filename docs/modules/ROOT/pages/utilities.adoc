@@ -559,7 +559,7 @@ IMPORTANT: After EIP-2935 activation, it takes 8,191 blocks to completely fill t
 
 The xref:api:utils.adoc#Time[`Time`] library provides helpers for manipulating time-related objects in a type-safe manner. It uses `uint48` for timepoints and `uint32` for durations, helping to reduce gas costs while providing adequate precision.
 
-One of its key features is the `Delay` type, which represents a duration that can automatically change its value at a specified point in the future while maintaining delay guarantees. For example, when reducing a delay value (e.g., from 7 days to 1 day), the change only takes effect after the difference between the old and new delay (i.e. a 6 days) or a minimum setback period, preventing an attacker who gains admin access from immediately reducing security timeouts and executing sensitive operations. This is particularly useful for governance and security mechanisms where timelock periods need to be enforced.
+One of its key features is the `Delay` type, which represents a duration that can automatically change its value at a specified point in the future while maintaining delay guarantees. For example, when reducing a delay value (e.g., from 7 days to 1 day), the change only takes effect after the difference between the old and new delay (i.e., 6 days) or a minimum setback period, preventing an attacker who gains admin access from immediately reducing security timeouts and executing sensitive operations. This is particularly useful for governance and security mechanisms where timelock periods need to be enforced.
 
 Consider this example for using and safely updating Delays:
 [source,solidity]
