@@ -68,14 +68,17 @@ describe('RelayedCall', function () {
       it('target success (with value)', async function () {
         const value = 42n;
 
+        // fund the mock
+        await this.other.sendTransaction({ to: this.mock.target, value });
+
+        // perform relayed call
         const tx = this.mock.$relayCall(
           ethers.Typed.address(this.receiver),
           ethers.Typed.uint256(value),
           ethers.Typed.bytes('0x'),
-          ethers.Typed.overrides({ value }),
         );
 
-        await expect(tx).to.changeEtherBalances(ethers, [this.mock, this.relayer, this.receiver], [0n, 0n, value]);
+        await expect(tx).to.changeEtherBalances(ethers, [this.mock, this.relayer, this.receiver], [-value, 0n, value]);
         await expect(tx).to.emit(this.mock, 'return$relayCall_address_uint256_bytes').withArgs(true, '0x');
       });
 
@@ -101,7 +104,7 @@ describe('RelayedCall', function () {
       ).to.be.revertedWithoutReason(ethers);
     });
 
-    it('input format', async function () {
+    it('relayer input format', async function () {
       // deploy relayer
       await this.mock.$getRelayer();
 
@@ -162,15 +165,18 @@ describe('RelayedCall', function () {
       it('target success (with value)', async function () {
         const value = 42n;
 
+        // fund the mock
+        await this.other.sendTransaction({ to: this.mock.target, value });
+
+        // perform relayed call
         const tx = this.mock.$relayCall(
           ethers.Typed.address(this.receiver),
           ethers.Typed.uint256(value),
           ethers.Typed.bytes('0x'),
           ethers.Typed.bytes32(this.salt),
-          ethers.Typed.overrides({ value }),
         );
 
-        await expect(tx).to.changeEtherBalances(ethers, [this.mock, this.relayer, this.receiver], [0n, 0n, value]);
+        await expect(tx).to.changeEtherBalances(ethers, [this.mock, this.relayer, this.receiver], [-value, 0n, value]);
         await expect(tx).to.emit(this.mock, 'return$relayCall_address_uint256_bytes_bytes32').withArgs(true, '0x');
       });
 
