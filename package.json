@@ -27,8 +27,8 @@
     "version": "scripts/release/version.sh",
     "test": "hardhat test",
     "test:generation": "scripts/checks/generation.sh",
-    "test:inheritance": "npm run compile && scripts/checks/inheritance-ordering.js artifacts/build-info/*",
-    "test:pragma": "npm run compile && scripts/checks/pragma-validity.js artifacts/build-info/*",
+    "test:inheritance": "npm run compile && scripts/checks/inheritance-ordering.js artifacts/build-info/*.output.json",
+    "test:pragma": "npm run compile && scripts/checks/pragma-validity.js artifacts/build-info/*.output.json",
     "coverage": "hardhat test --coverage",
     "gas-report": "hardhat test --gas-stats",
     "slither": "npm run clean && slither ."
