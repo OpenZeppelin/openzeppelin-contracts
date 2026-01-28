@@ -123,6 +123,15 @@ library Memory {
         }
     }
 
+    /// @dev Returns true if the memory occupied by the slice is reserved.
+    function isReserved(Slice self) internal pure returns (bool result) {
+        Memory.Pointer fmp = getFreeMemoryPointer();
+        Memory.Pointer end = forward(_pointer(self), length(self));
+        assembly ("memory-safe") {
+            result := iszero(lt(fmp, end)) // end <= fmp
+        }
+    }
+
     /**
      * @dev Private helper: create a slice from raw values (length and pointer)
      *
