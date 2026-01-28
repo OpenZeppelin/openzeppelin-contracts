@@ -31,10 +31,6 @@ const exposedVersionPragma = '>=0.6.0';
 const defaultPrefix = '$';
 
 // Tasks & Hooks
-export async function cleanExposed(config: HardhatConfig) {
-  await remove(getExposedPath(config));
-}
-
 export async function writeExposed(exposed: Map<string, string>) {
   for (const [fsPath, content] of exposed.entries()) {
     await ensureDir(path.dirname(fsPath));
