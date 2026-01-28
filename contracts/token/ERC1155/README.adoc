@@ -13,6 +13,7 @@ Additionally there are multiple custom extensions, including:
 
 * designation of addresses that can pause token transfers for all users ({ERC1155Pausable}).
 * destruction of own tokens ({ERC1155Burnable}).
+* crosschain bridging of tokens through ERC-7786 gateways ({ERC1155Crosschain}).
 
 NOTE: This core set of contracts is designed to be unopinionated, allowing developers to access the internal functions in ERC-1155 (such as <<ERC1155-_mint-address-uint256-uint256-bytes-,`_mint`>>) and expose them as external functions in the way they prefer.
 
@@ -28,9 +29,11 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 
 == Extensions
 
-{{ERC1155Pausable}}
-
 {{ERC1155Burnable}}
+
+{{ERC1155Crosschain}}
+
+{{ERC1155Pausable}}
 
 {{ERC1155Supply}}
 
