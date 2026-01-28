@@ -1,10 +1,14 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture, mine } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { VoteType } from '../../helpers/enums';
+import { getDomain, OverrideBallot } from '../../helpers/eip712';
+import { GovernorHelper } from '../../helpers/governance';
 
-const { GovernorHelper } = require('../../helpers/governance');
-const { getDomain, OverrideBallot } = require('../../helpers/eip712');
-const { VoteType } = require('../../helpers/enums');
+const connection = await network.connect();
+const {
+  ethers,
+  networkHelpers: { loadFixture, mine },
+} = connection;
 
 const TOKENS = [
   { Token: '$ERC20VotesExtendedMock', mode: 'blocknumber' },
@@ -42,7 +46,7 @@ describe('GovernorCountingOverridable', function () {
       await owner.sendTransaction({ to: mock, value });
       await token.$_mint(owner, tokenSupply);
 
-      const helper = new GovernorHelper(mock, mode);
+      const helper = new GovernorHelper(connection, mock, mode);
       await helper.connect(owner).delegate({ token, to: voter1, value: ethers.parseEther('10') });
       await helper.connect(owner).delegate({ token, to: voter2, value: ethers.parseEther('7') });
       await helper.connect(owner).delegate({ token, to: voter3, value: ethers.parseEther('5') });
@@ -53,7 +57,7 @@ describe('GovernorCountingOverridable', function () {
 
     describe(`using ${Token}`, function () {
       beforeEach(async function () {
-        Object.assign(this, await loadFixture(fixture));
+        Object.assign(this, connection, await loadFixture(fixture));
 
         // default proposal
         this.proposal = this.helper.setProposal(

@@ -1,8 +1,13 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { ImplementationLabel } from '../../helpers/storage';
 
-const { getAddressInSlot, ImplementationSlot } = require('../../helpers/storage');
+const connection = await network.connect();
+const {
+  ethers,
+  helpers: { storage },
+  networkHelpers: { loadFixture },
+} = connection;
 
 async function fixture() {
   const implInitial = await ethers.deployContract('UUPSUpgradeableMock');
@@ -30,7 +35,7 @@ async function fixture() {
 
 describe('UUPSUpgradeable', function () {
   beforeEach(async function () {
-    Object.assign(this, await loadFixture(fixture));
+    Object.assign(this, connection, await loadFixture(fixture));
   });
 
   it('has an interface version', async function () {
@@ -42,7 +47,7 @@ describe('UUPSUpgradeable', function () {
       .to.emit(this.instance, 'Upgraded')
       .withArgs(this.implUpgradeOk);
 
-    expect(await getAddressInSlot(this.instance, ImplementationSlot)).to.equal(this.implUpgradeOk);
+    expect(await storage.getAddressInSlot(this.instance, ImplementationLabel)).to.equal(this.implUpgradeOk);
   });
 
   it('upgrade to upgradeable implementation with call', async function () {
@@ -54,7 +59,7 @@ describe('UUPSUpgradeable', function () {
       .to.emit(this.instance, 'Upgraded')
       .withArgs(this.implUpgradeOk);
 
-    expect(await getAddressInSlot(this.instance, ImplementationSlot)).to.equal(this.implUpgradeOk);
+    expect(await storage.getAddressInSlot(this.instance, ImplementationLabel)).to.equal(this.implUpgradeOk);
 
     expect(await this.instance.current()).to.equal(1n);
   });
@@ -98,7 +103,7 @@ describe('UUPSUpgradeable', function () {
       .to.emit(this.instance, 'Upgraded')
       .withArgs(this.implUpgradeUnsafe);
 
-    expect(await getAddressInSlot(this.instance, ImplementationSlot)).to.equal(this.implUpgradeUnsafe);
+    expect(await storage.getAddressInSlot(this.instance, ImplementationLabel)).to.equal(this.implUpgradeUnsafe);
   });
 
   // delegate to a non existing upgradeTo function causes a low level revert

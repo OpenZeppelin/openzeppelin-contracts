@@ -1,8 +1,12 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { RevertType } = require('../../../helpers/enums');
-const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { PANIC_CODES } from '@nomicfoundation/hardhat-ethers-chai-matchers/panic';
+import { RevertType } from '../../../helpers/enums';
+
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.connect();
 
 const tokenId = 1n;
 
@@ -36,19 +40,22 @@ describe('ERC721Utils', function () {
 
   describe('onERC721Received', function () {
     it('succeeds when called by an EOA', async function () {
-      await expect(this.utils.$checkOnERC721Received(this.operator, this.owner, this.receivers.eoa, tokenId, '0x')).to
-        .not.be.reverted;
+      await expect(
+        this.utils.$checkOnERC721Received(this.operator, this.owner, this.receivers.eoa, tokenId, '0x'),
+      ).to.not.be.revert(ethers);
     });
 
     it('succeeds when data is passed', async function () {
       const data = '0x12345678';
-      await expect(this.utils.$checkOnERC721Received(this.operator, this.owner, this.receivers.correct, tokenId, data))
-        .to.not.be.reverted;
+      await expect(
+        this.utils.$checkOnERC721Received(this.operator, this.owner, this.receivers.correct, tokenId, data),
+      ).to.not.be.revert(ethers);
     });
 
     it('succeeds when data is empty', async function () {
-      await expect(this.utils.$checkOnERC721Received(this.operator, this.owner, this.receivers.correct, tokenId, '0x'))
-        .to.not.be.reverted;
+      await expect(
+        this.utils.$checkOnERC721Received(this.operator, this.owner, this.receivers.correct, tokenId, '0x'),
+      ).to.not.be.revert(ethers);
     });
 
     it('reverts when receiver returns invalid value', async function () {

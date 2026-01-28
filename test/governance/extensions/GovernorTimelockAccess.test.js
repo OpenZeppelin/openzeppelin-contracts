@@ -1,14 +1,18 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { anyValue } = require('@nomicfoundation/hardhat-chai-matchers/withArgs');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { anyValue } from '@nomicfoundation/hardhat-ethers-chai-matchers/withArgs';
+import { hashOperation } from '../../helpers/access-manager';
+import { ProposalState, VoteType } from '../../helpers/enums';
+import { GovernorHelper } from '../../helpers/governance';
+import { max } from '../../helpers/math';
+import { selector } from '../../helpers/methods';
 
-const { GovernorHelper } = require('../../helpers/governance');
-const { hashOperation } = require('../../helpers/access-manager');
-const { max } = require('../../helpers/math');
-const { selector } = require('../../helpers/methods');
-const { ProposalState, VoteType } = require('../../helpers/enums');
-const time = require('../../helpers/time');
+const connection = await network.connect();
+const {
+  ethers,
+  helpers: { time },
+  networkHelpers: { loadFixture },
+} = connection;
 
 function prepareOperation({ sender, target, value = 0n, data = '0x' }) {
   return {
@@ -55,7 +59,7 @@ describe('GovernorTimelockAccess', function () {
       await admin.sendTransaction({ to: mock, value });
       await token.$_mint(admin, tokenSupply);
 
-      const helper = new GovernorHelper(mock, mode);
+      const helper = new GovernorHelper(connection, mock, mode);
       await helper.connect(admin).delegate({ token, to: voter1, value: ethers.parseEther('10') });
       await helper.connect(admin).delegate({ token, to: voter2, value: ethers.parseEther('7') });
       await helper.connect(admin).delegate({ token, to: voter3, value: ethers.parseEther('5') });
@@ -66,7 +70,7 @@ describe('GovernorTimelockAccess', function () {
 
     describe(`using ${Token}`, function () {
       beforeEach(async function () {
-        Object.assign(this, await loadFixture(fixture));
+        Object.assign(this, connection, await loadFixture(fixture));
 
         // restricted proposal
         this.restricted = prepareOperation({
@@ -407,7 +411,7 @@ describe('GovernorTimelockAccess', function () {
         await this.manager.connect(this.admin).grantRole(roleId, this.mock, delay);
 
         // Set proposals
-        const original = new GovernorHelper(this.mock, mode);
+        const original = new GovernorHelper(connection, this.mock, mode);
         await original.setProposal([this.restricted.operation, this.unrestricted.operation], 'descr');
 
         // Go through all the governance process
@@ -424,7 +428,7 @@ describe('GovernorTimelockAccess', function () {
           .cancel(this.mock, this.restricted.operation.target, this.restricted.operation.data);
 
         // Reschedule the same operation in a different proposal to avoid "AccessManagerNotScheduled" error
-        const rescheduled = new GovernorHelper(this.mock, mode);
+        const rescheduled = new GovernorHelper(connection, this.mock, mode);
         await rescheduled.setProposal([this.restricted.operation], 'descr');
         await rescheduled.propose();
         await rescheduled.waitForSnapshot();
@@ -562,7 +566,7 @@ describe('GovernorTimelockAccess', function () {
 
         it('cancels restricted with queueing if the same operation is part of a more recent proposal (internal)', async function () {
           // Set proposals
-          const original = new GovernorHelper(this.mock, mode);
+          const original = new GovernorHelper(connection, this.mock, mode);
           await original.setProposal([this.restricted.operation], 'descr');
 
           // Go through all the governance process
@@ -578,7 +582,7 @@ describe('GovernorTimelockAccess', function () {
             .cancel(this.mock, this.restricted.operation.target, this.restricted.operation.data);
 
           // Another proposal is added with the same operation
-          const rescheduled = new GovernorHelper(this.mock, mode);
+          const rescheduled = new GovernorHelper(connection, this.mock, mode);
           await rescheduled.setProposal([this.restricted.operation], 'another descr');
 
           // Queue the new proposal
@@ -660,8 +664,8 @@ describe('GovernorTimelockAccess', function () {
           const operationAId = hashOperation(this.mock.target, operationA.target, operationA.data);
           const operationBId = hashOperation(this.mock.target, operationB.target, operationB.data);
 
-          const proposal1 = new GovernorHelper(this.mock, mode);
-          const proposal2 = new GovernorHelper(this.mock, mode);
+          const proposal1 = new GovernorHelper(connection, this.mock, mode);
+          const proposal2 = new GovernorHelper(connection, this.mock, mode);
           proposal1.setProposal([operationA, operationB], 'proposal A+B');
           proposal2.setProposal([operationA, operationC], 'proposal A+C');
 

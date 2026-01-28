@@ -1,12 +1,14 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { shouldSupportInterfaces } from '../../../utils/introspection/SupportsInterface.behavior';
 
-const { shouldSupportInterfaces } = require('../../../utils/introspection/SupportsInterface.behavior');
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.connect();
 
 async function fixture() {
-  const token = await ethers.deployContract('$ERC6909Metadata');
-  return { token };
+  return { token: await ethers.deployContract('$ERC6909Metadata') };
 }
 
 describe('ERC6909Metadata', function () {

@@ -1,14 +1,13 @@
-const { ethers, predeploy } = require('hardhat');
-const { expect } = require('chai');
-const { impersonate } = require('../helpers/account');
-const { SIG_VALIDATION_SUCCESS, SIG_VALIDATION_FAILURE } = require('../helpers/erc4337');
-const { shouldSupportInterfaces } = require('../utils/introspection/SupportsInterface.behavior');
+import { ethers } from 'ethers';
+import { expect } from 'chai';
+import { SIG_VALIDATION_SUCCESS, SIG_VALIDATION_FAILURE } from '../helpers/erc4337';
+import { shouldSupportInterfaces } from '../utils/introspection/SupportsInterface.behavior';
 
-function shouldBehaveLikeAccountCore() {
+export function shouldBehaveLikeAccountCore() {
   describe('entryPoint', function () {
     it('should return the canonical entrypoint', async function () {
       await this.mock.deploy();
-      await expect(this.mock.entryPoint()).to.eventually.equal(predeploy.entrypoint.v09);
+      await expect(this.mock.entryPoint()).to.eventually.equal(this.ethers.predeploy.entrypoint.v09);
     });
   });
 
@@ -30,7 +29,9 @@ function shouldBehaveLikeAccountCore() {
 
     describe('when the caller is the canonical entrypoint', function () {
       beforeEach(async function () {
-        this.mockFromEntrypoint = this.mock.connect(await impersonate(predeploy.entrypoint.v09.target));
+        this.mockFromEntrypoint = this.mock.connect(
+          await this.helpers.impersonate(this.ethers.predeploy.entrypoint.v09.target),
+        );
       });
 
       it('should return SIG_VALIDATION_SUCCESS if the signature is valid', async function () {
@@ -59,7 +60,7 @@ function shouldBehaveLikeAccountCore() {
 
         await expect(
           this.mockFromEntrypoint.validateUserOp(operation.packed, operation.hash(), value),
-        ).to.changeEtherBalances([this.mock, predeploy.entrypoint.v09], [-value, value]);
+        ).to.changeEtherBalances(this.ethers, [this.mock, this.ethers.predeploy.entrypoint.v09], [-value, value]);
       });
     });
   });
@@ -70,6 +71,7 @@ function shouldBehaveLikeAccountCore() {
       const value = 42n;
 
       await expect(this.other.sendTransaction({ to: this.mock, value })).to.changeEtherBalances(
+        this.ethers,
         [this.other, this.mock],
         [-value, value],
       );
@@ -77,7 +79,7 @@ function shouldBehaveLikeAccountCore() {
   });
 }
 
-function shouldBehaveLikeAccountHolder() {
+export function shouldBehaveLikeAccountHolder() {
   describe('onReceived', function () {
     beforeEach(async function () {
       await this.mock.deploy();
@@ -91,7 +93,7 @@ function shouldBehaveLikeAccountHolder() {
       const data = '0x12345678';
 
       beforeEach(async function () {
-        this.token = await ethers.deployContract('$ERC1155', ['https://somedomain.com/{id}.json']);
+        this.token = await this.ethers.deployContract('$ERC1155', ['https://somedomain.com/{id}.json']);
         await this.token.$_mintBatch(this.other, ids, values, '0x');
       });
 
@@ -128,7 +130,7 @@ function shouldBehaveLikeAccountHolder() {
       const tokenId = 1n;
 
       beforeEach(async function () {
-        this.token = await ethers.deployContract('$ERC721', ['Some NFT', 'SNFT']);
+        this.token = await this.ethers.deployContract('$ERC721', ['Some NFT', 'SNFT']);
         await this.token.$_mint(this.other, tokenId);
       });
 
@@ -140,5 +142,3 @@ function shouldBehaveLikeAccountHolder() {
     });
   });
 }
-
-module.exports = { shouldBehaveLikeAccountCore, shouldBehaveLikeAccountHolder };

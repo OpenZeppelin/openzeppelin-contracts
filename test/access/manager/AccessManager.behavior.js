@@ -1,6 +1,5 @@
-const { expect } = require('chai');
-
-const {
+import { expect } from 'chai';
+import {
   LIKE_COMMON_IS_EXECUTING,
   LIKE_COMMON_GET_ACCESS,
   LIKE_COMMON_SCHEDULABLE,
@@ -9,14 +8,14 @@ const {
   testAsDelayedOperation,
   testAsCanCall,
   testAsHasRole,
-} = require('./AccessManager.predicate');
+} from './AccessManager.predicate';
 
 // ============ ADMIN OPERATION ============
 
 /**
  * @requires this.{manager,roles,calldata,role}
  */
-function shouldBehaveLikeDelayedAdminOperation() {
+export function shouldBehaveLikeDelayedAdminOperation() {
   const getAccessPath = LIKE_COMMON_GET_ACCESS;
   testAsDelayedOperation.mineDelay = true;
   getAccessPath.requiredRoleIsGranted.roleGrantingIsDelayed.callerHasAnExecutionDelay.afterGrantDelay =
@@ -55,7 +54,7 @@ function shouldBehaveLikeDelayedAdminOperation() {
 /**
  * @requires this.{manager,roles,calldata,role}
  */
-function shouldBehaveLikeNotDelayedAdminOperation() {
+export function shouldBehaveLikeNotDelayedAdminOperation() {
   const getAccessPath = LIKE_COMMON_GET_ACCESS;
 
   function testScheduleOperation(mineDelay) {
@@ -99,7 +98,7 @@ function shouldBehaveLikeNotDelayedAdminOperation() {
 /**
  * @requires this.{manager,roles,calldata,role}
  */
-function shouldBehaveLikeRoleAdminOperation(roleAdmin) {
+export function shouldBehaveLikeRoleAdminOperation(roleAdmin) {
   const getAccessPath = LIKE_COMMON_GET_ACCESS;
 
   function afterGrantDelay() {
@@ -139,7 +138,7 @@ function shouldBehaveLikeRoleAdminOperation(roleAdmin) {
 /**
  * @requires this.{manager,roles,calldata,role}
  */
-function shouldBehaveLikeAManagedRestrictedOperation() {
+export function shouldBehaveLikeAManagedRestrictedOperation() {
   function revertUnauthorized() {
     it('reverts as AccessManagedUnauthorized', async function () {
       await expect(this.caller.sendTransaction({ to: this.target, data: this.calldata }))
@@ -196,7 +195,7 @@ function shouldBehaveLikeAManagedRestrictedOperation() {
 /**
  * @requires this.{target,manager,roles,calldata,role}
  */
-function shouldBehaveLikeASelfRestrictedOperation() {
+export function shouldBehaveLikeASelfRestrictedOperation() {
   function revertUnauthorized() {
     it('reverts as AccessManagerUnauthorizedAccount', async function () {
       await expect(this.caller.sendTransaction({ to: this.target, data: this.calldata }))
@@ -247,11 +246,3 @@ function shouldBehaveLikeASelfRestrictedOperation() {
     },
   });
 }
-
-module.exports = {
-  shouldBehaveLikeDelayedAdminOperation,
-  shouldBehaveLikeNotDelayedAdminOperation,
-  shouldBehaveLikeRoleAdminOperation,
-  shouldBehaveLikeAManagedRestrictedOperation,
-  shouldBehaveLikeASelfRestrictedOperation,
-};

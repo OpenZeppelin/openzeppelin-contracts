@@ -1,10 +1,13 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { generators } from '../helpers/random';
+import { capitalize } from '../../scripts/helpers';
+import { TYPES } from '../../scripts/generate/templates/Arrays.opts';
 
-const { generators } = require('../helpers/random');
-const { capitalize } = require('../../scripts/helpers');
-const { TYPES } = require('../../scripts/generate/templates/Arrays.opts');
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.connect();
 
 // See https://en.cppreference.com/w/cpp/algorithm/lower_bound
 const lowerBound = (array, value) => {
@@ -22,11 +25,11 @@ const bigintSign = x => (x > 0n ? 1 : x < 0n ? -1 : 0);
 const comparator = (a, b) => bigintSign(ethers.toBigInt(a) - ethers.toBigInt(b));
 const hasDuplicates = array => array.some((v, i) => array.indexOf(v) != i);
 
-describe('Arrays', function () {
-  const fixture = async () => {
-    return { mock: await ethers.deployContract('$Arrays') };
-  };
+async function fixture() {
+  return { mock: await ethers.deployContract('$Arrays') };
+}
 
+describe('Arrays', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });

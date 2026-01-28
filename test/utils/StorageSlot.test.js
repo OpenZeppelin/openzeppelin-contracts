@@ -1,7 +1,11 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { generators } = require('../helpers/random');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { generators } from '../helpers/random';
+
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.connect();
 
 const slot = ethers.id('some.storage.slot');
 const otherSlot = ethers.id('some.other.storage.slot');

@@ -1,11 +1,15 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { anyValue } = require('@nomicfoundation/hardhat-chai-matchers/withArgs');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { anyValue } from '@nomicfoundation/hardhat-ethers-chai-matchers/withArgs';
+import { VoteType } from '../../helpers/enums';
+import { GovernorHelper } from '../../helpers/governance';
+import { range } from '../../helpers/iterate';
 
-const { GovernorHelper } = require('../../helpers/governance');
-const { VoteType } = require('../../helpers/enums');
-const iterate = require('../../helpers/iterate');
+const connection = await network.connect();
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = connection;
 
 const TOKENS = [
   { Token: '$ERC20Votes', mode: 'blocknumber' },
@@ -52,7 +56,7 @@ describe('GovernorSequentialProposalId', function () {
       await owner.sendTransaction({ to: mock, value });
       await token.$_mint(owner, tokenSupply);
 
-      const helper = new GovernorHelper(mock, mode);
+      const helper = new GovernorHelper(connection, mock, mode);
       await helper.connect(owner).delegate({ token: token, to: voter1, value: ethers.parseEther('10') });
       await helper.connect(owner).delegate({ token: token, to: voter2, value: ethers.parseEther('7') });
       await helper.connect(owner).delegate({ token: token, to: voter3, value: ethers.parseEther('5') });
@@ -75,7 +79,7 @@ describe('GovernorSequentialProposalId', function () {
 
     describe(`using ${Token}`, function () {
       beforeEach(async function () {
-        Object.assign(this, await loadFixture(fixture));
+        Object.assign(this, connection, await loadFixture(fixture));
 
         this.proposal = this.helper.setProposal(
           [
@@ -90,7 +94,7 @@ describe('GovernorSequentialProposalId', function () {
       });
 
       it('sequential proposal ids', async function () {
-        for (const i of iterate.range(1, 10)) {
+        for (const i of range(1, 10)) {
           this.proposal.description = `<proposal description #${i}>`;
 
           await expect(this.mock.hashProposal(...this.proposal.shortProposal)).to.eventually.equal(this.proposal.hash);
@@ -124,7 +128,7 @@ describe('GovernorSequentialProposalId', function () {
         const offset = 69420;
         await this.mock.$_initializeLatestProposalId(offset);
 
-        for (const i of iterate.range(offset + 1, offset + 10)) {
+        for (const i of range(offset + 1, offset + 10)) {
           this.proposal.description = `<proposal description #${i}>`;
 
           await expect(this.mock.hashProposal(...this.proposal.shortProposal)).to.eventually.equal(this.proposal.hash);

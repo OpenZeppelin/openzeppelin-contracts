@@ -1,8 +1,11 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { MAX_UINT32, MAX_UINT64 } from '../../helpers/constants';
 
-const { MAX_UINT32, MAX_UINT64 } = require('../../helpers/constants');
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.connect();
 
 async function fixture() {
   const [user, other] = await ethers.getSigners();

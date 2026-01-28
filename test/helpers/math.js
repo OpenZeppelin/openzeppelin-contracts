@@ -1,10 +1,10 @@
 // Array of number or bigint
-const max = (...values) => values.slice(1).reduce((x, y) => (x > y ? x : y), values.at(0));
-const min = (...values) => values.slice(1).reduce((x, y) => (x < y ? x : y), values.at(0));
-const sum = (...values) => values.slice(1).reduce((x, y) => x + y, values.at(0));
+export const max = (...values) => values.slice(1).reduce((x, y) => (x > y ? x : y), values.at(0));
+export const min = (...values) => values.slice(1).reduce((x, y) => (x < y ? x : y), values.at(0));
+export const sum = (...values) => values.slice(1).reduce((x, y) => x + y, values.at(0));
 
 // Computes modexp without BigInt overflow for large numbers
-function modExp(b, e, m) {
+export function modExp(b, e, m) {
   let result = 1n;
 
   // If e is a power of two, modexp can be calculated as:
@@ -24,10 +24,3 @@ function modExp(b, e, m) {
 
   return result;
 }
-
-module.exports = {
-  min,
-  max,
-  sum,
-  modExp,
-};

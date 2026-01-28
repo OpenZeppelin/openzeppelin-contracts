@@ -1,7 +1,6 @@
-const { expect } = require('chai');
-const time = require('../../helpers/time');
+import { expect } from 'chai';
 
-function shouldBehaveLikeERC6372(mode = 'blocknumber') {
+export function shouldBehaveLikeERC6372(mode = 'blocknumber') {
   describe(`ERC-6372 behavior in ${mode} mode`, function () {
     beforeEach(async function () {
       this.mock = this.mock ?? this.token ?? this.votes;
@@ -9,7 +8,7 @@ function shouldBehaveLikeERC6372(mode = 'blocknumber') {
 
     it('should have a correct clock value', async function () {
       const currentClock = await this.mock.clock();
-      const expectedClock = await time.clock[mode]();
+      const expectedClock = await this.helpers.time.clock[mode]();
       expect(currentClock).to.equal(expectedClock, `Clock mismatch in ${mode} mode`);
     });
 
@@ -22,7 +21,3 @@ function shouldBehaveLikeERC6372(mode = 'blocknumber') {
     });
   });
 }
-
-module.exports = {
-  shouldBehaveLikeERC6372,
-};

@@ -1,10 +1,14 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { RevertType } from '../../helpers/enums';
+import { zip } from '../../helpers/iterate';
+import { shouldBehaveLikeERC1155 } from './ERC1155.behavior';
 
-const { RevertType } = require('../../helpers/enums');
-const { zip } = require('../../helpers/iterate');
-const { shouldBehaveLikeERC1155 } = require('./ERC1155.behavior');
+const connection = await network.connect();
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = connection;
 
 const initialURI = 'https://token-cdn-domain/{id}.json';
 
@@ -16,7 +20,7 @@ async function fixture() {
 
 describe('ERC1155', function () {
   beforeEach(async function () {
-    Object.assign(this, await loadFixture(fixture));
+    Object.assign(this, connection, await loadFixture(fixture));
   });
 
   shouldBehaveLikeERC1155();

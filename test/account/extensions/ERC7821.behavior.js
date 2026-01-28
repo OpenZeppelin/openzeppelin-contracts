@@ -1,16 +1,16 @@
-const { ethers, predeploy } = require('hardhat');
-const { expect } = require('chai');
+import { ethers } from 'ethers';
+import { expect } from 'chai';
 
-const { CALL_TYPE_BATCH, encodeMode, encodeBatch } = require('../../helpers/erc7579');
+import { CALL_TYPE_BATCH, encodeMode, encodeBatch } from '../../helpers/erc7579';
 
-function shouldBehaveLikeERC7821({ deployable = true } = {}) {
+export function shouldBehaveLikeERC7821({ deployable = true } = {}) {
   describe('supports ERC-7821', function () {
     beforeEach(async function () {
       // give eth to the account (before deployment)
       await this.other.sendTransaction({ to: this.mock.target, value: ethers.parseEther('1') });
 
       // account is not initially deployed
-      await expect(ethers.provider.getCode(this.mock)).to.eventually.equal('0x');
+      await expect(this.mock.runner.provider.getCode(this.mock)).to.eventually.equal('0x');
 
       this.encodeUserOpCalldata = (...calls) =>
         this.mock.interface.encodeFunctionData('execute', [
@@ -50,9 +50,9 @@ function shouldBehaveLikeERC7821({ deployable = true } = {}) {
             .then(op => this.signUserOp(op));
 
           // Can't call the account to get its nonce before it's deployed
-          await expect(predeploy.entrypoint.v09.getNonce(this.mock.target, 0)).to.eventually.equal(0);
-          await expect(predeploy.entrypoint.v09.handleOps([operation.packed], this.beneficiary))
-            .to.emit(predeploy.entrypoint.v09, 'AccountDeployed')
+          await expect(this.ethers.predeploy.entrypoint.v09.getNonce(this.mock.target, 0)).to.eventually.equal(0);
+          await expect(this.ethers.predeploy.entrypoint.v09.handleOps([operation.packed], this.beneficiary))
+            .to.emit(this.ethers.predeploy.entrypoint.v09, 'AccountDeployed')
             .withArgs(operation.hash(), this.mock, this.helper.factory, ethers.ZeroAddress)
             .to.emit(this.target, 'MockFunctionCalledExtra')
             .withArgs(this.mock, 17);
@@ -72,7 +72,9 @@ function shouldBehaveLikeERC7821({ deployable = true } = {}) {
 
           operation.signature = '0x00';
 
-          await expect(predeploy.entrypoint.v09.handleOps([operation.packed], this.beneficiary)).to.be.reverted;
+          await expect(
+            this.ethers.predeploy.entrypoint.v09.handleOps([operation.packed], this.beneficiary),
+          ).to.be.revert(this.ethers);
         });
       });
     }
@@ -94,7 +96,7 @@ function shouldBehaveLikeERC7821({ deployable = true } = {}) {
           .then(op => this.signUserOp(op));
 
         await expect(this.mock.getNonce()).to.eventually.equal(0);
-        await expect(predeploy.entrypoint.v09.handleOps([operation.packed], this.beneficiary))
+        await expect(this.ethers.predeploy.entrypoint.v09.handleOps([operation.packed], this.beneficiary))
           .to.emit(this.target, 'MockFunctionCalledExtra')
           .withArgs(this.mock, 42);
         await expect(this.mock.getNonce()).to.eventually.equal(1);
@@ -106,10 +108,9 @@ function shouldBehaveLikeERC7821({ deployable = true } = {}) {
           .then(op => this.signUserOp(op));
 
         await expect(this.mock.getNonce()).to.eventually.equal(0);
-        await expect(predeploy.entrypoint.v09.handleOps([operation.packed], this.beneficiary)).to.changeEtherBalance(
-          this.other,
-          42,
-        );
+        await expect(
+          this.ethers.predeploy.entrypoint.v09.handleOps([operation.packed], this.beneficiary),
+        ).to.changeEtherBalance(this.ethers, this.other, 42);
         await expect(this.mock.getNonce()).to.eventually.equal(1);
       });
 
@@ -131,15 +132,11 @@ function shouldBehaveLikeERC7821({ deployable = true } = {}) {
           .then(op => this.signUserOp(op));
 
         await expect(this.mock.getNonce()).to.eventually.equal(0);
-        const tx = predeploy.entrypoint.v09.handleOps([operation.packed], this.beneficiary);
-        await expect(tx).to.changeEtherBalances([this.other, this.target], [value1, value2]);
+        const tx = this.ethers.predeploy.entrypoint.v09.handleOps([operation.packed], this.beneficiary);
+        await expect(tx).to.changeEtherBalances(this.ethers, [this.other, this.target], [value1, value2]);
         await expect(tx).to.emit(this.target, 'MockFunctionCalledExtra').withArgs(this.mock, value2);
         await expect(this.mock.getNonce()).to.eventually.equal(1);
       });
     });
   });
 }
-
-module.exports = {
-  shouldBehaveLikeERC7821,
-};

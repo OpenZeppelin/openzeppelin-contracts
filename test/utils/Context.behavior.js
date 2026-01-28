@@ -1,15 +1,6 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { expect } from 'chai';
 
-async function fixture() {
-  return { contextHelper: await ethers.deployContract('ContextMockCaller', []) };
-}
-function shouldBehaveLikeRegularContext() {
-  beforeEach(async function () {
-    Object.assign(this, await loadFixture(fixture));
-  });
-
+export async function shouldBehaveLikeRegularContext() {
   describe('msgSender', function () {
     it('returns the transaction sender when called from an EOA', async function () {
       await expect(this.context.connect(this.sender).msgSender()).to.emit(this.context, 'Sender').withArgs(this.sender);
@@ -42,7 +33,3 @@ function shouldBehaveLikeRegularContext() {
     });
   });
 }
-
-module.exports = {
-  shouldBehaveLikeRegularContext,
-};

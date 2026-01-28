@@ -1,6 +1,6 @@
-const format = require('../format-lines');
-const { capitalize } = require('../../helpers');
-const { OPTS } = require('./Checkpoints.opts.js');
+import format from '../format-lines.js';
+import { capitalize } from '../../helpers.js';
+import { OPTS } from './Checkpoints.opts.js';
 
 // TEMPLATE
 const header = `\
@@ -130,7 +130,7 @@ function testLookup(${opts.keyTypeName}[] memory keys, ${opts.valueTypeName}[] m
 `;
 
 // GENERATE
-module.exports = format(
+export default format(
   header,
   ...OPTS.flatMap(opts => [
     `contract Checkpoints${opts.historyTypeName}Test is Test {`,

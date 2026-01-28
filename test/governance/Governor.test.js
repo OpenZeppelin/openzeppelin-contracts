@@ -1,14 +1,17 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { Ballot, getDomain } from '../helpers/eip712';
+import { ProposalState, VoteType } from '../helpers/enums';
+import { GovernorHelper } from '../helpers/governance';
+import { shouldSupportInterfaces } from '../utils/introspection/SupportsInterface.behavior';
+import { shouldBehaveLikeERC6372 } from './utils/ERC6372.behavior';
 
-const { GovernorHelper } = require('../helpers/governance');
-const { getDomain, Ballot } = require('../helpers/eip712');
-const { ProposalState, VoteType } = require('../helpers/enums');
-const time = require('../helpers/time');
-
-const { shouldSupportInterfaces } = require('../utils/introspection/SupportsInterface.behavior');
-const { shouldBehaveLikeERC6372 } = require('./utils/ERC6372.behavior');
+const connection = await network.connect();
+const {
+  ethers,
+  helpers: { time },
+  networkHelpers: { loadFixture },
+} = connection;
 
 const TOKENS = [
   { Token: '$ERC20Votes', mode: 'blocknumber' },
@@ -59,7 +62,7 @@ describe('Governor', function () {
       await owner.sendTransaction({ to: mock, value });
       await token.$_mint(owner, tokenSupply);
 
-      const helper = new GovernorHelper(mock, mode);
+      const helper = new GovernorHelper(connection, mock, mode);
       await helper.connect(owner).delegate({ token: token, to: voter1, value: ethers.parseEther('10') });
       await helper.connect(owner).delegate({ token: token, to: voter2, value: ethers.parseEther('7') });
       await helper.connect(owner).delegate({ token: token, to: voter3, value: ethers.parseEther('5') });
@@ -82,7 +85,7 @@ describe('Governor', function () {
 
     describe(`using ${Token}`, function () {
       beforeEach(async function () {
-        Object.assign(this, await loadFixture(fixture));
+        Object.assign(this, connection, await loadFixture(fixture));
         // initiate fresh proposal
         this.proposal = this.helper.setProposal(
           [
@@ -194,7 +197,7 @@ describe('Governor', function () {
           await this.helper.connect(this.voter1).vote({ support: VoteType.For });
           await this.helper.waitForDeadline();
           return this.helper.execute();
-        }).to.changeEtherBalances([this.mock, this.userEOA], [-value, value]);
+        }).to.changeEtherBalances(ethers, [this.mock, this.userEOA], [-value, value]);
       });
 
       describe('vote with signature', function () {

@@ -1,9 +1,8 @@
-const { ethers, predeploy } = require('hardhat');
-const { expect } = require('chai');
-const { impersonate } = require('../../helpers/account');
-const { selector } = require('../../helpers/methods');
-const { zip } = require('../../helpers/iterate');
-const {
+import { ethers } from 'ethers';
+import { expect } from 'chai';
+import { selector } from '../../helpers/methods';
+import { zip } from '../../helpers/iterate';
+import {
   encodeMode,
   encodeBatch,
   encodeSingle,
@@ -17,28 +16,36 @@ const {
   CALL_TYPE_DELEGATE,
   EXEC_TYPE_DEFAULT,
   EXEC_TYPE_TRY,
-} = require('../../helpers/erc7579');
+} from '../../helpers/erc7579';
 
 const CALL_TYPE_INVALID = '0x42';
 const EXEC_TYPE_INVALID = '0x17';
 const MODULE_TYPE_INVALID = 999n;
 
-const coder = ethers.AbiCoder.defaultAbiCoder();
-
-function shouldBehaveLikeAccountERC7579({ withHooks = false } = {}) {
+export function shouldBehaveLikeAccountERC7579({ withHooks = false } = {}) {
   describe('AccountERC7579', function () {
     beforeEach(async function () {
       await this.mock.deploy();
       await this.other.sendTransaction({ to: this.mock.target, value: ethers.parseEther('1') });
 
       this.modules = {};
-      this.modules[MODULE_TYPE_VALIDATOR] = await ethers.deployContract('$ERC7579ModuleMock', [MODULE_TYPE_VALIDATOR]);
-      this.modules[MODULE_TYPE_EXECUTOR] = await ethers.deployContract('$ERC7579ModuleMock', [MODULE_TYPE_EXECUTOR]);
-      this.modules[MODULE_TYPE_FALLBACK] = await ethers.deployContract('$ERC7579ModuleMock', [MODULE_TYPE_FALLBACK]);
-      this.modules[MODULE_TYPE_HOOK] = await ethers.deployContract('$ERC7579HookMock');
+      this.modules[MODULE_TYPE_VALIDATOR] = await this.ethers.deployContract('$ERC7579ModuleMock', [
+        MODULE_TYPE_VALIDATOR,
+      ]);
+      this.modules[MODULE_TYPE_EXECUTOR] = await this.ethers.deployContract('$ERC7579ModuleMock', [
+        MODULE_TYPE_EXECUTOR,
+      ]);
+      this.modules[MODULE_TYPE_FALLBACK] = await this.ethers.deployContract('$ERC7579ModuleMock', [
+        MODULE_TYPE_FALLBACK,
+      ]);
+      this.modules[MODULE_TYPE_HOOK] = await this.ethers.deployContract('$ERC7579HookMock');
 
-      this.mockFromEntrypoint = this.mock.connect(await impersonate(predeploy.entrypoint.v09.target));
-      this.mockFromExecutor = this.mock.connect(await impersonate(this.modules[MODULE_TYPE_EXECUTOR].target));
+      this.mockFromEntrypoint = this.mock.connect(
+        await this.helpers.impersonate(this.ethers.predeploy.entrypoint.v09.target),
+      );
+      this.mockFromExecutor = this.mock.connect(
+        await this.helpers.impersonate(this.modules[MODULE_TYPE_EXECUTOR].target),
+      );
     });
 
     describe('accountId', function () {
@@ -196,7 +203,7 @@ function shouldBehaveLikeAccountERC7579({ withHooks = false } = {}) {
 
             await expect(this.mockFromEntrypoint.installModule(MODULE_TYPE_EXECUTOR, instance, initData))
               .to.emit(this.modules[MODULE_TYPE_HOOK], 'PreCheck')
-              .withArgs(predeploy.entrypoint.v09, 0n, precheckData)
+              .withArgs(this.ethers.predeploy.entrypoint.v09, 0n, precheckData)
               .to.emit(this.modules[MODULE_TYPE_HOOK], 'PostCheck')
               .withArgs(precheckData);
           });
@@ -264,7 +271,7 @@ function shouldBehaveLikeAccountERC7579({ withHooks = false } = {}) {
 
       it('should revert uninstalling a module of type MODULE_TYPE_FALLBACK if a different module was installed for the provided selector', async function () {
         const instance = this.modules[MODULE_TYPE_FALLBACK];
-        const anotherInstance = await ethers.deployContract('$ERC7579ModuleMock', [MODULE_TYPE_FALLBACK]);
+        const anotherInstance = await this.ethers.deployContract('$ERC7579ModuleMock', [MODULE_TYPE_FALLBACK]);
         const initData = '0x12345678abcdef';
 
         await this.mockFromEntrypoint.$_installModule(MODULE_TYPE_FALLBACK, instance, initData);
@@ -274,7 +281,7 @@ function shouldBehaveLikeAccountERC7579({ withHooks = false } = {}) {
       });
 
       it('should uninstall a module even if its onUninstall hook reverts', async function () {
-        const maliciousModule = await ethers.deployContract('$ERC7579ModuleMaliciousMock', [MODULE_TYPE_EXECUTOR]);
+        const maliciousModule = await this.ethers.deployContract('$ERC7579ModuleMaliciousMock', [MODULE_TYPE_EXECUTOR]);
 
         // Install the malicious module
         await this.mock.$_installModule(MODULE_TYPE_EXECUTOR, maliciousModule, '0x');
@@ -312,7 +319,7 @@ function shouldBehaveLikeAccountERC7579({ withHooks = false } = {}) {
             await this.mock.$_installModule(MODULE_TYPE_EXECUTOR, instance, initData);
             await expect(this.mockFromEntrypoint.uninstallModule(MODULE_TYPE_EXECUTOR, instance, initData))
               .to.emit(this.modules[MODULE_TYPE_HOOK], 'PreCheck')
-              .withArgs(predeploy.entrypoint.v09, 0n, precheckData)
+              .withArgs(this.ethers.predeploy.entrypoint.v09, 0n, precheckData)
               .to.emit(this.modules[MODULE_TYPE_HOOK], 'PostCheck')
               .withArgs(precheckData);
           });
@@ -362,7 +369,7 @@ function shouldBehaveLikeAccountERC7579({ withHooks = false } = {}) {
               const tx = this[mock][execFn](encodeMode({ callType: CALL_TYPE_CALL }), data);
 
               await expect(tx).to.emit(this.target, 'MockFunctionCalledWithArgs').withArgs(42, '0x1234');
-              await expect(tx).to.changeEtherBalances([this.mock, this.target], [-value, value]);
+              await expect(tx).to.changeEtherBalances(this.ethers, [this.mock, this.target], [-value, value]);
             });
 
             it('reverts when target reverts in default ExecType', async function () {
@@ -392,7 +399,10 @@ function shouldBehaveLikeAccountERC7579({ withHooks = false } = {}) {
                   CALL_TYPE_CALL,
                   ethers.solidityPacked(
                     ['bytes4', 'bytes'],
-                    [selector('Error(string)'), coder.encode(['string'], ['CallReceiverMock: reverting'])],
+                    [
+                      selector('Error(string)'),
+                      ethers.AbiCoder.defaultAbiCoder().encode(['string'], ['CallReceiverMock: reverting']),
+                    ],
                   ),
                 );
             });
@@ -416,6 +426,7 @@ function shouldBehaveLikeAccountERC7579({ withHooks = false } = {}) {
                 .to.emit(this.target, 'MockFunctionCalledWithArgs')
                 .to.emit(this.anotherTarget, 'MockFunctionCalledWithArgs');
               await expect(tx).to.changeEtherBalances(
+                this.ethers,
                 [this.mock, this.target, this.anotherTarget],
                 [-value1 - value2, value1, value2],
               );
@@ -458,11 +469,15 @@ function shouldBehaveLikeAccountERC7579({ withHooks = false } = {}) {
                   CALL_TYPE_BATCH,
                   ethers.solidityPacked(
                     ['bytes4', 'bytes'],
-                    [selector('Error(string)'), coder.encode(['string'], ['CallReceiverMock: reverting'])],
+                    [
+                      selector('Error(string)'),
+                      ethers.AbiCoder.defaultAbiCoder().encode(['string'], ['CallReceiverMock: reverting']),
+                    ],
                   ),
                 );
 
               await expect(tx).to.changeEtherBalances(
+                this.ethers,
                 [this.mock, this.target, this.anotherTarget],
                 [-value1, value1, 0],
               );
@@ -478,9 +493,11 @@ function shouldBehaveLikeAccountERC7579({ withHooks = false } = {}) {
                 this.target.interface.encodeFunctionData('mockFunctionWritesStorage', [slot, value]),
               );
 
-              await expect(ethers.provider.getStorage(this.mock.target, slot)).to.eventually.equal(ethers.ZeroHash);
+              await expect(this.ethers.provider.getStorage(this.mock.target, slot)).to.eventually.equal(
+                ethers.ZeroHash,
+              );
               await this[mock][execFn](encodeMode({ callType: CALL_TYPE_DELEGATE }), data);
-              await expect(ethers.provider.getStorage(this.mock.target, slot)).to.eventually.equal(value);
+              await expect(this.ethers.provider.getStorage(this.mock.target, slot)).to.eventually.equal(value);
             });
 
             it('reverts when target reverts in default ExecType', async function () {
@@ -506,7 +523,10 @@ function shouldBehaveLikeAccountERC7579({ withHooks = false } = {}) {
                   CALL_TYPE_CALL,
                   ethers.solidityPacked(
                     ['bytes4', 'bytes'],
-                    [selector('Error(string)'), coder.encode(['string'], ['CallReceiverMock: reverting'])],
+                    [
+                      selector('Error(string)'),
+                      ethers.AbiCoder.defaultAbiCoder().encode(['string'], ['CallReceiverMock: reverting']),
+                    ],
                   ),
                 );
             });
@@ -519,7 +539,8 @@ function shouldBehaveLikeAccountERC7579({ withHooks = false } = {}) {
               });
 
               it(`should call the hook of the installed module when executing ${execFn}`, async function () {
-                const caller = execFn === 'execute' ? predeploy.entrypoint.v09 : this.modules[MODULE_TYPE_EXECUTOR];
+                const caller =
+                  execFn === 'execute' ? this.ethers.predeploy.entrypoint.v09 : this.modules[MODULE_TYPE_EXECUTOR];
                 const value = 17;
                 const data = this.target.interface.encodeFunctionData('mockFunctionWithArgs', [42, '0x1234']);
 
@@ -534,7 +555,11 @@ function shouldBehaveLikeAccountERC7579({ withHooks = false } = {}) {
                   .withArgs(caller, value, precheckData)
                   .to.emit(this.modules[MODULE_TYPE_HOOK], 'PostCheck')
                   .withArgs(precheckData);
-                await expect(tx).to.changeEtherBalances([caller, this.mock, this.target], [-value, 0n, value]);
+                await expect(tx).to.changeEtherBalances(
+                  this.ethers,
+                  [caller, this.mock, this.target],
+                  [-value, 0n, value],
+                );
               });
             });
         });
@@ -543,7 +568,7 @@ function shouldBehaveLikeAccountERC7579({ withHooks = false } = {}) {
 
     describe('fallback', function () {
       beforeEach(async function () {
-        this.fallbackHandler = await ethers.deployContract('$ERC7579FallbackHandlerMock');
+        this.fallbackHandler = await this.ethers.deployContract('$ERC7579FallbackHandlerMock');
       });
 
       it('reverts if there is no fallback module installed', async function () {
@@ -565,7 +590,7 @@ function shouldBehaveLikeAccountERC7579({ withHooks = false } = {}) {
               this.mock.$_installModule(
                 MODULE_TYPE_FALLBACK,
                 this.fallbackHandler,
-                coder.encode(['bytes4', 'bytes'], [selector, '0x']),
+                ethers.AbiCoder.defaultAbiCoder().encode(['bytes4', 'bytes'], [selector, '0x']),
               ),
             ),
           );
@@ -615,7 +640,3 @@ function shouldBehaveLikeAccountERC7579({ withHooks = false } = {}) {
     });
   });
 }
-
-module.exports = {
-  shouldBehaveLikeAccountERC7579,
-};

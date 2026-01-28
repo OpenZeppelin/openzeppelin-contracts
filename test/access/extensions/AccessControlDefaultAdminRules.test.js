@@ -1,16 +1,19 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-
-const time = require('../../helpers/time');
-
-const {
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import {
   shouldBehaveLikeAccessControl,
   shouldBehaveLikeAccessControlDefaultAdminRules,
-} = require('../AccessControl.behavior');
+} from '../AccessControl.behavior';
+
+const connection = await network.connect();
+const {
+  ethers,
+  helpers,
+  networkHelpers: { loadFixture },
+} = connection;
 
 async function fixture() {
-  const delay = time.duration.hours(10);
+  const delay = helpers.time.duration.hours(10);
   const [defaultAdmin, ...accounts] = await ethers.getSigners();
   const mock = await ethers.deployContract('$AccessControlDefaultAdminRules', [delay, defaultAdmin]);
   return { mock, defaultAdmin, delay, accounts };
@@ -18,7 +21,7 @@ async function fixture() {
 
 describe('AccessControlDefaultAdminRules', function () {
   beforeEach(async function () {
-    Object.assign(this, await loadFixture(fixture));
+    Object.assign(this, connection, await loadFixture(fixture));
   });
 
   it('initial admin not zero', async function () {
@@ -28,5 +31,5 @@ describe('AccessControlDefaultAdminRules', function () {
   });
 
   shouldBehaveLikeAccessControl();
-  shouldBehaveLikeAccessControlDefaultAdminRules();
+  shouldBehaveLikeAccessControlDefaultAdminRules({ helpers });
 });

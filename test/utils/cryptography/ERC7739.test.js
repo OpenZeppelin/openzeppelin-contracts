@@ -1,6 +1,8 @@
-const { ethers } = require('hardhat');
-const { shouldBehaveLikeERC1271 } = require('./ERC1271.behavior');
-const { NonNativeSigner, P256SigningKey, RSASHA256SigningKey } = require('../../helpers/signers');
+import { network } from 'hardhat';
+import { shouldBehaveLikeERC1271 } from './ERC1271.behavior';
+import { NonNativeSigner, P256SigningKey, RSASHA256SigningKey } from '../../helpers/signers';
+
+const { ethers } = await network.connect();
 
 describe('ERC7739', function () {
   describe('for an ECDSA signer', function () {

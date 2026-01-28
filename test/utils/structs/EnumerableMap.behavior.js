@@ -1,9 +1,8 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
+import { ethers } from 'ethers';
+import { expect } from 'chai';
+import { zip } from '../../helpers/iterate';
 
-const zip = (array1, array2) => array1.map((item, index) => [item, array2[index]]);
-
-function shouldBehaveLikeMap() {
+export function shouldBehaveLikeMap() {
   async function expectMembersMatch(methods, keys, values) {
     expect(keys.length).to.equal(values.length);
     expect(await methods.length()).to.equal(keys.length);
@@ -208,7 +207,3 @@ function shouldBehaveLikeMap() {
       }
   });
 }
-
-module.exports = {
-  shouldBehaveLikeMap,
-};

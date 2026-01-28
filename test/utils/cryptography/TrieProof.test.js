@@ -1,12 +1,13 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { spawn } = require('child_process');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { spawn } from 'child_process';
+import { Enum } from '../../helpers/enums';
+import { zip } from '../../helpers/iterate';
+import { generators } from '../../helpers/random';
+import { BlockTries } from '../../helpers/trie';
+import { batchInBlock } from '../../helpers/txpool';
 
-const { Enum } = require('../../helpers/enums');
-const { zip } = require('../../helpers/iterate');
-const { generators } = require('../../helpers/random');
-const { BlockTries } = require('../../helpers/trie');
-const { batchInBlock } = require('../../helpers/txpool');
+const { ethers } = await network.connect();
 
 const ProofError = Enum(
   'NO_ERROR', // No error occurred during proof traversal

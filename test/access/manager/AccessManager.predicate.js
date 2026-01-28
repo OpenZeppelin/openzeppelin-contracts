@@ -1,14 +1,11 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { setStorageAt } = require('@nomicfoundation/hardhat-network-helpers');
+import { ethers } from 'ethers';
+import { expect } from 'chai';
 
-const { EXECUTION_ID_STORAGE_SLOT, EXPIRATION, prepareOperation } = require('../../helpers/access-manager');
-const { impersonate } = require('../../helpers/account');
-const time = require('../../helpers/time');
+import { EXECUTION_ID_STORAGE_SLOT, EXPIRATION, prepareOperation } from '../../helpers/access-manager';
 
 // ============ COMMON PREDICATES ============
 
-const LIKE_COMMON_IS_EXECUTING = {
+export const LIKE_COMMON_IS_EXECUTING = {
   executing() {
     it('succeeds', async function () {
       await this.caller.sendTransaction({ to: this.target, data: this.calldata });
@@ -23,7 +20,7 @@ const LIKE_COMMON_IS_EXECUTING = {
   },
 };
 
-const LIKE_COMMON_GET_ACCESS = {
+export const LIKE_COMMON_GET_ACCESS = {
   requiredRoleIsGranted: {
     roleGrantingIsDelayed: {
       callerHasAnExecutionDelay: {
@@ -77,7 +74,7 @@ const LIKE_COMMON_GET_ACCESS = {
   },
 };
 
-const LIKE_COMMON_SCHEDULABLE = {
+export const LIKE_COMMON_SCHEDULABLE = {
   scheduled: {
     before() {
       it('reverts as AccessManagerNotReady', async function () {
@@ -117,7 +114,7 @@ const LIKE_COMMON_SCHEDULABLE = {
 /**
  * @requires this.{manager,target}
  */
-function testAsClosable({ closed, open }) {
+export function testAsClosable({ closed, open }) {
   describe('when the manager is closed', function () {
     beforeEach('close', async function () {
       await this.manager.$_setTargetClosed(this.target, true);
@@ -140,15 +137,15 @@ function testAsClosable({ closed, open }) {
 /**
  * @requires this.{delay}
  */
-function testAsDelay(type, { before, after }) {
+export function testAsDelay(type, { before, after }) {
   beforeEach('define timestamp when delay takes effect', async function () {
-    const timestamp = await time.clock.timestamp();
+    const timestamp = await this.helpers.time.clock.timestamp();
     this.delayEffect = timestamp + this.delay;
   });
 
   describe(`when ${type} delay has not taken effect yet`, function () {
     beforeEach(`set next block timestamp before ${type} takes effect`, async function () {
-      await time.increaseTo.timestamp(this.delayEffect - 1n, !!before.mineDelay);
+      await this.helpers.time.increaseTo.timestamp(this.delayEffect - 1n, !!before.mineDelay);
     });
 
     before();
@@ -156,7 +153,7 @@ function testAsDelay(type, { before, after }) {
 
   describe(`when ${type} delay has taken effect`, function () {
     beforeEach(`set next block timestamp when ${type} takes effect`, async function () {
-      await time.increaseTo.timestamp(this.delayEffect, !!after.mineDelay);
+      await this.helpers.time.increaseTo.timestamp(this.delayEffect, !!after.mineDelay);
     });
 
     after();
@@ -168,14 +165,13 @@ function testAsDelay(type, { before, after }) {
 /**
  * @requires this.{manager,scheduleIn,caller,target,calldata}
  */
-function testAsSchedulableOperation({ scheduled: { before, after, expired }, notScheduled }) {
+export function testAsSchedulableOperation({ scheduled: { before, after, expired }, notScheduled }) {
   describe('when operation is scheduled', function () {
     beforeEach('schedule operation', async function () {
       if (this.caller.target) {
-        await impersonate(this.caller.target);
-        this.caller = await ethers.getSigner(this.caller.target);
+        this.caller = await this.helpers.impersonate(this.caller.target);
       }
-      const { operationId, schedule } = await prepareOperation(this.manager, {
+      const { operationId, schedule } = await prepareOperation.bind(this)(this.manager, {
         caller: this.caller,
         target: this.target,
         calldata: this.calldata,
@@ -187,9 +183,9 @@ function testAsSchedulableOperation({ scheduled: { before, after, expired }, not
 
     describe('when operation is not ready for execution', function () {
       beforeEach('set next block time before operation is ready', async function () {
-        this.scheduledAt = await time.clock.timestamp();
+        this.scheduledAt = await this.helpers.time.clock.timestamp();
         const schedule = await this.manager.getSchedule(this.operationId);
-        await time.increaseTo.timestamp(schedule - 1n, !!before.mineDelay);
+        await this.helpers.time.increaseTo.timestamp(schedule - 1n, !!before.mineDelay);
       });
 
       before();
@@ -197,9 +193,9 @@ function testAsSchedulableOperation({ scheduled: { before, after, expired }, not
 
     describe('when operation is ready for execution', function () {
       beforeEach('set next block time when operation is ready for execution', async function () {
-        this.scheduledAt = await time.clock.timestamp();
+        this.scheduledAt = await this.helpers.time.clock.timestamp();
         const schedule = await this.manager.getSchedule(this.operationId);
-        await time.increaseTo.timestamp(schedule, !!after.mineDelay);
+        await this.helpers.time.increaseTo.timestamp(schedule, !!after.mineDelay);
       });
 
       after();
@@ -207,9 +203,9 @@ function testAsSchedulableOperation({ scheduled: { before, after, expired }, not
 
     describe('when operation has expired', function () {
       beforeEach('set next block time when operation expired', async function () {
-        this.scheduledAt = await time.clock.timestamp();
+        this.scheduledAt = await this.helpers.time.clock.timestamp();
         const schedule = await this.manager.getSchedule(this.operationId);
-        await time.increaseTo.timestamp(schedule + EXPIRATION, !!expired.mineDelay);
+        await this.helpers.time.increaseTo.timestamp(schedule + EXPIRATION, !!expired.mineDelay);
       });
 
       expired();
@@ -231,13 +227,12 @@ function testAsSchedulableOperation({ scheduled: { before, after, expired }, not
 /**
  * @requires this.{manager,roles,target,calldata}
  */
-function testAsRestrictedOperation({ callerIsTheManager: { executing, notExecuting }, callerIsNotTheManager }) {
+export function testAsRestrictedOperation({ callerIsTheManager: { executing, notExecuting }, callerIsNotTheManager }) {
   describe('when the call comes from the manager (msg.sender == manager)', function () {
     beforeEach('define caller as manager', async function () {
       this.caller = this.manager;
       if (this.caller.target) {
-        await impersonate(this.caller.target);
-        this.caller = await ethers.getSigner(this.caller.target);
+        this.caller = await this.helpers.impersonate(this.caller.target);
       }
     });
 
@@ -249,7 +244,7 @@ function testAsRestrictedOperation({ callerIsTheManager: { executing, notExecuti
             [this.target.target, this.calldata.substring(0, 10)],
           ),
         );
-        await setStorageAt(this.manager.target, EXECUTION_ID_STORAGE_SLOT, executionId);
+        await this.networkHelpers.setStorageAt(this.manager.target, EXECUTION_ID_STORAGE_SLOT, executionId);
       });
 
       executing();
@@ -270,11 +265,11 @@ function testAsRestrictedOperation({ callerIsTheManager: { executing, notExecuti
 /**
  * @requires this.{manager,scheduleIn,caller,target,calldata,executionDelay}
  */
-function testAsDelayedOperation() {
+export function testAsDelayedOperation() {
   describe('with operation delay', function () {
     describe('when operation delay is greater than execution delay', function () {
       beforeEach('set operation delay', async function () {
-        this.operationDelay = this.executionDelay + time.duration.hours(1);
+        this.operationDelay = this.executionDelay + this.helpers.time.duration.hours(1);
         await this.manager.$_setTargetAdminDelay(this.target, this.operationDelay);
         this.scheduleIn = this.operationDelay; // For testAsSchedulableOperation
       });
@@ -284,7 +279,7 @@ function testAsDelayedOperation() {
 
     describe('when operation delay is shorter than execution delay', function () {
       beforeEach('set operation delay', async function () {
-        this.operationDelay = this.executionDelay - time.duration.hours(1);
+        this.operationDelay = this.executionDelay - this.helpers.time.duration.hours(1);
         await this.manager.$_setTargetAdminDelay(this.target, this.operationDelay);
         this.scheduleIn = this.executionDelay; // For testAsSchedulableOperation
       });
@@ -309,7 +304,7 @@ function testAsDelayedOperation() {
 /**
  * @requires this.{manager,roles,role,target,calldata}
  */
-function testAsCanCall({
+export function testAsCanCall({
   closed,
   open: {
     callerIsTheManager,
@@ -335,7 +330,7 @@ function testAsCanCall({
 /**
  * @requires this.{target,calldata,roles,role}
  */
-function testAsHasRole({ publicRoleIsRequired, specificRoleIsRequired }) {
+export function testAsHasRole({ publicRoleIsRequired, specificRoleIsRequired }) {
   describe('when the function requires the caller to be granted with the PUBLIC_ROLE', function () {
     beforeEach('set target function role as PUBLIC_ROLE', async function () {
       this.role = this.roles.PUBLIC;
@@ -361,7 +356,7 @@ function testAsHasRole({ publicRoleIsRequired, specificRoleIsRequired }) {
 /**
  * @requires this.{manager,role,caller}
  */
-function testAsGetAccess({
+export function testAsGetAccess({
   requiredRoleIsGranted: {
     roleGrantingIsDelayed: {
       // Because both grant and execution delay are set within the same $_grantRole call
@@ -379,13 +374,13 @@ function testAsGetAccess({
   describe('when the required role is granted to the caller', function () {
     describe('when role granting is delayed', function () {
       beforeEach('define delay', function () {
-        this.grantDelay = time.duration.minutes(3);
+        this.grantDelay = this.helpers.time.duration.minutes(3);
         this.delay = this.grantDelay; // For testAsDelay
       });
 
       describe('when caller has an execution delay', function () {
         beforeEach('set role and delay', async function () {
-          this.executionDelay = time.duration.hours(10);
+          this.executionDelay = this.helpers.time.duration.hours(10);
           this.delay = this.grantDelay;
           await this.manager.$_grantRole(this.role.id, this.caller, this.grantDelay, this.executionDelay);
         });
@@ -410,7 +405,7 @@ function testAsGetAccess({
 
       describe('when caller has an execution delay', function () {
         beforeEach('set role and delay', async function () {
-          this.executionDelay = time.duration.hours(10);
+          this.executionDelay = this.helpers.time.duration.hours(10);
           await this.manager.$_grantRole(this.role.id, this.caller, this.grantDelay, this.executionDelay);
         });
 
@@ -440,17 +435,3 @@ function testAsGetAccess({
     requiredRoleIsNotGranted();
   });
 }
-
-module.exports = {
-  LIKE_COMMON_IS_EXECUTING,
-  LIKE_COMMON_GET_ACCESS,
-  LIKE_COMMON_SCHEDULABLE,
-  testAsClosable,
-  testAsDelay,
-  testAsSchedulableOperation,
-  testAsRestrictedOperation,
-  testAsDelayedOperation,
-  testAsCanCall,
-  testAsHasRole,
-  testAsGetAccess,
-};

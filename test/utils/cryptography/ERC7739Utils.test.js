@@ -1,9 +1,12 @@
-const { expect } = require('chai');
-const { ethers } = require('hardhat');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { Permit } from '../../helpers/eip712';
+import { ERC4337Utils, PersonalSign } from '../../helpers/erc7739';
 
-const { Permit } = require('../../helpers/eip712');
-const { ERC4337Utils, PersonalSign } = require('../../helpers/erc7739');
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.connect();
 
 const details = ERC4337Utils.getContentsDetail({ Permit });
 

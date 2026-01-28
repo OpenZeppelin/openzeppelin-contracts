@@ -1,9 +1,11 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { bytes, bytes32 } = ethers.Typed;
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { parse } from './RSA.helper';
 
-const parse = require('./RSA.helper');
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.connect();
 
 async function fixture() {
   return { mock: await ethers.deployContract('$RSA') };
@@ -17,7 +19,7 @@ describe('RSA', function () {
   // Load test cases from file SigVer15_186-3.rsp from:
   // https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Algorithm-Validation-Program/documents/dss/186-2rsatestvectors.zip
   describe('SigVer15_186-3.rsp tests', function () {
-    for (const test of parse('SigVer15_186-3.rsp')) {
+    for (const test of parse('./test/utils/cryptography/SigVer15_186-3.rsp')) {
       const { length } = Buffer.from(test.S, 'hex');
 
       /// For now, RSA only supports digest that are 32bytes long. If we ever extend that, we can use these hashing functions for @noble:
@@ -34,8 +36,10 @@ describe('RSA', function () {
           const exp = ethers.stripZerosLeft('0x' + test.e); // strip zeros to reduce gas cost of the precompile
           const mod = '0x' + test.n;
 
-          expect(await this.mock.$pkcs1Sha256(bytes32(ethers.sha256(data)), sig, exp, mod)).to.equal(result);
-          expect(await this.mock.$pkcs1Sha256(bytes(data), sig, exp, mod)).to.equal(result);
+          expect(await this.mock.$pkcs1Sha256(ethers.Typed.bytes32(ethers.sha256(data)), sig, exp, mod)).to.equal(
+            result,
+          );
+          expect(await this.mock.$pkcs1Sha256(ethers.Typed.bytes(data), sig, exp, mod)).to.equal(result);
         });
       }
     }
@@ -95,7 +99,7 @@ describe('RSA', function () {
 
     for (const { descr, data, sig, exp, mod, result } of [openssl, rfc4055, shortN, differentLength, sTooLarge]) {
       it(descr, async function () {
-        expect(await this.mock.$pkcs1Sha256(bytes(data), sig, exp, mod)).to.equal(result);
+        expect(await this.mock.$pkcs1Sha256(ethers.Typed.bytes(data), sig, exp, mod)).to.equal(result);
       });
     }
   });

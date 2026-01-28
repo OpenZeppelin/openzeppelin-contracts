@@ -1,9 +1,9 @@
-const { ethers } = require('ethers');
-const { secp256r1 } = require('@noble/curves/p256');
-const { generateKeyPairSync, privateEncrypt } = require('crypto');
+import { ethers } from 'ethers';
+import { secp256r1 } from '@noble/curves/p256';
+import { generateKeyPairSync, privateEncrypt } from 'crypto';
 
 // Lightweight version of BaseWallet
-class NonNativeSigner extends ethers.AbstractSigner {
+export class NonNativeSigner extends ethers.AbstractSigner {
   #signingKey;
 
   constructor(privateKey, provider) {
@@ -60,7 +60,7 @@ class NonNativeSigner extends ethers.AbstractSigner {
   }
 }
 
-class P256SigningKey {
+export class P256SigningKey {
   #privateKey;
 
   constructor(privateKey) {
@@ -96,7 +96,7 @@ class P256SigningKey {
   }
 }
 
-class RSASigningKey {
+export class RSASigningKey {
   #privateKey;
   #publicKey;
 
@@ -132,14 +132,14 @@ class RSASigningKey {
   }
 }
 
-class RSASHA256SigningKey extends RSASigningKey {
+export class RSASHA256SigningKey extends RSASigningKey {
   sign(digest /*: BytesLike*/) /*: ethers.Signature*/ {
     ethers.assertArgument(ethers.dataLength(digest) === 32, 'invalid digest length', 'digest', digest);
     return super.sign(ethers.sha256(ethers.getBytes(digest)));
   }
 }
 
-class WebAuthnSigningKey extends P256SigningKey {
+export class WebAuthnSigningKey extends P256SigningKey {
   sign(digest /*: BytesLike*/) /*: { serialized: string } */ {
     ethers.assertArgument(ethers.dataLength(digest) === 32, 'invalid digest length', 'digest', digest);
 
@@ -175,7 +175,7 @@ class WebAuthnSigningKey extends P256SigningKey {
   }
 }
 
-class MultiERC7913SigningKey {
+export class MultiERC7913SigningKey {
   // this is a sorted array of objects that contain {signer, weight}
   #signers;
 
@@ -211,12 +211,3 @@ class MultiERC7913SigningKey {
     };
   }
 }
-
-module.exports = {
-  NonNativeSigner,
-  P256SigningKey,
-  RSASigningKey,
-  RSASHA256SigningKey,
-  WebAuthnSigningKey,
-  MultiERC7913SigningKey,
-};

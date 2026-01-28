@@ -1,8 +1,12 @@
-const { ethers } = require('hardhat');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { shouldBehaveLikeProxy } from '../Proxy.behaviour';
+import { shouldBehaveLikeTransparentUpgradeableProxy } from './TransparentUpgradeableProxy.behaviour';
 
-const shouldBehaveLikeProxy = require('../Proxy.behaviour');
-const shouldBehaveLikeTransparentUpgradeableProxy = require('./TransparentUpgradeableProxy.behaviour');
+const connection = await network.connect();
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = connection;
 
 async function fixture() {
   const [owner, other, ...accounts] = await ethers.getSigners();
@@ -17,6 +21,10 @@ async function fixture() {
 }
 
 describe('TransparentUpgradeableProxy', function () {
+  before(function () {
+    Object.assign(this, connection);
+  });
+
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });

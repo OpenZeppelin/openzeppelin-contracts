@@ -1,9 +1,8 @@
 // The following listing does not pretend to be exhaustive or even accurate. It SHOULD NOT be used in production.
 
-const { ethers } = require('hardhat');
-const { mapValues } = require('./iterate');
-
-const { addressCoder } = require('interoperable-addresses');
+import { ethers } from 'ethers';
+import { addressCoder } from 'interoperable-addresses';
+import { mapValues } from './iterate';
 
 // EVM (https://axelarscan.io/resources/chains?type=evm)
 const ethereum = {
@@ -43,14 +42,15 @@ const format = ({ namespace, reference }) => ({
     addressCoder.encode({ chainType: namespace, reference, address: other.target ?? other.address ?? other }),
 });
 
-module.exports = {
-  CHAINS: mapValues(
-    Object.assign(
-      mapValues(ethereum, reference => ({ namespace: 'eip155', reference })),
-      mapValues(solana, reference => ({ namespace: 'solana', reference })),
-    ),
-    format,
+export const CHAINS = mapValues(
+  Object.assign(
+    mapValues(ethereum, reference => ({ namespace: 'eip155', reference })),
+    mapValues(solana, reference => ({ namespace: 'solana', reference })),
   ),
-  getLocalChain: () =>
-    ethers.provider.getNetwork().then(({ chainId }) => format({ namespace: 'eip155', reference: chainId })),
-};
+  format,
+);
+
+export const getLocalChain = provider =>
+  provider
+    .send('eth_chainId', [])
+    .then(chainId => format({ namespace: 'eip155', reference: ethers.toBigInt(chainId) }));

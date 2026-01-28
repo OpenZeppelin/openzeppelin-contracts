@@ -1,11 +1,14 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { min } from '../helpers/math';
+import { envSetup, shouldBehaveLikeVesting } from './VestingWallet.behavior';
 
-const { min } = require('../helpers/math');
-const time = require('../helpers/time');
-
-const { envSetup, shouldBehaveLikeVesting } = require('./VestingWallet.behavior');
+const connection = await network.connect();
+const {
+  ethers,
+  helpers: { time },
+  networkHelpers: { loadFixture },
+} = connection;
 
 async function fixture() {
   const amount = ethers.parseEther('100');
@@ -19,7 +22,7 @@ async function fixture() {
   await token.$_mint(mock, amount);
   await sender.sendTransaction({ to: mock, value: amount });
 
-  const env = await envSetup(mock, beneficiary, token);
+  const env = await envSetup(connection, mock, beneficiary, token);
 
   const schedule = Array.from({ length: 64 }, (_, i) => (BigInt(i) * duration) / 60n + start);
   const vestingFn = timestamp => min(amount, (amount * (timestamp - start)) / duration);
@@ -29,7 +32,7 @@ async function fixture() {
 
 describe('VestingWallet', function () {
   beforeEach(async function () {
-    Object.assign(this, await loadFixture(fixture));
+    Object.assign(this, connection, await loadFixture(fixture));
   });
 
   it('rejects zero address for beneficiary', async function () {

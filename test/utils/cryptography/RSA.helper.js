@@ -1,9 +1,8 @@
-const path = require('path');
-const fs = require('fs');
+import fs from 'fs';
 
-module.exports = function* parse(file) {
+export function* parse(file) {
   const cache = {};
-  const data = fs.readFileSync(path.resolve(__dirname, file), 'utf8');
+  const data = fs.readFileSync(file, 'utf8');
   for (const line of data.split('\r\n')) {
     const groups = line.match(/^(?<key>\w+) = (?<value>\w+)(?<extra>.*)$/)?.groups;
     if (groups) {
@@ -14,4 +13,4 @@ module.exports = function* parse(file) {
       }
     }
   }
-};
+}

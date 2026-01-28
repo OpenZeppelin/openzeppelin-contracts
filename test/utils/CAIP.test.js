@@ -1,11 +1,13 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { CHAINS, getLocalChain } from '../helpers/chains';
+import { generators } from '../helpers/random';
 
-const { CHAINS, getLocalChain } = require('../helpers/chains');
+const { ethers } = await network.connect();
 
 describe('CAIP utilities', function () {
   before(async function () {
-    this.local = await getLocalChain();
+    this.local = await getLocalChain(ethers.provider);
   });
 
   describe('CAIP-2', function () {
@@ -30,7 +32,7 @@ describe('CAIP utilities', function () {
   });
 
   describe('CAIP-10', function () {
-    const { address: account } = ethers.Wallet.createRandom();
+    const account = generators.address();
 
     before(async function () {
       this.mock = await ethers.deployContract('$CAIP10');
