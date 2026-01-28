@@ -169,7 +169,7 @@ describe('ERC721Wrapper', function () {
         .withArgs(this.other);
     });
 
-    it('mints a token to from', async function () {
+    it('mints a token from deposit', async function () {
       await expect(this.underlying.connect(this.owner).safeTransferFrom(this.owner, this.token, tokenId))
         .to.emit(this.token, 'Transfer')
         .withArgs(ethers.ZeroAddress, this.owner, tokenId);
