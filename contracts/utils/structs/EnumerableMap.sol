@@ -184,11 +184,7 @@ library EnumerableMap {
      * this function has an unbounded cost, and using it as part of a state-changing function may render the function
      * uncallable if the map grows to a point where copying to memory consumes too much gas to fit in a block.
      */
-    function keys(
-        Bytes32ToBytes32Map storage map,
-        uint256 start,
-        uint256 end
-    ) internal view returns (bytes32[] memory) {
+    function keys(Bytes32ToBytes32Map storage map, uint256 start, uint256 end) internal view returns (bytes32[] memory) {
         return map._keys.values(start, end);
     }
 
@@ -796,11 +792,7 @@ library EnumerableMap {
      * this function has an unbounded cost, and using it as part of a state-changing function may render the function
      * uncallable if the map grows to a point where copying to memory consumes too much gas to fit in a block.
      */
-    function keys(
-        AddressToAddressMap storage map,
-        uint256 start,
-        uint256 end
-    ) internal view returns (address[] memory) {
+    function keys(AddressToAddressMap storage map, uint256 start, uint256 end) internal view returns (address[] memory) {
         bytes32[] memory store = keys(map._inner, start, end);
         address[] memory result;
 
@@ -923,11 +915,7 @@ library EnumerableMap {
      * this function has an unbounded cost, and using it as part of a state-changing function may render the function
      * uncallable if the map grows to a point where copying to memory consumes too much gas to fit in a block.
      */
-    function keys(
-        AddressToBytes32Map storage map,
-        uint256 start,
-        uint256 end
-    ) internal view returns (address[] memory) {
+    function keys(AddressToBytes32Map storage map, uint256 start, uint256 end) internal view returns (address[] memory) {
         bytes32[] memory store = keys(map._inner, start, end);
         address[] memory result;
 
@@ -1173,11 +1161,7 @@ library EnumerableMap {
      * this function has an unbounded cost, and using it as part of a state-changing function may render the function
      * uncallable if the map grows to a point where copying to memory consumes too much gas to fit in a block.
      */
-    function keys(
-        Bytes32ToAddressMap storage map,
-        uint256 start,
-        uint256 end
-    ) internal view returns (bytes32[] memory) {
+    function keys(Bytes32ToAddressMap storage map, uint256 start, uint256 end) internal view returns (bytes32[] memory) {
         bytes32[] memory store = keys(map._inner, start, end);
         bytes32[] memory result;
 
