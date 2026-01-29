@@ -16,6 +16,9 @@ import {CrosschainLinked} from "../CrosschainLinked.sol";
  *
  * This base contract is used by the {BridgeERC1155}, which interfaces with legacy ERC-1155 tokens. It is also used by
  * the {ERC1155Crosschain} extension, which embeds the bridge logic directly in the token contract.
+ *
+ * This base contract implements the crosschain transfer operation though internal functions. It is for the the "child
+ * contracts" that inherit from this to implement the external interfaces and make this functions accessible.
  */
 abstract contract BridgeERC1155Core is Context, CrosschainLinked {
     using InteroperableAddress for bytes;
@@ -67,6 +70,8 @@ abstract contract BridgeERC1155Core is Context, CrosschainLinked {
         bytes calldata /*sender*/,
         bytes calldata payload
     ) internal virtual override {
+        // NOTE: Gateway is validated by {_isAuthorizedGateway} (implemented in {CrosschainLinked}). No need to check here.
+
         // split payload
         (bytes memory from, bytes memory toBinary, uint256[] memory ids, uint256[] memory values) = abi.decode(
             payload,

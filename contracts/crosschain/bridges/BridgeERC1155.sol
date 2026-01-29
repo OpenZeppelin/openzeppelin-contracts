@@ -84,7 +84,7 @@ abstract contract BridgeERC1155 is BridgeERC1155Core, ERC1155Holder {
         return
             msg.sender == address(_token) && operator == address(this)
                 ? IERC1155Receiver.onERC1155Received.selector
-                : bytes4(0xffffffff);
+                : bytes4(0);
     }
 
     /// @dev Support receiving tokens only if the transfer was initiated by the bridge itself.
