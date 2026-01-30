@@ -9,7 +9,7 @@ const hardhatExposedPlugin: HardhatPlugin = {
     config: () => import('./hook-handlers/config.js'),
     hre: () => import('./hook-handlers/hre.js'),
   },
-  npmPackage: 'hardhat-exposed',
+  npmPackage: null,
 };
 
 export default hardhatExposedPlugin;
