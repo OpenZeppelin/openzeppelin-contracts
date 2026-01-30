@@ -133,7 +133,7 @@ describe('Arrays', function () {
 
       if (isValueType) {
         describe('sort', function () {
-          for (const length of [0, 1, 2, 8, 32, 128]) {
+          for (const length of [0, 1, 2, 8, 32, 128, 384]) {
             describe(`${name}[] of length ${length}`, function () {
               beforeEach(async function () {
                 this.array = Array.from({ length }, generators[name]);
