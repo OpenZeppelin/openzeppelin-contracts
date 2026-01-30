@@ -20,12 +20,14 @@ if [ $build_info_num -ne 1 ]; then
   echo "found $build_info_num relevant build info files but expected just 1"
   exit 1
 fi
-paths="$(node <<EOF
+
+paths="$(node <<'EOF'
   import { config } from "hardhat";
   const { paths } = config;
   paths.sources = paths.sources.solidity[0];
   console.log(JSON.stringify(paths))
-EOF)"
+EOF
+)"
 
 # -D: delete original and excluded files
 # -b: use this build info file
