@@ -8,6 +8,7 @@ import hardhatMocha from '@nomicfoundation/hardhat-mocha';
 import hardhatNetworkHelpers from '@nomicfoundation/hardhat-network-helpers';
 import hardhatPredeploy from 'hardhat-predeploy';
 import hardhatExposed from './hardhat/hardhat-exposed/plugin.ts';
+import hardhatTranspiler from './hardhat/hardhat-transpiler/plugin.ts';
 import hardhatOzContractsHelpers from './hardhat/hardhat-oz-contracts-helpers/plugin.ts';
 import './hardhat/async-test-sanity.js';
 
@@ -36,6 +37,7 @@ export default defineConfig({
     hardhatPredeploy,
     // Local plugins
     hardhatExposed,
+    hardhatTranspiler,
     hardhatOzContractsHelpers,
   ],
   paths: {
