@@ -13,11 +13,10 @@ const prepareSignature = (
     p256.getPublicKey(privateKey, false).slice(0x01, 0x21),
     p256.getPublicKey(privateKey, false).slice(0x21, 0x41),
   ].map(ethers.hexlify);
-  const { r, s, recovery } = p256.Signature.fromBytes(
-    p256.sign(ethers.getBytesCopy(messageHash), privateKey, { prehash: false, format: 'recovered' }),
-    'recovered',
-  );
-  const signature = [r, s].map(v => ethers.toBeHex(v, 0x20));
+
+  const rawSignature = p256.sign(ethers.getBytes(messageHash), privateKey, { prehash: false, format: 'recovered' });
+  const signature = [ethers.hexlify(rawSignature.slice(0x01, 0x21)), ethers.hexlify(rawSignature.slice(0x21, 0x41))];
+  const recovery = rawSignature[0];
 
   return { privateKey, publicKey, signature, recovery, messageHash };
 };
