@@ -86,9 +86,8 @@ class P256SigningKey {
   sign(digest /*: BytesLike*/) /*: ethers.Signature*/ {
     ethers.assertArgument(ethers.dataLength(digest) === 32, 'invalid digest length', 'digest', digest);
 
-    const { r, s, recovery } = p256.Signature.fromBytes(
+    const sig = p256.Signature.fromBytes(
       p256.sign(ethers.getBytesCopy(digest), ethers.getBytesCopy(this.#privateKey), {
-        lowS: true,
         prehash: false,
         format: 'recovered',
       }),
@@ -96,9 +95,9 @@ class P256SigningKey {
     );
 
     return ethers.Signature.from({
-      r: ethers.toBeHex(r, 32),
-      s: ethers.toBeHex(s, 32),
-      v: recovery ? 0x1c : 0x1b,
+      r: ethers.toBeHex(sig.r, 32),
+      s: ethers.toBeHex(sig.s, 32),
+      v: sig.recovery ? 0x1c : 0x1b,
     });
   }
 }

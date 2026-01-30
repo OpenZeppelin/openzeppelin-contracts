@@ -5,16 +5,6 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const N = 0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551n;
 
-// As in ECDSA, signatures are malleable and the tooling produce both high and low S values.
-// We need to ensure that the s value is in the lower half of the order of the curve.
-const ensureLowerOrderS = ({ s, recovery, ...rest }) => {
-  if (s > N / 2n) {
-    s = N - s;
-    recovery = 1 - recovery;
-  }
-  return { s, recovery, ...rest };
-};
-
 const prepareSignature = (
   privateKey = p256.utils.randomSecretKey(),
   messageHash = ethers.hexlify(ethers.randomBytes(0x20)),
@@ -23,11 +13,9 @@ const prepareSignature = (
     p256.getPublicKey(privateKey, false).slice(0x01, 0x21),
     p256.getPublicKey(privateKey, false).slice(0x21, 0x41),
   ].map(ethers.hexlify);
-  const { r, s, recovery } = ensureLowerOrderS(
-    p256.Signature.fromBytes(
-      p256.sign(ethers.getBytesCopy(messageHash), privateKey, { prehash: false, format: 'recovered' }),
-      'recovered',
-    ),
+  const { r, s, recovery } = p256.Signature.fromBytes(
+    p256.sign(ethers.getBytesCopy(messageHash), privateKey, { prehash: false, format: 'recovered' }),
+    'recovered',
   );
   const signature = [r, s].map(v => ethers.toBeHex(v, 0x20));
 
