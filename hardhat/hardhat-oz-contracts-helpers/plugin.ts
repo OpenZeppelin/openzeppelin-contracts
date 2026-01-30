@@ -1,12 +1,12 @@
 import type { HardhatPlugin } from 'hardhat/types/plugins';
 
-import type {} from './type-extensions.js';
+import type {} from './type-extensions.ts';
 
 const hardhatOzContractsHelpers: HardhatPlugin = {
   id: 'hardhat-oz-contracts-helpers',
   hookHandlers: {
-    hre: () => import('./hook-handlers/hre.js'),
-    network: () => import('./hook-handlers/network.js'),
+    hre: () => import('./hook-handlers/hre.ts'),
+    network: () => import('./hook-handlers/network.ts'),
   },
   dependencies: () => [import('@nomicfoundation/hardhat-ethers')],
   npmPackage: null,

@@ -22,7 +22,7 @@ import type { ASTDereferencer } from 'solidity-ast/utils.js';
 import { findAll, astDereferencer } from 'solidity-ast/utils.js';
 
 // Exposed code generation
-import { formatLines, Lines, spaceBetween } from './format-lines';
+import { formatLines, type Lines, spaceBetween } from './format-lines.ts';
 
 type ContractFilter = (node: ContractDefinition) => boolean;
 type ResolvedFile = { fsPath: string; content: string };

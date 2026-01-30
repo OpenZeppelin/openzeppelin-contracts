@@ -7,8 +7,8 @@ import hardhatIgnoreWarnings from 'hardhat-ignore-warnings';
 import hardhatMocha from '@nomicfoundation/hardhat-mocha';
 import hardhatNetworkHelpers from '@nomicfoundation/hardhat-network-helpers';
 import hardhatPredeploy from 'hardhat-predeploy';
-import hardhatExposed from './hardhat/hardhat-exposed/plugin.js';
-import hardhatOzContractsHelpers from './hardhat/hardhat-oz-contracts-helpers/plugin.js';
+import hardhatExposed from './hardhat/hardhat-exposed/plugin.ts';
+import hardhatOzContractsHelpers from './hardhat/hardhat-oz-contracts-helpers/plugin.ts';
 import './hardhat/async-test-sanity.js';
 
 // Parameters

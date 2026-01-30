@@ -5,7 +5,7 @@ import type { HardhatRuntimeEnvironment } from 'hardhat/types/hre';
 import type { BuildOptions, SolidityBuildSystem } from 'hardhat/types/solidity';
 import { createSpinner } from '@nomicfoundation/hardhat-utils/spinner';
 
-import { getExposed, writeExposed } from '../core';
+import { getExposed, writeExposed } from '../core/index.ts';
 
 const overrideBuild =
   (context: HookContext, runSuper: SolidityBuildSystem['build']) =>
