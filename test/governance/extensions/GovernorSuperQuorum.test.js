@@ -134,7 +134,7 @@ describe('GovernorSuperQuorum', function () {
         await this.helper.connect(this.voter2).vote({ support: VoteType.Against });
         await this.helper.connect(this.voter3).vote({ support: VoteType.Against });
 
-        // Vote for with voter1 (40) (reaching super quorum)
+        // Vote with voter1 for (40) (reaching super quorum)
         await this.helper.connect(this.voter1).vote({ support: VoteType.For });
 
         // should be active since super quorum is reached but vote fails
