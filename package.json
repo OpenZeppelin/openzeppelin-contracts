@@ -75,7 +75,7 @@
     "hardhat": "^2.28.0",
     "hardhat-exposed": "^0.3.15",
     "hardhat-gas-reporter": "^2.1.0",
-    "hardhat-ignore-warnings": "^0.2.11",
+    "hardhat-ignore-warnings": "^0.3.0",
     "hardhat-predeploy": "^0.4.1",
     "husky": "^9.1.7",
     "interoperable-addresses": "^0.1.3",
