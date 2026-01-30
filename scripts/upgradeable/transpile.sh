@@ -40,17 +40,17 @@ EOF
 npx @openzeppelin/upgrade-safe-transpiler -D \
   --paths "$paths" \
   -b "$build_info" \
-  -i contracts/proxy/utils/Initializable.sol \
-  -x 'contracts-exposed/**/*' \
-  -x 'contracts/mocks/**/*Proxy*.sol' \
-  -x 'contracts/proxy/**/*Proxy*.sol' \
-  -x 'contracts/proxy/beacon/UpgradeableBeacon.sol' \
-  -p 'contracts/access/manager/AccessManager.sol' \
-  -p 'contracts/finance/VestingWallet.sol' \
-  -p 'contracts/governance/TimelockController.sol' \
-  -p 'contracts/metatx/ERC2771Forwarder.sol' \
+  -i project/contracts/proxy/utils/Initializable.sol \
+  -x 'project/contracts-exposed/**/*' \
+  -x 'project/contracts/mocks/**/*Proxy*.sol' \
+  -x 'project/contracts/proxy/**/*Proxy*.sol' \
+  -x 'project/contracts/proxy/beacon/UpgradeableBeacon.sol' \
+  -p 'project/contracts/access/manager/AccessManager.sol' \
+  -p 'project/contracts/finance/VestingWallet.sol' \
+  -p 'project/contracts/governance/TimelockController.sol' \
+  -p 'project/contracts/metatx/ERC2771Forwarder.sol' \
   -n \
-  -N 'contracts/mocks/**/*' \
+  -N 'project/contracts/mocks/**/*' \
   -q '@openzeppelin/'
 
 # create alias to Initializable and UUPSUpgradeable
