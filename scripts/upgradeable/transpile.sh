@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 set -euo pipefail -x
+shopt -s extglob
 
 VERSION="$(jq -r .version contracts/package.json)"
 DIRNAME="$(dirname -- "${BASH_SOURCE[0]}")"
@@ -10,9 +11,9 @@ sed -i'' -e "s/<package-version>/$VERSION/g" "contracts/package.json"
 git add contracts/package.json
 
 npm run clean
-npm run compile
+npm run compile -- --no-tests
 
-build_info=($(jq -r '.input.sources | keys | if any(test("^contracts/mocks/.*\\bunreachable\\b")) then empty else input_filename end' artifacts/build-info/*))
+build_info=($(jq -r '.input.sources | keys | if any(test("^contracts/mocks/.*\\bunreachable\\b")) then empty else input_filename end' artifacts/build-info/!(*.output).json))
 build_info_num=${#build_info[@]}
 
 if [ $build_info_num -ne 1 ]; then
