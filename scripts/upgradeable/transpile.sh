@@ -20,6 +20,12 @@ if [ $build_info_num -ne 1 ]; then
   echo "found $build_info_num relevant build info files but expected just 1"
   exit 1
 fi
+paths="$(node <<EOF
+  import { config } from "hardhat";
+  const { paths } = config;
+  paths.sources = paths.sources.solidity[0];
+  console.log(JSON.stringify(paths))
+EOF)"
 
 # -D: delete original and excluded files
 # -b: use this build info file
@@ -30,6 +36,7 @@ fi
 # -N: exclude from namespaces transformation
 # -q: partial transpilation using @openzeppelin/contracts as peer project
 npx @openzeppelin/upgrade-safe-transpiler -D \
+  --paths "$paths" \
   -b "$build_info" \
   -i contracts/proxy/utils/Initializable.sol \
   -x 'contracts-exposed/**/*' \
