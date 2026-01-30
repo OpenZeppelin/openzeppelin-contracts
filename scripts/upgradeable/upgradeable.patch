@@ -1,6 +1,6 @@
 diff --git a/.github/ISSUE_TEMPLATE/bug_report.md b/.github/ISSUE_TEMPLATE/bug_report.md
 deleted file mode 100644
-index 35ad097ff..000000000
+index 35ad097f..00000000
 --- a/.github/ISSUE_TEMPLATE/bug_report.md
 +++ /dev/null
 @@ -1,21 +0,0 @@
@@ -26,7 +26,7 @@ index 35ad097ff..000000000
 -
 -<!-- We will be able to better help if you provide a minimal example that triggers the bug. -->
 diff --git a/.github/ISSUE_TEMPLATE/config.yml b/.github/ISSUE_TEMPLATE/config.yml
-index 4018cef29..d343a53d8 100644
+index 4018cef2..d343a53d 100644
 --- a/.github/ISSUE_TEMPLATE/config.yml
 +++ b/.github/ISSUE_TEMPLATE/config.yml
 @@ -1,4 +1,8 @@
@@ -40,7 +40,7 @@ index 4018cef29..d343a53d8 100644
      about: Ask in the OpenZeppelin Forum
 diff --git a/.github/ISSUE_TEMPLATE/feature_request.md b/.github/ISSUE_TEMPLATE/feature_request.md
 deleted file mode 100644
-index ff596b0c3..000000000
+index ff596b0c..00000000
 --- a/.github/ISSUE_TEMPLATE/feature_request.md
 +++ /dev/null
 @@ -1,14 +0,0 @@
@@ -59,7 +59,7 @@ index ff596b0c3..000000000
 -<!-- Make sure that you have reviewed the OpenZeppelin Contracts Contributor Guidelines. -->
 -<!-- https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/CONTRIBUTING.md -->
 diff --git a/README.md b/README.md
-index 6a01f5616..b01c6e88f 100644
+index 6a01f561..b01c6e88 100644
 --- a/README.md
 +++ b/README.md
 @@ -18,6 +18,9 @@
@@ -116,7 +116,7 @@ index 6a01f5616..b01c6e88f 100644
  }
  ```
 diff --git a/contracts/package.json b/contracts/package.json
-index 3535a2f56..9a73abc22 100644
+index 3535a2f5..9a73abc2 100644
 --- a/contracts/package.json
 +++ b/contracts/package.json
 @@ -1,5 +1,5 @@
@@ -146,7 +146,7 @@ index 3535a2f56..9a73abc22 100644
 +  }
  }
 diff --git a/contracts/utils/ReentrancyGuard.sol b/contracts/utils/ReentrancyGuard.sol
-index c156fa1cc..895e39342 100644
+index c156fa1c..895e3934 100644
 --- a/contracts/utils/ReentrancyGuard.sol
 +++ b/contracts/utils/ReentrancyGuard.sol
 @@ -36,6 +36,11 @@ abstract contract ReentrancyGuard {
@@ -173,7 +173,7 @@ index c156fa1cc..895e39342 100644
       * @dev Prevents a contract from calling itself, directly or indirectly.
       * Calling a `nonReentrant` function from another `nonReentrant`
 diff --git a/contracts/utils/cryptography/EIP712.sol b/contracts/utils/cryptography/EIP712.sol
-index 2bc45a4b2..a5aa41d21 100644
+index 2bc45a4b..a5aa41d2 100644
 --- a/contracts/utils/cryptography/EIP712.sol
 +++ b/contracts/utils/cryptography/EIP712.sol
 @@ -4,7 +4,6 @@
@@ -306,7 +306,7 @@ index 2bc45a4b2..a5aa41d21 100644
      }
  }
 diff --git a/package.json b/package.json
-index 6f2d411dd..956933f33 100644
+index 77d405cf..d6b41c95 100644
 --- a/package.json
 +++ b/package.json
 @@ -35,7 +35,7 @@
@@ -319,19 +319,22 @@ index 6f2d411dd..956933f33 100644
    "keywords": [
      "solidity",
 diff --git a/remappings.txt b/remappings.txt
-index 304d1386a..a1cd63bee 100644
+index a6be3bfd..d20f777f 100644
 --- a/remappings.txt
 +++ b/remappings.txt
-@@ -1 +1,2 @@
+@@ -1,4 +1,5 @@
 -@openzeppelin/contracts/=contracts/
 +@openzeppelin/contracts-upgradeable/=contracts/
 +@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
+ 
+ forge-std=lib/forge-std/src
+ halmos-cheatcodes=lib/halmos-cheatcodes/src
 diff --git a/test/account/AccountEIP7702.test.js b/test/account/AccountEIP7702.test.js
-index d832e6877..6a0ab4a53 100644
+index dcb2cc86..df4ff523 100644
 --- a/test/account/AccountEIP7702.test.js
 +++ b/test/account/AccountEIP7702.test.js
-@@ -26,8 +26,8 @@ async function fixture() {
- 
+@@ -28,8 +28,8 @@ async function fixture() {
+   const entrypointDomain = await getDomain(ethers.predeploy.entrypoint.v09);
    // domain cannot be fetched using getDomain(mock) before the mock is deployed
    const domain = {
 -    name: 'AccountEIP7702Mock',
@@ -342,10 +345,10 @@ index d832e6877..6a0ab4a53 100644
      verifyingContract: mock.address,
    };
 diff --git a/test/account/examples/AccountEIP7702WithModulesMock.test.js b/test/account/examples/AccountEIP7702WithModulesMock.test.js
-index 86816e55e..de6adc2c5 100644
+index 2369040a..3fc0a517 100644
 --- a/test/account/examples/AccountEIP7702WithModulesMock.test.js
 +++ b/test/account/examples/AccountEIP7702WithModulesMock.test.js
-@@ -36,8 +36,8 @@ async function fixture() {
+@@ -38,8 +38,8 @@ async function fixture() {
  
    // domain cannot be fetched using getDomain(mock) before the mock is deployed
    const domain = {
@@ -357,10 +360,10 @@ index 86816e55e..de6adc2c5 100644
      verifyingContract: mock.address,
    };
 diff --git a/test/utils/cryptography/EIP712.test.js b/test/utils/cryptography/EIP712.test.js
-index 2b6e7fa97..268e0d29d 100644
+index ab28c4e1..92e0f368 100644
 --- a/test/utils/cryptography/EIP712.test.js
 +++ b/test/utils/cryptography/EIP712.test.js
-@@ -47,27 +47,6 @@ describe('EIP712', function () {
+@@ -50,27 +50,6 @@ describe('EIP712', function () {
            const rebuildDomain = await getDomain(this.eip712);
            expect(rebuildDomain).to.be.deep.equal(this.domain);
          });
