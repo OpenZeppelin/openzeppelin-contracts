@@ -73,11 +73,11 @@ abstract contract BridgeERC1155Core is Context, CrosschainLinked {
         // NOTE: Gateway is validated by {_isAuthorizedGateway} (implemented in {CrosschainLinked}). No need to check here.
 
         // split payload
-        (bytes memory from, bytes memory toBinary, uint256[] memory ids, uint256[] memory values) = abi.decode(
+        (bytes memory from, bytes memory toEvm, uint256[] memory ids, uint256[] memory values) = abi.decode(
             payload,
             (bytes, bytes, uint256[], uint256[])
         );
-        address to = address(bytes20(toBinary));
+        address to = address(bytes20(toEvm));
 
         _onReceive(to, ids, values);
 
