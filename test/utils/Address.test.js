@@ -26,7 +26,7 @@ describe('Address', function () {
   describe('sendValue', function () {
     describe('when sender contract has no funds', function () {
       it('sends 0 wei', async function () {
-        await expect(this.mock.$sendValue(this.other, 0n)).to.changeEtherBalance(this.recipient, 0n);
+        await expect(this.mock.$sendValue(this.recipient, 0n)).to.changeEtherBalance(this.recipient, 0n);
       });
 
       it('reverts when sending non-zero amounts', async function () {
