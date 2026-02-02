@@ -18,27 +18,35 @@ pragma solidity ^0.8.20;
  */
 library RelayedCall {
     /// @dev Relays a call to the target contract through a dynamically deployed relay contract.
-    function relayCall(address target, bytes memory data) internal returns (bool, bytes memory) {
-        return relayCall(target, 0, data);
+    function relayCall(address target, bytes memory data) internal returns (bool success, bytes memory retData) {
+        return relayCall(target, 0, data, bytes32(0));
     }
 
-    /// @dev Same as {relayCall} but with a value.
-    function relayCall(address target, uint256 value, bytes memory data) internal returns (bool, bytes memory) {
+    /// @dev Same as {relayCall-address-bytes} but with a value.
+    function relayCall(
+        address target,
+        uint256 value,
+        bytes memory data
+    ) internal returns (bool success, bytes memory retData) {
         return relayCall(target, value, data, bytes32(0));
     }
 
-    /// @dev Same as {relayCall} but with a salt.
-    function relayCall(address target, bytes memory data, bytes32 salt) internal returns (bool, bytes memory) {
+    /// @dev Same as {relayCall-address-bytes} but with a salt.
+    function relayCall(
+        address target,
+        bytes memory data,
+        bytes32 salt
+    ) internal returns (bool success, bytes memory retData) {
         return relayCall(target, 0, data, salt);
     }
 
-    /// @dev Same as {relayCall} but with a salt and a value.
+    /// @dev Same as {relayCall-address-bytes} but with a salt and a value.
     function relayCall(
         address target,
         uint256 value,
         bytes memory data,
         bytes32 salt
-    ) internal returns (bool, bytes memory) {
+    ) internal returns (bool success, bytes memory retData) {
         return getRelayer(salt).call{value: value}(abi.encodePacked(target, data));
     }
 
