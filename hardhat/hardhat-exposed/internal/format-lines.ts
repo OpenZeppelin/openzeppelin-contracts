@@ -1,6 +1,6 @@
 export type Lines = string | typeof whitespace | Lines[];
 
-const whitespace = Symbol('whitespace');
+const whitespace: string = '\xa0'; //Symbol('whitespace');
 
 export function formatLines(...lines: Lines[]): string {
   return [...indentEach(0, lines)].join('\n') + '\n';

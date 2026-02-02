@@ -15,7 +15,6 @@ const hardhatTranspilerPlugin: HardhatPlugin = {
       .setAction(() => import('./tasks/transpile.ts'))
       .build(),
   ],
-  npmPackage: null,
 };
 
 export default hardhatTranspilerPlugin;

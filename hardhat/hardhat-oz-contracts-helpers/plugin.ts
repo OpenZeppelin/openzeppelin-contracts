@@ -9,7 +9,6 @@ const hardhatOzContractsHelpers: HardhatPlugin = {
     network: () => import('./hook-handlers/network.ts'),
   },
   dependencies: () => [import('@nomicfoundation/hardhat-ethers')],
-  npmPackage: null,
 };
 
 export default hardhatOzContractsHelpers;

@@ -1,26 +1,47 @@
-import path from 'path';
-import type { HardhatConfig, HardhatUserConfig, ConfigurationVariableResolver } from 'hardhat/types/config';
+import path from 'node:path';
+
 import type { ConfigHooks } from 'hardhat/types/hooks';
 
 export default async (): Promise<Partial<ConfigHooks>> => ({
-  resolveUserConfig: (
-    userConfig: HardhatUserConfig,
-    resolveConfigurationVariable: ConfigurationVariableResolver,
-    next: (
-      nextUserConfig: HardhatUserConfig,
-      nextResolveConfigurationVariable: ConfigurationVariableResolver,
-    ) => Promise<HardhatConfig>,
-  ): Promise<HardhatConfig> =>
-    next(userConfig, resolveConfigurationVariable).then((resolvedConfig: HardhatConfig) => {
-      resolvedConfig.exposed = {
-        ...userConfig.exposed,
-        exclude: userConfig.exposed?.exclude ?? [],
-        include: userConfig.exposed?.include ?? ['**/*'],
-        outDir: userConfig.exposed?.outDir ?? 'contracts-exposed',
+  validateUserConfig: async userConfig => {
+    const results: Array<{ path: string[]; message: string }> = [];
+
+    if (userConfig.exposed?.prefix !== undefined && typeof userConfig.exposed?.prefix !== 'string') {
+      results.push({ path: ['exposed', 'prefix'], message: 'Expected an optional string.' });
+    }
+    if (
+      userConfig.exposed?.exclude !== undefined &&
+      (!Array.isArray(userConfig.exposed.exclude) || userConfig.exposed.exclude.some(e => typeof e !== 'string'))
+    ) {
+      results.push({ path: ['exposed', 'exclude'], message: 'Expected an optional string[].' });
+    }
+    if (
+      userConfig.exposed?.include !== undefined &&
+      (!Array.isArray(userConfig.exposed.include) || userConfig.exposed.include.some(e => typeof e !== 'string'))
+    ) {
+      results.push({ path: ['exposed', 'include'], message: 'Expected an optional string[].' });
+    }
+    if (userConfig.exposed?.outDir !== undefined && typeof userConfig.exposed?.outDir !== 'string') {
+      results.push({ path: ['exposed', 'outDir'], message: 'Expected an optional string.' });
+    }
+    if (userConfig.exposed?.initializers !== undefined && typeof userConfig.exposed?.initializers !== 'boolean') {
+      results.push({ path: ['exposed', 'initializers'], message: 'Expected an optional boolean.' });
+    }
+    return results;
+  },
+
+  resolveUserConfig: (userConfig, resolveConfigurationVariable, next) =>
+    next(userConfig, resolveConfigurationVariable).then(partiallyResolvedConfig => {
+      const makeAbsolutePath = (p: string) =>
+        path.isAbsolute(p) ? p : path.resolve(partiallyResolvedConfig.paths.root, p);
+      return {
+        ...partiallyResolvedConfig,
+        exposed: {
+          ...userConfig.exposed,
+          exclude: (userConfig.exposed?.exclude ?? []).map(makeAbsolutePath),
+          include: (userConfig.exposed?.include ?? ['**/*']).map(makeAbsolutePath),
+          outDir: makeAbsolutePath(userConfig.exposed?.outDir ?? 'contracts-exposed'),
+        },
       };
-      // Add exposed contracts path to Solidity sources, and exclude them from further processing
-      resolvedConfig.exposed.exclude.push(path.join(resolvedConfig.exposed.outDir, '**', '*'));
-      resolvedConfig.paths.sources.solidity.push(path.join(resolvedConfig.paths.root, resolvedConfig.exposed.outDir));
-      return resolvedConfig;
     }),
 });

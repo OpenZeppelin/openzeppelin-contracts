@@ -1,11 +1,9 @@
-import assert from 'assert';
-import path from 'path';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
 
-import type { HardhatConfig } from 'hardhat/types/config';
-import type { CompilerOutput } from 'hardhat/types/solidity';
-import { ensureDir, remove, writeUtf8File } from '@nomicfoundation/hardhat-utils/fs';
-
-import type {} from '../type-extensions';
+import type { HookContext } from 'hardhat/types/hooks';
+import { SolidityBuildInfoOutput } from 'hardhat/types/solidity';
 
 // AST manipulation
 import type {
@@ -22,101 +20,89 @@ import type { ASTDereferencer } from 'solidity-ast/utils.js';
 import { findAll, astDereferencer } from 'solidity-ast/utils.js';
 
 // Exposed code generation
-import { formatLines, type Lines, spaceBetween } from './format-lines.ts';
-
-type ContractFilter = (node: ContractDefinition) => boolean;
-type ResolvedFile = { fsPath: string; content: string };
+import { formatLines, Lines, spaceBetween } from './format-lines.ts';
 
 const exposedVersionPragma = '>=0.6.0';
 const defaultPrefix = '$';
 
-// Tasks & Hooks
-export async function writeExposed(exposed: Map<string, string>) {
-  for (const [fsPath, content] of exposed.entries()) {
-    await ensureDir(path.dirname(fsPath));
-    await writeUtf8File(fsPath, content);
-  }
+export function getExposedPath(context: HookContext, rootFilePath: string): string {
+  return path.join(context.config.exposed.outDir, path.relative(context.config.paths.root, rootFilePath));
 }
 
-export function getExposed(
-  output: CompilerOutput,
-  include: (sourceName: string) => boolean,
-  config: HardhatConfig,
-): Map<string, string> {
-  const res = new Map<string, string>();
-  const deref = astDereferencer(output);
+export async function generateExposedContracts(
+  context: HookContext,
+  rootFilesToRegenerate: Array<{ rootPath: string; buildId: string }>,
+): Promise<string[]> {
+  const generatedFiles: string[] = [];
 
-  for (const { ast } of Object.values(output.sources)) {
-    if (!include(ast.absolutePath)) {
-      continue;
+  // Group root files by build ID
+  const rootFilesPathsByBuildId: { [buildId: string]: string[] } = {};
+  rootFilesToRegenerate.forEach(({ rootPath, buildId }) => {
+    rootFilesPathsByBuildId[buildId] ??= [];
+    rootFilesPathsByBuildId[buildId].push(rootPath);
+  });
+
+  // Process each build ID
+  for (const [buildId, rootFilePaths] of Object.entries(rootFilesPathsByBuildId)) {
+    // Get build info output path
+    const outputPath = await context.artifacts.getBuildInfoOutputPath(buildId);
+    if (outputPath === undefined) continue;
+
+    // Build ast dereferencer
+    const { output } = JSON.parse(fs.readFileSync(outputPath, 'utf-8')) as SolidityBuildInfoOutput;
+    const deref = astDereferencer(output);
+
+    // Generate exposed files for each root file in this build
+    for (const rootFilePath of rootFilePaths) {
+      const userSourceName = path.relative(context.config.paths.root, rootFilePath);
+      const inputSourceName = path.join('project', userSourceName);
+      const generatedFilePath = path.join(context.config.exposed.outDir, userSourceName);
+
+      const { ast } = output.sources[inputSourceName];
+      if (ast == undefined) continue;
+
+      const relativizePath = ({ absolutePath }: SourceUnit) =>
+        absolutePath.startsWith(path.join('npm', path.sep))
+          ? path.relative('npm', absolutePath).replace(/@[a-zA-Z0-9\.-]+/, '')
+          : path.relative(
+              path.dirname(generatedFilePath),
+              path.join(context.config.paths.root, path.relative('project', absolutePath)),
+            );
+
+      const content = getExposedContent(
+        ast,
+        relativizePath,
+        deref,
+        context.config.exposed?.prefix,
+        context.config.exposed?.initializers,
+      );
+
+      if (content) {
+        fs.mkdirSync(path.dirname(generatedFilePath), { recursive: true });
+        fs.writeFileSync(generatedFilePath, content);
+        // Add to list of generated files
+        generatedFiles.push(generatedFilePath);
+      }
     }
-
-    const exposedFile = getExposedFile(config, ast, deref);
-    if (exposedFile !== undefined) {
-      res.set(exposedFile.fsPath, exposedFile.content);
-    }
   }
 
-  return res;
-}
-
-// Helpers
-function getExposedPath(config: HardhatConfig) {
-  return path.join(config.paths.root, config.exposed.outDir);
-}
-
-function getExposedFile(
-  config: HardhatConfig,
-  ast: SourceUnit,
-  deref: ASTDereferencer,
-  filter?: ContractFilter,
-): ResolvedFile | undefined {
-  const exposedRootPath = getExposedPath(config);
-  const fsPath = path.join(
-    exposedRootPath,
-    ...(ast.absolutePath.startsWith('project/')
-      ? [path.relative('project', ast.absolutePath)]
-      : ['$_', ast.absolutePath]),
-  );
-  const dirname = path.dirname(fsPath);
-
-  const relativizePath = (p: string) =>
-    (p.startsWith('project/')
-      ? path.relative(dirname, path.relative('project', p))
-      : p.startsWith('npm/')
-        ? path.relative('npm', p).replace(/@[a-zA-Z0-9\.-]+/, '')
-        : p
-    ).replace(/\\/g, '/');
-
-  const content = getExposedContent(
-    ast,
-    relativizePath,
-    deref,
-    config.exposed?.initializers,
-    config.exposed?.prefix,
-    filter,
-  );
-
-  return content === undefined ? undefined : { fsPath, content };
+  return generatedFiles;
 }
 
 function getExposedContent(
   ast: SourceUnit,
-  relativizePath: (p: string) => string,
+  relativizePath: (source: SourceUnit) => string,
   deref: ASTDereferencer,
-  initializers = false,
   prefix = defaultPrefix,
-  filter?: ContractFilter,
+  initializers = false,
 ): string | undefined {
   if (prefix === '' || /^\d|[^0-9a-z_$]/i.test(prefix)) {
     throw new Error(`Prefix '${prefix}' is not valid`);
   }
 
   const contractPrefix = prefix.replace(/^./, c => c.toUpperCase());
-  const imports = Array.from(getNeededImports(ast, deref), u => relativizePath(u.absolutePath));
-  const contracts = [...findAll('ContractDefinition', ast)].filter(
-    c => filter?.(c) !== false && c.contractKind !== 'interface',
-  );
+  const imports = Array.from(getNeededImports(ast, deref), u => relativizePath(u));
+  const contracts = [...findAll('ContractDefinition', ast)].filter(c => c.contractKind !== 'interface');
 
   return contracts.length === 0
     ? undefined

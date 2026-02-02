@@ -7,9 +7,8 @@ const hardhatExposedPlugin: HardhatPlugin = {
   hookHandlers: {
     clean: () => import('./hook-handlers/clean.ts'),
     config: () => import('./hook-handlers/config.ts'),
-    hre: () => import('./hook-handlers/hre.ts'),
+    solidity: () => import('./hook-handlers/solidity.ts'),
   },
-  npmPackage: null,
 };
 
 export default hardhatExposedPlugin;
