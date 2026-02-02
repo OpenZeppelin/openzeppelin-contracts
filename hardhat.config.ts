@@ -88,7 +88,6 @@ export default defineConfig({
     },
   },
   exposed: {
-    imports: true,
     initializers: true,
     include: ['contracts/**/*.sol'],
     exclude: ['contracts/vendor/**/*', '**/*WithInit.sol'],

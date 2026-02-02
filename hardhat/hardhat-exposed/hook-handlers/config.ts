@@ -2,6 +2,8 @@ import path from 'node:path';
 
 import type { ConfigHooks } from 'hardhat/types/hooks';
 
+import type {} from '../type-extensions';
+
 export default async (): Promise<Partial<ConfigHooks>> => ({
   validateUserConfig: async userConfig => {
     const results: Array<{ path: string[]; message: string }> = [];

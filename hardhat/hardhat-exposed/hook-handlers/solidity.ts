@@ -4,6 +4,8 @@ import path from 'node:path';
 import type { SolidityHooks } from 'hardhat/types/hooks';
 import { FileBuildResultType } from 'hardhat/types/solidity';
 
+import type {} from '../type-extensions';
+
 import { getExposedPath, generateExposedContracts } from '../internal/expose.ts';
 
 export default async (): Promise<Partial<SolidityHooks>> => ({
@@ -52,13 +54,8 @@ export default async (): Promise<Partial<SolidityHooks>> => ({
       }
 
       // 4. Build all exposed contracts
-      const exposedResults = await context.solidity.build(
-        rootPaths
-          .filter(includes)
-          .map(rootPath => getExposedPath(context, rootPath))
-          .filter(fs.existsSync),
-        options,
-      );
+      const exposedPaths = fs.globSync(path.join(context.config.exposed.outDir, '**', '*.sol'));
+      const exposedResults = await context.solidity.build(exposedPaths, options);
 
       // Return errors instead of ignoring!
       if ('reason' in exposedResults) return exposedResults;
