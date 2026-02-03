@@ -90,6 +90,6 @@ export default defineConfig({
   exposed: {
     initializers: true,
     include: ['contracts/**/*.sol'],
-    exclude: ['contracts/vendor/**/*', '**/*WithInit.sol'],
+    exclude: ['**/*WithInit.sol'],
   },
 });

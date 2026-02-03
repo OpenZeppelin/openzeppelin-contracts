@@ -1,6 +1,6 @@
 diff --git a/.github/ISSUE_TEMPLATE/bug_report.md b/.github/ISSUE_TEMPLATE/bug_report.md
 deleted file mode 100644
-index 35ad097f..00000000
+index 35ad097ff..000000000
 --- a/.github/ISSUE_TEMPLATE/bug_report.md
 +++ /dev/null
 @@ -1,21 +0,0 @@
@@ -26,7 +26,7 @@ index 35ad097f..00000000
 -
 -<!-- We will be able to better help if you provide a minimal example that triggers the bug. -->
 diff --git a/.github/ISSUE_TEMPLATE/config.yml b/.github/ISSUE_TEMPLATE/config.yml
-index 4018cef2..d343a53d 100644
+index 4018cef29..d343a53d8 100644
 --- a/.github/ISSUE_TEMPLATE/config.yml
 +++ b/.github/ISSUE_TEMPLATE/config.yml
 @@ -1,4 +1,8 @@
@@ -40,7 +40,7 @@ index 4018cef2..d343a53d 100644
      about: Ask in the OpenZeppelin Forum
 diff --git a/.github/ISSUE_TEMPLATE/feature_request.md b/.github/ISSUE_TEMPLATE/feature_request.md
 deleted file mode 100644
-index ff596b0c..00000000
+index ff596b0c3..000000000
 --- a/.github/ISSUE_TEMPLATE/feature_request.md
 +++ /dev/null
 @@ -1,14 +0,0 @@
@@ -59,7 +59,7 @@ index ff596b0c..00000000
 -<!-- Make sure that you have reviewed the OpenZeppelin Contracts Contributor Guidelines. -->
 -<!-- https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/CONTRIBUTING.md -->
 diff --git a/README.md b/README.md
-index 6a01f561..b01c6e88 100644
+index 6a01f5616..b01c6e88f 100644
 --- a/README.md
 +++ b/README.md
 @@ -18,6 +18,9 @@
@@ -116,7 +116,7 @@ index 6a01f561..b01c6e88 100644
  }
  ```
 diff --git a/contracts/package.json b/contracts/package.json
-index 3535a2f5..9a73abc2 100644
+index 3535a2f56..9a73abc22 100644
 --- a/contracts/package.json
 +++ b/contracts/package.json
 @@ -1,5 +1,5 @@
@@ -146,7 +146,7 @@ index 3535a2f5..9a73abc2 100644
 +  }
  }
 diff --git a/contracts/utils/ReentrancyGuard.sol b/contracts/utils/ReentrancyGuard.sol
-index c156fa1c..895e3934 100644
+index c156fa1cc..895e39342 100644
 --- a/contracts/utils/ReentrancyGuard.sol
 +++ b/contracts/utils/ReentrancyGuard.sol
 @@ -36,6 +36,11 @@ abstract contract ReentrancyGuard {
@@ -173,7 +173,7 @@ index c156fa1c..895e3934 100644
       * @dev Prevents a contract from calling itself, directly or indirectly.
       * Calling a `nonReentrant` function from another `nonReentrant`
 diff --git a/contracts/utils/cryptography/EIP712.sol b/contracts/utils/cryptography/EIP712.sol
-index 2bc45a4b..a5aa41d2 100644
+index 2bc45a4b2..a5aa41d21 100644
 --- a/contracts/utils/cryptography/EIP712.sol
 +++ b/contracts/utils/cryptography/EIP712.sol
 @@ -4,7 +4,6 @@
@@ -305,8 +305,30 @@ index 2bc45a4b..a5aa41d2 100644
 +        return keccak256(bytes(_EIP712Version()));
      }
  }
+diff --git a/hardhat.config.ts b/hardhat.config.ts
+index ba50439b7..b7af88312 100644
+--- a/hardhat.config.ts
++++ b/hardhat.config.ts
+@@ -41,7 +41,7 @@ export default defineConfig({
+     hardhatOzContractsHelpers,
+   ],
+   paths: {
+-    sources: argv.src,
++    sources: [ argv.src, 'lib/openzeppelin-contracts/contracts' ],
+   },
+   solidity: {
+     version: argv.compiler,
+@@ -89,7 +89,7 @@ export default defineConfig({
+   },
+   exposed: {
+     initializers: true,
+-    include: ['contracts/**/*.sol'],
++    include: ['contracts/**/*.sol', 'lib/openzeppelin-contracts/contracts/**/*.sol'],
+     exclude: ['**/*WithInit.sol'],
+   },
+ });
 diff --git a/package.json b/package.json
-index 77d405cf..d6b41c95 100644
+index 0b6f6c268..1bab4415d 100644
 --- a/package.json
 +++ b/package.json
 @@ -35,7 +35,7 @@
@@ -319,7 +341,7 @@ index 77d405cf..d6b41c95 100644
    "keywords": [
      "solidity",
 diff --git a/remappings.txt b/remappings.txt
-index a6be3bfd..d20f777f 100644
+index a6be3bfd6..d20f777f3 100644
 --- a/remappings.txt
 +++ b/remappings.txt
 @@ -1,4 +1,5 @@
@@ -330,7 +352,7 @@ index a6be3bfd..d20f777f 100644
  forge-std=lib/forge-std/src
  halmos-cheatcodes=lib/halmos-cheatcodes/src
 diff --git a/test/account/AccountEIP7702.test.js b/test/account/AccountEIP7702.test.js
-index dcb2cc86..df4ff523 100644
+index dcb2cc862..df4ff523a 100644
 --- a/test/account/AccountEIP7702.test.js
 +++ b/test/account/AccountEIP7702.test.js
 @@ -28,8 +28,8 @@ async function fixture() {
@@ -345,7 +367,7 @@ index dcb2cc86..df4ff523 100644
      verifyingContract: mock.address,
    };
 diff --git a/test/account/examples/AccountEIP7702WithModulesMock.test.js b/test/account/examples/AccountEIP7702WithModulesMock.test.js
-index 2369040a..3fc0a517 100644
+index 2369040a2..3fc0a5172 100644
 --- a/test/account/examples/AccountEIP7702WithModulesMock.test.js
 +++ b/test/account/examples/AccountEIP7702WithModulesMock.test.js
 @@ -38,8 +38,8 @@ async function fixture() {
@@ -360,7 +382,7 @@ index 2369040a..3fc0a517 100644
      verifyingContract: mock.address,
    };
 diff --git a/test/utils/cryptography/EIP712.test.js b/test/utils/cryptography/EIP712.test.js
-index ab28c4e1..92e0f368 100644
+index ab28c4e1b..92e0f368b 100644
 --- a/test/utils/cryptography/EIP712.test.js
 +++ b/test/utils/cryptography/EIP712.test.js
 @@ -50,27 +50,6 @@ describe('EIP712', function () {

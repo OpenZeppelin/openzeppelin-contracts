@@ -17,24 +17,11 @@ interface TranspileOptions {
   peerProject?: string;
 }
 
-async function loadSettings(hre: HardhatRuntimeEnvironment, settings: string): Promise<TranspileOptions> {
-  const makeProjectPath = (p: string) =>
-    path.join('project', path.isAbsolute(p) ? path.relative(hre.config.paths.root, p) : p);
-
-  const options: TranspileOptions = await fs.readFile(settings, 'utf-8').then(JSON.parse);
-  options.initializablePath = options.initializablePath && makeProjectPath(options.initializablePath);
-  options.exclude = options.exclude?.map(makeProjectPath);
-  options.publicInitializers = options.publicInitializers?.map(makeProjectPath);
-  options.namespaceExclude = options.namespaceExclude?.map(makeProjectPath);
-
-  return options;
-}
-
 export default async function ({ settings }: { settings?: string }, hre: HardhatRuntimeEnvironment) {
   assert(settings, 'Transpile settings file must be provided');
-  const options = await loadSettings(hre, settings);
+  const options: TranspileOptions = await fs.readFile(settings, 'utf-8').then(JSON.parse);
 
-  const { contractRootPaths } = await hre.tasks.getTask('compile').run({ noTests: true, noExpose: true });
+  const { contractRootPaths } = await hre.tasks.getTask('compile').run({ noTests: true });
   const compilationJobs = await hre.solidity.getCompilationJobs(contractRootPaths);
   assert('cacheHits' in compilationJobs, 'Compilation jobs not found');
 
@@ -56,6 +43,12 @@ export default async function ({ settings }: { settings?: string }, hre: Hardhat
       .getBuildInfoOutputPath(buildId)
       .then(file => fs.readFile(file!, 'utf-8'))
       .then(JSON.parse);
+
+    // Adjust paths to match transpiler expectations
+    input.sources = Object.fromEntries(Object.entries(input.sources).map(([k, v]) => [k.replace(/^project\//, ''), v]));
+    output.sources = Object.fromEntries(Object.entries(output.sources).map(([k, v]) => [k.replace(/^project\//, ''), v]));
+    output.contracts = Object.fromEntries(Object.entries(output.contracts).map(([k, v]) => [k.replace(/^project\//, ''), v]));
+    Object.values(output.sources).forEach((s: any) => { s.ast.absolutePath = s.ast.absolutePath.replace(/^project\//, ''); });
 
     // Run transpilation on the first source folder
     const transpiled = await transpile(
