@@ -17,6 +17,10 @@ interface TranspileOptions {
   peerProject?: string;
 }
 
+function transformKeys<U>(obj: Record<string, U>, fn: (key: string) => string): Record<string, U> {
+  return Object.fromEntries(Object.entries(obj).map(([k, v]) => [fn(k), v]));
+}
+
 export default async function ({ settings }: { settings?: string }, hre: HardhatRuntimeEnvironment) {
   assert(settings, 'Transpile settings file must be provided');
   const options: TranspileOptions = await fs.readFile(settings, 'utf-8').then(JSON.parse);
@@ -45,10 +49,12 @@ export default async function ({ settings }: { settings?: string }, hre: Hardhat
       .then(JSON.parse);
 
     // Adjust paths to match transpiler expectations
-    input.sources = Object.fromEntries(Object.entries(input.sources).map(([k, v]) => [k.replace(/^project\//, ''), v]));
-    output.sources = Object.fromEntries(Object.entries(output.sources).map(([k, v]) => [k.replace(/^project\//, ''), v]));
-    output.contracts = Object.fromEntries(Object.entries(output.contracts).map(([k, v]) => [k.replace(/^project\//, ''), v]));
-    Object.values(output.sources).forEach((s: any) => { s.ast.absolutePath = s.ast.absolutePath.replace(/^project\//, ''); });
+    input.sources = transformKeys(input.sources, k => k.replace(/^project\//, ''));
+    output.sources = transformKeys(output.sources, k => k.replace(/^project\//, ''));
+    output.contracts = transformKeys(output.contracts, k => k.replace(/^project\//, ''));
+    Object.values(output.sources).forEach((s: any) => {
+      s.ast.absolutePath = s.ast.absolutePath.replace(/^project\//, '');
+    });
 
     // Run transpilation on the first source folder
     const transpiled = await transpile(
