@@ -306,7 +306,7 @@ index 2bc45a4b2..a5aa41d21 100644
      }
  }
 diff --git a/hardhat.config.ts b/hardhat.config.ts
-index ba50439b7..b7af88312 100644
+index ba50439b7..6ee16de43 100644
 --- a/hardhat.config.ts
 +++ b/hardhat.config.ts
 @@ -41,7 +41,7 @@ export default defineConfig({
@@ -323,7 +323,7 @@ index ba50439b7..b7af88312 100644
    exposed: {
      initializers: true,
 -    include: ['contracts/**/*.sol'],
-+    include: ['contracts/**/*.sol', 'lib/openzeppelin-contracts/contracts/**/*.sol'],
++    include: ['{,lib/openzeppelin-contracts/}contracts/**/*.sol'],
      exclude: ['**/*WithInit.sol'],
    },
  });
