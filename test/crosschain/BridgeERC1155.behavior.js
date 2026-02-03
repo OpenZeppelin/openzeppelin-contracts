@@ -27,83 +27,164 @@ function shouldBehaveLikeBridgeERC1155({ chainAIsCustodial = false, chainBIsCust
       ]);
     });
 
-    it('crosschain send (both direction)', async function () {
-      const [alice, bruce, chris] = this.accounts;
+    describe('crosschain send (both direction)', async function () {
+      it('single', async function () {
+        const [alice, bruce, chris] = this.accounts;
 
-      await this.tokenA.$_mintBatch(alice, ids, values, '0x');
-      await this.tokenA.connect(alice).setApprovalForAll(this.bridgeA, true);
+        await this.tokenA.$_mintBatch(alice, ids, values, '0x');
+        await this.tokenA.connect(alice).setApprovalForAll(this.bridgeA, true);
 
-      // Alice sends tokens from chain A to Bruce on chain B.
-      await expect(
-        this.bridgeA.connect(alice).getFunction('crosschainTransferFrom(address,bytes,uint256[],uint256[])')(
-          alice,
-          this.chain.toErc7930(bruce),
-          ids,
-          values,
-        ),
-      )
-        // bridge on chain A takes custody of the token
-        .to.emit(this.tokenA, 'TransferBatch')
-        .withArgs(
-          chainAIsCustodial ? this.bridgeA : alice,
-          alice,
-          chainAIsCustodial ? this.bridgeA : ethers.ZeroAddress,
-          ids,
-          values,
+        // Alice sends tokens from chain A to Bruce on chain B.
+        await expect(
+          this.bridgeA.connect(alice).getFunction('crosschainTransferFrom(address,bytes,uint256,uint256)')(
+            alice,
+            this.chain.toErc7930(bruce),
+            ids[0],
+            values[0],
+          ),
         )
-        // crosschain transfer sent
-        .to.emit(this.bridgeA, 'CrosschainERC1155TransferSent')
-        .withArgs(anyValue, alice, this.chain.toErc7930(bruce), ids, values)
-        // ERC-7786 event
-        .to.emit(this.gateway, 'MessageSent')
-        // crosschain transfer received
-        .to.emit(this.bridgeB, 'CrosschainERC1155TransferReceived')
-        .withArgs(anyValue, this.chain.toErc7930(alice), bruce, ids, values)
-        // tokens are minted on chain B
-        .to.emit(this.tokenB, 'TransferBatch')
-        .withArgs(
-          chainBIsCustodial ? this.bridgeB : this.gateway,
-          chainBIsCustodial ? this.bridgeB : ethers.ZeroAddress,
-          bruce,
-          ids,
-          values,
-        );
+          // bridge on chain A takes custody of the token
+          .to.emit(this.tokenA, 'TransferSingle')
+          .withArgs(
+            chainAIsCustodial ? this.bridgeA : alice,
+            alice,
+            chainAIsCustodial ? this.bridgeA : ethers.ZeroAddress,
+            ids[0],
+            values[0],
+          )
+          // crosschain transfer sent
+          .to.emit(this.bridgeA, 'CrosschainERC1155TransferSent')
+          .withArgs(anyValue, alice, this.chain.toErc7930(bruce), ids.slice(0, 1), values.slice(0, 1))
+          // ERC-7786 event
+          .to.emit(this.gateway, 'MessageSent')
+          // crosschain transfer received
+          .to.emit(this.bridgeB, 'CrosschainERC1155TransferReceived')
+          .withArgs(anyValue, this.chain.toErc7930(alice), bruce, ids.slice(0, 1), values.slice(0, 1))
+          // tokens are minted on chain B
+          .to.emit(this.tokenB, 'TransferSingle')
+          .withArgs(
+            chainBIsCustodial ? this.bridgeB : this.gateway,
+            chainBIsCustodial ? this.bridgeB : ethers.ZeroAddress,
+            bruce,
+            ids[0],
+            values[0],
+          );
 
-      // Bruce sends tokens from chain B to Chris on chain A.
-      await expect(
-        this.bridgeB.connect(bruce).getFunction('crosschainTransferFrom(address,bytes,uint256,uint256)')(
-          bruce,
-          this.chain.toErc7930(chris),
-          ids[0],
-          values[0],
-        ),
-      )
-        // tokens are burned on chain B
-        .to.emit(this.tokenB, 'TransferSingle')
-        .withArgs(
-          chainBIsCustodial ? this.bridgeB : bruce,
-          bruce,
-          chainBIsCustodial ? this.bridgeB : ethers.ZeroAddress,
-          ids[0],
-          values[0],
+        // Bruce sends tokens from chain B to Chris on chain A.
+        await expect(
+          this.bridgeB.connect(bruce).getFunction('crosschainTransferFrom(address,bytes,uint256,uint256)')(
+            bruce,
+            this.chain.toErc7930(chris),
+            ids[0],
+            values[0],
+          ),
         )
-        // crosschain transfer sent
-        .to.emit(this.bridgeB, 'CrosschainERC1155TransferSent')
-        .withArgs(anyValue, bruce, this.chain.toErc7930(chris), ids.slice(0, 1), values.slice(0, 1))
-        // ERC-7786 event
-        .to.emit(this.gateway, 'MessageSent')
-        // crosschain transfer received
-        .to.emit(this.bridgeA, 'CrosschainERC1155TransferReceived')
-        .withArgs(anyValue, this.chain.toErc7930(bruce), chris, ids.slice(0, 1), values.slice(0, 1))
-        // bridge on chain A releases custody of the token
-        .to.emit(this.tokenA, 'TransferSingle')
-        .withArgs(
-          chainAIsCustodial ? this.bridgeA : this.gateway,
-          chainAIsCustodial ? this.bridgeA : ethers.ZeroAddress,
-          chris,
-          ids[0],
-          values[0],
-        );
+          // tokens are burned on chain B
+          .to.emit(this.tokenB, 'TransferSingle')
+          .withArgs(
+            chainBIsCustodial ? this.bridgeB : bruce,
+            bruce,
+            chainBIsCustodial ? this.bridgeB : ethers.ZeroAddress,
+            ids[0],
+            values[0],
+          )
+          // crosschain transfer sent
+          .to.emit(this.bridgeB, 'CrosschainERC1155TransferSent')
+          .withArgs(anyValue, bruce, this.chain.toErc7930(chris), ids.slice(0, 1), values.slice(0, 1))
+          // ERC-7786 event
+          .to.emit(this.gateway, 'MessageSent')
+          // crosschain transfer received
+          .to.emit(this.bridgeA, 'CrosschainERC1155TransferReceived')
+          .withArgs(anyValue, this.chain.toErc7930(bruce), chris, ids.slice(0, 1), values.slice(0, 1))
+          // bridge on chain A releases custody of the token
+          .to.emit(this.tokenA, 'TransferSingle')
+          .withArgs(
+            chainAIsCustodial ? this.bridgeA : this.gateway,
+            chainAIsCustodial ? this.bridgeA : ethers.ZeroAddress,
+            chris,
+            ids[0],
+            values[0],
+          );
+      });
+
+      it('batch', async function () {
+        const [alice, bruce, chris] = this.accounts;
+
+        await this.tokenA.$_mintBatch(alice, ids, values, '0x');
+        await this.tokenA.connect(alice).setApprovalForAll(this.bridgeA, true);
+
+        // Alice sends tokens from chain A to Bruce on chain B.
+        await expect(
+          this.bridgeA.connect(alice).getFunction('crosschainTransferFrom(address,bytes,uint256[],uint256[])')(
+            alice,
+            this.chain.toErc7930(bruce),
+            ids,
+            values,
+          ),
+        )
+          // bridge on chain A takes custody of the token
+          .to.emit(this.tokenA, 'TransferBatch')
+          .withArgs(
+            chainAIsCustodial ? this.bridgeA : alice,
+            alice,
+            chainAIsCustodial ? this.bridgeA : ethers.ZeroAddress,
+            ids,
+            values,
+          )
+          // crosschain transfer sent
+          .to.emit(this.bridgeA, 'CrosschainERC1155TransferSent')
+          .withArgs(anyValue, alice, this.chain.toErc7930(bruce), ids, values)
+          // ERC-7786 event
+          .to.emit(this.gateway, 'MessageSent')
+          // crosschain transfer received
+          .to.emit(this.bridgeB, 'CrosschainERC1155TransferReceived')
+          .withArgs(anyValue, this.chain.toErc7930(alice), bruce, ids, values)
+          // tokens are minted on chain B
+          .to.emit(this.tokenB, 'TransferBatch')
+          .withArgs(
+            chainBIsCustodial ? this.bridgeB : this.gateway,
+            chainBIsCustodial ? this.bridgeB : ethers.ZeroAddress,
+            bruce,
+            ids,
+            values,
+          );
+
+        // Bruce sends tokens from chain B to Chris on chain A.
+        await expect(
+          this.bridgeB.connect(bruce).getFunction('crosschainTransferFrom(address,bytes,uint256[],uint256[])')(
+            bruce,
+            this.chain.toErc7930(chris),
+            ids,
+            values,
+          ),
+        )
+          // tokens are burned on chain B
+          .to.emit(this.tokenB, 'TransferBatch')
+          .withArgs(
+            chainBIsCustodial ? this.bridgeB : bruce,
+            bruce,
+            chainBIsCustodial ? this.bridgeB : ethers.ZeroAddress,
+            ids,
+            values,
+          )
+          // crosschain transfer sent
+          .to.emit(this.bridgeB, 'CrosschainERC1155TransferSent')
+          .withArgs(anyValue, bruce, this.chain.toErc7930(chris), ids, values)
+          // ERC-7786 event
+          .to.emit(this.gateway, 'MessageSent')
+          // crosschain transfer received
+          .to.emit(this.bridgeA, 'CrosschainERC1155TransferReceived')
+          .withArgs(anyValue, this.chain.toErc7930(bruce), chris, ids, values)
+          // bridge on chain A releases custody of the token
+          .to.emit(this.tokenA, 'TransferBatch')
+          .withArgs(
+            chainAIsCustodial ? this.bridgeA : this.gateway,
+            chainAIsCustodial ? this.bridgeA : ethers.ZeroAddress,
+            chris,
+            ids,
+            values,
+          );
+      });
     });
 
     describe('transfer with allowance', function () {

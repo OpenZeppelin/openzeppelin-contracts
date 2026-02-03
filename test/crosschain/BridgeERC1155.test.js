@@ -44,4 +44,27 @@ describe('CrosschainBridgeERC1155', function () {
   });
 
   shouldBehaveLikeBridgeERC1155({ chainAIsCustodial: true });
+
+  describe('direct transfer to bridge should fail', function () {
+    const ids = [17n, 42n];
+    const values = [100n, 320n];
+
+    it('single', async function () {
+      const [alice] = this.accounts;
+      await this.tokenA.$_mintBatch(alice, ids, values, '0x');
+
+      await expect(this.tokenA.connect(alice).safeTransferFrom(alice, this.bridgeA, ids[0], values[0], '0x'))
+        .to.be.revertedWithCustomError(this.tokenA, 'ERC1155InvalidReceiver')
+        .withArgs(this.bridgeA);
+    });
+
+    it('batch', async function () {
+      const [alice] = this.accounts;
+      await this.tokenA.$_mintBatch(alice, ids, values, '0x');
+
+      await expect(this.tokenA.connect(alice).safeBatchTransferFrom(alice, this.bridgeA, ids, values, '0x'))
+        .to.be.revertedWithCustomError(this.tokenA, 'ERC1155InvalidReceiver')
+        .withArgs(this.bridgeA);
+    });
+  });
 });
