@@ -1,6 +1,6 @@
 import { network } from 'hardhat';
 import { expect } from 'chai';
-import { secp256k1 } from '@noble/curves/secp256k1';
+import { secp256k1 } from '@noble/curves/secp256k1.js';
 
 const {
   ethers,
@@ -249,7 +249,7 @@ describe('ECDSA', function () {
 
       // In ethers v6.15.0+, the library no longer throws 'non-canonical s' error for high-s signatures. This
       // assertion verifies we are in fact dealing with a high-s value that the ECDSA library should reject.
-      expect(ethers.toBigInt(s)).to.be.gt(secp256k1.CURVE.n / 2n);
+      expect(ethers.toBigInt(s)).to.be.gt(secp256k1.Point.Fn.ORDER / 2n);
 
       await expect(this.mock.$recover(message, highSSignature))
         .to.be.revertedWithCustomError(this.mock, 'ECDSAInvalidSignatureS')
