@@ -1,8 +1,10 @@
 import { assert } from 'node:console';
 import fs from 'node:fs';
 import path from 'node:path';
+
 import type { SolidityHooks } from 'hardhat/types/hooks';
 import { FileBuildResultType, SolidityBuildInfoOutput } from 'hardhat/types/solidity';
+import { createSpinner } from '@nomicfoundation/hardhat-utils/spinner';
 
 import { getExposed } from '../internal/expose.ts';
 
@@ -24,6 +26,10 @@ export default async (): Promise<Partial<SolidityHooks>> => ({
 
       // Return errors instead of ignoring!
       if ('reason' in results) return results;
+
+      // Start spinner
+      const spinner = createSpinner({ text: `Generating exposed contracts...` });
+      spinner.start();
 
       // 2. Recover the build IDs, and the corresponding root files
       const rootFilesPathsByBuildId: Set<string> = new Set();
@@ -56,6 +62,9 @@ export default async (): Promise<Partial<SolidityHooks>> => ({
           exposedPaths.add(exposedPath);
         }
       }
+
+      // Step spinner
+      spinner.stop();
 
       // 4. Build all exposed contracts
       const exposedResults = await context.solidity.build(Array.from(exposedPaths), options);
