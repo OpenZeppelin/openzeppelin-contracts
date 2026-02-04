@@ -29,6 +29,9 @@ export default async (): Promise<Partial<ConfigHooks>> => ({
     if (userConfig.exposed?.initializers !== undefined && typeof userConfig.exposed?.initializers !== 'boolean') {
       results.push({ path: ['exposed', 'initializers'], message: 'Expected an optional boolean.' });
     }
+    if (userConfig.exposed?.imports !== undefined && typeof userConfig.exposed?.imports !== 'boolean') {
+      results.push({ path: ['exposed', 'imports'], message: 'Expected an optional boolean.' });
+    }
     return results;
   },
 
@@ -40,6 +43,7 @@ export default async (): Promise<Partial<ConfigHooks>> => ({
         ...partiallyResolvedConfig,
         exposed: {
           ...userConfig.exposed,
+          prefix: userConfig.exposed?.prefix ?? '$',
           exclude: (userConfig.exposed?.exclude ?? []).map(makeAbsolutePath),
           include: (userConfig.exposed?.include ?? ['**/*']).map(makeAbsolutePath),
           outDir: makeAbsolutePath(userConfig.exposed?.outDir ?? 'contracts-exposed'),

@@ -1,16 +1,17 @@
+import { assert } from 'node:console';
 import fs from 'node:fs';
 import path from 'node:path';
-
 import type { SolidityHooks } from 'hardhat/types/hooks';
-import { FileBuildResultType } from 'hardhat/types/solidity';
+import { FileBuildResultType, SolidityBuildInfoOutput } from 'hardhat/types/solidity';
+
+import { getExposed } from '../internal/expose.ts';
 
 import type {} from '../type-extensions';
-
-import { getExposedPath, generateExposedContracts } from '../internal/expose.ts';
 
 export default async (): Promise<Partial<SolidityHooks>> => ({
   build: async (context, rootPaths, options, next) => {
     const includes = (rootPath: string) =>
+      rootPaths.includes(rootPath) &&
       context.config.exposed.include.some(p => path.matchesGlob(rootPath, p)) &&
       !context.config.exposed.exclude.some(p => path.matchesGlob(rootPath, p)) &&
       !rootPath.startsWith(context.config.exposed.outDir) &&
@@ -24,38 +25,40 @@ export default async (): Promise<Partial<SolidityHooks>> => ({
       // Return errors instead of ignoring!
       if ('reason' in results) return results;
 
-      // 2. Collect the files that need their exposed contracts regenerated
-      //    - BUILD_SUCCESS (newly compiled)
-      //    - CACHE_HIT with missing exposed file
-      const exposedFilesToRegenerate: Array<{ rootPath: string; buildId: string }> = [];
+      // 2. Recover the build IDs, and the corresponding root files
+      const rootFilesPathsByBuildId: Set<string> = new Set();
       for (const [rootPath, result] of results) {
         if (!includes(rootPath)) continue;
         switch (result.type) {
-          case FileBuildResultType.BUILD_SUCCESS:
-            exposedFilesToRegenerate.push({
-              rootPath,
-              buildId: await result.compilationJob.getBuildId(),
-            });
+          case FileBuildResultType.BUILD_SUCCESS: {
+            rootFilesPathsByBuildId.add(await result.compilationJob.getBuildId());
             break;
-          case FileBuildResultType.CACHE_HIT:
-            if (!fs.existsSync(getExposedPath(context, rootPath))) {
-              exposedFilesToRegenerate.push({
-                rootPath,
-                buildId: result.buildId,
-              });
-            }
+          }
+          case FileBuildResultType.CACHE_HIT: {
+            rootFilesPathsByBuildId.add(result.buildId);
             break;
+          }
         }
       }
 
-      // 3. Generate exposed contracts for the files that need it
-      if (exposedFilesToRegenerate.length > 0) {
-        await generateExposedContracts(context, exposedFilesToRegenerate);
+      // 3. Generate all exposed contracts
+      const exposedPaths: Set<string> = new Set();
+      for (const buildId of rootFilesPathsByBuildId) {
+        const outputPath = await context.artifacts.getBuildInfoOutputPath(buildId);
+        assert(outputPath, `No build info found for build ID ${buildId}`);
+
+        const { output } = JSON.parse(fs.readFileSync(outputPath!, 'utf-8')) as SolidityBuildInfoOutput;
+
+        const exposed = await getExposed(output, includes, context.config);
+        for (const [exposedPath, exposedContent] of exposed) {
+          fs.mkdirSync(path.dirname(exposedPath), { recursive: true });
+          fs.writeFileSync(exposedPath, exposedContent);
+          exposedPaths.add(exposedPath);
+        }
       }
 
       // 4. Build all exposed contracts
-      const exposedPaths = fs.globSync(path.join(context.config.exposed.outDir, '**', '*.sol'));
-      const exposedResults = await context.solidity.build(exposedPaths, options);
+      const exposedResults = await context.solidity.build(Array.from(exposedPaths), options);
 
       // Return errors instead of ignoring!
       if ('reason' in exposedResults) return exposedResults;
