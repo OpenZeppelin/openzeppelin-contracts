@@ -19,9 +19,10 @@ import {CrosschainLinked} from "../CrosschainLinked.sol";
  * extension, which embeds the bridge logic directly in the token contract.
  */
 abstract contract BridgeERC20Core is Context, CrosschainLinked {
-    using InteroperableAddress for bytes;
-
+    /// @dev Emitted when a crosschain ERC-20 transfer is sent.
     event CrosschainERC20TransferSent(bytes32 indexed sendId, address indexed from, bytes to, uint256 amount);
+
+    /// @dev Emitted when a crosschain ERC-20 transfer is received.
     event CrosschainERC20TransferReceived(bytes32 indexed receiveId, bytes from, address indexed to, uint256 amount);
 
     /**
@@ -41,7 +42,7 @@ abstract contract BridgeERC20Core is Context, CrosschainLinked {
     function _crosschainTransfer(address from, bytes memory to, uint256 amount) internal virtual returns (bytes32) {
         _onSend(from, amount);
 
-        (bytes2 chainType, bytes memory chainReference, bytes memory addr) = to.parseV1();
+        (bytes2 chainType, bytes memory chainReference, bytes memory addr) = InteroperableAddress.parseV1(to);
         bytes memory chain = InteroperableAddress.formatV1(chainType, chainReference, hex"");
 
         bytes32 sendId = _sendMessageToCounterpart(
@@ -63,8 +64,8 @@ abstract contract BridgeERC20Core is Context, CrosschainLinked {
         bytes calldata payload
     ) internal virtual override {
         // split payload
-        (bytes memory from, bytes memory toBinary, uint256 amount) = abi.decode(payload, (bytes, bytes, uint256));
-        address to = address(bytes20(toBinary));
+        (bytes memory from, bytes memory addr, uint256 amount) = abi.decode(payload, (bytes, bytes, uint256));
+        address to = address(bytes20(addr));
 
         _onReceive(to, amount);
 

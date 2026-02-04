@@ -14,8 +14,6 @@ import {BridgeERC721Core} from "./BridgeERC721Core.sol";
 abstract contract BridgeERC721 is BridgeERC721Core {
     IERC721 private immutable _token;
 
-    error BridgeERC721Unauthorized(address caller);
-
     constructor(IERC721 token_) {
         _token = token_;
     }

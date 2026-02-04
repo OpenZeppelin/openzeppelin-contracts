@@ -18,9 +18,10 @@ import {CrosschainLinked} from "../CrosschainLinked.sol";
  * the {ERC721Crosschain} extension, which embeds the bridge logic directly in the token contract.
  */
 abstract contract BridgeERC721Core is Context, CrosschainLinked {
-    using InteroperableAddress for bytes;
-
+    /// @dev Emitted when a crosschain ERC-721 transfer is sent.
     event CrosschainERC721TransferSent(bytes32 indexed sendId, address indexed from, bytes to, uint256 tokenId);
+
+    /// @dev Emitted when a crosschain ERC-721 transfer is received.
     event CrosschainERC721TransferReceived(bytes32 indexed receiveId, bytes from, address indexed to, uint256 tokenId);
 
     /**
@@ -31,7 +32,7 @@ abstract contract BridgeERC721Core is Context, CrosschainLinked {
     function _crosschainTransfer(address from, bytes memory to, uint256 tokenId) internal virtual returns (bytes32) {
         _onSend(from, tokenId);
 
-        (bytes2 chainType, bytes memory chainReference, bytes memory addr) = to.parseV1();
+        (bytes2 chainType, bytes memory chainReference, bytes memory addr) = InteroperableAddress.parseV1(to);
         bytes memory chain = InteroperableAddress.formatV1(chainType, chainReference, hex"");
 
         bytes32 sendId = _sendMessageToCounterpart(
@@ -53,8 +54,8 @@ abstract contract BridgeERC721Core is Context, CrosschainLinked {
         bytes calldata payload
     ) internal virtual override {
         // split payload
-        (bytes memory from, bytes memory toBinary, uint256 tokenId) = abi.decode(payload, (bytes, bytes, uint256));
-        address to = address(bytes20(toBinary));
+        (bytes memory from, bytes memory addr, uint256 tokenId) = abi.decode(payload, (bytes, bytes, uint256));
+        address to = address(bytes20(addr));
 
         _onReceive(to, tokenId);
 
