@@ -1,8 +1,12 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { ImplementationLabel, AdminLabel, BeaconLabel } from '../../helpers/storage';
 
-const { getAddressInSlot, setSlot, ImplementationSlot, AdminSlot, BeaconSlot } = require('../../helpers/storage');
+const {
+  ethers,
+  helpers: { storage },
+  networkHelpers: { loadFixture },
+} = await network.connect();
 
 async function fixture() {
   const [, admin, anotherAccount] = await ethers.getSigners();
@@ -21,13 +25,13 @@ describe('ERC1967Utils', function () {
 
   describe('IMPLEMENTATION_SLOT', function () {
     beforeEach('set v1 implementation', async function () {
-      await setSlot(this.utils, ImplementationSlot, this.v1);
+      await storage.setSlot(this.utils, ImplementationLabel, this.v1);
     });
 
     describe('getImplementation', function () {
       it('returns current implementation and matches implementation slot value', async function () {
         expect(await this.utils.$getImplementation()).to.equal(this.v1);
-        expect(await getAddressInSlot(this.utils, ImplementationSlot)).to.equal(this.v1);
+        expect(await storage.getAddressInSlot(this.utils, ImplementationLabel)).to.equal(this.v1);
       });
     });
 
@@ -36,7 +40,7 @@ describe('ERC1967Utils', function () {
         const newImplementation = this.v2;
         const tx = await this.utils.$upgradeToAndCall(newImplementation, '0x');
 
-        expect(await getAddressInSlot(this.utils, ImplementationSlot)).to.equal(newImplementation);
+        expect(await storage.getAddressInSlot(this.utils, ImplementationLabel)).to.equal(newImplementation);
         await expect(tx).to.emit(this.utils, 'Upgraded').withArgs(newImplementation);
       });
 
@@ -67,13 +71,13 @@ describe('ERC1967Utils', function () {
 
   describe('ADMIN_SLOT', function () {
     beforeEach('set admin', async function () {
-      await setSlot(this.utils, AdminSlot, this.admin);
+      await storage.setSlot(this.utils, AdminLabel, this.admin);
     });
 
     describe('getAdmin', function () {
       it('returns current admin and matches admin slot value', async function () {
         expect(await this.utils.$getAdmin()).to.equal(this.admin);
-        expect(await getAddressInSlot(this.utils, AdminSlot)).to.equal(this.admin);
+        expect(await storage.getAddressInSlot(this.utils, AdminLabel)).to.equal(this.admin);
       });
     });
 
@@ -82,7 +86,7 @@ describe('ERC1967Utils', function () {
         const newAdmin = this.anotherAccount;
         const tx = await this.utils.$changeAdmin(newAdmin);
 
-        expect(await getAddressInSlot(this.utils, AdminSlot)).to.equal(newAdmin);
+        expect(await storage.getAddressInSlot(this.utils, AdminLabel)).to.equal(newAdmin);
         await expect(tx).to.emit(this.utils, 'AdminChanged').withArgs(this.admin, newAdmin);
       });
 
@@ -97,13 +101,13 @@ describe('ERC1967Utils', function () {
   describe('BEACON_SLOT', function () {
     beforeEach('set beacon', async function () {
       this.beacon = await ethers.deployContract('UpgradeableBeaconMock', [this.v1]);
-      await setSlot(this.utils, BeaconSlot, this.beacon);
+      await storage.setSlot(this.utils, BeaconLabel, this.beacon);
     });
 
     describe('getBeacon', function () {
       it('returns current beacon and matches beacon slot value', async function () {
         expect(await this.utils.$getBeacon()).to.equal(this.beacon);
-        expect(await getAddressInSlot(this.utils, BeaconSlot)).to.equal(this.beacon);
+        expect(await storage.getAddressInSlot(this.utils, BeaconLabel)).to.equal(this.beacon);
       });
     });
 
@@ -112,7 +116,7 @@ describe('ERC1967Utils', function () {
         const newBeacon = await ethers.deployContract('UpgradeableBeaconMock', [this.v2]);
         const tx = await this.utils.$upgradeBeaconToAndCall(newBeacon, '0x');
 
-        expect(await getAddressInSlot(this.utils, BeaconSlot)).to.equal(newBeacon);
+        expect(await storage.getAddressInSlot(this.utils, BeaconLabel)).to.equal(newBeacon);
         await expect(tx).to.emit(this.utils, 'BeaconUpgraded').withArgs(newBeacon);
       });
 

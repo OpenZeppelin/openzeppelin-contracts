@@ -1,5 +1,5 @@
-const format = require('../format-lines');
-const { OPTS } = require('./MerkleProof.opts');
+import format from '../format-lines.js';
+import { OPTS } from './MerkleProof.opts.js';
 
 const DEFAULT_HASH = 'Hashes.commutativeKeccak256';
 
@@ -172,7 +172,7 @@ function processMultiProof${suffix}(${formatArgsMultiline(
 `;
 
 // GENERATE
-module.exports = format(
+export default format(
   header.trimEnd(),
   'library MerkleProof {',
   format(

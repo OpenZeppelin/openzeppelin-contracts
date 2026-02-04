@@ -1,10 +1,14 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { ProposalState } from '../../helpers/enums';
+import { GovernorHelper } from '../../helpers/governance';
 
-const { impersonate } = require('../../helpers/account');
-const { GovernorHelper } = require('../../helpers/governance');
-const { ProposalState } = require('../../helpers/enums');
+const connection = await network.connect();
+const {
+  ethers,
+  helpers: { impersonate },
+  networkHelpers: { loadFixture },
+} = connection;
 
 const TOKENS = [
   { Token: '$ERC20Votes', mode: 'blocknumber' },
@@ -35,11 +39,10 @@ describe('GovernorProposalGuardian', function () {
         10n, // quorumNumeratorValue
       ]);
 
-      await impersonate(mock.target);
       await owner.sendTransaction({ to: mock, value });
       await token.$_mint(owner, tokenSupply);
 
-      const helper = new GovernorHelper(mock, mode);
+      const helper = new GovernorHelper(connection, mock, mode);
       await helper.connect(owner).delegate({ token, to: voter1, value: ethers.parseEther('10') });
       await helper.connect(owner).delegate({ token, to: voter2, value: ethers.parseEther('7') });
       await helper.connect(owner).delegate({ token, to: voter3, value: ethers.parseEther('5') });
@@ -50,7 +53,7 @@ describe('GovernorProposalGuardian', function () {
 
     describe(`using ${Token}`, function () {
       beforeEach(async function () {
-        Object.assign(this, await loadFixture(fixture));
+        Object.assign(this, connection, await loadFixture(fixture));
 
         // default proposal
         this.proposal = this.helper.setProposal(
@@ -74,8 +77,8 @@ describe('GovernorProposalGuardian', function () {
 
       describe('set proposal guardian', function () {
         it('from governance', async function () {
-          const governorSigner = await ethers.getSigner(this.mock.target);
-          await expect(this.mock.connect(governorSigner).setProposalGuardian(this.guardian))
+          const governorAsSigner = await impersonate(this.mock);
+          await expect(this.mock.connect(governorAsSigner).setProposalGuardian(this.guardian))
             .to.emit(this.mock, 'ProposalGuardianSet')
             .withArgs(ethers.ZeroAddress, this.guardian);
           await expect(this.mock.proposalGuardian()).to.eventually.equal(this.guardian);

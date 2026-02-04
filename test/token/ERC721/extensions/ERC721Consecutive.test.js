@@ -1,8 +1,11 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { sum } from '../../../helpers/math';
 
-const { sum } = require('../../../helpers/math');
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.connect();
 
 const name = 'Non Fungible Token';
 const symbol = 'NFT';

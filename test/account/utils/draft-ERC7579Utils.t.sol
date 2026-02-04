@@ -394,7 +394,7 @@ contract ERC7579UtilsTest is Test {
         return useroperation.hash(address(ERC4337Utils.ENTRYPOINT_V07));
     }
 
-    function _collectAndPrintLogs(bool includeTotalValue) internal {
+    function _collectAndPrintLogs(bool includeTotalValue) internal view {
         Vm.Log[] memory logs = vm.getRecordedLogs();
         for (uint256 i = 0; i < logs.length; i++) {
             if (logs[i].emitter == _account) {

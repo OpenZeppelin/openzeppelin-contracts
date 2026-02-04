@@ -1,12 +1,14 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { MAX_UINT48 } from '../helpers/constants';
+import { ForwardRequest, getDomain } from '../helpers/eip712';
+import { shouldBehaveLikeRegularContext } from '../utils/Context.behavior';
 
-const { impersonate } = require('../helpers/account');
-const { getDomain, ForwardRequest } = require('../helpers/eip712');
-const { MAX_UINT48 } = require('../helpers/constants');
-
-const { shouldBehaveLikeRegularContext } = require('../utils/Context.behavior');
+const {
+  ethers,
+  helpers: { impersonate },
+  networkHelpers: { loadFixture },
+} = await network.connect();
 
 async function fixture() {
   const [sender, other] = await ethers.getSigners();
@@ -14,6 +16,7 @@ async function fixture() {
   const forwarder = await ethers.deployContract('ERC2771Forwarder', ['ERC2771Forwarder']);
   const forwarderAsSigner = await impersonate(forwarder.target);
   const context = await ethers.deployContract('ERC2771ContextMock', [forwarder]);
+  const contextHelper = await ethers.deployContract('ContextMockCaller', []);
   const domain = await getDomain(forwarder);
 
   const prepareAndSignRequest = async (signer, request) => {
@@ -28,7 +31,7 @@ async function fixture() {
     return request;
   };
 
-  return { sender, other, forwarder, forwarderAsSigner, context, prepareAndSignRequest };
+  return { sender, other, forwarder, forwarderAsSigner, context, contextHelper, prepareAndSignRequest };
 }
 
 describe('ERC2771Context', function () {

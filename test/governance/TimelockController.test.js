@@ -1,13 +1,16 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { PANIC_CODES } from '@nomicfoundation/hardhat-ethers-chai-matchers/panic';
+import { GovernorHelper } from '../helpers/governance';
+import { OperationState } from '../helpers/enums';
+import { shouldSupportInterfaces } from '../utils/introspection/SupportsInterface.behavior';
 
-const { GovernorHelper } = require('../helpers/governance');
-const { OperationState } = require('../helpers/enums');
-const time = require('../helpers/time');
-
-const { shouldSupportInterfaces } = require('../utils/introspection/SupportsInterface.behavior');
+const connection = await network.connect();
+const {
+  ethers,
+  helpers: { time },
+  networkHelpers: { loadFixture },
+} = connection;
 
 const salt = '0x025e7b0be353a74631ad648c667493c0e1cd31caa4cc2d3520fdc171ea0cc726'; // a random value
 

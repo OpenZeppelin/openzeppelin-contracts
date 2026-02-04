@@ -1,10 +1,13 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { generators } from '../helpers/random';
+import { shouldBehaveLikeClone } from './Clones.behaviour';
 
-const { generators } = require('../helpers/random');
-
-const shouldBehaveLikeClone = require('./Clones.behaviour');
+const connection = await network.connect();
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = connection;
 
 const cloneInitCode = (instance, args = undefined) =>
   args
@@ -81,7 +84,7 @@ async function fixture() {
 
 describe('Clones', function () {
   beforeEach(async function () {
-    Object.assign(this, await loadFixture(fixture));
+    Object.assign(this, connection, await loadFixture(fixture));
   });
 
   for (const args of [undefined, '0x', '0x11223344']) {
@@ -120,7 +123,7 @@ describe('Clones', function () {
               : this.factory.$cloneDeterministic(this.implementation, salt);
 
           // deploy once
-          await expect(deployClone()).to.not.be.reverted;
+          await expect(deployClone()).to.not.be.revert(ethers);
 
           // deploy twice
           await expect(deployClone()).to.be.revertedWithCustomError(this.factory, 'FailedDeployment');

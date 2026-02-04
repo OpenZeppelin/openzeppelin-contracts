@@ -1,5 +1,5 @@
-const format = require('../format-lines');
-const { range } = require('../../helpers');
+import format from '../format-lines.js';
+import { range } from '../../helpers.js';
 
 const LENGTHS = range(8, 256, 8).reverse(); // 248 → 8 (in steps of 8)
 
@@ -126,7 +126,7 @@ function toUint(bool b) internal pure returns (uint256 u) {
 `;
 
 // GENERATE
-module.exports = format(
+export default format(
   header.trimEnd(),
   'library SafeCast {',
   format(

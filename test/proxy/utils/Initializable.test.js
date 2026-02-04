@@ -1,6 +1,8 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { MAX_UINT64 } = require('../../helpers/constants');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { MAX_UINT64 } from '../../helpers/constants';
+
+const { ethers } = await network.connect();
 
 describe('Initializable', function () {
   describe('basic testing without inheritance', function () {

@@ -1,12 +1,10 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
+import { expect } from 'chai';
+import { ImplementationLabel } from '../helpers/storage';
 
-const { getAddressInSlot, ImplementationSlot } = require('../helpers/storage');
-
-module.exports = function shouldBehaveLikeProxy(allowUninitialized = false) {
+export function shouldBehaveLikeProxy(allowUninitialized = false) {
   it('cannot be initialized with a non-contract address', async function () {
     const initializeData = '0x00'; // non empty data to avoid uninitialized error
-    const contractFactory = await ethers.getContractFactory('ERC1967Proxy');
+    const contractFactory = await this.ethers.getContractFactory('ERC1967Proxy');
 
     await expect(this.createProxy(this.nonContractAddress, initializeData))
       .to.be.revertedWithCustomError(contractFactory, 'ERC1967InvalidImplementation')
@@ -15,7 +13,9 @@ module.exports = function shouldBehaveLikeProxy(allowUninitialized = false) {
 
   const assertProxyInitialization = function ({ value, balance }) {
     it('sets the implementation address', async function () {
-      expect(await getAddressInSlot(this.proxy, ImplementationSlot)).to.equal(this.implementation);
+      expect(await this.helpers.storage.getAddressInSlot(this.proxy, ImplementationLabel)).to.equal(
+        this.implementation,
+      );
     });
 
     it('initializes the proxy', async function () {
@@ -24,7 +24,7 @@ module.exports = function shouldBehaveLikeProxy(allowUninitialized = false) {
     });
 
     it('has expected balance', async function () {
-      expect(await ethers.provider.getBalance(this.proxy)).to.equal(balance);
+      expect(await this.proxy.runner.provider.getBalance(this.proxy)).to.equal(balance);
     });
   };
 
@@ -44,13 +44,13 @@ module.exports = function shouldBehaveLikeProxy(allowUninitialized = false) {
         const value = 10n ** 5n;
 
         it('reverts', async function () {
-          await expect(this.createProxy(this.implementation, initializeData, { value })).to.be.reverted;
+          await expect(this.createProxy(this.implementation, initializeData, { value })).to.be.revert(this.ethers);
         });
       });
     } else {
       it('reverts without initialization', async function () {
         const initializeData = '0x'; // empty data causes uninitialized error
-        const contractFactory = await ethers.getContractFactory('ERC1967Proxy');
+        const contractFactory = await this.ethers.getContractFactory('ERC1967Proxy');
 
         await expect(this.createProxy(this.implementation, initializeData)).to.be.revertedWithCustomError(
           contractFactory,
@@ -83,7 +83,7 @@ module.exports = function shouldBehaveLikeProxy(allowUninitialized = false) {
         const value = 10n ** 5n;
 
         it('reverts', async function () {
-          await expect(this.createProxy(this.implementation, this.initializeData, { value })).to.be.reverted;
+          await expect(this.createProxy(this.implementation, this.initializeData, { value })).to.be.revert(this.ethers);
         });
       });
     });
@@ -138,7 +138,7 @@ module.exports = function shouldBehaveLikeProxy(allowUninitialized = false) {
 
         assertProxyInitialization({
           value: expectedInitializedValue,
-          balance: 0,
+          balance: 0n,
         });
       });
 
@@ -146,7 +146,7 @@ module.exports = function shouldBehaveLikeProxy(allowUninitialized = false) {
         const value = 10e5;
 
         it('reverts', async function () {
-          await expect(this.createProxy(this.implementation, this.initializeData, { value })).to.be.reverted;
+          await expect(this.createProxy(this.implementation, this.initializeData, { value })).to.be.revert(this.ethers);
         });
       });
     });
@@ -191,8 +191,8 @@ module.exports = function shouldBehaveLikeProxy(allowUninitialized = false) {
       });
 
       it('reverts', async function () {
-        await expect(this.createProxy(this.implementation, this.initializeData)).to.be.reverted;
+        await expect(this.createProxy(this.implementation, this.initializeData)).to.be.revert(this.ethers);
       });
     });
   });
-};
+}

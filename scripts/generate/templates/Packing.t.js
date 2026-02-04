@@ -1,6 +1,6 @@
-const format = require('../format-lines');
-const { product } = require('../../helpers');
-const { SIZES } = require('./Packing.opts');
+import format from '../format-lines.js';
+import { product } from '../../helpers.js';
+import { SIZES } from './Packing.opts.js';
 
 // TEMPLATE
 const header = `\
@@ -29,7 +29,7 @@ function testSymbolicReplace(bytes${outer} container, bytes${inner} newValue, ui
 `;
 
 // GENERATE
-module.exports = format(
+export default format(
   header,
   'contract PackingTest is Test {',
   format(

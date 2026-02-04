@@ -1,10 +1,13 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { product } from '../../helpers/iterate';
+import { max } from '../../helpers/math';
 
-const { product } = require('../../helpers/iterate');
-const { max } = require('../../helpers/math');
-const time = require('../../helpers/time');
+const {
+  ethers,
+  helpers: { time },
+  networkHelpers: { loadFixture },
+} = await network.connect();
 
 const MAX_UINT32 = (1n << 32n) - 1n;
 const MAX_UINT48 = (1n << 48n) - 1n;
@@ -37,8 +40,7 @@ const effectSamplesForTimepoint = timepoint => [
 ];
 
 async function fixture() {
-  const mock = await ethers.deployContract('$Time');
-  return { mock };
+  return { mock: await ethers.deployContract('$Time') };
 }
 
 describe('Time', function () {

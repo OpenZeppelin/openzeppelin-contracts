@@ -1,11 +1,15 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { anyValue } = require('@nomicfoundation/hardhat-chai-matchers/withArgs');
-const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { anyValue } from '@nomicfoundation/hardhat-ethers-chai-matchers/withArgs';
+import { PANIC_CODES } from '@nomicfoundation/hardhat-ethers-chai-matchers/panic';
+import { VoteType } from '../../helpers/enums';
+import { GovernorHelper, timelockSalt } from '../../helpers/governance';
 
-const { GovernorHelper, timelockSalt } = require('../../helpers/governance');
-const { VoteType } = require('../../helpers/enums');
+const connection = await network.connect();
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = connection;
 
 const TOKENS = [
   { Token: '$ERC20Votes', mode: 'blocknumber' },
@@ -54,7 +58,7 @@ describe('GovernorStorage', function () {
       await timelock.grantRole(EXECUTOR_ROLE, ethers.ZeroAddress);
       await timelock.revokeRole(DEFAULT_ADMIN_ROLE, deployer);
 
-      const helper = new GovernorHelper(mock, mode);
+      const helper = new GovernorHelper(connection, mock, mode);
       await helper.connect(owner).delegate({ token, to: voter1, value: ethers.parseEther('10') });
       await helper.connect(owner).delegate({ token, to: voter2, value: ethers.parseEther('7') });
       await helper.connect(owner).delegate({ token, to: voter3, value: ethers.parseEther('5') });
@@ -65,7 +69,7 @@ describe('GovernorStorage', function () {
 
     describe(`using ${Token}`, function () {
       beforeEach(async function () {
-        Object.assign(this, await loadFixture(fixture));
+        Object.assign(this, connection, await loadFixture(fixture));
         // initiate fresh proposal
         this.proposal = this.helper.setProposal(
           [

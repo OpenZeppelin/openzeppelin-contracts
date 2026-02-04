@@ -1,7 +1,9 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
-const { SimpleMerkleTree } = require('@openzeppelin/merkle-tree');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { PANIC_CODES } from '@nomicfoundation/hardhat-ethers-chai-matchers/panic';
+import { SimpleMerkleTree } from '@openzeppelin/merkle-tree';
+
+const { ethers } = await network.connect();
 
 // generate bytes32 leaves from a string
 const toLeaves = (str, separator = '') => str.split(separator).map(e => ethers.keccak256(ethers.toUtf8Bytes(e)));

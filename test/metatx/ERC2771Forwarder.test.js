@@ -1,10 +1,13 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { ForwardRequest, getDomain } from '../helpers/eip712';
+import { sum } from '../helpers/math';
 
-const { getDomain, ForwardRequest } = require('../helpers/eip712');
-const { sum } = require('../helpers/math');
-const time = require('../helpers/time');
+const {
+  ethers,
+  helpers: { time },
+  networkHelpers: { loadFixture },
+} = await network.connect();
 
 async function fixture() {
   const [sender, refundReceiver, another, ...accounts] = await ethers.getSigners();
@@ -149,7 +152,7 @@ describe('ERC2771Forwarder', function () {
       });
 
       const gasLimit = 100_000n;
-      await expect(this.forwarder.execute(request, { gasLimit })).to.be.revertedWithoutReason();
+      await expect(this.forwarder.execute(request, { gasLimit })).to.be.revertedWithoutReason(ethers);
 
       const { gasUsed } = await ethers.provider
         .getBlock('latest')
@@ -178,7 +181,7 @@ describe('ERC2771Forwarder', function () {
 
       // The subcall out of gas should be caught by the contract and then bubbled up consuming
       // the available gas with an `invalid` opcode.
-      await expect(this.forwarder.execute(request, { gasLimit })).to.be.revertedWithoutReason();
+      await expect(this.forwarder.execute(request, { gasLimit })).to.be.revertedWithoutReason(ethers);
 
       const { gasUsed } = await ethers.provider
         .getBlock('latest')
@@ -339,7 +342,7 @@ describe('ERC2771Forwarder', function () {
             gasLimit,
             value: requestsValue(this.requests),
           }),
-        ).to.be.revertedWithoutReason();
+        ).to.be.revertedWithoutReason(ethers);
 
         const { gasUsed } = await ethers.provider
           .getBlock('latest')
@@ -369,7 +372,7 @@ describe('ERC2771Forwarder', function () {
             gasLimit,
             value: requestsValue(this.requests),
           }),
-        ).to.be.revertedWithoutReason();
+        ).to.be.revertedWithoutReason(ethers);
 
         const { gasUsed } = await ethers.provider
           .getBlock('latest')

@@ -1,7 +1,11 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { secp256k1 } = require('@noble/curves/secp256k1.js');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { secp256k1 } from '@noble/curves/secp256k1.js';
+
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.connect();
 
 const TEST_MESSAGE = ethers.id('OpenZeppelin');
 const WRONG_MESSAGE = ethers.id('Nope');

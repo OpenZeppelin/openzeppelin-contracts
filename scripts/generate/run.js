@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-const cp = require('child_process');
-const fs = require('fs');
-const path = require('path');
-const format = require('./format-lines');
+import cp from 'child_process';
+import fs from 'fs';
+import path from 'path';
+import format from './format-lines.js';
 
 function getVersion(path) {
   try {
@@ -13,8 +13,8 @@ function getVersion(path) {
   }
 }
 
-function generateFromTemplate(file, template, outputPrefix = '', lint = false) {
-  const script = path.relative(path.join(__dirname, '../..'), __filename);
+async function generateFromTemplate(file, template, outputPrefix = '', lint = false) {
+  const script = path.relative(path.join(import.meta.dirname, '../..'), import.meta.filename);
   const input = path.join(path.dirname(script), template);
   const output = path.join(outputPrefix, file);
   const version = getVersion(output);
@@ -23,7 +23,7 @@ function generateFromTemplate(file, template, outputPrefix = '', lint = false) {
     ...(version ? [version + ` (${file})`] : []),
     `// This file was procedurally generated from ${input}.`,
     '',
-    require(template).trimEnd(),
+    (await import(template)).default.trimEnd(),
   );
 
   fs.writeFileSync(output, content);
@@ -48,7 +48,7 @@ for (const [file, template] of Object.entries({
   'mocks/StorageSlotMock.sol': './templates/StorageSlotMock.js',
   'mocks/TransientSlotMock.sol': './templates/TransientSlotMock.js',
 })) {
-  generateFromTemplate(file, template, './contracts/', needsLinter.includes(file));
+  await generateFromTemplate(file, template, './contracts/', needsLinter.includes(file));
 }
 
 // Tests
@@ -57,5 +57,5 @@ for (const [file, template] of Object.entries({
   'utils/Packing.t.sol': './templates/Packing.t.js',
   'utils/SlotDerivation.t.sol': './templates/SlotDerivation.t.js',
 })) {
-  generateFromTemplate(file, template, './test/', needsLinter.includes(file));
+  await generateFromTemplate(file, template, './test/', needsLinter.includes(file));
 }

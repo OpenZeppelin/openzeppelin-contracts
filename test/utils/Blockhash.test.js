@@ -1,7 +1,11 @@
-const { ethers, predeploy } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture, mineUpTo, setCode } = require('@nomicfoundation/hardhat-network-helpers');
-const { impersonate } = require('../helpers/account');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+
+const {
+  ethers,
+  helpers: { impersonate, time },
+  networkHelpers: { loadFixture, setCode },
+} = await network.connect();
 
 const SYSTEM_ADDRESS = '0xfffffffffffffffffffffffffffffffffffffffe';
 const HISTORY_SERVE_WINDOW = 8191;
@@ -24,21 +28,21 @@ describe('Blockhash', function () {
     describe(`${supported ? 'supported' : 'unsupported'} chain`, function () {
       beforeEach(async function () {
         if (supported) {
-          await this.systemSigner.sendTransaction({ to: predeploy.eip2935, data: this.latestBlock.hash });
+          await this.systemSigner.sendTransaction({ to: ethers.predeploy.eip2935, data: this.latestBlock.hash });
         } else {
-          await setCode(predeploy.eip2935.target, '0x');
+          await setCode(ethers.predeploy.eip2935.target, '0x');
         }
       });
 
       it('recent block', async function () {
         // fast forward (less than blockhash serve window)
-        await mineUpTo(this.latestBlock.number + BLOCKHASH_SERVE_WINDOW);
+        await time.increaseTo.blocknumber(this.latestBlock.number + BLOCKHASH_SERVE_WINDOW);
         await expect(this.mock.$blockHash(this.latestBlock.number)).to.eventually.equal(this.latestBlock.hash);
       });
 
       it('old block', async function () {
         // fast forward (more than blockhash serve window)
-        await mineUpTo(this.latestBlock.number + BLOCKHASH_SERVE_WINDOW + 1);
+        await time.increaseTo.blocknumber(this.latestBlock.number + BLOCKHASH_SERVE_WINDOW + 1);
         await expect(this.mock.$blockHash(this.latestBlock.number)).to.eventually.equal(
           supported ? this.latestBlock.hash : ethers.ZeroHash,
         );
@@ -46,7 +50,7 @@ describe('Blockhash', function () {
 
       it('very old block', async function () {
         // fast forward (more than history serve window)
-        await mineUpTo(this.latestBlock.number + HISTORY_SERVE_WINDOW + 10);
+        await time.increaseTo.blocknumber(this.latestBlock.number + HISTORY_SERVE_WINDOW + 10);
         await expect(this.mock.$blockHash(this.latestBlock.number)).to.eventually.equal(ethers.ZeroHash);
       });
 

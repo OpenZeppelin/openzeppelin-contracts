@@ -1,7 +1,11 @@
-const { ethers } = require('hardhat');
+import { network } from 'hardhat';
+import { shouldBehaveLikeProxy } from '../Proxy.behaviour';
 
-const shouldBehaveLikeProxy = require('../Proxy.behaviour');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+const connection = await network.connect();
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = connection;
 
 const fixture = async () => {
   const [nonContractAddress] = await ethers.getSigners();
@@ -13,7 +17,7 @@ const fixture = async () => {
 
 describe('ERC1967Proxy', function () {
   beforeEach(async function () {
-    Object.assign(this, await loadFixture(fixture));
+    Object.assign(this, connection, await loadFixture(fixture));
   });
 
   describe('(default) allowUninitialized is false', function () {

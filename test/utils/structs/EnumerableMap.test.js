@@ -1,11 +1,13 @@
-const { ethers } = require('hardhat');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { mapValues } from '../../helpers/iterate';
+import { generators } from '../../helpers/random';
+import { MAP_TYPES, typeDescr, toMapTypeDescr } from '../../../scripts/generate/templates/Enumerable.opts';
+import { shouldBehaveLikeMap } from './EnumerableMap.behavior';
 
-const { mapValues } = require('../../helpers/iterate');
-const { generators } = require('../../helpers/random');
-const { MAP_TYPES, typeDescr, toMapTypeDescr } = require('../../../scripts/generate/templates/Enumerable.opts');
-
-const { shouldBehaveLikeMap } = require('./EnumerableMap.behavior');
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.connect();
 
 // Add Bytes32ToBytes32Map that must be tested but is not part of the generated types.
 MAP_TYPES.unshift(toMapTypeDescr({ key: typeDescr({ type: 'bytes32' }), value: typeDescr({ type: 'bytes32' }) }));

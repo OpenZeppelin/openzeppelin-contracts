@@ -1,11 +1,15 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { VoteType } from '../../helpers/enums';
+import { GovernorHelper } from '../../helpers/governance';
+import { zip } from '../../helpers/iterate';
+import { sum } from '../../helpers/math';
 
-const { GovernorHelper } = require('../../helpers/governance');
-const { VoteType } = require('../../helpers/enums');
-const { zip } = require('../../helpers/iterate');
-const { sum } = require('../../helpers/math');
+const connection = await network.connect();
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = connection;
 
 const TOKENS = [
   { Token: '$ERC20Votes', mode: 'blocknumber' },
@@ -40,7 +44,7 @@ describe('GovernorCountingFractional', function () {
       await owner.sendTransaction({ to: mock, value });
       await token.$_mint(owner, tokenSupply);
 
-      const helper = new GovernorHelper(mock, mode);
+      const helper = new GovernorHelper(connection, mock, mode);
       await helper.connect(owner).delegate({ token, to: voter1, value: ethers.parseEther('10') });
       await helper.connect(owner).delegate({ token, to: voter2, value: ethers.parseEther('7') });
       await helper.connect(owner).delegate({ token, to: voter3, value: ethers.parseEther('5') });
