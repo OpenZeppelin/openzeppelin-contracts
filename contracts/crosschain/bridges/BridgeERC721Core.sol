@@ -26,7 +26,7 @@ abstract contract BridgeERC721Core is Context, CrosschainLinked {
     /**
      * @dev Internal crosschain transfer function.
      *
-     * Note: The `to` parameter is the full InteroperableAddress (chain ref + address).
+     * NOTE: The `to` parameter is the full InteroperableAddress (chain ref + address).
      */
     function _crosschainTransfer(address from, bytes memory to, uint256 tokenId) internal virtual returns (bytes32) {
         _onSend(from, tokenId);
