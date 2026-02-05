@@ -16,8 +16,6 @@ import {BridgeERC1155Core} from "./BridgeERC1155Core.sol";
 abstract contract BridgeERC1155 is BridgeERC1155Core, ERC1155Holder {
     IERC1155 private immutable _token;
 
-    error BridgeERC1155Unauthorized(address caller);
-
     constructor(IERC1155 token_) {
         _token = token_;
     }
