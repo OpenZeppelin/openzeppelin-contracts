@@ -150,7 +150,7 @@ The minimum delay (accessible through the xref:api:governance.adoc#TimelockContr
 
 For a system of contracts, better integrated role management can be achieved with an xref:api:access.adoc#AccessManager[`AccessManager`] instance. Instead of managing each contract's permission separately, AccessManager stores all the permissions in a single contract, making your protocol easier to audit and maintain.
 
-Although xref:api:access.adoc#AccessControl[`AccessControl`] offers a more dynamic solution for adding permissions to your contracts than Ownable, decentralized protocols tend to become more complex after integrating new contract instances and requires you to keep track of permissions separately in each contract. This increases the complexity of permissions management and monitoring across the system.
+Although xref:api:access.adoc#AccessControl[`AccessControl`] offers a more dynamic solution for adding permissions to your contracts than Ownable, decentralized protocols tend to become more complex after integrating new contract instances, requiring you to keep track of permissions separately in each contract. This increases the complexity of permissions management and monitoring across the system.
 
 image::access-control-multiple.svg[Access Control multiple]
 
@@ -279,7 +279,7 @@ Similar to `AccessControl`, accounts might be granted and revoked roles dynamica
 
 The base `AccessManager` contract provides comprehensive role-based access control but does not support on-chain enumeration of role members or target function permissions by default. To track which accounts hold roles and which functions are assigned to roles, you should rely on the xref:api:access.adoc#AccessManager-RoleGranted-uint64-address-uint32-uint48-bool-[RoleGranted], xref:api:access.adoc#AccessManager-RoleRevoked-uint64-address-[RoleRevoked], and xref:api:access.adoc#AccessManager-TargetFunctionRoleUpdated-address-bytes4-uint64-[TargetFunctionRoleUpdated] events, which can be processed off-chain.
 
-If on-chain enumeration is required, it can be added implemented on top of the existing logic:
+If on-chain enumeration is required, it can be implemented on top of the existing logic:
 
 ```solidity
 include::api:example$AccessManagerEnumerable.sol[]
@@ -287,7 +287,7 @@ include::api:example$AccessManagerEnumerable.sol[]
 
 NOTE: The enumerable example only enumerates members of a role and functions that each role can call. Yet, it's possible to enumerate roles active (i.e. roles granted to at least 1 member), guardians and admins.
 
-This adds function that can be queried to iterate over the accounts that have been granted a role and the functions that a role is allowed to call on specific targets:
+This adds functions that can be queried to iterate over the accounts that have been granted a role and the functions that a role is allowed to call on specific targets:
 
 ```javascript
 // Enumerate role members
@@ -320,7 +320,7 @@ Contracts already inheriting from xref:api:access.adoc#Ownable[`Ownable`] can mi
 
 ```javascript
 await ownable.connect(owner).transferOwnership(accessManager);
-```
+NOTE: After migrating to AccessManager, the msg.sender in restricted functions will be the AccessManager contract itself through the xref:api:access.adoc#AccessManager-execute-address-bytes-[execute] function, not the original caller. This is a fundamental change in how access control works and may require updates to your contract logic or frontend integration.
 
 === Using with AccessControl
 
