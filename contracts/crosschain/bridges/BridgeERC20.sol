@@ -3,7 +3,7 @@
 pragma solidity ^0.8.26;
 
 import {IERC20, SafeERC20} from "../../token/ERC20/utils/SafeERC20.sol";
-import {BridgeFungible} from "./BridgeFungible.sol";
+import {BridgeFungible} from "./abstract/BridgeFungible.sol";
 
 /**
  * @dev This is a variant of {BridgeFungible} that implements the bridge logic for ERC-20 tokens that do not expose a
