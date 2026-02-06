@@ -40,10 +40,6 @@ import {Strings} from "../Strings.sol";
  * * https://github.com/base/webauthn-sol/blob/main/src/WebAuthn.sol[base implementation]
  */
 library WebAuthn {
-    using Bytes for bytes;
-    using Math for uint256;
-    using Strings for string;
-
     struct WebAuthnAuth {
         bytes32 r; /// The r value of secp256r1 signature
         bytes32 s; /// The s value of secp256r1 signature
@@ -160,11 +156,15 @@ library WebAuthn {
     ) private pure returns (bool) {
         // solhint-disable-next-line quotes
         string memory expectedChallenge = string.concat('"challenge":"', Base64.encodeURL(challenge), '"');
-        return
-            challengeIndex.saturatingAdd(bytes(expectedChallenge).length) <= bytes(clientDataJSON).length &&
-            string(bytes(clientDataJSON).slice(challengeIndex, challengeIndex + bytes(expectedChallenge).length)).equal(
-                expectedChallenge
-            );
+        string memory actualChallenge = string(
+            Bytes.slice(
+                bytes(clientDataJSON),
+                challengeIndex,
+                Math.saturatingAdd(challengeIndex, bytes(expectedChallenge).length)
+            )
+        );
+
+        return Strings.equal(actualChallenge, expectedChallenge);
     }
 
     /**
