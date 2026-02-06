@@ -209,11 +209,11 @@ library TrieProof {
     /**
      * @dev Extracts the node ID (hash or raw data based on size)
      *
-     * For small nodes (encoded length < 32 bytes) the node ID is the node content itself,
+     * For short nodes (encoded length < 32 bytes) the node ID is the node content itself,
      * For larger nodes, the node ID is the hash of the encoded node data.
      *
      * NOTE: Under normal operation, the input should never be exactly 32-byte inputs. If such an input is provided,
-     * it will be used directly, similarly to how small nodes are processed. The following traversal check whether
+     * it will be used directly, similarly to how short nodes are processed. The following traversal check whether
      * the next node is a large one, and whether its hash matches the raw 32 bytes we have here. If that is the case,
      * the value will be accepted. Otherwise, the next step will return an {INVALID_LARGE_NODE} error.
      */
