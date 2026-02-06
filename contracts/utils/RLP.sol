@@ -457,7 +457,7 @@ library RLP {
             if (prefix <= LONG_OFFSET + SHORT_THRESHOLD) {
                 // Case: Short list
                 uint256 listLength = prefix - LONG_OFFSET;
-                require(item.length() > listLength, RLPInvalidEncoding());
+                require(itemLength > listLength, RLPInvalidEncoding());
                 return (1, listLength, ItemType.List);
             } else {
                 // Case: Long list
