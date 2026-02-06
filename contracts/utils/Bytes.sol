@@ -119,7 +119,7 @@ library Bytes {
         end = Math.min(end, buffer.length);
         start = Math.min(start, end);
 
-        // allocate and copy
+        // move and resize
         assembly ("memory-safe") {
             mcopy(add(buffer, 0x20), add(add(buffer, 0x20), start), sub(end, start))
             mstore(buffer, sub(end, start))
@@ -163,7 +163,7 @@ library Bytes {
         offset = Math.min(offset, replacement.length);
         length = Math.min(length, Math.min(replacement.length - offset, buffer.length - pos));
 
-        // allocate and copy
+        // copy (overwrite)
         assembly ("memory-safe") {
             mcopy(add(add(buffer, 0x20), pos), add(add(replacement, 0x20), offset), length)
         }

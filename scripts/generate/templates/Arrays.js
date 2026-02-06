@@ -462,7 +462,7 @@ function replace(
     offset = Math.min(offset, replacement.length);
     length = Math.min(length, Math.min(replacement.length - offset, array.length - pos));
 
-    // allocate and copy
+    // replace
     assembly ("memory-safe") {
         mcopy(
             add(add(array, 0x20), mul(pos, 0x20)),
