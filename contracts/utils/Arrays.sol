@@ -499,7 +499,7 @@ library Arrays {
     /**
      * @dev Replaces elements in `array` starting at `pos` with all elements from `replacement`.
      *
-     * Parameters are clamped to valid ranges (i.e. `pos` is clamped to `[0, array.length]`).
+     * Parameters are clamped to valid ranges (e.g. `pos` is clamped to `[0, array.length]`).
      * If `pos >= array.length`, no replacement occurs and the array is returned unchanged.
      *
      * NOTE: This function modifies the provided array in place.
@@ -581,7 +581,7 @@ library Arrays {
     /**
      * @dev Replaces elements in `array` starting at `pos` with all elements from `replacement`.
      *
-     * Parameters are clamped to valid ranges (i.e. `pos` is clamped to `[0, array.length]`).
+     * Parameters are clamped to valid ranges (e.g. `pos` is clamped to `[0, array.length]`).
      * If `pos >= array.length`, no replacement occurs and the array is returned unchanged.
      *
      * NOTE: This function modifies the provided array in place.
@@ -663,7 +663,7 @@ library Arrays {
     /**
      * @dev Replaces elements in `array` starting at `pos` with all elements from `replacement`.
      *
-     * Parameters are clamped to valid ranges (i.e. `pos` is clamped to `[0, array.length]`).
+     * Parameters are clamped to valid ranges (e.g. `pos` is clamped to `[0, array.length]`).
      * If `pos >= array.length`, no replacement occurs and the array is returned unchanged.
      *
      * NOTE: This function modifies the provided array in place.

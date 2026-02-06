@@ -52,7 +52,7 @@ library RLP {
     using Bytes for *;
     using Memory for *;
 
-    /// @dev The item is not properly formatted and cannot de decoded.
+    /// @dev The item is not properly formatted and cannot be decoded.
     error RLPInvalidEncoding();
 
     enum ItemType {
@@ -418,7 +418,7 @@ library RLP {
     }
 
     /**
-     * @dev Decodes an RLP `item`'s `length and type from its prefix.
+     * @dev Decodes an RLP `item`'s length and type from its prefix.
      * Returns the offset, length, and type of the RLP item based on the encoding rules.
      */
     function _decodeLength(Memory.Slice item) private pure returns (uint256, uint256, ItemType) {

@@ -33,7 +33,7 @@ library Accumulators {
     /**
      * @dev Bytes accumulator: a linked list of `bytes`.
      *
-     * NOTE: This is a memory structure that SHOULD not be put in storage.
+     * NOTE: This is a memory structure that SHOULD NOT be put in storage.
      */
     struct Accumulator {
         Memory.Pointer head;
