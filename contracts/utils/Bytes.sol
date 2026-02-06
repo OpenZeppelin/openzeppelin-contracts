@@ -163,7 +163,7 @@ library Bytes {
         offset = Math.min(offset, replacement.length);
         length = Math.min(length, Math.min(replacement.length - offset, buffer.length - pos));
 
-        // copy (overwrite)
+        // replace
         assembly ("memory-safe") {
             mcopy(add(add(buffer, 0x20), pos), add(add(replacement, 0x20), offset), length)
         }
