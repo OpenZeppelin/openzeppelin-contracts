@@ -214,7 +214,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
      * @dev Returns a tuple with the recovered the signer of an EIP712 forward request message hash
      * and a boolean indicating if the signature is valid.
      *
-     * NOTE: The signature is considered valid if {ECDSA-tryRecover} indicates no recover error for it.
+     * NOTE: The signature is considered valid if {ECDSA-tryRecoverCalldata} indicates no recover error for it.
      */
     function _recoverForwardRequestSigner(
         ForwardRequestData calldata request
