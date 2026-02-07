@@ -158,6 +158,10 @@ abstract contract GovernorTimelockAccess is Governor {
     function proposalExecutionPlan(
         uint256 proposalId
     ) public view returns (uint32 delay, bool[] memory indirect, bool[] memory withDelay) {
+        if (proposalSnapshot(proposalId) == 0) {
+            revert GovernorNonexistentProposal(proposalId);
+        }
+
         ExecutionPlan storage plan = _executionPlan[proposalId];
 
         uint32 length = plan.length;
