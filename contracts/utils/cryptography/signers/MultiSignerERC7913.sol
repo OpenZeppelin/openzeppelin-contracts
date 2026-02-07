@@ -114,6 +114,13 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
      *
      * * Each of `newSigners` must be at least 20 bytes long. Reverts with {MultiSignerERC7913InvalidSigner} if not.
      * * Each of `newSigners` must not be authorized. See {isSigner}. Reverts with {MultiSignerERC7913AlreadyExists} if so.
+     *
+     * NOTE: This function does not validate that signers are controlled or represent appropriate entities. Integrators
+     * must ensure signers are properly validated before adding them. Problematic signers can compromise
+     * the multisig's security or functionality. Examples include uncontrolled addresses (e.g., `address(0)`),
+     * the account's own address (which may cause recursive validation loops), or contracts that may unintentionally
+     * allow arbitrary validation (e.g. using the identity precompile at `address(0x04)`, which would return the
+     * ERC-1271 magic value for any `isValidSignature` call).
      */
     function _addSigners(bytes[] memory newSigners) internal virtual {
         for (uint256 i = 0; i < newSigners.length; ++i) {
