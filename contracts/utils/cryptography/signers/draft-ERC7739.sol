@@ -16,7 +16,7 @@ import {MessageHashUtils} from "../MessageHashUtils.sol";
  * EIP-712 domains (e.g. a single offchain owner of multiple contracts).
  *
  * This contract requires implementing the {_rawSignatureValidation} function, which passes the wrapped message hash,
- * which may be either an typed data or a personal sign nested type.
+ * which may be either a typed data or a personal sign nested type.
  *
  * NOTE: xref:api:utils/cryptography#EIP712[EIP-712] uses xref:api:utils/cryptography#ShortStrings[ShortStrings] to
  * optimize gas costs for short strings (up to 31 characters). Consider that strings longer than that will use storage,
