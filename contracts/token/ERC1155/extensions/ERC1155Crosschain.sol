@@ -3,17 +3,17 @@
 pragma solidity ^0.8.26;
 
 import {ERC1155} from "../ERC1155.sol";
-import {BridgeERC1155Core} from "../../../crosschain/bridges/BridgeERC1155Core.sol";
+import {BridgeMultiToken} from "../../../crosschain/bridges/abstract/BridgeMultiToken.sol";
 
 /**
- * @dev Extension of {ERC1155} that makes it natively cross-chain using the ERC-7786 based {BridgeERC1155Core}.
+ * @dev Extension of {ERC1155} that makes it natively cross-chain using the ERC-7786 based {BridgeMultiToken}.
  *
  * This extension makes the token compatible with:
  * * {ERC1155Crosschain} instances on other chains,
  * * {ERC1155} instances on other chains that are bridged using {BridgeERC1155},
  */
 // slither-disable-next-line locked-ether
-abstract contract ERC1155Crosschain is ERC1155, BridgeERC1155Core {
+abstract contract ERC1155Crosschain is ERC1155, BridgeMultiToken {
     /// @dev TransferFrom variant of {crosschainTransferFrom}, using ERC1155 allowance from the sender to the caller.
     function crosschainTransferFrom(
         address from,

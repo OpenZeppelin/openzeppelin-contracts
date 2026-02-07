@@ -2,10 +2,10 @@
 
 pragma solidity ^0.8.26;
 
-import {InteroperableAddress} from "../../utils/draft-InteroperableAddress.sol";
-import {Context} from "../../utils/Context.sol";
-import {ERC7786Recipient} from "../ERC7786Recipient.sol";
-import {CrosschainLinked} from "../CrosschainLinked.sol";
+import {InteroperableAddress} from "../../../utils/draft-InteroperableAddress.sol";
+import {Context} from "../../../utils/Context.sol";
+import {ERC7786Recipient} from "../../ERC7786Recipient.sol";
+import {CrosschainLinked} from "../../CrosschainLinked.sol";
 
 /**
  * @dev Base contract for bridging ERC-1155 between chains using an ERC-7786 gateway.
@@ -20,17 +20,17 @@ import {CrosschainLinked} from "../CrosschainLinked.sol";
  * This base contract implements the crosschain transfer operation though internal functions. It is for the the "child
  * contracts" that inherit from this to implement the external interfaces and make this functions accessible.
  */
-abstract contract BridgeERC1155Core is Context, CrosschainLinked {
+abstract contract BridgeMultiToken is Context, CrosschainLinked {
     using InteroperableAddress for bytes;
 
-    event CrosschainERC1155TransferSent(
+    event CrosschainMultiTokenTransferSent(
         bytes32 indexed sendId,
         address indexed from,
         bytes to,
         uint256[] ids,
         uint256[] values
     );
-    event CrosschainERC1155TransferReceived(
+    event CrosschainMultiTokenTransferReceived(
         bytes32 indexed receiveId,
         bytes from,
         address indexed to,
@@ -59,7 +59,7 @@ abstract contract BridgeERC1155Core is Context, CrosschainLinked {
             new bytes[](0)
         );
 
-        emit CrosschainERC1155TransferSent(sendId, from, to, ids, values);
+        emit CrosschainMultiTokenTransferSent(sendId, from, to, ids, values);
         return sendId;
     }
 
@@ -81,7 +81,7 @@ abstract contract BridgeERC1155Core is Context, CrosschainLinked {
 
         _onReceive(to, ids, values);
 
-        emit CrosschainERC1155TransferReceived(receiveId, from, to, ids, values);
+        emit CrosschainMultiTokenTransferReceived(receiveId, from, to, ids, values);
     }
 
     /// @dev Virtual function: implementation is required to handle token being burnt or locked on the source chain.

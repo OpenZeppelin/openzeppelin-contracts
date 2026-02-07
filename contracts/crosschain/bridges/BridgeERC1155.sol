@@ -6,14 +6,14 @@ import {IERC1155} from "../../interfaces/IERC1155.sol";
 import {IERC1155Receiver} from "../../interfaces/IERC1155Receiver.sol";
 import {IERC1155Errors} from "../../interfaces/draft-IERC6093.sol";
 import {ERC1155Holder} from "../../token/ERC1155/utils/ERC1155Holder.sol";
-import {BridgeERC1155Core} from "./BridgeERC1155Core.sol";
+import {BridgeMultiToken} from "./abstract/BridgeMultiToken.sol";
 
 /**
- * @dev This is a variant of {BridgeERC1155Core} that implements the bridge logic for ERC-1155 tokens that do not expose
+ * @dev This is a variant of {BridgeMultiToken} that implements the bridge logic for ERC-1155 tokens that do not expose
  * a crosschain mint and burn mechanism. Instead, it takes custody of bridged assets.
  */
 // slither-disable-next-line locked-ether
-abstract contract BridgeERC1155 is BridgeERC1155Core, ERC1155Holder {
+abstract contract BridgeERC1155 is BridgeMultiToken, ERC1155Holder {
     IERC1155 private immutable _token;
 
     constructor(IERC1155 token_) {

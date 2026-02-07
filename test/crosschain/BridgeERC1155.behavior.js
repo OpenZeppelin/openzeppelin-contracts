@@ -53,12 +53,12 @@ function shouldBehaveLikeBridgeERC1155({ chainAIsCustodial = false, chainBIsCust
             values[0],
           )
           // crosschain transfer sent
-          .to.emit(this.bridgeA, 'CrosschainERC1155TransferSent')
+          .to.emit(this.bridgeA, 'CrosschainMultiTokenTransferSent')
           .withArgs(anyValue, alice, this.chain.toErc7930(bruce), ids.slice(0, 1), values.slice(0, 1))
           // ERC-7786 event
           .to.emit(this.gateway, 'MessageSent')
           // crosschain transfer received
-          .to.emit(this.bridgeB, 'CrosschainERC1155TransferReceived')
+          .to.emit(this.bridgeB, 'CrosschainMultiTokenTransferReceived')
           .withArgs(anyValue, this.chain.toErc7930(alice), bruce, ids.slice(0, 1), values.slice(0, 1))
           // tokens are minted on chain B
           .to.emit(this.tokenB, 'TransferSingle')
@@ -89,12 +89,12 @@ function shouldBehaveLikeBridgeERC1155({ chainAIsCustodial = false, chainBIsCust
             values[0],
           )
           // crosschain transfer sent
-          .to.emit(this.bridgeB, 'CrosschainERC1155TransferSent')
+          .to.emit(this.bridgeB, 'CrosschainMultiTokenTransferSent')
           .withArgs(anyValue, bruce, this.chain.toErc7930(chris), ids.slice(0, 1), values.slice(0, 1))
           // ERC-7786 event
           .to.emit(this.gateway, 'MessageSent')
           // crosschain transfer received
-          .to.emit(this.bridgeA, 'CrosschainERC1155TransferReceived')
+          .to.emit(this.bridgeA, 'CrosschainMultiTokenTransferReceived')
           .withArgs(anyValue, this.chain.toErc7930(bruce), chris, ids.slice(0, 1), values.slice(0, 1))
           // bridge on chain A releases custody of the token
           .to.emit(this.tokenA, 'TransferSingle')
@@ -132,12 +132,12 @@ function shouldBehaveLikeBridgeERC1155({ chainAIsCustodial = false, chainBIsCust
             values,
           )
           // crosschain transfer sent
-          .to.emit(this.bridgeA, 'CrosschainERC1155TransferSent')
+          .to.emit(this.bridgeA, 'CrosschainMultiTokenTransferSent')
           .withArgs(anyValue, alice, this.chain.toErc7930(bruce), ids, values)
           // ERC-7786 event
           .to.emit(this.gateway, 'MessageSent')
           // crosschain transfer received
-          .to.emit(this.bridgeB, 'CrosschainERC1155TransferReceived')
+          .to.emit(this.bridgeB, 'CrosschainMultiTokenTransferReceived')
           .withArgs(anyValue, this.chain.toErc7930(alice), bruce, ids, values)
           // tokens are minted on chain B
           .to.emit(this.tokenB, 'TransferBatch')
@@ -168,12 +168,12 @@ function shouldBehaveLikeBridgeERC1155({ chainAIsCustodial = false, chainBIsCust
             values,
           )
           // crosschain transfer sent
-          .to.emit(this.bridgeB, 'CrosschainERC1155TransferSent')
+          .to.emit(this.bridgeB, 'CrosschainMultiTokenTransferSent')
           .withArgs(anyValue, bruce, this.chain.toErc7930(chris), ids, values)
           // ERC-7786 event
           .to.emit(this.gateway, 'MessageSent')
           // crosschain transfer received
-          .to.emit(this.bridgeA, 'CrosschainERC1155TransferReceived')
+          .to.emit(this.bridgeA, 'CrosschainMultiTokenTransferReceived')
           .withArgs(anyValue, this.chain.toErc7930(bruce), chris, ids, values)
           // bridge on chain A releases custody of the token
           .to.emit(this.tokenA, 'TransferBatch')
@@ -202,7 +202,7 @@ function shouldBehaveLikeBridgeERC1155({ chainAIsCustodial = false, chainBIsCust
             values,
           ),
         )
-          .to.emit(this.bridgeA, 'CrosschainERC1155TransferSent')
+          .to.emit(this.bridgeA, 'CrosschainMultiTokenTransferSent')
           .withArgs(anyValue, alice, this.chain.toErc7930(bruce), ids, values);
       });
 
@@ -221,7 +221,7 @@ function shouldBehaveLikeBridgeERC1155({ chainAIsCustodial = false, chainBIsCust
             values,
           ),
         )
-          .to.emit(this.bridgeA, 'CrosschainERC1155TransferSent')
+          .to.emit(this.bridgeA, 'CrosschainMultiTokenTransferSent')
           .withArgs(anyValue, alice, this.chain.toErc7930(bruce), ids, values);
       });
     });
@@ -309,7 +309,7 @@ function shouldBehaveLikeBridgeERC1155({ chainAIsCustodial = false, chainBIsCust
           this.bridgeA
             .connect(this.gatewayAsEOA)
             .receiveMessage(receiveId, this.chain.toErc7930(this.bridgeB), payload),
-        ).to.emit(this.bridgeA, 'CrosschainERC1155TransferReceived');
+        ).to.emit(this.bridgeA, 'CrosschainMultiTokenTransferReceived');
 
         // second time fails
         await expect(
