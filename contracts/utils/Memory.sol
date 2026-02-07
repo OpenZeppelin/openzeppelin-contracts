@@ -103,7 +103,7 @@ library Memory {
     /// @dev Extract the data corresponding to a Slice (allocate new memory)
     function toBytes(Slice self) internal pure returns (bytes memory result) {
         uint256 len = length(self);
-        Memory.Pointer ptr = _pointer(self);
+        Pointer ptr = _pointer(self);
         assembly ("memory-safe") {
             result := mload(0x40)
             mstore(result, len)
@@ -114,8 +114,8 @@ library Memory {
 
     /// @dev Returns true if the two slices contain the same data.
     function equal(Slice a, Slice b) internal pure returns (bool result) {
-        Memory.Pointer ptrA = _pointer(a);
-        Memory.Pointer ptrB = _pointer(b);
+        Pointer ptrA = _pointer(a);
+        Pointer ptrB = _pointer(b);
         uint256 lenA = length(a);
         uint256 lenB = length(b);
         assembly ("memory-safe") {
@@ -131,14 +131,14 @@ library Memory {
      * (`slice(Slice,uint256)` and `slice(Slice,uint256, uint256)`) should not cause this issue if the parent slice is
      * correct.
      */
-    function _asSlice(uint256 len, Memory.Pointer ptr) private pure returns (Slice result) {
+    function _asSlice(uint256 len, Pointer ptr) private pure returns (Slice result) {
         assembly ("memory-safe") {
             result := or(shl(128, len), ptr)
         }
     }
 
     /// @dev Returns the memory location of a given slice (equiv to self.offset for calldata slices)
-    function _pointer(Slice self) private pure returns (Memory.Pointer result) {
+    function _pointer(Slice self) private pure returns (Pointer result) {
         assembly ("memory-safe") {
             result := and(self, shr(128, not(0)))
         }
