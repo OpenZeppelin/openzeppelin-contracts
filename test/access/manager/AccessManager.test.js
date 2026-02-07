@@ -337,13 +337,13 @@ describe('AccessManager', function () {
     });
 
     describe('#expiration', function () {
-      it('has a 7 days default expiration', async function () {
+      it('has 7 days default expiration', async function () {
         expect(await this.manager.expiration()).to.equal(EXPIRATION);
       });
     });
 
     describe('#minSetback', function () {
-      it('has a 5 days default minimum setback', async function () {
+      it('has 5 days default minimum setback', async function () {
         expect(await this.manager.minSetback()).to.equal(MINSETBACK);
       });
     });
