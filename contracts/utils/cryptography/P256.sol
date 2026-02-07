@@ -89,7 +89,7 @@ library P256 {
         bytes32 qy
     ) private view returns (bool valid, bool supported) {
         if (!_isProperSignature(r, s) || !isValidPublicKey(qx, qy)) {
-            return (false, true); // signature is invalid, and its not because the precompile is missing
+            return (false, true); // signature is invalid, and it's not because the precompile is missing
         } else if (_rip7212(h, r, s, qx, qy)) {
             return (true, true); // precompile is present, signature is valid
         } else if (
