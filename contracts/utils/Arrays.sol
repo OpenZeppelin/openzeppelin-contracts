@@ -499,7 +499,7 @@ library Arrays {
     /**
      * @dev Replaces elements in `array` starting at `pos` with all elements from `replacement`.
      *
-     * Parameters are clamped to valid ranges (i.e. `pos` is clamped to `[0, array.length]`).
+     * Parameters are clamped to valid ranges (e.g. `pos` is clamped to `[0, array.length]`).
      * If `pos >= array.length`, no replacement occurs and the array is returned unchanged.
      *
      * NOTE: This function modifies the provided array in place.
@@ -535,7 +535,7 @@ library Arrays {
         offset = Math.min(offset, replacement.length);
         length = Math.min(length, Math.min(replacement.length - offset, array.length - pos));
 
-        // allocate and copy
+        // replace
         assembly ("memory-safe") {
             mcopy(
                 add(add(array, 0x20), mul(pos, 0x20)),
@@ -581,7 +581,7 @@ library Arrays {
     /**
      * @dev Replaces elements in `array` starting at `pos` with all elements from `replacement`.
      *
-     * Parameters are clamped to valid ranges (i.e. `pos` is clamped to `[0, array.length]`).
+     * Parameters are clamped to valid ranges (e.g. `pos` is clamped to `[0, array.length]`).
      * If `pos >= array.length`, no replacement occurs and the array is returned unchanged.
      *
      * NOTE: This function modifies the provided array in place.
@@ -617,7 +617,7 @@ library Arrays {
         offset = Math.min(offset, replacement.length);
         length = Math.min(length, Math.min(replacement.length - offset, array.length - pos));
 
-        // allocate and copy
+        // replace
         assembly ("memory-safe") {
             mcopy(
                 add(add(array, 0x20), mul(pos, 0x20)),
@@ -663,7 +663,7 @@ library Arrays {
     /**
      * @dev Replaces elements in `array` starting at `pos` with all elements from `replacement`.
      *
-     * Parameters are clamped to valid ranges (i.e. `pos` is clamped to `[0, array.length]`).
+     * Parameters are clamped to valid ranges (e.g. `pos` is clamped to `[0, array.length]`).
      * If `pos >= array.length`, no replacement occurs and the array is returned unchanged.
      *
      * NOTE: This function modifies the provided array in place.
@@ -699,7 +699,7 @@ library Arrays {
         offset = Math.min(offset, replacement.length);
         length = Math.min(length, Math.min(replacement.length - offset, array.length - pos));
 
-        // allocate and copy
+        // replace
         assembly ("memory-safe") {
             mcopy(
                 add(add(array, 0x20), mul(pos, 0x20)),

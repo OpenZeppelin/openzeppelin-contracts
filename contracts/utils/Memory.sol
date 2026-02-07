@@ -74,13 +74,13 @@ library Memory {
         }
     }
 
-    /// @dev Offset a memory slice (equivalent to self[start:] for calldata slices)
+    /// @dev Offset a memory slice (equivalent to self[offset:] for calldata slices)
     function slice(Slice self, uint256 offset) internal pure returns (Slice) {
         if (offset > length(self)) Panic.panic(Panic.ARRAY_OUT_OF_BOUNDS);
         return _asSlice(length(self) - offset, forward(_pointer(self), offset));
     }
 
-    /// @dev Offset and cut a Slice (equivalent to self[start:start+length] for calldata slices)
+    /// @dev Offset and cut a Slice (equivalent to self[offset:offset+len] for calldata slices)
     function slice(Slice self, uint256 offset, uint256 len) internal pure returns (Slice) {
         if (offset + len > length(self)) Panic.panic(Panic.ARRAY_OUT_OF_BOUNDS);
         return _asSlice(len, forward(_pointer(self), offset));
