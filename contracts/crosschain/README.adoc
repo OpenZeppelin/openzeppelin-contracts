@@ -13,7 +13,7 @@ Additionally there are multiple bridge constructions:
 * {BridgeFungible}: Core bridging logic for crosschain ERC-20 transfer. Used by {BridgeERC20}, {BridgeERC7802} and {ERC20Crosschain},
 * {BridgeERC20}: Standalone bridge contract to connect an ERC-20 token contract with counterparts on remote chains,
 * {BridgeERC7802}: Standalone bridge contract to connect an ERC-7802 token contract with counterparts on remote chains.
-* {BridgeERC721Core}: Core bridging logic for crosschain ERC-721 transfer. Used by {BridgeERC721} and {ERC721Crosschain},
+* {BridgeNonFungible}: Core bridging logic for crosschain ERC-721 transfer. Used by {BridgeERC721} and {ERC721Crosschain},
 * {BridgeERC721}: Standalone bridge contract to connect an ERC-721 token contract with counterparts on remote chains,
 
 == Helpers
@@ -30,6 +30,6 @@ Additionally there are multiple bridge constructions:
 
 {{BridgeERC7802}}
 
-{{BridgeERC721Core}}
+{{BridgeNonFungible}}
 
 {{BridgeERC721}}

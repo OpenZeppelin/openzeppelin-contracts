@@ -38,12 +38,12 @@ function shouldBehaveLikeBridgeERC721({ chainAIsCustodial = false, chainBIsCusto
         .to.emit(this.tokenA, 'Transfer')
         .withArgs(alice, chainAIsCustodial ? this.bridgeA : ethers.ZeroAddress, tokenId)
         // crosschain transfer sent
-        .to.emit(this.bridgeA, 'CrosschainERC721TransferSent')
+        .to.emit(this.bridgeA, 'CrosschainNonFungibleTransferSent')
         .withArgs(anyValue, alice, this.chain.toErc7930(bruce), tokenId)
         // ERC-7786 event
         .to.emit(this.gateway, 'MessageSent')
         // crosschain transfer received
-        .to.emit(this.bridgeB, 'CrosschainERC721TransferReceived')
+        .to.emit(this.bridgeB, 'CrosschainNonFungibleTransferReceived')
         .withArgs(anyValue, this.chain.toErc7930(alice), bruce, tokenId)
         // tokens are minted on chain B
         .to.emit(this.tokenB, 'Transfer')
@@ -55,12 +55,12 @@ function shouldBehaveLikeBridgeERC721({ chainAIsCustodial = false, chainBIsCusto
         .to.emit(this.tokenB, 'Transfer')
         .withArgs(bruce, chainBIsCustodial ? this.bridgeB : ethers.ZeroAddress, tokenId)
         // crosschain transfer sent
-        .to.emit(this.bridgeB, 'CrosschainERC721TransferSent')
+        .to.emit(this.bridgeB, 'CrosschainNonFungibleTransferSent')
         .withArgs(anyValue, bruce, this.chain.toErc7930(chris), tokenId)
         // ERC-7786 event
         .to.emit(this.gateway, 'MessageSent')
         // crosschain transfer received
-        .to.emit(this.bridgeA, 'CrosschainERC721TransferReceived')
+        .to.emit(this.bridgeA, 'CrosschainNonFungibleTransferReceived')
         .withArgs(anyValue, this.chain.toErc7930(bruce), chris, tokenId)
         // bridge on chain A releases custody of the token
         .to.emit(this.tokenA, 'Transfer')
@@ -76,7 +76,7 @@ function shouldBehaveLikeBridgeERC721({ chainAIsCustodial = false, chainBIsCusto
         await this.tokenA.connect(alice).setApprovalForAll(this.bridgeA, true);
 
         await expect(this.bridgeA.connect(alice).crosschainTransferFrom(alice, this.chain.toErc7930(bruce), tokenId))
-          .to.emit(this.bridgeA, 'CrosschainERC721TransferSent')
+          .to.emit(this.bridgeA, 'CrosschainNonFungibleTransferSent')
           .withArgs(anyValue, alice, this.chain.toErc7930(bruce), tokenId);
       });
 
@@ -95,7 +95,7 @@ function shouldBehaveLikeBridgeERC721({ chainAIsCustodial = false, chainBIsCusto
 
         // chris is allowed
         await expect(this.bridgeA.connect(chris).crosschainTransferFrom(alice, this.chain.toErc7930(bruce), tokenId))
-          .to.emit(this.bridgeA, 'CrosschainERC721TransferSent')
+          .to.emit(this.bridgeA, 'CrosschainNonFungibleTransferSent')
           .withArgs(anyValue, alice, this.chain.toErc7930(bruce), tokenId);
       });
 
@@ -118,7 +118,7 @@ function shouldBehaveLikeBridgeERC721({ chainAIsCustodial = false, chainBIsCusto
 
         // chris is allowed to transfer tokenId
         await expect(this.bridgeA.connect(chris).crosschainTransferFrom(alice, this.chain.toErc7930(bruce), tokenId))
-          .to.emit(this.bridgeA, 'CrosschainERC721TransferSent')
+          .to.emit(this.bridgeA, 'CrosschainNonFungibleTransferSent')
           .withArgs(anyValue, alice, this.chain.toErc7930(bruce), tokenId);
       });
     });
@@ -191,7 +191,7 @@ function shouldBehaveLikeBridgeERC721({ chainAIsCustodial = false, chainBIsCusto
         // first time works
         await expect(
           this.bridgeA.connect(this.gatewayAsEOA).receiveMessage(id, this.chain.toErc7930(this.bridgeB), payload),
-        ).to.emit(this.bridgeA, 'CrosschainERC721TransferReceived');
+        ).to.emit(this.bridgeA, 'CrosschainNonFungibleTransferReceived');
 
         // second time fails
         await expect(

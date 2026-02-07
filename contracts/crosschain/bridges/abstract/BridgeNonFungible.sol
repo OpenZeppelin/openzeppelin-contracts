@@ -2,10 +2,10 @@
 
 pragma solidity ^0.8.26;
 
-import {InteroperableAddress} from "../../utils/draft-InteroperableAddress.sol";
-import {Context} from "../../utils/Context.sol";
-import {ERC7786Recipient} from "../ERC7786Recipient.sol";
-import {CrosschainLinked} from "../CrosschainLinked.sol";
+import {InteroperableAddress} from "../../../utils/draft-InteroperableAddress.sol";
+import {Context} from "../../../utils/Context.sol";
+import {ERC7786Recipient} from "../../ERC7786Recipient.sol";
+import {CrosschainLinked} from "../../CrosschainLinked.sol";
 
 /**
  * @dev Base contract for bridging ERC-721 between chains using an ERC-7786 gateway.
@@ -17,12 +17,17 @@ import {CrosschainLinked} from "../CrosschainLinked.sol";
  * This base contract is used by the {BridgeERC721}, which interfaces with legacy ERC-721 tokens. It is also used by
  * the {ERC721Crosschain} extension, which embeds the bridge logic directly in the token contract.
  */
-abstract contract BridgeERC721Core is Context, CrosschainLinked {
+abstract contract BridgeNonFungible is Context, CrosschainLinked {
     /// @dev Emitted when a crosschain ERC-721 transfer is sent.
-    event CrosschainERC721TransferSent(bytes32 indexed sendId, address indexed from, bytes to, uint256 tokenId);
+    event CrosschainNonFungibleTransferSent(bytes32 indexed sendId, address indexed from, bytes to, uint256 tokenId);
 
     /// @dev Emitted when a crosschain ERC-721 transfer is received.
-    event CrosschainERC721TransferReceived(bytes32 indexed receiveId, bytes from, address indexed to, uint256 tokenId);
+    event CrosschainNonFungibleTransferReceived(
+        bytes32 indexed receiveId,
+        bytes from,
+        address indexed to,
+        uint256 tokenId
+    );
 
     /**
      * @dev Internal crosschain transfer function.
@@ -41,7 +46,7 @@ abstract contract BridgeERC721Core is Context, CrosschainLinked {
             new bytes[](0)
         );
 
-        emit CrosschainERC721TransferSent(sendId, from, to, tokenId);
+        emit CrosschainNonFungibleTransferSent(sendId, from, to, tokenId);
 
         return sendId;
     }
@@ -59,7 +64,7 @@ abstract contract BridgeERC721Core is Context, CrosschainLinked {
 
         _onReceive(to, tokenId);
 
-        emit CrosschainERC721TransferReceived(receiveId, from, to, tokenId);
+        emit CrosschainNonFungibleTransferReceived(receiveId, from, to, tokenId);
     }
 
     /// @dev Virtual function: implementation is required to handle token being burnt or locked on the source chain.

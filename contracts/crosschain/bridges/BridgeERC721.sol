@@ -4,14 +4,14 @@ pragma solidity ^0.8.26;
 
 import {IERC721} from "../../interfaces/IERC721.sol";
 import {IERC721Errors} from "../../interfaces/draft-IERC6093.sol";
-import {BridgeERC721Core} from "./BridgeERC721Core.sol";
+import {BridgeNonFungible} from "./abstract/BridgeNonFungible.sol";
 
 /**
- * @dev This is a variant of {BridgeERC721Core} that implements the bridge logic for ERC-721 tokens that do not expose
+ * @dev This is a variant of {BridgeNonFungible} that implements the bridge logic for ERC-721 tokens that do not expose
  * a crosschain mint and burn mechanism. Instead, it takes custody of bridged assets.
  */
 // slither-disable-next-line locked-ether
-abstract contract BridgeERC721 is BridgeERC721Core {
+abstract contract BridgeERC721 is BridgeNonFungible {
     IERC721 private immutable _token;
 
     constructor(IERC721 token_) {
