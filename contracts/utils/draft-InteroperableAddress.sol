@@ -66,7 +66,7 @@ library InteroperableAddress {
     }
 
     /**
-     * @dev Parse a ERC-7930 interoperable address (version 1) into its different components. Reverts if the input is
+     * @dev Parse an ERC-7930 interoperable address (version 1) into its different components. Reverts if the input is
      * not following a version 1 of ERC-7930
      */
     function parseV1(
