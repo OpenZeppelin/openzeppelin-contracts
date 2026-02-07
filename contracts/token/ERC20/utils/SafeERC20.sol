@@ -249,8 +249,8 @@ library SafeERC20 {
      *
      * @param token The token targeted by the call.
      * @param spender The spender of the tokens
-     * @param value The amount of token to transfer
-     * @param bubble Behavior switch if the transfer call reverts: bubble the revert reason or return a false boolean.
+     * @param value The amount of token to approve
+     * @param bubble Behavior switch if the approve call reverts: bubble the revert reason or return a false boolean.
      */
     function _safeApprove(IERC20 token, address spender, uint256 value, bool bubble) private returns (bool success) {
         bytes4 selector = IERC20.approve.selector;
