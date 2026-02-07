@@ -1,0 +1,17 @@
+= Meta Transactions
+
+[.readme-notice]
+NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/metatx
+
+This directory includes contracts for adding meta-transaction capabilities (i.e. abstracting the execution context from the transaction origin) following the https://eips.ethereum.org/EIPS/eip-2771[ERC-2771 specification].
+
+- {ERC2771Context}: Provides a mechanism to override the sender and calldata of the execution context (`msg.sender` and `msg.data`) with a custom value specified by a trusted forwarder.
+- {ERC2771Forwarder}: A production-ready forwarder that relays operation requests signed off-chain by an EOA.
+
+== Core
+
+{{ERC2771Context}}
+
+== Utils
+
+{{ERC2771Forwarder}}

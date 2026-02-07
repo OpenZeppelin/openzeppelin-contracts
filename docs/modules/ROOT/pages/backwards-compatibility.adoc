@@ -1,0 +1,50 @@
+= Backwards Compatibility
+:page-aliases: releases-stability.adoc
+
+OpenZeppelin Contracts uses semantic versioning to communicate backwards compatibility of its API and storage layout. Patch and minor updates will generally be backwards compatible, with rare exceptions as detailed below. Major updates should be assumed incompatible with previous releases. On this page, we provide details about these guarantees.
+
+== API
+
+In backwards compatible releases, all changes should be either additions or modifications to internal implementation details. Most code should continue to compile and behave as expected. The exceptions to this rule are listed below.
+
+=== Security
+
+Infrequently a patch or minor update will remove or change an API in a breaking way, but only if the previous API is considered insecure. These breaking changes will be noted in the changelog and release notes, and published along with a security advisory.
+
+=== Draft or Pre-Final ERCs
+
+ERCs that are not Final can change in incompatible ways. For this reason, we avoid shipping implementations of ERCs before they are Final. Some exceptions are made for ERCs that have been published for a long time and seem unlikely to change. Implementations for ERCs that may have breaking changes are published in files named `draft-*.sol` to make that condition explicit. There is no backwards compatibility guarantee for content in files prefixed with `draft`.
+
+Standards that have achieved widespread adoption with strong backwards compatibility expectations from the community may be treated as de-facto finalized and published without the `draft-` prefix, as extensive ecosystem reliance makes breaking changes highly unlikely.
+
+=== Virtual & Overrides
+
+Almost all functions in this library are virtual with some exceptions, but this does not mean that overrides are encouraged. There is a subset of functions that are designed to be overridden. By defining overrides outside of this subset you are potentially relying on internal implementation details. We make efforts to preserve backwards compatibility even in these cases but it is extremely difficult and easy to accidentally break. Caution is advised.
+
+Additionally, some minor updates may result in new compilation errors of the kind "two or more base classes define function with same name and parameter types" or "need to specify overridden contract", due to what Solidity considers ambiguity in inherited functions. This should be resolved by adding an override that invokes the function via `super`.
+
+See xref:extending-contracts.adoc[Extending Contracts] for more about virtual and overrides.
+
+=== Structs
+
+Struct members with an underscore prefix should be considered "private" and may break in minor versions. Struct data should only be accessed and modified through library functions.
+
+=== Errors
+
+The specific error format and data that is included with reverts should not be assumed stable unless otherwise specified.
+
+=== Major Releases
+
+Major releases should be assumed incompatible. Nevertheless, the external interfaces of contracts will remain compatible if they are standardized, or if the maintainers judge that changing them would cause significant strain on the ecosystem.
+
+An important aspect that major releases may break is "upgrade compatibility", in particular storage layout compatibility. It will never be safe for a live contract to upgrade from one major release to another.
+
+== Storage Layout
+
+Minor and patch updates always preserve storage layout compatibility. This means that a live contract can be upgraded from one minor to another without corrupting the storage layout. In some cases it may be necessary to initialize new state variables when upgrading, although we expect this to be infrequent.
+
+We recommend using xref:upgrades-plugins::index.adoc[OpenZeppelin Upgrades Plugins or CLI] to ensure storage layout safety of upgrades.
+
+== Solidity Version
+
+The minimum Solidity version required to compile the contracts will remain unchanged in minor and patch updates. New contracts introduced in minor releases may make use of newer Solidity features and require a more recent version of the compiler.

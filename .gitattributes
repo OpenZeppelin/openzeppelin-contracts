@@ -1,0 +1,3 @@
+fv/specs/*.spec linguist-language=Solidity
+fv/specs/*.conf linguist-detectable
+fv/specs/*.conf linguist-language=JSON5

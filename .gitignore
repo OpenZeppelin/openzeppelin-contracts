@@ -1,0 +1,67 @@
+*.swp
+*.swo
+
+# Logs
+logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+allFiredEvents
+scTopics
+
+# Coverage directory used by tools like istanbul
+coverage
+coverage.json
+coverageEnv
+
+# node-waf configuration
+.lock-wscript
+
+# Dependency directory
+node_modules
+
+# Debug log from npm
+npm-debug.log
+
+# local env variables
+.env
+
+# macOS
+.DS_Store
+
+# IntelliJ IDE
+.idea
+
+# docs artifacts
+docs/modules/api
+build/site
+
+# only used to package @openzeppelin/contracts
+contracts/build/
+contracts/README.md
+
+# temporary artifact from solidity-coverage
+allFiredEvents
+.coverage_artifacts
+.coverage_cache
+.coverage_contracts
+
+# hardat-exposed
+contracts-exposed
+
+# Hardhat
+/cache
+/artifacts
+
+# Foundry
+/out
+/cache_forge
+
+# Certora
+.certora*
+.last_confs
+certora_*
+.zip-output-url.txt

@@ -1,0 +1,10 @@
+[submodule "lib/forge-std"]
+	branch = v1
+	path = lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
+[submodule "lib/erc4626-tests"]
+	path = lib/erc4626-tests
+	url = https://github.com/a16z/erc4626-tests.git
+[submodule "lib/halmos-cheatcodes"]
+	path = lib/halmos-cheatcodes
+	url = https://github.com/a16z/halmos-cheatcodes

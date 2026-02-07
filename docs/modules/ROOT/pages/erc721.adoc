@@ -1,0 +1,58 @@
+= ERC-721
+
+We've discussed how you can make a _fungible_ token using xref:erc20.adoc[ERC-20], but what if not all tokens are alike? This comes up in situations like *real estate*, *voting rights*, or *collectibles*, where some items are valued more than others, due to their usefulness, rarity, etc. ERC-721 is a standard for representing ownership of xref:tokens.adoc#different-kinds-of-tokens[_non-fungible_ tokens], that is, where each token is unique.
+
+ERC-721 is a more complex standard than ERC-20, with multiple optional extensions, and is split across a number of contracts. The OpenZeppelin Contracts provide flexibility regarding how these are combined, along with custom useful extensions. Check out the xref:api:token/ERC721.adoc[API Reference] to learn more about these.
+
+== Constructing an ERC-721 Token Contract
+
+We'll use ERC-721 to track items in our game, which will each have their own unique attributes. Whenever one is to be awarded to a player, it will be minted and sent to them. Players are free to keep their token or trade it with other people as they see fit, as they would any other asset on the blockchain! Please note that any account can call `awardItem` to mint items. To restrict what accounts can mint items we can add xref:access-control.adoc[Access Control].
+
+Here's what a contract for tokenized items might look like:
+
+[source,solidity]
+----
+include::api:example$token/ERC721/GameItem.sol[]
+----
+
+The xref:api:token/ERC721.adoc#ERC721URIStorage[`ERC721URIStorage`] contract is an implementation of ERC-721 that includes the metadata standard extensions (xref:api:token/ERC721.adoc#IERC721Metadata[`IERC721Metadata`]) as well as a mechanism for per-token metadata. That's where the xref:api:token/ERC721.adoc#ERC721URIStorage-_setTokenURI-uint256-string-[`_setTokenURI`] method comes from: we use it to store an item's metadata.
+
+Also note that, unlike ERC-20, ERC-721 lacks a `decimals` field, since each token is distinct and cannot be partitioned.
+
+New items can be created:
+
+[source,javascript]
+----
+> gameItem.awardItem(playerAddress, "https://game.example/item-id-8u5h2m.json")
+Transaction successful. Transaction hash: 0x...
+Events emitted:
+ - Transfer(0x0000000000000000000000000000000000000000, playerAddress, 7)
+----
+
+And the owner and metadata of each item queried:
+
+[source,javascript]
+----
+> gameItem.ownerOf(7)
+playerAddress
+> gameItem.tokenURI(7)
+"https://game.example/item-id-8u5h2m.json"
+----
+
+This `tokenURI` should resolve to a JSON document that might look something like:
+
+[source,json]
+----
+{
+    "name": "Thor's hammer",
+    "description": "Mjölnir, the legendary hammer of the Norse god of thunder.",
+    "image": "https://game.example/item-id-8u5h2m.png",
+    "strength": 20
+}
+----
+
+For more information about the `tokenURI` metadata JSON Schema, check out the https://eips.ethereum.org/EIPS/eip-721[ERC-721 specification].
+
+NOTE: You'll notice that the item's information is included in the metadata, but that information isn't on-chain! So a game developer could change the underlying metadata, changing the rules of the game! 
+
+TIP: If you'd like to put all item information on-chain, you can extend ERC-721 to do so (though it will be rather costly) by providing a xref:utilities.adoc#base64[`Base64`] Data URI with the JSON schema encoded. You could also leverage IPFS to store the tokenURI information, but these techniques are out of the scope of this overview guide.

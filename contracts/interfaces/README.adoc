@@ -1,0 +1,138 @@
+= Interfaces
+
+[.readme-notice]
+NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/interfaces
+
+== List of standardized interfaces
+These interfaces are available as `.sol` files, and also as compiler `.json` ABI files (through the npm package). These
+are useful to interact with third party contracts that implement them.
+
+- {IERC20}
+- {IERC20Errors}
+- {IERC20Metadata}
+- {IERC165}
+- {IERC721}
+- {IERC721Receiver}
+- {IERC721Enumerable}
+- {IERC721Metadata}
+- {IERC721Errors}
+- {IERC777}
+- {IERC777Recipient}
+- {IERC777Sender}
+- {IERC1155}
+- {IERC1155Receiver}
+- {IERC1155MetadataURI}
+- {IERC1155Errors}
+- {IERC1271}
+- {IERC1363}
+- {IERC1363Receiver}
+- {IERC1363Spender}
+- {IERC1820Implementer}
+- {IERC1820Registry}
+- {IERC1822Proxiable}
+- {IERC1967}
+- {IERC2309}
+- {IERC2612}
+- {IERC2981}
+- {IERC3156FlashLender}
+- {IERC3156FlashBorrower}
+- {IERC4626}
+- {IERC4906}
+- {IERC5267}
+- {IERC5313}
+- {IERC5805}
+- {IERC6372}
+- {IERC6909}
+- {IERC6909ContentURI}
+- {IERC6909Metadata}
+- {IERC6909TokenSupply}
+- {IERC7579Module}
+- {IERC7579Validator}
+- {IERC7579Hook}
+- {IERC7579Execution}
+- {IERC7579AccountConfig}
+- {IERC7579ModuleConfig}
+- {IERC7674}
+- {IERC7751}
+- {IERC7786GatewaySource}
+- {IERC7786Recipient}
+- {IERC7802}
+- {IERC7913SignatureVerifier}
+
+== Detailed ABI
+
+{{IERC20Errors}}
+
+{{IERC721Errors}}
+
+{{IERC1155Errors}}
+
+{{IERC1271}}
+
+{{IERC1363}}
+
+{{IERC1363Receiver}}
+
+{{IERC1363Spender}}
+
+{{IERC1820Implementer}}
+
+{{IERC1820Registry}}
+
+{{IERC1822Proxiable}}
+
+{{IERC1967}}
+
+{{IERC2309}}
+
+{{IERC2612}}
+
+{{IERC2981}}
+
+{{IERC3156FlashLender}}
+
+{{IERC3156FlashBorrower}}
+
+{{IERC4626}}
+
+{{IERC4906}}
+
+{{IERC5267}}
+
+{{IERC5313}}
+
+{{IERC5805}}
+
+{{IERC6372}}
+
+{{IERC6909}}
+
+{{IERC6909ContentURI}}
+
+{{IERC6909Metadata}}
+
+{{IERC6909TokenSupply}}
+
+{{IERC7579Module}}
+
+{{IERC7579Validator}}
+
+{{IERC7579Hook}}
+
+{{IERC7579Execution}}
+
+{{IERC7579AccountConfig}}
+
+{{IERC7579ModuleConfig}}
+
+{{IERC7674}}
+
+{{IERC7751}}
+
+{{IERC7786GatewaySource}}
+
+{{IERC7786Recipient}}
+
+{{IERC7802}}
+
+{{IERC7913SignatureVerifier}}

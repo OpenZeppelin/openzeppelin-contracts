@@ -1,0 +1,51 @@
+= Extending Contracts
+
+Most of the OpenZeppelin Contracts are expected to be used via https://solidity.readthedocs.io/en/latest/contracts.html#inheritance[inheritance]: you will _inherit_ from them when writing your own contracts.
+
+This is the commonly found `is` syntax, like in `contract MyToken is ERC20`.
+
+[NOTE]
+====
+Unlike ``contract``s, Solidity ``library``s are not inherited from and instead rely on the https://solidity.readthedocs.io/en/latest/contracts.html#using-for[`using for`] syntax.
+
+OpenZeppelin Contracts has some ``library``s: most are in the xref:api:utils.adoc[Utils] directory.
+====
+
+== Overriding
+
+Inheritance is often used to add the parent contract's functionality to your own contract, but that's not all it can do. You can also _change_ how some parts of the parent behave using _overrides_.
+
+For example, imagine you want to change xref:api:access.adoc#AccessControl[`AccessControl`] so that xref:api:access.adoc#AccessControl-revokeRole-bytes32-address-[`revokeRole`] can no longer be called. This can be achieved using overrides:
+
+```solidity
+include::api:example$access-control/AccessControlModified.sol[]
+```
+
+The old `revokeRole` is then replaced by our override, and any calls to it will immediately revert. We cannot _remove_ the function from the contract, but reverting on all calls is good enough.
+
+=== Calling `super`
+
+Sometimes you want to _extend_ a parent's behavior, instead of outright changing it to something else. This is where `super` comes in.
+
+The `super` keyword will let you call functions defined in a parent contract, even if they are overridden. This mechanism can be used to add additional checks to a function, emit events, or otherwise add functionality as you see fit.
+
+TIP: For more information on how overrides work, head over to the https://solidity.readthedocs.io/en/latest/contracts.html#index-17[official Solidity documentation].
+
+Here is a modified version of xref:api:access.adoc#AccessControl[`AccessControl`] where xref:api:access.adoc#AccessControl-revokeRole-bytes32-address-[`revokeRole`] cannot be used to revoke the `DEFAULT_ADMIN_ROLE`:
+
+
+```solidity
+include::api:example$access-control/AccessControlNonRevokableAdmin.sol[]
+```
+
+The `super.revokeRole` statement at the end will invoke ``AccessControl``'s original version of `revokeRole`, the same code that would've run if there were no overrides in place.
+
+NOTE: The same rule is implemented and extended in xref:api:access.adoc#AccessControlDefaultAdminRules[`AccessControlDefaultAdminRules`], an extension that also adds enforced security measures for the `DEFAULT_ADMIN_ROLE`.
+
+== Security
+
+The maintainers of OpenZeppelin Contracts are mainly concerned with the correctness and security of the code as published in the library, and the combinations of base contracts with the official extensions from the library.
+
+Custom overrides, especially to hooks, can disrupt important assumptions and may introduce security risks in the code that was previously secure. While we try to ensure the contracts remain secure in the face of a wide range of potential customizations, this is done in a best-effort manner. While we try to document all important assumptions, this should not be relied upon. Custom overrides should be carefully reviewed and checked against the source code of the contract they are customizing to fully understand their impact and guarantee their security.
+
+The way functions interact internally should not be assumed to stay stable across releases of the library. For example, a function that is used in one context in a particular release may not be used in the same context in the next release. Contracts that override functions should revalidate their assumptions when updating the version of OpenZeppelin Contracts they are built on.

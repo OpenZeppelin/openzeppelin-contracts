@@ -1,0 +1,20 @@
+[profile.default]
+solc_version = '0.8.31'
+evm_version = 'osaka'
+optimizer = true
+optimizer_runs = 200
+src = 'contracts'
+out = 'out'
+libs = ['node_modules', 'lib']
+test = 'test'
+cache_path  = 'cache_forge'
+fs_permissions = [{ access = "read", path = "./node_modules/hardhat-predeploy/bin" }]
+
+[lint]
+exclude_lints = ["mixed-case-function", "asm-keccak256", "screaming-snake-case-immutable", "incorrect-shift", "mixed-case-variable"]
+ignore = ["./contracts/interfaces/**/*.sol", "./contracts/mocks/Stateless.sol"]
+lint_on_build = false
+
+[fuzz]
+runs = 5000
+max_test_rejects = 150000

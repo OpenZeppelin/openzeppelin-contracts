@@ -1,0 +1,7 @@
+name: contracts
+title: Contracts
+version: 5.x
+prerelease: false
+nav:
+  - modules/ROOT/nav.adoc
+  - modules/api/nav.adoc

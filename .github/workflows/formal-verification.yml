@@ -1,0 +1,63 @@
+name: formal verification
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - labeled
+  workflow_dispatch: {}
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  apply-diff:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Apply patches
+        run: make -C fv apply
+
+  verify:
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'formal-verification') || contains(github.event.pull_request.labels.*.name, 'formal-verification-force-all')
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up environment
+        uses: ./.github/actions/setup
+        with:
+          solc: 'on'
+          java: 'on'
+          python: 'on'
+          python-requirements: 'fv-requirements.txt'
+      - name: identify specs that need to be run
+        id: arguments
+        run: |
+          if [[ ${{ github.event_name }} = 'pull_request' && ${{ contains(github.event.pull_request.labels.*.name, 'formal-verification-force-all') }} = 'false' ]];
+          then
+            RESULT=$(git diff ${{ github.event.pull_request.head.sha }}..${{ github.event.pull_request.base.sha }} --name-only fv/specs/*.spec | while IFS= read -r file; do [[ -f $file ]] && basename "${file%.spec}"; done | tr "\n" " ")
+          else
+            RESULT='--all'
+          fi
+          echo "result=$RESULT" >> "$GITHUB_OUTPUT"
+      - name: Verify specification
+        run: |
+          make -C fv apply
+          node fv/run.js ${{ steps.arguments.outputs.result }} -p 1 -v >> "$GITHUB_STEP_SUMMARY"
+        env:
+          CERTORAKEY: ${{ secrets.CERTORAKEY }}
+
+  halmos:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up environment
+        uses: ./.github/actions/setup
+        with:
+          python: 'on'
+          python-requirements: 'fv-requirements.txt'
+      - name: Run Halmos
+        run: halmos --match-test '^symbolic|^testSymbolic' -vv
+        env:
+          HALMOS_ALLOW_DOWNLOAD: 1

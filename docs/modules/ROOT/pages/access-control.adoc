@@ -1,0 +1,339 @@
+= Access Control
+
+Access control—that is, "who is allowed to do this thing"—is incredibly important in the world of smart contracts. The access control of your contract may govern who can mint tokens, vote on proposals, freeze transfers, and many other things. It is therefore *critical* to understand how you implement it, lest someone else https://blog.openzeppelin.com/on-the-parity-wallet-multisig-hack-405a8c12e8f7[steals your whole system].
+
+[[ownership-and-ownable]]
+== Ownership and `Ownable`
+
+The most common and basic form of access control is the concept of _ownership_: there's an account that is the `owner` of a contract and can do administrative tasks on it. This approach is perfectly reasonable for contracts that have a single administrative user.
+
+OpenZeppelin Contracts provides xref:api:access.adoc#Ownable[`Ownable`] for implementing ownership in your contracts.
+
+```solidity
+include::api:example$access-control/MyContractOwnable.sol[]
+```
+
+At deployment, the xref:api:access.adoc#Ownable-owner--[`owner`] of an `Ownable` contract is set to the provided `initialOwner` parameter.
+
+Ownable also lets you:
+
+* xref:api:access.adoc#Ownable-transferOwnership-address-[`transferOwnership`] from the owner account to a new one, and
+* xref:api:access.adoc#Ownable-renounceOwnership--[`renounceOwnership`] for the owner to relinquish this administrative privilege, a common pattern after an initial stage with centralized administration is over.
+
+WARNING: Removing the owner altogether will mean that administrative tasks that are protected by `onlyOwner` will no longer be callable!
+
+Ownable is a simple and effective way to implement access control, but you should be mindful of the dangers associated with transferring the ownership to an incorrect account that can't interact with this contract anymore. An alternative to this problem is using xref:api:access.adoc#Ownable2Step[`Ownable2Step`]; a variant of Ownable that requires the new owner to explicitly accept the ownership transfer by calling xref:api:access.adoc#Ownable2Step-acceptOwnership--[`acceptOwnership`].
+
+Note that *a contract can also be the owner of another one*! This opens the door to using, for example, a https://safe.global[Gnosis Safe], an https://aragon.org[Aragon DAO], or a totally custom contract that _you_ create.
+
+In this way, you can use _composability_ to add additional layers of access control complexity to your contracts. Instead of having a single regular Ethereum account (Externally Owned Account, or EOA) as the owner, you could use a 2-of-3 multisig run by your project leads, for example. Prominent projects in the space, such as https://makerdao.com[MakerDAO], use systems similar to this one.
+
+[[role-based-access-control]]
+== Role-Based Access Control
+
+While the simplicity of _ownership_ can be useful for simple systems or quick prototyping, different levels of authorization are often needed. You may want an account to have permission to ban users from a system, but not create new tokens. https://en.wikipedia.org/wiki/Role-based_access_control[_Role-Based Access Control (RBAC)_] offers flexibility in this regard.
+
+In essence, we will be defining multiple _roles_, each allowed to perform different sets of actions. An account may have, for example, 'moderator', 'minter' or 'admin' roles, which you will then check for instead of simply using `onlyOwner`. This check can be enforced through the `onlyRole` modifier. Separately, you will be able to define rules for how accounts can be granted a role, have it revoked, and more.
+
+Most software uses access control systems that are role-based: some users are regular users, some may be supervisors or managers, and a few will often have administrative privileges.
+
+[[using-access-control]]
+=== Using `AccessControl`
+
+OpenZeppelin Contracts provides xref:api:access.adoc#AccessControl[`AccessControl`] for implementing role-based access control. Its usage is straightforward: for each role that you want to define,
+you will create a new _role identifier_ that is used to grant, revoke, and check if an account has that role.
+
+Here's a simple example of using `AccessControl` in an xref:erc20.adoc[ERC-20 token] to define a 'minter' role, which allows accounts that have it to create new tokens:
+
+[source,solidity]
+----
+include::api:example$access-control/AccessControlERC20MintBase.sol[]
+----
+
+NOTE: Make sure you fully understand how xref:api:access.adoc#AccessControl[`AccessControl`] works before using it on your system, or copy-pasting the examples from this guide.
+
+While clear and explicit, this isn't anything we wouldn't have been able to achieve with `Ownable`. Indeed, where `AccessControl` shines is in scenarios where granular permissions are required, which can be implemented by defining _multiple_ roles.
+
+Let's augment our ERC-20 token example by also defining a 'burner' role, which lets accounts destroy tokens, and by using the `onlyRole` modifier:
+
+[source,solidity]
+----
+include::api:example$access-control/AccessControlERC20MintOnlyRole.sol[]
+----
+
+So clean! By splitting concerns this way, more granular levels of permission may be implemented than were possible with the simpler _ownership_ approach to access control. Limiting what each component of a system is able to do is known as the https://en.wikipedia.org/wiki/Principle_of_least_privilege[principle of least privilege], and is a good security practice. Note that each account may still have more than one role, if so desired.
+
+[[granting-and-revoking]]
+=== Granting and Revoking Roles
+
+The ERC-20 token example above uses `_grantRole`, an `internal` function that is useful when programmatically assigning roles (such as during construction). But what if we later want to grant the 'minter' role to additional accounts?
+
+By default, **accounts with a role cannot grant it or revoke it from other accounts**: all having a role does is making the `hasRole` check pass. To grant and revoke roles dynamically, you will need help from the _role's admin_.
+
+Every role has an associated admin role, which grants permission to call the `grantRole` and `revokeRole` functions. A role can be granted or revoked by using these if the calling account has the corresponding admin role. Multiple roles may have the same admin role to make management easier. A role's admin can even be the same role itself, which would cause accounts with that role to be able to also grant and revoke it.
+
+This mechanism can be used to create complex permissioning structures resembling organizational charts, but it also provides an easy way to manage simpler applications. `AccessControl` includes a special role, called `DEFAULT_ADMIN_ROLE`, which acts as the **default admin role for all roles**. An account with this role will be able to manage any other role, unless `_setRoleAdmin` is used to select a new admin role.
+
+Since it is the admin for all roles by default, and in fact it is also its own admin, this role carries significant risk. To mitigate this risk we provide xref:api:access.adoc#AccessControlDefaultAdminRules[`AccessControlDefaultAdminRules`], a recommended extension of `AccessControl` that adds a number of enforced security measures for this role: the admin is restricted to a single account, with a 2-step transfer procedure with a delay between steps.
+
+Let's take a look at the ERC-20 token example, this time taking advantage of the default admin role:
+
+[source,solidity]
+----
+include::api:example$access-control/AccessControlERC20MintMissing.sol[]
+----
+
+Note that, unlike the previous examples, no accounts are granted the 'minter' or 'burner' roles. However, because those roles' admin role is the default admin role, and _that_ role was granted to `msg.sender`, that same account can call `grantRole` to give minting or burning permission, and `revokeRole` to remove it.
+
+Dynamic role allocation is often a desirable property, for example in systems where trust in a participant may vary over time. It can also be used to support use cases such as https://en.wikipedia.org/wiki/Know_your_customer[KYC], where the list of role-bearers may not be known up-front, or may be prohibitively expensive to include in a single transaction.
+
+[[querying-privileged-accounts]]
+=== Querying Privileged Accounts
+
+Because accounts might <<granting-and-revoking, grant and revoke roles>> dynamically, it is not always possible to determine which accounts hold a particular role. This is important as it allows proving certain properties about a system, such as that an administrative account is a multisig or a DAO, or that a certain role has been removed from all users, effectively disabling any associated functionality.
+
+The base `AccessControl` contract provides role-based access control, but it does not support on-chain enumeration of role members. To track which accounts hold a role, you should instead rely on the xref:api:access.adoc#AccessControl-RoleGranted-bytes32-address-address-[RoleGranted] and xref:api:access.adoc#AccessControl-RoleRevoked-bytes32-address-address-[RoleRevoked] events, which can be processed off-chain. If on-chain enumeration is required, use the xref:api:access.adoc#AccessControlEnumerable#AccessControlEnumerable[AccessControlEnumerable] extension.
+
+This contract uses `EnumerableSet` internally and provides the following functions:
+
+* xref:api:access.adoc#AccessControlEnumerable-getRoleMemberCount-bytes32-[`getRoleMemberCount`]
+* xref:api:access.adoc#AccessControlEnumerable-getRoleMember-bytes32-uint256-[`getRoleMember`]
+* xref:api:access.adoc#AccessControlEnumerable-getRoleMembers-bytes32-[`getRoleMembers`]
+
+These can be used to iterate over the accounts that have been granted a role:
+
+```javascript
+const minterCount = await myToken.getRoleMemberCount(MINTER_ROLE);
+
+const members = [];
+for (let i = 0; i < minterCount; ++i) {
+    members.push(await myToken.getRoleMember(MINTER_ROLE, i));
+}
+```
+
+== Delayed operation
+
+Access control is essential to prevent unauthorized access to critical functions. These functions may be used to mint tokens, freeze transfers or perform an upgrade that completely changes the smart contract logic. While xref:api:access.adoc#Ownable[`Ownable`] and xref:api:access.adoc#AccessControl[`AccessControl`] can prevent unauthorized access, they do not address the issue of a misbehaving administrator attacking their own system to the prejudice of their users.
+
+This is the issue the xref:api:governance.adoc#TimelockController[`TimelockController`] is addressing.
+
+The xref:api:governance.adoc#TimelockController[`TimelockController`] is a proxy that is governed by proposers and executors. When set as the owner/admin/controller of a smart contract, it ensures that whichever maintenance operation is ordered by the proposers is subject to a delay. This delay protects the users of the smart contract by giving them time to review the maintenance operation and exit the system if they consider it is in their best interest to do so.
+
+=== Using `TimelockController`
+
+By default, the address that deployed the xref:api:governance.adoc#TimelockController[`TimelockController`] gets administration privileges over the timelock. This role grants the right to assign proposers, executors, and other administrators.
+
+The first step in configuring the xref:api:governance.adoc#TimelockController[`TimelockController`] is to assign at least one proposer and one executor. These can be assigned during construction or later by anyone with the administrator role. These roles are not exclusive, meaning an account can have both roles.
+
+Roles are managed using the xref:api:access.adoc#AccessControl[`AccessControl`] interface and the `bytes32` values for each role are accessible through the `DEFAULT_ADMIN_ROLE`, `PROPOSER_ROLE`, `EXECUTOR_ROLE`, and `CANCELLER_ROLE` constants.
+
+There is an additional feature built on top of `AccessControl`: giving the executor role to `address(0)` opens access to anyone to execute a proposal once the timelock has expired. This feature, while useful, should be used with caution.
+
+At this point, with both a proposer and an executor assigned, the timelock can perform operations.
+
+An optional next step is for the deployer to renounce its administrative privileges and leave the timelock self-administered. If the deployer decides to do so, all further maintenance, including assigning new proposers/schedulers or changing the timelock duration will have to follow the timelock workflow. This links the governance of the timelock to the governance of contracts attached to the timelock, and enforces a delay on timelock maintenance operations.
+
+WARNING: If the deployer renounces administrative rights in favour of timelock itself, assigning new proposers or executors will require a timelocked operation. This means that if the accounts in charge of any of these two roles become unavailable, then the entire contract (and any contract it controls) becomes locked indefinitely.
+
+With both the proposer and executor roles assigned and the timelock in charge of its own administration, you can now transfer the ownership/control of any contract to the timelock.
+
+TIP: A recommended configuration is to grant both roles to a secure governance contract such as a DAO or a multisig, and to additionally grant the executor role to a few EOAs held by people in charge of helping with the maintenance operations. These wallets cannot take over control of the timelock but they can help smoothen the workflow.
+
+=== Minimum delay
+
+Operations executed by the xref:api:governance.adoc#TimelockController[`TimelockController`] are not subject to a fixed delay but rather a minimum delay. Some major updates might call for a longer delay. For example, if a delay of just a few days might be sufficient for users to audit a minting operation, it makes sense to use a delay of a few weeks, or even a few months, when scheduling a smart contract upgrade.
+
+The minimum delay (accessible through the xref:api:governance.adoc#TimelockController-getMinDelay--[`getMinDelay`] method) can be updated by calling the xref:api:governance.adoc#TimelockController-updateDelay-uint256-[`updateDelay`] function. Bear in mind that access to this function is only accessible by the timelock itself, meaning this maintenance operation has to go through the timelock itself.
+
+[[access-management]]
+== Access Management
+
+For a system of contracts, better integrated role management can be achieved with an xref:api:access.adoc#AccessManager[`AccessManager`] instance. Instead of managing each contract's permission separately, AccessManager stores all the permissions in a single contract, making your protocol easier to audit and maintain.
+
+Although xref:api:access.adoc#AccessControl[`AccessControl`] offers a more dynamic solution for adding permissions to your contracts than Ownable, decentralized protocols tend to become more complex after integrating new contract instances and requires you to keep track of permissions separately in each contract. This increases the complexity of permissions management and monitoring across the system.
+
+image::access-control-multiple.svg[Access Control multiple]
+
+Protocols managing permissions in production systems often require more integrated alternatives to fragmented permissions through multiple `AccessControl` instances.
+
+image::access-manager.svg[AccessManager]
+
+The AccessManager is designed around the concept of role and target functions:
+
+* Roles are granted to accounts (addresses) following a many-to-many approach for flexibility. This means that each user can have one or multiple roles and multiple users can have the same role.
+* Access to a restricted target function is limited to one role. A target function is defined by one https://docs.soliditylang.org/en/v0.8.20/abi-spec.html#function-selector[function selector] on one contract (called target).
+
+For a call to be authorized, the caller must bear the role that is assigned to the current target function (contract address + function selector).
+
+image::access-manager-functions.svg[AccessManager functions]
+
+=== Using `AccessManager`
+
+OpenZeppelin Contracts provides xref:api:access.adoc#AccessManager[`AccessManager`] for managing roles across any number of contracts. The `AccessManager` itself is a contract that can be deployed and used out of the box. It sets an initial admin in the constructor who will be allowed to perform management operations.
+
+In order to restrict access to some functions of your contract, you should inherit from the xref:api:access.adoc#AccessManaged[`AccessManaged`] contract provided along with the manager. This provides the `restricted` modifier that can be used to protect any externally facing function. Note that you will have to specify the address of the AccessManager instance (xref:api:access.adoc#AccessManaged-constructor-address-[`initialAuthority`]) in the constructor so the `restricted` modifier knows which manager to use for checking permissions.
+
+Here's a simple example of an xref:tokens.adoc#ERC20[ERC-20 token] that defines a `mint` function that is restricted by an xref:api:access.adoc#AccessManager[`AccessManager`]:
+
+```solidity
+include::api:example$access-control/AccessManagedERC20MintBase.sol[]
+```
+
+NOTE: Make sure you fully understand how xref:api:access.adoc#AccessManager[`AccessManager`] works before using it or copy-pasting the examples from this guide.
+
+Once the managed contract has been deployed, it is now under the manager's control. The initial admin can then assign the minter role to an address and also allow the role to call the `mint` function. For example, this is demonstrated in the following Javascript code using Ethers.js:
+
+```javascript
+// const target = ...;
+// const user = ...;
+const MINTER = 42n; // Roles are uint64 (0 is reserved for the ADMIN_ROLE)
+
+// Grant the minter role with no execution delay
+await manager.grantRole(MINTER, user, 0);
+
+// Allow the minter role to call the function selector
+// corresponding to the mint function
+await manager.setTargetFunctionRole(
+    target,
+    ['0x40c10f19'], // bytes4(keccak256('mint(address,uint256)'))
+    MINTER
+);
+```
+
+Even though each role has its own list of function permissions, each role member (`address`) has an execution delay that will dictate how long the account should wait to execute a function that requires its role. Delayed operations must have the xref:api:access.adoc#AccessManager-schedule-address-bytes-uint48-[`schedule`] function called on them first in the AccessManager before they can be executed, either by calling the target function or using the AccessManager's xref:api:access.adoc#AccessManager-execute-address-bytes-[`execute`] function.
+
+Additionally, roles can have a granting delay that prevents adding members immediately. The AccessManager admins can set this grant delay as follows:
+
+```javascript
+const HOUR = 60 * 60;
+
+const GRANT_DELAY = 24 * HOUR;
+const EXECUTION_DELAY = 5 * HOUR;
+const ACCOUNT = "0x...";
+
+await manager.connect(initialAdmin).setGrantDelay(MINTER, GRANT_DELAY);
+
+// The role will go into effect after the GRANT_DELAY passes
+await manager.connect(initialAdmin).grantRole(MINTER, ACCOUNT, EXECUTION_DELAY);
+```
+
+Note that roles do not define a name. As opposed to the xref:api:access.adoc#AccessControl[`AccessControl`] case, roles are identified as numeric values instead of being hardcoded in the contract as `bytes32` values. It is still possible to allow for tooling discovery (e.g. for role exploration) using role labeling with the xref:api:access.adoc#AccessManager-labelRole-uint64-string-[`labelRole`] function.
+
+```javascript
+await manager.labelRole(MINTER, "MINTER");
+```
+
+Given the admins of the `AccessManaged` can modify all of its permissions, it's recommended to keep only a single admin address secured under a multisig or governance layer. To achieve this, it is possible for the initial admin to set up all the required permissions, targets, and functions, assign a new admin, and finally renounce its admin role.
+
+For improved incident response coordination, the manager includes a mode where administrators can completely close a target contract. When closed, all calls to restricted target functions in a target contract will revert.
+
+Closing and opening contracts don't alter any of their settings, neither permissions nor delays. Particularly, the roles required for calling specific target functions are not modified.
+
+This mode is useful for incident response operations that require temporarily shutting down a contract in order to evaluate emergencies and reconfigure permissions.
+
+```javascript
+const target = await myToken.getAddress();
+
+// Token's `restricted` functions closed
+await manager.setTargetClosed(target, true);
+
+// Token's `restricted` functions open
+await manager.setTargetClosed(target, false);
+```
+
+WARNING: Even if an `AccessManager` defines permissions for a target function, these won't be applied if the managed contract instance is not using the xref:api:access.adoc#AccessManaged-restricted--[`restricted`] modifier for that function, or if its manager is a different one.
+
+=== Role Admins and Guardians
+
+An important aspect of the AccessControl contract is that roles aren't granted nor revoked by role members. Instead, it relies on the concept of a role admin for granting and revoking.
+
+In the case of the `AccessManager`, the same rule applies and only the role's admins are able to call xref:api:access.adoc#AccessManager-grantRole-uint64-address-uint32-[grant] and xref:api:access.adoc#AccessManager-revokeRole-uint64-address-[revoke] functions. Note that calling these functions will be subject to the execution delay that the executing role admin has.
+
+Additionally, the `AccessManager` stores a _guardian_ as an extra protection for each role. This guardian has the ability to cancel operations that have been scheduled by any role member with an execution delay. Consider that a role will have its initial admin and guardian default to the `ADMIN_ROLE` (`0`).
+
+IMPORTANT: Be careful with the members of `ADMIN_ROLE`, since it acts as the default admin and guardian for every role. A misbehaved guardian can cancel operations at will, affecting the AccessManager's operation.
+
+=== Manager configuration
+
+The `AccessManager` provides a built-in interface for configuring permission settings that can be accessed by its `ADMIN_ROLE` members.
+
+This configuration interface includes the following functions:
+
+* Add a label to a role using the xref:api:access.adoc#AccessManager-labelRole-uint64-string-[`labelRole`] function.
+* Assign the admin and guardian of a role with xref:api:access.adoc#AccessManager-setRoleAdmin-uint64-uint64-[`setRoleAdmin`] and xref:api:access.adoc#AccessManager-setRoleGuardian-uint64-uint64-[`setRoleGuardian`].
+* Set each role's grant delay via xref:api:access.adoc#AccessManager-setGrantDelay-uint64-uint32-[`setGrantDelay`].
+
+As an admin, some actions will require a delay. Similar to each member's execution delay, some admin operations require waiting for execution and should follow the xref:api:access.adoc#AccessManager-schedule-address-bytes-uint48-[`schedule`] and xref:api:access.adoc#AccessManager-execute-address-bytes-[`execute`] workflow.
+
+More specifically, these delayed functions are those for configuring the settings of a specific target contract. The delay applied to these functions can be adjusted by the manager admins with xref:api:access.adoc#AccessManager-setTargetAdminDelay-address-uint32-[`setTargetAdminDelay`].
+
+The delayed admin actions are:
+
+* Updating an `AccessManaged` contract xref:api:access.adoc#AccessManaged-authority--[authority] using xref:api:access.adoc#AccessManager-updateAuthority-address-address-[`updateAuthority`].
+* Closing or opening a target via xref:api:access.adoc#AccessManager-setTargetClosed-address-bool-[`setTargetClosed`].
+* Changing permissions of whether a role can call a target function with xref:api:access.adoc#AccessManager-setTargetFunctionRole-address-bytes4---uint64-[`setTargetFunctionRole`].
+
+=== Manager Enumerability
+
+Similar to `AccessControl`, accounts might be granted and revoked roles dynamically in an `AccessManager`, making it challenging to determine which accounts hold a particular role at any given time. This capability is essential for proving certain properties about a system, such as verifying that an administrative role is held by a multisig or DAO, or that a certain role has been completely removed to disable associated functionality.
+
+The base `AccessManager` contract provides comprehensive role-based access control but does not support on-chain enumeration of role members or target function permissions by default. To track which accounts hold roles and which functions are assigned to roles, you should rely on the xref:api:access.adoc#AccessManager-RoleGranted-uint64-address-uint32-uint48-bool-[RoleGranted], xref:api:access.adoc#AccessManager-RoleRevoked-uint64-address-[RoleRevoked], and xref:api:access.adoc#AccessManager-TargetFunctionRoleUpdated-address-bytes4-uint64-[TargetFunctionRoleUpdated] events, which can be processed off-chain.
+
+If on-chain enumeration is required, it can be added implemented on top of the existing logic:
+
+```solidity
+include::api:example$AccessManagerEnumerable.sol[]
+```
+
+NOTE: The enumerable example only enumerates members of a role and functions that each role can call. Yet, it's possible to enumerate roles active (i.e. roles granted to at least 1 member), guardians and admins.
+
+This adds function that can be queried to iterate over the accounts that have been granted a role and the functions that a role is allowed to call on specific targets:
+
+```javascript
+// Enumerate role members
+const minterCount = await accessManager.getRoleMemberCount(MINTER_ROLE);
+
+const members = [];
+for (let i = 0; i < minterCount; ++i) {
+    members.push(await accessManager.getRoleMember(MINTER_ROLE, i));
+}
+
+// Or get all members at once
+const allMembers = await accessManager.getRoleMembers(MINTER_ROLE, 0, ethers.MaxUint256);
+
+// Enumerate target functions for a role
+const target = await myToken.getAddress();
+const functionCount = await accessManager.getRoleTargetFunctionCount(MINTER_ROLE, target);
+
+const functions = [];
+for (let i = 0; i < functionCount; ++i) {
+    functions.push(await accessManager.getRoleTargetFunction(MINTER_ROLE, target, i));
+}
+
+// Or get all functions at once
+const allFunctions = await accessManager.getRoleTargetFunctions(MINTER_ROLE, target, 0, ethers.MaxUint256);
+```
+
+=== Using with Ownable
+
+Contracts already inheriting from xref:api:access.adoc#Ownable[`Ownable`] can migrate to AccessManager by transferring ownership to the manager. After that, all calls to functions with the `onlyOwner` modifier should be called through the manager's xref:api:access.adoc#AccessManager-execute-address-bytes-[`execute`] function, even if the caller doesn't require a delay.
+
+```javascript
+await ownable.connect(owner).transferOwnership(accessManager);
+```
+
+=== Using with AccessControl
+
+For systems already using xref:api:access.adoc#AccessControl[`AccessControl`], the `DEFAULT_ADMIN_ROLE` can be granted to the `AccessManager` after revoking every other role. Subsequent calls should be made through the manager's xref:api:access.adoc#AccessManager-execute-address-bytes-[`execute`] method, similar to the Ownable case.
+
+```javascript
+// Revoke old roles
+await accessControl.connect(admin).revokeRole(MINTER_ROLE, account);
+
+// Grant the admin role to the access manager
+await accessControl.connect(admin).grantRole(DEFAULT_ADMIN_ROLE, accessManager);
+
+await accessControl.connect(admin).renounceRole(DEFAULT_ADMIN_ROLE, admin);
+```
+
+NOTE: After migrating to AccessManager, the `msg.sender` in restricted functions will be the AccessManager contract itself through the xref:api:access.adoc#AccessManager-execute-address-bytes-[`execute`] function, not the original caller. This is a fundamental change in how access control works and may require updates to your contract logic or frontend integration.

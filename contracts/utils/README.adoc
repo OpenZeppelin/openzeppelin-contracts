@@ -1,0 +1,163 @@
+= Utilities
+
+[.readme-notice]
+NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/utils
+
+Miscellaneous contracts and libraries containing utility functions you can use to improve security, work with new data types, or safely use low-level primitives.
+
+ * {Math}, {SignedMath}: Implementation of various arithmetic functions.
+ * {SafeCast}: Checked downcasting functions to avoid silent truncation.
+ * {Nonces}: Utility for tracking and verifying address nonces that only increment.
+ * {NoncesKeyed}: Alternative to {Nonces}, that support keyed nonces following https://eips.ethereum.org/EIPS/eip-4337#semi-abstracted-nonce-support[ERC-4337 specifications].
+ * {Pausable}: A common emergency response mechanism that can pause functionality while a remediation is pending.
+ * {ReentrancyGuard}: A modifier that can prevent reentrancy during certain functions.
+ * {ReentrancyGuardTransient}: Variant of {ReentrancyGuard} that uses transient storage (https://eips.ethereum.org/EIPS/eip-1153[EIP-1153]).
+ * {ERC165}, {ERC165Checker}: Utilities for inspecting interfaces supported by contracts.
+ * {Accumulators}: A library for merging an arbitrary dynamic number of bytes buffers.
+ * {BitMaps}: A simple library to manage boolean value mapped to a numerical index in an efficient way.
+ * {Checkpoints}: A data structure to store values mapped to a strictly increasing key. Can be used for storing and accessing values over time.
+ * {CircularBuffer}: A data structure to store the last N values pushed to it.
+ * {DoubleEndedQueue}: An implementation of a https://en.wikipedia.org/wiki/Double-ended_queue[double ended queue] whose values can be added or removed from both sides. Useful for FIFO and LIFO structures.
+ * {EnumerableMap}: A type like Solidity's https://solidity.readthedocs.io/en/latest/types.html#mapping-types[`mapping`], but with key-value _enumeration_: this will let you know how many entries a mapping has, and iterate over them (which is not possible with `mapping`).
+ * {EnumerableSet}: Like {EnumerableMap}, but for https://en.wikipedia.org/wiki/Set_(abstract_data_type)[sets]. Can be used to store privileged accounts, issued IDs, etc.
+ * {Heap}: A library that implements a https://en.wikipedia.org/wiki/Binary_heap[binary heap] in storage.
+ * {MerkleTree}: A library with https://wikipedia.org/wiki/Merkle_Tree[Merkle Tree] data structures and helper functions.
+ * {Address}: Collection of functions for overloading Solidity's https://docs.soliditylang.org/en/latest/types.html#address[`address`] type.
+ * {Arrays}: Collection of functions that operate on https://docs.soliditylang.org/en/latest/types.html#arrays[`arrays`].
+ * {Base58}: On-chain base58 encoding and decoding.
+ * {Base64}: On-chain base64 and base64URL encoding according to https://datatracker.ietf.org/doc/html/rfc4648[RFC-4648].
+ * {Blockhash}: A library for accessing historical block hashes beyond the standard 256 block limit utilizing EIP-2935's historical blockhash functionality.
+ * {Bytes}: Common operations on bytes objects.
+ * {CAIP2}, {CAIP10}: Libraries for formatting and parsing CAIP-2 and CAIP-10 identifiers.
+ * {Calldata}: Helpers for manipulating calldata.
+ * {Comparators}: A library that contains comparator functions to use with the {Heap} library.
+ * {Context}: A utility for abstracting the sender and calldata in the current execution context.
+ * {Create2}: Wrapper around the https://blog.openzeppelin.com/getting-the-most-out-of-create2/[`CREATE2` EVM opcode] for safe use without having to deal with low-level assembly.
+ * {InteroperableAddress}: Library for formatting and parsing ERC-7930 interoperable addresses.
+ * {LowLevelCall}: Collection of functions to perform calls with low-level assembly.
+ * {Memory}: A utility library to manipulate memory.
+ * {Multicall}: Abstract contract with a utility to allow batching together multiple calls in a single transaction. Useful for allowing EOAs to perform multiple operations at once.
+ * {Packing}: A library for packing and unpacking multiple values into bytes32.
+ * {Panic}: A library to revert with https://docs.soliditylang.org/en/v0.8.20/control-structures.html#panic-via-assert-and-error-via-require[Solidity panic codes].
+ * {RelayedCall}: A library for performing calls that use minimal and predictable relayers to hide the sender.
+ * {RLP}: Library for encoding and decoding data in Ethereum's Recursive Length Prefix format.
+ * {ShortStrings}: Library to encode (and decode) short strings into (or from) a single bytes32 slot for optimizing costs. Short strings are limited to 31 characters.
+ * {SimulateCall}: Library for simulating contract calls, enabling safe inspection of call results without affecting on-chain state.
+ * {SlotDerivation}: Methods for deriving storage slot from ERC-7201 namespaces as well as from constructions such as mapping and arrays.
+ * {StorageSlot}: Methods for accessing specific storage slots formatted as common primitive types.
+ * {Strings}: Common operations for strings formatting.
+ * {Time}: A library that provides helpers for manipulating time-related objects, including a `Delay` type.
+ * {TransientSlot}: Primitives for reading from and writing to transient storage (only value types are currently supported).
+
+[NOTE]
+====
+Because Solidity does not support generic types, {EnumerableMap} and {EnumerableSet} are specialized to a limited number of key-value types.
+====
+
+== Math
+
+{{Math}}
+
+{{SignedMath}}
+
+{{SafeCast}}
+
+== Security
+
+{{Nonces}}
+
+{{NoncesKeyed}}
+
+{{Pausable}}
+
+{{ReentrancyGuard}}
+
+{{ReentrancyGuardTransient}}
+
+== Introspection
+
+This set of interfaces and contracts deal with https://en.wikipedia.org/wiki/Type_introspection[type introspection] of contracts, that is, examining which functions can be called on them. This is usually referred to as a contract's _interface_.
+
+Ethereum contracts have no native concept of an interface, so applications must usually simply trust that they are not making an incorrect call. For trusted setups this is a non-issue, but often unknown and untrusted third-party addresses need to be interacted with. There may not even be any direct calls to them! (e.g. ERC-20 tokens may be sent to a contract that lacks a way to transfer them out of it, locking them forever). In these cases, a contract _declaring_ its interface can be very helpful in preventing errors.
+
+{{IERC165}}
+
+{{ERC165}}
+
+{{ERC165Checker}}
+
+== Data Structures
+
+{{Accumulators}}
+
+{{BitMaps}}
+
+{{Checkpoints}}
+
+{{CircularBuffer}}
+
+{{DoubleEndedQueue}}
+
+{{EnumerableMap}}
+
+{{EnumerableSet}}
+
+{{Heap}}
+
+{{MerkleTree}}
+
+== Libraries
+
+{{Address}}
+
+{{Arrays}}
+
+{{Base58}}
+
+{{Base64}}
+
+{{Blockhash}}
+
+{{Bytes}}
+
+{{CAIP10}}
+
+{{CAIP2}}
+
+{{Calldata}}
+
+{{Comparators}}
+
+{{Context}}
+
+{{Create2}}
+
+{{InteroperableAddress}}
+
+{{LowLevelCall}}
+
+{{Memory}}
+
+{{Multicall}}
+
+{{Packing}}
+
+{{Panic}}
+
+{{RelayedCall}}
+
+{{RLP}}
+
+{{ShortStrings}}
+
+{{SimulateCall}}
+
+{{SlotDerivation}}
+
+{{StorageSlot}}
+
+{{Strings}}
+
+{{Time}}
+
+{{TransientSlot}}

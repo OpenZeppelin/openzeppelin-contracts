@@ -1,0 +1,81 @@
+= ERC-20
+
+[.readme-notice]
+NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/token/erc20
+
+This set of interfaces, contracts, and utilities are all related to the https://eips.ethereum.org/EIPS/eip-20[ERC-20 Token Standard].
+
+TIP: For an overview of ERC-20 tokens and a walk through on how to create a token contract read our xref:ROOT:erc20.adoc[ERC-20 guide].
+
+There are a few core contracts that implement the behavior specified in the ERC-20 standard:
+
+* {IERC20}: the interface all ERC-20 implementations should conform to.
+* {IERC20Metadata}: the extended ERC-20 interface including the <<ERC20-name--,`name`>>, <<ERC20-symbol--,`symbol`>> and <<ERC20-decimals--,`decimals`>> functions.
+* {ERC20}: the implementation of the ERC-20 interface, including the <<ERC20-name--,`name`>>, <<ERC20-symbol--,`symbol`>> and <<ERC20-decimals--,`decimals`>> optional extensions to the standard interface.
+
+Additionally there are multiple custom extensions, including:
+
+* {ERC20Permit}: gasless approval of tokens (standardized as ERC-2612).
+* {ERC20Bridgeable}: compatibility with crosschain bridges through ERC-7802.
+* {ERC20Burnable}: destruction of own tokens.
+* {ERC20Capped}: enforcement of a cap to the total supply when minting tokens.
+* {ERC20Crosschain}: embedded {BridgeFungible} bridge, making the token crosschain through the use of ERC-7786 gateways.
+* {ERC20Pausable}: ability to pause token transfers.
+* {ERC20FlashMint}: token level support for flash loans through the minting and burning of ephemeral tokens (standardized as ERC-3156).
+* {ERC20Votes}: support for voting and vote delegation. xref:governance.adoc#token[See the governance guide for a minimal example (with the required overrides when combining ERC20 + ERC20Permit + ERC20Votes)].
+* {ERC20Wrapper}: wrapper to create an ERC-20 backed by another ERC-20, with deposit and withdraw methods. Useful in conjunction with {ERC20Votes}.
+* {ERC20TemporaryApproval}: support for approvals lasting for only one transaction, as defined in ERC-7674.
+* {ERC1363}: support for calling the target of a transfer or approval, enabling code execution on the receiver within a single transaction.
+* {ERC4626}: tokenized vault that manages shares (represented as ERC-20) that are backed by assets (another ERC-20).
+
+Finally, there are some utilities to interact with ERC-20 contracts in various ways:
+
+* {SafeERC20}: a wrapper around the interface that eliminates the need to handle boolean return values.
+
+Other utilities that support ERC-20 assets can be found in the codebase:
+
+* ERC-20 tokens can be timelocked (held for a beneficiary until a specified time) or vested (released following a given schedule) using a {VestingWallet}.
+
+NOTE: This core set of contracts is designed to be unopinionated, allowing developers to access the internal functions in ERC-20 (such as <<ERC20-_mint-address-uint256-,`_mint`>>) and expose them as external functions in the way they prefer.
+
+== Core
+
+{{IERC20}}
+
+{{IERC20Metadata}}
+
+{{ERC20}}
+
+== Extensions
+
+{{IERC20Permit}}
+
+{{ERC20Permit}}
+
+{{ERC20Bridgeable}}
+
+{{ERC20Burnable}}
+
+{{ERC20Capped}}
+
+{{ERC20Crosschain}}
+
+{{ERC20Pausable}}
+
+{{ERC20Votes}}
+
+{{ERC20Wrapper}}
+
+{{ERC20FlashMint}}
+
+{{ERC20TemporaryApproval}}
+
+{{ERC1363}}
+
+{{ERC4626}}
+
+== Utilities
+
+{{SafeERC20}}
+
+{{ERC1363Utils}}

@@ -1,0 +1,15 @@
+= Contracts Wizard
+:page-notoc:
+
+Not sure where to start? Use the interactive generator below to bootstrap your
+contract and learn about the components offered in OpenZeppelin Contracts.
+
+TIP: Place the resulting contract in your `contracts` or `src` directory in order to compile it with a tool like Hardhat or Foundry. Consider reading our guide on xref:learn::developing-smart-contracts.adoc[Developing Smart Contracts] for more guidance!
+
+++++
+<script async src="https://wizard.openzeppelin.com/build/embed.js"></script>
+
+<oz-wizard style="display: block; min-height: 40rem;"></oz-wizard>
+++++
+
+

@@ -1,0 +1,132 @@
+name: checks
+
+on:
+  push:
+    branches:
+      - master
+      - next-v*
+      - release-v*
+  pull_request: {}
+  workflow_dispatch: {}
+
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_OPTIONS: --max_old_space_size=8192
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up environment
+        uses: ./.github/actions/setup
+      - run: npm run lint
+
+  tests:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_COLOR: 1
+      # Needed for "eth-gas-reporter" to produce a "gasReporterOutput.json" as documented in
+      # https://github.com/cgewecke/eth-gas-reporter/blob/v0.2.27/docs/gasReporterOutput.md
+      CI: true
+      GAS: true
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up environment
+        uses: ./.github/actions/setup
+      - name: Run tests and generate gas report
+        run: npm run test
+      - name: Check linearisation of the inheritance graph
+        run: npm run test:inheritance
+      - name: Check pragma validity
+        run: npm run test:pragma -- --concurrency 1
+      - name: Check procedurally generated contracts are up-to-date
+        run: npm run test:generation
+      - name: Compare gas costs
+        uses: ./.github/actions/gas-compare
+        with:
+          token: ${{ github.token }}
+
+  tests-upgradeable:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_COLOR: 1
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0 # Include history so patch conflicts are resolved automatically
+      - name: Set up environment
+        uses: ./.github/actions/setup
+      - name: Copy non-upgradeable contracts as dependency
+        run: |
+          mkdir -p lib/openzeppelin-contracts
+          cp -rnT contracts lib/openzeppelin-contracts/contracts
+      - name: Transpile to upgradeable
+        run: bash scripts/upgradeable/transpile.sh
+      - name: Run tests
+        run: npm run test
+      - name: Check linearisation of the inheritance graph
+        run: npm run test:inheritance
+      - name: Check pragma validity
+        run: npm run test:pragma -- --concurrency 1
+      - name: Check storage layout
+        uses: ./.github/actions/storage-layout
+        continue-on-error: ${{ contains(github.event.pull_request.labels.*.name, 'breaking change') }}
+        with:
+          token: ${{ github.token }}
+
+  tests-foundry:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: recursive
+      - name: Set up environment
+        uses: ./.github/actions/setup
+      - name: Run tests
+        run: forge test -vvv
+
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up environment
+        uses: ./.github/actions/setup
+      - name: Run coverage
+        run: npm run coverage
+      - uses: codecov/codecov-action@v5
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  harnesses:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up environment
+        uses: ./.github/actions/setup
+      - name: Compile harnesses
+        run: |
+          make -C fv apply
+          npm run compile:harnesses
+
+  slither:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up environment
+        uses: ./.github/actions/setup
+      - uses: crytic/slither-action@v0.4.1
+
+  codespell:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Run CodeSpell
+        uses: codespell-project/actions-codespell@v2.2
+        with:
+          check_hidden: true
+          check_filenames: true
+          skip: package-lock.json,*.pdf,vendor

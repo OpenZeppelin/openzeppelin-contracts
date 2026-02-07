@@ -1,0 +1,634 @@
+= Utilities
+
+The OpenZeppelin Contracts provide a ton of useful utilities that you can use in your project. For a complete list, check out the xref:api:utils.adoc[API Reference].
+Here are some of the more popular ones.
+
+[[cryptography]]
+== Cryptography
+
+=== Checking Signatures On-Chain
+
+At a high level, signatures are a set of cryptographic algorithms that allow for a _signer_ to prove himself as the owner of a _private key_ used to authorize a piece of information (generally a transaction or `UserOperation`). Natively, the EVM supports the Elliptic Curve Digital Signature Algorithm (https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm[ECDSA]) using the secp256k1 curve, however other signature algorithms such as P256 and RSA are supported.
+
+==== Ethereum Signatures (secp256k1)
+
+xref:api:utils/cryptography.adoc#ECDSA[`ECDSA`] provides functions for recovering and managing Ethereum account ECDSA signatures. These are often generated via https://web3js.readthedocs.io/en/v1.7.3/web3-eth.html#sign[`web3.eth.sign`], and form a 65-byte array (of type `bytes` in Solidity) arranged the following way: `[[v (1)], [r (32)], [s (32)]]`.
+
+The data signer can be recovered with xref:api:utils/cryptography.adoc#ECDSA-recover-bytes32-bytes-[`ECDSA.recover`], and its address compared to verify the signature. Most wallets will hash the data to sign and add the prefix `\x19Ethereum Signed Message:\n`, so when attempting to recover the signer of an Ethereum signed message hash, you'll want to use xref:api:utils/cryptography.adoc#MessageHashUtils-toEthSignedMessageHash-bytes32-[`toEthSignedMessageHash`].
+
+[source,solidity]
+----
+using ECDSA for bytes32;
+using MessageHashUtils for bytes32;
+
+function _verify(bytes32 data, bytes memory signature, address account) internal pure returns (bool) {
+    return data
+        .toEthSignedMessageHash()
+        .recover(signature) == account;
+}
+----
+
+WARNING: Getting signature verification right is not trivial: make sure you fully read and understand xref:api:utils/cryptography.adoc#MessageHashUtils[`MessageHashUtils`]'s and xref:api:utils/cryptography.adoc#ECDSA[`ECDSA`]'s documentation.
+
+==== P256 Signatures (secp256r1)
+
+P256, also known as secp256r1, is one of the most used signature schemes. P256 signatures are standardized by the National Institute of Standards and Technology (NIST) and they are widely available in consumer hardware and software.
+
+These signatures are different from regular Ethereum Signatures (secp256k1) in that they use a different elliptic curve to perform operations but have similar security guarantees.
+
+[source,solidity]
+----
+using P256 for bytes32;
+
+function _verify(
+    bytes32 data,
+    bytes32 r,
+    bytes32 s,
+    bytes32 qx,
+    bytes32 qy
+) internal view returns (bool) {
+    return data.verify(r, s, qx, qy);
+}
+----
+
+By default, the `verify` function will try calling the https://github.com/ethereum/RIPs/blob/master/RIPS/rip-7212.md[RIP-7212] precompile at address `0x100` and will fallback to an implementation in Solidity if not available. We encourage you to use `verifyNative` if you know the precompile is available on the chain you're working on and on any other chain on which you intend to use the same bytecode in the future. In case of any doubts regarding the implementation roadmap of the native precompile `P256` of potential future target chains, please consider using `verifySolidity`.
+
+[source,solidity]
+----
+using P256 for bytes32;
+
+function _verify(
+    bytes32 data,
+    bytes32 r,
+    bytes32 s,
+    bytes32 qx,
+    bytes32 qy
+) internal view returns (bool) {
+    // Will only call the precompile at address(0x100)
+    return data.verifyNative(r, s, qx, qy);
+}
+----
+
+IMPORTANT: The P256 library only allows for `s` values in the lower order of the curve (i.e. `s <= N/2`) to prevent malleability. In case your tooling produces signatures in both sides of the curve, consider flipping the `s` value to keep compatibility.
+
+==== RSA
+
+RSA is a public-key cryptosystem that was popularized by corporate and governmental public key infrastructures (https://en.wikipedia.org/wiki/Public_key_infrastructure[PKIs]) and https://en.wikipedia.org/wiki/Domain_Name_System_Security_Extensions[DNSSEC].
+
+This cryptosystem consists of using a private key that's the product of 2 large prime numbers. The message is signed by applying a modular exponentiation to its hash (commonly SHA256), where both the exponent and modulus compose the public key of the signer.
+
+RSA signatures are known for being less efficient than elliptic curve signatures given the size of the keys, which are big compared to ECDSA keys with the same security level. Using plain RSA is considered unsafe, this is why the implementation uses the `EMSA-PKCS1-v1_5` encoding method from https://datatracker.ietf.org/doc/html/rfc8017[RFC8017] to include padding to the signature.
+
+To verify a signature using RSA, you can leverage the xref:api:utils/cryptography.adoc#RSA[`RSA`] library that exposes a method for verifying RSA with the PKCS 1.5 standard:
+
+[source,solidity]
+----
+using RSA for bytes32;
+
+function _verify(
+    bytes32 data,
+    bytes memory signature,
+    bytes memory e,
+    bytes memory n
+) internal pure returns (bool) {
+    return data.pkcs1Sha256(signature, e, n);
+}
+----
+
+IMPORTANT: Always use keys of at least 2048 bits. Additionally, be aware that PKCS#1 v1.5 allows for replayability due to the possibility of arbitrary optional parameters. To prevent replay attacks, consider including an onchain nonce or unique identifier in the message.
+
+=== Signature Verification
+
+The xref:api:utils/cryptography.adoc#SignatureChecker[`SignatureChecker`] library provides a unified interface for verifying signatures from different sources. It seamlessly supports:
+
+* ECDSA signatures from externally owned accounts (EOAs)
+* ERC-1271 signatures from smart contract wallets like Argent and Safe Wallet
+* ERC-7913 signatures from keys that don't have their own Ethereum address
+
+This allows developers to write signature verification code once and have it work across all these different signature types.
+
+==== Basic Signature Verification
+
+For standard signature verification that supports both EOAs and ERC-1271 contracts:
+
+[source,solidity]
+----
+using SignatureChecker for address;
+
+function _verifySignature(address signer, bytes32 hash, bytes memory signature) internal view returns (bool) {
+    return SignatureChecker.isValidSignatureNow(signer, hash, signature);
+}
+----
+
+The library automatically detects whether the signer is an EOA or a contract and uses the appropriate verification method.
+
+==== ERC-1271 Contract Signatures
+
+For smart contract wallets that implement ERC-1271, you can explicitly use:
+
+[source,solidity]
+----
+function _verifyContractSignature(address signer, bytes32 hash, bytes memory signature) internal view returns (bool) {
+    return SignatureChecker.isValidERC1271SignatureNow(signer, hash, signature);
+}
+----
+
+==== ERC-7913 Extended Signatures
+
+ERC-7913 extends signature verification to support keys that don't have their own Ethereum address. This is useful for integrating non-Ethereum cryptographic curves, hardware devices, or other identity systems.
+
+A signer is represented as a `bytes` object that concatenates a verifier address and a key: `verifier || key`.
+
+[source,solidity]
+----
+function _verifyERC7913Signature(bytes memory signer, bytes32 hash, bytes memory signature) internal view returns (bool) {
+    return SignatureChecker.isValidSignatureNow(signer, hash, signature);
+}
+----
+
+The verification process works as follows:
+
+* If `signer.length < 20`: verification fails
+* If `signer.length == 20`: verification is done using standard signature checking
+* Otherwise: verification is done using an ERC-7913 verifier
+
+==== Batch Verification
+
+For verifying multiple ERC-7913 signatures at once:
+
+[source,solidity]
+----
+function _verifyMultipleSignatures(
+    bytes32 hash,
+    bytes[] memory signers,
+    bytes[] memory signatures
+) internal view returns (bool) {
+    return SignatureChecker.areValidSignaturesNow(hash, signers, signatures);
+}
+----
+
+This function will reject inputs that contain duplicated signers. Sorting the signers by their `keccak256` hash is recommended to minimize the gas cost.
+
+This unified approach allows smart contracts to accept signatures from any supported source without needing to implement different verification logic for each type.
+
+=== Verifying Merkle Proofs
+
+Developers can build a Merkle Tree off-chain, which allows for verifying that an element (leaf) is part of a set by using a Merkle Proof. This technique is widely used for creating whitelists (e.g., for airdrops) and other advanced use cases.
+
+TIP: OpenZeppelin Contracts provides a https://github.com/OpenZeppelin/merkle-tree[JavaScript library] for building trees off-chain and generating proofs.
+
+xref:api:utils/cryptography.adoc#MerkleProof[`MerkleProof`] provides:
+
+* xref:api:utils/cryptography.adoc#MerkleProof-verify-bytes32---bytes32-bytes32-[`verify`] - can prove that some value is part of a https://en.wikipedia.org/wiki/Merkle_tree[Merkle tree].
+
+* xref:api:utils/cryptography.adoc#MerkleProof-multiProofVerify-bytes32-bytes32---bytes32---bool---[`multiProofVerify`] - can prove multiple values are part of a Merkle tree.
+
+For an on-chain Merkle Tree, see the xref:api:utils.adoc#MerkleTree[`MerkleTree`] library.
+
+[[introspection]]
+== Introspection
+
+In Solidity, it's frequently helpful to know whether or not a contract supports an interface you'd like to use. ERC-165 is a standard that enables runtime interface detection. Contracts provide helpers both for implementing ERC-165 in your contracts and querying other contracts:
+
+* xref:api:utils.adoc#IERC165[`IERC165`] — this is the ERC-165 interface that defines xref:api:utils.adoc#IERC165-supportsInterface-bytes4-[`supportsInterface`]. When implementing ERC-165, you'll conform to this interface.
+* xref:api:utils.adoc#ERC165[`ERC165`] — inherit this contract if you'd like to support interface detection using a lookup table in contract storage. You can register interfaces using xref:api:utils.adoc#ERC165-_registerInterface-bytes4-[`_registerInterface(bytes4)`]: check out example usage as part of the ERC-721 implementation.
+* xref:api:utils.adoc#ERC165Checker[`ERC165Checker`] — ERC165Checker simplifies the process of checking whether or not a contract supports an interface you care about.
+* include with `using ERC165Checker for address;`
+* xref:api:utils.adoc#ERC165Checker-_supportsInterface-address-bytes4-[`myAddress._supportsInterface(bytes4)`]
+* xref:api:utils.adoc#ERC165Checker-_supportsAllInterfaces-address-bytes4---[`myAddress._supportsAllInterfaces(bytes4[\])`]
+
+[source,solidity]
+----
+contract MyContract {
+    using ERC165Checker for address;
+
+    bytes4 private InterfaceId_ERC721 = 0x80ac58cd;
+
+    /**
+     * @dev transfer an ERC-721 token from this contract to someone else
+     */
+    function transferERC721(
+        address token,
+        address to,
+        uint256 tokenId
+    )
+        public
+    {
+        require(token.supportsInterface(InterfaceId_ERC721), "IS_NOT_721_TOKEN");
+        IERC721(token).transferFrom(address(this), to, tokenId);
+    }
+}
+----
+
+[[math]]
+== Math
+
+Although Solidity already provides math operators (i.e. `+`, `-`, etc.), Contracts includes xref:api:utils.adoc#Math[`Math`]; a set of utilities for dealing with mathematical operators, with support for extra operations (e.g., xref:api:utils.adoc#Math-average-uint256-uint256-[`average`]) and xref:api:utils.adoc#SignedMath[`SignedMath`]; a library specialized in signed math operations.
+
+Include these contracts with `using Math for uint256` or `using SignedMath for int256` and then use their functions in your code:
+
+[source,solidity]
+----
+contract MyContract {
+    using Math for uint256;
+    using SignedMath for int256;
+
+    function tryOperations(uint256 a, uint256 b) internal pure {
+        (bool succeededAdd, uint256 resultAdd) = x.tryAdd(y);
+        (bool succeededSub, uint256 resultSub) = x.trySub(y);
+        (bool succeededMul, uint256 resultMul) = x.tryMul(y);
+        (bool succeededDiv, uint256 resultDiv) = x.tryDiv(y);
+        // ...
+    }
+
+    function unsignedAverage(int256 a, int256 b) {
+        int256 avg = a.average(b);
+        // ...
+    }
+}
+----
+
+Easy!
+
+TIP: While working with different data types that might require casting, you can use xref:api:utils.adoc#SafeCast[`SafeCast`] for type casting with added overflow checks.
+
+[[structures]]
+== Structures
+
+Some use cases require more powerful data structures than the arrays and mappings offered natively in Solidity. These contracts provide libraries for enhanced data structure management:
+
+- xref:api:utils.adoc#BitMaps[`BitMaps`]: Store packed booleans in storage.
+- xref:api:utils.adoc#Checkpoints[`Checkpoints`]: Checkpoint values with built-in lookups.
+- xref:api:utils.adoc#DoubleEndedQueue[`DoubleEndedQueue`]: Store items in a queue with `pop()` and `queue()` constant time operations.
+- xref:api:utils.adoc#EnumerableSet[`EnumerableSet`]: A https://en.wikipedia.org/wiki/Set_(abstract_data_type)[set] with enumeration capabilities.
+- xref:api:utils.adoc#EnumerableMap[`EnumerableMap`]: A `mapping` variant with enumeration capabilities.
+- xref:api:utils.adoc#MerkleTree[`MerkleTree`]: An on-chain https://wikipedia.org/wiki/Merkle_Tree[Merkle Tree] with helper functions.
+- xref:api:utils.adoc#Heap.sol[`Heap`]: A https://en.wikipedia.org/wiki/Binary_heap[binary heap] to store elements with priority defined by a comparator function.
+
+The `Enumerable*` structures are similar to mappings in that they store and remove elements in constant time and don't allow for repeated entries, but they also support _enumeration_, which means you can easily query all stored entries both on and off-chain.
+
+=== Building a Merkle Tree
+
+Building an on-chain Merkle Tree allows developers to keep track of the history of roots in a decentralized manner. For these cases, the xref:api:utils.adoc#MerkleTree[`MerkleTree`] includes a predefined structure with functions to manipulate the tree (e.g. pushing values or resetting the tree).
+
+The Merkle Tree does not keep track of the roots intentionally, so that developers can choose their tracking mechanism. Setting up and using a Merkle Tree in Solidity is as simple as follows:
+
+NOTE: Functions are exposed without access control for demonstration purposes
+
+[source,solidity]
+----
+using MerkleTree for MerkleTree.Bytes32PushTree;
+MerkleTree.Bytes32PushTree private _tree;
+
+function setup(uint8 _depth, bytes32 _zero) public /* onlyOwner */ {
+    root = _tree.setup(_depth, _zero);
+}
+
+function push(bytes32 leaf) public /* onlyOwner */ {
+    (uint256 leafIndex, bytes32 currentRoot) = _tree.push(leaf);
+    // Store the new root.
+}
+----
+
+The library also supports custom hashing functions, which can be passed as an extra parameter to the xref:api:utils.adoc#MerkleTree-push-struct-MerkleTree-Bytes32PushTree-bytes32-[`push`] and xref:api:utils.adoc#MerkleTree-setup-struct-MerkleTree-Bytes32PushTree-uint8-bytes32-[`setup`] functions.
+
+Using custom hashing functions is a sensitive operation. After setup, it requires continuing to use the same hashing function for every new value pushed to the tree to avoid corrupting the tree. For this reason, it's a good practice to keep your hashing function static in your implementation contract as follows:
+
+[source,solidity]
+----
+using MerkleTree for MerkleTree.Bytes32PushTree;
+MerkleTree.Bytes32PushTree private _tree;
+
+function setup(uint8 _depth, bytes32 _zero) public /* onlyOwner */ {
+    root = _tree.setup(_depth, _zero, _hashFn);
+}
+
+function push(bytes32 leaf) public /* onlyOwner */ {
+    (uint256 leafIndex, bytes32 currentRoot) = _tree.push(leaf, _hashFn);
+    // Store the new root.
+}
+
+function _hashFn(bytes32 a, bytes32 b) internal view returns(bytes32) {
+    // Custom hash function implementation
+    // Kept as an internal implementation detail to
+    // guarantee the same function is always used
+}
+----
+
+=== Using a Heap
+
+A https://en.wikipedia.org/wiki/Binary_heap[binary heap] is a data structure that always stores the most important element at its peak and it can be used as a priority queue.
+
+To define what is most important in a heap, these frequently take comparator functions that tell the binary heap whether a value has more relevance than another.
+
+OpenZeppelin Contracts implements a Heap data structure with the properties of a binary heap. The heap uses the xref:api:utils.adoc#Comparators-lt-uint256-uint256-[`lt`] function by default but allows to customize its comparator.
+
+When using a custom comparator, it's recommended to wrap your function to avoid the possibility of mistakenly using a different comparator function:
+
+[source,solidity]
+----
+function pop(Uint256Heap storage self) internal returns (uint256) {
+    return pop(self, Comparators.gt);
+}
+
+function insert(Uint256Heap storage self, uint256 value) internal {
+    insert(self, value, Comparators.gt);
+}
+
+function replace(Uint256Heap storage self, uint256 newValue) internal returns (uint256) {
+    return replace(self, newValue, Comparators.gt);
+}
+----
+
+
+[[misc]]
+== Misc
+
+=== Packing
+
+The storage in the EVM is shaped in chunks of 32 bytes, each of these chunks is known as a _slot_, and can hold multiple values together as long as these values don't exceed 32 bytes. This property allows for a technique known as _packing_--placing values together in a single storage slot to reduce the costs associated with reading and writing these values.
+
+Commonly, developers pack values using structs that place values together so they fit better in storage. However, this approach requires loading such struct from either calldata or memory. Although sometimes necessary, it may be useful to pack values in a single slot and treat it as a packed value without involving calldata or memory.
+
+The xref:api:utils.adoc#Packing[`Packing`] library is a set of utilities for packing values that fit in 32 bytes. The library includes 3 main functionalities:
+
+* Packing 2 `bytesXX` values
+* Extracting a packed `bytesXX` value from a `bytesYY`
+* Replacing a packed `bytesXX` value from a `bytesYY`
+
+With these primitives, one can build custom functions to create custom packed types. For example, suppose you need to pack an `address` of 20 bytes with a `bytes4` selector and an `uint64` time period:
+
+[source,solidity]
+----
+function _pack(address account, bytes4 selector, uint64 period) external pure returns (bytes32) {
+    bytes12 subpack = Packing.pack_4_8(selector, bytes8(period));
+    return Packing.pack_20_12(bytes20(account), subpack);
+}
+
+function _unpack(bytes32 pack) external pure returns (address, bytes4, uint64) {
+    return (
+        address(Packing.extract_32_20(pack, 0)),
+        Packing.extract_32_4(pack, 20),
+        uint64(Packing.extract_32_8(pack, 24))
+    );
+}
+----
+
+=== Storage Slots
+
+Solidity allocates a storage pointer for each variable declared in a contract. However, there are cases when it's required to access storage pointers that can't be derived by using regular Solidity.
+For those cases, the xref:api:utils.adoc#StorageSlot[`StorageSlot`] library allows for manipulating storage slots directly.
+
+[source,solidity]
+----
+bytes32 internal constant _IMPLEMENTATION_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
+
+function _getImplementation() internal view returns (address) {
+    return StorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT).value;
+}
+
+function _setImplementation(address newImplementation) internal {
+    require(newImplementation.code.length > 0);
+    StorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT).value = newImplementation;
+}
+----
+
+The xref:api:utils.adoc#TransientSlot[`TransientSlot`] library supports transient storage through user defined value types (https://docs.soliditylang.org/en/latest/types.html#user-defined-value-types[UDVTs]), which enables the same value types as in Solidity.
+
+[source,solidity]
+----
+bytes32 internal constant _LOCK_SLOT = 0xf4678858b2b588224636b8522b729e7722d32fc491da849ed75b3fdf3c84f542;
+
+function _getTransientLock() internal view returns (bool) {
+    return _LOCK_SLOT.asBoolean().tload();
+}
+
+function _setTransientLock(bool lock) internal {
+    _LOCK_SLOT.asBoolean().tstore(lock);
+}
+----
+
+WARNING: Manipulating storage slots directly is an advanced practice. Developers MUST make sure that the storage pointer is not colliding with other variables.
+
+One of the most common use cases for writing directly to storage slots is ERC-7201 for namespaced storage, which is guaranteed to not collide with other storage slots derived by Solidity.
+
+Users can leverage this standard using the xref:api:utils.adoc#SlotDerivation[`SlotDerivation`] library.
+
+[source,solidity]
+----
+using SlotDerivation for bytes32;
+string private constant _NAMESPACE = "<namespace>" // eg. example.main
+
+function erc7201Pointer() internal view returns (bytes32) {
+    return _NAMESPACE.erc7201Slot();
+}
+----
+
+=== Base64
+
+xref:api:utils.adoc#Base64[`Base64`] util allows you to transform `bytes32` data into its Base64 `string` representation.
+
+This is especially useful for building URL-safe tokenURIs for both xref:api:token/ERC721.adoc#IERC721Metadata-tokenURI-uint256-[`ERC-721`] or xref:api:token/ERC1155.adoc#IERC1155MetadataURI-uri-uint256-[`ERC-1155`]. This library provides a clever way to serve URL-safe https://developer.mozilla.org/docs/Web/HTTP/Basics_of_HTTP/Data_URIs/[Data URI] compliant strings to serve on-chain data structures.
+
+Here is an example to send JSON Metadata through a Base64 Data URI using an ERC-721:
+
+[source,solidity]
+----
+include::api:example$utilities/Base64NFT.sol[]
+----
+
+=== Multicall
+
+The `Multicall` abstract contract comes with a `multicall` function that bundles together multiple calls in a single external call. With it, external accounts may perform atomic operations comprising several function calls. This is not only useful for EOAs to make multiple calls in a single transaction, it's also a way to revert a previous call if a later one fails.
+
+Consider this dummy contract:
+
+[source,solidity]
+----
+include::api:example$utilities/Multicall.sol[]
+----
+
+This is how to call the `multicall` function using Ethers.js, allowing `foo` and `bar` to be called in a single transaction:
+[source,javascript]
+----
+// scripts/foobar.js
+
+const instance = await ethers.deployContract("Box");
+
+await instance.multicall([
+    instance.interface.encodeFunctionData("foo"),
+    instance.interface.encodeFunctionData("bar")
+]);
+----
+
+=== Low-level Calls
+
+The xref:api:utils.adoc#LowLevelCall[`LowLevelCall`] library provides low-level external calls with fixed-size return data handling, protecting against return bombing attacks where callees allocate excessive memory.
+
+The library efficiently handles return data up to 64 bytes, allowing you to ignore it entirely or extract 1-2 `bytes32` values:
+
+[source,solidity]
+----
+using LowLevelCall for address;
+
+function example(address target, bytes memory data) internal {
+    bool success;
+    bytes32 result1;
+    bytes32 result2;
+
+    // Ignore return data
+    success = target.callNoReturn(data);
+
+    // Extract single 32-byte value
+    (success, result1, ) = target.callReturn64Bytes(data);
+
+    // Extract two 32-byte values
+    (success, result1, result2) = target.callReturn64Bytes(data);
+}
+----
+
+You can also check return data size before processing:
+
+[source,solidity]
+----
+function checkReturnSize(address target, bytes memory data) internal returns (uint256 value, uint256 otherValue) {
+    (bool success, bytes32 result1, bytes32 result2) = target.callReturn64Bytes(data);
+
+    if (!success || LowLevelCall.returnDataSize() < 32) {
+        return (0, 0);
+    } else if (LowLevelCall.returnDataSize() < 64) {
+        return (uint256(result1), 0);
+    } else {
+        return (uint256(result1), uint256(result2));
+    }
+}
+----
+
+=== Memory
+
+The xref:api:utils.adoc#Memory[`Memory`] library provides functions for advanced use cases that require granular memory management. A common use case is to avoid unnecessary memory expansion costs when performing repeated operations that allocate memory in a loop. Consider the following example:
+
+[source,solidity]
+----
+function processMultipleItems(uint256[] memory items) internal {
+  for (uint256 i = 0; i < items.length; i++) {
+    bytes memory tempData = abi.encode(items[i], block.timestamp);
+    // Process tempData...
+  }
+}
+----
+
+Note that each iteration allocates new memory for `tempData`, causing the memory to expand continuously. This can be optimized by resetting the memory pointer between iterations:
+
+[source,solidity]
+----
+function processMultipleItems(uint256[] memory items) internal {
+  Memory.Pointer ptr = Memory.getFreeMemoryPointer(); // Cache pointer
+  for (uint256 i = 0; i < items.length; i++) {
+    bytes memory tempData = abi.encode(items[i], block.timestamp);
+    // Process tempData...
+    Memory.setFreeMemoryPointer(ptr); // Reset pointer for reuse
+  }
+}
+----
+
+This way, memory allocated for `tempData` in each iteration is reused, significantly reducing memory expansion costs when processing many items.
+
+IMPORTANT: Only use these functions after carefully confirming they're necessary. By default, Solidity handles memory safely. Using this library without understanding memory layout and safety may be dangerous. See the https://docs.soliditylang.org/en/v0.8.20/internals/layout_in_memory.html[memory layout] and https://docs.soliditylang.org/en/v0.8.20/assembly.html#memory-safety[memory safety] documentation for details.
+
+=== Historical Block Hashes
+
+xref:api:utils.adoc#Blockhash[`Blockhash`] provides L2 protocol developers with extended access to historical block hashes beyond Ethereum's native 256-block limit. By leveraging https://eips.ethereum.org/EIPS/eip-2935[EIP-2935]'s history storage contract, the library enables access to block hashes up to 8,191 blocks in the past, making it invaluable for L2 fraud proofs and state verification systems.
+
+The library seamlessly combines native `BLOCKHASH` opcode access for recent blocks (≤256) with EIP-2935 history storage queries for older blocks (257-8,191). It handles edge cases gracefully by returning zero for future blocks or those beyond the history window, matching the EVM's behavior. The implementation uses gas-efficient assembly for static calls to the history storage contract.
+
+[source,solidity]
+----
+contract L1Inbox {
+    using Blockhash for uint256;
+
+    function verifyBlockHash(uint256 blockNumber, bytes32 expectedHash) public view returns (bool) {
+        return blockNumber.blockHash() == expectedHash;
+    }
+}
+----
+
+IMPORTANT: After EIP-2935 activation, it takes 8,191 blocks to completely fill the history storage. Before that, only block hashes since the fork block will be available.
+
+=== Time
+
+The xref:api:utils.adoc#Time[`Time`] library provides helpers for manipulating time-related objects in a type-safe manner. It uses `uint48` for timepoints and `uint32` for durations, helping to reduce gas costs while providing adequate precision.
+
+One of its key features is the `Delay` type, which represents a duration that can automatically change its value at a specified point in the future while maintaining delay guarantees. For example, when reducing a delay value (e.g., from 7 days to 1 day), the change only takes effect after the difference between the old and new delay (i.e. a 6 days) or a minimum setback period, preventing an attacker who gains admin access from immediately reducing security timeouts and executing sensitive operations. This is particularly useful for governance and security mechanisms where timelock periods need to be enforced.
+
+Consider this example for using and safely updating Delays:
+[source,solidity]
+----
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.27;
+
+import {Time} from "contracts/utils/types/Time.sol";
+
+contract MyDelayedContract {
+    using Time for *;
+
+    Time.Delay private _delay;
+
+    constructor() {
+        _delay = Time.toDelay(3 days);
+    }
+
+    function schedule(bytes32 operationId) external {
+        // Get the current `_delay` value, respecting any pending delay changes if they've taken effect
+        uint32 currentDelay = _delay.get();
+        uint48 executionTime = Time.timestamp() + currentDelay;
+
+        // ... schedule the operation at `executionTime`
+    }
+
+    function execute(bytes32 operationId) external {
+        uint48 executionTime = getExecutionTime(operationId);
+        require(executionTime > 0, "Operation not scheduled");
+        require(Time.timestamp() >= executionTime, "Delay not elapsed yet");
+
+        // ... execute the operation
+    }
+
+    // Update the delay with `Time`'s safety mechanism
+    function updateDelay(uint32 newDelay) external {
+        (Time.Delay updatedDelay, uint48 effect) = _delay.withUpdate(
+            newDelay,    // The new delay value
+            5 days       // Minimum setback if reducing the delay
+        );
+
+        _delay = updatedDelay;
+
+        // ... emit events
+    }
+
+    // Get complete delay details including pending changes
+    function getDelayDetails() external view returns (
+        uint32 currentValue, // The current delay value
+        uint32 pendingValue, // The pending delay value
+        uint48 effectTime    // The timepoint when the pending delay change takes effect
+    ) {
+        return _delay.getFull();
+    }
+}
+----
+
+This pattern is used extensively in OpenZeppelin's xref:api:access.adoc#AccessManager[AccessManager] for implementing secure time-based access control. For example, when changing an admin delay:
+
+[source,solidity]
+----
+// From AccessManager.sol
+function _setTargetAdminDelay(address target, uint32 newDelay) internal virtual {
+    uint48 effect;
+    (_targets[target].adminDelay, effect) = _targets[target].adminDelay.withUpdate(
+        newDelay,
+        minSetback()
+    );
+
+    emit TargetAdminDelayUpdated(target, newDelay, effect);
+}
+----

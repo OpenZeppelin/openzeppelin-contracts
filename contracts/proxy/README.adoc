@@ -1,0 +1,87 @@
+= Proxies
+
+[.readme-notice]
+NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/proxy
+
+This is a low-level set of contracts implementing different proxy patterns with and without upgradeability. For an in-depth overview of this pattern check out the xref:upgrades-plugins::proxies.adoc[Proxy Upgrade Pattern] page.
+
+Most of the proxies below are built on an abstract base contract.
+
+- {Proxy}: Abstract contract implementing the core delegation functionality.
+
+In order to avoid clashes with the storage variables of the implementation contract behind a proxy, we use https://eips.ethereum.org/EIPS/eip-1967[ERC-1967] storage slots.
+
+- {ERC1967Utils}: Internal functions to get and set the storage slots defined in ERC-1967.
+- {ERC1967Proxy}: A proxy using ERC-1967 storage slots. Not upgradeable by default.
+
+There are two alternative ways to add upgradeability to an ERC-1967 proxy. Their differences are explained below in <<transparent-vs-uups>>.
+
+- {TransparentUpgradeableProxy}: A proxy with a built-in immutable admin and upgrade interface.
+- {UUPSUpgradeable}: An upgradeability mechanism to be included in the implementation contract.
+
+CAUTION: Using upgradeable proxies correctly and securely is a difficult task that requires deep knowledge of the proxy pattern, Solidity, and the EVM. Unless you want a lot of low level control, we recommend using the xref:upgrades-plugins::index.adoc[OpenZeppelin Upgrades Plugins] for Hardhat and Foundry.
+
+A different family of proxies is beacon proxies. This pattern, popularized by Dharma, allows multiple proxies to be upgraded to a different implementation in a single transaction.
+
+- {BeaconProxy}: A proxy that retrieves its implementation from a beacon contract.
+- {UpgradeableBeacon}: A beacon contract with a built-in admin that can upgrade the {BeaconProxy} pointing to it.
+
+In this pattern, the proxy contract doesn't hold the implementation address in storage like an ERC-1967 proxy. Instead, the address is stored in a separate beacon contract. The `upgrade` operations are sent to the beacon instead of to the proxy contract, and all proxies that follow that beacon are automatically upgraded.
+
+Outside the realm of upgradeability, proxies can also be useful to make cheap contract clones, such as those created by an on-chain factory contract that creates many instances of the same contract. These instances are designed to be both cheap to deploy, and cheap to call.
+
+- {Clones}: A library that can deploy cheap minimal non-upgradeable proxies.
+
+[[transparent-vs-uups]]
+== Transparent vs UUPS Proxies
+
+The original proxies included in OpenZeppelin followed the https://blog.openzeppelin.com/the-transparent-proxy-pattern/[Transparent Proxy Pattern]. While this pattern is still provided, our recommendation is now shifting towards UUPS proxies, which are both lightweight and versatile. The name UUPS comes from https://eips.ethereum.org/EIPS/eip-1822[ERC-1822], which first documented the pattern.
+
+While both of these share the same interface for upgrades, in UUPS proxies the upgrade is handled by the implementation, and can eventually be removed. Transparent proxies, on the other hand, include the upgrade and admin logic in the proxy itself. This means {TransparentUpgradeableProxy} is more expensive to deploy than what is possible with UUPS proxies.
+
+UUPS proxies are implemented using an {ERC1967Proxy}. Note that this proxy is not by itself upgradeable. It is the role of the implementation to include, alongside the contract's logic, all the code necessary to update the implementation's address that is stored at a specific slot in the proxy's storage space. This is where the {UUPSUpgradeable} contract comes in. Inheriting from it (and overriding the {xref-UUPSUpgradeable-_authorizeUpgrade-address-}[`_authorizeUpgrade`] function with the relevant access control mechanism) will turn your contract into a UUPS compliant implementation.
+
+Note that since both proxies use the same storage slot for the implementation address, using a UUPS compliant implementation with a {TransparentUpgradeableProxy} might allow non-admins to perform upgrade operations.
+
+By default, the upgrade functionality included in {UUPSUpgradeable} contains a security mechanism that will prevent any upgrades to a non UUPS compliant implementation. This prevents upgrades to an implementation contract that wouldn't contain the necessary upgrade mechanism, as it would lock the upgradeability of the proxy forever. This security mechanism can be bypassed by either of:
+
+- Adding a flag mechanism in the implementation that will disable the upgrade function when triggered.
+- Upgrading to an implementation that features an upgrade mechanism without the additional security check, and then upgrading again to another implementation without the upgrade mechanism.
+
+The current implementation of this security mechanism uses https://eips.ethereum.org/EIPS/eip-1822[ERC-1822] to detect the storage slot used by the implementation. A previous implementation, now deprecated, relied on a rollback check. It is possible to upgrade from a contract using the old mechanism to a new one. The inverse is however not possible, as old implementations (before version 4.5) did not include the ERC-1822 interface.
+
+== Core
+
+{{Proxy}}
+
+== ERC-1967
+
+{{IERC1967}}
+
+{{ERC1967Proxy}}
+
+{{ERC1967Utils}}
+
+== Transparent Proxy
+
+{{TransparentUpgradeableProxy}}
+
+{{ProxyAdmin}}
+
+== Beacon
+
+{{BeaconProxy}}
+
+{{IBeacon}}
+
+{{UpgradeableBeacon}}
+
+== Minimal Clones
+
+{{Clones}}
+
+== Utils
+
+{{Initializable}}
+
+{{UUPSUpgradeable}}
