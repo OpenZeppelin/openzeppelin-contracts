@@ -13,6 +13,13 @@ contract Uint256ArraysMock {
         _array = array;
     }
 
+    /**
+     * @dev See {Arrays-findUpperBound}.
+     *
+     * IMPORTANT: Deprecated. This implementation behaves as {lowerBound} but lacks
+     * support for repeated elements in the array. The {lowerBound} function should
+     * be used instead.
+     */
     function findUpperBound(uint256 value) external view returns (uint256) {
         return _array.findUpperBound(value);
     }
