@@ -2,4 +2,4 @@
 'openzeppelin-solidity': minor
 ---
 
-`InteroperableAddress`: reject inputs whith both chain reference and addresses empty.
+`InteroperableAddress`: reject inputs with both chain reference and addresses empty.
