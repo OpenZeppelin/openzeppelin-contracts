@@ -122,7 +122,7 @@ library TrieProof {
                 if (currentNodeIdLength != 32 || keccak256(encoded) != currentNodeId)
                     return (_emptyBytesMemory(), ProofError.INVALID_LARGE_NODE);
             } else {
-                // Small nodes must match directly
+                // Short nodes must match directly
                 if (currentNodeIdLength != encoded.length || bytes32(encoded) != currentNodeId)
                     return (_emptyBytesMemory(), ProofError.INVALID_SHORT_NODE);
             }
