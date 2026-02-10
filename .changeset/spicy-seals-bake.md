@@ -2,4 +2,4 @@
 'openzeppelin-solidity': minor
 ---
 
-`WebAuthn`: fix cases where verify would revert instead of returning false.
+`WebAuthn`: Verification now returns `false` instead of reverting when client data contains an out-of-bounds `challengeIndex`.
