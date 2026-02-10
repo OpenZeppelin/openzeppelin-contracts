@@ -63,8 +63,8 @@ abstract contract ERC7786Recipient is IERC7786Recipient {
     /**
      * @dev Virtual function that should contain the logic to execute when a cross-chain message is received.
      *
-     * NOTE: this function should revert on failure. Any silent failure from this function will result in the message
-     * being marked as received and not being retriable.
+     * NOTE: This function should revert on failure. Any silent failure from this function will result in the message
+     * being marked as received and not being retryable.
      */
     function _processMessage(
         address gateway,
