@@ -121,7 +121,7 @@ describe('ERC7390', function () {
       'too short (case 2)': '0x000100420101',
       // version + ref + chainReference + addressLength + part of the address: missing 2 bytes of the address
       'too short (case 3)': '0x00010042010114d8da6bf26964af9d7eed9e03e53415d37aa9',
-      // empry chain reference and address
+      // empty chain reference and address
       'empty chain reference and address': '0x000100420000',
     })) {
       it(title, async function () {
