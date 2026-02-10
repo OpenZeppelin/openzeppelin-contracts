@@ -145,12 +145,12 @@ library TrieProof {
                 if (path.length == 0) {
                     return (_emptyBytesMemory(), ProofError.EMPTY_PATH);
                 }
-                uint8 prefix = uint8(path[0]);
+                uint8 prefix = uint8(path[0]); // path encoding nibble (node type + parity), see {Prefix}
                 Memory.Slice keyRemainder = keyExpanded.asSlice().slice(keyIndex); // Remaining key to match
                 Memory.Slice pathRemainder = path.asSlice().slice(2 - (prefix % 2)); // Path after the prefix
                 uint256 pathRemainderLength = pathRemainder.length();
 
-                // pathRemainder must not be longer than keyRemainder, and it must be a prefix of it
+                // pathRemainder must not be longer than keyRemainder and must match the start of keyRemainder
                 if (
                     pathRemainderLength > keyRemainder.length() ||
                     !pathRemainder.equal(keyRemainder.slice(0, pathRemainderLength))
