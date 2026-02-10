@@ -346,7 +346,11 @@ library RLP {
         return string(readBytes(item));
     }
 
-    /// @dev Decodes an RLP encoded list into an array of RLP Items.
+    /**
+     * @dev Decodes an RLP encoded list in a memory slice into an array of RLP Items.
+     *
+     * NOTE: The returned array contains slice references into the original payload, not copied bytes.
+     */
     function readList(Memory.Slice item) internal pure returns (Memory.Slice[] memory list) {
         uint256 itemLength = item.length();
 
@@ -413,7 +417,11 @@ library RLP {
         return readString(item.asSlice());
     }
 
-    /// @dev Decode an RLP encoded list from bytes. See {readList}
+    /**
+     * @dev Decode an RLP encoded list from bytes. See {readList}
+     *
+     * NOTE: The returned array contains slice references into the original payload, not copied bytes.
+     */
     function decodeList(bytes memory value) internal pure returns (Memory.Slice[] memory) {
         return readList(value.asSlice());
     }
