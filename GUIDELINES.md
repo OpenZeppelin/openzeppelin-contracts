@@ -152,7 +152,7 @@ In addition to the official Solidity Style Guide we have a number of other conve
     3. Declare the error in the implementation if the underlying interface/library is not suitable to do so (eg. interface/library already specified in an ERC).
     4. Declare the error in an extension if the error only happens in such extension or child contracts.
 
-  * Custom error names should not be declared twice along the library to avoid duplicated identifier declarations when inheriting from multiple contracts.
+  * Custom error names should not be declared twice across the library to avoid duplicated identifier declarations when inheriting from multiple contracts.
 
 * Numeric literals should use appropriate formats based on their purpose to improve code readability:
 
