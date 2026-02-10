@@ -4,6 +4,7 @@
 pragma solidity ^0.8.24;
 
 import {P256} from "./P256.sol";
+import {Math} from "../math/Math.sol";
 import {Base64} from "../Base64.sol";
 import {Bytes} from "../Bytes.sol";
 import {Strings} from "../Strings.sol";
@@ -156,7 +157,11 @@ library WebAuthn {
         // solhint-disable-next-line quotes
         string memory expectedChallenge = string.concat('"challenge":"', Base64.encodeURL(challenge), '"');
         string memory actualChallenge = string(
-            Bytes.slice(bytes(clientDataJSON), challengeIndex, challengeIndex + bytes(expectedChallenge).length)
+            Bytes.slice(
+                bytes(clientDataJSON),
+                challengeIndex,
+                Math.saturatingAdd(challengeIndex, bytes(expectedChallenge).length)
+            )
         );
 
         return Strings.equal(actualChallenge, expectedChallenge);
