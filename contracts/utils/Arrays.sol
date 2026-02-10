@@ -466,21 +466,21 @@ library Arrays {
     }
 
     /**
-     * @dev Moves the content of `array`, from `start` (included) to the end of `array` to the start of that array.
+     * @dev Moves the content of `array`, from `start` (included) to the end of `array` to the start of that array,
+     * and shrinks the array length accordingly, effectively overwriting the array with array[start:].
      *
      * NOTE: This function modifies the provided array in place. If you need to preserve the original array, use {slice} instead.
-     * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice[Javascript's `Array.splice`]
      */
     function splice(address[] memory array, uint256 start) internal pure returns (address[] memory) {
         return splice(array, start, array.length);
     }
 
     /**
-     * @dev Moves the content of `array`, from `start` (included) to `end` (excluded) to the start of that array. The
+     * @dev Moves the content of `array`, from `start` (included) to `end` (excluded) to the start of that array,
+     * and shrinks the array length accordingly, effectively overwriting the array with array[start:end]. The
      * `end` argument is truncated to the length of the `array`.
      *
      * NOTE: This function modifies the provided array in place. If you need to preserve the original array, use {slice} instead.
-     * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice[Javascript's `Array.splice`]
      */
     function splice(address[] memory array, uint256 start, uint256 end) internal pure returns (address[] memory) {
         // sanitize
@@ -548,21 +548,21 @@ library Arrays {
     }
 
     /**
-     * @dev Moves the content of `array`, from `start` (included) to the end of `array` to the start of that array.
+     * @dev Moves the content of `array`, from `start` (included) to the end of `array` to the start of that array,
+     * and shrinks the array length accordingly, effectively overwriting the array with array[start:].
      *
      * NOTE: This function modifies the provided array in place. If you need to preserve the original array, use {slice} instead.
-     * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice[Javascript's `Array.splice`]
      */
     function splice(bytes32[] memory array, uint256 start) internal pure returns (bytes32[] memory) {
         return splice(array, start, array.length);
     }
 
     /**
-     * @dev Moves the content of `array`, from `start` (included) to `end` (excluded) to the start of that array. The
+     * @dev Moves the content of `array`, from `start` (included) to `end` (excluded) to the start of that array,
+     * and shrinks the array length accordingly, effectively overwriting the array with array[start:end]. The
      * `end` argument is truncated to the length of the `array`.
      *
      * NOTE: This function modifies the provided array in place. If you need to preserve the original array, use {slice} instead.
-     * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice[Javascript's `Array.splice`]
      */
     function splice(bytes32[] memory array, uint256 start, uint256 end) internal pure returns (bytes32[] memory) {
         // sanitize
@@ -630,21 +630,21 @@ library Arrays {
     }
 
     /**
-     * @dev Moves the content of `array`, from `start` (included) to the end of `array` to the start of that array.
+     * @dev Moves the content of `array`, from `start` (included) to the end of `array` to the start of that array,
+     * and shrinks the array length accordingly, effectively overwriting the array with array[start:].
      *
      * NOTE: This function modifies the provided array in place. If you need to preserve the original array, use {slice} instead.
-     * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice[Javascript's `Array.splice`]
      */
     function splice(uint256[] memory array, uint256 start) internal pure returns (uint256[] memory) {
         return splice(array, start, array.length);
     }
 
     /**
-     * @dev Moves the content of `array`, from `start` (included) to `end` (excluded) to the start of that array. The
+     * @dev Moves the content of `array`, from `start` (included) to `end` (excluded) to the start of that array,
+     * and shrinks the array length accordingly, effectively overwriting the array with array[start:end]. The
      * `end` argument is truncated to the length of the `array`.
      *
      * NOTE: This function modifies the provided array in place. If you need to preserve the original array, use {slice} instead.
-     * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice[Javascript's `Array.splice`]
      */
     function splice(uint256[] memory array, uint256 start, uint256 end) internal pure returns (uint256[] memory) {
         // sanitize
