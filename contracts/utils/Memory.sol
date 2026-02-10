@@ -123,7 +123,7 @@ library Memory {
         }
     }
 
-    /// @dev Returns true if the memory occupied by the slice is reserved.
+    /// @dev Returns true if the memory occupied by the slice is reserved (i.e. before the free memory pointer)
     function isReserved(Slice self) internal pure returns (bool result) {
         Memory.Pointer fmp = getFreeMemoryPointer();
         Memory.Pointer end = forward(_pointer(self), length(self));
