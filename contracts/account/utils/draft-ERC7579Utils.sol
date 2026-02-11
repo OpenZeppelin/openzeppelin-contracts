@@ -147,8 +147,8 @@ library ERC7579Utils {
         bytes calldata executionCalldata
     ) internal pure returns (address target, uint256 value, bytes calldata callData) {
         target = address(bytes20(executionCalldata));
-        value = uint256(bytes32(executionCalldata[0x14:0x34]));
-        callData = executionCalldata[0x34:];
+        value = uint256(bytes32(executionCalldata[20:52]));
+        callData = executionCalldata[52:];
     }
 
     /// @dev Encodes a delegate call execution. See {decodeDelegate}.
