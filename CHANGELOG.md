@@ -2,6 +2,7 @@
 
 ### Breaking changes
 
+- `Strings`: The `escapeJSON` function now escapes all control characters in the range U+0000 to U+001F per RFC-4627. Previously only backspace, tab, newline, form feed, carriage return, double quote, and backslash were escaped. Input strings containing any other control character (e.g. null `0x00`) or raw bytes in U+0001–U+001F will now produce different, longer output (e.g. `\u0000` for null).
 - `ERC1155`: Performing batch transfers with exactly one id/value in the batch no-longer calls `IERC1155Receiver.onERC1155Received`. `IERC1155Receiver.onERC1155BatchReceived` is called instead (with arrays of length one). ([#6170](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6170))
 - `ERC1967Proxy` and `TransparentUpgradeableProxy`: Mandate initialization during construction. Deployment now reverts with `ERC1967ProxyUninitialized` if an initialize call is not provided. Developers that rely on the previous behavior and want to disable this check can do so by overriding the internal `_unsafeAllowUninitialized` function to return true. ([#5906](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5906))
 - `ERC721` and `ERC1155`: Prevent setting an operator for `address(0)`. In the case of `ERC721` this type of operator allowance could lead to obfuscated mint permission. ([#6171](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6171))

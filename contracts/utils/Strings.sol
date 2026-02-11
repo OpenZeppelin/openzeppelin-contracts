@@ -16,14 +16,6 @@ library Strings {
 
     bytes16 private constant HEX_DIGITS = "0123456789abcdef";
     uint8 private constant ADDRESS_LENGTH = 20;
-    uint256 private constant SPECIAL_CHARS_LOOKUP =
-        (1 << 0x08) | // backspace
-            (1 << 0x09) | // tab
-            (1 << 0x0a) | // newline
-            (1 << 0x0c) | // form feed
-            (1 << 0x0d) | // carriage return
-            (1 << 0x22) | // double quote
-            (1 << 0x5c); // backslash
 
     /**
      * @dev The `value` string doesn't fit in the specified `length`.
@@ -457,18 +449,22 @@ library Strings {
      *
      * WARNING: This function should only be used in double quoted JSON strings. Single quotes are not escaped.
      *
-     * NOTE: This function escapes all unicode characters, and not just the ones in ranges defined in section 2.5 of
-     * RFC-4627 (U+0000 to U+001F, U+0022 and U+005C). ECMAScript's `JSON.parse` does recover escaped unicode
-     * characters that are not in this range, but other tooling may provide different results.
+     * NOTE: This function escapes backslashes (including those in \uXXXX sequences) and the characters in ranges
+     * defined in section 2.5 of RFC-4627 (U+0000 to U+001F, U+0022 and U+005C). All control characters in U+0000
+     * to U+001F are escaped (\b, \t, \n, \f, \r use short form; others use \u00XX). ECMAScript's `JSON.parse` does
+     * recover escaped unicode characters that are not in this range, but other tooling may provide different results.
      */
     function escapeJSON(string memory input) internal pure returns (string memory) {
         bytes memory buffer = bytes(input);
-        bytes memory output = new bytes(2 * buffer.length); // worst case scenario
+        bytes memory output = new bytes(2 * buffer.length); // worst case scenario excluding control characters
         uint256 outputLength = 0;
 
         for (uint256 i = 0; i < buffer.length; ++i) {
             bytes1 char = bytes1(_unsafeReadBytesOffset(buffer, i));
-            if (((SPECIAL_CHARS_LOOKUP & (1 << uint8(char))) != 0)) {
+            uint8 c = uint8(char);
+            bool isControl = c < 0x20;
+            bool isQuoteOrBackslash = (char == 0x22) || (char == 0x5c);
+            if (isControl || isQuoteOrBackslash) {
                 output[outputLength++] = "\\";
                 if (char == 0x08) output[outputLength++] = "b";
                 else if (char == 0x09) output[outputLength++] = "t";
@@ -479,6 +475,18 @@ library Strings {
                 else if (char == 0x22) {
                     // solhint-disable-next-line quotes
                     output[outputLength++] = '"';
+                } else {
+                    // Worst case scenario is now 6 bytes per control character.
+                    // Increase length by 4 bytes
+                    assembly ("memory-safe") {
+                        mstore(output, add(mload(output), 4))
+                    }
+                    // U+0000 to U+001F without short form: output \u00XX
+                    output[outputLength++] = "u";
+                    output[outputLength++] = "0";
+                    output[outputLength++] = "0";
+                    output[outputLength++] = bytes1(HEX_DIGITS[c >> 4]);
+                    output[outputLength++] = bytes1(HEX_DIGITS[c & 0x0f]);
                 }
             } else {
                 output[outputLength++] = char;
