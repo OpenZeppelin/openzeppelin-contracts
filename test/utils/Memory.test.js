@@ -22,7 +22,7 @@ describe('Memory', function () {
     describe('free pointer', function () {
       it('sets free memory pointer', async function () {
         const ptr = ethers.toBeHex(0xa0, 32);
-        await expect(this.mock.$setFreeMemoryPointer(ptr)).to.not.be.reverted;
+        await expect(this.mock.$unsafeSetFreeMemoryPointer(ptr)).to.not.be.reverted;
       });
 
       it('gets free memory pointer', async function () {
