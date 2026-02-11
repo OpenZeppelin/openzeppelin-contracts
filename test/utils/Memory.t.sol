@@ -46,7 +46,7 @@ contract MemoryTest is Test {
 
     function testInvalidSliceOutOfBound() public pure {
         bytes memory input = new bytes(256);
-        
+
         Memory.Slice slice = input.asSlice();
         assertTrue(slice.isReserved());
 
