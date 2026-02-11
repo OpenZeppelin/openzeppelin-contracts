@@ -36,7 +36,7 @@ library Memory {
      *
      * WARNING: Everything after the pointer may be overwritten.
      **/
-    function setFreeMemoryPointer(Pointer ptr) internal pure {
+    function unsafeSetFreeMemoryPointer(Pointer ptr) internal pure {
         assembly ("memory-safe") {
             mstore(0x40, ptr)
         }
