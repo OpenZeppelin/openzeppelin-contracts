@@ -205,6 +205,16 @@ describe('RLP', function () {
     });
   });
 
+  it('reverts out of gas when encoding payload with length >= 2**64', async function () {
+    const data = ethers.concat([
+      this.mock.interface.getFunction('$encode(bytes)').selector,
+      ethers.AbiCoder.defaultAbiCoder().encode(['uint256'], ['0x20']), // offset to bytes
+      ethers.toBeHex(MAX_UINT64, 32), // forged length
+      ethers.AbiCoder.defaultAbiCoder().encode(['uint256'], [56]), // long-form path (length > 55)
+    ]);
+    await expect(this.mock.runner.sendTransaction({ to: this.mock.target, data })).to.be.revertedWithoutReason();
+  });
+
   it('RLP encoder predict create addresses', async function () {
     for (const [from, nonce] of product(
       [
