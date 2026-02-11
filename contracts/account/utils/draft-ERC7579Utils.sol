@@ -146,7 +146,7 @@ library ERC7579Utils {
     function decodeSingle(
         bytes calldata executionCalldata
     ) internal pure returns (address target, uint256 value, bytes calldata callData) {
-        target = address(bytes20(executionCalldata[0x00:0x14]));
+        target = address(bytes20(executionCalldata));
         value = uint256(bytes32(executionCalldata[0x14:0x34]));
         callData = executionCalldata[0x34:];
     }
@@ -163,8 +163,8 @@ library ERC7579Utils {
     function decodeDelegate(
         bytes calldata executionCalldata
     ) internal pure returns (address target, bytes calldata callData) {
-        target = address(bytes20(executionCalldata[0:0x14]));
-        callData = executionCalldata[0x14:];
+        target = address(bytes20(executionCalldata));
+        callData = executionCalldata[20:];
     }
 
     /// @dev Encodes a batch of executions. See {decodeBatch}.
