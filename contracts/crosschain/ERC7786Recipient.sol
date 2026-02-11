@@ -23,7 +23,7 @@ import {IERC7786Recipient} from "../interfaces/draft-IERC7786.sol";
  * @custom:stateless
  */
 abstract contract ERC7786Recipient is IERC7786Recipient {
-    /// @dev Error thrown is the gateway is not authorized to send messages to this contract on behalf of the sender.
+    /// @dev Error thrown if the gateway is not authorized to send messages to this contract on behalf of the sender.
     error ERC7786RecipientUnauthorizedGateway(address gateway, bytes sender);
 
     /// @inheritdoc IERC7786Recipient
