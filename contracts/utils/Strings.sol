@@ -17,7 +17,7 @@ library Strings {
     bytes16 private constant HEX_DIGITS = "0123456789abcdef";
     uint8 private constant ADDRESS_LENGTH = 20;
     uint256 private constant SPECIAL_CHARS_LOOKUP =
-        0xffffffff | // first 32 bytes corresponding to the control characters
+        0xffffffff | // first 32 bits corresponding to the control characters (U+0000 to U+001F)
             (1 << 0x22) | // double quote
             (1 << 0x5c); // backslash
 
@@ -492,7 +492,7 @@ library Strings {
                     _unsafeWriteBytesOffset(output, outputLength++, HEX_DIGITS[char & 0x0f]);
                 }
             } else {
-                _unsafeWriteBytesOffset(output, outputLength++, char);
+                _unsafeWriteBytesOffset(output, outputLength++, bytes1(char));
             }
         }
         // write the actual length and reserve memory
@@ -524,16 +524,6 @@ library Strings {
      * assembly block as such would prevent some optimizations.
      */
     function _unsafeWriteBytesOffset(bytes memory buffer, uint256 offset, bytes1 value) private pure {
-        _unsafeWriteBytesOffset(buffer, offset, uint8(value));
-    }
-
-    /**
-     * @dev Write a uint8 to a bytes array without bounds checking.
-     *
-     * NOTE: making this function internal would mean it could be used with memory unsafe offset, and marking the
-     * assembly block as such would prevent some optimizations.
-     */
-    function _unsafeWriteBytesOffset(bytes memory buffer, uint256 offset, uint8 value) private pure {
         // This is not memory safe in the general case, but all calls to this private function are within bounds.
         assembly ("memory-safe") {
             mstore8(add(add(buffer, 0x20), offset), value)
