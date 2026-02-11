@@ -44,30 +44,23 @@ contract MemoryTest is Test {
         assertTrue(slice.isReserved());
     }
 
-    function testInvalidSlice1() public pure {
+    function testInvalidSliceOutOfBound() public pure {
         bytes memory input = new bytes(256);
+        
         Memory.Slice slice = input.asSlice();
-
         assertTrue(slice.isReserved());
 
+        Memory.Slice sliceMoved;
         assembly ("memory-safe") {
-            slice := add(slice, 0x01) // add 1 to the ptr part
+            sliceMoved := add(slice, 0x01) // add 1 to the ptr part
         }
+        assertFalse(sliceMoved.isReserved());
 
-        assertFalse(slice.isReserved());
-    }
-
-    function testInvalidSlice2() public pure {
-        bytes memory input = new bytes(256);
-        Memory.Slice slice = input.asSlice();
-
-        assertTrue(slice.isReserved());
-
+        Memory.Slice sliceExtended;
         assembly ("memory-safe") {
-            slice := add(slice, shl(128, 0x01)) // add 1 to the length part
+            sliceExtended := add(slice, shl(128, 0x01)) // add 1 to the length part
         }
-
-        assertFalse(slice.isReserved());
+        assertFalse(sliceExtended.isReserved());
     }
 
     function testSymbolicEqual(bytes memory a, bytes memory b) public pure {
