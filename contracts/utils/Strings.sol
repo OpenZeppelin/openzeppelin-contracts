@@ -16,6 +16,10 @@ library Strings {
 
     bytes16 private constant HEX_DIGITS = "0123456789abcdef";
     uint8 private constant ADDRESS_LENGTH = 20;
+    uint256 private constant SPECIAL_CHARS_LOOKUP =
+        0xffffffff | // first 32 bytes corresponding to the control characters
+            (1 << 0x22) | // double quote
+            (1 << 0x5c); // backslash
 
     /**
      * @dev The `value` string doesn't fit in the specified `length`.
@@ -462,9 +466,7 @@ library Strings {
         for (uint256 i = 0; i < buffer.length; ++i) {
             bytes1 char = bytes1(_unsafeReadBytesOffset(buffer, i));
             uint8 c = uint8(char);
-            bool isControl = c < 0x20;
-            bool isQuoteOrBackslash = (char == 0x22) || (char == 0x5c);
-            if (isControl || isQuoteOrBackslash) {
+            if (((SPECIAL_CHARS_LOOKUP & (1 << uint8(char))) != 0)) {
                 output[outputLength++] = "\\";
                 if (char == 0x08) output[outputLength++] = "b";
                 else if (char == 0x09) output[outputLength++] = "t";
