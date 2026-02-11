@@ -19,6 +19,8 @@ import {IERC7786Recipient} from "../interfaces/draft-IERC7786.sol";
  *
  * ERC-7786 requires the gateway to ensure messages are not delivered more than once. Therefore, we don't need to keep
  * track of the processed receiveId.
+ *
+ * @custom:stateless
  */
 abstract contract ERC7786Recipient is IERC7786Recipient {
     /// @dev Error thrown is the gateway is not authorized to send messages to this contract on behalf of the sender.
