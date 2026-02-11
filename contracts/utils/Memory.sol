@@ -30,22 +30,16 @@ library Memory {
     /**
      * @dev Sets the free `Pointer` to a specific value.
      *
+     * The solidity memory layout requires that the FMP is never set to a value lower than 0x80. Setting the
+     * FMP to a value lower than 0x80 may cause unexpected behavior. Deallocating all memory can be achieved by
+     * setting the FMP to 0x80.
+     *
      * WARNING: Everything after the pointer may be overwritten.
      **/
     function setFreeMemoryPointer(Pointer ptr) internal pure {
         assembly ("memory-safe") {
             mstore(0x40, ptr)
         }
-    }
-
-    /// @dev `Pointer` to `bytes32`. Expects a pointer to a properly ABI-encoded `bytes` object.
-    function asBytes32(Pointer ptr) internal pure returns (bytes32) {
-        return Pointer.unwrap(ptr);
-    }
-
-    /// @dev `bytes32` to `Pointer`. Expects a pointer to a properly ABI-encoded `bytes` object.
-    function asPointer(bytes32 value) internal pure returns (Pointer) {
-        return Pointer.wrap(value);
     }
 
     /// @dev Move a pointer forward by a given offset.

@@ -31,18 +31,6 @@ describe('Memory', function () {
         );
       });
     });
-
-    describe('pointer conversions', function () {
-      it('asBytes32', async function () {
-        const ptr = ethers.toBeHex('0x1234', 32);
-        await expect(this.mock.$asBytes32(ptr)).to.eventually.equal(ptr);
-      });
-
-      it('asPointer', async function () {
-        const ptr = ethers.toBeHex('0x1234', 32);
-        await expect(this.mock.$asPointer(ptr)).to.eventually.equal(ptr);
-      });
-    });
   });
 
   describe('Slices', function () {

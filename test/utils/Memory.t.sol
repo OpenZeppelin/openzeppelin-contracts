@@ -17,8 +17,8 @@ contract MemoryTest is Test {
 
     function testGetsetFreeMemoryPointer(uint256 seed) public pure {
         bytes32 ptr = bytes32(bound(seed, START_PTR, END_PTR));
-        ptr.asPointer().setFreeMemoryPointer();
-        assertEq(Memory.getFreeMemoryPointer().asBytes32(), ptr);
+        Memory.Pointer.wrap(ptr).setFreeMemoryPointer();
+        assertEq(Memory.Pointer.unwrap(Memory.getFreeMemoryPointer()), ptr);
     }
 
     function testAsSliceToBytes(bytes memory input) public pure {
