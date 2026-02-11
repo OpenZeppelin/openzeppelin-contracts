@@ -349,7 +349,8 @@ library RLP {
     /**
      * @dev Decodes an RLP encoded list in a memory slice into an array of RLP Items.
      *
-     * NOTE: The returned array contains slice references into the original payload, not copied bytes.
+     * NOTE: The returned array contains slice references into the original payload, not copied bytes. Any further 
+     * modification of the input buffer may cause the output result to become invalid.
      */
     function readList(Memory.Slice item) internal pure returns (Memory.Slice[] memory list) {
         uint256 itemLength = item.length();
