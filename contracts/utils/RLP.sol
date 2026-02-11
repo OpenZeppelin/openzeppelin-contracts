@@ -421,7 +421,8 @@ library RLP {
     /**
      * @dev Decode an RLP encoded list from bytes. See {readList}
      *
-     * NOTE: The returned array contains slice references into the original payload, not copied bytes.
+     * NOTE: The returned array contains slice references into the original payload, not copied bytes. Any further 
+     * modification of the input buffer may cause the output result to become invalid.
      */
     function decodeList(bytes memory value) internal pure returns (Memory.Slice[] memory) {
         return readList(value.asSlice());
