@@ -125,6 +125,6 @@ library Accumulators {
     }
 
     function _nullPtr() private pure returns (Memory.Pointer) {
-        return Memory.asPointer(0x00);
+        return Memory.Pointer.wrap(0);
     }
 }

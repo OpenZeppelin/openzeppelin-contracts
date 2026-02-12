@@ -8,6 +8,7 @@
 - `RLP`: The `encode(bytes32)` function now encodes `bytes32` as a fixed size item and not as a scalar in `encode(uint256)`. Users must replace calls to `encode(bytes32)` with `encode(uint256(bytes32))` to preserve the same behavior. ([#6167](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6167))
 - `ERC4337Utils`: The `parseValidationData` now returns a `ValidationRange` as the last return tuple value indicating whether the `validationData` is compared against a timestamp or block number. Developers must update their code to handle this new return value (e.g. `(aggregator, validAfter, validUntil) -> (aggregator, validAfter, validUntil, range)`).
 - `SignerWebAuthn`: The `_rawSignatureValidation` function now returns `false` when the signature is not a valid WebAuthn authentication assertion. P256 fallback is removed. Developers can add it back by overriding the function.
+- `Memory`: The `setFreeMemoryPointer` function is renamed to `unsafeSetFreeMemoryPointer`. Developers should use `unsafeSetFreeMemoryPointer` instead of `setFreeMemoryPointer` after v5.6.0.
 
 ## 5.5.0 (2025-10-31)
 
