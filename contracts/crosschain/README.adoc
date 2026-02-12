@@ -6,6 +6,7 @@ NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/
 This directory contains contracts for sending and receiving cross chain messages that follows the ERC-7786 standard.
 
 * {CrosschainLinked}: helper to facilitate communication between a contract on one chain and counterparts on remote chains through ERC-7786 gateways.
+* {CrosschainRemoteExecutor}: executor contract that relays transaction from a controller on a remote chain. Used by the {GovernorCrosschain} for the remote execution of proposals.
 * {ERC7786Recipient}: generic ERC-7786 crosschain contract that receives messages from a trusted gateway.
 
 Additionally there are multiple bridge constructions:
@@ -17,6 +18,8 @@ Additionally there are multiple bridge constructions:
 == Helpers
 
 {{CrosschainLinked}}
+
+{{CrosschainRemoteExecutor}}
 
 {{ERC7786Recipient}}
 
