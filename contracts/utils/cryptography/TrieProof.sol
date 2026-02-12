@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.6.0-rc.1) (utils/cryptography/TrieProof.sol)
+// OpenZeppelin Contracts (last updated v5.6.0-rc.2) (utils/cryptography/TrieProof.sol)
 pragma solidity ^0.8.26;
 
 import {Bytes} from "../Bytes.sol";

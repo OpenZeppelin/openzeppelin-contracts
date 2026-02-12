@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.6.0-rc.0) (utils/Bytes.sol)
+// OpenZeppelin Contracts (last updated v5.6.0-rc.2) (utils/Bytes.sol)
 
 pragma solidity ^0.8.24;
 

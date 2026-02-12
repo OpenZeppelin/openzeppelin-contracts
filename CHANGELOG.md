@@ -1,6 +1,16 @@
 # Changelog
 
 
+## 5.6.0-rc.2 (2026-02-12)
+
+- `Memory`: Add a `isReserved(Slice)` function that checks if the memory occupied by the slice is reserved (i.e. before the free memory pointer). ([#6340](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6340))
+- `RLP`: Perform a memory copy when decoding `bytes` objects containing a single byte instead of returning a reference to the input. ([#6340](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6340))
+- `Accumulator`: Check that slices being added (`shift` or `push`) are in the reserved space. ([#6340](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6340))
+- `InteroperableAddress`: reject inputs with both chain reference and addresses empty. ([#6340](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6340))
+- `WebAuthn`: Verification now returns `false` instead of reverting when client data contains an out-of-bounds `challengeIndex`. ([#6340](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6340))
+- `Memory`: Remove the `asBytes32` and `asPointer` function to reduce the risk of mistakes when manipulating memory pointers. ([#6340](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6340))
+- Rename `BridgeERC20Core` to `BridgeFungible` ([#6340](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6340))
+
 ## 5.6.0-rc.1 (2026-01-09)
 
 - Add ERC-165 detection for the `IERC6909ContentURI`, `IERC6909TokenSupply` and `IERC6909Metadata` interfaces in the `ERC6909ContentURI`, `ERC6909TokenSupply` and `ERC6909Metadata` contracts respectively. ([#6246](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6246)) and ([#6247](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6247))
@@ -17,7 +27,6 @@
 - `ERC4337Utils`: The `parseValidationData` now returns a `ValidationRange` as the last return tuple value indicating whether the `validationData` is compared against a timestamp or block number. Developers must update their code to handle this new return value (e.g. `(aggregator, validAfter, validUntil) -> (aggregator, validAfter, validUntil, range)`). ([#6215](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6215))
 - `SignerWebAuthn`: The `_rawSignatureValidation` function now returns `false` when the signature is not a valid WebAuthn authentication assertion. P256 fallback is removed. Developers can add it back by overriding the function. ([#6337](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6337))
 - `Memory`: The `setFreeMemoryPointer` function is renamed to `unsafeSetFreeMemoryPointer`. Developers should use `unsafeSetFreeMemoryPointer` instead of `setFreeMemoryPointer` after v5.6.0. ([#6348](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6348))
-
 
 ### Changes by category
 
