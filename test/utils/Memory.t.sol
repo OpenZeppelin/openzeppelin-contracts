@@ -15,9 +15,9 @@ contract MemoryTest is Test {
     // - moving the free memory pointer to far causes OOG errors
     uint256 constant END_PTR = type(uint24).max;
 
-    function testGetSetFreeMemoryPointer(uint256 seed) public pure {
+    function testGetsetFreeMemoryPointer(uint256 seed) public pure {
         bytes32 ptr = bytes32(bound(seed, START_PTR, END_PTR));
-        ptr.asPointer().unsafeSetFreeMemoryPointer();
+        ptr.asPointer().setFreeMemoryPointer();
         assertEq(Memory.getFreeMemoryPointer().asBytes32(), ptr);
     }
 
