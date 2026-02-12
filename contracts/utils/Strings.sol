@@ -526,7 +526,7 @@ library Strings {
     function _unsafeWriteBytesOffset(bytes memory buffer, uint256 offset, bytes1 value) private pure {
         // This is not memory safe in the general case, but all calls to this private function are within bounds.
         assembly ("memory-safe") {
-            mstore8(add(add(buffer, 0x20), offset), value)
+            mstore8(add(add(buffer, 0x20), offset), shr(248, value))
         }
     }
 }
