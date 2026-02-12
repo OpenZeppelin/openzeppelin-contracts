@@ -67,7 +67,10 @@ library InteroperableAddress {
 
     /**
      * @dev Parse a ERC-7930 interoperable address (version 1) into its different components. Reverts if the input is
-     * not following a version 1 of ERC-7930
+     * not following a version 1 of ERC-7930.
+     *
+     * NOTE: Trailing bytes after a valid v1 encoding are ignored. The same decoded address may therefore correspond
+     * to multiple distinct input byte strings.
      */
     function parseV1(
         bytes memory self
@@ -148,6 +151,9 @@ library InteroperableAddress {
     /**
      * @dev Parse a ERC-7930 interoperable address (version 1) corresponding to an EIP-155 chain. The `chainId` and
      * `addr` return values will be zero if the input doesn't include a chainReference or an address, respectively.
+     *
+     * NOTE: Trailing bytes after a valid v1 encoding are ignored. The same decoded (chainId, addr) may therefore
+     * correspond to multiple distinct input byte strings.
      *
      * Requirements:
      *
