@@ -224,7 +224,7 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
      *
      * Emits a {Transfer} event with `to` set to the zero address.
      *
-     * NOTE: This function is not virtual, {_update} should be overridden instead
+     * NOTE: This function is not virtual, {_update} should be overridden instead.
      */
     function _burn(address account, uint256 value) internal {
         if (account == address(0)) {
