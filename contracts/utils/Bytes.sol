@@ -98,28 +98,28 @@ library Bytes {
     }
 
     /**
-     * @dev Moves the content of `buffer`, from `start` (included) to the end of `buffer` to the start of that buffer.
+     * @dev Moves the content of `buffer`, from `start` (included) to the end of `buffer` to the start of that buffer,
+     * and shrinks the buffer length accordingly, effectively overriding the content of buffer with buffer[start:].
      *
      * NOTE: This function modifies the provided buffer in place. If you need to preserve the original buffer, use {slice} instead
-     * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice[Javascript's `Array.splice`]
      */
     function splice(bytes memory buffer, uint256 start) internal pure returns (bytes memory) {
         return splice(buffer, start, buffer.length);
     }
 
     /**
-     * @dev Moves the content of `buffer`, from `start` (included) to end (excluded) to the start of that buffer. The
-     * `end` argument is truncated to the length of the `buffer`.
+     * @dev Moves the content of `buffer`, from `start` (included) to `end` (excluded) to the start of that buffer,
+     * and shrinks the buffer length accordingly, effectively overriding the content of buffer with buffer[start:end].
+     * The `end` argument is truncated to the length of the `buffer`.
      *
      * NOTE: This function modifies the provided buffer in place. If you need to preserve the original buffer, use {slice} instead
-     * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice[Javascript's `Array.splice`]
      */
     function splice(bytes memory buffer, uint256 start, uint256 end) internal pure returns (bytes memory) {
         // sanitize
         end = Math.min(end, buffer.length);
         start = Math.min(start, end);
 
-        // allocate and copy
+        // move and resize
         assembly ("memory-safe") {
             mcopy(add(buffer, 0x20), add(add(buffer, 0x20), start), sub(end, start))
             mstore(buffer, sub(end, start))
@@ -163,7 +163,7 @@ library Bytes {
         offset = Math.min(offset, replacement.length);
         length = Math.min(length, Math.min(replacement.length - offset, buffer.length - pos));
 
-        // allocate and copy
+        // replace
         assembly ("memory-safe") {
             mcopy(add(add(buffer, 0x20), pos), add(add(replacement, 0x20), offset), length)
         }
