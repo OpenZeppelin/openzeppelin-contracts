@@ -216,8 +216,9 @@ library TrieProof {
      * ====
      * Under normal operation, the input should never be exactly 32 bytes nor empty.
      *
-     * If a 32-byte input is provided, it is used directly (like short nodes); the next traversal step then checks
-     * whether the next node is large and its hash matches those raw bytes. If not, it returns {INVALID_LARGE_NODE}.
+     * If a 32-byte input is provided, it is used directly (like short nodes). The next traversal step then checks
+     * whether the next node is large and its hash matches those raw bytes. If that is not the case, it returns
+     * {INVALID_LARGE_NODE}.
      *
      * If the input is empty (e.g. when traversing a branch node whose target child slot is empty, meaning the key
      * does not exist in the trie), this returns `nodeIdLength = 0` and the next iteration fails with {INVALID_LARGE_NODE} or
