@@ -183,7 +183,7 @@ library TrieProof {
             }
 
             // Reset memory before next iteration. Deallocates `decoded` and `path`.
-            Memory.setFreeMemoryPointer(fmp);
+            Memory.unsafeSetFreeMemoryPointer(fmp);
         }
 
         // If we've gone through all proof elements without finding a value, the proof is invalid
