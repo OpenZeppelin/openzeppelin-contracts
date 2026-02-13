@@ -324,7 +324,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * Emits a {RoleAdminChanged} event.
      *
      * NOTE: Setting the admin role as the `PUBLIC_ROLE` is allowed, but it will effectively allow
-     * anyone to set grant or revoke such role.
+     * anyone to grant or revoke such role.
      */
     function _setRoleAdmin(uint64 roleId, uint64 admin) internal virtual {
         if (roleId == ADMIN_ROLE || roleId == PUBLIC_ROLE) {
