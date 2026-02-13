@@ -30,22 +30,16 @@ library Memory {
     /**
      * @dev Sets the free `Pointer` to a specific value.
      *
+     * The solidity memory layout requires that the FMP is never set to a value lower than 0x80. Setting the
+     * FMP to a value lower than 0x80 may cause unexpected behavior. Deallocating all memory can be achieved by
+     * setting the FMP to 0x80.
+     *
      * WARNING: Everything after the pointer may be overwritten.
      **/
-    function setFreeMemoryPointer(Pointer ptr) internal pure {
+    function unsafeSetFreeMemoryPointer(Pointer ptr) internal pure {
         assembly ("memory-safe") {
             mstore(0x40, ptr)
         }
-    }
-
-    /// @dev `Pointer` to `bytes32`. Expects a pointer to a properly ABI-encoded `bytes` object.
-    function asBytes32(Pointer ptr) internal pure returns (bytes32) {
-        return Pointer.unwrap(ptr);
-    }
-
-    /// @dev `bytes32` to `Pointer`. Expects a pointer to a properly ABI-encoded `bytes` object.
-    function asPointer(bytes32 value) internal pure returns (Pointer) {
-        return Pointer.wrap(value);
     }
 
     /// @dev Move a pointer forward by a given offset.
@@ -74,13 +68,13 @@ library Memory {
         }
     }
 
-    /// @dev Offset a memory slice (equivalent to self[start:] for calldata slices)
+    /// @dev Offset a memory slice (equivalent to self[offset:] for calldata slices)
     function slice(Slice self, uint256 offset) internal pure returns (Slice) {
         if (offset > length(self)) Panic.panic(Panic.ARRAY_OUT_OF_BOUNDS);
         return _asSlice(length(self) - offset, forward(_pointer(self), offset));
     }
 
-    /// @dev Offset and cut a Slice (equivalent to self[start:start+length] for calldata slices)
+    /// @dev Offset and cut a Slice (equivalent to self[offset:offset+len] for calldata slices)
     function slice(Slice self, uint256 offset, uint256 len) internal pure returns (Slice) {
         if (offset + len > length(self)) Panic.panic(Panic.ARRAY_OUT_OF_BOUNDS);
         return _asSlice(len, forward(_pointer(self), offset));
@@ -120,6 +114,15 @@ library Memory {
         uint256 lenB = length(b);
         assembly ("memory-safe") {
             result := eq(keccak256(ptrA, lenA), keccak256(ptrB, lenB))
+        }
+    }
+
+    /// @dev Returns true if the memory occupied by the slice is reserved (i.e. before the free memory pointer)
+    function isReserved(Slice self) internal pure returns (bool result) {
+        Memory.Pointer fmp = getFreeMemoryPointer();
+        Memory.Pointer end = forward(_pointer(self), length(self));
+        assembly ("memory-safe") {
+            result := iszero(lt(fmp, end)) // end <= fmp
         }
     }
 

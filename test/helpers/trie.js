@@ -10,18 +10,17 @@ class BlockTries {
 
     this._ready = Promise.all(
       block.transactions.map(hash =>
-        block.getTransaction(hash).then(tx =>
-          Promise.all([
-            // Transaction
-            this.transactionTrie.put(BlockTries.indexToKeyBytes(tx.index), BlockTries.serializeTransaction(tx)),
-            // Receipt
-            tx
-              .wait()
-              .then(receipt =>
-                this.receiptTrie.put(BlockTries.indexToKeyBytes(tx.index), BlockTries.serializeReceipt(receipt)),
-              ),
-          ]),
-        ),
+        block
+          .getTransaction(hash)
+          .then(async tx => [tx, await tx.wait()])
+          .then(([tx, receipt]) =>
+            Promise.all([
+              // Transaction
+              this.transactionTrie.put(BlockTries.indexToKeyBytes(receipt.index), BlockTries.serializeTransaction(tx)),
+              // Receipt
+              this.receiptTrie.put(BlockTries.indexToKeyBytes(receipt.index), BlockTries.serializeReceipt(receipt)),
+            ]),
+          ),
       ),
     ).then(() => this);
   }

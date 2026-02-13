@@ -52,7 +52,7 @@ library RLP {
     using Bytes for *;
     using Memory for *;
 
-    /// @dev The item is not properly formatted and cannot de decoded.
+    /// @dev The item is not properly formatted and cannot be decoded.
     error RLPInvalidEncoding();
 
     enum ItemType {
@@ -207,7 +207,8 @@ library RLP {
 
     /// @dev Encode a bytes buffer as RLP.
     function encode(bytes memory input) internal pure returns (bytes memory) {
-        return (input.length == 1 && uint8(input[0]) < SHORT_OFFSET) ? input : _encode(input, SHORT_OFFSET);
+        return
+            (input.length == 1 && uint8(input[0]) < SHORT_OFFSET) ? bytes.concat(input) : _encode(input, SHORT_OFFSET);
     }
 
     /// @dev Encode a string as RLP. Type alias for {encode-bytes-}.
@@ -345,7 +346,12 @@ library RLP {
         return string(readBytes(item));
     }
 
-    /// @dev Decodes an RLP encoded list into an array of RLP Items.
+    /**
+     * @dev Decodes an RLP encoded list in a memory slice into an array of RLP Items.
+     *
+     * NOTE: The returned array contains slice references into the original payload, not copied bytes. Any further
+     * modification of the input buffer may cause the output result to become invalid.
+     */
     function readList(Memory.Slice item) internal pure returns (Memory.Slice[] memory list) {
         uint256 itemLength = item.length();
 
@@ -412,13 +418,18 @@ library RLP {
         return readString(item.asSlice());
     }
 
-    /// @dev Decode an RLP encoded list from bytes. See {readList}
+    /**
+     * @dev Decode an RLP encoded list from bytes. See {readList}
+     *
+     * NOTE: The returned array contains slice references into the original payload, not copied bytes. Any further
+     * modification of the input buffer may cause the output result to become invalid.
+     */
     function decodeList(bytes memory value) internal pure returns (Memory.Slice[] memory) {
         return readList(value.asSlice());
     }
 
     /**
-     * @dev Decodes an RLP `item`'s `length and type from its prefix.
+     * @dev Decodes an RLP `item`'s length and type from its prefix.
      * Returns the offset, length, and type of the RLP item based on the encoding rules.
      */
     function _decodeLength(Memory.Slice item) private pure returns (uint256, uint256, ItemType) {
@@ -457,7 +468,7 @@ library RLP {
             if (prefix <= LONG_OFFSET + SHORT_THRESHOLD) {
                 // Case: Short list
                 uint256 listLength = prefix - LONG_OFFSET;
-                require(item.length() > listLength, RLPInvalidEncoding());
+                require(itemLength > listLength, RLPInvalidEncoding());
                 return (1, listLength, ItemType.List);
             } else {
                 // Case: Long list
