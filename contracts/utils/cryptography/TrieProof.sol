@@ -141,9 +141,8 @@ library TrieProof {
                         (currentNodeId, currentNodeIdLength) = _getNodeId(childSlice);
                         keyIndex += 1;
                         if (currentNodeIdLength == 32) break;
-                        // Prefer next proof element when it matches the inline child (consumes proof in order)
                         if (_isExtensionChild(childSlice, proof[i + 1], proofLength, i)) break;
-                        // // Only process inline when child is RLP list (prefix >= 0xc0); otherwise next iteration will fail with INVALID_SHORT_NODE
+                        // Only process inline when child is RLP list (prefix >= 0xc0); otherwise next iteration will fail with INVALID_SHORT_NODE
                         // if (childSlice.length() == 0 || uint8(bytes1(childSlice.load(0))) < RLP.LONG_OFFSET) break;
                         encoded = childSlice.toBytes();
                     }
@@ -176,9 +175,8 @@ library TrieProof {
                         (currentNodeId, currentNodeIdLength) = _getNodeId(childSlice);
                         keyIndex += pathRemainderLength;
                         if (currentNodeIdLength == 32) break;
-                        // Prefer next proof element when it matches the inline child (consumes proof in order)
                         if (_isExtensionChild(childSlice, proof[i + 1], proofLength, i)) break;
-                        // // Only process inline when child is RLP list (prefix >= 0xc0); otherwise next iteration will fail with INVALID_SHORT_NODE
+                        // Only process inline when child is RLP list (prefix >= 0xc0); otherwise next iteration will fail with INVALID_SHORT_NODE
                         // if (childSlice.length() == 0 || uint8(bytes1(childSlice.load(0))) < RLP.LONG_OFFSET) break;
                         encoded = childSlice.toBytes();
                     } else if (prefix <= uint8(Prefix.LEAF_ODD)) {
