@@ -58,8 +58,9 @@ export function shouldBehaveLikeAccountCore() {
         const operation = await this.mock.createUserOp(this.userOp).then(op => this.signUserOp(op));
         const value = 42n;
 
+        // Forcing the gas limit here to work around a hardhat 3 issue with gas estimation
         await expect(
-          this.mockFromEntrypoint.validateUserOp(operation.packed, operation.hash(), value),
+          this.mockFromEntrypoint.validateUserOp(operation.packed, operation.hash(), value, { gasLimit: 200_000n }),
         ).to.changeEtherBalances(this.ethers, [this.mock, this.ethers.predeploy.entrypoint.v09], [-value, value]);
       });
     });
