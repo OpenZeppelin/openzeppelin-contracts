@@ -140,7 +140,7 @@ library TrieProof {
                         (currentNodeId, currentNodeIdLength) = _getNodeId(childNode);
                         keyIndex += 1;
 
-                        if (currentNodeIdLength == 32 || _match(childNode, proof, i + 1) || childNode.length() == 0) {
+                        if (currentNodeIdLength == 0 || currentNodeIdLength == 32 || _match(childNode, proof, i + 1)) {
                             break;
                         }
                         (uint256 offset, uint256 length, ) = childNode.decodeLength();
@@ -179,7 +179,7 @@ library TrieProof {
                         (currentNodeId, currentNodeIdLength) = _getNodeId(childNode);
                         keyIndex += pathRemainderLength;
 
-                        if (currentNodeIdLength == 32 || _match(childNode, proof_, i + 1) || childNode.length() == 0) {
+                        if (currentNodeIdLength == 0 || currentNodeIdLength == 32 || _match(childNode, proof_, i + 1)) {
                             break;
                         }
                         (uint256 offset, uint256 length, ) = childNode.decodeLength();
