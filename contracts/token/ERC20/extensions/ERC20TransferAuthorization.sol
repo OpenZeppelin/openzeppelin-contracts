@@ -160,10 +160,10 @@ abstract contract ERC20TransferAuthorization is ERC20, EIP712, IERC3009, IERC300
             ERC3009InvalidAuthorizationTime(validAfter, validBefore)
         );
         require(!authorizationState(from, nonce), ERC3009ConsumedAuthorization(from, nonce));
-        require(
-            _validateTransferWithAuthorization(from, to, value, validAfter, validBefore, nonce, signature),
-            ERC3009InvalidSignature()
+        bytes32 hash = _hashTypedDataV4(
+            keccak256(abi.encode(TRANSFER_WITH_AUTHORIZATION_TYPEHASH, from, to, value, validAfter, validBefore, nonce))
         );
+        require(SignatureChecker.isValidSignatureNow(from, hash, signature), ERC3009InvalidSignature());
 
         _consumed[from][nonce] = true;
         emit AuthorizationUsed(from, nonce);
@@ -206,10 +206,10 @@ abstract contract ERC20TransferAuthorization is ERC20, EIP712, IERC3009, IERC300
             ERC3009InvalidAuthorizationTime(validAfter, validBefore)
         );
         require(!authorizationState(from, nonce), ERC3009ConsumedAuthorization(from, nonce));
-        require(
-            _validateReceiveWithAuthorization(from, to, value, validAfter, validBefore, nonce, signature),
-            ERC3009InvalidSignature()
+        bytes32 hash = _hashTypedDataV4(
+            keccak256(abi.encode(RECEIVE_WITH_AUTHORIZATION_TYPEHASH, from, to, value, validAfter, validBefore, nonce))
         );
+        require(SignatureChecker.isValidSignatureNow(from, hash, signature), ERC3009InvalidSignature());
 
         _consumed[from][nonce] = true;
         emit AuthorizationUsed(from, nonce);
@@ -224,51 +224,10 @@ abstract contract ERC20TransferAuthorization is ERC20, EIP712, IERC3009, IERC300
     /// @dev Internal version of {cancelAuthorization} that accepts a bytes signature.
     function _cancelAuthorization(address authorizer, bytes32 nonce, bytes memory signature) internal virtual {
         require(!authorizationState(authorizer, nonce), ERC3009ConsumedAuthorization(authorizer, nonce));
-        require(_validateCancelAuthorization(authorizer, nonce, signature), ERC3009InvalidSignature());
+        bytes32 hash = _hashTypedDataV4(keccak256(abi.encode(CANCEL_AUTHORIZATION_TYPEHASH, authorizer, nonce)));
+        require(SignatureChecker.isValidSignatureNow(authorizer, hash, signature), ERC3009InvalidSignature());
 
         _consumed[authorizer][nonce] = true;
         emit AuthorizationCanceled(authorizer, nonce);
-    }
-
-    /// @dev Validates the transfer with authorization signature.
-    function _validateTransferWithAuthorization(
-        address from,
-        address to,
-        uint256 value,
-        uint256 validAfter,
-        uint256 validBefore,
-        bytes32 nonce,
-        bytes memory signature
-    ) internal virtual returns (bool) {
-        bytes32 hash = _hashTypedDataV4(
-            keccak256(abi.encode(TRANSFER_WITH_AUTHORIZATION_TYPEHASH, from, to, value, validAfter, validBefore, nonce))
-        );
-        return SignatureChecker.isValidSignatureNow(from, hash, signature);
-    }
-
-    /// @dev Validates the receive with authorization signature.
-    function _validateReceiveWithAuthorization(
-        address from,
-        address to,
-        uint256 value,
-        uint256 validAfter,
-        uint256 validBefore,
-        bytes32 nonce,
-        bytes memory signature
-    ) internal virtual returns (bool) {
-        bytes32 hash = _hashTypedDataV4(
-            keccak256(abi.encode(RECEIVE_WITH_AUTHORIZATION_TYPEHASH, from, to, value, validAfter, validBefore, nonce))
-        );
-        return SignatureChecker.isValidSignatureNow(from, hash, signature);
-    }
-
-    /// @dev Validates the cancel authorization signature.
-    function _validateCancelAuthorization(
-        address authorizer,
-        bytes32 nonce,
-        bytes memory signature
-    ) internal virtual returns (bool) {
-        bytes32 hash = _hashTypedDataV4(keccak256(abi.encode(CANCEL_AUTHORIZATION_TYPEHASH, authorizer, nonce)));
-        return SignatureChecker.isValidSignatureNow(authorizer, hash, signature);
     }
 }
