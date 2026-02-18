@@ -50,6 +50,15 @@ abstract contract ERC20TransferAuthorization is ERC20, EIP712, IERC3009, IERC300
      */
     constructor(string memory name) EIP712(name, "1") {}
 
+    /**
+     * @dev Returns the domain separator used in the encoding of the signature for
+     * {transferWithAuthorization} and {receiveWithAuthorization}, as defined by {EIP712}.
+     */
+    // solhint-disable-next-line func-name-mixedcase
+    function DOMAIN_SEPARATOR() external view returns (bytes32) {
+        return _domainSeparatorV4();
+    }
+
     /// @inheritdoc IERC3009
     function authorizationState(address authorizer, bytes32 nonce) public view virtual returns (bool) {
         return _consumed[authorizer][nonce];
@@ -67,7 +76,7 @@ abstract contract ERC20TransferAuthorization is ERC20, EIP712, IERC3009, IERC300
         bytes32 r,
         bytes32 s
     ) public virtual {
-        _transferWithAuthorization(from, to, value, validAfter, validBefore, nonce, v, r, s);
+        _transferWithAuthorization(from, to, value, validAfter, validBefore, nonce, abi.encodePacked(r, s, v));
     }
 
     /// @dev Same as {transferWithAuthorization} but with a bytes signature.
@@ -95,7 +104,7 @@ abstract contract ERC20TransferAuthorization is ERC20, EIP712, IERC3009, IERC300
         bytes32 r,
         bytes32 s
     ) public virtual {
-        _receiveWithAuthorization(from, to, value, validAfter, validBefore, nonce, v, r, s);
+        _receiveWithAuthorization(from, to, value, validAfter, validBefore, nonce, abi.encodePacked(r, s, v));
     }
 
     /// @dev Same as {receiveWithAuthorization} but with a bytes signature.
@@ -113,36 +122,12 @@ abstract contract ERC20TransferAuthorization is ERC20, EIP712, IERC3009, IERC300
 
     /// @inheritdoc IERC3009Cancel
     function cancelAuthorization(address authorizer, bytes32 nonce, uint8 v, bytes32 r, bytes32 s) public virtual {
-        _cancelAuthorization(authorizer, nonce, v, r, s);
+        _cancelAuthorization(authorizer, nonce, abi.encodePacked(r, s, v));
     }
 
     /// @dev Same as {cancelAuthorization} but with a bytes signature.
     function cancelAuthorization(address authorizer, bytes32 nonce, bytes memory signature) public virtual {
         _cancelAuthorization(authorizer, nonce, signature);
-    }
-
-    /**
-     * @dev Returns the domain separator used in the encoding of the signature for
-     * {transferWithAuthorization} and {receiveWithAuthorization}, as defined by {EIP712}.
-     */
-    // solhint-disable-next-line func-name-mixedcase
-    function DOMAIN_SEPARATOR() external view returns (bytes32) {
-        return _domainSeparatorV4();
-    }
-
-    /// @dev Internal version of {transferWithAuthorization}.
-    function _transferWithAuthorization(
-        address from,
-        address to,
-        uint256 value,
-        uint256 validAfter,
-        uint256 validBefore,
-        bytes32 nonce,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) internal virtual {
-        _transferWithAuthorization(from, to, value, validAfter, validBefore, nonce, abi.encodePacked(r, s, v));
     }
 
     /// @dev Internal version of {transferWithAuthorization} that accepts a bytes signature.
@@ -170,26 +155,6 @@ abstract contract ERC20TransferAuthorization is ERC20, EIP712, IERC3009, IERC300
         _transfer(from, to, value);
     }
 
-    /**
-     * @dev Internal version of {receiveWithAuthorization}.
-     *
-     * Includes an additional check to ensure that the payee's address matches the caller to prevent
-     * front-running attacks.
-     */
-    function _receiveWithAuthorization(
-        address from,
-        address to,
-        uint256 value,
-        uint256 validAfter,
-        uint256 validBefore,
-        bytes32 nonce,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) internal virtual {
-        _receiveWithAuthorization(from, to, value, validAfter, validBefore, nonce, abi.encodePacked(r, s, v));
-    }
-
     /// @dev Internal version of {receiveWithAuthorization} that accepts a bytes signature.
     function _receiveWithAuthorization(
         address from,
@@ -214,11 +179,6 @@ abstract contract ERC20TransferAuthorization is ERC20, EIP712, IERC3009, IERC300
         _consumed[from][nonce] = true;
         emit AuthorizationUsed(from, nonce);
         _transfer(from, to, value);
-    }
-
-    /// @dev Internal version of {cancelAuthorization}.
-    function _cancelAuthorization(address authorizer, bytes32 nonce, uint8 v, bytes32 r, bytes32 s) internal virtual {
-        _cancelAuthorization(authorizer, nonce, abi.encodePacked(r, s, v));
     }
 
     /// @dev Internal version of {cancelAuthorization} that accepts a bytes signature.
