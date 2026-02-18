@@ -109,9 +109,8 @@ library TrieProof {
         Memory.Pointer fmp = Memory.getFreeMemoryPointer();
 
         // Traverse proof
-        uint256 proofLength = proof.length;
         uint256 keyIndex = 0;
-        for (uint256 i = 0; i < proofLength; ++i) {
+        for (uint256 i = 0; i < proof.length; ++i) {
             // validates the encoded node matches the expected node id
             bytes memory encoded = proof[i];
             if (keyIndex == 0) {
