@@ -7,6 +7,7 @@ const { zip } = require('../../helpers/iterate');
 const { generators } = require('../../helpers/random');
 const { BlockTries } = require('../../helpers/trie');
 const { batchInBlock } = require('../../helpers/txpool');
+const { toNibbles } = require('../../helpers/bytes');
 
 const ProofError = Enum(
   'NO_ERROR', // No error occurred during proof traversal
@@ -153,6 +154,128 @@ describe('TrieProof', function () {
 
     it('returns false for invalid proof', async function () {
       await expect(this.mock.$verify('0x', ethers.ZeroHash, '0x', [])).to.eventually.be.false;
+    });
+  });
+
+  describe('inline extension child nodes', function () {
+    // Helper to encode hex-prefix for both leaf and extension nodes
+    // Yellow Paper hex-prefix encoding:
+    // - Extension: 0x0 (even) or 0x1 (odd)
+    // - Leaf: 0x2 (even) or 0x3 (odd)
+    const hexPrefixEncode = (keyNibbles, isLeaf) => {
+      const nibbles = ethers.getBytes(keyNibbles);
+      const odd = nibbles.length % 2 === 1;
+      const flag = isLeaf ? 0x20 : 0x00;
+
+      if (odd) {
+        const result = new Uint8Array(1 + (nibbles.length - 1) / 2);
+        result[0] = flag | 0x10 | nibbles[0];
+        for (let i = 1; i < nibbles.length; i += 2) {
+          result[Math.floor((i + 1) / 2)] = (nibbles[i] << 4) | nibbles[i + 1];
+        }
+        return ethers.hexlify(result);
+      } else {
+        const result = new Uint8Array(1 + nibbles.length / 2);
+        result[0] = flag;
+        for (let i = 0; i < nibbles.length; i += 2) {
+          result[1 + i / 2] = (nibbles[i] << 4) | nibbles[i + 1];
+        }
+        return ethers.hexlify(result);
+      }
+    };
+
+    for (const {
+      name,
+      params: { key, value, splitAt },
+    } of [
+      {
+        name: 'extension-to-leaf (even extension, even leaf)',
+        params: { key: '0x1234', value: '0xdeadbeef', splitAt: 2 },
+      },
+      {
+        name: 'extension-to-leaf (odd extension, odd leaf)',
+        params: { key: '0x1230', value: '0xc0ffee', splitAt: 1 },
+      },
+      {
+        name: 'extension-to-leaf (even extension, odd leaf)',
+        params: { key: '0x123456', value: '0xaabbcc', splitAt: 2 },
+      },
+      {
+        name: 'extension-to-leaf (odd extension, even leaf)',
+        params: { key: '0x1234', value: '0x112233', splitAt: 1 },
+      },
+    ]) {
+      it(`processes proof with inline ${name}`, async function () {
+        const keyNibbles = ethers.getBytes(toNibbles(key));
+
+        // Extension node with inline leaf child
+        const extPath = ethers.hexlify(keyNibbles.slice(0, splitAt));
+        const extHp = hexPrefixEncode(extPath, false);
+
+        const leafPath = ethers.hexlify(keyNibbles.slice(splitAt));
+        const leafHp = hexPrefixEncode(leafPath, true);
+
+        const leafRlp = ethers.encodeRlp([leafHp, value]);
+        const extRlp = ethers.encodeRlp([extHp, leafRlp]);
+        const root = ethers.keccak256(extRlp);
+        const proof = [extRlp];
+
+        await expect(this.mock.$verify(value, root, key, proof)).to.eventually.be.true;
+        await expect(this.mock.$traverse(root, key, proof)).to.eventually.equal(value);
+        await expect(this.mock.$tryTraverse(root, key, proof)).to.eventually.deep.equal([value, ProofError.NO_ERROR]);
+      });
+    }
+
+    it('processes proof with inline branch-to-leaf', async function () {
+      const key = '0xab';
+      const value = '0x123456';
+      const keyNibbles = ethers.getBytes(toNibbles(key));
+
+      const branchIndex = keyNibbles[0]; // First nibble selects branch
+      const leafPath = ethers.hexlify(keyNibbles.slice(1));
+      const leafHp = hexPrefixEncode(leafPath, true);
+
+      const leafRlp = ethers.encodeRlp([leafHp, value]);
+
+      const branchElements = Array(17).fill('0x');
+      branchElements[branchIndex] = leafRlp;
+
+      const branchRlp = ethers.encodeRlp(branchElements);
+      const root = ethers.keccak256(branchRlp);
+      const proof = [branchRlp];
+
+      await expect(this.mock.$verify(value, root, key, proof)).to.eventually.be.true;
+      await expect(this.mock.$traverse(root, key, proof)).to.eventually.equal(value);
+      await expect(this.mock.$tryTraverse(root, key, proof)).to.eventually.deep.equal([value, ProofError.NO_ERROR]);
+    });
+
+    it('verifies inline processing by confirming single-element proof succeeds', async function () {
+      const key = '0x1234';
+      const value = '0xdeadbeef';
+      const splitAt = 2;
+
+      const keyNibbles = ethers.getBytes(toNibbles(key));
+
+      // Extension node with inline leaf child
+      const extPath = ethers.hexlify(keyNibbles.slice(0, splitAt));
+      const extHp = hexPrefixEncode(extPath, false);
+
+      const leafPath = ethers.hexlify(keyNibbles.slice(splitAt));
+      const leafHp = hexPrefixEncode(leafPath, true);
+
+      const leafRlp = ethers.encodeRlp([leafHp, value]);
+      const extRlp = ethers.encodeRlp([extHp, leafRlp]);
+      const root = ethers.keccak256(extRlp);
+      const proof = [extRlp];
+
+      // This proof works with just 1 element because inline processing handles the embedded child
+      await expect(this.mock.$traverse(root, key, proof)).to.eventually.equal(value);
+
+      // If we add an extra element after finding the value, it should fail
+      const badProof = [...proof, ethers.encodeRlp(['0x', '0x'])];
+      await expect(this.mock.$traverse(root, key, badProof))
+        .to.be.revertedWithCustomError(this.mock, 'TrieProofTraversalError')
+        .withArgs(ProofError.INVALID_EXTRA_PROOF_ELEMENT);
     });
   });
 
