@@ -1076,7 +1076,7 @@ describe('AccessManager', function () {
           expect(await this.newManagedTarget.authority()).to.equal(this.manager);
 
           await expect(this.manager.connect(this.admin).updateAuthority(this.newManagedTarget, this.newAuthority))
-            .to.emit(this.newManagedTarget, 'AuthorityUpdated') // Managed contract is responsible of notifying the change through an event
+            .to.emit(this.newManagedTarget, 'AuthorityUpdated') // Managed contract is responsible for notifying the change through an event
             .withArgs(this.newAuthority);
 
           expect(await this.newManagedTarget.authority()).to.equal(this.newAuthority);
