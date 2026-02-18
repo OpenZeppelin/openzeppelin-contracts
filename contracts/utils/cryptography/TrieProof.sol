@@ -109,8 +109,9 @@ library TrieProof {
         Memory.Pointer fmp = Memory.getFreeMemoryPointer();
 
         // Traverse proof
+        uint256 proofLength = proof.length;
         uint256 keyIndex = 0;
-        for (uint256 i = 0; i < proof.length; ++i) {
+        for (uint256 i = 0; i < proofLength; ++i) {
             // validates the encoded node matches the expected node id
             bytes memory encoded = proof[i];
             if (keyIndex == 0) {
@@ -143,6 +144,8 @@ library TrieProof {
                         if (currentNodeIdLength == 32 || _match(childNode, proof, i + 1)) {
                             break;
                         } else {
+                            // Only process inline when child is RLP list (prefix >= 0xc0); otherwise next iteration will fail with INVALID_SHORT_NODE
+                            // if (childNode.length() == 0 || uint8(bytes1(childNode.load(0))) < RLP.LONG_OFFSET) break;
                             decoded = childNode.readList();
                         }
                     }
@@ -180,6 +183,8 @@ library TrieProof {
                         if (currentNodeIdLength == 32 || _match(childNode, proof_, i + 1)) {
                             break;
                         } else {
+                            // Only process inline when child is RLP list (prefix >= 0xc0); otherwise next iteration will fail with INVALID_SHORT_NODE
+                            // if (childNode.length() == 0 || uint8(bytes1(childNode.load(0))) < RLP.LONG_OFFSET) break;
                             decoded = childNode.readList();
                         }
                     } else if (prefix <= uint8(Prefix.LEAF_ODD)) {
