@@ -2,30 +2,29 @@
 
 pragma solidity >=0.4.16;
 
+/**
+ * @dev Interface of the ERC-3009 standard as defined in https://eips.ethereum.org/EIPS/eip-3009[ERC-3009].
+ */
 interface IERC3009 {
+    /// @dev Emitted when an authorization is used.
     event AuthorizationUsed(address indexed authorizer, bytes32 indexed nonce);
 
     /**
-     * @notice Returns the state of an authorization
-     * @dev Nonces are randomly generated 32-byte data unique to the authorizer's
-     * address
-     * @param authorizer    Authorizer's address
-     * @param nonce         Nonce of the authorization
-     * @return True if the nonce is used
+     * @dev Returns the state of an authorization.
+     *
+     * Nonces are randomly generated 32-byte values unique to the authorizer's address.
      */
     function authorizationState(address authorizer, bytes32 nonce) external view returns (bool);
 
     /**
-     * @notice Execute a transfer with a signed authorization
-     * @param from          Payer's address (Authorizer)
-     * @param to            Payee's address
-     * @param value         Amount to be transferred
-     * @param validAfter    The time after which this is valid (unix time)
-     * @param validBefore   The time before which this is valid (unix time)
-     * @param nonce         Unique nonce
-     * @param v             v of the signature
-     * @param r             r of the signature
-     * @param s             s of the signature
+     * @dev Executes a transfer with a signed authorization.
+     *
+     * Requirements:
+     *
+     * * `validAfter` must be less than the current block timestamp.
+     * * `validBefore` must be greater than the current block timestamp.
+     * * `nonce` must not have been used by the `from` account.
+     * * the signature must be valid for the authorization.
      */
     function transferWithAuthorization(
         address from,
@@ -40,19 +39,18 @@ interface IERC3009 {
     ) external;
 
     /**
-     * @notice Receive a transfer with a signed authorization from the payer
-     * @dev This has an additional check to ensure that the payee's address matches
-     * the caller of this function to prevent front-running attacks. (See security
-     * considerations)
-     * @param from          Payer's address (Authorizer)
-     * @param to            Payee's address
-     * @param value         Amount to be transferred
-     * @param validAfter    The time after which this is valid (unix time)
-     * @param validBefore   The time before which this is valid (unix time)
-     * @param nonce         Unique nonce
-     * @param v             v of the signature
-     * @param r             r of the signature
-     * @param s             s of the signature
+     * @dev Receives a transfer with a signed authorization from the payer.
+     *
+     * Includes an additional check to ensure that the payee's address (`to`) matches the caller
+     * to prevent front-running attacks.
+     *
+     * Requirements:
+     *
+     * * `to` must be the caller of this function.
+     * * `validAfter` must be less than the current block timestamp.
+     * * `validBefore` must be greater than the current block timestamp.
+     * * `nonce` must not have been used by the `from` account.
+     * * the signature must be valid for the authorization.
      */
     function receiveWithAuthorization(
         address from,
@@ -67,16 +65,20 @@ interface IERC3009 {
     ) external;
 }
 
+/**
+ * @dev Extension of {IERC3009} that adds the ability to cancel authorizations.
+ */
 interface IERC3009Cancel {
+    /// @dev Emitted when an authorization is canceled.
     event AuthorizationCanceled(address indexed authorizer, bytes32 indexed nonce);
 
     /**
-     * @notice Attempt to cancel an authorization
-     * @param authorizer    Authorizer's address
-     * @param nonce         Nonce of the authorization
-     * @param v             v of the signature
-     * @param r             r of the signature
-     * @param s             s of the signature
+     * @dev Cancels an authorization.
+     *
+     * Requirements:
+     *
+     * * `nonce` must not have been used by the `authorizer` account.
+     * * the signature must be valid for the cancellation.
      */
     function cancelAuthorization(address authorizer, bytes32 nonce, uint8 v, bytes32 r, bytes32 s) external;
 }

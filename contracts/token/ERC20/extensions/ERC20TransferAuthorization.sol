@@ -7,6 +7,19 @@ import {SignatureChecker} from "../../../utils/cryptography/SignatureChecker.sol
 import {MessageHashUtils} from "../../../utils/cryptography/MessageHashUtils.sol";
 import {IERC3009, IERC3009Cancel} from "../../../interfaces/draft-IERC3009.sol";
 
+/**
+ * @dev Implementation of the ERC-3009 Transfer With Authorization extension allowing
+ * transfers to be made via signatures, as defined in https://eips.ethereum.org/EIPS/eip-3009[ERC-3009].
+ *
+ * Adds the {transferWithAuthorization} and {receiveWithAuthorization} methods, which
+ * can be used to change an account's ERC-20 balance by presenting a message signed
+ * by the account. By not relying on {IERC20-approve} and {IERC20-transferFrom}, the
+ * token holder account doesn't need to send a transaction, and thus is not required
+ * to hold native currency (e.g. ETH) at all.
+ *
+ * NOTE: This extension uses non-sequential nonces to allow for flexible transaction ordering
+ * and parallel transaction submission, unlike {ERC20Permit} which uses sequential nonces.
+ */
 abstract contract ERC20TransferAuthorization is ERC20, EIP712, IERC3009, IERC3009Cancel {
     /// @dev The signature is invalid
     error ERC3009InvalidSignature();
@@ -30,6 +43,13 @@ abstract contract ERC20TransferAuthorization is ERC20, EIP712, IERC3009, IERC300
 
     mapping(address => mapping(bytes32 => bool)) private _consumed;
 
+    /**
+     * @dev Initializes the {EIP712} domain separator using the `name` parameter, and setting `version` to `"1"`.
+     *
+     * It's a good idea to use the same `name` that is defined as the ERC-20 token name.
+     */
+    constructor(string memory name) EIP712(name, "1") {}
+
     /// @inheritdoc IERC3009
     function authorizationState(address authorizer, bytes32 nonce) public view virtual returns (bool) {
         return _consumed[authorizer][nonce];
@@ -50,6 +70,19 @@ abstract contract ERC20TransferAuthorization is ERC20, EIP712, IERC3009, IERC300
         _transferWithAuthorization(from, to, value, validAfter, validBefore, nonce, v, r, s);
     }
 
+    /// @dev Same as {transferWithAuthorization} but with a bytes signature.
+    function transferWithAuthorization(
+        address from,
+        address to,
+        uint256 value,
+        uint256 validAfter,
+        uint256 validBefore,
+        bytes32 nonce,
+        bytes memory signature
+    ) public virtual {
+        _transferWithAuthorization(from, to, value, validAfter, validBefore, nonce, signature);
+    }
+
     /// @inheritdoc IERC3009
     function receiveWithAuthorization(
         address from,
@@ -65,9 +98,36 @@ abstract contract ERC20TransferAuthorization is ERC20, EIP712, IERC3009, IERC300
         _receiveWithAuthorization(from, to, value, validAfter, validBefore, nonce, v, r, s);
     }
 
+    /// @dev Same as {receiveWithAuthorization} but with a bytes signature.
+    function receiveWithAuthorization(
+        address from,
+        address to,
+        uint256 value,
+        uint256 validAfter,
+        uint256 validBefore,
+        bytes32 nonce,
+        bytes memory signature
+    ) public virtual {
+        _receiveWithAuthorization(from, to, value, validAfter, validBefore, nonce, signature);
+    }
+
     /// @inheritdoc IERC3009Cancel
     function cancelAuthorization(address authorizer, bytes32 nonce, uint8 v, bytes32 r, bytes32 s) public virtual {
         _cancelAuthorization(authorizer, nonce, v, r, s);
+    }
+
+    /// @dev Same as {cancelAuthorization} but with a bytes signature.
+    function cancelAuthorization(address authorizer, bytes32 nonce, bytes memory signature) public virtual {
+        _cancelAuthorization(authorizer, nonce, signature);
+    }
+
+    /**
+     * @dev Returns the domain separator used in the encoding of the signature for
+     * {transferWithAuthorization} and {receiveWithAuthorization}, as defined by {EIP712}.
+     */
+    // solhint-disable-next-line func-name-mixedcase
+    function DOMAIN_SEPARATOR() external view returns (bytes32) {
+        return _domainSeparatorV4();
     }
 
     /// @dev Internal version of {transferWithAuthorization}.
@@ -85,7 +145,7 @@ abstract contract ERC20TransferAuthorization is ERC20, EIP712, IERC3009, IERC300
         _transferWithAuthorization(from, to, value, validAfter, validBefore, nonce, abi.encodePacked(r, s, v));
     }
 
-    /// @dev Internal version of {receiveWithAuthorization} that accepts a packed signature.
+    /// @dev Internal version of {transferWithAuthorization} that accepts a bytes signature.
     function _transferWithAuthorization(
         address from,
         address to,
@@ -99,26 +159,9 @@ abstract contract ERC20TransferAuthorization is ERC20, EIP712, IERC3009, IERC300
             block.timestamp > validAfter && block.timestamp < validBefore,
             ERC3009InvalidAuthorizationTime(validAfter, validBefore)
         );
-        require(!_consumed[from][nonce], ERC3009ConsumedAuthorization(from, nonce));
+        require(!authorizationState(from, nonce), ERC3009ConsumedAuthorization(from, nonce));
         require(
-            SignatureChecker.isValidSignatureNow(
-                from,
-                MessageHashUtils.toTypedDataHash(
-                    _domainSeparatorV4(),
-                    keccak256(
-                        abi.encode(
-                            TRANSFER_WITH_AUTHORIZATION_TYPEHASH,
-                            from,
-                            to,
-                            value,
-                            validAfter,
-                            validBefore,
-                            nonce
-                        )
-                    )
-                ),
-                signature
-            ),
+            _validateTransferWithAuthorization(from, to, value, validAfter, validBefore, nonce, signature),
             ERC3009InvalidSignature()
         );
 
@@ -128,10 +171,10 @@ abstract contract ERC20TransferAuthorization is ERC20, EIP712, IERC3009, IERC300
     }
 
     /**
-     * @dev Receive a transfer with a signed authorization from the payer
+     * @dev Internal version of {receiveWithAuthorization}.
      *
-     * This has an additional check to ensure that the payee's address
-     * matches the caller of this function to prevent front-running attacks.
+     * Includes an additional check to ensure that the payee's address matches the caller to prevent
+     * front-running attacks.
      */
     function _receiveWithAuthorization(
         address from,
@@ -147,7 +190,7 @@ abstract contract ERC20TransferAuthorization is ERC20, EIP712, IERC3009, IERC300
         _receiveWithAuthorization(from, to, value, validAfter, validBefore, nonce, abi.encodePacked(r, s, v));
     }
 
-    /// @dev Internal version of {receiveWithAuthorization} that accepts a packed signature.
+    /// @dev Internal version of {receiveWithAuthorization} that accepts a bytes signature.
     function _receiveWithAuthorization(
         address from,
         address to,
@@ -157,23 +200,14 @@ abstract contract ERC20TransferAuthorization is ERC20, EIP712, IERC3009, IERC300
         bytes32 nonce,
         bytes memory signature
     ) internal virtual {
-        require(to == msg.sender, ERC20InvalidReceiver(to));
+        require(to == _msgSender(), ERC20InvalidReceiver(to));
         require(
             block.timestamp > validAfter && block.timestamp < validBefore,
             ERC3009InvalidAuthorizationTime(validAfter, validBefore)
         );
-        require(!_consumed[from][nonce], ERC3009ConsumedAuthorization(from, nonce));
+        require(!authorizationState(from, nonce), ERC3009ConsumedAuthorization(from, nonce));
         require(
-            SignatureChecker.isValidSignatureNow(
-                from,
-                MessageHashUtils.toTypedDataHash(
-                    _domainSeparatorV4(),
-                    keccak256(
-                        abi.encode(RECEIVE_WITH_AUTHORIZATION_TYPEHASH, from, to, value, validAfter, validBefore, nonce)
-                    )
-                ),
-                signature
-            ),
+            _validateReceiveWithAuthorization(from, to, value, validAfter, validBefore, nonce, signature),
             ERC3009InvalidSignature()
         );
 
@@ -182,27 +216,59 @@ abstract contract ERC20TransferAuthorization is ERC20, EIP712, IERC3009, IERC300
         _transfer(from, to, value);
     }
 
-    /// @dev Internal version of {cancelAuthorization}/
+    /// @dev Internal version of {cancelAuthorization}.
     function _cancelAuthorization(address authorizer, bytes32 nonce, uint8 v, bytes32 r, bytes32 s) internal virtual {
         _cancelAuthorization(authorizer, nonce, abi.encodePacked(r, s, v));
     }
 
-    /// @dev Internal version of {cancelAuthorization} that accepts a packed signature.
+    /// @dev Internal version of {cancelAuthorization} that accepts a bytes signature.
     function _cancelAuthorization(address authorizer, bytes32 nonce, bytes memory signature) internal virtual {
-        require(!_consumed[authorizer][nonce], ERC3009ConsumedAuthorization(authorizer, nonce));
-        require(
-            SignatureChecker.isValidSignatureNow(
-                authorizer,
-                MessageHashUtils.toTypedDataHash(
-                    _domainSeparatorV4(),
-                    keccak256(abi.encode(CANCEL_AUTHORIZATION_TYPEHASH, authorizer, nonce))
-                ),
-                signature
-            ),
-            ERC3009InvalidSignature()
-        );
+        require(!authorizationState(authorizer, nonce), ERC3009ConsumedAuthorization(authorizer, nonce));
+        require(_validateCancelAuthorization(authorizer, nonce, signature), ERC3009InvalidSignature());
 
         _consumed[authorizer][nonce] = true;
         emit AuthorizationCanceled(authorizer, nonce);
+    }
+
+    /// @dev Validates the transfer with authorization signature.
+    function _validateTransferWithAuthorization(
+        address from,
+        address to,
+        uint256 value,
+        uint256 validAfter,
+        uint256 validBefore,
+        bytes32 nonce,
+        bytes memory signature
+    ) internal virtual returns (bool) {
+        bytes32 hash = _hashTypedDataV4(
+            keccak256(abi.encode(TRANSFER_WITH_AUTHORIZATION_TYPEHASH, from, to, value, validAfter, validBefore, nonce))
+        );
+        return SignatureChecker.isValidSignatureNow(from, hash, signature);
+    }
+
+    /// @dev Validates the receive with authorization signature.
+    function _validateReceiveWithAuthorization(
+        address from,
+        address to,
+        uint256 value,
+        uint256 validAfter,
+        uint256 validBefore,
+        bytes32 nonce,
+        bytes memory signature
+    ) internal virtual returns (bool) {
+        bytes32 hash = _hashTypedDataV4(
+            keccak256(abi.encode(RECEIVE_WITH_AUTHORIZATION_TYPEHASH, from, to, value, validAfter, validBefore, nonce))
+        );
+        return SignatureChecker.isValidSignatureNow(from, hash, signature);
+    }
+
+    /// @dev Validates the cancel authorization signature.
+    function _validateCancelAuthorization(
+        address authorizer,
+        bytes32 nonce,
+        bytes memory signature
+    ) internal virtual returns (bool) {
+        bytes32 hash = _hashTypedDataV4(keccak256(abi.encode(CANCEL_AUTHORIZATION_TYPEHASH, authorizer, nonce)));
+        return SignatureChecker.isValidSignatureNow(authorizer, hash, signature);
     }
 }
