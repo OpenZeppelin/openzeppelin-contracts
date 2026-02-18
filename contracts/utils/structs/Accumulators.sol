@@ -4,6 +4,7 @@
 pragma solidity ^0.8.24;
 
 import {Memory} from "../Memory.sol";
+import {Panic} from "../Panic.sol";
 
 /**
  * @dev Structure concatenating an arbitrary number of bytes buffers with limited memory allocation.
@@ -33,7 +34,7 @@ library Accumulators {
     /**
      * @dev Bytes accumulator: a linked list of `bytes`.
      *
-     * NOTE: This is a memory structure that SHOULD not be put in storage.
+     * NOTE: This is a memory structure that SHOULD NOT be put in storage.
      */
     struct Accumulator {
         Memory.Pointer head;
@@ -59,6 +60,8 @@ library Accumulators {
 
     /// @dev Add a memory slice to (the end of) an Accumulator
     function push(Accumulator memory self, Memory.Slice data) internal pure returns (Accumulator memory) {
+        if (!data.isReserved()) Panic.panic(Panic.RESOURCE_ERROR);
+
         Memory.Pointer ptr = _asPtr(AccumulatorEntry({next: _nullPtr(), data: data}));
 
         if (_nullPtr().equal(self.head)) {
@@ -79,6 +82,8 @@ library Accumulators {
 
     /// @dev Add a memory slice to (the beginning of) an Accumulator
     function shift(Accumulator memory self, Memory.Slice data) internal pure returns (Accumulator memory) {
+        if (!data.isReserved()) Panic.panic(Panic.RESOURCE_ERROR);
+
         Memory.Pointer ptr = _asPtr(AccumulatorEntry({next: self.head, data: data}));
 
         if (_nullPtr().equal(self.head)) {
@@ -125,6 +130,6 @@ library Accumulators {
     }
 
     function _nullPtr() private pure returns (Memory.Pointer) {
-        return Memory.asPointer(0x00);
+        return Memory.Pointer.wrap(0);
     }
 }

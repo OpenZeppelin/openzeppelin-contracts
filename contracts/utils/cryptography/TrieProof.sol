@@ -122,7 +122,7 @@ library TrieProof {
                 if (currentNodeIdLength != 32 || keccak256(encoded) != currentNodeId)
                     return (_emptyBytesMemory(), ProofError.INVALID_LARGE_NODE);
             } else {
-                // Small nodes must match directly
+                // Short nodes must match directly
                 if (currentNodeIdLength != encoded.length || bytes32(encoded) != currentNodeId)
                     return (_emptyBytesMemory(), ProofError.INVALID_SHORT_NODE);
             }
@@ -197,7 +197,7 @@ library TrieProof {
             }
 
             // Reset memory before next iteration. Deallocates `decoded` and `path`.
-            Memory.setFreeMemoryPointer(fmp);
+            Memory.unsafeSetFreeMemoryPointer(fmp);
         }
 
         // If we've gone through all proof elements without finding a value, the proof is invalid
@@ -233,13 +233,21 @@ library TrieProof {
     /**
      * @dev Extracts the node ID (hash or raw data based on size)
      *
-     * For small nodes (encoded length < 32 bytes) the node ID is the node content itself,
+     * For short nodes (encoded length < 32 bytes) the node ID is the node content itself,
      * For larger nodes, the node ID is the hash of the encoded node data.
      *
-     * NOTE: Under normal operation, the input should never be exactly 32-byte inputs. If such an input is provided,
-     * it will be used directly, similarly to how small nodes are processed. The following traversal check whether
-     * the next node is a large one, and whether its hash matches the raw 32 bytes we have here. If that is the case,
-     * the value will be accepted. Otherwise, the next step will return an {INVALID_LARGE_NODE} error.
+     * [NOTE]
+     * ====
+     * Under normal operation, the input should never be exactly 32 bytes nor empty.
+     *
+     * If a 32-byte input is provided, it is used directly (like short nodes). The next traversal step then checks
+     * whether the next node is large and its hash matches those raw bytes. If that is not the case, it returns
+     * {INVALID_LARGE_NODE}.
+     *
+     * If the input is empty (e.g. when traversing a branch node whose target child slot is empty, meaning the key
+     * does not exist in the trie), this returns `nodeIdLength = 0` and the next iteration fails with {INVALID_LARGE_NODE} or
+     * {INVALID_SHORT_NODE} depending on the next proof element, rather than a dedicated "key not in trie" error.
+     * ====
      */
     function _getNodeId(Memory.Slice node) private pure returns (bytes32 nodeId, uint256 nodeIdLength) {
         uint256 nodeLength = node.length();
