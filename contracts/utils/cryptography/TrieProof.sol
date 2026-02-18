@@ -140,13 +140,13 @@ library TrieProof {
                         (currentNodeId, currentNodeIdLength) = _getNodeId(childNode);
                         keyIndex += 1;
 
-                        if (currentNodeIdLength == 32 || _match(childNode, proof, i + 1)) {
+                        if (currentNodeIdLength == 32 || _match(childNode, proof, i + 1) || childNode.length() == 0) {
                             break;
-                        } else {
-                            // Only process inline when child is RLP list (prefix >= 0xc0); otherwise next iteration will fail with INVALID_SHORT_NODE
-                            // if (childNode.length() == 0 || uint8(bytes1(childNode.load(0))) < RLP.LONG_OFFSET) break;
-                            decoded = childNode.readList();
                         }
+                        (uint256 offset, uint256 length, ) = childNode.decodeLength();
+                        Memory.Slice contentSlice = childNode.slice(offset, length);
+                        if (contentSlice.length() == 0 || uint8(bytes1(contentSlice.load(0))) < RLP.LONG_OFFSET) break;
+                        decoded = contentSlice.readList();
                     }
                 } else if (decoded.length == LEAF_OR_EXTENSION_NODE_LENGTH) {
                     bytes[] memory proof_ = proof;
@@ -179,13 +179,13 @@ library TrieProof {
                         (currentNodeId, currentNodeIdLength) = _getNodeId(childNode);
                         keyIndex += pathRemainderLength;
 
-                        if (currentNodeIdLength == 32 || _match(childNode, proof_, i + 1)) {
+                        if (currentNodeIdLength == 32 || _match(childNode, proof_, i + 1) || childNode.length() == 0) {
                             break;
-                        } else {
-                            // Only process inline when child is RLP list (prefix >= 0xc0); otherwise next iteration will fail with INVALID_SHORT_NODE
-                            // if (childNode.length() == 0 || uint8(bytes1(childNode.load(0))) < RLP.LONG_OFFSET) break;
-                            decoded = childNode.readList();
                         }
+                        (uint256 offset, uint256 length, ) = childNode.decodeLength();
+                        Memory.Slice contentSlice = childNode.slice(offset, length);
+                        if (contentSlice.length() == 0 || uint8(bytes1(contentSlice.load(0))) < RLP.LONG_OFFSET) break;
+                        decoded = contentSlice.readList();
                     } else if (prefix <= uint8(Prefix.LEAF_ODD)) {
                         // Eq to: prefix == LEAF_EVEN || prefix == LEAF_ODD
                         //

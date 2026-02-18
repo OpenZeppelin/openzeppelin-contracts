@@ -314,7 +314,7 @@ library RLP {
         uint256 length = item.length();
         require(length <= 33, RLPInvalidEncoding());
 
-        (uint256 itemOffset, uint256 itemLength, ItemType itemType) = _decodeLength(item);
+        (uint256 itemOffset, uint256 itemLength, ItemType itemType) = decodeLength(item);
         require(itemType == ItemType.Data, RLPInvalidEncoding());
 
         return itemLength == 0 ? 0 : uint256(item.load(itemOffset)) >> (256 - 8 * itemLength);
@@ -334,7 +334,7 @@ library RLP {
 
     /// @dev Decodes an RLP encoded bytes. See {encode-bytes}
     function readBytes(Memory.Slice item) internal pure returns (bytes memory) {
-        (uint256 offset, uint256 length, ItemType itemType) = _decodeLength(item);
+        (uint256 offset, uint256 length, ItemType itemType) = decodeLength(item);
         require(itemType == ItemType.Data, RLPInvalidEncoding());
 
         // Length is checked by {slice}
@@ -355,7 +355,7 @@ library RLP {
     function readList(Memory.Slice item) internal pure returns (Memory.Slice[] memory list) {
         uint256 itemLength = item.length();
 
-        (uint256 listOffset, uint256 listLength, ItemType itemType) = _decodeLength(item);
+        (uint256 listOffset, uint256 listLength, ItemType itemType) = decodeLength(item);
         require(itemType == ItemType.List && itemLength == listOffset + listLength, RLPInvalidEncoding());
 
         // Start a buffer in the unallocated space
@@ -367,7 +367,7 @@ library RLP {
 
         // Get all items in order, and push them to the buffer
         for (uint256 currentOffset = listOffset; currentOffset < itemLength; ptr += 0x20) {
-            (uint256 elementOffset, uint256 elementLength, ) = _decodeLength(item.slice(currentOffset));
+            (uint256 elementOffset, uint256 elementLength, ) = decodeLength(item.slice(currentOffset));
             Memory.Slice element = item.slice(currentOffset, elementLength + elementOffset);
             currentOffset += elementOffset + elementLength;
 
@@ -432,7 +432,7 @@ library RLP {
      * @dev Decodes an RLP `item`'s length and type from its prefix.
      * Returns the offset, length, and type of the RLP item based on the encoding rules.
      */
-    function _decodeLength(Memory.Slice item) private pure returns (uint256, uint256, ItemType) {
+    function decodeLength(Memory.Slice item) internal pure returns (uint256 offset, uint256 length, ItemType) {
         uint256 itemLength = item.length();
 
         require(itemLength != 0, RLPInvalidEncoding());
