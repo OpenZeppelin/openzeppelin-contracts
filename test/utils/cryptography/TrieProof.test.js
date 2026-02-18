@@ -1,6 +1,7 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+const { nibblesToCompactBytes } = require('@ethereumjs/mpt');
 
 const { Enum } = require('../../helpers/enums');
 const { zip } = require('../../helpers/iterate');
@@ -158,31 +159,13 @@ describe('TrieProof', function () {
   });
 
   describe('inline extension child nodes', function () {
-    // Helper to encode hex-prefix for both leaf and extension nodes
-    // Yellow Paper hex-prefix encoding:
-    // - Extension: 0x0 (even) or 0x1 (odd)
-    // - Leaf: 0x2 (even) or 0x3 (odd)
-    const hexPrefixEncode = (keyNibbles, isLeaf) => {
-      const nibbles = ethers.getBytes(keyNibbles);
-      const odd = nibbles.length % 2 === 1;
-      const flag = isLeaf ? 0x20 : 0x00;
-
-      if (odd) {
-        const result = new Uint8Array(1 + (nibbles.length - 1) / 2);
-        result[0] = flag | 0x10 | nibbles[0];
-        for (let i = 1; i < nibbles.length; i += 2) {
-          result[Math.floor((i + 1) / 2)] = (nibbles[i] << 4) | nibbles[i + 1];
-        }
-        return ethers.hexlify(result);
-      } else {
-        const result = new Uint8Array(1 + nibbles.length / 2);
-        result[0] = flag;
-        for (let i = 0; i < nibbles.length; i += 2) {
-          result[1 + i / 2] = (nibbles[i] << 4) | nibbles[i + 1];
-        }
-        return ethers.hexlify(result);
-      }
-    };
+    const hexPrefixEncode = (keyNibbles, isLeaf) =>
+      ethers.hexlify(
+        nibblesToCompactBytes(
+          // Append terminator nibble (16) for leaf nodes
+          isLeaf ? new Uint8Array([...ethers.getBytes(keyNibbles), 16]) : ethers.getBytes(keyNibbles),
+        ),
+      );
 
     for (const {
       name,
