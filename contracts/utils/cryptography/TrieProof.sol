@@ -110,8 +110,7 @@ library TrieProof {
 
         // Traverse proof
         uint256 keyIndex = 0;
-        uint256 proofLength = proof.length;
-        for (uint256 i = 0; i < proofLength; ++i) {
+        for (uint256 i = 0; i < proof.length; ++i) {
             // validates the encoded node matches the expected node id
             bytes memory encoded = proof[i];
             if (keyIndex == 0) {
@@ -128,36 +127,39 @@ library TrieProof {
             }
 
             // decode the current node as an RLP list, and process it
+            Memory.Slice[] memory decoded = encoded.decodeList();
             for (;;) {
-                Memory.Slice[] memory decoded = encoded.decodeList();
                 if (decoded.length == BRANCH_NODE_LENGTH) {
                     // If we've consumed the entire key, the value must be in the last slot
                     // Otherwise, continue down the branch specified by the next nibble in the key
                     if (keyIndex == keyExpanded.length) {
-                        return _validateLastItem(decoded[EVM_TREE_RADIX], proofLength, i);
+                        return _validateLastItem(decoded[EVM_TREE_RADIX], proof.length, i);
                     } else {
                         bytes1 branchKey = keyExpanded[keyIndex];
-                        Memory.Slice childSlice = decoded[uint8(branchKey)];
-                        (currentNodeId, currentNodeIdLength) = _getNodeId(childSlice);
+                        Memory.Slice childNode = decoded[uint8(branchKey)];
+                        (currentNodeId, currentNodeIdLength) = _getNodeId(childNode);
                         keyIndex += 1;
-                        if (currentNodeIdLength == 32) break;
-                        if (_isExtensionChild(childSlice, proof[i + 1], proofLength, i)) break;
-                        // Only process inline when child is RLP list (prefix >= 0xc0); otherwise next iteration will fail with INVALID_SHORT_NODE
-                        // if (childSlice.length() == 0 || uint8(bytes1(childSlice.load(0))) < RLP.LONG_OFFSET) break;
-                        encoded = childSlice.toBytes();
+
+                        if (currentNodeIdLength == 32 || _match(childNode, proof, i + 1)) {
+                            break;
+                        } else {
+                            decoded = childNode.readList();
+                        }
                     }
                 } else if (decoded.length == LEAF_OR_EXTENSION_NODE_LENGTH) {
+                    bytes[] memory proof_ = proof;
+
                     bytes memory path = decoded[0].readBytes().toNibbles(); // expanded path
                     // The following is equivalent to path.length < 2 because toNibbles can't return odd-length buffers
                     if (path.length == 0) {
                         return (_emptyBytesMemory(), ProofError.EMPTY_PATH);
                     }
-                    uint8 prefix = uint8(path[0]);
+                    uint8 prefix = uint8(path[0]); // path encoding nibble (node type + parity), see {Prefix}
                     Memory.Slice keyRemainder = keyExpanded.asSlice().slice(keyIndex); // Remaining key to match
                     Memory.Slice pathRemainder = path.asSlice().slice(2 - (prefix % 2)); // Path after the prefix
                     uint256 pathRemainderLength = pathRemainder.length();
 
-                    // pathRemainder must not be longer than keyRemainder, and it must be a prefix of it
+                    // pathRemainder must not be longer than keyRemainder and must match the start of keyRemainder
                     if (
                         pathRemainderLength > keyRemainder.length() ||
                         !pathRemainder.equal(keyRemainder.slice(0, pathRemainderLength))
@@ -171,14 +173,15 @@ library TrieProof {
                             return (_emptyBytesMemory(), ProofError.EMPTY_EXTENSION_PATH_REMAINDER);
                         }
                         // Increment keyIndex by the number of nibbles consumed and continue traversal
-                        Memory.Slice childSlice = decoded[1];
-                        (currentNodeId, currentNodeIdLength) = _getNodeId(childSlice);
+                        Memory.Slice childNode = decoded[1];
+                        (currentNodeId, currentNodeIdLength) = _getNodeId(childNode);
                         keyIndex += pathRemainderLength;
-                        if (currentNodeIdLength == 32) break;
-                        if (_isExtensionChild(childSlice, proof[i + 1], proofLength, i)) break;
-                        // Only process inline when child is RLP list (prefix >= 0xc0); otherwise next iteration will fail with INVALID_SHORT_NODE
-                        // if (childSlice.length() == 0 || uint8(bytes1(childSlice.load(0))) < RLP.LONG_OFFSET) break;
-                        encoded = childSlice.toBytes();
+
+                        if (currentNodeIdLength == 32 || _match(childNode, proof_, i + 1)) {
+                            break;
+                        } else {
+                            decoded = childNode.readList();
+                        }
                     } else if (prefix <= uint8(Prefix.LEAF_ODD)) {
                         // Eq to: prefix == LEAF_EVEN || prefix == LEAF_ODD
                         //
@@ -186,7 +189,7 @@ library TrieProof {
                         // we already know that pathRemainder is a prefix of keyRemainder, so checking the length sufficient
                         return
                             pathRemainderLength == keyRemainder.length()
-                                ? _validateLastItem(decoded[1], proofLength, i)
+                                ? _validateLastItem(decoded[1], proof_.length, i)
                                 : (_emptyBytesMemory(), ProofError.MISMATCH_LEAF_PATH_KEY_REMAINDER);
                     } else {
                         return (_emptyBytesMemory(), ProofError.UNKNOWN_NODE_PREFIX);
@@ -195,23 +198,12 @@ library TrieProof {
                     return (_emptyBytesMemory(), ProofError.UNPARSEABLE_NODE);
                 }
             }
-
             // Reset memory before next iteration. Deallocates `decoded` and `path`.
             Memory.unsafeSetFreeMemoryPointer(fmp);
         }
 
         // If we've gone through all proof elements without finding a value, the proof is invalid
         return (_emptyBytesMemory(), ProofError.INVALID_PROOF);
-    }
-
-    function _isExtensionChild(
-        Memory.Slice childSlice,
-        bytes memory nextEncoded,
-        uint256 proofLength,
-        uint256 i
-    ) private pure returns (bool) {
-        return
-            i + 1 < proofLength && childSlice.length() == nextEncoded.length && nextEncoded.asSlice().equal(childSlice);
     }
 
     /**
@@ -228,6 +220,10 @@ library TrieProof {
         }
         bytes memory value = item.readBytes();
         return (value, value.length == 0 ? ProofError.EMPTY_VALUE : ProofError.NO_ERROR);
+    }
+
+    function _match(Memory.Slice slice, bytes[] memory array, uint256 index) private pure returns (bool) {
+        return index < array.length && slice.equal(array[index].asSlice());
     }
 
     /**
