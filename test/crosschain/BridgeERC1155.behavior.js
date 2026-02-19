@@ -317,8 +317,8 @@ function shouldBehaveLikeBridgeERC1155({ chainAIsCustodial = false, chainBIsCust
             .connect(this.gatewayAsEOA)
             .receiveMessage(receiveId, this.chain.toErc7930(this.bridgeB), payload),
         )
-          .to.be.revertedWithCustomError(this.bridgeA, 'ERC7786RecipientMessageAlreadyProcessed')
-          .withArgs(this.gateway, receiveId);
+          .to.be.revertedWithCustomError(this.tokenA, 'ERC1155InsufficientBalance')
+          .withArgs(this.bridgeA, 0, values[0], ids[0]);
       });
     });
 
