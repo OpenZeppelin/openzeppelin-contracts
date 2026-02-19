@@ -24,6 +24,7 @@ const ProofError = Enum(
   'UNKNOWN_NODE_PREFIX', // The node prefix is unknown
   'UNPARSEABLE_NODE', // The node cannot be parsed from RLP encoding
   'INVALID_PROOF', // General failure during proof traversal
+  'KEY_NOT_IN_TRIE', // The key is not in the trie
 );
 
 const sanitizeHexString = value => (value.length % 2 ? '0x0' : '0x') + value.replace(/0x/, '');
@@ -393,13 +394,14 @@ describe('TrieProof', function () {
         ethers.encodeRlp(['0x2000', '0x']),
       ];
 
-      await expect(this.mock.$traverse(ethers.keccak256(proof[0]), key, proof))
-        .to.revertedWithCustomError(this.mock, 'TrieProofTraversalError')
-        .withArgs(ProofError.INVALID_SHORT_NODE);
-      await expect(this.mock.$tryTraverse(ethers.keccak256(proof[0]), key, proof)).to.eventually.deep.equal([
-        '0x',
-        ProofError.INVALID_SHORT_NODE,
-      ]);
+      await expect(this.mock.$traverse(ethers.keccak256(proof[0]), key, proof)).to.revertedWithCustomError(
+        this.mock,
+        'RLPInvalidEncoding',
+      );
+      await expect(this.mock.$tryTraverse(ethers.keccak256(proof[0]), key, proof)).to.revertedWithCustomError(
+        this.mock,
+        'RLPInvalidEncoding',
+      );
     });
 
     it('fails to process proof with empty value', async function () {

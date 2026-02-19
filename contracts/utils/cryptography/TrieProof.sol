@@ -53,7 +53,8 @@ library TrieProof {
         MISMATCH_LEAF_PATH_KEY_REMAINDER, // The path remainder in a leaf node doesn't match the key remainder
         UNKNOWN_NODE_PREFIX, // The node prefix is unknown
         UNPARSEABLE_NODE, // The node cannot be parsed from RLP encoding
-        INVALID_PROOF // General failure during proof traversal
+        INVALID_PROOF, // General failure during proof traversal
+        KEY_NOT_IN_TRIE // The key is not in the trie
     }
 
     error TrieProofTraversalError(ProofError err);
@@ -139,25 +140,20 @@ library TrieProof {
                     } else {
                         bytes1 branchKey = keyExpanded[keyIndex];
                         Memory.Slice childNode = decoded[uint8(branchKey)];
+                        if (childNode.length() == 0) {
+                            return (_emptyBytesMemory(), ProofError.KEY_NOT_IN_TRIE);
+                        }
                         (currentNodeId, currentNodeIdLength) = _getNodeId(childNode);
                         keyIndex += 1;
 
-                        if (currentNodeIdLength == 0 || currentNodeIdLength == 32 || _match(childNode, proof, i + 1)) {
+                        if (currentNodeIdLength == 32 || _match(childNode, proof, i + 1)) {
                             break;
                         }
                         uint8 childPrefix = uint8(bytes1(childNode.load(0)));
                         uint256 length = childPrefix.saturatingSub(RLP.SHORT_OFFSET);
-                        if (childPrefix >= RLP.LONG_OFFSET) {
-                            decoded = childNode.readList();
-                        } else if (
-                            length == 0 ||
-                            length > RLP.SHORT_THRESHOLD ||
-                            uint8(bytes1(childNode.load(1))) < RLP.LONG_OFFSET
-                        ) {
-                            break;
-                        } else {
-                            decoded = childNode.slice(1, length).readList();
-                        }
+                        decoded = childPrefix >= RLP.LONG_OFFSET
+                            ? childNode.readList()
+                            : childNode.slice(1, length).readList();
                     }
                 } else if (decoded.length == LEAF_OR_EXTENSION_NODE_LENGTH) {
                     bytes[] memory proof_ = proof;
@@ -185,27 +181,22 @@ library TrieProof {
                         if (pathRemainderLength == 0) {
                             return (_emptyBytesMemory(), ProofError.EMPTY_EXTENSION_PATH_REMAINDER);
                         }
+                        if (decoded[1].length() == 0) {
+                            return (_emptyBytesMemory(), ProofError.KEY_NOT_IN_TRIE);
+                        }
                         // Increment keyIndex by the number of nibbles consumed and continue traversal
                         Memory.Slice childNode = decoded[1];
                         (currentNodeId, currentNodeIdLength) = _getNodeId(childNode);
                         keyIndex += pathRemainderLength;
 
-                        if (currentNodeIdLength == 0 || currentNodeIdLength == 32 || _match(childNode, proof_, i + 1)) {
+                        if (currentNodeIdLength == 32 || _match(childNode, proof_, i + 1)) {
                             break;
                         }
                         uint8 childPrefix = uint8(bytes1(childNode.load(0)));
                         uint256 length = childPrefix.saturatingSub(RLP.SHORT_OFFSET);
-                        if (childPrefix >= RLP.LONG_OFFSET) {
-                            decoded = childNode.readList();
-                        } else if (
-                            length == 0 ||
-                            length > RLP.SHORT_THRESHOLD ||
-                            uint8(bytes1(childNode.load(1))) < RLP.LONG_OFFSET
-                        ) {
-                            break;
-                        } else {
-                            decoded = childNode.slice(1, length).readList();
-                        }
+                        decoded = childPrefix >= RLP.LONG_OFFSET
+                            ? childNode.readList()
+                            : childNode.slice(1, length).readList();
                     } else if (prefix <= uint8(Prefix.LEAF_ODD)) {
                         // Eq to: prefix == LEAF_EVEN || prefix == LEAF_ODD
                         //
@@ -259,8 +250,9 @@ library TrieProof {
      * node is large and its hash matches those raw bytes. If that is not the case, it returns {INVALID_LARGE_NODE}.
      *
      * If the input is empty (e.g. when traversing a branch node whose target child slot is empty, meaning the key
-     * does not exist in the trie), this returns `nodeIdLength = 0` and the next iteration fails with {INVALID_LARGE_NODE} or
-     * {INVALID_SHORT_NODE} depending on the next proof element, rather than a dedicated "key not in trie" error.
+     * does not exist in the trie), calling this function will panic with {ARRAY_OUT_OF_BOUNDS}. Callers must check
+     * `currentNodeIdLength == 0` before attempting inline processing to handle this case gracefully and fail with
+     * {INVALID_PROOF} instead.
      * ====
      */
     function _getNodeId(Memory.Slice node) private pure returns (bytes32 nodeId, uint256 nodeIdLength) {
