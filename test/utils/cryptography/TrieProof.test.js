@@ -1,14 +1,13 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { nibblesToCompactBytes } = require('@ethereumjs/mpt');
+const { bytesToNibbles, nibblesToCompactBytes } = require('@ethereumjs/mpt');
 
 const { Enum } = require('../../helpers/enums');
 const { zip } = require('../../helpers/iterate');
 const { generators } = require('../../helpers/random');
 const { BlockTries } = require('../../helpers/trie');
 const { batchInBlock } = require('../../helpers/txpool');
-const { toNibbles } = require('../../helpers/bytes');
 
 const ProofError = Enum(
   'NO_ERROR', // No error occurred during proof traversal
@@ -189,7 +188,7 @@ describe('TrieProof', function () {
       },
     ]) {
       it(`processes proof with inline ${name}`, async function () {
-        const keyNibbles = ethers.getBytes(toNibbles(key));
+        const keyNibbles = bytesToNibbles(ethers.getBytes(key)).slice(0, -1); // remove terminator nibble
 
         // Extension node with inline leaf child
         const extPath = ethers.hexlify(keyNibbles.slice(0, splitAt));
@@ -212,7 +211,7 @@ describe('TrieProof', function () {
     it('processes proof with inline branch-to-leaf', async function () {
       const key = '0xab';
       const value = '0x123456';
-      const keyNibbles = ethers.getBytes(toNibbles(key));
+      const keyNibbles = bytesToNibbles(ethers.getBytes(key)).slice(0, -1);
 
       const branchIndex = keyNibbles[0]; // First nibble selects branch
       const leafPath = ethers.hexlify(keyNibbles.slice(1));
@@ -237,7 +236,7 @@ describe('TrieProof', function () {
       const value = '0xdeadbeef';
       const splitAt = 2;
 
-      const keyNibbles = ethers.getBytes(toNibbles(key));
+      const keyNibbles = bytesToNibbles(ethers.getBytes(key)).slice(0, -1);
 
       // Extension node with inline leaf child
       const extPath = ethers.hexlify(keyNibbles.slice(0, splitAt));
