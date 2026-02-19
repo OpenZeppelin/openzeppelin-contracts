@@ -19,9 +19,10 @@ import {CrosschainLinked} from "../../CrosschainLinked.sol";
  * extension, which embeds the bridge logic directly in the token contract.
  */
 abstract contract BridgeFungible is Context, CrosschainLinked {
-    using InteroperableAddress for bytes;
-
+    /// @dev Emitted when a crosschain ERC-20 transfer is sent.
     event CrosschainFungibleTransferSent(bytes32 indexed sendId, address indexed from, bytes to, uint256 amount);
+
+    /// @dev Emitted when a crosschain ERC-20 transfer is received.
     event CrosschainFungibleTransferReceived(bytes32 indexed receiveId, bytes from, address indexed to, uint256 amount);
 
     /**
@@ -41,7 +42,7 @@ abstract contract BridgeFungible is Context, CrosschainLinked {
     function _crosschainTransfer(address from, bytes memory to, uint256 amount) internal virtual returns (bytes32) {
         _onSend(from, amount);
 
-        (bytes2 chainType, bytes memory chainReference, bytes memory addr) = to.parseV1();
+        (bytes2 chainType, bytes memory chainReference, bytes memory addr) = InteroperableAddress.parseV1(to);
         bytes memory chain = InteroperableAddress.formatV1(chainType, chainReference, hex"");
 
         bytes32 sendId = _sendMessageToCounterpart(
@@ -65,8 +66,8 @@ abstract contract BridgeFungible is Context, CrosschainLinked {
         // NOTE: Gateway is validated by {_isAuthorizedGateway} (implemented in {CrosschainLinked}). No need to check here.
 
         // split payload
-        (bytes memory from, bytes memory toBinary, uint256 amount) = abi.decode(payload, (bytes, bytes, uint256));
-        address to = address(bytes20(toBinary));
+        (bytes memory from, bytes memory toEvm, uint256 amount) = abi.decode(payload, (bytes, bytes, uint256));
+        address to = address(bytes20(toEvm));
 
         _onReceive(to, amount);
 
