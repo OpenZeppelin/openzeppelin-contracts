@@ -114,7 +114,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         Memory.unsafeSetFreeMemoryPointer(ptr);
 
         return
-            (success && LowLevelCall.returnDataSize() >= 32 && uint256(returnedDecimals) <= type(uint8).max)
+            (success && LowLevelCall.returnDataSize() == 32 && uint256(returnedDecimals) <= type(uint8).max)
                 ? (true, uint8(uint256(returnedDecimals)))
                 : (false, 0);
     }
