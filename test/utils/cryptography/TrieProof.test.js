@@ -168,7 +168,7 @@ describe('TrieProof', function () {
 
     for (const {
       name,
-      params: { key, value, splitAt },
+      params: { key, value, splitAt, nestedList },
     } of [
       {
         name: 'extension-to-leaf (even extension, even leaf)',
@@ -186,9 +186,25 @@ describe('TrieProof', function () {
         name: 'extension-to-leaf (odd extension, even leaf)',
         params: { key: '0x1234', value: '0x112233', splitAt: 1 },
       },
+      {
+        name: 'extension-to-leaf with nested list (even extension, even leaf)',
+        params: { key: '0x1234', value: '0xdeadbeef', splitAt: 2, nestedList: true },
+      },
+      {
+        name: 'extension-to-leaf with nested list (odd extension, odd leaf)',
+        params: { key: '0x1230', value: '0xc0ffee', splitAt: 1, nestedList: true },
+      },
+      {
+        name: 'extension-to-leaf with nested list (even extension, odd leaf)',
+        params: { key: '0x123456', value: '0xaabbcc', splitAt: 2, nestedList: true },
+      },
+      {
+        name: 'extension-to-leaf with nested list (odd extension, even leaf)',
+        params: { key: '0x1234', value: '0x112233', splitAt: 1, nestedList: true },
+      },
     ]) {
       it(`processes proof with inline ${name}`, async function () {
-        const keyNibbles = bytesToNibbles(ethers.getBytes(key)).slice(0, -1); // remove terminator nibble
+        const keyNibbles = bytesToNibbles(ethers.getBytes(key)).slice(0, -1);
 
         // Extension node with inline leaf child
         const extPath = ethers.hexlify(keyNibbles.slice(0, splitAt));
@@ -197,8 +213,10 @@ describe('TrieProof', function () {
         const leafPath = ethers.hexlify(keyNibbles.slice(splitAt));
         const leafHp = hexPrefixEncode(leafPath, true);
 
-        const leafRlp = ethers.encodeRlp([leafHp, value]);
-        const extRlp = ethers.encodeRlp([extHp, leafRlp]);
+        const extRlp = nestedList
+          ? ethers.encodeRlp([extHp, [leafHp, value]])
+          : ethers.encodeRlp([extHp, ethers.encodeRlp([leafHp, value])]);
+
         const root = ethers.keccak256(extRlp);
         const proof = [extRlp];
 
@@ -221,6 +239,28 @@ describe('TrieProof', function () {
 
       const branchElements = Array(17).fill('0x');
       branchElements[branchIndex] = leafRlp;
+
+      const branchRlp = ethers.encodeRlp(branchElements);
+      const root = ethers.keccak256(branchRlp);
+      const proof = [branchRlp];
+
+      await expect(this.mock.$verify(value, root, key, proof)).to.eventually.be.true;
+      await expect(this.mock.$traverse(root, key, proof)).to.eventually.equal(value);
+      await expect(this.mock.$tryTraverse(root, key, proof)).to.eventually.deep.equal([value, ProofError.NO_ERROR]);
+    });
+
+    it('processes proof with inline branch-to-leaf with nested list', async function () {
+      const key = '0xab';
+      const value = '0x123456';
+      const keyNibbles = bytesToNibbles(ethers.getBytes(key)).slice(0, -1);
+
+      const branchIndex = keyNibbles[0]; // First nibble selects branch
+      const leafPath = ethers.hexlify(keyNibbles.slice(1));
+      const leafHp = hexPrefixEncode(leafPath, true);
+
+      const branchElements = Array(17)
+        .fill(null)
+        .map((_, i) => (i === branchIndex ? [leafHp, value] : '0x'));
 
       const branchRlp = ethers.encodeRlp(branchElements);
       const root = ethers.keccak256(branchRlp);
