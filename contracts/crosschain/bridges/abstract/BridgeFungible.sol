@@ -2,10 +2,10 @@
 
 pragma solidity ^0.8.26;
 
-import {InteroperableAddress} from "../../utils/draft-InteroperableAddress.sol";
-import {Context} from "../../utils/Context.sol";
-import {ERC7786Recipient} from "../ERC7786Recipient.sol";
-import {CrosschainLinked} from "../CrosschainLinked.sol";
+import {InteroperableAddress} from "../../../utils/draft-InteroperableAddress.sol";
+import {Context} from "../../../utils/Context.sol";
+import {ERC7786Recipient} from "../../ERC7786Recipient.sol";
+import {CrosschainLinked} from "../../CrosschainLinked.sol";
 
 /**
  * @dev Base contract for bridging ERC-20 between chains using an ERC-7786 gateway.
@@ -18,11 +18,11 @@ import {CrosschainLinked} from "../CrosschainLinked.sol";
  * which interface with ERC-7802 to provide an approve-free user experience. It is also used by the {ERC20Crosschain}
  * extension, which embeds the bridge logic directly in the token contract.
  */
-abstract contract BridgeERC20Core is Context, CrosschainLinked {
+abstract contract BridgeFungible is Context, CrosschainLinked {
     using InteroperableAddress for bytes;
 
-    event CrosschainERC20TransferSent(bytes32 indexed sendId, address indexed from, bytes to, uint256 amount);
-    event CrosschainERC20TransferReceived(bytes32 indexed receiveId, bytes from, address indexed to, uint256 amount);
+    event CrosschainFungibleTransferSent(bytes32 indexed sendId, address indexed from, bytes to, uint256 amount);
+    event CrosschainFungibleTransferReceived(bytes32 indexed receiveId, bytes from, address indexed to, uint256 amount);
 
     /**
      * @dev Transfer `amount` tokens to a crosschain receiver.
@@ -50,7 +50,7 @@ abstract contract BridgeERC20Core is Context, CrosschainLinked {
             new bytes[](0)
         );
 
-        emit CrosschainERC20TransferSent(sendId, from, to, amount);
+        emit CrosschainFungibleTransferSent(sendId, from, to, amount);
 
         return sendId;
     }
@@ -62,13 +62,15 @@ abstract contract BridgeERC20Core is Context, CrosschainLinked {
         bytes calldata /*sender*/,
         bytes calldata payload
     ) internal virtual override {
+        // NOTE: Gateway is validated by {_isAuthorizedGateway} (implemented in {CrosschainLinked}). No need to check here.
+
         // split payload
         (bytes memory from, bytes memory toBinary, uint256 amount) = abi.decode(payload, (bytes, bytes, uint256));
         address to = address(bytes20(toBinary));
 
         _onReceive(to, amount);
 
-        emit CrosschainERC20TransferReceived(receiveId, from, to, amount);
+        emit CrosschainFungibleTransferReceived(receiveId, from, to, amount);
     }
 
     /// @dev Virtual function: implementation is required to handle token being burnt or locked on the source chain.

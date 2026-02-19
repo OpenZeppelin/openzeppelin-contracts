@@ -4,6 +4,7 @@
 pragma solidity ^0.8.24;
 
 import {P256} from "./P256.sol";
+import {Math} from "../math/Math.sol";
 import {Base64} from "../Base64.sol";
 import {Bytes} from "../Bytes.sol";
 import {Strings} from "../Strings.sol";
@@ -19,15 +20,18 @@ import {Strings} from "../Strings.sol";
  *
  * For blockchain use cases, the following WebAuthn validations are intentionally omitted:
  *
- * * Origin validation: Origin verification in `clientDataJSON` is omitted as blockchain
- *   contexts rely on authenticator and dapp frontend enforcement. Standard authenticators
- *   implement proper origin validation.
+ * * Origin validation: Origin verification in `clientDataJSON` is omitted. This check is the
+ *   responsibility of the authenticator and does not have a meaningful on-chain use case; standard
+ *   authenticators implement proper origin validation before signing.
  * * RP ID hash validation: Verification of `rpIdHash` in authenticatorData against expected
- *   RP ID hash is omitted. This is typically handled by platform-level security measures.
- *   Including an expiry timestamp in signed data is recommended for enhanced security.
- * * Signature counter: Verification of signature counter increments is omitted. While
- *   useful for detecting credential cloning, on-chain operations typically include nonce
- *   protection, making this check redundant.
+ *   RP ID hash is omitted. This check is the responsibility of the authenticator and does not have
+ *   a meaningful on-chain use case; it is typically enforced at the platform level.
+ * * Signature counter: Verification of signature counter increments is omitted. The
+ *   signature counter is maintained by authenticators per the WebAuthn spec to detect
+ *   credential cloning, but validating it requires storing per-credential mutable state
+ *   (the last seen counter value) which is impractical for most smart contract applications.
+ *   Additionally, counter enforcement is primarily an authenticator responsibility, not a
+ *   contract-level concern.
  * * Extension outputs: Extension output value verification is omitted as these are not
  *   essential for core authentication security in blockchain applications.
  * * Attestation: Attestation object verification is omitted as this implementation
@@ -156,7 +160,11 @@ library WebAuthn {
         // solhint-disable-next-line quotes
         string memory expectedChallenge = string.concat('"challenge":"', Base64.encodeURL(challenge), '"');
         string memory actualChallenge = string(
-            Bytes.slice(bytes(clientDataJSON), challengeIndex, challengeIndex + bytes(expectedChallenge).length)
+            Bytes.slice(
+                bytes(clientDataJSON),
+                challengeIndex,
+                Math.saturatingAdd(challengeIndex, bytes(expectedChallenge).length)
+            )
         );
 
         return Strings.equal(actualChallenge, expectedChallenge);
