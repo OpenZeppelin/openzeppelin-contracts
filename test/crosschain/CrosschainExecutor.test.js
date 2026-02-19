@@ -15,23 +15,18 @@ const {
 
 async function fixture() {
   const chain = await getLocalChain();
-  const [eoa] = await ethers.getSigners();
+  const [admin, other] = await ethers.getSigners();
 
   const gateway = await ethers.deployContract('$ERC7786GatewayMock');
   const target = await ethers.deployContract('CallReceiverMock');
 
-  // Deploy controller
-  const controller = await ethers.deployContract('$CrosschainRemoteController');
-
   // Deploy executor
-  const executor = await ethers.deployContract('$CrosschainRemoteExecutor', [gateway, chain.toErc7930(controller)]);
+  const executor = await ethers.deployContract('$CrosschainRemoteExecutor', [gateway, chain.toErc7930(admin)]);
 
-  // Register controller
-  await expect(controller.$_registerRemoteExecutor(gateway, chain.toErc7930(executor), false))
-    .to.emit(controller, 'RemoteExecutorRegistered')
-    .withArgs(gateway, chain.toErc7930(executor));
+  const remoteExecute = (from, target, mode, data) =>
+    gateway.connect(from).sendMessage(target, ethers.concat([mode, data]), []);
 
-  return { chain, eoa, gateway, target, controller, executor };
+  return { chain, gateway, target, executor, admin, other, remoteExecute };
 }
 
 describe('CrosschainRemoteController & CrosschainRemoteExecutor', function () {
@@ -40,15 +35,8 @@ describe('CrosschainRemoteController & CrosschainRemoteExecutor', function () {
   });
 
   it('setup', async function () {
-    // controller
-    await expect(this.controller.getRemoteExecutor(this.chain.erc7930)).to.eventually.deep.equal([
-      this.gateway.target,
-      this.chain.toErc7930(this.executor),
-    ]);
-
-    // executor
     await expect(this.executor.gateway()).to.eventually.equal(this.gateway);
-    await expect(this.executor.controller()).to.eventually.equal(this.chain.toErc7930(this.controller));
+    await expect(this.executor.controller()).to.eventually.equal(this.chain.toErc7930(this.admin));
   });
 
   describe('crosschain operation', function () {
@@ -56,22 +44,7 @@ describe('CrosschainRemoteController & CrosschainRemoteExecutor', function () {
       const mode = encodeMode({ callType: CALL_TYPE_SINGLE });
       const data = encodeSingle(this.target, 0n, this.target.interface.encodeFunctionData('mockFunctionExtra'));
 
-      // Using arbitrary gateway + executor
-      await expect(
-        this.controller.getFunction('$_crosschainExecute(address,bytes,bytes32,bytes)')(
-          this.gateway,
-          this.chain.toErc7930(this.executor),
-          mode,
-          data,
-        ),
-      )
-        .to.emit(this.target, 'MockFunctionCalledExtra')
-        .withArgs(this.executor, 0n);
-
-      // Using registered executor
-      await expect(
-        this.controller.getFunction('$_crosschainExecute(bytes,bytes32,bytes)')(this.chain.erc7930, mode, data),
-      )
+      await expect(this.remoteExecute(this.admin, this.chain.toErc7930(this.executor), mode, data))
         .to.emit(this.target, 'MockFunctionCalledExtra')
         .withArgs(this.executor, 0n);
     });
@@ -83,24 +56,7 @@ describe('CrosschainRemoteController & CrosschainRemoteExecutor', function () {
         [this.target, 0n, this.target.interface.encodeFunctionData('mockFunctionExtra')],
       );
 
-      // Using arbitrary gateway + executor
-      await expect(
-        this.controller.getFunction('$_crosschainExecute(address,bytes,bytes32,bytes)')(
-          this.gateway,
-          this.chain.toErc7930(this.executor),
-          mode,
-          data,
-        ),
-      )
-        .to.emit(this.target, 'MockFunctionCalledWithArgs')
-        .withArgs(42, '0x1234')
-        .to.emit(this.target, 'MockFunctionCalledExtra')
-        .withArgs(this.executor, 0n);
-
-      // Using registered executor
-      await expect(
-        this.controller.getFunction('$_crosschainExecute(bytes,bytes32,bytes)')(this.chain.erc7930, mode, data),
-      )
+      await expect(this.remoteExecute(this.admin, this.chain.toErc7930(this.executor), mode, data))
         .to.emit(this.target, 'MockFunctionCalledWithArgs')
         .withArgs(42, '0x1234')
         .to.emit(this.target, 'MockFunctionCalledExtra')
@@ -111,22 +67,7 @@ describe('CrosschainRemoteController & CrosschainRemoteExecutor', function () {
       const mode = encodeMode({ callType: CALL_TYPE_DELEGATE });
       const data = encodeDelegate(this.target, this.target.interface.encodeFunctionData('mockFunctionExtra'));
 
-      // Using arbitrary gateway + executor
-      await expect(
-        this.controller.getFunction('$_crosschainExecute(address,bytes,bytes32,bytes)')(
-          this.gateway,
-          this.chain.toErc7930(this.executor),
-          mode,
-          data,
-        ),
-      )
-        .to.emit(this.target.attach(this.executor.target), 'MockFunctionCalledExtra')
-        .withArgs(this.gateway, 0n);
-
-      // Using registered executor
-      await expect(
-        this.controller.getFunction('$_crosschainExecute(bytes,bytes32,bytes)')(this.chain.erc7930, mode, data),
-      )
+      await expect(this.remoteExecute(this.admin, this.chain.toErc7930(this.executor), mode, data))
         .to.emit(this.target.attach(this.executor.target), 'MockFunctionCalledExtra')
         .withArgs(this.gateway, 0n);
     });
@@ -135,22 +76,7 @@ describe('CrosschainRemoteController & CrosschainRemoteExecutor', function () {
       const mode = encodeMode({ callType: '0x42' });
       const data = '0x';
 
-      // Using arbitrary gateway + executor
-      await expect(
-        this.controller.getFunction('$_crosschainExecute(address,bytes,bytes32,bytes)')(
-          this.gateway,
-          this.chain.toErc7930(this.executor),
-          mode,
-          data,
-        ),
-      )
-        .to.be.revertedWithCustomError(this.executor, 'ERC7579UnsupportedCallType')
-        .withArgs('0x42');
-
-      // Using registered executor
-      await expect(
-        this.controller.getFunction('$_crosschainExecute(bytes,bytes32,bytes)')(this.chain.erc7930, mode, data),
-      )
+      await expect(this.remoteExecute(this.admin, this.chain.toErc7930(this.executor), mode, data))
         .to.be.revertedWithCustomError(this.executor, 'ERC7579UnsupportedCallType')
         .withArgs('0x42');
     });
@@ -159,7 +85,6 @@ describe('CrosschainRemoteController & CrosschainRemoteExecutor', function () {
   describe('reconfigure', function () {
     beforeEach(async function () {
       this.newGateway = await ethers.deployContract('$ERC7786GatewayMock');
-      this.newController = await ethers.deployContract('$CrosschainRemoteController');
     });
 
     it('through a crosschain call: success', async function () {
@@ -169,30 +94,30 @@ describe('CrosschainRemoteController & CrosschainRemoteExecutor', function () {
         0n,
         this.executor.interface.encodeFunctionData('reconfigure', [
           this.newGateway.target,
-          this.chain.toErc7930(this.newController),
+          this.chain.toErc7930(this.other),
         ]),
       );
 
-      await expect(this.controller.$_crosschainExecute(this.chain.erc7930, mode, data))
+      await expect(this.remoteExecute(this.admin, this.chain.toErc7930(this.executor), mode, data))
         .to.emit(this.executor, 'CrosschainControllerSet')
-        .withArgs(this.newGateway, this.chain.toErc7930(this.newController));
+        .withArgs(this.newGateway, this.chain.toErc7930(this.other));
 
       await expect(this.executor.gateway()).to.eventually.equal(this.newGateway);
-      await expect(this.executor.controller()).to.eventually.equal(this.chain.toErc7930(this.newController));
+      await expect(this.executor.controller()).to.eventually.equal(this.chain.toErc7930(this.other));
     });
 
     it('through the internal setter: success', async function () {
-      await expect(this.executor.$_setup(this.newGateway, this.chain.toErc7930(this.newController)))
+      await expect(this.executor.$_setup(this.newGateway, this.chain.toErc7930(this.other)))
         .to.emit(this.executor, 'CrosschainControllerSet')
-        .withArgs(this.newGateway, this.chain.toErc7930(this.newController));
+        .withArgs(this.newGateway, this.chain.toErc7930(this.other));
 
       await expect(this.executor.gateway()).to.eventually.equal(this.newGateway);
-      await expect(this.executor.controller()).to.eventually.equal(this.chain.toErc7930(this.newController));
+      await expect(this.executor.controller()).to.eventually.equal(this.chain.toErc7930(this.other));
     });
 
     it('with an invalid new gateway: revert', async function () {
       // directly using the internal setter
-      await expect(this.executor.$_setup(this.eoa.address, this.chain.toErc7930(this.newController))).to.be.reverted;
+      await expect(this.executor.$_setup(this.other, this.chain.toErc7930(this.other))).to.be.reverted;
 
       // through a crosschain call
       const mode = encodeMode({ callType: CALL_TYPE_SINGLE });
@@ -200,20 +125,19 @@ describe('CrosschainRemoteController & CrosschainRemoteExecutor', function () {
         this.executor,
         0n,
         this.executor.interface.encodeFunctionData('reconfigure', [
-          this.eoa.address,
-          this.chain.toErc7930(this.newController),
+          this.other.address,
+          this.chain.toErc7930(this.other),
         ]),
       );
 
-      await expect(this.controller.$_crosschainExecute(this.chain.erc7930, mode, data)).to.be.revertedWithCustomError(
-        this.executor,
-        'FailedCall',
-      );
+      await expect(
+        this.remoteExecute(this.admin, this.chain.toErc7930(this.executor), mode, data),
+      ).to.be.revertedWithCustomError(this.executor, 'FailedCall');
     });
 
     it('is access controlled', async function () {
       await expect(
-        this.executor.reconfigure(this.newGateway, this.chain.toErc7930(this.newController)),
+        this.executor.reconfigure(this.newGateway, this.chain.toErc7930(this.other)),
       ).to.be.revertedWithCustomError(this.executor, 'AccessRestricted');
     });
   });
