@@ -116,11 +116,13 @@ describe('ERC7390', function () {
       // version 2 + some data
       'unsupported version': '0x00020000010100',
       // version + ref: missing chainReferenceLength and addressLength
-      'too short (case 1)': '0x00010000',
+      'too short (case 1)': '0x00010042',
       // version + ref + chainReference: missing addressLength
-      'too short (case 2)': '0x000100000101',
+      'too short (case 2)': '0x000100420101',
       // version + ref + chainReference + addressLength + part of the address: missing 2 bytes of the address
-      'too short (case 3)': '0x00010000010114d8da6bf26964af9d7eed9e03e53415d37aa9',
+      'too short (case 3)': '0x00010042010114d8da6bf26964af9d7eed9e03e53415d37aa9',
+      // empty chain reference and address
+      'empty chain reference and address': '0x000100420000',
     })) {
       it(title, async function () {
         await expect(this.mock.$parseV1(binary))

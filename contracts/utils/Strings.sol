@@ -17,11 +17,7 @@ library Strings {
     bytes16 private constant HEX_DIGITS = "0123456789abcdef";
     uint8 private constant ADDRESS_LENGTH = 20;
     uint256 private constant SPECIAL_CHARS_LOOKUP =
-        (1 << 0x08) | // backspace
-            (1 << 0x09) | // tab
-            (1 << 0x0a) | // newline
-            (1 << 0x0c) | // form feed
-            (1 << 0x0d) | // carriage return
+        0xffffffff | // first 32 bits corresponding to the control characters (U+0000 to U+001F)
             (1 << 0x22) | // double quote
             (1 << 0x5c); // backslash
 
@@ -457,37 +453,52 @@ library Strings {
      *
      * WARNING: This function should only be used in double quoted JSON strings. Single quotes are not escaped.
      *
-     * NOTE: This function escapes all unicode characters, and not just the ones in ranges defined in section 2.5 of
-     * RFC-4627 (U+0000 to U+001F, U+0022 and U+005C). ECMAScript's `JSON.parse` does recover escaped unicode
-     * characters that are not in this range, but other tooling may provide different results.
+     * NOTE: This function escapes backslashes (including those in \uXXXX sequences) and the characters in ranges
+     * defined in section 2.5 of RFC-4627 (U+0000 to U+001F, U+0022 and U+005C). All control characters in U+0000
+     * to U+001F are escaped (\b, \t, \n, \f, \r use short form; others use \u00XX). ECMAScript's `JSON.parse` does
+     * recover escaped unicode characters that are not in this range, but other tooling may provide different results.
      */
     function escapeJSON(string memory input) internal pure returns (string memory) {
         bytes memory buffer = bytes(input);
-        bytes memory output = new bytes(2 * buffer.length); // worst case scenario
+
+        // Put output at the FMP. Memory will be reserved later when we figure out the actual length of the escaped
+        // string. All write are done using _unsafeWriteBytesOffset, which avoid the (expensive) length checks for
+        // each character written.
+        bytes memory output;
+        assembly ("memory-safe") {
+            output := mload(0x40)
+        }
         uint256 outputLength = 0;
 
         for (uint256 i = 0; i < buffer.length; ++i) {
-            bytes1 char = bytes1(_unsafeReadBytesOffset(buffer, i));
-            if (((SPECIAL_CHARS_LOOKUP & (1 << uint8(char))) != 0)) {
-                output[outputLength++] = "\\";
-                if (char == 0x08) output[outputLength++] = "b";
-                else if (char == 0x09) output[outputLength++] = "t";
-                else if (char == 0x0a) output[outputLength++] = "n";
-                else if (char == 0x0c) output[outputLength++] = "f";
-                else if (char == 0x0d) output[outputLength++] = "r";
-                else if (char == 0x5c) output[outputLength++] = "\\";
+            uint8 char = uint8(bytes1(_unsafeReadBytesOffset(buffer, i)));
+            if (((SPECIAL_CHARS_LOOKUP & (1 << char)) != 0)) {
+                _unsafeWriteBytesOffset(output, outputLength++, "\\");
+                if (char == 0x08) _unsafeWriteBytesOffset(output, outputLength++, "b");
+                else if (char == 0x09) _unsafeWriteBytesOffset(output, outputLength++, "t");
+                else if (char == 0x0a) _unsafeWriteBytesOffset(output, outputLength++, "n");
+                else if (char == 0x0c) _unsafeWriteBytesOffset(output, outputLength++, "f");
+                else if (char == 0x0d) _unsafeWriteBytesOffset(output, outputLength++, "r");
+                else if (char == 0x5c) _unsafeWriteBytesOffset(output, outputLength++, "\\");
                 else if (char == 0x22) {
                     // solhint-disable-next-line quotes
-                    output[outputLength++] = '"';
+                    _unsafeWriteBytesOffset(output, outputLength++, '"');
+                } else {
+                    // U+0000 to U+001F without short form: output \u00XX
+                    _unsafeWriteBytesOffset(output, outputLength++, "u");
+                    _unsafeWriteBytesOffset(output, outputLength++, "0");
+                    _unsafeWriteBytesOffset(output, outputLength++, "0");
+                    _unsafeWriteBytesOffset(output, outputLength++, HEX_DIGITS[char >> 4]);
+                    _unsafeWriteBytesOffset(output, outputLength++, HEX_DIGITS[char & 0x0f]);
                 }
             } else {
-                output[outputLength++] = char;
+                _unsafeWriteBytesOffset(output, outputLength++, bytes1(char));
             }
         }
-        // write the actual length and deallocate unused memory
+        // write the actual length and reserve memory
         assembly ("memory-safe") {
             mstore(output, outputLength)
-            mstore(0x40, add(output, shl(5, shr(5, add(outputLength, 63)))))
+            mstore(0x40, add(output, add(outputLength, 0x20)))
         }
 
         return string(output);
@@ -503,6 +514,19 @@ library Strings {
         // This is not memory safe in the general case, but all calls to this private function are within bounds.
         assembly ("memory-safe") {
             value := mload(add(add(buffer, 0x20), offset))
+        }
+    }
+
+    /**
+     * @dev Write a bytes1 to a bytes array without bounds checking.
+     *
+     * NOTE: making this function internal would mean it could be used with memory unsafe offset, and marking the
+     * assembly block as such would prevent some optimizations.
+     */
+    function _unsafeWriteBytesOffset(bytes memory buffer, uint256 offset, bytes1 value) private pure {
+        // This is not memory safe in the general case, but all calls to this private function are within bounds.
+        assembly ("memory-safe") {
+            mstore8(add(add(buffer, 0x20), offset), shr(248, value))
         }
     }
 }

@@ -15,25 +15,52 @@ contract MemoryTest is Test {
     // - moving the free memory pointer to far causes OOG errors
     uint256 constant END_PTR = type(uint24).max;
 
-    function testGetsetFreeMemoryPointer(uint256 seed) public pure {
+    function testGetSetFreeMemoryPointer(uint256 seed) public pure {
         bytes32 ptr = bytes32(bound(seed, START_PTR, END_PTR));
-        ptr.asPointer().setFreeMemoryPointer();
-        assertEq(Memory.getFreeMemoryPointer().asBytes32(), ptr);
+        Memory.Pointer.wrap(ptr).unsafeSetFreeMemoryPointer();
+        assertEq(Memory.Pointer.unwrap(Memory.getFreeMemoryPointer()), ptr);
     }
 
     function testAsSliceToBytes(bytes memory input) public pure {
-        assertEq(input.asSlice().toBytes(), input);
+        Memory.Slice slice = input.asSlice();
+        assertEq(slice.toBytes(), input);
+        assertTrue(slice.isReserved());
     }
 
     function testSlice(bytes memory input, uint256 offset) public pure {
         offset = bound(offset, 0, input.length);
-        assertEq(input.asSlice().slice(offset).toBytes(), input.slice(offset));
+
+        Memory.Slice slice = input.asSlice().slice(offset);
+        assertEq(slice.toBytes(), input.slice(offset));
+        assertTrue(slice.isReserved());
     }
 
     function testSlice(bytes memory input, uint256 offset, uint256 length) public pure {
         offset = bound(offset, 0, input.length);
         length = bound(length, 0, input.length - offset);
-        assertEq(input.asSlice().slice(offset, length).toBytes(), input.slice(offset, offset + length));
+
+        Memory.Slice slice = input.asSlice().slice(offset, length);
+        assertEq(slice.toBytes(), input.slice(offset, offset + length));
+        assertTrue(slice.isReserved());
+    }
+
+    function testInvalidSliceOutOfBound() public pure {
+        bytes memory input = new bytes(256);
+
+        Memory.Slice slice = input.asSlice();
+        assertTrue(slice.isReserved());
+
+        Memory.Slice sliceMoved;
+        assembly ("memory-safe") {
+            sliceMoved := add(slice, 0x01) // add 1 to the ptr part
+        }
+        assertFalse(sliceMoved.isReserved());
+
+        Memory.Slice sliceExtended;
+        assembly ("memory-safe") {
+            sliceExtended := add(slice, shl(128, 0x01)) // add 1 to the length part
+        }
+        assertFalse(sliceExtended.isReserved());
     }
 
     function testSymbolicEqual(bytes memory a, bytes memory b) public pure {
