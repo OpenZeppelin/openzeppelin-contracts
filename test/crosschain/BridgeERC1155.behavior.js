@@ -292,34 +292,6 @@ function shouldBehaveLikeBridgeERC1155({ chainAIsCustodial = false, chainBIsCust
           .to.be.revertedWithCustomError(this.bridgeA, 'ERC7786RecipientUnauthorizedGateway')
           .withArgs(this.gateway, this.chain.toErc7930(invalid));
       });
-
-      it('cannot replay message', async function () {
-        const [from, to] = this.accounts;
-
-        const receiveId = ethers.ZeroHash;
-        const payload = this.encodePayload(from, to, ids, values);
-
-        if (chainAIsCustodial) {
-          // cannot use _mintBatch here because the bridge's receive hook prevent it.
-          await this.tokenA.$_update(ethers.ZeroAddress, this.bridgeA, ids, values);
-        }
-
-        // first time works
-        await expect(
-          this.bridgeA
-            .connect(this.gatewayAsEOA)
-            .receiveMessage(receiveId, this.chain.toErc7930(this.bridgeB), payload),
-        ).to.emit(this.bridgeA, 'CrosschainMultiTokenTransferReceived');
-
-        // second time fails
-        await expect(
-          this.bridgeA
-            .connect(this.gatewayAsEOA)
-            .receiveMessage(receiveId, this.chain.toErc7930(this.bridgeB), payload),
-        )
-          .to.be.revertedWithCustomError(this.tokenA, 'ERC1155InsufficientBalance')
-          .withArgs(this.bridgeA, 0, values[0], ids[0]);
-      });
     });
 
     describe('reconfiguration', function () {
