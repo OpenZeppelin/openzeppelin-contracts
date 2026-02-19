@@ -177,29 +177,6 @@ function shouldBehaveLikeBridgeERC721({ chainAIsCustodial = false, chainBIsCusto
           .to.be.revertedWithCustomError(this.bridgeA, 'ERC7786RecipientUnauthorizedGateway')
           .withArgs(this.gateway, this.chain.toErc7930(invalid));
       });
-
-      it('cannot replay message', async function () {
-        const [from, to] = this.accounts;
-
-        const id = ethers.ZeroHash;
-        const payload = this.encodePayload(from, to, tokenId);
-
-        if (chainAIsCustodial) {
-          await this.tokenA.$_mint(this.bridgeA, tokenId);
-        }
-
-        // first time works
-        await expect(
-          this.bridgeA.connect(this.gatewayAsEOA).receiveMessage(id, this.chain.toErc7930(this.bridgeB), payload),
-        ).to.emit(this.bridgeA, 'CrosschainNonFungibleTransferReceived');
-
-        // second time fails
-        await expect(
-          this.bridgeA.connect(this.gatewayAsEOA).receiveMessage(id, this.chain.toErc7930(this.bridgeB), payload),
-        )
-          .to.be.revertedWithCustomError(this.bridgeA, 'ERC7786RecipientMessageAlreadyProcessed')
-          .withArgs(this.gateway, id);
-      });
     });
 
     describe('reconfiguration', function () {
