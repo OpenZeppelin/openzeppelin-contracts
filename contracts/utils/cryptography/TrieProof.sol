@@ -144,9 +144,10 @@ library TrieProof {
                             break;
                         }
                         (uint256 offset, uint256 length, ) = childNode.decodeLength();
-                        Memory.Slice contentSlice = childNode.slice(offset, length);
-                        if (contentSlice.length() == 0 || uint8(bytes1(contentSlice.load(0))) < RLP.LONG_OFFSET) break;
-                        decoded = contentSlice.readList();
+                        if (length == 0 || uint8(bytes1(childNode.load(offset))) < RLP.LONG_OFFSET) {
+                            break;
+                        }
+                        decoded = childNode.slice(offset, length).readList();
                     }
                 } else if (decoded.length == LEAF_OR_EXTENSION_NODE_LENGTH) {
                     bytes[] memory proof_ = proof;
@@ -183,9 +184,10 @@ library TrieProof {
                             break;
                         }
                         (uint256 offset, uint256 length, ) = childNode.decodeLength();
-                        Memory.Slice contentSlice = childNode.slice(offset, length);
-                        if (contentSlice.length() == 0 || uint8(bytes1(contentSlice.load(0))) < RLP.LONG_OFFSET) break;
-                        decoded = contentSlice.readList();
+                        if (length == 0 || uint8(bytes1(childNode.load(offset))) < RLP.LONG_OFFSET) {
+                            break;
+                        }
+                        decoded = childNode.slice(offset, length).readList();
                     } else if (prefix <= uint8(Prefix.LEAF_ODD)) {
                         // Eq to: prefix == LEAF_EVEN || prefix == LEAF_ODD
                         //
