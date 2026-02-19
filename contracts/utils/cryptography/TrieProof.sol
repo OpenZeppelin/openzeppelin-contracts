@@ -143,7 +143,7 @@ library TrieProof {
                         if (currentNodeIdLength == 0 || currentNodeIdLength == 32 || _match(childNode, proof, i + 1)) {
                             break;
                         }
-                        (uint256 offset, uint256 length, ) = childNode.decodeLength();
+                        (uint256 offset, uint256 length) = _unwrapRLPString(childNode);
                         if (length == 0 || uint8(bytes1(childNode.load(offset))) < RLP.LONG_OFFSET) {
                             break;
                         }
@@ -183,7 +183,7 @@ library TrieProof {
                         if (currentNodeIdLength == 0 || currentNodeIdLength == 32 || _match(childNode, proof_, i + 1)) {
                             break;
                         }
-                        (uint256 offset, uint256 length, ) = childNode.decodeLength();
+                        (uint256 offset, uint256 length) = _unwrapRLPString(childNode);
                         if (length == 0 || uint8(bytes1(childNode.load(offset))) < RLP.LONG_OFFSET) {
                             break;
                         }
@@ -258,5 +258,15 @@ library TrieProof {
 
     function _match(Memory.Slice slice, bytes[] memory array, uint256 index) private pure returns (bool) {
         return index < array.length && slice.equal(array[index].asSlice());
+    }
+
+    function _unwrapRLPString(Memory.Slice item) private pure returns (uint256 offset, uint256 length) {
+        uint8 prefix = uint8(bytes1(item.load(0)));
+        return
+            prefix < RLP.SHORT_OFFSET
+                ? (0, 1)
+                : prefix <= RLP.SHORT_OFFSET + RLP.SHORT_THRESHOLD
+                    ? (1, prefix - RLP.SHORT_OFFSET)
+                    : (0, 0); // Invalid for inline nodes
     }
 }
