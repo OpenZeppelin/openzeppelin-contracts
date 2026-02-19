@@ -3,6 +3,6 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "minimatch": "^3.1.2"
+    "minimatch": "^10.2.2"
   }
 }
