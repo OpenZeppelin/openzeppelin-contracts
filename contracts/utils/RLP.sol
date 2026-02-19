@@ -432,7 +432,7 @@ library RLP {
      * @dev Decodes an RLP `item`'s length and type from its prefix.
      * Returns the offset, length, and type of the RLP item based on the encoding rules.
      */
-    function _decodeLength(Memory.Slice item) private pure returns (uint256 offset, uint256 length, ItemType) {
+    function _decodeLength(Memory.Slice item) private pure returns (uint256, uint256, ItemType) {
         uint256 itemLength = item.length();
 
         require(itemLength != 0, RLPInvalidEncoding());
