@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
+import {Math} from "../math/Math.sol";
 import {Bytes} from "../Bytes.sol";
 import {Memory} from "../Memory.sol";
 import {RLP} from "../RLP.sol";
@@ -28,6 +29,7 @@ import {RLP} from "../RLP.sol";
 library TrieProof {
     using Bytes for *;
     using RLP for *;
+    using Math for *;
     using Memory for *;
 
     enum Prefix {
@@ -144,18 +146,17 @@ library TrieProof {
                             break;
                         }
                         uint8 childPrefix = uint8(bytes1(childNode.load(0)));
+                        uint256 length = childPrefix.saturatingSub(RLP.SHORT_OFFSET);
                         if (childPrefix >= RLP.LONG_OFFSET) {
                             decoded = childNode.readList();
                         } else if (
-                            childPrefix >= RLP.SHORT_OFFSET && childPrefix <= RLP.SHORT_OFFSET + RLP.SHORT_THRESHOLD
+                            length == 0 ||
+                            length > RLP.SHORT_THRESHOLD ||
+                            uint8(bytes1(childNode.load(1))) < RLP.LONG_OFFSET
                         ) {
-                            uint256 length = childPrefix - RLP.SHORT_OFFSET;
-                            if (length == 0 || uint8(bytes1(childNode.load(1))) < RLP.LONG_OFFSET) {
-                                break;
-                            }
-                            decoded = childNode.slice(1, length).readList();
-                        } else {
                             break;
+                        } else {
+                            decoded = childNode.slice(1, length).readList();
                         }
                     }
                 } else if (decoded.length == LEAF_OR_EXTENSION_NODE_LENGTH) {
@@ -193,18 +194,17 @@ library TrieProof {
                             break;
                         }
                         uint8 childPrefix = uint8(bytes1(childNode.load(0)));
+                        uint256 length = childPrefix.saturatingSub(RLP.SHORT_OFFSET);
                         if (childPrefix >= RLP.LONG_OFFSET) {
                             decoded = childNode.readList();
                         } else if (
-                            childPrefix >= RLP.SHORT_OFFSET && childPrefix <= RLP.SHORT_OFFSET + RLP.SHORT_THRESHOLD
+                            length == 0 ||
+                            length > RLP.SHORT_THRESHOLD ||
+                            uint8(bytes1(childNode.load(1))) < RLP.LONG_OFFSET
                         ) {
-                            uint256 length = childPrefix - RLP.SHORT_OFFSET;
-                            if (length == 0 || uint8(bytes1(childNode.load(1))) < RLP.LONG_OFFSET) {
-                                break;
-                            }
-                            decoded = childNode.slice(1, length).readList();
-                        } else {
                             break;
+                        } else {
+                            decoded = childNode.slice(1, length).readList();
                         }
                     } else if (prefix <= uint8(Prefix.LEAF_ODD)) {
                         // Eq to: prefix == LEAF_EVEN || prefix == LEAF_ODD
