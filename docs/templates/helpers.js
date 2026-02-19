@@ -37,8 +37,7 @@ function getAllLinks(items) {
 module.exports['with-prelude'] = opts => {
   const links = getAllLinks(opts.data.site.items);
   const contents = opts.fn();
-  const neededLinks = contents
-    .match(/\{[-._a-z0-9]+\}/gi)
+  const neededLinks = (contents.match(/\{[-._a-z0-9]+\}/gi) || [])
     .map(m => m.replace(/^\{(.+)\}$/, '$1'))
     .filter(k => k in links);
   const prelude = neededLinks.map(k => `:${k}: ${links[k]}`).join('\n');
