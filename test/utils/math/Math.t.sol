@@ -248,7 +248,11 @@ contract MathTest is Test {
         assertEq(xyLo, qdRemLo);
     }
 
-    /// forge-config: default.allow_internal_expect_revert = true
+    // expose the Math.mulDiv externally to support expectRevert
+    function mulDiv(uint256 x, uint256 y, uint256 d) external view returns (uint256) {
+        return Math.mulDiv(x, y, d);
+    }
+
     function testMulDivDomain(uint256 x, uint256 y, uint256 d) public {
         (uint256 xyHi, ) = Math.mul512(x, y);
 
@@ -257,18 +261,25 @@ contract MathTest is Test {
 
         // we are outside the scope of {testMulDiv}, we expect muldiv to revert
         vm.expectRevert(d == 0 ? stdError.divisionError : stdError.arithmeticError);
-        Math.mulDiv(x, y, d);
+        this.mulDiv(x, y, d);
     }
 
     // MOD EXP
-    /// forge-config: default.allow_internal_expect_revert = true
+
+    // expose the Math.modExp externally to support expectRevert
+    function modExp(uint256 b, uint256 e, uint256 m) external view returns (uint256) {
+        return Math.modExp(b, e, m);
+    }
+
     function testModExp(uint256 b, uint256 e, uint256 m) public {
         if (m == 0) {
             vm.expectRevert(stdError.divisionError);
+            uint256 result = this.modExp(b, e, m);
+        } else {
+            uint256 result = this.modExp(b, e, m);
+            assertLt(result, m);
+            assertEq(result, _nativeModExp(b, e, m));
         }
-        uint256 result = Math.modExp(b, e, m);
-        assertLt(result, m);
-        assertEq(result, _nativeModExp(b, e, m));
     }
 
     function testTryModExp(uint256 b, uint256 e, uint256 m) public view {
@@ -282,16 +293,22 @@ contract MathTest is Test {
         }
     }
 
-    /// forge-config: default.allow_internal_expect_revert = true
+    // expose the Math.modExp externally to support expectRevert
+    function modExp(bytes memory b, bytes memory e, bytes memory m) external view returns (bytes memory) {
+        return Math.modExp(b, e, m);
+    }
+
     function testModExpMemory(uint256 b, uint256 e, uint256 m) public {
         if (m == 0) {
             vm.expectRevert(stdError.divisionError);
+            bytes memory result = this.modExp(abi.encodePacked(b), abi.encodePacked(e), abi.encodePacked(m));
+        } else {
+            bytes memory result = this.modExp(abi.encodePacked(b), abi.encodePacked(e), abi.encodePacked(m));
+            assertEq(result.length, 0x20);
+            uint256 res = abi.decode(result, (uint256));
+            assertLt(res, m);
+            assertEq(res, _nativeModExp(b, e, m));
         }
-        bytes memory result = Math.modExp(abi.encodePacked(b), abi.encodePacked(e), abi.encodePacked(m));
-        assertEq(result.length, 0x20);
-        uint256 res = abi.decode(result, (uint256));
-        assertLt(res, m);
-        assertEq(res, _nativeModExp(b, e, m));
     }
 
     function testTryModExpMemory(uint256 b, uint256 e, uint256 m) public view {
