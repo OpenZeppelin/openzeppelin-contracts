@@ -1,6 +1,7 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+const { bytesToNibbles, nibblesToCompactBytes } = require('@ethereumjs/mpt');
 
 const { Enum } = require('../../helpers/enums');
 const { zip } = require('../../helpers/iterate');
@@ -156,6 +157,150 @@ describe('TrieProof', function () {
     });
   });
 
+  describe('inline extension child nodes', function () {
+    const hexPrefixEncode = (keyNibbles, isLeaf) =>
+      ethers.hexlify(
+        nibblesToCompactBytes(
+          // Append terminator nibble (16) for leaf nodes
+          isLeaf ? new Uint8Array([...ethers.getBytes(keyNibbles), 16]) : ethers.getBytes(keyNibbles),
+        ),
+      );
+
+    for (const {
+      name,
+      params: { key, value, splitAt, nestedList },
+    } of [
+      {
+        name: 'extension-to-leaf (even extension, even leaf)',
+        params: { key: '0x1234', value: '0xdeadbeef', splitAt: 2 },
+      },
+      {
+        name: 'extension-to-leaf (odd extension, odd leaf)',
+        params: { key: '0x1230', value: '0xc0ffee', splitAt: 1 },
+      },
+      {
+        name: 'extension-to-leaf (even extension, odd leaf)',
+        params: { key: '0x123456', value: '0xaabbcc', splitAt: 2 },
+      },
+      {
+        name: 'extension-to-leaf (odd extension, even leaf)',
+        params: { key: '0x1234', value: '0x112233', splitAt: 1 },
+      },
+      {
+        name: 'extension-to-leaf with nested list (even extension, even leaf)',
+        params: { key: '0x1234', value: '0xdeadbeef', splitAt: 2, nestedList: true },
+      },
+      {
+        name: 'extension-to-leaf with nested list (odd extension, odd leaf)',
+        params: { key: '0x1230', value: '0xc0ffee', splitAt: 1, nestedList: true },
+      },
+      {
+        name: 'extension-to-leaf with nested list (even extension, odd leaf)',
+        params: { key: '0x123456', value: '0xaabbcc', splitAt: 2, nestedList: true },
+      },
+      {
+        name: 'extension-to-leaf with nested list (odd extension, even leaf)',
+        params: { key: '0x1234', value: '0x112233', splitAt: 1, nestedList: true },
+      },
+    ]) {
+      it(`processes proof with inline ${name}`, async function () {
+        const keyNibbles = bytesToNibbles(ethers.getBytes(key)).slice(0, -1);
+
+        // Extension node with inline leaf child
+        const extPath = ethers.hexlify(keyNibbles.slice(0, splitAt));
+        const extHp = hexPrefixEncode(extPath, false);
+
+        const leafPath = ethers.hexlify(keyNibbles.slice(splitAt));
+        const leafHp = hexPrefixEncode(leafPath, true);
+
+        const extRlp = nestedList
+          ? ethers.encodeRlp([extHp, [leafHp, value]])
+          : ethers.encodeRlp([extHp, ethers.encodeRlp([leafHp, value])]);
+
+        const root = ethers.keccak256(extRlp);
+        const proof = [extRlp];
+
+        await expect(this.mock.$verify(value, root, key, proof)).to.eventually.be.true;
+        await expect(this.mock.$traverse(root, key, proof)).to.eventually.equal(value);
+        await expect(this.mock.$tryTraverse(root, key, proof)).to.eventually.deep.equal([value, ProofError.NO_ERROR]);
+      });
+    }
+
+    it('processes proof with inline branch-to-leaf', async function () {
+      const key = '0xab';
+      const value = '0x123456';
+      const keyNibbles = bytesToNibbles(ethers.getBytes(key)).slice(0, -1);
+
+      const branchIndex = keyNibbles[0]; // First nibble selects branch
+      const leafPath = ethers.hexlify(keyNibbles.slice(1));
+      const leafHp = hexPrefixEncode(leafPath, true);
+
+      const leafRlp = ethers.encodeRlp([leafHp, value]);
+
+      const branchElements = Array(17).fill('0x');
+      branchElements[branchIndex] = leafRlp;
+
+      const branchRlp = ethers.encodeRlp(branchElements);
+      const root = ethers.keccak256(branchRlp);
+      const proof = [branchRlp];
+
+      await expect(this.mock.$verify(value, root, key, proof)).to.eventually.be.true;
+      await expect(this.mock.$traverse(root, key, proof)).to.eventually.equal(value);
+      await expect(this.mock.$tryTraverse(root, key, proof)).to.eventually.deep.equal([value, ProofError.NO_ERROR]);
+    });
+
+    it('processes proof with inline branch-to-leaf with nested list', async function () {
+      const key = '0xab';
+      const value = '0x123456';
+      const keyNibbles = bytesToNibbles(ethers.getBytes(key)).slice(0, -1);
+
+      const branchIndex = keyNibbles[0]; // First nibble selects branch
+      const leafPath = ethers.hexlify(keyNibbles.slice(1));
+      const leafHp = hexPrefixEncode(leafPath, true);
+
+      const branchElements = Array(17)
+        .fill(null)
+        .map((_, i) => (i === branchIndex ? [leafHp, value] : '0x'));
+
+      const branchRlp = ethers.encodeRlp(branchElements);
+      const root = ethers.keccak256(branchRlp);
+      const proof = [branchRlp];
+
+      await expect(this.mock.$verify(value, root, key, proof)).to.eventually.be.true;
+      await expect(this.mock.$traverse(root, key, proof)).to.eventually.equal(value);
+      await expect(this.mock.$tryTraverse(root, key, proof)).to.eventually.deep.equal([value, ProofError.NO_ERROR]);
+    });
+
+    it('verifies inline processing by confirming single-element proof succeeds', async function () {
+      const key = '0x1234';
+      const value = '0xdeadbeef';
+      const splitAt = 2;
+
+      const keyNibbles = bytesToNibbles(ethers.getBytes(key)).slice(0, -1);
+
+      // Extension node with inline leaf child
+      const extPath = ethers.hexlify(keyNibbles.slice(0, splitAt));
+      const extHp = hexPrefixEncode(extPath, false);
+
+      const leafPath = ethers.hexlify(keyNibbles.slice(splitAt));
+      const leafHp = hexPrefixEncode(leafPath, true);
+
+      const leafRlp = ethers.encodeRlp([leafHp, value]);
+      const extRlp = ethers.encodeRlp([extHp, leafRlp]);
+      const root = ethers.keccak256(extRlp);
+      const proof = [extRlp];
+
+      // This proof works with just 1 element because inline processing handles the embedded child
+      await expect(this.mock.$traverse(root, key, proof)).to.eventually.equal(value);
+
+      // If we add an extra element after finding the value, it should fail
+      const badProof = [...proof, ethers.encodeRlp(['0x', '0x'])];
+      await expect(this.mock.$traverse(root, key, badProof))
+        .to.be.revertedWithCustomError(this.mock, 'TrieProofTraversalError')
+        .withArgs(ProofError.INVALID_EXTRA_PROOF_ELEMENT);
+    });
+  });
+
   describe('process invalid proofs', function () {
     it('fails to process proof with empty key', async function () {
       await expect(this.mock.$traverse(ethers.ZeroHash, '0x', []))
@@ -248,13 +393,14 @@ describe('TrieProof', function () {
         ethers.encodeRlp(['0x2000', '0x']),
       ];
 
-      await expect(this.mock.$traverse(ethers.keccak256(proof[0]), key, proof))
-        .to.revertedWithCustomError(this.mock, 'TrieProofTraversalError')
-        .withArgs(ProofError.INVALID_SHORT_NODE);
-      await expect(this.mock.$tryTraverse(ethers.keccak256(proof[0]), key, proof)).to.eventually.deep.equal([
-        '0x',
-        ProofError.INVALID_SHORT_NODE,
-      ]);
+      await expect(this.mock.$traverse(ethers.keccak256(proof[0]), key, proof)).to.revertedWithCustomError(
+        this.mock,
+        'RLPInvalidEncoding',
+      );
+      await expect(this.mock.$tryTraverse(ethers.keccak256(proof[0]), key, proof)).to.revertedWithCustomError(
+        this.mock,
+        'RLPInvalidEncoding',
+      );
     });
 
     it('fails to process proof with empty value', async function () {
