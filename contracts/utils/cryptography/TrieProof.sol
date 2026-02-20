@@ -129,8 +129,7 @@ library TrieProof {
             }
 
             // decode the current node as an RLP list, and process it
-            Memory.Slice[] memory decoded = encoded.decodeList();
-            for (;;) {
+            for (Memory.Slice[] memory decoded = encoded.decodeList(); ; ) {
                 if (decoded.length == BRANCH_NODE_LENGTH) {
                     // If we've consumed the entire key, the value must be in the last slot
                     // Otherwise, continue down the branch specified by the next nibble in the key
