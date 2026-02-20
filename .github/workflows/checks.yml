@@ -37,6 +37,8 @@ jobs:
       - uses: actions/checkout@v6
       - name: Set up environment
         uses: ./.github/actions/setup
+        with:
+          foundry: 'on' # needed by npm run test:pragma
       - name: Run tests and generate gas report
         run: npm run test
       - name: Check linearisation of the inheritance graph
@@ -60,6 +62,8 @@ jobs:
           fetch-depth: 0 # Include history so patch conflicts are resolved automatically
       - name: Set up environment
         uses: ./.github/actions/setup
+        with:
+          foundry: 'on' # needed by npm run test:pragma
       - name: Copy non-upgradeable contracts as dependency
         run: |
           mkdir -p lib/openzeppelin-contracts
@@ -77,17 +81,6 @@ jobs:
         continue-on-error: ${{ contains(github.event.pull_request.labels.*.name, 'breaking change') }}
         with:
           token: ${{ github.token }}
-
-  tests-foundry:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          submodules: recursive
-      - name: Set up environment
-        uses: ./.github/actions/setup
-      - name: Run tests
-        run: forge test -vvv
 
   coverage:
     runs-on: ubuntu-latest
