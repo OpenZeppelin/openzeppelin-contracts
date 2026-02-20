@@ -18,7 +18,7 @@
     "lint:fix": "npm run lint:js:fix && npm run lint:sol:fix",
     "lint:js": "prettier --log-level warn --ignore-path .gitignore '**/*.{js,ts}' --check && eslint .",
     "lint:js:fix": "prettier --log-level warn --ignore-path .gitignore '**/*.{js,ts}' --write && eslint . --fix",
-    "lint:sol": "prettier --log-level warn --ignore-path .gitignore '{contracts,test}/**/*.sol' --check && solhint --config solhint.config.js --noPoster '{contracts,test}/**/*.sol'",
+    "lint:sol": "prettier --log-level warn --ignore-path .gitignore '{contracts,test}/**/*.sol' --check && solhint --config solhint.config.cjs --noPoster '{contracts,test}/**/*.sol'",
     "lint:sol:fix": "prettier --log-level warn --ignore-path .gitignore '{contracts,test}/**/*.sol' --write",
     "clean": "hardhat clean && rimraf build contracts/build",
     "prepack": "scripts/prepack.sh",
@@ -89,7 +89,7 @@
     "prettier-plugin-solidity": "^2.0.0",
     "rimraf": "^6.0.0",
     "semver": "^7.3.5",
-    "solhint": "^6.0.1",
+    "solhint": "^6.0.3",
     "solhint-plugin-openzeppelin": "file:scripts/solhint-custom",
     "solidity-ast": "^0.4.61",
     "undici": "^7.4.0",
@@ -102,7 +102,7 @@
     ],
     "{contracts,test}/**/*.sol": [
       "prettier --log-level warn --ignore-path .gitignore --check",
-      "solhint --config solhint.config.js --noPoster"
+      "solhint --config solhint.config.cjs --noPoster"
     ]
   },
   "type": "module"
