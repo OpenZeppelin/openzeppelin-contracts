@@ -76,7 +76,7 @@
     "glob": "^13.0.0",
     "globals": "^17.0.0",
     "graphlib": "^2.1.8",
-    "hardhat": "^3.1.7",
+    "hardhat": "^3.1.8",
     "hardhat-ignore-warnings": "^0.3.0",
     "hardhat-predeploy": "^1.0.1",
     "husky": "^9.1.7",
