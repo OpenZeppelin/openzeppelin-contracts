@@ -7,7 +7,7 @@ This directory includes primitives for on-chain governance.
 
 == Governor
 
-This modular system of Governor contracts allows the deployment on-chain voting protocols similar to https://compound.finance/docs/governance[Compound's Governor Alpha & Bravo] and beyond, through the ability to easily customize multiple aspects of the protocol.
+This modular system of Governor contracts allows the deployment of on-chain voting protocols similar to https://compound.finance/docs/governance[Compound's Governor Alpha & Bravo] and beyond, through the ability to easily customize multiple aspects of the protocol.
 
 [TIP]
 ====
@@ -55,6 +55,8 @@ Other extensions can customize the behavior or interface in multiple ways.
 * {GovernorSuperQuorum}: Extension of {Governor} with a super quorum. Proposals that meet the super quorum (and have a majority of for votes) advance to the `Succeeded` state before the proposal deadline.
 
 * {GovernorNoncesKeyed}: An extension of {Governor} with support for keyed nonces in addition to traditional nonces when voting by signature.
+
+* {GovernorSequentialProposalId}: An extension of {Governor} that changes the numbering of proposal ids from the default hash-based approach to sequential ids.
 
 In addition to modules and extensions, the core contract requires a few virtual functions to be implemented to your particular specifications:
 
@@ -104,7 +106,11 @@ NOTE: Functions of the `Governor` contract do not include access control. If you
 
 {{GovernorNoncesKeyed}}
 
+{{GovernorSequentialProposalId}}
+
 == Utils
+
+{{IVotes}}
 
 {{Votes}}
 
