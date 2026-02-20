@@ -53,8 +53,7 @@ library TrieProof {
         MISMATCH_LEAF_PATH_KEY_REMAINDER, // The path remainder in a leaf node doesn't match the key remainder
         UNKNOWN_NODE_PREFIX, // The node prefix is unknown
         UNPARSEABLE_NODE, // The node cannot be parsed from RLP encoding
-        INVALID_PROOF, // General failure during proof traversal
-        KEY_NOT_IN_TRIE // The key is not in the trie
+        INVALID_PROOF // General failure during proof traversal
     }
 
     error TrieProofTraversalError(ProofError err);
@@ -140,9 +139,6 @@ library TrieProof {
                     } else {
                         bytes1 branchKey = keyExpanded[keyIndex];
                         Memory.Slice childNode = decoded[uint8(branchKey)];
-                        if (childNode.length() == 0) {
-                            return (_emptyBytesMemory(), ProofError.KEY_NOT_IN_TRIE);
-                        }
                         (currentNodeId, currentNodeIdLength) = _getNodeId(childNode);
                         keyIndex += 1;
 
@@ -177,9 +173,6 @@ library TrieProof {
                         // Eq to: prefix == EXTENSION_EVEN || prefix == EXTENSION_ODD
                         if (pathRemainderLength == 0) {
                             return (_emptyBytesMemory(), ProofError.EMPTY_EXTENSION_PATH_REMAINDER);
-                        }
-                        if (decoded[1].length() == 0) {
-                            return (_emptyBytesMemory(), ProofError.KEY_NOT_IN_TRIE);
                         }
                         // Increment keyIndex by the number of nibbles consumed and continue traversal
                         Memory.Slice childNode = decoded[1];
@@ -244,9 +237,9 @@ library TrieProof {
      * node is large and its hash matches those raw bytes. If that is not the case, it returns {INVALID_LARGE_NODE}.
      *
      * If the input is empty (e.g. when traversing a branch node whose target child slot is empty, meaning the key
-     * does not exist in the trie), calling this function will panic with {ARRAY_OUT_OF_BOUNDS}. Callers must check
-     * `currentNodeIdLength == 0` before attempting inline processing to handle this case gracefully and fail with
-     * {INVALID_PROOF} instead.
+     * does not exist in the trie), calling this function will panic with {ARRAY_OUT_OF_BOUNDS}. In practice, this
+     * never occurs because {readList} always returns slices with at least 1 byte (every RLP element includes its
+     * prefix byte, e.g., empty string is `0x80`).
      * ====
      */
     function _getNodeId(Memory.Slice node) private pure returns (bytes32 nodeId, uint256 nodeIdLength) {

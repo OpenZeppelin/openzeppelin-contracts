@@ -24,7 +24,6 @@ const ProofError = Enum(
   'UNKNOWN_NODE_PREFIX', // The node prefix is unknown
   'UNPARSEABLE_NODE', // The node cannot be parsed from RLP encoding
   'INVALID_PROOF', // General failure during proof traversal
-  'KEY_NOT_IN_TRIE', // The key is not in the trie
 );
 
 const sanitizeHexString = value => (value.length % 2 ? '0x0' : '0x') + value.replace(/0x/, '');
