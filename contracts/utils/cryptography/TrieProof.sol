@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
-import {Math} from "../math/Math.sol";
+import {SafeCast} from "../math/SafeCast.sol";
 import {Bytes} from "../Bytes.sol";
 import {Memory} from "../Memory.sol";
 import {RLP} from "../RLP.sol";
@@ -29,7 +29,7 @@ import {RLP} from "../RLP.sol";
 library TrieProof {
     using Bytes for *;
     using RLP for *;
-    using Math for *;
+    using SafeCast for *;
     using Memory for *;
 
     enum Prefix {
@@ -149,11 +149,8 @@ library TrieProof {
                         if (currentNodeIdLength == 32 || _match(childNode, proof, i + 1)) {
                             break;
                         }
-                        uint8 childPrefix = uint8(bytes1(childNode.load(0)));
-                        uint256 length = childPrefix.saturatingSub(RLP.SHORT_OFFSET);
-                        decoded = childPrefix >= RLP.LONG_OFFSET
-                            ? childNode.readList()
-                            : childNode.slice(1, length).readList();
+                        bool childNodeIsShort = uint8(bytes1(childNode.load(0))) < RLP.LONG_OFFSET;
+                        decoded = childNode.slice(childNodeIsShort.toUint()).readList();
                     }
                 } else if (decoded.length == LEAF_OR_EXTENSION_NODE_LENGTH) {
                     bytes[] memory proof_ = proof;
@@ -192,11 +189,8 @@ library TrieProof {
                         if (currentNodeIdLength == 32 || _match(childNode, proof_, i + 1)) {
                             break;
                         }
-                        uint8 childPrefix = uint8(bytes1(childNode.load(0)));
-                        uint256 length = childPrefix.saturatingSub(RLP.SHORT_OFFSET);
-                        decoded = childPrefix >= RLP.LONG_OFFSET
-                            ? childNode.readList()
-                            : childNode.slice(1, length).readList();
+                        bool childNodeIsShort = uint8(bytes1(childNode.load(0))) < RLP.LONG_OFFSET;
+                        decoded = childNode.slice(childNodeIsShort.toUint()).readList();
                     } else if (prefix <= uint8(Prefix.LEAF_ODD)) {
                         // Eq to: prefix == LEAF_EVEN || prefix == LEAF_ODD
                         //
