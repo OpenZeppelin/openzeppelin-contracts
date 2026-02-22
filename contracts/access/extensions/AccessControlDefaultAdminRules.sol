@@ -226,7 +226,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
         (address newDefaultAdmin, ) = pendingDefaultAdmin();
         if (_msgSender() != newDefaultAdmin) {
             // Enforce newDefaultAdmin explicit acceptance.
-            revert AccessControlInvalidDefaultAdmin(_msgSender());
+            revert AccessControlInvalidDefaultAdmin(newDefaultAdmin);
         }
         _acceptDefaultAdminTransfer();
     }
