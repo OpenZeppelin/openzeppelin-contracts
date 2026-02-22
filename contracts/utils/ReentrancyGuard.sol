@@ -42,11 +42,11 @@ abstract contract ReentrancyGuard {
     // back. This is the compiler's defense against contract upgrades and
     // pointer aliasing, and it cannot be disabled.
 
-    // The values being non-zero value makes deployment a bit more expensive,
-    // but in exchange the refund on every call to nonReentrant will be lower in
-    // amount. Since refunds are capped to a percentage of the total
-    // transaction's gas, it is best to keep them low in cases like this one, to
-    // increase the likelihood of the full refund coming into effect.
+    // The values being non-zero makes deployment a bit more expensive,
+    // but in exchange makes gas costs more predictable. Using 1 and 2 instead of 0 and 1
+    // avoids EIP-2200 refunds (non-zero to non-zero changes do not trigger refunds),
+    // which ensures consistent gas costs across different execution contexts and
+    // simplifies gas estimation for users.
     uint256 private constant NOT_ENTERED = 1;
     uint256 private constant ENTERED = 2;
 
@@ -100,8 +100,8 @@ abstract contract ReentrancyGuard {
     }
 
     function _nonReentrantAfter() private {
-        // By storing the original value once again, a refund is triggered (see
-        // https://eips.ethereum.org/EIPS/eip-2200)
+        // Restore the original value to allow future calls.
+        // Note: Using 1/2 instead of 0/1 avoids EIP-2200 refunds and makes gas costs predictable.
         _reentrancyGuardStorageSlot().getUint256Slot().value = NOT_ENTERED;
     }
 
