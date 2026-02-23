@@ -144,8 +144,7 @@ library TrieProof {
                         if (currentNodeIdLength == 32 || _match(childNode, proof, i + 1)) {
                             break;
                         }
-                        bool childNodeIsShort = uint8(bytes1(childNode.load(0))) < RLP.LONG_OFFSET;
-                        decoded = childNode.slice(childNodeIsShort.toUint()).readList();
+                        decoded = childNode.readList();
                     }
                 } else if (decoded.length == LEAF_OR_EXTENSION_NODE_LENGTH) {
                     bytes[] memory proof_ = proof;
@@ -181,8 +180,7 @@ library TrieProof {
                         if (currentNodeIdLength == 32 || _match(childNode, proof_, i + 1)) {
                             break;
                         }
-                        bool childNodeIsShort = uint8(bytes1(childNode.load(0))) < RLP.LONG_OFFSET;
-                        decoded = childNode.slice(childNodeIsShort.toUint()).readList();
+                        decoded = childNode.readList();
                     } else if (prefix <= uint8(Prefix.LEAF_ODD)) {
                         // Eq to: prefix == LEAF_EVEN || prefix == LEAF_ODD
                         //
