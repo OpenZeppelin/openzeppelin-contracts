@@ -1,7 +1,7 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { MerklePatriciaTrie, createMerkleProof, bytesToNibbles, nibblesToCompactBytes } = require('@ethereumjs/mpt');
+const { MerklePatriciaTrie, createMerkleProof } = require('@ethereumjs/mpt');
 
 const { Enum } = require('../../helpers/enums');
 const { zip } = require('../../helpers/iterate');
