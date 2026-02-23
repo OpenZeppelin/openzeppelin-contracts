@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
-import {SafeCast} from "../math/SafeCast.sol";
 import {Bytes} from "../Bytes.sol";
 import {Memory} from "../Memory.sol";
 import {RLP} from "../RLP.sol";
@@ -29,7 +28,6 @@ import {RLP} from "../RLP.sol";
 library TrieProof {
     using Bytes for *;
     using RLP for *;
-    using SafeCast for *;
     using Memory for *;
 
     enum Prefix {
