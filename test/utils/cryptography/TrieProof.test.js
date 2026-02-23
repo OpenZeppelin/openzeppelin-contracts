@@ -162,7 +162,7 @@ describe('TrieProof', function () {
     //   -inlined-> Branch
     //     -inlined-> Leaf('', '0x01')
     //     -inlined-> Leaf('', '0x02')
-    it('support inlining in extension', async function () {
+    it('support inlining in extension node', async function () {
       const slots = {
         '0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e560': '0x01',
         '0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e561': '0x02',
@@ -191,7 +191,7 @@ describe('TrieProof', function () {
     //     -inlined-> Branch
     //       -inlined-> Leaf('', '0x03')
     //       -inlined-> Leaf('', '0x04')
-    it('support inlining in extension', async function () {
+    it('support inlining in branch node', async function () {
       const slots = {
         '0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e500': '0x01',
         '0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e501': '0x02',
