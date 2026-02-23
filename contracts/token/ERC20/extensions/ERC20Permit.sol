@@ -71,6 +71,7 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712, Nonces {
 
     /// @inheritdoc IERC20Permit
     // solhint-disable-next-line func-name-mixedcase
+    /// @deprecated Use ERC-5267 (via {eip712Domain}) instead. This function will be removed in v6.0.
     function DOMAIN_SEPARATOR() external view returns (bytes32) {
         return _domainSeparatorV4();
     }
