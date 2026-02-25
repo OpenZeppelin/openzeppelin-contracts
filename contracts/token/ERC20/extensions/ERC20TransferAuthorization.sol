@@ -5,8 +5,8 @@ import {ERC20} from "../ERC20.sol";
 import {EIP712} from "../../../utils/cryptography/EIP712.sol";
 import {SignatureChecker} from "../../../utils/cryptography/SignatureChecker.sol";
 import {ECDSA} from "../../../utils/cryptography/ECDSA.sol";
-import {MessageHashUtils} from "../../../utils/cryptography/MessageHashUtils.sol";
 import {IERC3009, IERC3009Cancel} from "../../../interfaces/draft-IERC3009.sol";
+import {NoncesKeyed} from "../../../utils/NoncesKeyed.sol";
 
 /**
  * @dev Implementation of the ERC-3009 Transfer With Authorization extension allowing
@@ -18,15 +18,16 @@ import {IERC3009, IERC3009Cancel} from "../../../interfaces/draft-IERC3009.sol";
  * token holder account doesn't need to send a transaction, and thus is not required
  * to hold native currency (e.g. ETH) at all.
  *
- * NOTE: This extension uses non-sequential nonces to allow for flexible transaction ordering
- * and parallel transaction submission, unlike {ERC20Permit} which uses sequential nonces.
+ * NOTE: This extension uses keyed sequential nonces following the
+ * https://eips.ethereum.org/EIPS/eip-4337#semi-abstracted-nonce-support[ERC-4337 semi-abstracted nonce system].
+ * The {bytes32} nonce field is interpreted as a 192-bit key packed with a 64-bit sequence. Nonces with
+ * different keys are independent and can be submitted in parallel without ordering constraints, while nonces
+ * sharing the same key must be used sequentially. This is unlike {ERC20Permit} which uses a single global
+ * sequential nonce.
  */
-abstract contract ERC20TransferAuthorization is ERC20, EIP712, IERC3009, IERC3009Cancel {
+abstract contract ERC20TransferAuthorization is ERC20, EIP712, NoncesKeyed, IERC3009, IERC3009Cancel {
     /// @dev The signature is invalid
     error ERC3009InvalidSignature();
-
-    /// @dev The authorization is already used or canceled
-    error ERC3009ConsumedAuthorization(address authorizer, bytes32 nonce);
 
     /// @dev The authorization is not valid at the given time
     error ERC3009InvalidAuthorizationTime(uint256 validAfter, uint256 validBefore);
@@ -42,8 +43,6 @@ abstract contract ERC20TransferAuthorization is ERC20, EIP712, IERC3009, IERC300
     bytes32 private constant CANCEL_AUTHORIZATION_TYPEHASH =
         keccak256("CancelAuthorization(address authorizer,bytes32 nonce)");
 
-    mapping(address => mapping(bytes32 => bool)) private _consumed;
-
     /**
      * @dev Initializes the {EIP712} domain separator using the `name` parameter, and setting `version` to `"1"`.
      *
@@ -52,20 +51,22 @@ abstract contract ERC20TransferAuthorization is ERC20, EIP712, IERC3009, IERC300
     constructor(string memory name) EIP712(name, "1") {}
 
     /**
-     * @dev Returns the domain separator used in the encoding of the signature for
-     * {transferWithAuthorization} and {receiveWithAuthorization}, as defined by {EIP712}.
+     * @dev See {IERC3009-authorizationState}.
+     *
+     * NOTE: Returning `false` does not guarantee that the authorization is currently executable.
+     * With keyed sequential nonces, a nonce may be blocked by a predecessor in the same key's sequence
+     * that has not yet been consumed.
      */
-    // solhint-disable-next-line func-name-mixedcase
-    function DOMAIN_SEPARATOR() external view returns (bytes32) {
-        return _domainSeparatorV4();
-    }
-
-    /// @inheritdoc IERC3009
     function authorizationState(address authorizer, bytes32 nonce) public view virtual returns (bool) {
-        return _consumed[authorizer][nonce];
+        return uint64(nonces(authorizer, uint192(uint256(nonce) >> 64))) > uint64(uint256(nonce));
     }
 
-    /// @inheritdoc IERC3009
+    /**
+     * @dev See {IERC3009-transferWithAuthorization}.
+     *
+     * NOTE: A signed authorization will only succeed if its nonce is the next expected sequence
+     * for the given key. Authorizations sharing a key must be submitted in order.
+     */
     function transferWithAuthorization(
         address from,
         address to,
@@ -102,7 +103,12 @@ abstract contract ERC20TransferAuthorization is ERC20, EIP712, IERC3009, IERC300
         _transferWithAuthorization(from, to, value, validAfter, validBefore, nonce);
     }
 
-    /// @inheritdoc IERC3009
+    /**
+     * @dev See {IERC3009-receiveWithAuthorization}.
+     *
+     * NOTE: A signed authorization will only succeed if its nonce is the next expected sequence
+     * for the given key. Authorizations sharing a key must be submitted in order.
+     */
     function receiveWithAuthorization(
         address from,
         address to,
@@ -139,7 +145,14 @@ abstract contract ERC20TransferAuthorization is ERC20, EIP712, IERC3009, IERC300
         _receiveWithAuthorization(from, to, value, validAfter, validBefore, nonce);
     }
 
-    /// @inheritdoc IERC3009Cancel
+    /**
+     * @dev See {IERC3009Cancel-cancelAuthorization}.
+     *
+     * NOTE: Due to the keyed sequential nonce model, only the next nonce in a given key's sequence
+     * can be cancelled. It is not possible to directly cancel a future nonce whose predecessors in the
+     * same key have not yet been consumed or cancelled. To invalidate a future authorization, all
+     * preceding nonces in the same key must first be consumed or cancelled in order.
+     */
     function cancelAuthorization(address authorizer, bytes32 nonce, uint8 v, bytes32 r, bytes32 s) public virtual {
         bytes32 hash = _hashTypedDataV4(keccak256(abi.encode(CANCEL_AUTHORIZATION_TYPEHASH, authorizer, nonce)));
         (address recovered, ECDSA.RecoverError err, ) = ECDSA.tryRecover(hash, v, r, s);
@@ -167,8 +180,7 @@ abstract contract ERC20TransferAuthorization is ERC20, EIP712, IERC3009, IERC300
             block.timestamp > validAfter && block.timestamp < validBefore,
             ERC3009InvalidAuthorizationTime(validAfter, validBefore)
         );
-        require(!authorizationState(from, nonce), ERC3009ConsumedAuthorization(from, nonce));
-        _consumed[from][nonce] = true;
+        _useCheckedNonce(from, uint256(nonce));
         emit AuthorizationUsed(from, nonce);
         _transfer(from, to, value);
     }
@@ -187,16 +199,14 @@ abstract contract ERC20TransferAuthorization is ERC20, EIP712, IERC3009, IERC300
             block.timestamp > validAfter && block.timestamp < validBefore,
             ERC3009InvalidAuthorizationTime(validAfter, validBefore)
         );
-        require(!authorizationState(from, nonce), ERC3009ConsumedAuthorization(from, nonce));
-        _consumed[from][nonce] = true;
+        _useCheckedNonce(from, uint256(nonce));
         emit AuthorizationUsed(from, nonce);
         _transfer(from, to, value);
     }
 
     /// @dev Internal version of {cancelAuthorization} that accepts a bytes signature.
     function _cancelAuthorization(address authorizer, bytes32 nonce) internal virtual {
-        require(!authorizationState(authorizer, nonce), ERC3009ConsumedAuthorization(authorizer, nonce));
-        _consumed[authorizer][nonce] = true;
+        _useCheckedNonce(authorizer, uint256(nonce));
         emit AuthorizationCanceled(authorizer, nonce);
     }
 }

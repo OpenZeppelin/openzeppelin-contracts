@@ -4,7 +4,6 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const {
   getDomain,
-  domainSeparator,
   TransferWithAuthorization,
   ReceiveWithAuthorization,
   CancelAuthorization,
@@ -14,6 +13,8 @@ const time = require('../../../helpers/time');
 const name = 'My Token';
 const symbol = 'MTKN';
 const initialSupply = 100n;
+
+const packNonce = (key, seq = 0n) => ethers.toBeHex((BigInt(key) << 64n) | BigInt(seq), 32);
 
 async function fixture() {
   const [holder, recipient, other] = await ethers.getSigners();
@@ -38,13 +39,9 @@ describe('ERC20TransferAuthorization', function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
-  it('domain separator', async function () {
-    await expect(this.token.DOMAIN_SEPARATOR()).to.eventually.equal(await getDomain(this.token).then(domainSeparator));
-  });
-
   describe('authorizationState', function () {
     it('returns false for unused nonce', async function () {
-      const nonce = ethers.hexlify(ethers.randomBytes(32));
+      const nonce = packNonce(ethers.toBigInt(ethers.randomBytes(24)), 0n);
       await expect(this.token.authorizationState(this.holder, nonce)).to.eventually.be.false;
     });
   });
@@ -53,7 +50,8 @@ describe('ERC20TransferAuthorization', function () {
     const value = 42n;
 
     beforeEach(async function () {
-      this.nonce = ethers.hexlify(ethers.randomBytes(32));
+      this.key = ethers.toBigInt(ethers.randomBytes(24));
+      this.nonce = packNonce(this.key, 0n);
       this.validAfter = 0n;
       this.validBefore = ethers.MaxUint256;
 
@@ -130,8 +128,8 @@ describe('ERC20TransferAuthorization', function () {
           s,
         ),
       )
-        .to.be.revertedWithCustomError(this.token, 'ERC3009ConsumedAuthorization')
-        .withArgs(this.holder.address, this.nonce);
+        .to.be.revertedWithCustomError(this.token, 'InvalidAccountNonce')
+        .withArgs(this.holder.address, packNonce(this.key, 1n));
     });
 
     it('rejects other signature', async function () {
@@ -215,9 +213,11 @@ describe('ERC20TransferAuthorization', function () {
         .withArgs(this.validAfter, validBefore);
     });
 
-    it('works with different nonces in parallel', async function () {
-      const nonce1 = ethers.hexlify(ethers.randomBytes(32));
-      const nonce2 = ethers.hexlify(ethers.randomBytes(32));
+    it('works with different keys in parallel', async function () {
+      const key1 = ethers.toBigInt(ethers.randomBytes(24));
+      const key2 = ethers.toBigInt(ethers.randomBytes(24));
+      const nonce1 = packNonce(key1, 0n);
+      const nonce2 = packNonce(key2, 0n);
 
       const {
         v: v1,
@@ -235,7 +235,7 @@ describe('ERC20TransferAuthorization', function () {
         .then(({ domain, types, message }) => this.holder.signTypedData(domain, types, message))
         .then(ethers.Signature.from);
 
-      // Submit in reverse order to show non-sequential nonces work
+      // Submit in any order to show that different keys are independent
       await this.token.transferWithAuthorization(
         this.holder,
         this.recipient,
@@ -362,7 +362,8 @@ describe('ERC20TransferAuthorization', function () {
     const value = 42n;
 
     beforeEach(async function () {
-      this.nonce = ethers.hexlify(ethers.randomBytes(32));
+      this.key = ethers.toBigInt(ethers.randomBytes(24));
+      this.nonce = packNonce(this.key, 0n);
       this.validAfter = 0n;
       this.validBefore = ethers.MaxUint256;
 
@@ -469,8 +470,8 @@ describe('ERC20TransferAuthorization', function () {
             s,
           ),
       )
-        .to.be.revertedWithCustomError(this.token, 'ERC3009ConsumedAuthorization')
-        .withArgs(this.holder.address, this.nonce);
+        .to.be.revertedWithCustomError(this.token, 'InvalidAccountNonce')
+        .withArgs(this.holder.address, packNonce(this.key, 1n));
     });
 
     it('rejects other signature', async function () {
@@ -685,7 +686,8 @@ describe('ERC20TransferAuthorization', function () {
 
   describe('cancelAuthorization', function () {
     beforeEach(async function () {
-      this.nonce = ethers.hexlify(ethers.randomBytes(32));
+      this.key = ethers.toBigInt(ethers.randomBytes(24));
+      this.nonce = packNonce(this.key, 0n);
 
       this.buildData = (contract, authorizer, nonce = this.nonce) =>
         getDomain(contract).then(domain => ({
@@ -718,8 +720,8 @@ describe('ERC20TransferAuthorization', function () {
       await this.token.cancelAuthorization(this.holder, this.nonce, v, r, s);
 
       await expect(this.token.cancelAuthorization(this.holder, this.nonce, v, r, s))
-        .to.be.revertedWithCustomError(this.token, 'ERC3009ConsumedAuthorization')
-        .withArgs(this.holder.address, this.nonce);
+        .to.be.revertedWithCustomError(this.token, 'InvalidAccountNonce')
+        .withArgs(this.holder.address, packNonce(this.key, 1n));
     });
 
     it('rejects other signature', async function () {
@@ -780,8 +782,8 @@ describe('ERC20TransferAuthorization', function () {
           s,
         ),
       )
-        .to.be.revertedWithCustomError(this.token, 'ERC3009ConsumedAuthorization')
-        .withArgs(this.holder.address, this.nonce);
+        .to.be.revertedWithCustomError(this.token, 'InvalidAccountNonce')
+        .withArgs(this.holder.address, packNonce(this.key, 1n));
     });
 
     describe('with bytes signature', function () {
