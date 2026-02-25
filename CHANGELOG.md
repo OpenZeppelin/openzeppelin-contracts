@@ -3,38 +3,6 @@
 
 ## 5.6.0 (2026-02-25)
 
-- `Memory`: Add a `isReserved(Slice)` function that checks if the memory occupied by the slice is reserved (i.e. before the free memory pointer). ([#6340](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6340))
-- `MessageHashUtils`: Add helper functions to build EIP-712 domain typehash and separator with fields selectively enabled/disabled. ([#5908](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5908))
-- `RLP`: Perform a memory copy when decoding `bytes` objects containing a single byte instead of returning a reference to the input. ([#6340](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6340))
-- `EnumerableMap`: Add support for `Bytes4ToAddressMap` types. ([#6091](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6091))
-- `ERC20Crosschain`: Added an ERC-20 extension to embed an ERC-7786 based crosschain bridge directly in the token contract. ([#5914](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5914))
-- `DoubleEndedQueue`: Add `tryPushBack`, `tryPopBack`, `tryPushFront`, `tryPopFront`, `tryFront`, `tryBack`, and `tryAt` function variants that do not revert. ([#6020](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6020))
-- `Arrays`: Add `replace` functions enabling in-place array modification of `address[]`, `bytes32[]` and `uint256[]` arrays, with new content from another array. ([#5995](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5995))
-- `Bytes`: Add `replace` functions that replaces a portion of a bytes buffer with content from another buffer. ([#5995](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5995))
-- `Account`: Update default version of the ERC-4337 entrypoint to v0.9. ([#6135](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6135))
-- `SignatureChecker`: Add `isValidERC1271SignatureNowCalldata`, a variant of `isValidERC1271SignatureNow` that takes the signature from calldata. ([#6123](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6123))
-- `Accumulator`: Check that slices being added (`shift` or `push`) are in the reserved space. ([#6340](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6340))
-- `CrosschainLinked`: Added a new helper contract to facilitate communication between a contract on one chain and counterparts on remote chains through ERC-7786 gateways. ([#5914](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5914))
-- `BridgeERC20Core`, `BridgeERC20` and `BridgeERC7802`: Added bridge contracts to handle crosschain movements of ERC-20 (and ERC-7802) tokens. ([#5914](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5914))
-- `TrieProof`: Add library for verifying Ethereum Merkle-Patricia trie inclusion proofs. ([#5826](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5826))
-- `InteroperableAddress`: reject inputs with both chain reference and addresses empty. ([#6340](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6340))
-- `ERC1155`: Introduce the `_checkAuthorized` internal virtual function to encapsulate `isApprovedForAll` and `msg.sender == from` checks. ([#6133](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6133))
-- `WebAuthn`: Verification now returns `false` instead of reverting when client data contains an out-of-bounds `challengeIndex`. ([#6340](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6340))
-- `ERC4626`: Allow overriding underlying assets transfer mechanisms through new internal virtual functions (`_transferIn` and `_transferOut`). ([#5970](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5970))
-- `ERC721URIStorage`: Add `_suffixURI`, an internal getter for retrieving the custom tokenURI without the base prefix. ([#6175](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6175))
-- `Arrays`: Add `slice` and `splice` functions for value types (`uint256[]`, `bytes32[]`, `address[]`). ([#5965](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5965))
-- `ERC4337Utils`: Added the `paymasterSignature` function to extract the signature in `paymasterAndData` after Entrypoint v0.9. Similarly, a variant of `paymasterData` that receives a flag to exclude the signature from the returned data. ([#6215](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6215))
-- `Memory`: Remove the `asBytes32` and `asPointer` function to reduce the risk of mistakes when manipulating memory pointers. ([#6340](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6340))
-- `Bytes`: Add the `toNibbles` function that expands the nibbles (4 bits chunk) of a `bytes` buffer. Used for manipulating Patricia Merkle Trees keys and paths. ([#5826](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5826))
-- `EnumerableSet`: Add support for `Bytes4Set` type. ([#6091](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6091))
-- `ERC1155`: Call `IERC1155Receiver.onERC1155BatchReceived` when performing a batch transfers with exactly one id/value in the batch. ([#6170](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6170))
-- `ERC4337Utils`: Added variants of `packValidationData(address,uint48,uint48)` and `packValidationData(bool,uint48,uint48)` that receive a `ValidationRange` argument, could be timestamp or block number. Similarly, the `parseValidationData` now returns a `ValidationRange` too. ([#6215](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6215))
-- `RLP`: Encode `bytes32` as a fixed size item and not as a scalar in `encode(bytes32)`. Scalar RLP encoding remains available by casting to a `uint256` and using the `encode(uint256)` function. ([#6167](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6167))
-- Add ERC-165 detection for the `IERC6909ContentURI`, `IERC6909TokenSupply` and `IERC6909Metadata` interfaces in the `ERC6909ContentURI`, `ERC6909TokenSupply` and `ERC6909Metadata` contracts respectively. ([#6340](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6340))
-- Rename `BridgeERC20Core` to `BridgeFungible` ([#6340](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6340))
-- `AccountERC7579`: Do not revert and perform the uninstall if the `onUninstall` hook of a module reverts. ([#6142](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6142))
-- `RLP`: Fix RLP encoding validity check when decoding long lists or strings ([#6051](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6051))
-
 ### Breaking changes
 
 - `Strings`: The `escapeJSON` function now escapes all control characters in the range U+0000 to U+001F per RFC-4627. Previously only backspace, tab, newline, form feed, carriage return, double quote, and backslash were escaped. Input strings containing any other control character (e.g. null `0x00`) or raw bytes in U+0001–U+001F will now produce different, longer output (e.g. `\u0000` for null). ([#6344](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6344))
@@ -45,6 +13,7 @@
 - `ERC4337Utils`: The `parseValidationData` now returns a `ValidationRange` as the last return tuple value indicating whether the `validationData` is compared against a timestamp or block number. Developers must update their code to handle this new return value (e.g. `(aggregator, validAfter, validUntil) -> (aggregator, validAfter, validUntil, range)`). ([#6215](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6215))
 - `SignerWebAuthn`: The `_rawSignatureValidation` function now returns `false` when the signature is not a valid WebAuthn authentication assertion. P256 fallback is removed. Developers can add it back by overriding the function. ([#6337](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6337))
 - `Memory`: The `setFreeMemoryPointer` function is renamed to `unsafeSetFreeMemoryPointer`. Developers should use `unsafeSetFreeMemoryPointer` instead of `setFreeMemoryPointer` after v5.6.0. ([#6348](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6348))
+- `Memory`: Remove the `asBytes32` and `asPointer` function to reduce the risk of mistakes when manipulating memory pointers. ([#6340](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6340))
 
 ### Changes by category
 
@@ -61,21 +30,25 @@
 - `ERC1155`: Call `IERC1155Receiver.onERC1155BatchReceived` when performing a batch transfers with exactly one id/value in the batch. ([#6170](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6170))
 - `ERC4626`: Allow overriding underlying assets transfer mechanisms through new internal virtual functions (`_transferIn` and `_transferOut`). ([#5970](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5970))
 - `ERC721URIStorage`: Add `_suffixURI`, an internal getter for retrieving the custom tokenURI without the base prefix. ([#6175](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6175))
+- Add ERC-165 detection for the `IERC6909ContentURI`, `IERC6909TokenSupply` and `IERC6909Metadata` interfaces in the `ERC6909ContentURI`, `ERC6909TokenSupply` and `ERC6909Metadata` contracts respectively. ([#6246](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6246)) and ([#6247](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6247))
 
 #### Cross-chain
 
-- `BridgeERC20Core`, `BridgeERC20` and `BridgeERC7802`: Added bridge contracts to handle crosschain movements of ERC-20 (and ERC-7802) tokens. ([#5914](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5914))
+- `BridgeFungible`, `BridgeERC20` and `BridgeERC7802`: Added bridge contracts to handle crosschain movements of ERC-20 (and ERC-7802) tokens. ([#5914](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5914)) ([#6328](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6328))
 - `CrosschainLinked`: Added a new helper contract to facilitate communication between a contract on one chain and counterparts on remote chains through ERC-7786 gateways. ([#5914](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5914))
 - `ERC20Crosschain`: Added an ERC-20 extension to embed an ERC-7786 based crosschain bridge directly in the token contract. ([#5914](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5914))
+- `InteroperableAddress`: Reject inputs with both chain reference and addresses empty. ([#6340](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6340))
 
 #### Cryptography
 
 - `MessageHashUtils`: Add helper functions to build EIP-712 domain typehash and separator with fields selectively enabled/disabled. ([#5908](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5908))
 - `SignatureChecker`: Add `isValidERC1271SignatureNowCalldata`, a variant of `isValidERC1271SignatureNow` that takes the signature from calldata. ([#6123](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6123))
 - `TrieProof`: Add library for verifying Ethereum Merkle-Patricia trie inclusion proofs. ([#5826](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5826))
+- `WebAuthn`: Verification now returns `false` instead of reverting when client data contains an out-of-bounds `challengeIndex`. ([#6329](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6329))
 
 #### Structures
 
+- `Accumulator`: Check that slices being added (`shift` or `push`) are in the reserved space. ([#6302](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6302))
 - `DoubleEndedQueue`: Add `tryPushBack`, `tryPopBack`, `tryPushFront`, `tryPopFront`, `tryFront`, `tryBack`, and `tryAt` function variants that do not revert. ([#6020](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6020))
 - `EnumerableMap`: Add support for `Bytes4ToAddressMap` types. ([#6091](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6091))
 - `EnumerableSet`: Add support for `Bytes4Set` type. ([#6091](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6091))
@@ -86,8 +59,10 @@
 - `Arrays`: Add `slice` and `splice` functions for value types (`uint256[]`, `bytes32[]`, `address[]`). ([#5965](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5965))
 - `Bytes`: Add `replace` functions that replaces a portion of a bytes buffer with content from another buffer. ([#5995](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5995))
 - `Bytes`: Add the `toNibbles` function that expands the nibbles (4 bits chunk) of a `bytes` buffer. Used for manipulating Patricia Merkle Trees keys and paths. ([#5826](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/5826))
+- `Memory`: Add a `isReserved(Slice)` function that checks if the memory occupied by the slice is reserved (i.e. before the free memory pointer). ([#6302](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6302))
 - `RLP`: Encode `bytes32` as a fixed size item and not as a scalar in `encode(bytes32)`. Scalar RLP encoding remains available by casting to a `uint256` and using the `encode(uint256)` function. ([#6167](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6167))
 - `RLP`: Fix RLP encoding validity check when decoding long lists or strings ([#6051](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6051))
+- `RLP`: Perform a memory copy when decoding `bytes` objects containing a single byte instead of returning a reference to the input. ([#6303](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6303))
 
 ## 5.5.0 (2025-10-31)
 
