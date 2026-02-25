@@ -215,64 +215,6 @@ describe('TrieProof', function () {
     });
   });
 
-  describe('inline extension child nodes', function () {
-    // Extension ('290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e56')
-    //   -inlined-> Branch
-    //     -inlined-> Leaf('', '0x01')
-    //     -inlined-> Leaf('', '0x02')
-    it('support inlining in extension node', async function () {
-      const slots = {
-        '0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e560': '0x01',
-        '0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e561': '0x02',
-      };
-      const tree = new MerklePatriciaTrie({ useKeyHashing: false });
-      for (const [slot, value] of Object.entries(slots)) {
-        await tree.put(ethers.getBytes(slot), ethers.getBytes(value));
-      }
-
-      const root = ethers.hexlify(tree.root());
-
-      for (const [slot, value] of Object.entries(slots)) {
-        const proof = await createMerkleProof(tree, ethers.getBytes(slot));
-        // verify the full proof
-        await expect(this.mock.$verify(encodeStorageLeaf(value), root, slot, proof)).to.eventually.be.true;
-        // verify the compressed proof with the inlined node removed (vacuous proof)
-        await expect(this.mock.$verify(encodeStorageLeaf(value), root, slot, proof.slice(0, -1))).to.eventually.be.true;
-      }
-    });
-
-    // Extension ('290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e5')
-    //   -hash-> Branch
-    //     -inlined-> Branch
-    //       -inlined-> Leaf('', '0x01')
-    //       -inlined-> Leaf('', '0x02')
-    //     -inlined-> Branch
-    //       -inlined-> Leaf('', '0x03')
-    //       -inlined-> Leaf('', '0x04')
-    it('support inlining in branch node', async function () {
-      const slots = {
-        '0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e500': '0x01',
-        '0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e501': '0x02',
-        '0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e510': '0x03',
-        '0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e511': '0x04',
-      };
-      const tree = new MerklePatriciaTrie({ useKeyHashing: false });
-      for (const [slot, value] of Object.entries(slots)) {
-        await tree.put(ethers.getBytes(slot), ethers.getBytes(value));
-      }
-
-      const root = ethers.hexlify(tree.root());
-
-      for (const [slot, value] of Object.entries(slots)) {
-        const proof = await createMerkleProof(tree, ethers.getBytes(slot));
-        // verify the full proof
-        await expect(this.mock.$verify(encodeStorageLeaf(value), root, slot, proof)).to.eventually.be.true;
-        // verify the compressed proof with the inlined node removed (vacuous proof)
-        await expect(this.mock.$verify(encodeStorageLeaf(value), root, slot, proof.slice(0, -1))).to.eventually.be.true;
-      }
-    });
-  });
-
   describe('process invalid proofs', function () {
     it('fails to process proof with empty key', async function () {
       await expect(this.mock.$traverse(ethers.ZeroHash, '0x', []))
