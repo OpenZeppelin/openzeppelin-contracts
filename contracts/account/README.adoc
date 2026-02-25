@@ -10,6 +10,11 @@ This directory includes contracts to build accounts for ERC-4337. These include:
  * {ERC7821}: Minimal batch executor implementation contracts. Useful to enable easy batch execution for smart contracts.
  * {ERC4337Utils}: Utility functions for working with ERC-4337 user operations.
  * {ERC7579Utils}: Utility functions for working with ERC-7579 modules and account modularity.
+ * {Paymaster}: An ERC-4337 paymaster implementation that includes the core logic to validate and pay for user operations.
+ * {PaymasterERC20}: A paymaster that allows users to pay for user operations using ERC-20 tokens.
+ * {PaymasterERC20Guarantor}: A paymaster that enables third parties to guarantee user operations by pre-funding gas costs, with the option for users to repay or for guarantors to absorb the cost.
+ * {PaymasterERC721Owner}: A paymaster that allows users to pay for user operations based on ERC-721 ownership.
+ * {PaymasterSigner}: A paymaster that allows users to pay for user operations using an authorized signature.
 
 == Core
 
@@ -22,6 +27,18 @@ This directory includes contracts to build accounts for ERC-4337. These include:
 {{AccountERC7579Hooked}}
 
 {{ERC7821}}
+
+== Paymasters
+
+{{Paymaster}}
+
+{{PaymasterERC20}}
+
+{{PaymasterERC20Guarantor}}
+
+{{PaymasterERC721Owner}}
+
+{{PaymasterSigner}}
 
 == Utilities
 
