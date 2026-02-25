@@ -126,11 +126,10 @@ abstract contract Paymaster is IPaymaster {
     /**
      * @dev Checks whether `msg.sender` withdraw funds stake or deposit from the entrypoint on paymaster's behalf.
      *
-     * Use of an xref:api:access.adoc[access control]
-     * modifier such as {Ownable-onlyOwner} is recommended.
+     * Use of an xref:api:access.adoc[access control] modifier such as {Ownable-onlyOwner} is recommended.
      *
      * ```solidity
-     * function _authorizeUpgrade() internal onlyOwner {}
+     * function _authorizeWithdraw() internal onlyOwner {}
      * ```
      */
     function _authorizeWithdraw() internal virtual;

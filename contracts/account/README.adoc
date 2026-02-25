@@ -13,7 +13,7 @@ This directory includes contracts to build accounts for ERC-4337. These include:
  * {Paymaster}: An ERC-4337 paymaster implementation that includes the core logic to validate and pay for user operations.
  * {PaymasterERC20}: A paymaster that allows users to pay for user operations using ERC-20 tokens.
  * {PaymasterERC20Guarantor}: A paymaster that enables third parties to guarantee user operations by pre-funding gas costs, with the option for users to repay or for guarantors to absorb the cost.
- * {PaymasterERC721Owner}: A paymaster that allows users to pay for user operations based on ERC-721 ownership.
+ * {PaymasterERC721Owner}: A paymaster that sponsors user operations for ERC-721 token holders, covering gas costs based on NFT ownership.
  * {PaymasterSigner}: A paymaster that allows users to pay for user operations using an authorized signature.
 
 == Core
