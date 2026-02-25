@@ -42,6 +42,7 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {RelayedCall}: A library for performing calls that use minimal and predictable relayers to hide the sender.
  * {RLP}: Library for encoding and decoding data in Ethereum's Recursive Length Prefix format.
  * {ShortStrings}: Library to encode (and decode) short strings into (or from) a single bytes32 slot for optimizing costs. Short strings are limited to 31 characters.
+ * {SimulateCall}: Library for simulating contract calls, enabling safe inspection of call results without affecting on-chain state.
  * {SlotDerivation}: Methods for deriving storage slot from ERC-7201 namespaces as well as from constructions such as mapping and arrays.
  * {StorageSlot}: Methods for accessing specific storage slots formatted as common primitive types.
  * {Strings}: Common operations for strings formatting.
@@ -148,6 +149,8 @@ Ethereum contracts have no native concept of an interface, so applications must 
 {{RLP}}
 
 {{ShortStrings}}
+
+{{SimulateCall}}
 
 {{SlotDerivation}}
 

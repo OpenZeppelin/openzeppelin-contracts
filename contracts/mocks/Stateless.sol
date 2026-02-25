@@ -54,6 +54,7 @@ import {SafeERC20} from "../token/ERC20/utils/SafeERC20.sol";
 import {ShortStrings} from "../utils/ShortStrings.sol";
 import {SignatureChecker} from "../utils/cryptography/SignatureChecker.sol";
 import {SignedMath} from "../utils/math/SignedMath.sol";
+import {SimulateCall} from "../utils/SimulateCall.sol";
 import {StorageSlot} from "../utils/StorageSlot.sol";
 import {Strings} from "../utils/Strings.sol";
 import {Time} from "../utils/types/Time.sol";

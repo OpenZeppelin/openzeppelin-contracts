@@ -65,8 +65,8 @@ module.exports['has-internal-variables'] = function ({ item }) {
 
 module.exports.functions = function ({ item }) {
   return [
-    ...findAll('FunctionDefinition', item).filter(f => f.visibility !== 'private'),
-    ...findAll('VariableDeclaration', item).filter(f => f.visibility === 'public'),
+    ...[...findAll('FunctionDefinition', item)].filter(f => f.visibility !== 'private'),
+    ...[...findAll('VariableDeclaration', item)].filter(f => f.visibility === 'public'),
   ];
 };
 

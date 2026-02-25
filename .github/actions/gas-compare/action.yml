@@ -44,7 +44,7 @@ runs:
       shell: bash
     - name: Save report
       if: github.event_name != 'pull_request'
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: gasreport
         overwrite: true
