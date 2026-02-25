@@ -1,0 +1,687 @@
+:github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
+:CrosschainLinked: pass:normal[xref:crosschain.adoc#CrosschainLinked[`CrosschainLinked`]]
+:ERC7786Recipient: pass:normal[xref:crosschain.adoc#ERC7786Recipient[`ERC7786Recipient`]]
+:BridgeFungible: pass:normal[xref:crosschain.adoc#BridgeFungible[`BridgeFungible`]]
+:BridgeERC20: pass:normal[xref:crosschain.adoc#BridgeERC20[`BridgeERC20`]]
+:BridgeERC7802: pass:normal[xref:crosschain.adoc#BridgeERC7802[`BridgeERC7802`]]
+:ERC20Crosschain: pass:normal[xref:token/ERC20.adoc#ERC20Crosschain[`ERC20Crosschain`]]
+:BridgeERC20: pass:normal[xref:crosschain.adoc#BridgeERC20[`BridgeERC20`]]
+:BridgeERC7802: pass:normal[xref:crosschain.adoc#BridgeERC7802[`BridgeERC7802`]]
+:BridgeFungible: pass:normal[xref:crosschain.adoc#BridgeFungible[`BridgeFungible`]]
+:xref-CrosschainLinked-constructor-struct-CrosschainLinked-Link---: xref:crosschain.adoc#CrosschainLinked-constructor-struct-CrosschainLinked-Link---
+:xref-CrosschainLinked-getLink-bytes-: xref:crosschain.adoc#CrosschainLinked-getLink-bytes-
+:xref-CrosschainLinked-_setLink-address-bytes-bool-: xref:crosschain.adoc#CrosschainLinked-_setLink-address-bytes-bool-
+:xref-CrosschainLinked-_sendMessageToCounterpart-bytes-bytes-bytes---: xref:crosschain.adoc#CrosschainLinked-_sendMessageToCounterpart-bytes-bytes-bytes---
+:xref-CrosschainLinked-_isAuthorizedGateway-address-bytes-: xref:crosschain.adoc#CrosschainLinked-_isAuthorizedGateway-address-bytes-
+:xref-ERC7786Recipient-receiveMessage-bytes32-bytes-bytes-: xref:crosschain.adoc#ERC7786Recipient-receiveMessage-bytes32-bytes-bytes-
+:xref-ERC7786Recipient-_processMessage-address-bytes32-bytes-bytes-: xref:crosschain.adoc#ERC7786Recipient-_processMessage-address-bytes32-bytes-bytes-
+:xref-CrosschainLinked-LinkRegistered-address-bytes-: xref:crosschain.adoc#CrosschainLinked-LinkRegistered-address-bytes-
+:xref-CrosschainLinked-LinkAlreadyRegistered-bytes-: xref:crosschain.adoc#CrosschainLinked-LinkAlreadyRegistered-bytes-
+:xref-ERC7786Recipient-ERC7786RecipientUnauthorizedGateway-address-bytes-: xref:crosschain.adoc#ERC7786Recipient-ERC7786RecipientUnauthorizedGateway-address-bytes-
+:InteroperableAddress: pass:normal[xref:utils.adoc#InteroperableAddress[`InteroperableAddress`]]
+:xref-ERC7786Recipient-receiveMessage-bytes32-bytes-bytes-: xref:crosschain.adoc#ERC7786Recipient-receiveMessage-bytes32-bytes-bytes-
+:xref-ERC7786Recipient-_isAuthorizedGateway-address-bytes-: xref:crosschain.adoc#ERC7786Recipient-_isAuthorizedGateway-address-bytes-
+:xref-ERC7786Recipient-_processMessage-address-bytes32-bytes-bytes-: xref:crosschain.adoc#ERC7786Recipient-_processMessage-address-bytes32-bytes-bytes-
+:xref-ERC7786Recipient-ERC7786RecipientUnauthorizedGateway-address-bytes-: xref:crosschain.adoc#ERC7786Recipient-ERC7786RecipientUnauthorizedGateway-address-bytes-
+:InteroperableAddress: pass:normal[xref:utils.adoc#InteroperableAddress[`InteroperableAddress`]]
+:BridgeERC20: pass:normal[xref:crosschain.adoc#BridgeERC20[`BridgeERC20`]]
+:BridgeERC7802: pass:normal[xref:crosschain.adoc#BridgeERC7802[`BridgeERC7802`]]
+:ERC20Crosschain: pass:normal[xref:token/ERC20.adoc#ERC20Crosschain[`ERC20Crosschain`]]
+:xref-BridgeFungible-crosschainTransfer-bytes-uint256-: xref:crosschain.adoc#BridgeFungible-crosschainTransfer-bytes-uint256-
+:xref-BridgeFungible-_crosschainTransfer-address-bytes-uint256-: xref:crosschain.adoc#BridgeFungible-_crosschainTransfer-address-bytes-uint256-
+:xref-BridgeFungible-_processMessage-address-bytes32-bytes-bytes-: xref:crosschain.adoc#BridgeFungible-_processMessage-address-bytes32-bytes-bytes-
+:xref-BridgeFungible-_onSend-address-uint256-: xref:crosschain.adoc#BridgeFungible-_onSend-address-uint256-
+:xref-BridgeFungible-_onReceive-address-uint256-: xref:crosschain.adoc#BridgeFungible-_onReceive-address-uint256-
+:xref-CrosschainLinked-getLink-bytes-: xref:crosschain.adoc#CrosschainLinked-getLink-bytes-
+:xref-CrosschainLinked-_setLink-address-bytes-bool-: xref:crosschain.adoc#CrosschainLinked-_setLink-address-bytes-bool-
+:xref-CrosschainLinked-_sendMessageToCounterpart-bytes-bytes-bytes---: xref:crosschain.adoc#CrosschainLinked-_sendMessageToCounterpart-bytes-bytes-bytes---
+:xref-CrosschainLinked-_isAuthorizedGateway-address-bytes-: xref:crosschain.adoc#CrosschainLinked-_isAuthorizedGateway-address-bytes-
+:xref-ERC7786Recipient-receiveMessage-bytes32-bytes-bytes-: xref:crosschain.adoc#ERC7786Recipient-receiveMessage-bytes32-bytes-bytes-
+:xref-BridgeFungible-CrosschainFungibleTransferSent-bytes32-address-bytes-uint256-: xref:crosschain.adoc#BridgeFungible-CrosschainFungibleTransferSent-bytes32-address-bytes-uint256-
+:xref-BridgeFungible-CrosschainFungibleTransferReceived-bytes32-bytes-address-uint256-: xref:crosschain.adoc#BridgeFungible-CrosschainFungibleTransferReceived-bytes32-bytes-address-uint256-
+:xref-CrosschainLinked-LinkRegistered-address-bytes-: xref:crosschain.adoc#CrosschainLinked-LinkRegistered-address-bytes-
+:xref-CrosschainLinked-LinkAlreadyRegistered-bytes-: xref:crosschain.adoc#CrosschainLinked-LinkAlreadyRegistered-bytes-
+:xref-ERC7786Recipient-ERC7786RecipientUnauthorizedGateway-address-bytes-: xref:crosschain.adoc#ERC7786Recipient-ERC7786RecipientUnauthorizedGateway-address-bytes-
+:BridgeFungible: pass:normal[xref:crosschain.adoc#BridgeFungible[`BridgeFungible`]]
+:xref-BridgeERC20-constructor-contract-IERC20-: xref:crosschain.adoc#BridgeERC20-constructor-contract-IERC20-
+:xref-BridgeERC20-token--: xref:crosschain.adoc#BridgeERC20-token--
+:xref-BridgeERC20-_onSend-address-uint256-: xref:crosschain.adoc#BridgeERC20-_onSend-address-uint256-
+:xref-BridgeERC20-_onReceive-address-uint256-: xref:crosschain.adoc#BridgeERC20-_onReceive-address-uint256-
+:xref-BridgeFungible-crosschainTransfer-bytes-uint256-: xref:crosschain.adoc#BridgeFungible-crosschainTransfer-bytes-uint256-
+:xref-BridgeFungible-_crosschainTransfer-address-bytes-uint256-: xref:crosschain.adoc#BridgeFungible-_crosschainTransfer-address-bytes-uint256-
+:xref-BridgeFungible-_processMessage-address-bytes32-bytes-bytes-: xref:crosschain.adoc#BridgeFungible-_processMessage-address-bytes32-bytes-bytes-
+:xref-CrosschainLinked-getLink-bytes-: xref:crosschain.adoc#CrosschainLinked-getLink-bytes-
+:xref-CrosschainLinked-_setLink-address-bytes-bool-: xref:crosschain.adoc#CrosschainLinked-_setLink-address-bytes-bool-
+:xref-CrosschainLinked-_sendMessageToCounterpart-bytes-bytes-bytes---: xref:crosschain.adoc#CrosschainLinked-_sendMessageToCounterpart-bytes-bytes-bytes---
+:xref-CrosschainLinked-_isAuthorizedGateway-address-bytes-: xref:crosschain.adoc#CrosschainLinked-_isAuthorizedGateway-address-bytes-
+:xref-ERC7786Recipient-receiveMessage-bytes32-bytes-bytes-: xref:crosschain.adoc#ERC7786Recipient-receiveMessage-bytes32-bytes-bytes-
+:xref-BridgeFungible-CrosschainFungibleTransferSent-bytes32-address-bytes-uint256-: xref:crosschain.adoc#BridgeFungible-CrosschainFungibleTransferSent-bytes32-address-bytes-uint256-
+:xref-BridgeFungible-CrosschainFungibleTransferReceived-bytes32-bytes-address-uint256-: xref:crosschain.adoc#BridgeFungible-CrosschainFungibleTransferReceived-bytes32-bytes-address-uint256-
+:xref-CrosschainLinked-LinkRegistered-address-bytes-: xref:crosschain.adoc#CrosschainLinked-LinkRegistered-address-bytes-
+:xref-CrosschainLinked-LinkAlreadyRegistered-bytes-: xref:crosschain.adoc#CrosschainLinked-LinkAlreadyRegistered-bytes-
+:xref-ERC7786Recipient-ERC7786RecipientUnauthorizedGateway-address-bytes-: xref:crosschain.adoc#ERC7786Recipient-ERC7786RecipientUnauthorizedGateway-address-bytes-
+:BridgeFungible: pass:normal[xref:crosschain.adoc#BridgeFungible[`BridgeFungible`]]
+:xref-BridgeERC7802-constructor-contract-IERC7802-: xref:crosschain.adoc#BridgeERC7802-constructor-contract-IERC7802-
+:xref-BridgeERC7802-token--: xref:crosschain.adoc#BridgeERC7802-token--
+:xref-BridgeERC7802-_onSend-address-uint256-: xref:crosschain.adoc#BridgeERC7802-_onSend-address-uint256-
+:xref-BridgeERC7802-_onReceive-address-uint256-: xref:crosschain.adoc#BridgeERC7802-_onReceive-address-uint256-
+:xref-BridgeFungible-crosschainTransfer-bytes-uint256-: xref:crosschain.adoc#BridgeFungible-crosschainTransfer-bytes-uint256-
+:xref-BridgeFungible-_crosschainTransfer-address-bytes-uint256-: xref:crosschain.adoc#BridgeFungible-_crosschainTransfer-address-bytes-uint256-
+:xref-BridgeFungible-_processMessage-address-bytes32-bytes-bytes-: xref:crosschain.adoc#BridgeFungible-_processMessage-address-bytes32-bytes-bytes-
+:xref-CrosschainLinked-getLink-bytes-: xref:crosschain.adoc#CrosschainLinked-getLink-bytes-
+:xref-CrosschainLinked-_setLink-address-bytes-bool-: xref:crosschain.adoc#CrosschainLinked-_setLink-address-bytes-bool-
+:xref-CrosschainLinked-_sendMessageToCounterpart-bytes-bytes-bytes---: xref:crosschain.adoc#CrosschainLinked-_sendMessageToCounterpart-bytes-bytes-bytes---
+:xref-CrosschainLinked-_isAuthorizedGateway-address-bytes-: xref:crosschain.adoc#CrosschainLinked-_isAuthorizedGateway-address-bytes-
+:xref-ERC7786Recipient-receiveMessage-bytes32-bytes-bytes-: xref:crosschain.adoc#ERC7786Recipient-receiveMessage-bytes32-bytes-bytes-
+:xref-BridgeFungible-CrosschainFungibleTransferSent-bytes32-address-bytes-uint256-: xref:crosschain.adoc#BridgeFungible-CrosschainFungibleTransferSent-bytes32-address-bytes-uint256-
+:xref-BridgeFungible-CrosschainFungibleTransferReceived-bytes32-bytes-address-uint256-: xref:crosschain.adoc#BridgeFungible-CrosschainFungibleTransferReceived-bytes32-bytes-address-uint256-
+:xref-CrosschainLinked-LinkRegistered-address-bytes-: xref:crosschain.adoc#CrosschainLinked-LinkRegistered-address-bytes-
+:xref-CrosschainLinked-LinkAlreadyRegistered-bytes-: xref:crosschain.adoc#CrosschainLinked-LinkAlreadyRegistered-bytes-
+:xref-ERC7786Recipient-ERC7786RecipientUnauthorizedGateway-address-bytes-: xref:crosschain.adoc#ERC7786Recipient-ERC7786RecipientUnauthorizedGateway-address-bytes-
+= Cross chain interoperability
+
+[.readme-notice]
+NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/crosschain
+
+This directory contains contracts for sending and receiving cross chain messages that follows the ERC-7786 standard.
+
+* {CrosschainLinked}: helper to facilitate communication between a contract on one chain and counterparts on remote chains through ERC-7786 gateways.
+* {ERC7786Recipient}: generic ERC-7786 crosschain contract that receives messages from a trusted gateway.
+
+Additionally there are multiple bridge constructions:
+
+* {BridgeFungible}: Core bridging logic for crosschain ERC-20 transfer. Used by {BridgeERC20}, {BridgeERC7802} and {ERC20Crosschain},
+* {BridgeERC20}: Standalone bridge contract to connect an ERC-20 token contract with counterparts on remote chains,
+* {BridgeERC7802}: Standalone bridge contract to connect an ERC-7802 token contract with counterparts on remote chains.
+
+== Helpers
+
+:Link: pass:normal[xref:#CrosschainLinked-Link[`++Link++`]]
+:LinkRegistered: pass:normal[xref:#CrosschainLinked-LinkRegistered-address-bytes-[`++LinkRegistered++`]]
+:LinkAlreadyRegistered: pass:normal[xref:#CrosschainLinked-LinkAlreadyRegistered-bytes-[`++LinkAlreadyRegistered++`]]
+:constructor: pass:normal[xref:#CrosschainLinked-constructor-struct-CrosschainLinked-Link---[`++constructor++`]]
+:getLink: pass:normal[xref:#CrosschainLinked-getLink-bytes-[`++getLink++`]]
+:_setLink: pass:normal[xref:#CrosschainLinked-_setLink-address-bytes-bool-[`++_setLink++`]]
+:_sendMessageToCounterpart: pass:normal[xref:#CrosschainLinked-_sendMessageToCounterpart-bytes-bytes-bytes---[`++_sendMessageToCounterpart++`]]
+:_isAuthorizedGateway: pass:normal[xref:#CrosschainLinked-_isAuthorizedGateway-address-bytes-[`++_isAuthorizedGateway++`]]
+
+:constructor-struct-CrosschainLinked-Link--: pass:normal[xref:#CrosschainLinked-constructor-struct-CrosschainLinked-Link---[`++constructor++`]]
+:getLink-bytes: pass:normal[xref:#CrosschainLinked-getLink-bytes-[`++getLink++`]]
+:_setLink-address-bytes-bool: pass:normal[xref:#CrosschainLinked-_setLink-address-bytes-bool-[`++_setLink++`]]
+:_sendMessageToCounterpart-bytes-bytes-bytes--: pass:normal[xref:#CrosschainLinked-_sendMessageToCounterpart-bytes-bytes-bytes---[`++_sendMessageToCounterpart++`]]
+:_isAuthorizedGateway-address-bytes: pass:normal[xref:#CrosschainLinked-_isAuthorizedGateway-address-bytes-[`++_isAuthorizedGateway++`]]
+
+[.contract]
+[[CrosschainLinked]]
+=== `++CrosschainLinked++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/crosschain/CrosschainLinked.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/crosschain/CrosschainLinked.sol";
+```
+
+Core bridging mechanism.
+
+This contract contains the logic to register and send messages to counterparts on remote chains using ERC-7786
+gateways. It ensure received messages originate from a counterpart. This is the base of token bridges such as
+{BridgeFungible}.
+
+Contracts that inherit from this contract can use the internal {_sendMessageToCounterpart} to send messages to their
+counterpart on a foreign chain. They must override the {_processMessage} function to handle messages that have
+been verified.
+
+[.contract-index]
+.Functions
+--
+* {xref-CrosschainLinked-constructor-struct-CrosschainLinked-Link---}[`++constructor(links)++`]
+* {xref-CrosschainLinked-getLink-bytes-}[`++getLink(chain)++`]
+* {xref-CrosschainLinked-_setLink-address-bytes-bool-}[`++_setLink(gateway, counterpart, allowOverride)++`]
+* {xref-CrosschainLinked-_sendMessageToCounterpart-bytes-bytes-bytes---}[`++_sendMessageToCounterpart(chain, payload, attributes)++`]
+* {xref-CrosschainLinked-_isAuthorizedGateway-address-bytes-}[`++_isAuthorizedGateway(instance, sender)++`]
+
+[.contract-subindex-inherited]
+.ERC7786Recipient
+* {xref-ERC7786Recipient-receiveMessage-bytes32-bytes-bytes-}[`++receiveMessage(receiveId, sender, payload)++`]
+* {xref-ERC7786Recipient-_processMessage-address-bytes32-bytes-bytes-}[`++_processMessage(gateway, receiveId, sender, payload)++`]
+
+[.contract-subindex-inherited]
+.IERC7786Recipient
+
+--
+
+[.contract-index]
+.Events
+--
+* {xref-CrosschainLinked-LinkRegistered-address-bytes-}[`++LinkRegistered(gateway, counterpart)++`]
+
+[.contract-subindex-inherited]
+.ERC7786Recipient
+
+[.contract-subindex-inherited]
+.IERC7786Recipient
+
+--
+
+[.contract-index]
+.Errors
+--
+* {xref-CrosschainLinked-LinkAlreadyRegistered-bytes-}[`++LinkAlreadyRegistered(chain)++`]
+
+[.contract-subindex-inherited]
+.ERC7786Recipient
+* {xref-ERC7786Recipient-ERC7786RecipientUnauthorizedGateway-address-bytes-}[`++ERC7786RecipientUnauthorizedGateway(gateway, sender)++`]
+
+[.contract-subindex-inherited]
+.IERC7786Recipient
+
+--
+
+[.contract-item]
+[[CrosschainLinked-constructor-struct-CrosschainLinked-Link---]]
+==== `[.contract-item-name]#++constructor++#++(struct CrosschainLinked.Link[] links)++` [.item-kind]#internal#
+
+[.contract-item]
+[[CrosschainLinked-getLink-bytes-]]
+==== `[.contract-item-name]#++getLink++#++(bytes chain) → address gateway, bytes counterpart++` [.item-kind]#public#
+
+Returns the ERC-7786 gateway used for sending and receiving cross-chain messages to a given chain.
+
+Note: The `chain` parameter is a "chain-only" InteroperableAddress (empty address) and the `counterpart` returns
+the full InteroperableAddress (chain ref + address) that is on `chain`.
+
+[.contract-item]
+[[CrosschainLinked-_setLink-address-bytes-bool-]]
+==== `[.contract-item-name]#++_setLink++#++(address gateway, bytes counterpart, bool allowOverride)++` [.item-kind]#internal#
+
+Internal setter to change the ERC-7786 gateway and counterpart for a given chain. Called at construction.
+
+Note: The `counterpart` parameter is the full InteroperableAddress (chain ref + address).
+
+[.contract-item]
+[[CrosschainLinked-_sendMessageToCounterpart-bytes-bytes-bytes---]]
+==== `[.contract-item-name]#++_sendMessageToCounterpart++#++(bytes chain, bytes payload, bytes[] attributes) → bytes32++` [.item-kind]#internal#
+
+Internal messaging function
+
+Note: The `chain` parameter is a "chain-only" InteroperableAddress (empty address).
+
+[.contract-item]
+[[CrosschainLinked-_isAuthorizedGateway-address-bytes-]]
+==== `[.contract-item-name]#++_isAuthorizedGateway++#++(address instance, bytes sender) → bool++` [.item-kind]#internal#
+
+Virtual getter that returns whether an address is a valid ERC-7786 gateway for a given sender.
+
+The `sender` parameter is an interoperable address that include the source chain. The chain part can be
+extracted using the {InteroperableAddress} library to selectively authorize gateways based on the origin chain
+of a message.
+
+[.contract-item]
+[[CrosschainLinked-LinkRegistered-address-bytes-]]
+==== `[.contract-item-name]#++LinkRegistered++#++(address gateway, bytes counterpart)++` [.item-kind]#event#
+
+Emitted when a new link is registered.
+
+Note: the `counterpart` argument is a full InteroperableAddress (chain ref + address).
+
+[.contract-item]
+[[CrosschainLinked-LinkAlreadyRegistered-bytes-]]
+==== `[.contract-item-name]#++LinkAlreadyRegistered++#++(bytes chain)++` [.item-kind]#error#
+
+Reverted when trying to register a link for a chain that is already registered.
+
+Note: the `chain` argument is a "chain-only" InteroperableAddress (empty address).
+
+:ERC7786RecipientUnauthorizedGateway: pass:normal[xref:#ERC7786Recipient-ERC7786RecipientUnauthorizedGateway-address-bytes-[`++ERC7786RecipientUnauthorizedGateway++`]]
+:receiveMessage: pass:normal[xref:#ERC7786Recipient-receiveMessage-bytes32-bytes-bytes-[`++receiveMessage++`]]
+:_isAuthorizedGateway: pass:normal[xref:#ERC7786Recipient-_isAuthorizedGateway-address-bytes-[`++_isAuthorizedGateway++`]]
+:_processMessage: pass:normal[xref:#ERC7786Recipient-_processMessage-address-bytes32-bytes-bytes-[`++_processMessage++`]]
+
+:receiveMessage-bytes32-bytes-bytes: pass:normal[xref:#ERC7786Recipient-receiveMessage-bytes32-bytes-bytes-[`++receiveMessage++`]]
+:_isAuthorizedGateway-address-bytes: pass:normal[xref:#ERC7786Recipient-_isAuthorizedGateway-address-bytes-[`++_isAuthorizedGateway++`]]
+:_processMessage-address-bytes32-bytes-bytes: pass:normal[xref:#ERC7786Recipient-_processMessage-address-bytes32-bytes-bytes-[`++_processMessage++`]]
+
+[.contract]
+[[ERC7786Recipient]]
+=== `++ERC7786Recipient++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/crosschain/ERC7786Recipient.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/crosschain/ERC7786Recipient.sol";
+```
+
+Base implementation of an ERC-7786 compliant cross-chain message receiver.
+
+This abstract contract exposes the `receiveMessage` function that is used for communication with (one or multiple)
+destination gateways. This contract leaves two functions unimplemented:
+
+* {_isAuthorizedGateway}, an internal getter used to verify whether an address is recognised by the contract as a
+valid ERC-7786 destination gateway. One or multiple gateway can be supported. Note that any malicious address for
+which this function returns true would be able to impersonate any account on any other chain sending any message.
+
+* {_processMessage}, the internal function that will be called with any message that has been validated.
+
+ERC-7786 requires the gateway to ensure messages are not delivered more than once. Therefore, we don't need to keep
+track of the processed receiveId.
+
+@custom:stateless
+
+[.contract-index]
+.Functions
+--
+* {xref-ERC7786Recipient-receiveMessage-bytes32-bytes-bytes-}[`++receiveMessage(receiveId, sender, payload)++`]
+* {xref-ERC7786Recipient-_isAuthorizedGateway-address-bytes-}[`++_isAuthorizedGateway(gateway, sender)++`]
+* {xref-ERC7786Recipient-_processMessage-address-bytes32-bytes-bytes-}[`++_processMessage(gateway, receiveId, sender, payload)++`]
+
+[.contract-subindex-inherited]
+.IERC7786Recipient
+
+--
+
+[.contract-index]
+.Errors
+--
+* {xref-ERC7786Recipient-ERC7786RecipientUnauthorizedGateway-address-bytes-}[`++ERC7786RecipientUnauthorizedGateway(gateway, sender)++`]
+
+[.contract-subindex-inherited]
+.IERC7786Recipient
+
+--
+
+[.contract-item]
+[[ERC7786Recipient-receiveMessage-bytes32-bytes-bytes-]]
+==== `[.contract-item-name]#++receiveMessage++#++(bytes32 receiveId, bytes sender, bytes payload) → bytes4++` [.item-kind]#external#
+
+Endpoint for receiving cross-chain message.
+
+This function may be called directly by the gateway.
+
+[.contract-item]
+[[ERC7786Recipient-_isAuthorizedGateway-address-bytes-]]
+==== `[.contract-item-name]#++_isAuthorizedGateway++#++(address gateway, bytes sender) → bool++` [.item-kind]#internal#
+
+Virtual getter that returns whether an address is a valid ERC-7786 gateway for a given sender.
+
+The `sender` parameter is an interoperable address that include the source chain. The chain part can be
+extracted using the {InteroperableAddress} library to selectively authorize gateways based on the origin chain
+of a message.
+
+[.contract-item]
+[[ERC7786Recipient-_processMessage-address-bytes32-bytes-bytes-]]
+==== `[.contract-item-name]#++_processMessage++#++(address gateway, bytes32 receiveId, bytes sender, bytes payload)++` [.item-kind]#internal#
+
+Virtual function that should contain the logic to execute when a cross-chain message is received.
+
+NOTE: This function should revert on failure. Any silent failure from this function will result in the message
+being marked as received and not being retryable.
+
+[.contract-item]
+[[ERC7786Recipient-ERC7786RecipientUnauthorizedGateway-address-bytes-]]
+==== `[.contract-item-name]#++ERC7786RecipientUnauthorizedGateway++#++(address gateway, bytes sender)++` [.item-kind]#error#
+
+Error thrown if the gateway is not authorized to send messages to this contract on behalf of the sender.
+
+== Bridges
+
+:CrosschainFungibleTransferSent: pass:normal[xref:#BridgeFungible-CrosschainFungibleTransferSent-bytes32-address-bytes-uint256-[`++CrosschainFungibleTransferSent++`]]
+:CrosschainFungibleTransferReceived: pass:normal[xref:#BridgeFungible-CrosschainFungibleTransferReceived-bytes32-bytes-address-uint256-[`++CrosschainFungibleTransferReceived++`]]
+:crosschainTransfer: pass:normal[xref:#BridgeFungible-crosschainTransfer-bytes-uint256-[`++crosschainTransfer++`]]
+:_crosschainTransfer: pass:normal[xref:#BridgeFungible-_crosschainTransfer-address-bytes-uint256-[`++_crosschainTransfer++`]]
+:_processMessage: pass:normal[xref:#BridgeFungible-_processMessage-address-bytes32-bytes-bytes-[`++_processMessage++`]]
+:_onSend: pass:normal[xref:#BridgeFungible-_onSend-address-uint256-[`++_onSend++`]]
+:_onReceive: pass:normal[xref:#BridgeFungible-_onReceive-address-uint256-[`++_onReceive++`]]
+
+:crosschainTransfer-bytes-uint256: pass:normal[xref:#BridgeFungible-crosschainTransfer-bytes-uint256-[`++crosschainTransfer++`]]
+:_crosschainTransfer-address-bytes-uint256: pass:normal[xref:#BridgeFungible-_crosschainTransfer-address-bytes-uint256-[`++_crosschainTransfer++`]]
+:_processMessage-address-bytes32-bytes-bytes: pass:normal[xref:#BridgeFungible-_processMessage-address-bytes32-bytes-bytes-[`++_processMessage++`]]
+:_onSend-address-uint256: pass:normal[xref:#BridgeFungible-_onSend-address-uint256-[`++_onSend++`]]
+:_onReceive-address-uint256: pass:normal[xref:#BridgeFungible-_onReceive-address-uint256-[`++_onReceive++`]]
+
+[.contract]
+[[BridgeFungible]]
+=== `++BridgeFungible++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/crosschain/bridges/abstract/BridgeFungible.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/crosschain/bridges/abstract/BridgeFungible.sol";
+```
+
+Base contract for bridging ERC-20 between chains using an ERC-7786 gateway.
+
+In order to use this contract, two functions must be implemented to link it to the token:
+* {_onSend}: called when a crosschain transfer is going out. Must take the sender tokens or revert.
+* {_onReceive}: called when a crosschain transfer is coming in. Must give tokens to the receiver.
+
+This base contract is used by the {BridgeERC20}, which interfaces with legacy ERC-20 tokens, and {BridgeERC7802},
+which interface with ERC-7802 to provide an approve-free user experience. It is also used by the {ERC20Crosschain}
+extension, which embeds the bridge logic directly in the token contract.
+
+[.contract-index]
+.Functions
+--
+* {xref-BridgeFungible-crosschainTransfer-bytes-uint256-}[`++crosschainTransfer(to, amount)++`]
+* {xref-BridgeFungible-_crosschainTransfer-address-bytes-uint256-}[`++_crosschainTransfer(from, to, amount)++`]
+* {xref-BridgeFungible-_processMessage-address-bytes32-bytes-bytes-}[`++_processMessage(, receiveId, , payload)++`]
+* {xref-BridgeFungible-_onSend-address-uint256-}[`++_onSend(from, amount)++`]
+* {xref-BridgeFungible-_onReceive-address-uint256-}[`++_onReceive(to, amount)++`]
+
+[.contract-subindex-inherited]
+.CrosschainLinked
+* {xref-CrosschainLinked-getLink-bytes-}[`++getLink(chain)++`]
+* {xref-CrosschainLinked-_setLink-address-bytes-bool-}[`++_setLink(gateway, counterpart, allowOverride)++`]
+* {xref-CrosschainLinked-_sendMessageToCounterpart-bytes-bytes-bytes---}[`++_sendMessageToCounterpart(chain, payload, attributes)++`]
+* {xref-CrosschainLinked-_isAuthorizedGateway-address-bytes-}[`++_isAuthorizedGateway(instance, sender)++`]
+
+[.contract-subindex-inherited]
+.ERC7786Recipient
+* {xref-ERC7786Recipient-receiveMessage-bytes32-bytes-bytes-}[`++receiveMessage(receiveId, sender, payload)++`]
+
+[.contract-subindex-inherited]
+.IERC7786Recipient
+
+--
+
+[.contract-index]
+.Events
+--
+* {xref-BridgeFungible-CrosschainFungibleTransferSent-bytes32-address-bytes-uint256-}[`++CrosschainFungibleTransferSent(sendId, from, to, amount)++`]
+* {xref-BridgeFungible-CrosschainFungibleTransferReceived-bytes32-bytes-address-uint256-}[`++CrosschainFungibleTransferReceived(receiveId, from, to, amount)++`]
+
+[.contract-subindex-inherited]
+.CrosschainLinked
+* {xref-CrosschainLinked-LinkRegistered-address-bytes-}[`++LinkRegistered(gateway, counterpart)++`]
+
+[.contract-subindex-inherited]
+.ERC7786Recipient
+
+[.contract-subindex-inherited]
+.IERC7786Recipient
+
+--
+
+[.contract-index]
+.Errors
+--
+
+[.contract-subindex-inherited]
+.CrosschainLinked
+* {xref-CrosschainLinked-LinkAlreadyRegistered-bytes-}[`++LinkAlreadyRegistered(chain)++`]
+
+[.contract-subindex-inherited]
+.ERC7786Recipient
+* {xref-ERC7786Recipient-ERC7786RecipientUnauthorizedGateway-address-bytes-}[`++ERC7786RecipientUnauthorizedGateway(gateway, sender)++`]
+
+[.contract-subindex-inherited]
+.IERC7786Recipient
+
+--
+
+[.contract-item]
+[[BridgeFungible-crosschainTransfer-bytes-uint256-]]
+==== `[.contract-item-name]#++crosschainTransfer++#++(bytes to, uint256 amount) → bytes32++` [.item-kind]#public#
+
+Transfer `amount` tokens to a crosschain receiver.
+
+Note: The `to` parameter is the full InteroperableAddress (chain ref + address).
+
+[.contract-item]
+[[BridgeFungible-_crosschainTransfer-address-bytes-uint256-]]
+==== `[.contract-item-name]#++_crosschainTransfer++#++(address from, bytes to, uint256 amount) → bytes32++` [.item-kind]#internal#
+
+Internal crosschain transfer function.
+
+Note: The `to` parameter is the full InteroperableAddress (chain ref + address).
+
+[.contract-item]
+[[BridgeFungible-_processMessage-address-bytes32-bytes-bytes-]]
+==== `[.contract-item-name]#++_processMessage++#++(address, bytes32 receiveId, bytes, bytes payload)++` [.item-kind]#internal#
+
+Virtual function that should contain the logic to execute when a cross-chain message is received.
+
+NOTE: This function should revert on failure. Any silent failure from this function will result in the message
+being marked as received and not being retryable.
+
+[.contract-item]
+[[BridgeFungible-_onSend-address-uint256-]]
+==== `[.contract-item-name]#++_onSend++#++(address from, uint256 amount)++` [.item-kind]#internal#
+
+Virtual function: implementation is required to handle token being burnt or locked on the source chain.
+
+[.contract-item]
+[[BridgeFungible-_onReceive-address-uint256-]]
+==== `[.contract-item-name]#++_onReceive++#++(address to, uint256 amount)++` [.item-kind]#internal#
+
+Virtual function: implementation is required to handle token being minted or unlocked on the destination chain.
+
+[.contract-item]
+[[BridgeFungible-CrosschainFungibleTransferSent-bytes32-address-bytes-uint256-]]
+==== `[.contract-item-name]#++CrosschainFungibleTransferSent++#++(bytes32 indexed sendId, address indexed from, bytes to, uint256 amount)++` [.item-kind]#event#
+
+[.contract-item]
+[[BridgeFungible-CrosschainFungibleTransferReceived-bytes32-bytes-address-uint256-]]
+==== `[.contract-item-name]#++CrosschainFungibleTransferReceived++#++(bytes32 indexed receiveId, bytes from, address indexed to, uint256 amount)++` [.item-kind]#event#
+
+:constructor: pass:normal[xref:#BridgeERC20-constructor-contract-IERC20-[`++constructor++`]]
+:token: pass:normal[xref:#BridgeERC20-token--[`++token++`]]
+:_onSend: pass:normal[xref:#BridgeERC20-_onSend-address-uint256-[`++_onSend++`]]
+:_onReceive: pass:normal[xref:#BridgeERC20-_onReceive-address-uint256-[`++_onReceive++`]]
+
+:constructor-contract-IERC20: pass:normal[xref:#BridgeERC20-constructor-contract-IERC20-[`++constructor++`]]
+:token-: pass:normal[xref:#BridgeERC20-token--[`++token++`]]
+:_onSend-address-uint256: pass:normal[xref:#BridgeERC20-_onSend-address-uint256-[`++_onSend++`]]
+:_onReceive-address-uint256: pass:normal[xref:#BridgeERC20-_onReceive-address-uint256-[`++_onReceive++`]]
+
+[.contract]
+[[BridgeERC20]]
+=== `++BridgeERC20++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/crosschain/bridges/BridgeERC20.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/crosschain/bridges/BridgeERC20.sol";
+```
+
+This is a variant of {BridgeFungible} that implements the bridge logic for ERC-20 tokens that do not expose a
+crosschain mint and burn mechanism. Instead, it takes custody of bridged assets.
+
+[.contract-index]
+.Functions
+--
+* {xref-BridgeERC20-constructor-contract-IERC20-}[`++constructor(token_)++`]
+* {xref-BridgeERC20-token--}[`++token()++`]
+* {xref-BridgeERC20-_onSend-address-uint256-}[`++_onSend(from, amount)++`]
+* {xref-BridgeERC20-_onReceive-address-uint256-}[`++_onReceive(to, amount)++`]
+
+[.contract-subindex-inherited]
+.BridgeFungible
+* {xref-BridgeFungible-crosschainTransfer-bytes-uint256-}[`++crosschainTransfer(to, amount)++`]
+* {xref-BridgeFungible-_crosschainTransfer-address-bytes-uint256-}[`++_crosschainTransfer(from, to, amount)++`]
+* {xref-BridgeFungible-_processMessage-address-bytes32-bytes-bytes-}[`++_processMessage(, receiveId, , payload)++`]
+
+[.contract-subindex-inherited]
+.CrosschainLinked
+* {xref-CrosschainLinked-getLink-bytes-}[`++getLink(chain)++`]
+* {xref-CrosschainLinked-_setLink-address-bytes-bool-}[`++_setLink(gateway, counterpart, allowOverride)++`]
+* {xref-CrosschainLinked-_sendMessageToCounterpart-bytes-bytes-bytes---}[`++_sendMessageToCounterpart(chain, payload, attributes)++`]
+* {xref-CrosschainLinked-_isAuthorizedGateway-address-bytes-}[`++_isAuthorizedGateway(instance, sender)++`]
+
+[.contract-subindex-inherited]
+.ERC7786Recipient
+* {xref-ERC7786Recipient-receiveMessage-bytes32-bytes-bytes-}[`++receiveMessage(receiveId, sender, payload)++`]
+
+[.contract-subindex-inherited]
+.IERC7786Recipient
+
+--
+
+[.contract-index]
+.Events
+--
+
+[.contract-subindex-inherited]
+.BridgeFungible
+* {xref-BridgeFungible-CrosschainFungibleTransferSent-bytes32-address-bytes-uint256-}[`++CrosschainFungibleTransferSent(sendId, from, to, amount)++`]
+* {xref-BridgeFungible-CrosschainFungibleTransferReceived-bytes32-bytes-address-uint256-}[`++CrosschainFungibleTransferReceived(receiveId, from, to, amount)++`]
+
+[.contract-subindex-inherited]
+.CrosschainLinked
+* {xref-CrosschainLinked-LinkRegistered-address-bytes-}[`++LinkRegistered(gateway, counterpart)++`]
+
+[.contract-subindex-inherited]
+.ERC7786Recipient
+
+[.contract-subindex-inherited]
+.IERC7786Recipient
+
+--
+
+[.contract-index]
+.Errors
+--
+
+[.contract-subindex-inherited]
+.BridgeFungible
+
+[.contract-subindex-inherited]
+.CrosschainLinked
+* {xref-CrosschainLinked-LinkAlreadyRegistered-bytes-}[`++LinkAlreadyRegistered(chain)++`]
+
+[.contract-subindex-inherited]
+.ERC7786Recipient
+* {xref-ERC7786Recipient-ERC7786RecipientUnauthorizedGateway-address-bytes-}[`++ERC7786RecipientUnauthorizedGateway(gateway, sender)++`]
+
+[.contract-subindex-inherited]
+.IERC7786Recipient
+
+--
+
+[.contract-item]
+[[BridgeERC20-constructor-contract-IERC20-]]
+==== `[.contract-item-name]#++constructor++#++(contract IERC20 token_)++` [.item-kind]#internal#
+
+[.contract-item]
+[[BridgeERC20-token--]]
+==== `[.contract-item-name]#++token++#++() → contract IERC20++` [.item-kind]#public#
+
+[.contract-item]
+[[BridgeERC20-_onSend-address-uint256-]]
+==== `[.contract-item-name]#++_onSend++#++(address from, uint256 amount)++` [.item-kind]#internal#
+
+"Locking" tokens is done by taking custody
+
+[.contract-item]
+[[BridgeERC20-_onReceive-address-uint256-]]
+==== `[.contract-item-name]#++_onReceive++#++(address to, uint256 amount)++` [.item-kind]#internal#
+
+"Unlocking" tokens is done by releasing custody
+
+:constructor: pass:normal[xref:#BridgeERC7802-constructor-contract-IERC7802-[`++constructor++`]]
+:token: pass:normal[xref:#BridgeERC7802-token--[`++token++`]]
+:_onSend: pass:normal[xref:#BridgeERC7802-_onSend-address-uint256-[`++_onSend++`]]
+:_onReceive: pass:normal[xref:#BridgeERC7802-_onReceive-address-uint256-[`++_onReceive++`]]
+
+:constructor-contract-IERC7802: pass:normal[xref:#BridgeERC7802-constructor-contract-IERC7802-[`++constructor++`]]
+:token-: pass:normal[xref:#BridgeERC7802-token--[`++token++`]]
+:_onSend-address-uint256: pass:normal[xref:#BridgeERC7802-_onSend-address-uint256-[`++_onSend++`]]
+:_onReceive-address-uint256: pass:normal[xref:#BridgeERC7802-_onReceive-address-uint256-[`++_onReceive++`]]
+
+[.contract]
+[[BridgeERC7802]]
+=== `++BridgeERC7802++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/crosschain/bridges/BridgeERC7802.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/crosschain/bridges/BridgeERC7802.sol";
+```
+
+This is a variant of {BridgeFungible} that implements the bridge logic for ERC-7802 compliant tokens.
+
+[.contract-index]
+.Functions
+--
+* {xref-BridgeERC7802-constructor-contract-IERC7802-}[`++constructor(token_)++`]
+* {xref-BridgeERC7802-token--}[`++token()++`]
+* {xref-BridgeERC7802-_onSend-address-uint256-}[`++_onSend(from, amount)++`]
+* {xref-BridgeERC7802-_onReceive-address-uint256-}[`++_onReceive(to, amount)++`]
+
+[.contract-subindex-inherited]
+.BridgeFungible
+* {xref-BridgeFungible-crosschainTransfer-bytes-uint256-}[`++crosschainTransfer(to, amount)++`]
+* {xref-BridgeFungible-_crosschainTransfer-address-bytes-uint256-}[`++_crosschainTransfer(from, to, amount)++`]
+* {xref-BridgeFungible-_processMessage-address-bytes32-bytes-bytes-}[`++_processMessage(, receiveId, , payload)++`]
+
+[.contract-subindex-inherited]
+.CrosschainLinked
+* {xref-CrosschainLinked-getLink-bytes-}[`++getLink(chain)++`]
+* {xref-CrosschainLinked-_setLink-address-bytes-bool-}[`++_setLink(gateway, counterpart, allowOverride)++`]
+* {xref-CrosschainLinked-_sendMessageToCounterpart-bytes-bytes-bytes---}[`++_sendMessageToCounterpart(chain, payload, attributes)++`]
+* {xref-CrosschainLinked-_isAuthorizedGateway-address-bytes-}[`++_isAuthorizedGateway(instance, sender)++`]
+
+[.contract-subindex-inherited]
+.ERC7786Recipient
+* {xref-ERC7786Recipient-receiveMessage-bytes32-bytes-bytes-}[`++receiveMessage(receiveId, sender, payload)++`]
+
+[.contract-subindex-inherited]
+.IERC7786Recipient
+
+--
+
+[.contract-index]
+.Events
+--
+
+[.contract-subindex-inherited]
+.BridgeFungible
+* {xref-BridgeFungible-CrosschainFungibleTransferSent-bytes32-address-bytes-uint256-}[`++CrosschainFungibleTransferSent(sendId, from, to, amount)++`]
+* {xref-BridgeFungible-CrosschainFungibleTransferReceived-bytes32-bytes-address-uint256-}[`++CrosschainFungibleTransferReceived(receiveId, from, to, amount)++`]
+
+[.contract-subindex-inherited]
+.CrosschainLinked
+* {xref-CrosschainLinked-LinkRegistered-address-bytes-}[`++LinkRegistered(gateway, counterpart)++`]
+
+[.contract-subindex-inherited]
+.ERC7786Recipient
+
+[.contract-subindex-inherited]
+.IERC7786Recipient
+
+--
+
+[.contract-index]
+.Errors
+--
+
+[.contract-subindex-inherited]
+.BridgeFungible
+
+[.contract-subindex-inherited]
+.CrosschainLinked
+* {xref-CrosschainLinked-LinkAlreadyRegistered-bytes-}[`++LinkAlreadyRegistered(chain)++`]
+
+[.contract-subindex-inherited]
+.ERC7786Recipient
+* {xref-ERC7786Recipient-ERC7786RecipientUnauthorizedGateway-address-bytes-}[`++ERC7786RecipientUnauthorizedGateway(gateway, sender)++`]
+
+[.contract-subindex-inherited]
+.IERC7786Recipient
+
+--
+
+[.contract-item]
+[[BridgeERC7802-constructor-contract-IERC7802-]]
+==== `[.contract-item-name]#++constructor++#++(contract IERC7802 token_)++` [.item-kind]#internal#
+
+[.contract-item]
+[[BridgeERC7802-token--]]
+==== `[.contract-item-name]#++token++#++() → contract IERC7802++` [.item-kind]#public#
+
+[.contract-item]
+[[BridgeERC7802-_onSend-address-uint256-]]
+==== `[.contract-item-name]#++_onSend++#++(address from, uint256 amount)++` [.item-kind]#internal#
+
+"Locking" tokens using an ERC-7802 crosschain burn
+
+[.contract-item]
+[[BridgeERC7802-_onReceive-address-uint256-]]
+==== `[.contract-item-name]#++_onReceive++#++(address to, uint256 amount)++` [.item-kind]#internal#
+
+"Unlocking" tokens using an ERC-7802 crosschain mint
+

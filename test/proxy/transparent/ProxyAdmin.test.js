@@ -11,7 +11,7 @@ async function fixture() {
   const v2 = await ethers.deployContract('DummyImplementationV2');
 
   const proxy = await ethers
-    .deployContract('TransparentUpgradeableProxy', [v1, admin, '0x'])
+    .deployContract('TransparentUpgradeableProxy', [v1, admin, v1.interface.encodeFunctionData('initializeNonPayable')])
     .then(instance => ethers.getContractAt('ITransparentUpgradeableProxy', instance));
 
   const proxyAdmin = await ethers.getContractAt(

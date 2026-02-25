@@ -12,7 +12,7 @@ contract MathTest is Test {
     }
 
     // ADD512 & MUL512
-    function testAdd512(uint256 a, uint256 b) public pure {
+    function testSymbolicAdd512(uint256 a, uint256 b) public pure {
         (uint256 high, uint256 low) = Math.add512(a, b);
 
         // test against tryAdd
@@ -60,7 +60,8 @@ contract MathTest is Test {
     }
 
     // CEILDIV
-    function testCeilDiv(uint256 a, uint256 b) public pure {
+    /// @custom:halmos --solver cvc5-int
+    function testSymbolicCeilDiv(uint256 a, uint256 b) public pure {
         vm.assume(b > 0);
 
         uint256 result = Math.ceilDiv(a, b);
@@ -112,17 +113,18 @@ contract MathTest is Test {
         _testInvMod(value, p, true);
     }
 
-    function testInvMod2(uint256 seed) public pure {
+    function testSymbolicInvMod2(uint256 seed) public pure {
         uint256 p = 2; // prime
         _testInvMod(bound(seed, 1, p - 1), p, false);
     }
 
-    function testInvMod17(uint256 seed) public pure {
+    function testSymbolicInvMod17(uint256 seed) public pure {
         uint256 p = 17; // prime
         _testInvMod(bound(seed, 1, p - 1), p, false);
     }
 
-    function testInvMod65537(uint256 seed) public pure {
+    /// @custom:halmos --solver bitwuzla-abs
+    function testSymbolicInvMod65537(uint256 seed) public pure {
         uint256 p = 65537; // prime
         _testInvMod(bound(seed, 1, p - 1), p, false);
     }
@@ -305,6 +307,25 @@ contract MathTest is Test {
             assertEq(res, _nativeModExp(b, e, m));
         } else {
             assertEq(result.length, 0);
+        }
+    }
+
+    function testSymbolicCountLeadingZeroes(uint256 x) public pure {
+        uint256 result = Math.clz(x);
+
+        if (x == 0) {
+            assertEq(result, 256);
+        } else {
+            // result in [0, 255]
+            assertLe(result, 255);
+
+            // bit at position offset must be non zero
+            uint256 singleBitMask = uint256(1) << (255 - result);
+            assertEq(x & singleBitMask, singleBitMask);
+
+            // all bits before offset must be zero
+            uint256 multiBitsMask = type(uint256).max << (256 - result);
+            assertEq(x & multiBitsMask, 0);
         }
     }
 

@@ -38,7 +38,13 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy() {
   });
 
   beforeEach(async function () {
-    Object.assign(this, await this.createProxyWithImpersonatedProxyAdmin(this.implementationV0, '0x'));
+    Object.assign(
+      this,
+      await this.createProxyWithImpersonatedProxyAdmin(
+        this.implementationV0,
+        this.implementationV0.interface.encodeFunctionData('initializeNonPayable'),
+      ),
+    );
   });
 
   describe('implementation', function () {
@@ -239,7 +245,13 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy() {
       this.clashingImplV0 = await ethers.deployContract('ClashingImplementation');
       this.clashingImplV1 = await ethers.deployContract('ClashingImplementation');
 
-      Object.assign(this, await this.createProxyWithImpersonatedProxyAdmin(this.clashingImplV0, '0x'));
+      Object.assign(
+        this,
+        await this.createProxyWithImpersonatedProxyAdmin(
+          this.clashingImplV0,
+          this.clashingImplV0.interface.encodeFunctionData('delegatedFunction'), // use a pure function with no state change as dummy initializer.
+        ),
+      );
     });
 
     it('proxy admin cannot call delegated functions', async function () {
@@ -267,14 +279,12 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy() {
   });
 
   describe('regression', function () {
-    const initializeData = '0x';
-
     it('should add new function', async function () {
       const impl1 = await ethers.deployContract('Implementation1');
       const impl2 = await ethers.deployContract('Implementation2');
       const { instance, proxy, proxyAdminAsSigner } = await this.createProxyWithImpersonatedProxyAdmin(
         impl1,
-        initializeData,
+        impl1.interface.encodeFunctionData('initialize'),
       );
 
       await instance.setValue(42n);
@@ -294,7 +304,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy() {
       const impl2 = await ethers.deployContract('Implementation2');
       const { instance, proxy, proxyAdminAsSigner } = await this.createProxyWithImpersonatedProxyAdmin(
         impl2,
-        initializeData,
+        impl2.interface.encodeFunctionData('initialize'),
       );
 
       await instance.setValue(42n);
@@ -314,7 +324,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy() {
       const impl3 = await ethers.deployContract('Implementation3');
       const { instance, proxy, proxyAdminAsSigner } = await this.createProxyWithImpersonatedProxyAdmin(
         impl1,
-        initializeData,
+        impl1.interface.encodeFunctionData('initialize'),
       );
 
       await instance.setValue(42n);
@@ -329,7 +339,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy() {
       const impl4 = await ethers.deployContract('Implementation4');
       const { instance, proxy, proxyAdminAsSigner } = await this.createProxyWithImpersonatedProxyAdmin(
         impl1,
-        initializeData,
+        impl1.interface.encodeFunctionData('initialize'),
       );
 
       await proxy.connect(proxyAdminAsSigner).upgradeToAndCall(impl4, '0x');
@@ -344,7 +354,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy() {
       const impl4 = await ethers.deployContract('Implementation4');
       const { instance, proxy, proxyAdminAsSigner } = await this.createProxyWithImpersonatedProxyAdmin(
         impl4,
-        initializeData,
+        impl4.interface.encodeFunctionData('initialize'),
       );
 
       await proxy.connect(proxyAdminAsSigner).upgradeToAndCall(impl2, '0x');

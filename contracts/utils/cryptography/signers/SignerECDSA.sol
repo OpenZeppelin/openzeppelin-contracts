@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.4.0) (utils/cryptography/signers/SignerECDSA.sol)
+// OpenZeppelin Contracts (last updated v5.6.0) (utils/cryptography/signers/SignerECDSA.sol)
 
 pragma solidity ^0.8.20;
 
@@ -50,7 +50,7 @@ abstract contract SignerECDSA is AbstractSigner {
         bytes32 hash,
         bytes calldata signature
     ) internal view virtual override returns (bool) {
-        (address recovered, ECDSA.RecoverError err, ) = ECDSA.tryRecover(hash, signature);
+        (address recovered, ECDSA.RecoverError err, ) = ECDSA.tryRecoverCalldata(hash, signature);
         return signer() == recovered && err == ECDSA.RecoverError.NoError;
     }
 }

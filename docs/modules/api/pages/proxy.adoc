@@ -20,9 +20,11 @@
 :xref-Proxy-fallback--: xref:proxy.adoc#Proxy-fallback--
 :xref-ERC1967Proxy-constructor-address-bytes-: xref:proxy.adoc#ERC1967Proxy-constructor-address-bytes-
 :xref-ERC1967Proxy-_implementation--: xref:proxy.adoc#ERC1967Proxy-_implementation--
+:xref-ERC1967Proxy-_unsafeAllowUninitialized--: xref:proxy.adoc#ERC1967Proxy-_unsafeAllowUninitialized--
 :xref-Proxy-_delegate-address-: xref:proxy.adoc#Proxy-_delegate-address-
 :xref-Proxy-_fallback--: xref:proxy.adoc#Proxy-_fallback--
 :xref-Proxy-fallback--: xref:proxy.adoc#Proxy-fallback--
+:xref-ERC1967Proxy-ERC1967ProxyUninitialized--: xref:proxy.adoc#ERC1967Proxy-ERC1967ProxyUninitialized--
 :xref-ERC1967Utils-getImplementation--: xref:proxy.adoc#ERC1967Utils-getImplementation--
 :xref-ERC1967Utils-upgradeToAndCall-address-bytes-: xref:proxy.adoc#ERC1967Utils-upgradeToAndCall-address-bytes-
 :xref-ERC1967Utils-getAdmin--: xref:proxy.adoc#ERC1967Utils-getAdmin--
@@ -50,9 +52,11 @@
 :xref-TransparentUpgradeableProxy-_proxyAdmin--: xref:proxy.adoc#TransparentUpgradeableProxy-_proxyAdmin--
 :xref-TransparentUpgradeableProxy-_fallback--: xref:proxy.adoc#TransparentUpgradeableProxy-_fallback--
 :xref-ERC1967Proxy-_implementation--: xref:proxy.adoc#ERC1967Proxy-_implementation--
+:xref-ERC1967Proxy-_unsafeAllowUninitialized--: xref:proxy.adoc#ERC1967Proxy-_unsafeAllowUninitialized--
 :xref-Proxy-_delegate-address-: xref:proxy.adoc#Proxy-_delegate-address-
 :xref-Proxy-fallback--: xref:proxy.adoc#Proxy-fallback--
 :xref-TransparentUpgradeableProxy-ProxyDeniedAdminAccess--: xref:proxy.adoc#TransparentUpgradeableProxy-ProxyDeniedAdminAccess--
+:xref-ERC1967Proxy-ERC1967ProxyUninitialized--: xref:proxy.adoc#ERC1967Proxy-ERC1967ProxyUninitialized--
 :ProxyAdmin: pass:normal[xref:proxy.adoc#ProxyAdmin[`ProxyAdmin`]]
 :ERC1967Proxy-constructor: pass:normal[xref:proxy.adoc#ERC1967Proxy-constructor-address-bytes-[`ERC1967Proxy.constructor`]]
 :TransparentUpgradeableProxy: pass:normal[xref:proxy.adoc#TransparentUpgradeableProxy[`TransparentUpgradeableProxy`]]
@@ -163,10 +167,10 @@ There are two alternative ways to add upgradeability to an ERC-1967 proxy. Their
 
 CAUTION: Using upgradeable proxies correctly and securely is a difficult task that requires deep knowledge of the proxy pattern, Solidity, and the EVM. Unless you want a lot of low level control, we recommend using the xref:upgrades-plugins::index.adoc[OpenZeppelin Upgrades Plugins] for Hardhat and Foundry.
 
-A different family of proxies are beacon proxies. This pattern, popularized by Dharma, allows multiple proxies to be upgraded to a different implementation in a single transaction.
+A different family of proxies is beacon proxies. This pattern, popularized by Dharma, allows multiple proxies to be upgraded to a different implementation in a single transaction.
 
 - {BeaconProxy}: A proxy that retrieves its implementation from a beacon contract.
-- {UpgradeableBeacon}: A beacon contract with a built in admin that can upgrade the {BeaconProxy} pointing to it.
+- {UpgradeableBeacon}: A beacon contract with a built-in admin that can upgrade the {BeaconProxy} pointing to it.
 
 In this pattern, the proxy contract doesn't hold the implementation address in storage like an ERC-1967 proxy. Instead, the address is stored in a separate beacon contract. The `upgrade` operations are sent to the beacon instead of to the proxy contract, and all proxies that follow that beacon are automatically upgraded.
 
@@ -206,7 +210,7 @@ The current implementation of this security mechanism uses https://eips.ethereum
 
 [.contract]
 [[Proxy]]
-=== `++Proxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/proxy/Proxy.sol[{github-icon},role=heading-link]
+=== `++Proxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/proxy/Proxy.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -264,15 +268,18 @@ function in the contract matches the call data.
 
 == ERC-1967
 
+:ERC1967ProxyUninitialized: pass:normal[xref:#ERC1967Proxy-ERC1967ProxyUninitialized--[`++ERC1967ProxyUninitialized++`]]
 :constructor: pass:normal[xref:#ERC1967Proxy-constructor-address-bytes-[`++constructor++`]]
 :_implementation: pass:normal[xref:#ERC1967Proxy-_implementation--[`++_implementation++`]]
+:_unsafeAllowUninitialized: pass:normal[xref:#ERC1967Proxy-_unsafeAllowUninitialized--[`++_unsafeAllowUninitialized++`]]
 
 :constructor-address-bytes: pass:normal[xref:#ERC1967Proxy-constructor-address-bytes-[`++constructor++`]]
 :_implementation-: pass:normal[xref:#ERC1967Proxy-_implementation--[`++_implementation++`]]
+:_unsafeAllowUninitialized-: pass:normal[xref:#ERC1967Proxy-_unsafeAllowUninitialized--[`++_unsafeAllowUninitialized++`]]
 
 [.contract]
 [[ERC1967Proxy]]
-=== `++ERC1967Proxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/proxy/ERC1967/ERC1967Proxy.sol[{github-icon},role=heading-link]
+=== `++ERC1967Proxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/proxy/ERC1967/ERC1967Proxy.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -289,6 +296,7 @@ implementation behind the proxy.
 --
 * {xref-ERC1967Proxy-constructor-address-bytes-}[`++constructor(implementation, _data)++`]
 * {xref-ERC1967Proxy-_implementation--}[`++_implementation()++`]
+* {xref-ERC1967Proxy-_unsafeAllowUninitialized--}[`++_unsafeAllowUninitialized()++`]
 
 [.contract-subindex-inherited]
 .Proxy
@@ -298,14 +306,27 @@ implementation behind the proxy.
 
 --
 
+[.contract-index]
+.Errors
+--
+* {xref-ERC1967Proxy-ERC1967ProxyUninitialized--}[`++ERC1967ProxyUninitialized()++`]
+
+[.contract-subindex-inherited]
+.Proxy
+
+--
+
 [.contract-item]
 [[ERC1967Proxy-constructor-address-bytes-]]
 ==== `[.contract-item-name]#++constructor++#++(address implementation, bytes _data)++` [.item-kind]#public#
 
 Initializes the upgradeable proxy with an initial implementation specified by `implementation`.
 
-If `_data` is nonempty, it's used as data in a delegate call to `implementation`. This will typically be an
-encoded function call, and allows initializing the storage of the proxy like a Solidity constructor.
+Provided `_data` is passed in a delegate call to `implementation`. This will typically be an encoded function
+call, and allows initializing the storage of the proxy like a Solidity constructor. By default construction
+will fail if `_data` is empty. This behavior can be overridden using a custom {_unsafeAllowUninitialized} that
+returns true. In that case, empty `_data` is ignored and no delegate call to the implementation is performed
+during construction.
 
 Requirements:
 
@@ -320,6 +341,22 @@ Returns the current implementation address.
 TIP: To get this value clients can read directly from the storage slot shown below (specified by ERC-1967) using
 the https://eth.wiki/json-rpc/API#eth_getstorageat[`eth_getStorageAt`] RPC call.
 `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
+
+[.contract-item]
+[[ERC1967Proxy-_unsafeAllowUninitialized--]]
+==== `[.contract-item-name]#++_unsafeAllowUninitialized++#++() → bool++` [.item-kind]#internal#
+
+Returns whether the proxy can be left uninitialized.
+
+NOTE: Override this function to allow the proxy to be left uninitialized.
+Consider uninitialized proxies might be susceptible to man-in-the-middle threats
+where the proxy is replaced with a malicious one.
+
+[.contract-item]
+[[ERC1967Proxy-ERC1967ProxyUninitialized--]]
+==== `[.contract-item-name]#++ERC1967ProxyUninitialized++#++()++` [.item-kind]#error#
+
+The proxy is left uninitialized.
 
 :IMPLEMENTATION_SLOT: pass:normal[xref:#ERC1967Utils-IMPLEMENTATION_SLOT-bytes32[`++IMPLEMENTATION_SLOT++`]]
 :ERC1967InvalidImplementation: pass:normal[xref:#ERC1967Utils-ERC1967InvalidImplementation-address-[`++ERC1967InvalidImplementation++`]]
@@ -344,7 +381,7 @@ the https://eth.wiki/json-rpc/API#eth_getstorageat[`eth_getStorageAt`] RPC call.
 
 [.contract]
 [[ERC1967Utils]]
-=== `++ERC1967Utils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/proxy/ERC1967/ERC1967Utils.sol[{github-icon},role=heading-link]
+=== `++ERC1967Utils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/proxy/ERC1967/ERC1967Utils.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -408,7 +445,7 @@ Emits an {IERC1967-Upgraded} event.
 Returns the current admin.
 
 TIP: To get this value clients can read directly from the storage slot shown below (specified by ERC-1967) using
-the https://eth.wiki/json-rpc/API#eth_getstorageat[`eth_getStorageAt`] RPC call.
+the https://ethereum.org/developers/docs/apis/json-rpc/#eth_getstorageat[`eth_getStorageAt`] RPC call.
 `0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103`
 
 [.contract-item]
@@ -497,7 +534,7 @@ This is the keccak-256 hash of "eip1967.proxy.beacon" subtracted by 1.
 
 [.contract]
 [[TransparentUpgradeableProxy]]
-=== `++TransparentUpgradeableProxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/proxy/transparent/TransparentUpgradeableProxy.sol[{github-icon},role=heading-link]
+=== `++TransparentUpgradeableProxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/proxy/transparent/TransparentUpgradeableProxy.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -513,7 +550,7 @@ things that go hand in hand:
 
 1. If any account other than the admin calls the proxy, the call will be forwarded to the implementation, even if
 that call matches the {ITransparentUpgradeableProxy-upgradeToAndCall} function exposed by the proxy itself.
-2. If the admin calls the proxy, it can call the `upgradeToAndCall` function but any other call won't be forwarded to
+2. If the admin calls the proxy, it can call the `upgradeToAndCall` function, but any other call won't be forwarded to
 the implementation. If the admin tries to call a function on the implementation it will fail with an error indicating
 the proxy admin cannot fallback to the target implementation.
 
@@ -553,6 +590,7 @@ could render the `upgradeToAndCall` function inaccessible, preventing upgradeabi
 [.contract-subindex-inherited]
 .ERC1967Proxy
 * {xref-ERC1967Proxy-_implementation--}[`++_implementation()++`]
+* {xref-ERC1967Proxy-_unsafeAllowUninitialized--}[`++_unsafeAllowUninitialized()++`]
 
 [.contract-subindex-inherited]
 .Proxy
@@ -568,6 +606,7 @@ could render the `upgradeToAndCall` function inaccessible, preventing upgradeabi
 
 [.contract-subindex-inherited]
 .ERC1967Proxy
+* {xref-ERC1967Proxy-ERC1967ProxyUninitialized--}[`++ERC1967ProxyUninitialized()++`]
 
 [.contract-subindex-inherited]
 .Proxy
@@ -610,7 +649,7 @@ The proxy caller is the current admin, and can't fallback to the proxy target.
 
 [.contract]
 [[ProxyAdmin]]
-=== `++ProxyAdmin++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/proxy/transparent/ProxyAdmin.sol[{github-icon},role=heading-link]
+=== `++ProxyAdmin++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/proxy/transparent/ProxyAdmin.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -699,7 +738,7 @@ during an upgrade.
 
 [.contract]
 [[BeaconProxy]]
-=== `++BeaconProxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/proxy/beacon/BeaconProxy.sol[{github-icon},role=heading-link]
+=== `++BeaconProxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/proxy/beacon/BeaconProxy.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -766,7 +805,7 @@ Returns the beacon.
 
 [.contract]
 [[IBeacon]]
-=== `++IBeacon++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/proxy/beacon/IBeacon.sol[{github-icon},role=heading-link]
+=== `++IBeacon++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/proxy/beacon/IBeacon.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -802,7 +841,7 @@ Must return an address that can be used as a delegate call target.
 
 [.contract]
 [[UpgradeableBeacon]]
-=== `++UpgradeableBeacon++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/proxy/beacon/UpgradeableBeacon.sol[{github-icon},role=heading-link]
+=== `++UpgradeableBeacon++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/proxy/beacon/UpgradeableBeacon.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -933,7 +972,7 @@ The `implementation` of the beacon is invalid.
 
 [.contract]
 [[Clones]]
-=== `++Clones++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/proxy/Clones.sol[{github-icon},role=heading-link]
+=== `++Clones++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/proxy/Clones.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1153,7 +1192,7 @@ Get the immutable args attached to a clone.
 
 [.contract]
 [[Initializable]]
-=== `++Initializable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/proxy/utils/Initializable.sol[{github-icon},role=heading-link]
+=== `++Initializable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/proxy/utils/Initializable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1359,7 +1398,7 @@ The contract is not initializing.
 
 [.contract]
 [[UUPSUpgradeable]]
-=== `++UUPSUpgradeable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/proxy/utils/UUPSUpgradeable.sol[{github-icon},role=heading-link]
+=== `++UUPSUpgradeable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/proxy/utils/UUPSUpgradeable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1374,6 +1413,8 @@ reinstated if the upgrade retains upgradeability but removes the security mechan
 `UUPSUpgradeable` with a custom implementation of upgrades.
 
 The {_authorizeUpgrade} function must be overridden to include access restriction to the upgrade mechanism.
+
+@custom:stateless
 
 [.contract-index]
 .Modifiers

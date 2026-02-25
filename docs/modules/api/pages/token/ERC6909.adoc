@@ -27,11 +27,11 @@
 :xref-ERC6909-ERC6909InvalidReceiver-address-: xref:token/ERC6909.adoc#ERC6909-ERC6909InvalidReceiver-address-
 :xref-ERC6909-ERC6909InvalidSender-address-: xref:token/ERC6909.adoc#ERC6909-ERC6909InvalidSender-address-
 :xref-ERC6909-ERC6909InvalidSpender-address-: xref:token/ERC6909.adoc#ERC6909-ERC6909InvalidSpender-address-
+:xref-ERC6909ContentURI-supportsInterface-bytes4-: xref:token/ERC6909.adoc#ERC6909ContentURI-supportsInterface-bytes4-
 :xref-ERC6909ContentURI-contractURI--: xref:token/ERC6909.adoc#ERC6909ContentURI-contractURI--
 :xref-ERC6909ContentURI-tokenURI-uint256-: xref:token/ERC6909.adoc#ERC6909ContentURI-tokenURI-uint256-
 :xref-ERC6909ContentURI-_setContractURI-string-: xref:token/ERC6909.adoc#ERC6909ContentURI-_setContractURI-string-
 :xref-ERC6909ContentURI-_setTokenURI-uint256-string-: xref:token/ERC6909.adoc#ERC6909ContentURI-_setTokenURI-uint256-string-
-:xref-ERC6909-supportsInterface-bytes4-: xref:token/ERC6909.adoc#ERC6909-supportsInterface-bytes4-
 :xref-ERC6909-balanceOf-address-uint256-: xref:token/ERC6909.adoc#ERC6909-balanceOf-address-uint256-
 :xref-ERC6909-allowance-address-address-uint256-: xref:token/ERC6909.adoc#ERC6909-allowance-address-address-uint256-
 :xref-ERC6909-isOperator-address-address-: xref:token/ERC6909.adoc#ERC6909-isOperator-address-address-
@@ -61,10 +61,10 @@
 :xref-ERC6909Metadata-name-uint256-: xref:token/ERC6909.adoc#ERC6909Metadata-name-uint256-
 :xref-ERC6909Metadata-symbol-uint256-: xref:token/ERC6909.adoc#ERC6909Metadata-symbol-uint256-
 :xref-ERC6909Metadata-decimals-uint256-: xref:token/ERC6909.adoc#ERC6909Metadata-decimals-uint256-
+:xref-ERC6909Metadata-supportsInterface-bytes4-: xref:token/ERC6909.adoc#ERC6909Metadata-supportsInterface-bytes4-
 :xref-ERC6909Metadata-_setName-uint256-string-: xref:token/ERC6909.adoc#ERC6909Metadata-_setName-uint256-string-
 :xref-ERC6909Metadata-_setSymbol-uint256-string-: xref:token/ERC6909.adoc#ERC6909Metadata-_setSymbol-uint256-string-
 :xref-ERC6909Metadata-_setDecimals-uint256-uint8-: xref:token/ERC6909.adoc#ERC6909Metadata-_setDecimals-uint256-uint8-
-:xref-ERC6909-supportsInterface-bytes4-: xref:token/ERC6909.adoc#ERC6909-supportsInterface-bytes4-
 :xref-ERC6909-balanceOf-address-uint256-: xref:token/ERC6909.adoc#ERC6909-balanceOf-address-uint256-
 :xref-ERC6909-allowance-address-address-uint256-: xref:token/ERC6909.adoc#ERC6909-allowance-address-address-uint256-
 :xref-ERC6909-isOperator-address-address-: xref:token/ERC6909.adoc#ERC6909-isOperator-address-address-
@@ -92,8 +92,8 @@
 :xref-ERC6909-ERC6909InvalidSender-address-: xref:token/ERC6909.adoc#ERC6909-ERC6909InvalidSender-address-
 :xref-ERC6909-ERC6909InvalidSpender-address-: xref:token/ERC6909.adoc#ERC6909-ERC6909InvalidSpender-address-
 :xref-ERC6909TokenSupply-totalSupply-uint256-: xref:token/ERC6909.adoc#ERC6909TokenSupply-totalSupply-uint256-
+:xref-ERC6909TokenSupply-supportsInterface-bytes4-: xref:token/ERC6909.adoc#ERC6909TokenSupply-supportsInterface-bytes4-
 :xref-ERC6909TokenSupply-_update-address-address-uint256-uint256-: xref:token/ERC6909.adoc#ERC6909TokenSupply-_update-address-address-uint256-uint256-
-:xref-ERC6909-supportsInterface-bytes4-: xref:token/ERC6909.adoc#ERC6909-supportsInterface-bytes4-
 :xref-ERC6909-balanceOf-address-uint256-: xref:token/ERC6909.adoc#ERC6909-balanceOf-address-uint256-
 :xref-ERC6909-allowance-address-address-uint256-: xref:token/ERC6909.adoc#ERC6909-allowance-address-address-uint256-
 :xref-ERC6909-isOperator-address-address-: xref:token/ERC6909.adoc#ERC6909-isOperator-address-address-
@@ -174,11 +174,11 @@ Implementations are provided for each of the 4 interfaces defined in the ERC.
 
 [.contract]
 [[ERC6909]]
-=== `++ERC6909++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/token/ERC6909/draft-ERC6909.sol[{github-icon},role=heading-link]
+=== `++ERC6909++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/token/ERC6909/ERC6909.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
-import "@openzeppelin/contracts/token/ERC6909/draft-ERC6909.sol";
+import "@openzeppelin/contracts/token/ERC6909/ERC6909.sol";
 ```
 
 Implementation of ERC-6909.
@@ -432,11 +432,13 @@ Does not emit an {Approval} event.
 
 :ContractURIUpdated: pass:normal[xref:#ERC6909ContentURI-ContractURIUpdated--[`++ContractURIUpdated++`]]
 :URI: pass:normal[xref:#ERC6909ContentURI-URI-string-uint256-[`++URI++`]]
+:supportsInterface: pass:normal[xref:#ERC6909ContentURI-supportsInterface-bytes4-[`++supportsInterface++`]]
 :contractURI: pass:normal[xref:#ERC6909ContentURI-contractURI--[`++contractURI++`]]
 :tokenURI: pass:normal[xref:#ERC6909ContentURI-tokenURI-uint256-[`++tokenURI++`]]
 :_setContractURI: pass:normal[xref:#ERC6909ContentURI-_setContractURI-string-[`++_setContractURI++`]]
 :_setTokenURI: pass:normal[xref:#ERC6909ContentURI-_setTokenURI-uint256-string-[`++_setTokenURI++`]]
 
+:supportsInterface-bytes4: pass:normal[xref:#ERC6909ContentURI-supportsInterface-bytes4-[`++supportsInterface++`]]
 :contractURI-: pass:normal[xref:#ERC6909ContentURI-contractURI--[`++contractURI++`]]
 :tokenURI-uint256: pass:normal[xref:#ERC6909ContentURI-tokenURI-uint256-[`++tokenURI++`]]
 :_setContractURI-string: pass:normal[xref:#ERC6909ContentURI-_setContractURI-string-[`++_setContractURI++`]]
@@ -444,11 +446,11 @@ Does not emit an {Approval} event.
 
 [.contract]
 [[ERC6909ContentURI]]
-=== `++ERC6909ContentURI++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/token/ERC6909/extensions/draft-ERC6909ContentURI.sol[{github-icon},role=heading-link]
+=== `++ERC6909ContentURI++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/token/ERC6909/extensions/ERC6909ContentURI.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
-import "@openzeppelin/contracts/token/ERC6909/extensions/draft-ERC6909ContentURI.sol";
+import "@openzeppelin/contracts/token/ERC6909/extensions/ERC6909ContentURI.sol";
 ```
 
 Implementation of the Content URI extension defined in ERC6909.
@@ -456,6 +458,7 @@ Implementation of the Content URI extension defined in ERC6909.
 [.contract-index]
 .Functions
 --
+* {xref-ERC6909ContentURI-supportsInterface-bytes4-}[`++supportsInterface(interfaceId)++`]
 * {xref-ERC6909ContentURI-contractURI--}[`++contractURI()++`]
 * {xref-ERC6909ContentURI-tokenURI-uint256-}[`++tokenURI(id)++`]
 * {xref-ERC6909ContentURI-_setContractURI-string-}[`++_setContractURI(newContractURI)++`]
@@ -466,7 +469,6 @@ Implementation of the Content URI extension defined in ERC6909.
 
 [.contract-subindex-inherited]
 .ERC6909
-* {xref-ERC6909-supportsInterface-bytes4-}[`++supportsInterface(interfaceId)++`]
 * {xref-ERC6909-balanceOf-address-uint256-}[`++balanceOf(owner, id)++`]
 * {xref-ERC6909-allowance-address-address-uint256-}[`++allowance(owner, spender, id)++`]
 * {xref-ERC6909-isOperator-address-address-}[`++isOperator(owner, spender)++`]
@@ -547,6 +549,17 @@ Implementation of the Content URI extension defined in ERC6909.
 --
 
 [.contract-item]
+[[ERC6909ContentURI-supportsInterface-bytes4-]]
+==== `[.contract-item-name]#++supportsInterface++#++(bytes4 interfaceId) → bool++` [.item-kind]#public#
+
+Returns true if this contract implements the interface defined by
+`interfaceId`. See the corresponding
+https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section]
+to learn more about how these ids are created.
+
+This function call must use less than 30 000 gas.
+
+[.contract-item]
 [[ERC6909ContentURI-contractURI--]]
 ==== `[.contract-item-name]#++contractURI++#++() → string++` [.item-kind]#public#
 
@@ -593,6 +606,7 @@ See {IERC1155-URI}
 :name: pass:normal[xref:#ERC6909Metadata-name-uint256-[`++name++`]]
 :symbol: pass:normal[xref:#ERC6909Metadata-symbol-uint256-[`++symbol++`]]
 :decimals: pass:normal[xref:#ERC6909Metadata-decimals-uint256-[`++decimals++`]]
+:supportsInterface: pass:normal[xref:#ERC6909Metadata-supportsInterface-bytes4-[`++supportsInterface++`]]
 :_setName: pass:normal[xref:#ERC6909Metadata-_setName-uint256-string-[`++_setName++`]]
 :_setSymbol: pass:normal[xref:#ERC6909Metadata-_setSymbol-uint256-string-[`++_setSymbol++`]]
 :_setDecimals: pass:normal[xref:#ERC6909Metadata-_setDecimals-uint256-uint8-[`++_setDecimals++`]]
@@ -600,17 +614,18 @@ See {IERC1155-URI}
 :name-uint256: pass:normal[xref:#ERC6909Metadata-name-uint256-[`++name++`]]
 :symbol-uint256: pass:normal[xref:#ERC6909Metadata-symbol-uint256-[`++symbol++`]]
 :decimals-uint256: pass:normal[xref:#ERC6909Metadata-decimals-uint256-[`++decimals++`]]
+:supportsInterface-bytes4: pass:normal[xref:#ERC6909Metadata-supportsInterface-bytes4-[`++supportsInterface++`]]
 :_setName-uint256-string: pass:normal[xref:#ERC6909Metadata-_setName-uint256-string-[`++_setName++`]]
 :_setSymbol-uint256-string: pass:normal[xref:#ERC6909Metadata-_setSymbol-uint256-string-[`++_setSymbol++`]]
 :_setDecimals-uint256-uint8: pass:normal[xref:#ERC6909Metadata-_setDecimals-uint256-uint8-[`++_setDecimals++`]]
 
 [.contract]
 [[ERC6909Metadata]]
-=== `++ERC6909Metadata++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/token/ERC6909/extensions/draft-ERC6909Metadata.sol[{github-icon},role=heading-link]
+=== `++ERC6909Metadata++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/token/ERC6909/extensions/ERC6909Metadata.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
-import "@openzeppelin/contracts/token/ERC6909/extensions/draft-ERC6909Metadata.sol";
+import "@openzeppelin/contracts/token/ERC6909/extensions/ERC6909Metadata.sol";
 ```
 
 Implementation of the Metadata extension defined in ERC6909. Exposes the name, symbol, and decimals of each token id.
@@ -621,6 +636,7 @@ Implementation of the Metadata extension defined in ERC6909. Exposes the name, s
 * {xref-ERC6909Metadata-name-uint256-}[`++name(id)++`]
 * {xref-ERC6909Metadata-symbol-uint256-}[`++symbol(id)++`]
 * {xref-ERC6909Metadata-decimals-uint256-}[`++decimals(id)++`]
+* {xref-ERC6909Metadata-supportsInterface-bytes4-}[`++supportsInterface(interfaceId)++`]
 * {xref-ERC6909Metadata-_setName-uint256-string-}[`++_setName(id, newName)++`]
 * {xref-ERC6909Metadata-_setSymbol-uint256-string-}[`++_setSymbol(id, newSymbol)++`]
 * {xref-ERC6909Metadata-_setDecimals-uint256-uint8-}[`++_setDecimals(id, newDecimals)++`]
@@ -630,7 +646,6 @@ Implementation of the Metadata extension defined in ERC6909. Exposes the name, s
 
 [.contract-subindex-inherited]
 .ERC6909
-* {xref-ERC6909-supportsInterface-bytes4-}[`++supportsInterface(interfaceId)++`]
 * {xref-ERC6909-balanceOf-address-uint256-}[`++balanceOf(owner, id)++`]
 * {xref-ERC6909-allowance-address-address-uint256-}[`++allowance(owner, spender, id)++`]
 * {xref-ERC6909-isOperator-address-address-}[`++isOperator(owner, spender)++`]
@@ -730,6 +745,17 @@ Returns the ticker symbol of the token of type `id`.
 Returns the number of decimals for the token of type `id`.
 
 [.contract-item]
+[[ERC6909Metadata-supportsInterface-bytes4-]]
+==== `[.contract-item-name]#++supportsInterface++#++(bytes4 interfaceId) → bool++` [.item-kind]#public#
+
+Returns true if this contract implements the interface defined by
+`interfaceId`. See the corresponding
+https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section]
+to learn more about how these ids are created.
+
+This function call must use less than 30 000 gas.
+
+[.contract-item]
 [[ERC6909Metadata-_setName-uint256-string-]]
 ==== `[.contract-item-name]#++_setName++#++(uint256 id, string newName)++` [.item-kind]#internal#
 
@@ -772,18 +798,20 @@ The symbol for the token of type `id` was updated to `newSymbol`.
 The decimals value for token of type `id` was updated to `newDecimals`.
 
 :totalSupply: pass:normal[xref:#ERC6909TokenSupply-totalSupply-uint256-[`++totalSupply++`]]
+:supportsInterface: pass:normal[xref:#ERC6909TokenSupply-supportsInterface-bytes4-[`++supportsInterface++`]]
 :_update: pass:normal[xref:#ERC6909TokenSupply-_update-address-address-uint256-uint256-[`++_update++`]]
 
 :totalSupply-uint256: pass:normal[xref:#ERC6909TokenSupply-totalSupply-uint256-[`++totalSupply++`]]
+:supportsInterface-bytes4: pass:normal[xref:#ERC6909TokenSupply-supportsInterface-bytes4-[`++supportsInterface++`]]
 :_update-address-address-uint256-uint256: pass:normal[xref:#ERC6909TokenSupply-_update-address-address-uint256-uint256-[`++_update++`]]
 
 [.contract]
 [[ERC6909TokenSupply]]
-=== `++ERC6909TokenSupply++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/token/ERC6909/extensions/draft-ERC6909TokenSupply.sol[{github-icon},role=heading-link]
+=== `++ERC6909TokenSupply++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/token/ERC6909/extensions/ERC6909TokenSupply.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
-import "@openzeppelin/contracts/token/ERC6909/extensions/draft-ERC6909TokenSupply.sol";
+import "@openzeppelin/contracts/token/ERC6909/extensions/ERC6909TokenSupply.sol";
 ```
 
 Implementation of the Token Supply extension defined in ERC6909.
@@ -793,6 +821,7 @@ Tracks the total supply of each token id individually.
 .Functions
 --
 * {xref-ERC6909TokenSupply-totalSupply-uint256-}[`++totalSupply(id)++`]
+* {xref-ERC6909TokenSupply-supportsInterface-bytes4-}[`++supportsInterface(interfaceId)++`]
 * {xref-ERC6909TokenSupply-_update-address-address-uint256-uint256-}[`++_update(from, to, id, amount)++`]
 
 [.contract-subindex-inherited]
@@ -800,7 +829,6 @@ Tracks the total supply of each token id individually.
 
 [.contract-subindex-inherited]
 .ERC6909
-* {xref-ERC6909-supportsInterface-bytes4-}[`++supportsInterface(interfaceId)++`]
 * {xref-ERC6909-balanceOf-address-uint256-}[`++balanceOf(owner, id)++`]
 * {xref-ERC6909-allowance-address-address-uint256-}[`++allowance(owner, spender, id)++`]
 * {xref-ERC6909-isOperator-address-address-}[`++isOperator(owner, spender)++`]
@@ -882,6 +910,17 @@ Tracks the total supply of each token id individually.
 ==== `[.contract-item-name]#++totalSupply++#++(uint256 id) → uint256++` [.item-kind]#public#
 
 Returns the total supply of the token of type `id`.
+
+[.contract-item]
+[[ERC6909TokenSupply-supportsInterface-bytes4-]]
+==== `[.contract-item-name]#++supportsInterface++#++(bytes4 interfaceId) → bool++` [.item-kind]#public#
+
+Returns true if this contract implements the interface defined by
+`interfaceId`. See the corresponding
+https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section]
+to learn more about how these ids are created.
+
+This function call must use less than 30 000 gas.
 
 [.contract-item]
 [[ERC6909TokenSupply-_update-address-address-uint256-uint256-]]

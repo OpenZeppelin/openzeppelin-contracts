@@ -16,7 +16,7 @@ function toSingleton(address account) pure returns (address[] memory) {
 
 contract ERC721ConsecutiveTarget is StdUtils, ERC721Consecutive {
     uint96 private immutable _offset;
-    uint256 public totalMinted = 0;
+    uint256 private _totalMinted = 0;
 
     constructor(address[] memory receivers, uint256[] memory batches, uint256 startingId) ERC721("", "") {
         _offset = uint96(startingId);
@@ -24,8 +24,12 @@ contract ERC721ConsecutiveTarget is StdUtils, ERC721Consecutive {
             address receiver = receivers[i % receivers.length];
             uint96 batchSize = uint96(bound(batches[i], 0, _maxBatchSize()));
             _mintConsecutive(receiver, batchSize);
-            totalMinted += batchSize;
+            _totalMinted += batchSize;
         }
+    }
+
+    function totalMinted() public view returns (uint256) {
+        return _totalMinted;
     }
 
     function burn(uint256 tokenId) public {
@@ -138,6 +142,7 @@ contract ERC721ConsecutiveTest is Test {
         assertEq(token.balanceOf(accounts[1]), batches[1]);
 
         vm.prank(accounts[0]);
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         token.transferFrom(accounts[0], accounts[1], tokenId0);
 
         assertEq(token.ownerOf(tokenId0), accounts[1]);
@@ -146,6 +151,7 @@ contract ERC721ConsecutiveTest is Test {
         assertEq(token.balanceOf(accounts[1]), batches[1] + 1);
 
         vm.prank(accounts[1]);
+        // forge-lint: disable-next-line(erc20-unchecked-transfer)
         token.transferFrom(accounts[1], accounts[0], tokenId1);
 
         assertEq(token.ownerOf(tokenId0), accounts[1]);

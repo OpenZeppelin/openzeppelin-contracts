@@ -31,7 +31,7 @@ describe('RSA', function () {
         it(`signature length ${length} ${test.extra} ${result ? 'works' : 'fails'}`, async function () {
           const data = '0x' + test.Msg;
           const sig = '0x' + test.S;
-          const exp = '0x' + test.e;
+          const exp = ethers.stripZerosLeft('0x' + test.e); // strip zeros to reduce gas cost of the precompile
           const mod = '0x' + test.n;
 
           expect(await this.mock.$pkcs1Sha256(bytes32(ethers.sha256(data)), sig, exp, mod)).to.equal(result);

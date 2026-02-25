@@ -1842,7 +1842,7 @@
 :xref-TimelockController-TimelockUnauthorizedCaller-address-: xref:governance.adoc#TimelockController-TimelockUnauthorizedCaller-address-
 :xref-IAccessControl-AccessControlUnauthorizedAccount-address-bytes32-: xref:access.adoc#IAccessControl-AccessControlUnauthorizedAccount-address-bytes32-
 :xref-IAccessControl-AccessControlBadConfirmation--: xref:access.adoc#IAccessControl-AccessControlBadConfirmation--
-:xref-TimelockController-_DONE_TIMESTAMP-uint256: xref:governance.adoc#TimelockController-_DONE_TIMESTAMP-uint256
+:xref-TimelockController-DONE_TIMESTAMP-uint256: xref:governance.adoc#TimelockController-DONE_TIMESTAMP-uint256
 :AccessControl: pass:normal[xref:access.adoc#AccessControl[`AccessControl`]]
 = Governance
 
@@ -1993,7 +1993,7 @@ NOTE: Functions of the `Governor` contract do not include access control. If you
 
 [.contract]
 [[IGovernor]]
-=== `++IGovernor++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/governance/IGovernor.sol[{github-icon},role=heading-link]
+=== `++IGovernor++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/governance/IGovernor.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2251,7 +2251,7 @@ Returns whether `account` has cast a vote on `proposalId`.
 [[IGovernor-propose-address---uint256---bytes---string-]]
 ==== `[.contract-item-name]#++propose++#++(address[] targets, uint256[] values, bytes[] calldatas, string description) → uint256 proposalId++` [.item-kind]#external#
 
-Create a new proposal. Vote start after a delay specified by {IGovernor-votingDelay} and lasts for a
+Create a new proposal. Vote starts after a delay specified by {IGovernor-votingDelay} and lasts for a
 duration specified by {IGovernor-votingPeriod}.
 
 Emits a {ProposalCreated} event.
@@ -2597,7 +2597,7 @@ The given `account` is unable to cancel the proposal with given `proposalId`.
 
 [.contract]
 [[Governor]]
-=== `++Governor++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/governance/Governor.sol[{github-icon},role=heading-link]
+=== `++Governor++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/governance/Governor.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3143,7 +3143,7 @@ Emits a {IGovernor-VoteCast} event.
 
 [.contract-item]
 [[Governor-relay-address-uint256-bytes-]]
-==== `[.contract-item-name]#++relay++#++(address target, uint256 value, bytes data)++` [.item-kind]#external#
+==== `[.contract-item-name]#++relay++#++(address target, uint256 value, bytes data)++` [.item-kind]#public#
 
 Relays a transaction or function call to an arbitrary target. In cases where the governance executor
 is some contract other than the governor itself, like when using a timelock, this function can be invoked
@@ -3154,7 +3154,7 @@ Note that if the executor is simply the governor itself, use of `relay` is redun
 [[Governor-_executor--]]
 ==== `[.contract-item-name]#++_executor++#++() → address++` [.item-kind]#internal#
 
-Address through which the governor executes action. Will be overloaded by module that execute actions
+Address through which the governor executes action. Will be overloaded by module that executes actions
 through another contract such as a timelock.
 
 [.contract-item]
@@ -3205,6 +3205,23 @@ If requirements are not met, reverts with a {GovernorUnexpectedProposalState} er
 [.contract-item]
 [[Governor-_isValidDescriptionForProposer-address-string-]]
 ==== `[.contract-item-name]#++_isValidDescriptionForProposer++#++(address proposer, string description) → bool++` [.item-kind]#internal#
+
+Check if the proposer is authorized to submit a proposal with the given description.
+
+If the proposal description ends with `#proposer=0x???`, where `0x???` is an address written as a hex string
+(case insensitive), then the submission of this proposal will only be authorized to said address.
+
+This is used for frontrunning protection. By adding this pattern at the end of their proposal, one can ensure
+that no other address can submit the same proposal. An attacker would have to either remove or change that part,
+which would result in a different proposal id.
+
+If the description does not match this pattern, it is unrestricted and anyone can submit it. This includes:
+
+- If the `0x???` part is not a valid hex string.
+- If the `0x???` part is a valid hex string, but does not contain exactly 40 hex digits.
+- If it ends with the expected suffix followed by newlines or other whitespace.
+- If it ends with some other similar suffix, e.g. `#other=abc`.
+- If it does not end with any such suffix.
 
 [.contract-item]
 [[Governor-_validateCancel-uint256-address-]]
@@ -3290,7 +3307,7 @@ quorum depending on values such as the totalSupply of a token at this timepoint 
 
 [.contract]
 [[GovernorCountingSimple]]
-=== `++GovernorCountingSimple++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/governance/extensions/GovernorCountingSimple.sol[{github-icon},role=heading-link]
+=== `++GovernorCountingSimple++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/governance/extensions/GovernorCountingSimple.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3572,7 +3589,7 @@ See {Governor-_countVote}. In this module, the support follows the `VoteType` en
 
 [.contract]
 [[GovernorCountingFractional]]
-=== `++GovernorCountingFractional++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/governance/extensions/GovernorCountingFractional.sol[{github-icon},role=heading-link]
+=== `++GovernorCountingFractional++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/governance/extensions/GovernorCountingFractional.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3970,7 +3987,7 @@ A fractional vote params uses more votes than are available for that user.
 
 [.contract]
 [[GovernorCountingOverridable]]
-=== `++GovernorCountingOverridable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/governance/extensions/GovernorCountingOverridable.sol[{github-icon},role=heading-link]
+=== `++GovernorCountingOverridable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/governance/extensions/GovernorCountingOverridable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -4325,7 +4342,7 @@ A delegated vote on `proposalId` was overridden by `weight`
 
 [.contract]
 [[GovernorVotes]]
-=== `++GovernorVotes++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/governance/extensions/GovernorVotes.sol[{github-icon},role=heading-link]
+=== `++GovernorVotes++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/governance/extensions/GovernorVotes.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -4583,7 +4600,7 @@ Machine-readable description of the clock as specified in ERC-6372.
 
 [.contract]
 [[GovernorVotesQuorumFraction]]
-=== `++GovernorVotesQuorumFraction++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/governance/extensions/GovernorVotesQuorumFraction.sol[{github-icon},role=heading-link]
+=== `++GovernorVotesQuorumFraction++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/governance/extensions/GovernorVotesQuorumFraction.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -4845,7 +4862,7 @@ Returns the quorum for a timepoint, in terms of number of votes: `supply * numer
 
 [.contract-item]
 [[GovernorVotesQuorumFraction-updateQuorumNumerator-uint256-]]
-==== `[.contract-item-name]#++updateQuorumNumerator++#++(uint256 newQuorumNumerator)++` [.item-kind]#external#
+==== `[.contract-item-name]#++updateQuorumNumerator++#++(uint256 newQuorumNumerator)++` [.item-kind]#public#
 
 Changes the quorum numerator.
 
@@ -4908,7 +4925,7 @@ The quorum set is not a valid fraction.
 
 [.contract]
 [[GovernorVotesSuperQuorumFraction]]
-=== `++GovernorVotesSuperQuorumFraction++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/governance/extensions/GovernorVotesSuperQuorumFraction.sol[{github-icon},role=heading-link]
+=== `++GovernorVotesSuperQuorumFraction++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/governance/extensions/GovernorVotesSuperQuorumFraction.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -5301,7 +5318,7 @@ The quorum set is not valid as it exceeds the super quorum.
 
 [.contract]
 [[GovernorTimelockAccess]]
-=== `++GovernorTimelockAccess++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/governance/extensions/GovernorTimelockAccess.sol[{github-icon},role=heading-link]
+=== `++GovernorTimelockAccess++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/governance/extensions/GovernorTimelockAccess.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -5686,7 +5703,7 @@ Emits a {IGovernor-ProposalCanceled} event.
 
 [.contract]
 [[GovernorTimelockControl]]
-=== `++GovernorTimelockControl++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/governance/extensions/GovernorTimelockControl.sol[{github-icon},role=heading-link]
+=== `++GovernorTimelockControl++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/governance/extensions/GovernorTimelockControl.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -5694,7 +5711,7 @@ import "@openzeppelin/contracts/governance/extensions/GovernorTimelockControl.so
 ```
 
 Extension of {Governor} that binds the execution process to an instance of {TimelockController}. This adds a
-delay, enforced by the {TimelockController} to all successful proposal (in addition to the voting duration). The
+delay, enforced by the {TimelockController} to all successful proposals (in addition to the voting duration). The
 {Governor} needs the proposer (and ideally the executor and canceller) roles for the {Governor} to work properly.
 
 Using this model means the proposal will be operated by the {TimelockController} and not by the {Governor}. Thus,
@@ -5957,7 +5974,7 @@ Address through which the governor executes action. In this case, the timelock.
 
 [.contract-item]
 [[GovernorTimelockControl-updateTimelock-contract-TimelockController-]]
-==== `[.contract-item-name]#++updateTimelock++#++(contract TimelockController newTimelock)++` [.item-kind]#external#
+==== `[.contract-item-name]#++updateTimelock++#++(contract TimelockController newTimelock)++` [.item-kind]#public#
 
 Public endpoint to update the underlying timelock instance. Restricted to the timelock itself, so updates
 must be proposed, scheduled, and executed through governance proposals.
@@ -5995,7 +6012,7 @@ Emitted when the timelock controller used for proposal execution is modified.
 
 [.contract]
 [[GovernorTimelockCompound]]
-=== `++GovernorTimelockCompound++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/governance/extensions/GovernorTimelockCompound.sol[{github-icon},role=heading-link]
+=== `++GovernorTimelockCompound++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/governance/extensions/GovernorTimelockCompound.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -6269,7 +6286,7 @@ Accept admin right over the timelock.
 
 [.contract-item]
 [[GovernorTimelockCompound-updateTimelock-contract-ICompoundTimelock-]]
-==== `[.contract-item-name]#++updateTimelock++#++(contract ICompoundTimelock newTimelock)++` [.item-kind]#external#
+==== `[.contract-item-name]#++updateTimelock++#++(contract ICompoundTimelock newTimelock)++` [.item-kind]#public#
 
 Public endpoint to update the underlying timelock instance. Restricted to the timelock itself, so updates
 must be proposed, scheduled, and executed through governance proposals.
@@ -6316,7 +6333,7 @@ Emitted when the timelock controller used for proposal execution is modified.
 
 [.contract]
 [[GovernorSettings]]
-=== `++GovernorSettings++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/governance/extensions/GovernorSettings.sol[{github-icon},role=heading-link]
+=== `++GovernorSettings++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/governance/extensions/GovernorSettings.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -6630,7 +6647,7 @@ Emits a {ProposalThresholdSet} event.
 
 [.contract]
 [[GovernorPreventLateQuorum]]
-=== `++GovernorPreventLateQuorum++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/governance/extensions/GovernorPreventLateQuorum.sol[{github-icon},role=heading-link]
+=== `++GovernorPreventLateQuorum++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/governance/extensions/GovernorPreventLateQuorum.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -6927,14 +6944,14 @@ Emitted when the {lateQuorumVoteExtension} parameter is changed.
 
 [.contract]
 [[GovernorStorage]]
-=== `++GovernorStorage++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/governance/extensions/GovernorStorage.sol[{github-icon},role=heading-link]
+=== `++GovernorStorage++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/governance/extensions/GovernorStorage.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
 import "@openzeppelin/contracts/governance/extensions/GovernorStorage.sol";
 ```
 
-Extension of {Governor} that implements storage of proposal details. This modules also provides primitives for
+Extension of {Governor} that implements storage of proposal details. This module also provides primitives for
 the enumerability of proposals.
 
 Use cases for this module include:
@@ -7200,7 +7217,7 @@ Returns the details (including the proposalId) of a proposal given its sequentia
 
 [.contract]
 [[GovernorProposalGuardian]]
-=== `++GovernorProposalGuardian++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/governance/extensions/GovernorProposalGuardian.sol[{github-icon},role=heading-link]
+=== `++GovernorProposalGuardian++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/governance/extensions/GovernorProposalGuardian.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -7458,7 +7475,7 @@ Override {Governor-_validateCancel} to implement the extended cancellation logic
 
 [.contract]
 [[GovernorSuperQuorum]]
-=== `++GovernorSuperQuorum++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/governance/extensions/GovernorSuperQuorum.sol[{github-icon},role=heading-link]
+=== `++GovernorSuperQuorum++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/governance/extensions/GovernorSuperQuorum.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -7713,7 +7730,7 @@ types of scenarios.
 
 [.contract]
 [[GovernorNoncesKeyed]]
-=== `++GovernorNoncesKeyed++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/governance/extensions/GovernorNoncesKeyed.sol[{github-icon},role=heading-link]
+=== `++GovernorNoncesKeyed++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/governance/extensions/GovernorNoncesKeyed.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -7996,7 +8013,7 @@ Side effects may be skipped depending on the linearization of the function.
 
 [.contract]
 [[Votes]]
-=== `++Votes++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/governance/utils/Votes.sol[{github-icon},role=heading-link]
+=== `++Votes++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/governance/utils/Votes.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -8261,7 +8278,7 @@ Lookup to future votes is not available.
 
 [.contract]
 [[VotesExtended]]
-=== `++VotesExtended++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/governance/utils/VotesExtended.sol[{github-icon},role=heading-link]
+=== `++VotesExtended++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/governance/utils/VotesExtended.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -8450,7 +8467,7 @@ In a governance system, the {TimelockController} contract is in charge of introd
 :PROPOSER_ROLE: pass:normal[xref:#TimelockController-PROPOSER_ROLE-bytes32[`++PROPOSER_ROLE++`]]
 :EXECUTOR_ROLE: pass:normal[xref:#TimelockController-EXECUTOR_ROLE-bytes32[`++EXECUTOR_ROLE++`]]
 :CANCELLER_ROLE: pass:normal[xref:#TimelockController-CANCELLER_ROLE-bytes32[`++CANCELLER_ROLE++`]]
-:_DONE_TIMESTAMP: pass:normal[xref:#TimelockController-_DONE_TIMESTAMP-uint256[`++_DONE_TIMESTAMP++`]]
+:DONE_TIMESTAMP: pass:normal[xref:#TimelockController-DONE_TIMESTAMP-uint256[`++DONE_TIMESTAMP++`]]
 :OperationState: pass:normal[xref:#TimelockController-OperationState[`++OperationState++`]]
 :TimelockInvalidOperationLength: pass:normal[xref:#TimelockController-TimelockInvalidOperationLength-uint256-uint256-uint256-[`++TimelockInvalidOperationLength++`]]
 :TimelockInsufficientDelay: pass:normal[xref:#TimelockController-TimelockInsufficientDelay-uint256-uint256-[`++TimelockInsufficientDelay++`]]
@@ -8510,7 +8527,7 @@ In a governance system, the {TimelockController} contract is in charge of introd
 
 [.contract]
 [[TimelockController]]
-=== `++TimelockController++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/governance/TimelockController.sol[{github-icon},role=heading-link]
+=== `++TimelockController++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/governance/TimelockController.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -8680,7 +8697,7 @@ a multisig or a DAO as the sole proposer.
 [.contract-index]
 .Internal Variables
 --
-* {xref-TimelockController-_DONE_TIMESTAMP-uint256}[`++uint256 constant _DONE_TIMESTAMP++`]
+* {xref-TimelockController-DONE_TIMESTAMP-uint256}[`++uint256 constant DONE_TIMESTAMP++`]
 
 [.contract-subindex-inherited]
 .ERC1155Holder
@@ -8742,6 +8759,13 @@ Contract might receive/hold ETH as part of the maintenance process.
 [.contract-item]
 [[TimelockController-supportsInterface-bytes4-]]
 ==== `[.contract-item-name]#++supportsInterface++#++(bytes4 interfaceId) → bool++` [.item-kind]#public#
+
+Returns true if this contract implements the interface defined by
+`interfaceId`. See the corresponding
+https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section]
+to learn more about how these ids are created.
+
+This function call must use less than 30 000 gas.
 
 [.contract-item]
 [[TimelockController-isOperation-bytes32-]]
@@ -8841,7 +8865,7 @@ Requirements:
 [[TimelockController-execute-address-uint256-bytes-bytes32-bytes32-]]
 ==== `[.contract-item-name]#++execute++#++(address target, uint256 value, bytes payload, bytes32 predecessor, bytes32 salt)++` [.item-kind]#public#
 
-Execute an (ready) operation containing a single transaction.
+Execute a ready operation containing a single transaction.
 
 Emits a {CallExecuted} event.
 
@@ -8853,7 +8877,7 @@ Requirements:
 [[TimelockController-executeBatch-address---uint256---bytes---bytes32-bytes32-]]
 ==== `[.contract-item-name]#++executeBatch++#++(address[] targets, uint256[] values, bytes[] payloads, bytes32 predecessor, bytes32 salt)++` [.item-kind]#public#
 
-Execute an (ready) operation containing a batch of transactions.
+Execute a ready operation containing a batch of transactions.
 
 Emits one {CallExecuted} event per transaction in the batch.
 
@@ -8869,7 +8893,7 @@ Execute an operation's call.
 
 [.contract-item]
 [[TimelockController-updateDelay-uint256-]]
-==== `[.contract-item-name]#++updateDelay++#++(uint256 newDelay)++` [.item-kind]#external#
+==== `[.contract-item-name]#++updateDelay++#++(uint256 newDelay)++` [.item-kind]#public#
 
 Changes the minimum timelock duration for future operations.
 
@@ -8971,8 +8995,8 @@ The predecessor to an operation not yet done.
 The caller account is not authorized.
 
 [.contract-item]
-[[TimelockController-_DONE_TIMESTAMP-uint256]]
-==== `uint256 [.contract-item-name]#++_DONE_TIMESTAMP++#` [.item-kind]#internal constant#
+[[TimelockController-DONE_TIMESTAMP-uint256]]
+==== `uint256 [.contract-item-name]#++DONE_TIMESTAMP++#` [.item-kind]#internal constant#
 
 [[timelock-terminology]]
 ==== Terminology
@@ -8993,7 +9017,7 @@ The caller account is not authorized.
 [[timelock-operation]]
 ==== Operation structure
 
-Operation executed by the xref:api:governance.adoc#TimelockController[`TimelockController`] can contain one or multiple subsequent calls. Depending on whether you need to multiple calls to be executed atomically, you can either use simple or batched operations.
+Operation executed by the xref:api:governance.adoc#TimelockController[`TimelockController`] can contain one or multiple subsequent calls. Depending on whether you need multiple calls to be executed atomically, you can either use simple or batched operations.
 
 Both operations contain:
 
@@ -9041,7 +9065,7 @@ The admins are in charge of managing proposers and executors. For the timelock t
 
 The proposers are in charge of scheduling (and cancelling) operations. This is a critical role, that should be given to governing entities. This could be an EOA, a multisig, or a DAO.
 
-WARNING: *Proposer fight:* Having multiple proposers, while providing redundancy in case one becomes unavailable, can be dangerous. As proposer have their say on all operations, they could cancel operations they disagree with, including operations to remove them for the proposers.
+WARNING: *Proposer fight:* Having multiple proposers, while providing redundancy in case one becomes unavailable, can be dangerous. Proposers have a say on all operations--they could cancel operations they disagree with, including operations to remove them from the list of proposers.
 
 This role is identified by the *PROPOSER_ROLE* value: `0xb09aa5aeb3702cfd50b6b62bc4532604938f21248a27a1d5ca736082b6819cc1`
 

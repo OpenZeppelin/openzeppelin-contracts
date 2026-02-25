@@ -1,109 +1,56 @@
-// NOTE: this file defines some examples of CAIP-2 and CAIP-10 identifiers.
 // The following listing does not pretend to be exhaustive or even accurate. It SHOULD NOT be used in production.
 
 const { ethers } = require('hardhat');
 const { mapValues } = require('./iterate');
 
+const { addressCoder } = require('interoperable-addresses');
+
 // EVM (https://axelarscan.io/resources/chains?type=evm)
 const ethereum = {
-  Ethereum: '1',
-  optimism: '10',
-  binance: '56',
-  Polygon: '137',
-  Fantom: '250',
-  fraxtal: '252',
-  filecoin: '314',
-  Moonbeam: '1284',
-  centrifuge: '2031',
-  kava: '2222',
-  mantle: '5000',
-  base: '8453',
-  immutable: '13371',
-  arbitrum: '42161',
-  celo: '42220',
-  Avalanche: '43114',
-  linea: '59144',
-  blast: '81457',
-  scroll: '534352',
-  aurora: '1313161554',
+  Ethereum: 1n,
+  optimism: 10n,
+  binance: 56n,
+  Polygon: 137n,
+  Fantom: 250n,
+  fraxtal: 252n,
+  filecoin: 314n,
+  Moonbeam: 1284n,
+  centrifuge: 2031n,
+  kava: 2222n,
+  mantle: 5000n,
+  base: 8453n,
+  immutable: 13371n,
+  arbitrum: 42161n,
+  celo: 42220n,
+  Avalanche: 43114n,
+  linea: 59144n,
+  blast: 81457n,
+  scroll: 534352n,
+  aurora: 1313161554n,
 };
 
-// Cosmos (https://axelarscan.io/resources/chains?type=cosmos)
-const cosmos = {
-  Axelarnet: 'axelar-dojo-1',
-  osmosis: 'osmosis-1',
-  cosmoshub: 'cosmoshub-4',
-  juno: 'juno-1',
-  'e-money': 'emoney-3',
-  injective: 'injective-1',
-  crescent: 'crescent-1',
-  kujira: 'kaiyo-1',
-  'secret-snip': 'secret-4',
-  secret: 'secret-4',
-  sei: 'pacific-1',
-  stargaze: 'stargaze-1',
-  assetmantle: 'mantle-1',
-  fetch: 'fetchhub-4',
-  ki: 'kichain-2',
-  evmos: 'evmos_9001-2',
-  aura: 'xstaxy-1',
-  comdex: 'comdex-1',
-  persistence: 'core-1',
-  regen: 'regen-1',
-  umee: 'umee-1',
-  agoric: 'agoric-3',
-  xpla: 'dimension_37-1',
-  acre: 'acre_9052-1',
-  stride: 'stride-1',
-  carbon: 'carbon-1',
-  sommelier: 'sommelier-3',
-  neutron: 'neutron-1',
-  rebus: 'reb_1111-1',
-  archway: 'archway-1',
-  provenance: 'pio-mainnet-1',
-  ixo: 'ixo-5',
-  migaloo: 'migaloo-1',
-  teritori: 'teritori-1',
-  haqq: 'haqq_11235-1',
-  celestia: 'celestia',
-  ojo: 'agamotto',
-  chihuahua: 'chihuahua-1',
-  saga: 'ssc-1',
-  dymension: 'dymension_1100-1',
-  fxcore: 'fxcore',
-  c4e: 'perun-1',
-  bitsong: 'bitsong-2b',
-  nolus: 'pirin-1',
-  lava: 'lava-mainnet-1',
-  'terra-2': 'phoenix-1',
-  terra: 'columbus-5',
+const solana = {
+  Mainnet: '5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d',
 };
 
-const makeCAIP = ({ namespace, reference, account }) => ({
+const format = ({ namespace, reference }) => ({
   namespace,
-  reference,
-  account,
+  reference: reference.toString(),
   caip2: `${namespace}:${reference}`,
-  caip10: `${namespace}:${reference}:${account}`,
+  erc7930: addressCoder.encode({ chainType: namespace, reference }),
   toCaip10: other => `${namespace}:${reference}:${ethers.getAddress(other.target ?? other.address ?? other)}`,
+  toErc7930: other =>
+    addressCoder.encode({ chainType: namespace, reference, address: other.target ?? other.address ?? other }),
 });
 
 module.exports = {
   CHAINS: mapValues(
     Object.assign(
-      mapValues(ethereum, reference => ({
-        namespace: 'eip155',
-        reference,
-        account: ethers.Wallet.createRandom().address,
-      })),
-      mapValues(cosmos, reference => ({
-        namespace: 'cosmos',
-        reference,
-        account: ethers.encodeBase58(ethers.randomBytes(32)),
-      })),
+      mapValues(ethereum, reference => ({ namespace: 'eip155', reference })),
+      mapValues(solana, reference => ({ namespace: 'solana', reference })),
     ),
-    makeCAIP,
+    format,
   ),
-  getLocalCAIP: account =>
-    ethers.provider.getNetwork().then(({ chainId }) => makeCAIP({ namespace: 'eip155', reference: chainId, account })),
+  getLocalChain: () =>
+    ethers.provider.getNetwork().then(({ chainId }) => format({ namespace: 'eip155', reference: chainId })),
 };

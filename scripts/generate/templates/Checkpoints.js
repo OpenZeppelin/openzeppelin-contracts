@@ -222,8 +222,8 @@ function _unsafeAccess(
     uint256 pos
 ) private pure returns (${opts.checkpointTypeName} storage result) {
     assembly {
-        mstore(0, self.slot)
-        result.slot := add(keccak256(0, 0x20), pos)
+        mstore(0x00, self.slot)
+        result.slot := add(keccak256(0x00, 0x20), ${opts.checkpointSize === 1 ? 'pos' : `mul(pos, ${opts.checkpointSize})`})
     }
 }
 `;

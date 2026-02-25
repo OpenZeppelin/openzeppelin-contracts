@@ -22,6 +22,8 @@
 :IERC1820Implementer: pass:normal[xref:interfaces.adoc#IERC1820Implementer[`IERC1820Implementer`]]
 :IERC1820Registry: pass:normal[xref:interfaces.adoc#IERC1820Registry[`IERC1820Registry`]]
 :IERC1822Proxiable: pass:normal[xref:interfaces.adoc#IERC1822Proxiable[`IERC1822Proxiable`]]
+:IERC1967: pass:normal[xref:interfaces.adoc#IERC1967[`IERC1967`]]
+:IERC2309: pass:normal[xref:interfaces.adoc#IERC2309[`IERC2309`]]
 :IERC2612: pass:normal[xref:interfaces.adoc#IERC2612[`IERC2612`]]
 :IERC2981: pass:normal[xref:interfaces.adoc#IERC2981[`IERC2981`]]
 :IERC3156FlashLender: pass:normal[xref:interfaces.adoc#IERC3156FlashLender[`IERC3156FlashLender`]]
@@ -36,8 +38,18 @@
 :IERC6909ContentURI: pass:normal[xref:interfaces.adoc#IERC6909ContentURI[`IERC6909ContentURI`]]
 :IERC6909Metadata: pass:normal[xref:interfaces.adoc#IERC6909Metadata[`IERC6909Metadata`]]
 :IERC6909TokenSupply: pass:normal[xref:interfaces.adoc#IERC6909TokenSupply[`IERC6909TokenSupply`]]
+:IERC7579Module: pass:normal[xref:interfaces.adoc#IERC7579Module[`IERC7579Module`]]
+:IERC7579Validator: pass:normal[xref:interfaces.adoc#IERC7579Validator[`IERC7579Validator`]]
+:IERC7579Hook: pass:normal[xref:interfaces.adoc#IERC7579Hook[`IERC7579Hook`]]
+:IERC7579Execution: pass:normal[xref:interfaces.adoc#IERC7579Execution[`IERC7579Execution`]]
+:IERC7579AccountConfig: pass:normal[xref:interfaces.adoc#IERC7579AccountConfig[`IERC7579AccountConfig`]]
+:IERC7579ModuleConfig: pass:normal[xref:interfaces.adoc#IERC7579ModuleConfig[`IERC7579ModuleConfig`]]
 :IERC7674: pass:normal[xref:interfaces.adoc#IERC7674[`IERC7674`]]
+:IERC7751: pass:normal[xref:interfaces.adoc#IERC7751[`IERC7751`]]
+:IERC7786GatewaySource: pass:normal[xref:interfaces.adoc#IERC7786GatewaySource[`IERC7786GatewaySource`]]
+:IERC7786Recipient: pass:normal[xref:interfaces.adoc#IERC7786Recipient[`IERC7786Recipient`]]
 :IERC7802: pass:normal[xref:interfaces.adoc#IERC7802[`IERC7802`]]
+:IERC7913SignatureVerifier: pass:normal[xref:interfaces.adoc#IERC7913SignatureVerifier[`IERC7913SignatureVerifier`]]
 :xref-IERC20Errors-ERC20InsufficientBalance-address-uint256-uint256-: xref:interfaces.adoc#IERC20Errors-ERC20InsufficientBalance-address-uint256-uint256-
 :xref-IERC20Errors-ERC20InvalidSender-address-: xref:interfaces.adoc#IERC20Errors-ERC20InvalidSender-address-
 :xref-IERC20Errors-ERC20InvalidReceiver-address-: xref:interfaces.adoc#IERC20Errors-ERC20InvalidReceiver-address-
@@ -102,6 +114,10 @@
 :IERC1820Implementer-canImplementInterfaceForAddress: pass:normal[xref:interfaces.adoc#IERC1820Implementer-canImplementInterfaceForAddress-bytes32-address-[`IERC1820Implementer.canImplementInterfaceForAddress`]]
 :IERC165: pass:normal[xref:utils.adoc#IERC165[`IERC165`]]
 :xref-IERC1822Proxiable-proxiableUUID--: xref:interfaces.adoc#IERC1822Proxiable-proxiableUUID--
+:xref-IERC1967-Upgraded-address-: xref:interfaces.adoc#IERC1967-Upgraded-address-
+:xref-IERC1967-AdminChanged-address-address-: xref:interfaces.adoc#IERC1967-AdminChanged-address-address-
+:xref-IERC1967-BeaconUpgraded-address-: xref:interfaces.adoc#IERC1967-BeaconUpgraded-address-
+:xref-IERC2309-ConsecutiveTransfer-uint256-uint256-address-address-: xref:interfaces.adoc#IERC2309-ConsecutiveTransfer-uint256-uint256-address-address-
 :xref-IERC20Permit-permit-address-address-uint256-uint256-uint8-bytes32-bytes32-: xref:token/ERC20.adoc#IERC20Permit-permit-address-address-uint256-uint256-uint8-bytes32-bytes32-
 :xref-IERC20Permit-nonces-address-: xref:token/ERC20.adoc#IERC20Permit-nonces-address-
 :xref-IERC20Permit-DOMAIN_SEPARATOR--: xref:token/ERC20.adoc#IERC20Permit-DOMAIN_SEPARATOR--
@@ -224,6 +240,29 @@
 :xref-IERC6909-Approval-address-address-uint256-uint256-: xref:interfaces.adoc#IERC6909-Approval-address-address-uint256-uint256-
 :xref-IERC6909-OperatorSet-address-address-bool-: xref:interfaces.adoc#IERC6909-OperatorSet-address-address-bool-
 :xref-IERC6909-Transfer-address-address-address-uint256-uint256-: xref:interfaces.adoc#IERC6909-Transfer-address-address-address-uint256-uint256-
+:xref-IERC7579Module-onInstall-bytes-: xref:interfaces.adoc#IERC7579Module-onInstall-bytes-
+:xref-IERC7579Module-onUninstall-bytes-: xref:interfaces.adoc#IERC7579Module-onUninstall-bytes-
+:xref-IERC7579Module-isModuleType-uint256-: xref:interfaces.adoc#IERC7579Module-isModuleType-uint256-
+:xref-IERC7579Validator-validateUserOp-struct-PackedUserOperation-bytes32-: xref:interfaces.adoc#IERC7579Validator-validateUserOp-struct-PackedUserOperation-bytes32-
+:xref-IERC7579Validator-isValidSignatureWithSender-address-bytes32-bytes-: xref:interfaces.adoc#IERC7579Validator-isValidSignatureWithSender-address-bytes32-bytes-
+:xref-IERC7579Module-onInstall-bytes-: xref:interfaces.adoc#IERC7579Module-onInstall-bytes-
+:xref-IERC7579Module-onUninstall-bytes-: xref:interfaces.adoc#IERC7579Module-onUninstall-bytes-
+:xref-IERC7579Module-isModuleType-uint256-: xref:interfaces.adoc#IERC7579Module-isModuleType-uint256-
+:xref-IERC7579Hook-preCheck-address-uint256-bytes-: xref:interfaces.adoc#IERC7579Hook-preCheck-address-uint256-bytes-
+:xref-IERC7579Hook-postCheck-bytes-: xref:interfaces.adoc#IERC7579Hook-postCheck-bytes-
+:xref-IERC7579Module-onInstall-bytes-: xref:interfaces.adoc#IERC7579Module-onInstall-bytes-
+:xref-IERC7579Module-onUninstall-bytes-: xref:interfaces.adoc#IERC7579Module-onUninstall-bytes-
+:xref-IERC7579Module-isModuleType-uint256-: xref:interfaces.adoc#IERC7579Module-isModuleType-uint256-
+:xref-IERC7579Execution-execute-bytes32-bytes-: xref:interfaces.adoc#IERC7579Execution-execute-bytes32-bytes-
+:xref-IERC7579Execution-executeFromExecutor-bytes32-bytes-: xref:interfaces.adoc#IERC7579Execution-executeFromExecutor-bytes32-bytes-
+:xref-IERC7579AccountConfig-accountId--: xref:interfaces.adoc#IERC7579AccountConfig-accountId--
+:xref-IERC7579AccountConfig-supportsExecutionMode-bytes32-: xref:interfaces.adoc#IERC7579AccountConfig-supportsExecutionMode-bytes32-
+:xref-IERC7579AccountConfig-supportsModule-uint256-: xref:interfaces.adoc#IERC7579AccountConfig-supportsModule-uint256-
+:xref-IERC7579ModuleConfig-installModule-uint256-address-bytes-: xref:interfaces.adoc#IERC7579ModuleConfig-installModule-uint256-address-bytes-
+:xref-IERC7579ModuleConfig-uninstallModule-uint256-address-bytes-: xref:interfaces.adoc#IERC7579ModuleConfig-uninstallModule-uint256-address-bytes-
+:xref-IERC7579ModuleConfig-isModuleInstalled-uint256-address-bytes-: xref:interfaces.adoc#IERC7579ModuleConfig-isModuleInstalled-uint256-address-bytes-
+:xref-IERC7579ModuleConfig-ModuleInstalled-uint256-address-: xref:interfaces.adoc#IERC7579ModuleConfig-ModuleInstalled-uint256-address-
+:xref-IERC7579ModuleConfig-ModuleUninstalled-uint256-address-: xref:interfaces.adoc#IERC7579ModuleConfig-ModuleUninstalled-uint256-address-
 :xref-IERC7674-temporaryApprove-address-uint256-: xref:interfaces.adoc#IERC7674-temporaryApprove-address-uint256-
 :xref-IERC20-totalSupply--: xref:token/ERC20.adoc#IERC20-totalSupply--
 :xref-IERC20-balanceOf-address-: xref:token/ERC20.adoc#IERC20-balanceOf-address-
@@ -233,11 +272,18 @@
 :xref-IERC20-transferFrom-address-address-uint256-: xref:token/ERC20.adoc#IERC20-transferFrom-address-address-uint256-
 :xref-IERC20-Transfer-address-address-uint256-: xref:token/ERC20.adoc#IERC20-Transfer-address-address-uint256-
 :xref-IERC20-Approval-address-address-uint256-: xref:token/ERC20.adoc#IERC20-Approval-address-address-uint256-
+:xref-IERC7751-WrappedError-address-bytes4-bytes-bytes-: xref:interfaces.adoc#IERC7751-WrappedError-address-bytes4-bytes-bytes-
+:xref-IERC7786GatewaySource-supportsAttribute-bytes4-: xref:interfaces.adoc#IERC7786GatewaySource-supportsAttribute-bytes4-
+:xref-IERC7786GatewaySource-sendMessage-bytes-bytes-bytes---: xref:interfaces.adoc#IERC7786GatewaySource-sendMessage-bytes-bytes-bytes---
+:xref-IERC7786GatewaySource-MessageSent-bytes32-bytes-bytes-bytes-uint256-bytes---: xref:interfaces.adoc#IERC7786GatewaySource-MessageSent-bytes32-bytes-bytes-bytes-uint256-bytes---
+:xref-IERC7786GatewaySource-UnsupportedAttribute-bytes4-: xref:interfaces.adoc#IERC7786GatewaySource-UnsupportedAttribute-bytes4-
+:xref-IERC7786Recipient-receiveMessage-bytes32-bytes-bytes-: xref:interfaces.adoc#IERC7786Recipient-receiveMessage-bytes32-bytes-bytes-
 :xref-IERC7802-crosschainMint-address-uint256-: xref:interfaces.adoc#IERC7802-crosschainMint-address-uint256-
 :xref-IERC7802-crosschainBurn-address-uint256-: xref:interfaces.adoc#IERC7802-crosschainBurn-address-uint256-
 :xref-IERC165-supportsInterface-bytes4-: xref:utils.adoc#IERC165-supportsInterface-bytes4-
 :xref-IERC7802-CrosschainMint-address-uint256-address-: xref:interfaces.adoc#IERC7802-CrosschainMint-address-uint256-address-
 :xref-IERC7802-CrosschainBurn-address-uint256-address-: xref:interfaces.adoc#IERC7802-CrosschainBurn-address-uint256-address-
+:xref-IERC7913SignatureVerifier-verify-bytes-bytes32-bytes-: xref:interfaces.adoc#IERC7913SignatureVerifier-verify-bytes-bytes32-bytes-
 = Interfaces
 
 [.readme-notice]
@@ -270,6 +316,8 @@ are useful to interact with third party contracts that implement them.
 - {IERC1820Implementer}
 - {IERC1820Registry}
 - {IERC1822Proxiable}
+- {IERC1967}
+- {IERC2309}
 - {IERC2612}
 - {IERC2981}
 - {IERC3156FlashLender}
@@ -284,8 +332,18 @@ are useful to interact with third party contracts that implement them.
 - {IERC6909ContentURI}
 - {IERC6909Metadata}
 - {IERC6909TokenSupply}
+- {IERC7579Module}
+- {IERC7579Validator}
+- {IERC7579Hook}
+- {IERC7579Execution}
+- {IERC7579AccountConfig}
+- {IERC7579ModuleConfig}
 - {IERC7674}
+- {IERC7751}
+- {IERC7786GatewaySource}
+- {IERC7786Recipient}
 - {IERC7802}
+- {IERC7913SignatureVerifier}
 
 == Detailed ABI
 
@@ -298,7 +356,7 @@ are useful to interact with third party contracts that implement them.
 
 [.contract]
 [[IERC20Errors]]
-=== `++IERC20Errors++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/interfaces/draft-IERC6093.sol[{github-icon},role=heading-link]
+=== `++IERC20Errors++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/draft-IERC6093.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -367,7 +425,7 @@ Indicates a failure with the `spender` to be approved. Used in approvals.
 
 [.contract]
 [[IERC721Errors]]
-=== `++IERC721Errors++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/interfaces/draft-IERC6093.sol[{github-icon},role=heading-link]
+=== `++IERC721Errors++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/draft-IERC6093.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -395,7 +453,7 @@ Interface of the https://eips.ethereum.org/EIPS/eip-6093[ERC-6093] custom errors
 [[IERC721Errors-ERC721InvalidOwner-address-]]
 ==== `[.contract-item-name]#++ERC721InvalidOwner++#++(address owner)++` [.item-kind]#error#
 
-Indicates that an address can't be an owner. For example, `address(0)` is a forbidden owner in ERC-20.
+Indicates that an address can't be an owner. For example, `address(0)` is a forbidden owner in ERC-721.
 Used in balance queries.
 
 [.contract-item]
@@ -450,7 +508,7 @@ Indicates a failure with the `operator` to be approved. Used in approvals.
 
 [.contract]
 [[IERC1155Errors]]
-=== `++IERC1155Errors++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/interfaces/draft-IERC6093.sol[{github-icon},role=heading-link]
+=== `++IERC1155Errors++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/draft-IERC6093.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -522,7 +580,7 @@ Used in batch transfers.
 
 [.contract]
 [[IERC1271]]
-=== `++IERC1271++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/interfaces/IERC1271.sol[{github-icon},role=heading-link]
+=== `++IERC1271++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC1271.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -561,7 +619,7 @@ Should return whether the signature provided is valid for the provided data
 
 [.contract]
 [[IERC1363]]
-=== `++IERC1363++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/interfaces/IERC1363.sol[{github-icon},role=heading-link]
+=== `++IERC1363++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC1363.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -660,7 +718,7 @@ caller's tokens and then calls {IERC1363Spender-onApprovalReceived} on `spender`
 
 [.contract]
 [[IERC1363Receiver]]
-=== `++IERC1363Receiver++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/interfaces/IERC1363Receiver.sol[{github-icon},role=heading-link]
+=== `++IERC1363Receiver++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC1363Receiver.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -694,7 +752,7 @@ NOTE: To accept the transfer, this must return
 
 [.contract]
 [[IERC1363Spender]]
-=== `++IERC1363Spender++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/interfaces/IERC1363Spender.sol[{github-icon},role=heading-link]
+=== `++IERC1363Spender++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC1363Spender.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -728,7 +786,7 @@ NOTE: To accept the approval, this must return
 
 [.contract]
 [[IERC1820Implementer]]
-=== `++IERC1820Implementer++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/interfaces/IERC1820Implementer.sol[{github-icon},role=heading-link]
+=== `++IERC1820Implementer++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC1820Implementer.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -778,7 +836,7 @@ See {IERC1820Registry-setInterfaceImplementer}.
 
 [.contract]
 [[IERC1820Registry]]
-=== `++IERC1820Registry++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/interfaces/IERC1820Registry.sol[{github-icon},role=heading-link]
+=== `++IERC1820Registry++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC1820Registry.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -913,7 +971,7 @@ https://eips.ethereum.org/EIPS/eip-1820#interface-name[section of the ERC].
 
 [.contract]
 [[IERC1822Proxiable]]
-=== `++IERC1822Proxiable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/interfaces/draft-IERC1822.sol[{github-icon},role=heading-link]
+=== `++IERC1822Proxiable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/draft-IERC1822.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -941,9 +999,77 @@ IMPORTANT: A proxy pointing at a proxiable contract should not be considered pro
 bricking a proxy that upgrades to it, by delegating to itself until out of gas. Thus it is critical that this
 function revert if invoked through a proxy.
 
+:Upgraded: pass:normal[xref:#IERC1967-Upgraded-address-[`++Upgraded++`]]
+:AdminChanged: pass:normal[xref:#IERC1967-AdminChanged-address-address-[`++AdminChanged++`]]
+:BeaconUpgraded: pass:normal[xref:#IERC1967-BeaconUpgraded-address-[`++BeaconUpgraded++`]]
+
+[.contract]
+[[IERC1967]]
+=== `++IERC1967++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC1967.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/interfaces/IERC1967.sol";
+```
+
+ERC-1967: Proxy Storage Slots. This interface contains the events defined in the ERC.
+
+[.contract-index]
+.Events
+--
+* {xref-IERC1967-Upgraded-address-}[`++Upgraded(implementation)++`]
+* {xref-IERC1967-AdminChanged-address-address-}[`++AdminChanged(previousAdmin, newAdmin)++`]
+* {xref-IERC1967-BeaconUpgraded-address-}[`++BeaconUpgraded(beacon)++`]
+
+--
+
+[.contract-item]
+[[IERC1967-Upgraded-address-]]
+==== `[.contract-item-name]#++Upgraded++#++(address indexed implementation)++` [.item-kind]#event#
+
+Emitted when the implementation is upgraded.
+
+[.contract-item]
+[[IERC1967-AdminChanged-address-address-]]
+==== `[.contract-item-name]#++AdminChanged++#++(address previousAdmin, address newAdmin)++` [.item-kind]#event#
+
+Emitted when the admin account has changed.
+
+[.contract-item]
+[[IERC1967-BeaconUpgraded-address-]]
+==== `[.contract-item-name]#++BeaconUpgraded++#++(address indexed beacon)++` [.item-kind]#event#
+
+Emitted when the beacon is changed.
+
+:ConsecutiveTransfer: pass:normal[xref:#IERC2309-ConsecutiveTransfer-uint256-uint256-address-address-[`++ConsecutiveTransfer++`]]
+
+[.contract]
+[[IERC2309]]
+=== `++IERC2309++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC2309.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/interfaces/IERC2309.sol";
+```
+
+ERC-2309: ERC-721 Consecutive Transfer Extension.
+
+[.contract-index]
+.Events
+--
+* {xref-IERC2309-ConsecutiveTransfer-uint256-uint256-address-address-}[`++ConsecutiveTransfer(fromTokenId, toTokenId, fromAddress, toAddress)++`]
+
+--
+
+[.contract-item]
+[[IERC2309-ConsecutiveTransfer-uint256-uint256-address-address-]]
+==== `[.contract-item-name]#++ConsecutiveTransfer++#++(uint256 indexed fromTokenId, uint256 toTokenId, address indexed fromAddress, address indexed toAddress)++` [.item-kind]#event#
+
+Emitted when the tokens from `fromTokenId` to `toTokenId` are transferred from `fromAddress` to `toAddress`.
+
 [.contract]
 [[IERC2612]]
-=== `++IERC2612++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/interfaces/IERC2612.sol[{github-icon},role=heading-link]
+=== `++IERC2612++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC2612.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -968,7 +1094,7 @@ import "@openzeppelin/contracts/interfaces/IERC2612.sol";
 
 [.contract]
 [[IERC2981]]
-=== `++IERC2981++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/interfaces/IERC2981.sol[{github-icon},role=heading-link]
+=== `++IERC2981++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC2981.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1011,7 +1137,7 @@ royalty receiver and 0 tokens to the seller. Contracts dealing with royalty shou
 
 [.contract]
 [[IERC3156FlashLender]]
-=== `++IERC3156FlashLender++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/interfaces/IERC3156FlashLender.sol[{github-icon},role=heading-link]
+=== `++IERC3156FlashLender++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC3156FlashLender.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1034,7 +1160,7 @@ https://eips.ethereum.org/EIPS/eip-3156[ERC-3156].
 [[IERC3156FlashLender-maxFlashLoan-address-]]
 ==== `[.contract-item-name]#++maxFlashLoan++#++(address token) → uint256++` [.item-kind]#external#
 
-The amount of currency available to be lended.
+The amount of currency available to be lent.
 
 [.contract-item]
 [[IERC3156FlashLender-flashFee-address-uint256-]]
@@ -1054,7 +1180,7 @@ Initiate a flash loan.
 
 [.contract]
 [[IERC3156FlashBorrower]]
-=== `++IERC3156FlashBorrower++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/interfaces/IERC3156FlashBorrower.sol[{github-icon},role=heading-link]
+=== `++IERC3156FlashBorrower++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC3156FlashBorrower.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1115,7 +1241,7 @@ Receive a flash loan.
 
 [.contract]
 [[IERC4626]]
-=== `++IERC4626++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/interfaces/IERC4626.sol[{github-icon},role=heading-link]
+=== `++IERC4626++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC4626.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1262,7 +1388,7 @@ share price or some other type of condition, meaning the depositor will lose ass
 [[IERC4626-deposit-uint256-address-]]
 ==== `[.contract-item-name]#++deposit++#++(uint256 assets, address receiver) → uint256 shares++` [.item-kind]#external#
 
-Mints shares Vault shares to receiver by depositing exactly amount of underlying tokens.
+Deposit `assets` underlying tokens and send the corresponding number of vault shares (`shares`) to `receiver`.
 
 - MUST emit the Deposit event.
 - MAY support an additional flow in which the underlying tokens are owned by the Vault contract before the
@@ -1303,7 +1429,7 @@ share price or some other type of condition, meaning the depositor will lose ass
 [[IERC4626-mint-uint256-address-]]
 ==== `[.contract-item-name]#++mint++#++(uint256 shares, address receiver) → uint256 assets++` [.item-kind]#external#
 
-Mints exactly shares Vault shares to receiver by depositing amount of underlying tokens.
+Mints exactly `shares` vault shares to `receiver` in exchange for `assets` underlying tokens.
 
 - MUST emit the Deposit event.
 - MAY support an additional flow in which the underlying tokens are owned by the Vault contract before the mint
@@ -1414,7 +1540,7 @@ Those methods should be performed separately.
 
 [.contract]
 [[IERC4906]]
-=== `++IERC4906++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/interfaces/IERC4906.sol[{github-icon},role=heading-link]
+=== `++IERC4906++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC4906.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1483,7 +1609,7 @@ timely update the images and related attributes of the NFTs.
 
 [.contract]
 [[IERC5267]]
-=== `++IERC5267++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/interfaces/IERC5267.sol[{github-icon},role=heading-link]
+=== `++IERC5267++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC5267.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1523,7 +1649,7 @@ MAY be emitted to signal that the domain could have changed.
 
 [.contract]
 [[IERC5313]]
-=== `++IERC5313++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/interfaces/IERC5313.sol[{github-icon},role=heading-link]
+=== `++IERC5313++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC5313.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1549,7 +1675,7 @@ Gets the address of the owner.
 
 [.contract]
 [[IERC5805]]
-=== `++IERC5805++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/interfaces/IERC5805.sol[{github-icon},role=heading-link]
+=== `++IERC5805++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC5805.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1611,7 +1737,7 @@ import "@openzeppelin/contracts/interfaces/IERC5805.sol";
 
 [.contract]
 [[IERC6372]]
-=== `++IERC6372++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/interfaces/IERC6372.sol[{github-icon},role=heading-link]
+=== `++IERC6372++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC6372.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1659,11 +1785,11 @@ Description of the clock
 
 [.contract]
 [[IERC6909]]
-=== `++IERC6909++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/interfaces/draft-IERC6909.sol[{github-icon},role=heading-link]
+=== `++IERC6909++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC6909.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
-import "@openzeppelin/contracts/interfaces/draft-IERC6909.sol";
+import "@openzeppelin/contracts/interfaces/IERC6909.sol";
 ```
 
 Required interface of an ERC-6909 compliant contract, as defined in the
@@ -1778,11 +1904,11 @@ Emitted when `amount` tokens of type `id` are moved from `sender` to `receiver` 
 
 [.contract]
 [[IERC6909ContentURI]]
-=== `++IERC6909ContentURI++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/interfaces/draft-IERC6909.sol[{github-icon},role=heading-link]
+=== `++IERC6909ContentURI++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC6909.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
-import "@openzeppelin/contracts/interfaces/draft-IERC6909.sol";
+import "@openzeppelin/contracts/interfaces/IERC6909.sol";
 ```
 
 Optional extension of {IERC6909} that adds content URI functions.
@@ -1846,11 +1972,11 @@ Returns the URI for the token of type `id`.
 
 [.contract]
 [[IERC6909Metadata]]
-=== `++IERC6909Metadata++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/interfaces/draft-IERC6909.sol[{github-icon},role=heading-link]
+=== `++IERC6909Metadata++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC6909.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
-import "@openzeppelin/contracts/interfaces/draft-IERC6909.sol";
+import "@openzeppelin/contracts/interfaces/IERC6909.sol";
 ```
 
 Optional extension of {IERC6909} that adds metadata functions.
@@ -1917,11 +2043,11 @@ Returns the number of decimals for the token of type `id`.
 
 [.contract]
 [[IERC6909TokenSupply]]
-=== `++IERC6909TokenSupply++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/interfaces/draft-IERC6909.sol[{github-icon},role=heading-link]
+=== `++IERC6909TokenSupply++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC6909.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
-import "@openzeppelin/contracts/interfaces/draft-IERC6909.sol";
+import "@openzeppelin/contracts/interfaces/IERC6909.sol";
 ```
 
 Optional extension of {IERC6909} that adds a token supply function.
@@ -1968,13 +2094,304 @@ Optional extension of {IERC6909} that adds a token supply function.
 
 Returns the total supply of the token of type `id`.
 
+:onInstall: pass:normal[xref:#IERC7579Module-onInstall-bytes-[`++onInstall++`]]
+:onUninstall: pass:normal[xref:#IERC7579Module-onUninstall-bytes-[`++onUninstall++`]]
+:isModuleType: pass:normal[xref:#IERC7579Module-isModuleType-uint256-[`++isModuleType++`]]
+
+:onInstall-bytes: pass:normal[xref:#IERC7579Module-onInstall-bytes-[`++onInstall++`]]
+:onUninstall-bytes: pass:normal[xref:#IERC7579Module-onUninstall-bytes-[`++onUninstall++`]]
+:isModuleType-uint256: pass:normal[xref:#IERC7579Module-isModuleType-uint256-[`++isModuleType++`]]
+
+[.contract]
+[[IERC7579Module]]
+=== `++IERC7579Module++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/draft-IERC7579.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/interfaces/draft-IERC7579.sol";
+```
+
+Minimal configuration interface for ERC-7579 modules
+
+[.contract-index]
+.Functions
+--
+* {xref-IERC7579Module-onInstall-bytes-}[`++onInstall(data)++`]
+* {xref-IERC7579Module-onUninstall-bytes-}[`++onUninstall(data)++`]
+* {xref-IERC7579Module-isModuleType-uint256-}[`++isModuleType(moduleTypeId)++`]
+
+--
+
+[.contract-item]
+[[IERC7579Module-onInstall-bytes-]]
+==== `[.contract-item-name]#++onInstall++#++(bytes data)++` [.item-kind]#external#
+
+This function is called by the smart account during installation of the module
+
+[.contract-item]
+[[IERC7579Module-onUninstall-bytes-]]
+==== `[.contract-item-name]#++onUninstall++#++(bytes data)++` [.item-kind]#external#
+
+This function is called by the smart account during uninstallation of the module
+
+[.contract-item]
+[[IERC7579Module-isModuleType-uint256-]]
+==== `[.contract-item-name]#++isModuleType++#++(uint256 moduleTypeId) → bool++` [.item-kind]#external#
+
+Returns boolean value if module is a certain type
+
+:validateUserOp: pass:normal[xref:#IERC7579Validator-validateUserOp-struct-PackedUserOperation-bytes32-[`++validateUserOp++`]]
+:isValidSignatureWithSender: pass:normal[xref:#IERC7579Validator-isValidSignatureWithSender-address-bytes32-bytes-[`++isValidSignatureWithSender++`]]
+
+:validateUserOp-struct-PackedUserOperation-bytes32: pass:normal[xref:#IERC7579Validator-validateUserOp-struct-PackedUserOperation-bytes32-[`++validateUserOp++`]]
+:isValidSignatureWithSender-address-bytes32-bytes: pass:normal[xref:#IERC7579Validator-isValidSignatureWithSender-address-bytes32-bytes-[`++isValidSignatureWithSender++`]]
+
+[.contract]
+[[IERC7579Validator]]
+=== `++IERC7579Validator++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/draft-IERC7579.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/interfaces/draft-IERC7579.sol";
+```
+
+ERC-7579 Validation module (type 1).
+
+A module that implements logic to validate user operations and signatures.
+
+[.contract-index]
+.Functions
+--
+* {xref-IERC7579Validator-validateUserOp-struct-PackedUserOperation-bytes32-}[`++validateUserOp(userOp, userOpHash)++`]
+* {xref-IERC7579Validator-isValidSignatureWithSender-address-bytes32-bytes-}[`++isValidSignatureWithSender(sender, hash, signature)++`]
+
+[.contract-subindex-inherited]
+.IERC7579Module
+* {xref-IERC7579Module-onInstall-bytes-}[`++onInstall(data)++`]
+* {xref-IERC7579Module-onUninstall-bytes-}[`++onUninstall(data)++`]
+* {xref-IERC7579Module-isModuleType-uint256-}[`++isModuleType(moduleTypeId)++`]
+
+--
+
+[.contract-item]
+[[IERC7579Validator-validateUserOp-struct-PackedUserOperation-bytes32-]]
+==== `[.contract-item-name]#++validateUserOp++#++(struct PackedUserOperation userOp, bytes32 userOpHash) → uint256++` [.item-kind]#external#
+
+Validates a UserOperation
+
+[.contract-item]
+[[IERC7579Validator-isValidSignatureWithSender-address-bytes32-bytes-]]
+==== `[.contract-item-name]#++isValidSignatureWithSender++#++(address sender, bytes32 hash, bytes signature) → bytes4++` [.item-kind]#external#
+
+Validates a signature using ERC-1271
+
+:preCheck: pass:normal[xref:#IERC7579Hook-preCheck-address-uint256-bytes-[`++preCheck++`]]
+:postCheck: pass:normal[xref:#IERC7579Hook-postCheck-bytes-[`++postCheck++`]]
+
+:preCheck-address-uint256-bytes: pass:normal[xref:#IERC7579Hook-preCheck-address-uint256-bytes-[`++preCheck++`]]
+:postCheck-bytes: pass:normal[xref:#IERC7579Hook-postCheck-bytes-[`++postCheck++`]]
+
+[.contract]
+[[IERC7579Hook]]
+=== `++IERC7579Hook++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/draft-IERC7579.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/interfaces/draft-IERC7579.sol";
+```
+
+ERC-7579 Hooks module (type 4).
+
+A module that implements logic to execute before and after the account executes a user operation,
+either individually or batched.
+
+[.contract-index]
+.Functions
+--
+* {xref-IERC7579Hook-preCheck-address-uint256-bytes-}[`++preCheck(msgSender, value, msgData)++`]
+* {xref-IERC7579Hook-postCheck-bytes-}[`++postCheck(hookData)++`]
+
+[.contract-subindex-inherited]
+.IERC7579Module
+* {xref-IERC7579Module-onInstall-bytes-}[`++onInstall(data)++`]
+* {xref-IERC7579Module-onUninstall-bytes-}[`++onUninstall(data)++`]
+* {xref-IERC7579Module-isModuleType-uint256-}[`++isModuleType(moduleTypeId)++`]
+
+--
+
+[.contract-item]
+[[IERC7579Hook-preCheck-address-uint256-bytes-]]
+==== `[.contract-item-name]#++preCheck++#++(address msgSender, uint256 value, bytes msgData) → bytes hookData++` [.item-kind]#external#
+
+Called by the smart account before execution
+
+[.contract-item]
+[[IERC7579Hook-postCheck-bytes-]]
+==== `[.contract-item-name]#++postCheck++#++(bytes hookData)++` [.item-kind]#external#
+
+Called by the smart account after execution
+
+:execute: pass:normal[xref:#IERC7579Execution-execute-bytes32-bytes-[`++execute++`]]
+:executeFromExecutor: pass:normal[xref:#IERC7579Execution-executeFromExecutor-bytes32-bytes-[`++executeFromExecutor++`]]
+
+:execute-bytes32-bytes: pass:normal[xref:#IERC7579Execution-execute-bytes32-bytes-[`++execute++`]]
+:executeFromExecutor-bytes32-bytes: pass:normal[xref:#IERC7579Execution-executeFromExecutor-bytes32-bytes-[`++executeFromExecutor++`]]
+
+[.contract]
+[[IERC7579Execution]]
+=== `++IERC7579Execution++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/draft-IERC7579.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/interfaces/draft-IERC7579.sol";
+```
+
+ERC-7579 Execution.
+
+Accounts should implement this interface so that the Entrypoint and ERC-7579 modules can execute operations.
+
+[.contract-index]
+.Functions
+--
+* {xref-IERC7579Execution-execute-bytes32-bytes-}[`++execute(mode, executionCalldata)++`]
+* {xref-IERC7579Execution-executeFromExecutor-bytes32-bytes-}[`++executeFromExecutor(mode, executionCalldata)++`]
+
+--
+
+[.contract-item]
+[[IERC7579Execution-execute-bytes32-bytes-]]
+==== `[.contract-item-name]#++execute++#++(bytes32 mode, bytes executionCalldata)++` [.item-kind]#external#
+
+Executes a transaction on behalf of the account.
+
+[.contract-item]
+[[IERC7579Execution-executeFromExecutor-bytes32-bytes-]]
+==== `[.contract-item-name]#++executeFromExecutor++#++(bytes32 mode, bytes executionCalldata) → bytes[] returnData++` [.item-kind]#external#
+
+Executes a transaction on behalf of the account.
+        This function is intended to be called by Executor Modules
+
+:accountId: pass:normal[xref:#IERC7579AccountConfig-accountId--[`++accountId++`]]
+:supportsExecutionMode: pass:normal[xref:#IERC7579AccountConfig-supportsExecutionMode-bytes32-[`++supportsExecutionMode++`]]
+:supportsModule: pass:normal[xref:#IERC7579AccountConfig-supportsModule-uint256-[`++supportsModule++`]]
+
+:accountId-: pass:normal[xref:#IERC7579AccountConfig-accountId--[`++accountId++`]]
+:supportsExecutionMode-bytes32: pass:normal[xref:#IERC7579AccountConfig-supportsExecutionMode-bytes32-[`++supportsExecutionMode++`]]
+:supportsModule-uint256: pass:normal[xref:#IERC7579AccountConfig-supportsModule-uint256-[`++supportsModule++`]]
+
+[.contract]
+[[IERC7579AccountConfig]]
+=== `++IERC7579AccountConfig++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/draft-IERC7579.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/interfaces/draft-IERC7579.sol";
+```
+
+ERC-7579 Account Config.
+
+Accounts should implement this interface to expose information that identifies the account, supported modules and capabilities.
+
+[.contract-index]
+.Functions
+--
+* {xref-IERC7579AccountConfig-accountId--}[`++accountId()++`]
+* {xref-IERC7579AccountConfig-supportsExecutionMode-bytes32-}[`++supportsExecutionMode(encodedMode)++`]
+* {xref-IERC7579AccountConfig-supportsModule-uint256-}[`++supportsModule(moduleTypeId)++`]
+
+--
+
+[.contract-item]
+[[IERC7579AccountConfig-accountId--]]
+==== `[.contract-item-name]#++accountId++#++() → string accountImplementationId++` [.item-kind]#external#
+
+Returns the account id of the smart account
+
+[.contract-item]
+[[IERC7579AccountConfig-supportsExecutionMode-bytes32-]]
+==== `[.contract-item-name]#++supportsExecutionMode++#++(bytes32 encodedMode) → bool++` [.item-kind]#external#
+
+Function to check if the account supports a certain execution mode (see above)
+
+[.contract-item]
+[[IERC7579AccountConfig-supportsModule-uint256-]]
+==== `[.contract-item-name]#++supportsModule++#++(uint256 moduleTypeId) → bool++` [.item-kind]#external#
+
+Function to check if the account supports a certain module typeId
+
+:ModuleInstalled: pass:normal[xref:#IERC7579ModuleConfig-ModuleInstalled-uint256-address-[`++ModuleInstalled++`]]
+:ModuleUninstalled: pass:normal[xref:#IERC7579ModuleConfig-ModuleUninstalled-uint256-address-[`++ModuleUninstalled++`]]
+:installModule: pass:normal[xref:#IERC7579ModuleConfig-installModule-uint256-address-bytes-[`++installModule++`]]
+:uninstallModule: pass:normal[xref:#IERC7579ModuleConfig-uninstallModule-uint256-address-bytes-[`++uninstallModule++`]]
+:isModuleInstalled: pass:normal[xref:#IERC7579ModuleConfig-isModuleInstalled-uint256-address-bytes-[`++isModuleInstalled++`]]
+
+:installModule-uint256-address-bytes: pass:normal[xref:#IERC7579ModuleConfig-installModule-uint256-address-bytes-[`++installModule++`]]
+:uninstallModule-uint256-address-bytes: pass:normal[xref:#IERC7579ModuleConfig-uninstallModule-uint256-address-bytes-[`++uninstallModule++`]]
+:isModuleInstalled-uint256-address-bytes: pass:normal[xref:#IERC7579ModuleConfig-isModuleInstalled-uint256-address-bytes-[`++isModuleInstalled++`]]
+
+[.contract]
+[[IERC7579ModuleConfig]]
+=== `++IERC7579ModuleConfig++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/draft-IERC7579.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/interfaces/draft-IERC7579.sol";
+```
+
+ERC-7579 Module Config.
+
+Accounts should implement this interface to allow installing and uninstalling modules.
+
+[.contract-index]
+.Functions
+--
+* {xref-IERC7579ModuleConfig-installModule-uint256-address-bytes-}[`++installModule(moduleTypeId, module, initData)++`]
+* {xref-IERC7579ModuleConfig-uninstallModule-uint256-address-bytes-}[`++uninstallModule(moduleTypeId, module, deInitData)++`]
+* {xref-IERC7579ModuleConfig-isModuleInstalled-uint256-address-bytes-}[`++isModuleInstalled(moduleTypeId, module, additionalContext)++`]
+
+--
+
+[.contract-index]
+.Events
+--
+* {xref-IERC7579ModuleConfig-ModuleInstalled-uint256-address-}[`++ModuleInstalled(moduleTypeId, module)++`]
+* {xref-IERC7579ModuleConfig-ModuleUninstalled-uint256-address-}[`++ModuleUninstalled(moduleTypeId, module)++`]
+
+--
+
+[.contract-item]
+[[IERC7579ModuleConfig-installModule-uint256-address-bytes-]]
+==== `[.contract-item-name]#++installModule++#++(uint256 moduleTypeId, address module, bytes initData)++` [.item-kind]#external#
+
+Installs a Module of a certain type on the smart account
+
+[.contract-item]
+[[IERC7579ModuleConfig-uninstallModule-uint256-address-bytes-]]
+==== `[.contract-item-name]#++uninstallModule++#++(uint256 moduleTypeId, address module, bytes deInitData)++` [.item-kind]#external#
+
+Uninstalls a Module of a certain type on the smart account
+
+[.contract-item]
+[[IERC7579ModuleConfig-isModuleInstalled-uint256-address-bytes-]]
+==== `[.contract-item-name]#++isModuleInstalled++#++(uint256 moduleTypeId, address module, bytes additionalContext) → bool++` [.item-kind]#external#
+
+Returns whether a module is installed on the smart account
+
+[.contract-item]
+[[IERC7579ModuleConfig-ModuleInstalled-uint256-address-]]
+==== `[.contract-item-name]#++ModuleInstalled++#++(uint256 moduleTypeId, address module)++` [.item-kind]#event#
+
+[.contract-item]
+[[IERC7579ModuleConfig-ModuleUninstalled-uint256-address-]]
+==== `[.contract-item-name]#++ModuleUninstalled++#++(uint256 moduleTypeId, address module)++` [.item-kind]#event#
+
 :temporaryApprove: pass:normal[xref:#IERC7674-temporaryApprove-address-uint256-[`++temporaryApprove++`]]
 
 :temporaryApprove-address-uint256: pass:normal[xref:#IERC7674-temporaryApprove-address-uint256-[`++temporaryApprove++`]]
 
 [.contract]
 [[IERC7674]]
-=== `++IERC7674++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/interfaces/draft-IERC7674.sol[{github-icon},role=heading-link]
+=== `++IERC7674++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/draft-IERC7674.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2017,6 +2434,138 @@ Temporary Approval Extension for ERC-20 (https://github.com/ethereum/ERCs/pull/3
 Set the temporary allowance, allowing `spender` to withdraw (within the same transaction) assets
 held by the caller.
 
+:WrappedError: pass:normal[xref:#IERC7751-WrappedError-address-bytes4-bytes-bytes-[`++WrappedError++`]]
+
+[.contract]
+[[IERC7751]]
+=== `++IERC7751++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC7751.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/interfaces/IERC7751.sol";
+```
+
+Wrapping of bubbled up reverts
+Interface of the https://eips.ethereum.org/EIPS/eip-7751[ERC-7751] wrapping of bubbled up reverts.
+
+[.contract-index]
+.Errors
+--
+* {xref-IERC7751-WrappedError-address-bytes4-bytes-bytes-}[`++WrappedError(target, selector, reason, details)++`]
+
+--
+
+[.contract-item]
+[[IERC7751-WrappedError-address-bytes4-bytes-bytes-]]
+==== `[.contract-item-name]#++WrappedError++#++(address target, bytes4 selector, bytes reason, bytes details)++` [.item-kind]#error#
+
+:MessageSent: pass:normal[xref:#IERC7786GatewaySource-MessageSent-bytes32-bytes-bytes-bytes-uint256-bytes---[`++MessageSent++`]]
+:UnsupportedAttribute: pass:normal[xref:#IERC7786GatewaySource-UnsupportedAttribute-bytes4-[`++UnsupportedAttribute++`]]
+:supportsAttribute: pass:normal[xref:#IERC7786GatewaySource-supportsAttribute-bytes4-[`++supportsAttribute++`]]
+:sendMessage: pass:normal[xref:#IERC7786GatewaySource-sendMessage-bytes-bytes-bytes---[`++sendMessage++`]]
+
+:supportsAttribute-bytes4: pass:normal[xref:#IERC7786GatewaySource-supportsAttribute-bytes4-[`++supportsAttribute++`]]
+:sendMessage-bytes-bytes-bytes--: pass:normal[xref:#IERC7786GatewaySource-sendMessage-bytes-bytes-bytes---[`++sendMessage++`]]
+
+[.contract]
+[[IERC7786GatewaySource]]
+=== `++IERC7786GatewaySource++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/draft-IERC7786.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/interfaces/draft-IERC7786.sol";
+```
+
+Interface for ERC-7786 source gateways.
+
+See ERC-7786 for more details
+
+[.contract-index]
+.Functions
+--
+* {xref-IERC7786GatewaySource-supportsAttribute-bytes4-}[`++supportsAttribute(selector)++`]
+* {xref-IERC7786GatewaySource-sendMessage-bytes-bytes-bytes---}[`++sendMessage(recipient, payload, attributes)++`]
+
+--
+
+[.contract-index]
+.Events
+--
+* {xref-IERC7786GatewaySource-MessageSent-bytes32-bytes-bytes-bytes-uint256-bytes---}[`++MessageSent(sendId, sender, recipient, payload, value, attributes)++`]
+
+--
+
+[.contract-index]
+.Errors
+--
+* {xref-IERC7786GatewaySource-UnsupportedAttribute-bytes4-}[`++UnsupportedAttribute(selector)++`]
+
+--
+
+[.contract-item]
+[[IERC7786GatewaySource-supportsAttribute-bytes4-]]
+==== `[.contract-item-name]#++supportsAttribute++#++(bytes4 selector) → bool++` [.item-kind]#external#
+
+Getter to check whether an attribute is supported or not.
+
+[.contract-item]
+[[IERC7786GatewaySource-sendMessage-bytes-bytes-bytes---]]
+==== `[.contract-item-name]#++sendMessage++#++(bytes recipient, bytes payload, bytes[] attributes) → bytes32 sendId++` [.item-kind]#external#
+
+Endpoint for creating a new message. If the message requires further (gateway specific) processing before
+it can be sent to the destination chain, then a non-zero `sendId` must be returned. Otherwise, the
+message MUST be sent and this function must return 0.
+
+* MUST emit a {MessageSent} event.
+
+If any of the `attributes` is not supported, this function SHOULD revert with an {UnsupportedAttribute} error.
+Other errors SHOULD revert with errors not specified in ERC-7786.
+
+[.contract-item]
+[[IERC7786GatewaySource-MessageSent-bytes32-bytes-bytes-bytes-uint256-bytes---]]
+==== `[.contract-item-name]#++MessageSent++#++(bytes32 indexed sendId, bytes sender, bytes recipient, bytes payload, uint256 value, bytes[] attributes)++` [.item-kind]#event#
+
+Event emitted when a message is created. If `sendId` is zero, no further processing is necessary. If
+`sendId` is not zero, then further (gateway specific, and non-standardized) action is required.
+
+[.contract-item]
+[[IERC7786GatewaySource-UnsupportedAttribute-bytes4-]]
+==== `[.contract-item-name]#++UnsupportedAttribute++#++(bytes4 selector)++` [.item-kind]#error#
+
+This error is thrown when a message creation fails because of an unsupported attribute being specified.
+
+:receiveMessage: pass:normal[xref:#IERC7786Recipient-receiveMessage-bytes32-bytes-bytes-[`++receiveMessage++`]]
+
+:receiveMessage-bytes32-bytes-bytes: pass:normal[xref:#IERC7786Recipient-receiveMessage-bytes32-bytes-bytes-[`++receiveMessage++`]]
+
+[.contract]
+[[IERC7786Recipient]]
+=== `++IERC7786Recipient++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/draft-IERC7786.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/interfaces/draft-IERC7786.sol";
+```
+
+Interface for the ERC-7786 client contract (receiver).
+
+See ERC-7786 for more details
+
+[.contract-index]
+.Functions
+--
+* {xref-IERC7786Recipient-receiveMessage-bytes32-bytes-bytes-}[`++receiveMessage(receiveId, sender, payload)++`]
+
+--
+
+[.contract-item]
+[[IERC7786Recipient-receiveMessage-bytes32-bytes-bytes-]]
+==== `[.contract-item-name]#++receiveMessage++#++(bytes32 receiveId, bytes sender, bytes payload) → bytes4++` [.item-kind]#external#
+
+Endpoint for receiving cross-chain message.
+
+This function may be called directly by the gateway.
+
 :CrosschainMint: pass:normal[xref:#IERC7802-CrosschainMint-address-uint256-address-[`++CrosschainMint++`]]
 :CrosschainBurn: pass:normal[xref:#IERC7802-CrosschainBurn-address-uint256-address-[`++CrosschainBurn++`]]
 :crosschainMint: pass:normal[xref:#IERC7802-crosschainMint-address-uint256-[`++crosschainMint++`]]
@@ -2027,7 +2576,7 @@ held by the caller.
 
 [.contract]
 [[IERC7802]]
-=== `++IERC7802++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/interfaces/draft-IERC7802.sol[{github-icon},role=heading-link]
+=== `++IERC7802++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/draft-IERC7802.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2072,4 +2621,36 @@ import "@openzeppelin/contracts/interfaces/draft-IERC7802.sol";
 [.contract-item]
 [[IERC7802-CrosschainBurn-address-uint256-address-]]
 ==== `[.contract-item-name]#++CrosschainBurn++#++(address indexed from, uint256 amount, address indexed sender)++` [.item-kind]#event#
+
+:verify: pass:normal[xref:#IERC7913SignatureVerifier-verify-bytes-bytes32-bytes-[`++verify++`]]
+
+:verify-bytes-bytes32-bytes: pass:normal[xref:#IERC7913SignatureVerifier-verify-bytes-bytes32-bytes-[`++verify++`]]
+
+[.contract]
+[[IERC7913SignatureVerifier]]
+=== `++IERC7913SignatureVerifier++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC7913.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/interfaces/IERC7913.sol";
+```
+
+Signature verifier interface.
+
+[.contract-index]
+.Functions
+--
+* {xref-IERC7913SignatureVerifier-verify-bytes-bytes32-bytes-}[`++verify(key, hash, signature)++`]
+
+--
+
+[.contract-item]
+[[IERC7913SignatureVerifier-verify-bytes-bytes32-bytes-]]
+==== `[.contract-item-name]#++verify++#++(bytes key, bytes32 hash, bytes signature) → bytes4++` [.item-kind]#external#
+
+Verifies `signature` as a valid signature of `hash` by `key`.
+
+MUST return the bytes4 magic value IERC7913SignatureVerifier.verify.selector if the signature is valid.
+SHOULD return 0xffffffff or revert if the signature is not valid.
+SHOULD return 0xffffffff or revert if the key is empty
 

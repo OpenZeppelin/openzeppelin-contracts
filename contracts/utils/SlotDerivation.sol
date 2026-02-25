@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.3.0) (utils/SlotDerivation.sol)
+// OpenZeppelin Contracts (last updated v5.5.0) (utils/SlotDerivation.sol)
 // This file was procedurally generated from scripts/generate/templates/SlotDerivation.js.
 
 pragma solidity ^0.8.20;
@@ -16,7 +16,7 @@ pragma solidity ^0.8.20;
  * contract Example {
  *     // Add the library methods
  *     using StorageSlot for bytes32;
- *     using SlotDerivation for bytes32;
+ *     using SlotDerivation for *;
  *
  *     // Declare a namespace
  *     string private constant _NAMESPACE = "<namespace>"; // eg. OpenZeppelin.Slot

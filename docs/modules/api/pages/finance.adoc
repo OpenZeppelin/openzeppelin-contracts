@@ -73,7 +73,7 @@ This directory includes primitives for financial systems:
 
 [.contract]
 [[VestingWallet]]
-=== `++VestingWallet++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/finance/VestingWallet.sol[{github-icon},role=heading-link]
+=== `++VestingWallet++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/finance/VestingWallet.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -214,7 +214,7 @@ Getter for the amount of releasable `token` tokens. `token` should be the addres
 [[VestingWallet-release--]]
 ==== `[.contract-item-name]#++release++#++()++` [.item-kind]#public#
 
-Release the native token (ether) that have already vested.
+Release the native tokens (ether) that have already vested.
 
 Emits a {EtherReleased} event.
 

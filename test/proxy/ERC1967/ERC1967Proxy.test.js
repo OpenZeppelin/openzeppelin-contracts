@@ -8,10 +8,7 @@ const fixture = async () => {
 
   const implementation = await ethers.deployContract('DummyImplementation');
 
-  const createProxy = (implementation, initData, opts) =>
-    ethers.deployContract('ERC1967Proxy', [implementation, initData], opts);
-
-  return { nonContractAddress, implementation, createProxy };
+  return { nonContractAddress, implementation };
 };
 
 describe('ERC1967Proxy', function () {
@@ -19,5 +16,21 @@ describe('ERC1967Proxy', function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
-  shouldBehaveLikeProxy();
+  describe('(default) allowUninitialized is false', function () {
+    before(function () {
+      this.createProxy = (implementation, initData, opts) =>
+        ethers.deployContract('ERC1967Proxy', [implementation, initData], opts);
+    });
+
+    shouldBehaveLikeProxy(false);
+  });
+
+  describe('(unsafe) allowUninitialized is true', function () {
+    before(function () {
+      this.createProxy = (implementation, initData, opts) =>
+        ethers.deployContract('ERC1967ProxyUnsafe', [implementation, initData], opts);
+    });
+
+    shouldBehaveLikeProxy(true);
+  });
 });

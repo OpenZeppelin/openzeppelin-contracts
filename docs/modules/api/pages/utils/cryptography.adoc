@@ -6,8 +6,10 @@
 :SignatureChecker: pass:normal[xref:utils/cryptography.adoc#SignatureChecker[`SignatureChecker`]]
 :Hashes: pass:normal[xref:utils/cryptography.adoc#Hashes[`Hashes`]]
 :MerkleProof: pass:normal[xref:utils/cryptography.adoc#MerkleProof[`MerkleProof`]]
+:TrieProof: pass:normal[xref:utils/cryptography.adoc#TrieProof[`TrieProof`]]
 :EIP712: pass:normal[xref:utils/cryptography.adoc#EIP712[`EIP712`]]
 :ERC7739Utils: pass:normal[xref:utils/cryptography.adoc#ERC7739Utils[`ERC7739Utils`]]
+:WebAuthn: pass:normal[xref:utils/cryptography.adoc#WebAuthn[`WebAuthn`]]
 :AbstractSigner: pass:normal[xref:utils/cryptography.adoc#AbstractSigner[`AbstractSigner`]]
 :ERC7739: pass:normal[xref:utils/cryptography.adoc#ERC7739[`ERC7739`]]
 :ERC7739Utils: pass:normal[xref:utils/cryptography.adoc#ERC7739Utils[`ERC7739Utils`]]
@@ -15,20 +17,27 @@
 :SignerP256: pass:normal[xref:utils/cryptography.adoc#SignerP256[`SignerP256`]]
 :SignerRSA: pass:normal[xref:utils/cryptography.adoc#SignerRSA[`SignerRSA`]]
 :AbstractSigner: pass:normal[xref:utils/cryptography.adoc#AbstractSigner[`AbstractSigner`]]
-:SignerERC7702: pass:normal[xref:utils/cryptography.adoc#SignerERC7702[`SignerERC7702`]]
+:SignerEIP7702: pass:normal[xref:utils/cryptography.adoc#SignerEIP7702[`SignerEIP7702`]]
 :AbstractSigner: pass:normal[xref:utils/cryptography.adoc#AbstractSigner[`AbstractSigner`]]
+:SignerWebAuthn: pass:normal[xref:utils/cryptography.adoc#SignerWebAuthn[`SignerWebAuthn`]]
+:SignerP256: pass:normal[xref:utils/cryptography.adoc#SignerP256[`SignerP256`]]
 :SignerERC7913: pass:normal[xref:utils/cryptography.adoc#SignerERC7913[`SignerERC7913`]]
 :MultiSignerERC7913: pass:normal[xref:utils/cryptography.adoc#MultiSignerERC7913[`MultiSignerERC7913`]]
 :MultiSignerERC7913Weighted: pass:normal[xref:utils/cryptography.adoc#MultiSignerERC7913Weighted[`MultiSignerERC7913Weighted`]]
 :AbstractSigner: pass:normal[xref:utils/cryptography.adoc#AbstractSigner[`AbstractSigner`]]
 :ERC7913P256Verifier: pass:normal[xref:utils/cryptography.adoc#ERC7913P256Verifier[`ERC7913P256Verifier`]]
 :ERC7913RSAVerifier: pass:normal[xref:utils/cryptography.adoc#ERC7913RSAVerifier[`ERC7913RSAVerifier`]]
+:ERC7913WebAuthnVerifier: pass:normal[xref:utils/cryptography.adoc#ERC7913WebAuthnVerifier[`ERC7913WebAuthnVerifier`]]
 :xref-ECDSA-tryRecover-bytes32-bytes-: xref:utils/cryptography.adoc#ECDSA-tryRecover-bytes32-bytes-
+:xref-ECDSA-tryRecoverCalldata-bytes32-bytes-: xref:utils/cryptography.adoc#ECDSA-tryRecoverCalldata-bytes32-bytes-
 :xref-ECDSA-recover-bytes32-bytes-: xref:utils/cryptography.adoc#ECDSA-recover-bytes32-bytes-
+:xref-ECDSA-recoverCalldata-bytes32-bytes-: xref:utils/cryptography.adoc#ECDSA-recoverCalldata-bytes32-bytes-
 :xref-ECDSA-tryRecover-bytes32-bytes32-bytes32-: xref:utils/cryptography.adoc#ECDSA-tryRecover-bytes32-bytes32-bytes32-
 :xref-ECDSA-recover-bytes32-bytes32-bytes32-: xref:utils/cryptography.adoc#ECDSA-recover-bytes32-bytes32-bytes32-
 :xref-ECDSA-tryRecover-bytes32-uint8-bytes32-bytes32-: xref:utils/cryptography.adoc#ECDSA-tryRecover-bytes32-uint8-bytes32-bytes32-
 :xref-ECDSA-recover-bytes32-uint8-bytes32-bytes32-: xref:utils/cryptography.adoc#ECDSA-recover-bytes32-uint8-bytes32-bytes32-
+:xref-ECDSA-parse-bytes-: xref:utils/cryptography.adoc#ECDSA-parse-bytes-
+:xref-ECDSA-parseCalldata-bytes-: xref:utils/cryptography.adoc#ECDSA-parseCalldata-bytes-
 :xref-ECDSA-ECDSAInvalidSignature--: xref:utils/cryptography.adoc#ECDSA-ECDSAInvalidSignature--
 :xref-ECDSA-ECDSAInvalidSignatureLength-uint256-: xref:utils/cryptography.adoc#ECDSA-ECDSAInvalidSignatureLength-uint256-
 :xref-ECDSA-ECDSAInvalidSignatureS-bytes32-: xref:utils/cryptography.adoc#ECDSA-ECDSAInvalidSignatureS-bytes32-
@@ -44,10 +53,15 @@
 :xref-MessageHashUtils-toDataWithIntendedValidatorHash-address-bytes-: xref:utils/cryptography.adoc#MessageHashUtils-toDataWithIntendedValidatorHash-address-bytes-
 :xref-MessageHashUtils-toDataWithIntendedValidatorHash-address-bytes32-: xref:utils/cryptography.adoc#MessageHashUtils-toDataWithIntendedValidatorHash-address-bytes32-
 :xref-MessageHashUtils-toTypedDataHash-bytes32-bytes32-: xref:utils/cryptography.adoc#MessageHashUtils-toTypedDataHash-bytes32-bytes32-
+:xref-MessageHashUtils-toDomainSeparator-bytes1-string-string-uint256-address-bytes32-: xref:utils/cryptography.adoc#MessageHashUtils-toDomainSeparator-bytes1-string-string-uint256-address-bytes32-
+:xref-MessageHashUtils-toDomainSeparator-bytes1-bytes32-bytes32-uint256-address-bytes32-: xref:utils/cryptography.adoc#MessageHashUtils-toDomainSeparator-bytes1-bytes32-bytes32-uint256-address-bytes32-
+:xref-MessageHashUtils-toDomainTypeHash-bytes1-: xref:utils/cryptography.adoc#MessageHashUtils-toDomainTypeHash-bytes1-
+:xref-MessageHashUtils-ERC5267ExtensionsNotSupported--: xref:utils/cryptography.adoc#MessageHashUtils-ERC5267ExtensionsNotSupported--
 :ECDSA-recover: pass:normal[xref:utils/cryptography.adoc#ECDSA-recover-bytes32-uint8-bytes32-bytes32-[`ECDSA.recover`]]
 :ECDSA-recover: pass:normal[xref:utils/cryptography.adoc#ECDSA-recover-bytes32-uint8-bytes32-bytes32-[`ECDSA.recover`]]
 :ECDSA-recover: pass:normal[xref:utils/cryptography.adoc#ECDSA-recover-bytes32-uint8-bytes32-bytes32-[`ECDSA.recover`]]
 :ECDSA-recover: pass:normal[xref:utils/cryptography.adoc#ECDSA-recover-bytes32-uint8-bytes32-bytes32-[`ECDSA.recover`]]
+:IERC5267-eip712Domain: pass:normal[xref:interfaces.adoc#IERC5267-eip712Domain--[`IERC5267.eip712Domain`]]
 :xref-P256-verify-bytes32-bytes32-bytes32-bytes32-bytes32-: xref:utils/cryptography.adoc#P256-verify-bytes32-bytes32-bytes32-bytes32-bytes32-
 :xref-P256-verifyNative-bytes32-bytes32-bytes32-bytes32-bytes32-: xref:utils/cryptography.adoc#P256-verifyNative-bytes32-bytes32-bytes32-bytes32-bytes32-
 :xref-P256-verifySolidity-bytes32-bytes32-bytes32-bytes32-bytes32-: xref:utils/cryptography.adoc#P256-verifySolidity-bytes32-bytes32-bytes32-bytes32-bytes32-
@@ -62,7 +76,9 @@
 :xref-RSA-pkcs1Sha256-bytes-bytes-bytes-bytes-: xref:utils/cryptography.adoc#RSA-pkcs1Sha256-bytes-bytes-bytes-bytes-
 :xref-RSA-pkcs1Sha256-bytes32-bytes-bytes-bytes-: xref:utils/cryptography.adoc#RSA-pkcs1Sha256-bytes32-bytes-bytes-bytes-
 :xref-SignatureChecker-isValidSignatureNow-address-bytes32-bytes-: xref:utils/cryptography.adoc#SignatureChecker-isValidSignatureNow-address-bytes32-bytes-
+:xref-SignatureChecker-isValidSignatureNowCalldata-address-bytes32-bytes-: xref:utils/cryptography.adoc#SignatureChecker-isValidSignatureNowCalldata-address-bytes32-bytes-
 :xref-SignatureChecker-isValidERC1271SignatureNow-address-bytes32-bytes-: xref:utils/cryptography.adoc#SignatureChecker-isValidERC1271SignatureNow-address-bytes32-bytes-
+:xref-SignatureChecker-isValidERC1271SignatureNowCalldata-address-bytes32-bytes-: xref:utils/cryptography.adoc#SignatureChecker-isValidERC1271SignatureNowCalldata-address-bytes32-bytes-
 :xref-SignatureChecker-isValidSignatureNow-bytes-bytes32-bytes-: xref:utils/cryptography.adoc#SignatureChecker-isValidSignatureNow-bytes-bytes32-bytes-
 :xref-SignatureChecker-areValidSignaturesNow-bytes32-bytes---bytes---: xref:utils/cryptography.adoc#SignatureChecker-areValidSignaturesNow-bytes32-bytes---bytes---
 :IERC7913SignatureVerifier: pass:normal[xref:interfaces.adoc#IERC7913SignatureVerifier[`IERC7913SignatureVerifier`]]
@@ -85,6 +101,13 @@
 :xref-MerkleProof-multiProofVerifyCalldata-bytes32---bool---bytes32-bytes32---function--bytes32-bytes32--view-returns--bytes32--: xref:utils/cryptography.adoc#MerkleProof-multiProofVerifyCalldata-bytes32---bool---bytes32-bytes32---function--bytes32-bytes32--view-returns--bytes32--
 :xref-MerkleProof-processMultiProofCalldata-bytes32---bool---bytes32---function--bytes32-bytes32--view-returns--bytes32--: xref:utils/cryptography.adoc#MerkleProof-processMultiProofCalldata-bytes32---bool---bytes32---function--bytes32-bytes32--view-returns--bytes32--
 :xref-MerkleProof-MerkleProofInvalidMultiproof--: xref:utils/cryptography.adoc#MerkleProof-MerkleProofInvalidMultiproof--
+:xref-TrieProof-verify-bytes-bytes32-bytes-bytes---: xref:utils/cryptography.adoc#TrieProof-verify-bytes-bytes32-bytes-bytes---
+:xref-TrieProof-traverse-bytes32-bytes-bytes---: xref:utils/cryptography.adoc#TrieProof-traverse-bytes32-bytes-bytes---
+:xref-TrieProof-tryTraverse-bytes32-bytes-bytes---: xref:utils/cryptography.adoc#TrieProof-tryTraverse-bytes32-bytes-bytes---
+:xref-TrieProof-TrieProofTraversalError-enum-TrieProof-ProofError-: xref:utils/cryptography.adoc#TrieProof-TrieProofTraversalError-enum-TrieProof-ProofError-
+:xref-TrieProof-EVM_TREE_RADIX-uint256: xref:utils/cryptography.adoc#TrieProof-EVM_TREE_RADIX-uint256
+:xref-TrieProof-BRANCH_NODE_LENGTH-uint256: xref:utils/cryptography.adoc#TrieProof-BRANCH_NODE_LENGTH-uint256
+:xref-TrieProof-LEAF_OR_EXTENSION_NODE_LENGTH-uint256: xref:utils/cryptography.adoc#TrieProof-LEAF_OR_EXTENSION_NODE_LENGTH-uint256
 :xref-EIP712-constructor-string-string-: xref:utils/cryptography.adoc#EIP712-constructor-string-string-
 :xref-EIP712-_domainSeparatorV4--: xref:utils/cryptography.adoc#EIP712-_domainSeparatorV4--
 :xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils/cryptography.adoc#EIP712-_hashTypedDataV4-bytes32-
@@ -103,6 +126,13 @@
 :EIP712-_domainSeparatorV4: pass:normal[xref:utils/cryptography.adoc#EIP712-_domainSeparatorV4--[`EIP712._domainSeparatorV4`]]
 :MessageHashUtils-toTypedDataHash: pass:normal[xref:utils/cryptography.adoc#MessageHashUtils-toTypedDataHash-bytes32-bytes32-[`MessageHashUtils.toTypedDataHash`]]
 :MessageHashUtils-toTypedDataHash: pass:normal[xref:utils/cryptography.adoc#MessageHashUtils-toTypedDataHash-bytes32-bytes32-[`MessageHashUtils.toTypedDataHash`]]
+:xref-WebAuthn-verify-bytes-struct-WebAuthn-WebAuthnAuth-bytes32-bytes32-: xref:utils/cryptography.adoc#WebAuthn-verify-bytes-struct-WebAuthn-WebAuthnAuth-bytes32-bytes32-
+:xref-WebAuthn-verify-bytes-struct-WebAuthn-WebAuthnAuth-bytes32-bytes32-bool-: xref:utils/cryptography.adoc#WebAuthn-verify-bytes-struct-WebAuthn-WebAuthnAuth-bytes32-bytes32-bool-
+:xref-WebAuthn-tryDecodeAuth-bytes-: xref:utils/cryptography.adoc#WebAuthn-tryDecodeAuth-bytes-
+:xref-WebAuthn-AUTH_DATA_FLAGS_UP-bytes1: xref:utils/cryptography.adoc#WebAuthn-AUTH_DATA_FLAGS_UP-bytes1
+:xref-WebAuthn-AUTH_DATA_FLAGS_UV-bytes1: xref:utils/cryptography.adoc#WebAuthn-AUTH_DATA_FLAGS_UV-bytes1
+:xref-WebAuthn-AUTH_DATA_FLAGS_BE-bytes1: xref:utils/cryptography.adoc#WebAuthn-AUTH_DATA_FLAGS_BE-bytes1
+:xref-WebAuthn-AUTH_DATA_FLAGS_BS-bytes1: xref:utils/cryptography.adoc#WebAuthn-AUTH_DATA_FLAGS_BS-bytes1
 :xref-AbstractSigner-_rawSignatureValidation-bytes32-bytes-: xref:utils/cryptography.adoc#AbstractSigner-_rawSignatureValidation-bytes32-bytes-
 :ERC7739Utils: pass:normal[xref:utils/cryptography.adoc#ERC7739Utils[`ERC7739Utils`]]
 :xref-ERC7739-isValidSignature-bytes32-bytes-: xref:utils/cryptography.adoc#ERC7739-isValidSignature-bytes32-bytes-
@@ -134,7 +164,7 @@
 :xref-SignerRSA-_rawSignatureValidation-bytes32-bytes-: xref:utils/cryptography.adoc#SignerRSA-_rawSignatureValidation-bytes32-bytes-
 :AbstractSigner-_rawSignatureValidation: pass:normal[xref:utils/cryptography.adoc#AbstractSigner-_rawSignatureValidation-bytes32-bytes-[`AbstractSigner._rawSignatureValidation`]]
 :AbstractSigner: pass:normal[xref:utils/cryptography.adoc#AbstractSigner[`AbstractSigner`]]
-:xref-SignerERC7702-_rawSignatureValidation-bytes32-bytes-: xref:utils/cryptography.adoc#SignerERC7702-_rawSignatureValidation-bytes32-bytes-
+:xref-SignerEIP7702-_rawSignatureValidation-bytes32-bytes-: xref:utils/cryptography.adoc#SignerEIP7702-_rawSignatureValidation-bytes32-bytes-
 :AbstractSigner: pass:normal[xref:utils/cryptography.adoc#AbstractSigner[`AbstractSigner`]]
 :Account: pass:normal[xref:account.adoc#Account[`Account`]]
 :xref-SignerERC7913-constructor-bytes-: xref:utils/cryptography.adoc#SignerERC7913-constructor-bytes-
@@ -194,10 +224,13 @@
 :MultiSignerERC7913-_removeSigners: pass:normal[xref:utils/cryptography.adoc#MultiSignerERC7913-_removeSigners-bytes---[`MultiSignerERC7913._removeSigners`]]
 :xref-ERC7913P256Verifier-verify-bytes-bytes32-bytes-: xref:utils/cryptography.adoc#ERC7913P256Verifier-verify-bytes-bytes32-bytes-
 :xref-ERC7913RSAVerifier-verify-bytes-bytes32-bytes-: xref:utils/cryptography.adoc#ERC7913RSAVerifier-verify-bytes-bytes32-bytes-
+:WebAuthn-WebAuthnAuth: pass:normal[xref:utils/cryptography.adoc#WebAuthn-WebAuthnAuth[`WebAuthn.WebAuthnAuth`]]
+:WebAuthn-verify: pass:normal[xref:utils/cryptography.adoc#WebAuthn-verify-bytes-struct-WebAuthn-WebAuthnAuth-bytes32-bytes32-bool-[`WebAuthn.verify`]]
+:xref-ERC7913WebAuthnVerifier-verify-bytes-bytes32-bytes-: xref:utils/cryptography.adoc#ERC7913WebAuthnVerifier-verify-bytes-bytes32-bytes-
 = Cryptography
 
 [.readme-notice]
-NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/utils/cryptography
+NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/utils#cryptography
 
 A collection of contracts and libraries that implement various signature validation schemes and cryptographic primitives. These utilities enable secure authentication, multisignature operations, and advanced cryptographic operations in smart contracts.
 
@@ -207,14 +240,17 @@ A collection of contracts and libraries that implement various signature validat
  * {SignatureChecker}: A library helper to support regular ECDSA from EOAs as well as ERC-1271 signatures for smart contracts.
  * {Hashes}: Commonly used hash functions.
  * {MerkleProof}: Functions for verifying https://en.wikipedia.org/wiki/Merkle_tree[Merkle Tree] proofs.
+ * {TrieProof}: Library for verifying Ethereum Merkle-Patricia trie inclusion proofs.
  * {EIP712}: Contract with functions to allow processing signed typed structure data according to https://eips.ethereum.org/EIPS/eip-712[EIP-712].
  * {ERC7739Utils}: Utilities library that implements a defensive rehashing mechanism to prevent replayability of smart contract signatures based on ERC-7739.
+ * {WebAuthn}: Library for verifying WebAuthn Authentication Assertions.
  * {AbstractSigner}: Abstract contract for internal signature validation in smart contracts.
  * {ERC7739}: An abstract contract to validate signatures following the rehashing scheme from {ERC7739Utils}.
  * {SignerECDSA}, {SignerP256}, {SignerRSA}: Implementations of an {AbstractSigner} with specific signature validation algorithms.
- * {SignerERC7702}: Implementation of {AbstractSigner} that validates signatures using the contract's own address as the signer, useful for delegated accounts following EIP-7702.
+ * {SignerEIP7702}: Implementation of {AbstractSigner} that validates signatures using the contract's own address as the signer, useful for delegated accounts following EIP-7702.
+ * {SignerWebAuthn}: Implementation of {SignerP256} that supports WebAuthn
  * {SignerERC7913}, {MultiSignerERC7913}, {MultiSignerERC7913Weighted}: Implementations of {AbstractSigner} that validate signatures based on ERC-7913. Including a simple and weighted multisignature scheme.
- * {ERC7913P256Verifier}, {ERC7913RSAVerifier}: Ready to use ERC-7913 signature verifiers for P256 and RSA keys.
+ * {ERC7913P256Verifier}, {ERC7913RSAVerifier}, {ERC7913WebAuthnVerifier}: Ready to use ERC-7913 signature verifiers for P256, RSA keys and WebAuthn.
 
 == Utils
 
@@ -223,22 +259,30 @@ A collection of contracts and libraries that implement various signature validat
 :ECDSAInvalidSignatureLength: pass:normal[xref:#ECDSA-ECDSAInvalidSignatureLength-uint256-[`++ECDSAInvalidSignatureLength++`]]
 :ECDSAInvalidSignatureS: pass:normal[xref:#ECDSA-ECDSAInvalidSignatureS-bytes32-[`++ECDSAInvalidSignatureS++`]]
 :tryRecover: pass:normal[xref:#ECDSA-tryRecover-bytes32-bytes-[`++tryRecover++`]]
+:tryRecoverCalldata: pass:normal[xref:#ECDSA-tryRecoverCalldata-bytes32-bytes-[`++tryRecoverCalldata++`]]
 :recover: pass:normal[xref:#ECDSA-recover-bytes32-bytes-[`++recover++`]]
+:recoverCalldata: pass:normal[xref:#ECDSA-recoverCalldata-bytes32-bytes-[`++recoverCalldata++`]]
 :tryRecover: pass:normal[xref:#ECDSA-tryRecover-bytes32-bytes32-bytes32-[`++tryRecover++`]]
 :recover: pass:normal[xref:#ECDSA-recover-bytes32-bytes32-bytes32-[`++recover++`]]
 :tryRecover: pass:normal[xref:#ECDSA-tryRecover-bytes32-uint8-bytes32-bytes32-[`++tryRecover++`]]
 :recover: pass:normal[xref:#ECDSA-recover-bytes32-uint8-bytes32-bytes32-[`++recover++`]]
+:parse: pass:normal[xref:#ECDSA-parse-bytes-[`++parse++`]]
+:parseCalldata: pass:normal[xref:#ECDSA-parseCalldata-bytes-[`++parseCalldata++`]]
 
 :tryRecover-bytes32-bytes: pass:normal[xref:#ECDSA-tryRecover-bytes32-bytes-[`++tryRecover++`]]
+:tryRecoverCalldata-bytes32-bytes: pass:normal[xref:#ECDSA-tryRecoverCalldata-bytes32-bytes-[`++tryRecoverCalldata++`]]
 :recover-bytes32-bytes: pass:normal[xref:#ECDSA-recover-bytes32-bytes-[`++recover++`]]
+:recoverCalldata-bytes32-bytes: pass:normal[xref:#ECDSA-recoverCalldata-bytes32-bytes-[`++recoverCalldata++`]]
 :tryRecover-bytes32-bytes32-bytes32: pass:normal[xref:#ECDSA-tryRecover-bytes32-bytes32-bytes32-[`++tryRecover++`]]
 :recover-bytes32-bytes32-bytes32: pass:normal[xref:#ECDSA-recover-bytes32-bytes32-bytes32-[`++recover++`]]
 :tryRecover-bytes32-uint8-bytes32-bytes32: pass:normal[xref:#ECDSA-tryRecover-bytes32-uint8-bytes32-bytes32-[`++tryRecover++`]]
 :recover-bytes32-uint8-bytes32-bytes32: pass:normal[xref:#ECDSA-recover-bytes32-uint8-bytes32-bytes32-[`++recover++`]]
+:parse-bytes: pass:normal[xref:#ECDSA-parse-bytes-[`++parse++`]]
+:parseCalldata-bytes: pass:normal[xref:#ECDSA-parseCalldata-bytes-[`++parseCalldata++`]]
 
 [.contract]
 [[ECDSA]]
-=== `++ECDSA++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/utils/cryptography/ECDSA.sol[{github-icon},role=heading-link]
+=== `++ECDSA++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/cryptography/ECDSA.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -254,11 +298,15 @@ of the private keys of a given address.
 .Functions
 --
 * {xref-ECDSA-tryRecover-bytes32-bytes-}[`++tryRecover(hash, signature)++`]
+* {xref-ECDSA-tryRecoverCalldata-bytes32-bytes-}[`++tryRecoverCalldata(hash, signature)++`]
 * {xref-ECDSA-recover-bytes32-bytes-}[`++recover(hash, signature)++`]
+* {xref-ECDSA-recoverCalldata-bytes32-bytes-}[`++recoverCalldata(hash, signature)++`]
 * {xref-ECDSA-tryRecover-bytes32-bytes32-bytes32-}[`++tryRecover(hash, r, vs)++`]
 * {xref-ECDSA-recover-bytes32-bytes32-bytes32-}[`++recover(hash, r, vs)++`]
 * {xref-ECDSA-tryRecover-bytes32-uint8-bytes32-bytes32-}[`++tryRecover(hash, v, r, s)++`]
 * {xref-ECDSA-recover-bytes32-uint8-bytes32-bytes32-}[`++recover(hash, v, r, s)++`]
+* {xref-ECDSA-parse-bytes-}[`++parse(signature)++`]
+* {xref-ECDSA-parseCalldata-bytes-}[`++parseCalldata(signature)++`]
 
 --
 
@@ -285,6 +333,10 @@ The `ecrecover` EVM precompile allows for malleable (non-unique) signatures:
 this function rejects them by requiring the `s` value to be in the lower
 half order, and the `v` value to be either 27 or 28.
 
+NOTE: This function only supports 65-byte signatures. ERC-2098 short signatures are rejected. This restriction
+is DEPRECATED and will be removed in v6.0. Developers SHOULD NOT use signatures as unique identifiers; use hash
+invalidation or nonces for replay protection.
+
 IMPORTANT: `hash` _must_ be the result of a hash operation for the
 verification to be secure: it is possible to craft signatures that
 recover to arbitrary addresses for non-hashed data. A safe way to ensure
@@ -292,8 +344,15 @@ this is by receiving a hash of the original message (which may otherwise
 be too long), and then calling {MessageHashUtils-toEthSignedMessageHash} on it.
 
 Documentation for signature generation:
+
 - with https://web3js.readthedocs.io/en/v1.3.4/web3-eth-accounts.html#sign[Web3.js]
 - with https://docs.ethers.io/v5/api/signer/#Signer-signMessage[ethers]
+
+[.contract-item]
+[[ECDSA-tryRecoverCalldata-bytes32-bytes-]]
+==== `[.contract-item-name]#++tryRecoverCalldata++#++(bytes32 hash, bytes signature) → address recovered, enum ECDSA.RecoverError err, bytes32 errArg++` [.item-kind]#internal#
+
+Variant of {tryRecover} that takes a signature in calldata
 
 [.contract-item]
 [[ECDSA-recover-bytes32-bytes-]]
@@ -306,11 +365,21 @@ The `ecrecover` EVM precompile allows for malleable (non-unique) signatures:
 this function rejects them by requiring the `s` value to be in the lower
 half order, and the `v` value to be either 27 or 28.
 
+NOTE: This function only supports 65-byte signatures. ERC-2098 short signatures are rejected. This restriction
+is DEPRECATED and will be removed in v6.0. Developers SHOULD NOT use signatures as unique identifiers; use hash
+invalidation or nonces for replay protection.
+
 IMPORTANT: `hash` _must_ be the result of a hash operation for the
 verification to be secure: it is possible to craft signatures that
 recover to arbitrary addresses for non-hashed data. A safe way to ensure
 this is by receiving a hash of the original message (which may otherwise
 be too long), and then calling {MessageHashUtils-toEthSignedMessageHash} on it.
+
+[.contract-item]
+[[ECDSA-recoverCalldata-bytes32-bytes-]]
+==== `[.contract-item-name]#++recoverCalldata++#++(bytes32 hash, bytes signature) → address++` [.item-kind]#internal#
+
+Variant of {recover} that takes a signature in calldata
 
 [.contract-item]
 [[ECDSA-tryRecover-bytes32-bytes32-bytes32-]]
@@ -324,7 +393,7 @@ See https://eips.ethereum.org/EIPS/eip-2098[ERC-2098 short signatures]
 [[ECDSA-recover-bytes32-bytes32-bytes32-]]
 ==== `[.contract-item-name]#++recover++#++(bytes32 hash, bytes32 r, bytes32 vs) → address++` [.item-kind]#internal#
 
-Overload of {ECDSA-recover} that receives the `r and `vs` short-signature fields separately.
+Overload of {ECDSA-recover} that receives the `r` and `vs` short-signature fields separately.
 
 [.contract-item]
 [[ECDSA-tryRecover-bytes32-uint8-bytes32-bytes32-]]
@@ -341,10 +410,28 @@ Overload of {ECDSA-recover} that receives the `v`,
 `r` and `s` signature fields separately.
 
 [.contract-item]
+[[ECDSA-parse-bytes-]]
+==== `[.contract-item-name]#++parse++#++(bytes signature) → uint8 v, bytes32 r, bytes32 s++` [.item-kind]#internal#
+
+Parse a signature into its `v`, `r` and `s` components. Supports 65-byte and 64-byte (ERC-2098)
+formats. Returns (0,0,0) for invalid signatures.
+
+For 64-byte signatures, `v` is automatically normalized to 27 or 28.
+For 65-byte signatures, `v` is returned as-is and MUST already be 27 or 28 for use with ecrecover.
+
+Consider validating the result before use, or use {tryRecover}/{recover} which perform full validation.
+
+[.contract-item]
+[[ECDSA-parseCalldata-bytes-]]
+==== `[.contract-item-name]#++parseCalldata++#++(bytes signature) → uint8 v, bytes32 r, bytes32 s++` [.item-kind]#internal#
+
+Variant of {parse} that takes a signature in calldata
+
+[.contract-item]
 [[ECDSA-ECDSAInvalidSignature--]]
 ==== `[.contract-item-name]#++ECDSAInvalidSignature++#++()++` [.item-kind]#error#
 
-The signature derives the `address(0)`.
+The signature is invalid.
 
 [.contract-item]
 [[ECDSA-ECDSAInvalidSignatureLength-uint256-]]
@@ -358,21 +445,28 @@ The signature has an invalid length.
 
 The signature has an S value that is in the upper half order.
 
+:ERC5267ExtensionsNotSupported: pass:normal[xref:#MessageHashUtils-ERC5267ExtensionsNotSupported--[`++ERC5267ExtensionsNotSupported++`]]
 :toEthSignedMessageHash: pass:normal[xref:#MessageHashUtils-toEthSignedMessageHash-bytes32-[`++toEthSignedMessageHash++`]]
 :toEthSignedMessageHash: pass:normal[xref:#MessageHashUtils-toEthSignedMessageHash-bytes-[`++toEthSignedMessageHash++`]]
 :toDataWithIntendedValidatorHash: pass:normal[xref:#MessageHashUtils-toDataWithIntendedValidatorHash-address-bytes-[`++toDataWithIntendedValidatorHash++`]]
 :toDataWithIntendedValidatorHash: pass:normal[xref:#MessageHashUtils-toDataWithIntendedValidatorHash-address-bytes32-[`++toDataWithIntendedValidatorHash++`]]
 :toTypedDataHash: pass:normal[xref:#MessageHashUtils-toTypedDataHash-bytes32-bytes32-[`++toTypedDataHash++`]]
+:toDomainSeparator: pass:normal[xref:#MessageHashUtils-toDomainSeparator-bytes1-string-string-uint256-address-bytes32-[`++toDomainSeparator++`]]
+:toDomainSeparator: pass:normal[xref:#MessageHashUtils-toDomainSeparator-bytes1-bytes32-bytes32-uint256-address-bytes32-[`++toDomainSeparator++`]]
+:toDomainTypeHash: pass:normal[xref:#MessageHashUtils-toDomainTypeHash-bytes1-[`++toDomainTypeHash++`]]
 
 :toEthSignedMessageHash-bytes32: pass:normal[xref:#MessageHashUtils-toEthSignedMessageHash-bytes32-[`++toEthSignedMessageHash++`]]
 :toEthSignedMessageHash-bytes: pass:normal[xref:#MessageHashUtils-toEthSignedMessageHash-bytes-[`++toEthSignedMessageHash++`]]
 :toDataWithIntendedValidatorHash-address-bytes: pass:normal[xref:#MessageHashUtils-toDataWithIntendedValidatorHash-address-bytes-[`++toDataWithIntendedValidatorHash++`]]
 :toDataWithIntendedValidatorHash-address-bytes32: pass:normal[xref:#MessageHashUtils-toDataWithIntendedValidatorHash-address-bytes32-[`++toDataWithIntendedValidatorHash++`]]
 :toTypedDataHash-bytes32-bytes32: pass:normal[xref:#MessageHashUtils-toTypedDataHash-bytes32-bytes32-[`++toTypedDataHash++`]]
+:toDomainSeparator-bytes1-string-string-uint256-address-bytes32: pass:normal[xref:#MessageHashUtils-toDomainSeparator-bytes1-string-string-uint256-address-bytes32-[`++toDomainSeparator++`]]
+:toDomainSeparator-bytes1-bytes32-bytes32-uint256-address-bytes32: pass:normal[xref:#MessageHashUtils-toDomainSeparator-bytes1-bytes32-bytes32-uint256-address-bytes32-[`++toDomainSeparator++`]]
+:toDomainTypeHash-bytes1: pass:normal[xref:#MessageHashUtils-toDomainTypeHash-bytes1-[`++toDomainTypeHash++`]]
 
 [.contract]
 [[MessageHashUtils]]
-=== `++MessageHashUtils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/utils/cryptography/MessageHashUtils.sol[{github-icon},role=heading-link]
+=== `++MessageHashUtils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/cryptography/MessageHashUtils.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -393,6 +487,16 @@ specifications.
 * {xref-MessageHashUtils-toDataWithIntendedValidatorHash-address-bytes-}[`++toDataWithIntendedValidatorHash(validator, data)++`]
 * {xref-MessageHashUtils-toDataWithIntendedValidatorHash-address-bytes32-}[`++toDataWithIntendedValidatorHash(validator, messageHash)++`]
 * {xref-MessageHashUtils-toTypedDataHash-bytes32-bytes32-}[`++toTypedDataHash(domainSeparator, structHash)++`]
+* {xref-MessageHashUtils-toDomainSeparator-bytes1-string-string-uint256-address-bytes32-}[`++toDomainSeparator(fields, name, version, chainId, verifyingContract, salt)++`]
+* {xref-MessageHashUtils-toDomainSeparator-bytes1-bytes32-bytes32-uint256-address-bytes32-}[`++toDomainSeparator(fields, nameHash, versionHash, chainId, verifyingContract, salt)++`]
+* {xref-MessageHashUtils-toDomainTypeHash-bytes1-}[`++toDomainTypeHash(fields)++`]
+
+--
+
+[.contract-index]
+.Errors
+--
+* {xref-MessageHashUtils-ERC5267ExtensionsNotSupported--}[`++ERC5267ExtensionsNotSupported()++`]
 
 --
 
@@ -456,6 +560,40 @@ https://eips.ethereum.org/EIPS/eip-712[`eth_signTypedData`] JSON-RPC method as p
 
 See {ECDSA-recover}.
 
+[.contract-item]
+[[MessageHashUtils-toDomainSeparator-bytes1-string-string-uint256-address-bytes32-]]
+==== `[.contract-item-name]#++toDomainSeparator++#++(bytes1 fields, string name, string version, uint256 chainId, address verifyingContract, bytes32 salt) → bytes32 hash++` [.item-kind]#internal#
+
+Returns the EIP-712 domain separator constructed from an `eip712Domain`. See {IERC5267-eip712Domain}
+
+This function dynamically constructs the domain separator based on which fields are present in the
+`fields` parameter. It contains flags that indicate which domain fields are present:
+
+* Bit 0 (0x01): name
+* Bit 1 (0x02): version
+* Bit 2 (0x04): chainId
+* Bit 3 (0x08): verifyingContract
+* Bit 4 (0x10): salt
+
+Arguments that correspond to fields which are not present in `fields` are ignored. For example, if `fields` is
+`0x0f` (`0b01111`), then the `salt` parameter is ignored.
+
+[.contract-item]
+[[MessageHashUtils-toDomainSeparator-bytes1-bytes32-bytes32-uint256-address-bytes32-]]
+==== `[.contract-item-name]#++toDomainSeparator++#++(bytes1 fields, bytes32 nameHash, bytes32 versionHash, uint256 chainId, address verifyingContract, bytes32 salt) → bytes32 hash++` [.item-kind]#internal#
+
+Variant of {toDomainSeparator-bytes1-string-string-uint256-address-bytes32} that uses hashed name and version.
+
+[.contract-item]
+[[MessageHashUtils-toDomainTypeHash-bytes1-]]
+==== `[.contract-item-name]#++toDomainTypeHash++#++(bytes1 fields) → bytes32 hash++` [.item-kind]#internal#
+
+Builds an EIP-712 domain type hash depending on the `fields` provided, following https://eips.ethereum.org/EIPS/eip-5267[ERC-5267]
+
+[.contract-item]
+[[MessageHashUtils-ERC5267ExtensionsNotSupported--]]
+==== `[.contract-item-name]#++ERC5267ExtensionsNotSupported++#++()++` [.item-kind]#error#
+
 :JPoint: pass:normal[xref:#P256-JPoint[`++JPoint++`]]
 :GX: pass:normal[xref:#P256-GX-uint256[`++GX++`]]
 :GY: pass:normal[xref:#P256-GY-uint256[`++GY++`]]
@@ -477,7 +615,7 @@ See {ECDSA-recover}.
 
 [.contract]
 [[P256]]
-=== `++P256++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/utils/cryptography/P256.sol[{github-icon},role=heading-link]
+=== `++P256++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/cryptography/P256.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -599,7 +737,7 @@ B parameter of the weierstrass equation
 
 [.contract]
 [[RSA]]
-=== `++RSA++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/utils/cryptography/RSA.sol[{github-icon},role=heading-link]
+=== `++RSA++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/cryptography/RSA.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -650,18 +788,22 @@ That is the default value many libraries use, such as OpenSSL. Developers may ch
 using a low exponent out of security concerns.
 
 :isValidSignatureNow: pass:normal[xref:#SignatureChecker-isValidSignatureNow-address-bytes32-bytes-[`++isValidSignatureNow++`]]
+:isValidSignatureNowCalldata: pass:normal[xref:#SignatureChecker-isValidSignatureNowCalldata-address-bytes32-bytes-[`++isValidSignatureNowCalldata++`]]
 :isValidERC1271SignatureNow: pass:normal[xref:#SignatureChecker-isValidERC1271SignatureNow-address-bytes32-bytes-[`++isValidERC1271SignatureNow++`]]
+:isValidERC1271SignatureNowCalldata: pass:normal[xref:#SignatureChecker-isValidERC1271SignatureNowCalldata-address-bytes32-bytes-[`++isValidERC1271SignatureNowCalldata++`]]
 :isValidSignatureNow: pass:normal[xref:#SignatureChecker-isValidSignatureNow-bytes-bytes32-bytes-[`++isValidSignatureNow++`]]
 :areValidSignaturesNow: pass:normal[xref:#SignatureChecker-areValidSignaturesNow-bytes32-bytes---bytes---[`++areValidSignaturesNow++`]]
 
 :isValidSignatureNow-address-bytes32-bytes: pass:normal[xref:#SignatureChecker-isValidSignatureNow-address-bytes32-bytes-[`++isValidSignatureNow++`]]
+:isValidSignatureNowCalldata-address-bytes32-bytes: pass:normal[xref:#SignatureChecker-isValidSignatureNowCalldata-address-bytes32-bytes-[`++isValidSignatureNowCalldata++`]]
 :isValidERC1271SignatureNow-address-bytes32-bytes: pass:normal[xref:#SignatureChecker-isValidERC1271SignatureNow-address-bytes32-bytes-[`++isValidERC1271SignatureNow++`]]
+:isValidERC1271SignatureNowCalldata-address-bytes32-bytes: pass:normal[xref:#SignatureChecker-isValidERC1271SignatureNowCalldata-address-bytes32-bytes-[`++isValidERC1271SignatureNowCalldata++`]]
 :isValidSignatureNow-bytes-bytes32-bytes: pass:normal[xref:#SignatureChecker-isValidSignatureNow-bytes-bytes32-bytes-[`++isValidSignatureNow++`]]
 :areValidSignaturesNow-bytes32-bytes---bytes--: pass:normal[xref:#SignatureChecker-areValidSignaturesNow-bytes32-bytes---bytes---[`++areValidSignaturesNow++`]]
 
 [.contract]
 [[SignatureChecker]]
-=== `++SignatureChecker++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/utils/cryptography/SignatureChecker.sol[{github-icon},role=heading-link]
+=== `++SignatureChecker++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/cryptography/SignatureChecker.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -680,7 +822,9 @@ See https://eips.ethereum.org/EIPS/eip-1271[ERC-1271] and https://eips.ethereum.
 .Functions
 --
 * {xref-SignatureChecker-isValidSignatureNow-address-bytes32-bytes-}[`++isValidSignatureNow(signer, hash, signature)++`]
+* {xref-SignatureChecker-isValidSignatureNowCalldata-address-bytes32-bytes-}[`++isValidSignatureNowCalldata(signer, hash, signature)++`]
 * {xref-SignatureChecker-isValidERC1271SignatureNow-address-bytes32-bytes-}[`++isValidERC1271SignatureNow(signer, hash, signature)++`]
+* {xref-SignatureChecker-isValidERC1271SignatureNowCalldata-address-bytes32-bytes-}[`++isValidERC1271SignatureNowCalldata(signer, hash, signature)++`]
 * {xref-SignatureChecker-isValidSignatureNow-bytes-bytes32-bytes-}[`++isValidSignatureNow(signer, hash, signature)++`]
 * {xref-SignatureChecker-areValidSignaturesNow-bytes32-bytes---bytes---}[`++areValidSignaturesNow(hash, signers, signatures)++`]
 
@@ -699,14 +843,24 @@ change through time. It could return true at block N and false at block N+1 (or 
 NOTE: For an extended version of this function that supports ERC-7913 signatures, see {isValidSignatureNow-bytes-bytes32-bytes-}.
 
 [.contract-item]
+[[SignatureChecker-isValidSignatureNowCalldata-address-bytes32-bytes-]]
+==== `[.contract-item-name]#++isValidSignatureNowCalldata++#++(address signer, bytes32 hash, bytes signature) → bool++` [.item-kind]#internal#
+
+Variant of {isValidSignatureNow} that takes a signature in calldata
+
+[.contract-item]
 [[SignatureChecker-isValidERC1271SignatureNow-address-bytes32-bytes-]]
-==== `[.contract-item-name]#++isValidERC1271SignatureNow++#++(address signer, bytes32 hash, bytes signature) → bool++` [.item-kind]#internal#
+==== `[.contract-item-name]#++isValidERC1271SignatureNow++#++(address signer, bytes32 hash, bytes signature) → bool result++` [.item-kind]#internal#
 
 Checks if a signature is valid for a given signer and data hash. The signature is validated
 against the signer smart contract using ERC-1271.
 
 NOTE: Unlike ECDSA signatures, contract signatures are revocable, and the outcome of this function can thus
 change through time. It could return true at block N and false at block N+1 (or the opposite).
+
+[.contract-item]
+[[SignatureChecker-isValidERC1271SignatureNowCalldata-address-bytes32-bytes-]]
+==== `[.contract-item-name]#++isValidERC1271SignatureNowCalldata++#++(address signer, bytes32 hash, bytes signature) → bool result++` [.item-kind]#internal#
 
 [.contract-item]
 [[SignatureChecker-isValidSignatureNow-bytes-bytes32-bytes-]]
@@ -747,7 +901,7 @@ change through time. It could return true at block N and false at block N+1 (or 
 
 [.contract]
 [[Hashes]]
-=== `++Hashes++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/utils/cryptography/Hashes.sol[{github-icon},role=heading-link]
+=== `++Hashes++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/cryptography/Hashes.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -817,7 +971,7 @@ Implementation of keccak256(abi.encode(a, b)) that doesn't allocate or expand me
 
 [.contract]
 [[MerkleProof]]
-=== `++MerkleProof++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/utils/cryptography/MerkleProof.sol[{github-icon},role=heading-link]
+=== `++MerkleProof++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/cryptography/MerkleProof.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1100,6 +1254,117 @@ validating the leaves elsewhere.
 
 The multiproof provided is not valid.
 
+:Prefix: pass:normal[xref:#TrieProof-Prefix[`++Prefix++`]]
+:ProofError: pass:normal[xref:#TrieProof-ProofError[`++ProofError++`]]
+:TrieProofTraversalError: pass:normal[xref:#TrieProof-TrieProofTraversalError-enum-TrieProof-ProofError-[`++TrieProofTraversalError++`]]
+:EVM_TREE_RADIX: pass:normal[xref:#TrieProof-EVM_TREE_RADIX-uint256[`++EVM_TREE_RADIX++`]]
+:BRANCH_NODE_LENGTH: pass:normal[xref:#TrieProof-BRANCH_NODE_LENGTH-uint256[`++BRANCH_NODE_LENGTH++`]]
+:LEAF_OR_EXTENSION_NODE_LENGTH: pass:normal[xref:#TrieProof-LEAF_OR_EXTENSION_NODE_LENGTH-uint256[`++LEAF_OR_EXTENSION_NODE_LENGTH++`]]
+:verify: pass:normal[xref:#TrieProof-verify-bytes-bytes32-bytes-bytes---[`++verify++`]]
+:traverse: pass:normal[xref:#TrieProof-traverse-bytes32-bytes-bytes---[`++traverse++`]]
+:tryTraverse: pass:normal[xref:#TrieProof-tryTraverse-bytes32-bytes-bytes---[`++tryTraverse++`]]
+
+:verify-bytes-bytes32-bytes-bytes--: pass:normal[xref:#TrieProof-verify-bytes-bytes32-bytes-bytes---[`++verify++`]]
+:traverse-bytes32-bytes-bytes--: pass:normal[xref:#TrieProof-traverse-bytes32-bytes-bytes---[`++traverse++`]]
+:tryTraverse-bytes32-bytes-bytes--: pass:normal[xref:#TrieProof-tryTraverse-bytes32-bytes-bytes---[`++tryTraverse++`]]
+
+[.contract]
+[[TrieProof]]
+=== `++TrieProof++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/cryptography/TrieProof.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/utils/cryptography/TrieProof.sol";
+```
+
+Library for verifying Ethereum Merkle-Patricia trie inclusion proofs.
+
+The {traverse} and {verify} functions can be used to prove the following value:
+
+* Transaction against the transactionsRoot of a block.
+* Event against receiptsRoot of a block.
+* Account details (RLP encoding of [nonce, balance, storageRoot, codeHash]) against the stateRoot of a block.
+* Storage slot (RLP encoding of the value) against the storageRoot of a account.
+
+Proving a storage slot is usually done in 3 steps:
+
+* From the stateRoot of a block, process the account proof (see `eth_getProof`) to get the account details.
+* RLP decode the account details to extract the storageRoot.
+* Use storageRoot of that account to process the storageProof (again, see `eth_getProof`).
+
+See https://ethereum.org/en/developers/docs/data-structures-and-encoding/patricia-merkle-trie[Merkle-Patricia trie]
+
+Based on https://github.com/ethereum-optimism/optimism/blob/ef970556e668b271a152124023a8d6bb5159bacf/packages/contracts-bedrock/src/libraries/trie/MerkleTrie.sol[this implementation from optimism].
+
+[.contract-index]
+.Functions
+--
+* {xref-TrieProof-verify-bytes-bytes32-bytes-bytes---}[`++verify(value, root, key, proof)++`]
+* {xref-TrieProof-traverse-bytes32-bytes-bytes---}[`++traverse(root, key, proof)++`]
+* {xref-TrieProof-tryTraverse-bytes32-bytes-bytes---}[`++tryTraverse(root, key, proof)++`]
+
+--
+
+[.contract-index]
+.Errors
+--
+* {xref-TrieProof-TrieProofTraversalError-enum-TrieProof-ProofError-}[`++TrieProofTraversalError(err)++`]
+
+--
+
+[.contract-index]
+.Internal Variables
+--
+* {xref-TrieProof-EVM_TREE_RADIX-uint256}[`++uint256 constant EVM_TREE_RADIX++`]
+* {xref-TrieProof-BRANCH_NODE_LENGTH-uint256}[`++uint256 constant BRANCH_NODE_LENGTH++`]
+* {xref-TrieProof-LEAF_OR_EXTENSION_NODE_LENGTH-uint256}[`++uint256 constant LEAF_OR_EXTENSION_NODE_LENGTH++`]
+
+--
+
+[.contract-item]
+[[TrieProof-verify-bytes-bytes32-bytes-bytes---]]
+==== `[.contract-item-name]#++verify++#++(bytes value, bytes32 root, bytes key, bytes[] proof) → bool++` [.item-kind]#internal#
+
+Verifies a `proof` against a given `key`, `value`, `and root` hash.
+
+[.contract-item]
+[[TrieProof-traverse-bytes32-bytes-bytes---]]
+==== `[.contract-item-name]#++traverse++#++(bytes32 root, bytes key, bytes[] proof) → bytes++` [.item-kind]#internal#
+
+Traverses a proof with a given key and returns the value.
+
+Reverts with {TrieProofTraversalError} if proof is invalid.
+
+[.contract-item]
+[[TrieProof-tryTraverse-bytes32-bytes-bytes---]]
+==== `[.contract-item-name]#++tryTraverse++#++(bytes32 root, bytes key, bytes[] proof) → bytes value, enum TrieProof.ProofError err++` [.item-kind]#internal#
+
+Traverses a proof with a given key and returns the value and an error flag
+instead of reverting if the proof is invalid. This function may still revert if
+malformed input leads to RLP decoding errors.
+
+[.contract-item]
+[[TrieProof-TrieProofTraversalError-enum-TrieProof-ProofError-]]
+==== `[.contract-item-name]#++TrieProofTraversalError++#++(enum TrieProof.ProofError err)++` [.item-kind]#error#
+
+[.contract-item]
+[[TrieProof-EVM_TREE_RADIX-uint256]]
+==== `uint256 [.contract-item-name]#++EVM_TREE_RADIX++#` [.item-kind]#internal constant#
+
+The radix of the Ethereum trie
+
+[.contract-item]
+[[TrieProof-BRANCH_NODE_LENGTH-uint256]]
+==== `uint256 [.contract-item-name]#++BRANCH_NODE_LENGTH++#` [.item-kind]#internal constant#
+
+Number of items in a branch node (16 children + 1 value)
+
+[.contract-item]
+[[TrieProof-LEAF_OR_EXTENSION_NODE_LENGTH-uint256]]
+==== `uint256 [.contract-item-name]#++LEAF_OR_EXTENSION_NODE_LENGTH++#` [.item-kind]#internal constant#
+
+Number of items in leaf or extension nodes (always 2)
+
 :constructor: pass:normal[xref:#EIP712-constructor-string-string-[`++constructor++`]]
 :_domainSeparatorV4: pass:normal[xref:#EIP712-_domainSeparatorV4--[`++_domainSeparatorV4++`]]
 :_hashTypedDataV4: pass:normal[xref:#EIP712-_hashTypedDataV4-bytes32-[`++_hashTypedDataV4++`]]
@@ -1116,7 +1381,7 @@ The multiproof provided is not valid.
 
 [.contract]
 [[EIP712]]
-=== `++EIP712++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/utils/cryptography/EIP712.sol[{github-icon},role=heading-link]
+=== `++EIP712++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/cryptography/EIP712.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1251,7 +1516,7 @@ It only reads from storage if necessary (in case the value is too large to fit i
 
 [.contract]
 [[ERC7739Utils]]
-=== `++ERC7739Utils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/utils/cryptography/draft-ERC7739Utils.sol[{github-icon},role=heading-link]
+=== `++ERC7739Utils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/cryptography/draft-ERC7739Utils.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1310,12 +1575,11 @@ Constructed as follows:
 - `signature` is the signature for the (ERC-7739) nested struct hash. This signature indirectly signs over the
   original "contents" hash (from the app) and the account's domain separator.
 - `APP_DOMAIN_SEPARATOR` is the EIP-712 {EIP712-_domainSeparatorV4} of the application smart contract that is
-  requesting the signature verification (though ERC-1271).
+  requesting the signature verification (through ERC-1271).
 - `contentsHash` is the hash of the underlying data structure or message.
-- `contentsDescr` is a descriptor of the "contents" part of the the EIP-712 type of the nested signature.
+- `contentsDescr` is a descriptor of the "contents" part of the EIP-712 type of the nested signature.
 
 NOTE: This function returns empty if the input format is invalid instead of reverting.
-data instead.
 
 [.contract-item]
 [[ERC7739Utils-personalSignStructHash-bytes32-]]
@@ -1325,7 +1589,7 @@ Nests an `ERC-191` digest into a `PersonalSign` EIP-712 struct, and returns the 
 This struct hash must be combined with a domain separator, using {MessageHashUtils-toTypedDataHash} before
 being verified/recovered.
 
-This is used to simulates the `personal_sign` RPC method in the context of smart contracts.
+This is used to simulate the `personal_sign` RPC method in the context of smart contracts.
 
 [.contract-item]
 [[ERC7739Utils-typedDataSignStructHash-string-string-bytes32-bytes-]]
@@ -1361,6 +1625,135 @@ any of the following bytes , )\x00
 If the `contentsType` is invalid, this returns an empty string. Otherwise, the return string has non-zero
 length.
 
+:WebAuthnAuth: pass:normal[xref:#WebAuthn-WebAuthnAuth[`++WebAuthnAuth++`]]
+:AUTH_DATA_FLAGS_UP: pass:normal[xref:#WebAuthn-AUTH_DATA_FLAGS_UP-bytes1[`++AUTH_DATA_FLAGS_UP++`]]
+:AUTH_DATA_FLAGS_UV: pass:normal[xref:#WebAuthn-AUTH_DATA_FLAGS_UV-bytes1[`++AUTH_DATA_FLAGS_UV++`]]
+:AUTH_DATA_FLAGS_BE: pass:normal[xref:#WebAuthn-AUTH_DATA_FLAGS_BE-bytes1[`++AUTH_DATA_FLAGS_BE++`]]
+:AUTH_DATA_FLAGS_BS: pass:normal[xref:#WebAuthn-AUTH_DATA_FLAGS_BS-bytes1[`++AUTH_DATA_FLAGS_BS++`]]
+:verify: pass:normal[xref:#WebAuthn-verify-bytes-struct-WebAuthn-WebAuthnAuth-bytes32-bytes32-[`++verify++`]]
+:verify: pass:normal[xref:#WebAuthn-verify-bytes-struct-WebAuthn-WebAuthnAuth-bytes32-bytes32-bool-[`++verify++`]]
+:tryDecodeAuth: pass:normal[xref:#WebAuthn-tryDecodeAuth-bytes-[`++tryDecodeAuth++`]]
+
+:verify-bytes-struct-WebAuthn-WebAuthnAuth-bytes32-bytes32: pass:normal[xref:#WebAuthn-verify-bytes-struct-WebAuthn-WebAuthnAuth-bytes32-bytes32-[`++verify++`]]
+:verify-bytes-struct-WebAuthn-WebAuthnAuth-bytes32-bytes32-bool: pass:normal[xref:#WebAuthn-verify-bytes-struct-WebAuthn-WebAuthnAuth-bytes32-bytes32-bool-[`++verify++`]]
+:tryDecodeAuth-bytes: pass:normal[xref:#WebAuthn-tryDecodeAuth-bytes-[`++tryDecodeAuth++`]]
+
+[.contract]
+[[WebAuthn]]
+=== `++WebAuthn++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/cryptography/WebAuthn.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/utils/cryptography/WebAuthn.sol";
+```
+
+Library for verifying WebAuthn Authentication Assertions.
+
+WebAuthn enables strong authentication for smart contracts using
+https://docs.openzeppelin.com/contracts/5.x/api/utils#P256[P256]
+as an alternative to traditional secp256k1 ECDSA signatures. This library verifies
+signatures generated during WebAuthn authentication ceremonies as specified in the
+https://www.w3.org/TR/webauthn-2/[WebAuthn Level 2 standard].
+
+For blockchain use cases, the following WebAuthn validations are intentionally omitted:
+
+* Origin validation: Origin verification in `clientDataJSON` is omitted. This check is the
+  responsibility of the authenticator and does not have a meaningful on-chain use case; standard
+  authenticators implement proper origin validation before signing.
+* RP ID hash validation: Verification of `rpIdHash` in authenticatorData against expected
+  RP ID hash is omitted. This check is the responsibility of the authenticator and does not have
+  a meaningful on-chain use case; it is typically enforced at the platform level.
+* Signature counter: Verification of signature counter increments is omitted. The
+  signature counter is maintained by authenticators per the WebAuthn spec to detect
+  credential cloning, but validating it requires storing per-credential mutable state
+  (the last seen counter value) which is impractical for most smart contract applications.
+  Additionally, counter enforcement is primarily an authenticator responsibility, not a
+  contract-level concern.
+* Extension outputs: Extension output value verification is omitted as these are not
+  essential for core authentication security in blockchain applications.
+* Attestation: Attestation object verification is omitted as this implementation
+  focuses on authentication (`webauthn.get`) rather than registration ceremonies.
+
+Inspired by:
+
+* https://github.com/daimo-eth/p256-verifier/blob/master/src/WebAuthn.sol[daimo-eth implementation]
+* https://github.com/base/webauthn-sol/blob/main/src/WebAuthn.sol[base implementation]
+
+[.contract-index]
+.Functions
+--
+* {xref-WebAuthn-verify-bytes-struct-WebAuthn-WebAuthnAuth-bytes32-bytes32-}[`++verify(challenge, auth, qx, qy)++`]
+* {xref-WebAuthn-verify-bytes-struct-WebAuthn-WebAuthnAuth-bytes32-bytes32-bool-}[`++verify(challenge, auth, qx, qy, requireUV)++`]
+* {xref-WebAuthn-tryDecodeAuth-bytes-}[`++tryDecodeAuth(input)++`]
+
+--
+
+[.contract-index]
+.Internal Variables
+--
+* {xref-WebAuthn-AUTH_DATA_FLAGS_UP-bytes1}[`++bytes1 constant AUTH_DATA_FLAGS_UP++`]
+* {xref-WebAuthn-AUTH_DATA_FLAGS_UV-bytes1}[`++bytes1 constant AUTH_DATA_FLAGS_UV++`]
+* {xref-WebAuthn-AUTH_DATA_FLAGS_BE-bytes1}[`++bytes1 constant AUTH_DATA_FLAGS_BE++`]
+* {xref-WebAuthn-AUTH_DATA_FLAGS_BS-bytes1}[`++bytes1 constant AUTH_DATA_FLAGS_BS++`]
+
+--
+
+[.contract-item]
+[[WebAuthn-verify-bytes-struct-WebAuthn-WebAuthnAuth-bytes32-bytes32-]]
+==== `[.contract-item-name]#++verify++#++(bytes challenge, struct WebAuthn.WebAuthnAuth auth, bytes32 qx, bytes32 qy) → bool++` [.item-kind]#internal#
+
+Performs standard verification of a WebAuthn Authentication Assertion.
+
+[.contract-item]
+[[WebAuthn-verify-bytes-struct-WebAuthn-WebAuthnAuth-bytes32-bytes32-bool-]]
+==== `[.contract-item-name]#++verify++#++(bytes challenge, struct WebAuthn.WebAuthnAuth auth, bytes32 qx, bytes32 qy, bool requireUV) → bool++` [.item-kind]#internal#
+
+Performs verification of a WebAuthn Authentication Assertion. This variants allow the caller to select
+whether of not to require the UV flag (step 17).
+
+Verifies:
+
+1. Type is "webauthn.get" (see {_validateExpectedTypeHash})
+2. Challenge matches the expected value (see {_validateChallenge})
+3. Cryptographic signature is valid for the given public key
+4. confirming physical user presence during authentication
+5. (if `requireUV` is true) confirming stronger user authentication (biometrics/PIN)
+6. Backup Eligibility (`BE`) and Backup State (BS) bits relationship is valid
+
+[.contract-item]
+[[WebAuthn-tryDecodeAuth-bytes-]]
+==== `[.contract-item-name]#++tryDecodeAuth++#++(bytes input) → bool success, struct WebAuthn.WebAuthnAuth auth++` [.item-kind]#internal#
+
+Verifies that calldata bytes (`input`) represents a valid `WebAuthnAuth` object. If encoding is valid,
+returns true and the calldata view at the object. Otherwise, returns false and an invalid calldata object.
+
+NOTE: The returned `auth` object should not be accessed if `success` is false. Trying to access the data may
+cause revert/panic.
+
+[.contract-item]
+[[WebAuthn-AUTH_DATA_FLAGS_UP-bytes1]]
+==== `bytes1 [.contract-item-name]#++AUTH_DATA_FLAGS_UP++#` [.item-kind]#internal constant#
+
+Bit 0 of the authenticator data flags: "User Present" bit.
+
+[.contract-item]
+[[WebAuthn-AUTH_DATA_FLAGS_UV-bytes1]]
+==== `bytes1 [.contract-item-name]#++AUTH_DATA_FLAGS_UV++#` [.item-kind]#internal constant#
+
+Bit 2 of the authenticator data flags: "User Verified" bit.
+
+[.contract-item]
+[[WebAuthn-AUTH_DATA_FLAGS_BE-bytes1]]
+==== `bytes1 [.contract-item-name]#++AUTH_DATA_FLAGS_BE++#` [.item-kind]#internal constant#
+
+Bit 3 of the authenticator data flags: "Backup Eligibility" bit.
+
+[.contract-item]
+[[WebAuthn-AUTH_DATA_FLAGS_BS-bytes1]]
+==== `bytes1 [.contract-item-name]#++AUTH_DATA_FLAGS_BS++#` [.item-kind]#internal constant#
+
+Bit 4 of the authenticator data flags: "Backup State" bit.
+
 == Abstract Signers
 
 :_rawSignatureValidation: pass:normal[xref:#AbstractSigner-_rawSignatureValidation-bytes32-bytes-[`++_rawSignatureValidation++`]]
@@ -1369,7 +1762,7 @@ length.
 
 [.contract]
 [[AbstractSigner]]
-=== `++AbstractSigner++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/utils/cryptography/signers/AbstractSigner.sol[{github-icon},role=heading-link]
+=== `++AbstractSigner++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/cryptography/signers/AbstractSigner.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1406,7 +1799,7 @@ xref:api:utils/cryptography#P256[P256] or xref:api:utils/cryptography#RSA[RSA]).
 
 [.contract]
 [[ERC7739]]
-=== `++ERC7739++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/utils/cryptography/signers/draft-ERC7739.sol[{github-icon},role=heading-link]
+=== `++ERC7739++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/cryptography/signers/draft-ERC7739.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1493,7 +1886,7 @@ A nested EIP-712 type might be presented in 2 different ways:
 
 [.contract]
 [[SignerECDSA]]
-=== `++SignerECDSA++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/utils/cryptography/signers/SignerECDSA.sol[{github-icon},role=heading-link]
+=== `++SignerECDSA++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/cryptography/signers/SignerECDSA.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1572,7 +1965,7 @@ xref:api:utils/cryptography#P256[P256] or xref:api:utils/cryptography#RSA[RSA]).
 
 [.contract]
 [[SignerP256]]
-=== `++SignerP256++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/utils/cryptography/signers/SignerP256.sol[{github-icon},role=heading-link]
+=== `++SignerP256++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/cryptography/signers/SignerP256.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1664,7 +2057,7 @@ xref:api:utils/cryptography#P256[P256] or xref:api:utils/cryptography#RSA[RSA]).
 
 [.contract]
 [[SignerRSA]]
-=== `++SignerRSA++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/utils/cryptography/signers/SignerRSA.sol[{github-icon},role=heading-link]
+=== `++SignerRSA++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/cryptography/signers/SignerRSA.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1730,27 +2123,27 @@ IMPORTANT: Following the RSASSA-PKCS1-V1_5-VERIFY procedure outlined in RFC8017 
 provided `hash` is used as the `M` (message) and rehashed using SHA256 according to EMSA-PKCS1-v1_5
 encoding as per section 9.2 (step 1) of the RFC.
 
-:_rawSignatureValidation: pass:normal[xref:#SignerERC7702-_rawSignatureValidation-bytes32-bytes-[`++_rawSignatureValidation++`]]
+:_rawSignatureValidation: pass:normal[xref:#SignerEIP7702-_rawSignatureValidation-bytes32-bytes-[`++_rawSignatureValidation++`]]
 
-:_rawSignatureValidation-bytes32-bytes: pass:normal[xref:#SignerERC7702-_rawSignatureValidation-bytes32-bytes-[`++_rawSignatureValidation++`]]
+:_rawSignatureValidation-bytes32-bytes: pass:normal[xref:#SignerEIP7702-_rawSignatureValidation-bytes32-bytes-[`++_rawSignatureValidation++`]]
 
 [.contract]
-[[SignerERC7702]]
-=== `++SignerERC7702++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/utils/cryptography/signers/SignerERC7702.sol[{github-icon},role=heading-link]
+[[SignerEIP7702]]
+=== `++SignerEIP7702++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/cryptography/signers/SignerEIP7702.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
-import "@openzeppelin/contracts/utils/cryptography/signers/SignerERC7702.sol";
+import "@openzeppelin/contracts/utils/cryptography/signers/SignerEIP7702.sol";
 ```
 
-Implementation of {AbstractSigner} for implementation for an EOA. Useful for ERC-7702 accounts.
+Implementation of {AbstractSigner} for implementation for an EOA. Useful for EIP-7702 accounts.
 
 @custom:stateless
 
 [.contract-index]
 .Functions
 --
-* {xref-SignerERC7702-_rawSignatureValidation-bytes32-bytes-}[`++_rawSignatureValidation(hash, signature)++`]
+* {xref-SignerEIP7702-_rawSignatureValidation-bytes32-bytes-}[`++_rawSignatureValidation(hash, signature)++`]
 
 [.contract-subindex-inherited]
 .AbstractSigner
@@ -1758,7 +2151,7 @@ Implementation of {AbstractSigner} for implementation for an EOA. Useful for ERC
 --
 
 [.contract-item]
-[[SignerERC7702-_rawSignatureValidation-bytes32-bytes-]]
+[[SignerEIP7702-_rawSignatureValidation-bytes32-bytes-]]
 ==== `[.contract-item-name]#++_rawSignatureValidation++#++(bytes32 hash, bytes signature) → bool++` [.item-kind]#internal#
 
 Validates the signature using the EOA's address (i.e. `address(this)`).
@@ -1775,7 +2168,7 @@ Validates the signature using the EOA's address (i.e. `address(this)`).
 
 [.contract]
 [[SignerERC7913]]
-=== `++SignerERC7913++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/utils/cryptography/signers/SignerERC7913.sol[{github-icon},role=heading-link]
+=== `++SignerERC7913++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/cryptography/signers/SignerERC7913.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1879,7 +2272,7 @@ with {signer}, `hash` and `signature`.
 
 [.contract]
 [[MultiSignerERC7913]]
-=== `++MultiSignerERC7913++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/utils/cryptography/signers/MultiSignerERC7913.sol[{github-icon},role=heading-link]
+=== `++MultiSignerERC7913++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/cryptography/signers/MultiSignerERC7913.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2012,6 +2405,13 @@ Requirements:
 
 * Each of `newSigners` must be at least 20 bytes long. Reverts with {MultiSignerERC7913InvalidSigner} if not.
 * Each of `newSigners` must not be authorized. See {isSigner}. Reverts with {MultiSignerERC7913AlreadyExists} if so.
+
+NOTE: This function does not validate that signers are controlled or represent appropriate entities. Integrators
+must ensure signers are properly validated before adding them. Problematic signers can compromise
+the multisig's security or functionality. Examples include uncontrolled addresses (e.g., `address(0)`),
+the account's own address (which may cause recursive validation loops), or contracts that may unintentionally
+allow arbitrary validation (e.g. using the identity precompile at `address(0x04)`, which would return the
+ERC-1271 magic value for any `isValidSignature` call).
 
 [.contract-item]
 [[MultiSignerERC7913-_removeSigners-bytes---]]
@@ -2174,7 +2574,7 @@ The `threshold` is unreachable given the number of `signers`.
 
 [.contract]
 [[MultiSignerERC7913Weighted]]
-=== `++MultiSignerERC7913Weighted++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/utils/cryptography/signers/MultiSignerERC7913Weighted.sol[{github-icon},role=heading-link]
+=== `++MultiSignerERC7913Weighted++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/cryptography/signers/MultiSignerERC7913Weighted.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2386,7 +2786,7 @@ Thrown when the arrays lengths don't match. See {_setSignerWeights}.
 
 [.contract]
 [[ERC7913P256Verifier]]
-=== `++ERC7913P256Verifier++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/utils/cryptography/verifiers/ERC7913P256Verifier.sol[{github-icon},role=heading-link]
+=== `++ERC7913P256Verifier++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/cryptography/verifiers/ERC7913P256Verifier.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2423,7 +2823,7 @@ SHOULD return 0xffffffff or revert if the key is empty
 
 [.contract]
 [[ERC7913RSAVerifier]]
-=== `++ERC7913RSAVerifier++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/utils/cryptography/verifiers/ERC7913RSAVerifier.sol[{github-icon},role=heading-link]
+=== `++ERC7913RSAVerifier++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/cryptography/verifiers/ERC7913RSAVerifier.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2446,6 +2846,52 @@ ERC-7913 signature verifier that support RSA keys.
 
 [.contract-item]
 [[ERC7913RSAVerifier-verify-bytes-bytes32-bytes-]]
+==== `[.contract-item-name]#++verify++#++(bytes key, bytes32 hash, bytes signature) → bytes4++` [.item-kind]#public#
+
+Verifies `signature` as a valid signature of `hash` by `key`.
+
+MUST return the bytes4 magic value IERC7913SignatureVerifier.verify.selector if the signature is valid.
+SHOULD return 0xffffffff or revert if the signature is not valid.
+SHOULD return 0xffffffff or revert if the key is empty
+
+:verify: pass:normal[xref:#ERC7913WebAuthnVerifier-verify-bytes-bytes32-bytes-[`++verify++`]]
+
+:verify-bytes-bytes32-bytes: pass:normal[xref:#ERC7913WebAuthnVerifier-verify-bytes-bytes32-bytes-[`++verify++`]]
+
+[.contract]
+[[ERC7913WebAuthnVerifier]]
+=== `++ERC7913WebAuthnVerifier++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/cryptography/verifiers/ERC7913WebAuthnVerifier.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/utils/cryptography/verifiers/ERC7913WebAuthnVerifier.sol";
+```
+
+ERC-7913 signature verifier that supports WebAuthn authentication assertions.
+
+This verifier enables the validation of WebAuthn signatures using P256 public keys.
+The key is expected to be a 64-byte concatenation of the P256 public key coordinates (qx || qy).
+The signature is expected to be an abi-encoded {WebAuthn-WebAuthnAuth} struct.
+
+Uses {WebAuthn-verify} for signature verification, which performs the essential
+WebAuthn checks: type validation, challenge matching, and cryptographic signature verification.
+
+NOTE: Wallets that may require default P256 validation may install a P256 verifier separately.
+
+@custom:stateless
+
+[.contract-index]
+.Functions
+--
+* {xref-ERC7913WebAuthnVerifier-verify-bytes-bytes32-bytes-}[`++verify(key, hash, signature)++`]
+
+[.contract-subindex-inherited]
+.IERC7913SignatureVerifier
+
+--
+
+[.contract-item]
+[[ERC7913WebAuthnVerifier-verify-bytes-bytes32-bytes-]]
 ==== `[.contract-item-name]#++verify++#++(bytes key, bytes32 hash, bytes signature) → bytes4++` [.item-kind]#public#
 
 Verifies `signature` as a valid signature of `hash` by `key`.

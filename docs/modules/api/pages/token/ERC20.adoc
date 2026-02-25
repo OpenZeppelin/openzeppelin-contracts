@@ -6,6 +6,8 @@
 :ERC20Bridgeable: pass:normal[xref:token/ERC20.adoc#ERC20Bridgeable[`ERC20Bridgeable`]]
 :ERC20Burnable: pass:normal[xref:token/ERC20.adoc#ERC20Burnable[`ERC20Burnable`]]
 :ERC20Capped: pass:normal[xref:token/ERC20.adoc#ERC20Capped[`ERC20Capped`]]
+:ERC20Crosschain: pass:normal[xref:token/ERC20.adoc#ERC20Crosschain[`ERC20Crosschain`]]
+:BridgeFungible: pass:normal[xref:crosschain.adoc#BridgeFungible[`BridgeFungible`]]
 :ERC20Pausable: pass:normal[xref:token/ERC20.adoc#ERC20Pausable[`ERC20Pausable`]]
 :ERC20FlashMint: pass:normal[xref:token/ERC20.adoc#ERC20FlashMint[`ERC20FlashMint`]]
 :ERC20Votes: pass:normal[xref:token/ERC20.adoc#ERC20Votes[`ERC20Votes`]]
@@ -215,6 +217,57 @@
 :xref-IERC20Errors-ERC20InsufficientAllowance-address-uint256-uint256-: xref:interfaces.adoc#IERC20Errors-ERC20InsufficientAllowance-address-uint256-uint256-
 :xref-IERC20Errors-ERC20InvalidApprover-address-: xref:interfaces.adoc#IERC20Errors-ERC20InvalidApprover-address-
 :xref-IERC20Errors-ERC20InvalidSpender-address-: xref:interfaces.adoc#IERC20Errors-ERC20InvalidSpender-address-
+:ERC20: pass:normal[xref:token/ERC20.adoc#ERC20[`ERC20`]]
+:BridgeFungible: pass:normal[xref:crosschain.adoc#BridgeFungible[`BridgeFungible`]]
+:ERC20Crosschain: pass:normal[xref:token/ERC20.adoc#ERC20Crosschain[`ERC20Crosschain`]]
+:ERC20: pass:normal[xref:token/ERC20.adoc#ERC20[`ERC20`]]
+:BridgeERC20: pass:normal[xref:crosschain.adoc#BridgeERC20[`BridgeERC20`]]
+:ERC20Bridgeable: pass:normal[xref:token/ERC20.adoc#ERC20Bridgeable[`ERC20Bridgeable`]]
+:BridgeERC7802: pass:normal[xref:crosschain.adoc#BridgeERC7802[`BridgeERC7802`]]
+:ERC20Bridgeable: pass:normal[xref:token/ERC20.adoc#ERC20Bridgeable[`ERC20Bridgeable`]]
+:BridgeERC7802: pass:normal[xref:crosschain.adoc#BridgeERC7802[`BridgeERC7802`]]
+:BridgeERC7802: pass:normal[xref:crosschain.adoc#BridgeERC7802[`BridgeERC7802`]]
+:ERC20Bridgeable: pass:normal[xref:token/ERC20.adoc#ERC20Bridgeable[`ERC20Bridgeable`]]
+:xref-ERC20Crosschain-crosschainTransferFrom-address-bytes-uint256-: xref:token/ERC20.adoc#ERC20Crosschain-crosschainTransferFrom-address-bytes-uint256-
+:xref-ERC20Crosschain-_onSend-address-uint256-: xref:token/ERC20.adoc#ERC20Crosschain-_onSend-address-uint256-
+:xref-ERC20Crosschain-_onReceive-address-uint256-: xref:token/ERC20.adoc#ERC20Crosschain-_onReceive-address-uint256-
+:xref-BridgeFungible-crosschainTransfer-bytes-uint256-: xref:crosschain.adoc#BridgeFungible-crosschainTransfer-bytes-uint256-
+:xref-BridgeFungible-_crosschainTransfer-address-bytes-uint256-: xref:crosschain.adoc#BridgeFungible-_crosschainTransfer-address-bytes-uint256-
+:xref-BridgeFungible-_processMessage-address-bytes32-bytes-bytes-: xref:crosschain.adoc#BridgeFungible-_processMessage-address-bytes32-bytes-bytes-
+:xref-CrosschainLinked-getLink-bytes-: xref:crosschain.adoc#CrosschainLinked-getLink-bytes-
+:xref-CrosschainLinked-_setLink-address-bytes-bool-: xref:crosschain.adoc#CrosschainLinked-_setLink-address-bytes-bool-
+:xref-CrosschainLinked-_sendMessageToCounterpart-bytes-bytes-bytes---: xref:crosschain.adoc#CrosschainLinked-_sendMessageToCounterpart-bytes-bytes-bytes---
+:xref-CrosschainLinked-_isAuthorizedGateway-address-bytes-: xref:crosschain.adoc#CrosschainLinked-_isAuthorizedGateway-address-bytes-
+:xref-ERC7786Recipient-receiveMessage-bytes32-bytes-bytes-: xref:crosschain.adoc#ERC7786Recipient-receiveMessage-bytes32-bytes-bytes-
+:xref-ERC20-name--: xref:token/ERC20.adoc#ERC20-name--
+:xref-ERC20-symbol--: xref:token/ERC20.adoc#ERC20-symbol--
+:xref-ERC20-decimals--: xref:token/ERC20.adoc#ERC20-decimals--
+:xref-ERC20-totalSupply--: xref:token/ERC20.adoc#ERC20-totalSupply--
+:xref-ERC20-balanceOf-address-: xref:token/ERC20.adoc#ERC20-balanceOf-address-
+:xref-ERC20-transfer-address-uint256-: xref:token/ERC20.adoc#ERC20-transfer-address-uint256-
+:xref-ERC20-allowance-address-address-: xref:token/ERC20.adoc#ERC20-allowance-address-address-
+:xref-ERC20-approve-address-uint256-: xref:token/ERC20.adoc#ERC20-approve-address-uint256-
+:xref-ERC20-transferFrom-address-address-uint256-: xref:token/ERC20.adoc#ERC20-transferFrom-address-address-uint256-
+:xref-ERC20-_transfer-address-address-uint256-: xref:token/ERC20.adoc#ERC20-_transfer-address-address-uint256-
+:xref-ERC20-_update-address-address-uint256-: xref:token/ERC20.adoc#ERC20-_update-address-address-uint256-
+:xref-ERC20-_mint-address-uint256-: xref:token/ERC20.adoc#ERC20-_mint-address-uint256-
+:xref-ERC20-_burn-address-uint256-: xref:token/ERC20.adoc#ERC20-_burn-address-uint256-
+:xref-ERC20-_approve-address-address-uint256-: xref:token/ERC20.adoc#ERC20-_approve-address-address-uint256-
+:xref-ERC20-_approve-address-address-uint256-bool-: xref:token/ERC20.adoc#ERC20-_approve-address-address-uint256-bool-
+:xref-ERC20-_spendAllowance-address-address-uint256-: xref:token/ERC20.adoc#ERC20-_spendAllowance-address-address-uint256-
+:xref-BridgeFungible-CrosschainFungibleTransferSent-bytes32-address-bytes-uint256-: xref:crosschain.adoc#BridgeFungible-CrosschainFungibleTransferSent-bytes32-address-bytes-uint256-
+:xref-BridgeFungible-CrosschainFungibleTransferReceived-bytes32-bytes-address-uint256-: xref:crosschain.adoc#BridgeFungible-CrosschainFungibleTransferReceived-bytes32-bytes-address-uint256-
+:xref-CrosschainLinked-LinkRegistered-address-bytes-: xref:crosschain.adoc#CrosschainLinked-LinkRegistered-address-bytes-
+:xref-IERC20-Transfer-address-address-uint256-: xref:token/ERC20.adoc#IERC20-Transfer-address-address-uint256-
+:xref-IERC20-Approval-address-address-uint256-: xref:token/ERC20.adoc#IERC20-Approval-address-address-uint256-
+:xref-CrosschainLinked-LinkAlreadyRegistered-bytes-: xref:crosschain.adoc#CrosschainLinked-LinkAlreadyRegistered-bytes-
+:xref-ERC7786Recipient-ERC7786RecipientUnauthorizedGateway-address-bytes-: xref:crosschain.adoc#ERC7786Recipient-ERC7786RecipientUnauthorizedGateway-address-bytes-
+:xref-IERC20Errors-ERC20InsufficientBalance-address-uint256-uint256-: xref:interfaces.adoc#IERC20Errors-ERC20InsufficientBalance-address-uint256-uint256-
+:xref-IERC20Errors-ERC20InvalidSender-address-: xref:interfaces.adoc#IERC20Errors-ERC20InvalidSender-address-
+:xref-IERC20Errors-ERC20InvalidReceiver-address-: xref:interfaces.adoc#IERC20Errors-ERC20InvalidReceiver-address-
+:xref-IERC20Errors-ERC20InsufficientAllowance-address-uint256-uint256-: xref:interfaces.adoc#IERC20Errors-ERC20InsufficientAllowance-address-uint256-uint256-
+:xref-IERC20Errors-ERC20InvalidApprover-address-: xref:interfaces.adoc#IERC20Errors-ERC20InvalidApprover-address-
+:xref-IERC20Errors-ERC20InvalidSpender-address-: xref:interfaces.adoc#IERC20Errors-ERC20InvalidSpender-address-
 :Pausable-_pause: pass:normal[xref:utils.adoc#Pausable-_pause--[`Pausable._pause`]]
 :Pausable-_unpause: pass:normal[xref:utils.adoc#Pausable-_unpause--[`Pausable._unpause`]]
 :AccessControl: pass:normal[xref:access.adoc#AccessControl[`AccessControl`]]
@@ -384,6 +437,7 @@
 :xref-IERC20Errors-ERC20InsufficientAllowance-address-uint256-uint256-: xref:interfaces.adoc#IERC20Errors-ERC20InsufficientAllowance-address-uint256-uint256-
 :xref-IERC20Errors-ERC20InvalidApprover-address-: xref:interfaces.adoc#IERC20Errors-ERC20InvalidApprover-address-
 :xref-IERC20Errors-ERC20InvalidSpender-address-: xref:interfaces.adoc#IERC20Errors-ERC20InvalidSpender-address-
+:ERC20Capped: pass:normal[xref:token/ERC20.adoc#ERC20Capped[`ERC20Capped`]]
 :IERC3156FlashBorrower: pass:normal[xref:interfaces.adoc#IERC3156FlashBorrower[`IERC3156FlashBorrower`]]
 :IERC3156FlashBorrower-onFlashLoan: pass:normal[xref:interfaces.adoc#IERC3156FlashBorrower-onFlashLoan-address-address-uint256-uint256-bytes-[`IERC3156FlashBorrower.onFlashLoan`]]
 :ERC20: pass:normal[xref:token/ERC20.adoc#ERC20[`ERC20`]]
@@ -483,6 +537,8 @@
 :xref-ERC4626-_convertToAssets-uint256-enum-Math-Rounding-: xref:token/ERC20.adoc#ERC4626-_convertToAssets-uint256-enum-Math-Rounding-
 :xref-ERC4626-_deposit-address-address-uint256-uint256-: xref:token/ERC20.adoc#ERC4626-_deposit-address-address-uint256-uint256-
 :xref-ERC4626-_withdraw-address-address-address-uint256-uint256-: xref:token/ERC20.adoc#ERC4626-_withdraw-address-address-address-uint256-uint256-
+:xref-ERC4626-_transferIn-address-uint256-: xref:token/ERC20.adoc#ERC4626-_transferIn-address-uint256-
+:xref-ERC4626-_transferOut-address-uint256-: xref:token/ERC20.adoc#ERC4626-_transferOut-address-uint256-
 :xref-ERC4626-_decimalsOffset--: xref:token/ERC20.adoc#ERC4626-_decimalsOffset--
 :xref-ERC20-name--: xref:token/ERC20.adoc#ERC20-name--
 :xref-ERC20-symbol--: xref:token/ERC20.adoc#ERC20-symbol--
@@ -570,9 +626,10 @@ Additionally there are multiple custom extensions, including:
 * {ERC20Bridgeable}: compatibility with crosschain bridges through ERC-7802.
 * {ERC20Burnable}: destruction of own tokens.
 * {ERC20Capped}: enforcement of a cap to the total supply when minting tokens.
+* {ERC20Crosschain}: embedded {BridgeFungible} bridge, making the token crosschain through the use of ERC-7786 gateways.
 * {ERC20Pausable}: ability to pause token transfers.
 * {ERC20FlashMint}: token level support for flash loans through the minting and burning of ephemeral tokens (standardized as ERC-3156).
-* {ERC20Votes}: support for voting and vote delegation.
+* {ERC20Votes}: support for voting and vote delegation. xref:governance.adoc#token[See the governance guide for a minimal example (with the required overrides when combining ERC20 + ERC20Permit + ERC20Votes)].
 * {ERC20Wrapper}: wrapper to create an ERC-20 backed by another ERC-20, with deposit and withdraw methods. Useful in conjunction with {ERC20Votes}.
 * {ERC20TemporaryApproval}: support for approvals lasting for only one transaction, as defined in ERC-7674.
 * {ERC1363}: support for calling the target of a transfer or approval, enabling code execution on the receiver within a single transaction.
@@ -608,7 +665,7 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 
 [.contract]
 [[IERC20]]
-=== `++IERC20++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/token/ERC20/IERC20.sol[{github-icon},role=heading-link]
+=== `++IERC20++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/token/ERC20/IERC20.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -725,7 +782,7 @@ a call to {approve}. `value` is the new allowance.
 
 [.contract]
 [[IERC20Metadata]]
-=== `++IERC20Metadata++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/token/ERC20/extensions/IERC20Metadata.sol[{github-icon},role=heading-link]
+=== `++IERC20Metadata++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/token/ERC20/extensions/IERC20Metadata.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -819,7 +876,7 @@ Returns the decimals places of the token.
 
 [.contract]
 [[ERC20]]
-=== `++ERC20++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/token/ERC20/ERC20.sol[{github-icon},role=heading-link]
+=== `++ERC20++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/token/ERC20/ERC20.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1085,10 +1142,10 @@ Overrides to this logic should be done to the variant with an additional `bool e
 Variant of {_approve} with an optional flag to enable or disable the {Approval} event.
 
 By default (when calling {_approve}) the flag is set to true. On the other hand, approval changes made by
-`_spendAllowance` during the `transferFrom` operation set the flag to false. This saves gas by not emitting any
+`_spendAllowance` during the `transferFrom` operation sets the flag to false. This saves gas by not emitting any
 `Approval` event during `transferFrom` operations.
 
-Anyone who wishes to continue emitting `Approval` events on the`transferFrom` operation can force the flag to
+Anyone who wishes to continue emitting `Approval` events on the `transferFrom` operation can force the flag to
 true using the following override:
 
 ```solidity
@@ -1122,7 +1179,7 @@ Does not emit an {Approval} event.
 
 [.contract]
 [[IERC20Permit]]
-=== `++IERC20Permit++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/token/ERC20/extensions/IERC20Permit.sol[{github-icon},role=heading-link]
+=== `++IERC20Permit++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/token/ERC20/extensions/IERC20Permit.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1181,7 +1238,7 @@ Sets `value` as the allowance of `spender` over ``owner``'s tokens,
 given ``owner``'s signed approval.
 
 IMPORTANT: The same issues {IERC20-approve} has related to transaction
-ordering also apply here.
+ordering also applies here.
 
 Emits an {Approval} event.
 
@@ -1229,7 +1286,7 @@ Returns the domain separator used in the encoding of the signature for {permit},
 
 [.contract]
 [[ERC20Permit]]
-=== `++ERC20Permit++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/token/ERC20/extensions/ERC20Permit.sol[{github-icon},role=heading-link]
+=== `++ERC20Permit++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/token/ERC20/extensions/ERC20Permit.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1388,7 +1445,7 @@ Sets `value` as the allowance of `spender` over ``owner``'s tokens,
 given ``owner``'s signed approval.
 
 IMPORTANT: The same issues {IERC20-approve} has related to transaction
-ordering also apply here.
+ordering also applies here.
 
 Emits an {Approval} event.
 
@@ -1447,7 +1504,7 @@ Mismatched signature.
 
 [.contract]
 [[ERC20Bridgeable]]
-=== `++ERC20Bridgeable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/token/ERC20/extensions/draft-ERC20Bridgeable.sol[{github-icon},role=heading-link]
+=== `++ERC20Bridgeable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/token/ERC20/extensions/draft-ERC20Bridgeable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1620,7 +1677,7 @@ customizing the list of allowed senders. Consider using {AccessControl} or {Acce
 
 [.contract]
 [[ERC20Burnable]]
-=== `++ERC20Burnable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/token/ERC20/extensions/ERC20Burnable.sol[{github-icon},role=heading-link]
+=== `++ERC20Burnable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/token/ERC20/extensions/ERC20Burnable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1745,7 +1802,7 @@ Requirements:
 
 [.contract]
 [[ERC20Capped]]
-=== `++ERC20Capped++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/token/ERC20/extensions/ERC20Capped.sol[{github-icon},role=heading-link]
+=== `++ERC20Capped++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/token/ERC20/extensions/ERC20Capped.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1871,13 +1928,190 @@ Total supply cap has been exceeded.
 
 The supplied cap is not a valid cap.
 
+:crosschainTransferFrom: pass:normal[xref:#ERC20Crosschain-crosschainTransferFrom-address-bytes-uint256-[`++crosschainTransferFrom++`]]
+:_onSend: pass:normal[xref:#ERC20Crosschain-_onSend-address-uint256-[`++_onSend++`]]
+:_onReceive: pass:normal[xref:#ERC20Crosschain-_onReceive-address-uint256-[`++_onReceive++`]]
+
+:crosschainTransferFrom-address-bytes-uint256: pass:normal[xref:#ERC20Crosschain-crosschainTransferFrom-address-bytes-uint256-[`++crosschainTransferFrom++`]]
+:_onSend-address-uint256: pass:normal[xref:#ERC20Crosschain-_onSend-address-uint256-[`++_onSend++`]]
+:_onReceive-address-uint256: pass:normal[xref:#ERC20Crosschain-_onReceive-address-uint256-[`++_onReceive++`]]
+
+[.contract]
+[[ERC20Crosschain]]
+=== `++ERC20Crosschain++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/token/ERC20/extensions/ERC20Crosschain.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Crosschain.sol";
+```
+
+Extension of {ERC20} that makes it natively cross-chain using the ERC-7786 based {BridgeFungible}.
+
+This extension makes the token compatible with counterparts on other chains, which can be:
+* {ERC20Crosschain} instances,
+* {ERC20} instances that are bridged using {BridgeERC20},
+* {ERC20Bridgeable} instances that are bridged using {BridgeERC7802}.
+
+It is mostly equivalent to inheriting from both {ERC20Bridgeable} and {BridgeERC7802}, and configuring them such
+that:
+* `token` (on the {BridgeERC7802} side) is `address(this)`,
+* `_checkTokenBridge` (on the {ERC20Bridgeable} side) is implemented such that it only accepts self-calls.
+
+[.contract-index]
+.Functions
+--
+* {xref-ERC20Crosschain-crosschainTransferFrom-address-bytes-uint256-}[`++crosschainTransferFrom(from, to, amount)++`]
+* {xref-ERC20Crosschain-_onSend-address-uint256-}[`++_onSend(from, amount)++`]
+* {xref-ERC20Crosschain-_onReceive-address-uint256-}[`++_onReceive(to, amount)++`]
+
+[.contract-subindex-inherited]
+.BridgeFungible
+* {xref-BridgeFungible-crosschainTransfer-bytes-uint256-}[`++crosschainTransfer(to, amount)++`]
+* {xref-BridgeFungible-_crosschainTransfer-address-bytes-uint256-}[`++_crosschainTransfer(from, to, amount)++`]
+* {xref-BridgeFungible-_processMessage-address-bytes32-bytes-bytes-}[`++_processMessage(, receiveId, , payload)++`]
+
+[.contract-subindex-inherited]
+.CrosschainLinked
+* {xref-CrosschainLinked-getLink-bytes-}[`++getLink(chain)++`]
+* {xref-CrosschainLinked-_setLink-address-bytes-bool-}[`++_setLink(gateway, counterpart, allowOverride)++`]
+* {xref-CrosschainLinked-_sendMessageToCounterpart-bytes-bytes-bytes---}[`++_sendMessageToCounterpart(chain, payload, attributes)++`]
+* {xref-CrosschainLinked-_isAuthorizedGateway-address-bytes-}[`++_isAuthorizedGateway(instance, sender)++`]
+
+[.contract-subindex-inherited]
+.ERC7786Recipient
+* {xref-ERC7786Recipient-receiveMessage-bytes32-bytes-bytes-}[`++receiveMessage(receiveId, sender, payload)++`]
+
+[.contract-subindex-inherited]
+.IERC7786Recipient
+
+[.contract-subindex-inherited]
+.ERC20
+* {xref-ERC20-name--}[`++name()++`]
+* {xref-ERC20-symbol--}[`++symbol()++`]
+* {xref-ERC20-decimals--}[`++decimals()++`]
+* {xref-ERC20-totalSupply--}[`++totalSupply()++`]
+* {xref-ERC20-balanceOf-address-}[`++balanceOf(account)++`]
+* {xref-ERC20-transfer-address-uint256-}[`++transfer(to, value)++`]
+* {xref-ERC20-allowance-address-address-}[`++allowance(owner, spender)++`]
+* {xref-ERC20-approve-address-uint256-}[`++approve(spender, value)++`]
+* {xref-ERC20-transferFrom-address-address-uint256-}[`++transferFrom(from, to, value)++`]
+* {xref-ERC20-_transfer-address-address-uint256-}[`++_transfer(from, to, value)++`]
+* {xref-ERC20-_update-address-address-uint256-}[`++_update(from, to, value)++`]
+* {xref-ERC20-_mint-address-uint256-}[`++_mint(account, value)++`]
+* {xref-ERC20-_burn-address-uint256-}[`++_burn(account, value)++`]
+* {xref-ERC20-_approve-address-address-uint256-}[`++_approve(owner, spender, value)++`]
+* {xref-ERC20-_approve-address-address-uint256-bool-}[`++_approve(owner, spender, value, emitEvent)++`]
+* {xref-ERC20-_spendAllowance-address-address-uint256-}[`++_spendAllowance(owner, spender, value)++`]
+
+[.contract-subindex-inherited]
+.IERC20Errors
+
+[.contract-subindex-inherited]
+.IERC20Metadata
+
+[.contract-subindex-inherited]
+.IERC20
+
+--
+
+[.contract-index]
+.Events
+--
+
+[.contract-subindex-inherited]
+.BridgeFungible
+* {xref-BridgeFungible-CrosschainFungibleTransferSent-bytes32-address-bytes-uint256-}[`++CrosschainFungibleTransferSent(sendId, from, to, amount)++`]
+* {xref-BridgeFungible-CrosschainFungibleTransferReceived-bytes32-bytes-address-uint256-}[`++CrosschainFungibleTransferReceived(receiveId, from, to, amount)++`]
+
+[.contract-subindex-inherited]
+.CrosschainLinked
+* {xref-CrosschainLinked-LinkRegistered-address-bytes-}[`++LinkRegistered(gateway, counterpart)++`]
+
+[.contract-subindex-inherited]
+.ERC7786Recipient
+
+[.contract-subindex-inherited]
+.IERC7786Recipient
+
+[.contract-subindex-inherited]
+.ERC20
+
+[.contract-subindex-inherited]
+.IERC20Errors
+
+[.contract-subindex-inherited]
+.IERC20Metadata
+
+[.contract-subindex-inherited]
+.IERC20
+* {xref-IERC20-Transfer-address-address-uint256-}[`++Transfer(from, to, value)++`]
+* {xref-IERC20-Approval-address-address-uint256-}[`++Approval(owner, spender, value)++`]
+
+--
+
+[.contract-index]
+.Errors
+--
+
+[.contract-subindex-inherited]
+.BridgeFungible
+
+[.contract-subindex-inherited]
+.CrosschainLinked
+* {xref-CrosschainLinked-LinkAlreadyRegistered-bytes-}[`++LinkAlreadyRegistered(chain)++`]
+
+[.contract-subindex-inherited]
+.ERC7786Recipient
+* {xref-ERC7786Recipient-ERC7786RecipientUnauthorizedGateway-address-bytes-}[`++ERC7786RecipientUnauthorizedGateway(gateway, sender)++`]
+
+[.contract-subindex-inherited]
+.IERC7786Recipient
+
+[.contract-subindex-inherited]
+.ERC20
+
+[.contract-subindex-inherited]
+.IERC20Errors
+* {xref-IERC20Errors-ERC20InsufficientBalance-address-uint256-uint256-}[`++ERC20InsufficientBalance(sender, balance, needed)++`]
+* {xref-IERC20Errors-ERC20InvalidSender-address-}[`++ERC20InvalidSender(sender)++`]
+* {xref-IERC20Errors-ERC20InvalidReceiver-address-}[`++ERC20InvalidReceiver(receiver)++`]
+* {xref-IERC20Errors-ERC20InsufficientAllowance-address-uint256-uint256-}[`++ERC20InsufficientAllowance(spender, allowance, needed)++`]
+* {xref-IERC20Errors-ERC20InvalidApprover-address-}[`++ERC20InvalidApprover(approver)++`]
+* {xref-IERC20Errors-ERC20InvalidSpender-address-}[`++ERC20InvalidSpender(spender)++`]
+
+[.contract-subindex-inherited]
+.IERC20Metadata
+
+[.contract-subindex-inherited]
+.IERC20
+
+--
+
+[.contract-item]
+[[ERC20Crosschain-crosschainTransferFrom-address-bytes-uint256-]]
+==== `[.contract-item-name]#++crosschainTransferFrom++#++(address from, bytes to, uint256 amount) → bytes32++` [.item-kind]#public#
+
+Variant of {crosschainTransfer} that allows an authorized account (using ERC20 allowance) to operate on `from`'s assets.
+
+[.contract-item]
+[[ERC20Crosschain-_onSend-address-uint256-]]
+==== `[.contract-item-name]#++_onSend++#++(address from, uint256 amount)++` [.item-kind]#internal#
+
+"Locking" tokens is achieved through burning
+
+[.contract-item]
+[[ERC20Crosschain-_onReceive-address-uint256-]]
+==== `[.contract-item-name]#++_onReceive++#++(address to, uint256 amount)++` [.item-kind]#internal#
+
+"Unlocking" tokens is achieved through minting
+
 :_update: pass:normal[xref:#ERC20Pausable-_update-address-address-uint256-[`++_update++`]]
 
 :_update-address-address-uint256: pass:normal[xref:#ERC20Pausable-_update-address-address-uint256-[`++_update++`]]
 
 [.contract]
 [[ERC20Pausable]]
-=== `++ERC20Pausable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/token/ERC20/extensions/ERC20Pausable.sol[{github-icon},role=heading-link]
+=== `++ERC20Pausable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/token/ERC20/extensions/ERC20Pausable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2017,7 +2251,7 @@ Requirements:
 
 [.contract]
 [[ERC20Votes]]
-=== `++ERC20Votes++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/token/ERC20/extensions/ERC20Votes.sol[{github-icon},role=heading-link]
+=== `++ERC20Votes++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/token/ERC20/extensions/ERC20Votes.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2277,7 +2511,7 @@ Total supply cap has been exceeded, introducing a risk of votes overflowing.
 
 [.contract]
 [[ERC20Wrapper]]
-=== `++ERC20Wrapper++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/token/ERC20/extensions/ERC20Wrapper.sol[{github-icon},role=heading-link]
+=== `++ERC20Wrapper++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/token/ERC20/extensions/ERC20Wrapper.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2435,7 +2669,7 @@ The underlying token couldn't be wrapped.
 
 [.contract]
 [[ERC20FlashMint]]
-=== `++ERC20FlashMint++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/token/ERC20/extensions/ERC20FlashMint.sol[{github-icon},role=heading-link]
+=== `++ERC20FlashMint++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/token/ERC20/extensions/ERC20FlashMint.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2457,7 +2691,7 @@ overriding {maxFlashLoan} so that it correctly reflects the supply cap.
 --
 * {xref-ERC20FlashMint-maxFlashLoan-address-}[`++maxFlashLoan(token)++`]
 * {xref-ERC20FlashMint-flashFee-address-uint256-}[`++flashFee(token, value)++`]
-* {xref-ERC20FlashMint-_flashFee-address-uint256-}[`++_flashFee(token, value)++`]
+* {xref-ERC20FlashMint-_flashFee-address-uint256-}[`++_flashFee(, )++`]
 * {xref-ERC20FlashMint-_flashFeeReceiver--}[`++_flashFeeReceiver()++`]
 * {xref-ERC20FlashMint-flashLoan-contract-IERC3156FlashBorrower-address-uint256-bytes-}[`++flashLoan(receiver, token, value, data)++`]
 
@@ -2553,6 +2787,10 @@ overriding {maxFlashLoan} so that it correctly reflects the supply cap.
 
 Returns the maximum amount of tokens available for loan.
 
+NOTE: This function will not automatically detect any supply cap
+added by other extensions, such as {ERC20Capped}. If necessary,
+override this function to take a supply cap into account.
+
 [.contract-item]
 [[ERC20FlashMint-flashFee-address-uint256-]]
 ==== `[.contract-item-name]#++flashFee++#++(address token, uint256 value) → uint256++` [.item-kind]#public#
@@ -2563,7 +2801,7 @@ loans.
 
 [.contract-item]
 [[ERC20FlashMint-_flashFee-address-uint256-]]
-==== `[.contract-item-name]#++_flashFee++#++(address token, uint256 value) → uint256++` [.item-kind]#internal#
+==== `[.contract-item-name]#++_flashFee++#++(address, uint256) → uint256++` [.item-kind]#internal#
 
 Returns the fee applied when doing flash loans. By default this
 implementation has 0 fees. This function can be overloaded to make
@@ -2619,7 +2857,7 @@ The receiver of a flashloan is not a valid {IERC3156FlashBorrower-onFlashLoan} i
 
 [.contract]
 [[ERC20TemporaryApproval]]
-=== `++ERC20TemporaryApproval++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/token/ERC20/extensions/draft-ERC20TemporaryApproval.sol[{github-icon},role=heading-link]
+=== `++ERC20TemporaryApproval++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/token/ERC20/extensions/draft-ERC20TemporaryApproval.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2794,7 +3032,7 @@ is enough to cover the spending.
 
 [.contract]
 [[ERC1363]]
-=== `++ERC1363++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/token/ERC20/extensions/ERC1363.sol[{github-icon},role=heading-link]
+=== `++ERC1363++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/token/ERC20/extensions/ERC1363.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3043,6 +3281,8 @@ Indicates a failure within the {approve} part of a approveAndCall operation.
 :_convertToAssets: pass:normal[xref:#ERC4626-_convertToAssets-uint256-enum-Math-Rounding-[`++_convertToAssets++`]]
 :_deposit: pass:normal[xref:#ERC4626-_deposit-address-address-uint256-uint256-[`++_deposit++`]]
 :_withdraw: pass:normal[xref:#ERC4626-_withdraw-address-address-address-uint256-uint256-[`++_withdraw++`]]
+:_transferIn: pass:normal[xref:#ERC4626-_transferIn-address-uint256-[`++_transferIn++`]]
+:_transferOut: pass:normal[xref:#ERC4626-_transferOut-address-uint256-[`++_transferOut++`]]
 :_decimalsOffset: pass:normal[xref:#ERC4626-_decimalsOffset--[`++_decimalsOffset++`]]
 
 :constructor-contract-IERC20: pass:normal[xref:#ERC4626-constructor-contract-IERC20-[`++constructor++`]]
@@ -3067,11 +3307,13 @@ Indicates a failure within the {approve} part of a approveAndCall operation.
 :_convertToAssets-uint256-enum-Math-Rounding: pass:normal[xref:#ERC4626-_convertToAssets-uint256-enum-Math-Rounding-[`++_convertToAssets++`]]
 :_deposit-address-address-uint256-uint256: pass:normal[xref:#ERC4626-_deposit-address-address-uint256-uint256-[`++_deposit++`]]
 :_withdraw-address-address-address-uint256-uint256: pass:normal[xref:#ERC4626-_withdraw-address-address-address-uint256-uint256-[`++_withdraw++`]]
+:_transferIn-address-uint256: pass:normal[xref:#ERC4626-_transferIn-address-uint256-[`++_transferIn++`]]
+:_transferOut-address-uint256: pass:normal[xref:#ERC4626-_transferOut-address-uint256-[`++_transferOut++`]]
 :_decimalsOffset-: pass:normal[xref:#ERC4626-_decimalsOffset--[`++_decimalsOffset++`]]
 
 [.contract]
 [[ERC4626]]
-=== `++ERC4626++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/token/ERC20/extensions/ERC4626.sol[{github-icon},role=heading-link]
+=== `++ERC4626++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/token/ERC20/extensions/ERC4626.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3114,6 +3356,26 @@ bigger losses. Developers willing to revert back to the pre-v4.9 behavior just n
 To learn more, check out our xref:ROOT:erc4626.adoc[ERC-4626 guide].
 ====
 
+[NOTE]
+====
+When overriding this contract, some elements must be considered:
+
+* When overriding the behavior of the deposit or withdraw mechanisms, it is recommended to override the internal
+functions. Overriding {_deposit} automatically affects both {deposit} and {mint}. Similarly, overriding {_withdraw}
+automatically affects both {withdraw} and {redeem}. Overall it is not recommended to override the public facing
+functions since that could lead to inconsistent behaviors between the {deposit} and {mint} or between {withdraw} and
+{redeem}, which is documented to have led to loss of funds.
+
+* Overrides to the deposit or withdraw mechanism must be reflected in the preview functions as well.
+
+* {maxWithdraw} depends on {maxRedeem}. Therefore, overriding {maxRedeem} only is enough. On the other hand,
+overriding {maxWithdraw} only would have no effect on {maxRedeem}, and could create an inconsistency between the two
+functions.
+
+* If {previewRedeem} is overridden to revert, {maxWithdraw} must be overridden as necessary to ensure it
+always return successfully.
+====
+
 [.contract-index]
 .Functions
 --
@@ -3139,6 +3401,8 @@ To learn more, check out our xref:ROOT:erc4626.adoc[ERC-4626 guide].
 * {xref-ERC4626-_convertToAssets-uint256-enum-Math-Rounding-}[`++_convertToAssets(shares, rounding)++`]
 * {xref-ERC4626-_deposit-address-address-uint256-uint256-}[`++_deposit(caller, receiver, assets, shares)++`]
 * {xref-ERC4626-_withdraw-address-address-address-uint256-uint256-}[`++_withdraw(caller, receiver, owner, assets, shares)++`]
+* {xref-ERC4626-_transferIn-address-uint256-}[`++_transferIn(from, assets)++`]
+* {xref-ERC4626-_transferOut-address-uint256-}[`++_transferOut(to, assets)++`]
 * {xref-ERC4626-_decimalsOffset--}[`++_decimalsOffset()++`]
 
 [.contract-subindex-inherited]
@@ -3414,7 +3678,7 @@ share price or some other type of condition, meaning the depositor will lose ass
 [[ERC4626-deposit-uint256-address-]]
 ==== `[.contract-item-name]#++deposit++#++(uint256 assets, address receiver) → uint256++` [.item-kind]#public#
 
-Mints shares Vault shares to receiver by depositing exactly amount of underlying tokens.
+Deposit `assets` underlying tokens and send the corresponding number of vault shares (`shares`) to `receiver`.
 
 - MUST emit the Deposit event.
 - MAY support an additional flow in which the underlying tokens are owned by the Vault contract before the
@@ -3428,7 +3692,7 @@ NOTE: most implementations will require pre-approval of the Vault with the Vault
 [[ERC4626-mint-uint256-address-]]
 ==== `[.contract-item-name]#++mint++#++(uint256 shares, address receiver) → uint256++` [.item-kind]#public#
 
-Mints exactly shares Vault shares to receiver by depositing amount of underlying tokens.
+Mints exactly `shares` vault shares to `receiver` in exchange for `assets` underlying tokens.
 
 - MUST emit the Deposit event.
 - MAY support an additional flow in which the underlying tokens are owned by the Vault contract before the mint
@@ -3493,6 +3757,18 @@ Deposit/mint common workflow.
 Withdraw/redeem common workflow.
 
 [.contract-item]
+[[ERC4626-_transferIn-address-uint256-]]
+==== `[.contract-item-name]#++_transferIn++#++(address from, uint256 assets)++` [.item-kind]#internal#
+
+Performs a transfer in of underlying assets. The default implementation uses `SafeERC20`. Used by {_deposit}.
+
+[.contract-item]
+[[ERC4626-_transferOut-address-uint256-]]
+==== `[.contract-item-name]#++_transferOut++#++(address to, uint256 assets)++` [.item-kind]#internal#
+
+Performs a transfer out of underlying assets. The default implementation uses `SafeERC20`. Used by {_withdraw}.
+
+[.contract-item]
 [[ERC4626-_decimalsOffset--]]
 ==== `[.contract-item-name]#++_decimalsOffset++#++() → uint8++` [.item-kind]#internal#
 
@@ -3512,13 +3788,13 @@ Attempted to mint more shares than the max amount for `receiver`.
 [[ERC4626-ERC4626ExceededMaxWithdraw-address-uint256-uint256-]]
 ==== `[.contract-item-name]#++ERC4626ExceededMaxWithdraw++#++(address owner, uint256 assets, uint256 max)++` [.item-kind]#error#
 
-Attempted to withdraw more assets than the max amount for `receiver`.
+Attempted to withdraw more assets than the max amount for `owner`.
 
 [.contract-item]
 [[ERC4626-ERC4626ExceededMaxRedeem-address-uint256-uint256-]]
 ==== `[.contract-item-name]#++ERC4626ExceededMaxRedeem++#++(address owner, uint256 shares, uint256 max)++` [.item-kind]#error#
 
-Attempted to redeem more shares than the max amount for `receiver`.
+Attempted to redeem more shares than the max amount for `owner`.
 
 == Utilities
 
@@ -3548,7 +3824,7 @@ Attempted to redeem more shares than the max amount for `receiver`.
 
 [.contract]
 [[SafeERC20]]
-=== `++SafeERC20++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/token/ERC20/utils/SafeERC20.sol[{github-icon},role=heading-link]
+=== `++SafeERC20++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/token/ERC20/utils/SafeERC20.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3653,7 +3929,7 @@ set here.
 ==== `[.contract-item-name]#++transferAndCallRelaxed++#++(contract IERC1363 token, address to, uint256 value, bytes data)++` [.item-kind]#internal#
 
 Performs an {ERC1363} transferAndCall, with a fallback to the simple {ERC20} transfer if the target has no
-code. This can be used to implement an {ERC721}-like safe transfer that rely on {ERC1363} checks when
+code. This can be used to implement an {ERC721}-like safe transfer that relies on {ERC1363} checks when
 targeting contracts.
 
 Reverts if the returned value is other than `true`.
@@ -3663,7 +3939,7 @@ Reverts if the returned value is other than `true`.
 ==== `[.contract-item-name]#++transferFromAndCallRelaxed++#++(contract IERC1363 token, address from, address to, uint256 value, bytes data)++` [.item-kind]#internal#
 
 Performs an {ERC1363} transferFromAndCall, with a fallback to the simple {ERC20} transferFrom if the target
-has no code. This can be used to implement an {ERC721}-like safe transfer that rely on {ERC1363} checks when
+has no code. This can be used to implement an {ERC721}-like safe transfer that relies on {ERC1363} checks when
 targeting contracts.
 
 Reverts if the returned value is other than `true`.
@@ -3677,7 +3953,7 @@ code. This can be used to implement an {ERC721}-like safe transfer that rely on 
 targeting contracts.
 
 NOTE: When the recipient address (`to`) has no code (i.e. is an EOA), this function behaves as {forceApprove}.
-Opposedly, when the recipient address (`to`) has code, this function only attempts to call {ERC1363-approveAndCall}
+Oppositely, when the recipient address (`to`) has code, this function only attempts to call {ERC1363-approveAndCall}
 once without retrying, and relies on the returned value to be true.
 
 Reverts if the returned value is other than `true`.
@@ -3704,7 +3980,7 @@ Indicates a failed `decreaseAllowance` request.
 
 [.contract]
 [[ERC1363Utils]]
-=== `++ERC1363Utils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/token/ERC20/utils/ERC1363Utils.sol[{github-icon},role=heading-link]
+=== `++ERC1363Utils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/token/ERC20/utils/ERC1363Utils.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity

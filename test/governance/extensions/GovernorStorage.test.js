@@ -150,6 +150,26 @@ describe('GovernorStorage', function () {
           .to.emit(this.mock, 'ProposalCanceled')
           .withArgs(this.proposal.id);
       });
+
+      describe('with non-existing proposalId', function () {
+        it('queue', async function () {
+          await expect(this.mock.queue(this.proposal.id))
+            .to.be.revertedWithCustomError(this.mock, 'GovernorNonexistentProposal')
+            .withArgs(this.proposal.id);
+        });
+
+        it('execute', async function () {
+          await expect(this.mock.execute(this.proposal.id))
+            .to.be.revertedWithCustomError(this.mock, 'GovernorNonexistentProposal')
+            .withArgs(this.proposal.id);
+        });
+
+        it('cancel', async function () {
+          await expect(this.mock.cancel(this.proposal.id))
+            .to.be.revertedWithCustomError(this.mock, 'GovernorNonexistentProposal')
+            .withArgs(this.proposal.id);
+        });
+      });
     });
   }
 });

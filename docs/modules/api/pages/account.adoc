@@ -15,7 +15,7 @@
 :xref-Account-getNonce--: xref:account.adoc#Account-getNonce--
 :xref-Account-getNonce-uint192-: xref:account.adoc#Account-getNonce-uint192-
 :xref-Account-validateUserOp-struct-PackedUserOperation-bytes32-uint256-: xref:account.adoc#Account-validateUserOp-struct-PackedUserOperation-bytes32-uint256-
-:xref-Account-_validateUserOp-struct-PackedUserOperation-bytes32-: xref:account.adoc#Account-_validateUserOp-struct-PackedUserOperation-bytes32-
+:xref-Account-_validateUserOp-struct-PackedUserOperation-bytes32-bytes-: xref:account.adoc#Account-_validateUserOp-struct-PackedUserOperation-bytes32-bytes-
 :xref-Account-_signableUserOpHash-struct-PackedUserOperation-bytes32-: xref:account.adoc#Account-_signableUserOpHash-struct-PackedUserOperation-bytes32-
 :xref-Account-_payPrefund-uint256-: xref:account.adoc#Account-_payPrefund-uint256-
 :xref-Account-_checkEntryPoint--: xref:account.adoc#Account-_checkEntryPoint--
@@ -40,7 +40,7 @@
 :xref-AccountERC7579-execute-bytes32-bytes-: xref:account.adoc#AccountERC7579-execute-bytes32-bytes-
 :xref-AccountERC7579-executeFromExecutor-bytes32-bytes-: xref:account.adoc#AccountERC7579-executeFromExecutor-bytes32-bytes-
 :xref-AccountERC7579-isValidSignature-bytes32-bytes-: xref:account.adoc#AccountERC7579-isValidSignature-bytes32-bytes-
-:xref-AccountERC7579-_validateUserOp-struct-PackedUserOperation-bytes32-: xref:account.adoc#AccountERC7579-_validateUserOp-struct-PackedUserOperation-bytes32-
+:xref-AccountERC7579-_validateUserOp-struct-PackedUserOperation-bytes32-bytes-: xref:account.adoc#AccountERC7579-_validateUserOp-struct-PackedUserOperation-bytes32-bytes-
 :xref-AccountERC7579-_execute-Mode-bytes-: xref:account.adoc#AccountERC7579-_execute-Mode-bytes-
 :xref-AccountERC7579-_installModule-uint256-address-bytes-: xref:account.adoc#AccountERC7579-_installModule-uint256-address-bytes-
 :xref-AccountERC7579-_uninstallModule-uint256-address-bytes-: xref:account.adoc#AccountERC7579-_uninstallModule-uint256-address-bytes-
@@ -63,10 +63,11 @@
 :xref-IERC7579ModuleConfig-ModuleInstalled-uint256-address-: xref:interfaces.adoc#IERC7579ModuleConfig-ModuleInstalled-uint256-address-
 :xref-IERC7579ModuleConfig-ModuleUninstalled-uint256-address-: xref:interfaces.adoc#IERC7579ModuleConfig-ModuleUninstalled-uint256-address-
 :xref-AccountERC7579-ERC7579MissingFallbackHandler-bytes4-: xref:account.adoc#AccountERC7579-ERC7579MissingFallbackHandler-bytes4-
+:xref-AccountERC7579-ERC7579CannotDecodeFallbackData--: xref:account.adoc#AccountERC7579-ERC7579CannotDecodeFallbackData--
 :xref-Account-AccountUnauthorized-address-: xref:account.adoc#Account-AccountUnauthorized-address-
 :ERC7739: pass:normal[xref:utils/cryptography.adoc#ERC7739[`ERC7739`]]
 :ERC7739: pass:normal[xref:utils/cryptography.adoc#ERC7739[`ERC7739`]]
-:Account-_validateUserOp: pass:normal[xref:account.adoc#Account-_validateUserOp-struct-PackedUserOperation-bytes32-[`Account._validateUserOp`]]
+:Account-_validateUserOp: pass:normal[xref:account.adoc#Account-_validateUserOp-struct-PackedUserOperation-bytes32-bytes-[`Account._validateUserOp`]]
 :IERC7579Module-onInstall: pass:normal[xref:interfaces.adoc#IERC7579Module-onInstall-bytes-[`IERC7579Module.onInstall`]]
 :ERC7579Utils-ERC7579UnsupportedModuleType: pass:normal[xref:account.adoc#ERC7579Utils-ERC7579UnsupportedModuleType-uint256-[`ERC7579Utils.ERC7579UnsupportedModuleType`]]
 :ERC7579Utils-ERC7579MismatchedModuleTypeId: pass:normal[xref:account.adoc#ERC7579Utils-ERC7579MismatchedModuleTypeId-uint256-address-[`ERC7579Utils.ERC7579MismatchedModuleTypeId`]]
@@ -74,6 +75,7 @@
 :IERC7579ModuleConfig-ModuleInstalled: pass:normal[xref:interfaces.adoc#IERC7579ModuleConfig-ModuleInstalled-uint256-address-[`IERC7579ModuleConfig.ModuleInstalled`]]
 :IERC7579Module-onUninstall: pass:normal[xref:interfaces.adoc#IERC7579Module-onUninstall-bytes-[`IERC7579Module.onUninstall`]]
 :ERC7579Utils-ERC7579UninstalledModule: pass:normal[xref:account.adoc#ERC7579Utils-ERC7579UninstalledModule-uint256-address-[`ERC7579Utils.ERC7579UninstalledModule`]]
+:Panic-ARRAY_OUT_OF_BOUNDS: pass:normal[xref:utils.adoc#Panic-ARRAY_OUT_OF_BOUNDS-uint256[`Panic.ARRAY_OUT_OF_BOUNDS`]]
 :AccountERC7579: pass:normal[xref:account.adoc#AccountERC7579[`AccountERC7579`]]
 :IERC7579Hook-preCheck: pass:normal[xref:interfaces.adoc#IERC7579Hook-preCheck-address-uint256-bytes-[`IERC7579Hook.preCheck`]]
 :IERC7579Hook-postCheck: pass:normal[xref:interfaces.adoc#IERC7579Hook-postCheck-bytes-[`IERC7579Hook.postCheck`]]
@@ -94,7 +96,7 @@
 :xref-AccountERC7579-execute-bytes32-bytes-: xref:account.adoc#AccountERC7579-execute-bytes32-bytes-
 :xref-AccountERC7579-executeFromExecutor-bytes32-bytes-: xref:account.adoc#AccountERC7579-executeFromExecutor-bytes32-bytes-
 :xref-AccountERC7579-isValidSignature-bytes32-bytes-: xref:account.adoc#AccountERC7579-isValidSignature-bytes32-bytes-
-:xref-AccountERC7579-_validateUserOp-struct-PackedUserOperation-bytes32-: xref:account.adoc#AccountERC7579-_validateUserOp-struct-PackedUserOperation-bytes32-
+:xref-AccountERC7579-_validateUserOp-struct-PackedUserOperation-bytes32-bytes-: xref:account.adoc#AccountERC7579-_validateUserOp-struct-PackedUserOperation-bytes32-bytes-
 :xref-AccountERC7579-_fallbackHandler-bytes4-: xref:account.adoc#AccountERC7579-_fallbackHandler-bytes4-
 :xref-AccountERC7579-_checkModule-uint256-address-bytes-: xref:account.adoc#AccountERC7579-_checkModule-uint256-address-bytes-
 :xref-AccountERC7579-_extractUserOpValidator-struct-PackedUserOperation-: xref:account.adoc#AccountERC7579-_extractUserOpValidator-struct-PackedUserOperation-
@@ -114,6 +116,7 @@
 :xref-IERC7579ModuleConfig-ModuleUninstalled-uint256-address-: xref:interfaces.adoc#IERC7579ModuleConfig-ModuleUninstalled-uint256-address-
 :xref-AccountERC7579Hooked-ERC7579HookModuleAlreadyPresent-address-: xref:account.adoc#AccountERC7579Hooked-ERC7579HookModuleAlreadyPresent-address-
 :xref-AccountERC7579-ERC7579MissingFallbackHandler-bytes4-: xref:account.adoc#AccountERC7579-ERC7579MissingFallbackHandler-bytes4-
+:xref-AccountERC7579-ERC7579CannotDecodeFallbackData--: xref:account.adoc#AccountERC7579-ERC7579CannotDecodeFallbackData--
 :xref-Account-AccountUnauthorized-address-: xref:account.adoc#Account-AccountUnauthorized-address-
 :IERC7579Hook-preCheck: pass:normal[xref:interfaces.adoc#IERC7579Hook-preCheck-address-uint256-bytes-[`IERC7579Hook.preCheck`]]
 :IERC7579Hook-postCheck: pass:normal[xref:interfaces.adoc#IERC7579Hook-postCheck-bytes-[`IERC7579Hook.postCheck`]]
@@ -128,7 +131,9 @@
 :xref-ERC7821-UnsupportedExecutionMode--: xref:account.adoc#ERC7821-UnsupportedExecutionMode--
 :xref-ERC4337Utils-parseValidationData-uint256-: xref:account.adoc#ERC4337Utils-parseValidationData-uint256-
 :xref-ERC4337Utils-packValidationData-address-uint48-uint48-: xref:account.adoc#ERC4337Utils-packValidationData-address-uint48-uint48-
+:xref-ERC4337Utils-packValidationData-address-uint48-uint48-enum-ERC4337Utils-ValidationRange-: xref:account.adoc#ERC4337Utils-packValidationData-address-uint48-uint48-enum-ERC4337Utils-ValidationRange-
 :xref-ERC4337Utils-packValidationData-bool-uint48-uint48-: xref:account.adoc#ERC4337Utils-packValidationData-bool-uint48-uint48-
+:xref-ERC4337Utils-packValidationData-bool-uint48-uint48-enum-ERC4337Utils-ValidationRange-: xref:account.adoc#ERC4337Utils-packValidationData-bool-uint48-uint48-enum-ERC4337Utils-ValidationRange-
 :xref-ERC4337Utils-combineValidationData-uint256-uint256-: xref:account.adoc#ERC4337Utils-combineValidationData-uint256-uint256-
 :xref-ERC4337Utils-getValidationData-uint256-: xref:account.adoc#ERC4337Utils-getValidationData-uint256-
 :xref-ERC4337Utils-hash-struct-PackedUserOperation-address-: xref:account.adoc#ERC4337Utils-hash-struct-PackedUserOperation-address-
@@ -143,10 +148,15 @@
 :xref-ERC4337Utils-paymasterVerificationGasLimit-struct-PackedUserOperation-: xref:account.adoc#ERC4337Utils-paymasterVerificationGasLimit-struct-PackedUserOperation-
 :xref-ERC4337Utils-paymasterPostOpGasLimit-struct-PackedUserOperation-: xref:account.adoc#ERC4337Utils-paymasterPostOpGasLimit-struct-PackedUserOperation-
 :xref-ERC4337Utils-paymasterData-struct-PackedUserOperation-: xref:account.adoc#ERC4337Utils-paymasterData-struct-PackedUserOperation-
+:xref-ERC4337Utils-paymasterSignature-struct-PackedUserOperation-: xref:account.adoc#ERC4337Utils-paymasterSignature-struct-PackedUserOperation-
 :xref-ERC4337Utils-ENTRYPOINT_V07-contract-IEntryPoint: xref:account.adoc#ERC4337Utils-ENTRYPOINT_V07-contract-IEntryPoint
 :xref-ERC4337Utils-ENTRYPOINT_V08-contract-IEntryPoint: xref:account.adoc#ERC4337Utils-ENTRYPOINT_V08-contract-IEntryPoint
+:xref-ERC4337Utils-ENTRYPOINT_V09-contract-IEntryPoint: xref:account.adoc#ERC4337Utils-ENTRYPOINT_V09-contract-IEntryPoint
 :xref-ERC4337Utils-SIG_VALIDATION_SUCCESS-uint256: xref:account.adoc#ERC4337Utils-SIG_VALIDATION_SUCCESS-uint256
 :xref-ERC4337Utils-SIG_VALIDATION_FAILED-uint256: xref:account.adoc#ERC4337Utils-SIG_VALIDATION_FAILED-uint256
+:xref-ERC4337Utils-PAYMASTER_SIG_MAGIC-bytes8: xref:account.adoc#ERC4337Utils-PAYMASTER_SIG_MAGIC-bytes8
+:xref-ERC4337Utils-BLOCK_RANGE_FLAG-uint48: xref:account.adoc#ERC4337Utils-BLOCK_RANGE_FLAG-uint48
+:xref-ERC4337Utils-BLOCK_RANGE_MASK-uint48: xref:account.adoc#ERC4337Utils-BLOCK_RANGE_MASK-uint48
 :PackedUserOperation: pass:normal[xref:interfaces.adoc#PackedUserOperation[`PackedUserOperation`]]
 :PackedUserOperation: pass:normal[xref:interfaces.adoc#PackedUserOperation[`PackedUserOperation`]]
 :PackedUserOperation: pass:normal[xref:interfaces.adoc#PackedUserOperation[`PackedUserOperation`]]
@@ -206,7 +216,7 @@ This directory includes contracts to build accounts for ERC-4337. These include:
 :getNonce: pass:normal[xref:#Account-getNonce--[`++getNonce++`]]
 :getNonce: pass:normal[xref:#Account-getNonce-uint192-[`++getNonce++`]]
 :validateUserOp: pass:normal[xref:#Account-validateUserOp-struct-PackedUserOperation-bytes32-uint256-[`++validateUserOp++`]]
-:_validateUserOp: pass:normal[xref:#Account-_validateUserOp-struct-PackedUserOperation-bytes32-[`++_validateUserOp++`]]
+:_validateUserOp: pass:normal[xref:#Account-_validateUserOp-struct-PackedUserOperation-bytes32-bytes-[`++_validateUserOp++`]]
 :_signableUserOpHash: pass:normal[xref:#Account-_signableUserOpHash-struct-PackedUserOperation-bytes32-[`++_signableUserOpHash++`]]
 :_payPrefund: pass:normal[xref:#Account-_payPrefund-uint256-[`++_payPrefund++`]]
 :_checkEntryPoint: pass:normal[xref:#Account-_checkEntryPoint--[`++_checkEntryPoint++`]]
@@ -217,7 +227,7 @@ This directory includes contracts to build accounts for ERC-4337. These include:
 :getNonce-: pass:normal[xref:#Account-getNonce--[`++getNonce++`]]
 :getNonce-uint192: pass:normal[xref:#Account-getNonce-uint192-[`++getNonce++`]]
 :validateUserOp-struct-PackedUserOperation-bytes32-uint256: pass:normal[xref:#Account-validateUserOp-struct-PackedUserOperation-bytes32-uint256-[`++validateUserOp++`]]
-:_validateUserOp-struct-PackedUserOperation-bytes32: pass:normal[xref:#Account-_validateUserOp-struct-PackedUserOperation-bytes32-[`++_validateUserOp++`]]
+:_validateUserOp-struct-PackedUserOperation-bytes32-bytes: pass:normal[xref:#Account-_validateUserOp-struct-PackedUserOperation-bytes32-bytes-[`++_validateUserOp++`]]
 :_signableUserOpHash-struct-PackedUserOperation-bytes32: pass:normal[xref:#Account-_signableUserOpHash-struct-PackedUserOperation-bytes32-[`++_signableUserOpHash++`]]
 :_payPrefund-uint256: pass:normal[xref:#Account-_payPrefund-uint256-[`++_payPrefund++`]]
 :_checkEntryPoint-: pass:normal[xref:#Account-_checkEntryPoint--[`++_checkEntryPoint++`]]
@@ -226,7 +236,7 @@ This directory includes contracts to build accounts for ERC-4337. These include:
 
 [.contract]
 [[Account]]
-=== `++Account++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/account/Account.sol[{github-icon},role=heading-link]
+=== `++Account++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/account/Account.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -262,7 +272,7 @@ digital signature validation implementations.
 * {xref-Account-getNonce--}[`++getNonce()++`]
 * {xref-Account-getNonce-uint192-}[`++getNonce(key)++`]
 * {xref-Account-validateUserOp-struct-PackedUserOperation-bytes32-uint256-}[`++validateUserOp(userOp, userOpHash, missingAccountFunds)++`]
-* {xref-Account-_validateUserOp-struct-PackedUserOperation-bytes32-}[`++_validateUserOp(userOp, userOpHash)++`]
+* {xref-Account-_validateUserOp-struct-PackedUserOperation-bytes32-bytes-}[`++_validateUserOp(userOp, userOpHash, signature)++`]
 * {xref-Account-_signableUserOpHash-struct-PackedUserOperation-bytes32-}[`++_signableUserOpHash(, userOpHash)++`]
 * {xref-Account-_payPrefund-uint256-}[`++_payPrefund(missingAccountFunds)++`]
 * {xref-Account-_checkEntryPoint--}[`++_checkEntryPoint()++`]
@@ -340,11 +350,16 @@ Returns an encoded packed validation data that is composed of the following elem
 - `validAfter` (`uint48`): The UserOp is valid only after this time.
 
 [.contract-item]
-[[Account-_validateUserOp-struct-PackedUserOperation-bytes32-]]
-==== `[.contract-item-name]#++_validateUserOp++#++(struct PackedUserOperation userOp, bytes32 userOpHash) → uint256++` [.item-kind]#internal#
+[[Account-_validateUserOp-struct-PackedUserOperation-bytes32-bytes-]]
+==== `[.contract-item-name]#++_validateUserOp++#++(struct PackedUserOperation userOp, bytes32 userOpHash, bytes signature) → uint256++` [.item-kind]#internal#
 
 Returns the validationData for a given user operation. By default, this checks the signature of the
 signable hash (produced by {_signableUserOpHash}) using the abstract signer ({AbstractSigner-_rawSignatureValidation}).
+
+The `signature` parameter is taken directly from the user operation's `signature` field.
+This design enables derived contracts to implement custom signature handling logic,
+such as embedding additional data within the signature and processing it by overriding this function
+and optionally invoking `super`.
 
 NOTE: The userOpHash is assumed to be correct. Calling this function with a userOpHash that does not match the
 userOp will result in undefined behavior.
@@ -390,6 +405,7 @@ Unauthorized call to the account.
 == Extensions
 
 :ERC7579MissingFallbackHandler: pass:normal[xref:#AccountERC7579-ERC7579MissingFallbackHandler-bytes4-[`++ERC7579MissingFallbackHandler++`]]
+:ERC7579CannotDecodeFallbackData: pass:normal[xref:#AccountERC7579-ERC7579CannotDecodeFallbackData--[`++ERC7579CannotDecodeFallbackData++`]]
 :onlyModule: pass:normal[xref:#AccountERC7579-onlyModule-uint256-bytes-[`++onlyModule++`]]
 :fallback: pass:normal[xref:#AccountERC7579-fallback-bytes-[`++fallback++`]]
 :accountId: pass:normal[xref:#AccountERC7579-accountId--[`++accountId++`]]
@@ -401,7 +417,7 @@ Unauthorized call to the account.
 :execute: pass:normal[xref:#AccountERC7579-execute-bytes32-bytes-[`++execute++`]]
 :executeFromExecutor: pass:normal[xref:#AccountERC7579-executeFromExecutor-bytes32-bytes-[`++executeFromExecutor++`]]
 :isValidSignature: pass:normal[xref:#AccountERC7579-isValidSignature-bytes32-bytes-[`++isValidSignature++`]]
-:_validateUserOp: pass:normal[xref:#AccountERC7579-_validateUserOp-struct-PackedUserOperation-bytes32-[`++_validateUserOp++`]]
+:_validateUserOp: pass:normal[xref:#AccountERC7579-_validateUserOp-struct-PackedUserOperation-bytes32-bytes-[`++_validateUserOp++`]]
 :_execute: pass:normal[xref:#AccountERC7579-_execute-Mode-bytes-[`++_execute++`]]
 :_installModule: pass:normal[xref:#AccountERC7579-_installModule-uint256-address-bytes-[`++_installModule++`]]
 :_uninstallModule: pass:normal[xref:#AccountERC7579-_uninstallModule-uint256-address-bytes-[`++_uninstallModule++`]]
@@ -423,7 +439,7 @@ Unauthorized call to the account.
 :execute-bytes32-bytes: pass:normal[xref:#AccountERC7579-execute-bytes32-bytes-[`++execute++`]]
 :executeFromExecutor-bytes32-bytes: pass:normal[xref:#AccountERC7579-executeFromExecutor-bytes32-bytes-[`++executeFromExecutor++`]]
 :isValidSignature-bytes32-bytes: pass:normal[xref:#AccountERC7579-isValidSignature-bytes32-bytes-[`++isValidSignature++`]]
-:_validateUserOp-struct-PackedUserOperation-bytes32: pass:normal[xref:#AccountERC7579-_validateUserOp-struct-PackedUserOperation-bytes32-[`++_validateUserOp++`]]
+:_validateUserOp-struct-PackedUserOperation-bytes32-bytes: pass:normal[xref:#AccountERC7579-_validateUserOp-struct-PackedUserOperation-bytes32-bytes-[`++_validateUserOp++`]]
 :_execute-Mode-bytes: pass:normal[xref:#AccountERC7579-_execute-Mode-bytes-[`++_execute++`]]
 :_installModule-uint256-address-bytes: pass:normal[xref:#AccountERC7579-_installModule-uint256-address-bytes-[`++_installModule++`]]
 :_uninstallModule-uint256-address-bytes: pass:normal[xref:#AccountERC7579-_uninstallModule-uint256-address-bytes-[`++_uninstallModule++`]]
@@ -437,7 +453,7 @@ Unauthorized call to the account.
 
 [.contract]
 [[AccountERC7579]]
-=== `++AccountERC7579++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/account/extensions/draft-AccountERC7579.sol[{github-icon},role=heading-link]
+=== `++AccountERC7579++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/account/extensions/draft-AccountERC7579.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -494,7 +510,7 @@ WARNING: Removing all validator modules will render the account inoperable, as n
 * {xref-AccountERC7579-execute-bytes32-bytes-}[`++execute(mode, executionCalldata)++`]
 * {xref-AccountERC7579-executeFromExecutor-bytes32-bytes-}[`++executeFromExecutor(mode, executionCalldata)++`]
 * {xref-AccountERC7579-isValidSignature-bytes32-bytes-}[`++isValidSignature(hash, signature)++`]
-* {xref-AccountERC7579-_validateUserOp-struct-PackedUserOperation-bytes32-}[`++_validateUserOp(userOp, userOpHash)++`]
+* {xref-AccountERC7579-_validateUserOp-struct-PackedUserOperation-bytes32-bytes-}[`++_validateUserOp(userOp, userOpHash, signature)++`]
 * {xref-AccountERC7579-_execute-Mode-bytes-}[`++_execute(mode, executionCalldata)++`]
 * {xref-AccountERC7579-_installModule-uint256-address-bytes-}[`++_installModule(moduleTypeId, module, initData)++`]
 * {xref-AccountERC7579-_uninstallModule-uint256-address-bytes-}[`++_uninstallModule(moduleTypeId, module, deInitData)++`]
@@ -571,6 +587,7 @@ WARNING: Removing all validator modules will render the account inoperable, as n
 .Errors
 --
 * {xref-AccountERC7579-ERC7579MissingFallbackHandler-bytes4-}[`++ERC7579MissingFallbackHandler(selector)++`]
+* {xref-AccountERC7579-ERC7579CannotDecodeFallbackData--}[`++ERC7579CannotDecodeFallbackData()++`]
 
 [.contract-subindex-inherited]
 .IERC7579ModuleConfig
@@ -680,8 +697,8 @@ NOTE: when combined with {ERC7739}, resolution ordering may have an impact ({ERC
 Manual resolution might be necessary.
 
 [.contract-item]
-[[AccountERC7579-_validateUserOp-struct-PackedUserOperation-bytes32-]]
-==== `[.contract-item-name]#++_validateUserOp++#++(struct PackedUserOperation userOp, bytes32 userOpHash) → uint256++` [.item-kind]#internal#
+[[AccountERC7579-_validateUserOp-struct-PackedUserOperation-bytes32-bytes-]]
+==== `[.contract-item-name]#++_validateUserOp++#++(struct PackedUserOperation userOp, bytes32 userOpHash, bytes signature) → uint256++` [.item-kind]#internal#
 
 Validates a user operation with {_signableUserOpHash} and returns the validation data
 if the module specified by the first 20 bytes of the nonce key is installed. Falls back to
@@ -792,6 +809,8 @@ https://github.com/erc7579/erc7579-implementation/blob/16138d1afd4e9711f6c142513
 
 This is not standardized in ERC-7579 (or in any follow-up ERC). Some accounts may want to override these internal functions.
 
+NOTE: This function expects the signature to be at least 20 bytes long. Panics with {Panic-ARRAY_OUT_OF_BOUNDS} (0x32) otherwise.
+
 [.contract-item]
 [[AccountERC7579-_decodeFallbackData-bytes-]]
 ==== `[.contract-item-name]#++_decodeFallbackData++#++(bytes data) → bytes4 selector, bytes remaining++` [.item-kind]#internal#
@@ -802,7 +821,7 @@ NOTE: If we had calldata here, we could use calldata slice which are cheaper to 
 actual copy. However, this would require `_installModule` to get a calldata bytes object instead of a memory
 bytes object. This would prevent calling `_installModule` from a contract constructor and would force the use
 of external initializers. That may change in the future, as most accounts will probably be deployed as
-clones/proxy/ERC-7702 delegates and therefore rely on initializers anyway.
+clones/proxy/EIP-7702 delegates and therefore rely on initializers anyway.
 
 [.contract-item]
 [[AccountERC7579-_rawSignatureValidation-bytes32-bytes-]]
@@ -815,6 +834,12 @@ By default, only use the modules for validation of userOp and signature. Disable
 ==== `[.contract-item-name]#++ERC7579MissingFallbackHandler++#++(bytes4 selector)++` [.item-kind]#error#
 
 The account's {fallback} was called with a selector that doesn't have an installed handler.
+
+[.contract-item]
+[[AccountERC7579-ERC7579CannotDecodeFallbackData--]]
+==== `[.contract-item-name]#++ERC7579CannotDecodeFallbackData++#++()++` [.item-kind]#error#
+
+The provided initData/deInitData for a fallback module is too short to extract a selector.
 
 :ERC7579HookModuleAlreadyPresent: pass:normal[xref:#AccountERC7579Hooked-ERC7579HookModuleAlreadyPresent-address-[`++ERC7579HookModuleAlreadyPresent++`]]
 :withHook: pass:normal[xref:#AccountERC7579Hooked-withHook--[`++withHook++`]]
@@ -838,7 +863,7 @@ The account's {fallback} was called with a selector that doesn't have an install
 
 [.contract]
 [[AccountERC7579Hooked]]
-=== `++AccountERC7579Hooked++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/account/extensions/draft-AccountERC7579Hooked.sol[{github-icon},role=heading-link]
+=== `++AccountERC7579Hooked++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/account/extensions/draft-AccountERC7579Hooked.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -883,7 +908,7 @@ modules or further overriding functions that involve hooks.
 * {xref-AccountERC7579-execute-bytes32-bytes-}[`++execute(mode, executionCalldata)++`]
 * {xref-AccountERC7579-executeFromExecutor-bytes32-bytes-}[`++executeFromExecutor(mode, executionCalldata)++`]
 * {xref-AccountERC7579-isValidSignature-bytes32-bytes-}[`++isValidSignature(hash, signature)++`]
-* {xref-AccountERC7579-_validateUserOp-struct-PackedUserOperation-bytes32-}[`++_validateUserOp(userOp, userOpHash)++`]
+* {xref-AccountERC7579-_validateUserOp-struct-PackedUserOperation-bytes32-bytes-}[`++_validateUserOp(userOp, userOpHash, signature)++`]
 * {xref-AccountERC7579-_fallbackHandler-bytes4-}[`++_fallbackHandler(selector)++`]
 * {xref-AccountERC7579-_checkModule-uint256-address-bytes-}[`++_checkModule(moduleTypeId, module, additionalContext)++`]
 * {xref-AccountERC7579-_extractUserOpValidator-struct-PackedUserOperation-}[`++_extractUserOpValidator(userOp)++`]
@@ -963,6 +988,7 @@ modules or further overriding functions that involve hooks.
 [.contract-subindex-inherited]
 .AccountERC7579
 * {xref-AccountERC7579-ERC7579MissingFallbackHandler-bytes4-}[`++ERC7579MissingFallbackHandler(selector)++`]
+* {xref-AccountERC7579-ERC7579CannotDecodeFallbackData--}[`++ERC7579CannotDecodeFallbackData()++`]
 
 [.contract-subindex-inherited]
 .IERC7579ModuleConfig
@@ -1060,7 +1086,7 @@ A hook module is already present. This contract only supports one hook module.
 
 [.contract]
 [[ERC7821]]
-=== `++ERC7821++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/account/extensions/draft-ERC7821.sol[{github-icon},role=heading-link]
+=== `++ERC7821++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/account/extensions/draft-ERC7821.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1069,7 +1095,7 @@ import "@openzeppelin/contracts/account/extensions/draft-ERC7821.sol";
 
 Minimal batch executor following ERC-7821.
 
-Only supports supports single batch mode (`0x01000000000000000000`). Does not support optional "opData".
+Only supports single batch mode (`0x01000000000000000000`). Does not support optional "opData".
 
 @custom:stateless
 
@@ -1143,11 +1169,18 @@ function _erc7821AuthorizedExecutor(
 
 :ENTRYPOINT_V07: pass:normal[xref:#ERC4337Utils-ENTRYPOINT_V07-contract-IEntryPoint[`++ENTRYPOINT_V07++`]]
 :ENTRYPOINT_V08: pass:normal[xref:#ERC4337Utils-ENTRYPOINT_V08-contract-IEntryPoint[`++ENTRYPOINT_V08++`]]
+:ENTRYPOINT_V09: pass:normal[xref:#ERC4337Utils-ENTRYPOINT_V09-contract-IEntryPoint[`++ENTRYPOINT_V09++`]]
 :SIG_VALIDATION_SUCCESS: pass:normal[xref:#ERC4337Utils-SIG_VALIDATION_SUCCESS-uint256[`++SIG_VALIDATION_SUCCESS++`]]
 :SIG_VALIDATION_FAILED: pass:normal[xref:#ERC4337Utils-SIG_VALIDATION_FAILED-uint256[`++SIG_VALIDATION_FAILED++`]]
+:PAYMASTER_SIG_MAGIC: pass:normal[xref:#ERC4337Utils-PAYMASTER_SIG_MAGIC-bytes8[`++PAYMASTER_SIG_MAGIC++`]]
+:BLOCK_RANGE_FLAG: pass:normal[xref:#ERC4337Utils-BLOCK_RANGE_FLAG-uint48[`++BLOCK_RANGE_FLAG++`]]
+:BLOCK_RANGE_MASK: pass:normal[xref:#ERC4337Utils-BLOCK_RANGE_MASK-uint48[`++BLOCK_RANGE_MASK++`]]
+:ValidationRange: pass:normal[xref:#ERC4337Utils-ValidationRange[`++ValidationRange++`]]
 :parseValidationData: pass:normal[xref:#ERC4337Utils-parseValidationData-uint256-[`++parseValidationData++`]]
 :packValidationData: pass:normal[xref:#ERC4337Utils-packValidationData-address-uint48-uint48-[`++packValidationData++`]]
+:packValidationData: pass:normal[xref:#ERC4337Utils-packValidationData-address-uint48-uint48-enum-ERC4337Utils-ValidationRange-[`++packValidationData++`]]
 :packValidationData: pass:normal[xref:#ERC4337Utils-packValidationData-bool-uint48-uint48-[`++packValidationData++`]]
+:packValidationData: pass:normal[xref:#ERC4337Utils-packValidationData-bool-uint48-uint48-enum-ERC4337Utils-ValidationRange-[`++packValidationData++`]]
 :combineValidationData: pass:normal[xref:#ERC4337Utils-combineValidationData-uint256-uint256-[`++combineValidationData++`]]
 :getValidationData: pass:normal[xref:#ERC4337Utils-getValidationData-uint256-[`++getValidationData++`]]
 :hash: pass:normal[xref:#ERC4337Utils-hash-struct-PackedUserOperation-address-[`++hash++`]]
@@ -1162,10 +1195,13 @@ function _erc7821AuthorizedExecutor(
 :paymasterVerificationGasLimit: pass:normal[xref:#ERC4337Utils-paymasterVerificationGasLimit-struct-PackedUserOperation-[`++paymasterVerificationGasLimit++`]]
 :paymasterPostOpGasLimit: pass:normal[xref:#ERC4337Utils-paymasterPostOpGasLimit-struct-PackedUserOperation-[`++paymasterPostOpGasLimit++`]]
 :paymasterData: pass:normal[xref:#ERC4337Utils-paymasterData-struct-PackedUserOperation-[`++paymasterData++`]]
+:paymasterSignature: pass:normal[xref:#ERC4337Utils-paymasterSignature-struct-PackedUserOperation-[`++paymasterSignature++`]]
 
 :parseValidationData-uint256: pass:normal[xref:#ERC4337Utils-parseValidationData-uint256-[`++parseValidationData++`]]
 :packValidationData-address-uint48-uint48: pass:normal[xref:#ERC4337Utils-packValidationData-address-uint48-uint48-[`++packValidationData++`]]
+:packValidationData-address-uint48-uint48-enum-ERC4337Utils-ValidationRange: pass:normal[xref:#ERC4337Utils-packValidationData-address-uint48-uint48-enum-ERC4337Utils-ValidationRange-[`++packValidationData++`]]
 :packValidationData-bool-uint48-uint48: pass:normal[xref:#ERC4337Utils-packValidationData-bool-uint48-uint48-[`++packValidationData++`]]
+:packValidationData-bool-uint48-uint48-enum-ERC4337Utils-ValidationRange: pass:normal[xref:#ERC4337Utils-packValidationData-bool-uint48-uint48-enum-ERC4337Utils-ValidationRange-[`++packValidationData++`]]
 :combineValidationData-uint256-uint256: pass:normal[xref:#ERC4337Utils-combineValidationData-uint256-uint256-[`++combineValidationData++`]]
 :getValidationData-uint256: pass:normal[xref:#ERC4337Utils-getValidationData-uint256-[`++getValidationData++`]]
 :hash-struct-PackedUserOperation-address: pass:normal[xref:#ERC4337Utils-hash-struct-PackedUserOperation-address-[`++hash++`]]
@@ -1180,10 +1216,11 @@ function _erc7821AuthorizedExecutor(
 :paymasterVerificationGasLimit-struct-PackedUserOperation: pass:normal[xref:#ERC4337Utils-paymasterVerificationGasLimit-struct-PackedUserOperation-[`++paymasterVerificationGasLimit++`]]
 :paymasterPostOpGasLimit-struct-PackedUserOperation: pass:normal[xref:#ERC4337Utils-paymasterPostOpGasLimit-struct-PackedUserOperation-[`++paymasterPostOpGasLimit++`]]
 :paymasterData-struct-PackedUserOperation: pass:normal[xref:#ERC4337Utils-paymasterData-struct-PackedUserOperation-[`++paymasterData++`]]
+:paymasterSignature-struct-PackedUserOperation: pass:normal[xref:#ERC4337Utils-paymasterSignature-struct-PackedUserOperation-[`++paymasterSignature++`]]
 
 [.contract]
 [[ERC4337Utils]]
-=== `++ERC4337Utils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/account/utils/draft-ERC4337Utils.sol[{github-icon},role=heading-link]
+=== `++ERC4337Utils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/account/utils/draft-ERC4337Utils.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1199,7 +1236,9 @@ See https://eips.ethereum.org/EIPS/eip-4337[ERC-4337].
 --
 * {xref-ERC4337Utils-parseValidationData-uint256-}[`++parseValidationData(validationData)++`]
 * {xref-ERC4337Utils-packValidationData-address-uint48-uint48-}[`++packValidationData(aggregator, validAfter, validUntil)++`]
+* {xref-ERC4337Utils-packValidationData-address-uint48-uint48-enum-ERC4337Utils-ValidationRange-}[`++packValidationData(aggregator, validAfter, validUntil, range)++`]
 * {xref-ERC4337Utils-packValidationData-bool-uint48-uint48-}[`++packValidationData(sigSuccess, validAfter, validUntil)++`]
+* {xref-ERC4337Utils-packValidationData-bool-uint48-uint48-enum-ERC4337Utils-ValidationRange-}[`++packValidationData(sigSuccess, validAfter, validUntil, range)++`]
 * {xref-ERC4337Utils-combineValidationData-uint256-uint256-}[`++combineValidationData(validationData1, validationData2)++`]
 * {xref-ERC4337Utils-getValidationData-uint256-}[`++getValidationData(validationData)++`]
 * {xref-ERC4337Utils-hash-struct-PackedUserOperation-address-}[`++hash(self, entrypoint)++`]
@@ -1214,6 +1253,7 @@ See https://eips.ethereum.org/EIPS/eip-4337[ERC-4337].
 * {xref-ERC4337Utils-paymasterVerificationGasLimit-struct-PackedUserOperation-}[`++paymasterVerificationGasLimit(self)++`]
 * {xref-ERC4337Utils-paymasterPostOpGasLimit-struct-PackedUserOperation-}[`++paymasterPostOpGasLimit(self)++`]
 * {xref-ERC4337Utils-paymasterData-struct-PackedUserOperation-}[`++paymasterData(self)++`]
+* {xref-ERC4337Utils-paymasterSignature-struct-PackedUserOperation-}[`++paymasterSignature(self)++`]
 
 --
 
@@ -1222,16 +1262,21 @@ See https://eips.ethereum.org/EIPS/eip-4337[ERC-4337].
 --
 * {xref-ERC4337Utils-ENTRYPOINT_V07-contract-IEntryPoint}[`++contract IEntryPoint constant ENTRYPOINT_V07++`]
 * {xref-ERC4337Utils-ENTRYPOINT_V08-contract-IEntryPoint}[`++contract IEntryPoint constant ENTRYPOINT_V08++`]
+* {xref-ERC4337Utils-ENTRYPOINT_V09-contract-IEntryPoint}[`++contract IEntryPoint constant ENTRYPOINT_V09++`]
 * {xref-ERC4337Utils-SIG_VALIDATION_SUCCESS-uint256}[`++uint256 constant SIG_VALIDATION_SUCCESS++`]
 * {xref-ERC4337Utils-SIG_VALIDATION_FAILED-uint256}[`++uint256 constant SIG_VALIDATION_FAILED++`]
+* {xref-ERC4337Utils-PAYMASTER_SIG_MAGIC-bytes8}[`++bytes8 constant PAYMASTER_SIG_MAGIC++`]
+* {xref-ERC4337Utils-BLOCK_RANGE_FLAG-uint48}[`++uint48 constant BLOCK_RANGE_FLAG++`]
+* {xref-ERC4337Utils-BLOCK_RANGE_MASK-uint48}[`++uint48 constant BLOCK_RANGE_MASK++`]
 
 --
 
 [.contract-item]
 [[ERC4337Utils-parseValidationData-uint256-]]
-==== `[.contract-item-name]#++parseValidationData++#++(uint256 validationData) → address aggregator, uint48 validAfter, uint48 validUntil++` [.item-kind]#internal#
+==== `[.contract-item-name]#++parseValidationData++#++(uint256 validationData) → address aggregator, uint48 validAfter, uint48 validUntil, enum ERC4337Utils.ValidationRange range++` [.item-kind]#internal#
 
-Parses the validation data into its components. See {packValidationData}.
+Parses the validation data into its components and the validity range. See {packValidationData}.
+Strips away the highest bit flag from the `validAfter` and `validUntil` fields.
 
 [.contract-item]
 [[ERC4337Utils-packValidationData-address-uint48-uint48-]]
@@ -1240,10 +1285,24 @@ Parses the validation data into its components. See {packValidationData}.
 Packs the validation data into a single uint256. See {parseValidationData}.
 
 [.contract-item]
+[[ERC4337Utils-packValidationData-address-uint48-uint48-enum-ERC4337Utils-ValidationRange-]]
+==== `[.contract-item-name]#++packValidationData++#++(address aggregator, uint48 validAfter, uint48 validUntil, enum ERC4337Utils.ValidationRange range) → uint256++` [.item-kind]#internal#
+
+Variant of {packValidationData} that forces which validity range to use. This overwrites the presence of
+flags in `validAfter` and `validUntil`).
+
+[.contract-item]
 [[ERC4337Utils-packValidationData-bool-uint48-uint48-]]
 ==== `[.contract-item-name]#++packValidationData++#++(bool sigSuccess, uint48 validAfter, uint48 validUntil) → uint256++` [.item-kind]#internal#
 
-Same as {packValidationData}, but with a boolean signature success flag.
+Variant of {packValidationData} that uses a boolean success flag instead of an aggregator address.
+
+[.contract-item]
+[[ERC4337Utils-packValidationData-bool-uint48-uint48-enum-ERC4337Utils-ValidationRange-]]
+==== `[.contract-item-name]#++packValidationData++#++(bool sigSuccess, uint48 validAfter, uint48 validUntil, enum ERC4337Utils.ValidationRange range) → uint256++` [.item-kind]#internal#
+
+Variant of {packValidationData} that uses a boolean success flag instead of an aggregator address and that
+forces which validity range to use. This overwrites the presence of flags in `validAfter` and `validUntil`).
 
 [.contract-item]
 [[ERC4337Utils-combineValidationData-uint256-uint256-]]
@@ -1253,6 +1312,8 @@ Combines two validation data into a single one.
 
 The `aggregator` is set to {SIG_VALIDATION_SUCCESS} if both are successful, while
 the `validAfter` is the maximum and the `validUntil` is the minimum of both.
+
+NOTE: Returns `SIG_VALIDATION_FAILED` if the validation ranges differ.
 
 [.contract-item]
 [[ERC4337Utils-getValidationData-uint256-]]
@@ -1331,6 +1392,14 @@ Returns the third section of `paymasterAndData` from the {PackedUserOperation}.
 ==== `[.contract-item-name]#++paymasterData++#++(struct PackedUserOperation self) → bytes++` [.item-kind]#internal#
 
 Returns the fourth section of `paymasterAndData` from the {PackedUserOperation}.
+If a paymaster signature is present, it is excluded from the returned data.
+
+[.contract-item]
+[[ERC4337Utils-paymasterSignature-struct-PackedUserOperation-]]
+==== `[.contract-item-name]#++paymasterSignature++#++(struct PackedUserOperation self) → bytes++` [.item-kind]#internal#
+
+Returns the paymaster signature from `paymasterAndData` (EntryPoint v0.9+).
+Returns empty bytes if no paymaster signature is present.
 
 [.contract-item]
 [[ERC4337Utils-ENTRYPOINT_V07-contract-IEntryPoint]]
@@ -1345,6 +1414,12 @@ Address of the entrypoint v0.7.0
 Address of the entrypoint v0.8.0
 
 [.contract-item]
+[[ERC4337Utils-ENTRYPOINT_V09-contract-IEntryPoint]]
+==== `contract IEntryPoint [.contract-item-name]#++ENTRYPOINT_V09++#` [.item-kind]#internal constant#
+
+Address of the entrypoint v0.9.0
+
+[.contract-item]
 [[ERC4337Utils-SIG_VALIDATION_SUCCESS-uint256]]
 ==== `uint256 [.contract-item-name]#++SIG_VALIDATION_SUCCESS++#` [.item-kind]#internal constant#
 
@@ -1355,6 +1430,24 @@ For simulation purposes, validateUserOp (and validatePaymasterUserOp) return thi
 ==== `uint256 [.contract-item-name]#++SIG_VALIDATION_FAILED++#` [.item-kind]#internal constant#
 
 For simulation purposes, validateUserOp (and validatePaymasterUserOp) must return this value in case of signature failure, instead of revert.
+
+[.contract-item]
+[[ERC4337Utils-PAYMASTER_SIG_MAGIC-bytes8]]
+==== `bytes8 [.contract-item-name]#++PAYMASTER_SIG_MAGIC++#` [.item-kind]#internal constant#
+
+Magic value used in EntryPoint v0.9+ to detect the presence of a paymaster signature in `paymasterAndData`.
+
+[.contract-item]
+[[ERC4337Utils-BLOCK_RANGE_FLAG-uint48]]
+==== `uint48 [.contract-item-name]#++BLOCK_RANGE_FLAG++#` [.item-kind]#internal constant#
+
+Highest bit set to 1 in a 6-bytes field.
+
+[.contract-item]
+[[ERC4337Utils-BLOCK_RANGE_MASK-uint48]]
+==== `uint48 [.contract-item-name]#++BLOCK_RANGE_MASK++#` [.item-kind]#internal constant#
+
+Mask for the lower 47 bits of a 6-bytes field (equivalent to uint48(~BLOCK_RANGE_FLAG)).
 
 :CALLTYPE_SINGLE: pass:normal[xref:#ERC7579Utils-CALLTYPE_SINGLE-CallType[`++CALLTYPE_SINGLE++`]]
 :CALLTYPE_BATCH: pass:normal[xref:#ERC7579Utils-CALLTYPE_BATCH-CallType[`++CALLTYPE_BATCH++`]]
@@ -1395,7 +1488,7 @@ For simulation purposes, validateUserOp (and validatePaymasterUserOp) must retur
 
 [.contract]
 [[ERC7579Utils]]
-=== `++ERC7579Utils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.4.0/contracts/account/utils/draft-ERC7579Utils.sol[{github-icon},role=heading-link]
+=== `++ERC7579Utils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/account/utils/draft-ERC7579Utils.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity

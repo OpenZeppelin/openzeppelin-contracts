@@ -186,6 +186,17 @@ describe('Strings', function () {
     });
   });
 
+  describe('bytes', function () {
+    describe('toHexString', function () {
+      for (const length of [0, 17, 20, 32, 42, 64, 512]) {
+        const input = ethers.hexlify(ethers.randomBytes(length));
+        it(`hexlify buffer of length ${length}`, async function () {
+          expect(await this.mock.getFunction('$toHexString(bytes)')(input)).to.equal(input);
+        });
+      }
+    });
+  });
+
   describe('equal', function () {
     it('compares two empty strings', async function () {
       expect(await this.mock.$equal('', '')).to.be.true;
@@ -341,7 +352,13 @@ describe('Strings', function () {
   });
 
   describe('Escape JSON string', function () {
-    for (const input of ['', 'a', '{"a":"b/c"}', 'a\tb\nc\\d"e\rf/g\fh\bi'])
+    for (const input of [
+      '',
+      'a',
+      '{"a":"b/c"}',
+      'a\tb\nc\\d"e\rf/g\fh\bi',
+      '\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f',
+    ])
       it(`escape ${JSON.stringify(input)}`, async function () {
         await expect(this.mock.$escapeJSON(input)).to.eventually.equal(JSON.stringify(input).slice(1, -1));
       });

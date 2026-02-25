@@ -650,6 +650,14 @@ function shouldBehaveLikeERC721() {
             .withArgs(ethers.ZeroAddress);
         });
       });
+
+      describe('when the owner is address zero', function () {
+        it('reverts', async function () {
+          await expect(this.token.connect(this.owner).$_setApprovalForAll(ethers.ZeroAddress, this.operator, true))
+            .to.be.revertedWithCustomError(this.token, 'ERC721InvalidApprover')
+            .withArgs(ethers.ZeroAddress);
+        });
+      });
     });
 
     describe('getApproved', function () {

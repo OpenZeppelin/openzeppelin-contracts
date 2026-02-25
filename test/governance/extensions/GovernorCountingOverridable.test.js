@@ -93,7 +93,7 @@ describe('GovernorCountingOverridable', function () {
         expect(await ethers.provider.getBalance(this.receiver)).to.equal(value);
       });
 
-      describe('cast override vote', async function () {
+      describe('cast override vote', function () {
         beforeEach(async function () {
           // user 1 -(delegate 10 tokens)-> user 2
           // user 2 -(delegate 7 tokens)-> user 2
