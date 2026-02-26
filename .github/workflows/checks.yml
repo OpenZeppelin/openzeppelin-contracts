@@ -35,6 +35,8 @@ jobs:
       GAS: true
     steps:
       - uses: actions/checkout@v6
+        with:
+          submodules: recursive
       - name: Set up environment
         uses: ./.github/actions/setup
         with:
@@ -59,6 +61,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
+          submodules: recursive
           fetch-depth: 0 # Include history so patch conflicts are resolved automatically
       - name: Set up environment
         uses: ./.github/actions/setup
@@ -86,6 +89,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          submodules: recursive
       - name: Set up environment
         uses: ./.github/actions/setup
       - name: Run coverage
@@ -98,6 +103,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          submodules: recursive
       - name: Set up environment
         uses: ./.github/actions/setup
       - name: Compile harnesses
