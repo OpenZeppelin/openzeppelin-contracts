@@ -171,7 +171,7 @@ describe('ERC7390', function () {
     }
   });
 
-  describe.only('handles large references and addresses', function () {
+  describe('handles large references and addresses', function () {
     it('large', async function () {
       const chainType = '0x0000';
       const reference = generators.bytes(142);
