@@ -4,7 +4,6 @@
 pragma solidity ^0.8.20;
 
 import {IERC7786Recipient} from "../interfaces/draft-IERC7786.sol";
-import {BitMaps} from "../utils/structs/BitMaps.sol";
 
 /**
  * @dev Base implementation of an ERC-7786 compliant cross-chain message receiver.
@@ -13,21 +12,19 @@ import {BitMaps} from "../utils/structs/BitMaps.sol";
  * destination gateways. This contract leaves two functions unimplemented:
  *
  * * {_isAuthorizedGateway}, an internal getter used to verify whether an address is recognised by the contract as a
- * valid ERC-7786 destination gateway. One or multiple gateway can be supported. Note that any malicious address for
+ * valid ERC-7786 destination gateway. One or multiple gateways can be supported. Note that any malicious address for
  * which this function returns true would be able to impersonate any account on any other chain sending any message.
  *
  * * {_processMessage}, the internal function that will be called with any message that has been validated.
  *
- * This contract implements replay protection, meaning that if two messages are received from the same gateway with the
- * same `receiveId`, then the second one will NOT be executed, regardless of the result of {_isAuthorizedGateway}.
+ * ERC-7786 requires the gateway to ensure messages are not delivered more than once. Therefore, we don't need to keep
+ * track of the processed receiveId.
+ *
+ * @custom:stateless
  */
 abstract contract ERC7786Recipient is IERC7786Recipient {
-    using BitMaps for BitMaps.BitMap;
-
-    mapping(address gateway => BitMaps.BitMap) private _received;
-
+    /// @dev Error thrown if the gateway is not authorized to send messages to this contract on behalf of the sender.
     error ERC7786RecipientUnauthorizedGateway(address gateway, bytes sender);
-    error ERC7786RecipientMessageAlreadyProcessed(address gateway, bytes32 receiveId);
 
     /// @inheritdoc IERC7786Recipient
     function receiveMessage(
@@ -39,12 +36,6 @@ abstract contract ERC7786Recipient is IERC7786Recipient {
         if (!_isAuthorizedGateway(msg.sender, sender)) {
             revert ERC7786RecipientUnauthorizedGateway(msg.sender, sender);
         }
-
-        // Prevent duplicate execution
-        if (_received[msg.sender].get(uint256(receiveId))) {
-            revert ERC7786RecipientMessageAlreadyProcessed(msg.sender, receiveId);
-        }
-        _received[msg.sender].set(uint256(receiveId));
 
         _processMessage(msg.sender, receiveId, sender, payload);
 
@@ -60,7 +51,12 @@ abstract contract ERC7786Recipient is IERC7786Recipient {
      */
     function _isAuthorizedGateway(address gateway, bytes calldata sender) internal view virtual returns (bool);
 
-    /// @dev Virtual function that should contain the logic to execute when a cross-chain message is received.
+    /**
+     * @dev Virtual function that should contain the logic to execute when a cross-chain message is received.
+     *
+     * NOTE: This function should revert on failure. Any silent failure from this function will result in the message
+     * being marked as received and not being retryable.
+     */
     function _processMessage(
         address gateway,
         bytes32 receiveId,

@@ -15,6 +15,10 @@ pragma solidity ^0.8.20;
  *
  * For example, instead of `target.call(data)` where the target sees this contract as `msg.sender`, use
  * {relayCall} where the target sees a relay address as `msg.sender`.
+ *
+ * NOTE: This library uses the PUSH0 opcode that was introduced in the Shanghai hardfork. While this instruction is
+ * now widely supported, developers using the library on exotic chains should verify that their target chain has
+ * supports for EIP-3855.
  */
 library RelayedCall {
     /// @dev Relays a call to the target contract through a dynamically deployed relay contract.

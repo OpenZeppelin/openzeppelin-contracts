@@ -112,7 +112,7 @@ In order for our contract to receive ERC-1155 tokens we can inherit from the con
 
 [source,solidity]
 ----
-include::api:example$token/ERC1155/MyERC115HolderContract.sol[]
+include::api:example$token/ERC1155/MyERC1155HolderContract.sol[]
 ----
 
 We can also implement more complex scenarios using the xref:api:token/ERC1155.adoc#IERC1155Receiver-onERC1155Received-address-address-uint256-uint256-bytes-[`onERC1155Received`] and xref:api:token/ERC1155.adoc#IERC1155Receiver-onERC1155BatchReceived-address-address-uint256---uint256---bytes-[`onERC1155BatchReceived`] functions.
