@@ -54,7 +54,7 @@ jobs:
         env:
           PRERELEASE: ${{ needs.state.outputs.is_prerelease }}
       - name: Upload tarball artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ github.ref_name }}-upgradeable
           path: ${{ steps.pack.outputs.tarball }}
