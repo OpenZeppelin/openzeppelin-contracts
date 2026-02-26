@@ -46,7 +46,7 @@ describe('ERC7786Recipient', function () {
       .withArgs(this.gateway, ethers.toBeHex(1n, 32n), helpers.chain.toErc7930(this.sender), payload, value);
   });
 
-  it('receive multiple similar messages (with different receiveIds)', async function () {
+  it('receive multiple similar messages', async function () {
     for (let i = 1n; i < 5n; ++i) {
       await expect(
         this.gateway
@@ -56,27 +56,6 @@ describe('ERC7786Recipient', function () {
         .to.emit(this.receiver, 'MessageReceived')
         .withArgs(this.gateway, ethers.toBeHex(i, 32n), helpers.chain.toErc7930(this.sender), payload, value);
     }
-  });
-
-  it('multiple use of the same receiveId', async function () {
-    const gatewayAsEOA = await helpers.impersonate(this.gateway.target);
-    const receiveId = ethers.toBeHex(1n, 32n);
-
-    await expect(
-      this.receiver
-        .connect(gatewayAsEOA)
-        .receiveMessage(receiveId, helpers.chain.toErc7930(this.sender), payload, { value }),
-    )
-      .to.emit(this.receiver, 'MessageReceived')
-      .withArgs(this.gateway, receiveId, helpers.chain.toErc7930(this.sender), payload, value);
-
-    await expect(
-      this.receiver
-        .connect(gatewayAsEOA)
-        .receiveMessage(receiveId, helpers.chain.toErc7930(this.sender), payload, { value }),
-    )
-      .to.be.revertedWithCustomError(this.receiver, 'ERC7786RecipientMessageAlreadyProcessed')
-      .withArgs(this.gateway, receiveId);
   });
 
   it('unauthorized call', async function () {

@@ -1,5 +1,6 @@
 import { network } from 'hardhat';
 import { expect } from 'chai';
+import { MerklePatriciaTrie, createMerkleProof } from '@ethereumjs/mpt';
 import { Enum } from '../../helpers/enums';
 import { zip } from '../../helpers/iterate';
 import { generators } from '../../helpers/random';
@@ -158,7 +159,65 @@ describe('TrieProof', function () {
     });
 
     it('returns false for invalid proof', async function () {
-      await expect(this.mock.$verify(generators.bytes.zero, ethers.ZeroHash, '0x', [])).to.eventually.be.false;
+      await expect(this.mock.$verify('0x', ethers.ZeroHash, '0x', [])).to.eventually.be.false;
+    });
+  });
+
+  describe('inline extension child nodes', function () {
+    // Extension ('290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e56')
+    //   -inlined-> Branch
+    //     -inlined-> Leaf('', '0x01')
+    //     -inlined-> Leaf('', '0x02')
+    it('support inlining in extension node', async function () {
+      const slots = {
+        '0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e560': '0x01',
+        '0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e561': '0x02',
+      };
+      const tree = new MerklePatriciaTrie({ useKeyHashing: false });
+      for (const [slot, value] of Object.entries(slots)) {
+        await tree.put(ethers.getBytes(slot), ethers.getBytes(value));
+      }
+
+      const root = ethers.hexlify(tree.root());
+
+      for (const [slot, value] of Object.entries(slots)) {
+        const proof = await createMerkleProof(tree, ethers.getBytes(slot));
+        // verify the full proof
+        await expect(this.mock.$verify(encodeStorageLeaf(value), root, slot, proof)).to.eventually.be.true;
+        // verify the compressed proof with the inlined node removed (vacuous proof)
+        await expect(this.mock.$verify(encodeStorageLeaf(value), root, slot, proof.slice(0, -1))).to.eventually.be.true;
+      }
+    });
+
+    // Extension ('290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e5')
+    //   -hash-> Branch
+    //     -inlined-> Branch
+    //       -inlined-> Leaf('', '0x01')
+    //       -inlined-> Leaf('', '0x02')
+    //     -inlined-> Branch
+    //       -inlined-> Leaf('', '0x03')
+    //       -inlined-> Leaf('', '0x04')
+    it('support inlining in branch node', async function () {
+      const slots = {
+        '0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e500': '0x01',
+        '0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e501': '0x02',
+        '0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e510': '0x03',
+        '0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e511': '0x04',
+      };
+      const tree = new MerklePatriciaTrie({ useKeyHashing: false });
+      for (const [slot, value] of Object.entries(slots)) {
+        await tree.put(ethers.getBytes(slot), ethers.getBytes(value));
+      }
+
+      const root = ethers.hexlify(tree.root());
+
+      for (const [slot, value] of Object.entries(slots)) {
+        const proof = await createMerkleProof(tree, ethers.getBytes(slot));
+        // verify the full proof
+        await expect(this.mock.$verify(encodeStorageLeaf(value), root, slot, proof)).to.eventually.be.true;
+        // verify the compressed proof with the inlined node removed (vacuous proof)
+        await expect(this.mock.$verify(encodeStorageLeaf(value), root, slot, proof.slice(0, -1))).to.eventually.be.true;
+      }
     });
   });
 
@@ -169,7 +228,7 @@ describe('TrieProof', function () {
         .withArgs(ProofError.EMPTY_KEY);
 
       await expect(this.mock.$tryTraverse(ethers.ZeroHash, '0x', [])).to.eventually.deep.equal([
-        generators.bytes.zero,
+        '0x',
         ProofError.EMPTY_KEY,
       ]);
     });
@@ -178,6 +237,7 @@ describe('TrieProof', function () {
       const slot = generators.bytes32();
       const value = generators.bytes32();
       await this.storage.setBytes32Slot(slot, value);
+
       const {
         storageHash,
         storageProof: [{ proof }],
@@ -203,7 +263,7 @@ describe('TrieProof', function () {
         .to.revertedWithCustomError(this.mock, 'TrieProofTraversalError')
         .withArgs(ProofError.INVALID_ROOT);
       await expect(this.mock.$tryTraverse(invalidHash, ethers.keccak256(slot), proof)).to.eventually.deep.equal([
-        generators.bytes.zero,
+        '0x',
         ProofError.INVALID_ROOT,
       ]);
     });
@@ -241,7 +301,7 @@ describe('TrieProof', function () {
         .to.revertedWithCustomError(this.mock, 'TrieProofTraversalError')
         .withArgs(ProofError.INVALID_LARGE_NODE);
       await expect(this.mock.$tryTraverse(storageHash, ethers.keccak256(slot), proof)).to.eventually.deep.equal([
-        generators.bytes.zero,
+        '0x',
         ProofError.INVALID_LARGE_NODE,
       ]);
     });
@@ -253,13 +313,14 @@ describe('TrieProof', function () {
         ethers.encodeRlp(['0x2000', '0x']),
       ];
 
-      await expect(this.mock.$traverse(ethers.keccak256(proof[0]), key, proof))
-        .to.revertedWithCustomError(this.mock, 'TrieProofTraversalError')
-        .withArgs(ProofError.INVALID_SHORT_NODE);
-      await expect(this.mock.$tryTraverse(ethers.keccak256(proof[0]), key, proof)).to.eventually.deep.equal([
-        generators.bytes.zero,
-        ProofError.INVALID_SHORT_NODE,
-      ]);
+      await expect(this.mock.$traverse(ethers.keccak256(proof[0]), key, proof)).to.revertedWithCustomError(
+        this.mock,
+        'RLPInvalidEncoding',
+      );
+      await expect(this.mock.$tryTraverse(ethers.keccak256(proof[0]), key, proof)).to.revertedWithCustomError(
+        this.mock,
+        'RLPInvalidEncoding',
+      );
     });
 
     it('fails to process proof with empty value', async function () {
@@ -270,7 +331,7 @@ describe('TrieProof', function () {
         .to.revertedWithCustomError(this.mock, 'TrieProofTraversalError')
         .withArgs(ProofError.EMPTY_VALUE);
       await expect(this.mock.$tryTraverse(ethers.keccak256(proof[0]), key, proof)).to.eventually.deep.equal([
-        generators.bytes.zero,
+        '0x',
         ProofError.EMPTY_VALUE,
       ]);
     });
@@ -286,7 +347,7 @@ describe('TrieProof', function () {
         .to.revertedWithCustomError(this.mock, 'TrieProofTraversalError')
         .withArgs(ProofError.INVALID_EXTRA_PROOF_ELEMENT);
       await expect(this.mock.$tryTraverse(ethers.keccak256(proof[0]), key, proof)).to.eventually.deep.equal([
-        generators.bytes.zero,
+        '0x',
         ProofError.INVALID_EXTRA_PROOF_ELEMENT,
       ]);
     });
@@ -305,7 +366,7 @@ describe('TrieProof', function () {
           .to.revertedWithCustomError(this.mock, 'TrieProofTraversalError')
           .withArgs(ProofError.INVALID_PATH_REMAINDER);
         await expect(this.mock.$tryTraverse(ethers.keccak256(proof[0]), key, proof)).to.eventually.deep.equal([
-          generators.bytes.zero,
+          '0x',
           ProofError.INVALID_PATH_REMAINDER,
         ]);
       });
@@ -319,7 +380,7 @@ describe('TrieProof', function () {
           .to.revertedWithCustomError(this.mock, 'TrieProofTraversalError')
           .withArgs(ProofError.EMPTY_PATH);
         await expect(this.mock.$tryTraverse(ethers.keccak256(proof[0]), '0x00', proof)).to.eventually.deep.equal([
-          generators.bytes.zero,
+          '0x',
           ProofError.EMPTY_PATH,
         ]);
       });
@@ -337,7 +398,7 @@ describe('TrieProof', function () {
           .to.revertedWithCustomError(this.mock, 'TrieProofTraversalError')
           .withArgs(ProofError.INVALID_PATH_REMAINDER);
         await expect(this.mock.$tryTraverse(ethers.keccak256(proof[0]), key, proof)).to.eventually.deep.equal([
-          generators.bytes.zero,
+          '0x',
           ProofError.INVALID_PATH_REMAINDER,
         ]);
       });
@@ -353,7 +414,7 @@ describe('TrieProof', function () {
           .to.revertedWithCustomError(this.mock, 'TrieProofTraversalError')
           .withArgs(ProofError.EMPTY_EXTENSION_PATH_REMAINDER);
         await expect(this.mock.$tryTraverse(ethers.keccak256(proof[0]), key, proof)).to.eventually.deep.equal([
-          generators.bytes.zero,
+          '0x',
           ProofError.EMPTY_EXTENSION_PATH_REMAINDER,
         ]);
       });
@@ -371,7 +432,7 @@ describe('TrieProof', function () {
           .to.revertedWithCustomError(this.mock, 'TrieProofTraversalError')
           .withArgs(ProofError.MISMATCH_LEAF_PATH_KEY_REMAINDER);
         await expect(this.mock.$tryTraverse(ethers.keccak256(proof[0]), key, proof)).to.eventually.deep.equal([
-          generators.bytes.zero,
+          '0x',
           ProofError.MISMATCH_LEAF_PATH_KEY_REMAINDER,
         ]);
       });
@@ -385,7 +446,7 @@ describe('TrieProof', function () {
         .to.revertedWithCustomError(this.mock, 'TrieProofTraversalError')
         .withArgs(ProofError.UNKNOWN_NODE_PREFIX);
       await expect(this.mock.$tryTraverse(ethers.keccak256(proof[0]), key, proof)).to.eventually.deep.equal([
-        generators.bytes.zero,
+        '0x',
         ProofError.UNKNOWN_NODE_PREFIX,
       ]);
     });
@@ -398,7 +459,7 @@ describe('TrieProof', function () {
         .to.revertedWithCustomError(this.mock, 'TrieProofTraversalError')
         .withArgs(ProofError.UNPARSEABLE_NODE);
       await expect(this.mock.$tryTraverse(ethers.keccak256(proof[0]), key, proof)).to.eventually.deep.equal([
-        generators.bytes.zero,
+        '0x',
         ProofError.UNPARSEABLE_NODE,
       ]);
     });
@@ -408,7 +469,7 @@ describe('TrieProof', function () {
         .to.revertedWithCustomError(this.mock, 'TrieProofTraversalError')
         .withArgs(ProofError.INVALID_PROOF);
       await expect(this.mock.$tryTraverse(ethers.ZeroHash, '0x00', [])).to.eventually.deep.equal([
-        generators.bytes.zero,
+        '0x',
         ProofError.INVALID_PROOF,
       ]);
     });
@@ -625,7 +686,7 @@ describe('TrieProof', function () {
         }
 
         await expect(this.mock.$tryTraverse(root, key, proof)).to.eventually.deep.equal([
-          value ?? generators.bytes.zero,
+          value ?? '0x',
           error ?? ProofError.NO_ERROR,
         ]);
       });

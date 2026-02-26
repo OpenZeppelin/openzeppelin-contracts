@@ -393,21 +393,21 @@ function slice(${type.name}[] memory array, uint256 start, uint256 end) internal
 
 const splice = type => `\
 /**
- * @dev Moves the content of \`array\`, from \`start\` (included) to the end of \`array\` to the start of that array.
+ * @dev Moves the content of \`array\`, from \`start\` (included) to the end of \`array\` to the start of that array,
+ * and shrinks the array length accordingly, effectively overwriting the array with array[start:].
  *
  * NOTE: This function modifies the provided array in place. If you need to preserve the original array, use {slice} instead.
- * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice[Javascript's \`Array.splice\`]
  */
 function splice(${type.name}[] memory array, uint256 start) internal pure returns (${type.name}[] memory) {
     return splice(array, start, array.length);
 }
 
 /**
- * @dev Moves the content of \`array\`, from \`start\` (included) to \`end\` (excluded) to the start of that array. The
+ * @dev Moves the content of \`array\`, from \`start\` (included) to \`end\` (excluded) to the start of that array,
+ * and shrinks the array length accordingly, effectively overwriting the array with array[start:end]. The
  * \`end\` argument is truncated to the length of the \`array\`.
  *
  * NOTE: This function modifies the provided array in place. If you need to preserve the original array, use {slice} instead.
- * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice[Javascript's \`Array.splice\`]
  */
 function splice(${type.name}[] memory array, uint256 start, uint256 end) internal pure returns (${type.name}[] memory) {
     // sanitize
@@ -426,7 +426,7 @@ function splice(${type.name}[] memory array, uint256 start, uint256 end) interna
 /**
  * @dev Replaces elements in \`array\` starting at \`pos\` with all elements from \`replacement\`.
  *
- * Parameters are clamped to valid ranges (i.e. \`pos\` is clamped to \`[0, array.length]\`).
+ * Parameters are clamped to valid ranges (e.g. \`pos\` is clamped to \`[0, array.length]\`).
  * If \`pos >= array.length\`, no replacement occurs and the array is returned unchanged.
  *
  * NOTE: This function modifies the provided array in place.
@@ -462,7 +462,7 @@ function replace(
     offset = Math.min(offset, replacement.length);
     length = Math.min(length, Math.min(replacement.length - offset, array.length - pos));
 
-    // allocate and copy
+    // replace
     assembly ("memory-safe") {
         mcopy(
             add(add(array, 0x20), mul(pos, 0x20)),
