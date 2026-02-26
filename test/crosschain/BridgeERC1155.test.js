@@ -1,19 +1,20 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { shouldBehaveLikeBridgeERC1155 } from './BridgeERC1155.behavior';
 
-const { impersonate } = require('../helpers/account');
-const { getLocalChain } = require('../helpers/chains');
-
-const { shouldBehaveLikeBridgeERC1155 } = require('./BridgeERC1155.behavior');
+const connection = await network.connect();
+const {
+  ethers,
+  helpers,
+  networkHelpers: { loadFixture },
+} = connection;
 
 async function fixture() {
-  const chain = await getLocalChain();
   const accounts = await ethers.getSigners();
 
   // Mock gateway
   const gateway = await ethers.deployContract('$ERC7786GatewayMock');
-  const gatewayAsEOA = await impersonate(gateway);
+  const gatewayAsEOA = await helpers.impersonate(gateway);
 
   // Chain A: legacy ERC1155 with bridge
   const tokenA = await ethers.deployContract('$ERC1155', ['https://token-cdn-domain/{id}.json']);
@@ -22,21 +23,21 @@ async function fixture() {
   // Chain B: ERC1155 with native bridge integration
   const tokenB = await ethers.deployContract('$ERC1155Crosschain', [
     'https://token-cdn-domain/{id}.json',
-    [[gateway, chain.toErc7930(bridgeA)]],
+    [[gateway, helpers.chain.toErc7930(bridgeA)]],
   ]);
   const bridgeB = tokenB; // self bridge
 
   // deployment check + counterpart setup
-  await expect(bridgeA.$_setLink(gateway, chain.toErc7930(bridgeB), false))
+  await expect(bridgeA.$_setLink(gateway, helpers.chain.toErc7930(bridgeB), false))
     .to.emit(bridgeA, 'LinkRegistered')
-    .withArgs(gateway, chain.toErc7930(bridgeB));
+    .withArgs(gateway, helpers.chain.toErc7930(bridgeB));
 
-  return { chain, accounts, gateway, gatewayAsEOA, tokenA, tokenB, bridgeA, bridgeB };
+  return { accounts, gateway, gatewayAsEOA, tokenA, tokenB, bridgeA, bridgeB };
 }
 
 describe('CrosschainBridgeERC1155', function () {
   beforeEach(async function () {
-    Object.assign(this, await loadFixture(fixture));
+    Object.assign(this, connection, await loadFixture(fixture));
   });
 
   it('token getters', async function () {
