@@ -88,7 +88,7 @@ jobs:
           ref: ${{ github.ref }}
       - name: Download tarball artifact
         id: artifact
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: ${{ github.ref_name }}-upgradeable
       - name: Check integrity
