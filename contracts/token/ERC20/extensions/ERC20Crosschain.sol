@@ -3,10 +3,10 @@
 pragma solidity ^0.8.26;
 
 import {ERC20} from "../ERC20.sol";
-import {BridgeERC20Core} from "../../../crosschain/bridges/BridgeERC20Core.sol";
+import {BridgeFungible} from "../../../crosschain/bridges/abstract/BridgeFungible.sol";
 
 /**
- * @dev Extension of {ERC20} that makes it natively cross-chain using the ERC-7786 based {BridgeERC20Core}.
+ * @dev Extension of {ERC20} that makes it natively cross-chain using the ERC-7786 based {BridgeFungible}.
  *
  * This extension makes the token compatible with counterparts on other chains, which can be:
  * * {ERC20Crosschain} instances,
@@ -19,7 +19,7 @@ import {BridgeERC20Core} from "../../../crosschain/bridges/BridgeERC20Core.sol";
  * * `_checkTokenBridge` (on the {ERC20Bridgeable} side) is implemented such that it only accepts self-calls.
  */
 // slither-disable-next-line locked-ether
-abstract contract ERC20Crosschain is ERC20, BridgeERC20Core {
+abstract contract ERC20Crosschain is ERC20, BridgeFungible {
     /// @dev Variant of {crosschainTransfer} that allows an authorized account (using ERC20 allowance) to operate on `from`'s assets.
     function crosschainTransferFrom(address from, bytes memory to, uint256 amount) public virtual returns (bytes32) {
         _spendAllowance(from, _msgSender(), amount);

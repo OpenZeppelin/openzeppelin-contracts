@@ -67,7 +67,10 @@ library InteroperableAddress {
 
     /**
      * @dev Parse a ERC-7930 interoperable address (version 1) into its different components. Reverts if the input is
-     * not following a version 1 of ERC-7930
+     * not following a version 1 of ERC-7930.
+     *
+     * NOTE: Trailing bytes after a valid v1 encoding are ignored. The same decoded address may therefore correspond
+     * to multiple distinct input byte strings.
      */
     function parseV1(
         bytes memory self
@@ -96,12 +99,10 @@ library InteroperableAddress {
         bytes memory self
     ) internal pure returns (bool success, bytes2 chainType, bytes memory chainReference, bytes memory addr) {
         unchecked {
-            success = true;
             if (self.length < 0x06) return (false, 0x0000, _emptyBytesMemory(), _emptyBytesMemory());
 
             bytes2 version = _readBytes2(self, 0x00);
             if (version != bytes2(0x0001)) return (false, 0x0000, _emptyBytesMemory(), _emptyBytesMemory());
-            chainType = _readBytes2(self, 0x02);
 
             uint8 chainReferenceLength = uint8(self[0x04]);
             if (self.length < 0x06 + chainReferenceLength)
@@ -112,6 +113,10 @@ library InteroperableAddress {
             if (self.length < 0x06 + chainReferenceLength + addrLength)
                 return (false, 0x0000, _emptyBytesMemory(), _emptyBytesMemory());
             addr = self.slice(0x06 + chainReferenceLength, 0x06 + chainReferenceLength + addrLength);
+
+            // At least one of chainReference or addr must be non-empty
+            success = (chainReferenceLength > 0) || (addrLength > 0);
+            chainType = success ? _readBytes2(self, 0x02) : bytes2(0);
         }
     }
 
@@ -122,12 +127,10 @@ library InteroperableAddress {
         bytes calldata self
     ) internal pure returns (bool success, bytes2 chainType, bytes calldata chainReference, bytes calldata addr) {
         unchecked {
-            success = true;
             if (self.length < 0x06) return (false, 0x0000, Calldata.emptyBytes(), Calldata.emptyBytes());
 
             bytes2 version = _readBytes2Calldata(self, 0x00);
             if (version != bytes2(0x0001)) return (false, 0x0000, Calldata.emptyBytes(), Calldata.emptyBytes());
-            chainType = _readBytes2Calldata(self, 0x02);
 
             uint8 chainReferenceLength = uint8(self[0x04]);
             if (self.length < 0x06 + chainReferenceLength)
@@ -138,12 +141,19 @@ library InteroperableAddress {
             if (self.length < 0x06 + chainReferenceLength + addrLength)
                 return (false, 0x0000, Calldata.emptyBytes(), Calldata.emptyBytes());
             addr = self[0x06 + chainReferenceLength:0x06 + chainReferenceLength + addrLength];
+
+            // At least one of chainReference or addr must be non-empty
+            success = (chainReferenceLength > 0) || (addrLength > 0);
+            chainType = success ? _readBytes2Calldata(self, 0x02) : bytes2(0);
         }
     }
 
     /**
      * @dev Parse a ERC-7930 interoperable address (version 1) corresponding to an EIP-155 chain. The `chainId` and
      * `addr` return values will be zero if the input doesn't include a chainReference or an address, respectively.
+     *
+     * NOTE: Trailing bytes after a valid v1 encoding are ignored. The same decoded (chainId, addr) may therefore
+     * correspond to multiple distinct input byte strings.
      *
      * Requirements:
      *
