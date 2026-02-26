@@ -7,6 +7,8 @@ import {SignatureChecker} from "../../../utils/cryptography/SignatureChecker.sol
 import {ECDSA} from "../../../utils/cryptography/ECDSA.sol";
 import {IERC3009, IERC3009Cancel} from "../../../interfaces/draft-IERC3009.sol";
 import {NoncesKeyed} from "../../../utils/NoncesKeyed.sol";
+import {IERC6372} from "../../../interfaces/IERC6372.sol";
+import {Time} from "../../../utils/types/Time.sol";
 
 /**
  * @dev Implementation of the ERC-3009 Transfer With Authorization extension allowing
@@ -25,12 +27,15 @@ import {NoncesKeyed} from "../../../utils/NoncesKeyed.sol";
  * sharing the same key must be used sequentially. This is unlike {ERC20Permit} which uses a single global
  * sequential nonce.
  */
-abstract contract ERC20TransferAuthorization is ERC20, EIP712, NoncesKeyed, IERC3009, IERC3009Cancel {
+abstract contract ERC20TransferAuthorization is ERC20, EIP712, NoncesKeyed, IERC6372, IERC3009, IERC3009Cancel {
     /// @dev The signature is invalid
     error ERC3009InvalidSignature();
 
     /// @dev The authorization is not valid at the given time
     error ERC3009InvalidAuthorizationTime(uint256 validAfter, uint256 validBefore);
+
+    /// @dev The clock was incorrectly modified.
+    error ERC3009InconsistentClock();
 
     bytes32 private constant TRANSFER_WITH_AUTHORIZATION_TYPEHASH =
         keccak256(
@@ -49,6 +54,25 @@ abstract contract ERC20TransferAuthorization is ERC20, EIP712, NoncesKeyed, IERC
      * It's a good idea to use the same `name` that is defined as the ERC-20 token name.
      */
     constructor(string memory name) EIP712(name, "1") {}
+
+    /**
+     * @dev Clock used for validating authorization time windows ({transferWithAuthorization},
+     * {receiveWithAuthorization}). Defaults to {Time-timestamp}. Can be overridden to implement
+     * block-number based validation, in which case {CLOCK_MODE} should be overridden as well to match.
+     */
+    function clock() public view virtual returns (uint48) {
+        return Time.timestamp();
+    }
+
+    /// @dev Machine-readable description of the clock as specified in ERC-6372.
+    // solhint-disable-next-line func-name-mixedcase
+    function CLOCK_MODE() public view virtual returns (string memory) {
+        // Check that the clock was not modified
+        if (clock() != Time.timestamp()) {
+            revert ERC3009InconsistentClock();
+        }
+        return "mode=timestamp";
+    }
 
     /**
      * @dev See {IERC3009-authorizationState}.
@@ -177,7 +201,7 @@ abstract contract ERC20TransferAuthorization is ERC20, EIP712, NoncesKeyed, IERC
         bytes32 nonce
     ) internal virtual {
         require(
-            block.timestamp > validAfter && block.timestamp < validBefore,
+            clock() > validAfter && clock() < validBefore,
             ERC3009InvalidAuthorizationTime(validAfter, validBefore)
         );
         _useCheckedNonce(from, uint256(nonce));
@@ -196,7 +220,7 @@ abstract contract ERC20TransferAuthorization is ERC20, EIP712, NoncesKeyed, IERC
     ) internal virtual {
         require(to == _msgSender(), ERC20InvalidReceiver(to));
         require(
-            block.timestamp > validAfter && block.timestamp < validBefore,
+            clock() > validAfter && clock() < validBefore,
             ERC3009InvalidAuthorizationTime(validAfter, validBefore)
         );
         _useCheckedNonce(from, uint256(nonce));
