@@ -694,16 +694,16 @@ function getFunctions(
 ): FunctionDefinition[] {
   const parents = contract.linearizedBaseContracts.map(deref('ContractDefinition'));
 
-  const overriden = new Set<number>();
+  const overridden = new Set<number>();
   const res = [];
 
   for (const parent of parents) {
     for (const fn of findAll('FunctionDefinition', parent)) {
-      if (!overriden.has(fn.id) && (!subset || subset.includes(fn.visibility))) {
+      if (!overridden.has(fn.id) && (!subset || subset.includes(fn.visibility))) {
         res.push(fn);
       }
       for (const b of fn.baseFunctions ?? []) {
-        overriden.add(b);
+        overridden.add(b);
       }
     }
   }
