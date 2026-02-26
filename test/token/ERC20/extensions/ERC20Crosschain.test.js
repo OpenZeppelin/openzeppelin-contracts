@@ -4,18 +4,14 @@ import { anyValue } from '@nomicfoundation/hardhat-ethers-chai-matchers/withArgs
 import { shouldBehaveLikeBridgeERC20 } from '../../../crosschain/BridgeERC20.behavior';
 
 const connection = await network.connect();
-const {
-  ethers,
-  helpers: { chain, impersonate },
-  networkHelpers: { loadFixture },
-} = connection;
+const { ethers, helpers, networkHelpers } = connection;
 
 async function fixture() {
   const accounts = await ethers.getSigners();
 
   // Mock gateway
   const gateway = await ethers.deployContract('$ERC7786GatewayMock');
-  const gatewayAsEOA = await impersonate(gateway);
+  const gatewayAsEOA = await helpers.impersonate(gateway);
 
   // Chain A: legacy ERC20 with bridge
   const tokenA = await ethers.deployContract('$ERC20Crosschain', ['Token1', 'T1', []]);
@@ -23,12 +19,15 @@ async function fixture() {
 
   // Chain B: ERC7802 with bridge
   const tokenB = await ethers.deployContract('$ERC20BridgeableMock', ['Token2', 'T2', ethers.ZeroAddress]);
-  const bridgeB = await ethers.deployContract('$BridgeERC7802', [[[gateway, chain.toErc7930(bridgeA)]], tokenB]);
+  const bridgeB = await ethers.deployContract('$BridgeERC7802', [
+    [[gateway, helpers.chain.toErc7930(bridgeA)]],
+    tokenB,
+  ]);
 
   // deployment check + counterpart setup
-  await expect(bridgeA.$_setLink(gateway, chain.toErc7930(bridgeB), false))
+  await expect(bridgeA.$_setLink(gateway, helpers.chain.toErc7930(bridgeB), false))
     .to.emit(bridgeA, 'LinkRegistered')
-    .withArgs(gateway, chain.toErc7930(bridgeB));
+    .withArgs(gateway, helpers.chain.toErc7930(bridgeB));
   await tokenB.$_setBridge(bridgeB);
 
   return { accounts, gateway, gatewayAsEOA, tokenA, tokenB, bridgeA, bridgeB };
@@ -36,7 +35,7 @@ async function fixture() {
 
 describe('ERC20Crosschain', function () {
   beforeEach(async function () {
-    Object.assign(this, connection, await loadFixture(fixture));
+    Object.assign(this, connection, await networkHelpers.loadFixture(fixture));
   });
 
   shouldBehaveLikeBridgeERC20();
@@ -50,18 +49,18 @@ describe('ERC20Crosschain', function () {
       await this.tokenA.connect(alice).approve(chris, ethers.MaxUint256);
 
       // Alice sends tokens from chain A to Bruce on chain B.
-      await expect(this.tokenA.connect(chris).crosschainTransferFrom(alice, chain.toErc7930(bruce), amount))
+      await expect(this.tokenA.connect(chris).crosschainTransferFrom(alice, helpers.chain.toErc7930(bruce), amount))
         // bridge on chain A takes custody of the funds
         .to.emit(this.tokenA, 'Transfer')
         .withArgs(alice, ethers.ZeroAddress, amount)
         // crosschain transfer sent
         .to.emit(this.tokenA, 'CrosschainFungibleTransferSent')
-        .withArgs(anyValue, alice, chain.toErc7930(bruce), amount)
+        .withArgs(anyValue, alice, helpers.chain.toErc7930(bruce), amount)
         // ERC-7786 event
         .to.emit(this.gateway, 'MessageSent')
         // crosschain transfer received
         .to.emit(this.bridgeB, 'CrosschainFungibleTransferReceived')
-        .withArgs(anyValue, chain.toErc7930(alice), bruce, amount)
+        .withArgs(anyValue, helpers.chain.toErc7930(alice), bruce, amount)
         // crosschain mint event
         .to.emit(this.tokenB, 'CrosschainMint')
         .withArgs(bruce, amount, this.bridgeB)
@@ -76,7 +75,7 @@ describe('ERC20Crosschain', function () {
 
       await this.tokenA.$_mint(alice, amount);
 
-      await expect(this.tokenA.connect(chris).crosschainTransferFrom(alice, chain.toErc7930(bruce), amount))
+      await expect(this.tokenA.connect(chris).crosschainTransferFrom(alice, helpers.chain.toErc7930(bruce), amount))
         .to.be.revertedWithCustomError(this.tokenA, 'ERC20InsufficientAllowance')
         .withArgs(chris, 0n, amount);
     });
