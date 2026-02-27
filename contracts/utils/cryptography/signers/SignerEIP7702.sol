@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.5.0) (utils/cryptography/signers/SignerEIP7702.sol)
+// OpenZeppelin Contracts (last updated v5.6.0) (utils/cryptography/signers/SignerEIP7702.sol)
 
 pragma solidity ^0.8.20;
 

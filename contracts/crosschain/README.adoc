@@ -11,10 +11,12 @@ This directory contains contracts for sending and receiving cross chain messages
 Additionally there are multiple bridge constructions:
 
 * {BridgeFungible}: Core bridging logic for crosschain ERC-20 transfer. Used by {BridgeERC20}, {BridgeERC7802} and {ERC20Crosschain},
-* {BridgeERC20}: Standalone bridge contract to connect an ERC-20 token contract with counterparts on remote chains,
-* {BridgeERC7802}: Standalone bridge contract to connect an ERC-7802 token contract with counterparts on remote chains.
+* {BridgeNonFungible}: Core bridging logic for crosschain ERC-721 transfer. Used by {BridgeERC721} and {ERC721Crosschain},
 * {BridgeMultiToken}: Core bridging logic for crosschain ERC-1155 transfer. Used by {BridgeERC1155} and {ERC1155Crosschain},
+* {BridgeERC20}: Standalone bridge contract to connect an ERC-20 token contract with counterparts on remote chains,
+* {BridgeERC721}: Standalone bridge contract to connect an ERC-721 token contract with counterparts on remote chains,
 * {BridgeERC1155}: Standalone bridge contract to connect an ERC-1155 token contract with counterparts on remote chains,
+* {BridgeERC7802}: Standalone bridge contract to connect an ERC-7802 token contract with counterparts on remote chains.
 
 == Helpers
 
@@ -26,10 +28,14 @@ Additionally there are multiple bridge constructions:
 
 {{BridgeFungible}}
 
-{{BridgeERC20}}
-
-{{BridgeERC7802}}
+{{BridgeNonFungible}}
 
 {{BridgeMultiToken}}
 
+{{BridgeERC20}}
+
+{{BridgeERC721}}
+
 {{BridgeERC1155}}
+
+{{BridgeERC7802}}
