@@ -24,22 +24,26 @@ contract ERC721ReceiverMock is IERC721Receiver {
         _error = error;
     }
 
+    function _handleRevert(bytes memory message, bytes4 retval) private view {
+        RevertType err = _error;
+
+        if (err == RevertType.None) return;
+        if (err == RevertType.RevertWithoutMessage) revert();
+        if (err == RevertType.RevertWithMessage) revert(string(message));
+        if (err == RevertType.RevertWithCustomError) revert CustomError(retval);
+        if (err == RevertType.Panic) {
+            uint256 a = uint256(0) / uint256(0);
+            a;
+        }
+    }
+
     function onERC721Received(
         address operator,
         address from,
         uint256 tokenId,
         bytes memory data
     ) public returns (bytes4) {
-        if (_error == RevertType.RevertWithoutMessage) {
-            revert();
-        } else if (_error == RevertType.RevertWithMessage) {
-            revert("ERC721ReceiverMock: reverting");
-        } else if (_error == RevertType.RevertWithCustomError) {
-            revert CustomError(_retval);
-        } else if (_error == RevertType.Panic) {
-            uint256 a = uint256(0) / uint256(0);
-            a;
-        }
+        _handleRevert("ERC721ReceiverMock: reverting", _retval);
 
         emit Received(operator, from, tokenId, data, gasleft());
         return _retval;

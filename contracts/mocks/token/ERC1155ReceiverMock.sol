@@ -28,6 +28,19 @@ contract ERC1155ReceiverMock is ERC165, IERC1155Receiver {
         _error = error;
     }
 
+    function _handleRevert(bytes memory message, bytes4 retval) private view {
+        RevertType err = _error;
+
+        if (err == RevertType.None) return;
+        if (err == RevertType.RevertWithoutMessage) revert();
+        if (err == RevertType.RevertWithMessage) revert(string(message));
+        if (err == RevertType.RevertWithCustomError) revert CustomError(retval);
+        if (err == RevertType.Panic) {
+            uint256 a = uint256(0) / uint256(0);
+            a;
+        }
+    }
+
     function onERC1155Received(
         address operator,
         address from,
@@ -35,16 +48,7 @@ contract ERC1155ReceiverMock is ERC165, IERC1155Receiver {
         uint256 value,
         bytes calldata data
     ) external returns (bytes4) {
-        if (_error == RevertType.RevertWithoutMessage) {
-            revert();
-        } else if (_error == RevertType.RevertWithMessage) {
-            revert("ERC1155ReceiverMock: reverting on receive");
-        } else if (_error == RevertType.RevertWithCustomError) {
-            revert CustomError(_recRetval);
-        } else if (_error == RevertType.Panic) {
-            uint256 a = uint256(0) / uint256(0);
-            a;
-        }
+        _handleRevert("ERC1155ReceiverMock: reverting on receive", _recRetval);
 
         emit Received(operator, from, id, value, data, gasleft());
         return _recRetval;
@@ -57,16 +61,7 @@ contract ERC1155ReceiverMock is ERC165, IERC1155Receiver {
         uint256[] calldata values,
         bytes calldata data
     ) external returns (bytes4) {
-        if (_error == RevertType.RevertWithoutMessage) {
-            revert();
-        } else if (_error == RevertType.RevertWithMessage) {
-            revert("ERC1155ReceiverMock: reverting on batch receive");
-        } else if (_error == RevertType.RevertWithCustomError) {
-            revert CustomError(_recRetval);
-        } else if (_error == RevertType.Panic) {
-            uint256 a = uint256(0) / uint256(0);
-            a;
-        }
+        _handleRevert("ERC1155ReceiverMock: reverting on batch receive", _batRetval);
 
         emit BatchReceived(operator, from, ids, values, data, gasleft());
         return _batRetval;
