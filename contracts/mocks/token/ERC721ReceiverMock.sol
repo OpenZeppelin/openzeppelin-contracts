@@ -41,8 +41,8 @@ contract ERC721ReceiverMock is IERC721Receiver {
         address operator,
         address from,
         uint256 tokenId,
-        bytes memory data
-    ) public returns (bytes4) {
+        bytes calldata data
+    ) external returns (bytes4) {
         _handleRevert("ERC721ReceiverMock: reverting", _retval);
 
         emit Received(operator, from, tokenId, data, gasleft());
