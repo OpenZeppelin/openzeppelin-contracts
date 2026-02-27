@@ -104,12 +104,12 @@ library InteroperableAddress {
             bytes2 version = _readBytes2(self, 0x00);
             if (version != bytes2(0x0001)) return (false, 0x0000, _emptyBytesMemory(), _emptyBytesMemory());
 
-            uint8 chainReferenceLength = uint8(self[0x04]);
+            uint256 chainReferenceLength = uint8(self[0x04]);
             if (self.length < 0x06 + chainReferenceLength)
                 return (false, 0x0000, _emptyBytesMemory(), _emptyBytesMemory());
             chainReference = self.slice(0x05, 0x05 + chainReferenceLength);
 
-            uint8 addrLength = uint8(self[0x05 + chainReferenceLength]);
+            uint256 addrLength = uint8(self[0x05 + chainReferenceLength]);
             if (self.length < 0x06 + chainReferenceLength + addrLength)
                 return (false, 0x0000, _emptyBytesMemory(), _emptyBytesMemory());
             addr = self.slice(0x06 + chainReferenceLength, 0x06 + chainReferenceLength + addrLength);
@@ -132,12 +132,12 @@ library InteroperableAddress {
             bytes2 version = _readBytes2Calldata(self, 0x00);
             if (version != bytes2(0x0001)) return (false, 0x0000, Calldata.emptyBytes(), Calldata.emptyBytes());
 
-            uint8 chainReferenceLength = uint8(self[0x04]);
+            uint256 chainReferenceLength = uint8(self[0x04]);
             if (self.length < 0x06 + chainReferenceLength)
                 return (false, 0x0000, Calldata.emptyBytes(), Calldata.emptyBytes());
             chainReference = self[0x05:0x05 + chainReferenceLength];
 
-            uint8 addrLength = uint8(self[0x05 + chainReferenceLength]);
+            uint256 addrLength = uint8(self[0x05 + chainReferenceLength]);
             if (self.length < 0x06 + chainReferenceLength + addrLength)
                 return (false, 0x0000, Calldata.emptyBytes(), Calldata.emptyBytes());
             addr = self[0x06 + chainReferenceLength:0x06 + chainReferenceLength + addrLength];
