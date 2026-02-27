@@ -356,7 +356,7 @@ are useful to interact with third party contracts that implement them.
 
 [.contract]
 [[IERC20Errors]]
-=== `++IERC20Errors++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/draft-IERC6093.sol[{github-icon},role=heading-link]
+=== `++IERC20Errors++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/interfaces/draft-IERC6093.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -425,7 +425,7 @@ Indicates a failure with the `spender` to be approved. Used in approvals.
 
 [.contract]
 [[IERC721Errors]]
-=== `++IERC721Errors++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/draft-IERC6093.sol[{github-icon},role=heading-link]
+=== `++IERC721Errors++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/interfaces/draft-IERC6093.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -508,7 +508,7 @@ Indicates a failure with the `operator` to be approved. Used in approvals.
 
 [.contract]
 [[IERC1155Errors]]
-=== `++IERC1155Errors++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/draft-IERC6093.sol[{github-icon},role=heading-link]
+=== `++IERC1155Errors++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/interfaces/draft-IERC6093.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -580,7 +580,7 @@ Used in batch transfers.
 
 [.contract]
 [[IERC1271]]
-=== `++IERC1271++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC1271.sol[{github-icon},role=heading-link]
+=== `++IERC1271++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/interfaces/IERC1271.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -619,7 +619,7 @@ Should return whether the signature provided is valid for the provided data
 
 [.contract]
 [[IERC1363]]
-=== `++IERC1363++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC1363.sol[{github-icon},role=heading-link]
+=== `++IERC1363++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/interfaces/IERC1363.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -718,7 +718,7 @@ caller's tokens and then calls {IERC1363Spender-onApprovalReceived} on `spender`
 
 [.contract]
 [[IERC1363Receiver]]
-=== `++IERC1363Receiver++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC1363Receiver.sol[{github-icon},role=heading-link]
+=== `++IERC1363Receiver++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/interfaces/IERC1363Receiver.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -752,7 +752,7 @@ NOTE: To accept the transfer, this must return
 
 [.contract]
 [[IERC1363Spender]]
-=== `++IERC1363Spender++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC1363Spender.sol[{github-icon},role=heading-link]
+=== `++IERC1363Spender++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/interfaces/IERC1363Spender.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -786,7 +786,7 @@ NOTE: To accept the approval, this must return
 
 [.contract]
 [[IERC1820Implementer]]
-=== `++IERC1820Implementer++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC1820Implementer.sol[{github-icon},role=heading-link]
+=== `++IERC1820Implementer++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/interfaces/IERC1820Implementer.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -836,7 +836,7 @@ See {IERC1820Registry-setInterfaceImplementer}.
 
 [.contract]
 [[IERC1820Registry]]
-=== `++IERC1820Registry++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC1820Registry.sol[{github-icon},role=heading-link]
+=== `++IERC1820Registry++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/interfaces/IERC1820Registry.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -971,7 +971,7 @@ https://eips.ethereum.org/EIPS/eip-1820#interface-name[section of the ERC].
 
 [.contract]
 [[IERC1822Proxiable]]
-=== `++IERC1822Proxiable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/draft-IERC1822.sol[{github-icon},role=heading-link]
+=== `++IERC1822Proxiable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/interfaces/draft-IERC1822.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1005,7 +1005,7 @@ function revert if invoked through a proxy.
 
 [.contract]
 [[IERC1967]]
-=== `++IERC1967++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC1967.sol[{github-icon},role=heading-link]
+=== `++IERC1967++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/interfaces/IERC1967.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1045,7 +1045,7 @@ Emitted when the beacon is changed.
 
 [.contract]
 [[IERC2309]]
-=== `++IERC2309++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC2309.sol[{github-icon},role=heading-link]
+=== `++IERC2309++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/interfaces/IERC2309.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1069,7 +1069,7 @@ Emitted when the tokens from `fromTokenId` to `toTokenId` are transferred from `
 
 [.contract]
 [[IERC2612]]
-=== `++IERC2612++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC2612.sol[{github-icon},role=heading-link]
+=== `++IERC2612++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/interfaces/IERC2612.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1094,7 +1094,7 @@ import "@openzeppelin/contracts/interfaces/IERC2612.sol";
 
 [.contract]
 [[IERC2981]]
-=== `++IERC2981++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC2981.sol[{github-icon},role=heading-link]
+=== `++IERC2981++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/interfaces/IERC2981.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1137,7 +1137,7 @@ royalty receiver and 0 tokens to the seller. Contracts dealing with royalty shou
 
 [.contract]
 [[IERC3156FlashLender]]
-=== `++IERC3156FlashLender++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC3156FlashLender.sol[{github-icon},role=heading-link]
+=== `++IERC3156FlashLender++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/interfaces/IERC3156FlashLender.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1180,7 +1180,7 @@ Initiate a flash loan.
 
 [.contract]
 [[IERC3156FlashBorrower]]
-=== `++IERC3156FlashBorrower++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC3156FlashBorrower.sol[{github-icon},role=heading-link]
+=== `++IERC3156FlashBorrower++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/interfaces/IERC3156FlashBorrower.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1241,7 +1241,7 @@ Receive a flash loan.
 
 [.contract]
 [[IERC4626]]
-=== `++IERC4626++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC4626.sol[{github-icon},role=heading-link]
+=== `++IERC4626++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/interfaces/IERC4626.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1540,7 +1540,7 @@ Those methods should be performed separately.
 
 [.contract]
 [[IERC4906]]
-=== `++IERC4906++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC4906.sol[{github-icon},role=heading-link]
+=== `++IERC4906++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/interfaces/IERC4906.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1609,7 +1609,7 @@ timely update the images and related attributes of the NFTs.
 
 [.contract]
 [[IERC5267]]
-=== `++IERC5267++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC5267.sol[{github-icon},role=heading-link]
+=== `++IERC5267++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/interfaces/IERC5267.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1649,7 +1649,7 @@ MAY be emitted to signal that the domain could have changed.
 
 [.contract]
 [[IERC5313]]
-=== `++IERC5313++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC5313.sol[{github-icon},role=heading-link]
+=== `++IERC5313++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/interfaces/IERC5313.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1675,7 +1675,7 @@ Gets the address of the owner.
 
 [.contract]
 [[IERC5805]]
-=== `++IERC5805++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC5805.sol[{github-icon},role=heading-link]
+=== `++IERC5805++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/interfaces/IERC5805.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1737,7 +1737,7 @@ import "@openzeppelin/contracts/interfaces/IERC5805.sol";
 
 [.contract]
 [[IERC6372]]
-=== `++IERC6372++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC6372.sol[{github-icon},role=heading-link]
+=== `++IERC6372++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/interfaces/IERC6372.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1785,7 +1785,7 @@ Description of the clock
 
 [.contract]
 [[IERC6909]]
-=== `++IERC6909++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC6909.sol[{github-icon},role=heading-link]
+=== `++IERC6909++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/interfaces/IERC6909.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1904,7 +1904,7 @@ Emitted when `amount` tokens of type `id` are moved from `sender` to `receiver` 
 
 [.contract]
 [[IERC6909ContentURI]]
-=== `++IERC6909ContentURI++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC6909.sol[{github-icon},role=heading-link]
+=== `++IERC6909ContentURI++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/interfaces/IERC6909.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1972,7 +1972,7 @@ Returns the URI for the token of type `id`.
 
 [.contract]
 [[IERC6909Metadata]]
-=== `++IERC6909Metadata++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC6909.sol[{github-icon},role=heading-link]
+=== `++IERC6909Metadata++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/interfaces/IERC6909.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2043,7 +2043,7 @@ Returns the number of decimals for the token of type `id`.
 
 [.contract]
 [[IERC6909TokenSupply]]
-=== `++IERC6909TokenSupply++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC6909.sol[{github-icon},role=heading-link]
+=== `++IERC6909TokenSupply++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/interfaces/IERC6909.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2104,7 +2104,7 @@ Returns the total supply of the token of type `id`.
 
 [.contract]
 [[IERC7579Module]]
-=== `++IERC7579Module++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/draft-IERC7579.sol[{github-icon},role=heading-link]
+=== `++IERC7579Module++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/interfaces/draft-IERC7579.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2148,7 +2148,7 @@ Returns boolean value if module is a certain type
 
 [.contract]
 [[IERC7579Validator]]
-=== `++IERC7579Validator++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/draft-IERC7579.sol[{github-icon},role=heading-link]
+=== `++IERC7579Validator++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/interfaces/draft-IERC7579.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2193,7 +2193,7 @@ Validates a signature using ERC-1271
 
 [.contract]
 [[IERC7579Hook]]
-=== `++IERC7579Hook++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/draft-IERC7579.sol[{github-icon},role=heading-link]
+=== `++IERC7579Hook++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/interfaces/draft-IERC7579.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2239,7 +2239,7 @@ Called by the smart account after execution
 
 [.contract]
 [[IERC7579Execution]]
-=== `++IERC7579Execution++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/draft-IERC7579.sol[{github-icon},role=heading-link]
+=== `++IERC7579Execution++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/interfaces/draft-IERC7579.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2281,7 +2281,7 @@ Executes a transaction on behalf of the account.
 
 [.contract]
 [[IERC7579AccountConfig]]
-=== `++IERC7579AccountConfig++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/draft-IERC7579.sol[{github-icon},role=heading-link]
+=== `++IERC7579AccountConfig++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/interfaces/draft-IERC7579.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2331,7 +2331,7 @@ Function to check if the account supports a certain module typeId
 
 [.contract]
 [[IERC7579ModuleConfig]]
-=== `++IERC7579ModuleConfig++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/draft-IERC7579.sol[{github-icon},role=heading-link]
+=== `++IERC7579ModuleConfig++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/interfaces/draft-IERC7579.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2391,7 +2391,7 @@ Returns whether a module is installed on the smart account
 
 [.contract]
 [[IERC7674]]
-=== `++IERC7674++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/draft-IERC7674.sol[{github-icon},role=heading-link]
+=== `++IERC7674++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/interfaces/draft-IERC7674.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2438,7 +2438,7 @@ held by the caller.
 
 [.contract]
 [[IERC7751]]
-=== `++IERC7751++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC7751.sol[{github-icon},role=heading-link]
+=== `++IERC7751++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/interfaces/IERC7751.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2469,7 +2469,7 @@ Interface of the https://eips.ethereum.org/EIPS/eip-7751[ERC-7751] wrapping of b
 
 [.contract]
 [[IERC7786GatewaySource]]
-=== `++IERC7786GatewaySource++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/draft-IERC7786.sol[{github-icon},role=heading-link]
+=== `++IERC7786GatewaySource++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/interfaces/draft-IERC7786.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2540,7 +2540,7 @@ This error is thrown when a message creation fails because of an unsupported att
 
 [.contract]
 [[IERC7786Recipient]]
-=== `++IERC7786Recipient++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/draft-IERC7786.sol[{github-icon},role=heading-link]
+=== `++IERC7786Recipient++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/interfaces/draft-IERC7786.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2576,7 +2576,7 @@ This function may be called directly by the gateway.
 
 [.contract]
 [[IERC7802]]
-=== `++IERC7802++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/draft-IERC7802.sol[{github-icon},role=heading-link]
+=== `++IERC7802++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/interfaces/draft-IERC7802.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2628,7 +2628,7 @@ import "@openzeppelin/contracts/interfaces/draft-IERC7802.sol";
 
 [.contract]
 [[IERC7913SignatureVerifier]]
-=== `++IERC7913SignatureVerifier++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/interfaces/IERC7913.sol[{github-icon},role=heading-link]
+=== `++IERC7913SignatureVerifier++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/interfaces/IERC7913.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity

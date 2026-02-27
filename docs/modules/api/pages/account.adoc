@@ -236,7 +236,7 @@ This directory includes contracts to build accounts for ERC-4337. These include:
 
 [.contract]
 [[Account]]
-=== `++Account++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/account/Account.sol[{github-icon},role=heading-link]
+=== `++Account++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/account/Account.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -453,7 +453,7 @@ Unauthorized call to the account.
 
 [.contract]
 [[AccountERC7579]]
-=== `++AccountERC7579++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/account/extensions/draft-AccountERC7579.sol[{github-icon},role=heading-link]
+=== `++AccountERC7579++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/account/extensions/draft-AccountERC7579.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -863,7 +863,7 @@ The provided initData/deInitData for a fallback module is too short to extract a
 
 [.contract]
 [[AccountERC7579Hooked]]
-=== `++AccountERC7579Hooked++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/account/extensions/draft-AccountERC7579Hooked.sol[{github-icon},role=heading-link]
+=== `++AccountERC7579Hooked++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/account/extensions/draft-AccountERC7579Hooked.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1086,7 +1086,7 @@ A hook module is already present. This contract only supports one hook module.
 
 [.contract]
 [[ERC7821]]
-=== `++ERC7821++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/account/extensions/draft-ERC7821.sol[{github-icon},role=heading-link]
+=== `++ERC7821++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/account/extensions/draft-ERC7821.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1220,7 +1220,7 @@ function _erc7821AuthorizedExecutor(
 
 [.contract]
 [[ERC4337Utils]]
-=== `++ERC4337Utils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/account/utils/draft-ERC4337Utils.sol[{github-icon},role=heading-link]
+=== `++ERC4337Utils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/account/utils/draft-ERC4337Utils.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1488,7 +1488,7 @@ Mask for the lower 47 bits of a 6-bytes field (equivalent to uint48(~BLOCK_RANGE
 
 [.contract]
 [[ERC7579Utils]]
-=== `++ERC7579Utils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/account/utils/draft-ERC7579Utils.sol[{github-icon},role=heading-link]
+=== `++ERC7579Utils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/account/utils/draft-ERC7579Utils.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity

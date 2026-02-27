@@ -1108,7 +1108,7 @@ Because Solidity does not support generic types, {EnumerableMap} and {Enumerable
 
 [.contract]
 [[Math]]
-=== `++Math++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/math/Math.sol[{github-icon},role=heading-link]
+=== `++Math++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/math/Math.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1441,7 +1441,7 @@ Counts the number of leading zero bits in a uint256.
 
 [.contract]
 [[SignedMath]]
-=== `++SignedMath++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/math/SignedMath.sol[{github-icon},role=heading-link]
+=== `++SignedMath++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/math/SignedMath.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1634,7 +1634,7 @@ Returns the absolute unsigned value of a signed value.
 
 [.contract]
 [[SafeCast]]
-=== `++SafeCast++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/math/SafeCast.sol[{github-icon},role=heading-link]
+=== `++SafeCast++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/math/SafeCast.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2633,7 +2633,7 @@ A uint value doesn't fit in an int of `bits` size.
 
 [.contract]
 [[Nonces]]
-=== `++Nonces++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/Nonces.sol[{github-icon},role=heading-link]
+=== `++Nonces++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/Nonces.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2696,7 +2696,7 @@ The nonce used for an `account` is not the expected current nonce.
 
 [.contract]
 [[NoncesKeyed]]
-=== `++NoncesKeyed++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/NoncesKeyed.sol[{github-icon},role=heading-link]
+=== `++NoncesKeyed++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/NoncesKeyed.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2789,7 +2789,7 @@ This version takes the key and the nonce as two different parameters.
 
 [.contract]
 [[Pausable]]
-=== `++Pausable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/Pausable.sol[{github-icon},role=heading-link]
+=== `++Pausable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/Pausable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2933,7 +2933,7 @@ The operation failed because the contract is not paused.
 
 [.contract]
 [[ReentrancyGuard]]
-=== `++ReentrancyGuard++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/ReentrancyGuard.sol[{github-icon},role=heading-link]
+=== `++ReentrancyGuard++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/ReentrancyGuard.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3039,7 +3039,7 @@ Unauthorized reentrant call.
 
 [.contract]
 [[ReentrancyGuardTransient]]
-=== `++ReentrancyGuardTransient++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/ReentrancyGuardTransient.sol[{github-icon},role=heading-link]
+=== `++ReentrancyGuardTransient++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/ReentrancyGuardTransient.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3126,7 +3126,7 @@ Ethereum contracts have no native concept of an interface, so applications must 
 
 [.contract]
 [[IERC165]]
-=== `++IERC165++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/introspection/IERC165.sol[{github-icon},role=heading-link]
+=== `++IERC165++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/introspection/IERC165.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3165,7 +3165,7 @@ This function call must use less than 30 000 gas.
 
 [.contract]
 [[ERC165]]
-=== `++ERC165++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/introspection/ERC165.sol[{github-icon},role=heading-link]
+=== `++ERC165++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/introspection/ERC165.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3218,7 +3218,7 @@ This function call must use less than 30 000 gas.
 
 [.contract]
 [[ERC165Checker]]
-=== `++ERC165Checker++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/introspection/ERC165Checker.sol[{github-icon},role=heading-link]
+=== `++ERC165Checker++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/introspection/ERC165Checker.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3313,7 +3313,7 @@ Interface identification is specified in ERC-165.
 
 [.contract]
 [[Accumulators]]
-=== `++Accumulators++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/structs/Accumulators.sol[{github-icon},role=heading-link]
+=== `++Accumulators++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/structs/Accumulators.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3402,7 +3402,7 @@ Flatten all the bytes entries in an Accumulator into a single buffer
 
 [.contract]
 [[BitMaps]]
-=== `++BitMaps++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/structs/BitMaps.sol[{github-icon},role=heading-link]
+=== `++BitMaps++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/structs/BitMaps.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3532,7 +3532,7 @@ Unsets the bit at `index`.
 
 [.contract]
 [[Checkpoints]]
-=== `++Checkpoints++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/structs/Checkpoints.sol[{github-icon},role=heading-link]
+=== `++Checkpoints++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/structs/Checkpoints.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3856,7 +3856,7 @@ A value was attempted to be inserted on a past checkpoint.
 
 [.contract]
 [[CircularBuffer]]
-=== `++CircularBuffer++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/structs/CircularBuffer.sol[{github-icon},role=heading-link]
+=== `++CircularBuffer++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/structs/CircularBuffer.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -4022,7 +4022,7 @@ Error emitted when trying to setup a buffer with a size of 0.
 
 [.contract]
 [[DoubleEndedQueue]]
-=== `++DoubleEndedQueue++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/structs/DoubleEndedQueue.sol[{github-icon},role=heading-link]
+=== `++DoubleEndedQueue++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/structs/DoubleEndedQueue.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -4436,7 +4436,7 @@ Returns true if the queue is empty.
 
 [.contract]
 [[EnumerableMap]]
-=== `++EnumerableMap++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/structs/EnumerableMap.sol[{github-icon},role=heading-link]
+=== `++EnumerableMap++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/structs/EnumerableMap.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -5732,7 +5732,7 @@ Query for a nonexistent map key.
 
 [.contract]
 [[EnumerableSet]]
-=== `++EnumerableSet++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/structs/EnumerableSet.sol[{github-icon},role=heading-link]
+=== `++EnumerableSet++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/structs/EnumerableSet.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -6300,7 +6300,7 @@ uncallable if the set grows to a point where copying to memory consumes too much
 
 [.contract]
 [[Heap]]
-=== `++Heap++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/structs/Heap.sol[{github-icon},role=heading-link]
+=== `++Heap++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/structs/Heap.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -6444,7 +6444,7 @@ Removes all elements in the heap.
 
 [.contract]
 [[MerkleTree]]
-=== `++MerkleTree++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/structs/MerkleTree.sol[{github-icon},role=heading-link]
+=== `++MerkleTree++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/structs/MerkleTree.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -6617,7 +6617,7 @@ Error emitted when the proof used during an update is invalid (could not reprodu
 
 [.contract]
 [[Address]]
-=== `++Address++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/Address.sol[{github-icon},role=heading-link]
+=== `++Address++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/Address.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -6827,7 +6827,7 @@ There's no code at `target` (it is not a contract).
 
 [.contract]
 [[Arrays]]
-=== `++Arrays++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/Arrays.sol[{github-icon},role=heading-link]
+=== `++Arrays++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/Arrays.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -7317,7 +7317,7 @@ WARNING: this does not clear elements if length is reduced, or initialize elemen
 
 [.contract]
 [[Base58]]
-=== `++Base58++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/Base58.sol[{github-icon},role=heading-link]
+=== `++Base58++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/Base58.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -7382,7 +7382,7 @@ Unrecognized Base58 character on decoding.
 
 [.contract]
 [[Base64]]
-=== `++Base64++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/Base64.sol[{github-icon},role=heading-link]
+=== `++Base64++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/Base64.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -7441,7 +7441,7 @@ Converts a Base64 `string` to the `bytes` it represents.
 
 [.contract]
 [[Blockhash]]
-=== `++Blockhash++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/Blockhash.sol[{github-icon},role=heading-link]
+=== `++Blockhash++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/Blockhash.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -7530,7 +7530,7 @@ Address of the EIP-2935 history storage contract.
 
 [.contract]
 [[Bytes]]
-=== `++Bytes++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/Bytes.sol[{github-icon},role=heading-link]
+=== `++Bytes++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/Bytes.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -7740,7 +7740,7 @@ if the buffer is all zeros.
 
 [.contract]
 [[CAIP10]]
-=== `++CAIP10++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/CAIP10.sol[{github-icon},role=heading-link]
+=== `++CAIP10++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/CAIP10.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -7802,7 +7802,7 @@ parsed using the {CAIP2} library.
 
 [.contract]
 [[CAIP2]]
-=== `++CAIP2++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/CAIP2.sol[{github-icon},role=heading-link]
+=== `++CAIP2++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/CAIP2.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -7860,7 +7860,7 @@ NOTE: This function does not verify that the CAIP-2 input is properly formatted.
 
 [.contract]
 [[Calldata]]
-=== `++Calldata++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/Calldata.sol[{github-icon},role=heading-link]
+=== `++Calldata++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/Calldata.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -7893,7 +7893,7 @@ Helper library for manipulating objects in calldata.
 
 [.contract]
 [[Comparators]]
-=== `++Comparators++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/Comparators.sol[{github-icon},role=heading-link]
+=== `++Comparators++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/Comparators.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -7930,7 +7930,7 @@ _Available since v5.1._
 
 [.contract]
 [[Context]]
-=== `++Context++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/Context.sol[{github-icon},role=heading-link]
+=== `++Context++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/Context.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -7978,7 +7978,7 @@ This contract is only required for intermediate, library-like contracts.
 
 [.contract]
 [[Create2]]
-=== `++Create2++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/Create2.sol[{github-icon},role=heading-link]
+=== `++Create2++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/Create2.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -8076,7 +8076,7 @@ There's no code to deploy.
 
 [.contract]
 [[InteroperableAddress]]
-=== `++InteroperableAddress++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/draft-InteroperableAddress.sol[{github-icon},role=heading-link]
+=== `++InteroperableAddress++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/draft-InteroperableAddress.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -8238,7 +8238,7 @@ Variant of {tryParseEvmV1} that handles calldata slices to reduce memory copy co
 
 [.contract]
 [[LowLevelCall]]
-=== `++LowLevelCall++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/LowLevelCall.sol[{github-icon},role=heading-link]
+=== `++LowLevelCall++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/LowLevelCall.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -8380,7 +8380,7 @@ Revert with the return data from the last call.
 
 [.contract]
 [[Memory]]
-=== `++Memory++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/Memory.sol[{github-icon},role=heading-link]
+=== `++Memory++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/Memory.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -8501,7 +8501,7 @@ Returns true if the memory occupied by the slice is reserved (i.e. before the fr
 
 [.contract]
 [[Multicall]]
-=== `++Multicall++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/Multicall.sol[{github-icon},role=heading-link]
+=== `++Multicall++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/Multicall.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -8961,7 +8961,7 @@ Receives and executes a batch of function calls on this contract.
 
 [.contract]
 [[Packing]]
-=== `++Packing++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/Packing.sol[{github-icon},role=heading-link]
+=== `++Packing++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/Packing.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -10088,7 +10088,7 @@ _Available since v5.1._
 
 [.contract]
 [[Panic]]
-=== `++Panic++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/Panic.sol[{github-icon},role=heading-link]
+=== `++Panic++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/Panic.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -10219,7 +10219,7 @@ calling invalid internal function
 
 [.contract]
 [[RelayedCall]]
-=== `++RelayedCall++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/RelayedCall.sol[{github-icon},role=heading-link]
+=== `++RelayedCall++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/RelayedCall.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -10362,7 +10362,7 @@ Returns the relayer address for a given salt.
 
 [.contract]
 [[RLP]]
-=== `++RLP++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/RLP.sol[{github-icon},role=heading-link]
+=== `++RLP++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/RLP.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -10742,7 +10742,7 @@ Prefix for list items (0xC0)
 
 [.contract]
 [[ShortStrings]]
-=== `++ShortStrings++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/ShortStrings.sol[{github-icon},role=heading-link]
+=== `++ShortStrings++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/ShortStrings.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -10870,7 +10870,7 @@ actual characters as the UTF-8 encoding of a single character can span over mult
 
 [.contract]
 [[SlotDerivation]]
-=== `++SlotDerivation++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/SlotDerivation.sol[{github-icon},role=heading-link]
+=== `++SlotDerivation++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/SlotDerivation.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -11015,7 +11015,7 @@ Derive the location of a mapping element from the key.
 
 [.contract]
 [[StorageSlot]]
-=== `++StorageSlot++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/StorageSlot.sol[{github-icon},role=heading-link]
+=== `++StorageSlot++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/StorageSlot.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -11174,7 +11174,7 @@ Returns an `BytesSlot` representation of the bytes storage pointer `store`.
 
 [.contract]
 [[Strings]]
-=== `++Strings++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/Strings.sol[{github-icon},role=heading-link]
+=== `++Strings++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/Strings.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -11473,7 +11473,7 @@ The string being parsed is not a properly formatted address.
 
 [.contract]
 [[Time]]
-=== `++Time++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/types/Time.sol[{github-icon},role=heading-link]
+=== `++Time++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/types/Time.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -11594,7 +11594,7 @@ pack the components into a Delay object.
 
 [.contract]
 [[TransientSlot]]
-=== `++TransientSlot++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/utils/TransientSlot.sol[{github-icon},role=heading-link]
+=== `++TransientSlot++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/TransientSlot.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity

@@ -113,7 +113,7 @@ Additionally there are multiple bridge constructions:
 
 [.contract]
 [[CrosschainLinked]]
-=== `++CrosschainLinked++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/crosschain/CrosschainLinked.sol[{github-icon},role=heading-link]
+=== `++CrosschainLinked++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/crosschain/CrosschainLinked.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -242,7 +242,7 @@ Note: the `chain` argument is a "chain-only" InteroperableAddress (empty address
 
 [.contract]
 [[ERC7786Recipient]]
-=== `++ERC7786Recipient++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/crosschain/ERC7786Recipient.sol[{github-icon},role=heading-link]
+=== `++ERC7786Recipient++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/crosschain/ERC7786Recipient.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -338,7 +338,7 @@ Error thrown if the gateway is not authorized to send messages to this contract 
 
 [.contract]
 [[BridgeFungible]]
-=== `++BridgeFungible++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/crosschain/bridges/abstract/BridgeFungible.sol[{github-icon},role=heading-link]
+=== `++BridgeFungible++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/crosschain/bridges/abstract/BridgeFungible.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -472,7 +472,7 @@ Virtual function: implementation is required to handle token being minted or unl
 
 [.contract]
 [[BridgeERC20]]
-=== `++BridgeERC20++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/crosschain/bridges/BridgeERC20.sol[{github-icon},role=heading-link]
+=== `++BridgeERC20++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/crosschain/bridges/BridgeERC20.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -585,7 +585,7 @@ crosschain mint and burn mechanism. Instead, it takes custody of bridged assets.
 
 [.contract]
 [[BridgeERC7802]]
-=== `++BridgeERC7802++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.0/contracts/crosschain/bridges/BridgeERC7802.sol[{github-icon},role=heading-link]
+=== `++BridgeERC7802++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/crosschain/bridges/BridgeERC7802.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
