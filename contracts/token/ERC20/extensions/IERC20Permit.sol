@@ -83,8 +83,11 @@ interface IERC20Permit {
     function nonces(address owner) external view returns (uint256);
 
     /**
-     * @dev Returns the domain separator used in the encoding of the signature for {permit}, as defined by {EIP712}.
-     */
-    // solhint-disable-next-line func-name-mixedcase
-    function DOMAIN_SEPARATOR() external view returns (bytes32);
+ * @dev Returns the domain separator used in the encoding of the signature for {permit}, as defined by {EIP712}.
+ *
+ * @custom:deprecated This function will be removed in v6.0. Use {IERC5267-eip712Domain} instead,
+ * which provides full domain information with native EIP-712 tooling support.
+ */
+// solhint-disable-next-line func-name-mixedcase
+function DOMAIN_SEPARATOR() external view returns (bytes32);
 }

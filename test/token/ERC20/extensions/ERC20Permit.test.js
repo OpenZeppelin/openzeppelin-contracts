@@ -33,9 +33,10 @@ describe('ERC20Permit', function () {
     expect(await this.token.nonces(this.holder)).to.equal(0n);
   });
 
-  it('domain separator', async function () {
-    expect(await this.token.DOMAIN_SEPARATOR()).to.equal(await getDomain(this.token).then(domainSeparator));
-  });
+  // @deprecated DOMAIN_SEPARATOR() will be removed in v6.0. Use eip712Domain() from ERC-5267 instead.
+it('domain separator', async function () {
+  expect(await this.token.DOMAIN_SEPARATOR()).to.equal(await getDomain(this.token).then(domainSeparator));
+});
 
   describe('permit', function () {
     const value = 42n;

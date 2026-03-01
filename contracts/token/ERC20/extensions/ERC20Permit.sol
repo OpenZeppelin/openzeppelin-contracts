@@ -69,9 +69,14 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712, Nonces {
         return super.nonces(owner);
     }
 
-    /// @inheritdoc IERC20Permit
-    // solhint-disable-next-line func-name-mixedcase
-    function DOMAIN_SEPARATOR() external view returns (bytes32) {
-        return _domainSeparatorV4();
+    /**
+ * @dev Returns the domain separator used in the encoding of the signature for {permit}, as defined by {EIP712}.
+ *
+ * @custom:deprecated This function will be removed in v6.0. Use {eip712Domain} as defined by {ERC-5267} instead,
+ * which provides the full domain information and has native support in EIP-712 compatible tools.
+ */
+// solhint-disable-next-line func-name-mixedcase
+function DOMAIN_SEPARATOR() external view virtual returns (bytes32) {
+    return _domainSeparatorV4();
     }
 }
