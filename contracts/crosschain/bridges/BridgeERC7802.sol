@@ -1,15 +1,16 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.6.0) (crosschain/bridges/BridgeERC7802.sol)
 
 pragma solidity ^0.8.26;
 
 import {IERC7802} from "../../interfaces/draft-IERC7802.sol";
-import {BridgeERC20Core} from "./BridgeERC20Core.sol";
+import {BridgeFungible} from "./abstract/BridgeFungible.sol";
 
 /**
- * @dev This is a variant of {BridgeERC20Core} that implements the bridge logic for ERC-7802 compliant tokens.
+ * @dev This is a variant of {BridgeFungible} that implements the bridge logic for ERC-7802 compliant tokens.
  */
 // slither-disable-next-line locked-ether
-abstract contract BridgeERC7802 is BridgeERC20Core {
+abstract contract BridgeERC7802 is BridgeFungible {
     IERC7802 private immutable _token;
 
     constructor(IERC7802 token_) {

@@ -1,5 +1,5 @@
 const { ethers } = require('ethers');
-const { secp256r1 } = require('@noble/curves/p256');
+const { p256 } = require('@noble/curves/nist.js');
 const { generateKeyPairSync, privateEncrypt } = require('crypto');
 
 // Lightweight version of BaseWallet
@@ -68,7 +68,7 @@ class P256SigningKey {
   }
 
   static random() {
-    return new this(secp256r1.utils.randomPrivateKey());
+    return new this(p256.utils.randomSecretKey());
   }
 
   get privateKey() {
@@ -76,7 +76,7 @@ class P256SigningKey {
   }
 
   get publicKey() {
-    const publicKeyBytes = secp256r1.getPublicKey(this.#privateKey, false);
+    const publicKeyBytes = p256.getPublicKey(this.#privateKey, false);
     return {
       qx: ethers.hexlify(publicKeyBytes.slice(0x01, 0x21)),
       qy: ethers.hexlify(publicKeyBytes.slice(0x21, 0x41)),
@@ -86,12 +86,15 @@ class P256SigningKey {
   sign(digest /*: BytesLike*/) /*: ethers.Signature*/ {
     ethers.assertArgument(ethers.dataLength(digest) === 32, 'invalid digest length', 'digest', digest);
 
-    const sig = secp256r1.sign(ethers.getBytesCopy(digest), ethers.getBytesCopy(this.#privateKey), { lowS: true });
+    const rawSignature = p256.sign(ethers.getBytes(digest), ethers.getBytes(this.#privateKey), {
+      prehash: false,
+      format: 'recovered',
+    });
 
     return ethers.Signature.from({
-      r: ethers.toBeHex(sig.r, 32),
-      s: ethers.toBeHex(sig.s, 32),
-      v: sig.recovery ? 0x1c : 0x1b,
+      r: ethers.hexlify(rawSignature.slice(0x01, 0x21)),
+      s: ethers.hexlify(rawSignature.slice(0x21, 0x41)),
+      v: rawSignature[0] ? 0x1c : 0x1b,
     });
   }
 }

@@ -54,12 +54,12 @@ describe('ERC20Crosschain', function () {
         .to.emit(this.tokenA, 'Transfer')
         .withArgs(alice, ethers.ZeroAddress, amount)
         // crosschain transfer sent
-        .to.emit(this.tokenA, 'CrosschainERC20TransferSent')
+        .to.emit(this.tokenA, 'CrosschainFungibleTransferSent')
         .withArgs(anyValue, alice, this.chain.toErc7930(bruce), amount)
         // ERC-7786 event
         .to.emit(this.gateway, 'MessageSent')
         // crosschain transfer received
-        .to.emit(this.bridgeB, 'CrosschainERC20TransferReceived')
+        .to.emit(this.bridgeB, 'CrosschainFungibleTransferReceived')
         .withArgs(anyValue, this.chain.toErc7930(alice), bruce, amount)
         // crosschain mint event
         .to.emit(this.tokenB, 'CrosschainMint')
