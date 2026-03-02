@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.6.0) (utils/math/SafeCast.sol)
-// This file was procedurally generated from scripts/generate/templates/SafeCast.js.
+// This file was procedurally generated from scripts\generate\templates\SafeCast.js.
 
 pragma solidity ^0.8.20;
 
