@@ -1678,7 +1678,7 @@ describe('AccessManager', function () {
       });
     });
 
-    describe.only('target admin delay bypass issue', function () {
+    describe('target admin delay bypass issue', function () {
       it('can execute a setAuthority, if there is no target admin delay', async function () {
         const newAuthority = await ethers.deployContract('$AccessManager', [this.admin]);
 
