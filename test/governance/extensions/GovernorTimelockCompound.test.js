@@ -158,7 +158,7 @@ describe('GovernorTimelockCompound', function () {
             await expect(this.helper.execute())
               .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
               .withArgs(
-                this.proposal.id,
+                id,
                 ProposalState.Succeeded,
                 GovernorHelper.proposalStatesToBitMap([ProposalState.Queued]),
               );
