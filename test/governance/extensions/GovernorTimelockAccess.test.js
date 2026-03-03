@@ -235,9 +235,9 @@ describe('GovernorTimelockAccess', function () {
         // Set base delay
         await this.mock.$_setBaseDelaySeconds(baseDelay);
 
-        await this.helper.setProposal([this.restricted.operation], 'descr');
+        const { id } = await this.helper.setProposal([this.restricted.operation], 'descr');
         await this.helper.propose();
-        expect(await this.mock.proposalNeedsQueuing(this.helper.currentProposal.id)).to.be.false;
+        expect(await this.mock.proposalNeedsQueuing(id)).to.be.false;
 
         await this.helper.waitForSnapshot();
         await this.helper.connect(this.voter1).vote({ support: VoteType.For });
@@ -259,9 +259,9 @@ describe('GovernorTimelockAccess', function () {
         // Set base delay
         await this.mock.$_setBaseDelaySeconds(baseDelay);
 
-        await this.helper.setProposal([this.restricted.operation], 'descr');
+        const { id } = await this.helper.setProposal([this.restricted.operation], 'descr');
         await this.helper.propose();
-        expect(await this.mock.proposalNeedsQueuing(this.helper.currentProposal.id)).to.be.true;
+        expect(await this.mock.proposalNeedsQueuing(id)).to.be.true;
 
         await this.helper.waitForSnapshot();
         await this.helper.connect(this.voter1).vote({ support: VoteType.For });
@@ -270,11 +270,7 @@ describe('GovernorTimelockAccess', function () {
         // Not queued, so it should revert
         await expect(this.helper.execute())
           .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
-          .withArgs(
-            this.helper.currentProposal.id,
-            ProposalState.Succeeded,
-            GovernorHelper.proposalStatesToBitMap([ProposalState.Queued]),
-          );
+          .withArgs(id, ProposalState.Succeeded, GovernorHelper.proposalStatesToBitMap([ProposalState.Queued]));
       });
 
       it('needs to queue proposals with any delay', async function () {
@@ -294,12 +290,12 @@ describe('GovernorTimelockAccess', function () {
           // Set base delay
           await this.mock.$_setBaseDelaySeconds(baseDelay);
 
-          await this.helper.setProposal(
+          const { id } = await this.helper.setProposal(
             [this.restricted.operation],
             `executionDelay=${executionDelay.toString()}}baseDelay=${baseDelay.toString()}}`,
           );
           await this.helper.propose();
-          expect(await this.mock.proposalNeedsQueuing(this.helper.currentProposal.id)).to.be.true;
+          expect(await this.mock.proposalNeedsQueuing(id)).to.be.true;
 
           await this.helper.waitForSnapshot();
           await this.helper.connect(this.voter1).vote({ support: VoteType.For });
@@ -308,11 +304,7 @@ describe('GovernorTimelockAccess', function () {
           // Not queued, so it should revert
           await expect(this.helper.execute())
             .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
-            .withArgs(
-              this.helper.currentProposal.id,
-              ProposalState.Succeeded,
-              GovernorHelper.proposalStatesToBitMap([ProposalState.Queued]),
-            );
+            .withArgs(id, ProposalState.Succeeded, GovernorHelper.proposalStatesToBitMap([ProposalState.Queued]));
         }
       });
 
