@@ -241,6 +241,8 @@ describe('GovernorTimelockAccess', function () {
         await this.helper.waitForSnapshot();
         await this.helper.connect(this.voter1).vote({ support: VoteType.For });
         await this.helper.waitForDeadline();
+
+        // No need for queuing, so it should not revert
         await expect(this.helper.execute()).to.not.be.reverted;
       });
 
@@ -262,8 +264,15 @@ describe('GovernorTimelockAccess', function () {
         await this.helper.waitForSnapshot();
         await this.helper.connect(this.voter1).vote({ support: VoteType.For });
         await this.helper.waitForDeadline();
+
         // Not queueud, so it should revert
-        await expect(this.helper.execute()).to.be.reverted;
+        await expect(this.helper.execute())
+          .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
+          .withArgs(
+            this.helper.currentProposal.id,
+            ProposalState.Succeeded,
+            GovernorHelper.proposalStatesToBitMap([ProposalState.Queued]),
+          );
       });
 
       it('needs to queue proposals with any delay', async function () {
