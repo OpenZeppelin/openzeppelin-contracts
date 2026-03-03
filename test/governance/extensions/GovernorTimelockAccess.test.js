@@ -267,7 +267,7 @@ describe('GovernorTimelockAccess', function () {
         await this.helper.connect(this.voter1).vote({ support: VoteType.For });
         await this.helper.waitForDeadline();
 
-        // Not queueud, so it should revert
+        // Not queued, so it should revert
         await expect(this.helper.execute())
           .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
           .withArgs(
@@ -305,7 +305,7 @@ describe('GovernorTimelockAccess', function () {
           await this.helper.connect(this.voter1).vote({ support: VoteType.For });
           await this.helper.waitForDeadline();
 
-          // Not queueud, so it should revert
+          // Not queued, so it should revert
           await expect(this.helper.execute())
             .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
             .withArgs(
