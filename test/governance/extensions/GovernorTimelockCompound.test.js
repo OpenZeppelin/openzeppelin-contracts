@@ -157,11 +157,7 @@ describe('GovernorTimelockCompound', function () {
               .withArgs(id);
             await expect(this.helper.execute())
               .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
-              .withArgs(
-                id,
-                ProposalState.Succeeded,
-                GovernorHelper.proposalStatesToBitMap([ProposalState.Queued]),
-              );
+              .withArgs(id, ProposalState.Succeeded, GovernorHelper.proposalStatesToBitMap([ProposalState.Queued]));
           });
         });
 
