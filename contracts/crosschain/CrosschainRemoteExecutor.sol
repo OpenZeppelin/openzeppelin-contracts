@@ -59,7 +59,7 @@ contract CrosschainRemoteExecutor is ERC7786Recipient {
     /// @dev Internal setter to reconfigure the gateway and controller.
     function _setup(address gateway_, bytes memory controller_) internal virtual {
         // Sanity check, this should revert if gateway is not an ERC-7786 implementation. Note that since
-        // supportsAttribute returns data, an EOA would fail that test (nothing returned).
+        // supportsAttribute returns data, accounts without code would fail that test (nothing returned).
         IERC7786GatewaySource(gateway_).supportsAttribute(bytes4(0));
 
         _gateway = gateway_;
