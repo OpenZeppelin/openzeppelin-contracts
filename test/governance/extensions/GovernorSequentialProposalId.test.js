@@ -167,7 +167,7 @@ describe('GovernorSequentialProposalId', function () {
         await this.helper.connect(this.proposer).propose();
         await expect(this.helper.connect(this.proposer).propose())
           .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
-          .withArgs(await this.proposal.id, 0, ethers.ZeroHash);
+          .withArgs(await this.proposal.id, 0n, ethers.ZeroHash);
       });
 
       it('nominal workflow', async function () {

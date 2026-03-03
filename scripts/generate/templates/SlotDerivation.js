@@ -17,7 +17,7 @@ pragma solidity ^0.8.20;
  * contract Example {
  *     // Add the library methods
  *     using StorageSlot for bytes32;
- *     using SlotDerivation for bytes32;
+ *     using SlotDerivation for *;
  *
  *     // Declare a namespace
  *     string private constant _NAMESPACE = "<namespace>"; // eg. OpenZeppelin.Slot

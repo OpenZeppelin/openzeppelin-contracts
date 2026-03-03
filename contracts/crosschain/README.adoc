@@ -1,0 +1,41 @@
+= Cross chain interoperability
+
+[.readme-notice]
+NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/crosschain
+
+This directory contains contracts for sending and receiving cross chain messages that follows the ERC-7786 standard.
+
+* {CrosschainLinked}: helper to facilitate communication between a contract on one chain and counterparts on remote chains through ERC-7786 gateways.
+* {ERC7786Recipient}: generic ERC-7786 crosschain contract that receives messages from a trusted gateway.
+
+Additionally there are multiple bridge constructions:
+
+* {BridgeFungible}: Core bridging logic for crosschain ERC-20 transfer. Used by {BridgeERC20}, {BridgeERC7802} and {ERC20Crosschain},
+* {BridgeNonFungible}: Core bridging logic for crosschain ERC-721 transfer. Used by {BridgeERC721} and {ERC721Crosschain},
+* {BridgeMultiToken}: Core bridging logic for crosschain ERC-1155 transfer. Used by {BridgeERC1155} and {ERC1155Crosschain},
+* {BridgeERC20}: Standalone bridge contract to connect an ERC-20 token contract with counterparts on remote chains,
+* {BridgeERC721}: Standalone bridge contract to connect an ERC-721 token contract with counterparts on remote chains,
+* {BridgeERC1155}: Standalone bridge contract to connect an ERC-1155 token contract with counterparts on remote chains,
+* {BridgeERC7802}: Standalone bridge contract to connect an ERC-7802 token contract with counterparts on remote chains.
+
+== Helpers
+
+{{CrosschainLinked}}
+
+{{ERC7786Recipient}}
+
+== Bridges
+
+{{BridgeFungible}}
+
+{{BridgeNonFungible}}
+
+{{BridgeMultiToken}}
+
+{{BridgeERC20}}
+
+{{BridgeERC721}}
+
+{{BridgeERC1155}}
+
+{{BridgeERC7802}}

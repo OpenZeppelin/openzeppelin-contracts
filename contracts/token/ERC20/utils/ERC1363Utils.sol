@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.1.0) (token/ERC20/utils/ERC1363Utils.sol)
+// OpenZeppelin Contracts (last updated v5.4.0) (token/ERC20/utils/ERC1363Utils.sol)
 
 pragma solidity ^0.8.20;
 
@@ -53,7 +53,7 @@ library ERC1363Utils {
                 revert ERC1363InvalidReceiver(to);
             } else {
                 assembly ("memory-safe") {
-                    revert(add(32, reason), mload(reason))
+                    revert(add(reason, 0x20), mload(reason))
                 }
             }
         }
@@ -87,7 +87,7 @@ library ERC1363Utils {
                 revert ERC1363InvalidSpender(spender);
             } else {
                 assembly ("memory-safe") {
-                    revert(add(32, reason), mload(reason))
+                    revert(add(reason, 0x20), mload(reason))
                 }
             }
         }

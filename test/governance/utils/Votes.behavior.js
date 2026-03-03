@@ -65,7 +65,7 @@ function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }
 
         expect(await this.votes.delegates(this.alice)).to.equal(this.alice);
         expect(await this.votes.getVotes(this.alice)).to.equal(weight);
-        expect(await this.votes.getVotes(this.bob)).to.equal(0);
+        expect(await this.votes.getVotes(this.bob)).to.equal(0n);
 
         const tx = await this.votes.connect(this.alice).delegate(this.bob);
         const timepoint = await time.clockFromReceipt[mode](tx);
@@ -74,9 +74,9 @@ function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }
           .to.emit(this.votes, 'DelegateChanged')
           .withArgs(this.alice, this.alice, this.bob)
           .to.emit(this.votes, 'DelegateVotesChanged')
-          .withArgs(this.alice, weight, 0)
+          .withArgs(this.alice, weight, 0n)
           .to.emit(this.votes, 'DelegateVotesChanged')
-          .withArgs(this.bob, 0, weight);
+          .withArgs(this.bob, 0n, weight);
 
         expect(await this.votes.delegates(this.alice)).to.equal(this.bob);
         expect(await this.votes.getVotes(this.alice)).to.equal(0n);
@@ -117,7 +117,7 @@ function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }
             .to.emit(this.votes, 'DelegateChanged')
             .withArgs(this.delegator, ethers.ZeroAddress, this.delegatee)
             .to.emit(this.votes, 'DelegateVotesChanged')
-            .withArgs(this.delegatee, 0, weight);
+            .withArgs(this.delegatee, 0n, weight);
 
           expect(await this.votes.delegates(this.delegator.address)).to.equal(this.delegatee);
           expect(await this.votes.getVotes(this.delegator.address)).to.equal(0n);
@@ -187,7 +187,7 @@ function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }
 
           await expect(this.votes.delegateBySig(this.delegatee, nonce + 1n, ethers.MaxUint256, v, r, s))
             .to.be.revertedWithCustomError(this.votes, 'InvalidAccountNonce')
-            .withArgs(this.delegator, 0);
+            .withArgs(this.delegator, 0n);
         });
 
         it('rejects expired permit', async function () {
@@ -217,7 +217,7 @@ function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }
       });
 
       it('reverts if block number >= current block', async function () {
-        const timepoint = 5e10;
+        const timepoint = 50_000_000_000n;
         const clock = await this.votes.clock();
         await expect(this.votes.getPastTotalSupply(timepoint))
           .to.be.revertedWithCustomError(this.votes, 'ERC5805FutureLookup')
@@ -257,7 +257,7 @@ function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }
         t4.timepoint = await time.clockFromReceipt[mode](t4);
         t5.timepoint = await time.clockFromReceipt[mode](t5);
 
-        expect(await this.votes.getPastTotalSupply(t0.timepoint - 1n)).to.equal(0);
+        expect(await this.votes.getPastTotalSupply(t0.timepoint - 1n)).to.equal(0n);
         expect(await this.votes.getPastTotalSupply(t0.timepoint)).to.equal(weight[0]);
         expect(await this.votes.getPastTotalSupply(t0.timepoint + 1n)).to.equal(weight[0]);
         expect(await this.votes.getPastTotalSupply(t1.timepoint)).to.equal(weight[0] + weight[1]);
@@ -268,7 +268,7 @@ function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }
         expect(await this.votes.getPastTotalSupply(t3.timepoint + 1n)).to.equal(weight[0] + weight[2]);
         expect(await this.votes.getPastTotalSupply(t4.timepoint)).to.equal(weight[2]);
         expect(await this.votes.getPastTotalSupply(t4.timepoint + 1n)).to.equal(weight[2]);
-        expect(await this.votes.getPastTotalSupply(t5.timepoint)).to.equal(0);
+        expect(await this.votes.getPastTotalSupply(t5.timepoint)).to.equal(0n);
         await expect(this.votes.getPastTotalSupply(t5.timepoint + 1n))
           .to.be.revertedWithCustomError(this.votes, 'ERC5805FutureLookup')
           .withArgs(t5.timepoint + 1n, t5.timepoint + 1n);
@@ -287,7 +287,7 @@ function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }
       describe('getPastVotes', function () {
         it('reverts if block number >= current block', async function () {
           const clock = await this.votes.clock();
-          const timepoint = 5e10; // far in the future
+          const timepoint = 50_000_000_000n; // far in the future
           await expect(this.votes.getPastVotes(this.bob, timepoint))
             .to.be.revertedWithCustomError(this.votes, 'ERC5805FutureLookup')
             .withArgs(timepoint, clock);

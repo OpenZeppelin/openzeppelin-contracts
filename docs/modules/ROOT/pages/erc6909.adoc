@@ -1,6 +1,6 @@
 = ERC-6909
 
-ERC-6909 is a draft EIP that draws on ERC-1155 learnings since it was published in 2018. The main goals of ERC-6909 is to decrease gas costs and complexity--this is mainly accomplished by removing batching and callbacks.
+ERC-6909 is a draft EIP that draws on ERC-1155 learnings since it was published in 2018. The main goals of ERC-6909 are to decrease gas costs and complexity--this is mainly accomplished by removing batching and callbacks.
 
 TIP: To understand the inspiration for a multi token standard, see the xref:erc1155.adoc#multi-token-standard[multi token standard] section within the EIP-1155 docs.
 
@@ -14,7 +14,7 @@ There are three main changes from ERC-1155 which are as follows:
 
 == Constructing an ERC-6909 Token Contract
 
-We'll use ERC-6909 to track multiple items in a game, each having their own unique attributes. All item types will by minted to the deployer of the contract, which we can later transfer to players. We'll also use the xref:api:token/ERC6909.adoc#ERC6909Metadata[`ERC6909Metadata`] extension to add decimals to our fungible items (the vanilla ERC-6909 implementation does not have decimals).
+We'll use ERC-6909 to track multiple items in a game, each having their own unique attributes. All item types will be minted to the deployer of the contract, which we can later transfer to players. We'll also use the xref:api:token/ERC6909.adoc#ERC6909Metadata[`ERC6909Metadata`] extension to add decimals to our fungible items (the vanilla ERC-6909 implementation does not have decimals).
 
 For simplicity, we will mint all items in the constructor--however, minting functionality could be added to the contract to mint on demand to players.
 

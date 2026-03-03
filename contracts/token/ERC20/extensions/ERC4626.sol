@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.1.0) (token/ERC20/extensions/ERC4626.sol)
+// OpenZeppelin Contracts (last updated v5.6.0) (token/ERC20/extensions/ERC4626.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
 import {IERC20, IERC20Metadata, ERC20} from "../ERC20.sol";
 import {SafeERC20} from "../utils/SafeERC20.sol";
 import {IERC4626} from "../../../interfaces/IERC4626.sol";
+import {LowLevelCall} from "../../../utils/LowLevelCall.sol";
+import {Memory} from "../../../utils/Memory.sol";
 import {Math} from "../../../utils/math/Math.sol";
 
 /**
@@ -44,6 +46,26 @@ import {Math} from "../../../utils/math/Math.sol";
  *
  * To learn more, check out our xref:ROOT:erc4626.adoc[ERC-4626 guide].
  * ====
+ *
+ * [NOTE]
+ * ====
+ * When overriding this contract, some elements must be considered:
+ *
+ * * When overriding the behavior of the deposit or withdraw mechanisms, it is recommended to override the internal
+ * functions. Overriding {_deposit} automatically affects both {deposit} and {mint}. Similarly, overriding {_withdraw}
+ * automatically affects both {withdraw} and {redeem}. Overall it is not recommended to override the public facing
+ * functions since that could lead to inconsistent behaviors between the {deposit} and {mint} or between {withdraw} and
+ * {redeem}, which is documented to have led to loss of funds.
+ *
+ * * Overrides to the deposit or withdraw mechanism must be reflected in the preview functions as well.
+ *
+ * * {maxWithdraw} depends on {maxRedeem}. Therefore, overriding {maxRedeem} only is enough. On the other hand,
+ * overriding {maxWithdraw} only would have no effect on {maxRedeem}, and could create an inconsistency between the two
+ * functions.
+ *
+ * * If {previewRedeem} is overridden to revert, {maxWithdraw} must be overridden as necessary to ensure it
+ * always return successfully.
+ * ====
  */
 abstract contract ERC4626 is ERC20, IERC4626 {
     using Math for uint256;
@@ -62,12 +84,12 @@ abstract contract ERC4626 is ERC20, IERC4626 {
     error ERC4626ExceededMaxMint(address receiver, uint256 shares, uint256 max);
 
     /**
-     * @dev Attempted to withdraw more assets than the max amount for `receiver`.
+     * @dev Attempted to withdraw more assets than the max amount for `owner`.
      */
     error ERC4626ExceededMaxWithdraw(address owner, uint256 assets, uint256 max);
 
     /**
-     * @dev Attempted to redeem more shares than the max amount for `receiver`.
+     * @dev Attempted to redeem more shares than the max amount for `owner`.
      */
     error ERC4626ExceededMaxRedeem(address owner, uint256 shares, uint256 max);
 
@@ -84,16 +106,17 @@ abstract contract ERC4626 is ERC20, IERC4626 {
      * @dev Attempts to fetch the asset decimals. A return value of false indicates that the attempt failed in some way.
      */
     function _tryGetAssetDecimals(IERC20 asset_) private view returns (bool ok, uint8 assetDecimals) {
-        (bool success, bytes memory encodedDecimals) = address(asset_).staticcall(
+        Memory.Pointer ptr = Memory.getFreeMemoryPointer();
+        (bool success, bytes32 returnedDecimals, ) = LowLevelCall.staticcallReturn64Bytes(
+            address(asset_),
             abi.encodeCall(IERC20Metadata.decimals, ())
         );
-        if (success && encodedDecimals.length >= 32) {
-            uint256 returnedDecimals = abi.decode(encodedDecimals, (uint256));
-            if (returnedDecimals <= type(uint8).max) {
-                return (true, uint8(returnedDecimals));
-            }
-        }
-        return (false, 0);
+        Memory.unsafeSetFreeMemoryPointer(ptr);
+
+        return
+            (success && LowLevelCall.returnDataSize() >= 32 && uint256(returnedDecimals) <= type(uint8).max)
+                ? (true, uint8(uint256(returnedDecimals)))
+                : (false, 0);
     }
 
     /**
@@ -107,67 +130,67 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         return _underlyingDecimals + _decimalsOffset();
     }
 
-    /** @dev See {IERC4626-asset}. */
+    /// @inheritdoc IERC4626
     function asset() public view virtual returns (address) {
         return address(_asset);
     }
 
-    /** @dev See {IERC4626-totalAssets}. */
+    /// @inheritdoc IERC4626
     function totalAssets() public view virtual returns (uint256) {
         return IERC20(asset()).balanceOf(address(this));
     }
 
-    /** @dev See {IERC4626-convertToShares}. */
+    /// @inheritdoc IERC4626
     function convertToShares(uint256 assets) public view virtual returns (uint256) {
         return _convertToShares(assets, Math.Rounding.Floor);
     }
 
-    /** @dev See {IERC4626-convertToAssets}. */
+    /// @inheritdoc IERC4626
     function convertToAssets(uint256 shares) public view virtual returns (uint256) {
         return _convertToAssets(shares, Math.Rounding.Floor);
     }
 
-    /** @dev See {IERC4626-maxDeposit}. */
+    /// @inheritdoc IERC4626
     function maxDeposit(address) public view virtual returns (uint256) {
         return type(uint256).max;
     }
 
-    /** @dev See {IERC4626-maxMint}. */
+    /// @inheritdoc IERC4626
     function maxMint(address) public view virtual returns (uint256) {
         return type(uint256).max;
     }
 
-    /** @dev See {IERC4626-maxWithdraw}. */
+    /// @inheritdoc IERC4626
     function maxWithdraw(address owner) public view virtual returns (uint256) {
-        return _convertToAssets(balanceOf(owner), Math.Rounding.Floor);
+        return previewRedeem(maxRedeem(owner));
     }
 
-    /** @dev See {IERC4626-maxRedeem}. */
+    /// @inheritdoc IERC4626
     function maxRedeem(address owner) public view virtual returns (uint256) {
         return balanceOf(owner);
     }
 
-    /** @dev See {IERC4626-previewDeposit}. */
+    /// @inheritdoc IERC4626
     function previewDeposit(uint256 assets) public view virtual returns (uint256) {
         return _convertToShares(assets, Math.Rounding.Floor);
     }
 
-    /** @dev See {IERC4626-previewMint}. */
+    /// @inheritdoc IERC4626
     function previewMint(uint256 shares) public view virtual returns (uint256) {
         return _convertToAssets(shares, Math.Rounding.Ceil);
     }
 
-    /** @dev See {IERC4626-previewWithdraw}. */
+    /// @inheritdoc IERC4626
     function previewWithdraw(uint256 assets) public view virtual returns (uint256) {
         return _convertToShares(assets, Math.Rounding.Ceil);
     }
 
-    /** @dev See {IERC4626-previewRedeem}. */
+    /// @inheritdoc IERC4626
     function previewRedeem(uint256 shares) public view virtual returns (uint256) {
         return _convertToAssets(shares, Math.Rounding.Floor);
     }
 
-    /** @dev See {IERC4626-deposit}. */
+    /// @inheritdoc IERC4626
     function deposit(uint256 assets, address receiver) public virtual returns (uint256) {
         uint256 maxAssets = maxDeposit(receiver);
         if (assets > maxAssets) {
@@ -180,7 +203,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         return shares;
     }
 
-    /** @dev See {IERC4626-mint}. */
+    /// @inheritdoc IERC4626
     function mint(uint256 shares, address receiver) public virtual returns (uint256) {
         uint256 maxShares = maxMint(receiver);
         if (shares > maxShares) {
@@ -193,7 +216,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         return assets;
     }
 
-    /** @dev See {IERC4626-withdraw}. */
+    /// @inheritdoc IERC4626
     function withdraw(uint256 assets, address receiver, address owner) public virtual returns (uint256) {
         uint256 maxAssets = maxWithdraw(owner);
         if (assets > maxAssets) {
@@ -206,7 +229,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         return shares;
     }
 
-    /** @dev See {IERC4626-redeem}. */
+    /// @inheritdoc IERC4626
     function redeem(uint256 shares, address receiver, address owner) public virtual returns (uint256) {
         uint256 maxShares = maxRedeem(owner);
         if (shares > maxShares) {
@@ -244,7 +267,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         // Conclusion: we need to do the transfer before we mint so that any reentrancy would happen before the
         // assets are transferred and before the shares are minted, which is a valid state.
         // slither-disable-next-line reentrancy-no-eth
-        SafeERC20.safeTransferFrom(IERC20(asset()), caller, address(this), assets);
+        _transferIn(caller, assets);
         _mint(receiver, shares);
 
         emit Deposit(caller, receiver, assets, shares);
@@ -271,9 +294,19 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         // Conclusion: we need to do the transfer after the burn so that any reentrancy would happen after the
         // shares are burned and after the assets are transferred, which is a valid state.
         _burn(owner, shares);
-        SafeERC20.safeTransfer(IERC20(asset()), receiver, assets);
+        _transferOut(receiver, assets);
 
         emit Withdraw(caller, receiver, owner, assets, shares);
+    }
+
+    /// @dev Performs a transfer in of underlying assets. The default implementation uses `SafeERC20`. Used by {_deposit}.
+    function _transferIn(address from, uint256 assets) internal virtual {
+        SafeERC20.safeTransferFrom(IERC20(asset()), from, address(this), assets);
+    }
+
+    /// @dev Performs a transfer out of underlying assets. The default implementation uses `SafeERC20`. Used by {_withdraw}.
+    function _transferOut(address to, uint256 assets) internal virtual {
+        SafeERC20.safeTransfer(IERC20(asset()), to, assets);
     }
 
     function _decimalsOffset() internal view virtual returns (uint8) {

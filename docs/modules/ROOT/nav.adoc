@@ -7,6 +7,11 @@
 
 * xref:access-control.adoc[Access Control]
 
+* xref:account-abstraction.adoc[Account Abstraction]
+** xref:accounts.adoc[Accounts]
+*** xref:eoa-delegation.adoc[EOA Delegation]
+*** xref:multisig.adoc[Multisig]
+
 * xref:tokens.adoc[Tokens]
 ** xref:erc20.adoc[ERC-20]
 *** xref:erc20-supply.adoc[Creating Supply]

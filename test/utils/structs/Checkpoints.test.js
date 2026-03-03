@@ -2,23 +2,24 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { VALUE_SIZES } = require('../../../scripts/generate/templates/Checkpoints.opts');
+const { OPTS } = require('../../../scripts/generate/templates/Checkpoints.opts');
 
 describe('Checkpoints', function () {
-  for (const length of VALUE_SIZES) {
-    describe(`Trace${length}`, function () {
+  for (const opt of OPTS) {
+    describe(opt.historyTypeName, function () {
       const fixture = async () => {
         const mock = await ethers.deployContract('$Checkpoints');
         const methods = {
-          at: (...args) => mock.getFunction(`$at_Checkpoints_Trace${length}`)(0, ...args),
-          latest: (...args) => mock.getFunction(`$latest_Checkpoints_Trace${length}`)(0, ...args),
-          latestCheckpoint: (...args) => mock.getFunction(`$latestCheckpoint_Checkpoints_Trace${length}`)(0, ...args),
-          length: (...args) => mock.getFunction(`$length_Checkpoints_Trace${length}`)(0, ...args),
-          push: (...args) => mock.getFunction(`$push(uint256,uint${256 - length},uint${length})`)(0, ...args),
-          lowerLookup: (...args) => mock.getFunction(`$lowerLookup(uint256,uint${256 - length})`)(0, ...args),
-          upperLookup: (...args) => mock.getFunction(`$upperLookup(uint256,uint${256 - length})`)(0, ...args),
+          at: (...args) => mock.getFunction(`$at_Checkpoints_${opt.historyTypeName}`)(0, ...args),
+          latest: (...args) => mock.getFunction(`$latest_Checkpoints_${opt.historyTypeName}`)(0, ...args),
+          latestCheckpoint: (...args) =>
+            mock.getFunction(`$latestCheckpoint_Checkpoints_${opt.historyTypeName}`)(0, ...args),
+          length: (...args) => mock.getFunction(`$length_Checkpoints_${opt.historyTypeName}`)(0, ...args),
+          push: (...args) => mock.getFunction(`$push(uint256,${opt.keyTypeName},${opt.valueTypeName})`)(0, ...args),
+          lowerLookup: (...args) => mock.getFunction(`$lowerLookup(uint256,${opt.keyTypeName})`)(0, ...args),
+          upperLookup: (...args) => mock.getFunction(`$upperLookup(uint256,${opt.keyTypeName})`)(0, ...args),
           upperLookupRecent: (...args) =>
-            mock.getFunction(`$upperLookupRecent(uint256,uint${256 - length})`)(0, ...args),
+            mock.getFunction(`$upperLookupRecent(uint256,${opt.keyTypeName})`)(0, ...args),
         };
 
         return { mock, methods };

@@ -3,7 +3,7 @@
 // with hardhat-ignore-warnings we are not able to selectively ignore them without potentially ignoring relevant
 // warnings that we don't want to miss.
 // Thus, we need to handle these warnings separately. We force Hardhat to compile them in a separate compilation job and
-// then ignore the warnings about unreachable code that come from that compilation job.
+// then ignore the warnings about unreachable code coming from that compilation job.
 
 const { task } = require('hardhat/config');
 const {

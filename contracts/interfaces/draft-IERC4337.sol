@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.2.0) (interfaces/draft-IERC4337.sol)
+// OpenZeppelin Contracts (last updated v5.6.0) (interfaces/draft-IERC4337.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity >=0.8.4;
 
 /**
  * @dev A https://github.com/ethereum/ercs/blob/master/ERCS/erc-4337.md#useroperation[user operation] is composed of the following elements:
@@ -21,7 +21,7 @@ pragma solidity ^0.8.20;
  * - `paymasterData` (`bytes`): Data for paymaster (only if paymaster exists)
  * - `signature` (`bytes`): Data passed into the account to verify authorization
  *
- * When passed to on-chain contacts, the following packed version is used.
+ * When passed to on-chain contracts, the following packed version is used.
  * - `sender` (`address`)
  * - `nonce` (`uint256`)
  * - `initCode` (`bytes`): concatenation of factory address and factoryData (or empty)
@@ -30,6 +30,8 @@ pragma solidity ^0.8.20;
  * - `preVerificationGas` (`uint256`)
  * - `gasFees` (`bytes32`): concatenation of maxPriorityFeePerGas (16 bytes) and maxFeePerGas (16 bytes)
  * - `paymasterAndData` (`bytes`): concatenation of paymaster fields (or empty)
+ *   For EntryPoint v0.9+, may optionally include `paymasterSignature` at the end:
+ *   `paymaster || paymasterVerificationGasLimit || paymasterPostOpGasLimit || paymasterData || paymasterSignature || paymasterSignatureSize || PAYMASTER_SIG_MAGIC`
  * - `signature` (`bytes`)
  */
 struct PackedUserOperation {
@@ -40,7 +42,7 @@ struct PackedUserOperation {
     bytes32 accountGasLimits; // `abi.encodePacked(verificationGasLimit, callGasLimit)` 16 bytes each
     uint256 preVerificationGas;
     bytes32 gasFees; // `abi.encodePacked(maxPriorityFeePerGas, maxFeePerGas)` 16 bytes each
-    bytes paymasterAndData; // `abi.encodePacked(paymaster, paymasterVerificationGasLimit, paymasterPostOpGasLimit, paymasterData)` (20 bytes, 16 bytes, 16 bytes, dynamic)
+    bytes paymasterAndData; // `abi.encodePacked(paymaster, paymasterVerificationGasLimit, paymasterPostOpGasLimit, paymasterData[, paymasterSignature, paymasterSignatureSize, PAYMASTER_SIG_MAGIC])` (20 bytes, 16 bytes, 16 bytes, dynamic[, dynamic, 2 bytes, 8 bytes])
     bytes signature;
 }
 
@@ -164,13 +166,13 @@ interface IEntryPoint is IEntryPointNonces, IEntryPointStake {
 
     /**
      * @dev Executes a batch of user operations.
-     * @param beneficiary Address to which gas is refunded up completing the execution.
+     * @param beneficiary Address to which gas is refunded upon completing the execution.
      */
     function handleOps(PackedUserOperation[] calldata ops, address payable beneficiary) external;
 
     /**
      * @dev Executes a batch of aggregated user operations per aggregator.
-     * @param beneficiary Address to which gas is refunded up completing the execution.
+     * @param beneficiary Address to which gas is refunded upon completing the execution.
      */
     function handleAggregatedOps(
         UserOpsPerAggregator[] calldata opsPerAggregator,

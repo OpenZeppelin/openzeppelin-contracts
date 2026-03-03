@@ -27,7 +27,7 @@ contract ERC2771ForwarderMock is ERC2771Forwarder {
             _hashTypedDataV4(
                 keccak256(
                     abi.encode(
-                        _FORWARD_REQUEST_TYPEHASH,
+                        FORWARD_REQUEST_TYPEHASH,
                         request.from,
                         request.to,
                         request.value,

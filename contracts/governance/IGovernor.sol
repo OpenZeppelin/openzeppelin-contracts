@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.1.0) (governance/IGovernor.sol)
+// OpenZeppelin Contracts (last updated v5.5.0) (governance/IGovernor.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity >=0.8.4;
 
 import {IERC165} from "../interfaces/IERC165.sol";
 import {IERC6372} from "../interfaces/IERC6372.sol";
@@ -334,7 +334,7 @@ interface IGovernor is IERC165, IERC6372 {
     function hasVoted(uint256 proposalId, address account) external view returns (bool);
 
     /**
-     * @dev Create a new proposal. Vote start after a delay specified by {IGovernor-votingDelay} and lasts for a
+     * @dev Create a new proposal. Vote starts after a delay specified by {IGovernor-votingDelay} and lasts for a
      * duration specified by {IGovernor-votingPeriod}.
      *
      * Emits a {ProposalCreated} event.

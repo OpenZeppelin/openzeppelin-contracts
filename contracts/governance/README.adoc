@@ -54,6 +54,8 @@ Other extensions can customize the behavior or interface in multiple ways.
 
 * {GovernorSuperQuorum}: Extension of {Governor} with a super quorum. Proposals that meet the super quorum (and have a majority of for votes) advance to the `Succeeded` state before the proposal deadline.
 
+* {GovernorNoncesKeyed}: An extension of {Governor} with support for keyed nonces in addition to traditional nonces when voting by signature.
+
 In addition to modules and extensions, the core contract requires a few virtual functions to be implemented to your particular specifications:
 
 * <<Governor-votingDelay-,`votingDelay()`>>: Delay (in ERC-6372 clock) since the proposal is submitted until voting power is fixed and voting starts. This can be used to enforce a delay after a proposal is published for users to buy tokens, or delegate their votes.
@@ -100,6 +102,8 @@ NOTE: Functions of the `Governor` contract do not include access control. If you
 
 {{GovernorSuperQuorum}}
 
+{{GovernorNoncesKeyed}}
+
 == Utils
 
 {{Votes}}
@@ -131,7 +135,7 @@ In a governance system, the {TimelockController} contract is in charge of introd
 [[timelock-operation]]
 ==== Operation structure
 
-Operation executed by the xref:api:governance.adoc#TimelockController[`TimelockController`] can contain one or multiple subsequent calls. Depending on whether you need to multiple calls to be executed atomically, you can either use simple or batched operations.
+Operation executed by the xref:api:governance.adoc#TimelockController[`TimelockController`] can contain one or multiple subsequent calls. Depending on whether you need multiple calls to be executed atomically, you can either use simple or batched operations.
 
 Both operations contain:
 
@@ -179,7 +183,7 @@ The admins are in charge of managing proposers and executors. For the timelock t
 
 The proposers are in charge of scheduling (and cancelling) operations. This is a critical role, that should be given to governing entities. This could be an EOA, a multisig, or a DAO.
 
-WARNING: *Proposer fight:* Having multiple proposers, while providing redundancy in case one becomes unavailable, can be dangerous. As proposer have their say on all operations, they could cancel operations they disagree with, including operations to remove them for the proposers.
+WARNING: *Proposer fight:* Having multiple proposers, while providing redundancy in case one becomes unavailable, can be dangerous. Proposers have a say on all operations--they could cancel operations they disagree with, including operations to remove them from the list of proposers.
 
 This role is identified by the *PROPOSER_ROLE* value: `0xb09aa5aeb3702cfd50b6b62bc4532604938f21248a27a1d5ca736082b6819cc1`
 

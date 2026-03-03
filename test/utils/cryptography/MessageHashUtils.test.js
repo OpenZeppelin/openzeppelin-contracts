@@ -2,7 +2,8 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { domainSeparator, hashTypedData } = require('../../helpers/eip712');
+const { domainType, domainSeparator, hashTypedData } = require('../../helpers/eip712');
+const { generators } = require('../../helpers/random');
 
 async function fixture() {
   const mock = await ethers.deployContract('$MessageHashUtils');
@@ -93,5 +94,56 @@ describe('MessageHashUtils', function () {
 
       await expect(this.mock.$toTypedDataHash(domainSeparator(domain), structhash)).to.eventually.equal(expectedHash);
     });
+  });
+
+  describe('ERC-5267', function () {
+    const fullDomain = {
+      name: generators.string(),
+      version: generators.string(),
+      chainId: generators.uint256(),
+      verifyingContract: generators.address(),
+      salt: generators.bytes32(),
+    };
+
+    for (let fields = 0; fields < 1 << Object.keys(fullDomain).length; ++fields) {
+      const domain = Object.fromEntries(Object.entries(fullDomain).filter((_, i) => fields & (1 << i)));
+      const domainTypeName = new ethers.TypedDataEncoder({ EIP712Domain: domainType(domain) }).encodeType(
+        'EIP712Domain',
+      );
+
+      describe(domainTypeName, function () {
+        it('toDomainSeparator(bytes1,string,string,uint256,address,bytes32)', async function () {
+          await expect(
+            this.mock.$toDomainSeparator(
+              ethers.toBeHex(fields),
+              ethers.Typed.string(fullDomain.name),
+              ethers.Typed.string(fullDomain.version),
+              fullDomain.chainId,
+              fullDomain.verifyingContract,
+              fullDomain.salt,
+            ),
+          ).to.eventually.equal(domainSeparator(domain));
+        });
+
+        it('toDomainSeparator(bytes1,bytes32,bytes32,uint256,address,bytes32)', async function () {
+          await expect(
+            this.mock.$toDomainSeparator(
+              ethers.toBeHex(fields),
+              ethers.Typed.bytes32(ethers.id(fullDomain.name)),
+              ethers.Typed.bytes32(ethers.id(fullDomain.version)),
+              fullDomain.chainId,
+              fullDomain.verifyingContract,
+              fullDomain.salt,
+            ),
+          ).to.eventually.equal(domainSeparator(domain));
+        });
+
+        it('toDomainTypeHash', async function () {
+          await expect(this.mock.$toDomainTypeHash(ethers.toBeHex(fields))).to.eventually.equal(
+            ethers.id(domainTypeName),
+          );
+        });
+      });
+    }
   });
 });

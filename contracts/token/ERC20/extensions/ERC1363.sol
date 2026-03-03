@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.2.0) (token/ERC20/extensions/ERC1363.sol)
+// OpenZeppelin Contracts (last updated v5.4.0) (token/ERC20/extensions/ERC1363.sol)
 
 pragma solidity ^0.8.20;
 
@@ -39,9 +39,7 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
      */
     error ERC1363ApproveFailed(address spender, uint256 value);
 
-    /**
-     * @inheritdoc IERC165
-     */
+    /// @inheritdoc IERC165
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IERC165) returns (bool) {
         return interfaceId == type(IERC1363).interfaceId || super.supportsInterface(interfaceId);
     }

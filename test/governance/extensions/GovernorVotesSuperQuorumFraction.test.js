@@ -70,7 +70,7 @@ describe('GovernorVotesSuperQuorumFraction', function () {
       });
 
       it('deployment check', async function () {
-        await expect(this.mock.name()).to.eventually.eventually.equal(name);
+        await expect(this.mock.name()).to.eventually.equal(name);
         await expect(this.mock.token()).to.eventually.equal(this.token);
         await expect(this.mock.votingDelay()).to.eventually.equal(votingDelay);
         await expect(this.mock.votingPeriod()).to.eventually.equal(votingPeriod);

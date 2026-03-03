@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {ERC6909Metadata} from "../../../../token/ERC6909/extensions/draft-ERC6909Metadata.sol";
+import {ERC6909Metadata} from "../../../../token/ERC6909/extensions/ERC6909Metadata.sol";
 
 contract ERC6909GameItems is ERC6909Metadata {
     uint256 public constant GOLD = 0;

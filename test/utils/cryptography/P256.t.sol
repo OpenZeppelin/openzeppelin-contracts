@@ -5,7 +5,6 @@ pragma solidity ^0.8.20;
 import {Test} from "forge-std/Test.sol";
 
 import {P256} from "@openzeppelin/contracts/utils/cryptography/P256.sol";
-import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 
 contract P256Test is Test {
     /// forge-config: default.fuzz.runs = 512
@@ -16,6 +15,7 @@ contract P256Test is Test {
         (bytes32 r, bytes32 s) = vm.signP256(privateKey, digest);
         s = _ensureLowerS(s);
         assertTrue(P256.verify(digest, r, s, bytes32(x), bytes32(y)));
+        assertTrue(P256.verifyNative(digest, r, s, bytes32(x), bytes32(y)));
         assertTrue(P256.verifySolidity(digest, r, s, bytes32(x), bytes32(y)));
     }
 

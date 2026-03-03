@@ -35,7 +35,7 @@ module.exports.fullname = function fullname({ item }) {
 
 module.exports.inheritance = function ({ item, build }) {
   if (!isNodeType('ContractDefinition', item)) {
-    throw new Error('used inherited-items on non-contract');
+    throw new Error('inheritance modifier used on non-contract');
   }
 
   return item.linearizedBaseContracts
@@ -72,7 +72,7 @@ module.exports.functions = function ({ item }) {
 
 module.exports.returns2 = function ({ item }) {
   if (isNodeType('VariableDeclaration', item)) {
-    return [{ type: item.typeDescriptions.typeString }];
+    return [{ type: item.typeName.typeDescriptions.typeString }];
   } else {
     return item.returns;
   }

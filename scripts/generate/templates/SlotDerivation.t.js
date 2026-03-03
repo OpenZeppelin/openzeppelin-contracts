@@ -62,7 +62,7 @@ function testSymbolicDeriveMapping${name}(${type} key) public view {
 `;
 
 const mappingDirty = ({ type, name }) => `\
-function testSymbolicDeriveMapping${name}Dirty(bytes32 dirtyKey) public {
+function testSymbolicDeriveMapping${name}Dirty(bytes32 dirtyKey) public view {
     ${type} key;
     assembly {
         key := dirtyKey

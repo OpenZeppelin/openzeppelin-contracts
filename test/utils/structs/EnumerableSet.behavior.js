@@ -152,6 +152,22 @@ function shouldBehaveLikeSet() {
       await expectMembersMatch(this.methods, [this.valueA]);
     });
   });
+
+  it('values (full & paginated)', async function () {
+    const values = [this.valueA, this.valueB, this.valueC];
+    await this.methods.add(this.valueA);
+    await this.methods.add(this.valueB);
+    await this.methods.add(this.valueC);
+
+    // get all values
+    expect([...(await this.methods.values())]).to.deep.equal(values);
+
+    // try pagination
+    for (const begin of [0, 1, 2, 3, 4])
+      for (const end of [0, 1, 2, 3, 4]) {
+        expect([...(await this.methods.valuesPage(begin, end))]).to.deep.equal(values.slice(begin, end));
+      }
+  });
 }
 
 module.exports = {

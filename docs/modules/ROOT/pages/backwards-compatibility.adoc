@@ -13,7 +13,9 @@ Infrequently a patch or minor update will remove or change an API in a breaking 
 
 === Draft or Pre-Final ERCs
 
-ERCs that are not Final can change in incompatible ways. For this reason, we avoid shipping implementations of ERCs before they are Final. Some exceptions are made for ERCs that have been published for a long time and that seem unlikely to change. Breaking changes to the ERC specification are still technically possible in those cases, so these implementations are published in files named `draft-*.sol` to make that condition explicit.
+ERCs that are not Final can change in incompatible ways. For this reason, we avoid shipping implementations of ERCs before they are Final. Some exceptions are made for ERCs that have been published for a long time and seem unlikely to change. Implementations for ERCs that may have breaking changes are published in files named `draft-*.sol` to make that condition explicit. There is no backwards compatibility guarantee for content in files prefixed with `draft`.
+
+Standards that have achieved widespread adoption with strong backwards compatibility expectations from the community may be treated as de-facto finalized and published without the `draft-` prefix, as extensive ecosystem reliance makes breaking changes highly unlikely.
 
 === Virtual & Overrides
 

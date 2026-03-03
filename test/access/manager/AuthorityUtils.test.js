@@ -2,6 +2,8 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
+const { MAX_UINT32, MAX_UINT64 } = require('../../helpers/constants');
+
 async function fixture() {
   const [user, other] = await ethers.getSigners();
 
@@ -70,7 +72,7 @@ describe('AuthorityUtils', function () {
       });
 
       for (const immediate of [true, false]) {
-        for (const delay of [0n, 42n]) {
+        for (const delay of [0n, 42n, MAX_UINT32]) {
           it(`returns (immediate=${immediate}, delay=${delay})`, async function () {
             await this.authority._setImmediate(immediate);
             await this.authority._setDelay(delay);
@@ -80,6 +82,14 @@ describe('AuthorityUtils', function () {
           });
         }
       }
+
+      it('out of bound delay', async function () {
+        await this.authority._setImmediate(false);
+        await this.authority._setDelay(MAX_UINT64); // bigger than the expected uint32
+        const result = await this.mock.$canCallWithDelay(this.authority, this.user, this.other, '0x12345678');
+        expect(result.immediate).to.equal(false);
+        expect(result.delay).to.equal(0n);
+      });
     });
 
     describe('when authority replies with empty data', function () {

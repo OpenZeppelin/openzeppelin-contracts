@@ -2,6 +2,8 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
+const { shouldSupportInterfaces } = require('../../../utils/introspection/SupportsInterface.behavior');
+
 async function fixture() {
   const token = await ethers.deployContract('$ERC6909Metadata');
   return { token };
@@ -55,4 +57,6 @@ describe('ERC6909Metadata', function () {
       await expect(this.token.decimals(2n)).to.eventually.equal(0);
     });
   });
+
+  shouldSupportInterfaces(['ERC6909', 'ERC6909Metadata']);
 });

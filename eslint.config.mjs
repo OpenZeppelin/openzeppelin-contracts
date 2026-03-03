@@ -3,6 +3,9 @@ import { includeIgnoreFile } from '@eslint/compat';
 import prettier from 'eslint-config-prettier';
 import globals from 'globals';
 import path from 'path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default [
   js.configs.recommended,
@@ -22,5 +25,5 @@ export default [
       },
     },
   },
-  includeIgnoreFile(path.resolve(import.meta.dirname, '.gitignore')),
+  includeIgnoreFile(path.resolve(__dirname, '.gitignore')),
 ];

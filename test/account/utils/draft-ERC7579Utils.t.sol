@@ -11,7 +11,15 @@ import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 import {PackedUserOperation, IAccount, IEntryPoint} from "@openzeppelin/contracts/interfaces/draft-IERC4337.sol";
 import {ERC4337Utils} from "@openzeppelin/contracts/account/utils/draft-ERC4337Utils.sol";
-import {ERC7579Utils, Mode, CallType, ExecType, ModeSelector, ModePayload, Execution} from "@openzeppelin/contracts/account/utils/draft-ERC7579Utils.sol";
+import {
+    ERC7579Utils,
+    Mode,
+    CallType,
+    ExecType,
+    ModeSelector,
+    ModePayload,
+    Execution
+} from "@openzeppelin/contracts/account/utils/draft-ERC7579Utils.sol";
 import {Test, Vm, console} from "forge-std/Test.sol";
 
 contract SampleAccount is IAccount, Ownable {
@@ -111,8 +119,16 @@ contract ERC7579UtilsTest is Test {
     address private _recipient2;
 
     constructor() {
-        vm.etch(0x0000000071727De22E5E9d8BAf0edAc6f37da032, vm.readFileBinary("test/bin/EntryPoint070.bytecode"));
-        vm.etch(0xEFC2c1444eBCC4Db75e7613d20C6a62fF67A167C, vm.readFileBinary("test/bin/SenderCreator070.bytecode"));
+        // EntryPoint070
+        vm.etch(
+            0x0000000071727De22E5E9d8BAf0edAc6f37da032,
+            vm.readFileBinary("node_modules/hardhat-predeploy/bin/0x0000000071727De22E5E9d8BAf0edAc6f37da032.bytecode")
+        );
+        // SenderCreator070
+        vm.etch(
+            0xEFC2c1444eBCC4Db75e7613d20C6a62fF67A167C,
+            vm.readFileBinary("node_modules/hardhat-predeploy/bin/0xEFC2c1444eBCC4Db75e7613d20C6a62fF67A167C.bytecode")
+        );
 
         // signing key
         (_owner, _ownerKey) = makeAddrAndKey("owner");
@@ -389,6 +405,7 @@ contract ERC7579UtilsTest is Test {
         // 000000000000000000000000000000000000000000000000000000000000002a (42) value for element #0
         // 0000000000000000000000000000000000000000000000000000000000000060 (96) offset to calldata for element #0
         // <missing data>
+
         _testDecodeBatch(
             abi.encode(32, 1, 32, _recipient1, 42, 96),
             TEST_DECODE | TEST_GETFIRST | TEST_GETFIRSTBYTES | FAIL_GETFIRSTBYTES
@@ -448,7 +465,7 @@ contract ERC7579UtilsTest is Test {
     }
 
     function hashUserOperation(PackedUserOperation calldata useroperation) public view returns (bytes32) {
-        return useroperation.hash(address(ERC4337Utils.ENTRYPOINT_V07), block.chainid);
+        return useroperation.hash(address(ERC4337Utils.ENTRYPOINT_V07));
     }
 
     function _collectAndPrintLogs(bool includeTotalValue) internal {

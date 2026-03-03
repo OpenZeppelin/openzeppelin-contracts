@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.0.0) (token/ERC20/extensions/ERC20Capped.sol)
+// OpenZeppelin Contracts (last updated v5.4.0) (token/ERC20/extensions/ERC20Capped.sol)
 
 pragma solidity ^0.8.20;
 
@@ -39,9 +39,7 @@ abstract contract ERC20Capped is ERC20 {
         return _cap;
     }
 
-    /**
-     * @dev See {ERC20-_update}.
-     */
+    /// @inheritdoc ERC20
     function _update(address from, address to, uint256 value) internal virtual override {
         super._update(from, to, value);
 
