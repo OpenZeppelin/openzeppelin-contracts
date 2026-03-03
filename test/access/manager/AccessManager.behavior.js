@@ -57,20 +57,15 @@ function shouldBehaveLikeDelayedAdminOperation() {
  */
 function shouldBehaveLikeNotDelayedAdminOperation() {
   const getAccessPath = LIKE_COMMON_GET_ACCESS;
-
-  function testScheduleOperation(mineDelay) {
-    return function self() {
-      self.mineDelay = mineDelay;
-      beforeEach('set execution delay', async function () {
-        this.scheduleIn = this.executionDelay; // For testAsSchedulableOperation
-      });
-      testAsSchedulableOperation(LIKE_COMMON_SCHEDULABLE);
-    };
-  }
-
+  testAsDelayedOperation.mineDelay = true;
   getAccessPath.requiredRoleIsGranted.roleGrantingIsDelayed.callerHasAnExecutionDelay.afterGrantDelay =
-    testScheduleOperation(true);
-  getAccessPath.requiredRoleIsGranted.roleGrantingIsNotDelayed.callerHasAnExecutionDelay = testScheduleOperation(false);
+    testAsDelayedOperation;
+  getAccessPath.requiredRoleIsGranted.roleGrantingIsNotDelayed.callerHasAnExecutionDelay = function () {
+    beforeEach('set execution delay', async function () {
+      this.scheduleIn = this.executionDelay; // For testAsSchedulableOperation
+    });
+    testAsSchedulableOperation(LIKE_COMMON_SCHEDULABLE);
+  };
 
   beforeEach('set target as manager', function () {
     this.target = this.manager;

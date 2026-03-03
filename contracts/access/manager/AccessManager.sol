@@ -149,9 +149,9 @@ contract AccessManager is Context, Multicall, IAccessManager {
             // permissions. We verify that the call "identifier", which is set during {execute}, is correct.
             return (_isExecuting(target, selector), 0);
         } else if (selector == IAccessManaged.setAuthority.selector) {
-            (bool isAdmin, uint32 adminDelay) = hasRole(ADMIN_ROLE, caller);
-            uint32 targetAdminDelay = getTargetAdminDelay(target);
-            uint32 setAuthorityDelay = uint32(Math.max(adminDelay, targetAdminDelay));
+            (bool isAdmin, uint32 executionDelay) = hasRole(ADMIN_ROLE, caller);
+            uint32 adminDelay = getTargetAdminDelay(target);
+            uint32 setAuthorityDelay = uint32(Math.max(executionDelay, adminDelay));
             return isAdmin ? (setAuthorityDelay == 0, setAuthorityDelay) : (false, 0);
         } else {
             uint64 roleId = getTargetFunctionRole(target, selector);

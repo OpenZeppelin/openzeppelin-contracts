@@ -1063,6 +1063,7 @@ describe('AccessManager', function () {
 
         describe('restrictions', function () {
           beforeEach('set method and args', function () {
+            this.operationDelayTarget = this.newManagedTarget;
             this.calldata = this.manager.interface.encodeFunctionData('updateAuthority(address,address)', [
               this.newManagedTarget.target,
               this.newAuthority.target,
@@ -1086,6 +1087,7 @@ describe('AccessManager', function () {
       describe('#setTargetClosed', function () {
         describe('restrictions', function () {
           beforeEach('set method and args', function () {
+            this.operationDelayTarget = this.other;
             const args = [this.other.address, true];
             const method = this.manager.interface.getFunction('setTargetClosed(address,bool)');
             this.calldata = this.manager.interface.encodeFunctionData(method, args);
@@ -1124,6 +1126,7 @@ describe('AccessManager', function () {
       describe('#setTargetFunctionRole', function () {
         describe('restrictions', function () {
           beforeEach('set method and args', function () {
+            this.operationDelayTarget = this.other;
             const args = [this.other.address, ['0x12345678'], 443342];
             const method = this.manager.interface.getFunction('setTargetFunctionRole(address,bytes4[],uint64)');
             this.calldata = this.manager.interface.encodeFunctionData(method, args);
