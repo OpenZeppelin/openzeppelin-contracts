@@ -148,6 +148,11 @@ contract AccessManager is Context, Multicall, IAccessManager {
             // Caller is AccessManager, this means the call was sent through {execute} and it already checked
             // permissions. We verify that the call "identifier", which is set during {execute}, is correct.
             return (_isExecuting(target, selector), 0);
+        } else if (selector == IAccessManaged.setAuthority.selector) {
+            (bool isAdmin, uint32 adminDelay) = hasRole(ADMIN_ROLE, caller);
+            uint32 targetAdminDelay = getTargetAdminDelay(target);
+            uint32 setAuthorityDelay = uint32(Math.max(adminDelay, targetAdminDelay));
+            return isAdmin ? (setAuthorityDelay == 0, setAuthorityDelay) : (false, 0);
         } else {
             uint64 roleId = getTargetFunctionRole(target, selector);
             (bool isMember, uint32 currentDelay) = hasRole(roleId, caller);
@@ -388,6 +393,11 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * Emits a {TargetFunctionRoleUpdated} event.
      */
     function _setTargetFunctionRole(address target, bytes4 selector, uint64 roleId) internal virtual {
+        if (selector == IAccessManaged.setAuthority.selector) {
+            // Prevent updating authority using an execute call, instead only allow it through updateAuthority to
+            // ensure the proper delay and admin restrictions are applied.
+            revert AccessManagerLockedFunction(selector);
+        }
         _targets[target].allowedRoles[selector] = roleId;
         emit TargetFunctionRoleUpdated(target, selector, roleId);
     }

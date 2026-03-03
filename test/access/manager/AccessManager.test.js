@@ -1678,28 +1678,53 @@ describe('AccessManager', function () {
       });
     });
 
-    it('BUG: execute can bypass target admin delay to update authority', async function () {
-      const newAuthority = await ethers.deployContract('$AccessManager', [this.admin]);
+    describe.only('target admin delay bypass issue', function () {
+      it('can execute a setAuthority, if there is no target admin delay', async function () {
+        const newAuthority = await ethers.deployContract('$AccessManager', [this.admin]);
 
-      // set a delay on the target - and wait for it to be active
-      await this.manager.$_setTargetAdminDelay(this.target, 10n);
-      await time.increaseBy.timestamp(5n * 86400n, true); // minSetBack is 5 days
+        // double check there is no delay
+        await expect(this.manager.getTargetAdminDelay(this.target)).to.eventually.equal(0n);
 
-      await expect(this.manager.getTargetAdminDelay(this.target)).to.eventually.equal(10n);
+        // execute the setAuthority through the manager's execute function
+        await expect(
+          this.manager
+            .connect(this.admin)
+            .execute(this.target, this.target.interface.encodeFunctionData('setAuthority', [newAuthority.target])),
+        )
+          .to.emit(this.target, 'AuthorityUpdated')
+          .withArgs(newAuthority);
+      });
 
-      // cannot update directly - there is a delay
-      await expect(
-        this.manager.connect(this.admin).updateAuthority(this.target, newAuthority),
-      ).to.be.revertedWithCustomError(this.manager, 'AccessManagerNotScheduled');
+      it('cannot execute a setAuthority, if there is an target admin delay', async function () {
+        const newAuthority = await ethers.deployContract('$AccessManager', [this.admin]);
 
-      // bypass the check by just doing execute
-      await expect(
-        this.manager
-          .connect(this.admin)
-          .execute(this.target, this.target.interface.encodeFunctionData('setAuthority', [newAuthority.target])),
-      )
-        .to.emit(this.target, 'AuthorityUpdated')
-        .withArgs(newAuthority);
+        // set a delay on the target - and wait for it to be active
+        await this.manager.$_setTargetAdminDelay(this.target, 10n);
+        await time.increaseBy.timestamp(5n * 86400n, true); // minSetBack is 5 days
+
+        await expect(this.manager.getTargetAdminDelay(this.target)).to.eventually.equal(10n);
+
+        // cannot update directly - there is a delay
+        await expect(
+          this.manager.connect(this.admin).updateAuthority(this.target, newAuthority),
+        ).to.be.revertedWithCustomError(this.manager, 'AccessManagerNotScheduled');
+
+        // bypass the check by just doing execute -- covered
+        await expect(
+          this.manager
+            .connect(this.admin)
+            .execute(this.target, this.target.interface.encodeFunctionData('setAuthority', [newAuthority.target])),
+        ).to.be.revertedWithCustomError(this.manager, 'AccessManagerNotScheduled');
+      });
+
+      it('cannot set a function role for setAuthority', async function () {
+        const { selector } = this.target.interface.getFunction('setAuthority');
+        await expect(
+          this.manager.connect(this.admin).$_setTargetFunctionRole(this.target, selector, this.roles.ADMIN.id),
+        )
+          .to.be.revertedWithCustomError(this.manager, 'AccessManagerLockedFunction')
+          .withArgs(selector);
+      });
     });
   });
 
