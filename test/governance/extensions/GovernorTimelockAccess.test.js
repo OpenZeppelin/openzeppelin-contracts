@@ -238,6 +238,7 @@ describe('GovernorTimelockAccess', function () {
         await this.helper.setProposal([this.restricted.operation], 'descr');
         await this.helper.propose();
         expect(await this.mock.proposalNeedsQueuing(this.helper.currentProposal.id)).to.be.false;
+
         await this.helper.waitForSnapshot();
         await this.helper.connect(this.voter1).vote({ support: VoteType.For });
         await this.helper.waitForDeadline();
@@ -261,6 +262,7 @@ describe('GovernorTimelockAccess', function () {
         await this.helper.setProposal([this.restricted.operation], 'descr');
         await this.helper.propose();
         expect(await this.mock.proposalNeedsQueuing(this.helper.currentProposal.id)).to.be.true;
+
         await this.helper.waitForSnapshot();
         await this.helper.connect(this.voter1).vote({ support: VoteType.For });
         await this.helper.waitForDeadline();
@@ -298,6 +300,19 @@ describe('GovernorTimelockAccess', function () {
           );
           await this.helper.propose();
           expect(await this.mock.proposalNeedsQueuing(this.helper.currentProposal.id)).to.be.true;
+
+          await this.helper.waitForSnapshot();
+          await this.helper.connect(this.voter1).vote({ support: VoteType.For });
+          await this.helper.waitForDeadline();
+
+          // Not queueud, so it should revert
+          await expect(this.helper.execute())
+            .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
+            .withArgs(
+              this.helper.currentProposal.id,
+              ProposalState.Succeeded,
+              GovernorHelper.proposalStatesToBitMap([ProposalState.Queued]),
+            );
         }
       });
 
