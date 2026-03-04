@@ -6,6 +6,7 @@ pragma solidity ^0.8.26;
 import {IERC7579Hook, MODULE_TYPE_HOOK} from "../../interfaces/draft-IERC7579.sol";
 import {ERC7579Utils, Mode} from "../../account/utils/draft-ERC7579Utils.sol";
 import {AccountERC7579} from "./draft-AccountERC7579.sol";
+import {Bytes} from "../../utils/Bytes.sol";
 import {LowLevelCall} from "../../utils/LowLevelCall.sol";
 
 /**
@@ -97,8 +98,16 @@ abstract contract AccountERC7579Hooked is AccountERC7579 {
                 abi.encodeCall(IERC7579Hook.preCheck, (msg.sender, msg.value, msg.data))
             );
             if (preCheckSuccess) {
-                // Note: this can revert, and we won't be able to catch it. If could be leveraged by a malicious hook to force a revert.
-                hookData = abi.decode(LowLevelCall.returnData(), (bytes));
+                // Note: abi.decode could revert, and we wouldn't be able to catch it.
+                // If could be leveraged by a malicious hook to force a revert.
+                // So we have to do the decode manually.
+                hookData = LowLevelCall.returnData();
+                if (hookData.length < 0x20) preCheckSuccess = false;
+                uint256 offset = uint256(_unsafeReadBytesOffset(hookData, 0));
+                if (hookData.length < 0x20 + offset) preCheckSuccess = false;
+                uint256 length = uint256(_unsafeReadBytesOffset(hookData, offset));
+                if (hookData.length < 0x20 + offset + length) preCheckSuccess = false;
+                Bytes.splice(hookData, 0x20 + offset, 0x20 + offset + length);
             } else if (moduleTypeId != MODULE_TYPE_HOOK) {
                 LowLevelCall.bubbleRevert();
             }
@@ -138,5 +147,13 @@ abstract contract AccountERC7579Hooked is AccountERC7579 {
     /// @dev Hooked version of {AccountERC7579-_fallback}.
     function _fallback() internal virtual override withHook returns (bytes memory) {
         return super._fallback();
+    }
+
+    /// @dev Copied from Bytes.sol
+    function _unsafeReadBytesOffset(bytes memory buffer, uint256 offset) private pure returns (bytes32 value) {
+        // This is not memory safe in the general case, but all calls to this private function are within bounds.
+        assembly ("memory-safe") {
+            value := mload(add(add(buffer, 0x20), offset))
+        }
     }
 }
