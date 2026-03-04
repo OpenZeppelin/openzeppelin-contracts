@@ -5,6 +5,7 @@ const { addressCoder, nameCoder } = require('interoperable-addresses');
 const { CAIP350, chainTypeCoder } = require('interoperable-addresses/dist/CAIP350');
 
 const { getLocalChain } = require('../helpers/chains');
+const { generators } = require('../helpers/random');
 
 async function fixture() {
   const mock = await ethers.deployContract('$InteroperableAddress');
@@ -116,11 +117,13 @@ describe('ERC7390', function () {
       // version 2 + some data
       'unsupported version': '0x00020000010100',
       // version + ref: missing chainReferenceLength and addressLength
-      'too short (case 1)': '0x00010000',
+      'too short (case 1)': '0x00010042',
       // version + ref + chainReference: missing addressLength
-      'too short (case 2)': '0x000100000101',
+      'too short (case 2)': '0x000100420101',
       // version + ref + chainReference + addressLength + part of the address: missing 2 bytes of the address
-      'too short (case 3)': '0x00010000010114d8da6bf26964af9d7eed9e03e53415d37aa9',
+      'too short (case 3)': '0x00010042010114d8da6bf26964af9d7eed9e03e53415d37aa9',
+      // empty chain reference and address
+      'empty chain reference and address': '0x000100420000',
     })) {
       it(title, async function () {
         await expect(this.mock.$parseV1(binary))
@@ -166,5 +169,49 @@ describe('ERC7390', function () {
         ]);
       });
     }
+  });
+
+  describe('handles large references and addresses', function () {
+    it('large', async function () {
+      const chainType = '0x0000';
+      const reference = generators.bytes(142);
+      const address = generators.bytes(142);
+
+      const binary = addressCoder.encode({ chainType, reference, address });
+
+      // Generic parse
+      await expect(this.mock.$tryParseV1(binary)).to.eventually.deep.equal([true, chainType, reference, address]);
+      await expect(this.mock.$tryParseV1Calldata(binary)).to.eventually.deep.equal([
+        true,
+        chainType,
+        reference,
+        address,
+      ]);
+
+      // EVM parse - too long to be a valid evm format
+      await expect(this.mock.$tryParseEvmV1(binary)).to.eventually.deep.equal([false, 0n, ethers.ZeroAddress]);
+      await expect(this.mock.$tryParseEvmV1Calldata(binary)).to.eventually.deep.equal([false, 0n, ethers.ZeroAddress]);
+    });
+
+    it('very large', async function () {
+      const chainType = '0x0000';
+      const reference = generators.bytes(255);
+      const address = generators.bytes(255);
+
+      const binary = addressCoder.encode({ chainType, reference, address });
+
+      // Generic parse
+      await expect(this.mock.$tryParseV1(binary)).to.eventually.deep.equal([true, chainType, reference, address]);
+      await expect(this.mock.$tryParseV1Calldata(binary)).to.eventually.deep.equal([
+        true,
+        chainType,
+        reference,
+        address,
+      ]);
+
+      // EVM parse - too long to be a valid evm format
+      await expect(this.mock.$tryParseEvmV1(binary)).to.eventually.deep.equal([false, 0n, ethers.ZeroAddress]);
+      await expect(this.mock.$tryParseEvmV1Calldata(binary)).to.eventually.deep.equal([false, 0n, ethers.ZeroAddress]);
+    });
   });
 });

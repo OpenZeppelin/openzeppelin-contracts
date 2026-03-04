@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.5.0) (token/ERC20/extensions/ERC4626.sol)
+// OpenZeppelin Contracts (last updated v5.6.0) (token/ERC20/extensions/ERC4626.sol)
 
 pragma solidity ^0.8.24;
 
@@ -111,7 +111,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
             address(asset_),
             abi.encodeCall(IERC20Metadata.decimals, ())
         );
-        Memory.setFreeMemoryPointer(ptr);
+        Memory.unsafeSetFreeMemoryPointer(ptr);
 
         return
             (success && LowLevelCall.returnDataSize() >= 32 && uint256(returnedDecimals) <= type(uint8).max)
