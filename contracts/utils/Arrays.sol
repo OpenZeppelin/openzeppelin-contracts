@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.5.0) (utils/Arrays.sol)
+// OpenZeppelin Contracts (last updated v5.6.0) (utils/Arrays.sol)
 // This file was procedurally generated from scripts/generate/templates/Arrays.js.
 
 pragma solidity ^0.8.24;
