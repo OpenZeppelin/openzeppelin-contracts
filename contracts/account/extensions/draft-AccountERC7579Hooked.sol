@@ -144,17 +144,21 @@ abstract contract AccountERC7579Hooked is AccountERC7579 {
     }
 
     /**
-     * @dev Try to abi.decode a bytes array. If successfull, the decoding is done in place, overriding the original
+     * @dev Try to abi.decode a bytes array. If successful, the decoding is done in place, overriding the original
      * data. If decoding fails, the original data is left untouched.
      */
-    function _tryInPlaceAbiDecodeBytes(bytes memory data) private pure returns (bool success, bytes memory passtrough) {
-        if (data.length < 0x20) return (false, data);
-        uint256 offset = uint256(_unsafeReadBytesOffset(data, 0));
-        if (data.length < 0x20 + offset) return (false, data);
-        uint256 length = uint256(_unsafeReadBytesOffset(data, offset));
-        if (data.length < 0x20 + offset + length) return (false, data);
-        Bytes.splice(data, 0x20 + offset, 0x20 + offset + length);
-        return (true, data);
+    function _tryInPlaceAbiDecodeBytes(
+        bytes memory data
+    ) private pure returns (bool success, bytes memory passthrough) {
+        unchecked {
+            if (data.length < 0x20) return (false, data);
+            uint256 offset = uint256(_unsafeReadBytesOffset(data, 0));
+            if (data.length - 0x20 < offset) return (false, data);
+            uint256 length = uint256(_unsafeReadBytesOffset(data, offset));
+            if (data.length - 0x20 - offset < length) return (false, data);
+            Bytes.splice(data, 0x20 + offset, 0x20 + offset + length);
+            return (true, data);
+        }
     }
 
     /// @dev Copied from Bytes.sol
