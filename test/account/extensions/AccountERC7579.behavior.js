@@ -1,5 +1,6 @@
 const { ethers, predeploy } = require('hardhat');
 const { expect } = require('chai');
+const { setCode } = require('@nomicfoundation/hardhat-network-helpers');
 const { impersonate } = require('../../helpers/account');
 const { selector } = require('../../helpers/methods');
 const { zip } = require('../../helpers/iterate');
@@ -367,6 +368,23 @@ function shouldBehaveLikeAccountERC7579({ withHooks = false } = {}) {
             // Set the hook to revert on preCheck and postCheck
             await instance.revertOnPreCheck(true);
             await instance.revertOnPostCheck(true);
+
+            // Should uninstall
+            await expect(this.mockFromEntrypoint.uninstallModule(MODULE_TYPE_HOOK, instance, initData))
+              .to.emit(this.mock, 'ModuleUninstalled')
+              .withArgs(MODULE_TYPE_HOOK, instance)
+              .to.not.emit(instance, 'PreCheck')
+              .to.not.emit(instance, 'PostCheck');
+
+            await expect(this.mock.isModuleInstalled(MODULE_TYPE_HOOK, instance, initData)).to.eventually.equal(false);
+          });
+
+          it('can uninstall a hook module that has no code (removed delegation)', async function () {
+            const instance = this.modules[MODULE_TYPE_HOOK];
+            const initData = ethers.hexlify(ethers.randomBytes(256));
+
+            // Delete the code of the module to simulate a removed delegation
+            await setCode(instance.target, '0x');
 
             // Should uninstall
             await expect(this.mockFromEntrypoint.uninstallModule(MODULE_TYPE_HOOK, instance, initData))

@@ -6,6 +6,7 @@ pragma solidity ^0.8.26;
 import {IERC7579Hook, MODULE_TYPE_HOOK} from "../../interfaces/draft-IERC7579.sol";
 import {ERC7579Utils, Mode} from "../../account/utils/draft-ERC7579Utils.sol";
 import {AccountERC7579} from "./draft-AccountERC7579.sol";
+import {LowLevelCall} from "../../utils/LowLevelCall.sol";
 
 /**
  * @dev Extension of {AccountERC7579} with support for a single hook module (type 4).
@@ -47,16 +48,17 @@ abstract contract AccountERC7579Hooked is AccountERC7579 {
 
         // slither-disable-next-line reentrancy-no-eth
         if (hook_ != address(0)) {
-            try IERC7579Hook(hook_).preCheck(msg.sender, msg.value, msg.data) returns (bytes memory data) {
-                preCheckSuccess = true;
-                hookData = data;
-            } catch {
-                preCheckSuccess = false;
+            preCheckSuccess = LowLevelCall.callNoReturn(
+                hook_,
+                abi.encodeCall(IERC7579Hook.preCheck, (msg.sender, msg.value, msg.data))
+            );
+            if (preCheckSuccess) {
+                hookData = LowLevelCall.returnData();
             }
         }
         _;
         if (hook_ != address(0) && preCheckSuccess) {
-            try IERC7579Hook(hook_).postCheck(hookData) {} catch {}
+            LowLevelCall.callNoReturn(hook_, abi.encodeCall(IERC7579Hook.postCheck, (hookData)));
         }
     }
 
