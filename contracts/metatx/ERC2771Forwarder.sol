@@ -76,6 +76,11 @@ contract ERC2771Forwarder is EIP712, Nonces {
     event ExecutedForwardRequest(address indexed signer, uint256 nonce, bool success);
 
     /**
+     * @dev One of the calls in an atomic batch failed.
+     */
+    error ERC2771ForwarderFailureInAtomicBatch();
+
+    /**
      * @dev The request `from` doesn't match with the recovered `signer`.
      */
     error ERC2771ForwarderInvalidSigner(address signer, address from);
@@ -173,6 +178,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
             requestsValue += requests[i].value;
             bool success = _execute(requests[i], atomic);
             if (!success) {
+                if (atomic) revert ERC2771ForwarderFailureInAtomicBatch();
                 refundValue += requests[i].value;
             }
         }
