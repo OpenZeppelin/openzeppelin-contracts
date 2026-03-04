@@ -97,7 +97,8 @@ abstract contract AccountERC7579Hooked is AccountERC7579 {
                 abi.encodeCall(IERC7579Hook.preCheck, (msg.sender, msg.value, msg.data))
             );
             if (preCheckSuccess) {
-                hookData = LowLevelCall.returnData();
+                // Note: this can revert, and we won't be able to catch it. If could be leveraged by a malicious hook to force a revert.
+                hookData = abi.decode(LowLevelCall.returnData(), (bytes));
             } else if (moduleTypeId != MODULE_TYPE_HOOK) {
                 LowLevelCall.bubbleRevert();
             }
