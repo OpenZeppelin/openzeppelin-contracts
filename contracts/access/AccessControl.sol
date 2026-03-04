@@ -143,7 +143,7 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      * purpose is to provide a mechanism for accounts to lose their privileges
      * if they are compromised (such as when a trusted device is misplaced).
      *
-     * If the calling account had been granted `role`, emits a {RoleRevoked}
+     * Emits a {RoleRevoked} if the calling account had `role` and this call succesfully revoked it.
      * event.
      *
      * Requirements:
