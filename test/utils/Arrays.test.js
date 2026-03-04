@@ -133,7 +133,12 @@ describe('Arrays', function () {
 
       if (isValueType) {
         describe('sort', function () {
-          for (const length of [0, 1, 2, 8, 32, 128]) {
+          const lengths = [0, 1, 2, 8, 32, 128];
+          // Sorting larger arrays in the worst case (already reversed) used to overflow the EVM stack
+          // due to unbounded recursion depth in the internal quicksort implementation.
+          if (name === 'uint256') lengths.push(256);
+
+          for (const length of lengths) {
             describe(`${name}[] of length ${length}`, function () {
               beforeEach(async function () {
                 this.array = Array.from({ length }, generators[name]);
