@@ -6,6 +6,7 @@ pragma solidity ^0.8.26;
 import {IERC7579Hook, MODULE_TYPE_HOOK} from "../../interfaces/draft-IERC7579.sol";
 import {ERC7579Utils, Mode} from "../../account/utils/draft-ERC7579Utils.sol";
 import {AccountERC7579} from "./draft-AccountERC7579.sol";
+import {LowLevelCall} from "../../utils/LowLevelCall.sol";
 
 /**
  * @dev Extension of {AccountERC7579} with support for a single hook module (type 4).
@@ -37,6 +38,27 @@ abstract contract AccountERC7579Hooked is AccountERC7579 {
         if (hook_ != address(0)) hookData = IERC7579Hook(hook_).preCheck(msg.sender, msg.value, msg.data);
         _;
         if (hook_ != address(0)) IERC7579Hook(hook_).postCheck(hookData);
+    }
+
+    /// @dev Variant of `withHook` modifier that doesn't revert if the hook reverts. This is useful for uninstalling malicious or bugged hooks.
+    modifier withHookNoRevert() {
+        address hook_ = hook();
+        bytes memory hookData;
+        bool preCheckSuccess;
+
+        // slither-disable-next-line reentrancy-no-eth
+        if (hook_ != address(0)) {
+            try IERC7579Hook(hook_).preCheck(msg.sender, msg.value, msg.data) returns (bytes memory data) {
+                preCheckSuccess = true;
+                hookData = data;
+            } catch {
+                preCheckSuccess = false;
+            }
+        }
+        _;
+        if (hook_ != address(0) && preCheckSuccess) {
+            try IERC7579Hook(hook_).postCheck(hookData) {} catch {}
+        }
     }
 
     /// @inheritdoc AccountERC7579
@@ -80,15 +102,24 @@ abstract contract AccountERC7579Hooked is AccountERC7579 {
     }
 
     /// @dev Uninstalls a module with support for hook modules. See {AccountERC7579-_uninstallModule}
-    function _uninstallModule(
-        uint256 moduleTypeId,
-        address module,
-        bytes memory deInitData
-    ) internal virtual override withHook {
+    function _uninstallModule(uint256 moduleTypeId, address module, bytes memory deInitData) internal virtual override {
         if (moduleTypeId == MODULE_TYPE_HOOK) {
-            require(_hook == module, ERC7579Utils.ERC7579UninstalledModule(moduleTypeId, module));
-            _hook = address(0);
+            // includes the `withHookNoRevert` modifier to ensure that the hook can be uninstalled even if it is malicious or bugged and reverts on preCheck or postCheck.
+            _uninstallHookModule(module, deInitData);
+        } else {
+            // calls super with the `withHook` modifier.
+            _uninstallOtherModule(moduleTypeId, module, deInitData);
         }
+    }
+
+    function _uninstallHookModule(address module, bytes memory deInitData) private withHookNoRevert {
+        require(_hook == module, ERC7579Utils.ERC7579UninstalledModule(MODULE_TYPE_HOOK, module));
+        _hook = address(0);
+
+        super._uninstallModule(MODULE_TYPE_HOOK, module, deInitData);
+    }
+
+    function _uninstallOtherModule(uint256 moduleTypeId, address module, bytes memory deInitData) private withHook {
         super._uninstallModule(moduleTypeId, module, deInitData);
     }
 

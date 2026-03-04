@@ -181,7 +181,7 @@ function shouldBehaveLikeAccountERC7579({ withHooks = false } = {}) {
       withHooks &&
         describe('with hook', function () {
           beforeEach(async function () {
-            await this.mockFromEntrypoint.$_installModule(MODULE_TYPE_HOOK, this.modules[MODULE_TYPE_HOOK], '0x');
+            await this.mock.$_installModule(MODULE_TYPE_HOOK, this.modules[MODULE_TYPE_HOOK], '0x');
           });
 
           it('should call the hook of the installed module when performing an module install', async function () {
@@ -267,7 +267,7 @@ function shouldBehaveLikeAccountERC7579({ withHooks = false } = {}) {
         const anotherInstance = await ethers.deployContract('$ERC7579ModuleMock', [MODULE_TYPE_FALLBACK]);
         const initData = '0x12345678abcdef';
 
-        await this.mockFromEntrypoint.$_installModule(MODULE_TYPE_FALLBACK, instance, initData);
+        await this.mock.$_installModule(MODULE_TYPE_FALLBACK, instance, initData);
         await expect(this.mockFromEntrypoint.uninstallModule(MODULE_TYPE_FALLBACK, anotherInstance, initData))
           .to.be.revertedWithCustomError(this.mock, 'ERC7579UninstalledModule')
           .withArgs(MODULE_TYPE_FALLBACK, anotherInstance);
@@ -296,7 +296,7 @@ function shouldBehaveLikeAccountERC7579({ withHooks = false } = {}) {
       withHooks &&
         describe('with hook', function () {
           beforeEach(async function () {
-            await this.mockFromEntrypoint.$_installModule(MODULE_TYPE_HOOK, this.modules[MODULE_TYPE_HOOK], '0x');
+            await this.mock.$_installModule(MODULE_TYPE_HOOK, this.modules[MODULE_TYPE_HOOK], '0x');
           });
 
           it('should call the hook of the installed module when performing a module uninstall', async function () {
@@ -315,6 +315,67 @@ function shouldBehaveLikeAccountERC7579({ withHooks = false } = {}) {
               .withArgs(predeploy.entrypoint.v09, 0n, precheckData)
               .to.emit(this.modules[MODULE_TYPE_HOOK], 'PostCheck')
               .withArgs(precheckData);
+          });
+
+          it('can uninstall a hook module that reverts during its pre-check', async function () {
+            const instance = this.modules[MODULE_TYPE_HOOK];
+            const initData = ethers.hexlify(ethers.randomBytes(256));
+
+            // Set the hook to revert on preCheck
+            await instance.revertOnPreCheck(true);
+
+            // Should uninstall
+            await expect(this.mockFromEntrypoint.uninstallModule(MODULE_TYPE_HOOK, instance, initData))
+              .to.emit(this.mock, 'ModuleUninstalled')
+              .withArgs(MODULE_TYPE_HOOK, instance)
+              .to.not.emit(instance, 'PreCheck')
+              .to.not.emit(instance, 'PostCheck');
+
+            await expect(this.mock.isModuleInstalled(MODULE_TYPE_HOOK, instance, initData)).to.eventually.equal(false);
+          });
+
+          it('can uninstall a hook module that reverts during its post-check', async function () {
+            const instance = this.modules[MODULE_TYPE_HOOK];
+            const initData = ethers.hexlify(ethers.randomBytes(256));
+
+            // Set the hook to revert on postCheck
+            await instance.revertOnPostCheck(true);
+
+            // Should uninstall
+            await expect(this.mockFromEntrypoint.uninstallModule(MODULE_TYPE_HOOK, instance, initData))
+              .to.emit(this.mock, 'ModuleUninstalled')
+              .withArgs(MODULE_TYPE_HOOK, instance)
+              .to.emit(instance, 'PreCheck')
+              .withArgs(
+                predeploy.entrypoint.v09,
+                0n,
+                this.mock.interface.encodeFunctionData('uninstallModule', [
+                  MODULE_TYPE_HOOK,
+                  instance.target,
+                  initData,
+                ]),
+              )
+              .to.not.emit(instance, 'PostCheck');
+
+            await expect(this.mock.isModuleInstalled(MODULE_TYPE_HOOK, instance, initData)).to.eventually.equal(false);
+          });
+
+          it('can uninstall a hook module that reverts during both pre-check and post-check', async function () {
+            const instance = this.modules[MODULE_TYPE_HOOK];
+            const initData = ethers.hexlify(ethers.randomBytes(256));
+
+            // Set the hook to revert on preCheck and postCheck
+            await instance.revertOnPreCheck(true);
+            await instance.revertOnPostCheck(true);
+
+            // Should uninstall
+            await expect(this.mockFromEntrypoint.uninstallModule(MODULE_TYPE_HOOK, instance, initData))
+              .to.emit(this.mock, 'ModuleUninstalled')
+              .withArgs(MODULE_TYPE_HOOK, instance)
+              .to.not.emit(instance, 'PreCheck')
+              .to.not.emit(instance, 'PostCheck');
+
+            await expect(this.mock.isModuleInstalled(MODULE_TYPE_HOOK, instance, initData)).to.eventually.equal(false);
           });
         });
     });
@@ -515,7 +576,7 @@ function shouldBehaveLikeAccountERC7579({ withHooks = false } = {}) {
           withHooks &&
             describe('with hook', function () {
               beforeEach(async function () {
-                await this.mockFromEntrypoint.$_installModule(MODULE_TYPE_HOOK, this.modules[MODULE_TYPE_HOOK], '0x');
+                await this.mock.$_installModule(MODULE_TYPE_HOOK, this.modules[MODULE_TYPE_HOOK], '0x');
               });
 
               it(`should call the hook of the installed module when executing ${execFn}`, async function () {
@@ -596,7 +657,7 @@ function shouldBehaveLikeAccountERC7579({ withHooks = false } = {}) {
         withHooks &&
           describe('with hook', function () {
             beforeEach(async function () {
-              await this.mockFromEntrypoint.$_installModule(MODULE_TYPE_HOOK, this.modules[MODULE_TYPE_HOOK], '0x');
+              await this.mock.$_installModule(MODULE_TYPE_HOOK, this.modules[MODULE_TYPE_HOOK], '0x');
             });
 
             it('should call the hook of the installed module when performing a callback', async function () {
