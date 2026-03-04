@@ -98,11 +98,10 @@ abstract contract AccountERC7579Hooked is AccountERC7579 {
                 abi.encodeCall(IERC7579Hook.preCheck, (msg.sender, msg.value, msg.data))
             );
             if (preCheckSuccess) {
-                hookData = LowLevelCall.returnData();
                 // Note: abi.decode could revert, and we wouldn't be able to catch it.
                 // If could be leveraged by a malicious hook to force a revert.
                 // So we have to do the decode manually.
-                preCheckSuccess = _tryInPlaceAbiDecodeBytes(hookData);
+                (preCheckSuccess, hookData) = _tryInPlaceAbiDecodeBytes(LowLevelCall.returnData());
             } else if (moduleTypeId != MODULE_TYPE_HOOK) {
                 LowLevelCall.bubbleRevert();
             }
@@ -144,14 +143,18 @@ abstract contract AccountERC7579Hooked is AccountERC7579 {
         return super._fallback();
     }
 
-    function _tryInPlaceAbiDecodeBytes(bytes memory data) private pure returns (bool success) {
-        if (data.length < 0x20) return false;
+    /**
+     * @dev Try to abi.decode a bytes array. If successfull, the decoding is done in place, overriding the original
+     * data. If decoding fails, the original data is left untouched.
+     */
+    function _tryInPlaceAbiDecodeBytes(bytes memory data) private pure returns (bool success, bytes memory passtrough) {
+        if (data.length < 0x20) return (false, data);
         uint256 offset = uint256(_unsafeReadBytesOffset(data, 0));
-        if (data.length < 0x20 + offset) return false;
+        if (data.length < 0x20 + offset) return (false, data);
         uint256 length = uint256(_unsafeReadBytesOffset(data, offset));
-        if (data.length < 0x20 + offset + length) return false;
+        if (data.length < 0x20 + offset + length) return (false, data);
         Bytes.splice(data, 0x20 + offset, 0x20 + offset + length);
-        return true;
+        return (true, data);
     }
 
     /// @dev Copied from Bytes.sol
