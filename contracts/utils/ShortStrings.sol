@@ -47,7 +47,7 @@ library ShortStrings {
     /**
      * @dev Encode a string of at most 31 chars into a `ShortString`.
      *
-     * This will trigger a `StringTooLong` error is the input string is too long.
+     * This will trigger a `StringTooLong` error if the input string is too long.
      */
     function toShortString(string memory str) internal pure returns (ShortString) {
         bytes memory bstr = bytes(str);
