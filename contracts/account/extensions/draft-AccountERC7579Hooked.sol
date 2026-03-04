@@ -40,28 +40,6 @@ abstract contract AccountERC7579Hooked is AccountERC7579 {
         if (hook_ != address(0)) IERC7579Hook(hook_).postCheck(hookData);
     }
 
-    /// @dev Variant of `withHook` modifier that doesn't revert if the hook reverts. This is useful for uninstalling malicious or bugged hooks.
-    modifier withHookNoRevert() {
-        address hook_ = hook();
-        bytes memory hookData;
-        bool preCheckSuccess;
-
-        // slither-disable-next-line reentrancy-no-eth
-        if (hook_ != address(0)) {
-            preCheckSuccess = LowLevelCall.callNoReturn(
-                hook_,
-                abi.encodeCall(IERC7579Hook.preCheck, (msg.sender, msg.value, msg.data))
-            );
-            if (preCheckSuccess) {
-                hookData = LowLevelCall.returnData();
-            }
-        }
-        _;
-        if (hook_ != address(0) && preCheckSuccess) {
-            LowLevelCall.callNoReturn(hook_, abi.encodeCall(IERC7579Hook.postCheck, (hookData)));
-        }
-    }
-
     /// @inheritdoc AccountERC7579
     function accountId() public view virtual override returns (string memory) {
         // vendorname.accountname.semver
@@ -104,24 +82,48 @@ abstract contract AccountERC7579Hooked is AccountERC7579 {
 
     /// @dev Uninstalls a module with support for hook modules. See {AccountERC7579-_uninstallModule}
     function _uninstallModule(uint256 moduleTypeId, address module, bytes memory deInitData) internal virtual override {
-        if (moduleTypeId == MODULE_TYPE_HOOK) {
-            // includes the `withHookNoRevert` modifier to ensure that the hook can be uninstalled even if it is malicious or bugged and reverts on preCheck or postCheck.
-            _uninstallHookModule(module, deInitData);
-        } else {
-            // calls super with the `withHook` modifier.
-            _uninstallOtherModule(moduleTypeId, module, deInitData);
+        // Inline a variant of the `withHook` modifier that doesn't revert if the hook reverts and the moduleTypeId is `MODULE_TYPE_HOOK`.
+
+        // === Beginning of the precheck ===
+
+        address hook_ = hook();
+        bytes memory hookData;
+        bool preCheckSuccess;
+
+        // slither-disable-next-line reentrancy-no-eth
+        if (hook_ != address(0)) {
+            preCheckSuccess = LowLevelCall.callNoReturn(
+                hook_,
+                abi.encodeCall(IERC7579Hook.preCheck, (msg.sender, msg.value, msg.data))
+            );
+            if (preCheckSuccess) {
+                hookData = LowLevelCall.returnData();
+            } else if (moduleTypeId != MODULE_TYPE_HOOK) {
+                LowLevelCall.bubbleRevert();
+            }
         }
-    }
 
-    function _uninstallHookModule(address module, bytes memory deInitData) private withHookNoRevert {
-        require(_hook == module, ERC7579Utils.ERC7579UninstalledModule(MODULE_TYPE_HOOK, module));
-        _hook = address(0);
+        // === End of the precheck -- Beginning of the body (`_` part of the modifier) ===
 
-        super._uninstallModule(MODULE_TYPE_HOOK, module, deInitData);
-    }
-
-    function _uninstallOtherModule(uint256 moduleTypeId, address module, bytes memory deInitData) private withHook {
+        if (moduleTypeId == MODULE_TYPE_HOOK) {
+            require(_hook == module, ERC7579Utils.ERC7579UninstalledModule(moduleTypeId, module));
+            _hook = address(0);
+        }
         super._uninstallModule(moduleTypeId, module, deInitData);
+
+        // === End of the body (`_` part of the modifier) -- Beginning of the postcheck ===
+
+        if (hook_ != address(0) && preCheckSuccess) {
+            bool postCheckSuccess = LowLevelCall.callNoReturn(
+                hook_,
+                abi.encodeCall(IERC7579Hook.postCheck, (hookData))
+            );
+            if (!postCheckSuccess && moduleTypeId != MODULE_TYPE_HOOK) {
+                LowLevelCall.bubbleRevert();
+            }
+        }
+
+        // === End of the postcheck ===
     }
 
     /// @dev Hooked version of {AccountERC7579-_execute}.
