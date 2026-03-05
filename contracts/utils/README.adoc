@@ -27,6 +27,7 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {Base58}: On-chain base58 encoding and decoding.
  * {Base64}: On-chain base64 and base64URL encoding according to https://datatracker.ietf.org/doc/html/rfc4648[RFC-4648].
  * {Blockhash}: A library for accessing historical block hashes beyond the standard 256 block limit utilizing EIP-2935's historical blockhash functionality.
+ * {BlockHeader}: A library for parsing and verifying RLP-encoded block headers.
  * {Bytes}: Common operations on bytes objects.
  * {CAIP2}, {CAIP10}: Libraries for formatting and parsing CAIP-2 and CAIP-10 identifiers.
  * {Calldata}: Helpers for manipulating calldata.
@@ -117,6 +118,8 @@ Ethereum contracts have no native concept of an interface, so applications must 
 {{Base64}}
 
 {{Blockhash}}
+
+{{BlockHeader}}
 
 {{Bytes}}
 
