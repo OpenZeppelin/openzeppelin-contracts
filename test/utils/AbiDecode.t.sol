@@ -34,7 +34,7 @@ contract AbiDecodeTest is Test {
     function testDecodeCalldataNoRevert(bytes calldata buffer) public pure {
         (bool success, bytes calldata output) = buffer.tryDecodeBytesCalldata();
         if (success) {
-            assertEq(output, new bytes(0));
+            assertEq(output, abi.decode(buffer, (bytes)));
         } else {
             assertEq(output, new bytes(0));
         }
