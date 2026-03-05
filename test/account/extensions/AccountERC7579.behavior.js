@@ -297,6 +297,7 @@ function shouldBehaveLikeAccountERC7579({ withHooks = false } = {}) {
       withHooks &&
         describe('with hook', function () {
           beforeEach(async function () {
+            await this.mock.$_installModule(MODULE_TYPE_EXECUTOR, this.modules[MODULE_TYPE_EXECUTOR], '0x');
             await this.mock.$_installModule(MODULE_TYPE_HOOK, this.modules[MODULE_TYPE_HOOK], '0x');
           });
 
@@ -310,12 +311,35 @@ function shouldBehaveLikeAccountERC7579({ withHooks = false } = {}) {
               initData,
             ]);
 
-            await this.mock.$_installModule(MODULE_TYPE_EXECUTOR, instance, initData);
             await expect(this.mockFromEntrypoint.uninstallModule(MODULE_TYPE_EXECUTOR, instance, initData))
               .to.emit(this.modules[MODULE_TYPE_HOOK], 'PreCheck')
               .withArgs(predeploy.entrypoint.v09, 0n, precheckData)
               .to.emit(this.modules[MODULE_TYPE_HOOK], 'PostCheck')
               .withArgs(precheckData);
+          });
+
+          it('hook revert during the pre-check prevents uninstalling a non-hook module', async function () {
+            const instance = this.modules[MODULE_TYPE_EXECUTOR];
+            const initData = ethers.hexlify(ethers.randomBytes(256));
+
+            // Set the hook to revert on preCheck
+            await this.modules[MODULE_TYPE_HOOK].revertOnPreCheck(true);
+
+            await expect(
+              this.mockFromEntrypoint.uninstallModule(MODULE_TYPE_EXECUTOR, instance, initData),
+            ).to.be.revertedWith('preCheck reverts');
+          });
+
+          it('hook revert during the post-check prevents uninstalling a non-hook module', async function () {
+            const instance = this.modules[MODULE_TYPE_EXECUTOR];
+            const initData = ethers.hexlify(ethers.randomBytes(256));
+
+            // Set the hook to revert on postCheck
+            await this.modules[MODULE_TYPE_HOOK].revertOnPostCheck(true);
+
+            await expect(
+              this.mockFromEntrypoint.uninstallModule(MODULE_TYPE_EXECUTOR, instance, initData),
+            ).to.be.revertedWith('postCheck reverts');
           });
 
           it('can uninstall a hook module that reverts during its pre-check', async function () {
