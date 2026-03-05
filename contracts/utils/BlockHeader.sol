@@ -141,7 +141,7 @@ library BlockHeader {
 
     /// @dev Extract the nonce from the block header RLP. This is constant to 0 since EIP-3675 (Paris)
     function getNonce(bytes memory headerRLP) internal pure returns (bytes8) {
-        return bytes8(_parseHeader(headerRLP, Hardforks.Homestead)[uint8(HeaderField.Nonce)].readBytes32());
+        return bytes8(_parseHeader(headerRLP, Hardforks.Homestead)[uint8(HeaderField.Nonce)].readUint256().toUint64());
     }
 
     /// @dev Extract the base fee per gas from the block header RLP. This was introduced in London.
