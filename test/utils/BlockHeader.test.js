@@ -4,6 +4,7 @@ const { loadFixture, mine } = require('@nomicfoundation/hardhat-network-helpers'
 const { Enum } = require('../helpers/enums');
 
 const Hardforks = Enum(
+  'Frontier',
   'Homestead',
   'DAO',
   'TangerineWhistle',
@@ -102,7 +103,6 @@ describe('BlockHeader', function () {
   describe('historical blocks', function () {
     for (const block of [
       {
-        _version: Hardforks.Berlin,
         hash: '0x244dd4312575b2c8846837086cf4f1669d026f1db376d1ad700ed77782c11b75',
         parentHash: '0x9b2a40b705d5d806ede8764de1b628e43d98df93dfe779e5f8d9fdb51c6c3e5e',
         sha3Uncles: '0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347',
@@ -122,7 +122,6 @@ describe('BlockHeader', function () {
         nonce: '0xb3b2502a8c3de6f2',
       },
       {
-        _version: Hardforks.London,
         hash: '0xbd44f309a77f0eeca1f0fb8d0fee0663ca024cb46c2e6fa8f5eee77f0259b7d5',
         parentHash: '0xa7d38804924d37bcc5dff91167ac797aa4721a2d4235f433f12598219b5eee93',
         sha3Uncles: '0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347',
@@ -143,7 +142,6 @@ describe('BlockHeader', function () {
         baseFeePerGas: '0xa9558cdb7',
       },
       {
-        _version: Hardforks.Shanghai,
         hash: '0x82b4ead321f2f3891e11990f109b9e17cc39a4ffd7aeb64b8e2c9ecad6a8dcdc',
         parentHash: '0xa920c05e272e83f10ee97d8bd809986a9fa036d9e245682fce503ecb435b0bc1',
         sha3Uncles: '0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347',
@@ -165,7 +163,6 @@ describe('BlockHeader', function () {
         withdrawalsRoot: '0x114350f058bd9496a55fc98134dba4fa9aea36083246ae9ad7adcc9906e3eb58',
       },
       {
-        _version: Hardforks.Cancun,
         hash: '0xf98958f9c83103ec7f0d5f13cf2c36e9793d99413aa06943fad5a8743c055b29',
         parentHash: '0xb37620f0875d897305dad1b7cbd043243880ad96acdb04d73f38b039796c821a',
         sha3Uncles: '0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347',
@@ -190,7 +187,6 @@ describe('BlockHeader', function () {
         parentBeaconBlockRoot: '0x868fd48788b5a92d01ebb31bab47b997ce3f35e30ea4dd4055751d6309a71ff0',
       },
       {
-        _version: Hardforks.Prague,
         hash: '0x0f23d6dee77755efe485b0870d820b1aae8cfe689d767ce7d10b6afa2b1ef14d',
         parentHash: '0x31d473c19b8e0d89e0546d057506d9dea042cd1492ef90682134e6027cf8669c',
         sha3Uncles: '0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347',
@@ -229,21 +225,21 @@ describe('BlockHeader', function () {
         expect(ethers.keccak256(headerRLP)).to.equal(block.hash);
 
         // parsing check
-        await check(this.mock.$getParentHash(headerRLP), block.parentHash, Hardforks.Homestead);
-        await check(this.mock.$getOmmersHash(headerRLP), block.sha3Uncles, Hardforks.Homestead);
-        await check(this.mock.$getCoinbase(headerRLP), ethers.getAddress(block.miner), Hardforks.Homestead);
-        await check(this.mock.$getStateRoot(headerRLP), block.stateRoot, Hardforks.Homestead);
-        await check(this.mock.$getTransactionsRoot(headerRLP), block.transactionsRoot, Hardforks.Homestead);
-        await check(this.mock.$getReceiptsRoot(headerRLP), block.receiptsRoot, Hardforks.Homestead);
-        await check(this.mock.$getLogsBloom(headerRLP), block.logsBloom, Hardforks.Homestead);
-        await check(this.mock.$getDifficulty(headerRLP), block.difficulty, Hardforks.Homestead);
-        await check(this.mock.$getNumber(headerRLP), block.number, Hardforks.Homestead);
-        await check(this.mock.$getGasLimit(headerRLP), block.gasLimit, Hardforks.Homestead);
-        await check(this.mock.$getGasUsed(headerRLP), block.gasUsed, Hardforks.Homestead);
-        await check(this.mock.$getTimestamp(headerRLP), block.timestamp, Hardforks.Homestead);
-        await check(this.mock.$getExtraData(headerRLP), block.extraData, Hardforks.Homestead);
-        await check(this.mock.$getPrevRandao(headerRLP), block.mixHash, Hardforks.Homestead);
-        await check(this.mock.$getNonce(headerRLP), block.nonce, Hardforks.Homestead);
+        await check(this.mock.$getParentHash(headerRLP), block.parentHash, Hardforks.Frontier);
+        await check(this.mock.$getOmmersHash(headerRLP), block.sha3Uncles, Hardforks.Frontier);
+        await check(this.mock.$getCoinbase(headerRLP), ethers.getAddress(block.miner), Hardforks.Frontier);
+        await check(this.mock.$getStateRoot(headerRLP), block.stateRoot, Hardforks.Frontier);
+        await check(this.mock.$getTransactionsRoot(headerRLP), block.transactionsRoot, Hardforks.Frontier);
+        await check(this.mock.$getReceiptsRoot(headerRLP), block.receiptsRoot, Hardforks.Frontier);
+        await check(this.mock.$getLogsBloom(headerRLP), block.logsBloom, Hardforks.Frontier);
+        await check(this.mock.$getDifficulty(headerRLP), block.difficulty, Hardforks.Frontier);
+        await check(this.mock.$getNumber(headerRLP), block.number, Hardforks.Frontier);
+        await check(this.mock.$getGasLimit(headerRLP), block.gasLimit, Hardforks.Frontier);
+        await check(this.mock.$getGasUsed(headerRLP), block.gasUsed, Hardforks.Frontier);
+        await check(this.mock.$getTimestamp(headerRLP), block.timestamp, Hardforks.Frontier);
+        await check(this.mock.$getExtraData(headerRLP), block.extraData, Hardforks.Frontier);
+        await check(this.mock.$getPrevRandao(headerRLP), block.mixHash, Hardforks.Frontier);
+        await check(this.mock.$getNonce(headerRLP), block.nonce, Hardforks.Frontier);
         await check(this.mock.$getBaseFeePerGas(headerRLP), block.baseFeePerGas, Hardforks.London);
         await check(this.mock.$getWithdrawalsRoot(headerRLP), block.withdrawalsRoot, Hardforks.Shanghai);
         await check(this.mock.$getBlobGasUsed(headerRLP), block.blobGasUsed, Hardforks.Cancun);
