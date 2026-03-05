@@ -40,6 +40,42 @@ contract AbiDecodeTest is Test {
         }
     }
 
+    function testDecodeDegenerateCase() public view {
+        bytes memory buffer = abi.encodePacked(uint256(0x00)); // offset to itself + length = 0
+
+        (bool success, Memory.Slice output) = buffer.tryDecodeBytes();
+        assertTrue(success);
+        assertEq(output.toBytes(), new bytes(0));
+
+        (bool successCalldata, bytes memory outputCalldata) = this.__tryDecodeBytesCalldata(buffer);
+        assertTrue(successCalldata);
+        assertEq(outputCalldata, new bytes(0));
+    }
+
+    function testDecodeOutOfBoundOffset() public view {
+        bytes memory buffer = abi.encodePacked(uint256(0x20));
+
+        (bool success, Memory.Slice output) = buffer.tryDecodeBytes();
+        assertFalse(success);
+        assertEq(output.toBytes(), new bytes(0));
+
+        (bool successCalldata, bytes memory outputCalldata) = this.__tryDecodeBytesCalldata(buffer);
+        assertFalse(successCalldata);
+        assertEq(outputCalldata, new bytes(0));
+    }
+
+    function testDecodeLengthExceedsBuffer() public view {
+        bytes memory buffer = abi.encodePacked(uint256(0x20), uint256(0x40));
+
+        (bool success, Memory.Slice output) = buffer.tryDecodeBytes();
+        assertFalse(success);
+        assertEq(output.toBytes(), new bytes(0));
+
+        (bool successCalldata, bytes memory outputCalldata) = this.__tryDecodeBytesCalldata(buffer);
+        assertFalse(successCalldata);
+        assertEq(outputCalldata, new bytes(0));
+    }
+
     function __tryDecodeBytesCalldata(
         bytes calldata buffer
     ) external pure returns (bool success, bytes calldata output) {
