@@ -3,24 +3,29 @@ const { expect } = require('chai');
 const { loadFixture, mine } = require('@nomicfoundation/hardhat-network-helpers');
 const { Enum } = require('../helpers/enums');
 
-const Hardforks = Enum(
-  'Frontier',
-  'Homestead',
-  'DAO',
-  'TangerineWhistle',
-  'SpuriousDragon',
-  'Byzantium',
-  'Constantinople',
-  'Petersburg',
-  'Istanbul',
-  'Berlin',
-  'London',
-  'Paris',
-  'Shanghai',
-  'Cancun',
-  'Prague',
-  'Osaka',
-  'Amsterdam',
+const HeaderField = Enum(
+  'ParentHash', // Since Frontier
+  'OmmersHash', // Since Frontier
+  'Coinbase', // Since Frontier
+  'StateRoot', // Since Frontier
+  'TransactionsRoot', // Since Frontier
+  'ReceiptsRoot', // Since Frontier
+  'LogsBloom', // Since Frontier
+  'Difficulty', // Since Frontier
+  'Number', // Since Frontier
+  'GasLimit', // Since Frontier
+  'GasUsed', // Since Frontier
+  'Timestamp', // Since Frontier
+  'ExtraData', // Since Frontier
+  'PrevRandao', // Since Frontier (called MixHash before Paris)
+  'Nonce', // Since Frontier
+  'BaseFeePerGas', // Since London
+  'WithdrawalsRoot', // Since Shanghai
+  'BlobGasUsed', // Since Cancun
+  'ExcessBlobGas', // Since Cancun
+  'ParentBeaconBlockRoot', // Since Cancun
+  'RequestsHash', // Since Prague
+  'BlockAccessListHash', // Since Amsterdam
 );
 
 const sanitize = hex => (hex === undefined ? undefined : hex === '0x0' ? '0x' : ethers.toBeHex(hex));
@@ -211,10 +216,10 @@ describe('BlockHeader', function () {
     ]) {
       it(`should parse block #${Number(block.number)} correctly`, async function () {
         // Check helper (for old evm versions)
-        const check = (promise, value, version) =>
+        const check = (promise, value, field) =>
           value
             ? expect(promise).to.eventually.equal(value)
-            : expect(promise).to.be.revertedWithCustomError(this.mock, 'InvalidBlockHeader').withArgs(version);
+            : expect(promise).to.be.revertedWithCustomError(this.mock, 'FieldNotPresentInBlockHeader').withArgs(field);
 
         const headerRLP = rlpEncodeBlock(block);
 
@@ -222,28 +227,36 @@ describe('BlockHeader', function () {
         expect(ethers.keccak256(headerRLP)).to.equal(block.hash);
 
         // parsing check
-        await check(this.mock.$getParentHash(headerRLP), block.parentHash, Hardforks.Frontier);
-        await check(this.mock.$getOmmersHash(headerRLP), block.sha3Uncles, Hardforks.Frontier);
-        await check(this.mock.$getCoinbase(headerRLP), ethers.getAddress(block.miner), Hardforks.Frontier);
-        await check(this.mock.$getStateRoot(headerRLP), block.stateRoot, Hardforks.Frontier);
-        await check(this.mock.$getTransactionsRoot(headerRLP), block.transactionsRoot, Hardforks.Frontier);
-        await check(this.mock.$getReceiptsRoot(headerRLP), block.receiptsRoot, Hardforks.Frontier);
-        await check(this.mock.$getLogsBloom(headerRLP), block.logsBloom, Hardforks.Frontier);
-        await check(this.mock.$getDifficulty(headerRLP), block.difficulty, Hardforks.Frontier);
-        await check(this.mock.$getNumber(headerRLP), block.number, Hardforks.Frontier);
-        await check(this.mock.$getGasLimit(headerRLP), block.gasLimit, Hardforks.Frontier);
-        await check(this.mock.$getGasUsed(headerRLP), block.gasUsed, Hardforks.Frontier);
-        await check(this.mock.$getTimestamp(headerRLP), block.timestamp, Hardforks.Frontier);
-        await check(this.mock.$getExtraData(headerRLP), block.extraData, Hardforks.Frontier);
-        await check(this.mock.$getPrevRandao(headerRLP), block.mixHash, Hardforks.Frontier);
-        await check(this.mock.$getNonce(headerRLP), block.nonce, Hardforks.Frontier);
-        await check(this.mock.$getBaseFeePerGas(headerRLP), block.baseFeePerGas, Hardforks.London);
-        await check(this.mock.$getWithdrawalsRoot(headerRLP), block.withdrawalsRoot, Hardforks.Shanghai);
-        await check(this.mock.$getBlobGasUsed(headerRLP), block.blobGasUsed, Hardforks.Cancun);
-        await check(this.mock.$getExcessBlobGas(headerRLP), block.excessBlobGas, Hardforks.Cancun);
-        await check(this.mock.$getParentBeaconBlockRoot(headerRLP), block.parentBeaconBlockRoot, Hardforks.Cancun);
-        await check(this.mock.$getRequestsHash(headerRLP), block.requestsHash, Hardforks.Prague);
-        await check(this.mock.$getBlockAccessListHash(headerRLP), block.blockAccessListHash, Hardforks.Amsterdam);
+        await check(this.mock.$getParentHash(headerRLP), block.parentHash, HeaderField.ParentHash);
+        await check(this.mock.$getOmmersHash(headerRLP), block.sha3Uncles, HeaderField.OmmersHash);
+        await check(this.mock.$getCoinbase(headerRLP), ethers.getAddress(block.miner), HeaderField.Coinbase);
+        await check(this.mock.$getStateRoot(headerRLP), block.stateRoot, HeaderField.StateRoot);
+        await check(this.mock.$getTransactionsRoot(headerRLP), block.transactionsRoot, HeaderField.TransactionsRoot);
+        await check(this.mock.$getReceiptsRoot(headerRLP), block.receiptsRoot, HeaderField.ReceiptsRoot);
+        await check(this.mock.$getLogsBloom(headerRLP), block.logsBloom, HeaderField.LogsBloom);
+        await check(this.mock.$getDifficulty(headerRLP), block.difficulty, HeaderField.Difficulty);
+        await check(this.mock.$getNumber(headerRLP), block.number, HeaderField.Number);
+        await check(this.mock.$getGasLimit(headerRLP), block.gasLimit, HeaderField.GasLimit);
+        await check(this.mock.$getGasUsed(headerRLP), block.gasUsed, HeaderField.GasUsed);
+        await check(this.mock.$getTimestamp(headerRLP), block.timestamp, HeaderField.Timestamp);
+        await check(this.mock.$getExtraData(headerRLP), block.extraData, HeaderField.ExtraData);
+        await check(this.mock.$getPrevRandao(headerRLP), block.mixHash, HeaderField.PrevRandao);
+        await check(this.mock.$getNonce(headerRLP), block.nonce, HeaderField.Nonce);
+        await check(this.mock.$getBaseFeePerGas(headerRLP), block.baseFeePerGas, HeaderField.BaseFeePerGas);
+        await check(this.mock.$getWithdrawalsRoot(headerRLP), block.withdrawalsRoot, HeaderField.WithdrawalsRoot);
+        await check(this.mock.$getBlobGasUsed(headerRLP), block.blobGasUsed, HeaderField.BlobGasUsed);
+        await check(this.mock.$getExcessBlobGas(headerRLP), block.excessBlobGas, HeaderField.ExcessBlobGas);
+        await check(
+          this.mock.$getParentBeaconBlockRoot(headerRLP),
+          block.parentBeaconBlockRoot,
+          HeaderField.ParentBeaconBlockRoot,
+        );
+        await check(this.mock.$getRequestsHash(headerRLP), block.requestsHash, HeaderField.RequestsHash);
+        await check(
+          this.mock.$getBlockAccessListHash(headerRLP),
+          block.blockAccessListHash,
+          HeaderField.BlockAccessListHash,
+        );
       });
     }
   });
