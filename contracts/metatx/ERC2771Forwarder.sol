@@ -181,7 +181,6 @@ contract ERC2771Forwarder is EIP712, Nonces {
                 refundValue += requests[i].value;
             }
         }
-        if (atomic && refundValue > 0) revert ERC2771ForwarderFailureInAtomicBatch();
 
         // The batch should revert if there's a mismatched msg.value provided
         // to avoid request value tampering
@@ -192,6 +191,8 @@ contract ERC2771Forwarder is EIP712, Nonces {
         // Some requests with value were invalid (possibly due to frontrunning).
         // To avoid leaving ETH in the contract this value is refunded.
         if (refundValue != 0) {
+            if (atomic) revert ERC2771ForwarderFailureInAtomicBatch();
+
             // We know refundReceiver != address(0) && requestsValue == msg.value
             // meaning we can ensure refundValue is not taken from the original contract's balance
             // and refundReceiver is a known account.
