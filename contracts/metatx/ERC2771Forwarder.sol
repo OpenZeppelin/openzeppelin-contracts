@@ -178,10 +178,10 @@ contract ERC2771Forwarder is EIP712, Nonces {
             requestsValue += requests[i].value;
             bool success = _execute(requests[i], atomic);
             if (!success) {
-                if (atomic) revert ERC2771ForwarderFailureInAtomicBatch();
                 refundValue += requests[i].value;
             }
         }
+        if (atomic && refundValue > 0) revert ERC2771ForwarderFailureInAtomicBatch();
 
         // The batch should revert if there's a mismatched msg.value provided
         // to avoid request value tampering
