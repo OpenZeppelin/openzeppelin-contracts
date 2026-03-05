@@ -23,11 +23,8 @@ library BlockHeader {
         Constantinople,
         Petersburg,
         Istanbul,
-        MuirGlacier,
         Berlin,
         London,
-        ArrowGlacier,
-        GreyGlacier,
         Paris,
         Shanghai,
         Cancun,
@@ -191,7 +188,7 @@ library BlockHeader {
     /// @dev Internal function to return the expected number of fields in the block header RLP for a given hardfork version.
     function _expectedHeadersLength(Hardforks version) private pure returns (uint8 count) {
         assembly ("memory-safe") {
-            count := byte(version, 0x0F0F0F0F0F0F0F0F0F0F0F101010101114151516000000000000000000000000)
+            count := byte(version, 0x0F0F0F0F0F0F0F0F0F0F10101114151516000000000000000000000000000000)
         }
     }
 }
