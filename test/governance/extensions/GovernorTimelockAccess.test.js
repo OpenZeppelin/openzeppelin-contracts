@@ -239,9 +239,42 @@ describe('GovernorTimelockAccess', function () {
         // Set base delay
         await this.mock.$_setBaseDelaySeconds(baseDelay);
 
-        await this.helper.setProposal([this.restricted.operation], 'descr');
+        const { id } = await this.helper.setProposal([this.restricted.operation], 'descr');
         await this.helper.propose();
-        expect(await this.mock.proposalNeedsQueuing(this.helper.currentProposal.id)).to.be.false;
+        expect(await this.mock.proposalNeedsQueuing(id)).to.be.false;
+
+        await this.helper.waitForSnapshot();
+        await this.helper.connect(this.voter1).vote({ support: VoteType.For });
+        await this.helper.waitForDeadline();
+
+        // No need for queuing, so it should not revert
+        await expect(this.helper.execute()).to.not.be.reverted;
+      });
+
+      it('does need to queue proposals with base delay', async function () {
+        const roleId = 1n;
+        const executionDelay = 0n;
+        const baseDelay = 10n;
+
+        // Set execution delay
+        await this.manager.connect(this.admin).setTargetFunctionRole(this.receiver, [this.restricted.selector], roleId);
+        await this.manager.connect(this.admin).grantRole(roleId, this.mock, executionDelay);
+
+        // Set base delay
+        await this.mock.$_setBaseDelaySeconds(baseDelay);
+
+        const { id } = await this.helper.setProposal([this.restricted.operation], 'descr');
+        await this.helper.propose();
+        expect(await this.mock.proposalNeedsQueuing(id)).to.be.true;
+
+        await this.helper.waitForSnapshot();
+        await this.helper.connect(this.voter1).vote({ support: VoteType.For });
+        await this.helper.waitForDeadline();
+
+        // Not queued, so it should revert
+        await expect(this.helper.execute())
+          .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
+          .withArgs(id, ProposalState.Succeeded, GovernorHelper.proposalStatesToBitMap([ProposalState.Queued]));
       });
 
       it('needs to queue proposals with any delay', async function () {
@@ -261,12 +294,21 @@ describe('GovernorTimelockAccess', function () {
           // Set base delay
           await this.mock.$_setBaseDelaySeconds(baseDelay);
 
-          await this.helper.setProposal(
+          const { id } = await this.helper.setProposal(
             [this.restricted.operation],
             `executionDelay=${executionDelay.toString()}}baseDelay=${baseDelay.toString()}}`,
           );
           await this.helper.propose();
-          expect(await this.mock.proposalNeedsQueuing(this.helper.currentProposal.id)).to.be.true;
+          expect(await this.mock.proposalNeedsQueuing(id)).to.be.true;
+
+          await this.helper.waitForSnapshot();
+          await this.helper.connect(this.voter1).vote({ support: VoteType.For });
+          await this.helper.waitForDeadline();
+
+          // Not queued, so it should revert
+          await expect(this.helper.execute())
+            .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
+            .withArgs(id, ProposalState.Succeeded, GovernorHelper.proposalStatesToBitMap([ProposalState.Queued]));
         }
       });
 
@@ -560,7 +602,7 @@ describe('GovernorTimelockAccess', function () {
             .withArgs(
               this.proposal.id,
               ProposalState.Canceled,
-              GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded, ProposalState.Queued]),
+              GovernorHelper.proposalStatesToBitMap([ProposalState.Queued]), // proposal needs queueing
             );
         });
 
@@ -606,7 +648,7 @@ describe('GovernorTimelockAccess', function () {
             .withArgs(
               original.currentProposal.id,
               ProposalState.Canceled,
-              GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded, ProposalState.Queued]),
+              GovernorHelper.proposalStatesToBitMap([ProposalState.Queued]), // proposal needs queueing
             );
         });
 
@@ -632,7 +674,7 @@ describe('GovernorTimelockAccess', function () {
             .withArgs(
               this.proposal.id,
               ProposalState.Canceled,
-              GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded, ProposalState.Queued]),
+              GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded]), // not queueing necessary
             );
         });
 
@@ -653,7 +695,7 @@ describe('GovernorTimelockAccess', function () {
             .withArgs(
               this.proposal.id,
               ProposalState.Canceled,
-              GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded, ProposalState.Queued]),
+              GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded]), // not queueing necessary
             );
         });
 

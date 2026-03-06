@@ -170,11 +170,13 @@ describe('GovernorTimelockControl', function () {
             await this.helper.connect(this.voter1).vote({ support: VoteType.For });
             await this.helper.waitForDeadline(1n);
 
-            expect(await this.mock.state(this.proposal.id)).to.equal(ProposalState.Succeeded);
-
             await expect(this.helper.execute())
-              .to.be.revertedWithCustomError(this.timelock, 'TimelockUnexpectedOperationState')
-              .withArgs(this.proposal.timelockid, GovernorHelper.proposalStatesToBitMap(OperationState.Ready));
+              .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
+              .withArgs(
+                this.proposal.id,
+                ProposalState.Succeeded,
+                GovernorHelper.proposalStatesToBitMap([ProposalState.Queued]),
+              );
           });
 
           it('if too early', async function () {
@@ -205,7 +207,7 @@ describe('GovernorTimelockControl', function () {
               .withArgs(
                 this.proposal.id,
                 ProposalState.Executed,
-                GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded, ProposalState.Queued]),
+                GovernorHelper.proposalStatesToBitMap([ProposalState.Queued]),
               );
           });
 
@@ -228,7 +230,7 @@ describe('GovernorTimelockControl', function () {
               .withArgs(
                 this.proposal.id,
                 ProposalState.Executed,
-                GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded, ProposalState.Queued]),
+                GovernorHelper.proposalStatesToBitMap([ProposalState.Queued]),
               );
           });
         });
@@ -274,7 +276,7 @@ describe('GovernorTimelockControl', function () {
             .withArgs(
               this.proposal.id,
               ProposalState.Canceled,
-              GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded, ProposalState.Queued]),
+              GovernorHelper.proposalStatesToBitMap([ProposalState.Queued]),
             );
         });
 

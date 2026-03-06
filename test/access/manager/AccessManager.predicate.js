@@ -270,7 +270,7 @@ export function testAsDelayedOperation() {
     describe('when operation delay is greater than execution delay', function () {
       beforeEach('set operation delay', async function () {
         this.operationDelay = this.executionDelay + this.helpers.time.duration.hours(1);
-        await this.manager.$_setTargetAdminDelay(this.target, this.operationDelay);
+        await this.manager.$_setTargetAdminDelay(this.operationDelayTarget ?? this.target, this.operationDelay);
         this.scheduleIn = this.operationDelay; // For testAsSchedulableOperation
       });
 
@@ -280,7 +280,7 @@ export function testAsDelayedOperation() {
     describe('when operation delay is shorter than execution delay', function () {
       beforeEach('set operation delay', async function () {
         this.operationDelay = this.executionDelay - this.helpers.time.duration.hours(1);
-        await this.manager.$_setTargetAdminDelay(this.target, this.operationDelay);
+        await this.manager.$_setTargetAdminDelay(this.operationDelayTarget ?? this.target, this.operationDelay);
         this.scheduleIn = this.executionDelay; // For testAsSchedulableOperation
       });
 
@@ -291,7 +291,7 @@ export function testAsDelayedOperation() {
   describe('without operation delay', function () {
     beforeEach('set operation delay', async function () {
       this.operationDelay = 0n;
-      await this.manager.$_setTargetAdminDelay(this.target, this.operationDelay);
+      await this.manager.$_setTargetAdminDelay(this.operationDelayTarget ?? this.target, this.operationDelay);
       this.scheduleIn = this.executionDelay; // For testAsSchedulableOperation
     });
 

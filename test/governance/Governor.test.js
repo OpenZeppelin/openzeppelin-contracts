@@ -407,7 +407,7 @@ describe('Governor', function () {
               .withArgs(
                 this.proposal.id,
                 ProposalState.Active,
-                GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded, ProposalState.Queued]),
+                GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded]),
               );
           });
 
@@ -420,7 +420,7 @@ describe('Governor', function () {
               .withArgs(
                 this.proposal.id,
                 ProposalState.Active,
-                GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded, ProposalState.Queued]),
+                GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded]),
               );
           });
 
@@ -433,7 +433,7 @@ describe('Governor', function () {
               .withArgs(
                 this.proposal.id,
                 ProposalState.Active,
-                GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded, ProposalState.Queued]),
+                GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded]),
               );
           });
 
@@ -484,7 +484,7 @@ describe('Governor', function () {
               .withArgs(
                 this.proposal.id,
                 ProposalState.Executed,
-                GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded, ProposalState.Queued]),
+                GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded]),
               );
           });
         });
@@ -572,7 +572,7 @@ describe('Governor', function () {
               .withArgs(
                 this.proposal.id,
                 ProposalState.Canceled,
-                GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded, ProposalState.Queued]),
+                GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded]),
               );
           });
 
@@ -590,7 +590,7 @@ describe('Governor', function () {
               .withArgs(
                 this.proposal.id,
                 ProposalState.Canceled,
-                GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded, ProposalState.Queued]),
+                GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded]),
               );
           });
 
