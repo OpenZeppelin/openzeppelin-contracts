@@ -1,8 +1,11 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { OPTS } from '../../../scripts/generate/templates/Checkpoints.opts';
 
-const { OPTS } = require('../../../scripts/generate/templates/Checkpoints.opts');
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.connect();
 
 describe('Checkpoints', function () {
   for (const opt of OPTS) {
@@ -32,7 +35,7 @@ describe('Checkpoints', function () {
       describe('without checkpoints', function () {
         it('at zero reverts', async function () {
           // Reverts with array out of bound access, which is unspecified
-          await expect(this.methods.at(0)).to.be.reverted;
+          await expect(this.methods.at(0)).to.be.revert(ethers);
         });
 
         it('returns zero as latest value', async function () {

@@ -1,12 +1,14 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { range } from '../../helpers/iterate';
 
-const { range } = require('../../helpers/iterate');
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.connect();
 
 async function fixture() {
-  const mock = await ethers.deployContract('$SafeCast');
-  return { mock };
+  return { mock: await ethers.deployContract('$SafeCast') };
 }
 
 describe('SafeCast', function () {

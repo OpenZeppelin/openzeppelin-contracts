@@ -1,8 +1,12 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { MAX_UINT128, MAX_UINT64, MAX_UINT32, MAX_UINT16 } = require('../helpers/constants');
-const { generators } = require('../helpers/random');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { MAX_UINT128, MAX_UINT64, MAX_UINT32, MAX_UINT16 } from '../helpers/constants';
+import { generators } from '../helpers/random';
+
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.connect();
 
 // Helper functions for fixed bytes types
 const bytes32 = value => ethers.toBeHex(value, 32);
@@ -12,8 +16,7 @@ const bytes4 = value => ethers.toBeHex(value, 4);
 const bytes2 = value => ethers.toBeHex(value, 2);
 
 async function fixture() {
-  const mock = await ethers.deployContract('$Bytes');
-  return { mock };
+  return { mock: await ethers.deployContract('$Bytes') };
 }
 
 const lorem = ethers.toUtf8Bytes(

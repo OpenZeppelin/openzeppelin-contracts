@@ -1,12 +1,15 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture, mine } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { Delegation, getDomain } from '../../../helpers/eip712';
+import { batchInBlock } from '../../../helpers/txpool';
+import { shouldBehaveLikeVotes } from '../../../governance/utils/Votes.behavior';
 
-const { getDomain, Delegation } = require('../../../helpers/eip712');
-const { batchInBlock } = require('../../../helpers/txpool');
-const time = require('../../../helpers/time');
-
-const { shouldBehaveLikeVotes } = require('../../../governance/utils/Votes.behavior');
+const connection = await network.connect();
+const {
+  ethers,
+  helpers: { time },
+  networkHelpers: { loadFixture, mine },
+} = connection;
 
 const TOKENS = [
   { Token: '$ERC20Votes', mode: 'blocknumber' },
@@ -33,7 +36,7 @@ describe('ERC20Votes', function () {
 
     describe(`vote with ${mode}`, function () {
       beforeEach(async function () {
-        Object.assign(this, await loadFixture(fixture));
+        Object.assign(this, connection, await loadFixture(fixture));
         this.votes = this.token;
       });
 
@@ -401,11 +404,14 @@ describe('ERC20Votes', function () {
             await this.token.connect(this.holder).transfer(this.recipient, 100n);
             expect(await this.token.numCheckpoints(this.other1)).to.equal(0n);
 
-            const [t1, t2, t3] = await batchInBlock([
-              () => this.token.connect(this.recipient).delegate(this.other1, { gasLimit: 200000 }),
-              () => this.token.connect(this.recipient).transfer(this.other2, 10n, { gasLimit: 200000 }),
-              () => this.token.connect(this.recipient).transfer(this.other2, 10n, { gasLimit: 200000 }),
-            ]);
+            const [t1, t2, t3] = await batchInBlock(
+              [
+                () => this.token.connect(this.recipient).delegate(this.other1, { gasLimit: 200000 }),
+                () => this.token.connect(this.recipient).transfer(this.other2, 10n, { gasLimit: 200000 }),
+                () => this.token.connect(this.recipient).transfer(this.other2, 10n, { gasLimit: 200000 }),
+              ],
+              ethers.provider,
+            );
             t1.timepoint = await time.clockFromReceipt[mode](t1);
             t2.timepoint = await time.clockFromReceipt[mode](t2);
             t3.timepoint = await time.clockFromReceipt[mode](t3);

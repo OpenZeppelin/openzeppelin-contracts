@@ -1,10 +1,13 @@
-const { ethers } = require('hardhat');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { shouldBehaveLikeNonces, shouldBehaveLikeNoncesKeyed } = require('./Nonces.behavior');
+import { network } from 'hardhat';
+import { shouldBehaveLikeNonces, shouldBehaveLikeNoncesKeyed } from './Nonces.behavior';
+
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.connect();
 
 async function fixture() {
-  const mock = await ethers.deployContract('$NoncesKeyed');
-  return { mock };
+  return { mock: await ethers.deployContract('$NoncesKeyed') };
 }
 
 describe('NoncesKeyed', function () {

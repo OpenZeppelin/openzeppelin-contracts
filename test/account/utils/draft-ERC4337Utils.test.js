@@ -1,21 +1,25 @@
-const { ethers, predeploy } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { MAX_UINT48 } from '../../helpers/constants';
+import { packValidationData, UserOperation } from '../../helpers/erc4337';
+import { ValidationRange } from '../../helpers/enums';
 
-const { MAX_UINT48 } = require('../../helpers/constants');
-const { packValidationData, UserOperation } = require('../../helpers/erc4337');
-const { ValidationRange } = require('../../helpers/enums');
-const { clock, increaseTo } = require('../../helpers/time');
+const {
+  ethers,
+  helpers: { time },
+  networkHelpers: { loadFixture },
+} = await network.connect();
+
 const ADDRESS_ONE = '0x0000000000000000000000000000000000000001';
 
-const fixture = async () => {
+async function fixture() {
   const [authorizer, sender, factory, paymaster] = await ethers.getSigners();
   const utils = await ethers.deployContract('$ERC4337Utils');
   const SIG_VALIDATION_SUCCESS = await utils.$SIG_VALIDATION_SUCCESS();
   const SIG_VALIDATION_FAILED = await utils.$SIG_VALIDATION_FAILED();
 
   return { utils, authorizer, sender, factory, paymaster, SIG_VALIDATION_SUCCESS, SIG_VALIDATION_FAILED };
-};
+}
 
 describe('ERC4337Utils', function () {
   beforeEach(async function () {
@@ -24,15 +28,15 @@ describe('ERC4337Utils', function () {
 
   describe('entrypoint', function () {
     it('v0.7.0', async function () {
-      await expect(this.utils.$ENTRYPOINT_V07()).to.eventually.equal(predeploy.entrypoint.v07);
+      await expect(this.utils.$ENTRYPOINT_V07()).to.eventually.equal(ethers.predeploy.entrypoint.v07);
     });
 
     it('v0.8.0', async function () {
-      await expect(this.utils.$ENTRYPOINT_V08()).to.eventually.equal(predeploy.entrypoint.v08);
+      await expect(this.utils.$ENTRYPOINT_V08()).to.eventually.equal(ethers.predeploy.entrypoint.v08);
     });
 
     it('v0.9.0', async function () {
-      await expect(this.utils.$ENTRYPOINT_V09()).to.eventually.equal(predeploy.entrypoint.v09);
+      await expect(this.utils.$ENTRYPOINT_V09()).to.eventually.equal(ethers.predeploy.entrypoint.v09);
     });
   });
 
@@ -385,11 +389,11 @@ describe('ERC4337Utils', function () {
 
         it('returns the validation data with invalid validity range (expired)', async function () {
           const aggregator = this.authorizer;
-          const validAfter = await clock[name]();
+          const validAfter = await time.clock[name]();
           const validUntil = validAfter + 10n;
           const validationData = packValidationData(validAfter, validUntil, aggregator, range);
 
-          await increaseTo[name](validUntil + 1n);
+          await time.increaseTo[name](validUntil + 1n);
           await expect(this.utils.$getValidationData(validationData)).to.eventually.deep.equal([
             aggregator.address,
             true,
@@ -398,7 +402,7 @@ describe('ERC4337Utils', function () {
 
         it('returns the validation data with invalid validity range (not yet valid)', async function () {
           const aggregator = this.authorizer;
-          const validAfter = (await clock[name]()) + 1n;
+          const validAfter = (await time.clock[name]()) + 1n;
           const validUntil = validAfter + 10n;
           const validationData = packValidationData(validAfter, validUntil, aggregator, range);
 
@@ -410,7 +414,7 @@ describe('ERC4337Utils', function () {
 
         it('returns the validation data with invalid validity range (current == validAfter)', async function () {
           const aggregator = this.authorizer;
-          const validAfter = await clock[name]();
+          const validAfter = await time.clock[name]();
           const validUntil = validAfter + 10n;
           const validationData = packValidationData(validAfter, validUntil, aggregator, range);
 
@@ -422,11 +426,11 @@ describe('ERC4337Utils', function () {
 
         it('returns the validation data with valid validity range (current == validUntil)', async function () {
           const aggregator = this.authorizer;
-          const validAfter = await clock[name]();
+          const validAfter = await time.clock[name]();
           const validUntil = validAfter + 10n;
           const validationData = packValidationData(validAfter, validUntil, aggregator, range);
 
-          await increaseTo[name](validUntil);
+          await time.increaseTo[name](validUntil);
           await expect(this.utils.$getValidationData(validationData)).to.eventually.deep.equal([
             aggregator.address,
             false,
@@ -440,8 +444,8 @@ describe('ERC4337Utils', function () {
     });
   });
 
-  describe('hash', function () {
-    for (const [version, instance] of Object.entries(predeploy.entrypoint)) {
+  describe('hash', async function () {
+    for (const [version, instance] of Object.entries(ethers.predeploy.entrypoint)) {
       it(`returns the operation hash for entrypoint ${version}`, async function () {
         const userOp = new UserOperation({ sender: this.sender, nonce: 1 });
         const expected = await userOp.hash(instance);

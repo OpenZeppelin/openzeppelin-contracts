@@ -1,13 +1,9 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { mine } = require('@nomicfoundation/hardhat-network-helpers');
+import { ethers } from 'ethers';
+import { expect } from 'chai';
+import { Delegation, getDomain } from '../../helpers/eip712';
+import { shouldBehaveLikeERC6372 } from './ERC6372.behavior';
 
-const { getDomain, Delegation } = require('../../helpers/eip712');
-const time = require('../../helpers/time');
-
-const { shouldBehaveLikeERC6372 } = require('./ERC6372.behavior');
-
-function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }) {
+export function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }) {
   beforeEach(async function () {
     [this.delegator, this.delegatee, this.alice, this.bob, this.other] = this.accounts;
     this.domain = await getDomain(this.votes);
@@ -43,7 +39,7 @@ function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }
         expect(await this.votes.delegates(this.alice)).to.equal(ethers.ZeroAddress);
 
         const tx = await this.votes.connect(this.alice).delegate(this.alice);
-        const timepoint = await time.clockFromReceipt[mode](tx);
+        const timepoint = await this.helpers.time.clockFromReceipt[mode](tx);
 
         await expect(tx)
           .to.emit(this.votes, 'DelegateChanged')
@@ -54,7 +50,7 @@ function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }
         expect(await this.votes.delegates(this.alice)).to.equal(this.alice);
         expect(await this.votes.getVotes(this.alice)).to.equal(weight);
         expect(await this.votes.getPastVotes(this.alice, timepoint - 1n)).to.equal(0n);
-        await mine();
+        await this.networkHelpers.mine();
         expect(await this.votes.getPastVotes(this.alice, timepoint)).to.equal(weight);
       });
 
@@ -68,7 +64,7 @@ function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }
         expect(await this.votes.getVotes(this.bob)).to.equal(0n);
 
         const tx = await this.votes.connect(this.alice).delegate(this.bob);
-        const timepoint = await time.clockFromReceipt[mode](tx);
+        const timepoint = await this.helpers.time.clockFromReceipt[mode](tx);
 
         await expect(tx)
           .to.emit(this.votes, 'DelegateChanged')
@@ -84,7 +80,7 @@ function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }
 
         expect(await this.votes.getPastVotes(this.alice, timepoint - 1n)).to.equal(weight);
         expect(await this.votes.getPastVotes(this.bob, timepoint - 1n)).to.equal(0n);
-        await mine();
+        await this.networkHelpers.mine();
         expect(await this.votes.getPastVotes(this.alice, timepoint)).to.equal(0n);
         expect(await this.votes.getPastVotes(this.bob, timepoint)).to.equal(weight);
       });
@@ -111,7 +107,7 @@ function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }
           expect(await this.votes.delegates(this.delegator)).to.equal(ethers.ZeroAddress);
 
           const tx = await this.votes.delegateBySig(this.delegatee, nonce, ethers.MaxUint256, v, r, s);
-          const timepoint = await time.clockFromReceipt[mode](tx);
+          const timepoint = await this.helpers.time.clockFromReceipt[mode](tx);
 
           await expect(tx)
             .to.emit(this.votes, 'DelegateChanged')
@@ -123,7 +119,7 @@ function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }
           expect(await this.votes.getVotes(this.delegator.address)).to.equal(0n);
           expect(await this.votes.getVotes(this.delegatee)).to.equal(weight);
           expect(await this.votes.getPastVotes(this.delegatee, timepoint - 1n)).to.equal(0n);
-          await mine();
+          await this.networkHelpers.mine();
           expect(await this.votes.getPastVotes(this.delegatee, timepoint)).to.equal(weight);
         });
 
@@ -191,7 +187,7 @@ function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }
         });
 
         it('rejects expired permit', async function () {
-          const expiry = (await time.clock.timestamp()) - 1n;
+          const expiry = (await this.helpers.time.clock.timestamp()) - 1n;
           const { r, s, v } = await this.delegator
             .signTypedData(
               this.domain,
@@ -233,29 +229,29 @@ function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }
 
         // t0 = mint #0
         const t0 = await this.votes.$_mint(this.alice, tokens[0]);
-        await mine();
+        await this.networkHelpers.mine();
         // t1 = mint #1
         const t1 = await this.votes.$_mint(this.alice, tokens[1]);
-        await mine();
+        await this.networkHelpers.mine();
         // t2 = burn #1
         const t2 = await this.votes.$_burn(...(fungible ? [this.alice] : []), tokens[1]);
-        await mine();
+        await this.networkHelpers.mine();
         // t3 = mint #2
         const t3 = await this.votes.$_mint(this.alice, tokens[2]);
-        await mine();
+        await this.networkHelpers.mine();
         // t4 = burn #0
         const t4 = await this.votes.$_burn(...(fungible ? [this.alice] : []), tokens[0]);
-        await mine();
+        await this.networkHelpers.mine();
         // t5 = burn #2
         const t5 = await this.votes.$_burn(...(fungible ? [this.alice] : []), tokens[2]);
-        await mine();
+        await this.networkHelpers.mine();
 
-        t0.timepoint = await time.clockFromReceipt[mode](t0);
-        t1.timepoint = await time.clockFromReceipt[mode](t1);
-        t2.timepoint = await time.clockFromReceipt[mode](t2);
-        t3.timepoint = await time.clockFromReceipt[mode](t3);
-        t4.timepoint = await time.clockFromReceipt[mode](t4);
-        t5.timepoint = await time.clockFromReceipt[mode](t5);
+        t0.timepoint = await this.helpers.time.clockFromReceipt[mode](t0);
+        t1.timepoint = await this.helpers.time.clockFromReceipt[mode](t1);
+        t2.timepoint = await this.helpers.time.clockFromReceipt[mode](t2);
+        t3.timepoint = await this.helpers.time.clockFromReceipt[mode](t3);
+        t4.timepoint = await this.helpers.time.clockFromReceipt[mode](t4);
+        t5.timepoint = await this.helpers.time.clockFromReceipt[mode](t5);
 
         expect(await this.votes.getPastTotalSupply(t0.timepoint - 1n)).to.equal(0n);
         expect(await this.votes.getPastTotalSupply(t0.timepoint)).to.equal(weight[0]);
@@ -299,8 +295,8 @@ function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }
 
         it('returns the latest block if >= last checkpoint block', async function () {
           const delegate = await this.votes.connect(this.alice).delegate(this.bob);
-          const timepoint = await time.clockFromReceipt[mode](delegate);
-          await mine(2);
+          const timepoint = await this.helpers.time.clockFromReceipt[mode](delegate);
+          await this.networkHelpers.mine(2);
 
           const latest = await this.votes.getVotes(this.bob);
           expect(await this.votes.getPastVotes(this.bob, timepoint)).to.equal(latest);
@@ -308,10 +304,10 @@ function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }
         });
 
         it('returns zero if < first checkpoint block', async function () {
-          await mine();
+          await this.networkHelpers.mine();
           const delegate = await this.votes.connect(this.alice).delegate(this.bob);
-          const timepoint = await time.clockFromReceipt[mode](delegate);
-          await mine(2);
+          const timepoint = await this.helpers.time.clockFromReceipt[mode](delegate);
+          await this.networkHelpers.mine(2);
 
           expect(await this.votes.getPastVotes(this.bob, timepoint - 1n)).to.equal(0n);
         });
@@ -319,7 +315,3 @@ function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }
     });
   });
 }
-
-module.exports = {
-  shouldBehaveLikeVotes,
-};

@@ -1,7 +1,11 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { PANIC_CODES } from '@nomicfoundation/hardhat-ethers-chai-matchers/panic';
+
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.connect();
 
 async function fixture() {
   return { mock: await ethers.deployContract('$Panic') };

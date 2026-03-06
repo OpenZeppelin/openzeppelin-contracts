@@ -1,9 +1,11 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
 
-const { impersonate } = require('../../helpers/account');
-const time = require('../../helpers/time');
+const {
+  ethers,
+  helpers,
+  networkHelpers: { loadFixture },
+} = await network.connect();
 
 async function fixture() {
   const [admin, roleMember, other] = await ethers.getSigners();
@@ -14,7 +16,7 @@ async function fixture() {
   const anotherAuthority = await ethers.deployContract('$AccessManager', [admin]);
   const authorityObserveIsConsuming = await ethers.deployContract('$AuthorityObserveIsConsuming');
 
-  await impersonate(authority.target);
+  await helpers.impersonate(authority.target);
   const authorityAsSigner = await ethers.getSigner(authority.target);
 
   return {
@@ -60,7 +62,7 @@ describe('AccessManaged', function () {
     it('panics in short calldata', async function () {
       // We avoid adding the `restricted` modifier to the fallback function because other tests may depend on it
       // being accessible without restrictions. We check for the internal `_checkCanCall` instead.
-      await expect(this.managed.$_checkCanCall(this.roleMember, '0x1234')).to.be.reverted;
+      await expect(this.managed.$_checkCanCall(this.roleMember, '0x1234')).to.be.revert(ethers);
     });
 
     describe('when role is granted with execution delay', function () {
@@ -81,18 +83,18 @@ describe('AccessManaged', function () {
 
       it('succeeds if the operation is scheduled', async function () {
         // Arguments
-        const delay = time.duration.hours(12);
+        const delay = helpers.time.duration.hours(12);
         const fn = this.managed.interface.getFunction(this.selector);
         const calldata = this.managed.interface.encodeFunctionData(fn, []);
 
         // Schedule
-        const scheduledAt = (await time.clock.timestamp()) + 1n;
+        const scheduledAt = (await helpers.time.clock.timestamp()) + 1n;
         const when = scheduledAt + delay;
-        await time.increaseTo.timestamp(scheduledAt, false);
+        await helpers.time.increaseTo.timestamp(scheduledAt, false);
         await this.authority.connect(this.roleMember).schedule(this.managed, calldata, when);
 
         // Set execution date
-        await time.increaseTo.timestamp(when, false);
+        await helpers.time.increaseTo.timestamp(when, false);
 
         // Shouldn't revert
         await this.managed.connect(this.roleMember)[this.selector]();

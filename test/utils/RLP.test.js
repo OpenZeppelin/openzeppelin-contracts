@@ -1,10 +1,13 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { MAX_UINT64 } from '../helpers/constants';
+import { product } from '../helpers/iterate';
+import { generators } from '../helpers/random';
 
-const { MAX_UINT64 } = require('../helpers/constants');
-const { product } = require('../helpers/iterate');
-const { generators } = require('../helpers/random');
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.connect();
 
 async function fixture() {
   const mock = await ethers.deployContract('$RLP');

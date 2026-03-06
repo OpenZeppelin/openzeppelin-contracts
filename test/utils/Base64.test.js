@@ -1,14 +1,17 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.connect();
 
 // Replace "+/" with "-_" in the char table, and remove the padding
 // see https://datatracker.ietf.org/doc/html/rfc4648#section-5
 const base64toBase64Url = str => str.replaceAll('+', '-').replaceAll('/', '_').replaceAll('=', '');
 
 async function fixture() {
-  const mock = await ethers.deployContract('$Base64');
-  return { mock };
+  return { mock: await ethers.deployContract('$Base64') };
 }
 
 describe('Base64', function () {

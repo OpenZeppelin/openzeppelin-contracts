@@ -1,10 +1,14 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { ProposalState, VoteType } from '../../helpers/enums';
+import { GovernorHelper } from '../../helpers/governance';
 
-const { GovernorHelper } = require('../../helpers/governance');
-const { ProposalState, VoteType } = require('../../helpers/enums');
-const time = require('../../helpers/time');
+const connection = await network.connect();
+const {
+  ethers,
+  helpers: { time },
+  networkHelpers: { loadFixture },
+} = connection;
 
 const TOKENS = [
   { Token: '$ERC20Votes', mode: 'blocknumber' },
@@ -42,7 +46,7 @@ describe('GovernorPreventLateQuorum', function () {
       await owner.sendTransaction({ to: mock, value });
       await token.$_mint(owner, tokenSupply);
 
-      const helper = new GovernorHelper(mock, mode);
+      const helper = new GovernorHelper(connection, mock, mode);
       await helper.connect(owner).delegate({ token, to: voter1, value: ethers.parseEther('10') });
       await helper.connect(owner).delegate({ token, to: voter2, value: ethers.parseEther('7') });
       await helper.connect(owner).delegate({ token, to: voter3, value: ethers.parseEther('5') });
@@ -53,7 +57,7 @@ describe('GovernorPreventLateQuorum', function () {
 
     describe(`using ${Token}`, function () {
       beforeEach(async function () {
-        Object.assign(this, await loadFixture(fixture));
+        Object.assign(this, connection, await loadFixture(fixture));
         // initiate fresh proposal
         this.proposal = this.helper.setProposal(
           [

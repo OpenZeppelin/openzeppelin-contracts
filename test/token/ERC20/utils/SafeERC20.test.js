@@ -1,6 +1,10 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.connect();
 
 const name = 'ERC20Mock';
 const symbol = 'ERC20Mock';
@@ -80,12 +84,12 @@ describe('SafeERC20', function () {
 
     it('reverts on increaseAllowance', async function () {
       // Call to 'token.allowance' does not return any data, resulting in a decoding error (revert without reason)
-      await expect(this.mock.$safeIncreaseAllowance(this.token, this.spender, 0n)).to.be.revertedWithoutReason();
+      await expect(this.mock.$safeIncreaseAllowance(this.token, this.spender, 0n)).to.be.revertedWithoutReason(ethers);
     });
 
     it('reverts on decreaseAllowance', async function () {
       // Call to 'token.allowance' does not return any data, resulting in a decoding error (revert without reason)
-      await expect(this.mock.$safeDecreaseAllowance(this.token, this.spender, 0n)).to.be.revertedWithoutReason();
+      await expect(this.mock.$safeDecreaseAllowance(this.token, this.spender, 0n)).to.be.revertedWithoutReason(ethers);
     });
 
     it('reverts on forceApprove', async function () {
@@ -316,19 +320,19 @@ describe('SafeERC20', function () {
     it('reverts on transferAndCallRelaxed', async function () {
       await expect(
         this.mock.$transferAndCallRelaxed(this.token, this.erc1363Receiver, 0n, data),
-      ).to.be.revertedWithoutReason();
+      ).to.be.revertedWithoutReason(ethers);
     });
 
     it('reverts on transferFromAndCallRelaxed', async function () {
       await expect(
         this.mock.$transferFromAndCallRelaxed(this.token, this.mock, this.erc1363Receiver, 0n, data),
-      ).to.be.revertedWithoutReason();
+      ).to.be.revertedWithoutReason(ethers);
     });
 
     it('reverts on approveAndCallRelaxed', async function () {
       await expect(
         this.mock.$approveAndCallRelaxed(this.token, this.erc1363Spender, 0n, data),
-      ).to.be.revertedWithoutReason();
+      ).to.be.revertedWithoutReason(ethers);
     });
   });
 

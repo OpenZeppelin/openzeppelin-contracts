@@ -1,6 +1,6 @@
-const format = require('../format-lines');
-const { fromBytes32, toBytes32 } = require('./conversion');
-const { SET_TYPES } = require('./Enumerable.opts');
+import format from '../format-lines.js';
+import { fromBytes32, toBytes32 } from './conversion.js';
+import { SET_TYPES } from './Enumerable.opts.js';
 
 const header = `\
 pragma solidity ^0.8.24;
@@ -456,7 +456,7 @@ function values(${name} storage set, uint256 start, uint256 end) internal view r
 `;
 
 // GENERATE
-module.exports = format(
+export default format(
   header.trimEnd(),
   'library EnumerableSet {',
   format(

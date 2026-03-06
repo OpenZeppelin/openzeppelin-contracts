@@ -1,8 +1,11 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { shouldBehaveLikeERC2981 } from '../../common/ERC2981.behavior';
 
-const { shouldBehaveLikeERC2981 } = require('../../common/ERC2981.behavior');
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.connect();
 
 const name = 'Non Fungible Token';
 const symbol = 'NFT';

@@ -1,10 +1,13 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture, mine } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { shouldBehaveLikeVotes } from '../../../governance/utils/Votes.behavior';
 
-const time = require('../../../helpers/time');
-
-const { shouldBehaveLikeVotes } = require('../../../governance/utils/Votes.behavior');
+const connection = await network.connect();
+const {
+  ethers,
+  helpers: { time },
+  networkHelpers: { loadFixture, mine },
+} = connection;
 
 const TOKENS = [
   { Token: '$ERC721Votes', mode: 'blocknumber' },
@@ -30,7 +33,7 @@ describe('ERC721Votes', function () {
 
     describe(`vote with ${mode}`, function () {
       beforeEach(async function () {
-        Object.assign(this, await loadFixture(fixture));
+        Object.assign(this, connection, await loadFixture(fixture));
         this.votes = this.token;
       });
 

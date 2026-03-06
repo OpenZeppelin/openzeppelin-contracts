@@ -1,4 +1,4 @@
-function formatLines(...lines) {
+export default function formatLines(...lines) {
   return [...indentEach(0, lines)].join('\n') + '\n';
 }
 
@@ -12,5 +12,3 @@ function* indentEach(indent, lines) {
     }
   }
 }
-
-module.exports = formatLines;

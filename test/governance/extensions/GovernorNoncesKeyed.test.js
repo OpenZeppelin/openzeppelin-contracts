@@ -1,11 +1,15 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { getDomain, Ballot, ExtendedBallot } from '../../helpers/eip712';
+import { VoteType } from '../../helpers/enums';
+import { GovernorHelper } from '../../helpers/governance';
+import { shouldBehaveLikeNoncesKeyed } from '../../utils/Nonces.behavior';
 
-const { GovernorHelper } = require('../../helpers/governance');
-const { getDomain, Ballot, ExtendedBallot } = require('../../helpers/eip712');
-const { VoteType } = require('../../helpers/enums');
-const { shouldBehaveLikeNoncesKeyed } = require('../../utils/Nonces.behavior');
+const connection = await network.connect();
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = connection;
 
 const name = 'OZ-Governor';
 const version = '1';
@@ -39,7 +43,7 @@ describe('GovernorNoncesKeyed', function () {
     await owner.sendTransaction({ to: mock, value });
     await token.$_mint(owner, tokenSupply);
 
-    const helper = new GovernorHelper(mock, 'blocknumber');
+    const helper = new GovernorHelper(connection, mock, 'blocknumber');
     await helper.connect(owner).delegate({ token: token, to: voter1, value: ethers.parseEther('10') });
     await helper.connect(owner).delegate({ token: token, to: voter2, value: ethers.parseEther('7') });
     await helper.connect(owner).delegate({ token: token, to: voter3, value: ethers.parseEther('5') });
@@ -61,7 +65,7 @@ describe('GovernorNoncesKeyed', function () {
   };
 
   beforeEach(async function () {
-    Object.assign(this, await loadFixture(fixture));
+    Object.assign(this, connection, await loadFixture(fixture));
 
     // default proposal
     this.proposal = this.helper.setProposal(

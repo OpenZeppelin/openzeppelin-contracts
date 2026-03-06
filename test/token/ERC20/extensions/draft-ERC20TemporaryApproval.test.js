@@ -1,9 +1,13 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { max, min } = require('../../../helpers/math.js');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { max, min } from '../../../helpers/math';
+import { shouldBehaveLikeERC20 } from '../ERC20.behavior';
 
-const { shouldBehaveLikeERC20 } = require('../ERC20.behavior.js');
+const connection = await network.connect();
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = connection;
 
 const name = 'My Token';
 const symbol = 'MTKN';
@@ -26,7 +30,7 @@ async function fixture() {
 
 describe('ERC20TemporaryApproval', function () {
   beforeEach(async function () {
-    Object.assign(this, await loadFixture(fixture));
+    Object.assign(this, connection, await loadFixture(fixture));
   });
 
   shouldBehaveLikeERC20(initialSupply);

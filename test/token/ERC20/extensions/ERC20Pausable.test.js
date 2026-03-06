@@ -1,6 +1,10 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.connect();
 
 const name = 'My Token';
 const symbol = 'MTKN';
@@ -24,6 +28,7 @@ describe('ERC20Pausable', function () {
     describe('transfer', function () {
       it('allows to transfer when unpaused', async function () {
         await expect(this.token.connect(this.holder).transfer(this.recipient, initialSupply)).to.changeTokenBalances(
+          ethers,
           this.token,
           [this.holder, this.recipient],
           [-initialSupply, initialSupply],
@@ -35,6 +40,7 @@ describe('ERC20Pausable', function () {
         await this.token.$_unpause();
 
         await expect(this.token.connect(this.holder).transfer(this.recipient, initialSupply)).to.changeTokenBalances(
+          ethers,
           this.token,
           [this.holder, this.recipient],
           [-initialSupply, initialSupply],
@@ -60,7 +66,7 @@ describe('ERC20Pausable', function () {
       it('allows to transfer from when unpaused', async function () {
         await expect(
           this.token.connect(this.approved).transferFrom(this.holder, this.recipient, allowance),
-        ).to.changeTokenBalances(this.token, [this.holder, this.recipient], [-allowance, allowance]);
+        ).to.changeTokenBalances(ethers, this.token, [this.holder, this.recipient], [-allowance, allowance]);
       });
 
       it('allows to transfer when paused and then unpaused', async function () {
@@ -69,7 +75,7 @@ describe('ERC20Pausable', function () {
 
         await expect(
           this.token.connect(this.approved).transferFrom(this.holder, this.recipient, allowance),
-        ).to.changeTokenBalances(this.token, [this.holder, this.recipient], [-allowance, allowance]);
+        ).to.changeTokenBalances(ethers, this.token, [this.holder, this.recipient], [-allowance, allowance]);
       });
 
       it('reverts when trying to transfer from when paused', async function () {
@@ -85,14 +91,24 @@ describe('ERC20Pausable', function () {
       const value = 42n;
 
       it('allows to mint when unpaused', async function () {
-        await expect(this.token.$_mint(this.recipient, value)).to.changeTokenBalance(this.token, this.recipient, value);
+        await expect(this.token.$_mint(this.recipient, value)).to.changeTokenBalance(
+          ethers,
+          this.token,
+          this.recipient,
+          value,
+        );
       });
 
       it('allows to mint when paused and then unpaused', async function () {
         await this.token.$_pause();
         await this.token.$_unpause();
 
-        await expect(this.token.$_mint(this.recipient, value)).to.changeTokenBalance(this.token, this.recipient, value);
+        await expect(this.token.$_mint(this.recipient, value)).to.changeTokenBalance(
+          ethers,
+          this.token,
+          this.recipient,
+          value,
+        );
       });
 
       it('reverts when trying to mint when paused', async function () {
@@ -109,14 +125,24 @@ describe('ERC20Pausable', function () {
       const value = 42n;
 
       it('allows to burn when unpaused', async function () {
-        await expect(this.token.$_burn(this.holder, value)).to.changeTokenBalance(this.token, this.holder, -value);
+        await expect(this.token.$_burn(this.holder, value)).to.changeTokenBalance(
+          ethers,
+          this.token,
+          this.holder,
+          -value,
+        );
       });
 
       it('allows to burn when paused and then unpaused', async function () {
         await this.token.$_pause();
         await this.token.$_unpause();
 
-        await expect(this.token.$_burn(this.holder, value)).to.changeTokenBalance(this.token, this.holder, -value);
+        await expect(this.token.$_burn(this.holder, value)).to.changeTokenBalance(
+          ethers,
+          this.token,
+          this.holder,
+          -value,
+        );
       });
 
       it('reverts when trying to burn when paused', async function () {

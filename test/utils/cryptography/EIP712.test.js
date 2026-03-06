@@ -1,9 +1,12 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { getDomain, domainSeparator, hashTypedData } from '../../helpers/eip712';
+import { formatType } from '../../helpers/eip712-types';
 
-const { getDomain, domainSeparator, hashTypedData } = require('../../helpers/eip712');
-const { formatType } = require('../../helpers/eip712-types');
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.connect();
 
 const LENGTHS = {
   short: ['A Name', '1'],
@@ -90,7 +93,9 @@ describe('EIP712', function () {
 
         const signature = await this.from.signTypedData(this.domain, types, message);
 
-        await expect(this.eip712.verify(signature, this.from.address, message.to, message.contents)).to.not.be.reverted;
+        await expect(this.eip712.verify(signature, this.from.address, message.to, message.contents)).to.not.be.revert(
+          ethers,
+        );
       });
 
       it('name', async function () {

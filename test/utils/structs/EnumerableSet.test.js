@@ -1,11 +1,13 @@
-const { ethers } = require('hardhat');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { mapValues } from '../../helpers/iterate';
+import { generators } from '../../helpers/random';
+import { SET_TYPES } from '../../../scripts/generate/templates/Enumerable.opts';
+import { shouldBehaveLikeSet } from './EnumerableSet.behavior';
 
-const { mapValues } = require('../../helpers/iterate');
-const { generators } = require('../../helpers/random');
-const { SET_TYPES } = require('../../../scripts/generate/templates/Enumerable.opts');
-
-const { shouldBehaveLikeSet } = require('./EnumerableSet.behavior');
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.connect();
 
 const getMethods = (mock, fnSigs) =>
   mapValues(

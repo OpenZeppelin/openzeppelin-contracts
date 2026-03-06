@@ -1,8 +1,11 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { min, max } from '../../helpers/math';
 
-const { min, max } = require('../../helpers/math');
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.connect();
 
 async function testCommutative(fn, lhs, rhs, expected, ...extra) {
   expect(await fn(lhs, rhs, ...extra)).to.deep.equal(expected);
@@ -10,8 +13,7 @@ async function testCommutative(fn, lhs, rhs, expected, ...extra) {
 }
 
 async function fixture() {
-  const mock = await ethers.deployContract('$SignedMath');
-  return { mock };
+  return { mock: await ethers.deployContract('$SignedMath') };
 }
 
 describe('SignedMath', function () {

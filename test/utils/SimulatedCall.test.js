@@ -1,6 +1,10 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.connect();
 
 const value = 42n;
 
@@ -51,7 +55,7 @@ describe('SimulateCall', function () {
         ethers.Typed.bytes(this.target.interface.encodeFunctionData('mockFunctionWithArgsReturn', [10, 20])),
       );
 
-      await expect(txPromise).to.changeEtherBalances([this.mock, this.simulator, this.target], [0n, 0n, 0n]);
+      await expect(txPromise).to.changeEtherBalances(ethers, [this.mock, this.simulator, this.target], [0n, 0n, 0n]);
       await expect(txPromise)
         .to.emit(this.mock, 'return$simulateCall_address_bytes')
         .withArgs(true, ethers.AbiCoder.defaultAbiCoder().encode(['uint256', 'uint256'], [10, 20]))
@@ -66,7 +70,7 @@ describe('SimulateCall', function () {
         ethers.Typed.bytes(this.target.interface.encodeFunctionData('mockFunctionExtra')),
       );
 
-      await expect(txPromise).to.changeEtherBalances([this.mock, this.simulator, this.target], [0n, 0n, 0n]);
+      await expect(txPromise).to.changeEtherBalances(ethers, [this.mock, this.simulator, this.target], [0n, 0n, 0n]);
       await expect(txPromise)
         .to.emit(this.mock, 'return$simulateCall_address_uint256_bytes')
         .withArgs(true, ethers.AbiCoder.defaultAbiCoder().encode(['address', 'uint256'], [this.mock.target, value]))
@@ -79,7 +83,7 @@ describe('SimulateCall', function () {
         ethers.Typed.bytes(this.target.interface.encodeFunctionData('mockFunctionRevertsReason')),
       );
 
-      await expect(txPromise).to.changeEtherBalances([this.mock, this.simulator, this.target], [0n, 0n, 0n]);
+      await expect(txPromise).to.changeEtherBalances(ethers, [this.mock, this.simulator, this.target], [0n, 0n, 0n]);
       await expect(txPromise)
         .to.emit(this.mock, 'return$simulateCall_address_bytes')
         .withArgs(false, this.target.interface.encodeErrorResult('Error', ['CallReceiverMock: reverting']));
@@ -92,7 +96,7 @@ describe('SimulateCall', function () {
         ethers.Typed.bytes(this.target.interface.encodeFunctionData('mockFunctionRevertsReason')),
       );
 
-      await expect(txPromise).to.changeEtherBalances([this.mock, this.simulator, this.target], [0n, 0n, 0n]);
+      await expect(txPromise).to.changeEtherBalances(ethers, [this.mock, this.simulator, this.target], [0n, 0n, 0n]);
       await expect(txPromise)
         .to.emit(this.mock, 'return$simulateCall_address_uint256_bytes')
         .withArgs(false, this.target.interface.encodeErrorResult('Error', ['CallReceiverMock: reverting']));

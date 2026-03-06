@@ -1,26 +1,12 @@
-const { ethers } = require('hardhat');
+import { ethers } from 'ethers';
 
-const generators = {
-  address: () => ethers.Wallet.createRandom().address,
-  bytes32: () => ethers.hexlify(ethers.randomBytes(32)),
-  bytes4: () => ethers.hexlify(ethers.randomBytes(4)),
-  uint256: () => ethers.toBigInt(ethers.randomBytes(32)),
-  int256: () => ethers.toBigInt(ethers.randomBytes(32)) + ethers.MinInt256,
-  bytes: (length = 32) => ethers.hexlify(ethers.randomBytes(length)),
-  string: () => ethers.uuidV4(ethers.randomBytes(32)),
-};
-
-generators.address.zero = ethers.ZeroAddress;
-generators.bytes32.zero = ethers.ZeroHash;
-generators.bytes4.zero = ethers.zeroPadBytes('0x', 4);
-generators.uint256.zero = 0n;
-generators.int256.zero = 0n;
-generators.bytes.zero = '0x';
-generators.string.zero = '';
-
-// alias hexBytes -> bytes
-generators.hexBytes = generators.bytes;
-
-module.exports = {
-  generators,
+export const generators = {
+  address: Object.assign(() => ethers.Wallet.createRandom().address, { zero: ethers.ZeroAddress }),
+  bytes32: Object.assign(() => ethers.hexlify(ethers.randomBytes(32)), { zero: ethers.ZeroHash }),
+  bytes4: Object.assign(() => ethers.hexlify(ethers.randomBytes(4)), { zero: ethers.zeroPadBytes('0x', 4) }),
+  uint256: Object.assign(() => ethers.toBigInt(ethers.randomBytes(32)), { zero: 0n }),
+  int256: Object.assign(() => ethers.toBigInt(ethers.randomBytes(32)) + ethers.MinInt256, { zero: 0n }),
+  bytes: Object.assign((length = 32) => ethers.hexlify(ethers.randomBytes(length)), { zero: '0x' }),
+  hexBytes: Object.assign((length = 32) => ethers.hexlify(ethers.randomBytes(length)), { zero: '0x' }),
+  string: Object.assign(() => ethers.uuidV4(ethers.randomBytes(32)), { zero: '' }),
 };

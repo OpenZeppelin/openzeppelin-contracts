@@ -1,9 +1,12 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import * as precompile from '../../helpers/precompiles';
+import { P256SigningKey, NonNativeSigner } from '../../helpers/signers';
 
-const precompile = require('../../helpers/precompiles');
-const { P256SigningKey, NonNativeSigner } = require('../../helpers/signers');
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.connect();
 
 const TEST_MESSAGE = ethers.id('OpenZeppelin');
 const TEST_MESSAGE_HASH = ethers.hashMessage(TEST_MESSAGE);

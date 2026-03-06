@@ -1,7 +1,11 @@
-const { ethers } = require('hardhat');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { DEFAULT_ADMIN_ROLE, shouldBehaveLikeAccessControl } from './AccessControl.behavior';
 
-const { DEFAULT_ADMIN_ROLE, shouldBehaveLikeAccessControl } = require('./AccessControl.behavior');
+const connection = await network.connect();
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = connection;
 
 async function fixture() {
   const [defaultAdmin, ...accounts] = await ethers.getSigners();
@@ -12,7 +16,8 @@ async function fixture() {
 
 describe('AccessControl', function () {
   beforeEach(async function () {
-    Object.assign(this, await loadFixture(fixture));
+    // write connection to this for use in fixtures
+    Object.assign(this, connection, await loadFixture(fixture));
   });
 
   shouldBehaveLikeAccessControl();

@@ -1,13 +1,16 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { MerklePatriciaTrie, createMerkleProof } = require('@ethereumjs/mpt');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { MerklePatriciaTrie, createMerkleProof } from '@ethereumjs/mpt';
+import { Enum } from '../../helpers/enums';
+import { zip } from '../../helpers/iterate';
+import { generators } from '../../helpers/random';
+import { BlockTries } from '../../helpers/trie';
+import { batchInBlock } from '../../helpers/txpool';
 
-const { Enum } = require('../../helpers/enums');
-const { zip } = require('../../helpers/iterate');
-const { generators } = require('../../helpers/random');
-const { BlockTries } = require('../../helpers/trie');
-const { batchInBlock } = require('../../helpers/txpool');
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.connect();
 
 const ProofError = Enum(
   'NO_ERROR', // No error occurred during proof traversal
@@ -44,11 +47,14 @@ describe('TrieProof', function () {
   describe('verify', function () {
     it('verify transaction and receipt inclusion in block', async function () {
       // Multiple transactions/events in a block
-      const txs = await batchInBlock([
-        () => this.target.mockFunction({ gasLimit: 100000 }),
-        () => this.target.mockFunctionWithArgs(0, 1, { gasLimit: 100000 }),
-        () => this.target.mockFunctionWithArgs(17, 42, { gasLimit: 100000 }),
-      ]);
+      const txs = await batchInBlock(
+        [
+          () => this.target.mockFunction({ gasLimit: 100000 }),
+          () => this.target.mockFunctionWithArgs(0, 1, { gasLimit: 100000 }),
+          () => this.target.mockFunctionWithArgs(17, 42, { gasLimit: 100000 }),
+        ],
+        ethers.provider,
+      );
 
       // for some reason ethers doesn't expose the transactionsRoot in blocks, so we fetch the block details via RPC instead.
       const blockTries = await ethers.provider.getBlock('latest').then(block => BlockTries.from(block).ready());

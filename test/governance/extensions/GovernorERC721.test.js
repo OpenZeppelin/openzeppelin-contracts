@@ -1,9 +1,13 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { VoteType } from '../../helpers/enums';
+import { GovernorHelper } from '../../helpers/governance';
 
-const { GovernorHelper } = require('../../helpers/governance');
-const { VoteType } = require('../../helpers/enums');
+const connection = await network.connect();
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = connection;
 
 const TOKENS = [
   { Token: '$ERC721Votes', mode: 'blocknumber' },
@@ -42,7 +46,7 @@ describe('GovernorERC721', function () {
       await owner.sendTransaction({ to: mock, value });
       await Promise.all([NFT0, NFT1, NFT2, NFT3, NFT4].map(tokenId => token.$_mint(owner, tokenId)));
 
-      const helper = new GovernorHelper(mock, mode);
+      const helper = new GovernorHelper(connection, mock, mode);
       await helper.connect(owner).delegate({ token, to: voter1, tokenId: NFT0 });
       await helper.connect(owner).delegate({ token, to: voter2, tokenId: NFT1 });
       await helper.connect(owner).delegate({ token, to: voter2, tokenId: NFT2 });
@@ -64,7 +68,7 @@ describe('GovernorERC721', function () {
 
     describe(`using ${Token}`, function () {
       beforeEach(async function () {
-        Object.assign(this, await loadFixture(fixture));
+        Object.assign(this, connection, await loadFixture(fixture));
         // initiate fresh proposal
         this.proposal = this.helper.setProposal(
           [

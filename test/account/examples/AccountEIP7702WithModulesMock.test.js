@@ -1,16 +1,18 @@
-const { ethers, predeploy } = require('hardhat');
-const { loadFixture, setBalance } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { getDomain } from '../../helpers/eip712';
+import { ERC4337Helper } from '../../helpers/erc4337';
+import { MODULE_TYPE_VALIDATOR } from '../../helpers/erc7579';
+import { PackedUserOperation } from '../../helpers/eip712-types';
+import { shouldBehaveLikeAccountCore, shouldBehaveLikeAccountHolder } from '../Account.behavior';
+import { shouldBehaveLikeAccountERC7579 } from '../extensions/AccountERC7579.behavior';
+import { shouldBehaveLikeERC1271 } from '../../utils/cryptography/ERC1271.behavior';
+import { shouldBehaveLikeERC7821 } from '../extensions/ERC7821.behavior';
 
-const { getDomain } = require('../../helpers/eip712');
-const { ERC4337Helper } = require('../../helpers/erc4337');
-const { PackedUserOperation } = require('../../helpers/eip712-types');
-
-const { shouldBehaveLikeAccountCore, shouldBehaveLikeAccountHolder } = require('../Account.behavior');
-const { shouldBehaveLikeAccountERC7579 } = require('../extensions/AccountERC7579.behavior');
-const { shouldBehaveLikeERC1271 } = require('../../utils/cryptography/ERC1271.behavior');
-const { shouldBehaveLikeERC7821 } = require('../extensions/ERC7821.behavior');
-
-const { MODULE_TYPE_VALIDATOR } = require('../../helpers/erc7579');
+const connection = await network.connect();
+const {
+  ethers,
+  networkHelpers: { loadFixture, setBalance },
+} = connection;
 
 async function fixture() {
   // EOAs and environment
@@ -26,13 +28,13 @@ async function fixture() {
   const validator = await ethers.deployContract('$ERC7579ValidatorMock');
 
   // ERC-4337 account
-  const helper = new ERC4337Helper();
+  const helper = new ERC4337Helper(connection);
   const mock = await helper.newAccount('$AccountEIP7702WithModulesMock', ['AccountEIP7702WithModulesMock', '1'], {
     eip7702signer: eoa,
   });
 
   // ERC-4337 Entrypoint domain
-  const entrypointDomain = await getDomain(predeploy.entrypoint.v09);
+  const entrypointDomain = await getDomain(ethers.predeploy.entrypoint.v09);
 
   // domain cannot be fetched using getDomain(mock) before the mock is deployed
   const domain = {
@@ -47,7 +49,7 @@ async function fixture() {
 
 describe('AccountEIP7702WithModules: EIP-7702 account with ERC-7579 modules supports', function () {
   beforeEach(async function () {
-    Object.assign(this, await loadFixture(fixture));
+    Object.assign(this, connection, await loadFixture(fixture));
   });
 
   describe('using EIP-7702 signer', function () {

@@ -1,6 +1,10 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.connect();
 
 const name = 'My Token';
 const symbol = 'MTKN';
@@ -40,7 +44,7 @@ describe('ERC20Burnable', function () {
           });
 
           it('burns the requested value', async function () {
-            await expect(this.tx).to.changeTokenBalance(this.token, this.owner, -value);
+            await expect(this.tx).to.changeTokenBalance(ethers, this.token, this.owner, -value);
           });
 
           it('emits a transfer event', async function () {
@@ -88,7 +92,7 @@ describe('ERC20Burnable', function () {
           });
 
           it('burns the requested value', async function () {
-            await expect(this.tx).to.changeTokenBalance(this.token, this.owner, -value);
+            await expect(this.tx).to.changeTokenBalance(ethers, this.token, this.owner, -value);
           });
 
           it('decrements allowance', async function () {

@@ -1,9 +1,11 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { PANIC_CODES } from '@nomicfoundation/hardhat-ethers-chai-matchers/panic';
 
-const coder = ethers.AbiCoder.defaultAbiCoder();
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.connect();
 
 const fakeContract = { interface: ethers.Interface.from(['error SomeCustomErrorWithoutArgs()']) };
 const returndata = fakeContract.interface.encodeErrorResult('SomeCustomErrorWithoutArgs');
@@ -26,7 +28,7 @@ describe('Address', function () {
   describe('sendValue', function () {
     describe('when sender contract has no funds', function () {
       it('sends 0 wei', async function () {
-        await expect(this.mock.$sendValue(this.other, 0n)).to.changeEtherBalance(this.recipient, 0n);
+        await expect(this.mock.$sendValue(this.other, 0n)).to.changeEtherBalance(ethers, this.recipient, 0n);
       });
 
       it('reverts when sending non-zero amounts', async function () {
@@ -45,18 +47,23 @@ describe('Address', function () {
 
       describe('with EOA recipient', function () {
         it('sends 0 wei', async function () {
-          await expect(this.mock.$sendValue(this.recipient, 0n)).to.changeEtherBalance(this.recipient, 0n);
+          await expect(this.mock.$sendValue(this.recipient, 0n)).to.changeEtherBalance(ethers, this.recipient, 0n);
         });
 
         it('sends non-zero amounts', async function () {
           await expect(this.mock.$sendValue(this.recipient, funds - 1n)).to.changeEtherBalance(
+            ethers,
             this.recipient,
             funds - 1n,
           );
         });
 
         it('sends the whole balance', async function () {
-          await expect(this.mock.$sendValue(this.recipient, funds)).to.changeEtherBalance(this.recipient, funds);
+          await expect(this.mock.$sendValue(this.recipient, funds)).to.changeEtherBalance(
+            ethers,
+            this.recipient,
+            funds,
+          );
           expect(await ethers.provider.getBalance(this.mock)).to.equal(0n);
         });
 
@@ -70,7 +77,11 @@ describe('Address', function () {
       describe('with contract recipient', function () {
         it('sends funds', async function () {
           await this.targetEther.setAcceptEther(true);
-          await expect(this.mock.$sendValue(this.targetEther, funds)).to.changeEtherBalance(this.targetEther, funds);
+          await expect(this.mock.$sendValue(this.targetEther, funds)).to.changeEtherBalance(
+            ethers,
+            this.targetEther,
+            funds,
+          );
         });
 
         it('reverts on recipient revert', async function () {
@@ -92,7 +103,7 @@ describe('Address', function () {
         await expect(this.mock.$functionCall(this.target, call))
           .to.emit(this.target, 'MockFunctionCalled')
           .to.emit(this.mock, 'return$functionCall')
-          .withArgs(coder.encode(['string'], ['0x1234']));
+          .withArgs(ethers.AbiCoder.defaultAbiCoder().encode(['string'], ['0x1234']));
       });
 
       it('calls the requested empty return function', async function () {
@@ -156,7 +167,7 @@ describe('Address', function () {
         await expect(this.mock.$functionCallWithValue(this.target, call, 0n))
           .to.emit(this.target, 'MockFunctionCalled')
           .to.emit(this.mock, 'return$functionCallWithValue')
-          .withArgs(coder.encode(['string'], ['0x1234']));
+          .withArgs(ethers.AbiCoder.defaultAbiCoder().encode(['string'], ['0x1234']));
       });
     });
 
@@ -177,12 +188,12 @@ describe('Address', function () {
         const call = this.target.interface.encodeFunctionData('mockFunction');
         const tx = await this.mock.$functionCallWithValue(this.target, call, value);
 
-        await expect(tx).to.changeEtherBalance(this.target, value);
+        await expect(tx).to.changeEtherBalance(ethers, this.target, value);
 
         await expect(tx)
           .to.emit(this.target, 'MockFunctionCalled')
           .to.emit(this.mock, 'return$functionCallWithValue')
-          .withArgs(coder.encode(['string'], ['0x1234']));
+          .withArgs(ethers.AbiCoder.defaultAbiCoder().encode(['string'], ['0x1234']));
       });
 
       it('calls the requested function with transaction funds', async function () {
@@ -191,11 +202,11 @@ describe('Address', function () {
         const call = this.target.interface.encodeFunctionData('mockFunction');
         const tx = await this.mock.connect(this.other).$functionCallWithValue(this.target, call, value, { value });
 
-        await expect(tx).to.changeEtherBalance(this.target, value);
+        await expect(tx).to.changeEtherBalance(ethers, this.target, value);
         await expect(tx)
           .to.emit(this.target, 'MockFunctionCalled')
           .to.emit(this.mock, 'return$functionCallWithValue')
-          .withArgs(coder.encode(['string'], ['0x1234']));
+          .withArgs(ethers.AbiCoder.defaultAbiCoder().encode(['string'], ['0x1234']));
       });
 
       it('reverts when calling non-payable functions', async function () {
@@ -215,7 +226,9 @@ describe('Address', function () {
     it('calls the requested function', async function () {
       const call = this.target.interface.encodeFunctionData('mockStaticFunction');
 
-      expect(await this.mock.$functionStaticCall(this.target, call)).to.equal(coder.encode(['string'], ['0x1234']));
+      expect(await this.mock.$functionStaticCall(this.target, call)).to.equal(
+        ethers.AbiCoder.defaultAbiCoder().encode(['string'], ['0x1234']),
+      );
     });
 
     it('reverts on a non-static function', async function () {
@@ -253,7 +266,7 @@ describe('Address', function () {
 
       await expect(await this.mock.$functionDelegateCall(this.target, call))
         .to.emit(this.mock, 'return$functionDelegateCall')
-        .withArgs(coder.encode(['string'], ['0x1234']));
+        .withArgs(ethers.AbiCoder.defaultAbiCoder().encode(['string'], ['0x1234']));
 
       expect(await ethers.provider.getStorage(this.mock, slot)).to.equal(value);
     });
