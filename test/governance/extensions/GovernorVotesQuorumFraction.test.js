@@ -92,7 +92,7 @@ describe('GovernorVotesQuorumFraction', function () {
           .withArgs(
             this.proposal.id,
             ProposalState.Defeated,
-            GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded, ProposalState.Queued]),
+            GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded]),
           );
       });
 
