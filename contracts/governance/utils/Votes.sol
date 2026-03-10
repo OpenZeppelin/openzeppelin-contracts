@@ -75,7 +75,7 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
     /**
      * @dev Validate that a timepoint is in the past, and return it as a uint48.
      */
-    function _validateTimepoint(uint256 timepoint) internal view returns (uint48) {
+    function _validateTimepoint(uint256 timepoint) internal view virtual returns (uint48) {
         uint48 currentTimepoint = clock();
         if (timepoint >= currentTimepoint) revert ERC5805FutureLookup(timepoint, currentTimepoint);
         return SafeCast.toUint48(timepoint);
