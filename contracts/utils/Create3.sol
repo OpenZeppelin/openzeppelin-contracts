@@ -120,7 +120,7 @@ library Create3 {
         return _computeCreateAddress(Create2.computeAddress(salt, PROXY_INITCODE_HASH, deployer));
     }
 
-    /// @dev Compute the address of the first contract that `createor` would deployed using CREATE (nonce 1).
+    /// @dev Compute the address of the first contract that `creator` would deployed using CREATE (nonce 1).
     function _computeCreateAddress(address creator) private pure returns (address addr) {
         assembly ("memory-safe") {
             mstore(0x15, 0x01)
