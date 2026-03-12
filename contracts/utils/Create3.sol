@@ -8,7 +8,7 @@ import {LowLevelCall} from "./LowLevelCall.sol";
 
 /**
  * @dev Helper to deploy contracts using the `CREATE3` approach.
- * `CREATE3` compines both `CREATE2` and `CREATE` opcodes to deploy abritrary bytecode at an address that only depends
+ * `CREATE3` compines both `CREATE2` and `CREATE` opcodes to deploy arbitrary bytecode at an address that only depends
  * on the provided salt. At a high level, it depends like a `CREATE2` operation that would not use the bytecodehash to
  * generate the contract address.
  *
