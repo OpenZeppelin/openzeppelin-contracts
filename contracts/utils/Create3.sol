@@ -77,7 +77,7 @@ library Create3 {
      * Requirements:
      *
      * - `bytecode` must not be empty.
-     * - `salt` must have not been used for `bytecode` already.
+     * - `salt` must not have been used already.
      * - the factory must have a balance of at least `amount`.
      * - if `amount` is non-zero, `bytecode` must have a `payable` constructor.
      */
