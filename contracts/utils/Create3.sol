@@ -100,7 +100,7 @@ library Create3 {
             }
         }
 
-        // TODO: check that instance has code? Can create successed without any code placed?
+        // TODO: check that instance has code? Can create succeed without any code placed?
         return _computeCreateAddress(proxy);
     }
 
