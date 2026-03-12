@@ -32,7 +32,7 @@ async function fixture() {
   return { deployer, other, factory, constructorByteCode, constructorLessBytecode, mockFactory };
 }
 
-describe('Create2', function () {
+describe('Create3', function () {
   const salt = 'salt message';
   const saltHex = ethers.id(salt);
 
