@@ -104,7 +104,7 @@ abstract contract Account is AbstractSigner, IAccount {
     }
 
     /**
-     * @dev Virtual function that returns the signable hash for a user operations. Since v0.8.0 of the entrypoint,
+     * @dev Virtual function that returns the signable hash for a user operation. Since v0.8.0 of the entrypoint,
      * `userOpHash` is an EIP-712 hash that can be signed directly.
      */
     function _signableUserOpHash(
