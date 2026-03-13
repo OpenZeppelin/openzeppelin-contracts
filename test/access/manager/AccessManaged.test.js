@@ -4,6 +4,7 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { impersonate } = require('../../helpers/account');
 const time = require('../../helpers/time');
+const { EXPIRATION } = require('../../helpers/access-manager');
 
 async function fixture() {
   const [admin, roleMember, other] = await ethers.getSigners();
@@ -97,6 +98,28 @@ describe('AccessManaged', function () {
         // Shouldn't revert
         await this.managed.connect(this.roleMember)[this.selector]();
       });
+
+      it('reverts if the operation has expired', async function () {
+        const fn = this.managed.interface.getFunction(this.selector);
+        const calldata = this.managed.interface.encodeFunctionData(fn, []);
+        const opId = await this.authority.hashOperation(this.roleMember, this.managed, calldata);
+
+        // Schedule operation
+        const scheduledAt = (await time.clock.timestamp()) + 1n;
+        const delay = time.duration.hours(12);
+        const when = scheduledAt + delay;
+        await time.increaseTo.timestamp(scheduledAt, false);
+        await this.authority.connect(this.roleMember).schedule(this.managed, calldata, when);
+
+        // Wait until operation expires (expiration is 1 week)
+        const expiredAt = when + EXPIRATION;
+        await time.increaseTo.timestamp(expiredAt, false);
+
+        // Should revert with AccessManagerExpired
+        await expect(this.managed.connect(this.roleMember)[this.selector]())
+          .to.be.revertedWithCustomError(this.authority, 'AccessManagerExpired')
+          .withArgs(opId);
+      });
     });
   });
 
@@ -113,12 +136,50 @@ describe('AccessManaged', function () {
         .withArgs(this.other);
     });
 
+    it('reverts if the new authority is address(0)', async function () {
+      await expect(this.managed.connect(this.authorityAsSigner).setAuthority(ethers.ZeroAddress))
+        .to.be.revertedWithCustomError(this.managed, 'AccessManagedInvalidAuthority')
+        .withArgs(ethers.ZeroAddress);
+    });
+
     it('sets authority and emits AuthorityUpdated event', async function () {
       await expect(this.managed.connect(this.authorityAsSigner).setAuthority(this.anotherAuthority))
         .to.emit(this.managed, 'AuthorityUpdated')
         .withArgs(this.anotherAuthority);
 
       expect(await this.managed.authority()).to.equal(this.anotherAuthority);
+    });
+
+    it('allows multiple authority changes and restricted modifier works after each change', async function () {
+      // Setup role in original authority (needed for final verification)
+      const selector = this.managed.fnRestricted.getFragment().selector;
+      const role = 42n;
+      await this.authority.$_setTargetFunctionRole(this.managed, selector, role);
+      await this.authority.$_grantRole(role, this.roleMember, 0, 0);
+
+      // First change: authority -> anotherAuthority
+      await expect(this.managed.connect(this.authorityAsSigner).setAuthority(this.anotherAuthority))
+        .to.emit(this.managed, 'AuthorityUpdated')
+        .withArgs(this.anotherAuthority);
+      expect(await this.managed.authority()).to.equal(this.anotherAuthority);
+
+      // Setup role in new authority
+      await this.anotherAuthority.$_setTargetFunctionRole(this.managed, selector, role);
+      await this.anotherAuthority.$_grantRole(role, this.roleMember, 0, 0);
+
+      // Verify restricted modifier works with new authority
+      await this.managed.connect(this.roleMember)[selector]();
+
+      // Second change: anotherAuthority -> authority (back to original)
+      await impersonate(this.anotherAuthority.target);
+      const anotherAuthorityAsSigner = await ethers.getSigner(this.anotherAuthority.target);
+      await expect(this.managed.connect(anotherAuthorityAsSigner).setAuthority(this.authority))
+        .to.emit(this.managed, 'AuthorityUpdated')
+        .withArgs(this.authority);
+      expect(await this.managed.authority()).to.equal(this.authority);
+
+      // Verify restricted modifier still works with original authority
+      await this.managed.connect(this.roleMember)[selector]();
     });
   });
 
