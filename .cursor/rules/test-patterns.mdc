@@ -29,7 +29,7 @@ Write a manual mock when you need:
 - **Adversarial or protocol-specific behavior** that has no analogue in the base contract (e.g. `ReentrancyAttack`, `ERC20ReturnFalseMock`).
 - **A public entry point** for an internal operation that hardhat-exposed generates with the wrong signature or that requires additional logic (e.g. `ERC20Mock.mint` which is a plain `external` wrapper with no special setup needed).
 
-Even within a manual mock, prefer calling the auto-generated `$_` functions over re-declaring an internal exposure:
+Even within a manual mock, prefer calling the auto-generated `$_` functions over redeclaring an internal exposure:
 
 ```solidity
 // prefer this (reuses auto-generated exposure):

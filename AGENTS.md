@@ -314,7 +314,7 @@ Manual mocks are only written when the auto-generated exposed contract is not su
 - **Adversarial or protocol-specific behavior** — e.g. `ReentrancyAttack`, `ERC20ReturnFalseMock`.
 - **A plain public entry point** for an internal operation where the generated signature or constructor is unsuitable.
 
-Even within a manual mock, call the auto-generated `$_` functions rather than re-declaring the same internal exposure.
+Even within a manual mock, call the auto-generated `$_` functions rather than redeclaring the same internal exposure.
 
 ### When to use each testing approach
 
