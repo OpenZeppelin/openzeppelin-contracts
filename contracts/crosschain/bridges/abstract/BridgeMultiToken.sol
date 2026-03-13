@@ -17,7 +17,7 @@ import {CrosschainLinked} from "../../CrosschainLinked.sol";
  * This base contract is used by the {BridgeERC1155}, which interfaces with legacy ERC-1155 tokens. It is also used by
  * the {ERC1155Crosschain} extension, which embeds the bridge logic directly in the token contract.
  *
- * This base contract implements the crosschain transfer operation though internal functions. It is for the "child
+ * This base contract implements the crosschain transfer operation through internal functions. It is for the "child
  * contracts" that inherit from this to implement the external interfaces and make these functions accessible.
  */
 abstract contract BridgeMultiToken is Context, CrosschainLinked {
