@@ -1,7 +1,7 @@
 const { ethers } = require('hardhat');
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const shouldBehaveLikeProxy = require('../Proxy.behaviour');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const fixture = async () => {
   const [nonContractAddress] = await ethers.getSigners();
@@ -22,7 +22,7 @@ describe('ERC1967Proxy', function () {
         ethers.deployContract('ERC1967Proxy', [implementation, initData], opts);
     });
 
-    shouldBehaveLikeProxy(false);
+    shouldBehaveLikeProxy({ allowUninitialized: false });
   });
 
   describe('(unsafe) allowUninitialized is true', function () {
@@ -31,6 +31,6 @@ describe('ERC1967Proxy', function () {
         ethers.deployContract('ERC1967ProxyUnsafe', [implementation, initData], opts);
     });
 
-    shouldBehaveLikeProxy(true);
+    shouldBehaveLikeProxy({ allowUninitialized: true });
   });
 });
