@@ -56,6 +56,11 @@ library ERC1967Clones {
      * - 0x22: length of the deployment code, since the proxy code is just after the deployment code, that is also to offset of the proxy code
      * - 0x09: position of the ERC1967Implementation slot in the proxy code.
      */
+
+    function deploy(address implementation) internal returns (address addr) {
+        return deploy(implementation, uint256(0));
+    }
+
     function deploy(address implementation, uint256 amount) internal returns (address addr) {
         bytes32 implementationSlot = ERC1967Utils.IMPLEMENTATION_SLOT;
         assembly ("memory-safe") {
@@ -75,7 +80,11 @@ library ERC1967Clones {
         require(addr != address(0), Errors.FailedDeployment());
     }
 
-    function deployDeterministic(address implementation, uint256 amount, bytes32 salt) internal returns (address addr) {
+    function deploy(address implementation, bytes32 salt) internal returns (address addr) {
+        return deploy(implementation, uint256(0), salt);
+    }
+
+    function deploy(address implementation, uint256 amount, bytes32 salt) internal returns (address addr) {
         bytes32 implementationSlot = ERC1967Utils.IMPLEMENTATION_SLOT;
         assembly ("memory-safe") {
             // Set code in memory
