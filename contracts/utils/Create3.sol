@@ -43,7 +43,7 @@ library Create3 {
      * 0x13   | 5b          | JUMPDEST         | 0 rds           | [0..rds): returndata
      * 0x14   | f3          | RETURN           |                 |
      *
-     * ==============================[ DEPLOYMENT BYTECODE ]===============================
+     * ================================[ DEPLOYMENT CODE ]=================================
      * Offset | Opcode      | Mnemonic         | Stack           | Memory
      * -------|-------------|------------------|-----------------|-------------------------
      * 0x00   | 74 bytecode | PUSH21 bytecode  | bytecode        |
