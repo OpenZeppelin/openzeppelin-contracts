@@ -3,7 +3,7 @@ const { expect } = require('chai');
 
 const { getAddressInSlot, ImplementationSlot } = require('../helpers/storage');
 
-module.exports = function shouldBehaveLikeProxy({ allowUninitialized = false, allowNonContractAddress = false }) {
+module.exports = function shouldBehaveLikeProxy({ allowUninitialized = false, allowNonContractAddress = false } = {}) {
   if (!allowNonContractAddress) {
     it('cannot be initialized with a non-contract address', async function () {
       const initializeData = '0x00'; // non empty data to avoid uninitialized error
