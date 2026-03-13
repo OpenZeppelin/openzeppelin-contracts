@@ -353,6 +353,56 @@ describe('ERC7579Utils', function () {
     ]);
   });
 
+  describe('decodeBatch error cases', function () {
+    beforeEach(async function () {
+      Object.assign(this, await loadFixture(fixture));
+    });
+
+    it('reverts when executionCalldata is empty', async function () {
+      const emptyData = '0x';
+      await expect(this.utils.$decodeBatch(emptyData)).to.be.revertedWithCustomError(
+        this.utils,
+        'ERC7579DecodingError',
+      );
+    });
+
+    it('reverts when executionCalldata is too short', async function () {
+      const shortData = '0x' + '00'.repeat(16);
+      await expect(this.utils.$decodeBatch(shortData)).to.be.revertedWithCustomError(
+        this.utils,
+        'ERC7579DecodingError',
+      );
+    });
+
+    it('reverts when array offset points outside buffer', async function () {
+      const malformedData = ethers.toBeHex(0x100, 32);
+      await expect(this.utils.$decodeBatch(malformedData)).to.be.revertedWithCustomError(
+        this.utils,
+        'ERC7579DecodingError',
+      );
+    });
+
+    it('reverts when array length exceeds uint64 max', async function () {
+      const offsetData = ethers.toBeHex(32, 32);
+      const tooLargeLength = ethers.toBeHex(ethers.toBigInt('0xFFFFFFFFFFFFFFFF') + 1n, 32);
+      const malformedData = offsetData + tooLargeLength.slice(2);
+      await expect(this.utils.$decodeBatch(malformedData)).to.be.revertedWithCustomError(
+        this.utils,
+        'ERC7579DecodingError',
+      );
+    });
+
+    it('reverts when buffer too small for array element pointers', async function () {
+      const offsetData = ethers.toBeHex(32, 32);
+      const arrayLength = ethers.toBeHex(10, 32);
+      const malformedData = offsetData + arrayLength.slice(2);
+      await expect(this.utils.$decodeBatch(malformedData)).to.be.revertedWithCustomError(
+        this.utils,
+        'ERC7579DecodingError',
+      );
+    });
+  });
+
   describe('global', function () {
     describe('eqCallTypeGlobal', function () {
       it('returns true if both call types are equal', async function () {
