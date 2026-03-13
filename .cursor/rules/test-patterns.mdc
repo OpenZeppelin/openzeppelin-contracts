@@ -1,0 +1,125 @@
+---
+description: Testing conventions for openzeppelin-contracts. Covers mock structure, the dollar-sign internal exposure pattern, Hardhat+Chai style, and Foundry fuzz test conventions.
+globs: test/**,contracts/mocks/**
+alwaysApply: false
+---
+
+# Test Patterns
+
+## Accessing internal functions in tests
+
+The `$`-prefixed exposed contracts are **automatically generated** by [hardhat-exposed](https://github.com/frangio/hardhat-exposed). The plugin generates a `$ContractName` wrapper for every contract, with every internal `_function` re-exposed as an external `$_function`. These are emitted into `contracts-exposed/` (gitignored) and are available in tests without any manual work:
+
+```javascript
+const token = await ethers.deployContract('$ERC20', ['Name', 'SYM']);
+await token.$_mint(holder, 1000n);
+```
+
+**Do not write `$`-prefixed wrapper contracts by hand.**
+
+## Manual mocks in `contracts/mocks/`
+
+Manual mocks are only written when the auto-generated exposed contract is not sufficient. `contracts/mocks/` mirrors the `contracts/` directory structure. Do not put mocks in `test/`.
+
+Write a manual mock when you need:
+
+- **Constructor-level setup** that auto-generation cannot provide (e.g. `ERC721ConsecutiveMock` which mints batches during construction using `_mintConsecutive`).
+- **Multi-extension composition** to test the interaction of several extensions together (e.g. `ERC721ConsecutiveMock` combining `ERC721Consecutive + ERC721Pausable + ERC721Votes`).
+- **Injected behavior** that overrides a hook to simulate edge cases (e.g. `ERC20Reentrant` which calls back into the token inside `_update`).
+- **Adversarial or protocol-specific behavior** that has no analogue in the base contract (e.g. `ReentrancyAttack`, `ERC20ReturnFalseMock`).
+- **A public entry point** for an internal operation that hardhat-exposed generates with the wrong signature or that requires additional logic (e.g. `ERC20Mock.mint` which is a plain `external` wrapper with no special setup needed).
+
+Even within a manual mock, prefer calling the auto-generated `$_` functions over re-declaring an internal exposure:
+
+```solidity
+// prefer this (reuses auto-generated exposure):
+await token.$_mint(holder, 1000n);
+
+// avoid this (redundant re-declaration already handled by hardhat-exposed):
+contract ERC20Mock is ERC20 {
+    function $__mint(address account, uint256 value) external { _mint(account, value); }
+}
+```
+
+## Hardhat + Chai tests (`.test.js`)
+
+- Use `loadFixture` from `@nomicfoundation/hardhat-network-helpers` for setup. Define a `fixture` async function; call `loadFixture(fixture)` in `beforeEach`.
+- Test structure: `describe('ContractName') > describe('methodName') > it('description')`
+- Reuse behavior via `shouldBehaveLike*` functions in `.behavior.js` files.
+- Custom errors: `.revertedWithCustomError(contract, 'ErrorName').withArgs(...)`
+- Events: `.emit(contract, 'EventName').withArgs(...)`
+- Use `bigint` literals (`100n`) for uint values: not `ethers.BigNumber`.
+
+## Foundry tests (`.t.sol`) and formal verification
+
+### When to use each approach
+
+| Approach            | Required when                                                                              |
+| ------------------- | ------------------------------------------------------------------------------------------ |
+| Formal verification | Contract includes a state machine or access control rules                                  |
+| Fuzzing             | Math-heavy code, data structures, or complex invariants not suited for formal verification |
+| Edge unit cases     | All high-risk contracts, unexpected/pathological inputs, border cases                      |
+
+### Fuzzing with Foundry
+
+Fuzz test functions take typed parameters directly and are run by Foundry automatically:
+
+```solidity
+function testFuzzAdd(uint256 a, uint256 b) public pure {
+  // vm.assume(...) to restrict inputs if needed
+  assertEq(Math.add(a, b), a + b);
+}
+```
+
+Use `assertEq`, `assertGt`, etc. from `forge-std/Test.sol`.
+
+### Formal verification: Halmos
+
+[Halmos](https://github.com/a16z/halmos) runs symbolic execution directly on Foundry test files. Symbolic test functions must be prefixed with `symbolic` or `testSymbolic` — this is what the CI `halmos` job matches (`--match-test '^symbolic|^testSymbolic'`). These functions also run as regular fuzz tests under Foundry:
+
+```solidity
+function testSymbolicTransfer(address to, uint256 amount) public {
+  // halmos treats inputs as fully symbolic (all possible values)
+  // add vm.assume(...) for preconditions
+}
+```
+
+Halmos runs on every PR. Prefer Halmos when the property can be expressed as a Foundry test — it is fast and requires no external tooling.
+
+### Formal verification: Certora
+
+[Certora](https://certora.com) is more powerful than Halmos for complex state machine rules and access control invariants. Specs live in `fv/specs/` as `.conf` + `.spec` file pairs. Certora runs on PRs labeled `formal-verification` or `formal-verification-force-all`. To run locally:
+
+```bash
+node fv/run.js AccessControl   # runs fv/specs/AccessControl.conf
+node fv/run.js --all           # runs all specs
+```
+
+Before running, apply the harness patches:
+
+```bash
+make -C fv apply
+```
+
+Use Certora when a property is too complex for Halmos or when deeper rule coverage is needed. It requires a `CERTORAKEY`.
+
+## Changeset format
+
+Every PR that changes contract behavior needs a changeset. Generate one with:
+
+```bash
+npx changeset add
+```
+
+This creates a file in `.changeset/`. The format is:
+
+```
+---
+'openzeppelin-solidity': minor
+---
+
+`ComponentName`: One-sentence description of what changed.
+```
+
+- `minor` for new features, `patch` for bug fixes.
+- Description starts with a backtick-quoted contract/component name, followed by a single sentence. No bullet points, no multi-paragraph prose.

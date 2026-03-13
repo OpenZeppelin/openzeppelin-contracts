@@ -1,0 +1,61 @@
+---
+description: Library API design rules for openzeppelin-contracts. Covers virtual, memory vs calldata, public vs external, overloads, hooks, and the internal/external split. Apply to all Solidity work in this repo.
+alwaysApply: true
+---
+
+# Library API Design
+
+This is a smart contract library designed for inheritance. Code here is used as a base by downstream projects: functions must be overridable and argument types must not force a particular call context on child contracts.
+
+## `virtual`
+
+Mark all `public` and `internal` functions `virtual` unless the function is:
+- An alias (calls another function without significant added logic): NOT virtual; document with `NOTE:` in NatSpec explaining which function to override instead.
+- A convenience overload that only supplies a default to a full-arg canonical form: NOT virtual; the canonical form is the virtual one.
+
+## `memory` over `calldata`
+
+Use `memory` for all reference-type parameters (`string`, `bytes`, arrays, structs), including `public` functions. `calldata` forces inheritors to match the restriction.
+
+Exceptions: `calldata` in return types that are `msg.data` slices, and explicit `Calldata`-suffixed parallel functions in utility libraries.
+
+## `public` vs `external`
+
+Default to `public`. Use `external` only when:
+- The ERC/EIP spec explicitly defines the function as `external`.
+- The design explicitly prevents internal calls (e.g. ERC-7786 gateway callbacks, `UUPSUpgradeable.proxiableUUID`). Add a `NOTE:` in NatSpec explaining why.
+
+## Function overloads
+
+Short-arg overloads hardcode a default and delegate to the canonical full-arg form. No logic in the short overload. Document which form to override:
+
+```solidity
+// not virtual (sets emitEvent = true):
+function _approve(address owner, address spender, uint256 value) internal {
+    _approve(owner, spender, value, true);
+}
+// virtual (override this one):
+function _approve(address owner, address spender, uint256 value, bool emitEvent) internal virtual { ... }
+```
+
+## Prefer no-ops over reverts
+
+If a function can do nothing without a security concern, it should do nothing. This appears at three levels:
+
+- **Vacuous inputs**: skip silently rather than reverting (e.g. `batchSize == 0` skips the whole mint loop; `ERC721Utils.checkOnERC721Received` skips the callback for EOAs). Document the no-op condition with a comment.
+- **Idempotent state transitions**: return a `bool` result instead of reverting when the state is already at the target (e.g. `AccessControl._revokeRole` returns `false` when the role was not held). Callers can add a revert on `false`; the base never takes that choice away.
+- **Empty virtual hooks**: `internal virtual {}` functions where no default behavior exists. Always `_camelCase`, `internal virtual`, documented with `@dev`.
+
+Rule: overrides can always add requirements on top of a no-op base, but they cannot remove a requirement the base already enforces.
+
+## `_update` single override point
+
+`_mint`, `_burn`, `_transfer` are non-virtual; they call `_update`. Extensions override `_update` and always call `super._update(...)` before adding side effects.
+
+## Internal / external split
+
+`public` functions only: capture `_msgSender()` and delegate to `internal _functionName(actor, ...)`. Logic lives in the internal variant, which takes the actor address explicitly.
+
+## `_msgSender()` vs `msg.sender`
+
+Use `_msgSender()` in application logic. `msg.sender` only inside `Context.sol` / `ERC2771Context.sol`, or in deliberate protocol-level exceptions (e.g. ERC-7786 gateway callbacks). Deliberate exceptions require a `NOTE:` comment.
