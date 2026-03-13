@@ -12,7 +12,7 @@ const fs = require('fs');
 const pLimit = require('p-limit').default;
 const { hideBin } = require('yargs/helpers');
 const yargs = require('yargs/yargs');
-const { exec } = require('child_process');
+const { execFile } = require('child_process');
 
 const { argv } = yargs(hideBin(process.argv))
   .env('')
@@ -46,7 +46,7 @@ if (argv._.length == 0 && !argv.all) {
           () =>
             new Promise(resolve => {
               if (argv.verbose) console.log(`[${i + 1}/${length}] Running ${conf}`);
-              exec(`certoraRun ${conf}`, (error, stdout, stderr) => {
+              execFile('certoraRun', [conf], (error, stdout, stderr) => {
                 const match = stdout.match(
                   'https://prover.certora.com/output/[a-z0-9]+/[a-z0-9]+[?]anonymousKey=[a-z0-9]+',
                 );
