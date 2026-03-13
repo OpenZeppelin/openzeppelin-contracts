@@ -44,6 +44,7 @@ jobs:
       - name: Verify specification
         run: |
           make -C fv apply
+          set -f # Disable globbing
           node fv/run.js $FV_SPECS -p 1 -v >> "$GITHUB_STEP_SUMMARY"
         env:
           CERTORAKEY: ${{ secrets.CERTORAKEY }}
