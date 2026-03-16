@@ -2,4 +2,4 @@
 'openzeppelin-solidity': patch
 ---
 
-ERC2271Forwarder executeBatch revert on atomic batch with reverting zero value requests
+Make `ERC2771Forwarder` `executeBatch` atomic batches revert upon zero value requests reverts
