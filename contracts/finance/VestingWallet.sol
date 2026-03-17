@@ -134,14 +134,29 @@ contract VestingWallet is Context, Ownable {
      * @dev Calculates the amount of ether that has already vested. Default implementation is a linear vesting curve.
      */
     function vestedAmount(uint64 timestamp) public view virtual returns (uint256) {
-        return _vestingSchedule(address(this).balance + released(), timestamp);
+        uint256 totalAllocation;
+        uint256 bal = address(this).balance;
+        if (bal > type(uint256).max - released()) {
+            totalAllocation = type(uint256).max;
+        } else {
+            totalAllocation = bal + released();
+        }
+        return _vestingSchedule(totalAllocation, timestamp);
     }
 
     /**
      * @dev Calculates the amount of tokens that has already vested. Default implementation is a linear vesting curve.
      */
     function vestedAmount(address token, uint64 timestamp) public view virtual returns (uint256) {
-        return _vestingSchedule(IERC20(token).balanceOf(address(this)) + released(token), timestamp);
+        uint256 totalAllocation;
+        uint256 bal = IERC20(token).balanceOf(address(this));
+        uint256 rel = released(token);
+        if (bal > type(uint256).max - rel) {
+            totalAllocation = type(uint256).max;
+        } else {
+            totalAllocation = bal + rel;
+        }
+        return _vestingSchedule(totalAllocation, timestamp);
     }
 
     /**
