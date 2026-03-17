@@ -1,6 +1,6 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+const { loadFixture, setBalance } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { min } = require('../helpers/math');
 const time = require('../helpers/time');
@@ -60,6 +60,25 @@ describe('VestingWallet', function () {
       });
 
       shouldBehaveLikeVesting();
+    });
+  });
+
+  describe('overflow protection', function () {
+    it('caps totalAllocation when balance + released would overflow', async function () {
+      const duration = time.duration.years(4);
+      const start = (await time.clock.timestamp()) + time.duration.hours(1);
+      const [sender, beneficiary] = await ethers.getSigners();
+      const mock = await ethers.deployContract('VestingWallet', [beneficiary, start, duration]);
+
+      await sender.sendTransaction({ to: mock, value: 1n });
+      await time.increaseTo.timestamp(start + duration);
+      await mock.release();
+      expect(await mock.released()).to.equal(1n);
+
+      await setBalance(mock.target, 2n ** 256n - 1n);
+      const timestamp = start + duration;
+      const vested = await mock.vestedAmount(timestamp);
+      expect(vested).to.equal(2n ** 256n - 1n);
     });
   });
 });
