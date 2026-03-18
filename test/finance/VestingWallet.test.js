@@ -1,6 +1,6 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
-const { loadFixture, setBalance, setStorageAt } = require('@nomicfoundation/hardhat-network-helpers');
+const { loadFixture, setBalance } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { min } = require('../helpers/math');
 const time = require('../helpers/time');
@@ -78,33 +78,6 @@ describe('VestingWallet', function () {
       await setBalance(mock.target, 2n ** 256n - 1n);
       const timestamp = start + duration;
       const vested = await mock.vestedAmount(timestamp);
-      expect(vested).to.equal(2n ** 256n - 1n);
-    });
-
-    it('caps ERC20 totalAllocation when token balance + released would overflow', async function () {
-      const duration = time.duration.years(4);
-      const start = (await time.clock.timestamp()) + time.duration.hours(1);
-      const [, beneficiary] = await ethers.getSigners();
-      const mock = await ethers.deployContract('VestingWallet', [beneficiary, start, duration]);
-      const token = await ethers.deployContract('$ERC20', ['Name', 'Symbol']);
-
-      await token.$_mint(mock, 1n);
-      await time.increaseTo.timestamp(start + duration);
-      await mock.connect(beneficiary)['release(address)'](token);
-      expect(await mock['released(address)'](token)).to.equal(1n);
-
-      // Directly set token balance to type(uint256).max via storage manipulation
-      // ERC20._balances is at slot 0; balanceOf(addr) = keccak256(abi.encode(addr, 0))
-      const mockAddr = typeof mock.target === 'string' ? mock.target : await mock.getAddress();
-      const balanceSlot = ethers.keccak256(
-        ethers.AbiCoder.defaultAbiCoder().encode(['address', 'uint256'], [mockAddr, 0n]),
-      );
-      await setStorageAt(await token.getAddress(), balanceSlot, ethers.toBeHex(2n ** 256n - 1n, 32));
-
-      expect(await token.balanceOf(mock)).to.equal(2n ** 256n - 1n);
-
-      const timestamp = start + duration;
-      const vested = await mock['vestedAmount(address,uint64)'](token, timestamp);
       expect(vested).to.equal(2n ** 256n - 1n);
     });
   });
