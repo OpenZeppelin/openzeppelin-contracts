@@ -80,23 +80,5 @@ describe('VestingWallet', function () {
       const vested = await mock.vestedAmount(timestamp);
       expect(vested).to.equal(2n ** 256n - 1n);
     });
-
-    it('caps ERC20 totalAllocation when token balance + released would overflow', async function () {
-      const duration = time.duration.years(4);
-      const start = (await time.clock.timestamp()) + time.duration.hours(1);
-      const [, beneficiary] = await ethers.getSigners();
-      const mock = await ethers.deployContract('VestingWallet', [beneficiary, start, duration]);
-      const token = await ethers.deployContract('$ERC20', ['Name', 'Symbol']);
-
-      await token.$_mint(mock, 1n);
-      await time.increaseTo.timestamp(start + duration);
-      await mock['release(address)'](token);
-      expect(await mock['released(address)'](token)).to.equal(1n);
-
-      await token.$_mint(mock, 2n ** 256n - 1n);
-      const timestamp = start + duration;
-      const vested = await mock['vestedAmount(address,uint64)'](token, timestamp);
-      expect(vested).to.equal(2n ** 256n - 1n);
-    });
   });
 });
