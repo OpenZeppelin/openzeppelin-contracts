@@ -96,7 +96,9 @@ describe('VestingWallet', function () {
       // Directly set token balance to type(uint256).max via storage manipulation
       // ERC20._balances is at slot 0; balanceOf(addr) = keccak256(abi.encode(addr, 0))
       const mockAddr = typeof mock.target === 'string' ? mock.target : await mock.getAddress();
-      const balanceSlot = ethers.keccak256(ethers.AbiCoder.defaultAbiCoder().encode(['address', 'uint256'], [mockAddr, 0n]));
+      const balanceSlot = ethers.keccak256(
+        ethers.AbiCoder.defaultAbiCoder().encode(['address', 'uint256'], [mockAddr, 0n]),
+      );
       await setStorageAt(await token.getAddress(), balanceSlot, ethers.toBeHex(2n ** 256n - 1n, 32));
 
       expect(await token.balanceOf(mock)).to.equal(2n ** 256n - 1n);
