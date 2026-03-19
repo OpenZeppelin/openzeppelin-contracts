@@ -15,6 +15,8 @@ const {
 const { selector } = require('../../helpers/methods');
 
 const coder = ethers.AbiCoder.defaultAbiCoder();
+const encodeErrorString = str =>
+  ethers.solidityPacked(['bytes4', 'bytes'], [selector('Error(string)'), coder.encode(['string'], [str])]);
 
 const fixture = async () => {
   const [sender] = await ethers.getSigners();
@@ -96,13 +98,9 @@ describe('ERC7579Utils', function () {
 
       await expect(this.utils.$execSingle(data, EXEC_TYPE_TRY))
         .to.emit(this.utils, 'ERC7579TryExecuteFail')
-        .withArgs(
-          CALL_TYPE_CALL,
-          ethers.solidityPacked(
-            ['bytes4', 'bytes'],
-            [selector('Error(string)'), coder.encode(['string'], ['CallReceiverMock: reverting'])],
-          ),
-        );
+        .withArgs(CALL_TYPE_CALL, encodeErrorString('CallReceiverMock: reverting'))
+        .to.emit(this.utils, 'return$execSingle')
+        .withArgs([coder.encode(['bool', 'bytes'], [false, encodeErrorString('CallReceiverMock: reverting')])]);
     });
 
     it('reverts with an invalid exec type', async function () {
@@ -184,13 +182,15 @@ describe('ERC7579Utils', function () {
 
       await expect(this.utils.$execBatch(data, EXEC_TYPE_TRY))
         .to.emit(this.utils, 'ERC7579TryExecuteFail')
-        .withArgs(
-          CALL_TYPE_BATCH,
-          ethers.solidityPacked(
-            ['bytes4', 'bytes'],
-            [selector('Error(string)'), coder.encode(['string'], ['CallReceiverMock: reverting'])],
+        .withArgs(CALL_TYPE_BATCH, encodeErrorString('CallReceiverMock: reverting'))
+        .to.emit(this.utils, 'return$execBatch')
+        .withArgs([
+          coder.encode(
+            ['bool', 'bytes'],
+            [true, this.target.interface.encodeFunctionResult('mockFunction', ['0x1234'])],
           ),
-        );
+          coder.encode(['bool', 'bytes'], [false, encodeErrorString('CallReceiverMock: reverting')]),
+        ]);
 
       // Check balances
       await expect(ethers.provider.getBalance(this.target)).to.eventually.equal(value1);
@@ -247,13 +247,9 @@ describe('ERC7579Utils', function () {
       const data = encodeDelegate(this.target, this.target.interface.encodeFunctionData('mockFunctionRevertsReason'));
       await expect(this.utils.$execDelegateCall(data, EXEC_TYPE_TRY))
         .to.emit(this.utils, 'ERC7579TryExecuteFail')
-        .withArgs(
-          CALL_TYPE_CALL,
-          ethers.solidityPacked(
-            ['bytes4', 'bytes'],
-            [selector('Error(string)'), coder.encode(['string'], ['CallReceiverMock: reverting'])],
-          ),
-        );
+        .withArgs(CALL_TYPE_CALL, encodeErrorString('CallReceiverMock: reverting'))
+        .to.emit(this.utils, 'return$execDelegateCall')
+        .withArgs([coder.encode(['bool', 'bytes'], [false, encodeErrorString('CallReceiverMock: reverting')])]);
     });
 
     it('reverts with an invalid exec type', async function () {

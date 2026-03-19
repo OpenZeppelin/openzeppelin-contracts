@@ -243,13 +243,13 @@ library ERC7579Utils {
         bytes memory returndata
     ) private returns (bytes memory) {
         if (execType == ERC7579Utils.EXECTYPE_DEFAULT) {
-            Address.verifyCallResult(success, returndata);
+            return Address.verifyCallResult(success, returndata);
         } else if (execType == ERC7579Utils.EXECTYPE_TRY) {
             if (!success) emit ERC7579TryExecuteFail(index, returndata);
+            return abi.encode(success, returndata);
         } else {
             revert ERC7579UnsupportedExecType(execType);
         }
-        return returndata;
     }
 }
 
