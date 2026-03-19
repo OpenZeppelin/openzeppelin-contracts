@@ -61,6 +61,7 @@ describe('ERC6909Pausable', function () {
       });
 
       it('disapproves an operator', async function () {
+        await this.token.connect(this.holder).setOperator(this.other, true);
         await this.token.connect(this.holder).setOperator(this.other, false);
         expect(await this.token.isOperator(this.holder, this.other)).to.be.false;
       });
