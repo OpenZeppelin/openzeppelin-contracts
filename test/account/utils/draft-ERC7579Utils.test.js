@@ -102,7 +102,9 @@ describe('ERC7579Utils', function () {
             ['bytes4', 'bytes'],
             [selector('Error(string)'), coder.encode(['string'], ['CallReceiverMock: reverting'])],
           ),
-        );
+        )
+        .to.emit(this.utils, 'return$execSingle')
+        .withArgs(['0x']); // Check that the return data is empty for the failing call
     });
 
     it('reverts with an invalid exec type', async function () {
@@ -190,7 +192,12 @@ describe('ERC7579Utils', function () {
             ['bytes4', 'bytes'],
             [selector('Error(string)'), coder.encode(['string'], ['CallReceiverMock: reverting'])],
           ),
-        );
+        )
+        .to.emit(this.utils, 'return$execBatch')
+        .withArgs([
+          this.target.interface.encodeFunctionResult('mockFunction', ['0x1234']),
+          '0x', // Check that the return data is empty for the failing call
+        ]);
 
       // Check balances
       await expect(ethers.provider.getBalance(this.target)).to.eventually.equal(value1);
@@ -253,7 +260,9 @@ describe('ERC7579Utils', function () {
             ['bytes4', 'bytes'],
             [selector('Error(string)'), coder.encode(['string'], ['CallReceiverMock: reverting'])],
           ),
-        );
+        )
+        .to.emit(this.utils, 'return$execDelegateCall')
+        .withArgs(['0x']); // Check that the return data is empty for the failing call
     });
 
     it('reverts with an invalid exec type', async function () {
