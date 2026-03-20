@@ -722,7 +722,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     }
 
     /**
-     * @dev Returns true if a call with `target` and `selector` is being executed via {executed}.
+     * @dev Returns true if a call with `target` and `selector` is being executed via {execute}.
      */
     function _isExecuting(address target, bytes4 selector) private view returns (bool) {
         return _executionId == _hashExecutionId(target, selector);
