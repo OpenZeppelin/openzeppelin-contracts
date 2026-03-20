@@ -62,6 +62,9 @@ library ERC7579Utils {
     /// @dev The module type is not supported.
     error ERC7579UnsupportedModuleType(uint256 moduleTypeId);
 
+    /// @dev The fallback selector is invalid.
+    error ERC7579InvalidFallbackSelector();
+
     /// @dev Input calldata not properly formatted and possibly malicious.
     error ERC7579DecodingError();
 

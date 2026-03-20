@@ -51,6 +51,11 @@ import {Account} from "../Account.sol";
  * * When combined with {ERC7739}, resolution ordering of {isValidSignature} may have an impact ({ERC7739} does not
  *   call super). Manual resolution might be necessary.
  * * Static calls (using callType `0xfe`) are currently NOT supported.
+ * * Installing a fallback handler for a selector that collides with a function defined on the account (or any
+ *   derived contract) will result in the handler being unreachable, since Solidity dispatches to concrete functions
+ *   before `fallback()`. This includes unrelated function signatures whose 4-byte selector happens to collide.
+ *   The {isModuleInstalled} function only reflects configuration state and does not guarantee selector
+ *   reachability.
  * ====
  *
  * WARNING: Removing all validator modules will render the account inoperable, as no user operations can be validated thereafter.
@@ -247,6 +252,7 @@ abstract contract AccountERC7579 is Account, IERC1271, IERC7579Execution, IERC75
      * * Module type must be supported. See {supportsModule}. Reverts with {ERC7579Utils-ERC7579UnsupportedModuleType}.
      * * Module must be of the given type. Reverts with {ERC7579Utils-ERC7579MismatchedModuleTypeId}.
      * * Module must not be already installed. Reverts with {ERC7579Utils-ERC7579AlreadyInstalledModule}.
+     * * For fallback modules, the selector must not be `bytes4(0)`. Reverts with {ERC7579Utils-ERC7579InvalidFallbackSelector}.
      *
      * Emits a {IERC7579ModuleConfig-ModuleInstalled} event.
      */
@@ -264,6 +270,9 @@ abstract contract AccountERC7579 is Account, IERC1271, IERC7579Execution, IERC75
         } else if (moduleTypeId == MODULE_TYPE_FALLBACK) {
             bytes4 selector;
             (selector, initData) = _decodeFallbackData(initData);
+            if (selector == bytes4(0)) {
+                revert ERC7579Utils.ERC7579InvalidFallbackSelector();
+            }
             require(
                 _fallbacks[selector] == address(0),
                 ERC7579Utils.ERC7579AlreadyInstalledModule(moduleTypeId, module)
