@@ -104,8 +104,11 @@ library Arrays {
     }
 
     /**
-     * @dev Performs a quick sort of a segment of memory. The segment sorted starts at `begin` (inclusive), and stops
-     * at end (exclusive). Sorting follows the `comp` comparator.
+     * @dev Performs an iterative quick sort of a segment of memory. The segment sorted starts at `begin` (inclusive),
+     * and stops at end (exclusive). Sorting follows the `comp` comparator.
+     *
+     * Uses an explicit stack instead of recursion to avoid Solidity's stack depth limit.
+     * This allows sorting arrays of arbitrary size (previously limited to ~169 elements).
      *
      * Invariant: `begin <= end`. This is the case when initially called by {sort} and is preserved in subcalls.
      *
@@ -114,25 +117,61 @@ library Arrays {
      */
     function _quickSort(uint256 begin, uint256 end, function(uint256, uint256) pure returns (bool) comp) private pure {
         unchecked {
+            // Handle empty or single-element arrays
             if (end - begin < 0x40) return;
 
-            // Use first element as pivot
-            uint256 pivot = _mload(begin);
-            // Position where the pivot should be at the end of the loop
-            uint256 pos = begin;
+            // Use an explicit stack to avoid recursion depth limits
+            // Each stack entry holds a (begin, end) pair
+            uint256 maxPairs = ((end - begin) >> 5);
+            uint256[] memory stack = new uint256[](maxPairs << 1);
+            uint256 top = 0;
 
-            for (uint256 it = begin + 0x20; it < end; it += 0x20) {
-                if (comp(_mload(it), pivot)) {
-                    // If the value stored at the iterator's position comes before the pivot, we increment the
-                    // position of the pivot and move the value there.
-                    pos += 0x20;
-                    _swap(pos, it);
+            stack[top++] = begin;
+            stack[top++] = end;
+
+            while (top > 0) {
+                end = stack[--top];
+                begin = stack[--top];
+
+                if (end - begin < 0x40) continue;
+
+                // Use first element as pivot
+                uint256 pivot = _mload(begin);
+                uint256 pos = begin;
+
+                for (uint256 it = begin + 0x20; it < end; it += 0x20) {
+                    if (comp(_mload(it), pivot)) {
+                        pos += 0x20;
+                        _swap(pos, it);
+                    }
+                }
+
+                _swap(begin, pos);
+
+                // Push larger partition first to minimize stack depth
+                uint256 leftSize = pos - begin;
+                uint256 rightSize = end - pos - 0x20;
+
+                if (leftSize > rightSize) {
+                    if (leftSize > 0x20) {
+                        stack[top++] = begin;
+                        stack[top++] = pos;
+                    }
+                    if (rightSize > 0x20) {
+                        stack[top++] = pos + 0x20;
+                        stack[top++] = end;
+                    }
+                } else {
+                    if (rightSize > 0x20) {
+                        stack[top++] = pos + 0x20;
+                        stack[top++] = end;
+                    }
+                    if (leftSize > 0x20) {
+                        stack[top++] = begin;
+                        stack[top++] = pos;
+                    }
                 }
             }
-
-            _swap(begin, pos); // Swap pivot into place
-            _quickSort(begin, pos, comp); // Sort the left side of the pivot
-            _quickSort(pos + 0x20, end, comp); // Sort the right side of the pivot
         }
     }
 
