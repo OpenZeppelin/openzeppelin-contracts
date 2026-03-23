@@ -20,6 +20,10 @@ import {StorageSlot} from "./StorageSlot.sol";
  * TIP: If EIP-1153 (transient storage) is available on the chain you're deploying at,
  * consider using {ReentrancyGuardTransient} instead.
  *
+ * NOTE: `ReentrancyGuard` and {ReentrancyGuardTransient} are not interoperable. Since
+ * each tracks reentrancy state independently, a `nonReentrant` function from one will not
+ * prevent reentrant calls to a `nonReentrant` function from the other.
+ *
  * TIP: If you would like to learn more about reentrancy and alternative ways
  * to protect against it, check out our blog post
  * https://blog.openzeppelin.com/reentrancy-after-istanbul/[Reentrancy After Istanbul].
