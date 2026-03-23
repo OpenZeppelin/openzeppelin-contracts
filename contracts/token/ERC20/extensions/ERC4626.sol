@@ -18,7 +18,7 @@ import {Math} from "../../../utils/math/Math.sol";
  * underlying "assets" through standardized {deposit}, {mint}, {redeem} and {burn} workflows. This contract extends
  * the ERC-20 standard. Any additional extensions included along it would affect the "shares" token represented by this
  * contract and not the "assets" token which is an independent contract.
- * In-and-out underlying token transfers happening in {deposit}, {mint}, {redeem} and {burn} assumes the full amount of
+ * In-and-out underlying token transfers happening in {deposit}, {mint}, {redeem} and {burn} assume the full amount of
  * the underlying token transfer has been received, hence some non-standard tokens such as fee-on-transfer tokens are
  * not supported by this ERC-4626 implementation.
  *
