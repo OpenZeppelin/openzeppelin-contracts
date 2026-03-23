@@ -29,7 +29,7 @@ contract WebAuthnTest is Test {
                 seed,
                 challenge,
                 23,
-                100000000, // try reading type at an out-of-bound index, should return false instead of reverting
+                type(uint256).max - 21, // try reading type at an out-of-bound index, should return false instead of reverting OOG
                 _encodeAuthenticatorData(WebAuthn.AUTH_DATA_FLAGS_UP),
                 _encodeClientDataJSON(challenge),
                 false
