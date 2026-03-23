@@ -133,16 +133,13 @@ library WebAuthn {
         string memory clientDataJSON,
         uint256 typeIndex
     ) private pure returns (bool success) {
+        if (bytes(clientDataJSON).length < typeIndex + 21) return false;
         assembly ("memory-safe") {
-            success := and(
-                // clientDataJson.length >= typeIndex + 21
-                gt(mload(clientDataJSON), add(typeIndex, 20)),
-                eq(
-                    // get 32 bytes starting at index typexIndex in clientDataJSON, and keep the leftmost 21 bytes
-                    and(mload(add(add(clientDataJSON, 0x20), typeIndex)), shl(88, not(0))),
-                    // solhint-disable-next-line quotes
-                    '"type":"webauthn.get"'
-                )
+            success := eq(
+                // get 32 bytes starting at index typexIndex in clientDataJSON, and keep the leftmost 21 bytes
+                and(mload(add(add(clientDataJSON, 0x20), typeIndex)), shl(88, not(0))),
+                // solhint-disable-next-line quotes
+                '"type":"webauthn.get"'
             )
         }
     }
