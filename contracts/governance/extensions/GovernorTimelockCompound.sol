@@ -22,6 +22,12 @@ abstract contract GovernorTimelockCompound is Governor {
     ICompoundTimelock private _timelock;
 
     /**
+     * @dev The proposal contains duplicate actions (same target, value, and calldata), which would cause queueing to
+     * fail in the Compound Timelock.
+     */
+    error GovernorDuplicateProposalAction(uint256 index);
+
+    /**
      * @dev Emitted when the timelock controller used for proposal execution is modified.
      */
     event TimelockChange(address oldTimelock, address newTimelock);
@@ -56,6 +62,33 @@ abstract contract GovernorTimelockCompound is Governor {
     /// @inheritdoc IGovernor
     function proposalNeedsQueuing(uint256) public view virtual override returns (bool) {
         return true;
+    }
+
+    /**
+     * @dev Override of {Governor-_propose} that rejects proposals containing duplicate actions. The Compound Timelock
+     * identifies queued transactions by a hash of (target, value, signature, calldata, eta). If two actions in a
+     * proposal share the same target, value, and calldata, they would produce the same hash, causing the second one
+     * to fail during queueing. This check prevents such proposals from being created in the first place.
+     */
+    function _propose(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        string memory description,
+        address proposer
+    ) internal virtual override returns (uint256) {
+        for (uint256 i = 1; i < targets.length; ++i) {
+            for (uint256 j = 0; j < i; ++j) {
+                if (
+                    targets[i] == targets[j] &&
+                    values[i] == values[j] &&
+                    keccak256(calldatas[i]) == keccak256(calldatas[j])
+                ) {
+                    revert GovernorDuplicateProposalAction(i);
+                }
+            }
+        }
+        return super._propose(targets, values, calldatas, description, proposer);
     }
 
     /**
