@@ -150,7 +150,6 @@ abstract contract AccountERC7579 is Account, IERC1271, IERC7579Execution, IERC75
         address module,
         bytes calldata additionalContext
     ) public view virtual returns (bool) {
-        if (module == address(0)) return false;
         if (moduleTypeId == MODULE_TYPE_VALIDATOR) return _validators.contains(module);
         if (moduleTypeId == MODULE_TYPE_EXECUTOR) return _executors.contains(module);
         if (moduleTypeId == MODULE_TYPE_FALLBACK)
