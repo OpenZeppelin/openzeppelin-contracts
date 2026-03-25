@@ -137,7 +137,7 @@ library WebAuthn {
         uint256 typeIndex
     ) private pure returns (bool success) {
         return
-            bytes(clientDataJSON).length >= Math.saturatingAdd(typeIndex, 21) &&
+            bytes(clientDataJSON).length > Math.saturatingAdd(typeIndex, 20) &&
             // solhint-disable-next-line quotes
             bytes21(bytes(clientDataJSON).asSlice().load(typeIndex)) == bytes21('"type":"webauthn.get"');
     }
