@@ -184,6 +184,18 @@ contract WebAuthnTest is Test {
                 false
             )
         );
+
+        assertFalse(
+            _runVerify(
+                seed,
+                challenge,
+                23,
+                type(uint256).max,
+                _encodeAuthenticatorData(WebAuthn.AUTH_DATA_FLAGS_UP),
+                _encodeClientDataJSON(challenge),
+                false
+            )
+        );
     }
 
     function _runVerify(

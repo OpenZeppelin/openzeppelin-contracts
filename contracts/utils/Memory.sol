@@ -85,24 +85,13 @@ library Memory {
      *
      * NOTE: If offset > length(slice) - 0x20, part of the return value will be out of bound of the slice. These bytes are zeroed.
      */
-    function load(Slice self, uint256 offset) internal pure returns (bytes32) {
-        (bool success, bytes32 value) = tryLoad(self, offset);
-        if (!success) Panic.panic(Panic.ARRAY_OUT_OF_BOUNDS);
-        return value;
-    }
-
-    /**
-     * @dev Try version of `load` that returns a flag indicating if the read was out of bounds instead of reverting.
-     */
-    function tryLoad(Slice self, uint256 offset) internal pure returns (bool success, bytes32 value) {
+    function load(Slice self, uint256 offset) internal pure returns (bytes32 value) {
         uint256 outOfBoundBytes = Math.saturatingSub(0x20 + offset, length(self));
+        if (outOfBoundBytes > 0x1f) Panic.panic(Panic.ARRAY_OUT_OF_BOUNDS);
+
         assembly ("memory-safe") {
-            if lt(outOfBoundBytes, 0x20) {
-                success := 1
-                value := and(mload(add(and(self, shr(128, not(0))), offset)), shl(mul(8, outOfBoundBytes), not(0)))
-            }
+            value := and(mload(add(and(self, shr(128, not(0))), offset)), shl(mul(8, outOfBoundBytes), not(0)))
         }
-        // success and values are 0 by default, no need for an else logic
     }
 
     /// @dev Extract the data corresponding to a Slice (allocate new memory)
