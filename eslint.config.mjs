@@ -11,7 +11,12 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export default [
   js.configs.recommended,
   prettier,
-  mocha.configs.flat.recommended,
+  {
+    plugins: { mocha },
+    rules: {
+      'mocha/no-async-suite': 'error',
+    },
+  },
   {
     languageOptions: {
       ecmaVersion: 2022,
@@ -25,9 +30,6 @@ export default [
         extendEnvironment: 'readonly',
         expect: 'readonly',
       },
-    },
-    rules: {
-      'mocha/no-async-describe': 'error',
     },
   },
   includeIgnoreFile(path.resolve(__dirname, '.gitignore')),
