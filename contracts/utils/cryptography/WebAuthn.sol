@@ -132,14 +132,10 @@ library WebAuthn {
      *
      * Step 11 in https://www.w3.org/TR/webauthn-2/#sctn-verifying-assertion[verifying an assertion].
      */
-    function _validateExpectedTypeHash(
-        string memory clientDataJSON,
-        uint256 typeIndex
-    ) private pure returns (bool success) {
-        return
-            bytes(clientDataJSON).length > Math.saturatingAdd(typeIndex, 20) &&
-            // solhint-disable-next-line quotes
-            bytes21(bytes(clientDataJSON).asSlice().load(typeIndex)) == bytes21('"type":"webauthn.get"');
+    function _validateExpectedTypeHash(string memory clientDataJSON, uint256 typeIndex) private pure returns (bool) {
+        (bool success, bytes32 value) = bytes(clientDataJSON).asSlice().tryLoad(typeIndex);
+        // solhint-disable-next-line quotes
+        return success && bytes21(value) == bytes21('"type":"webauthn.get"');
     }
 
     /**
