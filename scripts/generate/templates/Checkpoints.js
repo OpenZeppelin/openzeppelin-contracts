@@ -50,7 +50,7 @@ function push(
 }
 
 /**
- * @dev Returns the value in the first (oldest) checkpoint with key greater or equal than the search key, or zero if
+ * @dev Returns the value in the first (oldest) checkpoint with a key greater than or equal to the search key, or zero if
  * there is none.
  */
 function lowerLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} key) internal view returns (${opts.valueTypeName}) {
@@ -60,7 +60,7 @@ function lowerLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} k
 }
 
 /**
- * @dev Returns the value in the last (most recent) checkpoint with key lower or equal than the search key, or zero
+ * @dev Returns the value in the last (most recent) checkpoint with a key lower than or equal to the search key, or zero
  * if there is none.
  */
 function upperLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} key) internal view returns (${opts.valueTypeName}) {
@@ -70,7 +70,7 @@ function upperLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} k
 }
 
 /**
- * @dev Returns the value in the last (most recent) checkpoint with key lower or equal than the search key, or zero
+ * @dev Returns the value in the last (most recent) checkpoint with a key lower than or equal to the search key, or zero
  * if there is none.
  *
  * NOTE: This is a variant of {upperLookup} that is optimized to find "recent" checkpoint (checkpoints with high
@@ -167,7 +167,7 @@ function _insert(
 }
 
 /**
- * @dev Return the index of the first (oldest) checkpoint with key strictly bigger than the search key, or \`high\`
+ * @dev Return the index of the first (oldest) checkpoint with a key strictly greater than the search key, or \`high\`
  * if there is none. \`low\` and \`high\` define a section where to do the search, with inclusive \`low\` and exclusive
  * \`high\`.
  *
@@ -191,7 +191,7 @@ function _upperBinaryLookup(
 }
 
 /**
- * @dev Return the index of the first (oldest) checkpoint with key greater or equal than the search key, or \`high\`
+ * @dev Return the index of the first (oldest) checkpoint with a key greater than or equal to the search key, or \`high\`
  * if there is none. \`low\` and \`high\` define a section where to do the search, with inclusive \`low\` and exclusive
  * \`high\`.
  *
