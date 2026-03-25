@@ -2,4 +2,4 @@
 'openzeppelin-solidity': patch
 ---
 
-Make Votes.sol \_validateTimepoint virtual
+`Votes`: make `_validateTimepoint` virtual
