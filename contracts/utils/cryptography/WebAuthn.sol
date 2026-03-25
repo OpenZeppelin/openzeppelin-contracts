@@ -133,7 +133,7 @@ library WebAuthn {
         string memory clientDataJSON,
         uint256 typeIndex
     ) private pure returns (bool success) {
-        if (bytes(clientDataJSON).length < typeIndex + 21) return false;
+        if (bytes(clientDataJSON).length < Math.saturatingAdd(typeIndex, 21)) return false;
         assembly ("memory-safe") {
             success := eq(
                 // get 32 bytes starting at index typexIndex in clientDataJSON, and keep the leftmost 21 bytes
