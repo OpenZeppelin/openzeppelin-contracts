@@ -113,7 +113,7 @@ contract ERC6909 is Context, ERC165, IERC6909 {
     }
 
     /**
-     * @dev Destroys a `amount` of token `id` from `account`.
+     * @dev Destroys an `amount` of token `id` from `account`.
      * Relies on the `_update` mechanism.
      *
      * Emits a {Transfer} event with `to` set to the zero address.
