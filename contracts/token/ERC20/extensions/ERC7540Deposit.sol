@@ -157,7 +157,7 @@ abstract contract ERC7540Deposit is ERC165, ERC7540Operator, IERC7540Deposit {
         uint256 shares,
         address receiver,
         address controller
-    ) public virtual override onlyOperatorOrController(controller, _msgSender()) returns (uint256) {
+    ) public virtual onlyOperatorOrController(controller, _msgSender()) returns (uint256) {
         uint256 requestId = _depositRequestId(controller);
 
         // Claiming partially introduces precision loss. The user therefore receives a rounded down amount,
