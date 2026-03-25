@@ -7,6 +7,7 @@ import {P256} from "./P256.sol";
 import {Math} from "../math/Math.sol";
 import {Base64} from "../Base64.sol";
 import {Bytes} from "../Bytes.sol";
+import {Memory} from "../Memory.sol";
 import {Strings} from "../Strings.sol";
 
 /**
@@ -43,6 +44,8 @@ import {Strings} from "../Strings.sol";
  * * https://github.com/base/webauthn-sol/blob/main/src/WebAuthn.sol[base implementation]
  */
 library WebAuthn {
+    using Memory for *;
+
     struct WebAuthnAuth {
         bytes32 r; /// The r value of secp256r1 signature
         bytes32 s; /// The s value of secp256r1 signature
@@ -133,15 +136,10 @@ library WebAuthn {
         string memory clientDataJSON,
         uint256 typeIndex
     ) private pure returns (bool success) {
-        if (bytes(clientDataJSON).length < typeIndex + 21) return false;
-        assembly ("memory-safe") {
-            success := eq(
-                // get 32 bytes starting at index typexIndex in clientDataJSON, and keep the leftmost 21 bytes
-                and(mload(add(add(clientDataJSON, 0x20), typeIndex)), shl(88, not(0))),
-                // solhint-disable-next-line quotes
-                '"type":"webauthn.get"'
-            )
-        }
+        return
+            bytes(clientDataJSON).length >= Math.saturatingAdd(typeIndex, 21) &&
+            // solhint-disable-next-line quotes
+            bytes21(bytes(clientDataJSON).asSlice().load(typeIndex)) == bytes21('"type":"webauthn.get"');
     }
 
     /**
