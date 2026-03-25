@@ -80,7 +80,7 @@ library TransientSlot {
     }
 
     /**
-     * @dev UDVT that represents a slot holding a int256.
+     * @dev UDVT that represents a slot holding an int256.
      */
     type Int256Slot is bytes32;
 
