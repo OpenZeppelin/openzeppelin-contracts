@@ -183,7 +183,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
         }
 
         // Some requests with value were invalid (possibly due to frontrunning).
-        // To avoid leaving ETH in the contract this value is refunded.
+        // To avoid leaving ETH in the contract, this value is refunded.
         if (refundValue != 0) {
             if (requireValidRequests) revert ERC2771ForwarderNoRefundReceiver();
 
