@@ -4,7 +4,6 @@ pragma solidity ^0.8.26;
 
 import {Governor} from "../Governor.sol";
 import {Mode} from "../../account/utils/draft-ERC7579Utils.sol";
-import {ERC7786Recipient} from "../../crosschain/ERC7786Recipient.sol";
 import {IERC7786GatewaySource} from "../../interfaces/draft-IERC7786.sol";
 
 /// @dev Extension of {Governor} for cross-chain governance through ERC-7786 gateways and {CrosschainRemoteExecutor}.
