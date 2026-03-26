@@ -1,4 +1,5 @@
 const { ethers } = require('hardhat');
+const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { generators } = require('../../helpers/random');
@@ -21,14 +22,18 @@ describe('ERC1967Clones', function () {
   describe('non-deterministic deployment (create)', function () {
     before(function () {
       this.createProxy = async (implementation, initData, opts = {}) => {
-        const tx = await this.factory.$deploy(implementation);
-        const instance = await tx
-          .wait()
-          .then(receipt => receipt.logs.find(ev => ev.fragment.name === 'return$deploy_address').args[0])
-          .then(addr => new ethers.Contract(addr, [], this.admin, tx));
+        const predictedAddress = await ethers.provider
+          .getTransactionCount(this.factory)
+          .then(nonce => ethers.getCreateAddress({ from: this.factory.target, nonce }));
+        const deploymentTx = await this.factory.$deploy(implementation);
+
+        await expect(deploymentTx).to.emit(this.factory, 'return$deploy_address').withArgs(predictedAddress);
+
+        const instance = new ethers.Contract(predictedAddress, [], this.admin, deploymentTx);
         if (initData !== '0x' || opts.value > 0n) {
           await this.admin.sendTransaction({ to: instance.target, data: initData, ...opts });
         }
+
         return instance;
       };
     });
@@ -39,14 +44,17 @@ describe('ERC1967Clones', function () {
   describe('deterministic deployment (create2)', function () {
     before(function () {
       this.createProxy = async (implementation, initData, opts = {}) => {
-        const tx = await this.factory.$deploy(implementation, ethers.Typed.bytes32(opts.salt ?? generators.bytes32()));
-        const instance = await tx
-          .wait()
-          .then(receipt => receipt.logs.find(ev => ev.fragment.name === 'return$deploy_address_bytes32').args[0])
-          .then(addr => new ethers.Contract(addr, [], this.admin, tx));
+        const salt = ethers.Typed.bytes32(opts.salt ?? generators.bytes32());
+        const predictedAddress = await this.factory.$computeAddress(implementation, salt);
+        const deploymentTx = await this.factory.$deploy(implementation, salt);
+
+        await expect(deploymentTx).to.emit(this.factory, 'return$deploy_address_bytes32').withArgs(predictedAddress);
+
+        const instance = new ethers.Contract(predictedAddress, [], this.admin, deploymentTx);
         if (initData !== '0x' || opts.value > 0n) {
           await this.admin.sendTransaction({ to: instance.target, data: initData, ...opts });
         }
+
         return instance;
       };
     });
