@@ -228,17 +228,44 @@ describe('ERC2771Forwarder', function () {
         }
       });
 
-      describe('with no refund receiver set (refundReceiver == address(0))', function () {
-        it('reverts when a failing request carries value (no receiver for the leftover ETH)', async function () {
-          await this.forgeRequest(
-            { value: 10n, data: this.receiver.interface.encodeFunctionData('mockFunctionRevertsNoReason') },
-            this.accounts[requestCount],
-          ).then(extraRequest => this.requests.push(extraRequest));
-          this.value = requestsValue(this.requests);
+      it('refunds value to refund receiver when a valid request fails execution', async function () {
+        const initialRefundReceiverBalance = await ethers.provider.getBalance(this.refundReceiver);
+        const initialNonce = await this.forwarder.nonces(this.requests[idx].from);
 
-          await expect(
-            this.forwarder.executeBatch(this.requests, ethers.ZeroAddress, { value: this.value }),
-          ).to.be.revertedWithCustomError(this.forwarder, 'ERC2771ForwarderNoRefundReceiver');
+        // Replace one request with a valid-but-reverting one (signature/nonce/deadline all fine)
+        this.requests[idx] = await this.forgeRequest(
+          {
+            value: this.requests[idx].value,
+            data: this.receiver.interface.encodeFunctionData('mockFunctionRevertsNoReason'),
+          },
+          this.accounts[idx],
+        );
+
+        const events = await this.forwarder
+          .executeBatch(this.requests, this.refundReceiver, { value: this.value })
+          .then(tx => tx.wait())
+          .then(receipt =>
+            receipt.logs.filter(
+              log => log?.fragment?.type == 'event' && log?.fragment?.name == 'ExecutedForwardRequest',
+            ),
+          );
+
+        // All requests emit the event — the reverting one has success == false
+        expect(events).to.have.lengthOf(this.requests.length);
+        expect(events[idx].args.success).to.be.false;
+
+        // Unlike a tampered request, the nonce is consumed since the request was valid
+        expect(await this.forwarder.nonces(this.requests[idx].from)).to.equal(initialNonce + 1n);
+
+        // The value is refunded to refundReceiver
+        expect(await ethers.provider.getBalance(this.refundReceiver)).to.equal(
+          initialRefundReceiverBalance + this.requests[idx].value,
+        );
+      });
+
+      describe('when the refund receiver is the zero address', function () {
+        beforeEach(function () {
+          this.refundReceiver = ethers.ZeroAddress;
         });
 
         it('does not revert when a failing request carries no value', async function () {
@@ -255,6 +282,18 @@ describe('ERC2771Forwarder', function () {
           await expect(receipt)
             .to.emit(this.forwarder, 'ExecutedForwardRequest')
             .withArgs(this.requests.at(-1).from, this.requests.at(-1).nonce, false);
+        });
+
+        it('reverts when a failing request carries value', async function () {
+          await this.forgeRequest(
+            { value: 10n, data: this.receiver.interface.encodeFunctionData('mockFunctionRevertsNoReason') },
+            this.accounts[requestCount],
+          ).then(extraRequest => this.requests.push(extraRequest));
+          this.value = requestsValue(this.requests);
+
+          await expect(
+            this.forwarder.executeBatch(this.requests, ethers.ZeroAddress, { value: this.value }),
+          ).to.be.revertedWithCustomError(this.forwarder, 'ERC2771ForwarderNoRefundReceiver');
         });
       });
     });
