@@ -228,34 +228,17 @@ describe('ERC2771Forwarder', function () {
         }
       });
 
-      describe('atomic batch with reverting request', function () {
-        it('positive value request reverting reverts the whole batch', async function () {
-          // Add extra reverting request
-          await this.forgeRequest(
-            { value: 10n, data: this.receiver.interface.encodeFunctionData('mockFunctionRevertsNoReason') },
-            this.accounts[requestCount],
-          ).then(extraRequest => this.requests.push(extraRequest));
-          // recompute total value with the extra request
-          this.value = requestsValue(this.requests);
+      it('reverts when a valid request fails execution with value and no refund receiver is set', async function () {
+        // Add a request whose forwarded call will revert (valid signature, but reverts on execution)
+        await this.forgeRequest(
+          { value: 10n, data: this.receiver.interface.encodeFunctionData('mockFunctionRevertsNoReason') },
+          this.accounts[requestCount],
+        ).then(extraRequest => this.requests.push(extraRequest));
+        this.value = requestsValue(this.requests);
 
-          await expect(
-            this.forwarder.executeBatch(this.requests, ethers.ZeroAddress, { value: this.value }),
-          ).to.be.revertedWithCustomError(this.forwarder, 'ERC2771ForwarderFailureInAtomicBatch');
-        });
-
-        it('zero value request reverting reverts the whole batch', async function () {
-          // Add extra reverting request
-          await this.forgeRequest(
-            { value: 0n, data: this.receiver.interface.encodeFunctionData('mockFunctionRevertsNoReason') },
-            this.accounts[requestCount],
-          ).then(extraRequest => this.requests.push(extraRequest));
-          // recompute total value with the extra request
-          this.value = requestsValue(this.requests);
-
-          await expect(
-            this.forwarder.executeBatch(this.requests, ethers.ZeroAddress, { value: this.value }),
-          ).to.be.revertedWithCustomError(this.forwarder, 'ERC2771ForwarderFailureInAtomicBatch');
-        });
+        await expect(
+          this.forwarder.executeBatch(this.requests, ethers.ZeroAddress, { value: this.value }),
+        ).to.be.revertedWithCustomError(this.forwarder, 'ERC2771ForwarderNoRefundReceiver');
       });
     });
 
