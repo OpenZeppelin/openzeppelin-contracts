@@ -10,8 +10,9 @@ const fixture = async () => {
 
   const factory = await ethers.deployContract('$ERC1967Clones');
   const implementation = await ethers.deployContract('DummyImplementation');
+  const erc1967 = await ethers.getContractFactory('$ERC1967Utils');
 
-  return { admin, nonContractAddress, factory, implementation };
+  return { admin, nonContractAddress, factory, erc1967, implementation };
 };
 
 describe('ERC1967Clones', function () {
@@ -27,7 +28,11 @@ describe('ERC1967Clones', function () {
           .then(nonce => ethers.getCreateAddress({ from: this.factory.target, nonce }));
         const deploymentTx = await this.factory.$deploy(implementation);
 
-        await expect(deploymentTx).to.emit(this.factory, 'return$deploy_address').withArgs(predictedAddress);
+        await expect(deploymentTx)
+          .to.emit(this.factory, 'return$deploy_address')
+          .withArgs(predictedAddress)
+          .to.emit(this.erc1967.attach(predictedAddress), 'Upgraded')
+          .withArgs(implementation);
 
         const instance = new ethers.Contract(predictedAddress, [], this.admin, deploymentTx);
         if (initData !== '0x' || opts.value > 0n) {
@@ -48,7 +53,11 @@ describe('ERC1967Clones', function () {
         const predictedAddress = await this.factory.$computeAddress(implementation, salt);
         const deploymentTx = await this.factory.$deploy(implementation, salt);
 
-        await expect(deploymentTx).to.emit(this.factory, 'return$deploy_address_bytes32').withArgs(predictedAddress);
+        await expect(deploymentTx)
+          .to.emit(this.factory, 'return$deploy_address_bytes32')
+          .withArgs(predictedAddress)
+          .to.emit(this.erc1967.attach(predictedAddress), 'Upgraded')
+          .withArgs(implementation);
 
         const instance = new ethers.Contract(predictedAddress, [], this.admin, deploymentTx);
         if (initData !== '0x' || opts.value > 0n) {
