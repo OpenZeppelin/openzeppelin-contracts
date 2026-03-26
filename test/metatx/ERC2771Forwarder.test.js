@@ -228,17 +228,34 @@ describe('ERC2771Forwarder', function () {
         }
       });
 
-      it('reverts when a valid request fails execution with value and no refund receiver is set', async function () {
-        // Add a request whose forwarded call will revert (valid signature, but reverts on execution)
-        await this.forgeRequest(
-          { value: 10n, data: this.receiver.interface.encodeFunctionData('mockFunctionRevertsNoReason') },
-          this.accounts[requestCount],
-        ).then(extraRequest => this.requests.push(extraRequest));
-        this.value = requestsValue(this.requests);
+      describe('with no refund receiver set (refundReceiver == address(0))', function () {
+        it('reverts when a failing request carries value (no receiver for the leftover ETH)', async function () {
+          await this.forgeRequest(
+            { value: 10n, data: this.receiver.interface.encodeFunctionData('mockFunctionRevertsNoReason') },
+            this.accounts[requestCount],
+          ).then(extraRequest => this.requests.push(extraRequest));
+          this.value = requestsValue(this.requests);
 
-        await expect(
-          this.forwarder.executeBatch(this.requests, ethers.ZeroAddress, { value: this.value }),
-        ).to.be.revertedWithCustomError(this.forwarder, 'ERC2771ForwarderNoRefundReceiver');
+          await expect(
+            this.forwarder.executeBatch(this.requests, ethers.ZeroAddress, { value: this.value }),
+          ).to.be.revertedWithCustomError(this.forwarder, 'ERC2771ForwarderNoRefundReceiver');
+        });
+
+        it('does not revert when a failing request carries no value', async function () {
+          // Zero-value revert: nothing to refund, batch can proceed
+          await this.forgeRequest(
+            { value: 0n, data: this.receiver.interface.encodeFunctionData('mockFunctionRevertsNoReason') },
+            this.accounts[requestCount],
+          ).then(extraRequest => this.requests.push(extraRequest));
+          this.value = requestsValue(this.requests);
+
+          const receipt = this.forwarder.executeBatch(this.requests, ethers.ZeroAddress, { value: this.value });
+
+          // The reverting request emits success == false; the others still execute normally
+          await expect(receipt)
+            .to.emit(this.forwarder, 'ExecutedForwardRequest')
+            .withArgs(this.requests.at(-1).from, this.requests.at(-1).nonce, false);
+        });
       });
     });
 
