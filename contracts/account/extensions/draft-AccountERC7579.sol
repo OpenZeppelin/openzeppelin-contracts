@@ -252,7 +252,6 @@ abstract contract AccountERC7579 is Account, IERC1271, IERC7579Execution, IERC75
      * * Module type must be supported. See {supportsModule}. Reverts with {ERC7579Utils-ERC7579UnsupportedModuleType}.
      * * Module must be of the given type. Reverts with {ERC7579Utils-ERC7579MismatchedModuleTypeId}.
      * * Module must not be already installed. Reverts with {ERC7579Utils-ERC7579AlreadyInstalledModule}.
-     * * For fallback modules, the selector must not be `bytes4(0)`. Reverts with {ERC7579Utils-ERC7579InvalidFallbackSelector}.
      *
      * Emits a {IERC7579ModuleConfig-ModuleInstalled} event.
      */
@@ -270,9 +269,6 @@ abstract contract AccountERC7579 is Account, IERC1271, IERC7579Execution, IERC75
         } else if (moduleTypeId == MODULE_TYPE_FALLBACK) {
             bytes4 selector;
             (selector, initData) = _decodeFallbackData(initData);
-            if (selector == bytes4(0)) {
-                revert ERC7579Utils.ERC7579InvalidFallbackSelector();
-            }
             require(
                 _fallbacks[selector] == address(0),
                 ERC7579Utils.ERC7579AlreadyInstalledModule(moduleTypeId, module)

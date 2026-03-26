@@ -128,16 +128,6 @@ function shouldBehaveLikeAccountERC7579({ withHooks = false } = {}) {
           .withArgs(MODULE_TYPE_VALIDATOR, instance);
       });
 
-      it('should revert if the fallback selector is invalid', async function () {
-        await expect(
-          this.mockFromEntrypoint.installModule(
-            MODULE_TYPE_FALLBACK,
-            this.modules[MODULE_TYPE_FALLBACK],
-            '0x0000000000',
-          ),
-        ).to.be.revertedWithCustomError(this.mock, 'ERC7579InvalidFallbackSelector');
-      });
-
       for (const moduleTypeId of [
         MODULE_TYPE_VALIDATOR,
         MODULE_TYPE_EXECUTOR,
