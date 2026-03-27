@@ -460,7 +460,7 @@ library RLP {
                 require(itemLength > lengthLength && bytes1(lenChunk) != 0x00, RLPInvalidEncoding());
 
                 uint256 len = uint256(lenChunk) >> (256 - 8 * lengthLength);
-                require(len > SHORT_THRESHOLD && itemLength > lengthLength + len, RLPInvalidEncoding());
+                require(len > SHORT_THRESHOLD && itemLength - lengthLength > len, RLPInvalidEncoding());
 
                 return (lengthLength + 1, len, ItemType.Data);
             }
@@ -480,7 +480,7 @@ library RLP {
                 require(itemLength > lengthLength && bytes1(lenChunk) != 0x00, RLPInvalidEncoding());
 
                 uint256 len = uint256(lenChunk) >> (256 - 8 * lengthLength);
-                require(len > SHORT_THRESHOLD && itemLength > lengthLength + len, RLPInvalidEncoding());
+                require(len > SHORT_THRESHOLD && itemLength - lengthLength > len, RLPInvalidEncoding());
 
                 return (lengthLength + 1, len, ItemType.List);
             }

@@ -67,27 +67,45 @@ describe('RLP', function () {
     await expect(this.mock.$decodeAddress('0x94000000000000000000000000000000000000007f')).to.eventually.equal(
       '0x000000000000000000000000000000000000007f',
     ); // 21-byte encoding
+
+    // Invalid encodings
+    await expect(this.mock.$decodeAddress('0x')).to.be.revertedWithCustomError(this.mock, 'RLPInvalidEncoding');
+    await expect(this.mock.$decodeAddress('0x92f90827f1c53a10cb7a02335b175320002935')).to.be.revertedWithCustomError(
+      this.mock,
+      'RLPInvalidEncoding',
+    );
+    await expect(
+      this.mock.$decodeAddress('0x96f90827f1c53a10cb7a02335b175320002935786ea099'),
+    ).to.be.revertedWithCustomError(this.mock, 'RLPInvalidEncoding');
   });
 
   it('encode/decode uint256', async function () {
     for (const input of [0, 1, 127, 128, 256, 1024, 0xffffff, ethers.MaxUint256]) {
       const expected = ethers.encodeRlp(ethers.toBeArray(input));
-
       await expect(this.mock.$encode_uint256(input)).to.eventually.equal(expected);
       await expect(this.mock.$decodeUint256(expected)).to.eventually.equal(input);
-
-      await expect(this.mock.$decodeUint256('0x88ab54a98ceb1f0ad2')).to.eventually.equal(12345678901234567890n); // Canonical encoding for 12345678901234567890
-      await expect(this.mock.$decodeUint256('0x8900ab54a98ceb1f0ad2')).to.eventually.equal(12345678901234567890n); // Non-canonical encoding with leading zero for the same value
-
-      await expect(this.mock.$decodeUint256('0x80')).to.eventually.equal(0n); // Canonical encoding for 0
-      await expect(this.mock.$decodeUint256('0x820000')).to.eventually.equal(0n); // Non-canonical encoding with leading zero
-      await expect(this.mock.$decodeUint256('0x83000000')).to.eventually.equal(0n); // Non-canonical encoding with two leading zeros
-      await expect(this.mock.$decodeUint256('0x8400000000')).to.eventually.equal(0n); // Non-canonical encoding with three leading zeros
-
-      await expect(this.mock.$decodeUint256('0x8204d2')).to.eventually.equal(1234n); // Canonical
-      await expect(this.mock.$decodeUint256('0x830004d2')).to.eventually.equal(1234n); // With leading zero
-      await expect(this.mock.$decodeUint256('0x84000004d2')).to.eventually.equal(1234n); // With two leading zeros
     }
+
+    await expect(this.mock.$decodeUint256('0x88ab54a98ceb1f0ad2')).to.eventually.equal(12345678901234567890n); // Canonical encoding for 12345678901234567890
+    await expect(this.mock.$decodeUint256('0x8900ab54a98ceb1f0ad2')).to.eventually.equal(12345678901234567890n); // Non-canonical encoding with leading zero for the same value
+
+    await expect(this.mock.$decodeUint256('0x80')).to.eventually.equal(0n); // Canonical encoding for 0
+    await expect(this.mock.$decodeUint256('0x820000')).to.eventually.equal(0n); // Non-canonical encoding with leading zero
+    await expect(this.mock.$decodeUint256('0x83000000')).to.eventually.equal(0n); // Non-canonical encoding with two leading zeros
+    await expect(this.mock.$decodeUint256('0x8400000000')).to.eventually.equal(0n); // Non-canonical encoding with three leading zeros
+
+    await expect(this.mock.$decodeUint256('0x8204d2')).to.eventually.equal(1234n); // Canonical
+    await expect(this.mock.$decodeUint256('0x830004d2')).to.eventually.equal(1234n); // With leading zero
+    await expect(this.mock.$decodeUint256('0x84000004d2')).to.eventually.equal(1234n); // With two leading zeros
+
+    // Invalid encodings
+    await expect(
+      this.mock.$decodeUint256(ethers.encodeRlp(ethers.toBeHex(ethers.MaxUint256 + 1n))),
+    ).to.be.revertedWithCustomError(this.mock, 'RLPInvalidEncoding'); // ItemLength > 33
+    await expect(this.mock.$decodeUint256(ethers.encodeRlp([]))).to.be.revertedWithCustomError(
+      this.mock,
+      'RLPInvalidEncoding',
+    ); // ItemType.Data
   });
 
   it('encode/decode bytes32', async function () {
@@ -118,6 +136,16 @@ describe('RLP', function () {
     await expect(this.mock.$decodeBytes32('0x80')).to.eventually.equal(ethers.ZeroHash);
     // Encoding for two zeros (and nothing else)
     await expect(this.mock.$decodeBytes32('0x820000')).to.eventually.equal(ethers.ZeroHash);
+
+    // Invalid encodings
+    await expect(this.mock.$decodeUint256(ethers.encodeRlp(generators.bytes(33)))).to.be.revertedWithCustomError(
+      this.mock,
+      'RLPInvalidEncoding',
+    ); // ItemLength > 33
+    await expect(this.mock.$decodeUint256(ethers.encodeRlp([]))).to.be.revertedWithCustomError(
+      this.mock,
+      'RLPInvalidEncoding',
+    ); // ItemType.Data
   });
 
   it('encode/decode empty byte', async function () {
@@ -185,25 +213,46 @@ describe('RLP', function () {
     }
   });
 
-  it('encodes array (bytes[])', async function () {
+  it('encode/decode array (bytes[])', async function () {
     for (const input of [[], ['0x'], ['0x00'], ['0x17', '0x42'], ['0x17', '0x', '0x42', '0x0123456789abcdef', '0x']]) {
       await expect(this.mock.$encode_list(input.map(ethers.encodeRlp))).to.eventually.equal(ethers.encodeRlp(input));
     }
   });
 
-  const invalidTests = [
+  // Failure cases for decodeBytes
+  for (const { name, input } of [
+    { name: 'empty input as string', input: '0x' },
     { name: 'short string with invalid length', input: '0x8100' },
+    { name: 'short string with length exceeding item length', input: '0x8200' },
+    { name: 'long string without a length length', input: '0xb8' },
+    { name: 'long string without a length', input: '0xb901' },
     { name: 'long string with invalid length prefix', input: '0xb800' },
-    { name: 'list with invalid length', input: '0xc100' },
-    { name: 'truncated long string', input: '0xb838' },
-    { name: 'invalid single byte encoding (non-minimal)', input: '0x8100' },
-  ];
-
-  invalidTests.forEach(({ name, input }) => {
+    { name: 'long string with missing content', input: '0xb838' },
+    { name: 'long string with short content', input: '0xb80101' },
+    { name: 'invalid type (got list, expected item)', input: ethers.encodeRlp([]) },
+  ]) {
     it(`rejects ${name}`, async function () {
       await expect(this.mock.$decodeBytes(input)).to.be.revertedWithCustomError(this.mock, 'RLPInvalidEncoding');
     });
-  });
+  }
+
+  // Failure cases for decodeList
+  for (const { name, input } of [
+    { name: 'empty input as list', input: '0x' },
+    { name: 'leftover data', input: '0xc000' },
+    { name: 'short list missing data', input: '0xc1' },
+    { name: 'short list with length exceeding item length', input: '0xc200' },
+    { name: 'long list without a length length', input: '0xf8' },
+    { name: 'long list without a length', input: '0xf901' },
+    { name: 'long list with invalid length prefix', input: '0xf800' },
+    { name: 'long list with missing content', input: '0xf838' },
+    { name: 'long list with short content', input: '0xf80101' },
+    { name: 'invalid type (got item, expected list)', input: ethers.encodeRlp('0x') },
+  ]) {
+    it(`rejects ${name}`, async function () {
+      await expect(this.mock.$decodeList(input)).to.be.revertedWithCustomError(this.mock, 'RLPInvalidEncoding');
+    });
+  }
 
   it('RLP encoder predict create addresses', async function () {
     for (const [from, nonce] of product(
