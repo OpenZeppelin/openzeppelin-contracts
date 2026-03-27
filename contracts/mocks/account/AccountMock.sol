@@ -11,6 +11,7 @@ import {ERC7739} from "../../utils/cryptography/signers/draft-ERC7739.sol";
 import {ERC7821} from "../../account/extensions/draft-ERC7821.sol";
 import {MODULE_TYPE_VALIDATOR} from "../../interfaces/draft-IERC7579.sol";
 import {PackedUserOperation} from "../../interfaces/draft-IERC4337.sol";
+import {SignatureChecker} from "../../utils/cryptography/SignatureChecker.sol";
 import {AbstractSigner} from "../../utils/cryptography/signers/AbstractSigner.sol";
 import {SignerECDSA} from "../../utils/cryptography/signers/SignerECDSA.sol";
 import {SignerP256} from "../../utils/cryptography/signers/SignerP256.sol";
@@ -125,6 +126,19 @@ abstract contract AccountEIP7702WithModulesMock is
         bytes calldata signature
     ) internal view virtual override(AbstractSigner, AccountERC7579, SignerEIP7702) returns (bool) {
         return SignerEIP7702._rawSignatureValidation(hash, signature);
+    }
+}
+
+abstract contract AccountERC7579NativeValidationMock is AccountERC7579, SignerECDSA {
+    constructor(address signerAddr) SignerECDSA(signerAddr) {
+        // no validator module
+    }
+
+    function _rawSignatureValidation(
+        bytes32 hash,
+        bytes calldata signature
+    ) internal view virtual override(AccountERC7579, SignerECDSA) returns (bool) {
+        return super._rawSignatureValidation(hash, signature);
     }
 }
 

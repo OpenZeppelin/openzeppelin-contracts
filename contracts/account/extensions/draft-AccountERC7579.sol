@@ -198,7 +198,7 @@ abstract contract AccountERC7579 is Account, IERC1271, IERC7579Execution, IERC75
                 } catch {}
             }
         }
-        return bytes4(0xffffffff);
+        return _rawSignatureValidation(hash, signature) ? IERC1271.isValidSignature.selector : bytes4(0xffffffff);
     }
 
     /**
