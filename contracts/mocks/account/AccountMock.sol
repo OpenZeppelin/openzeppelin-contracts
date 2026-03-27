@@ -11,7 +11,6 @@ import {ERC7739} from "../../utils/cryptography/signers/draft-ERC7739.sol";
 import {ERC7821} from "../../account/extensions/draft-ERC7821.sol";
 import {MODULE_TYPE_VALIDATOR} from "../../interfaces/draft-IERC7579.sol";
 import {PackedUserOperation} from "../../interfaces/draft-IERC4337.sol";
-import {SignatureChecker} from "../../utils/cryptography/SignatureChecker.sol";
 import {AbstractSigner} from "../../utils/cryptography/signers/AbstractSigner.sol";
 import {SignerECDSA} from "../../utils/cryptography/signers/SignerECDSA.sol";
 import {SignerP256} from "../../utils/cryptography/signers/SignerP256.sol";
