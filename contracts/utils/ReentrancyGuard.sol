@@ -100,7 +100,7 @@ abstract contract ReentrancyGuard {
     }
 
     function _nonReentrantAfter() private {
-        // By storing the original value once again, a refund is triggered (see
+        // By storing the prior value once again, a refund is triggered (see
         // https://eips.ethereum.org/EIPS/eip-2200)
         _reentrancyGuardStorageSlot().getUint256Slot().value = NOT_ENTERED;
     }
