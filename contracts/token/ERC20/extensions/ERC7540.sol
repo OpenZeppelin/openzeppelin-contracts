@@ -25,8 +25,6 @@ import {ERC165} from "../../../utils/introspection/ERC165.sol";
  * Users should be cautious when approving operators as they gain significant control over both assets and shares.
  */
 abstract contract ERC7540 is ERC165, ERC7540Redeem, ERC7540Deposit, IERC4626 {
-    error ERC7540PreviewNotAvailable();
-
     /// @inheritdoc ERC7540Deposit
     function totalAssets()
         public
@@ -39,23 +37,23 @@ abstract contract ERC7540 is ERC165, ERC7540Redeem, ERC7540Deposit, IERC4626 {
     }
 
     /// @inheritdoc IERC4626
-    function previewDeposit(uint256 /* assets */) public view virtual returns (uint256) {
-        revert ERC7540PreviewNotAvailable();
+    function previewDeposit(uint256 assets) public view virtual override(ERC7540Deposit, IERC4626) returns (uint256) {
+        return super.previewDeposit(assets); // Must revert
     }
 
     /// @inheritdoc IERC4626
-    function previewMint(uint256 /* shares */) public view virtual returns (uint256) {
-        revert ERC7540PreviewNotAvailable();
+    function previewMint(uint256 shares) public view virtual override(ERC7540Deposit, IERC4626) returns (uint256) {
+        return super.previewMint(shares); // Must revert
     }
 
     /// @inheritdoc IERC4626
-    function previewWithdraw(uint256 /* assets */) public view virtual returns (uint256) {
-        revert ERC7540PreviewNotAvailable();
+    function previewWithdraw(uint256 assets) public view virtual override(ERC7540Redeem, IERC4626) returns (uint256) {
+        return super.previewWithdraw(assets); // Must revert
     }
 
     /// @inheritdoc IERC4626
-    function previewRedeem(uint256 /* shares */) public view virtual returns (uint256) {
-        revert ERC7540PreviewNotAvailable();
+    function previewRedeem(uint256 shares) public view virtual override(ERC7540Redeem, IERC4626) returns (uint256) {
+        return super.previewRedeem(shares); // Must revert
     }
 
     /// @inheritdoc ERC20Vault

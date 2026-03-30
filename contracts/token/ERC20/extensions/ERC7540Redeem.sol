@@ -31,6 +31,9 @@ import {Math} from "../../../utils/math/Math.sol";
  * {_fulfillRedeem} to use a snapshotted exchange rate to ensure correct asset calculations.
  */
 abstract contract ERC7540Redeem is ERC165, ERC7540Operator, IERC7540Redeem {
+    /// @dev The preview is not available for redeem.
+    error ERC7540RedeemPreviewNotAvailable();
+
     /// @dev The amount of shares requested is greater than the amount of shares pending.
     error ERC7540RedeemInsufficientPendingShares(uint256 shares, uint256 pendingShares);
 
@@ -44,6 +47,16 @@ abstract contract ERC7540Redeem is ERC165, ERC7540Operator, IERC7540Redeem {
     struct ClaimableRedeem {
         uint256 assets;
         uint256 shares;
+    }
+
+    /// @dev See {IERC4626-previewRedeem}.
+    function previewRedeem(uint256 /* shares */) public view virtual returns (uint256) {
+        revert ERC7540RedeemPreviewNotAvailable();
+    }
+
+    /// @dev See {IERC4626-previewWithdraw}.
+    function previewWithdraw(uint256 /* assets */) public view virtual returns (uint256) {
+        revert ERC7540RedeemPreviewNotAvailable();
     }
 
     /// @inheritdoc IERC7540Redeem

@@ -26,6 +26,9 @@ import {Math} from "../../../utils/math/Math.sol";
  * Vault implementations must call {_fulfillDeposit} to transition requests from Pending to Claimable.
  */
 abstract contract ERC7540Deposit is ERC165, ERC7540Operator, IERC7540Deposit {
+    /// @dev The preview is not available for deposit.
+    error ERC7540DepositPreviewNotAvailable();
+
     /// @dev The amount of assets requested is greater than the amount of assets pending.
     error ERC7540DepositInsufficientPendingAssets(uint256 assets, uint256 pendingAssets);
 
@@ -50,6 +53,16 @@ abstract contract ERC7540Deposit is ERC165, ERC7540Operator, IERC7540Deposit {
      */
     function totalAssets() public view virtual override returns (uint256) {
         return super.totalAssets() - _totalPendingDepositAssets;
+    }
+
+    /// @dev See {IERC4626-previewDeposit}.
+    function previewDeposit(uint256 /* assets */) public view virtual returns (uint256) {
+        revert ERC7540DepositPreviewNotAvailable();
+    }
+
+    /// @dev See {IERC4626-previewMint}.
+    function previewMint(uint256 /* shares */) public view virtual returns (uint256) {
+        revert ERC7540DepositPreviewNotAvailable();
     }
 
     /// @inheritdoc IERC7540Deposit
