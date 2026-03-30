@@ -200,7 +200,7 @@ abstract contract ERC7540Deposit is ERC165, ERC7540Operator, IERC7540Deposit {
         uint256 pendingAssets = pendingDepositRequest(requestId, controller);
         require(assets <= pendingAssets, ERC7540DepositInsufficientPendingAssets(assets, pendingAssets));
 
-        uint256 shares = convertToShares(assets);
+        uint256 shares = _depositPrice(assets);
         uint256 claimableAssets = claimableDepositRequest(requestId, controller);
         uint256 claimableShares = claimableDepositRequestShares(requestId, controller);
         _mint(address(this), shares);
@@ -208,6 +208,11 @@ abstract contract ERC7540Deposit is ERC165, ERC7540Operator, IERC7540Deposit {
         _setPendingDeposit(controller, pendingAssets - assets);
         _totalPendingDepositAssets -= assets;
         return shares;
+    }
+
+    /// @dev Returns the price of depositing the given assets.
+    function _depositPrice(uint256 assets) internal view virtual returns (uint256) {
+        return convertToShares(assets);
     }
 
     /// @dev Sets the claimable deposit request for the controller.

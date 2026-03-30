@@ -183,13 +183,18 @@ abstract contract ERC7540Redeem is ERC165, ERC7540Operator, IERC7540Redeem {
         uint256 pendingShares = pendingRedeemRequest(requestId, controller);
         require(shares <= pendingShares, ERC7540RedeemInsufficientPendingShares(shares, pendingShares));
 
-        uint256 assets = convertToAssets(shares);
+        uint256 assets = _redeemPrice(shares);
         uint256 claimableAssets = claimableRedeemRequestAssets(requestId, controller);
         uint256 claimableShares = claimableRedeemRequest(requestId, controller);
         _completeSharesIn(shares, controller);
         _setClaimableRedeem(controller, claimableAssets + assets, claimableShares + shares);
         _setPendingRedeem(controller, pendingShares - shares);
         return assets;
+    }
+
+    /// @dev Returns the price of redeeming the given shares.
+    function _redeemPrice(uint256 shares) internal view virtual returns (uint256) {
+        return convertToAssets(shares);
     }
 
     /// @dev Sets the claimable redeem request for the controller.
