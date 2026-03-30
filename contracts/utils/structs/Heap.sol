@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.5.0) (utils/structs/Heap.sol)
+// OpenZeppelin Contracts (last updated v5.6.0) (utils/structs/Heap.sol)
 
 pragma solidity ^0.8.24;
 

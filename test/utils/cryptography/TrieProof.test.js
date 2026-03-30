@@ -1,6 +1,7 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+const { MerklePatriciaTrie, createMerkleProof } = require('@ethereumjs/mpt');
 
 const { Enum } = require('../../helpers/enums');
 const { zip } = require('../../helpers/iterate');
@@ -156,6 +157,82 @@ describe('TrieProof', function () {
     });
   });
 
+  describe('inline extension child nodes', function () {
+    // Extension ('290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e56')
+    //   -inlined-> Branch
+    //     -inlined-> Leaf('', '0x01')
+    //     -inlined-> Leaf('', '0x02')
+    it('support inlining in extension node', async function () {
+      const slots = {
+        '0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e560': '0x01',
+        '0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e561': '0x02',
+      };
+      const tree = new MerklePatriciaTrie({ useKeyHashing: false });
+      for (const [slot, value] of Object.entries(slots)) {
+        await tree.put(ethers.getBytes(slot), ethers.getBytes(value));
+      }
+
+      const root = ethers.hexlify(tree.root());
+
+      for (const [slot, value] of Object.entries(slots)) {
+        const proof = await createMerkleProof(tree, ethers.getBytes(slot));
+        expect(proof.length).to.equal(3); // root extension node, branch node, leaf node
+
+        // verify the full proof
+        await expect(this.mock.$verify(encodeStorageLeaf(value), root, slot, proof)).to.eventually.be.true;
+
+        // verify the compressed proofs with the inlined node removed (vacuous proof). Last two levels are inlined, so they are optional.
+        for (const partialProof of [
+          [proof[0]], // only root extension node (missing branch and leaf nodes)
+          [proof[0], proof[1]], // root extension node and branch node (missing leaf node)
+          [proof[0], proof[2]], // root extension node and leaf node (missing branch node)
+        ]) {
+          await expect(this.mock.$verify(encodeStorageLeaf(value), root, slot, partialProof)).to.eventually.be.true;
+        }
+      }
+    });
+
+    // Extension ('290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e5')
+    //   -hash-> Branch
+    //     -inlined-> Branch
+    //       -inlined-> Leaf('', '0x01')
+    //       -inlined-> Leaf('', '0x02')
+    //     -inlined-> Branch
+    //       -inlined-> Leaf('', '0x03')
+    //       -inlined-> Leaf('', '0x04')
+    it('support inlining in branch node', async function () {
+      const slots = {
+        '0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e500': '0x01',
+        '0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e501': '0x02',
+        '0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e510': '0x03',
+        '0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e511': '0x04',
+      };
+      const tree = new MerklePatriciaTrie({ useKeyHashing: false });
+      for (const [slot, value] of Object.entries(slots)) {
+        await tree.put(ethers.getBytes(slot), ethers.getBytes(value));
+      }
+
+      const root = ethers.hexlify(tree.root());
+
+      for (const [slot, value] of Object.entries(slots)) {
+        const proof = await createMerkleProof(tree, ethers.getBytes(slot));
+        expect(proof.length).to.equal(4); // root extension node, branch node, branch node, leaf node
+
+        // verify the full proof
+        await expect(this.mock.$verify(encodeStorageLeaf(value), root, slot, proof)).to.eventually.be.true;
+
+        // verify the compressed proofs with the inlined node removed (vacuous proof). Last two levels are inlined, so they are optional.
+        for (const partialProof of [
+          [proof[0], proof[1]], // only root extension node and first branch node (missing second branch and leaf nodes)
+          [proof[0], proof[1], proof[2]], // root extension node and both branch nodes (missing leaf node)
+          [proof[0], proof[1], proof[3]], // root extension node and first branch node and leaf node (missing second branch node)
+        ]) {
+          await expect(this.mock.$verify(encodeStorageLeaf(value), root, slot, partialProof)).to.eventually.be.true;
+        }
+      }
+    });
+  });
+
   describe('process invalid proofs', function () {
     it('fails to process proof with empty key', async function () {
       await expect(this.mock.$traverse(ethers.ZeroHash, '0x', []))
@@ -248,13 +325,14 @@ describe('TrieProof', function () {
         ethers.encodeRlp(['0x2000', '0x']),
       ];
 
-      await expect(this.mock.$traverse(ethers.keccak256(proof[0]), key, proof))
-        .to.revertedWithCustomError(this.mock, 'TrieProofTraversalError')
-        .withArgs(ProofError.INVALID_SHORT_NODE);
-      await expect(this.mock.$tryTraverse(ethers.keccak256(proof[0]), key, proof)).to.eventually.deep.equal([
-        '0x',
-        ProofError.INVALID_SHORT_NODE,
-      ]);
+      await expect(this.mock.$traverse(ethers.keccak256(proof[0]), key, proof)).to.revertedWithCustomError(
+        this.mock,
+        'RLPInvalidEncoding',
+      );
+      await expect(this.mock.$tryTraverse(ethers.keccak256(proof[0]), key, proof)).to.revertedWithCustomError(
+        this.mock,
+        'RLPInvalidEncoding',
+      );
     });
 
     it('fails to process proof with empty value', async function () {
