@@ -1,5 +1,8 @@
 # Changelog
 
+### Breaking changes
+
+- `ERC4626`: `maxWithdraw` no longer calls `previewRedeem` internally, using `_convertToAssets` instead. Overrides to `previewRedeem` will not affect `maxWithdraw`. Instead, override `maxWithdraw` or `_convertToAssets` directly for custom withdrawal limit logic. ([#6399](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6399))
 
 ## 5.6.1 (2026-02-27)
 
