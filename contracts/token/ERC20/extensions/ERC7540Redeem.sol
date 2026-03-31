@@ -31,6 +31,9 @@ import {Math} from "../../../utils/math/Math.sol";
  * {_fulfillRedeem} to use a snapshotted exchange rate to ensure correct asset calculations.
  */
 abstract contract ERC7540Redeem is ERC165, ERC7540Operator, IERC7540Redeem {
+    /// @dev Emitted when a redeem request transitions from Pending to Claimable.
+    event RedeemClaimable(address indexed controller, uint256 indexed requestId, uint256 assets, uint256 shares);
+
     /// @dev The preview is not available for redeem.
     error ERC7540RedeemPreviewNotAvailable();
 
@@ -188,8 +191,6 @@ abstract contract ERC7540Redeem is ERC165, ERC7540Operator, IERC7540Redeem {
      * Requirements:
      *
      * * `shares` must not exceed the pending redeem amount for the controller
-     *
-     * NOTE: Does not emit an event to track the fulfillment of the request.
      */
     function _fulfillRedeem(uint256 shares, address controller) internal virtual returns (uint256) {
         uint256 requestId = _redeemRequestId(controller);
@@ -202,6 +203,7 @@ abstract contract ERC7540Redeem is ERC165, ERC7540Operator, IERC7540Redeem {
         _completeSharesIn(shares, controller);
         _setClaimableRedeem(controller, claimableAssets + assets, claimableShares + shares);
         _setPendingRedeem(controller, pendingShares - shares);
+        emit RedeemClaimable(controller, requestId, assets, shares);
         return assets;
     }
 

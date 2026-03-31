@@ -26,6 +26,9 @@ import {Math} from "../../../utils/math/Math.sol";
  * Vault implementations must call {_fulfillDeposit} to transition requests from Pending to Claimable.
  */
 abstract contract ERC7540Deposit is ERC165, ERC7540Operator, IERC7540Deposit {
+    /// @dev Emitted when a deposit request transitions from Pending to Claimable.
+    event DepositClaimable(address indexed controller, uint256 indexed requestId, uint256 assets, uint256 shares);
+
     /// @dev The preview is not available for deposit.
     error ERC7540DepositPreviewNotAvailable();
 
@@ -205,8 +208,6 @@ abstract contract ERC7540Deposit is ERC165, ERC7540Operator, IERC7540Deposit {
      * Requirements:
      *
      * * `assets` must not exceed the pending deposit amount for the controller
-     *
-     * NOTE: Does not emit an event to track the fulfillment of the request.
      */
     function _fulfillDeposit(uint256 assets, address controller) internal virtual returns (uint256) {
         uint256 requestId = _depositRequestId(controller);
@@ -220,6 +221,7 @@ abstract contract ERC7540Deposit is ERC165, ERC7540Operator, IERC7540Deposit {
         _setClaimableDeposit(controller, claimableAssets + assets, claimableShares + shares);
         _setPendingDeposit(controller, pendingAssets - assets);
         _totalPendingDepositAssets -= assets;
+        emit DepositClaimable(controller, requestId, assets, shares);
         return shares;
     }
 

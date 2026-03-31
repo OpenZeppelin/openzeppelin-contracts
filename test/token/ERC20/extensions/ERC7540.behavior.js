@@ -147,7 +147,13 @@ function shouldBehaveLikeERC7540Deposit() {
       describe('full fulfillment', function () {
         beforeEach(async function () {
           this.expectedShares = depositAmount; // 1:1 exchange rate in empty vault
-          await this.token.$_fulfillDeposit(depositAmount, this.holder);
+          this.tx = await this.token.$_fulfillDeposit(depositAmount, this.holder);
+        });
+
+        it('emits DepositClaimable', async function () {
+          await expect(this.tx)
+            .to.emit(this.token, 'DepositClaimable')
+            .withArgs(this.holder, REQUEST_ID, depositAmount, this.expectedShares);
         });
 
         it('clears pending deposit', async function () {
@@ -175,7 +181,13 @@ function shouldBehaveLikeERC7540Deposit() {
         const partialAmount = 400n;
 
         beforeEach(async function () {
-          await this.token.$_fulfillDeposit(partialAmount, this.holder);
+          this.tx = await this.token.$_fulfillDeposit(partialAmount, this.holder);
+        });
+
+        it('emits DepositClaimable for the partial amount', async function () {
+          await expect(this.tx)
+            .to.emit(this.token, 'DepositClaimable')
+            .withArgs(this.holder, REQUEST_ID, partialAmount, partialAmount);
         });
 
         it('partially transitions pending to claimable', async function () {
@@ -472,7 +484,13 @@ function shouldBehaveLikeERC7540Redeem() {
       describe('full fulfillment', function () {
         beforeEach(async function () {
           this.expectedAssets = assetAmount; // 1:1 rate
-          await this.token.$_fulfillRedeem(shareAmount, this.holder);
+          this.tx = await this.token.$_fulfillRedeem(shareAmount, this.holder);
+        });
+
+        it('emits RedeemClaimable', async function () {
+          await expect(this.tx)
+            .to.emit(this.token, 'RedeemClaimable')
+            .withArgs(this.holder, REQUEST_ID, this.expectedAssets, shareAmount);
         });
 
         it('clears pending redeem', async function () {
@@ -500,7 +518,13 @@ function shouldBehaveLikeERC7540Redeem() {
         const partialShares = 400n;
 
         beforeEach(async function () {
-          await this.token.$_fulfillRedeem(partialShares, this.holder);
+          this.tx = await this.token.$_fulfillRedeem(partialShares, this.holder);
+        });
+
+        it('emits RedeemClaimable for the partial amount', async function () {
+          await expect(this.tx)
+            .to.emit(this.token, 'RedeemClaimable')
+            .withArgs(this.holder, REQUEST_ID, partialShares, partialShares);
         });
 
         it('partially transitions pending to claimable', async function () {
