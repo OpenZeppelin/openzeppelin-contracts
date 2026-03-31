@@ -145,6 +145,8 @@ abstract contract ERC20Vault is ERC20, IERC20Vault {
 
     /// @dev Performs a transfer in of underlying assets. The default implementation uses `SafeERC20`. Used by {_deposit}.
     function _transferIn(address from, uint256 assets) internal virtual {
+        // Internal function, so we can assume the caller is trusted.
+        // slither-disable-next-line arbitrary-send-erc20
         SafeERC20.safeTransferFrom(IERC20(asset()), from, address(this), assets);
     }
 
