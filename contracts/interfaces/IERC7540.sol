@@ -149,3 +149,9 @@ interface IERC7540Redeem {
         address controller
     ) external view returns (uint256 claimableShares);
 }
+
+/**
+ * @dev Interface of the fully asynchronous Vault interface of ERC7540, as defined in
+ * https://eips.ethereum.org/EIPS/eip-7540
+ */
+interface IERC7540 is IERC7540Operator, IERC7540Deposit, IERC7540Redeem {}

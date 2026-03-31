@@ -9,7 +9,6 @@ import {ERC7540Operator} from "./ERC7540Operator.sol";
 import {ERC20Vault} from "./ERC20Vault.sol";
 import {IERC20Vault} from "./IERC20Vault.sol";
 import {ERC165} from "../../../utils/introspection/ERC165.sol";
-
 /**
  * @dev Implementation of the ERC-7540 "Asynchronous ERC-4626 Tokenized Vaults" as defined in
  * https://eips.ethereum.org/EIPS/eip-7540[ERC-7540].
