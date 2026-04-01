@@ -46,6 +46,11 @@ import {IERC4626} from "../../../interfaces/IERC4626.sol";
  *
  * To learn more, check out our xref:ROOT:erc4626.adoc[ERC-4626 guide].
  * ====
+ *
+ * NOTE: When overriding the behavior of the deposit or withdraw mechanisms, it is recommended to override {_deposit} and
+ * {_withdraw} respectively. These internal functions are shared by the public deposit/mint and withdraw/redeem
+ * workflows in derived contracts (e.g. {ERC4626}). Overriding the public-facing functions directly could lead to
+ * inconsistent behaviors, which is documented to have led to loss of funds.
  */
 abstract contract ERC20Vault is ERC20, IERC20Vault {
     using Math for uint256;
