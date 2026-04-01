@@ -106,7 +106,14 @@ abstract contract ERC7540Deposit is ERC165, ERC7540Operator, IERC7540Deposit {
         return interfaceId == type(IERC7540Deposit).interfaceId || super.supportsInterface(interfaceId);
     }
 
-    /// @inheritdoc IERC7540Deposit
+    /**
+     * @dev See {IERC7540Deposit-requestDeposit}.
+     *
+     * NOTE: Pending accounting is updated before {_transferIn} to follow Checks-Effects-Interactions.
+     * Assets with transfer hooks (e.g. ERC-777) may observe {totalAssets} temporarily understated
+     * during the transfer, since `_totalPendingDepositAssets` is already incremented while the
+     * token balance has not yet increased.
+     */
     function requestDeposit(
         uint256 assets,
         address controller,
