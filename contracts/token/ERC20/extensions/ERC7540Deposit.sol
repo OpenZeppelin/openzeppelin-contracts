@@ -55,7 +55,7 @@ abstract contract ERC7540Deposit is ERC165, ERC7540Operator, IERC7540Deposit {
      * otherwise pending assets would be treated as yield for outstanding shares.
      */
     function totalAssets() public view virtual override returns (uint256) {
-        return super.totalAssets() - _totalPendingDepositAssets;
+        return super.totalAssets() - totalPendingDepositAssets();
     }
 
     /// @dev See {IERC4626-previewDeposit}.
@@ -66,6 +66,11 @@ abstract contract ERC7540Deposit is ERC165, ERC7540Operator, IERC7540Deposit {
     /// @dev See {IERC4626-previewMint}.
     function previewMint(uint256 /* shares */) public view virtual returns (uint256) {
         revert ERC7540DepositPreviewNotAvailable();
+    }
+
+    /// @dev Returns the total amount of assets currently pending in deposit requests.
+    function totalPendingDepositAssets() public view virtual returns (uint256) {
+        return _totalPendingDepositAssets;
     }
 
     /// @inheritdoc IERC7540Deposit
