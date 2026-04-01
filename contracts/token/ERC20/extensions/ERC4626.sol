@@ -40,7 +40,7 @@ import {Math} from "../../../utils/math/Math.sol";
  *
  * [.hljs-theme-light.nopadding]
  * ```
- * function _decimalsOffset() internal pure override returns (uint8) {
+ * function _decimalsOffset() internal pure virtual override returns (uint8) {
  *     return 18;
  * }
  * ```
