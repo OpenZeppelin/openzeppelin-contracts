@@ -188,6 +188,11 @@ abstract contract ERC7540Redeem is ERC165, ERC7540Operator, IERC7540Redeem {
      * The corresponding assets are held by the vault and made available for the controller to claim
      * via {withdraw} or {redeem}.
      *
+     * NOTE: Claimable redeem assets are NOT subtracted from {totalAssets}. Since fulfilled shares are
+     * burned while assets remain in the vault, the assets-per-share rate naturally increases after each
+     * fulfillment. Vault operators batch-fulfilling multiple requests should account for this shifting
+     * rate, e.g. by overriding {_redeemPrice} to use a snapshotted exchange rate.
+     *
      * Requirements:
      *
      * * `shares` must not exceed the pending redeem amount for the controller
@@ -207,7 +212,12 @@ abstract contract ERC7540Redeem is ERC165, ERC7540Operator, IERC7540Redeem {
         return assets;
     }
 
-    /// @dev Returns the price of redeeming the given shares.
+    /**
+     * @dev Returns the asset amount corresponding to `shares` for a redemption fulfillment.
+     * Defaults to the live {convertToAssets} rate. Override this function to use a snapshotted
+     * or custom rate when batch-fulfilling multiple requests in {_fulfillRedeem}, since each
+     * fulfillment burns shares and shifts the live exchange rate upward.
+     */
     function _redeemPrice(uint256 shares) internal view virtual returns (uint256) {
         return convertToAssets(shares);
     }

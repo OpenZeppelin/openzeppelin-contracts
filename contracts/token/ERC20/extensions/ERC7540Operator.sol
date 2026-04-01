@@ -31,7 +31,7 @@ import {Math} from "../../../utils/math/Math.sol";
  * ====
  */
 abstract contract ERC7540Operator is ERC165, ERC20Vault, IERC7540Operator {
-    /// @dev The operator is not the caller or an operator of the operator
+    /// @dev The operator is not the caller or an operator of the controller
     error ERC7540InvalidOperator(address controller, address operator);
 
     IERC20 private immutable _asset;
