@@ -3,9 +3,8 @@
 
 pragma solidity ^0.8.24;
 
-import {IERC20, IERC20Metadata, ERC20} from "../ERC20.sol";
+import {IERC20, IERC20Metadata} from "../ERC20.sol";
 import {IERC4626} from "../../../interfaces/IERC4626.sol";
-import {SafeERC20} from "../utils/SafeERC20.sol";
 import {Math} from "../../../utils/math/Math.sol";
 import {ERC20Vault, IERC20Vault} from "./ERC20Vault.sol";
 
@@ -30,9 +29,6 @@ import {ERC20Vault, IERC20Vault} from "./ERC20Vault.sol";
  * To learn more, check out our xref:ROOT:erc4626.adoc[ERC-4626 guide].
  */
 abstract contract ERC4626 is ERC20Vault, IERC4626 {
-    IERC20 private immutable _asset;
-    uint8 private immutable _underlyingDecimals;
-
     /**
      * @dev Attempted to deposit more assets than the max amount for `receiver`.
      */
@@ -56,31 +52,21 @@ abstract contract ERC4626 is ERC20Vault, IERC4626 {
     /**
      * @dev Set the underlying asset contract. This must be an ERC20-compatible contract (ERC-20 or ERC-777).
      */
-    constructor(IERC20 asset_) {
-        (bool success, uint8 assetDecimals) = SafeERC20.tryGetDecimals(address(asset_));
-        _underlyingDecimals = success ? assetDecimals : 18;
-        _asset = asset_;
-    }
+    constructor(IERC20 asset_) ERC20Vault(asset_) {}
 
-    /**
-     * @dev Decimals are computed by adding the decimal offset on top of the underlying asset's decimals. This
-     * "original" value is cached during construction of the vault contract. If this read operation fails (e.g., the
-     * asset has not been created yet), a default of 18 is used to represent the underlying asset's decimals.
-     *
-     * See {IERC20Metadata-decimals}.
-     */
-    function decimals() public view virtual override(IERC20Metadata, ERC20) returns (uint8) {
-        return _underlyingDecimals + _decimalsOffset();
+    /// @inheritdoc ERC20Vault
+    function decimals() public view virtual override(IERC20Metadata, ERC20Vault) returns (uint8) {
+        return super.decimals();
     }
 
     /// @inheritdoc ERC20Vault
     function asset() public view virtual override(ERC20Vault, IERC20Vault) returns (address) {
-        return address(_asset);
+        return super.asset();
     }
 
     /// @inheritdoc ERC20Vault
     function totalAssets() public view virtual override(ERC20Vault, IERC20Vault) returns (uint256) {
-        return IERC20(asset()).balanceOf(address(this));
+        return super.totalAssets();
     }
 
     /// @inheritdoc IERC4626

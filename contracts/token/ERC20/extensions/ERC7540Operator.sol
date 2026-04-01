@@ -6,8 +6,6 @@ import {ERC20Vault} from "./ERC20Vault.sol";
 import {IERC7540Operator} from "../../../interfaces/IERC7540.sol";
 import {ERC165} from "../../../utils/introspection/ERC165.sol";
 import {IERC20} from "../IERC20.sol";
-import {SafeERC20} from "../utils/SafeERC20.sol";
-import {Math} from "../../../utils/math/Math.sol";
 
 /**
  * @dev Base implementation for ERC-7540 asynchronous vaults with operator support.
@@ -34,8 +32,6 @@ abstract contract ERC7540Operator is ERC165, ERC20Vault, IERC7540Operator {
     /// @dev The operator is not the caller or an operator of the controller
     error ERC7540InvalidOperator(address controller, address operator);
 
-    IERC20 private immutable _asset;
-    uint8 private immutable _underlyingDecimals;
     mapping(address => mapping(address => bool)) private _isOperator;
 
     /// @dev See {_checkOperatorOrController}.
@@ -45,25 +41,9 @@ abstract contract ERC7540Operator is ERC165, ERC20Vault, IERC7540Operator {
     }
 
     /**
-     * @dev Sets the underlying asset contract and caches its decimals.
-     *
-     * If reading decimals from the asset fails, a default of 18 decimals is used.
+     * @dev Sets the underlying asset contract. See {ERC20Vault-constructor}.
      */
-    constructor(IERC20 asset_) {
-        (bool success, uint8 assetDecimals) = SafeERC20.tryGetDecimals(address(asset_));
-        _underlyingDecimals = uint8(Math.ternary(success, assetDecimals, 18));
-        _asset = asset_;
-    }
-
-    /// @inheritdoc ERC20Vault
-    function asset() public view virtual override returns (address) {
-        return address(_asset);
-    }
-
-    /// @inheritdoc ERC20Vault
-    function totalAssets() public view virtual override returns (uint256) {
-        return IERC20(asset()).balanceOf(address(this));
-    }
+    constructor(IERC20 asset_) ERC20Vault(asset_) {}
 
     /// @inheritdoc IERC7540Operator
     function isOperator(address controller, address operator) public view returns (bool status) {

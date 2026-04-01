@@ -25,13 +25,7 @@ import {ERC165} from "../../../utils/introspection/ERC165.sol";
  */
 abstract contract ERC7540 is ERC165, ERC7540Redeem, ERC7540Deposit, IERC4626 {
     /// @inheritdoc ERC7540Deposit
-    function totalAssets()
-        public
-        view
-        virtual
-        override(ERC7540Deposit, ERC7540Operator, IERC20Vault)
-        returns (uint256)
-    {
+    function totalAssets() public view virtual override(ERC7540Deposit, ERC20Vault, IERC20Vault) returns (uint256) {
         return super.totalAssets();
     }
 

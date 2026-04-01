@@ -55,11 +55,40 @@ import {IERC4626} from "../../../interfaces/IERC4626.sol";
 abstract contract ERC20Vault is ERC20, IERC20Vault {
     using Math for uint256;
 
-    /// @inheritdoc IERC20Vault
-    function asset() public view virtual returns (address);
+    IERC20 private immutable _asset;
+    uint8 private immutable _underlyingDecimals;
+
+    /**
+     * @dev Sets the underlying asset contract and caches its decimals.
+     *
+     * If reading decimals from the asset fails, a default of 18 is used.
+     */
+    constructor(IERC20 asset_) {
+        (bool success, uint8 assetDecimals) = SafeERC20.tryGetDecimals(address(asset_));
+        _underlyingDecimals = success ? assetDecimals : 18;
+        _asset = asset_;
+    }
+
+    /**
+     * @dev Decimals are computed by adding the decimal offset on top of the underlying asset's decimals. This
+     * "original" value is cached during construction of the vault contract. If this read operation fails (e.g., the
+     * asset has not been created yet), a default of 18 is used to represent the underlying asset's decimals.
+     *
+     * See {IERC20Metadata-decimals}.
+     */
+    function decimals() public view virtual override returns (uint8) {
+        return _underlyingDecimals + _decimalsOffset();
+    }
 
     /// @inheritdoc IERC20Vault
-    function totalAssets() public view virtual returns (uint256);
+    function asset() public view virtual returns (address) {
+        return address(_asset);
+    }
+
+    /// @inheritdoc IERC20Vault
+    function totalAssets() public view virtual returns (uint256) {
+        return IERC20(asset()).balanceOf(address(this));
+    }
 
     /// @inheritdoc IERC20Vault
     function convertToShares(uint256 assets) public view virtual returns (uint256) {
