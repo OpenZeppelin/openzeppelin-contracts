@@ -40,5 +40,52 @@ describe('ERC7540Redeem', function () {
     });
   });
 
+  describe('requestRedeem with ERC-20 allowance', function () {
+    beforeEach(async function () {
+      await this.token.$_mint(this.holder, shareAmount);
+      await this.asset.$_mint(this.token, assetAmount);
+    });
+
+    it('approved spender can request on behalf of owner', async function () {
+      await this.token.connect(this.holder).approve(this.other, shareAmount);
+
+      await expect(this.token.connect(this.other).requestRedeem(shareAmount, this.holder, this.holder))
+        .to.emit(this.token, 'RedeemRequest')
+        .withArgs(this.holder, this.holder, REQUEST_ID, this.other, shareAmount);
+
+      await expect(this.token.pendingRedeemRequest(REQUEST_ID, this.holder)).to.eventually.equal(shareAmount);
+    });
+
+    it('consumes finite allowance', async function () {
+      await this.token.connect(this.holder).approve(this.other, shareAmount);
+      await this.token.connect(this.other).requestRedeem(shareAmount, this.holder, this.holder);
+
+      await expect(this.token.allowance(this.holder, this.other)).to.eventually.equal(0n);
+    });
+
+    it('does not consume infinite allowance', async function () {
+      await this.token.connect(this.holder).approve(this.other, ethers.MaxUint256);
+      await this.token.connect(this.other).requestRedeem(shareAmount, this.holder, this.holder);
+
+      await expect(this.token.allowance(this.holder, this.other)).to.eventually.equal(ethers.MaxUint256);
+    });
+
+    it('reverts when allowance is insufficient', async function () {
+      await this.token.connect(this.holder).approve(this.other, shareAmount - 1n);
+
+      await expect(this.token.connect(this.other).requestRedeem(shareAmount, this.holder, this.holder))
+        .to.be.revertedWithCustomError(this.token, 'ERC20InsufficientAllowance')
+        .withArgs(this.other, shareAmount - 1n, shareAmount);
+    });
+
+    it('operator bypasses allowance', async function () {
+      await this.token.connect(this.holder).setOperator(this.operator, true);
+      await this.token.connect(this.operator).requestRedeem(shareAmount, this.holder, this.holder);
+
+      await expect(this.token.allowance(this.holder, this.operator)).to.eventually.equal(0n);
+      await expect(this.token.pendingRedeemRequest(REQUEST_ID, this.holder)).to.eventually.equal(shareAmount);
+    });
+  });
+
   shouldSupportInterfaces(['ERC7540Operator', 'ERC7540Redeem']);
 });

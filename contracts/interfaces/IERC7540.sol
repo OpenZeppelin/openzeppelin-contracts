@@ -19,7 +19,7 @@ interface IERC7540Operator {
      */
     function setOperator(address operator, bool approved) external returns (bool);
 
-    /// @dev Returns `true` if the `operator` is approved as an operator for an `controller`.
+    /// @dev Returns `true` if the `operator` is approved as an operator for a `controller`.
     function isOperator(address controller, address operator) external view returns (bool status);
 }
 
@@ -42,13 +42,12 @@ interface IERC7540Deposit {
     );
 
     /**
-     * @dev Transfers assets from sender into the Vault and submits a request for asynchronous deposit.
+     * @dev Transfers `assets` from `owner` into the Vault and submits a request for asynchronous deposit.
      *
-     * - MUST support ERC-20 approve / transferFrom on asset as a deposit request flow.
-     * - MUST revert if all of assets cannot be requested for deposit.
-     * - MUST emit the {DepositRequest} event when the request is submitted.
-     * - owner MUST be msg.sender unless some unspecified explicit approval is given by the caller,
-     *    approval of ERC-20 tokens from owner to sender is NOT enough.
+     * - MUST support ERC-20 approve / transferFrom on `asset` as a deposit request flow.
+     * - `owner` MUST equal `msg.sender` unless the `owner` has approved the `msg.sender` as an operator.
+     * - MUST revert if all of `assets` cannot be requested for deposit.
+     * - MUST emit the {DepositRequest} event.
      *
      * NOTE: Most implementations will require `owner` to have approved the Vault to spend at least `assets` of
      * the underlying asset token (e.g. via `asset.approve(vault, assets)`) before calling this function.
@@ -116,12 +115,14 @@ interface IERC7540Redeem {
     );
 
     /**
-     * @dev Assumes control of shares from sender into the Vault and submits a request for asynchronous redeem.
+     * @dev Assumes control of shares from owner into the Vault and submits a request for asynchronous redeem.
      *
-     * - MUST support a redeem request flow where the control of shares is taken from sender directly
-     *   where msg.sender has ERC-20 approval over the shares of owner.
+     * Authorization for a `msg.sender` not equal to `owner` may come either from ERC-20 approval over
+     * the shares of `owner` or from an operator approval via {IERC7540Operator-setOperator}. Operators
+     * are not subject to allowance restrictions, while non-infinite ERC-20 approvals are consumed.
+     *
      * - MUST revert if all of shares cannot be requested for redeem.
-     * - MUST emit the RedeemRequest event.
+     * - MUST emit the {RedeemRequest} event.
      *
      * NOTE: Most implementations will require `owner` to have approved the Vault to spend at least `shares` of
      * the Vault's share token (e.g. via `share.approve(vault, shares)`) before calling this function.

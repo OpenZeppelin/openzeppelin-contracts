@@ -98,17 +98,18 @@ abstract contract ERC7540Redeem is ERC165, ERC7540Operator, IERC7540Redeem {
     }
 
     /// @inheritdoc IERC7540Redeem
-    function requestRedeem(
-        uint256 shares,
-        address controller,
-        address owner
-    ) public virtual onlyOperatorOrController(owner, _msgSender()) returns (uint256) {
+    function requestRedeem(uint256 shares, address controller, address owner) public virtual returns (uint256) {
+        address sender = _msgSender();
+        if (owner != sender && !isOperator(owner, sender)) {
+            _spendAllowance(owner, sender, shares);
+        }
+
         uint256 requestId = _redeemRequestId(controller);
         _setPendingRedeem(controller, shares + pendingRedeemRequest(requestId, controller));
 
         // Must revert with ERC20InsufficientBalance if there's not enough balance.
         _lockSharesIn(shares, owner);
-        emit RedeemRequest(controller, owner, requestId, _msgSender(), shares);
+        emit RedeemRequest(controller, owner, requestId, sender, shares);
         return requestId;
     }
 

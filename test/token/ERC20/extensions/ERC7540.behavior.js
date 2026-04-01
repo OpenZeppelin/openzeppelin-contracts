@@ -414,10 +414,10 @@ function shouldBehaveLikeERC7540Redeem() {
         await this.asset.$_mint(this.token, assetAmount);
       });
 
-      it('reverts when caller is not owner or operator of owner', async function () {
+      it('reverts when caller has no approval or operator permission', async function () {
         await expect(this.token.connect(this.other).requestRedeem(shareAmount, this.holder, this.holder))
-          .to.be.revertedWithCustomError(this.token, 'ERC7540InvalidOperator')
-          .withArgs(this.holder, this.other);
+          .to.be.revertedWithCustomError(this.token, 'ERC20InsufficientAllowance')
+          .withArgs(this.other, 0n, shareAmount);
       });
 
       it('reverts when owner has insufficient share balance', async function () {
