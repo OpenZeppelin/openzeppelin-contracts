@@ -146,18 +146,11 @@ describe('GovernorTimelockCompound', function () {
               target: this.token.target,
               data: this.token.interface.encodeFunctionData('approve', [this.receiver.target, ethers.MaxUint256]),
             };
-            const { id } = this.helper.setProposal([action, action], '<proposal description>');
+            this.helper.setProposal([action, action], '<proposal description>');
 
-            await this.helper.propose();
-            await this.helper.waitForSnapshot();
-            await this.helper.connect(this.voter1).vote({ support: VoteType.For });
-            await this.helper.waitForDeadline();
-            await expect(this.helper.queue())
-              .to.be.revertedWithCustomError(this.mock, 'GovernorAlreadyQueuedProposal')
-              .withArgs(id);
-            await expect(this.helper.execute())
-              .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
-              .withArgs(id, ProposalState.Succeeded, GovernorHelper.proposalStatesToBitMap([ProposalState.Queued]));
+            await expect(this.helper.propose())
+              .to.be.revertedWithCustomError(this.mock, 'GovernorDuplicateProposalAction')
+              .withArgs(1n);
           });
         });
 

@@ -59,6 +59,33 @@ abstract contract GovernorTimelockCompound is Governor {
     }
 
     /**
+     * @dev Override of {Governor-_propose} that rejects proposals containing duplicate actions (same target, value,
+     * and calldata). The Compound timelock identifies queued transactions by their hash, so duplicate actions within
+     * a single proposal would cause the second `queueTransaction` call to fail. This check prevents such proposals
+     * from being created in the first place, providing a clearer error message.
+     */
+    function _propose(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        string memory description,
+        address proposer
+    ) internal virtual override returns (uint256) {
+        for (uint256 i = 1; i < targets.length; ++i) {
+            for (uint256 j = 0; j < i; ++j) {
+                if (
+                    targets[i] == targets[j] &&
+                    values[i] == values[j] &&
+                    keccak256(calldatas[i]) == keccak256(calldatas[j])
+                ) {
+                    revert GovernorDuplicateProposalAction(i);
+                }
+            }
+        }
+        return super._propose(targets, values, calldatas, description, proposer);
+    }
+
+    /**
      * @dev Function to queue a proposal to the timelock.
      */
     function _queueOperations(
