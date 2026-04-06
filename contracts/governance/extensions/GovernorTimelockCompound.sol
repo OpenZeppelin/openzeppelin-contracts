@@ -71,6 +71,9 @@ abstract contract GovernorTimelockCompound is Governor {
         string memory description,
         address proposer
     ) internal virtual override returns (uint256) {
+        if (targets.length != values.length || targets.length != calldatas.length || targets.length == 0) {
+            revert GovernorInvalidProposalLength(targets.length, calldatas.length, values.length);
+        }
         for (uint256 i = 1; i < targets.length; ++i) {
             for (uint256 j = 0; j < i; ++j) {
                 if (
