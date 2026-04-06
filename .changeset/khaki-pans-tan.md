@@ -2,4 +2,4 @@
 "openzeppelin-solidity": patch
 ---
 
-Gage see
+Gauge see
