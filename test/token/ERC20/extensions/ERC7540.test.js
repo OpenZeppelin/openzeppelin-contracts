@@ -3,7 +3,7 @@ const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { shouldBehaveLikeERC7540Deposit, shouldBehaveLikeERC7540Redeem } = require('./ERC7540.behavior');
-const { shouldSupportInterfaces } = require('../../../utils/introspection/SupportsInterface.behavior');
+const { shouldSupportInterfaces, INTERFACE_IDS } = require('../../../utils/introspection/SupportsInterface.behavior');
 
 const REQUEST_ID = 0n;
 const amount = 1000n;
@@ -56,4 +56,12 @@ describe('ERC7540', function () {
   });
 
   shouldSupportInterfaces(['ERC7540Operator', 'ERC7540Deposit', 'ERC7540Redeem']);
+
+  // Interface description not great, so we double check that the interface IDs correctly match the raw values
+  // documented in the "ERC-165 support" section of ERC-7540
+  it('interface IDs are correct', async function () {
+    expect(INTERFACE_IDS.ERC7540Operator).to.equal('0xe3bc4e65');
+    expect(INTERFACE_IDS.ERC7540Deposit).to.equal('0xce3bbe50');
+    expect(INTERFACE_IDS.ERC7540Redeem).to.equal('0x620ee8e4');
+  });
 });
