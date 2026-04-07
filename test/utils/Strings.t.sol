@@ -71,6 +71,14 @@ contract StringsTest is Test {
                     assertLt(i + 4, escaped.length);
                     assertEq(uint8(escaped[i + 1]), 0x30);
                     assertEq(uint8(escaped[i + 2]), 0x30);
+                    uint8 hi = uint8(escaped[i + 3]);
+                    uint8 lo = uint8(escaped[i + 4]);
+                    assertTrue(
+                        (hi >= 0x30 && hi <= 0x39) || (hi >= 0x41 && hi <= 0x46) || (hi >= 0x61 && hi <= 0x66)
+                    );
+                    assertTrue(
+                        (lo >= 0x30 && lo <= 0x39) || (lo >= 0x41 && lo <= 0x46) || (lo >= 0x61 && lo <= 0x66)
+                    );
                     i += 4;
                 } else {
                     assertTrue(
