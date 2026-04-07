@@ -47,4 +47,45 @@ contract StringsTest is Test {
         (bool success, ) = input.tryParseAddress(begin, begin + 40);
         assertFalse(success);
     }
+
+    function testEscapeJSONLength(string memory input) external pure {
+        assertGe(bytes(input.escapeJSON()).length, bytes(input).length);
+    }
+
+    // Validates the output of escapeJSON is well-formed JSON string content:
+    // - no unescaped control characters (U+0000 to U+001F)
+    // - no unescaped double quotes
+    // - every backslash begins a valid escape sequence (\b \t \n \f \r \\ \" or \u00XX)
+    function testEscapeJSON(string memory input) external pure {
+        bytes memory escaped = bytes(input.escapeJSON());
+
+        for (uint256 i = 0; i < escaped.length; i++) {
+            uint8 c = uint8(escaped[i]);
+            assertGe(c, 0x20);
+
+            if (c == 0x5c) {
+                assertLt(i + 1, escaped.length);
+                uint8 next = uint8(escaped[++i]);
+                if (next == 0x75) {
+                    // \u00XX
+                    assertLt(i + 4, escaped.length);
+                    assertEq(uint8(escaped[i + 1]), 0x30);
+                    assertEq(uint8(escaped[i + 2]), 0x30);
+                    i += 4;
+                } else {
+                    assertTrue(
+                        next == 0x62 || // \b
+                        next == 0x74 || // \t
+                        next == 0x6e || // \n
+                        next == 0x66 || // \f
+                        next == 0x72 || // \r
+                        next == 0x5c || // \\
+                        next == 0x22    // \"
+                    );
+                }
+            } else {
+                assertTrue(c != 0x22);
+            }
+        }
+    }
 }
