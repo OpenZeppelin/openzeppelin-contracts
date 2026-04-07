@@ -1,6 +1,7 @@
 import js from '@eslint/js';
 import { includeIgnoreFile } from '@eslint/compat';
 import prettier from 'eslint-config-prettier';
+import mocha from 'eslint-plugin-mocha';
 import globals from 'globals';
 import path from 'path';
 import { fileURLToPath } from 'node:url';
@@ -11,6 +12,7 @@ export default [
   js.configs.recommended,
   prettier,
   {
+    plugins: { mocha },
     languageOptions: {
       ecmaVersion: 2022,
       globals: {
@@ -23,6 +25,9 @@ export default [
         extendEnvironment: 'readonly',
         expect: 'readonly',
       },
+    },
+    rules: {
+      'mocha/no-async-suite': 'error',
     },
   },
   includeIgnoreFile(path.resolve(__dirname, '.gitignore')),

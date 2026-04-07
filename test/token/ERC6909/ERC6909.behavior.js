@@ -142,7 +142,7 @@ function shouldBehaveLikeERC6909() {
         await expect(this.token.balanceOf(this.recipient, firstTokenId)).to.eventually.equal(amount);
       });
 
-      describe('with approval', async function () {
+      describe('with approval', function () {
         beforeEach(async function () {
           await this.token.connect(this.holder).approve(this.operator, firstTokenId, amount);
         });
