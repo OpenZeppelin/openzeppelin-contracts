@@ -116,7 +116,18 @@ library Arrays {
         unchecked {
             if (end - begin < 0x40) return;
 
-            // Use first element as pivot
+            // Median-of-three pivot selection: pick the first, middle, and last elements, sort them,
+            // then use the middle value as pivot. This avoids worst-case O(n²) behavior on sorted inputs.
+            uint256 mid = begin + (((end - begin) >> 1) & ~uint256(0x1f));
+            if (comp(_mload(mid), _mload(begin))) _swap(begin, mid);
+            if (end - begin > 0x40) {
+                uint256 last = end - 0x20;
+                if (comp(_mload(last), _mload(begin))) _swap(begin, last);
+                if (comp(_mload(last), _mload(mid))) _swap(mid, last);
+                _swap(begin, mid); // Put median at begin to use as pivot
+            }
+
+            // Use first element (now the median of first/middle/last) as pivot
             uint256 pivot = _mload(begin);
             // Position where the pivot should be at the end of the loop
             uint256 pos = begin;
