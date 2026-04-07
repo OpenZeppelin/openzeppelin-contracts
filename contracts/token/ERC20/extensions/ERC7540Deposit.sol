@@ -35,18 +35,18 @@ abstract contract ERC7540Deposit is ERC165, ERC7540Operator, IERC7540Deposit {
     /// @dev The amount of assets requested is greater than the amount of assets pending.
     error ERC7540DepositInsufficientPendingAssets(uint256 assets, uint256 pendingAssets);
 
-    uint256 private _totalPendingDepositAssets;
-    mapping(address controller => uint256) private _pendingDeposit;
-    mapping(address controller => ClaimableDeposit) private _claimableDeposit;
-
     /**
      * @dev Struct containing the assets and corresponding shares for a claimable deposit request.
      * When a request becomes claimable via {_fulfillDeposit}, the exchange rate is locked in this struct.
      */
-    struct ClaimableDeposit {
-        uint256 assets;
-        uint256 shares;
+    struct PendingDeposit {
+        uint256 pendingAssets;
+        uint256 claimableAssets;
+        uint256 claimableShares;
     }
+
+    mapping(address controller => PendingDeposit) private _deposits;
+    uint256 private _totalPendingDepositAssets;
 
     /**
      * @dev See {IERC20Vault-totalAssets}.
@@ -75,7 +75,7 @@ abstract contract ERC7540Deposit is ERC165, ERC7540Operator, IERC7540Deposit {
 
     /// @inheritdoc IERC7540Deposit
     function pendingDepositRequest(uint256 /* requestId */, address controller) public view virtual returns (uint256) {
-        return _pendingDeposit[controller];
+        return _deposits[controller].pendingAssets;
     }
 
     /// @inheritdoc IERC7540Deposit
@@ -83,7 +83,7 @@ abstract contract ERC7540Deposit is ERC165, ERC7540Operator, IERC7540Deposit {
         uint256 /* requestId */,
         address controller
     ) public view virtual returns (uint256) {
-        return _claimableDeposit[controller].assets;
+        return _deposits[controller].claimableAssets;
     }
 
     /// @dev Shares locked in the claimable deposit request.
@@ -91,7 +91,7 @@ abstract contract ERC7540Deposit is ERC165, ERC7540Operator, IERC7540Deposit {
         uint256 /* requestId */,
         address controller
     ) public view virtual returns (uint256) {
-        return _claimableDeposit[controller].shares;
+        return _deposits[controller].claimableShares;
     }
 
     /// @inheritdoc IERC20Vault
@@ -244,12 +244,13 @@ abstract contract ERC7540Deposit is ERC165, ERC7540Operator, IERC7540Deposit {
 
     /// @dev Sets the claimable deposit request for the controller.
     function _setClaimableDeposit(address controller, uint256 assets, uint256 shares) internal virtual {
-        _claimableDeposit[controller] = ClaimableDeposit(assets, shares);
+        _deposits[controller].claimableAssets = assets;
+        _deposits[controller].claimableShares = shares;
     }
 
     /// @dev Sets the pending deposit request for the controller.
     function _setPendingDeposit(address controller, uint256 assets) internal virtual {
-        _pendingDeposit[controller] = assets;
+        _deposits[controller].pendingAssets = assets;
     }
 
     /// @dev Returns the request ID for the given assets, controller, and owner

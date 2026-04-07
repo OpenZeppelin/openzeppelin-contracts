@@ -40,17 +40,17 @@ abstract contract ERC7540Redeem is ERC165, ERC7540Operator, IERC7540Redeem {
     /// @dev The amount of shares requested is greater than the amount of shares pending.
     error ERC7540RedeemInsufficientPendingShares(uint256 shares, uint256 pendingShares);
 
-    mapping(address controller => uint256) private _pendingRedeem;
-    mapping(address controller => ClaimableRedeem) private _claimableRedeem;
-
     /**
      * @dev Struct containing the shares and corresponding assets for a claimable redeem request.
      * When a request becomes claimable via {_fulfillRedeem}, the exchange rate is locked in this struct.
      */
-    struct ClaimableRedeem {
-        uint256 assets;
-        uint256 shares;
+    struct PendingRedeem {
+        uint256 pendingShares;
+        uint256 claimableShares;
+        uint256 claimableAssets;
     }
+
+    mapping(address controller => PendingRedeem) private _redeems;
 
     /// @dev See {IERC4626-previewRedeem}.
     function previewRedeem(uint256 /* shares */) public view virtual returns (uint256) {
@@ -64,12 +64,12 @@ abstract contract ERC7540Redeem is ERC165, ERC7540Operator, IERC7540Redeem {
 
     /// @inheritdoc IERC7540Redeem
     function pendingRedeemRequest(uint256 /* requestId */, address controller) public view virtual returns (uint256) {
-        return _pendingRedeem[controller];
+        return _redeems[controller].pendingShares;
     }
 
     /// @inheritdoc IERC7540Redeem
     function claimableRedeemRequest(uint256 /* requestId */, address controller) public view virtual returns (uint256) {
-        return _claimableRedeem[controller].shares;
+        return _redeems[controller].claimableShares;
     }
 
     /// @dev Assets locked in the claimable redeem request.
@@ -77,7 +77,7 @@ abstract contract ERC7540Redeem is ERC165, ERC7540Operator, IERC7540Redeem {
         uint256 /* requestId */,
         address controller
     ) public view virtual returns (uint256) {
-        return _claimableRedeem[controller].assets;
+        return _redeems[controller].claimableAssets;
     }
 
     /// @inheritdoc IERC20Vault
@@ -225,12 +225,13 @@ abstract contract ERC7540Redeem is ERC165, ERC7540Operator, IERC7540Redeem {
 
     /// @dev Sets the claimable redeem request for the controller.
     function _setClaimableRedeem(address controller, uint256 assets, uint256 shares) internal virtual {
-        _claimableRedeem[controller] = ClaimableRedeem(assets, shares);
+        _redeems[controller].claimableAssets = assets;
+        _redeems[controller].claimableShares = shares;
     }
 
     /// @dev Sets the pending redeem request for the controller.
     function _setPendingRedeem(address controller, uint256 shares) internal virtual {
-        _pendingRedeem[controller] = shares;
+        _redeems[controller].pendingShares = shares;
     }
 
     /**
