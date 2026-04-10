@@ -1,10 +1,12 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
-const chalk = require('chalk');
+import fs from 'fs';
+import chalk from 'chalk';
 
-const { hideBin } = require('yargs/helpers');
-const { argv } = require('yargs/yargs')(hideBin(process.argv))
+import { hideBin } from 'yargs/helpers';
+import yargs from 'yargs/yargs';
+
+const { argv } = yargs(hideBin(process.argv))
   .env('')
   .options({
     style: {
@@ -26,21 +28,25 @@ const { argv } = require('yargs/yargs')(hideBin(process.argv))
 const BASE_TX_COST = 21000;
 
 // Utilities
-function sum(...args) {
-  return args.reduce((a, b) => a + b, 0);
-}
+// const sum = (...args) => args.reduce((a, b) => a + b, 0);
+// const average = (...args)  => sum(...args) / args.length;
+const variation = (current, previous, offset = 0) => ({
+  value: current - offset,
+  delta: current - previous,
+  prcnt: (100 * (current - previous)) / (previous - offset),
+});
 
-function average(...args) {
-  return sum(...args) / args.length;
-}
-
-function variation(current, previous, offset = 0) {
-  return {
-    value: current,
-    delta: current - previous,
-    prcnt: (100 * (current - previous)) / (previous - offset),
-  };
-}
+const variations = (current, previous, offset = 0) =>
+  current.min == current.max && previous.min == previous.max
+    ? {
+        avg: variation(current.avg, previous.avg, offset),
+      }
+    : {
+        min: variation(current.min, previous.min, offset),
+        max: variation(current.max, previous.max, offset),
+        avg: variation(current.avg, previous.avg, offset),
+        median: variation(current.median, previous.median, offset),
+      };
 
 // Report class
 class Report {
@@ -51,54 +57,25 @@ class Report {
 
   // Compare two reports
   static compare(update, ref, opts = { hideEqual: true, strictTesting: false }) {
-    if (JSON.stringify(update.options?.solcInfo) !== JSON.stringify(ref.options?.solcInfo)) {
-      console.warn('WARNING: Reports produced with non matching metadata');
-    }
-
-    // gasReporter 1.0.0 uses ".info", but 2.0.0 uses ".data"
-    const updateInfo = update.info ?? update.data;
-    const refInfo = ref.info ?? ref.data;
-
-    const deployments = updateInfo.deployments
-      .map(contract =>
-        Object.assign(contract, { previousVersion: refInfo.deployments.find(({ name }) => name === contract.name) }),
-      )
-      .filter(contract => contract.gasData?.length && contract.previousVersion?.gasData?.length)
-      .flatMap(contract => [
+    return Object.entries(update.contracts)
+      .filter(([key]) => key in ref.contracts)
+      .flatMap(([key, contract]) => [
         {
-          contract: contract.name,
-          method: '[bytecode length]',
-          avg: variation(contract.bytecode.length / 2 - 1, contract.previousVersion.bytecode.length / 2 - 1),
+          contract: contract.contractName,
+          method: '[constructor]',
+          ...variations(contract.deployment, ref.contracts[key].deployment, BASE_TX_COST),
         },
-        {
-          contract: contract.name,
-          method: '[construction cost]',
-          avg: variation(
-            ...[contract.gasData, contract.previousVersion.gasData].map(x => Math.round(average(...x))),
-            BASE_TX_COST,
-          ),
-        },
+        ...Object.entries(contract.functions ?? {})
+          .filter(([method]) => method in ref.contracts[key].functions)
+          .filter(([method, data]) => !opts.strictTesting || data.count === ref.contracts[key].functions[method].count)
+          .map(([method, currentData]) => ({
+            contract: contract.contractName,
+            method,
+            ...variations(currentData, ref.contracts[key].functions[method], BASE_TX_COST),
+          })),
       ])
-      .sort((a, b) => `${a.contract}:${a.method}`.localeCompare(`${b.contract}:${b.method}`));
-
-    const methods = Object.keys(updateInfo.methods)
-      .filter(key => refInfo.methods[key])
-      .filter(key => updateInfo.methods[key].numberOfCalls > 0)
-      .filter(
-        key => !opts.strictTesting || updateInfo.methods[key].numberOfCalls === refInfo.methods[key].numberOfCalls,
-      )
-      .map(key => ({
-        contract: refInfo.methods[key].contract,
-        method: refInfo.methods[key].fnSig,
-        min: variation(...[updateInfo, refInfo].map(x => Math.min(...x.methods[key].gasData)), BASE_TX_COST),
-        max: variation(...[updateInfo, refInfo].map(x => Math.max(...x.methods[key].gasData)), BASE_TX_COST),
-        avg: variation(...[updateInfo, refInfo].map(x => Math.round(average(...x.methods[key].gasData))), BASE_TX_COST),
-      }))
-      .sort((a, b) => `${a.contract}:${a.method}`.localeCompare(`${b.contract}:${b.method}`));
-
-    return []
-      .concat(deployments, methods)
-      .filter(row => !opts.hideEqual || row.min?.delta || row.max?.delta || row.avg?.delta);
+      .sort((a, b) => `${a.contract}:${a.method}`.localeCompare(`${b.contract}:${b.method}`))
+      .filter(row => !opts.hideEqual || row.min?.delta || row.max?.delta || row.avg?.delta || row.median?.delta);
   }
 }
 
@@ -130,6 +107,7 @@ function formatCmpShell(rows) {
     { txt: 'Method', length: methodLength },
     { txt: 'Min', length: 30 },
     { txt: 'Max', length: 30 },
+    { txt: 'Median', length: 30 },
     { txt: 'Avg', length: 30 },
     { txt: '', length: 0 },
   ];
@@ -150,6 +128,7 @@ function formatCmpShell(rows) {
         entry.method.padEnd(methodLength),
         ...formatCellShell(entry.min),
         ...formatCellShell(entry.max),
+        ...formatCellShell(entry.median),
         ...formatCellShell(entry.avg),
         '',
       ]
