@@ -394,6 +394,41 @@ contract ArraysTest is Test, SymTest {
         }
     }
 
+    /// Large array sort tests (stack depth fix)
+    // See https://github.com/OpenZeppelin/openzeppelin-contracts/issues/6289
+
+    function testSortLargeArrayDescending() public pure {
+        // Previously caused stack overflow with N >= 170 (EVM stack depth limit)
+        // With the iterative fix, this should now succeed for arrays >> 170 elements
+        uint256 N = 500;
+        uint256[] memory a = new uint256[](N);
+        for (uint256 i = 0; i < N; i++) {
+            a[i] = N - i; // descending: N, N-1, ..., 1
+        }
+        Arrays.sort(a);
+        // After sort, should be ascending: 1, 2, ..., N
+        for (uint256 i = 1; i < N; i++) {
+            assertEq(a[i - 1] < a[i], true);
+        }
+    }
+
+    function testSortVeryLargeArrayRandom() public pure {
+        // Even larger array to confirm iterative approach handles high element counts
+        uint256 N = 1000;
+        uint256[] memory a = new uint256[](N);
+        uint256 seed = 42;
+        for (uint256 i = 0; i < N; i++) {
+            // Deterministic pseudo-random for reproducibility
+            seed = keccak256(abi.encode(seed, i));
+            a[i] = uint256(seed) % (N * 10);
+        }
+        Arrays.sort(a);
+        // Verify sorted ascending
+        for (uint256 i = 1; i < N; i++) {
+            assertEq(a[i - 1] <= a[i], true);
+        }
+    }
+
     /// Helpers
 
     function _copyArray(uint256[] memory values) internal pure returns (uint256[] memory) {

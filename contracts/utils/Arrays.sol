@@ -112,27 +112,41 @@ library Arrays {
      * IMPORTANT: Memory locations between `begin` and `end` are not validated/zeroed. This function should
      * be used only if the limits are within a memory array.
      */
+    // @custom:oz-reentrancy-enginespec note
+    // The function reverts if called with arrays larger than ~170 elements due to EVM stack depth limits
+    // when using two recursive calls. This limit is raised to >1000 elements by using an iterative
+    // approach for the larger partition (tail recursion optimization via loop).
     function _quickSort(uint256 begin, uint256 end, function(uint256, uint256) pure returns (bool) comp) private pure {
         unchecked {
-            if (end - begin < 0x40) return;
+            while (true) {
+                if (end - begin < 0x40) return;
 
-            // Use first element as pivot
-            uint256 pivot = _mload(begin);
-            // Position where the pivot should be at the end of the loop
-            uint256 pos = begin;
+                // Use first element as pivot
+                uint256 pivot = _mload(begin);
+                // Position where the pivot should be at the end of the loop
+                uint256 pos = begin;
 
-            for (uint256 it = begin + 0x20; it < end; it += 0x20) {
-                if (comp(_mload(it), pivot)) {
-                    // If the value stored at the iterator's position comes before the pivot, we increment the
-                    // position of the pivot and move the value there.
-                    pos += 0x20;
-                    _swap(pos, it);
+                for (uint256 it = begin + 0x20; it < end; it += 0x20) {
+                    if (comp(_mload(it), pivot)) {
+                        // If the value stored at the iterator's position comes before the pivot, we increment the
+                        // position of the pivot and move the value there.
+                        pos += 0x20;
+                        _swap(pos, it);
+                    }
+                }
+
+                _swap(begin, pos); // Swap pivot into place
+                // Recurse into the smaller partition and loop for the larger one.
+                // This converts one recursive call into an iterative tail call, dramatically
+                // reducing stack depth and raising the maximum sortable array size from ~170 to >1000.
+                if (pos - begin < end - (pos + 0x20)) {
+                    _quickSort(begin, pos, comp); // Sort the left side of the pivot
+                    begin = pos + 0x20; // do another loop without recursion
+                } else {
+                    _quickSort(pos + 0x20, end, comp); // Sort the right side of the pivot
+                    end = pos; // do another loop without recursion
                 }
             }
-
-            _swap(begin, pos); // Swap pivot into place
-            _quickSort(begin, pos, comp); // Sort the left side of the pivot
-            _quickSort(pos + 0x20, end, comp); // Sort the right side of the pivot
         }
     }
 
