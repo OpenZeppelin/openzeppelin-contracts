@@ -8,6 +8,8 @@ import {SafeERC20} from "../token/ERC20/utils/SafeERC20.sol";
 import {Address} from "../utils/Address.sol";
 import {Context} from "../utils/Context.sol";
 import {Ownable} from "../access/Ownable.sol";
+import {IERC6372} from "../interfaces/IERC6372.sol";
+import {Time} from "../utils/types/Time.sol";
 
 /**
  * @dev A vesting wallet is an ownable contract that can receive native currency and ERC-20 tokens, and release these
@@ -33,7 +35,7 @@ import {Ownable} from "../access/Ownable.sol";
  * at 50% of the vesting period, the beneficiary can withdraw 50 A as ERC20 and 25 A as native currency (totaling 75 A).
  * Consider disabling one of the withdrawal methods.
  */
-contract VestingWallet is Context, Ownable {
+contract VestingWallet is Context, Ownable, IERC6372 {
     event EtherReleased(uint256 amount);
     event ERC20Released(address indexed token, uint256 amount);
 
@@ -49,6 +51,19 @@ contract VestingWallet is Context, Ownable {
     constructor(address beneficiary, uint64 startTimestamp, uint64 durationSeconds) payable Ownable(beneficiary) {
         _start = startTimestamp;
         _duration = durationSeconds;
+    }
+
+    /**
+     * @dev Clock used for the vesting schedule, based on {Time-timestamp}.
+     */
+    function clock() public view virtual returns (uint48) {
+        return Time.timestamp();
+    }
+
+    /// @inheritdoc IERC6372
+    // solhint-disable-next-line func-name-mixedcase
+    function CLOCK_MODE() public pure virtual returns (string memory) {
+        return "mode=timestamp";
     }
 
     /**
