@@ -152,6 +152,42 @@ describe('GovernorTimelockCompound', function () {
               .to.be.revertedWithCustomError(this.mock, 'GovernorDuplicateProposalAction')
               .withArgs(1n);
           });
+
+          it('if proposal is empty', async function () {
+            this.helper.setProposal([], '<proposal description>');
+
+            await expect(this.helper.propose())
+              .to.be.revertedWithCustomError(this.mock, 'GovernorInvalidProposalLength')
+              .withArgs(0n, 0n, 0n);
+          });
+
+          it('if targets/values lengths mismatch', async function () {
+            this.helper.setProposal(
+              {
+                targets: [this.receiver.target],
+                values: [],
+                data: [this.receiver.interface.encodeFunctionData('mockFunction')],
+              },
+              '<proposal description>',
+            );
+            await expect(this.helper.propose())
+              .to.be.revertedWithCustomError(this.mock, 'GovernorInvalidProposalLength')
+              .withArgs(1n, 1n, 0n);
+          });
+
+          it('if targets/calldatas lengths mismatch', async function () {
+            this.helper.setProposal(
+              {
+                targets: [this.receiver.target],
+                values: [0n],
+                data: [],
+              },
+              '<proposal description>',
+            );
+            await expect(this.helper.propose())
+              .to.be.revertedWithCustomError(this.mock, 'GovernorInvalidProposalLength')
+              .withArgs(1n, 0n, 1n);
+          });
         });
 
         describe('on execute', function () {
