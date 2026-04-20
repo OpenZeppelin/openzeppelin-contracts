@@ -44,7 +44,11 @@ npx @openzeppelin/upgrade-safe-transpiler -D \
   -q '@openzeppelin/'
 
 # create alias to Initializable and UUPSUpgradeable
-cp $DIRNAME/alias/*.sol contracts/proxy/utils/.
+cp $DIRNAME/alias/Initializable.sol contracts/proxy/utils/.
+cp $DIRNAME/alias/UUPSUpgradeable.sol contracts/proxy/utils/.
+
+# create alias to ReentrancyGuardUpgradeable
+cp $DIRNAME/alias/ReentrancyGuardUpgradeable.sol contracts/utils/.
 
 # delete compilation artifacts of vanilla code
 npm run clean
