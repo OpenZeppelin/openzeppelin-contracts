@@ -22,7 +22,7 @@ contract ERC4626StdTest is ERC4626Test {
 
     function setUp() public override {
         _underlying_ = address(_underlying);
-        _vault_ = address(new ERC4626Mock(_underlying_));
+        _vault_ = address(new ERC4626Mock(_underlying));
         _delta_ = 0;
         _vaultMayBeEmpty = true;
         _unlimitedAmount = true;
