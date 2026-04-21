@@ -60,18 +60,60 @@ describe('ERC7390', function () {
     ]) {
       const { chainType, reference, address } = nameCoder.decode(name, true);
       const binary = addressCoder.encode({ chainType, reference, address });
+      const binaryExtra = ethers.concat([binary, '0x00']);
+
+      const expected = [
+        chainTypeCoder.decode(chainType),
+        CAIP350[chainType].reference.decode(reference),
+        CAIP350[chainType].address.decode(address),
+      ].map(ethers.hexlify);
 
       it(title, async function () {
-        const expected = [
-          chainTypeCoder.decode(chainType),
-          CAIP350[chainType].reference.decode(reference),
-          CAIP350[chainType].address.decode(address),
-        ].map(ethers.hexlify);
-
         await expect(this.mock.$parseV1(binary)).to.eventually.deep.equal(expected);
         await expect(this.mock.$parseV1Calldata(binary)).to.eventually.deep.equal(expected);
         await expect(this.mock.$tryParseV1(binary)).to.eventually.deep.equal([true, ...expected]);
         await expect(this.mock.$tryParseV1Calldata(binary)).to.eventually.deep.equal([true, ...expected]);
+
+        // default behavior: ignore trailing bytes
+        await expect(this.mock.$parseV1(binaryExtra)).to.eventually.deep.equal(expected);
+        await expect(this.mock.$parseV1Calldata(binaryExtra)).to.eventually.deep.equal(expected);
+        await expect(this.mock.$tryParseV1(binaryExtra)).to.eventually.deep.equal([true, ...expected]);
+        await expect(this.mock.$tryParseV1Calldata(binaryExtra)).to.eventually.deep.equal([true, ...expected]);
+
+        // explicitly ignore trailing bytes
+        await expect(this.mock.$parseV1(binaryExtra, ethers.Typed.bool(false))).to.eventually.deep.equal(expected);
+        await expect(this.mock.$parseV1Calldata(binaryExtra, ethers.Typed.bool(false))).to.eventually.deep.equal(
+          expected,
+        );
+        await expect(this.mock.$tryParseV1(binaryExtra, ethers.Typed.bool(false))).to.eventually.deep.equal([
+          true,
+          ...expected,
+        ]);
+        await expect(this.mock.$tryParseV1Calldata(binaryExtra, ethers.Typed.bool(false))).to.eventually.deep.equal([
+          true,
+          ...expected,
+        ]);
+
+        // reject trailing bytes
+        await expect(this.mock.$parseV1(binaryExtra, ethers.Typed.bool(true)))
+          .to.be.revertedWithCustomError(this.mock, 'InteroperableAddressParsingError')
+          .withArgs(binaryExtra);
+        await expect(this.mock.$parseV1Calldata(binaryExtra, ethers.Typed.bool(true)))
+          .to.be.revertedWithCustomError(this.mock, 'InteroperableAddressParsingError')
+          .withArgs(binaryExtra);
+        await expect(this.mock.$tryParseV1(binaryExtra, ethers.Typed.bool(true))).to.eventually.deep.equal([
+          false,
+          '0x0000',
+          '0x',
+          '0x',
+        ]);
+        await expect(this.mock.$tryParseV1Calldata(binaryExtra, ethers.Typed.bool(true))).to.eventually.deep.equal([
+          false,
+          '0x0000',
+          '0x',
+          '0x',
+        ]);
+
         await expect(this.mock.$formatV1(...expected)).to.eventually.equal(binary);
 
         if (chainType == 'eip155') {
@@ -93,6 +135,60 @@ describe('ERC7390', function () {
             reference ?? 0n,
             address ?? ethers.ZeroAddress,
           ]);
+
+          // default behavior: ignore trailing bytes
+          await expect(this.mock.$parseEvmV1(binaryExtra)).to.eventually.deep.equal([
+            reference ?? 0n,
+            address ?? ethers.ZeroAddress,
+          ]);
+          await expect(this.mock.$parseEvmV1Calldata(binaryExtra)).to.eventually.deep.equal([
+            reference ?? 0n,
+            address ?? ethers.ZeroAddress,
+          ]);
+          await expect(this.mock.$tryParseEvmV1(binaryExtra)).to.eventually.deep.equal([
+            true,
+            reference ?? 0n,
+            address ?? ethers.ZeroAddress,
+          ]);
+          await expect(this.mock.$tryParseEvmV1Calldata(binaryExtra)).to.eventually.deep.equal([
+            true,
+            reference ?? 0n,
+            address ?? ethers.ZeroAddress,
+          ]);
+
+          // explicitly ignore trailing bytes
+          await expect(this.mock.$parseEvmV1(binaryExtra, ethers.Typed.bool(false))).to.eventually.deep.equal([
+            reference ?? 0n,
+            address ?? ethers.ZeroAddress,
+          ]);
+          await expect(this.mock.$parseEvmV1Calldata(binaryExtra, ethers.Typed.bool(false))).to.eventually.deep.equal([
+            reference ?? 0n,
+            address ?? ethers.ZeroAddress,
+          ]);
+          await expect(this.mock.$tryParseEvmV1(binaryExtra, ethers.Typed.bool(false))).to.eventually.deep.equal([
+            true,
+            reference ?? 0n,
+            address ?? ethers.ZeroAddress,
+          ]);
+          await expect(
+            this.mock.$tryParseEvmV1Calldata(binaryExtra, ethers.Typed.bool(false)),
+          ).to.eventually.deep.equal([true, reference ?? 0n, address ?? ethers.ZeroAddress]);
+
+          // reject trailing bytes
+          await expect(this.mock.$parseEvmV1(binaryExtra, ethers.Typed.bool(true)))
+            .to.be.revertedWithCustomError(this.mock, 'InteroperableAddressParsingError')
+            .withArgs(binaryExtra);
+          await expect(this.mock.$parseEvmV1Calldata(binaryExtra, ethers.Typed.bool(true)))
+            .to.be.revertedWithCustomError(this.mock, 'InteroperableAddressParsingError')
+            .withArgs(binaryExtra);
+          await expect(this.mock.$tryParseEvmV1(binaryExtra, ethers.Typed.bool(true))).to.eventually.deep.equal([
+            false,
+            0n,
+            ethers.ZeroAddress,
+          ]);
+          await expect(this.mock.$tryParseEvmV1Calldata(binaryExtra, ethers.Typed.bool(true))).to.eventually.deep.equal(
+            [false, 0n, ethers.ZeroAddress],
+          );
 
           if (!address) {
             await expect(this.mock.$formatEvmV1(ethers.Typed.uint256(reference))).to.eventually.equal(

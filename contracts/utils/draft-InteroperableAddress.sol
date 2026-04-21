@@ -75,19 +75,51 @@ library InteroperableAddress {
     function parseV1(
         bytes memory self
     ) internal pure returns (bytes2 chainType, bytes memory chainReference, bytes memory addr) {
+        return parseV1(self, false);
+    }
+
+    /**
+     * @dev Parse a ERC-7930 interoperable address (version 1) into its different components. Reverts if the input is
+     * not following a version 1 of ERC-7930.
+     *
+     * NOTE: If `failOnExtraBytes` is false, trailing bytes after a valid v1 encoding are ignored. The same decoded
+     * address may therefore correspond to multiple distinct input byte strings. If `failOnExtraBytes` is true, then
+     * any trailing byte will cause this function to revert.
+     */
+    function parseV1(
+        bytes memory self,
+        bool failOnExtraBytes
+    ) internal pure returns (bytes2 chainType, bytes memory chainReference, bytes memory addr) {
         bool success;
-        (success, chainType, chainReference, addr) = tryParseV1(self);
+        (success, chainType, chainReference, addr) = tryParseV1(self, failOnExtraBytes);
         require(success, InteroperableAddressParsingError(self));
     }
 
     /**
      * @dev Variant of {parseV1} that handles calldata slices to reduce memory copy costs.
+     *
+     * NOTE: Trailing bytes after a valid v1 encoding are ignored. The same decoded address may therefore correspond
+     * to multiple distinct input byte strings.
      */
     function parseV1Calldata(
         bytes calldata self
     ) internal pure returns (bytes2 chainType, bytes calldata chainReference, bytes calldata addr) {
+        return parseV1Calldata(self, false);
+    }
+
+    /**
+     * @dev Variant of {parseV1} that handles calldata slices to reduce memory copy costs.
+     *
+     * NOTE: If `failOnExtraBytes` is false, trailing bytes after a valid v1 encoding are ignored. The same decoded
+     * address may therefore correspond to multiple distinct input byte strings. If `failOnExtraBytes` is true, then
+     * any trailing byte will cause this function to revert.
+     */
+    function parseV1Calldata(
+        bytes calldata self,
+        bool failOnExtraBytes
+    ) internal pure returns (bytes2 chainType, bytes calldata chainReference, bytes calldata addr) {
         bool success;
-        (success, chainType, chainReference, addr) = tryParseV1Calldata(self);
+        (success, chainType, chainReference, addr) = tryParseV1Calldata(self, failOnExtraBytes);
         require(success, InteroperableAddressParsingError(self));
     }
 
@@ -97,6 +129,19 @@ library InteroperableAddress {
      */
     function tryParseV1(
         bytes memory self
+    ) internal pure returns (bool success, bytes2 chainType, bytes memory chainReference, bytes memory addr) {
+        return tryParseV1(self, false);
+    }
+
+    /**
+     * @dev Variant of {parseV1} that does not revert on invalid input. Instead, it returns `false` as the first
+     * return value to indicate parsing failure when the input does not follow version 1 of ERC-7930.
+     *
+     * The extra `failOnExtraBytes` parameter can be used to reject input that have trailing bytes.
+     */
+    function tryParseV1(
+        bytes memory self,
+        bool failOnExtraBytes
     ) internal pure returns (bool success, bytes2 chainType, bytes memory chainReference, bytes memory addr) {
         unchecked {
             if (self.length < 0x06) return (false, 0x0000, _emptyBytesMemory(), _emptyBytesMemory());
@@ -110,8 +155,10 @@ library InteroperableAddress {
             chainReference = self.slice(0x05, 0x05 + chainReferenceLength);
 
             uint256 addrLength = uint8(self[0x05 + chainReferenceLength]);
-            if (self.length < 0x06 + chainReferenceLength + addrLength)
-                return (false, 0x0000, _emptyBytesMemory(), _emptyBytesMemory());
+            if (
+                (self.length < 0x06 + chainReferenceLength + addrLength) ||
+                (failOnExtraBytes && self.length > 0x06 + chainReferenceLength + addrLength)
+            ) return (false, 0x0000, _emptyBytesMemory(), _emptyBytesMemory());
             addr = self.slice(0x06 + chainReferenceLength, 0x06 + chainReferenceLength + addrLength);
 
             // At least one of chainReference or addr must be non-empty
@@ -126,6 +173,18 @@ library InteroperableAddress {
     function tryParseV1Calldata(
         bytes calldata self
     ) internal pure returns (bool success, bytes2 chainType, bytes calldata chainReference, bytes calldata addr) {
+        return tryParseV1Calldata(self, false);
+    }
+
+    /**
+     * @dev Variant of {tryParseV1} that handles calldata slices to reduce memory copy costs.
+     *
+     * The extra `failOnExtraBytes` parameter can be used to reject input that have trailing bytes.
+     */
+    function tryParseV1Calldata(
+        bytes calldata self,
+        bool failOnExtraBytes
+    ) internal pure returns (bool success, bytes2 chainType, bytes calldata chainReference, bytes calldata addr) {
         unchecked {
             if (self.length < 0x06) return (false, 0x0000, Calldata.emptyBytes(), Calldata.emptyBytes());
 
@@ -138,8 +197,10 @@ library InteroperableAddress {
             chainReference = self[0x05:0x05 + chainReferenceLength];
 
             uint256 addrLength = uint8(self[0x05 + chainReferenceLength]);
-            if (self.length < 0x06 + chainReferenceLength + addrLength)
-                return (false, 0x0000, Calldata.emptyBytes(), Calldata.emptyBytes());
+            if (
+                (self.length < 0x06 + chainReferenceLength + addrLength) ||
+                (failOnExtraBytes && self.length > 0x06 + chainReferenceLength + addrLength)
+            ) return (false, 0x0000, Calldata.emptyBytes(), Calldata.emptyBytes());
             addr = self[0x06 + chainReferenceLength:0x06 + chainReferenceLength + addrLength];
 
             // At least one of chainReference or addr must be non-empty
@@ -161,8 +222,18 @@ library InteroperableAddress {
      * * The underlying chainType must be "eip-155"
      */
     function parseEvmV1(bytes memory self) internal pure returns (uint256 chainId, address addr) {
+        return parseEvmV1(self, false);
+    }
+
+    /**
+     * @dev Variant of {parseEvmV1} with the `failOnExtraBytes` parameter.
+     */
+    function parseEvmV1(
+        bytes memory self,
+        bool failOnExtraBytes
+    ) internal pure returns (uint256 chainId, address addr) {
         bool success;
-        (success, chainId, addr) = tryParseEvmV1(self);
+        (success, chainId, addr) = tryParseEvmV1(self, failOnExtraBytes);
         require(success, InteroperableAddressParsingError(self));
     }
 
@@ -170,8 +241,18 @@ library InteroperableAddress {
      * @dev Variant of {parseEvmV1} that handles calldata slices to reduce memory copy costs.
      */
     function parseEvmV1Calldata(bytes calldata self) internal pure returns (uint256 chainId, address addr) {
+        return parseEvmV1Calldata(self, false);
+    }
+
+    /**
+     * @dev Variant of {parseEvmV1} that handles calldata slices to reduce memory copy costs and that supports the `failOnExtraBytes` parameter.
+     */
+    function parseEvmV1Calldata(
+        bytes calldata self,
+        bool failOnExtraBytes
+    ) internal pure returns (uint256 chainId, address addr) {
         bool success;
-        (success, chainId, addr) = tryParseEvmV1Calldata(self);
+        (success, chainId, addr) = tryParseEvmV1Calldata(self, failOnExtraBytes);
         require(success, InteroperableAddressParsingError(self));
     }
 
@@ -180,7 +261,22 @@ library InteroperableAddress {
      * return value to indicate parsing failure when the input does not follow version 1 of ERC-7930.
      */
     function tryParseEvmV1(bytes memory self) internal pure returns (bool success, uint256 chainId, address addr) {
-        (bool success_, bytes2 chainType_, bytes memory chainReference_, bytes memory addr_) = tryParseV1(self);
+        return tryParseEvmV1(self, false);
+    }
+
+    /**
+     * @dev Variant of {parseEvmV1} that does not revert on invalid input. Instead, it returns `false` as the first
+     * return value to indicate parsing failure when the input does not follow version 1 of ERC-7930. Supports the
+     * `failOnExtraBytes` parameter.
+     */
+    function tryParseEvmV1(
+        bytes memory self,
+        bool failOnExtraBytes
+    ) internal pure returns (bool success, uint256 chainId, address addr) {
+        (bool success_, bytes2 chainType_, bytes memory chainReference_, bytes memory addr_) = tryParseV1(
+            self,
+            failOnExtraBytes
+        );
         return
             (success_ &&
                 chainType_ == 0x0000 &&
@@ -200,8 +296,20 @@ library InteroperableAddress {
     function tryParseEvmV1Calldata(
         bytes calldata self
     ) internal pure returns (bool success, uint256 chainId, address addr) {
+        return tryParseEvmV1Calldata(self, false);
+    }
+
+    /**
+     * @dev Variant of {tryParseEvmV1} that handles calldata slices to reduce memory copy costs and supports the
+     * `failOnExtraBytes` parameter.
+     */
+    function tryParseEvmV1Calldata(
+        bytes calldata self,
+        bool failOnExtraBytes
+    ) internal pure returns (bool success, uint256 chainId, address addr) {
         (bool success_, bytes2 chainType_, bytes calldata chainReference_, bytes calldata addr_) = tryParseV1Calldata(
-            self
+            self,
+            failOnExtraBytes
         );
         return
             (success_ &&
