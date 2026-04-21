@@ -155,11 +155,10 @@ library InteroperableAddress {
             chainReference = self.slice(0x05, 0x05 + chainReferenceLength);
 
             uint256 addrLength = uint8(self[0x05 + chainReferenceLength]);
-            if (
-                (self.length < 0x06 + chainReferenceLength + addrLength) ||
-                (failOnExtraBytes && self.length > 0x06 + chainReferenceLength + addrLength)
-            ) return (false, 0x0000, _emptyBytesMemory(), _emptyBytesMemory());
-            addr = self.slice(0x06 + chainReferenceLength, 0x06 + chainReferenceLength + addrLength);
+            uint256 expectedLength = 0x06 + chainReferenceLength + addrLength;
+            if ((self.length < expectedLength) || (failOnExtraBytes && self.length > expectedLength))
+                return (false, 0x0000, _emptyBytesMemory(), _emptyBytesMemory());
+            addr = self.slice(0x06 + chainReferenceLength, expectedLength);
 
             // At least one of chainReference or addr must be non-empty
             success = (chainReferenceLength > 0) || (addrLength > 0);
@@ -197,11 +196,10 @@ library InteroperableAddress {
             chainReference = self[0x05:0x05 + chainReferenceLength];
 
             uint256 addrLength = uint8(self[0x05 + chainReferenceLength]);
-            if (
-                (self.length < 0x06 + chainReferenceLength + addrLength) ||
-                (failOnExtraBytes && self.length > 0x06 + chainReferenceLength + addrLength)
-            ) return (false, 0x0000, Calldata.emptyBytes(), Calldata.emptyBytes());
-            addr = self[0x06 + chainReferenceLength:0x06 + chainReferenceLength + addrLength];
+            uint256 expectedLength = 0x06 + chainReferenceLength + addrLength;
+            if ((self.length < expectedLength) || (failOnExtraBytes && self.length > expectedLength))
+                return (false, 0x0000, Calldata.emptyBytes(), Calldata.emptyBytes());
+            addr = self[0x06 + chainReferenceLength:expectedLength];
 
             // At least one of chainReference or addr must be non-empty
             success = (chainReferenceLength > 0) || (addrLength > 0);
