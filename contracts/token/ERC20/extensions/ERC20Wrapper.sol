@@ -43,7 +43,7 @@ abstract contract ERC20Wrapper is ERC20 {
      */
     function decimals() public view virtual override returns (uint8) {
         (bool success, uint8 decimals_) = SafeERC20.tryGetDecimals(address(_underlying));
-        return uint8(Math.ternary(success, decimals_, super.decimals()));
+        return uint8(Math.ternary(success, decimals_, super.decimals())); // Safe cast. Both are uint8.
     }
 
     /**
