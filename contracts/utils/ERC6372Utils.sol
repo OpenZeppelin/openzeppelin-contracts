@@ -2,8 +2,8 @@
 
 pragma solidity ^0.8.24;
 
-import {IERC6372} from "../../../interfaces/IERC6372.sol";
-import {Time} from "../../../utils/types/Time.sol";
+import {IERC6372} from "../interfaces/IERC6372.sol";
+import {Time} from "./types/Time.sol";
 
 /**
  * @dev Utility library for the ERC-6372 clock standard.

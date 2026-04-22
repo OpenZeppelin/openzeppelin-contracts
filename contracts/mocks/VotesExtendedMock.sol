@@ -3,8 +3,8 @@
 pragma solidity ^0.8.24;
 
 import {VotesExtended} from "../governance/utils/VotesExtended.sol";
-import {ERC6372Utils} from "../token/ERC20/utils/ERC6372Utils.sol";
 import {Time} from "../utils/types/Time.sol";
+import {ERC6372Utils} from "../utils/ERC6372Utils.sol";
 
 abstract contract VotesExtendedMock is VotesExtended {
     mapping(address voter => uint256) private _votingUnits;

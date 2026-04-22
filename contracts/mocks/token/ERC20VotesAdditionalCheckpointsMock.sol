@@ -3,9 +3,9 @@ pragma solidity ^0.8.24;
 
 import {ERC20Votes} from "../../token/ERC20/extensions/ERC20Votes.sol";
 import {VotesExtended, Votes} from "../../governance/utils/VotesExtended.sol";
-import {ERC6372Utils} from "../../token/ERC20/utils/ERC6372Utils.sol";
 import {SafeCast} from "../../utils/math/SafeCast.sol";
 import {Time} from "../../utils/types/Time.sol";
+import {ERC6372Utils} from "../../utils/ERC6372Utils.sol";
 
 abstract contract ERC20VotesExtendedMock is ERC20Votes, VotesExtended {
     function _delegate(address account, address delegatee) internal virtual override(Votes, VotesExtended) {

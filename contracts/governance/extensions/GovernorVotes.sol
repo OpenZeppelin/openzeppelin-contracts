@@ -6,8 +6,8 @@ pragma solidity ^0.8.24;
 import {Governor} from "../Governor.sol";
 import {IVotes} from "../utils/IVotes.sol";
 import {IERC5805} from "../../interfaces/IERC5805.sol";
-import {ERC6372Utils} from "../../token/ERC20/utils/ERC6372Utils.sol";
 import {Time} from "../../utils/types/Time.sol";
+import {ERC6372Utils} from "../../utils/ERC6372Utils.sol";
 
 /**
  * @dev Extension of {Governor} for voting weight extraction from an {ERC20Votes} token, or since v4.5 an {ERC721Votes}

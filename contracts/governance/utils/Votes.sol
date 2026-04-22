@@ -11,7 +11,7 @@ import {Checkpoints} from "../../utils/structs/Checkpoints.sol";
 import {SafeCast} from "../../utils/math/SafeCast.sol";
 import {ECDSA} from "../../utils/cryptography/ECDSA.sol";
 import {Time} from "../../utils/types/Time.sol";
-import {ERC6372Utils} from "../../token/ERC20/utils/ERC6372Utils.sol";
+import {ERC6372Utils} from "../../utils/ERC6372Utils.sol";
 
 /**
  * @dev This is a base abstract contract that tracks voting units, which are a measure of voting power that can be
