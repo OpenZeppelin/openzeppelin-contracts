@@ -1,9 +1,5 @@
 # Changelog
 
-### Breaking changes
-
-- `ERC20Wrapper`: The `decimals()` function now uses `Math.ternary` for branchless selection, which evaluates both branches eagerly. This is safe for the default `ERC20.decimals()` (which returns a constant), but contracts that override `super.decimals()` to read from storage should also override `ERC20Wrapper.decimals()` and use a conditional ternary instead. ([#6482](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6482))
-
 ## 5.6.1 (2026-02-27)
 
 - `InteroperableAddress`: Fix overflow in the parsing functions that caused silent misparse of large interoperable addresses. ([#6372](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6372))
