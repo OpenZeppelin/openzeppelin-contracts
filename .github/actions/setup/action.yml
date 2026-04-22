@@ -8,7 +8,7 @@ inputs:
   foundry:
     description: Whether to set up Foundry
     required: false
-    default: 'on' # 'off' | 'on' | <specific version>
+    default: 'off' # 'off' | 'on' | <specific version>
   java:
     description: Whether to set up Java
     required: false

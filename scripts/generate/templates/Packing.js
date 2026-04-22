@@ -1,7 +1,7 @@
-const format = require('../format-lines');
-const sanitize = require('../helpers/sanitize');
-const { product } = require('../../helpers');
-const { SIZES } = require('./Packing.opts');
+import format from '../format-lines.js';
+import * as sanitize from '../helpers/sanitize.js';
+import { product } from '../../helpers.js';
+import { SIZES } from './Packing.opts.js';
 
 // TEMPLATE
 const header = `\
@@ -74,7 +74,7 @@ function replace_${outer}_${inner}(bytes${outer} self, bytes${inner} value, uint
 `;
 
 // GENERATE
-module.exports = format(
+export default format(
   header.trimEnd(),
   'library Packing {',
   format(

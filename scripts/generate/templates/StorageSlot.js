@@ -1,5 +1,5 @@
-const format = require('../format-lines');
-const { TYPES } = require('./Slot.opts');
+import format from '../format-lines.js';
+import { TYPES } from './Slot.opts.js';
 
 const header = `\
 pragma solidity ^0.8.20;
@@ -64,7 +64,7 @@ function get${name}Slot(${type} storage store) internal pure returns (${name}Slo
 `;
 
 // GENERATE
-module.exports = format(
+export default format(
   header.trimEnd(),
   'library StorageSlot {',
   format(

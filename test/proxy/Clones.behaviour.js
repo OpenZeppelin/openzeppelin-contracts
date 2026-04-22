@@ -1,15 +1,14 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
+import { expect } from 'chai';
 
-module.exports = function shouldBehaveLikeClone() {
+export function shouldBehaveLikeClone() {
   const assertProxyInitialization = function ({ value, balance }) {
     it('initializes the proxy', async function () {
-      const dummy = await ethers.getContractAt('DummyImplementation', this.proxy);
+      const dummy = await this.ethers.getContractAt('DummyImplementation', this.proxy);
       expect(await dummy.value()).to.equal(value);
     });
 
     it('has expected balance', async function () {
-      expect(await ethers.provider.getBalance(this.proxy)).to.equal(balance);
+      expect(await this.ethers.provider.getBalance(this.proxy)).to.equal(balance);
     });
   };
 
@@ -20,9 +19,13 @@ module.exports = function shouldBehaveLikeClone() {
       await this.deployer.sendTransaction({ to: this.factory, value });
 
       const instance = await this.createClone({ deployValue: value });
-      await expect(instance.deploymentTransaction()).to.changeEtherBalances([this.factory, instance], [-value, value]);
+      await expect(instance.deploymentTransaction()).to.changeEtherBalances(
+        this.ethers,
+        [this.factory, instance],
+        [-value, value],
+      );
 
-      expect(await ethers.provider.getBalance(instance)).to.equal(value);
+      expect(await this.ethers.provider.getBalance(instance)).to.equal(value);
     });
 
     it('factory does not have enough balance', async function () {
@@ -47,7 +50,7 @@ module.exports = function shouldBehaveLikeClone() {
 
         assertProxyInitialization({
           value: expectedInitializedValue,
-          balance: 0,
+          balance: 0n,
         });
       });
 
@@ -55,7 +58,7 @@ module.exports = function shouldBehaveLikeClone() {
         const value = 10n ** 6n;
 
         it('reverts', async function () {
-          await expect(this.createClone({ initData: this.initializeData, initValue: value })).to.be.reverted;
+          await expect(this.createClone({ initData: this.initializeData, initValue: value })).to.be.revert(this.ethers);
         });
       });
     });
@@ -74,7 +77,7 @@ module.exports = function shouldBehaveLikeClone() {
 
         assertProxyInitialization({
           value: expectedInitializedValue,
-          balance: 0,
+          balance: 0n,
         });
       });
 
@@ -110,7 +113,7 @@ module.exports = function shouldBehaveLikeClone() {
 
         assertProxyInitialization({
           value: expectedInitializedValue,
-          balance: 0,
+          balance: 0n,
         });
       });
 
@@ -118,7 +121,7 @@ module.exports = function shouldBehaveLikeClone() {
         const value = 10n ** 6n;
 
         it('reverts', async function () {
-          await expect(this.createClone({ initData: this.initializeData, initValue: value })).to.be.reverted;
+          await expect(this.createClone({ initData: this.initializeData, initValue: value })).to.be.revert(this.ethers);
         });
       });
     });
@@ -139,7 +142,7 @@ module.exports = function shouldBehaveLikeClone() {
 
         assertProxyInitialization({
           value: expectedInitializedValue,
-          balance: 0,
+          balance: 0n,
         });
       });
 
@@ -157,4 +160,4 @@ module.exports = function shouldBehaveLikeClone() {
       });
     });
   });
-};
+}
