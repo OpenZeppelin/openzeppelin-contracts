@@ -2,7 +2,7 @@ import { network } from 'hardhat';
 import { expect } from 'chai';
 import { shouldBehaveLikeVotes } from '../../../governance/utils/Votes.behavior';
 
-const connection = await network.connect();
+const connection = await network.create();
 const {
   ethers,
   helpers: { time },

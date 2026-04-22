@@ -2,7 +2,7 @@ import { network } from 'hardhat';
 import { shouldBehaveLikeERC1271 } from './ERC1271.behavior';
 import { NonNativeSigner, P256SigningKey, RSASHA256SigningKey } from '../../helpers/signers';
 
-const { ethers } = await network.connect();
+const { ethers } = await network.create();
 
 describe('ERC7739', function () {
   describe('for an ECDSA signer', function () {

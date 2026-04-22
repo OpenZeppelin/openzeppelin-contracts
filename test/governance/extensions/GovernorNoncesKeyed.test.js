@@ -5,7 +5,7 @@ import { VoteType } from '../../helpers/enums';
 import { GovernorHelper } from '../../helpers/governance';
 import { shouldBehaveLikeNoncesKeyed } from '../../utils/Nonces.behavior';
 
-const connection = await network.connect();
+const connection = await network.create();
 const {
   ethers,
   networkHelpers: { loadFixture },

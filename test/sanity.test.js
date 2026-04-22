@@ -4,7 +4,7 @@ import { expect } from 'chai';
 const {
   ethers,
   networkHelpers: { loadFixture, mine },
-} = await network.connect();
+} = await network.create();
 
 async function fixture() {
   return {};

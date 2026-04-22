@@ -1,7 +1,7 @@
 import { network } from 'hardhat';
 import { expect } from 'chai';
 
-const { ethers } = await network.connect();
+const { ethers } = await network.create();
 
 const name = 'Non Fungible Token';
 const symbol = 'NFT';

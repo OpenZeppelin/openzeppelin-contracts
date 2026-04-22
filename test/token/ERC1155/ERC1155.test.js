@@ -4,7 +4,7 @@ import { RevertType } from '../../helpers/enums';
 import { zip } from '../../helpers/iterate';
 import { shouldBehaveLikeERC1155 } from './ERC1155.behavior';
 
-const connection = await network.connect();
+const connection = await network.create();
 const {
   ethers,
   networkHelpers: { loadFixture },

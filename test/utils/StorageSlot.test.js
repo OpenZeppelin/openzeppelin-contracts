@@ -5,7 +5,7 @@ import { generators } from '../helpers/random';
 const {
   ethers,
   networkHelpers: { loadFixture },
-} = await network.connect();
+} = await network.create();
 
 const slot = ethers.id('some.storage.slot');
 const otherSlot = ethers.id('some.other.storage.slot');

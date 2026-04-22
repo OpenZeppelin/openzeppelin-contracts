@@ -4,7 +4,7 @@ import { expect } from 'chai';
 const {
   ethers,
   networkHelpers: { loadFixture },
-} = await network.connect();
+} = await network.create();
 
 const ids = [42n, 1137n];
 const values = [3000n, 9902n];

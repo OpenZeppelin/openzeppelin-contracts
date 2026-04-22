@@ -4,7 +4,7 @@ import { expect } from 'chai';
 const {
   ethers,
   networkHelpers: { loadFixture },
-} = await network.connect();
+} = await network.create();
 
 const name = 'My Token';
 const symbol = 'MTKN';

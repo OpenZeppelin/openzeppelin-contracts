@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { PANIC_CODES } from '@nomicfoundation/hardhat-ethers-chai-matchers/panic';
 import { shouldBehaveLikeERC20, shouldBehaveLikeERC20Transfer, shouldBehaveLikeERC20Approve } from './ERC20.behavior';
 
-const connection = await network.connect();
+const connection = await network.create();
 const {
   ethers,
   networkHelpers: { loadFixture },

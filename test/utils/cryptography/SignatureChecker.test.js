@@ -6,7 +6,7 @@ import { P256SigningKey, NonNativeSigner } from '../../helpers/signers';
 const {
   ethers,
   networkHelpers: { loadFixture },
-} = await network.connect();
+} = await network.create();
 
 const TEST_MESSAGE = ethers.id('OpenZeppelin');
 const TEST_MESSAGE_HASH = ethers.hashMessage(TEST_MESSAGE);

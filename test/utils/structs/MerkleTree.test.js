@@ -8,7 +8,7 @@ import { range } from '../../helpers/iterate';
 const {
   ethers,
   networkHelpers: { loadFixture },
-} = await network.connect();
+} = await network.create();
 
 const DEPTH = 4; // 16 slots
 

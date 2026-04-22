@@ -32,7 +32,7 @@ import {
   testAsGetAccess,
 } from './AccessManager.predicate';
 
-const connection = await network.connect();
+const connection = await network.create();
 const {
   ethers,
   helpers: { impersonate, time },

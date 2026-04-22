@@ -6,7 +6,7 @@ import { generators } from '../helpers/random';
 const {
   ethers,
   networkHelpers: { loadFixture },
-} = await network.connect();
+} = await network.create();
 
 // Helper functions for fixed bytes types
 const bytes32 = value => ethers.toBeHex(value, 32);

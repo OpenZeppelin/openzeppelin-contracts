@@ -5,7 +5,7 @@ import { MAX_UINT32, MAX_UINT64 } from '../../helpers/constants';
 const {
   ethers,
   networkHelpers: { loadFixture },
-} = await network.connect();
+} = await network.create();
 
 async function fixture() {
   const [user, other] = await ethers.getSigners();

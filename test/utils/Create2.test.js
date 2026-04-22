@@ -6,7 +6,7 @@ import { RevertType } from '../helpers/enums';
 const {
   ethers,
   networkHelpers: { loadFixture },
-} = await network.connect();
+} = await network.create();
 
 async function fixture() {
   const [deployer, other] = await ethers.getSigners();

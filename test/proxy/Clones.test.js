@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { generators } from '../helpers/random';
 import { shouldBehaveLikeClone } from './Clones.behaviour';
 
-const connection = await network.connect();
+const connection = await network.create();
 const {
   ethers,
   networkHelpers: { loadFixture },

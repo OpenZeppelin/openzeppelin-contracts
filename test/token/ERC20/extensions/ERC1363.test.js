@@ -4,7 +4,7 @@ import { shouldBehaveLikeERC20, shouldBehaveLikeERC20Transfer, shouldBehaveLikeE
 import { shouldSupportInterfaces } from '../../../utils/introspection/SupportsInterface.behavior';
 import { RevertType } from '../../../helpers/enums';
 
-const connection = await network.connect();
+const connection = await network.create();
 const {
   ethers,
   networkHelpers: { loadFixture },

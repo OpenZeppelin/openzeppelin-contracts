@@ -6,7 +6,7 @@ import { generators } from '../helpers/random';
 const {
   ethers,
   networkHelpers: { loadFixture },
-} = await network.connect();
+} = await network.create();
 
 const formatSlice = ({ length, ptr = 0xa0 }) =>
   ethers.toBeHex((ethers.toBigInt(length) << 128n) | ethers.toBigInt(ptr), 32);

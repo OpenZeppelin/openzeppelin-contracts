@@ -4,7 +4,7 @@ import { shouldBehaveLikeRegularContext } from './Context.behavior';
 const {
   ethers,
   networkHelpers: { loadFixture },
-} = await network.connect();
+} = await network.create();
 
 async function fixture() {
   const [sender] = await ethers.getSigners();

@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { VoteType } from '../../helpers/enums';
 import { GovernorHelper } from '../../helpers/governance';
 
-const connection = await network.connect();
+const connection = await network.create();
 const {
   ethers,
   networkHelpers: { loadFixture },

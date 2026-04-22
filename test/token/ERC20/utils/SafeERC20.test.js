@@ -4,7 +4,7 @@ import { expect } from 'chai';
 const {
   ethers,
   networkHelpers: { loadFixture },
-} = await network.connect();
+} = await network.create();
 
 const name = 'ERC20Mock';
 const symbol = 'ERC20Mock';

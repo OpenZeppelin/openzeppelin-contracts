@@ -4,7 +4,7 @@ import { VoteType } from '../../helpers/enums';
 import { getDomain, OverrideBallot } from '../../helpers/eip712';
 import { GovernorHelper } from '../../helpers/governance';
 
-const connection = await network.connect();
+const connection = await network.create();
 const {
   ethers,
   networkHelpers: { loadFixture, mine },

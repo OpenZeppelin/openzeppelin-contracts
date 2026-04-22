@@ -5,7 +5,7 @@ import {
   shouldBehaveLikeERC721Enumerable,
 } from './ERC721.behavior';
 
-const connection = await network.connect();
+const connection = await network.create();
 const {
   ethers,
   networkHelpers: { loadFixture },

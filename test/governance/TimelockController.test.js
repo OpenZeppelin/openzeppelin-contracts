@@ -5,7 +5,7 @@ import { GovernorHelper } from '../helpers/governance';
 import { OperationState } from '../helpers/enums';
 import { shouldSupportInterfaces } from '../utils/introspection/SupportsInterface.behavior';
 
-const connection = await network.connect();
+const connection = await network.create();
 const {
   ethers,
   helpers: { time },

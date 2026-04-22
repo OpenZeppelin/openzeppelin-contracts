@@ -4,7 +4,7 @@ import { zip } from '../../helpers/iterate';
 import { sum } from '../../helpers/math';
 import { shouldBehaveLikeVotes } from './Votes.behavior';
 
-const connection = await network.connect();
+const connection = await network.create();
 const {
   ethers,
   helpers: { time },

@@ -5,7 +5,7 @@ import { PANIC_CODES } from '@nomicfoundation/hardhat-ethers-chai-matchers/panic
 import { VoteType } from '../../helpers/enums';
 import { GovernorHelper, timelockSalt } from '../../helpers/governance';
 
-const connection = await network.connect();
+const connection = await network.create();
 const {
   ethers,
   networkHelpers: { loadFixture },

@@ -7,7 +7,7 @@ import { shouldBehaveLikeSet } from './EnumerableSet.behavior';
 const {
   ethers,
   networkHelpers: { loadFixture },
-} = await network.connect();
+} = await network.create();
 
 const getMethods = (mock, fnSigs) =>
   mapValues(

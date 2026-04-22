@@ -5,7 +5,7 @@ import { sum } from '../../../helpers/math';
 const {
   ethers,
   networkHelpers: { loadFixture },
-} = await network.connect();
+} = await network.create();
 
 const name = 'Non Fungible Token';
 const symbol = 'NFT';

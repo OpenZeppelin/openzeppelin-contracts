@@ -6,7 +6,7 @@ import { shouldSupportInterfaces } from '../../../utils/introspection/SupportsIn
 const {
   ethers,
   networkHelpers: { loadFixture },
-} = await network.connect();
+} = await network.create();
 
 async function fixture() {
   const [holder, operator, recipient, other] = await ethers.getSigners();

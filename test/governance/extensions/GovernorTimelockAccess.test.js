@@ -7,7 +7,7 @@ import { GovernorHelper } from '../../helpers/governance';
 import { max } from '../../helpers/math';
 import { selector } from '../../helpers/methods';
 
-const connection = await network.connect();
+const connection = await network.create();
 const {
   ethers,
   helpers: { time },
@@ -248,7 +248,7 @@ describe('GovernorTimelockAccess', function () {
         await this.helper.waitForDeadline();
 
         // No need for queuing, so it should not revert
-        await expect(this.helper.execute()).to.not.be.reverted;
+        await expect(this.helper.execute()).to.not.be.revert(ethers);
       });
 
       it('does need to queue proposals with base delay', async function () {

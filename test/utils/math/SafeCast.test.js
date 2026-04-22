@@ -5,7 +5,7 @@ import { range } from '../../helpers/iterate';
 const {
   ethers,
   networkHelpers: { loadFixture },
-} = await network.connect();
+} = await network.create();
 
 async function fixture() {
   return { mock: await ethers.deployContract('$SafeCast') };

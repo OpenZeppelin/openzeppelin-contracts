@@ -6,7 +6,7 @@ import { ERC4337Utils, PersonalSign } from '../../helpers/erc7739';
 const {
   ethers,
   networkHelpers: { loadFixture },
-} = await network.connect();
+} = await network.create();
 
 const details = ERC4337Utils.getContentsDetail({ Permit });
 

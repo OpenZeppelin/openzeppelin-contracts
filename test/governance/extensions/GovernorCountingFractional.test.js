@@ -5,7 +5,7 @@ import { GovernorHelper } from '../../helpers/governance';
 import { zip } from '../../helpers/iterate';
 import { sum } from '../../helpers/math';
 
-const connection = await network.connect();
+const connection = await network.create();
 const {
   ethers,
   networkHelpers: { loadFixture },

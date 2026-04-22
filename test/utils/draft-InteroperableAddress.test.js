@@ -8,7 +8,7 @@ const {
   ethers,
   helpers: { chain },
   networkHelpers: { loadFixture },
-} = await network.connect();
+} = await network.create();
 
 async function fixture() {
   return { mock: await ethers.deployContract('$InteroperableAddress') };

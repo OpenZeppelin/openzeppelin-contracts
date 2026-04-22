@@ -5,7 +5,7 @@ import { shouldBehaveLikeERC2981 } from '../../common/ERC2981.behavior';
 const {
   ethers,
   networkHelpers: { loadFixture },
-} = await network.connect();
+} = await network.create();
 
 const name = 'Non Fungible Token';
 const symbol = 'NFT';

@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { anyValue } from '@nomicfoundation/hardhat-ethers-chai-matchers/withArgs';
 import { shouldBehaveLikeBridgeERC20 } from '../../../crosschain/BridgeERC20.behavior';
 
-const connection = await network.connect();
+const connection = await network.create();
 const { ethers, helpers, networkHelpers } = connection;
 
 async function fixture() {

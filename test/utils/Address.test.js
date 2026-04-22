@@ -5,7 +5,7 @@ import { PANIC_CODES } from '@nomicfoundation/hardhat-ethers-chai-matchers/panic
 const {
   ethers,
   networkHelpers: { loadFixture },
-} = await network.connect();
+} = await network.create();
 
 const fakeContract = { interface: ethers.Interface.from(['error SomeCustomErrorWithoutArgs()']) };
 const returndata = fakeContract.interface.encodeErrorResult('SomeCustomErrorWithoutArgs');

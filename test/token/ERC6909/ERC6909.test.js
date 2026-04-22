@@ -5,7 +5,7 @@ import { shouldBehaveLikeERC6909 } from './ERC6909.behavior';
 const {
   ethers,
   networkHelpers: { loadFixture },
-} = await network.connect();
+} = await network.create();
 
 async function fixture() {
   const [holder, operator, recipient, other] = await ethers.getSigners();

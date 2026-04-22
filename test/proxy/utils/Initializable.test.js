@@ -2,7 +2,7 @@ import { network } from 'hardhat';
 import { expect } from 'chai';
 import { MAX_UINT64 } from '../../helpers/constants';
 
-const { ethers } = await network.connect();
+const { ethers } = await network.create();
 
 describe('Initializable', function () {
   describe('basic testing without inheritance', function () {

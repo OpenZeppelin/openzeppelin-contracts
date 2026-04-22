@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { min } from '../helpers/math';
 import { envSetup, shouldBehaveLikeVesting } from './VestingWallet.behavior';
 
-const connection = await network.connect();
+const connection = await network.create();
 const {
   ethers,
   helpers: { time },

@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { max, min } from '../../../helpers/math';
 import { shouldBehaveLikeERC20 } from '../ERC20.behavior';
 
-const connection = await network.connect();
+const connection = await network.create();
 const {
   ethers,
   networkHelpers: { loadFixture },

@@ -1,7 +1,7 @@
 import { network } from 'hardhat';
 import { shouldBehaveLikeProxy } from '../Proxy.behaviour';
 
-const connection = await network.connect();
+const connection = await network.create();
 const {
   ethers,
   networkHelpers: { loadFixture },

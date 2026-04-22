@@ -8,7 +8,7 @@ import { shouldBehaveLikeAccountERC7579 } from '../extensions/AccountERC7579.beh
 import { shouldBehaveLikeERC1271 } from '../../utils/cryptography/ERC1271.behavior';
 import { shouldBehaveLikeERC7821 } from '../extensions/ERC7821.behavior';
 
-const connection = await network.connect();
+const connection = await network.create();
 const {
   ethers,
   networkHelpers: { loadFixture, setBalance },

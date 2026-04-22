@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { PANIC_CODES } from '@nomicfoundation/hardhat-ethers-chai-matchers/panic';
 import { SimpleMerkleTree } from '@openzeppelin/merkle-tree';
 
-const { ethers } = await network.connect();
+const { ethers } = await network.create();
 
 // generate bytes32 leaves from a string
 const toLeaves = (str, separator = '') => str.split(separator).map(e => ethers.keccak256(ethers.toUtf8Bytes(e)));

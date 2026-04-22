@@ -6,7 +6,7 @@ import { formatType } from '../../helpers/eip712-types';
 const {
   ethers,
   networkHelpers: { loadFixture },
-} = await network.connect();
+} = await network.create();
 
 const LENGTHS = {
   short: ['A Name', '1'],

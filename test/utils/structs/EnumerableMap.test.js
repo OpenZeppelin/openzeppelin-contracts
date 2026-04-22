@@ -7,7 +7,7 @@ import { shouldBehaveLikeMap } from './EnumerableMap.behavior';
 const {
   ethers,
   networkHelpers: { loadFixture },
-} = await network.connect();
+} = await network.create();
 
 // Add Bytes32ToBytes32Map that must be tested but is not part of the generated types.
 MAP_TYPES.unshift(toMapTypeDescr({ key: typeDescr({ type: 'bytes32' }), value: typeDescr({ type: 'bytes32' }) }));

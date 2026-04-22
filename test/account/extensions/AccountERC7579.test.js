@@ -6,7 +6,7 @@ import { shouldBehaveLikeAccountCore } from '../Account.behavior';
 import { shouldBehaveLikeAccountERC7579 } from './AccountERC7579.behavior';
 import { shouldBehaveLikeERC1271 } from '../../utils/cryptography/ERC1271.behavior';
 
-const connection = await network.connect();
+const connection = await network.create();
 const {
   ethers,
   networkHelpers: { loadFixture },

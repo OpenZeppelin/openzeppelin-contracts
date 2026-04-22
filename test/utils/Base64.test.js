@@ -4,7 +4,7 @@ import { expect } from 'chai';
 const {
   ethers,
   networkHelpers: { loadFixture },
-} = await network.connect();
+} = await network.create();
 
 // Replace "+/" with "-_" in the char table, and remove the padding
 // see https://datatracker.ietf.org/doc/html/rfc4648#section-5

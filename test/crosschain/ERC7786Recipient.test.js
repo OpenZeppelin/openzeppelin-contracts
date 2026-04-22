@@ -6,7 +6,7 @@ const {
   ethers,
   helpers,
   networkHelpers: { loadFixture },
-} = await network.connect();
+} = await network.create();
 
 const value = 42n;
 const payload = generators.hexBytes(128);

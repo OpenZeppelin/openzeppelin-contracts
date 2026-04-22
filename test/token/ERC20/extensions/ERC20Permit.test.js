@@ -6,7 +6,7 @@ const {
   ethers,
   helpers: { time },
   networkHelpers: { loadFixture },
-} = await network.connect();
+} = await network.create();
 
 const name = 'My Token';
 const symbol = 'MTKN';

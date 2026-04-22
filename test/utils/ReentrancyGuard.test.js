@@ -4,7 +4,7 @@ import { expect } from 'chai';
 const {
   ethers,
   networkHelpers: { loadFixture },
-} = await network.connect();
+} = await network.create();
 
 for (const variant of ['', 'Transient']) {
   describe(`Reentrancy${variant}Guard`, function () {

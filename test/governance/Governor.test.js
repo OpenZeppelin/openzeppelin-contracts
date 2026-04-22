@@ -6,7 +6,7 @@ import { GovernorHelper } from '../helpers/governance';
 import { shouldSupportInterfaces } from '../utils/introspection/SupportsInterface.behavior';
 import { shouldBehaveLikeERC6372 } from './utils/ERC6372.behavior';
 
-const connection = await network.connect();
+const connection = await network.create();
 const {
   ethers,
   helpers: { time },

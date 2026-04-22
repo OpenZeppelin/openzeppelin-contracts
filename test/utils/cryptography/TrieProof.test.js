@@ -10,7 +10,7 @@ import { batchInBlock } from '../../helpers/txpool';
 const {
   ethers,
   networkHelpers: { loadFixture },
-} = await network.connect();
+} = await network.create();
 
 const ProofError = Enum(
   'NO_ERROR', // No error occurred during proof traversal

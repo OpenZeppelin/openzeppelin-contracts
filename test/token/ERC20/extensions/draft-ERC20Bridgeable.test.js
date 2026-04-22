@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { shouldBehaveLikeERC20 } from '../ERC20.behavior';
 import { shouldSupportInterfaces } from '../../../utils/introspection/SupportsInterface.behavior';
 
-const connection = await network.connect();
+const connection = await network.create();
 const {
   ethers,
   networkHelpers: { loadFixture },

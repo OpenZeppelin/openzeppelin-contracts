@@ -5,7 +5,7 @@ import { OPTS } from '../../../scripts/generate/templates/Checkpoints.opts';
 const {
   ethers,
   networkHelpers: { loadFixture },
-} = await network.connect();
+} = await network.create();
 
 describe('Checkpoints', function () {
   for (const opt of OPTS) {

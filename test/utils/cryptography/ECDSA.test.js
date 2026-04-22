@@ -5,7 +5,7 @@ import { secp256k1 } from '@noble/curves/secp256k1.js';
 const {
   ethers,
   networkHelpers: { loadFixture },
-} = await network.connect();
+} = await network.create();
 
 const TEST_MESSAGE = ethers.id('OpenZeppelin');
 const WRONG_MESSAGE = ethers.id('Nope');

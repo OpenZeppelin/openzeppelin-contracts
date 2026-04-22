@@ -8,7 +8,7 @@ const {
   ethers,
   helpers: { time },
   networkHelpers: { loadFixture },
-} = await network.connect();
+} = await network.create();
 
 const ADDRESS_ONE = '0x0000000000000000000000000000000000000001';
 

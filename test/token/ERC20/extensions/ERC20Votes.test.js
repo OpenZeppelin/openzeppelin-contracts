@@ -4,7 +4,7 @@ import { Delegation, getDomain } from '../../../helpers/eip712';
 import { batchInBlock } from '../../../helpers/txpool';
 import { shouldBehaveLikeVotes } from '../../../governance/utils/Votes.behavior';
 
-const connection = await network.connect();
+const connection = await network.create();
 const {
   ethers,
   helpers: { time },

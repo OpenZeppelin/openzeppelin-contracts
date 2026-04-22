@@ -6,7 +6,7 @@ import { RevertType } from '../../../helpers/enums';
 const {
   ethers,
   networkHelpers: { loadFixture },
-} = await network.connect();
+} = await network.create();
 
 const firstTokenId = 1n;
 const secondTokenId = 2n;

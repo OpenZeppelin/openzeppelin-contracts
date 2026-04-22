@@ -6,7 +6,7 @@ import { SIZES } from '../../scripts/generate/templates/Packing.opts';
 const {
   ethers,
   networkHelpers: { loadFixture },
-} = await network.connect();
+} = await network.create();
 
 async function fixture() {
   return { mock: await ethers.deployContract('$Packing') };

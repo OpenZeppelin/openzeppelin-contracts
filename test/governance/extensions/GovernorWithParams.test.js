@@ -4,7 +4,7 @@ import { getDomain, ExtendedBallot } from '../../helpers/eip712';
 import { VoteType } from '../../helpers/enums';
 import { GovernorHelper } from '../../helpers/governance';
 
-const connection = await network.connect();
+const connection = await network.create();
 const {
   ethers,
   networkHelpers: { loadFixture },

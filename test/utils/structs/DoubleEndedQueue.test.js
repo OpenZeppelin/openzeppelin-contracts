@@ -5,7 +5,7 @@ import { PANIC_CODES } from '@nomicfoundation/hardhat-ethers-chai-matchers/panic
 const {
   ethers,
   networkHelpers: { loadFixture },
-} = await network.connect();
+} = await network.create();
 
 async function fixture() {
   const mock = await ethers.deployContract('$DoubleEndedQueue');

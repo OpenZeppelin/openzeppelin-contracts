@@ -2,7 +2,7 @@ import { network } from 'hardhat';
 import { expect } from 'chai';
 import { shouldBehaveLikeBridgeERC1155 } from '../../../crosschain/BridgeERC1155.behavior';
 
-const connection = await network.connect();
+const connection = await network.create();
 const { ethers, helpers, networkHelpers } = connection;
 
 async function fixture() {

@@ -5,7 +5,7 @@ import { shouldSupportInterfaces } from '../../../utils/introspection/SupportsIn
 const {
   ethers,
   networkHelpers: { loadFixture },
-} = await network.connect();
+} = await network.create();
 
 async function fixture() {
   return { token: await ethers.deployContract('$ERC6909Metadata') };

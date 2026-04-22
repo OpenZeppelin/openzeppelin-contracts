@@ -4,7 +4,7 @@ import { expect } from 'chai';
 const {
   ethers,
   networkHelpers: { loadFixture },
-} = await network.connect();
+} = await network.create();
 
 const erc1155Uri = 'https://token.com/nfts/';
 const baseUri = 'https://token.com/';

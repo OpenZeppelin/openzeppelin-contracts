@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { CHAINS, getLocalChain } from '../helpers/chains';
 import { generators } from '../helpers/random';
 
-const { ethers } = await network.connect();
+const { ethers } = await network.create();
 
 describe('CAIP utilities', function () {
   before(async function () {

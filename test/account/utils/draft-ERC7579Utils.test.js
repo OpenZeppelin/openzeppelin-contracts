@@ -16,7 +16,7 @@ import { selector } from '../../helpers/methods';
 const {
   ethers,
   networkHelpers: { loadFixture },
-} = await network.connect();
+} = await network.create();
 
 const fixture = async () => {
   const [sender] = await ethers.getSigners();

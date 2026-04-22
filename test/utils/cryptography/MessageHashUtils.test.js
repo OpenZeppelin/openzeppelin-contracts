@@ -6,7 +6,7 @@ import { generators } from '../../helpers/random';
 const {
   ethers,
   networkHelpers: { loadFixture },
-} = await network.connect();
+} = await network.create();
 
 async function fixture() {
   return { mock: await ethers.deployContract('$MessageHashUtils') };

@@ -1,7 +1,7 @@
 import { network } from 'hardhat';
 import { DEFAULT_ADMIN_ROLE, shouldBehaveLikeAccessControl } from './AccessControl.behavior';
 
-const connection = await network.connect();
+const connection = await network.create();
 const {
   ethers,
   networkHelpers: { loadFixture },

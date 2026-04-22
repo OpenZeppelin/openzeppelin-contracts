@@ -5,7 +5,7 @@ const {
   ethers,
   helpers,
   networkHelpers: { loadFixture },
-} = await network.connect();
+} = await network.create();
 
 async function fixture() {
   const [admin, roleMember, other] = await ethers.getSigners();

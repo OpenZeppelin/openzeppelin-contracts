@@ -5,7 +5,7 @@ const {
   ethers,
   helpers: { impersonate, time },
   networkHelpers: { loadFixture, setCode },
-} = await network.connect();
+} = await network.create();
 
 const SYSTEM_ADDRESS = '0xfffffffffffffffffffffffffffffffffffffffe';
 const HISTORY_SERVE_WINDOW = 8191;

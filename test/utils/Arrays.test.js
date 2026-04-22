@@ -7,7 +7,7 @@ import { TYPES } from '../../scripts/generate/templates/Arrays.opts';
 const {
   ethers,
   networkHelpers: { loadFixture },
-} = await network.connect();
+} = await network.create();
 
 // See https://en.cppreference.com/w/cpp/algorithm/lower_bound
 const lowerBound = (array, value) => {
