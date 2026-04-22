@@ -5,6 +5,7 @@ pragma solidity ^0.8.20;
 
 import {IERC20, IERC20Metadata, ERC20} from "../ERC20.sol";
 import {SafeERC20} from "../utils/SafeERC20.sol";
+import {Math} from "../../../utils/math/Math.sol";
 
 /**
  * @dev Extension of the ERC-20 token contract to support token wrapping.
@@ -33,13 +34,16 @@ abstract contract ERC20Wrapper is ERC20 {
         _underlying = underlyingToken;
     }
 
-    /// @inheritdoc IERC20Metadata
+    /**
+     * @dev See {IERC20Metadata}. Uses {Math-ternary} for branchless selection, which evaluates both branches. This is safe
+     * because the default {ERC20-decimals} is commonly a constant.
+     *
+     * NOTE: If a derived contract overrides `super.decimals()` to read from
+     * storage, it should also override this function and use a conditional ternary instead.
+     */
     function decimals() public view virtual override returns (uint8) {
-        try IERC20Metadata(address(_underlying)).decimals() returns (uint8 value) {
-            return value;
-        } catch {
-            return super.decimals();
-        }
+        (bool success, uint8 decimals_) = SafeERC20.tryGetDecimals(address(_underlying));
+        return uint8(Math.ternary(success, decimals_, super.decimals())); // Safe cast. Both are uint8.
     }
 
     /**

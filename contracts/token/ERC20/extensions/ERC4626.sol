@@ -97,26 +97,9 @@ abstract contract ERC4626 is ERC20, IERC4626 {
      * @dev Set the underlying asset contract. This must be an ERC20-compatible contract (ERC-20 or ERC-777).
      */
     constructor(IERC20 asset_) {
-        (bool success, uint8 assetDecimals) = _tryGetAssetDecimals(asset_);
+        (bool success, uint8 assetDecimals) = SafeERC20.tryGetDecimals(address(asset_));
         _underlyingDecimals = success ? assetDecimals : 18;
         _asset = asset_;
-    }
-
-    /**
-     * @dev Attempts to fetch the asset decimals. A return value of false indicates that the attempt failed in some way.
-     */
-    function _tryGetAssetDecimals(IERC20 asset_) private view returns (bool ok, uint8 assetDecimals) {
-        Memory.Pointer ptr = Memory.getFreeMemoryPointer();
-        (bool success, bytes32 returnedDecimals, ) = LowLevelCall.staticcallReturn64Bytes(
-            address(asset_),
-            abi.encodeCall(IERC20Metadata.decimals, ())
-        );
-        Memory.unsafeSetFreeMemoryPointer(ptr);
-
-        return
-            (success && LowLevelCall.returnDataSize() >= 32 && uint256(returnedDecimals) <= type(uint8).max)
-                ? (true, uint8(uint256(returnedDecimals)))
-                : (false, 0);
     }
 
     /**

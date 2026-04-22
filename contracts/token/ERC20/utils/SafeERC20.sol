@@ -5,6 +5,7 @@ pragma solidity ^0.8.20;
 
 import {IERC20} from "../IERC20.sol";
 import {IERC1363} from "../../../interfaces/IERC1363.sol";
+import {IERC20Metadata} from "../../../interfaces/IERC20Metadata.sol";
 
 /**
  * @title SafeERC20
@@ -161,6 +162,17 @@ library SafeERC20 {
             forceApprove(token, to, value);
         } else if (!token.approveAndCall(to, value, data)) {
             revert SafeERC20FailedOperation(address(token));
+        }
+    }
+
+    /// @dev Attempts to fetch the token decimals. A return value of false indicates that the attempt failed in some way.
+    function tryGetDecimals(address token) internal view returns (bool success, uint8 decimals) {
+        bytes4 selector = IERC20Metadata.decimals.selector;
+        assembly ("memory-safe") {
+            mstore(0x00, selector)
+            success := staticcall(gas(), token, 0x00, 4, 0x00, 0x20)
+            success := and(and(success, gt(returndatasize(), 0x1f)), lt(mload(0x00), 0x100))
+            decimals := mul(success, mload(0x00))
         }
     }
 
