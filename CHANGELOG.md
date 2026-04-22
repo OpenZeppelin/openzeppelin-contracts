@@ -1,5 +1,6 @@
 # Changelog
 
+
 ## 5.6.1 (2026-02-27)
 
 - `InteroperableAddress`: Fix overflow in the parsing functions that caused silent misparse of large interoperable addresses. ([#6372](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6372))
