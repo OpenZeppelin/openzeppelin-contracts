@@ -15,7 +15,7 @@ function shouldBehaveLikeERC6372(mode = 'blockNumber') {
 
     it('should have the correct CLOCK_MODE parameters', async function () {
       const clockModeParams = new URLSearchParams(await this.mock.CLOCK_MODE());
-      const expectedMode = mode === 'blockNumber' ? 'blocknumber' : mode;
+      const expectedMode = mode.toLowerCase();
       const expectedFromValue = mode === 'blockNumber' ? 'default' : null;
 
       expect(clockModeParams.get('mode')).to.equal(expectedMode, `Expected mode to be ${expectedMode}`);
