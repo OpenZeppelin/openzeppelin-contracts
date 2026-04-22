@@ -52,7 +52,7 @@ describe('Time', function () {
     });
 
     it('block number', async function () {
-      expect(await this.mock.$blockNumber()).to.equal(await time.clock.blocknumber());
+      expect(await this.mock.$blockNumber()).to.equal(await time.clock.blockNumber());
     });
   });
 
