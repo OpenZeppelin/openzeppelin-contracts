@@ -12,18 +12,18 @@ library ERC6372Utils {
     error ERC6372InconsistentClock();
 
     /// @dev Block number clock mode. Checks that the current `clock` was not modified.
-    function blockNumberClockMode(uint48 clock) internal view returns (string memory) {
+    function blockNumberClockMode(function() view returns (uint48) clock) internal view returns (string memory) {
         // Check that the clock was not modified
-        if (clock != Time.blockNumber()) {
+        if (clock() != Time.blockNumber()) {
             revert ERC6372InconsistentClock();
         }
         return "mode=blocknumber&from=default";
     }
 
     /// @dev Timestamp clock mode. Checks that the current `clock` was not modified.
-    function timestampClockMode(uint48 clock) internal view returns (string memory) {
+    function timestampClockMode(function() view returns (uint48) clock) internal view returns (string memory) {
         // Check that the clock was not modified
-        if (clock != Time.timestamp()) {
+        if (clock() != Time.timestamp()) {
             revert ERC6372InconsistentClock();
         }
         return "mode=timestamp";

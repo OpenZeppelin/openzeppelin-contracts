@@ -61,7 +61,7 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
      */
     // solhint-disable-next-line func-name-mixedcase
     function CLOCK_MODE() public view virtual returns (string memory) {
-        return ERC6372Utils.blockNumberClockMode(clock());
+        return ERC6372Utils.blockNumberClockMode(clock);
     }
 
     /**
