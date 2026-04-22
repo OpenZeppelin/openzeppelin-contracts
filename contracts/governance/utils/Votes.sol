@@ -11,6 +11,7 @@ import {Checkpoints} from "../../utils/structs/Checkpoints.sol";
 import {SafeCast} from "../../utils/math/SafeCast.sol";
 import {ECDSA} from "../../utils/cryptography/ECDSA.sol";
 import {Time} from "../../utils/types/Time.sol";
+import {ERC6372Utils} from "../../token/ERC20/utils/ERC6372Utils.sol";
 
 /**
  * @dev This is a base abstract contract that tracks voting units, which are a measure of voting power that can be
@@ -43,11 +44,6 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
     Checkpoints.Trace208 private _totalCheckpoints;
 
     /**
-     * @dev The clock was incorrectly modified.
-     */
-    error ERC6372InconsistentClock();
-
-    /**
      * @dev Lookup to future votes is not available.
      */
     error ERC5805FutureLookup(uint256 timepoint, uint48 clock);
@@ -65,11 +61,7 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
      */
     // solhint-disable-next-line func-name-mixedcase
     function CLOCK_MODE() public view virtual returns (string memory) {
-        // Check that the clock was not modified
-        if (clock() != Time.blockNumber()) {
-            revert ERC6372InconsistentClock();
-        }
-        return "mode=blocknumber&from=default";
+        return ERC6372Utils.blockNumberClockMode(clock());
     }
 
     /**
