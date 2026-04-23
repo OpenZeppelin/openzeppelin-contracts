@@ -97,7 +97,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
      * @dev Set the underlying asset contract. This must be an ERC20-compatible contract (ERC-20 or ERC-777).
      */
     constructor(IERC20 asset_) {
-        (bool success, uint8 assetDecimals) = SafeERC20.tryGetDecimals(address(asset_));
+        (bool success, uint8 assetDecimals) = SafeERC20.tryGetDecimals(asset_);
         _underlyingDecimals = success ? assetDecimals : 18;
         _asset = asset_;
     }
