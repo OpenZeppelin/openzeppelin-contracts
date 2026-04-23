@@ -15,6 +15,19 @@ async function fixture() {
   return { token, holder, operator, other };
 }
 
+async function overrideFixture() {
+  const [holder, operator, other] = await ethers.getSigners();
+
+  const token = await ethers.deployContract('ERC1155BurnableOverrideMock', [
+    'https://token-cdn-domain/{id}.json',
+    operator,
+  ]);
+  await token.mint(holder, ids[0], values[0], '0x');
+  await token.mint(holder, ids[1], values[1], '0x');
+
+  return { token, holder, operator, other };
+}
+
 describe('ERC1155Burnable', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
@@ -62,5 +75,31 @@ describe('ERC1155Burnable', function () {
         .to.be.revertedWithCustomError(this.token, 'ERC1155MissingApprovalForAll')
         .withArgs(this.other, this.holder);
     });
+  });
+});
+
+
+describe('ERC1155Burnable with overridden authorization', function () {
+  beforeEach(async function () {
+    Object.assign(this, await loadFixture(overrideFixture));
+  });
+
+  it('burn respects overridden _checkAuthorized semantics', async function () {
+    await expect(this.token.connect(this.holder).burn(this.holder, ids[0], values[0] - 1n))
+      .to.be.revertedWithCustomError(this.token, 'ERC1155MissingApprovalForAll')
+      .withArgs(this.holder, this.holder);
+
+    await this.token.connect(this.operator).burn(this.holder, ids[0], values[0] - 1n);
+    expect(await this.token.balanceOf(this.holder, ids[0])).to.equal(1n);
+  });
+
+  it('burnBatch respects overridden _checkAuthorized semantics', async function () {
+    await expect(this.token.connect(this.holder).burnBatch(this.holder, ids, [values[0] - 1n, values[1] - 2n]))
+      .to.be.revertedWithCustomError(this.token, 'ERC1155MissingApprovalForAll')
+      .withArgs(this.holder, this.holder);
+
+    await this.token.connect(this.operator).burnBatch(this.holder, ids, [values[0] - 1n, values[1] - 2n]);
+    expect(await this.token.balanceOf(this.holder, ids[0])).to.equal(1n);
+    expect(await this.token.balanceOf(this.holder, ids[1])).to.equal(2n);
   });
 });
