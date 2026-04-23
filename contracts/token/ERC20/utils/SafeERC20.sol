@@ -166,7 +166,7 @@ library SafeERC20 {
     }
 
     /// @dev Attempts to fetch the token decimals. A return value of false indicates that the attempt failed in some way.
-    function tryGetDecimals(address token) internal view returns (bool success, uint8 decimals) {
+    function tryGetDecimals(IERC20 token) internal view returns (bool success, uint8 decimals) {
         bytes4 selector = IERC20Metadata.decimals.selector;
         assembly ("memory-safe") {
             mstore(0x00, selector)

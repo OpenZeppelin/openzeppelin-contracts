@@ -42,7 +42,7 @@ abstract contract ERC20Wrapper is ERC20 {
      * storage, it should also override this function and use a conditional ternary instead.
      */
     function decimals() public view virtual override returns (uint8) {
-        (bool success, uint8 decimals_) = SafeERC20.tryGetDecimals(address(_underlying));
+        (bool success, uint8 decimals_) = SafeERC20.tryGetDecimals(_underlying);
         return uint8(Math.ternary(success, decimals_, super.decimals())); // Safe cast. Both are uint8.
     }
 
