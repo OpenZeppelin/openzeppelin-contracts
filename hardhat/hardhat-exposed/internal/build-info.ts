@@ -1,4 +1,4 @@
-import { CompilationJob, SolidityBuildInfo } from 'hardhat/types/solidity';
+import type { CompilationJob, SolidityBuildInfo } from 'hardhat/types/solidity';
 
 export async function compilationJobToAstOnlyBuildInfo(compilationJob: CompilationJob): Promise<SolidityBuildInfo> {
   const originalBuildId = await compilationJob.getBuildId();

@@ -32,27 +32,30 @@ export default async (): Promise<Partial<ConfigHooks>> => ({
     return results;
   },
 
-  resolveUserConfig: (userConfig, resolveConfigurationVariable, next) =>
-    next(userConfig, resolveConfigurationVariable).then(partiallyResolvedConfig => {
-      const makeAbsolutePath = (p: string) =>
-        path.isAbsolute(p) ? p : path.resolve(partiallyResolvedConfig.paths.root, p);
-      const outDir = makeAbsolutePath(userConfig.exposed?.outDir ?? 'contracts-exposed');
-      return {
-        ...partiallyResolvedConfig,
-        paths: {
-          ...partiallyResolvedConfig.paths,
-          sources: {
-            ...partiallyResolvedConfig.paths.sources,
-            solidity: [...partiallyResolvedConfig.paths.sources.solidity, outDir],
-          },
+  resolveUserConfig: async (userConfig, resolveConfigurationVariable, next) => {
+    const partiallyResolvedConfig = await next(userConfig, resolveConfigurationVariable);
+
+    const makeAbsolutePath = (p: string) =>
+      path.isAbsolute(p) ? p : path.resolve(partiallyResolvedConfig.paths.root, p);
+
+    const outDir = makeAbsolutePath(userConfig.exposed?.outDir ?? 'contracts-exposed');
+
+    return {
+      ...partiallyResolvedConfig,
+      paths: {
+        ...partiallyResolvedConfig.paths,
+        sources: {
+          ...partiallyResolvedConfig.paths.sources,
+          solidity: [...partiallyResolvedConfig.paths.sources.solidity, outDir],
         },
-        exposed: {
-          prefix: userConfig.exposed?.prefix ?? '$',
-          exclude: (userConfig.exposed?.exclude ?? []).map(makeAbsolutePath),
-          include: (userConfig.exposed?.include ?? ['**/*']).map(makeAbsolutePath),
-          outDir,
-          initializers: userConfig.exposed?.initializers ?? false,
-        },
-      };
-    }),
+      },
+      exposed: {
+        prefix: userConfig.exposed?.prefix ?? '$',
+        exclude: (userConfig.exposed?.exclude ?? []).map(makeAbsolutePath),
+        include: (userConfig.exposed?.include ?? ['**/*']).map(makeAbsolutePath),
+        outDir,
+        initializers: userConfig.exposed?.initializers ?? false,
+      },
+    };
+  },
 });

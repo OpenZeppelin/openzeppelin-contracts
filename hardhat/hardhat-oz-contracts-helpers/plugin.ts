@@ -1,6 +1,6 @@
 import type { HardhatPlugin } from 'hardhat/types/plugins';
 
-import type {} from './type-extensions.ts';
+export type * from './type-extensions.ts';
 
 const hardhatOzContractsHelpers: HardhatPlugin = {
   id: 'hardhat-oz-contracts-helpers',

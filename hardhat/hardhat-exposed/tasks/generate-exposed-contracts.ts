@@ -1,13 +1,13 @@
 import { createSpinner } from '@nomicfoundation/hardhat-utils/spinner';
 
-import { HardhatRuntimeEnvironment } from 'hardhat/types/hre';
-import { SolidityBuildInfo } from 'hardhat/types/solidity';
+import type { HardhatRuntimeEnvironment } from 'hardhat/types/hre';
+import type { SolidityBuildInfo } from 'hardhat/types/solidity';
+import type { Result } from 'hardhat/types/utils';
 import assert from 'node:assert';
 import path from 'node:path';
 import fs from 'node:fs';
-import { getExposed } from '../internal/expose';
-import { compilationJobToAstOnlyBuildInfo } from '../internal/build-info';
-import { Result } from 'hardhat/types/utils';
+import { getExposed } from '../internal/expose.ts';
+import { compilationJobToAstOnlyBuildInfo } from '../internal/build-info.ts';
 import { errorResult, successfulResult } from 'hardhat/utils/result';
 
 export type * from '../type-extensions';

@@ -1,5 +1,5 @@
-import { HardhatRuntimeEnvironment } from 'hardhat/types/hre';
-import { TaskArguments } from 'hardhat/types/tasks';
+import type { HardhatRuntimeEnvironment } from 'hardhat/types/hre';
+import type { TaskArguments } from 'hardhat/types/tasks';
 
 export interface BuildOverrideArguments {
   noExpose: boolean;
@@ -19,5 +19,5 @@ export default async function build(
     await exposeTask.run({ force });
   }
 
-  return runSuper(args);
+  return await runSuper(args);
 }
