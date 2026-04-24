@@ -76,9 +76,9 @@ contract ERC2771Forwarder is EIP712, Nonces {
     event ExecutedForwardRequest(address indexed signer, uint256 nonce, bool success);
 
     /**
-     * @dev One of the calls in an atomic batch failed.
+     * @dev A request in the batch failed and no `refundReceiver` was set to handle the leftover value.
      */
-    error ERC2771ForwarderFailureInAtomicBatch();
+    error ERC2771ForwarderNoRefundReceiver();
 
     /**
      * @dev The request `from` doesn't match with the recovered `signer`.
@@ -143,40 +143,34 @@ contract ERC2771Forwarder is EIP712, Nonces {
     }
 
     /**
-     * @dev Batch version of {execute} with optional refunding and atomic execution.
+     * @dev Batch version of {execute} with optional refunding.
      *
      * In case a batch contains at least one invalid request (see {verify}), the
      * request will be skipped and the `refundReceiver` parameter will receive back the
      * unused requested value at the end of the execution. This is done to prevent reverting
      * the entire batch when a request is invalid or has already been submitted.
      *
-     * If the `refundReceiver` is the `address(0)`, this function will revert when at least
-     * one of the requests was not valid instead of skipping it. This could be useful if
-     * a batch is required to get executed atomically (at least at the top-level). For example,
-     * refunding (and thus atomicity) can be opt-out if the relayer is using a service that avoids
-     * including reverted transactions.
+     * If the `refundReceiver` is `address(0)`, the function will instead revert
+     * when any request is invalid or when a valid request's forwarded call fails while
+     * carrying value (since there is no receiver to refund the leftover ETH to).
      *
      * Requirements:
      *
      * - The sum of the requests' values should be equal to the provided `msg.value`.
      * - All of the requests should be valid (see {verify}) when `refundReceiver` is the zero address.
-     *
-     * NOTE: Setting a zero `refundReceiver` guarantees an all-or-nothing requests execution only for
-     * the first-level forwarded calls. In case a forwarded request calls to a contract with another
-     * subcall, the second-level call may revert without the top-level call reverting.
      */
     function executeBatch(
         ForwardRequestData[] calldata requests,
         address payable refundReceiver
     ) public payable virtual {
-        bool atomic = refundReceiver == address(0);
+        bool requireValidRequests = refundReceiver == address(0);
 
         uint256 requestsValue;
         uint256 refundValue;
 
         for (uint256 i; i < requests.length; ++i) {
             requestsValue += requests[i].value;
-            bool success = _execute(requests[i], atomic);
+            bool success = _execute(requests[i], requireValidRequests);
             if (!success) {
                 refundValue += requests[i].value;
             }
@@ -189,9 +183,9 @@ contract ERC2771Forwarder is EIP712, Nonces {
         }
 
         // Some requests with value were invalid (possibly due to frontrunning).
-        // To avoid leaving ETH in the contract this value is refunded.
+        // To avoid leaving ETH in the contract, this value is refunded.
         if (refundValue != 0) {
-            if (atomic) revert ERC2771ForwarderFailureInAtomicBatch();
+            if (requireValidRequests) revert ERC2771ForwarderNoRefundReceiver();
 
             // We know refundReceiver != address(0) && requestsValue == msg.value
             // meaning we can ensure refundValue is not taken from the original contract's balance
