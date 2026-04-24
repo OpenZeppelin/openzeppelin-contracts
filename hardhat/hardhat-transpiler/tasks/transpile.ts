@@ -84,10 +84,12 @@ export default async function ({ settings }: { settings?: string }, hre: Hardhat
 
     // Delete originals files
     if (options.deleteOriginals) {
+      const alreadyInitializable = findAlreadyInitializable(output, options.initializablePath);
+
       ([] as string[])
         .concat(
           transpiled.map(t => t.path),
-          findAlreadyInitializable(output, options.initializablePath),
+          alreadyInitializable,
         )
         .map(p => path.join(hre.config.paths.root, p.replace(/^project\//, '')))
         .forEach(p => keep.add(p));
@@ -100,6 +102,22 @@ export default async function ({ settings }: { settings?: string }, hre: Hardhat
         .filter(s => s.startsWith(mainSourcesRel + '/'))
         .map(s => path.join(hre.config.paths.root, s.replace(/^project\//, '')))
         .forEach(p => seen.add(p));
+
+      // Already-initializable files are kept as-is in the main tree (not renamed, not
+      // transpiled). Their peer-tree copies, compiled alongside main, would produce
+      // duplicate artifacts for every contract inside (triggering HHE1001 at deploy
+      // time). Add the peer path for each already-initializable file to the delete set
+      // so the main tree's copy is the sole source of truth.
+      if (options.peerProject !== undefined) {
+        const peerSources = hre.config.paths.sources.solidity[1];
+        if (peerSources !== undefined) {
+          const peerSourcesRel = path.relative(hre.config.paths.root, peerSources);
+          alreadyInitializable
+            .filter(p => p.startsWith(mainSourcesRel + '/'))
+            .map(p => path.join(hre.config.paths.root, peerSourcesRel, path.relative(mainSourcesRel, p)))
+            .forEach(p => seen.add(p));
+        }
+      }
     }
   }
 
