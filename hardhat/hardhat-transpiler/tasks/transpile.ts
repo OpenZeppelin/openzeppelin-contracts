@@ -56,11 +56,20 @@ export default async function ({ settings }: { settings?: string }, hre: Hardhat
       s.ast.absolutePath = s.ast.absolutePath.replace(/^project\//, '');
     });
 
+    const mainSources = hre.config.paths.sources.solidity.at(0)!;
+    const mainSourcesRel = path.relative(hre.config.paths.root, mainSources);
+
+    // Peer-project sources are compiled so downstream imports resolve, but they must not
+    // enter the transpiler's transform set — the transpiler expects only main-project ASTs.
+    input.sources = Object.fromEntries(
+      Object.entries(input.sources).filter(([k]) => k.startsWith(mainSourcesRel + '/')),
+    );
+
     // Run transpilation on the first source folder
     const transpiled = await transpile(
       input,
       output,
-      { root: hre.config.paths.root, sources: hre.config.paths.sources.solidity.at(0)! },
+      { root: hre.config.paths.root, sources: mainSources },
       { ...options, solcVersion },
     );
 
@@ -88,6 +97,7 @@ export default async function ({ settings }: { settings?: string }, hre: Hardhat
       }
 
       Object.keys(output.sources)
+        .filter(s => s.startsWith(mainSourcesRel + '/'))
         .map(s => path.join(hre.config.paths.root, s.replace(/^project\//, '')))
         .forEach(p => seen.add(p));
     }
