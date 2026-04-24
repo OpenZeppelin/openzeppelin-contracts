@@ -109,6 +109,8 @@ Smart contracts are a nascent technology and carry a high level of technical ris
 
 OpenZeppelin Contracts is made available under the MIT License, which disclaims all warranties in relation to the project and which limits the liability of those that contribute and maintain the project, including OpenZeppelin. As set out further in the Terms, you acknowledge that you are solely responsible for any use of OpenZeppelin Contracts and you assume all risks associated with any such use.
 
+OpenZeppelin Contracts is a widely-used, community-audited library of secure smart contract components for Ethereum and compatible blockchains, designed to accelerate development while following best practices.
+
 ## Contribute
 
 OpenZeppelin Contracts exists thanks to its contributors. There are many ways you can participate and help build high quality software. Check out the [contribution guide](CONTRIBUTING.md)!
