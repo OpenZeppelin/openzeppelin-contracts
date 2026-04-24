@@ -8,6 +8,7 @@ import {SafeERC20} from "../token/ERC20/utils/SafeERC20.sol";
 import {Address} from "../utils/Address.sol";
 import {Context} from "../utils/Context.sol";
 import {Ownable} from "../access/Ownable.sol";
+import {ERC6372Utils} from "../utils/ERC6372Utils.sol";
 import {IERC6372} from "../interfaces/IERC6372.sol";
 import {Time} from "../utils/types/Time.sol";
 
@@ -53,17 +54,15 @@ contract VestingWallet is Context, Ownable, IERC6372 {
         _duration = durationSeconds;
     }
 
-    /**
-     * @dev Clock used for the vesting schedule, based on {Time-timestamp}.
-     */
+    /// @inheritdoc IERC6372
     function clock() public view virtual returns (uint48) {
         return Time.timestamp();
     }
 
     /// @inheritdoc IERC6372
     // solhint-disable-next-line func-name-mixedcase
-    function CLOCK_MODE() public pure virtual returns (string memory) {
-        return "mode=timestamp";
+    function CLOCK_MODE() public view virtual returns (string memory) {
+        return ERC6372Utils.timestampClockMode(clock());
     }
 
     /**
