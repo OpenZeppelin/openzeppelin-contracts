@@ -85,7 +85,7 @@ To build your own factory, see xref:accounts.adoc#accounts_factory[account facto
 
 A Paymaster is an optional entity that can sponsor gas fees for Accounts, or allow them to pay for those fees in ERC-20 instead of native currency. This abstracts gas away from the user experience in the same way that computational costs of cloud servers are abstracted away from end-users.
 
-To build your own paymaster, see https://docs.openzeppelin.com/community-contracts/0.0.1/paymasters[paymasters].
+To build your own paymaster, see xref:paymasters.adoc[paymasters].
 
 == Further notes
 

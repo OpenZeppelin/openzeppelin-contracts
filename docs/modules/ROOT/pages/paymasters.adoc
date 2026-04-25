@@ -1,0 +1,506 @@
+= Paymasters
+
+In case you want to sponsor user operations for your users, ERC-4337 defines a special type of contract called _paymaster_, whose purpose is to pay the gas fees consumed by the user operation.
+
+In the context of account abstraction, sponsoring user operations allows a third party to pay for transaction gas fees on behalf of users. This can improve user experience by eliminating the need for users to hold native cryptocurrency (like ETH) to pay for transactions.
+
+To enable sponsorship, users sign their user operations including a special field called `paymasterAndData`, resulting from the concatenation of the paymaster address they're intending to use and the associated calldata that's going to be passed into xref:api:utils/cryptography.adoc#PaymasterCore-validatePaymasterUserOp[`validatePaymasterUserOp`]. The EntryPoint will use this field to determine whether it is willing to pay for the user operation or not.
+
+== Signed Sponsorship
+
+The xref:api:account.adoc#PaymasterSigner[`PaymasterSigner`] implements signature-based sponsorship via authorization signatures, allowing designated paymaster signers to authorize and sponsor specific user operations without requiring users to hold native ETH.
+
+TIP: Learn more about xref:accounts.adoc#selecting_a_signer[signers] to explore different approaches to user operation sponsorship via signatures.
+
+[source,solidity]
+----
+include::api:example$account/paymaster/PaymasterECDSASigner.sol[]
+----
+
+TIP: xref:api:account.adoc#ERC4337Utils[`ERC4337Utils`] to facilitate the access to paymaster-related fields of the userOp (e.g. `paymasterData`, `paymasterVerificationGasLimit`)
+
+To implement signature-based sponsorship, you'll first need to deploy the paymaster contract. This contract will hold the ETH used to pay for user operations and verify signatures from your authorized signer. After deployment, you must fund the paymaster with ETH to cover gas costs for the operations it will sponsor:
+
+[source,typescript]
+----
+// Fund the paymaster with ETH
+await eoaClient.sendTransaction({
+  to: paymasterECDSASigner.address,
+  value: parseEther("0.01"),
+  data: encodeFunctionData({
+    abi: paymasterECDSASigner.abi,
+    functionName: "deposit",
+    args: [],
+  }),
+});
+----
+
+WARNING: Paymasters require sufficient ETH balance to pay for gas costs. If the paymaster runs out of funds, all operations it's meant to sponsor will fail. Consider implementing monitoring and automatic refilling of the paymaster's balance in production environments.
+
+When a user initiates an operation that requires sponsorship, your backend service (or other authorized entity) needs to sign the operation using EIP-712. This signature proves to the paymaster that it should cover the gas costs for this specific user operation:
+
+[source,typescript]
+----
+// Set validation window
+const now = Math.floor(Date.now() / 1000);
+const validAfter = now - 60; // Valid from 1 minute ago
+const validUntil = now + 3600; // Valid for 1 hour
+const paymasterVerificationGasLimit = 100_000n;
+const paymasterPostOpGasLimit = 300_000n;
+
+// Sign using EIP-712 typed data
+const paymasterSignature = await signer.signTypedData({
+  domain: {
+    chainId: await signerClient.getChainId(),
+    name: "MyPaymasterECDSASigner",
+    verifyingContract: paymasterECDSASigner.address,
+    version: "1",
+  },
+  types: {
+    UserOperationRequest: [
+      { name: "sender", type: "address" },
+      { name: "nonce", type: "uint256" },
+      { name: "initCode", type: "bytes" },
+      { name: "callData", type: "bytes" },
+      { name: "accountGasLimits", type: "bytes32" },
+      { name: "preVerificationGas", type: "uint256" },
+      { name: "gasFees", type: "bytes32" },
+      { name: "paymasterVerificationGasLimit", type: "uint256" },
+      { name: "paymasterPostOpGasLimit", type: "uint256" },
+      { name: "validAfter", type: "uint48" },
+      { name: "validUntil", type: "uint48" },
+    ],
+  },
+  primaryType: "UserOperationRequest",
+  message: {
+    sender: userOp.sender,
+    nonce: userOp.nonce,
+    initCode: userOp.initCode,
+    callData: userOp.callData,
+    accountGasLimits: userOp.accountGasLimits,
+    preVerificationGas: userOp.preVerificationGas,
+    gasFees: userOp.gasFees,
+    paymasterVerificationGasLimit,
+    paymasterPostOpGasLimit,
+    validAfter,
+    validUntil,
+  },
+});
+----
+
+The time window (`validAfter` and `validUntil`) prevents replay attacks and allows you to limit how long the signature remains valid. Once signed, the paymaster data needs to be formatted and attached to the user operation:
+
+[source,typescript]
+----
+userOp.paymasterAndData = encodePacked(
+  ["address", "uint128", "uint128", "bytes"],
+  [
+    paymasterECDSASigner.address,
+    paymasterVerificationGasLimit,
+    paymasterPostOpGasLimit,
+    encodePacked(
+      ["uint48", "uint48", "bytes"],
+      [validAfter, validUntil, paymasterSignature]
+    ),
+  ]
+);
+----
+
+TIP: The `paymasterVerificationGasLimit` and `paymasterPostOpGasLimit` values should be adjusted based on your paymaster's complexity. Higher values increase the gas cost but provide more execution headroom, reducing the risk of out-of-gas errors during validation or post-operation processing.
+
+With the paymaster data attached, the user operation can now be signed by the account signer and submitted to the EntryPoint contract:
+
+[source,typescript]
+----
+// Sign the user operation with the account owner
+const signedUserOp = await signUserOp(entrypoint, userOp);
+
+// Submit to the EntryPoint contract
+const userOpReceipt = await eoaClient.writeContract({
+  abi: EntrypointV09Abi,
+  address: entrypoint.address,
+  functionName: "handleOps",
+  args: [[signedUserOp], beneficiary.address],
+});
+----
+
+Behind the scenes, the EntryPoint will call the paymaster's `validatePaymasterUserOp` function, which verifies the signature and time window. If valid, the paymaster commits to paying for the operation's gas costs, and the EntryPoint executes the operation.
+
+== ERC20-based Sponsorship
+
+While signature-based sponsorship is useful for many applications, sometimes you want users to pay for their own transactions but using tokens instead of ETH. The xref:api:account.adoc#PaymasterERC20[`PaymasterERC20`] allows users to pay for gas fees using ERC-20 tokens. Developers must implement an xref:api:account.adoc#PaymasterERC20-_fetchDetails-struct-PackedUserOperation-bytes32-[`_fetchDetails`] to get the token price information from an oracle of their preference.
+
+[source,solidity]
+----
+function _fetchDetails(
+    PackedUserOperation calldata userOp,
+    bytes32 userOpHash
+) internal view override returns (uint256 validationData, IERC20 token, uint256 tokenPrice) {
+    // Implement logic to fetch the token and token price from the userOp
+}
+----
+
+=== Using Oracles
+
+==== Chainlink Price Feeds
+
+A popular approach to implement price oracles is to use https://docs.chain.link/data-feeds/using-data-feeds[Chainlink's price feeds]. By using their https://docs.chain.link/data-feeds/api-reference#aggregatorv3interface[`AggregatorV3Interface`] developers determine the token-to-ETH exchange rate dynamically for their paymasters. This ensures fair pricing even as market rates fluctuate.
+
+Consider the following contract:
+
+[source,solidity]
+----
+// WARNING: Unaudited code.
+// Consider performing a security review before going to production.
+contract PaymasterUSDCChainlink is PaymasterERC20, Ownable {
+    // Values for sepolia
+    // See https://docs.chain.link/data-feeds/price-feeds/addresses
+    AggregatorV3Interface public constant USDC_USD_ORACLE =
+        AggregatorV3Interface(0xA2F78ab2355fe2f984D808B5CeE7FD0A93D5270E);
+    AggregatorV3Interface public constant ETH_USD_ORACLE =
+        AggregatorV3Interface(0x694AA1769357215DE4FAC081bf1f309aDC325306);
+
+    // See https://sepolia.etherscan.io/token/0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238
+    IERC20 private constant USDC =
+        IERC20(0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238);
+
+    constructor(address initialOwner) Ownable(initialOwner) {}
+
+    function _authorizeWithdraw() internal virtual override onlyOwner {}
+
+    function liveness() public view virtual returns (uint256) {
+        return 15 minutes; // Tolerate stale data
+    }
+
+    function _fetchDetails(
+        PackedUserOperation calldata userOp,
+        bytes32 /* userOpHash */
+    ) internal view virtual override returns (uint256 validationData, IERC20 token, uint256 tokenPrice) {
+        (uint256 validationData_, uint256 price) = _fetchOracleDetails(userOp);
+        return (
+            validationData_,
+            USDC,
+            price
+        );
+    }
+
+    function _fetchOracleDetails(
+        PackedUserOperation calldata /* userOp */
+    )
+        internal
+        view
+        virtual
+        returns (uint256 validationData, uint256 tokenPrice)
+    {
+      // ...
+    }
+}
+----
+
+NOTE: The `PaymasterUSDCChainlink` contract uses specific Chainlink price feeds (ETH/USD and USDC/USD) on Sepolia. For production use or other networks, you'll need to modify the contract to use the appropriate price feed addresses.
+
+As you can see, a `_fetchOracleDetails` function is specified to fetch the token price that will be used as a reference for calculating the final ERC-20 payment. One can fetch and process price data from Chainlink oracles to determine the exchange rate between the price of a concrete ERC-20 and ETH. An example with USDC would be:
+
+1. Fetch the current `ETH/USD` and `USDC/USD` prices from their respective oracles.
+2. Calculate the `USDC/ETH` exchange rate using the formula: `USDC/ETH = (USDC/USD) / (ETH/USD)`. This gives us how many USDC tokens are needed to buy 1 ETH 
+
+NOTE: The price of the ERC-20 must be scaled by xref:api:account.adoc#PaymasterERC20-_tokenPriceDenominator--[`_tokenPriceDenominator`].
+
+Here's how an implementation of `_fetchOracleDetails` would look like using this approach:
+
+TIP: Use xref:api:account.adoc#ERC4337Utils-combineValidationData-uint256-uint256-[`ERC4337Utils.combineValidationData`] to merge two `validationData` values.
+
+[source,solidity]
+----
+// WARNING: Unaudited code.
+// Consider performing a security review before going to production.
+
+using SafeCast for *;
+using ERC4337Utils for *;
+
+function _fetchOracleDetails(
+    PackedUserOperation calldata /* userOp */
+)
+    internal
+    view
+    virtual
+    returns (uint256 validationData, uint256 tokenPrice)
+{
+    (uint256 ETHUSDValidationData, int256 ETHUSD) = _fetchPrice(
+        ETH_USD_ORACLE
+    );
+    (uint256 USDCUSDValidationData, int256 USDCUSD) = _fetchPrice(
+        USDC_USD_ORACLE
+    );
+
+    if (ETHUSD <= 0 || USDCUSD <= 0) {
+        // No negative prices
+        return (ERC4337Utils.SIG_VALIDATION_FAILED, 0);
+    }
+
+    // eth / usdc = (usdc / usd) / (eth / usd) = usdc * usd / eth * usd = usdc / eth
+    int256 scale = _tokenPriceDenominator().toInt256();
+    int256 scaledUSDCUSD = USDCUSD * scale * (10 ** ETH_USD_ORACLE.decimals()).toInt256();
+    int256 scaledUSDCETH = scaledUSDCUSD / (ETHUSD * (10 ** USDC_USD_ORACLE.decimals()).toInt256());
+
+    return (
+        ETHUSDValidationData.combineValidationData(USDCUSDValidationData),
+        uint256(scaledUSDCETH) // Safe upcast
+    );
+}
+
+function _fetchPrice(
+    AggregatorV3Interface oracle
+) internal view virtual returns (uint256 validationData, int256 price) {
+    (
+        uint80 roundId,
+        int256 price_,
+        ,
+        uint256 timestamp,
+        uint80 answeredInRound
+    ) = oracle.latestRoundData();
+    if (
+        price_ == 0 || // No data
+        answeredInRound < roundId || // Not answered in round
+        timestamp == 0 || // Incomplete round
+        block.timestamp - timestamp > liveness() // Stale data
+    ) {
+        return (ERC4337Utils.SIG_VALIDATION_FAILED, 0);
+    }
+    return (ERC4337Utils.SIG_VALIDATION_SUCCESS, price_);
+}
+----
+
+NOTE: An important difference with token-based sponsorship is that the user's smart account must first approve the paymaster to spend their tokens. You might want to incorporate this approval as part of your account initialization process, or check if approval is needed before executing an operation.
+
+The PaymasterERC20 contract follows a pre-charge and refund model:
+
+1. During validation, it pre-charges the maximum possible gas cost
+2. After execution, it refunds any unused gas back to the user
+
+This model ensures the paymaster can always cover gas costs, while only charging users for the actual gas used.
+
+[source,typescript]
+----
+const paymasterVerificationGasLimit = 150_000n;
+const paymasterPostOpGasLimit = 300_000n;
+
+userOp.paymasterAndData = encodePacked(
+  ["address", "uint128", "uint128", "bytes"],
+  [
+    paymasterUSDCChainlink.address,
+    paymasterVerificationGasLimit,
+    paymasterPostOpGasLimit,
+    "0x" // No additional data needed
+  ]
+);
+----
+
+For the rest, you can sign the user operation as you would normally do once the `paymasterAndData` field has been set.
+
+[source,typescript]
+----
+// Sign the user operation with the account owner
+const signedUserOp = await signUserOp(entrypoint, userOp);
+
+// Submit to the EntryPoint contract
+const userOpReceipt = await eoaClient.writeContract({
+  abi: EntrypointV09Abi,
+  address: entrypoint.address,
+  functionName: "handleOps",
+  args: [[signedUserOp], beneficiary.address],
+});
+----
+
+WARNING: Oracle-based pricing relies on the accuracy and freshness of price feeds. The `PaymasterUSDCChainlink` includes safety checks for stale data, but you should still monitor for extreme market volatility that could affect your users.
+
+=== Using a Guarantor
+
+There are multiple valid cases where the user might not have enough tokens to pay for the transaction before it takes place. For example, if the user is claiming an airdrop, they might need their first transaction to be sponsored. For those cases, the xref:api:account.adoc#PaymasterERC20Guarantor[`PaymasterERC20Guarantor`] contract extends the standard PaymasterERC20 to allow a third party (guarantor) to back user operations.
+
+The guarantor pre-funds the maximum possible gas cost upfront, and after execution:
+
+1. If the user repays the guarantor, the guarantor gets their funds back
+2. If the user fails to repay, the guarantor absorbs the cost
+
+[TIP]
+====
+A common use case is for guarantors to pay for operations of users claiming airdrops:
+
+* The guarantor pays gas fees upfront
+* The user claims their airdrop tokens
+* The user repays the guarantor from the claimed tokens
+* If the user fails to repay, the guarantor absorbs the cost
+====
+
+To implement guarantor functionality, your paymaster needs to extend the PaymasterERC20Guarantor class and implement the `_fetchGuarantor` function:
+
+[source,solidity]
+----
+function _fetchGuarantor(
+    PackedUserOperation calldata userOp
+) internal view override returns (address guarantor) {
+    // Implement logic to fetch and validate the guarantor from userOp
+}
+----
+
+Let's create a guarantor-enabled paymaster by extending our previous example:
+
+```solidity
+// WARNING: Unaudited code.
+// Consider performing a security review before going to production.
+contract PaymasterUSDCGuaranteed is EIP712, PaymasterERC20Guarantor, Ownable {
+    
+    // Keep the same oracle code as before...
+    
+    bytes32 private constant GUARANTEED_USER_OPERATION_TYPEHASH =
+        keccak256(
+            "GuaranteedUserOperation(address sender,uint256 nonce,bytes initCode,bytes callData,bytes32 accountGasLimits,uint256 preVerificationGas,bytes32 gasFees,bytes paymasterData)"
+        );
+
+    constructor(
+        address initialOwner
+    ) EIP712("PaymasterUSDCGuaranteed", "1") Ownable(initialOwner) {}
+    
+    // Other functions from PaymasterUSDCChainlink...
+    
+    function _fetchGuarantor(
+        PackedUserOperation calldata userOp
+    ) internal view override returns (address guarantor) {
+        bytes calldata paymasterData = userOp.paymasterData();
+        
+        // Check guarantor data (should be at least 22 bytes: 20 for address + 2 for sig length)
+        // If no guarantor specified, return early
+        if (paymasterData.length < 22 || guarantor == address(0)) {
+            return address(0);
+        }
+        
+        guarantor = address(bytes20(paymasterData[:20]));  
+        uint16 guarantorSigLength = uint16(bytes2(paymasterData[20:22]));
+        
+        // Ensure the signature fits in the data
+        if (paymasterData.length < 22 + guarantorSigLength) {
+            return address(0);
+        }
+        
+        bytes calldata guarantorSignature = paymasterData[22:22 + guarantorSigLength];
+        
+        // Validate the guarantor's signature
+        bytes32 structHash = _getGuaranteedOperationStructHash(userOp);
+        bytes32 hash = _hashTypedDataV4(structHash);
+        
+        return SignatureChecker.isValidSignatureNow(
+            guarantor,
+            hash,
+            guarantorSignature
+        ) ? guarantor : address(0);
+    }
+    
+    function _getGuaranteedOperationStructHash(
+        PackedUserOperation calldata userOp
+    ) internal pure returns (bytes32) {
+        return keccak256(
+            abi.encode(
+                GUARANTEED_USER_OPERATION_TYPEHASH,
+                userOp.sender,
+                userOp.nonce,
+                keccak256(userOp.initCode),
+                keccak256(userOp.callData),
+                userOp.accountGasLimits,
+                userOp.preVerificationGas,
+                userOp.gasFees,
+                keccak256(bytes(userOp.paymasterData()[:20])) // Just the guarantor address part
+            )
+        );
+    }
+}
+```
+
+With this implementation, a guarantor would sign a user operation to authorize backing it:
+
+[source,typescript]
+----
+// Sign the user operation with the guarantor
+const guarantorSignature = await guarantor.signTypedData({
+  domain: {
+    chainId: await guarantorClient.getChainId(),
+    name: "PaymasterUSDCGuaranteed",
+    verifyingContract: paymasterUSDC.address,
+    version: "1",
+  },
+  types: {
+    GuaranteedUserOperation: [
+      { name: "sender", type: "address" },
+      { name: "nonce", type: "uint256" },
+      { name: "initCode", type: "bytes" },
+      { name: "callData", type: "bytes" },
+      { name: "accountGasLimits", type: "bytes32" },
+      { name: "preVerificationGas", type: "uint256" },
+      { name: "gasFees", type: "bytes32" },
+      { name: "paymasterData", type: "bytes" }
+    ]
+  },
+  primaryType: "GuaranteedUserOperation",
+  message: {
+    sender: userOp.sender,
+    nonce: userOp.nonce,
+    initCode: userOp.initCode,
+    callData: userOp.callData,
+    accountGasLimits: userOp.accountGasLimits,
+    preVerificationGas: userOp.preVerificationGas,
+    gasFees: userOp.gasFees,
+    paymasterData: guarantorAddress // Just the guarantor address
+  },
+});
+----
+
+Then, we include the guarantor's address and its signature in the paymaster data:
+
+[source,typescript]
+----
+const paymasterVerificationGasLimit = 150_000n;
+const paymasterPostOpGasLimit = 300_000n;
+
+userOp.paymasterAndData = encodePacked(
+  ["address", "uint128", "uint128", "bytes"],
+  [
+    paymasterUSDC.address,
+    paymasterVerificationGasLimit,
+    paymasterPostOpGasLimit,
+    encodePacked(
+      ["address", "bytes2", "bytes"],
+      [
+        guarantorAddress, 
+        toHex(guarantorSignature.replace("0x", "").length / 2, { size: 2 }),
+        guarantorSignature
+      ]
+    )
+  ]
+);
+----
+
+When the operation executes:
+
+1. During validation, the paymaster verifies the guarantor's signature and pre-funds from the guarantor's account
+2. The user operation executes, potentially giving the user tokens (like in an airdrop claim)
+3. During post-operation, the paymaster first tries to get repayment from the user
+4. If the user can't pay, the guarantor's pre-funded amount is used
+5. An event is emitted indicating who ultimately paid for the operation
+
+This approach enables novel use cases where users don't need tokens to start using a web3 app, and can cover costs after receiving value through their transaction.
+
+== Practical Considerations
+
+When implementing paymasters in production environments, keep these considerations in mind:
+
+1. **Balance management**: Regularly monitor and replenish your paymaster's ETH balance to ensure uninterrupted service.
+
+2. **Gas limits**: The verification and post-operation gas limits should be set carefully. Too low, and operations might fail; too high, and you waste resources.
+
+3. **Security**: For signature-based paymasters, protect your signing key as it controls who gets subsidized operations.
+
+4. **Price volatility**: For token-based paymasters, consider restricting which tokens are accepted, and implementing circuit breakers for extreme market conditions.
+
+5. **Spending limits**: Consider implementing daily or per-user limits to prevent abuse of your paymaster.
+
+TIP: For production deployments, it's often useful to implement a monitoring service that tracks paymaster usage, balances, and other metrics to ensure smooth operation.
