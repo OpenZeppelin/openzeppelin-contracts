@@ -379,10 +379,14 @@ library Checkpoints {
     ) private view returns (uint256) {
         while (low < high) {
             uint256 mid = Math.average(low, high);
-            if (_unsafeAccess(self, mid)._key > key) {
+            uint32 currentKey = _unsafeAccess(self, mid)._key;
+            if (currentKey > key) {
                 high = mid;
             } else {
                 low = mid + 1;
+                if (currentKey == key) {
+                    return low;
+                }
             }
         }
         return high;
@@ -403,10 +407,14 @@ library Checkpoints {
     ) private view returns (uint256) {
         while (low < high) {
             uint256 mid = Math.average(low, high);
-            if (_unsafeAccess(self, mid)._key < key) {
+            uint32 currentKey = _unsafeAccess(self, mid)._key;
+            if (currentKey < key) {
                 low = mid + 1;
             } else {
                 high = mid;
+                if (currentKey == key) {
+                    return high;
+                }
             }
         }
         return high;
@@ -785,10 +793,14 @@ library Checkpoints {
     ) private view returns (uint256) {
         while (low < high) {
             uint256 mid = Math.average(low, high);
-            if (_unsafeAccess(self, mid)._key > key) {
+            uint96 currentKey = _unsafeAccess(self, mid)._key;
+            if (currentKey > key) {
                 high = mid;
             } else {
                 low = mid + 1;
+                if (currentKey == key) {
+                    return low;
+                }
             }
         }
         return high;
@@ -809,10 +821,14 @@ library Checkpoints {
     ) private view returns (uint256) {
         while (low < high) {
             uint256 mid = Math.average(low, high);
-            if (_unsafeAccess(self, mid)._key < key) {
+            uint96 currentKey = _unsafeAccess(self, mid)._key;
+            if (currentKey < key) {
                 low = mid + 1;
             } else {
                 high = mid;
+                if (currentKey == key) {
+                    return high;
+                }
             }
         }
         return high;
