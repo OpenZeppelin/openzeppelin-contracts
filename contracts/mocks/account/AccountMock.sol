@@ -128,6 +128,19 @@ abstract contract AccountEIP7702WithModulesMock is
     }
 }
 
+abstract contract AccountERC7579NativeValidationMock is AccountERC7579, SignerECDSA {
+    constructor(address signerAddr) SignerECDSA(signerAddr) {
+        // no validator module
+    }
+
+    function _rawSignatureValidation(
+        bytes32 hash,
+        bytes calldata signature
+    ) internal view virtual override(AccountERC7579, SignerECDSA) returns (bool) {
+        return super._rawSignatureValidation(hash, signature);
+    }
+}
+
 abstract contract AccountERC7579Mock is AccountERC7579 {
     constructor(address validator, bytes memory initData) {
         _installModule(MODULE_TYPE_VALIDATOR, validator, initData);
