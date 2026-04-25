@@ -145,6 +145,18 @@ index 3535a2f56..9a73abc22 100644
 +    "@openzeppelin/contracts": "<package-version>"
 +  }
  }
+diff --git a/contracts/utils/Pausable.sol b/contracts/utils/Pausable.sol
+index 6b30eea17..81619a3f3 100644
+--- a/contracts/utils/Pausable.sol
++++ b/contracts/utils/Pausable.sol
+@@ -23,6 +23,7 @@ abstract contract Pausable is Context {
+     uint256 private constant PAUSED = 1;
+     uint256 private constant NOT_PAUSED = 2;
+ 
++    /// @custom:oz-retyped-from bool
+     uint256 private _paused;
+ 
+     /**
 diff --git a/contracts/utils/ReentrancyGuard.sol b/contracts/utils/ReentrancyGuard.sol
 index c156fa1cc..895e39342 100644
 --- a/contracts/utils/ReentrancyGuard.sol
