@@ -27,7 +27,7 @@ function shouldBehaveLikeBridgeERC1155({ chainAIsCustodial = false, chainBIsCust
       ]);
     });
 
-    describe('crosschain send (both direction)', async function () {
+    describe('crosschain send (both direction)', function () {
       it('single', async function () {
         const [alice, bruce, chris] = this.accounts;
 

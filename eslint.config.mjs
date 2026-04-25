@@ -4,11 +4,13 @@ import prettier from 'eslint-config-prettier';
 import globals from 'globals';
 import path from 'path';
 import { fileURLToPath } from 'node:url';
+import mocha from 'eslint-plugin-mocha';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default [
   js.configs.recommended,
+  mocha.configs.flat.recommended,
   prettier,
   {
     languageOptions: {
@@ -23,6 +25,9 @@ export default [
         extendEnvironment: 'readonly',
         expect: 'readonly',
       },
+    },
+    rules: {
+      'mocha/no-async-describe': 'error',
     },
   },
   includeIgnoreFile(path.resolve(__dirname, '.gitignore')),
