@@ -38,6 +38,13 @@ import {Math} from "../../../utils/math/Math.sol";
  * With a larger offset, the attack becomes orders of magnitude more expensive than it is profitable. More details about the
  * underlying math can be found xref:ROOT:erc4626.adoc#inflation-attack[here].
  *
+ * [.hljs-theme-light.nopadding]
+ * ```
+ * function _decimalsOffset() internal pure virtual override returns (uint8) {
+ *     return 18;
+ * }
+ * ```
+ *
  * The drawback of this approach is that the virtual shares do capture (a very small) part of the value being accrued
  * to the vault. Also, if the vault experiences losses, the users try to exit the vault, the virtual shares and assets
  * will cause the first user to exit to experience reduced losses in detriment to the last users that will experience
@@ -292,6 +299,10 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         SafeERC20.safeTransfer(IERC20(asset()), to, assets);
     }
 
+    /**
+     * @dev Offset between the underlying asset's decimals and the vault decimals. Used to mitigate the inflation
+     * attack described in the contract-level documentation. Defaults to 0.
+     */
     function _decimalsOffset() internal view virtual returns (uint8) {
         return 0;
     }
