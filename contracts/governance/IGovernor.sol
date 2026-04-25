@@ -103,6 +103,12 @@ interface IGovernor is IERC165, IERC6372 {
     error GovernorInvalidSignature(address voter);
 
     /**
+     * @dev The proposal contains duplicate actions (same target, value, and calldata). This is not supported
+     * by the Compound timelock, which identifies queued transactions by their hash.
+     */
+    error GovernorDuplicateProposalAction(uint256 index);
+
+    /**
      * @dev The given `account` is unable to cancel the proposal with given `proposalId`.
      */
     error GovernorUnableToCancel(uint256 proposalId, address account);
