@@ -106,6 +106,16 @@ function shouldBehaveLikeAccountERC7579({ withHooks = false } = {}) {
           this.mock.isModuleInstalled(MODULE_TYPE_FALLBACK, this.modules[MODULE_TYPE_FALLBACK], '0x12345678'),
         ).to.eventually.equal(false);
       });
+
+      it('returns false for address(0) as module', async function () {
+        const moduleTypes = [MODULE_TYPE_FALLBACK, MODULE_TYPE_VALIDATOR, MODULE_TYPE_EXECUTOR];
+        withHooks && moduleTypes.push(MODULE_TYPE_HOOK);
+        for (const moduleTypeId of moduleTypes) {
+          await expect(this.mock.isModuleInstalled(moduleTypeId, ethers.ZeroAddress, '0x12345678')).to.eventually.equal(
+            false,
+          );
+        }
+      });
     });
 
     describe('module installation', function () {
