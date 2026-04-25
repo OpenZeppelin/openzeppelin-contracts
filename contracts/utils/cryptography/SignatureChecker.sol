@@ -149,6 +149,28 @@ library SignatureChecker {
     }
 
     /**
+     * @dev Variant of {isValidSignatureNow-bytes-bytes32-bytes-} that takes a signature in calldata
+     */
+    function isValidSignatureNowCalldata(
+        bytes calldata signer,
+        bytes32 hash,
+        bytes calldata signature
+    ) internal view returns (bool) {
+        if (signer.length < 20) {
+            return false;
+        } else if (signer.length == 20) {
+            return isValidSignatureNowCalldata(address(bytes20(signer)), hash, signature);
+        } else {
+            (bool success, bytes memory result) = address(bytes20(signer)).staticcall(
+                abi.encodeCall(IERC7913SignatureVerifier.verify, (signer[20:], hash, signature))
+            );
+            return (success &&
+                result.length >= 32 &&
+                abi.decode(result, (bytes32)) == bytes32(IERC7913SignatureVerifier.verify.selector));
+        }
+    }
+
+    /**
      * @dev Verifies multiple ERC-7913 `signatures` for a given `hash` using a set of `signers`.
      * Returns `false` if the number of signers and signatures is not the same.
      *
@@ -172,6 +194,40 @@ library SignatureChecker {
 
             // If one of the signatures is invalid, reject the batch
             if (!isValidSignatureNow(signer, hash, signatures[i])) return false;
+
+            bytes32 id = keccak256(signer);
+            // If the current signer ID is greater than all previous IDs, then this is a new signer.
+            if (lastId < id) {
+                lastId = id;
+            } else {
+                // If this signer id is not greater than all the previous ones, verify that it is not a duplicate of a previous one
+                // This loop is never executed if the signers are ordered by id.
+                for (uint256 j = 0; j < i; ++j) {
+                    if (id == keccak256(signers[j])) return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @dev Variant of {areValidSignaturesNow} that takes signers and signatures in calldata
+     */
+    function areValidSignaturesNowCalldata(
+        bytes32 hash,
+        bytes[] calldata signers,
+        bytes[] calldata signatures
+    ) internal view returns (bool) {
+        if (signers.length != signatures.length) return false;
+
+        bytes32 lastId = bytes32(0);
+
+        for (uint256 i = 0; i < signers.length; ++i) {
+            bytes calldata signer = signers[i];
+
+            // If one of the signatures is invalid, reject the batch
+            if (!isValidSignatureNowCalldata(signer, hash, signatures[i])) return false;
 
             bytes32 id = keccak256(signer);
             // If the current signer ID is greater than all previous IDs, then this is a new signer.
