@@ -130,7 +130,7 @@ library P256 {
             if iszero(staticcall(gas(), 0x100, ptr, 0xa0, 0x00, 0x20)) {
                 invalid()
             }
-            isValid := mload(0x00)
+            isValid := and(eq(returndatasize(), 0x20), eq(mload(0x00), 1))
         }
     }
 
