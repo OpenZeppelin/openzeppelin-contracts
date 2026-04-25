@@ -65,7 +65,7 @@ describe('AccessManaged', function () {
 
     describe('when role is granted with execution delay', function () {
       beforeEach(async function () {
-        const executionDelay = 911n;
+        const executionDelay = time.duration.hours(1); // 1 hour - standard test value
         await this.authority.$_grantRole(this.role, this.roleMember, 0, executionDelay);
       });
 
@@ -96,6 +96,42 @@ describe('AccessManaged', function () {
 
         // Shouldn't revert
         await this.managed.connect(this.roleMember)[this.selector]();
+      });
+
+      it('succeeds when role is granted with zero execution delay', async function () {
+        // Grant role with zero execution delay
+        await this.authority.$_grantRole(this.role, this.roleMember, 0, 0n);
+        
+        // Should work without scheduling
+        await this.managed.connect(this.roleMember)[this.selector]();
+      });
+
+      it('handles maximum execution delay correctly', async function () {
+        const maxExecutionDelay = 2n**32n - 1n; // uint32 max
+        await this.authority.$_grantRole(this.role, this.roleMember, 0, maxExecutionDelay);
+        
+        // Should require scheduling
+        await expect(this.managed.connect(this.roleMember)[this.selector]())
+          .to.be.revertedWithCustomError(this.authority, 'AccessManagerNotScheduled');
+      });
+
+      it('adjusts when time to minimum required time if too early', async function () {
+        const executionDelay = time.duration.hours(1);
+        await this.authority.$_grantRole(this.role, this.roleMember, 0, executionDelay);
+        
+        const fn = this.managed.interface.getFunction(this.selector);
+        const calldata = this.managed.interface.encodeFunctionData(fn, []);
+        
+        // Try to schedule in the past
+        const pastTime = (await time.clock.timestamp()) - time.duration.hours(1);
+        
+        // Should automatically adjust time to minimum required
+        const { operationId } = await this.authority.connect(this.roleMember).schedule(this.managed, calldata, pastTime);
+        const scheduledTime = await this.authority.getSchedule(operationId);
+        
+        // Verify time was adjusted to minimum required
+        const minTime = (await time.clock.timestamp()) + executionDelay;
+        expect(scheduledTime).to.be.at.least(minTime);
       });
     });
   });
