@@ -54,6 +54,11 @@ library Memory {
 
     type Slice is bytes32;
 
+    /// @dev Empty slice
+    function emptySlice() internal pure returns (Slice) {
+        return Slice.wrap(0);
+    }
+
     /// @dev Get a slice representation of a bytes object in memory
     function asSlice(bytes memory self) internal pure returns (Slice result) {
         assembly ("memory-safe") {
