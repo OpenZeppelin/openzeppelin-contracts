@@ -1,8 +1,0 @@
-{
-  "name": "solhint-plugin-openzeppelin",
-  "version": "0.0.0",
-  "private": true,
-  "dependencies": {
-    "minimatch": "^10.2.2"
-  }
-}
