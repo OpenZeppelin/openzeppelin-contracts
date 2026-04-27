@@ -31,7 +31,7 @@ runs:
       continue-on-error: true
       id: reference
     - name: Compare reports
-      if: steps.reference.outcome == 'success' && github.event_name == 'pull_request'
+      if: github.event_name == 'pull_request' && hashFiles(inputs.ref_report) != ''
       run: |
         node scripts/checks/compareGasReports.js ${{ inputs.report }} ${{ inputs.ref_report }} >> $GITHUB_STEP_SUMMARY
       env:
