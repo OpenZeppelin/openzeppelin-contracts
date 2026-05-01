@@ -221,12 +221,7 @@ describe('GovernorTimelockCompound', function () {
 
         it('should revert when duplicate empty calldata actions exist', async function () {
           await expect(
-            this.mock.propose(
-              [this.receiver.target, this.receiver.target],
-              [1, 1],
-              ['0x', '0x'],
-              'description',
-            ),
+            this.mock.propose([this.receiver.target, this.receiver.target], [1, 1], ['0x', '0x'], 'description'),
           )
             .to.be.revertedWithCustomError(this.mock, 'GovernorDuplicateProposalAction')
             .withArgs(1, 0);
@@ -249,8 +244,6 @@ describe('GovernorTimelockCompound', function () {
                 GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded]),
               );
           });
-
-
         });
 
         describe('on execute', function () {
