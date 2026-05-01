@@ -124,6 +124,115 @@ describe('GovernorTimelockCompound', function () {
           .to.emit(this.receiver, 'MockFunctionCalled');
       });
 
+      describe('duplicate action validation', function () {
+        it('should allow a proposal with a single action', async function () {
+          await expect(
+            this.mock.propose(
+              [this.receiver.target],
+              [0],
+              [this.receiver.interface.encodeFunctionData('mockFunction')],
+              'description',
+            ),
+          ).to.emit(this.mock, 'ProposalCreated');
+        });
+
+        it('should allow a proposal with multiple distinct actions', async function () {
+          await expect(
+            this.mock.propose(
+              [this.receiver.target, this.receiver.target],
+              [0, 0],
+              [
+                this.receiver.interface.encodeFunctionData('mockFunction'),
+                this.receiver.interface.encodeFunctionData('mockFunctionNonPayable'),
+              ],
+              'description',
+            ),
+          ).to.emit(this.mock, 'ProposalCreated');
+        });
+
+        it('should revert when two consecutive actions are identical', async function () {
+          const calldata = this.receiver.interface.encodeFunctionData('mockFunction');
+          await expect(
+            this.mock.propose(
+              [this.receiver.target, this.receiver.target],
+              [0, 0],
+              [calldata, calldata],
+              'description',
+            ),
+          )
+            .to.be.revertedWithCustomError(this.mock, 'GovernorDuplicateProposalAction')
+            .withArgs(1, 0);
+        });
+
+        it('should revert when non-consecutive duplicates exist', async function () {
+          const calldataA = this.receiver.interface.encodeFunctionData('mockFunction');
+          const calldataB = this.receiver.interface.encodeFunctionData('mockFunctionNonPayable');
+          await expect(
+            this.mock.propose(
+              [this.receiver.target, this.receiver.target, this.receiver.target],
+              [0, 0, 0],
+              [calldataA, calldataB, calldataA],
+              'description',
+            ),
+          )
+            .to.be.revertedWithCustomError(this.mock, 'GovernorDuplicateProposalAction')
+            .withArgs(2, 0);
+        });
+
+        it('should revert when multiple pairs of duplicates exist', async function () {
+          const calldataA = this.receiver.interface.encodeFunctionData('mockFunction');
+          const calldataB = this.receiver.interface.encodeFunctionData('mockFunctionNonPayable');
+          await expect(
+            this.mock.propose(
+              [this.receiver.target, this.receiver.target, this.receiver.target, this.receiver.target],
+              [0, 0, 0, 0],
+              [calldataA, calldataB, calldataA, calldataB],
+              'description',
+            ),
+          )
+            .to.be.revertedWithCustomError(this.mock, 'GovernorDuplicateProposalAction')
+            .withArgs(2, 0);
+        });
+
+        it('should allow proposals with the same target and calldata but different value', async function () {
+          const calldata = this.receiver.interface.encodeFunctionData('mockFunction');
+          await expect(
+            this.mock.propose(
+              [this.receiver.target, this.receiver.target],
+              [0, 1],
+              [calldata, calldata],
+              'description',
+            ),
+          ).to.emit(this.mock, 'ProposalCreated');
+        });
+
+        it('should allow proposals with the same target and value but different calldata', async function () {
+          const calldataA = this.receiver.interface.encodeFunctionData('mockFunction');
+          const calldataB = this.receiver.interface.encodeFunctionData('mockFunctionNonPayable');
+          await expect(
+            this.mock.propose(
+              [this.receiver.target, this.receiver.target],
+              [0, 0],
+              [calldataA, calldataB],
+              'description',
+            ),
+          ).to.emit(this.mock, 'ProposalCreated');
+        });
+
+        it('should revert when duplicate empty calldata actions exist', async function () {
+          await expect(
+            this.mock.propose(
+              [this.receiver.target, this.receiver.target],
+              [1, 1],
+              ['0x', '0x'],
+              'description',
+            ),
+          )
+            .to.be.revertedWithCustomError(this.mock, 'GovernorDuplicateProposalAction')
+            .withArgs(1, 0);
+        });
+      });
+
       describe('should revert', function () {
         describe('on queue', function () {
           it('if already queued', async function () {
@@ -141,24 +250,7 @@ describe('GovernorTimelockCompound', function () {
               );
           });
 
-          it('if proposal contains duplicate calls', async function () {
-            const action = {
-              target: this.token.target,
-              data: this.token.interface.encodeFunctionData('approve', [this.receiver.target, ethers.MaxUint256]),
-            };
-            const { id } = this.helper.setProposal([action, action], '<proposal description>');
 
-            await this.helper.propose();
-            await this.helper.waitForSnapshot();
-            await this.helper.connect(this.voter1).vote({ support: VoteType.For });
-            await this.helper.waitForDeadline();
-            await expect(this.helper.queue())
-              .to.be.revertedWithCustomError(this.mock, 'GovernorAlreadyQueuedProposal')
-              .withArgs(id);
-            await expect(this.helper.execute())
-              .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
-              .withArgs(id, ProposalState.Succeeded, GovernorHelper.proposalStatesToBitMap([ProposalState.Queued]));
-          });
         });
 
         describe('on execute', function () {
