@@ -172,7 +172,7 @@ library RateLimiter {
 
         used_ = Math.saturatingSub(
             self.history.upperLookupRecent(Time.timestamp()),
-            self.history.upperLookupRecent(uint48(Math.saturatingSub(Time.timestamp(), cacheWindow)))
+            self.history.upperLookupRecent(uint48(Math.saturatingSub(Time.timestamp(), Math.max(cacheWindow, 1))))
         );
         available_ = Math.saturatingSub(cacheLimit, used_);
     }
@@ -220,7 +220,7 @@ library RateLimiter {
     /**
      * @dev Resets the rolling window to a fully-available state.
      *
-     * The `capacity` and `window` settings are preserved; only the consumed quantity is cleared.
+     * The `limit` and `window` settings are preserved; only the consumed quantity is cleared.
      *
      * NOTE: This will reset the entire history, meaning it can also be used to recover from the cumulative total
      * approaching the `uint208` ceiling. The underlying storage slots holding past checkpoints are not zeroed out.
