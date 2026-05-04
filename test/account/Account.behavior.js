@@ -60,7 +60,7 @@ export function shouldBehaveLikeAccountCore() {
 
         // Forcing the gas limit here to work around a hardhat 3 issue with gas estimation
         await expect(
-          this.mockFromEntrypoint.validateUserOp(operation.packed, operation.hash(), value, { gasLimit: 200_000n }),
+          this.mockFromEntrypoint.validateUserOp(operation.packed, operation.hash(), value, { gasLimit: 2_000_000n }),
         ).to.changeEtherBalances(this.ethers, [this.mock, this.ethers.predeploy.entrypoint.v09], [-value, value]);
       });
     });

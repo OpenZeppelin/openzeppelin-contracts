@@ -1143,11 +1143,14 @@ describe('TimelockController', function () {
 
       await this.mock.getTimestamp(operation.id).then(time.increaseTo.timestamp);
 
+      // Outer gas budget must leave enough for the FailedCall revert site after the inner OOGs.
+      // Instrumented bytecode under `--coverage` adds per-statement probes, so 100k is too tight;
+      // 500k gives headroom while still well below the EIP-7825 (Osaka) per-tx cap of 2^24.
       await expect(
         this.mock
           .connect(this.executor)
           .execute(operation.target, operation.value, operation.data, operation.predecessor, operation.salt, {
-            gasLimit: '100000',
+            gasLimit: '500000',
           }),
       ).to.be.revertedWithCustomError(this.mock, 'FailedCall');
     });
