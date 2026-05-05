@@ -12,7 +12,7 @@ const {
 } = connection;
 
 const MODES = {
-  blocknumber: '$VotesMock',
+  blockNumber: '$VotesMock',
   timestamp: '$VotesTimestampMock',
 };
 

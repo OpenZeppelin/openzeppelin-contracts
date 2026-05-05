@@ -92,7 +92,7 @@
     "solhint": "^6.0.3",
     "solhint-plugin-openzeppelin": "file:scripts/solhint-custom",
     "solidity-ast": "^0.4.61",
-    "undici": "^7.4.0",
+    "undici": "^8.1.0",
     "yargs": "^18.0.0"
   },
   "lint-staged": {

@@ -11,7 +11,7 @@ const {
 } = connection;
 
 const TOKENS = [
-  { Token: '$ERC20VotesExtendedMock', mode: 'blocknumber' },
+  { Token: '$ERC20VotesExtendedMock', mode: 'blockNumber' },
   { Token: '$ERC20VotesExtendedTimestampMock', mode: 'timestamp' },
 ];
 

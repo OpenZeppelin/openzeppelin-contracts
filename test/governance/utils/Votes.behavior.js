@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { Delegation, getDomain } from '../../helpers/eip712';
 import { shouldBehaveLikeERC6372 } from './ERC6372.behavior';
 
-export function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }) {
+export function shouldBehaveLikeVotes(tokens, { mode = 'blockNumber', fungible = true }) {
   beforeEach(async function () {
     [this.delegator, this.delegatee, this.alice, this.bob, this.other] = this.accounts;
     this.domain = await getDomain(this.votes);

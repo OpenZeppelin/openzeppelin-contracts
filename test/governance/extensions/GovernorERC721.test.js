@@ -10,7 +10,7 @@ const {
 } = connection;
 
 const TOKENS = [
-  { Token: '$ERC721Votes', mode: 'blocknumber' },
+  { Token: '$ERC721Votes', mode: 'blockNumber' },
   { Token: '$ERC721VotesTimestampMock', mode: 'timestamp' },
 ];
 

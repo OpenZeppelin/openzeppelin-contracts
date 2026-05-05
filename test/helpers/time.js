@@ -1,12 +1,12 @@
 import { ethers } from 'ethers';
 
 export const clock = ({ networkHelpers }) => ({
-  blocknumber: () => networkHelpers.time.latestBlock().then(ethers.toBigInt),
+  blockNumber: () => networkHelpers.time.latestBlock().then(ethers.toBigInt),
   timestamp: () => networkHelpers.time.latest().then(ethers.toBigInt),
 });
 
 export const clockFromReceipt = ({ ethers }) => ({
-  blocknumber: receipt => Promise.resolve(receipt).then(({ blockNumber }) => ethers.toBigInt(blockNumber)),
+  blockNumber: receipt => Promise.resolve(receipt).then(({ blockNumber }) => ethers.toBigInt(blockNumber)),
   timestamp: receipt =>
     Promise.resolve(receipt)
       .then(({ blockNumber }) => ethers.provider.getBlock(blockNumber))
@@ -14,7 +14,7 @@ export const clockFromReceipt = ({ ethers }) => ({
 });
 
 export const increaseBy = ({ networkHelpers }) => ({
-  blocknumber: networkHelpers.mine,
+  blockNumber: networkHelpers.mine,
   timestamp: (delay, mine = true) =>
     networkHelpers.time
       .latest()
@@ -23,7 +23,7 @@ export const increaseBy = ({ networkHelpers }) => ({
 });
 
 export const increaseTo = ({ networkHelpers }) => ({
-  blocknumber: networkHelpers.mineUpTo,
+  blockNumber: networkHelpers.mineUpTo,
   timestamp: (to, mine = true) =>
     mine ? networkHelpers.time.increaseTo(to) : networkHelpers.time.setNextBlockTimestamp(to),
 });

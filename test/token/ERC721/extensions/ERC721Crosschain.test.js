@@ -13,14 +13,14 @@ async function fixture() {
   const gatewayAsEOA = await helpers.impersonate(gateway);
 
   // Chain A: ERC721 with native bridge integration
-  const tokenA = await ethers.deployContract('$ERC721Crosschain', ['Token1', 'T1', []]);
+  const tokenA = await ethers.deployContract('$ERC721Crosschain', [[], 'Token1', 'T1']);
   const bridgeA = tokenA; // self bridge
 
   // Chain B: ERC721 with native bridge integration
   const tokenB = await ethers.deployContract('$ERC721Crosschain', [
+    [[gateway, helpers.chain.toErc7930(bridgeA)]],
     'Token2',
     'T2',
-    [[gateway, helpers.chain.toErc7930(bridgeA)]],
   ]);
   const bridgeB = tokenB; // self bridge
 
