@@ -55,8 +55,8 @@ function push(
  */
 function lowerLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} key) internal view returns (${opts.valueTypeName}) {
     uint256 len = self.${opts.checkpointFieldName}.length;
-    uint256 pos = _lowerBinaryLookup(self.${opts.checkpointFieldName}, key, 0, len);
-    return pos == len ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos).${opts.valueFieldName};
+    uint256 index = _lowerBinaryLookup(self.${opts.checkpointFieldName}, key, 0, len);
+    return index == len ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, index).${opts.valueFieldName};
 }
 
 /**
@@ -65,8 +65,8 @@ function lowerLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} k
  */
 function upperLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} key) internal view returns (${opts.valueTypeName}) {
     uint256 len = self.${opts.checkpointFieldName}.length;
-    uint256 pos = _upperBinaryLookup(self.${opts.checkpointFieldName}, key, 0, len);
-    return pos == 0 ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos - 1).${opts.valueFieldName};
+    uint256 index = _upperBinaryLookup(self.${opts.checkpointFieldName}, key, 0, len);
+    return index == 0 ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, index - 1).${opts.valueFieldName};
 }
 
 /**
@@ -91,17 +91,17 @@ function upperLookupRecent(${opts.historyTypeName} storage self, ${opts.keyTypeN
         }
     }
 
-    uint256 pos = _upperBinaryLookup(self.${opts.checkpointFieldName}, key, low, high);
+    uint256 index = _upperBinaryLookup(self.${opts.checkpointFieldName}, key, low, high);
 
-    return pos == 0 ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos - 1).${opts.valueFieldName};
+    return index == 0 ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, index - 1).${opts.valueFieldName};
 }
 
 /**
  * @dev Returns the value in the most recent checkpoint, or zero if there are no checkpoints.
  */
 function latest(${opts.historyTypeName} storage self) internal view returns (${opts.valueTypeName}) {
-    uint256 pos = self.${opts.checkpointFieldName}.length;
-    return pos == 0 ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos - 1).${opts.valueFieldName};
+    uint256 len = self.${opts.checkpointFieldName}.length;
+    return len == 0 ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, len - 1).${opts.valueFieldName};
 }
 
 /**
@@ -109,11 +109,11 @@ function latest(${opts.historyTypeName} storage self) internal view returns (${o
  * in the most recent checkpoint.
  */
 function latestCheckpoint(${opts.historyTypeName} storage self) internal view returns (bool exists, ${opts.keyTypeName} ${opts.keyFieldName}, ${opts.valueTypeName} ${opts.valueFieldName}) {
-    uint256 pos = self.${opts.checkpointFieldName}.length;
-    if (pos == 0) {
+    uint256 len = self.${opts.checkpointFieldName}.length;
+    if (len == 0) {
         return (false, 0, 0);
     } else {
-        ${opts.checkpointTypeName} storage ckpt = _unsafeAccess(self.${opts.checkpointFieldName}, pos - 1);
+        ${opts.checkpointTypeName} storage ckpt = _unsafeAccess(self.${opts.checkpointFieldName}, len - 1);
         return (true, ckpt.${opts.keyFieldName}, ckpt.${opts.valueFieldName});
     }
 }
@@ -127,9 +127,21 @@ function length(${opts.historyTypeName} storage self) internal view returns (uin
 
 /**
  * @dev Returns checkpoint at given position.
+ *
+ * IMPORTANT: Deprecated. This function's name clash with keyword scheduled for inclusion in solidity. Developers
+ * should use {pos} instead.
  */
-function at(${opts.historyTypeName} storage self, uint32 pos) internal view returns (${opts.checkpointTypeName} memory) {
-    return self.${opts.checkpointFieldName}[pos];
+function at(${opts.historyTypeName} storage self, uint32 index) internal view returns (${opts.checkpointTypeName} memory) {
+    return pos(self, index);
+}
+
+/**
+ * @dev Returns checkpoint at given position.
+ *
+ * Replacement of the deprecated {at} function.
+ */
+function pos(${opts.historyTypeName} storage self, uint32 index) internal view returns (${opts.checkpointTypeName} memory) {
+    return self.${opts.checkpointFieldName}[index];
 }
 
 /**
@@ -141,10 +153,10 @@ function _insert(
     ${opts.keyTypeName} key,
     ${opts.valueTypeName} value
 ) private returns (${opts.valueTypeName} oldValue, ${opts.valueTypeName} newValue) {
-    uint256 pos = self.length;
+    uint256 len = self.length;
 
-    if (pos > 0) {
-        ${opts.checkpointTypeName} storage last = _unsafeAccess(self, pos - 1);
+    if (len > 0) {
+        ${opts.checkpointTypeName} storage last = _unsafeAccess(self, len - 1);
         ${opts.keyTypeName} lastKey = last.${opts.keyFieldName};
         ${opts.valueTypeName} lastValue = last.${opts.valueFieldName};
 
@@ -219,11 +231,11 @@ function _lowerBinaryLookup(
  */
 function _unsafeAccess(
     ${opts.checkpointTypeName}[] storage self,
-    uint256 pos
+    uint256 index
 ) private pure returns (${opts.checkpointTypeName} storage result) {
     assembly {
         mstore(0x00, self.slot)
-        result.slot := add(keccak256(0x00, 0x20), ${opts.checkpointSize === 1 ? 'pos' : `mul(pos, ${opts.checkpointSize})`})
+        result.slot := add(keccak256(0x00, 0x20), ${opts.checkpointSize === 1 ? 'index' : `mul(index, ${opts.checkpointSize})`})
     }
 }
 `;

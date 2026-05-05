@@ -267,8 +267,27 @@ function length(${name} storage set) internal view returns (uint256) {
  * Requirements:
  *
  * - \`index\` must be strictly less than {length}.
+ *
+ * IMPORTANT: Deprecated. This function's name clash with keyword scheduled for inclusion in solidity. Developers
+ * should use {pos} instead.
  */
 function at(${name} storage set, uint256 index) internal view returns (${type}) {
+    return pos(set, index);
+}
+
+/**
+ * @dev Returns the value stored at position \`index\` in the set. O(1).
+ *
+ * Note that there are no guarantees on the ordering of values inside the
+ * array, and it may change when more values are added or removed.
+ *
+ * Requirements:
+ *
+ * - \`index\` must be strictly less than {length}.
+ *
+ * Replacement of the deprecated {at} function.
+ */
+function pos(${name} storage set, uint256 index) internal view returns (${type}) {
     return ${fromBytes32(type, '_at(set._inner, index)')};
 }
 
@@ -415,8 +434,27 @@ function length(${name} storage set) internal view returns (uint256) {
  * Requirements:
  *
  * - \`index\` must be strictly less than {length}.
+ *
+ * IMPORTANT: Deprecated. This function's name clash with keyword scheduled for inclusion in solidity. Developers
+ * should use {pos} instead.
  */
 function at(${name} storage set, uint256 index) internal view returns (${value.type} memory) {
+    return pos(set, index);
+}
+
+/**
+ * @dev Returns the value stored at position \`index\` in the set. O(1).
+ *
+ * Note that there are no guarantees on the ordering of values inside the
+ * array, and it may change when more values are added or removed.
+ *
+ * Requirements:
+ *
+ * - \`index\` must be strictly less than {length}.
+ *
+ * Replacement of the deprecated {at} function.
+ */
+function pos(${name} storage set, uint256 index) internal view returns (${value.type} memory) {
     return set._values[index];
 }
 

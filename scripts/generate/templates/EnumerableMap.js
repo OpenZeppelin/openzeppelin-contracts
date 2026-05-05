@@ -131,8 +131,27 @@ function length(Bytes32ToBytes32Map storage map) internal view returns (uint256)
  * Requirements:
  *
  * - \`index\` must be strictly less than {length}.
+ *
+ * IMPORTANT: Deprecated. This function's name clash with keyword scheduled for inclusion in solidity. Developers
+ * should use {pos} instead.
  */
 function at(Bytes32ToBytes32Map storage map, uint256 index) internal view returns (bytes32 key, bytes32 value) {
+    return pos(map, index);
+}
+
+/**
+ * @dev Returns the key-value pair stored at position \`index\` in the map. O(1).
+ *
+ * Note that there are no guarantees on the ordering of entries inside the
+ * array, and it may change when more entries are added or removed.
+ *
+ * Requirements:
+ *
+ * - \`index\` must be strictly less than {length}.
+ *
+ * Replacement of the deprecated {at} function.
+ */
+function pos(Bytes32ToBytes32Map storage map, uint256 index) internal view returns (bytes32 key, bytes32 value) {
     bytes32 atKey = map._keys.at(index);
     return (atKey, map._values[atKey]);
 }
@@ -250,8 +269,26 @@ function length(${name} storage map) internal view returns (uint256) {
  * Requirements:
  *
  * - \`index\` must be strictly less than {length}.
+ *
+ * IMPORTANT: Deprecated. This function's name clash with keyword scheduled for inclusion in solidity. Developers
+ * should use {pos} instead.
  */
 function at(${name} storage map, uint256 index) internal view returns (${key.type} key, ${value.type} value) {
+    return pos(map, index);
+}
+
+/**
+ * @dev Returns the element stored at position \`index\` in the map. O(1).
+ * Note that there are no guarantees on the ordering of values inside the
+ * array, and it may change when more values are added or removed.
+ *
+ * Requirements:
+ *
+ * - \`index\` must be strictly less than {length}.
+ *
+ * Replacement of the deprecated {at} function.
+ */
+function pos(${name} storage map, uint256 index) internal view returns (${key.type} key, ${value.type} value) {
     (bytes32 atKey, bytes32 val) = at(map._inner, index);
     return (${fromBytes32(key.type, 'atKey')}, ${fromBytes32(value.type, 'val')});
 }
@@ -386,8 +423,29 @@ function length(${name} storage map) internal view returns (uint256) {
  * Requirements:
  *
  * - \`index\` must be strictly less than {length}.
+ *
+ * IMPORTANT: Deprecated. This function's name clash with keyword scheduled for inclusion in solidity. Developers
+ * should use {pos} instead.
  */
 function at(
+    ${name} storage map,
+    uint256 index
+) internal view returns (${key.typeLoc} key, ${value.typeLoc} value) {
+    return pos(map, index);
+}
+
+/**
+ * @dev Returns the element stored at position \`index\` in the map. O(1).
+ * Note that there are no guarantees on the ordering of values inside the
+ * array, and it may change when more values are added or removed.
+ *
+ * Requirements:
+ *
+ * - \`index\` must be strictly less than {length}.
+ *
+ * Replacement of the deprecated {at} function.
+ */
+function pos(
     ${name} storage map,
     uint256 index
 ) internal view returns (${key.typeLoc} key, ${value.typeLoc} value) {

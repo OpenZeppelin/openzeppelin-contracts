@@ -260,8 +260,27 @@ library EnumerableSet {
      * Requirements:
      *
      * - `index` must be strictly less than {length}.
+     *
+     * IMPORTANT: Deprecated. This function's name clash with keyword scheduled for inclusion in solidity. Developers
+     * should use {pos} instead.
      */
     function at(Bytes32Set storage set, uint256 index) internal view returns (bytes32) {
+        return pos(set, index);
+    }
+
+    /**
+     * @dev Returns the value stored at position `index` in the set. O(1).
+     *
+     * Note that there are no guarantees on the ordering of values inside the
+     * array, and it may change when more values are added or removed.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     *
+     * Replacement of the deprecated {at} function.
+     */
+    function pos(Bytes32Set storage set, uint256 index) internal view returns (bytes32) {
         return _at(set._inner, index);
     }
 
@@ -362,8 +381,27 @@ library EnumerableSet {
      * Requirements:
      *
      * - `index` must be strictly less than {length}.
+     *
+     * IMPORTANT: Deprecated. This function's name clash with keyword scheduled for inclusion in solidity. Developers
+     * should use {pos} instead.
      */
     function at(Bytes4Set storage set, uint256 index) internal view returns (bytes4) {
+        return pos(set, index);
+    }
+
+    /**
+     * @dev Returns the value stored at position `index` in the set. O(1).
+     *
+     * Note that there are no guarantees on the ordering of values inside the
+     * array, and it may change when more values are added or removed.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     *
+     * Replacement of the deprecated {at} function.
+     */
+    function pos(Bytes4Set storage set, uint256 index) internal view returns (bytes4) {
         return bytes4(_at(set._inner, index));
     }
 
@@ -464,8 +502,27 @@ library EnumerableSet {
      * Requirements:
      *
      * - `index` must be strictly less than {length}.
+     *
+     * IMPORTANT: Deprecated. This function's name clash with keyword scheduled for inclusion in solidity. Developers
+     * should use {pos} instead.
      */
     function at(AddressSet storage set, uint256 index) internal view returns (address) {
+        return pos(set, index);
+    }
+
+    /**
+     * @dev Returns the value stored at position `index` in the set. O(1).
+     *
+     * Note that there are no guarantees on the ordering of values inside the
+     * array, and it may change when more values are added or removed.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     *
+     * Replacement of the deprecated {at} function.
+     */
+    function pos(AddressSet storage set, uint256 index) internal view returns (address) {
         return address(uint160(uint256(_at(set._inner, index))));
     }
 
@@ -566,8 +623,27 @@ library EnumerableSet {
      * Requirements:
      *
      * - `index` must be strictly less than {length}.
+     *
+     * IMPORTANT: Deprecated. This function's name clash with keyword scheduled for inclusion in solidity. Developers
+     * should use {pos} instead.
      */
     function at(UintSet storage set, uint256 index) internal view returns (uint256) {
+        return pos(set, index);
+    }
+
+    /**
+     * @dev Returns the value stored at position `index` in the set. O(1).
+     *
+     * Note that there are no guarantees on the ordering of values inside the
+     * array, and it may change when more values are added or removed.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     *
+     * Replacement of the deprecated {at} function.
+     */
+    function pos(UintSet storage set, uint256 index) internal view returns (uint256) {
         return uint256(_at(set._inner, index));
     }
 
@@ -712,8 +788,27 @@ library EnumerableSet {
      * Requirements:
      *
      * - `index` must be strictly less than {length}.
+     *
+     * IMPORTANT: Deprecated. This function's name clash with keyword scheduled for inclusion in solidity. Developers
+     * should use {pos} instead.
      */
     function at(StringSet storage set, uint256 index) internal view returns (string memory) {
+        return pos(set, index);
+    }
+
+    /**
+     * @dev Returns the value stored at position `index` in the set. O(1).
+     *
+     * Note that there are no guarantees on the ordering of values inside the
+     * array, and it may change when more values are added or removed.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     *
+     * Replacement of the deprecated {at} function.
+     */
+    function pos(StringSet storage set, uint256 index) internal view returns (string memory) {
         return set._values[index];
     }
 
@@ -854,8 +949,27 @@ library EnumerableSet {
      * Requirements:
      *
      * - `index` must be strictly less than {length}.
+     *
+     * IMPORTANT: Deprecated. This function's name clash with keyword scheduled for inclusion in solidity. Developers
+     * should use {pos} instead.
      */
     function at(BytesSet storage set, uint256 index) internal view returns (bytes memory) {
+        return pos(set, index);
+    }
+
+    /**
+     * @dev Returns the value stored at position `index` in the set. O(1).
+     *
+     * Note that there are no guarantees on the ordering of values inside the
+     * array, and it may change when more values are added or removed.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     *
+     * Replacement of the deprecated {at} function.
+     */
+    function pos(BytesSet storage set, uint256 index) internal view returns (bytes memory) {
         return set._values[index];
     }
 
