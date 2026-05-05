@@ -11,7 +11,7 @@ const overrideReadArtifact =
     for (const suffix of suffixes) {
       const artifactWithSuffix = contractNameOrFullyQualifiedName + suffix;
       if (await artifactExists(artifactWithSuffix)) {
-        return await runSuper((contractNameOrFullyQualifiedName + suffix) as ContractNameT);
+        return await runSuper(artifactWithSuffix as ContractNameT);
       }
     }
 
