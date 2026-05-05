@@ -171,7 +171,7 @@ library RateLimiter {
         uint48 cacheWindow = self.window;
 
         used_ = Math.saturatingSub(
-            self.history.upperLookupRecent(Time.timestamp()),
+            self.history.latest(),
             self.history.upperLookupRecent(uint48(Math.saturatingSub(Time.timestamp(), Math.max(cacheWindow, 1))))
         );
         available_ = Math.saturatingSub(cacheLimit, used_);
