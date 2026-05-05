@@ -289,7 +289,7 @@ function at(${name} storage map, uint256 index) internal view returns (${key.typ
  * Replacement of the deprecated {at} function.
  */
 function pos(${name} storage map, uint256 index) internal view returns (${key.type} key, ${value.type} value) {
-    (bytes32 atKey, bytes32 val) = at(map._inner, index);
+    (bytes32 atKey, bytes32 val) = pos(map._inner, index);
     return (${fromBytes32(key.type, 'atKey')}, ${fromBytes32(value.type, 'val')});
 }
 

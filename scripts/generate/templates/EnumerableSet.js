@@ -167,7 +167,7 @@ function _length(Set storage set) private view returns (uint256) {
  *
  * - \`index\` must be strictly less than {length}.
  */
-function _at(Set storage set, uint256 index) private view returns (bytes32) {
+function _pos(Set storage set, uint256 index) private view returns (bytes32) {
     return set._values[index];
 }
 
@@ -288,7 +288,7 @@ function at(${name} storage set, uint256 index) internal view returns (${type}) 
  * Replacement of the deprecated {at} function.
  */
 function pos(${name} storage set, uint256 index) internal view returns (${type}) {
-    return ${fromBytes32(type, '_at(set._inner, index)')};
+    return ${fromBytes32(type, '_pos(set._inner, index)')};
 }
 
 /**

@@ -290,7 +290,7 @@ library EnumerableMap {
      * Replacement of the deprecated {at} function.
      */
     function pos(UintToUintMap storage map, uint256 index) internal view returns (uint256 key, uint256 value) {
-        (bytes32 atKey, bytes32 val) = at(map._inner, index);
+        (bytes32 atKey, bytes32 val) = pos(map._inner, index);
         return (uint256(atKey), uint256(val));
     }
 
@@ -431,7 +431,7 @@ library EnumerableMap {
      * Replacement of the deprecated {at} function.
      */
     function pos(UintToAddressMap storage map, uint256 index) internal view returns (uint256 key, address value) {
-        (bytes32 atKey, bytes32 val) = at(map._inner, index);
+        (bytes32 atKey, bytes32 val) = pos(map._inner, index);
         return (uint256(atKey), address(uint160(uint256(val))));
     }
 
@@ -572,7 +572,7 @@ library EnumerableMap {
      * Replacement of the deprecated {at} function.
      */
     function pos(UintToBytes32Map storage map, uint256 index) internal view returns (uint256 key, bytes32 value) {
-        (bytes32 atKey, bytes32 val) = at(map._inner, index);
+        (bytes32 atKey, bytes32 val) = pos(map._inner, index);
         return (uint256(atKey), val);
     }
 
@@ -713,7 +713,7 @@ library EnumerableMap {
      * Replacement of the deprecated {at} function.
      */
     function pos(AddressToUintMap storage map, uint256 index) internal view returns (address key, uint256 value) {
-        (bytes32 atKey, bytes32 val) = at(map._inner, index);
+        (bytes32 atKey, bytes32 val) = pos(map._inner, index);
         return (address(uint160(uint256(atKey))), uint256(val));
     }
 
@@ -854,7 +854,7 @@ library EnumerableMap {
      * Replacement of the deprecated {at} function.
      */
     function pos(AddressToAddressMap storage map, uint256 index) internal view returns (address key, address value) {
-        (bytes32 atKey, bytes32 val) = at(map._inner, index);
+        (bytes32 atKey, bytes32 val) = pos(map._inner, index);
         return (address(uint160(uint256(atKey))), address(uint160(uint256(val))));
     }
 
@@ -999,7 +999,7 @@ library EnumerableMap {
      * Replacement of the deprecated {at} function.
      */
     function pos(AddressToBytes32Map storage map, uint256 index) internal view returns (address key, bytes32 value) {
-        (bytes32 atKey, bytes32 val) = at(map._inner, index);
+        (bytes32 atKey, bytes32 val) = pos(map._inner, index);
         return (address(uint160(uint256(atKey))), val);
     }
 
@@ -1144,7 +1144,7 @@ library EnumerableMap {
      * Replacement of the deprecated {at} function.
      */
     function pos(Bytes32ToUintMap storage map, uint256 index) internal view returns (bytes32 key, uint256 value) {
-        (bytes32 atKey, bytes32 val) = at(map._inner, index);
+        (bytes32 atKey, bytes32 val) = pos(map._inner, index);
         return (atKey, uint256(val));
     }
 
@@ -1285,7 +1285,7 @@ library EnumerableMap {
      * Replacement of the deprecated {at} function.
      */
     function pos(Bytes32ToAddressMap storage map, uint256 index) internal view returns (bytes32 key, address value) {
-        (bytes32 atKey, bytes32 val) = at(map._inner, index);
+        (bytes32 atKey, bytes32 val) = pos(map._inner, index);
         return (atKey, address(uint160(uint256(val))));
     }
 
@@ -1430,7 +1430,7 @@ library EnumerableMap {
      * Replacement of the deprecated {at} function.
      */
     function pos(Bytes4ToAddressMap storage map, uint256 index) internal view returns (bytes4 key, address value) {
-        (bytes32 atKey, bytes32 val) = at(map._inner, index);
+        (bytes32 atKey, bytes32 val) = pos(map._inner, index);
         return (bytes4(atKey), address(uint160(uint256(val))));
     }
 
