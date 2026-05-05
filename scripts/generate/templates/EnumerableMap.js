@@ -103,7 +103,7 @@ function remove(Bytes32ToBytes32Map storage map, bytes32 key) internal returns (
 function clear(Bytes32ToBytes32Map storage map) internal {
     uint256 len = length(map);
     for (uint256 i = 0; i < len; ++i) {
-        delete map._values[map._keys.at(i)];
+        delete map._values[map._keys.pos(i)];
     }
     map._keys.clear();
 }
@@ -152,7 +152,7 @@ function at(Bytes32ToBytes32Map storage map, uint256 index) internal view return
  * Replacement of the deprecated {at} function.
  */
 function pos(Bytes32ToBytes32Map storage map, uint256 index) internal view returns (bytes32 key, bytes32 value) {
-    bytes32 atKey = map._keys.at(index);
+    bytes32 atKey = map._keys.pos(index);
     return (atKey, map._values[atKey]);
 }
 
@@ -395,7 +395,7 @@ function remove(${name} storage map, ${key.typeLoc} key) internal returns (bool)
 function clear(${name} storage map) internal {
     uint256 len = length(map);
     for (uint256 i = 0; i < len; ++i) {
-        delete map._values[map._keys.at(i)];
+        delete map._values[map._keys.pos(i)];
     }
     map._keys.clear();
 }
@@ -449,7 +449,7 @@ function pos(
     ${name} storage map,
     uint256 index
 ) internal view returns (${key.typeLoc} key, ${value.typeLoc} value) {
-    key = map._keys.at(index);
+    key = map._keys.pos(index);
     value = map._values[key];
 }
 
