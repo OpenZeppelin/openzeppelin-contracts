@@ -283,13 +283,10 @@ function getFunctionIdFromArgs(fn: FunctionDefinition, args: Argument[]): string
 }
 
 function getFunctionNameQualifiedFromArgs(fn: FunctionDefinition, args: Argument[], onlyConflicting: boolean): string {
-  let filtered = args;
-  if (onlyConflicting) {
-    filtered = args.filter(a => a.type !== a.abiType || a.storageType !== undefined);
-  }
   return (
     fn.name +
-    filtered
+    args
+      .filter(a => !onlyConflicting || a.type !== a.abiType || a.storageType !== undefined)
       .map(arg => arg.storageType ?? arg.type)
       .map(type => type.replace(/ .*/, '').replace(/[^0-9a-zA-Z$_]+/g, '_')) // sanitize
       .join('_')
