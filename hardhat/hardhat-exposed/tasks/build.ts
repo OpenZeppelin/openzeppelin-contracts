@@ -11,12 +11,9 @@ export default async function build(
   runSuper: (taskArguments: TaskArguments) => Promise<any>,
 ) {
   if (args.noExpose !== true) {
-    const exposeTask = hre.tasks.getTask('generate-exposed-contracts');
-
-    // `force` is inherited from `build`
-    const force = 'force' in args ? args.force : false;
-
-    await exposeTask.run({ force });
+    await hre.tasks
+      .getTask('generate-exposed-contracts')
+      .run({ force: args.force ?? false });
   }
 
   return await runSuper(args);
