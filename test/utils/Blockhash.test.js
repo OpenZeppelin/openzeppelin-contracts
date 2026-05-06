@@ -36,13 +36,13 @@ describe('Blockhash', function () {
 
       it('recent block', async function () {
         // fast forward (less than blockhash serve window)
-        await time.increaseTo.blocknumber(this.latestBlock.number + BLOCKHASH_SERVE_WINDOW);
+        await time.increaseTo.blockNumber(this.latestBlock.number + BLOCKHASH_SERVE_WINDOW);
         await expect(this.mock.$blockHash(this.latestBlock.number)).to.eventually.equal(this.latestBlock.hash);
       });
 
       it('old block', async function () {
         // fast forward (more than blockhash serve window)
-        await time.increaseTo.blocknumber(this.latestBlock.number + BLOCKHASH_SERVE_WINDOW + 1);
+        await time.increaseTo.blockNumber(this.latestBlock.number + BLOCKHASH_SERVE_WINDOW + 1);
         await expect(this.mock.$blockHash(this.latestBlock.number)).to.eventually.equal(
           supported ? this.latestBlock.hash : ethers.ZeroHash,
         );
@@ -50,7 +50,7 @@ describe('Blockhash', function () {
 
       it('very old block', async function () {
         // fast forward (more than history serve window)
-        await time.increaseTo.blocknumber(this.latestBlock.number + HISTORY_SERVE_WINDOW + 10);
+        await time.increaseTo.blockNumber(this.latestBlock.number + HISTORY_SERVE_WINDOW + 10);
         await expect(this.mock.$blockHash(this.latestBlock.number)).to.eventually.equal(ethers.ZeroHash);
       });
 
