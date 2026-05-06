@@ -14,6 +14,7 @@ const CLOCK_MODE = {
 
 async function fixture() {
   const mock = await ethers.deployContract('$ERC6372Utils');
+
   const instances = {
     blockNumber: await ethers.deployContract('$ERC20Votes', ['My Token', 'MTKN', 'My Token', '1']),
     timestamp: await ethers.deployContract('$ERC20VotesTimestampMock', ['My Token', 'MTKN', 'My Token', '1']),
