@@ -52,19 +52,11 @@ function getImportPathFromExposedContract(
   exposedFileAbsolutePath: string,
   importedFileInputSourceName: string,
 ): string {
-  let importPath: string;
-
-  if (importedFileInputSourceName.startsWith('project/')) {
-    importPath = path.relative(
-      path.dirname(exposedFileAbsolutePath),
-      importedFileInputSourceName.replace(/^project\//, ''),
-    );
-  } else {
-    importPath = importedFileInputSourceName;
-  }
-
-  // Normalize windows paths to unix paths
-  return importPath.replaceAll(/\\/g, '/');
+  return (
+    importedFileInputSourceName.startsWith('project/')
+      ? path.relative(path.dirname(exposedFileAbsolutePath), importedFileInputSourceName.replace(/^project\//, ''))
+      : importedFileInputSourceName
+  ).replaceAll(/\\/g, '/'); // Normalize windows paths to unix paths
 }
 
 function getExposedFile(
