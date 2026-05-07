@@ -62,11 +62,7 @@ describe('ERC20', function () {
 
         it('sets a custom expiration on the approve overload', async function () {
           const duration = 3600n;
-          const tx = await this.token.connect(this.holder).getFunction('approve(address,uint256,uint32)')(
-            this.recipient,
-            42n,
-            duration,
-          );
+          const tx = await this.token.connect(this.holder).approveForDuration(this.recipient, 42n, duration);
           const timestamp = await time.clockFromReceipt.timestamp(tx.wait());
 
           await expect(this.token.allowanceAndExpiration(this.holder, this.recipient)).to.eventually.deep.equal([
@@ -78,20 +74,14 @@ describe('ERC20', function () {
         it('rejects durations above maxApprovalDuration', async function () {
           const token = await ethers.deployContract('$ERC20ExpiringApprovalMock', [name, symbol]);
 
-          await expect(
-            token.connect(this.holder).getFunction('approve(address,uint256,uint32)')(this.recipient, 42n, 3601n),
-          )
+          await expect(token.connect(this.holder).approveForDuration(this.recipient, 42n, 3601n))
             .to.be.revertedWithCustomError(token, 'ERC8255InvalidApprovalDuration')
             .withArgs(3601n, 3600n);
         });
 
         it('returns zero effective allowance and stored allowance data when the approval expires', async function () {
           const duration = 3600n;
-          const tx = await this.token.connect(this.holder).getFunction('approve(address,uint256,uint32)')(
-            this.recipient,
-            42n,
-            duration,
-          );
+          const tx = await this.token.connect(this.holder).approveForDuration(this.recipient, 42n, duration);
           const timestamp = await time.clockFromReceipt.timestamp(tx.wait());
 
           await time.increaseTo.timestamp(timestamp + duration + 1n);
@@ -118,11 +108,7 @@ describe('ERC20', function () {
               {
                 target: this.token,
                 value: 0n,
-                data: this.token.interface.encodeFunctionData('approve(address,uint256,uint32)', [
-                  spender.target,
-                  value,
-                  0n,
-                ]),
+                data: this.token.interface.encodeFunctionData('approveForDuration', [spender.target, value, 0n]),
               },
               {
                 target: spender,
@@ -142,11 +128,7 @@ describe('ERC20', function () {
 
         it('preserves expiration when transferFrom spends part of the allowance', async function () {
           const duration = 3600n;
-          const tx = await this.token.connect(this.holder).getFunction('approve(address,uint256,uint32)')(
-            this.recipient,
-            42n,
-            duration,
-          );
+          const tx = await this.token.connect(this.holder).approveForDuration(this.recipient, 42n, duration);
           const timestamp = await time.clockFromReceipt.timestamp(tx.wait());
 
           await this.token.connect(this.recipient).transferFrom(this.holder, this.recipient, 17n);
@@ -158,11 +140,7 @@ describe('ERC20', function () {
         });
 
         it('clears expiration when the allowance is fully spent', async function () {
-          await this.token.connect(this.holder).getFunction('approve(address,uint256,uint32)')(
-            this.recipient,
-            42n,
-            3600n,
-          );
+          await this.token.connect(this.holder).approveForDuration(this.recipient, 42n, 3600n);
 
           await this.token.connect(this.recipient).transferFrom(this.holder, this.recipient, 42n);
 

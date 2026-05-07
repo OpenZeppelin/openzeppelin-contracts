@@ -167,7 +167,7 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors, IERC82
     }
 
     /// @inheritdoc IERC8255
-    function approve(address spender, uint256 value, uint32 duration) public virtual returns (bool) {
+    function approveForDuration(address spender, uint256 value, uint32 duration) public virtual returns (bool) {
         address owner = _msgSender();
         _approve(owner, spender, value, duration);
         return true;

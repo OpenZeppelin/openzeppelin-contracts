@@ -32,5 +32,5 @@ interface IERC8255 is IERC20 {
      *
      * Emits an {IERC20-Approval} event.
      */
-    function approve(address spender, uint256 value, uint32 duration) external returns (bool);
+    function approveForDuration(address spender, uint256 value, uint32 duration) external returns (bool);
 }
