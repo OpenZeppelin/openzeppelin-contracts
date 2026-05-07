@@ -335,7 +335,7 @@ A common security practice to prevent user operation https://mirror.xyz/curiousa
 
 The problem with this approach is that the user might be prompted by the wallet provider to sign an https://x.com/howydev/status/1780353754333634738[obfuscated message], which is a phishing vector that may lead to a user losing its assets.
 
-To prevent this, developers may use xref:api:account#ERC7739Signer[`ERC7739Signer`], a utility that implements xref:api:interfaces#IERC1271[`IERC1271`] for smart contract signatures with a defensive rehashing mechanism based on a https://github.com/frangio/eip712-wrapper-for-eip1271[nested EIP-712 approach] to wrap the signature request in a context where there's clearer information for the end user.
+To prevent this, developers may use xref:api:utils/cryptography.adoc#ERC7739[`ERC7739`], a utility that implements xref:api:interfaces.adoc#IERC1271[`IERC1271`] for smart contract signatures with a defensive rehashing mechanism based on a https://github.com/frangio/eip712-wrapper-for-eip1271[nested EIP-712 approach] to wrap the signature request in a context where there's clearer information for the end user.
 
 === EIP-7702 Delegation
 
