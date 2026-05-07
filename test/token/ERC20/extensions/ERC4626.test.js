@@ -633,7 +633,7 @@ describe('ERC4626', function () {
         ]);
 
         await token.$_mint(this.holder, ethers.MaxUint256 / 2n);
-        await token.$_approve(this.holder, vault, ethers.MaxUint256 / 2n);
+        await token.$_approve(this.holder, vault, ethers.MaxUint256);
 
         Object.assign(this, { token, vault });
       });

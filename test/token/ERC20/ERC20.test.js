@@ -2,6 +2,7 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
+const time = require('../../helpers/time');
 
 const {
   shouldBehaveLikeERC20,
@@ -45,6 +46,112 @@ describe('ERC20', function () {
 
       it('has 18 decimals', async function () {
         expect(await this.token.decimals()).to.equal(18n);
+      });
+
+      describe('ERC8255 expiring approvals', function () {
+        it('sets the default expiration on approve', async function () {
+          const tx = await this.token.connect(this.holder).approve(this.recipient, 42n);
+          const timestamp = await time.clockFromReceipt.timestamp(tx.wait());
+
+          await expect(this.token.maxApprovalDuration()).to.eventually.equal(2n ** 32n - 1n);
+          await expect(this.token.allowanceAndExpiration(this.holder, this.recipient)).to.eventually.deep.equal([
+            timestamp + 2n ** 32n - 1n,
+            42n,
+          ]);
+        });
+
+        it('sets a custom expiration on the approve overload', async function () {
+          const duration = 3600n;
+          const tx = await this.token.connect(this.holder).getFunction('approve(address,uint256,uint32)')(
+            this.recipient,
+            42n,
+            duration,
+          );
+          const timestamp = await time.clockFromReceipt.timestamp(tx.wait());
+
+          await expect(this.token.allowanceAndExpiration(this.holder, this.recipient)).to.eventually.deep.equal([
+            timestamp + duration,
+            42n,
+          ]);
+        });
+
+        it('rejects durations above maxApprovalDuration', async function () {
+          const token = await ethers.deployContract('$ERC20ExpiringApprovalMock', [name, symbol]);
+
+          await expect(
+            token.connect(this.holder).getFunction('approve(address,uint256,uint32)')(this.recipient, 42n, 86401n),
+          )
+            .to.be.revertedWithCustomError(token, 'ERC8255InvalidApprovalDuration')
+            .withArgs(86401n, 86400n);
+        });
+
+        it('returns zero allowance when the approval expires', async function () {
+          const duration = 3600n;
+          const tx = await this.token.connect(this.holder).getFunction('approve(address,uint256,uint32)')(
+            this.recipient,
+            42n,
+            duration,
+          );
+          const timestamp = await time.clockFromReceipt.timestamp(tx.wait());
+
+          await time.increaseTo.timestamp(timestamp + duration);
+
+          await expect(this.token.allowance(this.holder, this.recipient)).to.eventually.equal(0n);
+          await expect(this.token.allowanceAndExpiration(this.holder, this.recipient)).to.eventually.deep.equal([
+            timestamp + duration,
+            0n,
+          ]);
+          await expect(this.token.connect(this.recipient).transferFrom(this.holder, this.recipient, 1n))
+            .to.be.revertedWithCustomError(this.token, 'ERC20InsufficientAllowance')
+            .withArgs(this.recipient, 0n, 1n);
+        });
+
+        it('preserves expiration when transferFrom spends part of the allowance', async function () {
+          const duration = 3600n;
+          const tx = await this.token.connect(this.holder).getFunction('approve(address,uint256,uint32)')(
+            this.recipient,
+            42n,
+            duration,
+          );
+          const timestamp = await time.clockFromReceipt.timestamp(tx.wait());
+
+          await this.token.connect(this.recipient).transferFrom(this.holder, this.recipient, 17n);
+
+          await expect(this.token.allowanceAndExpiration(this.holder, this.recipient)).to.eventually.deep.equal([
+            timestamp + duration,
+            25n,
+          ]);
+        });
+
+        it('clears expiration when the allowance is fully spent', async function () {
+          await this.token.connect(this.holder).getFunction('approve(address,uint256,uint32)')(
+            this.recipient,
+            42n,
+            3600n,
+          );
+
+          await this.token.connect(this.recipient).transferFrom(this.holder, this.recipient, 42n);
+
+          await expect(this.token.allowanceAndExpiration(this.holder, this.recipient)).to.eventually.deep.equal([
+            0n,
+            0n,
+          ]);
+        });
+
+        it('supports max uint256 as an allowance sentinel', async function () {
+          await this.token.connect(this.holder).approve(this.recipient, ethers.MaxUint256);
+
+          await this.token.connect(this.recipient).transferFrom(this.holder, this.recipient, 1n);
+
+          await expect(this.token.allowance(this.holder, this.recipient)).to.eventually.equal(ethers.MaxUint256);
+        });
+
+        it('rejects values that cannot be represented in packed allowance storage', async function () {
+          const unsupported = 2n ** 192n - 1n;
+          await expect(this.token.connect(this.holder).approve(this.recipient, unsupported))
+            .to.be.revertedWithCustomError(this.token, 'ERC8255InvalidApprovalValue')
+            .withArgs(unsupported);
+        });
       });
 
       describe('_mint', function () {

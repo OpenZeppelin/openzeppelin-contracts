@@ -68,6 +68,20 @@ describe('ERC20Permit', function () {
       expect(await this.token.allowance(this.owner, this.spender)).to.equal(value);
     });
 
+    it('sets the default approval expiration', async function () {
+      const { v, r, s } = await this.buildData(this.token)
+        .then(({ domain, types, message }) => this.owner.signTypedData(domain, types, message))
+        .then(ethers.Signature.from);
+
+      const tx = await this.token.permit(this.owner, this.spender, value, maxDeadline, v, r, s);
+      const timestamp = await time.clockFromReceipt.timestamp(tx.wait());
+
+      await expect(this.token.allowanceAndExpiration(this.owner, this.spender)).to.eventually.deep.equal([
+        timestamp + 2n ** 32n - 1n,
+        value,
+      ]);
+    });
+
     it('rejects reused signature', async function () {
       const { v, r, s, serialized } = await this.buildData(this.token)
         .then(({ domain, types, message }) => this.owner.signTypedData(domain, types, message))
