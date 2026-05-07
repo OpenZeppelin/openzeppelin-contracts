@@ -79,13 +79,13 @@ describe('ERC20', function () {
           const token = await ethers.deployContract('$ERC20ExpiringApprovalMock', [name, symbol]);
 
           await expect(
-            token.connect(this.holder).getFunction('approve(address,uint256,uint32)')(this.recipient, 42n, 86401n),
+            token.connect(this.holder).getFunction('approve(address,uint256,uint32)')(this.recipient, 42n, 3601n),
           )
             .to.be.revertedWithCustomError(token, 'ERC8255InvalidApprovalDuration')
-            .withArgs(86401n, 86400n);
+            .withArgs(3601n, 3600n);
         });
 
-        it('returns zero allowance when the approval expires', async function () {
+        it('returns zero effective allowance and stored allowance data when the approval expires', async function () {
           const duration = 3600n;
           const tx = await this.token.connect(this.holder).getFunction('approve(address,uint256,uint32)')(
             this.recipient,
@@ -94,16 +94,50 @@ describe('ERC20', function () {
           );
           const timestamp = await time.clockFromReceipt.timestamp(tx.wait());
 
-          await time.increaseTo.timestamp(timestamp + duration);
+          await time.increaseTo.timestamp(timestamp + duration + 1n);
 
           await expect(this.token.allowance(this.holder, this.recipient)).to.eventually.equal(0n);
           await expect(this.token.allowanceAndExpiration(this.holder, this.recipient)).to.eventually.deep.equal([
             timestamp + duration,
-            0n,
+            42n,
           ]);
           await expect(this.token.connect(this.recipient).transferFrom(this.holder, this.recipient, 1n))
-            .to.be.revertedWithCustomError(this.token, 'ERC20InsufficientAllowance')
-            .withArgs(this.recipient, 0n, 1n);
+            .to.be.revertedWithCustomError(this.token, 'ERC8255ExpiredApproval')
+            .withArgs(this.recipient, timestamp + duration);
+        });
+
+        it('allows zero-duration approvals within the same transaction', async function () {
+          const spender = await ethers.deployContract('$Address');
+          const batch = await ethers.deployContract('BatchCaller');
+          const value = 42n;
+
+          await this.token.connect(this.holder).transfer(batch, value);
+
+          await expect(
+            batch.execute([
+              {
+                target: this.token,
+                value: 0n,
+                data: this.token.interface.encodeFunctionData('approve(address,uint256,uint32)', [
+                  spender.target,
+                  value,
+                  0n,
+                ]),
+              },
+              {
+                target: spender,
+                value: 0n,
+                data: spender.interface.encodeFunctionData('$functionCall', [
+                  this.token.target,
+                  this.token.interface.encodeFunctionData('transferFrom', [
+                    batch.target,
+                    this.recipient.address,
+                    value,
+                  ]),
+                ]),
+              },
+            ]),
+          ).to.changeTokenBalances(this.token, [batch, this.recipient], [-value, value]);
         });
 
         it('preserves expiration when transferFrom spends part of the allowance', async function () {

@@ -14,12 +14,10 @@ interface IERC8255 is IERC20 {
     /**
      * @dev Returns the maximum approval duration, in seconds.
      */
-    function maxApprovalDuration() external view returns (uint32);
+    function maxApprovalDuration() external pure returns (uint32);
 
     /**
-     * @dev Returns the approval expiration timestamp and effective allowance for `spender` over `owner` tokens.
-     *
-     * If the approval has expired, the returned allowance is 0.
+     * @dev Returns the stored approval expiration timestamp and allowance for `spender` over `owner` tokens.
      */
     function allowanceAndExpiration(
         address owner,

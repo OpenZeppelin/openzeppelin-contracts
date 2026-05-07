@@ -39,7 +39,7 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors, IERC82
     string private _name;
     string private _symbol;
 
-    uint256 private constant ALLOWANCE_VALUE_MASK = (uint256(1) << 192) - 1;
+    uint256 private constant ALLOWANCE_VALUE_MASK = type(uint192).max;
     uint256 private constant ALLOWANCE_MAX_VALUE_SENTINEL = ALLOWANCE_VALUE_MASK;
 
     /**
@@ -56,6 +56,11 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors, IERC82
      * @dev The computed approval expiration cannot be represented as a `uint64`.
      */
     error ERC8255InvalidApprovalExpiration(uint256 expiration);
+
+    /**
+     * @dev The approval is expired.
+     */
+    error ERC8255ExpiredApproval(address spender, uint64 expiration);
 
     /**
      * @dev Sets the values for {name} and {symbol}.
@@ -125,12 +130,15 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors, IERC82
 
     /// @inheritdoc IERC20
     function allowance(address owner, address spender) public view virtual returns (uint256) {
-        (, uint256 value) = allowanceAndExpiration(owner, spender);
+        (uint64 expiration, uint256 value) = allowanceAndExpiration(owner, spender);
+        if (_isExpired(expiration)) {
+            return 0;
+        }
         return value;
     }
 
     /// @inheritdoc IERC8255
-    function maxApprovalDuration() public view virtual returns (uint32) {
+    function maxApprovalDuration() public pure virtual returns (uint32) {
         return type(uint32).max;
     }
 
@@ -139,14 +147,7 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors, IERC82
         address owner,
         address spender
     ) public view virtual returns (uint64 expiration, uint256 value) {
-        (expiration, value) = _unpackAllowance(_allowances[owner][spender]);
-        if (value == 0) {
-            return (0, 0);
-        }
-
-        if (expiration <= block.timestamp) {
-            return (expiration, 0);
-        }
+        return _unpackAllowance(_allowances[owner][spender]);
     }
 
     /**
@@ -374,10 +375,13 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors, IERC82
      */
     function _spendAllowance(address owner, address spender, uint256 value) internal virtual {
         (uint64 expiration, uint256 currentAllowance) = allowanceAndExpiration(owner, spender);
+        if (currentAllowance < value) {
+            revert ERC20InsufficientAllowance(spender, currentAllowance, value);
+        }
+        if (value > 0 && _isExpired(expiration)) {
+            revert ERC8255ExpiredApproval(spender, expiration);
+        }
         if (currentAllowance < type(uint256).max) {
-            if (currentAllowance < value) {
-                revert ERC20InsufficientAllowance(spender, currentAllowance, value);
-            }
             unchecked {
                 uint256 updatedAllowance = currentAllowance - value;
                 _approve(owner, spender, updatedAllowance, false);
@@ -386,6 +390,13 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors, IERC82
                 }
             }
         }
+    }
+
+    /**
+     * @dev Returns whether an approval expiration is in the past.
+     */
+    function _isExpired(uint64 expiration) private view returns (bool) {
+        return expiration < block.timestamp;
     }
 
     /**
