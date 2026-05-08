@@ -12,6 +12,11 @@ import {IERC20} from "./IERC20.sol";
  */
 interface IERC8255 is IERC20 {
     /**
+     * @dev Optional event emitted when an approval expiration is set.
+     */
+    event ApprovalExpiration(address indexed owner, address indexed spender, uint64 expiration);
+
+    /**
      * @dev Returns the maximum approval duration, in seconds.
      */
     function maxApprovalDuration() external pure returns (uint32);

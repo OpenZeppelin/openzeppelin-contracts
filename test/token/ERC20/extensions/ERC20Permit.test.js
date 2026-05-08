@@ -8,6 +8,7 @@ const time = require('../../../helpers/time');
 const name = 'My Token';
 const symbol = 'MTKN';
 const initialSupply = 100n;
+const defaultApprovalDuration = 3600n;
 
 async function fixture() {
   const [holder, spender, owner, other] = await ethers.getSigners();
@@ -76,8 +77,11 @@ describe('ERC20Permit', function () {
       const tx = await this.token.permit(this.owner, this.spender, value, maxDeadline, v, r, s);
       const timestamp = await time.clockFromReceipt.timestamp(tx.wait());
 
+      await expect(tx)
+        .to.emit(this.token, 'ApprovalExpiration')
+        .withArgs(this.owner, this.spender, timestamp + defaultApprovalDuration);
       await expect(this.token.allowanceAndExpiration(this.owner, this.spender)).to.eventually.deep.equal([
-        timestamp + 2n ** 32n - 1n,
+        timestamp + defaultApprovalDuration,
         value,
       ]);
     });

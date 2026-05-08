@@ -139,7 +139,7 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors, IERC82
 
     /// @inheritdoc IERC8255
     function maxApprovalDuration() public pure virtual returns (uint32) {
-        return type(uint32).max;
+        return 1 hours;
     }
 
     /// @inheritdoc IERC8255
@@ -359,9 +359,11 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors, IERC82
             revert ERC8255InvalidApprovalDuration(duration, maxDuration);
         }
 
-        _allowances[owner][spender] = _packAllowance(_expiration(value, duration), value);
+        uint64 expiration = _expiration(value, duration);
+        _allowances[owner][spender] = _packAllowance(expiration, value);
         if (emitEvent) {
             emit Approval(owner, spender, value);
+            emit ApprovalExpiration(owner, spender, expiration);
         }
     }
 
@@ -403,11 +405,18 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors, IERC82
      * @dev Returns an absolute expiration timestamp for an approval created with `duration`.
      */
     function _expiration(uint256 value, uint32 duration) private view returns (uint64) {
+        return _expiration(value, duration, block.timestamp);
+    }
+
+    /**
+     * @dev Returns an absolute expiration timestamp for an approval created with `duration` at `timestamp`.
+     */
+    function _expiration(uint256 value, uint32 duration, uint256 timestamp) internal pure returns (uint64) {
         if (value == 0) {
             return 0;
         }
 
-        uint256 expiration = block.timestamp + duration;
+        uint256 expiration = timestamp + duration;
         if (expiration > type(uint64).max) {
             revert ERC8255InvalidApprovalExpiration(expiration);
         }
