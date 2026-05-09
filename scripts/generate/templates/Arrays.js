@@ -62,25 +62,34 @@ const quickSort = `\
  */
 function _quickSort(uint256 begin, uint256 end, function(uint256, uint256) pure returns (bool) comp) private pure {
     unchecked {
-        if (end - begin < 0x40) return;
-
-        // Use first element as pivot
-        uint256 pivot = _mload(begin);
-        // Position where the pivot should be at the end of the loop
-        uint256 pos = begin;
-
-        for (uint256 it = begin + 0x20; it < end; it += 0x20) {
-            if (comp(_mload(it), pivot)) {
-                // If the value stored at the iterator's position comes before the pivot, we increment the
-                // position of the pivot and move the value there.
-                pos += 0x20;
-                _swap(pos, it);
+        uint256 size = (end - begin) / 0x20;
+        if (size < 2) return;
+        uint256[] memory stack = new uint256[](2 * size);
+        uint256 top = 0;
+        stack[top++] = begin;
+        stack[top++] = end;
+        while (top > 0) {
+            end = stack[--top];
+            begin = stack[--top];
+            if (end - begin < 0x40) continue;
+            uint256 pivot = _mload(begin);
+            uint256 pos = begin;
+            for (uint256 it = begin + 0x20; it < end; it += 0x20) {
+                if (comp(_mload(it), pivot)) {
+                    pos += 0x20;
+                    _swap(pos, it);
+                }
+            }
+            _swap(begin, pos);
+            if (pos > begin + 0x20) {
+                stack[top++] = begin;
+                stack[top++] = pos;
+            }
+            if (pos + 0x40 < end) {
+                stack[top++] = pos + 0x20;
+                stack[top++] = end;
             }
         }
-
-        _swap(begin, pos); // Swap pivot into place
-        _quickSort(begin, pos, comp); // Sort the left side of the pivot
-        _quickSort(pos + 0x20, end, comp); // Sort the right side of the pivot
     }
 }
 
