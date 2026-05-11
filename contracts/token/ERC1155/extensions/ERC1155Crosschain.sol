@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.26;
+pragma solidity ^0.8.31;
 
 import {ERC1155} from "../ERC1155.sol";
 import {BridgeMultiToken} from "../../../crosschain/bridges/abstract/BridgeMultiToken.sol";

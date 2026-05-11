@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.26;
+pragma solidity ^0.8.31;
 
 import {Governor} from "../Governor.sol";
 import {Mode} from "../../account/utils/draft-ERC7579Utils.sol";
