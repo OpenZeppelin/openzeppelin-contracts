@@ -38,7 +38,10 @@ abstract contract ERC20ExpiringApproval is ERC20, IERC8255 {
         return value;
     }
 
-    /// @inheritdoc IERC8255
+    /**
+     * @inheritdoc IERC8255
+     * @dev The default maximum approval duration is 1 hour. Override this function to use a different limit.
+     */
     function maxApprovalDuration() public pure virtual returns (uint32) {
         return 1 hours;
     }
