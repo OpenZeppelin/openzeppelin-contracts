@@ -256,7 +256,7 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
      * @dev Variant of {_approve} with an optional flag to enable or disable the {Approval} event.
      *
      * By default (when calling {_approve}) the flag is set to true. On the other hand, approval changes made by
-     * `_spendAllowance` during the `transferFrom` operation set the flag to false. This saves gas by not emitting any
+     * `_spendAllowance` during the `transferFrom` operation sets the flag to false. This saves gas by not emitting any
      * `Approval` event during `transferFrom` operations.
      *
      * Anyone who wishes to continue emitting `Approval` events on the `transferFrom` operation can force the flag to
@@ -294,10 +294,10 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
      */
     function _spendAllowance(address owner, address spender, uint256 value) internal virtual {
         uint256 currentAllowance = allowance(owner, spender);
-        if (currentAllowance < value) {
-            revert ERC20InsufficientAllowance(spender, currentAllowance, value);
-        }
         if (currentAllowance < type(uint256).max) {
+            if (currentAllowance < value) {
+                revert ERC20InsufficientAllowance(spender, currentAllowance, value);
+            }
             unchecked {
                 _approve(owner, spender, currentAllowance - value, false);
             }
