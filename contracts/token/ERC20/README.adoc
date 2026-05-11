@@ -10,9 +10,8 @@ TIP: For an overview of ERC-20 tokens and a walk through on how to create a toke
 There are a few core contracts that implement the behavior specified in the ERC-20 standard:
 
 * {IERC20}: the interface all ERC-20 implementations should conform to.
-* {IERC8255}: the ERC-20 extension for expiring approvals.
 * {IERC20Metadata}: the extended ERC-20 interface including the <<ERC20-name--,`name`>>, <<ERC20-symbol--,`symbol`>> and <<ERC20-decimals--,`decimals`>> functions.
-* {ERC20}: the implementation of the ERC-20 interface, including expiring approvals and the <<ERC20-name--,`name`>>, <<ERC20-symbol--,`symbol`>> and <<ERC20-decimals--,`decimals`>> optional extensions to the standard interface.
+* {ERC20}: the implementation of the ERC-20 interface, including the <<ERC20-name--,`name`>>, <<ERC20-symbol--,`symbol`>> and <<ERC20-decimals--,`decimals`>> optional extensions to the standard interface.
 
 Additionally there are multiple custom extensions, including:
 
@@ -25,6 +24,7 @@ Additionally there are multiple custom extensions, including:
 * {ERC20FlashMint}: token level support for flash loans through the minting and burning of ephemeral tokens (standardized as ERC-3156).
 * {ERC20Votes}: support for voting and vote delegation. xref:governance.adoc#token[See the governance guide for a minimal example (with the required overrides when combining ERC20 + ERC20Permit + ERC20Votes)].
 * {ERC20Wrapper}: wrapper to create an ERC-20 backed by another ERC-20, with deposit and withdraw methods. Useful in conjunction with {ERC20Votes}.
+* {ERC20ExpiringApproval}: support for expiring approvals, as defined in ERC-8255.
 * {ERC20TemporaryApproval}: support for approvals lasting for only one transaction, as defined in ERC-7674.
 * {ERC1363}: support for calling the target of a transfer or approval, enabling code execution on the receiver within a single transaction.
 * {ERC4626}: tokenized vault that manages shares (represented as ERC-20) that are backed by assets (another ERC-20).
@@ -43,13 +43,13 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 
 {{IERC20}}
 
-{{IERC8255}}
-
 {{IERC20Metadata}}
 
 {{ERC20}}
 
 == Extensions
+
+{{IERC8255}}
 
 {{IERC20Permit}}
 
@@ -70,6 +70,8 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 {{ERC20Wrapper}}
 
 {{ERC20FlashMint}}
+
+{{ERC20ExpiringApproval}}
 
 {{ERC20TemporaryApproval}}
 

@@ -8,7 +8,6 @@ const time = require('../../../helpers/time');
 const name = 'My Token';
 const symbol = 'MTKN';
 const initialSupply = 100n;
-const defaultApprovalDuration = 3600n;
 
 async function fixture() {
   const [holder, spender, owner, other] = await ethers.getSigners();
@@ -67,23 +66,6 @@ describe('ERC20Permit', function () {
 
       expect(await this.token.nonces(this.owner)).to.equal(1n);
       expect(await this.token.allowance(this.owner, this.spender)).to.equal(value);
-    });
-
-    it('sets the default approval expiration', async function () {
-      const { v, r, s } = await this.buildData(this.token)
-        .then(({ domain, types, message }) => this.owner.signTypedData(domain, types, message))
-        .then(ethers.Signature.from);
-
-      const tx = await this.token.permit(this.owner, this.spender, value, maxDeadline, v, r, s);
-      const timestamp = await time.clockFromReceipt.timestamp(tx.wait());
-
-      await expect(tx)
-        .to.emit(this.token, 'ApprovalExpiration')
-        .withArgs(this.owner, this.spender, timestamp + defaultApprovalDuration);
-      await expect(this.token.allowanceAndExpiration(this.owner, this.spender)).to.eventually.deep.equal([
-        timestamp + defaultApprovalDuration,
-        value,
-      ]);
     });
 
     it('rejects reused signature', async function () {
