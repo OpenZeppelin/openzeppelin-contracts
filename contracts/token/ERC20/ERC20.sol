@@ -277,7 +277,6 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
         if (spender == address(0)) {
             revert ERC20InvalidSpender(address(0));
         }
-
         _allowances[owner][spender] = value;
         if (emitEvent) {
             emit Approval(owner, spender, value);
