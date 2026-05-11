@@ -80,27 +80,28 @@ abstract contract ERC20ExpiringApproval is ERC20, IERC8255 {
      * - `duration` cannot exceed {maxApprovalDuration}.
      */
     function _approve(address owner, address spender, uint256 value, uint32 duration) internal {
-        _approve(owner, spender, value, duration, true);
+        _approve(owner, spender, value, _expiration(value, duration), true);
     }
 
     /**
      * @dev Variant of {_approve} that sets the approval expiration to `block.timestamp + maxApprovalDuration()`.
      */
     function _approve(address owner, address spender, uint256 value, bool emitEvent) internal virtual override {
-        _approve(owner, spender, value, maxApprovalDuration(), emitEvent);
+        _approve(owner, spender, value, _expiration(value, maxApprovalDuration()), emitEvent);
     }
 
     /**
-     * @dev Variant of {_approve} with an approval duration and an optional flag to enable or disable the {Approval}
-     * and {IERC8255-ApprovalExpiration} events.
+     * @dev Variant of {_approve} with an approval expiration and an optional flag to enable or disable the {Approval}
+     * and {IERC8255-ApprovalExpiration} events. This is used by {_spendAllowance} to preserve the original
+     * expiration.
      */
-    function _approve(address owner, address spender, uint256 value, uint32 duration, bool emitEvent) internal virtual {
-        uint32 maxDuration = maxApprovalDuration();
-        if (duration > maxDuration) {
-            revert ERC8255InvalidApprovalDuration(duration, maxDuration);
-        }
-
-        uint64 expiration = _expiration(value, duration);
+    function _approve(
+        address owner,
+        address spender,
+        uint256 value,
+        uint64 expiration,
+        bool emitEvent
+    ) internal virtual {
         super._approve(owner, spender, value, emitEvent);
         _allowanceExpirations[owner][spender] = expiration;
         if (emitEvent) {
@@ -125,10 +126,7 @@ abstract contract ERC20ExpiringApproval is ERC20, IERC8255 {
         if (currentAllowance < type(uint256).max) {
             unchecked {
                 uint256 updatedAllowance = currentAllowance - value;
-                _approve(owner, spender, updatedAllowance, false);
-                if (updatedAllowance != 0) {
-                    _allowanceExpirations[owner][spender] = expiration;
-                }
+                _approve(owner, spender, updatedAllowance, updatedAllowance == 0 ? 0 : expiration, false);
             }
         }
     }
@@ -144,6 +142,10 @@ abstract contract ERC20ExpiringApproval is ERC20, IERC8255 {
      * @dev Returns an absolute expiration timestamp for an approval created with `duration`.
      */
     function _expiration(uint256 value, uint32 duration) internal view returns (uint64) {
+        uint32 maxDuration = maxApprovalDuration();
+        if (duration > maxDuration) {
+            revert ERC8255InvalidApprovalDuration(duration, maxDuration);
+        }
         return _expiration(value, duration, block.timestamp);
     }
 
