@@ -86,10 +86,7 @@ describe('ERC20TemporaryApproval', function () {
               persistentAllowance && {
                 target: this.token,
                 value: 0n,
-                data: this.token.interface.encodeFunctionData('approve(address,uint256)', [
-                  this.spender.target,
-                  persistentAllowance,
-                ]),
+                data: this.token.interface.encodeFunctionData('approve', [this.spender.target, persistentAllowance]),
               },
               temporaryAllowance && {
                 target: this.token,
