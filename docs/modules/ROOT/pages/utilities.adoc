@@ -527,7 +527,7 @@ function processMultipleItems(uint256[] memory items) internal {
   for (uint256 i = 0; i < items.length; i++) {
     bytes memory tempData = abi.encode(items[i], block.timestamp);
     // Process tempData...
-    Memory.setFreeMemoryPointer(ptr); // Reset pointer for reuse
+    Memory.unsafeSetFreeMemoryPointer(ptr); // Reset pointer for reuse
   }
 }
 ----

@@ -2,6 +2,7 @@
 
 | Date          | Version | Commit                                                                           | Auditor      | Scope                              | Links                                                       |
 | ------------- | ------- | -------------------------------------------------------------------------------- | ------------ | ---------------------------------- | ----------------------------------------------------------- |
+| February 2026 | v5.6.0  | [`68e4095`](https://github.com/openzeppelin/openzeppelin-contracts/tree/68e4095) | OpenZeppelin | v5.5 & v5.6 Changes                | [🔗](./2026-02-v5.6.pdf)                                    |
 | November 2025 | v5.5.0  | [`d9f966f`](https://github.com/openzeppelin/openzeppelin-contracts/tree/d9f966f) | OpenZeppelin | RLP                                | [🔗](./2025-11-RLP.pdf)                                     |
 | October 2025  | v5.5.0  | [`f5edfc0`](https://github.com/openzeppelin/openzeppelin-contracts/tree/f5edfc0) | OpenZeppelin | SafeERC20, ECDSA, SignatureChecker | [🔗](./2025-10-v5.5.pdf)                                    |
 | July 2025     | v5.4.0  | [`f6fea85`](https://github.com/openzeppelin/openzeppelin-contracts/tree/f6fea85) | OpenZeppelin | v5.4 Changes                       | [🔗](./2025-07-v5.4.pdf)                                    |
