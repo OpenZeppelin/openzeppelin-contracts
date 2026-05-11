@@ -696,7 +696,7 @@ library Math {
      * Adding one to the result gives the number of pairs of hex symbols needed to represent `value` as a hex string.
      */
     function log256(uint256 value) internal pure returns (uint256) {
-        return log2(value) / 8;
+        return log2(value) >> 3;
     }
 
     /**
