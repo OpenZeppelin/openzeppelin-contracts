@@ -205,6 +205,18 @@ describe('RLP', function () {
     });
   });
 
+  for (const { name, fn, input } of [
+    { name: 'bool', fn: '$decodeBool', input: '0x0102' },
+    { name: 'uint256', fn: '$decodeUint256', input: '0x0102' },
+    { name: 'bytes32', fn: '$decodeBytes32', input: '0x8204d200' },
+    { name: 'bytes', fn: '$decodeBytes', input: '0x83646f6780' },
+    { name: 'string', fn: '$decodeString', input: '0x83646f6780' },
+  ]) {
+    it(`rejects trailing bytes after ${name}`, async function () {
+      await expect(this.mock[fn](input)).to.be.revertedWithCustomError(this.mock, 'RLPInvalidEncoding');
+    });
+  }
+
   it('RLP encoder predict create addresses', async function () {
     for (const [from, nonce] of product(
       [
