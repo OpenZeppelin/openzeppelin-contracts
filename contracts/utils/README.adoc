@@ -33,6 +33,7 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {Comparators}: A library that contains comparator functions to use with the {Heap} library.
  * {Context}: A utility for abstracting the sender and calldata in the current execution context.
  * {Create2}: Wrapper around the https://blog.openzeppelin.com/getting-the-most-out-of-create2/[`CREATE2` EVM opcode] for safe use without having to deal with low-level assembly.
+ * {ERC6372Utils}: Utility library for the ERC-6372 clock standard
  * {InteroperableAddress}: Library for formatting and parsing ERC-7930 interoperable addresses.
  * {LowLevelCall}: Collection of functions to perform calls with low-level assembly.
  * {Memory}: A utility library to manipulate memory.
@@ -42,6 +43,7 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {RelayedCall}: A library for performing calls that use minimal and predictable relayers to hide the sender.
  * {RLP}: Library for encoding and decoding data in Ethereum's Recursive Length Prefix format.
  * {ShortStrings}: Library to encode (and decode) short strings into (or from) a single bytes32 slot for optimizing costs. Short strings are limited to 31 characters.
+ * {SimulateCall}: Library for simulating contract calls, enabling safe inspection of call results without affecting on-chain state.
  * {SlotDerivation}: Methods for deriving storage slot from ERC-7201 namespaces as well as from constructions such as mapping and arrays.
  * {StorageSlot}: Methods for accessing specific storage slots formatted as common primitive types.
  * {Strings}: Common operations for strings formatting.
@@ -131,6 +133,8 @@ Ethereum contracts have no native concept of an interface, so applications must 
 
 {{Create2}}
 
+{{ERC6372Utils}}
+
 {{InteroperableAddress}}
 
 {{LowLevelCall}}
@@ -148,6 +152,8 @@ Ethereum contracts have no native concept of an interface, so applications must 
 {{RLP}}
 
 {{ShortStrings}}
+
+{{SimulateCall}}
 
 {{SlotDerivation}}
 

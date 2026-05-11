@@ -141,9 +141,51 @@ contract WebAuthnTest is Test {
         );
     }
 
+    /// forge-config: default.fuzz.runs = 512
+    function testVerifyIndexOutOfBounds(bytes memory challenge, uint256 seed) public view {
+        bytes memory authenticatorData = _encodeAuthenticatorData(WebAuthn.AUTH_DATA_FLAGS_UP);
+        string memory clientDataJSON = _encodeClientDataJSON(challenge);
+
+        assertFalse(
+            _runVerify(
+                seed,
+                challenge,
+                bytes(clientDataJSON).length, // end of the clientDataJSON, no more room slicing
+                1,
+                authenticatorData,
+                clientDataJSON,
+                false
+            )
+        );
+
+        assertFalse(
+            _runVerify(
+                seed,
+                challenge,
+                type(uint256).max, // way out of bound, causing an overflow when figuring out the end of the slice
+                1,
+                authenticatorData,
+                clientDataJSON,
+                false
+            )
+        );
+    }
+
     function _runVerify(
         uint256 seed,
         bytes memory challenge,
+        bytes memory authenticatorData,
+        string memory clientDataJSON,
+        bool requireUV
+    ) private view returns (bool) {
+        return _runVerify(seed, challenge, 23, 1, authenticatorData, clientDataJSON, requireUV);
+    }
+
+    function _runVerify(
+        uint256 seed,
+        bytes memory challenge,
+        uint256 challengeIndex,
+        uint256 typeIndex,
         bytes memory authenticatorData,
         string memory clientDataJSON,
         bool requireUV
@@ -163,8 +205,8 @@ contract WebAuthnTest is Test {
                 WebAuthn.WebAuthnAuth({
                     authenticatorData: authenticatorData,
                     clientDataJSON: clientDataJSON,
-                    challengeIndex: 23, // Position of challenge in clientDataJSON
-                    typeIndex: 1, // Position of type in clientDataJSON
+                    challengeIndex: challengeIndex, // Position of challenge in clientDataJSON
+                    typeIndex: typeIndex, // Position of type in clientDataJSON
                     r: r,
                     s: bytes32(Math.min(uint256(s), P256.N - uint256(s)))
                 }),

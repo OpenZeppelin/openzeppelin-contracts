@@ -5,7 +5,6 @@ pragma solidity ^0.8.31;
 import {Test} from "forge-std/Test.sol";
 
 import {P256} from "@openzeppelin/contracts/utils/cryptography/P256.sol";
-import {Errors} from "@openzeppelin/contracts/utils/Errors.sol";
 
 contract P256Test is Test {
     /// forge-config: default.fuzz.runs = 512
@@ -41,10 +40,5 @@ contract P256Test is Test {
         unchecked {
             return _s > P256.N / 2 ? bytes32(P256.N - _s) : s;
         }
-    }
-
-    // See https://github.com/foundry-rs/foundry/issues/10237
-    function verifyNative(bytes32 digest, bytes32 r, bytes32 s, bytes32 x, bytes32 y) external view {
-        P256.verifyNative(digest, r, s, x, y);
     }
 }
