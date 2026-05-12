@@ -11,9 +11,9 @@ const { shouldSupportInterfaces } = require('../utils/introspection/SupportsInte
 const { shouldBehaveLikeERC6372 } = require('./utils/ERC6372.behavior');
 
 const TOKENS = [
-  { Token: '$ERC20Votes', mode: 'blocknumber' },
+  { Token: '$ERC20Votes', mode: 'blockNumber' },
   { Token: '$ERC20VotesTimestampMock', mode: 'timestamp' },
-  { Token: '$ERC20VotesLegacyMock', mode: 'blocknumber' },
+  { Token: '$ERC20VotesLegacyMock', mode: 'blockNumber' },
 ];
 
 const name = 'OZ-Governor';
