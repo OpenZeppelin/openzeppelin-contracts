@@ -6,6 +6,7 @@ pragma solidity ^0.8.20;
 import {VestingWallet} from "./VestingWallet.sol";
 import {SafeERC20} from "../token/ERC20/utils/SafeERC20.sol";
 import {IERC20} from "../token/ERC20/IERC20.sol";
+import {Address} from "../utils/Address.sol";
 
 /**
  * @dev Extension of {VestingWallet} that allows the owner to revoke the vesting schedule.
@@ -20,6 +21,7 @@ abstract contract VestingWalletRevocable is VestingWallet {
     using SafeERC20 for IERC20;
 
     bool private _revoked;
+    uint64 private _revocationTimestamp;
     uint256 private _ethAllocationSnapshot;
     mapping(address token => uint256) private _erc20AllocationSnapshot;
 
@@ -48,11 +50,11 @@ abstract contract VestingWalletRevocable is VestingWallet {
      * Emits a {VestingRevoked} event.
      */
     function revoke(address[] calldata tokens) external onlyOwner {
-        // Checks against double revoking
         if (_revoked) revert AlreadyRevoked();
 
-        // Snapshot allocations before any transfers
-        _etherAllocationSnapshot = address(this).balance + released();
+        // Snapshot allocations and timestamp before state change
+        _revocationTimestamp = uint64(block.timestamp);
+        _ethAllocationSnapshot = address(this).balance + released();
         for (uint256 i = 0; i < tokens.length; i++) {
             _erc20AllocationSnapshot[tokens[i]] = IERC20(tokens[i]).balanceOf(address(this)) + released(tokens[i]);
         }
@@ -62,7 +64,7 @@ abstract contract VestingWalletRevocable is VestingWallet {
         // Return unvested ETH to owner
         uint256 unvestedEth = address(this).balance - vestedAmount(uint64(block.timestamp));
         if (unvestedEth > 0) {
-            payable(owner()).transfer(unvestedEth);
+            Address.sendValue(payable(owner()), unvestedEth);
         }
 
         // Return unvested ERC-20s to owner
@@ -85,7 +87,7 @@ abstract contract VestingWalletRevocable is VestingWallet {
      */
     function vestedAmount(uint64 timestamp) public view virtual override returns (uint256) {
         if (_revoked) {
-            return _vestingSchedule(_ethAllocationSnapshot, timestamp);
+            return _vestingSchedule(_ethAllocationSnapshot, _revocationTimestamp);
         }
         return super.vestedAmount(timestamp);
     }
@@ -95,10 +97,16 @@ abstract contract VestingWalletRevocable is VestingWallet {
      *
      * If the vesting has been revoked, returns the vested amount based on the token allocation at the
      * time of revocation. Otherwise, delegates to the parent implementation.
+     * For tokens not included in the revoke call, falls back to the parent with the frozen timestamp
+     * since their balance was not transferred out.
      */
     function vestedAmount(address token, uint64 timestamp) public view virtual override returns (uint256) {
         if (_revoked) {
-            return _vestingSchedule(_erc20AllocationSnapshot[token], timestamp);
+            uint256 snapshot = _erc20AllocationSnapshot[token];
+            if (snapshot == 0) {
+                return super.vestedAmount(token, _revocationTimestamp);
+            }
+            return _vestingSchedule(snapshot, _revocationTimestamp);
         }
         return super.vestedAmount(token, timestamp);
     }
