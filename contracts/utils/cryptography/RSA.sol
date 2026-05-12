@@ -123,13 +123,31 @@ library RSA {
             // Length is at least 0x100 and offset is at most 0x34, so this is safe. There is always some padding.
             uint256 paddingEnd = length - offset;
 
-            // The padding has variable (arbitrary) length, so we check it byte per byte in a loop.
+            // The padding has variable (arbitrary) length, so we check it 32 bytes at a time for gas efficiency.
             // This is required to ensure non-malleability. Not checking would allow an attacker to
             // use the padding to manipulate the message in order to create a valid signature out of
             // multiple valid signatures.
-            for (uint256 i = 2; i < paddingEnd; ++i) {
-                if (bytes1(_unsafeReadBytes32(buffer, i)) != 0xFF) {
+            {
+                // First word: bytes [0..31]. Byte 0 is 0x00 and byte 1 is 0x01 (checked later).
+                // Bytes [2..31] must all be 0xFF. Mask out top 2 bytes.
+                bytes32 firstMask = bytes32(type(uint256).max >> 16);
+                if (_unsafeReadBytes32(buffer, 0) & firstMask != firstMask) {
                     return false;
+                }
+                // Full 32-byte words: bytes [32..paddingEnd) in 32-byte chunks
+                for (uint256 i = 0x20; i + 0x20 <= paddingEnd; i += 0x20) {
+                    if (_unsafeReadBytes32(buffer, i) != bytes32(type(uint256).max)) {
+                        return false;
+                    }
+                }
+                // Last partial word: if paddingEnd is not 32-byte aligned
+                uint256 lastWordStart = (paddingEnd / 0x20) * 0x20;
+                uint256 tail = paddingEnd - lastWordStart;
+                if (lastWordStart >= 0x20 && tail > 0) {
+                    bytes32 lastMask = bytes32(type(uint256).max << ((0x20 - tail) * 8));
+                    if (_unsafeReadBytes32(buffer, lastWordStart) & lastMask != lastMask) {
+                        return false;
+                    }
                 }
             }
 
