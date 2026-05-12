@@ -7,7 +7,7 @@ const time = require('../../helpers/time');
 
 const { shouldBehaveLikeERC6372 } = require('./ERC6372.behavior');
 
-function shouldBehaveLikeVotes(tokens, { mode = 'blocknumber', fungible = true }) {
+function shouldBehaveLikeVotes(tokens, { mode = 'blockNumber', fungible = true }) {
   beforeEach(async function () {
     [this.delegator, this.delegatee, this.alice, this.bob, this.other] = this.accounts;
     this.domain = await getDomain(this.votes);
