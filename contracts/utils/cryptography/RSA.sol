@@ -130,13 +130,13 @@ library RSA {
             {
                 // First word: bytes [0..31]. Byte 0 is 0x00 and byte 1 is 0x01 (checked later).
                 // Bytes [2..31] must all be 0xFF. Mask out top 2 bytes.
-                bytes32 firstMask = bytes32(type(uint256).max >> 16);
+                bytes32 firstMask = ~bytes32(uint256(0xffff) << 240);
                 if (_unsafeReadBytes32(buffer, 0) & firstMask != firstMask) {
                     return false;
                 }
                 // Full 32-byte words: bytes [32..paddingEnd) in 32-byte chunks
                 for (uint256 i = 0x20; i + 0x20 <= paddingEnd; i += 0x20) {
-                    if (_unsafeReadBytes32(buffer, i) != bytes32(type(uint256).max)) {
+                    if (_unsafeReadBytes32(buffer, i) != ~bytes32(0)) {
                         return false;
                     }
                 }
@@ -144,7 +144,7 @@ library RSA {
                 uint256 lastWordStart = (paddingEnd / 0x20) * 0x20;
                 uint256 tail = paddingEnd - lastWordStart;
                 if (lastWordStart >= 0x20 && tail > 0) {
-                    bytes32 lastMask = bytes32(type(uint256).max << ((0x20 - tail) * 8));
+                    bytes32 lastMask = ~bytes32(type(uint256).max >> (tail * 8));
                     if (_unsafeReadBytes32(buffer, lastWordStart) & lastMask != lastMask) {
                         return false;
                     }
