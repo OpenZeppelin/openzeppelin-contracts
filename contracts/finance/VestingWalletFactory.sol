@@ -53,4 +53,17 @@ contract VestingWalletFactory is Ownable {
 
         emit VestingScheduleCreated(scheduleId, beneficiary, token, startTimestamp, durationSeconds, amount);
     }
+
+    function _vestingSchedule(uint256 totalAllocation, uint64 start, uint64 duration, uint64 timestamp) internal pure virtual returns (uint256) {
+        uint64 end = start + duration;
+        if (timestamp < start) {
+            return 0;
+        }
+        else if (timestamp >= end) {
+            return totalAllocation;
+        }
+        else {
+            return (totalAllocation * (timestamp - start)) / duration;
+        }
+    }
 }
