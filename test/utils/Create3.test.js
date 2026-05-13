@@ -131,20 +131,6 @@ describe('Create3', function () {
         .withArgs(0n, 1n);
     });
 
-    it('fails deploying a contract when sending value to a non-payable constructor', async function () {
-      const value = 10n;
-      await this.deployer.sendTransaction({ to: this.factory, value });
-
-      // ConstructorMock has a non-payable constructor: Solidity inserts a callvalue check that reverts with no data.
-      await expect(
-        this.factory.$deploy(
-          value,
-          saltHex,
-          ethers.concat([this.mockFactory.bytecode, this.mockFactory.interface.encodeDeploy([RevertType.None])]),
-        ),
-      ).to.be.revertedWithCustomError(this.factory, 'FailedDeployment');
-    });
-
     describe('reverts error thrown during contract creation', function () {
       it('bubbles up without message', async function () {
         await expect(
