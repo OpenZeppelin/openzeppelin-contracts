@@ -9,7 +9,7 @@ import {LowLevelCall} from "./LowLevelCall.sol";
 /**
  * @dev Helper to deploy contracts using the `CREATE3` approach.
  * `CREATE3` combines both `CREATE2` and `CREATE` opcodes to deploy arbitrary bytecode at an address that only depends
- * on the provided salt. At a high level, it depends like a `CREATE2` operation that would not use the bytecodehash to
+ * on the provided salt. At a high level, it behaves like a `CREATE2` operation that would not use the bytecodehash to
  * generate the contract address.
  *
  * CREATE3 can be used to compute in advance the address where a smart contract will be deployed, even if the bytecode
@@ -100,7 +100,6 @@ library Create3 {
             }
         }
 
-        // TODO: check that instance has code? Can create succeed without any code placed?
         return _computeCreateAddress(proxy);
     }
 

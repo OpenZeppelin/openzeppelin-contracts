@@ -5,7 +5,6 @@ const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
 
 const { RevertType } = require('../helpers/enums');
 
-// const PROXY_INITCODE_HASH = '0x21c35dbe1b344a2488cf3321d6ce542f8e9f305544ff09e4993a62319a497c1f';
 const PROXY_INITCODE_HASH = '0xd61bbde0460e6c48ddd99fb8b7e1ad36529d2ec79cbac1db0300b3d26ddcdc2a';
 const getCreate3Address = (deployer, salt) =>
   ethers.getCreateAddress({ from: ethers.getCreate2Address(deployer, salt, PROXY_INITCODE_HASH), nonce: 1 });
@@ -21,7 +20,7 @@ async function fixture() {
     .getContractFactory('VestingWallet')
     .then(factory => ethers.concat([factory.bytecode, factory.interface.encodeDeploy([other.address, 0n, 0n])]));
 
-  // Bytecode for deploying a contract that has no constructor log.
+  // Bytecode for deploying a contract that has no constructor logic.
   // Here we use the Create2 helper factory.
   const constructorLessBytecode = await ethers
     .getContractFactory('$Create2')
