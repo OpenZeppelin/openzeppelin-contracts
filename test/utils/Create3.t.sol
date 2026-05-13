@@ -14,4 +14,12 @@ contract Create3Test is Test {
         }
         assertEq(spillage, bytes32(0));
     }
+
+    function testSymbolicDeployMatchesComputeAddress(bytes32 salt) public {
+        // Minimal init code that deploys a contract with empty runtime code (PUSH1 0, PUSH1 0, RETURN).
+        bytes memory bytecode = hex"60006000f3";
+        address predicted = Create3.computeAddress(salt);
+        address deployed = Create3.deploy(0, salt, bytecode);
+        assertEq(deployed, predicted);
+    }
 }

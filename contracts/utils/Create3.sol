@@ -9,11 +9,14 @@ import {LowLevelCall} from "./LowLevelCall.sol";
 /**
  * @dev Helper to deploy contracts using the `CREATE3` approach.
  * `CREATE3` combines both `CREATE2` and `CREATE` opcodes to deploy arbitrary bytecode at an address that only depends
- * on the provided salt. At a high level, it behaves like a `CREATE2` operation that would not use the bytecodehash to
- * generate the contract address.
+ * on the provided salt and the address of the contract using this library. At a high level, it behaves like a `CREATE2`
+ * operation that would not use the bytecodehash to generate the contract address.
  *
  * CREATE3 can be used to compute in advance the address where a smart contract will be deployed, even if the bytecode
  * is subject to change.
+ *
+ * NOTE: To get the same deployment address on multiple chains, the linking contract must live at the same address on each
+ * chain.
  *
  * See {Create2} for counterfactual deployments that include the bytecodehash in the computation of the address.
  */
@@ -114,6 +117,9 @@ library Create3 {
     /**
      * @dev Returns the address where a contract will be stored if deployed via {deploy} from a contract located at
      * `deployer`. If `deployer` is this contract's address, returns the same value as {computeAddress}.
+     *
+     * NOTE: To predict the same address across chains, `deployer` must be a contract that lives at the same address
+     * on each chain.
      */
     function computeAddress(bytes32 salt, address deployer) internal pure returns (address) {
         return _computeCreateAddress(Create2.computeAddress(salt, PROXY_INITCODE_HASH, deployer));

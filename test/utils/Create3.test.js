@@ -1,6 +1,6 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+const { loadFixture, takeSnapshot } = require('@nomicfoundation/hardhat-network-helpers');
 const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
 
 const { RevertType } = require('../helpers/enums');
@@ -73,7 +73,7 @@ describe('Create3', function () {
 
       const instance = await ethers.getContractAt('VestingWallet', offChainComputed);
 
-      expect(await instance.owner()).to.equal(this.other);
+      await expect(instance.owner()).to.eventually.equal(this.other);
     });
 
     it('deploys a contract with funds deposited in the factory', async function () {
@@ -83,15 +83,30 @@ describe('Create3', function () {
 
       const offChainComputed = getCreate3Address(this.factory.target, saltHex);
 
-      expect(await ethers.provider.getBalance(this.factory)).to.equal(value);
-      expect(await ethers.provider.getBalance(offChainComputed)).to.equal(0n);
+      await expect(ethers.provider.getBalance(this.factory)).to.eventually.equal(value);
+      await expect(ethers.provider.getBalance(offChainComputed)).to.eventually.equal(0n);
 
       await expect(this.factory.$deploy(value, saltHex, this.constructorByteCode))
         .to.emit(this.factory, 'return$deploy')
         .withArgs(offChainComputed);
 
-      expect(await ethers.provider.getBalance(this.factory)).to.equal(0n);
-      expect(await ethers.provider.getBalance(offChainComputed)).to.equal(value);
+      await expect(ethers.provider.getBalance(this.factory)).to.eventually.equal(0n);
+      await expect(ethers.provider.getBalance(offChainComputed)).to.eventually.equal(value);
+    });
+
+    it('produces the same address regardless of the deployed bytecode', async function () {
+      const offChainComputed = getCreate3Address(this.factory.target, saltHex);
+      const snapshot = await takeSnapshot();
+
+      await expect(this.factory.$deploy(0n, saltHex, this.constructorLessBytecode))
+        .to.emit(this.factory, 'return$deploy')
+        .withArgs(offChainComputed);
+
+      await snapshot.restore();
+
+      await expect(this.factory.$deploy(0n, saltHex, this.constructorByteCode))
+        .to.emit(this.factory, 'return$deploy')
+        .withArgs(offChainComputed);
     });
 
     it('fails deploying a contract in an existent address', async function () {
@@ -114,6 +129,20 @@ describe('Create3', function () {
       await expect(this.factory.$deploy(1n, saltHex, this.constructorByteCode))
         .to.be.revertedWithCustomError(this.factory, 'InsufficientBalance')
         .withArgs(0n, 1n);
+    });
+
+    it('fails deploying a contract when sending value to a non-payable constructor', async function () {
+      const value = 10n;
+      await this.deployer.sendTransaction({ to: this.factory, value });
+
+      // ConstructorMock has a non-payable constructor: Solidity inserts a callvalue check that reverts with no data.
+      await expect(
+        this.factory.$deploy(
+          value,
+          saltHex,
+          ethers.concat([this.mockFactory.bytecode, this.mockFactory.interface.encodeDeploy([RevertType.None])]),
+        ),
+      ).to.be.revertedWithCustomError(this.factory, 'FailedDeployment');
     });
 
     describe('reverts error thrown during contract creation', function () {
