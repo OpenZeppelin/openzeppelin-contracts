@@ -74,20 +74,14 @@ describe('VestingWalletRevocable', function () {
       );
     });
 
-    it('returns unvested ETH and ERC20 to owner and emits event', async function () {
+    it('returns unvested funds to owner', async function () {
       await time.increaseTo.timestamp(this.start + this.duration / 4n, false);
       const tx = await this.mock.connect(this.beneficiary).revoke([this.token.target]);
+      const unvested = ethers.parseEther('75');
 
       await expect(tx).to.emit(this.mock, 'VestingRevoked').withArgs(this.beneficiary.address);
-      await expect(tx).to.changeEtherBalances(
-        [this.mock, this.beneficiary],
-        [-ethers.parseEther('75'), ethers.parseEther('75')],
-      );
-      await expect(tx).to.changeTokenBalances(
-        this.token,
-        [this.mock, this.beneficiary],
-        [-ethers.parseEther('75'), ethers.parseEther('75')],
-      );
+      await expect(tx).to.changeEtherBalances([this.mock, this.beneficiary], [-unvested, unvested]);
+      await expect(tx).to.changeTokenBalances(this.token, [this.mock, this.beneficiary], [-unvested, unvested]);
       expect(await this.mock.isRevoked()).to.be.true;
     });
 
@@ -101,7 +95,7 @@ describe('VestingWalletRevocable', function () {
       expect(await this.mock.vestedAmount(this.start + this.duration)).to.equal(vestedAtRevoke);
     });
 
-    it('keeps un-listed ERC20 claimable at revocation-time vested amount', async function () {
+    it('keeps un-listed token vesting against on-chain balance', async function () {
       const other = await ethers.deployContract('$ERC20', ['Other', 'OTH']);
       await other.$_mint(this.mock, ethers.parseEther('100'));
 

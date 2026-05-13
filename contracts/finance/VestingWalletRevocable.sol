@@ -9,11 +9,8 @@ import {IERC20} from "../token/ERC20/IERC20.sol";
 import {Address} from "../utils/Address.sol";
 
 /**
- * @dev Extension of {VestingWallet} that allows the owner to revoke the vesting schedule.
- *
- * When revoked, the vesting calculation is frozen at the revocation timestamp, and any unvested
- * tokens are returned to the owner. This contract snapshots the total allocation at revocation
- * time to ensure the vested amount remains constant post-revocation.
+ * @dev Extension of {VestingWallet} that lets the owner revoke the vesting schedule. Unvested ETH and any
+ * listed ERC20 tokens are returned to the owner, and the vested amount is frozen at the revocation timestamp.
  *
  * _Available since v5.1._
  */
@@ -21,7 +18,7 @@ abstract contract VestingWalletRevocable is VestingWallet {
     using SafeERC20 for IERC20;
 
     bool private _revoked;
-    uint64 private _revocationTimestamp;
+    uint64 private _revokedAt;
     uint256 private _ethAllocationSnapshot;
     mapping(address token => uint256) private _erc20AllocationSnapshot;
 
@@ -31,83 +28,53 @@ abstract contract VestingWalletRevocable is VestingWallet {
     /// @dev Emitted when the vesting schedule is revoked.
     event VestingRevoked(address indexed owner);
 
-    /**
-     * @dev Getter for the revocation status.
-     */
+    /// @dev Whether the vesting schedule has been revoked.
     function isRevoked() public view returns (bool) {
         return _revoked;
     }
 
     /**
-     * @dev Revokes the vesting schedule and returns all unvested tokens to the owner.
-     *
-     * Requirements:
-     * - The vesting schedule must not have been revoked already.
-     * - Only the owner can call this function.
-     *
-     * @param tokens Array of ERC20 token addresses to revoke. ETH is automatically handled.
+     * @dev Revokes the vesting schedule. The unvested portion of ETH and each listed ERC20 token is sent to
+     * the owner. Tokens omitted from `tokens` stay in the contract and continue to vest against their on-chain
+     * balance at the revocation timestamp.
      *
      * Emits a {VestingRevoked} event.
      */
     function revoke(address[] calldata tokens) external onlyOwner {
         if (_revoked) revert AlreadyRevoked();
 
-        // Snapshot allocations and timestamp before state change
-        _revocationTimestamp = uint64(block.timestamp);
+        uint64 t = uint64(block.timestamp);
+        _revokedAt = t;
         _ethAllocationSnapshot = address(this).balance + released();
         for (uint256 i = 0; i < tokens.length; i++) {
             _erc20AllocationSnapshot[tokens[i]] = IERC20(tokens[i]).balanceOf(address(this)) + released(tokens[i]);
         }
-
         _revoked = true;
 
-        // Return unvested ETH to owner
-        uint256 unvestedEth = address(this).balance - vestedAmount(uint64(block.timestamp));
-        if (unvestedEth > 0) {
-            Address.sendValue(payable(owner()), unvestedEth);
-        }
+        uint256 unvestedEth = address(this).balance - _vestingSchedule(_ethAllocationSnapshot, t);
+        if (unvestedEth > 0) Address.sendValue(payable(owner()), unvestedEth);
 
-        // Return unvested ERC-20s to owner
         for (uint256 i = 0; i < tokens.length; i++) {
             uint256 unvested = IERC20(tokens[i]).balanceOf(address(this)) -
-                vestedAmount(tokens[i], uint64(block.timestamp));
-            if (unvested > 0) {
-                IERC20(tokens[i]).safeTransfer(owner(), unvested);
-            }
+                _vestingSchedule(_erc20AllocationSnapshot[tokens[i]], t);
+            if (unvested > 0) IERC20(tokens[i]).safeTransfer(owner(), unvested);
         }
 
         emit VestingRevoked(owner());
     }
 
-    /**
-     * @dev Overrides the vesting calculation to use the snapshotted allocation after revocation.
-     *
-     * If the vesting has been revoked, returns the vested amount based on the allocation at the
-     * time of revocation. Otherwise, delegates to the parent implementation.
-     */
+    /// @dev After revocation, returns the vested amount frozen at the revocation timestamp.
     function vestedAmount(uint64 timestamp) public view virtual override returns (uint256) {
-        if (_revoked) {
-            return _vestingSchedule(_ethAllocationSnapshot, _revocationTimestamp);
-        }
-        return super.vestedAmount(timestamp);
+        return _revoked ? _vestingSchedule(_ethAllocationSnapshot, _revokedAt) : super.vestedAmount(timestamp);
     }
 
     /**
-     * @dev Overrides the vesting calculation for ERC20 tokens to use the snapshotted allocation after revocation.
-     *
-     * If the vesting has been revoked, returns the vested amount based on the token allocation at the
-     * time of revocation. Otherwise, delegates to the parent implementation.
-     * For tokens not included in the revoke call, falls back to the parent with the frozen timestamp
-     * since their balance was not transferred out.
+     * @dev After revocation, returns the token's vested amount frozen at the revocation timestamp. Tokens
+     * omitted from {revoke} keep their on-chain balance and vest against it using the revocation timestamp.
      */
     function vestedAmount(address token, uint64 timestamp) public view virtual override returns (uint256) {
-        if (_revoked) {
-            uint256 snapshot = _erc20AllocationSnapshot[token];
-            if (snapshot == 0) {
-                return super.vestedAmount(token, _revocationTimestamp);
-            }
-            return _vestingSchedule(snapshot, _revocationTimestamp);
-        }
-        return super.vestedAmount(token, timestamp);
+        if (!_revoked) return super.vestedAmount(token, timestamp);
+        uint256 snapshot = _erc20AllocationSnapshot[token];
+        return snapshot == 0 ? super.vestedAmount(token, _revokedAt) : _vestingSchedule(snapshot, _revokedAt);
     }
 }
