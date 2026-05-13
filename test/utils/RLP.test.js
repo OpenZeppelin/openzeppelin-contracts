@@ -197,6 +197,9 @@ describe('RLP', function () {
     { name: 'list with invalid length', input: '0xc100' },
     { name: 'truncated long string', input: '0xb838' },
     { name: 'invalid single byte encoding (non-minimal)', input: '0x8100' },
+    { name: 'uint256 with trailing bytes', input: '0x0102' },
+    { name: 'bytes with trailing bytes', input: '0x83646f6780' },
+    { name: 'string with trailing bytes', input: '0x83646f6780' },
   ];
 
   invalidTests.forEach(({ name, input }) => {
