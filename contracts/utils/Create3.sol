@@ -61,7 +61,7 @@ library Create3 {
     bytes29 private constant PROXY_INITCODE = 0x74365F5F37365F34f03D5F5F3E5F3D91601357FD5bf35F526015600Bf3;
 
     /// @dev Hash of the `PROXY_INITCODE`.
-    /// Equivalent to `keccak256(abi.encodePacked(hex"74365F5F37365F34f03D5F5F3E5F3D91601357FD5bf35F526015600Bf3"))`.
+    /// Equivalent to `keccak256(hex"74365F5F37365F34f03D5F5F3E5F3D91601357FD5bf35F526015600Bf3")`.
     bytes32 internal constant PROXY_INITCODE_HASH = 0xd61bbde0460e6c48ddd99fb8b7e1ad36529d2ec79cbac1db0300b3d26ddcdc2a;
 
     /**
