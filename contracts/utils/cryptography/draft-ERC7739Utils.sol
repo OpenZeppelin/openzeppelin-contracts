@@ -162,7 +162,7 @@ library ERC7739Utils {
      * Following ERC-7739 specifications, a `contentsName` is considered invalid if it's empty or it contains
      * any of the following bytes , )\x00
      *
-     * If the `contentsType` is invalid, this returns an empty string. Otherwise, the return string has non-zero
+     * If the `contentsDescr` is invalid, this returns empty strings. Otherwise, the return strings have non-zero
      * length.
      */
     function decodeContentsDescr(

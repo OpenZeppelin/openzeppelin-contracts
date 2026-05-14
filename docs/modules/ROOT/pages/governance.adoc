@@ -152,7 +152,7 @@ If a timelock was set up, the first step to execution is queueing. You will noti
 To queue, we call the queue function:
 
 ```javascript
-const descriptionHash = ethers.utils.id(“Proposal #1: Give grant to team”);
+const descriptionHash = ethers.id(“Proposal #1: Give grant to team”);
 
 await governor.queue(
   [tokenAddress],
