@@ -131,7 +131,7 @@ library EnumerableMap {
      *
      * - `index` must be strictly less than {length}.
      *
-     * IMPORTANT: Deprecated. This function's name clash with keyword scheduled for inclusion in solidity. Developers
+     * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
      * should use {pos} instead.
      */
     function at(Bytes32ToBytes32Map storage map, uint256 index) internal view returns (bytes32 key, bytes32 value) {
@@ -271,7 +271,7 @@ library EnumerableMap {
      *
      * - `index` must be strictly less than {length}.
      *
-     * IMPORTANT: Deprecated. This function's name clash with keyword scheduled for inclusion in solidity. Developers
+     * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
      * should use {pos} instead.
      */
     function at(UintToUintMap storage map, uint256 index) internal view returns (uint256 key, uint256 value) {
@@ -412,7 +412,7 @@ library EnumerableMap {
      *
      * - `index` must be strictly less than {length}.
      *
-     * IMPORTANT: Deprecated. This function's name clash with keyword scheduled for inclusion in solidity. Developers
+     * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
      * should use {pos} instead.
      */
     function at(UintToAddressMap storage map, uint256 index) internal view returns (uint256 key, address value) {
@@ -553,7 +553,7 @@ library EnumerableMap {
      *
      * - `index` must be strictly less than {length}.
      *
-     * IMPORTANT: Deprecated. This function's name clash with keyword scheduled for inclusion in solidity. Developers
+     * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
      * should use {pos} instead.
      */
     function at(UintToBytes32Map storage map, uint256 index) internal view returns (uint256 key, bytes32 value) {
@@ -694,7 +694,7 @@ library EnumerableMap {
      *
      * - `index` must be strictly less than {length}.
      *
-     * IMPORTANT: Deprecated. This function's name clash with keyword scheduled for inclusion in solidity. Developers
+     * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
      * should use {pos} instead.
      */
     function at(AddressToUintMap storage map, uint256 index) internal view returns (address key, uint256 value) {
@@ -835,7 +835,7 @@ library EnumerableMap {
      *
      * - `index` must be strictly less than {length}.
      *
-     * IMPORTANT: Deprecated. This function's name clash with keyword scheduled for inclusion in solidity. Developers
+     * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
      * should use {pos} instead.
      */
     function at(AddressToAddressMap storage map, uint256 index) internal view returns (address key, address value) {
@@ -980,7 +980,7 @@ library EnumerableMap {
      *
      * - `index` must be strictly less than {length}.
      *
-     * IMPORTANT: Deprecated. This function's name clash with keyword scheduled for inclusion in solidity. Developers
+     * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
      * should use {pos} instead.
      */
     function at(AddressToBytes32Map storage map, uint256 index) internal view returns (address key, bytes32 value) {
@@ -1125,7 +1125,7 @@ library EnumerableMap {
      *
      * - `index` must be strictly less than {length}.
      *
-     * IMPORTANT: Deprecated. This function's name clash with keyword scheduled for inclusion in solidity. Developers
+     * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
      * should use {pos} instead.
      */
     function at(Bytes32ToUintMap storage map, uint256 index) internal view returns (bytes32 key, uint256 value) {
@@ -1266,7 +1266,7 @@ library EnumerableMap {
      *
      * - `index` must be strictly less than {length}.
      *
-     * IMPORTANT: Deprecated. This function's name clash with keyword scheduled for inclusion in solidity. Developers
+     * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
      * should use {pos} instead.
      */
     function at(Bytes32ToAddressMap storage map, uint256 index) internal view returns (bytes32 key, address value) {
@@ -1411,7 +1411,7 @@ library EnumerableMap {
      *
      * - `index` must be strictly less than {length}.
      *
-     * IMPORTANT: Deprecated. This function's name clash with keyword scheduled for inclusion in solidity. Developers
+     * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
      * should use {pos} instead.
      */
     function at(Bytes4ToAddressMap storage map, uint256 index) internal view returns (bytes4 key, address value) {
@@ -1563,7 +1563,7 @@ library EnumerableMap {
      *
      * - `index` must be strictly less than {length}.
      *
-     * IMPORTANT: Deprecated. This function's name clash with keyword scheduled for inclusion in solidity. Developers
+     * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
      * should use {pos} instead.
      */
     function at(

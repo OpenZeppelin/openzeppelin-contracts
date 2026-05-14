@@ -123,7 +123,7 @@ library Checkpoints {
     /**
      * @dev Returns checkpoint at given position.
      *
-     * IMPORTANT: Deprecated. This function's name clash with keyword scheduled for inclusion in solidity. Developers
+     * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
      * should use {pos} instead.
      */
     function at(Trace256 storage self, uint32 index) internal view returns (Checkpoint256 memory) {
@@ -338,7 +338,7 @@ library Checkpoints {
     /**
      * @dev Returns checkpoint at given position.
      *
-     * IMPORTANT: Deprecated. This function's name clash with keyword scheduled for inclusion in solidity. Developers
+     * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
      * should use {pos} instead.
      */
     function at(Trace224 storage self, uint32 index) internal view returns (Checkpoint224 memory) {
@@ -553,7 +553,7 @@ library Checkpoints {
     /**
      * @dev Returns checkpoint at given position.
      *
-     * IMPORTANT: Deprecated. This function's name clash with keyword scheduled for inclusion in solidity. Developers
+     * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
      * should use {pos} instead.
      */
     function at(Trace208 storage self, uint32 index) internal view returns (Checkpoint208 memory) {
@@ -768,7 +768,7 @@ library Checkpoints {
     /**
      * @dev Returns checkpoint at given position.
      *
-     * IMPORTANT: Deprecated. This function's name clash with keyword scheduled for inclusion in solidity. Developers
+     * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
      * should use {pos} instead.
      */
     function at(Trace160 storage self, uint32 index) internal view returns (Checkpoint160 memory) {

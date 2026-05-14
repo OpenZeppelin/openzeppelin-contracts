@@ -261,7 +261,7 @@ library EnumerableSet {
      *
      * - `index` must be strictly less than {length}.
      *
-     * IMPORTANT: Deprecated. This function's name clash with keyword scheduled for inclusion in solidity. Developers
+     * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
      * should use {pos} instead.
      */
     function at(Bytes32Set storage set, uint256 index) internal view returns (bytes32) {
@@ -382,7 +382,7 @@ library EnumerableSet {
      *
      * - `index` must be strictly less than {length}.
      *
-     * IMPORTANT: Deprecated. This function's name clash with keyword scheduled for inclusion in solidity. Developers
+     * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
      * should use {pos} instead.
      */
     function at(Bytes4Set storage set, uint256 index) internal view returns (bytes4) {
@@ -503,7 +503,7 @@ library EnumerableSet {
      *
      * - `index` must be strictly less than {length}.
      *
-     * IMPORTANT: Deprecated. This function's name clash with keyword scheduled for inclusion in solidity. Developers
+     * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
      * should use {pos} instead.
      */
     function at(AddressSet storage set, uint256 index) internal view returns (address) {
@@ -624,7 +624,7 @@ library EnumerableSet {
      *
      * - `index` must be strictly less than {length}.
      *
-     * IMPORTANT: Deprecated. This function's name clash with keyword scheduled for inclusion in solidity. Developers
+     * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
      * should use {pos} instead.
      */
     function at(UintSet storage set, uint256 index) internal view returns (uint256) {
@@ -789,7 +789,7 @@ library EnumerableSet {
      *
      * - `index` must be strictly less than {length}.
      *
-     * IMPORTANT: Deprecated. This function's name clash with keyword scheduled for inclusion in solidity. Developers
+     * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
      * should use {pos} instead.
      */
     function at(StringSet storage set, uint256 index) internal view returns (string memory) {
@@ -950,7 +950,7 @@ library EnumerableSet {
      *
      * - `index` must be strictly less than {length}.
      *
-     * IMPORTANT: Deprecated. This function's name clash with keyword scheduled for inclusion in solidity. Developers
+     * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
      * should use {pos} instead.
      */
     function at(BytesSet storage set, uint256 index) internal view returns (bytes memory) {
