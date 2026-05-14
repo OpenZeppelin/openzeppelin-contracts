@@ -64,6 +64,14 @@ contract VestingWalletFactory is Ownable {
         return vestedAmount(scheduleId, uint64(block.timestamp)) - schedule.released;
     }
 
+    function release(uint256 scheduleId) external {
+        VestingSchedule storage schedule = _schedules[scheduleId];
+        uint256 amount = releasable(scheduleId);
+        schedule.released += amount;
+        SafeERC20.safeTransfer(IERC20(schedule.token), schedule.beneficiary, amount);
+        emit ERC20Released(scheduleId, schedule.token, amount);
+    }
+
     function _vestingSchedule(uint256 totalAllocation, uint64 start, uint64 duration, uint64 timestamp) internal pure virtual returns (uint256) {
         uint64 end = start + duration;
         if (timestamp < start) {
