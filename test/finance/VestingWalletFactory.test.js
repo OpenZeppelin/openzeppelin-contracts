@@ -80,6 +80,99 @@ describe('VestingWalletFactory', function () {
     });
   });
 
+  describe('vesting math', function () {
+    beforeEach(async function () {
+      await this.factory.createVestingSchedule(
+        this.beneficiary.address,
+        this.token.target,
+        this.start,
+        this.duration,
+        this.amount,
+      );
+      this.end = this.start + this.duration;
+    });
+
+    it('vestedAmount is 0 before start', async function () {
+      expect(await this.factory.vestedAmount(0n, this.start - 1n)).to.equal(0n);
+    });
+
+    it('vestedAmount is proportional mid-schedule', async function () {
+      expect(await this.factory.vestedAmount(0n, this.start + this.duration / 2n)).to.equal(this.amount / 2n);
+    });
+
+    it('vestedAmount equals totalAllocation at end', async function () {
+      expect(await this.factory.vestedAmount(0n, this.end)).to.equal(this.amount);
+    });
+
+    it('vestedAmount equals totalAllocation after end', async function () {
+      expect(await this.factory.vestedAmount(0n, this.end + 1n)).to.equal(this.amount);
+    });
+
+    it('releasable is 0 before start', async function () {
+      expect(await this.factory.releasable(0n)).to.equal(0n);
+    });
+
+    it('releasable is proportional mid-schedule', async function () {
+      await time.increaseTo.timestamp(this.start + this.duration / 2n);
+      expect(await this.factory.releasable(0n)).to.equal(this.amount / 2n);
+    });
+
+    it('releasable equals totalAllocation at end', async function () {
+      await time.increaseTo.timestamp(this.end);
+      expect(await this.factory.releasable(0n)).to.equal(this.amount);
+    });
+  });
+
+  describe('release', function () {
+    beforeEach(async function () {
+      await this.factory.createVestingSchedule(
+        this.beneficiary.address,
+        this.token.target,
+        this.start,
+        this.duration,
+        this.amount,
+      );
+      this.end = this.start + this.duration;
+    });
+
+    it('transfers the full amount to beneficiary at end', async function () {
+      await time.increaseTo.timestamp(this.end);
+      const tx = await this.factory.release(0n);
+      await expect(tx).to.changeTokenBalances(
+        this.token,
+        [this.factory, this.beneficiary],
+        [-this.amount, this.amount],
+      );
+    });
+
+    it('emits ERC20Released', async function () {
+      await time.increaseTo.timestamp(this.end);
+      await expect(this.factory.release(0n))
+        .to.emit(this.factory, 'ERC20Released')
+        .withArgs(0n, this.token.target, this.amount);
+    });
+
+    it('second release only sends the remaining delta', async function () {
+      await time.increaseTo.timestamp(this.start + this.duration / 2n, false);
+      await this.factory.release(0n);
+
+      await time.increaseTo.timestamp(this.end, false);
+      const tx = await this.factory.release(0n);
+      const remainder = this.amount - this.amount / 2n;
+      await expect(tx).to.changeTokenBalances(
+        this.token,
+        [this.factory, this.beneficiary],
+        [-remainder, remainder],
+      );
+    });
+
+    it('updates released on the schedule', async function () {
+      await time.increaseTo.timestamp(this.end);
+      await this.factory.release(0n);
+      expect((await this.factory.getSchedule(0n)).released).to.equal(this.amount);
+    });
+  });
+
   describe('after createVestingSchedule', function () {
     beforeEach(async function () {
       this.tx = await this.factory.createVestingSchedule(
