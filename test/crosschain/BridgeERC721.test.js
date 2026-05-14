@@ -21,9 +21,9 @@ async function fixture() {
 
   // Chain B: ERC721 with native bridge integration
   const tokenB = await ethers.deployContract('$ERC721Crosschain', [
+    [[gateway, chain.toErc7930(bridgeA)]],
     'Token2',
     'T2',
-    [[gateway, chain.toErc7930(bridgeA)]],
   ]);
   const bridgeB = tokenB; // self bridge
 

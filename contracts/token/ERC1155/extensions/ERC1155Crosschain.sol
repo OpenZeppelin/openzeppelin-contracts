@@ -13,7 +13,7 @@ import {BridgeMultiToken} from "../../../crosschain/bridges/abstract/BridgeMulti
  * * {ERC1155} instances on other chains that are bridged using {BridgeERC1155},
  */
 // slither-disable-next-line locked-ether
-abstract contract ERC1155Crosschain is ERC1155, BridgeMultiToken {
+abstract contract ERC1155Crosschain is BridgeMultiToken, ERC1155 {
     /// @dev TransferFrom variant of {crosschainTransferFrom}, using ERC1155 allowance from the sender to the caller.
     function crosschainTransferFrom(
         address from,

@@ -7,7 +7,7 @@ const { VoteType } = require('../../helpers/enums');
 const { getDomain, ExtendedBallot } = require('../../helpers/eip712');
 
 const TOKENS = [
-  { Token: '$ERC20Votes', mode: 'blocknumber' },
+  { Token: '$ERC20Votes', mode: 'blockNumber' },
   { Token: '$ERC20VotesTimestampMock', mode: 'timestamp' },
 ];
 
