@@ -268,7 +268,7 @@ function length(${name} storage set) internal view returns (uint256) {
  *
  * - \`index\` must be strictly less than {length}.
  *
- * IMPORTANT: Deprecated. This function's name clash with keyword scheduled for inclusion in solidity. Developers
+ * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
  * should use {pos} instead.
  */
 function at(${name} storage set, uint256 index) internal view returns (${type}) {
@@ -435,7 +435,7 @@ function length(${name} storage set) internal view returns (uint256) {
  *
  * - \`index\` must be strictly less than {length}.
  *
- * IMPORTANT: Deprecated. This function's name clash with keyword scheduled for inclusion in solidity. Developers
+ * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
  * should use {pos} instead.
  */
 function at(${name} storage set, uint256 index) internal view returns (${value.type} memory) {

@@ -128,7 +128,7 @@ function length(${opts.historyTypeName} storage self) internal view returns (uin
 /**
  * @dev Returns checkpoint at given position.
  *
- * IMPORTANT: Deprecated. This function's name clash with keyword scheduled for inclusion in solidity. Developers
+ * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
  * should use {pos} instead.
  */
 function at(${opts.historyTypeName} storage self, uint32 index) internal view returns (${opts.checkpointTypeName} memory) {

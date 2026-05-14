@@ -132,7 +132,7 @@ function length(Bytes32ToBytes32Map storage map) internal view returns (uint256)
  *
  * - \`index\` must be strictly less than {length}.
  *
- * IMPORTANT: Deprecated. This function's name clash with keyword scheduled for inclusion in solidity. Developers
+ * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
  * should use {pos} instead.
  */
 function at(Bytes32ToBytes32Map storage map, uint256 index) internal view returns (bytes32 key, bytes32 value) {
@@ -270,7 +270,7 @@ function length(${name} storage map) internal view returns (uint256) {
  *
  * - \`index\` must be strictly less than {length}.
  *
- * IMPORTANT: Deprecated. This function's name clash with keyword scheduled for inclusion in solidity. Developers
+ * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
  * should use {pos} instead.
  */
 function at(${name} storage map, uint256 index) internal view returns (${key.type} key, ${value.type} value) {
@@ -424,7 +424,7 @@ function length(${name} storage map) internal view returns (uint256) {
  *
  * - \`index\` must be strictly less than {length}.
  *
- * IMPORTANT: Deprecated. This function's name clash with keyword scheduled for inclusion in solidity. Developers
+ * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
  * should use {pos} instead.
  */
 function at(
