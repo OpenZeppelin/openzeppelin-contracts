@@ -189,7 +189,7 @@ library DoubleEndedQueue {
      *
      * Reverts with {Panic-ARRAY_OUT_OF_BOUNDS} if the index is out of bounds.
      *
-     * IMPORTANT: Deprecated. This function's name clash with keyword scheduled for inclusion in solidity. Developers
+     * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
      * should use {pos} instead.
      */
     function at(Bytes32Deque storage deque, uint256 index) internal view returns (bytes32) {
