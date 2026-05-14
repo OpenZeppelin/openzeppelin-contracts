@@ -64,6 +64,14 @@ contract VestingWalletFactory is Ownable {
         return vestedAmount(scheduleId, uint64(block.timestamp)) - schedule.released;
     }
 
+    function getSchedule(uint256 scheduleId) external view returns (VestingSchedule memory) {
+        return _schedules[scheduleId];
+    }
+
+    function scheduleCount() external view returns (uint256) {
+        return _scheduleCount;
+    }
+
     function release(uint256 scheduleId) external {
         VestingSchedule storage schedule = _schedules[scheduleId];
         uint256 amount = releasable(scheduleId);
