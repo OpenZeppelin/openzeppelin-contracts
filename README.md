@@ -34,17 +34,13 @@ through simple inheritance, requiring no off-chain signing infrastructure.
 ---
 
 ## Project Structure
-contracts/
-└── token/
-└── ERC20/
-└── extensions/
-└── ERC20SafeApproval.sol   # main extension
-test/
-└── token/
-└── ERC20/
-└── ERC20SafeApproval.t.sol     # Foundry test suite
-script/
-└── DeployERC20SafeApproval.s.sol       # Sepolia deployment script
+
+New files added to the OpenZeppelin repository structure:
+
+- `contracts/token/ERC20/extensions/ERC20SafeApproval.sol` — main extension contract
+- `contracts/mocks/token/ERC20SafeApprovalMock.sol` — mock contract used for testing
+- `test/token/ERC20/extensions/ERC20SafeApproval.test.js` — Hardhat test suite
+- `scripts/deployERC20SafeApproval.js` — Sepolia deployment script
 
 ---
 
@@ -52,42 +48,42 @@ script/
 
 ### Prerequisites
 
-- [Foundry](https://book.getfoundry.sh/getting-started/installation)
+- Node.js
 - Git
 
 ### Installation
 
 ```bash
 git clone https://github.com/kennyb66/CS5833-FinalProject
-cd contracts
-forge install
+cd CS5833-FinalProject
+npm install
 ```
 
 ### Build
 
 ```bash
-forge build
+npm run compile
 ```
 
 ### Run Tests
 
 ```bash
-forge test --match-path test/token/ERC20/ERC20SafeApproval.t.sol -v
-```
-
-### Run Gas Benchmarks
-
-```bash
-forge test --match-path test/token/ERC20/ERC20SafeApproval.t.sol --gas-report
+npm run test test/token/ERC20/extensions/ERC20SafeApproval.test.js
 ```
 
 ### Deploy to Sepolia
 
+Create a `.env` file in the root of the repo:
+
+```
+SEPOLIA_RPC_URL=your_rpc_url_here
+PRIVATE_KEY=your_private_key_here
+```
+
+Then run:
+
 ```bash
-forge script script/DeployERC20SafeApproval.s.sol \
-  --rpc-url $SEPOLIA_RPC_URL \
-  --private-key $PRIVATE_KEY \
-  --broadcast
+./node_modules/.bin/hardhat run scripts/deployERC20SafeApproval.js --network sepolia
 ```
 
 ---
@@ -96,20 +92,29 @@ forge script script/DeployERC20SafeApproval.s.sol \
 
 | Contract | Network | Address |
 |----------|---------|---------|
-| ERC20SafeApproval | Sepolia | `0x...` |
+| ERC20SafeApprovalMock | Sepolia | `0xdD1bf110349890E6183537eec6200775d425Dd0f` |
 
-Verified on [Sepolia Etherscan](https://sepolia.etherscan.io/address/0x...)
+Verified on [Sepolia Etherscan](https://sepolia.etherscan.io/address/0xdD1bf110349890E6183537eec6200775d425Dd0f)
+
+**Transactions:**
+
+| Transaction | Hash |
+|-------------|------|
+| Mint | [0x6ff8385d...](https://sepolia.etherscan.io/tx/0x6ff8385d0ab3ea04af89dfaee6333c8ea6e821985d1917ff667ed4df0675e559) |
+| Approve | [0x0a48fc2c...](https://sepolia.etherscan.io/tx/0x0a48fc2cf04500729582d4507a322826af6398dd8a1eb430b602c59a885dd864) |
+| ApproveWithExpiration | [0xfc6893b8...](https://sepolia.etherscan.io/tx/0xfc6893b80e466afe456fea38eacb2aea2d9d8a8ed00ac2881e5a254776ee9a6f) |
 
 ---
 
 ## Gas Benchmarks
 
-| Function | Base ERC20 | ERC20SafeApproval | Delta |
-|----------|-----------|-------------------|-------|
-| `approve()` | - | - | - |
-| `transferFrom()` | - | - | - |
+| Function | Standard ERC-20 | ERC20SafeApproval | Overhead |
+|----------|----------------|-------------------|----------|
+| `approve()` | 46,000 | 48,296 | +2,296 (+5%) |
+| `approveWithExpiration()` | N/A | 73,112 | N/A |
+| `transferFrom()` | 34,000 | 59,910 | +25,910 (+76%) |
 
-*To be filled in during Week 3*
+*Measured using hardhat-gas-reporter. The `transferFrom()` overhead reflects the additional expiry check performed before each transfer.*
 
 ---
 
@@ -122,9 +127,8 @@ pragma solidity ^0.8.20;
 import "./extensions/ERC20SafeApproval.sol";
 
 contract MyToken is ERC20SafeApproval {
-    constructor() ERC20("MyToken", "MTK") {
-        // set approval cap to 1000 tokens
-        // set default expiry to 30 days
+    constructor() ERC20("MyToken", "MTK") ERC20SafeApproval(1000) {
+        // approval cap set to 1000 tokens at deploy time
     }
 }
 ```
@@ -135,16 +139,14 @@ contract MyToken is ERC20SafeApproval {
 
 | Member | Contributions |
 |--------|--------------|
-| Kenny Bartel | |
-| Brianna Patten | |
-
-*To be filled in as work progresses*
+| Kenny Bartel | Project proposal, repository setup, test suite implementation, deployment script, GitHub contribution artifacts |
+| Brianna Patten | Project report, ERC20SafeApproval extension contract, ERC20SafeApprovalToken contract, ERC20SafeApprovalMock contract |
 
 ---
 
 ## Demo Video
 
-*Link to be added in Week 3*
+[Demo Link](https://drive.google.com/file/d/1E0e3O1lz2cZ3P9AZo5LPKV2ekhCwC3fD/view?usp=sharing)
 
 ---
 
@@ -153,3 +155,4 @@ contract MyToken is ERC20SafeApproval {
 - [OpenZeppelin ERC20 source](https://github.com/OpenZeppelin/openzeppelin-contracts/tree/master/contracts/token/ERC20)
 - [ERC-2612 / ERC20Permit](https://eips.ethereum.org/EIPS/eip-2612)
 - [OpenZeppelin contribution guidelines](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/CONTRIBUTING.md)
+- [Upstream Issue #6500](https://github.com/OpenZeppelin/openzeppelin-contracts/issues/6500)
