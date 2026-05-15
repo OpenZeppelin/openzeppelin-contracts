@@ -173,6 +173,54 @@ describe('VestingWalletFactory', function () {
     });
   });
 
+  describe('multiple schedules', function () {
+    beforeEach(async function () {
+      const [, , , beneficiary2] = await ethers.getSigners();
+      this.beneficiary2 = beneficiary2;
+      this.amount2 = ethers.parseEther('400');
+
+      await this.factory.createVestingSchedule(
+        this.beneficiary.address,
+        this.token.target,
+        this.start,
+        this.duration,
+        this.amount,
+      );
+      await this.factory.createVestingSchedule(
+        this.beneficiary2.address,
+        this.token.target,
+        this.start,
+        this.duration,
+        this.amount2,
+      );
+
+      this.end = this.start + this.duration;
+    });
+
+    it('scheduleCount is 2', async function () {
+      expect(await this.factory.scheduleCount()).to.equal(2n);
+    });
+
+    it('each schedule tracks its own totalAllocation', async function () {
+      expect((await this.factory.getSchedule(0n)).totalAllocation).to.equal(this.amount);
+      expect((await this.factory.getSchedule(1n)).totalAllocation).to.equal(this.amount2);
+    });
+
+    it('releasing one schedule does not affect the other', async function () {
+      await time.increaseTo.timestamp(this.end);
+      await this.factory.release(0n);
+      expect(await this.factory.releasable(1n)).to.equal(this.amount2);
+    });
+
+    it('each beneficiary receives only their own allocation', async function () {
+      await time.increaseTo.timestamp(this.end, false);
+      const tx1 = await this.factory.release(0n);
+      const tx2 = await this.factory.release(1n);
+      await expect(tx1).to.changeTokenBalances(this.token, [this.beneficiary], [this.amount]);
+      await expect(tx2).to.changeTokenBalances(this.token, [this.beneficiary2], [this.amount2]);
+    });
+  });
+
   describe('after createVestingSchedule', function () {
     beforeEach(async function () {
       this.tx = await this.factory.createVestingSchedule(
