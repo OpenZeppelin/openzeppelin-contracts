@@ -6,7 +6,7 @@ https://eips.ethereum.org/EIPS/eip-7702[EIP-7702] introduces a new transaction t
 * Sponsoring transactions for other users.
 * Implementing privilege de-escalation (e.g., sub-keys with limited permissions)
 
-This section walks you through the process of delegating an EOA to a contract following https://eips.ethereum.org/EIPS/eip-7702[EIP-7702]. This allows you to use your EOA's private key to sign and execute operations with custom execution logic. Combined with https://eips.ethereum.org/EIPS/eip-4337[ERC-4337] infrastructure, users can achieve gas sponsoring through https://docs.openzeppelin.com/community-contracts/paymasters[paymasters].
+This section walks you through the process of delegating an EOA to a contract following https://eips.ethereum.org/EIPS/eip-7702[EIP-7702]. This allows you to use your EOA's private key to sign and execute operations with custom execution logic. Combined with https://eips.ethereum.org/EIPS/eip-4337[ERC-4337] infrastructure, users can achieve gas sponsoring through xref:community-contracts::paymasters.adoc[paymasters].
 
 == Delegating execution
 
@@ -82,7 +82,7 @@ To remove the delegation and restore your EOA to its original state, you can sen
 
 When changing an account's delegation, ensure the newly delegated code is purposely designed and tested as an upgrade to the old one. To ensure safe migration between delegate contracts, use namespaced storage that avoids accidental collisions following ERC-7201. 
 
-WARNING: Updating the delegation designator may render your EOA unusable due to potential storage collisions. We recommend following similar practices to those of https://docs.openzeppelin.com/upgrades-plugins/writing-upgradeable[writing upgradeable smart contracts].
+WARNING: Updating the delegation designator may render your EOA unusable due to potential storage collisions. We recommend following similar practices to those of xref:upgrades-plugins::writing-upgradeable.adoc[writing upgradeable smart contracts].
 
 == Using with ERC-4337
 
@@ -92,7 +92,7 @@ The ability to set code to execute logic on an EOA allows users to leverage ERC-
 
 Once your EOA is delegated to an ERC-4337 compatible account, you can send user operations through the entry point contract. The user operation includes all the necessary fields for execution, including gas limits, fees, and the actual call data to execute. The entry point will validate the operation and execute it in the context of your delegated account.
 
-Similar to how xref:accounts.adoc#bundle_a_useroperation[sending a UserOp] is achieved for factory accounts, here's how you can construct a UserOp for an EOA who's delegated to an xref:api:account.adoc#Account[`Account`] contract.
+Similar to how xref:accounts.adoc#bundle-a-useroperation[sending a UserOp] is achieved for factory accounts, here's how you can construct a UserOp for an EOA who's delegated to an xref:api:account.adoc#Account[`Account`] contract.
 
 [source, typescript]
 ----
