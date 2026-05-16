@@ -115,7 +115,7 @@ abstract contract Account is AbstractSigner, IAccount {
     }
 
     /**
-     * @dev Sends the missing funds for executing the user operation to the {entrypoint}.
+     * @dev Sends the missing funds for executing the user operation to the {entryPoint}.
      * The `missingAccountFunds` must be defined by the entrypoint when calling {validateUserOp}.
      */
     function _payPrefund(uint256 missingAccountFunds) internal virtual {
@@ -125,7 +125,7 @@ abstract contract Account is AbstractSigner, IAccount {
     }
 
     /**
-     * @dev Ensures the caller is the {entrypoint}.
+     * @dev Ensures the caller is the {entryPoint}.
      */
     function _checkEntryPoint() internal view virtual {
         address sender = msg.sender;
@@ -135,7 +135,7 @@ abstract contract Account is AbstractSigner, IAccount {
     }
 
     /**
-     * @dev Ensures the caller is the {entrypoint} or the account itself.
+     * @dev Ensures the caller is the {entryPoint} or the account itself.
      */
     function _checkEntryPointOrSelf() internal view virtual {
         address sender = msg.sender;
