@@ -15,7 +15,7 @@ import {LowLevelCall} from "../utils/LowLevelCall.sol";
  * Developers must implement the {AbstractSigner-_rawSignatureValidation} function to define the account's validation logic.
  *
  * NOTE: This core account doesn't include any mechanism for performing arbitrary external calls. This is an essential
- * feature that all Account should have. We leave it up to the developers to implement the mechanism of their choice.
+ * feature that all Accounts should have. We leave it up to the developers to implement the mechanism of their choice.
  * Common choices include ERC-6900, ERC-7579 and ERC-7821 (among others).
  *
  * IMPORTANT: Implementing a mechanism to validate signatures is a security-sensitive operation as it may allow an
@@ -104,7 +104,7 @@ abstract contract Account is AbstractSigner, IAccount {
     }
 
     /**
-     * @dev Virtual function that returns the signable hash for a user operations. Since v0.8.0 of the entrypoint,
+     * @dev Virtual function that returns the signable hash for a user operation. Since v0.8.0 of the entrypoint,
      * `userOpHash` is an EIP-712 hash that can be signed directly.
      */
     function _signableUserOpHash(
