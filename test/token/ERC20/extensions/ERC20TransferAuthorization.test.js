@@ -12,11 +12,12 @@ const time = require('../../../helpers/time');
 
 const TOKENS = [
   { Token: '$ERC20TransferAuthorization', mode: 'timestamp' },
-  { Token: '$ERC20TransferAuthorizationBlockNumberMock', mode: 'blocknumber' },
+  { Token: '$ERC20TransferAuthorizationBlockNumberMock', mode: 'blockNumber' },
 ];
 
 const name = 'My Token';
 const symbol = 'MTKN';
+const version = '1';
 const initialSupply = 100n;
 
 const packNonce = (key, seq = 0n) => ethers.toBeHex((BigInt(key) << 64n) | BigInt(seq), 32);
@@ -26,7 +27,7 @@ describe('ERC20TransferAuthorization', function () {
     const fixture = async () => {
       const [holder, recipient, other] = await ethers.getSigners();
 
-      const token = await ethers.deployContract(Token, [name, symbol, name]);
+      const token = await ethers.deployContract(Token, [name, symbol, name, version]);
       await token.$_mint(holder, initialSupply);
 
       const wallet = await ethers.deployContract('ERC1271WalletMock', [holder]);
