@@ -227,9 +227,10 @@ library DoubleEndedQueue {
 
             uint256 len = end - start;
             bytes32[] memory result = new bytes32[](len);
-            uint128 begin = deque._begin;
-            for (uint256 i = 0; i < len; ++i) {
-                result[i] = deque._data[begin + uint128(start + i)];
+
+            uint128 offset = deque._begin + uint128(start);
+            for (uint128 i = 0; i < len; ++i) {
+                result[i] = deque._data[offset + i];
             }
             return result;
         }
