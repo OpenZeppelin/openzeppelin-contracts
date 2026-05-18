@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.5.0) (metatx/ERC2771Forwarder.sol)
+// OpenZeppelin Contracts (last updated v5.6.0) (metatx/ERC2771Forwarder.sol)
 
 pragma solidity ^0.8.24;
 
@@ -74,6 +74,11 @@ contract ERC2771Forwarder is EIP712, Nonces {
      * the requested call to run out of gas.
      */
     event ExecutedForwardRequest(address indexed signer, uint256 nonce, bool success);
+
+    /**
+     * @dev One of the calls in an atomic batch failed.
+     */
+    error ERC2771ForwarderFailureInAtomicBatch();
 
     /**
      * @dev The request `from` doesn't match with the recovered `signer`.
@@ -186,6 +191,8 @@ contract ERC2771Forwarder is EIP712, Nonces {
         // Some requests with value were invalid (possibly due to frontrunning).
         // To avoid leaving ETH in the contract this value is refunded.
         if (refundValue != 0) {
+            if (atomic) revert ERC2771ForwarderFailureInAtomicBatch();
+
             // We know refundReceiver != address(0) && requestsValue == msg.value
             // meaning we can ensure refundValue is not taken from the original contract's balance
             // and refundReceiver is a known account.

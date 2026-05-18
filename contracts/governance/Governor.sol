@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.5.0) (governance/Governor.sol)
+// OpenZeppelin Contracts (last updated v5.6.0) (governance/Governor.sol)
 
 pragma solidity ^0.8.24;
 
@@ -394,10 +394,11 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         bytes32 descriptionHash
     ) public payable virtual returns (uint256) {
         uint256 proposalId = getProposalId(targets, values, calldatas, descriptionHash);
+        bool needsQueueing = proposalNeedsQueuing(proposalId);
 
         _validateStateBitmap(
             proposalId,
-            _encodeStateBitmap(ProposalState.Succeeded) | _encodeStateBitmap(ProposalState.Queued)
+            _encodeStateBitmap(needsQueueing ? ProposalState.Queued : ProposalState.Succeeded)
         );
 
         // mark as executed before calls to avoid reentrancy

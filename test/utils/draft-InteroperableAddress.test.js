@@ -5,6 +5,7 @@ const { addressCoder, nameCoder } = require('interoperable-addresses');
 const { CAIP350, chainTypeCoder } = require('interoperable-addresses/dist/CAIP350');
 
 const { getLocalChain } = require('../helpers/chains');
+const { generators } = require('../helpers/random');
 
 async function fixture() {
   const mock = await ethers.deployContract('$InteroperableAddress');
@@ -168,5 +169,49 @@ describe('ERC7390', function () {
         ]);
       });
     }
+  });
+
+  describe('handles large references and addresses', function () {
+    it('large', async function () {
+      const chainType = '0x0000';
+      const reference = generators.bytes(142);
+      const address = generators.bytes(142);
+
+      const binary = addressCoder.encode({ chainType, reference, address });
+
+      // Generic parse
+      await expect(this.mock.$tryParseV1(binary)).to.eventually.deep.equal([true, chainType, reference, address]);
+      await expect(this.mock.$tryParseV1Calldata(binary)).to.eventually.deep.equal([
+        true,
+        chainType,
+        reference,
+        address,
+      ]);
+
+      // EVM parse - too long to be a valid evm format
+      await expect(this.mock.$tryParseEvmV1(binary)).to.eventually.deep.equal([false, 0n, ethers.ZeroAddress]);
+      await expect(this.mock.$tryParseEvmV1Calldata(binary)).to.eventually.deep.equal([false, 0n, ethers.ZeroAddress]);
+    });
+
+    it('very large', async function () {
+      const chainType = '0x0000';
+      const reference = generators.bytes(255);
+      const address = generators.bytes(255);
+
+      const binary = addressCoder.encode({ chainType, reference, address });
+
+      // Generic parse
+      await expect(this.mock.$tryParseV1(binary)).to.eventually.deep.equal([true, chainType, reference, address]);
+      await expect(this.mock.$tryParseV1Calldata(binary)).to.eventually.deep.equal([
+        true,
+        chainType,
+        reference,
+        address,
+      ]);
+
+      // EVM parse - too long to be a valid evm format
+      await expect(this.mock.$tryParseEvmV1(binary)).to.eventually.deep.equal([false, 0n, ethers.ZeroAddress]);
+      await expect(this.mock.$tryParseEvmV1Calldata(binary)).to.eventually.deep.equal([false, 0n, ethers.ZeroAddress]);
+    });
   });
 });
