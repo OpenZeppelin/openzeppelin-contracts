@@ -1,7 +1,5 @@
-import assert from 'node:assert/strict';
-import path from 'node:path';
 import type { HardhatConfig } from 'hardhat/types/config';
-import type { CompilerOutput } from 'hardhat/types/solidity';
+import type { CompilerOutput, SolidityBuildInfo } from 'hardhat/types/solidity';
 
 // AST manipulation
 import type {
@@ -20,66 +18,28 @@ import { findAll, astDereferencer } from 'solidity-ast/utils.js';
 
 import type { Lines } from './format-lines.ts';
 import { formatLines, spaceBetween } from './format-lines.ts';
+import assert from 'node:assert';
+import path from 'node:path';
 
 const exposedVersionPragma = '>=0.6.0';
 
-type ContractFilter = (node: ContractDefinition) => boolean;
 type ExposedFile = {
   absolutePath: string;
   content: string;
 };
 
 export function getExposed(
+  solidityBuildInfo: SolidityBuildInfo,
   solcOutput: CompilerOutput,
-  include: (sourceName: string) => boolean,
   config: HardhatConfig,
 ): Map<string, string> {
   const res = new Map<string, string>();
   const deref = astDereferencer(solcOutput);
 
-  const imports: Record<string, Set<ContractDefinition>> = {};
+  for (const [sourceName, inputSourceName] of Object.entries(solidityBuildInfo.userSourceNameMap)) {
+    const ast = solcOutput.sources[inputSourceName].ast;
 
-  for (const { ast } of Object.values(solcOutput.sources)) {
-    const absolutePath = path.join(config.paths.root, ast.absolutePath.replace(/^project\//, ''));
-    if (!include(absolutePath)) {
-      continue;
-    }
-
-    const exposedFile = getExposedFile(ast, deref, config);
-    if (exposedFile !== undefined) {
-      res.set(exposedFile.absolutePath, exposedFile.content);
-    }
-
-    if (config.exposed.imports) {
-      const queue = new Set(findAll('ImportDirective', ast));
-      for (const imp of queue) {
-        const absolutePath = path.join(config.paths.root, imp.absolutePath.replace(/^project\//, ''));
-        if (include(absolutePath)) {
-          continue;
-        }
-
-        const impUnit = deref('SourceUnit', imp.sourceUnit);
-        for (const indirectImp of findAll('ImportDirective', impUnit)) {
-          queue.add(indirectImp);
-        }
-        for (const { foreign } of imp.symbolAliases) {
-          const foreignId = impUnit.exportedSymbols[foreign.name]?.[0];
-          assert(foreignId !== undefined);
-          const { node, sourceUnit } = deref.withSourceUnit('*', foreignId);
-          if (node.nodeType === 'ContractDefinition' && node.contractKind !== 'interface') {
-            imports[sourceUnit.absolutePath] ??= new Set();
-            imports[sourceUnit.absolutePath]!.add(node);
-          }
-        }
-      }
-    }
-  }
-
-  for (const [absoluteImportedPath, contracts] of Object.entries(imports)) {
-    const { ast } = solcOutput.sources[absoluteImportedPath];
-    assert(ast !== undefined);
-
-    const exposedFile = getExposedFile(ast, deref, config, node => contracts.has(node));
+    const exposedFile = getExposedFile(sourceName, inputSourceName, ast, deref, config);
     if (exposedFile !== undefined) {
       res.set(exposedFile.absolutePath, exposedFile.content);
     }
@@ -88,44 +48,46 @@ export function getExposed(
   return res;
 }
 
+function getImportPathFromExposedContract(
+  exposedFileAbsolutePath: string,
+  importedFileInputSourceName: string,
+): string {
+  return (
+    importedFileInputSourceName.startsWith('project/')
+      ? path.relative(path.dirname(exposedFileAbsolutePath), importedFileInputSourceName.replace(/^project\//, ''))
+      : importedFileInputSourceName
+  ).replaceAll(/\\/g, '/'); // Normalize windows paths to unix paths
+}
+
 function getExposedFile(
+  sourceName: string,
+  inputSourceName: string,
   ast: SourceUnit,
   deref: ASTDereferencer,
   config: HardhatConfig,
-  filter?: ContractFilter,
 ): ExposedFile | undefined {
-  const exposedPath = path.join(
+  const exposedFileAbsolutePath = path.join(
     config.exposed.outDir,
-    ...(ast.absolutePath.startsWith('project/')
-      ? [ast.absolutePath.replace(/^project\//, '')]
-      : ['$_', ast.absolutePath]),
+    inputSourceName.startsWith('project/') ? sourceName : inputSourceName.replace('npm:', ''),
   );
 
-  const relativizePath = (p: string) =>
-    (p.startsWith('project/') ? path.relative(path.dirname(exposedPath), p.replace(/^project\//, '')) : p).replace(
-      /\\/g,
-      '/',
-    );
-
   const content = getExposedContent(
+    exposedFileAbsolutePath,
     ast,
-    relativizePath,
     deref,
     config.exposed.prefix,
     config.exposed.initializers,
-    filter,
   );
 
-  return content === undefined ? undefined : { absolutePath: exposedPath, content };
+  return content === undefined ? undefined : { absolutePath: exposedFileAbsolutePath, content };
 }
 
 function getExposedContent(
+  exposedFileAbsolutePath: string,
   ast: SourceUnit,
-  relativizePath: (p: string) => string,
   deref: ASTDereferencer,
   prefix: string,
-  initializers = false,
-  filter?: ContractFilter,
+  initializers: boolean,
 ): string | undefined {
   if (prefix === '' || /^\d|[^0-9a-z_$]/i.test(prefix)) {
     throw new Error(`Prefix '${prefix}' is not valid`);
@@ -133,11 +95,11 @@ function getExposedContent(
 
   const contractPrefix = prefix.replace(/^./, c => c.toUpperCase());
 
-  const imports = Array.from(getNeededImports(ast, deref), u => relativizePath(u.absolutePath));
-
-  const contracts = [...findAll('ContractDefinition', ast)].filter(
-    c => filter?.(c) !== false && c.contractKind !== 'interface',
+  const imports = Array.from(getNeededImports(ast, deref), u =>
+    getImportPathFromExposedContract(exposedFileAbsolutePath, u.absolutePath),
   );
+
+  const contracts = [...findAll('ContractDefinition', ast)].filter(c => c.contractKind !== 'interface');
 
   if (contracts.length === 0) {
     return undefined;
@@ -172,9 +134,18 @@ function getExposedContent(
         const externalizableFunctions = getFunctions(c, deref, subset).filter(f => isExternalizable(f, deref));
         const returnedEventFunctions = externalizableFunctions.filter(fn => isNonViewWithReturns(fn));
 
+        // Pre-compute arguments per function/modifier to avoid redundant AST traversals
+        const argsCache = new Map<number, Argument[]>();
+        for (const fn of externalizableFunctions) {
+          argsCache.set(fn.id, getFunctionArguments(fn, c, deref));
+        }
+        for (const m of modifiers) {
+          argsCache.set(m.id, getFunctionArguments(m, c, deref));
+        }
+
         const clashingFunctions: Record<string, number> = {};
         for (const fn of externalizableFunctions) {
-          const id = getFunctionId(fn, c, deref);
+          const id = getFunctionIdFromArgs(fn, argsCache.get(fn.id)!);
           clashingFunctions[id] ??= 0;
           clashingFunctions[id] += 1;
         }
@@ -185,43 +156,44 @@ function getExposedContent(
           clashingEvents[fn.name]! += 1;
         }
 
+        const allStorageArgs = getAllStorageArgumentsFromCache([...externalizableFunctions, ...modifiers], argsCache);
+
         return [
           contractHeader.join(' '),
           [`bytes32 public constant __hh_exposed_bytecode_marker = "hardhat-exposed";\n`],
           spaceBetween(
             // slots for storage function parameters
-            ...getAllStorageArguments([...externalizableFunctions, ...modifiers], c, deref).map(a => [
-              `mapping(uint256 => ${a.storageType}) internal ${prefix}${a.storageVar};`,
-            ]),
+            ...allStorageArgs.map(a => [`mapping(uint256 => ${a.storageType}) internal ${prefix}${a.storageVar};`]),
             // events for internal returns
             ...returnedEventFunctions.map(fn => {
-              const evName = clashingEvents[fn.name] === 1 ? fn.name : getFunctionNameQualified(fn, c, deref, false);
+              const fnArgs = argsCache.get(fn.id)!;
+              const evName =
+                clashingEvents[fn.name] === 1 ? fn.name : getFunctionNameQualifiedFromArgs(fn, fnArgs, false);
               const params = getFunctionReturnParameters(fn, c, deref, null);
               return [`event return${prefix}${evName}(${params.map(printArgument).join(', ')});`];
             }),
             // constructor
             makeConstructor(c, deref, initializers),
             // accessor to internal variables
-            ...externalizableVariables.map(v => [
-              [
-                'function',
-                `${prefix}${v.name}(${getVarGetterArgs(v, c, deref).map(printArgument).join(', ')})`,
-                'external',
-                v.mutability === 'mutable' || (v.mutability === 'immutable' && !v.value) ? 'view' : 'pure',
-                'returns',
-                `(${getVarGetterReturnType(v, c, deref)})`,
-                '{',
-              ].join(' '),
-              [
-                `return ${isLibrary ? c.name + '.' : ''}${v.name}${getVarGetterArgs(v, c, deref)
-                  .map(a => `[${a.name}]`)
-                  .join('')};`,
-              ],
-              '}',
-            ]),
+            ...externalizableVariables.map(v => {
+              const varArgs = getVarGetterArgs(v, c, deref);
+              return [
+                [
+                  'function',
+                  `${prefix}${v.name}(${varArgs.map(printArgument).join(', ')})`,
+                  'external',
+                  v.mutability === 'mutable' || (v.mutability === 'immutable' && !v.value) ? 'view' : 'pure',
+                  'returns',
+                  `(${getVarGetterReturnType(v, c, deref)})`,
+                  '{',
+                ].join(' '),
+                [`return ${isLibrary ? c.name + '.' : ''}${v.name}${varArgs.map(a => `[${a.name}]`).join('')};`],
+                '}',
+              ];
+            }),
             // modifiers
             ...modifiers.map(m => {
-              const fnArgs = getFunctionArguments(m, c, deref);
+              const fnArgs = argsCache.get(m.id)!;
 
               // function header
               const header = [
@@ -237,15 +209,15 @@ function getExposedContent(
             }),
             // external functions
             ...externalizableFunctions.map(fn => {
+              const fnArgs = argsCache.get(fn.id)!;
               const fnName =
-                clashingFunctions[getFunctionId(fn, c, deref)] === 1
+                clashingFunctions[getFunctionIdFromArgs(fn, fnArgs)] === 1
                   ? fn.name
-                  : getFunctionNameQualified(fn, c, deref, true);
-              const fnArgs = getFunctionArguments(fn, c, deref);
+                  : getFunctionNameQualifiedFromArgs(fn, fnArgs, true);
               const fnRets = getFunctionReturnParameters(fn, c, deref);
               const evName =
                 isNonViewWithReturns(fn) &&
-                (clashingEvents[fn.name] === 1 ? fn.name : getFunctionNameQualified(fn, c, deref, false));
+                (clashingEvents[fn.name] === 1 ? fn.name : getFunctionNameQualifiedFromArgs(fn, fnArgs, false));
 
               // function header
               const header = ['function', `${prefix}${fnName}(${fnArgs.map(printArgument)})`, 'external'];
@@ -306,24 +278,15 @@ function areFunctionsFullyImplemented(contract: ContractDefinition, deref: ASTDe
   return abstractFunctionIds.size === 0;
 }
 
-function getFunctionId(fn: FunctionDefinition, context: ContractDefinition, deref: ASTDereferencer): string {
-  const abiTypes = getFunctionArguments(fn, context, deref).map(a => a.abiType);
-  return fn.name + abiTypes.join(',');
+function getFunctionIdFromArgs(fn: FunctionDefinition, args: Argument[]): string {
+  return fn.name + args.map(a => a.abiType).join(',');
 }
 
-function getFunctionNameQualified(
-  fn: FunctionDefinition,
-  context: ContractDefinition,
-  deref: ASTDereferencer,
-  onlyConflicting: boolean,
-): string {
-  let args = getFunctionArguments(fn, context, deref);
-  if (onlyConflicting) {
-    args = args.filter(a => a.type !== a.abiType || a.storageType !== undefined);
-  }
+function getFunctionNameQualifiedFromArgs(fn: FunctionDefinition, args: Argument[], onlyConflicting: boolean): string {
   return (
     fn.name +
     args
+      .filter(a => !onlyConflicting || a.type !== a.abiType || a.storageType !== undefined)
       .map(arg => arg.storageType ?? arg.type)
       .map(type => type.replace(/ .*/, '').replace(/[^0-9a-zA-Z$_]+/g, '_')) // sanitize
       .join('_')
@@ -513,22 +476,14 @@ function getFunctionArguments(
   });
 }
 
-function getStorageArguments(
-  fn: FunctionDefinition | ModifierDefinition,
-  context: ContractDefinition,
-  deref: ASTDereferencer,
-): Required<Argument>[] {
-  return getFunctionArguments(fn, context, deref).filter(
-    (a): a is Required<Argument> => !!(a.storageVar && a.storageType),
-  );
-}
-
-function getAllStorageArguments(
+function getAllStorageArgumentsFromCache(
   fns: (FunctionDefinition | ModifierDefinition)[],
-  context: ContractDefinition,
-  deref: ASTDereferencer,
+  argsCache: Map<number, Argument[]>,
 ): Required<Argument>[] {
-  return [...new Map(fns.flatMap(fn => getStorageArguments(fn, context, deref)).map(a => [a.storageVar, a])).values()];
+  const storageArgs = fns.flatMap(fn =>
+    (argsCache.get(fn.id) ?? []).filter((a): a is Required<Argument> => !!(a.storageVar && a.storageType)),
+  );
+  return [...new Map(storageArgs.map(a => [a.storageVar, a])).values()];
 }
 
 function getFunctionReturnParameters(

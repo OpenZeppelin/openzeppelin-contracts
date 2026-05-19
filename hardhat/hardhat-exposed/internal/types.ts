@@ -4,12 +4,12 @@ export interface ExposedUserConfig {
   include?: string[];
   outDir?: string;
   initializers?: boolean;
-  imports?: boolean;
 }
 
-export interface ExposedConfig extends ExposedUserConfig {
+export interface ExposedConfig {
   prefix: string;
   exclude: string[];
   include: string[];
   outDir: string;
+  initializers: boolean;
 }
