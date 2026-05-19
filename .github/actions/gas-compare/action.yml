@@ -32,7 +32,7 @@ runs:
     - name: Compare reports
       if: github.event_name == 'pull_request' && hashFiles(inputs.ref_report) != ''
       run: |
-        node scripts/checks/compareGasReports.js ${{ inputs.report }} ${{ inputs.ref_report }} >> $GITHUB_STEP_SUMMARY
+        node scripts/checks/compare-gas-reports.js ${{ inputs.report }} ${{ inputs.ref_report }} >> $GITHUB_STEP_SUMMARY
       env:
         STYLE: markdown
       shell: bash
