@@ -23,6 +23,9 @@ interface IERC8255 is IERC20 {
 
     /**
      * @dev Returns the stored approval expiration timestamp and allowance for `spender` over `owner` tokens.
+     *
+     * NOTE: Implementations that support legacy-compatible spenders may return the current block timestamp as the
+     * expiration for a designated spender instead of the stored expiration.
      */
     function allowanceAndExpiration(
         address owner,

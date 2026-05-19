@@ -51,7 +51,32 @@ abstract contract ERC20ExpiringApproval is ERC20, IERC8255 {
         address owner,
         address spender
     ) public view virtual returns (uint64 expiration, uint256 value) {
-        return (_allowanceExpirations[owner][spender], super.allowance(owner, spender));
+        return _allowanceAndExpiration(owner, spender);
+    }
+
+    /**
+     * @dev Returns the approval expiration timestamp and allowance for `spender` over `owner` tokens.
+     */
+    function _allowanceAndExpiration(
+        address owner,
+        address spender
+    ) internal view virtual returns (uint64 expiration, uint256 value) {
+        expiration = _allowanceExpirations[owner][spender];
+        value = super.allowance(owner, spender);
+        if (value > 0 && _isLegacyCompatibleSpender(spender)) {
+            expiration = uint64(block.timestamp);
+        }
+    }
+
+    /**
+     * @dev Returns whether `spender` should be treated as a legacy-compatible spender.
+     *
+     * Legacy-compatible spenders are allowed to use approvals after their stored expiration. Derived contracts may
+     * override this function to implement their own designation mechanism. Spenders are not legacy-compatible by
+     * default.
+     */
+    function _isLegacyCompatibleSpender(address) internal view virtual returns (bool) {
+        return false;
     }
 
     /// @inheritdoc IERC20
@@ -119,7 +144,7 @@ abstract contract ERC20ExpiringApproval is ERC20, IERC8255 {
      * Revert if not enough allowance is available or if the approval is expired.
      */
     function _spendAllowance(address owner, address spender, uint256 value) internal virtual override {
-        (uint64 expiration, uint256 currentAllowance) = allowanceAndExpiration(owner, spender);
+        (uint64 expiration, uint256 currentAllowance) = _allowanceAndExpiration(owner, spender);
         if (currentAllowance < value) {
             revert ERC20InsufficientAllowance(spender, currentAllowance, value);
         }
@@ -129,7 +154,8 @@ abstract contract ERC20ExpiringApproval is ERC20, IERC8255 {
         if (currentAllowance < type(uint256).max) {
             unchecked {
                 uint256 updatedAllowance = currentAllowance - value;
-                _approve(owner, spender, updatedAllowance, updatedAllowance == 0 ? 0 : expiration, false);
+                uint64 storedExpiration = _allowanceExpirations[owner][spender];
+                _approve(owner, spender, updatedAllowance, updatedAllowance == 0 ? 0 : storedExpiration, false);
             }
         }
     }

@@ -21,6 +21,16 @@ async function fixture() {
   return { accounts, holder, recipient, token };
 }
 
+async function legacyFixture() {
+  const accounts = await ethers.getSigners();
+  const [holder, recipient] = accounts;
+
+  const token = await ethers.deployContract('ERC20ExpiringApprovalLegacyMock', [name, symbol]);
+  await token.mint(holder, initialSupply);
+
+  return { accounts, holder, recipient, token };
+}
+
 describe('ERC20ExpiringApproval', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
@@ -171,5 +181,62 @@ describe('ERC20ExpiringApproval', function () {
     await expect(this.token.getFunction('$_expiration(uint256,uint32,uint256)')(42n, 0n, 2n ** 64n))
       .to.be.revertedWithCustomError(this.token, 'ERC8255InvalidApprovalExpiration')
       .withArgs(2n ** 64n);
+  });
+
+  describe('legacy-compatible spenders', function () {
+    beforeEach(async function () {
+      Object.assign(this, await loadFixture(legacyFixture));
+    });
+
+    it('does not treat spenders as legacy-compatible by default', async function () {
+      const duration = defaultApprovalDuration;
+      const tx = await this.token.connect(this.holder).approveForDuration(this.recipient, 42n, duration);
+      const timestamp = await time.clockFromReceipt.timestamp(tx.wait());
+
+      await time.increaseTo.timestamp(timestamp + duration + 1n);
+
+      await expect(this.token.allowance(this.holder, this.recipient)).to.eventually.equal(0n);
+      await expect(this.token.allowanceAndExpiration(this.holder, this.recipient)).to.eventually.deep.equal([
+        timestamp + duration,
+        42n,
+      ]);
+    });
+
+    it('treats an expired allowance as unexpired while the spender is legacy-compatible', async function () {
+      const duration = defaultApprovalDuration;
+      const tx = await this.token.connect(this.holder).approveForDuration(this.recipient, 42n, duration);
+      const timestamp = await time.clockFromReceipt.timestamp(tx.wait());
+
+      await time.increaseTo.timestamp(timestamp + duration + 1n);
+      await this.token.setLegacyCompatibleSpender(this.recipient, true);
+
+      const currentTimestamp = await time.clock.timestamp();
+      await expect(this.token.allowance(this.holder, this.recipient)).to.eventually.equal(42n);
+      await expect(this.token.allowanceAndExpiration(this.holder, this.recipient)).to.eventually.deep.equal([
+        currentTimestamp,
+        42n,
+      ]);
+      await expect(this.token.connect(this.recipient).transferFrom(this.holder, this.recipient, 1n))
+        .to.emit(this.token, 'Transfer')
+        .withArgs(this.holder, this.recipient, 1n);
+    });
+
+    it('preserves the stored expiration when a legacy-compatible spender uses an expired allowance', async function () {
+      const duration = defaultApprovalDuration;
+      const tx = await this.token.connect(this.holder).approveForDuration(this.recipient, 42n, duration);
+      const timestamp = await time.clockFromReceipt.timestamp(tx.wait());
+      const expiration = timestamp + duration;
+
+      await time.increaseTo.timestamp(expiration + 1n);
+      await this.token.setLegacyCompatibleSpender(this.recipient, true);
+      await this.token.connect(this.recipient).transferFrom(this.holder, this.recipient, 17n);
+      await this.token.setLegacyCompatibleSpender(this.recipient, false);
+
+      await expect(this.token.allowanceAndExpiration(this.holder, this.recipient)).to.eventually.deep.equal([
+        expiration,
+        25n,
+      ]);
+      await expect(this.token.allowance(this.holder, this.recipient)).to.eventually.equal(0n);
+    });
   });
 });
