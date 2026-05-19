@@ -9,10 +9,10 @@ const overrideReadArtifact =
   <ContractNameT extends string>(contractNameOrFullyQualifiedName: ContractNameT) =>
     suffixes
       .map(suffix => contractNameOrFullyQualifiedName + suffix)
-      .reduce<Promise<string | false | undefined>>(
+      .reduce<Promise<string | false>>(
         (acc, artifactWithSuffix) =>
           acc.then(result => result || artifactExists(artifactWithSuffix).then(exists => exists && artifactWithSuffix)),
-        Promise.resolve(undefined),
+        Promise.resolve(false),
       )
       .then(artifactWithSuffix => runSuper((artifactWithSuffix || contractNameOrFullyQualifiedName) as ContractNameT));
 
