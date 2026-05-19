@@ -1,9 +1,12 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture, takeSnapshot } = require('@nomicfoundation/hardhat-network-helpers');
-const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { PANIC_CODES } from '@nomicfoundation/hardhat-ethers-chai-matchers/panic';
+import { RevertType } from '../helpers/enums';
 
-const { RevertType } = require('../helpers/enums');
+const {
+  ethers,
+  networkHelpers: { loadFixture, takeSnapshot },
+} = await network.create();
 
 const PROXY_INITCODE_HASH = '0xd61bbde0460e6c48ddd99fb8b7e1ad36529d2ec79cbac1db0300b3d26ddcdc2a';
 const getCreate3Address = (deployer, salt) =>
