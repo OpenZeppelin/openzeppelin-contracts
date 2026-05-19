@@ -12,6 +12,7 @@ sed -i'' -e "s/<package-version>/$VERSION/g" "contracts/package.json"
 git add contracts/package.json
 
 # run the transpiler
+npm run clean
 npx hardhat transpile --settings $DIRNAME/transpile.config.json
 
 # create alias to Initializable and UUPSUpgradeable
