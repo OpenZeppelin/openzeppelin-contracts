@@ -37,7 +37,6 @@ runs:
         GITHUB_TOKEN: ${{ inputs.token }}
       shell: bash
       continue-on-error: true
-      id: reference
     - name: Compare layouts
       if: github.event_name == 'pull_request' && hashFiles(inputs.ref_layout) != ''
       run: |
