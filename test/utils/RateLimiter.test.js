@@ -15,13 +15,14 @@ async function fixture() {
 }
 
 const wrap = (mock, type) => ({
-  state: () => mock.getFunction(`$state_RateLimiter_${type}`)(0n),
-  used: () => mock.getFunction(`$used_RateLimiter_${type}`)(0n),
-  available: () => mock.getFunction(`$available_RateLimiter_${type}`)(0n),
-  tryConsume: q => mock.getFunction(`$tryConsume_RateLimiter_${type}`)(0n, q),
-  tryConsumeStatic: q => mock.getFunction(`$tryConsume_RateLimiter_${type}`).staticCall(0n, q),
-  consume: q => mock.getFunction(`$consume_RateLimiter_${type}`)(0n, q),
-  reset: () => mock.getFunction(`$reset_RateLimiter_${type}`)(0n),
+  state: (key = ethers.ZeroHash) => mock.getFunction(`$state_RateLimiter_${type}`)(0n, key),
+  used: (key = ethers.ZeroHash) => mock.getFunction(`$used_RateLimiter_${type}`)(0n, key),
+  available: (key = ethers.ZeroHash) => mock.getFunction(`$available_RateLimiter_${type}`)(0n, key),
+  tryConsume: (amount, key = ethers.ZeroHash) => mock.getFunction(`$tryConsume_RateLimiter_${type}`)(0n, key, amount),
+  tryConsumeStatic: (amount, key = ethers.ZeroHash) =>
+    mock.getFunction(`$tryConsume_RateLimiter_${type}`).staticCall(0n, key, amount),
+  consume: (amount, key = ethers.ZeroHash) => mock.getFunction(`$consume_RateLimiter_${type}`)(0n, key, amount),
+  reset: (key = ethers.ZeroHash) => mock.getFunction(`$reset_RateLimiter_${type}`)(0n, key),
   updateSettings: (window, capacity) => mock.getFunction(`$updateSettings_RateLimiter_${type}`)(0n, window, capacity),
 });
 
@@ -61,6 +62,39 @@ describe('RateLimiter', function () {
           await expect(this.mock.available()).to.eventually.equal(CAPACITY - 17n);
         });
 
+        it('consume one key does not affect another key', async function () {
+          const key1 = ethers.id('key1');
+          const key2 = ethers.id('key2');
+
+          await expect(this.mock.state(key1)).to.eventually.deep.equal([0n, CAPACITY]);
+          await expect(this.mock.used(key1)).to.eventually.equal(0n);
+          await expect(this.mock.available(key1)).to.eventually.equal(CAPACITY);
+          await expect(this.mock.state(key2)).to.eventually.deep.equal([0n, CAPACITY]);
+          await expect(this.mock.used(key2)).to.eventually.equal(0n);
+          await expect(this.mock.available(key2)).to.eventually.equal(CAPACITY);
+
+          await this.mock.consume(17n, key1);
+
+          await expect(this.mock.state(key1)).to.eventually.deep.equal([17n, CAPACITY - 17n]);
+          await expect(this.mock.used(key1)).to.eventually.equal(17n);
+          await expect(this.mock.available(key1)).to.eventually.equal(CAPACITY - 17n);
+          await expect(this.mock.state(key2)).to.eventually.deep.equal([0n, CAPACITY]);
+          await expect(this.mock.used(key2)).to.eventually.equal(0n);
+          await expect(this.mock.available(key2)).to.eventually.equal(CAPACITY);
+
+          await this.mock.consume(42n, key2);
+
+          await expect(this.mock.state(key1)).to.eventually.deep.equal([
+            17n - refillPerSecond,
+            CAPACITY - 17n + refillPerSecond,
+          ]);
+          await expect(this.mock.used(key1)).to.eventually.equal(17n - refillPerSecond);
+          await expect(this.mock.available(key1)).to.eventually.equal(CAPACITY - 17n + refillPerSecond);
+          await expect(this.mock.state(key2)).to.eventually.deep.equal([42n, CAPACITY - 42n]);
+          await expect(this.mock.used(key2)).to.eventually.equal(42n);
+          await expect(this.mock.available(key2)).to.eventually.equal(CAPACITY - 42n);
+        });
+
         it('consume reverts when over capacity', async function () {
           await expect(this.mock.consume(CAPACITY + 1n)).to.be.revertedWithCustomError(this.mock, 'RateLimitExceeded');
         });
@@ -91,12 +125,49 @@ describe('RateLimiter', function () {
 
           // execute (and get event)
           await expect(this.mock.tryConsume(42n))
-            .to.emit(this.mock, 'return$tryConsume_RateLimiter_RefillingBucket_uint256')
+            .to.emit(this.mock, 'return$tryConsume_RateLimiter_RefillingBucket_bytes32_uint256')
             .withArgs(true);
 
           await expect(this.mock.state()).to.eventually.deep.equal([42n, CAPACITY - 42n]);
           await expect(this.mock.used()).to.eventually.equal(42n);
           await expect(this.mock.available()).to.eventually.equal(CAPACITY - 42n);
+        });
+
+        it('tryConsume one key does not affect another key', async function () {
+          const key1 = ethers.id('key1');
+          const key2 = ethers.id('key2');
+
+          await expect(this.mock.state(key1)).to.eventually.deep.equal([0n, CAPACITY]);
+          await expect(this.mock.used(key1)).to.eventually.equal(0n);
+          await expect(this.mock.available(key1)).to.eventually.equal(CAPACITY);
+          await expect(this.mock.state(key2)).to.eventually.deep.equal([0n, CAPACITY]);
+          await expect(this.mock.used(key2)).to.eventually.equal(0n);
+          await expect(this.mock.available(key2)).to.eventually.equal(CAPACITY);
+
+          await expect(this.mock.tryConsume(17n, key1))
+            .to.emit(this.mock, 'return$tryConsume_RateLimiter_RefillingBucket_bytes32_uint256')
+            .withArgs(true);
+
+          await expect(this.mock.state(key1)).to.eventually.deep.equal([17n, CAPACITY - 17n]);
+          await expect(this.mock.used(key1)).to.eventually.equal(17n);
+          await expect(this.mock.available(key1)).to.eventually.equal(CAPACITY - 17n);
+          await expect(this.mock.state(key2)).to.eventually.deep.equal([0n, CAPACITY]);
+          await expect(this.mock.used(key2)).to.eventually.equal(0n);
+          await expect(this.mock.available(key2)).to.eventually.equal(CAPACITY);
+
+          await expect(this.mock.tryConsume(42n, key2))
+            .to.emit(this.mock, 'return$tryConsume_RateLimiter_RefillingBucket_bytes32_uint256')
+            .withArgs(true);
+
+          await expect(this.mock.state(key1)).to.eventually.deep.equal([
+            17n - refillPerSecond,
+            CAPACITY - 17n + refillPerSecond,
+          ]);
+          await expect(this.mock.used(key1)).to.eventually.equal(17n - refillPerSecond);
+          await expect(this.mock.available(key1)).to.eventually.equal(CAPACITY - 17n + refillPerSecond);
+          await expect(this.mock.state(key2)).to.eventually.deep.equal([42n, CAPACITY - 42n]);
+          await expect(this.mock.used(key2)).to.eventually.equal(42n);
+          await expect(this.mock.available(key2)).to.eventually.equal(CAPACITY - 42n);
         });
 
         it('tryConsume returns false and does not update state when over capacity', async function () {
@@ -105,7 +176,7 @@ describe('RateLimiter', function () {
 
           // execute (and get event)
           await expect(this.mock.tryConsume(CAPACITY + 1n))
-            .to.emit(this.mock, 'return$tryConsume_RateLimiter_RefillingBucket_uint256')
+            .to.emit(this.mock, 'return$tryConsume_RateLimiter_RefillingBucket_bytes32_uint256')
             .withArgs(false);
 
           await expect(this.mock.state()).to.eventually.deep.equal([0n, CAPACITY]);
@@ -121,7 +192,7 @@ describe('RateLimiter', function () {
           await expect(this.mock.available()).to.eventually.equal(CAPACITY - 42n);
 
           await expect(this.mock.tryConsume(0n))
-            .to.emit(this.mock, 'return$tryConsume_RateLimiter_RefillingBucket_uint256')
+            .to.emit(this.mock, 'return$tryConsume_RateLimiter_RefillingBucket_bytes32_uint256')
             .withArgs(true);
 
           await expect(this.mock.state()).to.eventually.deep.equal([
@@ -240,6 +311,36 @@ describe('RateLimiter', function () {
           await expect(this.mock.available()).to.eventually.equal(CAPACITY - 17n);
         });
 
+        it('consume one key does not affect another key', async function () {
+          const key1 = ethers.id('key1');
+          const key2 = ethers.id('key2');
+
+          await expect(this.mock.state(key1)).to.eventually.deep.equal([0n, CAPACITY]);
+          await expect(this.mock.used(key1)).to.eventually.equal(0n);
+          await expect(this.mock.available(key1)).to.eventually.equal(CAPACITY);
+          await expect(this.mock.state(key2)).to.eventually.deep.equal([0n, CAPACITY]);
+          await expect(this.mock.used(key2)).to.eventually.equal(0n);
+          await expect(this.mock.available(key2)).to.eventually.equal(CAPACITY);
+
+          await this.mock.consume(17n, key1);
+
+          await expect(this.mock.state(key1)).to.eventually.deep.equal([17n, CAPACITY - 17n]);
+          await expect(this.mock.used(key1)).to.eventually.equal(17n);
+          await expect(this.mock.available(key1)).to.eventually.equal(CAPACITY - 17n);
+          await expect(this.mock.state(key2)).to.eventually.deep.equal([0n, CAPACITY]);
+          await expect(this.mock.used(key2)).to.eventually.equal(0n);
+          await expect(this.mock.available(key2)).to.eventually.equal(CAPACITY);
+
+          await this.mock.consume(42n, key2);
+
+          await expect(this.mock.state(key1)).to.eventually.deep.equal([17n, CAPACITY - 17n]);
+          await expect(this.mock.used(key1)).to.eventually.equal(17n);
+          await expect(this.mock.available(key1)).to.eventually.equal(CAPACITY - 17n);
+          await expect(this.mock.state(key2)).to.eventually.deep.equal([42n, CAPACITY - 42n]);
+          await expect(this.mock.used(key2)).to.eventually.equal(42n);
+          await expect(this.mock.available(key2)).to.eventually.equal(CAPACITY - 42n);
+        });
+
         it('multiple consume accumulate within the window', async function () {
           await this.mock.consume(100n);
           await this.mock.consume(200n);
@@ -277,12 +378,46 @@ describe('RateLimiter', function () {
 
           // execute (and get event)
           await expect(this.mock.tryConsume(42n))
-            .to.emit(this.mock, 'return$tryConsume_RateLimiter_SlidingWindow_uint256')
+            .to.emit(this.mock, 'return$tryConsume_RateLimiter_SlidingWindow_bytes32_uint256')
             .withArgs(true);
 
           await expect(this.mock.state()).to.eventually.deep.equal([42n, CAPACITY - 42n]);
           await expect(this.mock.used()).to.eventually.equal(42n);
           await expect(this.mock.available()).to.eventually.equal(CAPACITY - 42n);
+        });
+
+        it('tryConsume one key does not affect another key', async function () {
+          const key1 = ethers.id('key1');
+          const key2 = ethers.id('key2');
+
+          await expect(this.mock.state(key1)).to.eventually.deep.equal([0n, CAPACITY]);
+          await expect(this.mock.used(key1)).to.eventually.equal(0n);
+          await expect(this.mock.available(key1)).to.eventually.equal(CAPACITY);
+          await expect(this.mock.state(key2)).to.eventually.deep.equal([0n, CAPACITY]);
+          await expect(this.mock.used(key2)).to.eventually.equal(0n);
+          await expect(this.mock.available(key2)).to.eventually.equal(CAPACITY);
+
+          await expect(this.mock.tryConsume(17n, key1))
+            .to.emit(this.mock, 'return$tryConsume_RateLimiter_SlidingWindow_bytes32_uint256')
+            .withArgs(true);
+
+          await expect(this.mock.state(key1)).to.eventually.deep.equal([17n, CAPACITY - 17n]);
+          await expect(this.mock.used(key1)).to.eventually.equal(17n);
+          await expect(this.mock.available(key1)).to.eventually.equal(CAPACITY - 17n);
+          await expect(this.mock.state(key2)).to.eventually.deep.equal([0n, CAPACITY]);
+          await expect(this.mock.used(key2)).to.eventually.equal(0n);
+          await expect(this.mock.available(key2)).to.eventually.equal(CAPACITY);
+
+          await expect(this.mock.tryConsume(42n, key2))
+            .to.emit(this.mock, 'return$tryConsume_RateLimiter_SlidingWindow_bytes32_uint256')
+            .withArgs(true);
+
+          await expect(this.mock.state(key1)).to.eventually.deep.equal([17n, CAPACITY - 17n]);
+          await expect(this.mock.used(key1)).to.eventually.equal(17n);
+          await expect(this.mock.available(key1)).to.eventually.equal(CAPACITY - 17n);
+          await expect(this.mock.state(key2)).to.eventually.deep.equal([42n, CAPACITY - 42n]);
+          await expect(this.mock.used(key2)).to.eventually.equal(42n);
+          await expect(this.mock.available(key2)).to.eventually.equal(CAPACITY - 42n);
         });
 
         it('multiple tryConsume accumulate within the window', async function () {
@@ -301,7 +436,7 @@ describe('RateLimiter', function () {
 
           // execute (and get event)
           await expect(this.mock.tryConsume(CAPACITY + 1n))
-            .to.emit(this.mock, 'return$tryConsume_RateLimiter_SlidingWindow_uint256')
+            .to.emit(this.mock, 'return$tryConsume_RateLimiter_SlidingWindow_bytes32_uint256')
             .withArgs(false);
 
           await expect(this.mock.state()).to.eventually.deep.equal([0n, CAPACITY]);
@@ -317,7 +452,7 @@ describe('RateLimiter', function () {
           await expect(this.mock.available()).to.eventually.equal(CAPACITY - 42n);
 
           await expect(this.mock.tryConsume(0n))
-            .to.emit(this.mock, 'return$tryConsume_RateLimiter_SlidingWindow_uint256')
+            .to.emit(this.mock, 'return$tryConsume_RateLimiter_SlidingWindow_bytes32_uint256')
             .withArgs(true);
 
           await expect(this.mock.state()).to.eventually.deep.equal([42n, CAPACITY - 42n]);

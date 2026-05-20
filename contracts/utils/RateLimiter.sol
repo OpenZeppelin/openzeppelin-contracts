@@ -52,22 +52,28 @@ library RateLimiter {
      * bucket fully refills in `window` seconds. The current state is reconstructed lazily from `lastUsed` and
      * `lastTimepoint` on read, keeping storage cost constant (2 packed slots).
      */
+    struct RefillingBucketItem {
+        uint208 lastUsed;
+        uint48 lastTimepoint;
+    }
     struct RefillingBucket {
         uint208 capacity;
         uint48 window;
-        uint208 lastUsed;
-        uint48 lastTimepoint;
+        mapping(bytes32 key => RefillingBucketItem) items;
     }
 
     /**
      * @dev Returns the current `used` and `available` quantities for a {RefillingBucket}, accounting for the
      * time-based refill that has accrued since the last update.
      */
-    function state(RefillingBucket storage self) internal view returns (uint256 used_, uint256 available_) {
+    function state(
+        RefillingBucket storage self,
+        bytes32 key
+    ) internal view returns (uint256 used_, uint256 available_) {
         uint208 cacheCapacity = self.capacity;
         uint48 cacheWindow = self.window;
-        uint208 cacheLastUsed = self.lastUsed;
-        uint48 cacheLastTimepoint = self.lastTimepoint;
+        uint208 cacheLastUsed = self.items[key].lastUsed;
+        uint48 cacheLastTimepoint = self.items[key].lastTimepoint;
 
         used_ = Math.saturatingSub(
             cacheLastUsed,
@@ -79,15 +85,15 @@ library RateLimiter {
     /**
      * @dev Returns the currently used quantity. See {state}.
      */
-    function used(RefillingBucket storage self) internal view returns (uint256 used_) {
-        (used_, ) = state(self);
+    function used(RefillingBucket storage self, bytes32 key) internal view returns (uint256 used_) {
+        (used_, ) = state(self, key);
     }
 
     /**
      * @dev Returns the currently available quantity. See {state}.
      */
-    function available(RefillingBucket storage self) internal view returns (uint256 available_) {
-        (, available_) = state(self);
+    function available(RefillingBucket storage self, bytes32 key) internal view returns (uint256 available_) {
+        (, available_) = state(self, key);
     }
 
     /**
@@ -96,13 +102,13 @@ library RateLimiter {
      *
      * A `quantity` of 0 is always accepted and does not modify storage.
      */
-    function tryConsume(RefillingBucket storage self, uint256 quantity) internal returns (bool) {
-        (uint256 used_, uint256 available_) = state(self);
+    function tryConsume(RefillingBucket storage self, bytes32 key, uint256 quantity) internal returns (bool) {
+        (uint256 used_, uint256 available_) = state(self, key);
         if (quantity == 0) {
             return true;
         } else if (quantity <= available_) {
-            self.lastTimepoint = Time.timestamp();
-            self.lastUsed = SafeCast.toUint208(used_ + quantity);
+            self.items[key].lastTimepoint = Time.timestamp();
+            self.items[key].lastUsed = SafeCast.toUint208(used_ + quantity);
             return true;
         } else {
             return false;
@@ -113,8 +119,8 @@ library RateLimiter {
      * @dev Consumes `quantity` from the bucket. Reverts with {RateLimitExceeded} if the available quantity is
      * insufficient. See {tryConsume}.
      */
-    function consume(RefillingBucket storage self, uint256 quantity) internal {
-        bool success = tryConsume(self, quantity);
+    function consume(RefillingBucket storage self, bytes32 key, uint256 quantity) internal {
+        bool success = tryConsume(self, key, quantity);
         require(success, RateLimitExceeded());
     }
 
@@ -123,21 +129,14 @@ library RateLimiter {
      *
      * The `capacity` and `window` settings are preserved; only the consumed quantity is cleared.
      */
-    function reset(RefillingBucket storage self) internal {
-        self.lastUsed = 0;
+    function reset(RefillingBucket storage self, bytes32 key) internal {
+        self.items[key].lastUsed = 0;
     }
 
     /**
      * @dev Updates the `capacity` and `window` of the bucket.
-     *
-     * The current usage is frozen before the new parameters take effect, so the refill that has accrued up to this
-     * point is preserved and future refill happens at the new rate. If `newCapacity` is smaller than the currently
-     * used quantity, the bucket starts with zero available quantity until the new rate refills it.
      */
     function updateSettings(RefillingBucket storage self, uint48 newWindow, uint208 newCapacity) internal {
-        // Important: compute used before updating anything else in the structure
-        self.lastUsed = uint208(used(self));
-        self.lastTimepoint = Time.timestamp();
         self.capacity = newCapacity;
         self.window = newWindow;
     }
@@ -159,20 +158,20 @@ library RateLimiter {
     struct SlidingWindow {
         uint208 limit;
         uint48 window;
-        Checkpoints.Trace208 history;
+        mapping(bytes32 key => Checkpoints.Trace208) items;
     }
 
     /**
      * @dev Returns the current `used` and `available` quantities for a {SlidingWindow}, computed as the cumulative
      * consumption over the last `window` seconds.
      */
-    function state(SlidingWindow storage self) internal view returns (uint256 used_, uint256 available_) {
+    function state(SlidingWindow storage self, bytes32 key) internal view returns (uint256 used_, uint256 available_) {
         uint208 cacheLimit = self.limit;
         uint48 cacheWindow = self.window;
 
         used_ = Math.saturatingSub(
-            self.history.latest(),
-            self.history.upperLookupRecent(uint48(Math.saturatingSub(Time.timestamp(), Math.max(cacheWindow, 1))))
+            self.items[key].latest(),
+            self.items[key].upperLookupRecent(uint48(Math.saturatingSub(Time.timestamp(), Math.max(cacheWindow, 1))))
         );
         available_ = Math.saturatingSub(cacheLimit, used_);
     }
@@ -180,15 +179,15 @@ library RateLimiter {
     /**
      * @dev Returns the currently used quantity within the rolling window. See {state}.
      */
-    function used(SlidingWindow storage self) internal view returns (uint256 used_) {
-        (used_, ) = state(self);
+    function used(SlidingWindow storage self, bytes32 key) internal view returns (uint256 used_) {
+        (used_, ) = state(self, key);
     }
 
     /**
      * @dev Returns the currently available quantity within the rolling window. See {state}.
      */
-    function available(SlidingWindow storage self) internal view returns (uint256 available_) {
-        (, available_) = state(self);
+    function available(SlidingWindow storage self, bytes32 key) internal view returns (uint256 available_) {
+        (, available_) = state(self, key);
     }
 
     /**
@@ -197,11 +196,11 @@ library RateLimiter {
      *
      * A `quantity` of 0 is always accepted and does not modify storage.
      */
-    function tryConsume(SlidingWindow storage self, uint256 quantity) internal returns (bool) {
+    function tryConsume(SlidingWindow storage self, bytes32 key, uint256 quantity) internal returns (bool) {
         if (quantity == 0) {
             return true;
-        } else if (quantity <= available(self)) {
-            self.history.push(Time.timestamp(), SafeCast.toUint208(self.history.latest() + quantity));
+        } else if (quantity <= available(self, key)) {
+            self.items[key].push(Time.timestamp(), SafeCast.toUint208(self.items[key].latest() + quantity));
             return true;
         } else {
             return false;
@@ -212,8 +211,8 @@ library RateLimiter {
      * @dev Records a consumption of `quantity`. Reverts with {RateLimitExceeded} if the available quantity within
      * the current window is insufficient. See {tryConsume}.
      */
-    function consume(SlidingWindow storage self, uint256 quantity) internal {
-        bool success = tryConsume(self, quantity);
+    function consume(SlidingWindow storage self, bytes32 key, uint256 quantity) internal {
+        bool success = tryConsume(self, key, quantity);
         require(success, RateLimitExceeded());
     }
 
@@ -227,8 +226,8 @@ library RateLimiter {
      * As a consequence, there is no gas refunded, but future {consume}/{tryConsume} operations are cheaper from
      * reusing "dirty" slots.
      */
-    function reset(SlidingWindow storage self) internal {
-        Checkpoints.Checkpoint208[] storage trace = self.history._checkpoints;
+    function reset(SlidingWindow storage self, bytes32 key) internal {
+        Checkpoints.Checkpoint208[] storage trace = self.items[key]._checkpoints;
         assembly ("memory-safe") {
             sstore(trace.slot, 0)
         }
