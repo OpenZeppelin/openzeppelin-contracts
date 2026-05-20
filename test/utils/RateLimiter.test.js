@@ -9,20 +9,23 @@ const WINDOW = 100n;
 const CAPACITY = 1000n;
 const refillPerSecond = CAPACITY / WINDOW;
 
+const defaultKey = ethers.ZeroHash;
+const key1 = ethers.id('key1');
+const key2 = ethers.id('key2');
+
 async function fixture() {
   const mock = await ethers.deployContract('$RateLimiter');
   return { mock };
 }
 
 const wrap = (mock, type) => ({
-  state: (key = ethers.ZeroHash) => mock.getFunction(`$state_RateLimiter_${type}`)(0n, key),
-  used: (key = ethers.ZeroHash) => mock.getFunction(`$used_RateLimiter_${type}`)(0n, key),
-  available: (key = ethers.ZeroHash) => mock.getFunction(`$available_RateLimiter_${type}`)(0n, key),
-  tryConsume: (amount, key = ethers.ZeroHash) => mock.getFunction(`$tryConsume_RateLimiter_${type}`)(0n, key, amount),
-  tryConsumeStatic: (amount, key = ethers.ZeroHash) =>
-    mock.getFunction(`$tryConsume_RateLimiter_${type}`).staticCall(0n, key, amount),
-  consume: (amount, key = ethers.ZeroHash) => mock.getFunction(`$consume_RateLimiter_${type}`)(0n, key, amount),
-  reset: (key = ethers.ZeroHash) => mock.getFunction(`$reset_RateLimiter_${type}`)(0n, key),
+  state: (k = defaultKey) => mock.getFunction(`$state_RateLimiter_${type}`)(0n, k),
+  used: (k = defaultKey) => mock.getFunction(`$used_RateLimiter_${type}`)(0n, k),
+  available: (k = defaultKey) => mock.getFunction(`$available_RateLimiter_${type}`)(0n, k),
+  tryConsume: (q, k = defaultKey) => mock.getFunction(`$tryConsume_RateLimiter_${type}`)(0n, k, q),
+  tryConsumeStatic: (q, k = defaultKey) => mock.getFunction(`$tryConsume_RateLimiter_${type}`).staticCall(0n, k, q),
+  consume: (q, k = defaultKey) => mock.getFunction(`$consume_RateLimiter_${type}`)(0n, k, q),
+  reset: (k = defaultKey) => mock.getFunction(`$reset_RateLimiter_${type}`)(0n, k),
   updateSettings: (window, capacity) => mock.getFunction(`$updateSettings_RateLimiter_${type}`)(0n, window, capacity),
 });
 
@@ -63,9 +66,6 @@ describe('RateLimiter', function () {
         });
 
         it('consume one key does not affect another key', async function () {
-          const key1 = ethers.id('key1');
-          const key2 = ethers.id('key2');
-
           await expect(this.mock.state(key1)).to.eventually.deep.equal([0n, CAPACITY]);
           await expect(this.mock.used(key1)).to.eventually.equal(0n);
           await expect(this.mock.available(key1)).to.eventually.equal(CAPACITY);
@@ -134,9 +134,6 @@ describe('RateLimiter', function () {
         });
 
         it('tryConsume one key does not affect another key', async function () {
-          const key1 = ethers.id('key1');
-          const key2 = ethers.id('key2');
-
           await expect(this.mock.state(key1)).to.eventually.deep.equal([0n, CAPACITY]);
           await expect(this.mock.used(key1)).to.eventually.equal(0n);
           await expect(this.mock.available(key1)).to.eventually.equal(CAPACITY);
