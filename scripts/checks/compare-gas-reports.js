@@ -59,21 +59,29 @@ class Report {
   static compare(update, ref, opts = { hideEqual: true, strictTesting: false }) {
     return Object.entries(update.contracts)
       .filter(([key]) => key in ref.contracts)
-      .flatMap(([key, contract]) => [
-        {
-          contract: contract.contractName,
-          method: '[constructor]',
-          ...variations(contract.deployment, ref.contracts[key].deployment, BASE_TX_COST),
-        },
-        ...Object.entries(contract.functions ?? {})
-          .filter(([method]) => method in ref.contracts[key].functions)
-          .filter(([method, data]) => !opts.strictTesting || data.count === ref.contracts[key].functions[method].count)
-          .map(([method, currentData]) => ({
-            contract: contract.contractName,
-            method,
-            ...variations(currentData, ref.contracts[key].functions[method], BASE_TX_COST),
-          })),
-      ])
+      .flatMap(([key, contract]) => {
+        const refContract = ref.contracts[key];
+        const refFunctions = refContract.functions ?? {};
+        return [
+          ...(contract.deployment && refContract.deployment
+            ? [
+                {
+                  contract: contract.contractName,
+                  method: '[constructor]',
+                  ...variations(contract.deployment, refContract.deployment, BASE_TX_COST),
+                },
+              ]
+            : []),
+          ...Object.entries(contract.functions ?? {})
+            .filter(([method]) => method in refFunctions)
+            .filter(([method, data]) => !opts.strictTesting || data.count === refFunctions[method].count)
+            .map(([method, currentData]) => ({
+              contract: contract.contractName,
+              method,
+              ...variations(currentData, refFunctions[method], BASE_TX_COST),
+            })),
+        ];
+      })
       .sort((a, b) => `${a.contract}:${a.method}`.localeCompare(`${b.contract}:${b.method}`))
       .filter(row => !opts.hideEqual || row.min?.delta || row.max?.delta || row.avg?.delta || row.median?.delta);
   }
