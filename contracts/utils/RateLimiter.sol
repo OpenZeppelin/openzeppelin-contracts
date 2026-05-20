@@ -135,10 +135,27 @@ library RateLimiter {
 
     /**
      * @dev Updates the `capacity` and `window` of the bucket.
+     *
+     * NOTE: The new settings will retroactively affect all the keys. The new replenishing rate (capacity / window) is
+     * applied from the last update timepoint of each key. Therefore, if the new settings correspond to a faster
+     * replenishing rate, some quantity may become available immediately. Conversely, if the new settings correspond
+     * to a slower replenishing rate, some quantity that would otherwise be available immediately may become
+     * unavailable. This side effect can be mitigated by calling {refresh} on the relevant keys before updating the
+     * settings. There is no mechanism to automatically refresh all the keys in a single operation.
      */
     function updateSettings(RefillingBucket storage self, uint48 newWindow, uint208 newCapacity) internal {
         self.capacity = newCapacity;
         self.window = newWindow;
+    }
+
+    /**
+     * @dev Refreshes the bucket by applying the accrued refill since the last update timepoint to `lastUsed` and
+     * `lastTimepoint`, effectively moving the timepoint forward to now. This can be used to mitigate the side effect
+     * of {updateSettings} when the refreshing rate is modified.
+     */
+    function refresh(RefillingBucket storage self, bytes32 key) internal {
+        self.items[key].lastUsed = uint208(used(self, key));
+        self.items[key].lastTimepoint = Time.timestamp();
     }
 
     // ================================================= SlidingWindow =================================================

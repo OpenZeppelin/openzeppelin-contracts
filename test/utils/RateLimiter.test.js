@@ -3,6 +3,7 @@ const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { MAX_UINT48 } = require('../helpers/constants');
+const { batchInBlock } = require('../helpers/txpool');
 const time = require('../helpers/time');
 
 const WINDOW = 100n;
@@ -27,6 +28,7 @@ const wrap = (mock, type) => ({
   consume: (q, k = defaultKey) => mock.getFunction(`$consume_RateLimiter_${type}`)(0n, k, q),
   reset: (k = defaultKey) => mock.getFunction(`$reset_RateLimiter_${type}`)(0n, k),
   updateSettings: (window, capacity) => mock.getFunction(`$updateSettings_RateLimiter_${type}`)(0n, window, capacity),
+  refresh: type == 'RefillingBucket' ? (k = defaultKey) => mock.$refresh(0n, k) : undefined,
 });
 
 describe('RateLimiter', function () {
@@ -233,30 +235,46 @@ describe('RateLimiter', function () {
         await expect(this.mock.available()).to.eventually.equal(CAPACITY);
       });
 
-      it('updateSettings freezes accrued usage', async function () {
+      it('updateSettings side effect on usage', async function () {
+        const d1 = 3n;
+        const d2 = 4n;
+        const newRefillPerSecond = (2n * CAPACITY) / WINDOW;
+
         // consume the whole bucket
         await this.mock.consume(CAPACITY);
 
-        // wait half a window so half should have refilled
-        await time.increaseBy.timestamp(10n);
+        await time.increaseBy.timestamp(d1, false);
+        await this.mock.updateSettings(WINDOW, CAPACITY * 2n);
+        await time.increaseBy.timestamp(d2);
 
         await expect(this.mock.state()).to.eventually.deep.equal([
-          CAPACITY - 10n * refillPerSecond,
-          10n * refillPerSecond,
+          CAPACITY - (d1 + d2) * newRefillPerSecond,
+          CAPACITY + (d1 + d2) * newRefillPerSecond,
         ]);
-        await expect(this.mock.used()).to.eventually.equal(CAPACITY - 10n * refillPerSecond);
-        await expect(this.mock.available()).to.eventually.equal(10n * refillPerSecond);
+        await expect(this.mock.used()).to.eventually.equal(CAPACITY - (d1 + d2) * newRefillPerSecond);
+        await expect(this.mock.available()).to.eventually.equal(CAPACITY + (d1 + d2) * newRefillPerSecond);
+      });
 
-        // update settings (changes capacity but should keep the current accrued used quantity)
-        await this.mock.updateSettings(WINDOW * 2n, CAPACITY * 2n);
+      it('using  refresh to mitigate updateSettings side effect', async function () {
+        const d1 = 3n;
+        const d2 = 4n;
+        const newRefillPerSecond = (2n * CAPACITY) / WINDOW;
 
-        // one more second passed (because of the updateSettings call)
+        // consume the whole bucket
+        await this.mock.consume(CAPACITY);
+
+        await time.increaseBy.timestamp(d1, false);
+        await batchInBlock([() => this.mock.refresh(), () => this.mock.updateSettings(WINDOW, CAPACITY * 2n)]);
+        await time.increaseBy.timestamp(d2);
+
         await expect(this.mock.state()).to.eventually.deep.equal([
-          CAPACITY - 11n * refillPerSecond,
-          CAPACITY + 11n * refillPerSecond,
+          CAPACITY - d1 * refillPerSecond - d2 * newRefillPerSecond,
+          CAPACITY + d1 * refillPerSecond + d2 * newRefillPerSecond,
         ]);
-        await expect(this.mock.used()).to.eventually.equal(CAPACITY - 11n * refillPerSecond);
-        await expect(this.mock.available()).to.eventually.equal(CAPACITY + 11n * refillPerSecond);
+        await expect(this.mock.used()).to.eventually.equal(CAPACITY - d1 * refillPerSecond - d2 * newRefillPerSecond);
+        await expect(this.mock.available()).to.eventually.equal(
+          CAPACITY + d1 * refillPerSecond + d2 * newRefillPerSecond,
+        );
       });
 
       it('reset clears used', async function () {
@@ -494,7 +512,7 @@ describe('RateLimiter', function () {
         await expect(this.mock.available()).to.eventually.equal(CAPACITY - 42n);
         await expect(this.mock.used()).to.eventually.equal(42n);
 
-        await this.mock.updateSettings(WINDOW * 2n, CAPACITY * 2n);
+        await this.mock.updateSettings(WINDOW, CAPACITY * 2n);
 
         // used reflects existing checkpoints, only the new limit/window applies going forward
         await expect(this.mock.available()).to.eventually.equal(2n * CAPACITY - 42n);
