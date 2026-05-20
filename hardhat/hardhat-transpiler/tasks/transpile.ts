@@ -17,8 +17,14 @@ interface TranspileOptions {
   peerProject?: string;
 }
 
+// Map function, key the keys intact and transform values
 function transformKeys<U>(obj: Record<string, U>, fn: (key: string) => string): Record<string, U> {
   return Object.fromEntries(Object.entries(obj).map(([k, v]) => [fn(k), v]));
+}
+
+// Filter function, only keep entries where fn returns true
+function filterRecord<U>(obj: Record<string, U>, fn: (key: string, value: U) => boolean): Record<string, U> {
+  return Object.fromEntries(Object.entries(obj).filter(([k, v]) => fn(k, v)));
 }
 
 export default async function ({ settings }: { settings?: string }, hre: HardhatRuntimeEnvironment) {
@@ -48,22 +54,25 @@ export default async function ({ settings }: { settings?: string }, hre: Hardhat
       .then(file => fs.readFile(file!, 'utf-8'))
       .then(JSON.parse);
 
-    // Adjust paths to match transpiler expectations
-    input.sources = transformKeys(input.sources, k => k.replace(/^project\//, ''));
-    output.sources = transformKeys(output.sources, k => k.replace(/^project\//, ''));
-    output.contracts = transformKeys(output.contracts, k => k.replace(/^project\//, ''));
-    Object.values(output.sources).forEach((s: any) => {
-      s.ast.absolutePath = s.ast.absolutePath.replace(/^project\//, '');
-    });
-
     const mainSources = hre.config.paths.sources.solidity.at(0)!;
     const mainSourcesRel = path.relative(hre.config.paths.root, mainSources);
 
-    // Peer-project sources are compiled so downstream imports resolve, but they must not
-    // enter the transpiler's transform set — the transpiler expects only main-project ASTs.
-    input.sources = Object.fromEntries(
-      Object.entries(input.sources).filter(([k]) => k.startsWith(mainSourcesRel + '/')),
+    // Adjust paths to match transpiler expectations
+    input.sources = filterRecord(
+      transformKeys(input.sources, k => k.replace(/^project\//, '')),
+      k => k.startsWith(mainSourcesRel + '/'),
     );
+    output.sources = filterRecord(
+      transformKeys(output.sources, k => k.replace(/^project\//, '')),
+      k => k.startsWith(mainSourcesRel + '/'),
+    );
+    output.contracts = filterRecord(
+      transformKeys(output.contracts, k => k.replace(/^project\//, '')),
+      k => k.startsWith(mainSourcesRel + '/'),
+    );
+    Object.values(output.sources).forEach((s: any) => {
+      s.ast.absolutePath = s.ast.absolutePath.replace(/^project\//, '');
+    });
 
     // Run transpilation on the first source folder
     const transpiled = await transpile(
@@ -86,6 +95,7 @@ export default async function ({ settings }: { settings?: string }, hre: Hardhat
     if (options.deleteOriginals) {
       const alreadyInitializable = findAlreadyInitializable(output, options.initializablePath);
 
+      // keep all newly transpiled files, plus any already-initializable files (even if not transpiled, to avoid deleting them)
       ([] as string[])
         .concat(
           transpiled.map(t => t.path),
@@ -94,29 +104,27 @@ export default async function ({ settings }: { settings?: string }, hre: Hardhat
         .map(p => path.join(hre.config.paths.root, p.replace(/^project\//, '')))
         .forEach(p => keep.add(p));
 
+      // If we have an initializablePath and no peer project, we need to preserve the initializablePath.
       if (options.initializablePath && options.peerProject === undefined) {
         keep.add(path.join(hre.config.paths.root, options.initializablePath.replace(/^project\//, '')));
       }
 
       Object.keys(output.sources)
-        .filter(s => s.startsWith(mainSourcesRel + '/'))
         .map(s => path.join(hre.config.paths.root, s.replace(/^project\//, '')))
         .forEach(p => seen.add(p));
 
-      // Already-initializable files are kept as-is in the main tree (not renamed, not
-      // transpiled). Their peer-tree copies, compiled alongside main, would produce
-      // duplicate artifacts for every contract inside (triggering HHE1001 at deploy
-      // time). Add the peer path for each already-initializable file to the delete set
-      // so the main tree's copy is the sole source of truth.
-      if (options.peerProject !== undefined) {
-        const peerSources = hre.config.paths.sources.solidity[1];
-        if (peerSources !== undefined) {
-          const peerSourcesRel = path.relative(hre.config.paths.root, peerSources);
-          alreadyInitializable
-            .filter(p => p.startsWith(mainSourcesRel + '/'))
-            .map(p => path.join(hre.config.paths.root, peerSourcesRel, path.relative(mainSourcesRel, p)))
-            .forEach(p => seen.add(p));
-        }
+      // If we have a peer project, initializable file present in the main source must be removed from the peer source
+      // to avoid conflicts. Since we don't know which source location may contain the peer project, we check all the
+      // solidity source file. Note that if the file does not exist, it will simply be ignored when we try to delete it.
+      if (options.peerProject) {
+        alreadyInitializable
+          .filter(f => f.startsWith(mainSourcesRel + '/'))
+          .flatMap(f =>
+            hre.config.paths.sources.solidity
+              .slice(1)
+              .map(peerSources => path.join(peerSources, path.relative(mainSourcesRel, f))),
+          )
+          .forEach(p => seen.add(p));
       }
     }
   }
