@@ -17,8 +17,14 @@ interface TranspileOptions {
   peerProject?: string;
 }
 
+// Map function, key the keys intact and transform values
 function transformKeys<U>(obj: Record<string, U>, fn: (key: string) => string): Record<string, U> {
   return Object.fromEntries(Object.entries(obj).map(([k, v]) => [fn(k), v]));
+}
+
+// Filter function, only keep entries where fn returns true
+function filterRecord<U>(obj: Record<string, U>, fn: (key: string, value: U) => boolean): Record<string, U> {
+  return Object.fromEntries(Object.entries(obj).filter(([k, v]) => fn(k, v)));
 }
 
 export default async function ({ settings }: { settings?: string }, hre: HardhatRuntimeEnvironment) {
@@ -48,10 +54,22 @@ export default async function ({ settings }: { settings?: string }, hre: Hardhat
       .then(file => fs.readFile(file!, 'utf-8'))
       .then(JSON.parse);
 
+    const mainSources = hre.config.paths.sources.solidity.at(0)!;
+    const mainSourcesRel = path.relative(hre.config.paths.root, mainSources);
+
     // Adjust paths to match transpiler expectations
-    input.sources = transformKeys(input.sources, k => k.replace(/^project\//, ''));
-    output.sources = transformKeys(output.sources, k => k.replace(/^project\//, ''));
-    output.contracts = transformKeys(output.contracts, k => k.replace(/^project\//, ''));
+    input.sources = filterRecord(
+      transformKeys(input.sources, k => k.replace(/^project\//, '')),
+      k => k.startsWith(mainSourcesRel + '/'),
+    );
+    output.sources = filterRecord(
+      transformKeys(output.sources, k => k.replace(/^project\//, '')),
+      k => k.startsWith(mainSourcesRel + '/'),
+    );
+    output.contracts = filterRecord(
+      transformKeys(output.contracts, k => k.replace(/^project\//, '')),
+      k => k.startsWith(mainSourcesRel + '/'),
+    );
     Object.values(output.sources).forEach((s: any) => {
       s.ast.absolutePath = s.ast.absolutePath.replace(/^project\//, '');
     });
@@ -60,7 +78,7 @@ export default async function ({ settings }: { settings?: string }, hre: Hardhat
     const transpiled = await transpile(
       input,
       output,
-      { root: hre.config.paths.root, sources: hre.config.paths.sources.solidity.at(0)! },
+      { root: hre.config.paths.root, sources: mainSources },
       { ...options, solcVersion },
     );
 
@@ -75,14 +93,18 @@ export default async function ({ settings }: { settings?: string }, hre: Hardhat
 
     // Delete originals files
     if (options.deleteOriginals) {
+      const alreadyInitializable = findAlreadyInitializable(output, options.initializablePath);
+
+      // keep all newly transpiled files, plus any already-initializable files (even if not transpiled, to avoid deleting them)
       ([] as string[])
         .concat(
           transpiled.map(t => t.path),
-          findAlreadyInitializable(output, options.initializablePath),
+          alreadyInitializable,
         )
         .map(p => path.join(hre.config.paths.root, p.replace(/^project\//, '')))
         .forEach(p => keep.add(p));
 
+      // If we have an initializablePath and no peer project, we need to preserve the initializablePath.
       if (options.initializablePath && options.peerProject === undefined) {
         keep.add(path.join(hre.config.paths.root, options.initializablePath.replace(/^project\//, '')));
       }
@@ -90,6 +112,20 @@ export default async function ({ settings }: { settings?: string }, hre: Hardhat
       Object.keys(output.sources)
         .map(s => path.join(hre.config.paths.root, s.replace(/^project\//, '')))
         .forEach(p => seen.add(p));
+
+      // If we have a peer project, initializable file present in the main source must be removed from the peer source
+      // to avoid conflicts. Since we don't know which source location may contain the peer project, we check all the
+      // solidity source file. Note that if the file does not exist, it will simply be ignored when we try to delete it.
+      if (options.peerProject) {
+        alreadyInitializable
+          .filter(f => f.startsWith(mainSourcesRel + '/'))
+          .flatMap(f =>
+            hre.config.paths.sources.solidity
+              .slice(1)
+              .map(peerSources => path.join(peerSources, path.relative(mainSourcesRel, f))),
+          )
+          .forEach(p => seen.add(p));
+      }
     }
   }
 
