@@ -15,7 +15,7 @@ async function fixture() {
   const accounts = await ethers.getSigners();
   const [holder, recipient] = accounts;
 
-  const token = await ethers.deployContract('$ERC20ExpiringApproval', [name, symbol]);
+  const token = await ethers.deployContract('$ERC20ExpiringApprovalMock', [name, symbol]);
   await token.$_mint(holder, initialSupply);
 
   return { accounts, holder, recipient, token };

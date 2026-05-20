@@ -71,13 +71,10 @@ abstract contract ERC20ExpiringApproval is ERC20, IERC8255 {
     /**
      * @dev Returns whether `spender` should be treated as a legacy-compatible spender.
      *
-     * Legacy-compatible spenders are allowed to use approvals after their stored expiration. Derived contracts may
-     * override this function to implement their own designation mechanism. Spenders are not legacy-compatible by
-     * default.
+     * Legacy-compatible spenders are allowed to use approvals after their stored expiration. Derived contracts must
+     * implement this function to declare their designation mechanism.
      */
-    function _isLegacyCompatibleSpender(address) internal view virtual returns (bool) {
-        return false;
-    }
+    function _isLegacyCompatibleSpender(address spender) internal view virtual returns (bool);
 
     /// @inheritdoc IERC20
     function approve(address spender, uint256 value) public virtual override(IERC20, ERC20) returns (bool) {

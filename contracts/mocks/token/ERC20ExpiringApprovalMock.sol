@@ -4,7 +4,11 @@ pragma solidity ^0.8.20;
 import {ERC20} from "../../token/ERC20/ERC20.sol";
 import {ERC20ExpiringApproval} from "../../token/ERC20/extensions/draft-ERC20ExpiringApproval.sol";
 
-abstract contract ERC20ExpiringApprovalMock is ERC20ExpiringApproval {}
+abstract contract ERC20ExpiringApprovalMock is ERC20ExpiringApproval {
+    function _isLegacyCompatibleSpender(address) internal view virtual override returns (bool) {
+        return false;
+    }
+}
 
 contract ERC20ExpiringApprovalLegacyMock is ERC20ExpiringApproval {
     mapping(address spender => bool) private _legacyCompatibleSpenders;
