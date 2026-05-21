@@ -70,18 +70,24 @@ export class GovernorHelper {
   }
 
   /// Proposal lifecycle
-  async delegate(delegation) {
-    await delegation.token.connect(delegation.to).delegate(delegation.to);
-    if (delegation.value !== undefined) {
-      await delegation.token.connect(this.governor.runner).transfer(delegation.to, delegation.value);
-    }
-    if (delegation.tokenId !== undefined) {
-      await delegation.token
-        .ownerOf(delegation.tokenId)
-        .then(owner =>
-          delegation.token.connect(this.governor.runner).transferFrom(owner, delegation.to, delegation.tokenId),
-        );
-    }
+  delegate(delegation) {
+    return delegation.token
+      .connect(delegation.to)
+      .delegate(delegation.to)
+      .then(
+        () =>
+          delegation.value === undefined ||
+          delegation.token.connect(this.governor.runner).transfer(delegation.to, delegation.value),
+      )
+      .then(
+        () =>
+          delegation.tokenId === undefined ||
+          delegation.token
+            .ownerOf(delegation.tokenId)
+            .then(owner =>
+              delegation.token.connect(this.governor.runner).transferFrom(owner, delegation.to, delegation.tokenId),
+            ),
+      );
   }
 
   propose() {

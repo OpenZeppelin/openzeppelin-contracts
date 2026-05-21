@@ -406,9 +406,9 @@ describe('ERC20Votes', function () {
 
             const [t1, t2, t3] = await batchInBlock(
               [
-                () => this.token.connect(this.recipient).delegate(this.other1, { gasLimit: 200000 }),
-                () => this.token.connect(this.recipient).transfer(this.other2, 10n, { gasLimit: 200000 }),
-                () => this.token.connect(this.recipient).transfer(this.other2, 10n, { gasLimit: 200000 }),
+                () => this.token.connect(this.recipient).delegate(this.other1, { gasLimit: 200_000n }),
+                () => this.token.connect(this.recipient).transfer(this.other2, 10n, { gasLimit: 200_000n }),
+                () => this.token.connect(this.recipient).transfer(this.other2, 10n, { gasLimit: 200_000n }),
               ],
               ethers.provider,
             );

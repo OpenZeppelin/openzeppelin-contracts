@@ -3,14 +3,18 @@ import { expect } from 'chai';
 import { shouldBehaveLikeBridgeERC1155 } from '../../../crosschain/BridgeERC1155.behavior';
 
 const connection = await network.create();
-const { ethers, helpers, networkHelpers } = connection;
+const {
+  ethers,
+  helpers: { chain, impersonate },
+  networkHelpers: { loadFixture },
+} = connection;
 
 async function fixture() {
   const accounts = await ethers.getSigners();
 
   // Mock gateway
   const gateway = await ethers.deployContract('$ERC7786GatewayMock');
-  const gatewayAsEOA = await helpers.impersonate(gateway);
+  const gatewayAsEOA = await impersonate(gateway);
 
   // Chain A: ERC1155 with native bridge integration
   const tokenA = await ethers.deployContract('$ERC1155Crosschain', [[], 'https://token-cdn-domain/{id}.json']);
@@ -18,22 +22,22 @@ async function fixture() {
 
   // Chain B: ERC1155 with native bridge integration
   const tokenB = await ethers.deployContract('$ERC1155Crosschain', [
-    [[gateway, helpers.chain.toErc7930(bridgeA)]],
+    [[gateway, chain.toErc7930(bridgeA)]],
     'https://token-cdn-domain/{id}.json',
   ]);
   const bridgeB = tokenB; // self bridge
 
   // deployment check + counterpart setup
-  await expect(bridgeA.$_setLink(gateway, helpers.chain.toErc7930(bridgeB), false))
+  await expect(bridgeA.$_setLink(gateway, chain.toErc7930(bridgeB), false))
     .to.emit(bridgeA, 'LinkRegistered')
-    .withArgs(gateway, helpers.chain.toErc7930(bridgeB));
+    .withArgs(gateway, chain.toErc7930(bridgeB));
 
   return { accounts, gateway, gatewayAsEOA, tokenA, tokenB, bridgeA, bridgeB };
 }
 
 describe('ERC1155Crosschain', function () {
   beforeEach(async function () {
-    Object.assign(this, connection, await networkHelpers.loadFixture(fixture));
+    Object.assign(this, connection, await loadFixture(fixture));
   });
 
   shouldBehaveLikeBridgeERC1155();
