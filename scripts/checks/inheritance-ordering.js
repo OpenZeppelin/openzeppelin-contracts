@@ -11,7 +11,7 @@ import { hideBin } from 'yargs/helpers';
 const { _: artifacts } = yargs(hideBin(process.argv)).argv;
 
 // files to skip
-const skipPatterns = ['contracts-exposed/**', 'contracts/mocks/**', 'lib/openzeppelin-contracts/**', 'test/**'];
+const skipPatterns = ['contracts-exposed/**', 'contracts/mocks/**', 'lib/openzeppelin-contracts/contracts/mocks/**', 'test/**'];
 
 for (const artifact of artifacts) {
   const { output: solcOutput } = JSON.parse(
