@@ -5,12 +5,11 @@ import { GovernorHelper } from '../helpers/governance';
 import { OperationState } from '../helpers/enums';
 import { shouldSupportInterfaces } from '../utils/introspection/SupportsInterface.behavior';
 
-const connection = await network.create();
 const {
   ethers,
   helpers: { time },
   networkHelpers: { loadFixture },
-} = connection;
+} = await network.create();
 
 const salt = '0x025e7b0be353a74631ad648c667493c0e1cd31caa4cc2d3520fdc171ea0cc726'; // a random value
 
