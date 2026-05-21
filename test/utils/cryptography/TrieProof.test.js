@@ -49,9 +49,9 @@ describe('TrieProof', function () {
       // Multiple transactions/events in a block
       const txs = await batchInBlock(
         [
-          () => this.target.mockFunction({ gasLimit: 100000 }),
-          () => this.target.mockFunctionWithArgs(0, 1, { gasLimit: 100000 }),
-          () => this.target.mockFunctionWithArgs(17, 42, { gasLimit: 100000 }),
+          () => this.target.mockFunction({ gasLimit: 100_000n }),
+          () => this.target.mockFunctionWithArgs(0, 1, { gasLimit: 100_000n }),
+          () => this.target.mockFunctionWithArgs(17, 42, { gasLimit: 100_000n }),
         ],
         ethers.provider,
       );
