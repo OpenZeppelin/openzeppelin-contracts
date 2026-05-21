@@ -28,8 +28,6 @@ const { argv } = yargs(hideBin(process.argv))
 const BASE_TX_COST = 21000;
 
 // Utilities
-// const sum = (...args) => args.reduce((a, b) => a + b, 0);
-// const average = (...args)  => sum(...args) / args.length;
 const variation = (current, previous, offset = 0) => ({
   value: current - offset,
   delta: current - previous,
