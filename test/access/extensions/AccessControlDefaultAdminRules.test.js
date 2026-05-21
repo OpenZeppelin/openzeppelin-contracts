@@ -8,12 +8,12 @@ import {
 const connection = await network.create();
 const {
   ethers,
-  helpers,
+  helpers: { time },
   networkHelpers: { loadFixture },
 } = connection;
 
 async function fixture() {
-  const delay = helpers.time.duration.hours(10);
+  const delay = time.duration.hours(10);
   const [defaultAdmin, ...accounts] = await ethers.getSigners();
   const mock = await ethers.deployContract('$AccessControlDefaultAdminRules', [delay, defaultAdmin]);
   return { mock, defaultAdmin, delay, accounts };
@@ -31,5 +31,5 @@ describe('AccessControlDefaultAdminRules', function () {
   });
 
   shouldBehaveLikeAccessControl();
-  shouldBehaveLikeAccessControlDefaultAdminRules({ helpers });
+  shouldBehaveLikeAccessControlDefaultAdminRules();
 });

@@ -14,7 +14,7 @@ import {
 const connection = await network.create();
 const {
   ethers,
-  helpers,
+  helpers: { chain },
   networkHelpers: { loadFixture },
 } = connection;
 
@@ -25,7 +25,7 @@ async function fixture() {
   const target = await ethers.deployContract('CallReceiverMock');
 
   // Deploy executor
-  const executor = await ethers.deployContract('$CrosschainRemoteExecutor', [gateway, helpers.chain.toErc7930(admin)]);
+  const executor = await ethers.deployContract('$CrosschainRemoteExecutor', [gateway, chain.toErc7930(admin)]);
 
   const remoteExecute = (from, target, mode, data) =>
     gateway.connect(from).sendMessage(target, ethers.concat([mode, data]), []);
@@ -40,7 +40,7 @@ describe('CrosschainRemoteController & CrosschainRemoteExecutor', function () {
 
   it('setup', async function () {
     await expect(this.executor.gateway()).to.eventually.equal(this.gateway);
-    await expect(this.executor.controller()).to.eventually.equal(helpers.chain.toErc7930(this.admin));
+    await expect(this.executor.controller()).to.eventually.equal(chain.toErc7930(this.admin));
   });
 
   describe('crosschain operation', function () {
@@ -48,7 +48,7 @@ describe('CrosschainRemoteController & CrosschainRemoteExecutor', function () {
       const mode = encodeMode({ callType: CALL_TYPE_CALL });
       const data = encodeSingle(this.target, 0n, this.target.interface.encodeFunctionData('mockFunctionExtra'));
 
-      await expect(this.remoteExecute(this.admin, helpers.chain.toErc7930(this.executor), mode, data))
+      await expect(this.remoteExecute(this.admin, chain.toErc7930(this.executor), mode, data))
         .to.emit(this.target, 'MockFunctionCalledExtra')
         .withArgs(this.executor, 0n);
     });
@@ -60,7 +60,7 @@ describe('CrosschainRemoteController & CrosschainRemoteExecutor', function () {
         [this.target, 0n, this.target.interface.encodeFunctionData('mockFunctionExtra')],
       );
 
-      await expect(this.remoteExecute(this.admin, helpers.chain.toErc7930(this.executor), mode, data))
+      await expect(this.remoteExecute(this.admin, chain.toErc7930(this.executor), mode, data))
         .to.emit(this.target, 'MockFunctionCalledWithArgs')
         .withArgs(42, '0x1234')
         .to.emit(this.target, 'MockFunctionCalledExtra')
@@ -71,7 +71,7 @@ describe('CrosschainRemoteController & CrosschainRemoteExecutor', function () {
       const mode = encodeMode({ callType: CALL_TYPE_DELEGATE });
       const data = encodeDelegate(this.target, this.target.interface.encodeFunctionData('mockFunctionExtra'));
 
-      await expect(this.remoteExecute(this.admin, helpers.chain.toErc7930(this.executor), mode, data))
+      await expect(this.remoteExecute(this.admin, chain.toErc7930(this.executor), mode, data))
         .to.emit(this.target.attach(this.executor.target), 'MockFunctionCalledExtra')
         .withArgs(this.gateway, 0n);
     });
@@ -80,7 +80,7 @@ describe('CrosschainRemoteController & CrosschainRemoteExecutor', function () {
       const mode = encodeMode({ callType: '0x42' });
       const data = '0x';
 
-      await expect(this.remoteExecute(this.admin, helpers.chain.toErc7930(this.executor), mode, data))
+      await expect(this.remoteExecute(this.admin, chain.toErc7930(this.executor), mode, data))
         .to.be.revertedWithCustomError(this.executor, 'ERC7579UnsupportedCallType')
         .withArgs('0x42');
     });
@@ -98,50 +98,47 @@ describe('CrosschainRemoteController & CrosschainRemoteExecutor', function () {
         0n,
         this.executor.interface.encodeFunctionData('reconfigure', [
           this.newGateway.target,
-          helpers.chain.toErc7930(this.other),
+          chain.toErc7930(this.other),
         ]),
       );
 
-      await expect(this.remoteExecute(this.admin, helpers.chain.toErc7930(this.executor), mode, data))
+      await expect(this.remoteExecute(this.admin, chain.toErc7930(this.executor), mode, data))
         .to.emit(this.executor, 'CrosschainControllerSet')
-        .withArgs(this.newGateway, helpers.chain.toErc7930(this.other));
+        .withArgs(this.newGateway, chain.toErc7930(this.other));
 
       await expect(this.executor.gateway()).to.eventually.equal(this.newGateway);
-      await expect(this.executor.controller()).to.eventually.equal(helpers.chain.toErc7930(this.other));
+      await expect(this.executor.controller()).to.eventually.equal(chain.toErc7930(this.other));
     });
 
     it('through the internal setter: success', async function () {
-      await expect(this.executor.$_setup(this.newGateway, helpers.chain.toErc7930(this.other)))
+      await expect(this.executor.$_setup(this.newGateway, chain.toErc7930(this.other)))
         .to.emit(this.executor, 'CrosschainControllerSet')
-        .withArgs(this.newGateway, helpers.chain.toErc7930(this.other));
+        .withArgs(this.newGateway, chain.toErc7930(this.other));
 
       await expect(this.executor.gateway()).to.eventually.equal(this.newGateway);
-      await expect(this.executor.controller()).to.eventually.equal(helpers.chain.toErc7930(this.other));
+      await expect(this.executor.controller()).to.eventually.equal(chain.toErc7930(this.other));
     });
 
     it('with an invalid new gateway: revert', async function () {
       // directly using the internal setter
-      await expect(this.executor.$_setup(this.other, helpers.chain.toErc7930(this.other))).to.be.revert(ethers);
+      await expect(this.executor.$_setup(this.other, chain.toErc7930(this.other))).to.be.revert(ethers);
 
       // through a crosschain call
       const mode = encodeMode({ callType: CALL_TYPE_CALL });
       const data = encodeSingle(
         this.executor,
         0n,
-        this.executor.interface.encodeFunctionData('reconfigure', [
-          this.other.address,
-          helpers.chain.toErc7930(this.other),
-        ]),
+        this.executor.interface.encodeFunctionData('reconfigure', [this.other.address, chain.toErc7930(this.other)]),
       );
 
       await expect(
-        this.remoteExecute(this.admin, helpers.chain.toErc7930(this.executor), mode, data),
+        this.remoteExecute(this.admin, chain.toErc7930(this.executor), mode, data),
       ).to.be.revertedWithCustomError(this.executor, 'FailedCall');
     });
 
     it('is access controlled', async function () {
       await expect(
-        this.executor.reconfigure(this.newGateway, helpers.chain.toErc7930(this.other)),
+        this.executor.reconfigure(this.newGateway, chain.toErc7930(this.other)),
       ).to.be.revertedWithCustomError(this.executor, 'AccessRestricted');
     });
   });

@@ -4,7 +4,7 @@ import { generators } from '../helpers/random';
 
 const {
   ethers,
-  helpers,
+  helpers: { chain },
   networkHelpers: { loadFixture },
 } = await network.create();
 
@@ -29,42 +29,36 @@ describe('ERC7786Recipient', function () {
 
   it('receives gateway relayed messages', async function () {
     await expect(
-      this.gateway
-        .connect(this.sender)
-        .sendMessage(helpers.chain.toErc7930(this.receiver), payload, attributes, { value }),
+      this.gateway.connect(this.sender).sendMessage(chain.toErc7930(this.receiver), payload, attributes, { value }),
     )
       .to.emit(this.gateway, 'MessageSent')
       .withArgs(
         ethers.ZeroHash,
-        helpers.chain.toErc7930(this.sender),
-        helpers.chain.toErc7930(this.receiver),
+        chain.toErc7930(this.sender),
+        chain.toErc7930(this.receiver),
         payload,
         value,
         attributes,
       )
       .to.emit(this.receiver, 'MessageReceived')
-      .withArgs(this.gateway, ethers.toBeHex(1n, 32n), helpers.chain.toErc7930(this.sender), payload, value);
+      .withArgs(this.gateway, ethers.toBeHex(1n, 32n), chain.toErc7930(this.sender), payload, value);
   });
 
   it('receive multiple similar messages', async function () {
     for (let i = 1n; i < 5n; ++i) {
       await expect(
-        this.gateway
-          .connect(this.sender)
-          .sendMessage(helpers.chain.toErc7930(this.receiver), payload, attributes, { value }),
+        this.gateway.connect(this.sender).sendMessage(chain.toErc7930(this.receiver), payload, attributes, { value }),
       )
         .to.emit(this.receiver, 'MessageReceived')
-        .withArgs(this.gateway, ethers.toBeHex(i, 32n), helpers.chain.toErc7930(this.sender), payload, value);
+        .withArgs(this.gateway, ethers.toBeHex(i, 32n), chain.toErc7930(this.sender), payload, value);
     }
   });
 
   it('unauthorized call', async function () {
     await expect(
-      this.receiver
-        .connect(this.notAGateway)
-        .receiveMessage(ethers.ZeroHash, helpers.chain.toErc7930(this.sender), payload),
+      this.receiver.connect(this.notAGateway).receiveMessage(ethers.ZeroHash, chain.toErc7930(this.sender), payload),
     )
       .to.be.revertedWithCustomError(this.receiver, 'ERC7786RecipientUnauthorizedGateway')
-      .withArgs(this.notAGateway, helpers.chain.toErc7930(this.sender));
+      .withArgs(this.notAGateway, chain.toErc7930(this.sender));
   });
 });
