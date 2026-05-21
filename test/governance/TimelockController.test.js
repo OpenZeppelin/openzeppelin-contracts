@@ -1150,7 +1150,7 @@ describe('TimelockController', function () {
         this.mock
           .connect(this.executor)
           .execute(operation.target, operation.value, operation.data, operation.predecessor, operation.salt, {
-            gasLimit: '500_000n',
+            gasLimit: 500_000n,
           }),
       ).to.be.revertedWithCustomError(this.mock, 'FailedCall');
     });
