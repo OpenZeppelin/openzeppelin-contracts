@@ -10,13 +10,10 @@ import { hideBin } from 'yargs/helpers';
 
 const { _: artifacts } = yargs(hideBin(process.argv)).argv;
 
-// files to skip
-const skipPatterns = [
-  'contracts-exposed/**',
-  'contracts/mocks/**',
-  'lib/openzeppelin-contracts/contracts/mocks/**',
-  'test/**',
-];
+// only consider files in the package: take pattern from package.json
+const { files: patterns } = JSON.parse(
+  fs.readFileSync(path.resolve(import.meta.dirname, '../../', 'package.json'), 'utf-8'),
+);
 
 for (const artifact of artifacts) {
   const { output: solcOutput } = JSON.parse(
@@ -28,16 +25,17 @@ for (const artifact of artifacts) {
   const linearized = [];
 
   for (const source in solcOutput?.contracts ?? []) {
-    if (match.any(source.replace(/^project\//, ''), skipPatterns)) continue;
-    for (const contractDef of findAll('ContractDefinition', solcOutput.sources[source].ast)) {
-      names[contractDef.id] = contractDef.name;
-      linearized.push(contractDef.linearizedBaseContracts);
+    if (match.all(source.replace(/^project/, ''), patterns)) {
+      for (const contractDef of findAll('ContractDefinition', solcOutput.sources[source].ast)) {
+        names[contractDef.id] = contractDef.name;
+        linearized.push(contractDef.linearizedBaseContracts);
 
-      contractDef.linearizedBaseContracts.forEach((c1, i, contracts) =>
-        contracts.slice(i + 1).forEach(c2 => {
-          graph.setEdge(c1, c2);
-        }),
-      );
+        contractDef.linearizedBaseContracts.forEach((c1, i, contracts) =>
+          contracts.slice(i + 1).forEach(c2 => {
+            graph.setEdge(c1, c2);
+          }),
+        );
+      }
     }
   }
 
