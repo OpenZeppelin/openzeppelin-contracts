@@ -55,11 +55,13 @@ class Report {
 
   // Compare two reports
   static compare(update, ref, opts = { hideEqual: true, strictTesting: false }) {
-    return Object.entries(update.contracts)
-      .filter(([key]) => key in ref.contracts)
+    const refContracts = ref.contracts ?? {};
+    const updateContracts = update.contracts ?? {};
+    return Object.entries(updateContracts)
+      .filter(([key]) => key in refContracts)
       .flatMap(([key, contract]) => {
-        const refContract = ref.contracts[key];
-        const refFunctions = refContract.functions ?? {};
+        const refContract = refContracts[key];
+        const refFunctions = refContracts[key]?.functions ?? {};
         return [
           ...(contract.deployment && refContract.deployment
             ? [
