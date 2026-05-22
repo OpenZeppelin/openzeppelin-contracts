@@ -25,7 +25,7 @@ for (const artifact of artifacts) {
   const linearized = [];
 
   for (const source in solcOutput?.contracts ?? []) {
-    if (match.all(source.replace(/^project/, ''), patterns)) {
+    if (match.isMatch(source.replace(/^project/, ''), patterns)) {
       for (const contractDef of findAll('ContractDefinition', solcOutput.sources[source].ast)) {
         names[contractDef.id] = contractDef.name;
         linearized.push(contractDef.linearizedBaseContracts);
