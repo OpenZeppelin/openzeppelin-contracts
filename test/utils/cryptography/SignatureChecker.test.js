@@ -1,6 +1,7 @@
 import { network } from 'hardhat';
 import { expect } from 'chai';
 import * as precompile from '../../helpers/precompiles';
+import * as random from '../../helpers/random';
 import { P256SigningKey, NonNativeSigner } from '../../helpers/signers';
 
 const {
@@ -191,7 +192,7 @@ describe('SignatureChecker (ERC1271)', function () {
         });
 
         it('with invalid key', async function () {
-          const signer = ethers.concat([this.verifier.target, ethers.randomBytes(32)]);
+          const signer = ethers.concat([this.verifier.target, random.bytes(32)]);
           const signature = await aliceP256.signMessage(TEST_MESSAGE);
 
           await expect(this.mock.$isValidSignatureNow(ethers.Typed.bytes(signer), TEST_MESSAGE_HASH, signature)).to
@@ -204,14 +205,14 @@ describe('SignatureChecker (ERC1271)', function () {
             aliceP256.signingKey.publicKey.qx,
             aliceP256.signingKey.publicKey.qy,
           ]);
-          const signature = ethers.randomBytes(65); // invalid (random) signature
+          const signature = random.bytes(65); // invalid (random) signature
 
           await expect(this.mock.$isValidSignatureNow(ethers.Typed.bytes(signer), TEST_MESSAGE_HASH, signature)).to
             .eventually.be.false;
         });
 
         it('with signer too short', async function () {
-          const signer = ethers.randomBytes(19); // too short
+          const signer = random.bytes(19); // too short
           const signature = await aliceP256.signMessage(TEST_MESSAGE);
           await expect(this.mock.$isValidSignatureNow(ethers.Typed.bytes(signer), TEST_MESSAGE_HASH, signature)).to
             .eventually.be.false;

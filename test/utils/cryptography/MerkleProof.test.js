@@ -2,6 +2,7 @@ import { network } from 'hardhat';
 import { expect } from 'chai';
 import { PANIC_CODES } from '@nomicfoundation/hardhat-ethers-chai-matchers/panic';
 import { SimpleMerkleTree } from '@openzeppelin/merkle-tree';
+import * as random from '../../helpers/random';
 
 const { ethers } = await network.create();
 
@@ -110,8 +111,8 @@ describe('MerkleProof', function () {
           const hashA = merkleTree.at(0);
           const hashB = merkleTree.at(1);
           const hashCD = nodeHash(merkleTree.at(2), merkleTree.at(3));
-          const hashE = ethers.randomBytes(32); // incorrect (not part of the tree)
-          const fill = ethers.randomBytes(32);
+          const hashE = random.bytes32(); // incorrect (not part of the tree)
+          const fill = random.bytes32();
 
           await expect(
             this.mock.$processMultiProof([hashB, fill, hashCD], [false, false, false], [hashA, hashE]),
@@ -137,8 +138,8 @@ describe('MerkleProof', function () {
           const hashA = merkleTree.at(0);
           const hashB = merkleTree.at(1);
           const hashCD = nodeHash(merkleTree.at(2), merkleTree.at(3));
-          const hashE = ethers.randomBytes(32); // incorrect (not part of the tree)
-          const fill = ethers.randomBytes(32);
+          const hashE = random.bytes32(); // incorrect (not part of the tree)
+          const fill = random.bytes32();
 
           await expect(
             this.mock.$processMultiProof([hashB, fill, hashCD], [false, false, false, false], [hashE, hashA]),

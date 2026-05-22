@@ -1,7 +1,7 @@
 import { network } from 'hardhat';
 import { expect } from 'chai';
 import { PANIC_CODES } from '@nomicfoundation/hardhat-ethers-chai-matchers/panic';
-import { generators } from '../helpers/random';
+import * as random from '../helpers/random';
 
 const {
   ethers,
@@ -38,7 +38,7 @@ describe('Memory', function () {
   describe('Slices', function () {
     it('asSlice', async function () {
       for (const length of [0, 20, 32, 256]) {
-        const buffer = ethers.getBytes(generators.bytes(length));
+        const buffer = random.bytes(length);
         await expect(this.mock.$asSlice(buffer)).to.eventually.equal(formatSlice({ length }));
       }
     });

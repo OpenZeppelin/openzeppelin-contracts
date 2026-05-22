@@ -1,6 +1,7 @@
 import { network } from 'hardhat';
 import { expect } from 'chai';
 import { product } from '../helpers/iterate';
+import * as random from '../helpers/random';
 import { SIZES } from '../../scripts/generate/templates/Packing.opts';
 
 const {
@@ -19,14 +20,14 @@ describe('Packing', function () {
 
   describe('pack', function () {
     for (const [size1, size2] of product(SIZES, SIZES).filter(([size1, size2]) => SIZES.includes(size1 + size2))) {
-      const value1 = ethers.hexlify(ethers.randomBytes(size1));
-      const value2 = ethers.hexlify(ethers.randomBytes(size2));
+      const value1 = random.bytes(size1);
+      const value2 = random.bytes(size2);
       const packed = ethers.concat([value1, value2]);
 
       it(`pack bytes${size1} + bytes${size2} => bytes${size1 + size2}`, async function () {
         expect(await this.mock[`$pack_${size1}_${size2}`](value1, value2)).to.equal(packed);
-        expect(await this.mock[`$extract_${size1 + size2}_${size1}`](packed, 0)).to.equal(value1);
-        expect(await this.mock[`$extract_${size1 + size2}_${size2}`](packed, size1)).to.equal(value2);
+        expect(await this.mock[`$extract_${size1 + size2}_${size1}`](packed, 0)).to.equal(ethers.hexlify(value1));
+        expect(await this.mock[`$extract_${size1 + size2}_${size2}`](packed, size1)).to.equal(ethers.hexlify(value2));
       });
     }
   });
@@ -34,9 +35,9 @@ describe('Packing', function () {
   describe('extract / replace', function () {
     for (const [size1, size2] of product(SIZES, SIZES).filter(([size1, size2]) => size1 > size2)) {
       const MAX_OFFSET = size1 - size2;
-      const offset = ethers.toNumber(ethers.randomBytes(1)) % (MAX_OFFSET + 1);
-      const outer = ethers.randomBytes(size1);
-      const value = ethers.randomBytes(size2);
+      const offset = ethers.toNumber(random.bytes(1)) % (MAX_OFFSET + 1);
+      const outer = random.bytes(size1);
+      const value = random.bytes(size2);
 
       it(`extract bytes${size2} from bytes${size1}`, async function () {
         expect(await this.mock[`$extract_${size1}_${size2}`](outer, offset)).to.equal(

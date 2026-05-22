@@ -12,6 +12,7 @@ import {
   encodeMode,
 } from '../../helpers/erc7579';
 import { selector } from '../../helpers/methods';
+import * as random from '../../helpers/random';
 
 const {
   ethers,
@@ -221,8 +222,8 @@ describe('ERC7579Utils', function () {
 
   describe('execDelegateCall', function () {
     it('delegate calls the target', async function () {
-      const slot = ethers.hexlify(ethers.randomBytes(32));
-      const value = ethers.hexlify(ethers.randomBytes(32));
+      const slot = random.bytes32();
+      const value = random.bytes32();
       const data = encodeDelegate(
         this.target,
         this.target.interface.encodeFunctionData('mockFunctionWritesStorage', [slot, value]),

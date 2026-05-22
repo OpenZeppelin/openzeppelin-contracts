@@ -1,6 +1,7 @@
 import { config } from 'hardhat';
 import { ethers } from 'ethers';
 import { ValidationRange } from './enums';
+import * as random from './random';
 
 export const SIG_VALIDATION_SUCCESS = '0x0000000000000000000000000000000000000000';
 export const SIG_VALIDATION_FAILURE = '0x0000000000000000000000000000000000000001';
@@ -146,9 +147,7 @@ export class ERC4337Helper {
     } else {
       const initCode = await accountFactory
         .getDeployTransaction(...extraArgs)
-        .then(tx =>
-          factory.interface.encodeFunctionData('$deploy', [0, params.salt ?? ethers.randomBytes(32), tx.data]),
-        )
+        .then(tx => factory.interface.encodeFunctionData('$deploy', [0, params.salt ?? random.bytes32(), tx.data]))
         .then(deployCode => ethers.concat([factory.target, deployCode]));
 
       const instance = await this.connection.ethers.provider

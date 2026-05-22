@@ -1,6 +1,6 @@
 import { network } from 'hardhat';
 import { mapValues } from '../../helpers/iterate';
-import { generators } from '../../helpers/random';
+import * as random from '../../helpers/random';
 import { SET_TYPES } from '../../../scripts/generate/templates/Enumerable.opts';
 import { shouldBehaveLikeSet } from './EnumerableSet.behavior';
 
@@ -17,6 +17,9 @@ const getMethods = (mock, fnSigs) =>
         mock.getFunction(fnSig)(0, ...args),
   );
 
+// Chai matchers expect hexadecimal data when dealing with bytes
+const randomOf = type => random[type === 'bytes' ? 'hexBytes' : type];
+
 async function fixture() {
   const mock = await ethers.deployContract('$EnumerableSet');
 
@@ -27,7 +30,7 @@ async function fixture() {
         value,
         values: Array.from(
           { length: 3 },
-          value.size ? () => Array.from({ length: value.size }, generators[value.base]) : generators[value.type],
+          value.size ? () => Array.from({ length: value.size }, randomOf(value.base)) : randomOf(value.type),
         ),
         methods: getMethods(mock, {
           add: `$add(uint256,${value.type})`,

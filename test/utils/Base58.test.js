@@ -1,5 +1,6 @@
 import { network } from 'hardhat';
 import { expect } from 'chai';
+import * as random from '../helpers/random';
 
 const {
   ethers,
@@ -23,7 +24,7 @@ describe('Base58', function () {
         it(
           [length > 32 && '[skip-on-coverage]', `buffer of length ${length}`].filter(Boolean).join(' '),
           async function () {
-            const buffer = ethers.randomBytes(length);
+            const buffer = random.bytes(length);
             const hex = ethers.hexlify(buffer);
             const b58 = ethers.encodeBase58(buffer);
 

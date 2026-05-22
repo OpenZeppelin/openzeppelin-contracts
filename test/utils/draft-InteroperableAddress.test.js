@@ -2,7 +2,7 @@ import { network } from 'hardhat';
 import { expect } from 'chai';
 import { addressCoder, nameCoder } from 'interoperable-addresses';
 import { CAIP350, chainTypeCoder } from 'interoperable-addresses/dist/CAIP350';
-import { generators } from '../helpers/random';
+import * as random from '../helpers/random';
 
 const {
   ethers,
@@ -175,8 +175,8 @@ describe('ERC7390', function () {
   describe('handles large references and addresses', function () {
     it('large', async function () {
       const chainType = '0x0000';
-      const reference = generators.bytes(142);
-      const address = generators.bytes(142);
+      const reference = random.hexBytes(142);
+      const address = random.hexBytes(142);
 
       const binary = addressCoder.encode({ chainType, reference, address });
 
@@ -196,8 +196,8 @@ describe('ERC7390', function () {
 
     it('very large', async function () {
       const chainType = '0x0000';
-      const reference = generators.bytes(255);
-      const address = generators.bytes(255);
+      const reference = random.hexBytes(255);
+      const address = random.hexBytes(255);
 
       const binary = addressCoder.encode({ chainType, reference, address });
 

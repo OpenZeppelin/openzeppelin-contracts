@@ -1,7 +1,7 @@
 import { network } from 'hardhat';
 import { expect } from 'chai';
 import { erc7201Slot } from '../helpers/storage';
-import { generators } from '../helpers/random';
+import * as random from '../helpers/random';
 
 const {
   ethers,
@@ -29,28 +29,28 @@ describe('SlotDerivation', function () {
 
   describe('derivation', function () {
     it('offset', async function () {
-      const base = generators.bytes32();
-      const offset = generators.uint256();
+      const base = random.bytes32();
+      const offset = random.uint256();
       expect(await this.mock.$offset(base, offset)).to.equal((ethers.toBigInt(base) + offset) & ethers.MaxUint256);
     });
 
     it('array', async function () {
-      const base = generators.bytes32();
+      const base = random.bytes32();
       expect(await this.mock.$deriveArray(base)).to.equal(ethers.keccak256(base));
     });
 
     describe('mapping', function () {
       for (const { type, key, isValueType } of [
         { type: 'bool', key: true, isValueType: true },
-        { type: 'address', key: generators.address(), isValueType: true },
-        { type: 'bytes32', key: generators.bytes32(), isValueType: true },
-        { type: 'uint256', key: generators.uint256(), isValueType: true },
-        { type: 'int256', key: generators.int256(), isValueType: true },
-        { type: 'bytes', key: generators.hexBytes(128), isValueType: false },
+        { type: 'address', key: random.address(), isValueType: true },
+        { type: 'bytes32', key: random.bytes32(), isValueType: true },
+        { type: 'uint256', key: random.uint256(), isValueType: true },
+        { type: 'int256', key: random.int256(), isValueType: true },
+        { type: 'bytes', key: random.bytes(128), isValueType: false },
         { type: 'string', key: 'lorem ipsum', isValueType: false },
       ]) {
         it(type, async function () {
-          const base = generators.bytes32();
+          const base = random.bytes32();
           const expected = isValueType
             ? ethers.keccak256(ethers.AbiCoder.defaultAbiCoder().encode([type, 'bytes32'], [key, base]))
             : ethers.solidityPackedKeccak256([type, 'bytes32'], [key, base]);

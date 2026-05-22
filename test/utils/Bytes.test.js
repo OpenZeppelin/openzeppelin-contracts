@@ -1,7 +1,7 @@
 import { network } from 'hardhat';
 import { expect } from 'chai';
 import { MAX_UINT128, MAX_UINT64, MAX_UINT32, MAX_UINT16 } from '../helpers/constants';
-import { generators } from '../helpers/random';
+import * as random from '../helpers/random';
 
 const {
   ethers,
@@ -118,39 +118,39 @@ describe('Bytes', function () {
 
   describe('concat', function () {
     it('empty list', async function () {
-      await expect(this.mock.$concat([])).to.eventually.equal(generators.bytes.zero);
+      await expect(this.mock.$concat([])).to.eventually.equal(random.hexBytes.zero);
     });
 
     it('single item', async function () {
-      const item = generators.bytes();
+      const item = random.hexBytes();
       await expect(this.mock.$concat([item])).to.eventually.equal(item);
     });
 
     it('multiple (non-empty) items', async function () {
-      const items = Array.from({ length: 17 }, generators.bytes);
+      const items = Array.from({ length: 17 }, random.hexBytes);
       await expect(this.mock.$concat(items)).to.eventually.equal(ethers.concat(items));
     });
 
     it('multiple (empty) items', async function () {
-      const items = Array.from({ length: 17 }).fill(generators.bytes.zero);
+      const items = Array.from({ length: 17 }).fill(random.hexBytes.zero);
       await expect(this.mock.$concat(items)).to.eventually.equal(ethers.concat(items));
     });
 
     it('multiple (variable length) items', async function () {
       const items = [
-        generators.bytes.zero,
-        generators.bytes(17),
-        generators.bytes.zero,
-        generators.bytes(42),
-        generators.bytes(1),
-        generators.bytes(256),
-        generators.bytes(1024),
-        generators.bytes.zero,
-        generators.bytes(7),
-        generators.bytes(15),
-        generators.bytes(63),
-        generators.bytes.zero,
-        generators.bytes.zero,
+        random.hexBytes.zero,
+        random.hexBytes(17),
+        random.hexBytes.zero,
+        random.hexBytes(42),
+        random.hexBytes(1),
+        random.hexBytes(256),
+        random.hexBytes(1024),
+        random.hexBytes.zero,
+        random.hexBytes(7),
+        random.hexBytes(15),
+        random.hexBytes(63),
+        random.hexBytes.zero,
+        random.hexBytes.zero,
       ];
 
       await expect(this.mock.$concat(items)).to.eventually.equal(ethers.concat(items));

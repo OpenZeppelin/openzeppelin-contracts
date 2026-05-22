@@ -2,9 +2,9 @@ import { network } from 'hardhat';
 import { expect } from 'chai';
 import { PANIC_CODES } from '@nomicfoundation/hardhat-ethers-chai-matchers/panic';
 import { Rounding } from '../../helpers/enums';
-import { min, max, modExp } from '../../helpers/math';
-import { generators } from '../../helpers/random';
 import { product, range } from '../../helpers/iterate';
+import { min, max, modExp } from '../../helpers/math';
+import * as random from '../../helpers/random';
 
 const {
   ethers,
@@ -470,7 +470,7 @@ describe('Math', function () {
         });
 
         if (p != 0) {
-          for (const value of Array.from({ length: 16 }, generators.uint256)) {
+          for (const value of Array.from({ length: 16 }, random.uint256)) {
             const isInversible = factors.every(f => value % f);
             it(`trying to inverse ${value}`, async function () {
               const result = await this.mock.$invMod(value, p);
