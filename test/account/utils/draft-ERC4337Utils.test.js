@@ -444,7 +444,7 @@ describe('ERC4337Utils', function () {
     });
   });
 
-  describe('hash', async function () {
+  describe('hash', function () {
     for (const [version, instance] of Object.entries(ethers.predeploy.entrypoint)) {
       it(`returns the operation hash for entrypoint ${version}`, async function () {
         const userOp = new UserOperation({ sender: this.sender, nonce: 1 });
