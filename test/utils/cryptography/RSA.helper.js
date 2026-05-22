@@ -1,8 +1,8 @@
 import fs from 'fs';
 
-export function* parse(file) {
+export function* parse(absoluteFile) {
   const cache = {};
-  const data = fs.readFileSync(file, 'utf8');
+  const data = fs.readFileSync(absoluteFile, 'utf8');
   for (const line of data.split('\r\n')) {
     const groups = line.match(/^(?<key>\w+) = (?<value>\w+)(?<extra>.*)$/)?.groups;
     if (groups) {

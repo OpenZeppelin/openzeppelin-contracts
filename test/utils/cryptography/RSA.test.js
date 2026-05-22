@@ -1,5 +1,6 @@
 import { network } from 'hardhat';
 import { expect } from 'chai';
+import path from 'path';
 import { parse } from './RSA.helper';
 
 const {
@@ -19,7 +20,7 @@ describe('RSA', function () {
   // Load test cases from file SigVer15_186-3.rsp from:
   // https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Algorithm-Validation-Program/documents/dss/186-2rsatestvectors.zip
   describe('SigVer15_186-3.rsp tests', function () {
-    for (const test of parse('./test/utils/cryptography/SigVer15_186-3.rsp')) {
+    for (const test of parse(path.join(import.meta.dirname, 'SigVer15_186-3.rsp'))) {
       const { length } = Buffer.from(test.S, 'hex');
 
       /// For now, RSA only supports digest that are 32bytes long. If we ever extend that, we can use these hashing functions for @noble:
