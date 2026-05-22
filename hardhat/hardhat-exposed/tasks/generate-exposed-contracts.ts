@@ -22,10 +22,15 @@ export default async function generateExposedContracts(
 ): Promise<Result<void, void>> {
   const rootPaths = await hre.solidity.getRootFilePaths();
 
+  const isInExposedOutDir = (file: string) => {
+    const rel = path.relative(path.resolve(hre.config.exposed.outDir), path.resolve(file));
+    return rel !== '..' && !rel.startsWith('..' + path.sep);
+  };
+
   const includes = async (rootPath: string) =>
     hre.config.exposed.include.some(p => path.matchesGlob(rootPath, p)) &&
     !hre.config.exposed.exclude.some(p => path.matchesGlob(rootPath, p)) &&
-    !rootPath.startsWith(hre.config.exposed.outDir) &&
+    !isInExposedOutDir(rootPath) &&
     (await hre.solidity.getScope(rootPath)) === 'contracts';
 
   const inclusionResults = await Promise.all(rootPaths.map(root => includes(root)));
@@ -33,10 +38,7 @@ export default async function generateExposedContracts(
     if (!inclusionResults[i]) return false;
 
     // sanity check: No exposed contract should be a root file to expose
-    assert(
-      !root.startsWith(hre.config.exposed.outDir),
-      'A root file to be exposed must not be part of the in the hardhat-exposed outDir',
-    );
+    assert(!isInExposedOutDir(root), 'A root file to be exposed must not be part of the in the hardhat-exposed outDir');
 
     return true;
   });
@@ -80,7 +82,7 @@ export default async function generateExposedContracts(
       // sources of the ast-only build-info
       for (const inputSourceName of Object.keys(buildInfo.input.sources)) {
         assert(
-          !inputSourceName.startsWith(hre.config.exposed.outDir),
+          !isInExposedOutDir(inputSourceName),
           'No exposed contract should be included in the ast-only compilation jobs',
         );
       }
