@@ -817,11 +817,19 @@ describe('Governor', function () {
                   value,
                 },
               ],
-              `<proposal description>#proposer=${this.proposer}`,
+              `<proposal description>#proposer=${this.proposer.address}`,
             );
           });
 
-          shouldPropose();
+          it('proposer can propose', async function () {
+            await expect(this.helper.connect(this.proposer).propose()).to.emit(this.mock, 'ProposalCreated');
+          });
+
+          it('someone else cannot propose', async function () {
+            await expect(this.helper.connect(this.voter1).propose())
+              .to.be.revertedWithCustomError(this.mock, 'GovernorRestrictedProposer')
+              .withArgs(this.voter1);
+          });
         });
       });
 
