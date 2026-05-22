@@ -13,7 +13,7 @@ git add contracts/package.json
 
 # run the transpiler
 npm run clean
-npx hardhat transpile --settings $DIRNAME/transpile.config.json
+npx hardhat transpile --settings "$DIRNAME/transpile.config.json"
 
 # create alias to Initializable and UUPSUpgradeable
 cp $DIRNAME/alias/*.sol contracts/proxy/utils/.
