@@ -215,7 +215,19 @@ describe('AccountMultiSigner', function () {
   });
 
   describe('Signature validation', function () {
-    const TEST_MESSAGE = ethers.keccak256(ethers.toUtf8Bytes('Test message'));
+    const TEST_MESSAGE = 'Test message';
+    const MESSAGE_HASH = ethers.hashMessage(TEST_MESSAGE);
+
+    const sortSigner = signers =>
+      signers.sort((a, b) =>
+        Buffer.compare(
+          ethers.getBytes(ethers.keccak256(a.address ?? a)),
+          ethers.getBytes(ethers.keccak256(b.address ?? b)),
+        ),
+      );
+
+    const prepareMultisig = (signers, signatures) =>
+      ethers.AbiCoder.defaultAbiCoder().encode(['bytes[]', 'bytes[]'], [signers.map(s => s.address ?? s), signatures]);
 
     beforeEach(async function () {
       // Set up mock with authorized signers
@@ -223,104 +235,60 @@ describe('AccountMultiSigner', function () {
       await this.mock.deploy();
     });
 
-    it('rejects signatures from unauthorized signers', async function () {
-      // Create signatures including an unauthorized signer
-      const authorizedSignature = await signerECDSA1.signMessage(ethers.getBytes(TEST_MESSAGE));
-      const unauthorizedSignature = await signerECDSA4.signMessage(ethers.getBytes(TEST_MESSAGE));
-
-      // Prepare signers and signatures arrays
-      const signers = [
-        signerECDSA1.address,
-        signerECDSA4.address, // Unauthorized signer
-      ].sort((a, b) => (ethers.toBigInt(ethers.keccak256(a)) < ethers.toBigInt(ethers.keccak256(b)) ? -1 : 1));
-
-      const signatures = signers.map(signer => {
-        if (signer === signerECDSA1.address) return authorizedSignature;
-        return unauthorizedSignature;
-      });
-
-      // Encode the multi-signature
-      const multiSignature = ethers.AbiCoder.defaultAbiCoder().encode(['bytes[]', 'bytes[]'], [signers, signatures]);
+    it('accepts signatures from authorized signers', async function () {
+      const signers = sortSigner([signerECDSA1, signerECDSA2]);
+      const signatures = await Promise.all(signers.map(s => s.signMessage(TEST_MESSAGE)));
 
       // Should fail because one signer is not authorized
-      await expect(this.mock.$_rawSignatureValidation(TEST_MESSAGE, multiSignature)).to.eventually.be.false;
+      await expect(this.mock.$_rawSignatureValidation(MESSAGE_HASH, prepareMultisig(signers, signatures))).to.eventually
+        .be.true;
+    });
+
+    it('rejects signatures from unauthorized signers', async function () {
+      const signers = sortSigner([signerECDSA1, signerECDSA4]); // signerECDSA4 is unauthorized
+      const signatures = await Promise.all(signers.map(s => s.signMessage(TEST_MESSAGE)));
+
+      // Should fail because one signer is not authorized
+      await expect(this.mock.$_rawSignatureValidation(MESSAGE_HASH, prepareMultisig(signers, signatures))).to.eventually
+        .be.false;
     });
 
     it('rejects invalid signatures from authorized signers', async function () {
-      // Create a valid signature and an invalid one from authorized signers
-      const validSignature = await signerECDSA1.signMessage(ethers.getBytes(TEST_MESSAGE));
-      const invalidSignature = await signerECDSA2.signMessage(ethers.toUtf8Bytes('Different message')); // Wrong message
-
-      // Prepare signers and signatures arrays
-      const signers = [signerECDSA1.address, signerECDSA2.address].sort((a, b) =>
-        ethers.toBigInt(ethers.keccak256(a)) < ethers.toBigInt(ethers.keccak256(b)) ? -1 : 1,
+      const signers = sortSigner([signerECDSA1, signerECDSA2]);
+      const signatures = await Promise.all(
+        signers.map((s, i) => s.signMessage(i === 0 ? 'Invalid message' : TEST_MESSAGE)), // first signature is invalid
       );
-
-      const signatures = signers.map(signer => {
-        if (signer === signerECDSA1.address) return validSignature;
-        return invalidSignature;
-      });
-
-      // Encode the multi-signature
-      const multiSignature = ethers.AbiCoder.defaultAbiCoder().encode(['bytes[]', 'bytes[]'], [signers, signatures]);
 
       // Should fail because one signature is invalid
-      await expect(this.mock.$_rawSignatureValidation(TEST_MESSAGE, multiSignature)).to.eventually.be.false;
+      await expect(this.mock.$_rawSignatureValidation(MESSAGE_HASH, prepareMultisig(signers, signatures))).to.eventually
+        .be.false;
     });
 
-    it('rejects signatures from unsorted signers', async function () {
-      // Create a valid signature and an invalid one from authorized signers
-      const validSignature1 = await signerECDSA1.signMessage(ethers.getBytes(TEST_MESSAGE));
-      const validSignature2 = await signerECDSA2.signMessage(ethers.getBytes(TEST_MESSAGE));
+    it('accepts signatures from unsorted signers', async function () {
+      const signers = sortSigner([signerECDSA1, signerECDSA2]).reverse(); // Unsorted signers
+      const signatures = await Promise.all(signers.map(s => s.signMessage(TEST_MESSAGE)));
 
-      // Prepare signers and signatures arrays
-      const signers = [signerECDSA1.address, signerECDSA2.address].sort((a, b) =>
-        ethers.toBigInt(ethers.keccak256(a)) < ethers.toBigInt(ethers.keccak256(b)) ? -1 : 1,
-      );
-      const unsortedSigners = signers.reverse();
-      const signatures = unsortedSigners.map(signer => {
-        if (signer === signerECDSA1.address) return validSignature1;
-        return validSignature2;
-      });
-
-      // Encode the multi-signature
-      const multiSignature = ethers.AbiCoder.defaultAbiCoder().encode(
-        ['bytes[]', 'bytes[]'],
-        [unsortedSigners, signatures],
-      );
-
-      // Should fail because signers are not sorted
-      await expect(this.mock.$_rawSignatureValidation(TEST_MESSAGE, multiSignature)).to.eventually.be.false;
+      // Should pass because signatures are valid even if signers are unsorted
+      await expect(this.mock.$_rawSignatureValidation(MESSAGE_HASH, prepareMultisig(signers, signatures))).to.eventually
+        .be.true;
     });
 
     it('rejects signatures when signers.length != signatures.length', async function () {
-      // Create a valid signature and an invalid one from authorized signers
-      const validSignature1 = await signerECDSA1.signMessage(ethers.getBytes(TEST_MESSAGE));
-
-      // Prepare signers and signatures arrays
-      const signers = [signerECDSA1.address, signerECDSA2.address];
-      const signatures = [validSignature1];
-
-      // Encode the multi-signature
-      const multiSignature = ethers.AbiCoder.defaultAbiCoder().encode(['bytes[]', 'bytes[]'], [signers, signatures]);
+      const signers = sortSigner([signerECDSA1, signerECDSA2]);
+      const signatures = await Promise.all(signers.slice(0, -1).map(s => s.signMessage(TEST_MESSAGE))); // slice the last signer
 
       // Should fail because signers and signatures arrays have different lengths
-      await expect(this.mock.$_rawSignatureValidation(TEST_MESSAGE, multiSignature)).to.eventually.be.false;
+      await expect(this.mock.$_rawSignatureValidation(MESSAGE_HASH, prepareMultisig(signers, signatures))).to.eventually
+        .be.false;
     });
 
     it('rejects duplicated signers', async function () {
-      // Create a valid signature
-      const validSignature = await signerECDSA1.signMessage(ethers.getBytes(TEST_MESSAGE));
-
-      // Prepare signers and signatures arrays
-      const signers = [signerECDSA1.address, signerECDSA1.address];
-      const signatures = [validSignature, validSignature];
-
-      // Encode the multi-signature
-      const multiSignature = ethers.AbiCoder.defaultAbiCoder().encode(['bytes[]', 'bytes[]'], [signers, signatures]);
+      const signers = sortSigner([signerECDSA1, signerECDSA1]); // duplicated signer
+      const signatures = await Promise.all(signers.map(s => s.signMessage(TEST_MESSAGE)));
 
       // Should fail because of duplicated signers
-      await expect(this.mock.$_rawSignatureValidation(TEST_MESSAGE, multiSignature)).to.eventually.be.false;
+      await expect(this.mock.$_rawSignatureValidation(MESSAGE_HASH, prepareMultisig(signers, signatures))).to.eventually
+        .be.false;
     });
   });
 });
