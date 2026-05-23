@@ -239,7 +239,7 @@ describe('AccountMultiSigner', function () {
       const signers = sortSigners([signerECDSA1, signerECDSA2]);
       const signatures = await Promise.all(signers.map(s => s.signMessage(TEST_MESSAGE)));
 
-      // Should fail because one signer is not authorized
+      // Should pass because all signers are authorized.
       await expect(this.mock.$_rawSignatureValidation(MESSAGE_HASH, prepareMultisig(signers, signatures))).to.eventually
         .be.true;
     });
