@@ -221,11 +221,17 @@ describe('RLP', function () {
 
     it('decodeBytes with trailing byte after short string', async function () {
       // 0x83646f67 = "dog", 0x83646f6780 = "dog" + trailing 0x80
-      await expect(this.mock.$decodeBytes('0x83646f6780')).to.be.revertedWithCustomError(this.mock, 'RLPInvalidEncoding');
+      await expect(this.mock.$decodeBytes('0x83646f6780')).to.be.revertedWithCustomError(
+        this.mock,
+        'RLPInvalidEncoding',
+      );
     });
 
     it('decodeString with trailing byte after short string', async function () {
-      await expect(this.mock.$decodeString('0x83646f6780')).to.be.revertedWithCustomError(this.mock, 'RLPInvalidEncoding');
+      await expect(this.mock.$decodeString('0x83646f6780')).to.be.revertedWithCustomError(
+        this.mock,
+        'RLPInvalidEncoding',
+      );
     });
   });
 
