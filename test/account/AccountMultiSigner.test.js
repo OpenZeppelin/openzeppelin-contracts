@@ -218,7 +218,7 @@ describe('AccountMultiSigner', function () {
     const TEST_MESSAGE = 'Test message';
     const MESSAGE_HASH = ethers.hashMessage(TEST_MESSAGE);
 
-    const sortSigner = signers =>
+    const sortSigners = signers =>
       signers.sort((a, b) =>
         Buffer.compare(
           ethers.getBytes(ethers.keccak256(a.address ?? a)),
@@ -236,7 +236,7 @@ describe('AccountMultiSigner', function () {
     });
 
     it('accepts signatures from authorized signers', async function () {
-      const signers = sortSigner([signerECDSA1, signerECDSA2]);
+      const signers = sortSigners([signerECDSA1, signerECDSA2]);
       const signatures = await Promise.all(signers.map(s => s.signMessage(TEST_MESSAGE)));
 
       // Should pass because all signers are authorized.
@@ -245,7 +245,7 @@ describe('AccountMultiSigner', function () {
     });
 
     it('rejects signatures from unauthorized signers', async function () {
-      const signers = sortSigner([signerECDSA1, signerECDSA4]); // signerECDSA4 is unauthorized
+      const signers = sortSigners([signerECDSA1, signerECDSA4]); // signerECDSA4 is unauthorized
       const signatures = await Promise.all(signers.map(s => s.signMessage(TEST_MESSAGE)));
 
       // Should fail because one signer is not authorized
@@ -254,7 +254,7 @@ describe('AccountMultiSigner', function () {
     });
 
     it('rejects invalid signatures from authorized signers', async function () {
-      const signers = sortSigner([signerECDSA1, signerECDSA2]);
+      const signers = sortSigners([signerECDSA1, signerECDSA2]);
       const signatures = await Promise.all(
         signers.map((s, i) => s.signMessage(i === 0 ? 'Invalid message' : TEST_MESSAGE)), // first signature is invalid
       );
@@ -265,7 +265,7 @@ describe('AccountMultiSigner', function () {
     });
 
     it('accepts signatures from unsorted signers', async function () {
-      const signers = sortSigner([signerECDSA1, signerECDSA2]).reverse(); // Unsorted signers
+      const signers = sortSigners([signerECDSA1, signerECDSA2]).reverse(); // Unsorted signers
       const signatures = await Promise.all(signers.map(s => s.signMessage(TEST_MESSAGE)));
 
       // Should pass because signatures are valid even if signers are unsorted
@@ -274,7 +274,7 @@ describe('AccountMultiSigner', function () {
     });
 
     it('rejects signatures when signers.length != signatures.length', async function () {
-      const signers = sortSigner([signerECDSA1, signerECDSA2]);
+      const signers = sortSigners([signerECDSA1, signerECDSA2]);
       const signatures = await Promise.all(signers.slice(0, -1).map(s => s.signMessage(TEST_MESSAGE))); // slice the last signer
 
       // Should fail because signers and signatures arrays have different lengths
@@ -283,7 +283,7 @@ describe('AccountMultiSigner', function () {
     });
 
     it('rejects duplicated signers', async function () {
-      const signers = sortSigner([signerECDSA1, signerECDSA1]); // duplicated signer
+      const signers = sortSigners([signerECDSA1, signerECDSA1]); // duplicated signer
       const signatures = await Promise.all(signers.map(s => s.signMessage(TEST_MESSAGE)));
 
       // Should fail because of duplicated signers
