@@ -58,6 +58,12 @@ describe('DoubleEndedQueue', function () {
 
       await expect(this.getContent()).to.eventually.have.ordered.members([bytesA, bytesB]);
     });
+
+    it('values returns empty array', async function () {
+      await expect(this.mock.$values(0, 0, 0)).to.eventually.deep.equal([]);
+      await expect(this.mock.$values(0, 0, 10)).to.eventually.deep.equal([]);
+      await expect(this.mock.$values(0, 5, 10)).to.eventually.deep.equal([]);
+    });
   });
 
   describe('when not empty', function () {
@@ -143,6 +149,36 @@ describe('DoubleEndedQueue', function () {
 
       await expect(this.mock.$empty(0)).to.eventually.be.true;
       await expect(this.getContent()).to.eventually.have.ordered.members([]);
+    });
+
+    describe('values', function () {
+      it('returns the full content for [0, length)', async function () {
+        await expect(this.mock.$values(0, 0, this.content.length)).to.eventually.deep.equal(this.content);
+      });
+
+      it('paginates across all begin/end combinations', async function () {
+        for (const begin of [0, 1, 2, 3, 4])
+          for (const end of [0, 1, 2, 3, 4]) {
+            await expect(this.mock.$values(0, begin, end)).to.eventually.deep.equal(this.content.slice(begin, end));
+          }
+      });
+
+      it('clamps end to length', async function () {
+        await expect(this.mock.$values(0, 0, ethers.MaxUint256)).to.eventually.deep.equal(this.content);
+        await expect(this.mock.$values(0, 1, ethers.MaxUint256)).to.eventually.deep.equal(this.content.slice(1));
+      });
+
+      it('clamps start to end', async function () {
+        await expect(this.mock.$values(0, ethers.MaxUint256, ethers.MaxUint256)).to.eventually.deep.equal([]);
+        await expect(this.mock.$values(0, 2, 1)).to.eventually.deep.equal([]);
+      });
+
+      it('reflects pushFront/pushBack ordering (wraparound indices)', async function () {
+        await this.mock.$pushFront(0, bytesD);
+        const expected = [bytesD, ...this.content];
+        await expect(this.mock.$values(0, 0, expected.length)).to.eventually.deep.equal(expected);
+        await expect(this.mock.$values(0, 1, 3)).to.eventually.deep.equal(expected.slice(1, 3));
+      });
     });
   });
 });
