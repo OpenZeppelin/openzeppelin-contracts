@@ -115,6 +115,62 @@ describe('GovernorStorage', function () {
             this.proposal.descriptionHash,
           ]);
         });
+
+        it('tracks multiple proposals in creation order', async function () {
+          const firstProposal = this.proposal;
+          const secondProposal = new GovernorHelper(this.mock, mode).setProposal(
+            [
+              {
+                target: this.receiver.target,
+                data: this.receiver.interface.encodeFunctionData('mockFunctionWithArgs', [17n, 29n]),
+                value: 0n,
+              },
+            ],
+            '<another proposal description>',
+          );
+
+          await firstProposal.propose();
+          await secondProposal.propose();
+
+          expect(await this.mock.proposalCount()).to.equal(2n);
+
+          expect(await this.mock.proposalDetailsAt(0n)).to.deep.equal([
+            firstProposal.id,
+            firstProposal.targets,
+            firstProposal.values,
+            firstProposal.data,
+            firstProposal.descriptionHash,
+          ]);
+
+          expect(await this.mock.proposalDetailsAt(1n)).to.deep.equal([
+            secondProposal.id,
+            secondProposal.targets,
+            secondProposal.values,
+            secondProposal.data,
+            secondProposal.descriptionHash,
+          ]);
+
+          await expect(this.mock.proposalDetailsAt(2n)).to.be.revertedWithPanic(PANIC_CODES.ARRAY_ACCESS_OUT_OF_BOUNDS);
+        });
+
+        it('keeps proposal details accessible after cancellation', async function () {
+          await this.helper.connect(this.proposer).propose();
+          await this.mock.connect(this.proposer).cancel(this.proposal.id);
+
+          expect(await this.mock.proposalDetails(this.proposal.id)).to.deep.equal([
+            this.proposal.targets,
+            this.proposal.values,
+            this.proposal.data,
+            this.proposal.descriptionHash,
+          ]);
+          expect(await this.mock.proposalDetailsAt(0n)).to.deep.equal([
+            this.proposal.id,
+            this.proposal.targets,
+            this.proposal.values,
+            this.proposal.data,
+            this.proposal.descriptionHash,
+          ]);
+        });
       });
 
       it('queue and execute by id', async function () {
