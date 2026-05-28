@@ -1,23 +1,23 @@
-const { version } = require('../../package.json');
+import { version } from '../../package.json';
 
-module.exports['oz-version'] = () => version;
+export const ozVersion = () => version;
 
-module.exports['readme-path'] = opts => {
+export const readmePath = opts => {
   return 'contracts/' + opts.data.root.id.replace(/\.adoc$/, '') + '/README.adoc';
 };
 
-module.exports.names = params => params?.map(p => p.name).join(', ');
+export const names = params => params?.map(p => p.name).join(', ');
 
-module.exports['typed-params'] = params => {
+export const typedParams = params => {
   return params?.map(p => `${p.type}${p.indexed ? ' indexed' : ''}${p.name ? ' ' + p.name : ''}`).join(', ');
 };
 
-const slug = (module.exports.slug = str => {
+export const slug = str => {
   if (str === undefined) {
     throw new Error('Missing argument');
   }
   return str.replace(/\W/g, '-');
-});
+};
 
 const linksCache = new WeakMap();
 
@@ -34,7 +34,7 @@ function getAllLinks(items) {
   return res;
 }
 
-module.exports['with-prelude'] = opts => {
+export const withPrelude = opts => {
   const links = getAllLinks(opts.data.site.items);
   const contents = opts.fn();
   const neededLinks = contents

@@ -1,7 +1,7 @@
-const { isNodeType, findAll } = require('solidity-ast/utils');
-const { slug } = require('./helpers');
+import { isNodeType, findAll } from 'solidity-ast/utils.js';
+import { slug } from './helpers';
 
-module.exports.anchor = function anchor({ item, contract }) {
+export const anchor = function anchor({ item, contract }) {
   let res = '';
   if (contract) {
     res += contract.name + '-';
@@ -17,7 +17,7 @@ module.exports.anchor = function anchor({ item, contract }) {
   return res;
 };
 
-module.exports.fullname = function fullname({ item }) {
+export const fullname = function fullname({ item }) {
   let res = '';
   res += item.name;
   if ('parameters' in item) {
@@ -33,7 +33,7 @@ module.exports.fullname = function fullname({ item }) {
   return res;
 };
 
-module.exports.inheritance = function ({ item, build }) {
+export const inheritance = function ({ item, build }) {
   if (!isNodeType('ContractDefinition', item)) {
     throw new Error('inheritance modifier used on non-contract');
   }
@@ -43,34 +43,34 @@ module.exports.inheritance = function ({ item, build }) {
     .filter((c, i) => c.name !== 'Context' || i === 0);
 };
 
-module.exports['has-functions'] = function ({ item }) {
+export const hasFunctions = function ({ item }) {
   return item.inheritance.some(c => c.functions.length > 0);
 };
 
-module.exports['has-events'] = function ({ item }) {
+export const hasEvents = function ({ item }) {
   return item.inheritance.some(c => c.events.length > 0);
 };
 
-module.exports['has-errors'] = function ({ item }) {
+export const hasErrors = function ({ item }) {
   return item.inheritance.some(c => c.errors.length > 0);
 };
 
-module.exports['internal-variables'] = function ({ item }) {
+export const internalVariables = function ({ item }) {
   return item.variables.filter(({ visibility }) => visibility === 'internal');
 };
 
-module.exports['has-internal-variables'] = function ({ item }) {
-  return module.exports['internal-variables']({ item }).length > 0;
+export const hasInternalVariables = function ({ item }) {
+  return internalVariables({ item }).length > 0;
 };
 
-module.exports.functions = function ({ item }) {
+export const functions = function ({ item }) {
   return [
     ...[...findAll('FunctionDefinition', item)].filter(f => f.visibility !== 'private'),
     ...[...findAll('VariableDeclaration', item)].filter(f => f.visibility === 'public'),
   ];
 };
 
-module.exports.returns2 = function ({ item }) {
+export const returns2 = function ({ item }) {
   if (isNodeType('VariableDeclaration', item)) {
     return [{ type: item.typeName.typeDescriptions.typeString }];
   } else {
@@ -78,7 +78,7 @@ module.exports.returns2 = function ({ item }) {
   }
 };
 
-module.exports['inherited-functions'] = function ({ item }) {
+export const inheritedFunctions = function ({ item }) {
   const { inheritance } = item;
   const baseFunctions = new Set(inheritance.flatMap(c => c.functions.flatMap(f => f.baseFunctions ?? [])));
   return inheritance.map((contract, i) => ({

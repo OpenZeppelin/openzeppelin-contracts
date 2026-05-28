@@ -1,8 +1,8 @@
-const path = require('path');
-const fs = require('fs');
+import path from 'path';
+import fs from 'fs';
 
 /** @type import('solidity-docgen/dist/config').UserConfig */
-module.exports = {
+export default {
   outputDir: 'docs/modules/api/pages',
   templates: 'docs/templates',
   exclude: ['mocks'],

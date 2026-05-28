@@ -7,6 +7,7 @@ import hardhatIgnoreWarnings from 'hardhat-ignore-warnings';
 import hardhatMocha from '@nomicfoundation/hardhat-mocha';
 import hardhatNetworkHelpers from '@nomicfoundation/hardhat-network-helpers';
 import hardhatPredeploy from 'hardhat-predeploy';
+import hardhatDocgen from './hardhat/hardhat-solidity-docgen/plugin.ts';
 import hardhatExposed from './hardhat/hardhat-exposed/plugin.ts';
 import hardhatTranspiler from './hardhat/hardhat-transpiler/plugin.ts';
 import hardhatOzContractsHelpers from './hardhat/hardhat-oz-contracts-helpers/plugin.ts';
@@ -36,6 +37,7 @@ export default defineConfig({
     hardhatNetworkHelpers,
     hardhatPredeploy,
     // Local plugins
+    hardhatDocgen,
     hardhatExposed,
     hardhatTranspiler,
     hardhatOzContractsHelpers,
@@ -92,4 +94,5 @@ export default defineConfig({
     include: ['contracts/**/*.sol'],
     exclude: ['**/*WithInit.sol'],
   },
+  docgen: await import('./docs/config.mjs').then(m => m.default),
 });
