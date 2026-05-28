@@ -122,6 +122,8 @@ contract HeapHandler {
     }
 
     function root() public view returns (uint256 candidate) {
+        require(_model.length > 0, "Heap: empty");
+
         candidate = _model[0];
         for (uint256 i = 1; i < _model.length; ++i) {
             candidate = _isMaxHeap ? Math.max(candidate, _model[i]) : Math.min(candidate, _model[i]);
@@ -185,15 +187,15 @@ contract Uint256HeapInvariantTest is Test {
         targetSelector(FuzzSelector(address(_handler), selectors));
     }
 
-    function invariant_heapPropertyHolds() external view {
+    function invariantHeapPropertyHolds() external view {
         assertTrue(_handler.validateHeapInvariant());
     }
 
-    function invariant_lengthMatchesModel() external view {
+    function invariantLengthMatchesModel() external view {
         assertEq(_handler.length(), _handler.modelLength());
     }
 
-    function invariant_peekMatchesModelMinimum() external view {
+    function invariantPeekMatchesModelMinimum() external view {
         if (_handler.modelLength() == 0) return;
         assertEq(_handler.peek(), _handler.root());
     }
@@ -215,15 +217,15 @@ contract Uint256HeapInvariantGtTest is Test {
         targetSelector(FuzzSelector(address(_handler), selectors));
     }
 
-    function invariant_heapPropertyHoldsGt() external view {
+    function invariantHeapPropertyHoldsGt() external view {
         assertTrue(_handler.validateHeapInvariant());
     }
 
-    function invariant_lengthMatchesModelGt() external view {
+    function invariantLengthMatchesModelGt() external view {
         assertEq(_handler.length(), _handler.modelLength());
     }
 
-    function invariant_peekMatchesModelMaximum() external view {
+    function invariantPeekMatchesModelMaximum() external view {
         if (_handler.modelLength() == 0) return;
         assertEq(_handler.peek(), _handler.root());
     }
