@@ -58,9 +58,8 @@ library Checkpoints {
      * there is none.
      */
     function lowerLookup(Trace256 storage self, uint256 key) internal view returns (uint256) {
-        uint256 len = self._checkpoints.length;
         uint256 pos = lowerLookupIndex(self, key);
-        return pos == len ? 0 : _unsafeAccess(self._checkpoints, pos)._value;
+        return pos == self._checkpoints.length ? 0 : _unsafeAccess(self._checkpoints, pos)._value;
     }
 
     /**
@@ -278,9 +277,8 @@ library Checkpoints {
      * there is none.
      */
     function lowerLookup(Trace224 storage self, uint32 key) internal view returns (uint224) {
-        uint256 len = self._checkpoints.length;
         uint256 pos = lowerLookupIndex(self, key);
-        return pos == len ? 0 : _unsafeAccess(self._checkpoints, pos)._value;
+        return pos == self._checkpoints.length ? 0 : _unsafeAccess(self._checkpoints, pos)._value;
     }
 
     /**
@@ -498,9 +496,8 @@ library Checkpoints {
      * there is none.
      */
     function lowerLookup(Trace208 storage self, uint48 key) internal view returns (uint208) {
-        uint256 len = self._checkpoints.length;
         uint256 pos = lowerLookupIndex(self, key);
-        return pos == len ? 0 : _unsafeAccess(self._checkpoints, pos)._value;
+        return pos == self._checkpoints.length ? 0 : _unsafeAccess(self._checkpoints, pos)._value;
     }
 
     /**
@@ -718,9 +715,8 @@ library Checkpoints {
      * there is none.
      */
     function lowerLookup(Trace160 storage self, uint96 key) internal view returns (uint160) {
-        uint256 len = self._checkpoints.length;
         uint256 pos = lowerLookupIndex(self, key);
-        return pos == len ? 0 : _unsafeAccess(self._checkpoints, pos)._value;
+        return pos == self._checkpoints.length ? 0 : _unsafeAccess(self._checkpoints, pos)._value;
     }
 
     /**

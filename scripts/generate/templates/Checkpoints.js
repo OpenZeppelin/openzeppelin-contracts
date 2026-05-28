@@ -63,9 +63,8 @@ function lowerLookupIndex(${opts.historyTypeName} storage self, ${opts.keyTypeNa
  * there is none.
  */
 function lowerLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} key) internal view returns (${opts.valueTypeName}) {
-    uint256 len = self.${opts.checkpointFieldName}.length;
     uint256 pos = lowerLookupIndex(self, key);
-    return pos == len ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos).${opts.valueFieldName};
+    return pos == self.${opts.checkpointFieldName}.length ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos).${opts.valueFieldName};
 }
 
 /**
