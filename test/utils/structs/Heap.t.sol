@@ -81,13 +81,14 @@ contract HeapHandler {
     Heap.Uint256Heap internal _heap;
     uint256[] internal _model;
     bool internal immutable _isMaxHeap;
+    bool internal _desynced;
 
     constructor(bool isMaxHeap_) {
         _isMaxHeap = isMaxHeap_;
     }
 
     function insert(uint256 value) external {
-        if (_model.length >= MAX_SIZE) return;
+        if (_desynced || _model.length >= MAX_SIZE) return;
 
         if (_isMaxHeap) {
             _heap.insert(value, Comparators.gt);
@@ -98,27 +99,31 @@ contract HeapHandler {
     }
 
     function pop() external {
-        if (_model.length == 0) return;
+        if (_desynced || _model.length == 0) return;
 
         uint256 expected = root();
         uint256 removed = _isMaxHeap ? _heap.pop(Comparators.gt) : _heap.pop();
-        if (removed != expected) revert("unexpected pop");
-        _removeFirst(expected);
+        if (removed != expected || !_removeFirst(expected)) {
+            _desynced = true;
+        }
     }
 
     function replace(uint256 newValue) external {
-        if (_model.length == 0) return;
+        if (_desynced || _model.length == 0) return;
 
         uint256 expected = root();
         uint256 replaced = _isMaxHeap ? _heap.replace(newValue, Comparators.gt) : _heap.replace(newValue);
-        if (replaced != expected) revert("unexpected replace");
-        _removeFirst(expected);
+        if (replaced != expected || !_removeFirst(expected)) {
+            _desynced = true;
+            return;
+        }
         _model.push(newValue);
     }
 
     function clear() external {
         _heap.clear();
         delete _model;
+        _desynced = false;
     }
 
     function root() public view returns (uint256 candidate) {
@@ -159,15 +164,19 @@ contract HeapHandler {
         return true;
     }
 
-    function _removeFirst(uint256 value) internal {
+    function desynced() external view returns (bool) {
+        return _desynced;
+    }
+
+    function _removeFirst(uint256 value) internal returns (bool) {
         for (uint256 i = 0; i < _model.length; ++i) {
             if (_model[i] == value) {
                 _model[i] = _model[_model.length - 1];
                 _model.pop();
-                return;
+                return true;
             }
         }
-        revert("value not found");
+        return false;
     }
 }
 
@@ -199,6 +208,10 @@ contract Uint256HeapInvariantTest is Test {
         if (_handler.modelLength() == 0) return;
         assertEq(_handler.peek(), _handler.root());
     }
+
+    function invariantHandlerDidNotDesync() external view {
+        assertFalse(_handler.desynced());
+    }
 }
 
 contract Uint256HeapInvariantGtTest is Test {
@@ -228,5 +241,9 @@ contract Uint256HeapInvariantGtTest is Test {
     function invariantPeekMatchesModelMaximum() external view {
         if (_handler.modelLength() == 0) return;
         assertEq(_handler.peek(), _handler.root());
+    }
+
+    function invariantHandlerDidNotDesyncGt() external view {
+        assertFalse(_handler.desynced());
     }
 }
