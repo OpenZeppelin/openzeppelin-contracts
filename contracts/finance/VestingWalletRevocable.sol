@@ -19,12 +19,22 @@ import {VestingWallet} from "./VestingWallet.sol";
  * frozen historical allocation used for vesting calculations.
  */
 contract VestingWalletRevocable is VestingWallet {
+    /// @dev Emitted when the native asset vesting is revoked and `amount` is returned to the revoker.
     event EtherRevoked(uint256 amount);
+
+    /// @dev Emitted when `token` vesting is revoked and `amount` is returned to the revoker.
     event ERC20Revoked(address indexed token, uint256 amount);
 
+    /// @dev The revoker account cannot be the zero address.
     error VestingWalletInvalidRevoker(address revoker);
+
+    /// @dev The caller is not the configured revoker account.
     error VestingWalletUnauthorizedRevoker(address account);
+
+    /// @dev The native asset vesting has already been revoked.
     error VestingWalletEtherAlreadyRevoked();
+
+    /// @dev The vesting for `token` has already been revoked.
     error VestingWalletERC20AlreadyRevoked(address token);
 
     address private immutable _revoker;
@@ -33,6 +43,9 @@ contract VestingWalletRevocable is VestingWallet {
     mapping(address token => uint64) private _erc20RevocationTimestamp;
     mapping(address token => uint256) private _erc20AllocationAtRevocation;
 
+    /**
+     * @dev Sets the beneficiary, revoker, vesting start, and vesting duration.
+     */
     constructor(
         address beneficiary,
         address revoker_,
@@ -45,6 +58,7 @@ contract VestingWalletRevocable is VestingWallet {
         _revoker = revoker_;
     }
 
+    /// @dev Restricts calls to the configured revoker account.
     modifier onlyRevoker() {
         if (_msgSender() != revoker()) {
             revert VestingWalletUnauthorizedRevoker(_msgSender());
@@ -143,6 +157,9 @@ contract VestingWalletRevocable is VestingWallet {
         return _vestingSchedule(_erc20AllocationAtRevocation[token], _min(timestamp, revocationTimestamp));
     }
 
+    /**
+     * @dev Returns the smaller of `a` and `b`.
+     */
     function _min(uint64 a, uint64 b) private pure returns (uint64) {
         return a < b ? a : b;
     }
