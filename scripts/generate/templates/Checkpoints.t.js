@@ -99,9 +99,9 @@ function testLookup(${opts.keyTypeName}[] memory keys, ${opts.valueTypeName}[] m
     ${opts.keyTypeName} lastKey = keys.length == 0 ? 0 : keys[keys.length - 1];
     lookup = _bound${capitalize(opts.keyTypeName)}(lookup, 0, lastKey + _KEY_MAX_GAP);
 
-    ${opts.valueTypeName} upper = 0;
-    ${opts.valueTypeName} lower = 0;
-    ${opts.keyTypeName} lowerKey = type(${opts.keyTypeName}).max;
+    ${opts.keyTypeName}[] memory compactedKeys = new ${opts.keyTypeName}[](keys.length);
+    ${opts.valueTypeName}[] memory compactedValues = new ${opts.valueTypeName}[](keys.length);
+    uint256 checkpointCount = 0;
     for (uint256 i = 0; i < keys.length; ++i) {
         ${opts.keyTypeName} key = keys[i];
         ${opts.valueTypeName} value = values[i % values.length];
@@ -109,21 +109,38 @@ function testLookup(${opts.keyTypeName}[] memory keys, ${opts.valueTypeName}[] m
         // push
         _ckpts.push(key, value);
 
-        // track expected result of lookups
-        if (key <= lookup) {
-            upper = value;
+        // track the effective checkpoint history after duplicate-key coalescing
+        if (checkpointCount > 0 && compactedKeys[checkpointCount - 1] == key) {
+            compactedValues[checkpointCount - 1] = value;
+        } else {
+            compactedKeys[checkpointCount] = key;
+            compactedValues[checkpointCount] = value;
+            checkpointCount += 1;
         }
-        // find the first key that is not smaller than the lookup key
-        if (key >= lookup && (i == 0 || keys[i - 1] < lookup)) {
-            lowerKey = key;
+    }
+
+    ${opts.valueTypeName} upper = 0;
+    ${opts.valueTypeName} lower = 0;
+    uint256 upperIndex = checkpointCount;
+    uint256 lowerIndex = checkpointCount;
+
+    for (uint256 i = 0; i < checkpointCount; ++i) {
+        if (compactedKeys[i] <= lookup) {
+            upper = compactedValues[i];
+        } else if (upperIndex == checkpointCount) {
+            upperIndex = i;
         }
-        if (key == lowerKey) {
-            lower = value;
+
+        if (lowerIndex == checkpointCount && compactedKeys[i] >= lookup) {
+            lowerIndex = i;
+            lower = compactedValues[i];
         }
     }
 
     // check lookup
+    assertEq(_ckpts.lowerLookupIndex(lookup), lowerIndex);
     assertEq(_ckpts.lowerLookup(lookup), lower);
+    assertEq(_ckpts.upperLookupIndex(lookup), upperIndex);
     assertEq(_ckpts.upperLookup(lookup), upper);
     assertEq(_ckpts.upperLookupRecent(lookup), upper);
 }

@@ -45,13 +45,31 @@ library Checkpoints {
     }
 
     /**
+     * @dev Returns the index of the first (oldest) checkpoint with key greater or equal than the search key, or the
+     * number of checkpoints if there is none.
+     */
+    function lowerLookupIndex(Trace256 storage self, uint256 key) internal view returns (uint256) {
+        uint256 len = self._checkpoints.length;
+        return _lowerBinaryLookup(self._checkpoints, key, 0, len);
+    }
+
+    /**
      * @dev Returns the value in the first (oldest) checkpoint with key greater or equal than the search key, or zero if
      * there is none.
      */
     function lowerLookup(Trace256 storage self, uint256 key) internal view returns (uint256) {
         uint256 len = self._checkpoints.length;
-        uint256 pos = _lowerBinaryLookup(self._checkpoints, key, 0, len);
+        uint256 pos = lowerLookupIndex(self, key);
         return pos == len ? 0 : _unsafeAccess(self._checkpoints, pos)._value;
+    }
+
+    /**
+     * @dev Returns the index of the first (oldest) checkpoint with key strictly greater than the search key, or the
+     * number of checkpoints if there is none.
+     */
+    function upperLookupIndex(Trace256 storage self, uint256 key) internal view returns (uint256) {
+        uint256 len = self._checkpoints.length;
+        return _upperBinaryLookup(self._checkpoints, key, 0, len);
     }
 
     /**
@@ -59,8 +77,7 @@ library Checkpoints {
      * if there is none.
      */
     function upperLookup(Trace256 storage self, uint256 key) internal view returns (uint256) {
-        uint256 len = self._checkpoints.length;
-        uint256 pos = _upperBinaryLookup(self._checkpoints, key, 0, len);
+        uint256 pos = upperLookupIndex(self, key);
         return pos == 0 ? 0 : _unsafeAccess(self._checkpoints, pos - 1)._value;
     }
 
@@ -248,13 +265,31 @@ library Checkpoints {
     }
 
     /**
+     * @dev Returns the index of the first (oldest) checkpoint with key greater or equal than the search key, or the
+     * number of checkpoints if there is none.
+     */
+    function lowerLookupIndex(Trace224 storage self, uint32 key) internal view returns (uint256) {
+        uint256 len = self._checkpoints.length;
+        return _lowerBinaryLookup(self._checkpoints, key, 0, len);
+    }
+
+    /**
      * @dev Returns the value in the first (oldest) checkpoint with key greater or equal than the search key, or zero if
      * there is none.
      */
     function lowerLookup(Trace224 storage self, uint32 key) internal view returns (uint224) {
         uint256 len = self._checkpoints.length;
-        uint256 pos = _lowerBinaryLookup(self._checkpoints, key, 0, len);
+        uint256 pos = lowerLookupIndex(self, key);
         return pos == len ? 0 : _unsafeAccess(self._checkpoints, pos)._value;
+    }
+
+    /**
+     * @dev Returns the index of the first (oldest) checkpoint with key strictly greater than the search key, or the
+     * number of checkpoints if there is none.
+     */
+    function upperLookupIndex(Trace224 storage self, uint32 key) internal view returns (uint256) {
+        uint256 len = self._checkpoints.length;
+        return _upperBinaryLookup(self._checkpoints, key, 0, len);
     }
 
     /**
@@ -262,8 +297,7 @@ library Checkpoints {
      * if there is none.
      */
     function upperLookup(Trace224 storage self, uint32 key) internal view returns (uint224) {
-        uint256 len = self._checkpoints.length;
-        uint256 pos = _upperBinaryLookup(self._checkpoints, key, 0, len);
+        uint256 pos = upperLookupIndex(self, key);
         return pos == 0 ? 0 : _unsafeAccess(self._checkpoints, pos - 1)._value;
     }
 
@@ -451,13 +485,31 @@ library Checkpoints {
     }
 
     /**
+     * @dev Returns the index of the first (oldest) checkpoint with key greater or equal than the search key, or the
+     * number of checkpoints if there is none.
+     */
+    function lowerLookupIndex(Trace208 storage self, uint48 key) internal view returns (uint256) {
+        uint256 len = self._checkpoints.length;
+        return _lowerBinaryLookup(self._checkpoints, key, 0, len);
+    }
+
+    /**
      * @dev Returns the value in the first (oldest) checkpoint with key greater or equal than the search key, or zero if
      * there is none.
      */
     function lowerLookup(Trace208 storage self, uint48 key) internal view returns (uint208) {
         uint256 len = self._checkpoints.length;
-        uint256 pos = _lowerBinaryLookup(self._checkpoints, key, 0, len);
+        uint256 pos = lowerLookupIndex(self, key);
         return pos == len ? 0 : _unsafeAccess(self._checkpoints, pos)._value;
+    }
+
+    /**
+     * @dev Returns the index of the first (oldest) checkpoint with key strictly greater than the search key, or the
+     * number of checkpoints if there is none.
+     */
+    function upperLookupIndex(Trace208 storage self, uint48 key) internal view returns (uint256) {
+        uint256 len = self._checkpoints.length;
+        return _upperBinaryLookup(self._checkpoints, key, 0, len);
     }
 
     /**
@@ -465,8 +517,7 @@ library Checkpoints {
      * if there is none.
      */
     function upperLookup(Trace208 storage self, uint48 key) internal view returns (uint208) {
-        uint256 len = self._checkpoints.length;
-        uint256 pos = _upperBinaryLookup(self._checkpoints, key, 0, len);
+        uint256 pos = upperLookupIndex(self, key);
         return pos == 0 ? 0 : _unsafeAccess(self._checkpoints, pos - 1)._value;
     }
 
@@ -654,13 +705,31 @@ library Checkpoints {
     }
 
     /**
+     * @dev Returns the index of the first (oldest) checkpoint with key greater or equal than the search key, or the
+     * number of checkpoints if there is none.
+     */
+    function lowerLookupIndex(Trace160 storage self, uint96 key) internal view returns (uint256) {
+        uint256 len = self._checkpoints.length;
+        return _lowerBinaryLookup(self._checkpoints, key, 0, len);
+    }
+
+    /**
      * @dev Returns the value in the first (oldest) checkpoint with key greater or equal than the search key, or zero if
      * there is none.
      */
     function lowerLookup(Trace160 storage self, uint96 key) internal view returns (uint160) {
         uint256 len = self._checkpoints.length;
-        uint256 pos = _lowerBinaryLookup(self._checkpoints, key, 0, len);
+        uint256 pos = lowerLookupIndex(self, key);
         return pos == len ? 0 : _unsafeAccess(self._checkpoints, pos)._value;
+    }
+
+    /**
+     * @dev Returns the index of the first (oldest) checkpoint with key strictly greater than the search key, or the
+     * number of checkpoints if there is none.
+     */
+    function upperLookupIndex(Trace160 storage self, uint96 key) internal view returns (uint256) {
+        uint256 len = self._checkpoints.length;
+        return _upperBinaryLookup(self._checkpoints, key, 0, len);
     }
 
     /**
@@ -668,8 +737,7 @@ library Checkpoints {
      * if there is none.
      */
     function upperLookup(Trace160 storage self, uint96 key) internal view returns (uint160) {
-        uint256 len = self._checkpoints.length;
-        uint256 pos = _upperBinaryLookup(self._checkpoints, key, 0, len);
+        uint256 pos = upperLookupIndex(self, key);
         return pos == 0 ? 0 : _unsafeAccess(self._checkpoints, pos - 1)._value;
     }
 
