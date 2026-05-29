@@ -17,16 +17,12 @@ contract MerkleTreeMock {
     event LeafInserted(bytes32 leaf, uint256 index, bytes32 root);
     event LeafUpdated(bytes32 oldLeaf, bytes32 newLeaf, uint256 index, bytes32 root);
 
-    function nonCommutativeHash(bytes32 a, bytes32 b) public pure returns (bytes32) {
-        return Hashes.efficientKeccak256(a, b);
-    }
-
     function setup(uint8 _depth, bytes32 _zero) public {
         root = _tree.setup(_depth, _zero);
     }
 
     function setupNonCommutative(uint8 _depth, bytes32 _zero) public {
-        root = _tree.setup(_depth, _zero, nonCommutativeHash);
+        root = _tree.setup(_depth, _zero, Hashes.efficientKeccak256);
     }
 
     function push(bytes32 leaf) public {
@@ -36,7 +32,7 @@ contract MerkleTreeMock {
     }
 
     function pushNonCommutative(bytes32 leaf) public {
-        (uint256 leafIndex, bytes32 currentRoot) = _tree.push(leaf, nonCommutativeHash);
+        (uint256 leafIndex, bytes32 currentRoot) = _tree.push(leaf, Hashes.efficientKeccak256);
         emit LeafInserted(leaf, leafIndex, currentRoot);
         root = currentRoot;
     }
@@ -49,7 +45,7 @@ contract MerkleTreeMock {
     }
 
     function updateNonCommutative(uint256 index, bytes32 oldValue, bytes32 newValue, bytes32[] memory proof) public {
-        (bytes32 oldRoot, bytes32 newRoot) = _tree.update(index, oldValue, newValue, proof, nonCommutativeHash);
+        (bytes32 oldRoot, bytes32 newRoot) = _tree.update(index, oldValue, newValue, proof, Hashes.efficientKeccak256);
         if (oldRoot != root) revert MerkleTree.MerkleTreeUpdateInvalidProof();
         emit LeafUpdated(oldValue, newValue, index, newRoot);
         root = newRoot;
