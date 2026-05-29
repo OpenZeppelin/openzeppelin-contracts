@@ -24,8 +24,7 @@ jobs:
       - name: Set up environment
         uses: ./.github/actions/setup
       - run: npm run lint
-      - run: forge compile
-      - run: forge lint --deny notes --only-lint unused-import
+      - run: forge compile && forge lint --deny notes --only-lint unused-import
 
   tests:
     runs-on: ubuntu-latest
