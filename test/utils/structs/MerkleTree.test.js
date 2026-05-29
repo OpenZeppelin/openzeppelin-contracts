@@ -22,6 +22,38 @@ const makeTree = (leaves = [], length = 2 ** DEPTH, zero = ethers.ZeroHash) =>
   );
 
 const ZERO = makeTree().leafHash([ethers.ZeroHash]);
+const nonCommutativeHash = (a, b) => ethers.keccak256(ethers.concat([a, b]));
+
+const makeNonCommutativeTree = (leaves = [], length = 2 ** DEPTH, zero = ethers.ZeroHash) => {
+  const levels = [
+    [].concat(
+      leaves,
+      Array.from({ length: length - leaves.length }, () => zero),
+    ),
+  ];
+
+  for (let width = length; width > 1; width >>= 1) {
+    const level = levels.at(-1);
+    const next = [];
+
+    for (let i = 0; i < width; i += 2) {
+      next.push(nonCommutativeHash(level[i], level[i + 1]));
+    }
+
+    levels.push(next);
+  }
+
+  return {
+    root: levels.at(-1)[0],
+    getProof(index) {
+      return levels.slice(0, -1).map(level => {
+        const sibling = level[index ^ 1];
+        index >>= 1;
+        return sibling;
+      });
+    },
+  };
+};
 
 async function fixture() {
   const mock = await ethers.deployContract('MerkleTreeMock');
@@ -143,6 +175,51 @@ describe('MerkleTree', function () {
         this.mock,
         'MerkleTreeUpdateInvalidProof',
       );
+    });
+  });
+
+  describe('with non-commutative hash', function () {
+    beforeEach(async function () {
+      this.mock = await ethers.deployContract('MerkleTreeMock');
+      await this.mock.setupNonCommutative(DEPTH, ethers.ZeroHash);
+    });
+
+    it('push preserves leaf order', async function () {
+      const leaves = [ethers.id('A'), ethers.id('B')];
+      const tree = makeNonCommutativeTree(leaves);
+      const reverseTree = makeNonCommutativeTree([...leaves].reverse());
+
+      await expect(this.mock.root()).to.eventually.equal(makeNonCommutativeTree().root);
+
+      await expect(this.mock.pushNonCommutative(leaves[0]))
+        .to.emit(this.mock, 'LeafInserted')
+        .withArgs(leaves[0], 0, makeNonCommutativeTree([leaves[0]]).root);
+      await expect(this.mock.pushNonCommutative(leaves[1]))
+        .to.emit(this.mock, 'LeafInserted')
+        .withArgs(leaves[1], 1, tree.root);
+
+      await expect(this.mock.root()).to.eventually.equal(tree.root);
+      expect(tree.root).to.not.equal(reverseTree.root);
+    });
+
+    it('update uses the custom hash order', async function () {
+      const leaves = [ethers.id('A'), ethers.id('B'), ethers.id('C')];
+      const oldTree = makeNonCommutativeTree(leaves);
+
+      for (const leaf of leaves) {
+        await this.mock.pushNonCommutative(leaf);
+      }
+      await expect(this.mock.root()).to.eventually.equal(oldTree.root);
+
+      const index = 1;
+      const newLeaf = ethers.id('B2');
+      const newTree = makeNonCommutativeTree(leaves.toSpliced(index, 1, newLeaf));
+
+      await expect(this.mock.updateNonCommutative(index, leaves[index], newLeaf, oldTree.getProof(index)))
+        .to.emit(this.mock, 'LeafUpdated')
+        .withArgs(leaves[index], newLeaf, index, newTree.root);
+
+      await expect(this.mock.root()).to.eventually.equal(newTree.root);
     });
   });
 

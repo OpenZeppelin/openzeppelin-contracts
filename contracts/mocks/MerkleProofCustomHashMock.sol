@@ -3,11 +3,16 @@
 pragma solidity ^0.8.20;
 
 import {MerkleProof} from "../utils/cryptography/MerkleProof.sol";
+import {Hashes} from "../utils/cryptography/Hashes.sol";
 
 // This could be a library, but then we would have to add it to the Stateless.sol mock for upgradeable tests
 abstract contract MerkleProofCustomHashMock {
     function customHash(bytes32 a, bytes32 b) internal pure returns (bytes32) {
         return a < b ? sha256(abi.encode(a, b)) : sha256(abi.encode(b, a));
+    }
+
+    function nonCommutativeHash(bytes32 a, bytes32 b) internal pure returns (bytes32) {
+        return Hashes.efficientKeccak256(a, b);
     }
 
     function verify(bytes32[] calldata proof, bytes32 root, bytes32 leaf) internal view returns (bool) {
@@ -58,5 +63,62 @@ abstract contract MerkleProofCustomHashMock {
         bytes32[] calldata leaves
     ) internal view returns (bytes32) {
         return MerkleProof.processMultiProofCalldata(proof, proofFlags, leaves, customHash);
+    }
+
+    function verifyNonCommutative(bytes32[] calldata proof, bytes32 root, bytes32 leaf) internal view returns (bool) {
+        return MerkleProof.verify(proof, root, leaf, nonCommutativeHash);
+    }
+
+    function processProofNonCommutative(bytes32[] calldata proof, bytes32 leaf) internal view returns (bytes32) {
+        return MerkleProof.processProof(proof, leaf, nonCommutativeHash);
+    }
+
+    function verifyCalldataNonCommutative(
+        bytes32[] calldata proof,
+        bytes32 root,
+        bytes32 leaf
+    ) internal view returns (bool) {
+        return MerkleProof.verifyCalldata(proof, root, leaf, nonCommutativeHash);
+    }
+
+    function processProofCalldataNonCommutative(
+        bytes32[] calldata proof,
+        bytes32 leaf
+    ) internal view returns (bytes32) {
+        return MerkleProof.processProofCalldata(proof, leaf, nonCommutativeHash);
+    }
+
+    function multiProofVerifyNonCommutative(
+        bytes32[] calldata proof,
+        bool[] calldata proofFlags,
+        bytes32 root,
+        bytes32[] calldata leaves
+    ) internal view returns (bool) {
+        return MerkleProof.multiProofVerify(proof, proofFlags, root, leaves, nonCommutativeHash);
+    }
+
+    function processMultiProofNonCommutative(
+        bytes32[] calldata proof,
+        bool[] calldata proofFlags,
+        bytes32[] calldata leaves
+    ) internal view returns (bytes32) {
+        return MerkleProof.processMultiProof(proof, proofFlags, leaves, nonCommutativeHash);
+    }
+
+    function multiProofVerifyCalldataNonCommutative(
+        bytes32[] calldata proof,
+        bool[] calldata proofFlags,
+        bytes32 root,
+        bytes32[] calldata leaves
+    ) internal view returns (bool) {
+        return MerkleProof.multiProofVerifyCalldata(proof, proofFlags, root, leaves, nonCommutativeHash);
+    }
+
+    function processMultiProofCalldataNonCommutative(
+        bytes32[] calldata proof,
+        bool[] calldata proofFlags,
+        bytes32[] calldata leaves
+    ) internal view returns (bytes32) {
+        return MerkleProof.processMultiProofCalldata(proof, proofFlags, leaves, nonCommutativeHash);
     }
 }

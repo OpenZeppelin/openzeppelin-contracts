@@ -7,8 +7,10 @@ const { SimpleMerkleTree } = require('@openzeppelin/merkle-tree');
 const toLeaves = (str, separator = '') => str.split(separator).map(e => ethers.keccak256(ethers.toUtf8Bytes(e)));
 // internal node hashes
 const concatSorted = (...elements) => Buffer.concat(elements.map(ethers.getBytes).sort(Buffer.compare));
+const concat = (...elements) => Buffer.concat(elements.map(ethers.getBytes));
 const defaultHash = (a, b) => ethers.keccak256(concatSorted(a, b));
 const customHash = (a, b) => ethers.sha256(concatSorted(a, b));
+const nonCommutativeHash = (a, b) => ethers.keccak256(concat(a, b));
 
 describe('MerkleProof', function () {
   for (const { title, contractName, nodeHash } of [
@@ -213,4 +215,45 @@ describe('MerkleProof', function () {
       });
     });
   }
+
+  describe('non-commutative custom hash', function () {
+    before(async function () {
+      this.mock = await ethers.deployContract('$MerkleProofCustomHashMock');
+    });
+
+    it('preserves sibling order for single proofs', async function () {
+      const leafA = ethers.id('A');
+      const leafB = ethers.id('B');
+      const root = nonCommutativeHash(leafA, leafB);
+
+      expect(await this.mock.$processProofNonCommutative([leafB], leafA)).to.equal(root);
+      expect(await this.mock.$processProofCalldataNonCommutative([leafB], leafA)).to.equal(root);
+      expect(await this.mock.$verifyNonCommutative([leafB], root, leafA)).to.be.true;
+      expect(await this.mock.$verifyCalldataNonCommutative([leafB], root, leafA)).to.be.true;
+
+      expect(await this.mock.$processProofNonCommutative([leafA], leafB)).to.not.equal(root);
+      expect(await this.mock.$processProofCalldataNonCommutative([leafA], leafB)).to.not.equal(root);
+      expect(await this.mock.$verifyNonCommutative([leafA], root, leafB)).to.be.false;
+      expect(await this.mock.$verifyCalldataNonCommutative([leafA], root, leafB)).to.be.false;
+    });
+
+    it('preserves leaf order for multiproofs', async function () {
+      const leafA = ethers.id('A');
+      const leafB = ethers.id('B');
+      const root = nonCommutativeHash(leafA, leafB);
+      const reverseRoot = nonCommutativeHash(leafB, leafA);
+
+      expect(await this.mock.$processMultiProofNonCommutative([], [true], [leafA, leafB])).to.equal(root);
+      expect(await this.mock.$processMultiProofCalldataNonCommutative([], [true], [leafA, leafB])).to.equal(root);
+      expect(await this.mock.$multiProofVerifyNonCommutative([], [true], root, [leafA, leafB])).to.be.true;
+      expect(await this.mock.$multiProofVerifyCalldataNonCommutative([], [true], root, [leafA, leafB])).to.be.true;
+
+      expect(await this.mock.$processMultiProofNonCommutative([], [true], [leafB, leafA])).to.equal(reverseRoot);
+      expect(await this.mock.$processMultiProofCalldataNonCommutative([], [true], [leafB, leafA])).to.equal(
+        reverseRoot,
+      );
+      expect(await this.mock.$multiProofVerifyNonCommutative([], [true], root, [leafB, leafA])).to.be.false;
+      expect(await this.mock.$multiProofVerifyCalldataNonCommutative([], [true], root, [leafB, leafA])).to.be.false;
+    });
+  });
 });
