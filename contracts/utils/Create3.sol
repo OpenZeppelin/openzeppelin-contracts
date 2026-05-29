@@ -39,10 +39,10 @@ library Create3 {
      * 0x0C   | 5F          | PUSH0            | 0 rds           |
      * 0x0D   | 5F          | PUSH0            | 0 0 rds         |
      * 0x0E   | 3E          | RETURNDATACOPY   |                 | [0..rds): returndata
-     * 0x0F   | 3D          | RETURNDATASIZE   | rds             |
+     * 0x0F   | 3D          | RETURNDATASIZE   | rds             | [0..rds): returndata
      * 0x10   | 5F          | PUSH0            | 0 rds           | [0..rds): returndata
      * 0x11   | FD          | REVERT           |                 |
-     * 0x12   | 5b          | JUMPDEST         | 0 rds           | [0..rds): returndata
+     * 0x12   | 5b          | JUMPDEST         | 0 rds           |
      * 0x13   | 00          | STOP             |                 |
      *
      * ================================[ DEPLOYMENT CODE ]=================================
