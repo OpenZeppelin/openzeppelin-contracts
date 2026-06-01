@@ -391,6 +391,19 @@ function slice(${type.name}[] memory array, uint256 start, uint256 end) internal
 }
 `;
 
+const uniquifySorted = type => `\
+/**
+ * @dev Removes duplicate elements from an array sorted in increasing order, modifying that array in place and
+ * shrinking its length accordingly.
+ *
+ * NOTE: This function assumes the array is sorted. To deduplicate an unsorted array, sort it first with {sort}.
+ */
+function uniquifySorted(${type.name}[] memory array) internal pure returns (${type.name}[] memory) {
+    uniquifySorted(_castToUint256Array(array));
+    return array;
+}
+`;
+
 const splice = type => `\
 /**
  * @dev Moves the content of \`array\`, from \`start\` (included) to the end of \`array\` to the start of that array,
@@ -475,6 +488,40 @@ function replace(
 }
 `;
 
+const uniquifySortedCore = `\
+/**
+ * @dev Removes duplicate elements from an array sorted in increasing order, modifying that array in place and
+ * shrinking its length accordingly.
+ *
+ * NOTE: This function assumes the array is sorted. To deduplicate an unsorted array, sort it first with {sort}.
+ */
+function uniquifySorted(uint256[] memory array) internal pure returns (uint256[] memory) {
+    uint256 length = array.length;
+
+    if (length < 2) {
+        return array;
+    }
+
+    uint256 writeIndex = 1;
+
+    unchecked {
+        for (uint256 readIndex = 1; readIndex < length; ++readIndex) {
+            uint256 current = array[readIndex];
+            if (current != array[writeIndex - 1]) {
+                array[writeIndex] = current;
+                ++writeIndex;
+            }
+        }
+    }
+
+    assembly ("memory-safe") {
+        mstore(array, writeIndex)
+    }
+
+    return array;
+}
+`;
+
 // GENERATE
 module.exports = format(
   header.trimEnd(),
@@ -487,6 +534,8 @@ module.exports = format(
       // sorting, comparator, helpers and internal
       sort({ name: 'uint256' }),
       TYPES.filter(type => type.isValueType && type.name !== 'uint256').map(sort),
+      uniquifySortedCore,
+      TYPES.filter(type => type.isValueType && type.name !== 'uint256').map(uniquifySorted),
       quickSort,
       TYPES.filter(type => type.isValueType && type.name !== 'uint256').map(castArray),
       TYPES.filter(type => type.isValueType && type.name !== 'uint256').map(castComparator),
