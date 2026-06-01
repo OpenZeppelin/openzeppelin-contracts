@@ -3,9 +3,6 @@
 
 pragma solidity ^0.8.20;
 
-import {Memory} from "./Memory.sol";
-import {RLP} from "./RLP.sol";
-
 /**
  * @dev Library for accessing historical block hashes beyond the standard 256 block limit.
  * Uses EIP-2935's history storage contract which maintains a ring buffer of the last
@@ -50,9 +47,31 @@ library Blockhash {
      * fields at the end, so this position is stable across header extensions.
      */
     function blockNumber(bytes memory blockHeader) internal pure returns (uint256) {
-        Memory.Slice[] memory fields = RLP.decodeList(blockHeader);
-        require(fields.length > 8, BlockhashInvalidBlockHeader());
-        return RLP.readUint256(fields[8]);
+        (uint256 listOffset, uint256 listLength, bool isList) = _decodeLength(blockHeader, 0);
+        if (!(isList && blockHeader.length == listOffset + listLength)) {
+            revert BlockhashInvalidBlockHeader();
+        }
+
+        uint256 currentOffset = listOffset;
+        uint256 listEnd = listOffset + listLength;
+
+        for (uint256 i = 0; i < 8; ++i) {
+            if (!(currentOffset < listEnd)) {
+                revert BlockhashInvalidBlockHeader();
+            }
+            currentOffset += _itemLength(blockHeader, currentOffset);
+        }
+
+        if (!(currentOffset < listEnd)) {
+            revert BlockhashInvalidBlockHeader();
+        }
+
+        (uint256 itemOffset, uint256 itemLength, bool itemIsList) = _decodeLength(blockHeader, currentOffset);
+        if (itemIsList) {
+            revert BlockhashInvalidBlockHeader();
+        }
+
+        return _readUint256(blockHeader, currentOffset + itemOffset, itemLength);
     }
 
     /**
@@ -60,6 +79,54 @@ library Blockhash {
      */
     function verifyBlockHeader(bytes memory blockHeader) internal view returns (bool) {
         return keccak256(blockHeader) == blockHash(blockNumber(blockHeader));
+    }
+
+    function _decodeLength(bytes memory data, uint256 offset) private pure returns (uint256, uint256, bool) {
+        if (!(offset < data.length)) {
+            revert BlockhashInvalidBlockHeader();
+        }
+
+        uint8 prefix = uint8(data[offset]);
+
+        if (prefix < 0x80) {
+            return (0, 1, false);
+        }
+        if (prefix <= 0xb7) {
+            return (1, prefix - 0x80, false);
+        }
+        if (prefix <= 0xbf) {
+            uint256 dataLengthBytes = prefix - 0xb7;
+            uint256 dataItemLength = _readUint256(data, offset + 1, dataLengthBytes);
+            if (!(offset + 1 + dataLengthBytes + dataItemLength <= data.length)) {
+                revert BlockhashInvalidBlockHeader();
+            }
+            return (1 + dataLengthBytes, dataItemLength, false);
+        }
+        if (prefix <= 0xf7) {
+            return (1, prefix - 0xc0, true);
+        }
+
+        uint256 listLengthBytes = prefix - 0xf7;
+        uint256 listItemLength = _readUint256(data, offset + 1, listLengthBytes);
+        if (!(offset + 1 + listLengthBytes + listItemLength <= data.length)) {
+            revert BlockhashInvalidBlockHeader();
+        }
+        return (1 + listLengthBytes, listItemLength, true);
+    }
+
+    function _itemLength(bytes memory data, uint256 offset) private pure returns (uint256) {
+        (uint256 itemOffset, uint256 itemLength, ) = _decodeLength(data, offset);
+        return itemOffset + itemLength;
+    }
+
+    function _readUint256(bytes memory data, uint256 offset, uint256 length) private pure returns (uint256 result) {
+        if (!(length <= 32 && offset + length <= data.length)) {
+            revert BlockhashInvalidBlockHeader();
+        }
+
+        for (uint256 i = 0; i < length; ++i) {
+            result = (result << 8) | uint8(data[offset + i]);
+        }
     }
 
     /// @dev Internal function to query the EIP-2935 history storage contract.
