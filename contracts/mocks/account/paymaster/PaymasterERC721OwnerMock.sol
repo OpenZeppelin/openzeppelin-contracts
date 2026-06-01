@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 
 import {Ownable} from "../../../access/Ownable.sol";
 import {ERC4337Utils, PackedUserOperation} from "../../../account/utils/draft-ERC4337Utils.sol";
-import {PaymasterERC721Owner} from "../../../account/paymaster/PaymasterERC721Owner.sol";
+import {PaymasterERC721Owner} from "../../../account/paymaster/extensions/PaymasterERC721Owner.sol";
 
 abstract contract PaymasterERC721OwnerContextNoPostOpMock is PaymasterERC721Owner, Ownable {
     using ERC4337Utils for *;
@@ -20,7 +20,25 @@ abstract contract PaymasterERC721OwnerContextNoPostOpMock is PaymasterERC721Owne
         (, validationData) = super._validatePaymasterUserOp(userOp, userOpHash, requiredPreFund);
     }
 
-    function _authorizeWithdraw() internal override onlyOwner {}
+    function deposit() public payable virtual {
+        super._deposit();
+    }
+
+    function withdraw(address payable to, uint256 value) public virtual onlyOwner {
+        super._withdraw(to, value);
+    }
+
+    function addStake(uint32 unstakeDelaySec) public payable virtual {
+        super._addStake(unstakeDelaySec);
+    }
+
+    function unlockStake() public virtual onlyOwner {
+        super._unlockStake();
+    }
+
+    function withdrawStake(address payable to) public virtual onlyOwner {
+        super._withdrawStake(to);
+    }
 }
 
 abstract contract PaymasterERC721OwnerMock is PaymasterERC721OwnerContextNoPostOpMock {

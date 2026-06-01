@@ -6,8 +6,8 @@ import {AccessControl} from "../../../access/AccessControl.sol";
 import {ERC4337Utils, PackedUserOperation} from "../../../account/utils/draft-ERC4337Utils.sol";
 import {EIP712} from "../../../utils/cryptography/EIP712.sol";
 import {SignatureChecker} from "../../../utils/cryptography/SignatureChecker.sol";
-import {PaymasterERC20, IERC20} from "../../../account/paymaster/PaymasterERC20.sol";
-import {PaymasterERC20Guarantor} from "../../../account/paymaster/PaymasterERC20Guarantor.sol";
+import {PaymasterERC20, IERC20} from "../../../account/paymaster/extensions/PaymasterERC20.sol";
+import {PaymasterERC20Guarantor} from "../../../account/paymaster/extensions/PaymasterERC20Guarantor.sol";
 
 /**
  * NOTE: struct or the expected paymaster data is:
@@ -26,8 +26,6 @@ abstract contract PaymasterERC20Mock is EIP712, PaymasterERC20, AccessControl {
     bytes32 private constant WITHDRAWER_ROLE = keccak256("WITHDRAWER_ROLE");
     bytes32 private constant TOKEN_PRICE_TYPEHASH =
         keccak256("TokenPrice(address token,uint48 validAfter,uint48 validUntil,uint256 tokenPrice)");
-
-    function _authorizeWithdraw() internal override onlyRole(WITHDRAWER_ROLE) {}
 
     function _fetchDetails(
         PackedUserOperation calldata userOp,
@@ -57,6 +55,30 @@ abstract contract PaymasterERC20Mock is EIP712, PaymasterERC20, AccessControl {
                 paymasterData[0x56:0x56 + uint16(bytes2(paymasterData[0x54:0x56]))]
             )
             .packValidationData(validAfter, validUntil);
+    }
+
+    function deposit() public payable virtual {
+        super._deposit();
+    }
+
+    function withdraw(address payable to, uint256 value) public virtual onlyRole(WITHDRAWER_ROLE) {
+        super._withdraw(to, value);
+    }
+
+    function addStake(uint32 unstakeDelaySec) public payable virtual {
+        super._addStake(unstakeDelaySec);
+    }
+
+    function unlockStake() public virtual onlyRole(WITHDRAWER_ROLE) {
+        super._unlockStake();
+    }
+
+    function withdrawStake(address payable to) public virtual onlyRole(WITHDRAWER_ROLE) {
+        super._withdrawStake(to);
+    }
+
+    function withdrawTokens(IERC20 token, address recipient, uint256 amount) public virtual onlyRole(WITHDRAWER_ROLE) {
+        super._withdrawTokens(token, recipient, amount);
     }
 }
 
