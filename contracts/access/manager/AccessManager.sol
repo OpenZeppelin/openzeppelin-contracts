@@ -541,13 +541,8 @@ contract AccessManager is Context, Multicall, IAccessManager {
         bytes32 operationId = hashOperation(caller, target, data);
         if (_schedules[operationId].timepoint == 0) {
             revert AccessManagerNotScheduled(operationId);
-        } else if (caller != msgsender) {
-            // calls can only be canceled by the account that scheduled them, a global admin, or by a guardian of the required role.
-            (bool isAdmin, ) = hasRole(ADMIN_ROLE, msgsender);
-            (bool isGuardian, ) = hasRole(getRoleGuardian(getTargetFunctionRole(target, selector)), msgsender);
-            if (!isAdmin && !isGuardian) {
-                revert AccessManagerUnauthorizedCancel(msgsender, caller, target, selector);
-            }
+        } else if (!_canCancel(caller, target, data)) {
+            revert AccessManagerUnauthorizedCancel(msgsender, caller, target, selector);
         }
 
         delete _schedules[operationId].timepoint; // reset the timepoint, keep the nonce
@@ -719,6 +714,37 @@ contract AccessManager is Context, Multicall, IAccessManager {
         // downcast is safe because both options are uint32
         delay = uint32(Math.max(operationDelay, executionDelay));
         return (delay == 0, delay);
+    }
+
+    /**
+     * @dev Returns true if a scheduled operation can be canceled by the caller.
+     */
+    function _canCancel(address caller, address target, bytes calldata data) internal view returns (bool) {
+        address msgsender = _msgSender();
+
+        // caller can cancel if they are the msg.sender of the scheduled operation
+        if (caller == msgsender) {
+            return true;
+        }
+
+        // admins can cancel any operation
+        (bool isAdmin, ) = hasRole(ADMIN_ROLE, msgsender);
+        (bool isGuardian, ) = hasRole(getRoleGuardian(getTargetFunctionRole(target, _checkSelector(data))), msgsender);
+        if (isAdmin || isGuardian) {
+            return true;
+        }
+
+        // if the target of the call is this AccessManager and the call data matches an admin-restricted function, then the caller needs to be a guardian of the required role to cancel.
+        if (target == address(this)) {
+            (bool adminRestricted, uint64 roleId, ) = _getAdminRestrictions(data);
+            // Note: ADMIN_ROLE was already checked and can be skipped.
+            if (adminRestricted && roleId != ADMIN_ROLE) {
+                (bool inRole, ) = hasRole(roleId, msgsender);
+                return inRole;
+            }
+        }
+
+        return false;
     }
 
     /**
