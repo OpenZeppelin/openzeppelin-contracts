@@ -3,6 +3,7 @@ pragma solidity ^0.8.24;
 
 import {Test} from "forge-std/Test.sol";
 import {Blockhash} from "../../contracts/utils/Blockhash.sol";
+import {RLP} from "../../contracts/utils/RLP.sol";
 
 contract BlockhashTest is Test {
     uint256 internal startingBlock;
@@ -84,6 +85,31 @@ contract BlockhashTest is Test {
         assertEq(Blockhash.blockHash(block.number - 1000), bytes32(0));
     }
 
+    function testBlockNumberFromHeader() public pure {
+        bytes memory header = _makeBlockHeader(1234, true);
+        assertEq(Blockhash.blockNumber(header), 1234);
+    }
+
+    function testVerifyBlockHeader() public {
+        vm.roll(1000);
+
+        uint256 targetBlock = block.number - 300;
+        bytes memory header = _makeBlockHeader(targetBlock, true);
+        _setHistoryBlockhash(targetBlock, keccak256(header));
+
+        assertTrue(Blockhash.verifyBlockHeader(header));
+    }
+
+    function testVerifyBlockHeaderRejectsMismatch() public {
+        vm.roll(1000);
+
+        uint256 targetBlock = block.number - 300;
+        bytes memory header = _makeBlockHeader(targetBlock, false);
+        _setHistoryBlockhash(targetBlock, keccak256("wrong"));
+
+        assertFalse(Blockhash.verifyBlockHeader(header));
+    }
+
     function _setHistoryBlockhash(bytes32 blockHash) internal {
         _setHistoryBlockhash(block.number, blockHash);
     }
@@ -97,5 +123,32 @@ contract BlockhashTest is Test {
         (bool success, ) = Blockhash.HISTORY_STORAGE_ADDRESS.call(abi.encode(blockHash)); // set parent's blockhash
         assertTrue(success);
         vm.roll(currentBlock + 1);
+    }
+
+    function _makeBlockHeader(uint256 headerBlockNumber, bool withExtraFields) internal pure returns (bytes memory) {
+        bytes[] memory fields = new bytes[](withExtraFields ? 17 : 15);
+
+        fields[0] = RLP.encode(bytes32(uint256(1)));
+        fields[1] = RLP.encode(bytes32(uint256(2)));
+        fields[2] = RLP.encode(address(0xBEEF));
+        fields[3] = RLP.encode(bytes32(uint256(3)));
+        fields[4] = RLP.encode(bytes32(uint256(4)));
+        fields[5] = RLP.encode(bytes32(uint256(5)));
+        fields[6] = RLP.encode(new bytes(256));
+        fields[7] = RLP.encode(uint256(1));
+        fields[8] = RLP.encode(headerBlockNumber);
+        fields[9] = RLP.encode(uint256(30_000_000));
+        fields[10] = RLP.encode(uint256(0));
+        fields[11] = RLP.encode(uint256(1_700_000_000));
+        fields[12] = RLP.encode(bytes(""));
+        fields[13] = RLP.encode(bytes32(uint256(6)));
+        fields[14] = RLP.encode(abi.encodePacked(bytes8(uint64(7))));
+
+        if (withExtraFields) {
+            fields[15] = RLP.encode(uint256(8));
+            fields[16] = RLP.encode(uint256(9));
+        }
+
+        return RLP.encode(fields);
     }
 }
