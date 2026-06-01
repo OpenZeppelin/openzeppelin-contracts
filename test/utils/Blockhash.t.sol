@@ -85,6 +85,51 @@ contract BlockhashTest is Test {
         assertEq(Blockhash.blockHash(block.number - 1000), bytes32(0));
     }
 
+    function testBlockNumberRejectsEmptyHeader() public {
+        vm.expectRevert(Blockhash.BlockhashInvalidBlockHeader.selector);
+        this.$blockNumber(hex"");
+    }
+
+    function testBlockNumberRejectsNonListHeader() public {
+        vm.expectRevert(Blockhash.BlockhashInvalidBlockHeader.selector);
+        this.$blockNumber(RLP.encode(uint256(1)));
+    }
+
+    function testBlockNumberRejectsShortHeader() public {
+        bytes[] memory fields = new bytes[](8);
+        for (uint256 i = 0; i < 8; ++i) {
+            fields[i] = RLP.encode(i + 1);
+        }
+
+        vm.expectRevert(Blockhash.BlockhashInvalidBlockHeader.selector);
+        this.$blockNumber(RLP.encode(fields));
+    }
+
+    function testBlockNumberRejectsListValuedBlockNumber() public {
+        bytes[] memory nested = new bytes[](1);
+        nested[0] = RLP.encode(uint256(9));
+
+        bytes[] memory fields = new bytes[](9);
+        for (uint256 i = 0; i < 8; ++i) {
+            fields[i] = RLP.encode(i + 1);
+        }
+        fields[8] = RLP.encode(nested);
+
+        vm.expectRevert(Blockhash.BlockhashInvalidBlockHeader.selector);
+        this.$blockNumber(RLP.encode(fields));
+    }
+
+    function testBlockNumberRejectsOversizedBlockNumber() public {
+        bytes[] memory fields = new bytes[](9);
+        for (uint256 i = 0; i < 8; ++i) {
+            fields[i] = RLP.encode(i + 1);
+        }
+        fields[8] = hex"a1111111111111111111111111111111111111111111111111111111111111111111";
+
+        vm.expectRevert(Blockhash.BlockhashInvalidBlockHeader.selector);
+        this.$blockNumber(RLP.encode(fields));
+    }
+
     function testBlockNumberFromHeader() public pure {
         bytes memory header = _makeBlockHeader(1234, true);
         assertEq(Blockhash.blockNumber(header), 1234);
@@ -108,6 +153,10 @@ contract BlockhashTest is Test {
         _setHistoryBlockhash(targetBlock, keccak256("wrong"));
 
         assertFalse(Blockhash.verifyBlockHeader(header));
+    }
+
+    function $blockNumber(bytes memory blockHeader) external pure returns (uint256) {
+        return Blockhash.blockNumber(blockHeader);
     }
 
     function _setHistoryBlockhash(bytes32 blockHash) internal {

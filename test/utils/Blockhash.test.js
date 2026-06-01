@@ -42,6 +42,69 @@ describe('Blockhash', function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
+  describe('invalid block headers', function () {
+    it('rejects empty input', async function () {
+      await expect(this.mock.$blockNumber('0x')).to.be.revertedWithCustomError(
+        this.mock,
+        'BlockhashInvalidBlockHeader',
+      );
+    });
+
+    it('rejects a non-list RLP value', async function () {
+      const header = ethers.encodeRlp(ethers.toBeHex(1));
+      await expect(this.mock.$blockNumber(header)).to.be.revertedWithCustomError(
+        this.mock,
+        'BlockhashInvalidBlockHeader',
+      );
+    });
+
+    it('rejects headers with fewer than nine fields', async function () {
+      const header = ethers.encodeRlp(Array.from({ length: 8 }, (_, i) => ethers.toBeHex(i + 1)));
+      await expect(this.mock.$blockNumber(header)).to.be.revertedWithCustomError(
+        this.mock,
+        'BlockhashInvalidBlockHeader',
+      );
+    });
+
+    it('rejects headers whose block number field is a list', async function () {
+      const header = ethers.encodeRlp([
+        ethers.toBeHex(1),
+        ethers.toBeHex(2),
+        ethers.toBeHex(3),
+        ethers.toBeHex(4),
+        ethers.toBeHex(5),
+        ethers.toBeHex(6),
+        ethers.toBeHex(7),
+        ethers.toBeHex(8),
+        [ethers.toBeHex(9)],
+      ]);
+
+      await expect(this.mock.$blockNumber(header)).to.be.revertedWithCustomError(
+        this.mock,
+        'BlockhashInvalidBlockHeader',
+      );
+    });
+
+    it('rejects headers whose block number exceeds 32 bytes', async function () {
+      const header = ethers.encodeRlp([
+        ethers.toBeHex(1),
+        ethers.toBeHex(2),
+        ethers.toBeHex(3),
+        ethers.toBeHex(4),
+        ethers.toBeHex(5),
+        ethers.toBeHex(6),
+        ethers.toBeHex(7),
+        ethers.toBeHex(8),
+        `0x${'11'.repeat(33)}`,
+      ]);
+
+      await expect(this.mock.$blockNumber(header)).to.be.revertedWithCustomError(
+        this.mock,
+        'BlockhashInvalidBlockHeader',
+      );
+    });
+  });
+
   for (const supported of [true, false]) {
     describe(`${supported ? 'supported' : 'unsupported'} chain`, function () {
       beforeEach(async function () {
