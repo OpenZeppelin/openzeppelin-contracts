@@ -9,14 +9,18 @@ import {IEntryPoint, IPaymaster, PackedUserOperation} from "../../interfaces/dra
  * @dev A simple ERC4337 paymaster implementation. This base implementation only includes the minimal logic to validate
  * and pay for user operations.
  *
- * Developers must implement the {Paymaster-_validatePaymasterUserOp} function to define the paymaster's validation
+ * Developers must implement the {PaymasterCore-_validatePaymasterUserOp} function to define the paymaster's validation
  * and payment logic. The `context` parameter is used to pass data between the validation and execution phases.
  *
  * The paymaster includes support to call the {IEntryPointStake} interface to manage the paymaster's deposits and stakes
- * through the internal functions {deposit}, {withdraw}, {addStake}, {unlockStake} and {withdrawStake}.
+ * through the internal functions {_deposit}, {_withdraw}, {_addStake}, {_unlockStake} and {_withdrawStake}.
  *
  * * Deposits are used to pay for user operations.
  * * Stakes are used to guarantee the paymaster's reputation and obtain more flexibility in accessing storage.
+ *
+ * IMPORTANT: These functions are `internal` so developers can expose them under the access control mechanism of their
+ * choice. Functions that make use of {_withdraw} and {_withdrawStake} MUST be implemented and properly authorized to prevent
+ * the deposit and stake from getting permanently locked.
  *
  * NOTE: See [Paymaster's unstaked reputation rules](https://eips.ethereum.org/EIPS/eip-7562#unstaked-paymasters-reputation-rules)
  * for more details on the paymaster's storage access limitations.
@@ -28,11 +32,6 @@ abstract contract Paymaster is IPaymaster {
     /// @dev Revert if the caller is not the entry point.
     modifier onlyEntryPoint() {
         _checkEntryPoint();
-        _;
-    }
-
-    modifier onlyWithdrawer() {
-        _authorizeWithdraw();
         _;
     }
 
@@ -90,31 +89,6 @@ abstract contract Paymaster is IPaymaster {
         uint256 /* actualUserOpFeePerGas */
     ) internal virtual {}
 
-    /// @dev Calls {IEntryPointStake-depositTo}.
-    function deposit() public payable virtual {
-        entryPoint().depositTo{value: msg.value}(address(this));
-    }
-
-    /// @dev Calls {IEntryPointStake-withdrawTo}.
-    function withdraw(address payable to, uint256 value) public virtual onlyWithdrawer {
-        entryPoint().withdrawTo(to, value);
-    }
-
-    /// @dev Calls {IEntryPointStake-addStake}.
-    function addStake(uint32 unstakeDelaySec) public payable virtual {
-        entryPoint().addStake{value: msg.value}(unstakeDelaySec);
-    }
-
-    /// @dev Calls {IEntryPointStake-unlockStake}.
-    function unlockStake() public virtual onlyWithdrawer {
-        entryPoint().unlockStake();
-    }
-
-    /// @dev Calls {IEntryPointStake-withdrawStake}.
-    function withdrawStake(address payable to) public virtual onlyWithdrawer {
-        entryPoint().withdrawStake(to);
-    }
-
     /// @dev Ensures the caller is the {entrypoint}.
     function _checkEntryPoint() internal view virtual {
         address sender = msg.sender;
@@ -123,14 +97,28 @@ abstract contract Paymaster is IPaymaster {
         }
     }
 
-    /**
-     * @dev Checks whether `msg.sender` withdraw funds stake or deposit from the entrypoint on paymaster's behalf.
-     *
-     * Use of an xref:api:access.adoc[access control] modifier such as {Ownable-onlyOwner} is recommended.
-     *
-     * ```solidity
-     * function _authorizeWithdraw() internal onlyOwner {}
-     * ```
-     */
-    function _authorizeWithdraw() internal virtual;
+    /// @dev Calls {IEntryPointStake-depositTo}.
+    function _deposit() internal virtual {
+        entryPoint().depositTo{value: msg.value}(address(this));
+    }
+
+    /// @dev Calls {IEntryPointStake-withdrawTo}.
+    function _withdraw(address payable to, uint256 value) internal virtual {
+        entryPoint().withdrawTo(to, value);
+    }
+
+    /// @dev Calls {IEntryPointStake-addStake}.
+    function _addStake(uint32 unstakeDelaySec) internal virtual {
+        entryPoint().addStake{value: msg.value}(unstakeDelaySec);
+    }
+
+    /// @dev Calls {IEntryPointStake-unlockStake}.
+    function _unlockStake() internal virtual {
+        entryPoint().unlockStake();
+    }
+
+    /// @dev Calls {IEntryPointStake-withdrawStake}.
+    function _withdrawStake(address payable to) internal virtual {
+        entryPoint().withdrawStake(to);
+    }
 }

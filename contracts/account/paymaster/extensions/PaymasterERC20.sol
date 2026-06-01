@@ -2,10 +2,10 @@
 
 pragma solidity ^0.8.20;
 
-import {ERC4337Utils, PackedUserOperation} from "../utils/draft-ERC4337Utils.sol";
-import {IERC20, SafeERC20} from "../../token/ERC20/utils/SafeERC20.sol";
-import {Math} from "../../utils/math/Math.sol";
-import {Paymaster} from "./Paymaster.sol";
+import {ERC4337Utils, PackedUserOperation} from "../../utils/draft-ERC4337Utils.sol";
+import {IERC20, SafeERC20} from "../../../token/ERC20/utils/SafeERC20.sol";
+import {Math} from "../../../utils/math/Math.sol";
+import {Paymaster} from "../Paymaster.sol";
 
 /**
  * @dev Extension of {Paymaster} that enables users to pay gas with ERC-20 tokens.
@@ -204,8 +204,8 @@ abstract contract PaymasterERC20 is Paymaster {
         return (cost + _postOpCost() * feePerGas).mulDiv(tokenPrice, _tokenPriceDenominator());
     }
 
-    /// @dev Public function that allows the withdrawer to extract ERC-20 tokens resulting from gas payments.
-    function withdrawTokens(IERC20 token, address recipient, uint256 amount) public virtual onlyWithdrawer {
+    /// @dev Internal function that allows the withdrawer to extract ERC-20 tokens resulting from gas payments.
+    function _withdrawTokens(IERC20 token, address recipient, uint256 amount) internal virtual {
         if (amount == type(uint256).max) amount = token.balanceOf(address(this));
         token.safeTransfer(recipient, amount);
     }
