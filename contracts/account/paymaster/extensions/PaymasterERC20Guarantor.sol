@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.20;
 
-import {ERC4337Utils, PackedUserOperation} from "../../utils/draft-ERC4337Utils.sol";
+import {PackedUserOperation} from "../../../interfaces/draft-IERC4337.sol";
 import {IERC20, SafeERC20} from "../../../token/ERC20/utils/SafeERC20.sol";
 import {PaymasterERC20} from "./PaymasterERC20.sol";
 

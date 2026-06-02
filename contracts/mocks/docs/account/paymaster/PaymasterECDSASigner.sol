@@ -3,7 +3,6 @@
 pragma solidity ^0.8.20;
 
 import {Ownable} from "../../../../access/Ownable.sol";
-import {PackedUserOperation} from "../../../../interfaces/draft-IERC4337.sol";
 import {SignerECDSA} from "../../../../utils/cryptography/signers/SignerECDSA.sol";
 import {PaymasterSigner, EIP712} from "../../../../account/paymaster/extensions/PaymasterSigner.sol";
 
