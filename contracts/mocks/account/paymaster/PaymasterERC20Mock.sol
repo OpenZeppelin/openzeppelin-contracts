@@ -58,27 +58,27 @@ abstract contract PaymasterERC20Mock is EIP712, PaymasterERC20, AccessControl {
     }
 
     function deposit() public payable virtual {
-        super._deposit();
+        _deposit();
     }
 
     function withdraw(address payable to, uint256 value) public virtual onlyRole(WITHDRAWER_ROLE) {
-        super._withdraw(to, value);
+        _withdraw(to, value);
     }
 
     function addStake(uint32 unstakeDelaySec) public payable virtual {
-        super._addStake(unstakeDelaySec);
+        _addStake(unstakeDelaySec);
     }
 
     function unlockStake() public virtual onlyRole(WITHDRAWER_ROLE) {
-        super._unlockStake();
+        _unlockStake();
     }
 
     function withdrawStake(address payable to) public virtual onlyRole(WITHDRAWER_ROLE) {
-        super._withdrawStake(to);
+        _withdrawStake(to);
     }
 
     function withdrawTokens(IERC20 token, address recipient, uint256 amount) public virtual onlyRole(WITHDRAWER_ROLE) {
-        super._withdrawTokens(token, recipient, amount);
+        _withdrawTokens(token, recipient, amount);
     }
 }
 

@@ -11,22 +11,22 @@ contract PaymasterECDSASigner is PaymasterSigner, SignerECDSA, Ownable {
     constructor(address signerAddr) EIP712("MyPaymasterECDSASigner", "1") Ownable(signerAddr) SignerECDSA(signerAddr) {}
 
     function deposit() public payable virtual {
-        super._deposit();
+        _deposit();
     }
 
     function withdraw(address payable to, uint256 value) public virtual onlyOwner {
-        super._withdraw(to, value);
+        _withdraw(to, value);
     }
 
     function addStake(uint32 unstakeDelaySec) public payable virtual {
-        super._addStake(unstakeDelaySec);
+        _addStake(unstakeDelaySec);
     }
 
     function unlockStake() public virtual onlyOwner {
-        super._unlockStake();
+        _unlockStake();
     }
 
     function withdrawStake(address payable to) public virtual onlyOwner {
-        super._withdrawStake(to);
+        _withdrawStake(to);
     }
 }
