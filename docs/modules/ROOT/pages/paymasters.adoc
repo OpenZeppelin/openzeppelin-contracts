@@ -4,7 +4,7 @@ In case you want to sponsor user operations for your users, ERC-4337 defines a s
 
 In the context of account abstraction, sponsoring user operations allows a third party to pay for transaction gas fees on behalf of users. This can improve user experience by eliminating the need for users to hold native cryptocurrency (like ETH) to pay for transactions.
 
-To enable sponsorship, users sign their user operations including a special field called `paymasterAndData`, resulting from the concatenation of the paymaster address they're intending to use and the associated calldata that's going to be passed into xref:api:utils/cryptography.adoc#PaymasterCore-validatePaymasterUserOp[`validatePaymasterUserOp`]. The EntryPoint will use this field to determine whether it is willing to pay for the user operation or not.
+To enable sponsorship, users sign their user operations including a special field called `paymasterAndData`, resulting from the concatenation of the paymaster address they're intending to use and the associated calldata that's going to be passed into xref:api:utils/cryptography.adoc#Paymaster-validatePaymasterUserOp[`validatePaymasterUserOp`]. The EntryPoint will use this field to determine whether it is willing to pay for the user operation or not.
 
 == Signed Sponsorship
 

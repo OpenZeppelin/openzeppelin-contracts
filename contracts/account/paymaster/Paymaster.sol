@@ -9,18 +9,69 @@ import {IEntryPoint, IPaymaster, PackedUserOperation} from "../../interfaces/dra
  * @dev A simple ERC4337 paymaster implementation. This base implementation only includes the minimal logic to validate
  * and pay for user operations.
  *
- * Developers must implement the {PaymasterCore-_validatePaymasterUserOp} function to define the paymaster's validation
- * and payment logic. The `context` parameter is used to pass data between the validation and execution phases.
+ * Developers must implement the {Paymaster-_validatePaymasterUserOp} function to define the paymaster's validation
+ * and payment logic, and {Paymaster-_postOp} function to define the post-operation logic. The `context` parameter
+ * is used to pass data between the validation and post execution phases.
  *
  * The paymaster includes support to call the {IEntryPointStake} interface to manage the paymaster's deposits and stakes
  * through the internal functions {_deposit}, {_withdraw}, {_addStake}, {_unlockStake} and {_withdrawStake}.
  *
  * * Deposits are used to pay for user operations.
- * * Stakes are used to guarantee the paymaster's reputation and obtain more flexibility in accessing storage.
+ * * Stakes are used to guarantee the paymaster's reputation and obtain more flexibility in accessing storage. See https://eips.ethereum.org/EIPS/eip-7562[ERC-7562] for more details.
  *
- * IMPORTANT: These functions are `internal` so developers can expose them under the access control mechanism of their
- * choice. Functions that make use of {_withdraw} and {_withdrawStake} MUST be implemented and properly authorized to prevent
- * the deposit and stake from getting permanently locked.
+ * IMPORTANT: These functions are not publicly exposed by default, developers should expose them under authorization
+ * mechanism and public interface of their choice. Particularly, {_withdraw}, {_unlockStake} and {_withdrawStake} MUST
+ * be exposed and properly authorized to prevent the deposit and stake from getting permanently locked:
+ *
+ * ```solidity
+ * contract MyPaymaster is Paymaster, AccessControl {
+ *
+ *     bytes32 private constant WITHDRAWER_ROLE = keccak256("WITHDRAWER_ROLE");
+ *     bytes32 private constant UNSTAKER_ROLE = keccak256("UNSTAKER_ROLE");
+ *
+ *     constructor() {
+ *         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+ *     }
+ *
+ *     function _validatePaymasterUserOp(
+ *         PackedUserOperation calldata userOp,
+ *         bytes32 userOpHash,
+ *         uint256 maxCost
+ *     ) internal virtual returns (bytes memory context, uint256 validationData) {
+ *         // Implement validation logic (e.g. charging for the gas fees)
+ *         ...
+ *     }
+ *
+ *     function _postOp(
+ *         PostOpMode mode,
+ *         bytes calldata context,
+ *         uint256 actualGasCost,
+ *         uint256 actualUserOpFeePerGas
+ *     ) internal virtual {
+ *         // Implement post-operation logic (e.g. refunding the unused gas)
+ *         ...
+ *     }
+ *
+ *     function deposit() public payable virtual {
+ *         super._deposit();
+ *     }
+ *
+ *     function withdraw(address payable to, uint256 value) public virtual onlyRole(WITHDRAWER_ROLE) {
+ *         super._withdraw(to, value);
+ *     }
+ *
+ *     function addStake(uint32 unstakeDelaySec) public payable virtual {
+ *         super._addStake(unstakeDelaySec);
+ *     }
+ *
+ *     function unlockStake() public virtual onlyRole(UNSTAKER_ROLE) {
+ *         super._unlockStake();
+ *     }
+ *
+ *     function withdrawStake(address payable to) public virtual onlyRole(UNSTAKER_ROLE) {
+ *         super._withdrawStake(to);
+ *     }
+ * ```
  *
  * NOTE: See [Paymaster's unstaked reputation rules](https://eips.ethereum.org/EIPS/eip-7562#unstaked-paymasters-reputation-rules)
  * for more details on the paymaster's storage access limitations.
