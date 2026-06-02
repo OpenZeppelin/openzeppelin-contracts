@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.5.0) (utils/cryptography/signers/SignerWebAuthn.sol)
+// OpenZeppelin Contracts (last updated v5.6.0) (utils/cryptography/signers/SignerWebAuthn.sol)
 
 pragma solidity ^0.8.24;
 

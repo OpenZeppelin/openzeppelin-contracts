@@ -48,16 +48,29 @@ abstract contract ERC7579HookMock is ERC7579ModuleMock(MODULE_TYPE_HOOK), IERC75
     event PreCheck(address sender, uint256 value, bytes data);
     event PostCheck(bytes hookData);
 
+    bool private _shouldRevertOnPreCheck = false;
+    bool private _shouldRevertOnPostCheck = false;
+
+    function revertOnPreCheck(bool shouldRevert) external {
+        _shouldRevertOnPreCheck = shouldRevert;
+    }
+
+    function revertOnPostCheck(bool shouldRevert) external {
+        _shouldRevertOnPostCheck = shouldRevert;
+    }
+
     function preCheck(
         address msgSender,
         uint256 value,
         bytes calldata msgData
     ) external returns (bytes memory hookData) {
+        require(!_shouldRevertOnPreCheck, "preCheck reverts");
         emit PreCheck(msgSender, value, msgData);
         return msgData;
     }
 
     function postCheck(bytes calldata hookData) external {
+        require(!_shouldRevertOnPostCheck, "postCheck reverts");
         emit PostCheck(hookData);
     }
 }
