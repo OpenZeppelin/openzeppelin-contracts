@@ -28,10 +28,10 @@ import {Time} from "./types/Time.sol";
  * ```solidity
  * using RateLimiter for RateLimiter.RefillingBucket;
  *
- * mapping(address user => RateLimiter.RefillingBucket) private _withdrawLimits;
+ * RateLimiter.RefillingBucket private _rateLimiter;
  *
  * function withdraw(uint256 amount) external {
- *     _withdrawLimits[msg.sender].consume(amount);
+ *     _rateLimiter.consume(bytes32(bytes20(msg.sender)), amount);
  *     // ...
  * }
  * ```
@@ -103,10 +103,11 @@ library RateLimiter {
      * A `quantity` of 0 is always accepted and does not modify storage.
      */
     function tryConsume(RefillingBucket storage self, bytes32 key, uint256 quantity) internal returns (bool) {
-        (uint256 used_, uint256 available_) = state(self, key);
         if (quantity == 0) {
             return true;
-        } else if (quantity <= available_) {
+        }
+        (uint256 used_, uint256 available_) = state(self, key);
+        if (quantity <= available_) {
             self.items[key].lastTimepoint = Time.timestamp();
             self.items[key].lastUsed = SafeCast.toUint208(used_ + quantity);
             return true;
