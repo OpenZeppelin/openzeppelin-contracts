@@ -127,10 +127,6 @@ abstract contract PaymasterERC20 is Paymaster {
      * NOTE: Consider not reverting if the prefund fails when overriding this function. This is to avoid reverting
      * during the validation phase of the user operation, which may penalize the paymaster's reputation according
      * to ERC-7562 validation rules.
-     *
-     * Requirements:
-     *
-     * - `maxCost + {_postOpCost} * feePerGas` must fit in 512 bits.
      */
     function _prefund(
         PackedUserOperation calldata userOp,
@@ -195,7 +191,6 @@ abstract contract PaymasterERC20 is Paymaster {
      *
      * Requirements:
      *
-     * - `actualGasCost + {_postOpCost} * actualUserOpFeePerGas` must fit in 512 bits.
      * - `actualAmount <= prefundAmount`.
      */
     function _refund(
@@ -206,7 +201,7 @@ abstract contract PaymasterERC20 is Paymaster {
         address prefunder,
         uint256 prefundAmount,
         bytes calldata /* prefundContext */
-    ) internal virtual returns (bool refunded, uint256 actualAmount) {
+    ) internal virtual returns (bool) {
         (bool success, uint256 actualAmount_) = _erc20Cost(actualGasCost, actualUserOpFeePerGas, tokenPrice);
         // Under ERC-4337 EntryPoint, `actualGasCost <= maxCost` and `actualUserOpFeePerGas <= maxFeePerGas`,
         // so `actualAmount_ <= prefundAmount` holds.
