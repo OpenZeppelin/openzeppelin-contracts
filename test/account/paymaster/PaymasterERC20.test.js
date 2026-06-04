@@ -286,6 +286,20 @@ describe('PaymasterERC20', function () {
         .to.be.revertedWithCustomError(predeploy.entrypoint.v09, 'FailedOp')
         .withArgs(0n, 'AA34 signature error');
     });
+
+    it('rejects tokenPrice below _minTokenPrice', async function () {
+      await this.token.$_mint(this.account, value);
+      await this.token.$_approve(this.account, this.paymaster, ethers.MaxUint256);
+
+      const signedUserOp = await this.account
+        .createUserOp(this.userOp)
+        .then(op => this.paymasterSignUserOp(op, { tokenPrice: 0n }))
+        .then(op => this.signUserOp(op));
+
+      await expect(predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver))
+        .to.be.revertedWithCustomError(predeploy.entrypoint.v09, 'FailedOp')
+        .withArgs(0n, 'AA34 signature error');
+    });
   });
 
   describe('withdraw ERC-20 tokens', function () {

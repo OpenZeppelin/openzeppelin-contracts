@@ -114,6 +114,22 @@ for (const [name, opts] of Object.entries({
         .withArgs(0n, 'AA34 signature error');
     });
 
+    it('returns SIG_VALIDATION_FAILED for paymasterData shorter than 12 bytes', async function () {
+      await this.paymaster.deposit({ value: ethers.parseEther('1') });
+
+      const signedUserOp = await this.account
+        .createUserOp({ paymaster: this.paymaster })
+        .then(op => {
+          op.paymasterData = '0x'; // empty (0 bytes < 12)
+          return op;
+        })
+        .then(op => this.signUserOp(op));
+
+      await expect(predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver))
+        .to.be.revertedWithCustomError(predeploy.entrypoint.v09, 'FailedOp')
+        .withArgs(0n, 'AA34 signature error');
+    });
+
     shouldBehaveLikePaymaster(opts);
   });
 }
