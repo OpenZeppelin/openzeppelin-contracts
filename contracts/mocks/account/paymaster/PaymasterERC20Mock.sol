@@ -77,6 +77,10 @@ abstract contract PaymasterERC20Mock is EIP712, PaymasterERC20, AccessControl {
         _withdrawStake(to);
     }
 
+    function _minTokenPrice() internal view virtual override returns (uint256) {
+        return 1;
+    }
+
     function withdrawTokens(IERC20 token, address recipient, uint256 amount) public virtual onlyRole(WITHDRAWER_ROLE) {
         _withdrawTokens(token, recipient, amount);
     }
@@ -155,6 +159,10 @@ abstract contract PaymasterERC20GuarantorMock is PaymasterERC20Mock, PaymasterER
         returns (bool prefunded, uint256 prefundAmount, address prefunder, bytes memory prefundContext)
     {
         return super._prefund(userOp, userOpHash, token, tokenPrice, prefunder_, maxCost);
+    }
+
+    function _postOpCost() internal view virtual override(PaymasterERC20, PaymasterERC20Guarantor) returns (uint256) {
+        return super._postOpCost();
     }
 
     function _getStructHashWithoutOracleAndGuarantorSignature(

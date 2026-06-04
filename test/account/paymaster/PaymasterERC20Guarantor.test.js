@@ -53,10 +53,17 @@ async function fixture() {
   // [0x16:0x16+guarantorSignatureLn ] guarantorSignature       (bytes)
 
   const paymasterSignUserOp =
-    oracle =>
+    (oracle, domain) =>
     (
       userOp,
-      { validAfter = 0n, validUntil = 0n, tokenPrice = ethers.WeiPerEther, guarantor = undefined, erc20 = token } = {},
+      {
+        validAfter = 0n,
+        validUntil = 0n,
+        tokenPrice = ethers.WeiPerEther,
+        guarantor = undefined,
+        guarantorSigner = undefined,
+        erc20 = token,
+      } = {},
     ) => {
       // First create main paymaster data without signatures
       userOp.paymasterData = ethers.solidityPacked(
@@ -72,7 +79,7 @@ async function fixture() {
 
       return Promise.all([
         oracle.signTypedData(
-          paymasterDomain,
+          domain,
           {
             TokenPrice: formatType({
               token: 'address',
@@ -88,7 +95,7 @@ async function fixture() {
             tokenPrice,
           },
         ),
-        guarantor ? guarantor.signTypedData(paymasterDomain, { PackedUserOperation }, userOp.packed) : '0x',
+        guarantor ? (guarantorSigner ?? guarantor).signTypedData(domain, { PackedUserOperation }, userOp.packed) : '0x',
       ]).then(([oracleSignature, guarantorSignature]) => {
         // Add oracle signature
         const oracleSignatureWithLength = ethers.solidityPacked(
@@ -122,8 +129,8 @@ async function fixture() {
     account,
     paymaster,
     signUserOp,
-    paymasterSignUserOp: paymasterSignUserOp(oracleSigner), // sign using the correct key
-    paymasterSignUserOpInvalid: paymasterSignUserOp(other), // sign using the wrong key
+    paymasterSignUserOp: paymasterSignUserOp(oracleSigner, paymasterDomain), // sign using the correct key
+    paymasterSignUserOpInvalid: paymasterSignUserOp(other, paymasterDomain), // sign using the wrong oracle key
   };
 }
 
@@ -348,13 +355,40 @@ describe('PaymasterERC20Guarantor', function () {
       // Create user op with incorrect guarantor signing
       const signedUserOp = await this.account
         .createUserOp(this.userOp)
-        .then(op => this.paymasterSignUserOpInvalid(op, { guarantor: this.guarantor }))
+        .then(op => this.paymasterSignUserOp(op, { guarantor: this.guarantor, guarantorSigner: this.other }))
         .then(op => this.signUserOp(op));
 
       // send it to the entrypoint
       await expect(predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver))
         .to.be.revertedWithCustomError(predeploy.entrypoint.v09, 'FailedOp')
         .withArgs(0n, 'AA34 signature error');
+    });
+
+    it('reads userOp.sender from the tail of prefundContext', async function () {
+      await this.token.$_mint(this.guarantor, value);
+      await this.token.$_approve(this.guarantor, this.paymaster, ethers.MaxUint256);
+      await this.token.$_mint(this.paymaster, value); // fund the refund leg
+
+      const prefundContext = ethers.solidityPacked(
+        ['bytes32', 'address'],
+        [ethers.id('extra subclass data'), this.guarantor.address],
+      );
+
+      await expect(
+        // prefunder=other ≠ userOpSender=guarantor (read from tail) so `_refund` enters the
+        // guarantor-repayment branch instead of falling straight to `super._refund`.
+        // tokenPrice=1e18, denominator=1e18 → 1:1 pricing; _postOpCost is overridden to 45_000 in
+        // `PaymasterERC20Guarantor`, so actualAmount = 1000 + 45_000*1 = 46_000.
+        this.paymaster.$_refund(
+          this.token,
+          ethers.WeiPerEther,
+          1000n,
+          1n,
+          this.other.address,
+          100_000n,
+          prefundContext,
+        ),
+      ).to.changeTokenBalances(this.token, [this.guarantor, this.other], [-46_000n, 100_000n]);
     });
 
     it('reverts when guarantor has insufficient balance', async function () {

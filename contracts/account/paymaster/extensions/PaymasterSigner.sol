@@ -6,6 +6,7 @@ import {ERC4337Utils, PackedUserOperation} from "../../utils/draft-ERC4337Utils.
 import {AbstractSigner} from "../../../utils/cryptography/signers/AbstractSigner.sol";
 import {EIP712} from "../../../utils/cryptography/EIP712.sol";
 import {Paymaster} from "../Paymaster.sol";
+import {Calldata} from "../../../utils/Calldata.sol";
 
 /**
  * @dev Extension of {Paymaster} that adds signature validation. See {SignerECDSA}, {SignerP256} or {SignerRSA}.
@@ -70,6 +71,10 @@ abstract contract PaymasterSigner is AbstractSigner, EIP712, Paymaster {
         uint256 /* maxCost */
     ) internal virtual override returns (bytes memory context, uint256 validationData) {
         (uint48 validAfter, uint48 validUntil, bytes calldata signature) = _decodePaymasterUserOp(userOp);
+        // Mixed `BLOCK_RANGE_FLAG` bits between `validAfter` and `validUntil` are rejected
+        if ((validAfter ^ validUntil) & ERC4337Utils.BLOCK_RANGE_FLAG != 0) {
+            return (bytes(""), ERC4337Utils.SIG_VALIDATION_FAILED);
+        }
         return (
             bytes(""),
             _rawSignatureValidation(_signableUserOpHash(userOp, validAfter, validUntil), signature).packValidationData(
@@ -84,6 +89,7 @@ abstract contract PaymasterSigner is AbstractSigner, EIP712, Paymaster {
         PackedUserOperation calldata userOp
     ) internal pure virtual returns (uint48 validAfter, uint48 validUntil, bytes calldata signature) {
         bytes calldata paymasterData = userOp.paymasterData();
+        if (paymasterData.length < 12) return (uint48(0), uint48(0), Calldata.emptyBytes());
         return (uint48(bytes6(paymasterData[0:6])), uint48(bytes6(paymasterData[6:12])), paymasterData[12:]);
     }
 }

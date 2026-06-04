@@ -1,10 +1,13 @@
 const { ethers, predeploy } = require('hardhat');
+const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { getDomain, PackedUserOperation, UserOperationRequest } = require('../../helpers/eip712');
 const { ERC4337Helper } = require('../../helpers/erc4337');
 
 const { shouldBehaveLikePaymaster } = require('./Paymaster.behavior');
+
+const BLOCK_RANGE_FLAG = 0x800000000000n;
 
 for (const [name, opts] of Object.entries({
   PaymasterSigner: { postOp: true, timeRange: true },
@@ -79,6 +82,36 @@ for (const [name, opts] of Object.entries({
   describe(name, function () {
     beforeEach(async function () {
       Object.assign(this, await loadFixture(fixture));
+    });
+
+    it('rejects validAfter with the flag set when validUntil has no flag', async function () {
+      await this.paymaster.deposit({ value: ethers.parseEther('1') });
+
+      const signedUserOp = await this.account
+        .createUserOp({
+          paymaster: this.paymaster,
+        })
+        .then(op => this.paymasterSignUserOp(op, { validAfter: BLOCK_RANGE_FLAG | 1n, validUntil: 0n }))
+        .then(op => this.signUserOp(op));
+
+      await expect(predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver))
+        .to.be.revertedWithCustomError(predeploy.entrypoint.v09, 'FailedOp')
+        .withArgs(0n, 'AA34 signature error');
+    });
+
+    it('rejects validUntil with the flag set when validAfter has no flag', async function () {
+      await this.paymaster.deposit({ value: ethers.parseEther('1') });
+
+      const signedUserOp = await this.account
+        .createUserOp({
+          paymaster: this.paymaster,
+        })
+        .then(op => this.paymasterSignUserOp(op, { validAfter: 0n, validUntil: BLOCK_RANGE_FLAG | 1n }))
+        .then(op => this.signUserOp(op));
+
+      await expect(predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver))
+        .to.be.revertedWithCustomError(predeploy.entrypoint.v09, 'FailedOp')
+        .withArgs(0n, 'AA34 signature error');
     });
 
     shouldBehaveLikePaymaster(opts);
