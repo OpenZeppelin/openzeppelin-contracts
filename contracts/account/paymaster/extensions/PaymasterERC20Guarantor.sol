@@ -64,7 +64,7 @@ abstract contract PaymasterERC20Guarantor is PaymasterERC20 {
         if (prefunder == guarantor) {
             emit UserOperationGuaranteed(userOpHash, prefunder, prefundAmount);
         }
-        return (prefunded, prefundAmount, prefunder, abi.encodePacked(prefundContext, userOp.sender));
+        return (prefunded, prefundAmount, prefunder, abi.encodePacked(userOp.sender, prefundContext));
     }
 
     /**
@@ -85,7 +85,7 @@ abstract contract PaymasterERC20Guarantor is PaymasterERC20 {
         uint256 prefundAmount,
         bytes calldata prefundContext
     ) internal virtual override returns (bool refunded, uint256 actualAmount) {
-        address userOpSender = address(bytes20(prefundContext[prefundContext.length - 20:]));
+        address userOpSender = address(bytes20(prefundContext[:20]));
 
         if (prefunder != userOpSender) {
             bool success;
@@ -103,7 +103,7 @@ abstract contract PaymasterERC20Guarantor is PaymasterERC20 {
                 actualUserOpFeePerGas,
                 prefunder,
                 prefundAmount,
-                prefundContext[:prefundContext.length - 20]
+                prefundContext[20:]
             );
     }
 

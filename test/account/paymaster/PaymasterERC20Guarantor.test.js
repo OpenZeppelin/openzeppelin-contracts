@@ -6,6 +6,7 @@ const { anyValue } = require('@nomicfoundation/hardhat-chai-matchers/withArgs');
 const { getDomain, formatType, PackedUserOperation } = require('../../helpers/eip712');
 const { ERC4337Helper } = require('../../helpers/erc4337');
 const { encodeBatch, encodeMode, CALL_TYPE_BATCH } = require('../../helpers/erc7579');
+const { generators } = require('../../helpers/random');
 
 const { shouldBehaveLikePaymaster } = require('./Paymaster.behavior');
 
@@ -369,10 +370,7 @@ describe('PaymasterERC20Guarantor', function () {
       await this.token.$_approve(this.guarantor, this.paymaster, ethers.MaxUint256);
       await this.token.$_mint(this.paymaster, value); // fund the refund leg
 
-      const prefundContext = ethers.solidityPacked(
-        ['bytes32', 'address'],
-        [ethers.id('extra subclass data'), this.guarantor.address],
-      );
+      const prefundContext = ethers.solidityPacked(['address', 'bytes'], [this.guarantor.address, generators.bytes()]);
 
       await expect(
         // prefunder=other ≠ userOpSender=guarantor (read from tail) so `_refund` enters the
