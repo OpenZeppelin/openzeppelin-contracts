@@ -126,18 +126,18 @@ abstract contract PaymasterERC20GuarantorMock is PaymasterERC20Mock, PaymasterER
 
     function _refund(
         IERC20 token,
+        uint256 actualAmount,
         uint256 tokenPrice,
-        uint256 actualGasCost,
         uint256 actualUserOpFeePerGas,
         address prefunder,
         uint256 prefundAmount,
         bytes calldata prefundContext
-    ) internal virtual override(PaymasterERC20, PaymasterERC20Guarantor) returns (bool refunded, uint256 actualAmount) {
+    ) internal virtual override(PaymasterERC20, PaymasterERC20Guarantor) returns (bool, uint256) {
         return
             super._refund(
                 token,
+                actualAmount,
                 tokenPrice,
-                actualGasCost,
                 actualUserOpFeePerGas,
                 prefunder,
                 prefundAmount,
@@ -151,14 +151,14 @@ abstract contract PaymasterERC20GuarantorMock is PaymasterERC20Mock, PaymasterER
         IERC20 token,
         uint256 tokenPrice,
         address prefunder_,
-        uint256 maxCost
+        uint256 prefundAmount
     )
         internal
         virtual
         override(PaymasterERC20, PaymasterERC20Guarantor)
-        returns (bool prefunded, uint256 prefundAmount, address prefunder, bytes memory prefundContext)
+        returns (bool prefunded, uint256, address prefunder, bytes memory prefundContext)
     {
-        return super._prefund(userOp, userOpHash, token, tokenPrice, prefunder_, maxCost);
+        return super._prefund(userOp, userOpHash, token, tokenPrice, prefunder_, prefundAmount);
     }
 
     function _getStructHashWithoutOracleAndGuarantorSignature(

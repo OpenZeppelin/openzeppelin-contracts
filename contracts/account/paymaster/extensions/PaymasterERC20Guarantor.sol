@@ -33,11 +33,13 @@ abstract contract PaymasterERC20Guarantor is PaymasterERC20 {
     event UserOperationGuaranteed(bytes32 indexed userOpHash, address indexed guarantor, uint256 prefundAmount);
 
     /**
-     * @dev Prefunds the user operation using either the guarantor or the default prefunder.
-     * See {PaymasterERC20-_prefund}.
+     * @dev Prefunds the user operation using either the guarantor or the default prefunder, and
+     * appends `userOp.sender` to the tail of `prefundContext` so the refund process can identify
+     * the user operation sender.
      *
-     * Returns `abi.encodePacked(..., userOp.sender)` in `prefundContext` to allow
-     * the refund process to identify the user operation sender.
+     * For guaranteed ops, `prefundAmount` is inflated by {_guaranteedPostOpCost} worth of tokens
+     * so the prefund pulled from the guarantor covers the extra postOp work done in {_refund}
+     * ({SafeERC20-trySafeTransferFrom} from the user + {SafeERC20-trySafeTransfer} to the guarantor).
      */
     function _prefund(
         PackedUserOperation calldata userOp,
@@ -45,71 +47,83 @@ abstract contract PaymasterERC20Guarantor is PaymasterERC20 {
         IERC20 token,
         uint256 tokenPrice,
         address prefunder_,
-        uint256 maxCost
-    )
-        internal
-        virtual
-        override
-        returns (bool prefunded, uint256 prefundAmount, address prefunder, bytes memory prefundContext)
-    {
+        uint256 prefundAmount
+    ) internal virtual override returns (bool prefunded, uint256, address prefunder, bytes memory prefundContext) {
         address guarantor = _fetchGuarantor(userOp);
         bool isGuaranteed = guarantor != address(0);
-        uint256 maxFeePerGas = userOp.maxFeePerGas();
+        if (isGuaranteed) {
+            (bool success, uint256 guaranteedPostOpCost) = _erc20Cost(
+                _guaranteedPostOpCost() * userOp.maxFeePerGas(),
+                tokenPrice
+            );
+            if (!success) return (false, 0, address(0), bytes(""));
+            prefundAmount += guaranteedPostOpCost;
+            prefunder_ = guarantor;
+        }
         (prefunded, prefundAmount, prefunder, prefundContext) = super._prefund(
             userOp,
             userOpHash,
             token,
             tokenPrice,
-            isGuaranteed ? guarantor : prefunder_,
-            isGuaranteed ? maxCost + _guaranteedPostOpCost() * maxFeePerGas : maxCost
+            prefunder_,
+            prefundAmount
         );
         if (prefunder == guarantor) {
             emit UserOperationGuaranteed(userOpHash, prefunder, prefundAmount);
         }
-        prefundContext = abi.encodePacked(prefundContext, userOp.sender);
-        return (prefunded, prefundAmount, prefunder, prefundContext);
+        return (prefunded, prefundAmount, prefunder, abi.encodePacked(prefundContext, userOp.sender));
     }
 
     /**
      * @dev Handles the refund process for guaranteed operations.
      *
-     * If the operation was guaranteed, it attempts to get repayment from the user first and then refunds the guarantor.
-     * Otherwise, fallback to {PaymasterERC20-_refund}.
-     *
-     * NOTE: For guaranteed user operations where the user paid the `actualGasCost` back, this function
-     * doesn't call `super._refund`. Consider whether there are side effects in the parent contract that need to be executed.
+     * * **Non-guaranteed** (`prefunder == userOp.sender`): pass the base `actualAmount` through to
+     *   {PaymasterERC20-_refund}.
+     * * **Guaranteed**: augment `actualAmount` by {_guaranteedPostOpCost} * `actualUserOpFeePerGas`
+     *   (priced in tokens), pull it from `userOp.sender`, and call {PaymasterERC20-_refund} with
+     *   `actualAmount = 0` so the guarantor gets the full `prefundAmount` back. If the user fails to pay,
+     *   the guarantor absorbs the GUARANTEED cost (not the base cost).
      */
     function _refund(
         IERC20 token,
+        uint256 actualAmount,
         uint256 tokenPrice,
-        uint256 actualGasCost,
         uint256 actualUserOpFeePerGas,
         address prefunder,
         uint256 prefundAmount,
         bytes calldata prefundContext
-    ) internal virtual override returns (bool refunded, uint256 actualAmount) {
+    ) internal virtual override returns (bool refunded, uint256 effectiveAmount) {
+        effectiveAmount = actualAmount;
         address userOpSender = address(bytes20(prefundContext[prefundContext.length - 20:]));
 
         if (prefunder != userOpSender) {
-            bool success;
-            // Should never panic with overflow in any reachable EntryPoint flow with a reasonable _guaranteedPostOpCost
-            actualGasCost += _guaranteedPostOpCost() * actualUserOpFeePerGas;
-            (success, actualAmount) = _erc20Cost(actualGasCost, actualUserOpFeePerGas, tokenPrice);
-            if (success && token.trySafeTransferFrom(userOpSender, address(this), actualAmount)) {
-                // The paymaster gets the funds first, so in case of a failure, the guarantor absorbs the cost.
-                return (token.trySafeTransfer(prefunder, prefundAmount), actualAmount);
-            }
+            uint256 guaranteedPostOpAmount;
+            (
+                refunded, // Use variable as "success" to avoid stack too deep
+                guaranteedPostOpAmount
+            ) = _erc20Cost(
+                    // Multiplication should never panic with overflow in any reachable EntryPoint flow with a reasonable _guaranteedPostOpCost
+                    _guaranteedPostOpCost() * actualUserOpFeePerGas,
+                    tokenPrice
+                );
+            effectiveAmount += guaranteedPostOpAmount;
+            // The paymaster gets the funds first, so in case of a failure, the guarantor absorbs the cost.
+            actualAmount = refunded && token.trySafeTransferFrom(userOpSender, address(this), effectiveAmount)
+                ? 0 // Paid back by the user
+                : effectiveAmount;
         }
-        return
-            super._refund(
-                token,
-                tokenPrice,
-                actualGasCost,
-                actualUserOpFeePerGas,
-                prefunder,
-                prefundAmount,
-                prefundContext[:prefundContext.length - 20]
-            );
+
+        (refunded, ) = super._refund(
+            token,
+            actualAmount,
+            tokenPrice,
+            actualUserOpFeePerGas,
+            prefunder,
+            prefundAmount,
+            prefundContext[:prefundContext.length - 20]
+        );
+
+        return (refunded, effectiveAmount);
     }
 
     /**

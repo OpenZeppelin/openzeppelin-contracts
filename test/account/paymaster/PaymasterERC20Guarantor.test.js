@@ -374,18 +374,20 @@ describe('PaymasterERC20Guarantor', function () {
         [ethers.id('extra subclass data'), this.guarantor.address],
       );
 
+      // prefunder=other ≠ userOpSender=guarantor (read from tail) so `_refund` enters the
+      // guaranteed branch and augments `actualAmount` by `_guaranteedPostOpCost() * feePerGas`
+      // (priced in tokens). With tokenPrice=1e18, denominator=1e18 (1:1), feePerGas=1, the
+      // augmentation adds 15_000 tokens. Passing `actualAmount = 31_000` yields a final
+      // augmented amount of `31_000 + 15_000 = 46_000` charged to the guarantor; the full
+      // `prefundAmount` (100_000) is then refunded to `prefunder` (other).
       await expect(
-        // prefunder=other ≠ userOpSender=guarantor (read from tail) so `_refund` enters the
-        // guarantor-repayment branch instead of falling straight to `super._refund`.
-        // tokenPrice=1e18, denominator=1e18 → 1:1 pricing; _postOpCost is overridden to 45_000 in
-        // `PaymasterERC20Guarantor`, so actualAmount = 1000 + 45_000*1 = 46_000.
         this.paymaster.$_refund(
           this.token,
-          ethers.WeiPerEther,
-          1000n,
-          1n,
-          this.other.address,
-          100_000n,
+          31_000n, // actualAmount (pre-computed by `_postOp` in the real flow)
+          ethers.WeiPerEther, // tokenPrice
+          1n, // actualUserOpFeePerGas
+          this.other.address, // prefunder
+          100_000n, // prefundAmount
           prefundContext,
         ),
       ).to.changeTokenBalances(this.token, [this.guarantor, this.other], [-46_000n, 100_000n]);

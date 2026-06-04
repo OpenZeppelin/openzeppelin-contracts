@@ -98,13 +98,20 @@ abstract contract PaymasterERC20 is Paymaster {
             tokenPrice < _minTokenPrice()
         ) return (bytes(""), ERC4337Utils.SIG_VALIDATION_FAILED);
 
-        (bool prefunded, uint256 prefundAmount, address prefunder, bytes memory prefundContext) = _prefund(
+        uint256 maxFeePerGas = userOp.maxFeePerGas();
+        (bool success, uint256 prefundAmount) = _erc20Cost(maxCost + _postOpCost() * maxFeePerGas, tokenPrice);
+        if (!success) return (bytes(""), ERC4337Utils.SIG_VALIDATION_FAILED);
+        address userOpSender = userOp.sender;
+        bool prefunded;
+        address prefunder;
+        bytes memory prefundContext;
+        (prefunded, prefundAmount, prefunder, prefundContext) = _prefund(
             userOp,
             userOpHash,
             token,
             tokenPrice,
-            userOp.sender,
-            maxCost
+            userOpSender,
+            prefundAmount
         );
 
         return
@@ -117,32 +124,27 @@ abstract contract PaymasterERC20 is Paymaster {
     }
 
     /**
-     * @dev Prefunds the `userOp` by charging the maximum possible gas cost (`maxCost`) in ERC-20 `token`.
+     * @dev Charges `prefundAmount` of `token` from `prefunder_` and returns the effective prefund actually pulled.
      *
-     * The `token` and `tokenPrice` is obtained from the {_fetchDetails} function and are funded by the `prefunder_`,
-     * which is the user operation sender by default. The `prefundAmount` is calculated using {_erc20Cost}.
+     * The base implementation pulls exactly the requested `prefundAmount`. Extensions may inflate the amount
+     * (e.g. a guarantor adds the cost of the extra postOp work it performs) and must return the effective value.
      *
-     * Returns a `prefundContext` that's passed to the {_postOp} function through its `context` return value.
+     * Returns `(prefunded, effectivePrefundAmount, prefunder, prefundContext)`. `prefundContext` is forwarded to
+     * {_postOp} through its `context` argument and may be used by overrides to carry data into {_refund}.
      *
      * NOTE: Consider not reverting if the prefund fails when overriding this function. This is to avoid reverting
      * during the validation phase of the user operation, which may penalize the paymaster's reputation according
      * to ERC-7562 validation rules.
      */
     function _prefund(
-        PackedUserOperation calldata userOp,
+        PackedUserOperation calldata /* userOp */,
         bytes32 /* userOpHash */,
         IERC20 token,
-        uint256 tokenPrice,
+        uint256 /* tokenPrice */,
         address prefunder_,
-        uint256 maxCost
+        uint256 prefundAmount_
     ) internal virtual returns (bool prefunded, uint256 prefundAmount, address prefunder, bytes memory prefundContext) {
-        (bool success, uint256 _prefundAmount) = _erc20Cost(maxCost, userOp.maxFeePerGas(), tokenPrice);
-        return (
-            success && token.trySafeTransferFrom(prefunder_, address(this), _prefundAmount),
-            _prefundAmount,
-            prefunder_,
-            ""
-        );
+        return (token.trySafeTransferFrom(prefunder_, address(this), prefundAmount_), prefundAmount_, prefunder_, "");
     }
 
     /**
@@ -167,27 +169,34 @@ abstract contract PaymasterERC20 is Paymaster {
         address prefunder = address(bytes20(context[0x74:0x88]));
         bytes calldata prefundContext = context[0x88:];
 
-        (bool refunded, uint256 actualAmount) = _refund(
+        (bool success, uint256 actualAmount) = _erc20Cost(
+            actualGasCost + _postOpCost() * actualUserOpFeePerGas,
+            tokenPrice
+        );
+        if (!success) revert PaymasterERC20FailedRefund(token, prefundAmount, actualAmount, prefundContext);
+
+        bool refunded;
+        (refunded, actualAmount) = _refund(
             token,
-            tokenPrice, // Already checked in _validatePaymasterUserOp
-            actualGasCost, // Already checked in _validatePaymasterUserOp
-            actualUserOpFeePerGas, // Already checked in _validatePaymasterUserOp
+            actualAmount,
+            tokenPrice,
+            actualUserOpFeePerGas,
             prefunder,
             prefundAmount,
             prefundContext
         );
-        if (!refunded) {
-            revert PaymasterERC20FailedRefund(token, prefundAmount, actualAmount, prefundContext);
-        }
+        if (!refunded) revert PaymasterERC20FailedRefund(token, prefundAmount, actualAmount, prefundContext);
 
         emit UserOperationSponsored(userOpHash, address(token), actualAmount, tokenPrice);
     }
 
     /**
-     * @dev Refunds any unused gas back to the user (i.e. `prefundAmount - actualAmount`) in `token`.
+     * @dev Refunds `prefundAmount - actualAmount` of `token` back to `prefunder` and returns the
+     * `actualAmount` actually charged.
      *
-     * The `actualAmount` is calculated using {_erc20Cost} and the `actualGasCost`, `actualUserOpFeePerGas`, `prefundContext`
-     * and the `tokenPrice` from the {_postOp}'s context.
+     * `actualAmount` is pre-computed by {_postOp} via {_erc20Cost}. Extensions may change it (e.g. a
+     * guarantor adds its extra postOp cost or zeroes it out after pulling from the user) and must
+     * return the value that was effectively charged.
      *
      * Requirements:
      *
@@ -195,17 +204,16 @@ abstract contract PaymasterERC20 is Paymaster {
      */
     function _refund(
         IERC20 token,
-        uint256 tokenPrice,
-        uint256 actualGasCost,
-        uint256 actualUserOpFeePerGas,
+        uint256 actualAmount_,
+        uint256 /* tokenPrice */,
+        uint256 /* actualUserOpFeePerGas */,
         address prefunder,
         uint256 prefundAmount,
         bytes calldata /* prefundContext */
-    ) internal virtual returns (bool) {
-        (bool success, uint256 actualAmount_) = _erc20Cost(actualGasCost, actualUserOpFeePerGas, tokenPrice);
+    ) internal virtual returns (bool refunded, uint256 actualAmount) {
         // Under ERC-4337 EntryPoint, `actualGasCost <= maxCost` and `actualUserOpFeePerGas <= maxFeePerGas`,
         // so `actualAmount_ <= prefundAmount` holds.
-        return (success && token.trySafeTransfer(prefunder, prefundAmount - actualAmount_), actualAmount_);
+        return (token.trySafeTransfer(prefunder, prefundAmount - actualAmount_), actualAmount_);
     }
 
     /**
@@ -262,19 +270,14 @@ abstract contract PaymasterERC20 is Paymaster {
      */
     function _minTokenPrice() internal view virtual returns (uint256);
 
-    /**
-     * @dev Calculates the cost of the user operation in ERC-20 tokens.
-     */
+    /// @dev Calculates native currency cost to ERC-20 token cost.
     function _erc20Cost(
-        uint256 cost,
-        uint256 feePerGas,
+        uint256 nativeCost,
         uint256 tokenPrice
     ) internal view virtual returns (bool success, uint256 value) {
-        uint256 fullCost = cost + _postOpCost() * feePerGas;
         uint256 denominator = _tokenPriceDenominator();
-
-        (uint256 high, ) = fullCost.mul512(tokenPrice);
-        return high < denominator ? (true, fullCost.mulDiv(tokenPrice, denominator)) : (false, 0);
+        (uint256 high, ) = nativeCost.mul512(tokenPrice);
+        return high < denominator ? (true, nativeCost.mulDiv(tokenPrice, denominator)) : (false, 0);
     }
 
     /// @dev Internal function that allows the withdrawer to extract ERC-20 tokens resulting from gas payments.
