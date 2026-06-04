@@ -95,11 +95,9 @@ abstract contract PaymasterERC20 is Paymaster {
 
         if (
             address(uint160(validationData)) == address(uint160(ERC4337Utils.SIG_VALIDATION_FAILED)) ||
-            tokenPrice < _minTokenPrice() ||
-            !_erc20CostFits512(maxCost, userOp.maxFeePerGas(), tokenPrice)
+            tokenPrice < _minTokenPrice()
         ) return (bytes(""), ERC4337Utils.SIG_VALIDATION_FAILED);
 
-        context = abi.encodePacked(userOpHash, token, tokenPrice);
         (bool prefunded, uint256 prefundAmount, address prefunder, bytes memory prefundContext) = _prefund(
             userOp,
             userOpHash,
@@ -109,9 +107,13 @@ abstract contract PaymasterERC20 is Paymaster {
             maxCost
         );
 
-        if (!prefunded) return (bytes(""), ERC4337Utils.SIG_VALIDATION_FAILED);
-
-        return (abi.encodePacked(context, prefundAmount, prefunder, prefundContext), validationData);
+        return
+            prefunded
+                ? (
+                    abi.encodePacked(userOpHash, token, tokenPrice, prefundAmount, prefunder, prefundContext),
+                    validationData
+                )
+                : (bytes(""), ERC4337Utils.SIG_VALIDATION_FAILED);
     }
 
     /**
@@ -138,9 +140,13 @@ abstract contract PaymasterERC20 is Paymaster {
         address prefunder_,
         uint256 maxCost
     ) internal virtual returns (bool prefunded, uint256 prefundAmount, address prefunder, bytes memory prefundContext) {
-        uint256 feePerGas = userOp.maxFeePerGas();
-        uint256 _prefundAmount = _erc20Cost(maxCost, feePerGas, tokenPrice);
-        return (token.trySafeTransferFrom(prefunder_, address(this), _prefundAmount), _prefundAmount, prefunder_, "");
+        (bool success, uint256 _prefundAmount) = _erc20Cost(maxCost, userOp.maxFeePerGas(), tokenPrice);
+        return (
+            success && token.trySafeTransferFrom(prefunder_, address(this), _prefundAmount),
+            _prefundAmount,
+            prefunder_,
+            ""
+        );
     }
 
     /**
@@ -201,10 +207,10 @@ abstract contract PaymasterERC20 is Paymaster {
         uint256 prefundAmount,
         bytes calldata /* prefundContext */
     ) internal virtual returns (bool refunded, uint256 actualAmount) {
-        uint256 actualAmount_ = _erc20Cost(actualGasCost, actualUserOpFeePerGas, tokenPrice);
+        (bool success, uint256 actualAmount_) = _erc20Cost(actualGasCost, actualUserOpFeePerGas, tokenPrice);
         // Under ERC-4337 EntryPoint, `actualGasCost <= maxCost` and `actualUserOpFeePerGas <= maxFeePerGas`,
         // so `actualAmount_ <= prefundAmount` holds.
-        return (token.trySafeTransfer(prefunder, prefundAmount - actualAmount_), actualAmount_);
+        return (success && token.trySafeTransfer(prefunder, prefundAmount - actualAmount_), actualAmount_);
     }
 
     /**
@@ -263,24 +269,22 @@ abstract contract PaymasterERC20 is Paymaster {
 
     /**
      * @dev Calculates the cost of the user operation in ERC-20 tokens.
-     *
-     * Requirements:
-     *
-     * - `cost + {_postOpCost} * feePerGas` must fit in 512 bits.
      */
-    function _erc20Cost(uint256 cost, uint256 feePerGas, uint256 tokenPrice) internal view virtual returns (uint256) {
-        return (cost + _postOpCost() * feePerGas).mulDiv(tokenPrice, _tokenPriceDenominator());
+    function _erc20Cost(
+        uint256 cost,
+        uint256 feePerGas,
+        uint256 tokenPrice
+    ) internal view virtual returns (bool success, uint256 value) {
+        uint256 fullCost = cost + _postOpCost() * feePerGas;
+        uint256 denominator = _tokenPriceDenominator();
+
+        (uint256 high, ) = fullCost.mul512(tokenPrice);
+        return high < denominator ? (true, fullCost.mulDiv(tokenPrice, denominator)) : (false, 0);
     }
 
     /// @dev Internal function that allows the withdrawer to extract ERC-20 tokens resulting from gas payments.
     function _withdrawTokens(IERC20 token, address recipient, uint256 amount) internal virtual {
         if (amount == type(uint256).max) amount = token.balanceOf(address(this));
         token.safeTransfer(recipient, amount);
-    }
-
-    /// @dev Returns whether `_erc20Cost(maxCost, feePerGas, tokenPrice)` would fit in a uint256.
-    function _erc20CostFits512(uint256 maxCost, uint256 feePerGas, uint256 tokenPrice) private view returns (bool) {
-        (bool ok, ) = (maxCost + _postOpCost() * feePerGas).tryMul(tokenPrice);
-        return ok;
     }
 }

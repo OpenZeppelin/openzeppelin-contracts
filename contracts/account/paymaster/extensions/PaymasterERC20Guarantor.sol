@@ -88,8 +88,9 @@ abstract contract PaymasterERC20Guarantor is PaymasterERC20 {
         address userOpSender = address(bytes20(prefundContext[prefundContext.length - 20:]));
 
         if (prefunder != userOpSender) {
-            actualAmount = _erc20Cost(actualGasCost, actualUserOpFeePerGas, tokenPrice);
-            if (token.trySafeTransferFrom(userOpSender, address(this), actualAmount)) {
+            bool success;
+            (success, actualAmount) = _erc20Cost(actualGasCost, actualUserOpFeePerGas, tokenPrice);
+            if (success && token.trySafeTransferFrom(userOpSender, address(this), actualAmount)) {
                 // The paymaster gets the funds first, so in case of a failure, the guarantor absorbs the cost.
                 return (token.trySafeTransfer(prefunder, prefundAmount), actualAmount);
             }
