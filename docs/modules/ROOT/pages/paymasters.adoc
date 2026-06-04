@@ -10,7 +10,7 @@ To enable sponsorship, users sign their user operations including a special fiel
 
 The xref:api:account.adoc#PaymasterSigner[`PaymasterSigner`] implements signature-based sponsorship via authorization signatures, allowing designated paymaster signers to authorize and sponsor specific user operations without requiring users to hold native ETH.
 
-TIP: Learn more about xref:accounts.adoc#selecting_a_signer[signers] to explore different approaches to user operation sponsorship via signatures.
+TIP: Learn more about xref:accounts.adoc#selecting-a-signer[signers] to explore different approaches to user operation sponsorship via signatures.
 
 [source,solidity]
 ----
@@ -199,10 +199,10 @@ contract PaymasterUSDCChainlink is PaymasterERC20, Ownable {
 
 NOTE: The `PaymasterUSDCChainlink` contract uses specific Chainlink price feeds (ETH/USD and USDC/USD) on Sepolia. For production use or other networks, you'll need to modify the contract to use the appropriate price feed addresses.
 
-As you can see, a `_fetchOracleDetails` function is specified to fetch the token price that will be used as a reference for calculating the final ERC-20 payment. One can fetch and process price data from Chainlink oracles to determine the exchange rate between the price of a concrete ERC-20 and ETH. An example with USDC would be:
+As you can see, a `_fetchOracleDetails` function is specified to fetch the token price that will be used as a reference for calculating the final ERC-20 payment. One can fetch and process price data from Chainlink oracles to determine the exchange rate between ETH and a concrete ERC-20. An example with USDC would be:
 
 1. Fetch the current `ETH/USD` and `USDC/USD` prices from their respective oracles.
-2. Calculate the `USDC/ETH` exchange rate using the formula: `USDC/ETH = (USDC/USD) / (ETH/USD)`. This gives us how many USDC tokens are needed to buy 1 ETH 
+2. `tokenPrice` is the number of USDC units (smallest denomination) charged per wei of gas. Combining the two feeds: `USDC_per_wei = (ETH_USD / USDC_USD) * 10^USDC_decimals / 10^18`. Multiply by `_tokenPriceDenominator()` to get the fixed-point value expected by xref:api:account.adoc#PaymasterERC20-_erc20Cost-uint256-uint256-uint256-[`_erc20Cost`].
 
 NOTE: The price of the ERC-20 must be scaled by xref:api:account.adoc#PaymasterERC20-_tokenPriceDenominator--[`_tokenPriceDenominator`].
 
@@ -217,6 +217,8 @@ TIP: Use xref:api:account.adoc#ERC4337Utils-combineValidationData-uint256-uint25
 
 using SafeCast for *;
 using ERC4337Utils for *;
+
+uint256 private constant USDC_DECIMALS = 6;
 
 function _fetchOracleDetails(
     PackedUserOperation calldata /* userOp */
@@ -238,14 +240,19 @@ function _fetchOracleDetails(
         return (ERC4337Utils.SIG_VALIDATION_FAILED, 0);
     }
 
-    // eth / usdc = (usdc / usd) / (eth / usd) = usdc * usd / eth * usd = usdc / eth
+    // USDC_units / wei = (ETH/USD) / (USDC/USD) * 10^USDC_decimals / 10^18, multiplied by
+    // `_tokenPriceDenominator()` to give the fixed-point value expected by `_erc20Cost`.
     int256 scale = _tokenPriceDenominator().toInt256();
-    int256 scaledUSDCUSD = USDCUSD * scale * (10 ** ETH_USD_ORACLE.decimals()).toInt256();
-    int256 scaledUSDCETH = scaledUSDCUSD / (ETHUSD * (10 ** USDC_USD_ORACLE.decimals()).toInt256());
+    int256 numerator = ETHUSD *
+        (10 ** USDC_USD_ORACLE.decimals()).toInt256() *
+        (10 ** USDC_DECIMALS).toInt256() *
+        scale;
+    int256 denominator = USDCUSD * (10 ** ETH_USD_ORACLE.decimals()).toInt256() * int256(1e18);
+    int256 scaledTokenPrice = numerator / denominator;
 
     return (
         ETHUSDValidationData.combineValidationData(USDCUSDValidationData),
-        uint256(scaledUSDCETH) // Safe upcast
+        uint256(scaledTokenPrice) // Safe upcast
     );
 }
 
@@ -346,7 +353,8 @@ function _fetchGuarantor(
 
 Let's create a guarantor-enabled paymaster by extending our previous example:
 
-```solidity
+[source,solidity]
+----
 // WARNING: Unaudited code.
 // Consider performing a security review before going to production.
 contract PaymasterUSDCGuaranteed is EIP712, PaymasterERC20Guarantor, Ownable {
@@ -371,12 +379,16 @@ contract PaymasterUSDCGuaranteed is EIP712, PaymasterERC20Guarantor, Ownable {
         
         // Check guarantor data (should be at least 22 bytes: 20 for address + 2 for sig length)
         // If no guarantor specified, return early
-        if (paymasterData.length < 22 || guarantor == address(0)) {
+        if (paymasterData.length < 22) {
             return address(0);
         }
         
         guarantor = address(bytes20(paymasterData[:20]));  
         uint16 guarantorSigLength = uint16(bytes2(paymasterData[20:22]));
+
+        if (guarantor == address(0)) {
+          return address(0);
+        }
         
         // Ensure the signature fits in the data
         if (paymasterData.length < 22 + guarantorSigLength) {
@@ -414,7 +426,7 @@ contract PaymasterUSDCGuaranteed is EIP712, PaymasterERC20Guarantor, Ownable {
         );
     }
 }
-```
+----
 
 With this implementation, a guarantor would sign a user operation to authorize backing it:
 

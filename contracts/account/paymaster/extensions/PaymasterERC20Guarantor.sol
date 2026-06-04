@@ -59,7 +59,7 @@ abstract contract PaymasterERC20Guarantor is PaymasterERC20 {
             token,
             tokenPrice,
             isGuaranteed ? guarantor : prefunder_,
-            maxCost + (isGuaranteed ? 0 : _guaranteedPostOpCost())
+            maxCost
         );
         if (prefunder == guarantor) {
             emit UserOperationGuaranteed(userOpHash, prefunder, prefundAmount);
@@ -85,7 +85,7 @@ abstract contract PaymasterERC20Guarantor is PaymasterERC20 {
         uint256 prefundAmount,
         bytes calldata prefundContext
     ) internal virtual override returns (bool refunded, uint256 actualAmount) {
-        address userOpSender = address(bytes20(prefundContext[0x00:0x14]));
+        address userOpSender = address(bytes20(prefundContext[prefundContext.length - 20:]));
 
         if (prefunder != userOpSender) {
             actualAmount = _erc20Cost(actualGasCost, actualUserOpFeePerGas, tokenPrice);
@@ -102,8 +102,13 @@ abstract contract PaymasterERC20Guarantor is PaymasterERC20 {
                 actualUserOpFeePerGas,
                 prefunder,
                 prefundAmount,
-                prefundContext
+                prefundContext[:prefundContext.length - 20]
             );
+    }
+
+    /// @dev Over-estimates the cost of the post-operation logic. Added on top of guaranteed userOps post-operation cost.
+    function _postOpCost() internal view virtual override returns (uint256) {
+        return super._postOpCost() + _guaranteedPostOpCost();
     }
 
     /**
