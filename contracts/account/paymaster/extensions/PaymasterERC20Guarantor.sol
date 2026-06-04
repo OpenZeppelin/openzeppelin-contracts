@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.20;
 
-import {PackedUserOperation} from "../../../interfaces/draft-IERC4337.sol";
+import {ERC4337Utils, PackedUserOperation} from "../../utils/draft-ERC4337Utils.sol";
 import {IERC20, SafeERC20} from "../../../token/ERC20/utils/SafeERC20.sol";
 import {PaymasterERC20} from "./PaymasterERC20.sol";
 
@@ -26,6 +26,7 @@ import {PaymasterERC20} from "./PaymasterERC20.sol";
  * logic based on the specific requirements of the application.
  */
 abstract contract PaymasterERC20Guarantor is PaymasterERC20 {
+    using ERC4337Utils for *;
     using SafeERC20 for IERC20;
 
     /// @dev Emitted when a user operation identified by `userOpHash` is guaranteed by a `guarantor` for `prefundAmount`.
@@ -53,18 +54,20 @@ abstract contract PaymasterERC20Guarantor is PaymasterERC20 {
     {
         address guarantor = _fetchGuarantor(userOp);
         bool isGuaranteed = guarantor != address(0);
+        uint256 maxFeePerGas = userOp.maxFeePerGas();
         (prefunded, prefundAmount, prefunder, prefundContext) = super._prefund(
             userOp,
             userOpHash,
             token,
             tokenPrice,
             isGuaranteed ? guarantor : prefunder_,
-            maxCost
+            isGuaranteed ? maxCost + _guaranteedPostOpCost() * maxFeePerGas : maxCost
         );
         if (prefunder == guarantor) {
             emit UserOperationGuaranteed(userOpHash, prefunder, prefundAmount);
         }
-        return (prefunded, prefundAmount, prefunder, abi.encodePacked(prefundContext, userOp.sender));
+        prefundContext = abi.encodePacked(prefundContext, userOp.sender);
+        return (prefunded, prefundAmount, prefunder, prefundContext);
     }
 
     /**
@@ -89,6 +92,8 @@ abstract contract PaymasterERC20Guarantor is PaymasterERC20 {
 
         if (prefunder != userOpSender) {
             bool success;
+            // Should never panic with overflow in any reachable EntryPoint flow with a reasonable _guaranteedPostOpCost
+            actualGasCost += _guaranteedPostOpCost() * actualUserOpFeePerGas;
             (success, actualAmount) = _erc20Cost(actualGasCost, actualUserOpFeePerGas, tokenPrice);
             if (success && token.trySafeTransferFrom(userOpSender, address(this), actualAmount)) {
                 // The paymaster gets the funds first, so in case of a failure, the guarantor absorbs the cost.
@@ -105,11 +110,6 @@ abstract contract PaymasterERC20Guarantor is PaymasterERC20 {
                 prefundAmount,
                 prefundContext[:prefundContext.length - 20]
             );
-    }
-
-    /// @dev Over-estimates the cost of the post-operation logic. Added on top of guaranteed userOps post-operation cost.
-    function _postOpCost() internal view virtual override returns (uint256) {
-        return super._postOpCost() + _guaranteedPostOpCost();
     }
 
     /**

@@ -161,10 +161,6 @@ abstract contract PaymasterERC20GuarantorMock is PaymasterERC20Mock, PaymasterER
         return super._prefund(userOp, userOpHash, token, tokenPrice, prefunder_, maxCost);
     }
 
-    function _postOpCost() internal view virtual override(PaymasterERC20, PaymasterERC20Guarantor) returns (uint256) {
-        return super._postOpCost();
-    }
-
     function _getStructHashWithoutOracleAndGuarantorSignature(
         PackedUserOperation calldata userOp
     ) private pure returns (bytes32) {
