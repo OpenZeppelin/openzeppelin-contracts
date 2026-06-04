@@ -172,6 +172,12 @@ contract PaymasterUSDCChainlink is PaymasterERC20, Ownable {
         return 15 minutes; // Tolerate stale data
     }
 
+    /// @dev Floor: refuse to sponsor when 1 ETH is worth less than 100 USDC.
+    /// 1e8 = 100 (USDC per ETH) * 10**6 (USDC decimals); the 1e18 denom cancels 1e18 wei/ETH.
+    function _minTokenPrice() internal view virtual override returns (uint256) {
+        return 1e8;
+    }
+
     function _fetchDetails(
         PackedUserOperation calldata userOp,
         bytes32 /* userOpHash */
@@ -198,6 +204,8 @@ contract PaymasterUSDCChainlink is PaymasterERC20, Ownable {
 ----
 
 NOTE: The `PaymasterUSDCChainlink` contract uses specific Chainlink price feeds (ETH/USD and USDC/USD) on Sepolia. For production use or other networks, you'll need to modify the contract to use the appropriate price feed addresses.
+
+NOTE: xref:api:account.adoc#PaymasterERC20-_minTokenPrice--[`_minTokenPrice`] is *abstract* in `PaymasterERC20` and must be implemented. It is a lower bound on `tokenPrice` (same units: token-units per wei, scaled by xref:api:account.adoc#PaymasterERC20-_tokenPriceDenominator--[`_tokenPriceDenominator`]); any operation whose `_fetchDetails` returns a `tokenPrice` strictly below this floor is rejected with `SIG_VALIDATION_FAILED` before pre-charging the user. The example above returns `1e8`, which refuses to sponsor when 1 ETH is worth less than 100 USDC — a conservative sanity check against misconfigured oracles or extreme market conditions. Returning `0` disables the check and re-opens the "free sponsorship" footgun if `_fetchDetails` ever returns a near-zero price.
 
 As you can see, a `_fetchOracleDetails` function is specified to fetch the token price that will be used as a reference for calculating the final ERC-20 payment. One can fetch and process price data from Chainlink oracles to determine the exchange rate between ETH and a concrete ERC-20. An example with USDC would be:
 
