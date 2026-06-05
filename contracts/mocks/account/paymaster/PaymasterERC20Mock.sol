@@ -156,7 +156,7 @@ abstract contract PaymasterERC20GuarantorMock is PaymasterERC20Mock, PaymasterER
         internal
         virtual
         override(PaymasterERC20, PaymasterERC20Guarantor)
-        returns (bool prefunded, uint256, address prefunder, bytes memory prefundContext)
+        returns (bool prefunded, address prefunder, uint256, bytes memory prefundContext)
     {
         return super._prefund(userOp, userOpHash, token, tokenPrice, prefunder_, prefundAmount);
     }

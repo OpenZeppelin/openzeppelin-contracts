@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 
 import {ERC4337Utils, PackedUserOperation} from "../../utils/draft-ERC4337Utils.sol";
 import {IERC20, SafeERC20} from "../../../token/ERC20/utils/SafeERC20.sol";
+import {Math} from "../../../utils/math/Math.sol";
 import {PaymasterERC20} from "./PaymasterERC20.sol";
 
 /**
@@ -27,6 +28,7 @@ import {PaymasterERC20} from "./PaymasterERC20.sol";
  */
 abstract contract PaymasterERC20Guarantor is PaymasterERC20 {
     using ERC4337Utils for *;
+    using Math for *;
     using SafeERC20 for IERC20;
 
     /// @dev Emitted when a user operation identified by `userOpHash` is guaranteed by a `guarantor` for `prefundAmount`.
@@ -47,31 +49,36 @@ abstract contract PaymasterERC20Guarantor is PaymasterERC20 {
         IERC20 token,
         uint256 tokenPrice,
         address prefunder_,
-        uint256 prefundAmount
-    ) internal virtual override returns (bool prefunded, uint256, address prefunder, bytes memory prefundContext) {
+        uint256 prefundAmount_
+    )
+        internal
+        virtual
+        override
+        returns (bool success, address prefunder, uint256 prefundAmount, bytes memory prefundContext)
+    {
         address guarantor = _fetchGuarantor(userOp);
         bool isGuaranteed = guarantor != address(0);
+
+        // If the is a guarantor, add more funds to cover the extra postOp cost
+        // and set the guarantor as the prefunder.
         if (isGuaranteed) {
-            (bool success, uint256 guaranteedPostOpCost) = _erc20Cost(
-                _guaranteedPostOpCost() * userOp.maxFeePerGas(),
-                tokenPrice
-            );
-            if (!success) return (false, 0, address(0), bytes(""));
-            prefundAmount += guaranteedPostOpCost;
+            // Use saturatingAdd to extend the logic discussed in {PaymasterERC20-_validatePaymasterUserOp}.
+            uint256 guaranteedPostOpCost = _erc20Cost(_guaranteedPostOpCost() * userOp.maxFeePerGas(), tokenPrice);
+            prefundAmount_ = prefundAmount_.saturatingAdd(guaranteedPostOpCost);
             prefunder_ = guarantor;
         }
-        (prefunded, prefundAmount, prefunder, prefundContext) = super._prefund(
+        (success, prefunder, prefundAmount, prefundContext) = super._prefund(
             userOp,
             userOpHash,
             token,
             tokenPrice,
             prefunder_,
-            prefundAmount
+            prefundAmount_
         );
         if (prefunder == guarantor) {
             emit UserOperationGuaranteed(userOpHash, prefunder, prefundAmount);
         }
-        return (prefunded, prefundAmount, prefunder, abi.encodePacked(prefundContext, userOp.sender));
+        return (success, prefunder, prefundAmount_, abi.encodePacked(prefundContext, userOp.sender));
     }
 
     /**
@@ -86,37 +93,45 @@ abstract contract PaymasterERC20Guarantor is PaymasterERC20 {
      */
     function _refund(
         IERC20 token,
-        uint256 actualAmount,
         uint256 tokenPrice,
+        uint256 actualAmount,
         uint256 actualUserOpFeePerGas,
         address prefunder,
         uint256 prefundAmount,
         bytes calldata prefundContext
     ) internal virtual override returns (bool refunded, uint256 effectiveAmount) {
-        effectiveAmount = actualAmount;
+        // If the prefunder is not the userOp sender, it means the operation is guaranteed
+        // In that case we:
+        // 1. update the actualAmount to include the extra postOp cost.
+        // 2. register that updated amount as the effective cost of the operation (for event logs).
+        // 3. try to pull the actualAmount from the userOp sender.
+        // 4. update the actualAmount for the computation of the guarantor refund.
         address userOpSender = address(bytes20(prefundContext[prefundContext.length - 20:]));
 
         if (prefunder != userOpSender) {
-            uint256 guaranteedPostOpAmount;
-            (
-                refunded, // Use variable as "success" to avoid stack too deep
-                guaranteedPostOpAmount
-            ) = _erc20Cost(
-                    // Multiplication should never panic with overflow in any reachable EntryPoint flow with a reasonable _guaranteedPostOpCost
-                    _guaranteedPostOpCost() * actualUserOpFeePerGas,
-                    tokenPrice
-                );
-            effectiveAmount += guaranteedPostOpAmount;
+            // If the values used here are able to cause that _erc20Cost math to fail (and return 0), than the same
+            // failure must have already happened in the _prefund phase, causing the whole userOp to fail before even
+            // reaching this point.
+            uint256 guaranteedPostOpAmount = _erc20Cost(
+                // Multiplication should never panic with overflow in any reachable EntryPoint flow with a reasonable _guaranteedPostOpCost
+                _guaranteedPostOpCost() * actualUserOpFeePerGas,
+                tokenPrice
+            );
+            actualAmount += guaranteedPostOpAmount;
+            effectiveAmount = actualAmount;
+
             // The paymaster gets the funds first, so in case of a failure, the guarantor absorbs the cost.
-            actualAmount = refunded && token.trySafeTransferFrom(userOpSender, address(this), effectiveAmount)
-                ? 0 // Paid back by the user
-                : effectiveAmount;
+            if (token.trySafeTransferFrom(userOpSender, address(this), actualAmount)) {
+                actualAmount = 0;
+            }
+        } else {
+            effectiveAmount = actualAmount;
         }
 
         (refunded, ) = super._refund(
             token,
-            actualAmount,
             tokenPrice,
+            actualAmount,
             actualUserOpFeePerGas,
             prefunder,
             prefundAmount,

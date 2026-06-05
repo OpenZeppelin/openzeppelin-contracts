@@ -91,6 +91,7 @@ abstract contract PaymasterERC20 is Paymaster {
     ) internal virtual override returns (bytes memory context, uint256 validationData) {
         IERC20 token;
         uint256 tokenPrice;
+        address userOpSender = userOp.sender;
         (validationData, token, tokenPrice) = _fetchDetails(userOp, userOpHash);
 
         if (
@@ -98,24 +99,20 @@ abstract contract PaymasterERC20 is Paymaster {
             tokenPrice < _minTokenPrice()
         ) return (bytes(""), ERC4337Utils.SIG_VALIDATION_FAILED);
 
-        uint256 maxFeePerGas = userOp.maxFeePerGas();
-        (bool success, uint256 prefundAmount) = _erc20Cost(maxCost + _postOpCost() * maxFeePerGas, tokenPrice);
-        if (!success) return (bytes(""), ERC4337Utils.SIG_VALIDATION_FAILED);
-        address userOpSender = userOp.sender;
-        bool prefunded;
-        address prefunder;
-        bytes memory prefundContext;
-        (prefunded, prefundAmount, prefunder, prefundContext) = _prefund(
+        // If the _erc20Cost math fails, the returned values will be type(uint256).max, which we will never be able
+        // to charge as a prefund. The `trySafeTransferFrom` in the `_prefund` will fail, causing success to be false.
+        uint256 maxTokenCost = _erc20Cost(maxCost + _postOpCost() * userOp.maxFeePerGas(), tokenPrice);
+        (bool success, address prefunder, uint256 prefundAmount, bytes memory prefundContext) = _prefund(
             userOp,
             userOpHash,
             token,
             tokenPrice,
             userOpSender,
-            prefundAmount
+            maxTokenCost
         );
 
         return
-            prefunded
+            success
                 ? (
                     abi.encodePacked(userOpHash, token, tokenPrice, prefundAmount, prefunder, prefundContext),
                     validationData
@@ -143,8 +140,8 @@ abstract contract PaymasterERC20 is Paymaster {
         uint256 /* tokenPrice */,
         address prefunder_,
         uint256 prefundAmount_
-    ) internal virtual returns (bool prefunded, uint256 prefundAmount, address prefunder, bytes memory prefundContext) {
-        return (token.trySafeTransferFrom(prefunder_, address(this), prefundAmount_), prefundAmount_, prefunder_, "");
+    ) internal virtual returns (bool success, address prefunder, uint256 prefundAmount, bytes memory prefundContext) {
+        return (token.trySafeTransferFrom(prefunder_, address(this), prefundAmount_), prefunder_, prefundAmount_, "");
     }
 
     /**
@@ -169,23 +166,19 @@ abstract contract PaymasterERC20 is Paymaster {
         address prefunder = address(bytes20(context[0x74:0x88]));
         bytes calldata prefundContext = context[0x88:];
 
-        (bool success, uint256 actualAmount) = _erc20Cost(
-            actualGasCost + _postOpCost() * actualUserOpFeePerGas,
-            tokenPrice
-        );
-        if (!success) revert PaymasterERC20FailedRefund(token, prefundAmount, actualAmount, prefundContext);
-
-        bool refunded;
-        (refunded, actualAmount) = _refund(
+        // If the _erc20Cost math fails, the returned values will be type(uint256).max, which we will never be able
+        // to charge as a refund. The `trySafeTransferFrom` in the `_refund` will fail, causing success to be false.
+        uint256 actualTokenCost = _erc20Cost(actualGasCost + _postOpCost() * actualUserOpFeePerGas, tokenPrice);
+        (bool success, uint256 actualAmount) = _refund(
             token,
-            actualAmount,
             tokenPrice,
+            actualTokenCost,
             actualUserOpFeePerGas,
             prefunder,
             prefundAmount,
             prefundContext
         );
-        if (!refunded) revert PaymasterERC20FailedRefund(token, prefundAmount, actualAmount, prefundContext);
+        if (!success) revert PaymasterERC20FailedRefund(token, prefundAmount, actualAmount, prefundContext);
 
         emit UserOperationSponsored(userOpHash, address(token), actualAmount, tokenPrice);
     }
@@ -204,13 +197,13 @@ abstract contract PaymasterERC20 is Paymaster {
      */
     function _refund(
         IERC20 token,
-        uint256 actualAmount_,
         uint256 /* tokenPrice */,
+        uint256 actualAmount_,
         uint256 /* actualUserOpFeePerGas */,
         address prefunder,
         uint256 prefundAmount,
         bytes calldata /* prefundContext */
-    ) internal virtual returns (bool refunded, uint256 actualAmount) {
+    ) internal virtual returns (bool success, uint256 actualAmount) {
         // Under ERC-4337 EntryPoint, `actualGasCost <= maxCost` and `actualUserOpFeePerGas <= maxFeePerGas`,
         // so `actualAmount_ <= prefundAmount` holds.
         return (token.trySafeTransfer(prefunder, prefundAmount - actualAmount_), actualAmount_);
@@ -270,14 +263,15 @@ abstract contract PaymasterERC20 is Paymaster {
      */
     function _minTokenPrice() internal view virtual returns (uint256);
 
-    /// @dev Calculates native currency cost to ERC-20 token cost.
-    function _erc20Cost(
-        uint256 nativeCost,
-        uint256 tokenPrice
-    ) internal view virtual returns (bool success, uint256 value) {
+    /**
+     * @dev Calculates native currency cost to ERC-20 token cost.
+     *
+     * Returns type(uint256).max if computation overflows.
+     */
+    function _erc20Cost(uint256 nativeCost, uint256 tokenPrice) internal view virtual returns (uint256) {
         uint256 denominator = _tokenPriceDenominator();
         (uint256 high, ) = nativeCost.mul512(tokenPrice);
-        return high < denominator ? (true, nativeCost.mulDiv(tokenPrice, denominator)) : (false, 0);
+        return high < denominator ? nativeCost.mulDiv(tokenPrice, denominator) : type(uint256).max;
     }
 
     /// @dev Internal function that allows the withdrawer to extract ERC-20 tokens resulting from gas payments.
