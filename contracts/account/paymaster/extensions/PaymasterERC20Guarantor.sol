@@ -100,23 +100,19 @@ abstract contract PaymasterERC20Guarantor is PaymasterERC20 {
         uint256 prefundAmount,
         bytes calldata prefundContext
     ) internal virtual override returns (bool refunded, uint256 effectiveAmount) {
+        address userOpSender = address(bytes20(prefundContext[prefundContext.length - 20:]));
+
         // If the prefunder is not the userOp sender, it means the operation is guaranteed
         // In that case we:
         // 1. update the actualAmount to include the extra postOp cost.
         // 2. register that updated amount as the effective cost of the operation (for event logs).
         // 3. try to pull the actualAmount from the userOp sender.
         // 4. update the actualAmount for the computation of the guarantor refund.
-        address userOpSender = address(bytes20(prefundContext[prefundContext.length - 20:]));
-
         if (prefunder != userOpSender) {
-            // If the values used here are able to cause that _erc20Cost math to fail (and return 0), than the same
-            // failure must have already happened in the _prefund phase, causing the whole userOp to fail before even
-            // reaching this point.
-            uint256 guaranteedPostOpAmount = _erc20Cost(
-                // Multiplication should never panic with overflow in any reachable EntryPoint flow with a reasonable _guaranteedPostOpCost
-                _guaranteedPostOpCost() * actualUserOpFeePerGas,
-                tokenPrice
-            );
+            // If the values used here are able to cause that _erc20Cost math to fail (and return 2²⁵⁶-1), than the
+            // same failure must have already happened in the _prefund phase, causing the whole userOp to fail before
+            // even reaching this point.
+            uint256 guaranteedPostOpAmount = _erc20Cost(_guaranteedPostOpCost() * actualUserOpFeePerGas, tokenPrice);
             actualAmount += guaranteedPostOpAmount;
             effectiveAmount = actualAmount;
 
