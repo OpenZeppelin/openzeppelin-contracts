@@ -99,7 +99,7 @@ abstract contract PaymasterERC20 is Paymaster {
             tokenPrice < _minTokenPrice()
         ) return (bytes(""), ERC4337Utils.SIG_VALIDATION_FAILED);
 
-        // If the _erc20Cost math fails, the returned values will be type(uint256).max, which we will never be able
+        // If the _erc20Cost math fails, the returned value will be type(uint256).max, which we will never be able
         // to charge as a prefund. The `trySafeTransferFrom` in the `_prefund` will fail, causing success to be false.
         uint256 maxTokenCost = _erc20Cost(maxCost + _postOpCost() * userOp.maxFeePerGas(), tokenPrice);
         (bool success, address prefunder, uint256 prefundAmount, bytes memory prefundContext) = _prefund(
@@ -126,7 +126,7 @@ abstract contract PaymasterERC20 is Paymaster {
      * The base implementation pulls exactly the requested `prefundAmount`. Extensions may inflate the amount
      * (e.g. a guarantor adds the cost of the extra postOp work it performs) and must return the effective value.
      *
-     * Returns `(prefunded, effectivePrefundAmount, prefunder, prefundContext)`. `prefundContext` is forwarded to
+     * Returns `(success, prefunder, effectivePrefundAmount, prefundContext)`. `prefundContext` is forwarded to
      * {_postOp} through its `context` argument and may be used by overrides to carry data into {_refund}.
      *
      * NOTE: Consider not reverting if the prefund fails when overriding this function. This is to avoid reverting
@@ -166,7 +166,7 @@ abstract contract PaymasterERC20 is Paymaster {
         address prefunder = address(bytes20(context[0x74:0x88]));
         bytes calldata prefundContext = context[0x88:];
 
-        // If the _erc20Cost math fails, the returned values will be type(uint256).max, which we will never be able
+        // If the _erc20Cost math fails, the returned value will be type(uint256).max, which we will never be able
         // to charge as a refund. The `trySafeTransferFrom` in the `_refund` will fail, causing success to be false.
         uint256 actualTokenCost = _erc20Cost(actualGasCost + _postOpCost() * actualUserOpFeePerGas, tokenPrice);
         (bool success, uint256 actualAmount) = _refund(

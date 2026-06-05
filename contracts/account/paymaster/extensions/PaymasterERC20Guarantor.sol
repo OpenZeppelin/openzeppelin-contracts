@@ -59,10 +59,11 @@ abstract contract PaymasterERC20Guarantor is PaymasterERC20 {
         address guarantor = _fetchGuarantor(userOp);
         bool isGuaranteed = guarantor != address(0);
 
-        // If the is a guarantor, add more funds to cover the extra postOp cost
+        // If there is a guarantor, add more funds to cover the extra postOp cost
         // and set the guarantor as the prefunder.
         if (isGuaranteed) {
-            // Use saturatingAdd to extend the logic discussed in {PaymasterERC20-_validatePaymasterUserOp}.
+            // `_erc20Cost` may return `type(uint256).max` as an overflow sentinel. `saturatingAdd` preserves it
+            // so the bad value reaches `trySafeTransferFrom` and fails there, instead of reverting here.
             uint256 guaranteedPostOpCost = _erc20Cost(_guaranteedPostOpCost() * userOp.maxFeePerGas(), tokenPrice);
             prefundAmount_ = prefundAmount_.saturatingAdd(guaranteedPostOpCost);
             prefunder_ = guarantor;
@@ -107,11 +108,12 @@ abstract contract PaymasterERC20Guarantor is PaymasterERC20 {
         // 1. update the actualAmount to include the extra postOp cost.
         // 2. register that updated amount as the effective cost of the operation (for event logs).
         // 3. try to pull the actualAmount from the userOp sender.
-        // 4. update the actualAmount for the computation of the guarantor refund.
+        // 4. on success, zero out the actualAmount so super refunds the guarantor in full;
+        //    on failure, leave it so super deducts it and the guarantor absorbs the cost.
         if (prefunder != userOpSender) {
-            // If the values used here are able to cause that _erc20Cost math to fail (and return 2²⁵⁶-1), than the
-            // same failure must have already happened in the _prefund phase, causing the whole userOp to fail before
-            // even reaching this point.
+            // If the values used here are able to cause that _erc20Cost math to fail (and return type(uint256).max),
+            // then the same failure must have already happened in the _prefund phase, causing the whole userOp to
+            // fail before even reaching this point.
             uint256 guaranteedPostOpAmount = _erc20Cost(_guaranteedPostOpCost() * actualUserOpFeePerGas, tokenPrice);
             actualAmount += guaranteedPostOpAmount;
             effectiveAmount = actualAmount;
@@ -145,7 +147,7 @@ abstract contract PaymasterERC20Guarantor is PaymasterERC20 {
      */
     function _fetchGuarantor(PackedUserOperation calldata userOp) internal view virtual returns (address guarantor);
 
-    /// @dev Over-estimates the cost of the post-operation logic. Added on top of guaranteed userOps post-operation cost.
+    /// @dev Over-estimates the cost of the post-operation logic. Added on top of {PaymasterERC20-_postOpCost} for guaranteed userOps.
     function _guaranteedPostOpCost() internal view virtual returns (uint256) {
         return 15_000;
     }
