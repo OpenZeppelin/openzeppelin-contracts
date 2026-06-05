@@ -11,6 +11,11 @@ import {Paymaster} from "../Paymaster.sol";
  *
  * This paymaster will sponsor user operations if the user has at least 1 token of the token specified
  * during construction (or via {_setToken}).
+ *
+ * NOTE: {_validatePaymasterUserOp} reads `token.balanceOf` during the validation phase, accessing storage in
+ * an external contract. ERC-7562 restricts unstaked paymasters from such accesses, and public mempool bundlers
+ * will reject these operations when the token contract is proxied or upgradeable. Stake the paymaster
+ * (see {Paymaster-_addStake}) when deploying against a public mempool.
  */
 abstract contract PaymasterERC721Owner is Paymaster {
     IERC721 private _token;

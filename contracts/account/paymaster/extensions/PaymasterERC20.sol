@@ -27,6 +27,10 @@ import {Paymaster} from "../Paymaster.sol";
  *
  * NOTE: Developers MUST override {_minTokenPrice} to explicitly set a floor on the token price.
  *
+ * NOTE: {_prefund} performs a `transferFrom` during the validation phase, writing to the token contract's storage.
+ * ERC-7562 restricts unstaked paymasters from such accesses, and public mempool bundlers will reject these operations.
+ * Stake the paymaster (see {Paymaster-_addStake}) when deploying against a public mempool.
+ *
  * [IMPORTANT]
  * ====
  * The {_withdrawTokens} function is `internal` so that developers can expose it under the public interface and
