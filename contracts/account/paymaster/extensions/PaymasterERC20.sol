@@ -251,22 +251,34 @@ abstract contract PaymasterERC20 is Paymaster {
     /**
      * @dev Lower bound on `tokenPrice` (see {_fetchDetails} for units). Operations whose `tokenPrice`
      * is strictly below this value are rejected with `SIG_VALIDATION_FAILED` before {_prefund} runs.
-     * Returning `0` disables the check.
      *
-     * Example override for a USDC (6 decimals) paymaster refusing to sponsor below ETH = $100:
+     * To pick a value, decide:
+     *
+     * * `minCharge`: smallest token amount you want to bill per op (e.g. `0.01 USDC = 10_000` units).
+     * * `minGasCost`: smallest `actualGasCost + _postOpCost() * actualUserOpFeePerGas` you expect, in wei
+     *   (= `minGas * minFeePerGas`; `minFeePerGas` can be as low as 1 wei on some L2s).
+     *
+     * Then set `_minTokenPrice() >= minCharge * _tokenPriceDenominator() / minGasCost`.
+     *
+     * Example: a USDC (6 decimals) paymaster on a chain with `minFeePerGas = 1 gwei`, sponsoring
+     * ops of at least 100_000 gas and charging at least 0.01 USDC per op:
      *
      * ```solidity
      * function _minTokenPrice() internal view override returns (uint256) {
-     *     return 100e6; // = 100 USDC/ETH * 10**6 USDC-units (1e18 denom cancels 1e18 wei/ETH)
+     *     return 200e6; // = 1e4 (0.01 USDC) * 1e18 / 1e14 (100_000 gas * 1 gwei) = 100 USDC/ETH
      * }
      * ```
+     *
+     * WARNING: Setting `_minTokenPrice()` below `minCharge * _tokenPriceDenominator() / minGasCost`
+     * lets {_erc20Cost} round to zero or to dust for the cheapest ops the paymaster accepts,
+     * sponsoring them at a low (or zero) price.
      */
     function _minTokenPrice() internal view virtual returns (uint256);
 
     /**
      * @dev Calculates native currency cost to ERC-20 token cost.
      *
-     * Returns type(uint256).max if computation overflows.
+     * Returns `type(uint256).max` if computation overflows.
      */
     function _erc20Cost(uint256 nativeCost, uint256 tokenPrice) internal view virtual returns (uint256) {
         uint256 denominator = _tokenPriceDenominator();
