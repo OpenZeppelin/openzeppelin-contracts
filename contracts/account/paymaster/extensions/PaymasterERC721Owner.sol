@@ -10,7 +10,7 @@ import {Paymaster} from "../Paymaster.sol";
  * @dev Extension of {Paymaster} that supports account based on ownership of an ERC-721 token.
  *
  * This paymaster will sponsor user operations if the user has at least 1 token of the token specified
- * during construction (or via {_setToken}).
+ * during construction.
  *
  * NOTE: {_validatePaymasterUserOp} reads `token.balanceOf` during the validation phase, accessing storage in
  * an external contract. ERC-7562 restricts unstaked paymasters from such accesses, and public mempool bundlers
@@ -18,24 +18,15 @@ import {Paymaster} from "../Paymaster.sol";
  * (see {Paymaster-_addStake}) when deploying against a public mempool.
  */
 abstract contract PaymasterERC721Owner is Paymaster {
-    IERC721 private _token;
-
-    /// @dev Emitted when the paymaster token is set.
-    event PaymasterERC721OwnerTokenSet(IERC721 token);
+    IERC721 private immutable _token;
 
     constructor(IERC721 token_) {
-        _setToken(token_);
+        _token = token_;
     }
 
     /// @dev ERC-721 token used to validate the user operation.
     function token() public virtual returns (IERC721) {
         return _token;
-    }
-
-    /// @dev Sets the ERC-721 token used to validate the user operation.
-    function _setToken(IERC721 token_) internal virtual {
-        _token = token_;
-        emit PaymasterERC721OwnerTokenSet(token_);
     }
 
     /**
