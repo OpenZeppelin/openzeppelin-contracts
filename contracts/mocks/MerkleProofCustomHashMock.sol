@@ -12,19 +12,19 @@ abstract contract MerkleProofCustomHashMock {
     }
 
     function verify(bytes32[] calldata proof, bytes32 root, bytes32 leaf) internal view returns (bool) {
-        return MerkleProof.verify(proof, root, leaf, customHash);
+        return MerkleProof.verify(proof, root, leaf, hash);
     }
 
     function processProof(bytes32[] calldata proof, bytes32 leaf) internal view returns (bytes32) {
-        return MerkleProof.processProof(proof, leaf, customHash);
+        return MerkleProof.processProof(proof, leaf, hash);
     }
 
     function verifyCalldata(bytes32[] calldata proof, bytes32 root, bytes32 leaf) internal view returns (bool) {
-        return MerkleProof.verifyCalldata(proof, root, leaf, customHash);
+        return MerkleProof.verifyCalldata(proof, root, leaf, hash);
     }
 
     function processProofCalldata(bytes32[] calldata proof, bytes32 leaf) internal view returns (bytes32) {
-        return MerkleProof.processProofCalldata(proof, leaf, customHash);
+        return MerkleProof.processProofCalldata(proof, leaf, hash);
     }
 
     function multiProofVerify(
@@ -33,7 +33,7 @@ abstract contract MerkleProofCustomHashMock {
         bytes32 root,
         bytes32[] calldata leaves
     ) internal view returns (bool) {
-        return MerkleProof.multiProofVerify(proof, proofFlags, root, leaves, customHash);
+        return MerkleProof.multiProofVerify(proof, proofFlags, root, leaves, hash);
     }
 
     function processMultiProof(
@@ -41,7 +41,7 @@ abstract contract MerkleProofCustomHashMock {
         bool[] calldata proofFlags,
         bytes32[] calldata leaves
     ) internal view returns (bytes32) {
-        return MerkleProof.processMultiProof(proof, proofFlags, leaves, customHash);
+        return MerkleProof.processMultiProof(proof, proofFlags, leaves, hash);
     }
 
     function multiProofVerifyCalldata(
@@ -50,7 +50,7 @@ abstract contract MerkleProofCustomHashMock {
         bytes32 root,
         bytes32[] calldata leaves
     ) internal view returns (bool) {
-        return MerkleProof.multiProofVerifyCalldata(proof, proofFlags, root, leaves, customHash);
+        return MerkleProof.multiProofVerifyCalldata(proof, proofFlags, root, leaves, hash);
     }
 
     function processMultiProofCalldata(
@@ -58,7 +58,7 @@ abstract contract MerkleProofCustomHashMock {
         bool[] calldata proofFlags,
         bytes32[] calldata leaves
     ) internal view returns (bytes32) {
-        return MerkleProof.processMultiProofCalldata(proof, proofFlags, leaves, customHash);
+        return MerkleProof.processMultiProofCalldata(proof, proofFlags, leaves, hash);
     }
 }
 
