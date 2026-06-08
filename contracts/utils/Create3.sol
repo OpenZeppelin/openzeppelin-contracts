@@ -34,7 +34,7 @@ library Create3 {
      * 0x06   | 34          | CALLVALUE        | value 0 cds     | [0..cds): calldata
      * 0x07   | f0          | CREATE           | addr            | [0..cds): calldata
      * 0x08   | 6012        | PUSH1 0x12       | 0x12 addr       |
-     * 0x0A   | 56          | JUMPI            |                 |
+     * 0x0A   | 57          | JUMPI            |                 |
      * 0x0B   | 3D          | RETURNDATASIZE   | rds             |
      * 0x0C   | 5F          | PUSH0            | 0 rds           |
      * 0x0D   | 5F          | PUSH0            | 0 0 rds         |
