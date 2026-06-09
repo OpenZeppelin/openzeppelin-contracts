@@ -77,6 +77,9 @@ export default defineConfig({
       },
     },
   },
+  coverage: {
+    skipFiles: ['contracts/mocks/**', 'contracts-exposed/**', 'lib/**'],
+  },
   warnings: {
     'npm/**/*': 'off',
     'test/**/*': 'off',
