@@ -98,7 +98,7 @@ jobs:
         uses: ./.github/actions/setup
       - name: Run coverage
         run: npm run coverage
-      - uses: codecov/codecov-action@v6
+      - uses: codecov/codecov-action@v7
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
