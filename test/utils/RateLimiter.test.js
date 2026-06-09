@@ -28,7 +28,7 @@ const wrap = (mock, type) => ({
   consume: (q, k = defaultKey) => mock.getFunction(`$consume_RateLimiter_${type}`)(0n, k, q),
   reset: (k = defaultKey) => mock.getFunction(`$reset_RateLimiter_${type}`)(0n, k),
   updateSettings: (window, capacity) => mock.getFunction(`$updateSettings_RateLimiter_${type}`)(0n, window, capacity),
-  refresh: type == 'RefillingBucket' ? (k = defaultKey) => mock.$refresh(0n, k) : undefined,
+  sync: type == 'RefillingBucket' ? (k = defaultKey) => mock.$sync(0n, k) : undefined,
 });
 
 describe('RateLimiter', function () {
@@ -255,7 +255,7 @@ describe('RateLimiter', function () {
         await expect(this.mock.available()).to.eventually.equal(CAPACITY + (d1 + d2) * newRefillPerSecond);
       });
 
-      it('using  refresh to mitigate updateSettings side effect', async function () {
+      it('using  sync to mitigate updateSettings side effect', async function () {
         const d1 = 3n;
         const d2 = 4n;
         const newRefillPerSecond = (2n * CAPACITY) / WINDOW;
@@ -264,7 +264,7 @@ describe('RateLimiter', function () {
         await this.mock.consume(CAPACITY);
 
         await time.increaseBy.timestamp(d1, false);
-        await batchInBlock([() => this.mock.refresh(), () => this.mock.updateSettings(WINDOW, CAPACITY * 2n)]);
+        await batchInBlock([() => this.mock.sync(), () => this.mock.updateSettings(WINDOW, CAPACITY * 2n)]);
         await time.increaseBy.timestamp(d2);
 
         await expect(this.mock.state()).to.eventually.deep.equal([
