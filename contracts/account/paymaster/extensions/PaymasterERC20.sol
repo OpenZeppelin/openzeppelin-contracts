@@ -16,7 +16,7 @@ import {Paymaster} from "../Paymaster.sol";
  * function _fetchDetails(
  *     PackedUserOperation calldata userOp,
  *     bytes32 userOpHash
- * ) internal view override returns (uint256 validationData, IERC20 token, uint256 tokenPrice) {
+ * ) internal view override returns (uint256 validationData, IERC20 token, uint256 tokenPerEth) {
  *     // Implement logic to fetch the token, and token price from the userOp
  * }
  * ```
@@ -24,8 +24,6 @@ import {Paymaster} from "../Paymaster.sol";
  * The contract follows a pre-charge and refund model:
  * 1. During validation, it pre-charges the maximum possible gas cost
  * 2. After execution, it refunds any unused gas back to the user
- *
- * NOTE: Developers MUST override {_minTokenPrice} to explicitly set a floor on the token price.
  *
  * NOTE: {_prefund} performs a `transferFrom` during the validation phase, writing to the token contract's storage.
  * ERC-7562 restricts unstaked paymasters from such accesses, and public mempool bundlers will reject these operations.
@@ -64,13 +62,13 @@ abstract contract PaymasterERC20 is Paymaster {
     /**
      * @dev Emitted when a user operation identified by `userOpHash` is sponsored by this paymaster
      * using the specified ERC-20 `token`. The `tokenAmount` is the amount charged for the operation,
-     * and `tokenPrice` is the price of the token in native currency (e.g., ETH).
+     * and `tokenPerEth` is the valuation of the token in units of token per native currency (e.g., ETH).
      */
     event UserOperationSponsored(
         bytes32 indexed userOpHash,
         address indexed token,
         uint256 tokenAmount,
-        uint256 tokenPrice
+        uint256 tokenPerEth
     );
 
     /**
@@ -82,10 +80,10 @@ abstract contract PaymasterERC20 is Paymaster {
     /**
      * @dev See {Paymaster-_validatePaymasterUserOp}.
      *
-     * Attempts to retrieve the `token` and `tokenPrice` from the user operation (see {_fetchDetails})
+     * Attempts to retrieve the `token` and `tokenPerEth` from the user operation (see {_fetchDetails})
      * and prefund the user operation using these values and the `maxCost` argument (see {_prefund}).
      *
-     * Returns `abi.encodePacked(userOpHash, token, tokenPrice, prefundAmount, prefunder, prefundContext)` in
+     * Returns `abi.encodePacked(userOpHash, token, tokenPerEth, prefundAmount, prefunder, prefundContext)` in
      * `context` if the prefund is successful. Otherwise, it returns empty bytes.
      */
     function _validatePaymasterUserOp(
@@ -94,23 +92,23 @@ abstract contract PaymasterERC20 is Paymaster {
         uint256 maxCost
     ) internal virtual override returns (bytes memory context, uint256 validationData) {
         IERC20 token;
-        uint256 tokenPrice;
+        uint256 tokenPerEth;
         address userOpSender = userOp.sender;
-        (validationData, token, tokenPrice) = _fetchDetails(userOp, userOpHash);
+        (validationData, token, tokenPerEth) = _fetchDetails(userOp, userOpHash);
 
         if (
             address(uint160(validationData)) == address(uint160(ERC4337Utils.SIG_VALIDATION_FAILED)) ||
-            tokenPrice < _minTokenPrice()
+            tokenPerEth < _minTokensPerEth()
         ) return (bytes(""), ERC4337Utils.SIG_VALIDATION_FAILED);
 
         // If the _erc20Cost math fails, the returned value will be type(uint256).max, which we will never be able
         // to charge as a prefund. The `trySafeTransferFrom` in the `_prefund` will fail, causing success to be false.
-        uint256 maxTokenCost = _erc20Cost(maxCost + _postOpCost() * userOp.maxFeePerGas(), tokenPrice);
+        uint256 maxTokenCost = _erc20Cost(maxCost + _postOpCost() * userOp.maxFeePerGas(), tokenPerEth);
         (bool success, address prefunder, uint256 prefundAmount, bytes memory prefundContext) = _prefund(
             userOp,
             userOpHash,
             token,
-            tokenPrice,
+            tokenPerEth,
             userOpSender,
             maxTokenCost
         );
@@ -118,7 +116,7 @@ abstract contract PaymasterERC20 is Paymaster {
         return
             success
                 ? (
-                    abi.encodePacked(userOpHash, token, tokenPrice, prefundAmount, prefunder, prefundContext),
+                    abi.encodePacked(userOpHash, token, tokenPerEth, prefundAmount, prefunder, prefundContext),
                     validationData
                 )
                 : (bytes(""), ERC4337Utils.SIG_VALIDATION_FAILED);
@@ -141,7 +139,7 @@ abstract contract PaymasterERC20 is Paymaster {
         PackedUserOperation calldata /* userOp */,
         bytes32 /* userOpHash */,
         IERC20 token,
-        uint256 /* tokenPrice */,
+        uint256 /* tokenPerEth */,
         address prefunder_,
         uint256 prefundAmount_
     ) internal virtual returns (bool success, address prefunder, uint256 prefundAmount, bytes memory prefundContext) {
@@ -165,17 +163,17 @@ abstract contract PaymasterERC20 is Paymaster {
     ) internal virtual override {
         bytes32 userOpHash = bytes32(context[0x00:0x20]);
         IERC20 token = IERC20(address(bytes20(context[0x20:0x34])));
-        uint256 tokenPrice = uint256(bytes32(context[0x34:0x54]));
+        uint256 tokenPerEth = uint256(bytes32(context[0x34:0x54]));
         uint256 prefundAmount = uint256(bytes32(context[0x54:0x74]));
         address prefunder = address(bytes20(context[0x74:0x88]));
         bytes calldata prefundContext = context[0x88:];
 
         // If the _erc20Cost math fails, the returned value will be type(uint256).max, which we will never be able
         // to charge as a refund. The `trySafeTransferFrom` in the `_refund` will fail, causing success to be false.
-        uint256 actualTokenCost = _erc20Cost(actualGasCost + _postOpCost() * actualUserOpFeePerGas, tokenPrice);
+        uint256 actualTokenCost = _erc20Cost(actualGasCost + _postOpCost() * actualUserOpFeePerGas, tokenPerEth);
         (bool success, uint256 actualAmount) = _refund(
             token,
-            tokenPrice,
+            tokenPerEth,
             actualTokenCost,
             actualUserOpFeePerGas,
             prefunder,
@@ -184,7 +182,7 @@ abstract contract PaymasterERC20 is Paymaster {
         );
         if (!success) revert PaymasterERC20FailedRefund(token, prefundAmount, actualAmount, prefundContext);
 
-        emit UserOperationSponsored(userOpHash, address(token), actualAmount, tokenPrice);
+        emit UserOperationSponsored(userOpHash, address(token), actualAmount, tokenPerEth);
     }
 
     /**
@@ -201,7 +199,7 @@ abstract contract PaymasterERC20 is Paymaster {
      */
     function _refund(
         IERC20 token,
-        uint256 /* tokenPrice */,
+        uint256 /* tokenPerEth */,
         uint256 actualAmount_,
         uint256 /* actualUserOpFeePerGas */,
         address prefunder,
@@ -220,40 +218,45 @@ abstract contract PaymasterERC20 is Paymaster {
      *
      * * `validationData`: ERC-4337 validation data, indicating success/failure and optional time validity (`validAfter`, `validUntil`).
      * * `token`: Address of the ERC-20 token used for payment to the paymaster.
-     * * `tokenPrice`: Token units charged per wei of gas, scaled by `_tokenPriceDenominator()`.
+     * * `tokenPerEth`: Token units charged per unit of native currency. This is scaled by `_tokenPerEthDenominator()`
+     *    which defaults to 1e18 (wei per eth), making it effectively a number of token units per eth, and not per wei.
      *
      * ==== Calculating the token price
      *
-     * `tokenPrice` is the multiplier {_erc20Cost} applies to a native-currency gas cost to produce a token amount:
-     * `tokenAmount = (nativeCost * tokenPrice) / _tokenPriceDenominator()`. Its units are therefore
-     * `(token units / wei) * _tokenPriceDenominator()`.
+     * `tokenPerEth` is the multiplier {_erc20Cost} applies to a native-currency gas cost to produce a token amount:
+     * `tokenAmount = (nativeCost * tokenPerEth) / _tokenPerEthDenominator()`. Each elements is denominated as follows:
      *
-     * For a token priced from USD oracles, derive `tokenPrice` from the inverse exchange rate:
+     * * `tokenAmount`: token units.
+     * * `nativeCost`: wei.
+     * * `tokenPerEth`: token units per eth.
+     * * `_tokenPerEthDenominator()`: eth per wei (by default).
      *
-     * `tokenPrice = (<Native token price in $> / 1e18) / (<ERC-20 token price in $> / 10**<ERC-20 decimals>) * _tokenPriceDenominator()`
+     * For a token priced from USD oracles, derive `tokenPerEth` from the inverse exchange rate:
+     *
+     * `tokenPerEth = (<Native token price in $> / 1e18) / (<ERC-20 token price in $> / 10**<ERC-20 decimals>) * _tokenPerEthDenominator()`
      *
      * For example, suppose the token is USDC ($1 with 6 decimals) and the native currency is ETH ($2524.86 with 18 decimals).
      * Then 1 wei of gas costs `(2524.86 / 1e18) / (1 / 1e6) = 2.52486e-12` USDC units, so with
-     * `_tokenPriceDenominator() = 1e18` we have `tokenPrice = 2_524_860` (i.e. `2.52486e-12 * 1e18`). Charging
+     * `_tokenPerEthDenominator() = 1e18` we have `tokenPerEth = 2_524_860` (i.e. `2.52486e-12 * 1e18`). Charging
      * `actualGasCost` wei yields `actualGasCost * 2_524_860 / 1e18` USDC units.
      */
     function _fetchDetails(
         PackedUserOperation calldata userOp,
         bytes32 userOpHash
-    ) internal view virtual returns (uint256 validationData, IERC20 token, uint256 tokenPrice);
+    ) internal view virtual returns (uint256 validationData, IERC20 token, uint256 tokenPerEth);
 
     /// @dev Over-estimates the cost of the post-operation logic.
     function _postOpCost() internal view virtual returns (uint256) {
         return 30_000;
     }
 
-    /// @dev Denominator used for interpreting the `tokenPrice` returned by {_fetchDetails} as "fixed point" in {_erc20Cost}.
-    function _tokenPriceDenominator() internal view virtual returns (uint256) {
+    /// @dev Denominator used for interpreting the `tokenPerEth` returned by {_fetchDetails} as "fixed point" in {_erc20Cost}.
+    function _tokenPerEthDenominator() internal view virtual returns (uint256) {
         return 1e18;
     }
 
     /**
-     * @dev Lower bound on `tokenPrice` (see {_fetchDetails} for units). Operations whose `tokenPrice`
+     * @dev Lower bound on `tokenPerEth` (see {_fetchDetails} for units). Operations whose `tokenPerEth`
      * is strictly below this value are rejected with `SIG_VALIDATION_FAILED` before {_prefund} runs.
      *
      * To pick a value, decide:
@@ -262,32 +265,34 @@ abstract contract PaymasterERC20 is Paymaster {
      * * `minGasCost`: smallest `actualGasCost + _postOpCost() * actualUserOpFeePerGas` you expect, in wei
      *   (= `minGas * minFeePerGas`; `minFeePerGas` can be as low as 1 wei on some L2s).
      *
-     * Then set `_minTokenPrice() >= minCharge * _tokenPriceDenominator() / minGasCost`.
+     * Then set `_minTokensPerEth() >= minCharge * _tokenPerEthDenominator() / minGasCost`.
      *
      * Example: a USDC (6 decimals) paymaster on a chain with `minFeePerGas = 1 gwei`, sponsoring
      * ops of at least 100_000 gas and charging at least 0.01 USDC per op:
      *
      * ```solidity
-     * function _minTokenPrice() internal view override returns (uint256) {
+     * function _minTokensPerEth() internal view override returns (uint256) {
      *     return 200e6; // = 1e4 (0.01 USDC) * 1e18 / 1e14 (100_000 gas * 1 gwei) = 100 USDC/ETH
      * }
      * ```
      *
-     * WARNING: Setting `_minTokenPrice()` below `minCharge * _tokenPriceDenominator() / minGasCost`
+     * WARNING: Setting `_minTokensPerEth()` below `minCharge * _tokenPerEthDenominator() / minGasCost`
      * lets {_erc20Cost} round to zero or to dust for the cheapest ops the paymaster accepts,
      * sponsoring them at a low (or zero) price.
      */
-    function _minTokenPrice() internal view virtual returns (uint256);
+    function _minTokensPerEth() internal view virtual returns (uint256) {
+        return 0;
+    }
 
     /**
      * @dev Calculates native currency cost to ERC-20 token cost.
      *
      * Returns `type(uint256).max` if computation overflows.
      */
-    function _erc20Cost(uint256 nativeCost, uint256 tokenPrice) internal view virtual returns (uint256) {
-        uint256 denominator = _tokenPriceDenominator();
-        (uint256 high, ) = nativeCost.mul512(tokenPrice);
-        return high < denominator ? nativeCost.mulDiv(tokenPrice, denominator) : type(uint256).max;
+    function _erc20Cost(uint256 nativeCost, uint256 tokenPerEth) internal view virtual returns (uint256) {
+        uint256 denominator = _tokenPerEthDenominator();
+        (uint256 high, ) = nativeCost.mul512(tokenPerEth);
+        return high < denominator ? nativeCost.mulDiv(tokenPerEth, denominator, Math.Rounding.Ceil) : type(uint256).max;
     }
 
     /// @dev Internal function that allows the withdrawer to extract ERC-20 tokens resulting from gas payments.
