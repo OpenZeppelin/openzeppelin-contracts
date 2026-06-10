@@ -51,8 +51,8 @@ If a lint rule already catches it, don't waste tokens explaining it — fix and 
 
 These apply to every change and are not lint-enforced:
 
-- **File header**: `// SPDX-License-Identifier: MIT` then `// OpenZeppelin Contracts (last updated vX.Y.Z) (relative/path.sol)`. Leave the version line alone unless the file's behavior actually changed in this PR.
-- **Pragma**: interfaces use `pragma solidity >=0.X.Y;` (permissive); implementations and libraries use `pragma solidity ^0.8.XX;`. Don't bump the floor casually — new versions introduce opcodes (`mcopy` in 0.8.24, etc.) that may not be supported on all target chains.
+- **File header version line**: don't add or edit the `// OpenZeppelin Contracts (last updated vX.Y.Z) (path)` line — release tooling (`scripts/release/update-comment.js`) maintains it automatically based on `git diff` between the previous tag and `HEAD`. The SPDX line is your only responsibility.
+- **Pragma**: don't pick the floor by hand. Run `npm run pragma` and let `scripts/minimize-pragma.js` walk the dependency graph, compile against every candidate `solc`, and write back the lowest version that works for each file (`>=` prefix for interfaces, `^` for implementations and libraries). Bumping the floor casually can introduce opcodes (`mcopy` in 0.8.24, etc.) not supported on all target chains — the script's output is the safe answer.
 - **Imports**: 100% named, curly-brace, relative paths within `contracts/`. No wildcards.
 - **Inheritance order is globally consistent**: if you change an `is A, B, C` list, run `npm run compile && npm run test:inheritance` before pushing.
 - **Changesets**: every PR that changes contract behavior needs one. Skip for NatSpec-only, internal refactors with no user-visible effect, or pure repo plumbing.

@@ -56,7 +56,7 @@ import { IERC20, IERC20Metadata } from '../../interfaces/IERC20.sol';
 File order:
 
 1. `// SPDX-License-Identifier: MIT`
-2. `// OpenZeppelin Contracts (last updated vX.Y.Z) (path/to/file.sol)` — only bump the version line when behavior actually changes.
+2. `// OpenZeppelin Contracts (last updated vX.Y.Z) (path/to/file.sol)` — **release-managed; do not add or edit by hand**. `scripts/release/update-comment.js` rewrites this line at release time based on which `contracts/**/*.sol` files changed since the previous tag. New files: write only the SPDX line; the release script appends the second line on first inclusion.
 3. `pragma solidity …`
 4. Imports
 5. Contract-level NatSpec
@@ -66,10 +66,17 @@ Inside the body: `using` → structs/enums → state vars → constants → erro
 
 ## Pragma
 
-- Interfaces: `pragma solidity >=0.X.Y;` (permissive for composability).
-- Implementations and libraries: `pragma solidity ^0.8.XX;`.
+Don't pick the pragma floor by hand. Run:
 
-Don't raise the floor without confirming the new opcodes are supported on all major target chains (`mcopy` from 0.8.24 is the example). The CI `test:pragma` check verifies the minimum pragma is honest about the opcodes the contract actually uses.
+```bash
+npm run pragma
+```
+
+`scripts/minimize-pragma.js` builds a dependency graph from compiled artifacts, compiles each file against every candidate `solc`, and writes back the lowest version that compiles for that file and is compatible with all of its dependents. The script picks the syntax for you (`>=` for interfaces, `^` for implementations and libraries) and respects the `minVersionForContracts` floor (default `0.8.20`).
+
+When adding a new file, start with the same pragma as a similar existing file in the same directory; the minimizer will tighten it on the next run. When editing a file, run the minimizer if you've used a feature that may have raised the floor.
+
+The CI `test:pragma` job (`npm run test:pragma`) verifies the floor is honest about the opcodes the contract emits. Raising the floor without checking opcode availability on target chains (`mcopy` from 0.8.24 is the example) is the failure mode this guards against.
 
 ## Assembly
 
