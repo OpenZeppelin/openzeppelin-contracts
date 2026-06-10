@@ -24,18 +24,24 @@ for (const artifact of artifacts) {
   const names = {};
   const linearized = [];
 
-  for (const source in solcOutput?.contracts ?? []) {
-    if (match.isMatch(source.replace(/^project/, ''), patterns)) {
-      for (const contractDef of findAll('ContractDefinition', solcOutput.sources[source].ast)) {
-        names[contractDef.id] = contractDef.name;
-        linearized.push(contractDef.linearizedBaseContracts);
+  // Rebuild solcOutput?.sources by removing the "project" prefix from the keys, so that we can match them against the patterns in package.json
+  const sources = Object.fromEntries(
+    Object.entries(solcOutput?.sources ?? {}).map(([key, value]) => [key.replace(/^project/, ''), value]),
+  );
 
-        contractDef.linearizedBaseContracts.forEach((c1, i, contracts) =>
-          contracts.slice(i + 1).forEach(c2 => {
-            graph.setEdge(c1, c2);
-          }),
-        );
-      }
+  // For each source file that matches the patterns ...
+  for (const file of match(Object.keys(sources), patterns)) {
+    // ... find all ContractDefinition in this file ...
+    for (const contractDef of findAll('ContractDefinition', sources[file].ast)) {
+      // ... record the details for that contracts ...
+      names[contractDef.id] = contractDef.name;
+      linearized.push(contractDef.linearizedBaseContracts);
+      // ... and add edges to the graph for each pair of contracts in the linearized base contracts.
+      contractDef.linearizedBaseContracts.forEach((c1, i, contracts) =>
+        contracts.slice(i + 1).forEach(c2 => {
+          graph.setEdge(c1, c2);
+        }),
+      );
     }
   }
 
