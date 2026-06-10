@@ -68,10 +68,10 @@ describe('VestingWalletRevocable', function () {
     const totalAllocation = (await ethers.provider.getBalance(this.mock)) + (await this.mock.released());
     const refund = totalAllocation - (await this.mock.vestedAmount(halfway));
 
-    await expect(() => this.mock.connect(this.revoker).revoke()).to.changeEtherBalances(
-      [this.mock, this.revoker],
-      [-refund, refund],
-    );
+    await expect(this.mock.connect(this.revoker).revoke())
+      .to.emit(this.mock, 'EtherRevoked')
+      .withArgs(refund)
+      .to.changeEtherBalances([this.mock, this.revoker], [-refund, refund]);
 
     await expect(this.mock.connect(this.revoker).revoke()).to.be.revertedWithCustomError(
       this.mock,
@@ -113,11 +113,10 @@ describe('VestingWalletRevocable', function () {
     await time.increaseTo.timestamp(halfway, false);
     const totalAllocation = (await this.token.balanceOf(this.mock)) + (await this.mock.released(token));
     const refund = totalAllocation - (await this.mock.vestedAmount(token, halfway));
-    await expect(() => this.mock.connect(this.revoker).revoke(token)).to.changeTokenBalances(
-      this.token,
-      [this.mock, this.revoker],
-      [-refund, refund],
-    );
+    await expect(this.mock.connect(this.revoker).revoke(token))
+      .to.emit(this.mock, 'ERC20Revoked')
+      .withArgs(token, refund)
+      .to.changeTokenBalances(this.token, [this.mock, this.revoker], [-refund, refund]);
 
     const releasableAtRevocation = await this.mock.releasable(token);
     await time.increaseTo.timestamp(this.start + this.duration);
