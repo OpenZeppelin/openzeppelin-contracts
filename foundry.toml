@@ -7,3 +7,7 @@ src = 'contracts'
 out = 'out'
 libs = ['node_modules', 'lib']
 cache_path  = 'cache_forge'
+
+[lint]
+exclude_lints = ["mixed-case-function", "asm-keccak256", "screaming-snake-case-immutable", "incorrect-shift", "mixed-case-variable"]
+ignore = ["./contracts/interfaces/**/*.sol"]
