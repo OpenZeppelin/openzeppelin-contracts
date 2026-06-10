@@ -42,18 +42,18 @@ library Create3 {
      * 0x0F   | 3D          | RETURNDATASIZE   | rds             | [0..rds): returndata
      * 0x10   | 5F          | PUSH0            | 0 rds           | [0..rds): returndata
      * 0x11   | FD          | REVERT           |                 |
-     * 0x12   | 5b          | JUMPDEST         | 0 rds           |
+     * 0x12   | 5b          | JUMPDEST         |                 |
      * 0x13   | 00          | STOP             |                 |
      *
      * ================================[ DEPLOYMENT CODE ]=================================
      * Offset | Opcode      | Mnemonic         | Stack           | Memory
      * -------|-------------|------------------|-----------------|-------------------------
      * 0x00   | 73 bytecode | PUSH20 bytecode  | bytecode        |
-     * 0x16   | 5F          | PUSH0            | 0 bytecode      |
-     * 0x17   | 52          | MSTORE           |                 | [0x0C..0x20): bytecode
-     * 0x18   | 6014        | PUSH1 0x14       | 0x14            | [0x0C..0x20): bytecode
-     * 0x1A   | 600C        | PUSH1 0x0C       | 0x0C 0x14       | [0x0C..0x20): bytecode
-     * 0x1C   | f3          | RETURN           |                 | [0x0C..0x20): bytecode
+     * 0x15   | 5F          | PUSH0            | 0 bytecode      |
+     * 0x16   | 52          | MSTORE           |                 | [0x0C..0x20): bytecode
+     * 0x17   | 6014        | PUSH1 0x14       | 0x14            | [0x0C..0x20): bytecode
+     * 0x19   | 600C        | PUSH1 0x0C       | 0x0C 0x14       | [0x0C..0x20): bytecode
+     * 0x1B   | f3          | RETURN           |                 | [0x0C..0x20): bytecode
      */
     /// @dev The proxy initialization code.
     bytes28 private constant PROXY_INITCODE = 0x73365f5f37365f34f06012573d5f5f3e3d5ffd5b005f526014600cf3;
