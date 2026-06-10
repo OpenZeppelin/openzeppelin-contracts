@@ -1,4 +1,5 @@
 ---
+"openzeppelin-solidity": patch
 ---
 
-No changelog entry needed for clarifying the ECDSA security notice.
+Clarify the ECDSA security notice around hashed inputs and signature ambiguity.
