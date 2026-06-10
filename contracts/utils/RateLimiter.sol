@@ -219,7 +219,12 @@ library RateLimiter {
     function tryConsume(SlidingWindow storage self, bytes32 key, uint256 quantity) internal returns (bool) {
         if (quantity == 0) {
             return true;
-        } else if (quantity <= available(self, key)) {
+        }
+        (uint256 used_, uint256 available_) = state(self, key);
+        if (used_ == 0) {
+            reset(self, key);
+        }
+        if (quantity <= available_) {
             self.items[key].push(Time.timestamp(), SafeCast.toUint208(self.items[key].latest() + quantity));
             return true;
         } else {
