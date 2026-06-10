@@ -247,6 +247,34 @@ describe('GovernorTimelockAccess', function () {
         await expect(this.helper.execute()).to.not.be.reverted;
       });
 
+      it('reverts on queue for proposals without delay', async function () {
+        const roleId = 1n;
+        const executionDelay = 0n;
+        const baseDelay = 0n;
+
+        await this.manager.connect(this.admin).setTargetFunctionRole(this.receiver, [this.restricted.selector], roleId);
+        await this.manager.connect(this.admin).grantRole(roleId, this.mock, executionDelay);
+        await this.mock.$_setBaseDelaySeconds(baseDelay);
+
+        const { id } = await this.helper.setProposal([this.restricted.operation], 'descr');
+        await this.helper.propose();
+        expect(await this.mock.proposalNeedsQueuing(id)).to.be.false;
+
+        await this.helper.waitForSnapshot();
+        await this.helper.connect(this.voter1).vote({ support: VoteType.For });
+        await this.helper.waitForDeadline();
+
+        // Anyone calling queue on a delay-0 proposal must be rejected. Otherwise the proposal
+        // would transition to `Queued`, which `execute` no longer accepts when `proposalNeedsQueuing` is false.
+        await expect(this.helper.connect(this.other).queue()).to.be.revertedWithCustomError(
+          this.mock,
+          'GovernorQueueNotImplemented',
+        );
+
+        // Proposal remains executable
+        await expect(this.helper.execute()).to.not.be.reverted;
+      });
+
       it('does need to queue proposals with base delay', async function () {
         const roleId = 1n;
         const executionDelay = 0n;
@@ -645,32 +673,6 @@ describe('GovernorTimelockAccess', function () {
               original.currentProposal.id,
               ProposalState.Canceled,
               GovernorHelper.proposalStatesToBitMap([ProposalState.Queued]), // proposal needs queueing
-            );
-        });
-
-        it('cancels unrestricted with queueing (internal)', async function () {
-          this.proposal = await this.helper.setProposal([this.unrestricted.operation], 'descr');
-
-          await this.helper.propose();
-          await this.helper.waitForSnapshot();
-          await this.helper.connect(this.voter1).vote({ support: VoteType.For });
-          await this.helper.waitForDeadline();
-          await this.helper.queue();
-
-          const eta = await this.mock.proposalEta(this.proposal.id);
-
-          await expect(this.helper.cancel('internal'))
-            .to.emit(this.mock, 'ProposalCanceled')
-            .withArgs(this.proposal.id);
-
-          await time.clock.timestamp().then(clock => time.increaseTo.timestamp(max(clock + 1n, eta)));
-
-          await expect(this.helper.execute())
-            .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
-            .withArgs(
-              this.proposal.id,
-              ProposalState.Canceled,
-              GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded]), // not queueing necessary
             );
         });
 
