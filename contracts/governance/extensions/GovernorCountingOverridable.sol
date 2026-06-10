@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.4.0) (governance/extensions/GovernorCountingOverridable.sol)
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.31;
 
 import {SignatureChecker} from "../../utils/cryptography/SignatureChecker.sol";
 import {SafeCast} from "../../utils/math/SafeCast.sol";

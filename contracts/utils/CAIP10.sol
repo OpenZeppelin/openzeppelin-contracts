@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.2.0) (utils/CAIP10.sol)
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.31;
 
 import {Bytes} from "./Bytes.sol";
 import {Strings} from "./Strings.sol";

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.31;
 
 import {IERC6372} from "../interfaces/IERC6372.sol";
 import {Time} from "./types/Time.sol";
