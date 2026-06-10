@@ -83,14 +83,14 @@ library RateLimiter {
     }
 
     /**
-     * @dev Returns the currently used quantity. See {state}.
+     * @dev Returns the currently used quantity. See {state-struct-RateLimiter-RefillingBucket-bytes32}.
      */
     function used(RefillingBucket storage self, bytes32 key) internal view returns (uint256 used_) {
         (used_, ) = state(self, key);
     }
 
     /**
-     * @dev Returns the currently available quantity. See {state}.
+     * @dev Returns the currently available quantity. See {state-struct-RateLimiter-RefillingBucket-bytes32}.
      */
     function available(RefillingBucket storage self, bytes32 key) internal view returns (uint256 available_) {
         (, available_) = state(self, key);
@@ -118,7 +118,7 @@ library RateLimiter {
 
     /**
      * @dev Consumes `quantity` from the bucket. Reverts with {RateLimitExceeded} if the available quantity is
-     * insufficient. See {tryConsume}.
+     * insufficient. See {tryConsume-struct-RateLimiter-RefillingBucket-bytes32-uint256}.
      */
     function consume(RefillingBucket storage self, bytes32 key, uint256 quantity) internal {
         bool success = tryConsume(self, key, quantity);
@@ -152,7 +152,7 @@ library RateLimiter {
     /**
      * @dev Refreshes the bucket by applying the accrued refill since the last update timepoint to `lastUsed` and
      * `lastTimepoint`, effectively moving the timepoint forward to now. This can be used to mitigate the side effect
-     * of {updateSettings} when the replenishing rate is modified.
+     * of {updateSettings-struct-RateLimiter-RefillingBucket-uint48-uint208} when the replenishing rate is modified.
      */
     function sync(RefillingBucket storage self, bytes32 key) internal {
         self.items[key].lastUsed = uint208(used(self, key));
@@ -170,8 +170,8 @@ library RateLimiter {
      * NOTE: The cumulative total is stored as a `uint208`. Once it reaches `2²⁰⁸ - 1`, further consumption will
      * revert in {SafeCast}. This bound is unreachable for any realistic `limit`, but consumers should be aware of it.
      *
-     * NOTE: Old checkpoints are never pruned. The storage footprint grows with the number of {tryConsume} calls
-     * that succeed with a non-zero `quantity`.
+     * NOTE: Old checkpoints are never pruned. The storage footprint grows with the number of
+     * {tryConsume-struct-RateLimiter-SlidingWindow-bytes32-uint256} calls that succeed with a non-zero `quantity`.
      */
     struct SlidingWindow {
         uint208 limit;
@@ -195,14 +195,16 @@ library RateLimiter {
     }
 
     /**
-     * @dev Returns the currently used quantity within the rolling window. See {state}.
+     * @dev Returns the currently used quantity within the rolling window. See
+     * {state-struct-RateLimiter-SlidingWindow-bytes32}.
      */
     function used(SlidingWindow storage self, bytes32 key) internal view returns (uint256 used_) {
         (used_, ) = state(self, key);
     }
 
     /**
-     * @dev Returns the currently available quantity within the rolling window. See {state}.
+     * @dev Returns the currently available quantity within the rolling window. See
+     * {state-struct-RateLimiter-SlidingWindow-bytes32}.
      */
     function available(SlidingWindow storage self, bytes32 key) internal view returns (uint256 available_) {
         (, available_) = state(self, key);
@@ -227,7 +229,7 @@ library RateLimiter {
 
     /**
      * @dev Records a consumption of `quantity`. Reverts with {RateLimitExceeded} if the available quantity within
-     * the current window is insufficient. See {tryConsume}.
+     * the current window is insufficient. See {tryConsume-struct-RateLimiter-SlidingWindow-bytes32-uint256}.
      */
     function consume(SlidingWindow storage self, bytes32 key, uint256 quantity) internal {
         bool success = tryConsume(self, key, quantity);
@@ -241,8 +243,8 @@ library RateLimiter {
      *
      * NOTE: This will reset the entire history, meaning it can also be used to recover from the cumulative total
      * approaching the `uint208` ceiling. The underlying storage slots holding past checkpoints are not zeroed out.
-     * As a consequence, there is no gas refunded, but future {consume}/{tryConsume} operations are cheaper from
-     * reusing "dirty" slots.
+     * As a consequence, there is no gas refunded, but future {consume-struct-RateLimiter-SlidingWindow-bytes32-uint256}
+     * /{tryConsume-struct-RateLimiter-SlidingWindow-bytes32-uint256} operations are cheaper from reusing "dirty" slots.
      */
     function reset(SlidingWindow storage self, bytes32 key) internal {
         Checkpoints.Checkpoint208[] storage trace = self.items[key]._checkpoints;
