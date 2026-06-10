@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.26;
 
-import {PackedUserOperation} from "../../interfaces/draft-IERC4337.sol";
+import {PackedUserOperation} from "../../interfaces/IERC4337.sol";
 import {IERC1271} from "../../interfaces/IERC1271.sol";
 import {
     IERC7579Module,
