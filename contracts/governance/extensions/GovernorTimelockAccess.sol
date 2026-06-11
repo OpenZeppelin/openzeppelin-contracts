@@ -227,12 +227,6 @@ abstract contract GovernorTimelockAccess is Governor {
         bytes[] memory calldatas,
         bytes32 /* descriptionHash */
     ) internal virtual override returns (uint48) {
-        // `Governor.queue` treats any non-zero return as queued. Skip when not needed so `execute`
-        // (which expects `Queued` only when `proposalNeedsQueuing` is true) does not reject the proposal.
-        if (!proposalNeedsQueuing(proposalId)) {
-            return 0;
-        }
-
         ExecutionPlan storage plan = _executionPlan[proposalId];
         uint48 etaSeconds = Time.timestamp() + plan.delay;
 

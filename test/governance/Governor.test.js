@@ -384,7 +384,9 @@ describe('Governor', function () {
             await this.helper.waitForSnapshot();
             await this.helper.connect(this.voter1).vote({ support: VoteType.For });
             await this.helper.waitForDeadline();
-            await expect(this.helper.queue()).to.be.revertedWithCustomError(this.mock, 'GovernorQueueNotImplemented');
+            await expect(this.helper.queue())
+              .to.be.revertedWithCustomError(this.mock, 'GovernorProposalDoesntNeedQueueing')
+              .withArgs(this.proposal.id);
           });
         });
 

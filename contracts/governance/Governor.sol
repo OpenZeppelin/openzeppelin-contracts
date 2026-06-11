@@ -348,17 +348,17 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         bytes32 descriptionHash
     ) public virtual returns (uint256) {
         uint256 proposalId = getProposalId(targets, values, calldatas, descriptionHash);
+        bool needsQueueing = proposalNeedsQueuing(proposalId);
+
+        if (!needsQueueing) {
+            revert GovernorProposalDoesntNeedQueueing(proposalId);
+        }
 
         _validateStateBitmap(proposalId, _encodeStateBitmap(ProposalState.Succeeded));
 
         uint48 etaSeconds = _queueOperations(proposalId, targets, values, calldatas, descriptionHash);
-
-        if (etaSeconds != 0) {
-            _proposals[proposalId].etaSeconds = etaSeconds;
-            emit ProposalQueued(proposalId, etaSeconds);
-        } else {
-            revert GovernorQueueNotImplemented();
-        }
+        _proposals[proposalId].etaSeconds = etaSeconds;
+        emit ProposalQueued(proposalId, etaSeconds);
 
         return proposalId;
     }
