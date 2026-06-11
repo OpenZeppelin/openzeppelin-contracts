@@ -170,7 +170,8 @@ library RateLimiter {
      * NOTE: The cumulative total is stored as a `uint208`. Once it reaches `2²⁰⁸ - 1`, further consumption will
      * revert in {SafeCast}. This bound is unreachable for any realistic `limit`, but consumers should be aware of it.
      *
-     * NOTE: Old checkpoints are never pruned. The storage footprint grows with the number of
+     * NOTE: The checkpoint history is not a reliable log of past consumptions--previous entries may be overwritten
+     * in place. The storage footprint grows with the number of
      * {tryConsume-struct-RateLimiter-SlidingWindow-bytes32-uint256} calls that succeed with a non-zero `quantity`.
      */
     struct SlidingWindow {
