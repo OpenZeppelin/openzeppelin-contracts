@@ -92,6 +92,11 @@ interface IGovernor is IERC165, IERC6372 {
     error GovernorProposalDoesntNeedQueueing(uint256 proposalId);
 
     /**
+     * @dev Queuing this operation failed. Is triggered when the timelock module returns an invalid eta.
+     */
+    error GovernorProposalQueueingFailed(uint256 proposalId);
+
+    /**
      * @dev The proposal has already been queued.
      */
     error GovernorAlreadyQueuedProposal(uint256 proposalId);
