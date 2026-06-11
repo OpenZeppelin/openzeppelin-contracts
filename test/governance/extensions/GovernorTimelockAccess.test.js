@@ -274,6 +274,33 @@ describe('GovernorTimelockAccess', function () {
         await expect(this.helper.execute()).to.not.be.reverted;
       });
 
+      it('calling internal _queueOperations when not needed does not prevent execution', async function () {
+        const roleId = 1n;
+        const executionDelay = 0n;
+        const baseDelay = 0n;
+
+        await this.manager.connect(this.admin).setTargetFunctionRole(this.receiver, [this.restricted.selector], roleId);
+        await this.manager.connect(this.admin).grantRole(roleId, this.mock, executionDelay);
+        await this.mock.$_setBaseDelaySeconds(baseDelay);
+
+        const { id } = await this.helper.setProposal([this.restricted.operation], 'descr');
+        await this.helper.propose();
+        expect(await this.mock.proposalNeedsQueuing(id)).to.be.false;
+
+        await this.helper.waitForSnapshot();
+        await this.helper.connect(this.voter1).vote({ support: VoteType.For });
+        await this.helper.waitForDeadline();
+
+        // This internal call is not needed, and the public function will fail before reaching it, but if called directly it should not break anything
+        await this.helper.governor.$_queueOperations(id, ...this.helper.shortProposal);
+
+        // State is still Succeeded.
+        await expect(this.helper.governor.state(id)).to.eventually.equal(ProposalState.Succeeded);
+
+        // Proposal remains executable
+        await expect(this.helper.execute()).to.not.be.reverted;
+      });
+
       it('does need to queue proposals with base delay', async function () {
         const roleId = 1n;
         const executionDelay = 0n;
