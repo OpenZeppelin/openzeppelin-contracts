@@ -135,7 +135,7 @@ While signature-based sponsorship is useful for many applications, sometimes you
 function _fetchDetails(
     PackedUserOperation calldata userOp,
     bytes32 userOpHash
-) internal view override returns (uint256 validationData, IERC20 token, uint256 tokenPrice) {
+) internal view override returns (uint256 validationData, IERC20 token, uint256 tokenPerNative) {
     // Implement logic to fetch the token and token price from the userOp
 }
 ----
@@ -174,14 +174,14 @@ contract PaymasterUSDCChainlink is PaymasterERC20, Ownable {
 
     /// @dev Floor: refuse to sponsor when 1 ETH is worth less than 100 USDC.
     /// 1e8 = 100 (USDC per ETH) * 10**6 (USDC decimals); the 1e18 denom cancels 1e18 wei/ETH.
-    function _minTokenPrice() internal view virtual override returns (uint256) {
+    function _minTokensPerNative() internal view virtual override returns (uint256) {
         return 1e8;
     }
 
     function _fetchDetails(
         PackedUserOperation calldata userOp,
         bytes32 /* userOpHash */
-    ) internal view virtual override returns (uint256 validationData, IERC20 token, uint256 tokenPrice) {
+    ) internal view virtual override returns (uint256 validationData, IERC20 token, uint256 tokenPerNative) {
         (uint256 validationData_, uint256 price) = _fetchOracleDetails(userOp);
         return (
             validationData_,
@@ -196,7 +196,7 @@ contract PaymasterUSDCChainlink is PaymasterERC20, Ownable {
         internal
         view
         virtual
-        returns (uint256 validationData, uint256 tokenPrice)
+        returns (uint256 validationData, uint256 tokenPerNative)
     {
       // ...
     }
@@ -205,14 +205,14 @@ contract PaymasterUSDCChainlink is PaymasterERC20, Ownable {
 
 NOTE: The `PaymasterUSDCChainlink` contract uses specific Chainlink price feeds (ETH/USD and USDC/USD) on Sepolia. For production use or other networks, you'll need to modify the contract to use the appropriate price feed addresses.
 
-NOTE: xref:api:account.adoc#PaymasterERC20-_minTokenPrice--[`_minTokenPrice`] is *abstract* in `PaymasterERC20` and must be implemented. It is a lower bound on `tokenPrice` (same units: token-units per wei, scaled by xref:api:account.adoc#PaymasterERC20-_tokenPriceDenominator--[`_tokenPriceDenominator`]); any operation whose `_fetchDetails` returns a `tokenPrice` strictly below this floor is rejected with `SIG_VALIDATION_FAILED` before pre-charging the user. The example above returns `1e8`, which refuses to sponsor when 1 ETH is worth less than 100 USDC — a conservative sanity check against misconfigured oracles or extreme market conditions. Returning `0` disables the check and re-opens the "free sponsorship" footgun if `_fetchDetails` ever returns a near-zero price.
+NOTE: xref:api:account.adoc#PaymasterERC20-_minTokensPerNative--[`_minTokensPerNative`] defaults to `0` in `PaymasterERC20` and should be overridden. It is a lower bound on `tokenPerNative` (same units: token-units per native coin, scaled by xref:api:account.adoc#PaymasterERC20-_tokenPerNativeDenominator--[`_tokenPerNativeDenominator`]); any operation whose `_fetchDetails` returns a `tokenPerNative` strictly below this floor is rejected with `SIG_VALIDATION_FAILED` before pre-charging the user. The example above returns `1e8`, which refuses to sponsor when 1 ETH is worth less than 100 USDC — a conservative sanity check against misconfigured oracles or extreme market conditions. Returning `0` disables the check and re-opens the "free sponsorship" footgun if `_fetchDetails` ever returns a near-zero price.
 
 As you can see, a `_fetchOracleDetails` function is specified to fetch the token price that will be used as a reference for calculating the final ERC-20 payment. One can fetch and process price data from Chainlink oracles to determine the exchange rate between ETH and a concrete ERC-20. An example with USDC would be:
 
 1. Fetch the current `ETH/USD` and `USDC/USD` prices from their respective oracles.
-2. `tokenPrice` is the number of USDC units (smallest denomination) charged per wei of gas. Combining the two feeds: `USDC_per_wei = (ETH_USD / USDC_USD) * 10^USDC_decimals / 10^18`. Multiply by `_tokenPriceDenominator()` to get the fixed-point value expected by xref:api:account.adoc#PaymasterERC20-_erc20Cost-uint256-uint256-uint256-[`_erc20Cost`].
+2. `tokenPerNative` is the number of USDC units (smallest denomination) charged per wei of gas. Combining the two feeds: `USDC_per_wei = (ETH_USD / USDC_USD) * 10^USDC_decimals / 10^18`. Multiply by `_tokenPerNativeDenominator()` to get the fixed-point value expected by xref:api:account.adoc#PaymasterERC20-_erc20Cost-uint256-uint256-uint256-[`_erc20Cost`].
 
-NOTE: The price of the ERC-20 must be scaled by xref:api:account.adoc#PaymasterERC20-_tokenPriceDenominator--[`_tokenPriceDenominator`].
+NOTE: The price of the ERC-20 must be scaled by xref:api:account.adoc#PaymasterERC20-_tokenPerNativeDenominator--[`_tokenPerNativeDenominator`].
 
 Here's how an implementation of `_fetchOracleDetails` would look like using this approach:
 
@@ -234,7 +234,7 @@ function _fetchOracleDetails(
     internal
     view
     virtual
-    returns (uint256 validationData, uint256 tokenPrice)
+    returns (uint256 validationData, uint256 tokenPerNative)
 {
     (uint256 ETHUSDValidationData, int256 ETHUSD) = _fetchPrice(
         ETH_USD_ORACLE
@@ -249,8 +249,8 @@ function _fetchOracleDetails(
     }
 
     // USDC_units / wei = (ETH/USD) / (USDC/USD) * 10^USDC_decimals / 10^18, multiplied by
-    // `_tokenPriceDenominator()` to give the fixed-point value expected by `_erc20Cost`.
-    int256 scale = _tokenPriceDenominator().toInt256();
+    // `_tokenPerNativeDenominator()` to give the fixed-point value expected by `_erc20Cost`.
+    int256 scale = _tokenPerNativeDenominator().toInt256();
     int256 numerator = ETHUSD *
         (10 ** USDC_USD_ORACLE.decimals()).toInt256() *
         (10 ** USDC_DECIMALS).toInt256() *
