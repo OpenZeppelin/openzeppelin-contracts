@@ -87,7 +87,7 @@ interface IGovernor is IERC165, IERC6372 {
     error GovernorInvalidVoteParams();
 
     /**
-     * @dev This operation doesn't require queuing and should should be executed directly.
+     * @dev This operation doesn't require queuing and should be executed directly.
      */
     error GovernorProposalQueueingNotRequired(uint256 proposalId);
 
