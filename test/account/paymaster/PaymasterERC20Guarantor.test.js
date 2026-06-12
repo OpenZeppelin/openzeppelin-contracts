@@ -154,6 +154,11 @@ describe('PaymasterERC20Guarantor', function () {
       await this.paymaster.deposit({ value });
       this.userOp ??= {};
       this.userOp.paymaster = this.paymaster;
+      // Two signature checks (oracle + guarantor) + transferFrom pushes
+      // past the 100k default under coverage instrumentation.
+      if (process.env.COVERAGE) {
+        this.userOp.paymasterVerificationGasLimit = 200_000n;
+      }
     });
 
     describe('succeeds paying with ERC20 tokens', function () {
