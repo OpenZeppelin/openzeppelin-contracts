@@ -67,6 +67,8 @@ Most token standards are written without considering non-standard transfer mecha
 
 Considering many ERCs are not compatible with these mechanisms, the library has taken a policy of not accounting for tokens that break these assumptions, such as fee-on-transfer and rebasing variants, since they could desynchronize a contract's internal accounting from its on-chain balance. The resulting undercollateralization may cause later withdrawals, redemptions, or releases to revert.
 
+TIP: When a contract custodies tokens and may accumulate excess balance (positive rebasing, accidental transfers, airdrops), consider exposing an access-controlled recovery function similar to xref:api:token/ERC20.adoc#ERC20Wrapper-_recover-address-[`ERC20Wrapper._recover`] to retrieve the surplus. This only helps when the contract holds more than it owes, not the undercollateralization case above.
+
 == Security
 
 The maintainers of OpenZeppelin Contracts are mainly concerned with the correctness and security of the code as published in the library, and the combinations of base contracts with the official extensions from the library.
