@@ -72,7 +72,7 @@ abstract contract PaymasterERC20 is Paymaster {
     );
 
     /**
-     * @dev Throws when the paymaster fails to refund the difference between the `prefundAmount`
+     * @dev Thrown when the paymaster fails to refund the difference between the `prefundAmount`
      * and the `actualAmount` of `token`.
      */
     error PaymasterERC20FailedRefund(IERC20 token, uint256 prefundAmount, uint256 actualAmount, bytes prefundContext);
