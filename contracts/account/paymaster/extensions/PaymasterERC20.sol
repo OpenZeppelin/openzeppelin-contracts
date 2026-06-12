@@ -96,10 +96,8 @@ abstract contract PaymasterERC20 is Paymaster {
         address userOpSender = userOp.sender;
         (validationData, token, tokenPerNative) = _fetchDetails(userOp, userOpHash);
 
-        if (
-            address(uint160(validationData)) == address(uint160(ERC4337Utils.SIG_VALIDATION_FAILED)) ||
-            tokenPerNative < _minTokensPerNative()
-        ) return (bytes(""), ERC4337Utils.SIG_VALIDATION_FAILED);
+        if (uint160(validationData) == ERC4337Utils.SIG_VALIDATION_FAILED || tokenPerNative < _minTokensPerNative())
+            return (bytes(""), ERC4337Utils.SIG_VALIDATION_FAILED);
 
         // If the _erc20Cost math fails, the returned value will be type(uint256).max, which we will never be able
         // to charge as a prefund. The `trySafeTransferFrom` in the `_prefund` will fail, causing success to be false.
