@@ -37,7 +37,7 @@ import {IEntryPoint, IPaymaster, PackedUserOperation} from "../../interfaces/IER
  *     }
  *
  *     function deposit() public payable virtual {
- *         _deposit();
+ *         _deposit(msg.value);
  *     }
  *
  *     function withdraw(address payable to, uint256 value) public virtual onlyRole(WITHDRAWER_ROLE) {
@@ -45,7 +45,7 @@ import {IEntryPoint, IPaymaster, PackedUserOperation} from "../../interfaces/IER
  *     }
  *
  *     function addStake(uint32 unstakeDelaySec) public payable virtual {
- *         _addStake(unstakeDelaySec);
+ *         _addStake(msg.value, unstakeDelaySec);
  *     }
  *
  *     function unlockStake() public virtual onlyRole(UNSTAKER_ROLE) {
@@ -54,6 +54,14 @@ import {IEntryPoint, IPaymaster, PackedUserOperation} from "../../interfaces/IER
  *
  *     function withdrawStake(address payable to) public virtual onlyRole(UNSTAKER_ROLE) {
  *         _withdrawStake(to);
+ *     }
+ *
+ *     function _validatePaymasterUserOp(
+ *         PackedUserOperation calldata userOp,
+ *         bytes32 userOpHash,
+ *         uint256 requiredPreFund
+ *     ) internal virtual override returns (bytes memory context, uint256 validationData) {
+ *         // validation logic
  *     }
  * }
  * ```
@@ -135,8 +143,8 @@ abstract contract Paymaster is IPaymaster {
     }
 
     /// @dev Calls {IEntryPointStake-depositTo}.
-    function _deposit() internal virtual {
-        entryPoint().depositTo{value: msg.value}(address(this));
+    function _deposit(uint256 value) internal virtual {
+        entryPoint().depositTo{value: value}(address(this));
     }
 
     /// @dev Calls {IEntryPointStake-withdrawTo}.
@@ -145,8 +153,8 @@ abstract contract Paymaster is IPaymaster {
     }
 
     /// @dev Calls {IEntryPointStake-addStake}.
-    function _addStake(uint32 unstakeDelaySec) internal virtual {
-        entryPoint().addStake{value: msg.value}(unstakeDelaySec);
+    function _addStake(uint256 value, uint32 unstakeDelaySec) internal virtual {
+        entryPoint().addStake{value: value}(unstakeDelaySec);
     }
 
     /// @dev Calls {IEntryPointStake-unlockStake}.

@@ -22,7 +22,7 @@ abstract contract PaymasterSignerContextNoPostOpMock is PaymasterSigner, SignerE
     }
 
     function deposit() public payable virtual {
-        _deposit();
+        _deposit(msg.value);
     }
 
     function withdraw(address payable to, uint256 value) public virtual onlyOwner {
@@ -30,7 +30,7 @@ abstract contract PaymasterSignerContextNoPostOpMock is PaymasterSigner, SignerE
     }
 
     function addStake(uint32 unstakeDelaySec) public payable virtual {
-        _addStake(unstakeDelaySec);
+        _addStake(msg.value, unstakeDelaySec);
     }
 
     function unlockStake() public virtual onlyOwner {

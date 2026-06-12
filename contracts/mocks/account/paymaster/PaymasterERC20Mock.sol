@@ -58,7 +58,7 @@ abstract contract PaymasterERC20Mock is EIP712, PaymasterERC20, AccessControl {
     }
 
     function deposit() public payable virtual {
-        _deposit();
+        _deposit(msg.value);
     }
 
     function withdraw(address payable to, uint256 value) public virtual onlyRole(WITHDRAWER_ROLE) {
@@ -66,7 +66,7 @@ abstract contract PaymasterERC20Mock is EIP712, PaymasterERC20, AccessControl {
     }
 
     function addStake(uint32 unstakeDelaySec) public payable virtual {
-        _addStake(unstakeDelaySec);
+        _addStake(msg.value, unstakeDelaySec);
     }
 
     function unlockStake() public virtual onlyRole(WITHDRAWER_ROLE) {
