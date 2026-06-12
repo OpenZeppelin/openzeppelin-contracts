@@ -89,7 +89,7 @@ interface IGovernor is IERC165, IERC6372 {
     /**
      * @dev This operation doesn't require queuing and should should be executed directly.
      */
-    error GovernorProposalDoesntNeedQueueing(uint256 proposalId);
+    error GovernorProposalQueueingNotRequired(uint256 proposalId);
 
     /**
      * @dev Indicates a misconfigured timelock module. (e.g. {_queueOperations} returned a zero ETA)
