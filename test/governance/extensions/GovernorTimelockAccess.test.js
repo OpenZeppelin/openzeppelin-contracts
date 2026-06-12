@@ -267,7 +267,7 @@ describe('GovernorTimelockAccess', function () {
         // Anyone calling queue on a delay-0 proposal must be rejected. Otherwise the proposal
         // would transition to `Queued`, which `execute` no longer accepts when `proposalNeedsQueuing` is false.
         await expect(this.helper.connect(this.other).queue())
-          .to.be.revertedWithCustomError(this.mock, 'GovernorProposalDoesntNeedQueueing')
+          .to.be.revertedWithCustomError(this.mock, 'GovernorProposalQueueingNotRequired')
           .withArgs(this.proposal.id);
 
         // Proposal remains executable
