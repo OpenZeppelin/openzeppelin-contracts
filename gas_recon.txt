@@ -1,9 +1,0 @@
-Unknown command: test
-
-🔥 THE FORGE V5: AUTONOMOUS CLI
-
-Usage:
-  forge scan <repo_dir>             - Run the 10-step validation baseline
-  forge fix <repo_dir>              - (Not implemented in demo) Trigger AI remediation
-  forge verify-patch <repo> <patch> - Test a patch against the baseline gates
-    
