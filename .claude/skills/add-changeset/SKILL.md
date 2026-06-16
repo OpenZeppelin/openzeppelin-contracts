@@ -45,7 +45,7 @@ The resulting file in `.changeset/` looks like:
 
 - **First word inside the backticks** is the affected contract, extension, or library: `ERC20`, `ERC1155Crosschain`, `Memory`, `Governor`, etc.
 - **Then a colon, then one sentence** describing the user-visible change.
-- **Imperative mood**, no trailing period inside the sentence is fine.
+- **Imperative mood** (matching PR titles: "Add", "Fix", not "Added", "Fixed"). Trailing period optional.
 - **No bullet points**, no headings, no multi-paragraph prose. The release workflow concatenates these verbatim.
 
 Good examples (taken from existing entries):
@@ -55,7 +55,7 @@ Good examples (taken from existing entries):
 ```
 
 ```
-`ERC1155Crosschain`: Added an ERC-1155 extension to embed an ERC-7786 based crosschain bridge directly in the token contract.
+`ERC1155Crosschain`: Add an ERC-1155 extension to embed an ERC-7786 based crosschain bridge directly in the token contract.
 ```
 
 ```

@@ -16,6 +16,8 @@ description: Testing conventions for openzeppelin-contracts. Use when writing or
 
 Default to Hardhat+Chai unit tests, add Halmos for invariants you can express symbolically, escalate to Certora when state-machine coverage requires it.
 
+A bug fix must add a minimal test that reproduces the bug, committed alongside the fix. The objective is 100% branch coverage per PR.
+
 ## Accessing internal functions: hardhat-exposed
 
 `$`-prefixed wrapper contracts are **auto-generated** by [hardhat-exposed](https://github.com/frangio/hardhat-exposed). The plugin creates a `$ContractName` for every contract in `contracts/`, with every internal `_function` re-exposed as an external `$_function`. Output goes to `contracts-exposed/` (gitignored). Use them directly:
@@ -168,4 +170,5 @@ The generated file in `.changeset/` looks like:
 | `tests-upgradeable`   | Transpile then re-run all Hardhat tests + storage-layout diff          | Every push/PR                                                       |
 | `tests-foundry`       | `forge test -vvv` (includes Halmos symbolic)                           | Every push/PR                                                       |
 | `coverage`            | `npm run coverage` → codecov                                           | Every push/PR                                                       |
+| `slither`             | Slither static analysis for common vulnerabilities                     | Every push/PR                                                       |
 | `formal verification` | Certora specs for changed `.spec` files (or all, with the force label) | PRs labeled `formal-verification` / `formal-verification-force-all` |

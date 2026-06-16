@@ -4,6 +4,8 @@ This repository is a **Solidity smart contract library**: reusable `abstract con
 
 Read [`GUIDELINES.md`](./GUIDELINES.md) first — it is the human contributor spec and authoritative. This file is for what is specific to Claude-assisted work, plus the conventions not fully documented elsewhere.
 
+Before preparing a contribution, also read [`CONTRIBUTING.md`](./CONTRIBUTING.md) thoroughly. Non-trivial changes must be discussed in an issue before a PR is opened.
+
 ## Repo map
 
 | Path                    | Purpose                                                                                                                                        |
@@ -18,6 +20,8 @@ Read [`GUIDELINES.md`](./GUIDELINES.md) first — it is the human contributor sp
 | `scripts/checks/`       | CI checks: `inheritance-ordering.js`, `pragma-validity.js`, generation diff, storage layout.                                                   |
 | `docs/`                 | AsciiDoc sources used by the OZ documentation site. Per-module `README.adoc` files in `contracts/**/` are also rendered.                       |
 | `.changeset/`           | Per-PR changelog entries consumed by the release workflow.                                                                                     |
+| `audits/`               | Historical third-party audit reports, one per release. Reference only.                                                                         |
+| `.claude/skills/`       | Skills specific to working in this repository, loaded by AI assistants per task. See `CONTRIBUTING.md`.                                        |
 
 ## Commands
 
@@ -35,7 +39,7 @@ Read [`GUIDELINES.md`](./GUIDELINES.md) first — it is the human contributor sp
 | Add a changelog entry                    | `npx changeset add`                                                     |
 | Run a single Certora spec                | `node fv/run.js <SpecName>` (apply harnesses first: `make -C fv apply`) |
 
-## What solhint already enforces (don't re-state in code review)
+## What linting via solhint already enforces (don't re-state in code review)
 
 `solhint-plugin-openzeppelin` + `scripts/solhint-custom/index.js` enforce, on `contracts/**/*.sol` (mocks and tests are exempt):
 
@@ -57,6 +61,8 @@ These apply to every change and are not lint-enforced:
 - **Inheritance order is globally consistent**: if you change an `is A, B, C` list, run `npm run compile && npm run test:inheritance` before pushing.
 - **Changesets**: every PR that changes contract behavior needs one. Skip for NatSpec-only, internal refactors with no user-visible effect, or pure repo plumbing.
 - **Procedurally generated files**: never hand-edit a file whose header says "procedurally generated from `<template>`". Edit the template under `scripts/generate/templates/` and run `npm run generate`. CI runs `test:generation` to enforce.
+- **Backward compatibility**: released contracts are inherited downstream and transpiled into the `-upgradeable` package. Don't change existing `public`/`external` signatures, event or error shapes, or the storage layout of existing contracts. Changes are additive; deprecate rather than delete. Breaking changes are a maintainer decision tied to a major release.
+- **Dependencies**: this library has no third-party dependencies that translate to the user, and nothing that could change behavior out from under it. Don't add an npm or Solidity dependency or a new external import without maintainer sign-off; reuse existing `contracts/utils/` helpers first. Code that needs third-party dependencies belongs in `openzeppelin-community-contracts`, not here.
 
 ## When to load which skill
 
@@ -86,3 +92,4 @@ AI suggestions in these areas are often plausible-but-wrong. Read the surroundin
 - Security assessments or audit opinions.
 - New ERC interfaces or standards without explicit direction.
 - Restructuring tests without a corresponding contract change.
+- Fabricated bug bounties and security rewards. Never claim or imply a reward, amount, or eligibility. The only existing program is [Immunefi](https://immunefi.com/bounty/openzeppelin) (See [`SECURITY.md`](./SECURITY.md)).

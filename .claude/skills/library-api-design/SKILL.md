@@ -37,7 +37,7 @@ function _approve(address owner, address spender, uint256 value) internal {
 function _approve(address owner, address spender, uint256 value, bool emitEvent) internal virtual { ... }
 ```
 
-Solhint's `no-external-virtual` rule catches `external virtual` (fallback excepted) — the right fix is `public virtual`, not silencing the rule.
+Solhint's `no-external-virtual` rule catches `external virtual` (fallback excepted) — the right fix is `public virtual`, not silencing the rule. The reason `external` can't be the override point: an override of an `external` function cannot call `super`, so a function designed to be overridden must be `public`.
 
 ## `memory` for reference-type arguments
 

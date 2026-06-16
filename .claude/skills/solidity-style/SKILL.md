@@ -64,6 +64,21 @@ File order:
 
 Inside the body: `using` → structs/enums → state vars → constants → errors → events → constructor → modifiers → external/public functions → internal → private.
 
+Contracts not meant to be deployed on their own (bases, extensions, mixins) are declared `abstract` so they can only be used by inheriting from them.
+
+## Return values
+
+Don't name return values unless their meaning isn't obvious or there are multiple. Prefer `returns (uint256)` over `returns (uint256 amount)`; name them when it aids clarity, e.g. `returns (bool isMember, uint32 currentDelay)`.
+
+## Interfaces
+
+- ERC-defined behavior MUST have an interface, and it SHOULD live in its own file. The name starts with `I`; add the ERC number when there's a risk of clash (`IModule` → `IERC7579Module`).
+- ERC interfaces match the spec as closely as possible (including parameter and return names) and MUST NOT declare anything not in the spec. Non-spec errors, structs, and events go in the implementing contract or library instead.
+- In interfaces, functions are `external` and non-value-type parameters are `calldata` — this is the spec form. Implementations use `public`/`memory` (see the `library-api-design` skill); the two intentionally differ.
+- Only mandatory ERC elements go in the base interface; optional ones go in an extension interface (`name()` is in `IERC20Metadata`, not `IERC20`).
+- Placement: `contracts/interfaces/` for ERC interfaces (`draft-` filename prefix if the ERC is not yet final), next to the implementation otherwise.
+- Interface files SHOULD NOT import anything that is not itself an interface file.
+
 ## Pragma
 
 Don't pick the pragma floor by hand. Run:
