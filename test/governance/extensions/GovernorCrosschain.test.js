@@ -40,7 +40,7 @@ async function fixture() {
   await owner.sendTransaction({ to: governor, value });
   await token.$_mint(owner, tokenSupply);
 
-  const helper = new GovernorHelper(governor, 'blocknumber');
+  const helper = new GovernorHelper(governor, 'blockNumber');
   await helper.connect(owner).delegate({ token: token, to: voter1, value: ethers.parseEther('10') });
   await helper.connect(owner).delegate({ token: token, to: voter2, value: ethers.parseEther('7') });
   await helper.connect(owner).delegate({ token: token, to: voter3, value: ethers.parseEther('5') });
