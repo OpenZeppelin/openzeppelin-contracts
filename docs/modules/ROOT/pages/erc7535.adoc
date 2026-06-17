@@ -1,0 +1,84 @@
+= ERC-7535
+
+https://eips.ethereum.org/EIPS/eip-7535[ERC-7535] is an adaptation of xref:erc4626.adoc[ERC-4626] in which the underlying asset of the vault is the chain's native asset (e.g. Ether) instead of an ERC-20 token. It keeps the ERC-4626 share-accounting model, rounding rules, and interface, so the same mental model, security considerations, and customizations apply, with a few native-asset specific differences.
+
+`ERC7535` is implemented as a thin extension of `ERC4626`: share accounting, rounding, the virtual-shares inflation mitigation, the preview functions, and the checks-effects-interactions withdraw path are all inherited. Only the asset-movement seams change.
+
+== Differences with ERC-4626
+
+`ERC7535` behaves like `ERC4626`, with the following changes:
+
+* `asset()` returns the placeholder address `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE` defined by https://eips.ethereum.org/EIPS/eip-7528[ERC-7528], and the vault uses 18 decimals (those of the native asset) as its base before applying the optional decimals offset.
+* `deposit` and `mint` are `payable`. The native asset is provided as `msg.value` instead of being pulled with an ERC-20 `transferFrom`, so there is no allowance flow for the underlying asset. `deposit(assets, receiver)` requires `msg.value >= assets`; `mint(shares, receiver)` requires `msg.value >= previewMint(shares)`.
+* Withdrawals and redemptions send the native asset out with a low-level `call` (xref:api:utils.adoc#Address-sendValue-address-payable-uint256-[`Address.sendValue`]) instead of an ERC-20 `transfer`.
+
+[source,solidity]
+----
+contract NativeVault is ERC7535 {
+    constructor() ERC20("Native Vault", "nvETH") {}
+}
+----
+
+To raise the resistance to the inflation attack, override `_decimalsOffset()` exactly as for `ERC4626`:
+
+[source,solidity]
+----
+contract HardenedNativeVault is ERC7535 {
+    constructor() ERC20("Hardened Native Vault", "hnvETH") {}
+
+    function _decimalsOffset() internal pure override returns (uint8) {
+        return 6;
+    }
+}
+----
+
+IMPORTANT: A vault backed by a wrapped native asset (such as WETH9) MUST NOT use this contract. Per ERC-7528 and ERC-7535 such a vault is a plain xref:erc4626.adoc[ERC-4626] over the wrapper ERC-20 and must report that wrapper's address from `asset()`.
+
+== How it extends ERC-4626
+
+ERC-4626's `deposit` and `mint` are declared `payable` on `IERC4626` (this does not change their selectors or the ERC-165 interface id) and route through two virtual seams that `ERC7535` overrides:
+
+* `_checkPayment(uint256 assets)`: validates the native value. The `ERC4626` default expects none and reverts on any `msg.value`; `ERC7535` overrides it to require `msg.value` to cover the deposit. A plain ERC-20 vault is therefore unchanged — it still rejects native value.
+* `_transferIn` / `_transferOut`: `ERC7535` makes `_transferIn` a no-op (the value already arrived as `msg.value`) and routes `_transferOut` through `Address.sendValue`.
+
+== Accounting and `msg.value`
+
+`totalAssets()` returns `address(this).balance`. Because `deposit` and `mint` are `payable`, the deposited `msg.value` is already part of that balance when the exchange rate is computed — unlike an ERC-4626 vault, where the assets are only pulled in *after* the share amount is computed from the pre-deposit balance.
+
+To keep the behavior identical, `ERC7535` overrides the internal `_convertToShares`/`_convertToAssets` to price against `_pretotalAssets()` (= `totalAssets() - msg.value`, the pre-call balance), while all preview and conversion functions remain balance-based outside a `payable` call. As a result, a standalone `previewDeposit(assets)` returns exactly the number of shares a subsequent `deposit` of `assets` mints. The adjustment lives in an internal hook because `msg.value` cannot be read from a `view` function such as `totalAssets`.
+
+[[inflation-attack]]
+== Security concern: Inflation attack
+
+Native asset vaults are exposed to the same xref:erc4626.adoc#inflation-attack[donation / inflation attack] as ERC-4626 vaults, and `ERC7535` uses the same mitigation: configurable virtual shares and assets parameterized by `_decimalsOffset()`. The default offset of `0` makes the attack non-profitable, and a larger offset makes it orders of magnitude more expensive than profitable.
+
+Note that a native asset vault cannot keep its balance strictly equal to the sum of deposits: it can always be force-fed extra native asset, for example by being a block's `coinbase` or through the `SELFDESTRUCT` opcode. `totalAssets()` is balance-based and therefore tracks such donations, exactly like a direct ERC-20 transfer would for an ERC-4626 vault; the virtual-offset mitigation — not internal balance accounting — is the defense.
+
+== Security concern: Reentrancy
+
+Sending the native asset out uses a low-level `call` via xref:api:utils.adoc#Address-sendValue-address-payable-uint256-[`Address.sendValue`], which forwards all remaining gas. The full-gas forward is deliberate: it keeps the vault compatible with smart-contract receivers (multisigs, account-abstraction wallets, proxies) whose `receive()` typically costs more than the spec's suggested 2300-gas stipend. The reentrancy risk that the full-gas forward opens is handled by the inherited checks-effects-interactions ordering: on withdrawals and redemptions the shares are burned *before* the value is sent, so a reentrant call from the receiver observes a consistent, already-reduced share price. As in `ERC4626`, reentrancy safety relies on this ordering rather than on a reentrancy guard. Integrators adding custom logic to `_deposit`/`_withdraw` should preserve this ordering, or add an explicit reentrancy guard.
+
+== Plain native-asset transfers
+
+Value must enter the vault through the standardized `deposit` or `mint` entry points so it is matched with newly issued shares. To make accidental misuse fail loudly, `ERC7535` implements a `receive()` function that reverts with the named error `ERC7535UnsolicitedDeposit`: plain `.transfer`, `.send` or `call{value: x}("")` to the vault revert with a reason wallets and UIs can decode, instead of being silently absorbed as a donation that would skew the next deposit's exchange rate.
+
+The `receive()` function is `virtual`. An integrator whose vault must accept plain native-asset payments — for example a rewards distributor that pays the vault periodically on a chain without beacon-layer withdrawals — can override it to admit a known sender, accepting that such payments raise the share price for existing holders like a donation.
+
+Note that this guard cannot stop the protocol-level force-feeds: native asset routed through `SELFDESTRUCT` or paid out as block-reward / `coinbase` tips bypasses `receive()` entirely and lands on `address(this).balance`. Because `totalAssets()` is balance-based, such donations are tracked exactly as a direct ERC-20 transfer would be for an ERC-4626 vault; the defense is the same virtual-offset math described in xref:#inflation-attack[Security concern: Inflation attack], not the `receive` revert.
+
+== The `msg.value` requirement
+
+`deposit(assets, receiver)` requires `msg.value >= assets` and `mint(shares, receiver)` requires `msg.value >= previewMint(shares)`; calls that send too little revert with the typed error `ERC7535InsufficientNativeValue`. Any *excess* `msg.value` above the required amount is kept by the vault — it is not refunded — and behaves like a donation, raising the share price for existing holders. A refund path is intentionally avoided: refunding would add an outbound native call inside `deposit`/`mint`, reopening the reentrancy / refund-griefing surface that the inherited checks-effects-interactions design is built to avoid. To pay an exact amount, send `msg.value == assets` (resp. `previewMint(shares)`); prefer `deposit` over `mint` for an ETH-in flow, since `previewMint` can shift between an off-chain quote and the on-chain transaction.
+
+== Override checklist
+
+When customizing `ERC7535`, keep the following invariants in mind in addition to the inherited xref:erc4626.adoc[ERC-4626] ones:
+
+* `_pretotalAssets()` MUST return a value less than or equal to `totalAssets()` in every context. Overstating it inflates the share price during `deposit`/`mint`; understating it during a `view` call misprices the public previews.
+* Custom `_convertToShares`/`_convertToAssets` MUST source the "total assets" value from `_pretotalAssets()` (not `totalAssets()` or `msg.value` directly). Otherwise the in-flight `msg.value` is re-mixed into the rate.
+* `totalAssets()` MUST NOT revert. When sourcing the total from an external oracle, wrap the call in `try/catch` and return a safe fallback. Overstating `totalAssets()` will make `withdraw`/`redeem` attempt to send more than `address(this).balance` and revert in `Address.sendValue`, locking exits until the balance catches up with the reported total.
+* `_deposit` overrides MUST NOT introduce an outbound native-asset call (e.g. a refund of "excess" `msg.value`) before `_mint`: that reopens the reentrancy / refund-griefing class this design avoids.
+* `_withdraw` overrides MUST preserve the checks-effects-interactions ordering (allowance spent and shares burned BEFORE the outbound transfer).
+* `_decimalsOffset()` overrides MUST keep `offset <= 77`. The conversion math computes `10 ** offset`, which overflows `uint256` from `offset >= 78` onwards: the vault would deploy but every deposit, mint, preview and conversion would revert with an arithmetic panic. (The `uint8` range of `decimals()` alone would allow up to `237`, but the conversion arithmetic is the binding constraint. This bound applies to `ERC4626` as well.)
+
+Off-chain previews must be performed *before* sending value, since the public `view` functions cannot account for an in-flight `msg.value`.
