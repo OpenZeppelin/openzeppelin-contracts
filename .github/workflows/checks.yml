@@ -24,6 +24,7 @@ jobs:
       - name: Set up environment
         uses: ./.github/actions/setup
       - run: npm run lint
+      - run: forge compile && forge lint --deny notes --only-lint unused-import
 
   tests:
     runs-on: ubuntu-latest
@@ -97,7 +98,7 @@ jobs:
         uses: ./.github/actions/setup
       - name: Run coverage
         run: npm run coverage
-      - uses: codecov/codecov-action@v6
+      - uses: codecov/codecov-action@v7
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
