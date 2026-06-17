@@ -7,7 +7,7 @@ description: Add a changelog entry for a PR. Use when the user asks for a change
 
 ## When to add one
 
-Add a changeset when the PR changes **user-visible contract behavior**: a new function, a new contract or extension, a bug fix that changes outputs, a gas optimization that callers can observe, a new event, a new error, a new interface ID, or a tighter requirement.
+Add a changeset when the PR changes **user-visible contract behavior**: a new function, a new contract or extension, a bug fix that changes outputs, a new event, a new error, a new interface ID, or a tighter requirement.
 
 **Skip** for:
 
