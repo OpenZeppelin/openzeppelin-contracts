@@ -46,6 +46,37 @@ describe('ERC4626', function () {
     }
   });
 
+  describe('payable deposit/mint reject unexpected native value', function () {
+    // deposit/mint are payable (so native-asset vaults like ERC7535 can override the payment hook), but a plain
+    // ERC-20 vault must keep rejecting any native value sent to it, exactly as the previously non-payable entry
+    // points did.
+    const value = 1000n;
+
+    beforeEach(async function () {
+      this.token = await ethers.deployContract('$ERC20DecimalsMock', [name, symbol, decimals]);
+      this.vault = await ethers.deployContract('$ERC4626', [name, symbol, this.token]);
+      await this.token.$_mint(this.holder, value);
+      await this.token.connect(this.holder).approve(this.vault, ethers.MaxUint256);
+    });
+
+    it('deposit reverts when native value is sent', async function () {
+      await expect(this.vault.connect(this.holder).deposit(value, this.holder, { value: 1n }))
+        .to.be.revertedWithCustomError(this.vault, 'ERC4626UnexpectedNativeValue')
+        .withArgs(1n);
+    });
+
+    it('mint reverts when native value is sent', async function () {
+      const shares = await this.vault.previewDeposit(value);
+      await expect(this.vault.connect(this.holder).mint(shares, this.holder, { value: 1n }))
+        .to.be.revertedWithCustomError(this.vault, 'ERC4626UnexpectedNativeValue')
+        .withArgs(1n);
+    });
+
+    it('deposit succeeds with zero native value', async function () {
+      await expect(this.vault.connect(this.holder).deposit(value, this.holder)).to.not.be.reverted;
+    });
+  });
+
   describe('reentrancy', function () {
     const reenterType = Enum('No', 'Before', 'After');
 
