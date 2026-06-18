@@ -39,7 +39,7 @@ library BlockHeader {
     }
 
     /// @dev Thrown when the provided block header RLP does not have the expected number of fields.
-    /// Happens if it correspond to an older version of the EVM that doesn't include the field..
+    /// Happens if it corresponds to an older version of the EVM that doesn't include the field.
     error FieldNotPresentInBlockHeader(HeaderField);
 
     /// @dev Verifies that the given block header RLP corresponds to a valid block header for the current chain.
