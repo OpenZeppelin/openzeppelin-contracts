@@ -102,6 +102,20 @@ describe('BlockHeader', function () {
     await expect(this.mock.$getRequestsHash(headerRLP)).to.eventually.equal(block.requestsHash);
   });
 
+  it('verify rejects tampered header', async function () {
+    const block = await ethers.provider.send('eth_getBlockByNumber', ['latest', false]);
+    const headerRLP = rlpEncodeBlock({ ...block, stateRoot: ethers.ZeroHash });
+    await mine(1); // ensure blockhash is available
+    await expect(this.mock.$verifyBlockHeader(headerRLP)).to.eventually.be.false;
+  });
+
+  it('verify rejects header for out-of-range block number', async function () {
+    const block = await ethers.provider.send('eth_getBlockByNumber', ['latest', false]);
+    // Re-encode the header with a future block number so blockhash() returns 0.
+    const headerRLP = rlpEncodeBlock({ ...block, number: ethers.toBeHex(BigInt(block.number) + 1_000_000n) });
+    await expect(this.mock.$verifyBlockHeader(headerRLP)).to.eventually.be.false;
+  });
+
   describe('historical blocks', function () {
     for (const block of [
       {
