@@ -8,7 +8,7 @@ const {
   networkHelpers: { loadFixture, takeSnapshot },
 } = await network.create();
 
-const PROXY_INITCODE_HASH = '0xd61bbde0460e6c48ddd99fb8b7e1ad36529d2ec79cbac1db0300b3d26ddcdc2a';
+const PROXY_INITCODE_HASH = '0x57a34f6e879358dd76825d6700df87013ad6a3fb43c0d0c602f70a8772c153bd';
 const getCreate3Address = (deployer, salt) =>
   ethers.getCreateAddress({ from: ethers.getCreate2Address(deployer, salt, PROXY_INITCODE_HASH), nonce: 1 });
 
