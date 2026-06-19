@@ -59,6 +59,7 @@ const rlpEncodeBlock = block =>
 async function fixture() {
   return {
     mock: await ethers.deployContract('$BlockHeader'),
+    multiReadMock: await ethers.deployContract('BlockHeaderMultiReadMock'),
   };
 }
 
@@ -76,44 +77,77 @@ describe('BlockHeader', function () {
 
     // validate inclusion
     await mine(1); // ensure blockhash is available
-    await expect(this.mock.$verifyBlockHeader(headerRLP)).to.eventually.be.true;
+    await expect(this.mock['$verifyBlockHeader(bytes)'](headerRLP)).to.eventually.be.true;
 
     // parsing check
-    await expect(this.mock.$getParentHash(headerRLP)).to.eventually.equal(block.parentHash);
-    await expect(this.mock.$getOmmersHash(headerRLP)).to.eventually.equal(block.sha3Uncles);
-    await expect(this.mock.$getCoinbase(headerRLP)).to.eventually.equal(ethers.getAddress(block.miner));
-    await expect(this.mock.$getStateRoot(headerRLP)).to.eventually.equal(block.stateRoot);
-    await expect(this.mock.$getTransactionsRoot(headerRLP)).to.eventually.equal(block.transactionsRoot);
-    await expect(this.mock.$getReceiptsRoot(headerRLP)).to.eventually.equal(block.receiptsRoot);
-    await expect(this.mock.$getLogsBloom(headerRLP)).to.eventually.equal(block.logsBloom);
-    await expect(this.mock.$getDifficulty(headerRLP)).to.eventually.equal(block.difficulty);
-    await expect(this.mock.$getNumber(headerRLP)).to.eventually.equal(block.number);
-    await expect(this.mock.$getGasLimit(headerRLP)).to.eventually.equal(block.gasLimit);
-    await expect(this.mock.$getGasUsed(headerRLP)).to.eventually.equal(block.gasUsed);
-    await expect(this.mock.$getTimestamp(headerRLP)).to.eventually.equal(block.timestamp);
-    await expect(this.mock.$getExtraData(headerRLP)).to.eventually.equal(block.extraData);
-    await expect(this.mock.$getPrevRandao(headerRLP)).to.eventually.equal(block.mixHash);
-    await expect(this.mock.$getNonce(headerRLP)).to.eventually.equal(block.nonce);
-    await expect(this.mock.$getBaseFeePerGas(headerRLP)).to.eventually.equal(block.baseFeePerGas);
-    await expect(this.mock.$getWithdrawalsRoot(headerRLP)).to.eventually.equal(block.withdrawalsRoot);
-    await expect(this.mock.$getBlobGasUsed(headerRLP)).to.eventually.equal(block.blobGasUsed);
-    await expect(this.mock.$getExcessBlobGas(headerRLP)).to.eventually.equal(block.excessBlobGas);
-    await expect(this.mock.$getParentBeaconBlockRoot(headerRLP)).to.eventually.equal(block.parentBeaconBlockRoot);
-    await expect(this.mock.$getRequestsHash(headerRLP)).to.eventually.equal(block.requestsHash);
+    await expect(this.mock['$getParentHash(bytes)'](headerRLP)).to.eventually.equal(block.parentHash);
+    await expect(this.mock['$getOmmersHash(bytes)'](headerRLP)).to.eventually.equal(block.sha3Uncles);
+    await expect(this.mock['$getCoinbase(bytes)'](headerRLP)).to.eventually.equal(ethers.getAddress(block.miner));
+    await expect(this.mock['$getStateRoot(bytes)'](headerRLP)).to.eventually.equal(block.stateRoot);
+    await expect(this.mock['$getTransactionsRoot(bytes)'](headerRLP)).to.eventually.equal(block.transactionsRoot);
+    await expect(this.mock['$getReceiptsRoot(bytes)'](headerRLP)).to.eventually.equal(block.receiptsRoot);
+    await expect(this.mock['$getLogsBloom(bytes)'](headerRLP)).to.eventually.equal(block.logsBloom);
+    await expect(this.mock['$getDifficulty(bytes)'](headerRLP)).to.eventually.equal(block.difficulty);
+    await expect(this.mock['$getNumber(bytes)'](headerRLP)).to.eventually.equal(block.number);
+    await expect(this.mock['$getGasLimit(bytes)'](headerRLP)).to.eventually.equal(block.gasLimit);
+    await expect(this.mock['$getGasUsed(bytes)'](headerRLP)).to.eventually.equal(block.gasUsed);
+    await expect(this.mock['$getTimestamp(bytes)'](headerRLP)).to.eventually.equal(block.timestamp);
+    await expect(this.mock['$getExtraData(bytes)'](headerRLP)).to.eventually.equal(block.extraData);
+    await expect(this.mock['$getPrevRandao(bytes)'](headerRLP)).to.eventually.equal(block.mixHash);
+    await expect(this.mock['$getNonce(bytes)'](headerRLP)).to.eventually.equal(block.nonce);
+    await expect(this.mock['$getBaseFeePerGas(bytes)'](headerRLP)).to.eventually.equal(block.baseFeePerGas);
+    await expect(this.mock['$getWithdrawalsRoot(bytes)'](headerRLP)).to.eventually.equal(block.withdrawalsRoot);
+    await expect(this.mock['$getBlobGasUsed(bytes)'](headerRLP)).to.eventually.equal(block.blobGasUsed);
+    await expect(this.mock['$getExcessBlobGas(bytes)'](headerRLP)).to.eventually.equal(block.excessBlobGas);
+    await expect(this.mock['$getParentBeaconBlockRoot(bytes)'](headerRLP)).to.eventually.equal(
+      block.parentBeaconBlockRoot,
+    );
+    await expect(this.mock['$getRequestsHash(bytes)'](headerRLP)).to.eventually.equal(block.requestsHash);
   });
 
   it('verify rejects tampered header', async function () {
     const block = await ethers.provider.send('eth_getBlockByNumber', ['latest', false]);
     const headerRLP = rlpEncodeBlock({ ...block, stateRoot: ethers.ZeroHash });
     await mine(1); // ensure blockhash is available
-    await expect(this.mock.$verifyBlockHeader(headerRLP)).to.eventually.be.false;
+    await expect(this.mock['$verifyBlockHeader(bytes)'](headerRLP)).to.eventually.be.false;
   });
 
   it('verify rejects header for out-of-range block number', async function () {
     const block = await ethers.provider.send('eth_getBlockByNumber', ['latest', false]);
     // Re-encode the header with a future block number so blockhash() returns 0.
     const headerRLP = rlpEncodeBlock({ ...block, number: ethers.toBeHex(BigInt(block.number) + 1_000_000n) });
-    await expect(this.mock.$verifyBlockHeader(headerRLP)).to.eventually.be.false;
+    await expect(this.mock['$verifyBlockHeader(bytes)'](headerRLP)).to.eventually.be.false;
+  });
+
+  it('reads all fields from pre-parsed list', async function () {
+    const block = await ethers.provider.send('eth_getBlockByNumber', ['latest', false]);
+    const headerRLP = rlpEncodeBlock(block);
+
+    await mine(1); // ensure blockhash is available
+    const result = await this.multiReadMock.multiRead(headerRLP);
+
+    expect(result.parentHash).to.equal(block.parentHash);
+    expect(result.ommersHash).to.equal(block.sha3Uncles);
+    expect(result.coinbase).to.equal(ethers.getAddress(block.miner));
+    expect(result.stateRoot).to.equal(block.stateRoot);
+    expect(result.transactionsRoot).to.equal(block.transactionsRoot);
+    expect(result.receiptsRoot).to.equal(block.receiptsRoot);
+    expect(result.logsBloom).to.equal(block.logsBloom);
+    expect(result.difficulty).to.equal(block.difficulty);
+    expect(result.number).to.equal(block.number);
+    expect(result.gasLimit).to.equal(block.gasLimit);
+    expect(result.gasUsed).to.equal(block.gasUsed);
+    expect(result.timestamp).to.equal(block.timestamp);
+    expect(result.extraData).to.equal(block.extraData);
+    expect(result.prevRandao).to.equal(block.mixHash);
+    expect(result.nonce).to.equal(block.nonce);
+    expect(result.baseFeePerGas).to.equal(block.baseFeePerGas);
+    expect(result.withdrawalsRoot).to.equal(block.withdrawalsRoot);
+    expect(result.blobGasUsed).to.equal(block.blobGasUsed);
+    expect(result.excessBlobGas).to.equal(block.excessBlobGas);
+    expect(result.parentBeaconBlockRoot).to.equal(block.parentBeaconBlockRoot);
+    expect(result.requestsHash).to.equal(block.requestsHash);
+    expect(result.verified).to.be.true;
   });
 
   describe('historical blocks', function () {
@@ -241,33 +275,41 @@ describe('BlockHeader', function () {
         expect(ethers.keccak256(headerRLP)).to.equal(block.hash);
 
         // parsing check
-        await check(this.mock.$getParentHash(headerRLP), block.parentHash, HeaderField.ParentHash);
-        await check(this.mock.$getOmmersHash(headerRLP), block.sha3Uncles, HeaderField.OmmersHash);
-        await check(this.mock.$getCoinbase(headerRLP), ethers.getAddress(block.miner), HeaderField.Coinbase);
-        await check(this.mock.$getStateRoot(headerRLP), block.stateRoot, HeaderField.StateRoot);
-        await check(this.mock.$getTransactionsRoot(headerRLP), block.transactionsRoot, HeaderField.TransactionsRoot);
-        await check(this.mock.$getReceiptsRoot(headerRLP), block.receiptsRoot, HeaderField.ReceiptsRoot);
-        await check(this.mock.$getLogsBloom(headerRLP), block.logsBloom, HeaderField.LogsBloom);
-        await check(this.mock.$getDifficulty(headerRLP), block.difficulty, HeaderField.Difficulty);
-        await check(this.mock.$getNumber(headerRLP), block.number, HeaderField.Number);
-        await check(this.mock.$getGasLimit(headerRLP), block.gasLimit, HeaderField.GasLimit);
-        await check(this.mock.$getGasUsed(headerRLP), block.gasUsed, HeaderField.GasUsed);
-        await check(this.mock.$getTimestamp(headerRLP), block.timestamp, HeaderField.Timestamp);
-        await check(this.mock.$getExtraData(headerRLP), block.extraData, HeaderField.ExtraData);
-        await check(this.mock.$getPrevRandao(headerRLP), block.mixHash, HeaderField.PrevRandao);
-        await check(this.mock.$getNonce(headerRLP), block.nonce, HeaderField.Nonce);
-        await check(this.mock.$getBaseFeePerGas(headerRLP), block.baseFeePerGas, HeaderField.BaseFeePerGas);
-        await check(this.mock.$getWithdrawalsRoot(headerRLP), block.withdrawalsRoot, HeaderField.WithdrawalsRoot);
-        await check(this.mock.$getBlobGasUsed(headerRLP), block.blobGasUsed, HeaderField.BlobGasUsed);
-        await check(this.mock.$getExcessBlobGas(headerRLP), block.excessBlobGas, HeaderField.ExcessBlobGas);
+        await check(this.mock['$getParentHash(bytes)'](headerRLP), block.parentHash, HeaderField.ParentHash);
+        await check(this.mock['$getOmmersHash(bytes)'](headerRLP), block.sha3Uncles, HeaderField.OmmersHash);
+        await check(this.mock['$getCoinbase(bytes)'](headerRLP), ethers.getAddress(block.miner), HeaderField.Coinbase);
+        await check(this.mock['$getStateRoot(bytes)'](headerRLP), block.stateRoot, HeaderField.StateRoot);
         await check(
-          this.mock.$getParentBeaconBlockRoot(headerRLP),
+          this.mock['$getTransactionsRoot(bytes)'](headerRLP),
+          block.transactionsRoot,
+          HeaderField.TransactionsRoot,
+        );
+        await check(this.mock['$getReceiptsRoot(bytes)'](headerRLP), block.receiptsRoot, HeaderField.ReceiptsRoot);
+        await check(this.mock['$getLogsBloom(bytes)'](headerRLP), block.logsBloom, HeaderField.LogsBloom);
+        await check(this.mock['$getDifficulty(bytes)'](headerRLP), block.difficulty, HeaderField.Difficulty);
+        await check(this.mock['$getNumber(bytes)'](headerRLP), block.number, HeaderField.Number);
+        await check(this.mock['$getGasLimit(bytes)'](headerRLP), block.gasLimit, HeaderField.GasLimit);
+        await check(this.mock['$getGasUsed(bytes)'](headerRLP), block.gasUsed, HeaderField.GasUsed);
+        await check(this.mock['$getTimestamp(bytes)'](headerRLP), block.timestamp, HeaderField.Timestamp);
+        await check(this.mock['$getExtraData(bytes)'](headerRLP), block.extraData, HeaderField.ExtraData);
+        await check(this.mock['$getPrevRandao(bytes)'](headerRLP), block.mixHash, HeaderField.PrevRandao);
+        await check(this.mock['$getNonce(bytes)'](headerRLP), block.nonce, HeaderField.Nonce);
+        await check(this.mock['$getBaseFeePerGas(bytes)'](headerRLP), block.baseFeePerGas, HeaderField.BaseFeePerGas);
+        await check(
+          this.mock['$getWithdrawalsRoot(bytes)'](headerRLP),
+          block.withdrawalsRoot,
+          HeaderField.WithdrawalsRoot,
+        );
+        await check(this.mock['$getBlobGasUsed(bytes)'](headerRLP), block.blobGasUsed, HeaderField.BlobGasUsed);
+        await check(this.mock['$getExcessBlobGas(bytes)'](headerRLP), block.excessBlobGas, HeaderField.ExcessBlobGas);
+        await check(
+          this.mock['$getParentBeaconBlockRoot(bytes)'](headerRLP),
           block.parentBeaconBlockRoot,
           HeaderField.ParentBeaconBlockRoot,
         );
-        await check(this.mock.$getRequestsHash(headerRLP), block.requestsHash, HeaderField.RequestsHash);
+        await check(this.mock['$getRequestsHash(bytes)'](headerRLP), block.requestsHash, HeaderField.RequestsHash);
         await check(
-          this.mock.$getBlockAccessListHash(headerRLP),
+          this.mock['$getBlockAccessListHash(bytes)'](headerRLP),
           block.blockAccessListHash,
           HeaderField.BlockAccessListHash,
         );
