@@ -3,7 +3,6 @@ pragma solidity ^0.8.24;
 
 import {ERC20Votes} from "../../token/ERC20/extensions/ERC20Votes.sol";
 import {VotesExtended, Votes} from "../../governance/utils/VotesExtended.sol";
-import {SafeCast} from "../../utils/math/SafeCast.sol";
 import {Time} from "../../utils/types/Time.sol";
 import {ERC6372Utils} from "../../utils/ERC6372Utils.sol";
 
