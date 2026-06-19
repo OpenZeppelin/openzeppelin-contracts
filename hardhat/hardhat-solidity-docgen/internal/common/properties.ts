@@ -12,10 +12,8 @@ import {
 import { findAll, isNodeType } from 'solidity-ast/utils.js';
 import { NatSpec, parseNatspec } from '../utils/natspec';
 import { DocItemContext, DOC_ITEM_CONTEXT } from '../site';
-import { mapValues } from '../utils/map-values';
 import { DocItem, docItemTypes } from '../doc-item';
 import { formatVariable } from './helpers';
-import { PropertyGetter } from '../templates';
 import { itemType } from '../utils/item-type';
 
 type TypeDefinition = StructDefinition | EnumDefinition | UserDefinedValueTypeDefinition;
