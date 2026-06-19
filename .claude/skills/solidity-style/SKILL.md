@@ -34,7 +34,7 @@ Emit **after** the state change. Past-tense CapWords names (`OwnershipTransferre
 
 - Single-line: `/// @dev …`
 - Multi-line: `/** @dev … */`
-- Document everything: public, internal, and private functions; events; errors; constructors.
+- Document public and internal functions, events, errors, and constructors. Private functions are optional — they don't appear on the docs site.
 
 **Overrides**:
 
@@ -62,7 +62,9 @@ File order:
 5. Contract-level NatSpec
 6. Contract declaration
 
-Inside the body: `using` → structs/enums → state vars → constants → errors → events → constructor → modifiers → external/public functions → internal → private.
+Leave a blank line between the SPDX/`last updated` header and `pragma`.
+
+Inside the body: `using` → structs/enums → constants → state vars → events → errors → modifiers → constructor → external/public functions → internal → private.
 
 Contracts not meant to be deployed on their own (bases, extensions, mixins) are declared `abstract` so they can only be used by inheriting from them.
 

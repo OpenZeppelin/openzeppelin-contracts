@@ -53,15 +53,15 @@ contract ERC20Mock is ERC20 {
 
 ## Hardhat + Chai (`.test.js`)
 
-**Fixtures**: use `loadFixture` from `@nomicfoundation/hardhat-network-helpers`. Define an async `fixture` and call `loadFixture(fixture)` in `beforeEach`.
+**Fixtures**: use `loadFixture` from `@nomicfoundation/hardhat-network-helpers`. Declare the fixture with a named `function`, not an inline arrow — `loadFixture` keys its cache on the function reference, so an anonymous function (especially an inline `loadFixture(async () => {...})`) re-runs on every test instead of restoring the snapshot.
 
 ```javascript
-const fixture = async () => {
+async function fixture() {
   const [holder, recipient] = await ethers.getSigners();
   const token = await ethers.deployContract('$ERC20', [name, symbol]);
   await token.$_mint(holder, initialSupply);
   return { holder, recipient, token };
-};
+}
 
 beforeEach(async function () {
   Object.assign(this, await loadFixture(fixture));
