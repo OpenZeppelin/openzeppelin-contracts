@@ -1,13 +1,17 @@
-const { ethers, predeploy } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-
-const { getDomain, PackedUserOperation, UserOperationRequest } = require('../../helpers/eip712');
-const { ERC4337Helper } = require('../../helpers/erc4337');
-
-const { shouldBehaveLikePaymaster } = require('./Paymaster.behavior');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { getDomain } from '../../helpers/eip712';
+import { PackedUserOperation, UserOperationRequest } from '../../helpers/eip712-types';
+import { ERC4337Helper } from '../../helpers/erc4337';
+import { shouldBehaveLikePaymaster } from './Paymaster.behavior';
 
 const BLOCK_RANGE_FLAG = 0x800000000000n;
+
+const connection = await network.create();
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = connection;
 
 for (const [name, opts] of Object.entries({
   PaymasterSigner: { postOp: true, timeRange: true },
@@ -23,7 +27,7 @@ for (const [name, opts] of Object.entries({
     const paymasterSigner = ethers.Wallet.createRandom();
 
     // ERC-4337 account
-    const helper = new ERC4337Helper();
+    const helper = new ERC4337Helper(connection);
     const account = await helper.newAccount('$AccountECDSAMock', [accountSigner, 'AccountECDSA', '1']);
     await account.deploy();
 
@@ -36,7 +40,7 @@ for (const [name, opts] of Object.entries({
     ]);
 
     // Domains
-    const entrypointDomain = await getDomain(predeploy.entrypoint.v09);
+    const entrypointDomain = await getDomain(ethers.predeploy.entrypoint.v09);
     const paymasterDomain = await getDomain(paymaster);
 
     const signUserOp = userOp =>
@@ -81,7 +85,7 @@ for (const [name, opts] of Object.entries({
 
   describe(name, function () {
     beforeEach(async function () {
-      Object.assign(this, await loadFixture(fixture));
+      Object.assign(this, connection, await loadFixture(fixture));
     });
 
     it('rejects validAfter with the flag set when validUntil has no flag', async function () {
@@ -94,8 +98,8 @@ for (const [name, opts] of Object.entries({
         .then(op => this.paymasterSignUserOp(op, { validAfter: BLOCK_RANGE_FLAG | 1n, validUntil: 0n }))
         .then(op => this.signUserOp(op));
 
-      await expect(predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver))
-        .to.be.revertedWithCustomError(predeploy.entrypoint.v09, 'FailedOp')
+      await expect(ethers.predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver))
+        .to.be.revertedWithCustomError(ethers.predeploy.entrypoint.v09, 'FailedOp')
         .withArgs(0n, 'AA34 signature error');
     });
 
@@ -109,8 +113,8 @@ for (const [name, opts] of Object.entries({
         .then(op => this.paymasterSignUserOp(op, { validAfter: 0n, validUntil: BLOCK_RANGE_FLAG | 1n }))
         .then(op => this.signUserOp(op));
 
-      await expect(predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver))
-        .to.be.revertedWithCustomError(predeploy.entrypoint.v09, 'FailedOp')
+      await expect(ethers.predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver))
+        .to.be.revertedWithCustomError(ethers.predeploy.entrypoint.v09, 'FailedOp')
         .withArgs(0n, 'AA34 signature error');
     });
 
@@ -125,8 +129,8 @@ for (const [name, opts] of Object.entries({
         })
         .then(op => this.signUserOp(op));
 
-      await expect(predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver))
-        .to.be.revertedWithCustomError(predeploy.entrypoint.v09, 'FailedOp')
+      await expect(ethers.predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver))
+        .to.be.revertedWithCustomError(ethers.predeploy.entrypoint.v09, 'FailedOp')
         .withArgs(0n, 'AA34 signature error');
     });
 

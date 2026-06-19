@@ -1,13 +1,17 @@
-const { ethers, predeploy } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { anyValue } = require('@nomicfoundation/hardhat-chai-matchers/withArgs');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { anyValue } from '@nomicfoundation/hardhat-ethers-chai-matchers/withArgs';
+import { getDomain } from '../../helpers/eip712';
+import { formatType, PackedUserOperation } from '../../helpers/eip712-types';
+import { ERC4337Helper } from '../../helpers/erc4337';
+import { encodeBatch, encodeMode, CALL_TYPE_BATCH } from '../../helpers/erc7579';
+import { shouldBehaveLikePaymaster } from './Paymaster.behavior';
 
-const { getDomain, formatType, PackedUserOperation } = require('../../helpers/eip712');
-const { ERC4337Helper } = require('../../helpers/erc4337');
-const { encodeBatch, encodeMode, CALL_TYPE_BATCH } = require('../../helpers/erc7579');
-
-const { shouldBehaveLikePaymaster } = require('./Paymaster.behavior');
+const connection = await network.create();
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = connection;
 
 const value = ethers.parseEther('1');
 
@@ -22,7 +26,7 @@ async function fixture() {
   const oracleSigner = ethers.Wallet.createRandom();
 
   // ERC-4337 account
-  const helper = new ERC4337Helper();
+  const helper = new ERC4337Helper(connection);
   const account = await helper.newAccount('$AccountECDSAMock', [accountSigner, 'AccountECDSA', '1']);
   await account.deploy();
 
@@ -32,7 +36,7 @@ async function fixture() {
   await paymaster.$_grantRole(ethers.id('WITHDRAWER_ROLE'), admin);
 
   // Domains
-  const entrypointDomain = await getDomain(predeploy.entrypoint.v09);
+  const entrypointDomain = await getDomain(ethers.predeploy.entrypoint.v09);
   const paymasterDomain = await getDomain(paymaster);
 
   const signUserOp = userOp =>
@@ -103,7 +107,7 @@ async function fixture() {
 
 describe('PaymasterERC20', function () {
   beforeEach(async function () {
-    Object.assign(this, await loadFixture(fixture));
+    Object.assign(this, connection, await loadFixture(fixture));
   });
 
   describe('core paymaster behavior', async function () {
@@ -153,7 +157,7 @@ describe('PaymasterERC20', function () {
         .then(op => this.signUserOp(op));
 
       // send it to the entrypoint
-      const txPromise = predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver);
+      const txPromise = ethers.predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver);
 
       // check main events (target call and sponsoring)
       await expect(txPromise)
@@ -170,13 +174,15 @@ describe('PaymasterERC20', function () {
       const { actualGasCost } = logs.find(ev => ev.fragment?.name == 'UserOperationEvent').args;
       // check token balances moved as expected
       await expect(txPromise).to.changeTokenBalances(
+        ethers,
         this.token,
         this.tokenMovements.map(({ account }) => account),
         this.tokenMovements.map(({ factor = 0n, offset = 0n }) => offset + tokenAmount * factor),
       );
       // check that ether moved as expected
       await expect(txPromise).to.changeEtherBalances(
-        [predeploy.entrypoint.v09, this.receiver],
+        ethers,
+        [ethers.predeploy.entrypoint.v09, this.receiver],
         [-actualGasCost, actualGasCost],
       );
 
@@ -223,19 +229,20 @@ describe('PaymasterERC20', function () {
         )
         .then(op => this.signUserOp(op));
 
-      const txPromise = predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver);
+      const txPromise = ethers.predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver);
 
       // Reverted post op does not revert the operation
       const { logs } = await txPromise.then(tx => tx.wait());
       const [, , , postOpRevertReason] = logs.find(v => v.fragment?.name === 'PostOpRevertReason').args;
-      const postOpError = predeploy.entrypoint.v09.interface.parseError(postOpRevertReason);
+      const postOpError = ethers.predeploy.entrypoint.v09.interface.parseError(postOpRevertReason);
       expect(postOpError.name).to.eq('PostOpReverted');
       const [paymasterRevertReason] = postOpError.args;
       const { name, args } = this.paymaster.interface.parseError(paymasterRevertReason);
       expect(name).to.eq('PaymasterERC20FailedRefund');
       const [token, prefundAmount] = args;
       expect(token).to.eq(erc20Blocklist.target);
-      await expect(txPromise).changeTokenBalances(
+      await expect(txPromise).to.changeTokenBalances(
+        ethers,
         erc20Blocklist,
         [this.paymaster, signedUserOp.sender],
         [prefundAmount, -prefundAmount],
@@ -250,8 +257,8 @@ describe('PaymasterERC20', function () {
         .then(op => this.signUserOp(op));
 
       // send it to the entrypoint
-      await expect(predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver))
-        .to.be.revertedWithCustomError(predeploy.entrypoint.v09, 'FailedOp')
+      await expect(ethers.predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver))
+        .to.be.revertedWithCustomError(ethers.predeploy.entrypoint.v09, 'FailedOp')
         .withArgs(0n, 'AA34 signature error');
     });
 
@@ -266,8 +273,8 @@ describe('PaymasterERC20', function () {
         .then(op => this.signUserOp(op));
 
       // send it to the entrypoint
-      await expect(predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver))
-        .to.be.revertedWithCustomError(predeploy.entrypoint.v09, 'FailedOp')
+      await expect(ethers.predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver))
+        .to.be.revertedWithCustomError(ethers.predeploy.entrypoint.v09, 'FailedOp')
         .withArgs(0n, 'AA34 signature error');
     });
 
@@ -282,8 +289,8 @@ describe('PaymasterERC20', function () {
         .then(op => this.signUserOp(op));
 
       // send it to the entrypoint
-      await expect(predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver))
-        .to.be.revertedWithCustomError(predeploy.entrypoint.v09, 'FailedOp')
+      await expect(ethers.predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver))
+        .to.be.revertedWithCustomError(ethers.predeploy.entrypoint.v09, 'FailedOp')
         .withArgs(0n, 'AA34 signature error');
     });
 
@@ -296,8 +303,8 @@ describe('PaymasterERC20', function () {
         .then(op => this.paymasterSignUserOp(op, { tokenPrice: 0n }))
         .then(op => this.signUserOp(op));
 
-      await expect(predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver))
-        .to.be.revertedWithCustomError(predeploy.entrypoint.v09, 'FailedOp')
+      await expect(ethers.predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver))
+        .to.be.revertedWithCustomError(ethers.predeploy.entrypoint.v09, 'FailedOp')
         .withArgs(0n, 'AA34 signature error');
     });
   });
@@ -310,17 +317,19 @@ describe('PaymasterERC20', function () {
     it('withdraw some token', async function () {
       await expect(
         this.paymaster.connect(this.admin).withdrawTokens(this.token, this.receiver, 10n),
-      ).to.changeTokenBalances(this.token, [this.paymaster, this.receiver], [-10n, 10n]);
+      ).to.changeTokenBalances(ethers, this.token, [this.paymaster, this.receiver], [-10n, 10n]);
     });
 
     it('withdraw all token', async function () {
       await expect(
         this.paymaster.connect(this.admin).withdrawTokens(this.token, this.receiver, ethers.MaxUint256),
-      ).to.changeTokenBalances(this.token, [this.paymaster, this.receiver], [-value, value]);
+      ).to.changeTokenBalances(ethers, this.token, [this.paymaster, this.receiver], [-value, value]);
     });
 
     it('only admin can withdraw', async function () {
-      await expect(this.paymaster.connect(this.other).withdrawTokens(this.token, this.receiver, 10n)).to.be.reverted;
+      await expect(this.paymaster.connect(this.other).withdrawTokens(this.token, this.receiver, 10n)).to.be.revert(
+        ethers,
+      );
     });
   });
 });
