@@ -26,10 +26,10 @@ describe('ERC1967Clones', function () {
         const predictedAddress = await ethers.provider
           .getTransactionCount(this.factory)
           .then(nonce => ethers.getCreateAddress({ from: this.factory.target, nonce }));
-        const deploymentTx = await this.factory.$deploy(implementation);
+        const deploymentTx = await this.factory.$clone(implementation);
 
         await expect(deploymentTx)
-          .to.emit(this.factory, 'return$deploy_address')
+          .to.emit(this.factory, 'return$clone_address')
           .withArgs(predictedAddress)
           .to.emit(this.erc1967.attach(predictedAddress), 'Upgraded')
           .withArgs(implementation);
@@ -44,17 +44,38 @@ describe('ERC1967Clones', function () {
     });
 
     shouldBehaveLikeProxy({ allowUninitialized: true, allowNonContractAddress: true });
+
+    it('forwards value to the new clone', async function () {
+      const value = ethers.parseEther('1');
+      await this.admin.sendTransaction({ to: this.factory, value });
+
+      const predictedAddress = await ethers.provider
+        .getTransactionCount(this.factory)
+        .then(nonce => ethers.getCreateAddress({ from: this.factory.target, nonce }));
+
+      await expect(this.factory.$clone(this.implementation, ethers.Typed.uint256(value))).to.changeEtherBalances(
+        [this.factory, predictedAddress],
+        [-value, value],
+      );
+    });
+
+    it('reverts when factory balance is below value', async function () {
+      const value = ethers.parseEther('1');
+      await expect(this.factory.$clone(this.implementation, ethers.Typed.uint256(value)))
+        .to.be.revertedWithCustomError(this.factory, 'InsufficientBalance')
+        .withArgs(0n, value);
+    });
   });
 
   describe('deterministic deployment (create2)', function () {
     before(function () {
       this.createProxy = async (implementation, initData, opts = {}) => {
         const salt = ethers.Typed.bytes32(opts.salt ?? generators.bytes32());
-        const predictedAddress = await this.factory.$computeAddress(implementation, salt);
-        const deploymentTx = await this.factory.$deploy(implementation, salt);
+        const predictedAddress = await this.factory.$predictDeterministicAddress(implementation, salt);
+        const deploymentTx = await this.factory.$cloneDeterministic(implementation, salt);
 
         await expect(deploymentTx)
-          .to.emit(this.factory, 'return$deploy_address_bytes32')
+          .to.emit(this.factory, 'return$cloneDeterministic_address_bytes32')
           .withArgs(predictedAddress)
           .to.emit(this.erc1967.attach(predictedAddress), 'Upgraded')
           .withArgs(implementation);
@@ -69,5 +90,59 @@ describe('ERC1967Clones', function () {
     });
 
     shouldBehaveLikeProxy({ allowUninitialized: true, allowNonContractAddress: true });
+
+    it('reverts when the same implementation and salt are reused', async function () {
+      const salt = generators.bytes32();
+      await expect(this.factory.$cloneDeterministic(this.implementation, salt)).to.not.be.reverted;
+      await expect(this.factory.$cloneDeterministic(this.implementation, salt)).to.be.revertedWithCustomError(
+        this.factory,
+        'FailedDeployment',
+      );
+    });
+
+    it('predicts addresses for an arbitrary deployer', async function () {
+      const salt = generators.bytes32();
+      const deployer = ethers.Wallet.createRandom().address;
+      const predicted = await this.factory.$predictDeterministicAddress(
+        this.implementation,
+        ethers.Typed.bytes32(salt),
+        ethers.Typed.address(deployer),
+      );
+
+      const expected = await this.factory.$predictDeterministicAddress(this.implementation, ethers.Typed.bytes32(salt));
+      expect(predicted).to.not.equal(expected);
+      expect(predicted).to.equal(
+        await this.factory.$predictDeterministicAddress(
+          this.implementation,
+          ethers.Typed.bytes32(salt),
+          ethers.Typed.address(deployer),
+        ),
+      );
+    });
+
+    it('forwards value to the new clone', async function () {
+      const value = ethers.parseEther('1');
+      await this.admin.sendTransaction({ to: this.factory, value });
+
+      const salt = generators.bytes32();
+      const predictedAddress = await this.factory.$predictDeterministicAddress(
+        this.implementation,
+        ethers.Typed.bytes32(salt),
+      );
+
+      await expect(
+        this.factory.$cloneDeterministic(this.implementation, ethers.Typed.bytes32(salt), ethers.Typed.uint256(value)),
+      ).to.changeEtherBalances([this.factory, predictedAddress], [-value, value]);
+    });
+
+    it('reverts when factory balance is below value', async function () {
+      const value = ethers.parseEther('1');
+      const salt = generators.bytes32();
+      await expect(
+        this.factory.$cloneDeterministic(this.implementation, ethers.Typed.bytes32(salt), ethers.Typed.uint256(value)),
+      )
+        .to.be.revertedWithCustomError(this.factory, 'InsufficientBalance')
+        .withArgs(0n, value);
+    });
   });
 });

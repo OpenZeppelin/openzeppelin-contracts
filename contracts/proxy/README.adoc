@@ -13,7 +13,7 @@ In order to avoid clashes with the storage variables of the implementation contr
 
 - {ERC1967Utils}: Internal functions to get and set the storage slots defined in ERC-1967.
 - {ERC1967Proxy}: A proxy using ERC-1967 storage slots. Not upgradeable by default.
-- {ERC1967Clones}: A library that can deploy minimal ERC-1967 proxies that replicate the behavior of {ERC1967Proxy} with a bytecode optimized for cheap deployment and usage. Usable by factories only.
+- {ERC1967Clones}: A library that can deploy minimal ERC-1967 proxies that replicate the behavior of {ERC1967Proxy} with a bytecode optimized for cheap deployment and usage. Unlike {ERC1967Proxy}, the clones do not accept initialization data at construction, so the deployer is expected to initialize the proxy in the same transaction as the deployment.
 
 There are two alternative ways to add upgradeability to an ERC-1967 proxy. Their differences are explained below in <<transparent-vs-uups>>.
 

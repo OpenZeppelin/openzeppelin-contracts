@@ -6,8 +6,25 @@ import {Create2} from "../../utils/Create2.sol";
 import {Errors} from "../../utils/Errors.sol";
 import {ERC1967Utils} from "./ERC1967Utils.sol";
 
+/**
+ * @dev https://eips.ethereum.org/EIPS/eip-1967[ERC-1967] is the standard for upgradeable proxies that
+ * store the implementation address in a fixed storage slot. This library deploys minimal proxies that
+ * mimic the behavior of {ERC1967Proxy} with a bytecode optimized for cheap deployment and usage. The
+ * deployment emits {IERC1967-Upgraded} from the proxy address, so on-chain tooling and indexers can
+ * track the new instance from the block it was created in.
+ *
+ * The library includes functions to deploy a proxy using either `create` (traditional deployment) or
+ * `create2` (salted deterministic deployment). It also includes a function to predict the addresses of
+ * proxies deployed using the deterministic method.
+ *
+ * IMPORTANT: Unlike {ERC1967Proxy}, this proxy does not run an initialization call at construction and
+ * does not check that `implementation` has code. Calls forwarded to a non-contract `implementation`
+ * succeed silently and return empty data, which an uninitialized clone cannot distinguish from a
+ * legitimate response. Factories using this library are expected to invoke the initializer on the
+ * returned address in the same transaction as the deployment.
+ */
 library ERC1967Clones {
-    /// @dev Topic1 for the IERC1967.Upgraded event. Equal to keccak256("Upgraded(address)").
+    /// @dev Topic1 for the {IERC1967-Upgraded} event. Equal to `keccak256("Upgraded(address)")`.
     // solhint-disable-next-line private-vars-leading-underscore
     bytes32 internal constant UPGRADE_TOPIC1 = 0xbc7cd75a20ee27fd9adebab32041f755214dbc6bffa90cc0225b39da2e5c2d3b;
 
@@ -60,16 +77,40 @@ library ERC1967Clones {
      * 0x45   | 55          | SSTORE           | 0 0x39                     | [0...0x39): proxycode
      * 0x46   | f3          | RETURN           |                            |
      *
-     * Note:
+     * NOTE:
      * - 0x39: length of the proxy code
-     * - 0x47: length of the deployment code, since the proxy code is just after the deployment code, that is also to offset of the proxy code
-     * - 0x09: position of the ERC1967Implementation slot in the proxy code.
+     * - 0x47: length of the deployment code, since the proxy code is just after the deployment code, that is also the offset of the proxy code
+     * - 0x09: position of the ERC1967 implementation slot in the proxy code.
      */
-    function deploy(address implementation) internal returns (address addr) {
-        return deploy(implementation, uint256(0));
+
+    /**
+     * @dev Deploys and returns the address of a minimal ERC-1967 proxy that delegates to `implementation`.
+     *
+     * This function uses the create opcode, which should never revert.
+     *
+     * Emits an {IERC1967-Upgraded} event from the deployed proxy.
+     *
+     * WARNING: This function does not check if `implementation` has code, and the deployed proxy does not run
+     * any initialization call at construction.
+     */
+    function clone(address implementation) internal returns (address) {
+        return clone(implementation, 0);
     }
 
-    function deploy(address implementation, uint256 amount) internal returns (address addr) {
+    /**
+     * @dev Same as {xref-ERC1967Clones-clone-address-}[clone], but with a `value` parameter to send native
+     * currency to the new contract.
+     *
+     * Emits an {IERC1967-Upgraded} event from the deployed proxy.
+     *
+     * WARNING: This function does not check if `implementation` has code, and the deployed proxy does not run
+     * any initialization call at construction.
+     *
+     * NOTE: Using a non-zero value at creation will require the contract using this function (e.g. a factory)
+     * to always have enough balance for new deployments. Consider exposing this function under a payable method.
+     */
+    function clone(address implementation, uint256 value) internal returns (address instance) {
+        require(address(this).balance >= value, Errors.InsufficientBalance(address(this).balance, value));
         bytes32 implementationSlot = ERC1967Utils.IMPLEMENTATION_SLOT;
         bytes32 topic1 = UPGRADE_TOPIC1;
         assembly ("memory-safe") {
@@ -84,18 +125,47 @@ library ERC1967Clones {
             mstore(ptr, 0x60395f8160475f3973)
 
             // Call create
-            addr := create(amount, add(ptr, 0x17), 0x80)
+            instance := create(value, add(ptr, 0x17), 0x80)
         }
 
         // deployment code doesn't have a revert, so no need to handle returndata
-        require(addr != address(0), Errors.FailedDeployment());
+        require(instance != address(0), Errors.FailedDeployment());
     }
 
-    function deploy(address implementation, bytes32 salt) internal returns (address addr) {
-        return deploy(implementation, uint256(0), salt);
+    /**
+     * @dev Deploys and returns the address of a minimal ERC-1967 proxy that delegates to `implementation`.
+     *
+     * This function uses the create2 opcode and a `salt` to deterministically deploy the clone. Using the
+     * same `implementation` and `salt` multiple times will revert, since the clones cannot be deployed twice
+     * at the same address.
+     *
+     * Emits an {IERC1967-Upgraded} event from the deployed proxy.
+     *
+     * WARNING: This function does not check if `implementation` has code, and the deployed proxy does not run
+     * any initialization call at construction.
+     */
+    function cloneDeterministic(address implementation, bytes32 salt) internal returns (address) {
+        return cloneDeterministic(implementation, salt, 0);
     }
 
-    function deploy(address implementation, uint256 amount, bytes32 salt) internal returns (address addr) {
+    /**
+     * @dev Same as {xref-ERC1967Clones-cloneDeterministic-address-bytes32-}[cloneDeterministic], but with a
+     * `value` parameter to send native currency to the new contract.
+     *
+     * Emits an {IERC1967-Upgraded} event from the deployed proxy.
+     *
+     * WARNING: This function does not check if `implementation` has code, and the deployed proxy does not run
+     * any initialization call at construction.
+     *
+     * NOTE: Using a non-zero value at creation will require the contract using this function (e.g. a factory)
+     * to always have enough balance for new deployments. Consider exposing this function under a payable method.
+     */
+    function cloneDeterministic(
+        address implementation,
+        bytes32 salt,
+        uint256 value
+    ) internal returns (address instance) {
+        require(address(this).balance >= value, Errors.InsufficientBalance(address(this).balance, value));
         bytes32 implementationSlot = ERC1967Utils.IMPLEMENTATION_SLOT;
         bytes32 topic1 = UPGRADE_TOPIC1;
         assembly ("memory-safe") {
@@ -110,18 +180,22 @@ library ERC1967Clones {
             mstore(ptr, 0x60395f8160475f3973)
 
             // Call create2
-            addr := create2(amount, add(ptr, 0x17), 0x80, salt)
+            instance := create2(value, add(ptr, 0x17), 0x80, salt)
         }
-
-        // deployment code doesn't have a revert, so no need to handle returndata
-        require(addr != address(0), Errors.FailedDeployment());
+        require(instance != address(0), Errors.FailedDeployment());
     }
 
-    function computeAddress(address implementation, bytes32 salt) internal view returns (address) {
-        return computeAddress(implementation, salt, address(this));
+    /// @dev Computes the address of a clone deployed using {ERC1967Clones-cloneDeterministic}.
+    function predictDeterministicAddress(address implementation, bytes32 salt) internal view returns (address) {
+        return predictDeterministicAddress(implementation, salt, address(this));
     }
 
-    function computeAddress(address implementation, bytes32 salt, address deployer) internal pure returns (address) {
+    /// @dev Computes the address of a clone deployed using {ERC1967Clones-cloneDeterministic}.
+    function predictDeterministicAddress(
+        address implementation,
+        bytes32 salt,
+        address deployer
+    ) internal pure returns (address) {
         return Create2.computeAddress(salt, _getCloneHash(implementation), deployer);
     }
 
