@@ -205,7 +205,13 @@ invariant absentExecutorIsNotStored(address module, uint256 index)
 */
 // This guarantees that at most one fallback module is active for a given initData (i.e. selector)
 rule fallbackModule(address module, bytes initData) {
-    assert isModuleInstalled(FALLBACK_TYPE(), module, initData) <=> (initData.length >= 4 && getFallbackHandler(getDataSelector(initData)) == module);
+    assert (
+        isModuleInstalled(FALLBACK_TYPE(), module, initData)
+    ) <=> (
+        module != 0 &&
+        initData.length >= 4 &&
+        getFallbackHandler(getDataSelector(initData)) == module
+    );
 }
 
 rule moduleManagementRule(env e, method f, calldataarg args, uint256 moduleTypeId, address module, bytes additionalContext)
@@ -265,17 +271,8 @@ rule installModuleRule(env e, uint256 moduleTypeId, address module, bytes initDa
 
     // No side effect on other modules
     assert isOtherModuleInstalledBefore != isOtherModuleInstalledAfter => (
-        (
-            moduleTypeId == otherModuleTypeId &&
-            module == otherModule
-        ) || (
-            moduleTypeId == FALLBACK_TYPE() &&
-            otherModuleTypeId == FALLBACK_TYPE() &&
-            otherModule == 0 && // when a fallback module is installed, the 0 module is "removed" for that selector
-            getDataSelector(otherInitData) == getDataSelector(initData) &&
-            isOtherModuleInstalledBefore &&
-            !isOtherModuleInstalledAfter
-        )
+        moduleTypeId == otherModuleTypeId &&
+        module == otherModule
     );
 }
 
@@ -304,17 +301,8 @@ rule uninstallModuleRule(env e, uint256 moduleTypeId, address module, bytes init
 
     // No side effect on other modules
     assert isOtherModuleInstalledBefore != isOtherModuleInstalledAfter => (
-        (
-            moduleTypeId == otherModuleTypeId &&
-            module == otherModule
-        ) || (
-            moduleTypeId == FALLBACK_TYPE() &&
-            otherModuleTypeId == FALLBACK_TYPE() &&
-            otherModule == 0 && // when a fallback module is uninstalled, the 0 module is "added" for that selector
-            getDataSelector(otherInitData) == getDataSelector(initData) &&
-            !isOtherModuleInstalledBefore &&
-            isOtherModuleInstalledAfter
-        )
+        moduleTypeId == otherModuleTypeId &&
+        module == otherModule
     );
 }
 

@@ -64,7 +64,7 @@ abstract contract AccountERC7579Hooked is AccountERC7579 {
         bytes calldata data
     ) public view virtual override returns (bool) {
         return
-            (moduleTypeId == MODULE_TYPE_HOOK && module == hook()) ||
+            (moduleTypeId == MODULE_TYPE_HOOK && module != address(0) && module == hook()) ||
             super.isModuleInstalled(moduleTypeId, module, data);
     }
 
