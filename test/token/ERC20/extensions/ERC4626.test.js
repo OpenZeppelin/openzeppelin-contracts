@@ -4,6 +4,7 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
 
 const { Enum } = require('../../../helpers/enums');
+const { selector, interfaceId } = require('../../../helpers/methods');
 
 const name = 'My Token';
 const symbol = 'MTKN';
@@ -44,6 +45,58 @@ describe('ERC4626', function () {
       const vault = await ethers.deployContract('$ERC4626OffsetMock', ['', '', token, offset]);
       await expect(vault.decimals()).to.be.revertedWithPanic(PANIC_CODES.ARITHMETIC_UNDER_OR_OVERFLOW);
     }
+  });
+
+  // The share-conversion math computes `10 ** _decimalsOffset()`, which overflows uint256 from offset 78 onwards
+  // (10 ** 77 < 2 ** 256 <= 10 ** 78). This is a tighter ceiling than the `decimals()` overflow above (offset >= 238)
+  // and bricks every deposit/mint/preview/conversion, not just `decimals()`.
+  it('conversions work at the largest supported offset (77)', async function () {
+    const token = await ethers.deployContract('$ERC20DecimalsMock', ['', '', decimals]);
+    const vault = await ethers.deployContract('$ERC4626OffsetMock', ['', '', token, 77n]);
+    expect(await vault.decimals()).to.equal(decimals + 77n);
+    // empty vault: previewDeposit(1) equals the virtual shares, 10 ** 77
+    expect(await vault.previewDeposit(1n)).to.equal(10n ** 77n);
+  });
+
+  it('conversions revert with an arithmetic panic at offset 78', async function () {
+    const token = await ethers.deployContract('$ERC20DecimalsMock', ['', '', decimals]);
+    const vault = await ethers.deployContract('$ERC4626OffsetMock', ['', '', token, 78n]);
+    // `decimals()` still fits (18 + 78 = 96 <= 255), but the conversion math overflows
+    expect(await vault.decimals()).to.equal(decimals + 78n);
+    await expect(vault.previewDeposit(1n)).to.be.revertedWithPanic(PANIC_CODES.ARITHMETIC_UNDER_OR_OVERFLOW);
+  });
+
+  describe('payable does not change deposit/mint selectors or the IERC4626 interface id', function () {
+    // Confirms the maintainer ask: making deposit/mint payable breaks neither the 4-byte function selector nor the
+    // ERC-165 interface id. Both derive from the function signature (name + parameter types), never from state
+    // mutability, so they are unchanged. These constants lock that guarantee against future edits.
+    const IERC4626_INTERFACE = [
+      'asset()',
+      'totalAssets()',
+      'convertToShares(uint256)',
+      'convertToAssets(uint256)',
+      'maxDeposit(address)',
+      'previewDeposit(uint256)',
+      'deposit(uint256,address)',
+      'maxMint(address)',
+      'previewMint(uint256)',
+      'mint(uint256,address)',
+      'maxWithdraw(address)',
+      'previewWithdraw(uint256)',
+      'withdraw(uint256,address,address)',
+      'maxRedeem(address)',
+      'previewRedeem(uint256)',
+      'redeem(uint256,address,address)',
+    ];
+
+    it('deposit and mint keep their selectors', function () {
+      expect(selector('deposit(uint256,address)')).to.equal('0x6e553f65');
+      expect(selector('mint(uint256,address)')).to.equal('0x94bf804d');
+    });
+
+    it('IERC4626 interface id is unchanged', function () {
+      expect(interfaceId(IERC4626_INTERFACE)).to.equal('0x87dfe5a0');
+    });
   });
 
   describe('payable deposit/mint reject unexpected native value', function () {

@@ -38,31 +38,27 @@ describe('ERC7535', function () {
       await setBalance(this.holder.address, ethers.parseEther('1000'));
     });
 
-    it('deposit reverts when msg.value < assets', async function () {
-      const assets = ethers.parseEther('1');
-      await expect(this.vault.connect(this.holder).deposit(assets, this.recipient, { value: assets - 1n }))
-        .to.be.revertedWithCustomError(this.vault, 'ERC7535InsufficientNativeValue')
-        .withArgs(assets - 1n, assets);
-    });
+    it('deposit mints previewDeposit(msg.value) shares, ignoring the assets argument', async function () {
+      const value = ethers.parseEther('1');
+      const expectedShares = await this.vault.previewDeposit(value);
 
-    it('deposit succeeds when msg.value == assets', async function () {
-      const assets = ethers.parseEther('1');
-      await expect(this.vault.connect(this.holder).deposit(assets, this.recipient, { value: assets })).to.not.be
-        .reverted;
-    });
+      // Per ERC-7535 the `assets` argument is advisory; shares are priced off `msg.value`. Passing 0 — which under
+      // an assets-based implementation would mint 0 shares and donate the ether — still mints for the full value.
+      const tx = this.vault.connect(this.holder).deposit(0n, this.recipient, { value });
 
-    it('deposit keeps the excess as a donation when msg.value > assets', async function () {
-      const assets = ethers.parseEther('1');
-      const extra = ethers.parseEther('0.5');
-      // Shares are priced on `assets` (the in-flight value is excluded from the rate via _pretotalAssets).
-      const expectedShares = await this.vault.previewDeposit(assets);
-
-      const tx = this.vault.connect(this.holder).deposit(assets, this.recipient, { value: assets + extra });
-
-      await expect(tx).to.changeEtherBalances([this.holder, this.vault], [-(assets + extra), assets + extra]);
+      await expect(tx).to.changeEtherBalances([this.holder, this.vault], [-value, value]);
       await expect(tx).to.changeTokenBalance(this.vault, this.recipient, expectedShares);
-      // The full msg.value entered the vault; the excess is an unminted donation.
-      expect(await this.vault.totalAssets()).to.equal(assets + extra);
+      expect(await this.vault.totalAssets()).to.equal(value);
+    });
+
+    it('deposit converts the entire msg.value to shares (no excess donation)', async function () {
+      const value = ethers.parseEther('1.5');
+      const expectedShares = await this.vault.previewDeposit(value);
+
+      // Even with a smaller `assets` argument, the full msg.value is priced into shares (not retained as a donation).
+      await expect(
+        this.vault.connect(this.holder).deposit(ethers.parseEther('1'), this.recipient, { value }),
+      ).to.changeTokenBalance(this.vault, this.recipient, expectedShares);
     });
 
     it('mint reverts when msg.value < cost', async function () {

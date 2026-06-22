@@ -9,7 +9,7 @@ https://eips.ethereum.org/EIPS/eip-7535[ERC-7535] is an adaptation of xref:erc46
 `ERC7535` behaves like `ERC4626`, with the following changes:
 
 * `asset()` returns the placeholder address `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE` defined by https://eips.ethereum.org/EIPS/eip-7528[ERC-7528], and the vault uses 18 decimals (those of the native asset) as its base before applying the optional decimals offset.
-* `deposit` and `mint` are `payable`. The native asset is provided as `msg.value` instead of being pulled with an ERC-20 `transferFrom`, so there is no allowance flow for the underlying asset. `deposit(assets, receiver)` requires `msg.value >= assets`; `mint(shares, receiver)` requires `msg.value >= previewMint(shares)`.
+* `deposit` and `mint` are `payable`. The native asset is provided as `msg.value` instead of being pulled with an ERC-20 `transferFrom`, so there is no allowance flow for the underlying asset. `deposit(assets, receiver)` deposits the entire `msg.value` and ignores its `assets` argument (per ERC-7535), minting `previewDeposit(msg.value)` shares; `mint(shares, receiver)` requires `msg.value >= previewMint(shares)`.
 * Withdrawals and redemptions send the native asset out with a low-level `call` (xref:api:utils.adoc#Address-sendValue-address-payable-uint256-[`Address.sendValue`]) instead of an ERC-20 `transfer`.
 
 [source,solidity]
@@ -45,7 +45,7 @@ ERC-4626's `deposit` and `mint` are declared `payable` on `IERC4626` (this does 
 
 `totalAssets()` returns `address(this).balance`. Because `deposit` and `mint` are `payable`, the deposited `msg.value` is already part of that balance when the exchange rate is computed — unlike an ERC-4626 vault, where the assets are only pulled in *after* the share amount is computed from the pre-deposit balance.
 
-To keep the behavior identical, `ERC7535` overrides the internal `_convertToShares`/`_convertToAssets` to price against `_pretotalAssets()` (= `totalAssets() - msg.value`, the pre-call balance), while all preview and conversion functions remain balance-based outside a `payable` call. As a result, a standalone `previewDeposit(assets)` returns exactly the number of shares a subsequent `deposit` of `assets` mints. The adjustment lives in an internal hook because `msg.value` cannot be read from a `view` function such as `totalAssets`.
+To keep the behavior identical, `ERC7535` overrides the internal `_convertToShares`/`_convertToAssets` to price against `_pretotalAssets()` (= `totalAssets() - msg.value`, the pre-call balance), while all preview and conversion functions remain balance-based outside a `payable` call. As a result, a standalone `previewDeposit(value)` returns exactly the number of shares a subsequent `deposit` with `msg.value == value` mints. The adjustment lives in an internal hook because `msg.value` cannot be read from a `view` function such as `totalAssets`.
 
 [[inflation-attack]]
 == Security concern: Inflation attack
@@ -64,11 +64,11 @@ Value must enter the vault through the standardized `deposit` or `mint` entry po
 
 The `receive()` function is `virtual`. An integrator whose vault must accept plain native-asset payments — for example a rewards distributor that pays the vault periodically on a chain without beacon-layer withdrawals — can override it to admit a known sender, accepting that such payments raise the share price for existing holders like a donation.
 
-Note that this guard cannot stop the protocol-level force-feeds: native asset routed through `SELFDESTRUCT` or paid out as block-reward / `coinbase` tips bypasses `receive()` entirely and lands on `address(this).balance`. Because `totalAssets()` is balance-based, such donations are tracked exactly as a direct ERC-20 transfer would be for an ERC-4626 vault; the defense is the same virtual-offset math described in xref:#inflation-attack[Security concern: Inflation attack], not the `receive` revert.
+Note that this guard cannot stop the protocol-level force-feeds: native asset routed through `SELFDESTRUCT` or paid out as block-reward / `coinbase` tips bypasses `receive()` entirely and lands on `address(this).balance`. Because `totalAssets()` is balance-based, such donations are tracked exactly as a direct ERC-20 transfer would be for an ERC-4626 vault; the defense is the same virtual-offset math described in <<inflation-attack, Security concern: Inflation attack>>, not the `receive` revert.
 
 == The `msg.value` requirement
 
-`deposit(assets, receiver)` requires `msg.value >= assets` and `mint(shares, receiver)` requires `msg.value >= previewMint(shares)`; calls that send too little revert with the typed error `ERC7535InsufficientNativeValue`. Any *excess* `msg.value` above the required amount is kept by the vault — it is not refunded — and behaves like a donation, raising the share price for existing holders. A refund path is intentionally avoided: refunding would add an outbound native call inside `deposit`/`mint`, reopening the reentrancy / refund-griefing surface that the inherited checks-effects-interactions design is built to avoid. To pay an exact amount, send `msg.value == assets` (resp. `previewMint(shares)`); prefer `deposit` over `mint` for an ETH-in flow, since `previewMint` can shift between an off-chain quote and the on-chain transaction.
+`deposit(assets, receiver)` deposits the entire `msg.value` and prices shares off it, ignoring the `assets` argument (per ERC-7535): there is no underpayment to revert on and no excess to retain — the full value sent is always converted to `previewDeposit(msg.value)` shares. `mint(shares, receiver)` instead requires `msg.value >= previewMint(shares)` and reverts with the typed error `ERC7535InsufficientNativeValue` if too little is sent; any *excess* `msg.value` on a `mint` is kept by the vault — it is not refunded — and behaves like a donation, raising the share price for existing holders. A refund path is intentionally avoided: refunding would add an outbound native call inside `mint`, reopening the reentrancy / refund-griefing surface that the inherited checks-effects-interactions design is built to avoid. Prefer `deposit` over `mint` for an ETH-in flow, since `deposit` consumes exactly the value sent, while `previewMint` can shift between an off-chain quote and the on-chain transaction.
 
 == Override checklist
 

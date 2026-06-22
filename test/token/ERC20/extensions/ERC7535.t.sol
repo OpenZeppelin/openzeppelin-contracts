@@ -152,15 +152,38 @@ contract ERC7535Test is Test {
     }
 
     // --------------------------------------------------------------------------------------------
-    // msg.value enforcement (>= policy: underpayment reverts, exact and overpayment succeed)
+    // Payment policy: deposit prices off msg.value (the `assets` argument is ignored, per ERC-7535);
+    // mint requires msg.value >= previewMint(shares).
     // --------------------------------------------------------------------------------------------
 
-    function testFuzzDepositRevertsWhenValueBelowAssets(uint256 assets, uint256 value) public {
-        assets = bound(assets, 1, MAX_ETH);
-        value = bound(value, 0, assets - 1);
-        vm.deal(address(this), value);
-        vm.expectRevert(abi.encodeWithSelector(ERC7535.ERC7535InsufficientNativeValue.selector, value, assets));
-        vault.deposit{value: value}(assets, victim);
+    function testFuzzDepositIgnoresAssetsArgument(uint256 value, uint256 assetsArg) public {
+        value = bound(value, 0, MAX_ETH);
+
+        // Shares are priced off msg.value; the `assets` argument is ignored.
+        uint256 previewed = vault.previewDeposit(value);
+
+        vm.deal(attacker, value);
+        vm.prank(attacker);
+        uint256 minted = vault.deposit{value: value}(assetsArg, attacker);
+
+        assertEq(minted, previewed, "shares not priced off msg.value");
+        assertEq(vault.balanceOf(attacker), previewed);
+        // The full msg.value is deposited and converted to shares; nothing is retained as a donation.
+        assertEq(vault.totalAssets(), value, "vault did not deposit the full msg.value");
+    }
+
+    function testDepositZeroAssetsArgumentMintsForFullValue() public {
+        uint256 value = 1 ether;
+        uint256 previewed = vault.previewDeposit(value);
+        assertGt(previewed, 0, "preview should be non-zero for 1 ether");
+
+        vm.deal(attacker, value);
+        vm.prank(attacker);
+        // A zero `assets` argument must NOT mint 0 shares and donate the value (the pre-fix, non-conformant behavior).
+        uint256 minted = vault.deposit{value: value}(0, attacker);
+
+        assertEq(minted, previewed, "deposit(value)(0) did not mint for the full msg.value");
+        assertEq(vault.balanceOf(attacker), previewed);
     }
 
     function testFuzzMintRevertsWhenValueBelowCost(uint256 shares, uint256 value) public {
@@ -171,23 +194,6 @@ contract ERC7535Test is Test {
         vm.deal(address(this), value);
         vm.expectRevert(abi.encodeWithSelector(ERC7535.ERC7535InsufficientNativeValue.selector, value, cost));
         vault.mint{value: value}(shares, victim);
-    }
-
-    function testFuzzDepositOverpaymentIsDonation(uint256 assets, uint256 extra) public {
-        assets = bound(assets, 0, MAX_ETH);
-        extra = bound(extra, 0, MAX_ETH);
-
-        // Empty vault: shares are priced on `assets`, not on the in-flight value.
-        uint256 previewed = vault.previewDeposit(assets);
-
-        vm.deal(attacker, assets + extra);
-        vm.prank(attacker);
-        uint256 minted = vault.deposit{value: assets + extra}(assets, attacker);
-
-        assertEq(minted, previewed, "overpayment changed the minted shares");
-        assertEq(vault.balanceOf(attacker), previewed);
-        // The full msg.value entered the vault; the excess is an unminted donation.
-        assertEq(vault.totalAssets(), assets + extra, "vault did not retain the full msg.value");
     }
 
     // --------------------------------------------------------------------------------------------

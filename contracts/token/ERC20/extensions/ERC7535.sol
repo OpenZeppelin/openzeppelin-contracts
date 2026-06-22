@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.7.0) (token/ERC20/extensions/ERC7535.sol)
 
 pragma solidity ^0.8.24;
 
@@ -23,8 +22,9 @@ import {Math} from "../../../utils/math/Math.sol";
  * * {asset} returns the ERC-7528 native-asset placeholder `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE`.
  * * {totalAssets} returns the contract's own native-asset balance (`address(this).balance`).
  * * {deposit} and {mint} are `payable` (as declared by `IERC4626`): the native asset is provided as `msg.value`
- * rather than pulled with an ERC-20 `transferFrom`, so there is no allowance flow for the underlying. The
- * inherited {ERC4626-_checkPayment} hook is overridden to require `msg.value` to cover the deposit.
+ * rather than pulled with an ERC-20 `transferFrom`, so there is no allowance flow for the underlying. {deposit}
+ * prices shares off `msg.value` and ignores its `assets` argument (per ERC-7535); {mint} requires `msg.value` to
+ * cover the previewed cost through the inherited {ERC4626-_checkPayment} hook.
  * * {ERC4626-_transferIn} is a no-op (the value has already arrived as `msg.value`) and {ERC4626-_transferOut}
  * sends the native asset out with `Address.sendValue`.
  *
@@ -44,9 +44,10 @@ import {Math} from "../../../utils/math/Math.sol";
  * the defense.
  * ====
  *
- * NOTE: `deposit(assets, receiver)` and `mint(shares, receiver)` require `msg.value` to be at least the amount
- * (resp. the previewed cost) being deposited. Any excess `msg.value` is kept by the vault as a donation, raising
- * the share price for existing holders.
+ * NOTE: `deposit(assets, receiver)` deposits the entire `msg.value` and mints `previewDeposit(msg.value)` shares,
+ * ignoring the `assets` argument (per ERC-7535). `mint(shares, receiver)` requires `msg.value` to be at least the
+ * previewed cost; any excess `msg.value` on a `mint` is kept by the vault as a donation, raising the share price
+ * for existing holders.
  *
  * To learn more, check out our xref:ROOT:erc7535.adoc[ERC-7535 guide].
  */
@@ -76,8 +77,30 @@ abstract contract ERC7535 is ERC4626 {
         return address(this).balance;
     }
 
-    /// @dev See {ERC4626-_checkPayment}. Requires the native value sent to cover `assets`; any excess is kept by
-    /// the vault (raising the share price for existing holders, like a donation).
+    /**
+     * @inheritdoc IERC4626
+     *
+     * @dev Per ERC-7535, the deposited amount is the entire `msg.value`: shares are priced off `msg.value` and the
+     * `assets` argument is ignored, so the full native value sent is always converted to shares (none is silently
+     * retained as a donation). Reverts via {maxDeposit} if `msg.value` exceeds the maximum.
+     */
+    function deposit(uint256, address receiver) public payable virtual override returns (uint256) {
+        uint256 assets = msg.value;
+        uint256 maxAssets = maxDeposit(receiver);
+        if (assets > maxAssets) {
+            revert ERC4626ExceededMaxDeposit(receiver, assets, maxAssets);
+        }
+
+        uint256 shares = previewDeposit(assets);
+        _deposit(_msgSender(), receiver, assets, shares);
+
+        return shares;
+    }
+
+    /// @dev See {ERC4626-_checkPayment}. Used by the inherited {mint} (and the base deposit/mint flow): requires the
+    /// native value to cover the previewed cost `assets`; any excess is kept by the vault, raising the share price
+    /// for existing holders. {deposit} is overridden to price shares directly off `msg.value` and does not route
+    /// through this hook.
     function _checkPayment(uint256 assets) internal virtual override {
         if (msg.value < assets) {
             revert ERC7535InsufficientNativeValue(msg.value, assets);
