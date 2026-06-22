@@ -5,6 +5,7 @@ pragma solidity ^0.8.26;
 import {Create2} from "../../utils/Create2.sol";
 import {Errors} from "../../utils/Errors.sol";
 import {ERC1967Utils} from "./ERC1967Utils.sol";
+import {IERC1967} from "../../interfaces/IERC1967.sol";
 
 /**
  * @dev https://eips.ethereum.org/EIPS/eip-1967[ERC-1967] is the standard for upgradeable proxies that
@@ -24,10 +25,6 @@ import {ERC1967Utils} from "./ERC1967Utils.sol";
  * returned address in the same transaction as the deployment.
  */
 library ERC1967Clones {
-    /// @dev Topic1 for the {IERC1967-Upgraded} event. Equal to `keccak256("Upgraded(address)")`.
-    // solhint-disable-next-line private-vars-leading-underscore
-    bytes32 internal constant UPGRADE_TOPIC1 = 0xbc7cd75a20ee27fd9adebab32041f755214dbc6bffa90cc0225b39da2e5c2d3b;
-
     /**
      * ========================================[ PROXY CODE ]========================================
      * Offset | Opcode      | Mnemonic         | Stack                      | Memory
@@ -112,7 +109,7 @@ library ERC1967Clones {
     function clone(address implementation, uint256 value) internal returns (address instance) {
         require(address(this).balance >= value, Errors.InsufficientBalance(address(this).balance, value));
         bytes32 implementationSlot = ERC1967Utils.IMPLEMENTATION_SLOT;
-        bytes32 topic1 = UPGRADE_TOPIC1;
+        bytes32 topic1 = IERC1967.Upgraded.selector;
         assembly ("memory-safe") {
             // Set code in memory
             let ptr := mload(0x40)
@@ -167,7 +164,7 @@ library ERC1967Clones {
     ) internal returns (address instance) {
         require(address(this).balance >= value, Errors.InsufficientBalance(address(this).balance, value));
         bytes32 implementationSlot = ERC1967Utils.IMPLEMENTATION_SLOT;
-        bytes32 topic1 = UPGRADE_TOPIC1;
+        bytes32 topic1 = IERC1967.Upgraded.selector;
         assembly ("memory-safe") {
             // Set code in memory
             let ptr := mload(0x40)
@@ -201,7 +198,7 @@ library ERC1967Clones {
 
     function _getCloneHash(address implementation) private pure returns (bytes32 bytecodeHash) {
         bytes32 implementationSlot = ERC1967Utils.IMPLEMENTATION_SLOT;
-        bytes32 topic1 = UPGRADE_TOPIC1;
+        bytes32 topic1 = IERC1967.Upgraded.selector;
         assembly ("memory-safe") {
             // Set code in memory
             let ptr := mload(0x40)
