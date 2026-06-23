@@ -221,6 +221,31 @@ describe('ERC20TransferAuthorization', function () {
             .withArgs(this.validAfter, validBefore);
         });
 
+        it('rejects out-of-order nonces sharing the same key', async function () {
+          const nonce0 = packNonce(this.key, 0n);
+          const nonce1 = packNonce(this.key, 1n);
+
+          const { v, r, s } = await this.buildData(this.token, this.holder, this.recipient, this.validBefore, nonce1)
+            .then(({ domain, types, message }) => this.holder.signTypedData(domain, types, message))
+            .then(ethers.Signature.from);
+
+          await expect(
+            this.token.transferWithAuthorization(
+              this.holder,
+              this.recipient,
+              value,
+              this.validAfter,
+              this.validBefore,
+              nonce1,
+              v,
+              r,
+              s,
+            ),
+          )
+            .to.be.revertedWithCustomError(this.token, 'InvalidAccountNonce')
+            .withArgs(this.holder.address, nonce0);
+        });
+
         it('works with different keys in parallel', async function () {
           const key1 = ethers.toBigInt(ethers.randomBytes(24));
           const key2 = ethers.toBigInt(ethers.randomBytes(24));

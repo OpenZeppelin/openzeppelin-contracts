@@ -24,6 +24,9 @@ abstract contract ERC3009 is ERC20, EIP712, IERC3009, IERC3009Cancel {
     /// @dev The authorization is not valid at the given time
     error ERC3009InvalidAuthorizationTime(uint256 validAfter, uint256 validBefore);
 
+    /// @dev The authorization has already been used or canceled
+    error ERC3009UsedAuthorization(address authorizer, bytes32 nonce);
+
     bytes32 internal constant TRANSFER_WITH_AUTHORIZATION_TYPEHASH =
         keccak256(
             "TransferWithAuthorization(address from,address to,uint256 value,uint256 validAfter,uint256 validBefore,bytes32 nonce)"
@@ -87,7 +90,7 @@ abstract contract ERC3009 is ERC20, EIP712, IERC3009, IERC3009Cancel {
         _cancelAuthorization(authorizer, nonce);
     }
 
-    /// @dev Internal version of {transferWithAuthorization} that accepts a bytes signature.
+    /// @dev Performs the time and nonce checks, then executes the transfer.
     function _transferWithAuthorization(
         address from,
         address to,
@@ -105,7 +108,7 @@ abstract contract ERC3009 is ERC20, EIP712, IERC3009, IERC3009Cancel {
         _transfer(from, to, value);
     }
 
-    /// @dev Internal version of {receiveWithAuthorization} that accepts a bytes signature.
+    /// @dev Performs the caller, time and nonce checks, then executes the transfer.
     function _receiveWithAuthorization(
         address from,
         address to,
@@ -124,18 +127,20 @@ abstract contract ERC3009 is ERC20, EIP712, IERC3009, IERC3009Cancel {
         _transfer(from, to, value);
     }
 
-    /// @dev Internal version of {cancelAuthorization} that accepts a bytes signature.
+    /// @dev Consumes the nonce and emits the cancellation event.
     function _cancelAuthorization(address authorizer, bytes32 nonce) internal virtual {
         _consumeNonce(authorizer, nonce);
         emit AuthorizationCanceled(authorizer, nonce);
     }
 
+    /// @dev Clock used for authorization time window checks. Defaults to {Time-timestamp}.
     function _clock() internal view virtual returns (uint48) {
         return Time.timestamp();
     }
 
+    /// @dev Marks `nonce` as used for `authorizer`. Reverts with {ERC3009UsedAuthorization} if already consumed.
     function _consumeNonce(address authorizer, bytes32 nonce) internal virtual {
-        require(!_usedNonces[authorizer][nonce], "ERC3009: authorization is already used or canceled");
+        require(!_usedNonces[authorizer][nonce], ERC3009UsedAuthorization(authorizer, nonce));
         _usedNonces[authorizer][nonce] = true;
     }
 }

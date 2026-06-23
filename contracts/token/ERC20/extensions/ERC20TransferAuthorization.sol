@@ -42,6 +42,7 @@ abstract contract ERC20TransferAuthorization is ERC3009, NoncesKeyed, IERC6372 {
      * that has not yet been consumed.
      */
     function authorizationState(address authorizer, bytes32 nonce) public view virtual override returns (bool) {
+        // Truncating `nonces()` to uint64 is safe: reaching 2^64 sequential uses for a single key is infeasible.
         return uint64(nonces(authorizer, uint192(uint256(nonce) >> 64))) > uint64(uint256(nonce));
     }
 
@@ -79,7 +80,14 @@ abstract contract ERC20TransferAuthorization is ERC3009, NoncesKeyed, IERC6372 {
         _receiveWithAuthorization(from, to, value, validAfter, validBefore, nonce);
     }
 
-    /// @dev Same as {cancelAuthorization} but with a bytes signature.
+    /**
+     * @dev Same as {cancelAuthorization} but with a bytes signature.
+     *
+     * NOTE: Due to the keyed sequential nonce model, only the next nonce in a given key's sequence
+     * can be cancelled. It is not possible to directly cancel a future nonce whose predecessors in the
+     * same key have not yet been consumed or cancelled. To invalidate a future authorization, all
+     * preceding nonces in the same key must first be consumed or cancelled in order.
+     */
     function cancelAuthorization(address authorizer, bytes32 nonce, bytes memory signature) public virtual {
         bytes32 hash = _hashTypedDataV4(keccak256(abi.encode(CANCEL_AUTHORIZATION_TYPEHASH, authorizer, nonce)));
         require(SignatureChecker.isValidSignatureNow(authorizer, hash, signature), ERC3009InvalidSignature());
