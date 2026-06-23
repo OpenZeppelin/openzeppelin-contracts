@@ -148,16 +148,9 @@ describe('GovernorTimelockCompound', function () {
             };
             const { id } = this.helper.setProposal([action, action], '<proposal description>');
 
-            await this.helper.propose();
-            await this.helper.waitForSnapshot();
-            await this.helper.connect(this.voter1).vote({ support: VoteType.For });
-            await this.helper.waitForDeadline();
-            await expect(this.helper.queue())
+            await expect(this.helper.propose())
               .to.be.revertedWithCustomError(this.mock, 'GovernorAlreadyQueuedProposal')
               .withArgs(id);
-            await expect(this.helper.execute())
-              .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
-              .withArgs(id, ProposalState.Succeeded, GovernorHelper.proposalStatesToBitMap([ProposalState.Queued]));
           });
         });
 
