@@ -70,16 +70,16 @@ library RateLimiter {
         RefillingBucket storage self,
         bytes32 key
     ) internal view returns (uint256 used_, uint256 available_) {
-        uint208 cacheCapacity = self.capacity;
-        uint48 cacheWindow = self.window;
-        uint208 cacheLastUsed = self.items[key].lastUsed;
-        uint48 cacheLastTimepoint = self.items[key].lastTimepoint;
+        uint208 capacity_ = self.capacity; // cache
+        uint48 window_ = self.window; // cache
+        uint208 lastUsed_ = self.items[key].lastUsed; // cache
+        uint48 lastTimepoint_ = self.items[key].lastTimepoint; // cache
 
         used_ = Math.saturatingSub(
-            cacheLastUsed,
-            Math.mulDiv(Time.timestamp() - cacheLastTimepoint, cacheCapacity, Math.max(cacheWindow, 1))
+            lastUsed_,
+            Math.mulDiv(Time.timestamp() - lastTimepoint_, capacity_, Math.max(window_, 1))
         );
-        available_ = Math.saturatingSub(cacheCapacity, used_);
+        available_ = Math.saturatingSub(capacity_, used_);
     }
 
     /**
@@ -185,14 +185,14 @@ library RateLimiter {
      * consumption over the last `window` seconds.
      */
     function state(SlidingWindow storage self, bytes32 key) internal view returns (uint256 used_, uint256 available_) {
-        uint208 cacheLimit = self.limit;
-        uint48 cacheWindow = self.window;
+        uint208 limit_ = self.limit; // cache
+        uint48 window_ = self.window; // cache
 
         used_ = Math.saturatingSub(
             self.items[key].latest(),
-            self.items[key].upperLookupRecent(uint48(Math.saturatingSub(Time.timestamp(), Math.max(cacheWindow, 1))))
+            self.items[key].upperLookupRecent(uint48(Math.saturatingSub(Time.timestamp(), Math.max(window_, 1))))
         );
-        available_ = Math.saturatingSub(cacheLimit, used_);
+        available_ = Math.saturatingSub(limit_, used_);
     }
 
     /**
