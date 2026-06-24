@@ -2,11 +2,8 @@
 pragma solidity ^0.8.26;
 
 import {ERC3009} from "./draft-ERC3009.sol";
-import {IERC6372} from "../../../interfaces/IERC6372.sol";
 import {SignatureChecker} from "../../../utils/cryptography/SignatureChecker.sol";
-import {ERC6372Utils} from "../../../utils/ERC6372Utils.sol";
 import {NoncesKeyed} from "../../../utils/NoncesKeyed.sol";
-import {Time} from "../../../utils/types/Time.sol";
 
 /**
  * @dev Variant of {ERC-3009} that uses keyed sequential nonces as defined in {NoncesKeyed}.
@@ -18,22 +15,7 @@ import {Time} from "../../../utils/types/Time.sol";
  * sharing the same key must be used sequentially. This is unlike {ERC20Permit} which uses a single global
  * sequential nonce.
  */
-abstract contract ERC20TransferAuthorization is ERC3009, NoncesKeyed, IERC6372 {
-    /**
-     * @dev Clock used for validating authorization time windows ({transferWithAuthorization},
-     * {receiveWithAuthorization}). Defaults to {Time-timestamp}. Can be overridden to implement
-     * block-number based validation, in which case {CLOCK_MODE} should be overridden as well to match.
-     */
-    function clock() public view virtual returns (uint48) {
-        return Time.timestamp();
-    }
-
-    /// @dev Machine-readable description of the clock as specified in ERC-6372.
-    // solhint-disable-next-line func-name-mixedcase
-    function CLOCK_MODE() public view virtual returns (string memory) {
-        return ERC6372Utils.timestampClockMode(clock);
-    }
-
+abstract contract ERC20TransferAuthorization is ERC3009, NoncesKeyed {
     /**
      * @dev See {IERC3009-authorizationState}.
      *
@@ -92,11 +74,6 @@ abstract contract ERC20TransferAuthorization is ERC3009, NoncesKeyed, IERC6372 {
         bytes32 hash = _hashTypedDataV4(keccak256(abi.encode(CANCEL_AUTHORIZATION_TYPEHASH, authorizer, nonce)));
         require(SignatureChecker.isValidSignatureNow(authorizer, hash, signature), ERC3009InvalidSignature());
         _cancelAuthorization(authorizer, nonce);
-    }
-
-    /// @dev Override the internal clock used by {ERC3009} to use the public {clock} function from {IERC6372}.
-    function _clock() internal view virtual override returns (uint48) {
-        return clock();
     }
 
     /// @dev Override the internal nonce consumption logic to use the keyed sequential nonces from {NoncesKeyed}.

@@ -5,7 +5,9 @@ import {ERC20} from "../ERC20.sol";
 import {EIP712} from "../../../utils/cryptography/EIP712.sol";
 import {ECDSA} from "../../../utils/cryptography/ECDSA.sol";
 import {IERC3009, IERC3009Cancel} from "../../../interfaces/draft-IERC3009.sol";
+import {IERC6372} from "../../../interfaces/IERC6372.sol";
 import {Time} from "../../../utils/types/Time.sol";
+import {ERC6372Utils} from "../../../utils/ERC6372Utils.sol";
 
 /**
  * @dev Implementation of the ERC-3009 Transfer With Authorization extension allowing
@@ -17,7 +19,7 @@ import {Time} from "../../../utils/types/Time.sol";
  * token holder account doesn't need to send a transaction, and thus is not required
  * to hold native currency (e.g. ETH) at all.
  */
-abstract contract ERC3009 is ERC20, EIP712, IERC3009, IERC3009Cancel {
+abstract contract ERC3009 is ERC20, EIP712, IERC3009, IERC3009Cancel, IERC6372 {
     /// @dev The signature is invalid
     error ERC3009InvalidSignature();
 
@@ -39,6 +41,21 @@ abstract contract ERC3009 is ERC20, EIP712, IERC3009, IERC3009Cancel {
         keccak256("CancelAuthorization(address authorizer,bytes32 nonce)");
 
     mapping(address account => mapping(bytes32 nonce => bool used)) private _usedNonces;
+
+    /**
+     * @dev Clock used for validating authorization time windows ({transferWithAuthorization},
+     * {receiveWithAuthorization}). Defaults to {Time-timestamp}. Can be overridden to implement
+     * block-number based validation, in which case {CLOCK_MODE} should be overridden as well to match.
+     */
+    function clock() public view virtual returns (uint48) {
+        return Time.timestamp();
+    }
+
+    /// @dev Machine-readable description of the clock as specified in ERC-6372.
+    // solhint-disable-next-line func-name-mixedcase
+    function CLOCK_MODE() public view virtual returns (string memory) {
+        return ERC6372Utils.timestampClockMode(clock);
+    }
 
     /// @inheritdoc IERC3009
     function authorizationState(address authorizer, bytes32 nonce) public view virtual returns (bool) {
@@ -99,8 +116,9 @@ abstract contract ERC3009 is ERC20, EIP712, IERC3009, IERC3009Cancel {
         uint256 validBefore,
         bytes32 nonce
     ) internal virtual {
+        uint256 currentTimepoint = clock();
         require(
-            _clock() > validAfter && _clock() < validBefore,
+            currentTimepoint > validAfter && currentTimepoint < validBefore,
             ERC3009InvalidAuthorizationTime(validAfter, validBefore)
         );
         _consumeNonce(from, nonce);
@@ -118,8 +136,9 @@ abstract contract ERC3009 is ERC20, EIP712, IERC3009, IERC3009Cancel {
         bytes32 nonce
     ) internal virtual {
         require(to == _msgSender(), ERC20InvalidReceiver(to));
+        uint256 currentTimepoint = clock();
         require(
-            _clock() > validAfter && _clock() < validBefore,
+            currentTimepoint > validAfter && currentTimepoint < validBefore,
             ERC3009InvalidAuthorizationTime(validAfter, validBefore)
         );
         _consumeNonce(from, nonce);
@@ -131,11 +150,6 @@ abstract contract ERC3009 is ERC20, EIP712, IERC3009, IERC3009Cancel {
     function _cancelAuthorization(address authorizer, bytes32 nonce) internal virtual {
         _consumeNonce(authorizer, nonce);
         emit AuthorizationCanceled(authorizer, nonce);
-    }
-
-    /// @dev Clock used for authorization time window checks. Defaults to {Time-timestamp}.
-    function _clock() internal view virtual returns (uint48) {
-        return Time.timestamp();
     }
 
     /// @dev Marks `nonce` as used for `authorizer`. Reverts with {ERC3009UsedAuthorization} if already consumed.
