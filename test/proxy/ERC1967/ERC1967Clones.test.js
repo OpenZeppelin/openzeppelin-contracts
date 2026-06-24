@@ -109,18 +109,18 @@ describe('ERC1967Clones', function () {
       );
 
       // address predicted for a deployer that is not the factory doesn't match the one predicted for the factory
-      expect(predicted).to.not.equal(
-        await this.factory.$predictDeterministicAddress(this.implementation, ethers.Typed.bytes32(salt)),
-      );
+      await expect(
+        this.factory.$predictDeterministicAddress(this.implementation, ethers.Typed.bytes32(salt)),
+      ).to.eventually.not.equal(predicted);
 
       // address predicted for a deployer that is not the factory can be predicted onchain by explicitly providing the deployer
-      expect(predicted).to.equal(
-        await this.factory.$predictDeterministicAddress(
+      await expect(
+        this.factory.$predictDeterministicAddress(
           this.implementation,
           ethers.Typed.bytes32(salt),
           ethers.Typed.address(deployer),
         ),
-      );
+      ).to.eventually.equal(predicted);
     });
 
     it('forwards value to the new clone', async function () {
