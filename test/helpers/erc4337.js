@@ -1,4 +1,3 @@
-import { config } from 'hardhat';
 import { ethers } from 'ethers';
 import { ValidationRange } from './enums';
 import * as random from './random';
@@ -197,18 +196,13 @@ class EIP7702SmartAccount extends SmartAccount {
     this.authorization = authorization;
   }
 
-  async deploy() {
-    // hardhat signers from @nomicfoundation/hardhat-ethers do not support type 4 txs.
-    // so we rebuild it using "native" ethers
-    await config.networks.default.accounts.mnemonic.get().then(mnemonic =>
-      ethers.Wallet.fromPhrase(mnemonic, this.runner.provider).sendTransaction({
+  deploy() {
+    return this.runner
+      .sendTransaction({
         to: ethers.ZeroAddress,
         authorizationList: [this.authorization],
-        gasLimit: 46_000n, // 21,000 base + PER_EMPTY_ACCOUNT_COST
-      }),
-    );
-
-    return this;
+      })
+      .then(() => this);
   }
 }
 
