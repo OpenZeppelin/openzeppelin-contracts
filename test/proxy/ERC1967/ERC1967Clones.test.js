@@ -34,12 +34,11 @@ describe('ERC1967Clones', function () {
           .to.emit(this.erc1967.attach(predictedAddress), 'Upgraded')
           .withArgs(implementation);
 
-        const instance = new ethers.Contract(predictedAddress, [], this.admin, deploymentTx);
         if (initData !== '0x' || opts.value > 0n) {
-          await this.admin.sendTransaction({ to: instance.target, data: initData, ...opts });
+          await this.admin.sendTransaction({ to: predictedAddress, data: initData, ...opts });
         }
 
-        return instance;
+        return new ethers.Contract(predictedAddress, [], this.admin, deploymentTx);
       };
     });
 
@@ -80,12 +79,11 @@ describe('ERC1967Clones', function () {
           .to.emit(this.erc1967.attach(predictedAddress), 'Upgraded')
           .withArgs(implementation);
 
-        const instance = new ethers.Contract(predictedAddress, [], this.admin, deploymentTx);
         if (initData !== '0x' || opts.value > 0n) {
-          await this.admin.sendTransaction({ to: instance.target, data: initData, ...opts });
+          await this.admin.sendTransaction({ to: predictedAddress, data: initData, ...opts });
         }
 
-        return instance;
+        return new ethers.Contract(predictedAddress, [], this.admin, deploymentTx);
       };
     });
 
@@ -102,15 +100,20 @@ describe('ERC1967Clones', function () {
 
     it('predicts addresses for an arbitrary deployer', async function () {
       const salt = generators.bytes32();
-      const deployer = ethers.Wallet.createRandom().address;
+      const deployer = generators.address();
+
       const predicted = await this.factory.$predictDeterministicAddress(
         this.implementation,
         ethers.Typed.bytes32(salt),
         ethers.Typed.address(deployer),
       );
 
-      const expected = await this.factory.$predictDeterministicAddress(this.implementation, ethers.Typed.bytes32(salt));
-      expect(predicted).to.not.equal(expected);
+      // address predicted for a deployer that is not the factory doesn't match the one predicted for the factory
+      expect(predicted).to.not.equal(
+        await this.factory.$predictDeterministicAddress(this.implementation, ethers.Typed.bytes32(salt)),
+      );
+
+      // address predicted for a deployer that is not the factory can be predicted onchain by explicitly providing the deployer
       expect(predicted).to.equal(
         await this.factory.$predictDeterministicAddress(
           this.implementation,
