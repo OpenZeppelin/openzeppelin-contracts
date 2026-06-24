@@ -42,7 +42,11 @@ library BlockHeader {
     /// Happens if it corresponds to an older version of the EVM that doesn't include the field.
     error FieldNotPresentInBlockHeader(HeaderField);
 
-    /// @dev Verifies that the given block header RLP corresponds to a valid block header for the current chain.
+    /**
+    * @dev Verifies that the given block header RLP corresponds to a valid block header for the current chain.
+    *
+    * NOTE: Blocks older than 8191 blocks ago are not available through {Blockhash.blockHash}
+    */
     function verifyBlockHeader(bytes memory headerRLP) internal view returns (bool) {
         return verifyBlockHeader(parseHeader(headerRLP), headerRLP);
     }
