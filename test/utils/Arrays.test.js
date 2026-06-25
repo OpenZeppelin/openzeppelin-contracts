@@ -21,6 +21,8 @@ const upperBound = (array, value) => {
 const bigintSign = x => (x > 0n ? 1 : x < 0n ? -1 : 0);
 const comparator = (a, b) => bigintSign(ethers.toBigInt(a) - ethers.toBigInt(b));
 const hasDuplicates = array => array.some((v, i) => array.indexOf(v) != i);
+const uniquifySorted = array =>
+  array.filter((value, index) => index === 0 || comparator(array[index - 1], value) !== 0);
 
 describe('Arrays', function () {
   const fixture = async () => {
@@ -172,6 +174,32 @@ describe('Arrays', function () {
                   this.array.unshift(this.array.pop());
                 });
               }
+            });
+          }
+        });
+
+        describe('uniquifySorted', function () {
+          for (const { title, array } of [
+            { title: 'empty array', array: [] },
+            { title: 'single element', array: [elements[0]] },
+            { title: 'already unique array', array: Array.from(elements).sort(comparator) },
+            { title: 'all identical elements', array: Array(6).fill(elements[0]) },
+            {
+              title: 'mixed duplicate runs',
+              array: [
+                elements[0],
+                elements[0],
+                elements[1],
+                elements[1],
+                elements[1],
+                elements[2],
+                elements[4],
+                elements[4],
+              ].sort(comparator),
+            },
+          ]) {
+            it(title, async function () {
+              await expect(this.instance.uniquifySorted(array)).to.eventually.deep.equal(uniquifySorted(array));
             });
           }
         });
