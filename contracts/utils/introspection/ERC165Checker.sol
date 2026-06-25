@@ -11,6 +11,12 @@ import {IERC165} from "./IERC165.sol";
  * Note that these functions return the actual result of the query: they do not
  * `revert` if an interface is not supported. It is up to the caller to decide
  * what to do in these cases.
+ *
+ * IMPORTANT: The `supportsInterface` function being queried is expected to use
+ * less than 30 000 gas. If the caller does not have enough gas to forward 30 000
+ * gas to the callee, these functions may incorrectly interpret an out-of-gas
+ * error as a lack of support. Make sure the surrounding call has enough gas
+ * before relying on the result.
  */
 library ERC165Checker {
     // As per the ERC-165 spec, no interface should ever match 0xffffffff
