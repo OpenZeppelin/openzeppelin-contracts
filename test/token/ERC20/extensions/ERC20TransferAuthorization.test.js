@@ -10,24 +10,20 @@ const {
 } = require('../../../helpers/eip712');
 const time = require('../../../helpers/time');
 
-const TOKENS = [
-  { Token: '$ERC20TransferAuthorization', mode: 'timestamp' },
-  { Token: '$ERC20TransferAuthorizationBlockNumberMock', mode: 'blockNumber' },
-];
-
 const name = 'My Token';
 const symbol = 'MTKN';
 const version = '1';
 const initialSupply = 100n;
 
 const packNonce = (key, seq = 0n) => ethers.toBeHex((BigInt(key) << 64n) | BigInt(seq), 32);
+const withFlag = (value, mode) => value + (mode === 'timestamp' ? 0n : 0x800000000000n);
 
 describe('ERC20TransferAuthorization', function () {
-  for (const { Token, mode } of TOKENS) {
+  for (const mode of ['timestamp', 'blockNumber']) {
     const fixture = async () => {
       const [holder, recipient, other] = await ethers.getSigners();
 
-      const token = await ethers.deployContract(Token, [name, symbol, name, version]);
+      const token = await ethers.deployContract('$ERC20TransferAuthorization', [name, symbol, name, version]);
       await token.$_mint(holder, initialSupply);
 
       const wallet = await ethers.deployContract('ERC1271WalletMock', [holder]);
@@ -60,8 +56,8 @@ describe('ERC20TransferAuthorization', function () {
         beforeEach(async function () {
           this.key = ethers.toBigInt(ethers.randomBytes(24));
           this.nonce = packNonce(this.key, 0n);
-          this.validAfter = 0n;
-          this.validBefore = ethers.MaxUint256;
+          this.validAfter = withFlag(0n, mode);
+          this.validBefore = withFlag(0x7fffffffffffn, mode);
 
           this.buildData = (contract, from, to, validBefore = this.validBefore, nonce = this.nonce) =>
             getDomain(contract).then(domain => ({
@@ -161,7 +157,7 @@ describe('ERC20TransferAuthorization', function () {
         });
 
         it('rejects authorization not yet valid', async function () {
-          const validAfter = (await time.clock[mode]()) + time.duration.weeks(1);
+          const validAfter = withFlag((await time.clock[mode]()) + 10n, mode); // in the future
 
           const { v, r, s } = await getDomain(this.token)
             .then(domain =>
@@ -198,7 +194,7 @@ describe('ERC20TransferAuthorization', function () {
         });
 
         it('rejects expired authorization', async function () {
-          const validBefore = (await time.clock[mode]()) - 5n;
+          const validBefore = withFlag((await time.clock[mode]()) - 5n, mode); // in the past
 
           const { v, r, s } = await this.buildData(this.token, this.holder, this.recipient, validBefore)
             .then(({ domain, types, message }) => this.holder.signTypedData(domain, types, message))
@@ -379,8 +375,8 @@ describe('ERC20TransferAuthorization', function () {
         beforeEach(async function () {
           this.key = ethers.toBigInt(ethers.randomBytes(24));
           this.nonce = packNonce(this.key, 0n);
-          this.validAfter = 0n;
-          this.validBefore = ethers.MaxUint256;
+          this.validAfter = withFlag(0n, mode);
+          this.validBefore = withFlag(0x7fffffffffffn, mode);
 
           this.buildData = (contract, from, to, validBefore = this.validBefore, nonce = this.nonce) =>
             getDomain(contract).then(domain => ({
@@ -512,7 +508,7 @@ describe('ERC20TransferAuthorization', function () {
         });
 
         it('rejects authorization not yet valid', async function () {
-          const validAfter = (await time.clock[mode]()) + time.duration.weeks(1);
+          const validAfter = withFlag((await time.clock[mode]()) + 10n, mode); // in the future
 
           const { v, r, s } = await getDomain(this.token)
             .then(domain =>
@@ -551,7 +547,7 @@ describe('ERC20TransferAuthorization', function () {
         });
 
         it('rejects expired authorization', async function () {
-          const validBefore = (await time.clock[mode]()) - 5n;
+          const validBefore = withFlag((await time.clock[mode]()) - 5n, mode); // in the past
 
           const { v, r, s } = await this.buildData(this.token, this.holder, this.recipient, validBefore)
             .then(({ domain, types, message }) => this.holder.signTypedData(domain, types, message))
@@ -752,8 +748,8 @@ describe('ERC20TransferAuthorization', function () {
 
         it('prevents usage of canceled authorization in transferWithAuthorization', async function () {
           const value = 42n;
-          const validAfter = 0n;
-          const validBefore = ethers.MaxUint256;
+          const validAfter = withFlag(0n, mode);
+          const validBefore = withFlag(0x7fffffffffffn, mode);
 
           // Cancel the authorization
           const {

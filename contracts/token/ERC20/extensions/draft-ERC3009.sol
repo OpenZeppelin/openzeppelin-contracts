@@ -19,7 +19,7 @@ import {ERC6372Utils} from "../../../utils/ERC6372Utils.sol";
  * token holder account doesn't need to send a transaction, and thus is not required
  * to hold native currency (e.g. ETH) at all.
  */
-abstract contract ERC3009 is ERC20, EIP712, IERC3009, IERC3009Cancel, IERC6372 {
+abstract contract ERC3009 is ERC20, EIP712, IERC3009, IERC3009Cancel {
     /// @dev The signature is invalid
     error ERC3009InvalidSignature();
 
@@ -41,21 +41,6 @@ abstract contract ERC3009 is ERC20, EIP712, IERC3009, IERC3009Cancel, IERC6372 {
         keccak256("CancelAuthorization(address authorizer,bytes32 nonce)");
 
     mapping(address account => mapping(bytes32 nonce => bool used)) private _usedNonces;
-
-    /**
-     * @dev Clock used for validating authorization time windows ({transferWithAuthorization},
-     * {receiveWithAuthorization}). Defaults to {Time-timestamp}. Can be overridden to implement
-     * block-number based validation, in which case {CLOCK_MODE} should be overridden as well to match.
-     */
-    function clock() public view virtual returns (uint48) {
-        return Time.timestamp();
-    }
-
-    /// @dev Machine-readable description of the clock as specified in ERC-6372.
-    // solhint-disable-next-line func-name-mixedcase
-    function CLOCK_MODE() public view virtual returns (string memory) {
-        return ERC6372Utils.timestampClockMode(clock);
-    }
 
     /// @inheritdoc IERC3009
     function authorizationState(address authorizer, bytes32 nonce) public view virtual returns (bool) {
@@ -116,11 +101,7 @@ abstract contract ERC3009 is ERC20, EIP712, IERC3009, IERC3009Cancel, IERC6372 {
         uint256 validBefore,
         bytes32 nonce
     ) internal virtual {
-        uint256 currentTimepoint = clock();
-        require(
-            currentTimepoint > validAfter && currentTimepoint < validBefore,
-            ERC3009InvalidAuthorizationTime(validAfter, validBefore)
-        );
+        _checkValidity(validAfter, validBefore);
         _consumeNonce(from, nonce);
         emit AuthorizationUsed(from, nonce);
         _transfer(from, to, value);
@@ -136,11 +117,7 @@ abstract contract ERC3009 is ERC20, EIP712, IERC3009, IERC3009Cancel, IERC6372 {
         bytes32 nonce
     ) internal virtual {
         require(to == _msgSender(), ERC20InvalidReceiver(to));
-        uint256 currentTimepoint = clock();
-        require(
-            currentTimepoint > validAfter && currentTimepoint < validBefore,
-            ERC3009InvalidAuthorizationTime(validAfter, validBefore)
-        );
+        _checkValidity(validAfter, validBefore);
         _consumeNonce(from, nonce);
         emit AuthorizationUsed(from, nonce);
         _transfer(from, to, value);
@@ -156,5 +133,20 @@ abstract contract ERC3009 is ERC20, EIP712, IERC3009, IERC3009Cancel, IERC6372 {
     function _consumeNonce(address authorizer, bytes32 nonce) internal virtual {
         require(!_usedNonces[authorizer][nonce], ERC3009UsedAuthorization(authorizer, nonce));
         _usedNonces[authorizer][nonce] = true;
+    }
+
+    /**
+     * @dev Checks the validity of the authorization based on the provided timestamps and the current time or block number.
+     * We use the block flag logic defined in ERC-4337 to support both block number and timestamp based validity checks.
+     */
+    function _checkValidity(uint256 validAfter, uint256 validBefore) private view {
+        // Get clock from flag
+        uint256 validAfterClock = validAfter & 0x800000000000 == 0 ? Time.timestamp() : Time.blockNumber();
+        uint256 validBeforeClock = validBefore & 0x800000000000 == 0 ? Time.timestamp() : Time.blockNumber();
+        // Check validity (using values with the flag removed)
+        require(
+            validAfterClock > validAfter & 0x7fffffffffff && validBeforeClock < validBefore & 0x7fffffffffff,
+            ERC3009InvalidAuthorizationTime(validAfter, validBefore)
+        );
     }
 }
