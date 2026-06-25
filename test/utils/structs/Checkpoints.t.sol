@@ -85,9 +85,9 @@ contract CheckpointsTrace256Test is Test {
         uint256 lastKey = keys.length == 0 ? 0 : keys[keys.length - 1];
         lookup = _boundUint256(lookup, 0, lastKey + _KEY_MAX_GAP);
 
-        uint256 upper = 0;
-        uint256 lower = 0;
-        uint256 lowerKey = type(uint256).max;
+        uint256[] memory compactedKeys = new uint256[](keys.length);
+        uint256[] memory compactedValues = new uint256[](keys.length);
+        uint256 checkpointCount = 0;
         for (uint256 i = 0; i < keys.length; ++i) {
             uint256 key = keys[i];
             uint256 value = values[i % values.length];
@@ -95,21 +95,38 @@ contract CheckpointsTrace256Test is Test {
             // push
             _ckpts.push(key, value);
 
-            // track expected result of lookups
-            if (key <= lookup) {
-                upper = value;
+            // track the effective checkpoint history after duplicate-key coalescing
+            if (checkpointCount > 0 && compactedKeys[checkpointCount - 1] == key) {
+                compactedValues[checkpointCount - 1] = value;
+            } else {
+                compactedKeys[checkpointCount] = key;
+                compactedValues[checkpointCount] = value;
+                checkpointCount += 1;
             }
-            // find the first key that is not smaller than the lookup key
-            if (key >= lookup && (i == 0 || keys[i - 1] < lookup)) {
-                lowerKey = key;
+        }
+
+        uint256 upper = 0;
+        uint256 lower = 0;
+        uint256 upperIndex = checkpointCount;
+        uint256 lowerIndex = checkpointCount;
+
+        for (uint256 i = 0; i < checkpointCount; ++i) {
+            if (compactedKeys[i] <= lookup) {
+                upper = compactedValues[i];
+            } else if (upperIndex == checkpointCount) {
+                upperIndex = i;
             }
-            if (key == lowerKey) {
-                lower = value;
+
+            if (lowerIndex == checkpointCount && compactedKeys[i] >= lookup) {
+                lowerIndex = i;
+                lower = compactedValues[i];
             }
         }
 
         // check lookup
+        assertEq(_ckpts.lowerLookupIndex(lookup), lowerIndex);
         assertEq(_ckpts.lowerLookup(lookup), lower);
+        assertEq(_ckpts.upperLookupIndex(lookup), upperIndex);
         assertEq(_ckpts.upperLookup(lookup), upper);
         assertEq(_ckpts.upperLookupRecent(lookup), upper);
     }
@@ -193,9 +210,9 @@ contract CheckpointsTrace224Test is Test {
         uint32 lastKey = keys.length == 0 ? 0 : keys[keys.length - 1];
         lookup = _boundUint32(lookup, 0, lastKey + _KEY_MAX_GAP);
 
-        uint224 upper = 0;
-        uint224 lower = 0;
-        uint32 lowerKey = type(uint32).max;
+        uint32[] memory compactedKeys = new uint32[](keys.length);
+        uint224[] memory compactedValues = new uint224[](keys.length);
+        uint256 checkpointCount = 0;
         for (uint256 i = 0; i < keys.length; ++i) {
             uint32 key = keys[i];
             uint224 value = values[i % values.length];
@@ -203,21 +220,38 @@ contract CheckpointsTrace224Test is Test {
             // push
             _ckpts.push(key, value);
 
-            // track expected result of lookups
-            if (key <= lookup) {
-                upper = value;
+            // track the effective checkpoint history after duplicate-key coalescing
+            if (checkpointCount > 0 && compactedKeys[checkpointCount - 1] == key) {
+                compactedValues[checkpointCount - 1] = value;
+            } else {
+                compactedKeys[checkpointCount] = key;
+                compactedValues[checkpointCount] = value;
+                checkpointCount += 1;
             }
-            // find the first key that is not smaller than the lookup key
-            if (key >= lookup && (i == 0 || keys[i - 1] < lookup)) {
-                lowerKey = key;
+        }
+
+        uint224 upper = 0;
+        uint224 lower = 0;
+        uint256 upperIndex = checkpointCount;
+        uint256 lowerIndex = checkpointCount;
+
+        for (uint256 i = 0; i < checkpointCount; ++i) {
+            if (compactedKeys[i] <= lookup) {
+                upper = compactedValues[i];
+            } else if (upperIndex == checkpointCount) {
+                upperIndex = i;
             }
-            if (key == lowerKey) {
-                lower = value;
+
+            if (lowerIndex == checkpointCount && compactedKeys[i] >= lookup) {
+                lowerIndex = i;
+                lower = compactedValues[i];
             }
         }
 
         // check lookup
+        assertEq(_ckpts.lowerLookupIndex(lookup), lowerIndex);
         assertEq(_ckpts.lowerLookup(lookup), lower);
+        assertEq(_ckpts.upperLookupIndex(lookup), upperIndex);
         assertEq(_ckpts.upperLookup(lookup), upper);
         assertEq(_ckpts.upperLookupRecent(lookup), upper);
     }
@@ -301,9 +335,9 @@ contract CheckpointsTrace208Test is Test {
         uint48 lastKey = keys.length == 0 ? 0 : keys[keys.length - 1];
         lookup = _boundUint48(lookup, 0, lastKey + _KEY_MAX_GAP);
 
-        uint208 upper = 0;
-        uint208 lower = 0;
-        uint48 lowerKey = type(uint48).max;
+        uint48[] memory compactedKeys = new uint48[](keys.length);
+        uint208[] memory compactedValues = new uint208[](keys.length);
+        uint256 checkpointCount = 0;
         for (uint256 i = 0; i < keys.length; ++i) {
             uint48 key = keys[i];
             uint208 value = values[i % values.length];
@@ -311,21 +345,38 @@ contract CheckpointsTrace208Test is Test {
             // push
             _ckpts.push(key, value);
 
-            // track expected result of lookups
-            if (key <= lookup) {
-                upper = value;
+            // track the effective checkpoint history after duplicate-key coalescing
+            if (checkpointCount > 0 && compactedKeys[checkpointCount - 1] == key) {
+                compactedValues[checkpointCount - 1] = value;
+            } else {
+                compactedKeys[checkpointCount] = key;
+                compactedValues[checkpointCount] = value;
+                checkpointCount += 1;
             }
-            // find the first key that is not smaller than the lookup key
-            if (key >= lookup && (i == 0 || keys[i - 1] < lookup)) {
-                lowerKey = key;
+        }
+
+        uint208 upper = 0;
+        uint208 lower = 0;
+        uint256 upperIndex = checkpointCount;
+        uint256 lowerIndex = checkpointCount;
+
+        for (uint256 i = 0; i < checkpointCount; ++i) {
+            if (compactedKeys[i] <= lookup) {
+                upper = compactedValues[i];
+            } else if (upperIndex == checkpointCount) {
+                upperIndex = i;
             }
-            if (key == lowerKey) {
-                lower = value;
+
+            if (lowerIndex == checkpointCount && compactedKeys[i] >= lookup) {
+                lowerIndex = i;
+                lower = compactedValues[i];
             }
         }
 
         // check lookup
+        assertEq(_ckpts.lowerLookupIndex(lookup), lowerIndex);
         assertEq(_ckpts.lowerLookup(lookup), lower);
+        assertEq(_ckpts.upperLookupIndex(lookup), upperIndex);
         assertEq(_ckpts.upperLookup(lookup), upper);
         assertEq(_ckpts.upperLookupRecent(lookup), upper);
     }
@@ -409,9 +460,9 @@ contract CheckpointsTrace160Test is Test {
         uint96 lastKey = keys.length == 0 ? 0 : keys[keys.length - 1];
         lookup = _boundUint96(lookup, 0, lastKey + _KEY_MAX_GAP);
 
-        uint160 upper = 0;
-        uint160 lower = 0;
-        uint96 lowerKey = type(uint96).max;
+        uint96[] memory compactedKeys = new uint96[](keys.length);
+        uint160[] memory compactedValues = new uint160[](keys.length);
+        uint256 checkpointCount = 0;
         for (uint256 i = 0; i < keys.length; ++i) {
             uint96 key = keys[i];
             uint160 value = values[i % values.length];
@@ -419,21 +470,38 @@ contract CheckpointsTrace160Test is Test {
             // push
             _ckpts.push(key, value);
 
-            // track expected result of lookups
-            if (key <= lookup) {
-                upper = value;
+            // track the effective checkpoint history after duplicate-key coalescing
+            if (checkpointCount > 0 && compactedKeys[checkpointCount - 1] == key) {
+                compactedValues[checkpointCount - 1] = value;
+            } else {
+                compactedKeys[checkpointCount] = key;
+                compactedValues[checkpointCount] = value;
+                checkpointCount += 1;
             }
-            // find the first key that is not smaller than the lookup key
-            if (key >= lookup && (i == 0 || keys[i - 1] < lookup)) {
-                lowerKey = key;
+        }
+
+        uint160 upper = 0;
+        uint160 lower = 0;
+        uint256 upperIndex = checkpointCount;
+        uint256 lowerIndex = checkpointCount;
+
+        for (uint256 i = 0; i < checkpointCount; ++i) {
+            if (compactedKeys[i] <= lookup) {
+                upper = compactedValues[i];
+            } else if (upperIndex == checkpointCount) {
+                upperIndex = i;
             }
-            if (key == lowerKey) {
-                lower = value;
+
+            if (lowerIndex == checkpointCount && compactedKeys[i] >= lookup) {
+                lowerIndex = i;
+                lower = compactedValues[i];
             }
         }
 
         // check lookup
+        assertEq(_ckpts.lowerLookupIndex(lookup), lowerIndex);
         assertEq(_ckpts.lowerLookup(lookup), lower);
+        assertEq(_ckpts.upperLookupIndex(lookup), upperIndex);
         assertEq(_ckpts.upperLookup(lookup), upper);
         assertEq(_ckpts.upperLookupRecent(lookup), upper);
     }

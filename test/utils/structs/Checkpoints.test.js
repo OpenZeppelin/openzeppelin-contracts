@@ -17,7 +17,9 @@ describe('Checkpoints', function () {
           length: (...args) => mock.getFunction(`$length_Checkpoints_${opt.historyTypeName}`)(0, ...args),
           push: (...args) => mock.getFunction(`$push(uint256,${opt.keyTypeName},${opt.valueTypeName})`)(0, ...args),
           lowerLookup: (...args) => mock.getFunction(`$lowerLookup(uint256,${opt.keyTypeName})`)(0, ...args),
+          lowerLookupIndex: (...args) => mock.getFunction(`$lowerLookupIndex(uint256,${opt.keyTypeName})`)(0, ...args),
           upperLookup: (...args) => mock.getFunction(`$upperLookup(uint256,${opt.keyTypeName})`)(0, ...args),
+          upperLookupIndex: (...args) => mock.getFunction(`$upperLookupIndex(uint256,${opt.keyTypeName})`)(0, ...args),
           upperLookupRecent: (...args) =>
             mock.getFunction(`$upperLookupRecent(uint256,${opt.keyTypeName})`)(0, ...args),
         };
@@ -46,7 +48,9 @@ describe('Checkpoints', function () {
 
         it('lookup returns 0', async function () {
           expect(await this.methods.lowerLookup(0)).to.equal(0n);
+          expect(await this.methods.lowerLookupIndex(0)).to.equal(0n);
           expect(await this.methods.upperLookup(0)).to.equal(0n);
+          expect(await this.methods.upperLookupIndex(0)).to.equal(0n);
           expect(await this.methods.upperLookupRecent(0)).to.equal(0n);
         });
       });
@@ -106,16 +110,20 @@ describe('Checkpoints', function () {
 
         it('lower lookup', async function () {
           for (let i = 0; i < 14; ++i) {
-            const value = this.checkpoints.find(x => i <= x.key)?.value || 0n;
+            const index = this.checkpoints.findIndex(x => i <= x.key);
+            const value = index === -1 ? 0n : this.checkpoints[index].value;
 
+            expect(await this.methods.lowerLookupIndex(i)).to.equal(index === -1 ? this.checkpoints.length : index);
             expect(await this.methods.lowerLookup(i)).to.equal(value);
           }
         });
 
         it('upper lookup & upperLookupRecent', async function () {
           for (let i = 0; i < 14; ++i) {
+            const index = this.checkpoints.findIndex(x => i < x.key);
             const value = this.checkpoints.findLast(x => i >= x.key)?.value || 0n;
 
+            expect(await this.methods.upperLookupIndex(i)).to.equal(index === -1 ? this.checkpoints.length : index);
             expect(await this.methods.upperLookup(i)).to.equal(value);
             expect(await this.methods.upperLookupRecent(i)).to.equal(value);
           }
