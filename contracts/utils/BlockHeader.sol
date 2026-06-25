@@ -51,9 +51,9 @@ library BlockHeader {
         return Blockhash.blockHash(getNumber(headerRLP)) == keccak256(headerRLP);
     }
 
-    /// @dev Variant of {verifyBlockHeader} that takes a pre-parsed list of fields.
-    function verifyBlockHeader(Memory.Slice[] memory fields, bytes memory headerRLP) internal view returns (bool) {
-        return Blockhash.blockHash(getNumber(fields)) == keccak256(headerRLP);
+    /// @dev Variant of {verifyBlockHeader} that takes a pre-parsed list of fields and the header hash.
+    function verifyBlockHeader(Memory.Slice[] memory fields, bytes32 headerHash) internal view returns (bool) {
+        return Blockhash.blockHash(getNumber(fields)) == headerHash;
     }
 
     /**

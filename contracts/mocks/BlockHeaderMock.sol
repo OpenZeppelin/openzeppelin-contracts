@@ -57,6 +57,6 @@ contract BlockHeaderMultiReadMock {
         result.excessBlobGas = BlockHeader.getExcessBlobGas(fields);
         result.parentBeaconBlockRoot = BlockHeader.getParentBeaconBlockRoot(fields);
         result.requestsHash = BlockHeader.getRequestsHash(fields);
-        result.verified = BlockHeader.verifyBlockHeader(fields, headerRLP);
+        result.verified = BlockHeader.verifyBlockHeader(fields, keccak256(headerRLP));
     }
 }
