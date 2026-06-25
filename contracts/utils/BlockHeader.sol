@@ -48,9 +48,7 @@ library BlockHeader {
      * NOTE: Blocks older than 8191 blocks ago are not available through {Blockhash.blockHash}
      */
     function verifyBlockHeader(bytes memory headerRLP) internal view returns (bool result) {
-        Memory.Pointer fmp = Memory.getFreeMemoryPointer();
-        result = verifyBlockHeader(parseHeader(headerRLP), headerRLP);
-        Memory.unsafeSetFreeMemoryPointer(fmp);
+        return Blockhash.blockHash(getNumber(headerRLP)) == keccak256(headerRLP);
     }
 
     /// @dev Variant of {verifyBlockHeader} that takes a pre-parsed list of fields.
