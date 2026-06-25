@@ -8,7 +8,10 @@ This directory includes primitives for financial systems:
 - {VestingWallet} handles the vesting of Ether and ERC-20 tokens for a given beneficiary. Custody of multiple tokens can
   be given to this contract, which will release the token to the beneficiary following a given, customizable, vesting
   schedule.
+- {VestingWalletRevocable} extends {VestingWallet} with per-asset revocation, freezing vesting for a revoked asset and
+  returning its unvested portion to a designated revoker.
 
 == Contracts
 
 {{VestingWallet}}
+{{VestingWalletRevocable}}
