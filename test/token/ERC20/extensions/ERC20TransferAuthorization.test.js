@@ -217,6 +217,74 @@ describe('ERC20TransferAuthorization', function () {
             .withArgs(this.validAfter, validBefore);
         });
 
+        it('treats mixed clock-flag inputs as timestamp', async function () {
+          // validAfter has the block flag, validBefore does not. Per the AND-of-flags rule the contract
+          // falls back to the timestamp clock. validBefore = blockNumber + 10 is then a tiny number compared
+          // to block.timestamp, so the authorization is considered expired.
+          const validAfter = withFlag(0n, 'blockNumber');
+          const validBefore = (await time.clock.blockNumber()) + 10n;
+
+          const { v, r, s } = await getDomain(this.token)
+            .then(domain =>
+              this.holder.signTypedData(
+                domain,
+                { TransferWithAuthorization },
+                {
+                  from: this.holder.address,
+                  to: this.recipient.address,
+                  value,
+                  validAfter,
+                  validBefore,
+                  nonce: this.nonce,
+                },
+              ),
+            )
+            .then(ethers.Signature.from);
+
+          await expect(
+            this.token.transferWithAuthorization(
+              this.holder,
+              this.recipient,
+              value,
+              validAfter,
+              validBefore,
+              this.nonce,
+              v,
+              r,
+              s,
+            ),
+          )
+            .to.be.revertedWithCustomError(this.token, 'ERC3009InvalidAuthorizationTime')
+            .withArgs(validAfter, validBefore);
+        });
+
+        it('ignores bits above the 48-bit window', async function () {
+          // Same expired validBefore as the previous test, padded with high bits beyond the 48-bit window.
+          // The validity check must mask those off, so behavior is unchanged (still rejected as expired).
+          const validBefore =
+            withFlag((await time.clock[mode]()) - 5n, mode) + (1n << 48n) + (1n << 100n) + (1n << 200n);
+
+          const { v, r, s } = await this.buildData(this.token, this.holder, this.recipient, validBefore)
+            .then(({ domain, types, message }) => this.holder.signTypedData(domain, types, message))
+            .then(ethers.Signature.from);
+
+          await expect(
+            this.token.transferWithAuthorization(
+              this.holder,
+              this.recipient,
+              value,
+              this.validAfter,
+              validBefore,
+              this.nonce,
+              v,
+              r,
+              s,
+            ),
+          )
+            .to.be.revertedWithCustomError(this.token, 'ERC3009InvalidAuthorizationTime')
+            .withArgs(this.validAfter, validBefore);
+        });
+
         it('rejects out-of-order nonces sharing the same key', async function () {
           const nonce0 = packNonce(this.key, 0n);
           const nonce1 = packNonce(this.key, 1n);
