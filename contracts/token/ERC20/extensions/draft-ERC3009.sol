@@ -5,9 +5,8 @@ import {ERC20} from "../ERC20.sol";
 import {EIP712} from "../../../utils/cryptography/EIP712.sol";
 import {ECDSA} from "../../../utils/cryptography/ECDSA.sol";
 import {IERC3009, IERC3009Cancel} from "../../../interfaces/draft-IERC3009.sol";
-import {IERC6372} from "../../../interfaces/IERC6372.sol";
 import {Time} from "../../../utils/types/Time.sol";
-import {ERC6372Utils} from "../../../utils/ERC6372Utils.sol";
+import {ERC4337Utils} from "../../../account/utils/draft-ERC4337Utils.sol";
 
 /**
  * @dev Implementation of the ERC-3009 Transfer With Authorization extension allowing
@@ -18,6 +17,13 @@ import {ERC6372Utils} from "../../../utils/ERC6372Utils.sol";
  * by the account. By not relying on {IERC20-approve} and {IERC20-transferFrom}, the
  * token holder account doesn't need to send a transaction, and thus is not required
  * to hold native currency (e.g. ETH) at all.
+ *
+ * NOTE: To enable both timestamp-based and block-number-based validity windows, only the low 48 bits of
+ * `validAfter` and `validBefore` are consulted. Within those, the highest bit ({BLOCK_RANGE_FLAG}, bit 47)
+ * acts as a clock selector: when *both* `validAfter` and `validBefore` have this bit set, the remaining
+ * 47 bits are interpreted as block numbers; otherwise they are interpreted as Unix timestamps (the default,
+ * matching the ERC-3009 specification). Bits above 48 are ignored by the validity check, though they are
+ * still committed to by the EIP-712 signature. This dual-clock encoding mirrors {ERC4337Utils}.
  */
 abstract contract ERC3009 is ERC20, EIP712, IERC3009, IERC3009Cancel {
     /// @dev The signature is invalid
@@ -92,7 +98,11 @@ abstract contract ERC3009 is ERC20, EIP712, IERC3009, IERC3009Cancel {
         _cancelAuthorization(authorizer, nonce);
     }
 
-    /// @dev Performs the time and nonce checks, then executes the transfer.
+    /**
+     * @dev Performs the time and nonce checks, then executes the transfer.
+     *
+     * NOTE: Only the low 48 bits of `validAfter` and `validBefore` are consulted by the validity check.
+     */
     function _transferWithAuthorization(
         address from,
         address to,
@@ -107,7 +117,11 @@ abstract contract ERC3009 is ERC20, EIP712, IERC3009, IERC3009Cancel {
         _transfer(from, to, value);
     }
 
-    /// @dev Performs the caller, time and nonce checks, then executes the transfer.
+    /**
+     * @dev Performs the caller, time and nonce checks, then executes the transfer.
+     *
+     * NOTE: Only the low 48 bits of `validAfter` and `validBefore` are consulted by the validity check.
+     */
     function _receiveWithAuthorization(
         address from,
         address to,
@@ -136,16 +150,21 @@ abstract contract ERC3009 is ERC20, EIP712, IERC3009, IERC3009Cancel {
     }
 
     /**
-     * @dev Checks the validity of the authorization based on the provided timestamps and the current time or block number.
-     * We use the block flag logic defined in ERC-4337 to support both block number and timestamp based validity checks.
+     * @dev Checks the validity of the authorization against the current clock.
+     *
+     * Following the ERC-4337-style dual-clock encoding, the clock is interpreted as block number only when
+     * *both* `validAfter` and `validBefore` carry the {BLOCK_RANGE_FLAG}; otherwise it falls back to
+     * timestamp (matching the ERC-3009 specification's default). Mixed-flag inputs therefore fall back to
+     * the timestamp clock rather than reverting, mirroring {ERC4337Utils-parseValidationData}. Only the low
+     * 47 bits of each value are compared against the chosen clock.
      */
-    function _checkValidity(uint256 validAfter, uint256 validBefore) private view {
-        // Get clock from flag
-        uint256 validAfterClock = validAfter & 0x800000000000 == 0 ? Time.timestamp() : Time.blockNumber();
-        uint256 validBeforeClock = validBefore & 0x800000000000 == 0 ? Time.timestamp() : Time.blockNumber();
-        // Check validity (using values with the flag removed)
+    function _checkValidity(uint256 validAfter, uint256 validBefore) internal view virtual {
+        uint256 current = (validAfter & validBefore & ERC4337Utils.BLOCK_RANGE_FLAG) == 0
+            ? Time.timestamp()
+            : Time.blockNumber();
         require(
-            validAfterClock > validAfter & 0x7fffffffffff && validBeforeClock < validBefore & 0x7fffffffffff,
+            current > (validAfter & ERC4337Utils.BLOCK_RANGE_MASK) &&
+                current < (validBefore & ERC4337Utils.BLOCK_RANGE_MASK),
             ERC3009InvalidAuthorizationTime(validAfter, validBefore)
         );
     }
