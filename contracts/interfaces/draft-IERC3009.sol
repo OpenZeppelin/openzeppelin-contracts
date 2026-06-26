@@ -10,7 +10,9 @@ interface IERC3009 {
     event AuthorizationUsed(address indexed authorizer, bytes32 indexed nonce);
 
     /**
-     * @dev Returns the state of an authorization.
+     * @dev Returns whether the `nonce` has been used by `authorizer`. A `true` value means the authorization
+     * has already been consumed (either transferred or canceled) and can no longer be used; a `false` value
+     * means the nonce is still available.
      *
      * Nonces are randomly generated 32-byte values unique to the authorizer's address.
      */
