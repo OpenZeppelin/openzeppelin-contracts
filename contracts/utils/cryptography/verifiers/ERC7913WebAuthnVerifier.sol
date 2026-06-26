@@ -39,7 +39,7 @@ contract ERC7913WebAuthnVerifier is IERC7913SignatureVerifier {
                 : bytes4(0xFFFFFFFF);
     }
 
-    function _requireUV() internal pure returns (bool) {
+    function _requireUV() internal pure virtual returns (bool) {
         return true;
     }
 }
