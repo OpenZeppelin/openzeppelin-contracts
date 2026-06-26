@@ -76,7 +76,13 @@ abstract contract ERC20TransferAuthorization is ERC3009, NoncesKeyed {
         _cancelAuthorization(authorizer, nonce);
     }
 
-    /// @dev Override the internal nonce consumption logic to use the keyed sequential nonces from {NoncesKeyed}.
+    /**
+     * @dev Override the internal nonce consumption logic to use the keyed sequential nonces from {NoncesKeyed}.
+     *
+     * NOTE: This override does not call `super._consumeNonce`, so any sibling override added by another extension
+     * is skipped under C3 linearization. Integrators combining this contract with extensions that introduce
+     * additional side effects through `_consumeNonce` must reintroduce those side effects themselves.
+     */
     function _consumeNonce(address authorizer, bytes32 nonce) internal virtual override {
         _useCheckedNonce(authorizer, uint256(nonce));
     }
