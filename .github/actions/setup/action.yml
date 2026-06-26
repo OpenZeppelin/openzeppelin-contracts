@@ -65,7 +65,7 @@ runs:
     - name: Try fetch node modules from cache
       id: cache
       if: inputs.node != 'off'
-      uses: actions/cache@v5
+      uses: actions/cache@v6
       with:
         path: '**/node_modules'
         key: npm-${{ steps.versions.outputs.node }}-${{ hashFiles('**/package-lock.json') }}
