@@ -9,27 +9,15 @@ const {
   CancelAuthorization,
 } = require('../../../helpers/eip712');
 const time = require('../../../helpers/time');
+const { MAX_UINT48 } = require('../../../helpers/constants');
 
 const name = 'My Token';
 const symbol = 'MTKN';
 const version = '1';
 const initialSupply = 100n;
 
-const BLOCK_RANGE_FLAG = 1n << 47n;
-const UINT48_MAX = (1n << 48n) - 1n;
-
-const MODES = [
-  {
-    flag: 0n,
-    mode: 'timestamp',
-  },
-  {
-    flag: BLOCK_RANGE_FLAG,
-    mode: 'blockNumber',
-  },
-];
-
 const randomNonce = () => ethers.hexlify(ethers.randomBytes(32));
+const withFlag = (value, mode) => value + (mode === 'timestamp' ? 0n : 0x800000000000n);
 
 const fixture = async () => {
   const [holder, recipient, other] = await ethers.getSigners();
@@ -41,7 +29,7 @@ const fixture = async () => {
 };
 
 describe('ERC3009', function () {
-  for (const { flag, mode } of MODES) {
+  for (const mode of ['timestamp', 'blockNumber']) {
     describe(`using ${mode} clock`, function () {
       beforeEach(async function () {
         Object.assign(this, await loadFixture(fixture));
@@ -54,7 +42,7 @@ describe('ERC3009', function () {
 
         it('returns true after the nonce is consumed', async function () {
           const nonce = randomNonce();
-          const validAfter = flag;
+          const validAfter = withFlag(0n, mode);
           const validBefore = ethers.MaxUint256;
           const value = 42n;
 
@@ -89,7 +77,7 @@ describe('ERC3009', function () {
 
         beforeEach(async function () {
           this.nonce = randomNonce();
-          this.validAfter = flag;
+          this.validAfter = withFlag(0n, mode);
           this.validBefore = ethers.MaxUint256;
         });
 
@@ -194,7 +182,7 @@ describe('ERC3009', function () {
         });
 
         it('rejects expired authorization', async function () {
-          const validBefore = await time.clock[mode]().then(clock => (clock - 1n) | flag);
+          const validBefore = await time.clock[mode]().then(clock => withFlag(clock - 1n, mode));
 
           const { v, r, s } = await getDomain(this.token)
             .then(domain =>
@@ -231,10 +219,10 @@ describe('ERC3009', function () {
         });
 
         it('rejects validAfter that points to an unreachable future at uint48 max', async function () {
-          await time.increaseTo[mode](UINT48_MAX - 1n);
+          await time.increaseTo[mode](MAX_UINT48 - 1n);
 
           // Setting bit 48 pushes the masked value to 2**48, just beyond the maximum uint48 clock
-          const validAfter = (1n << 48n) | flag;
+          const validAfter = withFlag(1n << 48n, mode);
           const validBefore = ethers.MaxUint256;
 
           const { v, r, s } = await getDomain(this.token)
@@ -272,11 +260,11 @@ describe('ERC3009', function () {
         });
 
         it('accepts validBefore that points to an unreachable future at uint48 max', async function () {
-          await time.increaseTo[mode](UINT48_MAX - 1n);
+          await time.increaseTo[mode](MAX_UINT48 - 1n);
 
-          const validAfter = flag;
+          const validAfter = withFlag(0n, mode);
           // Setting bit 48 pushes the masked value to 2**48, just beyond the maximum uint48 clock
-          const validBefore = (1n << 48n) | flag;
+          const validBefore = withFlag(1n << 48n, mode);
 
           const { v, r, s } = await getDomain(this.token)
             .then(domain =>
@@ -309,6 +297,202 @@ describe('ERC3009', function () {
 
           await expect(this.token.authorizationState(this.holder, this.nonce)).to.eventually.be.true;
         });
+
+        it('emits AuthorizationUsed and Transfer with the expected balance changes', async function () {
+          const { v, r, s } = await getDomain(this.token)
+            .then(domain =>
+              this.holder.signTypedData(
+                domain,
+                { TransferWithAuthorization },
+                {
+                  from: this.holder.address,
+                  to: this.recipient.address,
+                  value,
+                  validAfter: this.validAfter,
+                  validBefore: this.validBefore,
+                  nonce: this.nonce,
+                },
+              ),
+            )
+            .then(ethers.Signature.from);
+
+          await expect(
+            this.token.transferWithAuthorization(
+              this.holder,
+              this.recipient,
+              value,
+              this.validAfter,
+              this.validBefore,
+              this.nonce,
+              v,
+              r,
+              s,
+            ),
+          )
+            .to.emit(this.token, 'AuthorizationUsed')
+            .withArgs(this.holder.address, this.nonce)
+            .to.emit(this.token, 'Transfer')
+            .withArgs(this.holder.address, this.recipient.address, value);
+
+          await expect(this.token.balanceOf(this.holder)).to.eventually.equal(initialSupply - value);
+          await expect(this.token.balanceOf(this.recipient)).to.eventually.equal(value);
+        });
+
+        it('rejects invalid signature', async function () {
+          const { v, r, s } = await getDomain(this.token)
+            .then(domain =>
+              this.other.signTypedData(
+                domain,
+                { TransferWithAuthorization },
+                {
+                  from: this.holder.address,
+                  to: this.recipient.address,
+                  value,
+                  validAfter: this.validAfter,
+                  validBefore: this.validBefore,
+                  nonce: this.nonce,
+                },
+              ),
+            )
+            .then(ethers.Signature.from);
+
+          await expect(
+            this.token.transferWithAuthorization(
+              this.holder,
+              this.recipient,
+              value,
+              this.validAfter,
+              this.validBefore,
+              this.nonce,
+              v,
+              r,
+              s,
+            ),
+          ).to.be.revertedWithCustomError(this.token, 'ERC3009InvalidSignature');
+        });
+
+        it('rejects authorization not yet valid', async function () {
+          const validAfter = await time.clock[mode]().then(clock => withFlag(clock + 100n, mode));
+
+          const { v, r, s } = await getDomain(this.token)
+            .then(domain =>
+              this.holder.signTypedData(
+                domain,
+                { TransferWithAuthorization },
+                {
+                  from: this.holder.address,
+                  to: this.recipient.address,
+                  value,
+                  validAfter,
+                  validBefore: this.validBefore,
+                  nonce: this.nonce,
+                },
+              ),
+            )
+            .then(ethers.Signature.from);
+
+          await expect(
+            this.token.transferWithAuthorization(
+              this.holder,
+              this.recipient,
+              value,
+              validAfter,
+              this.validBefore,
+              this.nonce,
+              v,
+              r,
+              s,
+            ),
+          )
+            .to.be.revertedWithCustomError(this.token, 'ERC3009InvalidAuthorizationTime')
+            .withArgs(validAfter, this.validBefore);
+        });
+
+        it('rejects at the validAfter boundary (current == validAfter)', async function () {
+          const target = (await time.clock[mode]()) + 5n;
+          if (mode === 'blockNumber') {
+            await time.increaseTo.blockNumber(target - 1n);
+          } else {
+            await time.increaseTo.timestamp(target, false);
+          }
+          const validAfter = withFlag(target, mode);
+
+          const { v, r, s } = await getDomain(this.token)
+            .then(domain =>
+              this.holder.signTypedData(
+                domain,
+                { TransferWithAuthorization },
+                {
+                  from: this.holder.address,
+                  to: this.recipient.address,
+                  value,
+                  validAfter,
+                  validBefore: this.validBefore,
+                  nonce: this.nonce,
+                },
+              ),
+            )
+            .then(ethers.Signature.from);
+
+          await expect(
+            this.token.transferWithAuthorization(
+              this.holder,
+              this.recipient,
+              value,
+              validAfter,
+              this.validBefore,
+              this.nonce,
+              v,
+              r,
+              s,
+            ),
+          )
+            .to.be.revertedWithCustomError(this.token, 'ERC3009InvalidAuthorizationTime')
+            .withArgs(validAfter, this.validBefore);
+        });
+
+        it('rejects at the validBefore boundary (current == validBefore)', async function () {
+          const target = (await time.clock[mode]()) + 5n;
+          if (mode === 'blockNumber') {
+            await time.increaseTo.blockNumber(target - 1n);
+          } else {
+            await time.increaseTo.timestamp(target, false);
+          }
+          const validBefore = withFlag(target, mode);
+
+          const { v, r, s } = await getDomain(this.token)
+            .then(domain =>
+              this.holder.signTypedData(
+                domain,
+                { TransferWithAuthorization },
+                {
+                  from: this.holder.address,
+                  to: this.recipient.address,
+                  value,
+                  validAfter: this.validAfter,
+                  validBefore,
+                  nonce: this.nonce,
+                },
+              ),
+            )
+            .then(ethers.Signature.from);
+
+          await expect(
+            this.token.transferWithAuthorization(
+              this.holder,
+              this.recipient,
+              value,
+              this.validAfter,
+              validBefore,
+              this.nonce,
+              v,
+              r,
+              s,
+            ),
+          )
+            .to.be.revertedWithCustomError(this.token, 'ERC3009InvalidAuthorizationTime')
+            .withArgs(this.validAfter, validBefore);
+        });
       });
 
       describe('receiveWithAuthorization', function () {
@@ -316,8 +500,123 @@ describe('ERC3009', function () {
 
         beforeEach(async function () {
           this.nonce = randomNonce();
-          this.validAfter = flag;
+          this.validAfter = withFlag(0n, mode);
           this.validBefore = ethers.MaxUint256;
+        });
+
+        it('accepts holder signature when called by recipient', async function () {
+          const { v, r, s } = await getDomain(this.token)
+            .then(domain =>
+              this.holder.signTypedData(
+                domain,
+                { ReceiveWithAuthorization },
+                {
+                  from: this.holder.address,
+                  to: this.recipient.address,
+                  value,
+                  validAfter: this.validAfter,
+                  validBefore: this.validBefore,
+                  nonce: this.nonce,
+                },
+              ),
+            )
+            .then(ethers.Signature.from);
+
+          await expect(
+            this.token
+              .connect(this.recipient)
+              .receiveWithAuthorization(
+                this.holder,
+                this.recipient,
+                value,
+                this.validAfter,
+                this.validBefore,
+                this.nonce,
+                v,
+                r,
+                s,
+              ),
+          )
+            .to.emit(this.token, 'AuthorizationUsed')
+            .withArgs(this.holder.address, this.nonce)
+            .to.emit(this.token, 'Transfer')
+            .withArgs(this.holder.address, this.recipient.address, value);
+
+          await expect(this.token.balanceOf(this.holder)).to.eventually.equal(initialSupply - value);
+          await expect(this.token.balanceOf(this.recipient)).to.eventually.equal(value);
+          await expect(this.token.authorizationState(this.holder, this.nonce)).to.eventually.be.true;
+        });
+
+        it('rejects when caller is not the recipient', async function () {
+          const { v, r, s } = await getDomain(this.token)
+            .then(domain =>
+              this.holder.signTypedData(
+                domain,
+                { ReceiveWithAuthorization },
+                {
+                  from: this.holder.address,
+                  to: this.recipient.address,
+                  value,
+                  validAfter: this.validAfter,
+                  validBefore: this.validBefore,
+                  nonce: this.nonce,
+                },
+              ),
+            )
+            .then(ethers.Signature.from);
+
+          await expect(
+            this.token
+              .connect(this.other)
+              .receiveWithAuthorization(
+                this.holder,
+                this.recipient,
+                value,
+                this.validAfter,
+                this.validBefore,
+                this.nonce,
+                v,
+                r,
+                s,
+              ),
+          )
+            .to.be.revertedWithCustomError(this.token, 'ERC20InvalidReceiver')
+            .withArgs(this.recipient.address);
+        });
+
+        it('rejects invalid signature', async function () {
+          const { v, r, s } = await getDomain(this.token)
+            .then(domain =>
+              this.other.signTypedData(
+                domain,
+                { ReceiveWithAuthorization },
+                {
+                  from: this.holder.address,
+                  to: this.recipient.address,
+                  value,
+                  validAfter: this.validAfter,
+                  validBefore: this.validBefore,
+                  nonce: this.nonce,
+                },
+              ),
+            )
+            .then(ethers.Signature.from);
+
+          await expect(
+            this.token
+              .connect(this.recipient)
+              .receiveWithAuthorization(
+                this.holder,
+                this.recipient,
+                value,
+                this.validAfter,
+                this.validBefore,
+                this.nonce,
+                v,
+                r,
+                s,
+              ),
+          ).to.be.revertedWithCustomError(this.token, 'ERC3009InvalidSignature');
         });
 
         it('rejects reused nonce with ERC3009UsedAuthorization', async function () {
@@ -412,7 +711,73 @@ describe('ERC3009', function () {
             .to.be.revertedWithCustomError(this.token, 'ERC3009UsedAuthorization')
             .withArgs(this.holder.address, this.nonce);
         });
+
+        it('rejects invalid signature', async function () {
+          const { v, r, s } = await getDomain(this.token)
+            .then(domain =>
+              this.other.signTypedData(
+                domain,
+                { CancelAuthorization },
+                { authorizer: this.holder.address, nonce: this.nonce },
+              ),
+            )
+            .then(ethers.Signature.from);
+
+          await expect(this.token.cancelAuthorization(this.holder, this.nonce, v, r, s)).to.be.revertedWithCustomError(
+            this.token,
+            'ERC3009InvalidSignature',
+          );
+        });
       });
     });
   }
+
+  describe('mixed clock-flag inputs', function () {
+    beforeEach(async function () {
+      Object.assign(this, await loadFixture(fixture));
+    });
+
+    it('falls back to the timestamp clock', async function () {
+      // validAfter has the block flag, validBefore does not. Per the AND-of-flags rule the
+      // contract falls back to the timestamp clock. validBefore = (currentBlock + 10) is then a
+      // tiny number compared to block.timestamp, so the authorization is considered expired.
+      const nonce = randomNonce();
+      const value = 42n;
+      const validAfter = withFlag(0n, 'blockNumber');
+      const validBefore = await time.clock.blockNumber().then(clock => withFlag(clock + 10n, 'timestamp'));
+
+      const { v, r, s } = await getDomain(this.token)
+        .then(domain =>
+          this.holder.signTypedData(
+            domain,
+            { TransferWithAuthorization },
+            {
+              from: this.holder.address,
+              to: this.recipient.address,
+              value,
+              validAfter,
+              validBefore,
+              nonce,
+            },
+          ),
+        )
+        .then(ethers.Signature.from);
+
+      await expect(
+        this.token.transferWithAuthorization(
+          this.holder,
+          this.recipient,
+          value,
+          validAfter,
+          validBefore,
+          nonce,
+          v,
+          r,
+          s,
+        ),
+      )
+        .to.be.revertedWithCustomError(this.token, 'ERC3009InvalidAuthorizationTime')
+        .withArgs(validAfter, validBefore);
+    });
+  });
 });

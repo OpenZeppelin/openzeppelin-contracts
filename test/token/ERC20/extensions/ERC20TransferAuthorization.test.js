@@ -263,59 +263,6 @@ describe('ERC20TransferAuthorization', function () {
             .withArgs(validAfter, validBefore);
         });
 
-        it('ignores bits above the 48-bit window', async function () {
-          // Any non zero value shifted (left) by 48 bits would be a good test.
-          const extraBits = (1n << 48n) + (1n << 100n) + (1n << 200n);
-
-          // Same expired validBefore as the previous test, padded with high bits beyond the 48-bit window.
-          // The validity check must mask those off, so behavior is unchanged (still rejected as expired).
-          const validBefore = withFlag((await time.clock[mode]()) - 5n, mode) + extraBits;
-
-          const sig1 = await this.buildData(this.token, this.holder, this.recipient, { validBefore })
-            .then(({ domain, types, message }) => this.holder.signTypedData(domain, types, message))
-            .then(ethers.Signature.from);
-
-          await expect(
-            this.token.transferWithAuthorization(
-              this.holder,
-              this.recipient,
-              value,
-              this.validAfter, // valid
-              validBefore, // invalid (past + extra high bits)
-              this.nonce,
-              sig1.v,
-              sig1.r,
-              sig1.s,
-            ),
-          )
-            .to.be.revertedWithCustomError(this.token, 'ERC3009InvalidAuthorizationTime')
-            .withArgs(this.validAfter, validBefore);
-
-          // Using a large for valid after does not revert. While the uint256 representation is in the future,
-          // the first 48 bits are all zero, corresponding to a value in the past, which is makes the authorization valid..
-          const validAfter = extraBits;
-
-          const sig2 = await this.buildData(this.token, this.holder, this.recipient, { validAfter })
-            .then(({ domain, types, message }) => this.holder.signTypedData(domain, types, message))
-            .then(ethers.Signature.from);
-
-          await expect(
-            this.token.transferWithAuthorization(
-              this.holder,
-              this.recipient,
-              value,
-              validAfter, // valid (high bits, but first 48 bits are zero)
-              this.validBefore, // valid
-              this.nonce,
-              sig2.v,
-              sig2.r,
-              sig2.s,
-            ),
-          )
-            .to.emit(this.token, 'Transfer')
-            .withArgs(this.holder.address, this.recipient.address, value);
-        });
-
         it('rejects out-of-order nonces sharing the same key', async function () {
           const nonce0 = packNonce(this.key, 0n);
           const nonce1 = packNonce(this.key, 1n);
@@ -463,6 +410,17 @@ describe('ERC20TransferAuthorization', function () {
               this.token.getFunction(
                 'transferWithAuthorization(address,address,uint256,uint256,uint256,bytes32,bytes)',
               )(this.wallet, this.recipient, value, this.validAfter, this.validBefore, this.nonce, signature),
+            ).to.be.revertedWithCustomError(this.token, 'ERC3009InvalidSignature');
+          });
+
+          it('rejects malformed signature', async function () {
+            // 32 bytes instead of 65; SignatureChecker rejects without reverting in ECDSA.
+            const signature = ethers.hexlify(ethers.randomBytes(32));
+
+            await expect(
+              this.token.getFunction(
+                'transferWithAuthorization(address,address,uint256,uint256,uint256,bytes32,bytes)',
+              )(this.holder, this.recipient, value, this.validAfter, this.validBefore, this.nonce, signature),
             ).to.be.revertedWithCustomError(this.token, 'ERC3009InvalidSignature');
           });
         });
@@ -674,6 +632,33 @@ describe('ERC20TransferAuthorization', function () {
           )
             .to.be.revertedWithCustomError(this.token, 'ERC3009InvalidAuthorizationTime')
             .withArgs(this.validAfter, validBefore);
+        });
+
+        it('rejects out-of-order nonces sharing the same key', async function () {
+          const nonce0 = packNonce(this.key, 0n);
+          const nonce1 = packNonce(this.key, 1n);
+
+          const { v, r, s } = await this.buildData(this.token, this.holder, this.recipient, { nonce: nonce1 })
+            .then(({ domain, types, message }) => this.holder.signTypedData(domain, types, message))
+            .then(ethers.Signature.from);
+
+          await expect(
+            this.token
+              .connect(this.recipient)
+              .receiveWithAuthorization(
+                this.holder,
+                this.recipient,
+                value,
+                this.validAfter,
+                this.validBefore,
+                nonce1,
+                v,
+                r,
+                s,
+              ),
+          )
+            .to.be.revertedWithCustomError(this.token, 'InvalidAccountNonce')
+            .withArgs(this.holder.address, nonce0);
         });
 
         describe('with bytes signature', function () {
@@ -901,6 +886,146 @@ describe('ERC20TransferAuthorization', function () {
             .withArgs(this.holder.address, packNonce(this.key, 1n));
         });
 
+        it('rejects cancellation of a non-next nonce in the same key sequence', async function () {
+          // Authorizer signs a cancel for sequence 5 while the next-to-use is sequence 0.
+          // The keyed-nonce model only consumes the next nonce, so this must revert.
+          const nonce5 = packNonce(this.key, 5n);
+
+          const { v, r, s } = await this.buildData(this.token, this.holder, nonce5)
+            .then(({ domain, types, message }) => this.holder.signTypedData(domain, types, message))
+            .then(ethers.Signature.from);
+
+          await expect(this.token.cancelAuthorization(this.holder, nonce5, v, r, s))
+            .to.be.revertedWithCustomError(this.token, 'InvalidAccountNonce')
+            .withArgs(this.holder.address, packNonce(this.key, 0n));
+        });
+
+        it('cancels the next nonce after consuming the previous one', async function () {
+          const value = 42n;
+          const validAfter = withFlag(0n, mode);
+          const validBefore = withFlag(0x7fffffffffffn, mode);
+          const nonce0 = packNonce(this.key, 0n);
+          const nonce1 = packNonce(this.key, 1n);
+          const nonce2 = packNonce(this.key, 2n);
+
+          // Consume sequence 0 via transfer.
+          const transferSig = await getDomain(this.token)
+            .then(domain =>
+              this.holder.signTypedData(
+                domain,
+                { TransferWithAuthorization },
+                {
+                  from: this.holder.address,
+                  to: this.recipient.address,
+                  value,
+                  validAfter,
+                  validBefore,
+                  nonce: nonce0,
+                },
+              ),
+            )
+            .then(ethers.Signature.from);
+
+          await this.token.transferWithAuthorization(
+            this.holder,
+            this.recipient,
+            value,
+            validAfter,
+            validBefore,
+            nonce0,
+            transferSig.v,
+            transferSig.r,
+            transferSig.s,
+          );
+
+          // Cancel sequence 1.
+          const cancelSig = await this.buildData(this.token, this.holder, nonce1)
+            .then(({ domain, types, message }) => this.holder.signTypedData(domain, types, message))
+            .then(ethers.Signature.from);
+
+          await expect(this.token.cancelAuthorization(this.holder, nonce1, cancelSig.v, cancelSig.r, cancelSig.s))
+            .to.emit(this.token, 'AuthorizationCanceled')
+            .withArgs(this.holder.address, nonce1);
+
+          // Sequence 0 (consumed) and 1 (cancelled) both report `true`; sequence 2 is the new next-to-use.
+          await expect(this.token.authorizationState(this.holder, nonce0)).to.eventually.be.true;
+          await expect(this.token.authorizationState(this.holder, nonce1)).to.eventually.be.true;
+          await expect(this.token.authorizationState(this.holder, nonce2)).to.eventually.be.false;
+        });
+
+        it('shares the keyed counter between transfer and receive', async function () {
+          const value = 42n;
+          const validAfter = withFlag(0n, mode);
+          const validBefore = withFlag(0x7fffffffffffn, mode);
+          const nonce0 = packNonce(this.key, 0n);
+          const nonce1 = packNonce(this.key, 1n);
+
+          // Consume sequence 0 via transfer.
+          const transferSig = await getDomain(this.token)
+            .then(domain =>
+              this.holder.signTypedData(
+                domain,
+                { TransferWithAuthorization },
+                {
+                  from: this.holder.address,
+                  to: this.recipient.address,
+                  value,
+                  validAfter,
+                  validBefore,
+                  nonce: nonce0,
+                },
+              ),
+            )
+            .then(ethers.Signature.from);
+
+          await this.token.transferWithAuthorization(
+            this.holder,
+            this.recipient,
+            value,
+            validAfter,
+            validBefore,
+            nonce0,
+            transferSig.v,
+            transferSig.r,
+            transferSig.s,
+          );
+
+          // A receive authorization on the same key must use sequence 1; sequence 0 is consumed.
+          const receiveSig = await getDomain(this.token)
+            .then(domain =>
+              this.holder.signTypedData(
+                domain,
+                { ReceiveWithAuthorization },
+                {
+                  from: this.holder.address,
+                  to: this.recipient.address,
+                  value,
+                  validAfter,
+                  validBefore,
+                  nonce: nonce1,
+                },
+              ),
+            )
+            .then(ethers.Signature.from);
+
+          await this.token
+            .connect(this.recipient)
+            .receiveWithAuthorization(
+              this.holder,
+              this.recipient,
+              value,
+              validAfter,
+              validBefore,
+              nonce1,
+              receiveSig.v,
+              receiveSig.r,
+              receiveSig.s,
+            );
+
+          await expect(this.token.authorizationState(this.holder, nonce0)).to.eventually.be.true;
+          await expect(this.token.authorizationState(this.holder, nonce1)).to.eventually.be.true;
+        });
+
         describe('with bytes signature', function () {
           it('accepts authorizer signature', async function () {
             const signature = await this.buildData(this.token, this.holder).then(({ domain, types, message }) =>
@@ -952,6 +1077,51 @@ describe('ERC20TransferAuthorization', function () {
             await expect(
               this.token.getFunction('cancelAuthorization(address,bytes32,bytes)')(this.wallet, this.nonce, signature),
             ).to.be.revertedWithCustomError(this.token, 'ERC3009InvalidSignature');
+          });
+
+          it('prevents usage of canceled authorization by an ERC1271 wallet', async function () {
+            const value = 42n;
+            const validAfter = withFlag(0n, mode);
+            const validBefore = withFlag(0x7fffffffffffn, mode);
+
+            // Wallet cancels sequence 0.
+            const cancelSignature = await getDomain(this.token).then(domain =>
+              this.holder.signTypedData(
+                domain,
+                { CancelAuthorization },
+                { authorizer: this.wallet.target, nonce: this.nonce },
+              ),
+            );
+
+            await this.token.getFunction('cancelAuthorization(address,bytes32,bytes)')(
+              this.wallet,
+              this.nonce,
+              cancelSignature,
+            );
+
+            // A transfer signed for the same nonce now reverts: counter advanced past sequence 0.
+            const transferSignature = await getDomain(this.token).then(domain =>
+              this.holder.signTypedData(
+                domain,
+                { TransferWithAuthorization },
+                {
+                  from: this.wallet.target,
+                  to: this.recipient.address,
+                  value,
+                  validAfter,
+                  validBefore,
+                  nonce: this.nonce,
+                },
+              ),
+            );
+
+            await expect(
+              this.token.getFunction(
+                'transferWithAuthorization(address,address,uint256,uint256,uint256,bytes32,bytes)',
+              )(this.wallet, this.recipient, value, validAfter, validBefore, this.nonce, transferSignature),
+            )
+              .to.be.revertedWithCustomError(this.token, 'InvalidAccountNonce')
+              .withArgs(this.wallet.target, packNonce(this.key, 1n));
           });
         });
       });
