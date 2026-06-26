@@ -24,7 +24,7 @@ abstract contract NoncesKeyed is Nonces {
     /**
      * @dev Consumes the next unused nonce for an address and key.
      *
-     * Returns the current value without the key prefix. Consumed nonce is increased, so calling this function twice
+     * Returns the current value with the key prefix (i.e. the packed keyNonce). Consumed nonce is increased, so calling this function twice
      * with the same arguments will return different (sequential) results.
      */
     function _useNonce(address owner, uint192 key) internal virtual returns (uint256) {
