@@ -154,12 +154,10 @@ abstract contract ERC3009 is ERC20, EIP712, IERC3009, IERC3009Cancel {
      * unreachable point in the future (i.e. never valid after or always valid before, respectively).
      */
     function _checkValidity(uint256 validAfter, uint256 validBefore) internal view virtual {
-        uint256 current = (validAfter & validBefore & ERC4337Utils.BLOCK_RANGE_FLAG) == 0
-            ? Time.timestamp()
-            : Time.blockNumber();
+        uint256 flag = validAfter & validBefore & ERC4337Utils.BLOCK_RANGE_FLAG;
+        uint256 current = flag == 0 ? Time.timestamp() : Time.blockNumber();
         require(
-            current > (validAfter & ~uint256(ERC4337Utils.BLOCK_RANGE_FLAG)) &&
-                current < (validBefore & ~uint256(ERC4337Utils.BLOCK_RANGE_FLAG)),
+            current > (validAfter & ~flag) && current < (validBefore & ~flag),
             ERC3009InvalidAuthorizationTime(validAfter, validBefore)
         );
     }

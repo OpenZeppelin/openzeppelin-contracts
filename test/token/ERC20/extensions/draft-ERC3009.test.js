@@ -8,15 +8,14 @@ const {
   ReceiveWithAuthorization,
   CancelAuthorization,
 } = require('../../../helpers/eip712');
+const { generators } = require('../../../helpers/random');
 const time = require('../../../helpers/time');
-const { MAX_UINT48 } = require('../../../helpers/constants');
 
 const name = 'My Token';
 const symbol = 'MTKN';
 const version = '1';
 const initialSupply = 100n;
 
-const randomNonce = () => ethers.hexlify(ethers.randomBytes(32));
 const withFlag = (value, mode) => value + (mode === 'timestamp' ? 0n : 0x800000000000n);
 
 const fixture = async () => {
@@ -37,11 +36,11 @@ describe('ERC3009', function () {
 
       describe('authorizationState', function () {
         it('returns false for unused nonce', async function () {
-          await expect(this.token.authorizationState(this.holder, randomNonce())).to.eventually.be.false;
+          await expect(this.token.authorizationState(this.holder, generators.bytes32())).to.eventually.be.false;
         });
 
         it('returns true after the nonce is consumed', async function () {
-          const nonce = randomNonce();
+          const nonce = generators.bytes32();
           const validAfter = withFlag(0n, mode);
           const validBefore = ethers.MaxUint256;
           const value = 42n;
@@ -76,14 +75,14 @@ describe('ERC3009', function () {
         const value = 42n;
 
         beforeEach(async function () {
-          this.nonce = randomNonce();
+          this.nonce = generators.bytes32();
           this.validAfter = withFlag(0n, mode);
           this.validBefore = ethers.MaxUint256;
         });
 
         it('accepts random nonces in any order', async function () {
-          const nonceA = randomNonce();
-          const nonceB = randomNonce();
+          const nonceA = generators.bytes32();
+          const nonceB = generators.bytes32();
 
           const sign = nonce =>
             getDomain(this.token)
@@ -218,11 +217,8 @@ describe('ERC3009', function () {
             .withArgs(this.validAfter, validBefore);
         });
 
-        it('rejects validAfter that points to an unreachable future at uint48 max', async function () {
-          await time.increaseTo[mode](MAX_UINT48 - 1n);
-
-          // Setting bit 48 pushes the masked value to 2**48, just beyond the maximum uint48 clock
-          const validAfter = withFlag(1n << 48n, mode);
+        it('rejects validAfter that points to an value beyond the type(uint48).max', async function () {
+          const validAfter = withFlag(1n << 64n, mode);
           const validBefore = ethers.MaxUint256;
 
           const { v, r, s } = await getDomain(this.token)
@@ -259,12 +255,9 @@ describe('ERC3009', function () {
             .withArgs(validAfter, validBefore);
         });
 
-        it('accepts validBefore that points to an unreachable future at uint48 max', async function () {
-          await time.increaseTo[mode](MAX_UINT48 - 1n);
-
+        it('supports validBefore that points to an value beyond the type(uint48).max', async function () {
           const validAfter = withFlag(0n, mode);
-          // Setting bit 48 pushes the masked value to 2**48, just beyond the maximum uint48 clock
-          const validBefore = withFlag(1n << 48n, mode);
+          const validBefore = withFlag(1n << 64n, mode); // high bit = far in the future
 
           const { v, r, s } = await getDomain(this.token)
             .then(domain =>
@@ -499,7 +492,7 @@ describe('ERC3009', function () {
         const value = 42n;
 
         beforeEach(async function () {
-          this.nonce = randomNonce();
+          this.nonce = generators.bytes32();
           this.validAfter = withFlag(0n, mode);
           this.validBefore = ethers.MaxUint256;
         });
@@ -673,7 +666,7 @@ describe('ERC3009', function () {
 
       describe('cancelAuthorization', function () {
         beforeEach(async function () {
-          this.nonce = randomNonce();
+          this.nonce = generators.bytes32();
         });
 
         it('cancels an unused authorization', async function () {
@@ -741,7 +734,7 @@ describe('ERC3009', function () {
       // validAfter has the block flag, validBefore does not. Per the AND-of-flags rule the
       // contract falls back to the timestamp clock. validBefore = (currentBlock + 10) is then a
       // tiny number compared to block.timestamp, so the authorization is considered expired.
-      const nonce = randomNonce();
+      const nonce = generators.bytes32();
       const value = 42n;
       const validAfter = withFlag(0n, 'blockNumber');
       const validBefore = await time.clock.blockNumber().then(clock => withFlag(clock + 10n, 'timestamp'));
