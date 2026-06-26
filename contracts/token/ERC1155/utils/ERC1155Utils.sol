@@ -7,7 +7,7 @@ import {IERC1155Receiver} from "../IERC1155Receiver.sol";
 import {IERC1155Errors} from "../../../interfaces/draft-IERC6093.sol";
 
 /**
- * @dev Library that provide common ERC-1155 utility functions.
+ * @dev Library that provides common ERC-1155 utility functions.
  *
  * See https://eips.ethereum.org/EIPS/eip-1155[ERC-1155].
  *
