@@ -3,15 +3,17 @@ const { expect } = require('chai');
 
 const { getAddressInSlot, ImplementationSlot } = require('../helpers/storage');
 
-module.exports = function shouldBehaveLikeProxy(allowUninitialized = false) {
-  it('cannot be initialized with a non-contract address', async function () {
-    const initializeData = '0x00'; // non empty data to avoid uninitialized error
-    const contractFactory = await ethers.getContractFactory('ERC1967Proxy');
+module.exports = function shouldBehaveLikeProxy({ allowUninitialized = false, allowNonContractAddress = false } = {}) {
+  if (!allowNonContractAddress) {
+    it('cannot be initialized with a non-contract address', async function () {
+      const initializeData = '0x00'; // non empty data to avoid uninitialized error
+      const contractFactory = await ethers.getContractFactory('ERC1967Proxy');
 
-    await expect(this.createProxy(this.nonContractAddress, initializeData))
-      .to.be.revertedWithCustomError(contractFactory, 'ERC1967InvalidImplementation')
-      .withArgs(this.nonContractAddress);
-  });
+      await expect(this.createProxy(this.nonContractAddress, initializeData))
+        .to.be.revertedWithCustomError(contractFactory, 'ERC1967InvalidImplementation')
+        .withArgs(this.nonContractAddress);
+    });
+  }
 
   const assertProxyInitialization = function ({ value, balance }) {
     it('sets the implementation address', async function () {

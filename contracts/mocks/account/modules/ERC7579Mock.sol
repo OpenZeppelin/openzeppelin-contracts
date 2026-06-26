@@ -11,9 +11,9 @@ import {
     IERC7579Validator
 } from "../../../interfaces/draft-IERC7579.sol";
 import {SignatureChecker} from "../../../utils/cryptography/SignatureChecker.sol";
-import {PackedUserOperation} from "../../../interfaces/draft-IERC4337.sol";
+import {PackedUserOperation} from "../../../interfaces/IERC4337.sol";
 import {IERC1271} from "../../../interfaces/IERC1271.sol";
-import {ERC4337Utils} from "../../../account/utils/draft-ERC4337Utils.sol";
+import {ERC4337Utils} from "../../../account/utils/ERC4337Utils.sol";
 
 abstract contract ERC7579ModuleMock is IERC7579Module {
     uint256 private _moduleTypeId;
