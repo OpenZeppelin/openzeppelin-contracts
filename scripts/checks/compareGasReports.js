@@ -26,12 +26,28 @@ const { argv } = require('yargs/yargs')(hideBin(process.argv))
 const BASE_TX_COST = 21000;
 
 // Utilities
-function sum(...args) {
-  return args.reduce((a, b) => a + b, 0);
+function sum(values) {
+  return values.reduce((a, b) => a + b, 0);
 }
 
-function average(...args) {
-  return sum(...args) / args.length;
+function average(values) {
+  return values.length === 0 ? NaN : sum(values) / values.length;
+}
+
+function min(values) {
+  let result = values[0];
+  for (let i = 1; i < values.length; i++) {
+    if (values[i] < result) result = values[i];
+  }
+  return result;
+}
+
+function max(values) {
+  let result = values[0];
+  for (let i = 1; i < values.length; i++) {
+    if (values[i] > result) result = values[i];
+  }
+  return result;
 }
 
 function variation(current, previous, offset = 0) {
@@ -74,7 +90,7 @@ class Report {
           contract: contract.name,
           method: '[construction cost]',
           avg: variation(
-            ...[contract.gasData, contract.previousVersion.gasData].map(x => Math.round(average(...x))),
+            ...[contract.gasData, contract.previousVersion.gasData].map(x => Math.round(average(x))),
             BASE_TX_COST,
           ),
         },
@@ -90,9 +106,9 @@ class Report {
       .map(key => ({
         contract: refInfo.methods[key].contract,
         method: refInfo.methods[key].fnSig,
-        min: variation(...[updateInfo, refInfo].map(x => Math.min(...x.methods[key].gasData)), BASE_TX_COST),
-        max: variation(...[updateInfo, refInfo].map(x => Math.max(...x.methods[key].gasData)), BASE_TX_COST),
-        avg: variation(...[updateInfo, refInfo].map(x => Math.round(average(...x.methods[key].gasData))), BASE_TX_COST),
+        min: variation(...[updateInfo, refInfo].map(x => min(x.methods[key].gasData)), BASE_TX_COST),
+        max: variation(...[updateInfo, refInfo].map(x => max(x.methods[key].gasData)), BASE_TX_COST),
+        avg: variation(...[updateInfo, refInfo].map(x => Math.round(average(x.methods[key].gasData))), BASE_TX_COST),
       }))
       .sort((a, b) => `${a.contract}:${a.method}`.localeCompare(`${b.contract}:${b.method}`));
 
