@@ -26,7 +26,7 @@ export function shouldBehaveLikeProxy({ allowUninitialized = false, allowNonCont
     });
 
     it('has expected balance', async function () {
-      expect(await this.proxy.runner.provider.getBalance(this.proxy)).to.equal(balance);
+      expect(await this.ethers.provider.getBalance(this.proxy)).to.equal(balance);
     });
   };
 
