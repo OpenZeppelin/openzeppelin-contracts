@@ -22,8 +22,8 @@ import {ERC4337Utils} from "../../../account/utils/ERC4337Utils.sol";
  * `validBefore` use a dual-clock encoding mirroring {ERC4337Utils}. Bit 47 ({BLOCK_RANGE_FLAG}) acts as a
  * clock selector: when *both* `validAfter` and `validBefore` have this bit set, the values are interpreted
  * as block numbers; otherwise they are interpreted as Unix timestamps (the default, matching the ERC-3009
- * specification). Since the current clock fits in 48 bits, any `validAfter` or `validBefore` with a bit
- * set above position 47 points to an unreachable future. See {_checkValidity}.
+ * specification). Since the current clock fits in 48 bits, any bit set at position 47 or above (other than
+ * the active clock-mode flag) makes the value point to an unreachable future. See {_checkValidity}.
  */
 abstract contract ERC3009 is ERC20, EIP712, IERC3009, IERC3009Cancel {
     /// @dev The signature is invalid
@@ -147,11 +147,13 @@ abstract contract ERC3009 is ERC20, EIP712, IERC3009, IERC3009Cancel {
      * Following the ERC-4337-style dual-clock encoding, the clock is interpreted as block number only when
      * *both* `validAfter` and `validBefore` carry the {BLOCK_RANGE_FLAG}; otherwise it falls back to
      * timestamp (matching the ERC-3009 specification's default). Mixed-flag inputs therefore fall back to
-     * the timestamp clock rather than reverting, mirroring {ERC4337Utils-parseValidationData}. Each value
-     * is compared against the chosen clock after clearing the flag bit.
+     * the timestamp clock rather than reverting, mirroring {ERC4337Utils-parseValidationData}. The flag bit
+     * is masked off the values only when block-mode is engaged; in timestamp mode the full 256-bit value
+     * participates in the comparison.
      *
-     * NOTE: Any `validAfter` or `validBefore` with a bit set above position 47 will be interpreted as
-     * unreachable point in the future (i.e. never valid after or always valid before, respectively).
+     * NOTE: Any `validAfter` or `validBefore` with a bit set at position 47 or above (other than the active
+     * clock-mode flag) is interpreted as an unreachable point in the future (i.e. never valid after or
+     * always valid before, respectively).
      */
     function _checkValidity(uint256 validAfter, uint256 validBefore) internal view virtual {
         uint256 flag = validAfter & validBefore & ERC4337Utils.BLOCK_RANGE_FLAG;
