@@ -35,6 +35,7 @@ function average(values) {
 }
 
 function min(values) {
+  if (values.length === 0) return Infinity;
   let result = values[0];
   for (let i = 1; i < values.length; i++) {
     if (values[i] < result) result = values[i];
@@ -43,6 +44,7 @@ function min(values) {
 }
 
 function max(values) {
+  if (values.length === 0) return -Infinity;
   let result = values[0];
   for (let i = 1; i < values.length; i++) {
     if (values[i] > result) result = values[i];
