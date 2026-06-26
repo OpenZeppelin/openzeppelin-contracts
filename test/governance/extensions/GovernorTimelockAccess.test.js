@@ -275,7 +275,7 @@ describe('GovernorTimelockAccess', function () {
           .withArgs(this.proposal.id);
 
         // Proposal remains executable
-        await expect(this.helper.execute()).to.not.be.reverted;
+        await expect(this.helper.execute()).to.not.be.revert(ethers);
       });
 
       it('calling internal _queueOperations when not needed does not prevent execution', async function () {
@@ -302,7 +302,7 @@ describe('GovernorTimelockAccess', function () {
         await expect(this.helper.governor.state(id)).to.eventually.equal(ProposalState.Succeeded);
 
         // Proposal remains executable
-        await expect(this.helper.execute()).to.not.be.reverted;
+        await expect(this.helper.execute()).to.not.be.revert(ethers);
       });
 
       it('does need to queue proposals with base delay', async function () {

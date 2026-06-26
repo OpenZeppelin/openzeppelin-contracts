@@ -401,7 +401,7 @@ describe('Governor', function () {
               this.token,
               10n,
             ]);
-            const brokenHelper = new GovernorHelper(brokenMock, mode);
+            const brokenHelper = new GovernorHelper(connection, brokenMock, mode);
             brokenHelper.setProposal(
               [
                 {
