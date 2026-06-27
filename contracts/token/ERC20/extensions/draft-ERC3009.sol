@@ -88,7 +88,8 @@ abstract contract ERC3009 is ERC20, EIP712, IERC3009, IERC3009Cancel {
             keccak256(abi.encode(RECEIVE_WITH_AUTHORIZATION_TYPEHASH, from, to, value, validAfter, validBefore, nonce))
         );
         require(from == ECDSA.recover(hash, v, r, s), ERC3009InvalidSignature());
-        _receiveWithAuthorization(from, to, value, validAfter, validBefore, nonce);
+        require(to == _msgSender(), ERC20InvalidReceiver(to));
+        _transferWithAuthorization(from, to, value, validAfter, validBefore, nonce);
     }
 
     /// @inheritdoc IERC3009Cancel
@@ -107,22 +108,6 @@ abstract contract ERC3009 is ERC20, EIP712, IERC3009, IERC3009Cancel {
         uint256 validBefore,
         bytes32 nonce
     ) internal virtual {
-        _checkValidity(validAfter, validBefore);
-        _consumeNonce(from, nonce);
-        emit AuthorizationUsed(from, nonce);
-        _transfer(from, to, value);
-    }
-
-    /// @dev Performs the caller, time and nonce checks, then executes the transfer.
-    function _receiveWithAuthorization(
-        address from,
-        address to,
-        uint256 value,
-        uint256 validAfter,
-        uint256 validBefore,
-        bytes32 nonce
-    ) internal virtual {
-        require(to == _msgSender(), ERC20InvalidReceiver(to));
         _checkValidity(validAfter, validBefore);
         _consumeNonce(from, nonce);
         emit AuthorizationUsed(from, nonce);
