@@ -14,6 +14,26 @@ export const Permit = formatType({
   nonce: 'uint256',
   deadline: 'uint256',
 });
+export const TransferWithAuthorization = formatType({
+  from: 'address',
+  to: 'address',
+  value: 'uint256',
+  validAfter: 'uint256',
+  validBefore: 'uint256',
+  nonce: 'bytes32',
+});
+export const ReceiveWithAuthorization = formatType({
+  from: 'address',
+  to: 'address',
+  value: 'uint256',
+  validAfter: 'uint256',
+  validBefore: 'uint256',
+  nonce: 'bytes32',
+});
+export const CancelAuthorization = formatType({
+  authorizer: 'address',
+  nonce: 'bytes32',
+});
 export const Ballot = formatType({
   proposalId: 'uint256',
   support: 'uint8',
