@@ -1,4 +1,4 @@
-import { network } from 'hardhat';
+import { network, globalOptions } from 'hardhat';
 import { expect } from 'chai';
 import { anyValue } from '@nomicfoundation/hardhat-ethers-chai-matchers/withArgs';
 import { getDomain } from '../../helpers/eip712';
@@ -188,7 +188,7 @@ describe('PaymasterERC20', function () {
 
       // check token cost is within the expected values
       // skip gas consumption tests when running coverage (significantly affects the postOp costs)
-      if (!process.env.COVERAGE) {
+      if (!globalOptions.coverage) {
         expect(tokenAmount)
           .to.be.greaterThan(actualGasCost * 2n)
           .to.be.lessThan((actualGasCost * 2n * 110n) / 100n); // covers costs with no more than 10% overcost
