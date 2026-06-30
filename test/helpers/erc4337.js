@@ -1,4 +1,4 @@
-const { ethers, config, predeploy } = require('hardhat');
+const { ethers, predeploy } = require('hardhat');
 const { ValidationRange } = require('./enums');
 
 const SIG_VALIDATION_SUCCESS = '0x0000000000000000000000000000000000000000';
@@ -196,13 +196,10 @@ class EIP7702SmartAccount extends SmartAccount {
     this.authorization = authorization;
   }
 
-  async deploy() {
-    // hardhat signers from @nomicfoundation/hardhat-ethers do not support type 4 txs.
-    // so we rebuild it using "native" ethers
-    await ethers.Wallet.fromPhrase(config.networks.hardhat.accounts.mnemonic, ethers.provider).sendTransaction({
+  async deploy(relayer = this.runner) {
+    await relayer.sendTransaction({
       to: ethers.ZeroAddress,
       authorizationList: [this.authorization],
-      gasLimit: 46_000n, // 21,000 base + PER_EMPTY_ACCOUNT_COST
     });
 
     return this;
