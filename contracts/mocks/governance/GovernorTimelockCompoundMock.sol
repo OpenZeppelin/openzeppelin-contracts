@@ -34,6 +34,16 @@ abstract contract GovernorTimelockCompoundMock is
         return super.proposalNeedsQueuing(proposalId);
     }
 
+    function _propose(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        string memory description,
+        address proposer
+    ) internal override(Governor, GovernorTimelockCompound) returns (uint256) {
+        return super._propose(targets, values, calldatas, description, proposer);
+    }
+
     function _queueOperations(
         uint256 proposalId,
         address[] memory targets,
