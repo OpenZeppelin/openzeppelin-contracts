@@ -11,11 +11,11 @@ jobs:
     if: ${{ !endsWith(github.repository, '-upgradeable') }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           repository: ${{ github.repository }}-upgradeable
           ref: ${{ github.ref }}
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.ref }}
           path: lib/openzeppelin-contracts
@@ -32,17 +32,17 @@ jobs:
   publish:
     needs: state
     name: Publish to npm
-    environment: push-upgradeable
+    environment: npm
     permissions:
       id-token: write
     if: needs.state.outputs.publish == 'success' # Note: changed from 'true' to 'success' to support the way publish is computed
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           repository: ${{ github.repository }}-upgradeable
           ref: ${{ github.ref }}
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.ref }}
           path: lib/openzeppelin-contracts
@@ -54,7 +54,7 @@ jobs:
         env:
           PRERELEASE: ${{ needs.state.outputs.is_prerelease }}
       - name: Upload tarball artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ github.ref_name }}-upgradeable
           path: ${{ steps.pack.outputs.tarball }}
@@ -63,8 +63,10 @@ jobs:
         env:
           TARBALL: ${{ steps.pack.outputs.tarball }}
           TAG: ${{ steps.pack.outputs.tag }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: false
       - name: Create Github Release
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         env:
           PRERELEASE: ${{ needs.state.outputs.is_prerelease }}
           TARGET_COMMIT: ${{ github.ref }}
@@ -80,13 +82,13 @@ jobs:
     name: Tarball Integrity Check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           repository: ${{ github.repository }}-upgradeable
           ref: ${{ github.ref }}
       - name: Download tarball artifact
         id: artifact
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: ${{ github.ref_name }}-upgradeable
       - name: Check integrity

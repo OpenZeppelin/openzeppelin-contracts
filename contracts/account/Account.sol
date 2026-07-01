@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.5.0) (account/Account.sol)
+// OpenZeppelin Contracts (last updated v5.6.0) (account/Account.sol)
 
 pragma solidity ^0.8.20;
 
-import {PackedUserOperation, IAccount, IEntryPoint} from "../interfaces/draft-IERC4337.sol";
-import {ERC4337Utils} from "./utils/draft-ERC4337Utils.sol";
+import {PackedUserOperation, IAccount, IEntryPoint} from "../interfaces/IERC4337.sol";
+import {ERC4337Utils} from "./utils/ERC4337Utils.sol";
 import {AbstractSigner} from "../utils/cryptography/signers/AbstractSigner.sol";
 import {LowLevelCall} from "../utils/LowLevelCall.sol";
 
