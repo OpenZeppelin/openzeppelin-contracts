@@ -62,7 +62,7 @@ NOTE: The same rule is implemented and extended in xref:api:access.adoc#AccessCo
 
 Most token standards are written without considering non-standard transfer mechanisms like fees, rebases, or hooks that mutate balances outside of explicit transfers. This is a well-understood community convention: the standards specify a behavior, and integrations across the ecosystem rely on it. Contracts in this library follow the same convention. In particular, they assume that:
 
-* A successful xref:api:token/ERC20.adoc#IERC20-transfer-address-uint256-[`transfer`] or xref:api:token/ERC20.adoc#IERC20-transferFrom-address-address-uint256-[`transferFrom`] of `amount` increases the recipient's xref:api:token/ERC20.adoc#IERC20-balanceOf-address-[`balanceOf`] by exactly `amount`.
+* A successful xref:api:token/ERC20.adoc#IERC20-transfer-address-uint256-[`transfer`] or xref:api:token/ERC20.adoc#IERC20-transferFrom-address-address-uint256-[`transferFrom`] of `amount` reduces the sender's xref:api:token/ERC20.adoc#IERC20-balanceOf-address-[`balanceOf`] and increases the recipient's xref:api:token/ERC20.adoc#IERC20-balanceOf-address-[`balanceOf`] by exactly `amount`.
 * An account's xref:api:token/ERC20.adoc#IERC20-balanceOf-address-[`balanceOf`] only changes through explicit transfers, mints, or burns.
 
 Considering many ERCs are not compatible with these mechanisms, the library has taken a policy of not accounting for tokens that break these assumptions, such as fee-on-transfer and rebasing variants, since they could desynchronize a contract's internal accounting from its on-chain balance. The resulting undercollateralization may cause later withdrawals, redemptions, or releases to revert.
