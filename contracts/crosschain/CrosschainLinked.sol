@@ -98,12 +98,17 @@ abstract contract CrosschainLinked is ERC7786Recipient {
         address instance,
         bytes calldata sender
     ) internal view virtual override returns (bool) {
-        (address gateway, bytes memory router) = getLink(_extractChain(sender));
+        (address gateway, bytes memory router) = getLink(_extractChainCalldata(sender));
         return instance == gateway && sender.equal(router);
     }
 
     function _extractChain(bytes memory self) private pure returns (bytes memory) {
         (bytes2 chainType, bytes memory chainReference, ) = self.parseV1();
+        return InteroperableAddress.formatV1(chainType, chainReference, hex"");
+    }
+
+    function _extractChainCalldata(bytes calldata self) private pure returns (bytes memory) {
+        (bytes2 chainType, bytes calldata chainReference, ) = self.parseV1Calldata();
         return InteroperableAddress.formatV1(chainType, chainReference, hex"");
     }
 }
