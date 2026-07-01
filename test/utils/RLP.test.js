@@ -205,6 +205,36 @@ describe('RLP', function () {
     });
   });
 
+  describe('rejects trailing bytes after valid item', function () {
+    it('decodeUint256 with trailing byte', async function () {
+      // 0x01 is a valid single-byte RLP uint, but 0x0102 has a trailing 0x02
+      await expect(this.mock.$decodeUint256('0x0102')).to.be.revertedWithCustomError(this.mock, 'RLPInvalidEncoding');
+    });
+
+    it('decodeBytes32 with trailing byte', async function () {
+      await expect(this.mock.$decodeBytes32('0x0102')).to.be.revertedWithCustomError(this.mock, 'RLPInvalidEncoding');
+    });
+
+    it('decodeBool with trailing byte', async function () {
+      await expect(this.mock.$decodeBool('0x0102')).to.be.revertedWithCustomError(this.mock, 'RLPInvalidEncoding');
+    });
+
+    it('decodeBytes with trailing byte after short string', async function () {
+      // 0x83646f67 = "dog", 0x83646f6780 = "dog" + trailing 0x80
+      await expect(this.mock.$decodeBytes('0x83646f6780')).to.be.revertedWithCustomError(
+        this.mock,
+        'RLPInvalidEncoding',
+      );
+    });
+
+    it('decodeString with trailing byte after short string', async function () {
+      await expect(this.mock.$decodeString('0x83646f6780')).to.be.revertedWithCustomError(
+        this.mock,
+        'RLPInvalidEncoding',
+      );
+    });
+  });
+
   it('RLP encoder predict create addresses', async function () {
     for (const [from, nonce] of product(
       [
