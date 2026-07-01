@@ -108,13 +108,16 @@ library Memory {
 
     /// @dev Returns true if the two slices contain the same data.
     function equal(Slice a, Slice b) internal pure returns (bool result) {
-        Memory.Pointer ptrA = _pointer(a);
-        Memory.Pointer ptrB = _pointer(b);
         uint256 lenA = length(a);
         uint256 lenB = length(b);
-        assembly ("memory-safe") {
-            result := eq(keccak256(ptrA, lenA), keccak256(ptrB, lenB))
+        if (lenA == lenB) {
+            Memory.Pointer ptrA = _pointer(a);
+            Memory.Pointer ptrB = _pointer(b);
+            assembly ("memory-safe") {
+                result := eq(keccak256(ptrA, lenA), keccak256(ptrB, lenB))
+            }
         }
+        // else returns false (default value) 
     }
 
     /// @dev Returns true if the memory occupied by the slice is reserved (i.e. before the free memory pointer)
