@@ -1,8 +1,11 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
 
-const time = require('../helpers/time');
+const {
+  ethers,
+  helpers: { time },
+  networkHelpers: { loadFixture },
+} = await network.create();
 
 const CLOCK_MODE = {
   timestamp: 'mode=timestamp',
@@ -11,6 +14,7 @@ const CLOCK_MODE = {
 
 async function fixture() {
   const mock = await ethers.deployContract('$ERC6372Utils');
+
   const instances = {
     blockNumber: await ethers.deployContract('$ERC20Votes', ['My Token', 'MTKN', 'My Token', '1']),
     timestamp: await ethers.deployContract('$ERC20VotesTimestampMock', ['My Token', 'MTKN', 'My Token', '1']),

@@ -1,5 +1,5 @@
-const format = require('../format-lines');
-const { TYPES } = require('./Slot.opts');
+import format from '../format-lines.js';
+import { TYPES } from './Slot.opts.js';
 
 const header = `\
 pragma solidity ^0.8.20;
@@ -41,7 +41,7 @@ function get${name}Storage(uint256 key) public view returns (${type} memory) {
 `;
 
 // GENERATE
-module.exports = format(
+export default format(
   header,
   'contract StorageSlotMock is Multicall {',
   format(

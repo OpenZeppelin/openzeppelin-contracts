@@ -1,8 +1,9 @@
-const { ethers } = require('hardhat');
-const { formatType } = require('./eip712');
+import { ethers } from 'ethers';
+import { formatType } from './eip712';
 
-const PersonalSign = formatType({ prefixed: 'bytes' });
-const TypedDataSign = contentsTypeName =>
+export const PersonalSign = formatType({ prefixed: 'bytes' });
+
+export const TypedDataSign = contentsTypeName =>
   formatType({
     contents: contentsTypeName,
     name: 'string',
@@ -12,7 +13,7 @@ const TypedDataSign = contentsTypeName =>
     salt: 'bytes32',
   });
 
-class ERC7739Signer extends ethers.AbstractSigner {
+export class ERC7739Signer extends ethers.AbstractSigner {
   #signer;
   #domain;
 
@@ -67,7 +68,7 @@ class ERC7739Signer extends ethers.AbstractSigner {
   }
 }
 
-class ERC4337Utils {
+export class ERC4337Utils {
   static preparePersonalSign(message) {
     return {
       prefixed: ethers.concat([
@@ -109,10 +110,3 @@ class ERC4337Utils {
     };
   }
 }
-
-module.exports = {
-  ERC7739Signer,
-  ERC4337Utils,
-  PersonalSign,
-  TypedDataSign,
-};

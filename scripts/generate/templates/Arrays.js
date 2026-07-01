@@ -1,6 +1,6 @@
-const format = require('../format-lines');
-const { capitalize } = require('../../helpers');
-const { TYPES } = require('./Arrays.opts');
+import format from '../format-lines.js';
+import { capitalize } from '../../helpers.js';
+import { TYPES } from './Arrays.opts.js';
 
 const header = `\
 pragma solidity ^0.8.24;
@@ -476,7 +476,7 @@ function replace(
 `;
 
 // GENERATE
-module.exports = format(
+export default format(
   header.trimEnd(),
   'library Arrays {',
   format(

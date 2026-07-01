@@ -55,6 +55,7 @@ jobs:
       - name: Set up environment
         uses: ./.github/actions/setup
         with:
+          foundry: 'on'
           python: 'on'
           python-requirements: 'fv-requirements.txt'
       - name: Run Halmos

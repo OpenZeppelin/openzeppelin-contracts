@@ -1,4 +1,4 @@
-function toBytes32(type, value) {
+export function toBytes32(type, value) {
   switch (type) {
     case 'bytes32':
       return value;
@@ -13,7 +13,7 @@ function toBytes32(type, value) {
   }
 }
 
-function fromBytes32(type, value) {
+export function fromBytes32(type, value) {
   switch (type) {
     case 'bytes32':
       return value;
@@ -27,8 +27,3 @@ function fromBytes32(type, value) {
       throw new Error(`Conversion from bytes32 to ${type} not supported`);
   }
 }
-
-module.exports = {
-  toBytes32,
-  fromBytes32,
-};

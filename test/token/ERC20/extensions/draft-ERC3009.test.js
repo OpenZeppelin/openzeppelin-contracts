@@ -1,15 +1,18 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-
-const {
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import {
   getDomain,
   TransferWithAuthorization,
   ReceiveWithAuthorization,
   CancelAuthorization,
-} = require('../../../helpers/eip712');
-const { generators } = require('../../../helpers/random');
-const time = require('../../../helpers/time');
+} from '../../../helpers/eip712';
+import * as random from '../../../helpers/random';
+
+const {
+  ethers,
+  helpers: { time },
+  networkHelpers: { loadFixture },
+} = await network.create();
 
 const name = 'My Token';
 const symbol = 'MTKN';
@@ -36,11 +39,11 @@ describe('ERC3009', function () {
 
       describe('authorizationState', function () {
         it('returns false for unused nonce', async function () {
-          await expect(this.token.authorizationState(this.holder, generators.bytes32())).to.eventually.be.false;
+          await expect(this.token.authorizationState(this.holder, random.bytes32())).to.eventually.be.false;
         });
 
         it('returns true after the nonce is consumed', async function () {
-          const nonce = generators.bytes32();
+          const nonce = random.bytes32();
           const validAfter = withFlag(0n, mode);
           const validBefore = ethers.MaxUint256;
           const value = 42n;
@@ -75,14 +78,14 @@ describe('ERC3009', function () {
         const value = 42n;
 
         beforeEach(async function () {
-          this.nonce = generators.bytes32();
+          this.nonce = random.bytes32();
           this.validAfter = withFlag(0n, mode);
           this.validBefore = ethers.MaxUint256;
         });
 
         it('accepts random nonces in any order', async function () {
-          const nonceA = generators.bytes32();
-          const nonceB = generators.bytes32();
+          const nonceA = random.bytes32();
+          const nonceB = random.bytes32();
 
           const sign = nonce =>
             getDomain(this.token)
@@ -492,7 +495,7 @@ describe('ERC3009', function () {
         const value = 42n;
 
         beforeEach(async function () {
-          this.nonce = generators.bytes32();
+          this.nonce = random.bytes32();
           this.validAfter = withFlag(0n, mode);
           this.validBefore = ethers.MaxUint256;
         });
@@ -666,7 +669,7 @@ describe('ERC3009', function () {
 
       describe('cancelAuthorization', function () {
         beforeEach(async function () {
-          this.nonce = generators.bytes32();
+          this.nonce = random.bytes32();
         });
 
         it('cancels an unused authorization', async function () {
@@ -734,7 +737,7 @@ describe('ERC3009', function () {
       // validAfter has the block flag, validBefore does not. Per the AND-of-flags rule the
       // contract falls back to the timestamp clock. validBefore = (currentBlock + 10) is then a
       // tiny number compared to block.timestamp, so the authorization is considered expired.
-      const nonce = generators.bytes32();
+      const nonce = random.bytes32();
       const value = 42n;
       const validAfter = withFlag(0n, 'blockNumber');
       const validBefore = await time.clock.blockNumber().then(clock => withFlag(clock + 10n, 'timestamp'));

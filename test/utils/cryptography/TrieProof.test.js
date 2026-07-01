@@ -1,13 +1,16 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { MerklePatriciaTrie, createMerkleProof } = require('@ethereumjs/mpt');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { MerklePatriciaTrie, createMerkleProof } from '@ethereumjs/mpt';
+import { Enum } from '../../helpers/enums';
+import { zip } from '../../helpers/iterate';
+import * as random from '../../helpers/random';
+import { BlockTries } from '../../helpers/trie';
+import { batchInBlock } from '../../helpers/txpool';
 
-const { Enum } = require('../../helpers/enums');
-const { zip } = require('../../helpers/iterate');
-const { generators } = require('../../helpers/random');
-const { BlockTries } = require('../../helpers/trie');
-const { batchInBlock } = require('../../helpers/txpool');
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.create();
 
 const ProofError = Enum(
   'NO_ERROR', // No error occurred during proof traversal
@@ -44,11 +47,14 @@ describe('TrieProof', function () {
   describe('verify', function () {
     it('verify transaction and receipt inclusion in block', async function () {
       // Multiple transactions/events in a block
-      const txs = await batchInBlock([
-        () => this.target.mockFunction({ gasLimit: 100000 }),
-        () => this.target.mockFunctionWithArgs(0, 1, { gasLimit: 100000 }),
-        () => this.target.mockFunctionWithArgs(17, 42, { gasLimit: 100000 }),
-      ]);
+      const txs = await batchInBlock(
+        [
+          () => this.target.mockFunction({ gasLimit: 100_000n }),
+          () => this.target.mockFunctionWithArgs(0, 1, { gasLimit: 100_000n }),
+          () => this.target.mockFunctionWithArgs(17, 42, { gasLimit: 100_000n }),
+        ],
+        ethers.provider,
+      );
 
       // for some reason ethers doesn't expose the transactionsRoot in blocks, so we fetch the block details via RPC instead.
       const blockTries = await ethers.provider.getBlock('latest').then(block => BlockTries.from(block).ready());
@@ -82,30 +88,30 @@ describe('TrieProof', function () {
         {
           title: 'returns true with proof size 1 (even leaf [0x20])',
           slots: {
-            '0x0000000000000000000000000000000000000000000000000000000000000000': generators.bytes32(), // 0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e563
+            '0x0000000000000000000000000000000000000000000000000000000000000000': random.bytes32(), // 0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e563
           },
         },
         {
           title: 'returns true with proof size 2 (branch then odd leaf [0x3])',
           slots: {
-            '0x0000000000000000000000000000000000000000000000000000000000000000': generators.bytes32(), // 0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e563
-            '0x0000000000000000000000000000000000000000000000000000000000000001': generators.bytes32(), // 0xb10e2d527612073b26eecdfd717e6a320cf44b4afac2b0732d9fcbe2b7fa0cf6
+            '0x0000000000000000000000000000000000000000000000000000000000000000': random.bytes32(), // 0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e563
+            '0x0000000000000000000000000000000000000000000000000000000000000001': random.bytes32(), // 0xb10e2d527612073b26eecdfd717e6a320cf44b4afac2b0732d9fcbe2b7fa0cf6
           },
         },
         {
           title: 'returns true with proof size 3 (even extension [0x00], branch then leaf)',
           slots: {
-            '0x0000000000000000000000000000000000000000000000000000000000001889': generators.bytes32(), // 0xabc4243e220df4927f4d7b432d2d718dadbba652f6cee6a45bb90c077fa4e158
-            '0x0000000000000000000000000000000000000000000000000000000000008b23': generators.bytes32(), // 0xabd5ef9a39144905d28bd8554745ebae050359cf7e89079f49b66a6c06bd2bf9
-            '0x0000000000000000000000000000000000000000000000000000000000002383': generators.bytes32(), // 0xabe87cb73c1e15a89cfb0daa7fd0cc3eb1a762345fe15d668f5061a4900b22fa
+            '0x0000000000000000000000000000000000000000000000000000000000001889': random.bytes32(), // 0xabc4243e220df4927f4d7b432d2d718dadbba652f6cee6a45bb90c077fa4e158
+            '0x0000000000000000000000000000000000000000000000000000000000008b23': random.bytes32(), // 0xabd5ef9a39144905d28bd8554745ebae050359cf7e89079f49b66a6c06bd2bf9
+            '0x0000000000000000000000000000000000000000000000000000000000002383': random.bytes32(), // 0xabe87cb73c1e15a89cfb0daa7fd0cc3eb1a762345fe15d668f5061a4900b22fa
           },
         },
         {
           title: 'returns true with proof size 3 (odd extension [0x1], branch then leaf)',
           slots: {
-            '0x0000000000000000000000000000000000000000000000000000000000004616': generators.bytes32(), // 0xabcd2ce29d227a0aaaa2ea425df9d5c96a569b416fd0bb7e018b8c9ce9b9d15d
-            '0x0000000000000000000000000000000000000000000000000000000000012dd3': generators.bytes32(), // 0xabce7718834e2932319fc4642268a27405261f7d3826b19811d044bf2b56ebb1
-            '0x000000000000000000000000000000000000000000000000000000000000ce8f': generators.bytes32(), // 0xabcf8b375ce20d03da20a3f5efeb8f3666810beca66f729f995953f51559a4ff
+            '0x0000000000000000000000000000000000000000000000000000000000004616': random.bytes32(), // 0xabcd2ce29d227a0aaaa2ea425df9d5c96a569b416fd0bb7e018b8c9ce9b9d15d
+            '0x0000000000000000000000000000000000000000000000000000000000012dd3': random.bytes32(), // 0xabce7718834e2932319fc4642268a27405261f7d3826b19811d044bf2b56ebb1
+            '0x000000000000000000000000000000000000000000000000000000000000ce8f': random.bytes32(), // 0xabcf8b375ce20d03da20a3f5efeb8f3666810beca66f729f995953f51559a4ff
           },
         },
       ]) {
@@ -246,8 +252,8 @@ describe('TrieProof', function () {
     });
 
     it('fails to process proof with invalid root hash', async function () {
-      const slot = generators.bytes32();
-      const value = generators.bytes32();
+      const slot = random.bytes32();
+      const value = random.bytes32();
       await this.storage.setBytes32Slot(slot, value);
 
       const {
@@ -267,7 +273,7 @@ describe('TrieProof', function () {
       ]);
 
       // Corrupt root hash
-      const invalidHash = generators.bytes(32);
+      const invalidHash = random.bytes(32);
 
       await expect(this.mock.$verify(encodeStorageLeaf(value), invalidHash, ethers.keccak256(slot), proof)).to
         .eventually.be.false;
@@ -282,10 +288,10 @@ describe('TrieProof', function () {
 
     it('fails to process proof with invalid internal large hash', async function () {
       // insert multiple values
-      const slot = generators.bytes32();
-      const value = generators.bytes32();
+      const slot = random.bytes32();
+      const value = random.bytes32();
       await this.storage.setBytes32Slot(slot, value);
-      await this.storage.setBytes32Slot(generators.bytes32(), generators.bytes32());
+      await this.storage.setBytes32Slot(random.bytes32(), random.bytes32());
 
       const {
         storageHash,
@@ -305,7 +311,7 @@ describe('TrieProof', function () {
 
       // Corrupt proof - replace the value part with a random hash
       const [p] = ethers.decodeRlp(proof[1]);
-      proof[1] = ethers.encodeRlp([p, ethers.encodeRlp(generators.bytes32())]);
+      proof[1] = ethers.encodeRlp([p, ethers.encodeRlp(random.bytes32())]);
 
       await expect(this.mock.$verify(encodeStorageLeaf(value), storageHash, ethers.keccak256(slot), proof)).to
         .eventually.be.false;

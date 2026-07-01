@@ -1,7 +1,11 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture, mine } = require('@nomicfoundation/hardhat-network-helpers');
-const { Enum } = require('../helpers/enums');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { Enum } from '../helpers/enums';
+
+const {
+  ethers,
+  networkHelpers: { loadFixture, mine },
+} = await network.create();
 
 const HeaderField = Enum(
   'ParentHash', // Since Frontier

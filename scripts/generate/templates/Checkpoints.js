@@ -1,5 +1,5 @@
-const format = require('../format-lines');
-const { OPTS } = require('./Checkpoints.opts');
+import format from '../format-lines.js';
+import { OPTS } from './Checkpoints.opts.js';
 
 // TEMPLATE
 const header = `\
@@ -229,7 +229,7 @@ function _unsafeAccess(
 `;
 
 // GENERATE
-module.exports = format(
+export default format(
   header.trimEnd(),
   'library Checkpoints {',
   format(

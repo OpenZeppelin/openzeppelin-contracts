@@ -1,11 +1,9 @@
-const { product } = require('../../helpers');
+import { product } from '../../helpers.js';
 
-const OPTS = product(
+export const OPTS = product(
   [
     { suffix: '', location: 'memory' },
     { suffix: 'Calldata', location: 'calldata' },
   ],
   [{ visibility: 'pure' }, { visibility: 'view', hash: 'hasher' }],
 ).map(objs => Object.assign({}, ...objs));
-
-module.exports = { OPTS };

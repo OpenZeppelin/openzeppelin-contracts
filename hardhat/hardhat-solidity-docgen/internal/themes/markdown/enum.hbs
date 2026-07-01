@@ -1,0 +1,9 @@
+{{>common}}
+
+```solidity
+enum {{name}} {
+{{#each members}}
+  {{name}}{{#unless @last}},{{/unless}}
+{{/each}}
+}
+```

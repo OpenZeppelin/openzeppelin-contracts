@@ -1,7 +1,7 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
+import { ethers } from 'ethers';
+import { expect } from 'chai';
 
-function shouldBehaveLikeNonces() {
+export function shouldBehaveLikeNonces() {
   describe('should behave like Nonces', function () {
     const sender = ethers.Wallet.createRandom();
     const other = ethers.Wallet.createRandom();
@@ -66,7 +66,7 @@ function shouldBehaveLikeNonces() {
   });
 }
 
-function shouldBehaveLikeNoncesKeyed() {
+export function shouldBehaveLikeNoncesKeyed() {
   describe('should support nonces with keys', function () {
     const sender = ethers.Wallet.createRandom();
 
@@ -182,8 +182,3 @@ function shouldBehaveLikeNoncesKeyed() {
     });
   });
 }
-
-module.exports = {
-  shouldBehaveLikeNonces,
-  shouldBehaveLikeNoncesKeyed,
-};
