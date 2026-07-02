@@ -125,11 +125,7 @@ describe('LowLevelCall', function () {
           ),
         )
           .to.emit(this.mock, 'return$callReturn64Bytes_address_bytes')
-          .withArgs(
-            false,
-            ethers.hexlify(ethers.getBytes(encoded).slice(0x00, 0x20)),
-            ethers.hexlify(ethers.getBytes(encoded).slice(0x20, 0x40)),
-          );
+          .withArgs(false, ethers.dataSlice(encoded, 0x00, 0x20), ethers.dataSlice(encoded, 0x20, 0x40));
       });
     });
   });
@@ -183,8 +179,8 @@ describe('LowLevelCall', function () {
           ),
         ).to.eventually.deep.equal([
           false,
-          ethers.hexlify(ethers.getBytes(encoded).slice(0x00, 0x20)),
-          ethers.hexlify(ethers.getBytes(encoded).slice(0x20, 0x40)),
+          ethers.dataSlice(encoded, 0x00, 0x20),
+          ethers.dataSlice(encoded, 0x20, 0x40),
         ]);
       });
     });

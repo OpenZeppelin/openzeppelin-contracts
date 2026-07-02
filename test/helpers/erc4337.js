@@ -111,8 +111,8 @@ class UserOperation {
 }
 
 const parseInitCode = initCode => ({
-  factory: '0x' + initCode.replace(/0x/, '').slice(0, 40),
-  factoryData: '0x' + initCode.replace(/0x/, '').slice(40),
+  factory: ethers.dataSlice(initCode, 0, 20),
+  factoryData: ethers.dataSlice(initCode, 20),
 });
 
 /// Global ERC-4337 environment helper.
@@ -155,7 +155,7 @@ class ERC4337Helper {
           to: env.senderCreator,
           data: env.senderCreator.interface.encodeFunctionData('createSender', [initCode]),
         })
-        .then(result => ethers.getAddress(ethers.hexlify(ethers.getBytes(result).slice(-20))))
+        .then(result => ethers.getAddress(ethers.dataSlice(result, -20)))
         .then(address => accountFactory.attach(address));
 
       return new SmartAccount(instance, initCode, env);
