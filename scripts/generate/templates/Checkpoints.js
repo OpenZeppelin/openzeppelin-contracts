@@ -50,13 +50,30 @@ function push(
 }
 
 /**
+ * @dev Returns the index of the first (oldest) checkpoint with key greater or equal than the search key, or the
+ * number of checkpoints if there is none.
+ */
+function lowerLookupIndex(${opts.historyTypeName} storage self, ${opts.keyTypeName} key) internal view returns (uint256) {
+    uint256 len = self.${opts.checkpointFieldName}.length;
+    return _lowerBinaryLookup(self.${opts.checkpointFieldName}, key, 0, len);
+}
+
+/**
  * @dev Returns the value in the first (oldest) checkpoint with key greater or equal than the search key, or zero if
  * there is none.
  */
 function lowerLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} key) internal view returns (${opts.valueTypeName}) {
+    uint256 pos = lowerLookupIndex(self, key);
+    return pos == self.${opts.checkpointFieldName}.length ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos).${opts.valueFieldName};
+}
+
+/**
+ * @dev Returns the index of the first (oldest) checkpoint with key strictly greater than the search key, or the
+ * number of checkpoints if there is none.
+ */
+function upperLookupIndex(${opts.historyTypeName} storage self, ${opts.keyTypeName} key) internal view returns (uint256) {
     uint256 len = self.${opts.checkpointFieldName}.length;
-    uint256 pos = _lowerBinaryLookup(self.${opts.checkpointFieldName}, key, 0, len);
-    return pos == len ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos).${opts.valueFieldName};
+    return _upperBinaryLookup(self.${opts.checkpointFieldName}, key, 0, len);
 }
 
 /**
@@ -64,8 +81,7 @@ function lowerLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} k
  * if there is none.
  */
 function upperLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} key) internal view returns (${opts.valueTypeName}) {
-    uint256 len = self.${opts.checkpointFieldName}.length;
-    uint256 pos = _upperBinaryLookup(self.${opts.checkpointFieldName}, key, 0, len);
+    uint256 pos = upperLookupIndex(self, key);
     return pos == 0 ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos - 1).${opts.valueFieldName};
 }
 
