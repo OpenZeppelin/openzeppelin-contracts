@@ -22,6 +22,11 @@ abstract contract GovernorTimelockCompound is Governor {
     ICompoundTimelock private _timelock;
 
     /**
+     * @dev Thrown when a proposal contains duplicate actions.
+     */
+    error GovernorDuplicateProposalAction(uint256 index1, uint256 index2);
+
+    /**
      * @dev Emitted when the timelock controller used for proposal execution is modified.
      */
     event TimelockChange(address oldTimelock, address newTimelock);
@@ -56,6 +61,31 @@ abstract contract GovernorTimelockCompound is Governor {
     /// @inheritdoc IGovernor
     function proposalNeedsQueuing(uint256) public view virtual override returns (bool) {
         return true;
+    }
+
+    /**
+     * @dev Overridden version of the {Governor-_propose} function to check for duplicate actions.
+     */
+    function _propose(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        string memory description,
+        address proposer
+    ) internal virtual override returns (uint256) {
+        for (uint256 i = 0; i < targets.length; ++i) {
+            for (uint256 j = 0; j < i; ++j) {
+                if (
+                    targets[i] == targets[j] &&
+                    values[i] == values[j] &&
+                    keccak256(calldatas[i]) == keccak256(calldatas[j])
+                ) {
+                    revert GovernorDuplicateProposalAction(i, j);
+                }
+            }
+        }
+
+        return super._propose(targets, values, calldatas, description, proposer);
     }
 
     /**
