@@ -1,13 +1,16 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.6.0) (finance/VestingWallet.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
 import {IERC20} from "../token/ERC20/IERC20.sol";
 import {SafeERC20} from "../token/ERC20/utils/SafeERC20.sol";
 import {Address} from "../utils/Address.sol";
 import {Context} from "../utils/Context.sol";
 import {Ownable} from "../access/Ownable.sol";
+import {ERC6372Utils} from "../utils/ERC6372Utils.sol";
+import {IERC6372} from "../interfaces/IERC6372.sol";
+import {Time} from "../utils/types/Time.sol";
 
 /**
  * @dev A vesting wallet is an ownable contract that can receive native currency and ERC-20 tokens, and release these
@@ -33,7 +36,7 @@ import {Ownable} from "../access/Ownable.sol";
  * at 50% of the vesting period, the beneficiary can withdraw 50 A as ERC20 and 25 A as native currency (totaling 75 A).
  * Consider disabling one of the withdrawal methods.
  */
-contract VestingWallet is Context, Ownable {
+contract VestingWallet is Context, Ownable, IERC6372 {
     event EtherReleased(uint256 amount);
     event ERC20Released(address indexed token, uint256 amount);
 
@@ -49,6 +52,17 @@ contract VestingWallet is Context, Ownable {
     constructor(address beneficiary, uint64 startTimestamp, uint64 durationSeconds) payable Ownable(beneficiary) {
         _start = startTimestamp;
         _duration = durationSeconds;
+    }
+
+    /// @inheritdoc IERC6372
+    function clock() public view virtual returns (uint48) {
+        return Time.timestamp();
+    }
+
+    /// @inheritdoc IERC6372
+    // solhint-disable-next-line func-name-mixedcase
+    function CLOCK_MODE() public view virtual returns (string memory) {
+        return ERC6372Utils.timestampClockMode(clock());
     }
 
     /**
