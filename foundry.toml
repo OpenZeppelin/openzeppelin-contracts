@@ -18,3 +18,4 @@ lint_on_build = false
 [fuzz]
 runs = 5000
 max_test_rejects = 150000
+
