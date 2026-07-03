@@ -19,3 +19,6 @@ lint_on_build = false
 runs = 5000
 max_test_rejects = 150000
 
+
+[invariant]
+fail_on_revert = true
