@@ -29,48 +29,6 @@ async function fixture() {
   return { mock };
 }
 
-// Non-commutative hash: keccak256(abi.encode(a, b)) — same as Hashes.efficientKeccak256
-// Does NOT sort a and b, so H(a,b) != H(b,a).
-const efficientKeccak256 = (a, b) =>
-  ethers.keccak256(ethers.AbiCoder.defaultAbiCoder().encode(['bytes32', 'bytes32'], [a, b]));
-
-/**
- * Manually compute the Merkle root for an append-only push-tree with depth `depth`
- * using the same algorithm as MerkleTree.sol's push():
- *   - empty slots are zero
- *   - parent = fnHash(left, right)  (order-sensitive when non-commutative)
- *
- * This mirrors exactly what the Solidity contract does internally.
- */
-function computePushTreeRoot(insertedLeaves, depth, zero, fnHash) {
-  const size = 2 ** depth;
-  // Build full leaf array: inserted leaves + zero padding
-  const leaves = [...insertedLeaves, ...Array(size - insertedLeaves.length).fill(zero)];
-
-  // Iteratively hash levels bottom-up
-  let level = leaves;
-  for (let d = 0; d < depth; d++) {
-    const next = [];
-    for (let i = 0; i < level.length; i += 2) {
-      next.push(fnHash(level[i], level[i + 1]));
-    }
-    level = next;
-  }
-  return level[0];
-}
-
-// The "zero" leaf value for the non-commutative tree (raw bytes32(0))
-const NC_ZERO = ethers.ZeroHash;
-
-// Compute the initial (empty) root for a non-commutative tree
-const NC_INITIAL_ROOT = computePushTreeRoot([], DEPTH, NC_ZERO, efficientKeccak256);
-
-async function nonCommutativeFixture() {
-  const mock = await ethers.deployContract('MerkleTreeMock');
-  await mock.setupNonCommutative(DEPTH, NC_ZERO);
-  return { mock };
-}
-
 describe('MerkleTree', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
@@ -95,75 +53,129 @@ describe('MerkleTree', function () {
 
         // rebuild tree.
         const tree = makeTree(leaves);
+        const hash = tree.leafHash(tree.at(i));
 
-        // push
-        const tx = await this.mock.push(leaves.at(-1));
+        // push value to tree
+        await expect(this.mock.push(hash)).to.emit(this.mock, 'LeafInserted').withArgs(hash, i, tree.root);
 
-        // check root and events
-        await expect(tx)
-          .to.emit(this.mock, 'LeafInserted')
-          .withArgs(leaves.at(-1), i, tree.root);
+        // check tree
         await expect(this.mock.root()).to.eventually.equal(tree.root);
         await expect(this.mock.nextLeafIndex()).to.eventually.equal(BigInt(i) + 1n);
       }
     });
 
-    it('tree is full', async function () {
-      for (const _ of range(2 ** DEPTH)) {
-        await this.mock.push(generators.bytes32());
-      }
-      await expect(this.mock.push(generators.bytes32())).to.be.revertedWithPanic(
-        PANIC_CODES.RESOURCE_ERROR,
-      );
+    it('pushing to a full tree reverts', async function () {
+      await Promise.all(Array.from({ length: 2 ** Number(DEPTH) }).map(() => this.mock.push(ethers.ZeroHash)));
+
+      await expect(this.mock.push(ethers.ZeroHash)).to.be.revertedWithPanic(PANIC_CODES.TOO_MUCH_MEMORY_ALLOCATED);
     });
   });
 
   describe('update', function () {
-    beforeEach(async function () {
-      // push some values
-      this.leaves = Array.from({ length: 5 }, generators.bytes32);
-      for (const leaf of this.leaves) await this.mock.push(leaf);
+    for (const { leafCount, leafIndex } of range(2 ** DEPTH + 1).flatMap(leafCount =>
+      range(leafCount).map(leafIndex => ({ leafCount, leafIndex })),
+    ))
+      it(`updating a leaf correctly updates the tree (leaf #${leafIndex + 1}/${leafCount})`, async function () {
+        // initial tree
+        const leaves = Array.from({ length: leafCount }, generators.bytes32);
+        const oldTree = makeTree(leaves);
+
+        // fill tree and verify root
+        for (const i in leaves) {
+          await this.mock.push(oldTree.leafHash(oldTree.at(i)));
+        }
+        await expect(this.mock.root()).to.eventually.equal(oldTree.root);
+
+        // create updated tree
+        leaves[leafIndex] = generators.bytes32();
+        const newTree = makeTree(leaves);
+
+        const oldLeafHash = oldTree.leafHash(oldTree.at(leafIndex));
+        const newLeafHash = newTree.leafHash(newTree.at(leafIndex));
+
+        // perform update
+        await expect(this.mock.update(leafIndex, oldLeafHash, newLeafHash, oldTree.getProof(leafIndex)))
+          .to.emit(this.mock, 'LeafUpdated')
+          .withArgs(oldLeafHash, newLeafHash, leafIndex, newTree.root);
+
+        // verify updated root
+        await expect(this.mock.root()).to.eventually.equal(newTree.root);
+
+        // if there is still room in the tree, fill it
+        for (const i of range(leafCount, 2 ** DEPTH)) {
+          // push new value and rebuild tree
+          leaves.push(generators.bytes32());
+          const nextTree = makeTree(leaves);
+
+          // push and verify root
+          await this.mock.push(nextTree.leafHash(nextTree.at(i)));
+          await expect(this.mock.root()).to.eventually.equal(nextTree.root);
+        }
+      });
+
+    it('replacing a leaf that was not previously pushed reverts', async function () {
+      // changing leaf 0 on an empty tree
+      await expect(this.mock.update(1, ZERO, ZERO, []))
+        .to.be.revertedWithCustomError(this.mock, 'MerkleTreeUpdateInvalidIndex')
+        .withArgs(1, 0);
     });
 
-    it('updating correctly updates the tree', async function () {
-      const newLeaf = generators.bytes32();
-      const updateIndex = 2;
+    it('replacing a leaf using an invalid proof reverts', async function () {
+      const leafCount = 4;
+      const leafIndex = 2;
 
-      const tree = makeTree(this.leaves);
-      const proof = tree.getProof([this.leaves[updateIndex]]);
+      const leaves = Array.from({ length: leafCount }, generators.bytes32);
+      const tree = makeTree(leaves);
 
-      const updatedLeaves = [...this.leaves];
-      updatedLeaves[updateIndex] = newLeaf;
-      const newTree = makeTree(updatedLeaves);
+      // fill tree and verify root
+      for (const i in leaves) {
+        await this.mock.push(tree.leafHash(tree.at(i)));
+      }
+      await expect(this.mock.root()).to.eventually.equal(tree.root);
 
-      const tx = await this.mock.update(this.leaves[updateIndex], newLeaf, updateIndex, proof);
-      await expect(tx)
-        .to.emit(this.mock, 'LeafUpdated')
-        .withArgs(this.leaves[updateIndex], newLeaf, updateIndex, newTree.root);
-      await expect(this.mock.root()).to.eventually.equal(newTree.root);
+      const oldLeafHash = tree.leafHash(tree.at(leafIndex));
+      const newLeafHash = generators.bytes32();
+      const proof = tree.getProof(leafIndex);
+      // invalid proof (tamper)
+      proof[1] = generators.bytes32();
+
+      await expect(this.mock.update(leafIndex, oldLeafHash, newLeafHash, proof)).to.be.revertedWithCustomError(
+        this.mock,
+        'MerkleTreeUpdateInvalidProof',
+      );
     });
+  });
 
-    it('updating fails with invalid old root', async function () {
-      await expect(
-        this.mock.update(generators.bytes32(), generators.bytes32(), 0, []),
-      ).to.be.revertedWith('Invalid old root');
-    });
+  it('reset', async function () {
+    // empty tree
+    const emptyTree = makeTree();
 
-    it('updating fails with an invalid proof', async function () {
-      const newLeaf = generators.bytes32();
-      await expect(
-        this.mock.update(this.leaves[0], newLeaf, 0, Array(DEPTH).fill(ethers.ZeroHash)),
-      ).to.be.revertedWithCustomError({ interface: (await ethers.getContractFactory('MerkleTreeMock')).interface }, 'MerkleTreeUpdateInvalidProof');
-    });
+    // tree with one element
+    const leaves = [generators.bytes32()];
+    const tree = makeTree(leaves);
+    const hash = tree.leafHash(tree.at(0));
 
-    it('updating fails with an invalid index', async function () {
-      const newLeaf = generators.bytes32();
-      const tree = makeTree(this.leaves);
-      const proof = tree.getProof([this.leaves[0]]);
-      await expect(
-        this.mock.update(this.leaves[0], newLeaf, 100, proof),
-      ).to.be.revertedWithCustomError({ interface: (await ethers.getContractFactory('MerkleTreeMock')).interface }, 'MerkleTreeUpdateInvalidIndex');
-    });
+    // root should be that of a zero tree
+    expect(await this.mock.root()).to.equal(emptyTree.root);
+    expect(await this.mock.nextLeafIndex()).to.equal(0n);
+
+    // push leaf and check root
+    await expect(this.mock.push(hash)).to.emit(this.mock, 'LeafInserted').withArgs(hash, 0, tree.root);
+
+    expect(await this.mock.root()).to.equal(tree.root);
+    expect(await this.mock.nextLeafIndex()).to.equal(1n);
+
+    // reset tree
+    await this.mock.setup(DEPTH, ZERO);
+
+    expect(await this.mock.root()).to.equal(emptyTree.root);
+    expect(await this.mock.nextLeafIndex()).to.equal(0n);
+
+    // re-push leaf and check root
+    await expect(this.mock.push(hash)).to.emit(this.mock, 'LeafInserted').withArgs(hash, 0, tree.root);
+
+    expect(await this.mock.root()).to.equal(tree.root);
+    expect(await this.mock.nextLeafIndex()).to.equal(1n);
   });
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -172,6 +184,32 @@ describe('MerkleTree', function () {
   // H(a,b) != H(b,a) — insertion order matters.
   // ─────────────────────────────────────────────────────────────────────────────
   describe('non-commutative hash (efficientKeccak256)', function () {
+    const efficientKeccak256 = (a, b) =>
+      ethers.keccak256(ethers.AbiCoder.defaultAbiCoder().encode(['bytes32', 'bytes32'], [a, b]));
+
+    function computePushTreeRoot(insertedLeaves, depth, zero, fnHash) {
+      const size = 2 ** depth;
+      const leaves = [...insertedLeaves, ...Array(size - insertedLeaves.length).fill(zero)];
+      let level = leaves;
+      for (let d = 0; d < depth; d++) {
+        const next = [];
+        for (let i = 0; i < level.length; i += 2) {
+          next.push(fnHash(level[i], level[i + 1]));
+        }
+        level = next;
+      }
+      return level[0];
+    }
+
+    const NC_ZERO = ethers.ZeroHash;
+    const NC_INITIAL_ROOT = computePushTreeRoot([], DEPTH, NC_ZERO, efficientKeccak256);
+
+    async function nonCommutativeFixture() {
+      const mock = await ethers.deployContract('MerkleTreeMock');
+      await mock.setupNonCommutative(DEPTH, NC_ZERO);
+      return { mock };
+    }
+
     beforeEach(async function () {
       Object.assign(this, await loadFixture(nonCommutativeFixture));
     });
@@ -181,7 +219,6 @@ describe('MerkleTree', function () {
     });
 
     it('initial root differs from commutative-hash root', async function () {
-      // Deploy a fresh commutative tree and compare roots.
       const commutativeMock = await ethers.deployContract('MerkleTreeMock');
       await commutativeMock.setup(DEPTH, ZERO);
 
@@ -199,9 +236,7 @@ describe('MerkleTree', function () {
         const tx = await this.mock.pushNonCommutative(leaf);
         const expectedRoot = computePushTreeRoot(leaves, DEPTH, NC_ZERO, efficientKeccak256);
 
-        await expect(tx)
-          .to.emit(this.mock, 'LeafInserted')
-          .withArgs(leaf, i, expectedRoot);
+        await expect(tx).to.emit(this.mock, 'LeafInserted').withArgs(leaf, i, expectedRoot);
         await expect(this.mock.root()).to.eventually.equal(expectedRoot);
         await expect(this.mock.nextLeafIndex()).to.eventually.equal(BigInt(i) + 1n);
       }
@@ -211,13 +246,11 @@ describe('MerkleTree', function () {
       const leafA = generators.bytes32();
       const leafB = generators.bytes32();
 
-      // Tree with A then B
       const mockAB = await ethers.deployContract('MerkleTreeMock');
       await mockAB.setupNonCommutative(DEPTH, NC_ZERO);
       await mockAB.pushNonCommutative(leafA);
       await mockAB.pushNonCommutative(leafB);
 
-      // Tree with B then A
       const mockBA = await ethers.deployContract('MerkleTreeMock');
       await mockBA.setupNonCommutative(DEPTH, NC_ZERO);
       await mockBA.pushNonCommutative(leafB);
@@ -226,7 +259,6 @@ describe('MerkleTree', function () {
       const rootAB = await mockAB.root();
       const rootBA = await mockBA.root();
 
-      // Non-commutative: order of insertion changes the root
       expect(rootAB).to.not.equal(rootBA);
     });
 
@@ -236,16 +268,20 @@ describe('MerkleTree', function () {
 
       const mockAB = await ethers.deployContract('MerkleTreeMock');
       await mockAB.setup(DEPTH, ZERO);
-      await mockAB.push(leafA);
-      await mockAB.push(leafB);
+
+      const hashA = makeTree([leafA]).leafHash([leafA]);
+      const hashB = makeTree([leafB]).leafHash([leafB]);
+
+      await mockAB.push(hashA);
+      await mockAB.push(hashB);
 
       const jsTreeAB = makeTree([leafA, leafB]);
       await expect(mockAB.root()).to.eventually.equal(jsTreeAB.root);
 
       const mockBA = await ethers.deployContract('MerkleTreeMock');
       await mockBA.setup(DEPTH, ZERO);
-      await mockBA.push(leafB);
-      await mockBA.push(leafA);
+      await mockBA.push(hashB);
+      await mockBA.push(hashA);
 
       const jsTreeBA = makeTree([leafB, leafA]);
       await expect(mockBA.root()).to.eventually.equal(jsTreeBA.root);

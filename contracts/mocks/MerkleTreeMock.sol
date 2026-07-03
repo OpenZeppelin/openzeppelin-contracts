@@ -27,10 +27,10 @@ contract MerkleTreeMock {
         root = currentRoot;
     }
 
-    function update(bytes32 oldLeaf, bytes32 newLeaf, uint256 index, bytes32[] memory proof) public {
-        (bytes32 oldRoot, bytes32 newRoot) = _tree.update(index, oldLeaf, newLeaf, proof);
-        require(oldRoot == root, "Invalid old root");
-        emit LeafUpdated(oldLeaf, newLeaf, index, newRoot);
+    function update(uint256 index, bytes32 oldValue, bytes32 newValue, bytes32[] memory proof) public {
+        (bytes32 oldRoot, bytes32 newRoot) = _tree.update(index, oldValue, newValue, proof);
+        if (oldRoot != root) revert MerkleTree.MerkleTreeUpdateInvalidProof();
+        emit LeafUpdated(oldValue, newValue, index, newRoot);
         root = newRoot;
     }
 
@@ -38,8 +38,17 @@ contract MerkleTreeMock {
         return _tree.depth();
     }
 
+    // internal state
     function nextLeafIndex() public view returns (uint256) {
         return _tree._nextLeafIndex;
+    }
+
+    function sides(uint256 i) public view returns (bytes32) {
+        return _tree._sides[i];
+    }
+
+    function zeros(uint256 i) public view returns (bytes32) {
+        return _tree._zeros[i];
     }
 
     // Non-commutative hashing variants using Hashes.efficientKeccak256.
