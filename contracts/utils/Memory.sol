@@ -117,7 +117,7 @@ library Memory {
                 result := eq(keccak256(ptrA, lenA), keccak256(ptrB, lenB))
             }
         }
-        // else returns false (default value) 
+        // else returns false (default value)
     }
 
     /// @dev Returns true if the memory occupied by the slice is reserved (i.e. before the free memory pointer)
