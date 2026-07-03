@@ -18,7 +18,7 @@ import yargs from 'yargs/yargs';
 const argv = await yargs()
   .env('')
   .options({
-    compiler: { type: 'string', default: '0.8.31' },
+    compiler: { type: 'string', default: '0.8.35' },
     src: { type: 'string', default: 'contracts' },
     runs: { type: 'number', default: 200 },
     ir: { type: 'boolean', default: false },
@@ -81,6 +81,7 @@ export default defineConfig({
     skipFiles: ['contracts/mocks/**', 'contracts-exposed/**', 'lib/**'],
   },
   warnings: {
+    'lib/**/*': 'off',
     'npm/**/*': 'off',
     'test/**/*': 'off',
     'contracts-exposed/**/*': {
@@ -89,6 +90,7 @@ export default defineConfig({
     },
     '*': {
       'transient-storage': 'off',
+      6335: 'warn', // is-future-solidity-keyword
       default: 'error',
     },
   },
