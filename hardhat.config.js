@@ -1,5 +1,5 @@
 /// ENVVAR
-// - COMPILER:      compiler version (default: 0.8.31)
+// - COMPILER:      compiler version (default: 0.8.35)
 // - SRC:           contracts folder to compile (default: contracts)
 // - RUNS:          number of optimization runs (default: 200)
 // - IR:            enable IR compilation (default: false)
@@ -18,7 +18,7 @@ const { argv } = require('yargs/yargs')()
     compiler: {
       alias: 'compileVersion',
       type: 'string',
-      default: '0.8.31',
+      default: '0.8.35',
     },
     src: {
       alias: 'source',
@@ -93,6 +93,7 @@ module.exports = {
     '*': {
       'unused-param': !argv.coverage, // coverage causes unused-param warnings
       'transient-storage': false,
+      6335: 'warning', // XXX will be promoted to keyword in the future and will not be allowed as an identifier anymore.
       default: 'error',
     },
   },
