@@ -326,7 +326,7 @@ export function shouldBehaveLikeBridgeERC1155({ chainAIsCustodial = false, chain
         const notAGateway = this.accounts[0];
         const newCounterpart = this.helpers.chain.toErc7930(this.accounts[0]);
 
-        await expect(this.bridgeA.$_setLink(notAGateway, newCounterpart, false)).to.be.revertedWithoutReason();
+        await expect(this.bridgeA.$_setLink(notAGateway, newCounterpart, false)).to.be.revertedWithoutReason(ethers);
       });
     });
   });

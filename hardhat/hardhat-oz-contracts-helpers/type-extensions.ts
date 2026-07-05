@@ -1,7 +1,7 @@
 import 'hardhat/types/network';
 
 import type { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/types';
-import type { Contract, TransactionReceipt } from 'ethers';
+import type { BytesLike, Contract, TransactionReceipt } from 'ethers';
 import type { InteroperableAddress } from 'interoperable-addresses';
 
 type AddressLike = HardhatEthersSigner | Contract | string;
@@ -15,7 +15,7 @@ export interface Chain {
   toErc7930: (other: AddressLike) => InteroperableAddress;
 }
 
-export type ClockType<T> = Map<'blocknumber' | 'timestamp', T>;
+export type ClockType<T> = { blockNumber: T; timestamp: T };
 
 declare module 'hardhat/types/network' {
   interface NetworkConnection<
@@ -24,13 +24,26 @@ declare module 'hardhat/types/network' {
   > {
     helpers: {
       chain: Chain;
-      impersonate: (connection: ChainTypeT) => (account: AddressLike, balance?: bigint) => Promise<HardhatEthersSigner>;
+      impersonate: (account: AddressLike, balance?: bigint) => Promise<HardhatEthersSigner>;
+      storage: {
+        getSlot: (address: AddressLike, slot: BytesLike | string) => Promise<string>;
+        getAddressInSlot: (address: AddressLike, slot: BytesLike | string) => Promise<string>;
+        setSlot: (address: AddressLike, slot: BytesLike | string, value: AddressLike | string) => Promise<void>;
+      };
       time: {
         clock: ClockType<() => Promise<bigint>>;
         clockFromReceipt: ClockType<(receipt: TransactionReceipt) => Promise<bigint>>;
         increaseBy: ClockType<(delay: bigint, mine?: boolean) => Promise<void>>;
         increaseTo: ClockType<(to: bigint, mine?: boolean) => Promise<void>>;
-        duration: ClockType<Map<string, (value: bigint) => bigint>>;
+        duration: {
+          years: (value: bigint) => bigint;
+          weeks: (value: bigint) => bigint;
+          days: (value: bigint) => bigint;
+          hours: (value: bigint) => bigint;
+          minutes: (value: bigint) => bigint;
+          seconds: (value: bigint) => bigint;
+          millis: (value: bigint) => bigint;
+        };
       };
     };
   }

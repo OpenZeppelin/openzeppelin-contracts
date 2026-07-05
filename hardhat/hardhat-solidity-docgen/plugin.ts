@@ -9,7 +9,7 @@ const hardhatSolidityDocgenPlugin: HardhatPlugin = {
     config: () => import('./hook-handlers/config.ts'),
   },
   tasks: [
-    task('docgen', 'Generates the exposed contracts')
+    task('docgen', 'Generates Solidity documentation')
       .setAction(() => import('./tasks/docgen.ts'))
       .build(),
   ],

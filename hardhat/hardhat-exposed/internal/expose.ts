@@ -51,10 +51,14 @@ export function getExposed(
 function getImportPathFromExposedContract(
   exposedFileAbsolutePath: string,
   importedFileInputSourceName: string,
+  projectRoot: string,
 ): string {
   return (
     importedFileInputSourceName.startsWith('project/')
-      ? path.relative(path.dirname(exposedFileAbsolutePath), importedFileInputSourceName.replace(/^project\//, ''))
+      ? path.relative(
+          path.dirname(exposedFileAbsolutePath),
+          path.resolve(projectRoot, importedFileInputSourceName.replace(/^project\//, '')),
+        )
       : importedFileInputSourceName
   ).replaceAll(/\\/g, '/'); // Normalize windows paths to unix paths
 }
@@ -77,6 +81,7 @@ function getExposedFile(
     deref,
     config.exposed.prefix,
     config.exposed.initializers,
+    config.paths.root,
   );
 
   return content === undefined ? undefined : { absolutePath: exposedFileAbsolutePath, content };
@@ -88,6 +93,7 @@ function getExposedContent(
   deref: ASTDereferencer,
   prefix: string,
   initializers: boolean,
+  projectRoot: string,
 ): string | undefined {
   if (prefix === '' || /^\d|[^0-9a-z_$]/i.test(prefix)) {
     throw new Error(`Prefix '${prefix}' is not valid`);
@@ -96,7 +102,7 @@ function getExposedContent(
   const contractPrefix = prefix.replace(/^./, c => c.toUpperCase());
 
   const imports = Array.from(getNeededImports(ast, deref), u =>
-    getImportPathFromExposedContract(exposedFileAbsolutePath, u.absolutePath),
+    getImportPathFromExposedContract(exposedFileAbsolutePath, u.absolutePath, projectRoot),
   );
 
   const contracts = [...findAll('ContractDefinition', ast)].filter(c => c.contractKind !== 'interface');

@@ -15,7 +15,11 @@ export function getContractsMetadata(
     artifacts.flatMap(artifact => {
       const { output: solcOutput } = JSON.parse(fs.readFileSync(path.resolve(import.meta.dirname, '..', artifact)));
       return Object.keys(solcOutput?.contracts ?? {})
-        .filter(source => match.all(source, pattern) && !match.any(source, skipPatterns))
+        .filter(
+          source =>
+            match.all(source.replace(/^project\//, ''), pattern) &&
+            !match.any(source.replace(/^project\//, ''), skipPatterns),
+        )
         .map(source => [
           source,
           {
