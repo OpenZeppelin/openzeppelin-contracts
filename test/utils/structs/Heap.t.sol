@@ -127,7 +127,7 @@ contract HeapHandler {
     }
 
     function root() public view returns (uint256 candidate) {
-        require(_model.length > 0, "Heap: empty");
+        if (_model.length == 0) return 0;
 
         candidate = _model[0];
         for (uint256 i = 1; i < _model.length; ++i) {
