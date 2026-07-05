@@ -1,13 +1,12 @@
 import path from 'path';
 import { ContractDefinition, SourceUnit } from 'solidity-ast';
 import { SolcOutput, SolcInput } from 'solidity-ast/solc';
-import { astDereferencer, ASTDereferencer, findAll, isNodeType, srcDecoder, SrcDecoder } from 'solidity-ast/utils.js';
+import { astDereferencer, ASTDereferencer, isNodeType, srcDecoder, SrcDecoder } from 'solidity-ast/utils.js';
 import { FullConfig } from './config';
-import { DocItem, docItemTypes, isDocItem } from './doc-item';
+import { DocItem, isDocItem } from './doc-item';
 import { Properties } from './templates';
 import { clone } from './utils/clone';
 import { isChild } from './utils/is-child';
-import { mapValues } from './utils/map-values';
 import { defineGetterMemoized } from './utils/memoized-getter';
 
 export interface Build {

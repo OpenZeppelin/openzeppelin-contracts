@@ -1,7 +1,7 @@
-import { ContractDefinition, SourceUnit } from 'solidity-ast';
+import { SourceUnit } from 'solidity-ast';
 import { findAll, isNodeType } from 'solidity-ast/utils.js';
 import { DocItemWithContext } from '../site';
-import { filterValues, mapValues } from './map-values';
+import { filterValues } from './map-values';
 import { mapKeys } from './map-keys';
 
 type Definition = SourceUnit['nodes'][number] & { name: string };
