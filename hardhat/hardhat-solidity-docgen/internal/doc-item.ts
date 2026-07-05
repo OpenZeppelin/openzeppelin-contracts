@@ -1,5 +1,5 @@
 import { ContractDefinition, ImportDirective, PragmaDirective, SourceUnit, UsingForDirective } from 'solidity-ast';
-import { Node, NodeType, NodeTypeMap } from 'solidity-ast/node';
+import { Node } from 'solidity-ast/node';
 import { AssertEqual } from './utils/assert-equal-types';
 
 export type DocItem = Exclude<

@@ -2,7 +2,6 @@ import path from 'path';
 import { promises as fs } from 'fs';
 import { render } from './render';
 import { Build, buildSite } from './site';
-import { ensureArray } from './utils/ensure-array';
 import { Config, defaults } from './config';
 import { loadTemplates } from './templates';
 

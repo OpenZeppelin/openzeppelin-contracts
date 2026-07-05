@@ -1,5 +1,5 @@
 import Handlebars, { RuntimeOptions } from 'handlebars';
-import { Site, Page, DocItemWithContext, DOC_ITEM_CONTEXT } from './site';
+import { Site, Page, DocItemWithContext } from './site';
 import { Templates } from './templates';
 import { itemType } from './utils/item-type';
 import fs from 'fs';

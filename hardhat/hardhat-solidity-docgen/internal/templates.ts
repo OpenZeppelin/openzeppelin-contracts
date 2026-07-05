@@ -1,9 +1,6 @@
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import fs, { promises as fsPromise } from 'node:fs';
-import Handlebars, { RuntimeOptions } from 'handlebars';
-import { findIn } from './utils/fs-exists';
-import { mapValues } from './utils/map-values';
 import { mapKeys } from './utils/map-keys';
 import { DocItemContext } from './site';
 
