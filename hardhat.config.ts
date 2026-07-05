@@ -67,6 +67,7 @@ export default defineConfig({
     },
   },
   test: {
+    mocha: process.argv.includes('--coverage') ? { fgrep: '[skip-on-coverage]', invert: true } : undefined,
     solidity: {
       fuzz: {
         runs: 5000,
