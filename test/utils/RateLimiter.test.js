@@ -26,6 +26,7 @@ const wrap = (mock, type) => ({
   tryConsume: (q, k = defaultKey) => mock.getFunction(`$tryConsume_RateLimiter_${type}`)(0n, k, q),
   tryConsumeStatic: (q, k = defaultKey) => mock.getFunction(`$tryConsume_RateLimiter_${type}`).staticCall(0n, k, q),
   consume: (q, k = defaultKey) => mock.getFunction(`$consume_RateLimiter_${type}`)(0n, k, q),
+  consumeStatic: (q, k = defaultKey) => mock.getFunction(`$consume_RateLimiter_${type}`).staticCall(0n, k, q),
   reset: (k = defaultKey) => mock.getFunction(`$reset_RateLimiter_${type}`)(0n, k),
   updateSettings: (window, capacity) => mock.getFunction(`$updateSettings_RateLimiter_${type}`)(0n, window, capacity),
   sync: type == 'RefillingBucket' ? (k = defaultKey) => mock.$sync(0n, k) : undefined,
@@ -95,6 +96,14 @@ describe('RateLimiter', function () {
           await expect(this.mock.state(key2)).to.eventually.deep.equal([42n, CAPACITY - 42n]);
           await expect(this.mock.used(key2)).to.eventually.equal(42n);
           await expect(this.mock.available(key2)).to.eventually.equal(CAPACITY - 42n);
+        });
+
+        it('consume all capacity at one', async function () {
+          await expect(this.mock.consume(CAPACITY)).to.not.be.reverted; // consume all capacity at once is allowed
+
+          await expect(this.mock.state()).to.eventually.deep.equal([CAPACITY, 0n]);
+          await expect(this.mock.used()).to.eventually.equal(CAPACITY);
+          await expect(this.mock.available()).to.eventually.equal(0n);
         });
 
         it('consume reverts when over capacity', async function () {
@@ -167,6 +176,20 @@ describe('RateLimiter', function () {
           await expect(this.mock.state(key2)).to.eventually.deep.equal([42n, CAPACITY - 42n]);
           await expect(this.mock.used(key2)).to.eventually.equal(42n);
           await expect(this.mock.available(key2)).to.eventually.equal(CAPACITY - 42n);
+        });
+
+        it('tryConsume all capacity at once', async function () {
+          // Static
+          await expect(this.mock.tryConsumeStatic(CAPACITY)).to.eventually.be.true;
+
+          // execute (and get event)
+          await expect(this.mock.tryConsume(CAPACITY))
+            .to.emit(this.mock, 'return$tryConsume_RateLimiter_RefillingBucket_bytes32_uint256')
+            .withArgs(true);
+
+          await expect(this.mock.state()).to.eventually.deep.equal([CAPACITY, 0n]);
+          await expect(this.mock.used()).to.eventually.equal(CAPACITY);
+          await expect(this.mock.available()).to.eventually.equal(0n);
         });
 
         it('tryConsume returns false and does not update state when over capacity', async function () {
