@@ -80,6 +80,7 @@ interface IAccessManager {
     error AccessManagerNotReady(bytes32 operationId);
     error AccessManagerExpired(bytes32 operationId);
     error AccessManagerLockedRole(uint64 roleId);
+    error AccessManagerLockedFunction(bytes4 selector);
     error AccessManagerBadConfirmation();
     error AccessManagerUnauthorizedAccount(address msgsender, uint64 roleId);
     error AccessManagerUnauthorizedCall(address caller, address target, bytes4 selector);

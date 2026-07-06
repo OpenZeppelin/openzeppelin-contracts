@@ -191,8 +191,11 @@ class MultiERC7913SigningKey {
     );
 
     // Sorting is done at construction so that it doesn't have to be done in sign()
-    this.#signers = signers.sort(
-      (s1, s2) => ethers.keccak256(s1.bytes ?? s1.address) - ethers.keccak256(s2.bytes ?? s2.address),
+    this.#signers = signers.sort((s1, s2) =>
+      Buffer.compare(
+        ethers.getBytes(ethers.keccak256(s1.bytes ?? s1.address)),
+        ethers.getBytes(ethers.keccak256(s2.bytes ?? s2.address)),
+      ),
     );
   }
 
