@@ -131,7 +131,7 @@ library RateLimiter {
      * The `capacity` and `window` settings are preserved; only the consumed quantity is cleared.
      */
     function reset(RefillingBucket storage self, bytes32 key) internal {
-        self.items[key].lastUsed = 0;
+        delete self.items[key];
     }
 
     /**
