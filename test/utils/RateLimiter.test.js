@@ -6,9 +6,9 @@ const { MAX_UINT48 } = require('../helpers/constants');
 const { batchInBlock } = require('../helpers/txpool');
 const time = require('../helpers/time');
 
-const WINDOW = 100n;
-const CAPACITY = 1000n;
-const refillPerSecond = CAPACITY / WINDOW;
+const WINDOW = 3_600n; // 1 hour
+const CAPACITY = 10_000n;
+const refill = (time, capacity = CAPACITY, window = WINDOW) => (time * capacity) / window;
 
 const defaultKey = ethers.ZeroHash;
 const key1 = ethers.id('key1');
@@ -87,12 +87,9 @@ describe('RateLimiter', function () {
 
           await this.mock.consume(42n, key2);
 
-          await expect(this.mock.state(key1)).to.eventually.deep.equal([
-            17n - refillPerSecond,
-            CAPACITY - 17n + refillPerSecond,
-          ]);
-          await expect(this.mock.used(key1)).to.eventually.equal(17n - refillPerSecond);
-          await expect(this.mock.available(key1)).to.eventually.equal(CAPACITY - 17n + refillPerSecond);
+          await expect(this.mock.state(key1)).to.eventually.deep.equal([17n - refill(1n), CAPACITY - 17n + refill(1n)]);
+          await expect(this.mock.used(key1)).to.eventually.equal(17n - refill(1n));
+          await expect(this.mock.available(key1)).to.eventually.equal(CAPACITY - 17n + refill(1n));
           await expect(this.mock.state(key2)).to.eventually.deep.equal([42n, CAPACITY - 42n]);
           await expect(this.mock.used(key2)).to.eventually.equal(42n);
           await expect(this.mock.available(key2)).to.eventually.equal(CAPACITY - 42n);
@@ -120,12 +117,9 @@ describe('RateLimiter', function () {
           await this.mock.consume(0n);
 
           // one second passed so we have to account for the auto refill
-          await expect(this.mock.state()).to.eventually.deep.equal([
-            42n - refillPerSecond,
-            CAPACITY - 42n + refillPerSecond,
-          ]);
-          await expect(this.mock.used()).to.eventually.equal(42n - refillPerSecond);
-          await expect(this.mock.available()).to.eventually.equal(CAPACITY - 42n + refillPerSecond);
+          await expect(this.mock.state()).to.eventually.deep.equal([42n - refill(1n), CAPACITY - 42n + refill(1n)]);
+          await expect(this.mock.used()).to.eventually.equal(42n - refill(1n));
+          await expect(this.mock.available()).to.eventually.equal(CAPACITY - 42n + refill(1n));
         });
       });
 
@@ -167,12 +161,9 @@ describe('RateLimiter', function () {
             .to.emit(this.mock, 'return$tryConsume_RateLimiter_RefillingBucket_bytes32_uint256')
             .withArgs(true);
 
-          await expect(this.mock.state(key1)).to.eventually.deep.equal([
-            17n - refillPerSecond,
-            CAPACITY - 17n + refillPerSecond,
-          ]);
-          await expect(this.mock.used(key1)).to.eventually.equal(17n - refillPerSecond);
-          await expect(this.mock.available(key1)).to.eventually.equal(CAPACITY - 17n + refillPerSecond);
+          await expect(this.mock.state(key1)).to.eventually.deep.equal([17n - refill(1n), CAPACITY - 17n + refill(1n)]);
+          await expect(this.mock.used(key1)).to.eventually.equal(17n - refill(1n));
+          await expect(this.mock.available(key1)).to.eventually.equal(CAPACITY - 17n + refill(1n));
           await expect(this.mock.state(key2)).to.eventually.deep.equal([42n, CAPACITY - 42n]);
           await expect(this.mock.used(key2)).to.eventually.equal(42n);
           await expect(this.mock.available(key2)).to.eventually.equal(CAPACITY - 42n);
@@ -217,12 +208,9 @@ describe('RateLimiter', function () {
             .to.emit(this.mock, 'return$tryConsume_RateLimiter_RefillingBucket_bytes32_uint256')
             .withArgs(true);
 
-          await expect(this.mock.state()).to.eventually.deep.equal([
-            42n - refillPerSecond,
-            CAPACITY - 42n + refillPerSecond,
-          ]);
-          await expect(this.mock.used()).to.eventually.equal(42n - refillPerSecond);
-          await expect(this.mock.available()).to.eventually.equal(CAPACITY - 42n + refillPerSecond);
+          await expect(this.mock.state()).to.eventually.deep.equal([42n - refill(1n), CAPACITY - 42n + refill(1n)]);
+          await expect(this.mock.used()).to.eventually.equal(42n - refill(1n));
+          await expect(this.mock.available()).to.eventually.equal(CAPACITY - 42n + refill(1n));
         });
       });
 
@@ -261,7 +249,6 @@ describe('RateLimiter', function () {
       it('updateSettings side effect on usage', async function () {
         const d1 = 3n;
         const d2 = 4n;
-        const newRefillPerSecond = (2n * CAPACITY) / WINDOW;
 
         // consume the whole bucket
         await this.mock.consume(CAPACITY);
@@ -271,17 +258,16 @@ describe('RateLimiter', function () {
         await time.increaseBy.timestamp(d2);
 
         await expect(this.mock.state()).to.eventually.deep.equal([
-          CAPACITY - (d1 + d2) * newRefillPerSecond,
-          CAPACITY + (d1 + d2) * newRefillPerSecond,
+          CAPACITY - refill(d1 + d2, CAPACITY * 2n, WINDOW),
+          CAPACITY + refill(d1 + d2, CAPACITY * 2n, WINDOW),
         ]);
-        await expect(this.mock.used()).to.eventually.equal(CAPACITY - (d1 + d2) * newRefillPerSecond);
-        await expect(this.mock.available()).to.eventually.equal(CAPACITY + (d1 + d2) * newRefillPerSecond);
+        await expect(this.mock.used()).to.eventually.equal(CAPACITY - refill(d1 + d2, CAPACITY * 2n, WINDOW));
+        await expect(this.mock.available()).to.eventually.equal(CAPACITY + refill(d1 + d2, CAPACITY * 2n, WINDOW));
       });
 
       it('using  sync to mitigate updateSettings side effect', async function () {
         const d1 = 3n;
         const d2 = 4n;
-        const newRefillPerSecond = (2n * CAPACITY) / WINDOW;
 
         // consume the whole bucket
         await this.mock.consume(CAPACITY);
@@ -291,12 +277,14 @@ describe('RateLimiter', function () {
         await time.increaseBy.timestamp(d2);
 
         await expect(this.mock.state()).to.eventually.deep.equal([
-          CAPACITY - d1 * refillPerSecond - d2 * newRefillPerSecond,
-          CAPACITY + d1 * refillPerSecond + d2 * newRefillPerSecond,
+          CAPACITY - refill(d1, CAPACITY, WINDOW) - refill(d2, CAPACITY * 2n, WINDOW),
+          CAPACITY + refill(d1, CAPACITY, WINDOW) + refill(d2, CAPACITY * 2n, WINDOW),
         ]);
-        await expect(this.mock.used()).to.eventually.equal(CAPACITY - d1 * refillPerSecond - d2 * newRefillPerSecond);
+        await expect(this.mock.used()).to.eventually.equal(
+          CAPACITY - refill(d1, CAPACITY, WINDOW) - refill(d2, CAPACITY * 2n, WINDOW),
+        );
         await expect(this.mock.available()).to.eventually.equal(
-          CAPACITY + d1 * refillPerSecond + d2 * newRefillPerSecond,
+          CAPACITY + refill(d1, CAPACITY, WINDOW) + refill(d2, CAPACITY * 2n, WINDOW),
         );
       });
 
