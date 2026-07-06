@@ -20,7 +20,7 @@ import {Time} from "./types/Time.sol";
  *   interval. Suitable when a strict cap on usage within a rolling window is required. Each successful consumption
  *   appends a checkpoint, making it a most expensive option with a larger storage footprint.
  *
- * Both strategies expose the same set of operations ({state}, {used}, {available}, {tryConsume}, {consume} and
+ * Both strategies expose the same base set of operations ({state}, {used}, {available}, {tryConsume}, {consume} and
  * {updateSettings}), distinguished by the storage struct passed as the first argument.
  *
  * Example usage:
@@ -50,7 +50,7 @@ library RateLimiter {
      *
      * The bucket has a maximum `capacity` and refills at a rate of `capacity / window` per second, so that an empty
      * bucket fully refills in `window` seconds. The current state is reconstructed lazily from `lastUsed` and
-     * `lastTimepoint` on read, keeping storage cost constant (2 packed slots).
+     * `lastTimepoint` on read, keeping storage cost constant (1 packed slot per item).
      */
     struct RefillingBucketItem {
         uint208 lastUsed;
@@ -123,8 +123,7 @@ library RateLimiter {
      * insufficient. See {tryConsume-struct-RateLimiter-RefillingBucket-bytes32-uint256}.
      */
     function consume(RefillingBucket storage self, bytes32 key, uint256 quantity) internal {
-        bool success = tryConsume(self, key, quantity);
-        require(success, RateLimitExceeded());
+        require(tryConsume(self, key, quantity), RateLimitExceeded());
     }
 
     /**
@@ -200,7 +199,7 @@ library RateLimiter {
     }
 
     /**
-     * @dev Returns the currently used quantity within the rolling window. See
+     * @dev Returns the currently used quantity within the sliding window. See
      * {state-struct-RateLimiter-SlidingWindow-bytes32}.
      */
     function used(SlidingWindow storage self, bytes32 key) internal view returns (uint256 used_) {
@@ -242,8 +241,7 @@ library RateLimiter {
      * the current window is insufficient. See {tryConsume-struct-RateLimiter-SlidingWindow-bytes32-uint256}.
      */
     function consume(SlidingWindow storage self, bytes32 key, uint256 quantity) internal {
-        bool success = tryConsume(self, key, quantity);
-        require(success, RateLimitExceeded());
+        require(tryConsume(self, key, quantity), RateLimitExceeded());
     }
 
     /**
