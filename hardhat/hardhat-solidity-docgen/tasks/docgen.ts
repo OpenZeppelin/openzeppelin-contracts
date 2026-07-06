@@ -1,20 +1,11 @@
 import assert from 'node:assert';
 import fs from 'node:fs/promises';
-import path from 'node:path';
 import type { HardhatRuntimeEnvironment } from 'hardhat/types/hre';
 import type { SolidityBuildInfo, SolidityBuildInfoOutput } from 'hardhat/types/solidity';
 
 import { main } from '../internal/main.ts';
-
-// Transform each key of `obj` with `fn`, keeping values intact.
-function transformKeys<U>(obj: Record<string, U>, fn: (key: string) => string): Record<string, U> {
-  return Object.fromEntries(Object.entries(obj).map(([k, v]) => [fn(k), v]));
-}
-
-// Filter `obj` entries by predicate.
-function filterRecord<U>(obj: Record<string, U>, fn: (key: string, value: U) => boolean): Record<string, U> {
-  return Object.fromEntries(Object.entries(obj).filter(([k, v]) => fn(k, v)));
-}
+import { mapKeys } from '../internal/utils/map-keys.ts';
+import { filterKeys } from '../internal/utils/filter-keys.ts';
 
 export default async function ({}, hre: HardhatRuntimeEnvironment) {
   const { contractRootPaths } = await hre.tasks.getTask('build').run({ noTests: true, noExpose: true });
@@ -26,8 +17,7 @@ export default async function ({}, hre: HardhatRuntimeEnvironment) {
     buildIds.add(buildId);
   }
 
-  const mainSources = hre.config.paths.sources.solidity.at(0)!;
-  const mainSourcesRel = path.relative(hre.config.paths.root, mainSources);
+  const mainSourcesRel = hre.config.docgen.sourcesDir!;
 
   const builds: { input: SolidityBuildInfo['input']; output: SolidityBuildInfoOutput['output'] }[] = [];
   for (const buildId of buildIds) {
@@ -41,24 +31,23 @@ export default async function ({}, hre: HardhatRuntimeEnvironment) {
       .then(file => fs.readFile(file!, 'utf-8'))
       .then(JSON.parse)) as SolidityBuildInfoOutput;
 
-    // Adjust paths to match transpiler expectations
-    input.sources = filterRecord(
-      transformKeys(input.sources, k => k.replace(/^project\//, '')),
+    // Adjust paths to match downstream consumer expectations
+    input.sources = filterKeys(
+      mapKeys(input.sources, k => k.replace(/^project\//, '')),
       k => k.startsWith(mainSourcesRel + '/'),
     );
-    output.sources = filterRecord(
-      transformKeys(output.sources, k => k.replace(/^project\//, '')),
+    output.sources = filterKeys(
+      mapKeys(output.sources, k => k.replace(/^project\//, '')),
       k => k.startsWith(mainSourcesRel + '/'),
     );
-    output.contracts = filterRecord(
-      transformKeys(output.contracts, k => k.replace(/^project\//, '')),
+    output.contracts = filterKeys(
+      mapKeys(output.contracts ?? {}, k => k.replace(/^project\//, '')),
       k => k.startsWith(mainSourcesRel + '/'),
     );
     Object.values(output.sources).forEach((s: any) => {
       s.ast.absolutePath = s.ast.absolutePath.replace(/^project\//, '');
     });
 
-    // Add to builds
     builds.push({ input, output });
   }
 
