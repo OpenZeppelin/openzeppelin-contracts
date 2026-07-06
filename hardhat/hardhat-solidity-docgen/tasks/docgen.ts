@@ -17,7 +17,7 @@ function filterRecord<U>(obj: Record<string, U>, fn: (key: string, value: U) => 
 }
 
 export default async function ({}, hre: HardhatRuntimeEnvironment) {
-  const { contractRootPaths } = await hre.tasks.getTask('compile').run({ noTests: true, noExpose: true });
+  const { contractRootPaths } = await hre.tasks.getTask('build').run({ noTests: true, noExpose: true });
   const compilationJobs = await hre.solidity.getCompilationJobs(contractRootPaths);
   assert('cacheHits' in compilationJobs, 'Compilation jobs not found');
 

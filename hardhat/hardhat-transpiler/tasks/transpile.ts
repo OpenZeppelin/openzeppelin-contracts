@@ -31,7 +31,7 @@ export default async function ({ settings }: { settings?: string }, hre: Hardhat
   assert(settings, 'Transpile settings file must be provided');
   const options: TranspileOptions = await fs.readFile(settings, 'utf-8').then(JSON.parse);
 
-  const { contractRootPaths } = await hre.tasks.getTask('compile').run({ noTests: true, noExpose: true });
+  const { contractRootPaths } = await hre.tasks.getTask('build').run({ noTests: true, noExpose: true });
   const compilationJobs = await hre.solidity.getCompilationJobs(contractRootPaths);
   assert('cacheHits' in compilationJobs, 'Compilation jobs not found');
 
