@@ -17,12 +17,12 @@ interface TranspileOptions {
   peerProject?: string;
 }
 
-// Map function, key the keys intact and transform values
+// Transform each key of `obj` with `fn`, keeping values intact.
 function transformKeys<U>(obj: Record<string, U>, fn: (key: string) => string): Record<string, U> {
   return Object.fromEntries(Object.entries(obj).map(([k, v]) => [fn(k), v]));
 }
 
-// Filter function, only keep entries where fn returns true
+// Filter `obj` entries by predicate.
 function filterRecord<U>(obj: Record<string, U>, fn: (key: string, value: U) => boolean): Record<string, U> {
   return Object.fromEntries(Object.entries(obj).filter(([k, v]) => fn(k, v)));
 }
@@ -31,7 +31,7 @@ export default async function ({ settings }: { settings?: string }, hre: Hardhat
   assert(settings, 'Transpile settings file must be provided');
   const options: TranspileOptions = await fs.readFile(settings, 'utf-8').then(JSON.parse);
 
-  const { contractRootPaths } = await hre.tasks.getTask('compile').run({ noTests: true });
+  const { contractRootPaths } = await hre.tasks.getTask('compile').run({ noTests: true, noExpose: true });
   const compilationJobs = await hre.solidity.getCompilationJobs(contractRootPaths);
   assert('cacheHits' in compilationJobs, 'Compilation jobs not found');
 

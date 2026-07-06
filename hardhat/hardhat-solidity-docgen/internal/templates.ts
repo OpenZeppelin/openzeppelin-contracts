@@ -97,23 +97,14 @@ async function readHelpers(dir: string, name: string) {
   return helpers;
 }
 
-/**
- * Reads all built-in themes into an object. Partials will always be found in
- * src/themes, whereas helpers may instead be found in dist/themes if TypeScript
- * can't be imported directly.
- */
+// Reads all built-in themes (partials + helpers) into an object.
 async function readThemes(): Promise<Record<string, Required<Templates>>> {
   const themes: Record<string, Required<Templates>> = {};
+  const themesDir = path.resolve(import.meta.dirname, 'themes');
 
-  // Handlebars partials are located in src and not in dist
-  // const srcThemes = path.resolve(import.meta.dirname, '../src/themes'); // TODO
-  const srcThemes = path.resolve(import.meta.dirname, 'themes'); // TODO
-  const distThemes = path.resolve(import.meta.dirname, 'themes');
-
-  for (const theme of await fsPromise.readdir(srcThemes, { withFileTypes: true })) {
+  for (const theme of await fsPromise.readdir(themesDir, { withFileTypes: true })) {
     if (theme.isDirectory()) {
-      const { name } = theme;
-      themes[name] = await readTemplates(path.join(srcThemes, name), path.join(distThemes, name));
+      themes[theme.name] = await readTemplates(path.join(themesDir, theme.name));
     }
   }
 

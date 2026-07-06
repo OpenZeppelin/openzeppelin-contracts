@@ -1,7 +1,7 @@
 import { SourceUnit } from 'solidity-ast';
 import { findAll, isNodeType } from 'solidity-ast/utils.js';
 import { DocItemWithContext } from '../site';
-import { filterValues } from './map-values';
+import { filterValues } from './filter-values';
 import { mapKeys } from './map-keys';
 
 type Definition = SourceUnit['nodes'][number] & { name: string };

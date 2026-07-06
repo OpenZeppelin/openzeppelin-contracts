@@ -1,30 +1,23 @@
 import assert from 'node:assert';
 import fs from 'node:fs/promises';
-// import path from 'node:path';
+import path from 'node:path';
 import type { HardhatRuntimeEnvironment } from 'hardhat/types/hre';
 import type { SolidityBuildInfo, SolidityBuildInfoOutput } from 'hardhat/types/solidity';
 
-// import { SolcOutput, SolcInput } from 'solidity-ast/solc';
-import type { Result } from 'hardhat/types/utils';
-// import assert from 'node:assert';
-import path from 'node:path';
-// import fs from 'node:fs';
-// import { getExposed } from '../internal/expose.ts';
-// import { compilationJobToAstOnlyBuildInfo } from '../internal/build-info.ts';
 import { main } from '../internal/main.ts';
 
-// Map function, key the keys intact and transform values
+// Transform each key of `obj` with `fn`, keeping values intact.
 function transformKeys<U>(obj: Record<string, U>, fn: (key: string) => string): Record<string, U> {
   return Object.fromEntries(Object.entries(obj).map(([k, v]) => [fn(k), v]));
 }
 
-// Filter function, only keep entries where fn returns true
+// Filter `obj` entries by predicate.
 function filterRecord<U>(obj: Record<string, U>, fn: (key: string, value: U) => boolean): Record<string, U> {
   return Object.fromEntries(Object.entries(obj).filter(([k, v]) => fn(k, v)));
 }
 
 export default async function ({}, hre: HardhatRuntimeEnvironment) {
-  const { contractRootPaths } = await hre.tasks.getTask('compile').run({ noTests: true });
+  const { contractRootPaths } = await hre.tasks.getTask('compile').run({ noTests: true, noExpose: true });
   const compilationJobs = await hre.solidity.getCompilationJobs(contractRootPaths);
   assert('cacheHits' in compilationJobs, 'Compilation jobs not found');
 

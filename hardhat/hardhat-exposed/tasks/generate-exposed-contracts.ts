@@ -10,7 +10,7 @@ import { getExposed } from '../internal/expose.ts';
 import { compilationJobToAstOnlyBuildInfo } from '../internal/build-info.ts';
 import { errorResult, successfulResult } from 'hardhat/utils/result';
 
-export type * from '../type-extensions';
+export type * from '../type-extensions.ts';
 
 export interface GenerateExposedContractsArguments {
   force: boolean;
@@ -34,14 +34,7 @@ export default async function generateExposedContracts(
     (await hre.solidity.getScope(rootPath)) === 'contracts';
 
   const inclusionResults = await Promise.all(rootPaths.map(root => includes(root)));
-  const rootPathsToExpose = rootPaths.filter((root, i) => {
-    if (!inclusionResults[i]) return false;
-
-    // sanity check: No exposed contract should be a root file to expose
-    assert(!isInExposedOutDir(root), 'A root file to be exposed must not be part of the in the hardhat-exposed outDir');
-
-    return true;
-  });
+  const rootPathsToExpose = rootPaths.filter((_, i) => inclusionResults[i]);
 
   const compilationJobs = await hre.solidity.getCompilationJobs(rootPathsToExpose, { force: args.force });
 
@@ -89,7 +82,7 @@ export default async function generateExposedContracts(
 
       const buildOutput = await hre.solidity.compileBuildInfo(buildInfo);
 
-      const exposed = await getExposed(buildInfo, buildOutput, hre.config);
+      const exposed = getExposed(buildInfo, buildOutput, hre.config);
 
       for (const [exposedPath, exposedContent] of exposed) {
         fs.mkdirSync(path.dirname(exposedPath), { recursive: true });

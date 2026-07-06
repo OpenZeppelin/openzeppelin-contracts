@@ -11,7 +11,7 @@ import hardhatDocgen from './hardhat/hardhat-solidity-docgen/plugin.ts';
 import hardhatExposed from './hardhat/hardhat-exposed/plugin.ts';
 import hardhatTranspiler from './hardhat/hardhat-transpiler/plugin.ts';
 import hardhatOzContractsHelpers from './hardhat/hardhat-oz-contracts-helpers/plugin.ts';
-import './hardhat/async-test-sanity.js';
+import './hardhat/async-test-sanity.ts';
 
 // Parameters
 import yargs from 'yargs/yargs';

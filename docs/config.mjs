@@ -1,7 +1,7 @@
 import path from 'path';
 import fs from 'fs';
 
-/** @type import('solidity-docgen/dist/config').UserConfig */
+/** @type import('../hardhat/hardhat-solidity-docgen/internal/config.ts').UserConfig */
 export default {
   outputDir: 'docs/modules/api/pages',
   templates: 'docs/templates',

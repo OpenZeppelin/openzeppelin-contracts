@@ -26,7 +26,7 @@ for (const artifact of artifacts) {
 
   // Rebuild solcOutput?.sources by removing the "project" prefix from the keys, so that we can match them against the patterns in package.json
   const sources = Object.fromEntries(
-    Object.entries(solcOutput?.sources ?? {}).map(([key, value]) => [key.replace(/^project/, ''), value]),
+    Object.entries(solcOutput?.sources ?? {}).map(([key, value]) => [key.replace(/^project\//, ''), value]),
   );
 
   // For each source file that matches the patterns ...

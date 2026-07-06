@@ -6,7 +6,7 @@ import { getLocalChain } from '../../../test/helpers/chains.js';
 import { getSlot, getAddressInSlot, setSlot } from '../../../test/helpers/storage.js';
 import { clock, clockFromReceipt, increaseBy, increaseTo, duration } from '../../../test/helpers/time.js';
 
-export type * from '../type-extensions.js';
+export type * from '../type-extensions.ts';
 
 export default async (): Promise<Partial<NetworkHooks>> => ({
   newConnection: async <ChainTypeT extends ChainType | string>(

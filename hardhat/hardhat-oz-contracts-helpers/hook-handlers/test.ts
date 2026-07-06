@@ -18,7 +18,7 @@ export default async (): Promise<Partial<TestHooks>> => ({
     filePath: string,
     next: (nextContext: HookContext, filePath: string) => Promise<string | undefined>,
   ): Promise<string | undefined> => {
-    const hasProxies = fs.existsSync(path.join(context.config.paths.root, 'contracts/proxy/Proxy.sol'));
+    const hasProxies = fs.existsSync(path.join(context.config.paths.sources.solidity.at(0)!, 'proxy/Proxy.sol'));
     return hasProxies || !ignoredIfProxy.has(filePath) ? next(context, filePath) : Promise.resolve('ignored');
   },
 });

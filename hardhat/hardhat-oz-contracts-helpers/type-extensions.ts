@@ -2,7 +2,6 @@ import 'hardhat/types/network';
 
 import type { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/types';
 import type { BytesLike, Contract, TransactionReceipt } from 'ethers';
-import type { InteroperableAddress } from 'interoperable-addresses';
 
 type AddressLike = HardhatEthersSigner | Contract | string;
 
@@ -10,9 +9,9 @@ export interface Chain {
   namespace: string;
   reference: string;
   caip2: string;
-  erc7930: InteroperableAddress;
+  erc7930: string;
   toCaip10: (other: AddressLike) => string;
-  toErc7930: (other: AddressLike) => InteroperableAddress;
+  toErc7930: (other: AddressLike) => string;
 }
 
 export type ClockType<T> = { blockNumber: T; timestamp: T };
