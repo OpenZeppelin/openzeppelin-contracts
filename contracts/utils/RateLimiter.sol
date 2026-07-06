@@ -157,8 +157,10 @@ library RateLimiter {
      * of {updateSettings-struct-RateLimiter-RefillingBucket-uint48-uint208} when the replenishing rate is modified.
      */
     function sync(RefillingBucket storage self, bytes32 key) internal {
-        self.items[key].lastUsed = uint208(used(self, key));
-        self.items[key].lastTimepoint = Time.timestamp();
+        self.items[key] = RefillingBucketItem({
+            lastTimepoint: Time.timestamp(),
+            lastUsed: uint208(used(self, key))
+        });
     }
 
     // ================================================= SlidingWindow =================================================
