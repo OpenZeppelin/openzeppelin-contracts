@@ -1,10 +1,10 @@
 import type { HookContext, NetworkHooks } from 'hardhat/types/hooks';
 import type { ChainType, NetworkConnection } from 'hardhat/types/network';
 
-import { impersonate } from '../../../test/helpers/account.js';
-import { getLocalChain } from '../../../test/helpers/chains.js';
-import { getSlot, getAddressInSlot, setSlot } from '../../../test/helpers/storage.js';
-import { clock, clockFromReceipt, increaseBy, increaseTo, duration } from '../../../test/helpers/time.js';
+import { impersonate } from '../internal/account.js';
+import { format } from '../internal/chains.js';
+import { clock, clockFromReceipt, increaseBy, increaseTo, duration } from '../internal/time.js';
+import { getSlot, getAddressInSlot, setSlot } from '../internal/storage.js';
 
 export type * from '../type-extensions.ts';
 
@@ -16,7 +16,9 @@ export default async (): Promise<Partial<NetworkHooks>> => ({
     next(context).then(async connection =>
       Object.assign(connection, {
         helpers: {
-          chain: await getLocalChain(connection.provider),
+          chain: await connection.provider
+            .request({ method: 'eth_chainId' })
+            .then((chainId: any) => format({ chainType: 'eip155', reference: connection.ethers.toBigInt(chainId) })),
           impersonate: impersonate(connection),
           storage: {
             getSlot: getSlot(connection),

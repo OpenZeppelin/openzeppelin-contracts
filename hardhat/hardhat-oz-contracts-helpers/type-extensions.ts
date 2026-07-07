@@ -1,20 +1,9 @@
 import 'hardhat/types/network';
 
-import type { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/types';
-import type { BytesLike, Contract, TransactionReceipt } from 'ethers';
-
-type AddressLike = HardhatEthersSigner | Contract | string;
-
-export interface Chain {
-  namespace: string;
-  reference: string;
-  caip2: string;
-  erc7930: string;
-  toCaip10: (other: AddressLike) => string;
-  toErc7930: (other: AddressLike) => string;
-}
-
-export type ClockType<T> = { blockNumber: T; timestamp: T };
+import { impersonate } from './internal/account.js';
+import { format } from './internal/chains.js';
+import { clock, clockFromReceipt, increaseBy, increaseTo, duration } from './internal/time.js';
+import { getSlot, getAddressInSlot, setSlot } from './internal/storage.js';
 
 declare module 'hardhat/types/network' {
   interface NetworkConnection<
@@ -22,27 +11,19 @@ declare module 'hardhat/types/network' {
     ChainTypeT extends ChainType | string = DefaultChainType,
   > {
     helpers: {
-      chain: Chain;
-      impersonate: (account: AddressLike, balance?: bigint) => Promise<HardhatEthersSigner>;
+      chain: ReturnType<typeof format>;
+      impersonate: ReturnType<typeof impersonate>;
       storage: {
-        getSlot: (address: AddressLike, slot: BytesLike | string) => Promise<string>;
-        getAddressInSlot: (address: AddressLike, slot: BytesLike | string) => Promise<string>;
-        setSlot: (address: AddressLike, slot: BytesLike | string, value: AddressLike | string) => Promise<void>;
+        getSlot: ReturnType<typeof getSlot>;
+        getAddressInSlot: ReturnType<typeof getAddressInSlot>;
+        setSlot: ReturnType<typeof setSlot>;
       };
       time: {
-        clock: ClockType<() => Promise<bigint>>;
-        clockFromReceipt: ClockType<(receipt: TransactionReceipt) => Promise<bigint>>;
-        increaseBy: ClockType<(delay: bigint, mine?: boolean) => Promise<void>>;
-        increaseTo: ClockType<(to: bigint, mine?: boolean) => Promise<void>>;
-        duration: {
-          years: (value: bigint) => bigint;
-          weeks: (value: bigint) => bigint;
-          days: (value: bigint) => bigint;
-          hours: (value: bigint) => bigint;
-          minutes: (value: bigint) => bigint;
-          seconds: (value: bigint) => bigint;
-          millis: (value: bigint) => bigint;
-        };
+        clock: ReturnType<typeof clock>;
+        clockFromReceipt: ReturnType<typeof clockFromReceipt>;
+        increaseBy: ReturnType<typeof increaseBy>;
+        increaseTo: ReturnType<typeof increaseTo>;
+        duration: ReturnType<typeof duration>;
       };
     };
   }

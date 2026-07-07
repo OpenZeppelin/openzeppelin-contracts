@@ -49,8 +49,3 @@ export const CHAINS = mapValues(
   ),
   format,
 );
-
-export const getLocalChain = provider =>
-  provider
-    .send('eth_chainId', [])
-    .then(chainId => format({ namespace: 'eip155', reference: ethers.toBigInt(chainId) }));
