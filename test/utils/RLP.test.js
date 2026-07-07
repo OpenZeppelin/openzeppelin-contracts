@@ -138,11 +138,11 @@ describe('RLP', function () {
     await expect(this.mock.$decodeBytes32('0x820000')).to.eventually.equal(ethers.ZeroHash);
 
     // Invalid encodings
-    await expect(this.mock.$decodeUint256(ethers.encodeRlp(generators.bytes(33)))).to.be.revertedWithCustomError(
+    await expect(this.mock.$decodeBytes32(ethers.encodeRlp(generators.bytes(33)))).to.be.revertedWithCustomError(
       this.mock,
       'RLPInvalidEncoding',
     ); // ItemLength > 33
-    await expect(this.mock.$decodeUint256(ethers.encodeRlp([]))).to.be.revertedWithCustomError(
+    await expect(this.mock.$decodeBytes32(ethers.encodeRlp([]))).to.be.revertedWithCustomError(
       this.mock,
       'RLPInvalidEncoding',
     ); // ItemType.Data
