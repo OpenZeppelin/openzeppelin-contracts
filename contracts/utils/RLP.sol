@@ -453,11 +453,10 @@ library RLP {
                 return (1, strLength, ItemType.Data);
             } else {
                 // Case: Long string (>55 bytes)
-                uint256 lengthLength = prefix - SHORT_OFFSET - SHORT_THRESHOLD;
-
-                require(itemLength > 1, RLPInvalidEncoding());
+                uint256 lengthLength = prefix - SHORT_OFFSET - SHORT_THRESHOLD; // >=1
+                require(itemLength > lengthLength, RLPInvalidEncoding());
                 bytes32 lenChunk = item.load(1);
-                require(itemLength > lengthLength && bytes1(lenChunk) != 0x00, RLPInvalidEncoding());
+                require(bytes1(lenChunk) != 0x00, RLPInvalidEncoding());
 
                 uint256 len = uint256(lenChunk) >> (256 - 8 * lengthLength);
                 require(len > SHORT_THRESHOLD && itemLength - lengthLength > len, RLPInvalidEncoding());
@@ -473,11 +472,10 @@ library RLP {
                 return (1, listLength, ItemType.List);
             } else {
                 // Case: Long list
-                uint256 lengthLength = prefix - LONG_OFFSET - SHORT_THRESHOLD;
-
-                require(itemLength > 1, RLPInvalidEncoding());
+                uint256 lengthLength = prefix - LONG_OFFSET - SHORT_THRESHOLD; // >=1
+                require(itemLength > lengthLength, RLPInvalidEncoding());
                 bytes32 lenChunk = item.load(1);
-                require(itemLength > lengthLength && bytes1(lenChunk) != 0x00, RLPInvalidEncoding());
+                require(bytes1(lenChunk) != 0x00, RLPInvalidEncoding());
 
                 uint256 len = uint256(lenChunk) >> (256 - 8 * lengthLength);
                 require(len > SHORT_THRESHOLD && itemLength - lengthLength > len, RLPInvalidEncoding());
