@@ -184,6 +184,9 @@ function formatCmpMarkdown(rows) {
     { txt: 'Max', align: 'right' },
     { txt: '(+/-)', align: 'right' },
     { txt: '%', align: 'right' },
+    { txt: 'Median', align: 'right' },
+    { txt: '(+/-)', align: 'right' },
+    { txt: '%', align: 'right' },
     { txt: 'Avg', align: 'right' },
     { txt: '(+/-)', align: 'right' },
     { txt: '%', align: 'right' },
@@ -209,6 +212,7 @@ function formatCmpMarkdown(rows) {
           entry.method,
           ...formatCellMarkdown(entry.min),
           ...formatCellMarkdown(entry.max),
+          ...formatCellMarkdown(entry.median),
           ...formatCellMarkdown(entry.avg),
           '',
         ]
