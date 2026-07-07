@@ -98,14 +98,16 @@ describe('RLP', function () {
     await expect(this.mock.$decodeUint256('0x830004d2')).to.eventually.equal(1234n); // With leading zero
     await expect(this.mock.$decodeUint256('0x84000004d2')).to.eventually.equal(1234n); // With two leading zeros
 
-    // Invalid encodings
+    // Invalid encoding: encoded item length >33 bytes (>32 bytes of data)
     await expect(
       this.mock.$decodeUint256(ethers.encodeRlp(ethers.toBeHex(ethers.MaxUint256 + 1n))),
-    ).to.be.revertedWithCustomError(this.mock, 'RLPInvalidEncoding'); // ItemLength > 33
+    ).to.be.revertedWithCustomError(this.mock, 'RLPInvalidEncoding');
+
+    // Invalid encoding: encoded item type is list when data is expected
     await expect(this.mock.$decodeUint256(ethers.encodeRlp([]))).to.be.revertedWithCustomError(
       this.mock,
       'RLPInvalidEncoding',
-    ); // ItemType.Data
+    );
   });
 
   it('encode/decode bytes32', async function () {
@@ -137,15 +139,17 @@ describe('RLP', function () {
     // Encoding for two zeros (and nothing else)
     await expect(this.mock.$decodeBytes32('0x820000')).to.eventually.equal(ethers.ZeroHash);
 
-    // Invalid encodings
+    // Invalid encoding: encoded item length >33 bytes (>32 bytes of data)
     await expect(this.mock.$decodeBytes32(ethers.encodeRlp(generators.bytes(33)))).to.be.revertedWithCustomError(
       this.mock,
       'RLPInvalidEncoding',
-    ); // ItemLength > 33
+    );
+
+    // Invalid encoding: encoded item type is list when data is expected
     await expect(this.mock.$decodeBytes32(ethers.encodeRlp([]))).to.be.revertedWithCustomError(
       this.mock,
       'RLPInvalidEncoding',
-    ); // ItemType.Data
+    );
   });
 
   it('encode/decode empty byte', async function () {
