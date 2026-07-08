@@ -143,7 +143,7 @@ describe('RLP', function () {
     await expect(this.mock.$decodeBytes32('0x820000')).to.eventually.equal(ethers.ZeroHash);
 
     // Invalid encoding: encoded item length >33 bytes (>32 bytes of data)
-    await expect(this.mock.$decodeBytes32(ethers.encodeRlp(generators.bytes(33)))).to.be.revertedWithCustomError(
+    await expect(this.mock.$decodeBytes32(ethers.encodeRlp(random.bytes(33)))).to.be.revertedWithCustomError(
       this.mock,
       'RLPInvalidEncoding',
     );
