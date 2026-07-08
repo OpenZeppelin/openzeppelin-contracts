@@ -95,7 +95,7 @@ describe('RateLimiter', function () {
           await expect(this.mock.available(key2)).to.eventually.equal(CAPACITY - 42n);
         });
 
-        it('consume all capacity at one', async function () {
+        it('consume all capacity at once', async function () {
           await expect(this.mock.consume(CAPACITY)).to.not.be.reverted; // consume all capacity at once is allowed
 
           await expect(this.mock.state()).to.eventually.deep.equal([CAPACITY, 0n]);
@@ -197,7 +197,7 @@ describe('RateLimiter', function () {
           await expect(this.mock.available()).to.eventually.equal(CAPACITY);
         });
 
-        it('consume(0) is a no-op that returns true', async function () {
+        it('tryConsume(0) is a no-op that returns true', async function () {
           await this.mock.consume(42n);
 
           await expect(this.mock.state()).to.eventually.deep.equal([42n, CAPACITY - 42n]);
@@ -298,7 +298,7 @@ describe('RateLimiter', function () {
         await expect(this.mock.available()).to.eventually.equal(CAPACITY + refill(d1 + d2, CAPACITY * 2n, WINDOW));
       });
 
-      it('using  sync to mitigate updateSettings side effect', async function () {
+      it('using sync to mitigate updateSettings side effect', async function () {
         const d1 = 3n;
         const d2 = 4n;
 
@@ -503,7 +503,7 @@ describe('RateLimiter', function () {
           await expect(this.mock.available()).to.eventually.equal(CAPACITY);
         });
 
-        it('consume(0) is a no-op that returns true', async function () {
+        it('tryConsume(0) is a no-op that returns true', async function () {
           await this.mock.consume(42n);
 
           await expect(this.mock.state()).to.eventually.deep.equal([42n, CAPACITY - 42n]);
@@ -605,8 +605,8 @@ describe('RateLimiter', function () {
         await this.mock.consume(CAPACITY / 2n);
         await this.mock.reset();
 
-        expect(await this.mock.used()).to.equal(0n);
-        expect(await this.mock.available()).to.equal(CAPACITY);
+        await expect(this.mock.used()).to.eventually.equal(0n);
+        await expect(this.mock.available()).to.eventually.equal(CAPACITY);
       });
 
       it('window saturation prevents underflow when block.timestamp < window', async function () {
