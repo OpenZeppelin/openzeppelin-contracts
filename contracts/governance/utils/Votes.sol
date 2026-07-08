@@ -217,9 +217,9 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
      */
     function _checkpoints(
         address account,
-        uint32 pos
+        uint32 index
     ) internal view virtual returns (Checkpoints.Checkpoint208 memory) {
-        return _delegateCheckpoints[account].at(pos);
+        return _delegateCheckpoints[account].pos(index);
     }
 
     function _push(

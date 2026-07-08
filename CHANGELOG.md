@@ -1,5 +1,11 @@
 # Changelog
 
+### Breaking changes
+
+#### Custom error changes
+
+- Replace `GovernorQueueNotImplemented` with `GovernorProposalQueueingNotRequired` and `GovernorProposalQueueingFailed`. ([#6582](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6582))
+
 
 ## 5.6.1 (2026-02-27)
 
