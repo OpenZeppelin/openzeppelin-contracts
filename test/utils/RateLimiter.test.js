@@ -246,6 +246,39 @@ describe('RateLimiter', function () {
         await expect(this.mock.available()).to.eventually.equal(CAPACITY);
       });
 
+      it('used saturates to zero after a long idle', async function () {
+        await this.mock.consume(CAPACITY / 2n);
+        await time.increaseBy.timestamp(2n * WINDOW);
+
+        await expect(this.mock.state()).to.eventually.deep.equal([0n, CAPACITY]);
+        await expect(this.mock.used()).to.eventually.equal(0n);
+        await expect(this.mock.available()).to.eventually.equal(CAPACITY);
+      });
+
+      it('multiple consumes in the same block accumulate', async function () {
+        await batchInBlock([
+          () => this.mock.consume(100n),
+          () => this.mock.consume(200n),
+          () => this.mock.consume(50n),
+        ]);
+
+        // no time elapses between the three consumes; the entry's lastUsed accumulates to 350n
+        await expect(this.mock.state()).to.eventually.deep.equal([350n, CAPACITY - 350n]);
+        await expect(this.mock.used()).to.eventually.equal(350n);
+        await expect(this.mock.available()).to.eventually.equal(CAPACITY - 350n);
+      });
+
+      it('updateSettings with window=0 collapses refill to a single second', async function () {
+        // Math.max(window, 1) fallback makes the effective refill rate `capacity / 1` per second
+        await this.mock.updateSettings(0n, CAPACITY);
+        await this.mock.consume(CAPACITY);
+        await time.increaseBy.timestamp(1n);
+
+        await expect(this.mock.state()).to.eventually.deep.equal([0n, CAPACITY]);
+        await expect(this.mock.used()).to.eventually.equal(0n);
+        await expect(this.mock.available()).to.eventually.equal(CAPACITY);
+      });
+
       it('updateSettings side effect on usage', async function () {
         const d1 = 3n;
         const d2 = 4n;
@@ -492,6 +525,44 @@ describe('RateLimiter', function () {
 
         // step past the window
         await time.increaseBy.timestamp(WINDOW + 1n);
+
+        await expect(this.mock.state()).to.eventually.deep.equal([0n, CAPACITY]);
+        await expect(this.mock.used()).to.eventually.equal(0n);
+        await expect(this.mock.available()).to.eventually.equal(CAPACITY);
+      });
+
+      it('multiple consumes in the same block overwrite the checkpoint in place', async function () {
+        await batchInBlock([
+          () => this.mock.consume(100n),
+          () => this.mock.consume(200n),
+          () => this.mock.consume(50n),
+        ]);
+
+        // three pushes at the same timestamp collapse to a single checkpoint with cumulative 350n
+        await expect(this.mock.state()).to.eventually.deep.equal([350n, CAPACITY - 350n]);
+        await expect(this.mock.used()).to.eventually.equal(350n);
+        await expect(this.mock.available()).to.eventually.equal(CAPACITY - 350n);
+      });
+
+      it('consume after a full-window idle truncates cumulative history', async function () {
+        // With a limit above half of uint208 max, two consecutive full-limit consumes would overflow the
+        // uint208 cumulative counter if history were appended. The used_==0 reset truncates it instead.
+        const bigLimit = ((1n << 208n) - 1n) / 2n + 1n;
+
+        await this.mock.updateSettings(WINDOW, bigLimit);
+        await this.mock.consume(bigLimit);
+
+        await time.increaseBy.timestamp(WINDOW + 1n);
+
+        await expect(this.mock.consume(bigLimit)).to.not.be.reverted;
+        await expect(this.mock.used()).to.eventually.equal(bigLimit);
+      });
+
+      it('updateSettings with window=0 collapses window to a single second', async function () {
+        // Math.max(window, 1) fallback makes the cutoff `timestamp - 1`
+        await this.mock.updateSettings(0n, CAPACITY);
+        await this.mock.consume(42n);
+        await time.increaseBy.timestamp(2n);
 
         await expect(this.mock.state()).to.eventually.deep.equal([0n, CAPACITY]);
         await expect(this.mock.used()).to.eventually.equal(0n);
