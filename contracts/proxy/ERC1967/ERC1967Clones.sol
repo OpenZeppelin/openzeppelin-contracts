@@ -47,8 +47,8 @@ library ERC1967Clones {
      * 0x2F   | 3e          | RETURNDATACOPY   | success                    | [0...rds): returndata
      * 0x30   | 6036        | PUSH1 0x36       | 0x36 success               | [0...rds): returndata
      * 0x32   | 57          | JUMPI            |                            | [0...rds): returndata
-     * 0x33   | 5f          | PUSH0            | 0                          | [0...rds): returndata
-     * 0x34   | 3d          | RETURNDATASIZE   | rds 0                      | [0...rds): returndata
+     * 0x33   | 3d          | RETURNDATASIZE   | rds                        | [0...rds): returndata
+     * 0x34   | 5f          | PUSH0            | 0 rds                      | [0...rds): returndata
      * 0x35   | fd          | REVERT           |                            |
      * 0x36   | 5b          | JUMPDEST         |                            | [0...rds): returndata
      * 0x37   | 3d          | RETURNDATASIZE   | rds                        | [0...rds): returndata
@@ -80,6 +80,7 @@ library ERC1967Clones {
      * - 0x47: length of the deployment code, since the proxy code is just after the deployment code, that is also the offset of the proxy code
      * - 0x09: position of the ERC1967 implementation slot in the proxy code.
      */
+
     /**
      * @dev Deploys and returns the address of a minimal ERC-1967 proxy that delegates to `implementation`.
      *
@@ -108,13 +109,16 @@ library ERC1967Clones {
      */
     function clone(address implementation, uint256 value) internal returns (address instance) {
         require(address(this).balance >= value, Errors.InsufficientBalance(address(this).balance, value));
+        bytes32 implementationSlot = ERC1967Utils.IMPLEMENTATION_SLOT;
+        bytes32 topic1 = IERC1967.Upgraded.selector;
         assembly ("memory-safe") {
             // Set code in memory
             let ptr := mload(0x40)
-            mstore(add(ptr, 0x78), 0x3e2076cc3735a920a3ca505d382bbc545af43d5f5f3e6036575f3dfd5b3d5ff3)
-            mstore(add(ptr, 0x58), 0xa260095155f3365f5f375f5f365f7f360894a13ba1a3210667c828492db98dca)
-            mstore(add(ptr, 0x38), 0xd75a20ee27fd9adebab32041f755214dbc6bffa90cc0225b39da2e5c2d3b5f5f)
-            mstore(add(ptr, 0x18), 0x807fbc7c)
+            mstore(add(ptr, 0x78), 0x545af43d5f5f3e6036573d5ffd5b3d5ff3)
+            mstore(add(ptr, 0x67), implementationSlot)
+            mstore(add(ptr, 0x47), 0x5f5fa260095155f3365f5f375f5f365f7f)
+            mstore(add(ptr, 0x36), topic1)
+            mstore(add(ptr, 0x16), 0x807f)
             mstore(add(ptr, 0x14), implementation)
             mstore(ptr, 0x603a5f8160475f3973)
 
@@ -160,13 +164,16 @@ library ERC1967Clones {
         uint256 value
     ) internal returns (address instance) {
         require(address(this).balance >= value, Errors.InsufficientBalance(address(this).balance, value));
+        bytes32 implementationSlot = ERC1967Utils.IMPLEMENTATION_SLOT;
+        bytes32 topic1 = IERC1967.Upgraded.selector;
         assembly ("memory-safe") {
             // Set code in memory
             let ptr := mload(0x40)
-            mstore(add(ptr, 0x78), 0x3e2076cc3735a920a3ca505d382bbc545af43d5f5f3e6036575f3dfd5b3d5ff3)
-            mstore(add(ptr, 0x58), 0xa260095155f3365f5f375f5f365f7f360894a13ba1a3210667c828492db98dca)
-            mstore(add(ptr, 0x38), 0xd75a20ee27fd9adebab32041f755214dbc6bffa90cc0225b39da2e5c2d3b5f5f)
-            mstore(add(ptr, 0x18), 0x807fbc7c)
+            mstore(add(ptr, 0x78), 0x545af43d5f5f3e6036573d5ffd5b3d5ff3)
+            mstore(add(ptr, 0x67), implementationSlot)
+            mstore(add(ptr, 0x47), 0x5f5fa260095155f3365f5f375f5f365f7f)
+            mstore(add(ptr, 0x36), topic1)
+            mstore(add(ptr, 0x16), 0x807f)
             mstore(add(ptr, 0x14), implementation)
             mstore(ptr, 0x603a5f8160475f3973)
 
@@ -196,7 +203,7 @@ library ERC1967Clones {
         assembly ("memory-safe") {
             // Set code in memory
             let ptr := mload(0x40)
-            mstore(add(ptr, 0x78), 0x545af43d5f5f3e6036575f3dfd5b3d5ff3)
+            mstore(add(ptr, 0x78), 0x545af43d5f5f3e6036573d5ffd5b3d5ff3)
             mstore(add(ptr, 0x67), implementationSlot)
             mstore(add(ptr, 0x47), 0x5f5fa260095155f3365f5f375f5f365f7f)
             mstore(add(ptr, 0x36), topic1)
