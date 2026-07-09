@@ -34,7 +34,7 @@ abstract contract AccessControlEnumerable is IAccessControlEnumerable, AccessCon
      * for more information.
      */
     function getRoleMember(bytes32 role, uint256 index) public view virtual returns (address) {
-        return _roleMembers[role].at(index);
+        return _roleMembers[role].pos(index);
     }
 
     /**
