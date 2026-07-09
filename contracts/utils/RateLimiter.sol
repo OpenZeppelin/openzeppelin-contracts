@@ -13,7 +13,7 @@ import {Time} from "./types/Time.sol";
  * own storage:
  *
  * - {RefillingBucket}: a token bucket that refills linearly over time. The bucket starts full; each consumption
- *   draws from it and time refills it. Suitable when the protected resource regenerates continuously and bursts
+ *   draws from it, and it is refilled over time. Suitable when the protected resource regenerates continuously and bursts
  *   of size up to the bucket's capacity are allowed. Storage cost is constant regardless of consumption history.
  *
  * - {SlidingWindow}: a moving-window counter that caps the cumulative consumption over any `window`-second
