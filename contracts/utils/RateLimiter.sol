@@ -68,8 +68,8 @@ library RateLimiter {
      * {RefillingBucket} through the dedicated functions.
      */
     struct RefillingBucketItem {
-        uint208 lastUsed;
-        uint48 lastTimepoint;
+        uint208 _lastUsed;
+        uint48 _lastTimepoint;
     }
 
     /**
@@ -83,9 +83,9 @@ library RateLimiter {
      * {RefillingBucket} through the dedicated functions.
      */
     struct RefillingBucket {
-        uint208 capacity;
-        uint48 window;
-        mapping(bytes32 key => RefillingBucketItem) items;
+        uint208 _capacity;
+        uint48 _window;
+        mapping(bytes32 key => RefillingBucketItem) _items;
     }
 
     /**
@@ -96,10 +96,10 @@ library RateLimiter {
         RefillingBucket storage self,
         bytes32 key
     ) internal view returns (uint256 used_, uint256 available_) {
-        uint208 capacity_ = self.capacity; // cache
-        uint48 window_ = self.window; // cache
-        uint208 lastUsed_ = self.items[key].lastUsed; // cache
-        uint48 lastTimepoint_ = self.items[key].lastTimepoint; // cache
+        uint208 capacity_ = self._capacity; // cache
+        uint48 window_ = self._window; // cache
+        uint208 lastUsed_ = self._items[key]._lastUsed; // cache
+        uint48 lastTimepoint_ = self._items[key]._lastTimepoint; // cache
 
         used_ = Math.saturatingSub(
             lastUsed_,
@@ -134,9 +134,9 @@ library RateLimiter {
         }
         (uint256 used_, uint256 available_) = state(self, key);
         if (quantity <= available_) {
-            self.items[key] = RefillingBucketItem({
-                lastTimepoint: Time.timestamp(),
-                lastUsed: SafeCast.toUint208(used_ + quantity)
+            self._items[key] = RefillingBucketItem({
+                _lastTimepoint: Time.timestamp(),
+                _lastUsed: SafeCast.toUint208(used_ + quantity)
             });
             return true;
         } else {
@@ -156,7 +156,7 @@ library RateLimiter {
      * @dev Resets the `key` bucket to a fully-available state. Other entries are unaffected.
      */
     function reset(RefillingBucket storage self, bytes32 key) internal {
-        delete self.items[key];
+        delete self._items[key];
     }
 
     /**
@@ -170,8 +170,8 @@ library RateLimiter {
      * settings. There is no mechanism to automatically sync all the keys in a single operation.
      */
     function updateSettings(RefillingBucket storage self, uint48 newWindow, uint208 newCapacity) internal {
-        self.capacity = newCapacity;
-        self.window = newWindow;
+        self._capacity = newCapacity;
+        self._window = newWindow;
     }
 
     /**
@@ -181,7 +181,7 @@ library RateLimiter {
      * modified. It must be called per key; there is no mechanism to sync all entries at once.
      */
     function sync(RefillingBucket storage self, bytes32 key) internal {
-        self.items[key] = RefillingBucketItem({lastTimepoint: Time.timestamp(), lastUsed: uint208(used(self, key))});
+        self._items[key] = RefillingBucketItem({_lastTimepoint: Time.timestamp(), _lastUsed: uint208(used(self, key))});
     }
 
     // ================================================= SlidingWindow =================================================
@@ -206,9 +206,9 @@ library RateLimiter {
      * {SlidingWindow} through the dedicated functions.
      */
     struct SlidingWindow {
-        uint208 limit;
-        uint48 window;
-        mapping(bytes32 key => Checkpoints.Trace208) items;
+        uint208 _limit;
+        uint48 _window;
+        mapping(bytes32 key => Checkpoints.Trace208) _items;
     }
 
     /**
@@ -216,12 +216,12 @@ library RateLimiter {
      * cumulative consumption over the last `window` seconds.
      */
     function state(SlidingWindow storage self, bytes32 key) internal view returns (uint256 used_, uint256 available_) {
-        uint208 limit_ = self.limit; // cache
-        uint48 window_ = self.window; // cache
+        uint208 limit_ = self._limit; // cache
+        uint48 window_ = self._window; // cache
 
         used_ = Math.saturatingSub(
-            self.items[key].latest(),
-            self.items[key].upperLookupRecent(uint48(Math.saturatingSub(Time.timestamp(), Math.max(window_, 1))))
+            self._items[key].latest(),
+            self._items[key].upperLookupRecent(uint48(Math.saturatingSub(Time.timestamp(), Math.max(window_, 1))))
         );
         available_ = Math.saturatingSub(limit_, used_);
     }
@@ -257,7 +257,7 @@ library RateLimiter {
             if (used_ == 0) {
                 reset(self, key);
             }
-            self.items[key].push(Time.timestamp(), SafeCast.toUint208(self.items[key].latest() + quantity));
+            self._items[key].push(Time.timestamp(), SafeCast.toUint208(self._items[key].latest() + quantity));
             return true;
         } else {
             return false;
@@ -283,7 +283,7 @@ library RateLimiter {
      * {tryConsume-struct-RateLimiter-SlidingWindow-bytes32-uint256} operations are cheaper from reusing "dirty" slots.
      */
     function reset(SlidingWindow storage self, bytes32 key) internal {
-        Checkpoints.Checkpoint208[] storage trace = self.items[key]._checkpoints;
+        Checkpoints.Checkpoint208[] storage trace = self._items[key]._checkpoints;
         assembly ("memory-safe") {
             sstore(trace.slot, 0)
         }
@@ -297,7 +297,7 @@ library RateLimiter {
      * conversely causes older consumptions to drop out sooner.
      */
     function updateSettings(SlidingWindow storage self, uint48 newWindow, uint208 newLimit) internal {
-        self.limit = newLimit;
-        self.window = newWindow;
+        self._limit = newLimit;
+        self._window = newWindow;
     }
 }
