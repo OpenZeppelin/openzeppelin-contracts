@@ -14,7 +14,7 @@ import {Time} from "./types/Time.sol";
  *
  * - {RefillingBucket}: a token bucket that refills linearly over time. The bucket starts full; each consumption
  *   draws from it and time refills it. Suitable when the protected resource regenerates continuously and bursts
- *   of size up to the bucket's capacity are acceptable. Storage cost is constant regardless of consumption history.
+ *   of size up to the bucket's capacity are allowed. Storage cost is constant regardless of consumption history.
  *
  * - {SlidingWindow}: a moving-window counter that caps the cumulative consumption over any `window`-second
  *   interval. Suitable when a strict cap on usage within a rolling window is required. Each successful consumption
