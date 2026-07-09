@@ -63,6 +63,9 @@ library RateLimiter {
      * `lastUsed` and `lastTimepoint` record the used quantity and the time it was recorded at the entry's last
      * update. The current state is reconstructed lazily from these two fields on read (see {state}), keeping storage
      * cost constant at one packed slot per entry regardless of how many times the entry has been consumed.
+     *
+     * WARNING: Manually updating any of the parameters may result in incorrect behavior. Only interact with the
+     * {RefillingBucket} through the dedicated functions.
      */
     struct RefillingBucketItem {
         uint208 lastUsed;
@@ -75,6 +78,9 @@ library RateLimiter {
      * `capacity` and `window` are shared by every entry: each bucket has a maximum `capacity` and refills at a rate
      * of `capacity / window` per second, so that an empty bucket fully refills in `window` seconds. `items` holds the
      * individual buckets, each tracking its own consumption under its `key` (see {RefillingBucketItem}).
+     *
+     * WARNING: Manually updating any of the parameters may result in incorrect behavior. Only interact with the
+     * {RefillingBucket} through the dedicated functions.
      */
     struct RefillingBucket {
         uint208 capacity;
@@ -195,6 +201,9 @@ library RateLimiter {
      * overwritten in place. The storage footprint of an entry grows with the number of
      * {tryConsume-struct-RateLimiter-SlidingWindow-bytes32-uint256} calls on that `key` that succeed with a non-zero
      * `quantity`.
+     *
+     * WARNING: Manually updating any of the parameters may result in incorrect behavior. Only interact with the
+     * {SlidingWindow} through the dedicated functions.
      */
     struct SlidingWindow {
         uint208 limit;
