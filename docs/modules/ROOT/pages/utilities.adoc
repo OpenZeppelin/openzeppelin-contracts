@@ -417,7 +417,7 @@ Users can leverage this standard using the xref:api:utils.adoc#SlotDerivation[`S
 [source,solidity]
 ----
 using SlotDerivation for bytes32;
-string private constant _NAMESPACE = "<namespace>" // eg. example.main
+string private constant _NAMESPACE = "<namespace>"; // e.g. example.main
 
 function erc7201Pointer() internal view returns (bytes32) {
     return _NAMESPACE.erc7201Slot();
