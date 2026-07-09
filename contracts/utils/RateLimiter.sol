@@ -18,7 +18,7 @@ import {Time} from "./types/Time.sol";
  *
  * - {SlidingWindow}: a moving-window counter that caps the cumulative consumption over any `window`-second
  *   interval. Suitable when a strict cap on usage within a rolling window is required. Each successful consumption
- *   appends a checkpoint, making it a most expensive option with a larger storage footprint.
+ *   appends a checkpoint, making it a more expensive option with a larger storage footprint.
  *
  * === Limiter vs. entries ===
  *
