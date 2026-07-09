@@ -244,10 +244,10 @@ library RateLimiter {
             return true;
         }
         (uint256 used_, uint256 available_) = state(self, key);
-        if (used_ == 0) {
-            reset(self, key);
-        }
         if (quantity <= available_) {
+            if (used_ == 0) {
+                reset(self, key);
+            }
             self.items[key].push(Time.timestamp(), SafeCast.toUint208(self.items[key].latest() + quantity));
             return true;
         } else {
