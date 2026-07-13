@@ -547,7 +547,7 @@ describe('RateLimiter', function () {
       it('consume after a full-window idle truncates cumulative history', async function () {
         // With a limit above half of uint208 max, two consecutive full-limit consumes would overflow the
         // uint208 cumulative counter if history were appended. The used_==0 reset truncates it instead.
-        const bigLimit = ((1n << 208n) - 1n) / 2n + 1n;
+        const bigLimit = 1n << 207n;
 
         await this.mock.updateSettings(WINDOW, bigLimit);
         await this.mock.consume(bigLimit);
