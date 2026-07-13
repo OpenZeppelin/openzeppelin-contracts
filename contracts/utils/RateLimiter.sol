@@ -91,6 +91,9 @@ library RateLimiter {
     /**
      * @dev Returns the current `used` and `available` quantities for the `key` bucket, accounting for the time-based
      * refill that has accrued since that entry's last update.
+     *
+     * NOTE: A `window` of 0 is treated as 1 second in the refill computation: the effective refill rate becomes
+     * `capacity` per second, and an uninitialized limiter (`capacity = window = 0`) reports as an empty bucket.
      */
     function state(
         RefillingBucket storage self,
@@ -214,6 +217,9 @@ library RateLimiter {
     /**
      * @dev Returns the current `used` and `available` quantities for the `key` counter, computed as that entry's
      * cumulative consumption over the last `window` seconds.
+     *
+     * NOTE: A `window` of 0 is treated as 1 second in the rolling-window lookup, and an uninitialized limiter
+     * (`limit = window = 0`) reports as a counter with no available quantity.
      */
     function state(SlidingWindow storage self, bytes32 key) internal view returns (uint256 used_, uint256 available_) {
         uint208 limit_ = self._limit; // cache
