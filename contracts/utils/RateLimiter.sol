@@ -220,15 +220,13 @@ library RateLimiter {
      * (`limit = window = 0`) reports as a counter with no available quantity.
      */
     function state(SlidingWindow storage self, bytes32 key) internal view returns (uint256 used_, uint256 available_) {
-        uint208 limit_ = self._limit; // cache
-        uint48 window_ = self._window; // cache
         Checkpoints.Trace208 storage item_ = self._items[key]; // cache
 
         used_ = Math.saturatingSub(
             item_.latest(),
-            item_.upperLookupRecent(uint48(Math.saturatingSub(Time.timestamp(), Math.max(window_, 1))))
+            item_.upperLookupRecent(uint48(Math.saturatingSub(Time.timestamp(), Math.max(self._window, 1))))
         );
-        available_ = Math.saturatingSub(limit_, used_);
+        available_ = Math.saturatingSub(self._limit, used_);
     }
 
     /**
