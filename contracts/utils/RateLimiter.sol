@@ -43,7 +43,7 @@ import {Time} from "./types/Time.sol";
  * RateLimiter.RefillingBucket private _rateLimiter;
  *
  * function withdraw(uint256 amount) external {
- *     _rateLimiter.consume(bytes32(bytes20(msg.sender)), amount);
+ *     _rateLimiter.consume(bytes32(uint256(uint160(msg.sender))), amount);
  *     // ...
  * }
  * ```
