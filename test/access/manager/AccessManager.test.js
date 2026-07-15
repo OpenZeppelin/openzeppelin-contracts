@@ -2392,6 +2392,35 @@ describe('AccessManager', function () {
             });
           });
 
+          [
+            { name: 'grant', method: 'grantRole(uint64,address,uint32)' },
+            { name: 'revoke', method: 'revokeRole(uint64,address)' },
+          ].forEach(({ name, method }) => {
+            describe(`when caller is a role admin (${name})`, function () {
+              it('succeeds', async function () {
+                this.method = this.manager.interface.getFunction(method);
+                this.caller = this.roles.SOME_ADMIN.members[0];
+                await this.manager.$_grantRole(this.roles.SOME_ADMIN.id, this.caller, 0, 1); // nonzero execution delay
+                await this.manager.$_grantRole(this.roles.SOME_ADMIN.id, this.other, 0, 1); // nonzero execution delay
+                this.calldata = this.manager.interface.encodeFunctionData(
+                  this.method,
+                  name == 'grant'
+                    ? [this.roles.SOME.id, ethers.ZeroAddress, 0]
+                    : [this.roles.SOME.id, ethers.ZeroAddress],
+                );
+                const { schedule } = await prepareOperation(this.manager, {
+                  caller: this.caller,
+                  target: this.manager,
+                  calldata: this.calldata,
+                  delay: this.scheduleIn,
+                });
+                await schedule();
+
+                await this.manager.connect(this.other).cancel(this.caller, this.manager, this.calldata);
+              });
+            });
+          });
+
           describe('when caller is any other account', function () {
             it('reverts as AccessManagerUnauthorizedCancel', async function () {
               await expect(this.manager.connect(this.other).cancel(this.caller, this.target, this.calldata))
