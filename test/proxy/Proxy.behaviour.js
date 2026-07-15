@@ -192,8 +192,10 @@ export function shouldBehaveLikeProxy({ allowUninitialized = false, allowNonCont
         this.initializeData = this.implementation.interface.encodeFunctionData('reverts');
       });
 
-      it('reverts', async function () {
-        await expect(this.createProxy(this.implementation, this.initializeData)).to.be.revert(this.ethers);
+      it('bubbles up the revert reason from the implementation', async function () {
+        await expect(this.createProxy(this.implementation, this.initializeData)).to.be.revertedWith(
+          'DummyImplementation reverted',
+        );
       });
     });
   });

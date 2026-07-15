@@ -59,7 +59,7 @@ runs:
     # Node & npm setup
     - name: Install Node (${{ steps.versions.outputs.node }})
       if: inputs.node != 'off'
-      uses: actions/setup-node@v6
+      uses: actions/setup-node@v7
       with:
         node-version: ${{ steps.versions.outputs.node }}
     - name: Try fetch node modules from cache

@@ -26,6 +26,7 @@ async function generateFromTemplate(file, template, outputPrefix = '', lint = fa
     (await import(template)).default.trimEnd(),
   );
 
+  fs.mkdirSync(path.dirname(output), { recursive: true });
   fs.writeFileSync(output, content);
   lint && cp.execFileSync('prettier', ['--write', output]);
 }
