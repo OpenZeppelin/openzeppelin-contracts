@@ -45,7 +45,7 @@
 
 #### Governance 
 
-- `Governor`: Set strict enforcement of the expected proposal state depending on `proposalNeedsQueuing` when calling `execute`. ([#6386](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6386))
+- `Governor`: Strictly enforce the expected proposal state depending on `proposalNeedsQueuing` when calling `execute`. ([#6386](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6386))
 - `GovernorCrosschain`: Add governor module that facilitates the execution of crosschain operations through CrosschainRemoteExecutors and ERC-7786 gateways. ([#6272](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6272))
 
 #### Token
