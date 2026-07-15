@@ -5,8 +5,6 @@
 
 ### Breaking changes
 
-#### Custom error changes
-
 - `Governor` and `IGovernor`: Replace `GovernorQueueNotImplemented` with `GovernorProposalQueueingNotRequired` and `GovernorProposalQueueingFailed`. ([#6582](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6582))
 
 ### Deprecations
