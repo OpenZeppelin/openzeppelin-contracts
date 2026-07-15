@@ -7,7 +7,7 @@
 
 #### Custom error changes
 
-- Replace `GovernorQueueNotImplemented` with `GovernorProposalQueueingNotRequired` and `GovernorProposalQueueingFailed`. ([#6582](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6582))
+- `Governor` and `IGovernor`: Replace `GovernorQueueNotImplemented` with `GovernorProposalQueueingNotRequired` and `GovernorProposalQueueingFailed`. ([#6582](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6582))
 
 ### Deprecations
 
@@ -24,31 +24,31 @@
 - `RateLimiter`: Add a library that provides primitives for limiting the rate at which an action can be performed, with two complementary strategies: a refilling token bucket and a sliding window counter. ([#6490](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6490))
 - `SimulateCall`: Add a new call simulation utilities that allow inspecting return data from contract calls by executing them in a non-mutating, revert-based context. ([#6290](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6290))
 
-### Access
+#### Access
 
-- `AccessManager`: treat `setAuthority` differently in `canCall` to prevent bypassing the `updateAuthority` security using an `execute`. ([#6388](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6388))
+- `AccessManager`: Treat `setAuthority` differently in `canCall` to prevent bypassing the `updateAuthority` security using an `execute`. ([#6388](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6388))
 
 #### Account
 
 - `AccountERC7579Hooked`: Do not revert if hook checks fail during the hook module uninstallation. ([#6390](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6390))
 - `ERC4337Utils`, `IERC4337`: Drop the `draft-` prefix from the file names now that ERC-4337 is finalized. Imports must be updated from `account/utils/draft-ERC4337Utils.sol` to `account/utils/ERC4337Utils.sol` and from `interfaces/draft-IERC4337.sol` to `interfaces/IERC4337.sol`. ([#6581](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6581))
 - `Paymaster`: Add a simple ERC-4337 paymaster implementation with minimal logic. ([#6576](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6576))
-- `PaymasterERC20`: Extension of `Paymaster` that sponsors user operations against payment in ERC-20 tokens. ([#6576](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6576))
+- `PaymasterERC20`: Add extension of `Paymaster` that sponsors user operations against payment in ERC-20 tokens. ([#6576](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6576))
 - `PaymasterERC20Guarantor`: Add extension of `PaymasterERC20` that enables third parties to guarantee user operations by prefunding gas costs upfront, with repayment handling for successful operations. ([#6576](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6576))
-- `PaymasterERC721Owner`: Extension of `Paymaster` that approves sponsoring of user operation based on ownership of an ERC-721 NFT. ([#6576](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6576))
-- `PaymasterSigner`: Extension of `Paymaster` that approves sponsoring of user operation based on a cryptographic signature verified by the paymaster. ([#6576](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6576))
+- `PaymasterERC721Owner`: Add extension of `Paymaster` that approves sponsoring of user operation based on ownership of an ERC-721 NFT. ([#6576](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6576))
+- `PaymasterSigner`: Add extension of `Paymaster` that approves sponsoring of user operation based on a cryptographic signature verified by the paymaster. ([#6576](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6576))
 
 #### Cross-chain
 
-- Rename `BridgeERC20Core` to `BridgeFungible` ([#6328](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6328))
+- `BridgeERC20Core`: Rename `BridgeERC20Core` to `BridgeFungible`. ([#6328](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6328))
 - `BridgeNonFungibleCore` and `BridgeERC721`: Added bridge contracts to handle crosschain movements of ERC-721 tokens. ([#6259](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6259))
 - `BridgeMultiToken` and `BridgeERC1155`: Added bridge contracts to handle crosschain movements of ERC-1155 tokens. ([#6281](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6281))
 - `CrosschainRemoteExecutor`: Add a new executor contract that relays transaction from a controller on a remote chain. ([#6272](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6272))
 
 #### Governance 
 
-- `Governor`: Strict enforcement of the expected proposal state depending on `proposalNeedsQueuing` when calling `execute`. ([#6386](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6386))
-- `GovernorCrosschain`: Governor module that facilitates the execution of crosschain operations through CrosschainRemoteExecutors and ERC-7786 gateways. ([#6272](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6272))
+- `Governor`: Set strict enforcement of the expected proposal state depending on `proposalNeedsQueuing` when calling `execute`. ([#6386](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6386))
+- `GovernorCrosschain`: Add governor module that facilitates the execution of crosschain operations through CrosschainRemoteExecutors and ERC-7786 gateways. ([#6272](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6272))
 
 #### Token
 
@@ -67,7 +67,7 @@
 - `ERC2771Forwarder`: Revert the entire atomic batch if a call with value fails. ([#6391](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6391))
 - `ERC7913WebAuthnVerifier`: Add an internal `_requireUV` function that can be overridden to disable the UV check ([#6596](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6596))
 - `InteroperableAddress`: Fix overflow in the parsing functions that caused silent misparse of large interoperable addresses. ([#6372](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6372))
-- `InteroperableAddress`: reject inputs with both chain reference and addresses empty. ([#6331](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6331))
+- `InteroperableAddress`: Reject inputs with both chain reference and addresses empty. ([#6331](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6331))
 - `Memory`: Add a `isReserved(Slice)` function that checks if the memory occupied by the slice is reserved (i.e. before the free memory pointer). ([#6302](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6302))
 - `Memory`: Remove the `asBytes32` and `asPointer` function to reduce the risk of mistakes when manipulating memory pointers. ([#6348](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6348))
 - `RLP`: Perform a memory copy when decoding `bytes` objects containing a single byte instead of returning a reference to the input. ([#6303](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6303))
