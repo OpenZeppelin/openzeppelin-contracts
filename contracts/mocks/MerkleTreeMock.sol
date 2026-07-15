@@ -52,7 +52,7 @@ contract MerkleTreeMock {
     }
 
     // Non-commutative hashing variants using Hashes.efficientKeccak256.
-    // efficientKeccak256(a, b) = keccak256(abi.encode(a, b)) — NOT sorted,
+    // efficientKeccak256(a, b) = keccak256(abi.encode(a, b)) without sorting,
     // so H(a,b) != H(b,a). This allows testing that MerkleTree correctly
     // preserves insertion order when a non-commutative hash function is used.
 

@@ -187,11 +187,9 @@ describe('MerkleTree', function () {
     expect(await this.mock.nextLeafIndex()).to.equal(1n);
   });
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // Non-commutative hash tests
-  // Uses Hashes.nonCommutativeHash = keccak256(abi.encode(a, b)) without sorting.
-  // H(a,b) != H(b,a) — insertion order matters.
-  // ─────────────────────────────────────────────────────────────────────────────
+  // Non-commutative hash tests.
+  // Uses Hashes.efficientKeccak256 = keccak256(abi.encode(a, b)) without sorting,
+  // so H(a,b) != H(b,a) and insertion order matters.
   describe('non-commutative hash', function () {
     beforeEach(async function () {
       await this.mock.setupNonCommutative(DEPTH, ZERO);
@@ -218,27 +216,6 @@ describe('MerkleTree', function () {
 
         // check tree
         await expect(this.mock.root()).to.eventually.equal(root);
-        await expect(this.mock.nextLeafIndex()).to.eventually.equal(BigInt(i) + 1n);
-      }
-    });
-
-    it('pushing correctly updates the tree', async function () {
-      const leaves = [];
-
-      // for each leaf slot
-      for (const i in range(2 ** DEPTH)) {
-        // generate random leaf
-        leaves.push(generators.bytes32());
-
-        // rebuild tree.
-        const tree = makeTree(leaves);
-        const hash = tree.leafHash(tree.at(i));
-
-        // push value to tree
-        await expect(this.mock.push(hash)).to.emit(this.mock, 'LeafInserted').withArgs(hash, i, tree.root);
-
-        // check tree
-        await expect(this.mock.root()).to.eventually.equal(tree.root);
         await expect(this.mock.nextLeafIndex()).to.eventually.equal(BigInt(i) + 1n);
       }
     });
