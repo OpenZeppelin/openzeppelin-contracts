@@ -55,7 +55,7 @@
 
 #### Cross-chain
 
-- `BridgeERC20Core`: Rename `BridgeERC20Core` to `BridgeFungible`. ([#6328](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6328))
+- `BridgeERC20`: Rename `BridgeERC20` to `BridgeFungible`. ([#6328](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6328))
 - `BridgeNonFungible` and `BridgeERC721`: Added bridge contracts to handle crosschain movements of ERC-721 tokens. ([#6259](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6259))
 - `BridgeMultiToken` and `BridgeERC1155`: Added bridge contracts to handle crosschain movements of ERC-1155 tokens. ([#6281](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6281))
 - `CrosschainRemoteExecutor`: Add a new executor contract that relays transaction from a controller on a remote chain. ([#6272](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6272))
