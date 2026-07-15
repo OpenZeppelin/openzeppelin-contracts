@@ -234,10 +234,10 @@ contract MyContract {
     using SignedMath for int256;
 
     function tryOperations(uint256 a, uint256 b) internal pure {
-        (bool succeededAdd, uint256 resultAdd) = x.tryAdd(y);
-        (bool succeededSub, uint256 resultSub) = x.trySub(y);
-        (bool succeededMul, uint256 resultMul) = x.tryMul(y);
-        (bool succeededDiv, uint256 resultDiv) = x.tryDiv(y);
+        (bool succeededAdd, uint256 resultAdd) = a.tryAdd(b);
+        (bool succeededSub, uint256 resultSub) = a.trySub(b);
+        (bool succeededMul, uint256 resultMul) = a.tryMul(b);
+        (bool succeededDiv, uint256 resultDiv) = a.tryDiv(b);
         // ...
     }
 
@@ -417,7 +417,7 @@ Users can leverage this standard using the xref:api:utils.adoc#SlotDerivation[`S
 [source,solidity]
 ----
 using SlotDerivation for bytes32;
-string private constant _NAMESPACE = "<namespace>" // eg. example.main
+string private constant _NAMESPACE = "<namespace>"; // e.g. example.main
 
 function erc7201Pointer() internal view returns (bytes32) {
     return _NAMESPACE.erc7201Slot();
