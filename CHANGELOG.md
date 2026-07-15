@@ -63,7 +63,7 @@
 - `Array`: Reduce reliance on recursion to prevent stack overflow and support larger arrays. ([#6324](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6324))
 - `DoubleEndedQueue`: Add `values(deque, start, end)` to return a slice of the queue as an array, mirroring the paginated `values` accessor in `EnumerableSet`. Out-of-bound values for `start` and `end` are clamped to the queue length. ([#6522](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6522))
 - `ERC2771Forwarder`: Revert the entire atomic batch if a call with value fails. ([#6391](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6391))
-- `ERC7913WebAuthnVerifier`: Add an internal `_requireUV` function that can be overridden to disable the UV check ([#6596](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6596))
+- `ERC7913WebAuthnVerifier`: Add an internal `_requireUV` function that can be overridden to disable the UV check. ([#6596](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6596))
 - `InteroperableAddress`: Fix overflow in the parsing functions that caused silent misparse of large interoperable addresses. ([#6372](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6372))
 - `InteroperableAddress`: Reject inputs with both chain reference and addresses empty. ([#6331](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6331))
 - `Memory`: Add a `isReserved(Slice)` function that checks if the memory occupied by the slice is reserved (i.e. before the free memory pointer). ([#6302](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6302))
