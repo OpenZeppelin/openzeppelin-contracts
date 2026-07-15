@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.20;
 
-import {IERC20, IERC20Metadata, ERC20} from "../ERC20.sol";
+import {IERC20, ERC20} from "../ERC20.sol";
 import {SafeERC20} from "../utils/SafeERC20.sol";
 import {Math} from "../../../utils/math/Math.sol";
 

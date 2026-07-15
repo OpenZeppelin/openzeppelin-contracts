@@ -27,6 +27,7 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {Base58}: On-chain base58 encoding and decoding.
  * {Base64}: On-chain base64 and base64URL encoding according to https://datatracker.ietf.org/doc/html/rfc4648[RFC-4648].
  * {Blockhash}: A library for accessing historical block hashes beyond the standard 256 block limit utilizing EIP-2935's historical blockhash functionality.
+ * {BlockHeader}: A library for parsing and verifying RLP-encoded block headers.
  * {Bytes}: Common operations on bytes objects.
  * {CAIP2}, {CAIP10}: Libraries for formatting and parsing CAIP-2 and CAIP-10 identifiers.
  * {Calldata}: Helpers for manipulating calldata.
@@ -41,6 +42,7 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {Multicall}: Abstract contract with a utility to allow batching together multiple calls in a single transaction. Useful for allowing EOAs to perform multiple operations at once.
  * {Packing}: A library for packing and unpacking multiple values into bytes32.
  * {Panic}: A library to revert with https://docs.soliditylang.org/en/v0.8.20/control-structures.html#panic-via-assert-and-error-via-require[Solidity panic codes].
+ * {RateLimiter}: A library that provides primitives for limiting the rate at which an action can be performed, using a refilling token bucket or a sliding window counter.
  * {RelayedCall}: A library for performing calls that use minimal and predictable relayers to hide the sender.
  * {RLP}: Library for encoding and decoding data in Ethereum's Recursive Length Prefix format.
  * {ShortStrings}: Library to encode (and decode) short strings into (or from) a single bytes32 slot for optimizing costs. Short strings are limited to 31 characters.
@@ -120,6 +122,8 @@ Ethereum contracts have no native concept of an interface, so applications must 
 
 {{Blockhash}}
 
+{{BlockHeader}}
+
 {{Bytes}}
 
 {{CAIP10}}
@@ -149,6 +153,8 @@ Ethereum contracts have no native concept of an interface, so applications must 
 {{Packing}}
 
 {{Panic}}
+
+{{RateLimiter}}
 
 {{RelayedCall}}
 
