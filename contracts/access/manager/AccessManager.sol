@@ -719,7 +719,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     /**
      * @dev Returns true if a scheduled operation can be canceled by the caller.
      */
-    function _canCancel(address caller, address target, bytes calldata data) internal view returns (bool) {
+    function _canCancel(address caller, address target, bytes calldata data) internal view virtual returns (bool) {
         address msgsender = _msgSender();
 
         // caller can cancel if they are the msg.sender of the scheduled operation
@@ -727,17 +727,17 @@ contract AccessManager is Context, Multicall, IAccessManager {
             return true;
         }
 
-        // admins can cancel any operation
+        // admins can cancel any operation, and guardians of the target function's role can cancel it
         (bool isAdmin, ) = hasRole(ADMIN_ROLE, msgsender);
         (bool isGuardian, ) = hasRole(getRoleGuardian(getTargetFunctionRole(target, _checkSelector(data))), msgsender);
         if (isAdmin || isGuardian) {
             return true;
         }
 
-        // if the target of the call is this AccessManager and the call data matches an admin-restricted function, then the caller needs to be a guardian of the required role to cancel.
+        // if the target is this AccessManager and the call matches an admin-restricted function, allow members
+        // of the admin role returned by _getAdminRestrictions to cancel. ADMIN_ROLE was already checked above.
         if (target == address(this)) {
             (bool adminRestricted, uint64 roleId, ) = _getAdminRestrictions(data);
-            // Note: ADMIN_ROLE was already checked and can be skipped.
             if (adminRestricted && roleId != ADMIN_ROLE) {
                 (bool inRole, ) = hasRole(roleId, msgsender);
                 return inRole;
