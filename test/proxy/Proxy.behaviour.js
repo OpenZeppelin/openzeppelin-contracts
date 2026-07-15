@@ -192,8 +192,10 @@ module.exports = function shouldBehaveLikeProxy({ allowUninitialized = false, al
         this.initializeData = this.implementation.interface.encodeFunctionData('reverts');
       });
 
-      it('reverts', async function () {
-        await expect(this.createProxy(this.implementation, this.initializeData)).to.be.reverted;
+      it('bubbles up the revert reason from the implementation', async function () {
+        await expect(this.createProxy(this.implementation, this.initializeData)).to.be.revertedWith(
+          'DummyImplementation reverted',
+        );
       });
     });
   });

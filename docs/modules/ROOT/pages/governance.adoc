@@ -111,11 +111,11 @@ First we get all the parameters necessary for the proposal action.
 
 ```javascript
 const tokenAddress = ...;
-const token = await ethers.getContractAt(‘ERC20’, tokenAddress);
+const token = await ethers.getContractAt("ERC20", tokenAddress);
 
 const teamAddress = ...;
 const grantAmount = ...;
-const transferCalldata = token.interface.encodeFunctionData(‘transfer’, [teamAddress, grantAmount]);
+const transferCalldata = token.interface.encodeFunctionData("transfer", [teamAddress, grantAmount]);
 ```
 
 Now we are ready to call the propose function of the Governor. Note that we don’t pass in one array of actions, but instead three arrays corresponding to the list of targets, the list of values, and the list of calldatas. In this case it’s a single action, so it’s simple:
@@ -125,7 +125,7 @@ await governor.propose(
   [tokenAddress],
   [0],
   [transferCalldata],
-  “Proposal #1: Give grant to team”,
+  "Proposal #1: Give grant to team",
 );
 ```
 
@@ -152,7 +152,7 @@ If a timelock was set up, the first step to execution is queueing. You will noti
 To queue, we call the queue function:
 
 ```javascript
-const descriptionHash = ethers.utils.id(“Proposal #1: Give grant to team”);
+const descriptionHash = ethers.id("Proposal #1: Give grant to team");
 
 await governor.queue(
   [tokenAddress],

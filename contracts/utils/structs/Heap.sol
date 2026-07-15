@@ -211,7 +211,7 @@ library Heap {
             uint256 rIndex = 2 * index + 2;
 
             // Three cases:
-            // 1. Both children exist: sifting may continue on one of the branch (selection required)
+            // 1. Both children exist: sifting may continue on one of the branches (selection required)
             // 2. Only left child exist: sifting may continue on the left branch (no selection required)
             // 3. Neither child exist: sifting is done
             if (rIndex < size) {
