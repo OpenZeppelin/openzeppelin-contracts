@@ -13,7 +13,7 @@
 
 ### Changes by category
 
-#### Utils 
+#### Utils
 
 ##### Additions
 
@@ -56,8 +56,8 @@
 #### Cross-chain
 
 - `BridgeERC20`: Rename `BridgeERC20` to `BridgeFungible`. ([#6328](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6328))
-- `BridgeNonFungible` and `BridgeERC721`: Added bridge contracts to handle crosschain movements of ERC-721 tokens. ([#6259](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6259))
-- `BridgeMultiToken` and `BridgeERC1155`: Added bridge contracts to handle crosschain movements of ERC-1155 tokens. ([#6281](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6281))
+- `BridgeNonFungible` and `BridgeERC721`: Add bridge contracts to handle crosschain movements of ERC-721 tokens. ([#6259](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6259))
+- `BridgeMultiToken` and `BridgeERC1155`: Add bridge contracts to handle crosschain movements of ERC-1155 tokens. ([#6281](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6281))
 - `CrosschainRemoteExecutor`: Add a new executor contract that relays transaction from a controller on a remote chain. ([#6272](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6272))
 
 #### Governance 
@@ -73,8 +73,8 @@
 #### Token
 
 - `ERC20TransferAuthorization`: Add an ERC-20 extension implementing ERC-3009's transfer with authorization using parallel nonces. ([#6354](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6354))
-- `ERC721Crosschain`: Added an ERC-721 extension to embed an ERC-7786 based crosschain bridge directly in the token contract. ([#6259](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6259))
-- `ERC1155Crosschain`: Added an ERC-1155 extension to embed an ERC-7786 based crosschain bridge directly in the token contract. ([#6281](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6281))
+- `ERC721Crosschain`: Add an ERC-721 extension to embed an ERC-7786 based crosschain bridge directly in the token contract. ([#6259](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6259))
+- `ERC1155Crosschain`: Add an ERC-1155 extension to embed an ERC-7786 based crosschain bridge directly in the token contract. ([#6281](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6281))
 - `ERC1155Burnable`: Use `_checkAuthorized` to correctly apply authorization overrides. ([#6435](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6435))
 - `SafeERC20`: Add `tryGetDecimals` helper that safely queries a token's `decimals()` without reverting. ([#6482](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6482))
 - `ERC6909ContentURI`, `ERC6909TokenSupply` and `ERC6909Metadata`: Add ERC-165 detection for the `IERC6909ContentURI`, `IERC6909TokenSupply` and `IERC6909Metadata` interfaces. ([#6246](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6246))
