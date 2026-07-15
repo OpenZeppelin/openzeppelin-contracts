@@ -55,7 +55,7 @@
 - `ERC1155Crosschain`: Added an ERC-1155 extension to embed an ERC-7786 based crosschain bridge directly in the token contract. ([#6281](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6281))
 - `ERC1155Burnable`: Use `_checkAuthorized` to correctly apply authorization overrides. ([#6435](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6435))
 - `SafeERC20`: Add `tryGetDecimals` helper that safely queries a token's `decimals()` without reverting. ([#6482](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6482))
-- Add ERC-165 detection for the `IERC6909ContentURI`, `IERC6909TokenSupply` and `IERC6909Metadata` interfaces in the `ERC6909ContentURI`, `ERC6909TokenSupply` and `ERC6909Metadata` contracts respectively. ([#6246](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6246))
+- `ERC6909ContentURI`, `ERC6909TokenSupply` and `ERC6909Metadata`: Add ERC-165 detection for the `IERC6909ContentURI`, `IERC6909TokenSupply` and `IERC6909Metadata` interfaces. ([#6246](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6246))
 
 #### Other
 
