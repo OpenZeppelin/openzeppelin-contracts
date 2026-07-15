@@ -13,7 +13,9 @@
 
 ### Changes by category
 
-#### New utilities
+#### Utils 
+
+##### Additions
 
 - `BlockHeader`: Add a new library for verifying and parsing block headers. ([#6395](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6395))
 - `Create3`: Add a library to deploy contracts using the `CREATE3` mechanism, allowing the deployment address to depend only on the salt and the deployer, independently of the deployed bytecode. ([#6402](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6402))
@@ -21,6 +23,16 @@
 - `ERC6372Utils`: Add utility library for ERC-6372 clock mode validation, supporting block number and timestamp modes with consistency checks. ([#6483](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6483))
 - `RateLimiter`: Add a library that provides primitives for limiting the rate at which an action can be performed, with two complementary strategies: a refilling token bucket and a sliding window counter. ([#6490](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6490))
 - `SimulateCall`: Add a new call simulation utilities that allow inspecting return data from contract calls by executing them in a non-mutating, revert-based context. ([#6290](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6290))
+
+##### Other
+
+- `Arrays`: Reduce reliance on recursion to prevent stack overflow and support larger arrays. ([#6324](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6324))
+- `ERC2771Forwarder`: Revert the entire atomic batch if a call with value fails. ([#6391](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6391))
+- `InteroperableAddress`: Fix overflow in the parsing functions that caused silent misparse of large interoperable addresses. ([#6372](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6372))
+- `InteroperableAddress`: Reject inputs with both chain reference and addresses empty. ([#6331](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6331))
+- `Memory`: Add a `isReserved(Slice)` function that checks if the memory occupied by the slice is reserved (i.e. before the free memory pointer). ([#6302](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6302))
+- `Memory`: Remove the `asBytes32` and `asPointer` function to reduce the risk of mistakes when manipulating memory pointers. ([#6348](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6348))
+- `RLP`: Perform a memory copy when decoding `bytes` objects containing a single byte instead of returning a reference to the input. ([#6303](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6303))
 
 #### Access
 
@@ -36,6 +48,11 @@
 - `PaymasterERC721Owner`: Add extension of `Paymaster` that approves sponsoring of user operation based on ownership of an ERC-721 NFT. ([#6576](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6576))
 - `PaymasterSigner`: Add extension of `Paymaster` that approves sponsoring of user operation based on a cryptographic signature verified by the paymaster. ([#6576](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6576))
 
+#### Cryptography
+
+- `ERC7913WebAuthnVerifier`: Add an internal `_requireUV` function that can be overridden to disable the UV check. ([#6596](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6596))
+- `WebAuthn`: Verification now returns `false` instead of reverting when client data contains an out-of-bounds `challengeIndex`. ([#6329](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6329))
+
 #### Cross-chain
 
 - `BridgeERC20Core`: Rename `BridgeERC20Core` to `BridgeFungible`. ([#6328](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6328))
@@ -48,6 +65,11 @@
 - `Governor`: Strictly enforce the expected proposal state depending on `proposalNeedsQueuing` when calling `execute`. ([#6386](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6386))
 - `GovernorCrosschain`: Add governor module that facilitates the execution of crosschain operations through CrosschainRemoteExecutors and ERC-7786 gateways. ([#6272](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6272))
 
+#### Structures
+
+- `Accumulator`: Check that slices being added (`shift` or `push`) are in the reserved space. ([#6302](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6302))
+- `DoubleEndedQueue`: Add `values(deque, start, end)` to return a slice of the queue as an array, mirroring the paginated `values` accessor in `EnumerableSet`. Out-of-bound values for `start` and `end` are clamped to the queue length. ([#6522](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6522))
+
 #### Token
 
 - `ERC20TransferAuthorization`: Add an ERC-20 extension implementing ERC-3009's transfer with authorization using parallel nonces. ([#6354](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6354))
@@ -57,19 +79,6 @@
 - `SafeERC20`: Add `tryGetDecimals` helper that safely queries a token's `decimals()` without reverting. ([#6482](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6482))
 - `ERC6909ContentURI`, `ERC6909TokenSupply` and `ERC6909Metadata`: Add ERC-165 detection for the `IERC6909ContentURI`, `IERC6909TokenSupply` and `IERC6909Metadata` interfaces. ([#6246](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6246))
 
-#### Other
-
-- `Accumulator`: Check that slices being added (`shift` or `push`) are in the reserved space. ([#6302](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6302))
-- `Arrays`: Reduce reliance on recursion to prevent stack overflow and support larger arrays. ([#6324](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6324))
-- `DoubleEndedQueue`: Add `values(deque, start, end)` to return a slice of the queue as an array, mirroring the paginated `values` accessor in `EnumerableSet`. Out-of-bound values for `start` and `end` are clamped to the queue length. ([#6522](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6522))
-- `ERC2771Forwarder`: Revert the entire atomic batch if a call with value fails. ([#6391](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6391))
-- `ERC7913WebAuthnVerifier`: Add an internal `_requireUV` function that can be overridden to disable the UV check. ([#6596](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6596))
-- `InteroperableAddress`: Fix overflow in the parsing functions that caused silent misparse of large interoperable addresses. ([#6372](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6372))
-- `InteroperableAddress`: Reject inputs with both chain reference and addresses empty. ([#6331](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6331))
-- `Memory`: Add a `isReserved(Slice)` function that checks if the memory occupied by the slice is reserved (i.e. before the free memory pointer). ([#6302](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6302))
-- `Memory`: Remove the `asBytes32` and `asPointer` function to reduce the risk of mistakes when manipulating memory pointers. ([#6348](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6348))
-- `RLP`: Perform a memory copy when decoding `bytes` objects containing a single byte instead of returning a reference to the input. ([#6303](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6303))
-- `WebAuthn`: Verification now returns `false` instead of reverting when client data contains an out-of-bounds `challengeIndex`. ([#6329](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6329))
 
 ## 5.6.1 (2026-02-27)
 
