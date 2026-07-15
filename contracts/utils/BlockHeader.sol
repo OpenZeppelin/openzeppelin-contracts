@@ -51,7 +51,15 @@ library BlockHeader {
         return Blockhash.blockHash(getNumber(headerRLP)) == keccak256(headerRLP);
     }
 
-    /// @dev Variant of {verifyBlockHeader} that takes a pre-parsed list of fields and the header hash.
+    /**
+     * @dev Variant of {verifyBlockHeader} that takes a pre-parsed list of fields and a pre-computed
+     * header hash.
+     *
+     * NOTE: The caller must supply `headerHash == keccak256(rlp)`, where `rlp` is the RLP
+     * buffer that `fields` was parsed from; this overload only checks that `headerHash` is the
+     * canonical hash for the block number in `fields`. Use this when the hash was already computed
+     * to avoid a second `keccak256`.
+     */
     function verifyBlockHeader(Memory.Slice[] memory fields, bytes32 headerHash) internal view returns (bool) {
         return Blockhash.blockHash(getNumber(fields)) == headerHash;
     }
