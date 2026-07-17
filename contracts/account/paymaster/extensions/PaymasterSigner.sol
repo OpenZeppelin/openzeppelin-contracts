@@ -94,9 +94,11 @@ abstract contract PaymasterSigner is AbstractSigner, EIP712, Paymaster {
         PackedUserOperation calldata userOp
     ) internal pure virtual returns (uint48 validAfter, uint48 validUntil, bytes calldata signature) {
         bytes calldata paymasterData = userOp.paymasterData();
-        return
-            paymasterData.length < 12
-                ? (uint48(0), uint48(0), Calldata.emptyBytes())
-                : (uint48(bytes6(paymasterData[0:6])), uint48(bytes6(paymasterData[6:12])), paymasterData[12:]);
+        if (paymasterData.length < 12) return (uint48(0), uint48(0), Calldata.emptyBytes());
+
+        // Both timestamps share the 12-byte window at [0:12]: a single load replaces
+        // the two bounds-checked slices.
+        bytes12 validity = bytes12(paymasterData[:12]);
+        return (uint48(bytes6(validity)), uint48(bytes6(validity << 48)), paymasterData[12:]);
     }
 }
