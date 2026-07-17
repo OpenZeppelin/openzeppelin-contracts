@@ -37,6 +37,11 @@ abstract contract PaymasterSigner is AbstractSigner, EIP712, Paymaster {
         uint48 validAfter,
         uint48 validUntil
     ) internal view virtual returns (bytes32) {
+        // Both paymaster gas limits share the word at [20:52]: a single load replaces
+        // the two `ERC4337Utils` accessors, which each length-check and load it.
+        uint256 paymasterGasLimits = userOp.paymasterAndData.length < 52
+            ? 0
+            : uint256(bytes32(userOp.paymasterAndData[20:52]));
         return
             _hashTypedDataV4(
                 keccak256(
@@ -49,8 +54,8 @@ abstract contract PaymasterSigner is AbstractSigner, EIP712, Paymaster {
                         userOp.accountGasLimits,
                         userOp.preVerificationGas,
                         userOp.gasFees,
-                        userOp.paymasterVerificationGasLimit(),
-                        userOp.paymasterPostOpGasLimit(),
+                        paymasterGasLimits >> 128,
+                        uint256(uint128(paymasterGasLimits)),
                         validAfter,
                         validUntil
                     )
