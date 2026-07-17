@@ -205,8 +205,11 @@ abstract contract PaymasterERC20 is Paymaster {
         bytes calldata /* prefundContext */
     ) internal virtual returns (bool success, uint256 actualAmount) {
         // Under ERC-4337 EntryPoint, `actualGasCost <= maxCost` and `actualUserOpFeePerGas <= maxFeePerGas`,
-        // so `actualAmount_ <= prefundAmount` holds.
-        return (token.trySafeTransfer(prefunder, prefundAmount - actualAmount_), actualAmount_);
+        // so `actualAmount_ <= prefundAmount` holds and the subtraction cannot underflow. If a caller breaks
+        // that requirement, the wrapped amount makes `trySafeTransfer` fail and {_postOp} revert.
+        unchecked {
+            return (token.trySafeTransfer(prefunder, prefundAmount - actualAmount_), actualAmount_);
+        }
     }
 
     /**
