@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 
 import {IERC721} from "../../../interfaces/IERC721.sol";
 import {ERC4337Utils, PackedUserOperation} from "../../utils/ERC4337Utils.sol";
+import {SafeCast} from "../../../utils/math/SafeCast.sol";
 import {Paymaster} from "../Paymaster.sol";
 
 /**
@@ -44,10 +45,9 @@ abstract contract PaymasterERC721Owner is Paymaster {
         return (
             bytes(""),
             // balanceOf reverts if the `userOp.sender` is the address(0), so this becomes unreachable with address(0)
-            // assuming a compliant entrypoint (`_validatePaymasterUserOp` is called after `validateUserOp`),
-            token().balanceOf(userOp.sender) == 0
-                ? ERC4337Utils.SIG_VALIDATION_FAILED
-                : ERC4337Utils.SIG_VALIDATION_SUCCESS
+            // assuming a compliant entrypoint (`_validatePaymasterUserOp` is called after `validateUserOp`).
+            // `SIG_VALIDATION_FAILED == 1` and `SIG_VALIDATION_SUCCESS == 0`, so the cast is branchless.
+            SafeCast.toUint(token().balanceOf(userOp.sender) == 0)
         );
     }
 }
