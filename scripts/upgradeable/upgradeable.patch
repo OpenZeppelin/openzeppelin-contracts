@@ -305,8 +305,30 @@ index 2bc45a4b2..a5aa41d21 100644
 +        return keccak256(bytes(_EIP712Version()));
      }
  }
+diff --git a/hardhat.config.ts b/hardhat.config.ts
+index ba50439b7..6ee16de43 100644
+--- a/hardhat.config.ts
++++ b/hardhat.config.ts
+@@ -41,7 +41,7 @@ export default defineConfig({
+     hardhatOzContractsHelpers,
+   ],
+   paths: {
+-    sources: argv.src,
++    sources: [ argv.src, 'lib/openzeppelin-contracts/contracts' ],
+   },
+   solidity: {
+     version: argv.compiler,
+@@ -89,7 +89,7 @@ export default defineConfig({
+   },
+   exposed: {
+     initializers: true,
+-    include: ['contracts/**/*.sol'],
++    include: ['{,lib/openzeppelin-contracts/}contracts/**/*.sol'],
+     exclude: ['**/*WithInit.sol'],
+   },
+ });
 diff --git a/package.json b/package.json
-index 6f2d411dd..956933f33 100644
+index 0b6f6c268..1bab4415d 100644
 --- a/package.json
 +++ b/package.json
 @@ -35,7 +35,7 @@
@@ -319,19 +341,22 @@ index 6f2d411dd..956933f33 100644
    "keywords": [
      "solidity",
 diff --git a/remappings.txt b/remappings.txt
-index 304d1386a..a1cd63bee 100644
+index a6be3bfd6..d20f777f3 100644
 --- a/remappings.txt
 +++ b/remappings.txt
-@@ -1 +1,2 @@
+@@ -1,4 +1,5 @@
 -@openzeppelin/contracts/=contracts/
 +@openzeppelin/contracts-upgradeable/=contracts/
 +@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
+ 
+ forge-std=lib/forge-std/src
+ halmos-cheatcodes=lib/halmos-cheatcodes/src
 diff --git a/test/account/AccountEIP7702.test.js b/test/account/AccountEIP7702.test.js
-index d832e6877..6a0ab4a53 100644
+index dcb2cc862..df4ff523a 100644
 --- a/test/account/AccountEIP7702.test.js
 +++ b/test/account/AccountEIP7702.test.js
-@@ -26,8 +26,8 @@ async function fixture() {
- 
+@@ -28,8 +28,8 @@ async function fixture() {
+   const entrypointDomain = await getDomain(ethers.predeploy.entrypoint.v09);
    // domain cannot be fetched using getDomain(mock) before the mock is deployed
    const domain = {
 -    name: 'AccountEIP7702Mock',
@@ -342,10 +367,10 @@ index d832e6877..6a0ab4a53 100644
      verifyingContract: mock.address,
    };
 diff --git a/test/account/examples/AccountEIP7702WithModulesMock.test.js b/test/account/examples/AccountEIP7702WithModulesMock.test.js
-index 86816e55e..de6adc2c5 100644
+index 2369040a2..3fc0a5172 100644
 --- a/test/account/examples/AccountEIP7702WithModulesMock.test.js
 +++ b/test/account/examples/AccountEIP7702WithModulesMock.test.js
-@@ -36,8 +36,8 @@ async function fixture() {
+@@ -38,8 +38,8 @@ async function fixture() {
  
    // domain cannot be fetched using getDomain(mock) before the mock is deployed
    const domain = {
@@ -357,10 +382,10 @@ index 86816e55e..de6adc2c5 100644
      verifyingContract: mock.address,
    };
 diff --git a/test/utils/cryptography/EIP712.test.js b/test/utils/cryptography/EIP712.test.js
-index 2b6e7fa97..268e0d29d 100644
+index ab28c4e1b..92e0f368b 100644
 --- a/test/utils/cryptography/EIP712.test.js
 +++ b/test/utils/cryptography/EIP712.test.js
-@@ -47,27 +47,6 @@ describe('EIP712', function () {
+@@ -50,27 +50,6 @@ describe('EIP712', function () {
            const rebuildDomain = await getDomain(this.eip712);
            expect(rebuildDomain).to.be.deep.equal(this.domain);
          });

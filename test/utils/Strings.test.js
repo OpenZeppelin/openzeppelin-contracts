@@ -1,11 +1,15 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { PANIC_CODES } from '@nomicfoundation/hardhat-ethers-chai-matchers/panic';
+import * as random from '../helpers/random';
+
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.create();
 
 async function fixture() {
-  const mock = await ethers.deployContract('$Strings');
-  return { mock };
+  return { mock: await ethers.deployContract('$Strings') };
 }
 
 describe('Strings', function () {
@@ -189,9 +193,9 @@ describe('Strings', function () {
   describe('bytes', function () {
     describe('toHexString', function () {
       for (const length of [0, 17, 20, 32, 42, 64, 512]) {
-        const input = ethers.hexlify(ethers.randomBytes(length));
+        const input = random.bytes(length);
         it(`hexlify buffer of length ${length}`, async function () {
-          expect(await this.mock.getFunction('$toHexString(bytes)')(input)).to.equal(input);
+          expect(await this.mock.getFunction('$toHexString(bytes)')(input)).to.equal(ethers.hexlify(input));
         });
       }
     });

@@ -1,28 +1,42 @@
 #!/usr/bin/env node
 
-const path = require('path');
-const graphlib = require('graphlib');
-const match = require('micromatch');
-const { findAll } = require('solidity-ast/utils');
-const { hideBin } = require('yargs/helpers');
-const { _: artifacts } = require('yargs/yargs')(hideBin(process.argv)).argv;
+import fs from 'fs';
+import path from 'path';
+import graphlib from 'graphlib';
+import match from 'micromatch';
+import { findAll } from 'solidity-ast/utils.js';
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
 
-// files to skip
-const skipPatterns = ['contracts-exposed/**', 'contracts/mocks/**'];
+const { _: artifacts } = yargs(hideBin(process.argv)).argv;
+
+// only consider files in the package: take pattern from package.json
+const { files: patterns } = JSON.parse(
+  fs.readFileSync(path.resolve(import.meta.dirname, '../../', 'package.json'), 'utf-8'),
+);
 
 for (const artifact of artifacts) {
-  const { output: solcOutput } = require(path.resolve(__dirname, '../..', artifact));
+  const { output: solcOutput } = JSON.parse(
+    fs.readFileSync(path.resolve(import.meta.dirname, '../..', artifact), 'utf-8'),
+  );
 
   const graph = new graphlib.Graph({ directed: true });
   const names = {};
   const linearized = [];
 
-  for (const source in solcOutput.contracts) {
-    if (match.any(source, skipPatterns)) continue;
-    for (const contractDef of findAll('ContractDefinition', solcOutput.sources[source].ast)) {
+  // Rebuild solcOutput?.sources by removing the "project" prefix from the keys, so that we can match them against the patterns in package.json
+  const sources = Object.fromEntries(
+    Object.entries(solcOutput?.sources ?? {}).map(([key, value]) => [key.replace(/^project\//, ''), value]),
+  );
+
+  // For each source file that matches the patterns ...
+  for (const file of match(Object.keys(sources), patterns)) {
+    // ... find all ContractDefinition in this file ...
+    for (const contractDef of findAll('ContractDefinition', sources[file].ast)) {
+      // ... record the details for that contracts ...
       names[contractDef.id] = contractDef.name;
       linearized.push(contractDef.linearizedBaseContracts);
-
+      // ... and add edges to the graph for each pair of contracts in the linearized base contracts.
       contractDef.linearizedBaseContracts.forEach((c1, i, contracts) =>
         contracts.slice(i + 1).forEach(c2 => {
           graph.setEdge(c1, c2);

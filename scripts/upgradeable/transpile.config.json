@@ -1,0 +1,19 @@
+{
+  "initializablePath": "contracts/proxy/utils/Initializable.sol",
+  "deleteOriginals": true,
+  "exclude": [
+    "contracts-exposed/**/*",
+    "contracts/mocks/**/*Proxy*.sol",
+    "contracts/proxy/**/*Proxy*.sol",
+    "contracts/proxy/beacon/UpgradeableBeacon.sol"
+  ],
+  "publicInitializers": [
+    "contracts/access/manager/AccessManager.sol",
+    "contracts/finance/VestingWallet.sol",
+    "contracts/governance/TimelockController.sol",
+    "contracts/metatx/ERC2771Forwarder.sol"
+  ],
+  "namespaced": true,
+  "namespaceExclude": ["contracts/mocks/**/*"],
+  "peerProject": "@openzeppelin/"
+}

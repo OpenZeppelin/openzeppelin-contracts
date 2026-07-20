@@ -1,14 +1,17 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-
-const {
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import {
   getDomain,
   TransferWithAuthorization,
   ReceiveWithAuthorization,
   CancelAuthorization,
-} = require('../../../helpers/eip712');
-const time = require('../../../helpers/time');
+} from '../../../helpers/eip712';
+
+const {
+  ethers,
+  helpers: { time },
+  networkHelpers: { loadFixture },
+} = await network.create();
 
 const name = 'My Token';
 const symbol = 'MTKN';

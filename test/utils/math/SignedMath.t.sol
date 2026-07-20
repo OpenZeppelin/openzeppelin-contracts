@@ -4,8 +4,8 @@ pragma solidity ^0.8.20;
 
 import {Test} from "forge-std/Test.sol";
 
-import {Math} from "../../../contracts/utils/math/Math.sol";
-import {SignedMath} from "../../../contracts/utils/math/SignedMath.sol";
+import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
+import {SignedMath} from "@openzeppelin/contracts/utils/math/SignedMath.sol";
 
 contract SignedMathTest is Test {
     function testSymbolicTernary(bool f, int256 a, int256 b) public pure {

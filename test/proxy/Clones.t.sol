@@ -28,8 +28,7 @@ contract ClonesTest is Test {
 
         address predicted = Clones.predictDeterministicAddressWithImmutableArgs(implementation, args, salt);
         bytes32 spillage;
-        /// @solidity memory-safe-assembly
-        assembly {
+        assembly ("memory-safe") {
             spillage := and(predicted, 0xffffffffffffffffffffffff0000000000000000000000000000000000000000)
         }
         assertEq(spillage, bytes32(0));

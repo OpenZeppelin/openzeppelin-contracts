@@ -1,13 +1,11 @@
 #!/usr/bin/env node
 
-const semver = require('semver');
-const pLimit = require('p-limit').default;
-
-const { hideBin } = require('yargs/helpers');
-const yargs = require('yargs/yargs');
-
-const getContractsMetadata = require('../get-contracts-metadata');
-const { compile } = require('../solc-versions');
+import semver from 'semver';
+import pLimit from 'p-limit';
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
+import { getContractsMetadata } from '../get-contracts-metadata.js';
+import { compile } from '../solc-versions.js';
 
 const {
   argv: { pattern, skipPatterns, verbose, concurrency, _: artifacts },

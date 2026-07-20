@@ -1,11 +1,14 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
-const { StandardMerkleTree } = require('@openzeppelin/merkle-tree');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { PANIC_CODES } from '@nomicfoundation/hardhat-ethers-chai-matchers/panic';
+import { StandardMerkleTree } from '@openzeppelin/merkle-tree';
+import { range } from '../../helpers/iterate';
+import * as random from '../../helpers/random';
 
-const { generators } = require('../../helpers/random');
-const { range } = require('../../helpers/iterate');
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.create();
 
 const DEPTH = 4; // 16 slots
 
@@ -58,7 +61,7 @@ describe('MerkleTree', function () {
       // for each leaf slot
       for (const i in range(2 ** DEPTH)) {
         // generate random leaf
-        leaves.push(generators.bytes32());
+        leaves.push(random.bytes32());
 
         // rebuild tree.
         const tree = makeTree(leaves);
@@ -86,7 +89,7 @@ describe('MerkleTree', function () {
     ))
       it(`updating a leaf correctly updates the tree (leaf #${leafIndex + 1}/${leafCount})`, async function () {
         // initial tree
-        const leaves = Array.from({ length: leafCount }, generators.bytes32);
+        const leaves = Array.from({ length: leafCount }, random.bytes32);
         const oldTree = makeTree(leaves);
 
         // fill tree and verify root
@@ -96,7 +99,7 @@ describe('MerkleTree', function () {
         await expect(this.mock.root()).to.eventually.equal(oldTree.root);
 
         // create updated tree
-        leaves[leafIndex] = generators.bytes32();
+        leaves[leafIndex] = random.bytes32();
         const newTree = makeTree(leaves);
 
         const oldLeafHash = oldTree.leafHash(oldTree.at(leafIndex));
@@ -113,7 +116,7 @@ describe('MerkleTree', function () {
         // if there is still room in the tree, fill it
         for (const i of range(leafCount, 2 ** DEPTH)) {
           // push new value and rebuild tree
-          leaves.push(generators.bytes32());
+          leaves.push(random.bytes32());
           const nextTree = makeTree(leaves);
 
           // push and verify root
@@ -133,7 +136,7 @@ describe('MerkleTree', function () {
       const leafCount = 4;
       const leafIndex = 2;
 
-      const leaves = Array.from({ length: leafCount }, generators.bytes32);
+      const leaves = Array.from({ length: leafCount }, random.bytes32);
       const tree = makeTree(leaves);
 
       // fill tree and verify root
@@ -143,10 +146,10 @@ describe('MerkleTree', function () {
       await expect(this.mock.root()).to.eventually.equal(tree.root);
 
       const oldLeafHash = tree.leafHash(tree.at(leafIndex));
-      const newLeafHash = generators.bytes32();
+      const newLeafHash = random.bytes32();
       const proof = tree.getProof(leafIndex);
       // invalid proof (tamper)
-      proof[1] = generators.bytes32();
+      proof[1] = random.bytes32();
 
       await expect(this.mock.update(leafIndex, oldLeafHash, newLeafHash, proof)).to.be.revertedWithCustomError(
         this.mock,
@@ -160,7 +163,7 @@ describe('MerkleTree', function () {
     const emptyTree = makeTree();
 
     // tree with one element
-    const leaves = [generators.bytes32()];
+    const leaves = [random.bytes32()];
     const tree = makeTree(leaves);
     const hash = tree.leafHash(tree.at(0));
 
