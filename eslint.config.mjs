@@ -1,5 +1,6 @@
 import js from '@eslint/js';
 import { includeIgnoreFile } from '@eslint/compat';
+import mocha from 'eslint-plugin-mocha';
 import prettier from 'eslint-config-prettier';
 import mochaPlugin from 'eslint-plugin-mocha';
 import globals from 'globals';
@@ -11,6 +12,12 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export default [
   js.configs.recommended,
   prettier,
+  {
+    plugins: { mocha },
+    rules: {
+      'mocha/no-async-suite': 'error',
+    },
+  },
   {
     languageOptions: {
       ecmaVersion: 2022,

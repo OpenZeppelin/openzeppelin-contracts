@@ -20,7 +20,7 @@ import {Time} from "./types/Time.sol";
  *   interval. Suitable when a strict cap on usage within a rolling window is required. Each successful consumption
  *   appends a checkpoint, making it a more expensive option with a larger storage footprint.
  *
- * === Limiter vs. entries ===
+ * === Limiter vs. entries
  *
  * Each storage struct is a _limiter_: it pairs a single, shared configuration (the `window`, together with the
  * `capacity` of a {RefillingBucket} or the `limit` of a {SlidingWindow}) with a mapping of independent _entries_
