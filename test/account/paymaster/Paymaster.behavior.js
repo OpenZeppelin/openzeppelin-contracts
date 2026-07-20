@@ -1,18 +1,16 @@
-const { ethers, predeploy } = require('hardhat');
-const { expect } = require('chai');
-
-const { encodeBatch, encodeMode, CALL_TYPE_BATCH } = require('../../helpers/erc7579');
-const { MAX_UINT48 } = require('../../helpers/constants');
-const time = require('../../helpers/time');
+import { ethers } from 'ethers';
+import { expect } from 'chai';
+import { encodeBatch, encodeMode, CALL_TYPE_BATCH } from '../../helpers/erc7579';
+import { MAX_UINT48 } from '../../helpers/constants';
 
 const deposit = ethers.parseEther('1');
 const value = 42n;
-const delay = time.duration.hours(10);
+const delay = 36_000n; // 10 hours in seconds
 
-function shouldBehaveLikePaymaster({ postOp, timeRange }) {
+export function shouldBehaveLikePaymaster({ postOp, timeRange }) {
   describe('entryPoint', function () {
     it('should return the canonical entrypoint', async function () {
-      await expect(this.paymaster.entryPoint()).to.eventually.equal(predeploy.entrypoint.v09);
+      await expect(this.paymaster.entryPoint()).to.eventually.equal(this.ethers.predeploy.entrypoint.v09);
     });
   });
 
@@ -41,20 +39,20 @@ function shouldBehaveLikePaymaster({ postOp, timeRange }) {
           .then(op => this.signUserOp(op));
 
         // before
-        await expect(predeploy.entrypoint.v09.getNonce(this.account, 0n)).to.eventually.equal(0n);
-        await expect(predeploy.entrypoint.v09.balanceOf(this.paymaster)).to.eventually.equal(deposit);
+        await expect(this.ethers.predeploy.entrypoint.v09.getNonce(this.account, 0n)).to.eventually.equal(0n);
+        await expect(this.ethers.predeploy.entrypoint.v09.balanceOf(this.paymaster)).to.eventually.equal(deposit);
 
         // execute sponsored user operation
-        const handleOpsTx = predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver);
-        await expect(handleOpsTx).to.changeEtherBalance(this.account, 0n); // no balance change
+        const handleOpsTx = this.ethers.predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver);
+        await expect(handleOpsTx).to.changeEtherBalance(this.ethers, this.account, 0n); // no balance change
         await expect(handleOpsTx).to.emit(this.target, 'MockFunctionCalledExtra').withArgs(this.account, 0n);
 
         if (postOp)
           await expect(handleOpsTx).to.emit(this.paymaster, 'PaymasterDataPostOp').withArgs(signedUserOp.callData);
 
         // after
-        await expect(predeploy.entrypoint.v09.getNonce(this.account, 0n)).to.eventually.equal(1n);
-        await expect(predeploy.entrypoint.v09.balanceOf(this.paymaster)).to.eventually.be.lessThan(deposit);
+        await expect(this.ethers.predeploy.entrypoint.v09.getNonce(this.account, 0n)).to.eventually.equal(1n);
+        await expect(this.ethers.predeploy.entrypoint.v09.balanceOf(this.paymaster)).to.eventually.be.lessThan(deposit);
       });
 
       it('revert if missing paymaster validation', async function () {
@@ -72,8 +70,8 @@ function shouldBehaveLikePaymaster({ postOp, timeRange }) {
           .then(op => this.paymasterSignUserOpInvalid(op, 0n, 0n))
           .then(op => this.signUserOp(op));
 
-        await expect(predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver))
-          .to.be.revertedWithCustomError(predeploy.entrypoint.v09, 'FailedOp')
+        await expect(this.ethers.predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver))
+          .to.be.revertedWithCustomError(this.ethers.predeploy.entrypoint.v09, 'FailedOp')
           .withArgs(0n, 'AA34 signature error');
       });
     });
@@ -101,8 +99,8 @@ function shouldBehaveLikePaymaster({ postOp, timeRange }) {
             )
             .then(op => this.signUserOp(op));
 
-          await expect(predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver))
-            .to.be.revertedWithCustomError(predeploy.entrypoint.v09, 'FailedOp')
+          await expect(this.ethers.predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver))
+            .to.be.revertedWithCustomError(this.ethers.predeploy.entrypoint.v09, 'FailedOp')
             .withArgs(0n, 'AA32 paymaster expired or not due');
         });
 
@@ -121,8 +119,8 @@ function shouldBehaveLikePaymaster({ postOp, timeRange }) {
             .then(op => this.paymasterSignUserOp(op, { validUntil: 1n })) // validUntil 1n is in the past
             .then(op => this.signUserOp(op));
 
-          await expect(predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver))
-            .to.be.revertedWithCustomError(predeploy.entrypoint.v09, 'FailedOp')
+          await expect(this.ethers.predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver))
+            .to.be.revertedWithCustomError(this.ethers.predeploy.entrypoint.v09, 'FailedOp')
             .withArgs(0n, 'AA32 paymaster expired or not due');
         });
       });
@@ -148,33 +146,35 @@ function shouldBehaveLikePaymaster({ postOp, timeRange }) {
 
   describe('deposit lifecycle', function () {
     it('deposits and withdraws effectively', async function () {
-      await expect(predeploy.entrypoint.v09.balanceOf(this.paymaster)).to.eventually.equal(0n);
+      await expect(this.ethers.predeploy.entrypoint.v09.balanceOf(this.paymaster)).to.eventually.equal(0n);
 
       await expect(this.paymaster.connect(this.other).deposit({ value })).to.changeEtherBalances(
-        [this.other, predeploy.entrypoint.v09],
+        this.ethers,
+        [this.other, this.ethers.predeploy.entrypoint.v09],
         [-value, value],
       );
 
-      await expect(predeploy.entrypoint.v09.balanceOf(this.paymaster)).to.eventually.equal(value);
+      await expect(this.ethers.predeploy.entrypoint.v09.balanceOf(this.paymaster)).to.eventually.equal(value);
 
       await expect(this.paymaster.connect(this.admin).withdraw(this.receiver, 1n)).to.changeEtherBalances(
-        [predeploy.entrypoint.v09, this.receiver],
+        this.ethers,
+        [this.ethers.predeploy.entrypoint.v09, this.receiver],
         [-1n, 1n],
       );
 
-      await expect(predeploy.entrypoint.v09.balanceOf(this.paymaster)).to.eventually.equal(value - 1n);
+      await expect(this.ethers.predeploy.entrypoint.v09.balanceOf(this.paymaster)).to.eventually.equal(value - 1n);
     });
 
     it('reverts when an unauthorized caller tries to withdraw', async function () {
       await this.paymaster.deposit({ value });
 
-      await expect(this.paymaster.connect(this.other).withdraw(this.receiver, value)).to.be.reverted;
+      await expect(this.paymaster.connect(this.other).withdraw(this.receiver, value)).to.be.revert(this.ethers);
     });
   });
 
   describe('stake lifecycle', function () {
     it('adds and removes stake effectively', async function () {
-      await expect(predeploy.entrypoint.v09.getDepositInfo(this.paymaster)).to.eventually.deep.equal([
+      await expect(this.ethers.predeploy.entrypoint.v09.getDepositInfo(this.paymaster)).to.eventually.deep.equal([
         0n,
         false,
         0n,
@@ -184,11 +184,12 @@ function shouldBehaveLikePaymaster({ postOp, timeRange }) {
 
       // stake
       await expect(this.paymaster.connect(this.other).addStake(delay, { value })).to.changeEtherBalances(
-        [this.other, predeploy.entrypoint.v09],
+        this.ethers,
+        [this.other, this.ethers.predeploy.entrypoint.v09],
         [-value, value],
       );
 
-      await expect(predeploy.entrypoint.v09.getDepositInfo(this.paymaster)).to.eventually.deep.equal([
+      await expect(this.ethers.predeploy.entrypoint.v09.getDepositInfo(this.paymaster)).to.eventually.deep.equal([
         0n,
         true,
         42n,
@@ -199,8 +200,8 @@ function shouldBehaveLikePaymaster({ postOp, timeRange }) {
       // unlock
       const unlockTx = this.paymaster.connect(this.admin).unlockStake();
 
-      const timestamp = await time.clockFromReceipt.timestamp(unlockTx);
-      await expect(predeploy.entrypoint.v09.getDepositInfo(this.paymaster)).to.eventually.deep.equal([
+      const timestamp = await this.helpers.time.clockFromReceipt.timestamp(unlockTx);
+      await expect(this.ethers.predeploy.entrypoint.v09.getDepositInfo(this.paymaster)).to.eventually.deep.equal([
         0n,
         false,
         42n,
@@ -208,15 +209,16 @@ function shouldBehaveLikePaymaster({ postOp, timeRange }) {
         timestamp + delay,
       ]);
 
-      await time.increaseBy.timestamp(delay);
+      await this.helpers.time.increaseBy.timestamp(delay);
 
       // withdraw stake
       await expect(this.paymaster.connect(this.admin).withdrawStake(this.receiver)).to.changeEtherBalances(
-        [predeploy.entrypoint.v09, this.receiver],
+        this.ethers,
+        [this.ethers.predeploy.entrypoint.v09, this.receiver],
         [-value, value],
       );
 
-      await expect(predeploy.entrypoint.v09.getDepositInfo(this.paymaster)).to.eventually.deep.equal([
+      await expect(this.ethers.predeploy.entrypoint.v09.getDepositInfo(this.paymaster)).to.eventually.deep.equal([
         0n,
         false,
         0n,
@@ -228,19 +230,15 @@ function shouldBehaveLikePaymaster({ postOp, timeRange }) {
     it('reverts when an unauthorized caller tries to unlock stake', async function () {
       await this.paymaster.addStake(delay, { value });
 
-      await expect(this.paymaster.connect(this.other).unlockStake()).to.be.reverted;
+      await expect(this.paymaster.connect(this.other).unlockStake()).to.be.revert(this.ethers);
     });
 
     it('reverts when an unauthorized caller tries to withdraw stake', async function () {
       await this.paymaster.addStake(delay, { value });
       await this.paymaster.connect(this.admin).unlockStake();
-      await time.increaseBy.timestamp(delay);
+      await this.helpers.time.increaseBy.timestamp(delay);
 
-      await expect(this.paymaster.connect(this.other).withdrawStake(this.receiver)).to.be.reverted;
+      await expect(this.paymaster.connect(this.other).withdrawStake(this.receiver)).to.be.revert(this.ethers);
     });
   });
 }
-
-module.exports = {
-  shouldBehaveLikePaymaster,
-};
