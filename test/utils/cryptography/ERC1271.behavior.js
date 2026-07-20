@@ -1,6 +1,6 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
-const { Permit, formatType, getDomain } = require('../../helpers/eip712');
+const { Permit, formatType, getDomain, hashTypedData, domainSeparator } = require('../../helpers/eip712');
 const { ERC7739Signer } = require('../../helpers/erc7739');
 
 function shouldBehaveLikeERC1271({ erc7739 = false } = {}) {
@@ -96,6 +96,39 @@ function shouldBehaveLikeERC1271({ erc7739 = false } = {}) {
 
         await expect(this.mock.isValidSignature(hash, signature)).to.eventually.not.equal(MAGIC_VALUE);
       });
+
+      erc7739 &&
+        it('returns false for a malformed contents descriptor', async function () {
+          // Step 1: a malicious actor manages to get the user to sign a message that is not the one the app expects, but still valid for the vulnerable verifier.
+          //
+          // Note this uses the raw, low-level `signingKey.sign` primitive to sign an arbitrary digest. The digest
+          // (and thus this signature) cannot be produced through the regular `signMessage` / `signTypedData`
+          // entrypoints, which always wrap the payload into a well-formed PersonalSign / TypedDataSign structure and
+          // never yield the collapsed `structHash == 0` digest exploited here.
+          const digest = hashTypedData(this.appDomain, ethers.ZeroHash);
+          const signature = this.signer.signingKey.sign(digest).serialized;
+
+          // Step 2: the malicious actor uses the signature with a contentsHash of its choosing.
+          //
+          // A non-empty but malformed `contentsDescr` (e.g. ")") decodes to an empty `contentsName`, which made
+          // `typedDataSignStructHash` return the `bytes32(0)` sentinel. The verified digest then collapsed to
+          // `appSeparator.toTypedDataHash(0)`, no longer binding `contentsHash` nor the account's domain, letting a
+          // single signature be replayed for any message. The descriptor guard must reject this.
+          const contentsHash = ethers.id('Message the app expects');
+          const contentsDescr = ')'; // non-empty, but decodes to an empty contentsName
+          const encodedSignature = ethers.concat([
+            signature,
+            domainSeparator(this.appDomain),
+            contentsHash,
+            ethers.toUtf8Bytes(contentsDescr),
+            ethers.toBeHex(contentsDescr.length, 2),
+          ]);
+
+          // Step 3: the malicious actor submits the signature to the vulnerable verifier, which accepts it.
+          await expect(
+            this.mock.isValidSignature(hashTypedData(this.appDomain, contentsHash), encodedSignature),
+          ).to.eventually.not.equal(MAGIC_VALUE);
+        });
     });
 
     erc7739 &&
