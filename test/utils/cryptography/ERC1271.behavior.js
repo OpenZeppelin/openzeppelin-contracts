@@ -124,7 +124,7 @@ function shouldBehaveLikeERC1271({ erc7739 = false } = {}) {
             ethers.toBeHex(contentsDescr.length, 2),
           ]);
 
-          // Step 3: the malicious actor submits the signature to the vulnerable verifier, which accepts it.
+          // Step 3: the malicious actor submits the signature to the verifier, which must reject it.
           await expect(
             this.mock.isValidSignature(hashTypedData(this.appDomain, contentsHash), encodedSignature),
           ).to.eventually.not.equal(MAGIC_VALUE);
