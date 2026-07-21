@@ -247,7 +247,7 @@ abstract contract PaymasterERC20 is Paymaster {
      * @dev Over-estimates the cost of the post-operation logic, which the EntryPoint charges to the paymaster but
      * excludes from the `actualGasCost` reported to {_postOp}.
      *
-     * NOTE: The default assumes an standard ERC-20. Override with a higher value for gas-heavier tokens; a persistent
+     * NOTE: The default assumes a standard ERC-20. Override with a higher value for gas-heavier tokens; a persistent
      * underestimate drains the paymaster's deposit.
      */
     function _postOpCost() internal view virtual returns (uint256) {
