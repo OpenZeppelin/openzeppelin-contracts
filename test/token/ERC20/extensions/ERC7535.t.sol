@@ -23,9 +23,9 @@ contract ERC7535VaultMock is ERC7535 {
 ///
 /// With the CEI-only design (no reentrancy guard, inherited from ERC4626), the reentrant call is NOT blocked by a
 /// guard. Instead this receiver observes the vault's state *during* the outbound ETH push and attempts a second,
-/// full-amount redeem of the very shares that triggered the payout. The tests prove that checks-effects-interactions
-/// makes such a reentry harmless: the shares are already burned when the callback fires, so the receiver cannot
-/// extract more than its shares entitled it to, and cannot drain other users.
+/// full-amount withdraw/redeem of the very position that triggered the payout. The tests prove that
+/// checks-effects-interactions makes such a reentry harmless: the shares are already burned when the callback fires,
+/// so the receiver cannot extract more than its shares entitled it to, and cannot drain other users.
 contract ReentrantReceiver {
     enum Kind {
         None,
@@ -35,7 +35,7 @@ contract ReentrantReceiver {
 
     ERC7535VaultMock public vault;
     Kind public kind;
-    uint256 public reenterShares; // shares the receiver tries to re-redeem during the callback
+    uint256 public reenterAmount; // assets (Kind.Withdraw) or shares (Kind.Redeem) re-extracted during the callback
 
     bool public reentered;
     bool public reentryReverted;
@@ -44,10 +44,10 @@ contract ReentrantReceiver {
     uint256 public observedSelfBalance;
     uint256 public observedTotalSupply;
 
-    function setup(ERC7535VaultMock vault_, Kind kind_, uint256 reenterShares_) external {
+    function setup(ERC7535VaultMock vault_, Kind kind_, uint256 reenterAmount_) external {
         vault = vault_;
         kind = kind_;
-        reenterShares = reenterShares_;
+        reenterAmount = reenterAmount_;
     }
 
     receive() external payable {
@@ -58,7 +58,7 @@ contract ReentrantReceiver {
         observedSelfBalance = vault.balanceOf(address(this));
         observedTotalSupply = vault.totalSupply();
 
-        // Attempt to re-extract the *same* shares again, mid-payout. CEI must make this fail (the shares were
+        // Attempt to re-extract the *same* amount again, mid-payout. CEI must make this fail (the shares were
         // already burned) or otherwise be unable to over-drain. We swallow the revert so the outer call can
         // complete and the test can assert the resulting accounting.
         try this.reenter() {
@@ -70,9 +70,9 @@ contract ReentrantReceiver {
 
     function reenter() external {
         if (kind == Kind.Withdraw) {
-            vault.withdraw(reenterShares, address(this), address(this));
+            vault.withdraw(reenterAmount, address(this), address(this));
         } else if (kind == Kind.Redeem) {
-            vault.redeem(reenterShares, address(this), address(this));
+            vault.redeem(reenterAmount, address(this), address(this));
         }
     }
 }
@@ -397,24 +397,45 @@ contract ERC7535Test is Test {
         uint256 attackerDeposit = 5 ether;
         uint256 attackerShares = _fundReceiver(r, attackerDeposit);
 
-        // The attacker will try to re-redeem its FULL share balance again during the payout callback.
-        r.setup(vault, kind, attackerShares);
-
         uint256 vaultBalBefore = address(vault).balance;
         uint256 totalSupplyBefore = vault.totalSupply();
-        uint256 expectedPayout = vault.previewRedeem(attackerShares);
+
+        // Exercise the entry point matching `kind`: `withdraw` is parameterized in assets, `redeem` in shares.
+        // Rounding favors the vault, so the withdraw path may leave dust shares — derive the exact burned amount
+        // instead of assuming the full balance burns.
+        uint256 expectedPayout;
+        uint256 expectedBurned;
+        if (kind == ReentrantReceiver.Kind.Withdraw) {
+            expectedPayout = vault.maxWithdraw(address(r));
+            expectedBurned = vault.previewWithdraw(expectedPayout);
+        } else {
+            expectedPayout = vault.previewRedeem(attackerShares);
+            expectedBurned = attackerShares;
+        }
+
+        // The attacker will try to re-extract the same amount again (assets for withdraw, shares for redeem)
+        // during the payout callback.
+        r.setup(vault, kind, kind == ReentrantReceiver.Kind.Withdraw ? expectedPayout : attackerShares);
 
         vm.prank(address(r));
-        vault.redeem(attackerShares, address(r), address(r));
+        if (kind == ReentrantReceiver.Kind.Withdraw) {
+            vault.withdraw(expectedPayout, address(r), address(r));
+        } else {
+            vault.redeem(attackerShares, address(r), address(r));
+        }
 
         assertTrue(r.reentered(), "callback never fired");
 
-        // CEI: shares are burned BEFORE the ETH send, so the reentrant party observes zero balance for
-        // itself and a totalSupply already reduced by exactly its shares.
-        assertEq(r.observedSelfBalance(), 0, "attacker shares not burned before ETH send (CEI violated)");
+        // CEI: shares are burned BEFORE the ETH send, so the reentrant party observes an already-reduced
+        // balance for itself and a totalSupply already reduced by exactly the burned shares.
+        assertEq(
+            r.observedSelfBalance(),
+            attackerShares - expectedBurned,
+            "attacker shares not burned before ETH send (CEI violated)"
+        );
         assertEq(
             r.observedTotalSupply(),
-            totalSupplyBefore - attackerShares,
+            totalSupplyBefore - expectedBurned,
             "totalSupply not reduced before ETH send (CEI violated)"
         );
 
@@ -433,8 +454,12 @@ contract ERC7535Test is Test {
             "vault cannot honor the honest depositor after the reentrant attempt (insolvent)"
         );
 
-        assertEq(vault.balanceOf(address(r)), 0, "attacker still holds shares");
-        assertEq(vault.totalSupply(), otherShares, "share supply inconsistent after attack");
+        assertEq(vault.balanceOf(address(r)), attackerShares - expectedBurned, "attacker share balance inconsistent");
+        assertEq(
+            vault.totalSupply(),
+            otherShares + attackerShares - expectedBurned,
+            "share supply inconsistent after attack"
+        );
 
         // The honest depositor can still fully withdraw afterwards (funds not bricked).
         uint256 otherPayout = vault.previewRedeem(otherShares);

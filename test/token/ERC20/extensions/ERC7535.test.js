@@ -185,9 +185,12 @@ describe('ERC7535', function () {
 
     it('withdraw to address(0) succeeds and sends value to the zero address', async function () {
       const value = ethers.parseEther('1');
+      const shares = await this.vault.previewWithdraw(value);
       const tx = this.vault.connect(this.holder).withdraw(value, ethers.ZeroAddress, this.holder);
       await expect(tx).to.changeEtherBalances([this.vault, ethers.ZeroAddress], [-value, value]);
-      await expect(tx).to.emit(this.vault, 'Withdraw');
+      await expect(tx)
+        .to.emit(this.vault, 'Withdraw')
+        .withArgs(this.holder, ethers.ZeroAddress, this.holder, value, shares);
     });
   });
 
@@ -414,11 +417,11 @@ describe('ERC7535', function () {
         });
 
         it('withdraw with approval', async function () {
-          const assets = await this.vault.previewWithdraw(parseAsset(1n));
+          const shares = await this.vault.previewWithdraw(parseAsset(1n));
 
           await expect(this.vault.connect(this.other).withdraw(parseAsset(1n), this.recipient, this.holder))
             .to.be.revertedWithCustomError(this.vault, 'ERC20InsufficientAllowance')
-            .withArgs(this.other, 0n, assets);
+            .withArgs(this.other, 0n, shares);
 
           await expect(this.vault.connect(this.spender).withdraw(parseAsset(1n), this.recipient, this.holder)).to.not.be
             .reverted;
