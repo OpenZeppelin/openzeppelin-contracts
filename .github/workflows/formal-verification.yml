@@ -24,6 +24,8 @@ jobs:
     if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'formal-verification') || contains(github.event.pull_request.labels.*.name, 'formal-verification-force-all')
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # Include history so the diff against the PR base resolves
       - name: Set up environment
         uses: ./.github/actions/setup
         with:
