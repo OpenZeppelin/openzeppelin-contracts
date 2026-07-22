@@ -84,6 +84,10 @@ abstract contract ERC7739 is AbstractSigner, EIP712, IERC1271 {
             );
     }
 
+    /**
+     * @dev Builds the abi-encoded EIP-712 domain fields used to bind a nested typed data signature to this
+     * contract's domain. See {MessageHashUtils-domainBytes}.
+     */
     function _buildDomainBytes() private view returns (bytes memory) {
         (
             ,
@@ -94,6 +98,6 @@ abstract contract ERC7739 is AbstractSigner, EIP712, IERC1271 {
             bytes32 salt,
 
         ) = eip712Domain();
-        return abi.encode(keccak256(bytes(name)), keccak256(bytes(version)), chainId, verifyingContract, salt);
+        return MessageHashUtils.domainBytes(name, version, chainId, verifyingContract, salt);
     }
 }

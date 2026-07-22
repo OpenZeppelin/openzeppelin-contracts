@@ -178,6 +178,37 @@ library MessageHashUtils {
         }
     }
 
+    /**
+     * @dev Returns the abi-encoded EIP-712 domain fields (hashed name, hashed version, chainId,
+     * verifyingContract and salt), matching the `TypedDataSign` extension defined by
+     * https://eips.ethereum.org/EIPS/eip-5267[ERC-5267] and used to bind a nested typed data signature (e.g.
+     * https://ercs.ethereum.org/ERCS/erc-7739[ERC-7739]) to a specific EIP-712 domain.
+     *
+     * NOTE: Unlike {toDomainSeparator}, this function always includes all five domain fields. The
+     * `TypedDataSign` typehash this bytes payload is combined with hardcodes all five fields, so there is no
+     * `fields`-aware variant.
+     */
+    function domainBytes(
+        string memory name,
+        string memory version,
+        uint256 chainId,
+        address verifyingContract,
+        bytes32 salt
+    ) internal pure returns (bytes memory) {
+        return domainBytes(keccak256(bytes(name)), keccak256(bytes(version)), chainId, verifyingContract, salt);
+    }
+
+    /// @dev Variant of {domainBytes-string-string-uint256-address-bytes32} that uses hashed name and version.
+    function domainBytes(
+        bytes32 nameHash,
+        bytes32 versionHash,
+        uint256 chainId,
+        address verifyingContract,
+        bytes32 salt
+    ) internal pure returns (bytes memory) {
+        return abi.encode(nameHash, versionHash, chainId, verifyingContract, salt);
+    }
+
     /// @dev Builds an EIP-712 domain type hash depending on the `fields` provided, following https://eips.ethereum.org/EIPS/eip-5267[ERC-5267]
     function toDomainTypeHash(bytes1 fields) internal pure returns (bytes32 hash) {
         if (fields & 0x20 == 0x20) revert ERC5267ExtensionsNotSupported();

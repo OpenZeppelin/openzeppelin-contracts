@@ -145,5 +145,61 @@ describe('MessageHashUtils', function () {
         });
       });
     }
+
+    describe('domainBytes', function () {
+      const expected = ethers.AbiCoder.defaultAbiCoder().encode(
+        ['bytes32', 'bytes32', 'uint256', 'address', 'bytes32'],
+        [
+          ethers.id(fullDomain.name),
+          ethers.id(fullDomain.version),
+          fullDomain.chainId,
+          fullDomain.verifyingContract,
+          fullDomain.salt,
+        ],
+      );
+
+      it('domainBytes(string,string,uint256,address,bytes32)', async function () {
+        await expect(
+          this.mock.getFunction('$domainBytes(string,string,uint256,address,bytes32)')(
+            fullDomain.name,
+            fullDomain.version,
+            fullDomain.chainId,
+            fullDomain.verifyingContract,
+            fullDomain.salt,
+          ),
+        ).to.eventually.equal(expected);
+      });
+
+      it('domainBytes(bytes32,bytes32,uint256,address,bytes32)', async function () {
+        await expect(
+          this.mock.getFunction('$domainBytes(bytes32,bytes32,uint256,address,bytes32)')(
+            ethers.id(fullDomain.name),
+            ethers.id(fullDomain.version),
+            fullDomain.chainId,
+            fullDomain.verifyingContract,
+            fullDomain.salt,
+          ),
+        ).to.eventually.equal(expected);
+      });
+
+      it('version match', async function () {
+        const fromStrings = await this.mock.getFunction('$domainBytes(string,string,uint256,address,bytes32)')(
+          fullDomain.name,
+          fullDomain.version,
+          fullDomain.chainId,
+          fullDomain.verifyingContract,
+          fullDomain.salt,
+        );
+        const fromHashes = await this.mock.getFunction('$domainBytes(bytes32,bytes32,uint256,address,bytes32)')(
+          ethers.id(fullDomain.name),
+          ethers.id(fullDomain.version),
+          fullDomain.chainId,
+          fullDomain.verifyingContract,
+          fullDomain.salt,
+        );
+
+        expect(fromStrings).to.equal(fromHashes);
+      });
+    });
   });
 });
