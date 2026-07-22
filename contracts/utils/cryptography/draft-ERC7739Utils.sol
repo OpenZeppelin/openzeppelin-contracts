@@ -108,6 +108,11 @@ library ERC7739Utils {
      * @dev Nests an `EIP-712` hash (`contents`) into a `TypedDataSign` EIP-712 struct, and returns the corresponding
      * struct hash. This struct hash must be combined with a domain separator, using {MessageHashUtils-toTypedDataHash}
      * before being verified/recovered.
+     *
+     * NOTE: Returns `bytes32(0)` when `contentsName` is empty. Since {decodeContentsDescr} yields an empty
+     * `contentsName` for both empty and malformed descriptors, callers must either sanitize the input so an empty
+     * `contentsName` is never passed, or reject the `bytes32(0)` return before signing/verifying. Combining it
+     * with any domain separator produces a struct hash that no longer binds `contentsHash` nor `domainBytes`.
      */
     function typedDataSignStructHash(
         string calldata contentsName,
@@ -126,6 +131,9 @@ library ERC7739Utils {
     /**
      * @dev Variant of {typedDataSignStructHash-string-string-bytes32-bytes} that takes a content descriptor
      * and decodes the `contentsName` and `contentsType` out of it.
+     *
+     * NOTE: Returns `bytes32(0)` when `contentsDescr` is empty or malformed (i.e. {decodeContentsDescr} yields
+     * an empty `contentsName`). See {typedDataSignStructHash-string-string-bytes32-bytes} for the caller's obligation.
      */
     function typedDataSignStructHash(
         string calldata contentsDescr,
