@@ -273,7 +273,7 @@ function shouldBehaveLikeAccountERC7579({ withHooks = false } = {}) {
           .withArgs(MODULE_TYPE_FALLBACK, anotherInstance);
       });
 
-      it("should revert if a module's onUninstall hook reverts", async function () {
+      it('should revert if a module\'s onUninstall hook reverts', async function () {
         const revertingModule = await ethers.deployContract('$ERC7579ModuleMaliciousMock', [MODULE_TYPE_EXECUTOR]);
 
         // Install the reverting module
