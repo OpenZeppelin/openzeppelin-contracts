@@ -23,9 +23,9 @@ import {IERC5267} from "../../interfaces/IERC5267.sol";
  * the chain id to protect against replay attacks on an eventual fork of the chain.
  *
  * While the non-upgradeable version is designed to work when used in conjunction with proxies, the ERC-5267 domain
- * getter will fail to retrieve the name and version if they do not fit in the immutable ShortString, and are instead
- * stored in the fallback storage. Developers that plan on using the non-upgradeable version with proxy or clones
- * should make sure they use name and version strings that are at most 31 characters long.
+ * getter will fail to retrieve the name and version if they do not fit in the immutable ShortString and are instead
+ * stored in fallback storage. Developers that plan on using the non-upgradeable version with a proxy or clone should
+ * make sure they use name and version strings that are at most 31 bytes long.
  *
  * NOTE: This contract implements the version of the encoding known as "v4", as implemented by the JSON RPC method
  * https://docs.metamask.io/guide/signing-data.html[`eth_signTypedDataV4` in MetaMask].
