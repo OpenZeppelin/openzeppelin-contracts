@@ -128,9 +128,9 @@ describe('Clones', function () {
         });
 
         it('get immutable arguments (slice to end) truncates start', async function () {
-          await expect(this.factory['$fetchCloneArgs(address,uint256)'](this.instance, argsLength)).to.eventually.equal(
-            '0x',
-          );
+          await expect(
+            this.factory['$fetchCloneArgs(address,uint256)'](this.instance, argsLength + 1),
+          ).to.eventually.equal('0x');
         });
       });
 
