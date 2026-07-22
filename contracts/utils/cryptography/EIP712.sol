@@ -127,8 +127,8 @@ abstract contract EIP712 is IERC5267 {
     {
         return (
             hex"0f", // 01111
-            _name.toString(),
-            _version.toString(),
+            _EIP712Name(),
+            _EIP712Version(),
             block.chainid,
             address(this),
             bytes32(0),
