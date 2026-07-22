@@ -9,7 +9,7 @@ Documentation for CVT and the specification language is available [here](https:/
 Follow the [Certora installation guide](https://docs.certora.com/en/latest/docs/user-guide/getting-started/install.html) in order to get the Certora Prover Package and the `solc` executable folder in your path.
 
 > **Note**
-> An API Key is required for local testing. Although the prover will run on a GitHub Actions' CI environment on selected Pull Requests.
+> An API Key is required for local testing. Although the prover will run in a GitHub Actions' CI environment on selected Pull Requests.
 
 ## Running the verification
 

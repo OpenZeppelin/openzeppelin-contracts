@@ -49,6 +49,7 @@ import {NoncesKeyed} from "../utils/NoncesKeyed.sol";
 import {P256} from "../utils/cryptography/P256.sol";
 import {Packing} from "../utils/Packing.sol";
 import {Panic} from "../utils/Panic.sol";
+import {RateLimiter} from "../utils/RateLimiter.sol";
 import {RelayedCall} from "../utils/RelayedCall.sol";
 import {RLP} from "../utils/RLP.sol";
 import {RSA} from "../utils/cryptography/RSA.sol";
