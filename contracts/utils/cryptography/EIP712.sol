@@ -29,6 +29,10 @@ import {IERC5267} from "../../interfaces/IERC5267.sol";
  * separator of the implementation contract. This will cause the {_domainSeparatorV4} function to always rebuild the
  * separator from the immutable values, which is cheaper than accessing a cached version in cold storage.
  *
+ * IMPORTANT: The `name` and `version` must each fit in a `ShortString` (at most 31 bytes). Longer values cause the
+ * constructor to revert with a `ShortStrings.StringTooLong` error. Because the values are stored exclusively in
+ * immutables, the domain is preserved when the contract is used behind a proxy or clone without an initializer.
+ *
  * @custom:oz-upgrades-unsafe-allow state-variable-immutable
  */
 abstract contract EIP712 is IERC5267 {
@@ -48,8 +52,12 @@ abstract contract EIP712 is IERC5267 {
 
     ShortString private immutable _name;
     ShortString private immutable _version;
+
+    // IMPORTANT: Deprecated. Kept for storage compliance when used behind a proxy or clone.
     // slither-disable-next-line constable-states
     string private _nameFallback;
+
+    // IMPORTANT: Deprecated. Kept for storage compliance when used behind a proxy or clone.
     // slither-disable-next-line constable-states
     string private _versionFallback;
 
@@ -66,8 +74,8 @@ abstract contract EIP712 is IERC5267 {
      * contract upgrade].
      */
     constructor(string memory name, string memory version) {
-        _name = name.toShortStringWithFallback(_nameFallback);
-        _version = version.toShortStringWithFallback(_versionFallback);
+        _name = name.toShortString();
+        _version = version.toShortString();
         _hashedName = keccak256(bytes(name));
         _hashedVersion = keccak256(bytes(version));
 
@@ -139,22 +147,20 @@ abstract contract EIP712 is IERC5267 {
     /**
      * @dev The name parameter for the EIP712 domain.
      *
-     * NOTE: By default this function reads _name which is an immutable value.
-     * It only reads from storage if necessary (in case the value is too large to fit in a ShortString).
+     * NOTE: This function reads `_name`, which is an immutable value.
      */
     // solhint-disable-next-line func-name-mixedcase
     function _EIP712Name() internal view returns (string memory) {
-        return _name.toStringWithFallback(_nameFallback);
+        return _name.toString();
     }
 
     /**
      * @dev The version parameter for the EIP712 domain.
      *
-     * NOTE: By default this function reads _version which is an immutable value.
-     * It only reads from storage if necessary (in case the value is too large to fit in a ShortString).
+     * NOTE: This function reads `_version`, which is an immutable value.
      */
     // solhint-disable-next-line func-name-mixedcase
     function _EIP712Version() internal view returns (string memory) {
-        return _version.toStringWithFallback(_versionFallback);
+        return _version.toString();
     }
 }
