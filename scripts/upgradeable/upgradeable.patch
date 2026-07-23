@@ -173,7 +173,7 @@ index c156fa1cc..895e39342 100644
       * @dev Prevents a contract from calling itself, directly or indirectly.
       * Calling a `nonReentrant` function from another `nonReentrant`
 diff --git a/contracts/utils/cryptography/EIP712.sol b/contracts/utils/cryptography/EIP712.sol
-index 5daec8e1b..d637e9746 100644
+index 5daec8e1b..a5aa41d21 100644
 --- a/contracts/utils/cryptography/EIP712.sol
 +++ b/contracts/utils/cryptography/EIP712.sol
 @@ -4,7 +4,6 @@
@@ -184,7 +184,7 @@ index 5daec8e1b..d637e9746 100644
  import {IERC5267} from "../../interfaces/IERC5267.sol";
  
  /**
-@@ -25,33 +24,18 @@ import {IERC5267} from "../../interfaces/IERC5267.sol";
+@@ -25,41 +24,18 @@ import {IERC5267} from "../../interfaces/IERC5267.sol";
   * NOTE: This contract implements the version of the encoding known as "v4", as implemented by the JSON RPC method
   * https://docs.metamask.io/guide/signing-data.html[`eth_signTypedDataV4` in MetaMask].
   *
@@ -217,12 +217,20 @@ index 5daec8e1b..d637e9746 100644
  
 -    ShortString private immutable _name;
 -    ShortString private immutable _version;
+-
+-    // IMPORTANT: Deprecated. Kept for storage compliance when used behind a proxy or clone.
+-    // slither-disable-next-line constable-states
+-    string private _nameFallback;
+-
+-    // IMPORTANT: Deprecated. Kept for storage compliance when used behind a proxy or clone.
+-    // slither-disable-next-line constable-states
+-    string private _versionFallback;
 +    string private _name;
 +    string private _version;
  
-     // IMPORTANT: Deprecated. Kept for storage compliance when used behind a proxy or clone.
-     // slither-disable-next-line constable-states
-@@ -74,29 +58,19 @@ abstract contract EIP712 is IERC5267 {
+     /**
+      * @dev Initializes the domain separator and parameter caches.
+@@ -74,29 +50,19 @@ abstract contract EIP712 is IERC5267 {
       * contract upgrade].
       */
      constructor(string memory name, string memory version) {
@@ -256,7 +264,7 @@ index 5daec8e1b..d637e9746 100644
      }
  
      /**
-@@ -147,20 +121,38 @@ abstract contract EIP712 is IERC5267 {
+@@ -147,20 +113,38 @@ abstract contract EIP712 is IERC5267 {
      /**
       * @dev The name parameter for the EIP712 domain.
       *
