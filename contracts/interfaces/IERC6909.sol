@@ -54,6 +54,12 @@ interface IERC6909 is IERC165 {
      * `type(uint256).max` signifies an unlimited approval.
      *
      * Must return true.
+     *
+     * WARNING: This function is subject to the same race condition risks as {IERC20-approve}.
+     * Changing an allowance with this method brings the risk that `spender` may use both the
+     * old and the new allowance by spending the previous allowance while the new one is in-flight.
+     * One possible solution to mitigate this race condition is to first reduce `spender`'s
+     * allowance to 0 and than set the desired value afterwards.
      */
     function approve(address spender, uint256 id, uint256 amount) external returns (bool);
 
