@@ -86,16 +86,51 @@ describe('Clones', function () {
 
   for (const args of [undefined, '0x', '0x11223344']) {
     describe(args ? `with immutable args: ${args}` : 'without immutable args', function () {
+      const argsLength = ethers.dataLength(args ?? '0x');
+
       describe('clone', function () {
         beforeEach(async function () {
           this.createClone = this.newClone(args);
+          this.instance = await this.createClone();
         });
 
         shouldBehaveLikeClone();
 
         it('get immutable arguments', async function () {
-          const instance = await this.createClone();
-          expect(await this.factory.$fetchCloneArgs(instance)).to.equal(args ?? '0x');
+          await expect(this.factory['$fetchCloneArgs(address)'](this.instance)).to.eventually.equal(args ?? '0x');
+        });
+
+        it('get immutable arguments (slice)', async function () {
+          const start = Math.floor(argsLength / 2);
+          const length = Math.floor(argsLength / 3);
+          await expect(
+            this.factory['$fetchCloneArgs(address,uint256,uint256)'](this.instance, start, length),
+          ).to.eventually.equal(ethers.dataSlice(args ?? '0x', start, start + length));
+        });
+
+        it('get immutable arguments (slice to end)', async function () {
+          const start = Math.floor(argsLength / 2);
+          await expect(this.factory['$fetchCloneArgs(address,uint256)'](this.instance, start)).to.eventually.equal(
+            ethers.dataSlice(args ?? '0x', start),
+          );
+        });
+
+        it('get immutable arguments (slice) truncates to the end', async function () {
+          // length past the end is capped
+          await expect(
+            this.factory['$fetchCloneArgs(address,uint256,uint256)'](this.instance, 0, argsLength + 1),
+          ).to.eventually.equal(args ?? '0x');
+
+          // start past the end returns an empty array
+          await expect(
+            this.factory['$fetchCloneArgs(address,uint256,uint256)'](this.instance, argsLength + 1, 1),
+          ).to.eventually.equal('0x');
+        });
+
+        it('get immutable arguments (slice to end) truncates start', async function () {
+          await expect(
+            this.factory['$fetchCloneArgs(address,uint256)'](this.instance, argsLength + 1),
+          ).to.eventually.equal('0x');
         });
       });
 
@@ -108,7 +143,7 @@ describe('Clones', function () {
 
         it('get immutable arguments', async function () {
           const instance = await this.createClone();
-          expect(await this.factory.$fetchCloneArgs(instance)).to.equal(args ?? '0x');
+          await expect(this.factory['$fetchCloneArgs(address)'](instance)).to.eventually.equal(args ?? '0x');
         });
 
         it('revert if address already used', async function () {
