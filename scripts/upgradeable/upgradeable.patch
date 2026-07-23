@@ -116,7 +116,7 @@ index 6a01f5616..b01c6e88f 100644
  }
  ```
 diff --git a/contracts/package.json b/contracts/package.json
-index 3535a2f56..9a73abc22 100644
+index c225e6ea8..3fdfb4e70 100644
 --- a/contracts/package.json
 +++ b/contracts/package.json
 @@ -1,5 +1,5 @@
@@ -124,7 +124,7 @@ index 3535a2f56..9a73abc22 100644
 -  "name": "@openzeppelin/contracts",
 +  "name": "@openzeppelin/contracts-upgradeable",
    "description": "Secure Smart Contract library for Solidity",
-   "version": "5.5.0",
+   "version": "5.6.1",
    "files": [
 @@ -13,7 +13,7 @@
    },
@@ -145,6 +145,21 @@ index 3535a2f56..9a73abc22 100644
 +    "@openzeppelin/contracts": "<package-version>"
 +  }
  }
+diff --git a/contracts/token/ERC721/extensions/ERC721Enumerable.sol b/contracts/token/ERC721/extensions/ERC721Enumerable.sol
+index 109d1e845..47768955e 100644
+--- a/contracts/token/ERC721/extensions/ERC721Enumerable.sol
++++ b/contracts/token/ERC721/extensions/ERC721Enumerable.sol
+@@ -13,6 +13,10 @@ import {IERC165} from "../../../utils/introspection/ERC165.sol";
+  *
+  * CAUTION: {ERC721} extensions that implement custom `balanceOf` logic, such as {ERC721Consecutive},
+  * interfere with enumerability and should not be used together with {ERC721Enumerable}.
++ *
++ * CAUTION: This extension should not be added in an upgrade after tokens have already been minted.
++ * Enumeration is tracked in {_update}, so preexisting tokens would be missing from {totalSupply},
++ * {tokenByIndex}, and {tokenOfOwnerByIndex}.
+  */
+ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
+     mapping(address owner => mapping(uint256 index => uint256)) private _ownedTokens;
 diff --git a/contracts/utils/ReentrancyGuard.sol b/contracts/utils/ReentrancyGuard.sol
 index c156fa1cc..895e39342 100644
 --- a/contracts/utils/ReentrancyGuard.sol
@@ -306,7 +321,7 @@ index 2bc45a4b2..a5aa41d21 100644
      }
  }
 diff --git a/package.json b/package.json
-index 6f2d411dd..956933f33 100644
+index c52bc6541..1ec73d8fa 100644
 --- a/package.json
 +++ b/package.json
 @@ -35,7 +35,7 @@
