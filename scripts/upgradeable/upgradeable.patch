@@ -355,7 +355,7 @@ index 86816e55e..de6adc2c5 100644
      verifyingContract: mock.address,
    };
 diff --git a/test/utils/cryptography/EIP712.test.js b/test/utils/cryptography/EIP712.test.js
-index 54e5b78ec..13a859b16 100644
+index 54e5b78ec..ea9e0ca39 100644
 --- a/test/utils/cryptography/EIP712.test.js
 +++ b/test/utils/cryptography/EIP712.test.js
 @@ -31,7 +31,6 @@ describe('EIP712', function () {
@@ -389,7 +389,7 @@ index 54e5b78ec..13a859b16 100644
      });
  
      it('hash digest', async function () {
-@@ -90,18 +73,23 @@ describe('EIP712', function () {
+@@ -90,18 +73,30 @@ describe('EIP712', function () {
    });
  
    describe('with long name and version', function () {
@@ -403,8 +403,11 @@ index 54e5b78ec..13a859b16 100644
 +
 +      await expect(instance.$_EIP712Name()).to.eventually.equal(longName);
 +      await expect(instance.$_EIP712Version()).to.eventually.equal(version);
-+      await expect(getDomain(instance)).to.eventually.be.deep.equal({ ...this.domain, name: longName });
-+
++      await expect(getDomain(instance)).to.eventually.be.deep.equal({
++        ...this.domain,
++        name: longName,
++        verifyingContract: instance.target,
++      });
      });
  
 -    it('deployment fails with long version', async function () {
@@ -417,7 +420,11 @@ index 54e5b78ec..13a859b16 100644
 +
 +      await expect(instance.$_EIP712Name()).to.eventually.equal(name);
 +      await expect(instance.$_EIP712Version()).to.eventually.equal(longVersion);
-+      await expect(getDomain(instance)).to.eventually.be.deep.equal({ ...this.domain, version: longVersion });
++      await expect(getDomain(instance)).to.eventually.be.deep.equal({
++        ...this.domain,
++        version: longVersion,
++        verifyingContract: instance.target,
++      });
      });
    });
  });
