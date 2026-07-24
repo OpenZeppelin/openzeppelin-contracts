@@ -93,7 +93,46 @@ describe('RSA', function () {
       result: false,
     };
 
-    for (const { descr, data, sig, exp, mod, result } of [openssl, rfc4055, shortN, differentLength, sTooLarge]) {
+    // These test cases exercise the word-based padding rejection branches.
+    // We tamper with valid signatures to produce invalid padding bytes.
+    const invalidPaddingFirst = {
+      descr: 'returns false for corrupted padding in first word',
+      data: openssl.data,
+      exp: openssl.exp,
+      mod: openssl.mod,
+      // Replace byte 2 of the sig (first padding byte) with 0x00 instead of 0xFF
+      sig: openssl.sig.slice(0, 6) + '00' + openssl.sig.slice(8),
+      result: false,
+    };
+    const invalidPaddingMiddle = {
+      descr: 'returns false for corrupted padding in middle word',
+      data: openssl.data,
+      exp: openssl.exp,
+      mod: openssl.mod,
+      // Replace byte 33 of the sig (first byte of second word) with 0x00
+      sig: openssl.sig.slice(0, 68) + '00' + openssl.sig.slice(70),
+      result: false,
+    };
+    const invalidPaddingLast = {
+      descr: 'returns false for corrupted padding in last partial word',
+      data: openssl.data,
+      exp: openssl.exp,
+      mod: openssl.mod,
+      // Replace byte 193 of the sig (first byte of last partial word) with 0x00
+      sig: openssl.sig.slice(0, 388) + '00' + openssl.sig.slice(390),
+      result: false,
+    };
+
+    for (const { descr, data, sig, exp, mod, result } of [
+      openssl,
+      rfc4055,
+      shortN,
+      differentLength,
+      sTooLarge,
+      invalidPaddingFirst,
+      invalidPaddingMiddle,
+      invalidPaddingLast,
+    ]) {
       it(descr, async function () {
         expect(await this.mock.$pkcs1Sha256(bytes(data), sig, exp, mod)).to.equal(result);
       });
