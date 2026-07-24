@@ -158,6 +158,9 @@ contract ERC2771Forwarder is EIP712, Nonces {
      *
      * - The sum of the requests' values should be equal to the provided `msg.value`.
      * - All of the requests should be valid (see {verify}) when `refundReceiver` is the zero address.
+     * 
+     * NOTE: Setting a zero `refundReceiver` reverts the whole batch if any request is invalid or a value-bearing 
+     * call fails, so it should only be used when transaction inclusion is under the caller's control.
      */
     function executeBatch(
         ForwardRequestData[] calldata requests,
