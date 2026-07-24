@@ -89,7 +89,7 @@ runs:
     # Python setup
     - name: Install python (${{ steps.versions.outputs.python }})
       if: inputs.python != 'off'
-      uses: actions/setup-python@v6
+      uses: actions/setup-python@v7
       with:
         python-version: ${{ steps.versions.outputs.python }}
         cache: 'pip'
