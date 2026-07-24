@@ -146,18 +146,47 @@ describe('GovernorTimelockCompound', function () {
               target: this.token.target,
               data: this.token.interface.encodeFunctionData('approve', [this.receiver.target, ethers.MaxUint256]),
             };
-            const { id } = this.helper.setProposal([action, action], '<proposal description>');
+            this.helper.setProposal([action, action], '<proposal description>');
 
-            await this.helper.propose();
-            await this.helper.waitForSnapshot();
-            await this.helper.connect(this.voter1).vote({ support: VoteType.For });
-            await this.helper.waitForDeadline();
-            await expect(this.helper.queue())
-              .to.be.revertedWithCustomError(this.mock, 'GovernorAlreadyQueuedProposal')
-              .withArgs(id);
-            await expect(this.helper.execute())
-              .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
-              .withArgs(id, ProposalState.Succeeded, GovernorHelper.proposalStatesToBitMap([ProposalState.Queued]));
+            await expect(this.helper.propose())
+              .to.be.revertedWithCustomError(this.mock, 'GovernorDuplicateProposalAction')
+              .withArgs(1n);
+          });
+
+          it('if proposal is empty', async function () {
+            this.helper.setProposal([], '<proposal description>');
+
+            await expect(this.helper.propose())
+              .to.be.revertedWithCustomError(this.mock, 'GovernorInvalidProposalLength')
+              .withArgs(0n, 0n, 0n);
+          });
+
+          it('if targets/values lengths mismatch', async function () {
+            this.helper.setProposal(
+              {
+                targets: [this.receiver.target],
+                values: [],
+                data: [this.receiver.interface.encodeFunctionData('mockFunction')],
+              },
+              '<proposal description>',
+            );
+            await expect(this.helper.propose())
+              .to.be.revertedWithCustomError(this.mock, 'GovernorInvalidProposalLength')
+              .withArgs(1n, 1n, 0n);
+          });
+
+          it('if targets/calldatas lengths mismatch', async function () {
+            this.helper.setProposal(
+              {
+                targets: [this.receiver.target],
+                values: [0n],
+                data: [],
+              },
+              '<proposal description>',
+            );
+            await expect(this.helper.propose())
+              .to.be.revertedWithCustomError(this.mock, 'GovernorInvalidProposalLength')
+              .withArgs(1n, 0n, 1n);
           });
         });
 
