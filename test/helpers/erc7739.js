@@ -72,7 +72,7 @@ class ERC4337Utils {
     return {
       prefixed: ethers.concat([
         ethers.toUtf8Bytes(ethers.MessagePrefix),
-        ethers.toUtf8Bytes(String(message.length)),
+        ethers.toUtf8Bytes(message.length.toString()),
         typeof message === 'string' ? ethers.toUtf8Bytes(message) : message,
       ]),
     };
