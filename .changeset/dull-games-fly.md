@@ -2,4 +2,4 @@
 'openzeppelin-solidity': patch
 ---
 
-Update `ERC2771Forwarder` `executeBatch` docs removing atomicity terminology
+[BREAKING] `ERC2771Forwarder`: custom error `ERC2771ForwarderFailureInAtomicBatch` has been remaned to `ERC2771ForwarderNoRefundReceiver`
