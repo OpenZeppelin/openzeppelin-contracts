@@ -188,7 +188,7 @@ index c156fa1cc..895e39342 100644
       * @dev Prevents a contract from calling itself, directly or indirectly.
       * Calling a `nonReentrant` function from another `nonReentrant`
 diff --git a/contracts/utils/cryptography/EIP712.sol b/contracts/utils/cryptography/EIP712.sol
-index 2bc45a4b2..a5aa41d21 100644
+index 9a13afcf2..13a2dae02 100644
 --- a/contracts/utils/cryptography/EIP712.sol
 +++ b/contracts/utils/cryptography/EIP712.sol
 @@ -4,7 +4,6 @@
@@ -199,7 +199,7 @@ index 2bc45a4b2..a5aa41d21 100644
  import {IERC5267} from "../../interfaces/IERC5267.sol";
  
  /**
-@@ -25,33 +24,18 @@ import {IERC5267} from "../../interfaces/IERC5267.sol";
+@@ -30,33 +29,18 @@ import {IERC5267} from "../../interfaces/IERC5267.sol";
   * NOTE: This contract implements the version of the encoding known as "v4", as implemented by the JSON RPC method
   * https://docs.metamask.io/guide/signing-data.html[`eth_signTypedDataV4` in MetaMask].
   *
@@ -237,7 +237,7 @@ index 2bc45a4b2..a5aa41d21 100644
  
      /**
       * @dev Initializes the domain separator and parameter caches.
-@@ -66,29 +50,19 @@ abstract contract EIP712 is IERC5267 {
+@@ -71,25 +55,15 @@ abstract contract EIP712 is IERC5267 {
       * contract upgrade].
       */
      constructor(string memory name, string memory version) {
@@ -266,12 +266,7 @@ index 2bc45a4b2..a5aa41d21 100644
      }
  
      function _buildDomainSeparator() private view returns (bytes32) {
--        return keccak256(abi.encode(TYPE_HASH, _hashedName, _hashedVersion, block.chainid, address(this)));
-+        return keccak256(abi.encode(TYPE_HASH, _EIP712NameHash(), _EIP712VersionHash(), block.chainid, address(this)));
-     }
- 
-     /**
-@@ -139,22 +113,38 @@ abstract contract EIP712 is IERC5267 {
+@@ -144,34 +118,38 @@ abstract contract EIP712 is IERC5267 {
      /**
       * @dev The name parameter for the EIP712 domain.
       *
@@ -294,29 +289,35 @@ index 2bc45a4b2..a5aa41d21 100644
 -     * It only reads from storage if necessary (in case the value is too large to fit in a ShortString).
 +     * NOTE: This function reads from storage by default, but can be redefined to return a constant value if gas costs
 +     * are a concern.
-+     */
+      */
+-    // solhint-disable-next-line func-name-mixedcase
+-    function _EIP712Version() internal view returns (string memory) {
+-        return _version.toStringWithFallback(_versionFallback);
 +    function _EIP712Version() internal view virtual returns (string memory) {
 +        return _version;
-+    }
-+
+     }
+ 
+-    /// @dev The hash of the name parameter for the EIP712 domain.
+-    // solhint-disable-next-line func-name-mixedcase
 +    /**
 +     * @dev The hash of the name parameter for the EIP712 domain.
 +     *
 +     * NOTE: In previous versions this function was virtual. In this version you should override `_EIP712Name` instead.
 +     */
-+    function _EIP712NameHash() internal view returns (bytes32) {
+     function _EIP712NameHash() internal view returns (bytes32) {
+-        return _hashedName;
 +        return keccak256(bytes(_EIP712Name()));
-+    }
-+
+     }
+ 
+-    /// @dev The hash of the version parameter for the EIP712 domain.
+-    // solhint-disable-next-line func-name-mixedcase
 +    /**
 +     * @dev The hash of the version parameter for the EIP712 domain.
 +     *
 +     * NOTE: In previous versions this function was virtual. In this version you should override `_EIP712Version` instead.
-      */
--    // solhint-disable-next-line func-name-mixedcase
--    function _EIP712Version() internal view returns (string memory) {
--        return _version.toStringWithFallback(_versionFallback);
-+    function _EIP712VersionHash() internal view returns (bytes32) {
++     */
+     function _EIP712VersionHash() internal view returns (bytes32) {
+-        return _hashedVersion;
 +        return keccak256(bytes(_EIP712Version()));
      }
  }

@@ -85,15 +85,7 @@ abstract contract ERC7739 is AbstractSigner, EIP712, IERC1271 {
     }
 
     function _buildDomainBytes() private view returns (bytes memory) {
-        (
-            ,
-            string memory name,
-            string memory version,
-            uint256 chainId,
-            address verifyingContract,
-            bytes32 salt,
-
-        ) = eip712Domain();
-        return abi.encode(keccak256(bytes(name)), keccak256(bytes(version)), chainId, verifyingContract, salt);
+        (, , , uint256 chainId, address verifyingContract, bytes32 salt, ) = eip712Domain();
+        return abi.encode(_EIP712NameHash(), _EIP712VersionHash(), chainId, verifyingContract, salt);
     }
 }

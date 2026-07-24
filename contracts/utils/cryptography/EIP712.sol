@@ -22,6 +22,11 @@ import {IERC5267} from "../../interfaces/IERC5267.sol";
  * The implementation of the domain separator was designed to be as efficient as possible while still properly updating
  * the chain id to protect against replay attacks on an eventual fork of the chain.
  *
+ * While the non-upgradeable version is designed to work when used in conjunction with proxies, the ERC-5267 domain
+ * getter will fail to retrieve the name and version if they do not fit in the immutable ShortString and are instead
+ * stored in fallback storage. Developers that plan on using the non-upgradeable version with a proxy or clone should
+ * make sure they use name and version strings that are at most 31 bytes long.
+ *
  * NOTE: This contract implements the version of the encoding known as "v4", as implemented by the JSON RPC method
  * https://docs.metamask.io/guide/signing-data.html[`eth_signTypedDataV4` in MetaMask].
  *
@@ -88,7 +93,7 @@ abstract contract EIP712 is IERC5267 {
     }
 
     function _buildDomainSeparator() private view returns (bytes32) {
-        return keccak256(abi.encode(TYPE_HASH, _hashedName, _hashedVersion, block.chainid, address(this)));
+        return keccak256(abi.encode(TYPE_HASH, _EIP712NameHash(), _EIP712VersionHash(), block.chainid, address(this)));
     }
 
     /**
@@ -156,5 +161,17 @@ abstract contract EIP712 is IERC5267 {
     // solhint-disable-next-line func-name-mixedcase
     function _EIP712Version() internal view returns (string memory) {
         return _version.toStringWithFallback(_versionFallback);
+    }
+
+    /// @dev The hash of the name parameter for the EIP712 domain.
+    // solhint-disable-next-line func-name-mixedcase
+    function _EIP712NameHash() internal view returns (bytes32) {
+        return _hashedName;
+    }
+
+    /// @dev The hash of the version parameter for the EIP712 domain.
+    // solhint-disable-next-line func-name-mixedcase
+    function _EIP712VersionHash() internal view returns (bytes32) {
+        return _hashedVersion;
     }
 }
