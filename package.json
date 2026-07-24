@@ -52,7 +52,7 @@
   },
   "homepage": "https://openzeppelin.com/contracts/",
   "devDependencies": {
-    "@changesets/changelog-github": "^0.6.0",
+    "@changesets/changelog-github": "^0.7.0",
     "@changesets/cli": "^2.26.0",
     "@changesets/pre": "^2.0.0",
     "@changesets/read": "^0.6.0",
@@ -69,6 +69,7 @@
     "chai": "^4.2.0",
     "eslint": "^9.0.0",
     "eslint-config-prettier": "^10.0.0",
+    "eslint-plugin-mocha": "^11.2.0",
     "ethers": "^6.16.0",
     "glob": "^13.0.0",
     "globals": "^17.0.0",
@@ -80,7 +81,7 @@
     "hardhat-predeploy": "^0.4.1",
     "husky": "^9.1.7",
     "interoperable-addresses": "^0.1.3",
-    "lint-staged": "^16.0.0",
+    "lint-staged": "^17.0.0",
     "lodash.startcase": "^4.4.0",
     "micromatch": "^4.0.2",
     "p-limit": "^7.0.0",
@@ -93,7 +94,7 @@
     "solidity-ast": "^0.4.50",
     "solidity-coverage": "^0.8.14",
     "solidity-docgen": "^0.6.0-beta.29",
-    "undici": "^7.4.0",
+    "undici": "^8.2.0",
     "yargs": "^18.0.0"
   },
   "lint-staged": {

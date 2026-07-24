@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.6.0) (account/utils/draft-ERC4337Utils.sol)
+// OpenZeppelin Contracts (last updated v5.6.0) (account/utils/ERC4337Utils.sol)
 
 pragma solidity ^0.8.20;
 
-import {IEntryPoint, PackedUserOperation} from "../../interfaces/draft-IERC4337.sol";
+import {IEntryPoint, PackedUserOperation} from "../../interfaces/IERC4337.sol";
 import {Math} from "../../utils/math/Math.sol";
 import {Calldata} from "../../utils/Calldata.sol";
 import {Packing} from "../../utils/Packing.sol";
@@ -175,7 +175,7 @@ library ERC4337Utils {
         //
         // Prior to v0.8.0, this was easy to replicate for any entrypoint and chainId. Since v0.8.0 of the
         // entrypoint, this depends on the Entrypoint's domain separator, which cannot be hardcoded and is complex
-        // to recompute. Domain separator could be fetch using the `getDomainSeparatorV4` getter, or recomputed from
+        // to recompute. Domain separator could be fetched using the `getDomainSeparatorV4` getter, or recomputed from
         // the ERC-5267 getter, but both operation would require doing a view call to the entrypoint. Overall it feels
         // simpler and less error prone to get that functionality from the entrypoint directly.
         return IEntryPointExtra(entrypoint).getUserOpHash(self);

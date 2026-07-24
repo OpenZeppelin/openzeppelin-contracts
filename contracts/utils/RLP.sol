@@ -154,7 +154,7 @@ library RLP {
      * @dev Encode an address as an RLP item of fixed size (20 bytes).
      *
      * The address is encoded with its leading zeros (if it has any). If someone wants to encode the address as a scalar,
-     * they can cast it to an uint256 and then call the corresponding {encode} function.
+     * they can cast it to a uint256 and then call the corresponding {encode} function.
      */
     function encode(address input) internal pure returns (bytes memory result) {
         assembly ("memory-safe") {
@@ -166,7 +166,7 @@ library RLP {
     }
 
     /**
-     * @dev Encode an uint256 as an RLP scalar.
+     * @dev Encode a uint256 as an RLP scalar.
      *
      * Unlike {encode-bytes32-}, this function uses scalar encoding that removes the prefix zeros.
      */
@@ -453,13 +453,13 @@ library RLP {
                 return (1, strLength, ItemType.Data);
             } else {
                 // Case: Long string (>55 bytes)
-                uint256 lengthLength = prefix - SHORT_OFFSET - SHORT_THRESHOLD;
-
+                uint256 lengthLength = prefix - SHORT_OFFSET - SHORT_THRESHOLD; // >=1
+                require(itemLength > lengthLength, RLPInvalidEncoding());
                 bytes32 lenChunk = item.load(1);
-                require(itemLength > lengthLength && bytes1(lenChunk) != 0x00, RLPInvalidEncoding());
+                require(bytes1(lenChunk) != 0x00, RLPInvalidEncoding());
 
                 uint256 len = uint256(lenChunk) >> (256 - 8 * lengthLength);
-                require(len > SHORT_THRESHOLD && itemLength > lengthLength + len, RLPInvalidEncoding());
+                require(len > SHORT_THRESHOLD && itemLength - lengthLength > len, RLPInvalidEncoding());
 
                 return (lengthLength + 1, len, ItemType.Data);
             }
@@ -472,13 +472,13 @@ library RLP {
                 return (1, listLength, ItemType.List);
             } else {
                 // Case: Long list
-                uint256 lengthLength = prefix - LONG_OFFSET - SHORT_THRESHOLD;
-
+                uint256 lengthLength = prefix - LONG_OFFSET - SHORT_THRESHOLD; // >=1
+                require(itemLength > lengthLength, RLPInvalidEncoding());
                 bytes32 lenChunk = item.load(1);
-                require(itemLength > lengthLength && bytes1(lenChunk) != 0x00, RLPInvalidEncoding());
+                require(bytes1(lenChunk) != 0x00, RLPInvalidEncoding());
 
                 uint256 len = uint256(lenChunk) >> (256 - 8 * lengthLength);
-                require(len > SHORT_THRESHOLD && itemLength > lengthLength + len, RLPInvalidEncoding());
+                require(len > SHORT_THRESHOLD && itemLength - lengthLength > len, RLPInvalidEncoding());
 
                 return (lengthLength + 1, len, ItemType.List);
             }

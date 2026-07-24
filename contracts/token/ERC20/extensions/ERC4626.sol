@@ -6,8 +6,6 @@ pragma solidity ^0.8.24;
 import {IERC20, IERC20Metadata, ERC20} from "../ERC20.sol";
 import {SafeERC20} from "../utils/SafeERC20.sol";
 import {IERC4626} from "../../../interfaces/IERC4626.sol";
-import {LowLevelCall} from "../../../utils/LowLevelCall.sol";
-import {Memory} from "../../../utils/Memory.sol";
 import {Math} from "../../../utils/math/Math.sol";
 
 /**
@@ -66,6 +64,14 @@ import {Math} from "../../../utils/math/Math.sol";
  * * If {previewRedeem} is overridden to revert, {maxWithdraw} must be overridden as necessary to ensure it
  * always return successfully.
  * ====
+ *
+ * [CAUTION]
+ * ====
+ * Any mechanism that mints shares without a corresponding increase in the vault's assets (collateral) will alter the
+ * exchange rate and may open the door to vulnerabilities. In particular, this contract
+ * must NOT be combined with {ERC20FlashMint}: flash-minting shares temporarily inflates the total supply without
+ * increasing collateral, corrupting the exchange rate applied during the flash loan.
+ * ====
  */
 abstract contract ERC4626 is ERC20, IERC4626 {
     using Math for uint256;
@@ -97,26 +103,9 @@ abstract contract ERC4626 is ERC20, IERC4626 {
      * @dev Set the underlying asset contract. This must be an ERC20-compatible contract (ERC-20 or ERC-777).
      */
     constructor(IERC20 asset_) {
-        (bool success, uint8 assetDecimals) = _tryGetAssetDecimals(asset_);
+        (bool success, uint8 assetDecimals) = SafeERC20.tryGetDecimals(asset_);
         _underlyingDecimals = success ? assetDecimals : 18;
         _asset = asset_;
-    }
-
-    /**
-     * @dev Attempts to fetch the asset decimals. A return value of false indicates that the attempt failed in some way.
-     */
-    function _tryGetAssetDecimals(IERC20 asset_) private view returns (bool ok, uint8 assetDecimals) {
-        Memory.Pointer ptr = Memory.getFreeMemoryPointer();
-        (bool success, bytes32 returnedDecimals, ) = LowLevelCall.staticcallReturn64Bytes(
-            address(asset_),
-            abi.encodeCall(IERC20Metadata.decimals, ())
-        );
-        Memory.unsafeSetFreeMemoryPointer(ptr);
-
-        return
-            (success && LowLevelCall.returnDataSize() >= 32 && uint256(returnedDecimals) <= type(uint8).max)
-                ? (true, uint8(uint256(returnedDecimals)))
-                : (false, 0);
     }
 
     /**

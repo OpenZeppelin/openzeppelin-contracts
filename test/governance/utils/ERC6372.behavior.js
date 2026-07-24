@@ -1,7 +1,7 @@
 const { expect } = require('chai');
 const time = require('../../helpers/time');
 
-function shouldBehaveLikeERC6372(mode = 'blocknumber') {
+function shouldBehaveLikeERC6372(mode = 'blockNumber') {
   describe(`ERC-6372 behavior in ${mode} mode`, function () {
     beforeEach(async function () {
       this.mock = this.mock ?? this.token ?? this.votes;
@@ -15,9 +15,10 @@ function shouldBehaveLikeERC6372(mode = 'blocknumber') {
 
     it('should have the correct CLOCK_MODE parameters', async function () {
       const clockModeParams = new URLSearchParams(await this.mock.CLOCK_MODE());
-      const expectedFromValue = mode === 'blocknumber' ? 'default' : null;
+      const expectedMode = mode.toLowerCase();
+      const expectedFromValue = mode === 'blockNumber' ? 'default' : null;
 
-      expect(clockModeParams.get('mode')).to.equal(mode, `Expected mode to be ${mode}`);
+      expect(clockModeParams.get('mode')).to.equal(expectedMode, `Expected mode to be ${expectedMode}`);
       expect(clockModeParams.get('from')).to.equal(expectedFromValue, `Expected 'from' to be ${expectedFromValue}`);
     });
   });
