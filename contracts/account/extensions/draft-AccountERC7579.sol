@@ -51,6 +51,11 @@ import {Account} from "../Account.sol";
  * * When combined with {ERC7739}, resolution ordering of {isValidSignature} may have an impact ({ERC7739} does not
  *   call super). Manual resolution might be necessary.
  * * Static calls (using callType `0xfe`) are currently NOT supported.
+ * * Installing a fallback handler for a selector that collides with a function defined on the account (or any
+ *   derived contract) will result in the handler being unreachable, since Solidity dispatches to concrete functions
+ *   before `fallback()`. This includes unrelated function signatures whose 4-byte selector happens to collide.
+ *   The {isModuleInstalled} function only reflects configuration state and does not guarantee selector
+ *   reachability.
  * ====
  *
  * WARNING: Removing all validator modules will render the account inoperable, as no user operations can be validated thereafter.
