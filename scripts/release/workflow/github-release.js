@@ -32,11 +32,9 @@ function extractSection(document, wantedHeading) {
   let start, end;
 
   for (const m of document.matchAll(heading)) {
-    if (!start) {
-      if (m.groups.text.search(wantedHeadingRe) === 0) {
-        start = m;
-      }
-    } else if (m.groups.lead.length <= start.groups.lead.length) {
+    if (!start && m.groups.text?.search(wantedHeadingRe) === 0) {
+      start = m;
+    } else if (start && m.groups.lead.length <= start.groups.lead.length) {
       end = m;
       break;
     }
