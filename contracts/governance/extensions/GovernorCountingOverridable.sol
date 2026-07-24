@@ -13,9 +13,9 @@ import {IGovernor, Governor} from "../Governor.sol";
  * @dev Extension of {Governor} which enables delegators to override the vote of their delegates. This module requires a
  * token that inherits {VotesExtended}.
  *
- * NOTE: Override votes can only be cast while the proposal is {IGovernor-ProposalState-Active}. Mechanisms that
- * shorten the voting duration, such as the early closure implemented in {GovernorSuperQuorum}, may therefore prevent
- * token holders from overriding the votes cast with their tokens by their delegates.
+ * NOTE: Override votes can only be cast while the proposal is active. Mechanisms that shorten the voting duration,
+ * such as the early closure implemented in {GovernorSuperQuorum}, may therefore prevent token holders from overriding
+ * the votes cast with their tokens by their delegates.
  */
 abstract contract GovernorCountingOverridable is GovernorVotes {
     bytes32 public constant OVERRIDE_BALLOT_TYPEHASH =
