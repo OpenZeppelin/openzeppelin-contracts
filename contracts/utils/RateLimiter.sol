@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.7.0-rc.0) (utils/RateLimiter.sol)
+// OpenZeppelin Contracts (last updated v5.7.0-rc.1) (utils/RateLimiter.sol)
 pragma solidity ^0.8.27;
 
 import {Math} from "./math/Math.sol";

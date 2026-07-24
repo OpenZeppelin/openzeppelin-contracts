@@ -1,6 +1,11 @@
 # Changelog
 
 
+## 5.7.0-rc.1 (2026-07-24)
+
+- `AccessManager`: Allow a role admin to cancel grant and revoke operations. ([#6615](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6615))
+- `ERC7739`: Reject signatures whose `contentsDescr` fails to parse into a non-empty `contentsName`, preventing a malformed descriptor from degrading verification to a constant `structHash` that no longer binds the message contents or the account's EIP-712 domain. ([#6615](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6615))
+
 ## 5.7.0-rc.0 (2026-07-15)
 
 ### Breaking changes
@@ -60,7 +65,7 @@
 - `BridgeMultiToken` and `BridgeERC1155`: Add bridge contracts to handle crosschain movements of ERC-1155 tokens. ([#6281](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6281))
 - `CrosschainRemoteExecutor`: Add a new executor contract that relays transaction from a controller on a remote chain. ([#6272](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6272))
 
-#### Governance 
+#### Governance
 
 - `Governor`: Strictly enforce the expected proposal state depending on `proposalNeedsQueuing` when calling `execute`. ([#6386](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6386))
 - `GovernorCrosschain`: Add governor module that facilitates the execution of crosschain operations through CrosschainRemoteExecutors and ERC-7786 gateways. ([#6272](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6272))
@@ -78,7 +83,6 @@
 - `ERC1155Burnable`: Use `_checkAuthorized` to correctly apply authorization overrides. ([#6435](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6435))
 - `SafeERC20`: Add `tryGetDecimals` helper that safely queries a token's `decimals()` without reverting. ([#6482](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6482))
 - `ERC6909ContentURI`, `ERC6909TokenSupply` and `ERC6909Metadata`: Add ERC-165 detection for the `IERC6909ContentURI`, `IERC6909TokenSupply` and `IERC6909Metadata` interfaces. ([#6246](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6246))
-
 
 ## 5.6.1 (2026-02-27)
 
