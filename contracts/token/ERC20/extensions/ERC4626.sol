@@ -68,10 +68,9 @@ import {Math} from "../../../utils/math/Math.sol";
  * [CAUTION]
  * ====
  * Any mechanism that mints shares without a corresponding increase in the vault's assets (collateral) will alter the
- * exchange rate between shares and assets, and may open the door to vulnerabilities. In particular, this contract
+ * exchange rate and may open the door to vulnerabilities. In particular, this contract
  * must NOT be combined with {ERC20FlashMint}: flash-minting shares temporarily inflates the total supply without
- * backing it with additional assets, corrupting the exchange rate used by the deposit, mint, withdraw and redeem
- * conversions for the duration of the flash loan.
+ * increasing collateral, corrupting the exchange rate applied during the flash loan.
  * ====
  */
 abstract contract ERC4626 is ERC20, IERC4626 {
