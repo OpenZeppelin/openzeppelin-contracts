@@ -59,7 +59,7 @@ interface IERC6909 is IERC165 {
      * Changing an allowance with this method brings the risk that `spender` may use both the
      * old and the new allowance by spending the previous allowance while the new one is in-flight.
      * One possible solution to mitigate this race condition is to first reduce `spender`'s
-     * allowance to 0 and than set the desired value afterwards.
+     * allowance to 0 and then set the desired value afterwards.
      */
     function approve(address spender, uint256 id, uint256 amount) external returns (bool);
 
