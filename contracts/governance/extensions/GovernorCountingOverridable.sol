@@ -15,7 +15,7 @@ import {IGovernor, Governor} from "../Governor.sol";
  *
  * NOTE: Override votes can only be cast while the proposal is {IGovernor-ProposalState-Active}. Mechanisms that
  * shorten the voting duration, such as the early closure implemented in {GovernorSuperQuorum}, may therefore prevent
- * token holders from overriding the votes casted with their tokens by their delegates.
+ * token holders from overriding the votes cast with their tokens by their delegates.
  */
 abstract contract GovernorCountingOverridable is GovernorVotes {
     bytes32 public constant OVERRIDE_BALLOT_TYPEHASH =
