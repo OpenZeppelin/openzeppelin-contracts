@@ -244,7 +244,13 @@ abstract contract PaymasterERC20 is Paymaster {
         bytes32 userOpHash
     ) internal view virtual returns (uint256 validationData, IERC20 token, uint256 tokenPerNative);
 
-    /// @dev Over-estimates the cost of the post-operation logic.
+    /**
+     * @dev Over-estimates the cost of the post-operation logic, which the EntryPoint charges to the paymaster but
+     * excludes from the `actualGasCost` reported to {_postOp}.
+     *
+     * NOTE: The default assumes a standard ERC-20. Override with a higher value for gas-heavier tokens; a persistent
+     * underestimate drains the paymaster's deposit.
+     */
     function _postOpCost() internal view virtual returns (uint256) {
         return 30_000;
     }

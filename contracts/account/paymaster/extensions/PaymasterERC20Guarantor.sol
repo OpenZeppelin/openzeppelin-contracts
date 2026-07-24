@@ -148,7 +148,12 @@ abstract contract PaymasterERC20Guarantor is PaymasterERC20 {
      */
     function _fetchGuarantor(PackedUserOperation calldata userOp) internal view virtual returns (address guarantor);
 
-    /// @dev Over-estimates the cost of the post-operation logic. Added on top of {PaymasterERC20-_postOpCost} for guaranteed userOps.
+    /**
+     * @dev Over-estimates the cost of the post-operation logic. Added on top of {PaymasterERC20-_postOpCost} for
+     * guaranteed userOps.
+     *
+     * NOTE: Like {PaymasterERC20-_postOpCost}, override with a higher value for gas-heavier tokens.
+     */
     function _guaranteedPostOpCost() internal view virtual returns (uint256) {
         return 15_000;
     }
