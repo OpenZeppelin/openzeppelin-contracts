@@ -75,7 +75,7 @@ library TrieProof {
         bytes[] memory proof
     ) internal pure returns (bool) {
         (bytes memory processedValue, ProofError err) = tryTraverse(root, key, proof);
-        return processedValue.equal(value) && err == ProofError.NO_ERROR;
+        return err == ProofError.NO_ERROR && processedValue.equal(value);
     }
 
     /**
