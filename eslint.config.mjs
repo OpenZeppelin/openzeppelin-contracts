@@ -2,6 +2,7 @@ import js from '@eslint/js';
 import { includeIgnoreFile } from '@eslint/compat';
 import mocha from 'eslint-plugin-mocha';
 import prettier from 'eslint-config-prettier';
+import mochaPlugin from 'eslint-plugin-mocha';
 import globals from 'globals';
 import path from 'path';
 import { fileURLToPath } from 'node:url';
@@ -30,6 +31,15 @@ export default [
         extendEnvironment: 'readonly',
         expect: 'readonly',
       },
+    },
+  },
+  {
+    files: ['test/**/*.js'],
+    plugins: {
+      mocha: mochaPlugin,
+    },
+    rules: {
+      'mocha/no-async-suite': 'error',
     },
   },
   includeIgnoreFile(path.resolve(__dirname, '.gitignore')),
