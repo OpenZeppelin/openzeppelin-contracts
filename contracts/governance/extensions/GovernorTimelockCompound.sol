@@ -17,6 +17,12 @@ import {SafeCast} from "../../utils/math/SafeCast.sol";
  * Using this model means the proposal will be operated by the {ICompoundTimelock} and not by the {Governor}. Thus,
  * the assets and permissions must be attached to the {ICompoundTimelock}. Any asset sent to the {Governor} will be
  * inaccessible from a proposal, unless executed via {Governor-relay}.
+ *
+ * WARNING: Compound's Timelock identifies queued transactions by the hash of `(target, value, data)`. If a proposal
+ * contains duplicate actions — actions with identical `(target, value, calldata)` tuples — the second queuing
+ * attempt will either revert (if the first action is still queued) or, in some configurations, silently clobber the
+ * first. To make actions unique without changing their effect, append a trailing zero byte (or any distinct bytes)
+ * to duplicate calldatas before submitting the proposal.
  */
 abstract contract GovernorTimelockCompound is Governor {
     ICompoundTimelock private _timelock;
