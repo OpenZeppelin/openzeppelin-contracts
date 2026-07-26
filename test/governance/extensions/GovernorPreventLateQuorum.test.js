@@ -222,7 +222,7 @@ describe('GovernorPreventLateQuorum', function () {
           const txVote = await this.helper.connect(this.voter1).vote({ support: VoteType.For });
 
           // Deadline is clamped to the default maxExtendedDeadline (type(uint48).max).
-          expect(await this.mock.proposalDeadline(this.proposal.id)).to.equal(uint48Max);
+          await expect(this.mock.proposalDeadline(this.proposal.id)).to.eventually.equal(uint48Max);
 
           await expect(txVote).to.emit(this.mock, 'ProposalExtended').withArgs(this.proposal.id, uint48Max);
         });
