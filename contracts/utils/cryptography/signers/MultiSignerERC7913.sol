@@ -221,8 +221,10 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
         bytes calldata signature
     ) internal view virtual override returns (bool) {
         if (signature.length == 0) return false; // For ERC-7739 compatibility
-        (bytes[] memory signers, bytes[] memory signatures) = abi.decode(signature, (bytes[], bytes[]));
-        return _validateThreshold(signers) && _validateSignatures(hash, signers, signatures);
+        (bool success, bytes[] calldata signers, bytes[] calldata signatures) = _tryDecodeMultisignatureCalldata(
+            signature
+        );
+        return success && _validateThreshold(signers) && _validateSignatures(hash, signers, signatures);
     }
 
     /**
@@ -238,8 +240,8 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
      */
     function _validateSignatures(
         bytes32 hash,
-        bytes[] memory signers,
-        bytes[] memory signatures
+        bytes[] calldata signers,
+        bytes[] calldata signatures
     ) internal view virtual returns (bool valid) {
         for (uint256 i = 0; i < signers.length; ++i) {
             if (!isSigner(signers[i])) {
@@ -253,7 +255,56 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
      * @dev Validates that the number of signers meets the {threshold} requirement.
      * Assumes the signers were already validated. See {_validateSignatures} for more details.
      */
-    function _validateThreshold(bytes[] memory validatingSigners) internal view virtual returns (bool) {
+    function _validateThreshold(bytes[] calldata validatingSigners) internal view virtual returns (bool) {
         return validatingSigners.length >= threshold();
+    }
+
+    /**
+     * @dev Decodes an `abi.encode(bytes[], bytes[])` multisignature payload from calldata without memory
+     * allocation. Returns `success = false` on malformed encoding so callers can report an invalid
+     * signature instead of reverting during validation (see ERC-4337 `SIG_VALIDATION_FAILED` semantics).
+     */
+    function _tryDecodeMultisignatureCalldata(
+        bytes calldata signature
+    ) private pure returns (bool success, bytes[] calldata signers, bytes[] calldata signatures) {
+        // Minimum length: offset1(32) + offset2(32) + length1(32) + length2(32) = 128 bytes.
+        if (signature.length < 0x80) return (false, _emptyBytesArray(), _emptyBytesArray());
+
+        uint256 signersOffset = uint256(bytes32(signature[:0x20]));
+        uint256 signaturesOffset = uint256(bytes32(signature[0x20:0x40]));
+        uint256 signersDataOffset = signersOffset + 0x20;
+        uint256 signaturesDataOffset = signaturesOffset + 0x20;
+
+        if (
+            signersOffset < 0x40 ||
+            signersDataOffset > signature.length ||
+            signaturesOffset < 0x40 ||
+            signaturesDataOffset > signature.length
+        ) return (false, _emptyBytesArray(), _emptyBytesArray());
+
+        uint256 signersLength = uint256(bytes32(signature[signersOffset:signersDataOffset]));
+        uint256 signaturesLength = uint256(bytes32(signature[signaturesOffset:signaturesDataOffset]));
+
+        if (
+            signersOffset + signersLength * 0x20 > signature.length ||
+            signaturesOffset + signaturesLength * 0x20 > signature.length
+        ) return (false, _emptyBytesArray(), _emptyBytesArray());
+
+        assembly ("memory-safe") {
+            signers.offset := add(signature.offset, signersDataOffset)
+            signers.length := signersLength
+            signatures.offset := add(signature.offset, signaturesDataOffset)
+            signatures.length := signaturesLength
+        }
+
+        return (true, signers, signatures);
+    }
+
+    /// @dev Returns an empty `bytes[]` calldata slice, used as a placeholder on decode failure.
+    function _emptyBytesArray() private pure returns (bytes[] calldata result) {
+        assembly ("memory-safe") {
+            result.offset := 0
+            result.length := 0
+        }
     }
 }

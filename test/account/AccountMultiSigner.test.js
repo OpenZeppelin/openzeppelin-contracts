@@ -290,5 +290,23 @@ describe('AccountMultiSigner', function () {
       await expect(this.mock.$_rawSignatureValidation(MESSAGE_HASH, prepareMultisig(signers, signatures))).to.eventually
         .be.false;
     });
+
+    it('returns false (does not revert) on malformed signature encoding', async function () {
+      // Under 0x80 bytes: too short to carry the minimum abi.encode(bytes[], bytes[]) shape.
+      await expect(this.mock.$_rawSignatureValidation(MESSAGE_HASH, '0xdeadbeef')).to.eventually.be.false;
+
+      // Well-formed length but truncated array-length words.
+      await expect(this.mock.$_rawSignatureValidation(MESSAGE_HASH, ethers.zeroPadValue('0x00', 0x80))).to.eventually.be
+        .false;
+
+      // Offsets point past the calldata (would panic in abi.decode).
+      const malformedOffsets = ethers.concat([
+        ethers.zeroPadValue(ethers.toBeHex(0xffff), 0x20),
+        ethers.zeroPadValue(ethers.toBeHex(0xffff), 0x20),
+        ethers.zeroPadValue('0x00', 0x20),
+        ethers.zeroPadValue('0x00', 0x20),
+      ]);
+      await expect(this.mock.$_rawSignatureValidation(MESSAGE_HASH, malformedOffsets)).to.eventually.be.false;
+    });
   });
 });
