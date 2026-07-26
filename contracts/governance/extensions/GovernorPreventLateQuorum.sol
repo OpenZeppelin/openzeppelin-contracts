@@ -5,6 +5,7 @@ pragma solidity ^0.8.24;
 
 import {Governor} from "../Governor.sol";
 import {Math} from "../../utils/math/Math.sol";
+import {SafeCast} from "../../utils/math/SafeCast.sol";
 
 /**
  * @dev A module that ensures there is a minimum voting period after quorum is reached. This prevents a large voter from
@@ -46,12 +47,18 @@ abstract contract GovernorPreventLateQuorum is Governor {
     /**
      * @dev Vote tally updated and detects if it caused quorum to be reached, potentially extending the voting period.
      *
+     * The extended deadline is computed as `clock() + lateQuorumVoteExtension()` in wider arithmetic and then
+     * clamped to {maxExtendedDeadline}, so an extreme `lateQuorumVoteExtension` value cannot make this call revert
+     * with an arithmetic overflow and brick governance mid-vote.
+     *
      * May emit a {ProposalExtended} event.
      */
     function _tallyUpdated(uint256 proposalId) internal virtual override {
         super._tallyUpdated(proposalId);
         if (_extendedDeadlines[proposalId] == 0 && _quorumReached(proposalId)) {
-            uint48 extendedDeadline = clock() + lateQuorumVoteExtension();
+            uint48 extendedDeadline = SafeCast.toUint48(
+                Math.min(uint256(clock()) + uint256(lateQuorumVoteExtension()), maxExtendedDeadline())
+            );
 
             if (extendedDeadline > proposalDeadline(proposalId)) {
                 emit ProposalExtended(proposalId, extendedDeadline);
@@ -67,6 +74,16 @@ abstract contract GovernorPreventLateQuorum is Governor {
      */
     function lateQuorumVoteExtension() public view virtual returns (uint48) {
         return _voteExtension;
+    }
+
+    /**
+     * @dev Upper bound applied to the extended deadline computed in {_tallyUpdated}. Defaults to `type(uint48).max`,
+     * which is a no-op cap that still prevents `clock() + lateQuorumVoteExtension()` from overflowing `uint48`.
+     * Override to enforce a deployment-specific ceiling (for example, a few weeks of blocks or seconds) so an
+     * accidentally large {lateQuorumVoteExtension} cannot push proposal deadlines arbitrarily far into the future.
+     */
+    function maxExtendedDeadline() public view virtual returns (uint48) {
+        return type(uint48).max;
     }
 
     /**
