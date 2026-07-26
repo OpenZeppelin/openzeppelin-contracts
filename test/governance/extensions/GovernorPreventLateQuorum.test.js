@@ -203,7 +203,7 @@ describe('GovernorPreventLateQuorum', function () {
           expect(await this.mock.lateQuorumVoteExtension()).to.equal(uint48Max);
         });
 
-        it('quorum-reaching vote does not revert; deadline clamped by maxExtendedDeadline', async function () {
+        it('quorum-reaching vote does not revert; deadline clamped by _maxExtendedDeadline', async function () {
           // New proposal on top of the just-updated extension
           this.proposal = this.helper.setProposal(
             [

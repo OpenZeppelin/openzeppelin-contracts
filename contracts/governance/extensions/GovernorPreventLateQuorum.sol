@@ -48,8 +48,8 @@ abstract contract GovernorPreventLateQuorum is Governor {
      * @dev Vote tally updated and detects if it caused quorum to be reached, potentially extending the voting period.
      *
      * The extended deadline is computed as `clock() + lateQuorumVoteExtension()` in wider arithmetic and then
-     * clamped to {maxExtendedDeadline}, so an extreme `lateQuorumVoteExtension` value cannot make this call revert
-     * with an arithmetic overflow and brick governance mid-vote.
+     * clamped to {_maxExtendedDeadline}, so an extreme `lateQuorumVoteExtension` value cannot make this call
+     * revert with an arithmetic overflow and brick governance mid-vote.
      *
      * May emit a {ProposalExtended} event.
      */
@@ -57,7 +57,7 @@ abstract contract GovernorPreventLateQuorum is Governor {
         super._tallyUpdated(proposalId);
         if (_extendedDeadlines[proposalId] == 0 && _quorumReached(proposalId)) {
             uint48 extendedDeadline = SafeCast.toUint48(
-                Math.min(uint256(clock()) + uint256(lateQuorumVoteExtension()), maxExtendedDeadline())
+                Math.min(uint256(clock()) + uint256(lateQuorumVoteExtension()), _maxExtendedDeadline())
             );
 
             if (extendedDeadline > proposalDeadline(proposalId)) {
@@ -82,7 +82,7 @@ abstract contract GovernorPreventLateQuorum is Governor {
      * Override to enforce a deployment-specific ceiling (for example, a few weeks of blocks or seconds) so an
      * accidentally large {lateQuorumVoteExtension} cannot push proposal deadlines arbitrarily far into the future.
      */
-    function maxExtendedDeadline() public view virtual returns (uint48) {
+    function _maxExtendedDeadline() internal view virtual returns (uint48) {
         return type(uint48).max;
     }
 
