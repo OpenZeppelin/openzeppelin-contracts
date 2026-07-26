@@ -26,21 +26,37 @@ abstract contract BridgeERC1155 is BridgeMultiToken, ERC1155Holder {
     }
 
     /**
-     * @dev Transfer `amount` tokens to a crosschain receiver.
+     * @dev Transfer `amount` tokens to a crosschain receiver, using empty ERC-1155 `data`.
      *
      * Note: The `to` parameter is the full InteroperableAddress (chain ref + address).
      */
     function crosschainTransferFrom(address from, bytes memory to, uint256 id, uint256 value) public returns (bytes32) {
+        return crosschainTransferFrom(from, to, id, value, "");
+    }
+
+    /**
+     * @dev Transfer `amount` tokens to a crosschain receiver, forwarding `data` to the destination-chain
+     * ERC-1155 receiver's acceptance hook.
+     *
+     * Note: The `to` parameter is the full InteroperableAddress (chain ref + address).
+     */
+    function crosschainTransferFrom(
+        address from,
+        bytes memory to,
+        uint256 id,
+        uint256 value,
+        bytes memory data
+    ) public returns (bytes32) {
         uint256[] memory ids = new uint256[](1);
         uint256[] memory values = new uint256[](1);
         ids[0] = id;
         values[0] = value;
 
-        return crosschainTransferFrom(from, to, ids, values);
+        return crosschainTransferFrom(from, to, ids, values, data);
     }
 
     /**
-     * @dev Transfer `amount` tokens to a crosschain receiver.
+     * @dev Transfer `amount` tokens to a crosschain receiver, using empty ERC-1155 `data`.
      *
      * Note: The `to` parameter is the full InteroperableAddress (chain ref + address).
      */
@@ -49,6 +65,22 @@ abstract contract BridgeERC1155 is BridgeMultiToken, ERC1155Holder {
         bytes memory to,
         uint256[] memory ids,
         uint256[] memory values
+    ) public returns (bytes32) {
+        return crosschainTransferFrom(from, to, ids, values, "");
+    }
+
+    /**
+     * @dev Transfer `amount` tokens to a crosschain receiver, forwarding `data` to the destination-chain
+     * ERC-1155 receiver's acceptance hook.
+     *
+     * Note: The `to` parameter is the full InteroperableAddress (chain ref + address).
+     */
+    function crosschainTransferFrom(
+        address from,
+        bytes memory to,
+        uint256[] memory ids,
+        uint256[] memory values,
+        bytes memory data
     ) public virtual returns (bytes32) {
         // Permission is handled using the ERC1155's allowance system. This check replicates `ERC1155._checkAuthorized`.
         address spender = _msgSender();
@@ -58,17 +90,27 @@ abstract contract BridgeERC1155 is BridgeMultiToken, ERC1155Holder {
         );
 
         // Perform the crosschain transfer and return the handler
-        return _crosschainTransfer(from, to, ids, values);
+        return _crosschainTransfer(from, to, ids, values, data);
     }
 
-    /// @dev "Locking" tokens is done by taking custody
-    function _onSend(address from, uint256[] memory ids, uint256[] memory values) internal virtual override {
-        token().safeBatchTransferFrom(from, address(this), ids, values, "");
+    /// @dev "Locking" tokens is done by taking custody. `data` is forwarded to the ERC-1155 receiver hook.
+    function _onSend(
+        address from,
+        uint256[] memory ids,
+        uint256[] memory values,
+        bytes memory data
+    ) internal virtual override {
+        token().safeBatchTransferFrom(from, address(this), ids, values, data);
     }
 
-    /// @dev "Unlocking" tokens is done by releasing custody
-    function _onReceive(address to, uint256[] memory ids, uint256[] memory values) internal virtual override {
-        token().safeBatchTransferFrom(address(this), to, ids, values, "");
+    /// @dev "Unlocking" tokens is done by releasing custody. `data` is forwarded to the ERC-1155 receiver hook.
+    function _onReceive(
+        address to,
+        uint256[] memory ids,
+        uint256[] memory values,
+        bytes memory data
+    ) internal virtual override {
+        token().safeBatchTransferFrom(address(this), to, ids, values, data);
     }
 
     /// @dev Support receiving tokens only if the transfer was initiated by the bridge itself.
