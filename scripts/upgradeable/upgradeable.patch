@@ -154,13 +154,13 @@ index fda256d28..2d6b555ca 100644
   * sharing the same key must be used sequentially. This is unlike {ERC20Permit} which uses a single global
   * sequential nonce.
 + *
-+ * WARNING: Upgrading a proxy between the ERC3009 and ERC20TransferAuthorization implementations (in either
-+ * direction) can re-enable replay of previously-consumed authorizations. The two contracts use different
-+ * nonce-consumption schemes and do not share storage: {ERC3009} records used nonces in a
-+ * `mapping(address => mapping(bytes32 => bool))`, while {ERC20TransferAuthorization} uses {NoncesKeyed}'s
-+ * keyed sequential counters. Historical usage recorded under one scheme is not observed by the other, so a
-+ * previously-used nonce can become valid again after the upgrade. If such an upgrade is unavoidable, consider
-+ * bumping the EIP-712 domain `version` (or `name`) to invalidate pre-upgrade signatures.
++ * WARNING: Upgrading a proxy between {ERC3009} and {ERC20TransferAuthorization} implementations (in either direction)
++ * can re-enable replay of previously-consumed authorizations. The two contracts use different nonce-consumption
++ * schemes and do not share storage: {ERC3009} records used nonces in a
++ * `mapping(address => mapping(bytes32 => bool))`, while this contract uses {NoncesKeyed}'s keyed sequential counters.
++ * Historical usage recorded under one scheme is not observed by the other, so a previously-used nonce can become valid
++ * again after the upgrade. If such an upgrade is unavoidable, consider bumping the EIP-712 domain `version` (or `name`)
++ * to invalidate pre-upgrade signatures.
   */
  abstract contract ERC20TransferAuthorization is ERC3009, NoncesKeyed {
      /**
