@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity >=0.8.4;
+pragma solidity >=0.6.2;
 
 import {IERC1967} from "../../interfaces/IERC1967.sol";
 
