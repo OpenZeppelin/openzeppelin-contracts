@@ -80,6 +80,10 @@ abstract contract GovernorPreventLateQuorum is Governor {
      * @dev Upper bound applied to {lateQuorumVoteExtension} when it is set. Defaults to the voting period,
      * resulting in a total maximum voting period of twice the governor's documented voting period.
      * Can be overridden to provide a different upper bound.
+     *
+     * NOTE: {_tallyUpdated} adds `lateQuorumVoteExtension()` to `clock()` using `uint48` arithmetic, which is
+     * safe under the default bound. Overriding this to a value close to (or greater than) `type(uint48).max`
+     * can make that addition overflow and revert the quorum-reaching vote, bricking governance.
      */
     function _maxLateQuorumVoteExtension() internal view virtual returns (uint256) {
         return votingPeriod();
@@ -103,10 +107,9 @@ abstract contract GovernorPreventLateQuorum is Governor {
      */
     function _setLateQuorumVoteExtension(uint48 newVoteExtension) internal virtual {
         uint256 maxVoteExtension = _maxLateQuorumVoteExtension();
-        require(
-            newVoteExtension <= maxVoteExtension,
-            GovernorPreventLateQuorumVoteExtensionTooLarge(newVoteExtension, maxVoteExtension)
-        );
+        if (newVoteExtension > maxVoteExtension) {
+            revert GovernorPreventLateQuorumVoteExtensionTooLarge(newVoteExtension, maxVoteExtension);
+        }
         emit LateQuorumVoteExtensionSet(_voteExtension, newVoteExtension);
         _voteExtension = newVoteExtension;
     }
