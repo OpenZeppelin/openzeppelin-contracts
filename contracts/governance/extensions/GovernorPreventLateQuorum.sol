@@ -5,7 +5,6 @@ pragma solidity ^0.8.24;
 
 import {Governor} from "../Governor.sol";
 import {Math} from "../../utils/math/Math.sol";
-import {SafeCast} from "../../utils/math/SafeCast.sol";
 
 /**
  * @dev A module that ensures there is a minimum voting period after quorum is reached. This prevents a large voter from
@@ -27,6 +26,9 @@ abstract contract GovernorPreventLateQuorum is Governor {
     /// @dev Emitted when the {lateQuorumVoteExtension} parameter is changed.
     event LateQuorumVoteExtensionSet(uint64 oldVoteExtension, uint64 newVoteExtension);
 
+    /// @dev Thrown when the {lateQuorumVoteExtension} parameter is set to a value larger than {_maxLateQuorumVoteExtension}.
+    error GovernorPreventLateQuorumVoteExtensionTooLarge(uint256 newVoteExtension, uint256 maxVoteExtension);
+
     /**
      * @dev Initializes the vote extension parameter: the time in either number of blocks or seconds (depending on the
      * governor clock mode) that is required to pass since the moment a proposal reaches quorum until its voting period
@@ -47,18 +49,16 @@ abstract contract GovernorPreventLateQuorum is Governor {
     /**
      * @dev Vote tally updated and detects if it caused quorum to be reached, potentially extending the voting period.
      *
-     * The extended deadline is computed as `clock() + lateQuorumVoteExtension()` in wider arithmetic and then
-     * clamped to {_maxExtendedDeadline}, so an extreme `lateQuorumVoteExtension` value cannot make this call
-     * revert with an arithmetic overflow and brick governance mid-vote.
+     * The extended deadline is computed as `clock() + lateQuorumVoteExtension()`. Since {lateQuorumVoteExtension}
+     * is bounded by {_maxLateQuorumVoteExtension} when set, this addition cannot overflow in practice and brick
+     * governance mid-vote.
      *
      * May emit a {ProposalExtended} event.
      */
     function _tallyUpdated(uint256 proposalId) internal virtual override {
         super._tallyUpdated(proposalId);
         if (_extendedDeadlines[proposalId] == 0 && _quorumReached(proposalId)) {
-            uint48 extendedDeadline = SafeCast.toUint48(
-                Math.min(uint256(clock()) + uint256(lateQuorumVoteExtension()), _maxExtendedDeadline())
-            );
+            uint48 extendedDeadline = clock() + lateQuorumVoteExtension();
 
             if (extendedDeadline > proposalDeadline(proposalId)) {
                 emit ProposalExtended(proposalId, extendedDeadline);
@@ -77,13 +77,12 @@ abstract contract GovernorPreventLateQuorum is Governor {
     }
 
     /**
-     * @dev Upper bound applied to the extended deadline computed in {_tallyUpdated}. Defaults to `type(uint48).max`,
-     * which is a no-op cap that still prevents `clock() + lateQuorumVoteExtension()` from overflowing `uint48`.
-     * Override to enforce a deployment-specific ceiling (for example, a few weeks of blocks or seconds) so an
-     * accidentally large {lateQuorumVoteExtension} cannot push proposal deadlines arbitrarily far into the future.
+     * @dev Upper bound applied to {lateQuorumVoteExtension} when it is set. Defaults to the voting period,
+     * resulting in a total maximum voting period of twice the governor's documented voting period.
+     * Can be overridden to provide a different upper bound.
      */
-    function _maxExtendedDeadline() internal view virtual returns (uint48) {
-        return type(uint48).max;
+    function _maxLateQuorumVoteExtension() internal view virtual returns (uint256) {
+        return votingPeriod();
     }
 
     /**
@@ -103,6 +102,11 @@ abstract contract GovernorPreventLateQuorum is Governor {
      * Emits a {LateQuorumVoteExtensionSet} event.
      */
     function _setLateQuorumVoteExtension(uint48 newVoteExtension) internal virtual {
+        uint256 maxVoteExtension = _maxLateQuorumVoteExtension();
+        require(
+            newVoteExtension <= maxVoteExtension,
+            GovernorPreventLateQuorumVoteExtensionTooLarge(newVoteExtension, maxVoteExtension)
+        );
         emit LateQuorumVoteExtensionSet(_voteExtension, newVoteExtension);
         _voteExtension = newVoteExtension;
     }

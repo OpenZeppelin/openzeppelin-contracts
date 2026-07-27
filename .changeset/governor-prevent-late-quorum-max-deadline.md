@@ -2,4 +2,4 @@
 'openzeppelin-solidity': patch
 ---
 
-`GovernorPreventLateQuorum`: Cap the extended deadline computed in `_tallyUpdated` by a new internal virtual `_maxExtendedDeadline` (default `type(uint48).max`), and compute the sum in `uint256` before clamping. Prevents a `clock() + lateQuorumVoteExtension()` overflow from reverting quorum-reaching votes and bricking governance. Integrators can override `_maxExtendedDeadline` to enforce a shorter cap.
+`GovernorPreventLateQuorum`: Bound `lateQuorumVoteExtension` by a new internal virtual `_maxLateQuorumVoteExtension` (default `votingPeriod()`) to cap the total voting duration to twice the voting period, thus preventing a large extension from bricking governance. Integrators can override `_maxLateQuorumVoteExtension` to enforce a different bound.

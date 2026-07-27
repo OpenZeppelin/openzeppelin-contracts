@@ -181,51 +181,42 @@ describe('GovernorPreventLateQuorum', function () {
         });
       });
 
-      describe('extreme lateQuorumVoteExtension', function () {
-        const uint48Max = 2n ** 48n - 1n;
+      it('protection against large lateQuorumVoteExtension', async function () {
+        // bump the extension to votingPeriod: authorized
+        this.helper.setProposal(
+          [
+            {
+              target: this.mock.target,
+              data: this.mock.interface.encodeFunctionData('setLateQuorumVoteExtension', [votingPeriod]),
+            },
+          ],
+          'set-lateQuorumVoteExtension-to-match-votingPeriod',
+        );
+        await this.helper.propose();
+        await this.helper.waitForSnapshot();
+        await this.helper.connect(this.voter1).vote({ support: VoteType.For });
+        await this.helper.waitForDeadline();
+        await this.helper.execute();
 
-        beforeEach(async function () {
-          // bump the extension to uint48.max via governance using the fixture's initial proposal shape
-          this.helper.setProposal(
-            [
-              {
-                target: this.mock.target,
-                data: this.mock.interface.encodeFunctionData('setLateQuorumVoteExtension', [uint48Max]),
-              },
-            ],
-            'set-lateQuorumVoteExtension-to-max',
-          );
-          await this.helper.propose();
-          await this.helper.waitForSnapshot();
-          await this.helper.connect(this.voter1).vote({ support: VoteType.For });
-          await this.helper.waitForDeadline();
-          await this.helper.execute();
-          expect(await this.mock.lateQuorumVoteExtension()).to.equal(uint48Max);
-        });
+        expect(await this.mock.lateQuorumVoteExtension()).to.equal(votingPeriod);
 
-        it('quorum-reaching vote does not revert; deadline clamped by _maxExtendedDeadline', async function () {
-          // New proposal on top of the just-updated extension
-          this.proposal = this.helper.setProposal(
-            [
-              {
-                target: this.receiver.target,
-                data: this.receiver.interface.encodeFunctionData('mockFunction'),
-                value,
-              },
-            ],
-            'proposal-under-max-extension',
-          );
-          await this.helper.propose();
-          await this.helper.waitForSnapshot();
-
-          // Quorum-reaching vote used to revert with an arithmetic overflow panic; must now succeed.
-          const txVote = await this.helper.connect(this.voter1).vote({ support: VoteType.For });
-
-          // Deadline is clamped to the default maxExtendedDeadline (type(uint48).max).
-          await expect(this.mock.proposalDeadline(this.proposal.id)).to.eventually.equal(uint48Max);
-
-          await expect(txVote).to.emit(this.mock, 'ProposalExtended').withArgs(this.proposal.id, uint48Max);
-        });
+        // bump the extension to votingPeriod + 1: revert
+        this.helper.setProposal(
+          [
+            {
+              target: this.mock.target,
+              data: this.mock.interface.encodeFunctionData('setLateQuorumVoteExtension', [votingPeriod + 1n]),
+            },
+          ],
+          'set-lateQuorumVoteExtension-to-exceed-votingPeriod',
+        );
+        await this.helper.propose();
+        await this.helper.waitForSnapshot();
+        await this.helper.connect(this.voter1).vote({ support: VoteType.For });
+        await this.helper.waitForDeadline();
+        await expect(this.helper.execute())
+          .to.be.revertedWithCustomError(this.mock, 'GovernorPreventLateQuorumVoteExtensionTooLarge')
+          .withArgs(votingPeriod + 1n, votingPeriod);
       });
     });
   }
