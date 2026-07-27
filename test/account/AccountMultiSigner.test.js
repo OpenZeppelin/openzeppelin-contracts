@@ -291,22 +291,32 @@ describe('AccountMultiSigner', function () {
         .be.false;
     });
 
-    it('returns false (does not revert) on malformed signature encoding', async function () {
-      // Under 0x80 bytes: too short to carry the minimum abi.encode(bytes[], bytes[]) shape.
-      await expect(this.mock.$_rawSignatureValidation(MESSAGE_HASH, '0xdeadbeef')).to.eventually.be.false;
+    describe('returns false (does not revert) on malformed outer encoding', function () {
+      const word = v => ethers.zeroPadValue(ethers.toBeHex(v), 0x20);
 
-      // Well-formed length but truncated array-length words.
-      await expect(this.mock.$_rawSignatureValidation(MESSAGE_HASH, ethers.zeroPadValue('0x00', 0x80))).to.eventually.be
-        .false;
+      it('shorter than the minimum head layout (128 bytes)', async function () {
+        await expect(this.mock.$_rawSignatureValidation(MESSAGE_HASH, '0xdeadbeef')).to.eventually.be.false;
+      });
 
-      // Offsets point past the calldata (would panic in abi.decode).
-      const malformedOffsets = ethers.concat([
-        ethers.zeroPadValue(ethers.toBeHex(0xffff), 0x20),
-        ethers.zeroPadValue(ethers.toBeHex(0xffff), 0x20),
-        ethers.zeroPadValue('0x00', 0x20),
-        ethers.zeroPadValue('0x00', 0x20),
-      ]);
-      await expect(this.mock.$_rawSignatureValidation(MESSAGE_HASH, malformedOffsets)).to.eventually.be.false;
+      it('offset points past the calldata', async function () {
+        const payload = ethers.concat([word(0xffff), word(0xffff), word(0), word(0)]);
+        await expect(this.mock.$_rawSignatureValidation(MESSAGE_HASH, payload)).to.eventually.be.false;
+      });
+
+      it('offset near type(uint256).max (would overflow in checked arithmetic)', async function () {
+        const payload = ethers.concat([word(ethers.MaxUint256), word(ethers.MaxUint256), word(0), word(0)]);
+        await expect(this.mock.$_rawSignatureValidation(MESSAGE_HASH, payload)).to.eventually.be.false;
+      });
+
+      it('array length exceeds Solidity dynamic-array cap (2**64-1)', async function () {
+        const payload = ethers.concat([word(0x40), word(0x60), word(MAX_UINT64 + 1n), word(MAX_UINT64 + 1n)]);
+        await expect(this.mock.$_rawSignatureValidation(MESSAGE_HASH, payload)).to.eventually.be.false;
+      });
+
+      it('array length exceeds the remaining buffer', async function () {
+        const payload = ethers.concat([word(0x40), word(0x60), word(10), word(0)]);
+        await expect(this.mock.$_rawSignatureValidation(MESSAGE_HASH, payload)).to.eventually.be.false;
+      });
     });
   });
 });

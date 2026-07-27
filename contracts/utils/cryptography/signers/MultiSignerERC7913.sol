@@ -267,27 +267,35 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
     function _tryDecodeMultisignatureCalldata(
         bytes calldata signature
     ) private pure returns (bool success, bytes[] calldata signers, bytes[] calldata signatures) {
+        uint256 bufferLength = signature.length;
+
         // Minimum length: offset1(32) + offset2(32) + length1(32) + length2(32) = 128 bytes.
-        if (signature.length < 0x80) return (false, _emptyBytesArray(), _emptyBytesArray());
+        if (bufferLength < 0x80) return (false, _emptyBytesArray(), _emptyBytesArray());
 
         uint256 signersOffset = uint256(bytes32(signature[:0x20]));
         uint256 signaturesOffset = uint256(bytes32(signature[0x20:0x40]));
-        uint256 signersDataOffset = signersOffset + 0x20;
-        uint256 signaturesDataOffset = signaturesOffset + 0x20;
 
         if (
             signersOffset < 0x40 ||
-            signersDataOffset > signature.length ||
+            signersOffset > bufferLength - 0x20 ||
             signaturesOffset < 0x40 ||
-            signaturesDataOffset > signature.length
+            signaturesOffset > bufferLength - 0x20
         ) return (false, _emptyBytesArray(), _emptyBytesArray());
+
+        uint256 signersDataOffset = signersOffset + 0x20;
+        uint256 signaturesDataOffset = signaturesOffset + 0x20;
 
         uint256 signersLength = uint256(bytes32(signature[signersOffset:signersDataOffset]));
         uint256 signaturesLength = uint256(bytes32(signature[signaturesOffset:signaturesDataOffset]));
 
+        // Cap lengths at 2**64-1 (Solidity's own dynamic-array limit) so `length * 0x20` cannot overflow.
+        if (signersLength > type(uint64).max || signaturesLength > type(uint64).max) {
+            return (false, _emptyBytesArray(), _emptyBytesArray());
+        }
+
         if (
-            signersOffset + signersLength * 0x20 > signature.length ||
-            signaturesOffset + signaturesLength * 0x20 > signature.length
+            signersDataOffset + signersLength * 0x20 > bufferLength ||
+            signaturesDataOffset + signaturesLength * 0x20 > bufferLength
         ) return (false, _emptyBytesArray(), _emptyBytesArray());
 
         assembly ("memory-safe") {
