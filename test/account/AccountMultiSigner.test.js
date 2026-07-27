@@ -325,6 +325,8 @@ describe('AccountMultiSigner', function () {
       it('array length exceeds the remaining buffer', async function () {
         await expect(this.mock.$_rawSignatureValidation(MESSAGE_HASH, encode(0x40, 0x60, 10, 0))).to.eventually.be
           .false;
+        await expect(this.mock.$_rawSignatureValidation(MESSAGE_HASH, encode(0x40, 0x60, 0, 10))).to.eventually.be
+          .false;
       });
     });
   });
