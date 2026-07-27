@@ -267,41 +267,58 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
     function _tryDecodeMultisignatureCalldata(
         bytes calldata signature
     ) private pure returns (bool success, bytes[] calldata signers, bytes[] calldata signatures) {
-        uint256 bufferLength = signature.length;
+        unchecked {
+            uint256 bufferLength = signature.length;
 
-        // Minimum length: offset1(32) + offset2(32) + length1(32) + length2(32) = 128 bytes.
-        if (bufferLength < 0x80) return (false, _emptyBytesArray(), _emptyBytesArray());
+            // Check #1: Theoretical minimum length of a valid multisignature encoding is 0x40 bytes.
+            // 64 bytes of zero is a valid encoding for two empty arrays.
+            if (bufferLength < 0x40) return (false, _emptyBytesArray(), _emptyBytesArray());
 
-        uint256 signersOffset = uint256(bytes32(signature[:0x20]));
-        uint256 signaturesOffset = uint256(bytes32(signature[0x20:0x40]));
+            // Read the offset pointers to the signers and signatures arrays
+            // Read is done in assembly to avoid the cost of creating calldata slices.
+            uint256 signersOffset;
+            uint256 signaturesOffset;
+            assembly ("memory-safe") {
+                signersOffset := calldataload(signature.offset)
+                signaturesOffset := calldataload(add(signature.offset, 0x20))
+            }
 
-        if (signersOffset > bufferLength - 0x20 || signaturesOffset > bufferLength - 0x20)
-            return (false, _emptyBytesArray(), _emptyBytesArray());
+            // Check #2: The length fields that the offset pointers point to must be within the bounds of the buffer.
+            if (signersOffset > bufferLength - 0x20 || signaturesOffset > bufferLength - 0x20)
+                return (false, _emptyBytesArray(), _emptyBytesArray());
 
-        uint256 signersDataOffset = signersOffset + 0x20;
-        uint256 signaturesDataOffset = signaturesOffset + 0x20;
+            // Read the length fields
+            // Read is done in assembly to avoid the cost of creating calldata slices.
+            uint256 signersLength;
+            uint256 signaturesLength;
+            assembly ("memory-safe") {
+                signersLength := calldataload(add(signature.offset, signersOffset))
+                signaturesLength := calldataload(add(signature.offset, signaturesOffset))
+            }
 
-        uint256 signersLength = uint256(bytes32(signature[signersOffset:signersDataOffset]));
-        uint256 signaturesLength = uint256(bytes32(signature[signaturesOffset:signaturesDataOffset]));
+            // Data is just after the length fields
+            uint256 signersDataOffset = signersOffset + 0x20;
+            uint256 signaturesDataOffset = signaturesOffset + 0x20;
 
-        // Cap lengths at 2**64-1 (Solidity's own dynamic-array limit) so `length * 0x20` cannot overflow.
-        if (signersLength > type(uint64).max || signaturesLength > type(uint64).max) {
-            return (false, _emptyBytesArray(), _emptyBytesArray());
+            // Check #3 & #4:
+            // - Cap lengths at 2**64-1 (Solidity's own dynamic-array limit) so `length * 0x20` cannot overflow.
+            // - The data for each array must fit within the bounds of the buffer.
+            if (
+                signersLength > type(uint64).max ||
+                signaturesLength > type(uint64).max ||
+                0x20 * signersLength > bufferLength - signersDataOffset ||
+                0x20 * signaturesLength > bufferLength - signaturesDataOffset
+            ) return (false, _emptyBytesArray(), _emptyBytesArray());
+
+            // Assembly cast
+            assembly ("memory-safe") {
+                success := 1 // true
+                signers.offset := add(signature.offset, signersDataOffset)
+                signers.length := signersLength
+                signatures.offset := add(signature.offset, signaturesDataOffset)
+                signatures.length := signaturesLength
+            }
         }
-
-        if (
-            signersDataOffset + signersLength * 0x20 > bufferLength ||
-            signaturesDataOffset + signaturesLength * 0x20 > bufferLength
-        ) return (false, _emptyBytesArray(), _emptyBytesArray());
-
-        assembly ("memory-safe") {
-            signers.offset := add(signature.offset, signersDataOffset)
-            signers.length := signersLength
-            signatures.offset := add(signature.offset, signaturesDataOffset)
-            signatures.length := signaturesLength
-        }
-
-        return (true, signers, signatures);
     }
 
     /// @dev Returns an empty `bytes[]` calldata slice, used as a placeholder on decode failure.
