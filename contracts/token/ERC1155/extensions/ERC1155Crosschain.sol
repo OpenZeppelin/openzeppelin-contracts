@@ -69,16 +69,8 @@ abstract contract ERC1155Crosschain is BridgeMultiToken, ERC1155 {
         return _crosschainTransfer(from, to, ids, values, data);
     }
 
-    /**
-     * @dev "Locking" tokens is achieved through burning. `data` is unused because {_burnBatch} does not run a
-     * receiver hook.
-     */
-    function _onSend(
-        address from,
-        uint256[] memory ids,
-        uint256[] memory values,
-        bytes memory /*data*/
-    ) internal virtual override {
+    /// @dev "Locking" tokens is achieved through burning. `data` is destination-only and not needed here.
+    function _onSend(address from, uint256[] memory ids, uint256[] memory values) internal virtual override {
         _burnBatch(from, ids, values);
     }
 

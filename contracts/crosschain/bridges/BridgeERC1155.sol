@@ -93,14 +93,14 @@ abstract contract BridgeERC1155 is BridgeMultiToken, ERC1155Holder {
         return _crosschainTransfer(from, to, ids, values, data);
     }
 
-    /// @dev "Locking" tokens is done by taking custody. `data` is forwarded to the ERC-1155 receiver hook.
-    function _onSend(
-        address from,
-        uint256[] memory ids,
-        uint256[] memory values,
-        bytes memory data
-    ) internal virtual override {
-        token().safeBatchTransferFrom(from, address(this), ids, values, data);
+    /**
+     * @dev "Locking" tokens is done by taking custody. Uses empty `data` because the destination is the
+     * bridge itself, whose {onERC1155BatchReceived} ignores `data`; forwarding the user-supplied payload
+     * here would waste calldata without effect. The user-supplied `data` is still carried in the ERC-7786
+     * message and delivered to the destination-chain receiver.
+     */
+    function _onSend(address from, uint256[] memory ids, uint256[] memory values) internal virtual override {
+        token().safeBatchTransferFrom(from, address(this), ids, values, "");
     }
 
     /// @dev "Unlocking" tokens is done by releasing custody. `data` is forwarded to the ERC-1155 receiver hook.

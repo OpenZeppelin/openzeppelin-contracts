@@ -44,7 +44,10 @@ abstract contract BridgeMultiToken is Context, CrosschainLinked {
      * @dev Internal crosschain transfer function.
      *
      * The `data` argument is opaque to the bridge and carried through the ERC-7786 payload so it can be
-     * forwarded to the ERC-1155 receiver's acceptance hook on the destination chain. Passing `""` reproduces
+     * forwarded to the ERC-1155 receiver's acceptance hook on the destination chain. `data` is not passed to
+     * {_onSend} because the source-side hook either burns or transfers to the bridge itself, neither of which
+     * uses `data`; derived contracts that need it on the source side can override
+     * `crosschainTransferFrom` (which still receives `data` on the public API) instead. Passing `""` reproduces
      * the previous behavior.
      *
      * Note: The `to` parameter is the full InteroperableAddress (chain ref + address).
@@ -56,7 +59,7 @@ abstract contract BridgeMultiToken is Context, CrosschainLinked {
         uint256[] memory values,
         bytes memory data
     ) internal virtual returns (bytes32) {
-        _onSend(from, ids, values, data);
+        _onSend(from, ids, values);
 
         (bytes2 chainType, bytes memory chainReference, bytes memory addr) = to.parseV1();
         bytes memory chain = InteroperableAddress.formatV1(chainType, chainReference, hex"");
@@ -91,7 +94,7 @@ abstract contract BridgeMultiToken is Context, CrosschainLinked {
     }
 
     /// @dev Virtual function: implementation is required to handle token being burnt or locked on the source chain.
-    function _onSend(address from, uint256[] memory ids, uint256[] memory values, bytes memory data) internal virtual;
+    function _onSend(address from, uint256[] memory ids, uint256[] memory values) internal virtual;
 
     /// @dev Virtual function: implementation is required to handle token being minted or unlocked on the destination chain.
     function _onReceive(address to, uint256[] memory ids, uint256[] memory values, bytes memory data) internal virtual;
