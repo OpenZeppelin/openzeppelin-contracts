@@ -28,17 +28,21 @@ abstract contract BridgeMultiToken is Context, CrosschainLinked {
         address indexed from,
         bytes to,
         uint256[] ids,
-        uint256[] values
+        uint256[] values,
+        bytes data
     );
     event CrosschainMultiTokenTransferReceived(
         bytes32 indexed receiveId,
         bytes from,
         address indexed to,
         uint256[] ids,
-        uint256[] values
+        uint256[] values,
+        bytes data
     );
+
     /**
-     * @dev Internal crosschain transfer function.
+     * @dev Internal crosschain transfer function. `data` is forwarded through the ERC-7786 payload to
+     * {_onReceive} on the destination chain.
      *
      * Note: The `to` parameter is the full InteroperableAddress (chain ref + address).
      */
@@ -46,7 +50,8 @@ abstract contract BridgeMultiToken is Context, CrosschainLinked {
         address from,
         bytes memory to,
         uint256[] memory ids,
-        uint256[] memory values
+        uint256[] memory values,
+        bytes memory data
     ) internal virtual returns (bytes32) {
         _onSend(from, ids, values);
 
@@ -55,11 +60,11 @@ abstract contract BridgeMultiToken is Context, CrosschainLinked {
 
         bytes32 sendId = _sendMessageToCounterpart(
             chain,
-            abi.encode(InteroperableAddress.formatEvmV1(block.chainid, from), addr, ids, values),
+            abi.encode(InteroperableAddress.formatEvmV1(block.chainid, from), addr, ids, values, data),
             new bytes[](0)
         );
 
-        emit CrosschainMultiTokenTransferSent(sendId, from, to, ids, values);
+        emit CrosschainMultiTokenTransferSent(sendId, from, to, ids, values, data);
         return sendId;
     }
 
@@ -73,20 +78,18 @@ abstract contract BridgeMultiToken is Context, CrosschainLinked {
         // NOTE: Gateway is validated by {_isAuthorizedGateway} (implemented in {CrosschainLinked}). No need to check here.
 
         // split payload
-        (bytes memory from, bytes memory toEvm, uint256[] memory ids, uint256[] memory values) = abi.decode(
-            payload,
-            (bytes, bytes, uint256[], uint256[])
-        );
+        (bytes memory from, bytes memory toEvm, uint256[] memory ids, uint256[] memory values, bytes memory data) = abi
+            .decode(payload, (bytes, bytes, uint256[], uint256[], bytes));
         address to = address(bytes20(toEvm));
 
-        _onReceive(to, ids, values);
+        _onReceive(to, ids, values, data);
 
-        emit CrosschainMultiTokenTransferReceived(receiveId, from, to, ids, values);
+        emit CrosschainMultiTokenTransferReceived(receiveId, from, to, ids, values, data);
     }
 
     /// @dev Virtual function: implementation is required to handle token being burnt or locked on the source chain.
     function _onSend(address from, uint256[] memory ids, uint256[] memory values) internal virtual;
 
     /// @dev Virtual function: implementation is required to handle token being minted or unlocked on the destination chain.
-    function _onReceive(address to, uint256[] memory ids, uint256[] memory values) internal virtual;
+    function _onReceive(address to, uint256[] memory ids, uint256[] memory values, bytes memory data) internal virtual;
 }

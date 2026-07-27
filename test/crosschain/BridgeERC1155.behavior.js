@@ -2,17 +2,22 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { anyValue } = require('@nomicfoundation/hardhat-chai-matchers/withArgs');
 
+const { RevertType } = require('../helpers/enums');
+
 const ids = [17n, 42n];
 const values = [100n, 320n];
+
+const RECEIVER_SINGLE_MAGIC_VALUE = '0xf23a6e61';
+const RECEIVER_BATCH_MAGIC_VALUE = '0xbc197c81';
 
 function shouldBehaveLikeBridgeERC1155({ chainAIsCustodial = false, chainBIsCustodial = false } = {}) {
   describe('bridge ERC1155 like', function () {
     beforeEach(function () {
       // helper
-      this.encodePayload = (from, to, ids, values) =>
+      this.encodePayload = (from, to, ids, values, data = '0x') =>
         ethers.AbiCoder.defaultAbiCoder().encode(
-          ['bytes', 'bytes', 'uint256[]', 'uint256[]'],
-          [this.chain.toErc7930(from), to.target ?? to.address ?? to, ids, values],
+          ['bytes', 'bytes', 'uint256[]', 'uint256[]', 'bytes'],
+          [this.chain.toErc7930(from), to.target ?? to.address ?? to, ids, values, data],
         );
     });
 
@@ -54,12 +59,12 @@ function shouldBehaveLikeBridgeERC1155({ chainAIsCustodial = false, chainBIsCust
           )
           // crosschain transfer sent
           .to.emit(this.bridgeA, 'CrosschainMultiTokenTransferSent')
-          .withArgs(anyValue, alice, this.chain.toErc7930(bruce), ids.slice(0, 1), values.slice(0, 1))
+          .withArgs(anyValue, alice, this.chain.toErc7930(bruce), ids.slice(0, 1), values.slice(0, 1), '0x')
           // ERC-7786 event
           .to.emit(this.gateway, 'MessageSent')
           // crosschain transfer received
           .to.emit(this.bridgeB, 'CrosschainMultiTokenTransferReceived')
-          .withArgs(anyValue, this.chain.toErc7930(alice), bruce, ids.slice(0, 1), values.slice(0, 1))
+          .withArgs(anyValue, this.chain.toErc7930(alice), bruce, ids.slice(0, 1), values.slice(0, 1), '0x')
           // tokens are minted on chain B
           .to.emit(this.tokenB, 'TransferSingle')
           .withArgs(
@@ -90,12 +95,12 @@ function shouldBehaveLikeBridgeERC1155({ chainAIsCustodial = false, chainBIsCust
           )
           // crosschain transfer sent
           .to.emit(this.bridgeB, 'CrosschainMultiTokenTransferSent')
-          .withArgs(anyValue, bruce, this.chain.toErc7930(chris), ids.slice(0, 1), values.slice(0, 1))
+          .withArgs(anyValue, bruce, this.chain.toErc7930(chris), ids.slice(0, 1), values.slice(0, 1), '0x')
           // ERC-7786 event
           .to.emit(this.gateway, 'MessageSent')
           // crosschain transfer received
           .to.emit(this.bridgeA, 'CrosschainMultiTokenTransferReceived')
-          .withArgs(anyValue, this.chain.toErc7930(bruce), chris, ids.slice(0, 1), values.slice(0, 1))
+          .withArgs(anyValue, this.chain.toErc7930(bruce), chris, ids.slice(0, 1), values.slice(0, 1), '0x')
           // bridge on chain A releases custody of the token
           .to.emit(this.tokenA, 'TransferSingle')
           .withArgs(
@@ -133,12 +138,12 @@ function shouldBehaveLikeBridgeERC1155({ chainAIsCustodial = false, chainBIsCust
           )
           // crosschain transfer sent
           .to.emit(this.bridgeA, 'CrosschainMultiTokenTransferSent')
-          .withArgs(anyValue, alice, this.chain.toErc7930(bruce), ids, values)
+          .withArgs(anyValue, alice, this.chain.toErc7930(bruce), ids, values, '0x')
           // ERC-7786 event
           .to.emit(this.gateway, 'MessageSent')
           // crosschain transfer received
           .to.emit(this.bridgeB, 'CrosschainMultiTokenTransferReceived')
-          .withArgs(anyValue, this.chain.toErc7930(alice), bruce, ids, values)
+          .withArgs(anyValue, this.chain.toErc7930(alice), bruce, ids, values, '0x')
           // tokens are minted on chain B
           .to.emit(this.tokenB, 'TransferBatch')
           .withArgs(
@@ -169,12 +174,12 @@ function shouldBehaveLikeBridgeERC1155({ chainAIsCustodial = false, chainBIsCust
           )
           // crosschain transfer sent
           .to.emit(this.bridgeB, 'CrosschainMultiTokenTransferSent')
-          .withArgs(anyValue, bruce, this.chain.toErc7930(chris), ids, values)
+          .withArgs(anyValue, bruce, this.chain.toErc7930(chris), ids, values, '0x')
           // ERC-7786 event
           .to.emit(this.gateway, 'MessageSent')
           // crosschain transfer received
           .to.emit(this.bridgeA, 'CrosschainMultiTokenTransferReceived')
-          .withArgs(anyValue, this.chain.toErc7930(bruce), chris, ids, values)
+          .withArgs(anyValue, this.chain.toErc7930(bruce), chris, ids, values, '0x')
           // bridge on chain A releases custody of the token
           .to.emit(this.tokenA, 'TransferBatch')
           .withArgs(
@@ -183,6 +188,91 @@ function shouldBehaveLikeBridgeERC1155({ chainAIsCustodial = false, chainBIsCust
             chris,
             ids,
             values,
+          );
+      });
+    });
+
+    describe('crosschain send with data', function () {
+      beforeEach(async function () {
+        this.receiver = await ethers.deployContract('$ERC1155ReceiverMock', [
+          RECEIVER_SINGLE_MAGIC_VALUE,
+          RECEIVER_BATCH_MAGIC_VALUE,
+          RevertType.None,
+        ]);
+        this.data = '0xdeadbeef';
+      });
+
+      it('single-token overload forwards data to the destination receive hook', async function () {
+        const [alice] = this.accounts;
+
+        await this.tokenA.$_mintBatch(alice, ids, values, '0x');
+        await this.tokenA.connect(alice).setApprovalForAll(this.bridgeA, true);
+
+        await expect(
+          this.bridgeA.connect(alice).getFunction('crosschainTransferFrom(address,bytes,uint256,uint256,bytes)')(
+            alice,
+            this.chain.toErc7930(this.receiver),
+            ids[0],
+            values[0],
+            this.data,
+          ),
+        )
+          .to.emit(this.bridgeA, 'CrosschainMultiTokenTransferSent')
+          .withArgs(
+            anyValue,
+            alice,
+            this.chain.toErc7930(this.receiver),
+            ids.slice(0, 1),
+            values.slice(0, 1),
+            this.data,
+          )
+          .to.emit(this.bridgeB, 'CrosschainMultiTokenTransferReceived')
+          .withArgs(
+            anyValue,
+            this.chain.toErc7930(alice),
+            this.receiver,
+            ids.slice(0, 1),
+            values.slice(0, 1),
+            this.data,
+          )
+          .to.emit(this.receiver, 'BatchReceived')
+          .withArgs(
+            chainBIsCustodial ? this.bridgeB : this.gateway,
+            chainBIsCustodial ? this.bridgeB : ethers.ZeroAddress,
+            ids.slice(0, 1),
+            values.slice(0, 1),
+            this.data,
+            anyValue,
+          );
+      });
+
+      it('batch overload forwards data to the destination receive hook', async function () {
+        const [alice] = this.accounts;
+
+        await this.tokenA.$_mintBatch(alice, ids, values, '0x');
+        await this.tokenA.connect(alice).setApprovalForAll(this.bridgeA, true);
+
+        await expect(
+          this.bridgeA.connect(alice).getFunction('crosschainTransferFrom(address,bytes,uint256[],uint256[],bytes)')(
+            alice,
+            this.chain.toErc7930(this.receiver),
+            ids,
+            values,
+            this.data,
+          ),
+        )
+          .to.emit(this.bridgeA, 'CrosschainMultiTokenTransferSent')
+          .withArgs(anyValue, alice, this.chain.toErc7930(this.receiver), ids, values, this.data)
+          .to.emit(this.bridgeB, 'CrosschainMultiTokenTransferReceived')
+          .withArgs(anyValue, this.chain.toErc7930(alice), this.receiver, ids, values, this.data)
+          .to.emit(this.receiver, 'BatchReceived')
+          .withArgs(
+            chainBIsCustodial ? this.bridgeB : this.gateway,
+            chainBIsCustodial ? this.bridgeB : ethers.ZeroAddress,
+            ids,
+            values,
+            this.data,
+            anyValue,
           );
       });
     });
@@ -203,7 +293,7 @@ function shouldBehaveLikeBridgeERC1155({ chainAIsCustodial = false, chainBIsCust
           ),
         )
           .to.emit(this.bridgeA, 'CrosschainMultiTokenTransferSent')
-          .withArgs(anyValue, alice, this.chain.toErc7930(bruce), ids, values);
+          .withArgs(anyValue, alice, this.chain.toErc7930(bruce), ids, values, '0x');
       });
 
       it('spender is allowed for all', async function () {
@@ -222,7 +312,7 @@ function shouldBehaveLikeBridgeERC1155({ chainAIsCustodial = false, chainBIsCust
           ),
         )
           .to.emit(this.bridgeA, 'CrosschainMultiTokenTransferSent')
-          .withArgs(anyValue, alice, this.chain.toErc7930(bruce), ids, values);
+          .withArgs(anyValue, alice, this.chain.toErc7930(bruce), ids, values, '0x');
       });
     });
 
