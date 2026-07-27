@@ -315,12 +315,9 @@ describe('AccountMultiSigner', function () {
         ).to.eventually.be.false;
       });
 
-      it('signer array length exceeds Solidity dynamic-array cap (2**64-1)', async function () {
+      it('array length exceeds Solidity dynamic-array cap (2**64-1)', async function () {
         await expect(this.mock.$_rawSignatureValidation(MESSAGE_HASH, encode(0x40, 0x60, MAX_UINT64 + 1n, 0))).to
           .eventually.be.false;
-      });
-
-      it('signature array length exceeds Solidity dynamic-array cap (2**64-1)', async function () {
         await expect(this.mock.$_rawSignatureValidation(MESSAGE_HASH, encode(0x40, 0x60, 0, MAX_UINT64 + 1n))).to
           .eventually.be.false;
       });
