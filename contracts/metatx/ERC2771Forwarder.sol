@@ -150,7 +150,7 @@ contract ERC2771Forwarder is EIP712, Nonces {
      * unused requested value at the end of the execution. This is done to prevent reverting
      * the entire batch when a request is invalid or has already been submitted.
      *
-     * If the `refundReceiver` is `address(0)`, the function will instead revert
+     * If the `refundReceiver` is `address(0)`, the function will revert
      * when any request is invalid or when a valid request's forwarded call fails while
      * carrying value (since there is no receiver to refund the leftover ETH to).
      *
