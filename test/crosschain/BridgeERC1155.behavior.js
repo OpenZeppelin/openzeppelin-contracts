@@ -2,8 +2,13 @@ const { ethers } = require('hardhat');
 const { expect } = require('chai');
 const { anyValue } = require('@nomicfoundation/hardhat-chai-matchers/withArgs');
 
+const { RevertType } = require('../helpers/enums');
+
 const ids = [17n, 42n];
 const values = [100n, 320n];
+
+const RECEIVER_SINGLE_MAGIC_VALUE = '0xf23a6e61';
+const RECEIVER_BATCH_MAGIC_VALUE = '0xbc197c81';
 
 function shouldBehaveLikeBridgeERC1155({ chainAIsCustodial = false, chainBIsCustodial = false } = {}) {
   describe('bridge ERC1155 like', function () {
@@ -189,8 +194,14 @@ function shouldBehaveLikeBridgeERC1155({ chainAIsCustodial = false, chainBIsCust
 
     describe('crosschain send with data (batch)', function () {
       it('forwards data through the ERC-7786 payload to the destination receive hook', async function () {
-        const [alice, bruce] = this.accounts;
+        const [alice] = this.accounts;
         const data = '0xdeadbeef';
+
+        const receiver = await ethers.deployContract('$ERC1155ReceiverMock', [
+          RECEIVER_SINGLE_MAGIC_VALUE,
+          RECEIVER_BATCH_MAGIC_VALUE,
+          RevertType.None,
+        ]);
 
         await this.tokenA.$_mintBatch(alice, ids, values, '0x');
         await this.tokenA.connect(alice).setApprovalForAll(this.bridgeA, true);
@@ -198,16 +209,25 @@ function shouldBehaveLikeBridgeERC1155({ chainAIsCustodial = false, chainBIsCust
         await expect(
           this.bridgeA.connect(alice).getFunction('crosschainTransferFrom(address,bytes,uint256[],uint256[],bytes)')(
             alice,
-            this.chain.toErc7930(bruce),
+            this.chain.toErc7930(receiver),
             ids,
             values,
             data,
           ),
         )
           .to.emit(this.bridgeA, 'CrosschainMultiTokenTransferSent')
-          .withArgs(anyValue, alice, this.chain.toErc7930(bruce), ids, values, data)
+          .withArgs(anyValue, alice, this.chain.toErc7930(receiver), ids, values, data)
           .to.emit(this.bridgeB, 'CrosschainMultiTokenTransferReceived')
-          .withArgs(anyValue, this.chain.toErc7930(alice), bruce, ids, values, data);
+          .withArgs(anyValue, this.chain.toErc7930(alice), receiver, ids, values, data)
+          .to.emit(receiver, 'BatchReceived')
+          .withArgs(
+            chainBIsCustodial ? this.bridgeB : this.gateway,
+            chainBIsCustodial ? this.bridgeB : ethers.ZeroAddress,
+            ids,
+            values,
+            data,
+            anyValue,
+          );
       });
     });
 
