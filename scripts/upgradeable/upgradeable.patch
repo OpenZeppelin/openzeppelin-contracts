@@ -59,10 +59,10 @@ index ff596b0c3..000000000
 -<!-- Make sure that you have reviewed the OpenZeppelin Contracts Contributor Guidelines. -->
 -<!-- https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/CONTRIBUTING.md -->
 diff --git a/README.md b/README.md
-index 6a01f5616..b01c6e88f 100644
+index 0408a9fda..7bf53e3a3 100644
 --- a/README.md
 +++ b/README.md
-@@ -18,6 +18,9 @@
+@@ -17,6 +17,9 @@
  > [!IMPORTANT]
  > OpenZeppelin Contracts uses semantic versioning to communicate backwards compatibility of its API and storage layout. For upgradeable contracts, the storage layout of different major versions should be assumed incompatible, for example, it is unsafe to upgrade from 4.9.3 to 5.0.0. Learn more at [Backwards Compatibility](https://docs.openzeppelin.com/contracts/backwards-compatibility).
  
@@ -72,7 +72,7 @@ index 6a01f5616..b01c6e88f 100644
  ## Overview
  
  ### Release tags
-@@ -35,12 +38,12 @@ We use NPM tags to clearly distinguish between audited and non-audited versions
+@@ -34,12 +37,12 @@ We use NPM tags to clearly distinguish between audited and non-audited versions
  #### Hardhat (npm)
  
  ```
@@ -87,7 +87,7 @@ index 6a01f5616..b01c6e88f 100644
  ```
  → Installs the latest unaudited release (`dev`).
  
-@@ -53,10 +56,10 @@ $ npm install @openzeppelin/contracts@dev
+@@ -52,10 +55,10 @@ $ npm install @openzeppelin/contracts@dev
  > Foundry installs the latest version initially, but subsequent `forge update` commands will use the `master` branch.
  
  ```
@@ -100,7 +100,7 @@ index 6a01f5616..b01c6e88f 100644
  
  ### Usage
  
-@@ -65,10 +68,11 @@ Once installed, you can use the contracts in the library by importing them:
+@@ -64,10 +67,11 @@ Once installed, you can use the contracts in the library by importing them:
  ```solidity
  pragma solidity ^0.8.20;
  
@@ -145,6 +145,25 @@ index c225e6ea8..3fdfb4e70 100644
 +    "@openzeppelin/contracts": "<package-version>"
 +  }
  }
+diff --git a/contracts/token/ERC20/extensions/ERC20TransferAuthorization.sol b/contracts/token/ERC20/extensions/ERC20TransferAuthorization.sol
+index fda256d28..2d6b555ca 100644
+--- a/contracts/token/ERC20/extensions/ERC20TransferAuthorization.sol
++++ b/contracts/token/ERC20/extensions/ERC20TransferAuthorization.sol
+@@ -14,6 +14,14 @@ import {NoncesKeyed} from "../../../utils/NoncesKeyed.sol";
+  * different keys are independent and can be submitted in parallel without ordering constraints, while nonces
+  * sharing the same key must be used sequentially. This is unlike {ERC20Permit} which uses a single global
+  * sequential nonce.
++ *
++ * WARNING: Upgrading a proxy between {ERC3009} and {ERC20TransferAuthorization} implementations (in either direction)
++ * can re-enable replay of previously-consumed authorizations. The two contracts use different nonce-consumption
++ * schemes and do not share storage: {ERC3009} records used nonces in a
++ * `mapping(address => mapping(bytes32 => bool))`, while this contract uses {NoncesKeyed}'s keyed sequential counters.
++ * Historical usage recorded under one scheme is not observed by the other, so a previously-used nonce can become valid
++ * again after the upgrade. If such an upgrade is unavoidable, consider bumping the EIP-712 domain `version` (or `name`)
++ * to invalidate pre-upgrade signatures.
+  */
+ abstract contract ERC20TransferAuthorization is ERC3009, NoncesKeyed {
+     /**
 diff --git a/contracts/token/ERC721/extensions/ERC721Enumerable.sol b/contracts/token/ERC721/extensions/ERC721Enumerable.sol
 index 109d1e845..47768955e 100644
 --- a/contracts/token/ERC721/extensions/ERC721Enumerable.sol
