@@ -180,6 +180,44 @@ describe('GovernorPreventLateQuorum', function () {
           expect(await this.mock.lateQuorumVoteExtension()).to.equal(0n);
         });
       });
+
+      it('protection against large lateQuorumVoteExtension', async function () {
+        // bump the extension to votingPeriod: authorized
+        this.helper.setProposal(
+          [
+            {
+              target: this.mock.target,
+              data: this.mock.interface.encodeFunctionData('setLateQuorumVoteExtension', [votingPeriod]),
+            },
+          ],
+          'set-lateQuorumVoteExtension-to-match-votingPeriod',
+        );
+        await this.helper.propose();
+        await this.helper.waitForSnapshot();
+        await this.helper.connect(this.voter1).vote({ support: VoteType.For });
+        await this.helper.waitForDeadline();
+        await this.helper.execute();
+
+        expect(await this.mock.lateQuorumVoteExtension()).to.equal(votingPeriod);
+
+        // bump the extension to votingPeriod + 1: revert
+        this.helper.setProposal(
+          [
+            {
+              target: this.mock.target,
+              data: this.mock.interface.encodeFunctionData('setLateQuorumVoteExtension', [votingPeriod + 1n]),
+            },
+          ],
+          'set-lateQuorumVoteExtension-to-exceed-votingPeriod',
+        );
+        await this.helper.propose();
+        await this.helper.waitForSnapshot();
+        await this.helper.connect(this.voter1).vote({ support: VoteType.For });
+        await this.helper.waitForDeadline();
+        await expect(this.helper.execute())
+          .to.be.revertedWithCustomError(this.mock, 'GovernorPreventLateQuorumVoteExtensionTooLarge')
+          .withArgs(votingPeriod + 1n, votingPeriod);
+      });
     });
   }
 });
