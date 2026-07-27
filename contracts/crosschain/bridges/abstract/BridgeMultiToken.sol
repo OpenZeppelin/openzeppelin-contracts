@@ -41,14 +41,8 @@ abstract contract BridgeMultiToken is Context, CrosschainLinked {
     );
 
     /**
-     * @dev Internal crosschain transfer function.
-     *
-     * The `data` argument is opaque to the bridge and carried through the ERC-7786 payload so it can be
-     * forwarded to the ERC-1155 receiver's acceptance hook on the destination chain. `data` is not passed to
-     * {_onSend} because the source-side hook either burns or transfers to the bridge itself, neither of which
-     * uses `data`; derived contracts that need it on the source side can override
-     * `crosschainTransferFrom` (which still receives `data` on the public API) instead. Passing `""` reproduces
-     * the previous behavior.
+     * @dev Internal crosschain transfer function. `data` is forwarded through the ERC-7786 payload to
+     * {_onReceive} on the destination chain.
      *
      * Note: The `to` parameter is the full InteroperableAddress (chain ref + address).
      */

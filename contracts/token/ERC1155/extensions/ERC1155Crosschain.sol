@@ -14,7 +14,7 @@ import {BridgeMultiToken} from "../../../crosschain/bridges/abstract/BridgeMulti
  */
 // slither-disable-next-line locked-ether
 abstract contract ERC1155Crosschain is BridgeMultiToken, ERC1155 {
-    /// @dev TransferFrom variant of {crosschainTransferFrom}, using ERC1155 allowance and empty `data`.
+    /// @dev Equivalent to `crosschainTransferFrom(from, to, id, value, "")`.
     function crosschainTransferFrom(
         address from,
         bytes memory to,
@@ -25,8 +25,8 @@ abstract contract ERC1155Crosschain is BridgeMultiToken, ERC1155 {
     }
 
     /**
-     * @dev TransferFrom variant of {crosschainTransferFrom}, forwarding `data` to the destination-chain
-     * ERC-1155 receiver's acceptance hook.
+     * @dev TransferFrom variant of {crosschainTransferFrom}, using ERC1155 allowance from the sender to the caller.
+     * `data` is forwarded to the destination-chain ERC-1155 receiver's acceptance hook.
      */
     function crosschainTransferFrom(
         address from,
@@ -44,7 +44,7 @@ abstract contract ERC1155Crosschain is BridgeMultiToken, ERC1155 {
         return _crosschainTransfer(from, to, ids, values, data);
     }
 
-    /// @dev TransferFrom variant of {crosschainTransferFrom}, using ERC1155 allowance and empty `data`.
+    /// @dev Equivalent to `crosschainTransferFrom(from, to, ids, values, "")`.
     function crosschainTransferFrom(
         address from,
         bytes memory to,
@@ -55,8 +55,8 @@ abstract contract ERC1155Crosschain is BridgeMultiToken, ERC1155 {
     }
 
     /**
-     * @dev TransferFrom variant of {crosschainTransferFrom}, forwarding `data` to the destination-chain
-     * ERC-1155 receiver's acceptance hook.
+     * @dev TransferFrom variant of {crosschainTransferFrom}, using ERC1155 allowance from the sender to the caller.
+     * `data` is forwarded to the destination-chain ERC-1155 receiver's acceptance hook.
      */
     function crosschainTransferFrom(
         address from,
@@ -69,12 +69,12 @@ abstract contract ERC1155Crosschain is BridgeMultiToken, ERC1155 {
         return _crosschainTransfer(from, to, ids, values, data);
     }
 
-    /// @dev "Locking" tokens is achieved through burning. `data` is destination-only and not needed here.
+    /// @dev "Locking" tokens is achieved through burning.
     function _onSend(address from, uint256[] memory ids, uint256[] memory values) internal virtual override {
         _burnBatch(from, ids, values);
     }
 
-    /// @dev "Unlocking" tokens is achieved through minting. `data` is forwarded to the ERC-1155 receiver hook.
+    /// @dev "Unlocking" tokens is achieved through minting.
     function _onReceive(
         address to,
         uint256[] memory ids,
