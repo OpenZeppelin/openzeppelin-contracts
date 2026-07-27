@@ -294,7 +294,7 @@ describe('AccountMultiSigner', function () {
     describe('returns false (does not revert) on malformed outer encoding', function () {
       const word = v => ethers.zeroPadValue(ethers.toBeHex(v), 0x20);
 
-      it('shorter than the minimum head layout (128 bytes)', async function () {
+      it('shorter than the minimum head layout (64 bytes)', async function () {
         await expect(this.mock.$_rawSignatureValidation(MESSAGE_HASH, '0xdeadbeef')).to.eventually.be.false;
       });
 
