@@ -300,7 +300,7 @@ describe('AccountMultiSigner', function () {
         await expect(this.mock.$_rawSignatureValidation(MESSAGE_HASH, encode(0x20, 0))).to.eventually.be.false;
       });
 
-      it('shorter than the minimum head layout (128 bytes)', async function () {
+      it('shorter than the minimum head layout (64 bytes)', async function () {
         await expect(this.mock.$_rawSignatureValidation(MESSAGE_HASH, '0xdeadbeef')).to.eventually.be.false;
       });
 
