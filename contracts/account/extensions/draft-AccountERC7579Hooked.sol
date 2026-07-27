@@ -85,11 +85,26 @@ abstract contract AccountERC7579Hooked is AccountERC7579 {
         address module,
         bytes memory deInitData
     ) internal virtual override withHook {
+        super._uninstallModule(moduleTypeId, module, deInitData);
+    }
+
+    /**
+     * @dev Removes a module from storage with support for hook modules. See {AccountERC7579-_removeModule}.
+     *
+     * Deliberately NOT wrapped by `withHook`: this is the primitive behind forced-uninstall escape hatches, so a
+     * hook module that reverts in {IERC7579Hook-preCheck} must not be able to block its own removal here.
+     */
+    function _removeModule(
+        uint256 moduleTypeId,
+        address module,
+        bytes memory deInitData
+    ) internal virtual override returns (bytes memory) {
         if (moduleTypeId == MODULE_TYPE_HOOK) {
             require(_hook == module, ERC7579Utils.ERC7579UninstalledModule(moduleTypeId, module));
             _hook = address(0);
+            return deInitData;
         }
-        super._uninstallModule(moduleTypeId, module, deInitData);
+        return super._removeModule(moduleTypeId, module, deInitData);
     }
 
     /// @dev Hooked version of {AccountERC7579-_execute}.
