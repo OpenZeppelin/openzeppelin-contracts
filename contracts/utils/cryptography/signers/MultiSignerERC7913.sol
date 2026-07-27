@@ -275,12 +275,8 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
         uint256 signersOffset = uint256(bytes32(signature[:0x20]));
         uint256 signaturesOffset = uint256(bytes32(signature[0x20:0x40]));
 
-        if (
-            signersOffset < 0x40 ||
-            signersOffset > bufferLength - 0x20 ||
-            signaturesOffset < 0x40 ||
-            signaturesOffset > bufferLength - 0x20
-        ) return (false, _emptyBytesArray(), _emptyBytesArray());
+        if (signersOffset > bufferLength - 0x20 || signaturesOffset > bufferLength - 0x20)
+            return (false, _emptyBytesArray(), _emptyBytesArray());
 
         uint256 signersDataOffset = signersOffset + 0x20;
         uint256 signaturesDataOffset = signaturesOffset + 0x20;
