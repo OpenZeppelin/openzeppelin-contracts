@@ -5,6 +5,7 @@ pragma solidity ^0.8.20;
 
 import {IERC2981} from "../../interfaces/IERC2981.sol";
 import {IERC165, ERC165} from "../../utils/introspection/ERC165.sol";
+import {Math} from "../../utils/math/Math.sol";
 
 /**
  * @dev Implementation of the NFT Royalty Standard, a standardized way to retrieve royalty payment information.
@@ -67,7 +68,7 @@ abstract contract ERC2981 is IERC2981, ERC165 {
             royaltyFraction = _defaultRoyaltyInfo.royaltyFraction;
         }
 
-        uint256 royaltyAmount = (salePrice * royaltyFraction) / _feeDenominator();
+        uint256 royaltyAmount = Math.mulDiv(salePrice, royaltyFraction, _feeDenominator());
 
         return (royaltyReceiver, royaltyAmount);
     }

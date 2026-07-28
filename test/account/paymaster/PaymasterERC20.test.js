@@ -323,4 +323,24 @@ describe('PaymasterERC20', function () {
       await expect(this.paymaster.connect(this.other).withdrawTokens(this.token, this.receiver, 10n)).to.be.reverted;
     });
   });
+
+  describe('edge cases', function () {
+    it('_erc20Cost returns max uint256 without reverting when muldiv overflows', async function () {
+      const tokenPerNative = ethers.MaxUint256;
+      const nativeCost = ethers.MaxUint256;
+
+      await expect(this.paymaster.$_erc20Cost(nativeCost, tokenPerNative)).to.eventually.equal(ethers.MaxUint256);
+    });
+
+    it('_erc20Cost rounds up without overflowing when the ceil result saturates', async function () {
+      // Values provided here make the floor division land exactly on type(uint256).max with a non-zero remainder.
+      // We check that the saturating addition that implements the rounding up does not overflow like the default
+      // `Math.mulDiv(..., Math.Rounding.Ceil)` would.
+      const denominator = await this.paymaster.$_tokenPerNativeDenominator();
+      const tokenPerNative = denominator + 1n;
+      const nativeCost = 0xffffffffffffffed8da22e2dbc54606ce862ed069eb19350550de6906b1de3b1n;
+
+      await expect(this.paymaster.$_erc20Cost(nativeCost, tokenPerNative)).to.eventually.equal(ethers.MaxUint256);
+    });
+  });
 });
