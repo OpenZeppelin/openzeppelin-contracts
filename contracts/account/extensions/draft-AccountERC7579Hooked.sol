@@ -79,7 +79,13 @@ abstract contract AccountERC7579Hooked is AccountERC7579 {
         super._installModule(moduleTypeId, module, initData);
     }
 
-    /// @dev Uninstalls a module with support for hook modules. See {AccountERC7579-_uninstallModule}
+    /**
+    * @dev Uninstalls a module with support for hook modules. See {AccountERC7579-_uninstallModule}.
+    *  
+    * NOTE: Uninstalling the hook runs through its own `withHook` `preCheck`/`postCheck`, so a hook that reverts 
+    * there blocks its removal. Since `_execute` is `withHook`-gated too, the delegatecall escape hatch does not
+    * apply, and such a hook may be impossible to uninstall. 
+    */
     function _uninstallModule(
         uint256 moduleTypeId,
         address module,
