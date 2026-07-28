@@ -146,7 +146,7 @@ index c225e6ea8..3fdfb4e70 100644
 +  }
  }
 diff --git a/contracts/token/ERC20/extensions/ERC20TransferAuthorization.sol b/contracts/token/ERC20/extensions/ERC20TransferAuthorization.sol
-index fda256d28..2d6b555ca 100644
+index fda256d28..61afd72c3 100644
 --- a/contracts/token/ERC20/extensions/ERC20TransferAuthorization.sol
 +++ b/contracts/token/ERC20/extensions/ERC20TransferAuthorization.sol
 @@ -14,6 +14,14 @@ import {NoncesKeyed} from "../../../utils/NoncesKeyed.sol";
@@ -207,7 +207,7 @@ index c156fa1cc..895e39342 100644
       * @dev Prevents a contract from calling itself, directly or indirectly.
       * Calling a `nonReentrant` function from another `nonReentrant`
 diff --git a/contracts/utils/cryptography/EIP712.sol b/contracts/utils/cryptography/EIP712.sol
-index 5daec8e1b..a5aa41d21 100644
+index a8215e399..a5aa41d21 100644
 --- a/contracts/utils/cryptography/EIP712.sol
 +++ b/contracts/utils/cryptography/EIP712.sol
 @@ -4,7 +4,6 @@
@@ -218,7 +218,7 @@ index 5daec8e1b..a5aa41d21 100644
  import {IERC5267} from "../../interfaces/IERC5267.sol";
  
  /**
-@@ -25,41 +24,18 @@ import {IERC5267} from "../../interfaces/IERC5267.sol";
+@@ -25,43 +24,18 @@ import {IERC5267} from "../../interfaces/IERC5267.sol";
   * NOTE: This contract implements the version of the encoding known as "v4", as implemented by the JSON RPC method
   * https://docs.metamask.io/guide/signing-data.html[`eth_signTypedDataV4` in MetaMask].
   *
@@ -252,11 +252,13 @@ index 5daec8e1b..a5aa41d21 100644
 -    ShortString private immutable _name;
 -    ShortString private immutable _version;
 -
--    // IMPORTANT: Deprecated. Kept for storage compliance when used behind a proxy or clone.
+-    // IMPORTANT: Deprecated. Kept to preserve the storage layout of inheriting contracts used as an
+-    // implementation behind a proxy.
 -    // slither-disable-next-line constable-states
 -    string private _nameFallback;
 -
--    // IMPORTANT: Deprecated. Kept for storage compliance when used behind a proxy or clone.
+-    // IMPORTANT: Deprecated. Kept to preserve the storage layout of inheriting contracts used as an
+-    // implementation behind a proxy.
 -    // slither-disable-next-line constable-states
 -    string private _versionFallback;
 +    string private _name;
@@ -264,7 +266,7 @@ index 5daec8e1b..a5aa41d21 100644
  
      /**
       * @dev Initializes the domain separator and parameter caches.
-@@ -74,29 +50,19 @@ abstract contract EIP712 is IERC5267 {
+@@ -76,29 +50,19 @@ abstract contract EIP712 is IERC5267 {
       * contract upgrade].
       */
      constructor(string memory name, string memory version) {
@@ -298,7 +300,7 @@ index 5daec8e1b..a5aa41d21 100644
      }
  
      /**
-@@ -147,20 +113,38 @@ abstract contract EIP712 is IERC5267 {
+@@ -149,20 +113,38 @@ abstract contract EIP712 is IERC5267 {
      /**
       * @dev The name parameter for the EIP712 domain.
       *
