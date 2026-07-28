@@ -284,8 +284,39 @@ abstract contract AccountERC7579 is Account, IERC1271, IERC7579Execution, IERC75
      * Requirements:
      *
      * * Module must be already installed. Reverts with {ERC7579Utils-ERC7579UninstalledModule} otherwise.
+     *
+     * NOTE: The module's {IERC7579Module-onUninstall} callback is invoked without catching reverts, so a buggy or
+     * malicious module can block its own uninstallation by reverting. Removal that skips this callback is available
+     * through the lower-level {_removeModule}, which extensions can expose behind their own access control (see
+     * {AccountERC7579Guarded}).
      */
     function _uninstallModule(uint256 moduleTypeId, address module, bytes memory deInitData) internal virtual {
+        bytes memory deInit = _removeModule(moduleTypeId, module, deInitData);
+        IERC7579Module(module).onUninstall(deInit);
+        emit ModuleUninstalled(moduleTypeId, module);
+    }
+
+    /**
+     * @dev Removes a module from the account's storage ONLY. Unlike {_uninstallModule}, it does not call
+     * {IERC7579Module-onUninstall}, does not run any hook, and emits no event. Returns the (fallback-trimmed)
+     * `deInitData` so callers can forward it to `onUninstall` when appropriate.
+     *
+     * This is the low-level primitive shared by {_uninstallModule} and by forced-uninstall escape hatches that
+     * must remove a module which blocks its own uninstallation by reverting. Because it makes no call into the
+     * module, a reverting or gas-bombing module cannot prevent removal.
+     *
+     * Requirements:
+     *
+     * * Module must be already installed. Reverts with {ERC7579Utils-ERC7579UninstalledModule} otherwise.
+     *
+     * WARNING: This function has no access control of its own. Callers MUST gate any public exposure, and should
+     * ensure the account remains operable (e.g. not removing the last validator, see the contract-level warning).
+     */
+    function _removeModule(
+        uint256 moduleTypeId,
+        address module,
+        bytes memory deInitData
+    ) internal virtual returns (bytes memory) {
         require(supportsModule(moduleTypeId), ERC7579Utils.ERC7579UnsupportedModuleType(moduleTypeId));
 
         if (moduleTypeId == MODULE_TYPE_VALIDATOR) {
@@ -302,9 +333,7 @@ abstract contract AccountERC7579 is Account, IERC1271, IERC7579Execution, IERC75
             delete _fallbacks[selector];
         }
 
-        // Ignores success purposely to avoid modules that revert on uninstall
-        LowLevelCall.callNoReturn(module, abi.encodeCall(IERC7579Module.onUninstall, (deInitData)));
-        emit ModuleUninstalled(moduleTypeId, module);
+        return deInitData;
     }
 
     /**
