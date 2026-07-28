@@ -352,6 +352,22 @@ function shouldBehaveLikeBridgeERC1155({ chainAIsCustodial = false, chainBIsCust
           .to.be.revertedWithCustomError(this.tokenA, 'ERC1155InsufficientBalance')
           .withArgs(alice, 0n, values[0], ids[0]);
       });
+
+      it('reverts if the address part of the interoperable address is empty', async function () {
+        const [alice] = this.accounts;
+
+        await this.tokenA.$_mintBatch(alice, ids, values, '0x');
+        await this.tokenA.connect(alice).setApprovalForAll(this.bridgeA, true);
+
+        await expect(
+          this.bridgeA.connect(alice).getFunction('crosschainTransferFrom(address,bytes,uint256[],uint256[])')(
+            alice,
+            this.chain.toErc7930(undefined),
+            ids,
+            values,
+          ), // No address
+        ).to.be.revertedWithCustomError(this.bridgeA, 'CrosschainMultiTokenEmptyAddress');
+      });
     });
 
     describe('restrictions', function () {
