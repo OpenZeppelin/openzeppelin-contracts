@@ -40,7 +40,7 @@ const format = ({ namespace, reference }) => ({
   erc7930: addressCoder.encode({ chainType: namespace, reference }),
   toCaip10: other => `${namespace}:${reference}:${ethers.getAddress(other.target ?? other.address ?? other)}`,
   toErc7930: other =>
-    addressCoder.encode({ chainType: namespace, reference, address: other.target ?? other.address ?? other }),
+    addressCoder.encode({ chainType: namespace, reference, address: other?.target ?? other?.address ?? other }),
 });
 
 module.exports = {
