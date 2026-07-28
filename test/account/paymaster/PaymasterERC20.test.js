@@ -325,6 +325,13 @@ describe('PaymasterERC20', function () {
   });
 
   describe('edge cases', function () {
+    it('_erc20Cost returns max uint256 without reverting when muldiv overflows', async function () {
+      const tokenPerNative = ethers.MaxUint256;
+      const nativeCost = ethers.MaxUint256;
+
+      await expect(this.paymaster.$_erc20Cost(nativeCost, tokenPerNative)).to.eventually.equal(ethers.MaxUint256);
+    });
+
     it('_erc20Cost rounds up without overflowing when the ceil result saturates', async function () {
       // Regression (L-15): with tokenPerNative = denominator + 1, this nativeCost makes the floor division
       // land exactly on type(uint256).max with a non-zero remainder. Rounding up must saturate rather than
