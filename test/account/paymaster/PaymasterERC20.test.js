@@ -333,7 +333,7 @@ describe('PaymasterERC20', function () {
     });
 
     it('_erc20Cost rounds up without overflowing when the ceil result saturates', async function () {
-      // Values provided here makes the floor division land exactly on type(uint256).max with a non-zero remainder. 
+      // Values provided here makes the floor division land exactly on type(uint256).max with a non-zero remainder.
       // We check that the saturating addition that implements the rounding up does not overflow like the default
       // `Math.mulDiv(..., Math.Rounding.Ceil)` would.
       const denominator = await this.paymaster.$_tokenPerNativeDenominator();
