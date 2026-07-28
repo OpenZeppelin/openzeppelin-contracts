@@ -29,6 +29,9 @@ abstract contract BridgeNonFungible is Context, CrosschainLinked {
         uint256 tokenId
     );
 
+    /// @dev Revert reason when the address part of the interoperable address is empty.
+    error CrosschainNonFungibleEmptyAddress();
+
     /**
      * @dev Internal crosschain transfer function.
      *
@@ -38,10 +41,10 @@ abstract contract BridgeNonFungible is Context, CrosschainLinked {
         _onSend(from, tokenId);
 
         (bytes2 chainType, bytes memory chainReference, bytes memory addr) = InteroperableAddress.parseV1(to);
-        bytes memory chain = InteroperableAddress.formatV1(chainType, chainReference, hex"");
+        require(addr.length > 0, CrosschainNonFungibleEmptyAddress());
 
         bytes32 sendId = _sendMessageToCounterpart(
-            chain,
+            InteroperableAddress.formatV1(chainType, chainReference, hex""),
             abi.encode(InteroperableAddress.formatEvmV1(block.chainid, from), addr, tokenId),
             new bytes[](0)
         );
