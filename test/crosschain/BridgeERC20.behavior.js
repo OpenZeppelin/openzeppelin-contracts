@@ -73,6 +73,19 @@ function shouldBehaveLikeBridgeERC20({ chainAIsCustodial = false, chainBIsCustod
         .withArgs(chainAIsCustodial ? this.bridgeA : ethers.ZeroAddress, chris, amount);
     });
 
+    describe('invalid transfer', function () {
+      it('reverts if the address part of the interoperable address is empty', async function () {
+        const [alice] = this.accounts;
+
+        await this.tokenA.$_mint(alice, amount);
+        await this.tokenA.connect(alice).approve(this.bridgeA, ethers.MaxUint256);
+
+        await expect(
+          this.bridgeA.connect(alice).crosschainTransfer(this.chain.toErc7930(undefined), amount), // No address
+        ).to.be.revertedWithCustomError(this.bridgeA, 'CrosschainFungibleEmptyAddress');
+      });
+    });
+
     describe('restrictions', function () {
       beforeEach(async function () {
         await this.tokenA.$_mint(this.bridgeA, 1_000_000_000n);
