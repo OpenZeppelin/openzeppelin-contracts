@@ -171,6 +171,56 @@ contract WebAuthnTest is Test {
         );
     }
 
+    /// forge-config: default.fuzz.runs = 512
+    function testVerifyMultipleChallenges(
+        bytes memory challenge,
+        bytes memory otherChallenge,
+        uint256 seed
+    ) public view {
+        vm.assume(keccak256(challenge) != keccak256(otherChallenge));
+
+        string memory encodedChallenge = Base64.encodeURL(challenge);
+        string memory encodedOtherChallenge = Base64.encodeURL(otherChallenge);
+
+        string memory clientDataJSON = string.concat(
+            // solhint-disable-next-line quotes
+            '{"type":"webauthn.get","challenge":"',
+            encodedChallenge,
+            // solhint-disable-next-line quotes
+            '","challenge":"',
+            encodedOtherChallenge,
+            // solhint-disable-next-line quotes
+            '"}'
+        );
+
+        bytes memory authenticatorData = _encodeAuthenticatorData(WebAuthn.AUTH_DATA_FLAGS_UP);
+
+        // Generate private key and get public key
+        uint256 privateKey = bound(seed, 1, P256.N - 1);
+        (uint256 x, uint256 y) = vm.publicKeyP256(privateKey);
+
+        // Sign the message
+        bytes32 messageHash = sha256(abi.encodePacked(authenticatorData, sha256(bytes(clientDataJSON))));
+        (bytes32 r, bytes32 s) = vm.signP256(privateKey, messageHash);
+
+        // Signed once, over the raw clientDataJSON bytes.
+        WebAuthn.WebAuthnAuth memory auth = WebAuthn.WebAuthnAuth({
+            authenticatorData: authenticatorData,
+            clientDataJSON: clientDataJSON,
+            challengeIndex: 23,
+            typeIndex: 1,
+            r: r,
+            s: bytes32(Math.min(uint256(s), P256.N - uint256(s)))
+        });
+
+        assertTrue(WebAuthn.verify(challenge, auth, bytes32(x), bytes32(y), false));
+
+        // Moving challengeIndex to the second occurrence makes the very same (r, s) verify a different challenge.
+        // 36 is the index of the first encoded challenge; skip it plus the closing quote and the separating comma.
+        auth.challengeIndex = 36 + bytes(encodedChallenge).length + 2;
+        assertTrue(WebAuthn.verify(otherChallenge, auth, bytes32(x), bytes32(y), false));
+    }
+
     function _runVerify(
         uint256 seed,
         bytes memory challenge,
