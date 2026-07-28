@@ -70,7 +70,7 @@ library SignatureChecker {
         uint256 length = signature.length;
 
         assembly ("memory-safe") {
-            // Encoded calldata is :
+            // Encoded calldata following https://docs.soliditylang.org/en/v0.8.35/abi-spec.html:
             // [ 0x00 - 0x03 ] <selector>
             // [ 0x04 - 0x23 ] <hash>
             // [ 0x24 - 0x43 ] <signature offset> (0x40)
@@ -100,7 +100,7 @@ library SignatureChecker {
         uint256 length = signature.length;
 
         assembly ("memory-safe") {
-            // Encoded calldata is :
+            // Encoded calldata following https://docs.soliditylang.org/en/v0.8.35/abi-spec.html:
             // [ 0x00 - 0x03 ] <selector>
             // [ 0x04 - 0x23 ] <hash>
             // [ 0x24 - 0x43 ] <signature offset> (0x40)
