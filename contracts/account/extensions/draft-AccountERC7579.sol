@@ -284,6 +284,7 @@ abstract contract AccountERC7579 is Account, IERC1271, IERC7579Execution, IERC75
      * Requirements:
      *
      * * Module must be already installed. Reverts with {ERC7579Utils-ERC7579UninstalledModule} otherwise.
+     * The module's own {IERC7579Module-onUninstall} function must succeed
      *
      * NOTE: The module's {IERC7579Module-onUninstall} callback is invoked without catching reverts, so a buggy or
      * malicious module can block its own uninstallation by reverting. A forced uninstallation that bypasses this
