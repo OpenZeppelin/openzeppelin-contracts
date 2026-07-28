@@ -41,6 +41,9 @@ abstract contract BridgeMultiToken is Context, CrosschainLinked {
         bytes data
     );
 
+    /// @dev Revert reason when the address part of the interoperable address is empty.
+    error CrosschainMultiTokenEmptyAddress();
+
     /**
      * @dev Internal crosschain transfer function. `data` is forwarded through the ERC-7786 payload to
      * {_onReceive} on the destination chain.
@@ -57,10 +60,10 @@ abstract contract BridgeMultiToken is Context, CrosschainLinked {
         _onSend(from, ids, values);
 
         (bytes2 chainType, bytes memory chainReference, bytes memory addr) = to.parseV1();
-        bytes memory chain = InteroperableAddress.formatV1(chainType, chainReference, hex"");
+        require(addr.length > 0, CrosschainMultiTokenEmptyAddress());
 
         bytes32 sendId = _sendMessageToCounterpart(
-            chain,
+            InteroperableAddress.formatV1(chainType, chainReference, hex""),
             abi.encode(InteroperableAddress.formatEvmV1(block.chainid, from), addr, ids, values, data),
             new bytes[](0)
         );
