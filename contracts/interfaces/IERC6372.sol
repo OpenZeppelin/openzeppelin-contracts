@@ -13,6 +13,8 @@ interface IERC6372 {
     /**
      * @dev Returns the current timepoint according to the mode the contract is operating on.
      * This is a non-decreasing function of the chain, such as `block.timestamp` or `block.number`.
+     *
+     * NOTE: Clock must not return 0.
      */
     function clock() external view returns (uint48);
 
