@@ -101,9 +101,8 @@ abstract contract PaymasterERC20 is Paymaster {
         if (uint160(validationData) == ERC4337Utils.SIG_VALIDATION_FAILED || tokenPerNative < _minTokensPerNative())
             return (bytes(""), ERC4337Utils.SIG_VALIDATION_FAILED);
 
-        // If the _erc20Cost math fails, the returned value will be type(uint256).max, which we will never be able
-        // to charge as a prefund. The `trySafeTransferFrom` in the `_prefund` will fail, causing success to be false.
-        uint256 maxTokenCost = _erc20Cost(maxCost + _postOpCost() * userOp.maxFeePerGas(), tokenPerNative);
+        // If the _erc20Cost math fails, it returns type(uint256).max. Treat this as an invalid/unchargeable amount and
+        // fail validation early to avoid relying on token behavior when asked to `transferFrom(..., type(uint256).max)`.
 
         // Fail early if the maxTokenCost is type(uint256).max, which indicates an overflow in the _erc20Cost
         // calculation. Avoids issues with possibly malicious tokens not failing the
