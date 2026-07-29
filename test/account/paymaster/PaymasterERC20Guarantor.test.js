@@ -140,7 +140,7 @@ describe('PaymasterERC20Guarantor', function () {
     Object.assign(this, await loadFixture(fixture));
   });
 
-  describe('core paymaster behavior', async function () {
+  describe('core paymaster behavior', function () {
     beforeEach(async function () {
       await this.token.$_mint(this.account, value);
       await this.token.$_approve(this.account, this.paymaster, ethers.MaxUint256);

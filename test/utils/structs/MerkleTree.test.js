@@ -21,6 +21,15 @@ const makeTree = (leaves = [], length = 2 ** DEPTH, zero = ethers.ZeroHash) =>
     { sortLeaves: false },
   );
 
+const nonCommutativeHash = (a, b) =>
+  ethers.keccak256(ethers.AbiCoder.defaultAbiCoder().encode(['bytes32', 'bytes32'], [a, b]));
+
+const computeTreeRoot = (insertedLeaves, depth, zero, fnHash) =>
+  Array.from({ length: depth }).reduce(
+    level => Array.from({ length: level.length / 2 }, (_, i) => fnHash(level[i * 2], level[i * 2 + 1])),
+    Array.from({ length: 2 ** depth }, (_, i) => insertedLeaves[i] ?? zero),
+  )[0];
+
 const ZERO = makeTree().leafHash([ethers.ZeroHash]);
 
 async function fixture() {
@@ -176,5 +185,59 @@ describe('MerkleTree', function () {
 
     expect(await this.mock.root()).to.equal(tree.root);
     expect(await this.mock.nextLeafIndex()).to.equal(1n);
+  });
+
+  // Non-commutative hash tests.
+  // Uses Hashes.efficientKeccak256 = keccak256(abi.encode(a, b)) without sorting,
+  // so H(a,b) != H(b,a) and insertion order matters.
+  describe('non-commutative hash', function () {
+    beforeEach(async function () {
+      await this.mock.setupNonCommutative(DEPTH, ZERO);
+    });
+
+    it('initial root matches off-chain computation', async function () {
+      await expect(this.mock.root()).to.eventually.equal(computeTreeRoot([], DEPTH, ZERO, nonCommutativeHash));
+    });
+
+    it('push correctly updates the root (matches off-chain computation)', async function () {
+      const leaves = [];
+
+      // for each leaf slot
+      for (const i in range(2 ** DEPTH)) {
+        // generate random leaf
+        leaves.push(generators.bytes32());
+
+        // rebuild tree.
+        const root = computeTreeRoot(leaves, DEPTH, ZERO, nonCommutativeHash);
+        const hash = leaves.at(-1); // leaf
+
+        // push value to tree
+        await expect(this.mock.pushNonCommutative(hash)).to.emit(this.mock, 'LeafInserted').withArgs(hash, i, root);
+
+        // check tree
+        await expect(this.mock.root()).to.eventually.equal(root);
+        await expect(this.mock.nextLeafIndex()).to.eventually.equal(BigInt(i) + 1n);
+      }
+    });
+
+    it('root is order-sensitive: push(A,B) != push(B,A)', async function () {
+      const leafA = generators.bytes32();
+      const leafB = generators.bytes32();
+
+      const mockAB = await ethers.deployContract('MerkleTreeMock');
+      await mockAB.setupNonCommutative(DEPTH, ZERO);
+      await mockAB.pushNonCommutative(leafA);
+      await mockAB.pushNonCommutative(leafB);
+
+      const mockBA = await ethers.deployContract('MerkleTreeMock');
+      await mockBA.setupNonCommutative(DEPTH, ZERO);
+      await mockBA.pushNonCommutative(leafB);
+      await mockBA.pushNonCommutative(leafA);
+
+      const rootAB = await mockAB.root();
+      const rootBA = await mockBA.root();
+
+      expect(rootAB).to.not.equal(rootBA);
+    });
   });
 });
