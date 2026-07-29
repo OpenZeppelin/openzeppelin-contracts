@@ -38,7 +38,7 @@
 #### Access
 
 - `AccessManager`: Treat `setAuthority` differently in `canCall` to prevent bypassing the `updateAuthority` security using an `execute`. ([#6388](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6388))
-- `AccessManager`: Allow a role admin to cancel grant and revoke operations. ([#6573](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6573))
+- `AccessManager`: Allow a role admin to cancel operations that grant or revoke roles. ([#6573](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6573))
 
 #### Account
 
