@@ -117,7 +117,6 @@ abstract contract PaymasterERC20 is Paymaster {
             _postOpCost().saturatingAdd(penaltyGas).saturatingMul(userOp.maxFeePerGas()).saturatingAdd(maxCost),
             tokenPerNative
         );
-        uint256 maxTokenCost = _erc20Cost(maxCost + _postOpCost() * userOp.maxFeePerGas(), tokenPerNative);
         if (maxTokenCost == type(uint256).max) {
             return (bytes(""), ERC4337Utils.SIG_VALIDATION_FAILED);
         }
