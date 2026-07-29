@@ -1,10 +1,12 @@
 # Changelog
 
 
-## 5.7.0-rc.0 (2026-07-15)
+## 5.7.0 (2026-07-29)
 
 ### Breaking changes
 
+- `EIP712`: Drop the storage fallback for long `name`/`version` values. Both parameters must now fit in a `ShortString` (at most 31 bytes) or the constructor reverts with `ShortStrings.StringTooLong`. Storing the domain exclusively in immutables keeps the domain (and downstream `ERC7739` verification) consistent when the contract is used behind a proxy or clone without an initializer. ([#6631](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6631))
+- `ERC2771Forwarder`: custom error `ERC2771ForwarderFailureInAtomicBatch` has been renamed to `ERC2771ForwarderNoRefundReceiver`. ([#6415](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6415))
 - `Governor` and `IGovernor`: Replace `GovernorQueueNotImplemented` with `GovernorProposalQueueingNotRequired` and `GovernorProposalQueueingFailed`. ([#6582](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6582))
 
 ### Deprecations
@@ -37,10 +39,11 @@
 #### Access
 
 - `AccessManager`: Treat `setAuthority` differently in `canCall` to prevent bypassing the `updateAuthority` security using an `execute`. ([#6388](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6388))
+- `AccessManager`: Allow a role admin to cancel operations that grant or revoke roles. ([#6573](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6573))
 
 #### Account
 
-- `AccountERC7579Hooked`: Do not revert if hook checks fail during the hook module uninstallation. ([#6390](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6390))
+- `AccountERC7579`: Revert the uninstallation of any module (validator, executor, fallback, or hook) if its `onUninstall` callback reverts, giving modules control over their own uninstallation. A forced uninstallation that bypasses the callback can still be performed through a delegate call via `execute`. ([#6628](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6628))
 - `ERC4337Utils`, `IERC4337`: Drop the `draft-` prefix from the file names now that ERC-4337 is finalized. Imports must be updated from `account/utils/draft-ERC4337Utils.sol` to `account/utils/ERC4337Utils.sol` and from `interfaces/draft-IERC4337.sol` to `interfaces/IERC4337.sol`. ([#6581](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6581))
 - `Paymaster`: Add a simple ERC-4337 paymaster implementation with minimal logic. ([#6576](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6576))
 - `PaymasterERC20`: Add extension of `Paymaster` that sponsors user operations against payment in ERC-20 tokens. ([#6576](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6576))
@@ -50,7 +53,11 @@
 
 #### Cryptography
 
+- `ERC7739`: Reject signatures whose `contentsDescr` fails to parse into a non-empty `contentsName`, preventing a malformed descriptor from degrading verification to a constant `structHash` that no longer binds the message contents or the account's EIP-712 domain. ([#6618](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6618))
 - `ERC7913WebAuthnVerifier`: Add an internal `_requireUV` function that can be overridden to disable the UV check. ([#6596](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6596))
+- `MultiSignerERC7913`: Decode the multisignature payload directly from calldata and return `false` on malformed encoding instead of reverting during `abi.decode`, so paymaster/account validation can surface `SIG_VALIDATION_FAILED` rather than bubble up a revert. The `_validateSignatures` and `_validateThreshold` override parameters change from `bytes[] memory` to `bytes[] calldata`. ([#6642](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6642))
+- `RSA`: Return `false` from `pkcs1Sha256` instead of reverting when modular exponentiation fails. ([#6638](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6638))
+- `SignatureChecker`: Zero-pad the ERC-1271 signature calldata to a 32-byte boundary when performing the ERC-1271 static call, so the encoded `bytes` argument conforms to the ABI spec. ([#6646](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6646))
 - `WebAuthn`: Verification now returns `false` instead of reverting when client data contains an out-of-bounds `challengeIndex`. ([#6329](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6329))
 
 #### Cross-chain
@@ -60,10 +67,11 @@
 - `BridgeMultiToken` and `BridgeERC1155`: Add bridge contracts to handle crosschain movements of ERC-1155 tokens. ([#6281](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6281))
 - `CrosschainRemoteExecutor`: Add a new executor contract that relays transaction from a controller on a remote chain. ([#6272](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6272))
 
-#### Governance 
+#### Governance
 
 - `Governor`: Strictly enforce the expected proposal state depending on `proposalNeedsQueuing` when calling `execute`. ([#6386](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6386))
 - `GovernorCrosschain`: Add governor module that facilitates the execution of crosschain operations through CrosschainRemoteExecutors and ERC-7786 gateways. ([#6272](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6272))
+- `GovernorPreventLateQuorum`: Bound `lateQuorumVoteExtension` by a new internal virtual `_maxLateQuorumVoteExtension` (default `votingPeriod()`) to cap the total voting duration to twice the voting period, thus preventing a large extension from bricking governance. Integrators can override `_maxLateQuorumVoteExtension` to enforce a different bound. ([#6644](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6644))
 
 #### Structures
 
@@ -78,7 +86,6 @@
 - `ERC1155Burnable`: Use `_checkAuthorized` to correctly apply authorization overrides. ([#6435](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6435))
 - `SafeERC20`: Add `tryGetDecimals` helper that safely queries a token's `decimals()` without reverting. ([#6482](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6482))
 - `ERC6909ContentURI`, `ERC6909TokenSupply` and `ERC6909Metadata`: Add ERC-165 detection for the `IERC6909ContentURI`, `IERC6909TokenSupply` and `IERC6909Metadata` interfaces. ([#6246](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6246))
-
 
 ## 5.6.1 (2026-02-27)
 
