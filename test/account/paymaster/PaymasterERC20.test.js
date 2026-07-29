@@ -189,6 +189,41 @@ describe('PaymasterERC20', function () {
       }
     });
 
+    it('prices the postOp unused-gas penalty so an inflated paymasterPostOpGasLimit cannot drain the paymaster', async function () {
+      // fund account
+      await this.token.$_mint(this.account, value);
+      await this.token.$_approve(this.account, this.paymaster, ethers.MaxUint256);
+
+      const signedUserOp = await this.account
+        .createUserOp({
+          ...this.userOp,
+          // user inflates the postOp gas limit far beyond what postOp actually consumes
+          paymasterPostOpGasLimit: 500_000n,
+          callData: this.account.interface.encodeFunctionData('execute', [
+            encodeMode({ callType: CALL_TYPE_BATCH }),
+            encodeBatch({
+              target: this.target,
+              data: this.target.interface.encodeFunctionData('mockFunctionExtra'),
+            }),
+          ]),
+        })
+        .then(op => this.paymasterSignUserOp(op, { tokenPrice: 2n * ethers.WeiPerEther }))
+        .then(op => this.signUserOp(op));
+
+      const logs = await predeploy.entrypoint.v09
+        .handleOps([signedUserOp.packed], this.receiver)
+        .then(tx => tx.wait())
+        .then(({ logs }) => logs.map(ev => this.paymaster.interface.parseLog(ev) ?? ev));
+
+      const { tokenAmount } = logs.find(ev => ev.fragment?.name == 'UserOperationSponsored').args;
+      const { actualGasCost } = logs.find(ev => ev.fragment?.name == 'UserOperationEvent').args;
+
+      // The EntryPoint debits the paymaster's deposit `actualGasCost`, which *includes* the unused-gas penalty on
+      // the inflated postOp limit. The token charge (tokenPrice = 2) must cover it, i.e. the user pays for the
+      // penalty they induced rather than the paymaster subsidizing it out of its deposit.
+      expect(tokenAmount).to.be.greaterThanOrEqual(2n * actualGasCost);
+    });
+
     it('reverts with PaymasterERC20FailedRefund when token refund fails', async function () {
       const erc20Blocklist = await ethers.deployContract('$ERC20BlocklistMock', ['Token', 'TKN']);
 
@@ -325,6 +360,13 @@ describe('PaymasterERC20', function () {
   });
 
   describe('edge cases', function () {
+    it('_postOpGasPenalty prices the worst-case unused-gas penalty only above the threshold', async function () {
+      await expect(this.paymaster.$_postOpGasPenalty(0n)).to.eventually.equal(0n);
+      await expect(this.paymaster.$_postOpGasPenalty(40_000n)).to.eventually.equal(0n); // threshold is exclusive
+      await expect(this.paymaster.$_postOpGasPenalty(40_001n)).to.eventually.equal(4_000n); // 10% of the limit
+      await expect(this.paymaster.$_postOpGasPenalty(1_000_000n)).to.eventually.equal(100_000n);
+    });
+
     it('_erc20Cost returns max uint256 without reverting when muldiv overflows', async function () {
       const tokenPerNative = ethers.MaxUint256;
       const nativeCost = ethers.MaxUint256;
