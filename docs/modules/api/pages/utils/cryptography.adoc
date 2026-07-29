@@ -165,6 +165,12 @@
 :AbstractSigner-_rawSignatureValidation: pass:normal[xref:utils/cryptography.adoc#AbstractSigner-_rawSignatureValidation-bytes32-bytes-[`AbstractSigner._rawSignatureValidation`]]
 :AbstractSigner: pass:normal[xref:utils/cryptography.adoc#AbstractSigner[`AbstractSigner`]]
 :xref-SignerEIP7702-_rawSignatureValidation-bytes32-bytes-: xref:utils/cryptography.adoc#SignerEIP7702-_rawSignatureValidation-bytes32-bytes-
+:SignerP256: pass:normal[xref:utils/cryptography.adoc#SignerP256[`SignerP256`]]
+:WebAuthn-WebAuthnAuth: pass:normal[xref:utils/cryptography.adoc#WebAuthn-WebAuthnAuth[`WebAuthn.WebAuthnAuth`]]
+:xref-SignerWebAuthn-_rawSignatureValidation-bytes32-bytes-: xref:utils/cryptography.adoc#SignerWebAuthn-_rawSignatureValidation-bytes32-bytes-
+:xref-SignerP256-_setSigner-bytes32-bytes32-: xref:utils/cryptography.adoc#SignerP256-_setSigner-bytes32-bytes32-
+:xref-SignerP256-signer--: xref:utils/cryptography.adoc#SignerP256-signer--
+:xref-SignerP256-SignerP256InvalidPublicKey-bytes32-bytes32-: xref:utils/cryptography.adoc#SignerP256-SignerP256InvalidPublicKey-bytes32-bytes32-
 :AbstractSigner: pass:normal[xref:utils/cryptography.adoc#AbstractSigner[`AbstractSigner`]]
 :Account: pass:normal[xref:account.adoc#Account[`Account`]]
 :xref-SignerERC7913-constructor-bytes-: xref:utils/cryptography.adoc#SignerERC7913-constructor-bytes-
@@ -227,6 +233,7 @@
 :WebAuthn-WebAuthnAuth: pass:normal[xref:utils/cryptography.adoc#WebAuthn-WebAuthnAuth[`WebAuthn.WebAuthnAuth`]]
 :WebAuthn-verify: pass:normal[xref:utils/cryptography.adoc#WebAuthn-verify-bytes-struct-WebAuthn-WebAuthnAuth-bytes32-bytes32-bool-[`WebAuthn.verify`]]
 :xref-ERC7913WebAuthnVerifier-verify-bytes-bytes32-bytes-: xref:utils/cryptography.adoc#ERC7913WebAuthnVerifier-verify-bytes-bytes32-bytes-
+:xref-ERC7913WebAuthnVerifier-_requireUV--: xref:utils/cryptography.adoc#ERC7913WebAuthnVerifier-_requireUV--
 = Cryptography
 
 [.readme-notice]
@@ -282,7 +289,7 @@ A collection of contracts and libraries that implement various signature validat
 
 [.contract]
 [[ECDSA]]
-=== `++ECDSA++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/cryptography/ECDSA.sol[{github-icon},role=heading-link]
+=== `++ECDSA++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/utils/cryptography/ECDSA.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -466,7 +473,7 @@ The signature has an S value that is in the upper half order.
 
 [.contract]
 [[MessageHashUtils]]
-=== `++MessageHashUtils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/cryptography/MessageHashUtils.sol[{github-icon},role=heading-link]
+=== `++MessageHashUtils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/utils/cryptography/MessageHashUtils.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -615,7 +622,7 @@ Builds an EIP-712 domain type hash depending on the `fields` provided, following
 
 [.contract]
 [[P256]]
-=== `++P256++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/cryptography/P256.sol[{github-icon},role=heading-link]
+=== `++P256++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/utils/cryptography/P256.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -737,7 +744,7 @@ B parameter of the weierstrass equation
 
 [.contract]
 [[RSA]]
-=== `++RSA++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/cryptography/RSA.sol[{github-icon},role=heading-link]
+=== `++RSA++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/utils/cryptography/RSA.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -803,7 +810,7 @@ using a low exponent out of security concerns.
 
 [.contract]
 [[SignatureChecker]]
-=== `++SignatureChecker++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/cryptography/SignatureChecker.sol[{github-icon},role=heading-link]
+=== `++SignatureChecker++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/utils/cryptography/SignatureChecker.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -901,7 +908,7 @@ change through time. It could return true at block N and false at block N+1 (or 
 
 [.contract]
 [[Hashes]]
-=== `++Hashes++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/cryptography/Hashes.sol[{github-icon},role=heading-link]
+=== `++Hashes++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/utils/cryptography/Hashes.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -971,7 +978,7 @@ Implementation of keccak256(abi.encode(a, b)) that doesn't allocate or expand me
 
 [.contract]
 [[MerkleProof]]
-=== `++MerkleProof++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/cryptography/MerkleProof.sol[{github-icon},role=heading-link]
+=== `++MerkleProof++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/utils/cryptography/MerkleProof.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1270,7 +1277,7 @@ The multiproof provided is not valid.
 
 [.contract]
 [[TrieProof]]
-=== `++TrieProof++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/cryptography/TrieProof.sol[{github-icon},role=heading-link]
+=== `++TrieProof++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/utils/cryptography/TrieProof.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1284,7 +1291,7 @@ The {traverse} and {verify} functions can be used to prove the following value:
 * Transaction against the transactionsRoot of a block.
 * Event against receiptsRoot of a block.
 * Account details (RLP encoding of [nonce, balance, storageRoot, codeHash]) against the stateRoot of a block.
-* Storage slot (RLP encoding of the value) against the storageRoot of a account.
+* Storage slot (RLP encoding of the value) against the storageRoot of an account.
 
 Proving a storage slot is usually done in 3 steps:
 
@@ -1325,7 +1332,7 @@ Based on https://github.com/ethereum-optimism/optimism/blob/ef970556e668b271a152
 [[TrieProof-verify-bytes-bytes32-bytes-bytes---]]
 ==== `[.contract-item-name]#++verify++#++(bytes value, bytes32 root, bytes key, bytes[] proof) → bool++` [.item-kind]#internal#
 
-Verifies a `proof` against a given `key`, `value`, `and root` hash.
+Verifies a `proof` against a given `key`, `value`, and `root` hash.
 
 [.contract-item]
 [[TrieProof-traverse-bytes32-bytes-bytes---]]
@@ -1381,7 +1388,7 @@ Number of items in leaf or extension nodes (always 2)
 
 [.contract]
 [[EIP712]]
-=== `++EIP712++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/cryptography/EIP712.sol[{github-icon},role=heading-link]
+=== `++EIP712++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/utils/cryptography/EIP712.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1408,6 +1415,10 @@ https://docs.metamask.io/guide/signing-data.html[`eth_signTypedDataV4` in MetaMa
 NOTE: In the upgradeable version of this contract, the cached values will correspond to the address, and the domain
 separator of the implementation contract. This will cause the {_domainSeparatorV4} function to always rebuild the
 separator from the immutable values, which is cheaper than accessing a cached version in cold storage.
+
+IMPORTANT: The `name` and `version` must each fit in a `ShortString` (at most 31 bytes). Longer values cause the
+constructor to revert with a `ShortStrings.StringTooLong` error. Because the values are stored exclusively in
+immutables, the domain is preserved when the contract is used behind a proxy or clone without an initializer.
 
 [.contract-index]
 .Functions
@@ -1486,8 +1497,7 @@ signature.
 
 The name parameter for the EIP712 domain.
 
-NOTE: By default this function reads _name which is an immutable value.
-It only reads from storage if necessary (in case the value is too large to fit in a ShortString).
+NOTE: This function reads `_name`, which is an immutable value.
 
 [.contract-item]
 [[EIP712-_EIP712Version--]]
@@ -1495,8 +1505,7 @@ It only reads from storage if necessary (in case the value is too large to fit i
 
 The version parameter for the EIP712 domain.
 
-NOTE: By default this function reads _version which is an immutable value.
-It only reads from storage if necessary (in case the value is too large to fit in a ShortString).
+NOTE: This function reads `_version`, which is an immutable value.
 
 :encodeTypedDataSig: pass:normal[xref:#ERC7739Utils-encodeTypedDataSig-bytes-bytes32-bytes32-string-[`++encodeTypedDataSig++`]]
 :decodeTypedDataSig: pass:normal[xref:#ERC7739Utils-decodeTypedDataSig-bytes-[`++decodeTypedDataSig++`]]
@@ -1516,7 +1525,7 @@ It only reads from storage if necessary (in case the value is too large to fit i
 
 [.contract]
 [[ERC7739Utils]]
-=== `++ERC7739Utils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/cryptography/draft-ERC7739Utils.sol[{github-icon},role=heading-link]
+=== `++ERC7739Utils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/utils/cryptography/draft-ERC7739Utils.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1599,12 +1608,20 @@ Nests an `EIP-712` hash (`contents`) into a `TypedDataSign` EIP-712 struct, and 
 struct hash. This struct hash must be combined with a domain separator, using {MessageHashUtils-toTypedDataHash}
 before being verified/recovered.
 
+NOTE: Returns `bytes32(0)` when `contentsName` is empty. Since {decodeContentsDescr} yields an empty
+`contentsName` for both empty and malformed descriptors, callers must either sanitize the input so an empty
+`contentsName` is never passed, or reject the `bytes32(0)` return before signing/verifying. Combining it
+with any domain separator produces a struct hash that no longer binds `contentsHash` nor `domainBytes`.
+
 [.contract-item]
 [[ERC7739Utils-typedDataSignStructHash-string-bytes32-bytes-]]
 ==== `[.contract-item-name]#++typedDataSignStructHash++#++(string contentsDescr, bytes32 contentsHash, bytes domainBytes) → bytes32 result++` [.item-kind]#internal#
 
 Variant of {typedDataSignStructHash-string-string-bytes32-bytes} that takes a content descriptor
 and decodes the `contentsName` and `contentsType` out of it.
+
+NOTE: Returns `bytes32(0)` when `contentsDescr` is empty or malformed (i.e. {decodeContentsDescr} yields
+an empty `contentsName`). See {typedDataSignStructHash-string-string-bytes32-bytes} for the caller's obligation.
 
 [.contract-item]
 [[ERC7739Utils-typedDataSignTypehash-string-string-]]
@@ -1622,7 +1639,7 @@ modes.
 Following ERC-7739 specifications, a `contentsName` is considered invalid if it's empty or it contains
 any of the following bytes , )\x00
 
-If the `contentsType` is invalid, this returns an empty string. Otherwise, the return string has non-zero
+If the `contentsDescr` is invalid, this returns empty strings. Otherwise, the return strings have non-zero
 length.
 
 :WebAuthnAuth: pass:normal[xref:#WebAuthn-WebAuthnAuth[`++WebAuthnAuth++`]]
@@ -1640,7 +1657,7 @@ length.
 
 [.contract]
 [[WebAuthn]]
-=== `++WebAuthn++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/cryptography/WebAuthn.sol[{github-icon},role=heading-link]
+=== `++WebAuthn++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/utils/cryptography/WebAuthn.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1762,7 +1779,7 @@ Bit 4 of the authenticator data flags: "Backup State" bit.
 
 [.contract]
 [[AbstractSigner]]
-=== `++AbstractSigner++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/cryptography/signers/AbstractSigner.sol[{github-icon},role=heading-link]
+=== `++AbstractSigner++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/utils/cryptography/signers/AbstractSigner.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1799,7 +1816,7 @@ xref:api:utils/cryptography#P256[P256] or xref:api:utils/cryptography#RSA[RSA]).
 
 [.contract]
 [[ERC7739]]
-=== `++ERC7739++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/cryptography/signers/draft-ERC7739.sol[{github-icon},role=heading-link]
+=== `++ERC7739++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/utils/cryptography/signers/draft-ERC7739.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1886,7 +1903,7 @@ A nested EIP-712 type might be presented in 2 different ways:
 
 [.contract]
 [[SignerECDSA]]
-=== `++SignerECDSA++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/cryptography/signers/SignerECDSA.sol[{github-icon},role=heading-link]
+=== `++SignerECDSA++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/utils/cryptography/signers/SignerECDSA.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1965,7 +1982,7 @@ xref:api:utils/cryptography#P256[P256] or xref:api:utils/cryptography#RSA[RSA]).
 
 [.contract]
 [[SignerP256]]
-=== `++SignerP256++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/cryptography/signers/SignerP256.sol[{github-icon},role=heading-link]
+=== `++SignerP256++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/utils/cryptography/signers/SignerP256.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2057,7 +2074,7 @@ xref:api:utils/cryptography#P256[P256] or xref:api:utils/cryptography#RSA[RSA]).
 
 [.contract]
 [[SignerRSA]]
-=== `++SignerRSA++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/cryptography/signers/SignerRSA.sol[{github-icon},role=heading-link]
+=== `++SignerRSA++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/utils/cryptography/signers/SignerRSA.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2129,7 +2146,7 @@ encoding as per section 9.2 (step 1) of the RFC.
 
 [.contract]
 [[SignerEIP7702]]
-=== `++SignerEIP7702++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/cryptography/signers/SignerEIP7702.sol[{github-icon},role=heading-link]
+=== `++SignerEIP7702++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/utils/cryptography/signers/SignerEIP7702.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2156,6 +2173,75 @@ Implementation of {AbstractSigner} for implementation for an EOA. Useful for EIP
 
 Validates the signature using the EOA's address (i.e. `address(this)`).
 
+:_rawSignatureValidation: pass:normal[xref:#SignerWebAuthn-_rawSignatureValidation-bytes32-bytes-[`++_rawSignatureValidation++`]]
+
+:_rawSignatureValidation-bytes32-bytes: pass:normal[xref:#SignerWebAuthn-_rawSignatureValidation-bytes32-bytes-[`++_rawSignatureValidation++`]]
+
+[.contract]
+[[SignerWebAuthn]]
+=== `++SignerWebAuthn++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/utils/cryptography/signers/SignerWebAuthn.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/utils/cryptography/signers/SignerWebAuthn.sol";
+```
+
+Implementation of {SignerP256} that supports WebAuthn authentication assertions.
+
+This contract enables signature validation using WebAuthn authentication assertions,
+leveraging the P256 public key stored in the contract.
+
+The signature is expected to be an abi-encoded {WebAuthn-WebAuthnAuth} struct.
+
+Example usage:
+
+```solidity
+contract MyAccountWebAuthn is Account, SignerWebAuthn, Initializable {
+    function initialize(bytes32 qx, bytes32 qy) public initializer {
+        _setSigner(qx, qy);
+    }
+}
+```
+
+IMPORTANT: Failing to call {_setSigner} either during construction (if used standalone)
+or during initialization (if used as a clone) may leave the signer either front-runnable or unusable.
+
+[.contract-index]
+.Functions
+--
+* {xref-SignerWebAuthn-_rawSignatureValidation-bytes32-bytes-}[`++_rawSignatureValidation(hash, signature)++`]
+
+[.contract-subindex-inherited]
+.SignerP256
+* {xref-SignerP256-_setSigner-bytes32-bytes32-}[`++_setSigner(qx, qy)++`]
+* {xref-SignerP256-signer--}[`++signer()++`]
+
+[.contract-subindex-inherited]
+.AbstractSigner
+
+--
+
+[.contract-index]
+.Errors
+--
+
+[.contract-subindex-inherited]
+.SignerP256
+* {xref-SignerP256-SignerP256InvalidPublicKey-bytes32-bytes32-}[`++SignerP256InvalidPublicKey(qx, qy)++`]
+
+[.contract-subindex-inherited]
+.AbstractSigner
+
+--
+
+[.contract-item]
+[[SignerWebAuthn-_rawSignatureValidation-bytes32-bytes-]]
+==== `[.contract-item-name]#++_rawSignatureValidation++#++(bytes32 hash, bytes signature) → bool++` [.item-kind]#internal#
+
+Validates a raw signature using the WebAuthn authentication assertion.
+
+Returns `false` if the signature is not a valid WebAuthn authentication assertion.
+
 :constructor: pass:normal[xref:#SignerERC7913-constructor-bytes-[`++constructor++`]]
 :signer: pass:normal[xref:#SignerERC7913-signer--[`++signer++`]]
 :_setSigner: pass:normal[xref:#SignerERC7913-_setSigner-bytes-[`++_setSigner++`]]
@@ -2168,7 +2254,7 @@ Validates the signature using the EOA's address (i.e. `address(this)`).
 
 [.contract]
 [[SignerERC7913]]
-=== `++SignerERC7913++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/cryptography/signers/SignerERC7913.sol[{github-icon},role=heading-link]
+=== `++SignerERC7913++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/utils/cryptography/signers/SignerERC7913.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2272,7 +2358,7 @@ with {signer}, `hash` and `signature`.
 
 [.contract]
 [[MultiSignerERC7913]]
-=== `++MultiSignerERC7913++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/cryptography/signers/MultiSignerERC7913.sol[{github-icon},role=heading-link]
+=== `++MultiSignerERC7913++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/utils/cryptography/signers/MultiSignerERC7913.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2574,7 +2660,7 @@ The `threshold` is unreachable given the number of `signers`.
 
 [.contract]
 [[MultiSignerERC7913Weighted]]
-=== `++MultiSignerERC7913Weighted++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/cryptography/signers/MultiSignerERC7913Weighted.sol[{github-icon},role=heading-link]
+=== `++MultiSignerERC7913Weighted++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/utils/cryptography/signers/MultiSignerERC7913Weighted.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2786,7 +2872,7 @@ Thrown when the arrays lengths don't match. See {_setSignerWeights}.
 
 [.contract]
 [[ERC7913P256Verifier]]
-=== `++ERC7913P256Verifier++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/cryptography/verifiers/ERC7913P256Verifier.sol[{github-icon},role=heading-link]
+=== `++ERC7913P256Verifier++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/utils/cryptography/verifiers/ERC7913P256Verifier.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2823,7 +2909,7 @@ SHOULD return 0xffffffff or revert if the key is empty
 
 [.contract]
 [[ERC7913RSAVerifier]]
-=== `++ERC7913RSAVerifier++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/cryptography/verifiers/ERC7913RSAVerifier.sol[{github-icon},role=heading-link]
+=== `++ERC7913RSAVerifier++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/utils/cryptography/verifiers/ERC7913RSAVerifier.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2855,12 +2941,14 @@ SHOULD return 0xffffffff or revert if the signature is not valid.
 SHOULD return 0xffffffff or revert if the key is empty
 
 :verify: pass:normal[xref:#ERC7913WebAuthnVerifier-verify-bytes-bytes32-bytes-[`++verify++`]]
+:_requireUV: pass:normal[xref:#ERC7913WebAuthnVerifier-_requireUV--[`++_requireUV++`]]
 
 :verify-bytes-bytes32-bytes: pass:normal[xref:#ERC7913WebAuthnVerifier-verify-bytes-bytes32-bytes-[`++verify++`]]
+:_requireUV-: pass:normal[xref:#ERC7913WebAuthnVerifier-_requireUV--[`++_requireUV++`]]
 
 [.contract]
 [[ERC7913WebAuthnVerifier]]
-=== `++ERC7913WebAuthnVerifier++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/utils/cryptography/verifiers/ERC7913WebAuthnVerifier.sol[{github-icon},role=heading-link]
+=== `++ERC7913WebAuthnVerifier++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/utils/cryptography/verifiers/ERC7913WebAuthnVerifier.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2884,6 +2972,7 @@ NOTE: Wallets that may require default P256 validation may install a P256 verifi
 .Functions
 --
 * {xref-ERC7913WebAuthnVerifier-verify-bytes-bytes32-bytes-}[`++verify(key, hash, signature)++`]
+* {xref-ERC7913WebAuthnVerifier-_requireUV--}[`++_requireUV()++`]
 
 [.contract-subindex-inherited]
 .IERC7913SignatureVerifier
@@ -2899,4 +2988,8 @@ Verifies `signature` as a valid signature of `hash` by `key`.
 MUST return the bytes4 magic value IERC7913SignatureVerifier.verify.selector if the signature is valid.
 SHOULD return 0xffffffff or revert if the signature is not valid.
 SHOULD return 0xffffffff or revert if the key is empty
+
+[.contract-item]
+[[ERC7913WebAuthnVerifier-_requireUV--]]
+==== `[.contract-item-name]#++_requireUV++#++() → bool++` [.item-kind]#internal#
 

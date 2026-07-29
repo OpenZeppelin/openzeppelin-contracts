@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.6.0) (access/manager/IAccessManager.sol)
+// OpenZeppelin Contracts (last updated v5.7.0) (access/manager/IAccessManager.sol)
 
 pragma solidity >=0.8.4;
 
@@ -80,6 +80,7 @@ interface IAccessManager {
     error AccessManagerNotReady(bytes32 operationId);
     error AccessManagerExpired(bytes32 operationId);
     error AccessManagerLockedRole(uint64 roleId);
+    error AccessManagerLockedFunction(bytes4 selector);
     error AccessManagerBadConfirmation();
     error AccessManagerUnauthorizedAccount(address msgsender, uint64 roleId);
     error AccessManagerUnauthorizedCall(address caller, address target, bytes4 selector);
@@ -106,6 +107,11 @@ interface IAccessManager {
      *
      * NOTE: This function does not report the permissions of the admin functions in the manager itself. These are defined by the
      * {AccessManager} documentation.
+     *
+     * NOTE: The `setAuthority(address)` selector is reserved on all targets (whether or not they are {AccessManaged}):
+     * it is gated to `ADMIN_ROLE` with a possible delay, and it cannot be reconfigured via {setTargetFunctionRole}.
+     * Any target function whose selector collides with `setAuthority(address)` inherits this restriction when routed
+     * through the manager.
      */
     function canCall(
         address caller,
@@ -291,6 +297,7 @@ interface IAccessManager {
      * Requirements:
      *
      * - the caller must be a global admin
+     * - `selectors` must not contain the `setAuthority(address)` selector, which is reserved. See {canCall}.
      *
      * Emits a {TargetFunctionRoleUpdated} event per selector.
      */

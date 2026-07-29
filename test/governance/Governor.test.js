@@ -11,9 +11,9 @@ const { shouldSupportInterfaces } = require('../utils/introspection/SupportsInte
 const { shouldBehaveLikeERC6372 } = require('./utils/ERC6372.behavior');
 
 const TOKENS = [
-  { Token: '$ERC20Votes', mode: 'blocknumber' },
+  { Token: '$ERC20Votes', mode: 'blockNumber' },
   { Token: '$ERC20VotesTimestampMock', mode: 'timestamp' },
-  { Token: '$ERC20VotesLegacyMock', mode: 'blocknumber' },
+  { Token: '$ERC20VotesLegacyMock', mode: 'blockNumber' },
 ];
 
 const name = 'OZ-Governor';
@@ -384,7 +384,41 @@ describe('Governor', function () {
             await this.helper.waitForSnapshot();
             await this.helper.connect(this.voter1).vote({ support: VoteType.For });
             await this.helper.waitForDeadline();
-            await expect(this.helper.queue()).to.be.revertedWithCustomError(this.mock, 'GovernorQueueNotImplemented');
+            await expect(this.helper.queue())
+              .to.be.revertedWithCustomError(this.mock, 'GovernorProposalQueueingNotRequired')
+              .withArgs(this.proposal.id);
+          });
+
+          it('reverts with GovernorProposalQueueingFailed when _queueOperations returns 0', async function () {
+            const brokenMock = await ethers.deployContract('$GovernorQueueingFailedMock', [
+              name,
+              votingDelay,
+              votingPeriod,
+              0n,
+              this.token,
+              10n,
+            ]);
+            const brokenHelper = new GovernorHelper(brokenMock, mode);
+            brokenHelper.setProposal(
+              [
+                {
+                  target: this.receiver.target,
+                  data: this.receiver.interface.encodeFunctionData('mockFunction'),
+                  value,
+                },
+              ],
+              '<broken proposal>',
+            );
+
+            await this.token.connect(this.owner).delegate(this.voter1);
+            await brokenHelper.connect(this.proposer).propose();
+            await brokenHelper.waitForSnapshot();
+            await brokenHelper.connect(this.voter1).vote({ support: VoteType.For });
+            await brokenHelper.waitForDeadline();
+
+            await expect(brokenHelper.queue())
+              .to.be.revertedWithCustomError(brokenMock, 'GovernorProposalQueueingFailed')
+              .withArgs(brokenHelper.id);
           });
         });
 
@@ -404,7 +438,7 @@ describe('Governor', function () {
               .withArgs(
                 this.proposal.id,
                 ProposalState.Active,
-                GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded, ProposalState.Queued]),
+                GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded]),
               );
           });
 
@@ -417,7 +451,7 @@ describe('Governor', function () {
               .withArgs(
                 this.proposal.id,
                 ProposalState.Active,
-                GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded, ProposalState.Queued]),
+                GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded]),
               );
           });
 
@@ -430,7 +464,7 @@ describe('Governor', function () {
               .withArgs(
                 this.proposal.id,
                 ProposalState.Active,
-                GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded, ProposalState.Queued]),
+                GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded]),
               );
           });
 
@@ -481,7 +515,7 @@ describe('Governor', function () {
               .withArgs(
                 this.proposal.id,
                 ProposalState.Executed,
-                GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded, ProposalState.Queued]),
+                GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded]),
               );
           });
         });
@@ -569,7 +603,7 @@ describe('Governor', function () {
               .withArgs(
                 this.proposal.id,
                 ProposalState.Canceled,
-                GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded, ProposalState.Queued]),
+                GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded]),
               );
           });
 
@@ -587,7 +621,7 @@ describe('Governor', function () {
               .withArgs(
                 this.proposal.id,
                 ProposalState.Canceled,
-                GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded, ProposalState.Queued]),
+                GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded]),
               );
           });
 

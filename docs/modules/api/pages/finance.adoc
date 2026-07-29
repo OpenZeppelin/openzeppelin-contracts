@@ -1,5 +1,7 @@
 :github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
 :VestingWallet: pass:normal[xref:finance.adoc#VestingWallet[`VestingWallet`]]
+:VestingWalletCliff: pass:normal[xref:finance.adoc#VestingWalletCliff[`VestingWalletCliff`]]
+:VestingWallet: pass:normal[xref:finance.adoc#VestingWallet[`VestingWallet`]]
 :Ownable: pass:normal[xref:access.adoc#Ownable[`Ownable`]]
 :xref-VestingWallet-constructor-address-uint64-uint64-: xref:finance.adoc#VestingWallet-constructor-address-uint64-uint64-
 :xref-VestingWallet-receive--: xref:finance.adoc#VestingWallet-receive--
@@ -26,6 +28,34 @@
 :xref-Ownable-OwnableUnauthorizedAccount-address-: xref:access.adoc#Ownable-OwnableUnauthorizedAccount-address-
 :xref-Ownable-OwnableInvalidOwner-address-: xref:access.adoc#Ownable-OwnableInvalidOwner-address-
 :IERC20: pass:normal[xref:token/ERC20.adoc#IERC20[`IERC20`]]
+:VestingWallet: pass:normal[xref:finance.adoc#VestingWallet[`VestingWallet`]]
+:xref-VestingWalletCliff-constructor-uint64-: xref:finance.adoc#VestingWalletCliff-constructor-uint64-
+:xref-VestingWalletCliff-cliff--: xref:finance.adoc#VestingWalletCliff-cliff--
+:xref-VestingWalletCliff-_vestingSchedule-uint256-uint64-: xref:finance.adoc#VestingWalletCliff-_vestingSchedule-uint256-uint64-
+:xref-VestingWallet-receive--: xref:finance.adoc#VestingWallet-receive--
+:xref-VestingWallet-start--: xref:finance.adoc#VestingWallet-start--
+:xref-VestingWallet-duration--: xref:finance.adoc#VestingWallet-duration--
+:xref-VestingWallet-end--: xref:finance.adoc#VestingWallet-end--
+:xref-VestingWallet-released--: xref:finance.adoc#VestingWallet-released--
+:xref-VestingWallet-released-address-: xref:finance.adoc#VestingWallet-released-address-
+:xref-VestingWallet-releasable--: xref:finance.adoc#VestingWallet-releasable--
+:xref-VestingWallet-releasable-address-: xref:finance.adoc#VestingWallet-releasable-address-
+:xref-VestingWallet-release--: xref:finance.adoc#VestingWallet-release--
+:xref-VestingWallet-release-address-: xref:finance.adoc#VestingWallet-release-address-
+:xref-VestingWallet-vestedAmount-uint64-: xref:finance.adoc#VestingWallet-vestedAmount-uint64-
+:xref-VestingWallet-vestedAmount-address-uint64-: xref:finance.adoc#VestingWallet-vestedAmount-address-uint64-
+:xref-Ownable-owner--: xref:access.adoc#Ownable-owner--
+:xref-Ownable-_checkOwner--: xref:access.adoc#Ownable-_checkOwner--
+:xref-Ownable-renounceOwnership--: xref:access.adoc#Ownable-renounceOwnership--
+:xref-Ownable-transferOwnership-address-: xref:access.adoc#Ownable-transferOwnership-address-
+:xref-Ownable-_transferOwnership-address-: xref:access.adoc#Ownable-_transferOwnership-address-
+:xref-VestingWallet-EtherReleased-uint256-: xref:finance.adoc#VestingWallet-EtherReleased-uint256-
+:xref-VestingWallet-ERC20Released-address-uint256-: xref:finance.adoc#VestingWallet-ERC20Released-address-uint256-
+:xref-Ownable-OwnershipTransferred-address-address-: xref:access.adoc#Ownable-OwnershipTransferred-address-address-
+:xref-VestingWalletCliff-InvalidCliffDuration-uint64-uint64-: xref:finance.adoc#VestingWalletCliff-InvalidCliffDuration-uint64-uint64-
+:xref-Ownable-OwnableUnauthorizedAccount-address-: xref:access.adoc#Ownable-OwnableUnauthorizedAccount-address-
+:xref-Ownable-OwnableInvalidOwner-address-: xref:access.adoc#Ownable-OwnableInvalidOwner-address-
+:VestingWallet: pass:normal[xref:finance.adoc#VestingWallet[`VestingWallet`]]
 = Finance
 
 [.readme-notice]
@@ -36,6 +66,7 @@ This directory includes primitives for financial systems:
 - {VestingWallet} handles the vesting of Ether and ERC-20 tokens for a given beneficiary. Custody of multiple tokens can
   be given to this contract, which will release the token to the beneficiary following a given, customizable, vesting
   schedule.
+- {VestingWalletCliff} is an extension of {VestingWallet} that adds a cliff to the vesting schedule.
 
 == Contracts
 
@@ -73,7 +104,7 @@ This directory includes primitives for financial systems:
 
 [.contract]
 [[VestingWallet]]
-=== `++VestingWallet++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/finance/VestingWallet.sol[{github-icon},role=heading-link]
+=== `++VestingWallet++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/finance/VestingWallet.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -252,4 +283,118 @@ an asset given its total historical allocation.
 [.contract-item]
 [[VestingWallet-ERC20Released-address-uint256-]]
 ==== `[.contract-item-name]#++ERC20Released++#++(address indexed token, uint256 amount)++` [.item-kind]#event#
+
+:InvalidCliffDuration: pass:normal[xref:#VestingWalletCliff-InvalidCliffDuration-uint64-uint64-[`++InvalidCliffDuration++`]]
+:constructor: pass:normal[xref:#VestingWalletCliff-constructor-uint64-[`++constructor++`]]
+:cliff: pass:normal[xref:#VestingWalletCliff-cliff--[`++cliff++`]]
+:_vestingSchedule: pass:normal[xref:#VestingWalletCliff-_vestingSchedule-uint256-uint64-[`++_vestingSchedule++`]]
+
+:constructor-uint64: pass:normal[xref:#VestingWalletCliff-constructor-uint64-[`++constructor++`]]
+:cliff-: pass:normal[xref:#VestingWalletCliff-cliff--[`++cliff++`]]
+:_vestingSchedule-uint256-uint64: pass:normal[xref:#VestingWalletCliff-_vestingSchedule-uint256-uint64-[`++_vestingSchedule++`]]
+
+[.contract]
+[[VestingWalletCliff]]
+=== `++VestingWalletCliff++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/finance/VestingWalletCliff.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/finance/VestingWalletCliff.sol";
+```
+
+Extension of {VestingWallet} that adds a cliff to the vesting schedule.
+
+_Available since v5.1._
+
+[.contract-index]
+.Functions
+--
+* {xref-VestingWalletCliff-constructor-uint64-}[`++constructor(cliffSeconds)++`]
+* {xref-VestingWalletCliff-cliff--}[`++cliff()++`]
+* {xref-VestingWalletCliff-_vestingSchedule-uint256-uint64-}[`++_vestingSchedule(totalAllocation, timestamp)++`]
+
+[.contract-subindex-inherited]
+.VestingWallet
+* {xref-VestingWallet-receive--}[`++receive()++`]
+* {xref-VestingWallet-start--}[`++start()++`]
+* {xref-VestingWallet-duration--}[`++duration()++`]
+* {xref-VestingWallet-end--}[`++end()++`]
+* {xref-VestingWallet-released--}[`++released()++`]
+* {xref-VestingWallet-released-address-}[`++released(token)++`]
+* {xref-VestingWallet-releasable--}[`++releasable()++`]
+* {xref-VestingWallet-releasable-address-}[`++releasable(token)++`]
+* {xref-VestingWallet-release--}[`++release()++`]
+* {xref-VestingWallet-release-address-}[`++release(token)++`]
+* {xref-VestingWallet-vestedAmount-uint64-}[`++vestedAmount(timestamp)++`]
+* {xref-VestingWallet-vestedAmount-address-uint64-}[`++vestedAmount(token, timestamp)++`]
+
+[.contract-subindex-inherited]
+.Ownable
+* {xref-Ownable-owner--}[`++owner()++`]
+* {xref-Ownable-_checkOwner--}[`++_checkOwner()++`]
+* {xref-Ownable-renounceOwnership--}[`++renounceOwnership()++`]
+* {xref-Ownable-transferOwnership-address-}[`++transferOwnership(newOwner)++`]
+* {xref-Ownable-_transferOwnership-address-}[`++_transferOwnership(newOwner)++`]
+
+--
+
+[.contract-index]
+.Events
+--
+
+[.contract-subindex-inherited]
+.VestingWallet
+* {xref-VestingWallet-EtherReleased-uint256-}[`++EtherReleased(amount)++`]
+* {xref-VestingWallet-ERC20Released-address-uint256-}[`++ERC20Released(token, amount)++`]
+
+[.contract-subindex-inherited]
+.Ownable
+* {xref-Ownable-OwnershipTransferred-address-address-}[`++OwnershipTransferred(previousOwner, newOwner)++`]
+
+--
+
+[.contract-index]
+.Errors
+--
+* {xref-VestingWalletCliff-InvalidCliffDuration-uint64-uint64-}[`++InvalidCliffDuration(cliffSeconds, durationSeconds)++`]
+
+[.contract-subindex-inherited]
+.VestingWallet
+
+[.contract-subindex-inherited]
+.Ownable
+* {xref-Ownable-OwnableUnauthorizedAccount-address-}[`++OwnableUnauthorizedAccount(account)++`]
+* {xref-Ownable-OwnableInvalidOwner-address-}[`++OwnableInvalidOwner(owner)++`]
+
+--
+
+[.contract-item]
+[[VestingWalletCliff-constructor-uint64-]]
+==== `[.contract-item-name]#++constructor++#++(uint64 cliffSeconds)++` [.item-kind]#internal#
+
+Set the duration of the cliff, in seconds. The cliff starts vesting schedule (see {VestingWallet}'s
+constructor) and ends `cliffSeconds` later.
+
+[.contract-item]
+[[VestingWalletCliff-cliff--]]
+==== `[.contract-item-name]#++cliff++#++() → uint256++` [.item-kind]#public#
+
+Getter for the cliff timestamp.
+
+[.contract-item]
+[[VestingWalletCliff-_vestingSchedule-uint256-uint64-]]
+==== `[.contract-item-name]#++_vestingSchedule++#++(uint256 totalAllocation, uint64 timestamp) → uint256++` [.item-kind]#internal#
+
+Virtual implementation of the vesting formula. This returns the amount vested, as a function of time, for
+an asset given its total historical allocation. Returns 0 if the {cliff} timestamp is not met.
+
+IMPORTANT: The cliff not only makes the schedule return 0, but it also ignores every possible side
+effect from calling the inherited implementation (i.e. `super._vestingSchedule`). Carefully consider
+this caveat if the overridden implementation of this function has any (e.g. writing to memory or reverting).
+
+[.contract-item]
+[[VestingWalletCliff-InvalidCliffDuration-uint64-uint64-]]
+==== `[.contract-item-name]#++InvalidCliffDuration++#++(uint64 cliffSeconds, uint64 durationSeconds)++` [.item-kind]#error#
+
+The specified cliff duration is larger than the vesting duration.
 

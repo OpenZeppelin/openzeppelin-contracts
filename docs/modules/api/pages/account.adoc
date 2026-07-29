@@ -5,6 +5,11 @@
 :ERC7821: pass:normal[xref:account.adoc#ERC7821[`ERC7821`]]
 :ERC4337Utils: pass:normal[xref:account.adoc#ERC4337Utils[`ERC4337Utils`]]
 :ERC7579Utils: pass:normal[xref:account.adoc#ERC7579Utils[`ERC7579Utils`]]
+:Paymaster: pass:normal[xref:account.adoc#Paymaster[`Paymaster`]]
+:PaymasterERC20: pass:normal[xref:account.adoc#PaymasterERC20[`PaymasterERC20`]]
+:PaymasterERC20Guarantor: pass:normal[xref:account.adoc#PaymasterERC20Guarantor[`PaymasterERC20Guarantor`]]
+:PaymasterERC721Owner: pass:normal[xref:account.adoc#PaymasterERC721Owner[`PaymasterERC721Owner`]]
+:PaymasterSigner: pass:normal[xref:account.adoc#PaymasterSigner[`PaymasterSigner`]]
 :AbstractSigner-_rawSignatureValidation: pass:normal[xref:utils/cryptography.adoc#AbstractSigner-_rawSignatureValidation-bytes32-bytes-[`AbstractSigner._rawSignatureValidation`]]
 :SignerECDSA: pass:normal[xref:utils/cryptography.adoc#SignerECDSA[`SignerECDSA`]]
 :SignerP256: pass:normal[xref:utils/cryptography.adoc#SignerP256[`SignerP256`]]
@@ -75,6 +80,8 @@
 :IERC7579ModuleConfig-ModuleInstalled: pass:normal[xref:interfaces.adoc#IERC7579ModuleConfig-ModuleInstalled-uint256-address-[`IERC7579ModuleConfig.ModuleInstalled`]]
 :IERC7579Module-onUninstall: pass:normal[xref:interfaces.adoc#IERC7579Module-onUninstall-bytes-[`IERC7579Module.onUninstall`]]
 :ERC7579Utils-ERC7579UninstalledModule: pass:normal[xref:account.adoc#ERC7579Utils-ERC7579UninstalledModule-uint256-address-[`ERC7579Utils.ERC7579UninstalledModule`]]
+:IERC7579Module-onUninstall: pass:normal[xref:interfaces.adoc#IERC7579Module-onUninstall-bytes-[`IERC7579Module.onUninstall`]]
+:IERC7579Module-onUninstall: pass:normal[xref:interfaces.adoc#IERC7579Module-onUninstall-bytes-[`IERC7579Module.onUninstall`]]
 :Panic-ARRAY_OUT_OF_BOUNDS: pass:normal[xref:utils.adoc#Panic-ARRAY_OUT_OF_BOUNDS-uint256[`Panic.ARRAY_OUT_OF_BOUNDS`]]
 :AccountERC7579: pass:normal[xref:account.adoc#AccountERC7579[`AccountERC7579`]]
 :IERC7579Hook-preCheck: pass:normal[xref:interfaces.adoc#IERC7579Hook-preCheck-address-uint256-bytes-[`IERC7579Hook.preCheck`]]
@@ -129,6 +136,130 @@
 :xref-ERC7821-supportsExecutionMode-bytes32-: xref:account.adoc#ERC7821-supportsExecutionMode-bytes32-
 :xref-ERC7821-_erc7821AuthorizedExecutor-address-bytes32-bytes-: xref:account.adoc#ERC7821-_erc7821AuthorizedExecutor-address-bytes32-bytes-
 :xref-ERC7821-UnsupportedExecutionMode--: xref:account.adoc#ERC7821-UnsupportedExecutionMode--
+:Paymaster-_validatePaymasterUserOp: pass:normal[xref:account.adoc#Paymaster-_validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256-[`Paymaster._validatePaymasterUserOp`]]
+:Paymaster-_postOp: pass:normal[xref:account.adoc#Paymaster-_postOp-enum-IPaymaster-PostOpMode-bytes-uint256-uint256-[`Paymaster._postOp`]]
+:IEntryPointStake: pass:normal[xref:interfaces.adoc#IEntryPointStake[`IEntryPointStake`]]
+:AccessControl: pass:normal[xref:access.adoc#AccessControl[`AccessControl`]]
+:xref-Paymaster-onlyEntryPoint--: xref:account.adoc#Paymaster-onlyEntryPoint--
+:xref-Paymaster-entryPoint--: xref:account.adoc#Paymaster-entryPoint--
+:xref-Paymaster-validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256-: xref:account.adoc#Paymaster-validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256-
+:xref-Paymaster-postOp-enum-IPaymaster-PostOpMode-bytes-uint256-uint256-: xref:account.adoc#Paymaster-postOp-enum-IPaymaster-PostOpMode-bytes-uint256-uint256-
+:xref-Paymaster-_validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256-: xref:account.adoc#Paymaster-_validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256-
+:xref-Paymaster-_postOp-enum-IPaymaster-PostOpMode-bytes-uint256-uint256-: xref:account.adoc#Paymaster-_postOp-enum-IPaymaster-PostOpMode-bytes-uint256-uint256-
+:xref-Paymaster-_checkEntryPoint--: xref:account.adoc#Paymaster-_checkEntryPoint--
+:xref-Paymaster-_deposit-uint256-: xref:account.adoc#Paymaster-_deposit-uint256-
+:xref-Paymaster-_withdraw-address-payable-uint256-: xref:account.adoc#Paymaster-_withdraw-address-payable-uint256-
+:xref-Paymaster-_addStake-uint256-uint32-: xref:account.adoc#Paymaster-_addStake-uint256-uint32-
+:xref-Paymaster-_unlockStake--: xref:account.adoc#Paymaster-_unlockStake--
+:xref-Paymaster-_withdrawStake-address-payable-: xref:account.adoc#Paymaster-_withdrawStake-address-payable-
+:xref-Paymaster-PaymasterUnauthorized-address-: xref:account.adoc#Paymaster-PaymasterUnauthorized-address-
+:IAccount-validateUserOp: pass:normal[xref:interfaces.adoc#IAccount-validateUserOp-struct-PackedUserOperation-bytes32-uint256-[`IAccount.validateUserOp`]]
+:IEntryPointStake-depositTo: pass:normal[xref:interfaces.adoc#IEntryPointStake-depositTo-address-[`IEntryPointStake.depositTo`]]
+:IEntryPointStake-withdrawTo: pass:normal[xref:interfaces.adoc#IEntryPointStake-withdrawTo-address-payable-uint256-[`IEntryPointStake.withdrawTo`]]
+:IEntryPointStake-addStake: pass:normal[xref:interfaces.adoc#IEntryPointStake-addStake-uint32-[`IEntryPointStake.addStake`]]
+:IEntryPointStake-unlockStake: pass:normal[xref:interfaces.adoc#IEntryPointStake-unlockStake--[`IEntryPointStake.unlockStake`]]
+:IEntryPointStake-withdrawStake: pass:normal[xref:interfaces.adoc#IEntryPointStake-withdrawStake-address-payable-[`IEntryPointStake.withdrawStake`]]
+:Paymaster: pass:normal[xref:account.adoc#Paymaster[`Paymaster`]]
+:Paymaster-_addStake: pass:normal[xref:account.adoc#Paymaster-_addStake-uint256-uint32-[`Paymaster._addStake`]]
+:AccessControl: pass:normal[xref:access.adoc#AccessControl[`AccessControl`]]
+:xref-PaymasterERC20-_validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256-: xref:account.adoc#PaymasterERC20-_validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256-
+:xref-PaymasterERC20-_prefund-struct-PackedUserOperation-bytes32-contract-IERC20-uint256-address-uint256-: xref:account.adoc#PaymasterERC20-_prefund-struct-PackedUserOperation-bytes32-contract-IERC20-uint256-address-uint256-
+:xref-PaymasterERC20-_postOp-enum-IPaymaster-PostOpMode-bytes-uint256-uint256-: xref:account.adoc#PaymasterERC20-_postOp-enum-IPaymaster-PostOpMode-bytes-uint256-uint256-
+:xref-PaymasterERC20-_refund-contract-IERC20-uint256-uint256-uint256-address-uint256-bytes-: xref:account.adoc#PaymasterERC20-_refund-contract-IERC20-uint256-uint256-uint256-address-uint256-bytes-
+:xref-PaymasterERC20-_fetchDetails-struct-PackedUserOperation-bytes32-: xref:account.adoc#PaymasterERC20-_fetchDetails-struct-PackedUserOperation-bytes32-
+:xref-PaymasterERC20-_postOpCost--: xref:account.adoc#PaymasterERC20-_postOpCost--
+:xref-PaymasterERC20-_postOpGasPenalty-uint256-: xref:account.adoc#PaymasterERC20-_postOpGasPenalty-uint256-
+:xref-PaymasterERC20-_tokenPerNativeDenominator--: xref:account.adoc#PaymasterERC20-_tokenPerNativeDenominator--
+:xref-PaymasterERC20-_minTokensPerNative--: xref:account.adoc#PaymasterERC20-_minTokensPerNative--
+:xref-PaymasterERC20-_erc20Cost-uint256-uint256-: xref:account.adoc#PaymasterERC20-_erc20Cost-uint256-uint256-
+:xref-PaymasterERC20-_withdrawTokens-contract-IERC20-address-uint256-: xref:account.adoc#PaymasterERC20-_withdrawTokens-contract-IERC20-address-uint256-
+:xref-Paymaster-entryPoint--: xref:account.adoc#Paymaster-entryPoint--
+:xref-Paymaster-validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256-: xref:account.adoc#Paymaster-validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256-
+:xref-Paymaster-postOp-enum-IPaymaster-PostOpMode-bytes-uint256-uint256-: xref:account.adoc#Paymaster-postOp-enum-IPaymaster-PostOpMode-bytes-uint256-uint256-
+:xref-Paymaster-_checkEntryPoint--: xref:account.adoc#Paymaster-_checkEntryPoint--
+:xref-Paymaster-_deposit-uint256-: xref:account.adoc#Paymaster-_deposit-uint256-
+:xref-Paymaster-_withdraw-address-payable-uint256-: xref:account.adoc#Paymaster-_withdraw-address-payable-uint256-
+:xref-Paymaster-_addStake-uint256-uint32-: xref:account.adoc#Paymaster-_addStake-uint256-uint32-
+:xref-Paymaster-_unlockStake--: xref:account.adoc#Paymaster-_unlockStake--
+:xref-Paymaster-_withdrawStake-address-payable-: xref:account.adoc#Paymaster-_withdrawStake-address-payable-
+:xref-PaymasterERC20-UserOperationSponsored-bytes32-address-uint256-uint256-: xref:account.adoc#PaymasterERC20-UserOperationSponsored-bytes32-address-uint256-uint256-
+:xref-PaymasterERC20-PaymasterERC20FailedRefund-contract-IERC20-uint256-uint256-bytes-: xref:account.adoc#PaymasterERC20-PaymasterERC20FailedRefund-contract-IERC20-uint256-uint256-bytes-
+:xref-Paymaster-PaymasterUnauthorized-address-: xref:account.adoc#Paymaster-PaymasterUnauthorized-address-
+:Paymaster-_validatePaymasterUserOp: pass:normal[xref:account.adoc#Paymaster-_validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256-[`Paymaster._validatePaymasterUserOp`]]
+:PaymasterERC20: pass:normal[xref:account.adoc#PaymasterERC20[`PaymasterERC20`]]
+:xref-PaymasterERC20Guarantor-_prefund-struct-PackedUserOperation-bytes32-contract-IERC20-uint256-address-uint256-: xref:account.adoc#PaymasterERC20Guarantor-_prefund-struct-PackedUserOperation-bytes32-contract-IERC20-uint256-address-uint256-
+:xref-PaymasterERC20Guarantor-_refund-contract-IERC20-uint256-uint256-uint256-address-uint256-bytes-: xref:account.adoc#PaymasterERC20Guarantor-_refund-contract-IERC20-uint256-uint256-uint256-address-uint256-bytes-
+:xref-PaymasterERC20Guarantor-_fetchGuarantor-struct-PackedUserOperation-: xref:account.adoc#PaymasterERC20Guarantor-_fetchGuarantor-struct-PackedUserOperation-
+:xref-PaymasterERC20Guarantor-_guaranteedPostOpCost--: xref:account.adoc#PaymasterERC20Guarantor-_guaranteedPostOpCost--
+:xref-PaymasterERC20-_validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256-: xref:account.adoc#PaymasterERC20-_validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256-
+:xref-PaymasterERC20-_postOp-enum-IPaymaster-PostOpMode-bytes-uint256-uint256-: xref:account.adoc#PaymasterERC20-_postOp-enum-IPaymaster-PostOpMode-bytes-uint256-uint256-
+:xref-PaymasterERC20-_fetchDetails-struct-PackedUserOperation-bytes32-: xref:account.adoc#PaymasterERC20-_fetchDetails-struct-PackedUserOperation-bytes32-
+:xref-PaymasterERC20-_postOpCost--: xref:account.adoc#PaymasterERC20-_postOpCost--
+:xref-PaymasterERC20-_postOpGasPenalty-uint256-: xref:account.adoc#PaymasterERC20-_postOpGasPenalty-uint256-
+:xref-PaymasterERC20-_tokenPerNativeDenominator--: xref:account.adoc#PaymasterERC20-_tokenPerNativeDenominator--
+:xref-PaymasterERC20-_minTokensPerNative--: xref:account.adoc#PaymasterERC20-_minTokensPerNative--
+:xref-PaymasterERC20-_erc20Cost-uint256-uint256-: xref:account.adoc#PaymasterERC20-_erc20Cost-uint256-uint256-
+:xref-PaymasterERC20-_withdrawTokens-contract-IERC20-address-uint256-: xref:account.adoc#PaymasterERC20-_withdrawTokens-contract-IERC20-address-uint256-
+:xref-Paymaster-entryPoint--: xref:account.adoc#Paymaster-entryPoint--
+:xref-Paymaster-validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256-: xref:account.adoc#Paymaster-validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256-
+:xref-Paymaster-postOp-enum-IPaymaster-PostOpMode-bytes-uint256-uint256-: xref:account.adoc#Paymaster-postOp-enum-IPaymaster-PostOpMode-bytes-uint256-uint256-
+:xref-Paymaster-_checkEntryPoint--: xref:account.adoc#Paymaster-_checkEntryPoint--
+:xref-Paymaster-_deposit-uint256-: xref:account.adoc#Paymaster-_deposit-uint256-
+:xref-Paymaster-_withdraw-address-payable-uint256-: xref:account.adoc#Paymaster-_withdraw-address-payable-uint256-
+:xref-Paymaster-_addStake-uint256-uint32-: xref:account.adoc#Paymaster-_addStake-uint256-uint32-
+:xref-Paymaster-_unlockStake--: xref:account.adoc#Paymaster-_unlockStake--
+:xref-Paymaster-_withdrawStake-address-payable-: xref:account.adoc#Paymaster-_withdrawStake-address-payable-
+:xref-PaymasterERC20Guarantor-UserOperationGuaranteed-bytes32-address-uint256-: xref:account.adoc#PaymasterERC20Guarantor-UserOperationGuaranteed-bytes32-address-uint256-
+:xref-PaymasterERC20-UserOperationSponsored-bytes32-address-uint256-uint256-: xref:account.adoc#PaymasterERC20-UserOperationSponsored-bytes32-address-uint256-uint256-
+:xref-PaymasterERC20-PaymasterERC20FailedRefund-contract-IERC20-uint256-uint256-bytes-: xref:account.adoc#PaymasterERC20-PaymasterERC20FailedRefund-contract-IERC20-uint256-uint256-bytes-
+:xref-Paymaster-PaymasterUnauthorized-address-: xref:account.adoc#Paymaster-PaymasterUnauthorized-address-
+:SafeERC20-trySafeTransferFrom: pass:normal[xref:token/ERC20.adoc#SafeERC20-trySafeTransferFrom-contract-IERC20-address-address-uint256-[`SafeERC20.trySafeTransferFrom`]]
+:SafeERC20-trySafeTransfer: pass:normal[xref:token/ERC20.adoc#SafeERC20-trySafeTransfer-contract-IERC20-address-uint256-[`SafeERC20.trySafeTransfer`]]
+:PaymasterERC20-_refund: pass:normal[xref:account.adoc#PaymasterERC20-_refund-contract-IERC20-uint256-uint256-uint256-address-uint256-bytes-[`PaymasterERC20._refund`]]
+:PaymasterERC20-_refund: pass:normal[xref:account.adoc#PaymasterERC20-_refund-contract-IERC20-uint256-uint256-uint256-address-uint256-bytes-[`PaymasterERC20._refund`]]
+:PaymasterERC20-_postOpCost: pass:normal[xref:account.adoc#PaymasterERC20-_postOpCost--[`PaymasterERC20._postOpCost`]]
+:PaymasterERC20-_postOpCost: pass:normal[xref:account.adoc#PaymasterERC20-_postOpCost--[`PaymasterERC20._postOpCost`]]
+:Paymaster: pass:normal[xref:account.adoc#Paymaster[`Paymaster`]]
+:Paymaster-_addStake: pass:normal[xref:account.adoc#Paymaster-_addStake-uint256-uint32-[`Paymaster._addStake`]]
+:xref-PaymasterERC721Owner-constructor-contract-IERC721-: xref:account.adoc#PaymasterERC721Owner-constructor-contract-IERC721-
+:xref-PaymasterERC721Owner-token--: xref:account.adoc#PaymasterERC721Owner-token--
+:xref-PaymasterERC721Owner-_validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256-: xref:account.adoc#PaymasterERC721Owner-_validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256-
+:xref-Paymaster-entryPoint--: xref:account.adoc#Paymaster-entryPoint--
+:xref-Paymaster-validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256-: xref:account.adoc#Paymaster-validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256-
+:xref-Paymaster-postOp-enum-IPaymaster-PostOpMode-bytes-uint256-uint256-: xref:account.adoc#Paymaster-postOp-enum-IPaymaster-PostOpMode-bytes-uint256-uint256-
+:xref-Paymaster-_postOp-enum-IPaymaster-PostOpMode-bytes-uint256-uint256-: xref:account.adoc#Paymaster-_postOp-enum-IPaymaster-PostOpMode-bytes-uint256-uint256-
+:xref-Paymaster-_checkEntryPoint--: xref:account.adoc#Paymaster-_checkEntryPoint--
+:xref-Paymaster-_deposit-uint256-: xref:account.adoc#Paymaster-_deposit-uint256-
+:xref-Paymaster-_withdraw-address-payable-uint256-: xref:account.adoc#Paymaster-_withdraw-address-payable-uint256-
+:xref-Paymaster-_addStake-uint256-uint32-: xref:account.adoc#Paymaster-_addStake-uint256-uint32-
+:xref-Paymaster-_unlockStake--: xref:account.adoc#Paymaster-_unlockStake--
+:xref-Paymaster-_withdrawStake-address-payable-: xref:account.adoc#Paymaster-_withdrawStake-address-payable-
+:xref-Paymaster-PaymasterUnauthorized-address-: xref:account.adoc#Paymaster-PaymasterUnauthorized-address-
+:Paymaster: pass:normal[xref:account.adoc#Paymaster[`Paymaster`]]
+:SignerECDSA: pass:normal[xref:utils/cryptography.adoc#SignerECDSA[`SignerECDSA`]]
+:SignerP256: pass:normal[xref:utils/cryptography.adoc#SignerP256[`SignerP256`]]
+:SignerRSA: pass:normal[xref:utils/cryptography.adoc#SignerRSA[`SignerRSA`]]
+:xref-PaymasterSigner-_signableUserOpHash-struct-PackedUserOperation-uint48-uint48-: xref:account.adoc#PaymasterSigner-_signableUserOpHash-struct-PackedUserOperation-uint48-uint48-
+:xref-PaymasterSigner-_validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256-: xref:account.adoc#PaymasterSigner-_validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256-
+:xref-PaymasterSigner-_decodePaymasterUserOp-struct-PackedUserOperation-: xref:account.adoc#PaymasterSigner-_decodePaymasterUserOp-struct-PackedUserOperation-
+:xref-Paymaster-entryPoint--: xref:account.adoc#Paymaster-entryPoint--
+:xref-Paymaster-validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256-: xref:account.adoc#Paymaster-validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256-
+:xref-Paymaster-postOp-enum-IPaymaster-PostOpMode-bytes-uint256-uint256-: xref:account.adoc#Paymaster-postOp-enum-IPaymaster-PostOpMode-bytes-uint256-uint256-
+:xref-Paymaster-_postOp-enum-IPaymaster-PostOpMode-bytes-uint256-uint256-: xref:account.adoc#Paymaster-_postOp-enum-IPaymaster-PostOpMode-bytes-uint256-uint256-
+:xref-Paymaster-_checkEntryPoint--: xref:account.adoc#Paymaster-_checkEntryPoint--
+:xref-Paymaster-_deposit-uint256-: xref:account.adoc#Paymaster-_deposit-uint256-
+:xref-Paymaster-_withdraw-address-payable-uint256-: xref:account.adoc#Paymaster-_withdraw-address-payable-uint256-
+:xref-Paymaster-_addStake-uint256-uint32-: xref:account.adoc#Paymaster-_addStake-uint256-uint32-
+:xref-Paymaster-_unlockStake--: xref:account.adoc#Paymaster-_unlockStake--
+:xref-Paymaster-_withdrawStake-address-payable-: xref:account.adoc#Paymaster-_withdrawStake-address-payable-
+:xref-EIP712-_domainSeparatorV4--: xref:utils/cryptography.adoc#EIP712-_domainSeparatorV4--
+:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils/cryptography.adoc#EIP712-_hashTypedDataV4-bytes32-
+:xref-EIP712-eip712Domain--: xref:utils/cryptography.adoc#EIP712-eip712Domain--
+:xref-EIP712-_EIP712Name--: xref:utils/cryptography.adoc#EIP712-_EIP712Name--
+:xref-EIP712-_EIP712Version--: xref:utils/cryptography.adoc#EIP712-_EIP712Version--
+:xref-AbstractSigner-_rawSignatureValidation-bytes32-bytes-: xref:utils/cryptography.adoc#AbstractSigner-_rawSignatureValidation-bytes32-bytes-
+:xref-IERC5267-EIP712DomainChanged--: xref:interfaces.adoc#IERC5267-EIP712DomainChanged--
+:xref-Paymaster-PaymasterUnauthorized-address-: xref:account.adoc#Paymaster-PaymasterUnauthorized-address-
 :xref-ERC4337Utils-parseValidationData-uint256-: xref:account.adoc#ERC4337Utils-parseValidationData-uint256-
 :xref-ERC4337Utils-packValidationData-address-uint48-uint48-: xref:account.adoc#ERC4337Utils-packValidationData-address-uint48-uint48-
 :xref-ERC4337Utils-packValidationData-address-uint48-uint48-enum-ERC4337Utils-ValidationRange-: xref:account.adoc#ERC4337Utils-packValidationData-address-uint48-uint48-enum-ERC4337Utils-ValidationRange-
@@ -206,6 +337,11 @@ This directory includes contracts to build accounts for ERC-4337. These include:
  * {ERC7821}: Minimal batch executor implementation contracts. Useful to enable easy batch execution for smart contracts.
  * {ERC4337Utils}: Utility functions for working with ERC-4337 user operations.
  * {ERC7579Utils}: Utility functions for working with ERC-7579 modules and account modularity.
+ * {Paymaster}: An ERC-4337 paymaster implementation that includes the core logic to validate and pay for user operations.
+ * {PaymasterERC20}: A paymaster that allows users to pay for user operations using ERC-20 tokens.
+ * {PaymasterERC20Guarantor}: A paymaster that enables third parties to guarantee user operations by pre-funding gas costs, with the option for users to repay or for guarantors to absorb the cost.
+ * {PaymasterERC721Owner}: A paymaster that sponsors user operations for ERC-721 token holders, covering gas costs based on NFT ownership.
+ * {PaymasterSigner}: A paymaster that sponsors user operations authorized by a signature.
 
 == Core
 
@@ -236,7 +372,7 @@ This directory includes contracts to build accounts for ERC-4337. These include:
 
 [.contract]
 [[Account]]
-=== `++Account++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/account/Account.sol[{github-icon},role=heading-link]
+=== `++Account++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/account/Account.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -249,7 +385,7 @@ user operations.
 Developers must implement the {AbstractSigner-_rawSignatureValidation} function to define the account's validation logic.
 
 NOTE: This core account doesn't include any mechanism for performing arbitrary external calls. This is an essential
-feature that all Account should have. We leave it up to the developers to implement the mechanism of their choice.
+feature that all Accounts should have. We leave it up to the developers to implement the mechanism of their choice.
 Common choices include ERC-6900, ERC-7579 and ERC-7821 (among others).
 
 IMPORTANT: Implementing a mechanism to validate signatures is a security-sensitive operation as it may allow an
@@ -368,7 +504,7 @@ userOp will result in undefined behavior.
 [[Account-_signableUserOpHash-struct-PackedUserOperation-bytes32-]]
 ==== `[.contract-item-name]#++_signableUserOpHash++#++(struct PackedUserOperation, bytes32 userOpHash) → bytes32++` [.item-kind]#internal#
 
-Virtual function that returns the signable hash for a user operations. Since v0.8.0 of the entrypoint,
+Virtual function that returns the signable hash for a user operation. Since v0.8.0 of the entrypoint,
 `userOpHash` is an EIP-712 hash that can be signed directly.
 
 [.contract-item]
@@ -453,7 +589,7 @@ Unauthorized call to the account.
 
 [.contract]
 [[AccountERC7579]]
-=== `++AccountERC7579++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/account/extensions/draft-AccountERC7579.sol[{github-icon},role=heading-link]
+=== `++AccountERC7579++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/account/extensions/draft-AccountERC7579.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -743,6 +879,12 @@ selector and the rest of the data to be sent to the handler when calling {IERC75
 Requirements:
 
 * Module must be already installed. Reverts with {ERC7579Utils-ERC7579UninstalledModule} otherwise.
+* The module's own {IERC7579Module-onUninstall} function must succeed.
+
+NOTE: The module's {IERC7579Module-onUninstall} callback is invoked without catching reverts, so a buggy or
+malicious module can block its own uninstallation by reverting. A forced uninstallation that bypasses this
+callback can still be performed through a delegate call (`CALLTYPE_DELEGATECALL`) via {execute}, running logic
+in the account's context that clears the module from storage directly.
 
 [.contract-item]
 [[AccountERC7579-_fallback--]]
@@ -863,7 +1005,7 @@ The provided initData/deInitData for a fallback module is too short to extract a
 
 [.contract]
 [[AccountERC7579Hooked]]
-=== `++AccountERC7579Hooked++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/account/extensions/draft-AccountERC7579Hooked.sol[{github-icon},role=heading-link]
+=== `++AccountERC7579Hooked++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/account/extensions/draft-AccountERC7579Hooked.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1055,7 +1197,11 @@ Installs a module with support for hook modules. See {AccountERC7579-_installMod
 [[AccountERC7579Hooked-_uninstallModule-uint256-address-bytes-]]
 ==== `[.contract-item-name]#++_uninstallModule++#++(uint256 moduleTypeId, address module, bytes deInitData)++` [.item-kind]#internal#
 
-Uninstalls a module with support for hook modules. See {AccountERC7579-_uninstallModule}
+Uninstalls a module with support for hook modules. See {AccountERC7579-_uninstallModule}.
+
+NOTE: Uninstalling the hook runs through its own `withHook` `preCheck`/`postCheck`, so a hook that reverts
+there blocks its removal. Since `_execute` is `withHook`-gated too, the delegatecall escape hatch does not
+apply, and such a hook may be impossible to uninstall.
 
 [.contract-item]
 [[AccountERC7579Hooked-_execute-Mode-bytes-]]
@@ -1086,7 +1232,7 @@ A hook module is already present. This contract only supports one hook module.
 
 [.contract]
 [[ERC7821]]
-=== `++ERC7821++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/account/extensions/draft-ERC7821.sol[{github-icon},role=heading-link]
+=== `++ERC7821++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/account/extensions/draft-ERC7821.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1165,6 +1311,929 @@ function _erc7821AuthorizedExecutor(
 [[ERC7821-UnsupportedExecutionMode--]]
 ==== `[.contract-item-name]#++UnsupportedExecutionMode++#++()++` [.item-kind]#error#
 
+== Paymasters
+
+:PaymasterUnauthorized: pass:normal[xref:#Paymaster-PaymasterUnauthorized-address-[`++PaymasterUnauthorized++`]]
+:onlyEntryPoint: pass:normal[xref:#Paymaster-onlyEntryPoint--[`++onlyEntryPoint++`]]
+:entryPoint: pass:normal[xref:#Paymaster-entryPoint--[`++entryPoint++`]]
+:validatePaymasterUserOp: pass:normal[xref:#Paymaster-validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256-[`++validatePaymasterUserOp++`]]
+:postOp: pass:normal[xref:#Paymaster-postOp-enum-IPaymaster-PostOpMode-bytes-uint256-uint256-[`++postOp++`]]
+:_validatePaymasterUserOp: pass:normal[xref:#Paymaster-_validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256-[`++_validatePaymasterUserOp++`]]
+:_postOp: pass:normal[xref:#Paymaster-_postOp-enum-IPaymaster-PostOpMode-bytes-uint256-uint256-[`++_postOp++`]]
+:_checkEntryPoint: pass:normal[xref:#Paymaster-_checkEntryPoint--[`++_checkEntryPoint++`]]
+:_deposit: pass:normal[xref:#Paymaster-_deposit-uint256-[`++_deposit++`]]
+:_withdraw: pass:normal[xref:#Paymaster-_withdraw-address-payable-uint256-[`++_withdraw++`]]
+:_addStake: pass:normal[xref:#Paymaster-_addStake-uint256-uint32-[`++_addStake++`]]
+:_unlockStake: pass:normal[xref:#Paymaster-_unlockStake--[`++_unlockStake++`]]
+:_withdrawStake: pass:normal[xref:#Paymaster-_withdrawStake-address-payable-[`++_withdrawStake++`]]
+
+:entryPoint-: pass:normal[xref:#Paymaster-entryPoint--[`++entryPoint++`]]
+:validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256: pass:normal[xref:#Paymaster-validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256-[`++validatePaymasterUserOp++`]]
+:postOp-enum-IPaymaster-PostOpMode-bytes-uint256-uint256: pass:normal[xref:#Paymaster-postOp-enum-IPaymaster-PostOpMode-bytes-uint256-uint256-[`++postOp++`]]
+:_validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256: pass:normal[xref:#Paymaster-_validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256-[`++_validatePaymasterUserOp++`]]
+:_postOp-enum-IPaymaster-PostOpMode-bytes-uint256-uint256: pass:normal[xref:#Paymaster-_postOp-enum-IPaymaster-PostOpMode-bytes-uint256-uint256-[`++_postOp++`]]
+:_checkEntryPoint-: pass:normal[xref:#Paymaster-_checkEntryPoint--[`++_checkEntryPoint++`]]
+:_deposit-uint256: pass:normal[xref:#Paymaster-_deposit-uint256-[`++_deposit++`]]
+:_withdraw-address-payable-uint256: pass:normal[xref:#Paymaster-_withdraw-address-payable-uint256-[`++_withdraw++`]]
+:_addStake-uint256-uint32: pass:normal[xref:#Paymaster-_addStake-uint256-uint32-[`++_addStake++`]]
+:_unlockStake-: pass:normal[xref:#Paymaster-_unlockStake--[`++_unlockStake++`]]
+:_withdrawStake-address-payable: pass:normal[xref:#Paymaster-_withdrawStake-address-payable-[`++_withdrawStake++`]]
+
+[.contract]
+[[Paymaster]]
+=== `++Paymaster++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/account/paymaster/Paymaster.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/account/paymaster/Paymaster.sol";
+```
+
+A simple ERC4337 paymaster implementation. This base implementation only includes the minimal logic to validate
+and pay for user operations.
+
+Developers must implement the {Paymaster-_validatePaymasterUserOp} function to define the paymaster's validation
+and payment logic, and {Paymaster-_postOp} function to define the post-operation logic. The `context` parameter
+is used to pass data between the validation and post execution phases.
+
+The paymaster includes support to call the {IEntryPointStake} interface to manage the paymaster's deposits and stakes
+through the internal functions {_deposit}, {_withdraw}, {_addStake}, {_unlockStake} and {_withdrawStake}.
+
+* Deposits are used to pay for user operations.
+* Stakes are used to guarantee the paymaster's reputation and obtain more flexibility in accessing storage.
+
+[IMPORTANT]
+====
+The deposit and stake functions are `internal` so that developers can expose them under the public interface and
+authorization mechanism of their choice. Public versions of {_withdraw}, {_unlockStake} and {_withdrawStake} MUST
+be exposed and properly authorized, otherwise the deposit and stake will be permanently locked.
+
+Example implementation exposing the deposit and stake functions using {AccessControl}:
+
+```solidity
+contract MyPaymaster is Paymaster, AccessControl {
+    bytes32 private constant WITHDRAWER_ROLE = keccak256("WITHDRAWER_ROLE");
+    bytes32 private constant UNSTAKER_ROLE = keccak256("UNSTAKER_ROLE");
+
+    constructor() {
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+    }
+
+    function deposit() public payable virtual {
+        _deposit(msg.value);
+    }
+
+    function withdraw(address payable to, uint256 value) public virtual onlyRole(WITHDRAWER_ROLE) {
+        _withdraw(to, value);
+    }
+
+    function addStake(uint32 unstakeDelaySec) public payable virtual {
+        _addStake(msg.value, unstakeDelaySec);
+    }
+
+    function unlockStake() public virtual onlyRole(UNSTAKER_ROLE) {
+        _unlockStake();
+    }
+
+    function withdrawStake(address payable to) public virtual onlyRole(UNSTAKER_ROLE) {
+        _withdrawStake(to);
+    }
+
+    function _validatePaymasterUserOp(
+        PackedUserOperation calldata userOp,
+        bytes32 userOpHash,
+        uint256 requiredPreFund
+    ) internal virtual override returns (bytes memory context, uint256 validationData) {
+        // validation logic
+    }
+}
+```
+====
+
+NOTE: See [Paymaster's unstaked reputation rules](https://eips.ethereum.org/EIPS/eip-7562#unstaked-paymasters-reputation-rules)
+ for more details on the paymaster's storage access limitations.
+
+[.contract-index]
+.Modifiers
+--
+* {xref-Paymaster-onlyEntryPoint--}[`++onlyEntryPoint()++`]
+--
+
+[.contract-index]
+.Functions
+--
+* {xref-Paymaster-entryPoint--}[`++entryPoint()++`]
+* {xref-Paymaster-validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256-}[`++validatePaymasterUserOp(userOp, userOpHash, maxCost)++`]
+* {xref-Paymaster-postOp-enum-IPaymaster-PostOpMode-bytes-uint256-uint256-}[`++postOp(mode, context, actualGasCost, actualUserOpFeePerGas)++`]
+* {xref-Paymaster-_validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256-}[`++_validatePaymasterUserOp(userOp, userOpHash, requiredPreFund)++`]
+* {xref-Paymaster-_postOp-enum-IPaymaster-PostOpMode-bytes-uint256-uint256-}[`++_postOp(, , , )++`]
+* {xref-Paymaster-_checkEntryPoint--}[`++_checkEntryPoint()++`]
+* {xref-Paymaster-_deposit-uint256-}[`++_deposit(value)++`]
+* {xref-Paymaster-_withdraw-address-payable-uint256-}[`++_withdraw(to, value)++`]
+* {xref-Paymaster-_addStake-uint256-uint32-}[`++_addStake(value, unstakeDelaySec)++`]
+* {xref-Paymaster-_unlockStake--}[`++_unlockStake()++`]
+* {xref-Paymaster-_withdrawStake-address-payable-}[`++_withdrawStake(to)++`]
+
+[.contract-subindex-inherited]
+.IPaymaster
+
+--
+
+[.contract-index]
+.Errors
+--
+* {xref-Paymaster-PaymasterUnauthorized-address-}[`++PaymasterUnauthorized(sender)++`]
+
+[.contract-subindex-inherited]
+.IPaymaster
+
+--
+
+[.contract-item]
+[[Paymaster-onlyEntryPoint--]]
+==== `[.contract-item-name]#++onlyEntryPoint++#++()++` [.item-kind]#modifier#
+
+Revert if the caller is not the entry point.
+
+[.contract-item]
+[[Paymaster-entryPoint--]]
+==== `[.contract-item-name]#++entryPoint++#++() → contract IEntryPoint++` [.item-kind]#public#
+
+Canonical entry point for the account that forwards and validates user operations.
+
+[.contract-item]
+[[Paymaster-validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256-]]
+==== `[.contract-item-name]#++validatePaymasterUserOp++#++(struct PackedUserOperation userOp, bytes32 userOpHash, uint256 maxCost) → bytes context, uint256 validationData++` [.item-kind]#public#
+
+Validates whether the paymaster is willing to pay for the user operation. See
+{IAccount-validateUserOp} for additional information on the return value.
+
+NOTE: Bundlers will reject this method if it modifies the state, unless it's whitelisted.
+
+[.contract-item]
+[[Paymaster-postOp-enum-IPaymaster-PostOpMode-bytes-uint256-uint256-]]
+==== `[.contract-item-name]#++postOp++#++(enum IPaymaster.PostOpMode mode, bytes context, uint256 actualGasCost, uint256 actualUserOpFeePerGas)++` [.item-kind]#public#
+
+Verifies the sender is the entrypoint.
+
+[.contract-item]
+[[Paymaster-_validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256-]]
+==== `[.contract-item-name]#++_validatePaymasterUserOp++#++(struct PackedUserOperation userOp, bytes32 userOpHash, uint256 requiredPreFund) → bytes context, uint256 validationData++` [.item-kind]#internal#
+
+Internal validation of whether the paymaster is willing to pay for the user operation.
+Returns the context to be passed to postOp and the validation data.
+
+The `requiredPreFund` is the amount the paymaster has to pay (in native tokens). It's calculated
+as `requiredGas * userOp.maxFeePerGas`, where `required` gas can be calculated from the user operation
+as `verificationGasLimit + callGasLimit + paymasterVerificationGasLimit + paymasterPostOpGasLimit + preVerificationGas`
+
+[.contract-item]
+[[Paymaster-_postOp-enum-IPaymaster-PostOpMode-bytes-uint256-uint256-]]
+==== `[.contract-item-name]#++_postOp++#++(enum IPaymaster.PostOpMode, bytes, uint256, uint256)++` [.item-kind]#internal#
+
+Handles post user operation execution logic. The caller must be the entry point.
+
+It receives the `context` returned by `_validatePaymasterUserOp`. Function is not called if no context
+is returned by {validatePaymasterUserOp}.
+
+NOTE: The `actualUserOpFeePerGas` is not `tx.gasprice`. A user operation can be bundled with other transactions
+making the gas price of the user operation to differ.
+
+[.contract-item]
+[[Paymaster-_checkEntryPoint--]]
+==== `[.contract-item-name]#++_checkEntryPoint++#++()++` [.item-kind]#internal#
+
+Ensures the caller is the {entrypoint}.
+
+[.contract-item]
+[[Paymaster-_deposit-uint256-]]
+==== `[.contract-item-name]#++_deposit++#++(uint256 value)++` [.item-kind]#internal#
+
+Calls {IEntryPointStake-depositTo}.
+
+[.contract-item]
+[[Paymaster-_withdraw-address-payable-uint256-]]
+==== `[.contract-item-name]#++_withdraw++#++(address payable to, uint256 value)++` [.item-kind]#internal#
+
+Calls {IEntryPointStake-withdrawTo}.
+
+[.contract-item]
+[[Paymaster-_addStake-uint256-uint32-]]
+==== `[.contract-item-name]#++_addStake++#++(uint256 value, uint32 unstakeDelaySec)++` [.item-kind]#internal#
+
+Calls {IEntryPointStake-addStake}.
+
+[.contract-item]
+[[Paymaster-_unlockStake--]]
+==== `[.contract-item-name]#++_unlockStake++#++()++` [.item-kind]#internal#
+
+Calls {IEntryPointStake-unlockStake}.
+
+[.contract-item]
+[[Paymaster-_withdrawStake-address-payable-]]
+==== `[.contract-item-name]#++_withdrawStake++#++(address payable to)++` [.item-kind]#internal#
+
+Calls {IEntryPointStake-withdrawStake}.
+
+[.contract-item]
+[[Paymaster-PaymasterUnauthorized-address-]]
+==== `[.contract-item-name]#++PaymasterUnauthorized++#++(address sender)++` [.item-kind]#error#
+
+Unauthorized call to the paymaster.
+
+:UserOperationSponsored: pass:normal[xref:#PaymasterERC20-UserOperationSponsored-bytes32-address-uint256-uint256-[`++UserOperationSponsored++`]]
+:PaymasterERC20FailedRefund: pass:normal[xref:#PaymasterERC20-PaymasterERC20FailedRefund-contract-IERC20-uint256-uint256-bytes-[`++PaymasterERC20FailedRefund++`]]
+:_validatePaymasterUserOp: pass:normal[xref:#PaymasterERC20-_validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256-[`++_validatePaymasterUserOp++`]]
+:_prefund: pass:normal[xref:#PaymasterERC20-_prefund-struct-PackedUserOperation-bytes32-contract-IERC20-uint256-address-uint256-[`++_prefund++`]]
+:_postOp: pass:normal[xref:#PaymasterERC20-_postOp-enum-IPaymaster-PostOpMode-bytes-uint256-uint256-[`++_postOp++`]]
+:_refund: pass:normal[xref:#PaymasterERC20-_refund-contract-IERC20-uint256-uint256-uint256-address-uint256-bytes-[`++_refund++`]]
+:_fetchDetails: pass:normal[xref:#PaymasterERC20-_fetchDetails-struct-PackedUserOperation-bytes32-[`++_fetchDetails++`]]
+:_postOpCost: pass:normal[xref:#PaymasterERC20-_postOpCost--[`++_postOpCost++`]]
+:_postOpGasPenalty: pass:normal[xref:#PaymasterERC20-_postOpGasPenalty-uint256-[`++_postOpGasPenalty++`]]
+:_tokenPerNativeDenominator: pass:normal[xref:#PaymasterERC20-_tokenPerNativeDenominator--[`++_tokenPerNativeDenominator++`]]
+:_minTokensPerNative: pass:normal[xref:#PaymasterERC20-_minTokensPerNative--[`++_minTokensPerNative++`]]
+:_erc20Cost: pass:normal[xref:#PaymasterERC20-_erc20Cost-uint256-uint256-[`++_erc20Cost++`]]
+:_withdrawTokens: pass:normal[xref:#PaymasterERC20-_withdrawTokens-contract-IERC20-address-uint256-[`++_withdrawTokens++`]]
+
+:_validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256: pass:normal[xref:#PaymasterERC20-_validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256-[`++_validatePaymasterUserOp++`]]
+:_prefund-struct-PackedUserOperation-bytes32-contract-IERC20-uint256-address-uint256: pass:normal[xref:#PaymasterERC20-_prefund-struct-PackedUserOperation-bytes32-contract-IERC20-uint256-address-uint256-[`++_prefund++`]]
+:_postOp-enum-IPaymaster-PostOpMode-bytes-uint256-uint256: pass:normal[xref:#PaymasterERC20-_postOp-enum-IPaymaster-PostOpMode-bytes-uint256-uint256-[`++_postOp++`]]
+:_refund-contract-IERC20-uint256-uint256-uint256-address-uint256-bytes: pass:normal[xref:#PaymasterERC20-_refund-contract-IERC20-uint256-uint256-uint256-address-uint256-bytes-[`++_refund++`]]
+:_fetchDetails-struct-PackedUserOperation-bytes32: pass:normal[xref:#PaymasterERC20-_fetchDetails-struct-PackedUserOperation-bytes32-[`++_fetchDetails++`]]
+:_postOpCost-: pass:normal[xref:#PaymasterERC20-_postOpCost--[`++_postOpCost++`]]
+:_postOpGasPenalty-uint256: pass:normal[xref:#PaymasterERC20-_postOpGasPenalty-uint256-[`++_postOpGasPenalty++`]]
+:_tokenPerNativeDenominator-: pass:normal[xref:#PaymasterERC20-_tokenPerNativeDenominator--[`++_tokenPerNativeDenominator++`]]
+:_minTokensPerNative-: pass:normal[xref:#PaymasterERC20-_minTokensPerNative--[`++_minTokensPerNative++`]]
+:_erc20Cost-uint256-uint256: pass:normal[xref:#PaymasterERC20-_erc20Cost-uint256-uint256-[`++_erc20Cost++`]]
+:_withdrawTokens-contract-IERC20-address-uint256: pass:normal[xref:#PaymasterERC20-_withdrawTokens-contract-IERC20-address-uint256-[`++_withdrawTokens++`]]
+
+[.contract]
+[[PaymasterERC20]]
+=== `++PaymasterERC20++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/account/paymaster/extensions/PaymasterERC20.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/account/paymaster/extensions/PaymasterERC20.sol";
+```
+
+Extension of {Paymaster} that enables users to pay gas with ERC-20 tokens.
+
+To enable this feature, developers must implement the {_fetchDetails} function:
+
+```solidity
+function _fetchDetails(
+    PackedUserOperation calldata userOp,
+    bytes32 userOpHash
+) internal view override returns (uint256 validationData, IERC20 token, uint256 tokenPerNative) {
+    // Implement logic to fetch the token, and token price from the userOp
+}
+```
+
+The contract follows a pre-charge and refund model:
+1. During validation, it pre-charges the maximum possible gas cost
+2. After execution, it refunds any unused gas back to the user
+
+NOTE: {_prefund} performs a `transferFrom` during the validation phase, writing to the token contract's storage.
+ERC-7562 restricts unstaked paymasters from such accesses, and public mempool bundlers will reject these operations.
+Stake the paymaster (see {Paymaster-_addStake}) when deploying against a public mempool.
+
+[IMPORTANT]
+====
+The {_withdrawTokens} function is `internal` so that developers can expose it under the public interface and
+authorization mechanism of their choice. Public versions of {_withdrawTokens} MUST be exposed and properly authorized,
+otherwise the tokens will be permanently stuck in the paymaster.
+
+Example implementation exposing the {_withdrawTokens} function using {AccessControl}:
+
+```solidity
+contract MyPaymaster is Paymaster, AccessControl {
+    bytes32 private constant WITHDRAWER_ROLE = keccak256("WITHDRAWER_ROLE");
+
+    constructor() {
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+    }
+
+    function withdrawTokens(IERC20 token, address recipient, uint256 amount) public virtual onlyRole(WITHDRAWER_ROLE) {
+        _withdrawTokens(token, recipient, amount);
+    }
+
+    ...
+}
+```
+====
+
+[.contract-index]
+.Functions
+--
+* {xref-PaymasterERC20-_validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256-}[`++_validatePaymasterUserOp(userOp, userOpHash, maxCost)++`]
+* {xref-PaymasterERC20-_prefund-struct-PackedUserOperation-bytes32-contract-IERC20-uint256-address-uint256-}[`++_prefund(, , token, , prefunder_, prefundAmount_)++`]
+* {xref-PaymasterERC20-_postOp-enum-IPaymaster-PostOpMode-bytes-uint256-uint256-}[`++_postOp(, context, actualGasCost, actualUserOpFeePerGas)++`]
+* {xref-PaymasterERC20-_refund-contract-IERC20-uint256-uint256-uint256-address-uint256-bytes-}[`++_refund(token, , actualAmount_, , prefunder, prefundAmount, )++`]
+* {xref-PaymasterERC20-_fetchDetails-struct-PackedUserOperation-bytes32-}[`++_fetchDetails(userOp, userOpHash)++`]
+* {xref-PaymasterERC20-_postOpCost--}[`++_postOpCost()++`]
+* {xref-PaymasterERC20-_postOpGasPenalty-uint256-}[`++_postOpGasPenalty(postOpGasLimit)++`]
+* {xref-PaymasterERC20-_tokenPerNativeDenominator--}[`++_tokenPerNativeDenominator()++`]
+* {xref-PaymasterERC20-_minTokensPerNative--}[`++_minTokensPerNative()++`]
+* {xref-PaymasterERC20-_erc20Cost-uint256-uint256-}[`++_erc20Cost(nativeCost, tokenPerNative)++`]
+* {xref-PaymasterERC20-_withdrawTokens-contract-IERC20-address-uint256-}[`++_withdrawTokens(token, recipient, amount)++`]
+
+[.contract-subindex-inherited]
+.Paymaster
+* {xref-Paymaster-entryPoint--}[`++entryPoint()++`]
+* {xref-Paymaster-validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256-}[`++validatePaymasterUserOp(userOp, userOpHash, maxCost)++`]
+* {xref-Paymaster-postOp-enum-IPaymaster-PostOpMode-bytes-uint256-uint256-}[`++postOp(mode, context, actualGasCost, actualUserOpFeePerGas)++`]
+* {xref-Paymaster-_checkEntryPoint--}[`++_checkEntryPoint()++`]
+* {xref-Paymaster-_deposit-uint256-}[`++_deposit(value)++`]
+* {xref-Paymaster-_withdraw-address-payable-uint256-}[`++_withdraw(to, value)++`]
+* {xref-Paymaster-_addStake-uint256-uint32-}[`++_addStake(value, unstakeDelaySec)++`]
+* {xref-Paymaster-_unlockStake--}[`++_unlockStake()++`]
+* {xref-Paymaster-_withdrawStake-address-payable-}[`++_withdrawStake(to)++`]
+
+[.contract-subindex-inherited]
+.IPaymaster
+
+--
+
+[.contract-index]
+.Events
+--
+* {xref-PaymasterERC20-UserOperationSponsored-bytes32-address-uint256-uint256-}[`++UserOperationSponsored(userOpHash, token, tokenAmount, tokenPerNative)++`]
+
+[.contract-subindex-inherited]
+.Paymaster
+
+[.contract-subindex-inherited]
+.IPaymaster
+
+--
+
+[.contract-index]
+.Errors
+--
+* {xref-PaymasterERC20-PaymasterERC20FailedRefund-contract-IERC20-uint256-uint256-bytes-}[`++PaymasterERC20FailedRefund(token, prefundAmount, actualAmount, prefundContext)++`]
+
+[.contract-subindex-inherited]
+.Paymaster
+* {xref-Paymaster-PaymasterUnauthorized-address-}[`++PaymasterUnauthorized(sender)++`]
+
+[.contract-subindex-inherited]
+.IPaymaster
+
+--
+
+[.contract-item]
+[[PaymasterERC20-_validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256-]]
+==== `[.contract-item-name]#++_validatePaymasterUserOp++#++(struct PackedUserOperation userOp, bytes32 userOpHash, uint256 maxCost) → bytes context, uint256 validationData++` [.item-kind]#internal#
+
+See {Paymaster-_validatePaymasterUserOp}.
+
+Attempts to retrieve the `token` and `tokenPerNative` from the user operation (see {_fetchDetails})
+and prefund the user operation using these values and the `maxCost` argument (see {_prefund}).
+
+Returns `abi.encodePacked(userOpHash, token, tokenPerNative, prefundAmount, prefunder, penaltyGas, prefundContext)`
+in `context` if the prefund is successful. Otherwise, it returns empty bytes.
+
+[.contract-item]
+[[PaymasterERC20-_prefund-struct-PackedUserOperation-bytes32-contract-IERC20-uint256-address-uint256-]]
+==== `[.contract-item-name]#++_prefund++#++(struct PackedUserOperation, bytes32, contract IERC20 token, uint256, address prefunder_, uint256 prefundAmount_) → bool success, address prefunder, uint256 prefundAmount, bytes prefundContext++` [.item-kind]#internal#
+
+Charges `prefundAmount` of `token` from `prefunder_` and returns the effective prefund actually pulled.
+
+The base implementation pulls exactly the requested `prefundAmount`. Extensions may inflate the amount
+(e.g. a guarantor adds the cost of the extra postOp work it performs) and must return the effective value.
+
+Returns `(success, prefunder, effectivePrefundAmount, prefundContext)`. `prefundContext` is forwarded to
+{_postOp} through its `context` argument and may be used by overrides to carry data into {_refund}.
+
+NOTE: Consider not reverting if the prefund fails when overriding this function. This is to avoid reverting
+during the validation phase of the user operation, which may penalize the paymaster's reputation according
+to ERC-7562 validation rules.
+
+[.contract-item]
+[[PaymasterERC20-_postOp-enum-IPaymaster-PostOpMode-bytes-uint256-uint256-]]
+==== `[.contract-item-name]#++_postOp++#++(enum IPaymaster.PostOpMode, bytes context, uint256 actualGasCost, uint256 actualUserOpFeePerGas)++` [.item-kind]#internal#
+
+Attempts to refund the user operation after execution. See {_refund}.
+
+Reverts with {PaymasterERC20FailedRefund} if the refund fails.
+
+IMPORTANT: This function may revert after the user operation has been executed without
+reverting the user operation itself. Consider implementing a mechanism to handle
+this case gracefully.
+
+[.contract-item]
+[[PaymasterERC20-_refund-contract-IERC20-uint256-uint256-uint256-address-uint256-bytes-]]
+==== `[.contract-item-name]#++_refund++#++(contract IERC20 token, uint256, uint256 actualAmount_, uint256, address prefunder, uint256 prefundAmount, bytes) → bool success, uint256 actualAmount++` [.item-kind]#internal#
+
+Refunds `prefundAmount - actualAmount` of `token` back to `prefunder` and returns the
+`actualAmount` actually charged.
+
+`actualAmount` is pre-computed by {_postOp} via {_erc20Cost}. Extensions may change it (e.g. a
+guarantor adds its extra postOp cost or zeroes it out after pulling from the user) and must
+return the value that was effectively charged.
+
+Requirements:
+
+- `actualAmount <= prefundAmount`.
+
+[.contract-item]
+[[PaymasterERC20-_fetchDetails-struct-PackedUserOperation-bytes32-]]
+==== `[.contract-item-name]#++_fetchDetails++#++(struct PackedUserOperation userOp, bytes32 userOpHash) → uint256 validationData, contract IERC20 token, uint256 tokenPerNative++` [.item-kind]#internal#
+
+Retrieves payment details for a user operation.
+
+The values returned by this internal function are:
+
+* `validationData`: ERC-4337 validation data, indicating success/failure and optional time validity (`validAfter`, `validUntil`).
+* `token`: Address of the ERC-20 token used for payment to the paymaster.
+* `tokenPerNative`: Token units charged per unit of native currency. This is scaled by `_tokenPerNativeDenominator()`
+   which defaults to 1e18 (wei per eth), making it effectively a number of token units per eth, and not per wei.
+
+==== Calculating the token price
+
+`tokenPerNative` is the multiplier {_erc20Cost} applies to a native-currency gas cost to produce a token amount:
+`tokenAmount = (nativeCost * tokenPerNative) / _tokenPerNativeDenominator()`. Each elements is denominated as follows:
+
+* `tokenAmount`: token units.
+* `nativeCost`: wei.
+* `tokenPerNative`: token units per eth.
+* `_tokenPerNativeDenominator()`: wei per native coin (1e18 on EVM chains).
+
+For a token priced from USD oracles, derive `tokenPerNative` from the inverse exchange rate:
+
+`tokenPerNative = (<Native token price in $> / 1e18) / (<ERC-20 token price in $> / 10**<ERC-20 decimals>) * _tokenPerNativeDenominator()`
+
+For example, suppose the token is USDC ($1 with 6 decimals) and the native currency is ETH ($2524.86 with 18 decimals).
+Then 1 wei of gas costs `(2524.86 / 1e18) / (1 / 1e6) = 2.52486e-9` USDC units, so with
+`_tokenPerNativeDenominator() = 1e18` we have `tokenPerNative = 2_524_860_000` (i.e. `2.52486e-9 * 1e18`). Charging
+`actualGasCost` wei yields `actualGasCost * 2_524_860_000 / 1e18` USDC units.
+
+[.contract-item]
+[[PaymasterERC20-_postOpCost--]]
+==== `[.contract-item-name]#++_postOpCost++#++() → uint256++` [.item-kind]#internal#
+
+Over-estimates the cost of the post-operation logic, which the EntryPoint charges to the paymaster but
+excludes from the `actualGasCost` reported to {_postOp}.
+
+NOTE: The default assumes a standard ERC-20. Override with a higher value for gas-heavier tokens; a persistent
+underestimate drains the paymaster's deposit.
+
+[.contract-item]
+[[PaymasterERC20-_postOpGasPenalty-uint256-]]
+==== `[.contract-item-name]#++_postOpGasPenalty++#++(uint256 postOpGasLimit) → uint256++` [.item-kind]#internal#
+
+Worst-case unused-gas penalty (in gas units) that the EntryPoint charges the paymaster's deposit for an
+over-provisioned, user-controlled `paymasterPostOpGasLimit`. This penalty is excluded from the `actualGasCost`
+reported to {_postOp} (the EntryPoint computes it only after `postOp` returns), so it is priced into the charge
+during validation and retained in {_postOp}. Without it, a user could inflate `paymasterPostOpGasLimit` and
+have the paymaster absorb the resulting penalty on every operation, draining its deposit.
+
+The default mirrors the EntryPoint (v0.7-v0.9): a 10% penalty on unused postOp gas, applied only once the
+unused amount reaches 40_000 gas. The worst case is a `postOp` that consumes ~0 gas (e.g. it reverts and the
+maximum penalty is charged), leaving the whole limit unused.
+
+NOTE: Override to return 0 when targeting an EntryPoint that has no unused-gas penalty.
+
+[.contract-item]
+[[PaymasterERC20-_tokenPerNativeDenominator--]]
+==== `[.contract-item-name]#++_tokenPerNativeDenominator++#++() → uint256++` [.item-kind]#internal#
+
+Denominator used for interpreting the `tokenPerNative` returned by {_fetchDetails} as "fixed point" in {_erc20Cost}.
+
+[.contract-item]
+[[PaymasterERC20-_minTokensPerNative--]]
+==== `[.contract-item-name]#++_minTokensPerNative++#++() → uint256++` [.item-kind]#internal#
+
+Lower bound on `tokenPerNative` (see {_fetchDetails} for units). Operations whose `tokenPerNative`
+is strictly below this value are rejected with `SIG_VALIDATION_FAILED` before {_prefund} runs.
+
+To pick a value, decide:
+
+* `minCharge`: smallest token amount you want to bill per op (e.g. `0.01 USDC = 10_000` units).
+* `minGasCost`: smallest `actualGasCost + _postOpCost() * actualUserOpFeePerGas` you expect, in wei
+  (= `minGas * minFeePerGas`; `minFeePerGas` can be as low as 1 wei on some L2s).
+
+Then set `_minTokensPerNative() >= minCharge * _tokenPerNativeDenominator() / minGasCost`.
+
+Example: a USDC (6 decimals) paymaster on a chain with `minFeePerGas = 1 gwei`, sponsoring
+ops of at least 100_000 gas and charging at least 0.01 USDC per op:
+
+```solidity
+function _minTokensPerNative() internal view override returns (uint256) {
+    return 100e6; // = 1e4 (0.01 USDC) * 1e18 / 1e14 (100_000 gas * 1 gwei) = 100 USDC/ETH
+}
+```
+
+WARNING: Setting `_minTokensPerNative()` below `minCharge * _tokenPerNativeDenominator() / minGasCost`
+lets {_erc20Cost} round to zero or to dust for the cheapest ops the paymaster accepts,
+sponsoring them at a low (or zero) price.
+
+[.contract-item]
+[[PaymasterERC20-_erc20Cost-uint256-uint256-]]
+==== `[.contract-item-name]#++_erc20Cost++#++(uint256 nativeCost, uint256 tokenPerNative) → uint256++` [.item-kind]#internal#
+
+Calculates native currency cost to ERC-20 token cost.
+
+Returns `type(uint256).max` if computation overflows.
+
+[.contract-item]
+[[PaymasterERC20-_withdrawTokens-contract-IERC20-address-uint256-]]
+==== `[.contract-item-name]#++_withdrawTokens++#++(contract IERC20 token, address recipient, uint256 amount)++` [.item-kind]#internal#
+
+Internal function that allows the withdrawer to extract ERC-20 tokens resulting from gas payments.
+
+[.contract-item]
+[[PaymasterERC20-UserOperationSponsored-bytes32-address-uint256-uint256-]]
+==== `[.contract-item-name]#++UserOperationSponsored++#++(bytes32 indexed userOpHash, address indexed token, uint256 tokenAmount, uint256 tokenPerNative)++` [.item-kind]#event#
+
+Emitted when a user operation identified by `userOpHash` is sponsored by this paymaster
+using the specified ERC-20 `token`. The `tokenAmount` is the amount charged for the operation,
+and `tokenPerNative` is the valuation of the token in units of token per native currency (e.g., ETH).
+
+[.contract-item]
+[[PaymasterERC20-PaymasterERC20FailedRefund-contract-IERC20-uint256-uint256-bytes-]]
+==== `[.contract-item-name]#++PaymasterERC20FailedRefund++#++(contract IERC20 token, uint256 prefundAmount, uint256 actualAmount, bytes prefundContext)++` [.item-kind]#error#
+
+Thrown when the paymaster fails to refund the difference between the `prefundAmount`
+and the `actualAmount` of `token`.
+
+:UserOperationGuaranteed: pass:normal[xref:#PaymasterERC20Guarantor-UserOperationGuaranteed-bytes32-address-uint256-[`++UserOperationGuaranteed++`]]
+:_prefund: pass:normal[xref:#PaymasterERC20Guarantor-_prefund-struct-PackedUserOperation-bytes32-contract-IERC20-uint256-address-uint256-[`++_prefund++`]]
+:_refund: pass:normal[xref:#PaymasterERC20Guarantor-_refund-contract-IERC20-uint256-uint256-uint256-address-uint256-bytes-[`++_refund++`]]
+:_fetchGuarantor: pass:normal[xref:#PaymasterERC20Guarantor-_fetchGuarantor-struct-PackedUserOperation-[`++_fetchGuarantor++`]]
+:_guaranteedPostOpCost: pass:normal[xref:#PaymasterERC20Guarantor-_guaranteedPostOpCost--[`++_guaranteedPostOpCost++`]]
+
+:_prefund-struct-PackedUserOperation-bytes32-contract-IERC20-uint256-address-uint256: pass:normal[xref:#PaymasterERC20Guarantor-_prefund-struct-PackedUserOperation-bytes32-contract-IERC20-uint256-address-uint256-[`++_prefund++`]]
+:_refund-contract-IERC20-uint256-uint256-uint256-address-uint256-bytes: pass:normal[xref:#PaymasterERC20Guarantor-_refund-contract-IERC20-uint256-uint256-uint256-address-uint256-bytes-[`++_refund++`]]
+:_fetchGuarantor-struct-PackedUserOperation: pass:normal[xref:#PaymasterERC20Guarantor-_fetchGuarantor-struct-PackedUserOperation-[`++_fetchGuarantor++`]]
+:_guaranteedPostOpCost-: pass:normal[xref:#PaymasterERC20Guarantor-_guaranteedPostOpCost--[`++_guaranteedPostOpCost++`]]
+
+[.contract]
+[[PaymasterERC20Guarantor]]
+=== `++PaymasterERC20Guarantor++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/account/paymaster/extensions/PaymasterERC20Guarantor.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/account/paymaster/extensions/PaymasterERC20Guarantor.sol";
+```
+
+Extension of {PaymasterERC20} that enables third parties to guarantee user operations.
+
+This contract allows a guarantor to pre-fund user operations on behalf of users. The guarantor
+pays the maximum possible gas cost upfront, and after execution:
+1. If the user repays the guarantor, the guarantor gets their funds back
+2. If the user fails to repay, the guarantor absorbs the cost
+
+A common use case is for guarantors to pay for the operations of users claiming airdrops. In this scenario:
+
+* The guarantor pays the gas fees upfront
+* The user claims their airdrop tokens
+* The user repays the guarantor from the claimed tokens
+* If the user fails to repay, the guarantor absorbs the cost
+
+The guarantor is identified through the {_fetchGuarantor} function, which must be implemented
+by developers to determine who can guarantee operations. This allows for flexible guarantor selection
+logic based on the specific requirements of the application.
+
+[.contract-index]
+.Functions
+--
+* {xref-PaymasterERC20Guarantor-_prefund-struct-PackedUserOperation-bytes32-contract-IERC20-uint256-address-uint256-}[`++_prefund(userOp, userOpHash, token, tokenPrice, prefunder_, prefundAmount_)++`]
+* {xref-PaymasterERC20Guarantor-_refund-contract-IERC20-uint256-uint256-uint256-address-uint256-bytes-}[`++_refund(token, tokenPrice, actualAmount, actualUserOpFeePerGas, prefunder, prefundAmount, prefundContext)++`]
+* {xref-PaymasterERC20Guarantor-_fetchGuarantor-struct-PackedUserOperation-}[`++_fetchGuarantor(userOp)++`]
+* {xref-PaymasterERC20Guarantor-_guaranteedPostOpCost--}[`++_guaranteedPostOpCost()++`]
+
+[.contract-subindex-inherited]
+.PaymasterERC20
+* {xref-PaymasterERC20-_validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256-}[`++_validatePaymasterUserOp(userOp, userOpHash, maxCost)++`]
+* {xref-PaymasterERC20-_postOp-enum-IPaymaster-PostOpMode-bytes-uint256-uint256-}[`++_postOp(, context, actualGasCost, actualUserOpFeePerGas)++`]
+* {xref-PaymasterERC20-_fetchDetails-struct-PackedUserOperation-bytes32-}[`++_fetchDetails(userOp, userOpHash)++`]
+* {xref-PaymasterERC20-_postOpCost--}[`++_postOpCost()++`]
+* {xref-PaymasterERC20-_postOpGasPenalty-uint256-}[`++_postOpGasPenalty(postOpGasLimit)++`]
+* {xref-PaymasterERC20-_tokenPerNativeDenominator--}[`++_tokenPerNativeDenominator()++`]
+* {xref-PaymasterERC20-_minTokensPerNative--}[`++_minTokensPerNative()++`]
+* {xref-PaymasterERC20-_erc20Cost-uint256-uint256-}[`++_erc20Cost(nativeCost, tokenPerNative)++`]
+* {xref-PaymasterERC20-_withdrawTokens-contract-IERC20-address-uint256-}[`++_withdrawTokens(token, recipient, amount)++`]
+
+[.contract-subindex-inherited]
+.Paymaster
+* {xref-Paymaster-entryPoint--}[`++entryPoint()++`]
+* {xref-Paymaster-validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256-}[`++validatePaymasterUserOp(userOp, userOpHash, maxCost)++`]
+* {xref-Paymaster-postOp-enum-IPaymaster-PostOpMode-bytes-uint256-uint256-}[`++postOp(mode, context, actualGasCost, actualUserOpFeePerGas)++`]
+* {xref-Paymaster-_checkEntryPoint--}[`++_checkEntryPoint()++`]
+* {xref-Paymaster-_deposit-uint256-}[`++_deposit(value)++`]
+* {xref-Paymaster-_withdraw-address-payable-uint256-}[`++_withdraw(to, value)++`]
+* {xref-Paymaster-_addStake-uint256-uint32-}[`++_addStake(value, unstakeDelaySec)++`]
+* {xref-Paymaster-_unlockStake--}[`++_unlockStake()++`]
+* {xref-Paymaster-_withdrawStake-address-payable-}[`++_withdrawStake(to)++`]
+
+[.contract-subindex-inherited]
+.IPaymaster
+
+--
+
+[.contract-index]
+.Events
+--
+* {xref-PaymasterERC20Guarantor-UserOperationGuaranteed-bytes32-address-uint256-}[`++UserOperationGuaranteed(userOpHash, guarantor, prefundAmount)++`]
+
+[.contract-subindex-inherited]
+.PaymasterERC20
+* {xref-PaymasterERC20-UserOperationSponsored-bytes32-address-uint256-uint256-}[`++UserOperationSponsored(userOpHash, token, tokenAmount, tokenPerNative)++`]
+
+[.contract-subindex-inherited]
+.Paymaster
+
+[.contract-subindex-inherited]
+.IPaymaster
+
+--
+
+[.contract-index]
+.Errors
+--
+
+[.contract-subindex-inherited]
+.PaymasterERC20
+* {xref-PaymasterERC20-PaymasterERC20FailedRefund-contract-IERC20-uint256-uint256-bytes-}[`++PaymasterERC20FailedRefund(token, prefundAmount, actualAmount, prefundContext)++`]
+
+[.contract-subindex-inherited]
+.Paymaster
+* {xref-Paymaster-PaymasterUnauthorized-address-}[`++PaymasterUnauthorized(sender)++`]
+
+[.contract-subindex-inherited]
+.IPaymaster
+
+--
+
+[.contract-item]
+[[PaymasterERC20Guarantor-_prefund-struct-PackedUserOperation-bytes32-contract-IERC20-uint256-address-uint256-]]
+==== `[.contract-item-name]#++_prefund++#++(struct PackedUserOperation userOp, bytes32 userOpHash, contract IERC20 token, uint256 tokenPrice, address prefunder_, uint256 prefundAmount_) → bool success, address prefunder, uint256 prefundAmount, bytes prefundContext++` [.item-kind]#internal#
+
+Prefunds the user operation using either the guarantor or the default prefunder, and
+appends `userOp.sender` to the tail of `prefundContext` so the refund process can identify
+the user operation sender.
+
+For guaranteed ops, `prefundAmount` is inflated by {_guaranteedPostOpCost} worth of tokens
+so the prefund pulled from the guarantor covers the extra postOp work done in {_refund}
+({SafeERC20-trySafeTransferFrom} from the user + {SafeERC20-trySafeTransfer} to the guarantor).
+
+[.contract-item]
+[[PaymasterERC20Guarantor-_refund-contract-IERC20-uint256-uint256-uint256-address-uint256-bytes-]]
+==== `[.contract-item-name]#++_refund++#++(contract IERC20 token, uint256 tokenPrice, uint256 actualAmount, uint256 actualUserOpFeePerGas, address prefunder, uint256 prefundAmount, bytes prefundContext) → bool refunded, uint256 effectiveAmount++` [.item-kind]#internal#
+
+Handles the refund process for guaranteed operations.
+
+* **Non-guaranteed** (`prefunder == userOp.sender`): pass the base `actualAmount` through to
+  {PaymasterERC20-_refund}.
+* **Guaranteed**: augment `actualAmount` by {_guaranteedPostOpCost} * `actualUserOpFeePerGas`
+  (priced in tokens), pull it from `userOp.sender`, and call {PaymasterERC20-_refund} with
+  `actualAmount = 0` so the guarantor gets the full `prefundAmount` back. If the user fails to pay,
+  the guarantor absorbs the GUARANTEED cost (not the base cost).
+
+[.contract-item]
+[[PaymasterERC20Guarantor-_fetchGuarantor-struct-PackedUserOperation-]]
+==== `[.contract-item-name]#++_fetchGuarantor++#++(struct PackedUserOperation userOp) → address guarantor++` [.item-kind]#internal#
+
+Fetches the guarantor address and validation data from the user operation.
+
+NOTE: Return `address(0)` to disable the guarantor feature. If supported, ensure
+explicit consent (e.g., signature verification) to prevent unauthorized use.
+
+[.contract-item]
+[[PaymasterERC20Guarantor-_guaranteedPostOpCost--]]
+==== `[.contract-item-name]#++_guaranteedPostOpCost++#++() → uint256++` [.item-kind]#internal#
+
+Over-estimates the cost of the post-operation logic. Added on top of {PaymasterERC20-_postOpCost} for
+guaranteed userOps.
+
+NOTE: Like {PaymasterERC20-_postOpCost}, override with a higher value for gas-heavier tokens.
+
+[.contract-item]
+[[PaymasterERC20Guarantor-UserOperationGuaranteed-bytes32-address-uint256-]]
+==== `[.contract-item-name]#++UserOperationGuaranteed++#++(bytes32 indexed userOpHash, address indexed guarantor, uint256 prefundAmount)++` [.item-kind]#event#
+
+Emitted when a user operation identified by `userOpHash` is guaranteed by a `guarantor` for `prefundAmount`.
+
+:constructor: pass:normal[xref:#PaymasterERC721Owner-constructor-contract-IERC721-[`++constructor++`]]
+:token: pass:normal[xref:#PaymasterERC721Owner-token--[`++token++`]]
+:_validatePaymasterUserOp: pass:normal[xref:#PaymasterERC721Owner-_validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256-[`++_validatePaymasterUserOp++`]]
+
+:constructor-contract-IERC721: pass:normal[xref:#PaymasterERC721Owner-constructor-contract-IERC721-[`++constructor++`]]
+:token-: pass:normal[xref:#PaymasterERC721Owner-token--[`++token++`]]
+:_validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256: pass:normal[xref:#PaymasterERC721Owner-_validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256-[`++_validatePaymasterUserOp++`]]
+
+[.contract]
+[[PaymasterERC721Owner]]
+=== `++PaymasterERC721Owner++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/account/paymaster/extensions/PaymasterERC721Owner.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/account/paymaster/extensions/PaymasterERC721Owner.sol";
+```
+
+Extension of {Paymaster} that supports account based on ownership of an ERC-721 token.
+
+This paymaster will sponsor user operations if the user has at least 1 token of the token specified
+during construction.
+
+NOTE: {_validatePaymasterUserOp} reads `token.balanceOf` during the validation phase, accessing storage in
+an external contract. ERC-7562 restricts unstaked paymasters from such accesses, and public mempool bundlers
+will reject these operations when the token contract is proxied or upgradeable. Stake the paymaster
+(see {Paymaster-_addStake}) when deploying against a public mempool.
+
+[.contract-index]
+.Functions
+--
+* {xref-PaymasterERC721Owner-constructor-contract-IERC721-}[`++constructor(token_)++`]
+* {xref-PaymasterERC721Owner-token--}[`++token()++`]
+* {xref-PaymasterERC721Owner-_validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256-}[`++_validatePaymasterUserOp(userOp, , )++`]
+
+[.contract-subindex-inherited]
+.Paymaster
+* {xref-Paymaster-entryPoint--}[`++entryPoint()++`]
+* {xref-Paymaster-validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256-}[`++validatePaymasterUserOp(userOp, userOpHash, maxCost)++`]
+* {xref-Paymaster-postOp-enum-IPaymaster-PostOpMode-bytes-uint256-uint256-}[`++postOp(mode, context, actualGasCost, actualUserOpFeePerGas)++`]
+* {xref-Paymaster-_postOp-enum-IPaymaster-PostOpMode-bytes-uint256-uint256-}[`++_postOp(, , , )++`]
+* {xref-Paymaster-_checkEntryPoint--}[`++_checkEntryPoint()++`]
+* {xref-Paymaster-_deposit-uint256-}[`++_deposit(value)++`]
+* {xref-Paymaster-_withdraw-address-payable-uint256-}[`++_withdraw(to, value)++`]
+* {xref-Paymaster-_addStake-uint256-uint32-}[`++_addStake(value, unstakeDelaySec)++`]
+* {xref-Paymaster-_unlockStake--}[`++_unlockStake()++`]
+* {xref-Paymaster-_withdrawStake-address-payable-}[`++_withdrawStake(to)++`]
+
+[.contract-subindex-inherited]
+.IPaymaster
+
+--
+
+[.contract-index]
+.Errors
+--
+
+[.contract-subindex-inherited]
+.Paymaster
+* {xref-Paymaster-PaymasterUnauthorized-address-}[`++PaymasterUnauthorized(sender)++`]
+
+[.contract-subindex-inherited]
+.IPaymaster
+
+--
+
+[.contract-item]
+[[PaymasterERC721Owner-constructor-contract-IERC721-]]
+==== `[.contract-item-name]#++constructor++#++(contract IERC721 token_)++` [.item-kind]#internal#
+
+[.contract-item]
+[[PaymasterERC721Owner-token--]]
+==== `[.contract-item-name]#++token++#++() → contract IERC721++` [.item-kind]#public#
+
+ERC-721 token used to validate the user operation.
+
+[.contract-item]
+[[PaymasterERC721Owner-_validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256-]]
+==== `[.contract-item-name]#++_validatePaymasterUserOp++#++(struct PackedUserOperation userOp, bytes32, uint256) → bytes context, uint256 validationData++` [.item-kind]#internal#
+
+Internal validation of whether the paymaster is willing to pay for the user operation.
+Returns the context to be passed to postOp and the validation data.
+
+NOTE: The default `context` is `bytes(0)`. Developers that add a context when overriding this function MUST
+also override {_postOp} to process the context passed along.
+
+:_signableUserOpHash: pass:normal[xref:#PaymasterSigner-_signableUserOpHash-struct-PackedUserOperation-uint48-uint48-[`++_signableUserOpHash++`]]
+:_validatePaymasterUserOp: pass:normal[xref:#PaymasterSigner-_validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256-[`++_validatePaymasterUserOp++`]]
+:_decodePaymasterUserOp: pass:normal[xref:#PaymasterSigner-_decodePaymasterUserOp-struct-PackedUserOperation-[`++_decodePaymasterUserOp++`]]
+
+:_signableUserOpHash-struct-PackedUserOperation-uint48-uint48: pass:normal[xref:#PaymasterSigner-_signableUserOpHash-struct-PackedUserOperation-uint48-uint48-[`++_signableUserOpHash++`]]
+:_validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256: pass:normal[xref:#PaymasterSigner-_validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256-[`++_validatePaymasterUserOp++`]]
+:_decodePaymasterUserOp-struct-PackedUserOperation: pass:normal[xref:#PaymasterSigner-_decodePaymasterUserOp-struct-PackedUserOperation-[`++_decodePaymasterUserOp++`]]
+
+[.contract]
+[[PaymasterSigner]]
+=== `++PaymasterSigner++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/account/paymaster/extensions/PaymasterSigner.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/account/paymaster/extensions/PaymasterSigner.sol";
+```
+
+Extension of {Paymaster} that adds signature validation. See {SignerECDSA}, {SignerP256} or {SignerRSA}.
+
+Example of usage:
+
+```solidity
+contract MyPaymasterECDSASigner is PaymasterSigner, SignerECDSA {
+    constructor(address signerAddr) EIP712("MyPaymasterECDSASigner", "1") SignerECDSA(signerAddr) {}
+}
+```
+
+[.contract-index]
+.Functions
+--
+* {xref-PaymasterSigner-_signableUserOpHash-struct-PackedUserOperation-uint48-uint48-}[`++_signableUserOpHash(userOp, validAfter, validUntil)++`]
+* {xref-PaymasterSigner-_validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256-}[`++_validatePaymasterUserOp(userOp, , )++`]
+* {xref-PaymasterSigner-_decodePaymasterUserOp-struct-PackedUserOperation-}[`++_decodePaymasterUserOp(userOp)++`]
+
+[.contract-subindex-inherited]
+.Paymaster
+* {xref-Paymaster-entryPoint--}[`++entryPoint()++`]
+* {xref-Paymaster-validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256-}[`++validatePaymasterUserOp(userOp, userOpHash, maxCost)++`]
+* {xref-Paymaster-postOp-enum-IPaymaster-PostOpMode-bytes-uint256-uint256-}[`++postOp(mode, context, actualGasCost, actualUserOpFeePerGas)++`]
+* {xref-Paymaster-_postOp-enum-IPaymaster-PostOpMode-bytes-uint256-uint256-}[`++_postOp(, , , )++`]
+* {xref-Paymaster-_checkEntryPoint--}[`++_checkEntryPoint()++`]
+* {xref-Paymaster-_deposit-uint256-}[`++_deposit(value)++`]
+* {xref-Paymaster-_withdraw-address-payable-uint256-}[`++_withdraw(to, value)++`]
+* {xref-Paymaster-_addStake-uint256-uint32-}[`++_addStake(value, unstakeDelaySec)++`]
+* {xref-Paymaster-_unlockStake--}[`++_unlockStake()++`]
+* {xref-Paymaster-_withdrawStake-address-payable-}[`++_withdrawStake(to)++`]
+
+[.contract-subindex-inherited]
+.IPaymaster
+
+[.contract-subindex-inherited]
+.EIP712
+* {xref-EIP712-_domainSeparatorV4--}[`++_domainSeparatorV4()++`]
+* {xref-EIP712-_hashTypedDataV4-bytes32-}[`++_hashTypedDataV4(structHash)++`]
+* {xref-EIP712-eip712Domain--}[`++eip712Domain()++`]
+* {xref-EIP712-_EIP712Name--}[`++_EIP712Name()++`]
+* {xref-EIP712-_EIP712Version--}[`++_EIP712Version()++`]
+
+[.contract-subindex-inherited]
+.IERC5267
+
+[.contract-subindex-inherited]
+.AbstractSigner
+* {xref-AbstractSigner-_rawSignatureValidation-bytes32-bytes-}[`++_rawSignatureValidation(hash, signature)++`]
+
+--
+
+[.contract-index]
+.Events
+--
+
+[.contract-subindex-inherited]
+.Paymaster
+
+[.contract-subindex-inherited]
+.IPaymaster
+
+[.contract-subindex-inherited]
+.EIP712
+
+[.contract-subindex-inherited]
+.IERC5267
+* {xref-IERC5267-EIP712DomainChanged--}[`++EIP712DomainChanged()++`]
+
+[.contract-subindex-inherited]
+.AbstractSigner
+
+--
+
+[.contract-index]
+.Errors
+--
+
+[.contract-subindex-inherited]
+.Paymaster
+* {xref-Paymaster-PaymasterUnauthorized-address-}[`++PaymasterUnauthorized(sender)++`]
+
+[.contract-subindex-inherited]
+.IPaymaster
+
+[.contract-subindex-inherited]
+.EIP712
+
+[.contract-subindex-inherited]
+.IERC5267
+
+[.contract-subindex-inherited]
+.AbstractSigner
+
+--
+
+[.contract-item]
+[[PaymasterSigner-_signableUserOpHash-struct-PackedUserOperation-uint48-uint48-]]
+==== `[.contract-item-name]#++_signableUserOpHash++#++(struct PackedUserOperation userOp, uint48 validAfter, uint48 validUntil) → bytes32++` [.item-kind]#internal#
+
+Virtual function that returns the signable hash for a user operations. Given the `userOpHash`
+contains the `paymasterAndData` itself, it's not possible to sign that value directly. Instead,
+this function must be used to provide a custom mechanism to authorize an user operation.
+
+[.contract-item]
+[[PaymasterSigner-_validatePaymasterUserOp-struct-PackedUserOperation-bytes32-uint256-]]
+==== `[.contract-item-name]#++_validatePaymasterUserOp++#++(struct PackedUserOperation userOp, bytes32, uint256) → bytes context, uint256 validationData++` [.item-kind]#internal#
+
+Internal validation of whether the paymaster is willing to pay for the user operation.
+Returns the context to be passed to postOp and the validation data.
+
+NOTE: The `context` returned is `bytes(0)`. Developers overriding this function MUST
+override {_postOp} to process the context passed along.
+
+[.contract-item]
+[[PaymasterSigner-_decodePaymasterUserOp-struct-PackedUserOperation-]]
+==== `[.contract-item-name]#++_decodePaymasterUserOp++#++(struct PackedUserOperation userOp) → uint48 validAfter, uint48 validUntil, bytes signature++` [.item-kind]#internal#
+
+Decodes the user operation's data from `paymasterAndData`.
+
 == Utilities
 
 :ENTRYPOINT_V07: pass:normal[xref:#ERC4337Utils-ENTRYPOINT_V07-contract-IEntryPoint[`++ENTRYPOINT_V07++`]]
@@ -1220,11 +2289,11 @@ function _erc7821AuthorizedExecutor(
 
 [.contract]
 [[ERC4337Utils]]
-=== `++ERC4337Utils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/account/utils/draft-ERC4337Utils.sol[{github-icon},role=heading-link]
+=== `++ERC4337Utils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/account/utils/ERC4337Utils.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
-import "@openzeppelin/contracts/account/utils/draft-ERC4337Utils.sol";
+import "@openzeppelin/contracts/account/utils/ERC4337Utils.sol";
 ```
 
 Library with common ERC-4337 utility functions.
@@ -1488,7 +2557,7 @@ Mask for the lower 47 bits of a 6-bytes field (equivalent to uint48(~BLOCK_RANGE
 
 [.contract]
 [[ERC7579Utils]]
-=== `++ERC7579Utils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/account/utils/draft-ERC7579Utils.sol[{github-icon},role=heading-link]
+=== `++ERC7579Utils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/account/utils/draft-ERC7579Utils.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity

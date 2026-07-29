@@ -5,7 +5,6 @@ pragma solidity ^0.8.20;
 import {Test} from "forge-std/Test.sol";
 
 import {P256} from "@openzeppelin/contracts/utils/cryptography/P256.sol";
-import {Errors} from "@openzeppelin/contracts/utils/Errors.sol";
 
 contract P256Test is Test {
     /// forge-config: default.fuzz.runs = 512

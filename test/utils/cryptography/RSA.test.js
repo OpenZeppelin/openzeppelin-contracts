@@ -99,4 +99,22 @@ describe('RSA', function () {
       });
     }
   });
+
+  // Regression: a modexp precompile failure must make verification fail closed (return false) rather than revert.
+  // The precompile can only fail by running out of gas, so we force that with an oversized exponent whose modexp
+  // gas cost far exceeds the gas forwarded to the precompile under a capped gas limit. Because the staticcall keeps
+  // the EIP-150 1/64th gas reserve, the outer call still has enough gas to return false.
+  describe('modexp failure', function () {
+    it('returns false instead of reverting when the modexp precompile runs out of gas', async function () {
+      const digest = ethers.ZeroHash;
+      // n = 2048-bit modulus (all ones), s = 1 so that the `s < n` check passes and modexp is reached.
+      const mod = '0x' + 'ff'.repeat(0x100);
+      const sig = '0x' + '00'.repeat(0xff) + '01';
+      // Oversized exponent: makes the modexp gas cost tens of millions, exceeding the forwarded gas below.
+      const exp = '0x' + 'ff'.repeat(20000);
+
+      await expect(this.mock.$pkcs1Sha256(bytes32(digest), sig, exp, mod, { gasLimit: 16_000_000n })).to.eventually.be
+        .false;
+    });
+  });
 });

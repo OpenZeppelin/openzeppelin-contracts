@@ -3,13 +3,9 @@
 pragma solidity ^0.8.20;
 
 import {Test} from "forge-std/Test.sol";
-import {
-    GovernorVotesSuperQuorumFractionMock
-} from "../../../contracts/mocks/governance/GovernorVotesSuperQuorumFractionMock.sol";
+import {GovernorVotesSuperQuorumFractionMock} from "../../../contracts/mocks/governance/GovernorVotesSuperQuorumFractionMock.sol";
 import {GovernorVotesQuorumFraction} from "../../../contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
-import {
-    GovernorVotesSuperQuorumFraction
-} from "../../../contracts/governance/extensions/GovernorVotesSuperQuorumFraction.sol";
+import {GovernorVotesSuperQuorumFraction} from "../../../contracts/governance/extensions/GovernorVotesSuperQuorumFraction.sol";
 import {GovernorSettings} from "../../../contracts/governance/extensions/GovernorSettings.sol";
 import {GovernorVotes} from "../../../contracts/governance/extensions/GovernorVotes.sol";
 import {Governor} from "../../../contracts/governance/Governor.sol";

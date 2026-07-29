@@ -3,6 +3,9 @@
 :IERC20Metadata: pass:normal[xref:token/ERC20.adoc#IERC20Metadata[`IERC20Metadata`]]
 :ERC20: pass:normal[xref:token/ERC20.adoc#ERC20[`ERC20`]]
 :ERC20Permit: pass:normal[xref:token/ERC20.adoc#ERC20Permit[`ERC20Permit`]]
+:ERC3009: pass:normal[xref:token/ERC20.adoc#ERC3009[`ERC3009`]]
+:ERC20TransferAuthorization: pass:normal[xref:token/ERC20.adoc#ERC20TransferAuthorization[`ERC20TransferAuthorization`]]
+:ERC3009: pass:normal[xref:token/ERC20.adoc#ERC3009[`ERC3009`]]
 :ERC20Bridgeable: pass:normal[xref:token/ERC20.adoc#ERC20Bridgeable[`ERC20Bridgeable`]]
 :ERC20Burnable: pass:normal[xref:token/ERC20.adoc#ERC20Burnable[`ERC20Burnable`]]
 :ERC20Capped: pass:normal[xref:token/ERC20.adoc#ERC20Capped[`ERC20Capped`]]
@@ -121,6 +124,113 @@
 :EIP712: pass:normal[xref:utils/cryptography.adoc#EIP712[`EIP712`]]
 :IERC20-approve: pass:normal[xref:token/ERC20.adoc#IERC20-approve-address-uint256-[`IERC20.approve`]]
 :EIP712: pass:normal[xref:utils/cryptography.adoc#EIP712[`EIP712`]]
+:IERC20-approve: pass:normal[xref:token/ERC20.adoc#IERC20-approve-address-uint256-[`IERC20.approve`]]
+:IERC20-transferFrom: pass:normal[xref:token/ERC20.adoc#IERC20-transferFrom-address-address-uint256-[`IERC20.transferFrom`]]
+:ERC4337Utils: pass:normal[xref:account.adoc#ERC4337Utils[`ERC4337Utils`]]
+:xref-ERC3009-authorizationState-address-bytes32-: xref:token/ERC20.adoc#ERC3009-authorizationState-address-bytes32-
+:xref-ERC3009-transferWithAuthorization-address-address-uint256-uint256-uint256-bytes32-uint8-bytes32-bytes32-: xref:token/ERC20.adoc#ERC3009-transferWithAuthorization-address-address-uint256-uint256-uint256-bytes32-uint8-bytes32-bytes32-
+:xref-ERC3009-receiveWithAuthorization-address-address-uint256-uint256-uint256-bytes32-uint8-bytes32-bytes32-: xref:token/ERC20.adoc#ERC3009-receiveWithAuthorization-address-address-uint256-uint256-uint256-bytes32-uint8-bytes32-bytes32-
+:xref-ERC3009-cancelAuthorization-address-bytes32-uint8-bytes32-bytes32-: xref:token/ERC20.adoc#ERC3009-cancelAuthorization-address-bytes32-uint8-bytes32-bytes32-
+:xref-ERC3009-_transferWithAuthorization-address-address-uint256-uint256-uint256-bytes32-: xref:token/ERC20.adoc#ERC3009-_transferWithAuthorization-address-address-uint256-uint256-uint256-bytes32-
+:xref-ERC3009-_cancelAuthorization-address-bytes32-: xref:token/ERC20.adoc#ERC3009-_cancelAuthorization-address-bytes32-
+:xref-ERC3009-_consumeNonce-address-bytes32-: xref:token/ERC20.adoc#ERC3009-_consumeNonce-address-bytes32-
+:xref-ERC3009-_checkValidity-uint256-uint256-: xref:token/ERC20.adoc#ERC3009-_checkValidity-uint256-uint256-
+:xref-EIP712-_domainSeparatorV4--: xref:utils/cryptography.adoc#EIP712-_domainSeparatorV4--
+:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils/cryptography.adoc#EIP712-_hashTypedDataV4-bytes32-
+:xref-EIP712-eip712Domain--: xref:utils/cryptography.adoc#EIP712-eip712Domain--
+:xref-EIP712-_EIP712Name--: xref:utils/cryptography.adoc#EIP712-_EIP712Name--
+:xref-EIP712-_EIP712Version--: xref:utils/cryptography.adoc#EIP712-_EIP712Version--
+:xref-ERC20-name--: xref:token/ERC20.adoc#ERC20-name--
+:xref-ERC20-symbol--: xref:token/ERC20.adoc#ERC20-symbol--
+:xref-ERC20-decimals--: xref:token/ERC20.adoc#ERC20-decimals--
+:xref-ERC20-totalSupply--: xref:token/ERC20.adoc#ERC20-totalSupply--
+:xref-ERC20-balanceOf-address-: xref:token/ERC20.adoc#ERC20-balanceOf-address-
+:xref-ERC20-transfer-address-uint256-: xref:token/ERC20.adoc#ERC20-transfer-address-uint256-
+:xref-ERC20-allowance-address-address-: xref:token/ERC20.adoc#ERC20-allowance-address-address-
+:xref-ERC20-approve-address-uint256-: xref:token/ERC20.adoc#ERC20-approve-address-uint256-
+:xref-ERC20-transferFrom-address-address-uint256-: xref:token/ERC20.adoc#ERC20-transferFrom-address-address-uint256-
+:xref-ERC20-_transfer-address-address-uint256-: xref:token/ERC20.adoc#ERC20-_transfer-address-address-uint256-
+:xref-ERC20-_update-address-address-uint256-: xref:token/ERC20.adoc#ERC20-_update-address-address-uint256-
+:xref-ERC20-_mint-address-uint256-: xref:token/ERC20.adoc#ERC20-_mint-address-uint256-
+:xref-ERC20-_burn-address-uint256-: xref:token/ERC20.adoc#ERC20-_burn-address-uint256-
+:xref-ERC20-_approve-address-address-uint256-: xref:token/ERC20.adoc#ERC20-_approve-address-address-uint256-
+:xref-ERC20-_approve-address-address-uint256-bool-: xref:token/ERC20.adoc#ERC20-_approve-address-address-uint256-bool-
+:xref-ERC20-_spendAllowance-address-address-uint256-: xref:token/ERC20.adoc#ERC20-_spendAllowance-address-address-uint256-
+:xref-IERC3009Cancel-AuthorizationCanceled-address-bytes32-: xref:interfaces.adoc#IERC3009Cancel-AuthorizationCanceled-address-bytes32-
+:xref-IERC3009-AuthorizationUsed-address-bytes32-: xref:interfaces.adoc#IERC3009-AuthorizationUsed-address-bytes32-
+:xref-IERC5267-EIP712DomainChanged--: xref:interfaces.adoc#IERC5267-EIP712DomainChanged--
+:xref-IERC20-Transfer-address-address-uint256-: xref:token/ERC20.adoc#IERC20-Transfer-address-address-uint256-
+:xref-IERC20-Approval-address-address-uint256-: xref:token/ERC20.adoc#IERC20-Approval-address-address-uint256-
+:xref-ERC3009-ERC3009InvalidSignature--: xref:token/ERC20.adoc#ERC3009-ERC3009InvalidSignature--
+:xref-ERC3009-ERC3009InvalidAuthorizationTime-uint256-uint256-: xref:token/ERC20.adoc#ERC3009-ERC3009InvalidAuthorizationTime-uint256-uint256-
+:xref-ERC3009-ERC3009UsedAuthorization-address-bytes32-: xref:token/ERC20.adoc#ERC3009-ERC3009UsedAuthorization-address-bytes32-
+:xref-IERC20Errors-ERC20InsufficientBalance-address-uint256-uint256-: xref:interfaces.adoc#IERC20Errors-ERC20InsufficientBalance-address-uint256-uint256-
+:xref-IERC20Errors-ERC20InvalidSender-address-: xref:interfaces.adoc#IERC20Errors-ERC20InvalidSender-address-
+:xref-IERC20Errors-ERC20InvalidReceiver-address-: xref:interfaces.adoc#IERC20Errors-ERC20InvalidReceiver-address-
+:xref-IERC20Errors-ERC20InsufficientAllowance-address-uint256-uint256-: xref:interfaces.adoc#IERC20Errors-ERC20InsufficientAllowance-address-uint256-uint256-
+:xref-IERC20Errors-ERC20InvalidApprover-address-: xref:interfaces.adoc#IERC20Errors-ERC20InvalidApprover-address-
+:xref-IERC20Errors-ERC20InvalidSpender-address-: xref:interfaces.adoc#IERC20Errors-ERC20InvalidSpender-address-
+:xref-ERC3009-TRANSFER_WITH_AUTHORIZATION_TYPEHASH-bytes32: xref:token/ERC20.adoc#ERC3009-TRANSFER_WITH_AUTHORIZATION_TYPEHASH-bytes32
+:xref-ERC3009-RECEIVE_WITH_AUTHORIZATION_TYPEHASH-bytes32: xref:token/ERC20.adoc#ERC3009-RECEIVE_WITH_AUTHORIZATION_TYPEHASH-bytes32
+:xref-ERC3009-CANCEL_AUTHORIZATION_TYPEHASH-bytes32: xref:token/ERC20.adoc#ERC3009-CANCEL_AUTHORIZATION_TYPEHASH-bytes32
+:ERC4337Utils-parseValidationData: pass:normal[xref:account.adoc#ERC4337Utils-parseValidationData-uint256-[`ERC4337Utils.parseValidationData`]]
+:NoncesKeyed: pass:normal[xref:utils.adoc#NoncesKeyed[`NoncesKeyed`]]
+:ERC20Permit: pass:normal[xref:token/ERC20.adoc#ERC20Permit[`ERC20Permit`]]
+:xref-ERC20TransferAuthorization-authorizationState-address-bytes32-: xref:token/ERC20.adoc#ERC20TransferAuthorization-authorizationState-address-bytes32-
+:xref-ERC20TransferAuthorization-transferWithAuthorization-address-address-uint256-uint256-uint256-bytes32-bytes-: xref:token/ERC20.adoc#ERC20TransferAuthorization-transferWithAuthorization-address-address-uint256-uint256-uint256-bytes32-bytes-
+:xref-ERC20TransferAuthorization-receiveWithAuthorization-address-address-uint256-uint256-uint256-bytes32-bytes-: xref:token/ERC20.adoc#ERC20TransferAuthorization-receiveWithAuthorization-address-address-uint256-uint256-uint256-bytes32-bytes-
+:xref-ERC20TransferAuthorization-cancelAuthorization-address-bytes32-bytes-: xref:token/ERC20.adoc#ERC20TransferAuthorization-cancelAuthorization-address-bytes32-bytes-
+:xref-ERC20TransferAuthorization-_consumeNonce-address-bytes32-: xref:token/ERC20.adoc#ERC20TransferAuthorization-_consumeNonce-address-bytes32-
+:xref-NoncesKeyed-nonces-address-uint192-: xref:utils.adoc#NoncesKeyed-nonces-address-uint192-
+:xref-NoncesKeyed-_useNonce-address-uint192-: xref:utils.adoc#NoncesKeyed-_useNonce-address-uint192-
+:xref-NoncesKeyed-_useCheckedNonce-address-uint256-: xref:utils.adoc#NoncesKeyed-_useCheckedNonce-address-uint256-
+:xref-NoncesKeyed-_useCheckedNonce-address-uint192-uint64-: xref:utils.adoc#NoncesKeyed-_useCheckedNonce-address-uint192-uint64-
+:xref-Nonces-nonces-address-: xref:utils.adoc#Nonces-nonces-address-
+:xref-Nonces-_useNonce-address-: xref:utils.adoc#Nonces-_useNonce-address-
+:xref-ERC3009-transferWithAuthorization-address-address-uint256-uint256-uint256-bytes32-uint8-bytes32-bytes32-: xref:token/ERC20.adoc#ERC3009-transferWithAuthorization-address-address-uint256-uint256-uint256-bytes32-uint8-bytes32-bytes32-
+:xref-ERC3009-receiveWithAuthorization-address-address-uint256-uint256-uint256-bytes32-uint8-bytes32-bytes32-: xref:token/ERC20.adoc#ERC3009-receiveWithAuthorization-address-address-uint256-uint256-uint256-bytes32-uint8-bytes32-bytes32-
+:xref-ERC3009-cancelAuthorization-address-bytes32-uint8-bytes32-bytes32-: xref:token/ERC20.adoc#ERC3009-cancelAuthorization-address-bytes32-uint8-bytes32-bytes32-
+:xref-ERC3009-_transferWithAuthorization-address-address-uint256-uint256-uint256-bytes32-: xref:token/ERC20.adoc#ERC3009-_transferWithAuthorization-address-address-uint256-uint256-uint256-bytes32-
+:xref-ERC3009-_cancelAuthorization-address-bytes32-: xref:token/ERC20.adoc#ERC3009-_cancelAuthorization-address-bytes32-
+:xref-ERC3009-_checkValidity-uint256-uint256-: xref:token/ERC20.adoc#ERC3009-_checkValidity-uint256-uint256-
+:xref-EIP712-_domainSeparatorV4--: xref:utils/cryptography.adoc#EIP712-_domainSeparatorV4--
+:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils/cryptography.adoc#EIP712-_hashTypedDataV4-bytes32-
+:xref-EIP712-eip712Domain--: xref:utils/cryptography.adoc#EIP712-eip712Domain--
+:xref-EIP712-_EIP712Name--: xref:utils/cryptography.adoc#EIP712-_EIP712Name--
+:xref-EIP712-_EIP712Version--: xref:utils/cryptography.adoc#EIP712-_EIP712Version--
+:xref-ERC20-name--: xref:token/ERC20.adoc#ERC20-name--
+:xref-ERC20-symbol--: xref:token/ERC20.adoc#ERC20-symbol--
+:xref-ERC20-decimals--: xref:token/ERC20.adoc#ERC20-decimals--
+:xref-ERC20-totalSupply--: xref:token/ERC20.adoc#ERC20-totalSupply--
+:xref-ERC20-balanceOf-address-: xref:token/ERC20.adoc#ERC20-balanceOf-address-
+:xref-ERC20-transfer-address-uint256-: xref:token/ERC20.adoc#ERC20-transfer-address-uint256-
+:xref-ERC20-allowance-address-address-: xref:token/ERC20.adoc#ERC20-allowance-address-address-
+:xref-ERC20-approve-address-uint256-: xref:token/ERC20.adoc#ERC20-approve-address-uint256-
+:xref-ERC20-transferFrom-address-address-uint256-: xref:token/ERC20.adoc#ERC20-transferFrom-address-address-uint256-
+:xref-ERC20-_transfer-address-address-uint256-: xref:token/ERC20.adoc#ERC20-_transfer-address-address-uint256-
+:xref-ERC20-_update-address-address-uint256-: xref:token/ERC20.adoc#ERC20-_update-address-address-uint256-
+:xref-ERC20-_mint-address-uint256-: xref:token/ERC20.adoc#ERC20-_mint-address-uint256-
+:xref-ERC20-_burn-address-uint256-: xref:token/ERC20.adoc#ERC20-_burn-address-uint256-
+:xref-ERC20-_approve-address-address-uint256-: xref:token/ERC20.adoc#ERC20-_approve-address-address-uint256-
+:xref-ERC20-_approve-address-address-uint256-bool-: xref:token/ERC20.adoc#ERC20-_approve-address-address-uint256-bool-
+:xref-ERC20-_spendAllowance-address-address-uint256-: xref:token/ERC20.adoc#ERC20-_spendAllowance-address-address-uint256-
+:xref-IERC3009Cancel-AuthorizationCanceled-address-bytes32-: xref:interfaces.adoc#IERC3009Cancel-AuthorizationCanceled-address-bytes32-
+:xref-IERC3009-AuthorizationUsed-address-bytes32-: xref:interfaces.adoc#IERC3009-AuthorizationUsed-address-bytes32-
+:xref-IERC5267-EIP712DomainChanged--: xref:interfaces.adoc#IERC5267-EIP712DomainChanged--
+:xref-IERC20-Transfer-address-address-uint256-: xref:token/ERC20.adoc#IERC20-Transfer-address-address-uint256-
+:xref-IERC20-Approval-address-address-uint256-: xref:token/ERC20.adoc#IERC20-Approval-address-address-uint256-
+:xref-Nonces-InvalidAccountNonce-address-uint256-: xref:utils.adoc#Nonces-InvalidAccountNonce-address-uint256-
+:xref-ERC3009-ERC3009InvalidSignature--: xref:token/ERC20.adoc#ERC3009-ERC3009InvalidSignature--
+:xref-ERC3009-ERC3009InvalidAuthorizationTime-uint256-uint256-: xref:token/ERC20.adoc#ERC3009-ERC3009InvalidAuthorizationTime-uint256-uint256-
+:xref-ERC3009-ERC3009UsedAuthorization-address-bytes32-: xref:token/ERC20.adoc#ERC3009-ERC3009UsedAuthorization-address-bytes32-
+:xref-IERC20Errors-ERC20InsufficientBalance-address-uint256-uint256-: xref:interfaces.adoc#IERC20Errors-ERC20InsufficientBalance-address-uint256-uint256-
+:xref-IERC20Errors-ERC20InvalidSender-address-: xref:interfaces.adoc#IERC20Errors-ERC20InvalidSender-address-
+:xref-IERC20Errors-ERC20InvalidReceiver-address-: xref:interfaces.adoc#IERC20Errors-ERC20InvalidReceiver-address-
+:xref-IERC20Errors-ERC20InsufficientAllowance-address-uint256-uint256-: xref:interfaces.adoc#IERC20Errors-ERC20InsufficientAllowance-address-uint256-uint256-
+:xref-IERC20Errors-ERC20InvalidApprover-address-: xref:interfaces.adoc#IERC20Errors-ERC20InvalidApprover-address-
+:xref-IERC20Errors-ERC20InvalidSpender-address-: xref:interfaces.adoc#IERC20Errors-ERC20InvalidSpender-address-
+:IERC3009-authorizationState: pass:normal[xref:interfaces.adoc#IERC3009-authorizationState-address-bytes32-[`IERC3009.authorizationState`]]
+:NoncesKeyed: pass:normal[xref:utils.adoc#NoncesKeyed[`NoncesKeyed`]]
 :xref-ERC20Bridgeable-onlyTokenBridge--: xref:token/ERC20.adoc#ERC20Bridgeable-onlyTokenBridge--
 :xref-ERC20Bridgeable-supportsInterface-bytes4-: xref:token/ERC20.adoc#ERC20Bridgeable-supportsInterface-bytes4-
 :xref-ERC20Bridgeable-crosschainMint-address-uint256-: xref:token/ERC20.adoc#ERC20Bridgeable-crosschainMint-address-uint256-
@@ -260,6 +370,7 @@
 :xref-CrosschainLinked-LinkRegistered-address-bytes-: xref:crosschain.adoc#CrosschainLinked-LinkRegistered-address-bytes-
 :xref-IERC20-Transfer-address-address-uint256-: xref:token/ERC20.adoc#IERC20-Transfer-address-address-uint256-
 :xref-IERC20-Approval-address-address-uint256-: xref:token/ERC20.adoc#IERC20-Approval-address-address-uint256-
+:xref-BridgeFungible-CrosschainFungibleEmptyAddress--: xref:crosschain.adoc#BridgeFungible-CrosschainFungibleEmptyAddress--
 :xref-CrosschainLinked-LinkAlreadyRegistered-bytes-: xref:crosschain.adoc#CrosschainLinked-LinkAlreadyRegistered-bytes-
 :xref-ERC7786Recipient-ERC7786RecipientUnauthorizedGateway-address-bytes-: xref:crosschain.adoc#ERC7786Recipient-ERC7786RecipientUnauthorizedGateway-address-bytes-
 :xref-IERC20Errors-ERC20InsufficientBalance-address-uint256-uint256-: xref:interfaces.adoc#IERC20Errors-ERC20InsufficientBalance-address-uint256-uint256-
@@ -359,7 +470,6 @@
 :xref-IERC20-Transfer-address-address-uint256-: xref:token/ERC20.adoc#IERC20-Transfer-address-address-uint256-
 :xref-IERC20-Approval-address-address-uint256-: xref:token/ERC20.adoc#IERC20-Approval-address-address-uint256-
 :xref-ERC20Votes-ERC20ExceededSafeSupply-uint256-uint256-: xref:token/ERC20.adoc#ERC20Votes-ERC20ExceededSafeSupply-uint256-uint256-
-:xref-Votes-ERC6372InconsistentClock--: xref:governance.adoc#Votes-ERC6372InconsistentClock--
 :xref-Votes-ERC5805FutureLookup-uint256-uint48-: xref:governance.adoc#Votes-ERC5805FutureLookup-uint256-uint48-
 :xref-IVotes-VotesExpiredSignature-uint256-: xref:governance.adoc#IVotes-VotesExpiredSignature-uint256-
 :xref-Nonces-InvalidAccountNonce-address-uint256-: xref:utils.adoc#Nonces-InvalidAccountNonce-address-uint256-
@@ -403,6 +513,9 @@
 :xref-IERC20Errors-ERC20InsufficientAllowance-address-uint256-uint256-: xref:interfaces.adoc#IERC20Errors-ERC20InsufficientAllowance-address-uint256-uint256-
 :xref-IERC20Errors-ERC20InvalidApprover-address-: xref:interfaces.adoc#IERC20Errors-ERC20InvalidApprover-address-
 :xref-IERC20Errors-ERC20InvalidSpender-address-: xref:interfaces.adoc#IERC20Errors-ERC20InvalidSpender-address-
+:IERC20Metadata: pass:normal[xref:token/ERC20.adoc#IERC20Metadata[`IERC20Metadata`]]
+:Math-ternary: pass:normal[xref:utils.adoc#Math-ternary-bool-uint256-uint256-[`Math.ternary`]]
+:ERC20-decimals: pass:normal[xref:token/ERC20.adoc#ERC20-decimals--[`ERC20.decimals`]]
 :ERC20Capped: pass:normal[xref:token/ERC20.adoc#ERC20Capped[`ERC20Capped`]]
 :ERC20Votes: pass:normal[xref:token/ERC20.adoc#ERC20Votes[`ERC20Votes`]]
 :xref-ERC20FlashMint-maxFlashLoan-address-: xref:token/ERC20.adoc#ERC20FlashMint-maxFlashLoan-address-
@@ -515,6 +628,7 @@
 :IERC1363Spender-onApprovalReceived: pass:normal[xref:interfaces.adoc#IERC1363Spender-onApprovalReceived-address-uint256-bytes-[`IERC1363Spender.onApprovalReceived`]]
 :IERC1363Spender: pass:normal[xref:interfaces.adoc#IERC1363Spender[`IERC1363Spender`]]
 :IERC1363Spender-onApprovalReceived: pass:normal[xref:interfaces.adoc#IERC1363Spender-onApprovalReceived-address-uint256-bytes-[`IERC1363Spender.onApprovalReceived`]]
+:ERC20FlashMint: pass:normal[xref:token/ERC20.adoc#ERC20FlashMint[`ERC20FlashMint`]]
 :xref-ERC4626-constructor-contract-IERC20-: xref:token/ERC20.adoc#ERC4626-constructor-contract-IERC20-
 :xref-ERC4626-decimals--: xref:token/ERC20.adoc#ERC4626-decimals--
 :xref-ERC4626-asset--: xref:token/ERC20.adoc#ERC4626-asset--
@@ -580,6 +694,7 @@
 :xref-SafeERC20-transferAndCallRelaxed-contract-IERC1363-address-uint256-bytes-: xref:token/ERC20.adoc#SafeERC20-transferAndCallRelaxed-contract-IERC1363-address-uint256-bytes-
 :xref-SafeERC20-transferFromAndCallRelaxed-contract-IERC1363-address-address-uint256-bytes-: xref:token/ERC20.adoc#SafeERC20-transferFromAndCallRelaxed-contract-IERC1363-address-address-uint256-bytes-
 :xref-SafeERC20-approveAndCallRelaxed-contract-IERC1363-address-uint256-bytes-: xref:token/ERC20.adoc#SafeERC20-approveAndCallRelaxed-contract-IERC1363-address-uint256-bytes-
+:xref-SafeERC20-tryGetDecimals-contract-IERC20-: xref:token/ERC20.adoc#SafeERC20-tryGetDecimals-contract-IERC20-
 :xref-SafeERC20-SafeERC20FailedOperation-address-: xref:token/ERC20.adoc#SafeERC20-SafeERC20FailedOperation-address-
 :xref-SafeERC20-SafeERC20FailedDecreaseAllowance-address-uint256-uint256-: xref:token/ERC20.adoc#SafeERC20-SafeERC20FailedDecreaseAllowance-address-uint256-uint256-
 :ERC1363: pass:normal[xref:token/ERC20.adoc#ERC1363[`ERC1363`]]
@@ -623,6 +738,8 @@ There are a few core contracts that implement the behavior specified in the ERC-
 Additionally there are multiple custom extensions, including:
 
 * {ERC20Permit}: gasless approval of tokens (standardized as ERC-2612).
+* {ERC3009}: gasless transfer of tokens via signed authorizations (standardized as ERC-3009).
+* {ERC20TransferAuthorization}: variant of {ERC3009} using keyed sequential nonces and supporting ERC-1271 signatures.
 * {ERC20Bridgeable}: compatibility with crosschain bridges through ERC-7802.
 * {ERC20Burnable}: destruction of own tokens.
 * {ERC20Capped}: enforcement of a cap to the total supply when minting tokens.
@@ -665,7 +782,7 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 
 [.contract]
 [[IERC20]]
-=== `++IERC20++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/token/ERC20/IERC20.sol[{github-icon},role=heading-link]
+=== `++IERC20++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/token/ERC20/IERC20.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -782,7 +899,7 @@ a call to {approve}. `value` is the new allowance.
 
 [.contract]
 [[IERC20Metadata]]
-=== `++IERC20Metadata++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/token/ERC20/extensions/IERC20Metadata.sol[{github-icon},role=heading-link]
+=== `++IERC20Metadata++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/token/ERC20/extensions/IERC20Metadata.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -876,7 +993,7 @@ Returns the decimals places of the token.
 
 [.contract]
 [[ERC20]]
-=== `++ERC20++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/token/ERC20/ERC20.sol[{github-icon},role=heading-link]
+=== `++ERC20++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/token/ERC20/ERC20.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1179,7 +1296,7 @@ Does not emit an {Approval} event.
 
 [.contract]
 [[IERC20Permit]]
-=== `++IERC20Permit++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/token/ERC20/extensions/IERC20Permit.sol[{github-icon},role=heading-link]
+=== `++IERC20Permit++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/token/ERC20/extensions/IERC20Permit.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1286,7 +1403,7 @@ Returns the domain separator used in the encoding of the signature for {permit},
 
 [.contract]
 [[ERC20Permit]]
-=== `++ERC20Permit++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/token/ERC20/extensions/ERC20Permit.sol[{github-icon},role=heading-link]
+=== `++ERC20Permit++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/token/ERC20/extensions/ERC20Permit.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1491,6 +1608,580 @@ Permit deadline has expired.
 
 Mismatched signature.
 
+:ERC3009InvalidSignature: pass:normal[xref:#ERC3009-ERC3009InvalidSignature--[`++ERC3009InvalidSignature++`]]
+:ERC3009InvalidAuthorizationTime: pass:normal[xref:#ERC3009-ERC3009InvalidAuthorizationTime-uint256-uint256-[`++ERC3009InvalidAuthorizationTime++`]]
+:ERC3009UsedAuthorization: pass:normal[xref:#ERC3009-ERC3009UsedAuthorization-address-bytes32-[`++ERC3009UsedAuthorization++`]]
+:TRANSFER_WITH_AUTHORIZATION_TYPEHASH: pass:normal[xref:#ERC3009-TRANSFER_WITH_AUTHORIZATION_TYPEHASH-bytes32[`++TRANSFER_WITH_AUTHORIZATION_TYPEHASH++`]]
+:RECEIVE_WITH_AUTHORIZATION_TYPEHASH: pass:normal[xref:#ERC3009-RECEIVE_WITH_AUTHORIZATION_TYPEHASH-bytes32[`++RECEIVE_WITH_AUTHORIZATION_TYPEHASH++`]]
+:CANCEL_AUTHORIZATION_TYPEHASH: pass:normal[xref:#ERC3009-CANCEL_AUTHORIZATION_TYPEHASH-bytes32[`++CANCEL_AUTHORIZATION_TYPEHASH++`]]
+:authorizationState: pass:normal[xref:#ERC3009-authorizationState-address-bytes32-[`++authorizationState++`]]
+:transferWithAuthorization: pass:normal[xref:#ERC3009-transferWithAuthorization-address-address-uint256-uint256-uint256-bytes32-uint8-bytes32-bytes32-[`++transferWithAuthorization++`]]
+:receiveWithAuthorization: pass:normal[xref:#ERC3009-receiveWithAuthorization-address-address-uint256-uint256-uint256-bytes32-uint8-bytes32-bytes32-[`++receiveWithAuthorization++`]]
+:cancelAuthorization: pass:normal[xref:#ERC3009-cancelAuthorization-address-bytes32-uint8-bytes32-bytes32-[`++cancelAuthorization++`]]
+:_transferWithAuthorization: pass:normal[xref:#ERC3009-_transferWithAuthorization-address-address-uint256-uint256-uint256-bytes32-[`++_transferWithAuthorization++`]]
+:_cancelAuthorization: pass:normal[xref:#ERC3009-_cancelAuthorization-address-bytes32-[`++_cancelAuthorization++`]]
+:_consumeNonce: pass:normal[xref:#ERC3009-_consumeNonce-address-bytes32-[`++_consumeNonce++`]]
+:_checkValidity: pass:normal[xref:#ERC3009-_checkValidity-uint256-uint256-[`++_checkValidity++`]]
+
+:authorizationState-address-bytes32: pass:normal[xref:#ERC3009-authorizationState-address-bytes32-[`++authorizationState++`]]
+:transferWithAuthorization-address-address-uint256-uint256-uint256-bytes32-uint8-bytes32-bytes32: pass:normal[xref:#ERC3009-transferWithAuthorization-address-address-uint256-uint256-uint256-bytes32-uint8-bytes32-bytes32-[`++transferWithAuthorization++`]]
+:receiveWithAuthorization-address-address-uint256-uint256-uint256-bytes32-uint8-bytes32-bytes32: pass:normal[xref:#ERC3009-receiveWithAuthorization-address-address-uint256-uint256-uint256-bytes32-uint8-bytes32-bytes32-[`++receiveWithAuthorization++`]]
+:cancelAuthorization-address-bytes32-uint8-bytes32-bytes32: pass:normal[xref:#ERC3009-cancelAuthorization-address-bytes32-uint8-bytes32-bytes32-[`++cancelAuthorization++`]]
+:_transferWithAuthorization-address-address-uint256-uint256-uint256-bytes32: pass:normal[xref:#ERC3009-_transferWithAuthorization-address-address-uint256-uint256-uint256-bytes32-[`++_transferWithAuthorization++`]]
+:_cancelAuthorization-address-bytes32: pass:normal[xref:#ERC3009-_cancelAuthorization-address-bytes32-[`++_cancelAuthorization++`]]
+:_consumeNonce-address-bytes32: pass:normal[xref:#ERC3009-_consumeNonce-address-bytes32-[`++_consumeNonce++`]]
+:_checkValidity-uint256-uint256: pass:normal[xref:#ERC3009-_checkValidity-uint256-uint256-[`++_checkValidity++`]]
+
+[.contract]
+[[ERC3009]]
+=== `++ERC3009++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/token/ERC20/extensions/draft-ERC3009.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/token/ERC20/extensions/draft-ERC3009.sol";
+```
+
+Implementation of the ERC-3009 Transfer With Authorization extension allowing
+transfers to be made via signatures, as defined in https://eips.ethereum.org/EIPS/eip-3009[ERC-3009].
+
+Adds the {transferWithAuthorization} and {receiveWithAuthorization} methods, which
+can be used to change an account's ERC-20 balance by presenting a message signed
+by the account. By not relying on {IERC20-approve} and {IERC20-transferFrom}, the
+token holder account doesn't need to send a transaction, and thus is not required
+to hold native currency (e.g. ETH) at all.
+
+NOTE: To enable both timestamp-based and block-number-based validity windows, `validAfter` and
+`validBefore` use a dual-clock encoding mirroring {ERC4337Utils}. Bit 47 ({BLOCK_RANGE_FLAG}) acts as a
+clock selector: when *both* `validAfter` and `validBefore` have this bit set, the values are interpreted
+as block numbers; otherwise they are interpreted as Unix timestamps (the default, matching the ERC-3009
+specification). Since the current clock fits in 48 bits, any bit set at position 47 or above (other than
+the active clock-mode flag) makes the value point to an unreachable future. See {_checkValidity}.
+
+[.contract-index]
+.Functions
+--
+* {xref-ERC3009-authorizationState-address-bytes32-}[`++authorizationState(authorizer, nonce)++`]
+* {xref-ERC3009-transferWithAuthorization-address-address-uint256-uint256-uint256-bytes32-uint8-bytes32-bytes32-}[`++transferWithAuthorization(from, to, value, validAfter, validBefore, nonce, v, r, s)++`]
+* {xref-ERC3009-receiveWithAuthorization-address-address-uint256-uint256-uint256-bytes32-uint8-bytes32-bytes32-}[`++receiveWithAuthorization(from, to, value, validAfter, validBefore, nonce, v, r, s)++`]
+* {xref-ERC3009-cancelAuthorization-address-bytes32-uint8-bytes32-bytes32-}[`++cancelAuthorization(authorizer, nonce, v, r, s)++`]
+* {xref-ERC3009-_transferWithAuthorization-address-address-uint256-uint256-uint256-bytes32-}[`++_transferWithAuthorization(from, to, value, validAfter, validBefore, nonce)++`]
+* {xref-ERC3009-_cancelAuthorization-address-bytes32-}[`++_cancelAuthorization(authorizer, nonce)++`]
+* {xref-ERC3009-_consumeNonce-address-bytes32-}[`++_consumeNonce(authorizer, nonce)++`]
+* {xref-ERC3009-_checkValidity-uint256-uint256-}[`++_checkValidity(validAfter, validBefore)++`]
+
+[.contract-subindex-inherited]
+.IERC3009Cancel
+
+[.contract-subindex-inherited]
+.IERC3009
+
+[.contract-subindex-inherited]
+.EIP712
+* {xref-EIP712-_domainSeparatorV4--}[`++_domainSeparatorV4()++`]
+* {xref-EIP712-_hashTypedDataV4-bytes32-}[`++_hashTypedDataV4(structHash)++`]
+* {xref-EIP712-eip712Domain--}[`++eip712Domain()++`]
+* {xref-EIP712-_EIP712Name--}[`++_EIP712Name()++`]
+* {xref-EIP712-_EIP712Version--}[`++_EIP712Version()++`]
+
+[.contract-subindex-inherited]
+.IERC5267
+
+[.contract-subindex-inherited]
+.ERC20
+* {xref-ERC20-name--}[`++name()++`]
+* {xref-ERC20-symbol--}[`++symbol()++`]
+* {xref-ERC20-decimals--}[`++decimals()++`]
+* {xref-ERC20-totalSupply--}[`++totalSupply()++`]
+* {xref-ERC20-balanceOf-address-}[`++balanceOf(account)++`]
+* {xref-ERC20-transfer-address-uint256-}[`++transfer(to, value)++`]
+* {xref-ERC20-allowance-address-address-}[`++allowance(owner, spender)++`]
+* {xref-ERC20-approve-address-uint256-}[`++approve(spender, value)++`]
+* {xref-ERC20-transferFrom-address-address-uint256-}[`++transferFrom(from, to, value)++`]
+* {xref-ERC20-_transfer-address-address-uint256-}[`++_transfer(from, to, value)++`]
+* {xref-ERC20-_update-address-address-uint256-}[`++_update(from, to, value)++`]
+* {xref-ERC20-_mint-address-uint256-}[`++_mint(account, value)++`]
+* {xref-ERC20-_burn-address-uint256-}[`++_burn(account, value)++`]
+* {xref-ERC20-_approve-address-address-uint256-}[`++_approve(owner, spender, value)++`]
+* {xref-ERC20-_approve-address-address-uint256-bool-}[`++_approve(owner, spender, value, emitEvent)++`]
+* {xref-ERC20-_spendAllowance-address-address-uint256-}[`++_spendAllowance(owner, spender, value)++`]
+
+[.contract-subindex-inherited]
+.IERC20Errors
+
+[.contract-subindex-inherited]
+.IERC20Metadata
+
+[.contract-subindex-inherited]
+.IERC20
+
+--
+
+[.contract-index]
+.Events
+--
+
+[.contract-subindex-inherited]
+.IERC3009Cancel
+* {xref-IERC3009Cancel-AuthorizationCanceled-address-bytes32-}[`++AuthorizationCanceled(authorizer, nonce)++`]
+
+[.contract-subindex-inherited]
+.IERC3009
+* {xref-IERC3009-AuthorizationUsed-address-bytes32-}[`++AuthorizationUsed(authorizer, nonce)++`]
+
+[.contract-subindex-inherited]
+.EIP712
+
+[.contract-subindex-inherited]
+.IERC5267
+* {xref-IERC5267-EIP712DomainChanged--}[`++EIP712DomainChanged()++`]
+
+[.contract-subindex-inherited]
+.ERC20
+
+[.contract-subindex-inherited]
+.IERC20Errors
+
+[.contract-subindex-inherited]
+.IERC20Metadata
+
+[.contract-subindex-inherited]
+.IERC20
+* {xref-IERC20-Transfer-address-address-uint256-}[`++Transfer(from, to, value)++`]
+* {xref-IERC20-Approval-address-address-uint256-}[`++Approval(owner, spender, value)++`]
+
+--
+
+[.contract-index]
+.Errors
+--
+* {xref-ERC3009-ERC3009InvalidSignature--}[`++ERC3009InvalidSignature()++`]
+* {xref-ERC3009-ERC3009InvalidAuthorizationTime-uint256-uint256-}[`++ERC3009InvalidAuthorizationTime(validAfter, validBefore)++`]
+* {xref-ERC3009-ERC3009UsedAuthorization-address-bytes32-}[`++ERC3009UsedAuthorization(authorizer, nonce)++`]
+
+[.contract-subindex-inherited]
+.IERC3009Cancel
+
+[.contract-subindex-inherited]
+.IERC3009
+
+[.contract-subindex-inherited]
+.EIP712
+
+[.contract-subindex-inherited]
+.IERC5267
+
+[.contract-subindex-inherited]
+.ERC20
+
+[.contract-subindex-inherited]
+.IERC20Errors
+* {xref-IERC20Errors-ERC20InsufficientBalance-address-uint256-uint256-}[`++ERC20InsufficientBalance(sender, balance, needed)++`]
+* {xref-IERC20Errors-ERC20InvalidSender-address-}[`++ERC20InvalidSender(sender)++`]
+* {xref-IERC20Errors-ERC20InvalidReceiver-address-}[`++ERC20InvalidReceiver(receiver)++`]
+* {xref-IERC20Errors-ERC20InsufficientAllowance-address-uint256-uint256-}[`++ERC20InsufficientAllowance(spender, allowance, needed)++`]
+* {xref-IERC20Errors-ERC20InvalidApprover-address-}[`++ERC20InvalidApprover(approver)++`]
+* {xref-IERC20Errors-ERC20InvalidSpender-address-}[`++ERC20InvalidSpender(spender)++`]
+
+[.contract-subindex-inherited]
+.IERC20Metadata
+
+[.contract-subindex-inherited]
+.IERC20
+
+--
+
+[.contract-index]
+.Internal Variables
+--
+* {xref-ERC3009-TRANSFER_WITH_AUTHORIZATION_TYPEHASH-bytes32}[`++bytes32 constant TRANSFER_WITH_AUTHORIZATION_TYPEHASH++`]
+* {xref-ERC3009-RECEIVE_WITH_AUTHORIZATION_TYPEHASH-bytes32}[`++bytes32 constant RECEIVE_WITH_AUTHORIZATION_TYPEHASH++`]
+* {xref-ERC3009-CANCEL_AUTHORIZATION_TYPEHASH-bytes32}[`++bytes32 constant CANCEL_AUTHORIZATION_TYPEHASH++`]
+
+[.contract-subindex-inherited]
+.IERC3009Cancel
+
+[.contract-subindex-inherited]
+.IERC3009
+
+[.contract-subindex-inherited]
+.EIP712
+
+[.contract-subindex-inherited]
+.IERC5267
+
+[.contract-subindex-inherited]
+.ERC20
+
+[.contract-subindex-inherited]
+.IERC20Errors
+
+[.contract-subindex-inherited]
+.IERC20Metadata
+
+[.contract-subindex-inherited]
+.IERC20
+
+--
+
+[.contract-item]
+[[ERC3009-authorizationState-address-bytes32-]]
+==== `[.contract-item-name]#++authorizationState++#++(address authorizer, bytes32 nonce) → bool++` [.item-kind]#public#
+
+Returns whether the `nonce` has been used by `authorizer`. A `true` value means the authorization
+has already been consumed (either transferred or canceled) and can no longer be used; a `false` value
+means the nonce is still available.
+
+Nonces are randomly generated 32-byte values unique to the authorizer's address.
+
+[.contract-item]
+[[ERC3009-transferWithAuthorization-address-address-uint256-uint256-uint256-bytes32-uint8-bytes32-bytes32-]]
+==== `[.contract-item-name]#++transferWithAuthorization++#++(address from, address to, uint256 value, uint256 validAfter, uint256 validBefore, bytes32 nonce, uint8 v, bytes32 r, bytes32 s)++` [.item-kind]#public#
+
+Executes a transfer with a signed authorization.
+
+Requirements:
+
+* `validAfter` must be less than the current block timestamp.
+* `validBefore` must be greater than the current block timestamp.
+* `nonce` must not have been used by the `from` account.
+* the signature must be valid for the authorization.
+
+[.contract-item]
+[[ERC3009-receiveWithAuthorization-address-address-uint256-uint256-uint256-bytes32-uint8-bytes32-bytes32-]]
+==== `[.contract-item-name]#++receiveWithAuthorization++#++(address from, address to, uint256 value, uint256 validAfter, uint256 validBefore, bytes32 nonce, uint8 v, bytes32 r, bytes32 s)++` [.item-kind]#public#
+
+Receives a transfer with a signed authorization from the payer.
+
+Includes an additional check to ensure that the payee's address (`to`) matches the caller
+to prevent front-running attacks.
+
+Requirements:
+
+* `to` must be the caller of this function.
+* `validAfter` must be less than the current block timestamp.
+* `validBefore` must be greater than the current block timestamp.
+* `nonce` must not have been used by the `from` account.
+* the signature must be valid for the authorization.
+
+[.contract-item]
+[[ERC3009-cancelAuthorization-address-bytes32-uint8-bytes32-bytes32-]]
+==== `[.contract-item-name]#++cancelAuthorization++#++(address authorizer, bytes32 nonce, uint8 v, bytes32 r, bytes32 s)++` [.item-kind]#public#
+
+Cancels an authorization.
+
+Requirements:
+
+* `nonce` must not have been used by the `authorizer` account.
+* the signature must be valid for the cancellation.
+
+[.contract-item]
+[[ERC3009-_transferWithAuthorization-address-address-uint256-uint256-uint256-bytes32-]]
+==== `[.contract-item-name]#++_transferWithAuthorization++#++(address from, address to, uint256 value, uint256 validAfter, uint256 validBefore, bytes32 nonce)++` [.item-kind]#internal#
+
+Performs the time and nonce checks, then executes the transfer.
+
+[.contract-item]
+[[ERC3009-_cancelAuthorization-address-bytes32-]]
+==== `[.contract-item-name]#++_cancelAuthorization++#++(address authorizer, bytes32 nonce)++` [.item-kind]#internal#
+
+Consumes the nonce and emits the cancellation event.
+
+[.contract-item]
+[[ERC3009-_consumeNonce-address-bytes32-]]
+==== `[.contract-item-name]#++_consumeNonce++#++(address authorizer, bytes32 nonce)++` [.item-kind]#internal#
+
+Marks `nonce` as used for `authorizer`. Reverts with {ERC3009UsedAuthorization} if already consumed.
+
+[.contract-item]
+[[ERC3009-_checkValidity-uint256-uint256-]]
+==== `[.contract-item-name]#++_checkValidity++#++(uint256 validAfter, uint256 validBefore)++` [.item-kind]#internal#
+
+Checks the validity of the authorization against the current clock.
+
+Following the ERC-4337-style dual-clock encoding, the clock is interpreted as block number only when
+*both* `validAfter` and `validBefore` carry the {BLOCK_RANGE_FLAG}; otherwise it falls back to
+timestamp (matching the ERC-3009 specification's default). Mixed-flag inputs therefore fall back to
+the timestamp clock rather than reverting, mirroring {ERC4337Utils-parseValidationData}. The flag bit
+is masked off the values only when block-mode is engaged; in timestamp mode the full 256-bit value
+participates in the comparison.
+
+NOTE: Any `validAfter` or `validBefore` with a bit set at position 47 or above (other than the active
+clock-mode flag) is interpreted as an unreachable point in the future (i.e. never valid after or
+always valid before, respectively).
+
+[.contract-item]
+[[ERC3009-ERC3009InvalidSignature--]]
+==== `[.contract-item-name]#++ERC3009InvalidSignature++#++()++` [.item-kind]#error#
+
+The signature is invalid
+
+[.contract-item]
+[[ERC3009-ERC3009InvalidAuthorizationTime-uint256-uint256-]]
+==== `[.contract-item-name]#++ERC3009InvalidAuthorizationTime++#++(uint256 validAfter, uint256 validBefore)++` [.item-kind]#error#
+
+The authorization is not valid at the given time
+
+[.contract-item]
+[[ERC3009-ERC3009UsedAuthorization-address-bytes32-]]
+==== `[.contract-item-name]#++ERC3009UsedAuthorization++#++(address authorizer, bytes32 nonce)++` [.item-kind]#error#
+
+The authorization has already been used or canceled
+
+[.contract-item]
+[[ERC3009-TRANSFER_WITH_AUTHORIZATION_TYPEHASH-bytes32]]
+==== `bytes32 [.contract-item-name]#++TRANSFER_WITH_AUTHORIZATION_TYPEHASH++#` [.item-kind]#internal constant#
+
+[.contract-item]
+[[ERC3009-RECEIVE_WITH_AUTHORIZATION_TYPEHASH-bytes32]]
+==== `bytes32 [.contract-item-name]#++RECEIVE_WITH_AUTHORIZATION_TYPEHASH++#` [.item-kind]#internal constant#
+
+[.contract-item]
+[[ERC3009-CANCEL_AUTHORIZATION_TYPEHASH-bytes32]]
+==== `bytes32 [.contract-item-name]#++CANCEL_AUTHORIZATION_TYPEHASH++#` [.item-kind]#internal constant#
+
+:authorizationState: pass:normal[xref:#ERC20TransferAuthorization-authorizationState-address-bytes32-[`++authorizationState++`]]
+:transferWithAuthorization: pass:normal[xref:#ERC20TransferAuthorization-transferWithAuthorization-address-address-uint256-uint256-uint256-bytes32-bytes-[`++transferWithAuthorization++`]]
+:receiveWithAuthorization: pass:normal[xref:#ERC20TransferAuthorization-receiveWithAuthorization-address-address-uint256-uint256-uint256-bytes32-bytes-[`++receiveWithAuthorization++`]]
+:cancelAuthorization: pass:normal[xref:#ERC20TransferAuthorization-cancelAuthorization-address-bytes32-bytes-[`++cancelAuthorization++`]]
+:_consumeNonce: pass:normal[xref:#ERC20TransferAuthorization-_consumeNonce-address-bytes32-[`++_consumeNonce++`]]
+
+:authorizationState-address-bytes32: pass:normal[xref:#ERC20TransferAuthorization-authorizationState-address-bytes32-[`++authorizationState++`]]
+:transferWithAuthorization-address-address-uint256-uint256-uint256-bytes32-bytes: pass:normal[xref:#ERC20TransferAuthorization-transferWithAuthorization-address-address-uint256-uint256-uint256-bytes32-bytes-[`++transferWithAuthorization++`]]
+:receiveWithAuthorization-address-address-uint256-uint256-uint256-bytes32-bytes: pass:normal[xref:#ERC20TransferAuthorization-receiveWithAuthorization-address-address-uint256-uint256-uint256-bytes32-bytes-[`++receiveWithAuthorization++`]]
+:cancelAuthorization-address-bytes32-bytes: pass:normal[xref:#ERC20TransferAuthorization-cancelAuthorization-address-bytes32-bytes-[`++cancelAuthorization++`]]
+:_consumeNonce-address-bytes32: pass:normal[xref:#ERC20TransferAuthorization-_consumeNonce-address-bytes32-[`++_consumeNonce++`]]
+
+[.contract]
+[[ERC20TransferAuthorization]]
+=== `++ERC20TransferAuthorization++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/token/ERC20/extensions/ERC20TransferAuthorization.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20TransferAuthorization.sol";
+```
+
+Variant of {ERC-3009} that uses keyed sequential nonces as defined in {NoncesKeyed}.
+
+NOTE: This extension uses keyed sequential nonces following the
+https://eips.ethereum.org/EIPS/eip-4337#semi-abstracted-nonce-support[ERC-4337 semi-abstracted nonce system].
+The {bytes32} nonce field is interpreted as a 192-bit key packed with a 64-bit sequence. Nonces with
+different keys are independent and can be submitted in parallel without ordering constraints, while nonces
+sharing the same key must be used sequentially. This is unlike {ERC20Permit} which uses a single global
+sequential nonce.
+
+[.contract-index]
+.Functions
+--
+* {xref-ERC20TransferAuthorization-authorizationState-address-bytes32-}[`++authorizationState(authorizer, nonce)++`]
+* {xref-ERC20TransferAuthorization-transferWithAuthorization-address-address-uint256-uint256-uint256-bytes32-bytes-}[`++transferWithAuthorization(from, to, value, validAfter, validBefore, nonce, signature)++`]
+* {xref-ERC20TransferAuthorization-receiveWithAuthorization-address-address-uint256-uint256-uint256-bytes32-bytes-}[`++receiveWithAuthorization(from, to, value, validAfter, validBefore, nonce, signature)++`]
+* {xref-ERC20TransferAuthorization-cancelAuthorization-address-bytes32-bytes-}[`++cancelAuthorization(authorizer, nonce, signature)++`]
+* {xref-ERC20TransferAuthorization-_consumeNonce-address-bytes32-}[`++_consumeNonce(authorizer, nonce)++`]
+
+[.contract-subindex-inherited]
+.NoncesKeyed
+* {xref-NoncesKeyed-nonces-address-uint192-}[`++nonces(owner, key)++`]
+* {xref-NoncesKeyed-_useNonce-address-uint192-}[`++_useNonce(owner, key)++`]
+* {xref-NoncesKeyed-_useCheckedNonce-address-uint256-}[`++_useCheckedNonce(owner, keyNonce)++`]
+* {xref-NoncesKeyed-_useCheckedNonce-address-uint192-uint64-}[`++_useCheckedNonce(owner, key, nonce)++`]
+
+[.contract-subindex-inherited]
+.Nonces
+* {xref-Nonces-nonces-address-}[`++nonces(owner)++`]
+* {xref-Nonces-_useNonce-address-}[`++_useNonce(owner)++`]
+
+[.contract-subindex-inherited]
+.ERC3009
+* {xref-ERC3009-transferWithAuthorization-address-address-uint256-uint256-uint256-bytes32-uint8-bytes32-bytes32-}[`++transferWithAuthorization(from, to, value, validAfter, validBefore, nonce, v, r, s)++`]
+* {xref-ERC3009-receiveWithAuthorization-address-address-uint256-uint256-uint256-bytes32-uint8-bytes32-bytes32-}[`++receiveWithAuthorization(from, to, value, validAfter, validBefore, nonce, v, r, s)++`]
+* {xref-ERC3009-cancelAuthorization-address-bytes32-uint8-bytes32-bytes32-}[`++cancelAuthorization(authorizer, nonce, v, r, s)++`]
+* {xref-ERC3009-_transferWithAuthorization-address-address-uint256-uint256-uint256-bytes32-}[`++_transferWithAuthorization(from, to, value, validAfter, validBefore, nonce)++`]
+* {xref-ERC3009-_cancelAuthorization-address-bytes32-}[`++_cancelAuthorization(authorizer, nonce)++`]
+* {xref-ERC3009-_checkValidity-uint256-uint256-}[`++_checkValidity(validAfter, validBefore)++`]
+
+[.contract-subindex-inherited]
+.IERC3009Cancel
+
+[.contract-subindex-inherited]
+.IERC3009
+
+[.contract-subindex-inherited]
+.EIP712
+* {xref-EIP712-_domainSeparatorV4--}[`++_domainSeparatorV4()++`]
+* {xref-EIP712-_hashTypedDataV4-bytes32-}[`++_hashTypedDataV4(structHash)++`]
+* {xref-EIP712-eip712Domain--}[`++eip712Domain()++`]
+* {xref-EIP712-_EIP712Name--}[`++_EIP712Name()++`]
+* {xref-EIP712-_EIP712Version--}[`++_EIP712Version()++`]
+
+[.contract-subindex-inherited]
+.IERC5267
+
+[.contract-subindex-inherited]
+.ERC20
+* {xref-ERC20-name--}[`++name()++`]
+* {xref-ERC20-symbol--}[`++symbol()++`]
+* {xref-ERC20-decimals--}[`++decimals()++`]
+* {xref-ERC20-totalSupply--}[`++totalSupply()++`]
+* {xref-ERC20-balanceOf-address-}[`++balanceOf(account)++`]
+* {xref-ERC20-transfer-address-uint256-}[`++transfer(to, value)++`]
+* {xref-ERC20-allowance-address-address-}[`++allowance(owner, spender)++`]
+* {xref-ERC20-approve-address-uint256-}[`++approve(spender, value)++`]
+* {xref-ERC20-transferFrom-address-address-uint256-}[`++transferFrom(from, to, value)++`]
+* {xref-ERC20-_transfer-address-address-uint256-}[`++_transfer(from, to, value)++`]
+* {xref-ERC20-_update-address-address-uint256-}[`++_update(from, to, value)++`]
+* {xref-ERC20-_mint-address-uint256-}[`++_mint(account, value)++`]
+* {xref-ERC20-_burn-address-uint256-}[`++_burn(account, value)++`]
+* {xref-ERC20-_approve-address-address-uint256-}[`++_approve(owner, spender, value)++`]
+* {xref-ERC20-_approve-address-address-uint256-bool-}[`++_approve(owner, spender, value, emitEvent)++`]
+* {xref-ERC20-_spendAllowance-address-address-uint256-}[`++_spendAllowance(owner, spender, value)++`]
+
+[.contract-subindex-inherited]
+.IERC20Errors
+
+[.contract-subindex-inherited]
+.IERC20Metadata
+
+[.contract-subindex-inherited]
+.IERC20
+
+--
+
+[.contract-index]
+.Events
+--
+
+[.contract-subindex-inherited]
+.NoncesKeyed
+
+[.contract-subindex-inherited]
+.Nonces
+
+[.contract-subindex-inherited]
+.ERC3009
+
+[.contract-subindex-inherited]
+.IERC3009Cancel
+* {xref-IERC3009Cancel-AuthorizationCanceled-address-bytes32-}[`++AuthorizationCanceled(authorizer, nonce)++`]
+
+[.contract-subindex-inherited]
+.IERC3009
+* {xref-IERC3009-AuthorizationUsed-address-bytes32-}[`++AuthorizationUsed(authorizer, nonce)++`]
+
+[.contract-subindex-inherited]
+.EIP712
+
+[.contract-subindex-inherited]
+.IERC5267
+* {xref-IERC5267-EIP712DomainChanged--}[`++EIP712DomainChanged()++`]
+
+[.contract-subindex-inherited]
+.ERC20
+
+[.contract-subindex-inherited]
+.IERC20Errors
+
+[.contract-subindex-inherited]
+.IERC20Metadata
+
+[.contract-subindex-inherited]
+.IERC20
+* {xref-IERC20-Transfer-address-address-uint256-}[`++Transfer(from, to, value)++`]
+* {xref-IERC20-Approval-address-address-uint256-}[`++Approval(owner, spender, value)++`]
+
+--
+
+[.contract-index]
+.Errors
+--
+
+[.contract-subindex-inherited]
+.NoncesKeyed
+
+[.contract-subindex-inherited]
+.Nonces
+* {xref-Nonces-InvalidAccountNonce-address-uint256-}[`++InvalidAccountNonce(account, currentNonce)++`]
+
+[.contract-subindex-inherited]
+.ERC3009
+* {xref-ERC3009-ERC3009InvalidSignature--}[`++ERC3009InvalidSignature()++`]
+* {xref-ERC3009-ERC3009InvalidAuthorizationTime-uint256-uint256-}[`++ERC3009InvalidAuthorizationTime(validAfter, validBefore)++`]
+* {xref-ERC3009-ERC3009UsedAuthorization-address-bytes32-}[`++ERC3009UsedAuthorization(authorizer, nonce)++`]
+
+[.contract-subindex-inherited]
+.IERC3009Cancel
+
+[.contract-subindex-inherited]
+.IERC3009
+
+[.contract-subindex-inherited]
+.EIP712
+
+[.contract-subindex-inherited]
+.IERC5267
+
+[.contract-subindex-inherited]
+.ERC20
+
+[.contract-subindex-inherited]
+.IERC20Errors
+* {xref-IERC20Errors-ERC20InsufficientBalance-address-uint256-uint256-}[`++ERC20InsufficientBalance(sender, balance, needed)++`]
+* {xref-IERC20Errors-ERC20InvalidSender-address-}[`++ERC20InvalidSender(sender)++`]
+* {xref-IERC20Errors-ERC20InvalidReceiver-address-}[`++ERC20InvalidReceiver(receiver)++`]
+* {xref-IERC20Errors-ERC20InsufficientAllowance-address-uint256-uint256-}[`++ERC20InsufficientAllowance(spender, allowance, needed)++`]
+* {xref-IERC20Errors-ERC20InvalidApprover-address-}[`++ERC20InvalidApprover(approver)++`]
+* {xref-IERC20Errors-ERC20InvalidSpender-address-}[`++ERC20InvalidSpender(spender)++`]
+
+[.contract-subindex-inherited]
+.IERC20Metadata
+
+[.contract-subindex-inherited]
+.IERC20
+
+--
+
+[.contract-item]
+[[ERC20TransferAuthorization-authorizationState-address-bytes32-]]
+==== `[.contract-item-name]#++authorizationState++#++(address authorizer, bytes32 nonce) → bool++` [.item-kind]#public#
+
+See {IERC3009-authorizationState}.
+
+NOTE: Returning `false` does not guarantee that the authorization is currently executable.
+With keyed sequential nonces, a nonce may be blocked by a predecessor in the same key's sequence
+that has not yet been consumed.
+
+[.contract-item]
+[[ERC20TransferAuthorization-transferWithAuthorization-address-address-uint256-uint256-uint256-bytes32-bytes-]]
+==== `[.contract-item-name]#++transferWithAuthorization++#++(address from, address to, uint256 value, uint256 validAfter, uint256 validBefore, bytes32 nonce, bytes signature)++` [.item-kind]#public#
+
+Same as {transferWithAuthorization} but with a bytes signature.
+
+[.contract-item]
+[[ERC20TransferAuthorization-receiveWithAuthorization-address-address-uint256-uint256-uint256-bytes32-bytes-]]
+==== `[.contract-item-name]#++receiveWithAuthorization++#++(address from, address to, uint256 value, uint256 validAfter, uint256 validBefore, bytes32 nonce, bytes signature)++` [.item-kind]#public#
+
+Same as {receiveWithAuthorization} but with a bytes signature.
+
+[.contract-item]
+[[ERC20TransferAuthorization-cancelAuthorization-address-bytes32-bytes-]]
+==== `[.contract-item-name]#++cancelAuthorization++#++(address authorizer, bytes32 nonce, bytes signature)++` [.item-kind]#public#
+
+Same as {cancelAuthorization} but with a bytes signature.
+
+NOTE: Due to the keyed sequential nonce model, only the next nonce in a given key's sequence
+can be cancelled. It is not possible to directly cancel a future nonce whose predecessors in the
+same key have not yet been consumed or cancelled. To invalidate a future authorization, all
+preceding nonces in the same key must first be consumed or cancelled in order.
+
+[.contract-item]
+[[ERC20TransferAuthorization-_consumeNonce-address-bytes32-]]
+==== `[.contract-item-name]#++_consumeNonce++#++(address authorizer, bytes32 nonce)++` [.item-kind]#internal#
+
+Override the internal nonce consumption logic to use the keyed sequential nonces from {NoncesKeyed}.
+
+NOTE: This override does not call `super._consumeNonce`, so any sibling override added by another extension
+is skipped under C3 linearization. Integrators combining this contract with extensions that introduce
+additional side effects through `_consumeNonce` must reintroduce those side effects themselves.
+
 :onlyTokenBridge: pass:normal[xref:#ERC20Bridgeable-onlyTokenBridge--[`++onlyTokenBridge++`]]
 :supportsInterface: pass:normal[xref:#ERC20Bridgeable-supportsInterface-bytes4-[`++supportsInterface++`]]
 :crosschainMint: pass:normal[xref:#ERC20Bridgeable-crosschainMint-address-uint256-[`++crosschainMint++`]]
@@ -1504,7 +2195,7 @@ Mismatched signature.
 
 [.contract]
 [[ERC20Bridgeable]]
-=== `++ERC20Bridgeable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/token/ERC20/extensions/draft-ERC20Bridgeable.sol[{github-icon},role=heading-link]
+=== `++ERC20Bridgeable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/token/ERC20/extensions/draft-ERC20Bridgeable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1677,7 +2368,7 @@ customizing the list of allowed senders. Consider using {AccessControl} or {Acce
 
 [.contract]
 [[ERC20Burnable]]
-=== `++ERC20Burnable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/token/ERC20/extensions/ERC20Burnable.sol[{github-icon},role=heading-link]
+=== `++ERC20Burnable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/token/ERC20/extensions/ERC20Burnable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1787,7 +2478,7 @@ See {ERC20-_burn} and {ERC20-allowance}.
 
 Requirements:
 
-- the caller must have allowance for ``accounts``'s tokens of at least
+- the caller must have allowance for `account`'s tokens of at least
 `value`.
 
 :ERC20ExceededCap: pass:normal[xref:#ERC20Capped-ERC20ExceededCap-uint256-uint256-[`++ERC20ExceededCap++`]]
@@ -1802,7 +2493,7 @@ Requirements:
 
 [.contract]
 [[ERC20Capped]]
-=== `++ERC20Capped++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/token/ERC20/extensions/ERC20Capped.sol[{github-icon},role=heading-link]
+=== `++ERC20Capped++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/token/ERC20/extensions/ERC20Capped.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1938,7 +2629,7 @@ The supplied cap is not a valid cap.
 
 [.contract]
 [[ERC20Crosschain]]
-=== `++ERC20Crosschain++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/token/ERC20/extensions/ERC20Crosschain.sol[{github-icon},role=heading-link]
+=== `++ERC20Crosschain++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/token/ERC20/extensions/ERC20Crosschain.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2055,6 +2746,7 @@ that:
 
 [.contract-subindex-inherited]
 .BridgeFungible
+* {xref-BridgeFungible-CrosschainFungibleEmptyAddress--}[`++CrosschainFungibleEmptyAddress()++`]
 
 [.contract-subindex-inherited]
 .CrosschainLinked
@@ -2111,7 +2803,7 @@ Variant of {crosschainTransfer} that allows an authorized account (using ERC20 a
 
 [.contract]
 [[ERC20Pausable]]
-=== `++ERC20Pausable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/token/ERC20/extensions/ERC20Pausable.sol[{github-icon},role=heading-link]
+=== `++ERC20Pausable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/token/ERC20/extensions/ERC20Pausable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2251,7 +2943,7 @@ Requirements:
 
 [.contract]
 [[ERC20Votes]]
-=== `++ERC20Votes++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/token/ERC20/extensions/ERC20Votes.sol[{github-icon},role=heading-link]
+=== `++ERC20Votes++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/token/ERC20/extensions/ERC20Votes.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2295,7 +2987,7 @@ requires users to delegate to themselves in order to activate checkpoints and ha
 * {xref-Votes-_transferVotingUnits-address-address-uint256-}[`++_transferVotingUnits(from, to, amount)++`]
 * {xref-Votes-_moveDelegateVotes-address-address-uint256-}[`++_moveDelegateVotes(from, to, amount)++`]
 * {xref-Votes-_numCheckpoints-address-}[`++_numCheckpoints(account)++`]
-* {xref-Votes-_checkpoints-address-uint32-}[`++_checkpoints(account, pos)++`]
+* {xref-Votes-_checkpoints-address-uint32-}[`++_checkpoints(account, index)++`]
 
 [.contract-subindex-inherited]
 .IERC5805
@@ -2403,7 +3095,6 @@ requires users to delegate to themselves in order to activate checkpoints and ha
 
 [.contract-subindex-inherited]
 .Votes
-* {xref-Votes-ERC6372InconsistentClock--}[`++ERC6372InconsistentClock()++`]
 * {xref-Votes-ERC5805FutureLookup-uint256-uint48-}[`++ERC5805FutureLookup(timepoint, clock)++`]
 
 [.contract-subindex-inherited]
@@ -2511,7 +3202,7 @@ Total supply cap has been exceeded, introducing a risk of votes overflowing.
 
 [.contract]
 [[ERC20Wrapper]]
-=== `++ERC20Wrapper++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/token/ERC20/extensions/ERC20Wrapper.sol[{github-icon},role=heading-link]
+=== `++ERC20Wrapper++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/token/ERC20/extensions/ERC20Wrapper.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2621,6 +3312,12 @@ for recovering value accrued to the wrapper.
 [[ERC20Wrapper-decimals--]]
 ==== `[.contract-item-name]#++decimals++#++() → uint8++` [.item-kind]#public#
 
+See {IERC20Metadata}. Uses {Math-ternary} for branchless selection, which evaluates both branches. This is safe
+because the default {ERC20-decimals} is commonly a constant.
+
+NOTE: If a derived contract overrides `super.decimals()` to read from
+storage, it should also override this function and use a conditional ternary instead.
+
 [.contract-item]
 [[ERC20Wrapper-underlying--]]
 ==== `[.contract-item-name]#++underlying++#++() → contract IERC20++` [.item-kind]#public#
@@ -2669,7 +3366,7 @@ The underlying token couldn't be wrapped.
 
 [.contract]
 [[ERC20FlashMint]]
-=== `++ERC20FlashMint++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/token/ERC20/extensions/ERC20FlashMint.sol[{github-icon},role=heading-link]
+=== `++ERC20FlashMint++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/token/ERC20/extensions/ERC20FlashMint.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2804,7 +3501,7 @@ loans.
 ==== `[.contract-item-name]#++_flashFee++#++(address, uint256) → uint256++` [.item-kind]#internal#
 
 Returns the fee applied when doing flash loans. By default this
-implementation has 0 fees. This function can be overloaded to make
+implementation has 0 fees. This function can be overridden to make
 the flash loan mechanism deflationary.
 
 [.contract-item]
@@ -2813,7 +3510,7 @@ the flash loan mechanism deflationary.
 
 Returns the receiver address of the flash fee. By default this
 implementation returns the address(0) which means the fee amount will be burnt.
-This function can be overloaded to change the fee receiver.
+This function can be overridden to change the fee receiver.
 
 [.contract-item]
 [[ERC20FlashMint-flashLoan-contract-IERC3156FlashBorrower-address-uint256-bytes-]]
@@ -2857,7 +3554,7 @@ The receiver of a flashloan is not a valid {IERC3156FlashBorrower-onFlashLoan} i
 
 [.contract]
 [[ERC20TemporaryApproval]]
-=== `++ERC20TemporaryApproval++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/token/ERC20/extensions/draft-ERC20TemporaryApproval.sol[{github-icon},role=heading-link]
+=== `++ERC20TemporaryApproval++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/token/ERC20/extensions/draft-ERC20TemporaryApproval.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3032,7 +3729,7 @@ is enough to cover the spending.
 
 [.contract]
 [[ERC1363]]
-=== `++ERC1363++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/token/ERC20/extensions/ERC1363.sol[{github-icon},role=heading-link]
+=== `++ERC1363++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/token/ERC20/extensions/ERC1363.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3313,7 +4010,7 @@ Indicates a failure within the {approve} part of a approveAndCall operation.
 
 [.contract]
 [[ERC4626]]
-=== `++ERC4626++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/token/ERC20/extensions/ERC4626.sol[{github-icon},role=heading-link]
+=== `++ERC4626++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/token/ERC20/extensions/ERC4626.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3374,6 +4071,14 @@ functions.
 
 * If {previewRedeem} is overridden to revert, {maxWithdraw} must be overridden as necessary to ensure it
 always return successfully.
+====
+
+[CAUTION]
+====
+Any mechanism that mints shares without a corresponding increase in the vault's assets (collateral) will alter the
+exchange rate and may open the door to vulnerabilities. In particular, this contract
+must NOT be combined with {ERC20FlashMint}: flash-minting shares temporarily inflates the total supply without
+increasing collateral, corrupting the exchange rate applied during the flash loan.
 ====
 
 [.contract-index]
@@ -3810,6 +4515,7 @@ Attempted to redeem more shares than the max amount for `owner`.
 :transferAndCallRelaxed: pass:normal[xref:#SafeERC20-transferAndCallRelaxed-contract-IERC1363-address-uint256-bytes-[`++transferAndCallRelaxed++`]]
 :transferFromAndCallRelaxed: pass:normal[xref:#SafeERC20-transferFromAndCallRelaxed-contract-IERC1363-address-address-uint256-bytes-[`++transferFromAndCallRelaxed++`]]
 :approveAndCallRelaxed: pass:normal[xref:#SafeERC20-approveAndCallRelaxed-contract-IERC1363-address-uint256-bytes-[`++approveAndCallRelaxed++`]]
+:tryGetDecimals: pass:normal[xref:#SafeERC20-tryGetDecimals-contract-IERC20-[`++tryGetDecimals++`]]
 
 :safeTransfer-contract-IERC20-address-uint256: pass:normal[xref:#SafeERC20-safeTransfer-contract-IERC20-address-uint256-[`++safeTransfer++`]]
 :safeTransferFrom-contract-IERC20-address-address-uint256: pass:normal[xref:#SafeERC20-safeTransferFrom-contract-IERC20-address-address-uint256-[`++safeTransferFrom++`]]
@@ -3821,10 +4527,11 @@ Attempted to redeem more shares than the max amount for `owner`.
 :transferAndCallRelaxed-contract-IERC1363-address-uint256-bytes: pass:normal[xref:#SafeERC20-transferAndCallRelaxed-contract-IERC1363-address-uint256-bytes-[`++transferAndCallRelaxed++`]]
 :transferFromAndCallRelaxed-contract-IERC1363-address-address-uint256-bytes: pass:normal[xref:#SafeERC20-transferFromAndCallRelaxed-contract-IERC1363-address-address-uint256-bytes-[`++transferFromAndCallRelaxed++`]]
 :approveAndCallRelaxed-contract-IERC1363-address-uint256-bytes: pass:normal[xref:#SafeERC20-approveAndCallRelaxed-contract-IERC1363-address-uint256-bytes-[`++approveAndCallRelaxed++`]]
+:tryGetDecimals-contract-IERC20: pass:normal[xref:#SafeERC20-tryGetDecimals-contract-IERC20-[`++tryGetDecimals++`]]
 
 [.contract]
 [[SafeERC20]]
-=== `++SafeERC20++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/token/ERC20/utils/SafeERC20.sol[{github-icon},role=heading-link]
+=== `++SafeERC20++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/token/ERC20/utils/SafeERC20.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3851,6 +4558,7 @@ which allows you to call the safe operations as `token.safeTransfer(...)`, etc.
 * {xref-SafeERC20-transferAndCallRelaxed-contract-IERC1363-address-uint256-bytes-}[`++transferAndCallRelaxed(token, to, value, data)++`]
 * {xref-SafeERC20-transferFromAndCallRelaxed-contract-IERC1363-address-address-uint256-bytes-}[`++transferFromAndCallRelaxed(token, from, to, value, data)++`]
 * {xref-SafeERC20-approveAndCallRelaxed-contract-IERC1363-address-uint256-bytes-}[`++approveAndCallRelaxed(token, to, value, data)++`]
+* {xref-SafeERC20-tryGetDecimals-contract-IERC20-}[`++tryGetDecimals(token)++`]
 
 --
 
@@ -3959,6 +4667,12 @@ once without retrying, and relies on the returned value to be true.
 Reverts if the returned value is other than `true`.
 
 [.contract-item]
+[[SafeERC20-tryGetDecimals-contract-IERC20-]]
+==== `[.contract-item-name]#++tryGetDecimals++#++(contract IERC20 token) → bool success, uint8 decimals++` [.item-kind]#internal#
+
+Attempts to fetch the token decimals. A return value of false indicates that the attempt failed in some way.
+
+[.contract-item]
 [[SafeERC20-SafeERC20FailedOperation-address-]]
 ==== `[.contract-item-name]#++SafeERC20FailedOperation++#++(address token)++` [.item-kind]#error#
 
@@ -3980,7 +4694,7 @@ Indicates a failed `decreaseAllowance` request.
 
 [.contract]
 [[ERC1363Utils]]
-=== `++ERC1363Utils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/token/ERC20/utils/ERC1363Utils.sol[{github-icon},role=heading-link]
+=== `++ERC1363Utils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/token/ERC20/utils/ERC1363Utils.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity

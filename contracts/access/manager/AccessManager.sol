@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.5.0) (access/manager/AccessManager.sol)
+// OpenZeppelin Contracts (last updated v5.7.0) (access/manager/AccessManager.sol)
 
 pragma solidity ^0.8.20;
 
@@ -148,6 +148,11 @@ contract AccessManager is Context, Multicall, IAccessManager {
             // Caller is AccessManager, this means the call was sent through {execute} and it already checked
             // permissions. We verify that the call "identifier", which is set during {execute}, is correct.
             return (_isExecuting(target, selector), 0);
+        } else if (selector == IAccessManaged.setAuthority.selector) {
+            (bool isAdmin, uint32 executionDelay) = hasRole(ADMIN_ROLE, caller);
+            uint32 adminDelay = getTargetAdminDelay(target);
+            uint32 setAuthorityDelay = uint32(Math.max(executionDelay, adminDelay));
+            return isAdmin ? (setAuthorityDelay == 0, setAuthorityDelay) : (false, 0);
         } else {
             uint64 roleId = getTargetFunctionRole(target, selector);
             (bool isMember, uint32 currentDelay) = hasRole(roleId, caller);
@@ -324,7 +329,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * Emits a {RoleAdminChanged} event.
      *
      * NOTE: Setting the admin role as the `PUBLIC_ROLE` is allowed, but it will effectively allow
-     * anyone to set grant or revoke such role.
+     * anyone to grant or revoke such role.
      */
     function _setRoleAdmin(uint64 roleId, uint64 admin) internal virtual {
         if (roleId == ADMIN_ROLE || roleId == PUBLIC_ROLE) {
@@ -388,6 +393,11 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * Emits a {TargetFunctionRoleUpdated} event.
      */
     function _setTargetFunctionRole(address target, bytes4 selector, uint64 roleId) internal virtual {
+        if (selector == IAccessManaged.setAuthority.selector) {
+            // Prevent updating authority using an execute call, instead only allow it through updateAuthority to
+            // ensure the proper delay and admin restrictions are applied.
+            revert AccessManagerLockedFunction(selector);
+        }
         _targets[target].allowedRoles[selector] = roleId;
         emit TargetFunctionRoleUpdated(target, selector, roleId);
     }
@@ -531,13 +541,8 @@ contract AccessManager is Context, Multicall, IAccessManager {
         bytes32 operationId = hashOperation(caller, target, data);
         if (_schedules[operationId].timepoint == 0) {
             revert AccessManagerNotScheduled(operationId);
-        } else if (caller != msgsender) {
-            // calls can only be canceled by the account that scheduled them, a global admin, or by a guardian of the required role.
-            (bool isAdmin, ) = hasRole(ADMIN_ROLE, msgsender);
-            (bool isGuardian, ) = hasRole(getRoleGuardian(getTargetFunctionRole(target, selector)), msgsender);
-            if (!isAdmin && !isGuardian) {
-                revert AccessManagerUnauthorizedCancel(msgsender, caller, target, selector);
-            }
+        } else if (!_canCancel(caller, target, data)) {
+            revert AccessManagerUnauthorizedCancel(msgsender, caller, target, selector);
         }
 
         delete _schedules[operationId].timepoint; // reset the timepoint, keep the nonce
@@ -709,6 +714,37 @@ contract AccessManager is Context, Multicall, IAccessManager {
         // downcast is safe because both options are uint32
         delay = uint32(Math.max(operationDelay, executionDelay));
         return (delay == 0, delay);
+    }
+
+    /**
+     * @dev Returns true if a scheduled operation can be canceled by the caller.
+     */
+    function _canCancel(address caller, address target, bytes calldata data) internal view virtual returns (bool) {
+        address msgsender = _msgSender();
+
+        // caller can cancel if they are the msg.sender of the scheduled operation
+        if (caller == msgsender) {
+            return true;
+        }
+
+        // admins can cancel any operation, and guardians of the target function's role can cancel it
+        (bool isAdmin, ) = hasRole(ADMIN_ROLE, msgsender);
+        (bool isGuardian, ) = hasRole(getRoleGuardian(getTargetFunctionRole(target, _checkSelector(data))), msgsender);
+        if (isAdmin || isGuardian) {
+            return true;
+        }
+
+        // if the target is this AccessManager and the call matches an admin-restricted function, allow members
+        // of the admin role returned by _getAdminRestrictions to cancel. ADMIN_ROLE was already checked above.
+        if (target == address(this)) {
+            (bool adminRestricted, uint64 roleId, ) = _getAdminRestrictions(data);
+            if (adminRestricted && roleId != ADMIN_ROLE) {
+                (bool inRole, ) = hasRole(roleId, msgsender);
+                return inRole;
+            }
+        }
+
+        return false;
     }
 
     /**

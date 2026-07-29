@@ -59,10 +59,7 @@ In math that gives:
 
 [%header,cols=4*]
 |===
-|
-| Assets
-| Shares
-| Rate
+|  | Assets | Shares | Rate
 
 | initial
 | stem:[0]
@@ -118,10 +115,7 @@ Following the previous math definitions, we have:
 
 [%header,cols=4*]
 |===
-|
-| Assets
-| Shares
-| Rate
+|  | Assets | Shares | Rate
 
 | initial
 | stem:[1]

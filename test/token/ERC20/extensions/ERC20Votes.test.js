@@ -9,7 +9,7 @@ const time = require('../../../helpers/time');
 const { shouldBehaveLikeVotes } = require('../../../governance/utils/Votes.behavior');
 
 const TOKENS = [
-  { Token: '$ERC20Votes', mode: 'blocknumber' },
+  { Token: '$ERC20Votes', mode: 'blockNumber' },
   { Token: '$ERC20VotesTimestampMock', mode: 'timestamp' },
 ];
 

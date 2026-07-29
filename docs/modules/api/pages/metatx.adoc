@@ -27,6 +27,7 @@
 :xref-EIP712-_EIP712Version--: xref:utils/cryptography.adoc#EIP712-_EIP712Version--
 :xref-ERC2771Forwarder-ExecutedForwardRequest-address-uint256-bool-: xref:metatx.adoc#ERC2771Forwarder-ExecutedForwardRequest-address-uint256-bool-
 :xref-IERC5267-EIP712DomainChanged--: xref:interfaces.adoc#IERC5267-EIP712DomainChanged--
+:xref-ERC2771Forwarder-ERC2771ForwarderNoRefundReceiver--: xref:metatx.adoc#ERC2771Forwarder-ERC2771ForwarderNoRefundReceiver--
 :xref-ERC2771Forwarder-ERC2771ForwarderInvalidSigner-address-address-: xref:metatx.adoc#ERC2771Forwarder-ERC2771ForwarderInvalidSigner-address-address-
 :xref-ERC2771Forwarder-ERC2771ForwarderMismatchedValue-uint256-uint256-: xref:metatx.adoc#ERC2771Forwarder-ERC2771ForwarderMismatchedValue-uint256-uint256-
 :xref-ERC2771Forwarder-ERC2771ForwarderExpiredRequest-uint48-: xref:metatx.adoc#ERC2771Forwarder-ERC2771ForwarderExpiredRequest-uint48-
@@ -64,7 +65,7 @@ This directory includes contracts for adding meta-transaction capabilities (i.e.
 
 [.contract]
 [[ERC2771Context]]
-=== `++ERC2771Context++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/metatx/ERC2771Context.sol[{github-icon},role=heading-link]
+=== `++ERC2771Context++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/metatx/ERC2771Context.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -138,6 +139,7 @@ ERC-2771 specifies the context as being a single address (20 bytes).
 :ForwardRequestData: pass:normal[xref:#ERC2771Forwarder-ForwardRequestData[`++ForwardRequestData++`]]
 :FORWARD_REQUEST_TYPEHASH: pass:normal[xref:#ERC2771Forwarder-FORWARD_REQUEST_TYPEHASH-bytes32[`++FORWARD_REQUEST_TYPEHASH++`]]
 :ExecutedForwardRequest: pass:normal[xref:#ERC2771Forwarder-ExecutedForwardRequest-address-uint256-bool-[`++ExecutedForwardRequest++`]]
+:ERC2771ForwarderNoRefundReceiver: pass:normal[xref:#ERC2771Forwarder-ERC2771ForwarderNoRefundReceiver--[`++ERC2771ForwarderNoRefundReceiver++`]]
 :ERC2771ForwarderInvalidSigner: pass:normal[xref:#ERC2771Forwarder-ERC2771ForwarderInvalidSigner-address-address-[`++ERC2771ForwarderInvalidSigner++`]]
 :ERC2771ForwarderMismatchedValue: pass:normal[xref:#ERC2771Forwarder-ERC2771ForwarderMismatchedValue-uint256-uint256-[`++ERC2771ForwarderMismatchedValue++`]]
 :ERC2771ForwarderExpiredRequest: pass:normal[xref:#ERC2771Forwarder-ERC2771ForwarderExpiredRequest-uint48-[`++ERC2771ForwarderExpiredRequest++`]]
@@ -162,7 +164,7 @@ ERC-2771 specifies the context as being a single address (20 bytes).
 
 [.contract]
 [[ERC2771Forwarder]]
-=== `++ERC2771Forwarder++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/metatx/ERC2771Forwarder.sol[{github-icon},role=heading-link]
+=== `++ERC2771Forwarder++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/metatx/ERC2771Forwarder.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -257,6 +259,7 @@ used to execute arbitrary code.
 [.contract-index]
 .Errors
 --
+* {xref-ERC2771Forwarder-ERC2771ForwarderNoRefundReceiver--}[`++ERC2771ForwarderNoRefundReceiver()++`]
 * {xref-ERC2771Forwarder-ERC2771ForwarderInvalidSigner-address-address-}[`++ERC2771ForwarderInvalidSigner(signer, from)++`]
 * {xref-ERC2771Forwarder-ERC2771ForwarderMismatchedValue-uint256-uint256-}[`++ERC2771ForwarderMismatchedValue(requestedValue, msgValue)++`]
 * {xref-ERC2771Forwarder-ERC2771ForwarderExpiredRequest-uint48-}[`++ERC2771ForwarderExpiredRequest(deadline)++`]
@@ -325,27 +328,24 @@ Requirements:
 [[ERC2771Forwarder-executeBatch-struct-ERC2771Forwarder-ForwardRequestData---address-payable-]]
 ==== `[.contract-item-name]#++executeBatch++#++(struct ERC2771Forwarder.ForwardRequestData[] requests, address payable refundReceiver)++` [.item-kind]#public#
 
-Batch version of {execute} with optional refunding and atomic execution.
+Batch version of {execute} with optional refunding.
 
 In case a batch contains at least one invalid request (see {verify}), the
 request will be skipped and the `refundReceiver` parameter will receive back the
 unused requested value at the end of the execution. This is done to prevent reverting
 the entire batch when a request is invalid or has already been submitted.
 
-If the `refundReceiver` is the `address(0)`, this function will revert when at least
-one of the requests was not valid instead of skipping it. This could be useful if
-a batch is required to get executed atomically (at least at the top-level). For example,
-refunding (and thus atomicity) can be opt-out if the relayer is using a service that avoids
-including reverted transactions.
+If the `refundReceiver` is `address(0)`, the function will revert
+when any request is invalid or when a valid request's forwarded call fails while
+carrying value (since there is no receiver to refund the leftover ETH to).
 
 Requirements:
 
 - The sum of the requests' values should be equal to the provided `msg.value`.
 - All of the requests should be valid (see {verify}) when `refundReceiver` is the zero address.
 
-NOTE: Setting a zero `refundReceiver` guarantees an all-or-nothing requests execution only for
-the first-level forwarded calls. In case a forwarded request calls to a contract with another
-subcall, the second-level call may revert without the top-level call reverting.
+NOTE: Setting a zero `refundReceiver` reverts the whole batch if any request is invalid or a value-bearing
+call fails, so it should only be used when transaction inclusion is under the caller's control.
 
 [.contract-item]
 [[ERC2771Forwarder-_validate-struct-ERC2771Forwarder-ForwardRequestData-]]
@@ -402,6 +402,12 @@ Emitted when a `ForwardRequest` is executed.
 NOTE: An unsuccessful forward request could be due to an invalid signature, an expired deadline,
 or simply a revert in the requested call. The contract guarantees that the relayer is not able to force
 the requested call to run out of gas.
+
+[.contract-item]
+[[ERC2771Forwarder-ERC2771ForwarderNoRefundReceiver--]]
+==== `[.contract-item-name]#++ERC2771ForwarderNoRefundReceiver++#++()++` [.item-kind]#error#
+
+A request in the batch failed and no `refundReceiver` was set to handle the leftover value.
 
 [.contract-item]
 [[ERC2771Forwarder-ERC2771ForwarderInvalidSigner-address-address-]]

@@ -7,7 +7,7 @@ const { ProposalState, VoteType } = require('../../helpers/enums');
 const time = require('../../helpers/time');
 
 const TOKENS = [
-  { Token: '$ERC20Votes', mode: 'blocknumber' },
+  { Token: '$ERC20Votes', mode: 'blockNumber' },
   { Token: '$ERC20VotesTimestampMock', mode: 'timestamp' },
 ];
 
@@ -92,7 +92,7 @@ describe('GovernorVotesQuorumFraction', function () {
           .withArgs(
             this.proposal.id,
             ProposalState.Defeated,
-            GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded, ProposalState.Queued]),
+            GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded]),
           );
       });
 

@@ -187,7 +187,10 @@ describe('MerkleProof', function () {
           const root = nodeHash(leave, ethers.ZeroHash);
 
           // Now we can pass any **malicious** fake leaves as valid!
-          const maliciousLeaves = ['malicious', 'leaves'].map(ethers.id).map(ethers.toBeArray).sort(Buffer.compare);
+          const maliciousLeaves = ['malicious', 'leaves']
+            .map(ethers.id)
+            .map(id => ethers.toBeArray(id))
+            .sort(Buffer.compare);
           const maliciousProof = [leave, leave];
           const maliciousProofFlags = [true, true, false];
 

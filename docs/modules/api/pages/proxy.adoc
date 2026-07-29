@@ -2,6 +2,9 @@
 :Proxy: pass:normal[xref:proxy.adoc#Proxy[`Proxy`]]
 :ERC1967Utils: pass:normal[xref:proxy.adoc#ERC1967Utils[`ERC1967Utils`]]
 :ERC1967Proxy: pass:normal[xref:proxy.adoc#ERC1967Proxy[`ERC1967Proxy`]]
+:ERC1967Clones: pass:normal[xref:proxy.adoc#ERC1967Clones[`ERC1967Clones`]]
+:ERC1967Proxy: pass:normal[xref:proxy.adoc#ERC1967Proxy[`ERC1967Proxy`]]
+:ERC1967Proxy: pass:normal[xref:proxy.adoc#ERC1967Proxy[`ERC1967Proxy`]]
 :TransparentUpgradeableProxy: pass:normal[xref:proxy.adoc#TransparentUpgradeableProxy[`TransparentUpgradeableProxy`]]
 :UUPSUpgradeable: pass:normal[xref:proxy.adoc#UUPSUpgradeable[`UUPSUpgradeable`]]
 :BeaconProxy: pass:normal[xref:proxy.adoc#BeaconProxy[`BeaconProxy`]]
@@ -25,6 +28,23 @@
 :xref-Proxy-_fallback--: xref:proxy.adoc#Proxy-_fallback--
 :xref-Proxy-fallback--: xref:proxy.adoc#Proxy-fallback--
 :xref-ERC1967Proxy-ERC1967ProxyUninitialized--: xref:proxy.adoc#ERC1967Proxy-ERC1967ProxyUninitialized--
+:ERC1967Proxy: pass:normal[xref:proxy.adoc#ERC1967Proxy[`ERC1967Proxy`]]
+:IERC1967-Upgraded: pass:normal[xref:interfaces.adoc#IERC1967-Upgraded-address-[`IERC1967.Upgraded`]]
+:ERC1967Proxy: pass:normal[xref:proxy.adoc#ERC1967Proxy[`ERC1967Proxy`]]
+:xref-ERC1967Clones-clone-address-: xref:proxy.adoc#ERC1967Clones-clone-address-
+:xref-ERC1967Clones-clone-address-uint256-: xref:proxy.adoc#ERC1967Clones-clone-address-uint256-
+:xref-ERC1967Clones-cloneDeterministic-address-bytes32-: xref:proxy.adoc#ERC1967Clones-cloneDeterministic-address-bytes32-
+:xref-ERC1967Clones-cloneDeterministic-address-bytes32-uint256-: xref:proxy.adoc#ERC1967Clones-cloneDeterministic-address-bytes32-uint256-
+:xref-ERC1967Clones-predictDeterministicAddress-address-bytes32-: xref:proxy.adoc#ERC1967Clones-predictDeterministicAddress-address-bytes32-
+:xref-ERC1967Clones-predictDeterministicAddress-address-bytes32-address-: xref:proxy.adoc#ERC1967Clones-predictDeterministicAddress-address-bytes32-address-
+:IERC1967-Upgraded: pass:normal[xref:interfaces.adoc#IERC1967-Upgraded-address-[`IERC1967.Upgraded`]]
+:xref-ERC1967Clones-clone-address-: xref:proxy.adoc#ERC1967Clones-clone-address-
+:IERC1967-Upgraded: pass:normal[xref:interfaces.adoc#IERC1967-Upgraded-address-[`IERC1967.Upgraded`]]
+:IERC1967-Upgraded: pass:normal[xref:interfaces.adoc#IERC1967-Upgraded-address-[`IERC1967.Upgraded`]]
+:xref-ERC1967Clones-cloneDeterministic-address-bytes32-: xref:proxy.adoc#ERC1967Clones-cloneDeterministic-address-bytes32-
+:IERC1967-Upgraded: pass:normal[xref:interfaces.adoc#IERC1967-Upgraded-address-[`IERC1967.Upgraded`]]
+:ERC1967Clones-cloneDeterministic: pass:normal[xref:proxy.adoc#ERC1967Clones-cloneDeterministic-address-bytes32-uint256-[`ERC1967Clones.cloneDeterministic`]]
+:ERC1967Clones-cloneDeterministic: pass:normal[xref:proxy.adoc#ERC1967Clones-cloneDeterministic-address-bytes32-uint256-[`ERC1967Clones.cloneDeterministic`]]
 :xref-ERC1967Utils-getImplementation--: xref:proxy.adoc#ERC1967Utils-getImplementation--
 :xref-ERC1967Utils-upgradeToAndCall-address-bytes-: xref:proxy.adoc#ERC1967Utils-upgradeToAndCall-address-bytes-
 :xref-ERC1967Utils-getAdmin--: xref:proxy.adoc#ERC1967Utils-getAdmin--
@@ -159,6 +179,7 @@ In order to avoid clashes with the storage variables of the implementation contr
 
 - {ERC1967Utils}: Internal functions to get and set the storage slots defined in ERC-1967.
 - {ERC1967Proxy}: A proxy using ERC-1967 storage slots. Not upgradeable by default.
+- {ERC1967Clones}: A library that can deploy minimal ERC-1967 proxies that replicate the behavior of {ERC1967Proxy} with a bytecode optimized for cheap deployment and usage. Unlike {ERC1967Proxy}, the clones do not accept initialization data at construction, so the deployer is expected to initialize the proxy in the same transaction as the deployment.
 
 There are two alternative ways to add upgradeability to an ERC-1967 proxy. Their differences are explained below in <<transparent-vs-uups>>.
 
@@ -210,7 +231,7 @@ The current implementation of this security mechanism uses https://eips.ethereum
 
 [.contract]
 [[Proxy]]
-=== `++Proxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/proxy/Proxy.sol[{github-icon},role=heading-link]
+=== `++Proxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/proxy/Proxy.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -279,7 +300,7 @@ function in the contract matches the call data.
 
 [.contract]
 [[ERC1967Proxy]]
-=== `++ERC1967Proxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/proxy/ERC1967/ERC1967Proxy.sol[{github-icon},role=heading-link]
+=== `++ERC1967Proxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/proxy/ERC1967/ERC1967Proxy.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -358,6 +379,127 @@ where the proxy is replaced with a malicious one.
 
 The proxy is left uninitialized.
 
+:clone: pass:normal[xref:#ERC1967Clones-clone-address-[`++clone++`]]
+:clone: pass:normal[xref:#ERC1967Clones-clone-address-uint256-[`++clone++`]]
+:cloneDeterministic: pass:normal[xref:#ERC1967Clones-cloneDeterministic-address-bytes32-[`++cloneDeterministic++`]]
+:cloneDeterministic: pass:normal[xref:#ERC1967Clones-cloneDeterministic-address-bytes32-uint256-[`++cloneDeterministic++`]]
+:predictDeterministicAddress: pass:normal[xref:#ERC1967Clones-predictDeterministicAddress-address-bytes32-[`++predictDeterministicAddress++`]]
+:predictDeterministicAddress: pass:normal[xref:#ERC1967Clones-predictDeterministicAddress-address-bytes32-address-[`++predictDeterministicAddress++`]]
+
+:clone-address: pass:normal[xref:#ERC1967Clones-clone-address-[`++clone++`]]
+:clone-address-uint256: pass:normal[xref:#ERC1967Clones-clone-address-uint256-[`++clone++`]]
+:cloneDeterministic-address-bytes32: pass:normal[xref:#ERC1967Clones-cloneDeterministic-address-bytes32-[`++cloneDeterministic++`]]
+:cloneDeterministic-address-bytes32-uint256: pass:normal[xref:#ERC1967Clones-cloneDeterministic-address-bytes32-uint256-[`++cloneDeterministic++`]]
+:predictDeterministicAddress-address-bytes32: pass:normal[xref:#ERC1967Clones-predictDeterministicAddress-address-bytes32-[`++predictDeterministicAddress++`]]
+:predictDeterministicAddress-address-bytes32-address: pass:normal[xref:#ERC1967Clones-predictDeterministicAddress-address-bytes32-address-[`++predictDeterministicAddress++`]]
+
+[.contract]
+[[ERC1967Clones]]
+=== `++ERC1967Clones++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/proxy/ERC1967/ERC1967Clones.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Clones.sol";
+```
+
+https://eips.ethereum.org/EIPS/eip-1967[ERC-1967] is the standard for upgradeable proxies that
+store the implementation address in a fixed storage slot. This library deploys minimal proxies that
+mimic the behavior of {ERC1967Proxy} with a bytecode optimized for cheap deployment and usage. The
+deployment emits {IERC1967-Upgraded} from the proxy address, so on-chain tooling and indexers can
+track the new instance from the block it was created in.
+
+The library includes functions to deploy a proxy using either `create` (traditional deployment) or
+`create2` (salted deterministic deployment). It also includes a function to predict the addresses of
+proxies deployed using the deterministic method.
+
+IMPORTANT: Unlike {ERC1967Proxy}, this proxy does not run an initialization call at construction and
+does not check that `implementation` has code. Calls forwarded to a non-contract `implementation`
+succeed silently and return empty data, which an uninitialized clone cannot distinguish from a
+legitimate response. Factories using this library are expected to invoke the initializer on the
+returned address in the same transaction as the deployment.
+
+[.contract-index]
+.Functions
+--
+* {xref-ERC1967Clones-clone-address-}[`++clone(implementation)++`]
+* {xref-ERC1967Clones-clone-address-uint256-}[`++clone(implementation, value)++`]
+* {xref-ERC1967Clones-cloneDeterministic-address-bytes32-}[`++cloneDeterministic(implementation, salt)++`]
+* {xref-ERC1967Clones-cloneDeterministic-address-bytes32-uint256-}[`++cloneDeterministic(implementation, salt, value)++`]
+* {xref-ERC1967Clones-predictDeterministicAddress-address-bytes32-}[`++predictDeterministicAddress(implementation, salt)++`]
+* {xref-ERC1967Clones-predictDeterministicAddress-address-bytes32-address-}[`++predictDeterministicAddress(implementation, salt, deployer)++`]
+
+--
+
+[.contract-item]
+[[ERC1967Clones-clone-address-]]
+==== `[.contract-item-name]#++clone++#++(address implementation) → address++` [.item-kind]#internal#
+
+Deploys and returns the address of a minimal ERC-1967 proxy that delegates to `implementation`.
+
+This function uses the create opcode, which should never revert.
+
+Emits an {IERC1967-Upgraded} event from the deployed proxy.
+
+WARNING: This function does not check if `implementation` has code, and the deployed proxy does not run
+any initialization call at construction.
+
+[.contract-item]
+[[ERC1967Clones-clone-address-uint256-]]
+==== `[.contract-item-name]#++clone++#++(address implementation, uint256 value) → address instance++` [.item-kind]#internal#
+
+Same as {xref-ERC1967Clones-clone-address-}[clone], but with a `value` parameter to send native
+currency to the new contract.
+
+Emits an {IERC1967-Upgraded} event from the deployed proxy.
+
+WARNING: This function does not check if `implementation` has code, and the deployed proxy does not run
+any initialization call at construction.
+
+NOTE: Using a non-zero value at creation will require the contract using this function (e.g. a factory)
+to always have enough balance for new deployments. Consider exposing this function under a payable method.
+
+[.contract-item]
+[[ERC1967Clones-cloneDeterministic-address-bytes32-]]
+==== `[.contract-item-name]#++cloneDeterministic++#++(address implementation, bytes32 salt) → address++` [.item-kind]#internal#
+
+Deploys and returns the address of a minimal ERC-1967 proxy that delegates to `implementation`.
+
+This function uses the create2 opcode and a `salt` to deterministically deploy the clone. Using the
+same `implementation` and `salt` multiple times will revert, since the clones cannot be deployed twice
+at the same address.
+
+Emits an {IERC1967-Upgraded} event from the deployed proxy.
+
+WARNING: This function does not check if `implementation` has code, and the deployed proxy does not run
+any initialization call at construction.
+
+[.contract-item]
+[[ERC1967Clones-cloneDeterministic-address-bytes32-uint256-]]
+==== `[.contract-item-name]#++cloneDeterministic++#++(address implementation, bytes32 salt, uint256 value) → address instance++` [.item-kind]#internal#
+
+Same as {xref-ERC1967Clones-cloneDeterministic-address-bytes32-}[cloneDeterministic], but with a
+`value` parameter to send native currency to the new contract.
+
+Emits an {IERC1967-Upgraded} event from the deployed proxy.
+
+WARNING: This function does not check if `implementation` has code, and the deployed proxy does not run
+any initialization call at construction.
+
+NOTE: Using a non-zero value at creation will require the contract using this function (e.g. a factory)
+to always have enough balance for new deployments. Consider exposing this function under a payable method.
+
+[.contract-item]
+[[ERC1967Clones-predictDeterministicAddress-address-bytes32-]]
+==== `[.contract-item-name]#++predictDeterministicAddress++#++(address implementation, bytes32 salt) → address++` [.item-kind]#internal#
+
+Computes the address of a clone deployed using {ERC1967Clones-cloneDeterministic}.
+
+[.contract-item]
+[[ERC1967Clones-predictDeterministicAddress-address-bytes32-address-]]
+==== `[.contract-item-name]#++predictDeterministicAddress++#++(address implementation, bytes32 salt, address deployer) → address++` [.item-kind]#internal#
+
+Computes the address of a clone deployed using {ERC1967Clones-cloneDeterministic}.
+
 :IMPLEMENTATION_SLOT: pass:normal[xref:#ERC1967Utils-IMPLEMENTATION_SLOT-bytes32[`++IMPLEMENTATION_SLOT++`]]
 :ERC1967InvalidImplementation: pass:normal[xref:#ERC1967Utils-ERC1967InvalidImplementation-address-[`++ERC1967InvalidImplementation++`]]
 :ERC1967InvalidAdmin: pass:normal[xref:#ERC1967Utils-ERC1967InvalidAdmin-address-[`++ERC1967InvalidAdmin++`]]
@@ -381,7 +523,7 @@ The proxy is left uninitialized.
 
 [.contract]
 [[ERC1967Utils]]
-=== `++ERC1967Utils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/proxy/ERC1967/ERC1967Utils.sol[{github-icon},role=heading-link]
+=== `++ERC1967Utils++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/proxy/ERC1967/ERC1967Utils.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -534,7 +676,7 @@ This is the keccak-256 hash of "eip1967.proxy.beacon" subtracted by 1.
 
 [.contract]
 [[TransparentUpgradeableProxy]]
-=== `++TransparentUpgradeableProxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/proxy/transparent/TransparentUpgradeableProxy.sol[{github-icon},role=heading-link]
+=== `++TransparentUpgradeableProxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/proxy/transparent/TransparentUpgradeableProxy.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -649,7 +791,7 @@ The proxy caller is the current admin, and can't fallback to the proxy target.
 
 [.contract]
 [[ProxyAdmin]]
-=== `++ProxyAdmin++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/proxy/transparent/ProxyAdmin.sol[{github-icon},role=heading-link]
+=== `++ProxyAdmin++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/proxy/transparent/ProxyAdmin.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -738,7 +880,7 @@ during an upgrade.
 
 [.contract]
 [[BeaconProxy]]
-=== `++BeaconProxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/proxy/beacon/BeaconProxy.sol[{github-icon},role=heading-link]
+=== `++BeaconProxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/proxy/beacon/BeaconProxy.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -805,7 +947,7 @@ Returns the beacon.
 
 [.contract]
 [[IBeacon]]
-=== `++IBeacon++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/proxy/beacon/IBeacon.sol[{github-icon},role=heading-link]
+=== `++IBeacon++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/proxy/beacon/IBeacon.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -841,7 +983,7 @@ Must return an address that can be used as a delegate call target.
 
 [.contract]
 [[UpgradeableBeacon]]
-=== `++UpgradeableBeacon++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/proxy/beacon/UpgradeableBeacon.sol[{github-icon},role=heading-link]
+=== `++UpgradeableBeacon++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/proxy/beacon/UpgradeableBeacon.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -972,7 +1114,7 @@ The `implementation` of the beacon is invalid.
 
 [.contract]
 [[Clones]]
-=== `++Clones++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/proxy/Clones.sol[{github-icon},role=heading-link]
+=== `++Clones++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/proxy/Clones.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1192,7 +1334,7 @@ Get the immutable args attached to a clone.
 
 [.contract]
 [[Initializable]]
-=== `++Initializable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/proxy/utils/Initializable.sol[{github-icon},role=heading-link]
+=== `++Initializable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/proxy/utils/Initializable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1398,7 +1540,7 @@ The contract is not initializing.
 
 [.contract]
 [[UUPSUpgradeable]]
-=== `++UUPSUpgradeable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/proxy/utils/UUPSUpgradeable.sol[{github-icon},role=heading-link]
+=== `++UUPSUpgradeable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/proxy/utils/UUPSUpgradeable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity

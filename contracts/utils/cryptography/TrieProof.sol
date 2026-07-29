@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.6.0) (utils/cryptography/TrieProof.sol)
+// OpenZeppelin Contracts (last updated v5.7.0) (utils/cryptography/TrieProof.sol)
+
 pragma solidity ^0.8.26;
 
 import {Bytes} from "../Bytes.sol";
@@ -14,7 +15,7 @@ import {RLP} from "../RLP.sol";
  * * Transaction against the transactionsRoot of a block.
  * * Event against receiptsRoot of a block.
  * * Account details (RLP encoding of [nonce, balance, storageRoot, codeHash]) against the stateRoot of a block.
- * * Storage slot (RLP encoding of the value) against the storageRoot of a account.
+ * * Storage slot (RLP encoding of the value) against the storageRoot of an account.
  *
  * Proving a storage slot is usually done in 3 steps:
  *
@@ -66,7 +67,7 @@ library TrieProof {
     /// @dev Number of items in leaf or extension nodes (always 2)
     uint256 internal constant LEAF_OR_EXTENSION_NODE_LENGTH = 2;
 
-    /// @dev Verifies a `proof` against a given `key`, `value`, `and root` hash.
+    /// @dev Verifies a `proof` against a given `key`, `value`, and `root` hash.
     function verify(
         bytes memory value,
         bytes32 root,

@@ -27,6 +27,7 @@
 :xref-ERC6909-ERC6909InvalidReceiver-address-: xref:token/ERC6909.adoc#ERC6909-ERC6909InvalidReceiver-address-
 :xref-ERC6909-ERC6909InvalidSender-address-: xref:token/ERC6909.adoc#ERC6909-ERC6909InvalidSender-address-
 :xref-ERC6909-ERC6909InvalidSpender-address-: xref:token/ERC6909.adoc#ERC6909-ERC6909InvalidSpender-address-
+:IERC20-approve: pass:normal[xref:token/ERC20.adoc#IERC20-approve-address-uint256-[`IERC20.approve`]]
 :xref-ERC6909ContentURI-supportsInterface-bytes4-: xref:token/ERC6909.adoc#ERC6909ContentURI-supportsInterface-bytes4-
 :xref-ERC6909ContentURI-contractURI--: xref:token/ERC6909.adoc#ERC6909ContentURI-contractURI--
 :xref-ERC6909ContentURI-tokenURI-uint256-: xref:token/ERC6909.adoc#ERC6909ContentURI-tokenURI-uint256-
@@ -174,7 +175,7 @@ Implementations are provided for each of the 4 interfaces defined in the ERC.
 
 [.contract]
 [[ERC6909]]
-=== `++ERC6909++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/token/ERC6909/ERC6909.sol[{github-icon},role=heading-link]
+=== `++ERC6909++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/token/ERC6909/ERC6909.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -292,6 +293,12 @@ Sets an approval to `spender` for `amount` of tokens of type `id` from the calle
 `type(uint256).max` signifies an unlimited approval.
 
 Must return true.
+
+WARNING: This function is subject to the same race condition risks as {IERC20-approve}.
+Changing an allowance with this method brings the risk that `spender` may use both the
+old and the new allowance by spending the previous allowance while the new one is in-flight.
+One possible solution to mitigate this race condition is to first reduce `spender`'s
+allowance to 0 and then set the desired value afterwards.
 
 [.contract-item]
 [[ERC6909-setOperator-address-bool-]]
@@ -446,7 +453,7 @@ Does not emit an {Approval} event.
 
 [.contract]
 [[ERC6909ContentURI]]
-=== `++ERC6909ContentURI++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/token/ERC6909/extensions/ERC6909ContentURI.sol[{github-icon},role=heading-link]
+=== `++ERC6909ContentURI++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/token/ERC6909/extensions/ERC6909ContentURI.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -621,7 +628,7 @@ See {IERC1155-URI}
 
 [.contract]
 [[ERC6909Metadata]]
-=== `++ERC6909Metadata++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/token/ERC6909/extensions/ERC6909Metadata.sol[{github-icon},role=heading-link]
+=== `++ERC6909Metadata++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/token/ERC6909/extensions/ERC6909Metadata.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -807,7 +814,7 @@ The decimals value for token of type `id` was updated to `newDecimals`.
 
 [.contract]
 [[ERC6909TokenSupply]]
-=== `++ERC6909TokenSupply++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.6.1/contracts/token/ERC6909/extensions/ERC6909TokenSupply.sol[{github-icon},role=heading-link]
+=== `++ERC6909TokenSupply++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.7.0/contracts/token/ERC6909/extensions/ERC6909TokenSupply.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
