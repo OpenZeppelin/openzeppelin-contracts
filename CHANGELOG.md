@@ -5,6 +5,7 @@
 
 ### Breaking changes
 
+- `EIP712`: Drop the storage fallback for long `name`/`version` values. Both parameters must now fit in a `ShortString` (at most 31 bytes) or the constructor reverts with `ShortStrings.StringTooLong`. Storing the domain exclusively in immutables keeps the domain (and downstream `ERC7739` verification) consistent when the contract is used behind a proxy or clone without an initializer. ([#6631](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6631))
 - `ERC2771Forwarder`: custom error `ERC2771ForwarderFailureInAtomicBatch` has been renamed to `ERC2771ForwarderNoRefundReceiver`. ([#6415](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6415))
 - `Governor` and `IGovernor`: Replace `GovernorQueueNotImplemented` with `GovernorProposalQueueingNotRequired` and `GovernorProposalQueueingFailed`. ([#6582](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6582))
 
@@ -52,7 +53,6 @@
 
 #### Cryptography
 
-- `EIP712`: Drop the storage fallback for long `name`/`version` values. Both parameters must now fit in a `ShortString` (at most 31 bytes) or the constructor reverts with `ShortStrings.StringTooLong`. Storing the domain exclusively in immutables keeps the domain (and downstream `ERC7739` verification) consistent when the contract is used behind a proxy or clone without an initializer. ([#6631](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6631))
 - `ERC7739`: Reject signatures whose `contentsDescr` fails to parse into a non-empty `contentsName`, preventing a malformed descriptor from degrading verification to a constant `structHash` that no longer binds the message contents or the account's EIP-712 domain. ([#6618](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6618))
 - `ERC7913WebAuthnVerifier`: Add an internal `_requireUV` function that can be overridden to disable the UV check. ([#6596](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6596))
 - `MultiSignerERC7913`: Decode the multisignature payload directly from calldata and return `false` on malformed encoding instead of reverting during `abi.decode`, so paymaster/account validation can surface `SIG_VALIDATION_FAILED` rather than bubble up a revert. The `_validateSignatures` and `_validateThreshold` override parameters change from `bytes[] memory` to `bytes[] calldata`. ([#6642](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/6642))
