@@ -10,8 +10,7 @@ import {WebAuthn} from "../WebAuthn.sol";
  * @dev Implementation of {SignerP256} that supports WebAuthn authentication assertions.
  *
  * This contract enables signature validation using WebAuthn authentication assertions,
- * leveraging the P256 public key stored in the contract. It allows for both WebAuthn
- * and raw P256 signature validation, providing compatibility with both signature types.
+ * leveraging the P256 public key stored in the contract.
  *
  * The signature is expected to be an abi-encoded {WebAuthn-WebAuthnAuth} struct.
  *

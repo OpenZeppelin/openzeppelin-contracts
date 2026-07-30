@@ -10,7 +10,7 @@ import {ERC1155Holder} from "../../token/ERC1155/utils/ERC1155Holder.sol";
 import {ERC7739} from "../../utils/cryptography/signers/draft-ERC7739.sol";
 import {ERC7821} from "../../account/extensions/draft-ERC7821.sol";
 import {MODULE_TYPE_VALIDATOR} from "../../interfaces/draft-IERC7579.sol";
-import {PackedUserOperation} from "../../interfaces/draft-IERC4337.sol";
+import {PackedUserOperation} from "../../interfaces/IERC4337.sol";
 import {AbstractSigner} from "../../utils/cryptography/signers/AbstractSigner.sol";
 import {SignerECDSA} from "../../utils/cryptography/signers/SignerECDSA.sol";
 import {SignerP256} from "../../utils/cryptography/signers/SignerP256.sol";

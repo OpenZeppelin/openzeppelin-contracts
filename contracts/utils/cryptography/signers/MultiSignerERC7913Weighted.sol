@@ -195,7 +195,7 @@ abstract contract MultiSignerERC7913Weighted is MultiSignerERC7913 {
      * implementations of this function may exist in the contract, so important side effects may be missed
      * depending on the linearization order.
      */
-    function _validateThreshold(bytes[] memory signers) internal view virtual override returns (bool) {
+    function _validateThreshold(bytes[] calldata signers) internal view virtual override returns (bool) {
         unchecked {
             uint64 weight = 0;
             for (uint256 i = 0; i < signers.length; ++i) {

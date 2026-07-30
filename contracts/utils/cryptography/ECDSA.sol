@@ -122,8 +122,8 @@ library ECDSA {
      * be too long), and then calling {MessageHashUtils-toEthSignedMessageHash} on it.
      */
     function recover(bytes32 hash, bytes memory signature) internal pure returns (address) {
-        (address recovered, RecoverError error, bytes32 errorArg) = tryRecover(hash, signature);
-        _throwError(error, errorArg);
+        (address recovered, RecoverError err, bytes32 errorArg) = tryRecover(hash, signature);
+        _throwError(err, errorArg);
         return recovered;
     }
 
@@ -131,8 +131,8 @@ library ECDSA {
      * @dev Variant of {recover} that takes a signature in calldata
      */
     function recoverCalldata(bytes32 hash, bytes calldata signature) internal pure returns (address) {
-        (address recovered, RecoverError error, bytes32 errorArg) = tryRecoverCalldata(hash, signature);
-        _throwError(error, errorArg);
+        (address recovered, RecoverError err, bytes32 errorArg) = tryRecoverCalldata(hash, signature);
+        _throwError(err, errorArg);
         return recovered;
     }
 
@@ -158,8 +158,8 @@ library ECDSA {
      * @dev Overload of {ECDSA-recover} that receives the `r` and `vs` short-signature fields separately.
      */
     function recover(bytes32 hash, bytes32 r, bytes32 vs) internal pure returns (address) {
-        (address recovered, RecoverError error, bytes32 errorArg) = tryRecover(hash, r, vs);
-        _throwError(error, errorArg);
+        (address recovered, RecoverError err, bytes32 errorArg) = tryRecover(hash, r, vs);
+        _throwError(err, errorArg);
         return recovered;
     }
 
@@ -200,8 +200,8 @@ library ECDSA {
      * `r` and `s` signature fields separately.
      */
     function recover(bytes32 hash, uint8 v, bytes32 r, bytes32 s) internal pure returns (address) {
-        (address recovered, RecoverError error, bytes32 errorArg) = tryRecover(hash, v, r, s);
-        _throwError(error, errorArg);
+        (address recovered, RecoverError err, bytes32 errorArg) = tryRecover(hash, v, r, s);
+        _throwError(err, errorArg);
         return recovered;
     }
 
@@ -270,14 +270,14 @@ library ECDSA {
     /**
      * @dev Optionally reverts with the corresponding custom error according to the `error` argument provided.
      */
-    function _throwError(RecoverError error, bytes32 errorArg) private pure {
-        if (error == RecoverError.NoError) {
+    function _throwError(RecoverError err, bytes32 errorArg) private pure {
+        if (err == RecoverError.NoError) {
             return; // no error: do nothing
-        } else if (error == RecoverError.InvalidSignature) {
+        } else if (err == RecoverError.InvalidSignature) {
             revert ECDSAInvalidSignature();
-        } else if (error == RecoverError.InvalidSignatureLength) {
+        } else if (err == RecoverError.InvalidSignatureLength) {
             revert ECDSAInvalidSignatureLength(uint256(errorArg));
-        } else if (error == RecoverError.InvalidSignatureS) {
+        } else if (err == RecoverError.InvalidSignatureS) {
             revert ECDSAInvalidSignatureS(errorArg);
         }
     }

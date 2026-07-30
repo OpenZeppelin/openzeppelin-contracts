@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.31;
 
-import {PackedUserOperation} from "../../interfaces/draft-IERC4337.sol";
+import {PackedUserOperation} from "../../interfaces/IERC4337.sol";
 import {IERC1271} from "../../interfaces/IERC1271.sol";
 import {
     IERC7579Module,
@@ -284,6 +284,12 @@ abstract contract AccountERC7579 is Account, IERC1271, IERC7579Execution, IERC75
      * Requirements:
      *
      * * Module must be already installed. Reverts with {ERC7579Utils-ERC7579UninstalledModule} otherwise.
+     * * The module's own {IERC7579Module-onUninstall} function must succeed.
+     *
+     * NOTE: The module's {IERC7579Module-onUninstall} callback is invoked without catching reverts, so a buggy or
+     * malicious module can block its own uninstallation by reverting. A forced uninstallation that bypasses this
+     * callback can still be performed through a delegate call (`CALLTYPE_DELEGATECALL`) via {execute}, running logic
+     * in the account's context that clears the module from storage directly.
      */
     function _uninstallModule(uint256 moduleTypeId, address module, bytes memory deInitData) internal virtual {
         require(supportsModule(moduleTypeId), ERC7579Utils.ERC7579UnsupportedModuleType(moduleTypeId));
@@ -302,8 +308,7 @@ abstract contract AccountERC7579 is Account, IERC1271, IERC7579Execution, IERC75
             delete _fallbacks[selector];
         }
 
-        // Ignores success purposely to avoid modules that revert on uninstall
-        LowLevelCall.callNoReturn(module, abi.encodeCall(IERC7579Module.onUninstall, (deInitData)));
+        IERC7579Module(module).onUninstall(deInitData);
         emit ModuleUninstalled(moduleTypeId, module);
     }
 

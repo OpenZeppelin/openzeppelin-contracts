@@ -3,7 +3,7 @@
 
 pragma solidity >=0.8.4;
 
-import {PackedUserOperation} from "./draft-IERC4337.sol";
+import {PackedUserOperation} from "./IERC4337.sol";
 
 uint256 constant VALIDATION_SUCCESS = 0;
 uint256 constant VALIDATION_FAILED = 1;

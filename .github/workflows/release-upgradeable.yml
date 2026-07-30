@@ -11,11 +11,11 @@ jobs:
     if: ${{ !endsWith(github.repository, '-upgradeable') }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           repository: ${{ github.repository }}-upgradeable
           ref: ${{ github.ref }}
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.ref }}
           path: lib/openzeppelin-contracts
@@ -38,11 +38,11 @@ jobs:
     if: needs.state.outputs.publish == 'success' # Note: changed from 'true' to 'success' to support the way publish is computed
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           repository: ${{ github.repository }}-upgradeable
           ref: ${{ github.ref }}
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.ref }}
           path: lib/openzeppelin-contracts
@@ -82,7 +82,7 @@ jobs:
     name: Tarball Integrity Check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           repository: ${{ github.repository }}-upgradeable
           ref: ${{ github.ref }}

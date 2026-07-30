@@ -50,8 +50,8 @@ library Checkpoints {
      */
     function lowerLookup(Trace256 storage self, uint256 key) internal view returns (uint256) {
         uint256 len = self._checkpoints.length;
-        uint256 pos = _lowerBinaryLookup(self._checkpoints, key, 0, len);
-        return pos == len ? 0 : _unsafeAccess(self._checkpoints, pos)._value;
+        uint256 index = _lowerBinaryLookup(self._checkpoints, key, 0, len);
+        return index == len ? 0 : _unsafeAccess(self._checkpoints, index)._value;
     }
 
     /**
@@ -60,8 +60,8 @@ library Checkpoints {
      */
     function upperLookup(Trace256 storage self, uint256 key) internal view returns (uint256) {
         uint256 len = self._checkpoints.length;
-        uint256 pos = _upperBinaryLookup(self._checkpoints, key, 0, len);
-        return pos == 0 ? 0 : _unsafeAccess(self._checkpoints, pos - 1)._value;
+        uint256 index = _upperBinaryLookup(self._checkpoints, key, 0, len);
+        return index == 0 ? 0 : _unsafeAccess(self._checkpoints, index - 1)._value;
     }
 
     /**
@@ -86,17 +86,17 @@ library Checkpoints {
             }
         }
 
-        uint256 pos = _upperBinaryLookup(self._checkpoints, key, low, high);
+        uint256 index = _upperBinaryLookup(self._checkpoints, key, low, high);
 
-        return pos == 0 ? 0 : _unsafeAccess(self._checkpoints, pos - 1)._value;
+        return index == 0 ? 0 : _unsafeAccess(self._checkpoints, index - 1)._value;
     }
 
     /**
      * @dev Returns the value in the most recent checkpoint, or zero if there are no checkpoints.
      */
     function latest(Trace256 storage self) internal view returns (uint256) {
-        uint256 pos = self._checkpoints.length;
-        return pos == 0 ? 0 : _unsafeAccess(self._checkpoints, pos - 1)._value;
+        uint256 len = self._checkpoints.length;
+        return len == 0 ? 0 : _unsafeAccess(self._checkpoints, len - 1)._value;
     }
 
     /**
@@ -104,11 +104,11 @@ library Checkpoints {
      * in the most recent checkpoint.
      */
     function latestCheckpoint(Trace256 storage self) internal view returns (bool exists, uint256 _key, uint256 _value) {
-        uint256 pos = self._checkpoints.length;
-        if (pos == 0) {
+        uint256 len = self._checkpoints.length;
+        if (len == 0) {
             return (false, 0, 0);
         } else {
-            Checkpoint256 storage ckpt = _unsafeAccess(self._checkpoints, pos - 1);
+            Checkpoint256 storage ckpt = _unsafeAccess(self._checkpoints, len - 1);
             return (true, ckpt._key, ckpt._value);
         }
     }
@@ -122,9 +122,21 @@ library Checkpoints {
 
     /**
      * @dev Returns checkpoint at given position.
+     *
+     * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
+     * should use {pos} instead.
      */
-    function at(Trace256 storage self, uint32 pos) internal view returns (Checkpoint256 memory) {
-        return self._checkpoints[pos];
+    function at(Trace256 storage self, uint32 index) internal view returns (Checkpoint256 memory) {
+        return pos(self, index);
+    }
+
+    /**
+     * @dev Returns checkpoint at given position.
+     *
+     * Replacement of the deprecated {at} function.
+     */
+    function pos(Trace256 storage self, uint32 index) internal view returns (Checkpoint256 memory) {
+        return self._checkpoints[index];
     }
 
     /**
@@ -136,10 +148,10 @@ library Checkpoints {
         uint256 key,
         uint256 value
     ) private returns (uint256 oldValue, uint256 newValue) {
-        uint256 pos = self.length;
+        uint256 len = self.length;
 
-        if (pos > 0) {
-            Checkpoint256 storage last = _unsafeAccess(self, pos - 1);
+        if (len > 0) {
+            Checkpoint256 storage last = _unsafeAccess(self, len - 1);
             uint256 lastKey = last._key;
             uint256 lastValue = last._value;
 
@@ -214,11 +226,11 @@ library Checkpoints {
      */
     function _unsafeAccess(
         Checkpoint256[] storage self,
-        uint256 pos
+        uint256 index
     ) private pure returns (Checkpoint256 storage result) {
         assembly {
             mstore(0x00, self.slot)
-            result.slot := add(keccak256(0x00, 0x20), mul(pos, 2))
+            result.slot := add(keccak256(0x00, 0x20), mul(index, 2))
         }
     }
 
@@ -253,8 +265,8 @@ library Checkpoints {
      */
     function lowerLookup(Trace224 storage self, uint32 key) internal view returns (uint224) {
         uint256 len = self._checkpoints.length;
-        uint256 pos = _lowerBinaryLookup(self._checkpoints, key, 0, len);
-        return pos == len ? 0 : _unsafeAccess(self._checkpoints, pos)._value;
+        uint256 index = _lowerBinaryLookup(self._checkpoints, key, 0, len);
+        return index == len ? 0 : _unsafeAccess(self._checkpoints, index)._value;
     }
 
     /**
@@ -263,8 +275,8 @@ library Checkpoints {
      */
     function upperLookup(Trace224 storage self, uint32 key) internal view returns (uint224) {
         uint256 len = self._checkpoints.length;
-        uint256 pos = _upperBinaryLookup(self._checkpoints, key, 0, len);
-        return pos == 0 ? 0 : _unsafeAccess(self._checkpoints, pos - 1)._value;
+        uint256 index = _upperBinaryLookup(self._checkpoints, key, 0, len);
+        return index == 0 ? 0 : _unsafeAccess(self._checkpoints, index - 1)._value;
     }
 
     /**
@@ -289,17 +301,17 @@ library Checkpoints {
             }
         }
 
-        uint256 pos = _upperBinaryLookup(self._checkpoints, key, low, high);
+        uint256 index = _upperBinaryLookup(self._checkpoints, key, low, high);
 
-        return pos == 0 ? 0 : _unsafeAccess(self._checkpoints, pos - 1)._value;
+        return index == 0 ? 0 : _unsafeAccess(self._checkpoints, index - 1)._value;
     }
 
     /**
      * @dev Returns the value in the most recent checkpoint, or zero if there are no checkpoints.
      */
     function latest(Trace224 storage self) internal view returns (uint224) {
-        uint256 pos = self._checkpoints.length;
-        return pos == 0 ? 0 : _unsafeAccess(self._checkpoints, pos - 1)._value;
+        uint256 len = self._checkpoints.length;
+        return len == 0 ? 0 : _unsafeAccess(self._checkpoints, len - 1)._value;
     }
 
     /**
@@ -307,11 +319,11 @@ library Checkpoints {
      * in the most recent checkpoint.
      */
     function latestCheckpoint(Trace224 storage self) internal view returns (bool exists, uint32 _key, uint224 _value) {
-        uint256 pos = self._checkpoints.length;
-        if (pos == 0) {
+        uint256 len = self._checkpoints.length;
+        if (len == 0) {
             return (false, 0, 0);
         } else {
-            Checkpoint224 storage ckpt = _unsafeAccess(self._checkpoints, pos - 1);
+            Checkpoint224 storage ckpt = _unsafeAccess(self._checkpoints, len - 1);
             return (true, ckpt._key, ckpt._value);
         }
     }
@@ -325,9 +337,21 @@ library Checkpoints {
 
     /**
      * @dev Returns checkpoint at given position.
+     *
+     * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
+     * should use {pos} instead.
      */
-    function at(Trace224 storage self, uint32 pos) internal view returns (Checkpoint224 memory) {
-        return self._checkpoints[pos];
+    function at(Trace224 storage self, uint32 index) internal view returns (Checkpoint224 memory) {
+        return pos(self, index);
+    }
+
+    /**
+     * @dev Returns checkpoint at given position.
+     *
+     * Replacement of the deprecated {at} function.
+     */
+    function pos(Trace224 storage self, uint32 index) internal view returns (Checkpoint224 memory) {
+        return self._checkpoints[index];
     }
 
     /**
@@ -339,10 +363,10 @@ library Checkpoints {
         uint32 key,
         uint224 value
     ) private returns (uint224 oldValue, uint224 newValue) {
-        uint256 pos = self.length;
+        uint256 len = self.length;
 
-        if (pos > 0) {
-            Checkpoint224 storage last = _unsafeAccess(self, pos - 1);
+        if (len > 0) {
+            Checkpoint224 storage last = _unsafeAccess(self, len - 1);
             uint32 lastKey = last._key;
             uint224 lastValue = last._value;
 
@@ -417,11 +441,11 @@ library Checkpoints {
      */
     function _unsafeAccess(
         Checkpoint224[] storage self,
-        uint256 pos
+        uint256 index
     ) private pure returns (Checkpoint224 storage result) {
         assembly {
             mstore(0x00, self.slot)
-            result.slot := add(keccak256(0x00, 0x20), pos)
+            result.slot := add(keccak256(0x00, 0x20), index)
         }
     }
 
@@ -456,8 +480,8 @@ library Checkpoints {
      */
     function lowerLookup(Trace208 storage self, uint48 key) internal view returns (uint208) {
         uint256 len = self._checkpoints.length;
-        uint256 pos = _lowerBinaryLookup(self._checkpoints, key, 0, len);
-        return pos == len ? 0 : _unsafeAccess(self._checkpoints, pos)._value;
+        uint256 index = _lowerBinaryLookup(self._checkpoints, key, 0, len);
+        return index == len ? 0 : _unsafeAccess(self._checkpoints, index)._value;
     }
 
     /**
@@ -466,8 +490,8 @@ library Checkpoints {
      */
     function upperLookup(Trace208 storage self, uint48 key) internal view returns (uint208) {
         uint256 len = self._checkpoints.length;
-        uint256 pos = _upperBinaryLookup(self._checkpoints, key, 0, len);
-        return pos == 0 ? 0 : _unsafeAccess(self._checkpoints, pos - 1)._value;
+        uint256 index = _upperBinaryLookup(self._checkpoints, key, 0, len);
+        return index == 0 ? 0 : _unsafeAccess(self._checkpoints, index - 1)._value;
     }
 
     /**
@@ -492,17 +516,17 @@ library Checkpoints {
             }
         }
 
-        uint256 pos = _upperBinaryLookup(self._checkpoints, key, low, high);
+        uint256 index = _upperBinaryLookup(self._checkpoints, key, low, high);
 
-        return pos == 0 ? 0 : _unsafeAccess(self._checkpoints, pos - 1)._value;
+        return index == 0 ? 0 : _unsafeAccess(self._checkpoints, index - 1)._value;
     }
 
     /**
      * @dev Returns the value in the most recent checkpoint, or zero if there are no checkpoints.
      */
     function latest(Trace208 storage self) internal view returns (uint208) {
-        uint256 pos = self._checkpoints.length;
-        return pos == 0 ? 0 : _unsafeAccess(self._checkpoints, pos - 1)._value;
+        uint256 len = self._checkpoints.length;
+        return len == 0 ? 0 : _unsafeAccess(self._checkpoints, len - 1)._value;
     }
 
     /**
@@ -510,11 +534,11 @@ library Checkpoints {
      * in the most recent checkpoint.
      */
     function latestCheckpoint(Trace208 storage self) internal view returns (bool exists, uint48 _key, uint208 _value) {
-        uint256 pos = self._checkpoints.length;
-        if (pos == 0) {
+        uint256 len = self._checkpoints.length;
+        if (len == 0) {
             return (false, 0, 0);
         } else {
-            Checkpoint208 storage ckpt = _unsafeAccess(self._checkpoints, pos - 1);
+            Checkpoint208 storage ckpt = _unsafeAccess(self._checkpoints, len - 1);
             return (true, ckpt._key, ckpt._value);
         }
     }
@@ -528,9 +552,21 @@ library Checkpoints {
 
     /**
      * @dev Returns checkpoint at given position.
+     *
+     * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
+     * should use {pos} instead.
      */
-    function at(Trace208 storage self, uint32 pos) internal view returns (Checkpoint208 memory) {
-        return self._checkpoints[pos];
+    function at(Trace208 storage self, uint32 index) internal view returns (Checkpoint208 memory) {
+        return pos(self, index);
+    }
+
+    /**
+     * @dev Returns checkpoint at given position.
+     *
+     * Replacement of the deprecated {at} function.
+     */
+    function pos(Trace208 storage self, uint32 index) internal view returns (Checkpoint208 memory) {
+        return self._checkpoints[index];
     }
 
     /**
@@ -542,10 +578,10 @@ library Checkpoints {
         uint48 key,
         uint208 value
     ) private returns (uint208 oldValue, uint208 newValue) {
-        uint256 pos = self.length;
+        uint256 len = self.length;
 
-        if (pos > 0) {
-            Checkpoint208 storage last = _unsafeAccess(self, pos - 1);
+        if (len > 0) {
+            Checkpoint208 storage last = _unsafeAccess(self, len - 1);
             uint48 lastKey = last._key;
             uint208 lastValue = last._value;
 
@@ -620,11 +656,11 @@ library Checkpoints {
      */
     function _unsafeAccess(
         Checkpoint208[] storage self,
-        uint256 pos
+        uint256 index
     ) private pure returns (Checkpoint208 storage result) {
         assembly {
             mstore(0x00, self.slot)
-            result.slot := add(keccak256(0x00, 0x20), pos)
+            result.slot := add(keccak256(0x00, 0x20), index)
         }
     }
 
@@ -659,8 +695,8 @@ library Checkpoints {
      */
     function lowerLookup(Trace160 storage self, uint96 key) internal view returns (uint160) {
         uint256 len = self._checkpoints.length;
-        uint256 pos = _lowerBinaryLookup(self._checkpoints, key, 0, len);
-        return pos == len ? 0 : _unsafeAccess(self._checkpoints, pos)._value;
+        uint256 index = _lowerBinaryLookup(self._checkpoints, key, 0, len);
+        return index == len ? 0 : _unsafeAccess(self._checkpoints, index)._value;
     }
 
     /**
@@ -669,8 +705,8 @@ library Checkpoints {
      */
     function upperLookup(Trace160 storage self, uint96 key) internal view returns (uint160) {
         uint256 len = self._checkpoints.length;
-        uint256 pos = _upperBinaryLookup(self._checkpoints, key, 0, len);
-        return pos == 0 ? 0 : _unsafeAccess(self._checkpoints, pos - 1)._value;
+        uint256 index = _upperBinaryLookup(self._checkpoints, key, 0, len);
+        return index == 0 ? 0 : _unsafeAccess(self._checkpoints, index - 1)._value;
     }
 
     /**
@@ -695,17 +731,17 @@ library Checkpoints {
             }
         }
 
-        uint256 pos = _upperBinaryLookup(self._checkpoints, key, low, high);
+        uint256 index = _upperBinaryLookup(self._checkpoints, key, low, high);
 
-        return pos == 0 ? 0 : _unsafeAccess(self._checkpoints, pos - 1)._value;
+        return index == 0 ? 0 : _unsafeAccess(self._checkpoints, index - 1)._value;
     }
 
     /**
      * @dev Returns the value in the most recent checkpoint, or zero if there are no checkpoints.
      */
     function latest(Trace160 storage self) internal view returns (uint160) {
-        uint256 pos = self._checkpoints.length;
-        return pos == 0 ? 0 : _unsafeAccess(self._checkpoints, pos - 1)._value;
+        uint256 len = self._checkpoints.length;
+        return len == 0 ? 0 : _unsafeAccess(self._checkpoints, len - 1)._value;
     }
 
     /**
@@ -713,11 +749,11 @@ library Checkpoints {
      * in the most recent checkpoint.
      */
     function latestCheckpoint(Trace160 storage self) internal view returns (bool exists, uint96 _key, uint160 _value) {
-        uint256 pos = self._checkpoints.length;
-        if (pos == 0) {
+        uint256 len = self._checkpoints.length;
+        if (len == 0) {
             return (false, 0, 0);
         } else {
-            Checkpoint160 storage ckpt = _unsafeAccess(self._checkpoints, pos - 1);
+            Checkpoint160 storage ckpt = _unsafeAccess(self._checkpoints, len - 1);
             return (true, ckpt._key, ckpt._value);
         }
     }
@@ -731,9 +767,21 @@ library Checkpoints {
 
     /**
      * @dev Returns checkpoint at given position.
+     *
+     * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
+     * should use {pos} instead.
      */
-    function at(Trace160 storage self, uint32 pos) internal view returns (Checkpoint160 memory) {
-        return self._checkpoints[pos];
+    function at(Trace160 storage self, uint32 index) internal view returns (Checkpoint160 memory) {
+        return pos(self, index);
+    }
+
+    /**
+     * @dev Returns checkpoint at given position.
+     *
+     * Replacement of the deprecated {at} function.
+     */
+    function pos(Trace160 storage self, uint32 index) internal view returns (Checkpoint160 memory) {
+        return self._checkpoints[index];
     }
 
     /**
@@ -745,10 +793,10 @@ library Checkpoints {
         uint96 key,
         uint160 value
     ) private returns (uint160 oldValue, uint160 newValue) {
-        uint256 pos = self.length;
+        uint256 len = self.length;
 
-        if (pos > 0) {
-            Checkpoint160 storage last = _unsafeAccess(self, pos - 1);
+        if (len > 0) {
+            Checkpoint160 storage last = _unsafeAccess(self, len - 1);
             uint96 lastKey = last._key;
             uint160 lastValue = last._value;
 
@@ -823,11 +871,11 @@ library Checkpoints {
      */
     function _unsafeAccess(
         Checkpoint160[] storage self,
-        uint256 pos
+        uint256 index
     ) private pure returns (Checkpoint160 storage result) {
         assembly {
             mstore(0x00, self.slot)
-            result.slot := add(keccak256(0x00, 0x20), pos)
+            result.slot := add(keccak256(0x00, 0x20), index)
         }
     }
 }

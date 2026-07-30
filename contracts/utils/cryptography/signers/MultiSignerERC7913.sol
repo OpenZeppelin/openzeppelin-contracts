@@ -221,8 +221,10 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
         bytes calldata signature
     ) internal view virtual override returns (bool) {
         if (signature.length == 0) return false; // For ERC-7739 compatibility
-        (bytes[] memory signers, bytes[] memory signatures) = abi.decode(signature, (bytes[], bytes[]));
-        return _validateThreshold(signers) && _validateSignatures(hash, signers, signatures);
+        (bool success, bytes[] calldata signers, bytes[] calldata signatures) = _tryDecodeMultisignatureCalldata(
+            signature
+        );
+        return success && _validateThreshold(signers) && _validateSignatures(hash, signers, signatures);
     }
 
     /**
@@ -238,8 +240,8 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
      */
     function _validateSignatures(
         bytes32 hash,
-        bytes[] memory signers,
-        bytes[] memory signatures
+        bytes[] calldata signers,
+        bytes[] calldata signatures
     ) internal view virtual returns (bool valid) {
         for (uint256 i = 0; i < signers.length; ++i) {
             if (!isSigner(signers[i])) {
@@ -253,7 +255,77 @@ abstract contract MultiSignerERC7913 is AbstractSigner {
      * @dev Validates that the number of signers meets the {threshold} requirement.
      * Assumes the signers were already validated. See {_validateSignatures} for more details.
      */
-    function _validateThreshold(bytes[] memory validatingSigners) internal view virtual returns (bool) {
+    function _validateThreshold(bytes[] calldata validatingSigners) internal view virtual returns (bool) {
         return validatingSigners.length >= threshold();
+    }
+
+    /**
+     * @dev Decodes an `abi.encode(bytes[], bytes[])` multisignature payload from calldata without memory
+     * allocation. Returns `success = false` on malformed encoding so callers can report an invalid
+     * signature instead of reverting during validation (see ERC-4337 `SIG_VALIDATION_FAILED` semantics).
+     */
+    function _tryDecodeMultisignatureCalldata(
+        bytes calldata signature
+    ) private pure returns (bool success, bytes[] calldata signers, bytes[] calldata signatures) {
+        unchecked {
+            uint256 bufferLength = signature.length;
+
+            // Check #1: Theoretical minimum length of a valid multisignature encoding is 0x40 bytes.
+            // 64 bytes of zero is a valid encoding for two empty arrays.
+            if (bufferLength < 0x40) return (false, _emptyBytesArray(), _emptyBytesArray());
+
+            // Read the offset pointers to the signers and signatures arrays
+            // Read is done in assembly to avoid the cost of creating calldata slices.
+            uint256 signersOffset;
+            uint256 signaturesOffset;
+            assembly ("memory-safe") {
+                signersOffset := calldataload(signature.offset)
+                signaturesOffset := calldataload(add(signature.offset, 0x20))
+            }
+
+            // Check #2: The length fields that the offset pointers point to must be within the bounds of the buffer.
+            if (signersOffset > bufferLength - 0x20 || signaturesOffset > bufferLength - 0x20)
+                return (false, _emptyBytesArray(), _emptyBytesArray());
+
+            // Read the length fields
+            // Read is done in assembly to avoid the cost of creating calldata slices.
+            uint256 signersLength;
+            uint256 signaturesLength;
+            assembly ("memory-safe") {
+                signersLength := calldataload(add(signature.offset, signersOffset))
+                signaturesLength := calldataload(add(signature.offset, signaturesOffset))
+            }
+
+            // Data is just after the length fields
+            uint256 signersDataOffset = signersOffset + 0x20;
+            uint256 signaturesDataOffset = signaturesOffset + 0x20;
+
+            // Check #3 & #4:
+            // - Cap lengths at 2**64-1 (Solidity's own dynamic-array limit) so `length * 0x20` cannot overflow.
+            // - The data for each array must fit within the bounds of the buffer.
+            if (
+                signersLength > type(uint64).max ||
+                signaturesLength > type(uint64).max ||
+                0x20 * signersLength > bufferLength - signersDataOffset ||
+                0x20 * signaturesLength > bufferLength - signaturesDataOffset
+            ) return (false, _emptyBytesArray(), _emptyBytesArray());
+
+            // Assembly cast
+            assembly ("memory-safe") {
+                success := 1 // true
+                signers.offset := add(signature.offset, signersDataOffset)
+                signers.length := signersLength
+                signatures.offset := add(signature.offset, signaturesDataOffset)
+                signatures.length := signaturesLength
+            }
+        }
+    }
+
+    /// @dev Returns an empty `bytes[]` calldata slice, used as a placeholder on decode failure.
+    function _emptyBytesArray() private pure returns (bytes[] calldata result) {
+        assembly ("memory-safe") {
+            result.offset := 0
+            result.length := 0
+        }
     }
 }

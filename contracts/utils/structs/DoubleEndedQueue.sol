@@ -3,6 +3,7 @@
 
 pragma solidity ^0.8.20;
 
+import {Math} from "../math/Math.sol";
 import {Panic} from "../Panic.sol";
 
 /**
@@ -188,8 +189,23 @@ library DoubleEndedQueue {
      * `length(deque) - 1`.
      *
      * Reverts with {Panic-ARRAY_OUT_OF_BOUNDS} if the index is out of bounds.
+     *
+     * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
+     * should use {pos} instead.
      */
     function at(Bytes32Deque storage deque, uint256 index) internal view returns (bytes32) {
+        return pos(deque, index);
+    }
+
+    /**
+     * @dev Return the item at a position in the queue given by `index`, with the first item at 0 and last item at
+     * `length(deque) - 1`.
+     *
+     * Reverts with {Panic-ARRAY_OUT_OF_BOUNDS} if the index is out of bounds.
+     *
+     * Replacement of the deprecated {at} function.
+     */
+    function pos(Bytes32Deque storage deque, uint256 index) internal view returns (bytes32) {
         (bool success, bytes32 value) = tryAt(deque, index);
         if (!success) Panic.panic(Panic.ARRAY_OUT_OF_BOUNDS);
         return value;
@@ -206,6 +222,32 @@ library DoubleEndedQueue {
         // By construction, length is a uint128, so the check above ensures that index can be safely downcast to uint128
         unchecked {
             return (true, deque._data[deque._begin + uint128(index)]);
+        }
+    }
+
+    /**
+     * @dev Return a slice of the queue in an array, with the first item at `start` (inclusive) and the last item at
+     * `end` (exclusive). Out-of-bound values for `start` and `end` are clamped to the queue length.
+     *
+     * WARNING: This operation will copy a portion of the storage to memory, which can be quite expensive. This is
+     * designed to mostly be used by view accessors that are queried without any gas fees. Developers should keep in
+     * mind that this function has an unbounded cost, and using it as part of a state-changing function may render the
+     * function uncallable if the queue grows to a point where copying to memory consumes too much gas to fit in a
+     * block.
+     */
+    function values(Bytes32Deque storage deque, uint256 start, uint256 end) internal view returns (bytes32[] memory) {
+        unchecked {
+            end = Math.min(end, length(deque));
+            start = Math.min(start, end);
+
+            uint256 len = end - start;
+            bytes32[] memory result = new bytes32[](len);
+
+            uint128 offset = deque._begin + uint128(start);
+            for (uint128 i = 0; i < len; ++i) {
+                result[i] = deque._data[offset + i];
+            }
+            return result;
         }
     }
 

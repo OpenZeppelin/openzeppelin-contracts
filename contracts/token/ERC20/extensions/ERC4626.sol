@@ -6,8 +6,6 @@ pragma solidity ^0.8.31;
 import {IERC20, IERC20Metadata, ERC20} from "../ERC20.sol";
 import {SafeERC20} from "../utils/SafeERC20.sol";
 import {IERC4626} from "../../../interfaces/IERC4626.sol";
-import {LowLevelCall} from "../../../utils/LowLevelCall.sol";
-import {Memory} from "../../../utils/Memory.sol";
 import {Math} from "../../../utils/math/Math.sol";
 
 /**
@@ -65,6 +63,14 @@ import {Math} from "../../../utils/math/Math.sol";
  *
  * * If {previewRedeem} is overridden to revert, {maxWithdraw} must be overridden as necessary to ensure it
  * always return successfully.
+ * ====
+ *
+ * [CAUTION]
+ * ====
+ * Any mechanism that mints shares without a corresponding increase in the vault's assets (collateral) will alter the
+ * exchange rate and may open the door to vulnerabilities. In particular, this contract
+ * must NOT be combined with {ERC20FlashMint}: flash-minting shares temporarily inflates the total supply without
+ * increasing collateral, corrupting the exchange rate applied during the flash loan.
  * ====
  */
 abstract contract ERC4626 is ERC20, IERC4626 {
