@@ -110,6 +110,20 @@ describe('RLP', function () {
     );
   });
 
+  it('rejects trailing bytes after valid RLP data items', async function () {
+    await expect(this.mock.$decodeBool('0x0102')).to.be.revertedWithCustomError(this.mock, 'RLPInvalidEncoding');
+    await expect(this.mock.$decodeUint256('0x0102')).to.be.revertedWithCustomError(this.mock, 'RLPInvalidEncoding');
+    await expect(this.mock.$decodeBytes32('0x83646f6780')).to.be.revertedWithCustomError(
+      this.mock,
+      'RLPInvalidEncoding',
+    );
+    await expect(this.mock.$decodeBytes('0x83646f6780')).to.be.revertedWithCustomError(this.mock, 'RLPInvalidEncoding');
+    await expect(this.mock.$decodeString('0x83646f6780')).to.be.revertedWithCustomError(
+      this.mock,
+      'RLPInvalidEncoding',
+    );
+  });
+
   it('encode/decode bytes32', async function () {
     for (const input of [
       '0x0000000000000000000000000000000000000000000000000000000000000000',
