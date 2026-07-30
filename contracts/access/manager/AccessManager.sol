@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.5.0) (access/manager/AccessManager.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.28;
 
 import {IAccessManager} from "./IAccessManager.sol";
 import {IAccessManaged} from "./IAccessManaged.sol";
@@ -115,7 +115,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
     // Used to identify operations that are currently being executed via {execute}.
     // This should be transient storage when supported by the EVM.
-    bytes32 private _executionId;
+    bytes32 private transient _executionId;
 
     /**
      * @dev Check that the caller is authorized to perform the operation.
