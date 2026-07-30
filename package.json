@@ -72,6 +72,7 @@
     "chai": "^5.3.3",
     "eslint": "^9.0.0",
     "eslint-config-prettier": "^10.0.0",
+    "eslint-plugin-mocha": "^11.3.0",
     "ethers": "^6.16.0",
     "glob": "^13.0.0",
     "globals": "^17.0.0",

@@ -21,5 +21,5 @@ export const format = (addr: InteroperableAddress) => ({
   caip2: `${addr.chainType}:${addr.reference}`,
   erc7930: addressCoder.encode(addr),
   toCaip10: (other: any) => `${addr.chainType}:${addr.reference}:${extractAddress(other)}`,
-  toErc7930: (other: any) => addressCoder.encode({ ...addr, address: extractAddress(other) }),
+  toErc7930: (other: any) => addressCoder.encode({ ...addr, address: other && extractAddress(other) }),
 });
