@@ -104,6 +104,60 @@ library Arrays {
     }
 
     /**
+     * @dev Removes duplicate elements from an array sorted in increasing order, modifying that array in place and
+     * shrinking its length accordingly.
+     *
+     * NOTE: This function assumes the array is sorted. To deduplicate an unsorted array, sort it first with {sort}.
+     */
+    function uniquifySorted(uint256[] memory array) internal pure returns (uint256[] memory) {
+        uint256 length = array.length;
+
+        if (length < 2) {
+            return array;
+        }
+
+        uint256 writeIndex = 1;
+
+        unchecked {
+            for (uint256 readIndex = 1; readIndex < length; ++readIndex) {
+                uint256 current = array[readIndex];
+                if (current != array[writeIndex - 1]) {
+                    array[writeIndex] = current;
+                    ++writeIndex;
+                }
+            }
+        }
+
+        assembly ("memory-safe") {
+            mstore(array, writeIndex)
+        }
+
+        return array;
+    }
+
+    /**
+     * @dev Removes duplicate elements from an array sorted in increasing order, modifying that array in place and
+     * shrinking its length accordingly.
+     *
+     * NOTE: This function assumes the array is sorted. To deduplicate an unsorted array, sort it first with {sort}.
+     */
+    function uniquifySorted(address[] memory array) internal pure returns (address[] memory) {
+        uniquifySorted(_castToUint256Array(array));
+        return array;
+    }
+
+    /**
+     * @dev Removes duplicate elements from an array sorted in increasing order, modifying that array in place and
+     * shrinking its length accordingly.
+     *
+     * NOTE: This function assumes the array is sorted. To deduplicate an unsorted array, sort it first with {sort}.
+     */
+    function uniquifySorted(bytes32[] memory array) internal pure returns (bytes32[] memory) {
+        uniquifySorted(_castToUint256Array(array));
+        return array;
+    }
+
+    /**
      * @dev Performs a quick sort of a segment of memory. The segment sorted starts at `begin` (inclusive), and stops
      * at end (exclusive). Sorting follows the `comp` comparator.
      *

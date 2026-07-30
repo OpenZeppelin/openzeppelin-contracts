@@ -22,6 +22,33 @@ contract ArraysTest is Test, SymTest {
         _assertSort(values);
     }
 
+    function testUniquifySortedUint256(uint256[] memory values) public pure {
+        Arrays.sort(values);
+        uint256[] memory originalValues = _copyArray(values);
+        uint256[] memory result = Arrays.uniquifySorted(values);
+
+        assertEq(result, values);
+        _assertUniquifySorted(result, originalValues);
+    }
+
+    function testUniquifySortedAddress(address[] memory values) public pure {
+        Arrays.sort(values);
+        address[] memory originalValues = _copyArray(values);
+        address[] memory result = Arrays.uniquifySorted(values);
+
+        assertEq(result, values);
+        _assertUniquifySorted(result, originalValues);
+    }
+
+    function testUniquifySortedBytes32(bytes32[] memory values) public pure {
+        Arrays.sort(values);
+        bytes32[] memory originalValues = _copyArray(values);
+        bytes32[] memory result = Arrays.uniquifySorted(values);
+
+        assertEq(result, values);
+        _assertUniquifySorted(result, originalValues);
+    }
+
     /// Slice
 
     function testSliceAddressWithStartOnly(address[] memory values, uint256 start) public pure {
@@ -358,6 +385,45 @@ contract ArraysTest is Test, SymTest {
         }
     }
 
+    function _assertUniquifySorted(uint256[] memory result, uint256[] memory original) internal pure {
+        uint256 expectedLength = _countUniqueSorted(original);
+        assertEq(result.length, expectedLength);
+
+        uint256 writeIndex = 0;
+        for (uint256 readIndex = 0; readIndex < original.length; ++readIndex) {
+            if (readIndex == 0 || original[readIndex - 1] != original[readIndex]) {
+                assertEq(result[writeIndex], original[readIndex]);
+                ++writeIndex;
+            }
+        }
+    }
+
+    function _assertUniquifySorted(address[] memory result, address[] memory original) internal pure {
+        uint256 expectedLength = _countUniqueSorted(original);
+        assertEq(result.length, expectedLength);
+
+        uint256 writeIndex = 0;
+        for (uint256 readIndex = 0; readIndex < original.length; ++readIndex) {
+            if (readIndex == 0 || original[readIndex - 1] != original[readIndex]) {
+                assertEq(result[writeIndex], original[readIndex]);
+                ++writeIndex;
+            }
+        }
+    }
+
+    function _assertUniquifySorted(bytes32[] memory result, bytes32[] memory original) internal pure {
+        uint256 expectedLength = _countUniqueSorted(original);
+        assertEq(result.length, expectedLength);
+
+        uint256 writeIndex = 0;
+        for (uint256 readIndex = 0; readIndex < original.length; ++readIndex) {
+            if (readIndex == 0 || original[readIndex - 1] != original[readIndex]) {
+                assertEq(result[writeIndex], original[readIndex]);
+                ++writeIndex;
+            }
+        }
+    }
+
     function _assertSliceOf(
         address[] memory result,
         address[] memory original,
@@ -412,5 +478,29 @@ contract ArraysTest is Test, SymTest {
         address[] memory copy = new address[](values.length);
         for (uint256 i = 0; i < values.length; ++i) copy[i] = values[i];
         return copy;
+    }
+
+    function _countUniqueSorted(uint256[] memory values) internal pure returns (uint256 count) {
+        for (uint256 i = 0; i < values.length; ++i) {
+            if (i == 0 || values[i - 1] != values[i]) {
+                ++count;
+            }
+        }
+    }
+
+    function _countUniqueSorted(address[] memory values) internal pure returns (uint256 count) {
+        for (uint256 i = 0; i < values.length; ++i) {
+            if (i == 0 || values[i - 1] != values[i]) {
+                ++count;
+            }
+        }
+    }
+
+    function _countUniqueSorted(bytes32[] memory values) internal pure returns (uint256 count) {
+        for (uint256 i = 0; i < values.length; ++i) {
+            if (i == 0 || values[i - 1] != values[i]) {
+                ++count;
+            }
+        }
     }
 }

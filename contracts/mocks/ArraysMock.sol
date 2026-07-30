@@ -45,6 +45,10 @@ contract Uint256ArraysMock {
         return array.sort(_reverse);
     }
 
+    function uniquifySorted(uint256[] memory array) external pure returns (uint256[] memory) {
+        return array.uniquifySorted();
+    }
+
     function _reverse(uint256 a, uint256 b) private pure returns (bool) {
         return a > b;
     }
@@ -79,6 +83,10 @@ contract AddressArraysMock {
         return array.sort(_reverse);
     }
 
+    function uniquifySorted(address[] memory array) external pure returns (address[] memory) {
+        return array.uniquifySorted();
+    }
+
     function _reverse(address a, address b) private pure returns (bool) {
         return uint160(a) > uint160(b);
     }
@@ -111,6 +119,10 @@ contract Bytes32ArraysMock {
 
     function sortReverse(bytes32[] memory array) external pure returns (bytes32[] memory) {
         return array.sort(_reverse);
+    }
+
+    function uniquifySorted(bytes32[] memory array) external pure returns (bytes32[] memory) {
+        return array.uniquifySorted();
     }
 
     function _reverse(bytes32 a, bytes32 b) private pure returns (bool) {
