@@ -4,6 +4,7 @@
 pragma solidity ^0.8.20;
 
 import {Context} from "../utils/Context.sol";
+import {IPausable} from "./IPausable.sol";
 
 /**
  * @dev Contract module which allows children to implement an emergency stop
@@ -14,28 +15,8 @@ import {Context} from "../utils/Context.sol";
  * the functions of your contract. Note that they will not be pausable by
  * simply including this module, only once the modifiers are put in place.
  */
-abstract contract Pausable is Context {
+abstract contract Pausable is Context, IPausable {
     bool private _paused;
-
-    /**
-     * @dev Emitted when the pause is triggered by `account`.
-     */
-    event Paused(address account);
-
-    /**
-     * @dev Emitted when the pause is lifted by `account`.
-     */
-    event Unpaused(address account);
-
-    /**
-     * @dev The operation failed because the contract is paused.
-     */
-    error EnforcedPause();
-
-    /**
-     * @dev The operation failed because the contract is not paused.
-     */
-    error ExpectedPause();
 
     /**
      * @dev Modifier to make a function callable only when the contract is not paused.
