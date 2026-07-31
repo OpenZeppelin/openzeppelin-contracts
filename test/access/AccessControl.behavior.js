@@ -1,6 +1,7 @@
 import { ethers } from 'ethers';
 import { expect } from 'chai';
 import { shouldSupportInterfaces } from '../utils/introspection/SupportsInterface.behavior';
+import { duration } from '../helpers/time';
 
 export const DEFAULT_ADMIN_ROLE = ethers.ZeroHash;
 
@@ -488,7 +489,7 @@ export function shouldBehaveLikeAccessControlDefaultAdminRules() {
     });
 
     describe('when there is a pending delay', function () {
-      const newDelay = 3n * 3600n;
+      const newDelay = duration.hours(3);
 
       beforeEach('schedule a delay change', async function () {
         await this.mock.connect(this.defaultAdmin).changeDefaultAdminDelay(newDelay);
@@ -715,9 +716,9 @@ export function shouldBehaveLikeAccessControlDefaultAdminRules() {
     });
 
     for (const [delayDifference, delayChangeType] of [
-      [-3600n, 'decreased'],
-      [3600n, 'increased'],
-      [5n * 86400n, 'increased to more than 5 days'],
+      [-duration.hours(1), 'decreased'],
+      [duration.hours(1), 'increased'],
+      [duration.days(5), 'increased to more than 5 days'],
     ]) {
       describe(`when the delay is ${delayChangeType}`, function () {
         beforeEach(function () {

@@ -1,5 +1,6 @@
 import { ethers } from 'ethers';
 import { MAX_UINT64 } from './constants';
+import { duration } from './time';
 import { upgradeableSlot } from './storage';
 
 export function buildBaseRoles() {
@@ -41,8 +42,8 @@ export function buildBaseRoles() {
 
 export const formatAccess = access => [access[0], access[1].toString()];
 
-export const MINSETBACK = 432000n; // time.duration.days(5);
-export const EXPIRATION = 604800n; // time.duration.weeks(1);
+export const MINSETBACK = duration.days(5);
+export const EXPIRATION = duration.weeks(1);
 
 export const EXECUTION_ID_STORAGE_SLOT = await upgradeableSlot('AccessManager', 3n);
 export const CONSUMING_SCHEDULE_STORAGE_SLOT = await upgradeableSlot('AccessManaged', 0n);
