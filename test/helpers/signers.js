@@ -78,8 +78,8 @@ class P256SigningKey {
   get publicKey() {
     const publicKeyBytes = p256.getPublicKey(this.#privateKey, false);
     return {
-      qx: ethers.hexlify(publicKeyBytes.slice(0x01, 0x21)),
-      qy: ethers.hexlify(publicKeyBytes.slice(0x21, 0x41)),
+      qx: ethers.dataSlice(publicKeyBytes, 0x01, 0x21),
+      qy: ethers.dataSlice(publicKeyBytes, 0x21, 0x41),
     };
   }
 
@@ -92,8 +92,8 @@ class P256SigningKey {
     });
 
     return ethers.Signature.from({
-      r: ethers.hexlify(rawSignature.slice(0x01, 0x21)),
-      s: ethers.hexlify(rawSignature.slice(0x21, 0x41)),
+      r: ethers.dataSlice(rawSignature, 0x01, 0x21),
+      s: ethers.dataSlice(rawSignature, 0x21, 0x41),
       v: rawSignature[0] ? 0x1c : 0x1b,
     });
   }

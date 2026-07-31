@@ -10,7 +10,7 @@ const cloneInitCode = (instance, args = undefined) =>
   args
     ? ethers.concat([
         '0x61',
-        ethers.toBeHex(0x2d + ethers.getBytes(args).length, 2),
+        ethers.toBeHex(0x2d + ethers.dataLength(args), 2),
         '0x3d81600a3d39f3363d3d373d3d3d363d73',
         instance.target ?? instance.address ?? instance,
         '0x5af43d82803e903d91602b57fd5bf3',
