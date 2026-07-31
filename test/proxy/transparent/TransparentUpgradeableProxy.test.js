@@ -21,8 +21,12 @@ async function fixture() {
 }
 
 describe('TransparentUpgradeableProxy', function () {
+  before(async function () {
+    Object.assign(this, connection);
+  });
+
   beforeEach(async function () {
-    Object.assign(this, connection, await loadFixture(fixture));
+    Object.assign(this, await loadFixture(fixture));
   });
 
   shouldBehaveLikeProxy();
