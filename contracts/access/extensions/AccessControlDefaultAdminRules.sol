@@ -8,7 +8,6 @@ import {AccessControl, IAccessControl} from "../AccessControl.sol";
 import {SafeCast} from "../../utils/math/SafeCast.sol";
 import {Math} from "../../utils/math/Math.sol";
 import {IERC5313} from "../../interfaces/IERC5313.sol";
-import {IERC165} from "../../utils/introspection/IERC165.sol";
 
 /**
  * @dev Extension of {AccessControl} that allows specifying special rules to manage
@@ -61,7 +60,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
         _grantRole(DEFAULT_ADMIN_ROLE, initialDefaultAdmin);
     }
 
-    /// @inheritdoc IERC165
+    /// @inheritdoc AccessControl
     function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
         return interfaceId == type(IAccessControlDefaultAdminRules).interfaceId || super.supportsInterface(interfaceId);
     }
