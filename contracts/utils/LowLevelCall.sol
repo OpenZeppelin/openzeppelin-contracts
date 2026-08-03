@@ -26,7 +26,8 @@ library LowLevelCall {
     /// in the scratch space of memory. Useful for functions that return a tuple with two single-word values.
     ///
     /// WARNING: Do not assume that the results are zero if `success` is false. Memory can be already allocated
-    /// and this function doesn't zero it out.
+    /// and this function doesn't zero it out. Similarly, if `success` is true consider checking the return data size
+    /// (e.g., with `returnDataSize()`) to avoid reading memory already allocated.
     function callReturn64Bytes(
         address target,
         bytes memory data
@@ -58,7 +59,8 @@ library LowLevelCall {
     /// in the scratch space of memory. Useful for functions that return a tuple with two single-word values.
     ///
     /// WARNING: Do not assume that the results are zero if `success` is false. Memory can be already allocated
-    /// and this function doesn't zero it out.
+    /// and this function doesn't zero it out. Similarly, if `success` is true consider checking the return data size
+    /// (e.g., with `returnDataSize()`) to avoid reading memory already allocated.
     function staticcallReturn64Bytes(
         address target,
         bytes memory data
@@ -81,7 +83,8 @@ library LowLevelCall {
     /// in the scratch space of memory. Useful for functions that return a tuple with two single-word values.
     ///
     /// WARNING: Do not assume that the results are zero if `success` is false. Memory can be already allocated
-    /// and this function doesn't zero it out.
+    /// and this function doesn't zero it out. Similarly, if `success` is true consider checking the return data size
+    /// (e.g., with `returnDataSize()`) to avoid reading memory already allocated.
     function delegatecallReturn64Bytes(
         address target,
         bytes memory data
