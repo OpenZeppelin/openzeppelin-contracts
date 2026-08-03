@@ -109,16 +109,18 @@ abstract contract PaymasterERC20 is Paymaster {
         // drain the paymaster's deposit.
         uint256 penaltyGas = _postOpGasPenalty(userOp.paymasterPostOpGasLimit());
 
-        // If the _erc20Cost math fails, the returned value will be type(uint256).max, which we will never be able
-        // to charge as a prefund. The `trySafeTransferFrom` in the `_prefund` will fail, causing success to be false.
         // Saturating arithmetic keeps an overflow in the native cost from wrapping: it saturates to
-        // `type(uint256).max`, which `_erc20Cost` also returns, and fails the prefund instead of undercharging.
+        // `type(uint256).max`. We treat this as an invalid/unchargeable amount and fail validation early to avoid
+        // relying on token behavior when asked to `transferFrom(..., type(uint256).max)`.
         //
         // native cost is computed as: maxCost + ((_postOpCost() + penaltyGas) * userOp.maxFeePerGas())
         uint256 maxTokenCost = _erc20Cost(
             _postOpCost().saturatingAdd(penaltyGas).saturatingMul(userOp.maxFeePerGas()).saturatingAdd(maxCost),
             tokenPerNative
         );
+        if (maxTokenCost == type(uint256).max) {
+            return (bytes(""), ERC4337Utils.SIG_VALIDATION_FAILED);
+        }
         (bool success, address prefunder, uint256 prefundAmount, bytes memory prefundContext) = _prefund(
             userOp,
             userOpHash,
