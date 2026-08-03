@@ -36,6 +36,18 @@ export default async function generateExposedContracts(
   const inclusionResults = await Promise.all(rootPaths.map(root => includes(root)));
   const rootPathsToExpose = rootPaths.filter((_, i) => inclusionResults[i]);
 
+  // Remove orphaned wrappers whose source was renamed or removed, otherwise their stale
+  // import breaks compilation. Runs before the cache-based early return, as orphans persist
+  // even when no source changed.
+  const sourceNames = new Set(
+    rootPaths.filter(p => !isInExposedOutDir(p)).map(p => path.relative(hre.config.paths.root, p)),
+  );
+  for (const wrapper of rootPaths.filter(isInExposedOutDir)) {
+    if (!sourceNames.has(path.relative(hre.config.exposed.outDir, wrapper))) {
+      fs.rmSync(wrapper);
+    }
+  }
+
   const compilationJobs = await hre.solidity.getCompilationJobs(rootPathsToExpose, { force: args.force });
 
   if (!compilationJobs.success) {
