@@ -46,7 +46,6 @@ const formatAccess = access => [access[0], access[1].toString()];
 const MINSETBACK = time.duration.days(5);
 const EXPIRATION = time.duration.weeks(1);
 
-const EXECUTION_ID_STORAGE_SLOT = upgradeableSlot('AccessManager', 3n);
 const CONSUMING_SCHEDULE_STORAGE_SLOT = upgradeableSlot('AccessManaged', 0n);
 
 /**
@@ -78,7 +77,6 @@ module.exports = {
   formatAccess,
   MINSETBACK,
   EXPIRATION,
-  EXECUTION_ID_STORAGE_SLOT,
   CONSUMING_SCHEDULE_STORAGE_SLOT,
   prepareOperation,
   hashOperation,

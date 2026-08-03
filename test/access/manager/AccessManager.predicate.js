@@ -1,19 +1,13 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
-const { setStorageAt } = require('@nomicfoundation/hardhat-network-helpers');
 
-const { EXECUTION_ID_STORAGE_SLOT, EXPIRATION, prepareOperation } = require('../../helpers/access-manager');
+const { EXPIRATION, prepareOperation } = require('../../helpers/access-manager');
 const { impersonate } = require('../../helpers/account');
 const time = require('../../helpers/time');
 
 // ============ COMMON PREDICATES ============
 
 const LIKE_COMMON_IS_EXECUTING = {
-  executing() {
-    it('succeeds', async function () {
-      await this.caller.sendTransaction({ to: this.target, data: this.calldata });
-    });
-  },
   notExecuting() {
     it('reverts as AccessManagerUnauthorizedAccount', async function () {
       await expect(this.caller.sendTransaction({ to: this.target, data: this.calldata }))
@@ -231,7 +225,7 @@ function testAsSchedulableOperation({ scheduled: { before, after, expired }, not
 /**
  * @requires this.{manager,roles,target,calldata}
  */
-function testAsRestrictedOperation({ callerIsTheManager: { executing, notExecuting }, callerIsNotTheManager }) {
+function testAsRestrictedOperation({ callerIsTheManager: { notExecuting }, callerIsNotTheManager }) {
   describe('when the call comes from the manager (msg.sender == manager)', function () {
     beforeEach('define caller as manager', async function () {
       this.caller = this.manager;
@@ -241,21 +235,7 @@ function testAsRestrictedOperation({ callerIsTheManager: { executing, notExecuti
       }
     });
 
-    describe('when _executionId is in storage for target and selector', function () {
-      beforeEach('set _executionId flag from calldata and target', async function () {
-        const executionId = ethers.keccak256(
-          ethers.AbiCoder.defaultAbiCoder().encode(
-            ['address', 'bytes4'],
-            [this.target.target, this.calldata.substring(0, 10)],
-          ),
-        );
-        await setStorageAt(this.manager.target, EXECUTION_ID_STORAGE_SLOT, executionId);
-      });
-
-      executing();
-    });
-
-    describe('when _executionId does not match target and selector', notExecuting);
+    describe('when _executionId is not set', notExecuting);
   });
 
   describe('when the call does not come from the manager (msg.sender != manager)', function () {
