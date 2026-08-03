@@ -1,4 +1,4 @@
-const { ethers } = require('hardhat');
+const { ethers, network } = require('hardhat');
 const { expect } = require('chai');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 
@@ -14,6 +14,8 @@ const MODES = {
 };
 
 const AMOUNTS = [ethers.parseEther('10000000'), 10n, 20n];
+const MASS_DELEGATION_ACCOUNTS = 120;
+const MASS_AMOUNT = ethers.parseEther('1');
 
 describe('Votes', function () {
   for (const [mode, artifact] of Object.entries(MODES)) {
@@ -62,39 +64,98 @@ describe('Votes', function () {
         });
 
         it('delegates', async function () {
-          expect(await this.votes.getVotes(this.accounts[0])).to.equal(0n);
-          expect(await this.votes.getVotes(this.accounts[1])).to.equal(0n);
-          expect(await this.votes.delegates(this.accounts[0])).to.equal(ethers.ZeroAddress);
-          expect(await this.votes.delegates(this.accounts[1])).to.equal(ethers.ZeroAddress);
+          expect(await this.votes.getVotes(this.accounts[0].address)).to.equal(0n);
+          expect(await this.votes.getVotes(this.accounts[1].address)).to.equal(0n);
+          expect(await this.votes.delegates(this.accounts[0].address)).to.equal(ethers.ZeroAddress);
+          expect(await this.votes.delegates(this.accounts[1].address)).to.equal(ethers.ZeroAddress);
 
-          await this.votes.delegate(this.accounts[0], ethers.Typed.address(this.accounts[0]));
+          await this.votes.connect(this.accounts[0]).delegate(this.accounts[0].address);
 
-          expect(await this.votes.getVotes(this.accounts[0])).to.equal(this.amounts[this.accounts[0].address]);
-          expect(await this.votes.getVotes(this.accounts[1])).to.equal(0n);
-          expect(await this.votes.delegates(this.accounts[0])).to.equal(this.accounts[0]);
-          expect(await this.votes.delegates(this.accounts[1])).to.equal(ethers.ZeroAddress);
+          expect(await this.votes.getVotes(this.accounts[0].address))
+            .to.equal(this.amounts[this.accounts[0].address]);
+          expect(await this.votes.getVotes(this.accounts[1].address)).to.equal(0n);
+          expect(await this.votes.delegates(this.accounts[0].address)).to.equal(this.accounts[0].address);
+          expect(await this.votes.delegates(this.accounts[1].address)).to.equal(ethers.ZeroAddress);
 
-          await this.votes.delegate(this.accounts[1], ethers.Typed.address(this.accounts[0]));
+          await this.votes.connect(this.accounts[1]).delegate(this.accounts[0].address);
 
-          expect(await this.votes.getVotes(this.accounts[0])).to.equal(
+          expect(await this.votes.getVotes(this.accounts[0].address)).to.equal(
             this.amounts[this.accounts[0].address] + this.amounts[this.accounts[1].address],
           );
-          expect(await this.votes.getVotes(this.accounts[1])).to.equal(0n);
-          expect(await this.votes.delegates(this.accounts[0])).to.equal(this.accounts[0]);
-          expect(await this.votes.delegates(this.accounts[1])).to.equal(this.accounts[0]);
+          expect(await this.votes.getVotes(this.accounts[1].address)).to.equal(0n);
+          expect(await this.votes.delegates(this.accounts[0].address)).to.equal(this.accounts[0].address);
+          expect(await this.votes.delegates(this.accounts[1].address)).to.equal(this.accounts[0].address);
         });
 
         it('cross delegates', async function () {
-          await this.votes.delegate(this.accounts[0], ethers.Typed.address(this.accounts[1]));
-          await this.votes.delegate(this.accounts[1], ethers.Typed.address(this.accounts[0]));
+          await this.votes.connect(this.accounts[0]).delegate(this.accounts[1].address);
+          await this.votes.connect(this.accounts[1]).delegate(this.accounts[0].address);
 
-          expect(await this.votes.getVotes(this.accounts[0])).to.equal(this.amounts[this.accounts[1].address]);
-          expect(await this.votes.getVotes(this.accounts[1])).to.equal(this.amounts[this.accounts[0].address]);
+          expect(await this.votes.getVotes(this.accounts[0].address))
+            .to.equal(this.amounts[this.accounts[1].address]);
+          expect(await this.votes.getVotes(this.accounts[1].address))
+            .to.equal(this.amounts[this.accounts[0].address]);
         });
 
         it('returns total amount of votes', async function () {
           const totalSupply = sum(...Object.values(this.amounts));
           expect(await this.votes.getTotalSupply()).to.equal(totalSupply);
+        });
+      });
+
+      //
+      // 🆕 Gas Optimization Stress Tests
+      //
+      describe('gas optimization under mass delegation', function () {
+        beforeEach(async function () {
+          this.accounts = await ethers.getSigners();
+          this.votes = await ethers.deployContract(artifact, ['Mass Vote', '1']);
+          // Mint tokens to many accounts
+          for (let i = 0; i < MASS_DELEGATION_ACCOUNTS; i++) {
+            await this.votes.$_mint(this.accounts[i].address, MASS_AMOUNT);
+          }
+        });
+
+        it('measures gas for 100+ accounts delegating to a single delegate', async function () {
+          const delegateAddr = this.accounts[0].address;
+          let totalGas = 0n;
+
+          for (let i = 1; i < MASS_DELEGATION_ACCOUNTS; i++) {
+            const tx = await this.votes.connect(this.accounts[i]).delegate(delegateAddr);
+            const receipt = await tx.wait();
+            totalGas += receipt.gasUsed;
+          }
+
+          console.log(`Total gas for ${MASS_DELEGATION_ACCOUNTS - 1} delegations: ${totalGas}`);
+        });
+
+        it('measures gas for cross-delegation', async function () {
+          let totalGas = 0n;
+
+          for (let i = 0; i < MASS_DELEGATION_ACCOUNTS; i++) {
+            const targetAddr = this.accounts[(i + 1) % MASS_DELEGATION_ACCOUNTS].address;
+            const tx = await this.votes.connect(this.accounts[i]).delegate(targetAddr);
+            const receipt = await tx.wait();
+            totalGas += receipt.gasUsed;
+          }
+
+          console.log(`Total gas for cross-delegation of ${MASS_DELEGATION_ACCOUNTS} accounts: ${totalGas}`);
+        });
+
+        it('handles multiple delegations in the same block', async function () {
+          await network.provider.send('evm_setAutomine', [false]);
+
+          for (let i = 1; i <= 50; i++) {
+            await this.votes
+              .connect(this.accounts[i])
+              .delegate(this.accounts[0].address);
+          }
+
+          await network.provider.send('evm_mine');
+          await network.provider.send('evm_setAutomine', [true]);
+
+          expect(await this.votes.getVotes(this.accounts[0].address))
+            .to.equal(MASS_AMOUNT * 51n); // self + 50 delegators
         });
       });
     });
