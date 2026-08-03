@@ -146,18 +146,26 @@ describe('GovernorTimelockCompound', function () {
               target: this.token.target,
               data: this.token.interface.encodeFunctionData('approve', [this.receiver.target, ethers.MaxUint256]),
             };
-            const { id } = this.helper.setProposal([action, action], '<proposal description>');
+            this.helper.setProposal([action, action], '<proposal description>');
 
-            await this.helper.propose();
-            await this.helper.waitForSnapshot();
-            await this.helper.connect(this.voter1).vote({ support: VoteType.For });
-            await this.helper.waitForDeadline();
-            await expect(this.helper.queue())
-              .to.be.revertedWithCustomError(this.mock, 'GovernorAlreadyQueuedProposal')
-              .withArgs(id);
-            await expect(this.helper.execute())
-              .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
-              .withArgs(id, ProposalState.Succeeded, GovernorHelper.proposalStatesToBitMap([ProposalState.Queued]));
+            await expect(this.helper.propose())
+              .to.be.revertedWithCustomError(this.mock, 'GovernorTimelockCompoundDuplicateProposalAction')
+              .withArgs(0n);
+          });
+        });
+
+        describe('on propose', function () {
+          it('if proposal has mismatched array lengths', async function () {
+            await expect(
+              this.mock.propose(
+                [this.receiver.target, this.receiver.target],
+                [0n],
+                [this.receiver.interface.encodeFunctionData('mockFunction')],
+                '<proposal description>',
+              ),
+            )
+              .to.be.revertedWithCustomError(this.mock, 'GovernorInvalidProposalLength')
+              .withArgs(2, 1, 1);
           });
         });
 
