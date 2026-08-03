@@ -5,6 +5,7 @@ pragma solidity ^0.8.20;
 
 import {Create2} from "../utils/Create2.sol";
 import {Errors} from "../utils/Errors.sol";
+import {Math} from "../utils/math/Math.sol";
 
 /**
  * @dev https://eips.ethereum.org/EIPS/eip-1167[ERC-1167] is a standard for
@@ -259,9 +260,34 @@ library Clones {
      *   function should only be used to check addresses that are known to be clones.
      */
     function fetchCloneArgs(address instance) internal view returns (bytes memory) {
-        bytes memory result = new bytes(instance.code.length - 0x2d); // revert if length is too short
+        return fetchCloneArgs(instance, 0, type(uint256).max);
+    }
+
+    /**
+     * @dev Variant of {fetchCloneArgs-address-} that copies the immutable args starting at position `start` (included)
+     * to the end. This is useful (and cheaper) when only a portion of the immutable args is needed. The `start`
+     * argument is truncated to the length of the immutable args.
+     */
+    function fetchCloneArgs(address instance, uint256 start) internal view returns (bytes memory) {
+        return fetchCloneArgs(instance, start, type(uint256).max);
+    }
+
+    /**
+     * @dev Variant of {fetchCloneArgs-address-} that copies at most `length` bytes of the immutable args, starting at
+     * position `start`. This is useful (and cheaper) when only a portion of the immutable args is needed. The slice
+     * (bytes `start` to `start + length`) is truncated to the length of the immutable args, so the returned array may
+     * be shorter than `length`.
+     */
+    function fetchCloneArgs(address instance, uint256 start, uint256 length) internal view returns (bytes memory) {
+        uint256 argsLength = instance.code.length - 0x2d; // revert if instance code is too short
+
+        // sanitize
+        start = Math.min(start, argsLength);
+        length = Math.min(length, argsLength - start);
+
+        bytes memory result = new bytes(length);
         assembly ("memory-safe") {
-            extcodecopy(instance, add(result, 0x20), 0x2d, mload(result))
+            extcodecopy(instance, add(result, 0x20), add(0x2d, start), length)
         }
         return result;
     }

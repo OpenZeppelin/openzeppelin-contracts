@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 
 import {Test} from "forge-std/Test.sol";
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
+import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 
 contract ClonesTest is Test {
     function getNumber() external pure returns (uint256) {
@@ -81,6 +82,37 @@ contract ClonesTest is Test {
         assertEq(ClonesTest(instance2).getNumber(), this.getNumber());
         assertEq(Clones.fetchCloneArgs(instance1), args);
         assertEq(Clones.fetchCloneArgs(instance2), args);
+    }
+
+    function testFetchCloneArgsSlice(bytes memory args, uint256 start, uint256 length, bytes32 salt) external {
+        vm.assume(args.length < 0xbfd3);
+
+        address instance = Clones.cloneDeterministicWithImmutableArgs(address(this), args, salt);
+
+        // slice is truncated to the length of the immutable args
+        uint256 expectedStart = Math.min(start, args.length);
+        uint256 expectedLength = Math.min(length, args.length - expectedStart);
+
+        bytes memory expected = new bytes(expectedLength);
+        for (uint256 i = 0; i < expectedLength; ++i) {
+            expected[i] = args[expectedStart + i];
+        }
+        assertEq(Clones.fetchCloneArgs(instance, start, length), expected);
+    }
+
+    function testFetchCloneArgsSliceToEnd(bytes memory args, uint256 start, bytes32 salt) external {
+        vm.assume(args.length < 0xbfd3);
+
+        address instance = Clones.cloneDeterministicWithImmutableArgs(address(this), args, salt);
+
+        // start is truncated to the length of the immutable args
+        uint256 expectedStart = Math.min(start, args.length);
+
+        bytes memory expected = new bytes(args.length - expectedStart);
+        for (uint256 i = 0; i < expected.length; ++i) {
+            expected[i] = args[expectedStart + i];
+        }
+        assertEq(Clones.fetchCloneArgs(instance, start), expected);
     }
 
     function _dirty(address input) private pure returns (address output) {
