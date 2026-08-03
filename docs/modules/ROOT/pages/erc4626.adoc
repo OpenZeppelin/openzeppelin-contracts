@@ -206,3 +206,12 @@ The following example describes how fees proportional to the deposited/withdrawn
 ```solidity
 include::api:example$ERC4626Fees.sol[]
 ```
+
+== Custom behavior: Native and alternative payment assets
+
+`deposit` and `mint` are `payable`, and the asset movement is factored behind virtual hooks, so a vault can use a payment asset other than a pulled ERC-20. Making the functions `payable` changes neither their selectors nor the ERC-165 interface id; a plain ERC-20 vault is unaffected because the default `_checkPayment` hook reverts on any non-zero `msg.value`.
+
+* `_checkPayment(uint256 assets)` validates the native value (`msg.value`) sent with a `deposit`/`mint`. Override it to accept (and require) native value.
+* `_transferIn` / `_transferOut` move the underlying in and out. The defaults use `SafeERC20`; override them to move a different asset (for example the native asset, via `Address.sendValue`).
+
+The canonical use of these hooks is xref:erc7535.adoc[ERC-7535], a vault whose underlying asset is the chain's native asset (e.g. Ether).
