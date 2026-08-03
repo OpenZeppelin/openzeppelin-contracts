@@ -25,11 +25,12 @@ const wrap = (mock, type) => ({
   available: (k = defaultKey) => mock.getFunction(`$available_RateLimiter_${type}`)(0n, k),
   tryConsume: (q, k = defaultKey) => mock.getFunction(`$tryConsume_RateLimiter_${type}`)(0n, k, q),
   tryConsumeStatic: (q, k = defaultKey) => mock.getFunction(`$tryConsume_RateLimiter_${type}`).staticCall(0n, k, q),
-  consume: (q, k = defaultKey) => mock.getFunction(`$consume_RateLimiter_${type}`)(0n, k, q),
+  consume: (q, k = defaultKey, overrides = {}) => mock.getFunction(`$consume_RateLimiter_${type}`)(0n, k, q, overrides),
   consumeStatic: (q, k = defaultKey) => mock.getFunction(`$consume_RateLimiter_${type}`).staticCall(0n, k, q),
   reset: (k = defaultKey) => mock.getFunction(`$reset_RateLimiter_${type}`)(0n, k),
-  updateSettings: (window, capacity) => mock.getFunction(`$updateSettings_RateLimiter_${type}`)(0n, window, capacity),
-  sync: type == 'RefillingBucket' ? (k = defaultKey) => mock.$sync(0n, k) : undefined,
+  updateSettings: (window, capacity, overrides = {}) =>
+    mock.getFunction(`$updateSettings_RateLimiter_${type}`)(0n, window, capacity, overrides),
+  sync: type == 'RefillingBucket' ? (k = defaultKey, overrides = {}) => mock.$sync(0n, k, overrides) : undefined,
 });
 
 describe('RateLimiter', function () {
@@ -257,9 +258,9 @@ describe('RateLimiter', function () {
 
       it('multiple consumes in the same block accumulate', async function () {
         await batchInBlock([
-          () => this.mock.consume(100n),
-          () => this.mock.consume(200n),
-          () => this.mock.consume(50n),
+          () => this.mock.consume(100n, defaultKey, { gasLimit: 200000 }),
+          () => this.mock.consume(200n, defaultKey, { gasLimit: 200000 }),
+          () => this.mock.consume(50n, defaultKey, { gasLimit: 200000 }),
         ]);
 
         // no time elapses between the three consumes; the entry's lastUsed accumulates to 350n
@@ -306,7 +307,10 @@ describe('RateLimiter', function () {
         await this.mock.consume(CAPACITY);
 
         await time.increaseBy.timestamp(d1, false);
-        await batchInBlock([() => this.mock.sync(), () => this.mock.updateSettings(WINDOW, CAPACITY * 2n)]);
+        await batchInBlock([
+          () => this.mock.sync(defaultKey, { gasLimit: 200000 }),
+          () => this.mock.updateSettings(WINDOW, CAPACITY * 2n, { gasLimit: 200000 }),
+        ]);
         await time.increaseBy.timestamp(d2);
 
         await expect(this.mock.state()).to.eventually.deep.equal([
@@ -533,9 +537,9 @@ describe('RateLimiter', function () {
 
       it('multiple consumes in the same block overwrite the checkpoint in place', async function () {
         await batchInBlock([
-          () => this.mock.consume(100n),
-          () => this.mock.consume(200n),
-          () => this.mock.consume(50n),
+          () => this.mock.consume(100n, defaultKey, { gasLimit: 200000 }),
+          () => this.mock.consume(200n, defaultKey, { gasLimit: 200000 }),
+          () => this.mock.consume(50n, defaultKey, { gasLimit: 200000 }),
         ]);
 
         // three pushes at the same timestamp collapse to a single checkpoint with cumulative 350n
