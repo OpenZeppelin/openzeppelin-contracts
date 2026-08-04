@@ -1,10 +1,13 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network, globalOptions } from 'hardhat';
+import { expect } from 'chai';
+import * as random from '../helpers/random';
+import { capitalize } from '../helpers/strings';
+import { TYPES } from '../../scripts/generate/templates/Arrays.opts';
 
-const { generators } = require('../helpers/random');
-const { capitalize } = require('../../scripts/helpers');
-const { TYPES } = require('../../scripts/generate/templates/Arrays.opts');
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.create();
 
 // See https://en.cppreference.com/w/cpp/algorithm/lower_bound
 const lowerBound = (array, value) => {
@@ -22,11 +25,14 @@ const bigintSign = x => (x > 0n ? 1 : x < 0n ? -1 : 0);
 const comparator = (a, b) => bigintSign(ethers.toBigInt(a) - ethers.toBigInt(b));
 const hasDuplicates = array => array.some((v, i) => array.indexOf(v) != i);
 
-describe('Arrays', function () {
-  const fixture = async () => {
-    return { mock: await ethers.deployContract('$Arrays') };
-  };
+// Chai matchers expect hexadecimal data when dealing with bytes
+const randomOf = type => random[type === 'bytes' ? 'hexBytes' : type];
 
+async function fixture() {
+  return { mock: await ethers.deployContract('$Arrays') };
+}
+
+describe('Arrays', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });
@@ -120,7 +126,7 @@ describe('Arrays', function () {
   });
 
   for (const { name, isValueType } of TYPES) {
-    const elements = Array.from({ length: 10 }, generators[name]);
+    const elements = Array.from({ length: 10 }, randomOf(name));
 
     describe(name, function () {
       const fixture = async () => {
@@ -133,54 +139,52 @@ describe('Arrays', function () {
 
       if (isValueType) {
         describe('sort', function () {
-          for (const length of [0, 1, 2, 8, 32, 128, 384]) {
-            describe(
-              [length > 32 && '[skip-on-coverage]', `${name}[] of length ${length}`].filter(Boolean).join(' '),
-              function () {
-                beforeEach(async function () {
-                  this.array = Array.from({ length }, generators[name]);
+          // When coverage is enabled, only consider length up to 32 (to avoid CI timeouts)
+          for (const length of [0, 1, 2, 8, 32, 128, 384].filter(l => !globalOptions.coverage || l <= 32)) {
+            describe(`${name}[] of length ${length}`, function () {
+              beforeEach(async function () {
+                this.array = Array.from({ length }, randomOf(name));
+              });
+
+              afterEach(async function () {
+                const expected = Array.from(this.array).sort(comparator);
+                const reversed = Array.from(expected).reverse();
+                await expect(this.instance.sort(this.array)).to.eventually.deep.equal(expected);
+                await expect(this.instance.sortReverse(this.array)).to.eventually.deep.equal(reversed);
+              });
+
+              it('sort array', async function () {
+                // nothing to do here, beforeEach and afterEach already take care of everything.
+              });
+
+              if (length > 1) {
+                it('sort array for identical elements', async function () {
+                  // duplicate the first value to all elements
+                  this.array.fill(this.array.at(0));
                 });
 
-                afterEach(async function () {
-                  const expected = Array.from(this.array).sort(comparator);
-                  const reversed = Array.from(expected).reverse();
-                  await expect(this.instance.sort(this.array)).to.eventually.deep.equal(expected);
-                  await expect(this.instance.sortReverse(this.array)).to.eventually.deep.equal(reversed);
+                it('sort already sorted array', async function () {
+                  // pre-sort the elements
+                  this.array.sort(comparator);
                 });
 
-                it('sort array', async function () {
-                  // nothing to do here, beforeEach and afterEach already take care of everything.
+                it('sort reversed array', async function () {
+                  // pre-sort in reverse order
+                  this.array.sort(comparator).reverse();
                 });
 
-                if (length > 1) {
-                  it('sort array for identical elements', async function () {
-                    // duplicate the first value to all elements
-                    this.array.fill(this.array.at(0));
-                  });
-
-                  it('sort already sorted array', async function () {
-                    // pre-sort the elements
-                    this.array.sort(comparator);
-                  });
-
-                  it('sort reversed array', async function () {
-                    // pre-sort in reverse order
-                    this.array.sort(comparator).reverse();
-                  });
-
-                  it('sort almost sorted array', async function () {
-                    // pre-sort + rotate (move the last element to the front) for an almost sorted effect
-                    this.array.sort(comparator);
-                    this.array.unshift(this.array.pop());
-                  });
-                }
-              },
-            );
+                it('sort almost sorted array', async function () {
+                  // pre-sort + rotate (move the last element to the front) for an almost sorted effect
+                  this.array.sort(comparator);
+                  this.array.unshift(this.array.pop());
+                });
+              }
+            });
           }
         });
 
         for (const fn of ['slice', 'splice']) {
-          const array = Array.from({ length: 10 }, generators[name]);
+          const array = Array.from({ length: 10 }, randomOf(name));
 
           describe(fn, function () {
             const fragment = `$${fn}(${name}[] arr, uint256 start)`;
@@ -250,7 +254,7 @@ describe('Arrays', function () {
           });
 
           it('unsafeSetLength changes the length or the array', async function () {
-            const newLength = generators.uint256();
+            const newLength = random.uint256();
 
             await expect(this.instance.length()).to.eventually.equal(elements.length);
             await expect(this.instance.unsafeSetLength(newLength)).to.not.be.rejected;
@@ -274,7 +278,7 @@ describe('Arrays', function () {
           it('unsafeMemoryAccess loop around', async function () {
             for (let i = 251n; i < 256n; ++i) {
               await expect(this.mock[fragment](elements, 2n ** i - 1n)).to.eventually.equal(
-                isValueType ? BigInt(elements.length) : generators[name].zero,
+                isValueType ? BigInt(elements.length) : randomOf(name).zero,
               );
               await expect(this.mock[fragment](elements, 2n ** i + 0n)).to.eventually.equal(elements[0]);
               await expect(this.mock[fragment](elements, 2n ** i + 1n)).to.eventually.equal(elements[1]);

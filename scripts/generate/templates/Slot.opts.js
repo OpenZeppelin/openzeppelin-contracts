@@ -1,4 +1,4 @@
-const { capitalize } = require('../../helpers');
+import { capitalize } from '../../helpers.js';
 
 const TYPES = [
   { type: 'address', isValueType: true },
@@ -12,4 +12,4 @@ const TYPES = [
 
 Object.assign(TYPES, Object.fromEntries(TYPES.map(entry => [entry.type, entry])));
 
-module.exports = { TYPES };
+export { TYPES };
