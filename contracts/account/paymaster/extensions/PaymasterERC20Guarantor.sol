@@ -80,7 +80,7 @@ abstract contract PaymasterERC20Guarantor is PaymasterERC20 {
         if (prefunder == guarantor) {
             emit UserOperationGuaranteed(userOpHash, prefunder, prefundAmount);
         }
-        return (success, prefunder, prefundAmount_, abi.encodePacked(prefundContext, userOp.sender));
+        return (success, prefunder, prefundAmount, abi.encodePacked(prefundContext, userOp.sender));
     }
 
     /**
