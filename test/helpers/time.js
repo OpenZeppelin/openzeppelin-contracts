@@ -4,5 +4,3 @@ export const hours = n => minutes(n) * 60n;
 export const days = n => hours(n) * 24n;
 export const weeks = n => days(n) * 7n;
 export const years = n => days(n) * 365n;
-
-export const duration = { years, weeks, days, hours, minutes, seconds };

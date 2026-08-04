@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import { expect } from 'chai';
 import { shouldSupportInterfaces } from '../utils/introspection/SupportsInterface.behavior';
-import { duration } from '../helpers/time';
+import * as duration from '../helpers/time';
 
 export const DEFAULT_ADMIN_ROLE = ethers.ZeroHash;
 

@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import { MAX_UINT64 } from './constants';
-import { duration } from './time';
+import * as duration from './time';
 import { upgradeableSlot } from './storage';
 
 export function buildBaseRoles() {
