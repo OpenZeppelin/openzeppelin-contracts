@@ -2,10 +2,11 @@ import { ethers } from 'ethers';
 import { expect } from 'chai';
 import { encodeBatch, encodeMode, CALL_TYPE_BATCH } from '../../helpers/erc7579';
 import { MAX_UINT48 } from '../../helpers/constants';
+import * as duration from '../../helpers/time';
 
 const deposit = ethers.parseEther('1');
 const value = 42n;
-const delay = 36_000n; // 10 hours in seconds
+const delay = duration.hours(10);
 
 export function shouldBehaveLikePaymaster({ postOp, timeRange }) {
   describe('entryPoint', function () {
