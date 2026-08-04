@@ -86,8 +86,9 @@ abstract contract PaymasterERC20Guarantor is PaymasterERC20 {
     /**
      * @dev Handles the refund process for guaranteed operations.
      *
-     * * **Non-guaranteed** (`prefunder == userOp.sender`): pass the base `actualAmount` through to
-     *   {PaymasterERC20-_refund}.
+     * * **Non-guaranteed** (`prefunder == userOp.sender`): forward to {PaymasterERC20-_refund} and
+     *   propagate the effective amount returned by `super._refund` so downstream extensions can
+     *   report their actual charge (e.g. a fixed-credit policy that reduces the settlement).
      * * **Guaranteed**: augment `actualAmount` by {_guaranteedPostOpCost} * `actualUserOpFeePerGas`
      *   (priced in tokens), pull it from `userOp.sender`, and call {PaymasterERC20-_refund} with
      *   `actualAmount = 0` so the guarantor gets the full `prefundAmount` back. If the user fails to pay,
@@ -123,21 +124,20 @@ abstract contract PaymasterERC20Guarantor is PaymasterERC20 {
             if (token.trySafeTransferFrom(userOpSender, address(this), actualAmount)) {
                 actualAmount = 0;
             }
-        } else {
-            effectiveAmount = actualAmount;
         }
 
-        (refunded, ) = super._refund(
+        uint256 returnedEffectiveAmount;
+        bytes calldata forwardedContext = prefundContext[:prefundContext.length - 20];
+        (refunded, returnedEffectiveAmount) = super._refund(
             token,
             tokenPrice,
             actualAmount,
             actualUserOpFeePerGas,
             prefunder,
             prefundAmount,
-            prefundContext[:prefundContext.length - 20]
+            forwardedContext
         );
-
-        return (refunded, effectiveAmount);
+        return (refunded, Math.ternary(prefunder != userOpSender, effectiveAmount, returnedEffectiveAmount));
     }
 
     /**

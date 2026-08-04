@@ -428,4 +428,90 @@ describe('PaymasterERC20Guarantor', function () {
         .withArgs(0n, 'AA34 signature error');
     });
   });
+
+  describe('propagates effective amounts from downstream extensions', function () {
+    // Composition: Mock → PaymasterERC20Guarantor → PaymasterERC20ReducingMock → PaymasterERC20.
+    // The reducing helper subtracts 1 from the amount passed to super, simulating a downstream
+    // extension (e.g. a fixed-credit policy) that legitimately settles for less than requested.
+    // Guarantor must propagate the reduced value returned by super, otherwise the postOp context
+    // would record an unbacked amount and the refund path would pay out of the paymaster balance.
+    const userOp = sender => ({
+      sender,
+      nonce: 0n,
+      initCode: '0x',
+      callData: '0x',
+      accountGasLimits: ethers.ZeroHash,
+      preVerificationGas: 0n,
+      gasFees: ethers.ZeroHash,
+      paymasterAndData: '0x',
+      signature: '0x',
+    });
+
+    beforeEach(async function () {
+      this.reducingPaymaster = await ethers.deployContract('$PaymasterERC20GuarantorReducingMock');
+    });
+
+    it('_prefund returns the amount pulled by super, not the input', async function () {
+      const requested = 100n;
+      const effective = requested - 1n; // reducing helper subtracts 1
+
+      await this.token.$_mint(this.other, effective);
+      await this.token.$_approve(this.other, this.reducingPaymaster, ethers.MaxUint256);
+
+      // Return value carries the effective amount (99), matching what super pulled.
+      // Without the fix, this would be `requested` (100) — one token more than actually entered
+      // the paymaster, and that inflated value would be serialized into the postOp context.
+      const packedSender = ethers.solidityPacked(['address'], [this.other.address]);
+      await expect(
+        this.reducingPaymaster.$_prefund(
+          userOp(this.other.address),
+          ethers.ZeroHash,
+          this.token,
+          ethers.WeiPerEther, // tokenPrice
+          this.other.address,
+          requested,
+        ),
+      )
+        .to.emit(this.reducingPaymaster, 'return$_prefund')
+        .withArgs(true, this.other.address, effective, packedSender);
+
+      // Token movements confirm only the effective amount actually entered the paymaster.
+      expect(await this.token.balanceOf(this.other)).to.equal(0n);
+      expect(await this.token.balanceOf(this.reducingPaymaster)).to.equal(effective);
+    });
+
+    it('_refund returns the amount charged by super for non-guaranteed operations', async function () {
+      // Seed the paymaster so the refund transfer succeeds.
+      const prefundAmount = 100n;
+      const inputActual = 40n;
+      const effectiveActual = inputActual - 1n; // reducing helper subtracts 1
+      await this.token.$_mint(this.reducingPaymaster, prefundAmount);
+
+      // prefunder == userOpSender in the context tail → the non-guaranteed branch runs.
+      const prefundContext = ethers.solidityPacked(['address'], [this.other.address]);
+
+      // Return value carries the effective charge (39), matching what super actually charged.
+      // Without the fix, this would be `inputActual` (40) — the pre-reduction value — so
+      // `UserOperationSponsored.tokenAmount` would disagree with the actual settlement.
+      await expect(
+        this.reducingPaymaster.$_refund(
+          this.token,
+          ethers.WeiPerEther, // tokenPrice
+          inputActual, // actualAmount
+          1n, // actualUserOpFeePerGas
+          this.other.address, // prefunder
+          prefundAmount,
+          prefundContext,
+        ),
+      )
+        .to.emit(this.reducingPaymaster, 'return$_refund')
+        .withArgs(true, effectiveActual);
+
+      // The base refunded `prefundAmount - effectiveActual`. Paymaster keeps only the effective
+      // amount; if the return value had reported the pre-reduction 40, the recorded charge would
+      // not match the token balance change.
+      expect(await this.token.balanceOf(this.other)).to.equal(prefundAmount - effectiveActual);
+      expect(await this.token.balanceOf(this.reducingPaymaster)).to.equal(effectiveActual);
+    });
+  });
 });
