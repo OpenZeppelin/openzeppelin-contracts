@@ -27,6 +27,8 @@ jobs:
       - run: forge compile && forge lint --deny notes --only-lint unused-import
 
   tests:
+    permissions:
+      pull-requests: write # required by step-security/sticky-pull-request-comment
     runs-on: ubuntu-latest
     env:
       FORCE_COLOR: 1
