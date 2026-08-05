@@ -33,14 +33,14 @@ runs:
     - name: Compare reports
       if: steps.reference.outcome == 'success' && github.event_name == 'pull_request'
       run: |
-        node scripts/checks/compareGasReports.js ${{ inputs.report }} ${{ inputs.ref_report }} >> comparison.md
+        node scripts/checks/compareGasReports.js ${{ inputs.report }} ${{ inputs.ref_report }} > comparison.md
       env:
         STYLE: markdown
       shell: bash
       id: comparison
     - name: Comment comparison
       if: steps.comparison.outcome == 'success' && github.event_name == 'pull_request'
-      uses: step-security/sticky-pull-request-comment@v3
+      uses: step-security/sticky-pull-request-comment
       with:
         path: comparison.md
     - name: Rename report for upload
