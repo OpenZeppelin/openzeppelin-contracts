@@ -93,6 +93,11 @@ abstract contract PaymasterERC20Guarantor is PaymasterERC20 {
      *   (priced in tokens), pull it from `userOp.sender`, and call {PaymasterERC20-_refund} with
      *   `actualAmount = 0` so the guarantor gets the full `prefundAmount` back. If the user fails to pay,
      *   the guarantor absorbs the GUARANTEED cost (not the base cost).
+     *
+     * NOTE: For guaranteed ops, the returned `effectiveAmount` mirrors the value emitted in
+     * {UserOperationGuaranteed}: the guarantor's inflated `actualAmount`, not necessarily the
+     * amount that `super._refund` settled. Only the non-guaranteed branch propagates what a
+     * downstream extension actually charged.
      */
     function _refund(
         IERC20 token,
