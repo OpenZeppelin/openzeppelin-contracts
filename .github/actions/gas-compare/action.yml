@@ -40,7 +40,7 @@ runs:
       id: comparison
     - name: Comment comparison
       if: steps.comparison.outcome == 'success' && github.event_name == 'pull_request'
-      uses: step-security/sticky-pull-request-comment
+      uses: step-security/sticky-pull-request-comment@v3
       with:
         path: comparison.md
     - name: Rename report for upload
