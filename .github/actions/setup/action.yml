@@ -32,30 +32,35 @@ runs:
     - name: "Determine versions to install"
       id: versions
       shell: bash
-      run: |
-        (
-          [[ "${{ inputs.node }}" = "on" ]] \
-            && echo "node=$NODE_DEFAULT_VERSION" \
-            || echo "node=${{ inputs.node }}"
-          [[ "${{ inputs.foundry }}" = "on" ]] \
-            && echo "foundry=$FOUNDRY_DEFAULT_VERSION" \
-            || echo "foundry=${{ inputs.foundry }}"
-          [[ "${{ inputs.java }}" = "on" ]] \
-            && echo "java=$JAVA_DEFAULT_VERSION" \
-            || echo "java=${{ inputs.java }}"
-          [[ "${{ inputs.python }}" = "on" ]] \
-            && echo "python=$PYTHON_DEFAULT_VERSION" \
-            || echo "python=${{ inputs.python }}"
-          [[ "${{ inputs.solc }}" = "on" ]] \
-            && echo "solc=$SOLC_DEFAULT_VERSION" \
-            || echo "solc=${{ inputs.solc }}"
-        ) > $GITHUB_OUTPUT
       env:
+        INPUT_NODE: ${{ inputs.node }}
+        INPUT_FOUNDRY: ${{ inputs.foundry }}
+        INPUT_JAVA: ${{ inputs.java }}
+        INPUT_PYTHON: ${{ inputs.python }}
+        INPUT_SOLC: ${{ inputs.solc }}
         NODE_DEFAULT_VERSION: "24.x"
         FOUNDRY_DEFAULT_VERSION: "stable"
         JAVA_DEFAULT_VERSION: "21"
         PYTHON_DEFAULT_VERSION: "3.13"
         SOLC_DEFAULT_VERSION: "0.8.35"
+      run: |
+        (
+          [[ "$INPUT_NODE" = "on" ]] \
+            && echo "node=$NODE_DEFAULT_VERSION" \
+            || echo "node=$INPUT_NODE"
+          [[ "$INPUT_FOUNDRY" = "on" ]] \
+            && echo "foundry=$FOUNDRY_DEFAULT_VERSION" \
+            || echo "foundry=$INPUT_FOUNDRY"
+          [[ "$INPUT_JAVA" = "on" ]] \
+            && echo "java=$JAVA_DEFAULT_VERSION" \
+            || echo "java=$INPUT_JAVA"
+          [[ "$INPUT_PYTHON" = "on" ]] \
+            && echo "python=$PYTHON_DEFAULT_VERSION" \
+            || echo "python=$INPUT_PYTHON"
+          [[ "$INPUT_SOLC" = "on" ]] \
+            && echo "solc=$SOLC_DEFAULT_VERSION" \
+            || echo "solc=$INPUT_SOLC"
+        ) > $GITHUB_OUTPUT
     # Node & npm setup
     - name: Install Node (${{ steps.versions.outputs.node }})
       if: inputs.node != 'off'
@@ -97,7 +102,9 @@ runs:
     - name: Install python packages
       if: inputs.python != 'off'
       shell: bash
-      run: pip install -r ${{ inputs.python-requirements }}
+      env:
+        PYTHON_REQUIREMENTS: ${{ inputs.python-requirements }}
+      run: pip install -r "$PYTHON_REQUIREMENTS"
     # Solc setup
     - name: Install solc (${{ steps.versions.outputs.solc }})
       if: inputs.solc != 'off'

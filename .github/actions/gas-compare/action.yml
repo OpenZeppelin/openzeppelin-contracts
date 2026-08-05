@@ -32,15 +32,20 @@ runs:
       id: reference
     - name: Compare reports
       if: steps.reference.outcome == 'success' && github.event_name == 'pull_request'
-      run: |
-        node scripts/checks/compareGasReports.js ${{ inputs.report }} ${{ inputs.ref_report }} >> $GITHUB_STEP_SUMMARY
       env:
         STYLE: markdown
+        REPORT: ${{ inputs.report }}
+        REF_REPORT: ${{ inputs.ref_report }}
+      run: |
+        node scripts/checks/compareGasReports.js "$REPORT" "$REF_REPORT" >> $GITHUB_STEP_SUMMARY
       shell: bash
     - name: Rename report for upload
       if: github.event_name != 'pull_request'
+      env:
+        REPORT: ${{ inputs.report }}
+        OUT_REPORT: ${{ inputs.out_report }}
       run: |
-        mv ${{ inputs.report }} ${{ inputs.out_report }}
+        mv "$REPORT" "$OUT_REPORT"
       shell: bash
     - name: Save report
       if: github.event_name != 'pull_request'

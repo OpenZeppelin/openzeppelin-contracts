@@ -25,8 +25,11 @@ runs:
   using: composite
   steps:
     - name: Extract layout
+      env:
+        BUILDINFO: ${{ inputs.buildinfo }}
+        LAYOUT: ${{ inputs.layout }}
       run: |
-        node scripts/checks/extract-layout.js ${{ inputs.buildinfo }} > ${{ inputs.layout }}
+        node scripts/checks/extract-layout.js $BUILDINFO > "$LAYOUT"
       shell: bash
     - name: Download reference
       if: github.event_name == 'pull_request'
@@ -40,13 +43,19 @@ runs:
       id: reference
     - name: Compare layouts
       if: steps.reference.outcome == 'success' && github.event_name == 'pull_request'
+      env:
+        LAYOUT: ${{ inputs.layout }}
+        REF_LAYOUT: ${{ inputs.ref_layout }}
       run: |
-        node scripts/checks/compare-layout.js --head ${{ inputs.layout }} --ref ${{ inputs.ref_layout }}
+        node scripts/checks/compare-layout.js --head "$LAYOUT" --ref "$REF_LAYOUT"
       shell: bash
     - name: Rename artifacts for upload
       if: github.event_name != 'pull_request'
+      env:
+        LAYOUT: ${{ inputs.layout }}
+        OUT_LAYOUT: ${{ inputs.out_layout }}
       run: |
-        mv ${{ inputs.layout }} ${{ inputs.out_layout }}
+        mv "$LAYOUT" "$OUT_LAYOUT"
       shell: bash
     - name: Save artifacts
       if: github.event_name != 'pull_request'
