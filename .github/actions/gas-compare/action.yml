@@ -45,7 +45,7 @@ runs:
         REPORT: ${{ inputs.report }}
         OUT_REPORT: ${{ inputs.out_report }}
       run: |
-        mv "$REPORT" "$OUT_REPORT"
+        mv -- "$REPORT" "$OUT_REPORT"
       shell: bash
     - name: Save report
       if: github.event_name != 'pull_request'

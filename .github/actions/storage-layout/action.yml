@@ -29,7 +29,11 @@ runs:
         BUILDINFO: ${{ inputs.buildinfo }}
         LAYOUT: ${{ inputs.layout }}
       run: |
-        node scripts/checks/extract-layout.js $BUILDINFO > "$LAYOUT"
+        mapfile -t buildinfo_files < <(compgen -G "$BUILDINFO" || true)
+        if (( ${#buildinfo_files[@]} == 0 )); then
+          buildinfo_files=("$BUILDINFO")
+        fi
+        node scripts/checks/extract-layout.js "${buildinfo_files[@]}" > "$LAYOUT"
       shell: bash
     - name: Download reference
       if: github.event_name == 'pull_request'
@@ -55,7 +59,7 @@ runs:
         LAYOUT: ${{ inputs.layout }}
         OUT_LAYOUT: ${{ inputs.out_layout }}
       run: |
-        mv "$LAYOUT" "$OUT_LAYOUT"
+        mv -- "$LAYOUT" "$OUT_LAYOUT"
       shell: bash
     - name: Save artifacts
       if: github.event_name != 'pull_request'
