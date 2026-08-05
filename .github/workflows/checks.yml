@@ -28,7 +28,7 @@ jobs:
 
   tests:
     permissions:
-      pull-requests: write # required by marocchino/sticky-pull-request-comment
+      pull-requests: write # required by step-security/sticky-pull-request-comment
     runs-on: ubuntu-latest
     env:
       FORCE_COLOR: 1
