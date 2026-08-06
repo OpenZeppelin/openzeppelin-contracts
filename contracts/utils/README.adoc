@@ -27,18 +27,22 @@ Miscellaneous contracts and libraries containing utility functions you can use t
  * {Base58}: On-chain base58 encoding and decoding.
  * {Base64}: On-chain base64 and base64URL encoding according to https://datatracker.ietf.org/doc/html/rfc4648[RFC-4648].
  * {Blockhash}: A library for accessing historical block hashes beyond the standard 256 block limit utilizing EIP-2935's historical blockhash functionality.
+ * {BlockHeader}: A library for parsing and verifying RLP-encoded block headers.
  * {Bytes}: Common operations on bytes objects.
  * {CAIP2}, {CAIP10}: Libraries for formatting and parsing CAIP-2 and CAIP-10 identifiers.
  * {Calldata}: Helpers for manipulating calldata.
  * {Comparators}: A library that contains comparator functions to use with the {Heap} library.
  * {Context}: A utility for abstracting the sender and calldata in the current execution context.
  * {Create2}: Wrapper around the https://blog.openzeppelin.com/getting-the-most-out-of-create2/[`CREATE2` EVM opcode] for safe use without having to deal with low-level assembly.
+ * {Create3}: Library implementing the Create3 mechanism for counterfactually deploying contract at addresses that are only affected by the salt (and not by the bytecodehash like Create2).
+ * {ERC6372Utils}: Utility library for the ERC-6372 clock standard
  * {InteroperableAddress}: Library for formatting and parsing ERC-7930 interoperable addresses.
  * {LowLevelCall}: Collection of functions to perform calls with low-level assembly.
  * {Memory}: A utility library to manipulate memory.
  * {Multicall}: Abstract contract with a utility to allow batching together multiple calls in a single transaction. Useful for allowing EOAs to perform multiple operations at once.
  * {Packing}: A library for packing and unpacking multiple values into bytes32.
  * {Panic}: A library to revert with https://docs.soliditylang.org/en/v0.8.20/control-structures.html#panic-via-assert-and-error-via-require[Solidity panic codes].
+ * {RateLimiter}: A library that provides primitives for limiting the rate at which an action can be performed, using a refilling token bucket or a sliding window counter.
  * {RelayedCall}: A library for performing calls that use minimal and predictable relayers to hide the sender.
  * {RLP}: Library for encoding and decoding data in Ethereum's Recursive Length Prefix format.
  * {ShortStrings}: Library to encode (and decode) short strings into (or from) a single bytes32 slot for optimizing costs. Short strings are limited to 31 characters.
@@ -118,6 +122,8 @@ Ethereum contracts have no native concept of an interface, so applications must 
 
 {{Blockhash}}
 
+{{BlockHeader}}
+
 {{Bytes}}
 
 {{CAIP10}}
@@ -132,6 +138,10 @@ Ethereum contracts have no native concept of an interface, so applications must 
 
 {{Create2}}
 
+{{Create3}}
+
+{{ERC6372Utils}}
+
 {{InteroperableAddress}}
 
 {{LowLevelCall}}
@@ -143,6 +153,8 @@ Ethereum contracts have no native concept of an interface, so applications must 
 {{Packing}}
 
 {{Panic}}
+
+{{RateLimiter}}
 
 {{RelayedCall}}
 

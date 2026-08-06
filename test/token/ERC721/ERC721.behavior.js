@@ -480,15 +480,13 @@ function shouldBehaveLikeERC721() {
 
       const itApproves = function () {
         it('sets the approval for the target address', async function () {
-          expect(await this.token.getApproved(tokenId)).to.equal(this.approved ?? this.approved);
+          expect(await this.token.getApproved(tokenId)).to.equal(this.approved);
         });
       };
 
       const itEmitsApprovalEvent = function () {
         it('emits an approval event', async function () {
-          await expect(this.tx)
-            .to.emit(this.token, 'Approval')
-            .withArgs(this.owner, this.approved ?? this.approved, tokenId);
+          await expect(this.tx).to.emit(this.token, 'Approval').withArgs(this.owner, this.approved, tokenId);
         });
       };
 
