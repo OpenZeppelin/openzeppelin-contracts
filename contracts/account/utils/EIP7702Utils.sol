@@ -13,8 +13,6 @@ library EIP7702Utils {
 
     /**
      * @dev Returns the address of the delegate if `account` has an EIP-7702 delegation setup, or address(0) otherwise.
-     *
-     * NOTE: Only the first word of `account`'s code is read, so the cost does not depend on the size of that code.
      */
     function fetchDelegate(address account) internal view returns (address) {
         bytes32 word;
