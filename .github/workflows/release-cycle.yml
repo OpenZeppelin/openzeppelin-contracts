@@ -132,6 +132,7 @@ jobs:
     permissions:
       contents: write
       id-token: write
+      issues: write
     if: needs.state.outputs.publish == 'true'
     runs-on: ubuntu-latest
     steps:
@@ -153,6 +154,7 @@ jobs:
         env:
           TARBALL: ${{ steps.pack.outputs.tarball }}
           TAG: ${{ steps.pack.outputs.tag }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Create Github Release
         uses: actions/github-script@v9
         env:
