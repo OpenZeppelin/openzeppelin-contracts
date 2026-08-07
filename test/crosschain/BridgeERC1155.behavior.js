@@ -398,6 +398,22 @@ function shouldBehaveLikeBridgeERC1155({ chainAIsCustodial = false, chainBIsCust
           .to.be.revertedWithCustomError(this.bridgeA, 'ERC7786RecipientUnauthorizedGateway')
           .withArgs(this.gateway, this.chain.toErc7930(invalid));
       });
+
+      it('rejects a receiver address that is not exactly 20 bytes', async function () {
+        const [alice] = this.accounts;
+        // a 32-byte receiver (e.g. a non-EVM address) must not be silently truncated
+        const longReceiver = ethers.zeroPadValue(alice.address, 32);
+        const payload = ethers.AbiCoder.defaultAbiCoder().encode(
+          ['bytes', 'bytes', 'uint256[]', 'uint256[]', 'bytes'],
+          [this.chain.toErc7930(alice), longReceiver, ids, values, '0x'],
+        );
+
+        await expect(
+          this.bridgeA
+            .connect(this.gatewayAsEOA)
+            .receiveMessage(ethers.ZeroHash, this.chain.toErc7930(this.bridgeB), payload),
+        ).to.be.revertedWithCustomError(this.bridgeA, 'CrosschainMultiTokenInvalidAddress');
+      });
     });
 
     describe('reconfiguration', function () {

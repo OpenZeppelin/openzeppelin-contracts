@@ -29,6 +29,9 @@ abstract contract BridgeFungible is Context, CrosschainLinked {
     /// @dev Revert reason when the address part of the interoperable address is empty.
     error CrosschainFungibleEmptyAddress();
 
+    /// @dev The receiver address in the payload is not exactly 20 bytes.
+    error CrosschainFungibleInvalidAddress();
+
     /**
      * @dev Transfer `amount` tokens to a crosschain receiver.
      *
@@ -71,6 +74,9 @@ abstract contract BridgeFungible is Context, CrosschainLinked {
 
         // split payload
         (bytes memory from, bytes memory toEvm, uint256 amount) = abi.decode(payload, (bytes, bytes, uint256));
+        // `toEvm` comes from the ERC-7786 payload; `bytes20(...)` would silently truncate
+        // a longer (e.g. non-EVM) address, mis-delivering the assets to a wrong account.
+        require(toEvm.length == 20, CrosschainFungibleInvalidAddress());
         address to = address(bytes20(toEvm));
 
         _onReceive(to, amount);
