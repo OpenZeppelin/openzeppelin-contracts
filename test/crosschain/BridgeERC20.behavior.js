@@ -108,10 +108,7 @@ function shouldBehaveLikeBridgeERC20({ chainAIsCustodial = false, chainBIsCustod
         await this.tokenA.connect(alice).approve(this.bridgeA, ethers.MaxUint256);
 
         // Without this check, send would lock tokens and the length-checked receive path would reject forever.
-        const longReceiver = encodeEip155Receiver(
-          this.chain.reference,
-          ethers.zeroPadValue(bruce.address, 32),
-        );
+        const longReceiver = encodeEip155Receiver(this.chain.reference, ethers.zeroPadValue(bruce.address, 32));
 
         await expect(
           this.bridgeA.connect(alice).crosschainTransfer(longReceiver, amount),
