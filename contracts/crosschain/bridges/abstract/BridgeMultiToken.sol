@@ -44,7 +44,7 @@ abstract contract BridgeMultiToken is Context, CrosschainLinked {
     /// @dev Revert reason when the address part of the interoperable address is empty.
     error CrosschainMultiTokenEmptyAddress();
 
-    /// @dev The receiver address in the payload is not exactly 20 bytes.
+    /// @dev The receiver address is not a valid EVM address (wrong length or zero).
     error CrosschainMultiTokenInvalidAddress();
 
     /**
@@ -60,10 +60,15 @@ abstract contract BridgeMultiToken is Context, CrosschainLinked {
         uint256[] memory values,
         bytes memory data
     ) internal virtual returns (bytes32) {
-        _onSend(from, ids, values);
-
         (bytes2 chainType, bytes memory chainReference, bytes memory addr) = to.parseV1();
         require(addr.length > 0, CrosschainMultiTokenEmptyAddress());
+        // EIP-155 destinations use 20-byte non-zero addresses (see {InteroperableAddress-tryParseEvmV1}).
+        // Accepting other lengths (or the zero address) would lock funds once the receive path rejects them.
+        if (chainType == bytes2(0x0000)) {
+            require(addr.length == 20 && address(bytes20(addr)) != address(0), CrosschainMultiTokenInvalidAddress());
+        }
+
+        _onSend(from, ids, values);
 
         bytes32 sendId = _sendMessageToCounterpart(
             InteroperableAddress.formatV1(chainType, chainReference, hex""),
@@ -89,8 +94,10 @@ abstract contract BridgeMultiToken is Context, CrosschainLinked {
             .decode(payload, (bytes, bytes, uint256[], uint256[], bytes));
         // `toEvm` comes from the ERC-7786 payload; `bytes20(...)` would silently truncate
         // a longer (e.g. non-EVM) address, mis-delivering the assets to a wrong account.
+        // The zero address is also rejected: unlocking/minting there is irreversible fund loss.
         require(toEvm.length == 20, CrosschainMultiTokenInvalidAddress());
         address to = address(bytes20(toEvm));
+        require(to != address(0), CrosschainMultiTokenInvalidAddress());
 
         _onReceive(to, ids, values, data);
 
