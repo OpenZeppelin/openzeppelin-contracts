@@ -54,6 +54,11 @@ describe('VestingWallet', function () {
     await token.connect(this.beneficiary).transfer(this.mock, releasable);
 
     await expect(this.mock['vestedAmount(address,uint64)'](token, timestamp)).not.to.be.reverted;
+
+    const laterTimestamp = this.start + (this.duration * 3n) / 4n;
+    await expect(this.mock['vestedAmount(address,uint64)'](token, laterTimestamp)).to.not.be.reverted;
+
+    expect(await this.mock['vestedAmount(address,uint64)'](token, laterTimestamp)).to.equal(ethers.MaxUint256);
   });
 
   it('check vesting contract', async function () {

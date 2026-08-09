@@ -164,7 +164,20 @@ contract VestingWallet is Context, Ownable {
         uint256 remainderBalance = mulmod(balance, elapsed, vestingDuration);
         uint256 remainderReleased = mulmod(releasedAmount, elapsed, vestingDuration);
 
-        return vestedBalance + vestedReleased + (remainderBalance + remainderReleased >= vestingDuration ? 1 : 0);
+        if (vestedBalance > type(uint256).max - vestedReleased) {
+            return type(uint256).max;
+        }
+
+        uint256 vested = vestedBalance + vestedReleased;
+
+        if (remainderBalance + remainderReleased >= vestingDuration) {
+            if (vested == type(uint256).max) {
+                return type(uint256).max;
+            }
+            ++vested;
+        }
+
+        return vested;
     }
 
     /**
