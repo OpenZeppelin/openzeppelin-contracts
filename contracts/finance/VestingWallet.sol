@@ -3,6 +3,7 @@
 
 pragma solidity ^0.8.20;
 
+import {Math} from "../utils/math/Math.sol";
 import {IERC20} from "../token/ERC20/IERC20.sol";
 import {SafeERC20} from "../token/ERC20/utils/SafeERC20.sol";
 import {Address} from "../utils/Address.sol";
@@ -141,7 +142,29 @@ contract VestingWallet is Context, Ownable {
      * @dev Calculates the amount of tokens that has already vested. Default implementation is a linear vesting curve.
      */
     function vestedAmount(address token, uint64 timestamp) public view virtual returns (uint256) {
-        return _vestingSchedule(IERC20(token).balanceOf(address(this)) + released(token), timestamp);
+        uint256 balance = IERC20(token).balanceOf(address(this));
+        uint256 releasedAmount = released(token);
+
+        if (balance <= type(uint256).max - releasedAmount) {
+            return _vestingSchedule(balance + releasedAmount, timestamp);
+        }
+
+        if (timestamp < start()) {
+            return 0;
+        } else if (timestamp >= end()) {
+            return type(uint256).max;
+        }
+
+        uint256 elapsed = timestamp - start();
+        uint256 vestingDuration = duration();
+
+        uint256 vestedBalance = Math.mulDiv(balance, elapsed, vestingDuration);
+        uint256 vestedReleased = Math.mulDiv(releasedAmount, elapsed, vestingDuration);
+
+        uint256 remainderBalance = mulmod(balance, elapsed, vestingDuration);
+        uint256 remainderReleased = mulmod(releasedAmount, elapsed, vestingDuration);
+
+        return vestedBalance + vestedReleased + (remainderBalance + remainderReleased >= vestingDuration ? 1 : 0);
     }
 
     /**
@@ -154,7 +177,7 @@ contract VestingWallet is Context, Ownable {
         } else if (timestamp >= end()) {
             return totalAllocation;
         } else {
-            return (totalAllocation * (timestamp - start())) / duration();
+            return Math.mulDiv(totalAllocation, timestamp - start(), duration());
         }
     }
 }

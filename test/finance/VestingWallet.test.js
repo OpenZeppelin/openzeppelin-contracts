@@ -38,6 +38,24 @@ describe('VestingWallet', function () {
       .withArgs(ethers.ZeroAddress);
   });
 
+  it('does not overflow when released tokens are transferred back', async function () {
+    const token = await ethers.deployContract('$ERC20', ['Name', 'Symbol']);
+
+    await token.$_mint(this.mock, ethers.MaxUint256);
+
+    const timestamp = this.start + this.duration / 2n;
+    await time.increaseTo.timestamp(timestamp);
+
+    const releasable = await this.mock['releasable(address)'](token);
+    expect(releasable).to.be.gt(0n);
+
+    await this.mock.connect(this.beneficiary)['release(address)'](token);
+
+    await token.connect(this.beneficiary).transfer(this.mock, releasable);
+
+    await expect(this.mock['vestedAmount(address,uint64)'](token, timestamp)).not.to.be.reverted;
+  });
+
   it('check vesting contract', async function () {
     expect(await this.mock.owner()).to.equal(this.beneficiary);
     expect(await this.mock.start()).to.equal(this.start);
