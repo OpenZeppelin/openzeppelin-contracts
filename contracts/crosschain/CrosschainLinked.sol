@@ -43,15 +43,6 @@ abstract contract CrosschainLinked is ERC7786Recipient {
      */
     error LinkAlreadyRegistered(bytes chain);
 
-    /**
-     * @dev Reverted when the counterpart passed to {_setLink} is not byte-identical to its
-     * canonical ERC-7930 re-encoding (e.g. it carries trailing bytes that {InteroperableAddress-parseV1}
-     * would silently ignore). Storing a non-canonical counterpart would make {_isAuthorizedGateway}
-     * reject every inbound message, since it compares the stored bytes to the gateway-emitted
-     * sender using strict byte equality.
-     */
-    error NonCanonicalCounterpart(bytes counterpart);
-
     constructor(Link[] memory links) {
         for (uint256 i = 0; i < links.length; ++i) {
             _setLink(links[i].gateway, links[i].counterpart, false);
@@ -73,22 +64,20 @@ abstract contract CrosschainLinked is ERC7786Recipient {
      * @dev Internal setter to change the ERC-7786 gateway and counterpart for a given chain. Called at construction.
      *
      * Note: The `counterpart` parameter is the full InteroperableAddress (chain ref + address).
+     *
+     * WARNING: The `counterpart` is stored as-is and compared to inbound `sender` bytes using strict byte
+     * equality in {_isAuthorizedGateway}. It must be byte-identical to what the ERC-7786 gateway emits as
+     * `sender` when the remote counterpart sends a message. {InteroperableAddress-parseV1} tolerates trailing
+     * bytes and ERC-7930 does not mandate a canonical binary encoding across all chain profiles, so a
+     * counterpart that "parses correctly" is not enough. It must match the gateway's exact emission byte
+     * for byte. Integrators should verify the round trip (send + receive) after configuring a new link.
      */
     function _setLink(address gateway, bytes memory counterpart, bool allowOverride) internal virtual {
         // Sanity check, this should revert if gateway is not an ERC-7786 implementation. Note that since
         // supportsAttribute returns data, an EOA would fail that test (nothing returned).
         IERC7786GatewaySource(gateway).supportsAttribute(bytes4(0));
 
-        // Require the counterpart to be byte-canonical: parseV1 tolerates trailing bytes, but
-        // _isAuthorizedGateway compares stored bytes to the gateway-emitted sender with strict byte
-        // equality. A non-canonical counterpart would pass parsing here yet never match an inbound sender.
-        (bytes2 chainType, bytes memory chainReference, bytes memory addr) = counterpart.parseV1();
-        require(
-            counterpart.equal(InteroperableAddress.formatV1(chainType, chainReference, addr)),
-            NonCanonicalCounterpart(counterpart)
-        );
-
-        bytes memory chain = InteroperableAddress.formatV1(chainType, chainReference, hex"");
+        bytes memory chain = _extractChain(counterpart);
         if (allowOverride || _links[chain].gateway == address(0)) {
             _links[chain] = Link(gateway, counterpart);
             emit LinkRegistered(gateway, counterpart);
@@ -118,6 +107,11 @@ abstract contract CrosschainLinked is ERC7786Recipient {
     ) internal view virtual override returns (bool) {
         (address gateway, bytes memory router) = getLink(_extractChainCalldata(sender));
         return instance == gateway && sender.equal(router);
+    }
+
+    function _extractChain(bytes memory self) private pure returns (bytes memory) {
+        (bytes2 chainType, bytes memory chainReference, ) = self.parseV1();
+        return InteroperableAddress.formatV1(chainType, chainReference, hex"");
     }
 
     function _extractChainCalldata(bytes calldata self) private pure returns (bytes memory) {
