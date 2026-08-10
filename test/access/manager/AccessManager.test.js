@@ -1108,7 +1108,7 @@ describe('AccessManager', function () {
           expect(await this.manager.isTargetClosed(this.target)).to.be.false;
         });
 
-        describe('when the target is the manager', async function () {
+        describe('when the target is the manager', function () {
           it('closes and opens the manager', async function () {
             await expect(this.manager.connect(this.admin).setTargetClosed(this.manager, true))
               .to.emit(this.manager, 'TargetClosed')
@@ -2389,6 +2389,48 @@ describe('AccessManager', function () {
               await this.manager
                 .connect(this.roles.SOME_GUARDIAN.members[0])
                 .cancel(this.caller, this.target, this.calldata);
+            });
+          });
+
+          [
+            { name: 'grant', method: 'grantRole(uint64,address,uint32)' },
+            { name: 'revoke', method: 'revokeRole(uint64,address)' },
+          ].forEach(({ name, method }) => {
+            describe(`when caller is a role admin (${name})`, function () {
+              beforeEach('reschedule as a role admin call targeting the manager', async function () {
+                this.method = this.manager.interface.getFunction(method);
+                this.caller = this.roles.SOME_ADMIN.members[0];
+                await this.manager.$_grantRole(this.roles.SOME_ADMIN.id, this.caller, 0, 1); // nonzero execution delay
+                await this.manager.$_grantRole(this.roles.SOME_ADMIN.id, this.other, 0, 1); // nonzero execution delay
+                this.calldata = this.manager.interface.encodeFunctionData(
+                  this.method,
+                  name == 'grant'
+                    ? [this.roles.SOME.id, ethers.ZeroAddress, 0]
+                    : [this.roles.SOME.id, ethers.ZeroAddress],
+                );
+                const { operationId, schedule } = await prepareOperation(this.manager, {
+                  caller: this.caller,
+                  target: this.manager,
+                  calldata: this.calldata,
+                  delay: this.scheduleIn,
+                });
+                this.operationId = operationId;
+                await schedule();
+              });
+
+              it('another member of the role admin succeeds', async function () {
+                await expect(this.manager.connect(this.other).cancel(this.caller, this.manager, this.calldata))
+                  .to.emit(this.manager, 'OperationCanceled')
+                  .withArgs(this.operationId, 1n);
+                expect(await this.manager.getSchedule(this.operationId)).to.equal('0');
+              });
+
+              it('a member of the granted role but not its admin reverts', async function () {
+                const roleMember = this.roles.SOME.members[0];
+                await expect(this.manager.connect(roleMember).cancel(this.caller, this.manager, this.calldata))
+                  .to.be.revertedWithCustomError(this.manager, 'AccessManagerUnauthorizedCancel')
+                  .withArgs(roleMember, this.caller, this.manager, this.method.selector);
+              });
             });
           });
 

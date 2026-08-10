@@ -3,11 +3,11 @@ const { time, mine, mineUpTo } = require('@nomicfoundation/hardhat-network-helpe
 const { mapValues } = require('./iterate');
 
 const clock = {
-  blocknumber: () => time.latestBlock().then(ethers.toBigInt),
+  blockNumber: () => time.latestBlock().then(ethers.toBigInt),
   timestamp: () => time.latest().then(ethers.toBigInt),
 };
 const clockFromReceipt = {
-  blocknumber: receipt => Promise.resolve(receipt).then(({ blockNumber }) => ethers.toBigInt(blockNumber)),
+  blockNumber: receipt => Promise.resolve(receipt).then(({ blockNumber }) => ethers.toBigInt(blockNumber)),
   timestamp: receipt =>
     Promise.resolve(receipt)
       .then(({ blockNumber }) => ethers.provider.getBlock(blockNumber))
@@ -19,7 +19,7 @@ const increaseBy = {
     time.latest().then(clock => increaseTo.timestamp(clock + ethers.toNumber(delay), mine)),
 };
 const increaseTo = {
-  blocknumber: mineUpTo,
+  blockNumber: mineUpTo,
   timestamp: (to, mine = true) => (mine ? time.increaseTo(to) : time.setNextBlockTimestamp(to)),
 };
 const duration = mapValues(time.duration, fn => n => ethers.toBigInt(fn(ethers.toNumber(n))));

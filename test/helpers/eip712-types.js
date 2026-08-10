@@ -12,6 +12,23 @@ module.exports = mapValues(
       salt: 'bytes32',
     },
     Permit: { owner: 'address', spender: 'address', value: 'uint256', nonce: 'uint256', deadline: 'uint256' },
+    TransferWithAuthorization: {
+      from: 'address',
+      to: 'address',
+      value: 'uint256',
+      validAfter: 'uint256',
+      validBefore: 'uint256',
+      nonce: 'bytes32',
+    },
+    ReceiveWithAuthorization: {
+      from: 'address',
+      to: 'address',
+      value: 'uint256',
+      validAfter: 'uint256',
+      validBefore: 'uint256',
+      nonce: 'bytes32',
+    },
+    CancelAuthorization: { authorizer: 'address', nonce: 'bytes32' },
     Ballot: { proposalId: 'uint256', support: 'uint8', voter: 'address', nonce: 'uint256' },
     ExtendedBallot: {
       proposalId: 'uint256',

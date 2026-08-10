@@ -8,7 +8,7 @@ const { zip } = require('../../helpers/iterate');
 const { sum } = require('../../helpers/math');
 
 const TOKENS = [
-  { Token: '$ERC20Votes', mode: 'blocknumber' },
+  { Token: '$ERC20Votes', mode: 'blockNumber' },
   { Token: '$ERC20VotesTimestampMock', mode: 'timestamp' },
 ];
 
