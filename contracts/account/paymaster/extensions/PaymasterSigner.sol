@@ -32,6 +32,13 @@ abstract contract PaymasterSigner is AbstractSigner, EIP712, Paymaster {
      * @dev Virtual function that returns the signable hash for a user operations. Given the `userOpHash`
      * contains the `paymasterAndData` itself, it's not possible to sign that value directly. Instead,
      * this function must be used to provide a custom mechanism to authorize an user operation.
+     *
+     * NOTE: For EIP-7702 senders (i.e. `userOp.initCode` starting with the `0x7702` marker), this digest
+     * binds the raw `initCode` field rather than the effective delegate installed on `userOp.sender`. The
+     * canonical `userOpHash` computed by the EntryPoint substitutes the delegate read from `sender.code`
+     * into the initCode hash; this function does not. Paymasters whose sponsorship policy depends on the
+     * effective delegate should override this function to mirror the EntryPoint's substitution, or verify
+     * the delegate off-chain before signing.
      */
     function _signableUserOpHash(
         PackedUserOperation calldata userOp,
