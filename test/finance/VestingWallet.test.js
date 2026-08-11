@@ -6,6 +6,7 @@ const { min } = require('../helpers/math');
 const time = require('../helpers/time');
 
 const { envSetup, shouldBehaveLikeVesting } = require('./VestingWallet.behavior');
+const { shouldBehaveLikeERC6372 } = require('../governance/utils/ERC6372.behavior');
 
 async function fixture() {
   const amount = ethers.parseEther('100');
@@ -43,6 +44,10 @@ describe('VestingWallet', function () {
     expect(await this.mock.start()).to.equal(this.start);
     expect(await this.mock.duration()).to.equal(this.duration);
     expect(await this.mock.end()).to.equal(this.start + this.duration);
+  });
+
+  describe('ERC-6372 clock', function () {
+    shouldBehaveLikeERC6372('timestamp');
   });
 
   describe('vesting schedule', function () {
