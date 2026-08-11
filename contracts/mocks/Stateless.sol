@@ -4,6 +4,7 @@ pragma solidity ^0.8.26;
 
 // We keep these imports and a dummy contract just to we can run the test suite after transpilation.
 
+import {AbiDecode} from "../utils/AbiDecode.sol";
 import {Accumulators} from "../utils/structs/Accumulators.sol";
 import {Address} from "../utils/Address.sol";
 import {Arrays} from "../utils/Arrays.sol";
