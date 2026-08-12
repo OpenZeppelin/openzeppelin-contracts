@@ -358,34 +358,56 @@ describe('PaymasterERC20Guarantor', function () {
       await this.token.$_mint(this.guarantor, value);
       await this.token.$_approve(this.guarantor, this.paymaster, ethers.MaxUint256);
 
-      // Floor = _postOpCost (30k) + _guaranteedPostOpCost (15k) = 45k; 30k is below it, so validation rejects (AA34).
+      // Floor = _postOpCost (30k) + _guaranteedPostOpCost (15k) = 45k; 30k is below it.
       const signedUserOp = await this.account
         .createUserOp({ ...this.userOp, paymasterPostOpGasLimit: 30_000n })
         .then(op => this.paymasterSignUserOp(op, { guarantor: this.guarantor }))
         .then(op => this.signUserOp(op));
 
+      // _prefund returns false before pulling any funds. The call does not revert, so the unchanged
+      // guarantor balance proves no transfer was attempted.
+      await expect(
+        this.paymaster.$_prefund(
+          signedUserOp.packed,
+          ethers.ZeroHash,
+          this.token,
+          ethers.WeiPerEther,
+          this.account,
+          0n,
+        ),
+      )
+        .to.emit(this.paymaster, 'return$_prefund')
+        .withArgs(false, anyValue, anyValue, anyValue);
+      expect(await this.token.balanceOf(this.guarantor)).to.equal(value);
+
+      // End to end, the EntryPoint rejects the op with SIG_VALIDATION_FAILED.
       await expect(predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver))
         .to.be.revertedWithCustomError(predeploy.entrypoint.v09, 'FailedOp')
         .withArgs(0n, 'AA34 signature error');
-
-      // Nothing was pulled from the guarantor.
-      expect(await this.token.balanceOf(this.guarantor)).to.equal(value);
     });
 
     it('accepts a guaranteed op at the paymasterPostOpGasLimit floor', async function () {
       await this.token.$_mint(this.guarantor, value);
       await this.token.$_approve(this.guarantor, this.paymaster, ethers.MaxUint256);
 
-      // 45k = the floor (_postOpCost 30k + _guaranteedPostOpCost 15k), so validation passes and pulls the prefund.
+      // 45k = the floor (_postOpCost 30k + _guaranteedPostOpCost 15k), so _prefund accepts and pulls the prefund.
       const signedUserOp = await this.account
         .createUserOp({ ...this.userOp, paymasterPostOpGasLimit: 45_000n })
         .then(op => this.paymasterSignUserOp(op, { guarantor: this.guarantor }))
         .then(op => this.signUserOp(op));
 
-      await expect(predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver)).to.emit(
-        this.paymaster,
-        'UserOperationGuaranteed',
-      );
+      await expect(
+        this.paymaster.$_prefund(
+          signedUserOp.packed,
+          ethers.ZeroHash,
+          this.token,
+          ethers.WeiPerEther,
+          this.account,
+          1000n,
+        ),
+      )
+        .to.emit(this.paymaster, 'return$_prefund')
+        .withArgs(true, anyValue, anyValue, anyValue);
     });
 
     it('reverts with invalid guarantor signature', async function () {
