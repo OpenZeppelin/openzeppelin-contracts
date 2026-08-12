@@ -354,6 +354,40 @@ describe('PaymasterERC20Guarantor', function () {
       });
     });
 
+    it('rejects a guaranteed op whose paymasterPostOpGasLimit cannot cover the refund', async function () {
+      await this.token.$_mint(this.guarantor, value);
+      await this.token.$_approve(this.guarantor, this.paymaster, ethers.MaxUint256);
+
+      // Floor = _postOpCost (30k) + _guaranteedPostOpCost (15k) = 45k; 30k is below it, so validation rejects (AA34).
+      const signedUserOp = await this.account
+        .createUserOp({ ...this.userOp, paymasterPostOpGasLimit: 30_000n })
+        .then(op => this.paymasterSignUserOp(op, { guarantor: this.guarantor }))
+        .then(op => this.signUserOp(op));
+
+      await expect(predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver))
+        .to.be.revertedWithCustomError(predeploy.entrypoint.v09, 'FailedOp')
+        .withArgs(0n, 'AA34 signature error');
+
+      // Nothing was pulled from the guarantor.
+      expect(await this.token.balanceOf(this.guarantor)).to.equal(value);
+    });
+
+    it('accepts a guaranteed op at the paymasterPostOpGasLimit floor', async function () {
+      await this.token.$_mint(this.guarantor, value);
+      await this.token.$_approve(this.guarantor, this.paymaster, ethers.MaxUint256);
+
+      // 45k = the floor (_postOpCost 30k + _guaranteedPostOpCost 15k), so validation passes and pulls the prefund.
+      const signedUserOp = await this.account
+        .createUserOp({ ...this.userOp, paymasterPostOpGasLimit: 45_000n })
+        .then(op => this.paymasterSignUserOp(op, { guarantor: this.guarantor }))
+        .then(op => this.signUserOp(op));
+
+      await expect(predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver)).to.emit(
+        this.paymaster,
+        'UserOperationGuaranteed',
+      );
+    });
+
     it('reverts with invalid guarantor signature', async function () {
       await this.token.$_mint(this.guarantor, value);
       await this.token.$_approve(this.guarantor, this.paymaster, ethers.MaxUint256);

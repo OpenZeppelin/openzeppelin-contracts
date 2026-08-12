@@ -174,9 +174,8 @@ abstract contract PaymasterERC20 is Paymaster {
      *
      * Reverts with {PaymasterERC20FailedRefund} if the refund fails.
      *
-     * IMPORTANT: This function may revert after the user operation has been executed without
-     * reverting the user operation itself. Consider implementing a mechanism to handle
-     * this case gracefully.
+     * IMPORTANT: A revert here does not revert the whole bundle: the user operation is marked as failed and
+     * its execution rolled back, but the validation-phase prefund is not refunded. Consider handling it gracefully.
      */
     function _postOp(
         PostOpMode /* mode */,

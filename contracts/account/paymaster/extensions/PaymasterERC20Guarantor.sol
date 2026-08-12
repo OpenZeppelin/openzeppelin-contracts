@@ -43,6 +43,9 @@ abstract contract PaymasterERC20Guarantor is PaymasterERC20 {
      * For guaranteed ops, `prefundAmount` is inflated by {_guaranteedPostOpCost} worth of tokens
      * so the prefund pulled from the guarantor covers the extra postOp work done in {_refund}
      * ({SafeERC20-trySafeTransferFrom} from the user + {SafeERC20-trySafeTransfer} to the guarantor).
+     *
+     * Guaranteed ops whose `paymasterPostOpGasLimit` cannot cover the guaranteed {_refund}
+     * ({PaymasterERC20-_postOpCost} + {_guaranteedPostOpCost}) are rejected with `SIG_VALIDATION_FAILED`.
      */
     function _prefund(
         PackedUserOperation calldata userOp,
@@ -63,6 +66,11 @@ abstract contract PaymasterERC20Guarantor is PaymasterERC20 {
         // If there is a guarantor, add more funds to cover the extra postOp cost
         // and set the guarantor as the prefunder.
         if (isGuaranteed) {
+            // Reject before pulling funds if the postOp gas budget can't cover the guaranteed {_refund};
+            // otherwise postOp reverts and strands the guarantor's prefund (see {PaymasterERC20-_postOp}).
+            if (userOp.paymasterPostOpGasLimit() < _postOpCost() + _guaranteedPostOpCost())
+                return (false, prefunder_, prefundAmount_, "");
+
             // `_erc20Cost` may return `type(uint256).max` as an overflow sentinel. `saturatingAdd` preserves it
             // so the bad value reaches `trySafeTransferFrom` and fails there, instead of reverting here.
             uint256 guaranteedPostOpCost = _erc20Cost(_guaranteedPostOpCost() * userOp.maxFeePerGas(), tokenPrice);
