@@ -135,9 +135,9 @@ export function shouldBehaveLikeTransparentUpgradeableProxy() {
 
         describe('when the sender is not the admin', function () {
           it('reverts', async function () {
-            await expect(
-              this.proxy.connect(this.other).upgradeToAndCall(this.behavior, this.initializeData),
-            ).to.be.revert(ethers);
+            await expect(this.proxy.connect(this.other).upgradeToAndCall(this.behavior, this.initializeData)).to.revert(
+              ethers,
+            );
           });
         });
       });
@@ -150,7 +150,7 @@ export function shouldBehaveLikeTransparentUpgradeableProxy() {
         it('reverts', async function () {
           await expect(
             this.proxy.connect(this.proxyAdminAsSigner).upgradeToAndCall(this.behavior, this.initializeData),
-          ).to.be.revert(ethers);
+          ).to.revert(ethers);
         });
       });
     });
@@ -249,9 +249,7 @@ export function shouldBehaveLikeTransparentUpgradeableProxy() {
         it('reverts', async function () {
           const behaviorV1 = await this.ethers.deployContract('MigratableMockV1');
           const v1MigrationData = behaviorV1.interface.encodeFunctionData('initialize', [42n]);
-          await expect(this.proxy.connect(this.other).upgradeToAndCall(behaviorV1, v1MigrationData)).to.be.revert(
-            ethers,
-          );
+          await expect(this.proxy.connect(this.other).upgradeToAndCall(behaviorV1, v1MigrationData)).to.revert(ethers);
         });
       });
     });
@@ -307,7 +305,7 @@ export function shouldBehaveLikeTransparentUpgradeableProxy() {
       await instance.setValue(42n);
 
       // `getValue` is not available in impl1
-      await expect(impl2.attach(instance).getValue()).to.be.revert(ethers);
+      await expect(impl2.attach(instance).getValue()).to.revert(ethers);
 
       // do upgrade
       await proxy.connect(proxyAdminAsSigner).upgradeToAndCall(impl2, '0x');
@@ -333,7 +331,7 @@ export function shouldBehaveLikeTransparentUpgradeableProxy() {
       await proxy.connect(proxyAdminAsSigner).upgradeToAndCall(impl1, '0x');
 
       // `getValue` is not available in impl1
-      await expect(impl2.attach(instance).getValue()).to.be.revert(ethers);
+      await expect(impl2.attach(instance).getValue()).to.revert(ethers);
     });
 
     it('should change function signature', async function () {
@@ -376,7 +374,7 @@ export function shouldBehaveLikeTransparentUpgradeableProxy() {
 
       await proxy.connect(proxyAdminAsSigner).upgradeToAndCall(impl2, '0x');
 
-      await expect(this.other.sendTransaction({ to: proxy })).to.be.revert(ethers);
+      await expect(this.other.sendTransaction({ to: proxy })).to.revert(ethers);
 
       expect(await impl2.attach(instance).getValue()).to.equal(0n);
     });

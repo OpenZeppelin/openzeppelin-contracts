@@ -62,7 +62,7 @@ describe('AccessManaged', function () {
     it('panics in short calldata', async function () {
       // We avoid adding the `restricted` modifier to the fallback function because other tests may depend on it
       // being accessible without restrictions. We check for the internal `_checkCanCall` instead.
-      await expect(this.managed.$_checkCanCall(this.roleMember, '0x1234')).to.be.revert(ethers);
+      await expect(this.managed.$_checkCanCall(this.roleMember, '0x1234')).to.revert(ethers);
     });
 
     describe('when role is granted with execution delay', function () {

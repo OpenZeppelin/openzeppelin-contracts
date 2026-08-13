@@ -362,9 +362,7 @@ describe('PaymasterERC20', function () {
     });
 
     it('only admin can withdraw', async function () {
-      await expect(this.paymaster.connect(this.other).withdrawTokens(this.token, this.receiver, 10n)).to.be.revert(
-        ethers,
-      );
+      await expect(this.paymaster.connect(this.other).withdrawTokens(this.token, this.receiver, 10n)).to.revert(ethers);
     });
   });
 

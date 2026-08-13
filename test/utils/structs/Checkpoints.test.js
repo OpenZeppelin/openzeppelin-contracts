@@ -35,7 +35,7 @@ describe('Checkpoints', function () {
       describe('without checkpoints', function () {
         it('at zero reverts', async function () {
           // Reverts with array out of bound access, which is unspecified
-          await expect(this.methods.at(0)).to.be.revert(ethers);
+          await expect(this.methods.at(0)).to.revert(ethers);
         });
 
         it('returns zero as latest value', async function () {
