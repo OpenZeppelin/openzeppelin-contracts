@@ -4,8 +4,8 @@ const { expect } = require('chai');
 const { impersonate } = require('../../helpers/account');
 const { getAddressInSlot, ImplementationSlot, AdminSlot } = require('../../helpers/storage');
 
-// createProxy, initialOwner, accounts
-module.exports = function shouldBehaveLikeTransparentUpgradeableProxy() {
+// createProxy, owner, accounts [, proxyAdmin if !deployProxyAdmin]
+module.exports = function shouldBehaveLikeTransparentUpgradeableProxy({ deployProxyAdmin = true } = {}) {
   before(async function () {
     const implementationV0 = await ethers.deployContract('DummyImplementation');
     const implementationV1 = await ethers.deployContract('DummyImplementation');
@@ -17,7 +17,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy() {
 
       const proxyAdmin = await ethers.getContractAt(
         'ProxyAdmin',
-        ethers.getCreateAddress({ from: proxy.target, nonce: 1n }),
+        deployProxyAdmin ? ethers.getCreateAddress({ from: proxy.target, nonce: 1n }) : this.proxyAdmin.target,
       );
       const proxyAdminAsSigner = await proxyAdmin.getAddress().then(impersonate);
 
@@ -67,6 +67,14 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy() {
 
       expect(await this.proxyAdmin.owner()).to.equal(this.owner);
     });
+
+    if (!deployProxyAdmin) {
+      it('does not deploy a new ProxyAdmin', async function () {
+        expect(await ethers.provider.getCode(ethers.getCreateAddress({ from: this.proxy.target, nonce: 1n }))).to.equal(
+          '0x',
+        );
+      });
+    }
 
     it('can overwrite the admin by the implementation', async function () {
       await this.instance.unsafeOverrideAdmin(this.other);
