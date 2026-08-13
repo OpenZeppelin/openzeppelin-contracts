@@ -378,7 +378,7 @@ describe('PaymasterERC20Guarantor', function () {
       )
         .to.emit(this.paymaster, 'return$_prefund')
         .withArgs(false, anyValue, anyValue, anyValue);
-      expect(await this.token.balanceOf(this.guarantor)).to.equal(value);
+      await expect(this.token.balanceOf(this.guarantor)).to.eventually.equal(value);
 
       // End to end, the EntryPoint rejects the op with SIG_VALIDATION_FAILED.
       await expect(predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver))
@@ -532,8 +532,8 @@ describe('PaymasterERC20Guarantor', function () {
         .withArgs(true, this.other.address, effective, packedSender);
 
       // Token movements confirm only the effective amount actually entered the paymaster.
-      expect(await this.token.balanceOf(this.other)).to.equal(0n);
-      expect(await this.token.balanceOf(this.reducingPaymaster)).to.equal(effective);
+      await expect(this.token.balanceOf(this.other)).to.eventually.equal(0n);
+      await expect(this.token.balanceOf(this.reducingPaymaster)).to.eventually.equal(effective);
     });
 
     it('_refund returns the amount charged by super for non-guaranteed operations', async function () {
@@ -566,8 +566,8 @@ describe('PaymasterERC20Guarantor', function () {
       // The base refunded `prefundAmount - effectiveActual`. Paymaster keeps only the effective
       // amount; if the return value had reported the pre-reduction 40, the recorded charge would
       // not match the token balance change.
-      expect(await this.token.balanceOf(this.other)).to.equal(prefundAmount - effectiveActual);
-      expect(await this.token.balanceOf(this.reducingPaymaster)).to.equal(effectiveActual);
+      await expect(this.token.balanceOf(this.other)).to.eventually.equal(prefundAmount - effectiveActual);
+      await expect(this.token.balanceOf(this.reducingPaymaster)).to.eventually.equal(effectiveActual);
     });
   });
 });
