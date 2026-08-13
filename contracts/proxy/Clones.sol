@@ -264,7 +264,7 @@ library Clones {
     }
 
     /**
-     * @dev Variant of {fetchCloneArgs-address-} that copies the immutable args starting at position `start` (included)
+     * @dev Variant of {fetchCloneArgs-address} that copies the immutable args starting at position `start` (included)
      * to the end. This is useful (and cheaper) when only a portion of the immutable args is needed. The `start`
      * argument is truncated to the length of the immutable args.
      */
@@ -273,10 +273,10 @@ library Clones {
     }
 
     /**
-     * @dev Variant of {fetchCloneArgs-address-} that copies at most `length` bytes of the immutable args, starting at
+     * @dev Variant of {fetchCloneArgs-address} that copies at most `length` bytes of the immutable args, starting at
      * position `start`. This is useful (and cheaper) when only a portion of the immutable args is needed. The slice
-     * (bytes `start` to `start + length`) is truncated to the length of the immutable args, so the returned array may
-     * be shorter than `length`.
+     * [`start`, `start + length`) is truncated to the length of the immutable args, so the returned array may
+     * be shorter than `length`. The resulting slice is [`start`, `min(start + length, argsLength)`].
      */
     function fetchCloneArgs(address instance, uint256 start, uint256 length) internal view returns (bytes memory) {
         uint256 argsLength = instance.code.length - 0x2d; // revert if instance code is too short
