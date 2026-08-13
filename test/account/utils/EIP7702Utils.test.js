@@ -3,7 +3,7 @@ import { expect } from 'chai';
 
 const {
   ethers,
-  networkHelpers: { loadFixture },
+  networkHelpers: { loadFixture, setCode },
 } = await network.create();
 
 const fixture = async () => {
@@ -52,6 +52,15 @@ describe('EIP7702Utils', function () {
 
     it('other smart contract', async function () {
       await expect(this.mock.$fetchDelegate(this.mock)).to.eventually.equal(ethers.ZeroAddress);
+    });
+
+    // code shorter than a delegation designator is zero-padded, and never resolves to a delegate
+    it('code shorter than a delegation designator', async function () {
+      for (const code of ['0x60', '0x6001600155', '0x60016001556000']) {
+        const account = ethers.Wallet.createRandom().address;
+        await setCode(account, code);
+        await expect(this.mock.$fetchDelegate(account)).to.eventually.equal(ethers.ZeroAddress);
+      }
     });
   });
 });
