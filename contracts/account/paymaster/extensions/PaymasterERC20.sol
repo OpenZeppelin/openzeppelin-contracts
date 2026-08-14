@@ -175,7 +175,10 @@ abstract contract PaymasterERC20 is Paymaster {
      * Reverts with {PaymasterERC20FailedRefund} if the refund fails.
      *
      * IMPORTANT: A revert here does not revert the whole bundle: the user operation is marked as failed and
-     * its execution rolled back, but the validation-phase prefund is not refunded. Consider handling it gracefully.
+     * its execution rolled back, but the validation-phase prefund is not refunded. When a derived contract
+     * delegates the prefund to a third party (e.g. a guarantor), that party must consent to the sender-controlled
+     * `paymasterPostOpGasLimit` before authorizing, otherwise the sender can strand the third party's prefund by
+     * picking a limit below the actual postOp cost.
      */
     function _postOp(
         PostOpMode /* mode */,

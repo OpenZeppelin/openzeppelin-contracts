@@ -46,6 +46,10 @@ abstract contract PaymasterERC20Guarantor is PaymasterERC20 {
      *
      * Guaranteed ops whose `paymasterPostOpGasLimit` cannot cover the guaranteed {_refund}
      * ({PaymasterERC20-_postOpCost} + {_guaranteedPostOpCost}) are rejected with `SIG_VALIDATION_FAILED`.
+     * The floor uses the value returned by those virtuals, so an integrator override that under-estimates
+     * the actual token-specific cost reintroduces the strand-the-prefund failure mode described in
+     * {PaymasterERC20-_postOp}. Size {PaymasterERC20-_postOpCost} and {_guaranteedPostOpCost} for the
+     * specific ERC-20 accepted by the paymaster.
      */
     function _prefund(
         PackedUserOperation calldata userOp,
