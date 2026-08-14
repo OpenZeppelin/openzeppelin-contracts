@@ -46,7 +46,7 @@ export function shouldBehaveLikeProxy({ allowUninitialized = false, allowNonCont
         const value = 10n ** 5n;
 
         it('reverts', async function () {
-          await expect(this.createProxy(this.implementation, initializeData, { value })).to.be.revert(this.ethers);
+          await expect(this.createProxy(this.implementation, initializeData, { value })).to.revert(this.ethers);
         });
       });
     } else {
@@ -85,7 +85,7 @@ export function shouldBehaveLikeProxy({ allowUninitialized = false, allowNonCont
         const value = 10n ** 5n;
 
         it('reverts', async function () {
-          await expect(this.createProxy(this.implementation, this.initializeData, { value })).to.be.revert(this.ethers);
+          await expect(this.createProxy(this.implementation, this.initializeData, { value })).to.revert(this.ethers);
         });
       });
     });
@@ -148,7 +148,7 @@ export function shouldBehaveLikeProxy({ allowUninitialized = false, allowNonCont
         const value = 10e5;
 
         it('reverts', async function () {
-          await expect(this.createProxy(this.implementation, this.initializeData, { value })).to.be.revert(this.ethers);
+          await expect(this.createProxy(this.implementation, this.initializeData, { value })).to.revert(this.ethers);
         });
       });
     });

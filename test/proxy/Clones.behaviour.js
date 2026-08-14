@@ -58,7 +58,7 @@ export function shouldBehaveLikeClone() {
         const value = 10n ** 6n;
 
         it('reverts', async function () {
-          await expect(this.createClone({ initData: this.initializeData, initValue: value })).to.be.revert(this.ethers);
+          await expect(this.createClone({ initData: this.initializeData, initValue: value })).to.revert(this.ethers);
         });
       });
     });
@@ -121,7 +121,7 @@ export function shouldBehaveLikeClone() {
         const value = 10n ** 6n;
 
         it('reverts', async function () {
-          await expect(this.createClone({ initData: this.initializeData, initValue: value })).to.be.revert(this.ethers);
+          await expect(this.createClone({ initData: this.initializeData, initValue: value })).to.revert(this.ethers);
         });
       });
     });

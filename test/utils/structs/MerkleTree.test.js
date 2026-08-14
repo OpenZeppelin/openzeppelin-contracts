@@ -208,7 +208,7 @@ describe('MerkleTree', function () {
       // for each leaf slot
       for (const i in range(2 ** DEPTH)) {
         // generate random leaf
-        leaves.push(generators.bytes32());
+        leaves.push(random.bytes32());
 
         // rebuild tree.
         const root = computeTreeRoot(leaves, DEPTH, ZERO, nonCommutativeHash);
@@ -224,8 +224,8 @@ describe('MerkleTree', function () {
     });
 
     it('root is order-sensitive: push(A,B) != push(B,A)', async function () {
-      const leafA = generators.bytes32();
-      const leafB = generators.bytes32();
+      const leafA = random.bytes32();
+      const leafB = random.bytes32();
 
       const mockAB = await ethers.deployContract('MerkleTreeMock');
       await mockAB.setupNonCommutative(DEPTH, ZERO);

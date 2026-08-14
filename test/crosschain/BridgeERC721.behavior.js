@@ -138,7 +138,6 @@ export function shouldBehaveLikeBridgeERC721({ chainAIsCustodial = false, chainB
     describe('invalid transfer', function () {
       it('token not minted', async function () {
         const [alice, bruce] = this.accounts;
-        const tokenId = 17n;
 
         await expect(
           this.bridgeA
@@ -151,7 +150,6 @@ export function shouldBehaveLikeBridgeERC721({ chainAIsCustodial = false, chainB
 
       it('incorrect from argument', async function () {
         const [alice, bruce] = this.accounts;
-        const tokenId = 17n;
 
         await this.tokenA.$_mint(alice, tokenId);
         await this.tokenA.connect(alice).setApprovalForAll(this.bridgeA, true);
@@ -162,6 +160,17 @@ export function shouldBehaveLikeBridgeERC721({ chainAIsCustodial = false, chainB
         )
           .to.be.revertedWithCustomError(this.tokenA, 'ERC721IncorrectOwner')
           .withArgs(bruce, tokenId, alice);
+      });
+
+      it('reverts if the address part of the interoperable address is empty', async function () {
+        const [alice] = this.accounts;
+
+        await this.tokenA.$_mint(alice, tokenId);
+        await this.tokenA.connect(alice).setApprovalForAll(this.bridgeA, true);
+
+        await expect(
+          this.bridgeA.connect(alice).crosschainTransferFrom(alice, this.helpers.chain.toErc7930(undefined), tokenId), // No address
+        ).to.be.revertedWithCustomError(this.bridgeA, 'CrosschainNonFungibleEmptyAddress');
       });
     });
 

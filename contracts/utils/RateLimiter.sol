@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.7.0) (utils/RateLimiter.sol)
 pragma solidity ^0.8.27;
 
 import {Math} from "./math/Math.sol";
@@ -20,7 +21,7 @@ import {Time} from "./types/Time.sol";
  *   interval. Suitable when a strict cap on usage within a rolling window is required. Each successful consumption
  *   appends a checkpoint, making it a more expensive option with a larger storage footprint.
  *
- * === Limiter vs. entries ===
+ * === Limiter vs. entries
  *
  * Each storage struct is a _limiter_: it pairs a single, shared configuration (the `window`, together with the
  * `capacity` of a {RefillingBucket} or the `limit` of a {SlidingWindow}) with a mapping of independent _entries_
@@ -296,9 +297,11 @@ library RateLimiter {
     /**
      * @dev Updates the shared `limit` and `window` of the limiter, affecting every entry.
      *
-     * NOTE: The history of past consumptions is not modified. Increasing `window` retroactively brings older
-     * consumptions back into the rolling window until they age out under the new duration; decreasing `window`
-     * conversely causes older consumptions to drop out sooner.
+     * NOTE: Changing the settings does not modify the recorded consumption history; it only changes how that
+     * history is interpreted. Increasing `window` acts on whatever history each key still has: a key that
+     * retained older consumptions has them brought back into the larger window, while a key whose history was
+     * reset before the update (incidentally or deliberately) is unaffected. Decreasing `window` conversely
+     * causes older consumptions to drop out sooner.
      */
     function updateSettings(SlidingWindow storage self, uint48 newWindow, uint208 newLimit) internal {
         self._limit = newLimit;

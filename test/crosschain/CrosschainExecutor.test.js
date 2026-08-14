@@ -121,7 +121,7 @@ describe('CrosschainRemoteController & CrosschainRemoteExecutor', function () {
 
     it('with an invalid new gateway: revert', async function () {
       // directly using the internal setter
-      await expect(this.executor.$_setup(this.other, chain.toErc7930(this.other))).to.be.revert(ethers);
+      await expect(this.executor.$_setup(this.other, chain.toErc7930(this.other))).to.revert(ethers);
 
       // through a crosschain call
       const mode = encodeMode({ callType: CALL_TYPE_CALL });

@@ -72,9 +72,9 @@ export function shouldBehaveLikeERC7821({ deployable = true } = {}) {
 
           operation.signature = '0x00';
 
-          await expect(
-            this.ethers.predeploy.entrypoint.v09.handleOps([operation.packed], this.beneficiary),
-          ).to.be.revert(this.ethers);
+          await expect(this.ethers.predeploy.entrypoint.v09.handleOps([operation.packed], this.beneficiary)).to.revert(
+            this.ethers,
+          );
         });
       });
     }

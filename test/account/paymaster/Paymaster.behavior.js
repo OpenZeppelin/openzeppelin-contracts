@@ -2,10 +2,11 @@ import { ethers } from 'ethers';
 import { expect } from 'chai';
 import { encodeBatch, encodeMode, CALL_TYPE_BATCH } from '../../helpers/erc7579';
 import { MAX_UINT48 } from '../../helpers/constants';
+import * as duration from '../../helpers/time';
 
 const deposit = ethers.parseEther('1');
 const value = 42n;
-const delay = 36_000n; // 10 hours in seconds
+const delay = duration.hours(10);
 
 export function shouldBehaveLikePaymaster({ postOp, timeRange }) {
   describe('entryPoint', function () {
@@ -168,7 +169,7 @@ export function shouldBehaveLikePaymaster({ postOp, timeRange }) {
     it('reverts when an unauthorized caller tries to withdraw', async function () {
       await this.paymaster.deposit({ value });
 
-      await expect(this.paymaster.connect(this.other).withdraw(this.receiver, value)).to.be.revert(this.ethers);
+      await expect(this.paymaster.connect(this.other).withdraw(this.receiver, value)).to.revert(this.ethers);
     });
   });
 
@@ -230,7 +231,7 @@ export function shouldBehaveLikePaymaster({ postOp, timeRange }) {
     it('reverts when an unauthorized caller tries to unlock stake', async function () {
       await this.paymaster.addStake(delay, { value });
 
-      await expect(this.paymaster.connect(this.other).unlockStake()).to.be.revert(this.ethers);
+      await expect(this.paymaster.connect(this.other).unlockStake()).to.revert(this.ethers);
     });
 
     it('reverts when an unauthorized caller tries to withdraw stake', async function () {
@@ -238,7 +239,7 @@ export function shouldBehaveLikePaymaster({ postOp, timeRange }) {
       await this.paymaster.connect(this.admin).unlockStake();
       await this.helpers.time.increaseBy.timestamp(delay);
 
-      await expect(this.paymaster.connect(this.other).withdrawStake(this.receiver)).to.be.revert(this.ethers);
+      await expect(this.paymaster.connect(this.other).withdrawStake(this.receiver)).to.revert(this.ethers);
     });
   });
 }

@@ -1111,7 +1111,7 @@ describe('AccessManager', function () {
           expect(await this.manager.isTargetClosed(this.target)).to.be.false;
         });
 
-        describe('when the target is the manager', async function () {
+        describe('when the target is the manager', function () {
           it('closes and opens the manager', async function () {
             await expect(this.manager.connect(this.admin).setTargetClosed(this.manager, true))
               .to.emit(this.manager, 'TargetClosed')
@@ -2411,7 +2411,7 @@ describe('AccessManager', function () {
                     ? [this.roles.SOME.id, ethers.ZeroAddress, 0]
                     : [this.roles.SOME.id, ethers.ZeroAddress],
                 );
-                const { operationId, schedule } = await prepareOperation(this.manager, {
+                const { operationId, schedule } = await prepareOperation.bind(this)(this.manager, {
                   caller: this.caller,
                   target: this.manager,
                   calldata: this.calldata,

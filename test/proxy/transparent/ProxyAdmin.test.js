@@ -70,9 +70,7 @@ describe('ProxyAdmin', function () {
       describe('with invalid callData', function () {
         it('fails to upgrade', async function () {
           const data = '0x12345678';
-          await expect(this.proxyAdmin.connect(this.admin).upgradeAndCall(this.proxy, this.v2, data)).to.be.revert(
-            ethers,
-          );
+          await expect(this.proxyAdmin.connect(this.admin).upgradeAndCall(this.proxy, this.v2, data)).to.revert(ethers);
         });
       });
 

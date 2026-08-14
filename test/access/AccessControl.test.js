@@ -16,7 +16,6 @@ async function fixture() {
 
 describe('AccessControl', function () {
   beforeEach(async function () {
-    // write connection to this for use in fixtures
     Object.assign(this, connection, await loadFixture(fixture));
   });
 

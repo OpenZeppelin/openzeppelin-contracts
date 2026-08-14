@@ -21,7 +21,7 @@ async function fixture() {
 }
 
 describe('TransparentUpgradeableProxy', function () {
-  before(function () {
+  before(async function () {
     Object.assign(this, connection);
   });
 
