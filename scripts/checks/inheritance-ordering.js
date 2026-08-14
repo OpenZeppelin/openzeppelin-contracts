@@ -11,9 +11,11 @@ import { hideBin } from 'yargs/helpers';
 const { _: artifacts } = yargs(hideBin(process.argv)).argv;
 
 // only consider files in the package: take pattern from package.json
-const { files: patterns } = JSON.parse(
+// npm `files` entries are rooted (`/contracts/**/*.sol`); solc source keys are not
+const { files: pkgFiles } = JSON.parse(
   fs.readFileSync(path.resolve(import.meta.dirname, '../../', 'package.json'), 'utf-8'),
 );
+const patterns = pkgFiles.map(p => p.replace(/^\//, '').replace(/^!\//, '!'));
 
 for (const artifact of artifacts) {
   const { output: solcOutput } = JSON.parse(
