@@ -1,7 +1,7 @@
-const { expect } = require('chai');
-const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
+import { expect } from 'chai';
+import { PANIC_CODES } from '@nomicfoundation/hardhat-ethers-chai-matchers/panic';
 
-function shouldBehaveLikeSet() {
+export function shouldBehaveLikeSet() {
   async function expectMembersMatch(methods, values) {
     expect(await methods.length()).to.equal(values.length);
     for (const value of values) expect(await methods.contains(value)).to.be.true;
@@ -169,7 +169,3 @@ function shouldBehaveLikeSet() {
       }
   });
 }
-
-module.exports = {
-  shouldBehaveLikeSet,
-};
