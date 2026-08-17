@@ -158,7 +158,7 @@ jobs:
         env:
           PRERELEASE: ${{ needs.state.outputs.is_prerelease }}
         with:
-          script: await (await import('${{ github.workspace }}/scripts/release/workflow/github-release.js')).default({ github, context })
+          script: await import('${{ github.workspace }}/scripts/release/workflow/github-release.js').then(({ default }) => default({ github, context }))
     outputs:
       tarball_name: ${{ steps.pack.outputs.tarball_name }}
 
