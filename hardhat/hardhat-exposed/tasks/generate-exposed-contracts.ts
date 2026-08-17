@@ -69,6 +69,7 @@ export default async function generateExposedContracts(
   const spinner = createSpinner({ text: `Generating exposed contracts...` });
   spinner.start();
 
+  let compilationSuccess = true;
   try {
     for (const buildInfo of astOnlyBuildInfos) {
       // Sanity check: No exposed contract should be included as part of the
@@ -82,6 +83,14 @@ export default async function generateExposedContracts(
 
       const buildOutput = await hre.solidity.compileBuildInfo(buildInfo);
 
+      // A failed compilation produces no sources at all, which would make the AST processing below fail with a
+      // confusing error. The errors are not printed here: this build info is a subset of what the build task
+      // compiles right after, so the build reports them itself, with the proper exit code.
+      if (buildOutput.errors?.some(error => error.severity === 'error')) {
+        compilationSuccess = false;
+        break;
+      }
+
       const exposed = getExposed(buildInfo, buildOutput, hre.config);
 
       for (const [exposedPath, exposedContent] of exposed) {
@@ -94,6 +103,11 @@ export default async function generateExposedContracts(
     spinner.stop();
   }
 
-  console.log(`Generated ${exposedPaths.size} exposed contract files`);
-  return successfulResult();
+  if (compilationSuccess) {
+    console.log(`Generated ${exposedPaths.size} exposed contract files`);
+    return successfulResult();
+  } else {
+    console.error('Failed to generate exposed contracts: the sources do not compile');
+    return errorResult();
+  }
 }
