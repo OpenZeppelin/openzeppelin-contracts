@@ -111,7 +111,7 @@ jobs:
         uses: actions/github-script@v9
         with:
           result-encoding: string
-          script: await (await import('${{ github.workspace }}/scripts/release/workflow/set-changesets-pr-title.js')).default({ core })
+          script: await import('${{ github.workspace }}/scripts/release/workflow/set-changesets-pr-title.js').then(({ default }) => default({ core }))
       - name: Create PR
         uses: changesets/action@v1
         env:
