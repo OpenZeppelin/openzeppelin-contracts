@@ -190,3 +190,99 @@ abstract contract PaymasterERC20GuarantorMock is PaymasterERC20Mock, PaymasterER
         return super._minTokensPerNative();
     }
 }
+
+abstract contract PaymasterERC20ReducingMock is PaymasterERC20 {
+    function _prefund(
+        PackedUserOperation calldata userOp,
+        bytes32 userOpHash,
+        IERC20 token,
+        uint256 tokenPrice,
+        address prefunder_,
+        uint256 prefundAmount_
+    ) internal virtual override returns (bool, address, uint256, bytes memory) {
+        return
+            super._prefund(
+                userOp,
+                userOpHash,
+                token,
+                tokenPrice,
+                prefunder_,
+                prefundAmount_ == 0 ? 0 : prefundAmount_ - 1
+            );
+    }
+
+    function _refund(
+        IERC20 token,
+        uint256 tokenPrice,
+        uint256 actualAmount_,
+        uint256 actualUserOpFeePerGas,
+        address prefunder,
+        uint256 prefundAmount,
+        bytes calldata prefundContext
+    ) internal virtual override returns (bool, uint256) {
+        return
+            super._refund(
+                token,
+                tokenPrice,
+                actualAmount_ == 0 ? 0 : actualAmount_ - 1,
+                actualUserOpFeePerGas,
+                prefunder,
+                prefundAmount,
+                prefundContext
+            );
+    }
+}
+
+contract PaymasterERC20GuarantorReducingMock is PaymasterERC20ReducingMock, PaymasterERC20Guarantor {
+    function _fetchDetails(
+        PackedUserOperation calldata,
+        bytes32
+    ) internal view virtual override returns (uint256 validationData, IERC20 token, uint256 tokenPerNative) {
+        return (ERC4337Utils.SIG_VALIDATION_SUCCESS, IERC20(address(0)), 1);
+    }
+
+    function _fetchGuarantor(PackedUserOperation calldata) internal pure override returns (address) {
+        return address(0);
+    }
+
+    function _guaranteedPostOpCost() internal pure override returns (uint256) {
+        return 0;
+    }
+
+    function _prefund(
+        PackedUserOperation calldata userOp,
+        bytes32 userOpHash,
+        IERC20 token,
+        uint256 tokenPrice,
+        address prefunder_,
+        uint256 prefundAmount_
+    )
+        internal
+        virtual
+        override(PaymasterERC20ReducingMock, PaymasterERC20Guarantor)
+        returns (bool, address, uint256, bytes memory)
+    {
+        return super._prefund(userOp, userOpHash, token, tokenPrice, prefunder_, prefundAmount_);
+    }
+
+    function _refund(
+        IERC20 token,
+        uint256 tokenPrice,
+        uint256 actualAmount_,
+        uint256 actualUserOpFeePerGas,
+        address prefunder,
+        uint256 prefundAmount,
+        bytes calldata prefundContext
+    ) internal virtual override(PaymasterERC20ReducingMock, PaymasterERC20Guarantor) returns (bool, uint256) {
+        return
+            super._refund(
+                token,
+                tokenPrice,
+                actualAmount_,
+                actualUserOpFeePerGas,
+                prefunder,
+                prefundAmount,
+                prefundContext
+            );
+    }
+}
