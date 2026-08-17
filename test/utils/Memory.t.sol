@@ -27,20 +27,17 @@ contract MemoryTest is Test {
         assertTrue(slice.isReserved());
     }
 
-    function testSlice(bytes memory input, uint256 offset) public pure {
-        offset = bound(offset, 0, input.length);
+    function testSlice(bytes memory input, uint256 start) public pure {
+        start = bound(start, 0, input.length);
 
-        Memory.Slice slice = input.asSlice().slice(offset);
-        assertEq(slice.toBytes(), input.slice(offset));
+        Memory.Slice slice = input.asSlice().slice(start);
+        assertEq(slice.toBytes(), input.slice(start));
         assertTrue(slice.isReserved());
     }
 
-    function testSlice(bytes memory input, uint256 offset, uint256 length) public pure {
-        offset = bound(offset, 0, input.length);
-        length = bound(length, 0, input.length - offset);
-
-        Memory.Slice slice = input.asSlice().slice(offset, length);
-        assertEq(slice.toBytes(), input.slice(offset, offset + length));
+    function testSlice(bytes memory input, uint256 start, uint256 end) public pure {
+        Memory.Slice slice = input.asSlice().slice(start, end);
+        assertEq(slice.toBytes(), input.slice(start, end));
         assertTrue(slice.isReserved());
     }
 
@@ -72,19 +69,15 @@ contract MemoryTest is Test {
 
     function testEqual(
         bytes memory a,
-        uint256 offsetA,
-        uint256 lengthA,
+        uint256 startA,
+        uint256 endA,
         bytes memory b,
-        uint256 offsetB,
-        uint256 lengthB
+        uint256 startB,
+        uint256 endB
     ) public pure {
-        offsetA = bound(offsetA, 0, a.length);
-        offsetB = bound(offsetB, 0, b.length);
-        lengthA = bound(lengthA, 0, a.length - offsetA);
-        lengthB = bound(lengthB, 0, b.length - offsetB);
         assertEq(
-            a.asSlice().slice(offsetA, lengthA).equal(b.asSlice().slice(offsetB, lengthB)),
-            keccak256(a.slice(offsetA, offsetA + lengthA)) == keccak256(b.slice(offsetB, offsetB + lengthB))
+            a.asSlice().slice(startA, endA).equal(b.asSlice().slice(startB, endB)),
+            keccak256(a.slice(startA, endA)) == keccak256(b.slice(startB, endB))
         );
     }
 }

@@ -338,7 +338,7 @@ library RLP {
         require(itemType == ItemType.Data, RLPInvalidEncoding());
 
         // Length is checked by {slice}
-        return item.slice(offset, length).toBytes();
+        return item.slice(offset, offset + length).toBytes();
     }
 
     /// @dev Decodes an RLP encoded string. See {encode-string}
@@ -368,7 +368,7 @@ library RLP {
         // Get all items in order, and push them to the buffer
         for (uint256 currentOffset = listOffset; currentOffset < itemLength; ptr += 0x20) {
             (uint256 elementOffset, uint256 elementLength, ) = _decodeLength(item.slice(currentOffset));
-            Memory.Slice element = item.slice(currentOffset, elementLength + elementOffset);
+            Memory.Slice element = item.slice(currentOffset, currentOffset + elementLength + elementOffset);
             currentOffset += elementOffset + elementLength;
 
             // Write item to the buffer
