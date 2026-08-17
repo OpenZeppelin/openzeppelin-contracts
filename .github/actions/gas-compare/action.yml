@@ -33,7 +33,14 @@ runs:
     - name: Compare reports
       if: steps.reference.outcome == 'success' && github.event_name == 'pull_request'
       run: |
-        node scripts/checks/compareGasReports.js ${{ inputs.report }} ${{ inputs.ref_report }} > comparison.md
+        {
+          echo '<details>'
+          echo '<summary>view gas comparison</summary>'
+          echo ''
+          node scripts/checks/compareGasReports.js ${{ inputs.report }} ${{ inputs.ref_report }}
+          echo ''
+          echo '</details>'
+        } > comparison.md
       env:
         STYLE: markdown
       shell: bash
