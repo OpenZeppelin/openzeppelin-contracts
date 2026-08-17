@@ -132,6 +132,18 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
 
     /**
      * @dev Delegates votes from signer to `delegatee`.
+     *
+     * See {IVotes-delegateBySig}.
+     *
+     * The signed payload is EIP-712 typed data with primary type
+     * `Delegation(address delegatee,uint256 nonce,uint256 expiry)` and this contract's {EIP712} domain. `nonce` is
+     * consumed through {Nonces-_useCheckedNonce}.
+     *
+     * Requirements:
+     *
+     * - `expiry` must be a timestamp in the future.
+     * - `v`, `r` and `s` must be a valid `secp256k1` signature from the delegator over that typed data.
+     * - the signature must use the signer's current nonce (see {Nonces-nonces}).
      */
     function delegateBySig(
         address delegatee,
