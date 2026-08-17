@@ -69,7 +69,6 @@ export default async function generateExposedContracts(
   const spinner = createSpinner({ text: `Generating exposed contracts...` });
   spinner.start();
 
-  let compilationSuccess = true;
   try {
     for (const buildInfo of astOnlyBuildInfos) {
       // Sanity check: No exposed contract should be included as part of the
@@ -87,8 +86,8 @@ export default async function generateExposedContracts(
       // confusing error. The errors are not printed here: this build info is a subset of what the build task
       // compiles right after, so the build reports them itself, with the proper exit code.
       if (buildOutput.errors?.some(error => error.severity === 'error')) {
-        compilationSuccess = false;
-        break;
+        spinner.stop();
+        return errorResult();
       }
 
       const exposed = getExposed(buildInfo, buildOutput, hre.config);
@@ -103,10 +102,6 @@ export default async function generateExposedContracts(
     spinner.stop();
   }
 
-  if (compilationSuccess) {
-    console.log(`Generated ${exposedPaths.size} exposed contract files`);
-    return successfulResult();
-  } else {
-    return errorResult();
-  }
+  console.log(`Generated ${exposedPaths.size} exposed contract files`);
+  return successfulResult();
 }
