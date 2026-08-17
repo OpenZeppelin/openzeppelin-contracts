@@ -7,6 +7,7 @@ pragma solidity ^0.8.24;
 
 import {Arrays} from "../Arrays.sol";
 import {Math} from "../math/Math.sol";
+import {Panic} from "../Panic.sol";
 
 /**
  * @dev Library for managing
@@ -135,9 +136,15 @@ function _removeAt(Set storage set, uint256 index) private returns (bytes32) {
  *
  * IMPORTANT: This does not verify that \`value\` is the value currently stored at \`index\`. Callers must ensure
  * both arguments are consistent, otherwise the set is left in a corrupted state.
+ *
+ * Requirements:
+ *
+ * - \`index\` must be strictly less than {length}.
  */
 function __remove(Set storage set, bytes32 value, uint256 index) private {
-    uint256 lastIndex = set._values.length - 1;
+    uint256 length = set._values.length;
+    if (index >= length) Panic.panic(Panic.ARRAY_OUT_OF_BOUNDS);
+    uint256 lastIndex = length - 1;
 
     if (index != lastIndex) {
         bytes32 lastValue = set._values[lastIndex];
