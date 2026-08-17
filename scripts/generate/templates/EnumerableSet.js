@@ -95,33 +95,10 @@ function _add(Set storage set, bytes32 value) private returns (bool) {
  * present.
  */
 function _remove(Set storage set, bytes32 value) private returns (bool) {
-    // We cache the value's position to prevent multiple reads from the same storage slot
     uint256 position = set._positions[value];
 
     if (position != 0) {
-        // Equivalent to contains(set, value)
-        // To delete an element from the _values array in O(1), we swap the element to delete with the last one in
-        // the array, and then remove the last element (sometimes called as 'swap and pop').
-        // This modifies the order of the array, as noted in {at}.
-
-        uint256 valueIndex = position - 1;
-        uint256 lastIndex = set._values.length - 1;
-
-        if (valueIndex != lastIndex) {
-            bytes32 lastValue = set._values[lastIndex];
-
-            // Move the lastValue to the index where the value to delete is
-            set._values[valueIndex] = lastValue;
-            // Update the tracked position of the lastValue (that was just moved)
-            set._positions[lastValue] = position;
-        }
-
-        // Delete the slot where the moved value was stored
-        set._values.pop();
-
-        // Delete the tracked position for the deleted slot
-        delete set._positions[value];
-
+        _removeAt(set, position - 1);
         return true;
     } else {
         return false;
