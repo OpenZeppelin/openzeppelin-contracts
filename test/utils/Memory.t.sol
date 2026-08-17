@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.20;
 
-import {Test} from "forge-std/Test.sol";
+import {Test, stdError} from "forge-std/Test.sol";
 import {Bytes} from "@openzeppelin/contracts/utils/Bytes.sol";
 import {Memory} from "@openzeppelin/contracts/utils/Memory.sol";
 
@@ -41,6 +41,50 @@ contract MemoryTest is Test {
         assertTrue(slice.isReserved());
     }
 
+    function testAsConstSliceToBytes(bytes memory input) public pure {
+        Memory.ConstSlice slice = input.asConstSlice();
+        assertEq(slice.length(), input.length);
+        assertEq(slice.toBytes(), input);
+        assertTrue(slice.isReserved());
+    }
+
+    function testAsConstMatchesAsConstSlice(bytes memory input) public pure {
+        assertEq(Memory.ConstSlice.unwrap(input.asSlice().asConst()), Memory.ConstSlice.unwrap(input.asConstSlice()));
+    }
+
+    function testConstSlice(bytes memory input, uint256 start, uint256 end) public pure {
+        assertEq(input.asConstSlice().slice(start).toBytes(), input.slice(start));
+        assertEq(input.asConstSlice().slice(start, end).toBytes(), input.slice(start, end));
+    }
+
+    function testWrite(bytes memory input, uint256 extra) public pure {
+        bytes memory buffer = new bytes(input.length + bound(extra, 0, 256));
+
+        bytes memory result = input.asSlice().write(buffer);
+        assertEq(result, input);
+        // the buffer is modified in place and shrunk to the length of the slice
+        assertEq(buffer, input);
+        assertEq(buffer.length, input.length);
+    }
+
+    function testWriteConst(bytes memory input, uint256 extra) public pure {
+        bytes memory buffer = new bytes(input.length + bound(extra, 0, 256));
+        assertEq(input.asConstSlice().write(buffer), input);
+    }
+
+    function testWriteBufferTooSmall(bytes memory input, uint256 bufferLength) public {
+        vm.assume(input.length > 0);
+        bytes memory buffer = new bytes(bound(bufferLength, 0, input.length - 1));
+
+        vm.expectRevert(stdError.indexOOBError);
+        this.writeExternal(input, buffer);
+    }
+
+    /// @dev External wrapper: {vm-expectRevert} only observes reverts across a call boundary.
+    function writeExternal(bytes memory input, bytes memory buffer) external pure {
+        input.asSlice().write(buffer);
+    }
+
     function testInvalidSliceOutOfBound() public pure {
         bytes memory input = new bytes(256);
 
@@ -65,6 +109,15 @@ contract MemoryTest is Test {
         Memory.Slice sliceB = b.asSlice();
         bool expected = keccak256(a) == keccak256(b);
         assertEq(Memory.equal(sliceA, sliceB), expected);
+    }
+
+    /// @dev Covers the four `equal` overloads (Slice/ConstSlice in either position).
+    function testEqualConstOverloads(bytes memory a, bytes memory b) public pure {
+        bool expected = keccak256(a) == keccak256(b);
+        assertEq(a.asSlice().equal(b.asSlice()), expected);
+        assertEq(a.asConstSlice().equal(b.asSlice()), expected);
+        assertEq(a.asSlice().equal(b.asConstSlice()), expected);
+        assertEq(a.asConstSlice().equal(b.asConstSlice()), expected);
     }
 
     function testEqual(

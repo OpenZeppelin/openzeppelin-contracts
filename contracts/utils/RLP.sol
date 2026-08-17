@@ -337,7 +337,7 @@ library RLP {
         (uint256 offset, uint256 length, ItemType itemType) = _decodeLength(item);
         require(itemType == ItemType.Data, RLPInvalidEncoding());
 
-        // Length is checked by {slice}
+        // {slice} truncates rather than reverting, but {_decodeLength} guarantees offset + length <= item.length()
         return item.slice(offset, offset + length).toBytes();
     }
 
