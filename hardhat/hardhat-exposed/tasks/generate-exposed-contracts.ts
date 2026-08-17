@@ -107,7 +107,6 @@ export default async function generateExposedContracts(
     console.log(`Generated ${exposedPaths.size} exposed contract files`);
     return successfulResult();
   } else {
-    console.error('Failed to generate exposed contracts: the sources do not compile');
     return errorResult();
   }
 }
