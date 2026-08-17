@@ -1,10 +1,14 @@
-const { readPreState } = require('@changesets/pre');
-const { default: readChangesets } = require('@changesets/read');
-const { join } = require('path');
-const { fetch } = require('undici');
-const { version, name: packageName } = require(join(__dirname, '../../../contracts/package.json'));
+import { readPreState } from '@changesets/pre';
+import readChangesets from '@changesets/read';
+import fs from 'fs';
+import path from 'path';
+import { fetch } from 'undici';
 
-module.exports = async ({ github, context, core }) => {
+const { version, name: packageName } = JSON.parse(
+  fs.readFileSync(path.resolve(import.meta.dirname, '../../../contracts/package.json'), 'utf8'),
+);
+
+export default async ({ github, context, core }) => {
   const state = await getState({ github, context, core });
 
   function setOutput(key, value) {
