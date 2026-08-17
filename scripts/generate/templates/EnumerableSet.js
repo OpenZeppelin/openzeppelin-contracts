@@ -98,7 +98,7 @@ function _remove(Set storage set, bytes32 value) private returns (bool) {
     uint256 position = set._positions[value];
 
     if (position != 0) {
-        _removeAt(set, position - 1);
+        __remove(set, value, position - 1);
         return true;
     } else {
         return false;
@@ -122,6 +122,21 @@ function _remove(Set storage set, bytes32 value) private returns (bool) {
  */
 function _removeAt(Set storage set, uint256 index) private returns (bytes32) {
     bytes32 value = set._values[index];
+    __remove(set, value, index);
+    return value;
+}
+
+/**
+ * @dev Removes the value stored at position \`index\` from a set. O(1).
+ *
+ * To delete an element from the \`_values\` array in O(1), we swap the element to delete with the last one in the
+ * array, and then remove the last element (sometimes called as 'swap and pop'). This modifies the order of the
+ * array, as noted in {at}.
+ *
+ * IMPORTANT: This does not verify that \`value\` is the value currently stored at \`index\`. Callers must ensure
+ * both arguments are consistent, otherwise the set is left in a corrupted state.
+ */
+function __remove(Set storage set, bytes32 value, uint256 index) private {
     uint256 lastIndex = set._values.length - 1;
 
     if (index != lastIndex) {
@@ -138,8 +153,6 @@ function _removeAt(Set storage set, uint256 index) private returns (bytes32) {
 
     // Delete the tracked position for the deleted slot
     delete set._positions[value];
-
-    return value;
 }
 
 /**
