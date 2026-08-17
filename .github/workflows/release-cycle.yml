@@ -91,7 +91,7 @@ jobs:
       - name: Re-run workflow
         uses: actions/github-script@v9
         with:
-          script: await (await import('${{ github.workspace }}/scripts/release/workflow/rerun.js')).default({ github, context })
+          script: await import('${{ github.workspace }}/scripts/release/workflow/rerun.js').then(({ default }) => default({ github, context }))
 
   changesets:
     needs: state
