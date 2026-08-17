@@ -68,10 +68,18 @@ abstract contract PaymasterSigner is AbstractSigner, EIP712, Paymaster {
     /// @dev `initCode` hash for {_signableUserOpHash}, substituting the effective delegate for EIP-7702 senders.
     function _effectiveInitCodeHash(PackedUserOperation calldata userOp) private view returns (bytes32) {
         bytes calldata initCode = userOp.initCode;
+        bytes20 initCodeStart;
+        if (initCode.length >= 2) {
+            assembly ("memory-safe") {
+                initCodeStart := calldataload(initCode.offset)
+            }
+        }
+        if (initCodeStart != bytes20(bytes2(0x7702))) return keccak256(initCode);
+        address delegate = EIP7702Utils.fetchDelegate(userOp.sender);
         return
-            initCode.length >= 20 && bytes20(initCode[:20]) == bytes20(bytes2(0x7702))
-                ? keccak256(abi.encodePacked(EIP7702Utils.fetchDelegate(userOp.sender), initCode[20:]))
-                : keccak256(initCode);
+            initCode.length > 20
+                ? keccak256(abi.encodePacked(delegate, initCode[20:]))
+                : keccak256(abi.encodePacked(delegate));
     }
 
     /**
