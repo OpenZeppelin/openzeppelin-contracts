@@ -70,7 +70,7 @@ jobs:
         env:
           REF: ${{ steps.start.outputs.branch }}
         with:
-          script: await (await import('${{ github.workspace }}/scripts/release/workflow/rerun.js')).default({ github, context })
+          script: await import('${{ github.workspace }}/scripts/release/workflow/rerun.js').then(({ default }) => default({ github, context }))
 
   promote:
     needs: state
