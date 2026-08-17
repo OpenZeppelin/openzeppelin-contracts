@@ -6,6 +6,7 @@ pragma solidity ^0.8.27;
 import {IERC7786GatewaySource} from "../interfaces/draft-IERC7786.sol";
 import {ERC7786Recipient} from "./ERC7786Recipient.sol";
 import {ERC7579Utils, Mode, CallType, ExecType} from "../account/utils/draft-ERC7579Utils.sol";
+import {InteroperableAddress} from "../utils/draft-InteroperableAddress.sol";
 import {Bytes} from "../utils/Bytes.sol";
 
 /**
@@ -30,6 +31,9 @@ contract CrosschainRemoteExecutor is ERC7786Recipient {
 
     /// @dev Reverted when a non-controller tries to relay instructions to this executor.
     error AccessRestricted();
+
+    /// @dev Reverted when the controller is not a full interoperable address (chain reference and address).
+    error InvalidController(bytes controller);
 
     constructor(address initialGateway, bytes memory initialController) {
         _setup(initialGateway, initialController);
@@ -62,6 +66,13 @@ contract CrosschainRemoteExecutor is ERC7786Recipient {
         // Sanity check, this should revert if gateway is not an ERC-7786 implementation. Note that since
         // supportsAttribute returns data, accounts without code would fail that test (nothing returned).
         IERC7786GatewaySource(gateway_).supportsAttribute(bytes4(0));
+
+        // Sanity check, authorization in {_isAuthorizedGateway} is a strict byte comparison between the controller
+        // and the sender reported by the gateway, which is always a full interoperable address. A controller that
+        // is not one can never match, which would permanently lock this executor: {reconfigure} is only reachable
+        // through a message from the controller, so neither the executor nor the assets it holds could be recovered.
+        (, bytes memory chainReference, bytes memory addr) = InteroperableAddress.parseV1(controller_);
+        require(chainReference.length > 0 && addr.length > 0, InvalidController(controller_));
 
         _gateway = gateway_;
         _controller = controller_;
