@@ -10,12 +10,12 @@ const {
 } = await network.create();
 
 const getMethods = (mock, fnSigs) =>
-  mapValues(
-    fnSigs,
-    fnSig =>
-      (...args) =>
-        mock.getFunction(fnSig)(0, ...args),
-  );
+  mapValues(fnSigs, fnSig => {
+    const fn = mock.getFunction(fnSig);
+    const wrapped = (...args) => fn(0, ...args);
+    wrapped.staticCall = (...args) => fn.staticCall(0, ...args);
+    return wrapped;
+  });
 
 // Chai matchers expect hexadecimal data when dealing with bytes
 const randomOf = type => random[type === 'bytes' ? 'hexBytes' : type];
@@ -35,6 +35,7 @@ async function fixture() {
         methods: getMethods(mock, {
           add: `$add(uint256,${value.type})`,
           remove: `$remove(uint256,${value.type})`,
+          removeAt: `$removeAt_EnumerableSet_${name}(uint256,uint256)`,
           contains: `$contains(uint256,${value.type})`,
           clear: `$clear_EnumerableSet_${name}(uint256)`,
           length: `$length_EnumerableSet_${name}(uint256)`,

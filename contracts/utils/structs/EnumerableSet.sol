@@ -125,6 +125,43 @@ library EnumerableSet {
     }
 
     /**
+     * @dev Removes the value stored at position `index` from a set. O(1).
+     *
+     * Returns the removed value.
+     *
+     * This is cheaper than {remove} when the caller already knows the index, because it skips the position lookup
+     * that {remove} performs.
+     *
+     * Note that there are no guarantees on the ordering of values inside the array, and it may change when more
+     * values are added or removed.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     */
+    function _removeAt(Set storage set, uint256 index) private returns (bytes32) {
+        bytes32 value = set._values[index];
+        uint256 lastIndex = set._values.length - 1;
+
+        if (index != lastIndex) {
+            bytes32 lastValue = set._values[lastIndex];
+
+            // Move the lastValue to the index where the value to delete is
+            set._values[index] = lastValue;
+            // Update the tracked position of the lastValue (that was just moved)
+            set._positions[lastValue] = index + 1;
+        }
+
+        // Delete the slot where the moved value was stored
+        set._values.pop();
+
+        // Delete the tracked position for the deleted slot
+        delete set._positions[value];
+
+        return value;
+    }
+
+    /**
      * @dev Removes all the values from a set. O(n).
      *
      * WARNING: This function has an unbounded cost that scales with set size. Developers should keep in mind that
@@ -225,6 +262,25 @@ library EnumerableSet {
      */
     function remove(Bytes32Set storage set, bytes32 value) internal returns (bool) {
         return _remove(set._inner, value);
+    }
+
+    /**
+     * @dev Removes the value stored at position `index` from a set. O(1).
+     *
+     * Returns the removed value.
+     *
+     * This is cheaper than {remove} when the caller already knows the index, because it skips the position lookup
+     * that {remove} performs.
+     *
+     * Note that there are no guarantees on the ordering of values inside the array, and it may change when more
+     * values are added or removed.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     */
+    function removeAt(Bytes32Set storage set, uint256 index) internal returns (bytes32) {
+        return _removeAt(set._inner, index);
     }
 
     /**
@@ -349,6 +405,25 @@ library EnumerableSet {
     }
 
     /**
+     * @dev Removes the value stored at position `index` from a set. O(1).
+     *
+     * Returns the removed value.
+     *
+     * This is cheaper than {remove} when the caller already knows the index, because it skips the position lookup
+     * that {remove} performs.
+     *
+     * Note that there are no guarantees on the ordering of values inside the array, and it may change when more
+     * values are added or removed.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     */
+    function removeAt(Bytes4Set storage set, uint256 index) internal returns (bytes4) {
+        return bytes4(_removeAt(set._inner, index));
+    }
+
+    /**
      * @dev Removes all the values from a set. O(n).
      *
      * WARNING: Developers should keep in mind that this function has an unbounded cost and using it may render the
@@ -470,6 +545,25 @@ library EnumerableSet {
     }
 
     /**
+     * @dev Removes the value stored at position `index` from a set. O(1).
+     *
+     * Returns the removed value.
+     *
+     * This is cheaper than {remove} when the caller already knows the index, because it skips the position lookup
+     * that {remove} performs.
+     *
+     * Note that there are no guarantees on the ordering of values inside the array, and it may change when more
+     * values are added or removed.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     */
+    function removeAt(AddressSet storage set, uint256 index) internal returns (address) {
+        return address(uint160(uint256(_removeAt(set._inner, index))));
+    }
+
+    /**
      * @dev Removes all the values from a set. O(n).
      *
      * WARNING: Developers should keep in mind that this function has an unbounded cost and using it may render the
@@ -588,6 +682,25 @@ library EnumerableSet {
      */
     function remove(UintSet storage set, uint256 value) internal returns (bool) {
         return _remove(set._inner, bytes32(value));
+    }
+
+    /**
+     * @dev Removes the value stored at position `index` from a set. O(1).
+     *
+     * Returns the removed value.
+     *
+     * This is cheaper than {remove} when the caller already knows the index, because it skips the position lookup
+     * that {remove} performs.
+     *
+     * Note that there are no guarantees on the ordering of values inside the array, and it may change when more
+     * values are added or removed.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     */
+    function removeAt(UintSet storage set, uint256 index) internal returns (uint256) {
+        return uint256(_removeAt(set._inner, index));
     }
 
     /**
@@ -752,6 +865,43 @@ library EnumerableSet {
     }
 
     /**
+     * @dev Removes the value stored at position `index` from a set. O(1).
+     *
+     * Returns the removed value.
+     *
+     * This is cheaper than {remove} when the caller already knows the index, because it skips the position lookup
+     * that {remove} performs.
+     *
+     * Note that there are no guarantees on the ordering of values inside the array, and it may change when more
+     * values are added or removed.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     */
+    function removeAt(StringSet storage set, uint256 index) internal returns (string memory) {
+        string memory value = set._values[index];
+        uint256 lastIndex = set._values.length - 1;
+
+        if (index != lastIndex) {
+            string memory lastValue = set._values[lastIndex];
+
+            // Move the lastValue to the index where the value to delete is
+            set._values[index] = lastValue;
+            // Update the tracked position of the lastValue (that was just moved)
+            set._positions[lastValue] = index + 1;
+        }
+
+        // Delete the slot where the moved value was stored
+        set._values.pop();
+
+        // Delete the tracked position for the deleted slot
+        delete set._positions[value];
+
+        return value;
+    }
+
+    /**
      * @dev Removes all the values from a set. O(n).
      *
      * WARNING: Developers should keep in mind that this function has an unbounded cost and using it may render the
@@ -910,6 +1060,43 @@ library EnumerableSet {
         } else {
             return false;
         }
+    }
+
+    /**
+     * @dev Removes the value stored at position `index` from a set. O(1).
+     *
+     * Returns the removed value.
+     *
+     * This is cheaper than {remove} when the caller already knows the index, because it skips the position lookup
+     * that {remove} performs.
+     *
+     * Note that there are no guarantees on the ordering of values inside the array, and it may change when more
+     * values are added or removed.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     */
+    function removeAt(BytesSet storage set, uint256 index) internal returns (bytes memory) {
+        bytes memory value = set._values[index];
+        uint256 lastIndex = set._values.length - 1;
+
+        if (index != lastIndex) {
+            bytes memory lastValue = set._values[lastIndex];
+
+            // Move the lastValue to the index where the value to delete is
+            set._values[index] = lastValue;
+            // Update the tracked position of the lastValue (that was just moved)
+            set._positions[lastValue] = index + 1;
+        }
+
+        // Delete the slot where the moved value was stored
+        set._values.pop();
+
+        // Delete the tracked position for the deleted slot
+        delete set._positions[value];
+
+        return value;
     }
 
     /**

@@ -129,6 +129,43 @@ function _remove(Set storage set, bytes32 value) private returns (bool) {
 }
 
 /**
+ * @dev Removes the value stored at position \`index\` from a set. O(1).
+ *
+ * Returns the removed value.
+ *
+ * This is cheaper than {remove} when the caller already knows the index, because it skips the position lookup
+ * that {remove} performs.
+ *
+ * Note that there are no guarantees on the ordering of values inside the array, and it may change when more
+ * values are added or removed.
+ *
+ * Requirements:
+ *
+ * - \`index\` must be strictly less than {length}.
+ */
+function _removeAt(Set storage set, uint256 index) private returns (bytes32) {
+    bytes32 value = set._values[index];
+    uint256 lastIndex = set._values.length - 1;
+
+    if (index != lastIndex) {
+        bytes32 lastValue = set._values[lastIndex];
+
+        // Move the lastValue to the index where the value to delete is
+        set._values[index] = lastValue;
+        // Update the tracked position of the lastValue (that was just moved)
+        set._positions[lastValue] = index + 1;
+    }
+
+    // Delete the slot where the moved value was stored
+    set._values.pop();
+
+    // Delete the tracked position for the deleted slot
+    delete set._positions[value];
+
+    return value;
+}
+
+/**
  * @dev Removes all the values from a set. O(n).
  *
  * WARNING: This function has an unbounded cost that scales with set size. Developers should keep in mind that
@@ -232,6 +269,25 @@ function add(${name} storage set, ${type} value) internal returns (bool) {
  */
 function remove(${name} storage set, ${type} value) internal returns (bool) {
     return _remove(set._inner, ${toBytes32(type, 'value')});
+}
+
+/**
+ * @dev Removes the value stored at position \`index\` from a set. O(1).
+ *
+ * Returns the removed value.
+ *
+ * This is cheaper than {remove} when the caller already knows the index, because it skips the position lookup
+ * that {remove} performs.
+ *
+ * Note that there are no guarantees on the ordering of values inside the array, and it may change when more
+ * values are added or removed.
+ *
+ * Requirements:
+ *
+ * - \`index\` must be strictly less than {length}.
+ */
+function removeAt(${name} storage set, uint256 index) internal returns (${type}) {
+    return ${fromBytes32(type, '_removeAt(set._inner, index)')};
 }
 
 /**
@@ -395,6 +451,43 @@ function remove(${name} storage set, ${value.type} memory value) internal return
     } else {
         return false;
     }
+}
+
+/**
+ * @dev Removes the value stored at position \`index\` from a set. O(1).
+ *
+ * Returns the removed value.
+ *
+ * This is cheaper than {remove} when the caller already knows the index, because it skips the position lookup
+ * that {remove} performs.
+ *
+ * Note that there are no guarantees on the ordering of values inside the array, and it may change when more
+ * values are added or removed.
+ *
+ * Requirements:
+ *
+ * - \`index\` must be strictly less than {length}.
+ */
+function removeAt(${name} storage set, uint256 index) internal returns (${value.type} memory) {
+    ${value.type} memory value = set._values[index];
+    uint256 lastIndex = set._values.length - 1;
+
+    if (index != lastIndex) {
+        ${value.type} memory lastValue = set._values[lastIndex];
+
+        // Move the lastValue to the index where the value to delete is
+        set._values[index] = lastValue;
+        // Update the tracked position of the lastValue (that was just moved)
+        set._positions[lastValue] = index + 1;
+    }
+
+    // Delete the slot where the moved value was stored
+    set._values.pop();
+
+    // Delete the tracked position for the deleted slot
+    delete set._positions[value];
+
+    return value;
 }
 
 /**
