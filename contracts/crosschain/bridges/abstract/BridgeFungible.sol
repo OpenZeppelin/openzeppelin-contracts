@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.6.0) (crosschain/bridges/abstract/BridgeFungible.sol)
+// OpenZeppelin Contracts (last updated v5.7.0) (crosschain/bridges/abstract/BridgeFungible.sol)
 
 pragma solidity ^0.8.26;
 
@@ -26,6 +26,9 @@ abstract contract BridgeFungible is Context, CrosschainLinked {
     /// @dev Emitted when a crosschain ERC-20 transfer is received.
     event CrosschainFungibleTransferReceived(bytes32 indexed receiveId, bytes from, address indexed to, uint256 amount);
 
+    /// @dev Revert reason when the address part of the interoperable address is empty.
+    error CrosschainFungibleEmptyAddress();
+
     /**
      * @dev Transfer `amount` tokens to a crosschain receiver.
      *
@@ -44,10 +47,10 @@ abstract contract BridgeFungible is Context, CrosschainLinked {
         _onSend(from, amount);
 
         (bytes2 chainType, bytes memory chainReference, bytes memory addr) = InteroperableAddress.parseV1(to);
-        bytes memory chain = InteroperableAddress.formatV1(chainType, chainReference, hex"");
+        require(addr.length > 0, CrosschainFungibleEmptyAddress());
 
         bytes32 sendId = _sendMessageToCounterpart(
-            chain,
+            InteroperableAddress.formatV1(chainType, chainReference, hex""),
             abi.encode(InteroperableAddress.formatEvmV1(block.chainid, from), addr, amount),
             new bytes[](0)
         );

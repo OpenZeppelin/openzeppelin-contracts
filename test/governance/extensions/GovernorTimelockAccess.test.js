@@ -1,14 +1,18 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { anyValue } = require('@nomicfoundation/hardhat-chai-matchers/withArgs');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { anyValue } from '@nomicfoundation/hardhat-ethers-chai-matchers/withArgs';
+import { hashOperation } from '../../helpers/access-manager';
+import { ProposalState, VoteType } from '../../helpers/enums';
+import { GovernorHelper } from '../../helpers/governance';
+import { max } from '../../helpers/math';
+import { selector } from '../../helpers/methods';
 
-const { GovernorHelper } = require('../../helpers/governance');
-const { hashOperation } = require('../../helpers/access-manager');
-const { max } = require('../../helpers/math');
-const { selector } = require('../../helpers/methods');
-const { ProposalState, VoteType } = require('../../helpers/enums');
-const time = require('../../helpers/time');
+const connection = await network.create();
+const {
+  ethers,
+  helpers: { time },
+  networkHelpers: { loadFixture },
+} = connection;
 
 function prepareOperation({ sender, target, value = 0n, data = '0x' }) {
   return {
@@ -19,7 +23,7 @@ function prepareOperation({ sender, target, value = 0n, data = '0x' }) {
 }
 
 const TOKENS = [
-  { Token: '$ERC20Votes', mode: 'blocknumber' },
+  { Token: '$ERC20Votes', mode: 'blockNumber' },
   { Token: '$ERC20VotesTimestampMock', mode: 'timestamp' },
 ];
 
@@ -55,7 +59,7 @@ describe('GovernorTimelockAccess', function () {
       await admin.sendTransaction({ to: mock, value });
       await token.$_mint(admin, tokenSupply);
 
-      const helper = new GovernorHelper(mock, mode);
+      const helper = new GovernorHelper(connection, mock, mode);
       await helper.connect(admin).delegate({ token, to: voter1, value: ethers.parseEther('10') });
       await helper.connect(admin).delegate({ token, to: voter2, value: ethers.parseEther('7') });
       await helper.connect(admin).delegate({ token, to: voter3, value: ethers.parseEther('5') });
@@ -66,7 +70,7 @@ describe('GovernorTimelockAccess', function () {
 
     describe(`using ${Token}`, function () {
       beforeEach(async function () {
-        Object.assign(this, await loadFixture(fixture));
+        Object.assign(this, connection, await loadFixture(fixture));
 
         // restricted proposal
         this.restricted = prepareOperation({
@@ -244,7 +248,61 @@ describe('GovernorTimelockAccess', function () {
         await this.helper.waitForDeadline();
 
         // No need for queuing, so it should not revert
-        await expect(this.helper.execute()).to.not.be.reverted;
+        await expect(this.helper.execute()).to.not.be.revert(ethers);
+      });
+
+      it('reverts on queue for proposals without delay', async function () {
+        const roleId = 1n;
+        const executionDelay = 0n;
+        const baseDelay = 0n;
+
+        await this.manager.connect(this.admin).setTargetFunctionRole(this.receiver, [this.restricted.selector], roleId);
+        await this.manager.connect(this.admin).grantRole(roleId, this.mock, executionDelay);
+        await this.mock.$_setBaseDelaySeconds(baseDelay);
+
+        const { id } = await this.helper.setProposal([this.restricted.operation], 'descr');
+        await this.helper.propose();
+        expect(await this.mock.proposalNeedsQueuing(id)).to.be.false;
+
+        await this.helper.waitForSnapshot();
+        await this.helper.connect(this.voter1).vote({ support: VoteType.For });
+        await this.helper.waitForDeadline();
+
+        // Anyone calling queue on a delay-0 proposal must be rejected. Otherwise the proposal
+        // would transition to `Queued`, which `execute` no longer accepts when `proposalNeedsQueuing` is false.
+        await expect(this.helper.connect(this.other).queue())
+          .to.be.revertedWithCustomError(this.mock, 'GovernorProposalQueueingNotRequired')
+          .withArgs(this.proposal.id);
+
+        // Proposal remains executable
+        await expect(this.helper.execute()).to.not.be.revert(ethers);
+      });
+
+      it('calling internal _queueOperations when not needed does not prevent execution', async function () {
+        const roleId = 1n;
+        const executionDelay = 0n;
+        const baseDelay = 0n;
+
+        await this.manager.connect(this.admin).setTargetFunctionRole(this.receiver, [this.restricted.selector], roleId);
+        await this.manager.connect(this.admin).grantRole(roleId, this.mock, executionDelay);
+        await this.mock.$_setBaseDelaySeconds(baseDelay);
+
+        const { id } = await this.helper.setProposal([this.restricted.operation], 'descr');
+        await this.helper.propose();
+        expect(await this.mock.proposalNeedsQueuing(id)).to.be.false;
+
+        await this.helper.waitForSnapshot();
+        await this.helper.connect(this.voter1).vote({ support: VoteType.For });
+        await this.helper.waitForDeadline();
+
+        // This internal call is not needed, and the public function will fail before reaching it, but if called directly it should not break anything
+        await this.helper.governor.$_queueOperations(id, ...this.helper.shortProposal);
+
+        // State is still Succeeded.
+        await expect(this.helper.governor.state(id)).to.eventually.equal(ProposalState.Succeeded);
+
+        // Proposal remains executable
+        await expect(this.helper.execute()).to.not.be.revert(ethers);
       });
 
       it('does need to queue proposals with base delay', async function () {
@@ -449,7 +507,7 @@ describe('GovernorTimelockAccess', function () {
         await this.manager.connect(this.admin).grantRole(roleId, this.mock, delay);
 
         // Set proposals
-        const original = new GovernorHelper(this.mock, mode);
+        const original = new GovernorHelper(connection, this.mock, mode);
         await original.setProposal([this.restricted.operation, this.unrestricted.operation], 'descr');
 
         // Go through all the governance process
@@ -466,7 +524,7 @@ describe('GovernorTimelockAccess', function () {
           .cancel(this.mock, this.restricted.operation.target, this.restricted.operation.data);
 
         // Reschedule the same operation in a different proposal to avoid "AccessManagerNotScheduled" error
-        const rescheduled = new GovernorHelper(this.mock, mode);
+        const rescheduled = new GovernorHelper(connection, this.mock, mode);
         await rescheduled.setProposal([this.restricted.operation], 'descr');
         await rescheduled.propose();
         await rescheduled.waitForSnapshot();
@@ -604,7 +662,7 @@ describe('GovernorTimelockAccess', function () {
 
         it('cancels restricted with queueing if the same operation is part of a more recent proposal (internal)', async function () {
           // Set proposals
-          const original = new GovernorHelper(this.mock, mode);
+          const original = new GovernorHelper(connection, this.mock, mode);
           await original.setProposal([this.restricted.operation], 'descr');
 
           // Go through all the governance process
@@ -620,7 +678,7 @@ describe('GovernorTimelockAccess', function () {
             .cancel(this.mock, this.restricted.operation.target, this.restricted.operation.data);
 
           // Another proposal is added with the same operation
-          const rescheduled = new GovernorHelper(this.mock, mode);
+          const rescheduled = new GovernorHelper(connection, this.mock, mode);
           await rescheduled.setProposal([this.restricted.operation], 'another descr');
 
           // Queue the new proposal
@@ -645,32 +703,6 @@ describe('GovernorTimelockAccess', function () {
               original.currentProposal.id,
               ProposalState.Canceled,
               GovernorHelper.proposalStatesToBitMap([ProposalState.Queued]), // proposal needs queueing
-            );
-        });
-
-        it('cancels unrestricted with queueing (internal)', async function () {
-          this.proposal = await this.helper.setProposal([this.unrestricted.operation], 'descr');
-
-          await this.helper.propose();
-          await this.helper.waitForSnapshot();
-          await this.helper.connect(this.voter1).vote({ support: VoteType.For });
-          await this.helper.waitForDeadline();
-          await this.helper.queue();
-
-          const eta = await this.mock.proposalEta(this.proposal.id);
-
-          await expect(this.helper.cancel('internal'))
-            .to.emit(this.mock, 'ProposalCanceled')
-            .withArgs(this.proposal.id);
-
-          await time.clock.timestamp().then(clock => time.increaseTo.timestamp(max(clock + 1n, eta)));
-
-          await expect(this.helper.execute())
-            .to.be.revertedWithCustomError(this.mock, 'GovernorUnexpectedProposalState')
-            .withArgs(
-              this.proposal.id,
-              ProposalState.Canceled,
-              GovernorHelper.proposalStatesToBitMap([ProposalState.Succeeded]), // not queueing necessary
             );
         });
 
@@ -702,8 +734,8 @@ describe('GovernorTimelockAccess', function () {
           const operationAId = hashOperation(this.mock.target, operationA.target, operationA.data);
           const operationBId = hashOperation(this.mock.target, operationB.target, operationB.data);
 
-          const proposal1 = new GovernorHelper(this.mock, mode);
-          const proposal2 = new GovernorHelper(this.mock, mode);
+          const proposal1 = new GovernorHelper(connection, this.mock, mode);
+          const proposal2 = new GovernorHelper(connection, this.mock, mode);
           proposal1.setProposal([operationA, operationB], 'proposal A+B');
           proposal2.setProposal([operationA, operationC], 'proposal A+C');
 

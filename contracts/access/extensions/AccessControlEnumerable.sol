@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.5.0) (access/extensions/AccessControlEnumerable.sol)
+// OpenZeppelin Contracts (last updated v5.7.0) (access/extensions/AccessControlEnumerable.sol)
 
 pragma solidity ^0.8.24;
 
@@ -34,7 +34,7 @@ abstract contract AccessControlEnumerable is IAccessControlEnumerable, AccessCon
      * for more information.
      */
     function getRoleMember(bytes32 role, uint256 index) public view virtual returns (address) {
-        return _roleMembers[role].at(index);
+        return _roleMembers[role].pos(index);
     }
 
     /**
