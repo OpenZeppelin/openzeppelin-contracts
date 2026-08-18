@@ -116,7 +116,7 @@ index 0408a9fda..7bf53e3a3 100644
  }
  ```
 diff --git a/contracts/package.json b/contracts/package.json
-index c225e6ea8..3fdfb4e70 100644
+index 0f0252dd7..a8785361c 100644
 --- a/contracts/package.json
 +++ b/contracts/package.json
 @@ -1,5 +1,5 @@
@@ -124,7 +124,7 @@ index c225e6ea8..3fdfb4e70 100644
 -  "name": "@openzeppelin/contracts",
 +  "name": "@openzeppelin/contracts-upgradeable",
    "description": "Secure Smart Contract library for Solidity",
-   "version": "5.6.1",
+   "version": "5.7.0",
    "files": [
 @@ -13,7 +13,7 @@
    },
@@ -146,10 +146,10 @@ index c225e6ea8..3fdfb4e70 100644
 +  }
  }
 diff --git a/contracts/token/ERC20/extensions/ERC20TransferAuthorization.sol b/contracts/token/ERC20/extensions/ERC20TransferAuthorization.sol
-index fda256d28..61afd72c3 100644
+index 6e65f15aa..34e3f1206 100644
 --- a/contracts/token/ERC20/extensions/ERC20TransferAuthorization.sol
 +++ b/contracts/token/ERC20/extensions/ERC20TransferAuthorization.sol
-@@ -14,6 +14,14 @@ import {NoncesKeyed} from "../../../utils/NoncesKeyed.sol";
+@@ -15,6 +15,14 @@ import {NoncesKeyed} from "../../../utils/NoncesKeyed.sol";
   * different keys are independent and can be submitted in parallel without ordering constraints, while nonces
   * sharing the same key must be used sequentially. This is unlike {ERC20Permit} which uses a single global
   * sequential nonce.
@@ -207,7 +207,7 @@ index c156fa1cc..895e39342 100644
       * @dev Prevents a contract from calling itself, directly or indirectly.
       * Calling a `nonReentrant` function from another `nonReentrant`
 diff --git a/contracts/utils/cryptography/EIP712.sol b/contracts/utils/cryptography/EIP712.sol
-index a8215e399..a5aa41d21 100644
+index a2e7bf4c7..44cfa054b 100644
 --- a/contracts/utils/cryptography/EIP712.sol
 +++ b/contracts/utils/cryptography/EIP712.sol
 @@ -4,7 +4,6 @@
@@ -347,8 +347,30 @@ index a8215e399..a5aa41d21 100644
 +        return keccak256(bytes(_EIP712Version()));
      }
  }
+diff --git a/hardhat.config.ts b/hardhat.config.ts
+index e66fae29c..490d991e8 100644
+--- a/hardhat.config.ts
++++ b/hardhat.config.ts
+@@ -43,7 +43,7 @@ export default defineConfig({
+     hardhatOzContractsHelpers,
+   ],
+   paths: {
+-    sources: argv.src,
++    sources: [ argv.src, 'lib/openzeppelin-contracts/contracts' ],
+   },
+   solidity: {
+     version: argv.compiler,
+@@ -96,7 +96,7 @@ export default defineConfig({
+   },
+   exposed: {
+     initializers: true,
+-    include: ['contracts/**/*.sol'],
++    include: ['{,lib/openzeppelin-contracts/}contracts/**/*.sol'],
+     exclude: ['**/*WithInit.sol'],
+   },
+   docgen: await import('./docs/config.mjs').then(m => m.default),
 diff --git a/package.json b/package.json
-index c52bc6541..1ec73d8fa 100644
+index a34136baa..964e28b8b 100644
 --- a/package.json
 +++ b/package.json
 @@ -35,7 +35,7 @@
@@ -361,19 +383,22 @@ index c52bc6541..1ec73d8fa 100644
    "keywords": [
      "solidity",
 diff --git a/remappings.txt b/remappings.txt
-index 304d1386a..a1cd63bee 100644
+index ec2d5de0a..4f77a0ea5 100644
 --- a/remappings.txt
 +++ b/remappings.txt
-@@ -1 +1,2 @@
+@@ -1,4 +1,5 @@
 -@openzeppelin/contracts/=contracts/
 +@openzeppelin/contracts-upgradeable/=contracts/
 +@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
+ forge-std=lib/forge-std/src
+ halmos-cheatcodes=lib/halmos-cheatcodes/src
+ erc4626-tests=lib/erc4626-tests
 diff --git a/test/account/AccountEIP7702.test.js b/test/account/AccountEIP7702.test.js
-index d832e6877..6a0ab4a53 100644
+index 98aae7492..9e2785021 100644
 --- a/test/account/AccountEIP7702.test.js
 +++ b/test/account/AccountEIP7702.test.js
-@@ -26,8 +26,8 @@ async function fixture() {
- 
+@@ -28,8 +28,8 @@ async function fixture() {
+   const entrypointDomain = await getDomain(ethers.predeploy.entrypoint.v09);
    // domain cannot be fetched using getDomain(mock) before the mock is deployed
    const domain = {
 -    name: 'AccountEIP7702Mock',
@@ -384,10 +409,10 @@ index d832e6877..6a0ab4a53 100644
      verifyingContract: mock.address,
    };
 diff --git a/test/account/examples/AccountEIP7702WithModulesMock.test.js b/test/account/examples/AccountEIP7702WithModulesMock.test.js
-index 86816e55e..de6adc2c5 100644
+index bd30d77e0..3b7e243e8 100644
 --- a/test/account/examples/AccountEIP7702WithModulesMock.test.js
 +++ b/test/account/examples/AccountEIP7702WithModulesMock.test.js
-@@ -36,8 +36,8 @@ async function fixture() {
+@@ -38,8 +38,8 @@ async function fixture() {
  
    // domain cannot be fetched using getDomain(mock) before the mock is deployed
    const domain = {
@@ -399,18 +424,18 @@ index 86816e55e..de6adc2c5 100644
      verifyingContract: mock.address,
    };
 diff --git a/test/utils/cryptography/EIP712.test.js b/test/utils/cryptography/EIP712.test.js
-index 54e5b78ec..ea9e0ca39 100644
+index 6e050f772..e929f5392 100644
 --- a/test/utils/cryptography/EIP712.test.js
 +++ b/test/utils/cryptography/EIP712.test.js
-@@ -31,7 +31,6 @@ describe('EIP712', function () {
+@@ -35,7 +35,6 @@ describe('EIP712', function () {
      describe('domain separator', function () {
        it('is internally available', async function () {
          const expected = await domainSeparator(this.domain);
 -
-         expect(await this.eip712.$_domainSeparatorV4()).to.equal(expected);
+         await expect(this.eip712.$_domainSeparatorV4()).to.eventually.equal(expected);
        });
  
-@@ -39,22 +38,6 @@ describe('EIP712', function () {
+@@ -43,22 +42,6 @@ describe('EIP712', function () {
          const rebuildDomain = await getDomain(this.eip712);
          expect(rebuildDomain).to.be.deep.equal(this.domain);
        });
@@ -425,15 +450,15 @@ index 54e5b78ec..ea9e0ca39 100644
 -          .then(address => ethers.getContractAt('$EIP712Verifier', address));
 -
 -        const expectedDomain = { ...this.domain, verifyingContract: clone.target };
--        expect(await getDomain(clone)).to.be.deep.equal(expectedDomain);
+-        await expect(getDomain(clone)).to.eventually.deep.equal(expectedDomain);
 -
 -        const expectedSeparator = await domainSeparator(expectedDomain);
--        expect(await clone.$_domainSeparatorV4()).to.equal(expectedSeparator);
+-        await expect(clone.$_domainSeparatorV4()).to.eventually.equal(expectedSeparator);
 -      });
      });
  
      it('hash digest', async function () {
-@@ -90,18 +73,30 @@ describe('EIP712', function () {
+@@ -98,18 +81,30 @@ describe('EIP712', function () {
    });
  
    describe('with long name and version', function () {
