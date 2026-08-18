@@ -390,8 +390,8 @@ describe('PaymasterERC20Guarantor', function () {
       await expect(this.token.balanceOf(this.guarantor)).to.eventually.equal(value);
 
       // End to end, the EntryPoint rejects the op with SIG_VALIDATION_FAILED.
-      await expect(predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver))
-        .to.be.revertedWithCustomError(predeploy.entrypoint.v09, 'FailedOp')
+      await expect(ethers.predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver))
+        .to.be.revertedWithCustomError(ethers.predeploy.entrypoint.v09, 'FailedOp')
         .withArgs(0n, 'AA34 signature error');
     });
 
