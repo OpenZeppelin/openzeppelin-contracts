@@ -168,7 +168,7 @@ library RLP {
     /**
      * @dev Encode a uint256 as an RLP scalar.
      *
-     * Unlike {encode-bytes32-}, this function uses scalar encoding that removes the prefix zeros.
+     * Unlike {encode-bytes32}, this function uses scalar encoding that removes the prefix zeros.
      */
     function encode(uint256 input) internal pure returns (bytes memory result) {
         if (input < SHORT_OFFSET) {
@@ -193,7 +193,7 @@ library RLP {
     /**
      * @dev Encode a bytes32 as an RLP item of fixed size (32 bytes).
      *
-     * Unlike {encode-uint256-}, this function uses array encoding that preserves the prefix zeros.
+     * Unlike {encode-uint256}, this function uses array encoding that preserves the prefix zeros.
      */
     function encode(bytes32 input) internal pure returns (bytes memory result) {
         assembly ("memory-safe") {
@@ -211,7 +211,7 @@ library RLP {
             (input.length == 1 && uint8(input[0]) < SHORT_OFFSET) ? bytes.concat(input) : _encode(input, SHORT_OFFSET);
     }
 
-    /// @dev Encode a string as RLP. Type alias for {encode-bytes-}.
+    /// @dev Encode a string as RLP. Type alias for {encode-bytes}.
     function encode(string memory input) internal pure returns (bytes memory) {
         return encode(bytes(input));
     }

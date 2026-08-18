@@ -61,7 +61,7 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
     }
 
     /**
-     * @dev Variant of {transferAndCall} that accepts an additional `data` parameter with
+     * @dev Variant of {transferAndCall-address-uint256} that accepts an additional `data` parameter with
      * no specified format.
      */
     function transferAndCall(address to, uint256 value, bytes memory data) public virtual returns (bool) {
@@ -89,7 +89,7 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
     }
 
     /**
-     * @dev Variant of {transferFromAndCall} that accepts an additional `data` parameter with
+     * @dev Variant of {transferFromAndCall-address-address-uint256} that accepts an additional `data` parameter with
      * no specified format.
      */
     function transferFromAndCall(
@@ -122,7 +122,7 @@ abstract contract ERC1363 is ERC20, ERC165, IERC1363 {
     }
 
     /**
-     * @dev Variant of {approveAndCall} that accepts an additional `data` parameter with
+     * @dev Variant of {approveAndCall-address-uint256} that accepts an additional `data` parameter with
      * no specified format.
      */
     function approveAndCall(address spender, uint256 value, bytes memory data) public virtual returns (bool) {

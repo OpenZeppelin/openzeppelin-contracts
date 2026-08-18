@@ -13,12 +13,12 @@ library ERC6372Utils {
     /// @dev The clock was incorrectly modified.
     error ERC6372InconsistentClock();
 
-    /// @dev Variant of {blockNumberClockMode-uint48-} that checks against an IERC6372 instance
+    /// @dev Variant of {blockNumberClockMode-uint48} that checks against an IERC6372 instance
     function blockNumberClockMode(IERC6372 instance) internal view returns (string memory) {
         return blockNumberClockMode(instance.clock());
     }
 
-    /// @dev Variant of {blockNumberClockMode-uint48-} that checks against the clock function.
+    /// @dev Variant of {blockNumberClockMode-uint48} that checks against the clock function.
     function blockNumberClockMode(function() view returns (uint48) clock) internal view returns (string memory) {
         return blockNumberClockMode(clock());
     }
@@ -32,12 +32,12 @@ library ERC6372Utils {
         return "mode=blocknumber&from=default";
     }
 
-    /// @dev Variant of {timestampClockMode-uint48-} that checks against an IERC6372 instance
+    /// @dev Variant of {timestampClockMode-uint48} that checks against an IERC6372 instance
     function timestampClockMode(IERC6372 instance) internal view returns (string memory) {
         return timestampClockMode(instance.clock());
     }
 
-    /// @dev Variant of {timestampClockMode-uint48-} that checks against the clock function.
+    /// @dev Variant of {timestampClockMode-uint48} that checks against the clock function.
     function timestampClockMode(function() view returns (uint48) clock) internal view returns (string memory) {
         return timestampClockMode(clock());
     }
