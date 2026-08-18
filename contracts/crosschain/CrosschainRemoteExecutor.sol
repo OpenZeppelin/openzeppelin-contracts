@@ -71,8 +71,17 @@ contract CrosschainRemoteExecutor is ERC7786Recipient {
         // and the sender reported by the gateway, which is always a full interoperable address. A controller that
         // is not one can never match, which would permanently lock this executor: {reconfigure} is only reachable
         // through a message from the controller, so neither the executor nor the assets it holds could be recovered.
+        //
+        // {InteroperableAddress-parseV1} ignores trailing bytes, so the encoding must also be checked for length:
+        // a padded controller decodes to the right address but is not equal, byte for byte, to what a gateway
+        // reports. This is a length check, not a canonicalization of the components themselves.
         (, bytes memory chainReference, bytes memory addr) = InteroperableAddress.parseV1(controller_);
-        require(chainReference.length > 0 && addr.length > 0, InvalidController(controller_));
+        require(
+            chainReference.length > 0 &&
+                addr.length > 0 &&
+                controller_.length == 6 + chainReference.length + addr.length,
+            InvalidController(controller_)
+        );
 
         _gateway = gateway_;
         _controller = controller_;

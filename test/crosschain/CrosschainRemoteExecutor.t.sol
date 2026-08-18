@@ -52,6 +52,18 @@ contract CrosschainRemoteExecutorTest is Test {
         new CrosschainRemoteExecutor(address(_gateway), chainOnly);
     }
 
+    /// @dev {InteroperableAddress-parseV1} ignores trailing bytes, so a padded controller decodes to the right
+    /// address while not being equal, byte for byte, to the sender a gateway reports.
+    function testConstructorRejectsControllerWithTrailingBytes() public {
+        bytes memory padded = bytes.concat(_controller(), hex"00");
+
+        (, bytes memory chainReference, bytes memory addr) = InteroperableAddress.parseV1(padded);
+        assertEq(padded.length, chainReference.length + addr.length + 7);
+
+        vm.expectRevert(abi.encodeWithSelector(CrosschainRemoteExecutor.InvalidController.selector, padded));
+        new CrosschainRemoteExecutor(address(_gateway), padded);
+    }
+
     function testConstructorAcceptsValidController() public {
         CrosschainRemoteExecutor executor = new CrosschainRemoteExecutor(address(_gateway), _controller());
         assertEq(executor.gateway(), address(_gateway));
@@ -73,6 +85,34 @@ contract CrosschainRemoteExecutorTest is Test {
         vm.expectRevert(
             abi.encodeWithSelector(InteroperableAddress.InteroperableAddressParsingError.selector, hex"deadbeef")
         );
+        IERC7786Recipient(address(executor)).receiveMessage(bytes32(uint256(1)), _controller(), payload);
+
+        // the controller is unchanged and still able to drive the executor
+        assertEq(executor.controller(), _controller());
+
+        vm.prank(address(_gateway));
+        IERC7786Recipient(address(executor)).receiveMessage(
+            bytes32(uint256(2)),
+            _controller(),
+            _singleCallPayload(address(0xBEEF), 1 ether, "")
+        );
+        assertEq(address(0xBEEF).balance, 1 ether);
+        assertEq(address(executor).balance, 0);
+    }
+
+    function testReconfigureRejectsControllerWithTrailingBytes() public {
+        CrosschainRemoteExecutor executor = new CrosschainRemoteExecutor(address(_gateway), _controller());
+        vm.deal(address(executor), 1 ether);
+
+        bytes memory padded = bytes.concat(_controller(), hex"00");
+        bytes memory payload = _singleCallPayload(
+            address(executor),
+            0,
+            abi.encodeCall(CrosschainRemoteExecutor.reconfigure, (address(_gateway), padded))
+        );
+
+        vm.prank(address(_gateway));
+        vm.expectRevert(abi.encodeWithSelector(CrosschainRemoteExecutor.InvalidController.selector, padded));
         IERC7786Recipient(address(executor)).receiveMessage(bytes32(uint256(1)), _controller(), payload);
 
         // the controller is unchanged and still able to drive the executor
