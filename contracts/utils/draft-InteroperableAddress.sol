@@ -96,7 +96,7 @@ library InteroperableAddress {
     }
 
     /**
-     * @dev Variant of {parseV1} that handles calldata slices to reduce memory copy costs.
+     * @dev Variant of {parseV1-bytes} that handles calldata slices to reduce memory copy costs.
      *
      * NOTE: Trailing bytes after a valid v1 encoding are ignored. The same decoded address may therefore correspond
      * to multiple distinct input byte strings.
@@ -108,7 +108,7 @@ library InteroperableAddress {
     }
 
     /**
-     * @dev Variant of {parseV1} that handles calldata slices to reduce memory copy costs.
+     * @dev Variant of {parseV1-bytes-bool} that handles calldata slices to reduce memory copy costs.
      *
      * NOTE: If `failOnExtraBytes` is false, trailing bytes after a valid v1 encoding are ignored. The same decoded
      * address may therefore correspond to multiple distinct input byte strings. If `failOnExtraBytes` is true, then
@@ -124,7 +124,7 @@ library InteroperableAddress {
     }
 
     /**
-     * @dev Variant of {parseV1} that does not revert on invalid input. Instead, it returns `false` as the first
+     * @dev Variant of {parseV1-bytes} that does not revert on invalid input. Instead, it returns `false` as the first
      * return value to indicate parsing failure when the input does not follow version 1 of ERC-7930.
      */
     function tryParseV1(
@@ -134,7 +134,7 @@ library InteroperableAddress {
     }
 
     /**
-     * @dev Variant of {parseV1} that does not revert on invalid input. Instead, it returns `false` as the first
+     * @dev Variant of {parseV1-bytes-bool} that does not revert on invalid input. Instead, it returns `false` as the first
      * return value to indicate parsing failure when the input does not follow version 1 of ERC-7930.
      *
      * The extra `failOnExtraBytes` parameter can be used to reject input that have trailing bytes.
@@ -167,7 +167,7 @@ library InteroperableAddress {
     }
 
     /**
-     * @dev Variant of {tryParseV1} that handles calldata slices to reduce memory copy costs.
+     * @dev Variant of {tryParseV1-bytes} that handles calldata slices to reduce memory copy costs.
      */
     function tryParseV1Calldata(
         bytes calldata self
@@ -176,7 +176,7 @@ library InteroperableAddress {
     }
 
     /**
-     * @dev Variant of {tryParseV1} that handles calldata slices to reduce memory copy costs.
+     * @dev Variant of {tryParseV1-bytes-bool} that handles calldata slices to reduce memory copy costs.
      *
      * The extra `failOnExtraBytes` parameter can be used to reject input that have trailing bytes.
      */
