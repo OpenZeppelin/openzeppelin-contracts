@@ -50,6 +50,9 @@ abstract contract PaymasterERC20Guarantor is PaymasterERC20 {
      * the actual token-specific cost reintroduces the strand-the-prefund failure mode described in
      * {PaymasterERC20-_postOp}. Size {PaymasterERC20-_postOpCost} and {_guaranteedPostOpCost} for the
      * specific ERC-20 accepted by the paymaster.
+     *
+     * Provisioning exactly the floor carries no unused-gas penalty: {_postOpGasBudget} covers it, so
+     * {PaymasterERC20-_postOpGasPenalty} only prices the limit provisioned on top of it.
      */
     function _prefund(
         PackedUserOperation calldata userOp,
@@ -155,6 +158,16 @@ abstract contract PaymasterERC20Guarantor is PaymasterERC20 {
             forwardedContext
         );
         return (refunded, Math.ternary(prefunder != userOpSender, effectiveAmount, returnedEffectiveAmount));
+    }
+
+    /**
+     * @dev See {PaymasterERC20-_postOpGasBudget}. Widened by {_guaranteedPostOpCost} for guaranteed operations:
+     * that is the extra postOp gas they are billed, and which {_prefund} requires them to provision.
+     */
+    function _postOpGasBudget(PackedUserOperation calldata userOp) internal view virtual override returns (uint256) {
+        return
+            super._postOpGasBudget(userOp) +
+            Math.ternary(_fetchGuarantor(userOp) == address(0), 0, _guaranteedPostOpCost());
     }
 
     /**

@@ -410,6 +410,64 @@ describe('PaymasterERC20Guarantor', function () {
         .withArgs(true, anyValue, anyValue, anyValue);
     });
 
+    it('_postOpGasBudget covers the guaranteed postOp cost only for guaranteed ops', async function () {
+      const [postOpCost, guaranteedPostOpCost] = await Promise.all([
+        this.paymaster.$_postOpCost(),
+        this.paymaster.$_guaranteedPostOpCost(),
+      ]);
+
+      const guaranteed = await this.account
+        .createUserOp(this.userOp)
+        .then(op => this.paymasterSignUserOp(op, { guarantor: this.guarantor }))
+        .then(op => this.signUserOp(op));
+      const plain = await this.account
+        .createUserOp(this.userOp)
+        .then(op => this.paymasterSignUserOp(op))
+        .then(op => this.signUserOp(op));
+
+      await expect(this.paymaster.$_postOpGasBudget(guaranteed.packed)).to.eventually.equal(
+        postOpCost + guaranteedPostOpCost,
+      );
+      await expect(this.paymaster.$_postOpGasBudget(plain.packed)).to.eventually.equal(postOpCost);
+    });
+
+    it('charges no unused-gas penalty for a guaranteed op provisioned at the floor', async function () {
+      await this.token.$_mint(this.guarantor, value);
+      await this.token.$_approve(this.guarantor, this.paymaster, ethers.MaxUint256);
+
+      // The floor is exactly _postOpGasBudget for a guaranteed op, so the penalty base saturates to zero.
+      const floor = await this.paymaster.$_postOpGasBudget(
+        await this.account
+          .createUserOp(this.userOp)
+          .then(op => this.paymasterSignUserOp(op, { guarantor: this.guarantor }))
+          .then(op => this.signUserOp(op))
+          .then(op => op.packed),
+      );
+
+      for (const [paymasterPostOpGasLimit, expectedPenaltyGas] of [
+        [floor, 0n],
+        [floor + 50_000n, 5_000n], // only the gas provisioned above the budget is penalized
+      ]) {
+        const signedUserOp = await this.account
+          .createUserOp({ ...this.userOp, paymasterPostOpGasLimit })
+          .then(op => this.paymasterSignUserOp(op, { guarantor: this.guarantor }))
+          .then(op => this.signUserOp(op));
+
+        // context layout: userOpHash(32) | token(20) | tokenPerNative(32) | prefundAmount(32) | prefunder(20) |
+        //                 penaltyGas(32) | prefundContext
+        const { logs } = await this.paymaster
+          .$_validatePaymasterUserOp(signedUserOp.packed, ethers.ZeroHash, 0n)
+          .then(tx => tx.wait());
+        const { context } = this.paymaster.interface.parseLog(
+          logs.find(
+            log => log.topics[0] === this.paymaster.interface.getEvent('return$_validatePaymasterUserOp').topicHash,
+          ),
+        ).args;
+
+        expect(ethers.toBigInt(ethers.dataSlice(context, 0x88, 0xa8))).to.equal(expectedPenaltyGas);
+      }
+    });
+
     it('reverts with invalid guarantor signature', async function () {
       await this.token.$_mint(this.guarantor, value);
       await this.token.$_approve(this.guarantor, this.paymaster, ethers.MaxUint256);
