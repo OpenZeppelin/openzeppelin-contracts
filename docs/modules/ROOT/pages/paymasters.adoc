@@ -354,7 +354,7 @@ contract PaymasterUSDCGuaranteed is EIP712, PaymasterERC20Guarantor, Ownable {
     
     bytes32 private constant GUARANTEED_USER_OPERATION_TYPEHASH =
         keccak256(
-            "GuaranteedUserOperation(address sender,uint256 nonce,bytes initCode,bytes callData,bytes32 accountGasLimits,uint256 preVerificationGas,bytes32 gasFees,bytes paymasterData)"
+            "GuaranteedUserOperation(address sender,uint256 nonce,bytes initCode,bytes callData,bytes32 accountGasLimits,uint256 preVerificationGas,bytes32 gasFees,uint256 paymasterVerificationGasLimit,uint256 paymasterPostOpGasLimit,bytes paymasterData)"
         );
 
     constructor(
@@ -400,6 +400,9 @@ contract PaymasterUSDCGuaranteed is EIP712, PaymasterERC20Guarantor, Ownable {
                 userOp.accountGasLimits,
                 userOp.preVerificationGas,
                 userOp.gasFees,
+                // Guarantor explicitly signs the paymaster gas limits to prevent sender-controlled under-provisioning.
+                userOp.paymasterVerificationGasLimit(),
+                userOp.paymasterPostOpGasLimit(),
                 keccak256(bytes(userOp.paymasterData()[:20])) // Just the guarantor address part
             )
         );

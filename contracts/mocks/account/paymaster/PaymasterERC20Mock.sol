@@ -124,6 +124,12 @@ abstract contract PaymasterERC20GuarantorMock is PaymasterERC20Mock, PaymasterER
                 : address(0);
     }
 
+    function _postOpGasBudget(
+        PackedUserOperation calldata userOp
+    ) internal view virtual override(PaymasterERC20, PaymasterERC20Guarantor) returns (uint256) {
+        return super._postOpGasBudget(userOp);
+    }
+
     function _refund(
         IERC20 token,
         uint256 actualAmount,
@@ -247,6 +253,12 @@ contract PaymasterERC20GuarantorReducingMock is PaymasterERC20ReducingMock, Paym
 
     function _guaranteedPostOpCost() internal pure override returns (uint256) {
         return 0;
+    }
+
+    function _postOpGasBudget(
+        PackedUserOperation calldata userOp
+    ) internal view virtual override(PaymasterERC20, PaymasterERC20Guarantor) returns (uint256) {
+        return super._postOpGasBudget(userOp);
     }
 
     function _prefund(
