@@ -290,6 +290,10 @@ abstract contract PaymasterERC20 is Paymaster {
      *
      * NOTE: The default assumes a standard ERC-20. Override with a higher value for gas-heavier tokens; a persistent
      * underestimate drains the paymaster's deposit.
+     *
+     * NOTE: Extensions that bill extra postOp gas through a separate cost (rather than by widening this virtual)
+     * must also widen {_postOpGasBudget} by the same amount, otherwise the extra gas is billed twice: once as cost
+     * and once as unused-gas penalty.
      */
     function _postOpCost() internal view virtual returns (uint256) {
         return 30_000;
