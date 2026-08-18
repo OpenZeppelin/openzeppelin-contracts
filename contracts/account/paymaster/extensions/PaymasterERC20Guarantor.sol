@@ -43,6 +43,16 @@ abstract contract PaymasterERC20Guarantor is PaymasterERC20 {
      * For guaranteed ops, `prefundAmount` is inflated by {_guaranteedPostOpCost} worth of tokens
      * so the prefund pulled from the guarantor covers the extra postOp work done in {_refund}
      * ({SafeERC20-trySafeTransferFrom} from the user + {SafeERC20-trySafeTransfer} to the guarantor).
+     *
+     * Guaranteed ops whose `paymasterPostOpGasLimit` cannot cover the guaranteed {_refund}
+     * ({PaymasterERC20-_postOpCost} + {_guaranteedPostOpCost}) are rejected with `SIG_VALIDATION_FAILED`.
+     * The floor uses the value returned by those virtuals, so an integrator override that under-estimates
+     * the actual token-specific cost reintroduces the strand-the-prefund failure mode described in
+     * {PaymasterERC20-_postOp}. Size {PaymasterERC20-_postOpCost} and {_guaranteedPostOpCost} for the
+     * specific ERC-20 accepted by the paymaster.
+     *
+     * Provisioning exactly the floor carries no unused-gas penalty: {_postOpGasBudget} covers it, so
+     * {PaymasterERC20-_postOpGasPenalty} only prices the limit provisioned on top of it.
      */
     function _prefund(
         PackedUserOperation calldata userOp,
@@ -63,6 +73,11 @@ abstract contract PaymasterERC20Guarantor is PaymasterERC20 {
         // If there is a guarantor, add more funds to cover the extra postOp cost
         // and set the guarantor as the prefunder.
         if (isGuaranteed) {
+            // Reject before pulling funds if the postOp gas budget can't cover the guaranteed {_refund};
+            // otherwise postOp reverts and strands the guarantor's prefund (see {PaymasterERC20-_postOp}).
+            if (userOp.paymasterPostOpGasLimit() < _postOpCost() + _guaranteedPostOpCost())
+                return (false, prefunder_, prefundAmount_, "");
+
             // `_erc20Cost` may return `type(uint256).max` as an overflow sentinel. `saturatingAdd` preserves it
             // so the bad value reaches `trySafeTransferFrom` and fails there, instead of reverting here.
             uint256 guaranteedPostOpCost = _erc20Cost(_guaranteedPostOpCost() * userOp.maxFeePerGas(), tokenPrice);
@@ -143,6 +158,16 @@ abstract contract PaymasterERC20Guarantor is PaymasterERC20 {
             forwardedContext
         );
         return (refunded, Math.ternary(prefunder != userOpSender, effectiveAmount, returnedEffectiveAmount));
+    }
+
+    /**
+     * @dev See {PaymasterERC20-_postOpGasBudget}. Widened by {_guaranteedPostOpCost} for guaranteed operations:
+     * that is the extra postOp gas they are billed, and which {_prefund} requires them to provision.
+     */
+    function _postOpGasBudget(PackedUserOperation calldata userOp) internal view virtual override returns (uint256) {
+        return
+            super._postOpGasBudget(userOp) +
+            Math.ternary(_fetchGuarantor(userOp) == address(0), 0, _guaranteedPostOpCost());
     }
 
     /**
