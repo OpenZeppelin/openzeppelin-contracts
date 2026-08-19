@@ -1,8 +1,12 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
 
-const { generators } = require('../helpers/random');
+import * as random from '../helpers/random';
+
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.create();
 
 const MAX_DATA_LENGTH = 0x5fff;
 
@@ -28,8 +32,8 @@ describe('SSTORE2', function () {
 
   for (const [descr, data] of Object.entries({
     'empty data': '0x',
-    'short data': generators.hexBytes(42),
-    'long data': generators.hexBytes(1024),
+    'short data': random.hexBytes(42),
+    'long data': random.hexBytes(1024),
   })) {
     describe(descr, function () {
       beforeEach(async function () {
@@ -132,7 +136,7 @@ describe('SSTORE2', function () {
   }
 
   it('reading an address with no code returns an empty buffer', async function () {
-    await expect(this.mock.$read(generators.address())).to.eventually.equal('0x');
+    await expect(this.mock.$read(random.address())).to.eventually.equal('0x');
   });
 
   it('write reverts if data is too large', async function () {
