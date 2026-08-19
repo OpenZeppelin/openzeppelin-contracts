@@ -13,11 +13,7 @@ contract ERC4337UtilsHarness {
     }
 }
 
-contract DelegateMockA is AccountEIP7702Mock {
-    constructor() EIP712("Delegate", "1") {}
-}
-
-contract DelegateMockB is AccountEIP7702Mock {
+contract DelegateMock is AccountEIP7702Mock {
     constructor() EIP712("Delegate", "1") {}
 }
 
@@ -30,8 +26,8 @@ contract ERC4337UtilsInitCodeHashTest is Test {
     function setUp() public {
         _harness = new ERC4337UtilsHarness();
         _sender = makeAddr("eip7702Sender");
-        _delegateA = address(new DelegateMockA());
-        _delegateB = address(new DelegateMockB());
+        _delegateA = address(new DelegateMock());
+        _delegateB = address(new DelegateMock());
     }
 
     // Regression against a check that required `initCode.length >= 20`. The EntryPoint's
