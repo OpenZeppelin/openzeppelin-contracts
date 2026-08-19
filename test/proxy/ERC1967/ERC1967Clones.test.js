@@ -1,11 +1,15 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import * as random from '../../helpers/random';
+import { shouldBehaveLikeProxy } from '../Proxy.behaviour';
 
-const { generators } = require('../../helpers/random');
-const shouldBehaveLikeProxy = require('../Proxy.behaviour');
+const connection = await network.create();
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = connection;
 
-const fixture = async () => {
+async function fixture() {
   const [admin, nonContractAddress] = await ethers.getSigners();
 
   const factory = await ethers.deployContract('$ERC1967Clones');
@@ -13,11 +17,11 @@ const fixture = async () => {
   const erc1967 = await ethers.getContractFactory('$ERC1967Utils');
 
   return { admin, nonContractAddress, factory, erc1967, implementation };
-};
+}
 
 describe('ERC1967Clones', function () {
   beforeEach(async function () {
-    Object.assign(this, await loadFixture(fixture));
+    Object.assign(this, connection, await loadFixture(fixture));
   });
 
   describe('non-deterministic deployment (create)', function () {
@@ -53,6 +57,7 @@ describe('ERC1967Clones', function () {
         .then(nonce => ethers.getCreateAddress({ from: this.factory.target, nonce }));
 
       await expect(this.factory.$clone(this.implementation, ethers.Typed.uint256(value))).to.changeEtherBalances(
+        ethers,
         [this.factory, predictedAddress],
         [-value, value],
       );
@@ -69,7 +74,7 @@ describe('ERC1967Clones', function () {
   describe('deterministic deployment (create2)', function () {
     before(function () {
       this.createProxy = async (implementation, initData, opts = {}) => {
-        const salt = ethers.Typed.bytes32(opts.salt ?? generators.bytes32());
+        const salt = ethers.Typed.bytes32(opts.salt ?? random.bytes32());
         const predictedAddress = await this.factory.$predictDeterministicAddress(implementation, salt);
         const deploymentTx = await this.factory.$cloneDeterministic(implementation, salt);
 
@@ -90,8 +95,8 @@ describe('ERC1967Clones', function () {
     shouldBehaveLikeProxy({ allowUninitialized: true, allowNonContractAddress: true });
 
     it('reverts when the same implementation and salt are reused', async function () {
-      const salt = generators.bytes32();
-      await expect(this.factory.$cloneDeterministic(this.implementation, salt)).to.not.be.reverted;
+      const salt = random.bytes32();
+      await expect(this.factory.$cloneDeterministic(this.implementation, salt)).to.not.be.revert(ethers);
       await expect(this.factory.$cloneDeterministic(this.implementation, salt)).to.be.revertedWithCustomError(
         this.factory,
         'FailedDeployment',
@@ -99,8 +104,8 @@ describe('ERC1967Clones', function () {
     });
 
     it('predicts addresses for an arbitrary deployer', async function () {
-      const salt = generators.bytes32();
-      const deployer = generators.address();
+      const salt = random.bytes32();
+      const deployer = random.address();
 
       const predicted = await this.factory.$predictDeterministicAddress(
         this.implementation,
@@ -127,7 +132,7 @@ describe('ERC1967Clones', function () {
       const value = ethers.parseEther('1');
       await this.admin.sendTransaction({ to: this.factory, value });
 
-      const salt = generators.bytes32();
+      const salt = random.bytes32();
       const predictedAddress = await this.factory.$predictDeterministicAddress(
         this.implementation,
         ethers.Typed.bytes32(salt),
@@ -135,12 +140,12 @@ describe('ERC1967Clones', function () {
 
       await expect(
         this.factory.$cloneDeterministic(this.implementation, ethers.Typed.bytes32(salt), ethers.Typed.uint256(value)),
-      ).to.changeEtherBalances([this.factory, predictedAddress], [-value, value]);
+      ).to.changeEtherBalances(ethers, [this.factory, predictedAddress], [-value, value]);
     });
 
     it('reverts when factory balance is below value', async function () {
       const value = ethers.parseEther('1');
-      const salt = generators.bytes32();
+      const salt = random.bytes32();
       await expect(
         this.factory.$cloneDeterministic(this.implementation, ethers.Typed.bytes32(salt), ethers.Typed.uint256(value)),
       )

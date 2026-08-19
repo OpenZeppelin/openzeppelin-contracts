@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.4.0) (governance/extensions/GovernorPreventLateQuorum.sol)
+// OpenZeppelin Contracts (last updated v5.7.0) (governance/extensions/GovernorPreventLateQuorum.sol)
 
 pragma solidity ^0.8.24;
 
@@ -14,6 +14,9 @@ import {Math} from "../../utils/math/Math.sol";
  * If a vote causes quorum to be reached, the proposal's voting period may be extended so that it does not end before at
  * least a specified time has passed (the "vote extension" parameter). This parameter can be set through a governance
  * proposal.
+ *
+ * NOTE: This module only reacts to the first time a proposal reaches quorum. If quorum can later be lost, for example
+ * when combined with {GovernorCountingOverridable}, reaching quorum again will not trigger another vote extension.
  */
 abstract contract GovernorPreventLateQuorum is Governor {
     uint48 private _voteExtension;
