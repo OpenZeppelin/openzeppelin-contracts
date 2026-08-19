@@ -1,12 +1,15 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.7.0) (account/utils/ERC4337Utils.sol)
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
 import {IEntryPoint, PackedUserOperation} from "../../interfaces/IERC4337.sol";
 import {Math} from "../../utils/math/Math.sol";
+import {Bytes} from "../../utils/Bytes.sol";
 import {Calldata} from "../../utils/Calldata.sol";
+import {Memory} from "../../utils/Memory.sol";
 import {Packing} from "../../utils/Packing.sol";
+import {EIP7702Utils} from "./EIP7702Utils.sol";
 
 /// @dev This is available on all entrypoint since v0.4.0, but is not formally part of the ERC.
 interface IEntryPointExtra {
@@ -179,6 +182,31 @@ library ERC4337Utils {
         // the ERC-5267 getter, but both operation would require doing a view call to the entrypoint. Overall it feels
         // simpler and less error prone to get that functionality from the entrypoint directly.
         return IEntryPointExtra(entrypoint).getUserOpHash(self);
+    }
+
+    /**
+     * @dev Hash of the `initCode` component of a {PackedUserOperation}, applying the {IEntryPoint}'s
+     * EIP-7702 substitution. For EIP-7702 senders (`self.initCode` starts with the 20-byte `0x7702`
+     * marker), the leading marker is replaced by the effective delegate read from `self.sender`'s code
+     * (via {EIP7702Utils.fetchDelegate}), mirroring `Eip7702Support._getEip7702InitCodeHashOverride`.
+     * For all other senders, returns `keccak256(self.initCode)`.
+     */
+    function initCodeHash(PackedUserOperation calldata self) internal view returns (bytes32) {
+        // Cache the free memory pointer so the allocations below (initCode copy, and the delegate
+        // buffer on the EIP-7702 branch) do not persist past this function.
+        Memory.Pointer fmp = Memory.getFreeMemoryPointer();
+
+        // Matches Eip7702Support._isEip7702InitCode: the marker is compared over the full 20 bytes, so
+        // the 18 bytes following it must be zero. Shorter initCode is zero-padded by the cast.
+        bytes memory initCode = self.initCode;
+        if (bytes20(initCode) == bytes20(bytes2(0x7702))) {
+            bytes memory delegate = abi.encodePacked(EIP7702Utils.fetchDelegate(self.sender));
+            initCode = initCode.length > 20 ? Bytes.replace(initCode, 0, delegate) : delegate;
+        }
+        bytes32 initCodeHash_ = keccak256(initCode);
+
+        Memory.unsafeSetFreeMemoryPointer(fmp);
+        return initCodeHash_;
     }
 
     /// @dev Returns `factory` from the {PackedUserOperation}, or address(0) if the initCode is empty or not properly formatted.
