@@ -54,7 +54,7 @@ describe('SSTORE2', function () {
 
       describe('writeDeterministic', function () {
         it('deploys the pointer at the predicted address', async function () {
-          const predicted = await this.mock.$computeAddress(salt, this.data);
+          const predicted = await this.mock.$computeAddress(this.data, salt);
 
           await expect(this.mock.$writeDeterministic(this.data, salt))
             .to.emit(this.mock, 'return$writeDeterministic')
@@ -81,9 +81,9 @@ describe('SSTORE2', function () {
             ethers.keccak256(creationCodeFor(this.data)),
           );
 
-          await expect(this.mock.$computeAddress(salt, this.data)).to.eventually.equal(expected);
+          await expect(this.mock.$computeAddress(this.data, salt)).to.eventually.equal(expected);
           await expect(
-            this.mock.$computeAddress(salt, this.data, ethers.Typed.address(this.mock.target)),
+            this.mock.$computeAddress(this.data, salt, ethers.Typed.address(this.mock.target)),
           ).to.eventually.equal(expected);
         });
       });

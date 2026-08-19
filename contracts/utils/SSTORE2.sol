@@ -95,7 +95,7 @@ library SSTORE2 {
      *
      * NOTE: reusing a `salt` and `data` combination reverts with {Errors-FailedDeployment}, but only after
      * the address collision consumes nearly all of the available gas (all but 1/64th, per EIP-150 rules).
-     * Consider checking `computeAddress(salt, data).code.length` beforehand if collisions are expected.
+     * Consider checking `computeAddress(data, salt).code.length` beforehand if collisions are expected.
      */
     function writeDeterministic(bytes memory data, bytes32 salt) internal returns (address pointer) {
         uint256 length = data.length;
@@ -113,8 +113,12 @@ library SSTORE2 {
 
     /**
      * @dev Returns the address where `data` will be stored if written via {writeDeterministic} with `salt`.
+     *
+     * Requirements:
+     *
+     * - `data` must not be longer than `MAX_DATA_LENGTH`.
      */
-    function computeAddress(bytes32 salt, bytes memory data) internal view returns (address) {
+    function computeAddress(bytes memory data, bytes32 salt) internal view returns (address) {
         return Create2.computeAddress(salt, initCodeHash(data));
     }
 
@@ -122,8 +126,12 @@ library SSTORE2 {
      * @dev Returns the address where `data` will be stored if written via {writeDeterministic} with `salt`
      * by a contract located at `deployer`. If `deployer` is this contract's address, returns the same value
      * as {computeAddress}.
+     *
+     * Requirements:
+     *
+     * - `data` must not be longer than `MAX_DATA_LENGTH`.
      */
-    function computeAddress(bytes32 salt, bytes memory data, address deployer) internal pure returns (address) {
+    function computeAddress(bytes memory data, bytes32 salt, address deployer) internal pure returns (address) {
         return Create2.computeAddress(salt, initCodeHash(data), deployer);
     }
 

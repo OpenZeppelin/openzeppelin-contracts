@@ -9,6 +9,7 @@ import {SSTORE2} from "@openzeppelin/contracts/utils/SSTORE2.sol";
 
 contract SSTORE2Test is Test {
     function testWriteRead(bytes memory data) public {
+        vm.assume(data.length <= SSTORE2.MAX_DATA_LENGTH);
         address pointer = SSTORE2.write(data);
 
         // pointer runtime code is the data prefixed with a single STOP byte
@@ -20,6 +21,7 @@ contract SSTORE2Test is Test {
     }
 
     function testWritePreservesData(bytes memory data) public {
+        vm.assume(data.length <= SSTORE2.MAX_DATA_LENGTH);
         bytes memory copy = bytes.concat(data);
         SSTORE2.write(data);
         // the temporary in-place memory manipulation must not corrupt the input buffer
@@ -27,6 +29,7 @@ contract SSTORE2Test is Test {
     }
 
     function testReadRangeMatchesSlice(bytes memory data, uint256 start, uint256 end) public {
+        vm.assume(data.length <= SSTORE2.MAX_DATA_LENGTH);
         address pointer = SSTORE2.write(data);
         assertEq(SSTORE2.read(pointer, start, end), Bytes.slice(data, start, end));
         assertEq(SSTORE2.read(pointer, start), Bytes.slice(data, start));
@@ -39,8 +42,9 @@ contract SSTORE2Test is Test {
     }
 
     function testWriteDeterministic(bytes memory data, bytes32 salt) public {
-        address predicted = SSTORE2.computeAddress(salt, data);
-        assertEq(predicted, SSTORE2.computeAddress(salt, data, address(this)));
+        vm.assume(data.length <= SSTORE2.MAX_DATA_LENGTH);
+        address predicted = SSTORE2.computeAddress(data, salt);
+        assertEq(predicted, SSTORE2.computeAddress(data, salt, address(this)));
 
         address pointer = SSTORE2.writeDeterministic(data, salt);
         assertEq(pointer, predicted);
