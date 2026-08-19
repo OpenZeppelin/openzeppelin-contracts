@@ -1,4 +1,3 @@
-import { ethers } from 'ethers';
 import { expect } from 'chai';
 
 import { EXPIRATION, prepareOperation } from '../../helpers/access-manager';
