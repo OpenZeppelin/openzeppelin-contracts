@@ -56,6 +56,22 @@ contract PaymasterSignerEIP7702Test is Test {
         _assertDelegateAffectsDigest(hex"7702000000000000000000000000000000000000deadbeef");
     }
 
+    // A factory address whose first two bytes are 0x7702 is NOT an EIP-7702 initCode: EntryPoint's
+    // Eip7702Support._isEip7702InitCode compares all 20 leading bytes against the marker padded with
+    // 18 zeros, so a nonzero tail makes this a regular factory deployment. The digest must therefore
+    // hash the raw initCode and stay independent of whatever code sits at `sender`.
+    function testDigestIgnoresDelegateForNonZeroTailFactory() public {
+        bytes memory initCode = hex"7702aabbccddeeff00112233445566778899aabb";
+
+        _installDelegate(_sender, _delegateA);
+        bytes32 hashA = _paymaster.signableUserOpHash(_userOp(initCode), 0, 0);
+
+        _installDelegate(_sender, _delegateB);
+        bytes32 hashB = _paymaster.signableUserOpHash(_userOp(initCode), 0, 0);
+
+        assertEq(hashA, hashB, "digest must not bind a delegate for a non-EIP-7702 initCode");
+    }
+
     function _assertDelegateAffectsDigest(bytes memory initCode) private {
         _installDelegate(_sender, _delegateA);
         bytes32 hashA = _paymaster.signableUserOpHash(_userOp(initCode), 0, 0);
@@ -63,7 +79,7 @@ contract PaymasterSignerEIP7702Test is Test {
         _installDelegate(_sender, _delegateB);
         bytes32 hashB = _paymaster.signableUserOpHash(_userOp(initCode), 0, 0);
 
-        assertTrue(hashA != hashB, "digest must bind the effective EIP-7702 delegate");
+        assertNotEq(hashA, hashB, "digest must bind the effective EIP-7702 delegate");
     }
 
     function _userOp(bytes memory initCode) private view returns (PackedUserOperation memory op) {
