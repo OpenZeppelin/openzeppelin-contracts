@@ -113,7 +113,7 @@ jobs:
           result-encoding: string
           script: await require('./scripts/release/workflow/set-changesets-pr-title.js')({ core })
       - name: Create PR
-        uses: changesets/action@v1
+        uses: changesets/action@v2.1.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PRERELEASE: ${{ needs.state.outputs.is_prerelease }}
