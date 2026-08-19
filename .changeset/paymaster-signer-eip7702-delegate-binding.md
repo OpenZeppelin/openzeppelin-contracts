@@ -1,5 +1,5 @@
 ---
-'openzeppelin-solidity': patch
+'openzeppelin-solidity': minor
 ---
 
-`PaymasterSigner`: Bind the signable digest to the effective EIP-7702 delegate. For senders whose `initCode` starts with the 20-byte `0x7702` marker, the `initCode` component of the digest is now the delegate read from `userOp.sender`'s code (padded with the trailing initialization data), mirroring the `IEntryPoint`'s `userOpHash` computation. Sponsorship signatures for non-EIP-7702 senders are unchanged.
+`PaymasterSigner`: For EIP-7702 senders, the signable digest now binds the effective delegate (from `sender.code`) instead of the raw `0x7702` marker, matching the `IEntryPoint`'s `userOpHash`. Sponsorship signers must be updated in lockstep or existing flows break silently; see the paymasters guide.
