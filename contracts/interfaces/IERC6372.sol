@@ -22,7 +22,7 @@ interface IERC6372 {
      * @dev Returns a machine-readable description of the clock, formatted as a URL query string.
      * Timestamps are described as `mode=timestamp` and block numbers as `mode=blocknumber&from=default`,
      * where `default` becomes a CAIP-2 chain ID (e.g. `eip155:1`) if the block number is not that of the
-     * `NUMBER` opcode. Any other mode uses a unique identifier for the `mode` field.
+     * `NUMBER` opcode (0x43). Any other mode uses a unique identifier for the `mode` field.
      */
     // solhint-disable-next-line func-name-mixedcase
     function CLOCK_MODE() external view returns (string memory);
