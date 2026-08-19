@@ -7,7 +7,7 @@ pragma solidity >=0.4.16;
  * @dev Interface for the Contract Clock standard.
  *
  * A standardized interface for a contract to expose the clock it uses internally, so that an external observer can
- * tell whether it tracks time using block numbers, timestamps, or some other mode, instead of assuming one.
+ * tell whether it tracks time using timestamps, block numbers, or some other mode, instead of assuming one.
  */
 interface IERC6372 {
     /**
