@@ -37,17 +37,28 @@ jobs:
           python-requirements: 'fv-requirements.txt'
       - name: identify specs that need to be run
         id: arguments
+        env:
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
           if [[ ${{ github.event_name }} = 'pull_request_target' && ${{ contains(github.event.pull_request.labels.*.name, 'formal-verification-force-all') }} = 'false' ]];
           then
-            RESULT=$(git diff ${{ github.event.pull_request.head.sha }}..${{ github.event.pull_request.base.sha }} --name-only fv/specs/*.spec | while IFS= read -r file; do [[ -f $file ]] && basename "${file%.spec}"; done | tr "\n" " ")
+            # Spec names come from the file names of a pull request that may be untrusted, and end
+            # up on a command line downstream. Anything that is not a plain name is dropped here.
+            RESULT=$(git diff "$HEAD_SHA".."$BASE_SHA" --name-only -- 'fv/specs/*.spec' | while IFS= read -r file; do
+              [[ -f $file ]] || continue
+              name=$(basename "${file%.spec}")
+              [[ $name =~ ^[A-Za-z0-9_-]+$ ]] && echo "$name" || echo "Ignoring spec with unexpected name: $name" >&2
+            done | tr "\n" " ")
           else
             RESULT='--all'
           fi
           echo "result=$RESULT" >> "$GITHUB_OUTPUT"
       - name: Verify specification
+        env:
+          SPEC_ARGUMENTS: ${{ steps.arguments.outputs.result }}
+          CERTORAKEY: ${{ secrets.CERTORAKEY }}
         run: |
           make -C fv apply
-          node fv/run.js ${{ steps.arguments.outputs.result }} -p 1 -v >> "$GITHUB_STEP_SUMMARY"
-        env:
-          CERTORAKEY: ${{ secrets.CERTORAKEY }}
+          read -r -a specs <<< "$SPEC_ARGUMENTS"
+          node fv/run.js "${specs[@]}" -p 1 -v >> "$GITHUB_STEP_SUMMARY"
