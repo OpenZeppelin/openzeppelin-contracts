@@ -10,6 +10,7 @@ import {EIP712} from "../../../utils/cryptography/EIP712.sol";
 import {Paymaster} from "../Paymaster.sol";
 import {Bytes} from "../../../utils/Bytes.sol";
 import {Calldata} from "../../../utils/Calldata.sol";
+import {Memory} from "../../../utils/Memory.sol";
 
 /**
  * @dev Extension of {Paymaster} that adds signature validation. See {SignerECDSA}, {SignerP256} or {SignerRSA}.
@@ -68,6 +69,10 @@ abstract contract PaymasterSigner is AbstractSigner, EIP712, Paymaster {
 
     /// @dev `initCode` hash for {_signableUserOpHash}, substituting the effective delegate for EIP-7702 senders.
     function _effectiveInitCodeHash(PackedUserOperation calldata userOp) private view returns (bytes32) {
+        // Cache the free memory pointer so the allocations below (initCode copy, and the delegate
+        // buffer on the EIP-7702 branch) do not persist past this function.
+        Memory.Pointer fmp = Memory.getFreeMemoryPointer();
+
         // Matches Eip7702Support._isEip7702InitCode: the marker is compared over the full 20 bytes, so
         // the 18 bytes following it must be zero. Shorter initCode is zero-padded by the cast.
         bytes memory initCode = userOp.initCode;
@@ -75,7 +80,10 @@ abstract contract PaymasterSigner is AbstractSigner, EIP712, Paymaster {
             bytes memory delegate = abi.encodePacked(EIP7702Utils.fetchDelegate(userOp.sender));
             initCode = initCode.length > 20 ? Bytes.replace(initCode, 0, delegate) : delegate;
         }
-        return keccak256(initCode);
+        bytes32 initCodeHash = keccak256(initCode);
+
+        Memory.unsafeSetFreeMemoryPointer(fmp);
+        return initCodeHash;
     }
 
     /**
