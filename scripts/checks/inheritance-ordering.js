@@ -15,7 +15,7 @@ const { _: artifacts } = yargs(hideBin(process.argv)).argv;
 const { files: pkgFiles } = JSON.parse(
   fs.readFileSync(path.resolve(import.meta.dirname, '../../', 'package.json'), 'utf-8'),
 );
-const patterns = pkgFiles.map(p => p.replace(/^\//, '').replace(/^!\//, '!'));
+const patterns = pkgFiles.map(p => p.replace(/^(!?)\/+/, '$1'));
 
 for (const artifact of artifacts) {
   const { output: solcOutput } = JSON.parse(
