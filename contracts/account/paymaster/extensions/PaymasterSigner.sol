@@ -8,6 +8,7 @@ import {EIP7702Utils} from "../../utils/EIP7702Utils.sol";
 import {AbstractSigner} from "../../../utils/cryptography/signers/AbstractSigner.sol";
 import {EIP712} from "../../../utils/cryptography/EIP712.sol";
 import {Paymaster} from "../Paymaster.sol";
+import {Bytes} from "../../../utils/Bytes.sol";
 import {Calldata} from "../../../utils/Calldata.sol";
 
 /**
@@ -69,15 +70,12 @@ abstract contract PaymasterSigner is AbstractSigner, EIP712, Paymaster {
     function _effectiveInitCodeHash(PackedUserOperation calldata userOp) private view returns (bytes32) {
         // Matches Eip7702Support._isEip7702InitCode: the marker is compared over the full 20 bytes, so
         // the 18 bytes following it must be zero. Shorter initCode is zero-padded by the cast.
-        if (bytes20(userOp.initCode) == bytes20(bytes2(0x7702))) {
-            address delegate = EIP7702Utils.fetchDelegate(userOp.sender);
-            return
-                userOp.initCode.length > 20
-                    ? keccak256(abi.encodePacked(delegate, userOp.initCode[20:]))
-                    : keccak256(abi.encodePacked(delegate));
-        } else {
-            return keccak256(userOp.initCode);
+        bytes memory initCode = userOp.initCode;
+        if (bytes20(initCode) == bytes20(bytes2(0x7702))) {
+            bytes memory delegate = abi.encodePacked(EIP7702Utils.fetchDelegate(userOp.sender));
+            initCode = initCode.length > 20 ? Bytes.replace(initCode, 0, delegate) : delegate;
         }
+        return keccak256(initCode);
     }
 
     /**
