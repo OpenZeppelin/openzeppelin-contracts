@@ -310,7 +310,9 @@ contract MathTest is Test {
         }
     }
 
-    function testSymbolicCountLeadingZeroes(uint256 x) public pure {
+    /// @dev Consider renaming back to test "testSymbolicCountLeadingZeroes" when
+    /// Halmos supports the CLZ opcode (https://github.com/a16z/halmos/issues/586)
+    function testFuzzCountLeadingZeroes(uint256 x) public pure {
         uint256 result = Math.clz(x);
 
         if (x == 0) {
