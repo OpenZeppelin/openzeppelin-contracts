@@ -32,10 +32,26 @@ runs:
     - name: Compare reports
       if: github.event_name == 'pull_request' && hashFiles(inputs.ref_report) != ''
       run: |
-        node scripts/checks/compare-gas-reports.js ${{ inputs.report }} ${{ inputs.ref_report }} >> $GITHUB_STEP_SUMMARY
+        node scripts/checks/compare-gas-reports.js ${{ inputs.report }} ${{ inputs.ref_report }} | tee gas-report.md >> $GITHUB_STEP_SUMMARY
+        echo '${{ github.event.number }}' > pr-number.txt
       env:
         STYLE: markdown
       shell: bash
+      id: comparison
+    # NOTE: the comment itself is NOT posted here. This job runs with a read-only
+    # GITHUB_TOKEN whenever the PR comes from a fork, so any write to the issues
+    # API fails with "Resource not accessible by integration". Instead we hand the
+    # rendered comment off as an artifact; .github/workflows/gas-comment.yml picks
+    # it up via `workflow_run` and posts it with a writable token.
+    - name: Upload comparison
+      if: steps.comparison.outcome == 'success' && github.event_name == 'pull_request'
+      uses: actions/upload-artifact@v7
+      with:
+        name: gas-comparison
+        overwrite: true
+        path: |
+          gas-report.md
+          pr-number.txt
     - name: Rename report for upload
       if: github.event_name != 'pull_request'
       run: |
