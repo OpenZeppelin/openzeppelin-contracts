@@ -55,7 +55,7 @@ describe('ERC4337Utils', function () {
       ]);
     });
 
-    it('strips away the highest bit flag from the `validAfter` and `validUntil` fields', async function () {
+    it('strips away the highest bit flag from the `validAfter` and `validUntil` fields (block range)', async function () {
       const authorizer = this.authorizer;
       const validAfter = 0x12345678n | 0x800000000000n;
       const validUntil = 0x23456789n | 0x800000000000n;
@@ -89,10 +89,12 @@ describe('ERC4337Utils', function () {
       const validUntil = 0n;
       const validationData = packValidationData(validAfter, validUntil, authorizer);
 
+      // no flag to strip in a timestamp range: the sentinel expands to type(uint48).max, like the EntryPoint's
+      // `_parseValidationData` does
       await expect(this.utils.$parseValidationData(validationData)).to.eventually.deep.equal([
         authorizer.address,
         validAfter,
-        0x7fffffffffffn,
+        MAX_UINT48,
         ValidationRange.Timestamp,
       ]);
     });
@@ -114,10 +116,7 @@ describe('ERC4337Utils', function () {
     it('classifies (flag | validAfter, 0) as block range (matches EntryPoint substitution order)', async function () {
       const authorizer = this.authorizer;
       const validAfter = 0x12345678n;
-      const validationData = ethers.solidityPacked(
-        ['uint48', 'uint48', 'address'],
-        [0x800000000000n | validAfter, 0n, authorizer.address],
-      );
+      const validationData = packValidationData(0x800000000000n | validAfter, 0n, authorizer.address);
 
       await expect(this.utils.$parseValidationData(validationData)).to.eventually.deep.equal([
         authorizer.address,
@@ -131,14 +130,40 @@ describe('ERC4337Utils', function () {
       await expect(this.utils.$parseValidationData(this.SIG_VALIDATION_SUCCESS)).to.eventually.deep.equal([
         ethers.ZeroAddress,
         0n,
-        0x7fffffffffffn,
+        MAX_UINT48,
         ValidationRange.Timestamp,
       ]);
 
       await expect(this.utils.$parseValidationData(this.SIG_VALIDATION_FAILED)).to.eventually.deep.equal([
         ADDRESS_ONE,
         0n,
-        0x7fffffffffffn,
+        MAX_UINT48,
+        ValidationRange.Timestamp,
+      ]);
+    });
+
+    // The EntryPoint only strips BLOCK_RANGE_FLAG once it has detected a block range; in a timestamp range it
+    // compares `block.timestamp` against the raw fields. A residual flag must therefore survive parsing.
+    it('keeps the block-range flag on `validUntil` in a timestamp range', async function () {
+      const authorizer = this.authorizer;
+      const validationData = packValidationData(0n, 0x800000000000n | 100n, authorizer.address);
+
+      await expect(this.utils.$parseValidationData(validationData)).to.eventually.deep.equal([
+        authorizer.address,
+        0n,
+        0x800000000000n | 100n,
+        ValidationRange.Timestamp,
+      ]);
+    });
+
+    it('keeps the block-range flag on `validAfter` in a timestamp range', async function () {
+      const authorizer = this.authorizer;
+      const validationData = packValidationData(0x800000000000n | 1000n, 2000n, authorizer.address);
+
+      await expect(this.utils.$parseValidationData(validationData)).to.eventually.deep.equal([
+        authorizer.address,
+        0x800000000000n | 1000n,
+        2000n,
         ValidationRange.Timestamp,
       ]);
     });
@@ -332,14 +357,34 @@ describe('ERC4337Utils', function () {
     });
 
     it('preserves the block-range flag when combining a `(flag | validAfter, 0)` operand', async function () {
-      const blockValidationData = ethers.solidityPacked(
-        ['uint48', 'uint48', 'address'],
-        [0x800000000000n | 0x00abcdefn, 0n, ethers.ZeroAddress],
-      );
+      const blockValidationData = packValidationData(0x800000000000n | 0x00abcdefn, 0n, ethers.ZeroAddress);
 
       const combined = await this.utils.$combineValidationData(blockValidationData, blockValidationData);
       const [, , , range] = await this.utils.$parseValidationData(combined);
       expect(range).to.equal(ValidationRange.Block);
+    });
+
+    it('does not turn a never-valid timestamp operand into a valid range', async function () {
+      const now = await time.clock.timestamp();
+
+      // `validAfter` carries the block-range flag but `validUntil` does not, so the EntryPoint reads this as a
+      // timestamp range whose `validAfter` (2**47) `block.timestamp` will never reach: it is never valid.
+      const neverValid = packValidationData(0x800000000000n, now + 2000n, ethers.ZeroAddress);
+      const valid = packValidationData(now - 1000n, now + 1000n, ethers.ZeroAddress);
+
+      // check symmetry
+      for (const combined of [
+        await this.utils.$combineValidationData(neverValid, valid),
+        await this.utils.$combineValidationData(valid, neverValid),
+      ]) {
+        await expect(this.utils.$parseValidationData(combined)).to.eventually.deep.equal([
+          ethers.ZeroAddress,
+          0x800000000000n,
+          now + 1000n,
+          ValidationRange.Timestamp,
+        ]);
+        await expect(this.utils.$getValidationData(combined)).to.eventually.deep.equal([ethers.ZeroAddress, true]);
+      }
     });
 
     it('returns SIG_VALIDATION_FAILURE if the validation ranges differ', async function () {
@@ -473,12 +518,28 @@ describe('ERC4337Utils', function () {
     it('reports not-yet-valid for a future block range with `validUntil == 0`', async function () {
       const aggregator = this.authorizer;
       const validAfter = (await time.clock.blockNumber()) + 100n;
-      const validationData = ethers.solidityPacked(
-        ['uint48', 'uint48', 'address'],
-        [0x800000000000n | validAfter, 0n, aggregator.address],
-      );
+      const validationData = packValidationData(0x800000000000n | validAfter, 0n, aggregator.address);
 
       await expect(this.utils.$getValidationData(validationData)).to.eventually.deep.equal([aggregator.address, true]);
+    });
+
+    // `EntryPoint._getValidationData` falls back to comparing `block.timestamp` against the raw fields whenever the
+    // two flags do not agree, so a flagged bound is out of reach: `validAfter` is never reached and `validUntil` is
+    // never exceeded.
+    it('never enters the range when only `validAfter` carries the block-range flag', async function () {
+      const aggregator = this.authorizer;
+      const validationData = packValidationData(0x800000000000n, 0x7fffffffffffn, aggregator.address);
+
+      // `block.timestamp <= 2**47` holds
+      await expect(this.utils.$getValidationData(validationData)).to.eventually.deep.equal([aggregator.address, true]);
+    });
+
+    it('never leaves the range when only `validUntil` carries the block-range flag', async function () {
+      const aggregator = this.authorizer;
+      const validationData = packValidationData(0n, 0x800000000000n | 100n, aggregator.address);
+
+      // neither `block.timestamp > 2**47 + 100` nor `block.timestamp <= 0` holds
+      await expect(this.utils.$getValidationData(validationData)).to.eventually.deep.equal([aggregator.address, false]);
     });
   });
 
