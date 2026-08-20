@@ -5,6 +5,7 @@ pragma solidity ^0.8.20;
 
 import {IEntryPoint, PackedUserOperation} from "../../interfaces/IERC4337.sol";
 import {Math} from "../../utils/math/Math.sol";
+import {SafeCast} from "../../utils/math/SafeCast.sol";
 import {Calldata} from "../../utils/Calldata.sol";
 import {Packing} from "../../utils/Packing.sol";
 
@@ -62,7 +63,8 @@ library ERC4337Utils {
         validUntil = uint48(bytes32(validationData).extract_32_6(6));
         aggregator = address(bytes32(validationData).extract_32_20(12));
 
-        if (validUntil == 0) validUntil = type(uint48).max;
+        validUntil |= type(uint48).max * uint48(SafeCast.toUint(validUntil == 0));
+
         range = ((validAfter & validUntil & BLOCK_RANGE_FLAG) == 0) ? ValidationRange.TIMESTAMP : ValidationRange.BLOCK;
 
         validAfter &= BLOCK_RANGE_MASK;
@@ -80,7 +82,9 @@ library ERC4337Utils {
                 aggregator,
                 validAfter,
                 validUntil,
-                (validAfter & validUntil & BLOCK_RANGE_FLAG) == 0 ? ValidationRange.TIMESTAMP : ValidationRange.BLOCK
+                (validAfter & BLOCK_RANGE_FLAG != 0) && (validUntil & BLOCK_RANGE_FLAG != 0 || validUntil == 0)
+                    ? ValidationRange.BLOCK
+                    : ValidationRange.TIMESTAMP
             );
     }
 
@@ -99,7 +103,7 @@ library ERC4337Utils {
             validUntil &= BLOCK_RANGE_MASK;
         } else if (range == ValidationRange.BLOCK) {
             validAfter |= BLOCK_RANGE_FLAG;
-            if (validUntil != 0) validUntil |= BLOCK_RANGE_FLAG;
+            validUntil |= BLOCK_RANGE_FLAG * uint48(SafeCast.toUint(validUntil > 0));
         }
         return uint256(bytes6(validAfter).pack_6_6(bytes6(validUntil)).pack_12_20(bytes20(aggregator)));
     }
