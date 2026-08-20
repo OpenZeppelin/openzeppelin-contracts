@@ -4,10 +4,13 @@
 pragma solidity ^0.8.24;
 
 import {ERC4337Utils, PackedUserOperation} from "../../utils/ERC4337Utils.sol";
+import {EIP7702Utils} from "../../utils/EIP7702Utils.sol";
 import {AbstractSigner} from "../../../utils/cryptography/signers/AbstractSigner.sol";
 import {EIP712} from "../../../utils/cryptography/EIP712.sol";
 import {Paymaster} from "../Paymaster.sol";
+import {Bytes} from "../../../utils/Bytes.sol";
 import {Calldata} from "../../../utils/Calldata.sol";
+import {Memory} from "../../../utils/Memory.sol";
 
 /**
  * @dev Extension of {Paymaster} that adds signature validation. See {SignerECDSA}, {SignerP256} or {SignerRSA}.
@@ -32,6 +35,11 @@ abstract contract PaymasterSigner is AbstractSigner, EIP712, Paymaster {
      * @dev Virtual function that returns the signable hash for a user operations. Given the `userOpHash`
      * contains the `paymasterAndData` itself, it's not possible to sign that value directly. Instead,
      * this function must be used to provide a custom mechanism to authorize an user operation.
+     *
+     * For EIP-7702 senders (i.e. `userOp.initCode` starting with the 20-byte `0x7702` marker), the
+     * `initCode` component of the digest substitutes the effective delegate read from `userOp.sender`'s
+     * code, mirroring the {IEntryPoint}'s `userOpHash` computation. For all other senders, the raw
+     * `initCode` is hashed directly.
      */
     function _signableUserOpHash(
         PackedUserOperation calldata userOp,
@@ -45,7 +53,7 @@ abstract contract PaymasterSigner is AbstractSigner, EIP712, Paymaster {
                         USER_OPERATION_REQUEST_TYPEHASH,
                         userOp.sender,
                         userOp.nonce,
-                        keccak256(userOp.initCode),
+                        _effectiveInitCodeHash(userOp),
                         keccak256(userOp.callData),
                         userOp.accountGasLimits,
                         userOp.preVerificationGas,
@@ -57,6 +65,25 @@ abstract contract PaymasterSigner is AbstractSigner, EIP712, Paymaster {
                     )
                 )
             );
+    }
+
+    /// @dev `initCode` hash for {_signableUserOpHash}, substituting the effective delegate for EIP-7702 senders.
+    function _effectiveInitCodeHash(PackedUserOperation calldata userOp) private view returns (bytes32) {
+        // Cache the free memory pointer so the allocations below (initCode copy, and the delegate
+        // buffer on the EIP-7702 branch) do not persist past this function.
+        Memory.Pointer fmp = Memory.getFreeMemoryPointer();
+
+        // Matches Eip7702Support._isEip7702InitCode: the marker is compared over the full 20 bytes, so
+        // the 18 bytes following it must be zero. Shorter initCode is zero-padded by the cast.
+        bytes memory initCode = userOp.initCode;
+        if (bytes20(initCode) == bytes20(bytes2(0x7702))) {
+            bytes memory delegate = abi.encodePacked(EIP7702Utils.fetchDelegate(userOp.sender));
+            initCode = initCode.length > 20 ? Bytes.replace(initCode, 0, delegate) : delegate;
+        }
+        bytes32 initCodeHash = keccak256(initCode);
+
+        Memory.unsafeSetFreeMemoryPointer(fmp);
+        return initCodeHash;
     }
 
     /**

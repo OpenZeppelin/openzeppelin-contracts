@@ -49,6 +49,8 @@ const paymasterVerificationGasLimit = 100_000n;
 const paymasterPostOpGasLimit = 300_000n;
 
 // Sign using EIP-712 typed data
+// NOTE: `initCode` below is the *effective* initCode (see `effectiveInitCode` further down), not
+// `userOp.initCode`. The two only differ for EIP-7702 senders.
 const paymasterSignature = await signer.signTypedData({
   domain: {
     chainId: await signerClient.getChainId(),
@@ -75,7 +77,7 @@ const paymasterSignature = await signer.signTypedData({
   message: {
     sender: userOp.sender,
     nonce: userOp.nonce,
-    initCode: userOp.initCode,
+    initCode: await effectiveInitCode(publicClient, userOp),
     callData: userOp.callData,
     accountGasLimits: userOp.accountGasLimits,
     preVerificationGas: userOp.preVerificationGas,
@@ -87,6 +89,38 @@ const paymasterSignature = await signer.signTypedData({
   },
 });
 ----
+
+[[eip-7702-init-code]]
+=== Signing for EIP-7702 senders
+
+The `initCode` field of the signed struct is not always `userOp.initCode`. For EIP-7702 senders — those whose `initCode` is the 20-byte `0x7702` marker (the two marker bytes followed by 18 zero bytes) — the paymaster substitutes the delegate currently installed at `userOp.sender`, mirroring what the EntryPoint does when it computes `userOpHash`. Signing the raw marker instead would produce a digest the paymaster does not recognize, and the operation would be rejected.
+
+Compute the value to sign with a helper:
+
+[source,typescript]
+----
+import { concat, padHex, size, slice } from "viem";
+
+const EIP7702_INIT_CODE_MARKER = padHex("0x7702", { size: 20, dir: "right" });
+
+async function effectiveInitCode(publicClient, userOp) {
+  const initCode = userOp.initCode ?? "0x";
+
+  // The marker is compared over the full 20 bytes, so bytes 2..19 must be zero (a shorter initCode is
+  // zero-padded). Anything else is a regular factory deployment and is signed as-is — including a
+  // factory address that merely happens to start with 0x7702.
+  const head = padHex(slice(initCode, 0, Math.min(20, size(initCode))), { size: 20, dir: "right" });
+  if (head !== EIP7702_INIT_CODE_MARKER) return initCode;
+
+  // Read the delegate out of the sender's code, stripping the 0xef0100 EIP-7702 prefix
+  const code = await publicClient.getCode({ address: userOp.sender });
+  const delegate = slice(code, 3, 23);
+
+  return size(initCode) > 20 ? concat([delegate, slice(initCode, 20)]) : delegate;
+}
+----
+
+WARNING: Because the delegate is read at validation time, a sponsorship signature issued while one delegate is installed stops being valid once the account owner replaces it. This is deliberate: it prevents a signature obtained for one delegate's behavior from authorizing an operation executed by another. Signing services must therefore read the sender's code when signing rather than caching a digest.
 
 The time window (`validAfter` and `validUntil`) allows you to limit how long the signature remains valid. Once signed, the paymaster data needs to be formatted and attached to the user operation:
 
