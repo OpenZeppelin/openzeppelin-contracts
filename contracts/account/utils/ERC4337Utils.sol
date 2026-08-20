@@ -61,12 +61,12 @@ library ERC4337Utils {
         validAfter = uint48(bytes32(validationData).extract_32_6(0));
         validUntil = uint48(bytes32(validationData).extract_32_6(6));
         aggregator = address(bytes32(validationData).extract_32_20(12));
+
+        if (validUntil == 0) validUntil = type(uint48).max;
         range = ((validAfter & validUntil & BLOCK_RANGE_FLAG) == 0) ? ValidationRange.TIMESTAMP : ValidationRange.BLOCK;
 
         validAfter &= BLOCK_RANGE_MASK;
         validUntil &= BLOCK_RANGE_MASK;
-
-        if (validUntil == 0) validUntil = BLOCK_RANGE_MASK;
     }
 
     /// @dev Packs the validation data into a single uint256. See {parseValidationData}.
@@ -99,7 +99,7 @@ library ERC4337Utils {
             validUntil &= BLOCK_RANGE_MASK;
         } else if (range == ValidationRange.BLOCK) {
             validAfter |= BLOCK_RANGE_FLAG;
-            validUntil |= BLOCK_RANGE_FLAG;
+            if (validUntil != 0) validUntil |= BLOCK_RANGE_FLAG;
         }
         return uint256(bytes6(validAfter).pack_6_6(bytes6(validUntil)).pack_12_20(bytes20(aggregator)));
     }

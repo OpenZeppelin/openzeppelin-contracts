@@ -111,6 +111,22 @@ describe('ERC4337Utils', function () {
       ]);
     });
 
+    it('classifies (flag | validAfter, 0) as block range (matches EntryPoint substitution order)', async function () {
+      const authorizer = this.authorizer;
+      const validAfter = 0x12345678n;
+      const validationData = ethers.solidityPacked(
+        ['uint48', 'uint48', 'address'],
+        [0x800000000000n | validAfter, 0n, authorizer.address],
+      );
+
+      await expect(this.utils.$parseValidationData(validationData)).to.eventually.deep.equal([
+        authorizer.address,
+        validAfter,
+        0x7fffffffffffn,
+        ValidationRange.Block,
+      ]);
+    });
+
     it('parse canonical values', async function () {
       await expect(this.utils.$parseValidationData(this.SIG_VALIDATION_SUCCESS)).to.eventually.deep.equal([
         ethers.ZeroAddress,
@@ -315,6 +331,17 @@ describe('ERC4337Utils', function () {
       await expect(this.utils.$combineValidationData(validationData2, validationData1)).to.eventually.equal(expected);
     });
 
+    it('preserves the block-range flag when combining a `(flag | validAfter, 0)` operand', async function () {
+      const blockValidationData = ethers.solidityPacked(
+        ['uint48', 'uint48', 'address'],
+        [0x800000000000n | 0x00abcdefn, 0n, ethers.ZeroAddress],
+      );
+
+      const combined = await this.utils.$combineValidationData(blockValidationData, blockValidationData);
+      const [, , , range] = await this.utils.$parseValidationData(combined);
+      expect(range).to.equal(ValidationRange.Block);
+    });
+
     it('returns SIG_VALIDATION_FAILURE if the validation ranges differ', async function () {
       const validationData1 = packValidationData(
         validAfter1,
@@ -441,6 +468,17 @@ describe('ERC4337Utils', function () {
 
     it('returns address(0) and false for validationData = 0', async function () {
       await expect(this.utils.$getValidationData(0n)).to.eventually.deep.equal([ethers.ZeroAddress, false]);
+    });
+
+    it('reports not-yet-valid for a future block range with `validUntil == 0`', async function () {
+      const aggregator = this.authorizer;
+      const validAfter = (await time.clock.blockNumber()) + 100n;
+      const validationData = ethers.solidityPacked(
+        ['uint48', 'uint48', 'address'],
+        [0x800000000000n | validAfter, 0n, aggregator.address],
+      );
+
+      await expect(this.utils.$getValidationData(validationData)).to.eventually.deep.equal([aggregator.address, true]);
     });
   });
 

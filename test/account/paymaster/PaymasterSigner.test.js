@@ -88,14 +88,14 @@ for (const [name, opts] of Object.entries({
       Object.assign(this, connection, await loadFixture(fixture));
     });
 
-    it('rejects validAfter with the flag set when validUntil has no flag', async function () {
+    it('rejects validAfter with the flag set when validUntil has no flag (and is non-zero)', async function () {
       await this.paymaster.deposit({ value: ethers.parseEther('1') });
 
       const signedUserOp = await this.account
         .createUserOp({
           paymaster: this.paymaster,
         })
-        .then(op => this.paymasterSignUserOp(op, { validAfter: BLOCK_RANGE_FLAG | 1n, validUntil: 0n }))
+        .then(op => this.paymasterSignUserOp(op, { validAfter: BLOCK_RANGE_FLAG | 1n, validUntil: 2n }))
         .then(op => this.signUserOp(op));
 
       await expect(ethers.predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver))
@@ -116,6 +116,18 @@ for (const [name, opts] of Object.entries({
       await expect(ethers.predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver))
         .to.be.revertedWithCustomError(ethers.predeploy.entrypoint.v09, 'FailedOp')
         .withArgs(0n, 'AA34 signature error');
+    });
+
+    it('accepts a block-range sponsorship with `validUntil = 0` (no expiry)', async function () {
+      await this.paymaster.deposit({ value: ethers.parseEther('1') });
+
+      const validAfter = BLOCK_RANGE_FLAG | (BigInt(await ethers.provider.getBlockNumber()) - 1n);
+      const signedUserOp = await this.account
+        .createUserOp({ paymaster: this.paymaster })
+        .then(op => this.paymasterSignUserOp(op, { validAfter, validUntil: 0n }))
+        .then(op => this.signUserOp(op));
+
+      await ethers.predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver).then(op => op.wait());
     });
 
     it('returns SIG_VALIDATION_FAILED for paymasterData shorter than 12 bytes', async function () {
