@@ -367,6 +367,50 @@ export function shouldBehaveLikeBridgeERC1155({ chainAIsCustodial = false, chain
           ), // No address
         ).to.be.revertedWithCustomError(this.bridgeA, 'CrosschainMultiTokenEmptyAddress');
       });
+
+      it('reverts if an EIP-155 receiver address is not exactly 20 bytes', async function () {
+        const [alice, bruce] = this.accounts;
+
+        await this.tokenA.$_mintBatch(alice, ids, values, '0x');
+        await this.tokenA.connect(alice).setApprovalForAll(this.bridgeA, true);
+
+        let refHex = BigInt(this.chain.reference).toString(16);
+        if (refHex.length % 2) refHex = `0${refHex}`;
+        const ref = ethers.getBytes(`0x${refHex}`);
+        const longReceiver = ethers.concat([
+          '0x0001',
+          '0x0000',
+          ethers.toBeHex(ref.length, 1),
+          ref,
+          ethers.toBeHex(32, 1),
+          ethers.zeroPadValue(bruce.address, 32),
+        ]);
+
+        await expect(
+          this.bridgeA.connect(alice).getFunction('crosschainTransferFrom(address,bytes,uint256[],uint256[])')(
+            alice,
+            longReceiver,
+            ids,
+            values,
+          ),
+        ).to.be.revertedWithCustomError(this.bridgeA, 'CrosschainMultiTokenInvalidAddress');
+      });
+
+      it('reverts if an EIP-155 receiver is the zero address', async function () {
+        const [alice] = this.accounts;
+
+        await this.tokenA.$_mintBatch(alice, ids, values, '0x');
+        await this.tokenA.connect(alice).setApprovalForAll(this.bridgeA, true);
+
+        await expect(
+          this.bridgeA.connect(alice).getFunction('crosschainTransferFrom(address,bytes,uint256[],uint256[])')(
+            alice,
+            this.chain.toErc7930(ethers.ZeroAddress),
+            ids,
+            values,
+          ),
+        ).to.be.revertedWithCustomError(this.bridgeA, 'CrosschainMultiTokenInvalidAddress');
+      });
     });
 
     describe('restrictions', function () {
@@ -400,6 +444,36 @@ export function shouldBehaveLikeBridgeERC1155({ chainAIsCustodial = false, chain
         )
           .to.be.revertedWithCustomError(this.bridgeA, 'ERC7786RecipientUnauthorizedGateway')
           .withArgs(this.gateway, this.helpers.chain.toErc7930(invalid));
+      });
+
+      it('rejects a receiver address that is not exactly 20 bytes', async function () {
+        const [alice] = this.accounts;
+        // a 32-byte receiver (e.g. a non-EVM address) must not be silently truncated
+        const longReceiver = ethers.zeroPadValue(alice.address, 32);
+        const payload = ethers.AbiCoder.defaultAbiCoder().encode(
+          ['bytes', 'bytes', 'uint256[]', 'uint256[]', 'bytes'],
+          [this.chain.toErc7930(alice), longReceiver, ids, values, '0x'],
+        );
+
+        await expect(
+          this.bridgeA
+            .connect(this.gatewayAsEOA)
+            .receiveMessage(ethers.ZeroHash, this.chain.toErc7930(this.bridgeB), payload),
+        ).to.be.revertedWithCustomError(this.bridgeA, 'CrosschainMultiTokenInvalidAddress');
+      });
+
+      it('rejects a zero receiver address', async function () {
+        const [alice] = this.accounts;
+        const payload = ethers.AbiCoder.defaultAbiCoder().encode(
+          ['bytes', 'bytes', 'uint256[]', 'uint256[]', 'bytes'],
+          [this.chain.toErc7930(alice), ethers.ZeroAddress, ids, values, '0x'],
+        );
+
+        await expect(
+          this.bridgeA
+            .connect(this.gatewayAsEOA)
+            .receiveMessage(ethers.ZeroHash, this.chain.toErc7930(this.bridgeB), payload),
+        ).to.be.revertedWithCustomError(this.bridgeA, 'CrosschainMultiTokenInvalidAddress');
       });
     });
 
