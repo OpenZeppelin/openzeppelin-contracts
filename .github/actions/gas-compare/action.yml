@@ -32,10 +32,23 @@ runs:
     - name: Compare reports
       if: github.event_name == 'pull_request' && hashFiles(inputs.ref_report) != ''
       run: |
-        node scripts/checks/compare-gas-reports.js ${{ inputs.report }} ${{ inputs.ref_report }} >> $GITHUB_STEP_SUMMARY
+        {
+          echo '<details>'
+          echo '<summary>view gas comparison</summary>'
+          echo ''
+          node scripts/checks/compare-gas-reports.js ${{ inputs.report }} ${{ inputs.ref_report }}
+          echo ''
+          echo '</details>'
+        } > comparison.md
       env:
         STYLE: markdown
       shell: bash
+      id: comparison
+    - name: Comment comparison
+      if: steps.comparison.outcome == 'success' && github.event_name == 'pull_request'
+      uses: step-security/sticky-pull-request-comment@v3
+      with:
+        path: comparison.md
     - name: Rename report for upload
       if: github.event_name != 'pull_request'
       run: |
