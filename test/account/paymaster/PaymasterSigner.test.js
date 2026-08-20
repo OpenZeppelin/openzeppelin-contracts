@@ -121,13 +121,14 @@ for (const [name, opts] of Object.entries({
     it('accepts a block-range sponsorship with `validUntil = 0` (no expiry)', async function () {
       await this.paymaster.deposit({ value: ethers.parseEther('1') });
 
-      const validAfter = BLOCK_RANGE_FLAG | (BigInt(await ethers.provider.getBlockNumber()) - 1n);
       const signedUserOp = await this.account
         .createUserOp({ paymaster: this.paymaster })
-        .then(op => this.paymasterSignUserOp(op, { validAfter, validUntil: 0n }))
+        .then(op => this.paymasterSignUserOp(op, { validAfter: BLOCK_RANGE_FLAG | 1n, validUntil: 0n }))
         .then(op => this.signUserOp(op));
 
-      await ethers.predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver).then(op => op.wait());
+      await expect(ethers.predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver)).to.not.revert(
+        ethers,
+      );
     });
 
     it('returns SIG_VALIDATION_FAILED for paymasterData shorter than 12 bytes', async function () {
