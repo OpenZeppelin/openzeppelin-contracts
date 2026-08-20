@@ -65,18 +65,19 @@ function getImportPathFromExposedContract(
   ).replaceAll(/\\/g, '/'); // Normalize windows paths to unix paths
 }
 
-const remappingRegex = /^(?<context>[^:]*):(?<prefix>[^=]*)=(?<target>.*)$/;
+const remappingRegex = /^(?:(?<context>[^:]*):)?(?<prefix>[^=]*)=(?<target>.*)$/;
 
 // Files that come from an npm package have an input source name of the form `npm/<name>@<version>/<path>`, which is
 // neither a valid import path nor a usable output path. Exposed contracts live in the project, so they refer to these
 // files the way the project does, using the name the package is installed under. Hardhat records that mapping in the
-// solc input remappings, as `<context>:<prefix>=<target>` entries (e.g. `project/:hardhat/=npm/hardhat@3.9.1/`); we
-// invert the ones that apply to the project sources, and fall back to dropping the version if none matches.
+// solc input remappings, as `[<context>:]<prefix>=<target>` entries (e.g. `project/:hardhat/=npm/hardhat@3.9.1/`); we
+// invert the ones that apply to the project sources, and fall back to dropping the version if none matches. A missing
+// context is an empty one: the remapping applies to every file, project sources included.
 function getNpmImportPath(inputSourceName: string, remappings: string[]): string {
   // Longest target first: multiple remappings may apply, the most specific one is the right one.
   const item = remappings
     .flatMap(remapping => (remappingRegex.exec(remapping)?.groups ?? []) as { [key: string]: string }[])
-    .filter(({ context, target }) => ['', 'project/'].includes(context) && inputSourceName.startsWith(target))
+    .filter(({ context, target }) => ['', 'project/'].includes(context ?? '') && inputSourceName.startsWith(target))
     .sort((a, b) => b.target.length - a.target.length)
     .at(0);
 
