@@ -76,8 +76,8 @@ abstract contract PaymasterSigner is AbstractSigner, EIP712, Paymaster {
     ) internal virtual override returns (bytes memory context, uint256 validationData) {
         (uint48 validAfter, uint48 validUntil, bytes calldata signature) = _decodePaymasterUserOp(userOp);
 
-        // Mixed `BLOCK_RANGE_FLAG` bits between `validAfter` and `validUntil` are rejected
-        bool rangeFlagsCompatible = (validAfter ^ validUntil) & ERC4337Utils.BLOCK_RANGE_FLAG == 0;
+        // If validUntil is non-zero, mixed `BLOCK_RANGE_FLAG` bits between `validAfter` and `validUntil` are rejected
+        bool rangeFlagsCompatible = validUntil == 0 || ((validAfter ^ validUntil) & ERC4337Utils.BLOCK_RANGE_FLAG == 0);
 
         return (
             bytes(""),
