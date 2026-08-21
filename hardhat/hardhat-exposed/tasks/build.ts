@@ -23,10 +23,7 @@ export default async function build(
       hre.config.paths.sources.solidity.push(hre.config.exposed.outDir);
     }
   } else if (args.files.length === 0 && !args.noContracts && !args.noTests) {
-    // Hardhat only cleans up "stale" artifacts on a full build (no file, and no `--no-contracts`/`--no-tests` flag).
-    // Since the exposed contracts are not in the compilation scope here, that cleanup would remove their artifacts,
-    // forcing the next regular build to recompile all of them. Listing the root files explicitly turns the full build
-    // into a partial one, which leaves the existing artifacts alone.
+    // List roots explicitly to keep this a partial build; a full build's stale-artifact sweep would delete exposed artifacts.
     args.files = [
       ...(await hre.solidity.getRootFilePaths({ scope: 'contracts' })),
       ...(hre.config.solidity.splitTestsCompilation ? await hre.solidity.getRootFilePaths({ scope: 'tests' }) : []),
