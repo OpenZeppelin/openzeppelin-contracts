@@ -175,6 +175,12 @@ abstract contract PaymasterERC20Guarantor is PaymasterERC20 {
      *
      * NOTE: Return `address(0)` to disable the guarantor feature. If supported, ensure
      * explicit consent (e.g., signature verification) to prevent unauthorized use.
+     *
+     * NOTE: Return `address(0)` as well when the guarantor is `userOp.sender` itself. {_refund} tells guaranteed
+     * operations apart by `prefunder != userOp.sender`, so such an operation settles through the non-guaranteed
+     * branch and is never billed {_guaranteedPostOpCost}, while {_postOpGasBudget} still widens the budget by it.
+     * That prices {PaymasterERC20-_postOpGasPenalty} below what the EntryPoint debits, and inflates the prefund
+     * pulled during validation for no benefit.
      */
     function _fetchGuarantor(PackedUserOperation calldata userOp) internal view virtual returns (address guarantor);
 
