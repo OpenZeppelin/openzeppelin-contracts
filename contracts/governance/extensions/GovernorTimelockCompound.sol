@@ -22,7 +22,7 @@ import {SafeCast} from "../../utils/math/SafeCast.sol";
  * tuple, and every action in a proposal shares the same eta. A proposal that repeats an action with identical
  * target, value, and calldata therefore reverts with {GovernorAlreadyQueuedProposal} when queued, after the vote
  * has succeeded, and can never be executed. To repeat an otherwise-identical call, make each action unique, e.g.
- * by appending distinct trailing bytes to its calldata.
+ * by appending distinct trailing bytes to the calldata of targets that ignore them.
  */
 abstract contract GovernorTimelockCompound is Governor {
     ICompoundTimelock private _timelock;
