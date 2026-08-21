@@ -8,8 +8,8 @@
     "!/contracts/mocks/**/*"
   ],
   "scripts": {
-    "compile": "hardhat compile",
-    "compile:harnesses": "env SRC=./fv/harnesses hardhat compile",
+    "compile": "hardhat build",
+    "compile:harnesses": "env SRC=./fv/harnesses hardhat build --noExpose",
     "docs": "npm run prepare-docs && oz-docs",
     "docs:watch": "oz-docs watch contracts docs/templates docs/config.mjs",
     "prepare": "husky",
@@ -23,12 +23,12 @@
     "clean": "hardhat clean && rimraf build contracts/build",
     "prepack": "scripts/prepack.sh",
     "generate": "scripts/generate/run.js",
-    "pragma": "npm run compile && scripts/minimize-pragma.js artifacts/build-info/*",
+    "pragma": "hardhat build --noExpose && scripts/minimize-pragma.js artifacts/build-info/*",
     "version": "scripts/release/version.sh",
     "test": "hardhat test",
     "test:generation": "scripts/checks/generation.sh",
-    "test:inheritance": "npm run compile && scripts/checks/inheritance-ordering.js artifacts/build-info/*.output.json",
-    "test:pragma": "npm run compile && scripts/checks/pragma-validity.js artifacts/build-info/*.output.json",
+    "test:inheritance": "hardhat build --noExpose && scripts/checks/inheritance-ordering.js artifacts/build-info/*.output.json",
+    "test:pragma": "hardhat build --noExpose && scripts/checks/pragma-validity.js artifacts/build-info/*.output.json",
     "coverage": "hardhat test --coverage",
     "gas-report": "hardhat test --gas-stats",
     "slither": "npm run clean && slither ."
