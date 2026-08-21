@@ -181,10 +181,14 @@ library ERC4337Utils {
                             )
                         )
                     ),
-                    uint48(Math.max(validAfter1, validAfter2)) |
-                        (BLOCK_RANGE_FLAG * uint48(SafeCast.toUint(range1 == ValidationRange.BLOCK))),
-                    uint48(Math.min(validUntil1, validUntil2)) |
-                        (BLOCK_RANGE_FLAG * uint48(SafeCast.toUint(range1 == ValidationRange.BLOCK)))
+                    uint48(
+                        Math.max(validAfter1, validAfter2) |
+                            (BLOCK_RANGE_FLAG * SafeCast.toUint(range1 == ValidationRange.BLOCK))
+                    ),
+                    uint48(
+                        Math.min(validUntil1, validUntil2) |
+                            (BLOCK_RANGE_FLAG * SafeCast.toUint(range1 == ValidationRange.BLOCK))
+                    )
                 )
                 : SIG_VALIDATION_FAILED;
     }
