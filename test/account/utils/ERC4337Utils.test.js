@@ -11,8 +11,8 @@ const {
 } = await network.create();
 
 const ADDRESS_ONE = '0x0000000000000000000000000000000000000001';
-const BLOCK_RANGE_FLAG = 0x800000000000n; // 1n << 48n
-const MAX_UINT47 = 0x7fffffffffffn; // (1n << 48n) - 1n
+const BLOCK_RANGE_FLAG = 0x800000000000n; // 1n << 47n
+const MAX_UINT47 = 0x7fffffffffffn; // (1n << 47n) - 1n
 
 async function fixture() {
   const [authorizer, sender, factory, paymaster] = await ethers.getSigners();
