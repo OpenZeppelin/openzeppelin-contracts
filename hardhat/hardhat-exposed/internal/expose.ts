@@ -77,7 +77,7 @@ function getNpmImportPath(inputSourceName: string, remappings: string[]): string
   // Longest target first: multiple remappings may apply, the most specific one is the right one.
   const item = remappings
     .map(remapping => remappingRegex.exec(remapping)?.groups ?? {})
-    .filter(({ context, target }) => ['', 'project/'].includes(context ?? '') && inputSourceName.startsWith(target))
+    .filter(({ context, target }) => [undefined, '', 'project/'].includes(context) && inputSourceName.startsWith(target))
     .sort((a, b) => b.target.length - a.target.length)
     .at(0);
 
