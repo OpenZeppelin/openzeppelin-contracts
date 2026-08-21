@@ -18,6 +18,8 @@ contract DelegateMock is AccountEIP7702Mock {
 }
 
 contract ERC4337UtilsInitCodeHashTest is Test {
+    bytes constant EIP7702_MARKER = hex"7702000000000000000000000000000000000000";
+
     ERC4337UtilsHarness private _harness;
     address private _sender;
     address private _delegateA;
@@ -34,49 +36,42 @@ contract ERC4337UtilsInitCodeHashTest is Test {
     // Eip7702Support._isEip7702InitCode accepts any initCode of length >= 2 whose first 20 bytes
     // (calldata-padded with zeros) match the marker, so a 2-byte initCode must bind the delegate too.
     function testHashBindsDelegateForShortMarker() public {
-        _assertDelegateAffectsHash(hex"7702");
+        bytes32 hashA = _installDelegateAndHashUserOp(_delegateA, hex"7702");
+        bytes32 hashB = _installDelegateAndHashUserOp(_delegateB, hex"7702");
+        assertNotEq(hashA, hashB, "hash must bind the effective EIP-7702 delegate");
     }
 
     function testHashBindsDelegateForFullMarker() public {
-        _assertDelegateAffectsHash(hex"7702000000000000000000000000000000000000");
+        bytes32 hashA = _installDelegateAndHashUserOp(_delegateA, EIP7702_MARKER);
+        bytes32 hashB = _installDelegateAndHashUserOp(_delegateB, EIP7702_MARKER);
+        assertNotEq(hashA, hashB, "hash must bind the effective EIP-7702 delegate");
     }
 
     function testHashBindsDelegateForMarkerWithInitData() public {
-        _assertDelegateAffectsHash(hex"7702000000000000000000000000000000000000deadbeef");
+        bytes32 hashA = _installDelegateAndHashUserOp(_delegateA, bytes.concat(EIP7702_MARKER, hex"deadbeef"));
+        bytes32 hashB = _installDelegateAndHashUserOp(_delegateB, bytes.concat(EIP7702_MARKER, hex"deadbeef"));
+        assertNotEq(hashA, hashB, "hash must bind the effective EIP-7702 delegate");
     }
 
-    // A factory address whose first two bytes are 0x7702 is NOT an EIP-7702 initCode: EntryPoint's
-    // Eip7702Support._isEip7702InitCode compares all 20 leading bytes against the marker padded with
-    // 18 zeros, so a nonzero tail makes this a regular factory deployment. The hash must therefore
-    // stay independent of whatever code sits at `sender`.
+    function testHashIncludesInitData() public {
+        bytes32 hashA = _installDelegateAndHashUserOp(_delegateA, bytes.concat(EIP7702_MARKER, hex"deadbeef"));
+        bytes32 hashB = _installDelegateAndHashUserOp(_delegateA, bytes.concat(EIP7702_MARKER, hex"cafebabe"));
+        assertNotEq(hashA, hashB, "hash must bind the effective EIP-7702 delegate");
+    }
+
     function testHashIgnoresDelegateForNonZeroTailFactory() public {
-        bytes memory initCode = hex"7702aabbccddeeff00112233445566778899aabb";
-
-        _installDelegate(_sender, _delegateA);
-        bytes32 hashA = _harness.initCodeHash(_userOp(initCode));
-
-        _installDelegate(_sender, _delegateB);
-        bytes32 hashB = _harness.initCodeHash(_userOp(initCode));
-
+        bytes32 hashA = _installDelegateAndHashUserOp(_delegateA, hex"7702aabbccddeeff00112233445566778899aabb");
+        bytes32 hashB = _installDelegateAndHashUserOp(_delegateB, hex"7702aabbccddeeff00112233445566778899aabb");
         assertEq(hashA, hashB, "hash must not bind a delegate for a non-EIP-7702 initCode");
     }
 
-    function _assertDelegateAffectsHash(bytes memory initCode) private {
-        _installDelegate(_sender, _delegateA);
-        bytes32 hashA = _harness.initCodeHash(_userOp(initCode));
-
-        _installDelegate(_sender, _delegateB);
-        bytes32 hashB = _harness.initCodeHash(_userOp(initCode));
-
-        assertNotEq(hashA, hashB, "hash must bind the effective EIP-7702 delegate");
+    function _installDelegateAndHashUserOp(address delegate, bytes memory initCode) private returns (bytes32 hash) {
+        vm.etch(_sender, abi.encodePacked(bytes3(0xef0100), delegate));
+        return _harness.initCodeHash(_userOp(initCode));
     }
 
     function _userOp(bytes memory initCode) private view returns (PackedUserOperation memory op) {
         op.sender = _sender;
         op.initCode = initCode;
-    }
-
-    function _installDelegate(address account, address delegate) private {
-        vm.etch(account, abi.encodePacked(bytes3(0xef0100), delegate));
     }
 }
