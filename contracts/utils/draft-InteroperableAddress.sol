@@ -42,7 +42,7 @@ library InteroperableAddress {
     }
 
     /**
-     * @dev Variant of {formatV1-bytes2-bytes-bytes-} specific to EVM chains. Returns the ERC-7930 interoperable
+     * @dev Variant of {InteroperableAddress-formatV1-bytes2-bytes-bytes} specific to EVM chains. Returns the ERC-7930 interoperable
      * address (version 1) for a given chainid and ethereum address.
      */
     function formatEvmV1(uint256 chainid, address addr) internal pure returns (bytes memory) {
@@ -51,7 +51,7 @@ library InteroperableAddress {
     }
 
     /**
-     * @dev Variant of {formatV1-bytes2-bytes-bytes-} that specifies an EVM chain without an address.
+     * @dev Variant of {InteroperableAddress-formatV1-bytes2-bytes-bytes} that specifies an EVM chain without an address.
      */
     function formatEvmV1(uint256 chainid) internal pure returns (bytes memory) {
         bytes memory chainReference = _toChainReference(chainid);
@@ -59,7 +59,7 @@ library InteroperableAddress {
     }
 
     /**
-     * @dev Variant of {formatV1-bytes2-bytes-bytes-} that specifies an EVM address without a chain reference.
+     * @dev Variant of {InteroperableAddress-formatV1-bytes2-bytes-bytes} that specifies an EVM address without a chain reference.
      */
     function formatEvmV1(address addr) internal pure returns (bytes memory) {
         return abi.encodePacked(bytes6(0x000100000014), addr);

@@ -20,7 +20,7 @@ import {ERC4337Utils} from "../../../account/utils/ERC4337Utils.sol";
  * to hold native currency (e.g. ETH) at all.
  *
  * NOTE: To enable both timestamp-based and block-number-based validity windows, `validAfter` and
- * `validBefore` use a dual-clock encoding mirroring {ERC4337Utils}. Bit 47 ({BLOCK_RANGE_FLAG}) acts as a
+ * `validBefore` use a dual-clock encoding mirroring {ERC4337Utils}. Bit 47 ({ERC4337Utils-BLOCK_RANGE_FLAG}) acts as a
  * clock selector: when *both* `validAfter` and `validBefore` have this bit set, the values are interpreted
  * as block numbers; otherwise they are interpreted as Unix timestamps (the default, matching the ERC-3009
  * specification). Since the current clock fits in 48 bits, any bit set at position 47 or above (other than
@@ -131,7 +131,7 @@ abstract contract ERC3009 is ERC20, EIP712, IERC3009, IERC3009Cancel {
      * @dev Checks the validity of the authorization against the current clock.
      *
      * Following the ERC-4337-style dual-clock encoding, the clock is interpreted as block number only when
-     * *both* `validAfter` and `validBefore` carry the {BLOCK_RANGE_FLAG}; otherwise it falls back to
+     * *both* `validAfter` and `validBefore` carry the {ERC4337Utils-BLOCK_RANGE_FLAG}; otherwise it falls back to
      * timestamp (matching the ERC-3009 specification's default). Mixed-flag inputs therefore fall back to
      * the timestamp clock rather than reverting, mirroring {ERC4337Utils-parseValidationData}. The flag bit
      * is masked off the values only when block-mode is engaged; in timestamp mode the full 256-bit value

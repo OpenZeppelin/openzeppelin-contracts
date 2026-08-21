@@ -46,14 +46,14 @@ library BlockHeader {
     /**
      * @dev Verifies that the given block header RLP corresponds to a valid block header for the current chain.
      *
-     * NOTE: Blocks older than 8191 blocks ago are not available through {Blockhash.blockHash}
+     * NOTE: Blocks older than 8191 blocks ago are not available through {Blockhash-blockHash}
      */
     function verifyBlockHeader(bytes memory headerRLP) internal view returns (bool result) {
         return Blockhash.blockHash(getNumber(headerRLP)) == keccak256(headerRLP);
     }
 
     /**
-     * @dev Variant of {verifyBlockHeader} that takes a pre-parsed list of fields and a pre-computed
+     * @dev Variant of {BlockHeader-verifyBlockHeader-bytes} that takes a pre-parsed list of fields and a pre-computed
      * header hash.
      *
      * NOTE: The caller must supply `headerHash == keccak256(rlp)`, where `rlp` is the RLP
