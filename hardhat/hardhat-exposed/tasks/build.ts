@@ -33,5 +33,5 @@ export default async function build(
     ];
   }
 
-  return await runSuper(args);
+  return runSuper(args);
 }
