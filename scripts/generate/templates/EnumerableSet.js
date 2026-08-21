@@ -7,6 +7,7 @@ pragma solidity ^0.8.24;
 
 import {Arrays} from "../Arrays.sol";
 import {Math} from "../math/Math.sol";
+import {Panic} from "../Panic.sol";
 
 /**
  * @dev Library for managing
@@ -95,37 +96,69 @@ function _add(Set storage set, bytes32 value) private returns (bool) {
  * present.
  */
 function _remove(Set storage set, bytes32 value) private returns (bool) {
-    // We cache the value's position to prevent multiple reads from the same storage slot
     uint256 position = set._positions[value];
 
     if (position != 0) {
-        // Equivalent to contains(set, value)
-        // To delete an element from the _values array in O(1), we swap the element to delete with the last one in
-        // the array, and then remove the last element (sometimes called as 'swap and pop').
-        // This modifies the order of the array, as noted in {at}.
-
-        uint256 valueIndex = position - 1;
-        uint256 lastIndex = set._values.length - 1;
-
-        if (valueIndex != lastIndex) {
-            bytes32 lastValue = set._values[lastIndex];
-
-            // Move the lastValue to the index where the value to delete is
-            set._values[valueIndex] = lastValue;
-            // Update the tracked position of the lastValue (that was just moved)
-            set._positions[lastValue] = position;
-        }
-
-        // Delete the slot where the moved value was stored
-        set._values.pop();
-
-        // Delete the tracked position for the deleted slot
-        delete set._positions[value];
-
+        __remove(set, value, position - 1);
         return true;
     } else {
         return false;
     }
+}
+
+/**
+ * @dev Removes the value stored at position \`index\` from a set. O(1).
+ *
+ * Returns the removed value.
+ *
+ * This is cheaper than {remove} when the caller already knows the index, because it skips the position lookup
+ * that {remove} performs.
+ *
+ * Note that there are no guarantees on the ordering of values inside the array, and it may change when more
+ * values are added or removed.
+ *
+ * Requirements:
+ *
+ * - \`index\` must be strictly less than {length}.
+ */
+function _removeAt(Set storage set, uint256 index) private returns (bytes32) {
+    bytes32 value = set._values[index];
+    __remove(set, value, index);
+    return value;
+}
+
+/**
+ * @dev Removes the value stored at position \`index\` from a set. O(1).
+ *
+ * To delete an element from the \`_values\` array in O(1), we swap the element to delete with the last one in the
+ * array, and then remove the last element (sometimes called as 'swap and pop'). This modifies the order of the
+ * array, as noted in {at}.
+ *
+ * IMPORTANT: This does not verify that \`value\` is the value currently stored at \`index\`. Callers must ensure
+ * both arguments are consistent, otherwise the set is left in a corrupted state.
+ *
+ * Requirements:
+ *
+ * - \`index\` must be strictly less than {length}.
+ */
+function __remove(Set storage set, bytes32 value, uint256 index) private {
+    uint256 lastIndex = set._values.length - 1;
+    if (index > lastIndex) Panic.panic(Panic.ARRAY_OUT_OF_BOUNDS);
+
+    if (index != lastIndex) {
+        bytes32 lastValue = set._values[lastIndex];
+
+        // Move the lastValue to the index where the value to delete is
+        set._values[index] = lastValue;
+        // Update the tracked position of the lastValue (that was just moved)
+        set._positions[lastValue] = index + 1;
+    }
+
+    // Delete the slot where the moved value was stored
+    set._values.pop();
+
+    // Delete the tracked position for the deleted slot
+    delete set._positions[value];
 }
 
 /**
@@ -232,6 +265,25 @@ function add(${name} storage set, ${type} value) internal returns (bool) {
  */
 function remove(${name} storage set, ${type} value) internal returns (bool) {
     return _remove(set._inner, ${toBytes32(type, 'value')});
+}
+
+/**
+ * @dev Removes the value stored at position \`index\` from a set. O(1).
+ *
+ * Returns the removed value.
+ *
+ * This is cheaper than {remove} when the caller already knows the index, because it skips the position lookup
+ * that {remove} performs.
+ *
+ * Note that there are no guarantees on the ordering of values inside the array, and it may change when more
+ * values are added or removed.
+ *
+ * Requirements:
+ *
+ * - \`index\` must be strictly less than {length}.
+ */
+function removeAt(${name} storage set, uint256 index) internal returns (${type}) {
+    return ${fromBytes32(type, '_removeAt(set._inner, index)')};
 }
 
 /**
@@ -368,33 +420,66 @@ function remove(${name} storage set, ${value.type} memory value) internal return
     uint256 position = set._positions[value];
 
     if (position != 0) {
-        // Equivalent to contains(set, value)
-        // To delete an element from the _values array in O(1), we swap the element to delete with the last one in
-        // the array, and then remove the last element (sometimes called as 'swap and pop').
-        // This modifies the order of the array, as noted in {at}.
-
-        uint256 valueIndex = position - 1;
-        uint256 lastIndex = set._values.length - 1;
-
-        if (valueIndex != lastIndex) {
-            ${value.type} memory lastValue = set._values[lastIndex];
-
-            // Move the lastValue to the index where the value to delete is
-            set._values[valueIndex] = lastValue;
-            // Update the tracked position of the lastValue (that was just moved)
-            set._positions[lastValue] = position;
-        }
-
-        // Delete the slot where the moved value was stored
-        set._values.pop();
-
-        // Delete the tracked position for the deleted slot
-        delete set._positions[value];
-
+        __remove(set, value, position - 1);
         return true;
     } else {
         return false;
     }
+}
+
+/**
+ * @dev Removes the value stored at position \`index\` from a set. O(1).
+ *
+ * Returns the removed value.
+ *
+ * This is cheaper than {remove} when the caller already knows the index, because it skips the position lookup
+ * that {remove} performs.
+ *
+ * Note that there are no guarantees on the ordering of values inside the array, and it may change when more
+ * values are added or removed.
+ *
+ * Requirements:
+ *
+ * - \`index\` must be strictly less than {length}.
+ */
+function removeAt(${name} storage set, uint256 index) internal returns (${value.type} memory) {
+    ${value.type} memory value = set._values[index];
+    __remove(set, value, index);
+    return value;
+}
+
+/**
+ * @dev Removes the value stored at position \`index\` from a set. O(1).
+ *
+ * To delete an element from the \`_values\` array in O(1), we swap the element to delete with the last one in the
+ * array, and then remove the last element (sometimes called as 'swap and pop'). This modifies the order of the
+ * array, as noted in {at}.
+ *
+ * IMPORTANT: This does not verify that \`value\` is the value currently stored at \`index\`. Callers must ensure
+ * both arguments are consistent, otherwise the set is left in a corrupted state.
+ *
+ * Requirements:
+ *
+ * - \`index\` must be strictly less than {length}.
+ */
+function __remove(${name} storage set, ${value.type} memory value, uint256 index) private {
+    uint256 lastIndex = set._values.length - 1;
+    if (index > lastIndex) Panic.panic(Panic.ARRAY_OUT_OF_BOUNDS);
+
+    if (index != lastIndex) {
+        ${value.type} memory lastValue = set._values[lastIndex];
+
+        // Move the lastValue to the index where the value to delete is
+        set._values[index] = lastValue;
+        // Update the tracked position of the lastValue (that was just moved)
+        set._positions[lastValue] = index + 1;
+    }
+
+    // Delete the slot where the moved value was stored
+    set._values.pop();
+
+    // Delete the tracked position for the deleted slot
+    delete set._positions[value];
 }
 
 /**
