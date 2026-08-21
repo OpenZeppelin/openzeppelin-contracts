@@ -17,6 +17,10 @@ import {Ownable} from "../access/Ownable.sol";
  * Consequently, if the vesting has already started, any amount of tokens sent to this contract will (at least partly)
  * be immediately releasable.
  *
+ * NOTE: The vesting schedule is computed from an asset's historical allocation, defined as the current balance plus
+ * the amount already released. Make sure this sum never exceeds `type(uint256).max`, or the relevant view and release
+ * functions will revert.
+ *
  * By setting the duration to 0, one can configure this contract to behave like an asset timelock that holds tokens for
  * a beneficiary until a specified time.
  *
