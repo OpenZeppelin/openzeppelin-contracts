@@ -5,6 +5,7 @@ pragma solidity ^0.8.20;
 
 import {IEntryPoint, PackedUserOperation} from "../../interfaces/IERC4337.sol";
 import {Math} from "../../utils/math/Math.sol";
+import {SafeCast} from "../../utils/math/SafeCast.sol";
 import {Calldata} from "../../utils/Calldata.sol";
 import {Packing} from "../../utils/Packing.sol";
 
@@ -53,7 +54,19 @@ library ERC4337Utils {
 
     /**
      * @dev Parses the validation data into its components and the validity range. See {packValidationData}.
-     * Strips away the highest bit flag from the `validAfter` and `validUntil` fields.
+     *
+     * This mirrors, step for step, how the EntryPoint reads a validation data word:
+     *
+     * * a zero `validUntil` means "indefinitely" and is replaced with `type(uint48).max`, *before* the validity
+     *   range is detected;
+     * * the range is a block range if and only if both `validAfter` and `validUntil` carry {BLOCK_RANGE_FLAG};
+     * * {BLOCK_RANGE_FLAG} is stripped from both fields for a block range, and left untouched otherwise.
+     *
+     * NOTE: For a timestamp range, `validAfter` or `validUntil` may still carry {BLOCK_RANGE_FLAG}, in which case
+     * the corresponding bound is out of reach of `block.timestamp` (never valid, resp. never expiring). This is
+     * deliberate: the EntryPoint compares `block.timestamp` against the raw fields, so stripping the flag here
+     * would silently turn such a bound into a plausible timestamp and make {getValidationData} disagree with the
+     * EntryPoint. Encoders should not produce such a mismatch in the first place; {packValidationData} never does.
      */
     function parseValidationData(
         uint256 validationData
@@ -61,12 +74,16 @@ library ERC4337Utils {
         validAfter = uint48(bytes32(validationData).extract_32_6(0));
         validUntil = uint48(bytes32(validationData).extract_32_6(6));
         aggregator = address(bytes32(validationData).extract_32_20(12));
-        range = ((validAfter & validUntil & BLOCK_RANGE_FLAG) == 0) ? ValidationRange.TIMESTAMP : ValidationRange.BLOCK;
 
-        validAfter &= BLOCK_RANGE_MASK;
-        validUntil &= BLOCK_RANGE_MASK;
+        validUntil |= type(uint48).max * uint48(SafeCast.toUint(validUntil == 0));
 
-        if (validUntil == 0) validUntil = BLOCK_RANGE_MASK;
+        if ((validAfter & validUntil & BLOCK_RANGE_FLAG) == 0) {
+            range = ValidationRange.TIMESTAMP;
+        } else {
+            range = ValidationRange.BLOCK;
+            validAfter &= BLOCK_RANGE_MASK;
+            validUntil &= BLOCK_RANGE_MASK;
+        }
     }
 
     /// @dev Packs the validation data into a single uint256. See {parseValidationData}.
@@ -80,7 +97,9 @@ library ERC4337Utils {
                 aggregator,
                 validAfter,
                 validUntil,
-                (validAfter & validUntil & BLOCK_RANGE_FLAG) == 0 ? ValidationRange.TIMESTAMP : ValidationRange.BLOCK
+                (validAfter & BLOCK_RANGE_FLAG != 0) && (validUntil & BLOCK_RANGE_FLAG != 0 || validUntil == 0)
+                    ? ValidationRange.BLOCK
+                    : ValidationRange.TIMESTAMP
             );
     }
 
@@ -99,9 +118,9 @@ library ERC4337Utils {
             validUntil &= BLOCK_RANGE_MASK;
         } else if (range == ValidationRange.BLOCK) {
             validAfter |= BLOCK_RANGE_FLAG;
-            validUntil |= BLOCK_RANGE_FLAG;
+            validUntil |= BLOCK_RANGE_FLAG * uint48(SafeCast.toUint(validUntil > 0));
         }
-        return uint256(bytes6(validAfter).pack_6_6(bytes6(validUntil)).pack_12_20(bytes20(aggregator)));
+        return _packRaw(aggregator, validAfter, validUntil);
     }
 
     /// @dev Variant of {packValidationData} that uses a boolean success flag instead of an aggregator address.
@@ -149,15 +168,34 @@ library ERC4337Utils {
             validationData2
         );
 
-        if (range1 == range2) {
-            bool success = aggregator1 == address(uint160(SIG_VALIDATION_SUCCESS)) &&
-                aggregator2 == address(uint160(SIG_VALIDATION_SUCCESS));
-            uint48 validAfter = uint48(Math.max(validAfter1, validAfter2));
-            uint48 validUntil = uint48(Math.min(validUntil1, validUntil2));
-            return packValidationData(success, validAfter, validUntil, range1);
-        } else {
-            return SIG_VALIDATION_FAILED;
-        }
+        return
+            range1 == range2
+                ? _packRaw(
+                    address(
+                        uint160(
+                            Math.ternary(
+                                aggregator1 == address(uint160(SIG_VALIDATION_SUCCESS)) &&
+                                    aggregator2 == address(uint160(SIG_VALIDATION_SUCCESS)),
+                                SIG_VALIDATION_SUCCESS,
+                                SIG_VALIDATION_FAILED
+                            )
+                        )
+                    ),
+                    uint48(
+                        Math.max(validAfter1, validAfter2) |
+                            (BLOCK_RANGE_FLAG * SafeCast.toUint(range1 == ValidationRange.BLOCK))
+                    ),
+                    uint48(
+                        Math.min(validUntil1, validUntil2) |
+                            (BLOCK_RANGE_FLAG * SafeCast.toUint(range1 == ValidationRange.BLOCK))
+                    )
+                )
+                : SIG_VALIDATION_FAILED;
+    }
+
+    /// @dev Encodes the fields of a validation data word verbatim, without normalizing {BLOCK_RANGE_FLAG}.
+    function _packRaw(address aggregator, uint48 validAfter, uint48 validUntil) private pure returns (uint256) {
+        return uint256(bytes6(validAfter).pack_6_6(bytes6(validUntil)).pack_12_20(bytes20(aggregator)));
     }
 
     /// @dev Returns the aggregator of the `validationData` and whether it is out of time range.
