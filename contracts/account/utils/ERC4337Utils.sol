@@ -52,7 +52,7 @@ library ERC4337Utils {
     }
 
     /**
-     * @dev Parses the validation data into its components and the validity range. See {packValidationData-address-uint48-uint48}.
+     * @dev Parses the validation data into its components and the validity range. See {ERC4337Utils-packValidationData-address-uint48-uint48}.
      * Strips away the highest bit flag from the `validAfter` and `validUntil` fields.
      */
     function parseValidationData(
@@ -85,7 +85,7 @@ library ERC4337Utils {
     }
 
     /**
-     * @dev Variant of {packValidationData-address-uint48-uint48} that forces which validity range to use. This overwrites the presence of
+     * @dev Variant of {ERC4337Utils-packValidationData-address-uint48-uint48} that forces which validity range to use. This overwrites the presence of
      * flags in `validAfter` and `validUntil`).
      */
     function packValidationData(
@@ -104,7 +104,7 @@ library ERC4337Utils {
         return uint256(bytes6(validAfter).pack_6_6(bytes6(validUntil)).pack_12_20(bytes20(aggregator)));
     }
 
-    /// @dev Variant of {packValidationData-address-uint48-uint48} that uses a boolean success flag instead of an aggregator address.
+    /// @dev Variant of {ERC4337Utils-packValidationData-address-uint48-uint48} that uses a boolean success flag instead of an aggregator address.
     function packValidationData(bool sigSuccess, uint48 validAfter, uint48 validUntil) internal pure returns (uint256) {
         return
             packValidationData(
@@ -115,7 +115,7 @@ library ERC4337Utils {
     }
 
     /**
-     * @dev Variant of {packValidationData-address-uint48-uint48} that uses a boolean success flag instead of an aggregator address and that
+     * @dev Variant of {ERC4337Utils-packValidationData-address-uint48-uint48} that uses a boolean success flag instead of an aggregator address and that
      * forces which validity range to use. This overwrites the presence of flags in `validAfter` and `validUntil`).
      */
     function packValidationData(

@@ -154,7 +154,7 @@ library Clones {
     }
 
     /**
-     * @dev Same as {cloneWithImmutableArgs-address-bytes}, but with a `value`
+     * @dev Same as {Clones-cloneWithImmutableArgs-address-bytes}, but with a `value`
      * parameter to send native currency to the new contract.
      *
      * WARNING: This function does not check if `implementation` has code. A clone that points to an address
@@ -203,7 +203,7 @@ library Clones {
     }
 
     /**
-     * @dev Same as {cloneDeterministicWithImmutableArgs-address-bytes-bytes32},
+     * @dev Same as {Clones-cloneDeterministicWithImmutableArgs-address-bytes-bytes32},
      * but with a `value` parameter to send native currency to the new contract.
      *
      * WARNING: This function does not check if `implementation` has code. A clone that points to an address

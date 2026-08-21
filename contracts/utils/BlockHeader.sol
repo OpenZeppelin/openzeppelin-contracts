@@ -53,7 +53,7 @@ library BlockHeader {
     }
 
     /**
-     * @dev Variant of {verifyBlockHeader-bytes} that takes a pre-parsed list of fields and a pre-computed
+     * @dev Variant of {BlockHeader-verifyBlockHeader-bytes} that takes a pre-parsed list of fields and a pre-computed
      * header hash.
      *
      * NOTE: The caller must supply `headerHash == keccak256(rlp)`, where `rlp` is the RLP

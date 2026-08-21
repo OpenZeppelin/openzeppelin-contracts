@@ -281,7 +281,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
     }
 
     /**
-     * @dev Same as {_safeMint-address-uint256}, with an additional `data` parameter which is
+     * @dev Same as {ERC721-_safeMint-address-uint256}, with an additional `data` parameter which is
      * forwarded in {IERC721Receiver-onERC721Received} to contract recipients.
      */
     function _safeMint(address to, uint256 tokenId, bytes memory data) internal virtual {
@@ -354,7 +354,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
     }
 
     /**
-     * @dev Same as {_safeTransfer-address-address-uint256}, with an additional `data` parameter which is
+     * @dev Same as {ERC721-_safeTransfer-address-address-uint256}, with an additional `data` parameter which is
      * forwarded in {IERC721Receiver-onERC721Received} to contract recipients.
      */
     function _safeTransfer(address from, address to, uint256 tokenId, bytes memory data) internal virtual {

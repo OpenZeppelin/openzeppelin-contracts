@@ -435,7 +435,7 @@ library Math {
     }
 
     /**
-     * @dev Variant of {modExp-uint256-uint256-uint256} that supports inputs of arbitrary length.
+     * @dev Variant of {Math-modExp-uint256-uint256-uint256} that supports inputs of arbitrary length.
      */
     function modExp(bytes memory b, bytes memory e, bytes memory m) internal view returns (bytes memory) {
         (bool success, bytes memory result) = tryModExp(b, e, m);
@@ -446,7 +446,7 @@ library Math {
     }
 
     /**
-     * @dev Variant of {tryModExp-uint256-uint256-uint256} that supports inputs of arbitrary length.
+     * @dev Variant of {Math-tryModExp-uint256-uint256-uint256} that supports inputs of arbitrary length.
      */
     function tryModExp(
         bytes memory b,
