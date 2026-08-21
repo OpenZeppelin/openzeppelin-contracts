@@ -11,7 +11,7 @@ import {IERC165} from "../../../utils/introspection/IERC165.sol";
  * @dev Implementation of the Token Supply extension defined in ERC6909.
  * Tracks the total supply of each token id individually.
  */
-contract ERC6909TokenSupply is ERC6909, IERC6909TokenSupply {
+abstract contract ERC6909TokenSupply is ERC6909, IERC6909TokenSupply {
     mapping(uint256 id => uint256) private _totalSupplies;
 
     /// @inheritdoc IERC6909TokenSupply
