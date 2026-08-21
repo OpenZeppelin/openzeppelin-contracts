@@ -3,7 +3,7 @@ import { OPTS } from './Checkpoints.opts.js';
 
 // TEMPLATE
 const header = `\
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.31;
 
 import {Math} from "../math/Math.sol";
 

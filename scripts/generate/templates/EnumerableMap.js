@@ -3,7 +3,7 @@ import { fromBytes32, toBytes32 } from './conversion.js';
 import { MAP_TYPES } from './Enumerable.opts.js';
 
 const header = `\
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.31;
 
 import {EnumerableSet} from "./EnumerableSet.sol";
 

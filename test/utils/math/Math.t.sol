@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.31;
 
 import {Test, stdError} from "forge-std/Test.sol";
 
@@ -310,7 +310,9 @@ contract MathTest is Test {
         }
     }
 
-    function testSymbolicCountLeadingZeroes(uint256 x) public pure {
+    /// @dev Consider renaming back to test "testSymbolicCountLeadingZeroes" when
+    /// Halmos supports the CLZ opcode (https://github.com/a16z/halmos/issues/586)
+    function testFuzzCountLeadingZeroes(uint256 x) public pure {
         uint256 result = Math.clz(x);
 
         if (x == 0) {
