@@ -20,6 +20,7 @@ function pack(left, right) {
 export function packValidationData(validAfter, validUntil, authorizer, range = undefined) {
   // if range is not specified, use the value as provided,
   // otherwise, clean the values (& BLOCK_RANGE_MASK) and set the flag if corresponding to the range.
+  // in Block range, `validUntil == 0` is left as 0 so the decoder's `validUntil == 0 -> max` rule applies.
   return ethers.solidityPacked(
     ['uint48', 'uint48', 'address'],
     [
@@ -28,7 +29,9 @@ export function packValidationData(validAfter, validUntil, authorizer, range = u
         : (BigInt(validAfter) & BLOCK_RANGE_MASK) | (range == ValidationRange.Block ? BLOCK_RANGE_FLAG : 0n),
       range === undefined
         ? BigInt(validUntil)
-        : (BigInt(validUntil) & BLOCK_RANGE_MASK) | (range == ValidationRange.Block ? BLOCK_RANGE_FLAG : 0n),
+        : range == ValidationRange.Block && (BigInt(validUntil) & BLOCK_RANGE_MASK) == 0n
+          ? 0n
+          : (BigInt(validUntil) & BLOCK_RANGE_MASK) | (range == ValidationRange.Block ? BLOCK_RANGE_FLAG : 0n),
       typeof authorizer == 'boolean'
         ? authorizer
           ? SIG_VALIDATION_SUCCESS
