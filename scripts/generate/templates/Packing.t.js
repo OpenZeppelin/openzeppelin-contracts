@@ -1,6 +1,6 @@
-const format = require('../format-lines');
-const { product } = require('../../helpers');
-const { SIZES } = require('./Packing.opts');
+import format from '../format-lines.js';
+import { product } from '../../helpers.js';
+import { SIZES } from './Packing.opts.js';
 
 // TEMPLATE
 const header = `\
@@ -11,14 +11,14 @@ import {Packing} from "@openzeppelin/contracts/utils/Packing.sol";
 `;
 
 const testPack = (left, right) => `\
-function testPack(bytes${left} left, bytes${right} right) external pure {
+function testSymbolicPack(bytes${left} left, bytes${right} right) external pure {
     assertEq(left, Packing.pack_${left}_${right}(left, right).extract_${left + right}_${left}(0));
     assertEq(right, Packing.pack_${left}_${right}(left, right).extract_${left + right}_${right}(${left}));
 }
 `;
 
 const testReplace = (outer, inner) => `\
-function testReplace(bytes${outer} container, bytes${inner} newValue, uint8 offset) external pure {
+function testSymbolicReplace(bytes${outer} container, bytes${inner} newValue, uint8 offset) external pure {
     offset = uint8(bound(offset, 0, ${outer - inner}));
 
     bytes${inner} oldValue = container.extract_${outer}_${inner}(offset);
@@ -29,7 +29,7 @@ function testReplace(bytes${outer} container, bytes${inner} newValue, uint8 offs
 `;
 
 // GENERATE
-module.exports = format(
+export default format(
   header,
   'contract PackingTest is Test {',
   format(

@@ -1,13 +1,15 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { PANIC_CODES } = require('@nomicfoundation/hardhat-chai-matchers/panic');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { PANIC_CODES } from '@nomicfoundation/hardhat-ethers-chai-matchers/panic';
+import { GovernorHelper } from '../helpers/governance';
+import { OperationState } from '../helpers/enums';
+import { shouldSupportInterfaces } from '../utils/introspection/SupportsInterface.behavior';
 
-const { GovernorHelper } = require('../helpers/governance');
-const { OperationState } = require('../helpers/enums');
-const time = require('../helpers/time');
-
-const { shouldSupportInterfaces } = require('../utils/introspection/SupportsInterface.behavior');
+const {
+  ethers,
+  helpers: { time },
+  networkHelpers: { loadFixture },
+} = await network.create();
 
 const salt = '0x025e7b0be353a74631ad648c667493c0e1cd31caa4cc2d3520fdc171ea0cc726'; // a random value
 
@@ -418,7 +420,7 @@ describe('TimelockController', function () {
                 reentrantOperation.predecessor,
                 reentrantOperation.salt,
               ]);
-              await reentrant.enableRentrancy(this.mock, data);
+              await reentrant.enableReentrancy(this.mock, data);
 
               // Expect to fail
               await expect(
@@ -739,7 +741,7 @@ describe('TimelockController', function () {
                   ),
               )
                 .to.be.revertedWithCustomError(this.mock, 'TimelockInvalidOperationLength')
-                .withArgs(0, this.operation.payloads.length, this.operation.values.length);
+                .withArgs(0n, this.operation.payloads.length, this.operation.values.length);
             });
 
             it('length mismatch #2', async function () {
@@ -811,7 +813,7 @@ describe('TimelockController', function () {
                 reentrantBatchOperation.predecessor,
                 reentrantBatchOperation.salt,
               ]);
-              await reentrant.enableRentrancy(this.mock, data);
+              await reentrant.enableReentrancy(this.mock, data);
 
               // Expect to fail
               await expect(
@@ -1140,11 +1142,14 @@ describe('TimelockController', function () {
 
       await this.mock.getTimestamp(operation.id).then(time.increaseTo.timestamp);
 
+      // Outer gas budget must leave enough for the FailedCall revert site after the inner OOGs.
+      // Instrumented bytecode under `--coverage` adds per-statement probes, so 100k is too tight;
+      // 500k gives headroom while still well below the EIP-7825 (Osaka) per-tx cap of 2^24.
       await expect(
         this.mock
           .connect(this.executor)
           .execute(operation.target, operation.value, operation.data, operation.predecessor, operation.salt, {
-            gasLimit: '100000',
+            gasLimit: 500_000n,
           }),
       ).to.be.revertedWithCustomError(this.mock, 'FailedCall');
     });
@@ -1152,7 +1157,7 @@ describe('TimelockController', function () {
     it('call payable with eth', async function () {
       const operation = genOperation(
         this.callreceivermock,
-        1,
+        1n,
         this.callreceivermock.interface.encodeFunctionData('mockFunction'),
         ethers.ZeroHash,
         '0x5ab73cd33477dcd36c1e05e28362719d0ed59a7b9ff14939de63a43073dc1f44',
@@ -1170,7 +1175,7 @@ describe('TimelockController', function () {
       await this.mock
         .connect(this.executor)
         .execute(operation.target, operation.value, operation.data, operation.predecessor, operation.salt, {
-          value: 1,
+          value: 1n,
         });
 
       expect(await ethers.provider.getBalance(this.mock)).to.equal(0n);
@@ -1264,7 +1269,7 @@ describe('TimelockController', function () {
         await this.token.connect(this.other).safeTransferFrom(
           this.other,
           this.mock,
-          ...Object.entries(tokenIds)[0n], // id + amount
+          ...Object.entries(tokenIds)[0], // id + amount
           '0x',
         );
       });

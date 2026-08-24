@@ -1,7 +1,12 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { MAX_UINT128, MAX_UINT64, MAX_UINT32, MAX_UINT16 } = require('../helpers/constants');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { MAX_UINT128, MAX_UINT64, MAX_UINT32, MAX_UINT16 } from '../helpers/constants';
+import * as random from '../helpers/random';
+
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.create();
 
 // Helper functions for fixed bytes types
 const bytes32 = value => ethers.toBeHex(value, 32);
@@ -11,8 +16,7 @@ const bytes4 = value => ethers.toBeHex(value, 4);
 const bytes2 = value => ethers.toBeHex(value, 2);
 
 async function fixture() {
-  const mock = await ethers.deployContract('$Bytes');
-  return { mock };
+  return { mock: await ethers.deployContract('$Bytes') };
 }
 
 const lorem = ethers.toUtf8Bytes(
@@ -112,6 +116,47 @@ describe('Bytes', function () {
     });
   });
 
+  describe('concat', function () {
+    it('empty list', async function () {
+      await expect(this.mock.$concat([])).to.eventually.equal(ethers.concat([]));
+    });
+
+    it('single item', async function () {
+      const item = random.bytes();
+      await expect(this.mock.$concat([item])).to.eventually.equal(ethers.concat([item]));
+    });
+
+    it('multiple (non-empty) items', async function () {
+      const items = Array.from({ length: 17 }, random.bytes);
+      await expect(this.mock.$concat(items)).to.eventually.equal(ethers.concat(items));
+    });
+
+    it('multiple (empty) items', async function () {
+      const items = Array.from({ length: 17 }).fill(new Uint8Array(0));
+      await expect(this.mock.$concat(items)).to.eventually.equal(ethers.concat(items));
+    });
+
+    it('multiple (variable length) items', async function () {
+      const items = [
+        random.bytes.zero,
+        random.bytes(17),
+        random.bytes.zero,
+        random.bytes(42),
+        random.bytes(1),
+        random.bytes(256),
+        random.bytes(1024),
+        random.bytes.zero,
+        random.bytes(7),
+        random.bytes(15),
+        random.bytes(63),
+        random.bytes.zero,
+        random.bytes.zero,
+      ];
+
+      await expect(this.mock.$concat(items)).to.eventually.equal(ethers.concat(items));
+    });
+  });
+
   describe('clz bytes', function () {
     it('empty buffer', async function () {
       await expect(this.mock.$clz('0x')).to.eventually.equal(0);
@@ -164,6 +209,18 @@ describe('Bytes', function () {
       await expect(this.mock.$clz('0x' + '00'.repeat(32) + '01' + '00'.repeat(31))).to.eventually.equal(263); // 32*8+7
       await expect(this.mock.$clz('0x' + '00'.repeat(48) + '01' + '00'.repeat(47))).to.eventually.equal(391); // 48*8+7
       await expect(this.mock.$clz('0x' + '00'.repeat(64) + '01' + '00'.repeat(63))).to.eventually.equal(519); // 64*8+7
+    });
+  });
+
+  describe('nibbles', function () {
+    it('full input', async function () {
+      await expect(this.mock.$toNibbles('0x0123456789abcdef')).to.eventually.equal(
+        '0x000102030405060708090a0b0c0d0e0f',
+      );
+    });
+
+    it('empty input', async function () {
+      await expect(this.mock.$toNibbles('0x')).to.eventually.equal('0x');
     });
   });
 

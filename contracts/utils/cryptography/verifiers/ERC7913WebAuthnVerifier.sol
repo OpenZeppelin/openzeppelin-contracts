@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.7.0) (utils/cryptography/verifiers/ERC7913WebAuthnVerifier.sol)
 
 pragma solidity ^0.8.24;
 
@@ -12,10 +13,12 @@ import {IERC7913SignatureVerifier} from "../../../interfaces/IERC7913.sol";
  * The key is expected to be a 64-byte concatenation of the P256 public key coordinates (qx || qy).
  * The signature is expected to be an abi-encoded {WebAuthn-WebAuthnAuth} struct.
  *
- * Uses {WebAuthn-verifyMinimal} for signature verification, which performs the essential
+ * Uses {WebAuthn-verify} for signature verification, which performs the essential
  * WebAuthn checks: type validation, challenge matching, and cryptographic signature verification.
  *
  * NOTE: Wallets that may require default P256 validation may install a P256 verifier separately.
+ *
+ * @custom:stateless
  */
 contract ERC7913WebAuthnVerifier is IERC7913SignatureVerifier {
     /// @inheritdoc IERC7913SignatureVerifier
@@ -25,8 +28,18 @@ contract ERC7913WebAuthnVerifier is IERC7913SignatureVerifier {
         return
             decodeSuccess &&
                 key.length == 0x40 &&
-                WebAuthn.verify(abi.encodePacked(hash), auth, bytes32(key[0x00:0x20]), bytes32(key[0x20:0x40]))
+                WebAuthn.verify(
+                    abi.encodePacked(hash),
+                    auth,
+                    bytes32(key[0x00:0x20]),
+                    bytes32(key[0x20:0x40]),
+                    _requireUV()
+                )
                 ? IERC7913SignatureVerifier.verify.selector
                 : bytes4(0xFFFFFFFF);
+    }
+
+    function _requireUV() internal pure virtual returns (bool) {
+        return true;
     }
 }

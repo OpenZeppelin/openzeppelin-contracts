@@ -1,13 +1,18 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.create();
 
 for (const variant of ['', 'Transient']) {
   describe(`Reentrancy${variant}Guard`, function () {
     async function fixture() {
       const name = `Reentrancy${variant}Mock`;
       const mock = await ethers.deployContract(name);
-      return { name, mock };
+      const attacker = await ethers.deployContract('ReentrancyAttack');
+      return { name, mock, attacker };
     }
 
     beforeEach(async function () {
@@ -20,9 +25,16 @@ for (const variant of ['', 'Transient']) {
       expect(await this.mock.counter()).to.equal(1n);
     });
 
-    it('does not allow remote callback', async function () {
-      const attacker = await ethers.deployContract('ReentrancyAttack');
-      await expect(this.mock.countAndCall(attacker)).to.be.revertedWith('ReentrancyAttack: failed call');
+    it('nonReentrantView function can be called', async function () {
+      await this.mock.viewCallback();
+    });
+
+    it('does not allow remote callback to nonReentrant function', async function () {
+      await expect(this.mock.countAndCall(this.attacker)).to.be.revertedWith('ReentrancyAttack: failed call');
+    });
+
+    it('does not allow remote callback to nonReentrantView function', async function () {
+      await expect(this.mock.countAndCallView(this.attacker)).to.be.revertedWith('ReentrancyAttack: failed call');
     });
 
     it('_reentrancyGuardEntered should be true when guarded', async function () {

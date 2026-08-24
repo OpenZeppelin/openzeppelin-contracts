@@ -6,7 +6,6 @@ import {Governor, Nonces} from "../../governance/Governor.sol";
 import {GovernorSettings} from "../../governance/extensions/GovernorSettings.sol";
 import {GovernorCountingSimple} from "../../governance/extensions/GovernorCountingSimple.sol";
 import {GovernorVotesQuorumFraction} from "../../governance/extensions/GovernorVotesQuorumFraction.sol";
-import {GovernorProposalGuardian} from "../../governance/extensions/GovernorProposalGuardian.sol";
 import {GovernorNoncesKeyed} from "../../governance/extensions/GovernorNoncesKeyed.sol";
 
 abstract contract GovernorNoncesKeyedMock is

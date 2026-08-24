@@ -1,7 +1,7 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
+import { ethers } from 'ethers';
+import { expect } from 'chai';
 
-function shouldBehaveLikeERC20(initialSupply, opts = {}) {
+export function shouldBehaveLikeERC20(initialSupply, opts = {}) {
   const { forcedApproval } = opts;
 
   beforeEach(async function () {
@@ -46,7 +46,12 @@ function shouldBehaveLikeERC20(initialSupply, opts = {}) {
             });
 
             it('transfers the requested value', async function () {
-              await expect(this.tx).to.changeTokenBalances(this.token, [this.holder, this.other], [-value, value]);
+              await expect(this.tx).to.changeTokenBalances(
+                this.ethers,
+                this.token,
+                [this.holder, this.other],
+                [-value, value],
+              );
             });
 
             it('decreases the spender allowance', async function () {
@@ -78,7 +83,7 @@ function shouldBehaveLikeERC20(initialSupply, opts = {}) {
             const value = initialSupply;
             await this.token.connect(this.holder).transfer(this.other, 1n);
             await expect(this.token.connect(this.recipient).transferFrom(this.holder, this.other, value))
-              .to.revertedWithCustomError(this.token, 'ERC20InsufficientBalance')
+              .to.be.revertedWithCustomError(this.token, 'ERC20InsufficientBalance')
               .withArgs(this.holder, value - 1n, value);
           });
         });
@@ -157,7 +162,7 @@ function shouldBehaveLikeERC20(initialSupply, opts = {}) {
   });
 }
 
-function shouldBehaveLikeERC20Transfer(balance) {
+export function shouldBehaveLikeERC20Transfer(balance) {
   describe('when the recipient is not the zero address', function () {
     it('reverts when the sender does not have enough balance', async function () {
       const value = balance + 1n;
@@ -174,7 +179,12 @@ function shouldBehaveLikeERC20Transfer(balance) {
       });
 
       it('transfers the requested value', async function () {
-        await expect(this.tx).to.changeTokenBalances(this.token, [this.holder, this.recipient], [-value, value]);
+        await expect(this.tx).to.changeTokenBalances(
+          this.ethers,
+          this.token,
+          [this.holder, this.recipient],
+          [-value, value],
+        );
       });
 
       it('emits a transfer event', async function () {
@@ -190,7 +200,7 @@ function shouldBehaveLikeERC20Transfer(balance) {
       });
 
       it('transfers the requested value', async function () {
-        await expect(this.tx).to.changeTokenBalances(this.token, [this.holder, this.recipient], [0n, 0n]);
+        await expect(this.tx).to.changeTokenBalances(this.ethers, this.token, [this.holder, this.recipient], [0n, 0n]);
       });
 
       it('emits a transfer event', async function () {
@@ -206,7 +216,7 @@ function shouldBehaveLikeERC20Transfer(balance) {
   });
 }
 
-function shouldBehaveLikeERC20Approve(supply) {
+export function shouldBehaveLikeERC20Approve(supply) {
   describe('when the spender is not the zero address', function () {
     describe('when the sender has enough balance', function () {
       const value = supply;
@@ -261,9 +271,3 @@ function shouldBehaveLikeERC20Approve(supply) {
       .withArgs(ethers.ZeroAddress);
   });
 }
-
-module.exports = {
-  shouldBehaveLikeERC20,
-  shouldBehaveLikeERC20Transfer,
-  shouldBehaveLikeERC20Approve,
-};

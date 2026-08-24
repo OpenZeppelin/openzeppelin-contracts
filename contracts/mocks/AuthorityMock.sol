@@ -7,7 +7,7 @@ import {IAuthority} from "../access/manager/IAuthority.sol";
 
 contract NotAuthorityMock is IAuthority {
     function canCall(address /* caller */, address /* target */, bytes4 /* selector */) external pure returns (bool) {
-        revert("AuthorityNoDelayMock: not implemented");
+        revert("NotAuthorityMock: not implemented");
     }
 }
 

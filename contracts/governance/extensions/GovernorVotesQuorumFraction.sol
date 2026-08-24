@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.4.0) (governance/extensions/GovernorVotesQuorumFraction.sol)
+// OpenZeppelin Contracts (last updated v5.5.0) (governance/extensions/GovernorVotesQuorumFraction.sol)
 
 pragma solidity ^0.8.24;
 
@@ -73,7 +73,7 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
      * - Must be called through a governance proposal.
      * - New numerator must be smaller or equal to the denominator.
      */
-    function updateQuorumNumerator(uint256 newQuorumNumerator) external virtual onlyGovernance {
+    function updateQuorumNumerator(uint256 newQuorumNumerator) public virtual onlyGovernance {
         _updateQuorumNumerator(newQuorumNumerator);
     }
 

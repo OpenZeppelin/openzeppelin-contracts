@@ -1,9 +1,9 @@
-const format = require('../format-lines');
-const { capitalize } = require('../../helpers');
-const { TYPES } = require('./Arrays.opts');
+import format from '../format-lines.js';
+import { capitalize } from '../../helpers.js';
+import { TYPES } from './Arrays.opts.js';
 
 const header = `\
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
 import {Comparators} from "./Comparators.sol";
 import {SlotDerivation} from "./SlotDerivation.sol";
@@ -62,25 +62,33 @@ const quickSort = `\
  */
 function _quickSort(uint256 begin, uint256 end, function(uint256, uint256) pure returns (bool) comp) private pure {
     unchecked {
-        if (end - begin < 0x40) return;
+        while (end - begin > 0x20) {
+            // Use first element as pivot
+            uint256 pivot = _mload(begin);
+            // Position where the pivot should be at the end of the loop
+            uint256 pos = begin;
 
-        // Use first element as pivot
-        uint256 pivot = _mload(begin);
-        // Position where the pivot should be at the end of the loop
-        uint256 pos = begin;
+            for (uint256 it = begin + 0x20; it < end; it += 0x20) {
+                if (comp(_mload(it), pivot)) {
+                    // If the value stored at the iterator's position comes before the pivot, we increment the
+                    // position of the pivot and move the value there.
+                    pos += 0x20;
+                    _swap(pos, it);
+                }
+            }
 
-        for (uint256 it = begin + 0x20; it < end; it += 0x20) {
-            if (comp(_mload(it), pivot)) {
-                // If the value stored at the iterator's position comes before the pivot, we increment the
-                // position of the pivot and move the value there.
-                pos += 0x20;
-                _swap(pos, it);
+            _swap(begin, pos); // Swap pivot into place
+
+            // Recurse on the smaller partition, iterate on the larger one.
+            uint256 middle = pos + 0x20;
+            if (pos - begin < end - middle) {
+                _quickSort(begin, pos, comp);
+                begin = middle;
+            } else {
+                _quickSort(middle, end, comp);
+                end = pos;
             }
         }
-
-        _swap(begin, pos); // Swap pivot into place
-        _quickSort(begin, pos, comp); // Sort the left side of the pivot
-        _quickSort(pos + 0x20, end, comp); // Sort the right side of the pivot
     }
 }
 
@@ -350,7 +358,7 @@ const unsafeSetLength = type => `\
 /**
  * @dev Helper to set the length of a dynamic array. Directly writing to \`.length\` is forbidden.
  *
- * WARNING: this does not clear elements if length is reduced, of initialize elements if length is increased.
+ * WARNING: this does not clear elements if length is reduced, or initialize elements if length is increased.
  */
 function unsafeSetLength(${type.name}[] storage array, uint256 len) internal {
     assembly ("memory-safe") {
@@ -359,8 +367,124 @@ function unsafeSetLength(${type.name}[] storage array, uint256 len) internal {
 }
 `;
 
+const slice = type => `\
+/**
+ * @dev Copies the content of \`array\`, from \`start\` (included) to the end of \`array\` into a new ${type.name} array in
+ * memory.
+ *
+ * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice[Javascript's \`Array.slice\`]
+ */
+function slice(${type.name}[] memory array, uint256 start) internal pure returns (${type.name}[] memory) {
+    return slice(array, start, array.length);
+}
+
+/**
+ * @dev Copies the content of \`array\`, from \`start\` (included) to \`end\` (excluded) into a new ${type.name} array in
+ * memory. The \`end\` argument is truncated to the length of the \`array\`.
+ *
+ * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice[Javascript's \`Array.slice\`]
+ */
+function slice(${type.name}[] memory array, uint256 start, uint256 end) internal pure returns (${type.name}[] memory) {
+    // sanitize
+    end = Math.min(end, array.length);
+    start = Math.min(start, end);
+
+    // allocate and copy
+    ${type.name}[] memory result = new ${type.name}[](end - start);
+    assembly ("memory-safe") {
+        mcopy(add(result, 0x20), add(add(array, 0x20), mul(start, 0x20)), mul(sub(end, start), 0x20))
+    }
+
+    return result;
+}
+`;
+
+const splice = type => `\
+/**
+ * @dev Moves the content of \`array\`, from \`start\` (included) to the end of \`array\` to the start of that array,
+ * and shrinks the array length accordingly, effectively overwriting the array with array[start:].
+ *
+ * NOTE: This function modifies the provided array in place. If you need to preserve the original array, use {slice} instead.
+ */
+function splice(${type.name}[] memory array, uint256 start) internal pure returns (${type.name}[] memory) {
+    return splice(array, start, array.length);
+}
+
+/**
+ * @dev Moves the content of \`array\`, from \`start\` (included) to \`end\` (excluded) to the start of that array,
+ * and shrinks the array length accordingly, effectively overwriting the array with array[start:end]. The
+ * \`end\` argument is truncated to the length of the \`array\`.
+ *
+ * NOTE: This function modifies the provided array in place. If you need to preserve the original array, use {slice} instead.
+ */
+function splice(${type.name}[] memory array, uint256 start, uint256 end) internal pure returns (${type.name}[] memory) {
+    // sanitize
+    end = Math.min(end, array.length);
+    start = Math.min(start, end);
+
+    // move and resize
+    assembly ("memory-safe") {
+        mcopy(add(array, 0x20), add(add(array, 0x20), mul(start, 0x20)), mul(sub(end, start), 0x20))
+        mstore(array, sub(end, start))
+    }
+
+    return array;
+}
+
+/**
+ * @dev Replaces elements in \`array\` starting at \`pos\` with all elements from \`replacement\`.
+ *
+ * Parameters are clamped to valid ranges (e.g. \`pos\` is clamped to \`[0, array.length]\`).
+ * If \`pos >= array.length\`, no replacement occurs and the array is returned unchanged.
+ *
+ * NOTE: This function modifies the provided array in place.
+ */
+function replace(
+    ${type.name}[] memory array,
+    uint256 pos,
+    ${type.name}[] memory replacement
+) internal pure returns (${type.name}[] memory) {
+    return replace(array, pos, replacement, 0, replacement.length);
+}
+
+/**
+ * @dev Replaces elements in \`array\` starting at \`pos\` with elements from \`replacement\` starting at \`offset\`.
+ * Copies at most \`length\` elements from \`replacement\` to \`array\`.
+ *
+ * Parameters are clamped to valid ranges (i.e. \`pos\` is clamped to \`[0, array.length]\`, \`offset\` is
+ * clamped to \`[0, replacement.length]\`, and \`length\` is clamped to \`min(length, replacement.length - offset,
+ * array.length - pos)\`). If \`pos >= array.length\` or \`offset >= replacement.length\`, no replacement occurs
+ * and the array is returned unchanged.
+ *
+ * NOTE: This function modifies the provided array in place.
+ */
+function replace(
+    ${type.name}[] memory array,
+    uint256 pos,
+    ${type.name}[] memory replacement,
+    uint256 offset,
+    uint256 length
+) internal pure returns (${type.name}[] memory) {
+    // sanitize
+    pos = Math.min(pos, array.length);
+    offset = Math.min(offset, replacement.length);
+    length = Math.min(length, Math.min(replacement.length - offset, array.length - pos));
+
+    // replace
+    assembly ("memory-safe") {
+        mcopy(
+            add(add(array, 0x20), mul(pos, 0x20)),
+            add(add(replacement, 0x20), mul(offset, 0x20)),
+            mul(length, 0x20)
+        )
+    }
+
+    return array;
+}
+`;
+
 // GENERATE
-module.exports = format(
+export default format(
   header.trimEnd(),
   'library Arrays {',
   format(
@@ -376,6 +500,9 @@ module.exports = format(
       TYPES.filter(type => type.isValueType && type.name !== 'uint256').map(castComparator),
       // lookup
       search,
+      // slice and splice for value types only
+      TYPES.filter(type => type.isValueType).map(slice),
+      TYPES.filter(type => type.isValueType).map(splice),
       // unsafe (direct) storage and memory access
       TYPES.map(unsafeAccessStorage),
       TYPES.map(unsafeAccessMemory),

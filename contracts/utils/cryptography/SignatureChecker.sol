@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.4.0) (utils/cryptography/SignatureChecker.sol)
+// OpenZeppelin Contracts (last updated v5.7.0) (utils/cryptography/SignatureChecker.sol)
 
 pragma solidity ^0.8.24;
 
@@ -50,7 +50,7 @@ library SignatureChecker {
             (address recovered, ECDSA.RecoverError err, ) = ECDSA.tryRecoverCalldata(hash, signature);
             return err == ECDSA.RecoverError.NoError && recovered == signer;
         } else {
-            return isValidERC1271SignatureNow(signer, hash, signature);
+            return isValidERC1271SignatureNowCalldata(signer, hash, signature);
         }
     }
 
@@ -70,20 +70,55 @@ library SignatureChecker {
         uint256 length = signature.length;
 
         assembly ("memory-safe") {
-            // Encoded calldata is :
+            // Encoded calldata following https://docs.soliditylang.org/en/v0.8.35/abi-spec.html:
             // [ 0x00 - 0x03 ] <selector>
             // [ 0x04 - 0x23 ] <hash>
-            // [ 0x24 - 0x44 ] <signature offset> (0x40)
-            // [ 0x44 - 0x64 ] <signature length>
-            // [ 0x64 - ...  ] <signature data>
+            // [ 0x24 - 0x43 ] <signature offset> (0x40)
+            // [ 0x44 - 0x63 ] <signature length>
+            // [ 0x64 - ...  ] <signature data> | <zero padding>
             let ptr := mload(0x40)
             mstore(ptr, selector)
             mstore(add(ptr, 0x04), hash)
             mstore(add(ptr, 0x24), 0x40)
             mcopy(add(ptr, 0x44), signature, add(length, 0x20))
+            mstore(add(add(ptr, 0x64), length), 0)
 
-            let success := staticcall(gas(), signer, ptr, add(length, 0x64), 0, 0x20)
-            result := and(success, and(gt(returndatasize(), 0x19), eq(mload(0x00), selector)))
+            // round up the length to the next multiple of 32 bytes to ensure that the calldata is properly padded
+            length := shl(5, shr(5, add(length, 0x1F)))
+
+            let success := staticcall(gas(), signer, ptr, add(length, 0x64), 0x00, 0x20)
+            result := and(success, and(gt(returndatasize(), 0x1f), eq(mload(0x00), selector)))
+        }
+    }
+
+    function isValidERC1271SignatureNowCalldata(
+        address signer,
+        bytes32 hash,
+        bytes calldata signature
+    ) internal view returns (bool result) {
+        bytes4 selector = IERC1271.isValidSignature.selector;
+        uint256 length = signature.length;
+
+        assembly ("memory-safe") {
+            // Encoded calldata following https://docs.soliditylang.org/en/v0.8.35/abi-spec.html:
+            // [ 0x00 - 0x03 ] <selector>
+            // [ 0x04 - 0x23 ] <hash>
+            // [ 0x24 - 0x43 ] <signature offset> (0x40)
+            // [ 0x44 - 0x63 ] <signature length>
+            // [ 0x64 - ...  ] <signature data> | <zero padding>
+            let ptr := mload(0x40)
+            mstore(ptr, selector)
+            mstore(add(ptr, 0x04), hash)
+            mstore(add(ptr, 0x24), 0x40)
+            mstore(add(ptr, 0x44), length)
+            calldatacopy(add(ptr, 0x64), signature.offset, length)
+            mstore(add(add(ptr, 0x64), length), 0)
+
+            // round up the length to the next multiple of 32 bytes to ensure that the calldata is properly padded
+            length := shl(5, shr(5, add(length, 0x1F)))
+
+            let success := staticcall(gas(), signer, ptr, add(length, 0x64), 0x00, 0x20)
+            result := and(success, and(gt(returndatasize(), 0x1f), eq(mload(0x00), selector)))
         }
     }
 

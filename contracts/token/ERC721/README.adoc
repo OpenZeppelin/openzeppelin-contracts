@@ -22,12 +22,13 @@ OpenZeppelin Contracts provides implementations of all four interfaces:
 
 Additionally there are a few of other extensions:
 
+* {ERC721Burnable}: A way for token holders to burn their own tokens.
 * {ERC721Consecutive}: An implementation of https://eips.ethereum.org/EIPS/eip-2309[ERC-2309] for minting batches of tokens during construction, in accordance with ERC-721.
+* {ERC721Crosschain}: Embedded {BridgeNonFungible} bridge, making the token crosschain through the use of ERC-7786 gateways.
+* {ERC721Pausable}: A primitive to pause contract operation.
+* {ERC721Royalty}: A way to signal royalty information following ERC-2981.
 * {ERC721URIStorage}: A more flexible but more expensive way of storing metadata.
 * {ERC721Votes}: Support for voting and vote delegation.
-* {ERC721Royalty}: A way to signal royalty information following ERC-2981.
-* {ERC721Pausable}: A primitive to pause contract operation.
-* {ERC721Burnable}: A way for token holders to burn their own tokens.
 * {ERC721Wrapper}: Wrapper to create an ERC-721 backed by another ERC-721, with deposit and withdraw methods. Useful in conjunction with {ERC721Votes}.
 
 NOTE: This core set of contracts is designed to be unopinionated, allowing developers to access the internal functions in ERC-721 (such as <<ERC721-_mint-address-uint256-,`_mint`>>) and expose them as external functions in the way they prefer.
@@ -48,17 +49,19 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 
 == Extensions
 
-{{ERC721Pausable}}
-
 {{ERC721Burnable}}
 
 {{ERC721Consecutive}}
 
+{{ERC721Crosschain}}
+
+{{ERC721Pausable}}
+
+{{ERC721Royalty}}
+
 {{ERC721URIStorage}}
 
 {{ERC721Votes}}
-
-{{ERC721Royalty}}
 
 {{ERC721Wrapper}}
 

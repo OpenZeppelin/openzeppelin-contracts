@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.7.0) (utils/cryptography/signers/SignerWebAuthn.sol)
 
 pragma solidity ^0.8.24;
 
@@ -9,8 +10,7 @@ import {WebAuthn} from "../WebAuthn.sol";
  * @dev Implementation of {SignerP256} that supports WebAuthn authentication assertions.
  *
  * This contract enables signature validation using WebAuthn authentication assertions,
- * leveraging the P256 public key stored in the contract. It allows for both WebAuthn
- * and raw P256 signature validation, providing compatibility with both signature types.
+ * leveraging the P256 public key stored in the contract.
  *
  * The signature is expected to be an abi-encoded {WebAuthn-WebAuthnAuth} struct.
  *
@@ -31,20 +31,15 @@ abstract contract SignerWebAuthn is SignerP256 {
     /**
      * @dev Validates a raw signature using the WebAuthn authentication assertion.
      *
-     * In case the signature can't be validated, it falls back to the
-     * {SignerP256-_rawSignatureValidation} method for raw P256 signature validation by passing
-     * the raw `r` and `s` values from the signature.
+     * Returns `false` if the signature is not a valid WebAuthn authentication assertion.
      */
     function _rawSignatureValidation(
         bytes32 hash,
         bytes calldata signature
     ) internal view virtual override returns (bool) {
-        (bytes32 qx, bytes32 qy) = signer();
         (bool decodeSuccess, WebAuthn.WebAuthnAuth calldata auth) = WebAuthn.tryDecodeAuth(signature);
-
-        return
-            decodeSuccess
-                ? WebAuthn.verify(abi.encodePacked(hash), auth, qx, qy)
-                : super._rawSignatureValidation(hash, signature);
+        if (!decodeSuccess) return false;
+        (bytes32 qx, bytes32 qy) = signer();
+        return WebAuthn.verify(abi.encodePacked(hash), auth, qx, qy);
     }
 }

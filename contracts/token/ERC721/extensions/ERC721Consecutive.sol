@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.3.0) (token/ERC721/extensions/ERC721Consecutive.sol)
+// OpenZeppelin Contracts (last updated v5.7.0) (token/ERC721/extensions/ERC721Consecutive.sol)
 
 pragma solidity ^0.8.24;
 
@@ -20,7 +20,7 @@ import {Checkpoints} from "../../../utils/structs/Checkpoints.sol";
  * regained after construction. During construction, only batch minting is allowed.
  *
  * IMPORTANT: This extension does not call the {_update} function for tokens minted in batch. Any logic added to this
- * function through overrides will not be triggered when token are minted in batch. You may want to also override
+ * function through overrides will not be triggered when tokens are minted in batch. You may want to also override
  * {_increaseBalance} or {_mintConsecutive} to account for these mints.
  *
  * IMPORTANT: When overriding {_mintConsecutive}, be careful about call ordering. {ownerOf} may return invalid
@@ -87,7 +87,7 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
 
     /**
      * @dev Mint a batch of tokens of length `batchSize` for `to`. Returns the token id of the first token minted in the
-     * batch; if `batchSize` is 0, returns the number of consecutive ids minted so far.
+     * batch; if `batchSize` is 0, returns the next token id to be minted consecutively.
      *
      * Requirements:
      *

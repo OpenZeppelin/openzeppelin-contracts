@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
 import {Test} from "forge-std/Test.sol";
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
@@ -152,6 +152,77 @@ contract BytesTest is Test {
         // Verify content matches moved content
         for (uint256 i = 0; i < result.length; ++i) {
             assertEq(result[i], originalBuffer[sanitizedStart + i]);
+        }
+    }
+
+    // Convert to nibbles
+    function testSymbolictoNibbles(bytes memory input) public pure {
+        bytes memory nibbles = Bytes.toNibbles(input);
+        assertEq(nibbles.length, input.length * 2);
+
+        // reconstruct input by traversing nibbles
+        for (uint256 i = 0; i < input.length; ++i) {
+            bytes1 nible0 = nibbles[2 * i];
+            bytes1 nible1 = nibbles[2 * i + 1];
+            assertEq(uint8(nible0) >> 4, 0);
+            assertEq(uint8(nible1) >> 4, 0);
+            assertEq(input[i], bytes1((uint8(nible0) << 4) | uint8(nible1)));
+        }
+    }
+
+    function testReplace(bytes memory buffer, uint256 pos, bytes memory replacement) public pure {
+        bytes memory originalBuffer = bytes.concat(buffer);
+        bytes memory originalReplacement = bytes.concat(replacement);
+        bytes memory result = Bytes.replace(buffer, pos, replacement);
+
+        // Result should be the same object as input (modified in place)
+        assertEq(result, buffer);
+
+        // Buffer length should remain unchanged
+        assertEq(result.length, originalBuffer.length);
+
+        // The replacement is not modified
+        assertEq(replacement, originalReplacement);
+
+        for (uint256 i = 0; i < buffer.length; ++i) {
+            if (i < pos) {
+                assertEq(result[i], originalBuffer[i]);
+            } else if (i < pos + replacement.length) {
+                assertEq(result[i], replacement[i - pos]);
+            } else {
+                assertEq(result[i], originalBuffer[i]);
+            }
+        }
+    }
+
+    function testReplaceFull(
+        bytes memory buffer,
+        uint256 pos,
+        bytes memory replacement,
+        uint256 offset,
+        uint256 length
+    ) public pure {
+        bytes memory originalBuffer = bytes.concat(buffer);
+        bytes memory originalReplacement = bytes.concat(replacement);
+        bytes memory result = Bytes.replace(buffer, pos, replacement, offset, length);
+
+        // Result should be the same object as input (modified in place)
+        assertEq(result, buffer);
+
+        // Buffer length should remain unchanged
+        assertEq(result.length, originalBuffer.length);
+
+        // The replacement is not modified
+        assertEq(replacement, originalReplacement);
+
+        for (uint256 i = 0; i < buffer.length; ++i) {
+            if (i < pos) {
+                assertEq(result[i], originalBuffer[i]);
+            } else if (i < pos + Math.min(Math.saturatingSub(replacement.length, offset), length)) {
+                assertEq(result[i], replacement[i - pos + offset]);
+            } else {
+                assertEq(result[i], originalBuffer[i]);
+            }
         }
     }
 

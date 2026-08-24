@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.4.0) (governance/TimelockController.sol)
+// OpenZeppelin Contracts (last updated v5.6.0) (governance/TimelockController.sol)
 
 pragma solidity ^0.8.20;
 
@@ -7,7 +7,6 @@ import {AccessControl} from "../access/AccessControl.sol";
 import {ERC721Holder} from "../token/ERC721/utils/ERC721Holder.sol";
 import {ERC1155Holder} from "../token/ERC1155/utils/ERC1155Holder.sol";
 import {Address} from "../utils/Address.sol";
-import {IERC165} from "../utils/introspection/ERC165.sol";
 
 /**
  * @dev Contract module which acts as a timelocked controller. When set as the
@@ -26,7 +25,7 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
     bytes32 public constant PROPOSER_ROLE = keccak256("PROPOSER_ROLE");
     bytes32 public constant EXECUTOR_ROLE = keccak256("EXECUTOR_ROLE");
     bytes32 public constant CANCELLER_ROLE = keccak256("CANCELLER_ROLE");
-    uint256 internal constant _DONE_TIMESTAMP = uint256(1);
+    uint256 internal constant DONE_TIMESTAMP = uint256(1);
 
     mapping(bytes32 id => uint256) private _timestamps;
     uint256 private _minDelay;
@@ -155,7 +154,7 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
      */
     receive() external payable virtual {}
 
-    /// @inheritdoc IERC165
+    /// @inheritdoc AccessControl
     function supportsInterface(
         bytes4 interfaceId
     ) public view virtual override(AccessControl, ERC1155Holder) returns (bool) {
@@ -207,7 +206,7 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
         uint256 timestamp = getTimestamp(id);
         if (timestamp == 0) {
             return OperationState.Unset;
-        } else if (timestamp == _DONE_TIMESTAMP) {
+        } else if (timestamp == DONE_TIMESTAMP) {
             return OperationState.Done;
         } else if (timestamp > block.timestamp) {
             return OperationState.Waiting;
@@ -343,7 +342,7 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
     }
 
     /**
-     * @dev Execute an (ready) operation containing a single transaction.
+     * @dev Execute a ready operation containing a single transaction.
      *
      * Emits a {CallExecuted} event.
      *
@@ -370,7 +369,7 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
     }
 
     /**
-     * @dev Execute an (ready) operation containing a batch of transactions.
+     * @dev Execute a ready operation containing a batch of transactions.
      *
      * Emits one {CallExecuted} event per transaction in the batch.
      *
@@ -432,7 +431,7 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
         if (!isOperationReady(id)) {
             revert TimelockUnexpectedOperationState(id, _encodeStateBitmap(OperationState.Ready));
         }
-        _timestamps[id] = _DONE_TIMESTAMP;
+        _timestamps[id] = DONE_TIMESTAMP;
     }
 
     /**
@@ -445,7 +444,7 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
      * - the caller must be the timelock itself. This can only be achieved by scheduling and later executing
      * an operation where the timelock is the target and the data is the ABI-encoded call to this function.
      */
-    function updateDelay(uint256 newDelay) external virtual {
+    function updateDelay(uint256 newDelay) public virtual {
         address sender = _msgSender();
         if (sender != address(this)) {
             revert TimelockUnauthorizedCaller(sender);

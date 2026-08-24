@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.4.0) (governance/Governor.sol)
+// OpenZeppelin Contracts (last updated v5.7.0) (governance/Governor.sol)
 
 pragma solidity ^0.8.24;
 
@@ -348,8 +348,13 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         bytes32 descriptionHash
     ) public virtual returns (uint256) {
         uint256 proposalId = getProposalId(targets, values, calldatas, descriptionHash);
+        bool needsQueueing = proposalNeedsQueuing(proposalId);
 
         _validateStateBitmap(proposalId, _encodeStateBitmap(ProposalState.Succeeded));
+
+        if (!needsQueueing) {
+            revert GovernorProposalQueueingNotRequired(proposalId);
+        }
 
         uint48 etaSeconds = _queueOperations(proposalId, targets, values, calldatas, descriptionHash);
 
@@ -357,7 +362,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
             _proposals[proposalId].etaSeconds = etaSeconds;
             emit ProposalQueued(proposalId, etaSeconds);
         } else {
-            revert GovernorQueueNotImplemented();
+            revert GovernorProposalQueueingFailed(proposalId);
         }
 
         return proposalId;
@@ -394,10 +399,11 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         bytes32 descriptionHash
     ) public payable virtual returns (uint256) {
         uint256 proposalId = getProposalId(targets, values, calldatas, descriptionHash);
+        bool needsQueueing = proposalNeedsQueuing(proposalId);
 
         _validateStateBitmap(
             proposalId,
-            _encodeStateBitmap(ProposalState.Succeeded) | _encodeStateBitmap(ProposalState.Queued)
+            _encodeStateBitmap(needsQueueing ? ProposalState.Queued : ProposalState.Succeeded)
         );
 
         // mark as executed before calls to avoid reentrancy
@@ -653,13 +659,13 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
      * in a governance proposal to recover tokens or Ether that was sent to the governor contract by mistake.
      * Note that if the executor is simply the governor itself, use of `relay` is redundant.
      */
-    function relay(address target, uint256 value, bytes calldata data) external payable virtual onlyGovernance {
+    function relay(address target, uint256 value, bytes calldata data) public payable virtual onlyGovernance {
         (bool success, bytes memory returndata) = target.call{value: value}(data);
         Address.verifyCallResult(success, returndata);
     }
 
     /**
-     * @dev Address through which the governor executes action. Will be overloaded by module that execute actions
+     * @dev Address through which the governor executes action. Will be overloaded by module that executes actions
      * through another contract such as a timelock.
      */
     function _executor() internal view virtual returns (address) {
@@ -735,7 +741,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         return currentState;
     }
 
-    /*
+    /**
      * @dev Check if the proposer is authorized to submit a proposal with the given description.
      *
      * If the proposal description ends with `#proposer=0x???`, where `0x???` is an address written as a hex string
@@ -746,6 +752,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
      * which would result in a different proposal id.
      *
      * If the description does not match this pattern, it is unrestricted and anyone can submit it. This includes:
+     *
      * - If the `0x???` part is not a valid hex string.
      * - If the `0x???` part is a valid hex string, but does not contain exactly 40 hex digits.
      * - If it ends with the expected suffix followed by newlines or other whitespace.

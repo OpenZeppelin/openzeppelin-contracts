@@ -1,9 +1,8 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
+import { ethers } from 'ethers';
+import { expect } from 'chai';
+import { shouldSupportInterfaces } from '../../utils/introspection/SupportsInterface.behavior';
 
-const { shouldSupportInterfaces } = require('../../utils/introspection/SupportsInterface.behavior');
-
-function shouldBehaveLikeERC6909() {
+export function shouldBehaveLikeERC6909() {
   const firstTokenId = 1n;
   const secondTokenId = 2n;
   const randomTokenId = 125523n;
@@ -142,7 +141,7 @@ function shouldBehaveLikeERC6909() {
         await expect(this.token.balanceOf(this.recipient, firstTokenId)).to.eventually.equal(amount);
       });
 
-      describe('with approval', async function () {
+      describe('with approval', function () {
         beforeEach(async function () {
           await this.token.connect(this.holder).approve(this.operator, firstTokenId, amount);
         });
@@ -210,7 +209,3 @@ function shouldBehaveLikeERC6909() {
     shouldSupportInterfaces(['ERC6909']);
   });
 }
-
-module.exports = {
-  shouldBehaveLikeERC6909,
-};

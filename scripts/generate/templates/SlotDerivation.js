@@ -1,6 +1,6 @@
-const format = require('../format-lines');
-const sanitize = require('../helpers/sanitize');
-const { TYPES } = require('./Slot.opts');
+import format from '../format-lines.js';
+import * as sanitize from '../helpers/sanitize.js';
+import { TYPES } from './Slot.opts.js';
 
 const header = `\
 pragma solidity ^0.8.20;
@@ -17,7 +17,7 @@ pragma solidity ^0.8.20;
  * contract Example {
  *     // Add the library methods
  *     using StorageSlot for bytes32;
- *     using SlotDerivation for bytes32;
+ *     using SlotDerivation for *;
  *
  *     // Declare a namespace
  *     string private constant _NAMESPACE = "<namespace>"; // eg. OpenZeppelin.Slot
@@ -105,7 +105,7 @@ function deriveMapping(bytes32 slot, ${type} memory key) internal pure returns (
 `;
 
 // GENERATE
-module.exports = format(
+export default format(
   header.trimEnd(),
   'library SlotDerivation {',
   format(

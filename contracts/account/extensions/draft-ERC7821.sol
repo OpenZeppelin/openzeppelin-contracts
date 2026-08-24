@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.4.0) (account/extensions/draft-ERC7821.sol)
+// OpenZeppelin Contracts (last updated v5.5.0) (account/extensions/draft-ERC7821.sol)
 
 pragma solidity ^0.8.20;
 
@@ -10,7 +10,7 @@ import {Account} from "../Account.sol";
 /**
  * @dev Minimal batch executor following ERC-7821.
  *
- * Only supports supports single batch mode (`0x01000000000000000000`). Does not support optional "opData".
+ * Only supports single batch mode (`0x01000000000000000000`). Does not support optional "opData".
  *
  * @custom:stateless
  */

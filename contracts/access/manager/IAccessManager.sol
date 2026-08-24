@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.4.0) (access/manager/IAccessManager.sol)
+// OpenZeppelin Contracts (last updated v5.7.0) (access/manager/IAccessManager.sol)
 
 pragma solidity >=0.8.4;
 
@@ -36,7 +36,7 @@ interface IAccessManager {
      *
      * NOTE: The meaning of the `since` argument depends on the `newMember` argument.
      * If the role is granted to a new member, the `since` argument indicates when the account becomes a member of the role,
-     * otherwise it indicates the execution delay for this account and roleId is updated.
+     * otherwise it indicates the timestamp when the execution delay update takes effect for this account and roleId.
      */
     event RoleGranted(uint64 indexed roleId, address indexed account, uint32 delay, uint48 since, bool newMember);
 
@@ -80,6 +80,7 @@ interface IAccessManager {
     error AccessManagerNotReady(bytes32 operationId);
     error AccessManagerExpired(bytes32 operationId);
     error AccessManagerLockedRole(uint64 roleId);
+    error AccessManagerLockedFunction(bytes4 selector);
     error AccessManagerBadConfirmation();
     error AccessManagerUnauthorizedAccount(address msgsender, uint64 roleId);
     error AccessManagerUnauthorizedCall(address caller, address target, bytes4 selector);
@@ -106,6 +107,11 @@ interface IAccessManager {
      *
      * NOTE: This function does not report the permissions of the admin functions in the manager itself. These are defined by the
      * {AccessManager} documentation.
+     *
+     * NOTE: The `setAuthority(address)` selector is reserved on all targets (whether or not they are {AccessManaged}):
+     * it is gated to `ADMIN_ROLE` with a possible delay, and it cannot be reconfigured via {setTargetFunctionRole}.
+     * Any target function whose selector collides with `setAuthority(address)` inherits this restriction when routed
+     * through the manager.
      */
     function canCall(
         address caller,
@@ -123,7 +129,7 @@ interface IAccessManager {
 
     /**
      * @dev Minimum setback for all delay updates, with the exception of execution delays. It
-     * can be increased without setback (and reset via {revokeRole} in the case event of an
+     * can be increased without setback (and reset via {revokeRole} in the event of an
      * accidental increase). Defaults to 5 days.
      */
     function minSetback() external view returns (uint32);
@@ -170,7 +176,7 @@ interface IAccessManager {
 
     /**
      * @dev Get the access details for a given account for a given role. These details include the timepoint at which
-     * membership becomes active, and the delay applied to all operation by this user that requires this permission
+     * membership becomes active, and the delay applied to all operations by this user that requires this permission
      * level.
      *
      * Returns:
@@ -196,6 +202,7 @@ interface IAccessManager {
      * Requirements:
      *
      * - the caller must be a global admin
+     * - `roleId` must not be the `ADMIN_ROLE` or `PUBLIC_ROLE`
      *
      * Emits a {RoleLabel} event.
      */
@@ -254,6 +261,7 @@ interface IAccessManager {
      * Requirements:
      *
      * - the caller must be a global admin
+     * - `roleId` must not be the `ADMIN_ROLE` or `PUBLIC_ROLE`
      *
      * Emits a {RoleAdminChanged} event
      */
@@ -265,6 +273,7 @@ interface IAccessManager {
      * Requirements:
      *
      * - the caller must be a global admin
+     * - `roleId` must not be the `ADMIN_ROLE` or `PUBLIC_ROLE`
      *
      * Emits a {RoleGuardianChanged} event
      */
@@ -276,6 +285,7 @@ interface IAccessManager {
      * Requirements:
      *
      * - the caller must be a global admin
+     * - `roleId` must not be the `PUBLIC_ROLE`
      *
      * Emits a {RoleGrantDelayChanged} event.
      */
@@ -287,6 +297,7 @@ interface IAccessManager {
      * Requirements:
      *
      * - the caller must be a global admin
+     * - `selectors` must not contain the `setAuthority(address)` selector, which is reserved. See {canCall}.
      *
      * Emits a {TargetFunctionRoleUpdated} event per selector.
      */
@@ -376,7 +387,7 @@ interface IAccessManager {
      * @dev Consume a scheduled operation targeting the caller. If such an operation exists, mark it as consumed
      * (emit an {OperationExecuted} event and clean the state). Otherwise, throw an error.
      *
-     * This is useful for contract that want to enforce that calls targeting them were scheduled on the manager,
+     * This is useful for contracts that want to enforce that calls targeting them were scheduled on the manager,
      * with all the verifications that it implies.
      *
      * Emit a {OperationExecuted} event.

@@ -1,39 +1,34 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { secp256r1 } = require('@noble/curves/p256');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import fs from 'fs';
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { p256 } from '@noble/curves/nist.js';
+import * as random from '../../helpers/random';
+
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.create();
 
 const N = 0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551n;
 
-// As in ECDSA, signatures are malleable and the tooling produce both high and low S values.
-// We need to ensure that the s value is in the lower half of the order of the curve.
-const ensureLowerOrderS = ({ s, recovery, ...rest }) => {
-  if (s > N / 2n) {
-    s = N - s;
-    recovery = 1 - recovery;
-  }
-  return { s, recovery, ...rest };
-};
-
-const prepareSignature = (
-  privateKey = secp256r1.utils.randomPrivateKey(),
-  messageHash = ethers.hexlify(ethers.randomBytes(0x20)),
-) => {
+const prepareSignature = (privateKey = p256.utils.randomSecretKey(), messageHash = random.bytes(0x20)) => {
   const publicKey = [
-    secp256r1.getPublicKey(privateKey, false).slice(0x01, 0x21),
-    secp256r1.getPublicKey(privateKey, false).slice(0x21, 0x41),
+    p256.getPublicKey(privateKey, false).slice(0x01, 0x21),
+    p256.getPublicKey(privateKey, false).slice(0x21, 0x41),
   ].map(ethers.hexlify);
-  const { r, s, recovery } = ensureLowerOrderS(secp256r1.sign(messageHash.replace(/0x/, ''), privateKey));
-  const signature = [r, s].map(v => ethers.toBeHex(v, 0x20));
+
+  const rawSignature = p256.sign(ethers.getBytes(messageHash), privateKey, { prehash: false, format: 'recovered' });
+  const signature = [ethers.hexlify(rawSignature.slice(0x01, 0x21)), ethers.hexlify(rawSignature.slice(0x21, 0x41))];
+  const recovery = rawSignature[0];
 
   return { privateKey, publicKey, signature, recovery, messageHash };
 };
 
-describe('P256', function () {
-  async function fixture() {
-    return { mock: await ethers.deployContract('$P256') };
-  }
+async function fixture() {
+  return { mock: await ethers.deployContract('$P256') };
+}
 
+describe('P256', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });
@@ -124,7 +119,7 @@ describe('P256', function () {
 
     it('reject signature with invalid message hash', async function () {
       // random message hash
-      this.messageHash = ethers.hexlify(ethers.randomBytes(32));
+      this.messageHash = random.bytes(32);
 
       await expect(this.mock.$verify(this.messageHash, ...this.signature, ...this.publicKey)).to.eventually.be.false;
       await expect(this.mock.$verifySolidity(this.messageHash, ...this.signature, ...this.publicKey)).to.eventually.be
@@ -148,7 +143,11 @@ describe('P256', function () {
 
   // test cases for https://github.com/C2SP/wycheproof/blob/4672ff74d68766e7785c2cac4c597effccef2c5c/testvectors/ecdsa_secp256r1_sha256_p1363_test.json
   describe('wycheproof tests', function () {
-    for (const { key, tests } of require('./ecdsa_secp256r1_sha256_p1363_test.json').testGroups) {
+    const { testGroups } = JSON.parse(
+      fs.readFileSync('./test/utils/cryptography/ecdsa_secp256r1_sha256_p1363_test.json', 'utf8'),
+    );
+
+    for (const { key, tests } of testGroups) {
       // parse public key
       let [x, y] = [key.wx, key.wy].map(v => ethers.stripZerosLeft('0x' + v, 32));
       if (x.length > 66 || y.length > 66) continue;

@@ -1,6 +1,6 @@
-const format = require('../format-lines');
-const { capitalize } = require('../../helpers');
-const { TYPES } = require('./Slot.opts');
+import format from '../format-lines.js';
+import { capitalize } from '../../helpers.js';
+import { TYPES } from './Slot.opts.js';
 
 const header = `\
 pragma solidity ^0.8.20;
@@ -62,7 +62,7 @@ function testSymbolicDeriveMapping${name}(${type} key) public view {
 `;
 
 const mappingDirty = ({ type, name }) => `\
-function testSymbolicDeriveMapping${name}Dirty(bytes32 dirtyKey) public {
+function testSymbolicDeriveMapping${name}Dirty(bytes32 dirtyKey) public view {
     ${type} key;
     assembly {
         key := dirtyKey
@@ -101,7 +101,7 @@ function _assertDeriveMapping${name}(${type} memory key) internal view {
 `;
 
 // GENERATE
-module.exports = format(
+export default format(
   header,
   'contract SlotDerivationTest is Test, SymTest {',
   format(

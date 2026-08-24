@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.5.0) (interfaces/draft-IERC7786.sol)
 
 pragma solidity >=0.8.4;
 
@@ -9,13 +10,13 @@ pragma solidity >=0.8.4;
  */
 interface IERC7786GatewaySource {
     /**
-     * @dev Event emitted when a message is created. If `outboxId` is zero, no further processing is necessary. If
-     * `outboxId` is not zero, then further (gateway specific, and non-standardized) action is required.
+     * @dev Event emitted when a message is created. If `sendId` is zero, no further processing is necessary. If
+     * `sendId` is not zero, then further (gateway specific, and non-standardized) action is required.
      */
     event MessageSent(
         bytes32 indexed sendId,
         bytes sender, // Binary Interoperable Address
-        bytes receiver, // Binary Interoperable Address
+        bytes recipient, // Binary Interoperable Address
         bytes payload,
         uint256 value,
         bytes[] attributes
@@ -29,7 +30,7 @@ interface IERC7786GatewaySource {
 
     /**
      * @dev Endpoint for creating a new message. If the message requires further (gateway specific) processing before
-     * it can be sent to the destination chain, then a non-zero `outboxId` must be returned. Otherwise, the
+     * it can be sent to the destination chain, then a non-zero `sendId` must be returned. Otherwise, the
      * message MUST be sent and this function must return 0.
      *
      * * MUST emit a {MessageSent} event.
@@ -49,16 +50,15 @@ interface IERC7786GatewaySource {
  *
  * See ERC-7786 for more details
  */
-interface IERC7786Receiver {
+interface IERC7786Recipient {
     /**
      * @dev Endpoint for receiving cross-chain message.
      *
      * This function may be called directly by the gateway.
      */
-    function executeMessage(
+    function receiveMessage(
         bytes32 receiveId,
         bytes calldata sender, // Binary Interoperable Address
-        bytes calldata payload,
-        bytes[] calldata attributes
+        bytes calldata payload
     ) external payable returns (bytes4);
 }

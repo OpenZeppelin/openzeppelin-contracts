@@ -1,16 +1,19 @@
-const { ethers, predeploy } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { MAX_UINT64 } from '../helpers/constants';
+import { getDomain } from '../helpers/eip712';
+import { ERC4337Helper } from '../helpers/erc4337';
+import { PackedUserOperation } from '../helpers/eip712-types';
+import { NonNativeSigner, P256SigningKey, RSASHA256SigningKey, MultiERC7913SigningKey } from '../helpers/signers';
+import { shouldBehaveLikeAccountCore, shouldBehaveLikeAccountHolder } from './Account.behavior';
+import { shouldBehaveLikeERC1271 } from '../utils/cryptography/ERC1271.behavior';
+import { shouldBehaveLikeERC7821 } from './extensions/ERC7821.behavior';
 
-const { getDomain } = require('../helpers/eip712');
-const { ERC4337Helper } = require('../helpers/erc4337');
-const { NonNativeSigner, P256SigningKey, RSASHA256SigningKey, MultiERC7913SigningKey } = require('../helpers/signers');
-const { MAX_UINT64 } = require('../helpers/constants');
-
-const { shouldBehaveLikeAccountCore, shouldBehaveLikeAccountHolder } = require('./Account.behavior');
-const { shouldBehaveLikeERC1271 } = require('../utils/cryptography/ERC1271.behavior');
-const { shouldBehaveLikeERC7821 } = require('./extensions/ERC7821.behavior');
-const { PackedUserOperation } = require('../helpers/eip712-types');
+const connection = await network.create();
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = connection;
 
 // Prepare signers in advance (RSA are long to initialize)
 const signerECDSA1 = ethers.Wallet.createRandom();
@@ -31,9 +34,9 @@ async function fixture() {
   const verifierRSA = await ethers.deployContract('ERC7913RSAVerifier');
 
   // ERC-4337 env
-  const helper = new ERC4337Helper();
+  const helper = new ERC4337Helper(connection);
   await helper.wait();
-  const entrypointDomain = await getDomain(predeploy.entrypoint.v08);
+  const entrypointDomain = await getDomain(ethers.predeploy.entrypoint.v09);
   const domain = { name: 'AccountMultiSigner', version: '1', chainId: entrypointDomain.chainId }; // Missing verifyingContract
 
   const makeMock = (signers, threshold) =>
@@ -69,7 +72,7 @@ async function fixture() {
 
 describe('AccountMultiSigner', function () {
   beforeEach(async function () {
-    Object.assign(this, await loadFixture(fixture));
+    Object.assign(this, connection, await loadFixture(fixture));
   });
 
   describe('Multi ECDSA signers with threshold=1', function () {
@@ -177,11 +180,11 @@ describe('AccountMultiSigner', function () {
 
       // Unreachable threshold reverts
       await expect(this.mock.$_setThreshold(3))
-        .to.revertedWithCustomError(this.mock, 'MultiSignerERC7913UnreachableThreshold')
+        .to.be.revertedWithCustomError(this.mock, 'MultiSignerERC7913UnreachableThreshold')
         .withArgs(2, 3);
 
       // Zero threshold reverts
-      await expect(this.mock.$_setThreshold(0)).to.revertedWithCustomError(
+      await expect(this.mock.$_setThreshold(0)).to.be.revertedWithCustomError(
         this.mock,
         'MultiSignerERC7913ZeroThreshold',
       );
@@ -215,7 +218,19 @@ describe('AccountMultiSigner', function () {
   });
 
   describe('Signature validation', function () {
-    const TEST_MESSAGE = ethers.keccak256(ethers.toUtf8Bytes('Test message'));
+    const TEST_MESSAGE = 'Test message';
+    const MESSAGE_HASH = ethers.hashMessage(TEST_MESSAGE);
+
+    const sortSigners = signers =>
+      signers.sort((a, b) =>
+        Buffer.compare(
+          ethers.getBytes(ethers.keccak256(a.address ?? a)),
+          ethers.getBytes(ethers.keccak256(b.address ?? b)),
+        ),
+      );
+
+    const prepareMultisig = (signers, signatures) =>
+      ethers.AbiCoder.defaultAbiCoder().encode(['bytes[]', 'bytes[]'], [signers.map(s => s.address ?? s), signatures]);
 
     beforeEach(async function () {
       // Set up mock with authorized signers
@@ -223,104 +238,99 @@ describe('AccountMultiSigner', function () {
       await this.mock.deploy();
     });
 
+    it('accepts signatures from authorized signers', async function () {
+      const signers = sortSigners([signerECDSA1, signerECDSA2]);
+      const signatures = await Promise.all(signers.map(s => s.signMessage(TEST_MESSAGE)));
+
+      // Should pass because all signers are authorized.
+      await expect(this.mock.$_rawSignatureValidation(MESSAGE_HASH, prepareMultisig(signers, signatures))).to.eventually
+        .be.true;
+    });
+
     it('rejects signatures from unauthorized signers', async function () {
-      // Create signatures including an unauthorized signer
-      const authorizedSignature = await signerECDSA1.signMessage(ethers.getBytes(TEST_MESSAGE));
-      const unauthorizedSignature = await signerECDSA4.signMessage(ethers.getBytes(TEST_MESSAGE));
-
-      // Prepare signers and signatures arrays
-      const signers = [
-        signerECDSA1.address,
-        signerECDSA4.address, // Unauthorized signer
-      ].sort((a, b) => (ethers.toBigInt(ethers.keccak256(a)) < ethers.toBigInt(ethers.keccak256(b)) ? -1 : 1));
-
-      const signatures = signers.map(signer => {
-        if (signer === signerECDSA1.address) return authorizedSignature;
-        return unauthorizedSignature;
-      });
-
-      // Encode the multi-signature
-      const multiSignature = ethers.AbiCoder.defaultAbiCoder().encode(['bytes[]', 'bytes[]'], [signers, signatures]);
+      const signers = sortSigners([signerECDSA1, signerECDSA4]); // signerECDSA4 is unauthorized
+      const signatures = await Promise.all(signers.map(s => s.signMessage(TEST_MESSAGE)));
 
       // Should fail because one signer is not authorized
-      await expect(this.mock.$_rawSignatureValidation(TEST_MESSAGE, multiSignature)).to.eventually.be.false;
+      await expect(this.mock.$_rawSignatureValidation(MESSAGE_HASH, prepareMultisig(signers, signatures))).to.eventually
+        .be.false;
     });
 
     it('rejects invalid signatures from authorized signers', async function () {
-      // Create a valid signature and an invalid one from authorized signers
-      const validSignature = await signerECDSA1.signMessage(ethers.getBytes(TEST_MESSAGE));
-      const invalidSignature = await signerECDSA2.signMessage(ethers.toUtf8Bytes('Different message')); // Wrong message
-
-      // Prepare signers and signatures arrays
-      const signers = [signerECDSA1.address, signerECDSA2.address].sort((a, b) =>
-        ethers.toBigInt(ethers.keccak256(a)) < ethers.toBigInt(ethers.keccak256(b)) ? -1 : 1,
+      const signers = sortSigners([signerECDSA1, signerECDSA2]);
+      const signatures = await Promise.all(
+        signers.map((s, i) => s.signMessage(i === 0 ? 'Invalid message' : TEST_MESSAGE)), // first signature is invalid
       );
-
-      const signatures = signers.map(signer => {
-        if (signer === signerECDSA1.address) return validSignature;
-        return invalidSignature;
-      });
-
-      // Encode the multi-signature
-      const multiSignature = ethers.AbiCoder.defaultAbiCoder().encode(['bytes[]', 'bytes[]'], [signers, signatures]);
 
       // Should fail because one signature is invalid
-      await expect(this.mock.$_rawSignatureValidation(TEST_MESSAGE, multiSignature)).to.eventually.be.false;
+      await expect(this.mock.$_rawSignatureValidation(MESSAGE_HASH, prepareMultisig(signers, signatures))).to.eventually
+        .be.false;
     });
 
-    it('rejects signatures from unsorted signers', async function () {
-      // Create a valid signature and an invalid one from authorized signers
-      const validSignature1 = await signerECDSA1.signMessage(ethers.getBytes(TEST_MESSAGE));
-      const validSignature2 = await signerECDSA2.signMessage(ethers.getBytes(TEST_MESSAGE));
+    it('accepts signatures from unsorted signers', async function () {
+      const signers = sortSigners([signerECDSA1, signerECDSA2]).reverse(); // Unsorted signers
+      const signatures = await Promise.all(signers.map(s => s.signMessage(TEST_MESSAGE)));
 
-      // Prepare signers and signatures arrays
-      const signers = [signerECDSA1.address, signerECDSA2.address].sort((a, b) =>
-        ethers.toBigInt(ethers.keccak256(a)) < ethers.toBigInt(ethers.keccak256(b)) ? -1 : 1,
-      );
-      const unsortedSigners = signers.reverse();
-      const signatures = unsortedSigners.map(signer => {
-        if (signer === signerECDSA1.address) return validSignature1;
-        return validSignature2;
-      });
-
-      // Encode the multi-signature
-      const multiSignature = ethers.AbiCoder.defaultAbiCoder().encode(
-        ['bytes[]', 'bytes[]'],
-        [unsortedSigners, signatures],
-      );
-
-      // Should fail because signers are not sorted
-      await expect(this.mock.$_rawSignatureValidation(TEST_MESSAGE, multiSignature)).to.eventually.be.false;
+      // Should pass because signatures are valid even if signers are unsorted
+      await expect(this.mock.$_rawSignatureValidation(MESSAGE_HASH, prepareMultisig(signers, signatures))).to.eventually
+        .be.true;
     });
 
     it('rejects signatures when signers.length != signatures.length', async function () {
-      // Create a valid signature and an invalid one from authorized signers
-      const validSignature1 = await signerECDSA1.signMessage(ethers.getBytes(TEST_MESSAGE));
-
-      // Prepare signers and signatures arrays
-      const signers = [signerECDSA1.address, signerECDSA2.address];
-      const signatures = [validSignature1];
-
-      // Encode the multi-signature
-      const multiSignature = ethers.AbiCoder.defaultAbiCoder().encode(['bytes[]', 'bytes[]'], [signers, signatures]);
+      const signers = sortSigners([signerECDSA1, signerECDSA2]);
+      const signatures = await Promise.all(signers.slice(0, -1).map(s => s.signMessage(TEST_MESSAGE))); // slice the last signer
 
       // Should fail because signers and signatures arrays have different lengths
-      await expect(this.mock.$_rawSignatureValidation(TEST_MESSAGE, multiSignature)).to.eventually.be.false;
+      await expect(this.mock.$_rawSignatureValidation(MESSAGE_HASH, prepareMultisig(signers, signatures))).to.eventually
+        .be.false;
     });
 
     it('rejects duplicated signers', async function () {
-      // Create a valid signature
-      const validSignature = await signerECDSA1.signMessage(ethers.getBytes(TEST_MESSAGE));
-
-      // Prepare signers and signatures arrays
-      const signers = [signerECDSA1.address, signerECDSA1.address];
-      const signatures = [validSignature, validSignature];
-
-      // Encode the multi-signature
-      const multiSignature = ethers.AbiCoder.defaultAbiCoder().encode(['bytes[]', 'bytes[]'], [signers, signatures]);
+      const signers = sortSigners([signerECDSA1, signerECDSA1]); // duplicated signer
+      const signatures = await Promise.all(signers.map(s => s.signMessage(TEST_MESSAGE)));
 
       // Should fail because of duplicated signers
-      await expect(this.mock.$_rawSignatureValidation(TEST_MESSAGE, multiSignature)).to.eventually.be.false;
+      await expect(this.mock.$_rawSignatureValidation(MESSAGE_HASH, prepareMultisig(signers, signatures))).to.eventually
+        .be.false;
+    });
+
+    describe('returns false (does not revert) on malformed outer encoding', function () {
+      const word = v => ethers.zeroPadValue(ethers.toBeHex(v), 0x20);
+      const encode = (...items) => ethers.concat(items.map(word));
+
+      it('supports minimal encoding', async function () {
+        await expect(this.mock.$_rawSignatureValidation(MESSAGE_HASH, encode(0, 0))).to.eventually.be.false;
+        await expect(this.mock.$_rawSignatureValidation(MESSAGE_HASH, encode(0x20, 0))).to.eventually.be.false;
+      });
+
+      it('shorter than the minimum head layout (64 bytes)', async function () {
+        await expect(this.mock.$_rawSignatureValidation(MESSAGE_HASH, '0xdeadbeef')).to.eventually.be.false;
+      });
+
+      it('offset points past the calldata', async function () {
+        await expect(this.mock.$_rawSignatureValidation(MESSAGE_HASH, encode(0xffff, 0xffff, 0, 0))).to.eventually.be
+          .false;
+      });
+
+      it('offset near type(uint256).max (would overflow in checked arithmetic)', async function () {
+        await expect(
+          this.mock.$_rawSignatureValidation(MESSAGE_HASH, encode(ethers.MaxUint256, ethers.MaxUint256, 0, 0)),
+        ).to.eventually.be.false;
+      });
+
+      it('array length exceeds Solidity dynamic-array cap (2**64-1)', async function () {
+        await expect(this.mock.$_rawSignatureValidation(MESSAGE_HASH, encode(0x40, 0x60, MAX_UINT64 + 1n, 0))).to
+          .eventually.be.false;
+        await expect(this.mock.$_rawSignatureValidation(MESSAGE_HASH, encode(0x40, 0x60, 0, MAX_UINT64 + 1n))).to
+          .eventually.be.false;
+      });
+
+      it('array length exceeds the remaining buffer', async function () {
+        await expect(this.mock.$_rawSignatureValidation(MESSAGE_HASH, encode(0x40, 0x60, 10, 0))).to.eventually.be
+          .false;
+        await expect(this.mock.$_rawSignatureValidation(MESSAGE_HASH, encode(0x40, 0x60, 0, 10))).to.eventually.be
+          .false;
+      });
     });
   });
 });

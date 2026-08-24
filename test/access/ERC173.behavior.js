@@ -1,9 +1,9 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
+import { ethers } from 'ethers';
+import { expect } from 'chai';
 
-const { shouldSupportInterfaces } = require('../utils/introspection/SupportsInterface.behavior');
+import { shouldSupportInterfaces } from '../utils/introspection/SupportsInterface.behavior';
 
-function shouldBehaveLikeERC173() {
+export function shouldBehaveLikeERC173() {
   shouldSupportInterfaces(['ERC173']);
 
   it('has an owner', async function () {
@@ -42,7 +42,7 @@ function shouldBehaveLikeERC173() {
 
   describe('owner check', function () {
     it('allows owner to call protected functions', async function () {
-      await expect(this.mock.connect(this.owner).$_checkOwner()).to.not.be.reverted;
+      await expect(this.mock.connect(this.owner).$_checkOwner()).to.not.revert(ethers);
     });
 
     it('prevents non-owner from calling protected functions', async function () {
@@ -52,7 +52,3 @@ function shouldBehaveLikeERC173() {
     });
   });
 }
-
-module.exports = {
-  shouldBehaveLikeERC173,
-};

@@ -1,9 +1,9 @@
-const format = require('../format-lines');
-const { fromBytes32, toBytes32 } = require('./conversion');
-const { SET_TYPES } = require('./Enumerable.opts');
+import format from '../format-lines.js';
+import { fromBytes32, toBytes32 } from './conversion.js';
+import { SET_TYPES } from './Enumerable.opts.js';
 
 const header = `\
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
 import {Arrays} from "../Arrays.sol";
 import {Math} from "../math/Math.sol";
@@ -37,6 +37,7 @@ import {Math} from "../math/Math.sol";
  * - \`uint256\` (\`UintSet\`) since v3.3.0
  * - \`string\` (\`StringSet\`) since v5.4.0
  * - \`bytes\` (\`BytesSet\`) since v5.4.0
+ * - \`bytes4\` (\`Bytes4Set\`) since v5.6.0
  *
  * [WARNING]
  * ====
@@ -166,7 +167,7 @@ function _length(Set storage set) private view returns (uint256) {
  *
  * - \`index\` must be strictly less than {length}.
  */
-function _at(Set storage set, uint256 index) private view returns (bytes32) {
+function _pos(Set storage set, uint256 index) private view returns (bytes32) {
     return set._values[index];
 }
 
@@ -266,9 +267,28 @@ function length(${name} storage set) internal view returns (uint256) {
  * Requirements:
  *
  * - \`index\` must be strictly less than {length}.
+ *
+ * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
+ * should use {pos} instead.
  */
 function at(${name} storage set, uint256 index) internal view returns (${type}) {
-    return ${fromBytes32(type, '_at(set._inner, index)')};
+    return pos(set, index);
+}
+
+/**
+ * @dev Returns the value stored at position \`index\` in the set. O(1).
+ *
+ * Note that there are no guarantees on the ordering of values inside the
+ * array, and it may change when more values are added or removed.
+ *
+ * Requirements:
+ *
+ * - \`index\` must be strictly less than {length}.
+ *
+ * Replacement of the deprecated {at} function.
+ */
+function pos(${name} storage set, uint256 index) internal view returns (${type}) {
+    return ${fromBytes32(type, '_pos(set._inner, index)')};
 }
 
 /**
@@ -414,8 +434,27 @@ function length(${name} storage set) internal view returns (uint256) {
  * Requirements:
  *
  * - \`index\` must be strictly less than {length}.
+ *
+ * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
+ * should use {pos} instead.
  */
 function at(${name} storage set, uint256 index) internal view returns (${value.type} memory) {
+    return pos(set, index);
+}
+
+/**
+ * @dev Returns the value stored at position \`index\` in the set. O(1).
+ *
+ * Note that there are no guarantees on the ordering of values inside the
+ * array, and it may change when more values are added or removed.
+ *
+ * Requirements:
+ *
+ * - \`index\` must be strictly less than {length}.
+ *
+ * Replacement of the deprecated {at} function.
+ */
+function pos(${name} storage set, uint256 index) internal view returns (${value.type} memory) {
     return set._values[index];
 }
 
@@ -455,7 +494,7 @@ function values(${name} storage set, uint256 start, uint256 end) internal view r
 `;
 
 // GENERATE
-module.exports = format(
+export default format(
   header.trimEnd(),
   'library EnumerableSet {',
   format(

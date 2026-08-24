@@ -1,5 +1,5 @@
-const format = require('../format-lines');
-const { range } = require('../../helpers');
+import format from '../format-lines.js';
+import { range } from '../../helpers.js';
 
 const LENGTHS = range(8, 256, 8).reverse(); // 248 → 8 (in steps of 8)
 
@@ -22,12 +22,12 @@ pragma solidity ^0.8.20;
 
 const errors = `\
 /**
- * @dev Value doesn't fit in an uint of \`bits\` size.
+ * @dev Value doesn't fit in a uint of \`bits\` size.
  */
 error SafeCastOverflowedUintDowncast(uint8 bits, uint256 value);
 
 /**
- * @dev An int value doesn't fit in an uint of \`bits\` size.
+ * @dev An int value doesn't fit in a uint of \`bits\` size.
  */
 error SafeCastOverflowedIntToUint(int256 value);
 
@@ -37,7 +37,7 @@ error SafeCastOverflowedIntToUint(int256 value);
 error SafeCastOverflowedIntDowncast(uint8 bits, int256 value);
 
 /**
- * @dev An uint value doesn't fit in an int of \`bits\` size.
+ * @dev A uint value doesn't fit in an int of \`bits\` size.
  */
 error SafeCastOverflowedUintToInt(uint256 value);
 `;
@@ -126,7 +126,7 @@ function toUint(bool b) internal pure returns (uint256 u) {
 `;
 
 // GENERATE
-module.exports = format(
+export default format(
   header.trimEnd(),
   'library SafeCast {',
   format(

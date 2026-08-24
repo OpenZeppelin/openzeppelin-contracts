@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.4.0) (token/ERC20/extensions/IERC20Permit.sol)
+// OpenZeppelin Contracts (last updated v5.5.0) (token/ERC20/extensions/IERC20Permit.sol)
 
 pragma solidity >=0.4.16;
 
@@ -45,7 +45,7 @@ interface IERC20Permit {
      * given ``owner``'s signed approval.
      *
      * IMPORTANT: The same issues {IERC20-approve} has related to transaction
-     * ordering also apply here.
+     * ordering also applies here.
      *
      * Emits an {Approval} event.
      *

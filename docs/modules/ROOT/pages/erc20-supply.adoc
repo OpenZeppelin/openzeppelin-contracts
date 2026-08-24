@@ -34,12 +34,12 @@ contract ERC20FixedSupply is ERC20 {
 
 Encapsulating state like this makes it safer to extend contracts. For instance, in the first example we had to manually keep the `totalSupply` in sync with the modified balances, which is easy to forget. In fact, we omitted something else that is also easily forgotten: the `Transfer` event that is required by the standard, and which is relied on by some clients. The second example does not have this bug, because the internal `_mint` function takes care of it.
 
-[[rewarding-miners]]
-== Rewarding Miners
+[[rewarding-block-proposers]]
+== Rewarding Block Proposers
 
 The internal xref:api:token/ERC20.adoc#ERC20-_mint-address-uint256-[`_mint`] function is the key building block that allows us to write ERC-20 extensions that implement a supply mechanism.
 
-The mechanism we will implement is a token reward for the miners that produce Ethereum blocks. In Solidity, we can access the address of the current block's miner in the global variable `block.coinbase`. We will mint a token reward to this address whenever someone calls the function `mintMinerReward()` on our token. The mechanism may sound silly, but you never know what kind of dynamic this might result in, and it's worth analyzing and experimenting with!
+The mechanism we will implement is a token reward for the block proposer (the address that receives transaction fees). In Solidity, we can access this address using the global variable `block.coinbase`. Note that in Proof of Stake networks, `block.coinbase` refers to the fee recipient address, not a miner. We will mint a token reward to this address whenever someone calls the function `mintMinerReward()` on our token. The mechanism may sound silly, but you never know what kind of dynamic this might result in, and it's worth analyzing and experimenting with!
 
 [source,solidity]
 ----
@@ -59,7 +59,7 @@ As we can see, `_mint` makes it super easy to do this correctly.
 
 So far our supply mechanism was triggered manually, but `ERC20` also allows us to extend the core functionality of the token through the xref:api:token/ERC20.adoc#ERC20-_update-address-address-uint256-[`_update`] function.
 
-Adding to the supply mechanism from the previous section, we can use this function to mint a miner reward for every token transfer that is included in the blockchain.
+Adding to the supply mechanism from the previous section, we can use this function to mint a block proposer reward for every token transfer that is included in the blockchain.
 
 ```solidity
 include::api:example$ERC20WithAutoMinerReward.sol[]

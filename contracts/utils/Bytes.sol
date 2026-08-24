@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.4.0) (utils/Bytes.sol)
+// OpenZeppelin Contracts (last updated v5.7.0) (utils/Bytes.sol)
 
 pragma solidity ^0.8.24;
 
@@ -85,8 +85,7 @@ library Bytes {
      */
     function slice(bytes memory buffer, uint256 start, uint256 end) internal pure returns (bytes memory) {
         // sanitize
-        uint256 length = buffer.length;
-        end = Math.min(end, length);
+        end = Math.min(end, buffer.length);
         start = Math.min(start, end);
 
         // allocate and copy
@@ -99,7 +98,8 @@ library Bytes {
     }
 
     /**
-     * @dev Moves the content of `buffer`, from `start` (included) to the end of `buffer` to the start of that buffer.
+     * @dev Moves the content of `buffer`, from `start` (included) to the end of `buffer` to the start of that buffer,
+     * and shrinks the buffer length accordingly, effectively overriding the content of buffer with buffer[start:].
      *
      * NOTE: This function modifies the provided buffer in place. If you need to preserve the original buffer, use {slice} instead
      */
@@ -108,24 +108,140 @@ library Bytes {
     }
 
     /**
-     * @dev Moves the content of `buffer`, from `start` (included) to end (excluded) to the start of that buffer. The
-     * `end` argument is truncated to the length of the `buffer`.
+     * @dev Moves the content of `buffer`, from `start` (included) to `end` (excluded) to the start of that buffer,
+     * and shrinks the buffer length accordingly, effectively overriding the content of buffer with buffer[start:end].
+     * The `end` argument is truncated to the length of the `buffer`.
      *
      * NOTE: This function modifies the provided buffer in place. If you need to preserve the original buffer, use {slice} instead
      */
     function splice(bytes memory buffer, uint256 start, uint256 end) internal pure returns (bytes memory) {
         // sanitize
-        uint256 length = buffer.length;
-        end = Math.min(end, length);
+        end = Math.min(end, buffer.length);
         start = Math.min(start, end);
 
-        // allocate and copy
+        // move and resize
         assembly ("memory-safe") {
             mcopy(add(buffer, 0x20), add(add(buffer, 0x20), start), sub(end, start))
             mstore(buffer, sub(end, start))
         }
 
         return buffer;
+    }
+
+    /**
+     * @dev Replaces bytes in `buffer` starting at `pos` with all bytes from `replacement`.
+     *
+     * Parameters are clamped to valid ranges (i.e. `pos` is clamped to `[0, buffer.length]`).
+     * If `pos >= buffer.length`, no replacement occurs and the buffer is returned unchanged.
+     *
+     * NOTE: This function modifies the provided buffer in place.
+     */
+    function replace(bytes memory buffer, uint256 pos, bytes memory replacement) internal pure returns (bytes memory) {
+        return replace(buffer, pos, replacement, 0, replacement.length);
+    }
+
+    /**
+     * @dev Replaces bytes in `buffer` starting at `pos` with bytes from `replacement` starting at `offset`.
+     * Copies at most `length` bytes from `replacement` to `buffer`.
+     *
+     * Parameters are clamped to valid ranges (i.e. `pos` is clamped to `[0, buffer.length]`, `offset` is
+     * clamped to `[0, replacement.length]`, and `length` is clamped to `min(length, replacement.length - offset,
+     * buffer.length - pos))`. If `pos >= buffer.length` or `offset >= replacement.length`, no replacement occurs
+     * and the buffer is returned unchanged.
+     *
+     * NOTE: This function modifies the provided buffer in place.
+     */
+    function replace(
+        bytes memory buffer,
+        uint256 pos,
+        bytes memory replacement,
+        uint256 offset,
+        uint256 length
+    ) internal pure returns (bytes memory) {
+        // sanitize
+        pos = Math.min(pos, buffer.length);
+        offset = Math.min(offset, replacement.length);
+        length = Math.min(length, Math.min(replacement.length - offset, buffer.length - pos));
+
+        // replace
+        assembly ("memory-safe") {
+            mcopy(add(add(buffer, 0x20), pos), add(add(replacement, 0x20), offset), length)
+        }
+
+        return buffer;
+    }
+
+    /**
+     * @dev Concatenate an array of bytes into a single bytes object.
+     *
+     * For fixed bytes types, we recommend using the solidity built-in `bytes.concat` or (equivalent)
+     * `abi.encodePacked`.
+     *
+     * NOTE: this could be done in assembly with a single loop that expands starting at the FMP, but that would be
+     * significantly less readable. It might be worth benchmarking the savings of the full-assembly approach.
+     */
+    function concat(bytes[] memory buffers) internal pure returns (bytes memory) {
+        uint256 length = 0;
+        for (uint256 i = 0; i < buffers.length; ++i) {
+            length += buffers[i].length;
+        }
+
+        bytes memory result = new bytes(length);
+
+        uint256 offset = 0x20;
+        for (uint256 i = 0; i < buffers.length; ++i) {
+            bytes memory input = buffers[i];
+            assembly ("memory-safe") {
+                mcopy(add(result, offset), add(input, 0x20), mload(input))
+            }
+            unchecked {
+                offset += input.length;
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * @dev Split each byte in `input` into two nibbles (4 bits each)
+     *
+     * Example: hex"01234567" → hex"0001020304050607"
+     */
+    function toNibbles(bytes memory input) internal pure returns (bytes memory output) {
+        assembly ("memory-safe") {
+            let length := mload(input)
+            output := mload(0x40)
+            mstore(0x40, add(add(output, 0x20), mul(length, 2)))
+            mstore(output, mul(length, 2))
+            for {
+                let i := 0
+            } lt(i, length) {
+                i := add(i, 0x10)
+            } {
+                let chunk := shr(128, mload(add(add(input, 0x20), i)))
+                chunk := and(
+                    0x0000000000000000ffffffffffffffff0000000000000000ffffffffffffffff,
+                    or(shl(64, chunk), chunk)
+                )
+                chunk := and(
+                    0x00000000ffffffff00000000ffffffff00000000ffffffff00000000ffffffff,
+                    or(shl(32, chunk), chunk)
+                )
+                chunk := and(
+                    0x0000ffff0000ffff0000ffff0000ffff0000ffff0000ffff0000ffff0000ffff,
+                    or(shl(16, chunk), chunk)
+                )
+                chunk := and(
+                    0x00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff,
+                    or(shl(8, chunk), chunk)
+                )
+                chunk := and(
+                    0x0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f,
+                    or(shl(4, chunk), chunk)
+                )
+                mstore(add(add(output, 0x20), mul(i, 2)), chunk)
+            }
+        }
     }
 
     /**
@@ -137,7 +253,7 @@ library Bytes {
 
     /**
      * @dev Reverses the byte order of a bytes32 value, converting between little-endian and big-endian.
-     * Inspired in https://graphics.stanford.edu/~seander/bithacks.html#ReverseParallel[Reverse Parallel]
+     * Inspired by https://graphics.stanford.edu/~seander/bithacks.html#ReverseParallel[Reverse Parallel]
      */
     function reverseBytes32(bytes32 value) internal pure returns (bytes32) {
         value = // swap bytes
@@ -158,14 +274,11 @@ library Bytes {
     /// @dev Same as {reverseBytes32} but optimized for 128-bit values.
     function reverseBytes16(bytes16 value) internal pure returns (bytes16) {
         value = // swap bytes
-            ((value & 0xFF00FF00FF00FF00FF00FF00FF00FF00) >> 8) |
-            ((value & 0x00FF00FF00FF00FF00FF00FF00FF00FF) << 8);
+            ((value & 0xFF00FF00FF00FF00FF00FF00FF00FF00) >> 8) | ((value & 0x00FF00FF00FF00FF00FF00FF00FF00FF) << 8);
         value = // swap 2-byte long pairs
-            ((value & 0xFFFF0000FFFF0000FFFF0000FFFF0000) >> 16) |
-            ((value & 0x0000FFFF0000FFFF0000FFFF0000FFFF) << 16);
+            ((value & 0xFFFF0000FFFF0000FFFF0000FFFF0000) >> 16) | ((value & 0x0000FFFF0000FFFF0000FFFF0000FFFF) << 16);
         value = // swap 4-byte long pairs
-            ((value & 0xFFFFFFFF00000000FFFFFFFF00000000) >> 32) |
-            ((value & 0x00000000FFFFFFFF00000000FFFFFFFF) << 32);
+            ((value & 0xFFFFFFFF00000000FFFFFFFF00000000) >> 32) | ((value & 0x00000000FFFFFFFF00000000FFFFFFFF) << 32);
         return (value >> 64) | (value << 64); // swap 8-byte long pairs
     }
 
@@ -192,7 +305,7 @@ library Bytes {
      * if the buffer is all zeros.
      */
     function clz(bytes memory buffer) internal pure returns (uint256) {
-        for (uint256 i = 0; i < buffer.length; i += 32) {
+        for (uint256 i = 0; i < buffer.length; i += 0x20) {
             bytes32 chunk = _unsafeReadBytesOffset(buffer, i);
             if (chunk != bytes32(0)) {
                 return Math.min(8 * i + Math.clz(uint256(chunk)), 8 * buffer.length);

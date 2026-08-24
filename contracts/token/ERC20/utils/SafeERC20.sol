@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.3.0) (token/ERC20/utils/SafeERC20.sol)
+// OpenZeppelin Contracts (last updated v5.7.0) (token/ERC20/utils/SafeERC20.sol)
 
 pragma solidity ^0.8.20;
 
 import {IERC20} from "../IERC20.sol";
 import {IERC1363} from "../../../interfaces/IERC1363.sol";
+import {IERC20Metadata} from "../../../interfaces/IERC20Metadata.sol";
 
 /**
  * @title SafeERC20
@@ -111,7 +112,7 @@ library SafeERC20 {
 
     /**
      * @dev Performs an {ERC1363} transferAndCall, with a fallback to the simple {ERC20} transfer if the target has no
-     * code. This can be used to implement an {ERC721}-like safe transfer that rely on {ERC1363} checks when
+     * code. This can be used to implement an {ERC721}-like safe transfer that relies on {ERC1363} checks when
      * targeting contracts.
      *
      * Reverts if the returned value is other than `true`.
@@ -126,7 +127,7 @@ library SafeERC20 {
 
     /**
      * @dev Performs an {ERC1363} transferFromAndCall, with a fallback to the simple {ERC20} transferFrom if the target
-     * has no code. This can be used to implement an {ERC721}-like safe transfer that rely on {ERC1363} checks when
+     * has no code. This can be used to implement an {ERC721}-like safe transfer that relies on {ERC1363} checks when
      * targeting contracts.
      *
      * Reverts if the returned value is other than `true`.
@@ -151,7 +152,7 @@ library SafeERC20 {
      * targeting contracts.
      *
      * NOTE: When the recipient address (`to`) has no code (i.e. is an EOA), this function behaves as {forceApprove}.
-     * Opposedly, when the recipient address (`to`) has code, this function only attempts to call {ERC1363-approveAndCall}
+     * Oppositely, when the recipient address (`to`) has code, this function only attempts to call {ERC1363-approveAndCall}
      * once without retrying, and relies on the returned value to be true.
      *
      * Reverts if the returned value is other than `true`.
@@ -161,6 +162,17 @@ library SafeERC20 {
             forceApprove(token, to, value);
         } else if (!token.approveAndCall(to, value, data)) {
             revert SafeERC20FailedOperation(address(token));
+        }
+    }
+
+    /// @dev Attempts to fetch the token decimals. A return value of false indicates that the attempt failed in some way.
+    function tryGetDecimals(IERC20 token) internal view returns (bool success, uint8 decimals) {
+        bytes4 selector = IERC20Metadata.decimals.selector;
+        assembly ("memory-safe") {
+            mstore(0x00, selector)
+            success := staticcall(gas(), token, 0x00, 4, 0x00, 0x20)
+            success := and(and(success, gt(returndatasize(), 0x1f)), lt(mload(0x00), 0x100))
+            decimals := mul(success, mload(0x00))
         }
     }
 
@@ -181,13 +193,13 @@ library SafeERC20 {
             mstore(0x00, selector)
             mstore(0x04, and(to, shr(96, not(0))))
             mstore(0x24, value)
-            success := call(gas(), token, 0, 0, 0x44, 0, 0x20)
+            success := call(gas(), token, 0, 0x00, 0x44, 0x00, 0x20)
             // if call success and return is true, all is good.
             // otherwise (not success or return is not true), we need to perform further checks
             if iszero(and(success, eq(mload(0x00), 1))) {
                 // if the call was a failure and bubble is enabled, bubble the error
                 if and(iszero(success), bubble) {
-                    returndatacopy(fmp, 0, returndatasize())
+                    returndatacopy(fmp, 0x00, returndatasize())
                     revert(fmp, returndatasize())
                 }
                 // if the return value is not true, then the call is only successful if:
@@ -224,13 +236,13 @@ library SafeERC20 {
             mstore(0x04, and(from, shr(96, not(0))))
             mstore(0x24, and(to, shr(96, not(0))))
             mstore(0x44, value)
-            success := call(gas(), token, 0, 0, 0x64, 0, 0x20)
+            success := call(gas(), token, 0, 0x00, 0x64, 0x00, 0x20)
             // if call success and return is true, all is good.
             // otherwise (not success or return is not true), we need to perform further checks
             if iszero(and(success, eq(mload(0x00), 1))) {
                 // if the call was a failure and bubble is enabled, bubble the error
                 if and(iszero(success), bubble) {
-                    returndatacopy(fmp, 0, returndatasize())
+                    returndatacopy(fmp, 0x00, returndatasize())
                     revert(fmp, returndatasize())
                 }
                 // if the return value is not true, then the call is only successful if:
@@ -249,8 +261,8 @@ library SafeERC20 {
      *
      * @param token The token targeted by the call.
      * @param spender The spender of the tokens
-     * @param value The amount of token to transfer
-     * @param bubble Behavior switch if the transfer call reverts: bubble the revert reason or return a false boolean.
+     * @param value The amount of token to approve
+     * @param bubble Behavior switch if the approve call reverts: bubble the revert reason or return a false boolean.
      */
     function _safeApprove(IERC20 token, address spender, uint256 value, bool bubble) private returns (bool success) {
         bytes4 selector = IERC20.approve.selector;
@@ -260,13 +272,13 @@ library SafeERC20 {
             mstore(0x00, selector)
             mstore(0x04, and(spender, shr(96, not(0))))
             mstore(0x24, value)
-            success := call(gas(), token, 0, 0, 0x44, 0, 0x20)
+            success := call(gas(), token, 0, 0x00, 0x44, 0x00, 0x20)
             // if call success and return is true, all is good.
             // otherwise (not success or return is not true), we need to perform further checks
             if iszero(and(success, eq(mload(0x00), 1))) {
                 // if the call was a failure and bubble is enabled, bubble the error
                 if and(iszero(success), bubble) {
-                    returndatacopy(fmp, 0, returndatasize())
+                    returndatacopy(fmp, 0x00, returndatasize())
                     revert(fmp, returndatasize())
                 }
                 // if the return value is not true, then the call is only successful if:

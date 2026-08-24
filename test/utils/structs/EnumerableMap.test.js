@@ -1,14 +1,19 @@
-const { ethers } = require('hardhat');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { mapValues } from '../../helpers/iterate';
+import * as random from '../../helpers/random';
+import { MAP_TYPES, typeDescr, toMapTypeDescr } from '../../../scripts/generate/templates/Enumerable.opts';
+import { shouldBehaveLikeMap } from './EnumerableMap.behavior';
 
-const { mapValues } = require('../../helpers/iterate');
-const { generators } = require('../../helpers/random');
-const { MAP_TYPES, typeDescr, toMapTypeDescr } = require('../../../scripts/generate/templates/Enumerable.opts');
-
-const { shouldBehaveLikeMap } = require('./EnumerableMap.behavior');
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.create();
 
 // Add Bytes32ToBytes32Map that must be tested but is not part of the generated types.
 MAP_TYPES.unshift(toMapTypeDescr({ key: typeDescr({ type: 'bytes32' }), value: typeDescr({ type: 'bytes32' }) }));
+
+// Chai matchers expect hexadecimal data when dealing with bytes
+const randomOf = type => random[type === 'bytes' ? 'hexBytes' : type];
 
 async function fixture() {
   const mock = await ethers.deployContract('$EnumerableMap');
@@ -19,9 +24,9 @@ async function fixture() {
       {
         key,
         value,
-        keys: Array.from({ length: 3 }, generators[key.type]),
-        values: Array.from({ length: 3 }, generators[value.type]),
-        zeroValue: generators[value.type].zero,
+        keys: Array.from({ length: 3 }, randomOf(key.type)),
+        values: Array.from({ length: 3 }, randomOf(value.type)),
+        zeroValue: randomOf(value.type).zero,
         methods: mapValues(
           MAP_TYPES.filter(map => map.key.name == key.name).length == 1
             ? {

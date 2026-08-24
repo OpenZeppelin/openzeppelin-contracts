@@ -1,7 +1,13 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { shouldBehaveLikeERC173 } = require('./ERC173.behavior');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+
+import { shouldBehaveLikeERC173 } from './ERC173.behavior';
+
+const connection = await network.create();
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = connection;
 
 async function fixture() {
   const [owner, other] = await ethers.getSigners();
@@ -11,7 +17,7 @@ async function fixture() {
 
 describe('OwnableRenounceable', function () {
   beforeEach(async function () {
-    Object.assign(this, await loadFixture(fixture));
+    Object.assign(this, connection, await loadFixture(fixture));
   });
 
   describe('ERC173', function () {

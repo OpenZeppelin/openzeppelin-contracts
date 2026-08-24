@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.4.0) (governance/extensions/GovernorVotesSuperQuorumFraction.sol)
+// OpenZeppelin Contracts (last updated v5.7.0) (governance/extensions/GovernorVotesSuperQuorumFraction.sol)
 
 pragma solidity ^0.8.24;
 
@@ -28,7 +28,7 @@ abstract contract GovernorVotesSuperQuorumFraction is GovernorVotesQuorumFractio
     error GovernorInvalidSuperQuorumFraction(uint256 superQuorumNumerator, uint256 denominator);
 
     /**
-     * @dev The super quorum set is not valid as it is smaller or equal to the quorum.
+     * @dev The super quorum set is not valid as it is smaller than the quorum.
      */
     error GovernorInvalidSuperQuorumTooSmall(uint256 superQuorumNumerator, uint256 quorumNumerator);
 
@@ -41,7 +41,7 @@ abstract contract GovernorVotesSuperQuorumFraction is GovernorVotesQuorumFractio
      * @dev Initialize super quorum as a fraction of the token's total supply.
      *
      * The super quorum is specified as a fraction of the token's total supply and has to
-     * be greater than the quorum.
+     * be greater than or equal to the quorum.
      */
     constructor(uint256 superQuorumNumeratorValue) {
         _updateSuperQuorumNumerator(superQuorumNumeratorValue);

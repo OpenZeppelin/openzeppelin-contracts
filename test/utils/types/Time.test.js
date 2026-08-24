@@ -1,13 +1,16 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import { product } from '../../helpers/iterate';
+import { max } from '../../helpers/math';
 
-const { product } = require('../../helpers/iterate');
-const { max } = require('../../helpers/math');
-const time = require('../../helpers/time');
+const {
+  ethers,
+  helpers: { time },
+  networkHelpers: { loadFixture },
+} = await network.create();
 
-const MAX_UINT32 = 1n << (32n - 1n);
-const MAX_UINT48 = 1n << (48n - 1n);
+const MAX_UINT32 = (1n << 32n) - 1n;
+const MAX_UINT48 = (1n << 48n) - 1n;
 const SOME_VALUES = [0n, 1n, 2n, 15n, 16n, 17n, 42n];
 
 const asUint = (value, size) => {
@@ -37,8 +40,7 @@ const effectSamplesForTimepoint = timepoint => [
 ];
 
 async function fixture() {
-  const mock = await ethers.deployContract('$Time');
-  return { mock };
+  return { mock: await ethers.deployContract('$Time') };
 }
 
 describe('Time', function () {
@@ -52,7 +54,7 @@ describe('Time', function () {
     });
 
     it('block number', async function () {
-      expect(await this.mock.$blockNumber()).to.equal(await time.clock.blocknumber());
+      expect(await this.mock.$blockNumber()).to.equal(await time.clock.blockNumber());
     });
   });
 

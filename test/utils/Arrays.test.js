@@ -1,32 +1,38 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
+import { network, globalOptions } from 'hardhat';
+import { expect } from 'chai';
+import * as random from '../helpers/random';
+import { capitalize } from '../helpers/strings';
+import { TYPES } from '../../scripts/generate/templates/Arrays.opts';
 
-const { generators } = require('../helpers/random');
-const { capitalize } = require('../../scripts/helpers');
-const { TYPES } = require('../../scripts/generate/templates/Arrays.opts');
+const {
+  ethers,
+  networkHelpers: { loadFixture },
+} = await network.create();
 
 // See https://en.cppreference.com/w/cpp/algorithm/lower_bound
 const lowerBound = (array, value) => {
   const i = array.findIndex(element => value <= element);
-  return i == -1 ? array.length : i;
+  return i === -1 ? array.length : i;
 };
 
 // See https://en.cppreference.com/w/cpp/algorithm/upper_bound
 const upperBound = (array, value) => {
   const i = array.findIndex(element => value < element);
-  return i == -1 ? array.length : i;
+  return i === -1 ? array.length : i;
 };
 
 const bigintSign = x => (x > 0n ? 1 : x < 0n ? -1 : 0);
 const comparator = (a, b) => bigintSign(ethers.toBigInt(a) - ethers.toBigInt(b));
 const hasDuplicates = array => array.some((v, i) => array.indexOf(v) != i);
 
-describe('Arrays', function () {
-  const fixture = async () => {
-    return { mock: await ethers.deployContract('$Arrays') };
-  };
+// Chai matchers expect hexadecimal data when dealing with bytes
+const randomOf = type => random[type === 'bytes' ? 'hexBytes' : type];
 
+async function fixture() {
+  return { mock: await ethers.deployContract('$Arrays') };
+}
+
+describe('Arrays', function () {
   beforeEach(async function () {
     Object.assign(this, await loadFixture(fixture));
   });
@@ -98,20 +104,20 @@ describe('Arrays', function () {
             it('[deprecated] findUpperBound', async function () {
               // findUpperBound does not support duplicated
               if (hasDuplicates(array)) {
-                expect(await this.instance.findUpperBound(input)).to.equal(upperBound(array, input) - 1);
+                await expect(this.instance.findUpperBound(input)).to.eventually.equal(upperBound(array, input) - 1);
               } else {
-                expect(await this.instance.findUpperBound(input)).to.equal(lowerBound(array, input));
+                await expect(this.instance.findUpperBound(input)).to.eventually.equal(lowerBound(array, input));
               }
             });
 
             it('lowerBound', async function () {
-              expect(await this.instance.lowerBound(input)).to.equal(lowerBound(array, input));
-              expect(await this.instance.lowerBoundMemory(array, input)).to.equal(lowerBound(array, input));
+              await expect(this.instance.lowerBound(input)).to.eventually.equal(lowerBound(array, input));
+              await expect(this.instance.lowerBoundMemory(array, input)).to.eventually.equal(lowerBound(array, input));
             });
 
             it('upperBound', async function () {
-              expect(await this.instance.upperBound(input)).to.equal(upperBound(array, input));
-              expect(await this.instance.upperBoundMemory(array, input)).to.equal(upperBound(array, input));
+              await expect(this.instance.upperBound(input)).to.eventually.equal(upperBound(array, input));
+              await expect(this.instance.upperBoundMemory(array, input)).to.eventually.equal(upperBound(array, input));
             });
           });
         }
@@ -120,7 +126,7 @@ describe('Arrays', function () {
   });
 
   for (const { name, isValueType } of TYPES) {
-    const elements = Array.from({ length: 10 }, generators[name]);
+    const elements = Array.from({ length: 10 }, randomOf(name));
 
     describe(name, function () {
       const fixture = async () => {
@@ -133,17 +139,18 @@ describe('Arrays', function () {
 
       if (isValueType) {
         describe('sort', function () {
-          for (const length of [0, 1, 2, 8, 32, 128]) {
+          // When coverage is enabled, only consider length up to 32 (to avoid CI timeouts)
+          for (const length of [0, 1, 2, 8, 32, 128, 384].filter(l => !globalOptions.coverage || l <= 32)) {
             describe(`${name}[] of length ${length}`, function () {
               beforeEach(async function () {
-                this.array = Array.from({ length }, generators[name]);
+                this.array = Array.from({ length }, randomOf(name));
               });
 
               afterEach(async function () {
                 const expected = Array.from(this.array).sort(comparator);
                 const reversed = Array.from(expected).reverse();
-                expect(await this.instance.sort(this.array)).to.deep.equal(expected);
-                expect(await this.instance.sortReverse(this.array)).to.deep.equal(reversed);
+                await expect(this.instance.sort(this.array)).to.eventually.deep.equal(expected);
+                await expect(this.instance.sortReverse(this.array)).to.eventually.deep.equal(reversed);
               });
 
               it('sort array', async function () {
@@ -175,13 +182,70 @@ describe('Arrays', function () {
             });
           }
         });
+
+        for (const fn of ['slice', 'splice']) {
+          const array = Array.from({ length: 10 }, randomOf(name));
+
+          describe(fn, function () {
+            const fragment = `$${fn}(${name}[] arr, uint256 start)`;
+            const rangeFragment = `$${fn}(${name}[] arr, uint256 start, uint256 end)`;
+
+            it(`${fn} from start to end`, async function () {
+              const start = 2;
+              const end = 7;
+              await expect(this.mock[rangeFragment](array, start, end)).to.eventually.deep.equal(
+                array.slice(start, end),
+              );
+            });
+
+            it(`${fn} from start to end of array`, async function () {
+              const start = 3;
+              await expect(this.mock[fragment](array, start)).to.eventually.deep.equal(array.slice(start));
+            });
+
+            it(`${fn} entire array`, async function () {
+              await expect(this.mock[fragment](array, 0)).to.eventually.deep.equal(array);
+              await expect(this.mock[rangeFragment](array, 0, array.length)).to.eventually.deep.equal(array);
+            });
+
+            it(`${fn} empty range`, async function () {
+              await expect(this.mock[rangeFragment](array, 5, 5)).to.eventually.deep.equal([]);
+              await expect(this.mock[rangeFragment](array, 7, 3)).to.eventually.deep.equal([]);
+            });
+
+            it(`${fn} with out of bounds indices`, async function () {
+              // start beyond array length
+              await expect(this.mock[fragment](array, array.length + 5)).to.eventually.deep.equal([]);
+
+              // end beyond array length (should be truncated)
+              const start = 5;
+              await expect(this.mock[rangeFragment](array, start, array.length + 10)).to.eventually.deep.equal(
+                array.slice(start),
+              );
+            });
+
+            it(`${fn} empty array`, async function () {
+              const emptyArray = [];
+              await expect(this.mock[fragment](emptyArray, 0)).to.eventually.deep.equal([]);
+              await expect(this.mock[fragment](emptyArray, 5)).to.eventually.deep.equal([]);
+              await expect(this.mock[rangeFragment](emptyArray, 0, 5)).to.eventually.deep.equal([]);
+            });
+
+            it(`${fn} single element`, async function () {
+              const singleArray = [array[0]];
+              await expect(this.mock[fragment](singleArray, 0)).to.eventually.deep.equal(singleArray);
+              await expect(this.mock[fragment](singleArray, 1)).to.eventually.deep.equal([]);
+              await expect(this.mock[rangeFragment](singleArray, 0, 1)).to.eventually.deep.equal(singleArray);
+            });
+          });
+        }
       }
 
       describe('unsafeAccess', function () {
         describe('storage', function () {
           for (const i in elements) {
             it(`unsafeAccess within bounds #${i}`, async function () {
-              expect(await this.instance.unsafeAccess(i)).to.equal(elements[i]);
+              await expect(this.instance.unsafeAccess(i)).to.eventually.equal(elements[i]);
             });
           }
 
@@ -190,11 +254,11 @@ describe('Arrays', function () {
           });
 
           it('unsafeSetLength changes the length or the array', async function () {
-            const newLength = generators.uint256();
+            const newLength = random.uint256();
 
-            expect(await this.instance.length()).to.equal(elements.length);
+            await expect(this.instance.length()).to.eventually.equal(elements.length);
             await expect(this.instance.unsafeSetLength(newLength)).to.not.be.rejected;
-            expect(await this.instance.length()).to.equal(newLength);
+            await expect(this.instance.length()).to.eventually.equal(newLength);
           });
         });
 
@@ -203,7 +267,7 @@ describe('Arrays', function () {
 
           for (const i in elements) {
             it(`unsafeMemoryAccess within bounds #${i}`, async function () {
-              expect(await this.mock[fragment](elements, i)).to.equal(elements[i]);
+              await expect(this.mock[fragment](elements, i)).to.eventually.equal(elements[i]);
             });
           }
 
@@ -213,11 +277,11 @@ describe('Arrays', function () {
 
           it('unsafeMemoryAccess loop around', async function () {
             for (let i = 251n; i < 256n; ++i) {
-              expect(await this.mock[fragment](elements, 2n ** i - 1n)).to.equal(
-                isValueType ? BigInt(elements.length) : generators[name].zero,
+              await expect(this.mock[fragment](elements, 2n ** i - 1n)).to.eventually.equal(
+                isValueType ? BigInt(elements.length) : randomOf(name).zero,
               );
-              expect(await this.mock[fragment](elements, 2n ** i + 0n)).to.equal(elements[0]);
-              expect(await this.mock[fragment](elements, 2n ** i + 1n)).to.equal(elements[1]);
+              await expect(this.mock[fragment](elements, 2n ** i + 0n)).to.eventually.equal(elements[0]);
+              await expect(this.mock[fragment](elements, 2n ** i + 1n)).to.eventually.equal(elements[1]);
             }
           });
         });
