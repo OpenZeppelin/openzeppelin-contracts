@@ -46,6 +46,84 @@ export function getExposed(
     }
   }
 
+  if (config.exposed.imports) {
+    for (const [inputSourceName, contracts] of getImportedContracts(solidityBuildInfo, solcOutput, deref, config)) {
+      const ast = solcOutput.sources[inputSourceName].ast;
+
+      // Only files outside of the project sources reach this point, so `sourceName` is only used by `getExposedFile`
+      // for the `project/` files among them (the dependencies vendored in the repository, reached through remappings).
+      const exposedFile = getExposedFile(
+        inputSourceName.replace(/^project\//, ''),
+        inputSourceName,
+        ast,
+        deref,
+        config,
+        remappings,
+        c => contracts.has(c),
+      );
+      if (exposedFile !== undefined) {
+        res.set(exposedFile.absolutePath, exposedFile.content);
+      }
+    }
+  }
+
+  return res;
+}
+
+// Contracts that the project imports from outside of its own sources, grouped by the input source name of the file
+// that declares them. Only contracts explicitly named in an import (`import {X} from '...'`) are collected: a blanket
+// import gives no symbol to expose. Interfaces are skipped, they have nothing internal to expose.
+function getImportedContracts(
+  solidityBuildInfo: SolidityBuildInfo,
+  solcOutput: CompilerOutput,
+  deref: ASTDereferencer,
+  config: HardhatConfig,
+): Map<string, Set<ContractDefinition>> {
+  // Input source names of the project's own solidity sources, which `getExposed` already covers on its own.
+  const projectSourcePrefixes = config.paths.sources.solidity.map(
+    dir => `project/${path.relative(config.paths.root, dir).replaceAll(path.sep, '/')}/`,
+  );
+  const userInputSourceNames = new Set(Object.values(solidityBuildInfo.userSourceNameMap));
+  const isCoveredByUserSources = (inputSourceName: string) =>
+    userInputSourceNames.has(inputSourceName) || projectSourcePrefixes.some(p => inputSourceName.startsWith(p));
+
+  const res = new Map<string, Set<ContractDefinition>>();
+
+  for (const inputSourceName of userInputSourceNames) {
+    // Iterating a Set that is written to while iterating: entries added by the body are visited too.
+    const queue = new Set(findAll('ImportDirective', solcOutput.sources[inputSourceName].ast));
+
+    for (const imp of queue) {
+      if (isCoveredByUserSources(imp.absolutePath)) {
+        continue;
+      }
+
+      const importedUnit = deref('SourceUnit', imp.sourceUnit);
+      for (const indirect of findAll('ImportDirective', importedUnit)) {
+        queue.add(indirect);
+      }
+
+      for (const { foreign } of imp.symbolAliases) {
+        // The symbol may be re-exported, so dereference it to reach the file that actually declares it.
+        const foreignId = importedUnit.exportedSymbols[foreign.name]?.[0];
+        assert(foreignId !== undefined, `Symbol ${foreign.name} not exported by ${importedUnit.absolutePath}`);
+
+        const { node, sourceUnit } = deref.withSourceUnit('*', foreignId);
+        if (node.nodeType === 'ContractDefinition' && node.contractKind !== 'interface') {
+          if (isCoveredByUserSources(sourceUnit.absolutePath)) {
+            continue;
+          }
+          let contracts = res.get(sourceUnit.absolutePath);
+          if (contracts === undefined) {
+            contracts = new Set();
+            res.set(sourceUnit.absolutePath, contracts);
+          }
+          contracts.add(node);
+        }
+      }
+    }
+  }
+
   return res;
 }
 
@@ -95,6 +173,7 @@ function getExposedFile(
   deref: ASTDereferencer,
   config: HardhatConfig,
   remappings: string[],
+  filter?: (c: ContractDefinition) => boolean,
 ): ExposedFile | undefined {
   const exposedFileAbsolutePath = path.join(
     config.exposed.outDir,
@@ -109,6 +188,7 @@ function getExposedFile(
     config.exposed.initializers,
     config.paths.root,
     remappings,
+    filter,
   );
 
   return content === undefined ? undefined : { absolutePath: exposedFileAbsolutePath, content };
@@ -122,6 +202,7 @@ function getExposedContent(
   initializers: boolean,
   projectRoot: string,
   remappings: string[],
+  filter?: (c: ContractDefinition) => boolean,
 ): string | undefined {
   if (prefix === '' || /^\d|[^0-9a-z_$]/i.test(prefix)) {
     throw new Error(`Prefix '${prefix}' is not valid`);
@@ -133,7 +214,9 @@ function getExposedContent(
     getImportPathFromExposedContract(exposedFileAbsolutePath, u.absolutePath, projectRoot, remappings),
   );
 
-  const contracts = [...findAll('ContractDefinition', ast)].filter(c => c.contractKind !== 'interface');
+  const contracts = [...findAll('ContractDefinition', ast)].filter(
+    c => c.contractKind !== 'interface' && (filter?.(c) ?? true),
+  );
 
   if (contracts.length === 0) {
     return undefined;
