@@ -17,7 +17,7 @@ abstract contract ERC20Burnable is ERC20 {
      * See {ERC20-_burn}.
      */
     function burn(uint256 value) public virtual {
-        _burn(_msgSender(), value);
+        _burn(msg.sender, value);
     }
 
     /**
@@ -32,7 +32,7 @@ abstract contract ERC20Burnable is ERC20 {
      * `value`.
      */
     function burnFrom(address account, uint256 value) public virtual {
-        _spendAllowance(account, _msgSender(), value);
+        _spendAllowance(account, msg.sender, value);
         _burn(account, value);
     }
 }

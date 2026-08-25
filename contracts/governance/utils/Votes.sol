@@ -4,7 +4,6 @@
 pragma solidity ^0.8.24;
 
 import {IERC5805} from "../../interfaces/IERC5805.sol";
-import {Context} from "../../utils/Context.sol";
 import {Nonces} from "../../utils/Nonces.sol";
 import {EIP712} from "../../utils/cryptography/EIP712.sol";
 import {Checkpoints} from "../../utils/structs/Checkpoints.sol";
@@ -31,7 +30,7 @@ import {ERC6372Utils} from "../../utils/ERC6372Utils.sol";
  * {ERC721-balanceOf}), and can use {_transferVotingUnits} to track a change in the distribution of those units (in the
  * previous example, it would be included in {ERC721-_update}).
  */
-abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
+abstract contract Votes is EIP712, Nonces, IERC5805 {
     using Checkpoints for Checkpoints.Trace208;
 
     bytes32 private constant DELEGATION_TYPEHASH =
@@ -126,7 +125,7 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
      * @dev Delegates votes from the sender to `delegatee`.
      */
     function delegate(address delegatee) public virtual {
-        address account = _msgSender();
+        address account = msg.sender;
         _delegate(account, delegatee);
     }
 

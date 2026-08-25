@@ -6,7 +6,6 @@ pragma solidity ^0.8.20;
 import {AuthorityUtils} from "./AuthorityUtils.sol";
 import {IAccessManager} from "./IAccessManager.sol";
 import {IAccessManaged} from "./IAccessManaged.sol";
-import {Context} from "../../utils/Context.sol";
 
 /**
  * @dev This contract module makes available a {restricted} modifier. Functions decorated with this modifier will be
@@ -16,7 +15,7 @@ import {Context} from "../../utils/Context.sol";
  * IMPORTANT: The `restricted` modifier should never be used on `internal` functions, judiciously used in `public`
  * functions, and ideally only used in `external` functions. See {restricted}.
  */
-abstract contract AccessManaged is Context, IAccessManaged {
+abstract contract AccessManaged is IAccessManaged {
     address private _authority;
 
     bool private _consumingSchedule;
@@ -53,7 +52,7 @@ abstract contract AccessManaged is Context, IAccessManaged {
      * ====
      */
     modifier restricted() {
-        _checkCanCall(_msgSender(), _msgData());
+        _checkCanCall(msg.sender, msg.data);
         _;
     }
 
@@ -64,7 +63,7 @@ abstract contract AccessManaged is Context, IAccessManaged {
 
     /// @inheritdoc IAccessManaged
     function setAuthority(address newAuthority) public virtual {
-        address caller = _msgSender();
+        address caller = msg.sender;
         if (caller != authority()) {
             revert AccessManagedUnauthorized(caller);
         }

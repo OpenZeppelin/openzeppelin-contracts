@@ -6,7 +6,6 @@ pragma solidity ^0.8.20;
 import {IAccessManager} from "./IAccessManager.sol";
 import {IAccessManaged} from "./IAccessManaged.sol";
 import {Address} from "../../utils/Address.sol";
-import {Context} from "../../utils/Context.sol";
 import {Multicall} from "../../utils/Multicall.sol";
 import {Math} from "../../utils/math/Math.sol";
 import {Time} from "../../utils/types/Time.sol";
@@ -59,7 +58,7 @@ import {Hashes} from "../../utils/cryptography/Hashes.sol";
  * mindful of the danger associated with functions such as {Ownable-renounceOwnership} or
  * {AccessControl-renounceRole}.
  */
-contract AccessManager is Context, Multicall, IAccessManager {
+contract AccessManager is Multicall, IAccessManager {
     using Time for *;
 
     // Structure that stores the details for a target contract.
@@ -247,7 +246,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
     /// @inheritdoc IAccessManager
     function renounceRole(uint64 roleId, address callerConfirmation) public virtual {
-        if (callerConfirmation != _msgSender()) {
+        if (callerConfirmation != msg.sender) {
             revert AccessManagerBadConfirmation();
         }
         _revokeRole(roleId, callerConfirmation);
@@ -453,7 +452,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
         bytes calldata data,
         uint48 when
     ) public virtual returns (bytes32 operationId, uint32 nonce) {
-        address caller = _msgSender();
+        address caller = msg.sender;
 
         // Fetch restrictions that apply to the caller on the targeted function
         (, uint32 setback) = _canCallExtended(caller, target, data);
@@ -501,7 +500,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
     // _consumeScheduledOp guarantees a scheduled operation is only executed once.
     // slither-disable-next-line reentrancy-no-eth
     function execute(address target, bytes calldata data) public payable virtual returns (uint32) {
-        address caller = _msgSender();
+        address caller = msg.sender;
 
         // Fetch restrictions that apply to the caller on the targeted function
         (bool immediate, uint32 setback) = _canCallExtended(caller, target, data);
@@ -535,7 +534,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
     /// @inheritdoc IAccessManager
     function cancel(address caller, address target, bytes calldata data) public virtual returns (uint32) {
-        address msgsender = _msgSender();
+        address msgsender = msg.sender;
         bytes4 selector = _checkSelector(data);
 
         bytes32 operationId = hashOperation(caller, target, data);
@@ -554,7 +553,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
 
     /// @inheritdoc IAccessManager
     function consumeScheduledOp(address caller, bytes calldata data) public virtual {
-        address target = _msgSender();
+        address target = msg.sender;
         if (IAccessManaged(target).isConsumingScheduledOp() != IAccessManaged.isConsumingScheduledOp.selector) {
             revert AccessManagerUnauthorizedConsume(target);
         }
@@ -602,14 +601,14 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * WARNING: Carefully review the considerations of {AccessManaged-restricted} since they apply to this modifier.
      */
     function _checkAuthorized() private {
-        address caller = _msgSender();
-        (bool immediate, uint32 delay) = _canCallSelf(caller, _msgData());
+        address caller = msg.sender;
+        (bool immediate, uint32 delay) = _canCallSelf(caller, msg.data);
         if (!immediate) {
             if (delay == 0) {
-                (, uint64 requiredRole, ) = _getAdminRestrictions(_msgData());
+                (, uint64 requiredRole, ) = _getAdminRestrictions(msg.data);
                 revert AccessManagerUnauthorizedAccount(caller, requiredRole);
             } else {
-                _consumeScheduledOp(hashOperation(caller, address(this), _msgData()));
+                _consumeScheduledOp(hashOperation(caller, address(this), msg.data));
             }
         }
     }
@@ -720,7 +719,7 @@ contract AccessManager is Context, Multicall, IAccessManager {
      * @dev Returns true if a scheduled operation can be canceled by the caller.
      */
     function _canCancel(address caller, address target, bytes calldata data) internal view virtual returns (bool) {
-        address msgsender = _msgSender();
+        address msgsender = msg.sender;
 
         // caller can cancel if they are the msg.sender of the scheduled operation
         if (caller == msgsender) {

@@ -60,7 +60,7 @@ abstract contract ERC20TransferAuthorization is ERC3009, NoncesKeyed {
             keccak256(abi.encode(RECEIVE_WITH_AUTHORIZATION_TYPEHASH, from, to, value, validAfter, validBefore, nonce))
         );
         require(SignatureChecker.isValidSignatureNow(from, hash, signature), ERC3009InvalidSignature());
-        require(to == _msgSender(), ERC20InvalidReceiver(to));
+        require(to == msg.sender, ERC20InvalidReceiver(to));
         _transferWithAuthorization(from, to, value, validAfter, validBefore, nonce);
     }
 

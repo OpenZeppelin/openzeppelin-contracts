@@ -188,7 +188,7 @@ abstract contract GovernorCountingOverridable is GovernorVotes {
         uint8 support,
         string calldata reason
     ) public virtual returns (uint256) {
-        address voter = _msgSender();
+        address voter = msg.sender;
         return _castOverride(proposalId, voter, support, reason);
     }
 

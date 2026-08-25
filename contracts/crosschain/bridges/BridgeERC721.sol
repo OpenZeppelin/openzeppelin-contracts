@@ -35,7 +35,7 @@ abstract contract BridgeERC721 is BridgeNonFungible {
      */
     function crosschainTransferFrom(address from, bytes memory to, uint256 tokenId) public virtual returns (bytes32) {
         // Permission is handled using the ERC721's allowance system. This check replicates `ERC721._isAuthorized`.
-        address spender = _msgSender();
+        address spender = msg.sender;
         require(
             from == spender || token().isApprovedForAll(from, spender) || token().getApproved(tokenId) == spender,
             IERC721Errors.ERC721InsufficientApproval(spender, tokenId)

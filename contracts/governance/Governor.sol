@@ -11,7 +11,6 @@ import {IERC165, ERC165} from "../utils/introspection/ERC165.sol";
 import {SafeCast} from "../utils/math/SafeCast.sol";
 import {DoubleEndedQueue} from "../utils/structs/DoubleEndedQueue.sol";
 import {Address} from "../utils/Address.sol";
-import {Context} from "../utils/Context.sol";
 import {Nonces} from "../utils/Nonces.sol";
 import {Strings} from "../utils/Strings.sol";
 import {IGovernor, IERC6372} from "./IGovernor.sol";
@@ -25,7 +24,7 @@ import {IGovernor, IERC6372} from "./IGovernor.sol";
  * - A voting module must implement {_getVotes}
  * - Additionally, {votingPeriod}, {votingDelay}, and {quorum} must also be implemented
  */
-abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC721Receiver, IERC1155Receiver {
+abstract contract Governor is ERC165, EIP712, Nonces, IGovernor, IERC721Receiver, IERC1155Receiver {
     using DoubleEndedQueue for DoubleEndedQueue.Bytes32Deque;
 
     bytes32 public constant BALLOT_TYPEHASH =
@@ -213,11 +212,11 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
      * operation. See {onlyGovernance}.
      */
     function _checkGovernance() internal virtual {
-        if (_executor() != _msgSender()) {
-            revert GovernorOnlyExecutor(_msgSender());
+        if (_executor() != msg.sender) {
+            revert GovernorOnlyExecutor(msg.sender);
         }
         if (_executor() != address(this)) {
-            bytes32 msgDataHash = keccak256(_msgData());
+            bytes32 msgDataHash = keccak256(msg.data);
             // loop until popping the expected operation - throw if deque is empty (operation not authorized)
             while (_governanceCall.popFront() != msgDataHash) {}
         }
@@ -277,7 +276,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         bytes[] memory calldatas,
         string memory description
     ) public virtual returns (uint256) {
-        address proposer = _msgSender();
+        address proposer = msg.sender;
 
         // check description restriction
         if (!_isValidDescriptionForProposer(proposer, description)) {
@@ -462,7 +461,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         // changes it. The `getProposalId` duplication has a cost that is limited, and that we accept.
         uint256 proposalId = getProposalId(targets, values, calldatas, descriptionHash);
 
-        address caller = _msgSender();
+        address caller = msg.sender;
         if (!_validateCancel(proposalId, caller)) revert GovernorUnableToCancel(proposalId, caller);
 
         return _cancel(targets, values, calldatas, descriptionHash);
@@ -512,7 +511,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
 
     /// @inheritdoc IGovernor
     function castVote(uint256 proposalId, uint8 support) public virtual returns (uint256) {
-        address voter = _msgSender();
+        address voter = msg.sender;
         return _castVote(proposalId, voter, support, "");
     }
 
@@ -522,7 +521,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         uint8 support,
         string calldata reason
     ) public virtual returns (uint256) {
-        address voter = _msgSender();
+        address voter = msg.sender;
         return _castVote(proposalId, voter, support, reason);
     }
 
@@ -533,7 +532,7 @@ abstract contract Governor is Context, ERC165, EIP712, Nonces, IGovernor, IERC72
         string calldata reason,
         bytes memory params
     ) public virtual returns (uint256) {
-        address voter = _msgSender();
+        address voter = msg.sender;
         return _castVote(proposalId, voter, support, reason, params);
     }
 
