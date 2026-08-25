@@ -39,7 +39,7 @@ if (argv._.length == 0 && !argv.all) {
   console.error(`Warning: No specs requested. Did you forget to toggle '--all'?`);
   process.exitCode = 1;
 } else {
-  Promise.all(
+  await Promise.all(
     (argv.all ? glob.sync(pattern) : argv._.map(name => (fs.existsSync(name) ? name : pattern.replace('*', name)))).map(
       (conf, i, { length }) =>
         limit(
