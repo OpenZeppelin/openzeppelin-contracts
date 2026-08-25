@@ -27,7 +27,7 @@ contract AccountHarness is AccountEIP7702WithModulesMock {
     }
 
     function _validatorAt(uint256 index) external view returns (address) {
-        return _validators.at(index);
+        return _validators.pos(index);
     }
 
     function _validatorAtFull(uint256 index) external view returns (bytes32) {
@@ -47,7 +47,7 @@ contract AccountHarness is AccountEIP7702WithModulesMock {
     }
 
     function _executorAt(uint256 index) external view returns (address) {
-        return _executors.at(index);
+        return _executors.pos(index);
     }
 
     function _executorAtFull(uint256 index) external view returns (bytes32) {
