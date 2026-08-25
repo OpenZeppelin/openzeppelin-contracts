@@ -146,7 +146,7 @@ index 0f0252dd7..a8785361c 100644
 +  }
  }
 diff --git a/contracts/token/ERC20/extensions/ERC20TransferAuthorization.sol b/contracts/token/ERC20/extensions/ERC20TransferAuthorization.sol
-index 6e65f15aa..34e3f1206 100644
+index ab6c8370e..1abd28d31 100644
 --- a/contracts/token/ERC20/extensions/ERC20TransferAuthorization.sol
 +++ b/contracts/token/ERC20/extensions/ERC20TransferAuthorization.sol
 @@ -15,6 +15,14 @@ import {NoncesKeyed} from "../../../utils/NoncesKeyed.sol";
@@ -370,7 +370,7 @@ index e66fae29c..490d991e8 100644
    },
    docgen: await import('./docs/config.mjs').then(m => m.default),
 diff --git a/package.json b/package.json
-index a34136baa..964e28b8b 100644
+index 4381403bb..6c44f00ee 100644
 --- a/package.json
 +++ b/package.json
 @@ -35,7 +35,7 @@
