@@ -70,9 +70,7 @@ describe('Checkpoints', function () {
 
         it('at positions', async function () {
           for (const [index, { key, value }] of this.checkpoints.entries()) {
-            const checkpoint = await this.methods.pos(index);
-            expect(checkpoint._value).to.equal(value);
-            expect(checkpoint._key).to.equal(key);
+            await expect(this.methods.pos(index)).to.eventually.deep.equal([ value, key ]);
           }
         });
 
