@@ -7,12 +7,12 @@
 //    node fv/run.js ERC721
 //    node fv/run.js fv/specs/ERC721.conf
 
-const glob = require('glob');
-const fs = require('fs');
-const pLimit = require('p-limit').default;
-const { hideBin } = require('yargs/helpers');
-const yargs = require('yargs/yargs');
-const { exec } = require('child_process');
+import { glob } from 'glob';
+import fs from 'fs';
+import pLimit from 'p-limit';
+import { hideBin } from 'yargs/helpers';
+import yargs from 'yargs/yargs';
+import { exec } from 'child_process';
 
 const { argv } = yargs(hideBin(process.argv))
   .env('')
@@ -39,7 +39,7 @@ if (argv._.length == 0 && !argv.all) {
   console.error(`Warning: No specs requested. Did you forget to toggle '--all'?`);
   process.exitCode = 1;
 } else {
-  Promise.all(
+  await Promise.all(
     (argv.all ? glob.sync(pattern) : argv._.map(name => (fs.existsSync(name) ? name : pattern.replace('*', name)))).map(
       (conf, i, { length }) =>
         limit(
