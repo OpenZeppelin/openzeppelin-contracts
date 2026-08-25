@@ -12,7 +12,7 @@ async function fixture() {
 
   /** Rebuild the content of the deque as a JS array. */
   const getContent = () =>
-    mock.$length(0).then(length => Promise.all(Array.from({ length: Number(length) }, (_, i) => mock.$at(0, i))));
+    mock.$length(0).then(length => Promise.all(Array.from({ length: Number(length) }, (_, i) => mock.$pos(0, i))));
 
   return { mock, getContent };
 }
@@ -44,7 +44,7 @@ describe('DoubleEndedQueue', function () {
     it('try getters return false/zero on empty', async function () {
       await expect(this.mock.$tryFront(0)).to.eventually.deep.equal([false, ethers.ZeroHash]);
       await expect(this.mock.$tryBack(0)).to.eventually.deep.equal([false, ethers.ZeroHash]);
-      await expect(this.mock.$tryAt(0, 0)).to.eventually.deep.equal([false, ethers.ZeroHash]);
+      await expect(this.mock.$tryPos(0, 0)).to.eventually.deep.equal([false, ethers.ZeroHash]);
     });
 
     it('try pops return false/zero on empty', async function () {
@@ -83,7 +83,7 @@ describe('DoubleEndedQueue', function () {
     });
 
     it('out of bounds access', async function () {
-      await expect(this.mock.$at(0, this.content.length)).to.be.revertedWithPanic(
+      await expect(this.mock.$pos(0, this.content.length)).to.be.revertedWithPanic(
         PANIC_CODES.ARRAY_ACCESS_OUT_OF_BOUNDS,
       );
     });
@@ -91,11 +91,11 @@ describe('DoubleEndedQueue', function () {
     it('try getters return true/value when not empty', async function () {
       await expect(this.mock.$tryFront(0)).to.eventually.deep.equal([true, this.content[0]]);
       await expect(this.mock.$tryBack(0)).to.eventually.deep.equal([true, this.content[this.content.length - 1]]);
-      await expect(this.mock.$tryAt(0, 1)).to.eventually.deep.equal([true, this.content[1]]);
+      await expect(this.mock.$tryPos(0, 1)).to.eventually.deep.equal([true, this.content[1]]);
     });
 
-    it('tryAt returns false/zero on out of bounds', async function () {
-      await expect(this.mock.$tryAt(0, this.content.length)).to.eventually.deep.equal([false, ethers.ZeroHash]);
+    it('tryPos returns false/zero on out of bounds', async function () {
+      await expect(this.mock.$tryPos(0, this.content.length)).to.eventually.deep.equal([false, ethers.ZeroHash]);
     });
 
     describe('push', function () {

@@ -122,18 +122,6 @@ library Checkpoints {
 
     /**
      * @dev Returns checkpoint at given position.
-     *
-     * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
-     * should use {pos} instead.
-     */
-    function at(Trace256 storage self, uint32 index) internal view returns (Checkpoint256 memory) {
-        return pos(self, index);
-    }
-
-    /**
-     * @dev Returns checkpoint at given position.
-     *
-     * Replacement of the deprecated {at} function.
      */
     function pos(Trace256 storage self, uint32 index) internal view returns (Checkpoint256 memory) {
         return self._checkpoints[index];
@@ -337,18 +325,6 @@ library Checkpoints {
 
     /**
      * @dev Returns checkpoint at given position.
-     *
-     * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
-     * should use {pos} instead.
-     */
-    function at(Trace224 storage self, uint32 index) internal view returns (Checkpoint224 memory) {
-        return pos(self, index);
-    }
-
-    /**
-     * @dev Returns checkpoint at given position.
-     *
-     * Replacement of the deprecated {at} function.
      */
     function pos(Trace224 storage self, uint32 index) internal view returns (Checkpoint224 memory) {
         return self._checkpoints[index];
@@ -552,18 +528,6 @@ library Checkpoints {
 
     /**
      * @dev Returns checkpoint at given position.
-     *
-     * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
-     * should use {pos} instead.
-     */
-    function at(Trace208 storage self, uint32 index) internal view returns (Checkpoint208 memory) {
-        return pos(self, index);
-    }
-
-    /**
-     * @dev Returns checkpoint at given position.
-     *
-     * Replacement of the deprecated {at} function.
      */
     function pos(Trace208 storage self, uint32 index) internal view returns (Checkpoint208 memory) {
         return self._checkpoints[index];
@@ -767,18 +731,6 @@ library Checkpoints {
 
     /**
      * @dev Returns checkpoint at given position.
-     *
-     * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
-     * should use {pos} instead.
-     */
-    function at(Trace160 storage self, uint32 index) internal view returns (Checkpoint160 memory) {
-        return pos(self, index);
-    }
-
-    /**
-     * @dev Returns checkpoint at given position.
-     *
-     * Replacement of the deprecated {at} function.
      */
     function pos(Trace160 storage self, uint32 index) internal view returns (Checkpoint160 memory) {
         return self._checkpoints[index];

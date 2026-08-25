@@ -13,7 +13,7 @@ export function shouldBehaveLikeMap() {
       expect(await methods.get(key)).to.equal(value);
     }
 
-    expect(await Promise.all(keys.map((_, index) => methods.at(index)))).to.have.deep.members(zip(keys, values));
+    expect(await Promise.all(keys.map((_, index) => methods.pos(index)))).to.have.deep.members(zip(keys, values));
   }
 
   it('starts empty', async function () {

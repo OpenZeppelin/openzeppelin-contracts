@@ -1,0 +1,6 @@
+---
+'openzeppelin-solidity': major
+---
+
+- `Checkpoints`, `EnumerableMap` and `EnumerableSet`: Remove deprecated `at` in favor of `pos`.
+- `DoubleEndedQueue`: Remove deprecated `at` in favor of `pos`. Rename `tryAt` to `tryPos` for consistency.
