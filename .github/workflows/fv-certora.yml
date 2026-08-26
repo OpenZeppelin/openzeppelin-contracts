@@ -37,6 +37,9 @@ jobs:
       - name: Set up environment
         uses: ./.github/actions/setup
         with:
+          # Read the cache, never write it. The scope is the base branch here, so a cache saved after
+          # the contributor's code has run would be restored by every other workflow.
+          cache: 'restore'
           solc: 'on'
           java: 'on'
           python: 'on'
