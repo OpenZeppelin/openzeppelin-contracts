@@ -12,7 +12,7 @@ import fs from 'fs';
 import pLimit from 'p-limit';
 import { hideBin } from 'yargs/helpers';
 import yargs from 'yargs/yargs';
-import { exec } from 'child_process';
+import { execFile } from 'child_process';
 
 const { argv } = yargs(hideBin(process.argv))
   .env('')
@@ -46,7 +46,9 @@ if (argv._.length == 0 && !argv.all) {
           () =>
             new Promise(resolve => {
               if (argv.verbose) console.log(`[${i + 1}/${length}] Running ${conf}`);
-              exec(`certoraRun ${conf}`, (error, stdout, stderr) => {
+              // execFile (and not exec) so that the config name is passed as an argument and never
+              // interpreted by a shell: it may come from an untrusted pull request.
+              execFile('certoraRun', [conf], (error, stdout, stderr) => {
                 const match = stdout.match(
                   'https://prover.certora.com/output/[a-z0-9]+/[a-z0-9]+[?]anonymousKey=[a-z0-9]+',
                 );
