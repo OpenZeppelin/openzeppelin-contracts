@@ -13,6 +13,9 @@ on:
       - labeled
   workflow_dispatch: {}
 
+permissions:
+  contents: read
+
 # `github.ref` is the base branch under `pull_request_target`, so key on the pull request number
 concurrency: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
 
@@ -23,6 +26,7 @@ jobs:
     if: github.event_name != 'pull_request_target' || contains(github.event.pull_request.labels.*.name, 'formal-verification') || contains(github.event.pull_request.labels.*.name, 'formal-verification-force-all')
     steps:
       - uses: actions/checkout@v7
+        persist-credentials: false
         with:
           # `pull_request_target` checks out the base by default. This runs the contributor's code,
           # which is why the environment approval above is required.
