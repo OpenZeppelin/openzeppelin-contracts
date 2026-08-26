@@ -26,12 +26,12 @@ jobs:
     if: github.event_name != 'pull_request_target' || contains(github.event.pull_request.labels.*.name, 'formal-verification') || contains(github.event.pull_request.labels.*.name, 'formal-verification-force-all')
     steps:
       - uses: actions/checkout@v7
-        persist-credentials: false
         with:
           # `pull_request_target` checks out the base by default. This runs the contributor's code,
           # which is why the environment approval above is required.
           ref: ${{ github.event.pull_request.head.sha || github.ref }}
           fetch-depth: 0 # Include history so the diff against the PR base resolves
+          persist-credentials: false
       - name: Set up environment
         uses: ./.github/actions/setup
         with:
