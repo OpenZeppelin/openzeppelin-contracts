@@ -7,12 +7,12 @@
 //    node fv/run.js ERC721
 //    node fv/run.js fv/specs/ERC721.conf
 
-import { exec } from 'node:child_process';
-import fs from 'node:fs';
-import { globSync } from 'glob';
+import { glob } from 'glob';
+import fs from 'fs';
 import pLimit from 'p-limit';
-import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
+import yargs from 'yargs/yargs';
+import { execFile } from 'child_process';
 
 const { argv } = yargs(hideBin(process.argv))
   .env('')
@@ -40,13 +40,15 @@ if (argv._.length == 0 && !argv.all) {
   process.exitCode = 1;
 } else {
   await Promise.all(
-    (argv.all ? globSync(pattern) : argv._.map(name => (fs.existsSync(name) ? name : pattern.replace('*', name)))).map(
+    (argv.all ? glob.sync(pattern) : argv._.map(name => (fs.existsSync(name) ? name : pattern.replace('*', name)))).map(
       (conf, i, { length }) =>
         limit(
           () =>
             new Promise(resolve => {
               if (argv.verbose) console.log(`[${i + 1}/${length}] Running ${conf}`);
-              exec(`certoraRun ${conf}`, (error, stdout, stderr) => {
+              // execFile (and not exec) so that the config name is passed as an argument and never
+              // interpreted by a shell: it may come from an untrusted pull request.
+              execFile('certoraRun', [conf], (error, stdout, stderr) => {
                 const match = stdout.match(
                   'https://prover.certora.com/output/[a-z0-9]+/[a-z0-9]+[?]anonymousKey=[a-z0-9]+',
                 );
