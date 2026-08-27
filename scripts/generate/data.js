@@ -32,7 +32,7 @@ const defaultCheckpointOpts = size => ({
 export const CHECKPOINTS_OPTS = [256, 224, 208, 160].map(defaultCheckpointOpts);
 
 // ─── Enumerable (EnumerableSet, EnumerableMap) ───
-const typeDescr = ({ type, size = 0, memory }) => {
+export const typeDescr = ({ type, size = 0, memory }) => {
   memory = (memory ?? isReferenceType(type)) || size > 0;
 
   const name = [type == 'uint256' ? 'Uint' : capitalize(type), size].filter(Boolean).join('x');
@@ -47,7 +47,7 @@ const toSetTypeDescr = value => ({
   value,
 });
 
-const toMapTypeDescr = ({ key, value }) => ({
+export const toMapTypeDescr = ({ key, value }) => ({
   name: `${key.name}To${value.name}Map`,
   keySet: toSetTypeDescr(key),
   key,
