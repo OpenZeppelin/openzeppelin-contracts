@@ -64,6 +64,7 @@ abstract contract ERC7246 is ERC20, IERC7246 {
      */
     function _encumber(address owner, address spender, uint256 amount) internal virtual {
         require(owner != spender, ERC7246SelfEncumbrance());
+        require(spender != address(0), ERC7246InvalidEncumberSpender());
         uint256 availableBalance = availableBalanceOf(owner);
         require(availableBalance >= amount, ERC7246InsufficientAvailableBalance(availableBalance, amount));
 
