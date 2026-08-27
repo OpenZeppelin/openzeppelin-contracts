@@ -23,6 +23,9 @@ abstract contract ERC7246 is ERC20, IERC7246 {
     /// @dev Thrown when an account tries to encumber tokens to itself.
     error ERC7246SelfEncumbrance();
 
+    /// @dev Thrown when an account tries to encumber tokens to the zero address.
+    error ERC7246InvalidEncumberSpender();
+
     mapping(address owner => mapping(address spender => uint256)) private _encumbrances;
     mapping(address owner => uint256) private _encumberedBalances;
 
@@ -118,14 +121,16 @@ abstract contract ERC7246 is ERC20, IERC7246 {
 
     /// @dev See {ERC20-_update}. Ensures that `from` has sufficient {availableBalanceOf} to cover the `amount` being transferred.
     function _update(address from, address to, uint256 amount) internal virtual override {
-        super._update(from, to, amount);
         if (from != address(0)) {
-            uint256 balanceOfFrom = balanceOf(from);
             uint256 encumberedBalanceOfFrom = encumberedBalanceOf(from);
-            require(
-                balanceOfFrom >= encumberedBalanceOfFrom,
-                ERC7246InsufficientAvailableBalance(balanceOfFrom + amount - encumberedBalanceOfFrom, amount)
-            );
+            if (encumberedBalanceOfFrom != 0) {
+                uint256 availableBalanceOfFrom = availableBalanceOf(from);
+                require(
+                    availableBalanceOfFrom >= amount,
+                    ERC7246InsufficientAvailableBalance(availableBalanceOfFrom, amount)
+                );
+            }
         }
+        super._update(from, to, amount);
     }
 }
