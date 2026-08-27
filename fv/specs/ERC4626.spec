@@ -138,3 +138,162 @@ rule withdrawMaxNeverReverts(env e, address receiver) {
     withdraw@withrevert(e, maxWithdraw(owner), receiver, owner);
     assert !lastReverted;
 }
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Conservation and isolation: the state-changers move exactly what they claim, and nothing else       │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+
+/// Supporting machinery rather than a headline property. The value properties all assume the
+/// operations move the right amounts between the right parties; without these they can pass for the
+/// wrong reason.
+///
+/// `other` is a free rule parameter, so the prover quantifies over it universally. That is what
+/// makes the isolation assertions meaningful with no disequality assumption and with no way to go
+/// vacuous - a fresh symbol pinned by a `require` would give neither.
+///
+/// Every preview is read before the operation. Read afterwards it would be a different number,
+/// since the operation moves both sides of the conversion.
+rule depositConserves(env e, uint256 assets, address receiver, address other) {
+    require sane();
+    require nonpayable(e);
+    require noVirtualOverflow();
+    requireInvariant totalSupplyIsSumOfBalances();
+
+    address caller = e.msg.sender;
+    address token  = asset();
+    require caller != currentContract && receiver != 0;
+
+    mathint expectedShares       = previewDeposit(assets);
+    mathint supplyBefore         = totalSupply();
+    mathint receiverSharesBefore = balanceOf(receiver);
+    mathint vaultAssetsBefore    = balanceByToken[token][currentContract];
+    mathint callerAssetsBefore   = balanceByToken[token][caller];
+    mathint otherSharesBefore    = balanceOf(other);
+    mathint otherAssetsBefore    = balanceByToken[token][other];
+
+    uint256 shares = deposit(e, assets, receiver);
+
+    // effects: shares credited match the preview, assets moved match the request
+    assert to_mathint(shares) == expectedShares;
+    assert to_mathint(totalSupply())       == supplyBefore + shares;
+    assert to_mathint(balanceOf(receiver)) == receiverSharesBefore + shares;
+    assert balanceByToken[token][currentContract] == vaultAssetsBefore + assets;
+    assert balanceByToken[token][caller]          == callerAssetsBefore - assets;
+
+    // isolation: nobody else moved
+    assert balanceOf(other) != otherSharesBefore => other == receiver;
+    assert balanceByToken[token][other] != otherAssetsBefore
+        => (other == caller || other == currentContract);
+}
+
+rule mintConserves(env e, uint256 shares, address receiver, address other) {
+    require sane();
+    require nonpayable(e);
+    require noVirtualOverflow();
+    requireInvariant totalSupplyIsSumOfBalances();
+
+    address caller = e.msg.sender;
+    address token  = asset();
+    require caller != currentContract && receiver != 0;
+
+    mathint expectedAssets       = previewMint(shares);
+    mathint supplyBefore         = totalSupply();
+    mathint receiverSharesBefore = balanceOf(receiver);
+    mathint vaultAssetsBefore    = balanceByToken[token][currentContract];
+    mathint callerAssetsBefore   = balanceByToken[token][caller];
+    mathint otherSharesBefore    = balanceOf(other);
+    mathint otherAssetsBefore    = balanceByToken[token][other];
+
+    uint256 assets = mint(e, shares, receiver);
+
+    assert to_mathint(assets) == expectedAssets;
+    assert to_mathint(totalSupply())       == supplyBefore + shares;
+    assert to_mathint(balanceOf(receiver)) == receiverSharesBefore + shares;
+    assert balanceByToken[token][currentContract] == vaultAssetsBefore + assets;
+    assert balanceByToken[token][caller]          == callerAssetsBefore - assets;
+
+    assert balanceOf(other) != otherSharesBefore => other == receiver;
+    assert balanceByToken[token][other] != otherAssetsBefore
+        => (other == caller || other == currentContract);
+}
+
+/// Covers the third-party allowance path that the P3 liveness rules deliberately scoped out.
+rule withdrawConserves(env e, uint256 assets, address receiver, address owner, address other) {
+    require sane();
+    require nonpayable(e);
+    require noVirtualOverflow();
+    requireInvariant totalSupplyIsSumOfBalances();
+
+    address caller = e.msg.sender;
+    address token  = asset();
+    require caller != currentContract && receiver != 0 && receiver != currentContract;
+
+    mathint expectedShares    = previewWithdraw(assets);
+    mathint supplyBefore      = totalSupply();
+    mathint ownerSharesBefore = balanceOf(owner);
+    mathint vaultAssetsBefore = balanceByToken[token][currentContract];
+    mathint recvAssetsBefore  = balanceByToken[token][receiver];
+    mathint allowanceBefore   = allowance(owner, caller);
+    mathint otherSharesBefore = balanceOf(other);
+    mathint otherAssetsBefore = balanceByToken[token][other];
+
+    uint256 shares = withdraw(e, assets, receiver, owner);
+
+    assert to_mathint(shares) == expectedShares;
+    assert to_mathint(totalSupply())    == supplyBefore - shares;
+    assert to_mathint(balanceOf(owner)) == ownerSharesBefore - shares;
+    assert balanceByToken[token][currentContract] == vaultAssetsBefore - assets;
+    assert balanceByToken[token][receiver]        == recvAssetsBefore + assets;
+
+    // A third-party caller spends allowance; the owner acting for themselves does not. Infinite
+    // approval is left untouched, by ERC20 design.
+    assert caller != owner && allowanceBefore < to_mathint(max_uint256)
+        => to_mathint(allowance(owner, caller)) == allowanceBefore - shares;
+    assert caller != owner && allowanceBefore == to_mathint(max_uint256)
+        => to_mathint(allowance(owner, caller)) == allowanceBefore;
+    assert caller == owner => to_mathint(allowance(owner, caller)) == allowanceBefore;
+
+    assert balanceOf(other) != otherSharesBefore => other == owner;
+    assert balanceByToken[token][other] != otherAssetsBefore
+        => (other == receiver || other == currentContract);
+}
+
+rule redeemConserves(env e, uint256 shares, address receiver, address owner, address other) {
+    require sane();
+    require nonpayable(e);
+    require noVirtualOverflow();
+    requireInvariant totalSupplyIsSumOfBalances();
+
+    address caller = e.msg.sender;
+    address token  = asset();
+    require caller != currentContract && receiver != 0 && receiver != currentContract;
+
+    mathint expectedAssets    = previewRedeem(shares);
+    mathint supplyBefore      = totalSupply();
+    mathint ownerSharesBefore = balanceOf(owner);
+    mathint vaultAssetsBefore = balanceByToken[token][currentContract];
+    mathint recvAssetsBefore  = balanceByToken[token][receiver];
+    mathint allowanceBefore   = allowance(owner, caller);
+    mathint otherSharesBefore = balanceOf(other);
+    mathint otherAssetsBefore = balanceByToken[token][other];
+
+    uint256 assets = redeem(e, shares, receiver, owner);
+
+    assert to_mathint(assets) == expectedAssets;
+    assert to_mathint(totalSupply())    == supplyBefore - shares;
+    assert to_mathint(balanceOf(owner)) == ownerSharesBefore - shares;
+    assert balanceByToken[token][currentContract] == vaultAssetsBefore - assets;
+    assert balanceByToken[token][receiver]        == recvAssetsBefore + assets;
+
+    assert caller != owner && allowanceBefore < to_mathint(max_uint256)
+        => to_mathint(allowance(owner, caller)) == allowanceBefore - shares;
+    assert caller != owner && allowanceBefore == to_mathint(max_uint256)
+        => to_mathint(allowance(owner, caller)) == allowanceBefore;
+    assert caller == owner => to_mathint(allowance(owner, caller)) == allowanceBefore;
+
+    assert balanceOf(other) != otherSharesBefore => other == owner;
+    assert balanceByToken[token][other] != otherAssetsBefore
+        => (other == receiver || other == currentContract);
+}
