@@ -125,7 +125,7 @@ describe('Arrays', function () {
     }
   });
 
-  for (const { name, isValueType } of TYPES) {
+  for (const { name, size } of TYPES) {
     const elements = Array.from({ length: 10 }, randomOf(name));
 
     describe(name, function () {
@@ -137,7 +137,7 @@ describe('Arrays', function () {
         Object.assign(this, await loadFixture(fixture));
       });
 
-      if (isValueType) {
+      if (size) {
         describe('sort', function () {
           // When coverage is enabled, only consider length up to 32 (to avoid CI timeouts)
           for (const length of [0, 1, 2, 8, 32, 128, 384].filter(l => !globalOptions.coverage || l <= 32)) {
@@ -278,7 +278,7 @@ describe('Arrays', function () {
           it('unsafeMemoryAccess loop around', async function () {
             for (let i = 251n; i < 256n; ++i) {
               await expect(this.mock[fragment](elements, 2n ** i - 1n)).to.eventually.equal(
-                isValueType ? BigInt(elements.length) : randomOf(name).zero,
+                size ? BigInt(elements.length) : randomOf(name).zero,
               );
               await expect(this.mock[fragment](elements, 2n ** i + 0n)).to.eventually.equal(elements[0]);
               await expect(this.mock[fragment](elements, 2n ** i + 1n)).to.eventually.equal(elements[1]);
