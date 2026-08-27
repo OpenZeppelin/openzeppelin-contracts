@@ -276,23 +276,21 @@ abstract contract Governor is ERC165, EIP712, Nonces, IGovernor, IERC721Receiver
         bytes[] memory calldatas,
         string memory description
     ) public virtual returns (uint256) {
-        address proposer = msg.sender;
-
         // check description restriction
-        if (!_isValidDescriptionForProposer(proposer, description)) {
-            revert GovernorRestrictedProposer(proposer);
+        if (!_isValidDescriptionForProposer(msg.sender, description)) {
+            revert GovernorRestrictedProposer(msg.sender);
         }
 
         // check proposal threshold
         uint256 votesThreshold = proposalThreshold();
         if (votesThreshold > 0) {
-            uint256 proposerVotes = getVotes(proposer, clock() - 1);
+            uint256 proposerVotes = getVotes(msg.sender, clock() - 1);
             if (proposerVotes < votesThreshold) {
-                revert GovernorInsufficientProposerVotes(proposer, proposerVotes, votesThreshold);
+                revert GovernorInsufficientProposerVotes(msg.sender, proposerVotes, votesThreshold);
             }
         }
 
-        return _propose(targets, values, calldatas, description, proposer);
+        return _propose(targets, values, calldatas, description, msg.sender);
     }
 
     /**
@@ -461,8 +459,7 @@ abstract contract Governor is ERC165, EIP712, Nonces, IGovernor, IERC721Receiver
         // changes it. The `getProposalId` duplication has a cost that is limited, and that we accept.
         uint256 proposalId = getProposalId(targets, values, calldatas, descriptionHash);
 
-        address caller = msg.sender;
-        if (!_validateCancel(proposalId, caller)) revert GovernorUnableToCancel(proposalId, caller);
+        if (!_validateCancel(proposalId, msg.sender)) revert GovernorUnableToCancel(proposalId, msg.sender);
 
         return _cancel(targets, values, calldatas, descriptionHash);
     }
@@ -511,8 +508,7 @@ abstract contract Governor is ERC165, EIP712, Nonces, IGovernor, IERC721Receiver
 
     /// @inheritdoc IGovernor
     function castVote(uint256 proposalId, uint8 support) public virtual returns (uint256) {
-        address voter = msg.sender;
-        return _castVote(proposalId, voter, support, "");
+        return _castVote(proposalId, msg.sender, support, "");
     }
 
     /// @inheritdoc IGovernor
@@ -521,8 +517,7 @@ abstract contract Governor is ERC165, EIP712, Nonces, IGovernor, IERC721Receiver
         uint8 support,
         string calldata reason
     ) public virtual returns (uint256) {
-        address voter = msg.sender;
-        return _castVote(proposalId, voter, support, reason);
+        return _castVote(proposalId, msg.sender, support, reason);
     }
 
     /// @inheritdoc IGovernor
@@ -532,8 +527,7 @@ abstract contract Governor is ERC165, EIP712, Nonces, IGovernor, IERC721Receiver
         string calldata reason,
         bytes memory params
     ) public virtual returns (uint256) {
-        address voter = msg.sender;
-        return _castVote(proposalId, voter, support, reason, params);
+        return _castVote(proposalId, msg.sender, support, reason, params);
     }
 
     /// @inheritdoc IGovernor

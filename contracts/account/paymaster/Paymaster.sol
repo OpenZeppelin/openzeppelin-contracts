@@ -137,9 +137,8 @@ abstract contract Paymaster is IPaymaster {
 
     /// @dev Ensures the caller is the {entrypoint}.
     function _checkEntryPoint() internal view virtual {
-        address sender = msg.sender;
-        if (sender != address(entryPoint())) {
-            revert PaymasterUnauthorized(sender);
+        if (msg.sender != address(entryPoint())) {
+            revert PaymasterUnauthorized(msg.sender);
         }
     }
 

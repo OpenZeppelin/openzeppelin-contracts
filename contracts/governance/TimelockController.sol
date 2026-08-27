@@ -445,9 +445,8 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
      * an operation where the timelock is the target and the data is the ABI-encoded call to this function.
      */
     function updateDelay(uint256 newDelay) public virtual {
-        address sender = msg.sender;
-        if (sender != address(this)) {
-            revert TimelockUnauthorizedCaller(sender);
+        if (msg.sender != address(this)) {
+            revert TimelockUnauthorizedCaller(msg.sender);
         }
         emit MinDelayChange(_minDelay, newDelay);
         _minDelay = newDelay;

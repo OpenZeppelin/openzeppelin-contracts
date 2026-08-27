@@ -63,9 +63,8 @@ abstract contract AccessManaged is IAccessManaged {
 
     /// @inheritdoc IAccessManaged
     function setAuthority(address newAuthority) public virtual {
-        address caller = msg.sender;
-        if (caller != authority()) {
-            revert AccessManagedUnauthorized(caller);
+        if (authority() != msg.sender) {
+            revert AccessManagedUnauthorized(msg.sender);
         }
         if (newAuthority.code.length == 0) {
             revert AccessManagedInvalidAuthority(newAuthority);

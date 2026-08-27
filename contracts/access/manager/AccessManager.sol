@@ -452,23 +452,21 @@ contract AccessManager is Multicall, IAccessManager {
         bytes calldata data,
         uint48 when
     ) public virtual returns (bytes32 operationId, uint32 nonce) {
-        address caller = msg.sender;
-
         // Fetch restrictions that apply to the caller on the targeted function
-        (, uint32 setback) = _canCallExtended(caller, target, data);
+        (, uint32 setback) = _canCallExtended(msg.sender, target, data);
 
         uint48 minWhen = Time.timestamp() + setback;
 
         // If call with delay is not authorized, or if requested timing is too soon, revert
         if (setback == 0 || (when > 0 && when < minWhen)) {
-            revert AccessManagerUnauthorizedCall(caller, target, _checkSelector(data));
+            revert AccessManagerUnauthorizedCall(msg.sender, target, _checkSelector(data));
         }
 
         // Reuse variable due to stack too deep
         when = uint48(Math.max(when, minWhen)); // cast is safe: both inputs are uint48
 
         // If caller is authorised, schedule operation
-        operationId = hashOperation(caller, target, data);
+        operationId = hashOperation(msg.sender, target, data);
 
         _checkNotScheduled(operationId);
 
@@ -478,7 +476,7 @@ contract AccessManager is Multicall, IAccessManager {
         }
         _schedules[operationId].timepoint = when;
         _schedules[operationId].nonce = nonce;
-        emit OperationScheduled(operationId, nonce, when, caller, target, data);
+        emit OperationScheduled(operationId, nonce, when, msg.sender, target, data);
 
         // Using named return values because otherwise we get stack too deep
     }
@@ -500,17 +498,15 @@ contract AccessManager is Multicall, IAccessManager {
     // _consumeScheduledOp guarantees a scheduled operation is only executed once.
     // slither-disable-next-line reentrancy-no-eth
     function execute(address target, bytes calldata data) public payable virtual returns (uint32) {
-        address caller = msg.sender;
-
         // Fetch restrictions that apply to the caller on the targeted function
-        (bool immediate, uint32 setback) = _canCallExtended(caller, target, data);
+        (bool immediate, uint32 setback) = _canCallExtended(msg.sender, target, data);
 
         // If call is not authorized, revert
         if (!immediate && setback == 0) {
-            revert AccessManagerUnauthorizedCall(caller, target, _checkSelector(data));
+            revert AccessManagerUnauthorizedCall(msg.sender, target, _checkSelector(data));
         }
 
-        bytes32 operationId = hashOperation(caller, target, data);
+        bytes32 operationId = hashOperation(msg.sender, target, data);
         uint32 nonce;
 
         // If caller is authorised, check operation was scheduled early enough
@@ -534,14 +530,13 @@ contract AccessManager is Multicall, IAccessManager {
 
     /// @inheritdoc IAccessManager
     function cancel(address caller, address target, bytes calldata data) public virtual returns (uint32) {
-        address msgsender = msg.sender;
         bytes4 selector = _checkSelector(data);
 
         bytes32 operationId = hashOperation(caller, target, data);
         if (_schedules[operationId].timepoint == 0) {
             revert AccessManagerNotScheduled(operationId);
         } else if (!_canCancel(caller, target, data)) {
-            revert AccessManagerUnauthorizedCancel(msgsender, caller, target, selector);
+            revert AccessManagerUnauthorizedCancel(msg.sender, caller, target, selector);
         }
 
         delete _schedules[operationId].timepoint; // reset the timepoint, keep the nonce
@@ -553,11 +548,10 @@ contract AccessManager is Multicall, IAccessManager {
 
     /// @inheritdoc IAccessManager
     function consumeScheduledOp(address caller, bytes calldata data) public virtual {
-        address target = msg.sender;
-        if (IAccessManaged(target).isConsumingScheduledOp() != IAccessManaged.isConsumingScheduledOp.selector) {
-            revert AccessManagerUnauthorizedConsume(target);
+        if (IAccessManaged(msg.sender).isConsumingScheduledOp() != IAccessManaged.isConsumingScheduledOp.selector) {
+            revert AccessManagerUnauthorizedConsume(msg.sender);
         }
-        _consumeScheduledOp(hashOperation(caller, target, data));
+        _consumeScheduledOp(hashOperation(caller, msg.sender, data));
     }
 
     /**
@@ -601,14 +595,13 @@ contract AccessManager is Multicall, IAccessManager {
      * WARNING: Carefully review the considerations of {AccessManaged-restricted} since they apply to this modifier.
      */
     function _checkAuthorized() private {
-        address caller = msg.sender;
-        (bool immediate, uint32 delay) = _canCallSelf(caller, msg.data);
+        (bool immediate, uint32 delay) = _canCallSelf(msg.sender, msg.data);
         if (!immediate) {
             if (delay == 0) {
                 (, uint64 requiredRole, ) = _getAdminRestrictions(msg.data);
-                revert AccessManagerUnauthorizedAccount(caller, requiredRole);
+                revert AccessManagerUnauthorizedAccount(msg.sender, requiredRole);
             } else {
-                _consumeScheduledOp(hashOperation(caller, address(this), msg.data));
+                _consumeScheduledOp(hashOperation(msg.sender, address(this), msg.data));
             }
         }
     }
@@ -719,16 +712,14 @@ contract AccessManager is Multicall, IAccessManager {
      * @dev Returns true if a scheduled operation can be canceled by the caller.
      */
     function _canCancel(address caller, address target, bytes calldata data) internal view virtual returns (bool) {
-        address msgsender = msg.sender;
-
         // caller can cancel if they are the msg.sender of the scheduled operation
-        if (caller == msgsender) {
+        if (caller == msg.sender) {
             return true;
         }
 
         // admins can cancel any operation, and guardians of the target function's role can cancel it
-        (bool isAdmin, ) = hasRole(ADMIN_ROLE, msgsender);
-        (bool isGuardian, ) = hasRole(getRoleGuardian(getTargetFunctionRole(target, _checkSelector(data))), msgsender);
+        (bool isAdmin, ) = hasRole(ADMIN_ROLE, msg.sender);
+        (bool isGuardian, ) = hasRole(getRoleGuardian(getTargetFunctionRole(target, _checkSelector(data))), msg.sender);
         if (isAdmin || isGuardian) {
             return true;
         }
@@ -738,7 +729,7 @@ contract AccessManager is Multicall, IAccessManager {
         if (target == address(this)) {
             (bool adminRestricted, uint64 roleId, ) = _getAdminRestrictions(data);
             if (adminRestricted && roleId != ADMIN_ROLE) {
-                (bool inRole, ) = hasRole(roleId, msgsender);
+                (bool inRole, ) = hasRole(roleId, msg.sender);
                 return inRole;
             }
         }

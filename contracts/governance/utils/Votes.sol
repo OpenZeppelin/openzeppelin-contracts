@@ -125,8 +125,7 @@ abstract contract Votes is EIP712, Nonces, IERC5805 {
      * @dev Delegates votes from the sender to `delegatee`.
      */
     function delegate(address delegatee) public virtual {
-        address account = msg.sender;
-        _delegate(account, delegatee);
+        _delegate(msg.sender, delegatee);
     }
 
     /**

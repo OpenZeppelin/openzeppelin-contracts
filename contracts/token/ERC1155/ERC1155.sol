@@ -138,8 +138,6 @@ abstract contract ERC1155 is ERC165, IERC1155, IERC1155MetadataURI, IERC1155Erro
             revert ERC1155InvalidArrayLength(ids.length, values.length);
         }
 
-        address operator = msg.sender;
-
         for (uint256 i = 0; i < ids.length; ++i) {
             uint256 id = ids.unsafeMemoryAccess(i);
             uint256 value = values.unsafeMemoryAccess(i);
@@ -163,9 +161,9 @@ abstract contract ERC1155 is ERC165, IERC1155, IERC1155MetadataURI, IERC1155Erro
         if (ids.length == 1) {
             uint256 id = ids.unsafeMemoryAccess(0);
             uint256 value = values.unsafeMemoryAccess(0);
-            emit TransferSingle(operator, from, to, id, value);
+            emit TransferSingle(msg.sender, from, to, id, value);
         } else {
-            emit TransferBatch(operator, from, to, ids, values);
+            emit TransferBatch(msg.sender, from, to, ids, values);
         }
     }
 
@@ -210,13 +208,12 @@ abstract contract ERC1155 is ERC165, IERC1155, IERC1155MetadataURI, IERC1155Erro
     ) internal virtual {
         _update(from, to, ids, values);
         if (to != address(0)) {
-            address operator = msg.sender;
             if (batch) {
-                ERC1155Utils.checkOnERC1155BatchReceived(operator, from, to, ids, values, data);
+                ERC1155Utils.checkOnERC1155BatchReceived(msg.sender, from, to, ids, values, data);
             } else {
                 uint256 id = ids.unsafeMemoryAccess(0);
                 uint256 value = values.unsafeMemoryAccess(0);
-                ERC1155Utils.checkOnERC1155Received(operator, from, to, id, value, data);
+                ERC1155Utils.checkOnERC1155Received(msg.sender, from, to, id, value, data);
             }
         }
     }

@@ -69,9 +69,8 @@ abstract contract ERC6909 is ERC165, IERC6909 {
         uint256 id,
         uint256 amount
     ) public virtual override returns (bool) {
-        address caller = msg.sender;
-        if (sender != caller && !isOperator(sender, caller)) {
-            _spendAllowance(sender, caller, id, amount);
+        if (sender != msg.sender && !isOperator(sender, msg.sender)) {
+            _spendAllowance(sender, msg.sender, id, amount);
         }
         _transfer(sender, receiver, id, amount);
         return true;
@@ -134,8 +133,6 @@ abstract contract ERC6909 is ERC165, IERC6909 {
      * Emits a {Transfer} event.
      */
     function _update(address from, address to, uint256 id, uint256 amount) internal virtual {
-        address caller = msg.sender;
-
         if (from != address(0)) {
             uint256 fromBalance = _balances[from][id];
             if (fromBalance < amount) {
@@ -150,7 +147,7 @@ abstract contract ERC6909 is ERC165, IERC6909 {
             _balances[to][id] += amount;
         }
 
-        emit Transfer(caller, from, to, id, amount);
+        emit Transfer(msg.sender, from, to, id, amount);
     }
 
     /**

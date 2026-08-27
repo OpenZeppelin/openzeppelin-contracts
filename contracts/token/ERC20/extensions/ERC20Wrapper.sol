@@ -57,14 +57,13 @@ abstract contract ERC20Wrapper is ERC20 {
      * @dev Allow a user to deposit underlying tokens and mint the corresponding number of wrapped tokens.
      */
     function depositFor(address account, uint256 value) public virtual returns (bool) {
-        address sender = msg.sender;
-        if (sender == address(this)) {
+        if (msg.sender == address(this)) {
             revert ERC20InvalidSender(address(this));
         }
         if (account == address(this)) {
             revert ERC20InvalidReceiver(account);
         }
-        SafeERC20.safeTransferFrom(_underlying, sender, address(this), value);
+        SafeERC20.safeTransferFrom(_underlying, msg.sender, address(this), value);
         _mint(account, value);
         return true;
     }

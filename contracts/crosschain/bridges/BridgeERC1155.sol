@@ -76,10 +76,9 @@ abstract contract BridgeERC1155 is BridgeMultiToken, ERC1155Holder {
         bytes memory data
     ) public virtual returns (bytes32) {
         // Permission is handled using the ERC1155's allowance system. This check replicates `ERC1155._checkAuthorized`.
-        address spender = msg.sender;
         require(
-            from == spender || token().isApprovedForAll(from, spender),
-            IERC1155Errors.ERC1155MissingApprovalForAll(spender, from)
+            from == msg.sender || token().isApprovedForAll(from, msg.sender),
+            IERC1155Errors.ERC1155MissingApprovalForAll(msg.sender, from)
         );
 
         // Perform the crosschain transfer and return the handler
