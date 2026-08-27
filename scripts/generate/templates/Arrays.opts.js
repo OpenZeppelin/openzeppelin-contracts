@@ -1,7 +1,7 @@
 export const TYPES = [
-  { name: 'address', isValueType: true },
-  { name: 'bytes32', isValueType: true },
-  { name: 'uint256', isValueType: true },
-  { name: 'bytes', isValueType: false },
-  { name: 'string', isValueType: false },
+  { name: 'address', size: 20 },
+  { name: 'bytes32', size: 32 },
+  { name: 'uint256', size: 32 },
+  { name: 'bytes' }, // non value type don't have a size
+  { name: 'string' }, // non value type don't have a size
 ];
