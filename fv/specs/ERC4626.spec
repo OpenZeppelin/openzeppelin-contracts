@@ -297,3 +297,101 @@ rule redeemConserves(env e, uint256 shares, address receiver, address owner, add
     assert balanceByToken[token][other] != otherAssetsBefore
         => (other == receiver || other == currentContract);
 }
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ P4: splitting an operation into steps never beats doing it in one                                   │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+
+/// Three details carry this rule. The observable is the credited share balance rather than the
+/// return value, which is what catches "returned the right number, booked the wrong one". The
+/// inequality direction is derived from the rounding mode rather than chosen: previewDeposit floors,
+/// so a credit rounds down and the one-shot call must not pay out less than the split. And the
+/// combined amount uses assert_uint256, not require_uint256, so an overflowing sum fails the rule
+/// instead of being assumed away - that boundary is where a splitting attack would live.
+///
+/// Both histories start from the same snapshot, so the receiver's pre-existing balance cancels and
+/// comparing absolute balances is sound.
+rule depositIsNotSplittable(env e, uint256 x, uint256 y, address receiver) {
+    require sane();
+    require nonpayable(e);
+    require noVirtualOverflow();
+    require receiver != 0 && e.msg.sender != currentContract;
+    requireInvariant totalSupplyIsSumOfBalances();
+
+    storage init = lastStorage;
+
+    deposit(e, x, receiver);
+    deposit(e, y, receiver);
+    mathint split = balanceOf(receiver);
+
+    deposit(e, assert_uint256(x + y), receiver) at init;
+    mathint combined = balanceOf(receiver);
+
+    assert  combined >= split;   // credit rounds down => one step favours the depositor
+    satisfy combined >  split;   // ... and it actually bites somewhere
+}
+
+/// The mirror. previewWithdraw ceils, so shares burned round up and two burns overcharge by more
+/// than one: the split must never burn fewer shares than the one-shot. Burning more leaves less, so
+/// in terms of the remaining balance the direction is the same as deposit.
+///
+/// NOT CURRENTLY DISCHARGED. The strictness witness passes, but the assertion exceeds the solver
+/// budget even with nonlinear arithmetic forced and splitting off - ceil composed with ceil over
+/// four symbolic 256-bit unknowns. The property holds under exhaustive small-value and large random
+/// sampling, so this is solver cost rather than a defect. Excluded from every shard and carried in
+/// the timeout ledger; do not read its absence from the suite as a pass.
+rule withdrawIsNotSplittable(env e, uint256 x, uint256 y, address receiver) {
+    require sane();
+    require nonpayable(e);
+    require noVirtualOverflow();
+    require nonzerosender(e);
+    require receiver != 0 && receiver != currentContract && e.msg.sender != currentContract;
+    requireInvariant totalSupplyIsSumOfBalances();
+
+    address owner = e.msg.sender;
+    storage init = lastStorage;
+
+    withdraw(e, x, receiver, owner);
+    withdraw(e, y, receiver, owner);
+    mathint split = balanceOf(owner);
+
+    withdraw(e, assert_uint256(x + y), receiver, owner) at init;
+    mathint combined = balanceOf(owner);
+
+    assert  combined >= split;
+    satisfy combined >  split;
+}
+
+/// The variant only a donation model can express. Both histories spend the same x + y + d assets;
+/// only the ordering differs.
+///
+/// The baseline is depositing up front, not depositing afterwards. Comparing against a deposit made
+/// after the donation would not be a splitting property at all - entering before a donation is
+/// simply cheaper than entering after one, by an unbounded margin rather than a rounding unit, and
+/// that is what a donation means rather than a flaw. The real claim is that holding part of a
+/// deposit back across a donation never gains shares over committing it all at once.
+///
+/// NOT CURRENTLY DISCHARGED, for the same reason as the withdraw mirror. Its arithmetic core is
+/// trivial in closed form; the cost is the five-operation replay on top. Carried in the ledger.
+rule holdingBackAcrossDonationDoesNotPay(env e, uint256 x, uint256 y, uint256 d, address receiver) {
+    require sane();
+    require nonpayable(e);
+    require noVirtualOverflow();
+    require receiver != 0 && e.msg.sender != currentContract;
+    requireInvariant totalSupplyIsSumOfBalances();
+
+    storage init = lastStorage;
+
+    deposit(e, x, receiver);
+    donate(e, d);
+    deposit(e, y, receiver);
+    mathint heldBack = balanceOf(receiver);
+
+    deposit(e, assert_uint256(x + y), receiver) at init;
+    donate(e, d);
+    mathint upfront = balanceOf(receiver);
+
+    assert heldBack <= upfront;
+}
