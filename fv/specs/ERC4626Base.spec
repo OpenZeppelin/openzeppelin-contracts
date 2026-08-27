@@ -44,3 +44,10 @@ methods {
 /// Scope assumptions, applied by every rule. A vault whose asset is itself, or the zero address, is
 /// not a configuration this suite reasons about.
 definition sane() returns bool = asset() != currentContract && asset() != 0;
+
+/// The virtual-asset design computes totalAssets() + 1 and totalSupply() + 10**offset, so a vault
+/// holding the entire uint256 range reverts in every conversion. Value rules prune that state on
+/// their own, because the preview call they compare against is the thing that reverts. Liveness
+/// rules cannot rely on that and must exclude it by name.
+definition noVirtualOverflow() returns bool =
+    totalAssets() < max_uint256 && totalSupply() < max_uint256;
