@@ -1,0 +1,14 @@
+{
+  "initializablePath": "contracts/proxy/utils/Initializable.sol",
+  "deleteOriginals": true,
+  "exclude": [
+    "contracts-exposed/**/*",
+    "contracts/mocks/**/*Proxy*.sol",
+    "contracts/proxy/**/*Proxy*.sol",
+    "contracts/proxy/beacon/UpgradeableBeacon.sol"
+  ],
+  "publicInitializers": ["!contracts/mocks/**/*"],
+  "namespaced": true,
+  "namespaceExclude": ["contracts/mocks/**/*"],
+  "peerProject": "@openzeppelin/"
+}

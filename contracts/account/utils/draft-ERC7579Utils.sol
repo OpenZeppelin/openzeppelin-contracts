@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.5.0) (account/utils/draft-ERC7579Utils.sol)
+// OpenZeppelin Contracts (last updated v5.6.0) (account/utils/draft-ERC7579Utils.sol)
 
 pragma solidity ^0.8.20;
 
@@ -146,9 +146,9 @@ library ERC7579Utils {
     function decodeSingle(
         bytes calldata executionCalldata
     ) internal pure returns (address target, uint256 value, bytes calldata callData) {
-        target = address(bytes20(executionCalldata[0x00:0x14]));
-        value = uint256(bytes32(executionCalldata[0x14:0x34]));
-        callData = executionCalldata[0x34:];
+        target = address(bytes20(executionCalldata));
+        value = uint256(bytes32(executionCalldata[20:52]));
+        callData = executionCalldata[52:];
     }
 
     /// @dev Encodes a delegate call execution. See {decodeDelegate}.
@@ -163,8 +163,8 @@ library ERC7579Utils {
     function decodeDelegate(
         bytes calldata executionCalldata
     ) internal pure returns (address target, bytes calldata callData) {
-        target = address(bytes20(executionCalldata[0:0x14]));
-        callData = executionCalldata[0x14:];
+        target = address(bytes20(executionCalldata));
+        callData = executionCalldata[20:];
     }
 
     /// @dev Encodes a batch of executions. See {decodeBatch}.
@@ -177,7 +177,12 @@ library ERC7579Utils {
     /// NOTE: This function runs some checks and will throw a {ERC7579DecodingError} if the input is not properly formatted.
     function decodeBatch(bytes calldata executionCalldata) internal pure returns (Execution[] calldata executionBatch) {
         unchecked {
-            uint256 bufferLength = executionCalldata.length;
+            uint256 bufferPtr;
+            uint256 bufferLength;
+            assembly ("memory-safe") {
+                bufferPtr := executionCalldata.offset
+                bufferLength := executionCalldata.length
+            }
 
             // Check executionCalldata is not empty.
             if (bufferLength < 0x20) revert ERC7579DecodingError();
@@ -204,8 +209,37 @@ library ERC7579Utils {
                 revert ERC7579DecodingError();
 
             assembly ("memory-safe") {
-                executionBatch.offset := add(add(executionCalldata.offset, arrayLengthOffset), 0x20)
+                executionBatch.offset := add(add(bufferPtr, arrayLengthOffset), 0x20)
                 executionBatch.length := arrayLength
+            }
+
+            _validateCalldataBound(executionBatch, bufferPtr + bufferLength);
+        }
+    }
+
+    /**
+     * @dev Calldata sanity check
+     *
+     * Solidity performs "lazy" verification that all calldata objects are valid, by checking that they are
+     * within calldatasize. This check is performed when objects are dereferenced. If the `executionCalldata`
+     * is not the last element (buffer) in msg.data, this check will not detect potentially ill-formed objects
+     * that point to the memory space between the end of the `executionCalldata` buffer.
+     * If we are in a situation where the lazy checks are not sufficient, we do an in-depth traversal of the
+     * array, checking that everything is valid.
+     */
+    function _validateCalldataBound(Execution[] calldata executionBatch, uint256 bound) private pure {
+        if (bound < msg.data.length) {
+            for (uint256 i = 0; i < executionBatch.length; ++i) {
+                Execution calldata item = executionBatch[i];
+                bytes calldata itemCalldata = item.callData;
+
+                uint256 itemEnd;
+                uint256 itemCalldataEnd;
+                assembly ("memory-safe") {
+                    itemEnd := add(item, 0x60)
+                    itemCalldataEnd := add(itemCalldata.offset, itemCalldata.length)
+                }
+                if (itemEnd > bound || itemCalldataEnd > bound) revert ERC7579DecodingError();
             }
         }
     }

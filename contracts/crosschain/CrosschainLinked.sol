@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.7.0) (crosschain/CrosschainLinked.sol)
 
 pragma solidity ^0.8.26;
 
@@ -12,7 +13,7 @@ import {ERC7786Recipient} from "./ERC7786Recipient.sol";
  *
  * This contract contains the logic to register and send messages to counterparts on remote chains using ERC-7786
  * gateways. It ensure received messages originate from a counterpart. This is the base of token bridges such as
- * {BridgeERC20Core}.
+ * {BridgeFungible}.
  *
  * Contracts that inherit from this contract can use the internal {_sendMessageToCounterpart} to send messages to their
  * counterpart on a foreign chain. They must override the {_processMessage} function to handle messages that have
@@ -97,12 +98,17 @@ abstract contract CrosschainLinked is ERC7786Recipient {
         address instance,
         bytes calldata sender
     ) internal view virtual override returns (bool) {
-        (address gateway, bytes memory router) = getLink(_extractChain(sender));
+        (address gateway, bytes memory router) = getLink(_extractChainCalldata(sender));
         return instance == gateway && sender.equal(router);
     }
 
     function _extractChain(bytes memory self) private pure returns (bytes memory) {
         (bytes2 chainType, bytes memory chainReference, ) = self.parseV1();
+        return InteroperableAddress.formatV1(chainType, chainReference, hex"");
+    }
+
+    function _extractChainCalldata(bytes calldata self) private pure returns (bytes memory) {
+        (bytes2 chainType, bytes calldata chainReference, ) = self.parseV1Calldata();
         return InteroperableAddress.formatV1(chainType, chainReference, hex"");
     }
 }

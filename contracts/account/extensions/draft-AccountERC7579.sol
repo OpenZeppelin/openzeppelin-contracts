@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.5.0) (account/extensions/draft-AccountERC7579.sol)
+// OpenZeppelin Contracts (last updated v5.7.0) (account/extensions/draft-AccountERC7579.sol)
 
 pragma solidity ^0.8.26;
 
-import {PackedUserOperation} from "../../interfaces/draft-IERC4337.sol";
+import {PackedUserOperation} from "../../interfaces/IERC4337.sol";
 import {IERC1271} from "../../interfaces/IERC1271.sol";
 import {
     IERC7579Module,
@@ -51,6 +51,11 @@ import {Account} from "../Account.sol";
  * * When combined with {ERC7739}, resolution ordering of {isValidSignature} may have an impact ({ERC7739} does not
  *   call super). Manual resolution might be necessary.
  * * Static calls (using callType `0xfe`) are currently NOT supported.
+ * * Installing a fallback handler for a selector that collides with a function defined on the account (or any
+ *   derived contract) will result in the handler being unreachable, since Solidity dispatches to concrete functions
+ *   before `fallback()`. This includes unrelated function signatures whose 4-byte selector happens to collide.
+ *   The {isModuleInstalled} function only reflects configuration state and does not guarantee selector
+ *   reachability.
  * ====
  *
  * WARNING: Removing all validator modules will render the account inoperable, as no user operations can be validated thereafter.
@@ -284,6 +289,12 @@ abstract contract AccountERC7579 is Account, IERC1271, IERC7579Execution, IERC75
      * Requirements:
      *
      * * Module must be already installed. Reverts with {ERC7579Utils-ERC7579UninstalledModule} otherwise.
+     * * The module's own {IERC7579Module-onUninstall} function must succeed.
+     *
+     * NOTE: The module's {IERC7579Module-onUninstall} callback is invoked without catching reverts, so a buggy or
+     * malicious module can block its own uninstallation by reverting. A forced uninstallation that bypasses this
+     * callback can still be performed through a delegate call (`CALLTYPE_DELEGATECALL`) via {execute}, running logic
+     * in the account's context that clears the module from storage directly.
      */
     function _uninstallModule(uint256 moduleTypeId, address module, bytes memory deInitData) internal virtual {
         require(supportsModule(moduleTypeId), ERC7579Utils.ERC7579UnsupportedModuleType(moduleTypeId));
@@ -302,8 +313,7 @@ abstract contract AccountERC7579 is Account, IERC1271, IERC7579Execution, IERC75
             delete _fallbacks[selector];
         }
 
-        // Ignores success purposely to avoid modules that revert on uninstall
-        LowLevelCall.callNoReturn(module, abi.encodeCall(IERC7579Module.onUninstall, (deInitData)));
+        IERC7579Module(module).onUninstall(deInitData);
         emit ModuleUninstalled(moduleTypeId, module);
     }
 

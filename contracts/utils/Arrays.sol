@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.5.0) (utils/Arrays.sol)
+// OpenZeppelin Contracts (last updated v5.7.0) (utils/Arrays.sol)
 // This file was procedurally generated from scripts/generate/templates/Arrays.js.
 
 pragma solidity ^0.8.24;
@@ -114,25 +114,33 @@ library Arrays {
      */
     function _quickSort(uint256 begin, uint256 end, function(uint256, uint256) pure returns (bool) comp) private pure {
         unchecked {
-            if (end - begin < 0x40) return;
+            while (end - begin > 0x20) {
+                // Use first element as pivot
+                uint256 pivot = _mload(begin);
+                // Position where the pivot should be at the end of the loop
+                uint256 pos = begin;
 
-            // Use first element as pivot
-            uint256 pivot = _mload(begin);
-            // Position where the pivot should be at the end of the loop
-            uint256 pos = begin;
+                for (uint256 it = begin + 0x20; it < end; it += 0x20) {
+                    if (comp(_mload(it), pivot)) {
+                        // If the value stored at the iterator's position comes before the pivot, we increment the
+                        // position of the pivot and move the value there.
+                        pos += 0x20;
+                        _swap(pos, it);
+                    }
+                }
 
-            for (uint256 it = begin + 0x20; it < end; it += 0x20) {
-                if (comp(_mload(it), pivot)) {
-                    // If the value stored at the iterator's position comes before the pivot, we increment the
-                    // position of the pivot and move the value there.
-                    pos += 0x20;
-                    _swap(pos, it);
+                _swap(begin, pos); // Swap pivot into place
+
+                // Recurse on the smaller partition, iterate on the larger one.
+                uint256 middle = pos + 0x20;
+                if (pos - begin < end - middle) {
+                    _quickSort(begin, pos, comp);
+                    begin = middle;
+                } else {
+                    _quickSort(middle, end, comp);
+                    end = pos;
                 }
             }
-
-            _swap(begin, pos); // Swap pivot into place
-            _quickSort(begin, pos, comp); // Sort the left side of the pivot
-            _quickSort(pos + 0x20, end, comp); // Sort the right side of the pivot
         }
     }
 
@@ -466,21 +474,21 @@ library Arrays {
     }
 
     /**
-     * @dev Moves the content of `array`, from `start` (included) to the end of `array` to the start of that array.
+     * @dev Moves the content of `array`, from `start` (included) to the end of `array` to the start of that array,
+     * and shrinks the array length accordingly, effectively overwriting the array with array[start:].
      *
      * NOTE: This function modifies the provided array in place. If you need to preserve the original array, use {slice} instead.
-     * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice[Javascript's `Array.splice`]
      */
     function splice(address[] memory array, uint256 start) internal pure returns (address[] memory) {
         return splice(array, start, array.length);
     }
 
     /**
-     * @dev Moves the content of `array`, from `start` (included) to `end` (excluded) to the start of that array. The
+     * @dev Moves the content of `array`, from `start` (included) to `end` (excluded) to the start of that array,
+     * and shrinks the array length accordingly, effectively overwriting the array with array[start:end]. The
      * `end` argument is truncated to the length of the `array`.
      *
      * NOTE: This function modifies the provided array in place. If you need to preserve the original array, use {slice} instead.
-     * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice[Javascript's `Array.splice`]
      */
     function splice(address[] memory array, uint256 start, uint256 end) internal pure returns (address[] memory) {
         // sanitize
@@ -499,7 +507,7 @@ library Arrays {
     /**
      * @dev Replaces elements in `array` starting at `pos` with all elements from `replacement`.
      *
-     * Parameters are clamped to valid ranges (i.e. `pos` is clamped to `[0, array.length]`).
+     * Parameters are clamped to valid ranges (e.g. `pos` is clamped to `[0, array.length]`).
      * If `pos >= array.length`, no replacement occurs and the array is returned unchanged.
      *
      * NOTE: This function modifies the provided array in place.
@@ -535,7 +543,7 @@ library Arrays {
         offset = Math.min(offset, replacement.length);
         length = Math.min(length, Math.min(replacement.length - offset, array.length - pos));
 
-        // allocate and copy
+        // replace
         assembly ("memory-safe") {
             mcopy(
                 add(add(array, 0x20), mul(pos, 0x20)),
@@ -548,21 +556,21 @@ library Arrays {
     }
 
     /**
-     * @dev Moves the content of `array`, from `start` (included) to the end of `array` to the start of that array.
+     * @dev Moves the content of `array`, from `start` (included) to the end of `array` to the start of that array,
+     * and shrinks the array length accordingly, effectively overwriting the array with array[start:].
      *
      * NOTE: This function modifies the provided array in place. If you need to preserve the original array, use {slice} instead.
-     * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice[Javascript's `Array.splice`]
      */
     function splice(bytes32[] memory array, uint256 start) internal pure returns (bytes32[] memory) {
         return splice(array, start, array.length);
     }
 
     /**
-     * @dev Moves the content of `array`, from `start` (included) to `end` (excluded) to the start of that array. The
+     * @dev Moves the content of `array`, from `start` (included) to `end` (excluded) to the start of that array,
+     * and shrinks the array length accordingly, effectively overwriting the array with array[start:end]. The
      * `end` argument is truncated to the length of the `array`.
      *
      * NOTE: This function modifies the provided array in place. If you need to preserve the original array, use {slice} instead.
-     * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice[Javascript's `Array.splice`]
      */
     function splice(bytes32[] memory array, uint256 start, uint256 end) internal pure returns (bytes32[] memory) {
         // sanitize
@@ -581,7 +589,7 @@ library Arrays {
     /**
      * @dev Replaces elements in `array` starting at `pos` with all elements from `replacement`.
      *
-     * Parameters are clamped to valid ranges (i.e. `pos` is clamped to `[0, array.length]`).
+     * Parameters are clamped to valid ranges (e.g. `pos` is clamped to `[0, array.length]`).
      * If `pos >= array.length`, no replacement occurs and the array is returned unchanged.
      *
      * NOTE: This function modifies the provided array in place.
@@ -617,7 +625,7 @@ library Arrays {
         offset = Math.min(offset, replacement.length);
         length = Math.min(length, Math.min(replacement.length - offset, array.length - pos));
 
-        // allocate and copy
+        // replace
         assembly ("memory-safe") {
             mcopy(
                 add(add(array, 0x20), mul(pos, 0x20)),
@@ -630,21 +638,21 @@ library Arrays {
     }
 
     /**
-     * @dev Moves the content of `array`, from `start` (included) to the end of `array` to the start of that array.
+     * @dev Moves the content of `array`, from `start` (included) to the end of `array` to the start of that array,
+     * and shrinks the array length accordingly, effectively overwriting the array with array[start:].
      *
      * NOTE: This function modifies the provided array in place. If you need to preserve the original array, use {slice} instead.
-     * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice[Javascript's `Array.splice`]
      */
     function splice(uint256[] memory array, uint256 start) internal pure returns (uint256[] memory) {
         return splice(array, start, array.length);
     }
 
     /**
-     * @dev Moves the content of `array`, from `start` (included) to `end` (excluded) to the start of that array. The
+     * @dev Moves the content of `array`, from `start` (included) to `end` (excluded) to the start of that array,
+     * and shrinks the array length accordingly, effectively overwriting the array with array[start:end]. The
      * `end` argument is truncated to the length of the `array`.
      *
      * NOTE: This function modifies the provided array in place. If you need to preserve the original array, use {slice} instead.
-     * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice[Javascript's `Array.splice`]
      */
     function splice(uint256[] memory array, uint256 start, uint256 end) internal pure returns (uint256[] memory) {
         // sanitize
@@ -663,7 +671,7 @@ library Arrays {
     /**
      * @dev Replaces elements in `array` starting at `pos` with all elements from `replacement`.
      *
-     * Parameters are clamped to valid ranges (i.e. `pos` is clamped to `[0, array.length]`).
+     * Parameters are clamped to valid ranges (e.g. `pos` is clamped to `[0, array.length]`).
      * If `pos >= array.length`, no replacement occurs and the array is returned unchanged.
      *
      * NOTE: This function modifies the provided array in place.
@@ -699,7 +707,7 @@ library Arrays {
         offset = Math.min(offset, replacement.length);
         length = Math.min(length, Math.min(replacement.length - offset, array.length - pos));
 
-        // allocate and copy
+        // replace
         assembly ("memory-safe") {
             mcopy(
                 add(add(array, 0x20), mul(pos, 0x20)),

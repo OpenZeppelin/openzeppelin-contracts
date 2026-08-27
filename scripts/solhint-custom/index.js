@@ -1,5 +1,5 @@
 const path = require('path');
-const minimatch = require('minimatch');
+const { minimatch } = require('minimatch');
 
 const { isFallbackFunction } = require('solhint/lib/common/ast-types');
 const { hasLeadingUnderscore } = require('solhint/lib/common/identifier-naming');

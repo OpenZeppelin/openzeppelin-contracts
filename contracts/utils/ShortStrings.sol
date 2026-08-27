@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.5.0) (utils/ShortStrings.sol)
+// OpenZeppelin Contracts (last updated v5.7.0) (utils/ShortStrings.sol)
 
 pragma solidity ^0.8.20;
 
@@ -47,7 +47,7 @@ library ShortStrings {
     /**
      * @dev Encode a string of at most 31 chars into a `ShortString`.
      *
-     * This will trigger a `StringTooLong` error is the input string is too long.
+     * This will trigger a `StringTooLong` error if the input string is too long.
      */
     function toShortString(string memory str) internal pure returns (ShortString) {
         bytes memory bstr = bytes(str);

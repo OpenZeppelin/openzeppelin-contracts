@@ -1,7 +1,12 @@
-const { ethers } = require('hardhat');
-const { expect } = require('chai');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const { impersonate } = require('../helpers/account');
+import { network } from 'hardhat';
+import { expect } from 'chai';
+import * as random from '../helpers/random';
+
+const {
+  ethers,
+  helpers: { impersonate },
+  networkHelpers: { loadFixture },
+} = await network.create();
 
 async function fixture() {
   const [admin, receiver, other] = await ethers.getSigners();
@@ -64,14 +69,17 @@ describe('RelayedCall', function () {
       it('target success (with value)', async function () {
         const value = 42n;
 
+        // fund the mock
+        await this.other.sendTransaction({ to: this.mock.target, value });
+
+        // perform relayed call
         const tx = this.mock.$relayCall(
           ethers.Typed.address(this.receiver),
           ethers.Typed.uint256(value),
           ethers.Typed.bytes('0x'),
-          ethers.Typed.overrides({ value }),
         );
 
-        await expect(tx).to.changeEtherBalances([this.mock, this.relayer, this.receiver], [0n, 0n, value]);
+        await expect(tx).to.changeEtherBalances(ethers, [this.mock, this.relayer, this.receiver], [-value, 0n, value]);
         await expect(tx).to.emit(this.mock, 'return$relayCall_address_uint256_bytes').withArgs(true, '0x');
       });
 
@@ -94,10 +102,10 @@ describe('RelayedCall', function () {
       // unauthorized caller
       await expect(
         this.other.sendTransaction({ to: this.relayer, data: '0x7859821024E633C5dC8a4FcF86fC52e7720Ce525' }),
-      ).to.be.revertedWithoutReason();
+      ).to.be.revertedWithoutReason(ethers);
     });
 
-    it('input format', async function () {
+    it('relayer input format', async function () {
       // deploy relayer
       await this.mock.$getRelayer();
 
@@ -107,21 +115,21 @@ describe('RelayedCall', function () {
       // 20 bytes (address + empty data) - OK
       await expect(
         mockAsWallet.sendTransaction({ to: this.relayer, data: '0x7859821024E633C5dC8a4FcF86fC52e7720Ce525' }),
-      ).to.not.be.reverted;
+      ).to.not.be.revert(ethers);
 
       // 19 bytes (not enough for an address) - REVERT
       await expect(
         mockAsWallet.sendTransaction({ to: this.relayer, data: '0x7859821024E633C5dC8a4FcF86fC52e7720Ce5' }),
-      ).to.be.revertedWithoutReason();
+      ).to.be.revertedWithoutReason(ethers);
 
       // 0 bytes (not enough for an address) - REVERT
-      await expect(mockAsWallet.sendTransaction({ to: this.relayer, data: '0x' })).to.be.revertedWithoutReason();
+      await expect(mockAsWallet.sendTransaction({ to: this.relayer, data: '0x' })).to.be.revertedWithoutReason(ethers);
     });
   });
 
   describe('random salt', function () {
     beforeEach(async function () {
-      this.salt = ethers.hexlify(ethers.randomBytes(32));
+      this.salt = random.bytes32();
       this.relayer = await this.computeRelayerAddress(this.salt);
     });
 
@@ -158,15 +166,18 @@ describe('RelayedCall', function () {
       it('target success (with value)', async function () {
         const value = 42n;
 
+        // fund the mock
+        await this.other.sendTransaction({ to: this.mock.target, value });
+
+        // perform relayed call
         const tx = this.mock.$relayCall(
           ethers.Typed.address(this.receiver),
           ethers.Typed.uint256(value),
           ethers.Typed.bytes('0x'),
           ethers.Typed.bytes32(this.salt),
-          ethers.Typed.overrides({ value }),
         );
 
-        await expect(tx).to.changeEtherBalances([this.mock, this.relayer, this.receiver], [0n, 0n, value]);
+        await expect(tx).to.changeEtherBalances(ethers, [this.mock, this.relayer, this.receiver], [-value, 0n, value]);
         await expect(tx).to.emit(this.mock, 'return$relayCall_address_uint256_bytes_bytes32').withArgs(true, '0x');
       });
 
@@ -190,7 +201,7 @@ describe('RelayedCall', function () {
       // unauthorized caller
       await expect(
         this.other.sendTransaction({ to: this.relayer, data: '0x7859821024E633C5dC8a4FcF86fC52e7720Ce525' }),
-      ).to.be.revertedWithoutReason();
+      ).to.be.revertedWithoutReason(ethers);
     });
 
     it('input format', async function () {
@@ -203,15 +214,15 @@ describe('RelayedCall', function () {
       // 20 bytes (address + empty data) - OK
       await expect(
         mockAsWallet.sendTransaction({ to: this.relayer, data: '0x7859821024E633C5dC8a4FcF86fC52e7720Ce525' }),
-      ).to.not.be.reverted;
+      ).to.not.be.revert(ethers);
 
       // 19 bytes (not enough for an address) - REVERT
       await expect(
         mockAsWallet.sendTransaction({ to: this.relayer, data: '0x7859821024E633C5dC8a4FcF86fC52e7720Ce5' }),
-      ).to.be.revertedWithoutReason();
+      ).to.be.revertedWithoutReason(ethers);
 
       // 0 bytes (not enough for an address) - REVERT
-      await expect(mockAsWallet.sendTransaction({ to: this.relayer, data: '0x' })).to.be.revertedWithoutReason();
+      await expect(mockAsWallet.sendTransaction({ to: this.relayer, data: '0x' })).to.be.revertedWithoutReason(ethers);
     });
   });
 });
