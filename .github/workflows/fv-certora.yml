@@ -28,13 +28,18 @@ jobs:
       - uses: actions/checkout@v7
         with:
           # `pull_request_target` checks out the base by default. This runs the contributor's code,
-          # which is why the environment approval above is required.
+          # which is why the environment approval above is required. actions/checkout refuses a fork
+          # checkout in this context unless that risk is explicitly acknowledged.
           ref: ${{ github.event.pull_request.head.sha || github.ref }}
+          allow-unsafe-pr-checkout: true
           fetch-depth: 0 # Include history so the diff against the PR base resolves
           persist-credentials: false
       - name: Set up environment
         uses: ./.github/actions/setup
         with:
+          # Read the cache, never write it. The scope is the base branch here, so a cache saved after
+          # the contributor's code has run would be restored by every other workflow.
+          cache: 'restore'
           solc: 'on'
           java: 'on'
           python: 'on'
