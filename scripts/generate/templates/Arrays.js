@@ -15,6 +15,16 @@ import {Math} from "./math/Math.sol";
  */
 `;
 
+// Comparators for types narrower than a word receive (potentially) dirty inputs. See {_addressLt}.
+const dirtyNote = type =>
+  type.size && type.size < 32
+    ? `
+ *
+ * NOTE: \`comp\` receives the array entries verbatim, including any dirty (non-zero) upper bits. Solidity assumes
+ * \`${type.name}\` values are clean, so a comparator that compares its arguments directly may order them incorrectly.
+ * A comparator that may be given dirty entries should mask them, as in \`uint${type.size * 8}(a) < uint${type.size * 8}(b)\`.`
+    : '';
+
 const sort = type => `\
 /**
  * @dev Sort an array of ${type.name} (in memory) following the provided comparator function.
@@ -27,7 +37,9 @@ const sort = type => `\
  * when executing this as part of a transaction. If the array being sorted is too large, the sort operation may
  * consume more gas than is available in a block, leading to potential DoS.
  *
- * IMPORTANT: Consider memory side-effects when using custom comparator functions that access memory in an unsafe way.
+ * IMPORTANT: Consider memory side-effects when using custom comparator functions that access memory in an unsafe way.${dirtyNote(
+   type,
+ )}
  */
 function sort(
     ${type.name}[] memory array,
@@ -45,7 +57,7 @@ function sort(
  * @dev Variant of {sort} that sorts an array of ${type.name} in increasing order.
  */
 function sort(${type.name}[] memory array) internal pure returns (${type.name}[] memory) {
-    ${type.name === 'uint256' ? 'sort(array, Comparators.lt);' : 'sort(_castToUint256Array(array), Comparators.lt);'}
+    ${type.name === 'uint256' ? 'sort(array, Comparators.lt);' : `sort(_castToUint256Array(array), ${type.size == 32 ? 'Comparators.lt' : `_${type.name}Lt`});`}
     return array;
 }
 `;
@@ -130,6 +142,13 @@ function _swap(uint256 ptr1, uint256 ptr2) private pure {
         mstore(ptr1, value2)
         mstore(ptr2, value1)
     }
+}
+`;
+
+const comparator = type => `\
+/// @dev Helper: strict comparison of two ${type.name} values held in (potentially dirty) uint256 words
+function _${type.name}Lt(uint256 a, uint256 b) private pure returns (bool) {
+    return uint${type.size * 8}(a) < uint${type.size * 8}(b);
 }
 `;
 
@@ -346,7 +365,7 @@ const unsafeAccessMemory = type => `\
  * WARNING: Only use if you are certain \`pos\` is lower than the array length.
  */
 function unsafeMemoryAccess(${type.name}[] memory arr, uint256 pos) internal pure returns (${type.name}${
-  type.isValueType ? '' : ' memory'
+  type.size ? '' : ' memory'
 } res) {
     assembly {
         res := mload(add(add(arr, 0x20), mul(pos, 0x20)))
@@ -494,15 +513,16 @@ export default format(
       '',
       // sorting, comparator, helpers and internal
       sort({ name: 'uint256' }),
-      TYPES.filter(type => type.isValueType && type.name !== 'uint256').map(sort),
+      TYPES.filter(type => type.size && type.name !== 'uint256').map(sort),
       quickSort,
-      TYPES.filter(type => type.isValueType && type.name !== 'uint256').map(castArray),
-      TYPES.filter(type => type.isValueType && type.name !== 'uint256').map(castComparator),
+      TYPES.filter(type => type.size && type.size < 32).map(comparator),
+      TYPES.filter(type => type.size && type.name !== 'uint256').map(castArray),
+      TYPES.filter(type => type.size && type.name !== 'uint256').map(castComparator),
       // lookup
       search,
       // slice and splice for value types only
-      TYPES.filter(type => type.isValueType).map(slice),
-      TYPES.filter(type => type.isValueType).map(splice),
+      TYPES.filter(type => type.size).map(slice),
+      TYPES.filter(type => type.size).map(splice),
       // unsafe (direct) storage and memory access
       TYPES.map(unsafeAccessStorage),
       TYPES.map(unsafeAccessMemory),
