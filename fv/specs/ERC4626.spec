@@ -84,3 +84,57 @@ rule mintGapCanBeOne(uint256 shares) {
     require sane();
     satisfy previewMint(shares) - previewRedeem(shares) == 1;
 }
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ P3: the max/preview boundary - what the limits promise, the operations honour                       │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+
+/// maxWithdraw floors on the way out while previewWithdraw ceils on the way back, so it is not
+/// obvious the round trip stays inside the owner's share balance. It does: m = floor(b(A+1)/(T+K))
+/// gives m(T+K)/(A+1) <= b, and b is an integer, so ceil(m(T+K)/(A+1)) <= b. That is what keeps
+/// withdraw(maxWithdraw(o)) from reverting on the burn, which is why the third assertion carries
+/// the weight of P3.
+rule maxBoundaryIsConsistent(address owner) {
+    require sane();
+    requireInvariant totalSupplyIsSumOfBalances();
+
+    assert maxRedeem(owner) == balanceOf(owner);
+    assert maxWithdraw(owner) == previewRedeem(maxRedeem(owner));
+    assert previewWithdraw(maxWithdraw(owner)) <= balanceOf(owner);
+}
+
+/// Liveness: the advertised limit is actually reachable. No invariant catches this - a max() that
+/// over-promises leaves every value rule green while the operation reverts.
+///
+/// Both rules fix owner == msg.sender, so no allowance is spent and the claim is narrowed to
+/// self-withdrawals; the allowance path belongs to the conservation rules. msg.sender must be
+/// nonzero because burning from the zero address reverts regardless of amount.
+///
+/// noVirtualOverflow is stated on both, though only redeem needs it to pass: withdraw reaches the
+/// same state through maxWithdraw, whose own revert prunes the path before the assertion. Assuming
+/// it explicitly keeps the two rules covering the same states.
+rule redeemMaxNeverReverts(env e, address receiver) {
+    require sane();
+    require nonpayable(e);
+    require nonzerosender(e);
+    require noVirtualOverflow();
+    requireInvariant totalSupplyIsSumOfBalances();
+
+    address owner = e.msg.sender;
+    redeem@withrevert(e, maxRedeem(owner), receiver, owner);
+    assert !lastReverted;
+}
+
+rule withdrawMaxNeverReverts(env e, address receiver) {
+    require sane();
+    require nonpayable(e);
+    require nonzerosender(e);
+    require noVirtualOverflow();
+    requireInvariant totalSupplyIsSumOfBalances();
+
+    address owner = e.msg.sender;
+    withdraw@withrevert(e, maxWithdraw(owner), receiver, owner);
+    assert !lastReverted;
+}
