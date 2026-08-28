@@ -395,3 +395,29 @@ rule holdingBackAcrossDonationDoesNotPay(env e, uint256 x, uint256 y, uint256 d,
 
     assert heldBack <= upfront;
 }
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ P5: no method can lower the exchange rate                                                           │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+
+/// Deposits round shares minted down and withdrawals round shares burned up, so in every direction
+/// the rounding residue stays with the vault and the price per share can only rise or hold.
+///
+/// Ranges over the harness method set, which includes donate(). That is deliberate and part of the
+/// claim: a raw asset inflow is the inflation attack's vector, and on the production contract alone
+/// it is not a method any parametric rule can reach.
+rule rateNeverDecreases(env e, method f) filtered { f -> !f.isView } {
+    require sane();
+    require noVirtualOverflow();
+    require e.msg.sender != currentContract;
+    requireInvariant totalSupplyIsSumOfBalances();
+
+    mathint before = convertToAssets(ONE_SHARE());
+
+    calldataarg args;
+    f(e, args);
+
+    assert to_mathint(convertToAssets(ONE_SHARE())) >= before;
+}
