@@ -1,5 +1,6 @@
-// Shared base for the ERC4626 suite: the summary layer plus the scope definitions. It holds the
-// only methods block, so every config verifying an ERC4626 spec inherits what is assumed here.
+// Shared base for the ERC4626 suite: the summary layer plus the scope definitions. Every summary
+// the suite relies on is declared here, so what is assumed here is assumed by every config.
+// ERC4626Offset.spec adds a methods block of its own, but only to declare harness-only views.
 //
 // ASSUMED, NOT PROVED. Every rule in this suite is conditional on all of the following:
 //   - Math.mulDiv is replaced by a closed form, so rules are conditional on that form matching the
@@ -8,7 +9,10 @@
 //   - The underlying asset has no contract in the scene. Its balances and allowances are ghost
 //     state, which under-approximates real tokens: no fee-on-transfer, no rebase-down, no ERC-777
 //     reentrancy.
-//   - _decimalsOffset() is 0 in the harness, so no result here generalizes to a larger offset.
+//   - _decimalsOffset() is 0 in this harness, so no result verified against it generalizes to a
+//     larger offset. ERC4626Offset.spec re-proves solvency and the donation sandwich against a
+//     harness whose offset is symbolic, and states the one claim only a symbolic offset can make;
+//     every other result in the suite is a zero-offset result.
 //   - optimistic_loop is set on every config, so loops are assumed to terminate within the bound.
 //
 // Parametric rules range over the harness, which adds a non-production donate() and deliberately
