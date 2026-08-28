@@ -421,3 +421,45 @@ rule rateNeverDecreases(env e, method f) filtered { f -> !f.isView } {
 
     assert to_mathint(convertToAssets(ONE_SHARE())) >= before;
 }
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ P6: an asset inflow never reduces what an existing holder can redeem                                │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+
+/// The transaction-level claim. A donation raises totalAssets and leaves totalSupply alone, so the
+/// conversion's denominator is untouched and its numerator only grows.
+rule donationNeverHarmsHolders(env e, uint256 d, address holder) {
+    require sane();
+    require nonpayable(e);
+    require noVirtualOverflow();
+    require e.msg.sender != currentContract && holder != currentContract;
+    // The post-state must convert too, or the second probe reverts and prunes the path invisibly.
+    require to_mathint(totalAssets()) + to_mathint(d) < max_uint256;
+    requireInvariant totalSupplyIsSumOfBalances();
+
+    mathint before = previewRedeem(balanceOf(holder));
+    donate(e, d);
+    assert to_mathint(previewRedeem(balanceOf(holder))) >= before;
+}
+
+/// The same property for an inflow arriving by any means at all, not only a call to donate(): a raw
+/// transfer from an address that never touches the vault, yield accrual, a rebase up. Writing the
+/// ghost directly is what lets this cover inflows no transaction on this contract can produce.
+rule assetInflowNeverHarmsHolders(uint256 d, address holder) {
+    require sane();
+    require noVirtualOverflow();
+    require holder != currentContract;
+    requireInvariant totalSupplyIsSumOfBalances();
+
+    address token = asset();
+    require to_mathint(totalAssets()) + to_mathint(d) < max_uint256;
+
+    mathint before = previewRedeem(balanceOf(holder));
+
+    balanceByToken[token][currentContract] =
+        require_uint256(balanceByToken[token][currentContract] + d);
+
+    assert to_mathint(previewRedeem(balanceOf(holder))) >= before;
+}
