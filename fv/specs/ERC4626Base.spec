@@ -1,6 +1,5 @@
 // Shared base for the ERC4626 suite: the summary layer plus the scope definitions. Every summary
 // the suite relies on is declared here, so what is assumed here is assumed by every config.
-// ERC4626Offset.spec adds a methods block of its own, but only to declare harness-only views.
 //
 // ASSUMED, NOT PROVED. Every rule in this suite is conditional on all of the following:
 //   - Math.mulDiv is replaced by a closed form, so rules are conditional on that form matching the
@@ -9,16 +8,15 @@
 //   - The underlying asset has no contract in the scene. Its balances and allowances are ghost
 //     state, which under-approximates real tokens: no fee-on-transfer, no rebase-down, no ERC-777
 //     reentrancy.
-//   - _decimalsOffset() is 0 in this harness, so no result verified against it generalizes to a
-//     larger offset. ERC4626Offset.spec re-proves solvency and the donation sandwich against a
-//     harness whose offset is symbolic, and states the one claim only a symbolic offset can make;
-//     every other result in the suite is a zero-offset result.
+//   - _decimalsOffset() is 0 in ERC4626Harness, so nothing verified against it generalizes to a
+//     larger offset. ERC4626Offset.spec proves solvency and the donation attack against a harness
+//     whose offset is symbolic; every other result in the suite is a zero-offset result.
 //   - optimistic_loop is set on every config, so loops are assumed to terminate within the bound.
 //
 // Parametric rules range over the harness, which adds a non-production donate() and deliberately
-// exposes no share mint or burn. Both are part of the claim rather than conveniences: a raw asset
-// inflow is the inflation attack's vector and no parametric rule over the production contract can
-// reach it, while an unbacked mint would falsify rate monotonicity.
+// exposes no share mint or burn. Both are part of the claim: a raw asset inflow is the inflation
+// attack's vector and no parametric rule over the production contract can reach it, while an
+// unbacked mint would falsify rate monotonicity.
 //
 // Rules that are not proved at all are recorded in the timeout ledger in the formal-verification
 // workflow, not here.
@@ -49,7 +47,7 @@ methods {
 
     // ---- summaries ----
     // Trusted, not proved. ERC4626 only calls this overload, so summarizing it bypasses Math
-    // entirely; the 3-arg overload is deliberately left unbound because it would never fire.
+    // entirely; the 3-arg overload is left unbound because it would never fire.
     function _.mulDiv(uint256 x, uint256 y, uint256 d, Math.Rounding r) internal
         => mulDivCVL(x, y, d, r) expect uint256;
 
