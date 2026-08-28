@@ -157,7 +157,7 @@ rule depositIsNotSplittable(env e, uint256 x, uint256 y, address receiver) {
 /// in terms of the remaining balance the direction is the same as deposit.
 ///
 /// NOT DISCHARGED: excluded from every config, see the
-/// [ledger](../../.github/workflows/formal-verification.yml#L61-L79).
+/// [timeout ledger](../../.github/workflows/formal-verification.yml).
 rule withdrawIsNotSplittable(env e, uint256 x, uint256 y, address receiver) {
     require sane();
     require nonpayable(e);
@@ -189,7 +189,7 @@ rule withdrawIsNotSplittable(env e, uint256 x, uint256 y, address receiver) {
 /// never gains shares over committing it all at once.
 ///
 /// NOT DISCHARGED: excluded from every config, see the
-/// [ledger](../../.github/workflows/formal-verification.yml#L61-L79).
+/// [timeout ledger](../../.github/workflows/formal-verification.yml).
 rule holdingBackAcrossDonationDoesNotPay(env e, uint256 x, uint256 y, uint256 d, address receiver) {
     require sane();
     require nonpayable(e);
