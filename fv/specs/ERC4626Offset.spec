@@ -68,8 +68,8 @@ rule vaultNeverOvercommitted() {
 ///
 /// A victim is only robbed if their deposit rounds to zero shares, and
 /// previewDeposit(a) = floor(a(T+K)/(A+1)) is zero only when a(T+K) < A+1. With K = 10^offset and
-/// T >= 0 that forces A >= a*K: the victim loses a, and whoever set the vault up had already sunk at
-/// least a * 10^offset into it. The offset is the multiplier between the two.
+/// T >= 0 that forces A >= a*K: for a deposit of a to mint nothing, the vault must already hold at
+/// least a * 10^offset assets, so the attack costs 10^offset times what it takes from the victim.
 ///
 /// The bound is tight (A = a*K is reachable) and degrades to the trivially true A >= a at offset 0.
 /// It is violated by a mutation that drops the offset from the share conversion.
