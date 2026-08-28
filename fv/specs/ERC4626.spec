@@ -1,7 +1,11 @@
-// Three configs verify this file. ERC4626.conf names most rules, ERC4626_split.conf takes the one
-// needing tuned solver settings for nonlinear share math, and ERC4626_rest.conf is their
-// complement, so a rule added here and named in neither list still runs rather than going silently
-// unverified. Two rules are excluded from all three and carry a note of their own.
+// Two configs verify this file. ERC4626_split.conf takes depositIsNotSplittable, which needs tuned
+// solver settings for nonlinear share math; ERC4626.conf excludes the three anti-splitting rules and
+// runs everything else, so a rule added here runs without being named anywhere. The other two
+// anti-splitting rules are excluded from both and carry a note of their own.
+//
+// Every config sets rule_sanity, so no rule here needs a hand-written reachability guard.
+//
+// P1 (solvency) lives in ERC4626Offset.spec, where the decimals offset is symbolic.
 
 import "ERC4626Base.spec";
 import "helpers/erc20-supply.spec";
@@ -14,40 +18,9 @@ use builtin rule sanity;
 use invariant totalSupplyIsSumOfBalances;
 
 /*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Vacuity guard: if the scope assumptions are unsatisfiable, every rule below passes for free         │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
-rule setupIsSatisfiable(env e, uint256 assets, address receiver) {
-    require sane();
-    require nonpayable(e);
-    deposit(e, assets, receiver);
-    satisfy true;
-}
-
-/*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ P1: the vault is never over-committed - every outstanding share is redeemable simultaneously        │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
-
-/// Holds in every state, with no assumption about how that state was reached, so this is stated as a
-/// rule rather than an invariant: it needs no induction, and quantifying over all sane states is
-/// stronger than quantifying over reachable ones.
-///
-/// Independent of the decimals offset: with K = 10^offset >= 1,
-/// previewRedeem(T) = floor(T(A+1)/(T+K)), and floor(x) <= A iff x < A+1, so the obligation reduces
-/// to T(A+1) < (A+1)(T+K), i.e. 0 < (A+1)K. True for all T, A and K >= 1 - note this needs no
-/// relationship between T and A, which is exactly why induction is unnecessary.
-rule vaultNeverOvercommitted() {
-    require sane();
-    assert previewRedeem(totalSupply()) <= totalAssets();
-}
-
-/*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ P2: round trips never create value, and per-operation leakage is at most one unit                   │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ P2: round trips never create value, and per-operation leakage is at most one unit                  │
+└────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 
 /// The no-free-money half. Both directions of a round trip are stated on the preview functions, so
@@ -61,9 +34,9 @@ rule roundTripNeverCreatesValue(uint256 assets) {
     assert previewMint(previewWithdraw(assets)) >= assets;
 }
 
-/// The tightness half. Bounding leakage at one unit is worth far more than a vague `>=`, and it
-/// catches a preview override whose rounding direction is transposed, which ERC4626 warns about:
-/// overrides to the deposit or withdraw mechanism must be reflected in the preview functions.
+/// The tightness half. Bounding leakage at one unit catches a preview override whose rounding
+/// direction is transposed, which ERC4626 warns about: overrides to the deposit or withdraw
+/// mechanism must be reflected in the preview functions.
 ///
 /// previewWithdraw and previewDeposit are the same conversion at Ceil and Floor, as are previewMint
 /// and previewRedeem, so each gap is a ceil-minus-floor and lands in {0, 1}.
@@ -91,9 +64,9 @@ rule mintGapCanBeOne(uint256 shares) {
 }
 
 /*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ P3: the max/preview boundary - what the limits promise, the operations honour                       │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ P3: the max/preview boundary - what the limits promise, the operations honour                      │
+└────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 
 /// maxWithdraw floors on the way out while previewWithdraw ceils on the way back, so it is not
@@ -145,9 +118,157 @@ rule withdrawMaxNeverReverts(env e, address receiver) {
 }
 
 /*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Conservation and isolation: the state-changers move exactly what they claim, and nothing else       │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ P4: splitting an operation into steps never beats doing it in one                                  │
+└────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+
+/// Three details carry this rule. The observable is the credited share balance rather than the
+/// return value, which is what catches "returned the right number, booked the wrong one". The
+/// inequality direction is derived from the rounding mode: previewDeposit floors, so a credit rounds
+/// down and the one-shot call must not pay out less than the split. And the combined amount uses
+/// assert_uint256, not require_uint256, so an overflowing sum fails the rule instead of being
+/// assumed away - that boundary is where a splitting attack would live.
+///
+/// Both histories start from the same snapshot, so the receiver's pre-existing balance cancels and
+/// comparing absolute balances is sound.
+rule depositIsNotSplittable(env e, uint256 x, uint256 y, address receiver) {
+    require sane();
+    require nonpayable(e);
+    require noVirtualOverflow();
+    require receiver != 0 && e.msg.sender != currentContract;
+    requireInvariant totalSupplyIsSumOfBalances();
+
+    storage init = lastStorage;
+
+    deposit(e, x, receiver);
+    deposit(e, y, receiver);
+    mathint split = balanceOf(receiver);
+
+    deposit(e, assert_uint256(x + y), receiver) at init;
+    mathint combined = balanceOf(receiver);
+
+    assert  combined >= split;   // credit rounds down => one step favours the depositor
+    satisfy combined >  split;   // ... and it actually bites somewhere
+}
+
+/// The mirror. previewWithdraw ceils, so shares burned round up and two burns overcharge by more
+/// than one: the split must never burn fewer shares than the one-shot. Burning more leaves less, so
+/// in terms of the remaining balance the direction is the same as deposit.
+///
+/// NOT DISCHARGED: excluded from every config, see the
+/// [ledger](../../.github/workflows/formal-verification.yml#L61-L79).
+rule withdrawIsNotSplittable(env e, uint256 x, uint256 y, address receiver) {
+    require sane();
+    require nonpayable(e);
+    require noVirtualOverflow();
+    require nonzerosender(e);
+    require receiver != 0 && receiver != currentContract && e.msg.sender != currentContract;
+    requireInvariant totalSupplyIsSumOfBalances();
+
+    address owner = e.msg.sender;
+    storage init = lastStorage;
+
+    withdraw(e, x, receiver, owner);
+    withdraw(e, y, receiver, owner);
+    mathint split = balanceOf(owner);
+
+    withdraw(e, assert_uint256(x + y), receiver, owner) at init;
+    mathint combined = balanceOf(owner);
+
+    assert  combined >= split;
+    satisfy combined >  split;
+}
+
+/// The variant only a donation model can express. Both histories spend the same x + y + d assets;
+/// only the ordering differs.
+///
+/// The baseline is depositing up front, not depositing after the donation: entering before a
+/// donation is cheaper than entering after one by an unbounded margin, which is what a donation
+/// means rather than a flaw. The claim is that holding part of a deposit back across a donation
+/// never gains shares over committing it all at once.
+///
+/// NOT DISCHARGED: excluded from every config, see the
+/// [ledger](../../.github/workflows/formal-verification.yml#L61-L79).
+rule holdingBackAcrossDonationDoesNotPay(env e, uint256 x, uint256 y, uint256 d, address receiver) {
+    require sane();
+    require nonpayable(e);
+    require noVirtualOverflow();
+    require receiver != 0 && e.msg.sender != currentContract;
+    requireInvariant totalSupplyIsSumOfBalances();
+
+    storage init = lastStorage;
+
+    deposit(e, x, receiver);
+    donate(e, d);
+    deposit(e, y, receiver);
+    mathint heldBack = balanceOf(receiver);
+
+    deposit(e, assert_uint256(x + y), receiver) at init;
+    donate(e, d);
+    mathint upfront = balanceOf(receiver);
+
+    assert heldBack <= upfront;
+}
+
+/*
+┌────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ P5: no method can lower the exchange rate                                                          │
+└────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+
+/// Deposits round shares minted down and withdrawals round shares burned up, so in every direction
+/// the rounding residue stays with the vault and the price per share can only rise or hold.
+///
+/// Ranges over the harness method set, which includes donate(); see ERC4626Base.spec for why.
+rule rateNeverDecreases(env e, method f) filtered { f -> !f.isView } {
+    require sane();
+    require noVirtualOverflow();
+    require e.msg.sender != currentContract;
+    requireInvariant totalSupplyIsSumOfBalances();
+
+    mathint before = convertToAssets(ONE_SHARE());
+
+    calldataarg args;
+    f(e, args);
+
+    assert to_mathint(convertToAssets(ONE_SHARE())) >= before;
+}
+
+/*
+┌────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ P6: an asset inflow never reduces what an existing holder can redeem                               │
+└────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+
+/// An inflow raises totalAssets and leaves totalSupply alone, so the conversion's denominator is
+/// untouched and its numerator only grows.
+///
+/// Stated on the ghost rather than on donate() so it covers an inflow arriving by any means: a raw
+/// transfer from an address that never touches the vault, yield accrual, a rebase up. donate()
+/// itself is covered by rateNeverDecreases.
+rule assetInflowNeverHarmsHolders(uint256 d, address holder) {
+    require sane();
+    require noVirtualOverflow();
+    require holder != currentContract;
+    requireInvariant totalSupplyIsSumOfBalances();
+
+    address token = asset();
+    // The post-state must convert too, or the second probe reverts and prunes the path invisibly.
+    require to_mathint(totalAssets()) + to_mathint(d) < max_uint256;
+
+    mathint before = previewRedeem(balanceOf(holder));
+
+    balanceByToken[token][currentContract] =
+        require_uint256(balanceByToken[token][currentContract] + d);
+
+    assert to_mathint(previewRedeem(balanceOf(holder))) >= before;
+}
+
+/*
+┌────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Conservation and isolation: the state-changers move exactly what they claim, and nothing else      │
+└────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 
 /// Supporting machinery rather than a headline property. The value properties all assume the
@@ -301,170 +422,4 @@ rule redeemConserves(env e, uint256 shares, address receiver, address owner, add
     assert balanceOf(other) != otherSharesBefore => other == owner;
     assert balanceByToken[token][other] != otherAssetsBefore
         => (other == receiver || other == currentContract);
-}
-
-/*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ P4: splitting an operation into steps never beats doing it in one                                   │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
-
-/// Three details carry this rule. The observable is the credited share balance rather than the
-/// return value, which is what catches "returned the right number, booked the wrong one". The
-/// inequality direction is derived from the rounding mode rather than chosen: previewDeposit floors,
-/// so a credit rounds down and the one-shot call must not pay out less than the split. And the
-/// combined amount uses assert_uint256, not require_uint256, so an overflowing sum fails the rule
-/// instead of being assumed away - that boundary is where a splitting attack would live.
-///
-/// Both histories start from the same snapshot, so the receiver's pre-existing balance cancels and
-/// comparing absolute balances is sound.
-rule depositIsNotSplittable(env e, uint256 x, uint256 y, address receiver) {
-    require sane();
-    require nonpayable(e);
-    require noVirtualOverflow();
-    require receiver != 0 && e.msg.sender != currentContract;
-    requireInvariant totalSupplyIsSumOfBalances();
-
-    storage init = lastStorage;
-
-    deposit(e, x, receiver);
-    deposit(e, y, receiver);
-    mathint split = balanceOf(receiver);
-
-    deposit(e, assert_uint256(x + y), receiver) at init;
-    mathint combined = balanceOf(receiver);
-
-    assert  combined >= split;   // credit rounds down => one step favours the depositor
-    satisfy combined >  split;   // ... and it actually bites somewhere
-}
-
-/// The mirror. previewWithdraw ceils, so shares burned round up and two burns overcharge by more
-/// than one: the split must never burn fewer shares than the one-shot. Burning more leaves less, so
-/// in terms of the remaining balance the direction is the same as deposit.
-///
-/// NOT CURRENTLY DISCHARGED. The strictness witness passes, but the assertion exceeds the solver
-/// budget even with nonlinear arithmetic forced and splitting off - ceil composed with ceil over
-/// four symbolic 256-bit unknowns. The property holds under exhaustive small-value and large random
-/// sampling, so this is solver cost rather than a defect. Excluded from every shard and carried in
-/// the timeout ledger; do not read its absence from the suite as a pass.
-rule withdrawIsNotSplittable(env e, uint256 x, uint256 y, address receiver) {
-    require sane();
-    require nonpayable(e);
-    require noVirtualOverflow();
-    require nonzerosender(e);
-    require receiver != 0 && receiver != currentContract && e.msg.sender != currentContract;
-    requireInvariant totalSupplyIsSumOfBalances();
-
-    address owner = e.msg.sender;
-    storage init = lastStorage;
-
-    withdraw(e, x, receiver, owner);
-    withdraw(e, y, receiver, owner);
-    mathint split = balanceOf(owner);
-
-    withdraw(e, assert_uint256(x + y), receiver, owner) at init;
-    mathint combined = balanceOf(owner);
-
-    assert  combined >= split;
-    satisfy combined >  split;
-}
-
-/// The variant only a donation model can express. Both histories spend the same x + y + d assets;
-/// only the ordering differs.
-///
-/// The baseline is depositing up front, not depositing afterwards. Comparing against a deposit made
-/// after the donation would not be a splitting property at all - entering before a donation is
-/// simply cheaper than entering after one, by an unbounded margin rather than a rounding unit, and
-/// that is what a donation means rather than a flaw. The real claim is that holding part of a
-/// deposit back across a donation never gains shares over committing it all at once.
-///
-/// NOT CURRENTLY DISCHARGED, for the same reason as the withdraw mirror. Its arithmetic core is
-/// trivial in closed form; the cost is the five-operation replay on top. Carried in the ledger.
-rule holdingBackAcrossDonationDoesNotPay(env e, uint256 x, uint256 y, uint256 d, address receiver) {
-    require sane();
-    require nonpayable(e);
-    require noVirtualOverflow();
-    require receiver != 0 && e.msg.sender != currentContract;
-    requireInvariant totalSupplyIsSumOfBalances();
-
-    storage init = lastStorage;
-
-    deposit(e, x, receiver);
-    donate(e, d);
-    deposit(e, y, receiver);
-    mathint heldBack = balanceOf(receiver);
-
-    deposit(e, assert_uint256(x + y), receiver) at init;
-    donate(e, d);
-    mathint upfront = balanceOf(receiver);
-
-    assert heldBack <= upfront;
-}
-
-/*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ P5: no method can lower the exchange rate                                                           │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
-
-/// Deposits round shares minted down and withdrawals round shares burned up, so in every direction
-/// the rounding residue stays with the vault and the price per share can only rise or hold.
-///
-/// Ranges over the harness method set, which includes donate(). That is deliberate and part of the
-/// claim: a raw asset inflow is the inflation attack's vector, and on the production contract alone
-/// it is not a method any parametric rule can reach.
-rule rateNeverDecreases(env e, method f) filtered { f -> !f.isView } {
-    require sane();
-    require noVirtualOverflow();
-    require e.msg.sender != currentContract;
-    requireInvariant totalSupplyIsSumOfBalances();
-
-    mathint before = convertToAssets(ONE_SHARE());
-
-    calldataarg args;
-    f(e, args);
-
-    assert to_mathint(convertToAssets(ONE_SHARE())) >= before;
-}
-
-/*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ P6: an asset inflow never reduces what an existing holder can redeem                                │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
-
-/// The transaction-level claim. A donation raises totalAssets and leaves totalSupply alone, so the
-/// conversion's denominator is untouched and its numerator only grows.
-rule donationNeverHarmsHolders(env e, uint256 d, address holder) {
-    require sane();
-    require nonpayable(e);
-    require noVirtualOverflow();
-    require e.msg.sender != currentContract && holder != currentContract;
-    // The post-state must convert too, or the second probe reverts and prunes the path invisibly.
-    require to_mathint(totalAssets()) + to_mathint(d) < max_uint256;
-    requireInvariant totalSupplyIsSumOfBalances();
-
-    mathint before = previewRedeem(balanceOf(holder));
-    donate(e, d);
-    assert to_mathint(previewRedeem(balanceOf(holder))) >= before;
-}
-
-/// The same property for an inflow arriving by any means at all, not only a call to donate(): a raw
-/// transfer from an address that never touches the vault, yield accrual, a rebase up. Writing the
-/// ghost directly is what lets this cover inflows no transaction on this contract can produce.
-rule assetInflowNeverHarmsHolders(uint256 d, address holder) {
-    require sane();
-    require noVirtualOverflow();
-    require holder != currentContract;
-    requireInvariant totalSupplyIsSumOfBalances();
-
-    address token = asset();
-    require to_mathint(totalAssets()) + to_mathint(d) < max_uint256;
-
-    mathint before = previewRedeem(balanceOf(holder));
-
-    balanceByToken[token][currentContract] =
-        require_uint256(balanceByToken[token][currentContract] + d);
-
-    assert to_mathint(previewRedeem(balanceOf(holder))) >= before;
 }
