@@ -1,3 +1,7 @@
+// Kept out of ERC4626.spec so that its tuned config does not drag the whole tier-1 sweep along with
+// it. The scope this rule is proved under is narrower than the property's usual statement; see the
+// rule's own note.
+
 import "ERC4626Base.spec";
 import "helpers/erc20-supply.spec";
 

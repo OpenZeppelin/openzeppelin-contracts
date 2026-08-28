@@ -1,3 +1,8 @@
+// Three configs verify this file. ERC4626.conf names most rules, ERC4626_split.conf takes the one
+// needing tuned solver settings for nonlinear share math, and ERC4626_rest.conf is their
+// complement, so a rule added here and named in neither list still runs rather than going silently
+// unverified. Two rules are excluded from all three and carry a note of their own.
+
 import "ERC4626Base.spec";
 import "helpers/erc20-supply.spec";
 

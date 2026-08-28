@@ -44,6 +44,10 @@ jobs:
           java: 'on'
           python: 'on'
           python-requirements: 'fv-requirements.txt'
+          # certoraRun reads `forge remappings` when forge is present, which emits a `hardhat`
+          # key that package.json also provides, and it rejects the duplicate. This job has no
+          # use for forge.
+          foundry: 'off'
       - name: identify specs that need to be run
         id: arguments
         env:
@@ -52,13 +56,20 @@ jobs:
         run: |
           if [[ ${{ github.event_name }} = 'pull_request_target' && ${{ contains(github.event.pull_request.labels.*.name, 'formal-verification-force-all') }} = 'false' ]];
           then
-            # Spec names come from the file names of a pull request that may be untrusted, and end
-            # up on a command line downstream. Anything that is not a plain name is dropped here.
+            # Map each changed spec to the configs that verify it. A spec can back several
+            # configs, and one that no config names is a shared import (a base or a helper), so
+            # fall back to running everything rather than nothing.
+            #
+            # Config names come from the file names of a pull request that may be untrusted, and
+            # end up on a command line downstream. Anything that is not a plain name is dropped.
             RESULT=$(git diff "$HEAD_SHA".."$BASE_SHA" --name-only -- 'fv/specs/*.spec' | while IFS= read -r file; do
               [[ -f $file ]] || continue
-              name=$(basename "${file%.spec}")
-              [[ $name =~ ^[A-Za-z0-9_-]+$ ]] && echo "$name" || echo "Ignoring spec with unexpected name: $name" >&2
+              grep -lF "$file" fv/specs/*.conf || echo '--all'
+            done | sort -u | while IFS= read -r conf; do
+              name=${conf##*/}; name=${name%.conf}
+              [[ $name =~ ^[A-Za-z0-9_-]+$ ]] && echo "$name" || echo "Ignoring config with unexpected name: $name" >&2
             done | tr "\n" " ")
+            if [[ $RESULT = *--all* ]]; then RESULT='--all'; fi
           else
             RESULT='--all'
           fi
@@ -71,3 +82,23 @@ jobs:
           make -C fv apply
           read -r -a specs <<< "$SPEC_ARGUMENTS"
           node fv/run.js "${specs[@]}" -p 1 -v >> "$GITHUB_STEP_SUMMARY"
+
+      # ┌────────────────────────────────────────────────────────────────────────────────────────┐
+      # │ Timeout ledger: rules that are NOT proved. Excluded from every config, so their         │
+      # │ absence from a green run is not a pass. Re-attempt manually with the commands below.    │
+      # └────────────────────────────────────────────────────────────────────────────────────────┘
+      #
+      # ERC4626 -- both hold under exhaustive small-value and large random sampling, so these are
+      # solver cost rather than defects. Last attempted with nonlinear arithmetic forced, splitting
+      # off, a ten-seed solver race, smt_timeout 1500 and global_timeout 3600.
+      #
+      # certoraRun fv/specs/ERC4626_split.conf --rule withdrawIsNotSplittable
+      #   https://prover.certora.com/output/1392759/b8f698631bf44d2692643a24910ab356?anonymousKey=4665bdc5b6546cb042145a333d271d06c89e44a4
+      #   timed out at 3003s; its strictness witness verifies in 9s
+      #
+      # certoraRun fv/specs/ERC4626_split.conf --rule holdingBackAcrossDonationDoesNotPay
+      #   https://prover.certora.com/output/1392759/b8f698631bf44d2692643a24910ab356?anonymousKey=4665bdc5b6546cb042145a333d271d06c89e44a4
+      #   timed out at 1504s; its arithmetic core verifies in ~1s in closed form, so the cost is
+      #   the five-operation replay rather than the share math
+      #
+      # What the suite assumes rather than proves is recorded at the top of fv/specs/ERC4626Base.spec.

@@ -1,3 +1,24 @@
+// Shared base for the ERC4626 suite: the summary layer plus the scope definitions. It holds the
+// only methods block, so every config verifying an ERC4626 spec inherits what is assumed here.
+//
+// ASSUMED, NOT PROVED. Every rule in this suite is conditional on all of the following:
+//   - Math.mulDiv is replaced by a closed form, so rules are conditional on that form matching the
+//     implementation in both value and revert domain. Only the 4-argument overload is bound; it is
+//     the only one ERC4626 calls.
+//   - The underlying asset has no contract in the scene. Its balances and allowances are ghost
+//     state, which under-approximates real tokens: no fee-on-transfer, no rebase-down, no ERC-777
+//     reentrancy.
+//   - _decimalsOffset() is 0 in the harness, so no result here generalizes to a larger offset.
+//   - optimistic_loop is set on every config, so loops are assumed to terminate within the bound.
+//
+// Parametric rules range over the harness, which adds a non-production donate() and deliberately
+// exposes no share mint or burn. Both are part of the claim rather than conveniences: a raw asset
+// inflow is the inflation attack's vector and no parametric rule over the production contract can
+// reach it, while an unbacked mint would falsify rate monotonicity.
+//
+// Rules that are not proved at all are recorded in the timeout ledger in the formal-verification
+// workflow, not here.
+
 import "helpers/helpers.spec";
 import "helpers/math-cvl.spec";
 import "helpers/erc20-cvl.spec";
