@@ -146,3 +146,23 @@ jobs:
         run: |
           [[ $IDENTIFY = success ]] || { echo "::error::could not work out which configs to run"; exit 1; }
           [[ $VERIFY = success || $VERIFY = skipped ]] || { echo "::error::verification $VERIFY"; exit 1; }
+
+# ┌────────────────────────────────────────────────────────────────────────────────────────┐
+# │ Timeout ledger: rules that are NOT proved. Excluded from every config, so their         │
+# │ absence from a green run is not a pass. Re-attempt manually with the commands below.    │
+# └────────────────────────────────────────────────────────────────────────────────────────┘
+#
+# ERC4626 -- both hold under exhaustive small-value and large random sampling, so these are
+# solver cost rather than defects. Last attempted with nonlinear arithmetic forced, splitting
+# off, a ten-seed solver race, smt_timeout 1500 and global_timeout 3600.
+#
+# certoraRun fv/specs/ERC4626_split.conf --rule withdrawIsNotSplittable
+#   https://prover.certora.com/output/1392759/b8f698631bf44d2692643a24910ab356?anonymousKey=4665bdc5b6546cb042145a333d271d06c89e44a4
+#   timed out at 3003s; its strictness witness verifies in 9s
+#
+# certoraRun fv/specs/ERC4626_split.conf --rule holdingBackAcrossDonationDoesNotPay
+#   https://prover.certora.com/output/1392759/b8f698631bf44d2692643a24910ab356?anonymousKey=4665bdc5b6546cb042145a333d271d06c89e44a4
+#   timed out at 1504s; its arithmetic core verifies in ~1s in closed form, so the cost is
+#   the five-operation replay rather than the share math
+#
+# What the suite assumes rather than proves is recorded at the top of fv/specs/ERC4626Base.spec.
