@@ -57,19 +57,18 @@ jobs:
           if [[ ${{ github.event_name }} = 'pull_request_target' && ${{ contains(github.event.pull_request.labels.*.name, 'formal-verification-force-all') }} = 'false' ]];
           then
             # Map each changed spec to the configs that verify it. A spec can back several
-            # configs, and one that no config names is a shared import (a base or a helper), so
-            # fall back to running everything rather than nothing.
+            # configs. One that no config names is a shared import (a base or a helper) whose
+            # blast radius this step cannot bound, so fail and let the author opt into a full run.
             #
             # Config names come from the file names of a pull request that may be untrusted, and
             # end up on a command line downstream. Anything that is not a plain name is dropped.
             RESULT=$(git diff "$HEAD_SHA".."$BASE_SHA" --name-only -- 'fv/specs/*.spec' | while IFS= read -r file; do
               [[ -f $file ]] || continue
-              grep -lF "$file" fv/specs/*.conf || echo '--all'
+              grep -lF "$file" fv/specs/*.conf || { echo "$file is imported by other specs and verified by no config of its own; add the formal-verification-force-all label to run everything." >&2; exit 1; }
             done | sort -u | while IFS= read -r conf; do
               name=${conf##*/}; name=${name%.conf}
               [[ $name =~ ^[A-Za-z0-9_-]+$ ]] && echo "$name" || echo "Ignoring config with unexpected name: $name" >&2
             done | tr "\n" " ")
-            if [[ $RESULT = *--all* ]]; then RESULT='--all'; fi
           else
             RESULT='--all'
           fi
