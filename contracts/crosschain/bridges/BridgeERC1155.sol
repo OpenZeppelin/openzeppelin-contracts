@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.7.0) (crosschain/bridges/BridgeERC1155.sol)
 
-pragma solidity ^0.8.26;
+pragma solidity ^0.8.31;
 
 import {IERC1155} from "../../interfaces/IERC1155.sol";
 import {IERC1155Receiver} from "../../interfaces/IERC1155Receiver.sol";

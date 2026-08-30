@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.6.0) (token/ERC20/extensions/ERC20Crosschain.sol)
 
-pragma solidity ^0.8.26;
+pragma solidity ^0.8.31;
 
 import {ERC20} from "../ERC20.sol";
 import {BridgeFungible} from "../../../crosschain/bridges/abstract/BridgeFungible.sol";

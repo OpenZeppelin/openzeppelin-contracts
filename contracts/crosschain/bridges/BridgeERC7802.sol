@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.6.0) (crosschain/bridges/BridgeERC7802.sol)
 
-pragma solidity ^0.8.26;
+pragma solidity ^0.8.31;
 
 import {IERC7802} from "../../interfaces/draft-IERC7802.sol";
 import {BridgeFungible} from "./abstract/BridgeFungible.sol";

@@ -3,7 +3,7 @@ import { capitalize } from '../../helpers.js';
 import { TYPES } from './Arrays.opts.js';
 
 const header = `\
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.31;
 
 import {Comparators} from "./Comparators.sol";
 import {SlotDerivation} from "./SlotDerivation.sol";
