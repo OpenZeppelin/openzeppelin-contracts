@@ -11,6 +11,8 @@ import {Address} from "./Address.sol";
  * Consider any assumption about calldata validation performed by the sender may be violated if it's not especially
  * careful about sending transactions invoking {multicall}. For example, a relay address that filters function
  * selectors won't filter calls nested within a {multicall} operation.
+ *
+ * @custom:stateless
  */
 abstract contract Multicall {
     /**
