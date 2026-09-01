@@ -14,7 +14,7 @@ library Checkpoints {
      * @dev A value was attempted to be inserted on a past checkpoint.
      */
     error CheckpointUnorderedInsertion();
-<% for (const opts of it.OPTS) { %>
+<% for (const opts of it.CHECKPOINTS_OPTS) { %>
 
     struct <%= opts.historyTypeName %> {
         <%= opts.checkpointTypeName %>[] <%= opts.checkpointFieldName %>;

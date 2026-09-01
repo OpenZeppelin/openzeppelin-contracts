@@ -33,7 +33,7 @@ library SafeCast {
      */
     error SafeCastOverflowedUintToInt(uint256 value);
 
-<% for (const length of it.LENGTHS) { %>
+<% for (const length of it.SAFECAST_LENGTHS) { %>
     /**
      * @dev Returns the downcasted uint<%= length %> from uint256, reverting on
      * overflow (when the input is greater than largest uint<%= length %>).
@@ -66,7 +66,7 @@ library SafeCast {
         return uint256(value);
     }
 
-<% for (const length of it.LENGTHS) { %>
+<% for (const length of it.SAFECAST_LENGTHS) { %>
     /**
      * @dev Returns the downcasted int<%= length %> from int256, reverting on
      * overflow (when the input is less than smallest int<%= length %> or

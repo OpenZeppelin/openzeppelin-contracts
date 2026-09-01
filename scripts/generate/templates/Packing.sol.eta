@@ -31,7 +31,7 @@ pragma solidity ^0.8.20;
 // solhint-disable func-name-mixedcase
 library Packing {
     error OutOfRangeAccess();
-<% for (const [left, right] of it.product(it.SIZES, it.SIZES).filter(([left, right]) => it.SIZES.includes(left + right))) { %>
+<% for (const [left, right] of it.product(it.PACKING_SIZES, it.PACKING_SIZES).filter(([left, right]) => it.PACKING_SIZES.includes(left + right))) { %>
 
     function pack_<%= left %>_<%= right %>(bytes<%= left %> left, bytes<%= right %> right) internal pure returns (bytes<%= left + right %> result) {
         assembly ("memory-safe") {
@@ -41,7 +41,7 @@ library Packing {
         }
     }
 <% } %>
-<% for (const [outer, inner] of it.product(it.SIZES, it.SIZES).filter(([outer, inner]) => outer > inner)) { %>
+<% for (const [outer, inner] of it.product(it.PACKING_SIZES, it.PACKING_SIZES).filter(([outer, inner]) => outer > inner)) { %>
 
     function extract_<%= outer %>_<%= inner %>(bytes<%= outer %> self, uint8 offset) internal pure returns (bytes<%= inner %> result) {
         if (offset > <%= outer - inner %>) revert OutOfRangeAccess();

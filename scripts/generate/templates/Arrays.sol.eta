@@ -12,7 +12,7 @@ library Arrays {
     using SlotDerivation for bytes32;
     using StorageSlot for bytes32;
 
-<% for (const type of it.SORT_TYPES) { %>
+<% for (const type of it.ARRAYS_SORT_TYPES) { %>
     /**
      * @dev Sort an array of <%= type.type %> (in memory) following the provided comparator function.
      *
@@ -128,14 +128,14 @@ library Arrays {
         }
     }
 
-<% for (const type of it.COMPARATOR_TYPES) { %>
+<% for (const type of it.ARRAYS_COMPARATOR_TYPES) { %>
     /// @dev Helper: strict comparison of two <%= type.type %> values held in (potentially dirty) uint256 words
     function _<%= type.type %>Lt(uint256 a, uint256 b) private pure returns (bool) {
         return uint<%= type.size * 8 %>(a) < uint<%= type.size * 8 %>(b);
     }
 
 <% } %>
-<% for (const type of it.CAST_TYPES) { %>
+<% for (const type of it.ARRAYS_CAST_TYPES) { %>
     /// @dev Helper: low level cast <%= type.type %> memory array to uint256 memory array
     function _castToUint256Array(<%= type.type %>[] memory input) private pure returns (uint256[] memory output) {
         assembly {
@@ -144,7 +144,7 @@ library Arrays {
     }
 
 <% } %>
-<% for (const type of it.CAST_TYPES) { %>
+<% for (const type of it.ARRAYS_CAST_TYPES) { %>
     /// @dev Helper: low level cast <%= type.type %> comp function to uint256 comp function
     function _castToUint256Comp(
         function(<%= type.type %>, <%= type.type %>) pure returns (bool) input
@@ -322,7 +322,7 @@ library Arrays {
         return low;
     }
 
-<% for (const type of it.VALUE_TYPES) { %>
+<% for (const type of it.ARRAYS_VALUE_TYPES) { %>
     /**
      * @dev Copies the content of `array`, from `start` (included) to the end of `array` into a new <%= type.type %> array in
      * memory.
@@ -354,7 +354,7 @@ library Arrays {
     }
 
 <% } %>
-<% for (const type of it.VALUE_TYPES) { %>
+<% for (const type of it.ARRAYS_VALUE_TYPES) { %>
     /**
      * @dev Moves the content of `array`, from `start` (included) to the end of `array` to the start of that array,
      * and shrinks the array length accordingly, effectively overwriting the array with array[start:].
@@ -438,7 +438,7 @@ library Arrays {
     }
 
 <% } %>
-<% for (const type of it.TYPES) { %>
+<% for (const type of it.ARRAYS_TYPES) { %>
     /**
      * @dev Access an array in an "unsafe" way. Skips solidity "index-out-of-range" check.
      *
@@ -453,7 +453,7 @@ library Arrays {
     }
 
 <% } %>
-<% for (const type of it.TYPES) { %>
+<% for (const type of it.ARRAYS_TYPES) { %>
     /**
      * @dev Access an array in an "unsafe" way. Skips solidity "index-out-of-range" check.
      *
@@ -466,7 +466,7 @@ library Arrays {
     }
 
 <% } %>
-<% for (const type of it.TYPES) { %>
+<% for (const type of it.ARRAYS_TYPES) { %>
     /**
      * @dev Helper to set the length of a dynamic array. Directly writing to `.length` is forbidden.
      *

@@ -63,7 +63,7 @@ library SlotDerivation {
             result := keccak256(0x00, 0x20)
         }
     }
-<% for (const type of it.TYPES) { %>
+<% for (const type of it.SLOT_TYPES) { %>
 <% if (type.isValueType) { %>
 
     /**
