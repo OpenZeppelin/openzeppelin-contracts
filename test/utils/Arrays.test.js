@@ -2,7 +2,7 @@ import { network, globalOptions } from 'hardhat';
 import { expect } from 'chai';
 import * as random from '../helpers/random';
 import { capitalize } from '../helpers/strings';
-import { TYPES } from '../../scripts/generate/templates/Arrays.opts';
+import { ARRAYS_TYPES as TYPES } from '../../scripts/generate/data.js';
 
 const {
   ethers,
@@ -125,7 +125,7 @@ describe('Arrays', function () {
     }
   });
 
-  for (const { name, size } of TYPES) {
+  for (const { type: name, size } of TYPES) {
     const elements = Array.from({ length: 10 }, randomOf(name));
 
     describe(name, function () {
