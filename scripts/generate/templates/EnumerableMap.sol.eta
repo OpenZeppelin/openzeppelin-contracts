@@ -202,7 +202,7 @@ library EnumerableMap {
     function keys(Bytes32ToBytes32Map storage map, uint256 start, uint256 end) internal view returns (bytes32[] memory) {
         return map._keys.values(start, end);
     }
-<% for (const { name, key, value } of it.MAP_TYPES.filter(({ key, value }) => !(key.memory || value.memory))) { %>
+<% for (const { name, key, value } of it.MAP_TYPES.filter(({ key, value }) => key.size && value.size)) { %>
     // <%= name %>
 
     struct <%= name %> {
@@ -216,8 +216,8 @@ library EnumerableMap {
      * Returns true if the key was added to the map, that is if it was not
      * already present.
      */
-    function set(<%= name %> storage map, <%= key.type %> key, <%= value.type %> value) internal returns (bool) {
-        return set(map._inner, <%= it.toBytes32(key.type, 'key') %>, <%= it.toBytes32(value.type, 'value') %>);
+    function set(<%= name %> storage map, <%= key.name %> key, <%= value.name %> value) internal returns (bool) {
+        return set(map._inner, <%= it.toBytes32(key.name, 'key') %>, <%= it.toBytes32(value.name, 'value') %>);
     }
 
     /**
@@ -225,8 +225,8 @@ library EnumerableMap {
      *
      * Returns true if the key was removed from the map, that is if it was present.
      */
-    function remove(<%= name %> storage map, <%= key.type %> key) internal returns (bool) {
-        return remove(map._inner, <%= it.toBytes32(key.type, 'key') %>);
+    function remove(<%= name %> storage map, <%= key.name %> key) internal returns (bool) {
+        return remove(map._inner, <%= it.toBytes32(key.name, 'key') %>);
     }
 
     /**
@@ -243,8 +243,8 @@ library EnumerableMap {
     /**
      * @dev Returns true if the key is in the map. O(1).
      */
-    function contains(<%= name %> storage map, <%= key.type %> key) internal view returns (bool) {
-        return contains(map._inner, <%= it.toBytes32(key.type, 'key') %>);
+    function contains(<%= name %> storage map, <%= key.name %> key) internal view returns (bool) {
+        return contains(map._inner, <%= it.toBytes32(key.name, 'key') %>);
     }
 
     /**
@@ -266,7 +266,7 @@ library EnumerableMap {
      * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
      * should use {pos} instead.
      */
-    function at(<%= name %> storage map, uint256 index) internal view returns (<%= key.type %> key, <%= value.type %> value) {
+    function at(<%= name %> storage map, uint256 index) internal view returns (<%= key.name %> key, <%= value.name %> value) {
         return pos(map, index);
     }
 
@@ -281,18 +281,18 @@ library EnumerableMap {
      *
      * Replacement of the deprecated {at} function.
      */
-    function pos(<%= name %> storage map, uint256 index) internal view returns (<%= key.type %> key, <%= value.type %> value) {
+    function pos(<%= name %> storage map, uint256 index) internal view returns (<%= key.name %> key, <%= value.name %> value) {
         (bytes32 atKey, bytes32 val) = pos(map._inner, index);
-        return (<%= it.fromBytes32(key.type, 'atKey') %>, <%= it.fromBytes32(value.type, 'val') %>);
+        return (<%= it.fromBytes32(key.name, 'atKey') %>, <%= it.fromBytes32(value.name, 'val') %>);
     }
 
     /**
      * @dev Tries to return the value associated with `key`. O(1).
      * Does not revert if `key` is not in the map.
      */
-    function tryGet(<%= name %> storage map, <%= key.type %> key) internal view returns (bool exists, <%= value.type %> value) {
-        (bool success, bytes32 val) = tryGet(map._inner, <%= it.toBytes32(key.type, 'key') %>);
-        return (success, <%= it.fromBytes32(value.type, 'val') %>);
+    function tryGet(<%= name %> storage map, <%= key.name %> key) internal view returns (bool exists, <%= value.name %> value) {
+        (bool success, bytes32 val) = tryGet(map._inner, <%= it.toBytes32(key.name, 'key') %>);
+        return (success, <%= it.fromBytes32(value.name, 'val') %>);
     }
 
     /**
@@ -302,8 +302,8 @@ library EnumerableMap {
      *
      * - `key` must be in the map.
      */
-    function get(<%= name %> storage map, <%= key.type %> key) internal view returns (<%= value.type %>) {
-        return <%= it.fromBytes32(value.type, `get(map._inner, ${it.toBytes32(key.type, 'key')})`) %>;
+    function get(<%= name %> storage map, <%= key.name %> key) internal view returns (<%= value.name %>) {
+        return <%= it.fromBytes32(value.name, `get(map._inner, ${it.toBytes32(key.name, 'key')})`) %>;
     }
 
     /**
@@ -314,9 +314,9 @@ library EnumerableMap {
      * this function has an unbounded cost, and using it as part of a state-changing function may render the function
      * uncallable if the map grows to a point where copying to memory consumes too much gas to fit in a block.
      */
-    function keys(<%= name %> storage map) internal view returns (<%= key.type %>[] memory) {
+    function keys(<%= name %> storage map) internal view returns (<%= key.name %>[] memory) {
         bytes32[] memory store = keys(map._inner);
-        <%= key.type %>[] memory result;
+        <%= key.name %>[] memory result;
 
         assembly ("memory-safe") {
             result := store
@@ -333,9 +333,9 @@ library EnumerableMap {
      * this function has an unbounded cost, and using it as part of a state-changing function may render the function
      * uncallable if the map grows to a point where copying to memory consumes too much gas to fit in a block.
      */
-    function keys(<%= name %> storage map, uint256 start, uint256 end) internal view returns (<%= key.type %>[] memory) {
+    function keys(<%= name %> storage map, uint256 start, uint256 end) internal view returns (<%= key.name %>[] memory) {
         bytes32[] memory store = keys(map._inner, start, end);
-        <%= key.type %>[] memory result;
+        <%= key.name %>[] memory result;
 
         assembly ("memory-safe") {
             result := store
@@ -344,16 +344,16 @@ library EnumerableMap {
         return result;
     }
 <% } %>
-<% for (const { name, keySet, key, value } of it.MAP_TYPES.filter(({ key, value }) => key.memory || value.memory)) { %>
+<% for (const { name, key, value } of it.MAP_TYPES.filter(({ key, value }) => !key.size || !value.size)) { %>
     /**
      * @dev Query for a nonexistent map key.
      */
-    error EnumerableMapNonexistent<%= key.name %>Key(<%= key.type %> key);
+    error EnumerableMapNonexistent<%= key.capitalized %>Key(<%= key.name %> key);
 
     struct <%= name %> {
         // Storage of keys
-        EnumerableSet.<%= keySet.name %> _keys;
-        mapping(<%= key.type %> key => <%= value.type %>) _values;
+        EnumerableSet.<%= key.capitalized %>Set _keys;
+        mapping(<%= key.name %> key => <%= value.name %>) _values;
     }
 
     /**
@@ -363,7 +363,7 @@ library EnumerableMap {
      * Returns true if the key was added to the map, that is if it was not
      * already present.
      */
-    function set(<%= name %> storage map, <%= key.typeLoc %> key, <%= value.typeLoc %> value) internal returns (bool) {
+    function set(<%= name %> storage map, <%= key.name %> <%= key.location %> key, <%= value.name %> <%= value.location %> value) internal returns (bool) {
         map._values[key] = value;
         return map._keys.add(key);
     }
@@ -373,7 +373,7 @@ library EnumerableMap {
      *
      * Returns true if the key was removed from the map, that is if it was present.
      */
-    function remove(<%= name %> storage map, <%= key.typeLoc %> key) internal returns (bool) {
+    function remove(<%= name %> storage map, <%= key.name %> <%= key.location %> key) internal returns (bool) {
         delete map._values[key];
         return map._keys.remove(key);
     }
@@ -395,7 +395,7 @@ library EnumerableMap {
     /**
      * @dev Returns true if the key is in the map. O(1).
      */
-    function contains(<%= name %> storage map, <%= key.typeLoc %> key) internal view returns (bool) {
+    function contains(<%= name %> storage map, <%= key.name %> <%= key.location %> key) internal view returns (bool) {
         return map._keys.contains(key);
     }
 
@@ -422,7 +422,7 @@ library EnumerableMap {
     function at(
         <%= name %> storage map,
         uint256 index
-    ) internal view returns (<%= key.typeLoc %> key, <%= value.typeLoc %> value) {
+    ) internal view returns (<%= key.name %> <%= key.location %> key, <%= value.name %> <%= value.location %> value) {
         return pos(map, index);
     }
 
@@ -440,7 +440,7 @@ library EnumerableMap {
     function pos(
         <%= name %> storage map,
         uint256 index
-    ) internal view returns (<%= key.typeLoc %> key, <%= value.typeLoc %> value) {
+    ) internal view returns (<%= key.name %> <%= key.location %> key, <%= value.name %> <%= value.location %> value) {
         key = map._keys.pos(index);
         value = map._values[key];
     }
@@ -451,10 +451,10 @@ library EnumerableMap {
      */
     function tryGet(
         <%= name %> storage map,
-        <%= key.typeLoc %> key
-    ) internal view returns (bool exists, <%= value.typeLoc %> value) {
+        <%= key.name %> <%= key.location %> key
+    ) internal view returns (bool exists, <%= value.name %> <%= value.location %> value) {
         value = map._values[key];
-        exists = <%= value.memory ? 'bytes(value).length != 0' : `value != ${value.type}(0)` %> || contains(map, key);
+        exists = <%= value.size ? `value != ${value.name}(0)` : 'bytes(value).length != 0' %> || contains(map, key);
     }
 
     /**
@@ -464,11 +464,11 @@ library EnumerableMap {
      *
      * - `key` must be in the map.
      */
-    function get(<%= name %> storage map, <%= key.typeLoc %> key) internal view returns (<%= value.typeLoc %> value) {
+    function get(<%= name %> storage map, <%= key.name %> <%= key.location %> key) internal view returns (<%= value.name %> <%= value.location %> value) {
         bool exists;
         (exists, value) = tryGet(map, key);
         if (!exists) {
-            revert EnumerableMapNonexistent<%= key.name %>Key(key);
+            revert EnumerableMapNonexistent<%= key.capitalized %>Key(key);
         }
     }
 
@@ -480,7 +480,7 @@ library EnumerableMap {
      * this function has an unbounded cost, and using it as part of a state-changing function may render the function
      * uncallable if the map grows to a point where copying to memory consumes too much gas to fit in a block.
      */
-    function keys(<%= name %> storage map) internal view returns (<%= key.type %>[] memory) {
+    function keys(<%= name %> storage map) internal view returns (<%= key.name %>[] memory) {
         return map._keys.values();
     }
 
@@ -492,7 +492,7 @@ library EnumerableMap {
      * this function has an unbounded cost, and using it as part of a state-changing function may render the function
      * uncallable if the map grows to a point where copying to memory consumes too much gas to fit in a block.
      */
-    function keys(<%= name %> storage map, uint256 start, uint256 end) internal view returns (<%= key.type %>[] memory) {
+    function keys(<%= name %> storage map, uint256 start, uint256 end) internal view returns (<%= key.name %>[] memory) {
         return map._keys.values(start, end);
     }
 <% } %>

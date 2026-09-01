@@ -27,24 +27,24 @@ pragma solidity ^0.8.24;
  * TIP: Consider using this library along with {SlotDerivation}.
  */
 library TransientSlot {
-<% for (const type of it.SLOT_VALUE_TYPES) { %>
+<% for (const type of it.SLOT_TYPES.filter(({ size }) => size)) { %>
     /**
      * @dev UDVT that represents a slot holding <%= type.type == 'address' ? 'an' : 'a' %> <%= type.type %>.
      */
-    type <%= type.name %>Slot is bytes32;
+    type <%= type.capitalized %>Slot is bytes32;
 
     /**
-     * @dev Cast an arbitrary slot to a <%= type.name %>Slot.
+     * @dev Cast an arbitrary slot to a <%= type.capitalized %>Slot.
      */
-    function as<%= type.name %>(bytes32 slot) internal pure returns (<%= type.name %>Slot) {
-        return <%= type.name %>Slot.wrap(slot);
+    function as<%= type.capitalized %>(bytes32 slot) internal pure returns (<%= type.capitalized %>Slot) {
+        return <%= type.capitalized %>Slot.wrap(slot);
     }
 <% } %>
-<% for (const type of it.SLOT_VALUE_TYPES) { %>
+<% for (const type of it.SLOT_TYPES.filter(({ size }) => size)) { %>
     /**
      * @dev Load the value held at location `slot` in transient storage.
      */
-    function tload(<%= type.name %>Slot slot) internal view returns (<%= type.type %> value) {
+    function tload(<%= type.capitalized %>Slot slot) internal view returns (<%= type.type %> value) {
         assembly ("memory-safe") {
             value := tload(slot)
         }
@@ -53,7 +53,7 @@ library TransientSlot {
     /**
      * @dev Store `value` at location `slot` in transient storage.
      */
-    function tstore(<%= type.name %>Slot slot, <%= type.type %> value) internal {
+    function tstore(<%= type.capitalized %>Slot slot, <%= type.type %> value) internal {
         assembly ("memory-safe") {
             tstore(slot, value)
         }

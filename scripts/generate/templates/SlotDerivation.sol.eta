@@ -64,7 +64,7 @@ library SlotDerivation {
         }
     }
 <% for (const type of it.SLOT_TYPES) { %>
-<% if (type.isValueType) { %>
+<% if (type.size) { %>
 
     /**
      * @dev Derive the location of a mapping element from the key.

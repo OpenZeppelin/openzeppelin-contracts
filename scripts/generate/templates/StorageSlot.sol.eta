@@ -29,24 +29,24 @@ pragma solidity ^0.8.20;
  */
 library StorageSlot {
 <% for (const type of it.SLOT_TYPES) { %>
-    struct <%= type.name %>Slot {
+    struct <%= type.capitalized %>Slot {
         <%= type.type %> value;
     }
 <% } %>
 <% for (const type of it.SLOT_TYPES) { %>
     /**
-     * @dev Returns <%= type.name.toLowerCase().startsWith('a') ? 'an' : 'a' %> `<%= type.name %>Slot` with member `value` located at `slot`.
+     * @dev Returns <%= type.name.startsWith('a') ? 'an' : 'a' %> `<%= type.capitalized %>Slot` with member `value` located at `slot`.
      */
-    function get<%= type.name %>Slot(bytes32 slot) internal pure returns (<%= type.name %>Slot storage r) {
+    function get<%= type.capitalized %>Slot(bytes32 slot) internal pure returns (<%= type.capitalized %>Slot storage r) {
         assembly ("memory-safe") {
             r.slot := slot
         }
     }
-<% if (!type.isValueType) { %>
+<% if (!type.size) { %>
     /**
-     * @dev Returns an `<%= type.name %>Slot` representation of the <%= type.type %> storage pointer `store`.
+     * @dev Returns an `<%= type.capitalized %>Slot` representation of the <%= type.type %> storage pointer `store`.
      */
-    function get<%= type.name %>Slot(<%= type.type %> storage store) internal pure returns (<%= type.name %>Slot storage r) {
+    function get<%= type.capitalized %>Slot(<%= type.type %> storage store) internal pure returns (<%= type.capitalized %>Slot storage r) {
         assembly ("memory-safe") {
             r.slot := store.slot
         }

@@ -6,15 +6,15 @@ import {TransientSlot} from "../utils/TransientSlot.sol";
 contract TransientSlotMock is Multicall {
     using TransientSlot for *;
 
-<% for (const type of it.SLOT_VALUE_TYPES) { %>
-    event <%= type.name %>Value(bytes32 slot, <%= type.type %> value);
+<% for (const type of it.SLOT_TYPES.filter(({ size }) => size)) { %>
+    event <%= type.capitalized %>Value(bytes32 slot, <%= type.type %> value);
 
-    function tload<%= type.name %>(bytes32 slot) public {
-        emit <%= type.name %>Value(slot, slot.as<%= type.name %>().tload());
+    function tload<%= type.capitalized %>(bytes32 slot) public {
+        emit <%= type.capitalized %>Value(slot, slot.as<%= type.capitalized %>().tload());
     }
 
     function tstore(bytes32 slot, <%= type.type %> value) public {
-        slot.as<%= type.name %>().tstore(value);
+        slot.as<%= type.capitalized %>().tstore(value);
     }
 <% } %>
 }
