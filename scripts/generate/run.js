@@ -1,62 +1,55 @@
 #!/usr/bin/env node
 
-import cp from 'child_process';
 import fs from 'fs';
 import path from 'path';
-import format from './format-lines.js';
+import prettier from 'prettier';
+import { Eta } from 'eta';
 
-function getVersion(path) {
-  try {
-    return fs.readFileSync(path, 'utf8').match(/\/\/ OpenZeppelin Contracts \(last updated v[^)]+\)/)[0];
-  } catch {
-    return null;
-  }
-}
+// Shared data + helpers. The full set is injected into every `.sol.eta` template (e.g. it.SLOT_TYPES, it.sanitize).
+import * as context from './data.js';
 
-async function generateFromTemplate(file, template, outputPrefix = '', lint = false) {
-  const script = path.relative(path.join(import.meta.dirname, '../..'), import.meta.filename);
-  const input = path.join(path.dirname(script), template);
-  const output = path.join(outputPrefix, file);
-  const version = getVersion(output);
-  const content = format(
+const repoRoot = path.join(import.meta.dirname, '../..');
+const templatesDir = path.join(import.meta.dirname, 'templates');
+const eta = new Eta({ views: templatesDir, autoEscape: false, autoTrim: false, defaultExtension: '' });
+
+// Each output is rendered from `templates/<basename>.eta`.
+for (const filepath of [
+  'contracts/mocks/StorageSlotMock.sol',
+  'contracts/mocks/TransientSlotMock.sol',
+  'contracts/utils/Arrays.sol',
+  'contracts/utils/Packing.sol',
+  'contracts/utils/SlotDerivation.sol',
+  'contracts/utils/StorageSlot.sol',
+  'contracts/utils/TransientSlot.sol',
+  'contracts/utils/cryptography/MerkleProof.sol',
+  'contracts/utils/math/SafeCast.sol',
+  'contracts/utils/structs/Checkpoints.sol',
+  'contracts/utils/structs/EnumerableMap.sol',
+  'contracts/utils/structs/EnumerableSet.sol',
+  'test/utils/Packing.t.sol',
+  'test/utils/SlotDerivation.t.sol',
+  'test/utils/structs/Checkpoints.t.sol',
+]) {
+  console.log(`Generating ${filepath}...`);
+  const template = `${path.basename(filepath)}.eta`;
+  const input = path.relative(repoRoot, path.join(templatesDir, template));
+  const version =
+    fs.existsSync(filepath) &&
+    fs.readFileSync(filepath, 'utf8').match(/^\/\/ OpenZeppelin Contracts \(last updated v[^)]+\) \([^)]+\)$/m)?.[0];
+  const content = [
     '// SPDX-License-Identifier: MIT',
-    ...(version ? [version + ` (${file})`] : []),
+    ...(version ? [version] : []),
     `// This file was procedurally generated from ${input}.`,
     '',
-    (await import(template)).default.trimEnd(),
-  );
+    eta.render(template, context),
+  ].join('\n');
 
-  fs.mkdirSync(path.dirname(output), { recursive: true });
-  fs.writeFileSync(output, content);
-  lint && cp.execFileSync('prettier', ['--write', output]);
-}
-
-// Some templates needs to go through the linter after generation
-const needsLinter = ['utils/structs/EnumerableMap.sol'];
-
-// Contracts
-for (const [file, template] of Object.entries({
-  'utils/cryptography/MerkleProof.sol': './templates/MerkleProof.js',
-  'utils/math/SafeCast.sol': './templates/SafeCast.js',
-  'utils/structs/Checkpoints.sol': './templates/Checkpoints.js',
-  'utils/structs/EnumerableSet.sol': './templates/EnumerableSet.js',
-  'utils/structs/EnumerableMap.sol': './templates/EnumerableMap.js',
-  'utils/SlotDerivation.sol': './templates/SlotDerivation.js',
-  'utils/StorageSlot.sol': './templates/StorageSlot.js',
-  'utils/TransientSlot.sol': './templates/TransientSlot.js',
-  'utils/Arrays.sol': './templates/Arrays.js',
-  'utils/Packing.sol': './templates/Packing.js',
-  'mocks/StorageSlotMock.sol': './templates/StorageSlotMock.js',
-  'mocks/TransientSlotMock.sol': './templates/TransientSlotMock.js',
-})) {
-  await generateFromTemplate(file, template, './contracts/', needsLinter.includes(file));
-}
-
-// Tests
-for (const [file, template] of Object.entries({
-  'utils/structs/Checkpoints.t.sol': './templates/Checkpoints.t.js',
-  'utils/Packing.t.sol': './templates/Packing.t.js',
-  'utils/SlotDerivation.t.sol': './templates/SlotDerivation.t.js',
-})) {
-  await generateFromTemplate(file, template, './test/', needsLinter.includes(file));
+  // Output whitespace/indentation is canonicalized by prettier (via the repo config), not the template.
+  await prettier
+    .resolveConfig(filepath)
+    .then(prettierConfig => prettier.format(content, { ...prettierConfig, filepath }))
+    .then(formatted => {
+      fs.mkdirSync(path.dirname(filepath), { recursive: true });
+      fs.writeFileSync(filepath, formatted);
+    });
 }
