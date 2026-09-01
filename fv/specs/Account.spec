@@ -8,13 +8,13 @@ methods {
     function _validatorLength()            external returns (uint256) envfree;
     function _validatorContains(address)   external returns (bool)    envfree;
     function _validatorAt(uint256)         external returns (address) envfree;
-    function _validatorAtFull(uint256)     external returns (bytes32) envfree;
+    function _validatorAtFull(uint256)     external returns (address) envfree;
     function _validatorPositionOf(address) external returns (uint256) envfree;
 
     function _executorLength()             external returns (uint256) envfree;
     function _executorContains(address)    external returns (bool)    envfree;
     function _executorAt(uint256)          external returns (address) envfree;
-    function _executorAtFull(uint256)      external returns (bytes32) envfree;
+    function _executorAtFull(uint256)      external returns (address) envfree;
     function _executorPositionOf(address)  external returns (uint256) envfree;
 
     function _.onInstall(bytes)            external => NONDET;
@@ -44,7 +44,7 @@ definition moduleLengthSanity() returns bool =
 
 // Dirty upper bits could cause issues. We need to prove stored values are clean
 invariant cleanStorageValidator(uint256 index)
-    index < _validatorLength() => to_bytes32(_validatorAt(index)) == _validatorAtFull(index)
+    index < _validatorLength() => _validatorAt(index) == _validatorAtFull(index)
     filtered { f -> f.selector != sig:execute(bytes32,bytes).selector  && f.selector != sig:executeFromExecutor(bytes32,bytes).selector }
     {
         preserved {
@@ -54,7 +54,7 @@ invariant cleanStorageValidator(uint256 index)
 
 // Dirty upper bits could cause issues. We need to prove stored values are clean
 invariant cleanStorageExecutor(uint256 index)
-    index < _executorLength() => to_bytes32(_executorAt(index)) == _executorAtFull(index)
+    index < _executorLength() => _executorAt(index) == _executorAtFull(index)
     filtered { f -> f.selector != sig:execute(bytes32,bytes).selector  && f.selector != sig:executeFromExecutor(bytes32,bytes).selector }
     {
         preserved {
