@@ -15,8 +15,7 @@ library Checkpoints {
      */
     error CheckpointUnorderedInsertion();
 
-<% for (const size of it.CHECKPOINTS_LENGTH) { %>
-<% const keySize = size < 256 ? (256 - size) : 256; %>
+<% for (const { size, keySize } of it.CHECKPOINTS_LENGTH) { %>
     struct Trace<%= size %> {
         Checkpoint<%= size %>[] _checkpoints;
     }

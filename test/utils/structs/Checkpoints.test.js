@@ -8,9 +8,7 @@ const {
 } = await network.create();
 
 describe('Checkpoints', function () {
-  for (const size of CHECKPOINTS_LENGTH) {
-    const keySize = size < 256 ? 256 - size : 256;
-
+  for (const { size, keySize } of CHECKPOINTS_LENGTH) {
     describe(`Trace${size}`, function () {
       const fixture = async () => {
         const mock = await ethers.deployContract('$Checkpoints');

@@ -23,7 +23,7 @@ export const ARRAYS_SORT_TYPES = ARRAYS_VALUE_TYPES.toSorted((a, b) => (b.type =
 export const ARRAYS_COMPARATOR_TYPES = ARRAYS_VALUE_TYPES.filter(type => type.size < 32);
 
 // ─── Checkpoints (Checkpoints + Checkpoints.t) ───
-export const CHECKPOINTS_LENGTH = [256, 224, 208, 160];
+export const CHECKPOINTS_LENGTH = [256, 224, 208, 160].map(size => ({ size, keySize: size < 256 ? 256 - size : 256 }));
 
 // ─── Enumerable (EnumerableSet, EnumerableMap) ───
 export const typeDescr = ({ type, size = 0, memory }) => {
