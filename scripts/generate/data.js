@@ -56,9 +56,11 @@ export const ARRAYS_COMPARATOR_TYPES = ARRAYS_VALUE_TYPES.filter(type => type.si
 export const CHECKPOINTS_LENGTH = [256, 224, 208, 160].map(size => ({ size, keySize: size < 256 ? 256 - size : 256 }));
 
 // ─── Enumerable (EnumerableSet, EnumerableMap) ───
+const enumerableName = ({ type, name }) => (type === 'uint256' ? 'Uint' : name);
+
 export const SET_TYPES = [TYPES.bytes32, TYPES.bytes4, TYPES.address, TYPES.uint256, TYPES.string, TYPES.bytes].map(
   value => ({
-    name: `${value.type == 'uint256' ? 'Uint' : value.name}Set`,
+    name: `${enumerableName(value)}Set`,
     value,
   }),
 );
@@ -75,7 +77,7 @@ export const MAP_TYPES = []
     { key: TYPES.bytes, value: TYPES.bytes },
   )
   .map(({ key, value }) => ({
-    name: `${key.type === 'uint256' ? 'Uint' : key.name}To${value.type === 'uint256' ? 'Uint' : value.name}Map`,
+    name: `${enumerableName(key)}To${enumerableName(value)}Map`,
     key,
     value,
   }));
