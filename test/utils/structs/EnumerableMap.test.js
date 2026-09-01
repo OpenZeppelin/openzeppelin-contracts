@@ -1,7 +1,7 @@
 import { network } from 'hardhat';
 import { mapValues } from '../../helpers/iterate';
 import * as random from '../../helpers/random';
-import { MAP_TYPES, typeDescr, toMapTypeDescr } from '../../../scripts/generate/templates/Enumerable.opts';
+import { MAP_TYPES, typeDescr, toMapTypeDescr } from '../../../scripts/generate/data.js';
 import { shouldBehaveLikeMap } from './EnumerableMap.behavior';
 
 const {
