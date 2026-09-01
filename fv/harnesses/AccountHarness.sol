@@ -35,7 +35,7 @@ contract AccountHarness is AccountEIP7702WithModulesMock {
     }
 
     function _validatorPositionOf(address module) external view returns (uint256) {
-        return _validators._positions[bytes32(uint256(uint160(module)))];
+        return _validators._positions[module];
     }
 
     function _executorContains(address module) external view returns (bool) {
@@ -55,6 +55,6 @@ contract AccountHarness is AccountEIP7702WithModulesMock {
     }
 
     function _executorPositionOf(address module) external view returns (uint256) {
-        return _executors._positions[bytes32(uint256(uint160(module)))];
+        return _executors._positions[module];
     }
 }
