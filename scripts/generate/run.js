@@ -11,11 +11,8 @@ import * as context from './data.js';
 const repoRoot = path.join(import.meta.dirname, '../..');
 const templatesDir = path.join(import.meta.dirname, 'templates');
 const eta = new Eta({ views: templatesDir, autoEscape: false, autoTrim: false, defaultExtension: '' });
-// The repo prettier config is the same for every (`.sol`) output; resolve it once.
-// A `.sol` path is required so the config's `*.sol` override (e.g. double quotes) is applied.
-const prettierConfig = await prettier.resolveConfig(path.join(repoRoot, 'contracts/_.sol'));
 
-// output path (relative to the prefix) -> template context
+// Each output is rendered from `templates/<basename>.eta`.
 for (const filepath of [
   'contracts/mocks/StorageSlotMock.sol',
   'contracts/mocks/TransientSlotMock.sol',
@@ -36,10 +33,9 @@ for (const filepath of [
   console.log(`Generating ${filepath}...`);
   const template = `${path.basename(filepath)}.eta`;
   const input = path.relative(repoRoot, path.join(templatesDir, template));
-  const version = fs
-    .readFileSync(filepath, 'utf8')
-    .match(/^\/\/ OpenZeppelin Contracts \(last updated v(?<version>[^)]+)\) \((?<path>[^)]+)\)$/m)
-    ?.at(0);
+  const version =
+    fs.existsSync(filepath) &&
+    fs.readFileSync(filepath, 'utf8').match(/^\/\/ OpenZeppelin Contracts \(last updated v[^)]+\) \([^)]+\)$/m)?.[0];
   const content = [
     '// SPDX-License-Identifier: MIT',
     ...(version ? [version] : []),
@@ -49,8 +45,11 @@ for (const filepath of [
   ].join('\n');
 
   // Output whitespace/indentation is canonicalized by prettier (via the repo config), not the template.
-  await prettier.format(content, { ...prettierConfig, filepath }).then(formatted => {
-    fs.mkdirSync(path.dirname(filepath), { recursive: true });
-    fs.writeFileSync(filepath, formatted);
-  });
+  await prettier
+    .resolveConfig(filepath)
+    .then(prettierConfig => prettier.format(content, { ...prettierConfig, filepath }))
+    .then(formatted => {
+      fs.mkdirSync(path.dirname(filepath), { recursive: true });
+      fs.writeFileSync(filepath, formatted);
+    });
 }
