@@ -1,6 +1,6 @@
 import { network } from 'hardhat';
 import { expect } from 'chai';
-import { CHECKPOINTS_OPTS as OPTS } from '../../../scripts/generate/data.js';
+import { CHECKPOINTS_LENGTH } from '../../../scripts/generate/data.js';
 
 const {
   ethers,
@@ -8,21 +8,19 @@ const {
 } = await network.create();
 
 describe('Checkpoints', function () {
-  for (const opt of OPTS) {
-    describe(opt.historyTypeName, function () {
+  for (const { size, keySize } of CHECKPOINTS_LENGTH) {
+    describe(`Trace${size}`, function () {
       const fixture = async () => {
         const mock = await ethers.deployContract('$Checkpoints');
         const methods = {
-          at: (...args) => mock.getFunction(`$at_Checkpoints_${opt.historyTypeName}`)(0, ...args),
-          latest: (...args) => mock.getFunction(`$latest_Checkpoints_${opt.historyTypeName}`)(0, ...args),
-          latestCheckpoint: (...args) =>
-            mock.getFunction(`$latestCheckpoint_Checkpoints_${opt.historyTypeName}`)(0, ...args),
-          length: (...args) => mock.getFunction(`$length_Checkpoints_${opt.historyTypeName}`)(0, ...args),
-          push: (...args) => mock.getFunction(`$push(uint256,${opt.keyTypeName},${opt.valueTypeName})`)(0, ...args),
-          lowerLookup: (...args) => mock.getFunction(`$lowerLookup(uint256,${opt.keyTypeName})`)(0, ...args),
-          upperLookup: (...args) => mock.getFunction(`$upperLookup(uint256,${opt.keyTypeName})`)(0, ...args),
-          upperLookupRecent: (...args) =>
-            mock.getFunction(`$upperLookupRecent(uint256,${opt.keyTypeName})`)(0, ...args),
+          at: (...args) => mock.getFunction(`$at_Checkpoints_Trace${size}`)(0, ...args),
+          latest: (...args) => mock.getFunction(`$latest_Checkpoints_Trace${size}`)(0, ...args),
+          latestCheckpoint: (...args) => mock.getFunction(`$latestCheckpoint_Checkpoints_Trace${size}`)(0, ...args),
+          length: (...args) => mock.getFunction(`$length_Checkpoints_Trace${size}`)(0, ...args),
+          push: (...args) => mock.getFunction(`$push(uint256,uint${keySize},uint${size})`)(0, ...args),
+          lowerLookup: (...args) => mock.getFunction(`$lowerLookup(uint256,uint${keySize})`)(0, ...args),
+          upperLookup: (...args) => mock.getFunction(`$upperLookup(uint256,uint${keySize})`)(0, ...args),
+          upperLookupRecent: (...args) => mock.getFunction(`$upperLookupRecent(uint256,uint${keySize})`)(0, ...args),
         };
 
         return { mock, methods };
