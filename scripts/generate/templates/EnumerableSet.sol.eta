@@ -209,8 +209,8 @@ library EnumerableSet {
      * Returns true if the value was added to the set, that is if it was not
      * already present.
      */
-    function add(<%= name %> storage set, <%= value.name %> value) internal returns (bool) {
-        return _add(set._inner, <%= it.toBytes32(value.name, 'value') %>);
+    function add(<%= name %> storage set, <%= value.type %> value) internal returns (bool) {
+        return _add(set._inner, <%= it.toBytes32(value.type, 'value') %>);
     }
 
     /**
@@ -219,8 +219,8 @@ library EnumerableSet {
      * Returns true if the value was removed from the set, that is if it was
      * present.
      */
-    function remove(<%= name %> storage set, <%= value.name %> value) internal returns (bool) {
-        return _remove(set._inner, <%= it.toBytes32(value.name, 'value') %>);
+    function remove(<%= name %> storage set, <%= value.type %> value) internal returns (bool) {
+        return _remove(set._inner, <%= it.toBytes32(value.type, 'value') %>);
     }
 
     /**
@@ -236,8 +236,8 @@ library EnumerableSet {
     /**
      * @dev Returns true if the value is in the set. O(1).
      */
-    function contains(<%= name %> storage set, <%= value.name %> value) internal view returns (bool) {
-        return _contains(set._inner, <%= it.toBytes32(value.name, 'value') %>);
+    function contains(<%= name %> storage set, <%= value.type %> value) internal view returns (bool) {
+        return _contains(set._inner, <%= it.toBytes32(value.type, 'value') %>);
     }
 
     /**
@@ -260,7 +260,7 @@ library EnumerableSet {
      * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
      * should use {pos} instead.
      */
-    function at(<%= name %> storage set, uint256 index) internal view returns (<%= value.name %>) {
+    function at(<%= name %> storage set, uint256 index) internal view returns (<%= value.type %>) {
         return pos(set, index);
     }
 
@@ -276,8 +276,8 @@ library EnumerableSet {
      *
      * Replacement of the deprecated {at} function.
      */
-    function pos(<%= name %> storage set, uint256 index) internal view returns (<%= value.name %>) {
-        return <%= it.fromBytes32(value.name, '_pos(set._inner, index)') %>;
+    function pos(<%= name %> storage set, uint256 index) internal view returns (<%= value.type %>) {
+        return <%= it.fromBytes32(value.type, '_pos(set._inner, index)') %>;
     }
 
     /**
@@ -288,9 +288,9 @@ library EnumerableSet {
      * this function has an unbounded cost, and using it as part of a state-changing function may render the function
      * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
      */
-    function values(<%= name %> storage set) internal view returns (<%= value.name %>[] memory) {
+    function values(<%= name %> storage set) internal view returns (<%= value.type %>[] memory) {
         bytes32[] memory store = _values(set._inner);
-        <%= value.name %>[] memory result;
+        <%= value.type %>[] memory result;
 
         assembly ("memory-safe") {
             result := store
@@ -307,9 +307,9 @@ library EnumerableSet {
      * this function has an unbounded cost, and using it as part of a state-changing function may render the function
      * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
      */
-    function values(<%= name %> storage set, uint256 start, uint256 end) internal view returns (<%= value.name %>[] memory) {
+    function values(<%= name %> storage set, uint256 start, uint256 end) internal view returns (<%= value.type %>[] memory) {
         bytes32[] memory store = _values(set._inner, start, end);
-        <%= value.name %>[] memory result;
+        <%= value.type %>[] memory result;
 
         assembly ("memory-safe") {
             result := store
@@ -321,10 +321,10 @@ library EnumerableSet {
 <% for (const { name, value } of it.SET_TYPES.filter(({ value }) => !value.size)) { %>
     struct <%= name %> {
         // Storage of set values
-        <%= value.name %>[] _values;
+        <%= value.type %>[] _values;
         // Position is the index of the value in the `values` array plus 1.
         // Position 0 is used to mean a value is not in the set.
-        mapping(<%= value.name %> value => uint256) _positions;
+        mapping(<%= value.type %> value => uint256) _positions;
     }
 
     /**
@@ -333,7 +333,7 @@ library EnumerableSet {
      * Returns true if the value was added to the set, that is if it was not
      * already present.
      */
-    function add(<%= name %> storage set, <%= value.name %> memory value) internal returns (bool) {
+    function add(<%= name %> storage set, <%= value.type %> memory value) internal returns (bool) {
         if (!contains(set, value)) {
             set._values.push(value);
             // The value is stored at length-1, but we add 1 to all indexes
@@ -351,7 +351,7 @@ library EnumerableSet {
      * Returns true if the value was removed from the set, that is if it was
      * present.
      */
-    function remove(<%= name %> storage set, <%= value.name %> memory value) internal returns (bool) {
+    function remove(<%= name %> storage set, <%= value.type %> memory value) internal returns (bool) {
         // We cache the value's position to prevent multiple reads from the same storage slot
         uint256 position = set._positions[value];
 
@@ -365,7 +365,7 @@ library EnumerableSet {
             uint256 lastIndex = set._values.length - 1;
 
             if (valueIndex != lastIndex) {
-                <%= value.name %> memory lastValue = set._values[lastIndex];
+                <%= value.type %> memory lastValue = set._values[lastIndex];
 
                 // Move the lastValue to the index where the value to delete is
                 set._values[valueIndex] = lastValue;
@@ -402,7 +402,7 @@ library EnumerableSet {
     /**
      * @dev Returns true if the value is in the set. O(1).
      */
-    function contains(<%= name %> storage set, <%= value.name %> memory value) internal view returns (bool) {
+    function contains(<%= name %> storage set, <%= value.type %> memory value) internal view returns (bool) {
         return set._positions[value] != 0;
     }
 
@@ -426,7 +426,7 @@ library EnumerableSet {
      * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
      * should use {pos} instead.
      */
-    function at(<%= name %> storage set, uint256 index) internal view returns (<%= value.name %> memory) {
+    function at(<%= name %> storage set, uint256 index) internal view returns (<%= value.type %> memory) {
         return pos(set, index);
     }
 
@@ -442,7 +442,7 @@ library EnumerableSet {
      *
      * Replacement of the deprecated {at} function.
      */
-    function pos(<%= name %> storage set, uint256 index) internal view returns (<%= value.name %> memory) {
+    function pos(<%= name %> storage set, uint256 index) internal view returns (<%= value.type %> memory) {
         return set._values[index];
     }
 
@@ -454,7 +454,7 @@ library EnumerableSet {
      * this function has an unbounded cost, and using it as part of a state-changing function may render the function
      * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
      */
-    function values(<%= name %> storage set) internal view returns (<%= value.name %>[] memory) {
+    function values(<%= name %> storage set) internal view returns (<%= value.type %>[] memory) {
         return set._values;
     }
 
@@ -466,13 +466,13 @@ library EnumerableSet {
      * this function has an unbounded cost, and using it as part of a state-changing function may render the function
      * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
      */
-    function values(<%= name %> storage set, uint256 start, uint256 end) internal view returns (<%= value.name %>[] memory) {
+    function values(<%= name %> storage set, uint256 start, uint256 end) internal view returns (<%= value.type %>[] memory) {
         unchecked {
             end = Math.min(end, length(set));
             start = Math.min(start, end);
 
             uint256 len = end - start;
-            <%= value.name %>[] memory result = new <%= value.name %>[](len);
+            <%= value.type %>[] memory result = new <%= value.type %>[](len);
             for (uint256 i = 0; i < len; ++i) {
                 result[i] = Arrays.unsafeAccess(set._values, start + i).value;
             }

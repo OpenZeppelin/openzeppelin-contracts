@@ -28,7 +28,7 @@ async function fixture() {
         values: Array.from({ length: 3 }, randomOf(value.type)),
         zeroValue: randomOf(value.type).zero,
         methods: mapValues(
-          MAP_TYPES.filter(map => map.key.name == key.name).length == 1
+          MAP_TYPES.filter(map => map.key.type == key.type).length == 1
             ? {
                 set: `$set(uint256,${key.type},${value.type})`,
                 get: `$get(uint256,${key.type})`,

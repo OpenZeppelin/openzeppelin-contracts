@@ -54,8 +54,8 @@ export const ARRAYS_TYPES = [
 ];
 
 export const ARRAYS_VALUE_TYPES = ARRAYS_TYPES.filter(type => type.size);
-export const ARRAYS_CAST_TYPES = ARRAYS_VALUE_TYPES.filter(type => type.name !== 'uint256');
-export const ARRAYS_SORT_TYPES = ARRAYS_VALUE_TYPES.toSorted((a, b) => (b.name == 'uint256') - (a.name == 'uint256'));
+export const ARRAYS_CAST_TYPES = ARRAYS_VALUE_TYPES.filter(type => type.type !== 'uint256');
+export const ARRAYS_SORT_TYPES = ARRAYS_VALUE_TYPES.toSorted((a, b) => (b.type == 'uint256') - (a.type == 'uint256'));
 export const ARRAYS_COMPARATOR_TYPES = ARRAYS_VALUE_TYPES.filter(type => type.size < 256);
 
 // ─── Checkpoints (Checkpoints + Checkpoints.t) ───
@@ -70,7 +70,7 @@ export const SET_TYPES = [
   ALL_TYPES.string,
   ALL_TYPES.bytes,
 ].map(value => ({
-  name: `${value.name == 'uint256' ? 'Uint' : value.capitalized}Set`,
+  name: `${value.type == 'uint256' ? 'Uint' : value.capitalized}Set`,
   value,
 }));
 
@@ -86,7 +86,7 @@ export const MAP_TYPES = []
     { key: ALL_TYPES.bytes, value: ALL_TYPES.bytes },
   )
   .map(({ key, value }) => ({
-    name: `${key.name === 'uint256' ? 'Uint' : key.capitalized}To${value.name === 'uint256' ? 'Uint' : value.capitalized}Map`,
+    name: `${key.type === 'uint256' ? 'Uint' : key.capitalized}To${value.type === 'uint256' ? 'Uint' : value.capitalized}Map`,
     key,
     value,
   }));
