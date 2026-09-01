@@ -38,6 +38,7 @@ export const ALL_TYPES = Object.fromEntries(
     }))
     .map((entry, _, all) => ({
       ...entry,
+      upcastTo: all.find(type => type.type === entry.upcastTo),
       upcastOf: all.filter(type => type.upcastTo === entry.type),
     }))
     .map(entry => [entry.type, entry]),
