@@ -24,7 +24,7 @@ library Arrays {
      * when executing this as part of a transaction. If the array being sorted is too large, the sort operation may
      * consume more gas than is available in a block, leading to potential DoS.
      *
-     * IMPORTANT: Consider memory side-effects when using custom comparator functions that access memory in an unsafe way.<% if (size && size < 256) { %>
+     * IMPORTANT: Consider memory side-effects when using custom comparator functions that access memory in an unsafe way.<% if (size < 256) { %>
      *
      * NOTE: `comp` receives the array entries verbatim, including any dirty (non-zero) upper bits. Solidity assumes
      * `<%= type %>` values are clean, so a comparator that compares its arguments directly may order them incorrectly.
