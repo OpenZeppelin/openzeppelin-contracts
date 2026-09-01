@@ -15,49 +15,42 @@ const eta = new Eta({ views: templatesDir, autoEscape: false, autoTrim: false, d
 // A `.sol` path is required so the config's `*.sol` override (e.g. double quotes) is applied.
 const prettierConfig = await prettier.resolveConfig(path.join(repoRoot, 'contracts/_.sol'));
 
-function getVersion(file) {
-  try {
-    return fs.readFileSync(file, 'utf8').match(/\/\/ OpenZeppelin Contracts \(last updated v[^)]+\)/)[0];
-  } catch {
-    return null;
-  }
-}
-
 // output path (relative to the prefix) -> template context
-for (const [prefix, entries] of Object.entries({
-  contracts: [
-    'mocks/StorageSlotMock.sol',
-    'mocks/TransientSlotMock.sol',
-    'utils/Arrays.sol',
-    'utils/Packing.sol',
-    'utils/SlotDerivation.sol',
-    'utils/StorageSlot.sol',
-    'utils/TransientSlot.sol',
-    'utils/cryptography/MerkleProof.sol',
-    'utils/math/SafeCast.sol',
-    'utils/structs/Checkpoints.sol',
-    'utils/structs/EnumerableMap.sol',
-    'utils/structs/EnumerableSet.sol',
-  ],
-  test: ['utils/Packing.t.sol', 'utils/SlotDerivation.t.sol', 'utils/structs/Checkpoints.t.sol'],
-})) {
-  for (const file of entries) {
-    console.log(`Generating ${path.join(prefix, file)}...`);
-    const template = `${path.basename(file)}.eta`;
-    const input = path.relative(repoRoot, path.join(templatesDir, template));
-    const output = path.join(prefix, file);
-    const version = getVersion(output);
-    const content =
-      [
-        '// SPDX-License-Identifier: MIT',
-        ...(version ? [`${version} (${file})`] : []),
-        `// This file was procedurally generated from ${input}.`,
-        '',
-        eta.render(template, context).trimEnd(),
-      ].join('\n') + '\n';
+for (const filepath of [
+  'contracts/mocks/StorageSlotMock.sol',
+  'contracts/mocks/TransientSlotMock.sol',
+  'contracts/utils/Arrays.sol',
+  'contracts/utils/Packing.sol',
+  'contracts/utils/SlotDerivation.sol',
+  'contracts/utils/StorageSlot.sol',
+  'contracts/utils/TransientSlot.sol',
+  'contracts/utils/cryptography/MerkleProof.sol',
+  'contracts/utils/math/SafeCast.sol',
+  'contracts/utils/structs/Checkpoints.sol',
+  'contracts/utils/structs/EnumerableMap.sol',
+  'contracts/utils/structs/EnumerableSet.sol',
+  'test/utils/Packing.t.sol',
+  'test/utils/SlotDerivation.t.sol',
+  'test/utils/structs/Checkpoints.t.sol',
+]) {
+  console.log(`Generating ${filepath}...`);
+  const template = `${path.basename(filepath)}.eta`;
+  const input = path.relative(repoRoot, path.join(templatesDir, template));
+  const version = fs
+    .readFileSync(filepath, 'utf8')
+    .match(/^\/\/ OpenZeppelin Contracts \(last updated v(?<version>[^)]+)\) \((?<path>[^)]+)\)$/m)
+    ?.at(0);
+  const content = [
+    '// SPDX-License-Identifier: MIT',
+    ...(version ? [version] : []),
+    `// This file was procedurally generated from ${input}.`,
+    '',
+    eta.render(template, context),
+  ].join('\n');
 
-    fs.mkdirSync(path.dirname(output), { recursive: true });
-    // Output whitespace/indentation is canonicalized by prettier (via the repo config), not the template.
-    fs.writeFileSync(output, await prettier.format(content, { ...prettierConfig, filepath: output }));
-  }
+  // Output whitespace/indentation is canonicalized by prettier (via the repo config), not the template.
+  await prettier.format(content, { ...prettierConfig, filepath }).then(formatted => {
+    fs.mkdirSync(path.dirname(filepath), { recursive: true });
+    fs.writeFileSync(filepath, formatted);
+  });
 }
