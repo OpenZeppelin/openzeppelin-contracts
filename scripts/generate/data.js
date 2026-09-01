@@ -23,16 +23,7 @@ export const ARRAYS_SORT_TYPES = ARRAYS_VALUE_TYPES.toSorted((a, b) => (b.type =
 export const ARRAYS_COMPARATOR_TYPES = ARRAYS_VALUE_TYPES.filter(type => type.size < 32);
 
 // ─── Checkpoints (Checkpoints + Checkpoints.t) ───
-export const CHECKPOINTS_OPTS = [256, 224, 208, 160].map(size => ({
-  historyTypeName: `Trace${size}`,
-  checkpointTypeName: `Checkpoint${size}`,
-  checkpointFieldName: '_checkpoints',
-  checkpointSize: size < 256 ? 1 : 2,
-  keyTypeName: size < 256 ? `uint${256 - size}` : 'uint256',
-  keyFieldName: '_key',
-  valueTypeName: `uint${size}`,
-  valueFieldName: '_value',
-}));
+export const CHECKPOINTS_LENGTH = [256, 224, 208, 160].map(size => ({ size, keySize: size < 256 ? 256 - size : 256 }));
 
 // ─── Enumerable (EnumerableSet, EnumerableMap) ───
 export const typeDescr = ({ type, size = 0, memory }) => {
