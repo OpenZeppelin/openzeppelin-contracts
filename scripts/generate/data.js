@@ -1,7 +1,6 @@
 import { capitalize, range, product } from '../helpers.js';
 
 // ─── Shared helpers ───
-export const isReferenceType = type => ['string', 'bytes'].includes(type);
 export * as sanitize from './helpers/sanitize.js';
 export * from './helpers/conversion.js';
 export * from '../helpers.js';
