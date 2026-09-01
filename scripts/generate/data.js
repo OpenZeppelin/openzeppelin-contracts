@@ -77,12 +77,10 @@ export const SET_TYPES = [
 export const MAP_TYPES = []
   .concat(
     // value type maps
-    [ALL_TYPES.uint256, ALL_TYPES.address, ALL_TYPES.bytes32]
-      .flatMap((key, _, array) => array.map(value => ({ key, value })))
-      .slice(0, -1), // remove bytes32 → bytes32 (last one) that is already defined
-    // other value type maps
+    [ALL_TYPES.uint256, ALL_TYPES.address, ALL_TYPES.bytes32].flatMap((key, _, array) =>
+      array.map(value => ({ key, value })),
+    ),
     { key: ALL_TYPES.bytes4, value: ALL_TYPES.address },
-    // non-value type maps
     { key: ALL_TYPES.bytes, value: ALL_TYPES.bytes },
   )
   .map(({ key, value }) => ({
