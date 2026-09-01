@@ -9,6 +9,8 @@ on:
 jobs:
   transpile:
     environment: push-upgradeable
+    permissions:
+      contents: read
     if: ${{ !endsWith(github.repository, '-upgradeable') }}
     runs-on: ubuntu-latest
     steps:
@@ -34,7 +36,8 @@ jobs:
           REF_NAME: ${{ github.ref_name }}
           SUBMODULE_REMOTE: https://github.com/${{ github.repository }}.git
       - name: Push to upgradeable
-        run: git push "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}-upgradeable.git" -- "$REF_NAME"
+        run: git push "https://x-access-token:${GH_TOKEN}@github.com/${REPOSITORY}-upgradeable.git" -- "$REF_NAME"
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN_UPGRADEABLE }}
           REF_NAME: ${{ github.ref_name }}
+          REPOSITORY: ${{ github.repository }}
