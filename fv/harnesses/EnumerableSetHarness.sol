@@ -30,6 +30,6 @@ contract EnumerableSetHarness {
     }
 
     function _positionOf(bytes32 value) public view returns (uint256) {
-        return _set._inner._positions[value];
+        return _set._positions[value];
     }
 }

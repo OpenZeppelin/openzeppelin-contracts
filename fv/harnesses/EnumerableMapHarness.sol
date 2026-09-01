@@ -50,6 +50,6 @@ contract EnumerableMapHarness {
     }
 
     function _positionOf(bytes32 key) public view returns (uint256) {
-        return _map._keys._inner._positions[key];
+        return _map._keys._positions[key];
     }
 }
