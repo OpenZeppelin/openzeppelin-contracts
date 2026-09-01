@@ -11,7 +11,7 @@ export const args = (...parts) => parts.filter(Boolean).join(', ');
 export const ALL_TYPES = Object.fromEntries(
   [
     { type: 'address', size: 160 },
-    { type: 'bool', name: 'boolean', size: 1 },
+    { type: 'bool', name: 'Boolean', size: 1 },
     ...range(1, 33).map(size => ({
       type: `bytes${size}`,
       size: 8 * size,
@@ -33,8 +33,7 @@ export const ALL_TYPES = Object.fromEntries(
   ]
     .map(entry => ({
       ...entry,
-      name: entry.name ?? entry.type,
-      capitalized: capitalize(entry.name ?? entry.type),
+      name: entry.name ?? capitalize(entry.type),
       location: entry.size ? '' : 'memory',
     }))
     .map((entry, _, all) => ({
@@ -70,7 +69,7 @@ export const SET_TYPES = [
   ALL_TYPES.string,
   ALL_TYPES.bytes,
 ].map(value => ({
-  name: `${value.type == 'uint256' ? 'Uint' : value.capitalized}Set`,
+  name: `${value.type == 'uint256' ? 'Uint' : value.name}Set`,
   value,
 }));
 
@@ -86,7 +85,7 @@ export const MAP_TYPES = []
     { key: ALL_TYPES.bytes, value: ALL_TYPES.bytes },
   )
   .map(({ key, value }) => ({
-    name: `${key.type === 'uint256' ? 'Uint' : key.capitalized}To${value.type === 'uint256' ? 'Uint' : value.capitalized}Map`,
+    name: `${key.type === 'uint256' ? 'Uint' : key.name}To${value.type === 'uint256' ? 'Uint' : value.name}Map`,
     key,
     value,
   }));

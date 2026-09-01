@@ -348,11 +348,11 @@ library EnumerableMap {
     /**
      * @dev Query for a nonexistent map key.
      */
-    error EnumerableMapNonexistent<%= key.capitalized %>Key(<%= key.type %> key);
+    error EnumerableMapNonexistent<%= key.name %>Key(<%= key.type %> key);
 
     struct <%= name %> {
         // Storage of keys
-        EnumerableSet.<%= key.capitalized %>Set _keys;
+        EnumerableSet.<%= key.name %>Set _keys;
         mapping(<%= key.type %> key => <%= value.type %>) _values;
     }
 
@@ -468,7 +468,7 @@ library EnumerableMap {
         bool exists;
         (exists, value) = tryGet(map, key);
         if (!exists) {
-            revert EnumerableMapNonexistent<%= key.capitalized %>Key(key);
+            revert EnumerableMapNonexistent<%= key.name %>Key(key);
         }
     }
 

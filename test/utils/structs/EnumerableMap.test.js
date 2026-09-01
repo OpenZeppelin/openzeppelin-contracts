@@ -61,7 +61,7 @@ async function fixture() {
           setReturn: `return$set_EnumerableMap_${name}_${key.type}_${value.type}`,
           removeReturn: `return$remove_EnumerableMap_${name}_${key.type}`,
         },
-        error: key.size && value.size ? `EnumerableMapNonexistentKey` : `EnumerableMapNonexistent${key.capitalized}Key`,
+        error: key.size && value.size ? `EnumerableMapNonexistentKey` : `EnumerableMapNonexistent${key.name}Key`,
       },
     ]),
   );
