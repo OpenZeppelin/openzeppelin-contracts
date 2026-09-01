@@ -36,7 +36,7 @@ contract SlotDerivationTest is Test, SymTest {
 
         assertEq(baseSlot.deriveArray().offset(offset), derivedSlot);
     }
-<% for (const type of it.SLOT_TYPES.flatMap(type => [ type, ...(type.variants ?? []) ])) { %>
+<% for (const type of it.SLOT_TYPES.flatMap(type => [ type, ...type.upcastOf.filter(({ size }) => size === 32) ])) { %>
 <% if (type.size) { %>
     mapping(<%= type.type %> => bytes) private _<%= type.type %>Mapping;
 

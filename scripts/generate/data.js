@@ -10,35 +10,38 @@ export const args = (...parts) => parts.filter(Boolean).join(', ');
 // ─── All solidity types ───
 export const ALL_TYPES = Object.fromEntries(
   [
-    { type: 'bool', name: 'Boolean', size: 1 },
     { type: 'address', size: 160 },
+    { type: 'bool', name: 'boolean', size: 1 },
     ...range(1, 33).map(size => ({
       type: `bytes${size}`,
       size: 8 * size,
-      upcastTo: 'bytes32',
+      upcastTo: size < 32 ? 'bytes32' : undefined,
     })),
     ...range(8, 257, 8).map(size => ({
       type: `uint${size}`,
       size,
-      upcastTo: 'uint256',
+      upcastTo: size < 256 ? 'uint256' : undefined,
     })),
     ...range(8, 257, 8).map(size => ({
       type: `int${size}`,
       size,
-      upcastTo: 'int256',
+      upcastTo: size < 256 ? 'int256' : undefined,
       signed: true,
     })),
     { type: 'string' },
     { type: 'bytes' },
-  ].map(entry => [
-    entry.type,
-    {
+  ]
+    .map(entry => ({
       ...entry,
       name: entry.name ?? entry.type,
       capitalized: capitalize(entry.name ?? entry.type),
       location: entry.size ? '' : 'memory',
-    },
-  ]),
+    }))
+    .map((entry, _, all) => ({
+      ...entry,
+      upcastOf: all.filter(type => type.upcastTo === entry.type),
+    }))
+    .map(entry => [entry.type, entry]),
 );
 
 // ─── Arrays ───
@@ -106,12 +109,4 @@ export const PACKING_SIZES = [1, 2, 4, 6, 8, 10, 12, 16, 20, 22, 24, 28, 32];
 export const SAFECAST_LENGTHS = Array.from({ length: 31 }, (_, i) => 248 - i * 8);
 
 // ─── Slot family (StorageSlot, TransientSlot, SlotDerivation, and their mocks/tests) ───
-export const SLOT_TYPES = [
-  ALL_TYPES.address,
-  ALL_TYPES.bool,
-  { ...ALL_TYPES.bytes32, variants: [ALL_TYPES.bytes4] },
-  { ...ALL_TYPES.uint256, variants: [ALL_TYPES.uint32] },
-  { ...ALL_TYPES.int256, variants: [ALL_TYPES.int32] },
-  ALL_TYPES.string,
-  ALL_TYPES.bytes,
-];
+export const SLOT_TYPES = Object.values(ALL_TYPES).filter(type => !type.upcastTo);
