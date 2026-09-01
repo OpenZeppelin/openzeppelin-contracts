@@ -5,7 +5,7 @@ import path from 'path';
 import prettier from 'prettier';
 import { Eta } from 'eta';
 
-// Shared data + helpers injected into the `.sol.eta` templates.
+// Shared data + helpers. The full set is injected into every `.sol.eta` template (e.g. it.SLOT_TYPES, it.sanitize).
 import * as context from './data.js';
 
 const repoRoot = path.join(import.meta.dirname, '../..');
