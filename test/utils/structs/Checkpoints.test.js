@@ -1,6 +1,6 @@
 import { network } from 'hardhat';
 import { expect } from 'chai';
-import { OPTS } from '../../../scripts/generate/templates/Checkpoints.opts';
+import { CHECKPOINTS_OPTS as OPTS } from '../../../scripts/generate/data.js';
 
 const {
   ethers,
