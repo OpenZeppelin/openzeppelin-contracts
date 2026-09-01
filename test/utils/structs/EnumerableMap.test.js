@@ -1,7 +1,7 @@
 import { network } from 'hardhat';
 import { mapValues } from '../../helpers/iterate';
 import * as random from '../../helpers/random';
-import { ALL_TYPES, MAP_TYPES } from '../../../scripts/generate/data.js';
+import { TYPES, MAP_TYPES } from '../../../scripts/generate/data.js';
 import { shouldBehaveLikeMap } from './EnumerableMap.behavior';
 
 const {
@@ -10,7 +10,7 @@ const {
 } = await network.create();
 
 // Add Bytes32ToBytes32Map that must be tested but is not part of the generated types.
-MAP_TYPES.unshift({ name: 'Bytes32ToBytes32Map', key: ALL_TYPES.bytes32, value: ALL_TYPES.bytes32 });
+MAP_TYPES.unshift({ name: 'Bytes32ToBytes32Map', key: TYPES.bytes32, value: TYPES.bytes32 });
 
 // Chai matchers expect hexadecimal data when dealing with bytes
 const randomOf = type => random[type === 'bytes' ? 'hexBytes' : type];
