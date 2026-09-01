@@ -16,15 +16,14 @@ export const ARRAYS_TYPES = [
   { type: 'bytes' }, // reference types have no size
   { type: 'string' },
 ].map(type => ({ ...type, isValueType: !isReferenceType(type.type) }));
+
 export const ARRAYS_VALUE_TYPES = ARRAYS_TYPES.filter(type => type.isValueType);
-// value types sorted by casting to uint256[] (everything except the base uint256 implementation)
 export const ARRAYS_CAST_TYPES = ARRAYS_VALUE_TYPES.filter(type => type.type !== 'uint256');
-export const ARRAYS_SORT_TYPES = [ARRAYS_VALUE_TYPES.find(type => type.type === 'uint256'), ...ARRAYS_CAST_TYPES];
-// narrow value types (< 32 bytes) get a dedicated comparator that masks dirty upper bits
+export const ARRAYS_SORT_TYPES = ARRAYS_VALUE_TYPES.toSorted((a, b) => (b.type == 'uint256') - (a.type == 'uint256'));
 export const ARRAYS_COMPARATOR_TYPES = ARRAYS_VALUE_TYPES.filter(type => type.size < 32);
 
 // ─── Checkpoints (Checkpoints + Checkpoints.t) ───
-const defaultCheckpointOpts = size => ({
+export const CHECKPOINTS_OPTS = [256, 224, 208, 160].map(size => ({
   historyTypeName: `Trace${size}`,
   checkpointTypeName: `Checkpoint${size}`,
   checkpointFieldName: '_checkpoints',
@@ -33,9 +32,7 @@ const defaultCheckpointOpts = size => ({
   keyFieldName: '_key',
   valueTypeName: `uint${size}`,
   valueFieldName: '_value',
-});
-
-export const CHECKPOINTS_OPTS = [256, 224, 208, 160].map(defaultCheckpointOpts);
+}));
 
 // ─── Enumerable (EnumerableSet, EnumerableMap) ───
 export const typeDescr = ({ type, size = 0, memory }) => {
