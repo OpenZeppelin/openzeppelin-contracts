@@ -30,7 +30,7 @@ library MerkleProof {
      */
     error MerkleProofInvalidMultiproof();
 
-<% for (const { suffix, location, visibility, hash } of it.OPTS) { %>
+<% for (const { suffix, location, visibility, hash } of it.MERKLEPROOF_OPTS) { %>
     /**
      * @dev Returns true if a `leaf` can be proved to be a part of a Merkle tree
      * defined by `root`. For this, a `proof` must be provided, containing
@@ -54,13 +54,13 @@ library MerkleProof {
     function processProof<%= suffix %>(<%= it.args(`bytes32[] ${location} proof`, 'bytes32 leaf', hash && `function(bytes32, bytes32) view returns (bytes32) ${hash}`) %>) internal <%= visibility %> returns (bytes32) {
         bytes32 computedHash = leaf;
         for (uint256 i = 0; i < proof.length; i++) {
-            computedHash = <%= hash ?? it.DEFAULT_HASH %>(computedHash, proof[i]);
+            computedHash = <%= hash ?? it.MERKLEPROOF_DEFAULT_HASH %>(computedHash, proof[i]);
         }
         return computedHash;
     }
 
 <% } %>
-<% for (const { suffix, location, visibility, hash } of it.OPTS) { %>
+<% for (const { suffix, location, visibility, hash } of it.MERKLEPROOF_OPTS) { %>
     /**
      * @dev Returns true if the `leaves` can be simultaneously proven to be a part of a Merkle tree defined by
      * `root`, according to `proof` and `proofFlags` as described in {processMultiProof}.
@@ -122,7 +122,7 @@ library MerkleProof {
                 bytes32 b = proofFlags[i]
                     ? (leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++])
                     : proof[proofPos++];
-                hashes[i] = <%= hash ?? it.DEFAULT_HASH %>(a, b);
+                hashes[i] = <%= hash ?? it.MERKLEPROOF_DEFAULT_HASH %>(a, b);
             }
             if (proofPos != proof.length) {
                 revert MerkleProofInvalidMultiproof();

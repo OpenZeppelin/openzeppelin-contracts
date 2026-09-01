@@ -27,7 +27,7 @@ pragma solidity ^0.8.24;
  * TIP: Consider using this library along with {SlotDerivation}.
  */
 library TransientSlot {
-<% for (const type of it.VALUE_TYPES) { %>
+<% for (const type of it.SLOT_VALUE_TYPES) { %>
     /**
      * @dev UDVT that represents a slot holding <%= type.type == 'address' ? 'an' : 'a' %> <%= type.type %>.
      */
@@ -40,7 +40,7 @@ library TransientSlot {
         return <%= type.name %>Slot.wrap(slot);
     }
 <% } %>
-<% for (const type of it.VALUE_TYPES) { %>
+<% for (const type of it.SLOT_VALUE_TYPES) { %>
     /**
      * @dev Load the value held at location `slot` in transient storage.
      */

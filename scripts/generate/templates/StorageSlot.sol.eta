@@ -28,12 +28,12 @@ pragma solidity ^0.8.20;
  * TIP: Consider using this library along with {SlotDerivation}.
  */
 library StorageSlot {
-<% for (const type of it.TYPES) { %>
+<% for (const type of it.SLOT_TYPES) { %>
     struct <%= type.name %>Slot {
         <%= type.type %> value;
     }
 <% } %>
-<% for (const type of it.TYPES) { %>
+<% for (const type of it.SLOT_TYPES) { %>
     /**
      * @dev Returns <%= type.name.toLowerCase().startsWith('a') ? 'an' : 'a' %> `<%= type.name %>Slot` with member `value` located at `slot`.
      */

@@ -1,6 +1,12 @@
 import { capitalize, mapValues, product } from '../helpers.js';
 
-const isReferenceType = type => ['string', 'bytes'].includes(type);
+// ─── Shared helpers ───
+export const isReferenceType = type => ['string', 'bytes'].includes(type);
+export * as sanitize from './helpers/sanitize.js';
+export * from './helpers/conversion.js';
+export * from '../helpers.js';
+
+export const args = (...parts) => parts.filter(Boolean).join(', ');
 
 // ─── Arrays ───
 export const ARRAYS_TYPES = [

@@ -6,17 +6,17 @@ import {StorageSlot} from "../utils/StorageSlot.sol";
 contract StorageSlotMock is Multicall {
     using StorageSlot for *;
 
-<% for (const type of it.VALUE_TYPES) { %>
+<% for (const type of it.SLOT_VALUE_TYPES) { %>
     function set<%= type.name %>Slot(bytes32 slot, <%= type.type %> value) public {
         slot.get<%= type.name %>Slot().value = value;
     }
 <% } %>
-<% for (const type of it.VALUE_TYPES) { %>
+<% for (const type of it.SLOT_VALUE_TYPES) { %>
     function get<%= type.name %>Slot(bytes32 slot) public view returns (<%= type.type %>) {
         return slot.get<%= type.name %>Slot().value;
     }
 <% } %>
-<% for (const type of it.TYPES.filter(type => !type.isValueType)) { %>
+<% for (const type of it.SLOT_TYPES.filter(type => !type.isValueType)) { %>
     mapping(uint256 key => <%= type.type %>) public <%= type.type %>Map;
 
     function set<%= type.name %>Slot(bytes32 slot, <%= type.type %> calldata value) public {

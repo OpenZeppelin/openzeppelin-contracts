@@ -36,7 +36,7 @@ contract SlotDerivationTest is Test, SymTest {
 
         assertEq(baseSlot.deriveArray().offset(offset), derivedSlot);
     }
-<% for (const type of it.TYPES.flatMap(type => [type, ...(type.variants ?? []).map(variant => ({ type: variant, name: it.capitalize(variant), isValueType: type.isValueType }))])) { %>
+<% for (const type of it.SLOT_TYPES.flatMap(type => [type, ...(type.variants ?? []).map(variant => ({ type: variant, name: it.capitalize(variant), isValueType: type.isValueType }))])) { %>
 <% if (type.isValueType) { %>
     mapping(<%= type.type %> => bytes) private _<%= type.type %>Mapping;
 
@@ -81,7 +81,7 @@ contract SlotDerivationTest is Test, SymTest {
     }
 <% } %>
 <% } %>
-<% for (const type of [it.TYPES.bool, it.TYPES.address]) { %>
+<% for (const type of [it.SLOT_TYPES.bool, it.SLOT_TYPES.address]) { %>
     function testSymbolicDeriveMapping<%= type.name %>Dirty(bytes32 dirtyKey) public view {
         <%= type.type %> key;
         assembly {

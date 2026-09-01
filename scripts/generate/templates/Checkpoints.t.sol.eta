@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 import {Test} from "forge-std/Test.sol";
 import {SafeCast} from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 import {Checkpoints} from "@openzeppelin/contracts/utils/structs/Checkpoints.sol";
-<% for (const opts of it.OPTS) { %>
+<% for (const opts of it.CHECKPOINTS_OPTS) { %>
 
 contract Checkpoints<%= opts.historyTypeName %>Test is Test {
     using Checkpoints for Checkpoints.<%= opts.historyTypeName %>;
