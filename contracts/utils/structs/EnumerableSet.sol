@@ -2,9 +2,8 @@
 // OpenZeppelin Contracts (last updated v5.7.0) (utils/structs/EnumerableSet.sol)
 // This file was procedurally generated from scripts/generate/templates/EnumerableSet.sol.eta.
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.20;
 
-import {Arrays} from "../Arrays.sol";
 import {Math} from "../math/Math.sol";
 
 /**
@@ -49,16 +48,9 @@ import {Math} from "../math/Math.sol";
  * ====
  */
 library EnumerableSet {
-    // To implement this library for multiple types with as little code
-    // repetition as possible, we write it in terms of a generic Set type with
-    // bytes32 values.
-    // The Set implementation uses private functions, and user-facing
-    // implementations (such as AddressSet) are just wrappers around the
-    // underlying Set.
-    // This means that we can only create new EnumerableSets for types that fit
-    // in bytes32.
+    // Bytes32Set
 
-    struct Set {
+    struct Bytes32Set {
         // Storage of set values
         bytes32[] _values;
         // Position is the index of the value in the `values` array plus 1.
@@ -72,8 +64,8 @@ library EnumerableSet {
      * Returns true if the value was added to the set, that is if it was not
      * already present.
      */
-    function _add(Set storage set, bytes32 value) private returns (bool) {
-        if (!_contains(set, value)) {
+    function add(Bytes32Set storage set, bytes32 value) internal returns (bool) {
+        if (!contains(set, value)) {
             set._values.push(value);
             // The value is stored at length-1, but we add 1 to all indexes
             // and use 0 as a sentinel value
@@ -90,7 +82,7 @@ library EnumerableSet {
      * Returns true if the value was removed from the set, that is if it was
      * present.
      */
-    function _remove(Set storage set, bytes32 value) private returns (bool) {
+    function remove(Bytes32Set storage set, bytes32 value) internal returns (bool) {
         // We cache the value's position to prevent multiple reads from the same storage slot
         uint256 position = set._positions[value];
 
@@ -127,128 +119,32 @@ library EnumerableSet {
     /**
      * @dev Removes all the values from a set. O(n).
      *
-     * WARNING: This function has an unbounded cost that scales with set size. Developers should keep in mind that
-     * using it may render the function uncallable if the set grows to the point where clearing it consumes too much
-     * gas to fit in a block.
-     */
-    function _clear(Set storage set) private {
-        uint256 len = _length(set);
-        for (uint256 i = 0; i < len; ++i) {
-            delete set._positions[set._values[i]];
-        }
-        Arrays.unsafeSetLength(set._values, 0);
-    }
-
-    /**
-     * @dev Returns true if the value is in the set. O(1).
-     */
-    function _contains(Set storage set, bytes32 value) private view returns (bool) {
-        return set._positions[value] != 0;
-    }
-
-    /**
-     * @dev Returns the number of values on the set. O(1).
-     */
-    function _length(Set storage set) private view returns (uint256) {
-        return set._values.length;
-    }
-
-    /**
-     * @dev Returns the value stored at position `index` in the set. O(1).
-     *
-     * Note that there are no guarantees on the ordering of values inside the
-     * array, and it may change when more values are added or removed.
-     *
-     * Requirements:
-     *
-     * - `index` must be strictly less than {length}.
-     */
-    function _pos(Set storage set, uint256 index) private view returns (bytes32) {
-        return set._values[index];
-    }
-
-    /**
-     * @dev Return the entire set in an array
-     *
-     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
-     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
-     * this function has an unbounded cost, and using it as part of a state-changing function may render the function
-     * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
-     */
-    function _values(Set storage set) private view returns (bytes32[] memory) {
-        return set._values;
-    }
-
-    /**
-     * @dev Return a slice of the set in an array
-     *
-     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
-     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
-     * this function has an unbounded cost, and using it as part of a state-changing function may render the function
-     * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
-     */
-    function _values(Set storage set, uint256 start, uint256 end) private view returns (bytes32[] memory) {
-        unchecked {
-            end = Math.min(end, _length(set));
-            start = Math.min(start, end);
-
-            uint256 len = end - start;
-            bytes32[] memory result = new bytes32[](len);
-            for (uint256 i = 0; i < len; ++i) {
-                result[i] = Arrays.unsafeAccess(set._values, start + i).value;
-            }
-            return result;
-        }
-    }
-
-    // Bytes32Set
-
-    struct Bytes32Set {
-        Set _inner;
-    }
-
-    /**
-     * @dev Add a value to a set. O(1).
-     *
-     * Returns true if the value was added to the set, that is if it was not
-     * already present.
-     */
-    function add(Bytes32Set storage set, bytes32 value) internal returns (bool) {
-        return _add(set._inner, value);
-    }
-
-    /**
-     * @dev Removes a value from a set. O(1).
-     *
-     * Returns true if the value was removed from the set, that is if it was
-     * present.
-     */
-    function remove(Bytes32Set storage set, bytes32 value) internal returns (bool) {
-        return _remove(set._inner, value);
-    }
-
-    /**
-     * @dev Removes all the values from a set. O(n).
-     *
      * WARNING: Developers should keep in mind that this function has an unbounded cost and using it may render the
      * function uncallable if the set grows to the point where clearing it consumes too much gas to fit in a block.
      */
     function clear(Bytes32Set storage set) internal {
-        _clear(set._inner);
+        uint256 len = length(set);
+        for (uint256 i = 0; i < len; ++i) {
+            delete set._positions[set._values[i]];
+        }
+        bytes32[] storage _values = set._values;
+        assembly ("memory-safe") {
+            sstore(_values.slot, 0)
+        }
     }
 
     /**
      * @dev Returns true if the value is in the set. O(1).
      */
     function contains(Bytes32Set storage set, bytes32 value) internal view returns (bool) {
-        return _contains(set._inner, value);
+        return set._positions[value] != 0;
     }
 
     /**
      * @dev Returns the number of values in the set. O(1).
      */
     function length(Bytes32Set storage set) internal view returns (uint256) {
-        return _length(set._inner);
+        return set._values.length;
     }
 
     /**
@@ -281,7 +177,7 @@ library EnumerableSet {
      * Replacement of the deprecated {at} function.
      */
     function pos(Bytes32Set storage set, uint256 index) internal view returns (bytes32) {
-        return _pos(set._inner, index);
+        return set._values[index];
     }
 
     /**
@@ -293,14 +189,7 @@ library EnumerableSet {
      * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
      */
     function values(Bytes32Set storage set) internal view returns (bytes32[] memory) {
-        bytes32[] memory store = _values(set._inner);
-        bytes32[] memory result;
-
-        assembly ("memory-safe") {
-            result := store
-        }
-
-        return result;
+        return set._values;
     }
 
     /**
@@ -312,20 +201,27 @@ library EnumerableSet {
      * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
      */
     function values(Bytes32Set storage set, uint256 start, uint256 end) internal view returns (bytes32[] memory) {
-        bytes32[] memory store = _values(set._inner, start, end);
-        bytes32[] memory result;
+        unchecked {
+            end = Math.min(end, length(set));
+            start = Math.min(start, end);
 
-        assembly ("memory-safe") {
-            result := store
+            uint256 len = end - start;
+            bytes32[] memory result = new bytes32[](len);
+            for (uint256 i = 0; i < len; ++i) {
+                result[i] = set._values[start + i];
+            }
+            return result;
         }
-
-        return result;
     }
 
     // Bytes4Set
 
     struct Bytes4Set {
-        Set _inner;
+        // Storage of set values
+        bytes4[] _values;
+        // Position is the index of the value in the `values` array plus 1.
+        // Position 0 is used to mean a value is not in the set.
+        mapping(bytes4 value => uint256) _positions;
     }
 
     /**
@@ -335,7 +231,15 @@ library EnumerableSet {
      * already present.
      */
     function add(Bytes4Set storage set, bytes4 value) internal returns (bool) {
-        return _add(set._inner, bytes32(value));
+        if (!contains(set, value)) {
+            set._values.push(value);
+            // The value is stored at length-1, but we add 1 to all indexes
+            // and use 0 as a sentinel value
+            set._positions[value] = set._values.length;
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -345,7 +249,37 @@ library EnumerableSet {
      * present.
      */
     function remove(Bytes4Set storage set, bytes4 value) internal returns (bool) {
-        return _remove(set._inner, bytes32(value));
+        // We cache the value's position to prevent multiple reads from the same storage slot
+        uint256 position = set._positions[value];
+
+        if (position != 0) {
+            // Equivalent to contains(set, value)
+            // To delete an element from the _values array in O(1), we swap the element to delete with the last one in
+            // the array, and then remove the last element (sometimes called as 'swap and pop').
+            // This modifies the order of the array, as noted in {at}.
+
+            uint256 valueIndex = position - 1;
+            uint256 lastIndex = set._values.length - 1;
+
+            if (valueIndex != lastIndex) {
+                bytes4 lastValue = set._values[lastIndex];
+
+                // Move the lastValue to the index where the value to delete is
+                set._values[valueIndex] = lastValue;
+                // Update the tracked position of the lastValue (that was just moved)
+                set._positions[lastValue] = position;
+            }
+
+            // Delete the slot where the moved value was stored
+            set._values.pop();
+
+            // Delete the tracked position for the deleted slot
+            delete set._positions[value];
+
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -355,21 +289,28 @@ library EnumerableSet {
      * function uncallable if the set grows to the point where clearing it consumes too much gas to fit in a block.
      */
     function clear(Bytes4Set storage set) internal {
-        _clear(set._inner);
+        uint256 len = length(set);
+        for (uint256 i = 0; i < len; ++i) {
+            delete set._positions[set._values[i]];
+        }
+        bytes4[] storage _values = set._values;
+        assembly ("memory-safe") {
+            sstore(_values.slot, 0)
+        }
     }
 
     /**
      * @dev Returns true if the value is in the set. O(1).
      */
     function contains(Bytes4Set storage set, bytes4 value) internal view returns (bool) {
-        return _contains(set._inner, bytes32(value));
+        return set._positions[value] != 0;
     }
 
     /**
      * @dev Returns the number of values in the set. O(1).
      */
     function length(Bytes4Set storage set) internal view returns (uint256) {
-        return _length(set._inner);
+        return set._values.length;
     }
 
     /**
@@ -402,7 +343,7 @@ library EnumerableSet {
      * Replacement of the deprecated {at} function.
      */
     function pos(Bytes4Set storage set, uint256 index) internal view returns (bytes4) {
-        return bytes4(_pos(set._inner, index));
+        return set._values[index];
     }
 
     /**
@@ -414,14 +355,7 @@ library EnumerableSet {
      * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
      */
     function values(Bytes4Set storage set) internal view returns (bytes4[] memory) {
-        bytes32[] memory store = _values(set._inner);
-        bytes4[] memory result;
-
-        assembly ("memory-safe") {
-            result := store
-        }
-
-        return result;
+        return set._values;
     }
 
     /**
@@ -433,20 +367,27 @@ library EnumerableSet {
      * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
      */
     function values(Bytes4Set storage set, uint256 start, uint256 end) internal view returns (bytes4[] memory) {
-        bytes32[] memory store = _values(set._inner, start, end);
-        bytes4[] memory result;
+        unchecked {
+            end = Math.min(end, length(set));
+            start = Math.min(start, end);
 
-        assembly ("memory-safe") {
-            result := store
+            uint256 len = end - start;
+            bytes4[] memory result = new bytes4[](len);
+            for (uint256 i = 0; i < len; ++i) {
+                result[i] = set._values[start + i];
+            }
+            return result;
         }
-
-        return result;
     }
 
     // AddressSet
 
     struct AddressSet {
-        Set _inner;
+        // Storage of set values
+        address[] _values;
+        // Position is the index of the value in the `values` array plus 1.
+        // Position 0 is used to mean a value is not in the set.
+        mapping(address value => uint256) _positions;
     }
 
     /**
@@ -456,7 +397,15 @@ library EnumerableSet {
      * already present.
      */
     function add(AddressSet storage set, address value) internal returns (bool) {
-        return _add(set._inner, bytes32(uint256(uint160(value))));
+        if (!contains(set, value)) {
+            set._values.push(value);
+            // The value is stored at length-1, but we add 1 to all indexes
+            // and use 0 as a sentinel value
+            set._positions[value] = set._values.length;
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -466,7 +415,37 @@ library EnumerableSet {
      * present.
      */
     function remove(AddressSet storage set, address value) internal returns (bool) {
-        return _remove(set._inner, bytes32(uint256(uint160(value))));
+        // We cache the value's position to prevent multiple reads from the same storage slot
+        uint256 position = set._positions[value];
+
+        if (position != 0) {
+            // Equivalent to contains(set, value)
+            // To delete an element from the _values array in O(1), we swap the element to delete with the last one in
+            // the array, and then remove the last element (sometimes called as 'swap and pop').
+            // This modifies the order of the array, as noted in {at}.
+
+            uint256 valueIndex = position - 1;
+            uint256 lastIndex = set._values.length - 1;
+
+            if (valueIndex != lastIndex) {
+                address lastValue = set._values[lastIndex];
+
+                // Move the lastValue to the index where the value to delete is
+                set._values[valueIndex] = lastValue;
+                // Update the tracked position of the lastValue (that was just moved)
+                set._positions[lastValue] = position;
+            }
+
+            // Delete the slot where the moved value was stored
+            set._values.pop();
+
+            // Delete the tracked position for the deleted slot
+            delete set._positions[value];
+
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -476,21 +455,28 @@ library EnumerableSet {
      * function uncallable if the set grows to the point where clearing it consumes too much gas to fit in a block.
      */
     function clear(AddressSet storage set) internal {
-        _clear(set._inner);
+        uint256 len = length(set);
+        for (uint256 i = 0; i < len; ++i) {
+            delete set._positions[set._values[i]];
+        }
+        address[] storage _values = set._values;
+        assembly ("memory-safe") {
+            sstore(_values.slot, 0)
+        }
     }
 
     /**
      * @dev Returns true if the value is in the set. O(1).
      */
     function contains(AddressSet storage set, address value) internal view returns (bool) {
-        return _contains(set._inner, bytes32(uint256(uint160(value))));
+        return set._positions[value] != 0;
     }
 
     /**
      * @dev Returns the number of values in the set. O(1).
      */
     function length(AddressSet storage set) internal view returns (uint256) {
-        return _length(set._inner);
+        return set._values.length;
     }
 
     /**
@@ -523,7 +509,7 @@ library EnumerableSet {
      * Replacement of the deprecated {at} function.
      */
     function pos(AddressSet storage set, uint256 index) internal view returns (address) {
-        return address(uint160(uint256(_pos(set._inner, index))));
+        return set._values[index];
     }
 
     /**
@@ -535,14 +521,7 @@ library EnumerableSet {
      * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
      */
     function values(AddressSet storage set) internal view returns (address[] memory) {
-        bytes32[] memory store = _values(set._inner);
-        address[] memory result;
-
-        assembly ("memory-safe") {
-            result := store
-        }
-
-        return result;
+        return set._values;
     }
 
     /**
@@ -554,20 +533,27 @@ library EnumerableSet {
      * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
      */
     function values(AddressSet storage set, uint256 start, uint256 end) internal view returns (address[] memory) {
-        bytes32[] memory store = _values(set._inner, start, end);
-        address[] memory result;
+        unchecked {
+            end = Math.min(end, length(set));
+            start = Math.min(start, end);
 
-        assembly ("memory-safe") {
-            result := store
+            uint256 len = end - start;
+            address[] memory result = new address[](len);
+            for (uint256 i = 0; i < len; ++i) {
+                result[i] = set._values[start + i];
+            }
+            return result;
         }
-
-        return result;
     }
 
     // UintSet
 
     struct UintSet {
-        Set _inner;
+        // Storage of set values
+        uint256[] _values;
+        // Position is the index of the value in the `values` array plus 1.
+        // Position 0 is used to mean a value is not in the set.
+        mapping(uint256 value => uint256) _positions;
     }
 
     /**
@@ -577,7 +563,15 @@ library EnumerableSet {
      * already present.
      */
     function add(UintSet storage set, uint256 value) internal returns (bool) {
-        return _add(set._inner, bytes32(value));
+        if (!contains(set, value)) {
+            set._values.push(value);
+            // The value is stored at length-1, but we add 1 to all indexes
+            // and use 0 as a sentinel value
+            set._positions[value] = set._values.length;
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -587,7 +581,37 @@ library EnumerableSet {
      * present.
      */
     function remove(UintSet storage set, uint256 value) internal returns (bool) {
-        return _remove(set._inner, bytes32(value));
+        // We cache the value's position to prevent multiple reads from the same storage slot
+        uint256 position = set._positions[value];
+
+        if (position != 0) {
+            // Equivalent to contains(set, value)
+            // To delete an element from the _values array in O(1), we swap the element to delete with the last one in
+            // the array, and then remove the last element (sometimes called as 'swap and pop').
+            // This modifies the order of the array, as noted in {at}.
+
+            uint256 valueIndex = position - 1;
+            uint256 lastIndex = set._values.length - 1;
+
+            if (valueIndex != lastIndex) {
+                uint256 lastValue = set._values[lastIndex];
+
+                // Move the lastValue to the index where the value to delete is
+                set._values[valueIndex] = lastValue;
+                // Update the tracked position of the lastValue (that was just moved)
+                set._positions[lastValue] = position;
+            }
+
+            // Delete the slot where the moved value was stored
+            set._values.pop();
+
+            // Delete the tracked position for the deleted slot
+            delete set._positions[value];
+
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -597,21 +621,28 @@ library EnumerableSet {
      * function uncallable if the set grows to the point where clearing it consumes too much gas to fit in a block.
      */
     function clear(UintSet storage set) internal {
-        _clear(set._inner);
+        uint256 len = length(set);
+        for (uint256 i = 0; i < len; ++i) {
+            delete set._positions[set._values[i]];
+        }
+        uint256[] storage _values = set._values;
+        assembly ("memory-safe") {
+            sstore(_values.slot, 0)
+        }
     }
 
     /**
      * @dev Returns true if the value is in the set. O(1).
      */
     function contains(UintSet storage set, uint256 value) internal view returns (bool) {
-        return _contains(set._inner, bytes32(value));
+        return set._positions[value] != 0;
     }
 
     /**
      * @dev Returns the number of values in the set. O(1).
      */
     function length(UintSet storage set) internal view returns (uint256) {
-        return _length(set._inner);
+        return set._values.length;
     }
 
     /**
@@ -644,7 +675,7 @@ library EnumerableSet {
      * Replacement of the deprecated {at} function.
      */
     function pos(UintSet storage set, uint256 index) internal view returns (uint256) {
-        return uint256(_pos(set._inner, index));
+        return set._values[index];
     }
 
     /**
@@ -656,14 +687,7 @@ library EnumerableSet {
      * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
      */
     function values(UintSet storage set) internal view returns (uint256[] memory) {
-        bytes32[] memory store = _values(set._inner);
-        uint256[] memory result;
-
-        assembly ("memory-safe") {
-            result := store
-        }
-
-        return result;
+        return set._values;
     }
 
     /**
@@ -675,15 +699,20 @@ library EnumerableSet {
      * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
      */
     function values(UintSet storage set, uint256 start, uint256 end) internal view returns (uint256[] memory) {
-        bytes32[] memory store = _values(set._inner, start, end);
-        uint256[] memory result;
+        unchecked {
+            end = Math.min(end, length(set));
+            start = Math.min(start, end);
 
-        assembly ("memory-safe") {
-            result := store
+            uint256 len = end - start;
+            uint256[] memory result = new uint256[](len);
+            for (uint256 i = 0; i < len; ++i) {
+                result[i] = set._values[start + i];
+            }
+            return result;
         }
-
-        return result;
     }
+
+    // StringSet
 
     struct StringSet {
         // Storage of set values
@@ -762,7 +791,10 @@ library EnumerableSet {
         for (uint256 i = 0; i < len; ++i) {
             delete set._positions[set._values[i]];
         }
-        Arrays.unsafeSetLength(set._values, 0);
+        string[] storage _values = set._values;
+        assembly ("memory-safe") {
+            sstore(_values.slot, 0)
+        }
     }
 
     /**
@@ -773,7 +805,7 @@ library EnumerableSet {
     }
 
     /**
-     * @dev Returns the number of values on the set. O(1).
+     * @dev Returns the number of values in the set. O(1).
      */
     function length(StringSet storage set) internal view returns (uint256) {
         return set._values.length;
@@ -840,11 +872,13 @@ library EnumerableSet {
             uint256 len = end - start;
             string[] memory result = new string[](len);
             for (uint256 i = 0; i < len; ++i) {
-                result[i] = Arrays.unsafeAccess(set._values, start + i).value;
+                result[i] = set._values[start + i];
             }
             return result;
         }
     }
+
+    // BytesSet
 
     struct BytesSet {
         // Storage of set values
@@ -923,7 +957,10 @@ library EnumerableSet {
         for (uint256 i = 0; i < len; ++i) {
             delete set._positions[set._values[i]];
         }
-        Arrays.unsafeSetLength(set._values, 0);
+        bytes[] storage _values = set._values;
+        assembly ("memory-safe") {
+            sstore(_values.slot, 0)
+        }
     }
 
     /**
@@ -934,7 +971,7 @@ library EnumerableSet {
     }
 
     /**
-     * @dev Returns the number of values on the set. O(1).
+     * @dev Returns the number of values in the set. O(1).
      */
     function length(BytesSet storage set) internal view returns (uint256) {
         return set._values.length;
@@ -1001,7 +1038,7 @@ library EnumerableSet {
             uint256 len = end - start;
             bytes[] memory result = new bytes[](len);
             for (uint256 i = 0; i < len; ++i) {
-                result[i] = Arrays.unsafeAccess(set._values, start + i).value;
+                result[i] = set._values[start + i];
             }
             return result;
         }
