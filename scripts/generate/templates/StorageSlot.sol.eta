@@ -28,25 +28,25 @@ pragma solidity ^0.8.20;
  * TIP: Consider using this library along with {SlotDerivation}.
  */
 library StorageSlot {
-<% for (const type of it.SLOT_TYPES) { %>
-    struct <%= type.name %>Slot {
-        <%= type.type %> value;
+<% for (const { name, type } of it.SLOT_TYPES) { %>
+    struct <%= name %>Slot {
+        <%= type %> value;
     }
 <% } %>
-<% for (const type of it.SLOT_TYPES) { %>
+<% for (const { name, type, size } of it.SLOT_TYPES) { %>
     /**
-     * @dev Returns <%= type.name.toLowerCase().startsWith('a') ? 'an' : 'a' %> `<%= type.name %>Slot` with member `value` located at `slot`.
+     * @dev Returns <%= name.toLowerCase().startsWith('a') ? 'an' : 'a' %> `<%= name %>Slot` with member `value` located at `slot`.
      */
-    function get<%= type.name %>Slot(bytes32 slot) internal pure returns (<%= type.name %>Slot storage r) {
+    function get<%= name %>Slot(bytes32 slot) internal pure returns (<%= name %>Slot storage r) {
         assembly ("memory-safe") {
             r.slot := slot
         }
     }
-<% if (!type.isValueType) { %>
+<% if (!size) { %>
     /**
-     * @dev Returns an `<%= type.name %>Slot` representation of the <%= type.type %> storage pointer `store`.
+     * @dev Returns an `<%= name %>Slot` representation of the <%= type %> storage pointer `store`.
      */
-    function get<%= type.name %>Slot(<%= type.type %> storage store) internal pure returns (<%= type.name %>Slot storage r) {
+    function get<%= name %>Slot(<%= type %> storage store) internal pure returns (<%= name %>Slot storage r) {
         assembly ("memory-safe") {
             r.slot := store.slot
         }
