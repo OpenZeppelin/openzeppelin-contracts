@@ -81,7 +81,7 @@ contract SlotDerivationTest is Test, SymTest {
     }
 <% } %>
 <% } %>
-<% for (const { name, type } of [it.ALL_TYPES.bool, it.ALL_TYPES.address]) { %>
+<% for (const { name, type } of [it.TYPES.bool, it.TYPES.address]) { %>
     function testSymbolicDeriveMapping<%= name %>Dirty(bytes32 dirtyKey) public view {
         <%= type %> key;
         assembly {
