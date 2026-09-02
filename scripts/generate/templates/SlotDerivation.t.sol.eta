@@ -36,17 +36,17 @@ contract SlotDerivationTest is Test, SymTest {
 
         assertEq(baseSlot.deriveArray().offset(offset), derivedSlot);
     }
-<% for (const type of it.SLOT_TYPES.flatMap(type => [type, ...(type.variants ?? []).map(variant => ({ type: variant, name: it.capitalize(variant), isValueType: type.isValueType }))])) { %>
-<% if (type.isValueType) { %>
-    mapping(<%= type.type %> => bytes) private _<%= type.type %>Mapping;
+<% for (const { name, type, size } of it.SLOT_TYPES.flatMap(type => [ type, ...type.upcastOf.filter(({ size }) => size === 32) ])) { %>
+<% if (size) { %>
+    mapping(<%= type %> => bytes) private _<%= type %>Mapping;
 
-    function testSymbolicDeriveMapping<%= type.name %>(<%= type.type %> key) public view {
+    function testSymbolicDeriveMapping<%= name %>(<%= type %> key) public view {
         bytes32 baseSlot;
         assembly {
-            baseSlot := _<%= type.type %>Mapping.slot
+            baseSlot := _<%= type %>Mapping.slot
         }
 
-        bytes storage derived = _<%= type.type %>Mapping[key];
+        bytes storage derived = _<%= type %>Mapping[key];
         bytes32 derivedSlot;
         assembly {
             derivedSlot := derived.slot
@@ -55,23 +55,23 @@ contract SlotDerivationTest is Test, SymTest {
         assertEq(baseSlot.deriveMapping(key), derivedSlot);
     }
 <% } else { %>
-    mapping(<%= type.type %> => bytes) private _<%= type.type %>Mapping;
+    mapping(<%= type %> => bytes) private _<%= type %>Mapping;
 
-    function testDeriveMapping<%= type.name %>(<%= type.type %> memory key) public view {
-        _assertDeriveMapping<%= type.name %>(key);
+    function testDeriveMapping<%= name %>(<%= type %> memory key) public view {
+        _assertDeriveMapping<%= name %>(key);
     }
 
-    function symbolicDeriveMapping<%= type.name %>() public view {
-        _assertDeriveMapping<%= type.name %>(svm.create<%= type.name %>(256, "DeriveMapping<%= type.name %>Input"));
+    function symbolicDeriveMapping<%= name %>() public view {
+        _assertDeriveMapping<%= name %>(svm.create<%= name %>(256, "DeriveMapping<%= name %>Input"));
     }
 
-    function _assertDeriveMapping<%= type.name %>(<%= type.type %> memory key) internal view {
+    function _assertDeriveMapping<%= name %>(<%= type %> memory key) internal view {
         bytes32 baseSlot;
         assembly {
-            baseSlot := _<%= type.type %>Mapping.slot
+            baseSlot := _<%= type %>Mapping.slot
         }
 
-        bytes storage derived = _<%= type.type %>Mapping[key];
+        bytes storage derived = _<%= type %>Mapping[key];
         bytes32 derivedSlot;
         assembly {
             derivedSlot := derived.slot
@@ -81,15 +81,15 @@ contract SlotDerivationTest is Test, SymTest {
     }
 <% } %>
 <% } %>
-<% for (const type of [it.SLOT_TYPES.bool, it.SLOT_TYPES.address]) { %>
-    function testSymbolicDeriveMapping<%= type.name %>Dirty(bytes32 dirtyKey) public view {
-        <%= type.type %> key;
+<% for (const { name, type } of [it.TYPES.bool, it.TYPES.address]) { %>
+    function testSymbolicDeriveMapping<%= name %>Dirty(bytes32 dirtyKey) public view {
+        <%= type %> key;
         assembly {
             key := dirtyKey
         }
 
         // run the "normal" test using a potentially dirty value
-        testSymbolicDeriveMapping<%= type.name %>(key);
+        testSymbolicDeriveMapping<%= name %>(key);
     }
 <% } %>
 }

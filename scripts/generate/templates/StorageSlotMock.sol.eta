@@ -6,33 +6,33 @@ import {StorageSlot} from "../utils/StorageSlot.sol";
 contract StorageSlotMock is Multicall {
     using StorageSlot for *;
 
-<% for (const type of it.SLOT_VALUE_TYPES) { %>
-    function set<%= type.name %>Slot(bytes32 slot, <%= type.type %> value) public {
-        slot.get<%= type.name %>Slot().value = value;
+<% for (const { name, type } of it.SLOT_TYPES.filter(({ size }) => size)) { %>
+    function set<%= name %>Slot(bytes32 slot, <%= type %> value) public {
+        slot.get<%= name %>Slot().value = value;
     }
 <% } %>
-<% for (const type of it.SLOT_VALUE_TYPES) { %>
-    function get<%= type.name %>Slot(bytes32 slot) public view returns (<%= type.type %>) {
-        return slot.get<%= type.name %>Slot().value;
+<% for (const { name, type } of it.SLOT_TYPES.filter(({ size }) => size)) { %>
+    function get<%= name %>Slot(bytes32 slot) public view returns (<%= type %>) {
+        return slot.get<%= name %>Slot().value;
     }
 <% } %>
-<% for (const type of it.SLOT_TYPES.filter(type => !type.isValueType)) { %>
-    mapping(uint256 key => <%= type.type %>) public <%= type.type %>Map;
+<% for (const { name, type } of it.SLOT_TYPES.filter(({ size }) => !size)) { %>
+    mapping(uint256 key => <%= type %>) public <%= type %>Map;
 
-    function set<%= type.name %>Slot(bytes32 slot, <%= type.type %> calldata value) public {
-        slot.get<%= type.name %>Slot().value = value;
+    function set<%= name %>Slot(bytes32 slot, <%= type %> calldata value) public {
+        slot.get<%= name %>Slot().value = value;
     }
 
-    function set<%= type.name %>Storage(uint256 key, <%= type.type %> calldata value) public {
-        <%= type.type %>Map[key].get<%= type.name %>Slot().value = value;
+    function set<%= name %>Storage(uint256 key, <%= type %> calldata value) public {
+        <%= type %>Map[key].get<%= name %>Slot().value = value;
     }
 
-    function get<%= type.name %>Slot(bytes32 slot) public view returns (<%= type.type %> memory) {
-        return slot.get<%= type.name %>Slot().value;
+    function get<%= name %>Slot(bytes32 slot) public view returns (<%= type %> memory) {
+        return slot.get<%= name %>Slot().value;
     }
 
-    function get<%= type.name %>Storage(uint256 key) public view returns (<%= type.type %> memory) {
-        return <%= type.type %>Map[key].get<%= type.name %>Slot().value;
+    function get<%= name %>Storage(uint256 key) public view returns (<%= type %> memory) {
+        return <%= type %>Map[key].get<%= name %>Slot().value;
     }
 <% } %>
 }
