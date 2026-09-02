@@ -3,7 +3,7 @@
 
 pragma solidity >=0.8.4;
 
-import {IVotes} from "../governance/utils/IVotes.sol";
+import {IVotes} from "./IVotes.sol";
 import {IERC6372} from "./IERC6372.sol";
 
 interface IERC5805 is IERC6372, IVotes {}

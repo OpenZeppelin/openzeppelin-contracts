@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {IERC20} from "../../token/ERC20/IERC20.sol";
-import {IERC20Metadata} from "../../token/ERC20/extensions/IERC20Metadata.sol";
+import {IERC20} from "../../interfaces/IERC20.sol";
+import {IERC20Metadata} from "../../interfaces/IERC20Metadata.sol";
 
 contract ERC20GetterHelper {
     event ERC20TotalSupply(IERC20 token, uint256 totalSupply);

@@ -3,8 +3,8 @@
 
 pragma solidity ^0.8.24;
 
-import {IERC721} from "./IERC721.sol";
-import {IERC721Metadata} from "./extensions/IERC721Metadata.sol";
+import {IERC721} from "../../interfaces/IERC721.sol";
+import {IERC721Metadata} from "../../interfaces/IERC721Metadata.sol";
 import {ERC721Utils} from "./utils/ERC721Utils.sol";
 import {Context} from "../../utils/Context.sol";
 import {Strings} from "../../utils/Strings.sol";

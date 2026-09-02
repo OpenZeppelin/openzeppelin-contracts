@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.6.0) (access/extensions/IAccessControlDefaultAdminRules.sol)
+// OpenZeppelin Contracts (last updated v5.6.0) (interfaces/IAccessControlDefaultAdminRules.sol)
 
 pragma solidity >=0.8.4;
 
-import {IAccessControl} from "../IAccessControl.sol";
+import {IAccessControl} from "./IAccessControl.sol";
 
 /**
  * @dev External interface of AccessControlDefaultAdminRules declared to support ERC-165 detection.

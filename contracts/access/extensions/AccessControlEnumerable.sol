@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.24;
 
-import {IAccessControlEnumerable} from "./IAccessControlEnumerable.sol";
+import {IAccessControlEnumerable} from "../../interfaces/IAccessControlEnumerable.sol";
 import {AccessControl} from "../AccessControl.sol";
 import {EnumerableSet} from "../../utils/structs/EnumerableSet.sol";
 import {IERC165} from "../../utils/introspection/ERC165.sol";

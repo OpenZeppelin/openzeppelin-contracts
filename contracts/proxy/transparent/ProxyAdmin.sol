@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.22;
 
-import {ITransparentUpgradeableProxy} from "./TransparentUpgradeableProxy.sol";
+import {ITransparentUpgradeableProxy} from "../../interfaces/ITransparentUpgradeableProxy.sol";
 import {Ownable} from "../../access/Ownable.sol";
 
 /**

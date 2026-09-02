@@ -7,7 +7,7 @@ import {GovernorVotes} from "../../../governance/extensions/GovernorVotes.sol";
 import {GovernorVotesQuorumFraction} from "../../../governance/extensions/GovernorVotesQuorumFraction.sol";
 import {GovernorTimelockControl} from "../../../governance/extensions/GovernorTimelockControl.sol";
 import {TimelockController} from "../../../governance/TimelockController.sol";
-import {IVotes} from "../../../governance/utils/IVotes.sol";
+import {IVotes} from "../../../interfaces/IVotes.sol";
 
 contract MyGovernor is
     Governor,

@@ -4,7 +4,7 @@
 pragma solidity ^0.8.24;
 
 import {ERC721} from "../ERC721.sol";
-import {IERC721Metadata} from "./IERC721Metadata.sol";
+import {IERC721Metadata} from "../../../interfaces/IERC721Metadata.sol";
 import {IERC4906} from "../../../interfaces/IERC4906.sol";
 import {IERC165} from "../../../interfaces/IERC165.sol";
 
