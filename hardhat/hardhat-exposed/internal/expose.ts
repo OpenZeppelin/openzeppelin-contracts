@@ -35,11 +35,12 @@ export function getExposed(
 ): Map<string, string> {
   const res = new Map<string, string>();
   const deref = astDereferencer(solcOutput);
+  const remappings = solidityBuildInfo.input.settings.remappings ?? [];
 
   for (const [sourceName, inputSourceName] of Object.entries(solidityBuildInfo.userSourceNameMap)) {
     const ast = solcOutput.sources[inputSourceName].ast;
 
-    const exposedFile = getExposedFile(sourceName, inputSourceName, ast, deref, config);
+    const exposedFile = getExposedFile(sourceName, inputSourceName, ast, deref, config, remappings);
     if (exposedFile !== undefined) {
       res.set(exposedFile.absolutePath, exposedFile.content);
     }
@@ -52,6 +53,7 @@ function getImportPathFromExposedContract(
   exposedFileAbsolutePath: string,
   importedFileInputSourceName: string,
   projectRoot: string,
+  remappings: string[],
 ): string {
   return (
     importedFileInputSourceName.startsWith('project/')
@@ -59,8 +61,31 @@ function getImportPathFromExposedContract(
           path.dirname(exposedFileAbsolutePath),
           path.resolve(projectRoot, importedFileInputSourceName.replace(/^project\//, '')),
         )
-      : importedFileInputSourceName
+      : getNpmImportPath(importedFileInputSourceName, remappings)
   ).replaceAll(/\\/g, '/'); // Normalize windows paths to unix paths
+}
+
+const remappingRegex = /^(?:(?<context>[^:]*):)?(?<prefix>[^=]*)=(?<target>.*)$/;
+
+// Files that come from an npm package have an input source name of the form `npm/<name>@<version>/<path>`, which is
+// neither a valid import path nor a usable output path. Exposed contracts live in the project, so they refer to these
+// files the way the project does, using the name the package is installed under. Hardhat records that mapping in the
+// solc input remappings, as `[<context>:]<prefix>=<target>` entries (e.g. `project/:hardhat/=npm/hardhat@3.9.1/`); we
+// invert the ones that apply to the project sources, and fall back to dropping the version if none matches. A missing
+// context is an empty one: the remapping applies to every file, project sources included.
+function getNpmImportPath(inputSourceName: string, remappings: string[]): string {
+  // Longest target first: multiple remappings may apply, the most specific one is the right one.
+  const item = remappings
+    .map(remapping => remappingRegex.exec(remapping)?.groups ?? {})
+    .filter(
+      ({ context, target }) => [undefined, '', 'project/'].includes(context) && inputSourceName.startsWith(target),
+    )
+    .sort((a, b) => b.target.length - a.target.length)
+    .at(0);
+
+  return item
+    ? item.prefix + inputSourceName.slice(item.target.length)
+    : inputSourceName.replace(/^npm\/(@[^/]+\/[^@/]+|[^@/]+)@[^/]+\//, '$1/');
 }
 
 function getExposedFile(
@@ -69,10 +94,11 @@ function getExposedFile(
   ast: SourceUnit,
   deref: ASTDereferencer,
   config: HardhatConfig,
+  remappings: string[],
 ): ExposedFile | undefined {
   const exposedFileAbsolutePath = path.join(
     config.exposed.outDir,
-    inputSourceName.startsWith('project/') ? sourceName : inputSourceName.replace('npm:', ''),
+    inputSourceName.startsWith('project/') ? sourceName : getNpmImportPath(inputSourceName, remappings),
   );
 
   const content = getExposedContent(
@@ -82,6 +108,7 @@ function getExposedFile(
     config.exposed.prefix,
     config.exposed.initializers,
     config.paths.root,
+    remappings,
   );
 
   return content === undefined ? undefined : { absolutePath: exposedFileAbsolutePath, content };
@@ -94,6 +121,7 @@ function getExposedContent(
   prefix: string,
   initializers: boolean,
   projectRoot: string,
+  remappings: string[],
 ): string | undefined {
   if (prefix === '' || /^\d|[^0-9a-z_$]/i.test(prefix)) {
     throw new Error(`Prefix '${prefix}' is not valid`);
@@ -102,7 +130,7 @@ function getExposedContent(
   const contractPrefix = prefix.replace(/^./, c => c.toUpperCase());
 
   const imports = Array.from(getNeededImports(ast, deref), u =>
-    getImportPathFromExposedContract(exposedFileAbsolutePath, u.absolutePath, projectRoot),
+    getImportPathFromExposedContract(exposedFileAbsolutePath, u.absolutePath, projectRoot, remappings),
   );
 
   const contracts = [...findAll('ContractDefinition', ast)].filter(c => c.contractKind !== 'interface');

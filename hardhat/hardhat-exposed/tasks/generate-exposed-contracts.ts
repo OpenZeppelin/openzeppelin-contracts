@@ -82,6 +82,14 @@ export default async function generateExposedContracts(
 
       const buildOutput = await hre.solidity.compileBuildInfo(buildInfo);
 
+      // A failed compilation produces no sources at all, which would make the AST processing below fail with a
+      // confusing error. The errors are not printed here: this build info is a subset of what the build task
+      // compiles right after, so the build reports them itself, with the proper exit code.
+      if (buildOutput.errors?.some(error => error.severity === 'error')) {
+        spinner.stop();
+        return errorResult();
+      }
+
       const exposed = getExposed(buildInfo, buildOutput, hre.config);
 
       for (const [exposedPath, exposedContent] of exposed) {
