@@ -12,9 +12,9 @@ library Arrays {
     using SlotDerivation for bytes32;
     using StorageSlot for bytes32;
 
-<% for (const type of it.ARRAYS_SORT_TYPES) { %>
+<% for (const { type, size } of it.ARRAYS_SORT_TYPES) { %>
     /**
-     * @dev Sort an array of <%= type.type %> (in memory) following the provided comparator function.
+     * @dev Sort an array of <%= type %> (in memory) following the provided comparator function.
      *
      * This function does the sorting "in place", meaning that it overrides the input. The object is returned for
      * convenience, but that returned value can be discarded safely if the caller has a memory pointer to the array.
@@ -24,29 +24,29 @@ library Arrays {
      * when executing this as part of a transaction. If the array being sorted is too large, the sort operation may
      * consume more gas than is available in a block, leading to potential DoS.
      *
-     * IMPORTANT: Consider memory side-effects when using custom comparator functions that access memory in an unsafe way.<% if (type.size && type.size < 32) { %>
+     * IMPORTANT: Consider memory side-effects when using custom comparator functions that access memory in an unsafe way.<% if (size < 256) { %>
      *
      * NOTE: `comp` receives the array entries verbatim, including any dirty (non-zero) upper bits. Solidity assumes
-     * `<%= type.type %>` values are clean, so a comparator that compares its arguments directly may order them incorrectly.
-     * A comparator that may be given dirty entries should mask them, as in `uint<%= type.size * 8 %>(a) < uint<%= type.size * 8 %>(b)`.<% } %>
+     * `<%= type %>` values are clean, so a comparator that compares its arguments directly may order them incorrectly.
+     * A comparator that may be given dirty entries should mask them, as in `uint<%= size %>(a) < uint<%= size %>(b)`.<% } %>
      */
     function sort(
-        <%= type.type %>[] memory array,
-        function(<%= type.type %>, <%= type.type %>) pure returns (bool) comp
-    ) internal pure returns (<%= type.type %>[] memory) {
-        <% if (type.type === 'uint256') { %>_quickSort(_begin(array), _end(array), comp);<% } else { %>sort(_castToUint256Array(array), _castToUint256Comp(comp));<% } %>
+        <%= type %>[] memory array,
+        function(<%= type %>, <%= type %>) pure returns (bool) comp
+    ) internal pure returns (<%= type %>[] memory) {
+        <% if (type === 'uint256') { %>_quickSort(_begin(array), _end(array), comp);<% } else { %>sort(_castToUint256Array(array), _castToUint256Comp(comp));<% } %>
         return array;
     }
 
     /**
-     * @dev Variant of {sort} that sorts an array of <%= type.type %> in increasing order.
+     * @dev Variant of {sort} that sorts an array of <%= type %> in increasing order.
      */
-    function sort(<%= type.type %>[] memory array) internal pure returns (<%= type.type %>[] memory) {
-        <% if (type.type === 'uint256') { %>sort(array, Comparators.lt);<% } else { %>sort(_castToUint256Array(array), <%= type.size == 32 ? 'Comparators.lt' : `_${type.type}Lt` %>);<% } %>
+    function sort(<%= type %>[] memory array) internal pure returns (<%= type %>[] memory) {
+        <% if (type === 'uint256') { %>sort(array, Comparators.lt);<% } else { %>sort(_castToUint256Array(array), <%= size == 256 ? 'Comparators.lt' : `_${type}Lt` %>);<% } %>
         return array;
     }
-
 <% } %>
+
     /**
      * @dev Performs a quick sort of a segment of memory. The segment sorted starts at `begin` (inclusive), and stops
      * at end (exclusive). Sorting follows the `comp` comparator.
@@ -128,33 +128,33 @@ library Arrays {
         }
     }
 
-<% for (const type of it.ARRAYS_COMPARATOR_TYPES) { %>
-    /// @dev Helper: strict comparison of two <%= type.type %> values held in (potentially dirty) uint256 words
-    function _<%= type.type %>Lt(uint256 a, uint256 b) private pure returns (bool) {
-        return uint<%= type.size * 8 %>(a) < uint<%= type.size * 8 %>(b);
+<% for (const { type, size } of it.ARRAYS_COMPARATOR_TYPES) { %>
+    /// @dev Helper: strict comparison of two <%= type %> values held in (potentially dirty) uint256 words
+    function _<%= type %>Lt(uint256 a, uint256 b) private pure returns (bool) {
+        return uint<%= size %>(a) < uint<%= size %>(b);
     }
-
 <% } %>
-<% for (const type of it.ARRAYS_CAST_TYPES) { %>
-    /// @dev Helper: low level cast <%= type.type %> memory array to uint256 memory array
-    function _castToUint256Array(<%= type.type %>[] memory input) private pure returns (uint256[] memory output) {
+
+<% for (const { type } of it.ARRAYS_CAST_TYPES) { %>
+    /// @dev Helper: low level cast <%= type %> memory array to uint256 memory array
+    function _castToUint256Array(<%= type %>[] memory input) private pure returns (uint256[] memory output) {
         assembly {
             output := input
         }
     }
-
 <% } %>
-<% for (const type of it.ARRAYS_CAST_TYPES) { %>
-    /// @dev Helper: low level cast <%= type.type %> comp function to uint256 comp function
+
+<% for (const { type } of it.ARRAYS_CAST_TYPES) { %>
+    /// @dev Helper: low level cast <%= type %> comp function to uint256 comp function
     function _castToUint256Comp(
-        function(<%= type.type %>, <%= type.type %>) pure returns (bool) input
+        function(<%= type %>, <%= type %>) pure returns (bool) input
     ) private pure returns (function(uint256, uint256) pure returns (bool) output) {
         assembly {
             output := input
         }
     }
-
 <% } %>
+
     /**
      * @dev Searches a sorted `array` and returns the first index that contains
      * a value greater or equal to `element`. If no such index exists (i.e. all
@@ -322,46 +322,46 @@ library Arrays {
         return low;
     }
 
-<% for (const type of it.ARRAYS_VALUE_TYPES) { %>
+<% for (const { type } of it.ARRAYS_VALUE_TYPES) { %>
     /**
-     * @dev Copies the content of `array`, from `start` (included) to the end of `array` into a new <%= type.type %> array in
+     * @dev Copies the content of `array`, from `start` (included) to the end of `array` into a new <%= type %> array in
      * memory.
      *
      * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice[Javascript's `Array.slice`]
      */
-    function slice(<%= type.type %>[] memory array, uint256 start) internal pure returns (<%= type.type %>[] memory) {
+    function slice(<%= type %>[] memory array, uint256 start) internal pure returns (<%= type %>[] memory) {
         return slice(array, start, array.length);
     }
 
     /**
-     * @dev Copies the content of `array`, from `start` (included) to `end` (excluded) into a new <%= type.type %> array in
+     * @dev Copies the content of `array`, from `start` (included) to `end` (excluded) into a new <%= type %> array in
      * memory. The `end` argument is truncated to the length of the `array`.
      *
      * NOTE: replicates the behavior of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice[Javascript's `Array.slice`]
      */
-    function slice(<%= type.type %>[] memory array, uint256 start, uint256 end) internal pure returns (<%= type.type %>[] memory) {
+    function slice(<%= type %>[] memory array, uint256 start, uint256 end) internal pure returns (<%= type %>[] memory) {
         // sanitize
         end = Math.min(end, array.length);
         start = Math.min(start, end);
 
         // allocate and copy
-        <%= type.type %>[] memory result = new <%= type.type %>[](end - start);
+        <%= type %>[] memory result = new <%= type %>[](end - start);
         assembly ("memory-safe") {
             mcopy(add(result, 0x20), add(add(array, 0x20), mul(start, 0x20)), mul(sub(end, start), 0x20))
         }
 
         return result;
     }
-
 <% } %>
-<% for (const type of it.ARRAYS_VALUE_TYPES) { %>
+
+<% for (const { type } of it.ARRAYS_VALUE_TYPES) { %>
     /**
      * @dev Moves the content of `array`, from `start` (included) to the end of `array` to the start of that array,
      * and shrinks the array length accordingly, effectively overwriting the array with array[start:].
      *
      * NOTE: This function modifies the provided array in place. If you need to preserve the original array, use {slice} instead.
      */
-    function splice(<%= type.type %>[] memory array, uint256 start) internal pure returns (<%= type.type %>[] memory) {
+    function splice(<%= type %>[] memory array, uint256 start) internal pure returns (<%= type %>[] memory) {
         return splice(array, start, array.length);
     }
 
@@ -372,7 +372,7 @@ library Arrays {
      *
      * NOTE: This function modifies the provided array in place. If you need to preserve the original array, use {slice} instead.
      */
-    function splice(<%= type.type %>[] memory array, uint256 start, uint256 end) internal pure returns (<%= type.type %>[] memory) {
+    function splice(<%= type %>[] memory array, uint256 start, uint256 end) internal pure returns (<%= type %>[] memory) {
         // sanitize
         end = Math.min(end, array.length);
         start = Math.min(start, end);
@@ -395,10 +395,10 @@ library Arrays {
      * NOTE: This function modifies the provided array in place.
      */
     function replace(
-        <%= type.type %>[] memory array,
+        <%= type %>[] memory array,
         uint256 pos,
-        <%= type.type %>[] memory replacement
-    ) internal pure returns (<%= type.type %>[] memory) {
+        <%= type %>[] memory replacement
+    ) internal pure returns (<%= type %>[] memory) {
         return replace(array, pos, replacement, 0, replacement.length);
     }
 
@@ -414,12 +414,12 @@ library Arrays {
      * NOTE: This function modifies the provided array in place.
      */
     function replace(
-        <%= type.type %>[] memory array,
+        <%= type %>[] memory array,
         uint256 pos,
-        <%= type.type %>[] memory replacement,
+        <%= type %>[] memory replacement,
         uint256 offset,
         uint256 length
-    ) internal pure returns (<%= type.type %>[] memory) {
+    ) internal pure returns (<%= type %>[] memory) {
         // sanitize
         pos = Math.min(pos, array.length);
         offset = Math.min(offset, replacement.length);
@@ -436,47 +436,46 @@ library Arrays {
 
         return array;
     }
-
 <% } %>
-<% for (const type of it.ARRAYS_TYPES) { %>
+
+<% for (const { name, type } of it.ARRAYS_TYPES) { %>
     /**
      * @dev Access an array in an "unsafe" way. Skips solidity "index-out-of-range" check.
      *
      * WARNING: Only use if you are certain `pos` is lower than the array length.
      */
-    function unsafeAccess(<%= type.type %>[] storage arr, uint256 pos) internal pure returns (StorageSlot.<%= it.capitalize(type.type) %>Slot storage) {
+    function unsafeAccess(<%= type %>[] storage arr, uint256 pos) internal pure returns (StorageSlot.<%= name %>Slot storage) {
         bytes32 slot;
         assembly ("memory-safe") {
             slot := arr.slot
         }
-        return slot.deriveArray().offset(pos).get<%= it.capitalize(type.type) %>Slot();
+        return slot.deriveArray().offset(pos).get<%= name %>Slot();
     }
-
 <% } %>
-<% for (const type of it.ARRAYS_TYPES) { %>
+
+<% for (const { type, size } of it.ARRAYS_TYPES) { %>
     /**
      * @dev Access an array in an "unsafe" way. Skips solidity "index-out-of-range" check.
      *
      * WARNING: Only use if you are certain `pos` is lower than the array length.
      */
-    function unsafeMemoryAccess(<%= type.type %>[] memory arr, uint256 pos) internal pure returns (<%= type.type %><%= type.isValueType ? '' : ' memory' %> res) {
+    function unsafeMemoryAccess(<%= type %>[] memory arr, uint256 pos) internal pure returns (<%= type %><%= size ? '' : ' memory' %> res) {
         assembly {
             res := mload(add(add(arr, 0x20), mul(pos, 0x20)))
         }
     }
-
 <% } %>
-<% for (const type of it.ARRAYS_TYPES) { %>
+
+<% for (const { type } of it.ARRAYS_TYPES) { %>
     /**
      * @dev Helper to set the length of a dynamic array. Directly writing to `.length` is forbidden.
      *
      * WARNING: this does not clear elements if length is reduced, or initialize elements if length is increased.
      */
-    function unsafeSetLength(<%= type.type %>[] storage array, uint256 len) internal {
+    function unsafeSetLength(<%= type %>[] storage array, uint256 len) internal {
         assembly ("memory-safe") {
             sstore(array.slot, len)
         }
     }
-
 <% } %>
 }
