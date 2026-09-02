@@ -107,7 +107,13 @@ abstract contract PaymasterERC20 is Paymaster {
         // only after `postOp` returns, so it is absent from the `actualGasCost` reported to {_postOp}. We price it
         // into the charge here and retain it in {_postOp}, so a user cannot inflate `paymasterPostOpGasLimit` to
         // drain the paymaster's deposit.
-        uint256 penaltyGas = _postOpGasPenalty(userOp.paymasterPostOpGasLimit());
+        //
+        // Only the part of the limit above {_postOpGasBudget} can go unused: the paymaster bills the budget in full
+        // through {_postOpCost}, so charging a penalty on it would bill the sender twice for gas the paymaster
+        // itself demanded.
+        uint256 penaltyGas = _postOpGasPenalty(
+            userOp.paymasterPostOpGasLimit().saturatingSub(_postOpGasBudget(userOp))
+        );
 
         // If the _erc20Cost math fails, the returned value will be type(uint256).max, which we will never be able
         // to charge as a prefund. The `trySafeTransferFrom` in the `_prefund` will fail, causing success to be false.
@@ -174,9 +180,11 @@ abstract contract PaymasterERC20 is Paymaster {
      *
      * Reverts with {PaymasterERC20FailedRefund} if the refund fails.
      *
-     * IMPORTANT: This function may revert after the user operation has been executed without
-     * reverting the user operation itself. Consider implementing a mechanism to handle
-     * this case gracefully.
+     * IMPORTANT: A revert here does not revert the whole bundle: the user operation is marked as failed and
+     * its execution rolled back, but the validation-phase prefund is not refunded. When a derived contract
+     * delegates the prefund to a third party (e.g. a guarantor), that party must consent to the sender-controlled
+     * `paymasterPostOpGasLimit` before authorizing, otherwise the sender can strand the third party's prefund by
+     * picking a limit below the actual postOp cost.
      */
     function _postOp(
         PostOpMode /* mode */,
@@ -282,26 +290,49 @@ abstract contract PaymasterERC20 is Paymaster {
      *
      * NOTE: The default assumes a standard ERC-20. Override with a higher value for gas-heavier tokens; a persistent
      * underestimate drains the paymaster's deposit.
+     *
+     * NOTE: Extensions that bill extra postOp gas through a separate cost (rather than by widening this virtual)
+     * must also widen {_postOpGasBudget} by the same amount, otherwise the extra gas is billed twice: once as cost
+     * and once as unused-gas penalty.
      */
     function _postOpCost() internal view virtual returns (uint256) {
         return 30_000;
     }
 
     /**
-     * @dev Worst-case unused-gas penalty (in gas units) that the EntryPoint charges the paymaster's deposit for an
-     * over-provisioned, user-controlled `paymasterPostOpGasLimit`. This penalty is excluded from the `actualGasCost`
-     * reported to {_postOp} (the EntryPoint computes it only after `postOp` returns), so it is priced into the charge
-     * during validation and retained in {_postOp}. Without it, a user could inflate `paymasterPostOpGasLimit` and
-     * have the paymaster absorb the resulting penalty on every operation, draining its deposit.
+     * @dev Portion of the user-controlled `paymasterPostOpGasLimit` that this paymaster already bills through
+     * {_postOpCost}, and on which no unused-gas penalty is therefore charged (see {_postOpGasPenalty}).
      *
-     * The default mirrors the EntryPoint (v0.7-v0.9): a 10% penalty on unused postOp gas, applied only once the
-     * unused amount reaches 40_000 gas. The worst case is a `postOp` that consumes ~0 gas (e.g. it reverts and the
-     * maximum penalty is charged), leaving the whole limit unused.
+     * Extensions that bill extra postOp gas must widen this by the same amount, otherwise the gas they require the
+     * sender to provision is billed twice: once as cost, once as penalty.
      *
-     * NOTE: Override to return 0 when targeting an EntryPoint that has no unused-gas penalty.
+     * IMPORTANT: The value returned here MUST NOT exceed the total postOp gas the paymaster bills. Combined with
+     * {_postOpCost} over-estimating the gas `postOp` actually consumes, that keeps the charge computed in
+     * {_validatePaymasterUserOp} above what the EntryPoint debits. A budget larger than what is billed under-prices
+     * the penalty and settles operations at a loss.
      */
-    function _postOpGasPenalty(uint256 postOpGasLimit) internal view virtual returns (uint256) {
-        return Math.ternary(postOpGasLimit > 40_000, postOpGasLimit / 10, 0);
+    function _postOpGasBudget(PackedUserOperation calldata /* userOp */) internal view virtual returns (uint256) {
+        return _postOpCost();
+    }
+
+    /**
+     * @dev Unused-gas penalty (in gas units) that the EntryPoint charges the paymaster's deposit, given
+     * `unusedPostOpGas`: an upper bound on the part of `paymasterPostOpGasLimit` that `postOp` will leave unspent
+     * (see {_postOpGasBudget}). This penalty is excluded from the `actualGasCost` reported to {_postOp} (the
+     * EntryPoint computes it only after `postOp` returns), so it is priced into the charge during validation and
+     * retained in {_postOp}. Without it, a user could inflate `paymasterPostOpGasLimit` and have the paymaster
+     * absorb the resulting penalty on every operation, draining its deposit.
+     *
+     * The default mirrors the 10% penalty the EntryPoint (v0.7-v0.9) applies to unused postOp gas. It deliberately
+     * does not reproduce the EntryPoint's 40_000 gas threshold below which no penalty applies: `unusedPostOpGas` is
+     * an upper bound on the real unused amount, so claiming that relief here can price the charge below the penalty
+     * the EntryPoint actually debits.
+     *
+     * NOTE: Overrides MUST return an upper bound on the real penalty, otherwise the paymaster settles operations at
+     * a loss. Override to return 0 when targeting an EntryPoint that has no unused-gas penalty.
+     */
+    function _postOpGasPenalty(uint256 unusedPostOpGas) internal view virtual returns (uint256) {
+        return unusedPostOpGas / 10;
     }
 
     /// @dev Denominator used for interpreting the `tokenPerNative` returned by {_fetchDetails} as "fixed point" in {_erc20Cost}.

@@ -363,6 +363,120 @@ describe('PaymasterERC20Guarantor', function () {
       });
     });
 
+    it('rejects a guaranteed op whose paymasterPostOpGasLimit cannot cover the refund', async function () {
+      await this.token.$_mint(this.guarantor, value);
+      await this.token.$_approve(this.guarantor, this.paymaster, ethers.MaxUint256);
+
+      // Floor = _postOpCost (30k) + _guaranteedPostOpCost (15k) = 45k; 30k is below it.
+      const signedUserOp = await this.account
+        .createUserOp({ ...this.userOp, paymasterPostOpGasLimit: 30_000n })
+        .then(op => this.paymasterSignUserOp(op, { guarantor: this.guarantor }))
+        .then(op => this.signUserOp(op));
+
+      // _prefund returns false before pulling any funds. The call does not revert, so the unchanged
+      // guarantor balance proves no transfer was attempted.
+      await expect(
+        this.paymaster.$_prefund(
+          signedUserOp.packed,
+          ethers.ZeroHash,
+          this.token,
+          ethers.WeiPerEther,
+          this.account,
+          0n,
+        ),
+      )
+        .to.emit(this.paymaster, 'return$_prefund')
+        .withArgs(false, anyValue, anyValue, anyValue);
+      await expect(this.token.balanceOf(this.guarantor)).to.eventually.equal(value);
+
+      // End to end, the EntryPoint rejects the op with SIG_VALIDATION_FAILED.
+      await expect(ethers.predeploy.entrypoint.v09.handleOps([signedUserOp.packed], this.receiver))
+        .to.be.revertedWithCustomError(ethers.predeploy.entrypoint.v09, 'FailedOp')
+        .withArgs(0n, 'AA34 signature error');
+    });
+
+    it('accepts a guaranteed op at the paymasterPostOpGasLimit floor', async function () {
+      await this.token.$_mint(this.guarantor, value);
+      await this.token.$_approve(this.guarantor, this.paymaster, ethers.MaxUint256);
+
+      // 45k = the floor (_postOpCost 30k + _guaranteedPostOpCost 15k), so _prefund accepts and pulls the prefund.
+      const signedUserOp = await this.account
+        .createUserOp({ ...this.userOp, paymasterPostOpGasLimit: 45_000n })
+        .then(op => this.paymasterSignUserOp(op, { guarantor: this.guarantor }))
+        .then(op => this.signUserOp(op));
+
+      await expect(
+        this.paymaster.$_prefund(
+          signedUserOp.packed,
+          ethers.ZeroHash,
+          this.token,
+          ethers.WeiPerEther,
+          this.account,
+          1000n,
+        ),
+      )
+        .to.emit(this.paymaster, 'return$_prefund')
+        .withArgs(true, anyValue, anyValue, anyValue);
+    });
+
+    it('_postOpGasBudget covers the guaranteed postOp cost only for guaranteed ops', async function () {
+      const [postOpCost, guaranteedPostOpCost] = await Promise.all([
+        this.paymaster.$_postOpCost(),
+        this.paymaster.$_guaranteedPostOpCost(),
+      ]);
+
+      const guaranteed = await this.account
+        .createUserOp(this.userOp)
+        .then(op => this.paymasterSignUserOp(op, { guarantor: this.guarantor }))
+        .then(op => this.signUserOp(op));
+      const plain = await this.account
+        .createUserOp(this.userOp)
+        .then(op => this.paymasterSignUserOp(op))
+        .then(op => this.signUserOp(op));
+
+      await expect(this.paymaster.$_postOpGasBudget(guaranteed.packed)).to.eventually.equal(
+        postOpCost + guaranteedPostOpCost,
+      );
+      await expect(this.paymaster.$_postOpGasBudget(plain.packed)).to.eventually.equal(postOpCost);
+    });
+
+    it('charges no unused-gas penalty for a guaranteed op provisioned at the floor', async function () {
+      await this.token.$_mint(this.guarantor, value);
+      await this.token.$_approve(this.guarantor, this.paymaster, ethers.MaxUint256);
+
+      // The floor is exactly _postOpGasBudget for a guaranteed op, so the penalty base saturates to zero.
+      const floor = await this.paymaster.$_postOpGasBudget(
+        await this.account
+          .createUserOp(this.userOp)
+          .then(op => this.paymasterSignUserOp(op, { guarantor: this.guarantor }))
+          .then(op => this.signUserOp(op))
+          .then(op => op.packed),
+      );
+
+      for (const [paymasterPostOpGasLimit, expectedPenaltyGas] of [
+        [floor, 0n],
+        [floor + 50_000n, 5_000n], // only the gas provisioned above the budget is penalized
+      ]) {
+        const signedUserOp = await this.account
+          .createUserOp({ ...this.userOp, paymasterPostOpGasLimit })
+          .then(op => this.paymasterSignUserOp(op, { guarantor: this.guarantor }))
+          .then(op => this.signUserOp(op));
+
+        // context layout: userOpHash(32) | token(20) | tokenPerNative(32) | prefundAmount(32) | prefunder(20) |
+        //                 penaltyGas(32) | prefundContext
+        const { logs } = await this.paymaster
+          .$_validatePaymasterUserOp(signedUserOp.packed, ethers.ZeroHash, 0n)
+          .then(tx => tx.wait());
+        const { context } = this.paymaster.interface.parseLog(
+          logs.find(
+            log => log.topics[0] === this.paymaster.interface.getEvent('return$_validatePaymasterUserOp').topicHash,
+          ),
+        ).args;
+
+        expect(ethers.toBigInt(ethers.dataSlice(context, 0x88, 0xa8))).to.equal(expectedPenaltyGas);
+      }
+    });
+
     it('reverts with invalid guarantor signature', async function () {
       await this.token.$_mint(this.guarantor, value);
       await this.token.$_approve(this.guarantor, this.paymaster, ethers.MaxUint256);
@@ -485,8 +599,8 @@ describe('PaymasterERC20Guarantor', function () {
         .withArgs(true, this.other.address, effective, packedSender);
 
       // Token movements confirm only the effective amount actually entered the paymaster.
-      expect(await this.token.balanceOf(this.other)).to.equal(0n);
-      expect(await this.token.balanceOf(this.reducingPaymaster)).to.equal(effective);
+      await expect(this.token.balanceOf(this.other)).to.eventually.equal(0n);
+      await expect(this.token.balanceOf(this.reducingPaymaster)).to.eventually.equal(effective);
     });
 
     it('_refund returns the amount charged by super for non-guaranteed operations', async function () {
@@ -519,8 +633,8 @@ describe('PaymasterERC20Guarantor', function () {
       // The base refunded `prefundAmount - effectiveActual`. Paymaster keeps only the effective
       // amount; if the return value had reported the pre-reduction 40, the recorded charge would
       // not match the token balance change.
-      expect(await this.token.balanceOf(this.other)).to.equal(prefundAmount - effectiveActual);
-      expect(await this.token.balanceOf(this.reducingPaymaster)).to.equal(effectiveActual);
+      await expect(this.token.balanceOf(this.other)).to.eventually.equal(prefundAmount - effectiveActual);
+      await expect(this.token.balanceOf(this.reducingPaymaster)).to.eventually.equal(effectiveActual);
     });
   });
 });

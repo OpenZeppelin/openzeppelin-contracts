@@ -1,7 +1,7 @@
 import { network } from 'hardhat';
 import { mapValues } from '../../helpers/iterate';
 import * as random from '../../helpers/random';
-import { SET_TYPES } from '../../../scripts/generate/templates/Enumerable.opts';
+import { SET_TYPES } from '../../../scripts/generate/data.js';
 import { shouldBehaveLikeSet } from './EnumerableSet.behavior';
 
 const {
@@ -28,10 +28,7 @@ async function fixture() {
       name,
       {
         value,
-        values: Array.from(
-          { length: 3 },
-          value.size ? () => Array.from({ length: value.size }, randomOf(value.base)) : randomOf(value.type),
-        ),
+        values: Array.from({ length: 3 }, randomOf(value.type)),
         methods: getMethods(mock, {
           add: `$add(uint256,${value.type})`,
           remove: `$remove(uint256,${value.type})`,
