@@ -1,5 +1,8 @@
 # Changelog
 
+## Breaking changes
+
+- `Ownable`: `renounceOwnership` has been removed. Callers that need to permanently disable ownership must now use `transferOwnership(address(0))`, which matches the semantics of `ERC-173`. A drop-in replacement is provided as `OwnableRenounceable`, which restores the previous `renounceOwnership` function and re-adds the non-zero guard on `transferOwnership`. Users of `VestingWallet`, `UpgradeableBeacon` and `ProxyAdmin` must inherit `OwnableRenounceable` if the original behavior is required.
 
 ## 5.7.0 (2026-07-29)
 

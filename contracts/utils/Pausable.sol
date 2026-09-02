@@ -5,18 +5,7 @@ pragma solidity ^0.8.20;
 
 import {Context} from "../utils/Context.sol";
 
-/**
- * @dev Contract module which allows children to implement an emergency stop
- * mechanism that can be triggered by an authorized account.
- *
- * This module is used through inheritance. It will make available the
- * modifiers `whenNotPaused` and `whenPaused`, which can be applied to
- * the functions of your contract. Note that they will not be pausable by
- * simply including this module, only once the modifiers are put in place.
- */
-abstract contract Pausable is Context {
-    bool private _paused;
-
+interface IPausable {
     /**
      * @dev Emitted when the pause is triggered by `account`.
      */
@@ -26,6 +15,24 @@ abstract contract Pausable is Context {
      * @dev Emitted when the pause is lifted by `account`.
      */
     event Unpaused(address account);
+
+    /**
+     * @dev Returns true if the contract is paused, and false otherwise.
+     */
+    function paused() external view returns (bool);
+}
+
+/**
+ * @dev Contract module which allows children to implement an emergency stop
+ * mechanism that can be triggered by an authorized account.
+ *
+ * This module is used through inheritance. It will make available the
+ * modifiers `whenNotPaused` and `whenPaused`, which can be applied to
+ * the functions of your contract. Note that they will not be pausable by
+ * simply including this module, only once the modifiers are put in place.
+ */
+abstract contract Pausable is Context, IPausable {
+    bool private _paused;
 
     /**
      * @dev The operation failed because the contract is paused.
@@ -61,9 +68,7 @@ abstract contract Pausable is Context {
         _;
     }
 
-    /**
-     * @dev Returns true if the contract is paused, and false otherwise.
-     */
+    /// @inheritdoc IPausable
     function paused() public view virtual returns (bool) {
         return _paused;
     }
