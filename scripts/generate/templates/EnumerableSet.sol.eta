@@ -196,7 +196,7 @@ library EnumerableSet {
             return result;
         }
     }
-<% for (const { name, value } of it.SET_TYPES.filter(({ value }) => !value.memory)) { %>
+<% for (const { name, value } of it.SET_TYPES.filter(({ value }) => value.size)) { %>
     // <%= name %>
 
     struct <%= name %> {
@@ -318,7 +318,7 @@ library EnumerableSet {
         return result;
     }
 <% } %>
-<% for (const { name, value } of it.SET_TYPES.filter(({ value }) => value.memory)) { %>
+<% for (const { name, value } of it.SET_TYPES.filter(({ value }) => !value.size)) { %>
     struct <%= name %> {
         // Storage of set values
         <%= value.type %>[] _values;

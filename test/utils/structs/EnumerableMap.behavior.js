@@ -173,9 +173,9 @@ export function shouldBehaveLikeMap() {
         await expect(this.methods.get(this.keyB))
           .to.be.revertedWithCustomError(this.mock, this.error ?? 'EnumerableMapNonexistentKey')
           .withArgs(
-            this.key?.memory || this.value?.memory
-              ? this.keyB
-              : ethers.AbiCoder.defaultAbiCoder().encode([this.key.type], [this.keyB]),
+            this.key?.size && this.value?.size
+              ? ethers.AbiCoder.defaultAbiCoder().encode([this.key.type], [this.keyB])
+              : this.keyB,
           );
       });
     });

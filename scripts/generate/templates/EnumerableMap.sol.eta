@@ -202,7 +202,7 @@ library EnumerableMap {
     function keys(Bytes32ToBytes32Map storage map, uint256 start, uint256 end) internal view returns (bytes32[] memory) {
         return map._keys.values(start, end);
     }
-<% for (const { name, key, value } of it.MAP_TYPES.filter(({ key, value }) => !(key.memory || value.memory))) { %>
+<% for (const { name, key, value } of it.MAP_TYPES.filter(({ key, value }) => key.size && value.size)) { %>
     // <%= name %>
 
     struct <%= name %> {
@@ -344,7 +344,7 @@ library EnumerableMap {
         return result;
     }
 <% } %>
-<% for (const { name, keySet, key, value } of it.MAP_TYPES.filter(({ key, value }) => key.memory || value.memory)) { %>
+<% for (const { name, key, value } of it.MAP_TYPES.filter(({ key, value }) => !key.size || !value.size)) { %>
     /**
      * @dev Query for a nonexistent map key.
      */
@@ -352,7 +352,7 @@ library EnumerableMap {
 
     struct <%= name %> {
         // Storage of keys
-        EnumerableSet.<%= keySet.name %> _keys;
+        EnumerableSet.<%= key.name %>Set _keys;
         mapping(<%= key.type %> key => <%= value.type %>) _values;
     }
 
@@ -363,7 +363,7 @@ library EnumerableMap {
      * Returns true if the key was added to the map, that is if it was not
      * already present.
      */
-    function set(<%= name %> storage map, <%= key.typeLoc %> key, <%= value.typeLoc %> value) internal returns (bool) {
+    function set(<%= name %> storage map, <%= key.type %> <%= key.location %> key, <%= value.type %> <%= value.location %> value) internal returns (bool) {
         map._values[key] = value;
         return map._keys.add(key);
     }
@@ -373,7 +373,7 @@ library EnumerableMap {
      *
      * Returns true if the key was removed from the map, that is if it was present.
      */
-    function remove(<%= name %> storage map, <%= key.typeLoc %> key) internal returns (bool) {
+    function remove(<%= name %> storage map, <%= key.type %> <%= key.location %> key) internal returns (bool) {
         delete map._values[key];
         return map._keys.remove(key);
     }
@@ -395,7 +395,7 @@ library EnumerableMap {
     /**
      * @dev Returns true if the key is in the map. O(1).
      */
-    function contains(<%= name %> storage map, <%= key.typeLoc %> key) internal view returns (bool) {
+    function contains(<%= name %> storage map, <%= key.type %> <%= key.location %> key) internal view returns (bool) {
         return map._keys.contains(key);
     }
 
@@ -422,7 +422,7 @@ library EnumerableMap {
     function at(
         <%= name %> storage map,
         uint256 index
-    ) internal view returns (<%= key.typeLoc %> key, <%= value.typeLoc %> value) {
+    ) internal view returns (<%= key.type %> <%= key.location %> key, <%= value.type %> <%= value.location %> value) {
         return pos(map, index);
     }
 
@@ -440,7 +440,7 @@ library EnumerableMap {
     function pos(
         <%= name %> storage map,
         uint256 index
-    ) internal view returns (<%= key.typeLoc %> key, <%= value.typeLoc %> value) {
+    ) internal view returns (<%= key.type %> <%= key.location %> key, <%= value.type %> <%= value.location %> value) {
         key = map._keys.pos(index);
         value = map._values[key];
     }
@@ -451,10 +451,10 @@ library EnumerableMap {
      */
     function tryGet(
         <%= name %> storage map,
-        <%= key.typeLoc %> key
-    ) internal view returns (bool exists, <%= value.typeLoc %> value) {
+        <%= key.type %> <%= key.location %> key
+    ) internal view returns (bool exists, <%= value.type %> <%= value.location %> value) {
         value = map._values[key];
-        exists = <%= value.memory ? 'bytes(value).length != 0' : `value != ${value.type}(0)` %> || contains(map, key);
+        exists = <%= value.size ? `value != ${value.type}(0)` : 'bytes(value).length != 0' %> || contains(map, key);
     }
 
     /**
@@ -464,7 +464,7 @@ library EnumerableMap {
      *
      * - `key` must be in the map.
      */
-    function get(<%= name %> storage map, <%= key.typeLoc %> key) internal view returns (<%= value.typeLoc %> value) {
+    function get(<%= name %> storage map, <%= key.type %> <%= key.location %> key) internal view returns (<%= value.type %> <%= value.location %> value) {
         bool exists;
         (exists, value) = tryGet(map, key);
         if (!exists) {
