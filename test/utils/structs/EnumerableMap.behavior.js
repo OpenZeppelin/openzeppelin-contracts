@@ -143,6 +143,7 @@ export function shouldBehaveLikeMap() {
       await this.methods.removeAt(0);
 
       expect(await this.methods.contains(this.keyA)).to.be.false;
+      expect(await this.methods.tryGet(this.keyA)).to.have.ordered.members([false, this.zeroValue]);
       await expectMembersMatch(this.methods, [], []);
     });
 
@@ -168,21 +169,36 @@ export function shouldBehaveLikeMap() {
       await this.methods.removeAt(0);
 
       expect(await this.methods.contains(this.keyA)).to.be.false;
+      expect(await this.methods.tryGet(this.keyA)).to.have.ordered.members([false, this.zeroValue]);
       await expectMembersMatch(this.methods, [this.keyC, this.keyB], [this.valueC, this.valueB]);
       expect(await this.methods.at(0)).to.deep.equal([this.keyC, this.valueC]);
       expect(await this.methods.at(1)).to.deep.equal([this.keyB, this.valueB]);
     });
 
-    it('clears the value of the removed key', async function () {
+    it('tracks the position of the entry moved by swap-and-pop', async function () {
       await this.methods.set(this.keyA, this.valueA);
       await this.methods.set(this.keyB, this.valueB);
+      await this.methods.set(this.keyC, this.valueC);
 
+      // removes A, moving C from index 2 to index 0
       await this.methods.removeAt(0);
-      await expect(this.methods.get(this.keyA)).to.be.revertedWithCustomError(this.mock, this.error);
 
-      // re-adding the key does not resurrect the old value
-      await this.methods.set(this.keyA, this.valueC);
-      expect(await this.methods.get(this.keyA)).to.equal(this.valueC);
+      // C must still be removable by key, which only works if its tracked position was updated
+      await expect(this.methods.remove(this.keyC)).to.emit(this.mock, this.events.removeReturn).withArgs(true);
+
+      await expectMembersMatch(this.methods, [this.keyB], [this.valueB]);
+    });
+
+    it('can remove every remaining entry by index', async function () {
+      await this.methods.set(this.keyA, this.valueA);
+      await this.methods.set(this.keyB, this.valueB);
+      await this.methods.set(this.keyC, this.valueC);
+
+      await this.methods.removeAt(1);
+      await this.methods.removeAt(1);
+      await this.methods.removeAt(0);
+
+      await expectMembersMatch(this.methods, [], []);
     });
   });
 
