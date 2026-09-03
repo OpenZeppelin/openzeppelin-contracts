@@ -52,13 +52,32 @@ jobs:
         run: |
           if [[ ${{ github.event_name }} = 'pull_request_target' && ${{ contains(github.event.pull_request.labels.*.name, 'formal-verification-force-all') }} = 'false' ]];
           then
-            # Spec names come from the file names of a pull request that may be untrusted, and end
-            # up on a command line downstream. Anything that is not a plain name is dropped here.
-            RESULT=$(git diff "$HEAD_SHA".."$BASE_SHA" --name-only -- 'fv/specs/*.spec' | while IFS= read -r file; do
-              [[ -f $file ]] || continue
-              name=$(basename "${file%.spec}")
-              [[ $name =~ ^[A-Za-z0-9_-]+$ ]] && echo "$name" || echo "Ignoring spec with unexpected name: $name" >&2
-            done | tr "\n" " ")
+            # Map each changed spec to the configs that verify it, following imports: a spec that
+            # no config names (a base, a helper, a methods file) is verified through the specs that
+            # import it, transitively. Imports are relative to the importing file's directory.
+            importers() {
+              find fv/specs -name '*.spec' | while IFS= read -r spec; do
+                dir=${spec%/*}
+                sed -n 's/^import "\([^"]*\)".*/\1/p' "$spec" | while IFS= read -r imp; do
+                  if [[ "$dir/${imp#./}" == "$1" ]]; then echo "$spec"; fi
+                done
+              done
+            }
+            specs=$(git diff "$BASE_SHA".."$HEAD_SHA" --name-only -- 'fv/specs/*.spec' | while IFS= read -r file; do if [[ -f $file ]]; then echo "$file"; fi; done)
+            while :; do
+              next=$({ echo "$specs"; while IFS= read -r file; do if [[ -n $file ]]; then importers "$file"; fi; done <<< "$specs"; } | sort -u)
+              if [[ $next == "$specs" ]]; then break; fi
+              specs=$next
+            done
+            confs=$(while IFS= read -r file; do if [[ -n $file ]]; then grep -lF "$file" fv/specs/*.conf || true; fi; done <<< "$specs" | sort -u)
+            if [[ -n $specs && -z $confs ]]; then echo "Changed specs are verified by no config, directly or through an importer." >&2; fi
+            # Config names come from the file names of a pull request that may be untrusted, and
+            # end up on a command line downstream. Anything that is not a plain name is dropped.
+            RESULT=$(while IFS= read -r conf; do
+              if [[ -z $conf ]]; then continue; fi
+              name=${conf##*/}; name=${name%.conf}
+              if [[ $name =~ ^[A-Za-z0-9_-]+$ ]]; then echo "$name"; else echo "Ignoring config with unexpected name: $name" >&2; fi
+            done <<< "$confs" | tr "\n" " ")
           else
             RESULT='--all'
           fi
