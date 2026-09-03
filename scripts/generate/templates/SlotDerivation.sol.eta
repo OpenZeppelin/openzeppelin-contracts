@@ -63,15 +63,15 @@ library SlotDerivation {
             result := keccak256(0x00, 0x20)
         }
     }
-<% for (const type of it.SLOT_TYPES) { %>
-<% if (type.isValueType) { %>
+<% for (const { type, size } of it.SLOT_TYPES) { %>
+<% if (size) { %>
 
     /**
      * @dev Derive the location of a mapping element from the key.
      */
-    function deriveMapping(bytes32 slot, <%= type.type %> key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, <%= type %> key) internal pure returns (bytes32 result) {
         assembly ("memory-safe") {
-            mstore(0x00, <%= (it.sanitize[type.type] ?? (x => x))('key') %>)
+            mstore(0x00, <%= (it.sanitize[type] ?? (x => x))('key') %>)
             mstore(0x20, slot)
             result := keccak256(0x00, 0x40)
         }
@@ -81,7 +81,7 @@ library SlotDerivation {
     /**
      * @dev Derive the location of a mapping element from the key.
      */
-    function deriveMapping(bytes32 slot, <%= type.type %> memory key) internal pure returns (bytes32 result) {
+    function deriveMapping(bytes32 slot, <%= type %> memory key) internal pure returns (bytes32 result) {
         assembly ("memory-safe") {
             let length := mload(key)
             let begin := add(key, 0x20)
