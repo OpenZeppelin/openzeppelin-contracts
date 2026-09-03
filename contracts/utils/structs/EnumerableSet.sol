@@ -6,7 +6,6 @@ pragma solidity ^0.8.24;
 
 import {Arrays} from "../Arrays.sol";
 import {Math} from "../math/Math.sol";
-import {Panic} from "../Panic.sol";
 
 /**
  * @dev Library for managing
@@ -138,7 +137,6 @@ library EnumerableSet {
      */
     function __remove(Set storage set, bytes32 value, uint256 index) private {
         uint256 lastIndex = set._values.length - 1;
-        if (index > lastIndex) Panic.panic(Panic.ARRAY_OUT_OF_BOUNDS);
 
         if (index != lastIndex) {
             bytes32 lastValue = set._values[lastIndex];
@@ -873,7 +871,6 @@ library EnumerableSet {
      */
     function __remove(StringSet storage set, string memory value, uint256 index) private {
         uint256 lastIndex = set._values.length - 1;
-        if (index > lastIndex) Panic.panic(Panic.ARRAY_OUT_OF_BOUNDS);
 
         if (index != lastIndex) {
             string memory lastValue = set._values[lastIndex];
@@ -1066,7 +1063,6 @@ library EnumerableSet {
      */
     function __remove(BytesSet storage set, bytes memory value, uint256 index) private {
         uint256 lastIndex = set._values.length - 1;
-        if (index > lastIndex) Panic.panic(Panic.ARRAY_OUT_OF_BOUNDS);
 
         if (index != lastIndex) {
             bytes memory lastValue = set._values[lastIndex];
