@@ -94,7 +94,7 @@ library EnumerableSet {
         uint256 position = set._positions[value];
 
         if (position != 0) {
-            __remove(set, value, position - 1);
+            _removeValueAt(set, value, position - 1);
             return true;
         } else {
             return false;
@@ -118,7 +118,7 @@ library EnumerableSet {
      */
     function _removeAt(Set storage set, uint256 index) private returns (bytes32 value) {
         value = set._values[index];
-        __remove(set, value, index);
+        _removeValueAt(set, value, index);
     }
 
     /**
@@ -135,7 +135,7 @@ library EnumerableSet {
      *
      * - `index` must be strictly less than {length}.
      */
-    function __remove(Set storage set, bytes32 value, uint256 index) private {
+    function _removeValueAt(Set storage set, bytes32 value, uint256 index) private {
         uint256 lastIndex = set._values.length - 1;
 
         if (index != lastIndex) {
@@ -828,7 +828,7 @@ library EnumerableSet {
         uint256 position = set._positions[value];
 
         if (position != 0) {
-            __remove(set, value, position - 1);
+            _removeValueAt(set, value, position - 1);
             return true;
         } else {
             return false;
@@ -852,7 +852,7 @@ library EnumerableSet {
      */
     function removeAt(StringSet storage set, uint256 index) internal returns (string memory value) {
         value = set._values[index];
-        __remove(set, value, index);
+        _removeValueAt(set, value, index);
     }
 
     /**
@@ -869,7 +869,7 @@ library EnumerableSet {
      *
      * - `index` must be strictly less than {length}.
      */
-    function __remove(StringSet storage set, string memory value, uint256 index) private {
+    function _removeValueAt(StringSet storage set, string memory value, uint256 index) private {
         uint256 lastIndex = set._values.length - 1;
 
         if (index != lastIndex) {
@@ -1020,7 +1020,7 @@ library EnumerableSet {
         uint256 position = set._positions[value];
 
         if (position != 0) {
-            __remove(set, value, position - 1);
+            _removeValueAt(set, value, position - 1);
             return true;
         } else {
             return false;
@@ -1044,7 +1044,7 @@ library EnumerableSet {
      */
     function removeAt(BytesSet storage set, uint256 index) internal returns (bytes memory value) {
         value = set._values[index];
-        __remove(set, value, index);
+        _removeValueAt(set, value, index);
     }
 
     /**
@@ -1061,7 +1061,7 @@ library EnumerableSet {
      *
      * - `index` must be strictly less than {length}.
      */
-    function __remove(BytesSet storage set, bytes memory value, uint256 index) private {
+    function _removeValueAt(BytesSet storage set, bytes memory value, uint256 index) private {
         uint256 lastIndex = set._values.length - 1;
 
         if (index != lastIndex) {
