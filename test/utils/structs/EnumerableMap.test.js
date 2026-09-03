@@ -12,6 +12,14 @@ const {
 // Add Bytes32ToBytes32Map that must be tested but is not part of the generated types.
 MAP_TYPES.unshift({ name: 'Bytes32ToBytes32Map', key: TYPES.bytes32, value: TYPES.bytes32 });
 
+const getMethods = (mock, fnSigs) =>
+  mapValues(fnSigs, fnSig => {
+    const fn = mock.getFunction(fnSig);
+    const wrapped = (...args) => fn(0, ...args);
+    wrapped.staticCall = (...args) => fn.staticCall(0, ...args);
+    return wrapped;
+  });
+
 // Chai matchers expect hexadecimal data when dealing with bytes
 const randomOf = type => random[type === 'bytes' ? 'hexBytes' : type];
 
@@ -27,13 +35,15 @@ async function fixture() {
         keys: Array.from({ length: 3 }, randomOf(key.type)),
         values: Array.from({ length: 3 }, randomOf(value.type)),
         zeroValue: randomOf(value.type).zero,
-        methods: mapValues(
+        methods: getMethods(
+          mock,
           MAP_TYPES.filter(map => map.key.type == key.type).length == 1
             ? {
                 set: `$set(uint256,${key.type},${value.type})`,
                 get: `$get(uint256,${key.type})`,
                 tryGet: `$tryGet(uint256,${key.type})`,
                 remove: `$remove(uint256,${key.type})`,
+                removeAt: `$removeAt_EnumerableMap_${name}(uint256,uint256)`,
                 contains: `$contains(uint256,${key.type})`,
                 clear: `$clear_EnumerableMap_${name}(uint256)`,
                 length: `$length_EnumerableMap_${name}(uint256)`,
@@ -46,6 +56,7 @@ async function fixture() {
                 get: `$get_EnumerableMap_${name}(uint256,${key.type})`,
                 tryGet: `$tryGet_EnumerableMap_${name}(uint256,${key.type})`,
                 remove: `$remove_EnumerableMap_${name}(uint256,${key.type})`,
+                removeAt: `$removeAt_EnumerableMap_${name}(uint256,uint256)`,
                 contains: `$contains_EnumerableMap_${name}(uint256,${key.type})`,
                 clear: `$clear_EnumerableMap_${name}(uint256)`,
                 length: `$length_EnumerableMap_${name}(uint256)`,
@@ -53,9 +64,6 @@ async function fixture() {
                 keys: `$keys_EnumerableMap_${name}(uint256)`,
                 keysPage: `$keys_EnumerableMap_${name}(uint256,uint256,uint256)`,
               },
-          fnSig =>
-            (...args) =>
-              mock.getFunction(fnSig)(0, ...args),
         ),
         events: {
           setReturn: `return$set_EnumerableMap_${name}_${key.type}_${value.type}`,
