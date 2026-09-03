@@ -12,14 +12,6 @@ const {
 // Add Bytes32ToBytes32Map that must be tested but is not part of the generated types.
 MAP_TYPES.unshift({ name: 'Bytes32ToBytes32Map', key: TYPES.bytes32, value: TYPES.bytes32 });
 
-const getMethods = (mock, fnSigs) =>
-  mapValues(fnSigs, fnSig => {
-    const fn = mock.getFunction(fnSig);
-    return Object.assign((...args) => fn(0, ...args), {
-      staticCall: (...args) => fn.staticCall(0, ...args),
-    });
-  });
-
 // Chai matchers expect hexadecimal data when dealing with bytes
 const randomOf = type => random[type === 'bytes' ? 'hexBytes' : type];
 
@@ -35,8 +27,7 @@ async function fixture() {
         keys: Array.from({ length: 3 }, randomOf(key.type)),
         values: Array.from({ length: 3 }, randomOf(value.type)),
         zeroValue: randomOf(value.type).zero,
-        methods: getMethods(
-          mock,
+        methods: mapValues(
           MAP_TYPES.filter(map => map.key.type == key.type).length == 1
             ? {
                 set: `$set(uint256,${key.type},${value.type})`,
@@ -64,6 +55,10 @@ async function fixture() {
                 keys: `$keys_EnumerableMap_${name}(uint256)`,
                 keysPage: `$keys_EnumerableMap_${name}(uint256,uint256,uint256)`,
               },
+          fnSig =>
+            Object.assign((...args) => mock.getFunction(fnSig)(0, ...args), {
+              staticCall: (...args) => mock.getFunction(fnSig).staticCall(0, ...args),
+            }),
         ),
         events: {
           setReturn: `return$set_EnumerableMap_${name}_${key.type}_${value.type}`,
