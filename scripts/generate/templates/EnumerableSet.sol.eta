@@ -113,10 +113,9 @@ library EnumerableSet {
      *
      * - `index` must be strictly less than {length}.
      */
-    function _removeAt(Set storage set, uint256 index) private returns (bytes32) {
-        bytes32 value = set._values[index];
+    function _removeAt(Set storage set, uint256 index) private returns (bytes32 value) {
+        value = set._values[index];
         __remove(set, value, index);
-        return value;
     }
 
     /**
@@ -430,10 +429,9 @@ library EnumerableSet {
      *
      * - `index` must be strictly less than {length}.
      */
-    function removeAt(<%= name %> storage set, uint256 index) internal returns (<%= value.type %> memory) {
-        <%= value.type %> memory value = set._values[index];
+    function removeAt(<%= name %> storage set, uint256 index) internal returns (<%= value.type %> memory value) {
+        value = set._values[index];
         __remove(set, value, index);
-        return value;
     }
 
     /**

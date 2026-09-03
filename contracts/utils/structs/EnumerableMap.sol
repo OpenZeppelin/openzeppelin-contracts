@@ -108,11 +108,10 @@ library EnumerableMap {
      *
      * - `index` must be strictly less than {length}.
      */
-    function removeAt(Bytes32ToBytes32Map storage map, uint256 index) internal returns (bytes32, bytes32) {
-        bytes32 key = map._keys.removeAt(index);
-        bytes32 value = map._values[key];
+    function removeAt(Bytes32ToBytes32Map storage map, uint256 index) internal returns (bytes32 key, bytes32 value) {
+        key = map._keys.removeAt(index);
+        value = map._values[key];
         delete map._values[key];
-        return (key, value);
     }
 
     /**
@@ -274,9 +273,9 @@ library EnumerableMap {
      *
      * - `index` must be strictly less than {length}.
      */
-    function removeAt(UintToUintMap storage map, uint256 index) internal returns (uint256, uint256) {
-        (bytes32 key, bytes32 value) = removeAt(map._inner, index);
-        return (uint256(key), uint256(value));
+    function removeAt(UintToUintMap storage map, uint256 index) internal returns (uint256 key, uint256 value) {
+        (bytes32 key_, bytes32 value_) = removeAt(map._inner, index);
+        return (uint256(key_), uint256(value_));
     }
 
     /**
@@ -435,9 +434,9 @@ library EnumerableMap {
      *
      * - `index` must be strictly less than {length}.
      */
-    function removeAt(UintToAddressMap storage map, uint256 index) internal returns (uint256, address) {
-        (bytes32 key, bytes32 value) = removeAt(map._inner, index);
-        return (uint256(key), address(uint160(uint256(value))));
+    function removeAt(UintToAddressMap storage map, uint256 index) internal returns (uint256 key, address value) {
+        (bytes32 key_, bytes32 value_) = removeAt(map._inner, index);
+        return (uint256(key_), address(uint160(uint256(value_))));
     }
 
     /**
@@ -596,9 +595,9 @@ library EnumerableMap {
      *
      * - `index` must be strictly less than {length}.
      */
-    function removeAt(UintToBytes32Map storage map, uint256 index) internal returns (uint256, bytes32) {
-        (bytes32 key, bytes32 value) = removeAt(map._inner, index);
-        return (uint256(key), value);
+    function removeAt(UintToBytes32Map storage map, uint256 index) internal returns (uint256 key, bytes32 value) {
+        (bytes32 key_, bytes32 value_) = removeAt(map._inner, index);
+        return (uint256(key_), value_);
     }
 
     /**
@@ -757,9 +756,9 @@ library EnumerableMap {
      *
      * - `index` must be strictly less than {length}.
      */
-    function removeAt(AddressToUintMap storage map, uint256 index) internal returns (address, uint256) {
-        (bytes32 key, bytes32 value) = removeAt(map._inner, index);
-        return (address(uint160(uint256(key))), uint256(value));
+    function removeAt(AddressToUintMap storage map, uint256 index) internal returns (address key, uint256 value) {
+        (bytes32 key_, bytes32 value_) = removeAt(map._inner, index);
+        return (address(uint160(uint256(key_))), uint256(value_));
     }
 
     /**
@@ -918,9 +917,9 @@ library EnumerableMap {
      *
      * - `index` must be strictly less than {length}.
      */
-    function removeAt(AddressToAddressMap storage map, uint256 index) internal returns (address, address) {
-        (bytes32 key, bytes32 value) = removeAt(map._inner, index);
-        return (address(uint160(uint256(key))), address(uint160(uint256(value))));
+    function removeAt(AddressToAddressMap storage map, uint256 index) internal returns (address key, address value) {
+        (bytes32 key_, bytes32 value_) = removeAt(map._inner, index);
+        return (address(uint160(uint256(key_))), address(uint160(uint256(value_))));
     }
 
     /**
@@ -1083,9 +1082,9 @@ library EnumerableMap {
      *
      * - `index` must be strictly less than {length}.
      */
-    function removeAt(AddressToBytes32Map storage map, uint256 index) internal returns (address, bytes32) {
-        (bytes32 key, bytes32 value) = removeAt(map._inner, index);
-        return (address(uint160(uint256(key))), value);
+    function removeAt(AddressToBytes32Map storage map, uint256 index) internal returns (address key, bytes32 value) {
+        (bytes32 key_, bytes32 value_) = removeAt(map._inner, index);
+        return (address(uint160(uint256(key_))), value_);
     }
 
     /**
@@ -1248,9 +1247,9 @@ library EnumerableMap {
      *
      * - `index` must be strictly less than {length}.
      */
-    function removeAt(Bytes32ToUintMap storage map, uint256 index) internal returns (bytes32, uint256) {
-        (bytes32 key, bytes32 value) = removeAt(map._inner, index);
-        return (key, uint256(value));
+    function removeAt(Bytes32ToUintMap storage map, uint256 index) internal returns (bytes32 key, uint256 value) {
+        (bytes32 key_, bytes32 value_) = removeAt(map._inner, index);
+        return (key_, uint256(value_));
     }
 
     /**
@@ -1409,9 +1408,9 @@ library EnumerableMap {
      *
      * - `index` must be strictly less than {length}.
      */
-    function removeAt(Bytes32ToAddressMap storage map, uint256 index) internal returns (bytes32, address) {
-        (bytes32 key, bytes32 value) = removeAt(map._inner, index);
-        return (key, address(uint160(uint256(value))));
+    function removeAt(Bytes32ToAddressMap storage map, uint256 index) internal returns (bytes32 key, address value) {
+        (bytes32 key_, bytes32 value_) = removeAt(map._inner, index);
+        return (key_, address(uint160(uint256(value_))));
     }
 
     /**
@@ -1574,9 +1573,9 @@ library EnumerableMap {
      *
      * - `index` must be strictly less than {length}.
      */
-    function removeAt(Bytes4ToAddressMap storage map, uint256 index) internal returns (bytes4, address) {
-        (bytes32 key, bytes32 value) = removeAt(map._inner, index);
-        return (bytes4(key), address(uint160(uint256(value))));
+    function removeAt(Bytes4ToAddressMap storage map, uint256 index) internal returns (bytes4 key, address value) {
+        (bytes32 key_, bytes32 value_) = removeAt(map._inner, index);
+        return (bytes4(key_), address(uint160(uint256(value_))));
     }
 
     /**
@@ -1742,11 +1741,13 @@ library EnumerableMap {
      *
      * - `index` must be strictly less than {length}.
      */
-    function removeAt(BytesToBytesMap storage map, uint256 index) internal returns (bytes memory, bytes memory) {
-        bytes memory key = map._keys.removeAt(index);
-        bytes memory value = map._values[key];
+    function removeAt(
+        BytesToBytesMap storage map,
+        uint256 index
+    ) internal returns (bytes memory key, bytes memory value) {
+        key = map._keys.removeAt(index);
+        value = map._values[key];
         delete map._values[key];
-        return (key, value);
     }
 
     /**
