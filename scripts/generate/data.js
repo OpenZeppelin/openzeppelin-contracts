@@ -8,7 +8,7 @@ export * from '../helpers.js';
 export const args = (...parts) => parts.filter(Boolean).join(', ');
 
 // ─── All solidity types ───
-export const ALL_TYPES = Object.fromEntries(
+export const TYPES = Object.fromEntries(
   [
     { type: 'address', size: 160 },
     { type: 'bool', name: 'Boolean', size: 1 },
@@ -45,13 +45,7 @@ export const ALL_TYPES = Object.fromEntries(
 );
 
 // ─── Arrays ───
-export const ARRAYS_TYPES = [
-  ALL_TYPES.address,
-  ALL_TYPES.bytes32,
-  ALL_TYPES.uint256,
-  ALL_TYPES.bytes,
-  ALL_TYPES.string,
-];
+export const ARRAYS_TYPES = [TYPES.address, TYPES.bytes32, TYPES.uint256, TYPES.bytes, TYPES.string];
 
 export const ARRAYS_VALUE_TYPES = ARRAYS_TYPES.filter(type => type.size);
 export const ARRAYS_CAST_TYPES = ARRAYS_VALUE_TYPES.filter(type => type.type !== 'uint256');
@@ -62,29 +56,26 @@ export const ARRAYS_COMPARATOR_TYPES = ARRAYS_VALUE_TYPES.filter(type => type.si
 export const CHECKPOINTS_LENGTH = [256, 224, 208, 160].map(size => ({ size, keySize: size < 256 ? 256 - size : 256 }));
 
 // ─── Enumerable (EnumerableSet, EnumerableMap) ───
-export const SET_TYPES = [
-  ALL_TYPES.bytes32,
-  ALL_TYPES.bytes4,
-  ALL_TYPES.address,
-  ALL_TYPES.uint256,
-  ALL_TYPES.string,
-  ALL_TYPES.bytes,
-].map(value => ({
-  name: `${value.type == 'uint256' ? 'Uint' : value.name}Set`,
-  value,
-}));
+const enumerableName = ({ type, name }) => (type === 'uint256' ? 'Uint' : name);
+
+export const SET_TYPES = [TYPES.bytes32, TYPES.bytes4, TYPES.address, TYPES.uint256, TYPES.string, TYPES.bytes].map(
+  value => ({
+    name: `${enumerableName(value)}Set`,
+    value,
+  }),
+);
 
 export const MAP_TYPES = []
   .concat(
     // value type maps
-    [ALL_TYPES.uint256, ALL_TYPES.address, ALL_TYPES.bytes32].flatMap((key, _, array) =>
-      array.map(value => ({ key, value })),
-    ),
-    { key: ALL_TYPES.bytes4, value: ALL_TYPES.address },
-    { key: ALL_TYPES.bytes, value: ALL_TYPES.bytes },
+    [TYPES.uint256, TYPES.address, TYPES.bytes32].flatMap((key, _, array) => array.map(value => ({ key, value }))),
+    // other value type maps
+    { key: TYPES.bytes4, value: TYPES.address },
+    // non-value type maps
+    { key: TYPES.bytes, value: TYPES.bytes },
   )
   .map(({ key, value }) => ({
-    name: `${key.type === 'uint256' ? 'Uint' : key.name}To${value.type === 'uint256' ? 'Uint' : value.name}Map`,
+    name: `${enumerableName(key)}To${enumerableName(value)}Map`,
     key,
     value,
   }));
@@ -107,4 +98,4 @@ export const PACKING_SIZES = [1, 2, 4, 6, 8, 10, 12, 16, 20, 22, 24, 28, 32];
 export const SAFECAST_LENGTHS = Array.from({ length: 31 }, (_, i) => 248 - i * 8);
 
 // ─── Slot family (StorageSlot, TransientSlot, SlotDerivation, and their mocks/tests) ───
-export const SLOT_TYPES = Object.values(ALL_TYPES).filter(type => !type.upcastTo);
+export const SLOT_TYPES = Object.values(TYPES).filter(type => !type.upcastTo);
