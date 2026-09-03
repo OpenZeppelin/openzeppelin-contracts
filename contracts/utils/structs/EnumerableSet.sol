@@ -2,8 +2,9 @@
 // OpenZeppelin Contracts (last updated v5.7.0) (utils/structs/EnumerableSet.sol)
 // This file was procedurally generated from scripts/generate/templates/EnumerableSet.sol.eta.
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
+import {Arrays} from "../Arrays.sol";
 import {Math} from "../math/Math.sol";
 
 /**
@@ -207,8 +208,9 @@ library EnumerableSet {
 
             uint256 len = end - start;
             bytes32[] memory result = new bytes32[](len);
+
             for (uint256 i = 0; i < len; ++i) {
-                result[i] = set._values[start + i];
+                result[i] = Arrays.unsafeAccess(set._values, start + i).value;
             }
             return result;
         }
@@ -373,6 +375,7 @@ library EnumerableSet {
 
             uint256 len = end - start;
             bytes4[] memory result = new bytes4[](len);
+
             for (uint256 i = 0; i < len; ++i) {
                 result[i] = set._values[start + i];
             }
@@ -539,8 +542,9 @@ library EnumerableSet {
 
             uint256 len = end - start;
             address[] memory result = new address[](len);
+
             for (uint256 i = 0; i < len; ++i) {
-                result[i] = set._values[start + i];
+                result[i] = Arrays.unsafeAccess(set._values, start + i).value;
             }
             return result;
         }
@@ -705,8 +709,9 @@ library EnumerableSet {
 
             uint256 len = end - start;
             uint256[] memory result = new uint256[](len);
+
             for (uint256 i = 0; i < len; ++i) {
-                result[i] = set._values[start + i];
+                result[i] = Arrays.unsafeAccess(set._values, start + i).value;
             }
             return result;
         }
@@ -871,8 +876,9 @@ library EnumerableSet {
 
             uint256 len = end - start;
             string[] memory result = new string[](len);
+
             for (uint256 i = 0; i < len; ++i) {
-                result[i] = set._values[start + i];
+                result[i] = Arrays.unsafeAccess(set._values, start + i).value;
             }
             return result;
         }
@@ -1037,8 +1043,9 @@ library EnumerableSet {
 
             uint256 len = end - start;
             bytes[] memory result = new bytes[](len);
+
             for (uint256 i = 0; i < len; ++i) {
-                result[i] = set._values[start + i];
+                result[i] = Arrays.unsafeAccess(set._values, start + i).value;
             }
             return result;
         }

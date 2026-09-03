@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v5.7.0) (governance/extensions/GovernorCrosschain.sol)
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.26;
 
 import {Governor} from "../Governor.sol";
 import {Mode} from "../../account/utils/draft-ERC7579Utils.sol";

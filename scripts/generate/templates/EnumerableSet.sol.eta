@@ -1,5 +1,6 @@
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
+import {Arrays} from "../Arrays.sol";
 import {Math} from "../math/Math.sol";
 
 /**
@@ -204,8 +205,13 @@ library EnumerableSet {
 
             uint256 len = end - start;
             <%= value.type %>[] memory result = new <%= value.type %>[](len);
+
             for (uint256 i = 0; i < len; ++i) {
+                <% if (it.ARRAYS_TYPES.includes(value)) { %>
+                result[i] = Arrays.unsafeAccess(set._values, start + i).value;
+                <% } else { %>
                 result[i] = set._values[start + i];
+                <% } %>
             }
             return result;
         }
