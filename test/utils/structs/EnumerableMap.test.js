@@ -15,9 +15,9 @@ MAP_TYPES.unshift({ name: 'Bytes32ToBytes32Map', key: TYPES.bytes32, value: TYPE
 const getMethods = (mock, fnSigs) =>
   mapValues(fnSigs, fnSig => {
     const fn = mock.getFunction(fnSig);
-    const wrapped = (...args) => fn(0, ...args);
-    wrapped.staticCall = (...args) => fn.staticCall(0, ...args);
-    return wrapped;
+    return Object.assign((...args) => fn(0, ...args), {
+      staticCall: (...args) => fn.staticCall(0, ...args),
+    });
   });
 
 // Chai matchers expect hexadecimal data when dealing with bytes
