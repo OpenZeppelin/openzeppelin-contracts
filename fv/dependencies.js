@@ -35,8 +35,8 @@ const relative = file => path.relative(ROOT, file).split(path.sep).join('/');
 
 // Add `file` and everything it imports (recursively) to `acc`
 const collect = (file, acc) => {
-  if (!acc.has(file)) {
-    acc.add(file);
+  if (!acc.includes(file)) {
+    acc.push(file);
     const pattern = file.endsWith('.sol') ? SOL_IMPORT : SPEC_IMPORT;
     for (const [, target] of fs.readFileSync(file, 'utf8').matchAll(pattern)) {
       collect(unpatch(path.resolve(path.dirname(file), target)), acc);
@@ -51,27 +51,29 @@ const configs = fs
   .filter(name => VALID_NAME.test(name) || (console.error(`Ignoring config with unexpected name: ${name}`), false))
   .map(name => path.join(SPECS, name));
 
-const dependencies = new Map(
+const dependencies = Object.fromEntries(
   configs.map(conf => {
-    const acc = new Set([conf]);
-    const { files = [], verify = '' } = JSON.parse(fs.readFileSync(conf, 'utf8'));
-    // `files` lists the harnesses. `verify` is one "Contract:path/to/file.spec" entry naming a
-    // contract they declare -- the certora schema allows exactly one, so there is nothing to
-    // iterate. Both are relative to the root.
-    files.forEach(file => collect(path.resolve(ROOT, file), acc));
-    if (verify) collect(path.resolve(ROOT, verify.split(':').at(-1)), acc);
-    return [relative(conf), Array.from(acc, relative)];
+    const { files, verify } = JSON.parse(fs.readFileSync(conf, 'utf8'));
+    return [
+      relative(conf),
+      files
+        .reduce(
+          (acc, file) => collect(path.resolve(ROOT, file), acc),
+          collect(path.resolve(ROOT, verify.split(':').at(-1)), [conf]),
+        )
+        .map(relative),
+    ];
   }),
 );
 
 if (process.argv.includes('--filter')) {
   const changed = new Set(fs.readFileSync(0, 'utf8').split('\n').filter(Boolean));
-  const affected = Array.from(dependencies)
+  const affected = Object.entries(dependencies)
     .filter(([, deps]) => deps.some(dep => changed.has(dep)))
     .map(([conf]) => conf);
   console.log(JSON.stringify(affected));
 } else if (process.argv.includes('--all')) {
-  console.log(JSON.stringify(Array.from(dependencies.keys())));
+  console.log(JSON.stringify(Object.keys(dependencies)));
 } else {
-  console.log(JSON.stringify(Object.fromEntries(dependencies), null, 2));
+  console.log(JSON.stringify(dependencies, null, 2));
 }
