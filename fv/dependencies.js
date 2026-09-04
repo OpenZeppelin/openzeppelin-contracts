@@ -33,11 +33,12 @@ const SPECS = option('specs', path.resolve(ROOT, 'fv/specs'));
 
 const relative = file => path.relative(ROOT, file).replaceAll(path.sep, '/');
 
-// A solidity import may name symbols or not, and may span several lines, so the path is taken as the
-// first string of the statement. `[^;]` stops the match at the end of the statement.
+// How an import is written, per file extension a config can lead to
 const IMPORT = {
   cvl: /^\s*import\s+"([^"]+)"\s*;/gm,
   spec: /^\s*import\s+"([^"]+)"\s*;/gm,
+  // A solidity import may name symbols or not, and may span several lines, so the path is taken as
+  // the first string of the statement. `[^;]` stops the match at the end of the statement.
   sol: /^[ \t]*import\b[^;]*?"([^"]+)"/gm,
 };
 
