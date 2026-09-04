@@ -54,10 +54,13 @@ jobs:
               node fv/dependencies.js --all
             } >> "$GITHUB_OUTPUT"
           else
-            # Keep a config if it, the specs it verifies, or anything those import was modified
+            # Keep a config if it, the specs it verifies, or anything those import was modified.
+            # Three dots so the comparison starts at the merge base: `base.sha` is the tip of the
+            # base branch, so a two dot range would also report whatever landed there after the
+            # pull request branched, and verify configs the pull request never touched.
             {
               printf 'configs='
-              git diff --name-only "$BASE_SHA".."$HEAD_SHA" | node fv/dependencies.js --filter
+              git diff --name-only "$BASE_SHA"..."$HEAD_SHA" | node fv/dependencies.js --filter
             } >> "$GITHUB_OUTPUT"
           fi
       - name: Report the affected configs
