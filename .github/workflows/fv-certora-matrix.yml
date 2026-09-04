@@ -47,14 +47,24 @@ jobs:
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           FORCE_ALL: ${{ github.event_name != 'pull_request_target' || contains(github.event.pull_request.labels.*.name, 'formal-verification-force-all') }}
         run: |
+          set -o pipefail
           if [[ $FORCE_ALL = 'true' ]]; then
-            CONFIGS=$(node fv/dependencies.js --all)
+            {
+              printf 'configs='
+              node fv/dependencies.js --all
+            } >> "$GITHUB_OUTPUT"
           else
             # Keep a config if it, the specs it verifies, or anything those import was modified
-            CONFIGS=$(git diff --name-only "$BASE_SHA".."$HEAD_SHA" | node fv/dependencies.js --filter)
+            {
+              printf 'configs='
+              git diff --name-only "$BASE_SHA".."$HEAD_SHA" | node fv/dependencies.js --filter
+            } >> "$GITHUB_OUTPUT"
           fi
-          echo "configs=$CONFIGS" >> "$GITHUB_OUTPUT"
-          # Not necessarily what runs: `verify` still needs the label to be applied
+      # Not necessarily what runs: `verify` still needs the label to be applied
+      - name: Report the affected configs
+        env:
+          CONFIGS: ${{ steps.identify.outputs.configs }}
+        run: |
           echo "Configs affected by this diff: $CONFIGS" >> "$GITHUB_STEP_SUMMARY"
 
   verify:
