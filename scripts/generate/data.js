@@ -34,6 +34,7 @@ export const TYPES = Object.fromEntries(
     .map(entry => ({
       ...entry,
       name: entry.name ?? capitalize(entry.type),
+      typeLoc: entry.type + (entry.size ? '' : ' memory'),
       location: entry.size ? '' : 'memory',
     }))
     .map((entry, _, all) => ({

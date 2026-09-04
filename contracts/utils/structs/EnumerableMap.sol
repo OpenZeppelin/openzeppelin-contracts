@@ -95,6 +95,27 @@ library EnumerableMap {
     }
 
     /**
+     * @dev Removes the key-value pair stored at position `index` in the map. O(1).
+     *
+     * Returns the removed key and its associated value.
+     *
+     * This is cheaper than {remove} when the caller already knows the index, because it skips the position lookup
+     * that {remove} performs.
+     *
+     * Note that there are no guarantees on the ordering of the entries inside the map, and it may change when more
+     * entries are added or removed.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     */
+    function removeAt(UintToUintMap storage map, uint256 index) internal returns (uint256 key, uint256 value) {
+        key = map._keys.removeAt(index);
+        value = map._values[key];
+        delete map._values[key];
+    }
+
+    /**
      * @dev Removes all the entries from a map. O(n).
      *
      * WARNING: This function has an unbounded cost that scales with map size. Developers should keep in mind that
@@ -230,6 +251,27 @@ library EnumerableMap {
     function remove(UintToAddressMap storage map, uint256 key) internal returns (bool) {
         delete map._values[key];
         return map._keys.remove(key);
+    }
+
+    /**
+     * @dev Removes the key-value pair stored at position `index` in the map. O(1).
+     *
+     * Returns the removed key and its associated value.
+     *
+     * This is cheaper than {remove} when the caller already knows the index, because it skips the position lookup
+     * that {remove} performs.
+     *
+     * Note that there are no guarantees on the ordering of the entries inside the map, and it may change when more
+     * entries are added or removed.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     */
+    function removeAt(UintToAddressMap storage map, uint256 index) internal returns (uint256 key, address value) {
+        key = map._keys.removeAt(index);
+        value = map._values[key];
+        delete map._values[key];
     }
 
     /**
@@ -371,6 +413,27 @@ library EnumerableMap {
     }
 
     /**
+     * @dev Removes the key-value pair stored at position `index` in the map. O(1).
+     *
+     * Returns the removed key and its associated value.
+     *
+     * This is cheaper than {remove} when the caller already knows the index, because it skips the position lookup
+     * that {remove} performs.
+     *
+     * Note that there are no guarantees on the ordering of the entries inside the map, and it may change when more
+     * entries are added or removed.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     */
+    function removeAt(UintToBytes32Map storage map, uint256 index) internal returns (uint256 key, bytes32 value) {
+        key = map._keys.removeAt(index);
+        value = map._values[key];
+        delete map._values[key];
+    }
+
+    /**
      * @dev Removes all the entries from a map. O(n).
      *
      * WARNING: This function has an unbounded cost that scales with map size. Developers should keep in mind that
@@ -509,6 +572,27 @@ library EnumerableMap {
     }
 
     /**
+     * @dev Removes the key-value pair stored at position `index` in the map. O(1).
+     *
+     * Returns the removed key and its associated value.
+     *
+     * This is cheaper than {remove} when the caller already knows the index, because it skips the position lookup
+     * that {remove} performs.
+     *
+     * Note that there are no guarantees on the ordering of the entries inside the map, and it may change when more
+     * entries are added or removed.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     */
+    function removeAt(AddressToUintMap storage map, uint256 index) internal returns (address key, uint256 value) {
+        key = map._keys.removeAt(index);
+        value = map._values[key];
+        delete map._values[key];
+    }
+
+    /**
      * @dev Removes all the entries from a map. O(n).
      *
      * WARNING: This function has an unbounded cost that scales with map size. Developers should keep in mind that
@@ -644,6 +728,27 @@ library EnumerableMap {
     function remove(AddressToAddressMap storage map, address key) internal returns (bool) {
         delete map._values[key];
         return map._keys.remove(key);
+    }
+
+    /**
+     * @dev Removes the key-value pair stored at position `index` in the map. O(1).
+     *
+     * Returns the removed key and its associated value.
+     *
+     * This is cheaper than {remove} when the caller already knows the index, because it skips the position lookup
+     * that {remove} performs.
+     *
+     * Note that there are no guarantees on the ordering of the entries inside the map, and it may change when more
+     * entries are added or removed.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     */
+    function removeAt(AddressToAddressMap storage map, uint256 index) internal returns (address key, address value) {
+        key = map._keys.removeAt(index);
+        value = map._values[key];
+        delete map._values[key];
     }
 
     /**
@@ -789,6 +894,27 @@ library EnumerableMap {
     }
 
     /**
+     * @dev Removes the key-value pair stored at position `index` in the map. O(1).
+     *
+     * Returns the removed key and its associated value.
+     *
+     * This is cheaper than {remove} when the caller already knows the index, because it skips the position lookup
+     * that {remove} performs.
+     *
+     * Note that there are no guarantees on the ordering of the entries inside the map, and it may change when more
+     * entries are added or removed.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     */
+    function removeAt(AddressToBytes32Map storage map, uint256 index) internal returns (address key, bytes32 value) {
+        key = map._keys.removeAt(index);
+        value = map._values[key];
+        delete map._values[key];
+    }
+
+    /**
      * @dev Removes all the entries from a map. O(n).
      *
      * WARNING: This function has an unbounded cost that scales with map size. Developers should keep in mind that
@@ -931,6 +1057,27 @@ library EnumerableMap {
     }
 
     /**
+     * @dev Removes the key-value pair stored at position `index` in the map. O(1).
+     *
+     * Returns the removed key and its associated value.
+     *
+     * This is cheaper than {remove} when the caller already knows the index, because it skips the position lookup
+     * that {remove} performs.
+     *
+     * Note that there are no guarantees on the ordering of the entries inside the map, and it may change when more
+     * entries are added or removed.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     */
+    function removeAt(Bytes32ToUintMap storage map, uint256 index) internal returns (bytes32 key, uint256 value) {
+        key = map._keys.removeAt(index);
+        value = map._values[key];
+        delete map._values[key];
+    }
+
+    /**
      * @dev Removes all the entries from a map. O(n).
      *
      * WARNING: This function has an unbounded cost that scales with map size. Developers should keep in mind that
@@ -1066,6 +1213,27 @@ library EnumerableMap {
     function remove(Bytes32ToAddressMap storage map, bytes32 key) internal returns (bool) {
         delete map._values[key];
         return map._keys.remove(key);
+    }
+
+    /**
+     * @dev Removes the key-value pair stored at position `index` in the map. O(1).
+     *
+     * Returns the removed key and its associated value.
+     *
+     * This is cheaper than {remove} when the caller already knows the index, because it skips the position lookup
+     * that {remove} performs.
+     *
+     * Note that there are no guarantees on the ordering of the entries inside the map, and it may change when more
+     * entries are added or removed.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     */
+    function removeAt(Bytes32ToAddressMap storage map, uint256 index) internal returns (bytes32 key, address value) {
+        key = map._keys.removeAt(index);
+        value = map._values[key];
+        delete map._values[key];
     }
 
     /**
@@ -1211,6 +1379,27 @@ library EnumerableMap {
     }
 
     /**
+     * @dev Removes the key-value pair stored at position `index` in the map. O(1).
+     *
+     * Returns the removed key and its associated value.
+     *
+     * This is cheaper than {remove} when the caller already knows the index, because it skips the position lookup
+     * that {remove} performs.
+     *
+     * Note that there are no guarantees on the ordering of the entries inside the map, and it may change when more
+     * entries are added or removed.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     */
+    function removeAt(Bytes32ToBytes32Map storage map, uint256 index) internal returns (bytes32 key, bytes32 value) {
+        key = map._keys.removeAt(index);
+        value = map._values[key];
+        delete map._values[key];
+    }
+
+    /**
      * @dev Removes all the entries from a map. O(n).
      *
      * WARNING: This function has an unbounded cost that scales with map size. Developers should keep in mind that
@@ -1353,6 +1542,27 @@ library EnumerableMap {
     }
 
     /**
+     * @dev Removes the key-value pair stored at position `index` in the map. O(1).
+     *
+     * Returns the removed key and its associated value.
+     *
+     * This is cheaper than {remove} when the caller already knows the index, because it skips the position lookup
+     * that {remove} performs.
+     *
+     * Note that there are no guarantees on the ordering of the entries inside the map, and it may change when more
+     * entries are added or removed.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     */
+    function removeAt(Bytes4ToAddressMap storage map, uint256 index) internal returns (bytes4 key, address value) {
+        key = map._keys.removeAt(index);
+        value = map._values[key];
+        delete map._values[key];
+    }
+
+    /**
      * @dev Removes all the entries from a map. O(n).
      *
      * WARNING: This function has an unbounded cost that scales with map size. Developers should keep in mind that
@@ -1488,6 +1698,30 @@ library EnumerableMap {
     function remove(BytesToBytesMap storage map, bytes memory key) internal returns (bool) {
         delete map._values[key];
         return map._keys.remove(key);
+    }
+
+    /**
+     * @dev Removes the key-value pair stored at position `index` in the map. O(1).
+     *
+     * Returns the removed key and its associated value.
+     *
+     * This is cheaper than {remove} when the caller already knows the index, because it skips the position lookup
+     * that {remove} performs.
+     *
+     * Note that there are no guarantees on the ordering of the entries inside the map, and it may change when more
+     * entries are added or removed.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     */
+    function removeAt(
+        BytesToBytesMap storage map,
+        uint256 index
+    ) internal returns (bytes memory key, bytes memory value) {
+        key = map._keys.removeAt(index);
+        value = map._values[key];
+        delete map._values[key];
     }
 
     /**

@@ -84,37 +84,67 @@ library EnumerableSet {
      * present.
      */
     function remove(Bytes32Set storage set, bytes32 value) internal returns (bool) {
-        // We cache the value's position to prevent multiple reads from the same storage slot
         uint256 position = set._positions[value];
 
         if (position != 0) {
-            // Equivalent to contains(set, value)
-            // To delete an element from the _values array in O(1), we swap the element to delete with the last one in
-            // the array, and then remove the last element (sometimes called as 'swap and pop').
-            // This modifies the order of the array, as noted in {at}.
-
-            uint256 valueIndex = position - 1;
-            uint256 lastIndex = set._values.length - 1;
-
-            if (valueIndex != lastIndex) {
-                bytes32 lastValue = set._values[lastIndex];
-
-                // Move the lastValue to the index where the value to delete is
-                set._values[valueIndex] = lastValue;
-                // Update the tracked position of the lastValue (that was just moved)
-                set._positions[lastValue] = position;
-            }
-
-            // Delete the slot where the moved value was stored
-            set._values.pop();
-
-            // Delete the tracked position for the deleted slot
-            delete set._positions[value];
-
+            _removeValueAt(set, value, position - 1);
             return true;
         } else {
             return false;
         }
+    }
+
+    /**
+     * @dev Removes the value stored at position `index` from a set. O(1).
+     *
+     * Returns the removed value.
+     *
+     * This is cheaper than {remove} when the caller already knows the index, because it skips the position lookup
+     * that {remove} performs.
+     *
+     * Note that there are no guarantees on the ordering of values inside the array, and it may change when more
+     * values are added or removed.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     */
+    function removeAt(Bytes32Set storage set, uint256 index) internal returns (bytes32 value) {
+        value = set._values[index];
+        _removeValueAt(set, value, index);
+    }
+
+    /**
+     * @dev Removes the value stored at position `index` from a set. O(1).
+     *
+     * To delete an element from the `_values` array in O(1), we swap the element to delete with the last one in the
+     * array, and then remove the last element (sometimes called as 'swap and pop'). This modifies the order of the
+     * array, as noted in {at}.
+     *
+     * IMPORTANT: This does not verify that `value` is the value currently stored at `index`. Callers must ensure
+     * both arguments are consistent, otherwise the set is left in a corrupted state.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     */
+    function _removeValueAt(Bytes32Set storage set, bytes32 value, uint256 index) private {
+        uint256 lastIndex = set._values.length - 1;
+
+        if (index != lastIndex) {
+            bytes32 memory lastValue = set._values[lastIndex];
+
+            // Move the lastValue to the index where the value to delete is
+            set._values[index] = lastValue;
+            // Update the tracked position of the lastValue (that was just moved)
+            set._positions[lastValue] = index + 1;
+        }
+
+        // Delete the slot where the moved value was stored
+        set._values.pop();
+
+        // Delete the tracked position for the deleted slot
+        delete set._positions[value];
     }
 
     /**
@@ -251,37 +281,67 @@ library EnumerableSet {
      * present.
      */
     function remove(Bytes4Set storage set, bytes4 value) internal returns (bool) {
-        // We cache the value's position to prevent multiple reads from the same storage slot
         uint256 position = set._positions[value];
 
         if (position != 0) {
-            // Equivalent to contains(set, value)
-            // To delete an element from the _values array in O(1), we swap the element to delete with the last one in
-            // the array, and then remove the last element (sometimes called as 'swap and pop').
-            // This modifies the order of the array, as noted in {at}.
-
-            uint256 valueIndex = position - 1;
-            uint256 lastIndex = set._values.length - 1;
-
-            if (valueIndex != lastIndex) {
-                bytes4 lastValue = set._values[lastIndex];
-
-                // Move the lastValue to the index where the value to delete is
-                set._values[valueIndex] = lastValue;
-                // Update the tracked position of the lastValue (that was just moved)
-                set._positions[lastValue] = position;
-            }
-
-            // Delete the slot where the moved value was stored
-            set._values.pop();
-
-            // Delete the tracked position for the deleted slot
-            delete set._positions[value];
-
+            _removeValueAt(set, value, position - 1);
             return true;
         } else {
             return false;
         }
+    }
+
+    /**
+     * @dev Removes the value stored at position `index` from a set. O(1).
+     *
+     * Returns the removed value.
+     *
+     * This is cheaper than {remove} when the caller already knows the index, because it skips the position lookup
+     * that {remove} performs.
+     *
+     * Note that there are no guarantees on the ordering of values inside the array, and it may change when more
+     * values are added or removed.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     */
+    function removeAt(Bytes4Set storage set, uint256 index) internal returns (bytes4 value) {
+        value = set._values[index];
+        _removeValueAt(set, value, index);
+    }
+
+    /**
+     * @dev Removes the value stored at position `index` from a set. O(1).
+     *
+     * To delete an element from the `_values` array in O(1), we swap the element to delete with the last one in the
+     * array, and then remove the last element (sometimes called as 'swap and pop'). This modifies the order of the
+     * array, as noted in {at}.
+     *
+     * IMPORTANT: This does not verify that `value` is the value currently stored at `index`. Callers must ensure
+     * both arguments are consistent, otherwise the set is left in a corrupted state.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     */
+    function _removeValueAt(Bytes4Set storage set, bytes4 value, uint256 index) private {
+        uint256 lastIndex = set._values.length - 1;
+
+        if (index != lastIndex) {
+            bytes4 memory lastValue = set._values[lastIndex];
+
+            // Move the lastValue to the index where the value to delete is
+            set._values[index] = lastValue;
+            // Update the tracked position of the lastValue (that was just moved)
+            set._positions[lastValue] = index + 1;
+        }
+
+        // Delete the slot where the moved value was stored
+        set._values.pop();
+
+        // Delete the tracked position for the deleted slot
+        delete set._positions[value];
     }
 
     /**
@@ -418,37 +478,67 @@ library EnumerableSet {
      * present.
      */
     function remove(AddressSet storage set, address value) internal returns (bool) {
-        // We cache the value's position to prevent multiple reads from the same storage slot
         uint256 position = set._positions[value];
 
         if (position != 0) {
-            // Equivalent to contains(set, value)
-            // To delete an element from the _values array in O(1), we swap the element to delete with the last one in
-            // the array, and then remove the last element (sometimes called as 'swap and pop').
-            // This modifies the order of the array, as noted in {at}.
-
-            uint256 valueIndex = position - 1;
-            uint256 lastIndex = set._values.length - 1;
-
-            if (valueIndex != lastIndex) {
-                address lastValue = set._values[lastIndex];
-
-                // Move the lastValue to the index where the value to delete is
-                set._values[valueIndex] = lastValue;
-                // Update the tracked position of the lastValue (that was just moved)
-                set._positions[lastValue] = position;
-            }
-
-            // Delete the slot where the moved value was stored
-            set._values.pop();
-
-            // Delete the tracked position for the deleted slot
-            delete set._positions[value];
-
+            _removeValueAt(set, value, position - 1);
             return true;
         } else {
             return false;
         }
+    }
+
+    /**
+     * @dev Removes the value stored at position `index` from a set. O(1).
+     *
+     * Returns the removed value.
+     *
+     * This is cheaper than {remove} when the caller already knows the index, because it skips the position lookup
+     * that {remove} performs.
+     *
+     * Note that there are no guarantees on the ordering of values inside the array, and it may change when more
+     * values are added or removed.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     */
+    function removeAt(AddressSet storage set, uint256 index) internal returns (address value) {
+        value = set._values[index];
+        _removeValueAt(set, value, index);
+    }
+
+    /**
+     * @dev Removes the value stored at position `index` from a set. O(1).
+     *
+     * To delete an element from the `_values` array in O(1), we swap the element to delete with the last one in the
+     * array, and then remove the last element (sometimes called as 'swap and pop'). This modifies the order of the
+     * array, as noted in {at}.
+     *
+     * IMPORTANT: This does not verify that `value` is the value currently stored at `index`. Callers must ensure
+     * both arguments are consistent, otherwise the set is left in a corrupted state.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     */
+    function _removeValueAt(AddressSet storage set, address value, uint256 index) private {
+        uint256 lastIndex = set._values.length - 1;
+
+        if (index != lastIndex) {
+            address memory lastValue = set._values[lastIndex];
+
+            // Move the lastValue to the index where the value to delete is
+            set._values[index] = lastValue;
+            // Update the tracked position of the lastValue (that was just moved)
+            set._positions[lastValue] = index + 1;
+        }
+
+        // Delete the slot where the moved value was stored
+        set._values.pop();
+
+        // Delete the tracked position for the deleted slot
+        delete set._positions[value];
     }
 
     /**
@@ -585,37 +675,67 @@ library EnumerableSet {
      * present.
      */
     function remove(UintSet storage set, uint256 value) internal returns (bool) {
-        // We cache the value's position to prevent multiple reads from the same storage slot
         uint256 position = set._positions[value];
 
         if (position != 0) {
-            // Equivalent to contains(set, value)
-            // To delete an element from the _values array in O(1), we swap the element to delete with the last one in
-            // the array, and then remove the last element (sometimes called as 'swap and pop').
-            // This modifies the order of the array, as noted in {at}.
-
-            uint256 valueIndex = position - 1;
-            uint256 lastIndex = set._values.length - 1;
-
-            if (valueIndex != lastIndex) {
-                uint256 lastValue = set._values[lastIndex];
-
-                // Move the lastValue to the index where the value to delete is
-                set._values[valueIndex] = lastValue;
-                // Update the tracked position of the lastValue (that was just moved)
-                set._positions[lastValue] = position;
-            }
-
-            // Delete the slot where the moved value was stored
-            set._values.pop();
-
-            // Delete the tracked position for the deleted slot
-            delete set._positions[value];
-
+            _removeValueAt(set, value, position - 1);
             return true;
         } else {
             return false;
         }
+    }
+
+    /**
+     * @dev Removes the value stored at position `index` from a set. O(1).
+     *
+     * Returns the removed value.
+     *
+     * This is cheaper than {remove} when the caller already knows the index, because it skips the position lookup
+     * that {remove} performs.
+     *
+     * Note that there are no guarantees on the ordering of values inside the array, and it may change when more
+     * values are added or removed.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     */
+    function removeAt(UintSet storage set, uint256 index) internal returns (uint256 value) {
+        value = set._values[index];
+        _removeValueAt(set, value, index);
+    }
+
+    /**
+     * @dev Removes the value stored at position `index` from a set. O(1).
+     *
+     * To delete an element from the `_values` array in O(1), we swap the element to delete with the last one in the
+     * array, and then remove the last element (sometimes called as 'swap and pop'). This modifies the order of the
+     * array, as noted in {at}.
+     *
+     * IMPORTANT: This does not verify that `value` is the value currently stored at `index`. Callers must ensure
+     * both arguments are consistent, otherwise the set is left in a corrupted state.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     */
+    function _removeValueAt(UintSet storage set, uint256 value, uint256 index) private {
+        uint256 lastIndex = set._values.length - 1;
+
+        if (index != lastIndex) {
+            uint256 memory lastValue = set._values[lastIndex];
+
+            // Move the lastValue to the index where the value to delete is
+            set._values[index] = lastValue;
+            // Update the tracked position of the lastValue (that was just moved)
+            set._positions[lastValue] = index + 1;
+        }
+
+        // Delete the slot where the moved value was stored
+        set._values.pop();
+
+        // Delete the tracked position for the deleted slot
+        delete set._positions[value];
     }
 
     /**
@@ -752,37 +872,67 @@ library EnumerableSet {
      * present.
      */
     function remove(StringSet storage set, string memory value) internal returns (bool) {
-        // We cache the value's position to prevent multiple reads from the same storage slot
         uint256 position = set._positions[value];
 
         if (position != 0) {
-            // Equivalent to contains(set, value)
-            // To delete an element from the _values array in O(1), we swap the element to delete with the last one in
-            // the array, and then remove the last element (sometimes called as 'swap and pop').
-            // This modifies the order of the array, as noted in {at}.
-
-            uint256 valueIndex = position - 1;
-            uint256 lastIndex = set._values.length - 1;
-
-            if (valueIndex != lastIndex) {
-                string memory lastValue = set._values[lastIndex];
-
-                // Move the lastValue to the index where the value to delete is
-                set._values[valueIndex] = lastValue;
-                // Update the tracked position of the lastValue (that was just moved)
-                set._positions[lastValue] = position;
-            }
-
-            // Delete the slot where the moved value was stored
-            set._values.pop();
-
-            // Delete the tracked position for the deleted slot
-            delete set._positions[value];
-
+            _removeValueAt(set, value, position - 1);
             return true;
         } else {
             return false;
         }
+    }
+
+    /**
+     * @dev Removes the value stored at position `index` from a set. O(1).
+     *
+     * Returns the removed value.
+     *
+     * This is cheaper than {remove} when the caller already knows the index, because it skips the position lookup
+     * that {remove} performs.
+     *
+     * Note that there are no guarantees on the ordering of values inside the array, and it may change when more
+     * values are added or removed.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     */
+    function removeAt(StringSet storage set, uint256 index) internal returns (string memory value) {
+        value = set._values[index];
+        _removeValueAt(set, value, index);
+    }
+
+    /**
+     * @dev Removes the value stored at position `index` from a set. O(1).
+     *
+     * To delete an element from the `_values` array in O(1), we swap the element to delete with the last one in the
+     * array, and then remove the last element (sometimes called as 'swap and pop'). This modifies the order of the
+     * array, as noted in {at}.
+     *
+     * IMPORTANT: This does not verify that `value` is the value currently stored at `index`. Callers must ensure
+     * both arguments are consistent, otherwise the set is left in a corrupted state.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     */
+    function _removeValueAt(StringSet storage set, string memory value, uint256 index) private {
+        uint256 lastIndex = set._values.length - 1;
+
+        if (index != lastIndex) {
+            string memory lastValue = set._values[lastIndex];
+
+            // Move the lastValue to the index where the value to delete is
+            set._values[index] = lastValue;
+            // Update the tracked position of the lastValue (that was just moved)
+            set._positions[lastValue] = index + 1;
+        }
+
+        // Delete the slot where the moved value was stored
+        set._values.pop();
+
+        // Delete the tracked position for the deleted slot
+        delete set._positions[value];
     }
 
     /**
@@ -919,37 +1069,67 @@ library EnumerableSet {
      * present.
      */
     function remove(BytesSet storage set, bytes memory value) internal returns (bool) {
-        // We cache the value's position to prevent multiple reads from the same storage slot
         uint256 position = set._positions[value];
 
         if (position != 0) {
-            // Equivalent to contains(set, value)
-            // To delete an element from the _values array in O(1), we swap the element to delete with the last one in
-            // the array, and then remove the last element (sometimes called as 'swap and pop').
-            // This modifies the order of the array, as noted in {at}.
-
-            uint256 valueIndex = position - 1;
-            uint256 lastIndex = set._values.length - 1;
-
-            if (valueIndex != lastIndex) {
-                bytes memory lastValue = set._values[lastIndex];
-
-                // Move the lastValue to the index where the value to delete is
-                set._values[valueIndex] = lastValue;
-                // Update the tracked position of the lastValue (that was just moved)
-                set._positions[lastValue] = position;
-            }
-
-            // Delete the slot where the moved value was stored
-            set._values.pop();
-
-            // Delete the tracked position for the deleted slot
-            delete set._positions[value];
-
+            _removeValueAt(set, value, position - 1);
             return true;
         } else {
             return false;
         }
+    }
+
+    /**
+     * @dev Removes the value stored at position `index` from a set. O(1).
+     *
+     * Returns the removed value.
+     *
+     * This is cheaper than {remove} when the caller already knows the index, because it skips the position lookup
+     * that {remove} performs.
+     *
+     * Note that there are no guarantees on the ordering of values inside the array, and it may change when more
+     * values are added or removed.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     */
+    function removeAt(BytesSet storage set, uint256 index) internal returns (bytes memory value) {
+        value = set._values[index];
+        _removeValueAt(set, value, index);
+    }
+
+    /**
+     * @dev Removes the value stored at position `index` from a set. O(1).
+     *
+     * To delete an element from the `_values` array in O(1), we swap the element to delete with the last one in the
+     * array, and then remove the last element (sometimes called as 'swap and pop'). This modifies the order of the
+     * array, as noted in {at}.
+     *
+     * IMPORTANT: This does not verify that `value` is the value currently stored at `index`. Callers must ensure
+     * both arguments are consistent, otherwise the set is left in a corrupted state.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     */
+    function _removeValueAt(BytesSet storage set, bytes memory value, uint256 index) private {
+        uint256 lastIndex = set._values.length - 1;
+
+        if (index != lastIndex) {
+            bytes memory lastValue = set._values[lastIndex];
+
+            // Move the lastValue to the index where the value to delete is
+            set._values[index] = lastValue;
+            // Update the tracked position of the lastValue (that was just moved)
+            set._positions[lastValue] = index + 1;
+        }
+
+        // Delete the slot where the moved value was stored
+        set._values.pop();
+
+        // Delete the tracked position for the deleted slot
+        delete set._positions[value];
     }
 
     /**

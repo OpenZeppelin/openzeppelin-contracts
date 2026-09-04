@@ -30,7 +30,7 @@ library MerkleProof {
      */
     error MerkleProofInvalidMultiproof();
 
-<% for (const { suffix, location, visibility, hash } of it.MERKLEPROOF_OPTS) { %>
+<%- for (const { suffix, location, visibility, hash } of it.MERKLEPROOF_OPTS) { %>
     /**
      * @dev Returns true if a `leaf` can be proved to be a part of a Merkle tree
      * defined by `root`. For this, a `proof` must be provided, containing
@@ -58,9 +58,8 @@ library MerkleProof {
         }
         return computedHash;
     }
-
-<% } %>
-<% for (const { suffix, location, visibility, hash } of it.MERKLEPROOF_OPTS) { %>
+<% } -%>
+<%- for (const { suffix, location, visibility, hash } of it.MERKLEPROOF_OPTS) { %>
     /**
      * @dev Returns true if the `leaves` can be simultaneously proven to be a part of a Merkle tree defined by
      * `root`, according to `proof` and `proofFlags` as described in {processMultiProof}.
@@ -136,6 +135,5 @@ library MerkleProof {
             return proof[0];
         }
     }
-
-<% } %>
+<% } -%>
 }
