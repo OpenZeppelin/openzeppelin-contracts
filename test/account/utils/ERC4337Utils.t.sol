@@ -38,30 +38,69 @@ contract ERC4337UtilsInitCodeHashTest is Test {
     function testHashBindsDelegateForShortMarker() public {
         bytes32 hashA = _installDelegateAndHashUserOp(_delegateA, hex"7702");
         bytes32 hashB = _installDelegateAndHashUserOp(_delegateB, hex"7702");
+
+        assertEq(hashA, keccak256(abi.encodePacked(_delegateA)), "hash must bind the effective EIP-7702 delegate");
+        assertEq(hashB, keccak256(abi.encodePacked(_delegateB)), "hash must bind the effective EIP-7702 delegate");
         assertNotEq(hashA, hashB, "hash must bind the effective EIP-7702 delegate");
     }
 
     function testHashBindsDelegateForFullMarker() public {
         bytes32 hashA = _installDelegateAndHashUserOp(_delegateA, EIP7702_MARKER);
         bytes32 hashB = _installDelegateAndHashUserOp(_delegateB, EIP7702_MARKER);
+
+        assertEq(hashA, keccak256(abi.encodePacked(_delegateA)), "hash must bind the effective EIP-7702 delegate");
+        assertEq(hashB, keccak256(abi.encodePacked(_delegateB)), "hash must bind the effective EIP-7702 delegate");
         assertNotEq(hashA, hashB, "hash must bind the effective EIP-7702 delegate");
     }
 
     function testHashBindsDelegateForMarkerWithInitData() public {
         bytes32 hashA = _installDelegateAndHashUserOp(_delegateA, bytes.concat(EIP7702_MARKER, hex"deadbeef"));
         bytes32 hashB = _installDelegateAndHashUserOp(_delegateB, bytes.concat(EIP7702_MARKER, hex"deadbeef"));
+
+        assertEq(
+            hashA,
+            keccak256(abi.encodePacked(_delegateA, hex"deadbeef")),
+            "hash must bind the effective EIP-7702 delegate"
+        );
+        assertEq(
+            hashB,
+            keccak256(abi.encodePacked(_delegateB, hex"deadbeef")),
+            "hash must bind the effective EIP-7702 delegate"
+        );
         assertNotEq(hashA, hashB, "hash must bind the effective EIP-7702 delegate");
     }
 
     function testHashIncludesInitData() public {
         bytes32 hashA = _installDelegateAndHashUserOp(_delegateA, bytes.concat(EIP7702_MARKER, hex"deadbeef"));
         bytes32 hashB = _installDelegateAndHashUserOp(_delegateA, bytes.concat(EIP7702_MARKER, hex"cafebabe"));
+
+        assertEq(
+            hashA,
+            keccak256(abi.encodePacked(_delegateA, hex"deadbeef")),
+            "hash must bind the effective EIP-7702 delegate"
+        );
+        assertEq(
+            hashB,
+            keccak256(abi.encodePacked(_delegateA, hex"cafebabe")),
+            "hash must bind the effective EIP-7702 delegate"
+        );
         assertNotEq(hashA, hashB, "hash must bind the effective EIP-7702 delegate");
     }
 
     function testHashIgnoresDelegateForNonZeroTailFactory() public {
         bytes32 hashA = _installDelegateAndHashUserOp(_delegateA, hex"7702aabbccddeeff00112233445566778899aabb");
         bytes32 hashB = _installDelegateAndHashUserOp(_delegateB, hex"7702aabbccddeeff00112233445566778899aabb");
+
+        assertEq(
+            hashA,
+            keccak256(hex"7702aabbccddeeff00112233445566778899aabb"),
+            "hash must not bind a delegate for a non-EIP-7702 initCode"
+        );
+        assertEq(
+            hashB,
+            keccak256(hex"7702aabbccddeeff00112233445566778899aabb"),
+            "hash must not bind a delegate for a non-EIP-7702 initCode"
+        );
         assertEq(hashA, hashB, "hash must not bind a delegate for a non-EIP-7702 initCode");
     }
 
