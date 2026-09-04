@@ -89,5 +89,13 @@ jobs:
           CONFIG: ${{ matrix.config }}
           CERTORAKEY: ${{ secrets.CERTORAKEY }}
         run: |
+          set -o pipefail
           make -C fv apply
-          certoraRun "$CONFIG" >> "$GITHUB_STEP_SUMMARY"
+          # `--wait_for_results` blocks until the prover is done and exits non-zero if a rule is
+          # violated, so a failed verification fails the job. The prover log is long, so it goes to
+          # the job log and only the report link is summarized.
+          STATUS=0
+          certoraRun "$CONFIG" --wait_for_results | tee certora.log || STATUS=$?
+          URL=$(grep -om1 'https://prover.certora.com/output/[a-z0-9]*/[a-z0-9]*?anonymousKey=[a-z0-9]*' certora.log || true)
+          echo "- $([[ $STATUS = 0 ]] && echo '✅' || echo '❌') \`$CONFIG\` ${URL:+- [report]($URL)}" >> "$GITHUB_STEP_SUMMARY"
+          exit "$STATUS"
