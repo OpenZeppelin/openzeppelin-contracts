@@ -35,11 +35,11 @@ const relative = file => path.relative(ROOT, file).replaceAll(path.sep, '/');
 
 // How an import is written, per file extension a config can lead to
 const IMPORT = {
-  cvl: /^\s*import\s+"([^"]+)"\s*;/gm,
-  spec: /^\s*import\s+"([^"]+)"\s*;/gm,
+  cvl: /^\s*import\s+"(?<target>[^"]+)"\s*;/gm,
+  spec: /^\s*import\s+"(?<target>[^"]+)"\s*;/gm,
   // A solidity import may name symbols or not, and may span several lines, so the path is taken as
   // the first string of the statement. `[^;]` stops the match at the end of the statement.
-  sol: /^[ \t]*import\b[^;]*?"([^"]+)"/gm,
+  sol: /^[ \t]*import\b[^;]*?"(?<target>[^"]+)"/gm,
 };
 
 // `make -C fv apply` builds `fv/patched` by copying `contracts` and applying the patches in
@@ -69,8 +69,8 @@ const collect = (file, acc) => {
     acc.push(source);
     // Imports resolve against `file`, not `source`, so a patched file's imports stay in the patched
     // tree and anything patched further down is recorded as well.
-    for (const [, target] of fs.readFileSync(source, 'utf8').matchAll(IMPORT[source.split('.').at(-1)])) {
-      collect(path.resolve(path.dirname(file), target), acc);
+    for (const { groups } of fs.readFileSync(source, 'utf8').matchAll(IMPORT[source.split('.').at(-1)])) {
+      collect(path.resolve(path.dirname(file), groups.target), acc);
     }
   }
   return acc;
