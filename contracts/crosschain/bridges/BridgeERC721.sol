@@ -3,8 +3,8 @@
 
 pragma solidity ^0.8.26;
 
-import {IERC721} from "../../interfaces/IERC721.sol";
 import {IERC721Errors} from "../../interfaces/draft-IERC6093.sol";
+import {IERC721} from "../../interfaces/IERC721.sol";
 import {BridgeNonFungible} from "./abstract/BridgeNonFungible.sol";
 
 /**

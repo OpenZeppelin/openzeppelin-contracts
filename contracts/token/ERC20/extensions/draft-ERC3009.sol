@@ -2,12 +2,12 @@
 // OpenZeppelin Contracts (last updated v5.7.0) (token/ERC20/extensions/draft-ERC3009.sol)
 pragma solidity ^0.8.26;
 
-import {ERC20} from "../ERC20.sol";
-import {EIP712} from "../../../utils/cryptography/EIP712.sol";
-import {ECDSA} from "../../../utils/cryptography/ECDSA.sol";
-import {IERC3009, IERC3009Cancel} from "../../../interfaces/draft-IERC3009.sol";
-import {Time} from "../../../utils/types/Time.sol";
 import {ERC4337Utils} from "../../../account/utils/ERC4337Utils.sol";
+import {IERC3009, IERC3009Cancel} from "../../../interfaces/draft-IERC3009.sol";
+import {ECDSA} from "../../../utils/cryptography/ECDSA.sol";
+import {EIP712} from "../../../utils/cryptography/EIP712.sol";
+import {Time} from "../../../utils/types/Time.sol";
+import {ERC20} from "../ERC20.sol";
 
 /**
  * @dev Implementation of the ERC-3009 Transfer With Authorization extension allowing

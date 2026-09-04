@@ -3,11 +3,11 @@
 
 pragma solidity ^0.8.24;
 
-import {IERC20Permit} from "./IERC20Permit.sol";
-import {ERC20} from "../ERC20.sol";
 import {ECDSA} from "../../../utils/cryptography/ECDSA.sol";
 import {EIP712} from "../../../utils/cryptography/EIP712.sol";
 import {Nonces} from "../../../utils/Nonces.sol";
+import {ERC20} from "../ERC20.sol";
+import {IERC20Permit} from "./IERC20Permit.sol";
 
 /**
  * @dev Implementation of the ERC-20 Permit extension allowing approvals to be made via signatures, as defined in
