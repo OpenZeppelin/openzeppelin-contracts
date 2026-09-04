@@ -8,8 +8,9 @@
 //                                       removes a config, unless --allow-removed is passed.
 //
 // The dependencies of a config are the spec files it verifies and the harnesses it declares, plus
-// everything those import, recursively: the specs reached through spec imports, and the contracts
-// reached through solidity imports. Uses node builtins only, so it can run before `npm ci`.
+// everything those import, recursively: the specs reached through spec imports, the contracts
+// reached through solidity imports, and the `fv/diff` patch that `make -C fv apply` applies to each
+// of those contracts. Uses node builtins only, so it can run before `npm ci`.
 
 import fs from 'fs';
 import path from 'path';
@@ -27,20 +28,36 @@ const SPEC_IMPORT = /^\s*import\s+"([^"]+)"\s*;/gm;
 // first string of the statement. `[^;]` stops the match at the end of the statement.
 const SOL_IMPORT = /^[ \t]*import\b[^;]*?"([^"]+)"/gm;
 
-// `fv/patched` is a copy of `contracts` produced by `make -C fv apply`. It is untracked, and absent
-// entirely until that runs, so a dependency on it is recorded against the contract it is copied
-// from: that file exists here, and it is the path a `git diff` reports.
+// `make -C fv apply` builds `fv/patched` by copying `contracts` and applying the patches in
+// `fv/diff`, each named after the file it patches with `/` written as `_` -- the same mapping the
+// Makefile uses, so a name that breaks this breaks `make apply` too, loudly.
 const PATCHED = path.resolve(import.meta.dirname, 'patched');
-const unpatch = file =>
-  file.startsWith(PATCHED + path.sep) ? path.join(ROOT, 'contracts', path.relative(PATCHED, file)) : file;
+const DIFF = path.resolve(import.meta.dirname, 'diff');
+const unpatch = file => path.join(ROOT, 'contracts', path.relative(PATCHED, file));
+const patchOf = file => path.join(DIFF, `${path.relative(PATCHED, file).replaceAll(path.sep, '_')}.patch`);
 
 // Add `file` and everything it imports (recursively) to `acc`
 const collect = (file, acc) => {
-  if (!acc.includes(file)) {
-    acc.push(file);
-    const pattern = file.endsWith('.sol') ? SOL_IMPORT : SPEC_IMPORT;
-    for (const [, target] of fs.readFileSync(file, 'utf8').matchAll(pattern)) {
-      collect(unpatch(path.resolve(path.dirname(file), target)), acc);
+  // `fv/patched` is untracked, and absent entirely until `make apply` runs, so record the contract
+  // it is copied from: that file exists here, and it is the path a `git diff` reports. The patch
+  // applied on the way is as much an input to the prover as the contract, so record that too.
+  // Recorded whether or not the patch exists today: the entry is the slot a patch for this file
+  // would occupy, so adding one, changing one and deleting one all land on a dependency. Testing
+  // for existence instead would make a deleted patch match nothing, and dropping a patch changes
+  // what the prover sees just as much as editing it.
+  const patched = file.startsWith(PATCHED + path.sep);
+  if (patched) {
+    const patch = patchOf(file);
+    if (!acc.includes(patch)) acc.push(patch);
+  }
+  const source = patched ? unpatch(file) : file;
+  if (!acc.includes(source)) {
+    acc.push(source);
+    const pattern = source.endsWith('.sol') ? SOL_IMPORT : SPEC_IMPORT;
+    // Imports resolve against `file`, not `source`, so a patched file's imports stay in the patched
+    // tree and anything patched further down is recorded as well.
+    for (const [, target] of fs.readFileSync(source, 'utf8').matchAll(pattern)) {
+      collect(path.resolve(path.dirname(file), target), acc);
     }
   }
   return acc;
