@@ -1,4 +1,4 @@
-name: Formal verification - Certora (per config)
+name: Formal verification - Certora
 
 on:
   # Runs in the context of the base repository so that the CERTORAKEY secret is available to pull
