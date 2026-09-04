@@ -156,8 +156,8 @@ export function shouldBehaveLikeMap() {
       await this.methods.removeAt(2);
 
       await expectMembersMatch(this.methods, [this.keyA, this.keyB], [this.valueA, this.valueB]);
-      expect(await this.methods.at(0)).to.deep.equal([this.keyA, this.valueA]);
-      expect(await this.methods.at(1)).to.deep.equal([this.keyB, this.valueB]);
+      expect(await this.methods.pos(0)).to.deep.equal([this.keyA, this.valueA]);
+      expect(await this.methods.pos(1)).to.deep.equal([this.keyB, this.valueB]);
     });
 
     it('removes a non-last entry using swap-and-pop', async function () {
@@ -171,8 +171,8 @@ export function shouldBehaveLikeMap() {
       expect(await this.methods.contains(this.keyA)).to.be.false;
       expect(await this.methods.tryGet(this.keyA)).to.have.ordered.members([false, this.zeroValue]);
       await expectMembersMatch(this.methods, [this.keyC, this.keyB], [this.valueC, this.valueB]);
-      expect(await this.methods.at(0)).to.deep.equal([this.keyC, this.valueC]);
-      expect(await this.methods.at(1)).to.deep.equal([this.keyB, this.valueB]);
+      expect(await this.methods.pos(0)).to.deep.equal([this.keyC, this.valueC]);
+      expect(await this.methods.pos(1)).to.deep.equal([this.keyB, this.valueB]);
     });
 
     it('tracks the position of the entry moved by swap-and-pop', async function () {

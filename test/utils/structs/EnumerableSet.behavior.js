@@ -148,8 +148,8 @@ export function shouldBehaveLikeSet() {
       await this.methods.removeAt(2);
 
       await expectMembersMatch(this.methods, [this.valueA, this.valueB]);
-      expect(await this.methods.at(0)).to.deep.equal(this.valueA);
-      expect(await this.methods.at(1)).to.deep.equal(this.valueB);
+      expect(await this.methods.pos(0)).to.deep.equal(this.valueA);
+      expect(await this.methods.pos(1)).to.deep.equal(this.valueB);
     });
 
     it('removes a non-last value using swap-and-pop', async function () {
@@ -162,8 +162,8 @@ export function shouldBehaveLikeSet() {
 
       expect(await this.methods.contains(this.valueA)).to.be.false;
       await expectMembersMatch(this.methods, [this.valueC, this.valueB]);
-      expect(await this.methods.at(0)).to.deep.equal(this.valueC);
-      expect(await this.methods.at(1)).to.deep.equal(this.valueB);
+      expect(await this.methods.pos(0)).to.deep.equal(this.valueC);
+      expect(await this.methods.pos(1)).to.deep.equal(this.valueB);
     });
 
     it('tracks the position of the value moved by swap-and-pop', async function () {
