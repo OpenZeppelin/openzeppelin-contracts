@@ -54,11 +54,11 @@ const configs = fs
 const dependencies = new Map(
   configs.map(conf => {
     const acc = new Set([conf]);
-    const { files = [], verify } = JSON.parse(fs.readFileSync(conf, 'utf8'));
+    const { files = [], verify = [] } = JSON.parse(fs.readFileSync(conf, 'utf8'));
     // The harnesses, then the specs: `verify` is a "Contract:path/to/file.spec" entry (or a list of
     // them), where the contract is one declared by `files`. Both are relative to the root.
     [].concat(files).forEach(file => collect(path.resolve(ROOT, file), acc));
-    [].concat(verify ?? []).forEach(entry => collect(path.resolve(ROOT, entry.split(':').at(-1)), acc));
+    [].concat(verify).forEach(entry => collect(path.resolve(ROOT, entry.split(':').at(-1)), acc));
     return [relative(conf), Array.from(acc, relative)];
   }),
 );
