@@ -189,24 +189,9 @@ library DoubleEndedQueue {
      * `length(deque) - 1`.
      *
      * Reverts with {Panic-ARRAY_OUT_OF_BOUNDS} if the index is out of bounds.
-     *
-     * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
-     * should use {pos} instead.
-     */
-    function at(Bytes32Deque storage deque, uint256 index) internal view returns (bytes32) {
-        return pos(deque, index);
-    }
-
-    /**
-     * @dev Return the item at a position in the queue given by `index`, with the first item at 0 and last item at
-     * `length(deque) - 1`.
-     *
-     * Reverts with {Panic-ARRAY_OUT_OF_BOUNDS} if the index is out of bounds.
-     *
-     * Replacement of the deprecated {at} function.
      */
     function pos(Bytes32Deque storage deque, uint256 index) internal view returns (bytes32) {
-        (bool success, bytes32 value) = tryAt(deque, index);
+        (bool success, bytes32 value) = tryPos(deque, index);
         if (!success) Panic.panic(Panic.ARRAY_OUT_OF_BOUNDS);
         return value;
     }
@@ -217,7 +202,7 @@ library DoubleEndedQueue {
      *
      * Returns `(false, 0x00)` if the index is out of bounds. Never reverts.
      */
-    function tryAt(Bytes32Deque storage deque, uint256 index) internal view returns (bool success, bytes32 value) {
+    function tryPos(Bytes32Deque storage deque, uint256 index) internal view returns (bool success, bytes32 value) {
         if (index >= length(deque)) return (false, bytes32(0));
         // By construction, length is a uint128, so the check above ensures that index can be safely downcast to uint128
         unchecked {

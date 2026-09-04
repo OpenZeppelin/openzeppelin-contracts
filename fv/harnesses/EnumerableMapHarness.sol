@@ -26,12 +26,12 @@ contract EnumerableMapHarness {
     }
 
     function key_at(uint256 index) public view returns (bytes32) {
-        (bytes32 key,) = _map.at(index);
+        (bytes32 key,) = _map.pos(index);
         return key;
     }
 
     function value_at(uint256 index) public view returns (bytes32) {
-        (,bytes32 value) = _map.at(index);
+        (,bytes32 value) = _map.pos(index);
         return value;
     }
 
@@ -50,6 +50,6 @@ contract EnumerableMapHarness {
     }
 
     function _positionOf(bytes32 key) public view returns (uint256) {
-        return _map._keys._inner._positions[key];
+        return _map._keys._positions[key];
     }
 }

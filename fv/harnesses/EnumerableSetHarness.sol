@@ -25,11 +25,11 @@ contract EnumerableSetHarness {
         return _set.length();
     }
 
-    function at_(uint256 index) public view returns (bytes32) {
-        return _set.at(index);
+    function pos(uint256 index) public view returns (bytes32) {
+        return _set.pos(index);
     }
 
     function _positionOf(bytes32 value) public view returns (uint256) {
-        return _set._inner._positions[value];
+        return _set._positions[value];
     }
 }
