@@ -2,9 +2,9 @@ name: Formal verification - Certora
 
 on:
   # Runs in the context of the base repository so that the CERTORAKEY secret is available to pull
-  # requests opened from forks. Access is gated by the `certora` environment, which requires a
-  # manual approval from a reviewer before the job starts. Reviewers MUST check the diff for
-  # anything that could exfiltrate the key before approving.
+  # requests opened from forks. Only the `verify` job below can read it: it is gated by the
+  # `certora` environment, which requires a manual approval from a reviewer before the job starts.
+  # Reviewers MUST check the diff for anything that could exfiltrate the key before approving.
   pull_request_target:
     types:
       - opened
@@ -17,22 +17,105 @@ permissions:
   contents: read
 
 # `github.ref` is the base branch under `pull_request_target`, so key on the pull request number
-concurrency: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  # A new push makes the running verification moot. Cancelling releases the runners it is holding,
+  # and drops any environment approval still pending on it.
+  cancel-in-progress: true
 
 jobs:
-  verify:
+  # Runs on every pull request, with no label and no `environment`: it holds no secret and only the
+  # read-only token granted by `permissions` above, so running the contributor's dependency helper
+  # here needs no more trust than an ordinary `pull_request` job.
+  identify:
     runs-on: ubuntu-latest
+    # The helper walks an import graph from a pull request that may be untrusted, so bound it
+    timeout-minutes: 10
+    outputs:
+      configs: ${{ steps.identify.outputs.configs }}
+    steps:
+      # The base branch, which is where this workflow itself comes from under `pull_request_target`.
+      # The helper is run from here, never from the pull request: a pull request that rewrote it to
+      # print an empty list would otherwise select nothing, skip `verify` and pass `verified` green,
+      # having removed its own verification without ever asking for an approval.
+      - uses: actions/checkout@v7
+        with:
+          path: base
+          persist-credentials: false
+      # The pull request, read as data. actions/checkout refuses a fork checkout in this context
+      # unless the risk is explicitly acknowledged, and nothing under here is ever executed.
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.ref }}
+          allow-unsafe-pr-checkout: true
+          fetch-depth: 0 # Include history so the diff against the pull request base resolves
+          path: head
+          persist-credentials: false
+      # No environment setup: `fv/dependencies.js` only uses node builtins, so the node preinstalled
+      # on the runner is enough and `npm ci` can be skipped.
+      - name: Identify the configs that need to be run
+        id: identify
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          # The label is only an override: without it, the diff decides which configs run
+          FORCE_ALL: ${{ github.event_name != 'pull_request_target' || contains(github.event.pull_request.labels.*.name, 'formal-verification-force-all') }}
+          # Removing a config removes its verification, so it has to be asked for. Only someone with
+          # write access can label, which is what makes the label a reviewed decision.
+          ALLOW_REMOVED: ${{ contains(github.event.pull_request.labels.*.name, 'formal-verification-allow-removal') }}
+        run: |
+          set -o pipefail
+          if [[ $FORCE_ALL = 'true' ]]; then
+            {
+              printf 'configs='
+              node base/fv/dependencies.js --root=head --all
+            } >> "$GITHUB_OUTPUT"
+          elif [[ $ALLOW_REMOVED = 'true' ]]; then
+            {
+              printf 'configs='
+              git -C head diff --name-only "$BASE_SHA"..."$HEAD_SHA" |
+                node base/fv/dependencies.js --root=head --filter --allow-removed
+            } >> "$GITHUB_OUTPUT"
+          else
+            {
+              printf 'configs='
+              git -C head diff --name-only "$BASE_SHA"..."$HEAD_SHA" |
+                node base/fv/dependencies.js --root=head --filter
+            } >> "$GITHUB_OUTPUT"
+          fi
+      - name: Report the affected configs
+        env:
+          CONFIGS: ${{ steps.identify.outputs.configs }}
+        run: |
+          echo "Configs affected by this diff: $CONFIGS" >> "$GITHUB_STEP_SUMMARY"
+
+  verify:
+    needs: identify
+    # Runs whenever the diff reaches a spec, a harness or a contract one of them verifies. No label
+    # is involved: the `certora` environment approval below is the human gate on prover time.
+    if: needs.identify.outputs.configs != '[]'
+    runs-on: ubuntu-latest
+    # `--wait_for_results` blocks on the prover, so without this a job that never returns holds a
+    # runner for the six hour default. 120 is generous enough for the slowest config; set the
+    # CERTORA_TIMEOUT_MINUTES repository variable to change it without touching this file.
+    # It is a variable and not an `env` entry because `env` is not one of the contexts a job-level
+    # `timeout-minutes` can read.
+    timeout-minutes: ${{ vars.CERTORA_TIMEOUT_MINUTES && fromJSON(vars.CERTORA_TIMEOUT_MINUTES) || 120 }}
+    # This is the only job that reads CERTORAKEY, so it is the only one worth an admin approval.
+    # Reviewers MUST check the diff for anything that could exfiltrate the key before approving.
+    # One approval releases every job of the matrix.
     environment: certora
-    if: github.event_name != 'pull_request_target' || contains(github.event.pull_request.labels.*.name, 'formal-verification') || contains(github.event.pull_request.labels.*.name, 'formal-verification-force-all')
+    strategy:
+      fail-fast: false
+      matrix:
+        config: ${{ fromJSON(needs.identify.outputs.configs) }}
+    name: verify (${{ matrix.config }})
     steps:
       - uses: actions/checkout@v7
         with:
-          # `pull_request_target` checks out the base by default. This runs the contributor's code,
-          # which is why the environment approval above is required. actions/checkout refuses a fork
-          # checkout in this context unless that risk is explicitly acknowledged.
+          # Runs the contributor's code, which is what the approval above is protecting against.
           ref: ${{ github.event.pull_request.head.sha || github.ref }}
           allow-unsafe-pr-checkout: true
-          fetch-depth: 0 # Include history so the diff against the PR base resolves
           persist-credentials: false
       - name: Set up environment
         uses: ./.github/actions/setup
@@ -44,30 +127,40 @@ jobs:
           java: 'on'
           python: 'on'
           python-requirements: 'fv-requirements.txt'
-      - name: identify specs that need to be run
-        id: arguments
-        env:
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-        run: |
-          if [[ ${{ github.event_name }} = 'pull_request_target' && ${{ contains(github.event.pull_request.labels.*.name, 'formal-verification-force-all') }} = 'false' ]];
-          then
-            # Spec names come from the file names of a pull request that may be untrusted, and end
-            # up on a command line downstream. Anything that is not a plain name is dropped here.
-            RESULT=$(git diff "$HEAD_SHA".."$BASE_SHA" --name-only -- 'fv/specs/*.spec' | while IFS= read -r file; do
-              [[ -f $file ]] || continue
-              name=$(basename "${file%.spec}")
-              [[ $name =~ ^[A-Za-z0-9_-]+$ ]] && echo "$name" || echo "Ignoring spec with unexpected name: $name" >&2
-            done | tr "\n" " ")
-          else
-            RESULT='--all'
-          fi
-          echo "result=$RESULT" >> "$GITHUB_OUTPUT"
       - name: Verify specification
         env:
-          SPEC_ARGUMENTS: ${{ steps.arguments.outputs.result }}
+          # The config name comes from a pull request that may be untrusted. It is passed through
+          # the environment (and never interpolated into the script) so that a shell never parses it.
+          CONFIG: ${{ matrix.config }}
           CERTORAKEY: ${{ secrets.CERTORAKEY }}
         run: |
+          set -o pipefail
           make -C fv apply
-          read -r -a specs <<< "$SPEC_ARGUMENTS"
-          node fv/run.js "${specs[@]}" -p 1 -v >> "$GITHUB_STEP_SUMMARY"
+          STATUS=0
+          certoraRun "$CONFIG" --wait_for_results | tee certora.log || STATUS=$?
+          URL=$(grep -om1 'https://prover.certora.com/output/[a-zA-Z0-9]*/[a-zA-Z0-9]*?anonymousKey=[a-zA-Z0-9]*' certora.log || true)
+          echo "- $([[ $STATUS = 0 ]] && echo '✅' || echo '❌') \`$CONFIG\` ${URL:+- [report]($URL)}" >> "$GITHUB_STEP_SUMMARY"
+          exit "$STATUS"
+
+  # Every matrix job carries its config in its name, so none of them is a stable name to require in
+  # branch protection, and a run where nothing was affected produces no such job at all. This one
+  # always runs and always has the same name, so it is the check to require.
+  verified:
+    needs: [identify, verify]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check the verification results
+        env:
+          IDENTIFY: ${{ needs.identify.result }}
+          VERIFY: ${{ needs.verify.result }}
+        run: |
+          echo "identify: $IDENTIFY, verify: $VERIFY"
+          # A matrix result is the aggregate of its jobs: `success` only if every one of them
+          # passed, `skipped` when the whole job was gated out by its `if`.
+          [[ $IDENTIFY = 'success' ]] || { echo "::error::could not work out which configs to run"; exit 1; }
+          case $VERIFY in
+            success) echo "::notice::every affected config verified" ;;
+            skipped) echo "::notice::this diff affects no config" ;;
+            *) echo "::error::verification $VERIFY"; exit 1 ;;
+          esac
