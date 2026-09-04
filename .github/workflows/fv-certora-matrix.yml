@@ -2,9 +2,9 @@ name: Formal verification - Certora (per config)
 
 on:
   # Runs in the context of the base repository so that the CERTORAKEY secret is available to pull
-  # requests opened from forks. Access is gated by the `certora` environment, which requires a
-  # manual approval from a reviewer before the job starts. Reviewers MUST check the diff for
-  # anything that could exfiltrate the key before approving.
+  # requests opened from forks. Only the `verify` job below can read it: it is gated by the
+  # `certora` environment, which requires a manual approval from a reviewer before the job starts.
+  # Reviewers MUST check the diff for anything that could exfiltrate the key before approving.
   pull_request_target:
     types:
       - opened
@@ -22,18 +22,19 @@ concurrency: ${{ github.workflow }}-${{ github.event.pull_request.number || gith
 jobs:
   identify:
     runs-on: ubuntu-latest
-    # Same gate as the `verify` job below: this one runs the contributor's code too (the dependency
-    # helper reads the config and spec files of the pull request).
-    environment: certora
+    # No `environment` here: approving it requires an admin, so the gate is kept for the job that
+    # actually needs the key. This job runs the contributor's dependency helper, but holds no secret
+    # and only the read-only token granted by `permissions` above, so it needs no more trust than an
+    # ordinary `pull_request` job.
     if: github.event_name != 'pull_request_target' || contains(github.event.pull_request.labels.*.name, 'formal-verification') || contains(github.event.pull_request.labels.*.name, 'formal-verification-force-all')
     outputs:
       configs: ${{ steps.identify.outputs.configs }}
     steps:
       - uses: actions/checkout@v7
         with:
-          # `pull_request_target` checks out the base by default. This runs the contributor's code,
-          # which is why the environment approval above is required. actions/checkout refuses a fork
-          # checkout in this context unless that risk is explicitly acknowledged.
+          # `pull_request_target` checks out the base by default, but the dependency helper has to
+          # read the configs and specs as the pull request leaves them. actions/checkout refuses a
+          # fork checkout in this context unless that risk is explicitly acknowledged.
           ref: ${{ github.event.pull_request.head.sha || github.ref }}
           allow-unsafe-pr-checkout: true
           fetch-depth: 0 # Include history so the diff against the pull request base resolves
@@ -60,6 +61,9 @@ jobs:
     needs: identify
     if: needs.identify.outputs.configs != '[]'
     runs-on: ubuntu-latest
+    # This is the only job that reads CERTORAKEY, so it is the only one worth an admin approval.
+    # Reviewers MUST check the diff for anything that could exfiltrate the key before approving.
+    # One approval releases every job of the matrix.
     environment: certora
     strategy:
       fail-fast: false
@@ -69,6 +73,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
+          # Runs the contributor's code, which is what the approval above is protecting against.
           ref: ${{ github.event.pull_request.head.sha || github.ref }}
           allow-unsafe-pr-checkout: true
           persist-credentials: false
