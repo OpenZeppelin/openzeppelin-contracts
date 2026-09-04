@@ -26,7 +26,7 @@ import path from 'path';
 // Everything below is resolved against the checkout being read, not against this file: the two are
 // the same by default, but not when CI runs a trusted copy of this script over a pull request.
 const option = (name, fallback) =>
-  path.resolve(process.argv.find(arg => arg.startsWith(`--${name}=`))?.slice(name.length + 3) ?? fallback);
+  path.resolve(process.argv.find(arg => arg.startsWith(`--${name}=`))?.slice(name.length + 3) || fallback);
 
 const ROOT = option('root', path.resolve(import.meta.dirname, '..'));
 const SPECS = option('specs', path.resolve(ROOT, 'fv/specs'));
@@ -73,24 +73,23 @@ const collect = (file, acc) => {
   return acc;
 };
 
-const configs = fs
-  .readdirSync(SPECS)
-  .filter(name => name.endsWith('.conf'))
-  .map(name => path.join(SPECS, name));
-
 const dependencies = Object.fromEntries(
-  configs.map(conf => {
-    const { files, verify } = JSON.parse(fs.readFileSync(conf, 'utf8'));
-    return [
-      relative(conf),
-      files
-        .reduce(
-          (acc, file) => collect(path.resolve(ROOT, file), acc),
-          collect(path.resolve(ROOT, verify.split(':').at(-1)), [conf]),
-        )
-        .map(relative),
-    ];
-  }),
+  fs
+    .readdirSync(SPECS)
+    .filter(name => name.endsWith('.conf'))
+    .map(name => path.join(SPECS, name))
+    .map(conf => {
+      const { files, verify } = JSON.parse(fs.readFileSync(conf, 'utf8'));
+      return [
+        relative(conf),
+        files
+          .reduce(
+            (acc, file) => collect(path.resolve(ROOT, file), acc),
+            collect(path.resolve(ROOT, verify.split(':').at(-1)), [conf]),
+          )
+          .map(relative),
+      ];
+    }),
 );
 
 if (process.argv.includes('--filter')) {
