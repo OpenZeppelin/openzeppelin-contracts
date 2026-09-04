@@ -132,7 +132,7 @@ library EnumerableSet {
         uint256 lastIndex = set._values.length - 1;
 
         if (index != lastIndex) {
-            bytes32 memory lastValue = set._values[lastIndex];
+            bytes32 lastValue = set._values[lastIndex];
 
             // Move the lastValue to the index where the value to delete is
             set._values[index] = lastValue;
@@ -329,7 +329,7 @@ library EnumerableSet {
         uint256 lastIndex = set._values.length - 1;
 
         if (index != lastIndex) {
-            bytes4 memory lastValue = set._values[lastIndex];
+            bytes4 lastValue = set._values[lastIndex];
 
             // Move the lastValue to the index where the value to delete is
             set._values[index] = lastValue;
@@ -526,7 +526,7 @@ library EnumerableSet {
         uint256 lastIndex = set._values.length - 1;
 
         if (index != lastIndex) {
-            address memory lastValue = set._values[lastIndex];
+            address lastValue = set._values[lastIndex];
 
             // Move the lastValue to the index where the value to delete is
             set._values[index] = lastValue;
@@ -723,7 +723,7 @@ library EnumerableSet {
         uint256 lastIndex = set._values.length - 1;
 
         if (index != lastIndex) {
-            uint256 memory lastValue = set._values[lastIndex];
+            uint256 lastValue = set._values[lastIndex];
 
             // Move the lastValue to the index where the value to delete is
             set._values[index] = lastValue;

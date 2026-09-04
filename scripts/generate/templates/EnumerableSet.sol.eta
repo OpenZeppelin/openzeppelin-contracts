@@ -129,7 +129,7 @@ library EnumerableSet {
         uint256 lastIndex = set._values.length - 1;
 
         if (index != lastIndex) {
-            <%= value.type %> memory lastValue = set._values[lastIndex];
+            <%= value.typeLoc %> lastValue = set._values[lastIndex];
 
             // Move the lastValue to the index where the value to delete is
             set._values[index] = lastValue;
