@@ -21,7 +21,9 @@ const SPECS = path.resolve(import.meta.dirname, 'specs');
 const relative = file => path.relative(ROOT, file).replaceAll(path.sep, '/');
 
 // Config names come from the file listing of a pull request that may be untrusted, and end up on a
-// command line downstream. Anything that is not a plain name is dropped here.
+// command line downstream. Anything that is not a plain name is dropped here, and remembered: it is
+// missing from the map for a different reason than a deleted config is, and `--filter` has to tell
+// the two apart.
 const VALID_NAME = /^[A-Za-z0-9_-]+\.conf$/;
 const SPEC_IMPORT = /^\s*import\s+"([^"]+)"\s*;/gm;
 // A solidity import may name symbols or not, and may span several lines, so the path is taken as the
@@ -63,10 +65,16 @@ const collect = (file, acc) => {
   return acc;
 };
 
+const invalid = [];
 const configs = fs
   .readdirSync(SPECS)
   .filter(name => name.endsWith('.conf'))
-  .filter(name => VALID_NAME.test(name) || (console.error(`Ignoring config with unexpected name: ${name}`), false))
+  .filter(name => {
+    if (VALID_NAME.test(name)) return true;
+    console.error(`Ignoring config with unexpected name: ${name}`);
+    invalid.push(relative(path.join(SPECS, name)));
+    return false;
+  })
   .map(name => path.join(SPECS, name));
 
 const dependencies = Object.fromEntries(
@@ -87,13 +95,22 @@ const dependencies = Object.fromEntries(
 if (process.argv.includes('--filter')) {
   const changed = fs.readFileSync(0, 'utf8').split('\n').filter(Boolean);
 
+  const touched = changed.filter(file => file.startsWith(`${relative(SPECS)}/`) && file.endsWith('.conf'));
+
+  // A config whose name was rejected above is never going to be verified, whether it was just added
+  // or just renamed. That is not a removal and `--allow-removed` is not the answer to it, so it is
+  // reported on its own terms.
+  const unusable = touched.filter(file => invalid.includes(file));
+  if (unusable.length > 0) {
+    console.error(`Cannot verify ${unusable.join(', ')}: a config name must match ${VALID_NAME}.`);
+    process.exit(1);
+  }
+
   // The map above is built by listing the configs that exist now, so a config the change removes is
   // not in it, and nothing can select it. Left alone that reads as "no config affected": removing
   // every config would report an empty set, run no prover job, and pass. Refuse instead, and make
   // dropping a config something that has to be asked for.
-  const removed = changed.filter(
-    file => file.startsWith(`${relative(SPECS)}/`) && file.endsWith('.conf') && !Object.hasOwn(dependencies, file),
-  );
+  const removed = touched.filter(file => !Object.hasOwn(dependencies, file));
   if (removed.length > 0 && !process.argv.includes('--allow-removed')) {
     console.error(`This change removes ${removed.join(', ')}, which cannot appear in the affected set.`);
     console.error(`Pass --allow-removed to confirm the verification is meant to go away with it.`);

@@ -9,7 +9,7 @@ Documentation for CVT and the specification language is available [here](https:/
 Follow the [Certora installation guide](https://docs.certora.com/en/latest/docs/user-guide/getting-started/install.html) in order to get the Certora Prover Package and the `solc` executable folder in your path.
 
 > **Note**
-> An API Key is required for local testing. In CI the prover runs on any pull request whose diff reaches a spec, a harness, or a contract one of them verifies, one job per affected configuration. That selection is computed by `fv/dependencies.js`.
+> An API Key is required for local testing. In CI the prover runs on any pull request whose diff reaches a spec, a harness, a contract one of them verifies, or a patch in `fv/diff` applied to one, with one job per affected configuration. That selection is computed by `fv/dependencies.js`.
 
 ## Running the verification
 
