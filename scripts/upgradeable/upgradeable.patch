@@ -179,33 +179,6 @@ index 109d1e845..47768955e 100644
   */
  abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
      mapping(address owner => mapping(uint256 index => uint256)) private _ownedTokens;
-diff --git a/contracts/utils/ReentrancyGuard.sol b/contracts/utils/ReentrancyGuard.sol
-index c156fa1cc..895e39342 100644
---- a/contracts/utils/ReentrancyGuard.sol
-+++ b/contracts/utils/ReentrancyGuard.sol
-@@ -36,6 +36,11 @@ abstract contract ReentrancyGuard {
-     bytes32 private constant REENTRANCY_GUARD_STORAGE =
-         0x9b779b17422d0df92223018b32b4d1fa46e071723d6817e2486d003becc55f00;
- 
-+    /// @custom:storage-location erc7201:openzeppelin.storage.ReentrancyGuard
-+    struct ReentrancyGuardStorage {
-+        uint256 _status;
-+    }
-+
-     // Booleans are more expensive than uint256 or any type that takes up a full
-     // word because each write operation emits an extra SLOAD to first read the
-     // slot's contents, replace the bits taken up by the boolean, and then write
-@@ -55,10 +60,6 @@ abstract contract ReentrancyGuard {
-      */
-     error ReentrancyGuardReentrantCall();
- 
--    constructor() {
--        _reentrancyGuardStorageSlot().getUint256Slot().value = NOT_ENTERED;
--    }
--
-     /**
-      * @dev Prevents a contract from calling itself, directly or indirectly.
-      * Calling a `nonReentrant` function from another `nonReentrant`
 diff --git a/contracts/utils/cryptography/EIP712.sol b/contracts/utils/cryptography/EIP712.sol
 index a2e7bf4c7..44cfa054b 100644
 --- a/contracts/utils/cryptography/EIP712.sol
@@ -370,7 +343,7 @@ index e66fae29c..490d991e8 100644
    },
    docgen: await import('./docs/config.mjs').then(m => m.default),
 diff --git a/package.json b/package.json
-index a34136baa..964e28b8b 100644
+index 7a7b4f158..493194f53 100644
 --- a/package.json
 +++ b/package.json
 @@ -35,7 +35,7 @@
