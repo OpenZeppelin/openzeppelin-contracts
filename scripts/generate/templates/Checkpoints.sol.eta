@@ -15,7 +15,7 @@ library Checkpoints {
      */
     error CheckpointUnorderedInsertion();
 
-<% for (const { size, keySize } of it.CHECKPOINTS_LENGTH) { %>
+<%- for (const { size, keySize } of it.CHECKPOINTS_LENGTH) { %>
     struct Trace<%= size %> {
         Checkpoint<%= size %>[] _checkpoints;
     }
@@ -230,5 +230,5 @@ library Checkpoints {
             result.slot := add(keccak256(0x00, 0x20), <%= size < 256 ? 'index' : `mul(index, 2)` %>)
         }
     }
-<% } %>
+<% } -%>
 }
