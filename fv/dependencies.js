@@ -13,7 +13,7 @@ import fs from 'fs';
 import path from 'path';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
-const SPECS = path.join(ROOT, 'fv/specs');
+const SPECS = path.resolve(import.meta.dirname, 'specs');
 
 // Config names come from the file listing of a pull request that may be untrusted, and end up on a
 // command line downstream. Anything that is not a plain name is dropped here.
@@ -23,14 +23,15 @@ const IMPORT = /^\s*import\s+"([^"]+)"\s*;/gm;
 const relative = file => path.relative(ROOT, file).split(path.sep).join('/');
 
 // Add `file` and every spec file it imports (recursively) to `acc`
-function collect(file, acc) {
-  if (acc.has(file)) return acc;
-  acc.add(file);
-  for (const [, target] of fs.readFileSync(file, 'utf8').matchAll(IMPORT)) {
-    collect(path.resolve(path.dirname(file), target), acc);
+const collect = (file, acc) => {
+  if (!acc.has(file)) {
+    acc.add(file);
+    for (const [, target] of fs.readFileSync(file, 'utf8').matchAll(IMPORT)) {
+      collect(path.resolve(path.dirname(file), target), acc);
+    }
   }
   return acc;
-}
+};
 
 const configs = fs
   .readdirSync(SPECS)
@@ -40,9 +41,8 @@ const configs = fs
 
 const dependencies = new Map(
   configs.map(conf => {
-    // `verify` is a "Contract:path/to/file.spec" entry (or a list of them) relative to the root
-    const entries = [].concat(JSON.parse(fs.readFileSync(conf, 'utf8')).verify ?? []);
     const acc = new Set([conf]);
+    const entries = [].concat(JSON.parse(fs.readFileSync(conf, 'utf8')).verify ?? []);
     entries.forEach(entry => collect(path.resolve(ROOT, entry.split(':').at(-1)), acc));
     return [relative(conf), Array.from(acc, relative)];
   }),
