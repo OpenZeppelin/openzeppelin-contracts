@@ -237,7 +237,7 @@ library EnumerableSet {
             <%= value.type %>[] memory result = new <%= value.type %>[](len);
 
             for (uint256 i = 0; i < len; ++i) {
-                <% if (it.ARRAYS_TYPES.includes(value)) { %>result[i] = Arrays.unsafeAccess(set._values, start + i).value;<% } else { %>result[i] = set._values[start + i];<% } %>
+                result[i] = <%= it.ARRAYS_TYPES.includes(value) ? 'Arrays.unsafeAccess(set._values, start + i).value' : 'set._values[start + i]' %>;
             }
             return result;
         }
