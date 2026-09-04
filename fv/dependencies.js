@@ -6,8 +6,9 @@
 //    node fv/dependencies.js --filter   read changed file paths on stdin, print the JSON array of
 //                                       the config files affected by them
 //
-// The dependencies of a config are the spec files it verifies, the spec files those import, and so
-// on recursively. Uses node builtins only, so it can run before `npm ci`.
+// The dependencies of a config are the spec files it verifies and the harnesses it declares, plus
+// everything those import, recursively: the specs reached through spec imports, and the contracts
+// reached through solidity imports. Uses node builtins only, so it can run before `npm ci`.
 
 import fs from 'fs';
 import path from 'path';
@@ -18,16 +19,27 @@ const SPECS = path.resolve(import.meta.dirname, 'specs');
 // Config names come from the file listing of a pull request that may be untrusted, and end up on a
 // command line downstream. Anything that is not a plain name is dropped here.
 const VALID_NAME = /^[A-Za-z0-9_-]+\.conf$/;
-const IMPORT = /^\s*import\s+"([^"]+)"\s*;/gm;
+const SPEC_IMPORT = /^\s*import\s+"([^"]+)"\s*;/gm;
+// A solidity import may name symbols or not, and may span several lines, so the path is taken as the
+// first string of the statement. `[^;]` stops the match at the end of the statement.
+const SOL_IMPORT = /^[ \t]*import\b[^;]*?"([^"]+)"/gm;
+
+// `fv/patched` is a copy of `contracts` produced by `make -C fv apply`. It is untracked, and absent
+// entirely until that runs, so a dependency on it is recorded against the contract it is copied
+// from: that file exists here, and it is the path a `git diff` reports.
+const PATCHED = path.resolve(import.meta.dirname, 'patched');
+const unpatch = file =>
+  file.startsWith(PATCHED + path.sep) ? path.join(ROOT, 'contracts', path.relative(PATCHED, file)) : file;
 
 const relative = file => path.relative(ROOT, file).split(path.sep).join('/');
 
-// Add `file` and every spec file it imports (recursively) to `acc`
+// Add `file` and everything it imports (recursively) to `acc`
 const collect = (file, acc) => {
   if (!acc.has(file)) {
     acc.add(file);
-    for (const [, target] of fs.readFileSync(file, 'utf8').matchAll(IMPORT)) {
-      collect(path.resolve(path.dirname(file), target), acc);
+    const pattern = file.endsWith('.sol') ? SOL_IMPORT : SPEC_IMPORT;
+    for (const [, target] of fs.readFileSync(file, 'utf8').matchAll(pattern)) {
+      collect(unpatch(path.resolve(path.dirname(file), target)), acc);
     }
   }
   return acc;
@@ -42,8 +54,11 @@ const configs = fs
 const dependencies = new Map(
   configs.map(conf => {
     const acc = new Set([conf]);
-    const entries = [].concat(JSON.parse(fs.readFileSync(conf, 'utf8')).verify ?? []);
-    entries.forEach(entry => collect(path.resolve(ROOT, entry.split(':').at(-1)), acc));
+    const { files = [], verify } = JSON.parse(fs.readFileSync(conf, 'utf8'));
+    // The harnesses, then the specs: `verify` is a "Contract:path/to/file.spec" entry (or a list of
+    // them), where the contract is one declared by `files`. Both are relative to the root.
+    [].concat(files).forEach(file => collect(path.resolve(ROOT, file), acc));
+    [].concat(verify ?? []).forEach(entry => collect(path.resolve(ROOT, entry.split(':').at(-1)), acc));
     return [relative(conf), Array.from(acc, relative)];
   }),
 );

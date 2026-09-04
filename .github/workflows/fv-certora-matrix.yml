@@ -22,10 +22,9 @@ concurrency: ${{ github.workflow }}-${{ github.event.pull_request.number || gith
 jobs:
   identify:
     runs-on: ubuntu-latest
-    # Runs on every pull request, with no label and no `environment`: it reports which configs the
-    # diff affects, which is worth seeing even when nobody intends to run the prover. It holds no
-    # secret and only the read-only token granted by `permissions` above, so running the
-    # contributor's dependency helper here needs no more trust than an ordinary `pull_request` job.
+    # Runs on every pull request, with no label and no `environment`: it holds no secret and only
+    # the read-only token granted by `permissions` above, so running the contributor's dependency
+    # helper here needs no more trust than an ordinary `pull_request` job.
     outputs:
       configs: ${{ steps.identify.outputs.configs }}
     steps:
@@ -45,6 +44,7 @@ jobs:
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          # The label is only an override: without it, the diff decides which configs run
           FORCE_ALL: ${{ github.event_name != 'pull_request_target' || contains(github.event.pull_request.labels.*.name, 'formal-verification-force-all') }}
         run: |
           set -o pipefail
@@ -60,7 +60,6 @@ jobs:
               git diff --name-only "$BASE_SHA".."$HEAD_SHA" | node fv/dependencies.js --filter
             } >> "$GITHUB_OUTPUT"
           fi
-      # Not necessarily what runs: `verify` still needs the label to be applied
       - name: Report the affected configs
         env:
           CONFIGS: ${{ steps.identify.outputs.configs }}
@@ -69,8 +68,9 @@ jobs:
 
   verify:
     needs: identify
-    # Nothing to verify, or the pull request has not been labelled for it
-    if: needs.identify.outputs.configs != '[]' && (github.event_name != 'pull_request_target' || contains(github.event.pull_request.labels.*.name, 'formal-verification') || contains(github.event.pull_request.labels.*.name, 'formal-verification-force-all'))
+    # Runs whenever the diff reaches a spec, a harness or a contract one of them verifies. No label
+    # is involved: the `certora` environment approval below is the human gate on prover time.
+    if: needs.identify.outputs.configs != '[]'
     runs-on: ubuntu-latest
     # This is the only job that reads CERTORAKEY, so it is the only one worth an admin approval.
     # Reviewers MUST check the diff for anything that could exfiltrate the key before approving.
