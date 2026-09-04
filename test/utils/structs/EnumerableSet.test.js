@@ -29,7 +29,7 @@ async function fixture() {
             contains: `$contains(uint256,${value.type})`,
             clear: `$clear_EnumerableSet_${name}(uint256)`,
             length: `$length_EnumerableSet_${name}(uint256)`,
-            at: `$at_EnumerableSet_${name}(uint256,uint256)`,
+            pos: `$pos_EnumerableSet_${name}(uint256,uint256)`,
             values: `$values_EnumerableSet_${name}(uint256)`,
             valuesPage: `$values_EnumerableSet_${name}(uint256,uint256,uint256)`,
           },

@@ -119,18 +119,6 @@ library Checkpoints {
 
     /**
      * @dev Returns checkpoint at given position.
-     *
-     * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
-     * should use {pos} instead.
-     */
-    function at(Trace<%= size %> storage self, uint32 index) internal view returns (Checkpoint<%= size %> memory) {
-        return pos(self, index);
-    }
-
-    /**
-     * @dev Returns checkpoint at given position.
-     *
-     * Replacement of the deprecated {at} function.
      */
     function pos(Trace<%= size %> storage self, uint32 index) internal view returns (Checkpoint<%= size %> memory) {
         return self._checkpoints[index];

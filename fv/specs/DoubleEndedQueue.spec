@@ -16,7 +16,7 @@ methods {
     function empty()            external returns (bool)    envfree;
     function front()            external returns (bytes32) envfree;
     function back()             external returns (bytes32) envfree;
-    function at_(uint256)       external returns (bytes32) envfree; // at is a reserved word
+    function pos(uint256)       external returns (bytes32) envfree;
 }
 
 definition full() returns bool = length() == max_uint128;
@@ -36,11 +36,11 @@ rule emptiness() {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule queueFront() {
-    assert at_(0) == front();
+    assert pos(0) == front();
 }
 
 rule queueBack() {
-    assert at_(require_uint256(length() - 1)) == back();
+    assert pos(require_uint256(length() - 1)) == back();
 }
 
 /*
@@ -69,13 +69,13 @@ rule pushFront(bytes32 value) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule pushFrontConsistency(uint256 index) {
-    bytes32 beforeAt = at_(index);
+    bytes32 beforeAt = pos(index);
 
     bytes32 value;
     pushFront(value);
 
     // try to read value
-    bytes32 afterAt = at_@withrevert(require_uint256(index + 1));
+    bytes32 afterAt = pos@withrevert(require_uint256(index + 1));
 
     assert !lastReverted, "value still there";
     assert afterAt == beforeAt, "data is preserved";
@@ -107,13 +107,13 @@ rule pushBack(bytes32 value) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule pushBackConsistency(uint256 index) {
-    bytes32 beforeAt = at_(index);
+    bytes32 beforeAt = pos(index);
 
     bytes32 value;
     pushBack(value);
 
     // try to read value
-    bytes32 afterAt = at_@withrevert(index);
+    bytes32 afterAt = pos@withrevert(index);
 
     assert !lastReverted, "value still there";
     assert afterAt == beforeAt, "data is preserved";
@@ -141,18 +141,18 @@ rule popFront {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: at(x) is preserved and offset to at(x - 1) after calling popFront                                             |
+│ Rule: pos(x) is preserved and offset to pos(x - 1) after calling popFront                                           |
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule popFrontConsistency(uint256 index) {
     // Read (any) value that is not the front (this asserts the value exists / the queue is long enough)
     require index > 1;
-    bytes32 before = at_(index);
+    bytes32 before = pos(index);
 
     popFront();
 
     // try to read value
-    bytes32 after = at_@withrevert(require_uint256(index - 1));
+    bytes32 after = pos@withrevert(require_uint256(index - 1));
 
     assert !lastReverted, "value still exists in the queue";
     assert before == after, "values are offset and not modified";
@@ -180,18 +180,18 @@ rule popBack {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: at(x) is preserved after calling popBack                                                                     |
+│ Rule: pos(x) is preserved after calling popBack                                                                     |
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule popBackConsistency(uint256 index) {
     // Read (any) value that is not the back (this asserts the value exists / the queue is long enough)
     require to_mathint(index) < length() - 1;
-    bytes32 before = at_(index);
+    bytes32 before = pos(index);
 
     popBack();
 
     // try to read value
-    bytes32 after = at_@withrevert(index);
+    bytes32 after = pos@withrevert(index);
 
     assert !lastReverted, "value still exists in the queue";
     assert before == after, "values are offset and not modified";
@@ -235,17 +235,17 @@ rule onlyEmptyOrFullRevert(env e) {
         (f.selector == sig:popBack().selector          && emptyBefore) ||
         (f.selector == sig:pushFront(bytes32).selector && fullBefore ) ||
         (f.selector == sig:pushBack(bytes32).selector  && fullBefore ) ||
-        f.selector == sig:at_(uint256).selector // revert conditions are verified in onlyOutOfBoundsRevert
+        f.selector == sig:pos(uint256).selector // revert conditions are verified in onlyOutOfBoundsRevert
     ), "only revert if empty or out of bounds";
 }
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: at(index) only reverts if index is out of bounds                                                                  |
+│ Rule: pos(index) only reverts if index is out of bounds                                                             |
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule onlyOutOfBoundsRevert(uint256 index) {
-    at_@withrevert(index);
+    pos@withrevert(index);
 
     assert lastReverted <=> index >= length(), "only reverts if index is out of bounds";
 }
@@ -282,9 +282,9 @@ rule noDataChange(env e) {
     calldataarg args;
 
     uint256 index;
-    bytes32 atBefore = at_(index);
+    bytes32 atBefore = pos(index);
     f(e, args);
-    bytes32 atAfter = at_@withrevert(index);
+    bytes32 atAfter = pos@withrevert(index);
     bool atAfterSuccess = !lastReverted;
 
     assert !atAfterSuccess <=> (

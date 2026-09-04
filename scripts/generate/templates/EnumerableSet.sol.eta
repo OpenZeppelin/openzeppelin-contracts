@@ -184,25 +184,6 @@ library EnumerableSet {
      * Requirements:
      *
      * - `index` must be strictly less than {length}.
-     *
-     * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
-     * should use {pos} instead.
-     */
-    function at(<%= name %> storage set, uint256 index) internal view returns (<%= value.typeLoc %>) {
-        return pos(set, index);
-    }
-
-    /**
-     * @dev Returns the value stored at position `index` in the set. O(1).
-     *
-     * Note that there are no guarantees on the ordering of values inside the
-     * array, and it may change when more values are added or removed.
-     *
-     * Requirements:
-     *
-     * - `index` must be strictly less than {length}.
-     *
-     * Replacement of the deprecated {at} function.
      */
     function pos(<%= name %> storage set, uint256 index) internal view returns (<%= value.typeLoc %>) {
         return set._values[index];

@@ -35,7 +35,7 @@ async function fixture() {
                 contains: `$contains(uint256,${key.type})`,
                 clear: `$clear_EnumerableMap_${name}(uint256)`,
                 length: `$length_EnumerableMap_${name}(uint256)`,
-                at: `$at_EnumerableMap_${name}(uint256,uint256)`,
+                pos: `$pos_EnumerableMap_${name}(uint256,uint256)`,
                 keys: `$keys_EnumerableMap_${name}(uint256)`,
                 keysPage: `$keys_EnumerableMap_${name}(uint256,uint256,uint256)`,
               }
@@ -48,7 +48,7 @@ async function fixture() {
                 contains: `$contains_EnumerableMap_${name}(uint256,${key.type})`,
                 clear: `$clear_EnumerableMap_${name}(uint256)`,
                 length: `$length_EnumerableMap_${name}(uint256)`,
-                at: `$at_EnumerableMap_${name}(uint256,uint256)`,
+                pos: `$pos_EnumerableMap_${name}(uint256,uint256)`,
                 keys: `$keys_EnumerableMap_${name}(uint256)`,
                 keysPage: `$keys_EnumerableMap_${name}(uint256,uint256,uint256)`,
               },

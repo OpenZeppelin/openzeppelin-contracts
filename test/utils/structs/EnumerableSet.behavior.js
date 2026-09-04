@@ -6,7 +6,7 @@ export function shouldBehaveLikeSet() {
     expect(await methods.length()).to.equal(values.length);
     for (const value of values) expect(await methods.contains(value)).to.be.true;
 
-    expect(await Promise.all(values.map((_, index) => methods.at(index)))).to.have.deep.members(values);
+    expect(await Promise.all(values.map((_, index) => methods.pos(index)))).to.have.deep.members(values);
     expect([...(await methods.values())]).to.have.deep.members(values);
   }
 
@@ -40,14 +40,14 @@ export function shouldBehaveLikeSet() {
     });
   });
 
-  describe('at', function () {
+  describe('pos', function () {
     it('reverts when retrieving non-existent elements', async function () {
-      await expect(this.methods.at(0)).to.be.revertedWithPanic(PANIC_CODES.ARRAY_ACCESS_OUT_OF_BOUNDS);
+      await expect(this.methods.pos(0)).to.be.revertedWithPanic(PANIC_CODES.ARRAY_ACCESS_OUT_OF_BOUNDS);
     });
 
     it('retrieves existing element', async function () {
       await this.methods.add(this.valueA);
-      expect(await this.methods.at(0)).to.deep.equal(this.valueA);
+      expect(await this.methods.pos(0)).to.deep.equal(this.valueA);
     });
   });
 
@@ -148,8 +148,8 @@ export function shouldBehaveLikeSet() {
       await this.methods.removeAt(2);
 
       await expectMembersMatch(this.methods, [this.valueA, this.valueB]);
-      expect(await this.methods.at(0)).to.deep.equal(this.valueA);
-      expect(await this.methods.at(1)).to.deep.equal(this.valueB);
+      expect(await this.methods.pos(0)).to.deep.equal(this.valueA);
+      expect(await this.methods.pos(1)).to.deep.equal(this.valueB);
     });
 
     it('removes a non-last value using swap-and-pop', async function () {
@@ -162,8 +162,8 @@ export function shouldBehaveLikeSet() {
 
       expect(await this.methods.contains(this.valueA)).to.be.false;
       await expectMembersMatch(this.methods, [this.valueC, this.valueB]);
-      expect(await this.methods.at(0)).to.deep.equal(this.valueC);
-      expect(await this.methods.at(1)).to.deep.equal(this.valueB);
+      expect(await this.methods.pos(0)).to.deep.equal(this.valueC);
+      expect(await this.methods.pos(1)).to.deep.equal(this.valueB);
     });
 
     it('tracks the position of the value moved by swap-and-pop', async function () {
