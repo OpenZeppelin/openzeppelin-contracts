@@ -1,4 +1,3 @@
-import { ethers } from 'ethers';
 import { expect } from 'chai';
 import { PANIC_CODES } from '@nomicfoundation/hardhat-ethers-chai-matchers/panic';
 import { zip } from '../../helpers/iterate';
@@ -257,12 +256,8 @@ export function shouldBehaveLikeMap() {
 
       it('missing value', async function () {
         await expect(this.methods.get(this.keyB))
-          .to.be.revertedWithCustomError(this.mock, this.error ?? 'EnumerableMapNonexistentKey')
-          .withArgs(
-            this.key?.size && this.value?.size
-              ? ethers.AbiCoder.defaultAbiCoder().encode([this.key.type], [this.keyB])
-              : this.keyB,
-          );
+          .to.be.revertedWithCustomError(this.mock, `EnumerableMapNonexistent${this.key.name}Key`)
+          .withArgs(this.keyB);
       });
     });
 

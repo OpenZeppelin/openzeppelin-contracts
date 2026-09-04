@@ -34,6 +34,7 @@ export const TYPES = Object.fromEntries(
     .map(entry => ({
       ...entry,
       name: entry.name ?? capitalize(entry.type),
+      typeLoc: entry.type + (entry.size ? '' : ' memory'),
       location: entry.size ? '' : 'memory',
     }))
     .map((entry, _, all) => ({
@@ -68,9 +69,7 @@ export const SET_TYPES = [TYPES.bytes32, TYPES.bytes4, TYPES.address, TYPES.uint
 export const MAP_TYPES = []
   .concat(
     // value type maps
-    [TYPES.uint256, TYPES.address, TYPES.bytes32]
-      .flatMap((key, _, array) => array.map(value => ({ key, value })))
-      .slice(0, -1), // remove bytes32 → bytes32 (last one) that is already defined
+    [TYPES.uint256, TYPES.address, TYPES.bytes32].flatMap((key, _, array) => array.map(value => ({ key, value }))),
     // other value type maps
     { key: TYPES.bytes4, value: TYPES.address },
     // non-value type maps

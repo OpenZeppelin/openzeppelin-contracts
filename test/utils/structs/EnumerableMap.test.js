@@ -1,16 +1,13 @@
 import { network } from 'hardhat';
 import { mapValues } from '../../helpers/iterate';
 import * as random from '../../helpers/random';
-import { TYPES, MAP_TYPES } from '../../../scripts/generate/data.js';
+import { MAP_TYPES } from '../../../scripts/generate/data.js';
 import { shouldBehaveLikeMap } from './EnumerableMap.behavior';
 
 const {
   ethers,
   networkHelpers: { loadFixture },
 } = await network.create();
-
-// Add Bytes32ToBytes32Map that must be tested but is not part of the generated types.
-MAP_TYPES.unshift({ name: 'Bytes32ToBytes32Map', key: TYPES.bytes32, value: TYPES.bytes32 });
 
 // Chai matchers expect hexadecimal data when dealing with bytes
 const randomOf = type => random[type === 'bytes' ? 'hexBytes' : type];
@@ -64,7 +61,6 @@ async function fixture() {
           setReturn: `return$set_EnumerableMap_${name}_${key.type}_${value.type}`,
           removeReturn: `return$remove_EnumerableMap_${name}_${key.type}`,
         },
-        error: key.size && value.size ? `EnumerableMapNonexistentKey` : `EnumerableMapNonexistent${key.name}Key`,
       },
     ]),
   );
