@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.20;
 
-import "../patched/access/manager/IAccessManager.sol";
+import "../patched/interfaces/IAccessManager.sol";
 import "../patched/access/manager/AccessManaged.sol";
 
 contract AccessManagedHarness is AccessManaged {

@@ -4,7 +4,7 @@
 pragma solidity ^0.8.24;
 
 import {IERC721, ERC721} from "../ERC721.sol";
-import {IERC721Receiver} from "../IERC721Receiver.sol";
+import {IERC721Receiver} from "../../../interfaces/IERC721Receiver.sol";
 
 /**
  * @dev Extension of the ERC-721 token contract to support token wrapping.

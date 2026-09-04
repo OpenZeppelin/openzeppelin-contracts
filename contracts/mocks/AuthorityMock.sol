@@ -2,8 +2,8 @@
 
 pragma solidity ^0.8.20;
 
-import {IAccessManaged} from "../access/manager/IAccessManaged.sol";
-import {IAuthority} from "../access/manager/IAuthority.sol";
+import {IAccessManaged} from "../interfaces/IAccessManaged.sol";
+import {IAuthority} from "../interfaces/IAuthority.sol";
 
 contract NotAuthorityMock is IAuthority {
     function canCall(address /* caller */, address /* target */, bytes4 /* selector */) external pure returns (bool) {

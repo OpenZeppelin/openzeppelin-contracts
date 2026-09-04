@@ -4,7 +4,7 @@ pragma solidity ^0.8.24;
 
 import {ERC20Permit} from "../../token/ERC20/extensions/ERC20Permit.sol";
 import {Math} from "../../utils/math/Math.sol";
-import {IVotes} from "../../governance/utils/IVotes.sol";
+import {IVotes} from "../../interfaces/IVotes.sol";
 import {SafeCast} from "../../utils/math/SafeCast.sol";
 import {ECDSA} from "../../utils/cryptography/ECDSA.sol";
 

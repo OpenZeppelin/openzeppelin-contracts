@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v5.4.0) (access/extensions/IAccessControlEnumerable.sol)
+// OpenZeppelin Contracts (last updated v5.4.0) (interfaces/IAccessControlEnumerable.sol)
 
 pragma solidity >=0.8.4;
 
-import {IAccessControl} from "../IAccessControl.sol";
+import {IAccessControl} from "./IAccessControl.sol";
 
 /**
  * @dev External interface of AccessControlEnumerable declared to support ERC-165 detection.

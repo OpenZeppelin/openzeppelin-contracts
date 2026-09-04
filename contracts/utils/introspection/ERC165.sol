@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.20;
 
-import {IERC165} from "./IERC165.sol";
+import {IERC165} from "../../interfaces/IERC165.sol";
 
 /**
  * @dev Implementation of the {IERC165} interface.

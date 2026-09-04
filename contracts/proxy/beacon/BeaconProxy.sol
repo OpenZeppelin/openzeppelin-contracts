@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.22;
 
-import {IBeacon} from "./IBeacon.sol";
+import {IBeacon} from "../../interfaces/IBeacon.sol";
 import {Proxy} from "../Proxy.sol";
 import {ERC1967Utils} from "../ERC1967/ERC1967Utils.sol";
 

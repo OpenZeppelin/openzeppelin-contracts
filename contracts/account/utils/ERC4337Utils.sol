@@ -4,15 +4,11 @@
 pragma solidity ^0.8.20;
 
 import {IEntryPoint, PackedUserOperation} from "../../interfaces/IERC4337.sol";
+import {IEntryPointExtra} from "../../interfaces/IEntryPointExtra.sol";
 import {Math} from "../../utils/math/Math.sol";
 import {SafeCast} from "../../utils/math/SafeCast.sol";
 import {Calldata} from "../../utils/Calldata.sol";
 import {Packing} from "../../utils/Packing.sol";
-
-/// @dev This is available on all entrypoint since v0.4.0, but is not formally part of the ERC.
-interface IEntryPointExtra {
-    function getUserOpHash(PackedUserOperation calldata userOp) external view returns (bytes32);
-}
 
 /**
  * @dev Library with common ERC-4337 utility functions.
