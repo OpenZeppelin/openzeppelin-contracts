@@ -9,14 +9,6 @@ const {
   networkHelpers: { loadFixture },
 } = await network.create();
 
-const getMethods = (mock, fnSigs) =>
-  mapValues(
-    fnSigs,
-    fnSig =>
-      (...args) =>
-        mock.getFunction(fnSig)(0, ...args),
-  );
-
 // Chai matchers expect hexadecimal data when dealing with bytes
 const randomOf = type => random[type === 'bytes' ? 'hexBytes' : type];
 
@@ -29,16 +21,23 @@ async function fixture() {
       {
         value,
         values: Array.from({ length: 3 }, randomOf(value.type)),
-        methods: getMethods(mock, {
-          add: `$add(uint256,${value.type})`,
-          remove: `$remove(uint256,${value.type})`,
-          contains: `$contains(uint256,${value.type})`,
-          clear: `$clear_EnumerableSet_${name}(uint256)`,
-          length: `$length_EnumerableSet_${name}(uint256)`,
-          at: `$at_EnumerableSet_${name}(uint256,uint256)`,
-          values: `$values_EnumerableSet_${name}(uint256)`,
-          valuesPage: `$values_EnumerableSet_${name}(uint256,uint256,uint256)`,
-        }),
+        methods: mapValues(
+          {
+            add: `$add(uint256,${value.type})`,
+            remove: `$remove(uint256,${value.type})`,
+            removeAt: `$removeAt_EnumerableSet_${name}(uint256,uint256)`,
+            contains: `$contains(uint256,${value.type})`,
+            clear: `$clear_EnumerableSet_${name}(uint256)`,
+            length: `$length_EnumerableSet_${name}(uint256)`,
+            at: `$at_EnumerableSet_${name}(uint256,uint256)`,
+            values: `$values_EnumerableSet_${name}(uint256)`,
+            valuesPage: `$values_EnumerableSet_${name}(uint256,uint256,uint256)`,
+          },
+          fnSig =>
+            Object.assign((...args) => mock.getFunction(fnSig)(0, ...args), {
+              staticCall: (...args) => mock.getFunction(fnSig).staticCall(0, ...args),
+            }),
+        ),
         events: {
           addReturn: `return$add_EnumerableSet_${name}_${value.type.replace(/[[\]]/g, '_')}`,
           removeReturn: `return$remove_EnumerableSet_${name}_${value.type.replace(/[[\]]/g, '_')}`,
