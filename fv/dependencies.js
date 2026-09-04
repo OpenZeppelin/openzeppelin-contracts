@@ -4,7 +4,8 @@
 //    node fv/dependencies.js            print the dependency map of every config as JSON
 //    node fv/dependencies.js --all      print the JSON array of all config files
 //    node fv/dependencies.js --filter   read changed file paths on stdin, print the JSON array of
-//                                       the config files affected by them
+//                                       the config files affected by them. Refuses if the change
+//                                       removes a config, unless --allow-removed is passed.
 //
 // The dependencies of a config are the spec files it verifies and the harnesses it declares, plus
 // everything those import, recursively: the specs reached through spec imports, and the contracts
@@ -68,6 +69,20 @@ const dependencies = Object.fromEntries(
 
 if (process.argv.includes('--filter')) {
   const changed = new Set(fs.readFileSync(0, 'utf8').split('\n').filter(Boolean));
+
+  // The map above is built by listing the configs that exist now, so a config the change removes is
+  // not in it, and nothing can select it. Left alone that reads as "no config affected": removing
+  // every config would report an empty set, run no prover job, and pass. Refuse instead, and make
+  // dropping a config something that has to be asked for.
+  const removed = [...changed].filter(
+    file => file.startsWith(`${relative(SPECS)}/`) && file.endsWith('.conf') && !Object.hasOwn(dependencies, file),
+  );
+  if (removed.length > 0 && !process.argv.includes('--allow-removed')) {
+    console.error(`This change removes ${removed.join(', ')}, which cannot appear in the affected set.`);
+    console.error(`Pass --allow-removed to confirm the verification is meant to go away with it.`);
+    process.exit(1);
+  }
+
   const affected = Object.entries(dependencies)
     .filter(([, deps]) => deps.some(dep => changed.has(dep)))
     .map(([conf]) => conf);

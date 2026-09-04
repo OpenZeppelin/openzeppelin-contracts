@@ -52,8 +52,12 @@ jobs:
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           # The label is only an override: without it, the diff decides which configs run
           FORCE_ALL: ${{ github.event_name != 'pull_request_target' || contains(github.event.pull_request.labels.*.name, 'formal-verification-force-all') }}
+          # Removing a config removes its verification, so it has to be asked for. Only someone with
+          # write access can label, which is what makes the label a reviewed decision.
+          ALLOW_REMOVED: ${{ contains(github.event.pull_request.labels.*.name, 'formal-verification-allow-removal') }}
         run: |
           set -o pipefail
+          if [[ $ALLOW_REMOVED = 'true' ]]; then ALLOW=(--allow-removed); else ALLOW=(); fi
           if [[ $FORCE_ALL = 'true' ]]; then
             {
               printf 'configs='
@@ -66,7 +70,7 @@ jobs:
             # pull request branched, and verify configs the pull request never touched.
             {
               printf 'configs='
-              git diff --name-only "$BASE_SHA"..."$HEAD_SHA" | node fv/dependencies.js --filter
+              git diff --name-only "$BASE_SHA"..."$HEAD_SHA" | node fv/dependencies.js --filter "${ALLOW[@]}"
             } >> "$GITHUB_OUTPUT"
           fi
       - name: Report the affected configs
