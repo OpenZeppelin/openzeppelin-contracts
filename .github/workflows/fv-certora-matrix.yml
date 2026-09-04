@@ -115,3 +115,26 @@ jobs:
           URL=$(grep -om1 'https://prover.certora.com/output/[a-z0-9]*/[a-z0-9]*?anonymousKey=[a-z0-9]*' certora.log || true)
           echo "- $([[ $STATUS = 0 ]] && echo '✅' || echo '❌') \`$CONFIG\` ${URL:+- [report]($URL)}" >> "$GITHUB_STEP_SUMMARY"
           exit "$STATUS"
+
+  # Every matrix job carries its config in its name, so none of them is a stable name to require in
+  # branch protection, and a run where nothing was affected produces no such job at all. This one
+  # always runs and always has the same name, so it is the check to require.
+  verified:
+    needs: [identify, verify]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check the verification results
+        env:
+          IDENTIFY: ${{ needs.identify.result }}
+          VERIFY: ${{ needs.verify.result }}
+        run: |
+          echo "identify: $IDENTIFY, verify: $VERIFY"
+          # A matrix result is the aggregate of its jobs: `success` only if every one of them
+          # passed, `skipped` when the whole job was gated out by its `if`.
+          [[ $IDENTIFY = 'success' ]] || { echo "::error::could not work out which configs to run"; exit 1; }
+          case $VERIFY in
+            success) echo "::notice::every affected config verified" ;;
+            skipped) echo "::notice::this diff affects no config" ;;
+            *) echo "::error::verification $VERIFY"; exit 1 ;;
+          esac

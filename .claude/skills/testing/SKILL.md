@@ -127,7 +127,7 @@ Halmos runs on every PR, needs no credentials. Reach for it when a property can 
 
 ## Certora (rule-based formal verification)
 
-[Certora](https://certora.com) specs live in `fv/specs/` as `.conf` + `.spec` pairs. CI runs one job per affected config, on any PR whose diff reaches a spec, a harness, or a contract one of them verifies -- no label needed. Label a PR `formal-verification-force-all` to run every config instead. Requires a `CERTORAKEY`, and the `certora` environment gates the job behind a manual approval.
+[Certora](https://certora.com) specs live in `fv/specs/` as `.conf` + `.spec` pairs. CI runs one job per affected config, on any PR whose diff reaches a spec, a harness, or a contract one of them verifies -- no label needed. Label a PR `formal-verification-force-all` to run every config instead. Requires a `CERTORAKEY`, and the `certora` environment gates the job behind a manual approval. The matrix job names carry their config, so `verified` is the aggregate job to require in branch protection.
 
 Local workflow:
 
