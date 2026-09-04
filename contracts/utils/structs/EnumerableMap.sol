@@ -151,25 +151,6 @@ library EnumerableMap {
      * Requirements:
      *
      * - `index` must be strictly less than {length}.
-     *
-     * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
-     * should use {pos} instead.
-     */
-    function at(Bytes32ToBytes32Map storage map, uint256 index) internal view returns (bytes32 key, bytes32 value) {
-        return pos(map, index);
-    }
-
-    /**
-     * @dev Returns the key-value pair stored at position `index` in the map. O(1).
-     *
-     * Note that there are no guarantees on the ordering of entries inside the
-     * array, and it may change when more entries are added or removed.
-     *
-     * Requirements:
-     *
-     * - `index` must be strictly less than {length}.
-     *
-     * Replacement of the deprecated {at} function.
      */
     function pos(Bytes32ToBytes32Map storage map, uint256 index) internal view returns (bytes32 key, bytes32 value) {
         bytes32 atKey = map._keys.pos(index);
@@ -311,24 +292,6 @@ library EnumerableMap {
      * Requirements:
      *
      * - `index` must be strictly less than {length}.
-     *
-     * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
-     * should use {pos} instead.
-     */
-    function at(UintToUintMap storage map, uint256 index) internal view returns (uint256 key, uint256 value) {
-        return pos(map, index);
-    }
-
-    /**
-     * @dev Returns the element stored at position `index` in the map. O(1).
-     * Note that there are no guarantees on the ordering of values inside the
-     * array, and it may change when more values are added or removed.
-     *
-     * Requirements:
-     *
-     * - `index` must be strictly less than {length}.
-     *
-     * Replacement of the deprecated {at} function.
      */
     function pos(UintToUintMap storage map, uint256 index) internal view returns (uint256 key, uint256 value) {
         (bytes32 atKey, bytes32 val) = pos(map._inner, index);
@@ -472,24 +435,6 @@ library EnumerableMap {
      * Requirements:
      *
      * - `index` must be strictly less than {length}.
-     *
-     * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
-     * should use {pos} instead.
-     */
-    function at(UintToAddressMap storage map, uint256 index) internal view returns (uint256 key, address value) {
-        return pos(map, index);
-    }
-
-    /**
-     * @dev Returns the element stored at position `index` in the map. O(1).
-     * Note that there are no guarantees on the ordering of values inside the
-     * array, and it may change when more values are added or removed.
-     *
-     * Requirements:
-     *
-     * - `index` must be strictly less than {length}.
-     *
-     * Replacement of the deprecated {at} function.
      */
     function pos(UintToAddressMap storage map, uint256 index) internal view returns (uint256 key, address value) {
         (bytes32 atKey, bytes32 val) = pos(map._inner, index);
@@ -633,24 +578,6 @@ library EnumerableMap {
      * Requirements:
      *
      * - `index` must be strictly less than {length}.
-     *
-     * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
-     * should use {pos} instead.
-     */
-    function at(UintToBytes32Map storage map, uint256 index) internal view returns (uint256 key, bytes32 value) {
-        return pos(map, index);
-    }
-
-    /**
-     * @dev Returns the element stored at position `index` in the map. O(1).
-     * Note that there are no guarantees on the ordering of values inside the
-     * array, and it may change when more values are added or removed.
-     *
-     * Requirements:
-     *
-     * - `index` must be strictly less than {length}.
-     *
-     * Replacement of the deprecated {at} function.
      */
     function pos(UintToBytes32Map storage map, uint256 index) internal view returns (uint256 key, bytes32 value) {
         (bytes32 atKey, bytes32 val) = pos(map._inner, index);
@@ -794,24 +721,6 @@ library EnumerableMap {
      * Requirements:
      *
      * - `index` must be strictly less than {length}.
-     *
-     * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
-     * should use {pos} instead.
-     */
-    function at(AddressToUintMap storage map, uint256 index) internal view returns (address key, uint256 value) {
-        return pos(map, index);
-    }
-
-    /**
-     * @dev Returns the element stored at position `index` in the map. O(1).
-     * Note that there are no guarantees on the ordering of values inside the
-     * array, and it may change when more values are added or removed.
-     *
-     * Requirements:
-     *
-     * - `index` must be strictly less than {length}.
-     *
-     * Replacement of the deprecated {at} function.
      */
     function pos(AddressToUintMap storage map, uint256 index) internal view returns (address key, uint256 value) {
         (bytes32 atKey, bytes32 val) = pos(map._inner, index);
@@ -955,24 +864,6 @@ library EnumerableMap {
      * Requirements:
      *
      * - `index` must be strictly less than {length}.
-     *
-     * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
-     * should use {pos} instead.
-     */
-    function at(AddressToAddressMap storage map, uint256 index) internal view returns (address key, address value) {
-        return pos(map, index);
-    }
-
-    /**
-     * @dev Returns the element stored at position `index` in the map. O(1).
-     * Note that there are no guarantees on the ordering of values inside the
-     * array, and it may change when more values are added or removed.
-     *
-     * Requirements:
-     *
-     * - `index` must be strictly less than {length}.
-     *
-     * Replacement of the deprecated {at} function.
      */
     function pos(AddressToAddressMap storage map, uint256 index) internal view returns (address key, address value) {
         (bytes32 atKey, bytes32 val) = pos(map._inner, index);
@@ -1120,24 +1011,6 @@ library EnumerableMap {
      * Requirements:
      *
      * - `index` must be strictly less than {length}.
-     *
-     * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
-     * should use {pos} instead.
-     */
-    function at(AddressToBytes32Map storage map, uint256 index) internal view returns (address key, bytes32 value) {
-        return pos(map, index);
-    }
-
-    /**
-     * @dev Returns the element stored at position `index` in the map. O(1).
-     * Note that there are no guarantees on the ordering of values inside the
-     * array, and it may change when more values are added or removed.
-     *
-     * Requirements:
-     *
-     * - `index` must be strictly less than {length}.
-     *
-     * Replacement of the deprecated {at} function.
      */
     function pos(AddressToBytes32Map storage map, uint256 index) internal view returns (address key, bytes32 value) {
         (bytes32 atKey, bytes32 val) = pos(map._inner, index);
@@ -1285,24 +1158,6 @@ library EnumerableMap {
      * Requirements:
      *
      * - `index` must be strictly less than {length}.
-     *
-     * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
-     * should use {pos} instead.
-     */
-    function at(Bytes32ToUintMap storage map, uint256 index) internal view returns (bytes32 key, uint256 value) {
-        return pos(map, index);
-    }
-
-    /**
-     * @dev Returns the element stored at position `index` in the map. O(1).
-     * Note that there are no guarantees on the ordering of values inside the
-     * array, and it may change when more values are added or removed.
-     *
-     * Requirements:
-     *
-     * - `index` must be strictly less than {length}.
-     *
-     * Replacement of the deprecated {at} function.
      */
     function pos(Bytes32ToUintMap storage map, uint256 index) internal view returns (bytes32 key, uint256 value) {
         (bytes32 atKey, bytes32 val) = pos(map._inner, index);
@@ -1446,24 +1301,6 @@ library EnumerableMap {
      * Requirements:
      *
      * - `index` must be strictly less than {length}.
-     *
-     * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
-     * should use {pos} instead.
-     */
-    function at(Bytes32ToAddressMap storage map, uint256 index) internal view returns (bytes32 key, address value) {
-        return pos(map, index);
-    }
-
-    /**
-     * @dev Returns the element stored at position `index` in the map. O(1).
-     * Note that there are no guarantees on the ordering of values inside the
-     * array, and it may change when more values are added or removed.
-     *
-     * Requirements:
-     *
-     * - `index` must be strictly less than {length}.
-     *
-     * Replacement of the deprecated {at} function.
      */
     function pos(Bytes32ToAddressMap storage map, uint256 index) internal view returns (bytes32 key, address value) {
         (bytes32 atKey, bytes32 val) = pos(map._inner, index);
@@ -1611,24 +1448,6 @@ library EnumerableMap {
      * Requirements:
      *
      * - `index` must be strictly less than {length}.
-     *
-     * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
-     * should use {pos} instead.
-     */
-    function at(Bytes4ToAddressMap storage map, uint256 index) internal view returns (bytes4 key, address value) {
-        return pos(map, index);
-    }
-
-    /**
-     * @dev Returns the element stored at position `index` in the map. O(1).
-     * Note that there are no guarantees on the ordering of values inside the
-     * array, and it may change when more values are added or removed.
-     *
-     * Requirements:
-     *
-     * - `index` must be strictly less than {length}.
-     *
-     * Replacement of the deprecated {at} function.
      */
     function pos(Bytes4ToAddressMap storage map, uint256 index) internal view returns (bytes4 key, address value) {
         (bytes32 atKey, bytes32 val) = pos(map._inner, index);
@@ -1779,26 +1598,6 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Returns the key-value pair stored at position `index` in the map. O(1).
-     *
-     * Note that there are no guarantees on the ordering of entries inside the
-     * array, and it may change when more entries are added or removed.
-     *
-     * Requirements:
-     *
-     * - `index` must be strictly less than {length}.
-     *
-     * IMPORTANT: Deprecated. This function's name clashes with a keyword scheduled for inclusion in Solidity. Developers
-     * should use {pos} instead.
-     */
-    function at(
-        BytesToBytesMap storage map,
-        uint256 index
-    ) internal view returns (bytes memory key, bytes memory value) {
-        return pos(map, index);
-    }
-
-    /**
      * @dev Returns the element stored at position `index` in the map. O(1).
      * Note that there are no guarantees on the ordering of values inside the
      * array, and it may change when more values are added or removed.
@@ -1806,8 +1605,6 @@ library EnumerableMap {
      * Requirements:
      *
      * - `index` must be strictly less than {length}.
-     *
-     * Replacement of the deprecated {at} function.
      */
     function pos(
         BytesToBytesMap storage map,

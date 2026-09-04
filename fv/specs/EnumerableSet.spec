@@ -6,7 +6,7 @@ methods {
     function remove(bytes32)   external returns (bool)    envfree;
     function contains(bytes32) external returns (bool)    envfree;
     function length()          external returns (uint256) envfree;
-    function at_(uint256)      external returns (bytes32) envfree;
+    function pos(uint256)      external returns (bytes32) envfree;
 
     // FV
     function _positionOf(bytes32) external returns (uint256) envfree;
@@ -26,7 +26,7 @@ definition lengthSanity() returns bool =
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant indexedContained(uint256 index)
-    index < length() => contains(at_(index))
+    index < length() => contains(pos(index))
     {
         preserved {
             requireInvariant consistencyIndex(index);
@@ -41,7 +41,7 @@ invariant indexedContained(uint256 index)
 */
 invariant atUniqueness(uint256 index1, uint256 index2)
     (index1 < length() && index2 < length()) =>
-    (index1 == index2 <=> at_(index1) == at_(index2))
+    (index1 == index2 <=> pos(index1) == pos(index2))
     {
         preserved {
             requireInvariant consistencyIndex(index1);
@@ -57,13 +57,13 @@ invariant atUniqueness(uint256 index1, uint256 index2)
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Invariant: index <> key relationship is consistent                                                                  │
 │                                                                                                                     │
-│ Note that the two consistencyXxx invariants, put together, prove that at_ and _positionOf are inverse of one        │
+│ Note that the two consistencyXxx invariants, put together, prove that pos and _positionOf are inverse of one        │
 │ another. This proves that we have a bijection between indices (the enumerability part) and keys (the entries that   │
 │ are added and removed from the EnumerableSet).                                                                      │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant consistencyIndex(uint256 index)
-    index < length() => _positionOf(at_(index)) == require_uint256(index + 1)
+    index < length() => _positionOf(pos(index)) == require_uint256(index + 1)
     {
         preserved remove(bytes32 key) {
             requireInvariant consistencyIndex(require_uint256(length() - 1));
@@ -74,7 +74,7 @@ invariant consistencyKey(bytes32 key)
     contains(key) => (
         _positionOf(key) > 0 &&
         _positionOf(key) <= length() &&
-        at_(require_uint256(_positionOf(key) - 1)) == key
+        pos(require_uint256(_positionOf(key) - 1)) == key
     )
     {
         preserved {
@@ -90,7 +90,7 @@ invariant consistencyKey(bytes32 key)
     }
 
 invariant absentKeyIsNotStored(bytes32 key, uint256 index)
-    index < length() => (!contains(key) => at_(index) != key)
+    index < length() => (!contains(key) => pos(index) != key)
     {
         preserved remove(bytes32 otherKey) {
             requireInvariant consistencyIndex(index);
@@ -151,7 +151,7 @@ rule liveness_2(uint256 index) {
     assert !lastReverted;
 
     // at reverts iff the index is out of bound
-    at_@withrevert(index);
+    pos@withrevert(index);
     assert !lastReverted <=> index < length;
 }
 
@@ -179,7 +179,7 @@ rule add(bytes32 key, bytes32 otherKey) {
     assert length() == require_uint256(lengthBefore + to_mathint(added ? 1 : 0)),
         "effect: length increases iff added";
 
-    assert added => at_(lengthBefore) == key,
+    assert added => pos(lengthBefore) == key,
         "effect: add at the end";
 
     assert containsOtherBefore != contains(otherKey) => (added && key == otherKey),
@@ -224,9 +224,9 @@ rule remove(bytes32 key, bytes32 otherKey) {
 rule addEnumerability(bytes32 key, uint256 index) {
     require lengthSanity();
 
-    bytes32 atBefore = at_(index);
+    bytes32 atBefore = pos(index);
     add(key);
-    bytes32 atAfter = at_@withrevert(index);
+    bytes32 atAfter = pos@withrevert(index);
     bool atAfterSuccess = !lastReverted;
 
     assert atAfterSuccess;
@@ -246,13 +246,13 @@ rule removeEnumerability(bytes32 key, uint256 index) {
     requireInvariant consistencyIndex(last);
     requireInvariant indexedContained(index);
 
-    bytes32 atBefore = at_(index);
-    bytes32 lastBefore = at_(last);
+    bytes32 atBefore = pos(index);
+    bytes32 lastBefore = pos(last);
 
     bool removed = remove(key);
 
     // can't read last value (length decreased) if an item was removed
-    bytes32 atAfter = at_@withrevert(index);
+    bytes32 atAfter = pos@withrevert(index);
     assert lastReverted <=> (removed && index == last);
 
     // Cases where a value can change are:
