@@ -17,11 +17,17 @@ permissions:
   contents: read
 
 # `github.ref` is the base branch under `pull_request_target`, so key on the pull request number
-concurrency: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  # A new push makes the running verification moot. Cancelling releases the runners it is holding,
+  # and drops any environment approval still pending on it.
+  cancel-in-progress: true
 
 jobs:
   identify:
     runs-on: ubuntu-latest
+    # The helper walks an import graph from a pull request that may be untrusted, so bound it
+    timeout-minutes: 10
     # Runs on every pull request, with no label and no `environment`: it holds no secret and only
     # the read-only token granted by `permissions` above, so running the contributor's dependency
     # helper here needs no more trust than an ordinary `pull_request` job.
@@ -75,6 +81,10 @@ jobs:
     # is involved: the `certora` environment approval below is the human gate on prover time.
     if: needs.identify.outputs.configs != '[]'
     runs-on: ubuntu-latest
+    # `--wait_for_results` blocks on the prover, so without this a job that never returns holds a
+    # runner for the six hour default. Generous enough for the slowest config; tighten once there
+    # are real timings to go on.
+    timeout-minutes: 120
     # This is the only job that reads CERTORAKEY, so it is the only one worth an admin approval.
     # Reviewers MUST check the diff for anything that could exfiltrate the key before approving.
     # One approval releases every job of the matrix.
