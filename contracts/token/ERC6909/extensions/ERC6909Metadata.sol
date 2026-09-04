@@ -10,7 +10,7 @@ import {IERC165} from "../../../utils/introspection/IERC165.sol";
 /**
  * @dev Implementation of the Metadata extension defined in ERC6909. Exposes the name, symbol, and decimals of each token id.
  */
-contract ERC6909Metadata is ERC6909, IERC6909Metadata {
+abstract contract ERC6909Metadata is ERC6909, IERC6909Metadata {
     struct TokenMetadata {
         string name;
         string symbol;
