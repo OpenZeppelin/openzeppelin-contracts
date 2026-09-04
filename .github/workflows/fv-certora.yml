@@ -57,20 +57,20 @@ jobs:
           ALLOW_REMOVED: ${{ contains(github.event.pull_request.labels.*.name, 'formal-verification-allow-removal') }}
         run: |
           set -o pipefail
-          if [[ $ALLOW_REMOVED = 'true' ]]; then ALLOW=(--allow-removed); else ALLOW=(); fi
           if [[ $FORCE_ALL = 'true' ]]; then
             {
               printf 'configs='
               node fv/dependencies.js --all
             } >> "$GITHUB_OUTPUT"
-          else
-            # Keep a config if it, the specs it verifies, or anything those import was modified.
-            # Three dots so the comparison starts at the merge base: `base.sha` is the tip of the
-            # base branch, so a two dot range would also report whatever landed there after the
-            # pull request branched, and verify configs the pull request never touched.
+          elif [[ $ALLOW_REMOVED = 'true' ]]; then
             {
               printf 'configs='
-              git diff --name-only "$BASE_SHA"..."$HEAD_SHA" | node fv/dependencies.js --filter "${ALLOW[@]}"
+              git diff --name-only "$BASE_SHA"..."$HEAD_SHA" | node fv/dependencies.js --filter --allow-removed
+            } >> "$GITHUB_OUTPUT"
+          else
+            {
+              printf 'configs='
+              git diff --name-only "$BASE_SHA"..."$HEAD_SHA" | node fv/dependencies.js --filter
             } >> "$GITHUB_OUTPUT"
           fi
       - name: Report the affected configs
