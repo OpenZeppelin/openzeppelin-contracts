@@ -34,7 +34,7 @@ const SOL_IMPORT = /^[ \t]*import\b[^;]*?"([^"]+)"/gm;
 const PATCHED = path.resolve(import.meta.dirname, 'patched');
 const DIFF = path.resolve(import.meta.dirname, 'diff');
 const unpatch = file => path.join(ROOT, 'contracts', path.relative(PATCHED, file));
-const patchOf = file => path.join(DIFF, `${path.relative(PATCHED, file).replaceAll(path.sep, '_')}.patch`);
+const patchOf = file => path.join(DIFF, path.relative(PATCHED, file).replaceAll(path.sep, '_') + '.patch');
 
 // Add `file` and everything it imports (recursively) to `acc`
 const collect = (file, acc) => {
@@ -85,13 +85,13 @@ const dependencies = Object.fromEntries(
 );
 
 if (process.argv.includes('--filter')) {
-  const changed = new Set(fs.readFileSync(0, 'utf8').split('\n').filter(Boolean));
+  const changed = fs.readFileSync(0, 'utf8').split('\n').filter(Boolean);
 
   // The map above is built by listing the configs that exist now, so a config the change removes is
   // not in it, and nothing can select it. Left alone that reads as "no config affected": removing
   // every config would report an empty set, run no prover job, and pass. Refuse instead, and make
   // dropping a config something that has to be asked for.
-  const removed = [...changed].filter(
+  const removed = changed.filter(
     file => file.startsWith(`${relative(SPECS)}/`) && file.endsWith('.conf') && !Object.hasOwn(dependencies, file),
   );
   if (removed.length > 0 && !process.argv.includes('--allow-removed')) {
@@ -101,7 +101,7 @@ if (process.argv.includes('--filter')) {
   }
 
   const affected = Object.entries(dependencies)
-    .filter(([, deps]) => deps.some(dep => changed.has(dep)))
+    .filter(([, deps]) => deps.some(dep => changed.includes(dep)))
     .map(([conf]) => conf);
   console.log(JSON.stringify(affected));
 } else if (process.argv.includes('--all')) {
