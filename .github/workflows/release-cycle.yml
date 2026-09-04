@@ -37,7 +37,7 @@ jobs:
           TRIGGERING_ACTOR: ${{ github.triggering_actor }}
         with:
           result-encoding: string
-          script: await import('${{ github.workspace }}/scripts/release/workflow/state.js').then(({ default }) => default({ github, context, core }))
+          script: await import('${{ github.workspace }}/scripts/release/workflow/state.js').then(m => m.default({ github, context, core }))
     outputs:
       # Job Flags
       start: ${{ steps.state.outputs.start }}
@@ -70,7 +70,7 @@ jobs:
         env:
           REF: ${{ steps.start.outputs.branch }}
         with:
-          script: await import('${{ github.workspace }}/scripts/release/workflow/rerun.js').then(({ default }) => default({ github, context }))
+          script: await import('${{ github.workspace }}/scripts/release/workflow/rerun.js').then(m => m.default({ github, context }))
 
   promote:
     needs: state
@@ -91,7 +91,7 @@ jobs:
       - name: Re-run workflow
         uses: actions/github-script@v9
         with:
-          script: await import('${{ github.workspace }}/scripts/release/workflow/rerun.js').then(({ default }) => default({ github, context }))
+          script: await import('${{ github.workspace }}/scripts/release/workflow/rerun.js').then(m => m.default({ github, context }))
 
   changesets:
     needs: state
@@ -111,7 +111,7 @@ jobs:
         uses: actions/github-script@v9
         with:
           result-encoding: string
-          script: await import('${{ github.workspace }}/scripts/release/workflow/set-changesets-pr-title.js').then(({ default }) => default({ core }))
+          script: await import('${{ github.workspace }}/scripts/release/workflow/set-changesets-pr-title.js').then(m => m.default({ core }))
       - name: Create PR
         uses: changesets/action@v1
         env:
@@ -160,7 +160,7 @@ jobs:
         env:
           PRERELEASE: ${{ needs.state.outputs.is_prerelease }}
         with:
-          script: await import('${{ github.workspace }}/scripts/release/workflow/github-release.js').then(({ default }) => default({ github, context }))
+          script: await import('${{ github.workspace }}/scripts/release/workflow/github-release.js').then(m => m.default({ github, context }))
     outputs:
       tarball_name: ${{ steps.pack.outputs.tarball_name }}
 
