@@ -11,6 +11,9 @@
 //                                       this copy from the base branch, so what a pull request can
 //                                       influence is the input to the selection and never the code
 //                                       making it.
+//    --specs=<dir>                      where configs are discovered, defaulting to `fv/specs` under
+//                                       the root. The `verify` and `files` paths inside a config
+//                                       stay relative to the root, wherever the config was found.
 //
 // The dependencies of a config are the spec files it verifies and the harnesses it declares, plus
 // everything those import, recursively: the specs reached through spec imports, the contracts
@@ -22,11 +25,11 @@ import path from 'path';
 
 // Everything below is resolved against the checkout being read, not against this file: the two are
 // the same by default, but not when CI runs a trusted copy of this script over a pull request.
-const ROOT = path.resolve(
-  process.argv.find(arg => arg.startsWith('--root='))?.slice('--root='.length) ??
-    path.resolve(import.meta.dirname, '..'),
-);
-const SPECS = path.resolve(ROOT, 'fv/specs');
+const option = (name, fallback) =>
+  path.resolve(process.argv.find(arg => arg.startsWith(`--${name}=`))?.slice(name.length + 3) ?? fallback);
+
+const ROOT = option('root', path.resolve(import.meta.dirname, '..'));
+const SPECS = option('specs', path.resolve(ROOT, 'fv/specs'));
 
 const relative = file => path.relative(ROOT, file).replaceAll(path.sep, '/');
 
