@@ -113,17 +113,17 @@ jobs:
           result-encoding: string
           script: await import('${{ github.workspace }}/scripts/release/workflow/set-changesets-pr-title.js').then(m => m.default({ core }))
       - name: Create PR
-        uses: changesets/action@v1
+        uses: changesets/action@v2.1.1
         env:
+          # Read by `@changesets/changelog-github` (through `@changesets/get-github-info`) in the
+          # version script, which runs as a child process of this step. The action itself takes its
+          # token from the `github-token` input, which defaults to the same `github.token`.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PRERELEASE: ${{ needs.state.outputs.is_prerelease }}
         with:
-          version: npm run version
-          title: ${{ env.TITLE }}
-          commit: ${{ env.TITLE }}
-          body: | # Wait for support on this https://github.com/changesets/action/pull/250
-            This is an automated PR for releasing ${{ github.repository }}
-            Check [CHANGELOG.md](${{ github.repository }}/CHANGELOG.md)
+          version-script: npm run version
+          pr-title: ${{ env.TITLE }}
+          commit-message: ${{ env.TITLE }}
 
   publish:
     needs: state
