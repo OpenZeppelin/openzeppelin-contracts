@@ -1,5 +1,6 @@
 import { ethers } from 'ethers';
 import { expect } from 'chai';
+import { PANIC_CODES } from '@nomicfoundation/hardhat-ethers-chai-matchers/panic';
 import { zip } from '../../helpers/iterate';
 
 export function shouldBehaveLikeMap() {
@@ -113,6 +114,91 @@ export function shouldBehaveLikeMap() {
       expect(await this.methods.contains(this.keyA)).to.be.true;
       expect(await this.methods.contains(this.keyB)).to.be.false;
       expect(await this.methods.contains(this.keyC)).to.be.true;
+    });
+  });
+
+  describe('removeAt', function () {
+    it('reverts when removing from an empty map', async function () {
+      await expect(this.methods.removeAt(0)).to.be.revertedWithPanic(PANIC_CODES.ARRAY_ACCESS_OUT_OF_BOUNDS);
+    });
+
+    it('reverts when the index is out of bounds', async function () {
+      await this.methods.set(this.keyA, this.valueA);
+
+      await expect(this.methods.removeAt(1)).to.be.revertedWithPanic(PANIC_CODES.ARRAY_ACCESS_OUT_OF_BOUNDS);
+    });
+
+    it('reverts when the index would overflow', async function () {
+      await this.methods.set(this.keyA, this.valueA);
+
+      await expect(this.methods.removeAt(2n ** 256n - 1n)).to.be.revertedWithPanic(
+        PANIC_CODES.ARRAY_ACCESS_OUT_OF_BOUNDS,
+      );
+    });
+
+    it('removes the only entry', async function () {
+      await this.methods.set(this.keyA, this.valueA);
+
+      expect(await this.methods.removeAt.staticCall(0)).to.deep.equal([this.keyA, this.valueA]);
+      await this.methods.removeAt(0);
+
+      expect(await this.methods.contains(this.keyA)).to.be.false;
+      expect(await this.methods.tryGet(this.keyA)).to.have.ordered.members([false, this.zeroValue]);
+      await expectMembersMatch(this.methods, [], []);
+    });
+
+    it('removes the last entry without reordering the rest', async function () {
+      await this.methods.set(this.keyA, this.valueA);
+      await this.methods.set(this.keyB, this.valueB);
+      await this.methods.set(this.keyC, this.valueC);
+
+      expect(await this.methods.removeAt.staticCall(2)).to.deep.equal([this.keyC, this.valueC]);
+      await this.methods.removeAt(2);
+
+      await expectMembersMatch(this.methods, [this.keyA, this.keyB], [this.valueA, this.valueB]);
+      expect(await this.methods.at(0)).to.deep.equal([this.keyA, this.valueA]);
+      expect(await this.methods.at(1)).to.deep.equal([this.keyB, this.valueB]);
+    });
+
+    it('removes a non-last entry using swap-and-pop', async function () {
+      await this.methods.set(this.keyA, this.valueA);
+      await this.methods.set(this.keyB, this.valueB);
+      await this.methods.set(this.keyC, this.valueC);
+
+      expect(await this.methods.removeAt.staticCall(0)).to.deep.equal([this.keyA, this.valueA]);
+      await this.methods.removeAt(0);
+
+      expect(await this.methods.contains(this.keyA)).to.be.false;
+      expect(await this.methods.tryGet(this.keyA)).to.have.ordered.members([false, this.zeroValue]);
+      await expectMembersMatch(this.methods, [this.keyC, this.keyB], [this.valueC, this.valueB]);
+      expect(await this.methods.at(0)).to.deep.equal([this.keyC, this.valueC]);
+      expect(await this.methods.at(1)).to.deep.equal([this.keyB, this.valueB]);
+    });
+
+    it('tracks the position of the entry moved by swap-and-pop', async function () {
+      await this.methods.set(this.keyA, this.valueA);
+      await this.methods.set(this.keyB, this.valueB);
+      await this.methods.set(this.keyC, this.valueC);
+
+      // removes A, moving C from index 2 to index 0
+      await this.methods.removeAt(0);
+
+      // C must still be removable by key, which only works if its tracked position was updated
+      await expect(this.methods.remove(this.keyC)).to.emit(this.mock, this.events.removeReturn).withArgs(true);
+
+      await expectMembersMatch(this.methods, [this.keyB], [this.valueB]);
+    });
+
+    it('can remove every remaining entry by index', async function () {
+      await this.methods.set(this.keyA, this.valueA);
+      await this.methods.set(this.keyB, this.valueB);
+      await this.methods.set(this.keyC, this.valueC);
+
+      await this.methods.removeAt(1);
+      await this.methods.removeAt(1);
+      await this.methods.removeAt(0);
+
+      await expectMembersMatch(this.methods, [], []);
     });
   });
 

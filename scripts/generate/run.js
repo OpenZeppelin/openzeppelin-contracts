@@ -13,23 +13,23 @@ const templatesDir = path.join(import.meta.dirname, 'templates');
 const eta = new Eta({ views: templatesDir, autoEscape: false, autoTrim: false, defaultExtension: '' });
 
 // Each output is rendered from `templates/<basename>.eta`.
-for (const filepath of [
-  'contracts/mocks/StorageSlotMock.sol',
-  'contracts/mocks/TransientSlotMock.sol',
-  'contracts/utils/Arrays.sol',
-  'contracts/utils/Packing.sol',
-  'contracts/utils/SlotDerivation.sol',
-  'contracts/utils/StorageSlot.sol',
-  'contracts/utils/TransientSlot.sol',
-  'contracts/utils/cryptography/MerkleProof.sol',
-  'contracts/utils/math/SafeCast.sol',
-  'contracts/utils/structs/Checkpoints.sol',
-  'contracts/utils/structs/EnumerableMap.sol',
-  'contracts/utils/structs/EnumerableSet.sol',
-  'test/utils/Packing.t.sol',
-  'test/utils/SlotDerivation.t.sol',
-  'test/utils/structs/Checkpoints.t.sol',
-]) {
+for (const [filepath, needsPrettier] of Object.entries({
+  'contracts/mocks/StorageSlotMock.sol': false,
+  'contracts/mocks/TransientSlotMock.sol': false,
+  'contracts/utils/Arrays.sol': false,
+  'contracts/utils/Packing.sol': false,
+  'contracts/utils/SlotDerivation.sol': false,
+  'contracts/utils/StorageSlot.sol': false,
+  'contracts/utils/TransientSlot.sol': false,
+  'contracts/utils/cryptography/MerkleProof.sol': true,
+  'contracts/utils/math/SafeCast.sol': false,
+  'contracts/utils/structs/Checkpoints.sol': false,
+  'contracts/utils/structs/EnumerableMap.sol': true,
+  'contracts/utils/structs/EnumerableSet.sol': false,
+  'test/utils/Packing.t.sol': false,
+  'test/utils/SlotDerivation.t.sol': false,
+  'test/utils/structs/Checkpoints.t.sol': false,
+})) {
   console.log(`Generating ${filepath}...`);
   const template = `${path.basename(filepath)}.eta`;
   const input = path.relative(repoRoot, path.join(templatesDir, template));
@@ -44,12 +44,14 @@ for (const filepath of [
     eta.render(template, context),
   ].join('\n');
 
-  // Output whitespace/indentation is canonicalized by prettier (via the repo config), not the template.
-  await prettier
-    .resolveConfig(filepath)
-    .then(prettierConfig => prettier.format(content, { ...prettierConfig, filepath }))
-    .then(formatted => {
-      fs.mkdirSync(path.dirname(filepath), { recursive: true });
-      fs.writeFileSync(filepath, formatted);
-    });
+  await (
+    needsPrettier
+      ? prettier
+          .resolveConfig(filepath)
+          .then(prettierConfig => prettier.format(content, { ...prettierConfig, filepath }))
+      : Promise.resolve(content)
+  ).then(formatted => {
+    fs.mkdirSync(path.dirname(filepath), { recursive: true });
+    fs.writeFileSync(filepath, formatted);
+  });
 }
