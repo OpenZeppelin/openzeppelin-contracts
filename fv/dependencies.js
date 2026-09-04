@@ -6,6 +6,11 @@
 //    node fv/dependencies.js --filter   read changed file paths on stdin, print the JSON array of
 //                                       the config files affected by them. Refuses if the change
 //                                       removes a config, unless --allow-removed is passed.
+//    --root=<dir>                       the checkout to read, defaulting to the one this script
+//                                       lives in. CI points it at the pull request while running
+//                                       this copy from the base branch, so what a pull request can
+//                                       influence is the input to the selection and never the code
+//                                       making it.
 //
 // The dependencies of a config are the spec files it verifies and the harnesses it declares, plus
 // everything those import, recursively: the specs reached through spec imports, the contracts
@@ -15,8 +20,13 @@
 import fs from 'fs';
 import path from 'path';
 
-const ROOT = path.resolve(import.meta.dirname, '..');
-const SPECS = path.resolve(import.meta.dirname, 'specs');
+// Everything below is resolved against the checkout being read, not against this file: the two are
+// the same by default, but not when CI runs a trusted copy of this script over a pull request.
+const ROOT = path.resolve(
+  process.argv.find(arg => arg.startsWith('--root='))?.slice('--root='.length) ??
+    path.resolve(import.meta.dirname, '..'),
+);
+const SPECS = path.resolve(ROOT, 'fv/specs');
 
 const relative = file => path.relative(ROOT, file).replaceAll(path.sep, '/');
 
@@ -33,8 +43,8 @@ const SOL_IMPORT = /^[ \t]*import\b[^;]*?"([^"]+)"/gm;
 // `make -C fv apply` builds `fv/patched` by copying `contracts` and applying the patches in
 // `fv/diff`, each named after the file it patches with `/` written as `_` -- the same mapping the
 // Makefile uses, so a name that breaks this breaks `make apply` too, loudly.
-const PATCHED = path.resolve(import.meta.dirname, 'patched');
-const DIFF = path.resolve(import.meta.dirname, 'diff');
+const PATCHED = path.resolve(ROOT, 'fv/patched');
+const DIFF = path.resolve(ROOT, 'fv/diff');
 const unpatch = file => path.join(ROOT, 'contracts', path.relative(PATCHED, file));
 const patchOf = file => path.join(DIFF, path.relative(PATCHED, file).replaceAll(path.sep, '_') + '.patch');
 

@@ -34,14 +34,22 @@ jobs:
     outputs:
       configs: ${{ steps.identify.outputs.configs }}
     steps:
+      # The base branch, which is where this workflow itself comes from under `pull_request_target`.
+      # The helper is run from here, never from the pull request: a pull request that rewrote it to
+      # print an empty list would otherwise select nothing, skip `verify` and pass `verified` green,
+      # having removed its own verification without ever asking for an approval.
       - uses: actions/checkout@v7
         with:
-          # `pull_request_target` checks out the base by default, but the dependency helper has to
-          # read the configs and specs as the pull request leaves them. actions/checkout refuses a
-          # fork checkout in this context unless that risk is explicitly acknowledged.
+          path: base
+          persist-credentials: false
+      # The pull request, read as data. actions/checkout refuses a fork checkout in this context
+      # unless the risk is explicitly acknowledged, and nothing under here is ever executed.
+      - uses: actions/checkout@v7
+        with:
           ref: ${{ github.event.pull_request.head.sha || github.ref }}
           allow-unsafe-pr-checkout: true
           fetch-depth: 0 # Include history so the diff against the pull request base resolves
+          path: head
           persist-credentials: false
       # No environment setup: `fv/dependencies.js` only uses node builtins, so the node preinstalled
       # on the runner is enough and `npm ci` can be skipped.
@@ -60,17 +68,19 @@ jobs:
           if [[ $FORCE_ALL = 'true' ]]; then
             {
               printf 'configs='
-              node fv/dependencies.js --all
+              node base/fv/dependencies.js --root=head --all
             } >> "$GITHUB_OUTPUT"
           elif [[ $ALLOW_REMOVED = 'true' ]]; then
             {
               printf 'configs='
-              git diff --name-only "$BASE_SHA"..."$HEAD_SHA" | node fv/dependencies.js --filter --allow-removed
+              git -C head diff --name-only "$BASE_SHA"..."$HEAD_SHA" |
+                node base/fv/dependencies.js --root=head --filter --allow-removed
             } >> "$GITHUB_OUTPUT"
           else
             {
               printf 'configs='
-              git diff --name-only "$BASE_SHA"..."$HEAD_SHA" | node fv/dependencies.js --filter
+              git -C head diff --name-only "$BASE_SHA"..."$HEAD_SHA" |
+                node base/fv/dependencies.js --root=head --filter
             } >> "$GITHUB_OUTPUT"
           fi
       - name: Report the affected configs
