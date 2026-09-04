@@ -16,6 +16,8 @@ import path from 'path';
 const ROOT = path.resolve(import.meta.dirname, '..');
 const SPECS = path.resolve(import.meta.dirname, 'specs');
 
+const relative = file => path.relative(ROOT, file).replaceAll(path.sep, '/');
+
 // Config names come from the file listing of a pull request that may be untrusted, and end up on a
 // command line downstream. Anything that is not a plain name is dropped here.
 const VALID_NAME = /^[A-Za-z0-9_-]+\.conf$/;
@@ -30,8 +32,6 @@ const SOL_IMPORT = /^[ \t]*import\b[^;]*?"([^"]+)"/gm;
 const PATCHED = path.resolve(import.meta.dirname, 'patched');
 const unpatch = file =>
   file.startsWith(PATCHED + path.sep) ? path.join(ROOT, 'contracts', path.relative(PATCHED, file)) : file;
-
-const relative = file => path.relative(ROOT, file).replaceAll(path.sep, '/');
 
 // Add `file` and everything it imports (recursively) to `acc`
 const collect = (file, acc) => {
