@@ -95,23 +95,28 @@ const dependencies = Object.fromEntries(
 if (process.argv.includes('--filter')) {
   const changed = fs.readFileSync(0, 'utf8').split('\n').filter(Boolean);
 
-  // The map above is built by listing the configs that exist now, so a config the change removes is
-  // not in it, and nothing can select it. Left alone that reads as "no config affected": removing
-  // every config would report an empty set, run no prover job, and pass. Refuse instead, and make
-  // dropping a config something that has to be asked for.
-  const removed = changed.filter(
-    file => file.startsWith(`${relative(SPECS)}/`) && file.endsWith('.conf') && !Object.hasOwn(dependencies, file),
-  );
-  if (removed.length > 0 && !process.argv.includes('--allow-removed')) {
-    console.error(`This change removes ${removed.join(', ')}, which cannot appear in the affected set.`);
-    console.error(`Pass --allow-removed to confirm the verification is meant to go away with it.`);
-    process.exit(1);
+  if (!process.argv.includes('--allow-removed')) {
+    // The map above is built by listing the configs that exist now, so a config the change removes is
+    // not in it, and nothing can select it. Left alone that reads as "no config affected": removing
+    // every config would report an empty set, run no prover job, and pass. Refuse instead, and make
+    // dropping a config something that has to be asked for.
+    const removed = changed.filter(
+      file => file.startsWith(`${relative(SPECS)}/`) && file.endsWith('.conf') && !Object.hasOwn(dependencies, file),
+    );
+    if (removed.length > 0) {
+      console.error(`This change removes ${removed.join(', ')}, which cannot appear in the affected set.`);
+      console.error(`Pass --allow-removed to confirm the verification is meant to go away with it.`);
+      process.exit(1);
+    }
   }
 
-  const affected = Object.entries(dependencies)
-    .filter(([, deps]) => deps.some(dep => changed.includes(dep)))
-    .map(([conf]) => conf);
-  console.log(JSON.stringify(affected));
+  console.log(
+    JSON.stringify(
+      Object.entries(dependencies)
+        .filter(([, deps]) => deps.some(dep => changed.includes(dep)))
+        .map(([conf]) => conf),
+    ),
+  );
 } else if (process.argv.includes('--all')) {
   console.log(JSON.stringify(Object.keys(dependencies)));
 } else {
