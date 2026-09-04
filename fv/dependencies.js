@@ -77,8 +77,8 @@ const dependencies = Object.fromEntries(
   fs
     .readdirSync(SPECS)
     .filter(name => name.endsWith('.conf'))
-    .map(name => path.join(SPECS, name))
-    .map(conf => {
+    .map(name => {
+      const conf = path.join(SPECS, name);
       const { files, verify } = JSON.parse(fs.readFileSync(conf, 'utf8'));
       return [
         relative(conf),
