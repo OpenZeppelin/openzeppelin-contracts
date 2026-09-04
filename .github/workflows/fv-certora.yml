@@ -82,9 +82,11 @@ jobs:
     if: needs.identify.outputs.configs != '[]'
     runs-on: ubuntu-latest
     # `--wait_for_results` blocks on the prover, so without this a job that never returns holds a
-    # runner for the six hour default. Generous enough for the slowest config; tighten once there
-    # are real timings to go on.
-    timeout-minutes: 120
+    # runner for the six hour default. 120 is generous enough for the slowest config; set the
+    # CERTORA_TIMEOUT_MINUTES repository variable to change it without touching this file.
+    # It is a variable and not an `env` entry because `env` is not one of the contexts a job-level
+    # `timeout-minutes` can read.
+    timeout-minutes: ${{ vars.CERTORA_TIMEOUT_MINUTES && fromJSON(vars.CERTORA_TIMEOUT_MINUTES) || 120 }}
     # This is the only job that reads CERTORAKEY, so it is the only one worth an admin approval.
     # Reviewers MUST check the diff for anything that could exfiltrate the key before approving.
     # One approval releases every job of the matrix.
