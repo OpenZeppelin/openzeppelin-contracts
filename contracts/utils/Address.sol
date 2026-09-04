@@ -68,7 +68,7 @@ library Address {
     }
 
     /**
-     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`],
+     * @dev Same as {Address-functionCall-address-bytes},
      * but also transferring `value` wei to `target`.
      *
      * Requirements:
@@ -93,7 +93,7 @@ library Address {
     }
 
     /**
-     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`],
+     * @dev Same as {Address-functionCall-address-bytes},
      * but performing a static call.
      */
     function functionStaticCall(address target, bytes memory data) internal view returns (bytes memory) {
@@ -110,7 +110,7 @@ library Address {
     }
 
     /**
-     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`],
+     * @dev Same as {Address-functionCall-address-bytes},
      * but performing a delegate call.
      */
     function functionDelegateCall(address target, bytes memory data) internal returns (bytes memory) {

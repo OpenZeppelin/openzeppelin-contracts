@@ -7,7 +7,7 @@ import {SignatureChecker} from "../../../utils/cryptography/SignatureChecker.sol
 import {NoncesKeyed} from "../../../utils/NoncesKeyed.sol";
 
 /**
- * @dev Variant of {ERC-3009} that uses keyed sequential nonces as defined in {NoncesKeyed}.
+ * @dev Variant of {ERC3009} that uses keyed sequential nonces as defined in {NoncesKeyed}.
  *
  * NOTE: This extension uses keyed sequential nonces following the
  * https://eips.ethereum.org/EIPS/eip-4337#semi-abstracted-nonce-support[ERC-4337 semi-abstracted nonce system].
@@ -29,7 +29,7 @@ abstract contract ERC20TransferAuthorization is ERC3009, NoncesKeyed {
         return uint64(nonces(authorizer, uint192(uint256(nonce) >> 64))) > uint64(uint256(nonce));
     }
 
-    /// @dev Same as {transferWithAuthorization} but with a bytes signature.
+    /// @dev Same as {ERC3009-transferWithAuthorization} but with a bytes signature.
     function transferWithAuthorization(
         address from,
         address to,
@@ -46,7 +46,7 @@ abstract contract ERC20TransferAuthorization is ERC3009, NoncesKeyed {
         _transferWithAuthorization(from, to, value, validAfter, validBefore, nonce);
     }
 
-    /// @dev Same as {receiveWithAuthorization} but with a bytes signature.
+    /// @dev Same as {ERC3009-receiveWithAuthorization} but with a bytes signature.
     function receiveWithAuthorization(
         address from,
         address to,
@@ -65,7 +65,7 @@ abstract contract ERC20TransferAuthorization is ERC3009, NoncesKeyed {
     }
 
     /**
-     * @dev Same as {cancelAuthorization} but with a bytes signature.
+     * @dev Same as {ERC3009-cancelAuthorization} but with a bytes signature.
      *
      * NOTE: Due to the keyed sequential nonce model, only the next nonce in a given key's sequence
      * can be cancelled. It is not possible to directly cancel a future nonce whose predecessors in the

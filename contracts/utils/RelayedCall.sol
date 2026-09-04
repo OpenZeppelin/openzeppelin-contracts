@@ -54,7 +54,7 @@ library RelayedCall {
         return getRelayer(salt).call{value: value}(abi.encodePacked(target, data));
     }
 
-    /// @dev Same as {getRelayer} but with a `bytes32(0)` default salt.
+    /// @dev Same as {RelayedCall-getRelayer-bytes32} but with a `bytes32(0)` default salt.
     function getRelayer() internal returns (address) {
         return getRelayer(bytes32(0));
     }
