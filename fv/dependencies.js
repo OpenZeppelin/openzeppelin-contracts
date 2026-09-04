@@ -31,7 +31,7 @@ const PATCHED = path.resolve(import.meta.dirname, 'patched');
 const unpatch = file =>
   file.startsWith(PATCHED + path.sep) ? path.join(ROOT, 'contracts', path.relative(PATCHED, file)) : file;
 
-const relative = file => path.relative(ROOT, file).split(path.sep).join('/');
+const relative = file => path.relative(ROOT, file).replaceAll(path.sep, '/');
 
 // Add `file` and everything it imports (recursively) to `acc`
 const collect = (file, acc) => {
