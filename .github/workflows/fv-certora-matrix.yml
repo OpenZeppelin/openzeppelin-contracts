@@ -1,0 +1,93 @@
+name: Formal verification - Certora (per config)
+
+on:
+  # Runs in the context of the base repository so that the CERTORAKEY secret is available to pull
+  # requests opened from forks. Access is gated by the `certora` environment, which requires a
+  # manual approval from a reviewer before the job starts. Reviewers MUST check the diff for
+  # anything that could exfiltrate the key before approving.
+  pull_request_target:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - labeled
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+# `github.ref` is the base branch under `pull_request_target`, so key on the pull request number
+concurrency: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+
+jobs:
+  identify:
+    runs-on: ubuntu-latest
+    # Same gate as the `verify` job below: this one runs the contributor's code too (the dependency
+    # helper reads the config and spec files of the pull request).
+    environment: certora
+    if: github.event_name != 'pull_request_target' || contains(github.event.pull_request.labels.*.name, 'formal-verification') || contains(github.event.pull_request.labels.*.name, 'formal-verification-force-all')
+    outputs:
+      configs: ${{ steps.identify.outputs.configs }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # `pull_request_target` checks out the base by default. This runs the contributor's code,
+          # which is why the environment approval above is required. actions/checkout refuses a fork
+          # checkout in this context unless that risk is explicitly acknowledged.
+          ref: ${{ github.event.pull_request.head.sha || github.ref }}
+          allow-unsafe-pr-checkout: true
+          fetch-depth: 0 # Include history so the diff against the pull request base resolves
+          persist-credentials: false
+      # No environment setup: `fv/dependencies.js` only uses node builtins, so the node preinstalled
+      # on the runner is enough and `npm ci` can be skipped.
+      - name: Identify the configs that need to be run
+        id: identify
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          FORCE_ALL: ${{ github.event_name != 'pull_request_target' || contains(github.event.pull_request.labels.*.name, 'formal-verification-force-all') }}
+        run: |
+          if [[ $FORCE_ALL = 'true' ]]; then
+            CONFIGS=$(node fv/dependencies.js --all)
+          else
+            # Keep a config if it, the specs it verifies, or anything those import was modified
+            CONFIGS=$(git diff --name-only "$BASE_SHA".."$HEAD_SHA" | node fv/dependencies.js --filter)
+          fi
+          echo "configs=$CONFIGS" >> "$GITHUB_OUTPUT"
+          echo "Running: $CONFIGS" >> "$GITHUB_STEP_SUMMARY"
+
+  verify:
+    needs: identify
+    if: needs.identify.outputs.configs != '[]'
+    runs-on: ubuntu-latest
+    environment: certora
+    strategy:
+      fail-fast: false
+      matrix:
+        config: ${{ fromJSON(needs.identify.outputs.configs) }}
+    name: verify (${{ matrix.config }})
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.ref }}
+          allow-unsafe-pr-checkout: true
+          persist-credentials: false
+      - name: Set up environment
+        uses: ./.github/actions/setup
+        with:
+          # Read the cache, never write it. The scope is the base branch here, so a cache saved after
+          # the contributor's code has run would be restored by every other workflow.
+          cache: 'restore'
+          solc: 'on'
+          java: 'on'
+          python: 'on'
+          python-requirements: 'fv-requirements.txt'
+      - name: Verify specification
+        env:
+          # The config name comes from a pull request that may be untrusted. It is passed through
+          # the environment (and never interpolated into the script) so that a shell never parses it.
+          CONFIG: ${{ matrix.config }}
+          CERTORAKEY: ${{ secrets.CERTORAKEY }}
+        run: |
+          make -C fv apply
+          certoraRun "$CONFIG" >> "$GITHUB_STEP_SUMMARY"
